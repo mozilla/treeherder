@@ -18,8 +18,11 @@ env = environ.Env()
 job_sources = env.list(
     "PULSE_JOB_SOURCES",
     default=[
-        "exchange/taskcluster-treeherder/v1/jobs.#",
-        # ... other CI systems
+        "exchange/taskcluster-queue/v1/task-pending.#",
+        "exchange/taskcluster-queue/v1/task-running.#",
+        "exchange/taskcluster-queue/v1/task-completed.#",
+        "exchange/taskcluster-queue/v1/task-failed.#",
+        "exchange/taskcluster-queue/v1/task-exception.#",
     ],
 )
 

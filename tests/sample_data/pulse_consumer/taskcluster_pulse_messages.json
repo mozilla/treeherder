@@ -1,0 +1,2640 @@
+{
+  "A35mWTRuQmyj88yMnIF0fA": {
+    "exchange": "exchange/taskcluster-queue/v1/task-pending",
+    "payload": {
+      "runId": 0,
+      "status": {
+        "deadline": "2019-06-27T19:13:51.402Z",
+        "expires": "2020-06-25T19:13:51.402Z",
+        "provisionerId": "aws-provisioner-v1",
+        "retriesLeft": 5,
+        "runs": [
+          {
+            "reasonCreated": "scheduled",
+            "runId": 0,
+            "scheduled": "2019-06-26T19:36:10.316Z",
+            "state": "pending"
+          }
+        ],
+        "schedulerId": "gecko-level-3",
+        "state": "pending",
+        "taskGroupId": "XrWNyFwpT2in-wLY9frb-w",
+        "taskId": "A35mWTRuQmyj88yMnIF0fA",
+        "workerType": "gecko-t-linux-large"
+      },
+      "version": 1
+    },
+    "routes": "primary.A35mWTRuQmyj88yMnIF0fA.0._._.aws-provisioner-v1.gecko-t-linux-large.gecko-level-3.XrWNyFwpT2in-wLY9frb-w._"
+  },
+  "A3dJ8bDIQRKzHiZBhM0c5Q": {
+    "exchange": "exchange/taskcluster-queue/v1/task-pending",
+    "payload": {
+      "runId": 0,
+      "status": {
+        "deadline": "2019-06-27T19:13:55.010Z",
+        "expires": "2020-06-25T19:13:55.010Z",
+        "provisionerId": "aws-provisioner-v1",
+        "retriesLeft": 5,
+        "runs": [
+          {
+            "reasonCreated": "scheduled",
+            "runId": 0,
+            "scheduled": "2019-06-26T19:36:10.337Z",
+            "state": "pending"
+          }
+        ],
+        "schedulerId": "gecko-level-3",
+        "state": "pending",
+        "taskGroupId": "XrWNyFwpT2in-wLY9frb-w",
+        "taskId": "A3dJ8bDIQRKzHiZBhM0c5Q",
+        "workerType": "gecko-t-linux-large"
+      },
+      "version": 1
+    },
+    "routes": "primary.A3dJ8bDIQRKzHiZBhM0c5Q.0._._.aws-provisioner-v1.gecko-t-linux-large.gecko-level-3.XrWNyFwpT2in-wLY9frb-w._"
+  },
+  "A47ePPIaRFOWxw8oVOvmCA": {
+    "exchange": "exchange/taskcluster-queue/v1/task-pending",
+    "payload": {
+      "runId": 0,
+      "status": {
+        "deadline": "2019-06-27T19:13:52.809Z",
+        "expires": "2020-06-25T19:13:52.809Z",
+        "provisionerId": "aws-provisioner-v1",
+        "retriesLeft": 5,
+        "runs": [
+          {
+            "reasonCreated": "scheduled",
+            "runId": 0,
+            "scheduled": "2019-06-26T19:36:10.325Z",
+            "state": "pending"
+          }
+        ],
+        "schedulerId": "gecko-level-3",
+        "state": "pending",
+        "taskGroupId": "XrWNyFwpT2in-wLY9frb-w",
+        "taskId": "A47ePPIaRFOWxw8oVOvmCA",
+        "workerType": "gecko-t-linux-large"
+      },
+      "version": 1
+    },
+    "routes": "primary.A47ePPIaRFOWxw8oVOvmCA.0._._.aws-provisioner-v1.gecko-t-linux-large.gecko-level-3.XrWNyFwpT2in-wLY9frb-w._"
+  },
+  "A4AV9EXXREGCV-hVKT0blQ": {
+    "exchange": "exchange/taskcluster-queue/v1/task-pending",
+    "payload": {
+      "runId": 0,
+      "status": {
+        "deadline": "2019-06-27T19:14:04.633Z",
+        "expires": "2020-06-25T19:14:04.633Z",
+        "provisionerId": "aws-provisioner-v1",
+        "retriesLeft": 5,
+        "runs": [
+          {
+            "reasonCreated": "scheduled",
+            "runId": 0,
+            "scheduled": "2019-06-26T19:36:10.321Z",
+            "state": "pending"
+          }
+        ],
+        "schedulerId": "gecko-level-3",
+        "state": "pending",
+        "taskGroupId": "XrWNyFwpT2in-wLY9frb-w",
+        "taskId": "A4AV9EXXREGCV-hVKT0blQ",
+        "workerType": "gecko-t-linux-large"
+      },
+      "version": 1
+    },
+    "routes": "primary.A4AV9EXXREGCV-hVKT0blQ.0._._.aws-provisioner-v1.gecko-t-linux-large.gecko-level-3.XrWNyFwpT2in-wLY9frb-w._"
+  },
+  "ADfskOGaS7KUj0AuUb324A": {
+    "exchange": "exchange/taskcluster-queue/v1/task-pending",
+    "payload": {
+      "runId": 0,
+      "status": {
+        "deadline": "2019-06-27T19:13:59.107Z",
+        "expires": "2020-06-25T19:13:59.107Z",
+        "provisionerId": "aws-provisioner-v1",
+        "retriesLeft": 5,
+        "runs": [
+          {
+            "reasonCreated": "scheduled",
+            "runId": 0,
+            "scheduled": "2019-06-26T19:36:10.499Z",
+            "state": "pending"
+          }
+        ],
+        "schedulerId": "gecko-level-3",
+        "state": "pending",
+        "taskGroupId": "XrWNyFwpT2in-wLY9frb-w",
+        "taskId": "ADfskOGaS7KUj0AuUb324A",
+        "workerType": "gecko-t-linux-large"
+      },
+      "version": 1
+    },
+    "routes": "primary.ADfskOGaS7KUj0AuUb324A.0._._.aws-provisioner-v1.gecko-t-linux-large.gecko-level-3.XrWNyFwpT2in-wLY9frb-w._"
+  },
+  "AcUWtRf7QB-4XQS8nSTilg": {
+    "exchange": "exchange/taskcluster-queue/v1/task-pending",
+    "payload": {
+      "runId": 0,
+      "status": {
+        "deadline": "2019-06-27T19:13:58.734Z",
+        "expires": "2020-06-25T19:13:58.734Z",
+        "provisionerId": "aws-provisioner-v1",
+        "retriesLeft": 5,
+        "runs": [
+          {
+            "reasonCreated": "scheduled",
+            "runId": 0,
+            "scheduled": "2019-06-26T19:36:10.598Z",
+            "state": "pending"
+          }
+        ],
+        "schedulerId": "gecko-level-3",
+        "state": "pending",
+        "taskGroupId": "XrWNyFwpT2in-wLY9frb-w",
+        "taskId": "AcUWtRf7QB-4XQS8nSTilg",
+        "workerType": "gecko-t-linux-large"
+      },
+      "version": 1
+    },
+    "routes": "primary.AcUWtRf7QB-4XQS8nSTilg.0._._.aws-provisioner-v1.gecko-t-linux-large.gecko-level-3.XrWNyFwpT2in-wLY9frb-w._"
+  },
+  "Ai-bmuTzS7eRBYFhSPnZ1w": {
+    "exchange": "exchange/taskcluster-queue/v1/task-running",
+    "payload": {
+      "runId": 0,
+      "status": {
+        "deadline": "2019-06-27T19:13:58.650Z",
+        "expires": "2020-06-25T19:13:58.650Z",
+        "provisionerId": "aws-provisioner-v1",
+        "retriesLeft": 5,
+        "runs": [
+          {
+            "reasonCreated": "scheduled",
+            "runId": 0,
+            "scheduled": "2019-06-26T19:36:10.193Z",
+            "started": "2019-06-26T19:36:11.066Z",
+            "state": "running",
+            "takenUntil": "2019-06-26T19:56:10.992Z",
+            "workerGroup": "us-west-1",
+            "workerId": "i-0429b6e2c0ac7474d"
+          }
+        ],
+        "schedulerId": "gecko-level-3",
+        "state": "running",
+        "taskGroupId": "XrWNyFwpT2in-wLY9frb-w",
+        "taskId": "Ai-bmuTzS7eRBYFhSPnZ1w",
+        "workerType": "gecko-t-linux-large"
+      },
+      "takenUntil": "2019-06-26T19:56:10.992Z",
+      "version": 1,
+      "workerGroup": "us-west-1",
+      "workerId": "i-0429b6e2c0ac7474d"
+    },
+    "routes": "primary.Ai-bmuTzS7eRBYFhSPnZ1w.0.us-west-1.i-0429b6e2c0ac7474d.aws-provisioner-v1.gecko-t-linux-large.gecko-level-3.XrWNyFwpT2in-wLY9frb-w._"
+  },
+  "AlcvKmrGS8e9FXrFTYnhpA": {
+    "exchange": "exchange/taskcluster-queue/v1/task-pending",
+    "payload": {
+      "runId": 0,
+      "status": {
+        "deadline": "2019-06-27T19:13:55.428Z",
+        "expires": "2020-06-25T19:13:55.428Z",
+        "provisionerId": "aws-provisioner-v1",
+        "retriesLeft": 5,
+        "runs": [
+          {
+            "reasonCreated": "scheduled",
+            "runId": 0,
+            "scheduled": "2019-06-26T19:36:10.307Z",
+            "state": "pending"
+          }
+        ],
+        "schedulerId": "gecko-level-3",
+        "state": "pending",
+        "taskGroupId": "XrWNyFwpT2in-wLY9frb-w",
+        "taskId": "AlcvKmrGS8e9FXrFTYnhpA",
+        "workerType": "gecko-t-linux-large"
+      },
+      "version": 1
+    },
+    "routes": "primary.AlcvKmrGS8e9FXrFTYnhpA.0._._.aws-provisioner-v1.gecko-t-linux-large.gecko-level-3.XrWNyFwpT2in-wLY9frb-w._"
+  },
+  "ApotNgqaQh6OGDW8TMSWlQ": {
+    "exchange": "exchange/taskcluster-queue/v1/task-pending",
+    "payload": {
+      "runId": 0,
+      "status": {
+        "deadline": "2019-06-27T19:13:51.072Z",
+        "expires": "2020-06-25T19:13:51.072Z",
+        "provisionerId": "aws-provisioner-v1",
+        "retriesLeft": 5,
+        "runs": [
+          {
+            "reasonCreated": "scheduled",
+            "runId": 0,
+            "scheduled": "2019-06-26T19:36:10.699Z",
+            "state": "pending"
+          }
+        ],
+        "schedulerId": "gecko-level-3",
+        "state": "pending",
+        "taskGroupId": "XrWNyFwpT2in-wLY9frb-w",
+        "taskId": "ApotNgqaQh6OGDW8TMSWlQ",
+        "workerType": "gecko-t-linux-large"
+      },
+      "version": 1
+    },
+    "routes": "primary.ApotNgqaQh6OGDW8TMSWlQ.0._._.aws-provisioner-v1.gecko-t-linux-large.gecko-level-3.XrWNyFwpT2in-wLY9frb-w._"
+  },
+  "AqMhSaDqSAG7nfjfxjKLZA": {
+    "exchange": "exchange/taskcluster-queue/v1/task-pending",
+    "payload": {
+      "runId": 0,
+      "status": {
+        "deadline": "2019-06-27T19:13:50.958Z",
+        "expires": "2020-06-25T19:13:50.958Z",
+        "provisionerId": "aws-provisioner-v1",
+        "retriesLeft": 5,
+        "runs": [
+          {
+            "reasonCreated": "scheduled",
+            "runId": 0,
+            "scheduled": "2019-06-26T19:36:10.697Z",
+            "state": "pending"
+          }
+        ],
+        "schedulerId": "gecko-level-3",
+        "state": "pending",
+        "taskGroupId": "XrWNyFwpT2in-wLY9frb-w",
+        "taskId": "AqMhSaDqSAG7nfjfxjKLZA",
+        "workerType": "gecko-t-linux-large"
+      },
+      "version": 1
+    },
+    "routes": "primary.AqMhSaDqSAG7nfjfxjKLZA.0._._.aws-provisioner-v1.gecko-t-linux-large.gecko-level-3.XrWNyFwpT2in-wLY9frb-w._"
+  },
+  "AseHcKjPRhi-NBsvwH54gw": {
+    "exchange": "exchange/taskcluster-queue/v1/task-pending",
+    "payload": {
+      "runId": 0,
+      "status": {
+        "deadline": "2019-06-27T19:13:51.304Z",
+        "expires": "2020-06-25T19:13:51.304Z",
+        "provisionerId": "aws-provisioner-v1",
+        "retriesLeft": 5,
+        "runs": [
+          {
+            "reasonCreated": "scheduled",
+            "runId": 0,
+            "scheduled": "2019-06-26T19:36:10.460Z",
+            "state": "pending"
+          }
+        ],
+        "schedulerId": "gecko-level-3",
+        "state": "pending",
+        "taskGroupId": "XrWNyFwpT2in-wLY9frb-w",
+        "taskId": "AseHcKjPRhi-NBsvwH54gw",
+        "workerType": "gecko-t-linux-large"
+      },
+      "version": 1
+    },
+    "routes": "primary.AseHcKjPRhi-NBsvwH54gw.0._._.aws-provisioner-v1.gecko-t-linux-large.gecko-level-3.XrWNyFwpT2in-wLY9frb-w._"
+  },
+  "B3EheQ-IQ5aPzw34KS_a6g": {
+    "exchange": "exchange/taskcluster-queue/v1/task-completed",
+    "payload": {
+      "runId": 0,
+      "status": {
+        "deadline": "2019-06-27T18:07:13.543Z",
+        "expires": "2020-06-25T18:07:13.543Z",
+        "provisionerId": "releng-hardware",
+        "retriesLeft": 5,
+        "runs": [
+          {
+            "reasonCreated": "scheduled",
+            "reasonResolved": "completed",
+            "resolved": "2019-06-26T19:36:10.521Z",
+            "runId": 0,
+            "scheduled": "2019-06-26T19:26:10.905Z",
+            "started": "2019-06-26T19:27:48.307Z",
+            "state": "completed",
+            "takenUntil": "2019-06-26T19:47:48.234Z",
+            "workerGroup": "mdc2",
+            "workerId": "t-mojave-r7-153"
+          }
+        ],
+        "schedulerId": "gecko-level-3",
+        "state": "completed",
+        "taskGroupId": "EJAo7mQyRqS-jmzebhceFA",
+        "taskId": "B3EheQ-IQ5aPzw34KS_a6g",
+        "workerType": "gecko-t-osx-1014"
+      },
+      "version": 1,
+      "workerGroup": "mdc2",
+      "workerId": "t-mojave-r7-153"
+    },
+    "routes": "primary.B3EheQ-IQ5aPzw34KS_a6g.0.mdc2.t-mojave-r7-153.releng-hardware.gecko-t-osx-1014.gecko-level-3.EJAo7mQyRqS-jmzebhceFA._"
+  },
+  "BFqlkKMaTVqv3ROSlUT6kQ": {
+    "exchange": "exchange/taskcluster-queue/v1/task-pending",
+    "payload": {
+      "runId": 0,
+      "status": {
+        "deadline": "2019-06-27T19:13:56.048Z",
+        "expires": "2020-06-25T19:13:56.048Z",
+        "provisionerId": "aws-provisioner-v1",
+        "retriesLeft": 5,
+        "runs": [
+          {
+            "reasonCreated": "scheduled",
+            "runId": 0,
+            "scheduled": "2019-06-26T19:36:10.318Z",
+            "state": "pending"
+          }
+        ],
+        "schedulerId": "gecko-level-3",
+        "state": "pending",
+        "taskGroupId": "XrWNyFwpT2in-wLY9frb-w",
+        "taskId": "BFqlkKMaTVqv3ROSlUT6kQ",
+        "workerType": "gecko-t-linux-xlarge"
+      },
+      "version": 1
+    },
+    "routes": "primary.BFqlkKMaTVqv3ROSlUT6kQ.0._._.aws-provisioner-v1.gecko-t-linux-xlarge.gecko-level-3.XrWNyFwpT2in-wLY9frb-w._"
+  },
+  "BHejD_RvTW2HR2THXfwDAQ": {
+    "exchange": "exchange/taskcluster-queue/v1/task-pending",
+    "payload": {
+      "runId": 0,
+      "status": {
+        "deadline": "2019-06-27T19:14:03.313Z",
+        "expires": "2020-06-25T19:14:03.313Z",
+        "provisionerId": "aws-provisioner-v1",
+        "retriesLeft": 5,
+        "runs": [
+          {
+            "reasonCreated": "scheduled",
+            "runId": 0,
+            "scheduled": "2019-06-26T19:36:10.748Z",
+            "state": "pending"
+          }
+        ],
+        "schedulerId": "gecko-level-3",
+        "state": "pending",
+        "taskGroupId": "XrWNyFwpT2in-wLY9frb-w",
+        "taskId": "BHejD_RvTW2HR2THXfwDAQ",
+        "workerType": "gecko-t-linux-large"
+      },
+      "version": 1
+    },
+    "routes": "primary.BHejD_RvTW2HR2THXfwDAQ.0._._.aws-provisioner-v1.gecko-t-linux-large.gecko-level-3.XrWNyFwpT2in-wLY9frb-w._"
+  },
+  "BXWMaUV7TCunBcJQELbZqw": {
+    "exchange": "exchange/taskcluster-queue/v1/task-pending",
+    "payload": {
+      "runId": 0,
+      "status": {
+        "deadline": "2019-06-27T19:14:01.506Z",
+        "expires": "2020-06-25T19:14:01.506Z",
+        "provisionerId": "aws-provisioner-v1",
+        "retriesLeft": 5,
+        "runs": [
+          {
+            "reasonCreated": "scheduled",
+            "runId": 0,
+            "scheduled": "2019-06-26T19:36:10.554Z",
+            "state": "pending"
+          }
+        ],
+        "schedulerId": "gecko-level-3",
+        "state": "pending",
+        "taskGroupId": "XrWNyFwpT2in-wLY9frb-w",
+        "taskId": "BXWMaUV7TCunBcJQELbZqw",
+        "workerType": "gecko-t-linux-large"
+      },
+      "version": 1
+    },
+    "routes": "primary.BXWMaUV7TCunBcJQELbZqw.0._._.aws-provisioner-v1.gecko-t-linux-large.gecko-level-3.XrWNyFwpT2in-wLY9frb-w._"
+  },
+  "BZuYb2PTTQ-opGzxvZvA9A": {
+    "exchange": "exchange/taskcluster-queue/v1/task-pending",
+    "payload": {
+      "runId": 0,
+      "status": {
+        "deadline": "2019-06-27T19:13:56.160Z",
+        "expires": "2020-06-25T19:13:56.160Z",
+        "provisionerId": "aws-provisioner-v1",
+        "retriesLeft": 5,
+        "runs": [
+          {
+            "reasonCreated": "scheduled",
+            "runId": 0,
+            "scheduled": "2019-06-26T19:36:10.545Z",
+            "state": "pending"
+          }
+        ],
+        "schedulerId": "gecko-level-3",
+        "state": "pending",
+        "taskGroupId": "XrWNyFwpT2in-wLY9frb-w",
+        "taskId": "BZuYb2PTTQ-opGzxvZvA9A",
+        "workerType": "gecko-t-linux-large"
+      },
+      "version": 1
+    },
+    "routes": "primary.BZuYb2PTTQ-opGzxvZvA9A.0._._.aws-provisioner-v1.gecko-t-linux-large.gecko-level-3.XrWNyFwpT2in-wLY9frb-w._"
+  },
+  "BdHfGUHPTLm0IKz47oNJlA": {
+    "exchange": "exchange/taskcluster-queue/v1/task-pending",
+    "payload": {
+      "runId": 0,
+      "status": {
+        "deadline": "2019-06-27T19:13:58.716Z",
+        "expires": "2020-06-25T19:13:58.716Z",
+        "provisionerId": "aws-provisioner-v1",
+        "retriesLeft": 5,
+        "runs": [
+          {
+            "reasonCreated": "scheduled",
+            "runId": 0,
+            "scheduled": "2019-06-26T19:36:10.313Z",
+            "state": "pending"
+          }
+        ],
+        "schedulerId": "gecko-level-3",
+        "state": "pending",
+        "taskGroupId": "XrWNyFwpT2in-wLY9frb-w",
+        "taskId": "BdHfGUHPTLm0IKz47oNJlA",
+        "workerType": "gecko-t-linux-large"
+      },
+      "version": 1
+    },
+    "routes": "primary.BdHfGUHPTLm0IKz47oNJlA.0._._.aws-provisioner-v1.gecko-t-linux-large.gecko-level-3.XrWNyFwpT2in-wLY9frb-w._"
+  },
+  "BdHy_4vQSA2ZQoxXc-6ieA": {
+    "exchange": "exchange/taskcluster-queue/v1/task-pending",
+    "payload": {
+      "runId": 0,
+      "status": {
+        "deadline": "2019-06-27T19:13:51.194Z",
+        "expires": "2020-06-25T19:13:51.194Z",
+        "provisionerId": "aws-provisioner-v1",
+        "retriesLeft": 5,
+        "runs": [
+          {
+            "reasonCreated": "scheduled",
+            "runId": 0,
+            "scheduled": "2019-06-26T19:36:10.306Z",
+            "state": "pending"
+          }
+        ],
+        "schedulerId": "gecko-level-3",
+        "state": "pending",
+        "taskGroupId": "XrWNyFwpT2in-wLY9frb-w",
+        "taskId": "BdHy_4vQSA2ZQoxXc-6ieA",
+        "workerType": "gecko-t-linux-large"
+      },
+      "version": 1
+    },
+    "routes": "primary.BdHy_4vQSA2ZQoxXc-6ieA.0._._.aws-provisioner-v1.gecko-t-linux-large.gecko-level-3.XrWNyFwpT2in-wLY9frb-w._"
+  },
+  "BfEK00F_TSm20TD799GdMw": {
+    "exchange": "exchange/taskcluster-queue/v1/task-pending",
+    "payload": {
+      "runId": 0,
+      "status": {
+        "deadline": "2019-06-27T19:14:05.356Z",
+        "expires": "2020-06-25T19:14:05.356Z",
+        "provisionerId": "aws-provisioner-v1",
+        "retriesLeft": 5,
+        "runs": [
+          {
+            "reasonCreated": "scheduled",
+            "runId": 0,
+            "scheduled": "2019-06-26T19:36:10.386Z",
+            "state": "pending"
+          }
+        ],
+        "schedulerId": "gecko-level-3",
+        "state": "pending",
+        "taskGroupId": "XrWNyFwpT2in-wLY9frb-w",
+        "taskId": "BfEK00F_TSm20TD799GdMw",
+        "workerType": "gecko-t-linux-xlarge"
+      },
+      "version": 1
+    },
+    "routes": "primary.BfEK00F_TSm20TD799GdMw.0._._.aws-provisioner-v1.gecko-t-linux-xlarge.gecko-level-3.XrWNyFwpT2in-wLY9frb-w._"
+  },
+  "Bg8h-Ct_SPSrEEYuvPAYSQ": {
+    "exchange": "exchange/taskcluster-queue/v1/task-pending",
+    "payload": {
+      "runId": 0,
+      "status": {
+        "deadline": "2019-06-27T19:13:54.997Z",
+        "expires": "2020-06-25T19:13:54.997Z",
+        "provisionerId": "aws-provisioner-v1",
+        "retriesLeft": 5,
+        "runs": [
+          {
+            "reasonCreated": "scheduled",
+            "runId": 0,
+            "scheduled": "2019-06-26T19:36:10.775Z",
+            "state": "pending"
+          }
+        ],
+        "schedulerId": "gecko-level-3",
+        "state": "pending",
+        "taskGroupId": "XrWNyFwpT2in-wLY9frb-w",
+        "taskId": "Bg8h-Ct_SPSrEEYuvPAYSQ",
+        "workerType": "gecko-t-linux-large"
+      },
+      "version": 1
+    },
+    "routes": "primary.Bg8h-Ct_SPSrEEYuvPAYSQ.0._._.aws-provisioner-v1.gecko-t-linux-large.gecko-level-3.XrWNyFwpT2in-wLY9frb-w._"
+  },
+  "BpnQqda2Q0izXw4k0RUT6w": {
+    "exchange": "exchange/taskcluster-queue/v1/task-pending",
+    "payload": {
+      "runId": 0,
+      "status": {
+        "deadline": "2019-06-27T19:13:55.682Z",
+        "expires": "2020-06-25T19:13:55.682Z",
+        "provisionerId": "aws-provisioner-v1",
+        "retriesLeft": 5,
+        "runs": [
+          {
+            "reasonCreated": "scheduled",
+            "runId": 0,
+            "scheduled": "2019-06-26T19:36:10.255Z",
+            "state": "pending"
+          }
+        ],
+        "schedulerId": "gecko-level-3",
+        "state": "pending",
+        "taskGroupId": "XrWNyFwpT2in-wLY9frb-w",
+        "taskId": "BpnQqda2Q0izXw4k0RUT6w",
+        "workerType": "gecko-t-linux-large"
+      },
+      "version": 1
+    },
+    "routes": "primary.BpnQqda2Q0izXw4k0RUT6w.0._._.aws-provisioner-v1.gecko-t-linux-large.gecko-level-3.XrWNyFwpT2in-wLY9frb-w._"
+  },
+  "CBO2K8XGQEaNpX1BkwJmNw": {
+    "exchange": "exchange/taskcluster-queue/v1/task-pending",
+    "payload": {
+      "runId": 0,
+      "status": {
+        "deadline": "2019-06-27T19:13:51.316Z",
+        "expires": "2020-06-25T19:13:51.316Z",
+        "provisionerId": "aws-provisioner-v1",
+        "retriesLeft": 5,
+        "runs": [
+          {
+            "reasonCreated": "scheduled",
+            "runId": 0,
+            "scheduled": "2019-06-26T19:36:10.414Z",
+            "state": "pending"
+          }
+        ],
+        "schedulerId": "gecko-level-3",
+        "state": "pending",
+        "taskGroupId": "XrWNyFwpT2in-wLY9frb-w",
+        "taskId": "CBO2K8XGQEaNpX1BkwJmNw",
+        "workerType": "gecko-t-linux-large"
+      },
+      "version": 1
+    },
+    "routes": "primary.CBO2K8XGQEaNpX1BkwJmNw.0._._.aws-provisioner-v1.gecko-t-linux-large.gecko-level-3.XrWNyFwpT2in-wLY9frb-w._"
+  },
+  "CER7YmG9QmCd-R66vfWkVQ": {
+    "exchange": "exchange/taskcluster-queue/v1/task-running",
+    "payload": {
+      "runId": 0,
+      "status": {
+        "deadline": "2019-06-27T19:34:53.754Z",
+        "expires": "2019-07-24T19:34:53.754Z",
+        "provisionerId": "aws-provisioner-v1",
+        "retriesLeft": 5,
+        "runs": [
+          {
+            "reasonCreated": "scheduled",
+            "runId": 0,
+            "scheduled": "2019-06-26T19:34:54.106Z",
+            "started": "2019-06-26T19:36:08.719Z",
+            "state": "running",
+            "takenUntil": "2019-06-26T19:56:08.645Z",
+            "workerGroup": "us-west-1",
+            "workerId": "i-0da13f5d4e5576fd5"
+          }
+        ],
+        "schedulerId": "gecko-level-1",
+        "state": "running",
+        "taskGroupId": "VQg1HZ5yS0ixZvsnHLWuFw",
+        "taskId": "CER7YmG9QmCd-R66vfWkVQ",
+        "workerType": "gecko-1-decision"
+      },
+      "takenUntil": "2019-06-26T19:56:08.645Z",
+      "version": 1,
+      "workerGroup": "us-west-1",
+      "workerId": "i-0da13f5d4e5576fd5"
+    },
+    "routes": "primary.CER7YmG9QmCd-R66vfWkVQ.0.us-west-1.i-0da13f5d4e5576fd5.aws-provisioner-v1.gecko-1-decision.gecko-level-1.VQg1HZ5yS0ixZvsnHLWuFw._"
+  },
+  "DPCuZCk-SWC6SeftAbytzw": {
+    "exchange": "exchange/taskcluster-queue/v1/task-pending",
+    "payload": {
+      "runId": 0,
+      "status": {
+        "deadline": "2019-06-27T19:14:03.391Z",
+        "expires": "2020-06-25T19:14:03.391Z",
+        "provisionerId": "aws-provisioner-v1",
+        "retriesLeft": 5,
+        "runs": [
+          {
+            "reasonCreated": "scheduled",
+            "runId": 0,
+            "scheduled": "2019-06-26T19:36:10.837Z",
+            "state": "pending"
+          }
+        ],
+        "schedulerId": "gecko-level-3",
+        "state": "pending",
+        "taskGroupId": "XrWNyFwpT2in-wLY9frb-w",
+        "taskId": "DPCuZCk-SWC6SeftAbytzw",
+        "workerType": "gecko-t-linux-xlarge"
+      },
+      "version": 1
+    },
+    "routes": "primary.DPCuZCk-SWC6SeftAbytzw.0._._.aws-provisioner-v1.gecko-t-linux-xlarge.gecko-level-3.XrWNyFwpT2in-wLY9frb-w._"
+  },
+  "D_6WScWhTLysuSIkbqfjsg": {
+    "exchange": "exchange/taskcluster-queue/v1/task-pending",
+    "payload": {
+      "runId": 0,
+      "status": {
+        "deadline": "2019-06-27T19:13:51.128Z",
+        "expires": "2020-06-25T19:13:51.128Z",
+        "provisionerId": "aws-provisioner-v1",
+        "retriesLeft": 5,
+        "runs": [
+          {
+            "reasonCreated": "scheduled",
+            "runId": 0,
+            "scheduled": "2019-06-26T19:36:10.355Z",
+            "state": "pending"
+          }
+        ],
+        "schedulerId": "gecko-level-3",
+        "state": "pending",
+        "taskGroupId": "XrWNyFwpT2in-wLY9frb-w",
+        "taskId": "D_6WScWhTLysuSIkbqfjsg",
+        "workerType": "gecko-t-linux-large"
+      },
+      "version": 1
+    },
+    "routes": "primary.D_6WScWhTLysuSIkbqfjsg.0._._.aws-provisioner-v1.gecko-t-linux-large.gecko-level-3.XrWNyFwpT2in-wLY9frb-w._"
+  },
+  "DxhjVp-uQtGhRLm1w0xdiA": {
+    "exchange": "exchange/taskcluster-queue/v1/task-pending",
+    "payload": {
+      "runId": 0,
+      "status": {
+        "deadline": "2019-06-27T19:13:51.045Z",
+        "expires": "2020-06-25T19:13:51.045Z",
+        "provisionerId": "aws-provisioner-v1",
+        "retriesLeft": 5,
+        "runs": [
+          {
+            "reasonCreated": "scheduled",
+            "runId": 0,
+            "scheduled": "2019-06-26T19:36:10.310Z",
+            "state": "pending"
+          }
+        ],
+        "schedulerId": "gecko-level-3",
+        "state": "pending",
+        "taskGroupId": "XrWNyFwpT2in-wLY9frb-w",
+        "taskId": "DxhjVp-uQtGhRLm1w0xdiA",
+        "workerType": "gecko-t-linux-large"
+      },
+      "version": 1
+    },
+    "routes": "primary.DxhjVp-uQtGhRLm1w0xdiA.0._._.aws-provisioner-v1.gecko-t-linux-large.gecko-level-3.XrWNyFwpT2in-wLY9frb-w._"
+  },
+  "ENXQRjSMRWyWK_zAEYEoXg": {
+    "exchange": "exchange/taskcluster-queue/v1/task-completed",
+    "payload": {
+      "runId": 0,
+      "status": {
+        "deadline": "2019-06-27T18:24:26.509Z",
+        "expires": "2020-06-25T18:24:26.509Z",
+        "provisionerId": "releng-hardware",
+        "retriesLeft": 5,
+        "runs": [
+          {
+            "reasonCreated": "scheduled",
+            "reasonResolved": "completed",
+            "resolved": "2019-06-26T19:36:06.546Z",
+            "runId": 0,
+            "scheduled": "2019-06-26T19:02:34.936Z",
+            "started": "2019-06-26T19:02:35.542Z",
+            "state": "completed",
+            "takenUntil": "2019-06-26T19:39:35.717Z",
+            "workerGroup": "mdc2",
+            "workerId": "t-yosemite-r7-098"
+          }
+        ],
+        "schedulerId": "gecko-level-3",
+        "state": "completed",
+        "taskGroupId": "HkX-TbGXQaSX4ucqGMQNBA",
+        "taskId": "ENXQRjSMRWyWK_zAEYEoXg",
+        "workerType": "gecko-t-osx-1010"
+      },
+      "version": 1,
+      "workerGroup": "mdc2",
+      "workerId": "t-yosemite-r7-098"
+    },
+    "routes": "primary.ENXQRjSMRWyWK_zAEYEoXg.0.mdc2.t-yosemite-r7-098.releng-hardware.gecko-t-osx-1010.gecko-level-3.HkX-TbGXQaSX4ucqGMQNBA._"
+  },
+  "EvNqsyBISNCH8mwfDVRnSQ": {
+    "exchange": "exchange/taskcluster-queue/v1/task-running",
+    "payload": {
+      "runId": 0,
+      "status": {
+        "deadline": "2019-06-27T19:34:51.217Z",
+        "expires": "2019-07-24T19:34:51.217Z",
+        "provisionerId": "aws-provisioner-v1",
+        "retriesLeft": 5,
+        "runs": [
+          {
+            "reasonCreated": "scheduled",
+            "runId": 0,
+            "scheduled": "2019-06-26T19:34:51.541Z",
+            "started": "2019-06-26T19:36:04.733Z",
+            "state": "running",
+            "takenUntil": "2019-06-26T19:56:04.658Z",
+            "workerGroup": "us-west-2",
+            "workerId": "i-062aa60828009efec"
+          }
+        ],
+        "schedulerId": "gecko-level-1",
+        "state": "running",
+        "taskGroupId": "VQg1HZ5yS0ixZvsnHLWuFw",
+        "taskId": "EvNqsyBISNCH8mwfDVRnSQ",
+        "workerType": "gecko-1-decision"
+      },
+      "takenUntil": "2019-06-26T19:56:04.658Z",
+      "version": 1,
+      "workerGroup": "us-west-2",
+      "workerId": "i-062aa60828009efec"
+    },
+    "routes": "primary.EvNqsyBISNCH8mwfDVRnSQ.0.us-west-2.i-062aa60828009efec.aws-provisioner-v1.gecko-1-decision.gecko-level-1.VQg1HZ5yS0ixZvsnHLWuFw._"
+  },
+  "F93bme7iSP2k0TsCwqSBVw": {
+    "exchange": "exchange/taskcluster-queue/v1/task-pending",
+    "payload": {
+      "runId": 0,
+      "status": {
+        "deadline": "2019-06-27T19:14:05.949Z",
+        "expires": "2020-06-25T19:14:05.949Z",
+        "provisionerId": "aws-provisioner-v1",
+        "retriesLeft": 5,
+        "runs": [
+          {
+            "reasonCreated": "scheduled",
+            "runId": 0,
+            "scheduled": "2019-06-26T19:36:10.594Z",
+            "state": "pending"
+          }
+        ],
+        "schedulerId": "gecko-level-3",
+        "state": "pending",
+        "taskGroupId": "XrWNyFwpT2in-wLY9frb-w",
+        "taskId": "F93bme7iSP2k0TsCwqSBVw",
+        "workerType": "gecko-t-linux-large"
+      },
+      "version": 1
+    },
+    "routes": "primary.F93bme7iSP2k0TsCwqSBVw.0._._.aws-provisioner-v1.gecko-t-linux-large.gecko-level-3.XrWNyFwpT2in-wLY9frb-w._"
+  },
+  "FgjNkrvXS0WDDJJUpVXZsA": {
+    "exchange": "exchange/taskcluster-queue/v1/task-pending",
+    "payload": {
+      "runId": 0,
+      "status": {
+        "deadline": "2019-06-27T19:13:53.207Z",
+        "expires": "2020-06-25T19:13:53.207Z",
+        "provisionerId": "aws-provisioner-v1",
+        "retriesLeft": 5,
+        "runs": [
+          {
+            "reasonCreated": "scheduled",
+            "runId": 0,
+            "scheduled": "2019-06-26T19:36:10.592Z",
+            "state": "pending"
+          }
+        ],
+        "schedulerId": "gecko-level-3",
+        "state": "pending",
+        "taskGroupId": "XrWNyFwpT2in-wLY9frb-w",
+        "taskId": "FgjNkrvXS0WDDJJUpVXZsA",
+        "workerType": "gecko-t-linux-large"
+      },
+      "version": 1
+    },
+    "routes": "primary.FgjNkrvXS0WDDJJUpVXZsA.0._._.aws-provisioner-v1.gecko-t-linux-large.gecko-level-3.XrWNyFwpT2in-wLY9frb-w._"
+  },
+  "Fj3fDgrvRXitCVX2RiJUaw": {
+    "exchange": "exchange/taskcluster-queue/v1/task-pending",
+    "payload": {
+      "runId": 0,
+      "status": {
+        "deadline": "2019-06-27T19:13:51.164Z",
+        "expires": "2020-06-25T19:13:51.164Z",
+        "provisionerId": "aws-provisioner-v1",
+        "retriesLeft": 5,
+        "runs": [
+          {
+            "reasonCreated": "scheduled",
+            "runId": 0,
+            "scheduled": "2019-06-26T19:36:10.584Z",
+            "state": "pending"
+          }
+        ],
+        "schedulerId": "gecko-level-3",
+        "state": "pending",
+        "taskGroupId": "XrWNyFwpT2in-wLY9frb-w",
+        "taskId": "Fj3fDgrvRXitCVX2RiJUaw",
+        "workerType": "gecko-t-linux-large"
+      },
+      "version": 1
+    },
+    "routes": "primary.Fj3fDgrvRXitCVX2RiJUaw.0._._.aws-provisioner-v1.gecko-t-linux-large.gecko-level-3.XrWNyFwpT2in-wLY9frb-w._"
+  },
+  "FkHz3gGPSVmL6YJOupYBXw": {
+    "exchange": "exchange/taskcluster-queue/v1/task-pending",
+    "payload": {
+      "runId": 0,
+      "status": {
+        "deadline": "2019-06-27T19:13:52.148Z",
+        "expires": "2020-06-25T19:13:52.148Z",
+        "provisionerId": "aws-provisioner-v1",
+        "retriesLeft": 5,
+        "runs": [
+          {
+            "reasonCreated": "scheduled",
+            "runId": 0,
+            "scheduled": "2019-06-26T19:36:10.583Z",
+            "state": "pending"
+          }
+        ],
+        "schedulerId": "gecko-level-3",
+        "state": "pending",
+        "taskGroupId": "XrWNyFwpT2in-wLY9frb-w",
+        "taskId": "FkHz3gGPSVmL6YJOupYBXw",
+        "workerType": "gecko-t-linux-large"
+      },
+      "version": 1
+    },
+    "routes": "primary.FkHz3gGPSVmL6YJOupYBXw.0._._.aws-provisioner-v1.gecko-t-linux-large.gecko-level-3.XrWNyFwpT2in-wLY9frb-w._"
+  },
+  "FsgLMdKwRzWJAwUhYy2g0Q": {
+    "exchange": "exchange/taskcluster-queue/v1/task-pending",
+    "payload": {
+      "runId": 0,
+      "status": {
+        "deadline": "2019-06-27T19:14:00.578Z",
+        "expires": "2020-06-25T19:14:00.578Z",
+        "provisionerId": "aws-provisioner-v1",
+        "retriesLeft": 5,
+        "runs": [
+          {
+            "reasonCreated": "scheduled",
+            "runId": 0,
+            "scheduled": "2019-06-26T19:36:10.581Z",
+            "state": "pending"
+          }
+        ],
+        "schedulerId": "gecko-level-3",
+        "state": "pending",
+        "taskGroupId": "XrWNyFwpT2in-wLY9frb-w",
+        "taskId": "FsgLMdKwRzWJAwUhYy2g0Q",
+        "workerType": "gecko-t-linux-large"
+      },
+      "version": 1
+    },
+    "routes": "primary.FsgLMdKwRzWJAwUhYy2g0Q.0._._.aws-provisioner-v1.gecko-t-linux-large.gecko-level-3.XrWNyFwpT2in-wLY9frb-w._"
+  },
+  "GTFxZJWzSKSNc_XElgtWHQ": {
+    "exchange": "exchange/taskcluster-queue/v1/task-pending",
+    "payload": {
+      "runId": 0,
+      "status": {
+        "deadline": "2019-06-27T19:13:57.328Z",
+        "expires": "2020-06-25T19:13:57.328Z",
+        "provisionerId": "aws-provisioner-v1",
+        "retriesLeft": 5,
+        "runs": [
+          {
+            "reasonCreated": "scheduled",
+            "runId": 0,
+            "scheduled": "2019-06-26T19:36:10.849Z",
+            "state": "pending"
+          }
+        ],
+        "schedulerId": "gecko-level-3",
+        "state": "pending",
+        "taskGroupId": "XrWNyFwpT2in-wLY9frb-w",
+        "taskId": "GTFxZJWzSKSNc_XElgtWHQ",
+        "workerType": "gecko-t-linux-xlarge"
+      },
+      "version": 1
+    },
+    "routes": "primary.GTFxZJWzSKSNc_XElgtWHQ.0._._.aws-provisioner-v1.gecko-t-linux-xlarge.gecko-level-3.XrWNyFwpT2in-wLY9frb-w._"
+  },
+  "GWxTc8p_RUa5_Xo4RtMiCA": {
+    "exchange": "exchange/taskcluster-queue/v1/task-completed",
+    "payload": {
+      "runId": 0,
+      "status": {
+        "deadline": "2019-06-27T18:24:27.418Z",
+        "expires": "2020-06-25T18:24:27.418Z",
+        "provisionerId": "terraform-packet",
+        "retriesLeft": 5,
+        "runs": [
+          {
+            "reasonCreated": "scheduled",
+            "reasonResolved": "completed",
+            "resolved": "2019-06-26T19:36:08.596Z",
+            "runId": 0,
+            "scheduled": "2019-06-26T19:00:43.251Z",
+            "started": "2019-06-26T19:16:36.554Z",
+            "state": "completed",
+            "takenUntil": "2019-06-26T19:52:00.203Z",
+            "workerGroup": "packet-sjc1",
+            "workerId": "machine-39"
+          }
+        ],
+        "schedulerId": "gecko-level-3",
+        "state": "completed",
+        "taskGroupId": "HkX-TbGXQaSX4ucqGMQNBA",
+        "taskId": "GWxTc8p_RUa5_Xo4RtMiCA",
+        "workerType": "gecko-t-linux"
+      },
+      "version": 1,
+      "workerGroup": "packet-sjc1",
+      "workerId": "machine-39"
+    },
+    "routes": "primary.GWxTc8p_RUa5_Xo4RtMiCA.0.packet-sjc1.machine-39.terraform-packet.gecko-t-linux.gecko-level-3.HkX-TbGXQaSX4ucqGMQNBA._"
+  },
+  "HsvD9YlDQKaoP4AQsuGeJw": {
+    "exchange": "exchange/taskcluster-queue/v1/task-completed",
+    "payload": {
+      "runId": 0,
+      "status": {
+        "deadline": "2019-06-27T18:24:28.261Z",
+        "expires": "2020-06-25T18:24:28.261Z",
+        "provisionerId": "releng-hardware",
+        "retriesLeft": 5,
+        "runs": [
+          {
+            "reasonCreated": "scheduled",
+            "reasonResolved": "completed",
+            "resolved": "2019-06-26T19:36:07.747Z",
+            "runId": 0,
+            "scheduled": "2019-06-26T19:02:35.164Z",
+            "started": "2019-06-26T19:02:35.860Z",
+            "state": "completed",
+            "takenUntil": "2019-06-26T19:39:36.047Z",
+            "workerGroup": "mdc2",
+            "workerId": "t-yosemite-r7-123"
+          }
+        ],
+        "schedulerId": "gecko-level-3",
+        "state": "completed",
+        "taskGroupId": "HkX-TbGXQaSX4ucqGMQNBA",
+        "taskId": "HsvD9YlDQKaoP4AQsuGeJw",
+        "workerType": "gecko-t-osx-1010"
+      },
+      "version": 1,
+      "workerGroup": "mdc2",
+      "workerId": "t-yosemite-r7-123"
+    },
+    "routes": "primary.HsvD9YlDQKaoP4AQsuGeJw.0.mdc2.t-yosemite-r7-123.releng-hardware.gecko-t-osx-1010.gecko-level-3.HkX-TbGXQaSX4ucqGMQNBA._"
+  },
+  "JKDqO-yySta79-Y92Dq2yQ": {
+    "exchange": "exchange/taskcluster-queue/v1/task-pending",
+    "payload": {
+      "runId": 0,
+      "status": {
+        "deadline": "2019-06-27T19:13:54.963Z",
+        "expires": "2020-06-25T19:13:54.963Z",
+        "provisionerId": "aws-provisioner-v1",
+        "retriesLeft": 5,
+        "runs": [
+          {
+            "reasonCreated": "scheduled",
+            "runId": 0,
+            "scheduled": "2019-06-26T19:36:10.585Z",
+            "state": "pending"
+          }
+        ],
+        "schedulerId": "gecko-level-3",
+        "state": "pending",
+        "taskGroupId": "XrWNyFwpT2in-wLY9frb-w",
+        "taskId": "JKDqO-yySta79-Y92Dq2yQ",
+        "workerType": "gecko-t-linux-large"
+      },
+      "version": 1
+    },
+    "routes": "primary.JKDqO-yySta79-Y92Dq2yQ.0._._.aws-provisioner-v1.gecko-t-linux-large.gecko-level-3.XrWNyFwpT2in-wLY9frb-w._"
+  },
+  "JM6eV6S-R5-Dy08gjoBHrQ": {
+    "exchange": "exchange/taskcluster-queue/v1/task-pending",
+    "payload": {
+      "runId": 0,
+      "status": {
+        "deadline": "2019-06-27T19:13:54.670Z",
+        "expires": "2020-06-25T19:13:54.670Z",
+        "provisionerId": "aws-provisioner-v1",
+        "retriesLeft": 5,
+        "runs": [
+          {
+            "reasonCreated": "scheduled",
+            "runId": 0,
+            "scheduled": "2019-06-26T19:36:10.661Z",
+            "state": "pending"
+          }
+        ],
+        "schedulerId": "gecko-level-3",
+        "state": "pending",
+        "taskGroupId": "XrWNyFwpT2in-wLY9frb-w",
+        "taskId": "JM6eV6S-R5-Dy08gjoBHrQ",
+        "workerType": "gecko-t-linux-large"
+      },
+      "version": 1
+    },
+    "routes": "primary.JM6eV6S-R5-Dy08gjoBHrQ.0._._.aws-provisioner-v1.gecko-t-linux-large.gecko-level-3.XrWNyFwpT2in-wLY9frb-w._"
+  },
+  "K2IZ74mWQfiEn2U6XnVLPQ": {
+    "exchange": "exchange/taskcluster-queue/v1/task-pending",
+    "payload": {
+      "runId": 0,
+      "status": {
+        "deadline": "2019-06-27T19:13:50.368Z",
+        "expires": "2020-06-25T19:13:50.368Z",
+        "provisionerId": "aws-provisioner-v1",
+        "retriesLeft": 5,
+        "runs": [
+          {
+            "reasonCreated": "scheduled",
+            "runId": 0,
+            "scheduled": "2019-06-26T19:36:10.830Z",
+            "state": "pending"
+          }
+        ],
+        "schedulerId": "gecko-level-3",
+        "state": "pending",
+        "taskGroupId": "XrWNyFwpT2in-wLY9frb-w",
+        "taskId": "K2IZ74mWQfiEn2U6XnVLPQ",
+        "workerType": "gecko-t-linux-large"
+      },
+      "version": 1
+    },
+    "routes": "primary.K2IZ74mWQfiEn2U6XnVLPQ.0._._.aws-provisioner-v1.gecko-t-linux-large.gecko-level-3.XrWNyFwpT2in-wLY9frb-w._"
+  },
+  "K5R8rkgARZWMvH4JpmSPrQ": {
+    "exchange": "exchange/taskcluster-queue/v1/task-pending",
+    "payload": {
+      "runId": 0,
+      "status": {
+        "deadline": "2019-06-27T19:14:03.581Z",
+        "expires": "2020-06-25T19:14:03.581Z",
+        "provisionerId": "aws-provisioner-v1",
+        "retriesLeft": 5,
+        "runs": [
+          {
+            "reasonCreated": "scheduled",
+            "runId": 0,
+            "scheduled": "2019-06-26T19:36:10.831Z",
+            "state": "pending"
+          }
+        ],
+        "schedulerId": "gecko-level-3",
+        "state": "pending",
+        "taskGroupId": "XrWNyFwpT2in-wLY9frb-w",
+        "taskId": "K5R8rkgARZWMvH4JpmSPrQ",
+        "workerType": "gecko-t-linux-large"
+      },
+      "version": 1
+    },
+    "routes": "primary.K5R8rkgARZWMvH4JpmSPrQ.0._._.aws-provisioner-v1.gecko-t-linux-large.gecko-level-3.XrWNyFwpT2in-wLY9frb-w._"
+  },
+  "KYZKwkbvRc-qPE22g286yQ": {
+    "exchange": "exchange/taskcluster-queue/v1/task-completed",
+    "payload": {
+      "runId": 0,
+      "status": {
+        "deadline": "2019-06-27T18:49:29.995Z",
+        "expires": "2019-07-10T18:49:29.995Z",
+        "provisionerId": "aws-provisioner-v1",
+        "retriesLeft": 5,
+        "runs": [
+          {
+            "reasonCreated": "scheduled",
+            "reasonResolved": "completed",
+            "resolved": "2019-06-26T19:36:04.986Z",
+            "runId": 0,
+            "scheduled": "2019-06-26T19:20:15.078Z",
+            "started": "2019-06-26T19:23:49.524Z",
+            "state": "completed",
+            "takenUntil": "2019-06-26T19:43:49.453Z",
+            "workerGroup": "us-east-1",
+            "workerId": "i-06c2c7e06fc36c6c5"
+          }
+        ],
+        "schedulerId": "gecko-level-1",
+        "state": "completed",
+        "taskGroupId": "CjxziyApQDCcPUMhKFiIGg",
+        "taskId": "KYZKwkbvRc-qPE22g286yQ",
+        "workerType": "gecko-t-linux-large"
+      },
+      "version": 1,
+      "workerGroup": "us-east-1",
+      "workerId": "i-06c2c7e06fc36c6c5"
+    },
+    "routes": "primary.KYZKwkbvRc-qPE22g286yQ.0.us-east-1.i-06c2c7e06fc36c6c5.aws-provisioner-v1.gecko-t-linux-large.gecko-level-1.CjxziyApQDCcPUMhKFiIGg._"
+  },
+  "KnBj0KLcTjuyNaTxt5LVqw": {
+    "exchange": "exchange/taskcluster-queue/v1/task-running",
+    "payload": {
+      "runId": 0,
+      "status": {
+        "deadline": "2019-06-27T19:34:52.437Z",
+        "expires": "2019-07-24T19:34:52.437Z",
+        "provisionerId": "aws-provisioner-v1",
+        "retriesLeft": 5,
+        "runs": [
+          {
+            "reasonCreated": "scheduled",
+            "runId": 0,
+            "scheduled": "2019-06-26T19:34:52.778Z",
+            "started": "2019-06-26T19:36:05.562Z",
+            "state": "running",
+            "takenUntil": "2019-06-26T19:56:05.473Z",
+            "workerGroup": "us-west-1",
+            "workerId": "i-019077061bddb4fe7"
+          }
+        ],
+        "schedulerId": "gecko-level-1",
+        "state": "running",
+        "taskGroupId": "VQg1HZ5yS0ixZvsnHLWuFw",
+        "taskId": "KnBj0KLcTjuyNaTxt5LVqw",
+        "workerType": "gecko-1-decision"
+      },
+      "takenUntil": "2019-06-26T19:56:05.473Z",
+      "version": 1,
+      "workerGroup": "us-west-1",
+      "workerId": "i-019077061bddb4fe7"
+    },
+    "routes": "primary.KnBj0KLcTjuyNaTxt5LVqw.0.us-west-1.i-019077061bddb4fe7.aws-provisioner-v1.gecko-1-decision.gecko-level-1.VQg1HZ5yS0ixZvsnHLWuFw._"
+  },
+  "LBJoI2wUTNCteg-5CnaYZQ": {
+    "exchange": "exchange/taskcluster-queue/v1/task-completed",
+    "payload": {
+      "runId": 0,
+      "status": {
+        "deadline": "2019-06-27T18:07:24.073Z",
+        "expires": "2020-06-25T18:07:24.073Z",
+        "provisionerId": "aws-provisioner-v1",
+        "retriesLeft": 5,
+        "runs": [
+          {
+            "reasonCreated": "scheduled",
+            "reasonResolved": "completed",
+            "resolved": "2019-06-26T19:36:09.038Z",
+            "runId": 0,
+            "scheduled": "2019-06-26T18:45:37.148Z",
+            "started": "2019-06-26T18:48:50.697Z",
+            "state": "completed",
+            "takenUntil": "2019-06-26T19:55:01.752Z",
+            "workerGroup": "us-west-1",
+            "workerId": "i-0b63c3556524f5295"
+          }
+        ],
+        "schedulerId": "gecko-level-3",
+        "state": "completed",
+        "taskGroupId": "EJAo7mQyRqS-jmzebhceFA",
+        "taskId": "LBJoI2wUTNCteg-5CnaYZQ",
+        "workerType": "gecko-t-linux-large"
+      },
+      "version": 1,
+      "workerGroup": "us-west-1",
+      "workerId": "i-0b63c3556524f5295"
+    },
+    "routes": "primary.LBJoI2wUTNCteg-5CnaYZQ.0.us-west-1.i-0b63c3556524f5295.aws-provisioner-v1.gecko-t-linux-large.gecko-level-3.EJAo7mQyRqS-jmzebhceFA._"
+  },
+  "LWArw4t5QaCHiHsEJo6hFA": {
+    "exchange": "exchange/taskcluster-queue/v1/task-running",
+    "payload": {
+      "runId": 0,
+      "status": {
+        "deadline": "2019-06-27T19:34:52.581Z",
+        "expires": "2019-07-24T19:34:52.581Z",
+        "provisionerId": "aws-provisioner-v1",
+        "retriesLeft": 5,
+        "runs": [
+          {
+            "reasonCreated": "scheduled",
+            "runId": 0,
+            "scheduled": "2019-06-26T19:34:52.962Z",
+            "started": "2019-06-26T19:36:07.062Z",
+            "state": "running",
+            "takenUntil": "2019-06-26T19:56:06.990Z",
+            "workerGroup": "us-west-1",
+            "workerId": "i-0be69dc84b0354bde"
+          }
+        ],
+        "schedulerId": "gecko-level-1",
+        "state": "running",
+        "taskGroupId": "VQg1HZ5yS0ixZvsnHLWuFw",
+        "taskId": "LWArw4t5QaCHiHsEJo6hFA",
+        "workerType": "gecko-1-decision"
+      },
+      "takenUntil": "2019-06-26T19:56:06.990Z",
+      "version": 1,
+      "workerGroup": "us-west-1",
+      "workerId": "i-0be69dc84b0354bde"
+    },
+    "routes": "primary.LWArw4t5QaCHiHsEJo6hFA.0.us-west-1.i-0be69dc84b0354bde.aws-provisioner-v1.gecko-1-decision.gecko-level-1.VQg1HZ5yS0ixZvsnHLWuFw._"
+  },
+  "MrYMxyDDSwWXJey-uo4T3g": {
+    "exchange": "exchange/taskcluster-queue/v1/task-completed",
+    "payload": {
+      "runId": 0,
+      "status": {
+        "deadline": "2019-06-27T18:07:24.130Z",
+        "expires": "2020-06-25T18:07:24.130Z",
+        "provisionerId": "aws-provisioner-v1",
+        "retriesLeft": 5,
+        "runs": [
+          {
+            "reasonCreated": "scheduled",
+            "reasonResolved": "completed",
+            "resolved": "2019-06-26T19:36:04.439Z",
+            "runId": 0,
+            "scheduled": "2019-06-26T19:18:08.175Z",
+            "started": "2019-06-26T19:18:08.696Z",
+            "state": "completed",
+            "takenUntil": "2019-06-26T19:55:08.710Z",
+            "workerGroup": "us-west-1",
+            "workerId": "i-08b6fd26055d2603e"
+          }
+        ],
+        "schedulerId": "gecko-level-3",
+        "state": "completed",
+        "taskGroupId": "EJAo7mQyRqS-jmzebhceFA",
+        "taskId": "MrYMxyDDSwWXJey-uo4T3g",
+        "workerType": "gecko-t-win10-64-gpu"
+      },
+      "version": 1,
+      "workerGroup": "us-west-1",
+      "workerId": "i-08b6fd26055d2603e"
+    },
+    "routes": "primary.MrYMxyDDSwWXJey-uo4T3g.0.us-west-1.i-08b6fd26055d2603e.aws-provisioner-v1.gecko-t-win10-64-gpu.gecko-level-3.EJAo7mQyRqS-jmzebhceFA._"
+  },
+  "NWz-q9MoSL-WMfO7kiwhtg": {
+    "exchange": "exchange/taskcluster-queue/v1/task-pending",
+    "payload": {
+      "runId": 0,
+      "status": {
+        "deadline": "2019-06-27T19:13:53.397Z",
+        "expires": "2020-06-25T19:13:53.397Z",
+        "provisionerId": "aws-provisioner-v1",
+        "retriesLeft": 5,
+        "runs": [
+          {
+            "reasonCreated": "scheduled",
+            "runId": 0,
+            "scheduled": "2019-06-26T19:36:10.615Z",
+            "state": "pending"
+          }
+        ],
+        "schedulerId": "gecko-level-3",
+        "state": "pending",
+        "taskGroupId": "XrWNyFwpT2in-wLY9frb-w",
+        "taskId": "NWz-q9MoSL-WMfO7kiwhtg",
+        "workerType": "gecko-t-linux-large"
+      },
+      "version": 1
+    },
+    "routes": "primary.NWz-q9MoSL-WMfO7kiwhtg.0._._.aws-provisioner-v1.gecko-t-linux-large.gecko-level-3.XrWNyFwpT2in-wLY9frb-w._"
+  },
+  "OiZYxvi5RfKol0A4SBbvOw": {
+    "exchange": "exchange/taskcluster-queue/v1/task-completed",
+    "payload": {
+      "runId": 0,
+      "status": {
+        "deadline": "2019-06-27T18:53:21.527Z",
+        "expires": "2020-06-25T18:53:21.527Z",
+        "provisionerId": "aws-provisioner-v1",
+        "retriesLeft": 5,
+        "runs": [
+          {
+            "reasonCreated": "scheduled",
+            "reasonResolved": "completed",
+            "resolved": "2019-06-26T19:36:07.112Z",
+            "runId": 0,
+            "scheduled": "2019-06-26T19:14:05.165Z",
+            "started": "2019-06-26T19:14:05.561Z",
+            "state": "completed",
+            "takenUntil": "2019-06-26T19:49:28.461Z",
+            "workerGroup": "us-east-1",
+            "workerId": "i-0d0f91277e3f902cc"
+          }
+        ],
+        "schedulerId": "gecko-level-3",
+        "state": "completed",
+        "taskGroupId": "Vo0j4wv3RFai2uA5IGZ1Cw",
+        "taskId": "OiZYxvi5RfKol0A4SBbvOw",
+        "workerType": "gecko-t-linux-xlarge"
+      },
+      "version": 1,
+      "workerGroup": "us-east-1",
+      "workerId": "i-0d0f91277e3f902cc"
+    },
+    "routes": "primary.OiZYxvi5RfKol0A4SBbvOw.0.us-east-1.i-0d0f91277e3f902cc.aws-provisioner-v1.gecko-t-linux-xlarge.gecko-level-3.Vo0j4wv3RFai2uA5IGZ1Cw._"
+  },
+  "PCVDCxY9QM-lEgaGhrCPrw": {
+    "exchange": "exchange/taskcluster-queue/v1/task-completed",
+    "payload": {
+      "runId": 0,
+      "status": {
+        "deadline": "2019-06-27T17:59:19.096Z",
+        "expires": "2019-07-10T17:59:19.096Z",
+        "provisionerId": "aws-provisioner-v1",
+        "retriesLeft": 5,
+        "runs": [
+          {
+            "reasonCreated": "scheduled",
+            "reasonResolved": "completed",
+            "resolved": "2019-06-26T19:36:10.069Z",
+            "runId": 0,
+            "scheduled": "2019-06-26T19:03:30.162Z",
+            "started": "2019-06-26T19:03:30.706Z",
+            "state": "completed",
+            "takenUntil": "2019-06-26T19:40:32.187Z",
+            "workerGroup": "us-west-1",
+            "workerId": "i-0bd696849d1151857"
+          }
+        ],
+        "schedulerId": "gecko-level-1",
+        "state": "completed",
+        "taskGroupId": "EiRNaGPeQjCB0ceF-A-Kdw",
+        "taskId": "PCVDCxY9QM-lEgaGhrCPrw",
+        "workerType": "gecko-t-win10-64"
+      },
+      "version": 1,
+      "workerGroup": "us-west-1",
+      "workerId": "i-0bd696849d1151857"
+    },
+    "routes": "primary.PCVDCxY9QM-lEgaGhrCPrw.0.us-west-1.i-0bd696849d1151857.aws-provisioner-v1.gecko-t-win10-64.gecko-level-1.EiRNaGPeQjCB0ceF-A-Kdw._"
+  },
+  "Pr3zPNMqS8CAY6hHB_lwow": {
+    "exchange": "exchange/taskcluster-queue/v1/task-pending",
+    "payload": {
+      "runId": 0,
+      "status": {
+        "deadline": "2019-06-27T19:14:01.910Z",
+        "expires": "2020-06-25T19:14:01.910Z",
+        "provisionerId": "aws-provisioner-v1",
+        "retriesLeft": 5,
+        "runs": [
+          {
+            "reasonCreated": "scheduled",
+            "runId": 0,
+            "scheduled": "2019-06-26T19:36:10.796Z",
+            "state": "pending"
+          }
+        ],
+        "schedulerId": "gecko-level-3",
+        "state": "pending",
+        "taskGroupId": "XrWNyFwpT2in-wLY9frb-w",
+        "taskId": "Pr3zPNMqS8CAY6hHB_lwow",
+        "workerType": "gecko-t-linux-xlarge"
+      },
+      "version": 1
+    },
+    "routes": "primary.Pr3zPNMqS8CAY6hHB_lwow.0._._.aws-provisioner-v1.gecko-t-linux-xlarge.gecko-level-3.XrWNyFwpT2in-wLY9frb-w._"
+  },
+  "Q5dgajTmQaG3bW8xf8mWRw": {
+    "exchange": "exchange/taskcluster-queue/v1/task-pending",
+    "payload": {
+      "runId": 0,
+      "status": {
+        "deadline": "2019-06-27T19:14:01.491Z",
+        "expires": "2020-06-25T19:14:01.491Z",
+        "provisionerId": "aws-provisioner-v1",
+        "retriesLeft": 5,
+        "runs": [
+          {
+            "reasonCreated": "scheduled",
+            "runId": 0,
+            "scheduled": "2019-06-26T19:36:10.609Z",
+            "state": "pending"
+          }
+        ],
+        "schedulerId": "gecko-level-3",
+        "state": "pending",
+        "taskGroupId": "XrWNyFwpT2in-wLY9frb-w",
+        "taskId": "Q5dgajTmQaG3bW8xf8mWRw",
+        "workerType": "gecko-t-linux-large"
+      },
+      "version": 1
+    },
+    "routes": "primary.Q5dgajTmQaG3bW8xf8mWRw.0._._.aws-provisioner-v1.gecko-t-linux-large.gecko-level-3.XrWNyFwpT2in-wLY9frb-w._"
+  },
+  "QDGdgQTQRC2xZNR3Zs_IhA": {
+    "exchange": "exchange/taskcluster-queue/v1/task-completed",
+    "payload": {
+      "runId": 0,
+      "status": {
+        "deadline": "2019-06-27T17:59:20.986Z",
+        "expires": "2019-07-10T17:59:20.986Z",
+        "provisionerId": "aws-provisioner-v1",
+        "retriesLeft": 5,
+        "runs": [
+          {
+            "reasonCreated": "scheduled",
+            "reasonResolved": "completed",
+            "resolved": "2019-06-26T19:36:05.940Z",
+            "runId": 0,
+            "scheduled": "2019-06-26T19:03:30.262Z",
+            "started": "2019-06-26T19:03:30.714Z",
+            "state": "completed",
+            "takenUntil": "2019-06-26T19:40:31.671Z",
+            "workerGroup": "us-west-2",
+            "workerId": "i-0de7ae42ffc13af93"
+          }
+        ],
+        "schedulerId": "gecko-level-1",
+        "state": "completed",
+        "taskGroupId": "EiRNaGPeQjCB0ceF-A-Kdw",
+        "taskId": "QDGdgQTQRC2xZNR3Zs_IhA",
+        "workerType": "gecko-t-win10-64"
+      },
+      "version": 1,
+      "workerGroup": "us-west-2",
+      "workerId": "i-0de7ae42ffc13af93"
+    },
+    "routes": "primary.QDGdgQTQRC2xZNR3Zs_IhA.0.us-west-2.i-0de7ae42ffc13af93.aws-provisioner-v1.gecko-t-win10-64.gecko-level-1.EiRNaGPeQjCB0ceF-A-Kdw._"
+  },
+  "QUhTaNzmR-SnLuVMscnSYA": {
+    "exchange": "exchange/taskcluster-queue/v1/task-running",
+    "payload": {
+      "runId": 0,
+      "status": {
+        "deadline": "2019-06-27T19:34:53.568Z",
+        "expires": "2019-07-24T19:34:53.568Z",
+        "provisionerId": "aws-provisioner-v1",
+        "retriesLeft": 5,
+        "runs": [
+          {
+            "reasonCreated": "scheduled",
+            "runId": 0,
+            "scheduled": "2019-06-26T19:34:53.892Z",
+            "started": "2019-06-26T19:36:08.714Z",
+            "state": "running",
+            "takenUntil": "2019-06-26T19:56:08.643Z",
+            "workerGroup": "us-west-1",
+            "workerId": "i-0da13f5d4e5576fd5"
+          }
+        ],
+        "schedulerId": "gecko-level-1",
+        "state": "running",
+        "taskGroupId": "VQg1HZ5yS0ixZvsnHLWuFw",
+        "taskId": "QUhTaNzmR-SnLuVMscnSYA",
+        "workerType": "gecko-1-decision"
+      },
+      "takenUntil": "2019-06-26T19:56:08.643Z",
+      "version": 1,
+      "workerGroup": "us-west-1",
+      "workerId": "i-0da13f5d4e5576fd5"
+    },
+    "routes": "primary.QUhTaNzmR-SnLuVMscnSYA.0.us-west-1.i-0da13f5d4e5576fd5.aws-provisioner-v1.gecko-1-decision.gecko-level-1.VQg1HZ5yS0ixZvsnHLWuFw._"
+  },
+  "QbJceuUbQF-SAHp_tuN4bg": {
+    "exchange": "exchange/taskcluster-queue/v1/task-pending",
+    "payload": {
+      "runId": 0,
+      "status": {
+        "deadline": "2019-06-27T19:14:00.049Z",
+        "expires": "2020-06-25T19:14:00.049Z",
+        "provisionerId": "aws-provisioner-v1",
+        "retriesLeft": 5,
+        "runs": [
+          {
+            "reasonCreated": "scheduled",
+            "runId": 0,
+            "scheduled": "2019-06-26T19:36:10.602Z",
+            "state": "pending"
+          }
+        ],
+        "schedulerId": "gecko-level-3",
+        "state": "pending",
+        "taskGroupId": "XrWNyFwpT2in-wLY9frb-w",
+        "taskId": "QbJceuUbQF-SAHp_tuN4bg",
+        "workerType": "gecko-t-linux-large"
+      },
+      "version": 1
+    },
+    "routes": "primary.QbJceuUbQF-SAHp_tuN4bg.0._._.aws-provisioner-v1.gecko-t-linux-large.gecko-level-3.XrWNyFwpT2in-wLY9frb-w._"
+  },
+  "TNBQvfFkR0KoVFz_7QIkIw": {
+    "exchange": "exchange/taskcluster-queue/v1/task-pending",
+    "payload": {
+      "runId": 0,
+      "status": {
+        "deadline": "2019-06-27T19:13:58.681Z",
+        "expires": "2020-06-25T19:13:58.681Z",
+        "provisionerId": "aws-provisioner-v1",
+        "retriesLeft": 5,
+        "runs": [
+          {
+            "reasonCreated": "scheduled",
+            "runId": 0,
+            "scheduled": "2019-06-26T19:36:10.506Z",
+            "state": "pending"
+          }
+        ],
+        "schedulerId": "gecko-level-3",
+        "state": "pending",
+        "taskGroupId": "XrWNyFwpT2in-wLY9frb-w",
+        "taskId": "TNBQvfFkR0KoVFz_7QIkIw",
+        "workerType": "gecko-t-linux-large"
+      },
+      "version": 1
+    },
+    "routes": "primary.TNBQvfFkR0KoVFz_7QIkIw.0._._.aws-provisioner-v1.gecko-t-linux-large.gecko-level-3.XrWNyFwpT2in-wLY9frb-w._"
+  },
+  "TacsT1-FSMia0IGkYP-cTQ": {
+    "exchange": "exchange/taskcluster-queue/v1/task-pending",
+    "payload": {
+      "runId": 0,
+      "status": {
+        "deadline": "2019-06-27T19:14:04.882Z",
+        "expires": "2020-06-25T19:14:04.882Z",
+        "provisionerId": "aws-provisioner-v1",
+        "retriesLeft": 5,
+        "runs": [
+          {
+            "reasonCreated": "scheduled",
+            "runId": 0,
+            "scheduled": "2019-06-26T19:36:10.543Z",
+            "state": "pending"
+          }
+        ],
+        "schedulerId": "gecko-level-3",
+        "state": "pending",
+        "taskGroupId": "XrWNyFwpT2in-wLY9frb-w",
+        "taskId": "TacsT1-FSMia0IGkYP-cTQ",
+        "workerType": "gecko-t-linux-large"
+      },
+      "version": 1
+    },
+    "routes": "primary.TacsT1-FSMia0IGkYP-cTQ.0._._.aws-provisioner-v1.gecko-t-linux-large.gecko-level-3.XrWNyFwpT2in-wLY9frb-w._"
+  },
+  "TbO_k663R3St6hBFE92StQ": {
+    "exchange": "exchange/taskcluster-queue/v1/task-pending",
+    "payload": {
+      "runId": 0,
+      "status": {
+        "deadline": "2019-06-27T19:14:06.786Z",
+        "expires": "2020-06-25T19:14:06.786Z",
+        "provisionerId": "aws-provisioner-v1",
+        "retriesLeft": 5,
+        "runs": [
+          {
+            "reasonCreated": "scheduled",
+            "runId": 0,
+            "scheduled": "2019-06-26T19:36:10.244Z",
+            "state": "pending"
+          }
+        ],
+        "schedulerId": "gecko-level-3",
+        "state": "pending",
+        "taskGroupId": "XrWNyFwpT2in-wLY9frb-w",
+        "taskId": "TbO_k663R3St6hBFE92StQ",
+        "workerType": "gecko-t-linux-large"
+      },
+      "version": 1
+    },
+    "routes": "primary.TbO_k663R3St6hBFE92StQ.0._._.aws-provisioner-v1.gecko-t-linux-large.gecko-level-3.XrWNyFwpT2in-wLY9frb-w._"
+  },
+  "TwPxQPQiQLC0jwp0Crf4sw": {
+    "exchange": "exchange/taskcluster-queue/v1/task-pending",
+    "payload": {
+      "runId": 0,
+      "status": {
+        "deadline": "2019-06-27T19:13:50.881Z",
+        "expires": "2020-06-25T19:13:50.881Z",
+        "provisionerId": "aws-provisioner-v1",
+        "retriesLeft": 5,
+        "runs": [
+          {
+            "reasonCreated": "scheduled",
+            "runId": 0,
+            "scheduled": "2019-06-26T19:36:10.271Z",
+            "state": "pending"
+          }
+        ],
+        "schedulerId": "gecko-level-3",
+        "state": "pending",
+        "taskGroupId": "XrWNyFwpT2in-wLY9frb-w",
+        "taskId": "TwPxQPQiQLC0jwp0Crf4sw",
+        "workerType": "gecko-t-linux-xlarge"
+      },
+      "version": 1
+    },
+    "routes": "primary.TwPxQPQiQLC0jwp0Crf4sw.0._._.aws-provisioner-v1.gecko-t-linux-xlarge.gecko-level-3.XrWNyFwpT2in-wLY9frb-w._"
+  },
+  "UAEeps8wSMmoL4r0MdjlXA": {
+    "exchange": "exchange/taskcluster-queue/v1/task-running",
+    "payload": {
+      "runId": 0,
+      "status": {
+        "deadline": "2019-06-27T19:14:01.375Z",
+        "expires": "2020-06-25T19:14:01.375Z",
+        "provisionerId": "aws-provisioner-v1",
+        "retriesLeft": 5,
+        "runs": [
+          {
+            "reasonCreated": "scheduled",
+            "runId": 0,
+            "scheduled": "2019-06-26T19:36:10.212Z",
+            "started": "2019-06-26T19:36:11.065Z",
+            "state": "running",
+            "takenUntil": "2019-06-26T19:56:10.993Z",
+            "workerGroup": "us-west-2",
+            "workerId": "i-07dbb95ac410df8f7"
+          }
+        ],
+        "schedulerId": "gecko-level-3",
+        "state": "running",
+        "taskGroupId": "XrWNyFwpT2in-wLY9frb-w",
+        "taskId": "UAEeps8wSMmoL4r0MdjlXA",
+        "workerType": "gecko-t-linux-large"
+      },
+      "takenUntil": "2019-06-26T19:56:10.993Z",
+      "version": 1,
+      "workerGroup": "us-west-2",
+      "workerId": "i-07dbb95ac410df8f7"
+    },
+    "routes": "primary.UAEeps8wSMmoL4r0MdjlXA.0.us-west-2.i-07dbb95ac410df8f7.aws-provisioner-v1.gecko-t-linux-large.gecko-level-3.XrWNyFwpT2in-wLY9frb-w._"
+  },
+  "UWjPMpssTgq0kA7hj9QtJw": {
+    "exchange": "exchange/taskcluster-queue/v1/task-pending",
+    "payload": {
+      "runId": 0,
+      "status": {
+        "deadline": "2019-06-27T19:13:53.237Z",
+        "expires": "2020-06-25T19:13:53.237Z",
+        "provisionerId": "aws-provisioner-v1",
+        "retriesLeft": 5,
+        "runs": [
+          {
+            "reasonCreated": "scheduled",
+            "runId": 0,
+            "scheduled": "2019-06-26T19:36:10.496Z",
+            "state": "pending"
+          }
+        ],
+        "schedulerId": "gecko-level-3",
+        "state": "pending",
+        "taskGroupId": "XrWNyFwpT2in-wLY9frb-w",
+        "taskId": "UWjPMpssTgq0kA7hj9QtJw",
+        "workerType": "gecko-t-linux-large"
+      },
+      "version": 1
+    },
+    "routes": "primary.UWjPMpssTgq0kA7hj9QtJw.0._._.aws-provisioner-v1.gecko-t-linux-large.gecko-level-3.XrWNyFwpT2in-wLY9frb-w._"
+  },
+  "UZ37gpDqTRS1pBNnp0Spsg": {
+    "exchange": "exchange/taskcluster-queue/v1/task-completed",
+    "payload": {
+      "runId": 0,
+      "status": {
+        "deadline": "2019-06-27T18:24:20.696Z",
+        "expires": "2020-06-25T18:24:20.696Z",
+        "provisionerId": "aws-provisioner-v1",
+        "retriesLeft": 5,
+        "runs": [
+          {
+            "reasonCreated": "scheduled",
+            "reasonResolved": "completed",
+            "resolved": "2019-06-26T19:36:08.133Z",
+            "runId": 0,
+            "scheduled": "2019-06-26T19:12:27.722Z",
+            "started": "2019-06-26T19:12:28.309Z",
+            "state": "completed",
+            "takenUntil": "2019-06-26T19:47:52.065Z",
+            "workerGroup": "us-west-2",
+            "workerId": "i-0d6489faaf7371ecb"
+          }
+        ],
+        "schedulerId": "gecko-level-3",
+        "state": "completed",
+        "taskGroupId": "HkX-TbGXQaSX4ucqGMQNBA",
+        "taskId": "UZ37gpDqTRS1pBNnp0Spsg",
+        "workerType": "gecko-t-linux-large"
+      },
+      "version": 1,
+      "workerGroup": "us-west-2",
+      "workerId": "i-0d6489faaf7371ecb"
+    },
+    "routes": "primary.UZ37gpDqTRS1pBNnp0Spsg.0.us-west-2.i-0d6489faaf7371ecb.aws-provisioner-v1.gecko-t-linux-large.gecko-level-3.HkX-TbGXQaSX4ucqGMQNBA._"
+  },
+  "UoGLhHlwT4mH3h3ukcm_Ig": {
+    "exchange": "exchange/taskcluster-queue/v1/task-pending",
+    "payload": {
+      "runId": 0,
+      "status": {
+        "deadline": "2019-06-27T19:14:02.299Z",
+        "expires": "2020-06-25T19:14:02.299Z",
+        "provisionerId": "aws-provisioner-v1",
+        "retriesLeft": 5,
+        "runs": [
+          {
+            "reasonCreated": "scheduled",
+            "runId": 0,
+            "scheduled": "2019-06-26T19:36:10.676Z",
+            "state": "pending"
+          }
+        ],
+        "schedulerId": "gecko-level-3",
+        "state": "pending",
+        "taskGroupId": "XrWNyFwpT2in-wLY9frb-w",
+        "taskId": "UoGLhHlwT4mH3h3ukcm_Ig",
+        "workerType": "gecko-t-linux-large"
+      },
+      "version": 1
+    },
+    "routes": "primary.UoGLhHlwT4mH3h3ukcm_Ig.0._._.aws-provisioner-v1.gecko-t-linux-large.gecko-level-3.XrWNyFwpT2in-wLY9frb-w._"
+  },
+  "UxS4jt6lQdyUYnPcmN-z-w": {
+    "exchange": "exchange/taskcluster-queue/v1/task-pending",
+    "payload": {
+      "runId": 0,
+      "status": {
+        "deadline": "2019-06-27T19:13:50.335Z",
+        "expires": "2020-06-25T19:13:50.335Z",
+        "provisionerId": "aws-provisioner-v1",
+        "retriesLeft": 5,
+        "runs": [
+          {
+            "reasonCreated": "scheduled",
+            "runId": 0,
+            "scheduled": "2019-06-26T19:36:10.380Z",
+            "state": "pending"
+          }
+        ],
+        "schedulerId": "gecko-level-3",
+        "state": "pending",
+        "taskGroupId": "XrWNyFwpT2in-wLY9frb-w",
+        "taskId": "UxS4jt6lQdyUYnPcmN-z-w",
+        "workerType": "gecko-t-linux-xlarge"
+      },
+      "version": 1
+    },
+    "routes": "primary.UxS4jt6lQdyUYnPcmN-z-w.0._._.aws-provisioner-v1.gecko-t-linux-xlarge.gecko-level-3.XrWNyFwpT2in-wLY9frb-w._"
+  },
+  "VGU4RUKFScaK8eBikMi9IQ": {
+    "exchange": "exchange/taskcluster-queue/v1/task-pending",
+    "payload": {
+      "runId": 0,
+      "status": {
+        "deadline": "2019-06-27T19:13:57.321Z",
+        "expires": "2020-06-25T19:13:57.321Z",
+        "provisionerId": "aws-provisioner-v1",
+        "retriesLeft": 5,
+        "runs": [
+          {
+            "reasonCreated": "scheduled",
+            "runId": 0,
+            "scheduled": "2019-06-26T19:36:10.475Z",
+            "state": "pending"
+          }
+        ],
+        "schedulerId": "gecko-level-3",
+        "state": "pending",
+        "taskGroupId": "XrWNyFwpT2in-wLY9frb-w",
+        "taskId": "VGU4RUKFScaK8eBikMi9IQ",
+        "workerType": "gecko-t-linux-large"
+      },
+      "version": 1
+    },
+    "routes": "primary.VGU4RUKFScaK8eBikMi9IQ.0._._.aws-provisioner-v1.gecko-t-linux-large.gecko-level-3.XrWNyFwpT2in-wLY9frb-w._"
+  },
+  "VqbRb6bZSlywWOQN62tk-g": {
+    "exchange": "exchange/taskcluster-queue/v1/task-pending",
+    "payload": {
+      "runId": 0,
+      "status": {
+        "deadline": "2019-06-27T19:14:00.780Z",
+        "expires": "2020-06-25T19:14:00.780Z",
+        "provisionerId": "aws-provisioner-v1",
+        "retriesLeft": 5,
+        "runs": [
+          {
+            "reasonCreated": "scheduled",
+            "runId": 0,
+            "scheduled": "2019-06-26T19:36:10.485Z",
+            "state": "pending"
+          }
+        ],
+        "schedulerId": "gecko-level-3",
+        "state": "pending",
+        "taskGroupId": "XrWNyFwpT2in-wLY9frb-w",
+        "taskId": "VqbRb6bZSlywWOQN62tk-g",
+        "workerType": "gecko-t-linux-large"
+      },
+      "version": 1
+    },
+    "routes": "primary.VqbRb6bZSlywWOQN62tk-g.0._._.aws-provisioner-v1.gecko-t-linux-large.gecko-level-3.XrWNyFwpT2in-wLY9frb-w._"
+  },
+  "VspVGZYjSAqqsg6CGgv-rw": {
+    "exchange": "exchange/taskcluster-queue/v1/task-pending",
+    "payload": {
+      "runId": 0,
+      "status": {
+        "deadline": "2019-06-27T19:13:51.089Z",
+        "expires": "2020-06-25T19:13:51.089Z",
+        "provisionerId": "aws-provisioner-v1",
+        "retriesLeft": 5,
+        "runs": [
+          {
+            "reasonCreated": "scheduled",
+            "runId": 0,
+            "scheduled": "2019-06-26T19:36:10.412Z",
+            "state": "pending"
+          }
+        ],
+        "schedulerId": "gecko-level-3",
+        "state": "pending",
+        "taskGroupId": "XrWNyFwpT2in-wLY9frb-w",
+        "taskId": "VspVGZYjSAqqsg6CGgv-rw",
+        "workerType": "gecko-t-linux-large"
+      },
+      "version": 1
+    },
+    "routes": "primary.VspVGZYjSAqqsg6CGgv-rw.0._._.aws-provisioner-v1.gecko-t-linux-large.gecko-level-3.XrWNyFwpT2in-wLY9frb-w._"
+  },
+  "WkFYxflwT76VzWNc6hryiQ": {
+    "exchange": "exchange/taskcluster-queue/v1/task-pending",
+    "payload": {
+      "runId": 0,
+      "status": {
+        "deadline": "2019-06-27T19:13:59.334Z",
+        "expires": "2020-06-25T19:13:59.334Z",
+        "provisionerId": "aws-provisioner-v1",
+        "retriesLeft": 5,
+        "runs": [
+          {
+            "reasonCreated": "scheduled",
+            "runId": 0,
+            "scheduled": "2019-06-26T19:36:10.434Z",
+            "state": "pending"
+          }
+        ],
+        "schedulerId": "gecko-level-3",
+        "state": "pending",
+        "taskGroupId": "XrWNyFwpT2in-wLY9frb-w",
+        "taskId": "WkFYxflwT76VzWNc6hryiQ",
+        "workerType": "gecko-t-linux-large"
+      },
+      "version": 1
+    },
+    "routes": "primary.WkFYxflwT76VzWNc6hryiQ.0._._.aws-provisioner-v1.gecko-t-linux-large.gecko-level-3.XrWNyFwpT2in-wLY9frb-w._"
+  },
+  "XOw2FYEdSb2hwS_lj2bDAg": {
+    "exchange": "exchange/taskcluster-queue/v1/task-running",
+    "payload": {
+      "runId": 0,
+      "status": {
+        "deadline": "2019-06-27T19:34:51.304Z",
+        "expires": "2019-07-24T19:34:51.304Z",
+        "provisionerId": "aws-provisioner-v1",
+        "retriesLeft": 5,
+        "runs": [
+          {
+            "reasonCreated": "scheduled",
+            "runId": 0,
+            "scheduled": "2019-06-26T19:34:51.645Z",
+            "started": "2019-06-26T19:36:05.551Z",
+            "state": "running",
+            "takenUntil": "2019-06-26T19:56:05.471Z",
+            "workerGroup": "us-west-1",
+            "workerId": "i-019077061bddb4fe7"
+          }
+        ],
+        "schedulerId": "gecko-level-1",
+        "state": "running",
+        "taskGroupId": "VQg1HZ5yS0ixZvsnHLWuFw",
+        "taskId": "XOw2FYEdSb2hwS_lj2bDAg",
+        "workerType": "gecko-1-decision"
+      },
+      "takenUntil": "2019-06-26T19:56:05.471Z",
+      "version": 1,
+      "workerGroup": "us-west-1",
+      "workerId": "i-019077061bddb4fe7"
+    },
+    "routes": "primary.XOw2FYEdSb2hwS_lj2bDAg.0.us-west-1.i-019077061bddb4fe7.aws-provisioner-v1.gecko-1-decision.gecko-level-1.VQg1HZ5yS0ixZvsnHLWuFw._"
+  },
+  "XQdfjjACRJCmpqKjLxLRXA": {
+    "exchange": "exchange/taskcluster-queue/v1/task-pending",
+    "payload": {
+      "runId": 0,
+      "status": {
+        "deadline": "2019-06-27T19:13:54.967Z",
+        "expires": "2020-06-25T19:13:54.967Z",
+        "provisionerId": "aws-provisioner-v1",
+        "retriesLeft": 5,
+        "runs": [
+          {
+            "reasonCreated": "scheduled",
+            "runId": 0,
+            "scheduled": "2019-06-26T19:36:10.418Z",
+            "state": "pending"
+          }
+        ],
+        "schedulerId": "gecko-level-3",
+        "state": "pending",
+        "taskGroupId": "XrWNyFwpT2in-wLY9frb-w",
+        "taskId": "XQdfjjACRJCmpqKjLxLRXA",
+        "workerType": "gecko-t-linux-xlarge"
+      },
+      "version": 1
+    },
+    "routes": "primary.XQdfjjACRJCmpqKjLxLRXA.0._._.aws-provisioner-v1.gecko-t-linux-xlarge.gecko-level-3.XrWNyFwpT2in-wLY9frb-w._"
+  },
+  "XiZuJW7MQ-GrC7iV81YWdw": {
+    "exchange": "exchange/taskcluster-queue/v1/task-pending",
+    "payload": {
+      "runId": 0,
+      "status": {
+        "deadline": "2019-06-27T19:14:03.175Z",
+        "expires": "2020-06-25T19:14:03.175Z",
+        "provisionerId": "aws-provisioner-v1",
+        "retriesLeft": 5,
+        "runs": [
+          {
+            "reasonCreated": "scheduled",
+            "runId": 0,
+            "scheduled": "2019-06-26T19:36:10.351Z",
+            "state": "pending"
+          }
+        ],
+        "schedulerId": "gecko-level-3",
+        "state": "pending",
+        "taskGroupId": "XrWNyFwpT2in-wLY9frb-w",
+        "taskId": "XiZuJW7MQ-GrC7iV81YWdw",
+        "workerType": "gecko-t-linux-large"
+      },
+      "version": 1
+    },
+    "routes": "primary.XiZuJW7MQ-GrC7iV81YWdw.0._._.aws-provisioner-v1.gecko-t-linux-large.gecko-level-3.XrWNyFwpT2in-wLY9frb-w._"
+  },
+  "Xxznj5R9QCS-7iqptegltQ": {
+    "exchange": "exchange/taskcluster-queue/v1/task-pending",
+    "payload": {
+      "runId": 0,
+      "status": {
+        "deadline": "2019-06-27T19:13:52.515Z",
+        "expires": "2020-06-25T19:13:52.515Z",
+        "provisionerId": "aws-provisioner-v1",
+        "retriesLeft": 5,
+        "runs": [
+          {
+            "reasonCreated": "scheduled",
+            "runId": 0,
+            "scheduled": "2019-06-26T19:36:10.362Z",
+            "state": "pending"
+          }
+        ],
+        "schedulerId": "gecko-level-3",
+        "state": "pending",
+        "taskGroupId": "XrWNyFwpT2in-wLY9frb-w",
+        "taskId": "Xxznj5R9QCS-7iqptegltQ",
+        "workerType": "gecko-t-linux-large"
+      },
+      "version": 1
+    },
+    "routes": "primary.Xxznj5R9QCS-7iqptegltQ.0._._.aws-provisioner-v1.gecko-t-linux-large.gecko-level-3.XrWNyFwpT2in-wLY9frb-w._"
+  },
+  "Y32tr9w0Tlu67dz74wiCyg": {
+    "exchange": "exchange/taskcluster-queue/v1/task-pending",
+    "payload": {
+      "runId": 0,
+      "status": {
+        "deadline": "2019-06-27T19:13:57.583Z",
+        "expires": "2020-06-25T19:13:57.583Z",
+        "provisionerId": "aws-provisioner-v1",
+        "retriesLeft": 5,
+        "runs": [
+          {
+            "reasonCreated": "scheduled",
+            "runId": 0,
+            "scheduled": "2019-06-26T19:36:10.359Z",
+            "state": "pending"
+          }
+        ],
+        "schedulerId": "gecko-level-3",
+        "state": "pending",
+        "taskGroupId": "XrWNyFwpT2in-wLY9frb-w",
+        "taskId": "Y32tr9w0Tlu67dz74wiCyg",
+        "workerType": "gecko-t-linux-large"
+      },
+      "version": 1
+    },
+    "routes": "primary.Y32tr9w0Tlu67dz74wiCyg.0._._.aws-provisioner-v1.gecko-t-linux-large.gecko-level-3.XrWNyFwpT2in-wLY9frb-w._"
+  },
+  "Y6Zdr078RvemM_nabfiE3A": {
+    "exchange": "exchange/taskcluster-queue/v1/task-pending",
+    "payload": {
+      "runId": 0,
+      "status": {
+        "deadline": "2019-06-27T19:13:51.713Z",
+        "expires": "2020-06-25T19:13:51.713Z",
+        "provisionerId": "aws-provisioner-v1",
+        "retriesLeft": 5,
+        "runs": [
+          {
+            "reasonCreated": "scheduled",
+            "runId": 0,
+            "scheduled": "2019-06-26T19:36:10.398Z",
+            "state": "pending"
+          }
+        ],
+        "schedulerId": "gecko-level-3",
+        "state": "pending",
+        "taskGroupId": "XrWNyFwpT2in-wLY9frb-w",
+        "taskId": "Y6Zdr078RvemM_nabfiE3A",
+        "workerType": "gecko-t-linux-large"
+      },
+      "version": 1
+    },
+    "routes": "primary.Y6Zdr078RvemM_nabfiE3A.0._._.aws-provisioner-v1.gecko-t-linux-large.gecko-level-3.XrWNyFwpT2in-wLY9frb-w._"
+  },
+  "YUU6v89vRd669kauRLNk5g": {
+    "exchange": "exchange/taskcluster-queue/v1/task-pending",
+    "payload": {
+      "runId": 0,
+      "status": {
+        "deadline": "2019-06-27T19:13:53.839Z",
+        "expires": "2020-06-25T19:13:53.839Z",
+        "provisionerId": "aws-provisioner-v1",
+        "retriesLeft": 5,
+        "runs": [
+          {
+            "reasonCreated": "scheduled",
+            "runId": 0,
+            "scheduled": "2019-06-26T19:36:10.343Z",
+            "state": "pending"
+          }
+        ],
+        "schedulerId": "gecko-level-3",
+        "state": "pending",
+        "taskGroupId": "XrWNyFwpT2in-wLY9frb-w",
+        "taskId": "YUU6v89vRd669kauRLNk5g",
+        "workerType": "gecko-t-linux-large"
+      },
+      "version": 1
+    },
+    "routes": "primary.YUU6v89vRd669kauRLNk5g.0._._.aws-provisioner-v1.gecko-t-linux-large.gecko-level-3.XrWNyFwpT2in-wLY9frb-w._"
+  },
+  "YYCniY1ITuGl0fRNghknlQ": {
+    "exchange": "exchange/taskcluster-queue/v1/task-pending",
+    "payload": {
+      "runId": 0,
+      "status": {
+        "deadline": "2019-06-27T19:13:51.319Z",
+        "expires": "2020-06-25T19:13:51.319Z",
+        "provisionerId": "aws-provisioner-v1",
+        "retriesLeft": 5,
+        "runs": [
+          {
+            "reasonCreated": "scheduled",
+            "runId": 0,
+            "scheduled": "2019-06-26T19:36:10.635Z",
+            "state": "pending"
+          }
+        ],
+        "schedulerId": "gecko-level-3",
+        "state": "pending",
+        "taskGroupId": "XrWNyFwpT2in-wLY9frb-w",
+        "taskId": "YYCniY1ITuGl0fRNghknlQ",
+        "workerType": "gecko-t-linux-large"
+      },
+      "version": 1
+    },
+    "routes": "primary.YYCniY1ITuGl0fRNghknlQ.0._._.aws-provisioner-v1.gecko-t-linux-large.gecko-level-3.XrWNyFwpT2in-wLY9frb-w._"
+  },
+  "YgnJMukTS0efJHzTI5_AnA": {
+    "exchange": "exchange/taskcluster-queue/v1/task-pending",
+    "payload": {
+      "runId": 0,
+      "status": {
+        "deadline": "2019-06-27T19:14:00.375Z",
+        "expires": "2020-06-25T19:14:00.375Z",
+        "provisionerId": "aws-provisioner-v1",
+        "retriesLeft": 5,
+        "runs": [
+          {
+            "reasonCreated": "scheduled",
+            "runId": 0,
+            "scheduled": "2019-06-26T19:36:10.400Z",
+            "state": "pending"
+          }
+        ],
+        "schedulerId": "gecko-level-3",
+        "state": "pending",
+        "taskGroupId": "XrWNyFwpT2in-wLY9frb-w",
+        "taskId": "YgnJMukTS0efJHzTI5_AnA",
+        "workerType": "gecko-t-linux-xlarge"
+      },
+      "version": 1
+    },
+    "routes": "primary.YgnJMukTS0efJHzTI5_AnA.0._._.aws-provisioner-v1.gecko-t-linux-xlarge.gecko-level-3.XrWNyFwpT2in-wLY9frb-w._"
+  },
+  "ZPrilAZcSimdmLj9flM24w": {
+    "exchange": "exchange/taskcluster-queue/v1/task-pending",
+    "payload": {
+      "runId": 0,
+      "status": {
+        "deadline": "2019-06-27T19:13:58.724Z",
+        "expires": "2020-06-25T19:13:58.724Z",
+        "provisionerId": "aws-provisioner-v1",
+        "retriesLeft": 5,
+        "runs": [
+          {
+            "reasonCreated": "scheduled",
+            "runId": 0,
+            "scheduled": "2019-06-26T19:36:10.392Z",
+            "state": "pending"
+          }
+        ],
+        "schedulerId": "gecko-level-3",
+        "state": "pending",
+        "taskGroupId": "XrWNyFwpT2in-wLY9frb-w",
+        "taskId": "ZPrilAZcSimdmLj9flM24w",
+        "workerType": "gecko-t-linux-large"
+      },
+      "version": 1
+    },
+    "routes": "primary.ZPrilAZcSimdmLj9flM24w.0._._.aws-provisioner-v1.gecko-t-linux-large.gecko-level-3.XrWNyFwpT2in-wLY9frb-w._"
+  },
+  "ZnJOMTOcRwCZG09VY4InxQ": {
+    "exchange": "exchange/taskcluster-queue/v1/task-pending",
+    "payload": {
+      "runId": 0,
+      "status": {
+        "deadline": "2019-06-27T19:13:55.325Z",
+        "expires": "2020-06-25T19:13:55.325Z",
+        "provisionerId": "aws-provisioner-v1",
+        "retriesLeft": 5,
+        "runs": [
+          {
+            "reasonCreated": "scheduled",
+            "runId": 0,
+            "scheduled": "2019-06-26T19:36:10.489Z",
+            "state": "pending"
+          }
+        ],
+        "schedulerId": "gecko-level-3",
+        "state": "pending",
+        "taskGroupId": "XrWNyFwpT2in-wLY9frb-w",
+        "taskId": "ZnJOMTOcRwCZG09VY4InxQ",
+        "workerType": "gecko-t-linux-large"
+      },
+      "version": 1
+    },
+    "routes": "primary.ZnJOMTOcRwCZG09VY4InxQ.0._._.aws-provisioner-v1.gecko-t-linux-large.gecko-level-3.XrWNyFwpT2in-wLY9frb-w._"
+  },
+  "ZyNAZZR0SmOcgqC_k_wqsQ": {
+    "exchange": "exchange/taskcluster-queue/v1/task-completed",
+    "payload": {
+      "runId": 0,
+      "status": {
+        "deadline": "2019-06-27T19:13:47.872Z",
+        "expires": "2020-06-25T19:13:47.872Z",
+        "provisionerId": "aws-provisioner-v1",
+        "retriesLeft": 5,
+        "runs": [
+          {
+            "reasonCreated": "scheduled",
+            "reasonResolved": "completed",
+            "resolved": "2019-06-26T19:36:06.809Z",
+            "runId": 0,
+            "scheduled": "2019-06-26T19:14:55.917Z",
+            "started": "2019-06-26T19:14:56.370Z",
+            "state": "completed",
+            "takenUntil": "2019-06-26T19:50:20.078Z",
+            "workerGroup": "us-west-2",
+            "workerId": "i-01e55895145a2d19c"
+          }
+        ],
+        "schedulerId": "gecko-level-3",
+        "state": "completed",
+        "taskGroupId": "XrWNyFwpT2in-wLY9frb-w",
+        "taskId": "ZyNAZZR0SmOcgqC_k_wqsQ",
+        "workerType": "gecko-3-b-linux"
+      },
+      "version": 1,
+      "workerGroup": "us-west-2",
+      "workerId": "i-01e55895145a2d19c"
+    },
+    "routes": "primary.ZyNAZZR0SmOcgqC_k_wqsQ.0.us-west-2.i-01e55895145a2d19c.aws-provisioner-v1.gecko-3-b-linux.gecko-level-3.XrWNyFwpT2in-wLY9frb-w._"
+  },
+  "a1uUehQvSciykK6DUUNQbQ": {
+    "exchange": "exchange/taskcluster-queue/v1/task-pending",
+    "payload": {
+      "runId": 0,
+      "status": {
+        "deadline": "2019-06-27T19:13:51.060Z",
+        "expires": "2020-06-25T19:13:51.060Z",
+        "provisionerId": "aws-provisioner-v1",
+        "retriesLeft": 5,
+        "runs": [
+          {
+            "reasonCreated": "scheduled",
+            "runId": 0,
+            "scheduled": "2019-06-26T19:36:10.365Z",
+            "state": "pending"
+          }
+        ],
+        "schedulerId": "gecko-level-3",
+        "state": "pending",
+        "taskGroupId": "XrWNyFwpT2in-wLY9frb-w",
+        "taskId": "a1uUehQvSciykK6DUUNQbQ",
+        "workerType": "gecko-t-linux-large"
+      },
+      "version": 1
+    },
+    "routes": "primary.a1uUehQvSciykK6DUUNQbQ.0._._.aws-provisioner-v1.gecko-t-linux-large.gecko-level-3.XrWNyFwpT2in-wLY9frb-w._"
+  },
+  "a5UF8fEyQw-fx_32Qo-WjQ": {
+    "exchange": "exchange/taskcluster-queue/v1/task-running",
+    "payload": {
+      "runId": 0,
+      "status": {
+        "deadline": "2019-06-27T18:24:21.426Z",
+        "expires": "2020-06-25T18:24:21.426Z",
+        "provisionerId": "proj-autophone",
+        "retriesLeft": 5,
+        "runs": [
+          {
+            "reasonCreated": "scheduled",
+            "runId": 0,
+            "scheduled": "2019-06-26T19:13:37.621Z",
+            "started": "2019-06-26T19:36:09.832Z",
+            "state": "running",
+            "takenUntil": "2019-06-26T19:56:09.761Z",
+            "workerGroup": "bitbar",
+            "workerId": "pixel2-44"
+          }
+        ],
+        "schedulerId": "gecko-level-3",
+        "state": "running",
+        "taskGroupId": "HkX-TbGXQaSX4ucqGMQNBA",
+        "taskId": "a5UF8fEyQw-fx_32Qo-WjQ",
+        "workerType": "gecko-t-bitbar-gw-perf-p2"
+      },
+      "takenUntil": "2019-06-26T19:56:09.761Z",
+      "version": 1,
+      "workerGroup": "bitbar",
+      "workerId": "pixel2-44"
+    },
+    "routes": "primary.a5UF8fEyQw-fx_32Qo-WjQ.0.bitbar.pixel2-44.proj-autophone.gecko-t-bitbar-gw-perf-p2.gecko-level-3.HkX-TbGXQaSX4ucqGMQNBA._"
+  },
+  "aNf8J_ctQp6IjWJTxCAPbQ": {
+    "exchange": "exchange/taskcluster-queue/v1/task-pending",
+    "payload": {
+      "runId": 0,
+      "status": {
+        "deadline": "2019-06-27T19:14:01.381Z",
+        "expires": "2020-06-25T19:14:01.381Z",
+        "provisionerId": "aws-provisioner-v1",
+        "retriesLeft": 5,
+        "runs": [
+          {
+            "reasonCreated": "scheduled",
+            "runId": 0,
+            "scheduled": "2019-06-26T19:36:10.395Z",
+            "state": "pending"
+          }
+        ],
+        "schedulerId": "gecko-level-3",
+        "state": "pending",
+        "taskGroupId": "XrWNyFwpT2in-wLY9frb-w",
+        "taskId": "aNf8J_ctQp6IjWJTxCAPbQ",
+        "workerType": "gecko-t-linux-large"
+      },
+      "version": 1
+    },
+    "routes": "primary.aNf8J_ctQp6IjWJTxCAPbQ.0._._.aws-provisioner-v1.gecko-t-linux-large.gecko-level-3.XrWNyFwpT2in-wLY9frb-w._"
+  },
+  "aNlE6teASbGqtSK4XSeMkg": {
+    "exchange": "exchange/taskcluster-queue/v1/task-pending",
+    "payload": {
+      "runId": 0,
+      "status": {
+        "deadline": "2019-06-27T19:14:01.728Z",
+        "expires": "2020-06-25T19:14:01.728Z",
+        "provisionerId": "aws-provisioner-v1",
+        "retriesLeft": 5,
+        "runs": [
+          {
+            "reasonCreated": "scheduled",
+            "runId": 0,
+            "scheduled": "2019-06-26T19:36:10.332Z",
+            "state": "pending"
+          }
+        ],
+        "schedulerId": "gecko-level-3",
+        "state": "pending",
+        "taskGroupId": "XrWNyFwpT2in-wLY9frb-w",
+        "taskId": "aNlE6teASbGqtSK4XSeMkg",
+        "workerType": "gecko-t-linux-xlarge"
+      },
+      "version": 1
+    },
+    "routes": "primary.aNlE6teASbGqtSK4XSeMkg.0._._.aws-provisioner-v1.gecko-t-linux-xlarge.gecko-level-3.XrWNyFwpT2in-wLY9frb-w._"
+  },
+  "ac7vsMLASl6XS1O_VzlLXQ": {
+    "exchange": "exchange/taskcluster-queue/v1/task-pending",
+    "payload": {
+      "runId": 0,
+      "status": {
+        "deadline": "2019-06-27T19:13:56.844Z",
+        "expires": "2020-06-25T19:13:56.844Z",
+        "provisionerId": "aws-provisioner-v1",
+        "retriesLeft": 5,
+        "runs": [
+          {
+            "reasonCreated": "scheduled",
+            "runId": 0,
+            "scheduled": "2019-06-26T19:36:10.329Z",
+            "state": "pending"
+          }
+        ],
+        "schedulerId": "gecko-level-3",
+        "state": "pending",
+        "taskGroupId": "XrWNyFwpT2in-wLY9frb-w",
+        "taskId": "ac7vsMLASl6XS1O_VzlLXQ",
+        "workerType": "gecko-t-linux-xlarge"
+      },
+      "version": 1
+    },
+    "routes": "primary.ac7vsMLASl6XS1O_VzlLXQ.0._._.aws-provisioner-v1.gecko-t-linux-xlarge.gecko-level-3.XrWNyFwpT2in-wLY9frb-w._"
+  },
+  "aeWDjRcUQhudU4axBiCQ8A": {
+    "exchange": "exchange/taskcluster-queue/v1/task-pending",
+    "payload": {
+      "runId": 0,
+      "status": {
+        "deadline": "2019-06-27T19:13:50.117Z",
+        "expires": "2020-06-25T19:13:50.117Z",
+        "provisionerId": "aws-provisioner-v1",
+        "retriesLeft": 5,
+        "runs": [
+          {
+            "reasonCreated": "scheduled",
+            "runId": 0,
+            "scheduled": "2019-06-26T19:36:10.327Z",
+            "state": "pending"
+          }
+        ],
+        "schedulerId": "gecko-level-3",
+        "state": "pending",
+        "taskGroupId": "XrWNyFwpT2in-wLY9frb-w",
+        "taskId": "aeWDjRcUQhudU4axBiCQ8A",
+        "workerType": "gecko-t-linux-large"
+      },
+      "version": 1
+    },
+    "routes": "primary.aeWDjRcUQhudU4axBiCQ8A.0._._.aws-provisioner-v1.gecko-t-linux-large.gecko-level-3.XrWNyFwpT2in-wLY9frb-w._"
+  },
+  "b0DpnSIQQymnTTSXxRWmmg": {
+    "exchange": "exchange/taskcluster-queue/v1/task-pending",
+    "payload": {
+      "runId": 0,
+      "status": {
+        "deadline": "2019-06-27T19:13:51.395Z",
+        "expires": "2020-06-25T19:13:51.395Z",
+        "provisionerId": "aws-provisioner-v1",
+        "retriesLeft": 5,
+        "runs": [
+          {
+            "reasonCreated": "scheduled",
+            "runId": 0,
+            "scheduled": "2019-06-26T19:36:10.518Z",
+            "state": "pending"
+          }
+        ],
+        "schedulerId": "gecko-level-3",
+        "state": "pending",
+        "taskGroupId": "XrWNyFwpT2in-wLY9frb-w",
+        "taskId": "b0DpnSIQQymnTTSXxRWmmg",
+        "workerType": "gecko-t-linux-large"
+      },
+      "version": 1
+    },
+    "routes": "primary.b0DpnSIQQymnTTSXxRWmmg.0._._.aws-provisioner-v1.gecko-t-linux-large.gecko-level-3.XrWNyFwpT2in-wLY9frb-w._"
+  },
+  "ba34BnYgT_mv1g5BvrlXnQ": {
+    "exchange": "exchange/taskcluster-queue/v1/task-pending",
+    "payload": {
+      "runId": 0,
+      "status": {
+        "deadline": "2019-06-27T19:14:04.804Z",
+        "expires": "2020-06-25T19:14:04.804Z",
+        "provisionerId": "aws-provisioner-v1",
+        "retriesLeft": 5,
+        "runs": [
+          {
+            "reasonCreated": "scheduled",
+            "runId": 0,
+            "scheduled": "2019-06-26T19:36:10.718Z",
+            "state": "pending"
+          }
+        ],
+        "schedulerId": "gecko-level-3",
+        "state": "pending",
+        "taskGroupId": "XrWNyFwpT2in-wLY9frb-w",
+        "taskId": "ba34BnYgT_mv1g5BvrlXnQ",
+        "workerType": "gecko-t-linux-large"
+      },
+      "version": 1
+    },
+    "routes": "primary.ba34BnYgT_mv1g5BvrlXnQ.0._._.aws-provisioner-v1.gecko-t-linux-large.gecko-level-3.XrWNyFwpT2in-wLY9frb-w._"
+  },
+  "c9SSXwx3TnKm7MnNEit0OA": {
+    "exchange": "exchange/taskcluster-queue/v1/task-pending",
+    "payload": {
+      "runId": 0,
+      "status": {
+        "deadline": "2019-06-27T19:13:51.441Z",
+        "expires": "2020-06-25T19:13:51.441Z",
+        "provisionerId": "aws-provisioner-v1",
+        "retriesLeft": 5,
+        "runs": [
+          {
+            "reasonCreated": "scheduled",
+            "runId": 0,
+            "scheduled": "2019-06-26T19:36:10.473Z",
+            "state": "pending"
+          }
+        ],
+        "schedulerId": "gecko-level-3",
+        "state": "pending",
+        "taskGroupId": "XrWNyFwpT2in-wLY9frb-w",
+        "taskId": "c9SSXwx3TnKm7MnNEit0OA",
+        "workerType": "gecko-t-linux-large"
+      },
+      "version": 1
+    },
+    "routes": "primary.c9SSXwx3TnKm7MnNEit0OA.0._._.aws-provisioner-v1.gecko-t-linux-large.gecko-level-3.XrWNyFwpT2in-wLY9frb-w._"
+  },
+  "dUcobAuPTEqHok4rpJl1Dg": {
+    "exchange": "exchange/taskcluster-queue/v1/task-pending",
+    "payload": {
+      "runId": 0,
+      "status": {
+        "deadline": "2019-06-27T19:13:57.869Z",
+        "expires": "2020-06-25T19:13:57.869Z",
+        "provisionerId": "aws-provisioner-v1",
+        "retriesLeft": 5,
+        "runs": [
+          {
+            "reasonCreated": "scheduled",
+            "runId": 0,
+            "scheduled": "2019-06-26T19:36:10.716Z",
+            "state": "pending"
+          }
+        ],
+        "schedulerId": "gecko-level-3",
+        "state": "pending",
+        "taskGroupId": "XrWNyFwpT2in-wLY9frb-w",
+        "taskId": "dUcobAuPTEqHok4rpJl1Dg",
+        "workerType": "gecko-t-linux-large"
+      },
+      "version": 1
+    },
+    "routes": "primary.dUcobAuPTEqHok4rpJl1Dg.0._._.aws-provisioner-v1.gecko-t-linux-large.gecko-level-3.XrWNyFwpT2in-wLY9frb-w._"
+  },
+  "eokGh4-OSbOqAzVhJypYPg": {
+    "exchange": "exchange/taskcluster-queue/v1/task-completed",
+    "payload": {
+      "runId": 0,
+      "status": {
+        "deadline": "2019-06-27T18:21:52.288Z",
+        "expires": "2020-06-25T18:21:52.288Z",
+        "provisionerId": "aws-provisioner-v1",
+        "retriesLeft": 5,
+        "runs": [
+          {
+            "reasonCreated": "scheduled",
+            "reasonResolved": "completed",
+            "resolved": "2019-06-26T19:36:06.943Z",
+            "runId": 0,
+            "scheduled": "2019-06-26T19:14:22.604Z",
+            "started": "2019-06-26T19:14:22.989Z",
+            "state": "completed",
+            "takenUntil": "2019-06-26T19:51:24.156Z",
+            "workerGroup": "eu-central-1",
+            "workerId": "i-09f5a2a05cb655f08"
+          }
+        ],
+        "schedulerId": "gecko-level-3",
+        "state": "completed",
+        "taskGroupId": "UuixJvjhQU6rf9aGtGo9Wg",
+        "taskId": "eokGh4-OSbOqAzVhJypYPg",
+        "workerType": "gecko-t-win7-32"
+      },
+      "version": 1,
+      "workerGroup": "eu-central-1",
+      "workerId": "i-09f5a2a05cb655f08"
+    },
+    "routes": "primary.eokGh4-OSbOqAzVhJypYPg.0.eu-central-1.i-09f5a2a05cb655f08.aws-provisioner-v1.gecko-t-win7-32.gecko-level-3.UuixJvjhQU6rf9aGtGo9Wg._"
+  },
+  "eugCBPRNRD-zyP_I9Jcn1w": {
+    "exchange": "exchange/taskcluster-queue/v1/task-running",
+    "payload": {
+      "runId": 0,
+      "status": {
+        "deadline": "2019-06-27T19:34:52.653Z",
+        "expires": "2019-07-24T19:34:52.653Z",
+        "provisionerId": "aws-provisioner-v1",
+        "retriesLeft": 5,
+        "runs": [
+          {
+            "reasonCreated": "scheduled",
+            "runId": 0,
+            "scheduled": "2019-06-26T19:34:52.968Z",
+            "started": "2019-06-26T19:36:07.061Z",
+            "state": "running",
+            "takenUntil": "2019-06-26T19:56:06.988Z",
+            "workerGroup": "us-west-1",
+            "workerId": "i-0be69dc84b0354bde"
+          }
+        ],
+        "schedulerId": "gecko-level-1",
+        "state": "running",
+        "taskGroupId": "VQg1HZ5yS0ixZvsnHLWuFw",
+        "taskId": "eugCBPRNRD-zyP_I9Jcn1w",
+        "workerType": "gecko-1-decision"
+      },
+      "takenUntil": "2019-06-26T19:56:06.988Z",
+      "version": 1,
+      "workerGroup": "us-west-1",
+      "workerId": "i-0be69dc84b0354bde"
+    },
+    "routes": "primary.eugCBPRNRD-zyP_I9Jcn1w.0.us-west-1.i-0be69dc84b0354bde.aws-provisioner-v1.gecko-1-decision.gecko-level-1.VQg1HZ5yS0ixZvsnHLWuFw._"
+  },
+  "fu4duSjBRte-V6y_oQ_BrQ": {
+    "exchange": "exchange/taskcluster-queue/v1/task-running",
+    "payload": {
+      "runId": 0,
+      "status": {
+        "deadline": "2019-06-27T19:34:50.888Z",
+        "expires": "2019-07-24T19:34:50.888Z",
+        "provisionerId": "aws-provisioner-v1",
+        "retriesLeft": 5,
+        "runs": [
+          {
+            "reasonCreated": "scheduled",
+            "runId": 0,
+            "scheduled": "2019-06-26T19:34:51.210Z",
+            "started": "2019-06-26T19:36:04.735Z",
+            "state": "running",
+            "takenUntil": "2019-06-26T19:56:04.660Z",
+            "workerGroup": "us-west-2",
+            "workerId": "i-062aa60828009efec"
+          }
+        ],
+        "schedulerId": "gecko-level-1",
+        "state": "running",
+        "taskGroupId": "VQg1HZ5yS0ixZvsnHLWuFw",
+        "taskId": "fu4duSjBRte-V6y_oQ_BrQ",
+        "workerType": "gecko-1-decision"
+      },
+      "takenUntil": "2019-06-26T19:56:04.660Z",
+      "version": 1,
+      "workerGroup": "us-west-2",
+      "workerId": "i-062aa60828009efec"
+    },
+    "routes": "primary.fu4duSjBRte-V6y_oQ_BrQ.0.us-west-2.i-062aa60828009efec.aws-provisioner-v1.gecko-1-decision.gecko-level-1.VQg1HZ5yS0ixZvsnHLWuFw._"
+  }
+}

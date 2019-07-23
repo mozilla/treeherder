@@ -8,7 +8,7 @@ import slugid
 from treeherder.etl.common import to_timestamp
 from treeherder.etl.exceptions import MissingPushException
 from treeherder.etl.jobs import store_job_data
-from treeherder.etl.schema import job_json_schema
+from treeherder.etl.schema import get_json_schema
 from treeherder.model.models import (Push,
                                      Repository)
 
@@ -55,7 +55,9 @@ class JobLoader:
                 if pulse_job["state"] != "unscheduled":
                     try:
                         self.validate_revision(repository, pulse_job)
-                        store_job_data(repository, [self.transform(pulse_job)])
+                        transformed_job = self.transform(pulse_job)
+                        store_job_data(repository, [transformed_job])
+                        return transformed_job
                     except AttributeError:
                         logger.warning("Skipping job due to bad attribute", exc_info=1)
             except Repository.DoesNotExist:
@@ -131,6 +133,7 @@ class JobLoader:
             platform_src = pulse_job[v] if v in pulse_job else default_platform
             x["job"][k] = self._get_platform(platform_src)
 
+        # TODO: Improve the code https://bugzilla.mozilla.org/show_bug.cgi?id=1560596
         # add some taskcluster metadata if it's available
         # currently taskcluster doesn't pass the taskId directly, so we'll
         # derive it from the guid, where it is stored in uncompressed
@@ -307,7 +310,7 @@ class JobLoader:
 
     def _is_valid_job(self, pulse_job):
         try:
-            jsonschema.validate(pulse_job, job_json_schema)
+            jsonschema.validate(pulse_job, get_json_schema("pulse-job.yml"))
         except (jsonschema.ValidationError, jsonschema.SchemaError) as e:
             logger.error("JSON Schema validation error during job ingestion: %s", e)
             return False

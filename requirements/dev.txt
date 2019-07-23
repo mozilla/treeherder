@@ -148,3 +148,7 @@ zope.deprecation==4.4.0 \
     --hash=sha256:0d453338f04bacf91bbfba545d8bcdf529aa829e67b705eac8c1a7fdce66e2df
 zope.proxy==4.3.2 \
     --hash=sha256:ab6d6975d9c51c13cac828ff03168de21fb562b0664c59bcdc4a4b10f39a5b17
+
+# To test async code
+pytest-asyncio==0.10.0 \
+    --hash=sha256:d734718e25cfc32d2bf78d346e99d33724deeba774cc4afdf491530c6184b63b

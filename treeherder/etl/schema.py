@@ -10,8 +10,5 @@ def get_json_schema(filename):
     """
     file_path = os.path.join("schemas", filename)
     with open(file_path) as f:
-        schema = yaml.load(f)
+        schema = yaml.load(f, Loader=yaml.FullLoader)
     return schema
-
-
-job_json_schema = get_json_schema("pulse-job.yml")
