@@ -45,6 +45,13 @@ class RepositorySerializer(serializers.ModelSerializer):
         fields = '__all__'
 
 
+class TaskclusterMetadataSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = models.TaskclusterMetadata
+        fields = '__all__'
+
+
 class JobSerializer(serializers.ModelSerializer):
 
     def to_representation(self, job):

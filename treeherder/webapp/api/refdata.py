@@ -40,6 +40,17 @@ class FailureClassificationViewSet(viewsets.ReadOnlyModelViewSet):
     queryset = models.FailureClassification.objects.exclude(name="intermittent needs filing")
     serializer_class = th_serializers.FailureClassificationSerializer
 
+
+class TaskclusterMetadataViewSet(viewsets.ReadOnlyModelViewSet):
+
+    """ViewSet for the refdata TaskclusterMetadata model"""
+    serializer_class = th_serializers.TaskclusterMetadataSerializer
+
+    def get_queryset(self):
+        job_ids = self.request.query_params.get('job_ids', '').split(',')
+        return models.TaskclusterMetadata.objects.filter(job_id__in=job_ids)
+
+
 #############################
 # User profiles
 #############################
