@@ -183,7 +183,7 @@ class TestComponent extends React.Component {
                   {failureLine && (
                     <div>
                       <span>
-                        {failureLine.action === 'TEST_RESULT' && (
+                        {failureLine.action.toUpperCase() === 'TEST_RESULT' && (
                           <div className="failure-line">
                             {failureLine.subtest && (
                               <span>{failureLine.subtest}</span>
@@ -200,12 +200,12 @@ class TestComponent extends React.Component {
                               )}
                           </div>
                         )}
-                        {failureLine.action === 'LOG' && (
+                        {failureLine.action.toUpperCase() === 'LOG' && (
                           <div className="failure-line">
                             LOG {failureLine.level} | {failureLine.message}
                           </div>
                         )}
-                        {failureLine.action === 'CRASH' && (
+                        {failureLine.action.toUpperCase() === 'CRASH' && (
                           <div className="failure-line">
                             <strong>CRASH</strong> | application crashed [
                             {failureLine.signature}]
