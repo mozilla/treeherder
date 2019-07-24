@@ -102,9 +102,9 @@ jsonschema==3.0.1 \
     --hash=sha256:a5f6559964a3851f59040d3b961de5e68e70971afb88ba519d27e6a039efff1a \
     --hash=sha256:0c0a81564f181de3212efa2d17de1910f8732fa1b71c42266d983cd74304e20d
 
-djangorestframework==3.9.4 \
-    --hash=sha256:376f4b50340a46c15ae15ddd0c853085f4e66058f97e4dbe7d43ed62f5e60651 \
-    --hash=sha256:c12869cfd83c33d579b17b3cb28a2ae7322a53c3ce85580c2a2ebe4e3f56c4fb
+djangorestframework==3.10.1 \
+    --hash=sha256:c3c5edfdbc5dd33f9121bb84305bfd603d2c791f20cff9782772f44a7684a4e4 \
+    --hash=sha256:1ca4a5599a5ec31f3d6238a687fcc1dd4c41b1d90edab9ad398fcbf87872b7ba
 
 django-cors-headers==3.0.2 \
     --hash=sha256:5b80bf0f8d7fc6e2bcb4f40781d5ff3661961bbf1982e52daec77241dea3b890 \
