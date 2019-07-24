@@ -93,6 +93,7 @@ export const isTestIsolatable = function isTestIsolatable(job) {
       (name.toLowerCase().includes('crashtest') ||
         name.toLowerCase().includes('mochitest') ||
         name.toLowerCase().includes('reftest') ||
+        name.toLowerCase().includes('web-platform') ||
         name.toLowerCase().includes('xpcshell')),
   );
 };
