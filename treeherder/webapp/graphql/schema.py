@@ -101,6 +101,8 @@ class FailureLineGraph(DjangoObjectType):
     class Meta:
         model = FailureLine
 
+    action = ObjectScalar()
+
 
 class GroupGraph(DjangoObjectType):
     class Meta:
