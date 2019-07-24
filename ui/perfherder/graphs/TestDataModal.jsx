@@ -17,7 +17,7 @@ import InputFilter from '../InputFilter';
 import { processResponse } from '../../helpers/http';
 import PerfSeriesModel from '../../models/perfSeries';
 import { thPerformanceBranches } from '../../helpers/constants';
-import { containsText } from '../helpers';
+import { containsText, getInitialData, getSeriesData } from '../helpers';
 
 export default class TestDataModal extends React.Component {
   constructor(props) {
@@ -25,7 +25,11 @@ export default class TestDataModal extends React.Component {
     this.state = {
       platforms: [],
       framework: { name: 'talos', id: 1 },
-      project: this.findObject(this.props.projects, 'name', 'mozilla-central'),
+      repository_name: this.findObject(
+        this.props.projects,
+        'name',
+        'mozilla-central',
+      ),
       platform: 'linux64',
       errorMessages: [],
       includeSubtests: false,
@@ -39,8 +43,16 @@ export default class TestDataModal extends React.Component {
     };
   }
 
-  componentDidMount() {
-    this.getInitialData();
+  async componentDidMount() {
+    const { errorMessages, repository_name, framework } = this.state;
+    const { timeRange, getInitialData } = this.props;
+    const updates = await getInitialData(
+      errorMessages,
+      repository_name,
+      framework,
+      timeRange,
+    );
+    this.setState(updates, this.processOptions);
   }
 
   componentDidUpdate(prevProps, prevState) {
@@ -59,52 +71,17 @@ export default class TestDataModal extends React.Component {
     }
 
     if (testData !== prevProps.testData) {
-      this.updateSeriesData();
+      this.processOptions();
     }
   }
 
-  getInitialData = async () => {
-    const { errorMessages, project, framework } = this.state;
-    const { timeRange } = this.props;
-
-    const params = { interval: timeRange, framework: framework.id };
-    const platforms = await PerfSeriesModel.getPlatformList(
-      project.name,
-      params,
-    );
-
-    const updates = {
-      ...processResponse(platforms, 'platforms', errorMessages),
-    };
-
-    this.setState(updates, this.processOptions);
-  };
-
-  getSeriesData = async params => {
-    const { errorMessages, project } = this.state;
-
-    let updates = {
-      filteredData: [],
-      relatedTests: [],
-      showNoRelatedTests: false,
-      loading: false,
-    };
-    const response = await PerfSeriesModel.getSeriesList(project.name, params);
-    updates = {
-      ...updates,
-      ...processResponse(response, 'seriesData', errorMessages),
-    };
-
-    this.setState(updates, this.updateSeriesData);
-  };
-
   async getPlatforms() {
-    const { project, framework, errorMessages } = this.state;
+    const { repository_name, framework, errorMessages } = this.state;
     const { timeRange } = this.props;
 
-    const params = { interval: timeRange, framework: framework.id };
+    const params = { interval: timeRange.value, framework: framework.id };
     const response = await PerfSeriesModel.getPlatformList(
-      project.name,
+      repository_name.name,
       params,
     );
 
@@ -113,24 +90,14 @@ export default class TestDataModal extends React.Component {
     this.processOptions();
   }
 
-  updateSeriesData = () => {
-    const { seriesData } = this.state;
-    const newSeriesData = seriesData.filter(
-      item =>
-        this.props.testData.findIndex(test => item.id === test.signature_id) ===
-        -1,
-    );
-
-    if (seriesData.length !== newSeriesData.length) {
-      this.setState({ seriesData: newSeriesData });
-    }
-  };
-
   addRelatedConfigs = async params => {
     const { relatedSeries } = this.props.options;
-    const { errorMessages, project } = this.state;
+    const { errorMessages, repository_name } = this.state;
 
-    const response = await PerfSeriesModel.getSeriesList(project.name, params);
+    const response = await PerfSeriesModel.getSeriesList(
+      repository_name.name,
+      params,
+    );
     const updates = processResponse(response, 'relatedTests', errorMessages);
 
     if (updates.relatedTests.length) {
@@ -152,9 +119,12 @@ export default class TestDataModal extends React.Component {
 
   addRelatedPlatforms = async params => {
     const { relatedSeries } = this.props.options;
-    const { errorMessages, project } = this.state;
+    const { errorMessages, repository_name } = this.state;
 
-    const response = await PerfSeriesModel.getSeriesList(project.name, params);
+    const response = await PerfSeriesModel.getSeriesList(
+      repository_name.name,
+      params,
+    );
     const updates = processResponse(response, 'relatedTests', errorMessages);
 
     if (updates.relatedTests.length) {
@@ -178,7 +148,7 @@ export default class TestDataModal extends React.Component {
     const errorMessages = [];
 
     const relatedProjects = thPerformanceBranches.filter(
-      project => project !== relatedSeries.repository_name,
+      repository_name => repository_name !== relatedSeries.repository_name,
     );
     const requests = relatedProjects.map(projectName =>
       PerfSeriesModel.getSeriesList(projectName, params),
@@ -201,13 +171,19 @@ export default class TestDataModal extends React.Component {
     });
   };
 
-  processOptions = (relatedTestsMode = false) => {
+  processOptions = async (relatedTestsMode = false) => {
     const { option, relatedSeries } = this.props.options;
-    const { platform, framework, includeSubtests } = this.state;
-    const { timeRange } = this.props;
+    const {
+      platform,
+      framework,
+      includeSubtests,
+      errorMessages,
+      repository_name,
+    } = this.state;
+    const { timeRange, getSeriesData, testData } = this.props;
 
     const params = {
-      interval: timeRange,
+      interval: timeRange.value,
       framework: framework.id,
       subtests: +includeSubtests,
     };
@@ -215,7 +191,15 @@ export default class TestDataModal extends React.Component {
 
     if (!relatedTestsMode) {
       params.platform = platform;
-      return this.getSeriesData(params);
+      const updates = await getSeriesData(
+        params,
+        errorMessages,
+        repository_name,
+        testData,
+      );
+
+      this.setState(updates);
+      return;
     }
 
     params.framework = relatedSeries.framework_id;
@@ -286,7 +270,7 @@ export default class TestDataModal extends React.Component {
       platforms,
       seriesData,
       framework,
-      project,
+      repository_name,
       platform,
       includeSubtests,
       selectedTests,
@@ -313,10 +297,10 @@ export default class TestDataModal extends React.Component {
       },
       {
         options: projects.length ? projects.map(item => item.name) : [],
-        selectedItem: project.name || '',
+        selectedItem: repository_name.name || '',
         updateData: value =>
           this.setState(
-            { project: this.findObject(projects, 'name', value) },
+            { repository_name: this.findObject(projects, 'name', value) },
             this.getPlatforms,
           ),
         title: 'Project',
@@ -376,6 +360,7 @@ export default class TestDataModal extends React.Component {
                   {relatedTests.length > 0 ? 'Related tests' : 'Tests'}
                 </Label>
                 <Input
+                  data-testid="tests"
                   type="select"
                   name="selectMulti"
                   id="selectTests"
@@ -385,6 +370,7 @@ export default class TestDataModal extends React.Component {
                     tests.sort().map(test => (
                       <option
                         key={test.id}
+                        data-testid={test.id.toString()}
                         onClick={() => this.updateSelectedTests(test)}
                         title={this.getOriginalTestName(test)}
                       >
@@ -404,6 +390,7 @@ export default class TestDataModal extends React.Component {
                   <span className="small">(click a test to remove it)</span>
                 </Label>
                 <Input
+                  data-testid="selectedTests"
                   type="select"
                   name="selectMulti"
                   id="selectTests"
@@ -449,7 +436,7 @@ export default class TestDataModal extends React.Component {
 
 TestDataModal.propTypes = {
   projects: PropTypes.arrayOf(PropTypes.shape({})).isRequired,
-  timeRange: PropTypes.number.isRequired,
+  timeRange: PropTypes.shape({}).isRequired,
   getTestData: PropTypes.func.isRequired,
   options: PropTypes.shape({
     option: PropTypes.string,
@@ -459,10 +446,14 @@ TestDataModal.propTypes = {
   frameworks: PropTypes.arrayOf(PropTypes.shape({})),
   showModal: PropTypes.bool.isRequired,
   toggle: PropTypes.func.isRequired,
+  getInitialData: PropTypes.func,
+  getSeriesData: PropTypes.func,
 };
 
 TestDataModal.defaultProps = {
   options: undefined,
   testData: [],
   frameworks: [],
+  getInitialData,
+  getSeriesData,
 };

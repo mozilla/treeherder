@@ -27,12 +27,6 @@ h1 {
   }
 }
 
-/* TODO remove */
-.ph-horizontal-layout {
-  display: flex;
-  flex-flow: row;
-}
-
 #perf-logo {
   padding: 15px;
   border: none;
@@ -40,22 +34,10 @@ h1 {
   background: #f8f8f8;
 }
 
-#graph-chooser {
+.graph-chooser {
   flex: none;
   width: 300px;
   padding: 8px;
-}
-
-/* TODO remove */
-#data-display {
-  flex: auto;
-}
-
-#graph {
-  width: 100%;
-  height: 300px;
-  margin-bottom: 30px;
-  cursor: crosshair;
 }
 
 .graph-legend {
@@ -87,54 +69,54 @@ h1 {
   width: 120px;
 }
 
-#graph-tooltip {
+.graph-tooltip {
   position: absolute;
-  visibility: hidden;
   pointer-events: none;
   width: 280px;
+  z-index: 999;
 }
-#graph-tooltip.locked {
+.graph-tooltip.locked {
   pointer-events: auto;
 }
-#graph-tooltip .body {
+.graph-tooltip .body {
   display: block;
   background: rgba(0, 0, 0, 0.75);
   color: #fff;
   border-radius: 5px;
   padding: 10px 15px;
 }
-#graph-tooltip.locked .body {
+.graph-tooltip.locked .body {
   background: rgba(0, 0, 0, 0.9);
 }
-#graph-tooltip .body div {
+.graph-tooltip .body div {
   margin-top: 0.5em;
 }
-#graph-tooltip .body div:first-child {
+.graph-tooltip .body div:first-child {
   margin-top: 0.5em;
 }
-#graph-tooltip .body p {
+.graph-tooltip .body p {
   margin: 0;
 }
-#graph-tooltip .body p.small {
+.graph-tooltip .body p.small {
   font-size: 10px;
   color: #c0c0c0;
 }
-#graph-tooltip .body a {
-  color: #c9e2f2;
+.graph-tooltip .body a {
+  color: #17a2b8;
 }
-#graph-tooltip .tip {
+.graph-tooltip .tip {
   display: block;
   height: 10px;
   background: url('../img/tip.png') no-repeat center top;
 }
-#graph-tooltip.locked .tip {
+.graph-tooltip.locked .tip {
   background-image: url('../img/tip-locked.png');
 }
 
 .graphchooser-close {
   color: #fff;
   outline: none;
-  margin: -14px -4px;
+  z-index: 999;
 }
 
 .graphchooser-close:hover {
@@ -148,12 +130,11 @@ h1 {
   cursor: pointer;
 }
 
-#overview-plot {
+.overview-plot {
   margin-top: 5px;
   margin-bottom: 10px;
-  width: 100%;
-  height: 100px;
-  cursor: crosshair;
+  width: 1200px;
+  height: 150px;
 }
 
 .subtest-header th {

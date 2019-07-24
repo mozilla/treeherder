@@ -236,7 +236,7 @@ class PerformanceSummarySerializer(serializers.ModelSerializer):
     parent_signature = serializers.IntegerField(source="parent_signature_id")
     signature_id = serializers.IntegerField(source="id")
     job_ids = serializers.ListField(child=serializers.IntegerField(), default=[])
-    data = PerformanceDatumSerializer(read_only=True, many=True)
+    data = PerformanceDatumSerializer(read_only=True, many=True, default=[])
     repository_name = serializers.CharField()
 
     class Meta:

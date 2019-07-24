@@ -1,13 +1,14 @@
 import numeral from 'numeral';
 import sortBy from 'lodash/sortBy';
+import queryString from 'query-string';
 
-import { getApiUrl, createQueryParams } from '../helpers/url';
-import { create, getData, update } from '../helpers/http';
-import { getSeriesName, getTestName } from '../models/perfSeries';
-import OptionCollectionModel from '../models/optionCollection';
+import { getApiUrl } from '../helpers/url';
+import { update, processResponse } from '../helpers/http';
+import PerfSeriesModel, {
+  getSeriesName,
+  getTestName,
+} from '../models/perfSeries';
 import {
-  phAlertStatusMap,
-  phAlertSummaryStatusMap,
   phFrameworksWithRelatedBranches,
   phTimeRanges,
   thPerformanceBranches,
@@ -296,7 +297,7 @@ export const getGraphsLink = function getGraphsLink(
     params.timerange = timeRange;
   }
 
-  return `perf.html#/graphs${createQueryParams(params)}`;
+  return `perf.html#/graphs?${queryString.stringify(params)}`;
 };
 
 export const createNoiseMetric = function createNoiseMetric(
@@ -315,6 +316,7 @@ export const createNoiseMetric = function createNoiseMetric(
   return compareResults;
 };
 
+// TODO
 export const createGraphsLinks = (
   validatedProps,
   links,
@@ -353,7 +355,6 @@ export const createGraphsLinks = (
   return links;
 };
 
-// old PhAlerts' inner workings
 // TODO change all usage of signature_hash to signature.id
 // for originalSignature and newSignature query params
 const Alert = (alertData, optionCollectionMap) => ({
@@ -362,19 +363,15 @@ const Alert = (alertData, optionCollectionMap) => ({
     includePlatformInName: true,
   }),
 });
-// TODO move into graphs component or remove
-export const getAlertStatusText = alert =>
-  Object.values(phAlertStatusMap).find(status => status.id === alert.status)
-    .text;
 
-// TODO look into using signature_id instead of the hash
+// TODO look into using signature_id instead of the hash and remove all other params
 export const getGraphsURL = (
   alert,
   timeRange,
   alertRepository,
   performanceFrameworkId,
 ) => {
-  let url = `#/graphs?timerange=${timeRange}&series=${alertRepository},${alert.series_signature.id},${alert.series_signature.framework_id}`;
+  let url = `#/graphs?timerange=${timeRange}&series=${alertRepository},${alert.series_signature.id},1,${alert.series_signature.framework_id}`;
 
   // TODO deprecate usage of signature hash
   // automatically add related branches (we take advantage of
@@ -389,7 +386,7 @@ export const getGraphsURL = (
     url += branches
       .map(
         branch =>
-          `&series=${branch},${alert.series_signature.signature_hash},${alert.series_signature.framework_id}`,
+          `&series=${branch},${alert.series_signature.signature_hash},1,${alert.series_signature.framework_id}`,
       )
       .join('');
   }
@@ -399,12 +396,6 @@ export const getGraphsURL = (
 
 export const modifyAlert = (alert, modification) =>
   update(getApiUrl(`${endpoints.alert}${alert.id}/`), modification);
-
-// TODO remove after graphs conversion
-export const alertIsOfState = (alert, phAlertStatus) =>
-  alert.status === phAlertStatus.id;
-
-let issueTrackers; // will cache on first AlertSummary call
 
 export const getInitializedAlerts = (alertSummary, optionCollectionMap) =>
   // this function converts the representation returned by the perfherder
@@ -489,7 +480,7 @@ export const getTitle = alertSummary => {
   // we should never include downstream alerts in the description
   let alertsInSummary = alertSummary.alerts.filter(
     alert =>
-      alert.status !== phAlertStatusMap.DOWNSTREAM.id ||
+      alert.status !== alertStatusMap.downstream ||
       alert.summary_id === alertSummary.id,
   );
 
@@ -529,138 +520,6 @@ export const getTitle = alertSummary => {
   return title;
 };
 
-// TODO replace usage with summaryStatusMap after graphs conversion
-export const getAlertSummaryStatusText = alertSummary =>
-  Object.values(phAlertSummaryStatusMap).find(
-    status => status.id === alertSummary.status,
-  ).text;
-
-// TODO remove after graphs conversion
-const constructAlertSummary = (
-  alertSummaryData,
-  optionCollectionMap,
-  issueTrackers,
-) => {
-  const alertSummaryState = {
-    ...alertSummaryData,
-    issueTrackers,
-    alerts: getInitializedAlerts(alertSummaryData, optionCollectionMap),
-  };
-
-  return alertSummaryState;
-};
-
-// TODO remove graphs conversion
-export const AlertSummary = async (alertSummaryData, optionCollectionMap) => {
-  if (issueTrackers === undefined) {
-    return getData(getApiUrl(endpoints.issueTrackers)).then(
-      ({ data: issueTrackerList }) => {
-        issueTrackers = issueTrackerList;
-        return constructAlertSummary(
-          alertSummaryData,
-          optionCollectionMap,
-          issueTrackers,
-        );
-      },
-    );
-  }
-
-  return constructAlertSummary(
-    alertSummaryData,
-    optionCollectionMap,
-    issueTrackers,
-  );
-};
-
-// TODO remove after graphs conversion
-export const getAlertSummaries = options => {
-  let { href } = options;
-  if (!options || !options.href) {
-    href = getApiUrl(endpoints.alertSummary);
-
-    // add filter parameters for status and framework
-    const params = [];
-    if (
-      options &&
-      options.statusFilter !== undefined &&
-      options.statusFilter !== -1
-    ) {
-      params[params.length] = `status=${options.statusFilter}`;
-    }
-    if (options && options.frameworkFilter !== undefined) {
-      params[params.length] = `framework=${options.frameworkFilter}`;
-    }
-    // TODO replace all usage with createQueryParams except for
-    // signatureId and seriesSignature (used in graphs controller)
-    if (options && options.signatureId !== undefined) {
-      params[params.length] = `alerts__series_signature=${options.signatureId}`;
-    }
-    if (options && options.seriesSignature !== undefined) {
-      params[
-        params.length
-      ] = `alerts__series_signature__signature_hash=${options.seriesSignature}`;
-    }
-    if (options && options.repository !== undefined) {
-      params[params.length] = `repository=${options.repository}`;
-    }
-    if (options && options.page !== undefined) {
-      params[params.length] = `page=${options.page}`;
-    }
-
-    if (params.length) {
-      href += `?${params.join('&')}`;
-    }
-  }
-
-  return OptionCollectionModel.getMap().then(optionCollectionMap =>
-    getData(href).then(({ data }) =>
-      Promise.all(
-        data.results.map(alertSummaryData =>
-          AlertSummary(alertSummaryData, optionCollectionMap),
-        ),
-      ).then(alertSummaries => ({
-        results: alertSummaries,
-        next: data.next,
-        count: data.count,
-      })),
-    ),
-  );
-};
-
-export const createAlert = data =>
-  create(getApiUrl(endpoints.alertSummary), {
-    repository_id: data.project.id,
-    framework_id: data.series.framework_id,
-    push_id: data.resultSetId,
-    prev_push_id: data.prevResultSetId,
-  })
-    .then(response => response.json())
-    .then(response => {
-      const newAlertSummaryId = response.alert_summary_id;
-      return create(getApiUrl('/performance/alert/'), {
-        summary_id: newAlertSummaryId,
-        signature_id: data.series.signature_id,
-      }).then(() => newAlertSummaryId);
-    });
-
-export const findPushIdNeighbours = (dataPoint, resultSetData, direction) => {
-  const pushId = dataPoint.resultSetId;
-  const pushIdIndex =
-    direction === 'left'
-      ? resultSetData.indexOf(pushId)
-      : resultSetData.lastIndexOf(pushId);
-  const relativePos = direction === 'left' ? -1 : 1;
-  return {
-    push_id: resultSetData[pushIdIndex + relativePos],
-    prev_push_id: resultSetData[pushIdIndex + (relativePos - 1)],
-  };
-};
-
-export const nudgeAlert = (dataPoint, towardsDataPoint) => {
-  const alertId = dataPoint.alert.id;
-  return update(getApiUrl(`/performance/alert/${alertId}/`), towardsDataPoint);
-};
-
 export const convertParams = (params, value) =>
   Boolean(params[value] !== undefined && parseInt(params[value], 10));
 
@@ -688,4 +547,62 @@ export const containsText = (string, text) => {
     .join('');
   const regex = RegExp(words, 'gi');
   return regex.test(string);
+};
+
+export const processSelectedParam = tooltipArray => ({
+  signature_id: parseInt(tooltipArray[0], 10),
+  pushId: parseInt(tooltipArray[1], 10),
+  x: parseFloat(tooltipArray[2]),
+  y: parseFloat(tooltipArray[3]),
+});
+
+export const getInitialData = async (
+  errorMessages,
+  repository_name,
+  framework,
+  timeRange,
+) => {
+  const params = { interval: timeRange.value, framework: framework.id };
+  const platforms = await PerfSeriesModel.getPlatformList(
+    repository_name.name,
+    params,
+  );
+
+  const updates = {
+    ...processResponse(platforms, 'platforms', errorMessages),
+  };
+  return updates;
+};
+
+export const updateSeriesData = (origSeriesData, testData) =>
+  origSeriesData.filter(
+    item => testData.findIndex(test => item.id === test.signature_id) === -1,
+  );
+
+export const getSeriesData = async (
+  params,
+  errorMessages,
+  repository_name,
+  testData,
+) => {
+  let updates = {
+    filteredData: [],
+    relatedTests: [],
+    showNoRelatedTests: false,
+    loading: false,
+  };
+  const response = await PerfSeriesModel.getSeriesList(
+    repository_name.name,
+    params,
+  );
+  updates = {
+    ...updates,
+    ...processResponse(response, 'origSeriesData', errorMessages),
+  };
+
+  if (updates.origSeriesData) {
+    updates.seriesData = updateSeriesData(updates.origSeriesData, testData);
+  }
+
+  return updates;
 };

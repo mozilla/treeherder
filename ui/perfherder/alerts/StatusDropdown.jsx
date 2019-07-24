@@ -12,12 +12,7 @@ import moment from 'moment';
 import template from 'lodash/template';
 import templateSettings from 'lodash/templateSettings';
 
-import {
-  getAlertSummaryStatusText,
-  getTextualSummary,
-  getTitle,
-  getStatus,
-} from '../helpers';
+import { getTextualSummary, getTitle, getStatus } from '../helpers';
 import { getData, update } from '../../helpers/http';
 import { getApiUrl, bzBaseUrl, createQueryParams } from '../../helpers/url';
 import { endpoints, summaryStatusMap } from '../constants';
@@ -196,7 +191,7 @@ export default class StatusDropdown extends React.Component {
             color="transparent"
             caret
           >
-            {getAlertSummaryStatusText(alertSummary)}
+            {getStatus(alertSummary.status)}
           </DropdownToggle>
           <DropdownMenu>
             <DropdownItem onClick={this.copySummary}>Copy Summary</DropdownItem>

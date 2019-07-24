@@ -2,6 +2,7 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import { react2angular } from 'react2angular/index.es2015';
 import { Container, Col, Row } from 'reactstrap';
+import unionBy from 'lodash/unionBy';
 
 import { getData, processResponse, processErrors } from '../../helpers/http';
 import {
@@ -18,25 +19,15 @@ import {
   errorMessageClass,
 } from '../../helpers/constants';
 import perf from '../../js/perf';
-import { endpoints } from '../constants';
+import { processSelectedParam } from '../helpers';
+import { endpoints, graphColors } from '../constants';
 import ErrorMessages from '../../shared/ErrorMessages';
 import ErrorBoundary from '../../shared/ErrorBoundary';
 import LoadingSpinner from '../../shared/LoadingSpinner';
 
 import GraphsContainer from './GraphsContainer';
-import TestDataModal from './TestDataModal';
 import LegendCard from './LegendCard';
 import GraphsViewControls from './GraphsViewControls';
-
-const dataColors = [
-  ['magenta', '#e252cf'],
-  ['blue', '#1752b8'],
-  ['darkorchid', '#9932cc'],
-  ['brown', '#b87e17'],
-  ['green', '#19a572'],
-  ['turquoise', '#17a2b8'],
-  ['scarlet', '#b81752'],
-];
 
 class GraphsView extends React.Component {
   constructor(props) {
@@ -49,25 +40,20 @@ class GraphsView extends React.Component {
       selectedDataPoint: null,
       highlightAlerts: true,
       highlightedRevisions: ['', ''],
-      showModal: false,
       testData: [],
       errorMessages: [],
       options: {},
-      colors: [...dataColors],
       loading: false,
+      colors: [...graphColors],
+      showModal: false,
     };
   }
-
-  // TODO
-  // selecting highlight alerts button resets zoom due to how that functionality
-  // is updating params itself and $stateParams props won't pick up on the change
 
   async componentDidMount() {
     this.getData();
     this.checkQueryParams();
   }
 
-  // TODO should add a custom time range option based on query param
   getDefaultTimeRange = () => {
     const { $stateParams } = this.props;
 
@@ -104,7 +90,7 @@ class GraphsView extends React.Component {
     if (series) {
       const _series = typeof series === 'string' ? [series] : series;
       const seriesParams = this.parseSeriesParam(_series);
-      this.getTestData(seriesParams);
+      this.getTestData(seriesParams, true);
     }
 
     if (highlightAlerts) {
@@ -121,7 +107,7 @@ class GraphsView extends React.Component {
     if (zoom) {
       const zoomArray = zoom.replace(/[[{}\]"]+/g, '').split(',');
       const zoomObject = {
-        x: zoomArray.slice(0, 2),
+        x: zoomArray.map(x => new Date(parseInt(x, 10))).slice(0, 2),
         y: zoomArray.slice(2, 4),
       };
       updates.zoom = zoomObject;
@@ -129,14 +115,7 @@ class GraphsView extends React.Component {
 
     if (selected) {
       const tooltipArray = selected.replace(/[[]"]/g, '').split(',');
-      // TODO keys should reflect perf/sumary/ data
-      const tooltipValues = {
-        projectName: tooltipArray[0],
-        signatureId: parseInt(tooltipArray[1], 10),
-        resultSetId: parseInt(tooltipArray[2], 10),
-        id: parseInt(tooltipArray[3], 10),
-        frameworkId: parseInt(tooltipArray[4], 10) || 1,
-      };
+      const tooltipValues = processSelectedParam(tooltipArray);
       updates.selectedDataPoint = tooltipValues;
     }
 
@@ -156,7 +135,7 @@ class GraphsView extends React.Component {
     };
   };
 
-  getTestData = async (newDisplayedTests = []) => {
+  getTestData = async (newDisplayedTests = [], init = false) => {
     const { testData } = this.state;
     const tests = newDisplayedTests.length ? newDisplayedTests : testData;
     this.setState({ loading: true });
@@ -184,55 +163,75 @@ class GraphsView extends React.Component {
         newTestData = [...testData, ...newTestData];
       }
 
-      this.setState(
-        { testData: newTestData, loading: false },
-        this.changeParams,
-      );
+      this.setState({ testData: newTestData, loading: false }, () => {
+        if (!init) {
+          // we don't need to change params when getData is called on initial page load
+          this.changeParams();
+        }
+      });
     }
   };
 
   createGraphObject = async seriesData => {
     const { colors } = this.state;
-
-    const newColors = [...colors];
-    const alertSummaries = await Promise.all(
+    let alertSummaries = await Promise.all(
       seriesData.map(series =>
         this.getAlertSummaries(series.signature_id, series.repository_id),
       ),
     );
+    alertSummaries = alertSummaries.flat();
 
-    for (const series of seriesData) {
-      series.relatedAlertSummaries = alertSummaries.find(
+    let relatedAlertSummaries;
+    let color;
+    const newColors = [...colors];
+
+    const graphData = seriesData.map(series => {
+      relatedAlertSummaries = alertSummaries.find(
         item => item.id === series.id,
       );
-      series.color = newColors.pop();
-      series.visible = true;
-      series.flotSeries = {
-        lines: { show: false },
-        points: { show: true },
-        color: series.color[1],
-        label: `${series.repository_name} ${series.name}`,
-        data: series.data.map(dataPoint => [
-          new Date(dataPoint.push_timestamp),
-          dataPoint.value,
-        ]),
+      color = newColors.pop();
+      // signature_id, framework_id and repository_name are
+      // not renamed in camel case in order to match the fields
+      // returned by the performance/summary API (since we only fetch
+      // new data if a user adds additional tests to the graph)
+      return {
+        color: color || ['border-secondary', ''],
+        relatedAlertSummaries,
+        visible: Boolean(color),
+        name: series.name,
+        signature_id: series.signature_id,
+        signatureHash: series.signature_hash,
+        framework_id: series.framework_id,
+        platform: series.platform,
+        repository_name: series.repository_name,
+        projectId: series.repository_id,
+        id: `${series.repository_name} ${series.name}`,
+        data: series.data.map(dataPoint => ({
+          x: new Date(dataPoint.push_timestamp),
+          y: dataPoint.value,
+          z: color ? color[1] : '',
+          revision: dataPoint.revision,
+          alertSummary: alertSummaries.find(
+            item => item.revision === dataPoint.revision,
+          ),
+          signature_id: series.signature_id,
+          pushId: dataPoint.push_id,
+          jobId: dataPoint.job_id,
+        })),
+        lowerIsBetter: series.lower_is_better,
         resultSetData: series.data.map(dataPoint => dataPoint.push_id),
-        thSeries: { ...series },
-        jobIdData: series.data.map(dataPoint => dataPoint.job_id),
-        idData: series.data.map(dataPoint => dataPoint.id),
       };
-    }
+    });
     this.setState({ colors: newColors });
-    return seriesData;
+    return graphData;
   };
 
-  // TODO possibly move to helpers file
-  getAlertSummaries = async (signatureId, repository) => {
+  getAlertSummaries = async (signature_id, repository) => {
     const { errorMessages } = this.state;
 
     const url = getApiUrl(
       `${endpoints.alertSummary}${createQueryParams({
-        alerts__series_signature: signatureId,
+        alerts__series_signature: signature_id,
         repository,
       })}`,
     );
@@ -247,6 +246,30 @@ class GraphsView extends React.Component {
     return [];
   };
 
+  updateData = async (
+    signature_id,
+    repository_name,
+    alertSummaryId,
+    dataPointIndex,
+  ) => {
+    const { testData } = this.state;
+
+    const updatedData = testData.find(
+      test => test.signature_id === signature_id,
+    );
+    const alertSummaries = await this.getAlertSummaries(
+      signature_id,
+      repository_name,
+    );
+    const alertSummary = alertSummaries.find(
+      result => result.id === alertSummaryId,
+    );
+    updatedData.data[dataPointIndex].alertSummary = alertSummary;
+    const newTestData = unionBy([updatedData], testData, 'signature_id');
+
+    this.setState({ testData: newTestData });
+  };
+
   parseSeriesParam = series =>
     series.map(encodedSeries => {
       const partialSeriesString = decodeURIComponent(encodedSeries).replace(
@@ -258,11 +281,15 @@ class GraphsView extends React.Component {
         repository_name: partialSeriesArray[0],
         // TODO deprecate signature_hash
         signature_id:
-          partialSeriesArray[1].length === 40
+          partialSeriesArray[1] && partialSeriesArray[1].length === 40
             ? partialSeriesArray[1]
             : parseInt(partialSeriesArray[1], 10),
-        framework_id: parseInt(partialSeriesArray[2], 10),
+        // TODO partialSeriesArray[2] is for the 1 that's inserted in the url
+        // for visibility of test legend cards but isn't actually being used
+        // to control visibility so it should be removed at some point
+        framework_id: parseInt(partialSeriesArray[3], 10),
       };
+
       return partialSeriesObject;
     });
 
@@ -272,11 +299,13 @@ class GraphsView extends React.Component {
     }));
   };
 
-  updateParams = param => {
+  updateParams = params => {
     const { transitionTo, current } = this.props.$state;
 
-    transitionTo(current.name, param, {
+    transitionTo('graphs', params, {
+      location: true,
       inherit: true,
+      relative: current,
       notify: false,
     });
   };
@@ -290,30 +319,33 @@ class GraphsView extends React.Component {
       highlightedRevisions,
       timeRange,
     } = this.state;
-    const { updateGraphs } = this.props;
 
-    // TODO rename certain fields that are returned in PerfSeriesModel so they are consistent with performance/summary fields?
     const newSeries = testData.map(
       series =>
-        `${series.repository_name},${series.signature_id},${series.framework_id}`,
+        `${series.repository_name},${series.signature_id},1,${series.framework_id}`,
     );
     const params = {
       series: newSeries,
       highlightedRevisions: highlightedRevisions.filter(rev => rev.length),
       highlightAlerts: +highlightAlerts,
       timerange: timeRange.value,
+      zoom,
     };
 
     if (!selectedDataPoint) {
       params.selected = null;
+    } else {
+      const { signature_id, pushId, x, y } = selectedDataPoint;
+      params.selected = [signature_id, pushId, x, y].join(',');
     }
 
     if (Object.keys(zoom).length === 0) {
       params.zoom = null;
+    } else {
+      params.zoom = [...zoom.x.map(z => z.getTime()), ...zoom.y].toString();
     }
 
     this.updateParams(params);
-    updateGraphs(this.state);
   };
 
   render() {
@@ -321,15 +353,16 @@ class GraphsView extends React.Component {
       timeRange,
       projects,
       frameworks,
-      showModal,
       testData,
-      options,
       highlightAlerts,
       highlightedRevisions,
       selectedDataPoint,
-      colors,
       loading,
       errorMessages,
+      zoom,
+      options,
+      colors,
+      showModal,
     } = this.state;
 
     return (
@@ -337,7 +370,7 @@ class GraphsView extends React.Component {
         errorClasses={errorMessageClass}
         message={genericErrorMessage}
       >
-        <Container fluid className="pt-5 max-width-default">
+        <Container fluid className="pt-5">
           {loading && <LoadingSpinner />}
 
           {errorMessages.length > 0 && (
@@ -346,20 +379,8 @@ class GraphsView extends React.Component {
             </Container>
           )}
 
-          {projects.length > 0 && frameworks.length > 0 && (
-            <TestDataModal
-              showModal={showModal}
-              frameworks={frameworks}
-              projects={projects}
-              timeRange={timeRange.value}
-              options={options}
-              getTestData={this.getTestData}
-              toggle={() => this.toggle('showModal')}
-              testData={testData}
-            />
-          )}
           <Row>
-            <Col id="graph-chooser">
+            <Col className="graph-chooser">
               <Container className="graph-legend pl-0 pb-4">
                 {testData.length > 0 &&
                   testData.map(series => (
@@ -384,10 +405,31 @@ class GraphsView extends React.Component {
             <Col className="pl-0">
               <GraphsViewControls
                 timeRange={timeRange}
+                frameworks={frameworks}
+                projects={projects}
+                options={options}
+                getTestData={this.getTestData}
+                testData={testData}
+                showModal={showModal}
+                toggle={() => this.setState({ showModal: !showModal })}
                 graphs={
-                  <GraphsContainer timeRange={timeRange} {...this.props} />
+                  testData.length > 0 && (
+                    <GraphsContainer
+                      timeRange={timeRange}
+                      highlightAlerts={highlightAlerts}
+                      highlightedRevisions={highlightedRevisions}
+                      zoom={zoom}
+                      selectedDataPoint={selectedDataPoint}
+                      testData={testData}
+                      updateStateParams={state =>
+                        this.setState(state, this.changeParams)
+                      }
+                      user={this.props.user}
+                      updateData={this.updateData}
+                      projects={projects}
+                    />
+                  )
                 }
-                updateState={state => this.setState(state)}
                 updateStateParams={state =>
                   this.setState(state, this.changeParams)
                 }
@@ -399,7 +441,7 @@ class GraphsView extends React.Component {
                       timeRange,
                       zoom: {},
                       selectedDataPoint: null,
-                      colors: [...dataColors],
+                      colors: [...graphColors],
                     },
                     this.getTestData,
                   )
@@ -432,7 +474,7 @@ GraphsView.propTypes = {
     current: PropTypes.shape({}),
     transitionTo: PropTypes.func,
   }),
-  updateGraphs: PropTypes.func.isRequired,
+  user: PropTypes.shape({}).isRequired,
 };
 
 GraphsView.defaultProps = {
@@ -442,7 +484,7 @@ GraphsView.defaultProps = {
 
 perf.component(
   'graphsView',
-  react2angular(GraphsView, ['updateGraphs'], ['$stateParams', '$state']),
+  react2angular(GraphsView, ['user'], ['$stateParams', '$state']),
 );
 
 export default GraphsView;

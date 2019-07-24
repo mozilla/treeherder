@@ -238,28 +238,6 @@ export const phFrameworksWithRelatedBranches = [
   11, // js-bench
   12, // devtools
 ];
-// TODO remove usage in favor of summaryStatusMap perfherder's constant file
-export const phAlertSummaryStatusMap = {
-  UNTRIAGED: { id: 0, text: 'untriaged' },
-  DOWNSTREAM: { id: 1, text: 'downstream' },
-  REASSIGNED: { id: 2, text: 'reassigned' },
-  INVALID: { id: 3, text: 'invalid' },
-  IMPROVEMENT: { id: 4, text: 'improvement' },
-  INVESTIGATING: { id: 5, text: 'investigating' },
-  WONTFIX: { id: 6, text: 'wontfix' },
-  FIXED: { id: 7, text: 'fixed' },
-  BACKEDOUT: { id: 8, text: 'backedout' },
-  CONFIRMING: { id: 9, text: 'confirming' },
-};
-// TODO move into perfherder constants file
-export const phAlertStatusMap = {
-  UNTRIAGED: { id: 0, text: 'untriaged' },
-  DOWNSTREAM: { id: 1, text: 'downstream' },
-  REASSIGNED: { id: 2, text: 'reassigned' },
-  INVALID: { id: 3, text: 'invalid' },
-  ACKNOWLEDGED: { id: 4, text: 'acknowledged' },
-  CONFIRMING: { id: 5, text: 'confirming' },
-};
 
 export const compareDefaultTimeRange = {
   value: 86400 * 2,

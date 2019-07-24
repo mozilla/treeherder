@@ -37,7 +37,6 @@ perf.config(['$compileProvider', '$locationProvider', '$httpProvider', '$statePr
                 title: 'Graphs',
                 template: graphsCtrlTemplate,
                 url: '/graphs?timerange&series&highlightedRevisions&highlightAlerts&zoom&selected',
-                controller: 'GraphsCtrl',
             })
             .state('compare', {
                 title: 'Compare',

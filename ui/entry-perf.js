@@ -35,8 +35,6 @@ import './css/treeherder-loading-overlay.css';
 import './js/perf';
 
 // Perf JS
-import './js/filters';
-import './js/controllers/perf/graphs';
 import './js/perfapp';
 import './perfherder/compare/CompareSelectorView';
 import './perfherder/compare/CompareView';

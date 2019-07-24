@@ -13,13 +13,35 @@ const LegendCard = ({
   colors,
 }) => {
   const updateSelectedTest = () => {
+    const newColors = [...colors];
+    const errorMessages = [];
+    let updates;
     const newTestData = [...testData].map(item => {
       if (item.signature_id === series.signature_id) {
-        item.visible = !item.visible;
+        const isVisible = !item.visible;
+
+        if (isVisible && newColors.length) {
+          item.color = newColors.pop();
+          item.visible = isVisible;
+        } else if (!isVisible) {
+          newColors.push(item.color);
+          item.color = ['border-secondary', ''];
+          item.visible = isVisible;
+        } else {
+          errorMessages.push(
+            "The graph supports viewing 6 tests at a time. To select and view a test that isn't currently visible, first deselect a visible test",
+          );
+        }
       }
       return item;
     });
-    updateStateParams({ testData: newTestData });
+
+    if (errorMessages.length) {
+      updates = { errorMessages };
+    } else {
+      updates = { testData: newTestData, colors: newColors, errorMessages };
+    }
+    updateStateParams(updates);
   };
 
   const addTestData = option => {
@@ -32,7 +54,7 @@ const LegendCard = ({
 
     if (
       selectedDataPoint &&
-      selectedDataPoint.signatureId === series.signature_id
+      selectedDataPoint.signature_id === series.signature_id
     ) {
       updates.selectedDataPoint = null;
     }
@@ -46,13 +68,14 @@ const LegendCard = ({
 
   const removeTest = () => {
     const index = testData.findIndex(test => test === series);
+    const newData = [...testData];
 
     if (index === -1) {
       return;
     }
 
-    testData.splice(index, 1);
-    resetParams(testData);
+    newData.splice(index, 1);
+    resetParams(newData);
   };
 
   const subtitleStyle = 'p-0 mb-0 border-0 text-secondary text-left';
@@ -67,14 +90,10 @@ const LegendCard = ({
           title=""
         />
       </span>
-      <div
-        className={`${
-          series.visible ? series.color[0] : 'border-secondary'
-        } graph-legend-card p-3`}
-      >
+      <div className={`${series.color[0]} graph-legend-card p-3`}>
         <p
           className={`p-0 mb-0 pointer border-0 ${
-            series.visible ? series.flotSeries.color : 'text-muted'
+            series.visible ? series.color[0] : 'text-muted'
           } text-left`}
           onClick={() => addTestData('addRelatedConfigs')}
           title="Add related configurations"
@@ -93,12 +112,12 @@ const LegendCard = ({
         <p
           className={subtitleStyle}
           onClick={() => addTestData('addRelatedPlatform')}
-          title="Add related branches"
+          title="Add related platforms"
           type="button"
         >
           {series.platform}
         </p>
-        <span className="small">{`${series.signature_hash.slice(
+        <span className="small">{`${series.signatureHash.slice(
           0,
           16,
         )}...`}</span>
