@@ -89,7 +89,8 @@ export const thPlatformMap = {
   'android-4-0-armv7-api16-beta': 'Android 4.0 API16+ Beta',
   'android-4-0-armv7-api16-release': 'Android 4.0 API16+ Release',
   'android-4-0-armv7-api16-ccov': 'Android 4.0 API16+ CCov',
-  'android-4-0-geckoview-fat-aar': 'Android 4.0 GeckoView multi-arch fat AAR',
+  'android-4-0-geckoview-fat-aar':
+    'Android 4.0 API16+ GeckoView multi-arch fat AAR',
   'android-4-2-x86': 'Android 4.2 x86',
   'android-4-2-x86-beta': 'Android 4.2 x86 Beta',
   'android-4-2-x86-release': 'Android 4.2 x86 Release',
