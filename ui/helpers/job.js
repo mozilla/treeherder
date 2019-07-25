@@ -44,10 +44,6 @@ export const getBtnClass = function getBtnClass(
   const classificationId = parseInt(failureClassificationId, 10);
   if (classificationId > 1) {
     btnClass += '-classified';
-    // autoclassification-only case
-    if (classificationId === 7) {
-      btnClass += ' autoclassified';
-    }
   }
   return btnClass;
 };
@@ -97,6 +93,7 @@ export const isTestIsolatable = function isTestIsolatable(job) {
       (name.toLowerCase().includes('crashtest') ||
         name.toLowerCase().includes('mochitest') ||
         name.toLowerCase().includes('reftest') ||
+        name.toLowerCase().includes('web-platform') ||
         name.toLowerCase().includes('xpcshell')),
   );
 };

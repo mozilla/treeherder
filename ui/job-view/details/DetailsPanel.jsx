@@ -396,7 +396,6 @@ class DetailsPanel extends React.Component {
               togglePinBoardVisibility={() => this.togglePinBoardVisibility()}
               logViewerFullUrl={logViewerFullUrl}
               reftestUrl={reftestUrl}
-              user={user}
             />
           </div>
         )}
