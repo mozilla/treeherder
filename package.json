@@ -21,7 +21,7 @@
     "@fortawesome/react-fontawesome": "0.1.4",
     "@neutrinojs/copy": "9.0.0-rc.3",
     "@neutrinojs/react": "9.0.0-rc.3",
-    "@testing-library/react": "8.0.4",
+    "@testing-library/react": "8.0.6",
     "@types/angular": "*",
     "@types/prop-types": "*",
     "@types/react": "*",
