@@ -83,7 +83,7 @@
     "@neutrinojs/jest": "9.0.0-rc.3",
     "enzyme": "3.9.0",
     "enzyme-adapter-react-16": "1.13.2",
-    "eslint": "5.16.0",
+    "eslint": "6.1.0",
     "eslint-config-airbnb": "17.1.0",
     "eslint-config-prettier": "4.3.0",
     "eslint-plugin-import": "2.18.2",
