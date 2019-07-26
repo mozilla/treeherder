@@ -1,8 +1,9 @@
 import { slugid } from 'taskcluster-client-web';
 import groupBy from 'lodash/groupBy';
+import keyBy from 'lodash/keyBy';
 
 import { thPlatformMap } from '../helpers/constants';
-import { createQueryParams } from '../helpers/url';
+import { createQueryParams, getApiUrl } from '../helpers/url';
 import { formatTaskclusterError } from '../helpers/errorMessage';
 import { getProjectUrl } from '../helpers/location';
 import { getData } from '../helpers/http';
@@ -211,6 +212,21 @@ export default class JobModel {
       [...new Set(jobs.map(job => job.push_id))],
       notify,
     );
+    // Only the selected job will have the ``taskcluster_metadata`` field
+    // which has the task_id we need.  So we must fetch all the task_ids
+    // for the jobs in this list.
+    const jobIds = jobs.map(job => job.id);
+    const { data, failureStatus } = await getData(
+      `${getApiUrl('/taskclustermetadata/')}?job_ids=${jobIds.join(',')}`,
+    );
+
+    if (failureStatus) {
+      notify('Unable to cancel: Error getting task ids for jobs.', 'danger', {
+        sticky: true,
+      });
+      return;
+    }
+    const tcMetadataMap = keyBy(data, 'job');
 
     try {
       notify(
@@ -220,6 +236,7 @@ export default class JobModel {
 
       /* eslint-disable no-await-in-loop */
       for (const job of jobs) {
+        job.taskcluster_metadata = tcMetadataMap[job.id];
         const decisionTaskId = taskIdMap[job.push_id].id;
         const results = await TaskclusterModel.load(decisionTaskId, job);
         const cancelTask = results.actions.find(
