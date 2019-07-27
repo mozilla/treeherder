@@ -13,7 +13,7 @@
     "@uirouter/angularjs"
   ],
   "labels": ["dependencies", "javascript"],
-  "reviewers": ["sarah-clements"],
+  "reviewers": ["armenzg"],
   "semanticCommits": false,
   "travis": { "enabled": true }
 }
