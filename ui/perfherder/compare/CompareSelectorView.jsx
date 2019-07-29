@@ -1,12 +1,22 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import { react2angular } from 'react2angular/index.es2015';
-import { Container, Col, Row, Button } from 'reactstrap';
+import {
+  Container,
+  Col,
+  Row,
+  Button,
+  ButtonGroup,
+  ButtonDropdown,
+  DropdownToggle,
+} from 'reactstrap';
 
 import perf from '../../js/perf';
 import { getApiUrl, repoEndpoint } from '../../helpers/url';
-import { getData } from '../../helpers/http';
+import { endpoints } from '../constants';
+import { getData, processResponse } from '../../helpers/http';
 import ErrorMessages from '../../shared/ErrorMessages';
+import DropdownMenuItems from '../../shared/DropdownMenuItems';
 import {
   compareDefaultTimeRange,
   genericErrorMessage,
@@ -23,7 +33,6 @@ export default class CompareSelectorView extends React.Component {
     this.queryParams = this.props.$stateParams;
     this.state = {
       projects: [],
-      failureStatus: null,
       originalProject: this.queryParams.originalProject || 'mozilla-central',
       newProject: this.queryParams.newProject || 'try',
       originalRevision: this.queryParams.originalRevision || '',
@@ -31,13 +40,41 @@ export default class CompareSelectorView extends React.Component {
       errorMessages: [],
       disableButton: true,
       missingRevision: false,
+      framework: 1,
+      frameworkName: 'talos',
+      frameworks: [],
+      frameworkDropdownIsOpen: false,
     };
   }
 
   async componentDidMount() {
-    const { data, failureStatus } = await getData(getApiUrl(repoEndpoint));
-    this.setState({ projects: data, failureStatus });
+    const { errorMessages } = this.state;
+
+    const [projects, frameworks] = await Promise.all([
+      getData(getApiUrl(repoEndpoint)),
+      getData(getApiUrl(endpoints.frameworks)),
+    ]);
+
+    const updates = {
+      ...processResponse(projects, 'projects', errorMessages),
+      ...processResponse(frameworks, 'frameworks', errorMessages),
+    };
+
+    this.setState(updates);
   }
+
+  updateFramework = selection => {
+    this.setState(prevState => {
+      const selectedFramework = prevState.frameworks.find(
+        framework => framework.name === selection,
+      );
+
+      return {
+        framework: selectedFramework.id,
+        frameworkName: selectedFramework.name,
+      };
+    });
+  };
 
   submitData = () => {
     const {
@@ -45,6 +82,7 @@ export default class CompareSelectorView extends React.Component {
       newProject,
       originalRevision,
       newRevision,
+      framework,
     } = this.state;
     const { $state } = this.props;
 
@@ -58,15 +96,23 @@ export default class CompareSelectorView extends React.Component {
         originalRevision,
         newProject,
         newRevision,
+        framework,
       });
     } else {
       $state.go('compare', {
         originalProject,
         newProject,
         newRevision,
+        framework,
         selectedTimeRange: compareDefaultTimeRange.value,
       });
     }
+  };
+
+  toggleFrameworkDropdown = () => {
+    this.setState(prevState => ({
+      frameworkDropdownIsOpen: !prevState.frameworkDropdownIsOpen,
+    }));
   };
 
   render() {
@@ -74,15 +120,19 @@ export default class CompareSelectorView extends React.Component {
       originalProject,
       newProject,
       projects,
+      frameworkName,
+      frameworks,
       originalRevision,
       newRevision,
-      data,
-      failureStatus,
       errorMessages,
       disableButton,
       missingRevision,
+      frameworkDropdownIsOpen,
     } = this.state;
 
+    const frameworkNames = frameworks.length
+      ? frameworks.map(item => item.name)
+      : [];
     return (
       <Container fluid className="my-5 pt-5 max-width-default">
         <ErrorBoundary
@@ -92,11 +142,8 @@ export default class CompareSelectorView extends React.Component {
           <div className="mx-auto">
             <Row className="justify-content-center">
               <Col sm="8" className="text-center">
-                {(failureStatus || errorMessages.length > 0) && (
-                  <ErrorMessages
-                    failureMessage={data}
-                    errorMessages={errorMessages}
-                  />
+                {errorMessages.length > 0 && (
+                  <ErrorMessages errorMessages={errorMessages} />
                 )}
               </Col>
             </Row>
@@ -130,15 +177,29 @@ export default class CompareSelectorView extends React.Component {
             )}
             <Row className="justify-content-center">
               <Col sm="8" className="text-right px-1">
-                <Button
-                  color="info"
-                  className="mt-2 mx-auto"
-                  onClick={
-                    newRevision !== '' && disableButton ? null : this.submitData
-                  }
-                >
-                  Compare
-                </Button>
+                <ButtonGroup>
+                  <ButtonDropdown
+                    isOpen={frameworkDropdownIsOpen}
+                    toggle={this.toggleFrameworkDropdown}
+                  >
+                    <DropdownToggle caret>{frameworkName}</DropdownToggle>
+                    <DropdownMenuItems
+                      options={frameworkNames}
+                      selectedItem={frameworkName}
+                      updateData={this.updateFramework}
+                    />
+                  </ButtonDropdown>
+                  <Button
+                    color="info"
+                    onClick={
+                      newRevision !== '' && disableButton
+                        ? null
+                        : this.submitData
+                    }
+                  >
+                    Compare
+                  </Button>
+                </ButtonGroup>
               </Col>
             </Row>
           </div>
