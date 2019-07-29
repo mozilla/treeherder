@@ -272,7 +272,9 @@ async def handleTaskException(pushInfo, task, message):
         return
 
     job = buildMessage(pushInfo, task, message["runId"], message)
-    job["timeStarted"] = jobRun["started"]
+    # Jobs that get cancelled before running don't have a started time
+    if jobRun.get("started"):
+        job["timeStarted"] = jobRun["started"]
     job["timeCompleted"] = jobRun["resolved"]
     # exceptions generally have no logs, so in the interest of not linking to a 404'ing artifact,
     # don't include a link
