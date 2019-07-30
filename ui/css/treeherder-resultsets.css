@@ -143,6 +143,7 @@ th-action-button .btn-push {
 }
 
 .revision-holder > a {
+  padding-left: 3px;
   padding-top: 2px;
   font: 11px 'Lucida Console', Monaco, monospace;
 }
