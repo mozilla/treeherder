@@ -161,6 +161,7 @@ export class BugFilerClass extends React.Component {
       isFilerSummaryVisible: false,
       selectedProduct: null,
       isIntermittent: true,
+      comment: '',
       searching: false,
       parsedSummary,
       checkedLogLinks,
