@@ -11,18 +11,18 @@ function StatusPanel(props) {
     <li id="result-status-pane" className={`small ${shadingClass}`}>
       <div>
         <strong>Result:</strong>
-        <span> {selectedJob.result}</span>
+        <span> {selectedJobFull.result}</span>
       </div>
       <div>
         <strong>State:</strong>
-        <span> {selectedJob.state}</span>
+        <span> {selectedJobFull.state}</span>
       </div>
     </li>
   );
 }
 
 StatusPanel.propTypes = {
-  selectedJob: PropTypes.object.isRequired,
+  selectedJobFull: PropTypes.object.isRequired,
 };
 
 export default StatusPanel;

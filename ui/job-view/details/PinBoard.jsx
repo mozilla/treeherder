@@ -356,7 +356,7 @@ class PinBoard extends React.Component {
 
   render() {
     const {
-      selectedJob,
+      selectedJobFull,
       revisionTips,
       isLoggedIn,
       isPinBoardVisible,
@@ -372,7 +372,7 @@ class PinBoard extends React.Component {
       failureClassificationComment,
     } = this.props;
     const { enteringBugNumber, newBugNumber } = this.state;
-    const selectedJobId = selectedJob ? selectedJob.id : null;
+    const selectedJobId = selectedJobFull ? selectedJobFull.id : null;
 
     return (
       <div id="pinboard-panel" className={isPinBoardVisible ? '' : 'hidden'}>
@@ -644,13 +644,13 @@ PinBoard.propTypes = {
   currentRepo: PropTypes.object.isRequired,
   failureClassificationId: PropTypes.number.isRequired,
   failureClassificationComment: PropTypes.string.isRequired,
-  selectedJob: PropTypes.object,
+  selectedJobFull: PropTypes.object,
   email: PropTypes.string,
   revisionTips: PropTypes.array,
 };
 
 PinBoard.defaultProps = {
-  selectedJob: null,
+  selectedJobFull: null,
   email: null,
   revisionTips: [],
 };

@@ -175,9 +175,13 @@ class AnnotationsTab extends React.Component {
   };
 
   deleteClassification = classification => {
-    const { selectedJob, recalculateUnclassifiedCounts, notify } = this.props;
+    const {
+      selectedJobFull,
+      recalculateUnclassifiedCounts,
+      notify,
+    } = this.props;
 
-    selectedJob.failure_classification_id = 1;
+    selectedJobFull.failure_classification_id = 1;
     recalculateUnclassifiedCounts();
 
     classification.destroy().then(
@@ -247,7 +251,7 @@ AnnotationsTab.propTypes = {
   classifications: PropTypes.array.isRequired,
   recalculateUnclassifiedCounts: PropTypes.func.isRequired,
   notify: PropTypes.func.isRequired,
-  selectedJob: PropTypes.object,
+  selectedJobFull: PropTypes.object.isRequired,
 };
 
 AnnotationsTab.defaultProps = {
