@@ -11,7 +11,6 @@ import {
 } from '@fortawesome/free-solid-svg-icons';
 
 import { thEvents } from '../../../helpers/constants';
-import { getStatus } from '../../../helpers/job';
 import JobDetails from '../../../shared/JobDetails';
 import { withPinnedJobs } from '../../context/PinnedJobs';
 import { clearSelectedJob } from '../../redux/stores/selectedJob';
@@ -41,7 +40,7 @@ class TabsPanel extends React.Component {
       state.perfJobDetailSize !== perfJobDetail.length
     ) {
       const tabIndex = TabsPanel.getDefaultTabIndex(
-        getStatus(selectedJob),
+        selectedJobFull.resultStatus,
         !!perfJobDetail.length,
       );
 

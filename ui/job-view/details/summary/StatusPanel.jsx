@@ -1,11 +1,9 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 
-import { getStatus } from '../../../helpers/job';
-
 function StatusPanel(props) {
-  const { selectedJob } = props;
-  const shadingClass = `result-status-shading-${getStatus(selectedJob)}`;
+  const { selectedJobFull } = props;
+  const shadingClass = `result-status-shading-${selectedJobFull.resultStatus}`;
 
   return (
     <li id="result-status-pane" className={`small ${shadingClass}`}>

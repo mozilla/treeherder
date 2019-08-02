@@ -6,7 +6,7 @@ import { faSpinner } from '@fortawesome/free-solid-svg-icons';
 
 import { thMaxPushFetchSize } from '../../../helpers/constants';
 import { toDateStr, toShortDateStr } from '../../../helpers/display';
-import { getBtnClass, getStatus } from '../../../helpers/job';
+import { addAggregateFields } from '../../../helpers/job';
 import { getJobsUrl } from '../../../helpers/url';
 import JobModel from '../../../models/job';
 import PushModel from '../../../models/push';
@@ -119,8 +119,7 @@ class SimilarJobsTab extends React.Component {
     const { repoName, classificationMap } = this.props;
 
     JobModel.get(repoName, job.id).then(nextJob => {
-      nextJob.result_status = getStatus(nextJob);
-      nextJob.duration = (nextJob.end_timestamp - nextJob.start_timestamp) / 60;
+      addAggregateFields(nextJob);
       nextJob.failure_classification =
         classificationMap[nextJob.failure_classification_id];
 
@@ -155,7 +154,6 @@ class SimilarJobsTab extends React.Component {
       filterBuildPlatformId,
       isLoading,
     } = this.state;
-    const button_class = job => getBtnClass(getStatus(job));
     const selectedSimilarJobId = selectedSimilarJob
       ? selectedSimilarJob.id
       : null;
@@ -187,9 +185,7 @@ class SimilarJobsTab extends React.Component {
                 >
                   <td>
                     <button
-                      className={`btn btn-similar-jobs btn-xs ${button_class(
-                        similarJob,
-                      )}`}
+                      className={`btn btn-similar-jobs btn-xs ${similarJob.btnClass}`}
                       type="button"
                     >
                       {similarJob.job_type_symbol}
@@ -250,7 +246,7 @@ class SimilarJobsTab extends React.Component {
                 <tbody>
                   <tr>
                     <th>Result</th>
-                    <td>{selectedSimilarJob.result_status}</td>
+                    <td>{selectedSimilarJob.resultStatus}</td>
                   </tr>
                   <tr>
                     <th>Build</th>

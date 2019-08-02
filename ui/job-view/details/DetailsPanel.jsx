@@ -5,6 +5,7 @@ import { connect } from 'react-redux';
 
 import { thEvents, thBugSuggestionLimit } from '../../helpers/constants';
 import { withPinnedJobs } from '../context/PinnedJobs';
+import { addAggregateFields } from '../../helpers/job';
 import { getLogViewerUrl, getReftestUrl } from '../../helpers/url';
 import BugJobMapModel from '../../models/bugJobMap';
 import BugSuggestionsModel from '../../models/bugSuggestions';
@@ -212,22 +213,12 @@ class DetailsPanel extends React.Component {
               // This version of the job has more information than what we get in the main job list.  This
               // is what we'll pass to the rest of the details panel.  It has extra fields like
               // taskcluster_metadata.
-              Object.assign(selectedJob, jobResult);
+              const selectedJobFull = jobResult;
               const jobRevision = push.revision;
 
-              jobDetails = jobDetailResult;
+              addAggregateFields(selectedJobFull);
 
-              // incorporate the buildername into the job details if this is a buildbot job
-              // (i.e. it has a buildbot request id)
-              const buildbotRequestIdDetail = jobDetails.find(
-                detail => detail.title === 'buildbot_request_id',
-              );
-              if (buildbotRequestIdDetail) {
-                jobDetails = [
-                  ...jobDetails,
-                  { title: 'Buildername', value: selectedJob.ref_data_name },
-                ];
-              }
+              jobDetails = jobDetailResult;
 
               // the third result comes from the jobLogUrl promise
               // exclude the json log URLs

@@ -3,7 +3,6 @@ import PropTypes from 'prop-types';
 import countBy from 'lodash/countBy';
 
 import { thFailureResults } from '../../helpers/constants';
-import { getBtnClass, getStatus } from '../../helpers/job';
 import { getSelectedJobId, getUrlParam } from '../../helpers/location';
 
 import JobButton from './JobButton';
@@ -72,14 +71,15 @@ export class JobGroupComponent extends React.Component {
       const stateCounts = {};
       const typeSymbolCounts = countBy(jobs, 'job_type_symbol');
       jobs.forEach(job => {
-        if (!job.visible) return;
-        const status = getStatus(job);
+        const { resultStatus, visible, btnClass } = job;
+        if (!visible) return;
+
         let countInfo = {
-          btnClass: getBtnClass(status, job.failure_classification_id),
-          countText: status,
+          btnClass,
+          countText: resultStatus,
         };
         if (
-          thFailureResults.includes(status) ||
+          thFailureResults.includes(resultStatus) ||
           (typeSymbolCounts[job.job_type_symbol] > 1 && duplicateJobsVisible)
         ) {
           // render the job itself, not a count
@@ -142,7 +142,7 @@ export class JobGroupComponent extends React.Component {
                   job={job}
                   filterModel={filterModel}
                   visible={job.visible}
-                  resultStatus={getStatus(job)}
+                  resultStatus={job.resultStatus}
                   failureClassificationId={job.failure_classification_id}
                   repoName={repoName}
                   filterPlatformCb={filterPlatformCb}

@@ -2,9 +2,9 @@ import { slugid } from 'taskcluster-client-web';
 import groupBy from 'lodash/groupBy';
 import keyBy from 'lodash/keyBy';
 
-import { thPlatformMap } from '../helpers/constants';
 import { createQueryParams, getApiUrl } from '../helpers/url';
 import { formatTaskclusterError } from '../helpers/errorMessage';
+import { addAggregateFields } from '../helpers/job';
 import { getProjectUrl } from '../helpers/location';
 import { getData } from '../helpers/http';
 
@@ -15,45 +15,12 @@ const uri = '/jobs/';
 
 // JobModel is the js counterpart of job
 export default class JobModel {
-  constructor(props) {
-    Object.assign(this, props);
-  }
-
-  getTitle() {
-    // we want to join the group and type information together
-    // so we can search for it as one token (useful when
-    // we want to do a search on something like `fxup-esr(`)
-    let symbolInfo = this.job_group_symbol === '?' ? '' : this.job_group_symbol;
-    symbolInfo += `(${this.job_type_symbol})`;
-
-    return [
-      thPlatformMap[this.platform] || this.platform,
-      this.platform_option,
-      this.job_group_name === 'unknown' ? undefined : this.job_group_name,
-      this.job_type_name,
-      symbolInfo,
-    ]
-      .filter(item => typeof item !== 'undefined')
-      .join(' ');
-  }
-
-  getSearchStr() {
-    return [
-      this.getTitle(),
-      this.ref_data_name,
-      this.signature !== this.ref_data_name ? this.signature : undefined,
-    ]
-      .filter(item => typeof item !== 'undefined')
-      .join(' ');
-  }
-
   static async getList(options, config = {}) {
     // The `uri` config allows to fetch a list of jobs from an arbitrary
     // endpoint e.g. the similar jobs endpoint. It defaults to the job
     // list endpoint.
     const { fetchAll, uri: configUri } = config;
     const jobUri = configUri || getProjectUrl(uri);
-
     const { data, failureStatus } = await getData(
       `${jobUri}${options ? createQueryParams(options) : ''}`,
     );
@@ -81,17 +48,16 @@ export default class JobModel {
       if (job_property_names) {
         // the results came as list of fields
         // we need to convert them to objects
-        itemList = results.map(
-          elem =>
-            new JobModel(
-              job_property_names.reduce(
-                (prev, prop, i) => ({ ...prev, [prop]: elem[i] }),
-                {},
-              ),
+        itemList = results.map(elem =>
+          addAggregateFields(
+            job_property_names.reduce(
+              (prev, prop, i) => ({ ...prev, [prop]: elem[i] }),
+              {},
             ),
+          ),
         );
       } else {
-        itemList = results.map(job_obj => new JobModel(job_obj));
+        itemList = results.map(job_obj => addAggregateFields(job_obj));
       }
       return { data: [...itemList, ...nextPagesJobs], failureStatus: null };
     }
@@ -104,7 +70,7 @@ export default class JobModel {
       async response => {
         if (response.ok) {
           const job = await response.json();
-          return new JobModel(job);
+          return addAggregateFields(job);
         }
         const text = await response.text();
         throw Error(`Loading job with id ${pk} : ${text}`);

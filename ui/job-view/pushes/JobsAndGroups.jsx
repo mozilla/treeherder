@@ -1,8 +1,6 @@
 import PropTypes from 'prop-types';
 import React from 'react';
 
-import { getStatus } from '../../helpers/job';
-
 import JobButton from './JobButton';
 import JobGroup from './JobGroup';
 
@@ -43,7 +41,7 @@ export default class JobsAndGroups extends React.Component {
               filterModel={filterModel}
               repoName={repoName}
               visible={job.visible}
-              resultStatus={getStatus(job)}
+              resultStatus={job.resultStatus}
               failureClassificationId={job.failure_classification_id}
               filterPlatformCb={filterPlatformCb}
               key={job.id}
