@@ -129,12 +129,12 @@ class Push extends React.PureComponent {
     }
   };
 
-  toggleSelectedRunnableJob = buildername => {
+  toggleSelectedRunnableJob = signature => {
     const { selectedRunnableJobs } = this.state;
-    const jobIndex = selectedRunnableJobs.indexOf(buildername);
+    const jobIndex = selectedRunnableJobs.indexOf(signature);
 
     if (jobIndex === -1) {
-      selectedRunnableJobs.push(buildername);
+      selectedRunnableJobs.push(signature);
     } else {
       selectedRunnableJobs.splice(jobIndex, 1);
     }

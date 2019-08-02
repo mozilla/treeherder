@@ -89,7 +89,7 @@ class PushJobs extends React.Component {
   handleRunnableClick = jobInstance => {
     const { toggleSelectedRunnableJob } = this.props;
 
-    toggleSelectedRunnableJob(jobInstance.props.job.ref_data_name);
+    toggleSelectedRunnableJob(jobInstance.props.job.signature);
     jobInstance.toggleRunnableSelected();
   };
 

@@ -21,7 +21,7 @@ export default class RunnableJobModel {
         job_type_symbol: value.symbol,
         platform: value.platform || '',
         platform_option: Object.keys(value.collection).join(' '),
-        ref_data_name: key,
+        signature: key,
         state: 'runnable',
         result: 'runnable',
         push_id: params.push_id,
