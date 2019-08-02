@@ -254,13 +254,7 @@ AnnotationsTab.propTypes = {
   selectedJobFull: PropTypes.object.isRequired,
 };
 
-AnnotationsTab.defaultProps = {
-  selectedJob: null,
-};
-
-const mapStateToProps = ({ selectedJob: { selectedJob } }) => ({ selectedJob });
-
 export default connect(
-  mapStateToProps,
+  null,
   { notify, recalculateUnclassifiedCounts },
 )(AnnotationsTab);

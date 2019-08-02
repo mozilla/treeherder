@@ -332,13 +332,7 @@ SimilarJobsTab.propTypes = {
   selectedJobFull: PropTypes.object.isRequired,
 };
 
-SimilarJobsTab.defaultProps = {
-  selectedJob: null,
-};
-
-const mapStateToProps = ({ selectedJob: { selectedJob } }) => ({ selectedJob });
-
 export default connect(
-  mapStateToProps,
+  null,
   { notify },
 )(SimilarJobsTab);
