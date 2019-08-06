@@ -24,7 +24,7 @@ const parentSetState = (data, parentState) => {
 
 afterEach(cleanup);
 
-const renderReactNode = (getRevisions, updateState, parentState, ref) => (
+const renderReactNode = (getRevisions, updateState, parentState) => (
   <SelectorCard
     revisionState="newRevision"
     selectedRevision={parentState.selectedRevision}
@@ -36,7 +36,6 @@ const renderReactNode = (getRevisions, updateState, parentState, ref) => (
     title="Test"
     getRevisions={getRevisions}
     projects={[{ name: 'testProject' }]}
-    ref={ref}
   />
 );
 
@@ -46,41 +45,33 @@ const selectorCard = (getRevisions, updateState, parentState, ref) =>
 test('correct hash for input value is valid', async () => {
   const parentState = { selectedRevision: valid_hash };
 
-  const ref = React.createRef();
-
   const renderResult = selectorCard(
     mockGetRevisions,
     parentSetState,
     parentState,
-    ref,
   );
 
-  const { getByPlaceholderText } = renderResult;
+  const { getByPlaceholderText, queryByText } = renderResult;
 
   const inputRevision = await waitForElement(() =>
     getByPlaceholderText(selectorCardText.revisionPlaceHolder),
   );
-
   expect(inputRevision).toBeInTheDocument();
   expect(inputRevision.value).toBe(valid_hash);
-  expect(ref.current.state.invalidRevision).toBeFalsy();
-  expect(ref.current.state.validated).toBeTruthy();
+  expect(queryByText(selectorCardText.invalidRevisionLength)).toBeNull();
 });
 
 test('hash with whitespaces for input value is valid', async () => {
   const hash_with_whitespaces = `  ${valid_hash}  `;
   const parentState = { selectedRevision: hash_with_whitespaces };
 
-  const ref = React.createRef();
-
   const renderResult = selectorCard(
     mockGetRevisions,
     parentSetState,
     parentState,
-    ref,
   );
 
-  const { getByPlaceholderText } = renderResult;
+  const { getByPlaceholderText, queryByText } = renderResult;
 
   const inputRevision = await waitForElement(() =>
     getByPlaceholderText(selectorCardText.revisionPlaceHolder),
@@ -88,41 +79,33 @@ test('hash with whitespaces for input value is valid', async () => {
 
   expect(inputRevision).toBeInTheDocument();
   expect(inputRevision.value).toBe(hash_with_whitespaces);
-  expect(ref.current.state.invalidRevision).toBeFalsy();
-  expect(ref.current.state.validated).toBeTruthy();
+  expect(queryByText(selectorCardText.invalidRevisionLength)).toBeNull();
 });
 
 test('incorrect hash for input value is invalid', async () => {
   const parentState = { selectedRevision: '' };
 
-  const ref = React.createRef();
   const renderResult = selectorCard(
     mockGetRevisions,
     parentSetState,
     parentState,
-    ref,
   );
 
-  const { getByPlaceholderText } = renderResult;
-
+  const { getByPlaceholderText, queryByText } = renderResult;
   const inputRevision = await waitForElement(() =>
     getByPlaceholderText(selectorCardText.revisionPlaceHolder),
   );
   expect(inputRevision).toBeInTheDocument();
   expect(inputRevision.value).toBe('');
-  expect(ref.current.state.invalidRevision).toBeFalsy();
-  expect(ref.current.state.validated).toBeFalsy();
 
   const incorrect_hash = 'incorrect_hash';
   fireEvent.change(inputRevision, { target: { value: incorrect_hash } });
 
   renderResult.rerender(
-    renderReactNode(mockGetRevisions, parentSetState, parentState, ref),
+    renderReactNode(mockGetRevisions, parentSetState, parentState),
   );
 
   expect(inputRevision.value).toBe(incorrect_hash);
-  expect(ref.current.state.invalidRevision).toBe(
-    selectorCardText.invalidRevisionLength,
-  );
-  expect(ref.current.state.validated).toBeFalsy();
+  const validationMessage = queryByText(selectorCardText.invalidRevisionLength);
+  expect(validationMessage).toBeInTheDocument();
 });

@@ -142,7 +142,6 @@ export default class SelectorCard extends React.Component {
     if (value === '') {
       return this.setState({ validated: false });
     }
-    // trim whitespaces before validating further
     value = value.trim();
 
     if (value.length !== 40) {
