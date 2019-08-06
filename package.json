@@ -81,6 +81,7 @@
   "devDependencies": {
     "@neutrinojs/eslint": "9.0.0-rc.3",
     "@neutrinojs/jest": "9.0.0-rc.3",
+    "@testing-library/jest-dom": "4.0.0",
     "enzyme": "3.9.0",
     "enzyme-adapter-react-16": "1.13.2",
     "eslint": "6.1.0",
@@ -93,7 +94,6 @@
     "eslint-plugin-react": "7.13.0",
     "fetch-mock": "7.3.9",
     "jest": "24.8.0",
-    "jest-dom": "3.5.0",
     "node-fetch": "2.6.0",
     "prettier": "1.18.2",
     "webpack-dev-server": "3.7.2"
