@@ -142,16 +142,8 @@ th-action-button .btn-push {
   color: red;
 }
 
-.revision-holder > a {
-  padding-left: 3px;
-  padding-top: 2px;
-  font: 11px 'Lucida Console', Monaco, monospace;
-}
-
-.revision-holder {
-  padding-left: 20px;
-  padding-right: 6px;
-  display: inline-block;
+.commit-sha {
+  font-size: 11px;
 }
 
 .user-push-icon {
