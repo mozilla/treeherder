@@ -19,13 +19,13 @@
 
       On the page above you can see an alert for each affected platform as well as a link to a graph showing the history of scores for this test. There is also a link to a treeherder page showing the Talos jobs in a pushlog format.
 
-      To learn more about the regressing test(s), please see: https://wiki.mozilla.org/Performance_sheriffing/Talos/Tests
+      To learn more about the regressing test(s), please see: https://wiki.mozilla.org/TestEngineering/Performance/Talos
 
-      For information on reproducing and debugging the regression, either on try or locally, see: https://wiki.mozilla.org/Performance_sheriffing/Talos/Running
+      For information on reproducing and debugging the regression, either on try or locally, see: https://wiki.mozilla.org/TestEngineering/Performance/Talos/Running
 
       *** Please let us know your plans within 3 business days, or the offending patch(es) will be backed out! ***
 
-      Our wiki page outlines the common responses and expectations: https://wiki.mozilla.org/Performance_sheriffing/Talos/RegressionBugsHandling
+      Our wiki page outlines the common responses and expectations: https://wiki.mozilla.org/TestEngineering/Performance/Talos/RegressionBugsHandling
 - model: perf.PerformanceBugTemplate
   pk: 2
   fields:
@@ -159,8 +159,8 @@
 
       On the page above you can see an alert for each affected platform as well as a link to a graph showing the history of scores for this test. There is also a link to a Treeherder page showing the Raptor jobs in a pushlog format.
 
-      To learn more about the regressing test(s) or reproducing them, please see: https://wiki.mozilla.org/Performance_sheriffing/Raptor
+      To learn more about the regressing test(s) or reproducing them, please see: https://wiki.mozilla.org/TestEngineering/Performance/Raptor
 
       *** Please let us know your plans within 3 business days, or the offending patch(es) will be backed out! ***
 
-      Our wiki page outlines the common responses and expectations: https://wiki.mozilla.org/Performance_sheriffing/Talos/RegressionBugsHandling
+      Our wiki page outlines the common responses and expectations: https://wiki.mozilla.org/TestEngineering/Performance/Talos/RegressionBugsHandling
