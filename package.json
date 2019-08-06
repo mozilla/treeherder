@@ -93,7 +93,7 @@
     "eslint-plugin-react": "7.13.0",
     "fetch-mock": "7.3.9",
     "jest": "24.8.0",
-    "jest-dom": "3.5.0",
+    "jest-dom": "4.0.0",
     "node-fetch": "2.6.0",
     "prettier": "1.18.2",
     "webpack-dev-server": "3.7.2"
