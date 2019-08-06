@@ -71,21 +71,23 @@ class ActionBar extends React.PureComponent {
   };
 
   canCancel = () => {
-    const { selectedJob } = this.props;
-    return selectedJob.state === 'pending' || selectedJob.state === 'running';
+    const { selectedJobFull } = this.props;
+    return (
+      selectedJobFull.state === 'pending' || selectedJobFull.state === 'running'
+    );
   };
 
   createGeckoProfile = async () => {
-    const { user, selectedJob, notify } = this.props;
+    const { user, selectedJobFull, notify } = this.props;
     if (!user.isLoggedIn) {
       return notify('Must be logged in to create a gecko profile', 'danger');
     }
 
     const { id: decisionTaskId } = await PushModel.getDecisionTaskId(
-      selectedJob.push_id,
+      selectedJobFull.push_id,
       notify,
     );
-    TaskclusterModel.load(decisionTaskId, selectedJob).then(results => {
+    TaskclusterModel.load(decisionTaskId, selectedJobFull).then(results => {
       const geckoprofile = results.actions.find(
         result => result.name === 'geckoprofile',
       );
@@ -141,7 +143,7 @@ class ActionBar extends React.PureComponent {
   };
 
   backfillJob = async () => {
-    const { user, selectedJob, notify } = this.props;
+    const { user, selectedJobFull, notify } = this.props;
 
     if (!this.canBackfill()) {
       return;
@@ -153,21 +155,21 @@ class ActionBar extends React.PureComponent {
       return;
     }
 
-    if (!selectedJob.id) {
+    if (!selectedJobFull.id) {
       notify('Job not yet loaded for backfill', 'warning');
 
       return;
     }
 
     if (
-      selectedJob.build_system_type === 'taskcluster' ||
-      selectedJob.reason.startsWith('Created by BBB for task')
+      selectedJobFull.build_system_type === 'taskcluster' ||
+      selectedJobFull.reason.startsWith('Created by BBB for task')
     ) {
       const { id: decisionTaskId } = await PushModel.getDecisionTaskId(
-        selectedJob.push_id,
+        selectedJobFull.push_id,
         notify,
       );
-      TaskclusterModel.load(decisionTaskId, selectedJob).then(results => {
+      TaskclusterModel.load(decisionTaskId, selectedJobFull).then(results => {
         const backfilltask = results.actions.find(
           result => result.name === 'backfill',
         );
@@ -195,13 +197,13 @@ class ActionBar extends React.PureComponent {
   };
 
   isolateJob = async () => {
-    const { user, selectedJob, notify } = this.props;
+    const { user, selectedJobFull, notify } = this.props;
     const { id: decisionTaskId } = await PushModel.getDecisionTaskId(
-      selectedJob.push_id,
+      selectedJobFull.push_id,
       notify,
     );
 
-    if (!isTestIsolatable(selectedJob)) {
+    if (!isTestIsolatable(selectedJobFull)) {
       return;
     }
 
@@ -211,23 +213,23 @@ class ActionBar extends React.PureComponent {
       return;
     }
 
-    if (!selectedJob.id) {
+    if (!selectedJobFull.id) {
       notify('Job not yet loaded for isolation', 'warning');
 
       return;
     }
 
-    if (selectedJob.state !== 'completed') {
+    if (selectedJobFull.state !== 'completed') {
       notify('Job not yet completed. Try again later.', 'warning');
 
       return;
     }
 
     if (
-      selectedJob.build_system_type === 'taskcluster' ||
-      selectedJob.reason.startsWith('Created by BBB for task')
+      selectedJobFull.build_system_type === 'taskcluster' ||
+      selectedJobFull.reason.startsWith('Created by BBB for task')
     ) {
-      TaskclusterModel.load(decisionTaskId, selectedJob).then(results => {
+      TaskclusterModel.load(decisionTaskId, selectedJobFull).then(results => {
         const isolationtask = results.actions.find(
           result => result.name === 'isolate-test-failures',
         );
@@ -316,8 +318,8 @@ class ActionBar extends React.PureComponent {
   };
 
   createInteractiveTask = async () => {
-    const { user, selectedJob, repoName, notify } = this.props;
-    const jobId = selectedJob.id;
+    const { user, selectedJobFull, repoName, notify } = this.props;
+    const jobId = selectedJobFull.id;
 
     if (!user.isLoggedIn) {
       return notify(
@@ -373,7 +375,7 @@ class ActionBar extends React.PureComponent {
   };
 
   cancelJob = () => {
-    this.cancelJobs([this.props.selectedJob]);
+    this.cancelJobs([this.props.selectedJobFull]);
   };
 
   toggleCustomJobActions = () => {
@@ -384,7 +386,7 @@ class ActionBar extends React.PureComponent {
 
   render() {
     const {
-      selectedJob,
+      selectedJobFull,
       logViewerUrl,
       logViewerFullUrl,
       jobLogUrls,
@@ -407,7 +409,7 @@ class ActionBar extends React.PureComponent {
                 id="pin-job-btn"
                 title="Add this job to the pinboard"
                 className="btn icon-blue"
-                onClick={() => pinJob(selectedJob)}
+                onClick={() => pinJob(selectedJobFull)}
               >
                 <FontAwesomeIcon icon={faThumbtack} title="Pin job" />
               </Button>
@@ -422,12 +424,12 @@ class ActionBar extends React.PureComponent {
                 }
                 className={`btn ${user.isLoggedIn ? 'icon-green' : 'disabled'}`}
                 disabled={!user.isLoggedIn}
-                onClick={() => this.retriggerJob([selectedJob])}
+                onClick={() => this.retriggerJob([selectedJobFull])}
               >
                 <FontAwesomeIcon icon={faRedo} title="Retrigger job" />
               </Button>
             </li>
-            {isReftest(selectedJob) &&
+            {isReftest(selectedJobFull) &&
               jobLogUrls.map(jobLogUrl => (
                 <li key={`reftest-${jobLogUrl.id}`}>
                   <a
@@ -484,7 +486,7 @@ class ActionBar extends React.PureComponent {
                     Backfill
                   </span>
                 </li>
-                {selectedJob.taskcluster_metadata && (
+                {selectedJobFull.taskcluster_metadata && (
                   <React.Fragment>
                     <li>
                       <a
@@ -492,7 +494,7 @@ class ActionBar extends React.PureComponent {
                         rel="noopener noreferrer"
                         className="dropdown-item"
                         href={getInspectTaskUrl(
-                          selectedJob.taskcluster_metadata.task_id,
+                          selectedJobFull.taskcluster_metadata.task_id,
                         )}
                       >
                         Inspect Task
@@ -506,7 +508,7 @@ class ActionBar extends React.PureComponent {
                         Create Interactive Task
                       </Button>
                     </li>
-                    {isPerfTest(selectedJob) && (
+                    {isPerfTest(selectedJobFull) && (
                       <li>
                         <Button
                           className="dropdown-item py-2"
@@ -516,7 +518,7 @@ class ActionBar extends React.PureComponent {
                         </Button>
                       </li>
                     )}
-                    {isTestIsolatable(selectedJob) && (
+                    {isTestIsolatable(selectedJobFull) && (
                       <li>
                         <Button
                           className="dropdown-item py-2"
@@ -542,8 +544,8 @@ class ActionBar extends React.PureComponent {
         </nav>
         {customJobActionsShowing && (
           <CustomJobActions
-            job={selectedJob}
-            pushId={selectedJob.push_id}
+            job={selectedJobFull}
+            pushId={selectedJobFull.push_id}
             isLoggedIn={user.isLoggedIn}
             toggle={this.toggleCustomJobActions}
           />
@@ -557,7 +559,7 @@ ActionBar.propTypes = {
   pinJob: PropTypes.func.isRequired,
   user: PropTypes.object.isRequired,
   repoName: PropTypes.string.isRequired,
-  selectedJob: PropTypes.object.isRequired,
+  selectedJobFull: PropTypes.object.isRequired,
   logParseStatus: PropTypes.string.isRequired,
   notify: PropTypes.func.isRequired,
   jobLogUrls: PropTypes.array,

@@ -2,22 +2,15 @@ import React from 'react';
 import PropTypes from 'prop-types';
 
 import { getInspectTaskUrl } from '../helpers/url';
-import { getSearchStr, getJobSearchStrHref } from '../helpers/job';
+import { getJobSearchStrHref } from '../helpers/job';
 import { toDateStr } from '../helpers/display';
 
 const getTimeFields = function getTimeFields(job) {
   // time fields to show in detail panel, but that should be grouped together
-  const { end_timestamp, start_timestamp, submit_timestamp } = job;
+  const { end_timestamp, start_timestamp, submit_timestamp, duration } = job;
   const timeFields = [
     { title: 'Requested', value: toDateStr(submit_timestamp) },
   ];
-
-  // If start time is 0, then duration should be from requesttime to now
-  // If we have starttime and no endtime, then duration should be starttime to now
-  // If we have both starttime and endtime, then duration will be between those two
-  const endtime = end_timestamp || Date.now() / 1000;
-  const starttime = start_timestamp || submit_timestamp;
-  const duration = `${Math.round((endtime - starttime) / 60, 0)} minute(s)`;
 
   if (start_timestamp) {
     timeFields.push({ title: 'Started', value: toDateStr(start_timestamp) });
@@ -36,7 +29,16 @@ const getTimeFields = function getTimeFields(job) {
 export default class JobInfo extends React.PureComponent {
   render() {
     const { job, extraFields, showJobFilters } = this.props;
-    const jobSearchStr = getSearchStr(job);
+    const {
+      searchStr,
+      signature,
+      title,
+      taskcluster_metadata,
+      build_platform,
+      job_type_name,
+      build_architecture,
+      build_os,
+    } = job;
     const timeFields = getTimeFields(job);
 
     return (
@@ -47,44 +49,43 @@ export default class JobInfo extends React.PureComponent {
             <React.Fragment>
               <a
                 title="Filter jobs with this unique SHA signature"
-                href={getJobSearchStrHref(job.signature)}
+                href={getJobSearchStrHref(signature)}
               >
                 (sig)
               </a>
               :&nbsp;
               <a
                 title="Filter jobs containing these keywords"
-                href={getJobSearchStrHref(jobSearchStr)}
+                href={getJobSearchStrHref(searchStr)}
               >
-                {jobSearchStr}
+                {searchStr}
               </a>
             </React.Fragment>
           ) : (
-            <span>{job.getTitle()}</span>
+            <span>{title}</span>
           )}
         </li>
-        {job.taskcluster_metadata && (
+        {taskcluster_metadata && (
           <li className="small">
             <strong>Task: </strong>
             <a
               id="taskInfo"
-              href={getInspectTaskUrl(job.taskcluster_metadata.task_id)}
+              href={getInspectTaskUrl(taskcluster_metadata.task_id)}
               target="_blank"
               rel="noopener noreferrer"
             >
-              {job.taskcluster_metadata.task_id}
+              {taskcluster_metadata.task_id}
             </a>
           </li>
         )}
         <li className="small">
           <strong>Build: </strong>
-          <span>{`${job.build_architecture} ${
-            job.build_platform
-          } ${job.build_os || ''}`}</span>
+          <span>{`${build_architecture} ${build_platform} ${build_os ||
+            ''}`}</span>
         </li>
         <li className="small">
           <strong>Job name: </strong>
-          <span>{job.job_type_name}</span>
+          <span>{job_type_name}</span>
         </li>
         {[...timeFields, ...extraFields].map(field => (
           <li className="small" key={`${field.title}${field.value}`}>

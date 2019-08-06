@@ -22,14 +22,6 @@ const btnClasses = {
 // failure classification ids that should be shown in "unclassified" mode
 export const thUnclassifiedIds = [1, 7];
 
-// The result will be unknown unless the state is complete, so much check both.
-// TODO: We should consider storing either pending or running in the result,
-// even when the job isn't complete.  It would simplify a lot of UI code and
-// I can't think of a reason that would hurt anything.
-export const getStatus = function getStatus(job) {
-  return job.state === 'completed' ? job.result : job.state;
-};
-
 // Get the CSS class for job buttons as well as jobs that show in the pinboard.
 // These also apply to result "groupings" like ``failures`` and ``in progress``
 // for the colored filter chicklets on the nav bar.
@@ -40,16 +32,10 @@ export const getBtnClass = function getBtnClass(
   let btnClass = btnClasses[resultStatus] || 'btn-default';
 
   // handle if a job is classified
-  // TODO: Check if the parseInt() is really needed here.
-  const classificationId = parseInt(failureClassificationId, 10);
-  if (classificationId > 1) {
+  if (failureClassificationId > 1) {
     btnClass += '-classified';
   }
   return btnClass;
-};
-
-export const getJobBtnClass = function getJobBtnClass(job) {
-  return getBtnClass(getStatus(job), job.failure_classification_id);
 };
 
 export const isReftest = function isReftest(job) {
@@ -203,22 +189,54 @@ export const findJobInstance = function findJobInstance(jobId, scrollTo) {
   }
 };
 
-export const getSearchStr = function getSearchStr(job) {
+export const addAggregateFields = function addAggregateFields(job) {
+  const {
+    job_group_name,
+    job_group_symbol,
+    job_type_name,
+    job_type_symbol,
+    state,
+    result,
+    platform,
+    platform_option,
+    signature,
+    duration,
+    failure_classification_id,
+    submit_timestamp,
+    start_timestamp,
+    end_timestamp,
+  } = job;
+
+  job.resultStatus = state === 'completed' ? result : state;
   // we want to join the group and type information together
   // so we can search for it as one token (useful when
   // we want to do a search on something like `fxup-esr(`)
-  const symbolInfo = job.job_group_symbol === '?' ? '' : job.job_group_symbol;
+  const symbolInfo = job_group_symbol === '?' ? '' : job_group_symbol;
 
-  return [
-    thPlatformMap[job.platform] || job.platform,
-    job.platform_option,
-    job.job_group_name === 'unknown' ? undefined : job.job_group_name,
-    job.job_type_name,
-    `${symbolInfo}(${job.job_type_symbol})`,
+  job.title = [
+    thPlatformMap[platform] || platform,
+    platform_option,
+    job_group_name === 'unknown' ? undefined : job_group_name,
+    job_type_name,
+    `${symbolInfo}(${job_type_symbol})`,
   ]
     .filter(item => typeof item !== 'undefined')
     .join(' ')
     .toLowerCase();
+  job.searchStr = `${job.title} ${signature}`;
+
+  if (!duration) {
+    // If start time is 0, then duration should be from requesttime to now
+    // If we have starttime and no endtime, then duration should be starttime to now
+    // If we have both starttime and endtime, then duration will be between those two
+    const endtime = end_timestamp || Date.now() / 1000;
+    const starttime = start_timestamp || submit_timestamp;
+    job.duration = Math.round((endtime - starttime) / 60, 0);
+  }
+
+  job.hoverText = `${job_type_name} - ${job.resultStatus} - ${job.duration} mins`;
+  job.btnClass = getBtnClass(job.resultStatus, failure_classification_id);
+  return job;
 };
 
 export const getJobSearchStrHref = function getJobSearchStrHref(jobSearchStr) {
@@ -226,10 +244,4 @@ export const getJobSearchStrHref = function getJobSearchStrHref(jobSearchStr) {
   params.set('searchStr', jobSearchStr.split(' '));
 
   return `${uiJobsUrlBase}?${params.toString()}`;
-};
-
-export const getHoverText = function getHoverText(job) {
-  const duration = Math.round((job.end_timestamp - job.start_timestamp) / 60);
-
-  return `${job.job_type_name} - ${getStatus(job)} - ${duration} mins`;
 };

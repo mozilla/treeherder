@@ -5,7 +5,7 @@ import {
   thFailureResults,
   thPlatformMap,
 } from '../helpers/constants';
-import { getStatus, isClassified } from '../helpers/job';
+import { isClassified } from '../helpers/job';
 import {
   arraysEqual,
   matchesDefaults,
@@ -196,10 +196,11 @@ export default class FilterModel {
   showJob = job => {
     // when runnable jobs have been added to a resultset, they should be
     // shown regardless of settings for classified or result state
-    const status = getStatus(job);
-    if (status !== 'runnable') {
+    const { resultStatus } = job;
+
+    if (resultStatus !== 'runnable') {
       // test against resultStatus and classifiedState
-      if (!this.urlParams.resultStatus.includes(status)) {
+      if (!this.urlParams.resultStatus.includes(resultStatus)) {
         return false;
       }
       if (!this._checkClassifiedStateFilters(job)) {
@@ -273,9 +274,9 @@ export default class FilterModel {
       }`;
     }
 
-    if (field === 'searchStr') {
-      // lazily get this to avoid storing redundant information
-      return job.getSearchStr();
+    if (field === 'resultStatus') {
+      // don't check this here.
+      return null;
     }
     return job[field];
   };

@@ -13,7 +13,7 @@ class SummaryPanel extends React.PureComponent {
   render() {
     const {
       repoName,
-      selectedJob,
+      selectedJobFull,
       latestClassification,
       bugs,
       jobLogUrls,
@@ -38,7 +38,7 @@ class SummaryPanel extends React.PureComponent {
     return (
       <div id="summary-panel" role="region" aria-label="Summary">
         <ActionBar
-          selectedJob={selectedJob}
+          selectedJobFull={selectedJobFull}
           repoName={repoName}
           logParseStatus={logParseStatus}
           isTryRepo={currentRepo.is_try_repo}
@@ -65,15 +65,15 @@ class SummaryPanel extends React.PureComponent {
             <ul className="list-unstyled">
               {latestClassification && (
                 <ClassificationsPanel
-                  job={selectedJob}
+                  job={selectedJobFull}
                   classification={latestClassification}
                   classificationMap={classificationMap}
                   bugs={bugs}
                   currentRepo={currentRepo}
                 />
               )}
-              <StatusPanel selectedJob={selectedJob} />
-              <JobInfo job={selectedJob} extraFields={logStatus} />
+              <StatusPanel selectedJobFull={selectedJobFull} />
+              <JobInfo job={selectedJobFull} extraFields={logStatus} />
             </ul>
           </div>
         </div>
@@ -88,7 +88,7 @@ SummaryPanel.propTypes = {
   user: PropTypes.object.isRequired,
   currentRepo: PropTypes.object.isRequired,
   classificationMap: PropTypes.object.isRequired,
-  selectedJob: PropTypes.object.isRequired,
+  selectedJobFull: PropTypes.object.isRequired,
   latestClassification: PropTypes.object,
   jobLogUrls: PropTypes.array,
   jobDetailLoading: PropTypes.bool,

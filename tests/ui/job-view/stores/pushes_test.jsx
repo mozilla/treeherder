@@ -30,11 +30,16 @@ import {
   fetchNextPushes,
   updateRange,
 } from '../../../../ui/job-view/redux/stores/pushes';
+import { addAggregateFields } from '../../../../ui/helpers/job';
 
 const mockStore = configureMockStore([thunk]);
 
 describe('Pushes Redux store', () => {
   const repoName = 'autoland';
+
+  beforeAll(() => {
+    Object.values(jobMap).forEach(job => addAggregateFields(job));
+  });
 
   afterEach(() => {
     cleanup();
