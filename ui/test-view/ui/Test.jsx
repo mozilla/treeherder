@@ -76,7 +76,6 @@ BugCountComponent.propTypes = {
 };
 
 // TODO: Move `Platform` into its own file.
-// eslint-disable-next-line react/no-multi-comp
 class Platform extends React.Component {
   getIcon(failureClassification) {
     switch (failureClassification) {
@@ -140,7 +139,6 @@ Platform.propTypes = {
 };
 
 // TODO: Move `TestComponent` into its own file.
-// eslint-disable-next-line react/no-multi-comp
 class TestComponent extends React.Component {
   onClick = () => {
     store.dispatch(
