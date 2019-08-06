@@ -69,11 +69,11 @@ if __name__ == "__main__":
     args = parser.parse_args()
 
     th_instance = TreeherderClient(server_url=HOSTS[args.host])
-    th_instance_pushid = th_instance.get_pushes("mozilla-central", revision=args.revision)[0]["id"]
+    th_instance_pushid = th_instance.get_pushes(args.project, revision=args.revision)[0]["id"]
     th_instance_jobs = th_instance.get_jobs(args.project, push_id=th_instance_pushid, count=None) or []
 
     production = TreeherderClient(server_url=HOSTS["production"])
-    production_pushid = production.get_pushes("mozilla-central", revision=args.revision)[0]["id"]
+    production_pushid = production.get_pushes(args.project, revision=args.revision)[0]["id"]
     production_jobs = production.get_jobs(args.project, push_id=production_pushid, count=None)
 
     production_dict = {}

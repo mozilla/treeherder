@@ -1,7 +1,7 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faUser } from '@fortawesome/free-regular-svg-icons';
+import { faUser, faClipboard } from '@fortawesome/free-regular-svg-icons';
 
 import { parseAuthor } from '../../helpers/revision';
 import BugLinkify from '../../shared/BugLinkify';
@@ -37,6 +37,10 @@ Initials.propTypes = {
 };
 
 export class Revision extends React.PureComponent {
+  static copyToClipboard(text) {
+    navigator.clipboard.writeText(text);
+  }
+
   constructor(props) {
     super(props);
     const { revision } = this.props;
@@ -59,6 +63,13 @@ export class Revision extends React.PureComponent {
       <li className="clearfix">
         <span className="revision" data-tags={this.tags}>
           <span className="revision-holder">
+            <span
+              type="button"
+              className="pointer"
+              onClick={() => Revision.copyToClipboard(commitRevision)}
+            >
+              <FontAwesomeIcon icon={faClipboard} title="Copy full hash" />
+            </span>
             <a
               title={`Open revision ${commitRevision} on ${repo.url}`}
               href={repo.getRevisionHref(commitRevision)}

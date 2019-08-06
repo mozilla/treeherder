@@ -1,5 +1,4 @@
 import datetime
-import time
 
 from django.contrib.auth.models import User
 from django.core.exceptions import ValidationError
@@ -12,6 +11,8 @@ from treeherder.model.models import (Job,
                                      OptionCollection,
                                      Push,
                                      Repository)
+from treeherder.perf.exceptions import (MaxRuntimeExceeded,
+                                        NoDataCyclingAtAll)
 
 SIGNATURE_HASH_LENGTH = 40
 
@@ -107,31 +108,83 @@ class PerformanceDatumManager(models.Manager):
     Convenience functions for operations on groups of performance datums
     """
 
-    def cycle_data(self, repository, cycle_interval, chunk_size, sleep_time):
+    @classmethod
+    def _maybe_quit(cls, started_at, max_overall_runtime):
+        now = datetime.datetime.now()
+        elapsed_runtime = now - started_at
+
+        if max_overall_runtime < elapsed_runtime:
+            raise MaxRuntimeExceeded('Max runtime for performance data cycling exceeded')
+
+    def cycle_data(self, cycle_interval, chunk_size,
+                   logger, started_at, max_overall_runtime):
         """Delete data older than cycle_interval, splitting the target data
 into chunks of chunk_size size."""
-
         max_timestamp = datetime.datetime.now() - cycle_interval
 
-        # seperate datums into chunks
-        while True:
-            perf_datums_to_cycle = list(self.filter(
-                repository=repository,
-                push_timestamp__lt=max_timestamp).values_list('id', flat=True)[:chunk_size])
-            if not perf_datums_to_cycle:
-                # we're done!
-                break
-            self.filter(id__in=perf_datums_to_cycle).delete()
-            if sleep_time:
-                # Allow some time for other queries to get through
-                time.sleep(sleep_time)
+        try:
+            self._delete_in_chunks(max_timestamp, chunk_size, logger,
+                                   started_at, max_overall_runtime)
 
-        # also remove any signatures which are (no longer) associated with
-        # a job
-        for signature in PerformanceSignature.objects.filter(
-                repository=repository):
-            if not self.filter(signature=signature).exists():
-                signature.delete()
+            # also remove any signatures which are (no longer) associated with
+            # a job
+            logger.warning('Removing performance signatures with missing jobs...')
+            for signature in PerformanceSignature.objects.all():
+                self._maybe_quit(started_at, max_overall_runtime)
+
+                if not self.filter(
+                        repository_id=signature.repository_id,  # leverages (repository, signature) compound index
+                        signature_id=signature.id).exists():
+                    signature.delete()
+        except NoDataCyclingAtAll as ex:
+            logger.warning('Exception: {}'.format(ex))
+        except MaxRuntimeExceeded as ex:
+            logger.warning(ex)
+
+    def _delete_in_chunks(self, max_timestamp, chunk_size, logger,
+                          started_at, max_overall_runtime):
+        from django.db import connection
+        any_succesful_attempt = False
+
+        with connection.cursor() as cursor:
+            while True:
+                self._maybe_quit(started_at, max_overall_runtime)
+
+                try:
+                    ideal_chunk_size = self._compute_ideal_chunk_size(max_timestamp, chunk_size)
+                    cursor.execute('''
+                        DELETE FROM `performance_datum`
+                        WHERE push_timestamp < %s
+                        LIMIT %s
+                    ''', [max_timestamp, ideal_chunk_size])
+                except Exception as ex:
+                    logger.warning('Failed to delete performance data chunk, while running "{}" query '
+                                   .format(cursor._last_executed))
+
+                    if any_succesful_attempt is False:
+                        raise NoDataCyclingAtAll from ex
+                    break
+                else:
+                    deleted_rows = cursor.rowcount
+
+                    if deleted_rows == 0:
+                        break  # finished removing all expired data
+                    else:
+                        any_succesful_attempt = True
+                        logger.warning('Successfully deleted {} performance datum rows'.format(deleted_rows))
+
+    def _compute_ideal_chunk_size(self, max_timestamp, max_chunk_size):
+        '''
+        max_chunk_size may be too big, causing
+        timeouts while attempting deletion;
+        doing basic database query, maybe a lower value is better
+        '''
+        max_id = self.filter(push_timestamp__gt=max_timestamp
+                             ).order_by('-id')[0].id
+        older_ids = self.filter(push_timestamp__lte=max_timestamp, id__lte=max_id
+                                ).order_by('id')[:max_chunk_size]
+
+        return len(older_ids) or max_chunk_size
 
 
 class PerformanceDatum(models.Model):
@@ -156,9 +209,9 @@ class PerformanceDatum(models.Model):
     class Meta:
         db_table = 'performance_datum'
         index_together = [
-            # this should speed up the typical "get a range of performance datums" query
+            # Speeds up the typical "get a range of performance datums" query
             ('repository', 'signature', 'push_timestamp'),
-            # this should speed up the compare view in treeherder (we only index on
+            # Speeds up the compare view in treeherder (we only index on
             # repository because we currently filter on it in the query)
             ('repository', 'signature', 'push')]
         unique_together = ('repository', 'job', 'push', 'signature')
