@@ -62,7 +62,7 @@ export class Revision extends React.PureComponent {
     return (
       <li>
         <span className="revision" data-tags={this.tags}>
-          <span className="pl-4 pr-1">
+          <span className="pl-4 pr-1 revision-holder">
             <span
               type="button"
               className="pointer"
