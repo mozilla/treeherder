@@ -5,7 +5,7 @@
     keywords: perf, regression, talos-regression
     default_component: Performance
     default_product: Testing
-    cc_list: dave.hunt@gmail.com, rwood@mozilla.com, igoldan@mozilla.com, fstrugariu@mozilla.com
+    cc_list: dave.hunt@gmail.com, rwood@mozilla.com, igoldan@mozilla.com, fstrugariu@mozilla.com, alexandru.ionescu@softvision.ro, marian.raiciof@softvision.ro
     text: |
       Talos has detected a Firefox performance regression from push:
 
@@ -33,7 +33,7 @@
     keywords: regression
     default_component: Performance
     default_product: Testing
-    cc_list: dave.hunt@gmail.com, rwood@mozilla.com, nfroyd@mozilla.com, igoldan@mozilla.com, fstrugariu@mozilla.com
+    cc_list: dave.hunt@gmail.com, rwood@mozilla.com, nfroyd@mozilla.com, igoldan@mozilla.com, fstrugariu@mozilla.com, alexandru.ionescu@softvision.ro, marian.raiciof@softvision.ro
     text: |
       We have detected a build metrics regression from push:
 
@@ -57,7 +57,7 @@
     keywords: perf, regression
     default_component: Performance
     default_product: Testing
-    cc_list: dave.hunt@gmail.com, rwood@mozilla.com, bob@bclary.com, igoldan@mozilla.com, fstrugariu@mozilla.com
+    cc_list: dave.hunt@gmail.com, rwood@mozilla.com, bob@bclary.com, igoldan@mozilla.com, fstrugariu@mozilla.com, alexandru.ionescu@softvision.ro, marian.raiciof@softvision.ro
     text: |
       We have detected an autophone (Android) regression from push:
 
@@ -79,7 +79,7 @@
     keywords: perf, regression
     default_component: Performance
     default_product: Testing
-    cc_list: dave.hunt@gmail.com, rwood@mozilla.com, bob@bclary.com, igoldan@mozilla.com, erahm@mozilla.com, fstrugariu@mozilla.com
+    cc_list: dave.hunt@gmail.com, rwood@mozilla.com, bob@bclary.com, igoldan@mozilla.com, erahm@mozilla.com, fstrugariu@mozilla.com, alexandru.ionescu@softvision.ro, marian.raiciof@softvision.ro
     text: |
       We have detected an awsy regression from push:
 
@@ -101,7 +101,7 @@
     keywords: perf, regression
     default_component: Performance
     default_product: Testing
-    cc_list: dave.hunt@gmail.com, rwood@mozilla.com, igoldan@mozilla.com, fstrugariu@mozilla.com
+    cc_list: dave.hunt@gmail.com, rwood@mozilla.com, igoldan@mozilla.com, fstrugariu@mozilla.com, alexandru.ionescu@softvision.ro, marian.raiciof@softvision.ro
     text: |
       We have detected an awfy regression from push:
 
@@ -123,7 +123,7 @@
     keywords: perf, regression
     default_component: Performance
     default_product: Testing
-    cc_list: dave.hunt@gmail.com, rwood@mozilla.com, igoldan@mozilla.com, fstrugariu@mozilla.com
+    cc_list: dave.hunt@gmail.com, rwood@mozilla.com, igoldan@mozilla.com, fstrugariu@mozilla.com, alexandru.ionescu@softvision.ro, marian.raiciof@softvision.ro
     text: |
       We have detected a platform microbenchmarks regression from push:
 
@@ -145,7 +145,7 @@
     keywords: perf, regression
     default_component: Performance
     default_product: Testing
-    cc_list: dave.hunt@gmail.com, rwood@mozilla.com, igoldan@mozilla.com, fstrugariu@mozilla.com
+    cc_list: dave.hunt@gmail.com, rwood@mozilla.com, igoldan@mozilla.com, fstrugariu@mozilla.com, alexandru.ionescu@softvision.ro, marian.raiciof@softvision.ro
     text: |
       Raptor has detected a Firefox performance regression from push:
 
