@@ -4,6 +4,7 @@ import countBy from 'lodash/countBy';
 
 import { thFailureResults } from '../../helpers/constants';
 import { getSelectedJobId, getUrlParam } from '../../helpers/location';
+import { getBtnClass } from '../../helpers/job';
 
 import JobButton from './JobButton';
 import JobCount from './JobCount';
@@ -71,7 +72,8 @@ export class JobGroupComponent extends React.Component {
       const stateCounts = {};
       const typeSymbolCounts = countBy(jobs, 'job_type_symbol');
       jobs.forEach(job => {
-        const { resultStatus, visible, btnClass } = job;
+        const { resultStatus, visible } = job;
+        const btnClass = getBtnClass(resultStatus);
         if (!visible) return;
 
         let countInfo = {

@@ -4,7 +4,7 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faStar as faStarRegular } from '@fortawesome/free-regular-svg-icons';
 import { faStar as faStarSolid } from '@fortawesome/free-solid-svg-icons';
 
-import { findJobInstance } from '../../helpers/job';
+import { getBtnClass, findJobInstance } from '../../helpers/job';
 import { getSelectedJobId, getUrlParam } from '../../helpers/location';
 
 export default class JobButtonComponent extends React.Component {
@@ -88,11 +88,12 @@ export default class JobButtonComponent extends React.Component {
       visible,
       id,
       job_type_symbol,
-      btnClass,
+      resultStatus,
     } = job;
 
     if (!visible) return null;
     const runnable = state === 'runnable';
+    const btnClass = getBtnClass(resultStatus, failure_classification_id);
     let classifiedIcon = null;
 
     if (failure_classification_id > 1) {

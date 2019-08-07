@@ -7,7 +7,7 @@ import { faPlusSquare, faTimes } from '@fortawesome/free-solid-svg-icons';
 
 import { thEvents } from '../../helpers/constants';
 import { formatModelError } from '../../helpers/errorMessage';
-import { findJobInstance } from '../../helpers/job';
+import { findJobInstance, getBtnClass } from '../../helpers/job';
 import { isSHAorCommit } from '../../helpers/revision';
 import { getBugUrl } from '../../helpers/url';
 import BugJobMapModel from '../../models/bugJobMap';
@@ -383,7 +383,10 @@ class PinBoard extends React.Component {
               {Object.values(pinnedJobs).map(job => (
                 <span className="btn-group" key={job.id}>
                   <span
-                    className={`btn pinned-job ${job.btnClass} ${
+                    className={`btn pinned-job ${getBtnClass(
+                      job.resultStatus,
+                      job.failure_classification_id,
+                    )} ${
                       selectedJobId === job.id
                         ? 'btn-lg selected-job'
                         : 'btn-xs'

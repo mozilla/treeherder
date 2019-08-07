@@ -201,7 +201,6 @@ export const addAggregateFields = function addAggregateFields(job) {
     platform_option,
     signature,
     duration,
-    failure_classification_id,
     submit_timestamp,
     start_timestamp,
     end_timestamp,
@@ -235,7 +234,6 @@ export const addAggregateFields = function addAggregateFields(job) {
   }
 
   job.hoverText = `${job_type_name} - ${job.resultStatus} - ${job.duration} mins`;
-  job.btnClass = getBtnClass(job.resultStatus, failure_classification_id);
   return job;
 };
 

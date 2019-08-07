@@ -6,7 +6,7 @@ import { faSpinner } from '@fortawesome/free-solid-svg-icons';
 
 import { thMaxPushFetchSize } from '../../../helpers/constants';
 import { toDateStr, toShortDateStr } from '../../../helpers/display';
-import { addAggregateFields } from '../../../helpers/job';
+import { addAggregateFields, getBtnClass } from '../../../helpers/job';
 import { getJobsUrl } from '../../../helpers/url';
 import JobModel from '../../../models/job';
 import PushModel from '../../../models/push';
@@ -185,7 +185,10 @@ class SimilarJobsTab extends React.Component {
                 >
                   <td>
                     <button
-                      className={`btn btn-similar-jobs btn-xs ${similarJob.btnClass}`}
+                      className={`btn btn-similar-jobs btn-xs ${getBtnClass(
+                        similarJob.resultStatus,
+                        similarJob.failure_classification_id,
+                      )}`}
                       type="button"
                     >
                       {similarJob.job_type_symbol}
