@@ -80,6 +80,7 @@ class FuzzyJobFinder extends React.Component {
     this.setState({
       selectedList: [],
       removeDisabled: true,
+      submitDisabled: false,
     });
   };
 
