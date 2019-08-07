@@ -19,6 +19,12 @@ export const filterText = {
   inputPlaceholder: 'filter text e.g. linux tp5o',
 };
 
+export const selectorCardText = {
+  invalidRevision: 'Invalid revision',
+  invalidRevisionLength: 'Revision must be at least 40 characters',
+  revisionPlaceHolder: 'select or enter a revision',
+};
+
 export const noDataFoundMessage = 'No Data Found';
 
 export const summaryStatusMap = {

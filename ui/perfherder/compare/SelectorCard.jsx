@@ -22,6 +22,7 @@ import { faCheck } from '@fortawesome/free-solid-svg-icons';
 
 import PushModel from '../../models/push';
 import { genericErrorMessage } from '../../helpers/constants';
+import { selectorCardText } from '../constants';
 
 export default class SelectorCard extends React.Component {
   constructor(props) {
@@ -64,7 +65,7 @@ export default class SelectorCard extends React.Component {
   };
 
   fetchRevisions = async selectedRepo => {
-    const { selectedRevision, updateState } = this.props;
+    const { selectedRevision, updateState, getRevisions } = this.props;
 
     // if a user selects a new project/repo, we don't want them to
     // be able to select revisions until that new data has returned
@@ -72,7 +73,7 @@ export default class SelectorCard extends React.Component {
       this.setState({ disabled: true });
     }
 
-    const { data, failureStatus } = await PushModel.getList({
+    const { data, failureStatus } = await getRevisions({
       repo: selectedRepo,
     });
 
@@ -125,7 +126,12 @@ export default class SelectorCard extends React.Component {
   };
 
   validateInput = async value => {
-    const { updateState, revisionState, selectedRepo } = this.props;
+    const {
+      updateState,
+      revisionState,
+      selectedRepo,
+      getRevisions,
+    } = this.props;
     const { data } = this.state;
 
     updateState({
@@ -136,10 +142,11 @@ export default class SelectorCard extends React.Component {
     if (value === '') {
       return this.setState({ validated: false });
     }
+    value = value.trim();
 
     if (value.length !== 40) {
       return this.setState({
-        invalidRevision: 'Revision must be at least 40 characters',
+        invalidRevision: selectorCardText.invalidRevisionLength,
       });
     }
     // if a revision has been entered, check whether it's already
@@ -149,14 +156,14 @@ export default class SelectorCard extends React.Component {
     if (!existingRevision) {
       this.setState({ validating: 'Validating...' });
 
-      const { data: revisions, failureStatus } = await PushModel.getList({
+      const { data: revisions, failureStatus } = await getRevisions({
         repo: selectedRepo,
         commit_revision: value,
       });
 
       if (failureStatus || revisions.meta.count === 0) {
         return this.setState({
-          invalidRevision: 'Invalid revision',
+          invalidRevision: selectorCardText.invalidRevision,
           validating: false,
           validated: true,
         });
@@ -255,7 +262,7 @@ export default class SelectorCard extends React.Component {
                 <InputGroup>
                   <Input
                     valid={!invalidRevision && !validating && validated}
-                    placeholder="select or enter a revision"
+                    placeholder={selectorCardText.revisionPlaceHolder}
                     value={selectedRevision}
                     onChange={event => this.validateInput(event.target.value)}
                     onFocus={() =>
@@ -332,6 +339,7 @@ SelectorCard.propTypes = {
   checkbox: PropTypes.bool,
   queryParam: PropTypes.string,
   missingRevision: PropTypes.oneOfType([PropTypes.string, PropTypes.bool]),
+  getRevisions: PropTypes.func,
 };
 
 SelectorCard.defaultProps = {
@@ -340,4 +348,5 @@ SelectorCard.defaultProps = {
   checkbox: false,
   queryParam: undefined,
   missingRevision: false,
+  getRevisions: PushModel.getList,
 };
