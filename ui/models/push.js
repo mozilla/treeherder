@@ -44,7 +44,8 @@ export default class PushModel {
     }
     if (
       params.count > thMaxPushFetchSize ||
-      transformedOptions.push_timestamp__gte
+      transformedOptions.push_timestamp__gte ||
+      transformedOptions.fromchange
     ) {
       // fetch the maximum number of pushes
       params.count = thMaxPushFetchSize;
