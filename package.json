@@ -39,7 +39,7 @@
     "jquery": "3.4.0",
     "jquery.flot": "0.8.3",
     "jquery.scrollto": "2.1.2",
-    "js-cookie": "2.2.0",
+    "js-cookie": "2.2.1",
     "js-yaml": "3.13.1",
     "json-e": "3.0.1",
     "json-schema-defaults": "0.4.0",
