@@ -452,9 +452,6 @@ def test_perf_signature_2(test_perf_signature):
 def test_perf_data(test_perf_signature, eleven_jobs_stored):
     from treeherder.model.models import Job
 
-    def normalized_time(hour):
-        return datetime.datetime(2018, 7, 3, hour)
-
     # for making things easier, ids for jobs
     # and push should be the same;
     # also, we only need a subset of jobs
@@ -466,13 +463,13 @@ def test_perf_data(test_perf_signature, eleven_jobs_stored):
 
         perf_datum = PerformanceDatum.objects.create(
             value=10,
-            push_timestamp=normalized_time(index),
+            push_timestamp=job.push.time,
             job=job,
             push=job.push,
             repository=job.repository,
             signature=test_perf_signature
         )
-        perf_datum.push.time = normalized_time(index)
+        perf_datum.push.time = job.push.time
         perf_datum.push.save()
 
     return PerformanceDatum.objects.order_by('id').all()

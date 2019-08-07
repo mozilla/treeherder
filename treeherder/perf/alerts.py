@@ -1,4 +1,5 @@
 import datetime
+import logging
 import time
 from collections import namedtuple
 from itertools import zip_longest
@@ -7,6 +8,7 @@ from typing import (List,
 
 from django.conf import settings
 from django.db import transaction
+from django.db.models.query import QuerySet
 
 from treeherder.perf.models import (PerformanceAlert,
                                     PerformanceAlertSummary,
@@ -45,9 +47,9 @@ def generate_new_alerts_in_series(signature):
         push_timestamp__gte=max_alert_age).order_by('push_timestamp')
     latest_alert_timestamp = PerformanceAlert.objects.filter(
         series_signature=signature).select_related(
-            'summary__push__time').order_by(
-                '-summary__push__time').values_list(
-                    'summary__push__time', flat=True)[:1]
+        'summary__push__time').order_by(
+        '-summary__push__time').values_list(
+        'summary__push__time', flat=True)[:1]
     if latest_alert_timestamp:
         series = series.filter(
             push_timestamp__gt=latest_alert_timestamp[0])
@@ -91,8 +93,8 @@ def generate_new_alerts_in_series(signature):
                 if ((signature.alert_change_type is None or
                      signature.alert_change_type == PerformanceSignature.ALERT_PCT) and
                     alert_properties.pct_change < alert_threshold) or \
-                    (signature.alert_change_type == PerformanceSignature.ALERT_ABS and
-                     alert_properties.delta < alert_threshold):
+                        (signature.alert_change_type == PerformanceSignature.ALERT_ABS and
+                         alert_properties.delta < alert_threshold):
                     continue
 
                 summary, _ = PerformanceAlertSummary.objects.get_or_create(
@@ -225,10 +227,8 @@ class AlertsPicker:
         Filter criteria based on platform name.
         '''
         alert_platform_name = alert.series_signature.platform.platform
-        if any(alert_platform_name.startswith(platform_of_interest)
-                for platform_of_interest in self.ordered_platforms_of_interest):
-            return True
-        return False
+        return any(alert_platform_name.startswith(platform_of_interest)
+                   for platform_of_interest in self.ordered_platforms_of_interest)
 
     def _extract_by_relevant_platforms(self, alerts):
         return list(filter(self._has_relevant_platform, alerts))
@@ -245,3 +245,89 @@ class AlertsPicker:
             reverse=True
         )
         return sorted_alerts
+
+
+class IdentifyingRetriggerables:
+    def __init__(self, range_width: int, time_interval: datetime.timedelta, logger=None):
+        if range_width < 1:
+            raise ValueError('Cannot set range width less than 1')
+        if range_width % 2 == 0:
+            raise ValueError('Must provide odd range width')
+        if not isinstance(time_interval, datetime.timedelta):
+            raise TypeError('Must provide time interval as timedelta')
+
+        self._range_width = range_width
+        self._time_interval = time_interval
+        self.log = logger or logging.getLogger(self.__call__.__name__)
+
+    def __call__(self, alert: PerformanceAlert) -> List[dict]:
+        """
+        Main method
+        """
+        annotated_data_points = self._fetch_suspect_data_points(alert)  # in time_interval around alert
+        flattened_data_points = self._one_data_point_per_push(annotated_data_points)
+
+        try:
+            alert_index = self._find_push_id_index(alert.summary.push_id, flattened_data_points)
+        except LookupError as ex:
+            raise RuntimeError("Unexpected lookup failure") from ex
+
+        retrigger_window = self.__compute_window_slices(alert_index)
+        data_points_to_retrigger = flattened_data_points[retrigger_window]
+
+        self._glance_over_retrigger_range(data_points_to_retrigger)
+
+        return data_points_to_retrigger
+
+    def min_timestamp(self, alert_push_time: datetime.datetime) -> datetime.datetime:
+        return alert_push_time - self._time_interval
+
+    def max_timestamp(self, alert_push_time: datetime.datetime) -> datetime.datetime:
+        return alert_push_time + self._time_interval
+
+    def _fetch_suspect_data_points(self, alert: PerformanceAlert) -> QuerySet:
+        startday = self.min_timestamp(alert.summary.push.time)
+        endday = self.max_timestamp(alert.summary.push.time)
+
+        data = (PerformanceDatum.objects.select_related('push')
+                .filter(repository_id=alert.series_signature.repository_id,  # leverage compound index
+                        signature_id=alert.series_signature_id,
+                        push_timestamp__gt=startday,
+                        push_timestamp__lt=endday,
+                        ))
+
+        annotated_data_points = (data
+                                 # JSONs are more self explanatory
+                                 # with perf_datum_id instead of id
+                                 .extra(select={'perf_datum_id': 'performance_datum.id'})
+                                 .values('value', 'job_id', 'perf_datum_id', 'push_id', 'push_timestamp',
+                                         'push__revision')
+                                 .order_by('push_timestamp'))
+        return annotated_data_points
+
+    def _one_data_point_per_push(self, annotated_data_points: QuerySet) -> List[dict]:
+        seen_push_ids = set()
+        seen_add = seen_push_ids.add
+        return [data_point
+                for data_point in annotated_data_points
+                if not (data_point['push_id'] in seen_push_ids or seen_add(data_point['push_id']))]
+
+    def _find_push_id_index(self, push_id: int, flattened_data_points: List[dict]) -> int:
+        for index, data_point in enumerate(flattened_data_points):
+            if data_point['push_id'] == push_id:
+                return index
+        raise LookupError(f'Could not find push id {push_id}')
+
+    def __compute_window_slices(self, center_index: int) -> slice:
+        side = self._range_width // 2
+
+        left_margin = max(center_index - side, 0)  # cannot have negative start slice
+        right_margin = center_index + side + 1
+
+        return slice(left_margin, right_margin)
+
+    def _glance_over_retrigger_range(self, data_points_to_retrigger: List[dict]):
+        retrigger_range = len(data_points_to_retrigger)
+        if retrigger_range < self._range_width:
+            self.log.warning('Found small backfill range (of size {} instead of {})'
+                             .format(retrigger_range, self._range_width))
