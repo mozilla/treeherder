@@ -8,6 +8,7 @@ import { toDateStr } from '../helpers/display';
 const getTimeFields = function getTimeFields(job) {
   // time fields to show in detail panel, but that should be grouped together
   const { end_timestamp, start_timestamp, submit_timestamp, duration } = job;
+  const durationStr = `${duration} minute${duration > 1 ? 's' : ''}`;
   const timeFields = [
     { title: 'Requested', value: toDateStr(submit_timestamp) },
   ];
@@ -20,7 +21,9 @@ const getTimeFields = function getTimeFields(job) {
   }
   timeFields.push({
     title: 'Duration',
-    value: start_timestamp ? duration : `Not started (queued for ${duration})`,
+    value: start_timestamp
+      ? durationStr
+      : `Not started (queued for ${durationStr})`,
   });
 
   return timeFields;
