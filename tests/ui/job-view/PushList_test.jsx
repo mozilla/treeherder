@@ -70,7 +70,7 @@ describe('PushList', () => {
     });
     fetchMock.get(
       getProjectUrl(
-        '/push/?full=true&count=10&fromchange=ba9c692786e95143b8df3f4b3e9b504dfbc589a0',
+        '/push/?full=true&count=100&fromchange=ba9c692786e95143b8df3f4b3e9b504dfbc589a0',
         repoName,
       ),
       {
