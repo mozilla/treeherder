@@ -131,6 +131,9 @@ export class CompareView extends React.PureComponent {
   getDisplayResults = (origResultsMap, newResultsMap, state) => {
     const { rowNames, tableNames, framework, timeRange } = state;
 
+    console.log('originalResultsMap', origResultsMap);
+    console.log('newResultsMap', newResultsMap);
+
     let compareResults = new Map();
     const oldStddevVariance = {};
     const newStddevVariance = {};

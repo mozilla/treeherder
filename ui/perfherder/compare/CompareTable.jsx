@@ -1,15 +1,18 @@
 import React from 'react';
-import { Table } from 'reactstrap';
+import { Button, Table } from 'reactstrap';
 import PropTypes from 'prop-types';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import {
   faExclamationTriangle,
+  faRedo,
   faThumbsUp,
 } from '@fortawesome/free-solid-svg-icons';
 
+import JobModel from '../../models/job';
 import SimpleTooltip from '../../shared/SimpleTooltip';
 import { displayNumber } from '../helpers';
 import ProgressBar from '../ProgressBar';
+import { notify } from '../../job-view/redux/stores/notifications';
 
 import TableAverage from './TableAverage';
 
@@ -28,8 +31,25 @@ export default class CompareTable extends React.PureComponent {
       displayNumber(percentage),
     )}% ${improvement ? 'better' : 'worse'})`;
 
+  retriggerJob = results => {
+    const { repoName } = this.props;
+
+    // Spin the retrigger button when retriggers happen
+    $('#retrigger-btn > svg').removeClass('action-bar-spin');
+    window.requestAnimationFrame(() => {
+      window.requestAnimationFrame(() => {
+        $('#retrigger-btn > svg').addClass('action-bar-spin');
+      });
+    })
+    let jobInstances = []
+    results.originalJobIds.map(jobId => (
+      // a function that is returning a job object based on its id
+    ))
+    JobModel.retrigger(jobInstances, repoName, notify, 5);
+  };
+
   render() {
-    const { data, testName } = this.props;
+    const { data, testName, job } = this.props;
     return (
       <Table sz="small" className="compare-table mb-0 px-0" key={testName}>
         <thead>
@@ -141,6 +161,15 @@ export default class CompareTable extends React.PureComponent {
                 ) : null}
               </td>
               <td className="text-right">
+                <Button
+                  id="retrigger-btn"
+                  className="retrigger-btn btn"
+                  title="Retrigger 5 times"
+                  onMouseDown={this.onMouseDown}
+                  onClick={() => this.retriggerJob(results)}
+                >
+                  <FontAwesomeIcon icon={faRedo} title="Retrigger 5 times" />
+                </Button>
                 {results.originalRuns && (
                   <SimpleTooltip
                     textClass="detail-hint"
@@ -160,8 +189,10 @@ export default class CompareTable extends React.PureComponent {
 CompareTable.propTypes = {
   data: PropTypes.arrayOf(PropTypes.shape({})),
   testName: PropTypes.string.isRequired,
+  repoName: PropTypes.string,
 };
 
 CompareTable.defaultProps = {
   data: null,
+  repoName: null,
 };

@@ -138,7 +138,6 @@ class ActionBar extends React.PureComponent {
         $('#retrigger-btn > svg').addClass('action-bar-spin');
       });
     });
-
     JobModel.retrigger(jobs, repoName, notify);
   };
 
