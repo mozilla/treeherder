@@ -30,7 +30,6 @@ export default class JobInfo extends React.PureComponent {
   render() {
     const { job, extraFields, showJobFilters } = this.props;
     const {
-      searchStr,
       signature,
       title,
       taskcluster_metadata,
@@ -56,9 +55,9 @@ export default class JobInfo extends React.PureComponent {
               :&nbsp;
               <a
                 title="Filter jobs containing these keywords"
-                href={getJobSearchStrHref(searchStr)}
+                href={getJobSearchStrHref(title)}
               >
-                {searchStr}
+                {title}
               </a>
             </React.Fragment>
           ) : (
