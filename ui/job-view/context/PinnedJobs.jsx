@@ -4,6 +4,7 @@ import { connect } from 'react-redux';
 
 import { notify } from '../redux/stores/notifications';
 import { thEvents } from '../../helpers/constants';
+import { findJobInstance } from '../../helpers/job';
 
 const COUNT_ERROR = 'Max pinboard size of 500 reached.';
 const MAX_SIZE = 500;
@@ -120,7 +121,20 @@ export class PinnedJobsClass extends React.Component {
     pinnedJobBugs[bug.id] = bug;
     this.setValue({ pinnedJobBugs: { ...pinnedJobBugs } });
     if (job) {
-      this.pinJob(job);
+      // ``job`` here is likely passed in from the DetailsPanel which is not
+      // the same object instance as the job shown in the normal job field.
+      // The one from the DetailsPanel is the ``selectedJobFull``.
+      // As a result, if we pin the ``selectedJobFull``, and then update it when
+      // classifying, it won't update the display of the same job in the main
+      // job field.  Thus, it won't disappear when in "unclassified only" mode.
+      const jobInstance = findJobInstance(job.id);
+      // Fall back to the ``job`` just in case ``jobInstance`` can't be found.
+      // Use this fallback so the job will still get classified, even if it
+      // is somehow not displayed in the job field and therefore it does
+      // not need to be visually updated.
+      const jobToPin = jobInstance ? jobInstance.props.job : job;
+
+      this.pinJob(jobToPin);
     }
   };
 
