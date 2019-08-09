@@ -191,6 +191,7 @@ class PerformanceDatum(models.Model):
 
     objects = PerformanceDatumManager()
 
+    id = models.BigAutoField(primary_key=True)
     repository = models.ForeignKey(Repository, on_delete=models.CASCADE)
     signature = models.ForeignKey(PerformanceSignature, on_delete=models.CASCADE)
     value = models.FloatField()
