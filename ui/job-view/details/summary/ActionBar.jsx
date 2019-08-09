@@ -20,8 +20,8 @@ import JobModel from '../../../models/job';
 import PushModel from '../../../models/push';
 import TaskclusterModel from '../../../models/taskcluster';
 import CustomJobActions from '../../CustomJobActions';
-import { withPinnedJobs } from '../../context/PinnedJobs';
 import { notify } from '../../redux/stores/notifications';
+import { pinJob } from '../../redux/stores/pinnedJobs';
 
 import LogUrls from './LogUrls';
 
@@ -577,5 +577,5 @@ ActionBar.defaultProps = {
 
 export default connect(
   null,
-  { notify },
-)(withPinnedJobs(ActionBar));
+  { notify, pinJob },
+)(ActionBar);

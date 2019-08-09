@@ -3,8 +3,8 @@ import PropTypes from 'prop-types';
 import chunk from 'lodash/chunk';
 import { connect } from 'react-redux';
 
+import { setPinBoardVisible } from '../redux/stores/pinnedJobs';
 import { thEvents, thBugSuggestionLimit } from '../../helpers/constants';
-import { withPinnedJobs } from '../context/PinnedJobs';
 import { addAggregateFields } from '../../helpers/job';
 import { getLogViewerUrl, getReftestUrl } from '../../helpers/url';
 import BugJobMapModel from '../../models/bugJobMap';
@@ -424,6 +424,10 @@ DetailsPanel.defaultProps = {
 const mapStateToProps = ({
   selectedJob: { selectedJob },
   pushes: { pushList },
-}) => ({ selectedJob, pushList });
+  pinnedJobs: { isPinBoardVisible },
+}) => ({ selectedJob, pushList, isPinBoardVisible });
 
-export default connect(mapStateToProps)(withPinnedJobs(DetailsPanel));
+export default connect(
+  mapStateToProps,
+  { setPinBoardVisible },
+)(DetailsPanel);

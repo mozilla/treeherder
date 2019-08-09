@@ -7,7 +7,6 @@ import configureMockStore from 'redux-mock-store';
 
 import { replaceLocation, setUrlParam } from '../../../ui/helpers/location';
 import FilterModel from '../../../ui/models/filter';
-import { PinnedJobs } from '../../../ui/job-view/context/PinnedJobs';
 import SecondaryNavBar from '../../../ui/job-view/headerbars/SecondaryNavBar';
 import { initialState } from '../../../ui/job-view/redux/stores/pushes';
 import repos from '../mock/repositories';
@@ -36,18 +35,16 @@ afterEach(() => {
 describe('SecondaryNavBar', () => {
   const testSecondaryNavBar = (store, filterModel) => (
     <Provider store={store}>
-      <PinnedJobs>
-        <SecondaryNavBar
-          updateButtonClick={() => {}}
-          serverChanged={false}
-          filterModel={filterModel}
-          repos={repos}
-          setCurrentRepoTreeStatus={() => {}}
-          duplicateJobsVisible={false}
-          groupCountsExpanded={false}
-          toggleFieldFilterVisible={() => {}}
-        />
-      </PinnedJobs>
+      <SecondaryNavBar
+        updateButtonClick={() => {}}
+        serverChanged={false}
+        filterModel={filterModel}
+        repos={repos}
+        setCurrentRepoTreeStatus={() => {}}
+        duplicateJobsVisible={false}
+        groupCountsExpanded={false}
+        toggleFieldFilterVisible={() => {}}
+      />
     </Provider>
   );
 
