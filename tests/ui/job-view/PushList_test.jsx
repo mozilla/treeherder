@@ -19,7 +19,6 @@ import jobListFixtureOne from '../mock/job_list/job_1';
 import jobListFixtureTwo from '../mock/job_list/job_2';
 import configureStore from '../../../ui/job-view/redux/configureStore';
 import PushList from '../../../ui/job-view/pushes/PushList';
-import { PinnedJobs } from '../../../ui/job-view/context/PinnedJobs';
 
 describe('PushList', () => {
   const repoName = 'autoland';
@@ -46,20 +45,18 @@ describe('PushList', () => {
   };
   const testPushList = (store, filterModel) => (
     <Provider store={store}>
-      <PinnedJobs>
-        <div id="th-global-content">
-          <PushList
-            user={{ isLoggedIn: false }}
-            repoName={repoName}
-            currentRepo={currentRepo}
-            filterModel={filterModel}
-            duplicateJobsVisible={false}
-            groupCountsExpanded={false}
-            pushHealthVisibility="None"
-            getAllShownJobs={() => {}}
-          />
-        </div>
-      </PinnedJobs>
+      <div id="th-global-content">
+        <PushList
+          user={{ isLoggedIn: false }}
+          repoName={repoName}
+          currentRepo={currentRepo}
+          filterModel={filterModel}
+          duplicateJobsVisible={false}
+          groupCountsExpanded={false}
+          pushHealthVisibility="None"
+          getAllShownJobs={() => {}}
+        />
+      </div>
     </Provider>
   );
 

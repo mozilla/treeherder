@@ -13,10 +13,17 @@ import { getBugUrl } from '../../helpers/url';
 import BugJobMapModel from '../../models/bugJobMap';
 import JobClassificationModel from '../../models/classification';
 import JobModel from '../../models/job';
-import { withPinnedJobs } from '../context/PinnedJobs';
 import { notify } from '../redux/stores/notifications';
 import { setSelectedJob } from '../redux/stores/selectedJob';
 import { recalculateUnclassifiedCounts } from '../redux/stores/pushes';
+import {
+  addBug,
+  removeBug,
+  unPinJob,
+  unPinAll,
+  setClassificationId,
+  setClassificationComment,
+} from '../redux/stores/pinnedJobs';
 
 class PinBoard extends React.Component {
   constructor(props) {
@@ -654,9 +661,35 @@ PinBoard.defaultProps = {
   revisionTips: [],
 };
 
-const mapStateToProps = ({ pushes: { revisionTips } }) => ({ revisionTips });
+const mapStateToProps = ({
+  pushes: { revisionTips },
+  pinnedJobs: {
+    isPinBoardVisible,
+    pinnedJobs,
+    pinnedJobBugs,
+    failureClassificationId,
+    failureClassificationComment,
+  },
+}) => ({
+  revisionTips,
+  isPinBoardVisible,
+  pinnedJobs,
+  pinnedJobBugs,
+  failureClassificationId,
+  failureClassificationComment,
+});
 
 export default connect(
   mapStateToProps,
-  { notify, setSelectedJob, recalculateUnclassifiedCounts },
-)(withPinnedJobs(PinBoard));
+  {
+    notify,
+    setSelectedJob,
+    recalculateUnclassifiedCounts,
+    addBug,
+    removeBug,
+    unPinJob,
+    unPinAll,
+    setClassificationId,
+    setClassificationComment,
+  },
+)(PinBoard);

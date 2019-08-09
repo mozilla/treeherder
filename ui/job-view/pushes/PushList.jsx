@@ -5,7 +5,6 @@ import intersection from 'lodash/intersection';
 import isEqual from 'lodash/isEqual';
 
 import ErrorBoundary from '../../shared/ErrorBoundary';
-import { withPinnedJobs } from '../context/PinnedJobs';
 import { notify } from '../redux/stores/notifications';
 import {
   clearSelectedJob,
@@ -102,7 +101,8 @@ class PushList extends React.Component {
     // a button/btn.
     // This will exclude the JobDetails and navbars.
     const globalContent = document.getElementById('th-global-content');
-    const { clearSelectedJob, countPinnedJobs } = this.props;
+    const { clearSelectedJob, pinnedJobs } = this.props;
+    const countPinnedJobs = Object.keys(pinnedJobs).length;
     const isEligible =
       globalContent.contains(target) &&
       target.tagName !== 'A' &&
@@ -210,7 +210,7 @@ PushList.propTypes = {
   allUnclassifiedFailureCount: PropTypes.number.isRequired,
   pushHealthVisibility: PropTypes.string.isRequired,
   clearSelectedJob: PropTypes.func.isRequired,
-  countPinnedJobs: PropTypes.number.isRequired,
+  pinnedJobs: PropTypes.object.isRequired,
   setSelectedJobFromQueryString: PropTypes.func.isRequired,
   getAllShownJobs: PropTypes.func.isRequired,
   jobMap: PropTypes.object.isRequired,
@@ -232,12 +232,14 @@ const mapStateToProps = ({
     pushList,
     allUnclassifiedFailureCount,
   },
+  pinnedJobs: { pinnedJobs },
 }) => ({
   loadingPushes,
   jobsLoaded,
   jobMap,
   pushList,
   allUnclassifiedFailureCount,
+  pinnedJobs,
 });
 
 export default connect(
@@ -251,4 +253,4 @@ export default connect(
     updateRange,
     pollPushes,
   },
-)(withPinnedJobs(PushList));
+)(PushList);

@@ -5,7 +5,6 @@ import { connect } from 'react-redux';
 
 import { thEvents } from '../helpers/constants';
 
-import { withPinnedJobs } from './context/PinnedJobs';
 import {
   notify,
   clearAllOnScreenNotifications,
@@ -15,6 +14,7 @@ import {
   clearSelectedJob,
   updateJobDetails,
 } from './redux/stores/selectedJob';
+import { pinJob, unPinAll } from './redux/stores/pinnedJobs';
 
 const keyMap = {
   addRelatedBug: 'b',
@@ -58,13 +58,13 @@ class KeyboardShortcuts extends React.Component {
       showOnScreenShortcuts,
       notifications,
       clearAllOnScreenNotifications,
-      countPinnedJobs,
+      pinnedJobs,
     } = this.props;
 
     if (notifications.length) {
       clearAllOnScreenNotifications();
     } else {
-      clearSelectedJob(countPinnedJobs);
+      clearSelectedJob(Object.keys(pinnedJobs).length);
       showOnScreenShortcuts(false);
     }
   };
@@ -167,11 +167,11 @@ class KeyboardShortcuts extends React.Component {
   changeSelectedJob = (direction, unclassifiedOnly) => {
     // Select the next job without updating the details panel.  That is debounced so
     // it doesn't do too much updating while quickly switching between jobs.
-    const { updateJobDetails, notify, countPinnedJobs } = this.props;
+    const { updateJobDetails, notify, pinnedJobs } = this.props;
     const { selectedJob } = changeJob(
       direction,
       unclassifiedOnly,
-      countPinnedJobs,
+      Object.keys(pinnedJobs).length,
       notify,
     );
 
@@ -267,7 +267,7 @@ KeyboardShortcuts.propTypes = {
     }),
   ).isRequired,
   notify: PropTypes.func.isRequired,
-  countPinnedJobs: PropTypes.number.isRequired,
+  pinnedJobs: PropTypes.object.isRequired,
   clearAllOnScreenNotifications: PropTypes.func.isRequired,
   selectedJob: PropTypes.object,
 };
@@ -279,9 +279,11 @@ KeyboardShortcuts.defaultProps = {
 const mapStateToProps = ({
   notifications: { notifications },
   selectedJob: { selectedJob },
+  pinnedJobs: { pinnedJobs },
 }) => ({
   notifications,
   selectedJob,
+  pinnedJobs,
 });
 
 export default connect(
@@ -291,5 +293,7 @@ export default connect(
     notify,
     updateJobDetails,
     clearSelectedJob,
+    pinJob,
+    unPinAll,
   },
-)(withPinnedJobs(KeyboardShortcuts));
+)(KeyboardShortcuts);

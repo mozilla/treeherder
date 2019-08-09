@@ -5,8 +5,8 @@ import { Label } from 'reactstrap';
 
 import { thAllResultStatuses } from '../../helpers/constants';
 import { getJobsUrl } from '../../helpers/url';
-import { withPinnedJobs } from '../context/PinnedJobs';
 import { setSelectedJob, clearSelectedJob } from '../redux/stores/selectedJob';
+import { pinJobs } from '../redux/stores/pinnedJobs';
 
 const resultStatusMenuItems = thAllResultStatuses.filter(
   rs => rs !== 'runnable',
@@ -142,5 +142,5 @@ const mapStateToProps = ({ selectedJob: { selectedJob } }) => ({ selectedJob });
 
 export default connect(
   mapStateToProps,
-  { setSelectedJob, clearSelectedJob },
-)(withPinnedJobs(FiltersMenu));
+  { setSelectedJob, clearSelectedJob, pinJobs },
+)(FiltersMenu);

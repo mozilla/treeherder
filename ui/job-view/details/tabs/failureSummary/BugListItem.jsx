@@ -3,10 +3,11 @@ import PropTypes from 'prop-types';
 import Highlighter from 'react-highlight-words';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faThumbtack } from '@fortawesome/free-solid-svg-icons';
+import { connect } from 'react-redux';
 
 import { getSearchWords } from '../../../../helpers/display';
 import { getBugUrl } from '../../../../helpers/url';
-import { withPinnedJobs } from '../../../context/PinnedJobs';
+import { addBug } from '../../../redux/stores/pinnedJobs';
 
 function BugListItem(props) {
   const {
@@ -63,4 +64,7 @@ BugListItem.defaultProps = {
   title: null,
 };
 
-export default withPinnedJobs(BugListItem);
+export default connect(
+  null,
+  { addBug },
+)(BugListItem);

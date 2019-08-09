@@ -12,7 +12,6 @@ import {
 
 import { thEvents } from '../../../helpers/constants';
 import JobDetails from '../../../shared/JobDetails';
-import { withPinnedJobs } from '../../context/PinnedJobs';
 import { clearSelectedJob } from '../../redux/stores/selectedJob';
 
 import FailureSummaryTab from './failureSummary/FailureSummaryTab';
@@ -109,7 +108,7 @@ class TabsPanel extends React.Component {
       classifications,
       togglePinBoardVisibility,
       isPinBoardVisible,
-      countPinnedJobs,
+      pinnedJobs,
       classificationMap,
       logViewerFullUrl,
       reftestUrl,
@@ -117,6 +116,7 @@ class TabsPanel extends React.Component {
       selectedJobFull,
     } = this.props;
     const { tabIndex } = this.state;
+    const countPinnedJobs = Object.keys(pinnedJobs).length;
 
     return (
       <div id="tabs-panel" role="region" aria-label="Job">
@@ -232,7 +232,7 @@ TabsPanel.propTypes = {
   classifications: PropTypes.array.isRequired,
   togglePinBoardVisibility: PropTypes.func.isRequired,
   isPinBoardVisible: PropTypes.bool.isRequired,
-  countPinnedJobs: PropTypes.number.isRequired,
+  pinnedJobs: PropTypes.object.isRequired,
   bugs: PropTypes.array.isRequired,
   clearSelectedJob: PropTypes.func.isRequired,
   selectedJobFull: PropTypes.object.isRequired,
@@ -259,7 +259,11 @@ TabsPanel.defaultProps = {
   reftestUrl: null,
 };
 
+const mapStateToProps = ({
+  pinnedJobs: { pinnedJobs, isPinBoardVisible },
+}) => ({ pinnedJobs, isPinBoardVisible });
+
 export default connect(
-  null,
+  mapStateToProps,
   { clearSelectedJob },
-)(withPinnedJobs(TabsPanel));
+)(TabsPanel);
