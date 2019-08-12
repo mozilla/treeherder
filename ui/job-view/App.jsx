@@ -193,7 +193,9 @@ class App extends React.Component {
   setCurrentRepoTreeStatus = status => {
     const link = document.head.querySelector('link[rel="shortcut icon"]');
 
-    link.href = thFavicons[status] || thFavicons.open;
+    if (link) {
+      link.href = thFavicons[status] || thFavicons.open;
+    }
   };
 
   getAllShownJobs = pushId => {
@@ -220,13 +222,16 @@ class App extends React.Component {
   };
 
   handleUrlChanges = ev => {
+    const { repos } = this.state;
     const { newURL, oldURL } = ev;
     const urlParams = getAllUrlParams();
+    const newRepo = urlParams.get('repo');
     // We only want to set state if any of these or the filter values have changed
     const newState = {
       hasSelectedJob: getAllUrlParams().has('selectedJob'),
       groupCountsExpanded: urlParams.get('group_state') === 'expanded',
       duplicateJobsVisible: urlParams.get('duplicate_jobs') === 'visible',
+      currentRepo: repos.find(repo => repo.name === newRepo),
     };
     const oldState = pick(this.state, Object.keys(newState));
 
