@@ -1,6 +1,9 @@
 import datetime
 import time
 from collections import namedtuple
+from itertools import zip_longest
+from typing import (List,
+                    Tuple)
 
 from django.conf import settings
 from django.db import transaction
@@ -120,3 +123,125 @@ def generate_new_alerts_in_series(signature):
                         'new_value': new_value,
                         't_value': t_value
                     })
+
+
+class AlertsPicker:
+    '''
+    Class encapsulating the algorithm used for selecting the most relevant alerts from a tuple of alerts.
+    For this algorithm, regressions are considered the most important, followed by improvements.
+    '''
+
+    def __init__(self, max_alerts: int, max_improvements: int, platforms_of_interest: Tuple[str]):
+        '''
+        :param max_alerts: the maximum number of selected alerts
+        :param max_improvements: max when handling only improvements
+        :param platforms_of_interest: platforms in decreasing order of importance
+              For selected platforms use the following names:
+                Windows 10:  'windows10'
+                Windows 7: 'windows7'
+                Linux: 'linux'
+                OS X: 'osx'
+                Android: 'android'
+            Note:
+                too specific names can trigger a mismatch with database data; the effect will be the alert skipping
+                too less specific will alter the correct order of alerts
+        '''
+        if max_alerts <= 0 or max_improvements <= 0:
+            raise ValueError('Use positive values.')
+        if len(platforms_of_interest) == 0:
+            raise ValueError('Provide at least one platform name.')
+
+        self.max_alerts = max_alerts
+        self.max_improvements = max_improvements
+        self.ordered_platforms_of_interest = platforms_of_interest
+
+    def extract_important_alerts(self, alerts: Tuple[PerformanceAlert]):
+        if any(not isinstance(alert, PerformanceAlert) for alert in alerts):
+            raise ValueError('Provided parameter does not contain only PerformanceAlert objects.')
+        relevant_alerts = self._extract_by_relevant_platforms(alerts)
+        sorted_alerts = self._multi_criterion_sort(relevant_alerts)
+        return self._ensure_alerts_variety(sorted_alerts)
+
+    def _ensure_alerts_variety(self, sorted_alerts: List[PerformanceAlert]):
+        '''
+        The alerts container must be sorted before being passed to this function.
+        The returned list must contain regressions and (if present) improvements.
+        '''
+        regressions_only = all(alert.is_regression for alert in sorted_alerts)
+        improvements_only = all(not alert.is_regression for alert in sorted_alerts)
+
+        if regressions_only or improvements_only:
+            resulted_alerts_list = self._ensure_platform_variety(sorted_alerts)
+        else:  # mixed alert types
+            regressions = [alert for alert in sorted_alerts if alert.is_regression]
+            improvements = [alert for alert in sorted_alerts if not alert.is_regression]
+
+            if len(regressions) > 1:
+                regressions = self._ensure_platform_variety(regressions)
+                regressions[-1] = improvements[0]
+            regressions.append(improvements[0])
+            resulted_alerts_list = regressions
+
+        return resulted_alerts_list[
+               :self.max_improvements if improvements_only else self.max_alerts
+               ]
+
+    def _ensure_platform_variety(self, sorted_all_alerts: List[PerformanceAlert]):
+        '''
+        Note: Ensure that the sorted_all_alerts container has only
+        platforms of interest (example: 'windows10', 'windows7', 'linux', 'osx', 'android').
+        Please filter sorted_all_alerts list with filter_alerts(alerts) before calling this function.
+        :param sorted_all_alerts: alerts sorted by platform name
+        '''
+        platform_grouped_alerts = []
+        for platform in self.ordered_platforms_of_interest:
+            specific_platform_alerts = [
+                alert for alert in sorted_all_alerts
+                if platform in alert.series_signature.platform.platform
+            ]
+            if len(specific_platform_alerts):
+                platform_grouped_alerts.append(specific_platform_alerts)
+
+        platform_picked = []
+        for alert_group in zip_longest(*platform_grouped_alerts):
+            platform_picked.extend(alert_group)
+        platform_picked = [alert for alert in platform_picked if alert is not None]
+        return platform_picked
+
+    def _os_relevance(self, alert_platform: str):
+        '''
+        One of the sorting criteria.
+        :param alert_platform: the name of the current alert's platform
+        :return: int value of platform's relevance
+        '''
+        for platform_of_interest in self.ordered_platforms_of_interest:
+            if alert_platform.startswith(platform_of_interest):
+                return len(self.ordered_platforms_of_interest) - self.ordered_platforms_of_interest.index(
+                    platform_of_interest)
+        raise ValueError('Unknown platform.')
+
+    def _has_relevant_platform(self, alert: PerformanceAlert):
+        '''
+        Filter criteria based on platform name.
+        '''
+        alert_platform_name = alert.series_signature.platform.platform
+        if any(alert_platform_name.startswith(platform_of_interest)
+                for platform_of_interest in self.ordered_platforms_of_interest):
+            return True
+        return False
+
+    def _extract_by_relevant_platforms(self, alerts):
+        return list(filter(self._has_relevant_platform, alerts))
+
+    def _multi_criterion_sort(self, relevant_alerts):
+        sorted_alerts = sorted(
+            relevant_alerts,
+            # sort criteria
+            key=lambda alert: (
+                alert.is_regression,
+                self._os_relevance(alert.series_signature.platform.platform),
+                alert.amount_pct  # magnitude
+            ),
+            reverse=True
+        )
+        return sorted_alerts
