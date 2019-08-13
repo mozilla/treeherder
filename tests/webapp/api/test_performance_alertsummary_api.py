@@ -72,6 +72,8 @@ def test_alert_summaries_get(client, test_perf_alert_summary,
         'bug_updated',
         'issue_tracker',
         'notes',
+        'assignee_username',
+        'assignee_email',
         'framework',
         'id',
         'created',
@@ -122,6 +124,8 @@ def test_alert_summaries_get_onhold(client, test_perf_alert_summary,
         'bug_updated',
         'issue_tracker',
         'notes',
+        'assignee_username',
+        'assignee_email',
         'framework',
         'id',
         'created',
@@ -179,6 +183,14 @@ def test_alert_summaries_put(client, test_repository, test_perf_signature,
     })
     assert resp.status_code == 200
     assert PerformanceAlertSummary.objects.get(id=1).status == 1
+
+    # verify we can set assignee
+    client.force_authenticate(user=test_sheriff)
+    resp = client.put(reverse('performance-alert-summaries-list') + '1/', {
+        'assignee_username': test_user.username
+    })
+    assert resp.status_code == 200
+    assert PerformanceAlertSummary.objects.get(id=1).assignee == test_user
 
 
 def test_alert_summary_post(client, test_repository, test_issue_tracker,
