@@ -7,20 +7,23 @@ import { faPlusSquare, faTimes } from '@fortawesome/free-solid-svg-icons';
 
 import { thEvents } from '../../helpers/constants';
 import { formatModelError } from '../../helpers/errorMessage';
-import {
-  getJobBtnClass,
-  getHoverText,
-  findJobInstance,
-} from '../../helpers/job';
+import { findJobInstance, getBtnClass } from '../../helpers/job';
 import { isSHAorCommit } from '../../helpers/revision';
 import { getBugUrl } from '../../helpers/url';
 import BugJobMapModel from '../../models/bugJobMap';
 import JobClassificationModel from '../../models/classification';
 import JobModel from '../../models/job';
-import { withPinnedJobs } from '../context/PinnedJobs';
 import { notify } from '../redux/stores/notifications';
 import { setSelectedJob } from '../redux/stores/selectedJob';
 import { recalculateUnclassifiedCounts } from '../redux/stores/pushes';
+import {
+  addBug,
+  removeBug,
+  unPinJob,
+  unPinAll,
+  setClassificationId,
+  setClassificationComment,
+} from '../redux/stores/pinnedJobs';
 
 class PinBoard extends React.Component {
   constructor(props) {
@@ -356,7 +359,7 @@ class PinBoard extends React.Component {
 
   render() {
     const {
-      selectedJob,
+      selectedJobFull,
       revisionTips,
       isLoggedIn,
       isPinBoardVisible,
@@ -372,7 +375,7 @@ class PinBoard extends React.Component {
       failureClassificationComment,
     } = this.props;
     const { enteringBugNumber, newBugNumber } = this.state;
-    const selectedJobId = selectedJob ? selectedJob.id : null;
+    const selectedJobId = selectedJobFull ? selectedJobFull.id : null;
 
     return (
       <div id="pinboard-panel" className={isPinBoardVisible ? '' : 'hidden'}>
@@ -387,12 +390,15 @@ class PinBoard extends React.Component {
               {Object.values(pinnedJobs).map(job => (
                 <span className="btn-group" key={job.id}>
                   <span
-                    className={`btn pinned-job ${getJobBtnClass(job)} ${
+                    className={`btn pinned-job ${getBtnClass(
+                      job.resultStatus,
+                      job.failure_classification_id,
+                    )} ${
                       selectedJobId === job.id
                         ? 'btn-lg selected-job'
                         : 'btn-xs'
                     }`}
-                    title={getHoverText(job)}
+                    title={job.hoverText}
                     onClick={() => setSelectedJob(job)}
                     data-job-id={job.job_id}
                   >
@@ -644,20 +650,46 @@ PinBoard.propTypes = {
   currentRepo: PropTypes.object.isRequired,
   failureClassificationId: PropTypes.number.isRequired,
   failureClassificationComment: PropTypes.string.isRequired,
-  selectedJob: PropTypes.object,
+  selectedJobFull: PropTypes.object,
   email: PropTypes.string,
   revisionTips: PropTypes.array,
 };
 
 PinBoard.defaultProps = {
-  selectedJob: null,
+  selectedJobFull: null,
   email: null,
   revisionTips: [],
 };
 
-const mapStateToProps = ({ pushes: { revisionTips } }) => ({ revisionTips });
+const mapStateToProps = ({
+  pushes: { revisionTips },
+  pinnedJobs: {
+    isPinBoardVisible,
+    pinnedJobs,
+    pinnedJobBugs,
+    failureClassificationId,
+    failureClassificationComment,
+  },
+}) => ({
+  revisionTips,
+  isPinBoardVisible,
+  pinnedJobs,
+  pinnedJobBugs,
+  failureClassificationId,
+  failureClassificationComment,
+});
 
 export default connect(
   mapStateToProps,
-  { notify, setSelectedJob, recalculateUnclassifiedCounts },
-)(withPinnedJobs(PinBoard));
+  {
+    notify,
+    setSelectedJob,
+    recalculateUnclassifiedCounts,
+    addBug,
+    removeBug,
+    unPinJob,
+    unPinAll,
+    setClassificationId,
+    setClassificationComment,
+  },
+)(PinBoard);

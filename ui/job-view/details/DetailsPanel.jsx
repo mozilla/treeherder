@@ -3,8 +3,9 @@ import PropTypes from 'prop-types';
 import chunk from 'lodash/chunk';
 import { connect } from 'react-redux';
 
+import { setPinBoardVisible } from '../redux/stores/pinnedJobs';
 import { thEvents, thBugSuggestionLimit } from '../../helpers/constants';
-import { withPinnedJobs } from '../context/PinnedJobs';
+import { addAggregateFields } from '../../helpers/job';
 import { getLogViewerUrl, getReftestUrl } from '../../helpers/url';
 import BugJobMapModel from '../../models/bugJobMap';
 import BugSuggestionsModel from '../../models/bugSuggestions';
@@ -29,6 +30,7 @@ class DetailsPanel extends React.Component {
     this.selectJobController = null;
 
     this.state = {
+      selectedJobFull: null,
       jobDetails: [],
       jobLogUrls: [],
       jobDetailLoading: false,
@@ -182,7 +184,7 @@ class DetailsPanel extends React.Component {
               );
 
         const jobDetailPromise = JobDetailModel.getJobDetails(
-          { job_guid: selectedJob.job_guid },
+          { job_id: selectedJob.id },
           this.selectJobController.signal,
         );
 
@@ -211,22 +213,16 @@ class DetailsPanel extends React.Component {
               // This version of the job has more information than what we get in the main job list.  This
               // is what we'll pass to the rest of the details panel.  It has extra fields like
               // taskcluster_metadata.
-              Object.assign(selectedJob, jobResult);
+              // Don't update the job instance in the greater job field so as to not add the memory overhead
+              // of all the extra fields in ``selectedJobFull``.  It's not that much for just one job, but as
+              // one selects job after job, over the course of a day, it can add up.  Therefore, we keep
+              // selectedJobFull data as transient only when the job is selected.
+              const selectedJobFull = jobResult;
               const jobRevision = push.revision;
 
-              jobDetails = jobDetailResult;
+              addAggregateFields(selectedJobFull);
 
-              // incorporate the buildername into the job details if this is a buildbot job
-              // (i.e. it has a buildbot request id)
-              const buildbotRequestIdDetail = jobDetails.find(
-                detail => detail.title === 'buildbot_request_id',
-              );
-              if (buildbotRequestIdDetail) {
-                jobDetails = [
-                  ...jobDetails,
-                  { title: 'Buildername', value: selectedJob.ref_data_name },
-                ];
-              }
+              jobDetails = jobDetailResult;
 
               // the third result comes from the jobLogUrl promise
               // exclude the json log URLs
@@ -292,6 +288,7 @@ class DetailsPanel extends React.Component {
 
               this.setState(
                 {
+                  selectedJobFull,
                   jobLogUrls,
                   jobDetails,
                   logParseStatus,
@@ -325,9 +322,9 @@ class DetailsPanel extends React.Component {
       classificationMap,
       classificationTypes,
       isPinBoardVisible,
-      selectedJob,
     } = this.props;
     const {
+      selectedJobFull,
       jobDetails,
       jobRevision,
       jobLogUrls,
@@ -351,19 +348,19 @@ class DetailsPanel extends React.Component {
       <div
         id="details-panel"
         style={{ height: `${detailsPanelHeight}px` }}
-        className={selectedJob ? 'details-panel-slide' : 'hidden'}
+        className={selectedJobFull ? 'details-panel-slide' : 'hidden'}
       >
         <PinBoard
           repoName={repoName}
           currentRepo={currentRepo}
           isLoggedIn={user.isLoggedIn || false}
           classificationTypes={classificationTypes}
-          selectedJob={selectedJob}
+          selectedJobFull={selectedJobFull}
         />
-        {!!selectedJob && (
+        {!!selectedJobFull && (
           <div id="details-panel-content">
             <SummaryPanel
-              selectedJob={selectedJob}
+              selectedJobFull={selectedJobFull}
               repoName={repoName}
               currentRepo={currentRepo}
               classificationMap={classificationMap}
@@ -380,7 +377,7 @@ class DetailsPanel extends React.Component {
             />
             <span className="job-tabs-divider" />
             <TabsPanel
-              selectedJob={selectedJob}
+              selectedJobFull={selectedJobFull}
               jobDetails={jobDetails}
               perfJobDetail={perfJobDetail}
               repoName={repoName}
@@ -427,6 +424,10 @@ DetailsPanel.defaultProps = {
 const mapStateToProps = ({
   selectedJob: { selectedJob },
   pushes: { pushList },
-}) => ({ selectedJob, pushList });
+  pinnedJobs: { isPinBoardVisible },
+}) => ({ selectedJob, pushList, isPinBoardVisible });
 
-export default connect(mapStateToProps)(withPinnedJobs(DetailsPanel));
+export default connect(
+  mapStateToProps,
+  { setPinBoardVisible },
+)(DetailsPanel);

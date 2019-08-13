@@ -22,7 +22,7 @@ export default class SuggestionsListItem extends React.Component {
   };
 
   render() {
-    const { suggestion, toggleBugFiler } = this.props;
+    const { suggestion, toggleBugFiler, selectedJobFull } = this.props;
     const { suggestionShowMore } = this.state;
 
     return (
@@ -42,7 +42,12 @@ export default class SuggestionsListItem extends React.Component {
         {suggestion.valid_open_recent && (
           <ul className="list-unstyled failure-summary-bugs">
             {suggestion.bugs.open_recent.map(bug => (
-              <BugListItem key={bug.id} bug={bug} suggestion={suggestion} />
+              <BugListItem
+                key={bug.id}
+                bug={bug}
+                suggestion={suggestion}
+                selectedJobFull={selectedJobFull}
+              />
             ))}
           </ul>
         )}
@@ -68,6 +73,7 @@ export default class SuggestionsListItem extends React.Component {
                   suggestion={suggestion}
                   bugClassName={bug.resolution !== '' ? 'strike-through' : ''}
                   title={bug.resolution !== '' ? bug.resolution : ''}
+                  selectedJobFull={selectedJobFull}
                 />
               ))}
             </ul>
@@ -87,6 +93,7 @@ export default class SuggestionsListItem extends React.Component {
 }
 
 SuggestionsListItem.propTypes = {
+  selectedJobFull: PropTypes.object.isRequired,
   suggestion: PropTypes.object.isRequired,
   toggleBugFiler: PropTypes.func.isRequired,
 };

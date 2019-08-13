@@ -80,24 +80,20 @@ export default class JobButtonComponent extends React.Component {
   }
 
   render() {
-    const { job, resultStatus } = this.props;
+    const { job } = this.props;
     const { isSelected, isRunnableSelected } = this.state;
     const {
       state,
-      job_type_name,
       failure_classification_id,
-      end_timestamp,
-      start_timestamp,
-      ref_data_name,
       visible,
       id,
       job_type_symbol,
+      resultStatus,
     } = job;
 
     if (!visible) return null;
     const runnable = state === 'runnable';
     const btnClass = getBtnClass(resultStatus, failure_classification_id);
-    let title = `${resultStatus} | ${job_type_name}`;
     let classifiedIcon = null;
 
     if (failure_classification_id > 1) {
@@ -105,20 +101,14 @@ export default class JobButtonComponent extends React.Component {
         failure_classification_id === 7 ? faStarRegular : faStarSolid;
     }
 
-    if (state === 'completed') {
-      const duration = Math.round((end_timestamp - start_timestamp) / 60);
-      title += ` (${duration} mins)`;
-    }
-
     const classes = ['btn', btnClass, 'filter-shown'];
     const attributes = {
       'data-job-id': id,
-      title,
+      title: job.hoverText,
     };
 
     if (runnable) {
       classes.push('runnable-job-btn', 'runnable');
-      attributes['data-buildername'] = ref_data_name;
       if (isRunnableSelected) {
         classes.push('runnable-job-btn-selected');
       }

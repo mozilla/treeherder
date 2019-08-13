@@ -18,7 +18,6 @@ import { formatTaskclusterError } from '../../helpers/errorMessage';
 import { getJobsUrl } from '../../helpers/url';
 import PushModel from '../../models/push';
 import JobModel from '../../models/job';
-import { withPinnedJobs } from '../context/PinnedJobs';
 import PushHealthStatus from '../../shared/PushHealthStatus';
 import {
   getSelectedJobId,
@@ -27,6 +26,7 @@ import {
 } from '../../helpers/location';
 import { notify } from '../redux/stores/notifications';
 import { setSelectedJob } from '../redux/stores/selectedJob';
+import { pinJobs } from '../redux/stores/pinnedJobs';
 
 import PushActionMenu from './PushActionMenu';
 
@@ -411,5 +411,5 @@ PushHeader.defaultProps = {
 
 export default connect(
   null,
-  { notify, setSelectedJob },
-)(withPinnedJobs(PushHeader));
+  { notify, setSelectedJob, pinJobs },
+)(PushHeader);

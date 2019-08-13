@@ -11,9 +11,7 @@ import {
 } from '@fortawesome/free-solid-svg-icons';
 
 import { thEvents } from '../../../helpers/constants';
-import { getStatus } from '../../../helpers/job';
 import JobDetails from '../../../shared/JobDetails';
-import { withPinnedJobs } from '../../context/PinnedJobs';
 import { clearSelectedJob } from '../../redux/stores/selectedJob';
 
 import FailureSummaryTab from './failureSummary/FailureSummaryTab';
@@ -31,23 +29,23 @@ class TabsPanel extends React.Component {
   }
 
   static getDerivedStateFromProps(props, state) {
-    const { perfJobDetail, selectedJob } = props;
+    const { perfJobDetail, selectedJobFull } = props;
 
     // This fires every time the props change.  But we only want to figure out the new default
     // tab when we get a new job.  However, the job could change, then later, the perf details fetch
     // returns.  So we need to check for a change in the size of the perfJobDetail too.
     if (
-      state.jobId !== selectedJob.id ||
+      state.jobId !== selectedJobFull.id ||
       state.perfJobDetailSize !== perfJobDetail.length
     ) {
       const tabIndex = TabsPanel.getDefaultTabIndex(
-        getStatus(selectedJob),
+        selectedJobFull.resultStatus,
         !!perfJobDetail.length,
       );
 
       return {
         tabIndex,
-        jobId: selectedJob.id,
+        jobId: selectedJobFull.id,
         perfJobDetailSize: perfJobDetail.length,
       };
     }
@@ -110,13 +108,15 @@ class TabsPanel extends React.Component {
       classifications,
       togglePinBoardVisibility,
       isPinBoardVisible,
-      countPinnedJobs,
+      pinnedJobs,
       classificationMap,
       logViewerFullUrl,
       reftestUrl,
       clearSelectedJob,
+      selectedJobFull,
     } = this.props;
     const { tabIndex } = this.state;
+    const countPinnedJobs = Object.keys(pinnedJobs).length;
 
     return (
       <div id="tabs-panel" role="region" aria-label="Job">
@@ -192,6 +192,7 @@ class TabsPanel extends React.Component {
               logParseStatus={logParseStatus}
               logViewerFullUrl={logViewerFullUrl}
               reftestUrl={reftestUrl}
+              selectedJobFull={selectedJobFull}
             />
           </TabPanel>
           <TabPanel>
@@ -199,12 +200,14 @@ class TabsPanel extends React.Component {
               classificationMap={classificationMap}
               classifications={classifications}
               bugs={bugs}
+              selectedJobFull={selectedJobFull}
             />
           </TabPanel>
           <TabPanel>
             <SimilarJobsTab
               repoName={repoName}
               classificationMap={classificationMap}
+              selectedJobFull={selectedJobFull}
             />
           </TabPanel>
           {!!perfJobDetail.length && (
@@ -229,12 +232,12 @@ TabsPanel.propTypes = {
   classifications: PropTypes.array.isRequired,
   togglePinBoardVisibility: PropTypes.func.isRequired,
   isPinBoardVisible: PropTypes.bool.isRequired,
-  countPinnedJobs: PropTypes.number.isRequired,
+  pinnedJobs: PropTypes.object.isRequired,
   bugs: PropTypes.array.isRequired,
   clearSelectedJob: PropTypes.func.isRequired,
+  selectedJobFull: PropTypes.object.isRequired,
   perfJobDetail: PropTypes.array,
   suggestions: PropTypes.array,
-  selectedJob: PropTypes.object,
   jobRevision: PropTypes.string,
   errors: PropTypes.array,
   bugSuggestionsLoading: PropTypes.bool,
@@ -246,7 +249,6 @@ TabsPanel.propTypes = {
 
 TabsPanel.defaultProps = {
   suggestions: [],
-  selectedJob: null,
   errors: [],
   bugSuggestionsLoading: false,
   jobLogUrls: [],
@@ -257,7 +259,11 @@ TabsPanel.defaultProps = {
   reftestUrl: null,
 };
 
+const mapStateToProps = ({
+  pinnedJobs: { pinnedJobs, isPinBoardVisible },
+}) => ({ pinnedJobs, isPinBoardVisible });
+
 export default connect(
-  null,
+  mapStateToProps,
   { clearSelectedJob },
-)(withPinnedJobs(TabsPanel));
+)(TabsPanel);

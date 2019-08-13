@@ -1,13 +1,13 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import { connect } from 'react-redux';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faSpinner } from '@fortawesome/free-solid-svg-icons';
+import { connect } from 'react-redux';
 
 import { thEvents } from '../../../../helpers/constants';
 import { isReftest } from '../../../../helpers/job';
 import { getBugUrl } from '../../../../helpers/url';
-import { withPinnedJobs } from '../../../context/PinnedJobs';
+import { pinJob, addBug } from '../../../redux/stores/pinnedJobs';
 import BugFiler from '../../BugFiler';
 
 import ErrorsList from './ErrorsList';
@@ -24,9 +24,9 @@ class FailureSummaryTab extends React.Component {
   }
 
   fileBug = suggestion => {
-    const { selectedJob, pinJob } = this.props;
+    const { selectedJobFull, pinJob } = this.props;
 
-    pinJob(selectedJob);
+    pinJob(selectedJobFull);
     this.setState({
       isBugFilerOpen: true,
       suggestion,
@@ -54,7 +54,7 @@ class FailureSummaryTab extends React.Component {
       errors,
       logViewerFullUrl,
       bugSuggestionsLoading,
-      selectedJob,
+      selectedJobFull,
       reftestUrl,
     } = this.props;
     const { isBugFilerOpen, suggestion } = this.state;
@@ -70,6 +70,7 @@ class FailureSummaryTab extends React.Component {
               index={index}
               suggestion={suggestion}
               toggleBugFiler={() => this.fileBug(suggestion)}
+              selectedJobFull={selectedJobFull}
             />
           ))}
 
@@ -150,9 +151,9 @@ class FailureSummaryTab extends React.Component {
             suggestions={suggestions}
             fullLog={jobLogUrls[0].url}
             parsedLog={logViewerFullUrl}
-            reftestUrl={isReftest(selectedJob) ? reftestUrl : ''}
+            reftestUrl={isReftest(selectedJobFull) ? reftestUrl : ''}
             successCallback={this.bugFilerCallback}
-            jobGroupName={selectedJob.job_group_name}
+            jobGroupName={selectedJobFull.job_group_name}
           />
         )}
       </div>
@@ -163,8 +164,8 @@ class FailureSummaryTab extends React.Component {
 FailureSummaryTab.propTypes = {
   addBug: PropTypes.func.isRequired,
   pinJob: PropTypes.func.isRequired,
+  selectedJobFull: PropTypes.object.isRequired,
   suggestions: PropTypes.array,
-  selectedJob: PropTypes.object,
   errors: PropTypes.array,
   bugSuggestionsLoading: PropTypes.bool,
   jobLogUrls: PropTypes.array,
@@ -175,7 +176,6 @@ FailureSummaryTab.propTypes = {
 
 FailureSummaryTab.defaultProps = {
   suggestions: [],
-  selectedJob: null,
   reftestUrl: null,
   errors: [],
   bugSuggestionsLoading: false,
@@ -184,6 +184,7 @@ FailureSummaryTab.defaultProps = {
   logViewerFullUrl: null,
 };
 
-const mapStateToProps = ({ selectedJob: { selectedJob } }) => ({ selectedJob });
-
-export default connect(mapStateToProps)(withPinnedJobs(FailureSummaryTab));
+export default connect(
+  null,
+  { addBug, pinJob },
+)(FailureSummaryTab);

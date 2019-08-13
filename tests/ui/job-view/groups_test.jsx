@@ -7,6 +7,7 @@ import { JobGroupComponent } from '../../../ui/job-view/pushes/JobGroup';
 import FilterModel from '../../../ui/models/filter';
 import mappedGroupFixture from '../mock/mappedGroup';
 import mappedGroupDupsFixture from '../mock/mappedGroupDups';
+import { addAggregateFields } from '../../../ui/helpers/job';
 
 describe('JobGroup component', () => {
   let countGroup;
@@ -14,6 +15,11 @@ describe('JobGroup component', () => {
   const repoName = 'mozilla-inbound';
   const filterModel = new FilterModel();
   const pushGroupState = 'collapsed';
+
+  beforeAll(() => {
+    mappedGroupFixture.jobs.forEach(job => addAggregateFields(job));
+    mappedGroupDupsFixture.jobs.forEach(job => addAggregateFields(job));
+  });
 
   beforeEach(() => {
     countGroup = cloneDeep(mappedGroupFixture);

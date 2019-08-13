@@ -8,6 +8,7 @@ import CustomJobActions from '../CustomJobActions';
 import PushModel from '../../models/push';
 import { getPushHealthUrl } from '../../helpers/url';
 import { notify } from '../redux/stores/notifications';
+import { thEvents } from '../../helpers/constants';
 
 // Trigger missing jobs is dangerous on repos other than these (see bug 1335506)
 const triggerMissingRepos = ['mozilla-inbound', 'autoland'];
@@ -27,10 +28,12 @@ class PushActionMenu extends React.PureComponent {
 
   componentDidMount() {
     window.addEventListener('hashchange', this.handleUrlChanges, false);
+    window.addEventListener(thEvents.filtersUpdated, this.handleUrlChanges);
   }
 
   componentWillUnmount() {
     window.removeEventListener('hashchange', this.handleUrlChanges, false);
+    window.removeEventListener(thEvents.filtersUpdated, this.handleUrlChanges);
   }
 
   getRangeChangeUrl(param, revision) {

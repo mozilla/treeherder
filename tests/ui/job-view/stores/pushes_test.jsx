@@ -30,11 +30,16 @@ import {
   fetchNextPushes,
   updateRange,
 } from '../../../../ui/job-view/redux/stores/pushes';
+import { addAggregateFields } from '../../../../ui/helpers/job';
 
 const mockStore = configureMockStore([thunk]);
 
 describe('Pushes Redux store', () => {
   const repoName = 'autoland';
+
+  beforeAll(() => {
+    Object.values(jobMap).forEach(job => addAggregateFields(job));
+  });
 
   afterEach(() => {
     cleanup();
@@ -77,7 +82,7 @@ describe('Pushes Redux store', () => {
   test('should add new push and jobs when polling', async () => {
     fetchMock.get(
       getProjectUrl(
-        '/push/?full=true&count=10&fromchange=ba9c692786e95143b8df3f4b3e9b504dfbc589a0',
+        '/push/?full=true&count=100&fromchange=ba9c692786e95143b8df3f4b3e9b504dfbc589a0',
         repoName,
       ),
       pollPushListFixture,
@@ -183,7 +188,7 @@ describe('Pushes Redux store', () => {
   test('should fetch a new set of pushes with updateRange', async () => {
     fetchMock.get(
       getProjectUrl(
-        '/push/?full=true&count=10&fromchange=9692347caff487cdcd889489b8e89a825fe6bbd1',
+        '/push/?full=true&count=100&fromchange=9692347caff487cdcd889489b8e89a825fe6bbd1',
         repoName,
       ),
       pushListFromChangeFixture,

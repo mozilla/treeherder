@@ -6,7 +6,7 @@ import { faSpinner } from '@fortawesome/free-solid-svg-icons';
 
 import { thMaxPushFetchSize } from '../../../helpers/constants';
 import { toDateStr, toShortDateStr } from '../../../helpers/display';
-import { getBtnClass, getStatus } from '../../../helpers/job';
+import { addAggregateFields, getBtnClass } from '../../../helpers/job';
 import { getJobsUrl } from '../../../helpers/url';
 import JobModel from '../../../models/job';
 import PushModel from '../../../models/push';
@@ -42,7 +42,7 @@ class SimilarJobsTab extends React.Component {
 
   getSimilarJobs = async () => {
     const { page, similarJobs, selectedSimilarJob } = this.state;
-    const { repoName, selectedJob, notify } = this.props;
+    const { repoName, selectedJobFull, notify } = this.props;
     const options = {
       // get one extra to detect if there are more jobs that can be loaded (hasNextPage)
       count: this.pageSize + 1,
@@ -52,14 +52,14 @@ class SimilarJobsTab extends React.Component {
     ['filterBuildPlatformId', 'filterOptionCollectionHash'].forEach(key => {
       if (this.state[key]) {
         const field = this.filterMap[key];
-        options[field] = selectedJob[field];
+        options[field] = selectedJobFull[field];
       }
     });
 
     const {
       data: newSimilarJobs,
       failureStatus,
-    } = await JobModel.getSimilarJobs(selectedJob.id, options);
+    } = await JobModel.getSimilarJobs(selectedJobFull.id, options);
 
     if (!failureStatus) {
       this.setState({ hasNextPage: newSimilarJobs.length > this.pageSize });
@@ -119,8 +119,7 @@ class SimilarJobsTab extends React.Component {
     const { repoName, classificationMap } = this.props;
 
     JobModel.get(repoName, job.id).then(nextJob => {
-      nextJob.result_status = getStatus(nextJob);
-      nextJob.duration = (nextJob.end_timestamp - nextJob.start_timestamp) / 60;
+      addAggregateFields(nextJob);
       nextJob.failure_classification =
         classificationMap[nextJob.failure_classification_id];
 
@@ -155,7 +154,6 @@ class SimilarJobsTab extends React.Component {
       filterBuildPlatformId,
       isLoading,
     } = this.state;
-    const button_class = job => getBtnClass(getStatus(job));
     const selectedSimilarJobId = selectedSimilarJob
       ? selectedSimilarJob.id
       : null;
@@ -187,8 +185,9 @@ class SimilarJobsTab extends React.Component {
                 >
                   <td>
                     <button
-                      className={`btn btn-similar-jobs btn-xs ${button_class(
-                        similarJob,
+                      className={`btn btn-similar-jobs btn-xs ${getBtnClass(
+                        similarJob.resultStatus,
+                        similarJob.failure_classification_id,
                       )}`}
                       type="button"
                     >
@@ -250,7 +249,7 @@ class SimilarJobsTab extends React.Component {
                 <tbody>
                   <tr>
                     <th>Result</th>
-                    <td>{selectedSimilarJob.result_status}</td>
+                    <td>{selectedSimilarJob.resultStatus}</td>
                   </tr>
                   <tr>
                     <th>Build</th>
@@ -329,16 +328,10 @@ SimilarJobsTab.propTypes = {
   repoName: PropTypes.string.isRequired,
   classificationMap: PropTypes.object.isRequired,
   notify: PropTypes.func.isRequired,
-  selectedJob: PropTypes.object,
+  selectedJobFull: PropTypes.object.isRequired,
 };
-
-SimilarJobsTab.defaultProps = {
-  selectedJob: null,
-};
-
-const mapStateToProps = ({ selectedJob: { selectedJob } }) => ({ selectedJob });
 
 export default connect(
-  mapStateToProps,
+  null,
   { notify },
 )(SimilarJobsTab);

@@ -15,8 +15,6 @@ export const thMatchType = {
 
 // choices available for the field filters
 export const thFieldChoices = {
-  ref_data_name: { name: 'buildername/jobname', matchType: thMatchType.substr },
-  build_system_type: { name: 'build system', matchType: thMatchType.substr },
   job_type_name: { name: 'job name', matchType: thMatchType.substr },
   job_type_symbol: { name: 'job symbol', matchType: thMatchType.exactstr },
   job_group_name: { name: 'group name', matchType: thMatchType.substr },
