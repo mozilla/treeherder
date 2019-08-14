@@ -242,6 +242,7 @@ export const addAggregateFields = function addAggregateFields(job) {
 export const trim = function trim(job) {
   delete job.option_collection_hash;
   delete job.job_group_name;
+  delete job.job_type_name;
   delete job.signature;
 };
 
