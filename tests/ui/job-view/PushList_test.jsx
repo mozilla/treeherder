@@ -19,6 +19,7 @@ import jobListFixtureOne from '../mock/job_list/job_1';
 import jobListFixtureTwo from '../mock/job_list/job_2';
 import configureStore from '../../../ui/job-view/redux/configureStore';
 import PushList from '../../../ui/job-view/pushes/PushList';
+import { getApiUrl } from '../../../ui/helpers/url';
 
 describe('PushList', () => {
   const repoName = 'autoland';
@@ -86,18 +87,12 @@ describe('PushList', () => {
       },
     );
     fetchMock.get(
-      getProjectUrl(
-        '/jobs/?push_id=511138&count=2000&return_type=list',
-        repoName,
-      ),
+      getApiUrl('/jobs/?push_id=511138', repoName),
       jobListFixtureOne,
     );
 
     fetchMock.mock(
-      getProjectUrl(
-        '/jobs/?push_id=511137&count=2000&return_type=list',
-        repoName,
-      ),
+      getApiUrl('/jobs/?push_id=511137', repoName),
       jobListFixtureTwo,
     );
   });
