@@ -43,6 +43,7 @@ module.exports = {
     'prefer-promise-reject-errors': 'off',
     'react/destructuring-assignment': 'off',
     'react/forbid-prop-types': 'off',
+    'react/prop-types': 'off',
     // Override AirBnB's config for this rule to make it more strict.
     // https://github.com/benmosher/eslint-plugin-import/blob/master/docs/rules/order.md
     'import/order': [
