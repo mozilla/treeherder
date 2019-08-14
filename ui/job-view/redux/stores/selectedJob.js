@@ -1,5 +1,3 @@
-import $ from 'jquery';
-
 import {
   findGroupElement,
   findGroupInstance,
@@ -55,7 +53,7 @@ export const doSelectJob = (job, updateDetails) => {
 
   if (selected) selected.setSelected(false);
 
-  const newSelectedElement = findJobInstance(job.id, true);
+  const newSelectedElement = findJobInstance(job.id);
 
   if (newSelectedElement) {
     newSelectedElement.setSelected(true);
@@ -164,11 +162,6 @@ export const changeJob = (
       ? (idx, jobs) => (idx + 1 > jobs.length - 1 ? 0 : idx + 1)
       : (idx, jobs) => (idx - 1 < 0 ? jobs.length - 1 : idx - 1);
 
-  // TODO: (bug 1434679) Move from using jquery here to find the next/prev
-  // component.  This could perhaps be done either with:
-  // * Document functions like ``querySelectorAll``, etc.
-  // * ReactJS with ReactDOM and props.children
-
   // Filter the list of possible jobs down to ONLY ones in the .th-view-content
   // div (excluding pinBoard) and then to the specific selector passed
   // in.  And then to only VISIBLE (not filtered away) jobs.  The exception
@@ -182,18 +175,19 @@ export const changeJob = (
   // to false, but it is still showing to the user because it is still
   // selected.  This is very important to the sheriff workflow.  As soon as
   // selection changes away from it, the job will no longer be visible.
-  const jobs = $('.th-view-content')
-    .find(jobNavSelector.selector)
-    .filter(':visible, .selected-job, .selected-count');
+  const content = document.querySelector('#push-list');
+  const jobs = Array.prototype.slice.call(
+    content.querySelectorAll(jobNavSelector.selector),
+  );
 
   if (jobs.length) {
-    const selectedEl = jobs.filter('.selected-job, .selected-count').first();
-    const selIdx = jobs.index(selectedEl);
+    const selectedEl = content.querySelector('.selected-job, .selected-count');
+    const selIdx = jobs.indexOf(selectedEl);
     const idx = getIndex(selIdx, jobs);
-    const jobEl = $(jobs[idx]);
+    const jobEl = jobs[idx];
 
     if (selIdx !== idx) {
-      const jobId = jobEl.attr('data-job-id');
+      const jobId = jobEl.getAttribute('data-job-id');
       const jobInstance = findJobInstance(jobId, true);
 
       if (jobInstance) {

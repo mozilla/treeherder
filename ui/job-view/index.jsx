@@ -6,7 +6,6 @@ import 'bootstrap/dist/css/bootstrap.min.css';
 
 // Vendor JS
 import 'bootstrap';
-import 'jquery.scrollto';
 
 // Treeherder Styles
 import '../css/treeherder.css';

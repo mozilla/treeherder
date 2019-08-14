@@ -1,5 +1,3 @@
-import $ from 'jquery';
-
 import { thFailureResults, thPlatformMap } from './constants';
 import { getGroupMapKey } from './aggregateId';
 import { getAllUrlParams, getRepo } from './location';
@@ -107,48 +105,27 @@ export const findInstance = function findInstance(el) {
 
 // Fetch the React instance of the currently selected job.
 export const findSelectedInstance = function findSelectedInstance() {
-  const selectedEl = $('.th-view-content')
-    .find('.job-btn.selected-job')
-    .first();
-  if (selectedEl.length) {
-    return findInstance(selectedEl[0]);
+  const selectedEl = document.querySelector('#push-list .job-btn.selected-job');
+
+  if (selectedEl) {
+    return findInstance(selectedEl);
   }
 };
 
 // Check if the element is visible on screen or not.
 const isOnScreen = function isOnScreen(el) {
-  const viewport = {};
-  viewport.top =
-    $(window).scrollTop() + $('#global-navbar-container').height() + 30;
-  const filterbarheight = $('.active-filters-bar').height();
-  viewport.top =
-    filterbarheight > 0 ? viewport.top + filterbarheight : viewport.top;
-  const updatebarheight = $('.update-alert-panel').height();
-  viewport.top =
-    updatebarheight > 0 ? viewport.top + updatebarheight : viewport.top;
-  viewport.bottom = $(window).height() - $('#details-panel').height() - 20;
-  const bounds = {};
-  bounds.top = el.offset().top;
-  bounds.bottom = bounds.top + el.outerHeight();
-  return bounds.top <= viewport.bottom && bounds.bottom >= viewport.top;
+  const bounding = el.getBoundingClientRect();
+  const offset = el.getBoundingClientRect();
+  const top = offset.top + document.body.scrollTop;
+  const bottom = top + el.offsetHeight;
+
+  return top >= bounding.bottom && bottom <= bounding.top;
 };
 
 // Scroll the element into view.
-// TODO: see if Element.scrollIntoView() can be used here. (bug 1434679)
-export const scrollToElement = function scrollToElement(el, duration) {
-  if (duration === undefined) {
-    duration = 50;
-  }
-  if (el.position() !== undefined) {
-    let scrollOffset = -50;
-    if (window.innerHeight >= 500 && window.innerHeight < 1000) {
-      scrollOffset = -100;
-    } else if (window.innerHeight >= 1000) {
-      scrollOffset = -200;
-    }
-    if (!isOnScreen(el)) {
-      $('.th-global-content').scrollTo(el, duration, { offset: scrollOffset });
-    }
+export const scrollToElement = function scrollToElement(el) {
+  if (!isOnScreen(el)) {
+    el.scrollIntoView({ behavior: 'smooth', block: 'center' });
   }
 };
 
@@ -161,31 +138,30 @@ export const findGroupElement = function findGroupElement(job) {
     platform,
     platform_option,
   );
-  const viewContent = $('.th-view-content');
-
-  return viewContent.find(`span[data-group-key='${groupMapKey}']`).first();
+  return document.querySelector(
+    `#push-list span[data-group-key='${groupMapKey}']`,
+  );
 };
 
 export const findGroupInstance = function findGroupInstance(job) {
   const groupEl = findGroupElement(job);
 
-  if (groupEl.length) {
-    return findInstance(groupEl[0]);
+  if (groupEl) {
+    return findInstance(groupEl);
   }
 };
 
 // Fetch the React instance based on the jobId, and if scrollTo
 // is true, then scroll it into view.
 export const findJobInstance = function findJobInstance(jobId, scrollTo) {
-  const jobEl = $('#push-list')
-    .find(`button[data-job-id='${jobId}']`)
-    .first();
-
-  if (jobEl.length) {
+  const jobEl = document.querySelector(
+    `#push-list button[data-job-id='${jobId}']`,
+  );
+  if (jobEl) {
     if (scrollTo) {
       scrollToElement(jobEl);
     }
-    return findInstance(jobEl[0]);
+    return findInstance(jobEl);
   }
 };
 
