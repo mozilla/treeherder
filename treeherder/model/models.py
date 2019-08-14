@@ -8,6 +8,7 @@ from hashlib import sha1
 import newrelic.agent
 from django.conf import settings
 from django.contrib.auth.models import User
+from django.core.cache import cache
 from django.core.exceptions import ObjectDoesNotExist
 from django.core.validators import MinLengthValidator
 from django.db import (models,
@@ -303,10 +304,16 @@ class JobGroup(models.Model):
 
 
 class OptionCollectionManager(models.Manager):
+    cache_key = 'option_collection_map'
     '''
     Convenience function to determine the option collection map
     '''
     def get_option_collection_map(self, options_as_list=False):
+        option_collection_map = cache.get(self.cache_key)
+
+        if option_collection_map:
+            return option_collection_map
+
         option_collection_map = {}
         for (hash, option_name) in OptionCollection.objects.values_list(
                 'option_collection_hash', 'option__name'):
@@ -321,6 +328,8 @@ class OptionCollectionManager(models.Manager):
                 else:
                     option_collection_map[hash] += (' ' + option_name)
 
+        # Caches for the default of 5 minutes.
+        cache.set(self.cache_key, option_collection_map)
         return option_collection_map
 
 

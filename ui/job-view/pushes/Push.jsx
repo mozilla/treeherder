@@ -20,7 +20,6 @@ import {
   updateJobMap,
   recalculateUnclassifiedCounts,
 } from '../redux/stores/pushes';
-import { trim } from '../../helpers/job';
 
 import FuzzyJobFinder from './FuzzyJobFinder';
 import { Revision } from './Revision';
@@ -225,7 +224,6 @@ class Push extends React.PureComponent {
         platform.groups.push(group);
       }
       group.jobs.push(job);
-      trim(job);
     });
     return platforms;
   };

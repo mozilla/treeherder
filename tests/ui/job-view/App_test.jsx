@@ -49,11 +49,7 @@ describe('App', () => {
         },
       ],
     });
-    fetchMock.get(`begin:${getProjectUrl('/jobs/', repoName)}`, {
-      results: [],
-      meta: { repository: repoName, offset: 0, count: 2000 },
-    });
-    fetchMock.get(`begin:${getProjectUrl('/jobs/', 'try')}`, {
+    fetchMock.get(`begin:${getApiUrl('/jobs/')}`, {
       results: [],
       meta: { repository: repoName, offset: 0, count: 2000 },
     });

@@ -34,7 +34,7 @@
       "android-4-0-armv7-api16",
       "debug",
       526443,
-      "success",
+      "busted",
       "e2e58eb7f14af83019d3f8433c0642dde8082c4d",
       "completed",
       1
@@ -64,7 +64,7 @@
       "unknown",
       "?",
       "test-android-hw-p2-8-0-arm7-api-16/debug-fennec-jittest-1proc-6",
-      "Jit6",
+      "Cpp",
       "2019-08-05T20:39:11.216839",
       "32faaecac742100f7753f0c1d0aa0add01b4046b",
       "android-hw-p2-8-0-arm7-api-16",

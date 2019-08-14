@@ -26,13 +26,12 @@ export default class JobModel {
     );
 
     if (!failureStatus) {
-      const { results, job_property_names, next } = data;
+      const { results, job_property_names, next: nextUrl } = data;
       let itemList;
       let nextPagesJobs = [];
 
-      // if ``next`` gives a URL for more, fetch the next pages
-      if (fetchAll && next) {
-        const page = new URLSearchParams(next.split('?')[1]).get('page');
+      if (fetchAll && nextUrl) {
+        const page = new URLSearchParams(nextUrl.split('?')[1]).get('page');
         const newOptions = { ...options, page };
         const {
           data: nextData,
