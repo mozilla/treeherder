@@ -20,11 +20,15 @@ from treeherder.webapp.api import (auth,
 
 # router for views that are bound to a project
 # i.e. all those views that don't involve reference data
+# DEPRECATED: We will be slowly transitioning away from this router
+# in favor of a router that does not require the ``project`` property.
 project_bound_router = routers.SimpleRouter()
 
+# DEPRECATED (in process): The UI is transitioning to the /jobs/ endpoint
+# from the default_router.
 project_bound_router.register(
     r'jobs',
-    jobs.JobsViewSet,
+    jobs.JobsProjectViewSet,
     base_name='jobs',
 )
 
@@ -91,8 +95,10 @@ tle_router.register(r'text-log-error',
                     text_log_error.TextLogErrorViewSet,
                     base_name='text-log-error')
 
+
 # refdata endpoints:
 default_router = routers.DefaultRouter()
+default_router.register(r'jobs', jobs.JobsViewSet, base_name='jobs')
 default_router.register(r'repository', refdata.RepositoryViewSet)
 default_router.register(r'taskclustermetadata', refdata.TaskclusterMetadataViewSet,
                         base_name='taskclustermetadata')
