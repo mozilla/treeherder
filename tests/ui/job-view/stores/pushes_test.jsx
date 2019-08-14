@@ -31,7 +31,6 @@ import {
   updateRange,
 } from '../../../../ui/job-view/redux/stores/pushes';
 import { addAggregateFields } from '../../../../ui/helpers/job';
-import { getApiUrl } from '../../../../ui/helpers/url';
 
 const mockStore = configureMockStore([thunk]);
 
@@ -53,8 +52,15 @@ describe('Pushes Redux store', () => {
       getProjectUrl('/push/?full=true&count=10', repoName),
       pushListFixture,
     );
-    fetchMock.get(getApiUrl('/jobs/?push_id=1', repoName), jobListFixtureOne);
-    fetchMock.mock(getApiUrl('/jobs/?push_id=2', repoName), jobListFixtureTwo);
+    fetchMock.get(
+      getProjectUrl('/jobs/?push_id=1&count=2000&return_type=list', repoName),
+      jobListFixtureOne,
+    );
+
+    fetchMock.mock(
+      getProjectUrl('/jobs/?push_id=2&count=2000&return_type=list', repoName),
+      jobListFixtureTwo,
+    );
     const store = mockStore({ pushes: initialState });
 
     await store.dispatch(fetchPushes());
@@ -82,7 +88,7 @@ describe('Pushes Redux store', () => {
       pollPushListFixture,
     );
     fetchMock.mock(
-      `begin:${getApiUrl(
+      `begin:${getProjectUrl(
         '/jobs/?push_id__in=511138&last_modified__gt',
         repoName,
       )}`,

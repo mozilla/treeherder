@@ -18,8 +18,7 @@ from django.db.utils import ProgrammingError
 from django.forms import model_to_dict
 from django.utils import timezone
 
-from treeherder.webapp.api.utils import (REPO_GROUPS,
-                                         to_timestamp)
+from treeherder.webapp.api.utils import REPO_GROUPS
 
 from ..services.elasticsearch import (bulk,
                                       index)
@@ -656,12 +655,6 @@ class Job(models.Model):
             return None
 
         return text_log_error
-
-    @staticmethod
-    def get_duration(submit_time, start_time, end_time):
-        endtime = end_time if to_timestamp(end_time) else datetime.datetime.now()
-        starttime = start_time if to_timestamp(start_time) else submit_time
-        return round((endtime - starttime).total_seconds() / 60)
 
 
 class TaskclusterMetadata(models.Model):

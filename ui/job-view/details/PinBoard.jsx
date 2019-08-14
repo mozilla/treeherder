@@ -126,7 +126,10 @@ class PinBoard extends React.Component {
       return classification
         .create()
         .then(() => {
-          notify(`Classification saved for ${job.title}`, 'success');
+          notify(
+            `Classification saved for ${job.platform} ${job.job_type_name}`,
+            'success',
+          );
           // update the job to show that it's now classified
           const jobInstance = findJobInstance(job.id);
 

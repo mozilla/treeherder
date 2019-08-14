@@ -52,7 +52,7 @@ class TaskclusterMetadataSerializer(serializers.ModelSerializer):
         fields = '__all__'
 
 
-class JobProjectSerializer(serializers.ModelSerializer):
+class JobSerializer(serializers.ModelSerializer):
 
     def to_representation(self, job):
         return {
@@ -91,27 +91,6 @@ class JobProjectSerializer(serializers.ModelSerializer):
             'tier': job.tier,
             'who': job.who
         }
-
-    class Meta:
-        model = models.Job
-        fields = '__all__'
-
-
-class JobSerializer(serializers.ModelSerializer):
-
-    def to_representation(self, job):
-        option_collection_map = self.context['option_collection_map']
-        submit = job.pop('submit_time')
-        start = job.pop('start_time')
-        end = job.pop('end_time')
-        option_collection_hash = job.pop('option_collection_hash')
-
-        ret_val = list(job.values())
-        ret_val.extend([
-            models.Job.get_duration(submit, start, end),  # duration
-            option_collection_map.get(option_collection_hash, '')  # platform option
-        ])
-        return ret_val
 
     class Meta:
         model = models.Job

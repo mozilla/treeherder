@@ -20,20 +20,22 @@ export default class JobModel {
     // endpoint e.g. the similar jobs endpoint. It defaults to the job
     // list endpoint.
     const { fetchAll, uri: configUri } = config;
-    const jobUri = configUri || getApiUrl(uri);
+    const jobUri = configUri || getProjectUrl(uri);
     const { data, failureStatus } = await getData(
       `${jobUri}${options ? createQueryParams(options) : ''}`,
     );
 
     if (!failureStatus) {
-      const { results, job_property_names, next } = data;
+      const { results, meta, job_property_names } = data;
       let itemList;
       let nextPagesJobs = [];
 
-      // if ``next`` gives a URL for more, fetch the next pages
-      if (fetchAll && next) {
-        const page = new URLSearchParams(next.split('?')[1]).get('page');
-        const newOptions = { ...options, page };
+      // if the number of elements returned equals the page size,
+      // fetch the next pages
+      if (fetchAll && results.length === meta.count) {
+        const count = parseInt(meta.count, 10);
+        const offset = parseInt(meta.offset, 10) + count;
+        const newOptions = { ...options, offset, count };
         const {
           data: nextData,
           failureStatus: nextFailureStatus,
