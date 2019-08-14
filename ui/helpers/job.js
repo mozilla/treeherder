@@ -177,7 +177,7 @@ export const findGroupInstance = function findGroupInstance(job) {
 // Fetch the React instance based on the jobId, and if scrollTo
 // is true, then scroll it into view.
 export const findJobInstance = function findJobInstance(jobId, scrollTo) {
-  const jobEl = $('.th-view-content')
+  const jobEl = $('#push-list')
     .find(`button[data-job-id='${jobId}']`)
     .first();
 
@@ -235,15 +235,6 @@ export const addAggregateFields = function addAggregateFields(job) {
 
   job.hoverText = `${job_type_name} - ${job.resultStatus} - ${job.duration} mins`;
   return job;
-};
-
-// Remove any fields we don't need for display in the greater job field after
-// they have been mapped/processed.
-export const trim = function trim(job) {
-  delete job.option_collection_hash;
-  delete job.job_group_name;
-  delete job.job_type_name;
-  delete job.signature;
 };
 
 export const getJobSearchStrHref = function getJobSearchStrHref(jobSearchStr) {

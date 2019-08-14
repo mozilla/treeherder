@@ -1,4 +1,5 @@
 import datetime
+import logging
 
 import django_filters
 from dateutil import parser
@@ -25,6 +26,8 @@ from treeherder.webapp.api import (pagination,
 from treeherder.webapp.api.utils import (CharInFilter,
                                          NumberInFilter,
                                          to_timestamp)
+
+logger = logging.getLogger(__name__)
 
 
 class JobFilter(django_filters.FilterSet):

@@ -39,4 +39,21 @@ describe('JobModel', () => {
       expect(data[2].id).toBe(259539688);
     });
   });
+
+  describe('retriggering ', () => {
+    beforeEach(() => {
+      fetchMock.mock(
+        getApiUrl('/jobs/?push_id=526443'),
+        paginatedJobListFixtureOne,
+      );
+    });
+
+    test('jobs should have required fields', async () => {
+      const { data: jobs } = await JobModel.getList({ push_id: 526443 });
+      const { signature, job_type_name } = jobs[0];
+
+      expect(signature).toBe('2aa083621bb989d6acf1151667288d5fe9616178');
+      expect(job_type_name).toBe('Gecko Decision Task');
+    });
+  });
 });

@@ -11,7 +11,6 @@ import {
 } from '../../../../ui/helpers/location';
 import pushListFixture from '../../mock/push_list';
 import pushListFromChangeFixture from '../../mock/pushListFromchange';
-import jobMap from '../../mock/job_map';
 import pollPushListFixture from '../../mock/poll_push_list';
 import jobListFixtureOne from '../../mock/job_list/job_1';
 import jobListFixtureTwo from '../../mock/job_list/job_2';
@@ -30,16 +29,17 @@ import {
   fetchNextPushes,
   updateRange,
 } from '../../../../ui/job-view/redux/stores/pushes';
-import { addAggregateFields } from '../../../../ui/helpers/job';
 import { getApiUrl } from '../../../../ui/helpers/url';
+import JobModel from '../../../../ui/models/job';
 
 const mockStore = configureMockStore([thunk]);
 
 describe('Pushes Redux store', () => {
   const repoName = 'autoland';
 
-  beforeAll(() => {
-    Object.values(jobMap).forEach(job => addAggregateFields(job));
+  beforeEach(() => {
+    fetchMock.get(getApiUrl('/jobs/?push_id=1', repoName), jobListFixtureOne);
+    fetchMock.get(getApiUrl('/jobs/?push_id=2', repoName), jobListFixtureTwo);
   });
 
   afterEach(() => {
@@ -53,8 +53,6 @@ describe('Pushes Redux store', () => {
       getProjectUrl('/push/?full=true&count=10', repoName),
       pushListFixture,
     );
-    fetchMock.get(getApiUrl('/jobs/?push_id=1', repoName), jobListFixtureOne);
-    fetchMock.mock(getApiUrl('/jobs/?push_id=2', repoName), jobListFixtureTwo);
     const store = mockStore({ pushes: initialState });
 
     await store.dispatch(fetchPushes());
@@ -253,27 +251,42 @@ describe('Pushes Redux store', () => {
 
   test('should get new unclassified counts with recalculateUnclassifiedCounts', async () => {
     setUrlParam('job_type_symbol', 'cpp');
-    const reduced = reducer(
-      {
-        ...initialState,
-        jobMap,
-      },
-      { type: RECALCULATE_UNCLASSIFIED_COUNTS },
+    const { data: jobList } = await JobModel.getList({ push_id: 1 });
+
+    const state = reducer(
+      { ...initialState },
+      { type: UPDATE_JOB_MAP, jobList },
     );
 
-    expect(Object.keys(reduced.jobMap)).toHaveLength(26);
-    expect(reduced.allUnclassifiedFailureCount).toEqual(3);
+    const reduced = reducer(state, { type: RECALCULATE_UNCLASSIFIED_COUNTS });
+
+    expect(Object.keys(reduced.jobMap)).toHaveLength(4);
+    expect(reduced.allUnclassifiedFailureCount).toEqual(2);
     expect(reduced.filteredUnclassifiedFailureCount).toEqual(1);
   });
 
   test('should add to the jobMap with updateJobMap', async () => {
-    const jobList = [{ id: 5 }, { id: 6 }, { id: 7 }];
-
+    const { data: jobList } = await JobModel.getList({ push_id: 2 });
     const reduced = reducer(
-      { ...initialState, jobMap },
+      { ...initialState },
       { type: UPDATE_JOB_MAP, jobList },
     );
 
-    expect(Object.keys(reduced.jobMap)).toHaveLength(29);
+    expect(Object.keys(reduced.jobMap)).toHaveLength(3);
+  });
+
+  test('jobMap jobs should have fields required for retriggering', async () => {
+    const { data: jobList } = await JobModel.getList({ push_id: 2 });
+    const reduced = reducer(
+      { ...initialState },
+      { type: UPDATE_JOB_MAP, jobList },
+    );
+
+    expect(Object.keys(reduced.jobMap)).toHaveLength(3);
+    const job = reduced.jobMap['259539684'];
+    expect(job.signature).toBe('f64069faca8636e9dc415bef8e9a4ee055d56687');
+    expect(job.job_type_name).toBe(
+      'test-android-hw-p2-8-0-arm7-api-16/debug-fennec-jittest-1proc-2',
+    );
   });
 });
