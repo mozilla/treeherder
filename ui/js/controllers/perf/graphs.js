@@ -634,7 +634,7 @@ perf.controller('GraphsCtrl', [
                     series.flotSeries = {
                         lines: { show: false },
                         points: { show: series.visible },
-                        color: series.color[1],
+                        color: series.color ? series.color[1] : '#6c757d',
                         label: series.projectName + ' ' + series.name,
                         data: map(
                             seriesData[series.signature],

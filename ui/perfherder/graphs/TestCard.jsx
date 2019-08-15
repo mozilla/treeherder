@@ -39,7 +39,7 @@ export class TestContainer extends React.Component {
         </span>
         <div
           className={`${
-            checked ? series.color[0] : 'border-secondary'
+            checked && series.color ? series.color[0] : 'border-secondary'
           } graph-legend-card p-3`}
         >
           <p
