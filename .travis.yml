@@ -21,6 +21,15 @@ matrix:
         - yarn format:check
         - yarn test
 
+    - env: test-prod-build
+      language: node_js
+      # The Node version here must be kept in sync with that in `package.json`.
+      node_js: '11'
+      install:
+        - yarn install --prod --frozen-lockfile
+      script:
+        - yarn build
+
     - env: python-linters
       language: minimal
       install:
