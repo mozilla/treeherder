@@ -1,19 +1,19 @@
 import React from 'react';
-import PropTypes from 'prop-types';
-import { react2angular } from 'react2angular/index.es2015';
 import { Container, Row } from 'reactstrap';
 
-import perf from '../../js/perf';
 import RepositoryModel from '../../models/repository';
 import PushModel from '../../models/push';
 import { getData } from '../../helpers/http';
-import { createApiUrl, perfSummaryEndpoint } from '../../helpers/url';
+import {
+  createApiUrl,
+  perfSummaryEndpoint,
+  parseQueryParams,
+} from '../../helpers/url';
 import LoadingSpinner from '../../shared/LoadingSpinner';
 
 import RevisionInformation from './RevisionInformation';
 import ReplicatesGraph from './ReplicatesGraph';
 
-// TODO remove $stateParams after switching to react router
 export default class CompareSubtestDistributionView extends React.Component {
   constructor(props) {
     super(props);
@@ -32,7 +32,8 @@ export default class CompareSubtestDistributionView extends React.Component {
       originalRevision,
       newRevision,
       newProject: newProjectName,
-    } = this.props.$stateParams;
+    } = parseQueryParams(this.props.location.search);
+
     const { originalProject, newProject } = await this.fetchProjectsToCompare(
       originalProjectName,
       newProjectName,
@@ -100,20 +101,14 @@ export default class CompareSubtestDistributionView extends React.Component {
     return [originalSyncPromise, newSyncPromise];
   };
 
-  fetchAllRepositories = async () => {
-    const loadRepositories = RepositoryModel.getList();
-    const results = await Promise.all([loadRepositories]);
-    return results[0];
-  };
-
   fetchProjectsToCompare = async (originalProjectName, newProjectName) => {
-    const allRepos = await this.fetchAllRepositories();
+    const { projects } = this.props;
 
     const originalProject = RepositoryModel.getRepo(
       originalProjectName,
-      allRepos,
+      projects,
     );
-    const newProject = RepositoryModel.getRepo(newProjectName, allRepos);
+    const newProject = RepositoryModel.getRepo(newProjectName, projects);
     return { originalProject, newProject };
   };
 
@@ -155,7 +150,7 @@ export default class CompareSubtestDistributionView extends React.Component {
       newRevision,
       originalSubtestSignature,
       newSubtestSignature,
-    } = this.props.$stateParams;
+    } = parseQueryParams(this.props.location.search);
 
     return (
       originalRevision &&
@@ -201,21 +196,3 @@ export default class CompareSubtestDistributionView extends React.Component {
     );
   }
 }
-
-CompareSubtestDistributionView.propTypes = {
-  $stateParams: PropTypes.shape({
-    originalProject: PropTypes.string,
-    newProject: PropTypes.string,
-    originalRevision: PropTypes.string,
-    newRevision: PropTypes.string,
-    originalResultSet: PropTypes.object,
-    newResultSet: PropTypes.object,
-    originalSubtestSignature: PropTypes.string,
-    newSubtestSignature: PropTypes.string,
-  }).isRequired,
-};
-
-perf.component(
-  'compareSubtestDistributionView',
-  react2angular(CompareSubtestDistributionView, [], ['$stateParams']),
-);

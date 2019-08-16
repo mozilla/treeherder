@@ -1,6 +1,6 @@
+/* eslint-disable react/no-did-update-set-state */
 import React from 'react';
 import PropTypes from 'prop-types';
-import { react2angular } from 'react2angular/index.es2015';
 import {
   Alert,
   Container,
@@ -10,11 +10,14 @@ import {
   PaginationLink,
 } from 'reactstrap';
 
-import perf from '../../js/perf';
 import withValidation from '../Validation';
 import { convertParams, getFrameworkData, getStatus } from '../helpers';
 import { summaryStatusMap, endpoints } from '../constants';
-import { createQueryParams, getApiUrl } from '../../helpers/url';
+import {
+  createQueryParams,
+  getApiUrl,
+  parseQueryParams,
+} from '../../helpers/url';
 import { getData, processResponse } from '../../helpers/http';
 import ErrorMessages from '../../shared/ErrorMessages';
 import OptionCollectionModel from '../../models/optionCollection';
@@ -27,14 +30,13 @@ import LoadingSpinner from '../../shared/LoadingSpinner';
 
 import AlertsViewControls from './AlertsViewControls';
 
-// TODO remove $stateParams and $state after switching to react router
-export class AlertsView extends React.Component {
+class AlertsView extends React.Component {
   constructor(props) {
     super(props);
     this.validated = this.props.validated;
     this.state = {
       status: this.getDefaultStatus(),
-      framework: getFrameworkData(this.validated),
+      framework: getFrameworkData(this.props),
       page: this.validated.page ? parseInt(this.validated.page, 10) : 1,
       errorMessages: [],
       alertSummaries: [],
@@ -54,14 +56,35 @@ export class AlertsView extends React.Component {
 
   componentDidUpdate(prevProps, prevState) {
     const { count } = this.state;
+    const { alertData } = this.props;
+
     if (prevState.count !== count) {
-      // eslint-disable-next-line react/no-did-update-set-state
       this.setState({ totalPages: this.generatePages(count) });
+    }
+
+    const params = parseQueryParams(this.props.location.search);
+    const pastParams = parseQueryParams(prevProps.location.search);
+
+    if (
+      this.props.location.search !== prevProps.location.search &&
+      !params.id &&
+      alertData.length
+    ) {
+      this.setState({
+        id: null,
+        alertSummaries: alertData[0],
+        count: alertData[1],
+      });
+    } else if (params.id !== pastParams.id) {
+      this.setState({ id: params.id }, () =>
+        this.fetchAlertSummaries(params.id),
+      );
     }
   }
 
   getDefaultStatus = () => {
     const { validated } = this.props;
+
     const statusParam = convertParams(validated, 'status');
     if (!statusParam) {
       return Object.keys(summaryStatusMap)[1];
@@ -70,7 +93,8 @@ export class AlertsView extends React.Component {
   };
 
   updateFramework = selection => {
-    const { frameworks, updateParams } = this.props.validated;
+    const { updateParams } = this.props.validated;
+    const { frameworks } = this.props;
     const framework = frameworks.find(item => item.name === selection);
 
     updateParams({ framework: framework.id });
@@ -106,7 +130,6 @@ export class AlertsView extends React.Component {
     return pages;
   };
 
-  // TODO potentially pass as a prop for testing purposes
   async fetchAlertSummaries(id = this.state.id, update = false) {
     // turn off loading when update is true (used to update alert statuses)
     this.setState({ loading: !update, errorMessages: [] });
@@ -143,7 +166,6 @@ export class AlertsView extends React.Component {
       `${endpoints.alertSummary}${createQueryParams(params)}`,
     );
 
-    // TODO OptionCollectionModel to use getData wrapper
     if (!issueTrackers.length && !optionCollectionMap) {
       const [optionCollectionMap, issueTrackers] = await Promise.all([
         OptionCollectionModel.getMap(),
@@ -176,6 +198,8 @@ export class AlertsView extends React.Component {
           count: update ? count : Math.ceil(summary.count / 10),
         },
       };
+
+      this.props.updateAppState({ alertData: [alertSummaries, count] });
     } else {
       updates = { ...updates, ...response };
     }
@@ -184,7 +208,7 @@ export class AlertsView extends React.Component {
   }
 
   render() {
-    const { user, validated } = this.props;
+    const { user, frameworks } = this.props;
     const {
       framework,
       status,
@@ -198,7 +222,6 @@ export class AlertsView extends React.Component {
       bugTemplate,
       id,
     } = this.state;
-    const { frameworks } = validated;
 
     const frameworkNames =
       frameworks && frameworks.length ? frameworks.map(item => item.name) : [];
@@ -240,7 +263,6 @@ export class AlertsView extends React.Component {
             </Alert>
           )}
           <AlertsViewControls
-            validated={validated}
             dropdownOptions={id ? [] : alertDropdowns}
             alertSummaries={alertSummaries}
             issueTrackers={issueTrackers}
@@ -249,6 +271,7 @@ export class AlertsView extends React.Component {
             updateViewState={state => this.setState(state)}
             bugTemplate={bugTemplate}
             user={user}
+            {...this.props}
           />
           {pageNums.length > 0 && (
             <Row className="justify-content-center pb-5">
@@ -301,29 +324,21 @@ export class AlertsView extends React.Component {
 }
 
 AlertsView.propTypes = {
-  $stateParams: PropTypes.shape({}),
-  $state: PropTypes.shape({
-    go: PropTypes.func,
-  }),
+  location: PropTypes.shape({}),
   user: PropTypes.shape({}).isRequired,
   validated: PropTypes.shape({
-    projects: PropTypes.arrayOf(PropTypes.shape({})),
-    frameworks: PropTypes.arrayOf(PropTypes.shape({})),
     updateParams: PropTypes.func.isRequired,
     framework: PropTypes.string,
   }).isRequired,
+  projects: PropTypes.arrayOf(PropTypes.shape({})).isRequired,
+  frameworks: PropTypes.arrayOf(PropTypes.shape({})).isRequired,
 };
 
 AlertsView.defaultProps = {
-  $stateParams: null,
-  $state: null,
+  location: null,
 };
 
-const alertsView = withValidation(new Set([]), false)(AlertsView);
-
-perf.component(
-  'alertsView',
-  react2angular(alertsView, ['user'], ['$stateParams', '$state']),
-);
-
-export default alertsView;
+export default withValidation(
+  { defaultState: { hideDwnToInv: 1 }, requiredParams: new Set([]) },
+  false,
+)(AlertsView);

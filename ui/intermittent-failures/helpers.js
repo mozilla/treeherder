@@ -63,17 +63,6 @@ export const calculateMetrics = function calculateMetricsForGraphs(data) {
   };
 };
 
-export const updateQueryParams = function updateHistoryWithQueryParams(
-  view,
-  queryParams,
-  history,
-  location,
-) {
-  history.replace({ pathname: view, search: queryParams });
-  // we do this so the api's won't be called twice (location/history updates will trigger a lifecycle hook)
-  location.search = queryParams;
-};
-
 export const sortData = function sortData(data, sortBy, desc) {
   data.sort((a, b) => {
     const item1 = desc ? b[sortBy] : a[sortBy];

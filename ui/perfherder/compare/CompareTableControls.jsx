@@ -202,7 +202,7 @@ CompareTableControls.propTypes = {
     PropTypes.shape({}),
     PropTypes.bool,
   ]),
-  onPermalinkClick: PropTypes.func.isRequired,
+  onPermalinkClick: PropTypes.func,
 };
 
 CompareTableControls.defaultProps = {
@@ -215,4 +215,5 @@ CompareTableControls.defaultProps = {
     showOnlyNoise: undefined,
   },
   showTestsWithNoise: null,
+  onPermalinkClick: undefined,
 };

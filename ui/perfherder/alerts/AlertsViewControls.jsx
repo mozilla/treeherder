@@ -17,6 +17,21 @@ export default class AlertsViewControls extends React.Component {
     };
   }
 
+  componentDidUpdate(prevProps) {
+    const { hideDownstream, hideImprovements } = this.state;
+    const { location, validated } = this.props;
+
+    if (
+      location.search !== prevProps.location.search &&
+      location.search === ''
+    ) {
+      validated.updateParams({
+        hideImprovements: +hideImprovements,
+        hideDwnToInv: +hideDownstream,
+      });
+    }
+  }
+
   updateFilter = filter => {
     this.setState(
       prevState => ({ [filter]: !prevState[filter] }),

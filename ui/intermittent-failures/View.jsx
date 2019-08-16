@@ -7,15 +7,11 @@ import {
   createQueryParams,
   createApiUrl,
   bugzillaBugsApi,
+  updateQueryParams,
 } from '../helpers/url';
 import { getData } from '../helpers/http';
 
-import {
-  updateQueryParams,
-  validateQueryParams,
-  mergeData,
-  formatBugs,
-} from './helpers';
+import { validateQueryParams, mergeData, formatBugs } from './helpers';
 
 const withView = defaultState => WrappedComponent => {
   class View extends React.Component {
@@ -72,7 +68,7 @@ const withView = defaultState => WrappedComponent => {
         // if the query params are not specified for mainview, set params based on default state
         if (location.search === '') {
           const queryString = createQueryParams(params);
-          updateQueryParams(defaultState.route, queryString, history, location);
+          updateQueryParams(queryString, history, location);
         }
 
         this.setState({ initialParamsSet: true });
@@ -157,12 +153,7 @@ const withView = defaultState => WrappedComponent => {
 
         // update query params if dates or tree are updated
         const queryString = createQueryParams(params);
-        updateQueryParams(
-          defaultState.route,
-          queryString,
-          this.props.history,
-          this.props.location,
-        );
+        updateQueryParams(queryString, this.props.history, this.props.location);
       });
     };
 

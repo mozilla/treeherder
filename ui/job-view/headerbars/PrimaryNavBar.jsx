@@ -7,13 +7,13 @@ import Logo from '../../img/treeherder-logo.png';
 import Login from '../../shared/auth/Login';
 import LogoMenu from '../../shared/LogoMenu';
 import { notify } from '../redux/stores/notifications';
+import HelpMenu from '../../shared/HelpMenu';
 
 import NotificationsMenu from './NotificationsMenu';
 import InfraMenu from './InfraMenu';
 import ReposMenu from './ReposMenu';
 import TiersMenu from './TiersMenu';
 import FiltersMenu from './FiltersMenu';
-import HelpMenu from './HelpMenu';
 import SecondaryNavBar from './SecondaryNavBar';
 import HealthMenu from './HealthMenu';
 

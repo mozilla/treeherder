@@ -10,7 +10,7 @@ import {
   Input,
 } from 'reactstrap';
 
-import { phTimeRanges } from '../../helpers/constants';
+import { phTimeRanges } from '../constants';
 import DropdownMenuItems from '../../shared/DropdownMenuItems';
 
 import TestDataModal from './TestDataModal';
@@ -34,21 +34,13 @@ export default class GraphsViewControls extends React.Component {
       highlightedRevisions,
       updateTimeRange,
       hasNoData,
-      projects,
-      frameworks,
       toggle,
       showModal,
     } = this.props;
 
     return (
       <Container fluid className="justify-content-start">
-        {projects.length > 0 && frameworks.length > 0 && (
-          <TestDataModal
-            showModal={showModal}
-            toggle={toggle}
-            {...this.props}
-          />
-        )}
+        <TestDataModal showModal={showModal} toggle={toggle} {...this.props} />
         <Row className="pb-3">
           <Col sm="auto" className="pl-0 py-2 pr-2" key={timeRange}>
             <UncontrolledDropdown
@@ -134,21 +126,17 @@ GraphsViewControls.propTypes = {
   ]).isRequired,
   updateTimeRange: PropTypes.func.isRequired,
   hasNoData: PropTypes.bool.isRequired,
-  projects: PropTypes.arrayOf(PropTypes.shape({})),
   getTestData: PropTypes.func.isRequired,
   options: PropTypes.shape({
     option: PropTypes.string,
     relatedSeries: PropTypes.shape({}),
   }),
   testData: PropTypes.arrayOf(PropTypes.shape({})),
-  frameworks: PropTypes.arrayOf(PropTypes.shape({})),
   showModal: PropTypes.bool,
   toggle: PropTypes.func.isRequired,
 };
 
 GraphsViewControls.defaultProps = {
-  frameworks: [],
-  projects: [],
   options: undefined,
   testData: [],
   showModal: false,

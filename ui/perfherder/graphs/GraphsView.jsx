@@ -1,26 +1,29 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import { react2angular } from 'react2angular/index.es2015';
 import { Container, Col, Row } from 'reactstrap';
 import unionBy from 'lodash/unionBy';
+import queryString from 'query-string';
 
 import { getData, processResponse, processErrors } from '../../helpers/http';
 import {
   getApiUrl,
-  repoEndpoint,
   createApiUrl,
   perfSummaryEndpoint,
   createQueryParams,
+  parseQueryParams,
+  updateQueryParams,
 } from '../../helpers/url';
 import {
-  phTimeRanges,
-  phDefaultTimeRangeValue,
   genericErrorMessage,
   errorMessageClass,
 } from '../../helpers/constants';
-import perf from '../../js/perf';
 import { processSelectedParam } from '../helpers';
-import { endpoints, graphColors } from '../constants';
+import {
+  endpoints,
+  graphColors,
+  phTimeRanges,
+  phDefaultTimeRangeValue,
+} from '../constants';
 import ErrorMessages from '../../shared/ErrorMessages';
 import ErrorBoundary from '../../shared/ErrorBoundary';
 import LoadingSpinner from '../../shared/LoadingSpinner';
@@ -34,8 +37,6 @@ class GraphsView extends React.Component {
     super(props);
     this.state = {
       timeRange: this.getDefaultTimeRange(),
-      frameworks: [],
-      projects: [],
       zoom: {},
       selectedDataPoint: null,
       highlightAlerts: true,
@@ -51,31 +52,18 @@ class GraphsView extends React.Component {
   }
 
   async componentDidMount() {
-    this.getData();
     this.checkQueryParams();
   }
 
   getDefaultTimeRange = () => {
-    const { $stateParams } = this.props;
+    const { location } = this.props;
+    const { timerange } = parseQueryParams(location.search);
 
-    const defaultValue = $stateParams.timerange
-      ? parseInt($stateParams.timerange, 10)
+    const defaultValue = timerange
+      ? parseInt(timerange, 10)
       : phDefaultTimeRangeValue;
     return phTimeRanges.find(time => time.value === defaultValue);
   };
-
-  async getData() {
-    const [projects, frameworks] = await Promise.all([
-      getData(getApiUrl(repoEndpoint)),
-      getData(getApiUrl(endpoints.frameworks)),
-    ]);
-
-    const updates = {
-      ...processResponse(projects, 'projects'),
-      ...processResponse(frameworks, 'frameworks'),
-    };
-    this.setState(updates);
-  }
 
   checkQueryParams = () => {
     const {
@@ -84,7 +72,7 @@ class GraphsView extends React.Component {
       selected,
       highlightAlerts,
       highlightedRevisions,
-    } = this.props.$stateParams;
+    } = queryString.parse(this.props.location.search);
 
     const updates = {};
 
@@ -271,11 +259,7 @@ class GraphsView extends React.Component {
 
   parseSeriesParam = series =>
     series.map(encodedSeries => {
-      const partialSeriesString = decodeURIComponent(encodedSeries).replace(
-        /[[\]"]/g,
-        '',
-      );
-      const partialSeriesArray = partialSeriesString.split(',');
+      const partialSeriesArray = encodedSeries.split(',');
       const partialSeriesObject = {
         repository_name: partialSeriesArray[0],
         // TODO deprecate signature_hash
@@ -299,14 +283,11 @@ class GraphsView extends React.Component {
   };
 
   updateParams = params => {
-    const { transitionTo, current } = this.props.$state;
+    const { location, history } = this.props;
+    let newQueryString = queryString.stringify(params);
+    newQueryString = newQueryString.replace(/%2C/g, ',');
 
-    transitionTo('graphs', params, {
-      location: true,
-      inherit: true,
-      relative: current,
-      notify: false,
-    });
+    updateQueryParams(newQueryString, history, location);
   };
 
   changeParams = () => {
@@ -325,21 +306,28 @@ class GraphsView extends React.Component {
     );
     const params = {
       series: newSeries,
-      highlightedRevisions: highlightedRevisions.filter(rev => rev.length),
       highlightAlerts: +highlightAlerts,
       timerange: timeRange.value,
       zoom,
     };
 
+    const newHighlightedRevisions = highlightedRevisions.filter(
+      rev => rev.length,
+    );
+
+    if (newHighlightedRevisions.length) {
+      params.highlightedRevisions = newHighlightedRevisions;
+    }
+
     if (!selectedDataPoint) {
-      params.selected = null;
+      delete params.selected;
     } else {
       const { signature_id, pushId, x, y } = selectedDataPoint;
       params.selected = [signature_id, pushId, x, y].join(',');
     }
 
     if (Object.keys(zoom).length === 0) {
-      params.zoom = null;
+      delete params.zoom;
     } else {
       params.zoom = [...zoom.x.map(z => z.getTime()), ...zoom.y].toString();
     }
@@ -350,8 +338,6 @@ class GraphsView extends React.Component {
   render() {
     const {
       timeRange,
-      projects,
-      frameworks,
       testData,
       highlightAlerts,
       highlightedRevisions,
@@ -365,6 +351,7 @@ class GraphsView extends React.Component {
       visibilityChanged,
     } = this.state;
 
+    const { projects, frameworks } = this.props;
     return (
       <ErrorBoundary
         errorClasses={errorMessageClass}
@@ -464,7 +451,7 @@ class GraphsView extends React.Component {
 }
 
 GraphsView.propTypes = {
-  $stateParams: PropTypes.shape({
+  location: PropTypes.shape({
     zoom: PropTypes.string,
     selected: PropTypes.string,
     highlightAlerts: PropTypes.string,
@@ -477,21 +464,11 @@ GraphsView.propTypes = {
       PropTypes.arrayOf(PropTypes.string),
     ]),
   }),
-  $state: PropTypes.shape({
-    current: PropTypes.shape({}),
-    transitionTo: PropTypes.func,
-  }),
   user: PropTypes.shape({}).isRequired,
 };
 
 GraphsView.defaultProps = {
-  $stateParams: undefined,
-  $state: undefined,
+  location: undefined,
 };
-
-perf.component(
-  'graphsView',
-  react2angular(GraphsView, ['user'], ['$stateParams', '$state']),
-);
 
 export default GraphsView;

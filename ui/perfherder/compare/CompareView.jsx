@@ -1,23 +1,19 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import { react2angular } from 'react2angular/index.es2015';
 import difference from 'lodash/difference';
 
-import perf from '../../js/perf';
 import { createQueryParams } from '../../helpers/url';
-import { phTimeRanges } from '../../helpers/constants';
 import {
   createNoiseMetric,
   getCounterMap,
   createGraphsLinks,
 } from '../helpers';
-import { noiseMetricTitle } from '../constants';
+import { noiseMetricTitle, phTimeRanges } from '../constants';
 import withValidation from '../Validation';
 
 import CompareTableView from './CompareTableView';
 
-// TODO remove $location, $scope, $stateParams and $state after switching to react router
-export class CompareView extends React.PureComponent {
+class CompareView extends React.PureComponent {
   getInterval = (oldTimestamp, newTimestamp) => {
     const now = new Date().getTime() / 1000;
     let timeRange = Math.min(oldTimestamp, newTimestamp);
@@ -106,6 +102,7 @@ export class CompareView extends React.PureComponent {
       } else {
         params.selectedTimeRange = timeRange.value;
       }
+
       const detailsLink = `perf.html#/comparesubtest${createQueryParams(
         params,
       )}`;
@@ -215,6 +212,7 @@ export class CompareView extends React.PureComponent {
 
     compareResults = new Map([...compareResults.entries()].sort());
     const updates = { compareResults, testsWithNoise, loading: false };
+    this.props.updateAppState({ compareData: compareResults });
 
     const resultsArr = Array.from(compareResults.keys());
     const testsNoResults = difference(tableNames, resultsArr)
@@ -229,16 +227,12 @@ export class CompareView extends React.PureComponent {
   };
 
   onPermalinkClick = hashBasedValue => {
-    const { $location, $scope } = this.props;
+    const { history, location } = this.props;
 
-    $location.hash(hashBasedValue);
-    $scope.$apply();
+    history.replace(`${location.pathname}${location.search}#${hashBasedValue}`);
   };
 
-  getHashFragment = () => {
-    const { $location } = this.props;
-    return $location.hash();
-  };
+  getHashFragment = () => this.props.location.hash;
 
   render() {
     return (
@@ -262,20 +256,13 @@ CompareView.propTypes = {
     originalProject: PropTypes.string,
     newProject: PropTypes.string,
     originalRevision: PropTypes.string,
-    projects: PropTypes.arrayOf(PropTypes.shape({})),
-    frameworks: PropTypes.arrayOf(PropTypes.shape({})),
     framework: PropTypes.string,
     updateParams: PropTypes.func.isRequired,
   }),
-  $stateParams: PropTypes.shape({}),
-  $state: PropTypes.shape({}),
-  user: PropTypes.shape({}).isRequired,
 };
 
 CompareView.defaultProps = {
   validated: PropTypes.shape({}),
-  $stateParams: null,
-  $state: null,
 };
 
 const requiredParams = new Set([
@@ -284,15 +271,6 @@ const requiredParams = new Set([
   'newRevision',
 ]);
 
-const compareView = withValidation(requiredParams)(CompareView);
-
-perf.component(
-  'compareView',
-  react2angular(
-    compareView,
-    ['user'],
-    ['$location', '$scope', '$stateParams', '$state'],
-  ),
+export default withValidation({ defaultState: {}, requiredParams })(
+  CompareView,
 );
-
-export default compareView;

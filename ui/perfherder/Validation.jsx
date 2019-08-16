@@ -2,32 +2,25 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import { Container } from 'reactstrap';
 
-import { getData, processResponse } from '../helpers/http';
-import { getApiUrl, repoEndpoint } from '../helpers/url';
+import {
+  parseQueryParams,
+  createQueryParams,
+  updateQueryParams,
+} from '../helpers/url';
 import PushModel from '../models/push';
 import ErrorMessages from '../shared/ErrorMessages';
 import LoadingSpinner from '../shared/LoadingSpinner';
 
-import { endpoints, summaryStatusMap } from './constants';
-
-// TODO once we switch to react-router
-// 1) use context in this HOC to share state between compare views, by wrapping router component in it;
-//    advantages include:
-//    * no need to check historical location.state to determine if user has navigated to compare or comparesubtest
-//      views from a previous view (thus params have already been validated and resultsets stored in state)
-//    * if user navigates to compareview from compareChooser and decides to change a project via query params
-//      to a different project, projects will already be stored in state so no fetching data again to validate
-//
+import { summaryStatusMap } from './constants';
 
 const withValidation = (
-  requiredParams,
+  { requiredParams, defaultState },
   verifyRevisions = true,
 ) => WrappedComponent => {
   class Validation extends React.Component {
     constructor(props) {
       super(props);
 
-      // TODO change $stateParams to location.state once we switch to react-router
       this.state = {
         originalProject: null,
         newProject: null,
@@ -36,38 +29,28 @@ const withValidation = (
         originalSignature: null,
         newSignature: null,
         errorMessages: [],
-        projects: [],
         originalResultSet: null,
         newResultSet: null,
         selectedTimeRange: null,
         framework: null,
-        frameworks: [],
-        // TODO reset if validateParams method is called from another component
         validationComplete: false,
       };
     }
 
     async componentDidMount() {
-      const [projects, frameworks] = await Promise.all([
-        getData(getApiUrl(repoEndpoint)),
-        getData(getApiUrl(endpoints.frameworks)),
-      ]);
+      if (Object.keys(defaultState).length && this.props.location) {
+        this.setState(defaultState);
+      }
 
-      const updates = {
-        ...processResponse(projects, 'projects'),
-        ...processResponse(frameworks, 'frameworks'),
-      };
-      this.setState(updates, () =>
-        this.validateParams(this.props.$stateParams),
-      );
+      this.validateParams(parseQueryParams(this.props.location.search));
     }
 
-    updateParams = param => {
-      const { transitionTo, current } = this.props.$state;
-      transitionTo(current.name, param, {
-        inherit: true,
-        notify: false,
-      });
+    updateParams = params => {
+      const { location, history } = this.props;
+      const newParams = { ...parseQueryParams(location.search), ...params };
+      const queryString = createQueryParams(newParams);
+
+      updateQueryParams(queryString, history, location);
     };
 
     errorMessage = (param, value) => `${param} ${value} is not valid`;
@@ -134,7 +117,7 @@ const withValidation = (
     }
 
     validateParams(params) {
-      const { projects, frameworks } = this.state;
+      const { projects, frameworks } = this.props;
       let errors = [];
 
       // eslint-disable-next-line no-unused-vars
@@ -173,10 +156,13 @@ const withValidation = (
       if (verifyRevisions) {
         return this.checkRevisions(params);
       }
-      this.setState({
-        ...params,
-        validationComplete: true,
-      });
+      this.setState(
+        {
+          ...params,
+          validationComplete: true,
+        },
+        this.updateParams({ ...params, ...defaultState }),
+      );
     }
 
     render() {
@@ -208,11 +194,7 @@ const withValidation = (
   }
 
   Validation.propTypes = {
-    $stateParams: PropTypes.shape({}).isRequired,
-    $state: PropTypes.shape({
-      transitionTo: PropTypes.func,
-      current: PropTypes.shape({}),
-    }).isRequired,
+    location: PropTypes.shape({}).isRequired,
   };
 
   return Validation;

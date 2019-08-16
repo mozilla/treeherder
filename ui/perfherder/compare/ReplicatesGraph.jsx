@@ -10,7 +10,6 @@ import { createApiUrl, perfSummaryEndpoint } from '../../helpers/url';
 import { noDataFoundMessage } from '../constants';
 import LoadingSpinner from '../../shared/LoadingSpinner';
 
-// TODO remove $stateParams after switching to react router
 export default class ReplicatesGraph extends React.Component {
   // TODO: sync parent with children IRT dataLoading
   constructor(props) {

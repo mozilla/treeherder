@@ -11,6 +11,7 @@ import {
 import AlertsViewControls from '../../../ui/perfherder/alerts/AlertsViewControls';
 import optionCollectionMap from '../mock/optionCollectionMap';
 import { summaryStatusMap } from '../../../ui/perfherder/constants';
+import repos from '../mock/repositories';
 
 const testUser = {
   username: 'test user',
@@ -219,10 +220,6 @@ const alertsViewControls = () =>
         hideDwnToInv: undefined,
         hideImprovements: undefined,
         filter: undefined,
-        projects: [
-          { id: 1, name: 'mozilla-central' },
-          { id: 2, name: 'mozilla-inbound' },
-        ],
         updateParams: () => {},
       }}
       dropdownOptions={testAlertDropdowns}
@@ -233,6 +230,11 @@ const alertsViewControls = () =>
       updateViewState={() => {}}
       user={testUser}
       modifyAlert={(alert, params) => mockModifyAlert.update(alert, params)}
+      projects={repos}
+      location={{
+        pathname: '/alerts',
+        search: '',
+      }}
     />,
   );
 

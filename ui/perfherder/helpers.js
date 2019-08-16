@@ -8,11 +8,7 @@ import PerfSeriesModel, {
   getSeriesName,
   getTestName,
 } from '../models/perfSeries';
-import {
-  phFrameworksWithRelatedBranches,
-  phTimeRanges,
-  thPerformanceBranches,
-} from '../helpers/constants';
+import { thPerformanceBranches } from '../helpers/constants';
 
 import {
   endpoints,
@@ -21,6 +17,8 @@ import {
   noiseMetricTitle,
   summaryStatusMap,
   alertStatusMap,
+  phFrameworksWithRelatedBranches,
+  phTimeRanges,
 } from './constants';
 
 export const displayNumber = input =>
@@ -114,7 +112,7 @@ const analyzeSet = (values, testName) => {
     average,
     stddev,
     stddevPct: Math.round(calcPercentOf(stddev, average) * 100) / 100,
-    // TODO verify this is needed
+
     // We use slice to keep the original values at their original order
     // in case the order is important elsewhere.
     runs: values.slice().sort(numericCompare),
@@ -171,7 +169,6 @@ export const getCounterMap = function getCounterMap(
   originalData,
   newData,
 ) {
-  // TODO setting this value seems a bit odd, look into how its being used
   const cmap = { isEmpty: false };
   const hasOrig = originalData && originalData.values.length;
   const hasNew = newData && newData.values.length;
@@ -278,7 +275,7 @@ export const getCounterMap = function getCounterMap(
   return cmap;
 };
 
-// TODO look into using signature_id instead of the hash
+// TODO change usage of signature_hash to signature.id
 export const getGraphsLink = function getGraphsLink(
   seriesList,
   resultSets,
@@ -329,7 +326,6 @@ export const createNoiseMetric = function createNoiseMetric(
   return compareResults;
 };
 
-// TODO
 export const createGraphsLinks = (
   validatedProps,
   links,
@@ -368,7 +364,7 @@ export const createGraphsLinks = (
   return links;
 };
 
-// TODO change all usage of signature_hash to signature.id
+// TODO change usage of signature_hash to signature.id
 // for originalSignature and newSignature query params
 const Alert = (alertData, optionCollectionMap) => ({
   ...alertData,
@@ -377,7 +373,7 @@ const Alert = (alertData, optionCollectionMap) => ({
   }),
 });
 
-// TODO look into using signature_id instead of the hash and remove all other params
+// TODO change usage of signature_hash to signature.id
 export const getGraphsURL = (
   alert,
   timeRange,
@@ -386,11 +382,9 @@ export const getGraphsURL = (
 ) => {
   let url = `#/graphs?timerange=${timeRange}&series=${alertRepository},${alert.series_signature.id},1,${alert.series_signature.framework_id}`;
 
-  // TODO deprecate usage of signature hash
   // automatically add related branches (we take advantage of
   // the otherwise rather useless signature hash to avoid having to fetch this
   // information from the server)
-
   if (phFrameworksWithRelatedBranches.includes(performanceFrameworkId)) {
     const branches =
       alertRepository === 'mozilla-beta'
@@ -537,11 +531,11 @@ export const convertParams = (params, value) =>
   Boolean(params[value] !== undefined && parseInt(params[value], 10));
 
 export const getFrameworkData = props => {
-  const { framework, frameworks } = props;
+  const { validated, frameworks } = props;
 
-  if (framework) {
+  if (validated.framework) {
     const frameworkObject = frameworks.find(
-      item => item.id === parseInt(framework, 10),
+      item => item.id === parseInt(validated.framework, 10),
     );
     return frameworkObject;
   }

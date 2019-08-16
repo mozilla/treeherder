@@ -40,8 +40,8 @@ module.exports = {
         title: 'Push Health',
       },
       perf: {
-        entry: 'entry-perf.js',
-        template: 'ui/perf.html',
+        entry: 'perfherder/index.jsx',
+        title: 'Perfherder',
       },
       'intermittent-failures': {
         entry: 'intermittent-failures/index.jsx',
@@ -149,8 +149,8 @@ module.exports = {
         // to help prevent unknowingly regressing the bundle size (bug 1384255).
         neutrino.config.performance
           .hints('error')
-          .maxAssetSize(2 * 1024 * 1024)
-          .maxEntrypointSize(2.25 * 1024 * 1024);
+          .maxAssetSize(1.5 * 1024 * 1024)
+          .maxEntrypointSize(2 * 1024 * 1024);
       }
     },
   ],

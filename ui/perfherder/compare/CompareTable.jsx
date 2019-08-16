@@ -9,7 +9,6 @@ import {
   faHashtag,
 } from '@fortawesome/free-solid-svg-icons';
 
-import JobModel from '../../models/job';
 import SimpleTooltip from '../../shared/SimpleTooltip';
 import { displayNumber } from '../helpers';
 import { compareTableText } from '../constants';
@@ -33,7 +32,7 @@ export default class CompareTable extends React.PureComponent {
       displayNumber(percentage),
     )}% ${improvement ? 'better' : 'worse'})`;
 
-  // humane readable signature name
+  // human readable signature name
   getSignatureName = (testName, platformName) =>
     [testName, platformName].filter(item => item !== null).join(' ');
 
@@ -100,14 +99,18 @@ export default class CompareTable extends React.PureComponent {
           <tr className="subtest-header bg-lightgray">
             <th className="text-left">
               <span>{testName}</span>
-              <Button
-                className="permalink p-0 ml-1"
-                color="link"
-                onClick={() => onPermalinkClick(this.getHashBasedId(testName))}
-                title="Permalink to this test table"
-              >
-                <FontAwesomeIcon icon={faHashtag} />
-              </Button>
+              {onPermalinkClick && (
+                <Button
+                  className="permalink p-0 ml-1"
+                  color="link"
+                  onClick={() =>
+                    onPermalinkClick(this.getHashBasedId(testName))
+                  }
+                  title="Permalink to this test table"
+                >
+                  <FontAwesomeIcon icon={faHashtag} />
+                </Button>
+              )}
             </th>
             <th className="table-width-lg">Base</th>
             {/* empty for less than/greater than data */}
@@ -145,20 +148,22 @@ export default class CompareTable extends React.PureComponent {
               <th className="text-left font-weight-normal pl-1">
                 {rowLevelResults.name}
                 <span className="result-links">
-                  <span>
-                    <Button
-                      className="permalink p-0 ml-1"
-                      color="link"
-                      onClick={() =>
-                        onPermalinkClick(
-                          this.getHashBasedId(testName, rowLevelResults.name),
-                        )
-                      }
-                      title="Permalink to this test"
-                    >
-                      <FontAwesomeIcon icon={faHashtag} />
-                    </Button>
-                  </span>
+                  {onPermalinkClick && (
+                    <span>
+                      <Button
+                        className="permalink p-0 ml-1"
+                        color="link"
+                        onClick={() =>
+                          onPermalinkClick(
+                            this.getHashBasedId(testName, rowLevelResults.name),
+                          )
+                        }
+                        title="Permalink to this test"
+                      >
+                        <FontAwesomeIcon icon={faHashtag} />
+                      </Button>
+                    </span>
+                  )}
                   {rowLevelResults.links &&
                     rowLevelResults.links.map(link => (
                       <span key={link.title}>
@@ -289,20 +294,11 @@ CompareTable.propTypes = {
   data: PropTypes.arrayOf(PropTypes.shape({})),
   testName: PropTypes.string.isRequired,
   hashFunction: PropTypes.func,
-  onPermalinkClick: PropTypes.func.isRequired,
-  user: PropTypes.shape({}).isRequired,
-  isBaseAggregate: PropTypes.bool.isRequired,
-  notify: PropTypes.func,
-  hasSubtests: PropTypes.bool,
-  retriggerJob: PropTypes.func,
-  getJob: PropTypes.func,
+  onPermalinkClick: PropTypes.func,
 };
 
 CompareTable.defaultProps = {
   data: null,
   hashFunction,
-  notify: null,
-  hasSubtests: false,
-  retriggerJob: JobModel.retrigger,
-  getJob: JobModel.get,
+  onPermalinkClick: undefined,
 };

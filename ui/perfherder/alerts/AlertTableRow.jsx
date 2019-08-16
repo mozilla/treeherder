@@ -13,10 +13,12 @@ import { createQueryParams } from '../../helpers/url';
 import { getStatus, getGraphsURL, modifyAlert } from '../helpers';
 import SimpleTooltip from '../../shared/SimpleTooltip';
 import ProgressBar from '../ProgressBar';
-import { alertStatusMap } from '../constants';
-import { phDefaultTimeRangeValue, phTimeRanges } from '../../helpers/constants';
+import {
+  alertStatusMap,
+  phDefaultTimeRangeValue,
+  phTimeRanges,
+} from '../constants';
 
-// TODO remove $stateParams and $state after switching to react router
 export default class AlertTableRow extends React.Component {
   constructor(props) {
     super(props);
@@ -94,7 +96,6 @@ export default class AlertTableRow extends React.Component {
         {` ${text} `}
         <a
           href={`#/alerts?id=${alertId}`}
-          target="_blank"
           rel="noopener noreferrer"
           className="text-info"
         >{`alert #${alertId}`}</a>
