@@ -49,7 +49,7 @@ export default class AlertsViewControls extends React.Component {
 
   render() {
     const { hideImprovements, hideDownstream } = this.state;
-    const { dropdownOptions, alertSummaries } = this.props;
+    const { dropdownOptions, alertSummaries, user } = this.props;
     const alertFilters = [
       {
         text: 'Hide improvements',
@@ -79,6 +79,7 @@ export default class AlertsViewControls extends React.Component {
               key={alertSummary.id}
               alertSummary={alertSummary}
               {...this.props}
+              user={user}
             />
           ))}
       </React.Fragment>
@@ -92,6 +93,7 @@ AlertsViewControls.propTypes = {
   }).isRequired,
   dropdownOptions: PropTypes.arrayOf(PropTypes.shape({})),
   alertSummaries: PropTypes.arrayOf(PropTypes.shape({})),
+  user: PropTypes.shape({}).isRequired,
 };
 
 AlertsViewControls.defaultProps = {
