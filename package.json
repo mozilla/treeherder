@@ -19,6 +19,9 @@
     "@fortawesome/free-regular-svg-icons": "5.10.1",
     "@fortawesome/free-solid-svg-icons": "5.10.1",
     "@fortawesome/react-fontawesome": "0.1.4",
+    "@neutrinojs/copy": "9.0.0-rc.3",
+    "@neutrinojs/react": "9.0.0-rc.3",
+    "@testing-library/react": "9.1.1",
     "@types/angular": "*",
     "@types/prop-types": "*",
     "@types/react": "*",
@@ -44,6 +47,7 @@
     "metrics-graphics": "2.15.6",
     "moment": "2.24.0",
     "mousetrap": "1.6.3",
+    "neutrino": "9.0.0-rc.3",
     "ng-text-truncate-2": "1.0.1",
     "numeral": "2.0.6",
     "prop-types": "15.7.2",
@@ -74,10 +78,8 @@
     "webpack-cli": "3.3.6"
   },
   "devDependencies": {
-    "@neutrinojs/copy": "9.0.0-rc.3",
     "@neutrinojs/eslint": "9.0.0-rc.3",
     "@neutrinojs/jest": "9.0.0-rc.3",
-    "@neutrinojs/react": "9.0.0-rc.3",
     "@testing-library/jest-dom": "4.0.0",
     "@testing-library/react": "9.1.1",
     "enzyme": "3.9.0",
@@ -92,7 +94,6 @@
     "eslint-plugin-react": "7.14.3",
     "fetch-mock": "7.3.9",
     "jest": "24.8.0",
-    "neutrino": "9.0.0-rc.3",
     "node-fetch": "2.6.0",
     "prettier": "1.18.2",
     "webpack-dev-server": "3.8.0"
