@@ -9,13 +9,9 @@ import 'bootstrap';
 import { library, dom, config } from '@fortawesome/fontawesome-svg-core';
 import { faFileCode, faFileWord } from '@fortawesome/free-regular-svg-icons';
 import {
-  faAngleDoubleLeft,
-  faAngleDoubleRight,
   faBug,
   faCode,
-  faExclamationCircle,
   faQuestionCircle,
-  faSpinner,
 } from '@fortawesome/free-solid-svg-icons';
 import { faGithub } from '@fortawesome/free-brands-svg-icons';
 
@@ -29,7 +25,6 @@ import 'jquery.flot/jquery.flot.selection';
 import './css/treeherder-global.css';
 import './css/treeherder-navbar.css';
 import './css/perf.css';
-import './css/treeherder-loading-overlay.css';
 
 // Bootstrap the Angular modules against which everything will be registered
 import './js/perf';
@@ -47,18 +42,7 @@ import './perfherder/graphs/GraphsView';
 config.showMissingIcons = true;
 
 // TODO: Remove these as Perfherder components switch to using react-fontawesome.
-library.add(
-  faAngleDoubleLeft,
-  faAngleDoubleRight,
-  faBug,
-  faCode,
-  faExclamationCircle,
-  faFileCode,
-  faFileWord,
-  faGithub,
-  faQuestionCircle,
-  faSpinner,
-);
+library.add(faBug, faCode, faFileCode, faFileWord, faGithub, faQuestionCircle);
 
 // Replace any existing <i> or <span> tags with <svg> and set up a MutationObserver
 // to continue doing this as the DOM changes. Remove once using react-fontawesome.
