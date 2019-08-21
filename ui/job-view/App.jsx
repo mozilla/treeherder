@@ -65,7 +65,7 @@ class App extends React.Component {
       serverChangedDelayed: false,
       serverChanged: false,
       repos: [],
-      currentRepo: new RepositoryModel({ is_try_repo: true }),
+      currentRepo: null,
       classificationTypes: [],
       classificationMap: {},
       hasSelectedJob,
@@ -88,8 +88,7 @@ class App extends React.Component {
     const { repoName } = this.state;
 
     RepositoryModel.getList().then(repos => {
-      const { currentRepo } = this.state;
-      const newRepo = repos.find(repo => repo.name === repoName) || currentRepo;
+      const newRepo = repos.find(repo => repo.name === repoName);
 
       this.setState({ currentRepo: newRepo, repos });
     });
@@ -356,30 +355,34 @@ class App extends React.Component {
                 {serverChangedDelayed && (
                   <UpdateAvailable updateButtonClick={this.updateButtonClick} />
                 )}
-                <div id="th-global-content" className="th-global-content">
-                  <span className="th-view-content" tabIndex={-1}>
-                    <PushList
-                      user={user}
-                      repoName={repoName}
-                      revision={revision}
-                      currentRepo={currentRepo}
-                      filterModel={filterModel}
-                      duplicateJobsVisible={duplicateJobsVisible}
-                      groupCountsExpanded={groupCountsExpanded}
-                      pushHealthVisibility={pushHealthVisibility}
-                      getAllShownJobs={this.getAllShownJobs}
-                    />
-                  </span>
-                </div>
+                {currentRepo && (
+                  <div id="th-global-content" className="th-global-content">
+                    <span className="th-view-content" tabIndex={-1}>
+                      <PushList
+                        user={user}
+                        repoName={repoName}
+                        revision={revision}
+                        currentRepo={currentRepo}
+                        filterModel={filterModel}
+                        duplicateJobsVisible={duplicateJobsVisible}
+                        groupCountsExpanded={groupCountsExpanded}
+                        pushHealthVisibility={pushHealthVisibility}
+                        getAllShownJobs={this.getAllShownJobs}
+                      />
+                    </span>
+                  </div>
+                )}
               </div>
-              <DetailsPanel
-                resizedHeight={detailsHeight}
-                currentRepo={currentRepo}
-                repoName={repoName}
-                user={user}
-                classificationTypes={classificationTypes}
-                classificationMap={classificationMap}
-              />
+              {currentRepo && (
+                <DetailsPanel
+                  resizedHeight={detailsHeight}
+                  currentRepo={currentRepo}
+                  repoName={repoName}
+                  user={user}
+                  classificationTypes={classificationTypes}
+                  classificationMap={classificationMap}
+                />
+              )}
             </SplitPane>
             <Notifications />
             {showShortCuts && (
