@@ -137,7 +137,10 @@ class PushList extends React.Component {
       this.setWindowTitle();
     }
     return (
-      <div onClick={evt => this.clearIfEligibleTarget(evt.target)}>
+      <div
+        id="push-list"
+        onClick={evt => this.clearIfEligibleTarget(evt.target)}
+      >
         {jobsLoaded && <span className="hidden ready" />}
         {repoName &&
           pushList.map(push => (

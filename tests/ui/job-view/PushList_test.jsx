@@ -19,6 +19,8 @@ import jobListFixtureOne from '../mock/job_list/job_1';
 import jobListFixtureTwo from '../mock/job_list/job_2';
 import configureStore from '../../../ui/job-view/redux/configureStore';
 import PushList from '../../../ui/job-view/pushes/PushList';
+import { getApiUrl } from '../../../ui/helpers/url';
+import { findJobInstance } from '../../../ui/helpers/job';
 
 describe('PushList', () => {
   const repoName = 'autoland';
@@ -86,18 +88,12 @@ describe('PushList', () => {
       },
     );
     fetchMock.get(
-      getProjectUrl(
-        '/jobs/?push_id=511138&count=2000&return_type=list',
-        repoName,
-      ),
+      getApiUrl('/jobs/?push_id=511138', repoName),
       jobListFixtureOne,
     );
 
     fetchMock.mock(
-      getProjectUrl(
-        '/jobs/?push_id=511137&count=2000&return_type=list',
-        repoName,
-      ),
+      getApiUrl('/jobs/?push_id=511137', repoName),
       jobListFixtureTwo,
     );
   });
@@ -181,5 +177,16 @@ describe('PushList', () => {
     expect(await waitForElement(() => getAllByText('View Tests'))).toHaveLength(
       1,
     );
+  });
+
+  test('jobs should have fields required for retriggers', async () => {
+    const { store } = configureStore();
+    const { getByText } = render(testPushList(store, new FilterModel()));
+    const jobEl = await waitForElement(() => getByText('yaml'));
+    const jobInstance = findJobInstance(jobEl.getAttribute('data-job-id'));
+    const { job } = jobInstance.props;
+
+    expect(job.signature).toBe('306fd1e8d922922cd171fa31f0d914300ff52228');
+    expect(job.job_type_name).toBe('source-test-mozlint-yaml');
   });
 });

@@ -8,6 +8,7 @@ from hashlib import sha1
 import newrelic.agent
 from django.conf import settings
 from django.contrib.auth.models import User
+from django.core.cache import cache
 from django.core.exceptions import ObjectDoesNotExist
 from django.core.validators import MinLengthValidator
 from django.db import (models,
@@ -18,7 +19,8 @@ from django.db.utils import ProgrammingError
 from django.forms import model_to_dict
 from django.utils import timezone
 
-from treeherder.webapp.api.utils import REPO_GROUPS
+from treeherder.webapp.api.utils import (REPO_GROUPS,
+                                         to_timestamp)
 
 from ..services.elasticsearch import (bulk,
                                       index)
@@ -302,10 +304,16 @@ class JobGroup(models.Model):
 
 
 class OptionCollectionManager(models.Manager):
+    cache_key = 'option_collection_map'
     '''
     Convenience function to determine the option collection map
     '''
     def get_option_collection_map(self, options_as_list=False):
+        option_collection_map = cache.get(self.cache_key)
+
+        if option_collection_map:
+            return option_collection_map
+
         option_collection_map = {}
         for (hash, option_name) in OptionCollection.objects.values_list(
                 'option_collection_hash', 'option__name'):
@@ -320,6 +328,8 @@ class OptionCollectionManager(models.Manager):
                 else:
                     option_collection_map[hash] += (' ' + option_name)
 
+        # Caches for the default of 5 minutes.
+        cache.set(self.cache_key, option_collection_map)
         return option_collection_map
 
 
@@ -655,6 +665,12 @@ class Job(models.Model):
             return None
 
         return text_log_error
+
+    @staticmethod
+    def get_duration(submit_time, start_time, end_time):
+        endtime = end_time if to_timestamp(end_time) else datetime.datetime.now()
+        starttime = start_time if to_timestamp(start_time) else submit_time
+        return round((endtime - starttime).total_seconds() / 60)
 
 
 class TaskclusterMetadata(models.Model):

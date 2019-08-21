@@ -147,8 +147,6 @@ class Push extends React.PureComponent {
     const { data, failureStatus } = await JobModel.getList(
       {
         push_id: push.id,
-        count: 2000,
-        return_type: 'list',
       },
       { fetchAll: true },
     );

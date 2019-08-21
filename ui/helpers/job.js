@@ -177,7 +177,7 @@ export const findGroupInstance = function findGroupInstance(job) {
 // Fetch the React instance based on the jobId, and if scrollTo
 // is true, then scroll it into view.
 export const findJobInstance = function findJobInstance(jobId, scrollTo) {
-  const jobEl = $('.th-view-content')
+  const jobEl = $('#push-list')
     .find(`button[data-job-id='${jobId}']`)
     .first();
 
