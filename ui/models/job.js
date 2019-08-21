@@ -93,6 +93,7 @@ export default class JobModel {
       const taskIdMap = await PushModel.getDecisionTaskMap(pushIds, notify);
       const uniquePerPushJobs = groupBy(jobs, job => job.push_id);
 
+      // eslint-disable-next-line no-unused-vars
       for (const [key, value] of Object.entries(uniquePerPushJobs)) {
         const decisionTaskId = taskIdMap[key].id;
 
@@ -198,6 +199,7 @@ export default class JobModel {
       );
 
       /* eslint-disable no-await-in-loop */
+      // eslint-disable-next-line no-unused-vars
       for (const job of jobs) {
         job.taskcluster_metadata = tcMetadataMap[job.id];
         const decisionTaskId = taskIdMap[job.push_id].id;
