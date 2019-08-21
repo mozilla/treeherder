@@ -160,6 +160,7 @@ const fetchNewJobs = () => {
         dispatch(setSelectedJob(updatedSelectedJob));
       }
     } else {
+      // eslint-disable-next-line no-unused-vars
       for (const error of errors) {
         notify(error, 'danger', { sticky: true });
       }

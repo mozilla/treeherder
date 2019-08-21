@@ -136,6 +136,7 @@ const withView = defaultState => WrappedComponent => {
         max += 800;
       }
 
+      // eslint-disable-next-line no-unused-vars
       for (const result of await Promise.all(results)) {
         bugsList = [...bugsList, ...result.data.bugs];
       }
