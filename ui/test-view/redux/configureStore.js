@@ -180,7 +180,7 @@ async function fetchTests(store, fetchParams) {
     Object.entries(testFailureLines).forEach(([testName, test]) => {
       // Make a copy of the job that is just for this single testName because each test
       // needs its own job copy that contains the failureLines for only that test.
-      const flJob = Object.assign({}, job);
+      const flJob = { ...job };
       test.jobs = [flJob];
       test.name = testName;
       // set the failureLines of this test to this test's job
