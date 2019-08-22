@@ -28,6 +28,8 @@ def test_filter_jobs_by_keywords_from_job_panel(base_url, selenium, test_jobs):
     assert page.quick_filter_term == keywords.lower()
 
 
+# See https://bugzilla.mozilla.org/show_bug.cgi?id=1575835 to re-enable
+@pytest.mark.skip(reason="The test times out too often and prevents deployments")
 @pytest.mark.parametrize('method', [('keyboard'), ('pointer')])
 def test_clear_filter(base_url, selenium, test_jobs, method):
     page = Treeherder(selenium, base_url).open()
