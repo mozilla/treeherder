@@ -20,5 +20,5 @@
     "prod": "https://treeherder.mozilla.org/",
     "stage": "https://treeherder.allizom.org/"
   },
-  "keywords": ["css", "django", "angular", "js", "python"]
+  "keywords": ["css", "django", "jquery", "angular", "js", "python"]
 }

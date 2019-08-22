@@ -2,6 +2,7 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
 import { Button } from 'reactstrap';
+import $ from 'jquery';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faChartBar } from '@fortawesome/free-regular-svg-icons';
 import {
@@ -65,7 +66,7 @@ class ActionBar extends React.PureComponent {
         notify('No logs available for this job', 'info');
         break;
       case 'parsed':
-        document.querySelector('.logviewer-btn').click();
+        $('.logviewer-btn')[0].click();
     }
   };
 
@@ -131,14 +132,10 @@ class ActionBar extends React.PureComponent {
     }
 
     // Spin the retrigger button when retriggers happen
-    document
-      .querySelector('#retrigger-btn > svg')
-      .classList.remove('action-bar-spin');
+    $('#retrigger-btn > svg').removeClass('action-bar-spin');
     window.requestAnimationFrame(() => {
       window.requestAnimationFrame(() => {
-        document
-          .querySelector('#retrigger-btn > svg')
-          .classList.add('action-bar-spin');
+        $('#retrigger-btn > svg').addClass('action-bar-spin');
       });
     });
 
