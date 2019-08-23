@@ -24,13 +24,12 @@ class OptionCollectionHashViewSet(viewsets.ViewSet):
     """ViewSet for the virtual OptionCollectionHash model"""
 
     def list(self, request):
-        option_collection_map = models.OptionCollection.objects.get_option_collection_map(options_as_list=True)
+        option_collection_map = models.OptionCollection.objects.get_option_collection_map()
 
         ret = []
         for (option_hash, option_names) in option_collection_map.items():
             ret.append({'option_collection_hash': option_hash,
-                        'options': [{'name': name} for
-                                    name in option_names]})
+                        'options': [{'name': name} for name in option_names.split(' ')]})
         return Response(ret)
 
 

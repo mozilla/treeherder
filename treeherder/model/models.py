@@ -308,7 +308,7 @@ class OptionCollectionManager(models.Manager):
     '''
     Convenience function to determine the option collection map
     '''
-    def get_option_collection_map(self, options_as_list=False):
+    def get_option_collection_map(self):
         option_collection_map = cache.get(self.cache_key)
 
         if option_collection_map:
@@ -317,16 +317,10 @@ class OptionCollectionManager(models.Manager):
         option_collection_map = {}
         for (hash, option_name) in OptionCollection.objects.values_list(
                 'option_collection_hash', 'option__name'):
-            if options_as_list:
-                if not option_collection_map.get(hash):
-                    option_collection_map[hash] = [option_name]
-                else:
-                    option_collection_map[hash].append(option_name)
+            if not option_collection_map.get(hash):
+                option_collection_map[hash] = option_name
             else:
-                if not option_collection_map.get(hash):
-                    option_collection_map[hash] = option_name
-                else:
-                    option_collection_map[hash] += (' ' + option_name)
+                option_collection_map[hash] += (' ' + option_name)
 
         # Caches for the default of 5 minutes.
         cache.set(self.cache_key, option_collection_map)
