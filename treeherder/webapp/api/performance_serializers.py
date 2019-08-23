@@ -142,6 +142,10 @@ class PerformanceAlertSummarySerializer(serializers.ModelSerializer):
     prev_push_revision = serializers.SlugRelatedField(read_only=True,
                                                       slug_field='revision',
                                                       source='prev_push')
+    assignee_username = serializers.SlugRelatedField(slug_field="username", source="assignee",
+                                                     allow_null=True, required=False,
+                                                     queryset=User.objects.all())
+    assignee_email = serializers.SerializerMethodField()
     # marking these fields as readonly, the user should not be modifying them
     # (after the item is first created, where we don't use this serializer
     # class)
@@ -153,16 +157,19 @@ class PerformanceAlertSummarySerializer(serializers.ModelSerializer):
         instance.timestamp_first_triage()
         return super().update(instance, validated_data)
 
+    def get_assignee_email(self, performance_alert_summary):
+        return getattr(performance_alert_summary.assignee, 'email', None)
+
     class Meta:
         model = PerformanceAlertSummary
         fields = ['id', 'push_id', 'prev_push_id',
                   'created', 'repository', 'framework', 'alerts',
                   'related_alerts', 'status', 'bug_number', 'bug_updated',
-                  'issue_tracker', 'notes', 'revision', 'push_timestamp', 'prev_push_revision']
+                  'issue_tracker', 'notes', 'revision', 'push_timestamp',
+                  'prev_push_revision', 'assignee_username', 'assignee_email']
 
 
 class PerformanceBugTemplateSerializer(serializers.ModelSerializer):
-
     framework = serializers.SlugRelatedField(read_only=True,
                                              slug_field='id')
 
@@ -196,7 +203,8 @@ class PerformanceQueryParamsSerializer(serializers.Serializer):
     all_data = serializers.BooleanField(required=False, default=False)
 
     def validate(self, data):
-        if data['revision'] is None and data['interval'] is None and (data['startday'] is None or data['endday'] is None):
+        if data['revision'] is None and data['interval'] is None and (
+                data['startday'] is None or data['endday'] is None):
             raise serializers.ValidationError('Required: revision, startday and endday or interval.')
 
         return data

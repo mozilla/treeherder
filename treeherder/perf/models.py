@@ -257,6 +257,8 @@ class PerformanceAlertSummary(models.Model):
     manually_created = models.BooleanField(default=False)
 
     notes = models.TextField(null=True, blank=True)
+    assignee = models.ForeignKey(User, on_delete=models.SET_NULL, null=True,
+                                 related_name='assigned_alerts')
 
     created = models.DateTimeField(auto_now_add=True, db_index=True)
     first_triaged = models.DateTimeField(null=True, default=None)
