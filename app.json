@@ -1,9 +1,5 @@
 {
-  "addons": [
-    "scheduler",
-    "cloudamqp",
-    "heroku-redis"
-  ],
+  "addons": ["scheduler", "cloudamqp", "heroku-redis"],
   "buildpacks": [
     {
       "url": "https://buildpack-registry.s3.amazonaws.com/buildpacks/edmorley/timestamps.tgz"
@@ -125,7 +121,6 @@
     }
   },
   "name": "treeherder",
-  "scripts": {
-  },
+  "scripts": {},
   "stack": "heroku-18"
 }
