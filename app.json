@@ -1,5 +1,5 @@
 {
-  "addons": ["scheduler", "cloudamqp", "heroku-redis"],
+  "addons": ["heroku-redis"],
   "buildpacks": [
     {
       "url": "https://buildpack-registry.s3.amazonaws.com/buildpacks/edmorley/timestamps.tgz"
@@ -12,27 +12,6 @@
     }
   ],
   "env": {
-    "BROKER_URL": {
-      "required": true
-    },
-    "BUG_COMMENTER_API_KEY": {
-      "required": true
-    },
-    "BUG_FILER_API_KEY": {
-      "required": true
-    },
-    "CLOUDAMQP_URL": {
-      "required": true
-    },
-    "DATABASE_URL": {
-      "required": true
-    },
-    "GITHUB_CLIENT_ID": {
-      "required": true
-    },
-    "GITHUB_CLIENT_SECRET": {
-      "required": true
-    },
     "HEROKU_APP_ID": {
       "required": true
     },
@@ -52,18 +31,6 @@
       "required": true
     },
     "HEROKU_SLUG_DESCRIPTION": {
-      "required": true
-    },
-    "NEW_RELIC_API_KEY": {
-      "required": true
-    },
-    "NEW_RELIC_APP_NAME": {
-      "required": true
-    },
-    "NEW_RELIC_CONFIG_FILE": {
-      "required": true
-    },
-    "NEW_RELIC_LICENSE_KEY": {
       "required": true
     },
     "PULSE_PUSH_SOURCES": {
@@ -86,38 +53,6 @@
     }
   },
   "formation": {
-    "pulse_listener_jobs": {
-      "quantity": 1,
-      "size": "Standard-1X"
-    },
-    "worker_store_pulse_old": {
-      "quantity": 1,
-      "size": "Standard-1X"
-    },
-    "worker_store_pulse_data": {
-      "quantity": 1,
-      "size": "Standard-1X"
-    },
-    "pulse_listener_tasks": {
-      "quantity": 1,
-      "size": "Standard-1X"
-    },
-    "celery_scheduler": {
-      "quantity": 1,
-      "size": "Standard-1X"
-    },
-    "worker_log_parser": {
-      "quantity": 1,
-      "size": "Standard-1X"
-    },
-    "worker_misc": {
-      "quantity": 1,
-      "size": "Standard-1X"
-    },
-    "pulse_listener_pushes": {
-      "quantity": 1,
-      "size": "Standard-1X"
-    },
     "web": {
       "quantity": 1,
       "size": "Standard-1X"
