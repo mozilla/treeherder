@@ -36,7 +36,7 @@ class TestFailure extends React.PureComponent {
       });
       return;
     }
-    JobModel.retrigger([job], repo, notify);
+    JobModel.retrigger([job], notify);
   };
 
   render() {
@@ -140,10 +140,10 @@ class TestFailure extends React.PureComponent {
                   </Row>
                 </div>
               ) : (
-                <div className="pre-wrap text-break">
-                  {!!logLine.subtest && logLine.subtest.substr(0, 200)}
-                </div>
-              )}
+                  <div className="pre-wrap text-break">
+                    {!!logLine.subtest && logLine.subtest.substr(0, 200)}
+                  </div>
+                )}
             </Row>
           ))}
         <div>

@@ -142,7 +142,7 @@ class ActionBar extends React.PureComponent {
       });
     });
 
-    JobModel.retrigger(jobs, repoName, notify);
+    JobModel.retrigger(jobs, notify);
   };
 
   backfillJob = async () => {
@@ -482,7 +482,7 @@ class ActionBar extends React.PureComponent {
                     id="backfill-btn"
                     className={`btn dropdown-item ${
                       !user.isLoggedIn || !this.canBackfill() ? 'disabled' : ''
-                    }`}
+                      }`}
                     title={this.backfillButtonTitle()}
                     onClick={() => !this.canBackfill() || this.backfillJob()}
                   >

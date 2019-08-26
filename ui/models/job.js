@@ -83,7 +83,7 @@ export default class JobModel {
     return JobModel.getList(options, config);
   }
 
-  static async retrigger(jobs, repoName, notify, times = 1) {
+  static async retrigger(jobs, notify, times = 1) {
     const jobTerm = jobs.length > 1 ? 'jobs' : 'job';
 
     try {

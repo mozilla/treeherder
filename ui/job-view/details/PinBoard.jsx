@@ -351,7 +351,7 @@ class PinBoard extends React.Component {
   retriggerAllPinnedJobs = () => {
     const { pinnedJobs, notify, repoName } = this.props;
 
-    JobModel.retrigger(Object.values(pinnedJobs), repoName, notify);
+    JobModel.retrigger(Object.values(pinnedJobs), notify);
   };
 
   render() {
@@ -394,7 +394,7 @@ class PinBoard extends React.Component {
                       selectedJobId === job.id
                         ? 'btn-lg selected-job'
                         : 'btn-xs'
-                    }`}
+                      }`}
                     title={job.hoverText}
                     onClick={() => setSelectedJob(job)}
                     data-job-id={job.job_id}
@@ -406,7 +406,7 @@ class PinBoard extends React.Component {
                       selectedJobId === job.id
                         ? 'btn-lg selected-job'
                         : 'btn-xs'
-                    }`}
+                      }`}
                     onClick={() => unPinJob(job)}
                     title="un-pin this job"
                   >
@@ -562,7 +562,7 @@ class PinBoard extends React.Component {
                   !isLoggedIn || !this.canSaveClassifications()
                     ? 'disabled'
                     : ''
-                }`}
+                  }`}
                 outline
                 title={this.saveUITitle('classification')}
                 onClick={this.save}
@@ -574,7 +574,7 @@ class PinBoard extends React.Component {
                   !this.hasPinnedJobs() && !this.pinboardIsDirty()
                     ? 'disabled'
                     : ''
-                }`}
+                  }`}
                 title={
                   !this.hasPinnedJobs() && !this.pinboardIsDirty()
                     ? 'No pinned jobs'
@@ -602,7 +602,7 @@ class PinBoard extends React.Component {
                   <Button
                     className={`${
                       this.canCancelAllPinnedJobs() ? '' : 'disabled'
-                    } dropdown-item`}
+                      } dropdown-item`}
                     onClick={() =>
                       this.canCancelAllPinnedJobs() &&
                       this.cancelAllPinnedJobs()
