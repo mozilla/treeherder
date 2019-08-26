@@ -14,6 +14,8 @@ these categories.
 
 ## Treeherder
 
+Test the following:
+
 1. Initial page loads. Can load more jobs with **Next N** buttons.
 2. Switch repos.
 3. Classify a job.
@@ -21,7 +23,15 @@ these categories.
 5. Add new jobs and click **Trigger** button on try.
 6. Hit `n` key to select next failed job. Hit again should cycle through each.
 7. Change filtering to ensure they take effect.
-8. Login / Logout
+   - Try typing "Linux" or "Win" in the search string box.
+8. Toggle unclassified-only mode and back
+
+   - Select an orange job
+   - Click on link to filter that kind of job
+   - Press letter 'U' to toggle between unclassified jobs and all jobs
+   - You should be switching between all jobs of that kind and the orange ones that have not been classified
+
+9. Login / Logout
 
 ## Perfherder
 
@@ -31,5 +41,6 @@ these categories.
 
 ## Ask Sheriffs
 
-1. Ask in `#sheriffs` to test their workflows.
+1. Ping with the word `sheriff` in the `#treeherder` channel and request them
+   to test their workflows.
 2. Test around any high-risk commits since last deploy.
