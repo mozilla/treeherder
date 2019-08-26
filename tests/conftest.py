@@ -15,6 +15,8 @@ from treeherder.etl.jobs import store_job_data
 from treeherder.etl.push import store_push_data
 from treeherder.model.models import (Commit,
                                      JobNote,
+                                     Option,
+                                     OptionCollection,
                                      Push,
                                      TextLogErrorMetadata,
                                      User)
@@ -723,3 +725,15 @@ def generate_enough_perf_datum(test_repository, test_perf_signature):
                                         signature=test_perf_signature,
                                         value=value,
                                         push_timestamp=push.time)
+
+
+@pytest.fixture
+def sample_option_collections(transactional_db):
+    option1 = Option.objects.create(name='opt1')
+    option2 = Option.objects.create(name='opt2')
+    OptionCollection.objects.create(
+        option_collection_hash='option_hash1',
+        option=option1)
+    OptionCollection.objects.create(
+        option_collection_hash='option_hash2',
+        option=option2)
