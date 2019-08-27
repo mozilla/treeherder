@@ -19,6 +19,7 @@ import {
 import { getFrameworkData } from '../helpers';
 import TruncatedText from '../../shared/TruncatedText';
 import LoadingSpinner from '../../shared/LoadingSpinner';
+import { scrollToLine } from '../../helpers/utils';
 
 import RevisionInformation from './RevisionInformation';
 import CompareTableControls from './CompareTableControls';
@@ -45,8 +46,15 @@ export default class CompareTableView extends React.Component {
   }
 
   componentDidUpdate(prevProps) {
+    const { loading } = this.state;
+    const { hashFragment } = this.props;
+
     if (this.props !== prevProps) {
       this.getPerformanceData();
+    }
+
+    if (!loading && hashFragment) {
+      scrollToLine(`#${hashFragment}`, 100);
     }
   }
 
@@ -164,7 +172,7 @@ export default class CompareTableView extends React.Component {
       frameworks,
     } = this.props.validated;
 
-    const { filterByFramework, hasSubtests } = this.props;
+    const { filterByFramework, hasSubtests, onPermalinkClick } = this.props;
     const {
       compareResults,
       loading,
@@ -268,6 +276,7 @@ export default class CompareTableView extends React.Component {
                 {...this.props}
                 dropdownOptions={compareDropdowns}
                 updateState={state => this.setState(state)}
+                onPermalinkClick={onPermalinkClick}
                 compareResults={compareResults}
                 showTestsWithNoise={
                   testsWithNoise.length > 0 && (
@@ -311,8 +320,9 @@ CompareTableView.propTypes = {
   getDisplayResults: PropTypes.func.isRequired,
   getQueryParams: PropTypes.func.isRequired,
   hasSubtests: PropTypes.bool,
+  onPermalinkClick: PropTypes.func.isRequired,
+  hashFragment: PropTypes.string,
   $stateParams: PropTypes.shape({}).isRequired,
-  $state: PropTypes.shape({}).isRequired,
 };
 
 CompareTableView.defaultProps = {
@@ -320,4 +330,5 @@ CompareTableView.defaultProps = {
   filterByFramework: null,
   validated: PropTypes.shape({}),
   hasSubtests: false,
+  hashFragment: '',
 };

@@ -69,10 +69,23 @@ const result = [
 
 const results = new Map([['a11yr pgo e10s stylo', result]]);
 
+const regexComptableHeaderId = /table-header-\d+/;
+const regexComptableRowId = /table-row-\d+/;
+
 afterEach(cleanup);
 
-const compareTableControls = () =>
-  render(<CompareTableControls compareResults={results} filterOptions={{}} />);
+const compareTableControls = onPermalinkClick => {
+  // eslint-disable-next-line no-unused-vars
+  const handlePermalinkClick = onPermalinkClick || (hashBasedValue => {});
+
+  return render(
+    <CompareTableControls
+      compareResults={results}
+      filterOptions={{}}
+      onPermalinkClick={handlePermalinkClick}
+    />,
+  );
+};
 
 test('toggle buttons should filter results by selected filter', async () => {
   const { getByText } = compareTableControls();
@@ -129,4 +142,66 @@ test('text input filter results should differ when filter button(s) are selected
   expect(hideUncertain).toHaveClass('active');
   expect(result1).not.toBeInTheDocument();
   expect(result2).not.toBeInTheDocument();
+});
+
+test('table header & rows all have hash-based ids', async () => {
+  const { getByLabelText, getAllByLabelText } = compareTableControls();
+
+  const compareTable = await waitForElement(() =>
+    getByLabelText('Comparison table'),
+  );
+  const compareTableRows = await waitForElement(() =>
+    getAllByLabelText('Comparison table row'),
+  );
+
+  // ensure structure is the one we expect
+  expect(compareTable).toHaveAttribute(
+    'id',
+    expect.stringMatching(regexComptableHeaderId),
+  );
+  compareTableRows.forEach(row => {
+    expect(row).toHaveAttribute(
+      'id',
+      expect.stringMatching(regexComptableRowId),
+    );
+  });
+
+  // each hash suffix is unique
+  const tableSections = [compareTable, ...compareTableRows];
+  const allHashSuffixes = tableSections.map(
+    section => /table-\w+-(\d+)/g.exec(section.id)[1],
+  );
+  const uniqueHashSuffixes = [...new Set(allHashSuffixes)];
+
+  expect(uniqueHashSuffixes).toHaveLength(tableSections.length);
+});
+
+test('clicking compare table permalinks callbacks with unique hash-based ids', async () => {
+  const mockHandlePermalinkClick = jest.fn();
+  const { getByTitle, getAllByTitle } = compareTableControls(
+    mockHandlePermalinkClick,
+  );
+
+  const compareTablePermalink = await waitForElement(() =>
+    getByTitle('Permalink to this test table'),
+  );
+  const compareTableRowPermalinks = await waitForElement(() =>
+    getAllByTitle('Permalink to this test'),
+  );
+
+  fireEvent.click(compareTablePermalink);
+
+  expect(mockHandlePermalinkClick.mock.calls).toHaveLength(1);
+  expect(mockHandlePermalinkClick.mock.calls[0][0]).toMatch(
+    regexComptableHeaderId,
+  );
+
+  for (let i = 1; i <= compareTableRowPermalinks.length; i++) {
+    fireEvent.click(compareTableRowPermalinks[i - 1]);
+
+    expect(mockHandlePermalinkClick.mock.calls).toHaveLength(1 + i);
+    expect(mockHandlePermalinkClick.mock.calls[i][0]).toMatch(
+      regexComptableRowId,
+    );
+  }
 });

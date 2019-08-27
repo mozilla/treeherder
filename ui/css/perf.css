@@ -189,6 +189,10 @@ h1 {
 
 /* Compare interface stuff */
 
+.permalink:hover {
+  background-color: rgba(168, 169, 167, 0.9);
+}
+
 .push-information {
   font-size: 18px;
   color: #777;
@@ -249,13 +253,17 @@ th {
   cursor: default;
 }
 
-.compare-table .subtest-header > th {
+.compare-table .subtest-header > th,
+.compare-table .subtest-header a,
+.compare-table .subtest-header button {
   color: transparent;
   transition: color 150ms ease-in-out;
 }
 
 .compare-table .subtest-header > th:first-child,
 .compare-table:hover .subtest-header > th,
+.compare-table:hover .subtest-header a,
+.compare-table:hover .subtest-header button,
 .compare-table {
   color: #333;
 }
@@ -265,7 +273,8 @@ th {
 }
 
 .compare-table .result-links span,
-.compare-table .result-links a {
+.compare-table .result-links a,
+.compare-table .result-links button {
   color: transparent;
   transition: color 150ms ease-in-out;
 }
@@ -274,7 +283,8 @@ th {
   color: #333;
 }
 
-.compare-table tr:hover .result-links a {
+.compare-table tr:hover .result-links a,
+.compare-table tr:hover .result-links button {
   color: #23527c;
 }
 

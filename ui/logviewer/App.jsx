@@ -4,6 +4,7 @@ import { LazyLog } from 'react-lazylog';
 import isEqual from 'lodash/isEqual';
 
 import { getAllUrlParams, getUrlParam, setUrlParam } from '../helpers/location';
+import { scrollToLine } from '../helpers/utils';
 import { isReftest } from '../helpers/job';
 import { getJobsUrl, getReftestUrl } from '../helpers/url';
 import JobModel from '../models/job';
@@ -155,19 +156,7 @@ class App extends React.PureComponent {
   scrollHighlightToTop = highlight => {
     const lineAtTop = highlight && highlight[0] > 7 ? highlight[0] - 7 : 0;
 
-    this.scrollToLine(`a[id="${lineAtTop}"]`, 100);
-  };
-
-  scrollToLine = (selector, time, iteration = 0) => {
-    const line = document.querySelector(selector);
-
-    if (line !== null) {
-      line.scrollIntoView(true);
-      return;
-    }
-    if (iteration < 10) {
-      setTimeout(() => this.scrollToLine(selector, time, iteration + 1), time);
-    }
+    scrollToLine(`a[id="${lineAtTop}"]`, 100);
   };
 
   updateQuery = () => {

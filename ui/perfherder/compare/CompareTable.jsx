@@ -1,15 +1,17 @@
 import React from 'react';
-import { Table } from 'reactstrap';
+import { Button, Table } from 'reactstrap';
 import PropTypes from 'prop-types';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import {
   faExclamationTriangle,
   faThumbsUp,
+  faHashtag,
 } from '@fortawesome/free-solid-svg-icons';
 
 import SimpleTooltip from '../../shared/SimpleTooltip';
 import { displayNumber } from '../helpers';
 import ProgressBar from '../ProgressBar';
+import { hashFunction } from '../../helpers/utils';
 
 import TableAverage from './TableAverage';
 
@@ -28,14 +30,44 @@ export default class CompareTable extends React.PureComponent {
       displayNumber(percentage),
     )}% ${improvement ? 'better' : 'worse'})`;
 
+  // humane readable signature name
+  getSignatureName = (testName, platformName) =>
+    [testName, platformName].filter(item => item !== null).join(' ');
+
+  getHashBasedId = (testName, platformName = null) => {
+    const { hashFunction } = this.props;
+
+    const tableSection = platformName === null ? 'header' : 'row';
+    const hashValue = hashFunction(
+      this.getSignatureName(testName, platformName),
+    );
+
+    return `table-${tableSection}-${hashValue}`;
+  };
+
   render() {
-    const { data, testName } = this.props;
+    const { data, onPermalinkClick, testName } = this.props;
+
     return (
-      <Table sz="small" className="compare-table mb-0 px-0" key={testName}>
+      <Table
+        id={this.getHashBasedId(testName)}
+        aria-label="Comparison table"
+        sz="small"
+        className="compare-table mb-0 px-0"
+        key={testName}
+      >
         <thead>
           <tr className="subtest-header bg-lightgray">
             <th className="text-left">
               <span>{testName}</span>
+              <Button
+                className="permalink p-0 ml-1"
+                color="link"
+                onClick={() => onPermalinkClick(this.getHashBasedId(testName))}
+                title="Permalink to this test table"
+              >
+                <FontAwesomeIcon icon={faHashtag} />
+              </Button>
             </th>
             <th className="table-width-lg">Base</th>
             {/* empty for less than/greater than data */}
@@ -50,18 +82,35 @@ export default class CompareTable extends React.PureComponent {
         </thead>
         <tbody>
           {data.map(results => (
-            <tr key={results.name}>
+            <tr
+              id={this.getHashBasedId(testName, results.name)}
+              aria-label="Comparison table row"
+              key={results.name}
+            >
               <th className="text-left font-weight-normal pl-1">
                 {results.name}
-                {results.links && (
-                  <span className="result-links">
-                    {results.links.map(link => (
+                <span className="result-links">
+                  <span>
+                    <Button
+                      className="permalink p-0 ml-1"
+                      color="link"
+                      onClick={() =>
+                        onPermalinkClick(
+                          this.getHashBasedId(testName, results.name),
+                        )
+                      }
+                      title="Permalink to this test"
+                    >
+                      <FontAwesomeIcon icon={faHashtag} />
+                    </Button>
+                  </span>
+                  {results.links &&
+                    results.links.map(link => (
                       <span key={link.title}>
                         <a href={link.href}>{` ${link.title}`}</a>
                       </span>
                     ))}
-                  </span>
-                )}
+                </span>
               </th>
               <TableAverage
                 value={results.originalValue}
@@ -160,8 +209,11 @@ export default class CompareTable extends React.PureComponent {
 CompareTable.propTypes = {
   data: PropTypes.arrayOf(PropTypes.shape({})),
   testName: PropTypes.string.isRequired,
+  hashFunction: PropTypes.func,
+  onPermalinkClick: PropTypes.func.isRequired,
 };
 
 CompareTable.defaultProps = {
   data: null,
+  hashFunction,
 };

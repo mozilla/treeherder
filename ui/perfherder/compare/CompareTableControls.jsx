@@ -107,7 +107,11 @@ export default class CompareTableControls extends React.Component {
   };
 
   render() {
-    const { showTestsWithNoise, dropdownOptions } = this.props;
+    const {
+      showTestsWithNoise,
+      dropdownOptions,
+      onPermalinkClick,
+    } = this.props;
     const {
       hideUncomparable,
       hideUncertain,
@@ -157,7 +161,12 @@ export default class CompareTableControls extends React.Component {
 
         {results.size > 0 ? (
           Array.from(results).map(([testName, data]) => (
-            <CompareTable key={testName} data={data} testName={testName} />
+            <CompareTable
+              onPermalinkClick={onPermalinkClick}
+              key={testName}
+              data={data}
+              testName={testName}
+            />
           ))
         ) : (
           <p className="lead text-center">No results to show</p>
@@ -180,6 +189,7 @@ CompareTableControls.propTypes = {
     PropTypes.shape({}),
     PropTypes.bool,
   ]),
+  onPermalinkClick: PropTypes.func.isRequired,
 };
 
 CompareTableControls.defaultProps = {

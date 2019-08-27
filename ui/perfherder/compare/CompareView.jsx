@@ -16,7 +16,7 @@ import withValidation from '../Validation';
 
 import CompareTableView from './CompareTableView';
 
-// TODO remove $stateParams and $state after switching to react router
+// TODO remove $location, $scope, $stateParams and $state after switching to react router
 export class CompareView extends React.PureComponent {
   getInterval = (oldTimestamp, newTimestamp) => {
     const now = new Date().getTime() / 1000;
@@ -228,12 +228,26 @@ export class CompareView extends React.PureComponent {
     return updates;
   };
 
+  onPermalinkClick = hashBasedValue => {
+    const { $location, $scope } = this.props;
+
+    $location.hash(hashBasedValue);
+    $scope.$apply();
+  };
+
+  getHashFragment = () => {
+    const { $location } = this.props;
+    return $location.hash();
+  };
+
   render() {
     return (
       <CompareTableView
         {...this.props}
         getQueryParams={this.getQueryParams}
         getDisplayResults={this.getDisplayResults}
+        onPermalinkClick={this.onPermalinkClick}
+        hashFragment={this.getHashFragment()}
         filterByFramework
       />
     );
@@ -273,7 +287,11 @@ const compareView = withValidation(requiredParams)(CompareView);
 
 perf.component(
   'compareView',
-  react2angular(compareView, [], ['$stateParams', '$state']),
+  react2angular(
+    compareView,
+    [],
+    ['$location', '$scope', '$stateParams', '$state'],
+  ),
 );
 
 export default compareView;
