@@ -59,7 +59,7 @@ class PerformanceSignature(models.Model):
     # extra options to distinguish the test (that don't fit into
     # option collection for whatever reason)
     # generous max_length permits up to 8 verbose option names
-    extra_options = models.CharField(max_length=360, blank=True)
+    extra_options = models.CharField(max_length=422, blank=True)
 
     # TODO: reduce length to minimum value
     # TODO: make this nonnullable, once we demand

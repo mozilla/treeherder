@@ -1,66 +1,45 @@
-import logging
+import os
 
 import simplejson as json
-from requests.exceptions import HTTPError
-
-from treeherder.etl.artifact import (serialize_artifact_json_blobs,
-                                     store_job_artifacts)
-from treeherder.log_parser.artifactbuildercollection import (ArtifactBuilderCollection,
-                                                             LogSizeException)
-from treeherder.model.models import JobLog
-
-logger = logging.getLogger(__name__)
+from jsonschema import (ValidationError,
+                        validate)
 
 
-def extract_text_log_artifacts(job_log):
-    """Generate a set of artifacts by parsing from the raw text log."""
-
-    # parse a log given its url
-    artifact_bc = ArtifactBuilderCollection(job_log.url)
-    artifact_bc.parse()
-
-    artifact_list = []
-    for name, artifact in artifact_bc.artifacts.items():
-        artifact_list.append({
-            "job_guid": job_log.job.guid,
-            "name": name,
-            "type": 'json',
-            "blob": json.dumps(artifact)
-        })
-
-    return artifact_list
+def _lookup_extra_options_max(schema):
+    return (
+        schema
+        ["definitions"]
+        ["suite_schema"]
+        ["properties"]
+        ["extraOptions"]
+        ["items"]
+        ["maxLength"]
+    )
 
 
-def post_log_artifacts(job_log):
-    """Post a list of artifacts to a job."""
-    logger.debug("Downloading/parsing log for log %s", job_log.id)
+with open(os.path.join('schemas', 'performance-artifact.json')) as f:
+    PERFHERDER_SCHEMA = json.load(f)
+    MAX_LENGTH = _lookup_extra_options_max(PERFHERDER_SCHEMA)
+    SECOND_MAX_LENGTH = 45
 
-    try:
-        artifact_list = extract_text_log_artifacts(job_log)
-    except LogSizeException as e:
-        job_log.update_status(JobLog.SKIPPED_SIZE)
-        logger.warning('Skipping parsing log for %s: %s', job_log.id, e)
-        return
-    except Exception as e:
-        job_log.update_status(JobLog.FAILED)
 
-        # Unrecoverable http error (doesn't exist or permission denied).
-        # Apparently this can happen somewhat often with taskcluster if
-        # the job fails (bug 1154248), so just warn rather than raising,
-        # to prevent the noise/load from retrying.
-        if isinstance(e, HTTPError) and e.response.status_code in (403, 404):
-            logger.warning("Unable to retrieve log for %s: %s", job_log.id, e)
-            return
+def validate_perf_data(performance_data: dict):
+    validate(performance_data, PERFHERDER_SCHEMA)
 
-        logger.error("Failed to download/parse log for %s: %s", job_log.id, e)
-        raise
+    expected_range = (SECOND_MAX_LENGTH, MAX_LENGTH)
+    for suite in performance_data["suites"]:
+        # allow only one extraOption longer than 45
+        if len(_long_options(_extra_options(suite), *expected_range)) > 1:
+            raise ValidationError("Too many extra options longer than {}".format(SECOND_MAX_LENGTH))
 
-    try:
-        serialized_artifacts = serialize_artifact_json_blobs(artifact_list)
-        store_job_artifacts(serialized_artifacts)
-        job_log.update_status(JobLog.PARSED)
-        logger.debug("Stored artifact for %s %s", job_log.job.repository.name,
-                     job_log.job.id)
-    except Exception as e:
-        logger.error("Failed to store parsed artifact for %s: %s", job_log.id, e)
-        raise
+
+def _long_options(all_extra_options: list, second_max: int, first_max: int):
+    long_elements = []
+    for element in all_extra_options:
+        if second_max < len(element) < first_max + 1:
+            long_elements.append(element)
+    return long_elements
+
+
+def _extra_options(suite: dict):
+    return suite.get("extraOptions", [])
