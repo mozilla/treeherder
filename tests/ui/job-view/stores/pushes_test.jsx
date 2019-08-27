@@ -250,7 +250,7 @@ describe('Pushes Redux store', () => {
   });
 
   test('should get new unclassified counts with recalculateUnclassifiedCounts', async () => {
-    setUrlParam('job_type_symbol', 'cpp');
+    setUrlParam('job_type_symbol', 'B');
     const { data: jobList } = await JobModel.getList({ push_id: 1 });
 
     const state = reducer(
@@ -261,7 +261,7 @@ describe('Pushes Redux store', () => {
     const reduced = reducer(state, { type: RECALCULATE_UNCLASSIFIED_COUNTS });
 
     expect(Object.keys(reduced.jobMap)).toHaveLength(4);
-    expect(reduced.allUnclassifiedFailureCount).toEqual(2);
+    expect(reduced.allUnclassifiedFailureCount).toEqual(1);
     expect(reduced.filteredUnclassifiedFailureCount).toEqual(1);
   });
 
