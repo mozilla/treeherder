@@ -2,9 +2,9 @@ import responses
 from jsonschema import validate
 
 from tests.test_utils import add_log_response
-from treeherder.etl.perf import PERFHERDER_SCHEMA
 from treeherder.log_parser.artifactbuildercollection import ArtifactBuilderCollection
 from treeherder.log_parser.artifactbuilders import BuildbotPerformanceDataArtifactBuilder
+from treeherder.log_parser.utils import PERFHERDER_SCHEMA
 
 
 @responses.activate

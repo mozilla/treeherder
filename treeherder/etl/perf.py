@@ -1,11 +1,10 @@
 import copy
 import logging
-import os
 from hashlib import sha1
 
 import simplejson as json
-from jsonschema import validate
 
+from treeherder.log_parser.utils import validate_perf_data
 from treeherder.model.models import OptionCollection
 from treeherder.perf.models import (PerformanceDatum,
                                     PerformanceFramework,
@@ -13,10 +12,6 @@ from treeherder.perf.models import (PerformanceDatum,
 from treeherder.perf.tasks import generate_alerts
 
 logger = logging.getLogger(__name__)
-
-
-PERFHERDER_SCHEMA = json.load(open(os.path.join('schemas',
-                                                'performance-artifact.json')))
 
 
 def _get_signature_hash(signature_properties):
@@ -53,7 +48,7 @@ def _create_or_update_signature(repository, signature_hash, framework, defaults)
 
 
 def _load_perf_datum(job, perf_datum):
-    validate(perf_datum, PERFHERDER_SCHEMA)
+    validate_perf_data(perf_datum)
 
     extra_properties = {}
     extra_options = ''
