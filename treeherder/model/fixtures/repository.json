@@ -10,7 +10,8 @@
       "codebase": "gecko",
       "repository_group": 1,
       "description": "",
-      "expire_performance_data": false
+      "expire_performance_data": false,
+      "tc_root_url": "https//taskcluster.net"
     }
   },
   {
@@ -25,7 +26,8 @@
       "repository_group": 1,
       "description": "",
       "performance_alerts_enabled": true,
-      "expire_performance_data": false
+      "expire_performance_data": false,
+      "tc_root_url": "https//taskcluster.net"
     }
   },
   {
@@ -38,7 +40,8 @@
       "active_status": "onhold",
       "codebase": "gecko",
       "repository_group": 1,
-      "description": ""
+      "description": "",
+      "tc_root_url": "https://taskcluster.net"
     }
   },
   {
@@ -52,7 +55,8 @@
       "codebase": "gecko",
       "repository_group": 1,
       "description": "",
-      "is_try_repo": true
+      "is_try_repo": true,
+      "tc_root_url": "https://taskcluster.net"
     }
   },
   {
@@ -67,7 +71,8 @@
       "repository_group": 2,
       "description": "",
       "performance_alerts_enabled": true,
-      "expire_performance_data": false
+      "expire_performance_data": false,
+      "tc_root_url": "https://taskcluster.net"
     }
   },
   {
@@ -82,7 +87,8 @@
       "repository_group": 2,
       "description": "",
       "performance_alerts_enabled": true,
-      "expire_performance_data": false
+      "expire_performance_data": false,
+      "tc_root_url": "https://taskcluster.net"
     }
   },
   {
@@ -97,7 +103,8 @@
       "repository_group": 2,
       "description": "",
       "performance_alerts_enabled": true,
-      "expire_performance_data": false
+      "expire_performance_data": false,
+      "tc_root_url": "https://taskcluster.net"
     }
   },
   {
@@ -110,7 +117,8 @@
       "active_status": "onhold",
       "codebase": "gecko",
       "repository_group": 2,
-      "description": ""
+      "description": "",
+      "tc_root_url": "https://taskcluster.net"
     }
   },
   {
@@ -123,7 +131,8 @@
       "active_status": "onhold",
       "codebase": "gecko",
       "repository_group": 2,
-      "description": ""
+      "description": "",
+      "tc_root_url": "https://taskcluster.net"
     }
   },
   {
@@ -136,7 +145,8 @@
       "active_status": "onhold",
       "codebase": "gecko",
       "repository_group": 2,
-      "description": ""
+      "description": "",
+      "tc_root_url": "https://taskcluster.net"
     }
   },
   {
@@ -149,7 +159,8 @@
       "active_status": "onhold",
       "codebase": "gecko",
       "repository_group": 2,
-      "description": ""
+      "description": "",
+      "tc_root_url": "https://taskcluster.net"
     }
   },
   {
@@ -162,7 +173,8 @@
       "active_status": "onhold",
       "codebase": "jetpack",
       "repository_group": 1,
-      "description": ""
+      "description": "",
+      "tc_root_url": "https://taskcluster.net"
     }
   },
   {
@@ -175,7 +187,8 @@
       "active_status": "onhold",
       "codebase": "gecko",
       "repository_group": 6,
-      "description": ""
+      "description": "",
+      "tc_root_url": "https://taskcluster.net"
     }
   },
   {
@@ -190,7 +203,8 @@
       "repository_group": 1,
       "description": "",
       "performance_alerts_enabled": false,
-      "expire_performance_data": false
+      "expire_performance_data": false,
+      "tc_root_url": "https://taskcluster.net"
     }
   },
   {
@@ -203,7 +217,8 @@
       "active_status": "onhold",
       "codebase": "gecko",
       "repository_group": 6,
-      "description": ""
+      "description": "",
+      "tc_root_url": "https://taskcluster.net"
     }
   },
   {
@@ -216,7 +231,8 @@
       "active_status": "onhold",
       "codebase": "gecko",
       "repository_group": 6,
-      "description": ""
+      "description": "",
+      "tc_root_url": "https://taskcluster.net"
     }
   },
   {
@@ -229,7 +245,8 @@
       "active_status": "onhold",
       "codebase": "gecko",
       "repository_group": 6,
-      "description": ""
+      "description": "",
+      "tc_root_url": "https://taskcluster.net"
     }
   },
   {
@@ -242,7 +259,8 @@
       "active_status": "onhold",
       "codebase": "gecko",
       "repository_group": 6,
-      "description": ""
+      "description": "",
+      "tc_root_url": "https://taskcluster.net"
     }
   },
   {
@@ -255,7 +273,8 @@
       "active_status": "active",
       "codebase": "gecko",
       "repository_group": 6,
-      "description": ""
+      "description": "",
+      "tc_root_url": "https://taskcluster.net"
     }
   },
   {
@@ -268,7 +287,8 @@
       "active_status": "active",
       "codebase": "gecko",
       "repository_group": 6,
-      "description": ""
+      "description": "",
+      "tc_root_url": "https://taskcluster.net"
     }
   },
   {
@@ -281,7 +301,8 @@
       "active_status": "active",
       "codebase": "gecko",
       "repository_group": 6,
-      "description": ""
+      "description": "",
+      "tc_root_url": "https://taskcluster.net"
     }
   },
   {
@@ -294,7 +315,8 @@
       "active_status": "onhold",
       "codebase": "gecko",
       "repository_group": 6,
-      "description": ""
+      "description": "",
+      "tc_root_url": "https://taskcluster.net"
     }
   },
   {
@@ -307,7 +329,8 @@
       "active_status": "onhold",
       "codebase": "gecko",
       "repository_group": 6,
-      "description": ""
+      "description": "",
+      "tc_root_url": "https://taskcluster.net"
     }
   },
   {
@@ -320,7 +343,8 @@
       "active_status": "active",
       "codebase": "gecko",
       "repository_group": 6,
-      "description": ""
+      "description": "",
+      "tc_root_url": "https://taskcluster.net"
     }
   },
   {
@@ -333,7 +357,8 @@
       "active_status": "onhold",
       "codebase": "gecko",
       "repository_group": 6,
-      "description": ""
+      "description": "",
+      "tc_root_url": "https://taskcluster.net"
     }
   },
   {
@@ -346,7 +371,8 @@
       "active_status": "onhold",
       "codebase": "gecko",
       "repository_group": 6,
-      "description": ""
+      "description": "",
+      "tc_root_url": "https://taskcluster.net"
     }
   },
   {
@@ -359,7 +385,8 @@
       "active_status": "active",
       "codebase": "gecko",
       "repository_group": 6,
-      "description": ""
+      "description": "",
+      "tc_root_url": "https://taskcluster.net"
     }
   },
   {
@@ -372,7 +399,8 @@
       "active_status": "active",
       "codebase": "gecko",
       "repository_group": 6,
-      "description": ""
+      "description": "",
+      "tc_root_url": "https://taskcluster.net"
     }
   },
   {
@@ -385,7 +413,8 @@
       "active_status": "active",
       "codebase": "gecko",
       "repository_group": 6,
-      "description": ""
+      "description": "",
+      "tc_root_url": "https://taskcluster.net"
     }
   },
   {
@@ -398,7 +427,8 @@
       "active_status": "active",
       "codebase": "gecko",
       "repository_group": 6,
-      "description": ""
+      "description": "",
+      "tc_root_url": "https://taskcluster.net"
     }
   },
   {
@@ -411,7 +441,8 @@
       "active_status": "active",
       "codebase": "gecko",
       "repository_group": 6,
-      "description": ""
+      "description": "",
+      "tc_root_url": "https://taskcluster.net"
     }
   },
   {
@@ -424,7 +455,8 @@
       "active_status": "active",
       "codebase": "gecko",
       "repository_group": 6,
-      "description": ""
+      "description": "",
+      "tc_root_url": "https://taskcluster.net"
     }
   },
   {
@@ -437,7 +469,8 @@
       "active_status": "active",
       "codebase": "comm",
       "repository_group": 8,
-      "description": ""
+      "description": "",
+      "tc_root_url": "https://taskcluster.net"
     }
   },
   {
@@ -451,7 +484,8 @@
       "codebase": "comm",
       "repository_group": 8,
       "description": "",
-      "is_try_repo": true
+      "is_try_repo": true,
+      "tc_root_url": "https://taskcluster.net"
     }
   },
   {
@@ -464,7 +498,8 @@
       "active_status": "onhold",
       "codebase": "comm",
       "repository_group": 8,
-      "description": ""
+      "description": "",
+      "tc_root_url": "https://taskcluster.net"
     }
   },
   {
@@ -477,7 +512,8 @@
       "active_status": "active",
       "codebase": "comm",
       "repository_group": 8,
-      "description": ""
+      "description": "",
+      "tc_root_url": "https://taskcluster.net"
     }
   },
   {
@@ -490,7 +526,8 @@
       "active_status": "onhold",
       "codebase": "comm",
       "repository_group": 8,
-      "description": ""
+      "description": "",
+      "tc_root_url": "https://taskcluster.net"
     }
   },
   {
@@ -503,7 +540,8 @@
       "active_status": "onhold",
       "codebase": "gecko",
       "repository_group": 6,
-      "description": ""
+      "description": "",
+      "tc_root_url": "https://taskcluster.net"
     }
   },
   {
@@ -516,7 +554,8 @@
       "active_status": "onhold",
       "codebase": "",
       "repository_group": 1,
-      "description": ""
+      "description": "",
+      "tc_root_url": "https://taskcluster.net"
     }
   },
   {
@@ -529,7 +568,8 @@
       "active_status": "onhold",
       "codebase": "gecko",
       "repository_group": 2,
-      "description": ""
+      "description": "",
+      "tc_root_url": "https://taskcluster.net"
     }
   },
   {
@@ -543,7 +583,8 @@
       "active_status": "onhold",
       "codebase": "gaia",
       "repository_group": 1,
-      "description": ""
+      "description": "",
+      "tc_root_url": "https://taskcluster.net"
     }
   },
   {
@@ -556,7 +597,8 @@
       "active_status": "onhold",
       "codebase": "gecko",
       "repository_group": 2,
-      "description": ""
+      "description": "",
+      "tc_root_url": "https://taskcluster.net"
     }
   },
   {
@@ -569,7 +611,8 @@
       "active_status": "onhold",
       "codebase": "taskcluster",
       "repository_group": 4,
-      "description": "taskcluster integration test dumping ground."
+      "description": "taskcluster integration test dumping ground.",
+      "tc_root_url": "https://taskcluster.net"
     }
   },
   {
@@ -583,7 +626,8 @@
       "active_status": "onhold",
       "codebase": "gaia",
       "repository_group": 4,
-      "description": "Gaia master branch"
+      "description": "Gaia master branch",
+      "tc_root_url": "https://taskcluster.net"
     }
   },
   {
@@ -596,7 +640,8 @@
       "active_status": "onhold",
       "codebase": "gaia",
       "repository_group": 4,
-      "description": ""
+      "description": "",
+      "tc_root_url": "https://taskcluster.net"
     }
   },
   {
@@ -609,7 +654,8 @@
       "active_status": "onhold",
       "codebase": "gecko",
       "repository_group": 4,
-      "description": ""
+      "description": "",
+      "tc_root_url": "https://taskcluster.net"
     }
   },
   {
@@ -622,7 +668,8 @@
       "active_status": "onhold",
       "codebase": "gaia",
       "repository_group": 1,
-      "description": ""
+      "description": "",
+      "tc_root_url": "https://taskcluster.net"
     }
   },
   {
@@ -635,7 +682,8 @@
       "active_status": "onhold",
       "codebase": "gecko",
       "repository_group": 2,
-      "description": ""
+      "description": "",
+      "tc_root_url": "https://taskcluster.net"
     }
   },
   {
@@ -648,7 +696,8 @@
       "active_status": "onhold",
       "codebase": "gecko",
       "repository_group": 5,
-      "description": ""
+      "description": "",
+      "tc_root_url": "https://taskcluster.net"
     }
   },
   {
@@ -661,7 +710,8 @@
       "active_status": "onhold",
       "codebase": "gecko",
       "repository_group": 2,
-      "description": ""
+      "description": "",
+      "tc_root_url": "https://taskcluster.net"
     }
   },
   {
@@ -674,7 +724,8 @@
       "active_status": "onhold",
       "codebase": "gecko",
       "repository_group": 2,
-      "description": ""
+      "description": "",
+      "tc_root_url": "https://taskcluster.net"
     }
   },
   {
@@ -687,7 +738,8 @@
       "active_status": "onhold",
       "codebase": "gecko",
       "repository_group": 1,
-      "description": ""
+      "description": "",
+      "tc_root_url": "https://taskcluster.net"
     }
   },
   {
@@ -700,7 +752,8 @@
       "active_status": "onhold",
       "codebase": "gecko",
       "repository_group": 2,
-      "description": ""
+      "description": "",
+      "tc_root_url": "https://taskcluster.net"
     }
   },
   {
@@ -713,7 +766,8 @@
       "active_status": "onhold",
       "codebase": "gecko",
       "repository_group": 2,
-      "description": ""
+      "description": "",
+      "tc_root_url": "https://taskcluster.net"
     }
   },
   {
@@ -726,7 +780,8 @@
       "active_status": "onhold",
       "codebase": "comm",
       "repository_group": 8,
-      "description": ""
+      "description": "",
+      "tc_root_url": "https://taskcluster.net"
     }
   },
   {
@@ -739,7 +794,8 @@
       "active_status": "onhold",
       "codebase": "gecko",
       "repository_group": 2,
-      "description": ""
+      "description": "",
+      "tc_root_url": "https://taskcluster.net"
     }
   },
   {
@@ -752,7 +808,8 @@
       "active_status": "onhold",
       "codebase": "gecko",
       "repository_group": 2,
-      "description": ""
+      "description": "",
+      "tc_root_url": "https://taskcluster.net"
     }
   },
   {
@@ -766,7 +823,8 @@
       "active_status": "onhold",
       "codebase": "bugzilla",
       "repository_group": 4,
-      "description": "A suite of tests to check the quality of the Bugzilla codebase."
+      "description": "A suite of tests to check the quality of the Bugzilla codebase.",
+      "tc_root_url": "https://taskcluster.net"
     }
   },
   {
@@ -780,7 +838,8 @@
       "active_status": "onhold",
       "codebase": "bugzilla",
       "repository_group": 4,
-      "description": "A suite of tests to check the quality of the BMO codebase."
+      "description": "A suite of tests to check the quality of the BMO codebase.",
+      "tc_root_url": "https://taskcluster.net"
     }
   },
   {
@@ -793,7 +852,8 @@
       "active_status": "onhold",
       "codebase": "gecko",
       "repository_group": 2,
-      "description": ""
+      "description": "",
+      "tc_root_url": "https://taskcluster.net"
     }
   },
   {
@@ -806,7 +866,8 @@
       "active_status": "onhold",
       "codebase": "comm",
       "repository_group": 8,
-      "description": ""
+      "description": "",
+      "tc_root_url": "https://taskcluster.net"
     }
   },
   {
@@ -820,7 +881,8 @@
       "active_status": "onhold",
       "codebase": "bugzilla",
       "repository_group": 4,
-      "description": "A suite of tests to check the quality of the Bugzilla 5.0 codebase."
+      "description": "A suite of tests to check the quality of the Bugzilla 5.0 codebase.",
+      "tc_root_url": "https://taskcluster.net"
     }
   },
   {
@@ -834,7 +896,8 @@
       "active_status": "onhold",
       "codebase": "bugzilla",
       "repository_group": 4,
-      "description": "A suite of tests to check the quality of the Bugzilla 4.4 codebase."
+      "description": "A suite of tests to check the quality of the Bugzilla 4.4 codebase.",
+      "tc_root_url": "https://taskcluster.net"
     }
   },
   {
@@ -848,7 +911,8 @@
       "active_status": "onhold",
       "codebase": "bugzilla",
       "repository_group": 4,
-      "description": "A suite of tests to check the quality of the Bugzilla 4.2 codebase."
+      "description": "A suite of tests to check the quality of the Bugzilla 4.2 codebase.",
+      "tc_root_url": "https://taskcluster.net"
     }
   },
   {
@@ -862,7 +926,8 @@
       "active_status": "onhold",
       "codebase": "bugzilla",
       "repository_group": 4,
-      "description": "A suite of tests to check the quality of the BMO codebase."
+      "description": "A suite of tests to check the quality of the BMO codebase.",
+      "tc_root_url": "https://taskcluster.net"
     }
   },
   {
@@ -875,7 +940,8 @@
       "active_status": "onhold",
       "codebase": "gecko",
       "repository_group": 2,
-      "description": ""
+      "description": "",
+      "tc_root_url": "https://taskcluster.net"
     }
   },
   {
@@ -888,7 +954,8 @@
       "active_status": "onhold",
       "codebase": "gecko",
       "repository_group": 2,
-      "description": ""
+      "description": "",
+      "tc_root_url": "https://taskcluster.net"
     }
   },
   {
@@ -902,7 +969,8 @@
       "active_status": "onhold",
       "codebase": "bugzilla",
       "repository_group": 4,
-      "description": "A suite of tests to check the quality of the BMO codebase."
+      "description": "A suite of tests to check the quality of the BMO codebase.",
+      "tc_root_url": "https://taskcluster.net"
     }
   },
   {
@@ -915,7 +983,8 @@
       "active_status": "onhold",
       "codebase": "gecko",
       "repository_group": 2,
-      "description": ""
+      "description": "",
+      "tc_root_url": "https://taskcluster.net"
     }
   },
   {
@@ -928,7 +997,8 @@
       "active_status": "onhold",
       "codebase": "gecko",
       "repository_group": 2,
-      "description": ""
+      "description": "",
+      "tc_root_url": "https://taskcluster.net"
     }
   },
   {
@@ -941,7 +1011,8 @@
       "active_status": "onhold",
       "codebase": "comm",
       "repository_group": 8,
-      "description": ""
+      "description": "",
+      "tc_root_url": "https://taskcluster.net"
     }
   },
   {
@@ -956,7 +1027,8 @@
       "codebase": "servo",
       "repository_group": 10,
       "description": "The Servo Parallel Browser Engine − master",
-      "expire_performance_data": false
+      "expire_performance_data": false,
+      "tc_root_url": "https://taskcluster.net"
     }
   },
   {
@@ -969,7 +1041,8 @@
       "active_status": "active",
       "codebase": "version-control-tools",
       "repository_group": 7,
-      "description": "Version control infrastructure and tooling."
+      "description": "Version control infrastructure and tooling.",
+      "tc_root_url": "https://taskcluster.net"
     }
   },
   {
@@ -984,7 +1057,8 @@
       "repository_group": 1,
       "description": "The destination for automatically landed Firefox commits.",
       "performance_alerts_enabled": true,
-      "expire_performance_data": false
+      "expire_performance_data": false,
+      "tc_root_url": "https://taskcluster.net"
     }
   },
   {
@@ -998,7 +1072,8 @@
       "active_status": "onhold",
       "codebase": "autopush",
       "repository_group": 7,
-      "description": "Mozilla Push server and Push Endpoint."
+      "description": "Mozilla Push server and Push Endpoint.",
+      "tc_root_url": "https://taskcluster.net"
     }
   },
   {
@@ -1011,7 +1086,8 @@
       "active_status": "active",
       "codebase": "nss",
       "repository_group": 7,
-      "description": "Network Security Services."
+      "description": "Network Security Services.",
+      "tc_root_url": "https://taskcluster.net"
     }
   },
   {
@@ -1025,7 +1101,8 @@
       "codebase": "nss",
       "repository_group": 7,
       "description": "Network Security Services.",
-      "is_try_repo": true
+      "is_try_repo": true,
+      "tc_root_url": "https://taskcluster.net"
     }
   },
   {
@@ -1039,7 +1116,8 @@
       "active_status": "onhold",
       "codebase": "example-addon-repo",
       "repository_group": 7,
-      "description": "Example add-on repository for templates and best practices."
+      "description": "Example add-on repository for templates and best practices.",
+      "tc_root_url": "https://taskcluster.net"
     }
   },
   {
@@ -1052,7 +1130,8 @@
       "active_status": "onhold",
       "codebase": "gecko",
       "repository_group": 1,
-      "description": "Testing Servo integration with Gecko"
+      "description": "Testing Servo integration with Gecko",
+      "tc_root_url": "https://taskcluster.net"
     }
   },
   {
@@ -1066,7 +1145,8 @@
       "codebase": "gecko",
       "repository_group": 1,
       "description": "Try repo for Servo integration",
-      "is_try_repo": true
+      "is_try_repo": true,
+      "tc_root_url": "https://taskcluster.net"
     }
   },
   {
@@ -1079,7 +1159,8 @@
       "active_status": "onhold",
       "codebase": "gecko",
       "repository_group": 2,
-      "description": ""
+      "description": "",
+      "tc_root_url": "https://taskcluster.net"
     }
   },
   {
@@ -1092,7 +1173,8 @@
       "active_status": "onhold",
       "codebase": "comm",
       "repository_group": 8,
-      "description": ""
+      "description": "",
+      "tc_root_url": "https://taskcluster.net"
     }
   },
   {
@@ -1106,7 +1188,8 @@
       "active_status": "active",
       "codebase": "servo",
       "repository_group": 7,
-      "description": "GPU renderer for Servo"
+      "description": "GPU renderer for Servo",
+      "tc_root_url": "https://taskcluster.net"
     }
   },
   {
@@ -1120,7 +1203,8 @@
       "active_status": "onhold",
       "codebase": "addon-tests",
       "repository_group": 5,
-      "description": "Tests for Add-ons"
+      "description": "Tests for Add-ons",
+      "tc_root_url": "https://taskcluster.net"
     }
   },
   {
@@ -1134,7 +1218,8 @@
       "active_status": "onhold",
       "codebase": "fxapom",
       "repository_group": 5,
-      "description": "Firefox Account Page Object Model"
+      "description": "Firefox Account Page Object Model",
+      "tc_root_url": "https://taskcluster.net"
     }
   },
   {
@@ -1148,7 +1233,8 @@
       "active_status": "onhold",
       "codebase": "go-bouncer",
       "repository_group": 5,
-      "description": "Go version of the redirector portion of bouncer"
+      "description": "Go version of the redirector portion of bouncer",
+      "tc_root_url": "https://taskcluster.net"
     }
   },
   {
@@ -1162,7 +1248,8 @@
       "active_status": "onhold",
       "codebase": "mozillians-tests",
       "repository_group": 5,
-      "description": "Tests for Mozillians"
+      "description": "Tests for Mozillians",
+      "tc_root_url": "https://taskcluster.net"
     }
   },
   {
@@ -1176,7 +1263,8 @@
       "active_status": "active",
       "codebase": "snippets-service",
       "repository_group": 5,
-      "description": "Snippets Service"
+      "description": "Snippets Service",
+      "tc_root_url": "https://taskcluster.net"
     }
   },
   {
@@ -1190,7 +1278,8 @@
       "active_status": "active",
       "codebase": "socorro",
       "repository_group": 5,
-      "description": "Server for collecting, processing, and displaying crash reports from clients using the Breakpad libraries"
+      "description": "Server for collecting, processing, and displaying crash reports from clients using the Breakpad libraries",
+      "tc_root_url": "https://taskcluster.net"
     }
   },
   {
@@ -1204,7 +1293,8 @@
       "active_status": "onhold",
       "codebase": "stubattribution-tests",
       "repository_group": 5,
-      "description": "Tests for the stub attribution service"
+      "description": "Tests for the stub attribution service",
+      "tc_root_url": "https://taskcluster.net"
     }
   },
   {
@@ -1218,7 +1308,8 @@
       "active_status": "onhold",
       "codebase": "treeherder",
       "repository_group": 5,
-      "description": "A system for managing CI data for Mozilla projects"
+      "description": "A system for managing CI data for Mozilla projects",
+      "tc_root_url": "https://taskcluster.net"
     }
   },
   {
@@ -1231,7 +1322,8 @@
       "active_status": "active",
       "codebase": "gecko",
       "repository_group": 2,
-      "description": ""
+      "description": "",
+      "tc_root_url": "https://taskcluster.net"
     }
   },
   {
@@ -1244,7 +1336,8 @@
       "active_status": "active",
       "codebase": "comm",
       "repository_group": 8,
-      "description": ""
+      "description": "",
+      "tc_root_url": "https://taskcluster.net"
     }
   },
   {
@@ -1257,7 +1350,8 @@
       "active_status": "active",
       "codebase": "ci-admin",
       "repository_group": 9,
-      "description": "Administrative scripts for Firefox CI"
+      "description": "Administrative scripts for Firefox CI",
+      "tc_root_url": "https://taskcluster.net"
     }
   },
   {
@@ -1270,7 +1364,8 @@
       "active_status": "active",
       "codebase": "ci-admin",
       "repository_group": 9,
-      "description": "Administrative configuration for Firefox CI"
+      "description": "Administrative configuration for Firefox CI",
+      "tc_root_url": "https://taskcluster.net"
     }
   },
   {
@@ -1285,7 +1380,8 @@
       "codebase": "servo",
       "repository_group": 10,
       "description": "The Servo Parallel Browser Engine − try (multiple branches)",
-      "expire_performance_data": false
+      "expire_performance_data": false,
+      "tc_root_url": "https://taskcluster.net"
     }
   },
   {
@@ -1300,7 +1396,8 @@
       "codebase": "servo",
       "repository_group": 10,
       "description": "The Servo Parallel Browser Engine − auto: testing PRs after review and before merging to master.",
-      "expire_performance_data": false
+      "expire_performance_data": false,
+      "tc_root_url": "https://taskcluster.net"
     }
   },
   {
@@ -1315,7 +1412,8 @@
       "codebase": "servo",
       "repository_group": 10,
       "description": "The Servo Parallel Browser Engine − try, Taskcluster only",
-      "expire_performance_data": false
+      "expire_performance_data": false,
+      "tc_root_url": "https://taskcluster.net"
     }
   },
   {
@@ -1330,7 +1428,8 @@
       "codebase": "servo",
       "repository_group": 10,
       "description": "The Servo Parallel Browser Engine − pull requests",
-      "expire_performance_data": false
+      "expire_performance_data": false,
+      "tc_root_url": "https://taskcluster.net"
     }
   },
   {
@@ -1343,7 +1442,8 @@
       "active_status": "active",
       "codebase": "taskgraph",
       "repository_group": 9,
-      "description": "Tools for defining graphs fo taskclutser tasks"
+      "description": "Tools for defining graphs fo taskclutser tasks",
+      "tc_root_url": "https://taskcluster.net"
     }
   },
   {
@@ -1357,7 +1457,8 @@
       "codebase": "taskgraph",
       "repository_group": 9,
       "description": "Tools for defining graphs fo taskclutser tasks",
-      "is_try_repo": true
+      "is_try_repo": true,
+      "tc_root_url": "https://taskcluster.net"
     }
   },
   {
@@ -1370,7 +1471,8 @@
       "active_status": "active",
       "codebase": "ci-admin",
       "repository_group": 9,
-      "description": "Administrative scripts for Firefox CI"
+      "description": "Administrative scripts for Firefox CI",
+      "tc_root_url": "https://taskcluster.net"
     }
   },
   {
@@ -1383,7 +1485,8 @@
       "active_status": "active",
       "codebase": "ci-admin",
       "repository_group": 9,
-      "description": "Administrative configuration for Firefox CI"
+      "description": "Administrative configuration for Firefox CI",
+      "tc_root_url": "https://taskcluster.net"
     }
   },
   {
@@ -1397,7 +1500,8 @@
       "active_status": "active",
       "codebase": "reference-browser",
       "repository_group": 11,
-      "description": "A full-featured browser reference implementation using Mozilla Android Components"
+      "description": "A full-featured browser reference implementation using Mozilla Android Components",
+      "tc_root_url": "https://taskcluster.net"
     }
   },
   {
@@ -1411,7 +1515,8 @@
       "active_status": "active",
       "codebase": "fenix",
       "repository_group": 11,
-      "description": "Fenix is not your parent's Android browser"
+      "description": "Fenix is not your parent's Android browser",
+      "tc_root_url": "https://taskcluster.net"
     }
   },
   {
@@ -1424,7 +1529,8 @@
       "active_status": "active",
       "codebase": "gecko",
       "repository_group": 2,
-      "description": ""
+      "description": "",
+      "tc_root_url": "https://taskcluster.net"
     }
   },
   {
@@ -1437,7 +1543,8 @@
       "active_status": "active",
       "codebase": "comm",
       "repository_group": 8,
-      "description": ""
+      "description": "",
+      "tc_root_url": "https://taskcluster.net"
     }
   }
 ]

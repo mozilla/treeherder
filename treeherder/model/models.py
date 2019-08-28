@@ -108,6 +108,7 @@ class Repository(models.Model):
     performance_alerts_enabled = models.BooleanField(default=False)
     expire_performance_data = models.BooleanField(default=True)
     is_try_repo = models.BooleanField(default=False)
+    tc_root_url = models.CharField(max_length=255, null=False, db_index=True)
 
     class Meta:
         db_table = 'repository'
