@@ -4,7 +4,7 @@ import { Auth, Hooks, Queue } from 'taskcluster-client-web';
 import { satisfiesExpression } from 'taskcluster-lib-scopes';
 
 import taskcluster from '../helpers/taskcluster';
-import { tcRootUrl } from '../helpers/url';
+import { tcRootUrl, loginRootUrl } from '../helpers/url';
 
 export default class TaskclusterModel {
   static taskInContext(tagSetList, taskTags) {
@@ -50,10 +50,10 @@ export default class TaskclusterModel {
     if (action.kind === 'hook') {
       const hookPayload = jsone(action.hookPayload, context);
       const { hookId, hookGroupId } = action;
-      const auth = new Auth({ rootUrl: tcRootUrl });
+      const auth = new Auth({ rootUrl: loginRootUrl });
       const hooks = new Hooks({
         credentialAgent: taskcluster.getAgent(),
-        rootUrl: tcRootUrl,
+        rootUrl: loginRootUrl,
       });
       const decisionTask = await queue.task(decisionTaskId);
       const expansion = await auth.expandScopes({

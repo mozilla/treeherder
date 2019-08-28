@@ -14,6 +14,9 @@ export const dxrBaseUrl = 'https://dxr.mozilla.org/';
 
 export const tcRootUrl = 'https://taskcluster.net';
 
+// the rootUrl of the TC deployment for which user login gets credentials
+export const loginRootUrl = 'https://taskcluster.net';
+
 export const bugsEndpoint = 'failures/';
 
 export const bugDetailsEndpoint = 'failuresbybug/';
