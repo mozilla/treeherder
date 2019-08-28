@@ -140,6 +140,7 @@ class FuzzyJobFinder extends React.Component {
       PushModel.triggerNewJobs(
         this.state.selectedList,
         this.props.decisionTaskId,
+        this.props.currentRepo,
       )
         .then(result => {
           notify(result, 'success');
@@ -315,6 +316,7 @@ FuzzyJobFinder.propTypes = {
   decisionTaskId: PropTypes.string,
   jobList: PropTypes.array,
   filteredJobList: PropTypes.array,
+  currentRepo: PropTypes.object.isRequired,
 };
 
 FuzzyJobFinder.defaultProps = {

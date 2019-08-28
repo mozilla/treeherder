@@ -77,53 +77,61 @@ class ActionBar extends React.PureComponent {
   };
 
   createGeckoProfile = async () => {
-    const { user, selectedJobFull, notify, decisionTaskMap } = this.props;
+    const {
+      user,
+      selectedJobFull,
+      notify,
+      decisionTaskMap,
+      currentRepo,
+    } = this.props;
     if (!user.isLoggedIn) {
       return notify('Must be logged in to create a gecko profile', 'danger');
     }
 
     const decisionTaskId = decisionTaskMap[selectedJobFull.push_id];
-    TaskclusterModel.load(decisionTaskId, selectedJobFull).then(results => {
-      try {
-        const geckoprofile = getAction(results.actions, 'geckoprofile');
+    TaskclusterModel.load(decisionTaskId, selectedJobFull, currentRepo).then(
+      results => {
+        try {
+          const geckoprofile = getAction(results.actions, 'geckoprofile');
 
-        if (
-          geckoprofile === undefined ||
-          !Object.prototype.hasOwnProperty.call(geckoprofile, 'kind')
-        ) {
-          return notify(
-            'Job was scheduled without taskcluster support for GeckoProfiles',
-          );
-        }
-
-        TaskclusterModel.submit({
-          action: geckoprofile,
-          decisionTaskId,
-          taskId: results.originalTaskId,
-          task: results.originalTask,
-          input: {},
-          staticActionVariables: results.staticActionVariables,
-        }).then(
-          () => {
-            notify(
-              'Request sent to collect gecko profile job via actions.json',
-              'success',
+          if (
+            geckoprofile === undefined ||
+            !Object.prototype.hasOwnProperty.call(geckoprofile, 'kind')
+          ) {
+            return notify(
+              'Job was scheduled without taskcluster support for GeckoProfiles',
             );
-          },
-          e => {
-            // The full message is too large to fit in a Treeherder
-            // notification box.
-            notify(formatTaskclusterError(e), 'danger', { sticky: true });
-          },
-        );
-      } catch (e) {
-        notify(formatTaskclusterError(e), 'danger', { sticky: true });
-      }
-    });
+          }
+
+          TaskclusterModel.submit({
+            action: geckoprofile,
+            decisionTaskId,
+            taskId: results.originalTaskId,
+            task: results.originalTask,
+            input: {},
+            staticActionVariables: results.staticActionVariables,
+          }).then(
+            () => {
+              notify(
+                'Request sent to collect gecko profile job via actions.json',
+                'success',
+              );
+            },
+            e => {
+              // The full message is too large to fit in a Treeherder
+              // notification box.
+              notify(formatTaskclusterError(e), 'danger', { sticky: true });
+            },
+          );
+        } catch (e) {
+          notify(formatTaskclusterError(e), 'danger', { sticky: true });
+        }
+      },
+    );
   };
 
   retriggerJob = async jobs => {
-    const { user, repoName, notify, decisionTaskMap } = this.props;
+    const { user, notify, decisionTaskMap, currentRepo } = this.props;
 
     if (!user.isLoggedIn) {
       return notify('Must be logged in to retrigger a job', 'danger');
@@ -141,11 +149,17 @@ class ActionBar extends React.PureComponent {
       });
     });
 
-    JobModel.retrigger(jobs, repoName, notify, 1, decisionTaskMap);
+    JobModel.retrigger(jobs, currentRepo, notify, 1, decisionTaskMap);
   };
 
   backfillJob = async () => {
-    const { user, selectedJobFull, notify, decisionTaskMap } = this.props;
+    const {
+      user,
+      selectedJobFull,
+      notify,
+      decisionTaskMap,
+      currentRepo,
+    } = this.props;
 
     if (!this.canBackfill()) {
       return;
@@ -165,34 +179,46 @@ class ActionBar extends React.PureComponent {
 
     const { id: decisionTaskId } = decisionTaskMap[selectedJobFull.push_id];
 
-    TaskclusterModel.load(decisionTaskId, selectedJobFull).then(results => {
-      try {
-        const backfilltask = getAction(results.actions, 'backfill');
+    TaskclusterModel.load(decisionTaskId, selectedJobFull, currentRepo).then(
+      results => {
+        try {
+          const backfilltask = getAction(results.actions, 'backfill');
 
-        return TaskclusterModel.submit({
-          action: backfilltask,
-          decisionTaskId,
-          taskId: results.originalTaskId,
-          input: {},
-          staticActionVariables: results.staticActionVariables,
-        }).then(
-          () => {
-            notify('Request sent to backfill job via actions.json', 'success');
-          },
-          e => {
-            // The full message is too large to fit in a Treeherder
-            // notification box.
-            notify(formatTaskclusterError(e), 'danger', { sticky: true });
-          },
-        );
-      } catch (e) {
-        notify(formatTaskclusterError(e), 'danger', { sticky: true });
-      }
-    });
+          return TaskclusterModel.submit({
+            action: backfilltask,
+            decisionTaskId,
+            taskId: results.originalTaskId,
+            input: {},
+            staticActionVariables: results.staticActionVariables,
+            currentRepo,
+          }).then(
+            () => {
+              notify(
+                'Request sent to backfill job via actions.json',
+                'success',
+              );
+            },
+            e => {
+              // The full message is too large to fit in a Treeherder
+              // notification box.
+              notify(formatTaskclusterError(e), 'danger', { sticky: true });
+            },
+          );
+        } catch (e) {
+          notify(formatTaskclusterError(e), 'danger', { sticky: true });
+        }
+      },
+    );
   };
 
   isolateJob = async () => {
-    const { user, selectedJobFull, notify, decisionTaskMap } = this.props;
+    const {
+      user,
+      selectedJobFull,
+      notify,
+      decisionTaskMap,
+      currentRepo,
+    } = this.props;
     const { id: decisionTaskId } = decisionTaskMap[selectedJobFull.push_id];
 
     if (!isTestIsolatable(selectedJobFull)) {
@@ -217,63 +243,66 @@ class ActionBar extends React.PureComponent {
       return;
     }
 
-    TaskclusterModel.load(decisionTaskId, selectedJobFull).then(results => {
-      try {
-        const isolationtask = getAction(
-          results.actions,
-          'isolate-test-failures',
-        );
-
-        if (!isolationtask) {
-          notify(
-            'Request to isolate job via actions.json failed could not find action.',
-            'danger',
-            { sticky: true },
+    TaskclusterModel.load(decisionTaskId, selectedJobFull, currentRepo).then(
+      results => {
+        try {
+          const isolationtask = getAction(
+            results.actions,
+            'isolate-test-failures',
           );
-          return;
-        }
 
-        let times = 1;
-        let response = null;
-        do {
-          response = window.prompt(
-            'Enter number of times (1..100) to run isolation jobs: ',
-            times,
-          );
-          if (response == null) {
-            break;
-          }
-          times = parseInt(response, 10);
-        } while (Number.isNaN(times) || times < 1 || times > 100);
-
-        if (response === null) {
-          notify('Request to isolate job via actions.json aborted.');
-          return;
-        }
-
-        return TaskclusterModel.submit({
-          action: isolationtask,
-          decisionTaskId,
-          taskId: results.originalTaskId,
-          input: { times },
-          staticActionVariables: results.staticActionVariables,
-        }).then(
-          () => {
+          if (!isolationtask) {
             notify(
-              'Request sent to isolate-test-failures job via actions.json',
-              'success',
+              'Request to isolate job via actions.json failed could not find action.',
+              'danger',
+              { sticky: true },
             );
-          },
-          e => {
-            // The full message is too large to fit in a Treeherder
-            // notification box.
-            notify(formatTaskclusterError(e), 'danger', { sticky: true });
-          },
-        );
-      } catch (e) {
-        notify(formatTaskclusterError(e), 'danger', { sticky: true });
-      }
-    });
+            return;
+          }
+
+          let times = 1;
+          let response = null;
+          do {
+            response = window.prompt(
+              'Enter number of times (1..100) to run isolation jobs: ',
+              times,
+            );
+            if (response == null) {
+              break;
+            }
+            times = parseInt(response, 10);
+          } while (Number.isNaN(times) || times < 1 || times > 100);
+
+          if (response === null) {
+            notify('Request to isolate job via actions.json aborted.');
+            return;
+          }
+
+          return TaskclusterModel.submit({
+            action: isolationtask,
+            decisionTaskId,
+            taskId: results.originalTaskId,
+            input: { times },
+            staticActionVariables: results.staticActionVariables,
+            currentRepo,
+          }).then(
+            () => {
+              notify(
+                'Request sent to isolate-test-failures job via actions.json',
+                'success',
+              );
+            },
+            e => {
+              // The full message is too large to fit in a Treeherder
+              // notification box.
+              notify(formatTaskclusterError(e), 'danger', { sticky: true });
+            },
+          );
+        } catch (e) {
+          notify(formatTaskclusterError(e), 'danger', { sticky: true });
+        }
+      },
+    );
   };
 
   // Can we backfill? At the moment, this only ensures we're not in a 'try' repo.
@@ -308,7 +337,13 @@ class ActionBar extends React.PureComponent {
   };
 
   createInteractiveTask = async () => {
-    const { user, selectedJobFull, notify, decisionTaskMap } = this.props;
+    const {
+      user,
+      selectedJobFull,
+      notify,
+      decisionTaskMap,
+      currentRepo,
+    } = this.props;
 
     if (!user.isLoggedIn) {
       return notify(
@@ -321,6 +356,7 @@ class ActionBar extends React.PureComponent {
     const results = await TaskclusterModel.load(
       decisionTaskId,
       selectedJobFull,
+      currentRepo,
     );
 
     try {
@@ -349,14 +385,14 @@ class ActionBar extends React.PureComponent {
   };
 
   cancelJobs = jobs => {
-    const { user, repoName, notify, decisionTaskMap } = this.props;
+    const { user, notify, decisionTaskMap, currentRepo } = this.props;
 
     if (!user.isLoggedIn) {
       return notify('Must be logged in to cancel a job', 'danger');
     }
     JobModel.cancel(
       jobs.filter(({ state }) => state === 'pending' || state === 'running'),
-      repoName,
+      currentRepo,
       notify,
       decisionTaskMap,
     );
@@ -380,6 +416,7 @@ class ActionBar extends React.PureComponent {
       jobLogUrls,
       user,
       pinJob,
+      currentRepo,
     } = this.props;
     const { customJobActionsShowing } = this.state;
 
@@ -538,6 +575,7 @@ class ActionBar extends React.PureComponent {
           <CustomJobActions
             job={selectedJobFull}
             pushId={selectedJobFull.push_id}
+            currentRepo={currentRepo}
             isLoggedIn={user.isLoggedIn}
             toggle={this.toggleCustomJobActions}
           />
@@ -551,11 +589,11 @@ ActionBar.propTypes = {
   pinJob: PropTypes.func.isRequired,
   decisionTaskMap: PropTypes.object.isRequired,
   user: PropTypes.object.isRequired,
-  repoName: PropTypes.string.isRequired,
   selectedJobFull: PropTypes.object.isRequired,
   logParseStatus: PropTypes.string.isRequired,
   notify: PropTypes.func.isRequired,
   jobLogUrls: PropTypes.array,
+  currentRepo: PropTypes.object.isRequired,
   isTryRepo: PropTypes.bool,
   logViewerUrl: PropTypes.string,
   logViewerFullUrl: PropTypes.string,

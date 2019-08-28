@@ -92,6 +92,7 @@ export default class Health extends React.PureComponent {
       failureMessage,
       notifications,
     } = this.state;
+    const { currentRepo } = this.props;
     const overallResult = healthData
       ? resultColorMap[healthData.result]
       : 'none';
@@ -129,6 +130,7 @@ export default class Health extends React.PureComponent {
                         details={metric.details}
                         failures={metric.failures}
                         repo={repo}
+                        currentRepo={currentRepo}
                         revision={revision}
                         user={user}
                         notify={this.notify}
@@ -149,4 +151,5 @@ export default class Health extends React.PureComponent {
 
 Health.propTypes = {
   location: PropTypes.object.isRequired,
+  currentRepo: PropTypes.object.isRequired,
 };

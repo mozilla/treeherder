@@ -85,7 +85,7 @@ export default class JobModel {
 
   static async retrigger(
     jobs,
-    repoName,
+    currentRepo,
     notify,
     times = 1,
     decisionTaskIdMap = null,
@@ -105,49 +105,52 @@ export default class JobModel {
       for (const [key, value] of Object.entries(uniquePerPushJobs)) {
         const decisionTaskId = taskIdMap[key].id;
 
-        TaskclusterModel.load(decisionTaskId).then(async results => {
-          const actionTaskId = slugid();
-          const taskLabels = value.map(job => job.job_type_name);
+        TaskclusterModel.load(decisionTaskId, null, currentRepo).then(
+          async results => {
+            const actionTaskId = slugid();
+            const taskLabels = value.map(job => job.job_type_name);
 
-          let retriggerAction = results.actions.find(
-            action => action.name === 'retrigger-multiple',
-          );
-          let actionInput = {
-            requests: [{ tasks: taskLabels, times }],
-          };
-          if (!retriggerAction) {
-            // The `retrigger-multiple` action as introduced in Bug 1521032, to all the action
-            // to control whether new task are created, or existing ones re-run. We fall back
-            // to `add-new-jobs` to support pushing old revision to try, where the duplicating
-            // the release tasks impacted is unlikely to cause problems.
-            retriggerAction = getAction(results.actions, 'add-new-jobs');
-            actionInput = {
-              tasks: taskLabels,
+            let retriggerAction = results.actions.find(
+              action => action.name === 'retrigger-multiple',
+            );
+            let actionInput = {
+              requests: [{ tasks: taskLabels, times }],
             };
-          }
+            if (!retriggerAction) {
+              // The `retrigger-multiple` action as introduced in Bug 1521032, to all the action
+              // to control whether new task are created, or existing ones re-run. We fall back
+              // to `add-new-jobs` to support pushing old revision to try, where the duplicating
+              // the release tasks impacted is unlikely to cause problems.
+              retriggerAction = getAction(results.actions, 'add-new-jobs');
+              actionInput = {
+                tasks: taskLabels,
+              };
+            }
 
-          await TaskclusterModel.submit({
-            action: retriggerAction,
-            actionTaskId,
-            decisionTaskId,
-            taskId: null,
-            task: null,
-            input: actionInput,
-            staticActionVariables: results.staticActionVariables,
-          })
-            .then(() =>
-              notify(
-                `Request sent to retrigger/add new jobs via actions.json (${actionTaskId})`,
-              ),
-            )
-            .catch(error => {
-              notify(
-                `Retrigger failed with Decision task: ${decisionTaskId}: ${error}`,
-                'danger',
-                { sticky: true },
-              );
-            });
-        });
+            await TaskclusterModel.submit({
+              action: retriggerAction,
+              actionTaskId,
+              decisionTaskId,
+              taskId: null,
+              task: null,
+              input: actionInput,
+              staticActionVariables: results.staticActionVariables,
+              currentRepo,
+            })
+              .then(() =>
+                notify(
+                  `Request sent to retrigger/add new jobs via actions.json (${actionTaskId})`,
+                ),
+              )
+              .catch(error => {
+                notify(
+                  `Retrigger failed with Decision task: ${decisionTaskId}: ${error}`,
+                  'danger',
+                  { sticky: true },
+                );
+              });
+          },
+        );
       }
     } catch (e) {
       notify(
@@ -158,11 +161,15 @@ export default class JobModel {
     }
   }
 
-  static async cancelAll(pushId, repoName, notify, decisionTask) {
+  static async cancelAll(pushId, repoName, notify, decisionTask, currentRepo) {
     const { id: decisionTaskId } =
       decisionTask || (await PushModel.getDecisionTaskId(pushId, notify));
 
-    const results = await TaskclusterModel.load(decisionTaskId);
+    const results = await TaskclusterModel.load(
+      decisionTaskId,
+      null,
+      currentRepo,
+    );
 
     try {
       const cancelAllTask = getAction(results.actions, 'cancel-all');
@@ -172,6 +179,7 @@ export default class JobModel {
         decisionTaskId,
         input: {},
         staticActionVariables: results.staticActionVariables,
+        currentRepo,
       });
     } catch (e) {
       // The full message is too large to fit in a Treeherder
@@ -182,7 +190,7 @@ export default class JobModel {
     notify('Request sent to cancel all jobs via action.json', 'success');
   }
 
-  static async cancel(jobs, repoName, notify, decisionTaskIdMap) {
+  static async cancel(jobs, currentRepo, notify, decisionTaskIdMap) {
     const jobTerm = jobs.length > 1 ? 'jobs' : 'job';
     const taskIdMap =
       decisionTaskIdMap ||
@@ -201,7 +209,11 @@ export default class JobModel {
       // eslint-disable-next-line no-unused-vars
       for (const job of jobs) {
         const decisionTaskId = taskIdMap[job.push_id].id;
-        const results = await TaskclusterModel.load(decisionTaskId, job);
+        const results = await TaskclusterModel.load(
+          decisionTaskId,
+          job,
+          currentRepo,
+        );
 
         try {
           const cancelTask = getAction(results.actions, 'cancel');
@@ -212,6 +224,7 @@ export default class JobModel {
             taskId: results.originalTaskId,
             input: {},
             staticActionVariables: results.staticActionVariables,
+            currentRepo,
           });
         } catch (e) {
           // The full message is too large to fit in a Treeherder

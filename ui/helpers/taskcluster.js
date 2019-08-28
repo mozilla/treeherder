@@ -1,6 +1,6 @@
 import { OIDCCredentialAgent, Queue } from 'taskcluster-client-web';
 
-import { tcRootUrl, getUserSessionUrl } from './url';
+import { loginRootUrl, getUserSessionUrl } from './url';
 
 const taskcluster = (() => {
   let credentialAgent = null;
@@ -19,7 +19,7 @@ const taskcluster = (() => {
         accessToken: JSON.parse(userSession).accessToken,
         oidcProvider,
         url: getUserSessionUrl(oidcProvider),
-        rootUrl: tcRootUrl,
+        rootUrl: loginRootUrl,
       });
     }
 
@@ -32,7 +32,7 @@ const taskcluster = (() => {
     getQueue: () =>
       new Queue({
         credentialAgent: tcAgent(),
-        rootUrl: tcRootUrl,
+        rootUrl: loginRootUrl,
       }),
     updateAgent: () => {
       const userSession = localStorage.getItem('userSession');

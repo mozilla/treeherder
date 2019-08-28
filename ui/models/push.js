@@ -65,89 +65,104 @@ export default class PushModel {
     return fetch(getProjectUrl(`${pushEndpoint}${pk}/`, repoName));
   }
 
-  static async triggerMissingJobs(pushId, notify, decisionTask) {
+  static async triggerMissingJobs(pushId, notify, decisionTask, currentRepo) {
     const decisionTaskId =
       decisionTask || (await PushModel.getDecisionTaskId(pushId, notify)).id;
 
-    return TaskclusterModel.load(decisionTaskId).then(results => {
-      const actionTaskId = slugid();
+    return TaskclusterModel.load(decisionTaskId, null, currentRepo).then(
+      results => {
+        const actionTaskId = slugid();
 
-      try {
-        const missingTestsTask = getAction(
-          results.actions,
-          'run-missing-tests',
-        );
+        try {
+          const missingTestsTask = getAction(
+            results.actions,
+            'run-missing-tests',
+          );
 
-        return TaskclusterModel.submit({
-          action: missingTestsTask,
-          actionTaskId,
-          decisionTaskId,
-          taskId: null,
-          task: null,
-          input: {},
-          staticActionVariables: results.staticActionVariables,
-        }).then(
-          notify(
-            `Request sent to trigger missing jobs (${actionTaskId})`,
-            'success',
-          ),
-        );
-      } catch (e) {
-        // The full message is too large to fit in a Treeherder
-        // notification box.
-        notify(formatTaskclusterError(e), 'danger', { sticky: true });
-      }
-    });
+          return TaskclusterModel.submit({
+            action: missingTestsTask,
+            actionTaskId,
+            decisionTaskId,
+            taskId: null,
+            task: null,
+            input: {},
+            staticActionVariables: results.staticActionVariables,
+            currentRepo,
+          }).then(
+            notify(
+              `Request sent to trigger missing jobs (${actionTaskId})`,
+              'success',
+            ),
+          );
+        } catch (e) {
+          // The full message is too large to fit in a Treeherder
+          // notification box.
+          notify(formatTaskclusterError(e), 'danger', { sticky: true });
+        }
+      },
+    );
   }
 
-  static async triggerAllTalosJobs(times, pushId, notify, decisionTask) {
+  static async triggerAllTalosJobs(
+    times,
+    pushId,
+    notify,
+    decisionTask,
+    currentRepo,
+  ) {
     const decisionTaskId =
       decisionTask || (await PushModel.getDecisionTaskId(pushId, notify)).id;
 
-    return TaskclusterModel.load(decisionTaskId).then(results => {
-      const actionTaskId = slugid();
+    return TaskclusterModel.load(decisionTaskId, null, currentRepo).then(
+      results => {
+        const actionTaskId = slugid();
 
-      try {
-        const allTalosTask = getAction(results.actions, 'run-all-talos');
+        try {
+          const allTalosTask = getAction(results.actions, 'run-all-talos');
+
+          return TaskclusterModel.submit({
+            action: allTalosTask,
+            actionTaskId,
+            decisionTaskId,
+            taskId: null,
+            task: null,
+            input: { times },
+            staticActionVariables: results.staticActionVariables,
+            currentRepo,
+          }).then(
+            () =>
+              `Request sent to trigger all talos jobs ${times} time(s) via actions.json (${actionTaskId})`,
+          );
+        } catch (e) {
+          // The full message is too large to fit in a Treeherder
+          // notification box.
+          notify(formatTaskclusterError(e), 'danger', { sticky: true });
+        }
+      },
+    );
+  }
+
+  static triggerNewJobs(jobs, decisionTaskId, currentRepo) {
+    return TaskclusterModel.load(decisionTaskId, null, currentRepo).then(
+      results => {
+        const actionTaskId = slugid();
+        const addNewJobsTask = getAction(results.actions, 'add-new-jobs');
 
         return TaskclusterModel.submit({
-          action: allTalosTask,
+          action: addNewJobsTask,
           actionTaskId,
           decisionTaskId,
           taskId: null,
           task: null,
-          input: { times },
+          input: { tasks: jobs },
           staticActionVariables: results.staticActionVariables,
+          currentRepo,
         }).then(
           () =>
-            `Request sent to trigger all talos jobs ${times} time(s) via actions.json (${actionTaskId})`,
+            `Request sent to trigger new jobs via actions.json (${actionTaskId})`,
         );
-      } catch (e) {
-        // The full message is too large to fit in a Treeherder
-        // notification box.
-        notify(formatTaskclusterError(e), 'danger', { sticky: true });
-      }
-    });
-  }
-
-  static triggerNewJobs(jobs, decisionTaskId) {
-    return TaskclusterModel.load(decisionTaskId).then(results => {
-      const actionTaskId = slugid();
-      const addNewJobsTask = getAction(results.actions, 'add-new-jobs');
-
-      return TaskclusterModel.submit({
-        action: addNewJobsTask,
-        actionTaskId,
-        decisionTaskId,
-        taskId: null,
-        task: null,
-        input: { tasks: jobs },
-        staticActionVariables: results.staticActionVariables,
-      }).then(
-        () =>
-          `Request sent to trigger new jobs via actions.json (${actionTaskId})`,
-      );
-    });
+      },
+    );
   }
 
   static getHealth(repoName, revision) {

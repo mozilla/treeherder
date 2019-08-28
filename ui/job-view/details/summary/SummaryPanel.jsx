@@ -12,7 +12,6 @@ import StatusPanel from './StatusPanel';
 class SummaryPanel extends React.PureComponent {
   render() {
     const {
-      repoName,
       selectedJobFull,
       latestClassification,
       bugs,
@@ -39,8 +38,8 @@ class SummaryPanel extends React.PureComponent {
       <div id="summary-panel" role="region" aria-label="Summary">
         <ActionBar
           selectedJobFull={selectedJobFull}
-          repoName={repoName}
           logParseStatus={logParseStatus}
+          currentRepo={currentRepo}
           isTryRepo={currentRepo.is_try_repo}
           logViewerUrl={logViewerUrl}
           logViewerFullUrl={logViewerFullUrl}
@@ -81,7 +80,6 @@ class SummaryPanel extends React.PureComponent {
 }
 
 SummaryPanel.propTypes = {
-  repoName: PropTypes.string.isRequired,
   bugs: PropTypes.array.isRequired,
   user: PropTypes.object.isRequired,
   currentRepo: PropTypes.object.isRequired,
