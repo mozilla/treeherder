@@ -73,6 +73,7 @@
     "redux-thunk": "2.3.0",
     "taskcluster-client-web": "8.1.1",
     "taskcluster-lib-scopes": "10.0.2",
+    "taskcluster-lib-urls": "12.0.0",
     "webpack": "4.39.3",
     "webpack-cli": "3.3.7"
   },

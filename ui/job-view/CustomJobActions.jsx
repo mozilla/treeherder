@@ -10,6 +10,7 @@ import jsonSchemaDefaults from 'json-schema-defaults';
 // https://github.com/nodeca/js-yaml/pull/462
 import jsyaml from 'js-yaml/dist/js-yaml';
 import { slugid } from 'taskcluster-client-web';
+import tcLibUrls from 'taskcluster-lib-urls';
 import {
   Button,
   Label,
@@ -21,6 +22,7 @@ import {
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faCheckSquare } from '@fortawesome/free-regular-svg-icons';
 
+import { tcRootUrl } from '../helpers/url';
 import { formatTaskclusterError } from '../helpers/errorMessage';
 import PushModel from '../models/push';
 import TaskclusterModel from '../models/taskcluster';
@@ -159,7 +161,7 @@ class CustomJobActions extends React.PureComponent {
       taskId => {
         this.setState({ triggering: false });
         let message = 'Custom action request sent successfully:';
-        let url = `https://tools.taskcluster.net/tasks/${taskId}`;
+        let url = tcLibUrls.ui(tcRootUrl, `/tasks/${taskId}`);
 
         // For the time being, we are redirecting specific actions to
         // specific urls that are different than usual. At this time, we are
@@ -170,7 +172,7 @@ class CustomJobActions extends React.PureComponent {
           'generic-worker-windows-loaner',
         ];
         if (loaners.includes(action.name)) {
-          message = 'Visit Taskcluster Tools site to access loaner:';
+          message = 'Visit Taskcluster site to access loaner:';
           url = `${url}/connect`;
         }
         notify(message, 'success', { linkText: 'Open in Taskcluster', url });
