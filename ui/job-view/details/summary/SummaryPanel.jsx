@@ -41,6 +41,7 @@ class SummaryPanel extends React.PureComponent {
           selectedJobFull={selectedJobFull}
           repoName={repoName}
           logParseStatus={logParseStatus}
+          currentRepo={currentRepo}
           isTryRepo={currentRepo.is_try_repo}
           logViewerUrl={logViewerUrl}
           logViewerFullUrl={logViewerFullUrl}

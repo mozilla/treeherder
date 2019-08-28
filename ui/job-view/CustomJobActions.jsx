@@ -22,7 +22,6 @@ import {
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faCheckSquare } from '@fortawesome/free-regular-svg-icons';
 
-import { tcRootUrl } from '../helpers/url';
 import { formatTaskclusterError } from '../helpers/errorMessage';
 import PushModel from '../models/push';
 import TaskclusterModel from '../models/taskcluster';
@@ -48,13 +47,13 @@ class CustomJobActions extends React.PureComponent {
   }
 
   async componentDidMount() {
-    const { pushId, job, notify } = this.props;
+    const { pushId, job, notify, currentRepo } = this.props;
     const { id: decisionTaskId } = await PushModel.getDecisionTaskId(
       pushId,
       notify,
     );
 
-    TaskclusterModel.load(decisionTaskId, job).then(results => {
+    TaskclusterModel.load(decisionTaskId, job, currentRepo).then(results => {
       const {
         originalTask,
         originalTaskId,
@@ -129,7 +128,7 @@ class CustomJobActions extends React.PureComponent {
       selectedActionOption,
       staticActionVariables,
     } = this.state;
-    const { notify } = this.props;
+    const { notify, currentRepo } = this.props;
     const action = selectedActionOption.value;
 
     let input = null;
@@ -157,11 +156,12 @@ class CustomJobActions extends React.PureComponent {
       task: originalTask,
       input,
       staticActionVariables,
+      currentRepo,
     }).then(
       taskId => {
         this.setState({ triggering: false });
         let message = 'Custom action request sent successfully:';
-        let url = tcLibUrls.ui(tcRootUrl, `/tasks/${taskId}`);
+        let url = tcLibUrls.ui(currentRepo.tc_root_url, `/tasks/${taskId}`);
 
         // For the time being, we are redirecting specific actions to
         // specific urls that are different than usual. At this time, we are
@@ -311,6 +311,7 @@ CustomJobActions.propTypes = {
   notify: PropTypes.func.isRequired,
   toggle: PropTypes.func.isRequired,
   job: PropTypes.object,
+  currentRepo: PropTypes.object.isRequired,
 };
 
 CustomJobActions.defaultProps = {

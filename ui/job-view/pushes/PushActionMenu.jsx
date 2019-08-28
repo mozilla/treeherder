@@ -53,7 +53,7 @@ class PushActionMenu extends React.PureComponent {
   };
 
   triggerMissingJobs = () => {
-    const { notify, revision, pushId } = this.props;
+    const { notify, revision, pushId, currentRepo } = this.props;
 
     if (
       !window.confirm(
@@ -63,13 +63,13 @@ class PushActionMenu extends React.PureComponent {
       return;
     }
 
-    PushModel.triggerMissingJobs(pushId, notify).catch(e => {
+    PushModel.triggerMissingJobs(pushId, notify, currentRepo).catch(e => {
       notify(formatTaskclusterError(e), 'danger', { sticky: true });
     });
   };
 
   triggerAllTalosJobs = () => {
-    const { notify, revision, pushId } = this.props;
+    const { notify, revision, pushId, currentRepo } = this.props;
 
     if (
       !window.confirm(
@@ -90,7 +90,7 @@ class PushActionMenu extends React.PureComponent {
       );
     }
 
-    PushModel.triggerAllTalosJobs(times, pushId)
+    PushModel.triggerAllTalosJobs(times, pushId, currentRepo)
       .then(msg => {
         notify(msg, 'success');
       })
@@ -115,6 +115,7 @@ class PushActionMenu extends React.PureComponent {
       showRunnableJobs,
       showFuzzyJobs,
       pushId,
+      currentRepo,
     } = this.props;
     const {
       topOfRangeUrl,
@@ -250,6 +251,7 @@ class PushActionMenu extends React.PureComponent {
             job={null}
             pushId={pushId}
             isLoggedIn={isLoggedIn}
+            currentRepo={currentRepo}
             toggle={this.toggleCustomJobActions}
           />
         )}
@@ -263,6 +265,7 @@ PushActionMenu.propTypes = {
   isLoggedIn: PropTypes.bool.isRequired,
   revision: PropTypes.string.isRequired,
   repoName: PropTypes.string.isRequired,
+  currentRepo: PropTypes.object.isRequired,
   pushId: PropTypes.number.isRequired,
   hideRunnableJobs: PropTypes.func.isRequired,
   showRunnableJobs: PropTypes.func.isRequired,

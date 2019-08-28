@@ -480,6 +480,7 @@ class Push extends React.PureComponent {
           className="fuzzy-modal"
           pushId={id}
           decisionTaskId={decisionTaskId}
+          currentRepo={currentRepo}
         />
         <PushHeader
           push={push}
@@ -491,6 +492,7 @@ class Push extends React.PureComponent {
           watchState={watched}
           isLoggedIn={isLoggedIn}
           repoName={repoName}
+          currentRepo={currentRepo}
           filterModel={filterModel}
           runnableVisible={runnableVisible}
           showRunnableJobs={this.showRunnableJobs}

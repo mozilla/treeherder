@@ -60,82 +60,91 @@ export default class PushModel {
     return fetch(getProjectUrl(`${pushEndpoint}${pk}/`, repoName));
   }
 
-  static async triggerMissingJobs(pushId, notify) {
+  static async triggerMissingJobs(pushId, notify, currentRepo) {
     const { id: decisionTaskId } = await PushModel.getDecisionTaskId(
       pushId,
       notify,
     );
 
-    return TaskclusterModel.load(decisionTaskId).then(results => {
-      const actionTaskId = slugid();
-      const missingTestsTask = results.actions.find(
-        action => action.name === 'run-missing-tests',
-      );
+    return TaskclusterModel.load(decisionTaskId, null, currentRepo).then(
+      results => {
+        const actionTaskId = slugid();
+        const missingTestsTask = results.actions.find(
+          action => action.name === 'run-missing-tests',
+        );
 
-      return TaskclusterModel.submit({
-        action: missingTestsTask,
-        actionTaskId,
-        decisionTaskId,
-        taskId: null,
-        task: null,
-        input: {},
-        staticActionVariables: results.staticActionVariables,
-      }).then(
-        notify(
-          `Request sent to trigger missing jobs (${actionTaskId})`,
-          'success',
-        ),
-      );
-    });
+        return TaskclusterModel.submit({
+          action: missingTestsTask,
+          actionTaskId,
+          decisionTaskId,
+          taskId: null,
+          task: null,
+          input: {},
+          staticActionVariables: results.staticActionVariables,
+          currentRepo,
+        }).then(
+          notify(
+            `Request sent to trigger missing jobs (${actionTaskId})`,
+            'success',
+          ),
+        );
+      },
+    );
   }
 
-  static async triggerAllTalosJobs(times, pushId, notify) {
+  static async triggerAllTalosJobs(times, pushId, notify, currentRepo) {
     const { id: decisionTaskId } = await PushModel.getDecisionTaskId(
       pushId,
       notify,
     );
 
-    return TaskclusterModel.load(decisionTaskId).then(results => {
-      const actionTaskId = slugid();
-      const allTalosTask = results.actions.find(
-        action => action.name === 'run-all-talos',
-      );
+    return TaskclusterModel.load(decisionTaskId, null, currentRepo).then(
+      results => {
+        const actionTaskId = slugid();
+        const allTalosTask = results.actions.find(
+          action => action.name === 'run-all-talos',
+        );
 
-      return TaskclusterModel.submit({
-        action: allTalosTask,
-        actionTaskId,
-        decisionTaskId,
-        taskId: null,
-        task: null,
-        input: { times },
-        staticActionVariables: results.staticActionVariables,
-      }).then(
-        () =>
-          `Request sent to trigger all talos jobs ${times} time(s) via actions.json (${actionTaskId})`,
-      );
-    });
+        return TaskclusterModel.submit({
+          action: allTalosTask,
+          actionTaskId,
+          decisionTaskId,
+          taskId: null,
+          task: null,
+          input: { times },
+          staticActionVariables: results.staticActionVariables,
+          currentRepo,
+        }).then(
+          () =>
+            `Request sent to trigger all talos jobs ${times} time(s) via actions.json (${actionTaskId})`,
+        );
+      },
+    );
   }
 
-  static triggerNewJobs(jobs, decisionTaskId) {
-    return TaskclusterModel.load(decisionTaskId).then(results => {
-      const actionTaskId = slugid();
-      const addNewJobsTask = results.actions.find(
-        action => action.name === 'add-new-jobs',
-      );
+  static triggerNewJobs(jobs, decisionTaskId, currentRepo) {
+    return TaskclusterModel.load(decisionTaskId, null, currentRepo).then(
+      results => {
+        const actionTaskId = slugid();
+        const addNewJobsTask = results.actions.find(
+          action => action.name === 'add-new-jobs',
+        );
 
-      return TaskclusterModel.submit({
-        action: addNewJobsTask,
-        actionTaskId,
-        decisionTaskId,
-        taskId: null,
-        task: null,
-        input: { tasks: jobs },
-        staticActionVariables: results.staticActionVariables,
-      }).then(
-        () =>
-          `Request sent to trigger new jobs via actions.json (${actionTaskId})`,
-      );
-    });
+        return TaskclusterModel.submit({
+          action: addNewJobsTask,
+          actionTaskId,
+          decisionTaskId,
+          taskId: null,
+          task: null,
+          input: { tasks: jobs },
+          staticActionVariables: results.staticActionVariables,
+          currentRepo,
+        }).then(
+          () =>
+            `Request sent to trigger new jobs via actions.json (${actionTaskId})`,
+        );
+      },
+    );
   }
 
   static getHealth(repoName, revision) {
