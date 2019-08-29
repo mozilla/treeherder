@@ -108,7 +108,6 @@ class PushActionMenu extends React.PureComponent {
   render() {
     const {
       isLoggedIn,
-      repoName,
       revision,
       runnableVisible,
       hideRunnableJobs,
@@ -174,7 +173,7 @@ class PushActionMenu extends React.PureComponent {
               Add new jobs (Search)
             </li>
           )}
-          {triggerMissingRepos.includes(repoName) && (
+          {triggerMissingRepos.includes(currentRepo.name) && (
             <li
               title={
                 isLoggedIn
@@ -205,7 +204,7 @@ class PushActionMenu extends React.PureComponent {
               target="_blank"
               rel="noopener noreferrer"
               className="dropdown-item"
-              href={`https://bugherder.mozilla.org/?cset=${revision}&tree=${repoName}`}
+              href={`https://bugherder.mozilla.org/?cset=${revision}&tree=${currentRepo.name}`}
               title="Use Bugherder to mark the bugs in this push"
             >
               Mark with Bugherder
@@ -238,7 +237,7 @@ class PushActionMenu extends React.PureComponent {
           <li>
             <a
               className="dropdown-item"
-              href={getPushHealthUrl({ repo: repoName, revision })}
+              href={getPushHealthUrl({ repo: currentRepo.name, revision })}
               target="_blank"
               rel="noopener noreferrer"
             >
@@ -264,7 +263,6 @@ PushActionMenu.propTypes = {
   runnableVisible: PropTypes.bool.isRequired,
   isLoggedIn: PropTypes.bool.isRequired,
   revision: PropTypes.string.isRequired,
-  repoName: PropTypes.string.isRequired,
   currentRepo: PropTypes.object.isRequired,
   pushId: PropTypes.number.isRequired,
   hideRunnableJobs: PropTypes.func.isRequired,

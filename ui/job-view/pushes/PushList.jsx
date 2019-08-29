@@ -153,7 +153,6 @@ class PushList extends React.Component {
                 push={push}
                 isLoggedIn={isLoggedIn || false}
                 currentRepo={currentRepo}
-                repoName={repoName}
                 filterModel={filterModel}
                 notificationSupported={notificationSupported}
                 duplicateJobsVisible={duplicateJobsVisible}

@@ -97,7 +97,7 @@ class DetailsPanel extends React.Component {
   };
 
   loadBugSuggestions = () => {
-    const { repoName, selectedJob } = this.props;
+    const { currentRepo, selectedJob } = this.props;
 
     if (!selectedJob) {
       return;
@@ -131,7 +131,7 @@ class DetailsPanel extends React.Component {
               result: step.result,
               logViewerUrl: getLogViewerUrl(
                 selectedJob.id,
-                repoName,
+                currentRepo.name,
                 step.finished_line_number,
               ),
             }));
@@ -160,7 +160,7 @@ class DetailsPanel extends React.Component {
   };
 
   selectJob = () => {
-    const { repoName, selectedJob } = this.props;
+    const { currentRepo, selectedJob } = this.props;
     const push = this.findPush(selectedJob.push_id);
 
     this.setState(
@@ -178,7 +178,7 @@ class DetailsPanel extends React.Component {
           'logs' in selectedJob
             ? Promise.resolve(selectedJob)
             : JobModel.get(
-                repoName,
+                currentRepo.name,
                 selectedJob.id,
                 this.selectJobController.signal,
               );
@@ -193,9 +193,12 @@ class DetailsPanel extends React.Component {
           this.selectJobController.signal,
         );
 
-        const phSeriesPromise = PerfSeriesModel.getSeriesData(repoName, {
-          job_id: selectedJob.id,
-        });
+        const phSeriesPromise = PerfSeriesModel.getSeriesData(
+          currentRepo.name,
+          {
+            job_id: selectedJob.id,
+          },
+        );
 
         Promise.all([
           jobPromise,
@@ -236,7 +239,10 @@ class DetailsPanel extends React.Component {
                 logParseStatus = jobLogUrls[0].parse_status;
               }
 
-              const logViewerUrl = getLogViewerUrl(selectedJob.id, repoName);
+              const logViewerUrl = getLogViewerUrl(
+                selectedJob.id,
+                currentRepo.name,
+              );
               const logViewerFullUrl = `${window.location.origin}/${logViewerUrl}`;
               const reftestUrl = jobLogUrls.length
                 ? getReftestUrl(jobLogUrls[0].url)
@@ -253,7 +259,7 @@ class DetailsPanel extends React.Component {
                 ];
                 const seriesListList = await Promise.all(
                   chunk(signatureIds, 20).map(signatureIdChunk =>
-                    PerfSeriesModel.getSeriesList(repoName, {
+                    PerfSeriesModel.getSeriesList(currentRepo.name, {
                       id: signatureIdChunk,
                     }),
                   ),
@@ -271,12 +277,12 @@ class DetailsPanel extends React.Component {
                   .filter(d => !d.series.parentSignature)
                   .map(d => ({
                     url: `/perf.html#/graphs?series=${[
-                      repoName,
+                      currentRepo.name,
                       d.signature_id,
                       1,
                       d.series.frameworkId,
                     ]}&selected=${[
-                      repoName,
+                      currentRepo.name,
                       d.signature_id,
                       selectedJob.push_id,
                       d.id,
@@ -315,7 +321,6 @@ class DetailsPanel extends React.Component {
 
   render() {
     const {
-      repoName,
       user,
       currentRepo,
       resizedHeight,
@@ -351,7 +356,6 @@ class DetailsPanel extends React.Component {
         className={selectedJobFull ? 'details-panel-slide' : 'hidden'}
       >
         <PinBoard
-          repoName={repoName}
           currentRepo={currentRepo}
           isLoggedIn={user.isLoggedIn || false}
           classificationTypes={classificationTypes}
@@ -361,7 +365,6 @@ class DetailsPanel extends React.Component {
           <div id="details-panel-content">
             <SummaryPanel
               selectedJobFull={selectedJobFull}
-              repoName={repoName}
               currentRepo={currentRepo}
               classificationMap={classificationMap}
               jobLogUrls={jobLogUrls}
@@ -380,7 +383,7 @@ class DetailsPanel extends React.Component {
               selectedJobFull={selectedJobFull}
               jobDetails={jobDetails}
               perfJobDetail={perfJobDetail}
-              repoName={repoName}
+              repoName={currentRepo.name}
               jobRevision={jobRevision}
               suggestions={suggestions}
               errors={errors}
@@ -405,7 +408,6 @@ class DetailsPanel extends React.Component {
 }
 
 DetailsPanel.propTypes = {
-  repoName: PropTypes.string.isRequired,
   currentRepo: PropTypes.object.isRequired,
   user: PropTypes.object.isRequired,
   resizedHeight: PropTypes.number.isRequired,

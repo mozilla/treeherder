@@ -176,7 +176,7 @@ class PushHeader extends React.Component {
   };
 
   cancelAllJobs = () => {
-    const { notify, repoName, currentRepo } = this.props;
+    const { notify, currentRepo } = this.props;
 
     if (
       window.confirm(
@@ -187,7 +187,7 @@ class PushHeader extends React.Component {
 
       if (!isLoggedIn) return;
 
-      JobModel.cancelAll(push.id, repoName, notify, currentRepo);
+      JobModel.cancelAll(push.id, currentRepo.name, notify, currentRepo);
     }
   };
 
@@ -236,7 +236,6 @@ class PushHeader extends React.Component {
 
   render() {
     const {
-      repoName,
       isLoggedIn,
       pushId,
       jobCounts,
@@ -262,7 +261,7 @@ class PushHeader extends React.Component {
     const authorPushFilterUrl = getJobsUrl({ ...linkParams, author });
     const showPushHealthStatus =
       pushHealthVisibility === 'All' ||
-      repoName === pushHealthVisibility.toLowerCase();
+      currentRepo.name === pushHealthVisibility.toLowerCase();
     const watchStateLabel = {
       none: 'Watch',
       push: 'Notifying (per-push)',
@@ -295,7 +294,7 @@ class PushHeader extends React.Component {
           </span>
           {showPushHealthStatus && (
             <PushHealthStatus
-              repoName={repoName}
+              repoName={currentRepo.name}
               pushId={pushId}
               revision={revision}
               jobCounts={jobCounts}
@@ -326,7 +325,7 @@ class PushHeader extends React.Component {
             )}
             <a
               className="btn btn-sm btn-push test-view-btn"
-              href={`/testview.html?repo=${repoName}&revision=${revision}`}
+              href={`/testview.html?repo=${currentRepo.name}&revision=${revision}`}
               target="_blank"
               rel="noopener noreferrer"
               title="View details on failed test results for this push"
@@ -371,7 +370,6 @@ class PushHeader extends React.Component {
               isLoggedIn={isLoggedIn}
               runnableVisible={runnableVisible}
               revision={revision}
-              repoName={repoName}
               currentRepo={currentRepo}
               pushId={pushId}
               showRunnableJobs={showRunnableJobs}
@@ -391,7 +389,6 @@ PushHeader.propTypes = {
   pushTimestamp: PropTypes.number.isRequired,
   author: PropTypes.string.isRequired,
   revision: PropTypes.string.isRequired,
-  repoName: PropTypes.string.isRequired,
   filterModel: PropTypes.object.isRequired,
   runnableVisible: PropTypes.bool.isRequired,
   showRunnableJobs: PropTypes.func.isRequired,

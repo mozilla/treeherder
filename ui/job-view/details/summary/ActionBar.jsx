@@ -126,7 +126,7 @@ class ActionBar extends React.PureComponent {
   };
 
   retriggerJob = jobs => {
-    const { user, repoName, notify, currentRepo } = this.props;
+    const { user, notify, currentRepo } = this.props;
 
     if (!user.isLoggedIn) {
       return notify('Must be logged in to retrigger a job', 'danger');
@@ -144,7 +144,7 @@ class ActionBar extends React.PureComponent {
       });
     });
 
-    JobModel.retrigger(jobs, repoName, notify, currentRepo);
+    JobModel.retrigger(jobs, currentRepo.name, notify, currentRepo);
   };
 
   backfillJob = async () => {
@@ -332,7 +332,7 @@ class ActionBar extends React.PureComponent {
   };
 
   createInteractiveTask = async () => {
-    const { user, selectedJobFull, repoName, notify, currentRepo } = this.props;
+    const { user, selectedJobFull, notify, currentRepo } = this.props;
     const jobId = selectedJobFull.id;
 
     if (!user.isLoggedIn) {
@@ -342,7 +342,7 @@ class ActionBar extends React.PureComponent {
       );
     }
 
-    const job = await JobModel.get(repoName, jobId);
+    const job = await JobModel.get(currentRepo.name, jobId);
     const { id: decisionTaskId } = await PushModel.getDecisionTaskId(
       job.push_id,
       notify,
@@ -380,14 +380,14 @@ class ActionBar extends React.PureComponent {
   };
 
   cancelJobs = jobs => {
-    const { user, repoName, notify, currentRepo } = this.props;
+    const { user, notify, currentRepo } = this.props;
 
     if (!user.isLoggedIn) {
       return notify('Must be logged in to cancel a job', 'danger');
     }
     JobModel.cancel(
       jobs.filter(({ state }) => state === 'pending' || state === 'running'),
-      repoName,
+      currentRepo.name,
       notify,
       currentRepo,
     );
@@ -579,7 +579,6 @@ class ActionBar extends React.PureComponent {
 ActionBar.propTypes = {
   pinJob: PropTypes.func.isRequired,
   user: PropTypes.object.isRequired,
-  repoName: PropTypes.string.isRequired,
   selectedJobFull: PropTypes.object.isRequired,
   logParseStatus: PropTypes.string.isRequired,
   notify: PropTypes.func.isRequired,

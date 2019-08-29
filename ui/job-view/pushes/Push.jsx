@@ -103,9 +103,9 @@ class Push extends React.PureComponent {
   }
 
   setSingleRevisionWindowTitle() {
-    const { allUnclassifiedFailureCount, repoName, push } = this.props;
+    const { allUnclassifiedFailureCount, currentRepo, push } = this.props;
     const percentComplete = getPercentComplete(this.state.jobCounts);
-    const title = `[${allUnclassifiedFailureCount}] ${repoName}`;
+    const title = `[${allUnclassifiedFailureCount}] ${currentRepo.name}`;
 
     document.title = `${percentComplete}% - ${title}: ${getRevisionTitle(
       push.revisions,
@@ -265,7 +265,7 @@ class Push extends React.PureComponent {
   showUpdateNotifications = prevState => {
     const { watched, jobCounts } = this.state;
     const {
-      repoName,
+      currentRepo,
       notificationSupported,
       push: { revision, id: pushId },
       notify,
@@ -298,7 +298,7 @@ class Push extends React.PureComponent {
 
       if (message) {
         const notification = new Notification(message, {
-          body: `${repoName} rev ${revision.substring(0, 12)}`,
+          body: `${currentRepo.name} rev ${revision.substring(0, 12)}`,
           tag: pushId,
         });
 
@@ -317,11 +317,11 @@ class Push extends React.PureComponent {
   };
 
   showRunnableJobs = async () => {
-    const { push, repoName, notify } = this.props;
+    const { push, currentRepo, notify } = this.props;
 
     try {
       const decisionTaskId = await PushModel.getDecisionTaskId(push.id, notify);
-      const jobList = await RunnableJobModel.getList(repoName, {
+      const jobList = await RunnableJobModel.getList(currentRepo.name, {
         decision_task_id: decisionTaskId,
         push_id: push.id,
       });
@@ -354,7 +354,7 @@ class Push extends React.PureComponent {
   };
 
   showFuzzyJobs = async () => {
-    const { push, repoName, notify } = this.props;
+    const { push, currentRepo, notify } = this.props;
     const createRegExp = (str, opts) =>
       new RegExp(str.raw[0].replace(/\s/gm, ''), opts || '');
     const excludedJobNames = createRegExp`
@@ -370,7 +370,7 @@ class Push extends React.PureComponent {
       const decisionTaskId = await PushModel.getDecisionTaskId(push.id, notify);
 
       notify('Fetching runnable jobs... This could take a while...');
-      let fuzzyJobList = await RunnableJobModel.getList(repoName, {
+      let fuzzyJobList = await RunnableJobModel.getList(currentRepo.name, {
         decision_task_id: decisionTaskId,
       });
       fuzzyJobList = [
@@ -434,7 +434,6 @@ class Push extends React.PureComponent {
     const {
       push,
       isLoggedIn,
-      repoName,
       currentRepo,
       duplicateJobsVisible,
       filterModel,
@@ -491,7 +490,6 @@ class Push extends React.PureComponent {
           jobCounts={jobCounts}
           watchState={watched}
           isLoggedIn={isLoggedIn}
-          repoName={repoName}
           currentRepo={currentRepo}
           filterModel={filterModel}
           runnableVisible={runnableVisible}
@@ -514,7 +512,7 @@ class Push extends React.PureComponent {
               <PushJobs
                 push={push}
                 platforms={platforms}
-                repoName={repoName}
+                repoName={currentRepo.name}
                 filterModel={filterModel}
                 pushGroupState={pushGroupState}
                 toggleSelectedRunnableJob={this.toggleSelectedRunnableJob}
@@ -544,7 +542,6 @@ Push.propTypes = {
   push: PropTypes.object.isRequired,
   currentRepo: PropTypes.object.isRequired,
   filterModel: PropTypes.object.isRequired,
-  repoName: PropTypes.string.isRequired,
   isLoggedIn: PropTypes.bool.isRequired,
   notificationSupported: PropTypes.bool.isRequired,
   getAllShownJobs: PropTypes.func.isRequired,
