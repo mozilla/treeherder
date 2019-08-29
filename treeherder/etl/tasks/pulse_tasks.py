@@ -11,16 +11,6 @@ from treeherder.etl.taskcluster_pulse.handler import handleMessage
 from treeherder.workers.task import retryable_task
 
 
-@retryable_task(name='store-pulse-jobs', max_retries=10)
-def store_pulse_jobs(pulse_job, exchange, routing_key):
-    """
-    Fetches the jobs pending from pulse exchanges and loads them.
-    """
-    newrelic.agent.add_custom_parameter("exchange", exchange)
-    newrelic.agent.add_custom_parameter("routing_key", routing_key)
-    JobLoader().process_job(pulse_job)
-
-
 @retryable_task(name='store-pulse-tasks', max_retries=10)
 def store_pulse_tasks(pulse_job, exchange, routing_key):
     """

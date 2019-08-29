@@ -1,5 +1,5 @@
 """
-Job and Push sources
+Task and Push sources
 
 Both source types define an exchange path followed by one or more routing key
 parts. Routing keys are specified after a period (".") separated by colons
@@ -15,7 +15,6 @@ env = environ.Env()
 # Projects specified after the period (".") delimiter and will be combined with
 # the wildcard ("#") when used in prepare_consumer function when called by
 # pulse_listener_tasks.
-job_sources = ["exchange/taskcluster-treeherder/v1/jobs.#"]
 task_sources = env.list(
     "PULSE_TASK_SOURCES",
     default=[

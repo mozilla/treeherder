@@ -13,7 +13,7 @@ If you just want to get the same data that Treeherder gets, then you have 3 step
 1. Create a user on [Pulse Guardian] if you don't already have one
 2. Create your `PULSE_URL` string
 3. Run a backend Docker container to read Pushes
-4. Run a backend Docker container to read Jobs
+4. Run a backend Docker container to read Tasks
 5. Run a backend Docker container for **Celery**
 
 ### 1. Pulse Guardian
@@ -50,7 +50,7 @@ push as it is read. This process does not ingest the push into Treeherder. It
 adds that Push message to a local **Celery** queue for ingestion. They will be
 ingested in step 5.
 
-### 4. Read Jobs
+### 4. Read Tasks
 
 As in step 3, open a new terminal and export your `PULSE_URL` variable.
 
@@ -82,7 +82,7 @@ See [Starting a local Treeherder instance] for more info.
 
 ### Changing which Data to Ingest
 
-`treeherder.services.pulse.sources` provides default sources for both Jobs and Pushes.
+`treeherder.services.pulse.sources` provides default sources for both Tasks and Pushes.
 
 #### Pushes
 
@@ -96,9 +96,9 @@ push_sources = [
 ]
 ```
 
-#### Jobs
+#### Tasks
 
-Job Exchanges and Projects are defined in `job_sources`, however, it can
+Task Exchanges and Projects are defined in `task_sources`, however, it can
 also be configured in the environment by using the `PULSE_TASK_SOURCES` environment variables.
 This defines a list of exchanges with projects.
 
@@ -111,11 +111,11 @@ In this example we've defined two exchanges:
 - `exchange/taskcluster-queue/v1/task-pending`
 - `exchange/taskcluster-queue/v1/task-completed`
 
-When Jobs are read from Pulse and added to Treeherder's celery queue we generate a routing key by prepending `#.` to each project key.
+When Tasks are read from Pulse and added to Treeherder's celery queue we generate a routing key by prepending `#.` to each project key.
 
 ### Advanced Celery options
 
-If you only want to ingest the Pushes and Jobs, but don't care about log parsing
+If you only want to ingest the Pushes and Tasks, but don't care about log parsing
 and all the other processing Treeherder does, then you can minimize the **Celery**
 task. You will need:
 

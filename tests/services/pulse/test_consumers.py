@@ -1,5 +1,5 @@
-from treeherder.services.pulse import (JobConsumer,
-                                       PushConsumer,
+from treeherder.services.pulse import (PushConsumer,
+                                       TaskConsumer,
                                        prepare_consumer)
 from treeherder.services.pulse.consumers import bind_to
 
@@ -7,7 +7,7 @@ from .utils import create_and_destroy_exchange
 
 
 def test_bind_to(pulse_connection, pulse_exchange):
-    job_consumer = JobConsumer(pulse_connection)
+    job_consumer = TaskConsumer(pulse_connection)
     exchange = pulse_exchange("exchange/taskcluster-queue/v1/task-running", create_exchange=True)
     routing_key = "test_routing_key"
 
@@ -32,12 +32,12 @@ def test_prepare_consumer(pulse_connection, pulse_exchange):
     with create_and_destroy_exchange(pulse_connection, job_exchange):
         job_consumer = prepare_consumer(
             pulse_connection,
-            JobConsumer,
+            TaskConsumer,
             ["{}.test_project".format(job_exchange)],
             lambda key: "foo.{}".format(key),
         )
 
-    assert isinstance(job_consumer, JobConsumer)
+    assert isinstance(job_consumer, TaskConsumer)
     assert len(job_consumer.consumers) == 1
 
     queue = job_consumer.consumers[0]["queues"]
