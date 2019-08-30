@@ -61,6 +61,7 @@ async def new_pulse_jobs(sample_data, test_repository, push_stored):
     for message in list(pulseMessages.values()):
         taskId = message["payload"]["status"]["taskId"]
         task = tasks[taskId]
+        print(taskId)
         # If we pass task to handleMessage we won't hit the network
         taskRuns = await handleMessage(message, task)
         # handleMessage returns [] when it is a task that is not meant for Treeherder

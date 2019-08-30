@@ -26,6 +26,7 @@ def store_pulse_tasks(pulse_job, exchange, routing_key, root_url='https://taskcl
     runs = loop.run_until_complete(handleMessage({
         "exchange": exchange,
         "payload": pulse_job,
+        "root_url": root_url,
     }))
     for run in runs:
         JobLoader().process_job(run, root_url)
