@@ -277,6 +277,20 @@ th {
   color: #333;
 }
 
+.compare-table .subtest-header > th.subtest-header-visible {
+  color: #333;
+}
+
+.compare-table .sort-symbol-asc-visible {
+  border-top-color: #333;
+  border-top-width: 1px;
+}
+
+.compare-table .sort-symbol-desc-visible {
+  border-bottom-color: #333;
+  border-bottom-width: 1px;
+}
+
 .compare-table tr:hover .detail-hint {
   border-bottom: 1px dotted #777;
 }

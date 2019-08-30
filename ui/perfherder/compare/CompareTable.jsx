@@ -1,5 +1,6 @@
 import React from 'react';
 import { Table } from 'reactstrap';
+import $ from 'jquery';
 import PropTypes from 'prop-types';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import {
@@ -14,6 +15,16 @@ import ProgressBar from '../ProgressBar';
 import TableAverage from './TableAverage';
 
 export default class CompareTable extends React.PureComponent {
+  constructor(props) {
+    super(props);
+    this.state = {
+      sortOrderAsc: false,
+    };
+
+    this.compareBy.bind(this);
+    this.sortBy.bind(this);
+  }
+
   getColorClass = (data, type) => {
     const { className, isRegression, isImprovement } = data;
     if (type === 'bar' && !isRegression && !isImprovement) return 'secondary';
@@ -28,24 +39,94 @@ export default class CompareTable extends React.PureComponent {
       displayNumber(percentage),
     )}% ${improvement ? 'better' : 'worse'})`;
 
+  compareBy = key => {
+    const { sortOrderAsc } = this.state;
+    return function(a, b) {
+      if (a[key] <= b[key]) {
+        if (sortOrderAsc) return -1;
+        return 1;
+      }
+      if (a[key] >= b[key]) {
+        if (sortOrderAsc) return 1;
+        return -1;
+      }
+      return 0;
+    };
+  };
+
+  sortBy = (key, data) => {
+    const { sortOrderAsc } = this.state;
+    // eslint-disable-next-line react/no-access-state-in-setstate
+    data.sort(this.compareBy(key));
+    this.setState({ sortOrderAsc: !sortOrderAsc });
+
+    $(
+      'table.compare-table:nth-child(2) > thead:nth-child(1) > tr > th',
+    ).removeClass('subtest-header-visible');
+    $(
+      'table.compare-table:nth-child(2) > thead:nth-child(1) > tr > th',
+    ).addClass('subtest-header-visible');
+    key = key.toLowerCase();
+    if (sortOrderAsc) {
+      $(`#${key}`).removeClass('sort-symbol-desc-visible');
+      $(`#${key}`).addClass('sort-symbol-asc-visible');
+    } else {
+      $(`#${key}`).removeClass('sort-symbol-asc-visible');
+      $(`#${key}`).addClass('sort-symbol-desc-visible');
+    }
+
+    this.forceUpdate();
+  };
+
   render() {
     const { data, testName } = this.props;
+    // console.log(`data: ${JSON.stringify(data)}`);
     return (
       <Table sz="small" className="compare-table mb-0 px-0" key={testName}>
         <thead>
           <tr className="subtest-header bg-lightgray">
-            <th className="text-left">
-              <span>{testName}</span>
+            <th id="name" className="text-left">
+              <span onClick={() => this.sortBy('name', data)}>{testName}</span>
             </th>
-            <th className="table-width-lg">Base</th>
+            <th
+              id="originalvalue"
+              className="table-width-lg"
+              onClick={() => this.sortBy('originalValue', data)}
+            >
+              Base
+            </th>
             {/* empty for less than/greater than data */}
             <th className="table-width-sm" />
-            <th className="table-width-lg">New</th>
-            <th className="table-width-lg">Delta</th>
+            <th
+              id="newvalue"
+              className="table-width-lg"
+              onClick={() => this.sortBy('newValue', data)}
+            >
+              New
+            </th>
+            <th
+              id="deltapercentage"
+              className="table-width-lg"
+              onClick={() => this.sortBy('deltaPercentage', data)}
+            >
+              Delta
+            </th>
             {/* empty for progress bars (magnitude of difference) */}
             <th className="table-width-lg" />
-            <th className="table-width-lg">Confidence</th>
-            <th className="text-right table-width-md"># Runs</th>
+            <th
+              id="confidence"
+              className="table-width-lg"
+              onClick={() => this.sortBy('confidence', data)}
+            >
+              Confidence
+            </th>
+            <th
+              id="originalruns"
+              className="text-right table-width-md"
+              onClick={() => this.sortBy('originalRuns', data)}
+            >
+              # Runs
+            </th>
           </tr>
         </thead>
         <tbody>
