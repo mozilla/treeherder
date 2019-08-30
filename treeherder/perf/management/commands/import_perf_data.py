@@ -1,5 +1,6 @@
 import collections
 import datetime
+import math
 from multiprocessing import Manager as interproc
 from multiprocessing import Process
 
@@ -197,7 +198,18 @@ class MassiveData(Data):
             print('Saving {0} data...'.format(table_name))
             model_values = properties['model'].objects.using(self.source).filter(
                 pk__in=self.models_instances[table_name])
+            self._ignore_sensitive_fields(table_name, model_values)
             properties['model'].objects.using(self.target).bulk_create(model_values)
+
+    def _ignore_sensitive_fields(self, table_name, model_values):
+        """
+        UPSTREAM_DATABASE_URL credentials don't generally have read rights on
+        the auth_user table (which contains users' password hashes).
+        Simply setting `classifier = None` won't cause access errors.
+        """
+        if table_name == 'performance_alert':
+            for model in model_values:
+                model.classifier = None
 
     def fillup_target(self, **filters):
         # fetch all alert summaries & alerts
@@ -215,13 +227,14 @@ class MassiveData(Data):
 
         processes_list = []
         num_workers = min(self.num_workers, alert_summaries_len)
+        start_idx = 0
+        stop_idx = step_size = math.ceil(alert_summaries_len/num_workers)
         for idx in range(num_workers):
-            start_idx = int(idx*alert_summaries_len/num_workers)
-            stop_idx = int((idx+1)*alert_summaries_len/num_workers)
-
             alerts = alert_summaries[start_idx:stop_idx]
             p = Process(target=self.db_worker, args=(idx+1, alerts))
             processes_list.append(p)
+
+            start_idx, stop_idx = stop_idx, stop_idx + step_size
 
         # start the processes
         for p in processes_list:
@@ -259,8 +272,7 @@ class MassiveData(Data):
             if alert.related_summary not in self.models_instances['performance_alert_summary']:
                 # if the alert summary identified isn't registered yet
                 # register it with all its alerts
-                alert_summary = list(PerformanceAlertSummary.objects.get(pk=alert.related_summary))
-                self.progress_notifier(self.bring_in_alert_summary, alert_summary,
+                self.progress_notifier(self.bring_in_alert_summary, [alert.related_summary],
                                        'alert summary', 1)
 
         # pull parent signature first
