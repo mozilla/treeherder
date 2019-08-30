@@ -143,6 +143,7 @@ def test_repository(transactional_db):
         repository_group_id=1,
         description="",
         performance_alerts_enabled=True,
+        tc_root_url="https://tc.example.com",
     )
     return r
 

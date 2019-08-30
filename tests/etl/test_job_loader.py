@@ -98,7 +98,7 @@ def test_new_job_transformation(new_pulse_jobs, new_transformed_jobs, failure_cl
         (decoded_task_id, _) = job_guid.split("/")
         # As of slugid v2, slugid.encode() returns a string not bytestring under Python 3.
         taskId = slugid.encode(uuid.UUID(decoded_task_id))
-        transformed_job = jl.process_job(message)
+        transformed_job = jl.process_job(message, 'https://tc.example.com')
         # Not all messages from Taskcluster will be processed
         if transformed_job:
             assert new_transformed_jobs[taskId] == transformed_job
@@ -114,7 +114,7 @@ def test_ingest_pulse_jobs(pulse_jobs, test_repository, push_stored,
     revision = push_stored[0]["revision"]
     for job in pulse_jobs:
         job["origin"]["revision"] = revision
-        jl.process_job(job)
+        jl.process_job(job, 'https://tc.example.com')
 
     jobs = Job.objects.all()
     assert len(jobs) == 5
@@ -152,7 +152,7 @@ def test_ingest_pending_pulse_job(pulse_jobs, push_stored,
     revision = push_stored[0]["revision"]
     pulse_job["origin"]["revision"] = revision
     pulse_job["state"] = "pending"
-    jl.process_job(pulse_job)
+    jl.process_job(pulse_job, 'https://tc.example.com')
 
     jobs = Job.objects.all()
     assert len(jobs) == 1
@@ -179,7 +179,7 @@ def test_ingest_pulse_jobs_bad_project(pulse_jobs, test_repository, push_stored,
     job["origin"]["project"] = "ferd"
 
     for pulse_job in pulse_jobs:
-        jl.process_job(pulse_job)
+        jl.process_job(pulse_job, 'https://tc.example.com')
 
     # length of pulse jobs is 5, so one will be skipped due to bad project
     assert Job.objects.count() == 4
@@ -196,7 +196,7 @@ def test_ingest_pulse_jobs_with_missing_push(pulse_jobs):
 
     with pytest.raises(MissingPushException):
         for pulse_job in pulse_jobs:
-            jl.process_job(pulse_job)
+            jl.process_job(pulse_job, 'https://tc.example.com')
 
     # if one job isn't ready, except on the whole batch.  They'll retry as a
     # task after the timeout.
@@ -265,7 +265,7 @@ def test_skip_unscheduled(first_job, failure_classifications,
                           mock_log_parser):
     jl = JobLoader()
     first_job["state"] = "unscheduled"
-    jl.process_job(first_job)
+    jl.process_job(first_job, 'https://tc.example.com')
 
     assert not Job.objects.count()
 
@@ -284,7 +284,7 @@ def change_state_result(test_job, job_loader, new_state, new_result, exp_state, 
         for index in errorsummary_indices:
             del job["jobInfo"]["links"][index]
 
-    job_loader.process_job(job)
+    job_loader.process_job(job, 'https://tc.example.com')
 
     assert Job.objects.count() == 1
     job = Job.objects.get(id=1)

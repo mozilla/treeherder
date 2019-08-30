@@ -155,7 +155,7 @@ class TaskConsumer(PulseConsumer):
         routing_key = message.delivery_info['routing_key']
         logger.info('received job message from %s#%s', exchange, routing_key)
         store_pulse_tasks.apply_async(
-            args=[body, exchange, routing_key],
+            args=[body, exchange, routing_key, self.root_url],
             queue='store_pulse_tasks'
         )
         message.ack()
@@ -178,7 +178,7 @@ class PushConsumer(PulseConsumer):
         routing_key = message.delivery_info['routing_key']
         logger.info('received push message from %s#%s', exchange, routing_key)
         store_pulse_pushes.apply_async(
-            args=[body, exchange, routing_key],
+            args=[body, exchange, routing_key, self.root_url],
             queue='store_pulse_pushes'
         )
         message.ack()
