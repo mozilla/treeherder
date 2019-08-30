@@ -76,8 +76,11 @@ export const updateQueryParams = function updateHistoryWithQueryParams(
 
 export const sortData = function sortData(data, sortBy, desc) {
   data.sort((a, b) => {
-    const item1 = desc ? b[sortBy] : a[sortBy];
-    const item2 = desc ? a[sortBy] : b[sortBy];
+    let item1 = desc ? b[sortBy] : a[sortBy];
+    let item2 = desc ? a[sortBy] : b[sortBy];
+    // This enables comparing arrays by their length
+    item1 = Array.isArray(item1) ? item1.length : item1;
+    item2 = Array.isArray(item2) ? item2.length : item2;
 
     if (item1 < item2) {
       return -1;
