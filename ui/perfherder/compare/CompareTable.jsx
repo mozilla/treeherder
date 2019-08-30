@@ -1,5 +1,6 @@
 import React from 'react';
 import { Table } from 'reactstrap';
+import $ from 'jquery';
 import PropTypes from 'prop-types';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import {
@@ -14,6 +15,22 @@ import ProgressBar from '../ProgressBar';
 import TableAverage from './TableAverage';
 
 export default class CompareTable extends React.PureComponent {
+  constructor(props) {
+    super(props);
+    this.state = {
+      columnName: '',
+      sortOrderAsc: false,
+      sorted: false,
+      borderTopColor: '',
+      borderTopWidth: '',
+      borderBottomColor: '',
+      borderBottomWidth: '',
+    };
+
+    this.compareBy.bind(this);
+    this.sortBy.bind(this);
+  }
+
   getColorClass = (data, type) => {
     const { className, isRegression, isImprovement } = data;
     if (type === 'bar' && !isRegression && !isImprovement) return 'secondary';
@@ -28,24 +45,173 @@ export default class CompareTable extends React.PureComponent {
       displayNumber(percentage),
     )}% ${improvement ? 'better' : 'worse'})`;
 
+  compareBy = (key, shouldBeNumber) => {
+    const { sortOrderAsc } = this.state;
+    return (a, b) => {
+      // If a[key] or b[key] doesn't exist, they are skipped by the sorting
+      // so they need to be initialized with a default value
+      if (shouldBeNumber) {
+        // eslint-disable-next-line no-restricted-globals
+        if (isNaN(a[key]) && !Array.isArray(a[key])) a[key] = 0;
+        // eslint-disable-next-line no-restricted-globals
+        if (isNaN(b[key]) && !Array.isArray(b[key])) b[key] = 0;
+      } else {
+        a[key] = typeof a[key] === 'undefined' ? '' : a[key];
+        b[key] = typeof b[key] === 'undefined' ? '' : b[key];
+      }
+      const ak = Array.isArray(a[key]) ? a[key].length : a[key];
+      const bk = Array.isArray(b[key]) ? b[key].length : b[key];
+      if (ak < bk) {
+        if (sortOrderAsc) return -1;
+        return 1;
+      }
+      if (ak > bk) {
+        if (sortOrderAsc) return 1;
+        return -1;
+      }
+      return 0;
+    };
+  };
+
+  sortBy = (key, data) => {
+    const { sortOrderAsc } = this.state
+    let {
+      borderTopColor,
+      borderTopWidth,
+      borderBottomColor,
+      borderBottomWidth,
+    } = this.state;
+    const columnName = key;
+    // every other columns except "name" are numbers
+    const shouldBeNumber = key !== 'name';
+    data.sort(this.compareBy(key, shouldBeNumber));
+    const sorted = true;
+    if (sorted) {
+      if (sortOrderAsc) {
+        borderTopColor = '#333';
+        borderTopWidth = '1px';
+        borderBottomColor = '';
+        borderBottomWidth = '';
+        this.setState({
+          columnName,
+          sortOrderAsc: !sortOrderAsc,
+          sorted,
+          borderTopColor,
+          borderTopWidth,
+          borderBottomColor,
+          borderBottomWidth,
+        });
+      } else {
+        borderBottomColor = '#333';
+        borderBottomWidth = '1px';
+        borderTopColor = '';
+        borderTopWidth = '';
+        this.setState({
+          columnName,
+          sortOrderAsc: !sortOrderAsc,
+          sorted,
+          borderTopColor,
+          borderTopWidth,
+          borderBottomColor,
+          borderBottomWidth,
+        });
+      }
+    };
+    // console.log(`sortOrderAsc: ${sortOrderAsc}`);
+    // console.log(`sortBy sorted: ${sorted}`);
+
+    this.forceUpdate();
+  };
+
   render() {
+    // eslint-disable-next-line react/prop-types
     const { data, testName } = this.props;
+    const {
+      columnName,
+      sorted,
+      borderTopColor,
+      borderTopWidth,
+      borderBottomColor,
+      borderBottomWidth,
+    } = this.state;
+    console.log(`data: ${JSON.stringify(data)}`);
+    console.log(`render sorted: ${JSON.stringify(sorted)}`);
     return (
       <Table sz="small" className="compare-table mb-0 px-0" key={testName}>
         <thead>
-          <tr className="subtest-header bg-lightgray">
-            <th className="text-left">
-              <span>{testName}</span>
+          <tr className={`${sorted ? 'subtest-header-visible ' : 'subtest-header '}bg-lightgray`}>
+            <th
+              style={{
+                borderTopColor: columnName === 'name' ? borderTopColor : '',
+                borderTopWidth: columnName === 'name' ? borderTopWidth : '',
+                borderBottomColor: columnName === 'name' ? borderBottomColor : '',
+                borderBottomWidth: columnName === 'name' ? borderBottomWidth : '',
+              }}
+              className="text-left"
+            >
+              <span onClick={() => this.sortBy('name', data)}>{testName}</span>
             </th>
-            <th className="table-width-lg">Base</th>
+            <th
+              style={{
+                borderTopColor: columnName === 'originalValue' ? borderTopColor : '',
+                borderTopWidth: columnName === 'originalValue' ? borderTopWidth : '',
+                borderBottomColor: columnName === 'originalValue' ? borderBottomColor : '',
+                borderBottomWidth: columnName === 'originalValue' ? borderBottomWidth : '',
+              }}
+              className="table-width-lg"
+            >
+              <span onClick={() => this.sortBy('originalValue', data)}>Base</span>
+            </th>
             {/* empty for less than/greater than data */}
             <th className="table-width-sm" />
-            <th className="table-width-lg">New</th>
-            <th className="table-width-lg">Delta</th>
+            <th
+              style={{
+                borderTopColor: columnName === 'newValue' ? borderTopColor : '',
+                borderTopWidth: columnName === 'newValue' ? borderTopWidth : '',
+                borderBottomColor: columnName === 'newValue' ? borderBottomColor : '',
+                borderBottomWidth: columnName === 'newValue' ? borderBottomWidth : '',
+              }}
+              className="table-width-lg"
+            >
+              <span onClick={() => this.sortBy('newValue', data)}>New</span>
+            </th>
+            <th
+              style={{
+                borderTopColor: columnName === 'deltaPercentage' ? borderTopColor : '',
+                borderTopWidth: columnName === 'deltaPercentage' ? borderTopWidth : '',
+                borderBottomColor: columnName === 'deltaPercentage' ? borderBottomColor : '',
+                borderBottomWidth: columnName === 'deltaPercentage' ? borderBottomWidth : '',
+              }}
+              className="table-width-lg"
+              onClick={() => this.sortBy('deltaPercentage', data)}
+            >
+              <span onClick={() => this.sortBy('deltaPercentage', data)}>Delta</span>
+            </th>
             {/* empty for progress bars (magnitude of difference) */}
             <th className="table-width-lg" />
-            <th className="table-width-lg">Confidence</th>
-            <th className="text-right table-width-md"># Runs</th>
+            <th
+              style={{
+                borderTopColor: columnName === 'confidence' ? borderTopColor : '',
+                borderTopWidth: columnName === 'confidence' ? borderTopWidth : '',
+                borderBottomColor: columnName === 'confidence' ? borderBottomColor : '',
+                borderBottomWidth: columnName === 'confidence' ? borderBottomWidth : '',
+              }}
+              className="table-width-lg"
+            >
+              <span onClick={() => this.sortBy('confidence', data)}>Confidence</span>
+            </th>
+            <th
+              style={{
+                borderTopColor: columnName === ('originalRuns' || 'newRuns') ? borderTopColor : '',
+                borderTopWidth: columnName === ('originalRuns' || 'newRuns') ? borderTopWidth : '',
+                borderBottomColor: columnName === ('originalRuns' || 'newRuns') ? borderBottomColor : '',
+                borderBottomWidth: columnName === ('originalRuns' || 'newRuns') ? borderBottomWidth : '',
+              }}
+              className="text-right table-width-md"
+            >
+              <span onClick={() => this.sortBy('originalRuns', data)}># Runs base </span>
+              /<span onClick={() => this.sortBy('newRuns', data)}> new</span>
+            </th>
           </tr>
         </thead>
         <tbody>
@@ -145,7 +311,8 @@ export default class CompareTable extends React.PureComponent {
                   <SimpleTooltip
                     textClass="detail-hint"
                     text={`${results.originalRuns.length} / ${results.newRuns.length}`}
-                    tooltipText={`${results.originalRuns.length} base / ${results.newRuns.length} new`}
+                    tooltipText={`
+              ${results.originalRuns.length} base / ${results.newRuns.length} new`}
                   />
                 )}
               </td>

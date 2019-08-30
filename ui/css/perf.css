@@ -277,6 +277,22 @@ th {
   color: #333;
 }
 
+.compare-table .subtest-header-visible {
+  color: #333;
+  transition: None;
+}
+.compare-table .subtest-header-visible > th {
+  padding: 5px;
+}
+
+.compare-table .text-left span,
+.compare-table .table-width-lg span,
+.compare-table .text-right span,
+.compare-table .table-width-md span {
+  cursor: pointer;
+
+}
+
 .compare-table tr:hover .detail-hint {
   border-bottom: 1px dotted #777;
 }
