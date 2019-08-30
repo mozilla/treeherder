@@ -10,11 +10,10 @@ posting your own data.
 
 If you just want to get the same data that Treeherder gets, then you have 3 steps:
 
-1. Create a user on [Pulse Guardian] if you don't already have one
-2. Create your `PULSE_URL` string
-3. Run a backend Docker container to read Pushes
-4. Run a backend Docker container to read Tasks
-5. Run a backend Docker container for **Celery**
+1. Create a user on [Pulse Guardian] if you don't already have one, and determine a Pulse URL for it
+2. Run a backend Docker container to read Pushes
+3. Run a backend Docker container to read Tasks
+4. Run a backend Docker container for **Celery**
 
 ### 1. Pulse Guardian
 
@@ -23,26 +22,28 @@ username and password. Remember these as you'll use them in the next step.
 Unfortunately, **Pulse** doesn't support creating queues with a guest account, so
 this step is necessary.
 
-### 2. Environment Variable
-
-If your **Pulse User** was username: `foo` and password: `bar`, your config
-string would be:
+If your **Pulse User** was username: `foo` and password: `bar`, your Pulse URL
+would be:
 
 `amqp://foo:bar@pulse.mozilla.org:5671/?ssl=1`
 
-### 3. Read Pushes
+### 2. Read Pushes
 
-On your localhost set your Pulse config environment variable:
+You will need the root URL for the Taskcluster deployment, such as `https://firefox-ci-tc.services.mozilla.com`.
+
+On your localhost set PULSE_PUSH_SOURCES as follows, subsituting the appropriate URLs:
 
 ```bash
-export PULSE_URL="amqp://foo:bar@pulse.mozilla.org:5671/?ssl=1"
+export PULSE_PUSH_SOURCES='[{"root_url": "<root url>", "github": true, "hgmo": true, "pulse_url": "<pulse url>"}]'
 ```
+
+If the deployment doesn't connect with github or `hg.mozilla.org`, omit the `github` and `hgmo` properties, respectively.
 
 Next, run the Treeherder management command to read Pushes from the default **Pulse**
 exchange:
 
 ```bash
-docker-compose run -e PULSE_URL backend ./manage.py pulse_listener_pushes
+docker-compose run -e PULSE_PUSH_SOURCES backend ./manage.py pulse_listener_pushes
 ```
 
 You will see a list of the exchanges it has mounted to and a message for each
@@ -52,12 +53,16 @@ ingested in step 5.
 
 ### 4. Read Tasks
 
-As in step 3, open a new terminal and export your `PULSE_URL` variable.
+As in step 3, open a new terminal and this time create `PULSE_TASK_SOURCES`:
+
+```bash
+export PULSE_TASK_SOURCES='[{"root_url": "<root url>", "pulse_url": "<pulse url>"}]'
+```
 
 Then run the management command for listing to jobs:
 
 ```bash
-docker-compose run -e PULSE_URL backend ./manage.py pulse_listener_tasks
+docker-compose run -e PULSE_TASK_SOURCES backend ./manage.py pulse_listener_tasks
 ```
 
 You will again see the list of exchanges that your queue is now mounted to and
@@ -82,36 +87,8 @@ See [Starting a local Treeherder instance] for more info.
 
 ### Changing which Data to Ingest
 
-`treeherder.services.pulse.sources` provides default sources for both Tasks and Pushes.
-
-#### Pushes
-
-`push_sources` defines a list of exchanges with routing keys.
-It's rare you'll need to change this so it's not configurable via the environment.
-However if you wanted to, say, only get pushes to GitHub you would edit the list to look like this:
-
-```python
-push_sources = [
-    "exchange/taskcluster-github/v1/push.#",
-]
-```
-
-#### Tasks
-
-Task Exchanges and Projects are defined in `task_sources`, however, it can
-also be configured in the environment by using the `PULSE_TASK_SOURCES` environment variables.
-This defines a list of exchanges with projects.
-
-```bash
-export PULSE_TASK_SOURCES="exchange/taskcluster-queue/v1/task-pending.#,exchange/taskcluster-queue/v1/task-completed.#",
-```
-
-In this example we've defined two exchanges:
-
-- `exchange/taskcluster-queue/v1/task-pending`
-- `exchange/taskcluster-queue/v1/task-completed`
-
-When Tasks are read from Pulse and added to Treeherder's celery queue we generate a routing key by prepending `#.` to each project key.
+Both `PULSE_TASK_SOURCES` and `PULSE_PUSH_SOURCES` are JSON arrays containing the sources from which you wish to ingest.
+`PULSE_PUSH_SOURCES` allows configuration of the types of pushes to listen for -- `github` or `hgmo`.
 
 ### Advanced Celery options
 

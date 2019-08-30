@@ -1,15 +1,10 @@
-from .connection import pulse_conn
 from .consumers import (PushConsumer,
                         TaskConsumer,
-                        prepare_consumer)
-from .sources import (push_sources,
-                      task_sources)
+                        prepare_consumers)
 
 __all__ = [
     "PushConsumer",
     "TaskConsumer",
-    "task_sources",
-    "prepare_consumer",
+    "prepare_consumers",
     "pulse_conn",
-    "push_sources",
 ]
