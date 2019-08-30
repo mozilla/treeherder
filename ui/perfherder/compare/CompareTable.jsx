@@ -10,12 +10,24 @@ import {
 
 import SimpleTooltip from '../../shared/SimpleTooltip';
 import { displayNumber } from '../helpers';
+import { sortHashes } from '../../helpers/sort';
 import ProgressBar from '../ProgressBar';
 import { hashFunction } from '../../helpers/utils';
 
 import TableAverage from './TableAverage';
 
 export default class CompareTable extends React.PureComponent {
+  constructor(props) {
+    super(props);
+    this.state = {
+      sorted: false,
+      sortedTestName: '',
+      sortedColumnName: '',
+      sortOrder: false,
+      sortClass: '',
+    };
+  }
+
   getColorClass = (data, type) => {
     const { className, isRegression, isImprovement } = data;
     if (type === 'bar' && !isRegression && !isImprovement) return 'secondary';
@@ -45,9 +57,63 @@ export default class CompareTable extends React.PureComponent {
     return `table-${tableSection}-${hashValue}`;
   };
 
+  // Sorts the specified key of the array data depending on the typeof key
+  // If something changes in columns, you just need to update sortableKeys
+  // with the corresponding type
+  // The data model of the sortable keys is:
+  // name: string
+  // originalValue: number
+  // newValue: number
+  // deltaPercentage: number
+  // confidence: number
+  // originalRuns: array
+  // newRuns: array
+  // default: string
+  sortBy = (columnName, data) => {
+    let { sortOrder, sortClass } = this.state;
+    const { sortedTestName, sortedColumnName } = this.state;
+    const { testName } = this.props;
+    const sortableKeys = {
+      name: 'string',
+      originalValue: 'number',
+      newValue: 'number',
+      deltaPercentage: 'number',
+      confidence: 'number',
+      originalRuns: 'array',
+      newRuns: 'array',
+    };
+    const sorted = true;
+    if (sorted) {
+      // ^ sorted flag becomes true after clicking for the first time any column
+      // Toggle sort order if clicked a column header several consecutive times
+      if (sortedTestName === testName && sortedColumnName === columnName) {
+        data.sort(
+          sortHashes(columnName, sortableKeys[columnName], !sortOrder),
+        );
+      } else {
+        // sort ascending if any column was clicked for the first time
+        sortOrder = true;
+        data.sort(
+          sortHashes(columnName, sortableKeys[columnName], !sortOrder),
+        );
+      }
+      if (sortOrder) sortClass = 'sorted-asc ';
+      else sortClass = 'sorted-desc ';
+    } else sortClass = '';
+    this.setState({
+      sorted,
+      sortOrder: !sortOrder,
+      sortedTestName: testName,
+      sortedColumnName: columnName,
+      sortClass,
+    });
+
+    this.forceUpdate();
+  };
+
   render() {
     const { data, onPermalinkClick, testName } = this.props;
-
+    const { sorted, sortedColumnName, sortClass } = this.state;
     return (
       <Table
         id={this.getHashBasedId(testName)}
@@ -57,9 +123,19 @@ export default class CompareTable extends React.PureComponent {
         key={testName}
       >
         <thead>
-          <tr className="subtest-header bg-lightgray">
-            <th className="text-left">
-              <span>{testName}</span>
+          <tr
+            className={`${
+              sorted
+                ? 'subtest-header subtest-header-visible '
+                : 'subtest-header '
+            }bg-lightgray`}
+          >
+            <th
+              className={`${
+                sortedColumnName === 'name' ? sortClass : ''
+              }text-left`}
+            >
+              <span onClick={() => this.sortBy('name', data)}>{testName}</span>
               <Button
                 className="permalink p-0 ml-1"
                 color="link"
@@ -69,15 +145,55 @@ export default class CompareTable extends React.PureComponent {
                 <FontAwesomeIcon icon={faHashtag} />
               </Button>
             </th>
-            <th className="table-width-lg">Base</th>
+            <th
+              className={`${
+                sortedColumnName === 'originalValue' ? sortClass : ''
+              }table-width-lg`}
+            >
+              <span onClick={() => this.sortBy('originalValue', data)}>
+                Base
+              </span>
+            </th>
             {/* empty for less than/greater than data */}
             <th className="table-width-sm" />
-            <th className="table-width-lg">New</th>
-            <th className="table-width-lg">Delta</th>
+            <th
+              className={`${
+                sortedColumnName === 'newValue' ? sortClass : ''
+              }table-width-lg`}
+            >
+              <span onClick={() => this.sortBy('newValue', data)}>New</span>
+            </th>
+            <th
+              className={`${
+                sortedColumnName === 'deltaPercentage' ? sortClass : ''
+              }table-width-lg`}
+              onClick={() => this.sortBy('deltaPercentage', data)}
+            >
+              <span onClick={() => this.sortBy('deltaPercentage', data)}>
+                Delta
+              </span>
+            </th>
             {/* empty for progress bars (magnitude of difference) */}
             <th className="table-width-lg" />
-            <th className="table-width-lg">Confidence</th>
-            <th className="text-right table-width-md"># Runs</th>
+            <th
+              className={`${
+                sortedColumnName === 'confidence' ? sortClass : ''
+              }table-width-lg`}
+            >
+              <span onClick={() => this.sortBy('confidence', data)}>
+                Confidence
+              </span>
+            </th>
+            <th
+              className={`${
+                sortedColumnName in ['originalRuns', 'newRuns'] ? sortClass : ''
+              }text-right table-width-md`}
+            >
+              <span onClick={() => this.sortBy('originalRuns', data)}>
+                # Runs base{' '}
+              </span>
+              /<span onClick={() => this.sortBy('newRuns', data)}> new</span>
+            </th>
           </tr>
         </thead>
         <tbody>
@@ -194,7 +310,8 @@ export default class CompareTable extends React.PureComponent {
                   <SimpleTooltip
                     textClass="detail-hint"
                     text={`${results.originalRuns.length} / ${results.newRuns.length}`}
-                    tooltipText={`${results.originalRuns.length} base / ${results.newRuns.length} new`}
+                    tooltipText={`
+              ${results.originalRuns.length} base / ${results.newRuns.length} new`}
                   />
                 )}
               </td>

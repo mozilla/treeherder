@@ -89,7 +89,7 @@ export const getTTest = function getTTest(
   return delta / stdDiffErr;
 };
 
-const numericCompare = (a, b) => {
+export const numericCompare = (a, b) => {
   if (a < b) {
     return -1;
   }
