@@ -12,6 +12,9 @@
     }
   ],
   "env": {
+    "DATABASE_URL": {
+      "required": true
+    },
     "HEROKU_APP_ID": {
       "required": true
     },
