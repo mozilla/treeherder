@@ -15,6 +15,9 @@
     "BROKER_URL": {
       "required": true
     },
+    "CLOUDAMQP_URL": {
+      "required": true
+    },
     "DATABASE_URL": {
       "required": true
     },
