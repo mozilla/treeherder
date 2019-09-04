@@ -12,6 +12,7 @@
     }
   ],
   "env": {
+    "BACKEND": "https://treeherder.allizom.org",
     "BROKER_URL": {
       "required": true
     },
