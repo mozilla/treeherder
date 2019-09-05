@@ -353,13 +353,12 @@ CORS_ORIGIN_ALLOW_ALL = True  # allow requests from any host
 
 # Debug Toolbar
 if DEBUG:
-    # TODO: Update this for Docker
-    # django-debug-toolbar requires that not only DEBUG be set, but that the request IP
-    # be in Django's INTERNAL_IPS setting. When using Vagrant, requests don't come from localhost:
-    # http://blog.joshcrompton.com/2014/01/how-to-make-django-debug-toolbar-display-when-using-vagrant/
-    # If the Vagrant IPs vary by platform or if there isn't a consistent IP when we switch to Docker,
-    # we'll have to do: https://github.com/jazzband/django-debug-toolbar/pull/805#issuecomment-240976813
-    INTERNAL_IPS = ['127.0.0.1', '10.0.2.2']
+    # This controls wether the Django debug toolbar should be shown or not
+    # https://django-debug-toolbar.readthedocs.io/en/latest/configuration.html#show-toolbar-callback
+    # "You can provide your own function callback(request) which returns True or False."
+    DEBUG_TOOLBAR_CONFIG = {
+        'SHOW_TOOLBAR_CALLBACK': lambda request: DEBUG,
+    }
 
     INSTALLED_APPS.append('debug_toolbar')
 
