@@ -224,7 +224,7 @@ describe('Filtering', () => {
         getByTitle('Filter jobs containing these keywords'),
       );
       expect(keywordLink.getAttribute('href')).toBe(
-        '/#/jobs?repo=autoland&selectedJob=259537372&searchStr=gecko%2Cdecision%2Ctask%2Copt%2Cgecko%2Cdecision%2Ctask%2C%28d%29',
+        '/#/jobs?repo=autoland&selectedJob=259537372&searchStr=Gecko%2CDecision%2CTask%2Copt%2CGecko%2CDecision%2CTask%2C%28D%29',
       );
     });
   });

@@ -196,8 +196,7 @@ export const addAggregateFields = function addAggregateFields(job) {
     `${symbolInfo}(${job_type_symbol})`,
   ]
     .filter(item => typeof item !== 'undefined')
-    .join(' ')
-    .toLowerCase();
+    .join(' ');
   job.searchStr = `${job.title} ${signature}`;
 
   if (!duration) {
