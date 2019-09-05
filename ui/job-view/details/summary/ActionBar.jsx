@@ -401,7 +401,7 @@ class ActionBar extends React.PureComponent {
     return (
       <div id="job-details-actionbar">
         <nav className="navbar navbar-dark details-panel-navbar">
-          <ul className="nav navbar-nav actionbar-nav">
+          <ul className="nav actionbar-nav">
             <LogUrls
               logUrls={jobLogUrls}
               logViewerUrl={logViewerUrl}
@@ -411,7 +411,7 @@ class ActionBar extends React.PureComponent {
               <Button
                 id="pin-job-btn"
                 title="Add this job to the pinboard"
-                className="btn icon-blue"
+                className="actionbar-nav-btn btn icon-blue bg-transparent border-0"
                 onClick={() => pinJob(selectedJobFull)}
               >
                 <FontAwesomeIcon icon={faThumbtack} title="Pin job" />
@@ -425,7 +425,9 @@ class ActionBar extends React.PureComponent {
                     ? 'Repeat the selected job'
                     : 'Must be logged in to retrigger a job'
                 }
-                className={`btn ${user.isLoggedIn ? 'icon-green' : 'disabled'}`}
+                className={`actionbar-nav-btn btn bg-transparent border-0 ${
+                  user.isLoggedIn ? 'icon-green' : 'disabled'
+                }`}
                 disabled={!user.isLoggedIn}
                 onClick={() => this.retriggerJob([selectedJobFull])}
               >
@@ -437,6 +439,7 @@ class ActionBar extends React.PureComponent {
                 <li key={`reftest-${jobLogUrl.id}`}>
                   <a
                     title="Launch the Reftest Analyzer in a new window"
+                    className="actionbar-nav-btn"
                     target="_blank"
                     rel="noopener noreferrer"
                     href={getReftestUrl(jobLogUrl.url)}
@@ -456,27 +459,30 @@ class ActionBar extends React.PureComponent {
                       ? 'Cancel this job'
                       : 'Must be logged in to cancel a job'
                   }
-                  className={user.isLoggedIn ? 'hover-warning' : 'disabled'}
+                  className={`actionbar-nav-btn ${
+                    user.isLoggedIn ? 'hover-warning' : 'disabled'
+                  }`}
                   onClick={() => this.cancelJob()}
                 >
                   <FontAwesomeIcon icon={faTimesCircle} title="Cancel job" />
                 </Button>
               </li>
             )}
-          </ul>
-          <ul className="nav navbar-right">
-            <li className="dropdown">
+            <li className="dropdown ml-auto">
               <Button
                 id="actionbar-menu-btn"
                 title="Other job actions"
                 aria-haspopup="true"
                 aria-expanded="false"
-                className="btn btn-sm dropdown-toggle bg-transparent border-0 pr-2 py-0 m-0"
+                className="btn actionbar-nav-btn btn-sm dropdown-toggle bg-transparent text-light border-0 pr-2 py-2 m-0"
                 data-toggle="dropdown"
               >
                 <FontAwesomeIcon icon={faEllipsisH} title="Other job actions" />
               </Button>
-              <ul className="dropdown-menu actionbar-menu" role="menu">
+              <ul
+                className="dropdown-menu actionbar-menu dropdown-menu-right"
+                role="menu"
+              >
                 <li>
                   <span
                     id="backfill-btn"
@@ -495,7 +501,7 @@ class ActionBar extends React.PureComponent {
                       <a
                         target="_blank"
                         rel="noopener noreferrer"
-                        className="dropdown-item"
+                        className="dropdown-item pl-4"
                         href={getInspectTaskUrl(
                           selectedJobFull.taskcluster_metadata.task_id,
                         )}

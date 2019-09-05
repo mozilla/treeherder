@@ -53,10 +53,10 @@ export default function LogUrls(props) {
           </a>
         </li>
       ))}
-      <li>
-        {!logUrls.length && (
+      {!logUrls.length && (
+        <li>
           <Button
-            className="logviewer-btn disabled"
+            className="logviewer-btn disabled bg-transparent border-0"
             title="No logs available for this job"
             aria-label="No logs available for this job"
           >
@@ -66,8 +66,8 @@ export default function LogUrls(props) {
               className="logviewer-icon"
             />
           </Button>
-        )}
-      </li>
+        </li>
+      )}
 
       {logUrls.map(jobLogUrl => (
         <li key={`raw-${jobLogUrl.id}`}>
@@ -85,7 +85,7 @@ export default function LogUrls(props) {
       {!logUrls.length && (
         <li>
           <Button
-            className="disabled raw-log-icon text-white-50"
+            className="disabled raw-log-icon text-white-50 bg-transparent border-0"
             title="No logs available for this job"
             aria-label="No logs available for this job"
           >
