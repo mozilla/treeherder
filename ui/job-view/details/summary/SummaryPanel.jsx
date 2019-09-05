@@ -48,34 +48,32 @@ class SummaryPanel extends React.PureComponent {
           user={user}
         />
         <div id="summary-panel-content">
-          <div>
-            {jobDetailLoading && (
-              <div className="overlay">
-                <div>
-                  <FontAwesomeIcon
-                    icon={faSpinner}
-                    pulse
-                    className="th-spinner-lg"
-                    title="Loading..."
-                  />
-                </div>
-              </div>
-            )}
-
-            <ul className="list-unstyled">
-              {latestClassification && (
-                <ClassificationsPanel
-                  job={selectedJobFull}
-                  classification={latestClassification}
-                  classificationMap={classificationMap}
-                  bugs={bugs}
-                  currentRepo={currentRepo}
+          {jobDetailLoading && (
+            <div className="overlay">
+              <div>
+                <FontAwesomeIcon
+                  icon={faSpinner}
+                  pulse
+                  className="th-spinner-lg"
+                  title="Loading..."
                 />
-              )}
-              <StatusPanel selectedJobFull={selectedJobFull} />
-              <JobInfo job={selectedJobFull} extraFields={logStatus} />
-            </ul>
-          </div>
+              </div>
+            </div>
+          )}
+
+          <ul className="list-unstyled">
+            {latestClassification && (
+              <ClassificationsPanel
+                job={selectedJobFull}
+                classification={latestClassification}
+                classificationMap={classificationMap}
+                bugs={bugs}
+                currentRepo={currentRepo}
+              />
+            )}
+            <StatusPanel selectedJobFull={selectedJobFull} />
+            <JobInfo job={selectedJobFull} extraFields={logStatus} />
+          </ul>
         </div>
       </div>
     );

@@ -44,7 +44,7 @@ export default class JobInfo extends React.PureComponent {
     const timeFields = getTimeFields(job);
 
     return (
-      <ul id="job-info" className="list-unstyled">
+      <ul id="job-info" className="list-unstyled ml-1">
         <li className="small">
           <strong>Job: </strong>
           {showJobFilters ? (

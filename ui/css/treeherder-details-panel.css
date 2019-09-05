@@ -41,42 +41,11 @@ div#tabs-panel .tab-headers {
   margin-left: 5px;
 }
 
-div#details-panel-content .navbar-nav > ul {
-  height: 32px;
-}
-
-div#details-panel-content .navbar-nav.actionbar-nav > li > a,
-div#details-panel-content .navbar-nav.actionbar-nav > li > button {
-  padding: 8px 15px;
-  line-height: 16px;
-}
-
-div#details-panel-content .navbar-nav.tab-headers > li > a,
-div#details-panel-content .navbar-nav.tab-headers > li > button {
-  padding: 8px 15px;
-  line-height: 30px;
-}
-
-div#details-panel-content .navbar-nav > li > button {
-  border: none;
-  background: transparent;
-}
-/* Use a loaded image, rather than an icon, so it needs to be slightly shorter */
-div#details-panel-content .navbar-nav > li > a#logviewer-btn {
-  line-height: 18px;
-}
-
-div#details-panel-content .navbar-nav > li > a.disabled,
-div#details-panel-content .navbar-nav > li > button.disabled,
-ul.actionbar-menu > li.disabled {
+div#details-panel-content .actionbar-nav > li > a.disabled,
+div#details-panel-content .actionbar-nav > li > button.disabled,
+ul.actionbar-menu > li > .disabled {
   cursor: not-allowed;
   text-decoration: none;
-}
-
-div#details-panel-content .navbar-nav > li.active a,
-div#details-panel-content .navbar-nav > li.active a:hover,
-div#details-panel-content .navbar-nav > li.active a:focus {
-  outline: 0;
 }
 
 div#details-panel-content .details-panel-navbar > ul.tab-headers > li {
@@ -133,55 +102,22 @@ div#details-panel-content .details-panel-navbar > ul.tab-headers > li {
   min-width: 646px !important;
 }
 
-.details-panel-navbar-controls {
-  flex-wrap: nowrap;
-}
-
-.details-panel-navbar .navbar-nav {
-  display: flex;
-  flex-direction: row;
-}
-
-.details-panel-navbar .navbar-nav > li {
-  white-space: nowrap;
-}
-
-.details-panel-navbar .navbar-nav > li > a,
-.details-panel-navbar .navbar-nav > li > .btn {
+.details-panel-navbar .actionbar-nav > li > a,
+.details-panel-navbar .actionbar-nav > li > .btn {
   color: #9fa3a5;
   padding: 4px 15px;
 }
 
-div#details-panel-content .navbar-nav > li > a:hover,
-div#details-panel-content .navbar-nav > li > a:focus,
-div#details-panel-content .navbar-nav > li > button:hover,
-div#details-panel-content .navbar-nav > li > button:focus {
+div#details-panel-content .actionbar-nav > li > a:hover,
+div#details-panel-content .actionbar-nav > li > a:focus,
+div#details-panel-content .actionbar-nav > li > button:hover,
+div#details-panel-content .actionbar-nav > li > button:focus {
   background-color: #1e252b;
   color: #d3d8da;
 }
 
-div#details-panel-content .navbar-nav > li > a:active,
-div#details-panel-content .navbar-nav > li > button:active {
-  background-color: #000;
-}
-
-div#details-panel-content .navbar-nav > li > a.disabled:active,
-div#details-panel-content .navbar-nav > li > button.disabled:active {
-  background-color: #1e252b;
-}
-
 .details-panel-navbar .actionbar-nav {
   flex: auto;
-}
-
-div#details-panel-content .details-panel-navbar .navbar-nav > li.active a,
-div#details-panel-content .details-panel-navbar .navbar-nav > li.active a:hover,
-div#details-panel-content .details-panel-navbar .navbar-nav > li.active a:focus,
-div#details-panel-content .details-panel-navbar > li.active a,
-div#details-panel-content .details-panel-navbar > li.active a:hover,
-div#details-panel-content .details-panel-navbar > li.active a:focus {
-  background-color: #1a4666;
-  color: #eef0f2;
 }
 
 .tab-header-tabs > li.selected-tab {
@@ -219,12 +155,6 @@ div#details-panel-content .details-panel-navbar > li.active a:focus {
   flex-flow: row;
 }
 
-#summary-panel {
-  background-color: #fff;
-  display: flex;
-  flex-flow: column;
-}
-
 #job-details-actionbar {
   min-height: 33px;
 }
@@ -232,6 +162,16 @@ div#details-panel-content .details-panel-navbar > li.active a:focus {
 /*
  * action bar
  */
+
+.actionbar-nav-btn {
+  cursor: pointer;
+  padding: 5px 15px;
+  color: #9fa3a5;
+}
+
+.actionbar-nav-btn.disabled {
+  cursor: not-allowed;
+}
 
 .action-bar-spin {
   animation: action-bar-spin 0.7s;
@@ -244,38 +184,6 @@ div#details-panel-content .details-panel-navbar > li.active a:focus {
   100% {
     transform: rotate(1turn);
   }
-}
-
-.actionbar-nav {
-  flex-direction: row;
-}
-
-.actionbar-nav .btn {
-  cursor: pointer;
-}
-
-.actionbar-nav > li {
-  /* Override padding on all icons to keep compact */
-  padding: 0 !important;
-}
-
-.actionbar-menu {
-  margin-top: 23px;
-  margin-left: 6px;
-  border-radius: 4px;
-  top: 0;
-  right: 0;
-  left: auto;
-}
-
-#actionbar-menu-btn {
-  padding: 8px 13px;
-  margin-right: 1px;
-}
-
-#actionbar-menu-btn:hover {
-  background-color: #262626;
-  cursor: pointer;
 }
 
 #actionbar-menu-btn:focus {
@@ -297,31 +205,9 @@ div#details-panel-content .details-panel-navbar > li.active a:focus {
  * Job details panel (left side)
  */
 
-#summary-panel-content {
-  overflow-y: auto;
-}
-
 #summary-panel {
   width: 260px;
   min-width: 260px;
-  height: 100%;
-}
-
-#summary-panel .content-spacer {
-  padding-top: 2px;
-  padding-bottom: 4px;
-}
-
-#summary-panel ul li {
-  padding: 0 0 0 5px;
-  line-height: 15px;
-  word-wrap: break-word;
-}
-
-#summary-panel ul li label {
-  padding: 0 3px 0 0;
-  margin: 2px 0;
-  font-weight: bold;
 }
 
 /*

@@ -18,7 +18,7 @@ export default function ClassificationsPanel(props) {
 
   return (
     <React.Fragment>
-      <li>
+      <li className="ml-1">
         <span title={classificationName.name}>
           <FontAwesomeIcon
             icon={icon}
@@ -39,7 +39,7 @@ export default function ClassificationsPanel(props) {
         )}
       </li>
       {classification.text.length > 0 && (
-        <li>
+        <li className="ml-1">
           <em>
             <RevisionLinkify repo={currentRepo}>
               {classification.text}
@@ -47,13 +47,13 @@ export default function ClassificationsPanel(props) {
           </em>
         </li>
       )}
-      <li className="revision-comment">
+      <li className="revision-comment ml-1">
         {new Date(classification.created).toLocaleString(
           'en-US',
           longDateFormat,
         )}
       </li>
-      <li className="revision-comment">{classification.who}</li>
+      <li className="revision-comment ml-1">{classification.who}</li>
     </React.Fragment>
   );
 }
