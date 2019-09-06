@@ -203,13 +203,12 @@ export default class TestDataModal extends React.Component {
     }
 
     params.framework = relatedSeries.framework_id;
-
     if (option === 'addRelatedPlatform') {
       this.addRelatedPlatforms(params);
     } else if (option === 'addRelatedConfigs') {
       this.addRelatedConfigs(params);
     } else if (option === 'addRelatedBranches') {
-      params.signature = relatedSeries.signature_hash;
+      params.id = relatedSeries.signature_id;
       this.addRelatedBranches(params);
     }
   };

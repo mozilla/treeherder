@@ -1,4 +1,7 @@
 /* eslint-disable react/no-did-update-set-state */
+
+// disabling due to a new bug with this rule: https://github.com/eslint/eslint/issues/12117
+/* eslint-disable no-unused-vars */
 import React from 'react';
 import { Row, Col } from 'reactstrap';
 import PropTypes from 'prop-types';
