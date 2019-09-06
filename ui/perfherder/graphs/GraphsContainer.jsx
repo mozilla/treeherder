@@ -218,9 +218,12 @@ class GraphsContainer extends React.Component {
   // doesn't work with this callback, which is why a class property is used instead)
   setLeftPadding = (tick, index, ticks) => {
     const highestTickLength = ticks[ticks.length - 1].toString();
-    this.leftChartPadding = highestTickLength.length * 8 + 10;
+    const newLeftPadding = highestTickLength.length * 8 + 10;
+    this.leftChartPadding =
+      this.leftChartPadding > newLeftPadding
+        ? this.leftChartPadding
+        : newLeftPadding;
     const numberFormat = new Intl.NumberFormat();
-
     return numberFormat.format(tick);
   };
 
@@ -330,7 +333,12 @@ class GraphsContainer extends React.Component {
               />
             }
           >
-            <VictoryAxis dependentAxis tickCount={4} style={axisStyle} />
+            <VictoryAxis
+              dependentAxis
+              tickCount={4}
+              style={axisStyle}
+              tickFormat={this.setLeftPadding}
+            />
             <VictoryAxis
               tickCount={10}
               tickFormat={x => moment.utc(x).format('MMM DD')}
