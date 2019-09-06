@@ -12,6 +12,7 @@ import {
   faThumbtack,
   faTimesCircle,
 } from '@fortawesome/free-solid-svg-icons';
+import { Badge, Button } from 'reactstrap';
 
 import { getPercentComplete, toDateStr } from '../../helpers/display';
 import { formatTaskclusterError } from '../../helpers/errorMessage';
@@ -262,6 +263,7 @@ class PushHeader extends React.Component {
       push: 'Notifying (per-push)',
       job: 'Notifying (per-job)',
     }[watchState];
+    const countSelectedRunnableJobs = selectedRunnableJobs.length;
 
     return (
       <div className="push-header">
@@ -351,15 +353,18 @@ class PushHeader extends React.Component {
             >
               <FontAwesomeIcon icon={faThumbtack} title="Pin all jobs" />
             </button>
-            {!!selectedRunnableJobs.length && runnableVisible && (
-              <button
-                type="button"
+            {!!countSelectedRunnableJobs && runnableVisible && (
+              <Button
                 className="btn btn-sm btn-push trigger-new-jobs-btn"
                 title="Trigger new jobs"
                 onClick={this.triggerNewJobs}
               >
-                Trigger New Jobs
-              </button>
+                Trigger
+                <Badge color="info" className="mx-1">
+                  {countSelectedRunnableJobs}
+                </Badge>
+                New Job{countSelectedRunnableJobs > 1 ? 's' : ''}
+              </Button>
             )}
             <PushActionMenu
               isLoggedIn={isLoggedIn}
