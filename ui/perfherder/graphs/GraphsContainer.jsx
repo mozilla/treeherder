@@ -318,43 +318,45 @@ class GraphsContainer extends React.Component {
           <div className="tip" />
         </div>
         <Row>
-          <VictoryChart
-            padding={chartPadding}
-            width={1250}
-            height={125}
-            scale={{ x: 'time', y: 'linear' }}
-            domain={entireDomain}
-            domainPadding={{ y: 30 }}
-            containerComponent={
-              <VictoryBrushContainer
-                responsive={false}
-                brushDomain={zoom}
-                onBrushDomainChange={this.updateZoom}
+          <Col className="p-0 col-md-auto">
+            <VictoryChart
+              padding={chartPadding}
+              width={1350}
+              height={150}
+              style={{ parent: { maxHeight: '150px', maxWidth: '1350px' } }}
+              scale={{ x: 'time', y: 'linear' }}
+              domain={entireDomain}
+              domainPadding={{ y: 30 }}
+              containerComponent={
+                <VictoryBrushContainer
+                  brushDomain={zoom}
+                  onBrushDomainChange={this.updateZoom}
+                />
+              }
+            >
+              <VictoryAxis
+                dependentAxis
+                tickCount={4}
+                style={axisStyle}
+                tickFormat={this.setLeftPadding}
               />
-            }
-          >
-            <VictoryAxis
-              dependentAxis
-              tickCount={4}
-              style={axisStyle}
-              tickFormat={this.setLeftPadding}
-            />
-            <VictoryAxis
-              tickCount={10}
-              tickFormat={x => moment.utc(x).format('MMM DD')}
-              style={axisStyle}
-            />
-            {testData.map(item => (
-              <VictoryLine
-                key={item.name}
-                data={item.visible ? item.data : []}
-                style={{
-                  data: { stroke: item.color[1] },
-                }}
+              <VictoryAxis
+                tickCount={10}
+                tickFormat={x => moment.utc(x).format('MMM DD')}
+                style={axisStyle}
               />
-            ))}
-          </VictoryChart>
-          <Col className="pl-0">
+              {testData.map(item => (
+                <VictoryLine
+                  key={item.name}
+                  data={item.visible ? item.data : []}
+                  style={{
+                    data: { stroke: item.color[1] },
+                  }}
+                />
+              ))}
+            </VictoryChart>
+          </Col>
+          <Col className="p-0 col-md-auto">
             <SimpleTooltip
               text={
                 <FontAwesomeIcon
@@ -369,101 +371,103 @@ class GraphsContainer extends React.Component {
         </Row>
 
         <Row>
-          <VictoryChart
-            padding={chartPadding}
-            width={1250}
-            height={350}
-            scale={{ x: 'time', y: 'linear' }}
-            domain={entireDomain}
-            domainPadding={{ y: 40 }}
-            containerComponent={
-              <VictoryZoomContainer
-                responsive={false}
-                zoomDomain={zoom}
-                onZoomDomainChange={this.updateZoom}
-                allowPan={false}
-              />
-            }
-          >
-            {highlights.length > 0 &&
-              highlights.map(item => (
-                <VictoryLine
-                  key={item}
-                  style={{
-                    data: { stroke: 'gray', strokeWidth: 1 },
-                  }}
-                  x={() => item.x}
+          <Col className="p-0 col-md-auto">
+            <VictoryChart
+              padding={chartPadding}
+              width={1350}
+              height={350}
+              style={{ parent: { maxHeight: '350px', maxWidth: '1350px' } }}
+              scale={{ x: 'time', y: 'linear' }}
+              domain={entireDomain}
+              domainPadding={{ y: 40 }}
+              containerComponent={
+                <VictoryZoomContainer
+                  zoomDomain={zoom}
+                  onZoomDomainChange={this.updateZoom}
+                  allowPan={false}
                 />
-              ))}
+              }
+            >
+              {highlights.length > 0 &&
+                highlights.map(item => (
+                  <VictoryLine
+                    key={item}
+                    style={{
+                      data: { stroke: 'gray', strokeWidth: 1 },
+                    }}
+                    x={() => item.x}
+                  />
+                ))}
 
-            <VictoryScatter
-              style={{
-                data: {
-                  fill: data =>
-                    (data.alertSummary || hasHighlightedRevision(data)) &&
-                    highlightPoints
-                      ? data.z
-                      : '#fff',
-                  strokeOpacity: data =>
-                    (data.alertSummary || hasHighlightedRevision(data)) &&
-                    highlightPoints
-                      ? 0.3
-                      : 100,
-                  stroke: d => d.z,
-                  strokeWidth: data =>
-                    (data.alertSummary || hasHighlightedRevision(data)) &&
-                    highlightPoints
-                      ? 12
-                      : 2,
-                },
-              }}
-              size={() => 5}
-              data={scatterPlotData}
-              events={[
-                {
-                  target: 'data',
-                  eventHandlers: {
-                    onClick: () => {
-                      return [
-                        {
-                          target: 'data',
-                          mutation: props => this.setTooltip(props, true),
-                        },
-                      ];
-                    },
-                    onMouseOver: () => {
-                      return [
-                        {
-                          target: 'data',
-                          mutation: props => this.setTooltip(props),
-                        },
-                      ];
-                    },
-                    onMouseOut: () => {
-                      return [
-                        {
-                          target: 'data',
-                          callback: this.hideTooltip,
-                        },
-                      ];
+              <VictoryScatter
+                style={{
+                  data: {
+                    fill: data =>
+                      (data.alertSummary || hasHighlightedRevision(data)) &&
+                      highlightPoints
+                        ? data.z
+                        : '#fff',
+                    strokeOpacity: data =>
+                      (data.alertSummary || hasHighlightedRevision(data)) &&
+                      highlightPoints
+                        ? 0.3
+                        : 100,
+                    stroke: d => d.z,
+                    strokeWidth: data =>
+                      (data.alertSummary || hasHighlightedRevision(data)) &&
+                      highlightPoints
+                        ? 12
+                        : 2,
+                  },
+                }}
+                size={() => 5}
+                data={scatterPlotData}
+                events={[
+                  {
+                    target: 'data',
+                    eventHandlers: {
+                      onClick: () => {
+                        return [
+                          {
+                            target: 'data',
+                            mutation: props => this.setTooltip(props, true),
+                          },
+                        ];
+                      },
+                      onMouseOver: () => {
+                        return [
+                          {
+                            target: 'data',
+                            mutation: props => this.setTooltip(props),
+                          },
+                        ];
+                      },
+                      onMouseOut: () => {
+                        return [
+                          {
+                            target: 'data',
+                            callback: this.hideTooltip,
+                          },
+                        ];
+                      },
                     },
                   },
-                },
-              ]}
-            />
-            <VictoryAxis
-              dependentAxis
-              tickCount={9}
-              style={axisStyle}
-              tickFormat={this.setLeftPadding}
-            />
-            <VictoryAxis
-              tickCount={8}
-              tickFormat={x => moment.utc(x).format('MMM DD hh:mm')}
-              style={axisStyle}
-              fixLabelOverlap
-            />
-          </VictoryChart>
+                ]}
+              />
+              <VictoryAxis
+                dependentAxis
+                tickCount={9}
+                style={axisStyle}
+                tickFormat={this.setLeftPadding}
+              />
+              <VictoryAxis
+                tickCount={8}
+                tickFormat={x => moment.utc(x).format('MMM DD hh:mm')}
+                style={axisStyle}
+                fixLabelOverlap
+              />
+            </VictoryChart>
+          </Col>
         </Row>
       </React.Fragment>
     );

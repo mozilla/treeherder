@@ -380,7 +380,7 @@ class GraphsView extends React.Component {
           )}
 
           <Row>
-            <Col className="graph-chooser">
+            <Col className="graph-chooser ml-3">
               <Container className="graph-legend pl-0 pb-4">
                 {testData.length > 0 &&
                   testData.map(series => (
