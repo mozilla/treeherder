@@ -82,6 +82,7 @@
     "@neutrinojs/jest": "9.0.0-rc.3",
     "@testing-library/jest-dom": "4.1.0",
     "@testing-library/react": "9.1.4",
+    "codecov": "3.5.0",
     "enzyme": "3.9.0",
     "enzyme-adapter-react-16": "1.13.2",
     "eslint": "6.3.0",
@@ -101,13 +102,14 @@
   "scripts": {
     "build": "node ./node_modules/webpack/bin/webpack.js --mode production",
     "build:dev": "node ./node_modules/webpack/bin/webpack.js --mode development",
+    "codecov": "node ./node_modules/codecov/bin/codecov && rm -rf coverage",
     "format": "node ./node_modules/prettier/bin-prettier.js --write \"**/*.{css,html,js,jsx,json,md,yaml,yml}\"",
     "format:check": "node ./node_modules/prettier/bin-prettier.js --check \"**/*.{css,html,js,jsx,json,md,yaml,yml}\"",
     "heroku-postbuild": "yarn build",
     "lint": "node ./node_modules/eslint/bin/eslint.js --cache --report-unused-disable-directives --max-warnings 0 --format codeframe --ext js,jsx \".*.js\" \"*.js\" ui/ tests/ui/",
     "start": "node ./node_modules/webpack-dev-server/bin/webpack-dev-server.js --mode development",
     "start:stage": "node ./node_modules/webpack-dev-server/bin/webpack-dev-server.js --mode development --env.BACKEND=https://treeherder.allizom.org",
-    "test": "node ./node_modules/jest/bin/jest",
+    "test": "node ./node_modules/jest/bin/jest --coverage",
     "test:watch": "node ./node_modules/jest/bin/jest --watch"
   }
 }
