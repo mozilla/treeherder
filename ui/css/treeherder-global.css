@@ -55,6 +55,10 @@ a {
   visibility: hidden;
 }
 
+.show {
+  visibility: visible;
+}
+
 /* Similar Jobs panel */
 .checkbox {
   min-height: 20px;

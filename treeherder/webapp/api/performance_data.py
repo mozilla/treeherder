@@ -427,8 +427,11 @@ class PerformanceSummary(generics.ListAPIView):
                                               .select_related('framework', 'repository', 'platform', 'push', 'job')
                                               .filter(repository__name=repository_name))
 
-        if len(signature):
-            signature_data = signature_data.filter(id__in=list(signature))
+        # TODO deprecate signature hash support
+        if signature and len(signature) == 40:
+            signature_data = signature_data.filter(signature_hash=signature)
+        elif signature:
+            signature_data = signature_data.filter(id=signature)
         else:
             signature_data = signature_data.filter(parent_signature__isnull=no_subtests)
 
@@ -438,7 +441,9 @@ class PerformanceSummary(generics.ListAPIView):
         if parent_signature:
             signature_data = signature_data.filter(parent_signature_id=parent_signature)
 
-        if interval:
+        # we do this so all relevant signature data is returned even if there isn't performance data
+        # and it's also not needed since this param is used to filter directly on signature_id
+        if interval and not all_data:
             signature_data = signature_data.filter(last_updated__gte=datetime.datetime.utcfromtimestamp(
                                                    int(time.time() - int(interval))))
 

@@ -198,7 +198,7 @@ class PerformanceQueryParamsSerializer(serializers.Serializer):
     framework = serializers.ListField(required=False, child=serializers.IntegerField(), default=[])
     interval = serializers.IntegerField(required=False, allow_null=True, default=None)
     parent_signature = serializers.CharField(required=False, allow_null=True, default=None)
-    signature = serializers.ListField(child=serializers.IntegerField(), required=False, allow_null=True, default=[])
+    signature = serializers.CharField(required=False, allow_null=True, default=None)
     no_subtests = serializers.BooleanField(required=False)
     all_data = serializers.BooleanField(required=False, default=False)
 
@@ -236,7 +236,7 @@ class PerformanceSummarySerializer(serializers.ModelSerializer):
     parent_signature = serializers.IntegerField(source="parent_signature_id")
     signature_id = serializers.IntegerField(source="id")
     job_ids = serializers.ListField(child=serializers.IntegerField(), default=[])
-    data = PerformanceDatumSerializer(read_only=True, many=True)
+    data = PerformanceDatumSerializer(read_only=True, many=True, default=[])
     repository_name = serializers.CharField()
 
     class Meta:

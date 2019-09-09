@@ -1,7 +1,5 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faCog } from '@fortawesome/free-solid-svg-icons';
 import { react2angular } from 'react2angular/index.es2015';
 import { Container, Row } from 'reactstrap';
 
@@ -10,6 +8,7 @@ import RepositoryModel from '../../models/repository';
 import PushModel from '../../models/push';
 import { getData } from '../../helpers/http';
 import { createApiUrl, perfSummaryEndpoint } from '../../helpers/url';
+import LoadingSpinner from '../../shared/LoadingSpinner';
 
 import RevisionInformation from './RevisionInformation';
 import ReplicatesGraph from './ReplicatesGraph';
@@ -163,14 +162,7 @@ export default class CompareSubtestDistributionView extends React.Component {
       newRevision && (
         <Container fluid className="max-width-default justify-content-center">
           {dataLoading ? (
-            <div className="loading" aria-label="loading">
-              <FontAwesomeIcon
-                icon={faCog}
-                size="4x"
-                spin
-                title="loading page, please wait"
-              />
-            </div>
+            <LoadingSpinner />
           ) : (
             <Row className="justify-content-center mt-4">
               <React.Fragment>

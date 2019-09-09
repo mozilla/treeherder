@@ -1,0 +1,60 @@
+[
+  {
+    "signature_id": 1647494,
+    "framework_id": 1,
+    "signature_hash": "fcefb979eac44d057f9c05434580ce7845f4c2d6",
+    "platform": "linux64",
+    "test": "",
+    "suite": "a11yr",
+    "lower_is_better": true,
+    "has_subtests": true,
+    "values": [],
+    "name": "a11yr opt e10s stylo",
+    "parent_signature": null,
+    "job_ids": [],
+    "repository_name": "mozilla-central",
+    "repository_id": 1,
+    "data": [
+      {
+        "job_id": 260889536,
+        "id": 887236036,
+        "value": 212.40805982905135,
+        "push_timestamp": "2019-08-09T21:56:59",
+        "push_id": 530260,
+        "revision": "2909b0a1eb06cc34ce0a11544e5e6826aba87c06"
+      },
+      {
+        "job_id": 260895760,
+        "id": 887279300,
+        "value": 211.24042970178886,
+        "push_timestamp": "2019-08-09T21:57:48",
+        "push_id": 530261,
+        "revision": "3afb892abb74c6d281f3e66431408cbb2e16b8c4"
+      },
+      {
+        "job_id": 260976940,
+        "id": 887616827,
+        "value": 211.97006831947064,
+        "push_timestamp": "2019-08-10T21:28:45",
+        "push_id": 530471,
+        "revision": "462d2d4ba0516adc69de20372b16931cef20de9e"
+      },
+      {
+        "job_id": 260977399,
+        "id": 887619689,
+        "value": 214.94212187528396,
+        "push_timestamp": "2019-08-10T21:31:07",
+        "push_id": 530472,
+        "revision": "c53f789ffabb03c04b1b20252aea9331301bfa02"
+      },
+      {
+        "job_id": 261015918,
+        "id": 887831038,
+        "value": 215.0925727552894,
+        "push_timestamp": "2019-08-11T09:56:40",
+        "push_id": 530521,
+        "revision": "e8fe8b0af1a7a0c64d28b4e08a9c5509d916759f"
+      }
+    ]
+  }
+]

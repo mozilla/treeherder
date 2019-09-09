@@ -1,0 +1,47 @@
+[
+  {
+    "id": 1647494,
+    "name": "a11yr opt e10s stylo",
+    "testName": "a11yr",
+    "suite": "a11yr",
+    "test": null,
+    "signature": "fcefb979eac44d057f9c05434580ce7845f4c2d6",
+    "hasSubtests": true,
+    "parentSignature": null,
+    "projectName": "mozilla-central",
+    "platform": "linux64",
+    "options": ["opt", "e10s", "stylo"],
+    "frameworkId": 1,
+    "lowerIsBetter": true
+  },
+  {
+    "id": 1660552,
+    "name": "about_preferences_basic opt e10s stylo",
+    "testName": "about_preferences_basic",
+    "suite": "about_preferences_basic",
+    "test": null,
+    "signature": "9db5c2909418068b3004ea3911675ee3e6e5f6da",
+    "hasSubtests": true,
+    "parentSignature": null,
+    "projectName": "mozilla-central",
+    "platform": "linux64",
+    "options": ["opt", "e10s", "stylo"],
+    "frameworkId": 1,
+    "lowerIsBetter": true
+  },
+  {
+    "id": 1648571,
+    "name": "basic_compositor_video opt e10s stylo",
+    "testName": "basic_compositor_video",
+    "suite": "basic_compositor_video",
+    "test": null,
+    "signature": "aaf7d0091b502d1596c9791a47cb25efeda8a5ff",
+    "hasSubtests": true,
+    "parentSignature": null,
+    "projectName": "mozilla-central",
+    "platform": "linux64",
+    "options": ["opt", "e10s", "stylo"],
+    "frameworkId": 1,
+    "lowerIsBetter": true
+  }
+]

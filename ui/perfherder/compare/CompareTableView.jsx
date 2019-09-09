@@ -1,8 +1,6 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import { Alert, Col, Row, Container } from 'reactstrap';
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faCog } from '@fortawesome/free-solid-svg-icons';
 
 import ErrorMessages from '../../shared/ErrorMessages';
 import {
@@ -20,6 +18,7 @@ import {
 } from '../../helpers/url';
 import { getFrameworkData } from '../helpers';
 import TruncatedText from '../../shared/TruncatedText';
+import LoadingSpinner from '../../shared/LoadingSpinner';
 
 import RevisionInformation from './RevisionInformation';
 import CompareTableControls from './CompareTableControls';
@@ -207,16 +206,8 @@ export default class CompareTableView extends React.Component {
 
     return (
       <Container fluid className="max-width-default">
-        {loading && !failureMessage && (
-          <div className="loading">
-            <FontAwesomeIcon
-              icon={faCog}
-              size="4x"
-              spin
-              title="loading page, please wait"
-            />
-          </div>
-        )}
+        {loading && !failureMessage && <LoadingSpinner />}
+
         <ErrorBoundary
           errorClasses={errorMessageClass}
           message={genericErrorMessage}

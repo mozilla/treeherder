@@ -51,3 +51,12 @@ export const alertStatusMap = {
   acknowledged: 4,
   confirming: 5,
 };
+
+export const graphColors = [
+  ['scarlet', '#b81752'],
+  ['turquoise', '#17a2b8'],
+  ['green', '#19a572'],
+  ['brown', '#b87e17'],
+  ['darkorchid', '#9932cc'],
+  ['blue', '#1752b8'],
+];

@@ -9,8 +9,6 @@ import {
   PaginationItem,
   PaginationLink,
 } from 'reactstrap';
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faCog } from '@fortawesome/free-solid-svg-icons';
 
 import perf from '../../js/perf';
 import withValidation from '../Validation';
@@ -25,6 +23,7 @@ import {
   errorMessageClass,
 } from '../../helpers/constants';
 import ErrorBoundary from '../../shared/ErrorBoundary';
+import LoadingSpinner from '../../shared/LoadingSpinner';
 
 import AlertsViewControls from './AlertsViewControls';
 
@@ -226,16 +225,7 @@ export class AlertsView extends React.Component {
         message={genericErrorMessage}
       >
         <Container fluid className="pt-5 max-width-default">
-          {loading && (
-            <div className="loading">
-              <FontAwesomeIcon
-                icon={faCog}
-                size="4x"
-                spin
-                title="loading page, please wait"
-              />
-            </div>
-          )}
+          {loading && <LoadingSpinner />}
 
           {errorMessages.length > 0 && (
             <Container className="pt-5 px-0 max-width-default">

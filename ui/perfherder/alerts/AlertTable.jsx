@@ -3,8 +3,8 @@ import PropTypes from 'prop-types';
 import { Container, Form, FormGroup, Label, Input, Table } from 'reactstrap';
 import orderBy from 'lodash/orderBy';
 
+import { alertStatusMap } from '../constants';
 import {
-  phAlertStatusMap,
   genericErrorMessage,
   errorMessageClass,
 } from '../../helpers/constants';
@@ -70,7 +70,7 @@ export default class AlertTable extends React.Component {
         alertSummary.alerts
           .map(alert => {
             if (
-              alert.status === phAlertStatusMap.DOWNSTREAM.id &&
+              alert.status === alertStatusMap.downstream &&
               alert.summary_id !== alertSummary.id
             ) {
               return [alert.summary_id];
@@ -91,14 +91,14 @@ export default class AlertTable extends React.Component {
     const matchesFilters =
       (!hideImprovements || alert.is_regression) &&
       (alert.summary_id === alertSummary.id ||
-        alert.status !== phAlertStatusMap.DOWNSTREAM.id) &&
+        alert.status !== alertStatusMap.downstream) &&
       !(
         hideDownstream &&
-        alert.status === phAlertStatusMap.REASSIGNED.id &&
+        alert.status === alertStatusMap.reassigned &&
         alert.related_summary_id !== alertSummary.id
       ) &&
-      !(hideDownstream && alert.status === phAlertStatusMap.DOWNSTREAM.id) &&
-      !(hideDownstream && alert.status === phAlertStatusMap.INVALID.id);
+      !(hideDownstream && alert.status === alertStatusMap.downstream) &&
+      !(hideDownstream && alert.status === alertStatusMap.invalid);
 
     if (!filterText) return matchesFilters;
 

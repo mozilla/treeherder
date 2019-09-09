@@ -155,9 +155,9 @@ const testAlertSummaries = [
         summary_id: 20239,
         related_summary_id: null,
         manually_created: false,
-        classifier: 'mozilla-ldap/sclements@mozilla.com',
+        classifier: 'mozilla-ldap/user@mozilla.com',
         starred: false,
-        classifier_email: 'sclements@mozilla.com',
+        classifier_email: 'user@mozilla.com',
       },
     ],
     related_alerts: [],
@@ -428,6 +428,4 @@ test('selecting the alert summary checkbox then deselecting one alert only updat
 });
 
 // TODO should write tests for alert summary dropdown menu actions performed in StatusDropdown
-// (adding notes or marking as 'fixed', etc), however there was difficulty trying to simulate
-// user actions of clicking the dropdown menu and then a dropdown item, due to a JSDOM/popper.js
-// issue used (reactstrap uses popper.js): https://github.com/FezVrasta/popper.js/issues/478
+// (adding notes or marking as 'fixed', etc)

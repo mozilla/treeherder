@@ -1,12 +1,11 @@
 import React from 'react';
 import { Container } from 'reactstrap';
 import PropTypes from 'prop-types';
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faCog } from '@fortawesome/free-solid-svg-icons';
 
 import ErrorBoundary from '../shared/ErrorBoundary';
 import ErrorMessages from '../shared/ErrorMessages';
 import { genericErrorMessage, errorMessageClass } from '../helpers/constants';
+import LoadingSpinner from '../shared/LoadingSpinner';
 
 import Navigation from './Navigation';
 import GraphsContainer from './GraphsContainer';
@@ -43,16 +42,7 @@ const Layout = props => {
           tableFailureStatus ||
           graphFailureStatus ||
           errorMessages.length > 0
-        ) && (
-          <div className="loading">
-            <FontAwesomeIcon
-              icon={faCog}
-              size="4x"
-              spin
-              title="loading page, please wait"
-            />
-          </div>
-        )}
+        ) && <LoadingSpinner />}
       {(tableFailureStatus ||
         graphFailureStatus ||
         errorMessages.length > 0) && (
