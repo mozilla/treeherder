@@ -5,6 +5,8 @@ import { thMaxPushFetchSize } from '../helpers/constants';
 import { getData } from '../helpers/http';
 import { getProjectUrl, getUrlParam } from '../helpers/location';
 import { createQueryParams, pushEndpoint } from '../helpers/url';
+import { formatTaskclusterError } from '../helpers/errorMessage';
+import { getAction } from '../helpers/taskcluster';
 
 import TaskclusterModel from './taskcluster';
 
@@ -71,24 +73,32 @@ export default class PushModel {
 
     return TaskclusterModel.load(decisionTaskId).then(results => {
       const actionTaskId = slugid();
-      const missingTestsTask = results.actions.find(
-        action => action.name === 'run-missing-tests',
-      );
 
-      return TaskclusterModel.submit({
-        action: missingTestsTask,
-        actionTaskId,
-        decisionTaskId,
-        taskId: null,
-        task: null,
-        input: {},
-        staticActionVariables: results.staticActionVariables,
-      }).then(
-        notify(
-          `Request sent to trigger missing jobs (${actionTaskId})`,
-          'success',
-        ),
-      );
+      try {
+        const missingTestsTask = getAction(
+          results.actions,
+          'run-missing-tests',
+        );
+
+        return TaskclusterModel.submit({
+          action: missingTestsTask,
+          actionTaskId,
+          decisionTaskId,
+          taskId: null,
+          task: null,
+          input: {},
+          staticActionVariables: results.staticActionVariables,
+        }).then(
+          notify(
+            `Request sent to trigger missing jobs (${actionTaskId})`,
+            'success',
+          ),
+        );
+      } catch (e) {
+        // The full message is too large to fit in a Treeherder
+        // notification box.
+        notify(formatTaskclusterError(e), 'danger', { sticky: true });
+      }
     });
   }
 
@@ -100,31 +110,34 @@ export default class PushModel {
 
     return TaskclusterModel.load(decisionTaskId).then(results => {
       const actionTaskId = slugid();
-      const allTalosTask = results.actions.find(
-        action => action.name === 'run-all-talos',
-      );
 
-      return TaskclusterModel.submit({
-        action: allTalosTask,
-        actionTaskId,
-        decisionTaskId,
-        taskId: null,
-        task: null,
-        input: { times },
-        staticActionVariables: results.staticActionVariables,
-      }).then(
-        () =>
-          `Request sent to trigger all talos jobs ${times} time(s) via actions.json (${actionTaskId})`,
-      );
+      try {
+        const allTalosTask = getAction(results.actions, 'run-all-talos');
+
+        return TaskclusterModel.submit({
+          action: allTalosTask,
+          actionTaskId,
+          decisionTaskId,
+          taskId: null,
+          task: null,
+          input: { times },
+          staticActionVariables: results.staticActionVariables,
+        }).then(
+          () =>
+            `Request sent to trigger all talos jobs ${times} time(s) via actions.json (${actionTaskId})`,
+        );
+      } catch (e) {
+        // The full message is too large to fit in a Treeherder
+        // notification box.
+        notify(formatTaskclusterError(e), 'danger', { sticky: true });
+      }
     });
   }
 
   static triggerNewJobs(jobs, decisionTaskId) {
     return TaskclusterModel.load(decisionTaskId).then(results => {
       const actionTaskId = slugid();
-      const addNewJobsTask = results.actions.find(
-        action => action.name === 'add-new-jobs',
-      );
+      const addNewJobsTask = getAction(results.actions, 'add-new-jobs');
 
       return TaskclusterModel.submit({
         action: addNewJobsTask,

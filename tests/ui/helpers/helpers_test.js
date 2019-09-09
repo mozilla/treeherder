@@ -1,5 +1,5 @@
-import { displayNumber } from '../../ui/perfherder/helpers';
-import { getRevisionUrl } from '../../ui/helpers/url';
+import { displayNumber } from '../../../ui/perfherder/helpers';
+import { getRevisionUrl } from '../../../ui/helpers/url';
 
 describe('getRevisionUrl helper', () => {
   test('escapes some html symbols', () => {

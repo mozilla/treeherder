@@ -46,4 +46,18 @@ const taskcluster = (() => {
   };
 })();
 
+export const getAction = (actionArray, actionName) => {
+  const action = actionArray.find(result => result.name === actionName);
+
+  if (!action) {
+    throw Error(
+      `'${actionName}' action is not available for this task.  Available: ${actionArray
+        .map(act => act.name)
+        .join(', ')}`,
+    );
+  }
+
+  return action;
+};
+
 export default taskcluster;
