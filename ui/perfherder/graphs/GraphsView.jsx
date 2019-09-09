@@ -379,8 +379,10 @@ class GraphsView extends React.Component {
             </Container>
           )}
 
-          <Row>
-            <Col className="graph-chooser ml-3">
+          <Row className="justify-content-center">
+            <Col
+              className={`ml-2 ${testData.length ? 'graph-chooser' : 'col-12'}`}
+            >
               <Container className="graph-legend pl-0 pb-4">
                 {testData.length > 0 &&
                   testData.map(series => (
@@ -402,7 +404,11 @@ class GraphsView extends React.Component {
                   ))}
               </Container>
             </Col>
-            <Col className="pl-0">
+            <Col
+              className={`pl-0 ${
+                testData.length ? 'custom-col-xxl-auto' : 'col-auto'
+              }`}
+            >
               <GraphsViewControls
                 timeRange={timeRange}
                 frameworks={frameworks}

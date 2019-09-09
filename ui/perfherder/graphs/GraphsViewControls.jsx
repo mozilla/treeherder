@@ -84,7 +84,7 @@ export default class GraphsViewControls extends React.Component {
         ) : (
           <React.Fragment>
             {graphs}
-            <Row className="justify-content-start">
+            <Row className="justify-content-start pt-2">
               {highlightedRevisions.length > 0 &&
                 highlightedRevisions.map((revision, index) => (
                   // eslint-disable-next-line react/no-array-index-key

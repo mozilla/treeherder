@@ -375,8 +375,8 @@ class GraphsContainer extends React.Component {
             <VictoryChart
               padding={chartPadding}
               width={1350}
-              height={350}
-              style={{ parent: { maxHeight: '350px', maxWidth: '1350px' } }}
+              height={400}
+              style={{ parent: { maxHeight: '400px', maxWidth: '1350px' } }}
               scale={{ x: 'time', y: 'linear' }}
               domain={entireDomain}
               domainPadding={{ y: 40 }}

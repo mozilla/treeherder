@@ -388,8 +388,8 @@ button:disabled {
 }
 
 li.pagination-active.active > button {
-  background-color: lightgray !Important;
-  border-color: lightgray !Important;
+  background-color: lightgray !important;
+  border-color: lightgray !important;
 }
 
 /* graph colors */
@@ -419,4 +419,12 @@ li.pagination-active.active > button {
 
 .brown {
   border-left-color: #b87e17;
+}
+
+@media only screen and (min-width: 1700px) {
+  .custom-col-xxl-auto {
+    flex: 0 0 auto;
+    width: auto;
+    max-width: 100%;
+  }
 }
