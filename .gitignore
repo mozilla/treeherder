@@ -32,3 +32,6 @@ celerybeat-schedule
 
 #docker custom environment
 .env
+
+# Ignore coverage results
+coverage
