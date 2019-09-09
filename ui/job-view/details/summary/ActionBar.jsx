@@ -21,6 +21,7 @@ import TaskclusterModel from '../../../models/taskcluster';
 import CustomJobActions from '../../CustomJobActions';
 import { notify } from '../../redux/stores/notifications';
 import { pinJob } from '../../redux/stores/pinnedJobs';
+import { getAction } from '../../../helpers/taskcluster';
 
 import LogUrls from './LogUrls';
 
@@ -87,39 +88,41 @@ class ActionBar extends React.PureComponent {
       notify,
     );
     TaskclusterModel.load(decisionTaskId, selectedJobFull).then(results => {
-      const geckoprofile = results.actions.find(
-        result => result.name === 'geckoprofile',
-      );
+      try {
+        const geckoprofile = getAction(results.actions, 'geckoprofile');
 
-      if (
-        geckoprofile === undefined ||
-        !Object.prototype.hasOwnProperty.call(geckoprofile, 'kind')
-      ) {
-        return notify(
-          'Job was scheduled without taskcluster support for GeckoProfiles',
-        );
-      }
-
-      TaskclusterModel.submit({
-        action: geckoprofile,
-        decisionTaskId,
-        taskId: results.originalTaskId,
-        task: results.originalTask,
-        input: {},
-        staticActionVariables: results.staticActionVariables,
-      }).then(
-        () => {
-          notify(
-            'Request sent to collect gecko profile job via actions.json',
-            'success',
+        if (
+          geckoprofile === undefined ||
+          !Object.prototype.hasOwnProperty.call(geckoprofile, 'kind')
+        ) {
+          return notify(
+            'Job was scheduled without taskcluster support for GeckoProfiles',
           );
-        },
-        e => {
-          // The full message is too large to fit in a Treeherder
-          // notification box.
-          notify(formatTaskclusterError(e), 'danger', { sticky: true });
-        },
-      );
+        }
+
+        TaskclusterModel.submit({
+          action: geckoprofile,
+          decisionTaskId,
+          taskId: results.originalTaskId,
+          task: results.originalTask,
+          input: {},
+          staticActionVariables: results.staticActionVariables,
+        }).then(
+          () => {
+            notify(
+              'Request sent to collect gecko profile job via actions.json',
+              'success',
+            );
+          },
+          e => {
+            // The full message is too large to fit in a Treeherder
+            // notification box.
+            notify(formatTaskclusterError(e), 'danger', { sticky: true });
+          },
+        );
+      } catch (e) {
+        notify(formatTaskclusterError(e), 'danger', { sticky: true });
+      }
     });
   };
 
@@ -164,18 +167,13 @@ class ActionBar extends React.PureComponent {
       return;
     }
 
-    if (
-      selectedJobFull.build_system_type === 'taskcluster' ||
-      selectedJobFull.reason.startsWith('Created by BBB for task')
-    ) {
-      const { id: decisionTaskId } = await PushModel.getDecisionTaskId(
-        selectedJobFull.push_id,
-        notify,
-      );
-      TaskclusterModel.load(decisionTaskId, selectedJobFull).then(results => {
-        const backfilltask = results.actions.find(
-          result => result.name === 'backfill',
-        );
+    const { id: decisionTaskId } = await PushModel.getDecisionTaskId(
+      selectedJobFull.push_id,
+      notify,
+    );
+    TaskclusterModel.load(decisionTaskId, selectedJobFull).then(results => {
+      try {
+        const backfilltask = getAction(results.actions, 'backfill');
 
         return TaskclusterModel.submit({
           action: backfilltask,
@@ -193,10 +191,10 @@ class ActionBar extends React.PureComponent {
             notify(formatTaskclusterError(e), 'danger', { sticky: true });
           },
         );
-      });
-    } else {
-      notify('Unable to backfill this job type!', 'danger', { sticky: true });
-    }
+      } catch (e) {
+        notify(formatTaskclusterError(e), 'danger', { sticky: true });
+      }
+    });
   };
 
   isolateJob = async () => {
@@ -228,13 +226,11 @@ class ActionBar extends React.PureComponent {
       return;
     }
 
-    if (
-      selectedJobFull.build_system_type === 'taskcluster' ||
-      selectedJobFull.reason.startsWith('Created by BBB for task')
-    ) {
-      TaskclusterModel.load(decisionTaskId, selectedJobFull).then(results => {
-        const isolationtask = results.actions.find(
-          result => result.name === 'isolate-test-failures',
+    TaskclusterModel.load(decisionTaskId, selectedJobFull).then(results => {
+      try {
+        const isolationtask = getAction(
+          results.actions,
+          'isolate-test-failures',
         );
 
         if (!isolationtask) {
@@ -283,10 +279,10 @@ class ActionBar extends React.PureComponent {
             notify(formatTaskclusterError(e), 'danger', { sticky: true });
           },
         );
-      });
-    } else {
-      notify('Unable to isolate this job type!', 'danger', { sticky: true });
-    }
+      } catch (e) {
+        notify(formatTaskclusterError(e), 'danger', { sticky: true });
+      }
+    });
   };
 
   // Can we backfill? At the moment, this only ensures we're not in a 'try' repo.
@@ -337,11 +333,10 @@ class ActionBar extends React.PureComponent {
       notify,
     );
     const results = await TaskclusterModel.load(decisionTaskId, job);
-    const interactiveTask = results.actions.find(
-      result => result.name === 'create-interactive',
-    );
 
     try {
+      const interactiveTask = getAction(results.actions, 'create-interactive');
+
       await TaskclusterModel.submit({
         action: interactiveTask,
         decisionTaskId,

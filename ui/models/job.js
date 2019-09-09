@@ -7,6 +7,7 @@ import { formatTaskclusterError } from '../helpers/errorMessage';
 import { addAggregateFields } from '../helpers/job';
 import { getProjectUrl } from '../helpers/location';
 import { getData } from '../helpers/http';
+import { getAction } from '../helpers/taskcluster';
 
 import PushModel from './push';
 import TaskclusterModel from './taskcluster';
@@ -112,9 +113,7 @@ export default class JobModel {
             // to control whether new task are created, or existing ones re-run. We fall back
             // to `add-new-jobs` to support pushing old revision to try, where the duplicating
             // the release tasks impacted is unlikely to cause problems.
-            retriggerAction = results.actions.find(
-              action => action.name === 'add-new-jobs',
-            );
+            retriggerAction = getAction(results.actions, 'add-new-jobs');
             actionInput = {
               tasks: taskLabels,
             };
@@ -140,7 +139,11 @@ export default class JobModel {
         });
       }
     } catch (e) {
-      notify(`Unable to retrigger/add ${jobTerm}`, 'danger', { sticky: true });
+      notify(
+        `Unable to retrigger/add ${jobTerm}.  ${formatTaskclusterError(e)}`,
+        'danger',
+        { sticky: true },
+      );
     }
   }
 
@@ -150,11 +153,10 @@ export default class JobModel {
       notify,
     );
     const results = await TaskclusterModel.load(decisionTaskId);
-    const cancelAllTask = results.actions.find(
-      result => result.name === 'cancel-all',
-    );
 
     try {
+      const cancelAllTask = getAction(results.actions, 'cancel-all');
+
       await TaskclusterModel.submit({
         action: cancelAllTask,
         decisionTaskId,
@@ -204,11 +206,10 @@ export default class JobModel {
         job.taskcluster_metadata = tcMetadataMap[job.id];
         const decisionTaskId = taskIdMap[job.push_id].id;
         const results = await TaskclusterModel.load(decisionTaskId, job);
-        const cancelTask = results.actions.find(
-          result => result.name === 'cancel',
-        );
 
         try {
+          const cancelTask = getAction(results.actions, 'cancel');
+
           await TaskclusterModel.submit({
             action: cancelTask,
             decisionTaskId,

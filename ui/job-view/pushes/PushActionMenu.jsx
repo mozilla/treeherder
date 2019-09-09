@@ -90,7 +90,7 @@ class PushActionMenu extends React.PureComponent {
       );
     }
 
-    PushModel.triggerAllTalosJobs(times, pushId)
+    PushModel.triggerAllTalosJobs(times, pushId, notify)
       .then(msg => {
         notify(msg, 'success');
       })
