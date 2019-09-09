@@ -459,7 +459,7 @@ class ActionBar extends React.PureComponent {
                       ? 'Cancel this job'
                       : 'Must be logged in to cancel a job'
                   }
-                  className={`actionbar-nav-btn ${
+                  className={`bg-transparent border-0 actionbar-nav-btn ${
                     user.isLoggedIn ? 'hover-warning' : 'disabled'
                   }`}
                   onClick={() => this.cancelJob()}
