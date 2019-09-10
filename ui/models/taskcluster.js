@@ -88,8 +88,8 @@ export default class TaskclusterModel {
 
     let originalTaskId;
     let originalTaskPromise = Promise.resolve(null);
-    if (job && job.taskcluster_metadata) {
-      originalTaskId = job.taskcluster_metadata.task_id;
+    if (job) {
+      originalTaskId = job.task_id;
       originalTaskPromise = fetch(
         `https://queue.taskcluster.net/v1/task/${originalTaskId}`,
       ).then(async response => response.json());

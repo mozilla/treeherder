@@ -168,11 +168,28 @@ const fetchNewJobs = () => {
   };
 };
 
-const doUpdateJobMap = (jobList, jobMap, pushList) => {
+const doUpdateJobMap = (jobList, jobMap, decisionTaskMap, pushList) => {
   if (jobList.length) {
     // lodash ``keyBy`` is significantly faster than doing a ``reduce``
     return {
       jobMap: { ...jobMap, ...keyBy(jobList, 'id') },
+      decisionTaskMap: {
+        ...decisionTaskMap,
+        ...keyBy(
+          jobList
+            .filter(
+              job =>
+                job.job_type_name.includes('Decision Task') &&
+                job.result === 'success',
+            )
+            .map(job => ({
+              push_id: job.push_id,
+              id: job.task_id,
+              run: job.retry_id,
+            })),
+          'push_id',
+        ),
+      },
       jobsLoaded: pushList.every(push => push.jobsLoaded),
     };
   }
@@ -357,6 +374,7 @@ export const updateRange = range => {
 export const initialState = {
   pushList: [],
   jobMap: {},
+  decisionTaskMap: {},
   revisionTips: [],
   jobsLoaded: false,
   loadingPushes: true,
@@ -367,7 +385,7 @@ export const initialState = {
 
 export const reducer = (state = initialState, action) => {
   const { jobList, pushResults, setFromchange } = action;
-  const { pushList, jobMap } = state;
+  const { pushList, jobMap, decisionTaskMap } = state;
   switch (action.type) {
     case LOADING:
       return { ...state, loadingPushes: true };
@@ -380,7 +398,10 @@ export const reducer = (state = initialState, action) => {
     case RECALCULATE_UNCLASSIFIED_COUNTS:
       return { ...state, ...doRecalculateUnclassifiedCounts(jobMap) };
     case UPDATE_JOB_MAP:
-      return { ...state, ...doUpdateJobMap(jobList, jobMap, pushList) };
+      return {
+        ...state,
+        ...doUpdateJobMap(jobList, jobMap, decisionTaskMap, pushList),
+      };
     default:
       return state;
   }

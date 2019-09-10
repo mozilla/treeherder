@@ -108,6 +108,7 @@ class JobsViewSet(viewsets.ReadOnlyModelViewSet):
         'job_group',
         'machine_platform',
         'signature',
+        'taskcluster_metadata',
     ]
     _query_field_names = [
         'submit_time',
@@ -128,6 +129,9 @@ class JobsViewSet(viewsets.ReadOnlyModelViewSet):
         'signature__signature',
         'state',
         'tier',
+        'taskcluster_metadata__task_id',
+        'taskcluster_metadata__retry_id',
+
     ]
     _output_field_names = [
         'failure_classification_id',
@@ -143,6 +147,8 @@ class JobsViewSet(viewsets.ReadOnlyModelViewSet):
         'signature',
         'state',
         'tier',
+        'task_id',
+        'retry_id',
         'duration',
         'platform_option',
     ]
@@ -177,7 +183,8 @@ class JobsProjectViewSet(viewsets.ViewSet):
         'machine_platform',
         'machine',
         'signature',
-        'repository'
+        'repository',
+        'taskcluster_metadata',
     ]
 
     _property_query_mapping = [
@@ -289,6 +296,9 @@ class JobsProjectViewSet(viewsets.ViewSet):
             resp["platform_option"] = platform_option
 
         try:
+            resp['task_id'] = job.taskcluster_metadata.task_id
+            resp['retry_id'] = job.taskcluster_metadata.retry_id
+            # Keep for backwards compatability
             resp['taskcluster_metadata'] = {
                 'task_id': job.taskcluster_metadata.task_id,
                 'retry_id': job.taskcluster_metadata.retry_id

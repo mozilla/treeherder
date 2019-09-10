@@ -198,12 +198,17 @@ class PinBoard extends React.Component {
   };
 
   cancelAllPinnedJobs = () => {
-    const { notify, repoName, pinnedJobs } = this.props;
+    const { notify, repoName, pinnedJobs, decisionTaskMap } = this.props;
 
     if (
       window.confirm('This will cancel all the selected jobs. Are you sure?')
     ) {
-      JobModel.cancel(Object.values(pinnedJobs), repoName, notify);
+      JobModel.cancel(
+        Object.values(pinnedJobs),
+        repoName,
+        notify,
+        decisionTaskMap,
+      );
       this.unPinAll();
     }
   };
@@ -348,10 +353,11 @@ class PinBoard extends React.Component {
     }
   };
 
-  retriggerAllPinnedJobs = () => {
-    const { pinnedJobs, notify, repoName } = this.props;
+  retriggerAllPinnedJobs = async () => {
+    const { pinnedJobs, notify, repoName, decisionTaskMap } = this.props;
+    const jobs = Object.values(pinnedJobs);
 
-    JobModel.retrigger(Object.values(pinnedJobs), repoName, notify);
+    JobModel.retrigger(jobs, repoName, notify, 1, decisionTaskMap);
   };
 
   render() {
@@ -630,6 +636,7 @@ class PinBoard extends React.Component {
 
 PinBoard.propTypes = {
   recalculateUnclassifiedCounts: PropTypes.func.isRequired,
+  decisionTaskMap: PropTypes.object.isRequired,
   classificationTypes: PropTypes.array.isRequired,
   isLoggedIn: PropTypes.bool.isRequired,
   isPinBoardVisible: PropTypes.bool.isRequired,
@@ -659,7 +666,7 @@ PinBoard.defaultProps = {
 };
 
 const mapStateToProps = ({
-  pushes: { revisionTips },
+  pushes: { revisionTips, decisionTaskMap },
   pinnedJobs: {
     isPinBoardVisible,
     pinnedJobs,
@@ -669,6 +676,7 @@ const mapStateToProps = ({
   },
 }) => ({
   revisionTips,
+  decisionTaskMap,
   isPinBoardVisible,
   pinnedJobs,
   pinnedJobBugs,

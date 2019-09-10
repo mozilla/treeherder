@@ -22,7 +22,6 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faCheckSquare } from '@fortawesome/free-regular-svg-icons';
 
 import { formatTaskclusterError } from '../helpers/errorMessage';
-import PushModel from '../models/push';
 import TaskclusterModel from '../models/taskcluster';
 
 import { notify } from './redux/stores/notifications';
@@ -46,11 +45,8 @@ class CustomJobActions extends React.PureComponent {
   }
 
   async componentDidMount() {
-    const { pushId, job, notify } = this.props;
-    const { id: decisionTaskId } = await PushModel.getDecisionTaskId(
-      pushId,
-      notify,
-    );
+    const { pushId, job, notify, decisionTaskMap } = this.props;
+    const { id: decisionTaskId } = decisionTaskMap[pushId];
 
     TaskclusterModel.load(decisionTaskId, job).then(results => {
       const {
@@ -308,6 +304,7 @@ CustomJobActions.propTypes = {
   isLoggedIn: PropTypes.bool.isRequired,
   notify: PropTypes.func.isRequired,
   toggle: PropTypes.func.isRequired,
+  decisionTaskMap: PropTypes.object.isRequired,
   job: PropTypes.object,
 };
 
@@ -315,7 +312,11 @@ CustomJobActions.defaultProps = {
   job: null,
 };
 
+const mapStateToProps = ({ pushes: { decisionTaskMap } }) => ({
+  decisionTaskMap,
+});
+
 export default connect(
-  null,
+  mapStateToProps,
   { notify },
 )(CustomJobActions);

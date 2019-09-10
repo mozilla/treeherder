@@ -9,11 +9,14 @@ describe('PushModel', () => {
   });
 
   describe('taskcluster actions', () => {
+    const decisionTaskUrl = getProjectUrl(
+      '/push/decisiontask/?push_ids=548880',
+      'autoland',
+    );
     beforeEach(() => {
-      fetchMock.mock(
-        getProjectUrl('/push/decisiontask/?push_ids=548880', 'autoland'),
-        { '548880': { id: 'U-lI3jzPTkWFplfJPz6cJA', run: '0' } },
-      );
+      fetchMock.mock(decisionTaskUrl, {
+        '548880': { id: 'U-lI3jzPTkWFplfJPz6cJA', run: '0' },
+      });
     });
 
     test('getDecisionTaskId', async () => {
@@ -26,6 +29,11 @@ describe('PushModel', () => {
         id: 'U-lI3jzPTkWFplfJPz6cJA',
         run: '0',
       });
+      expect(fetchMock.calls(decisionTaskUrl)).toHaveLength(1);
+
+      await PushModel.getDecisionTaskId(548880, () => {});
+      // on second try, it was cached.  So we still have just 1 call
+      expect(fetchMock.calls(decisionTaskUrl)).toHaveLength(1);
     });
 
     test('getDecisionTaskMap', async () => {

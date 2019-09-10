@@ -35,7 +35,7 @@ export default class JobInfo extends React.PureComponent {
     const {
       signature,
       title,
-      taskcluster_metadata,
+      task_id,
       build_platform,
       job_type_name,
       build_architecture,
@@ -67,16 +67,16 @@ export default class JobInfo extends React.PureComponent {
             <span>{title}</span>
           )}
         </li>
-        {taskcluster_metadata && (
+        {task_id && (
           <li className="small">
             <strong>Task: </strong>
             <a
               id="taskInfo"
-              href={getInspectTaskUrl(taskcluster_metadata.task_id)}
+              href={getInspectTaskUrl(task_id)}
               target="_blank"
               rel="noopener noreferrer"
             >
-              {taskcluster_metadata.task_id}
+              {task_id}
             </a>
           </li>
         )}

@@ -1,6 +1,5 @@
 import { slugid } from 'taskcluster-client-web';
 import groupBy from 'lodash/groupBy';
-import keyBy from 'lodash/keyBy';
 
 import { createQueryParams, getApiUrl } from '../helpers/url';
 import { formatTaskclusterError } from '../helpers/errorMessage';
@@ -84,14 +83,22 @@ export default class JobModel {
     return JobModel.getList(options, config);
   }
 
-  static async retrigger(jobs, repoName, notify, times = 1) {
+  static async retrigger(
+    jobs,
+    repoName,
+    notify,
+    times = 1,
+    decisionTaskIdMap = null,
+  ) {
     const jobTerm = jobs.length > 1 ? 'jobs' : 'job';
 
     try {
       notify(`Attempting to retrigger/add ${jobTerm} via actions.json`, 'info');
 
       const pushIds = [...new Set(jobs.map(job => job.push_id))];
-      const taskIdMap = await PushModel.getDecisionTaskMap(pushIds, notify);
+      const taskIdMap =
+        decisionTaskIdMap ||
+        (await PushModel.getDecisionTaskMap(pushIds, notify));
       const uniquePerPushJobs = groupBy(jobs, job => job.push_id);
 
       // eslint-disable-next-line no-unused-vars
@@ -147,11 +154,10 @@ export default class JobModel {
     }
   }
 
-  static async cancelAll(pushId, repoName, notify) {
-    const { id: decisionTaskId } = await PushModel.getDecisionTaskId(
-      pushId,
-      notify,
-    );
+  static async cancelAll(pushId, repoName, notify, decisionTask) {
+    const { id: decisionTaskId } =
+      decisionTask || (await PushModel.getDecisionTaskId(pushId, notify));
+
     const results = await TaskclusterModel.load(decisionTaskId);
 
     try {
@@ -172,27 +178,14 @@ export default class JobModel {
     notify('Request sent to cancel all jobs via action.json', 'success');
   }
 
-  static async cancel(jobs, repoName, notify) {
+  static async cancel(jobs, repoName, notify, decisionTaskIdMap) {
     const jobTerm = jobs.length > 1 ? 'jobs' : 'job';
-    const taskIdMap = await PushModel.getDecisionTaskMap(
-      [...new Set(jobs.map(job => job.push_id))],
-      notify,
-    );
-    // Only the selected job will have the ``taskcluster_metadata`` field
-    // which has the task_id we need.  So we must fetch all the task_ids
-    // for the jobs in this list.
-    const jobIds = jobs.map(job => job.id);
-    const { data, failureStatus } = await getData(
-      `${getApiUrl('/taskclustermetadata/')}?job_ids=${jobIds.join(',')}`,
-    );
-
-    if (failureStatus) {
-      notify('Unable to cancel: Error getting task ids for jobs.', 'danger', {
-        sticky: true,
-      });
-      return;
-    }
-    const tcMetadataMap = keyBy(data, 'job');
+    const taskIdMap =
+      decisionTaskIdMap ||
+      (await PushModel.getDecisionTaskMap(
+        [...new Set(jobs.map(job => job.push_id))],
+        notify,
+      ));
 
     try {
       notify(
@@ -203,7 +196,6 @@ export default class JobModel {
       /* eslint-disable no-await-in-loop */
       // eslint-disable-next-line no-unused-vars
       for (const job of jobs) {
-        job.taskcluster_metadata = tcMetadataMap[job.id];
         const decisionTaskId = taskIdMap[job.push_id].id;
         const results = await TaskclusterModel.load(decisionTaskId, job);
 

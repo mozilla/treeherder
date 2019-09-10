@@ -142,6 +142,7 @@ class PushHeader extends React.Component {
       selectedRunnableJobs,
       hideRunnableJobs,
       notify,
+      decisionTaskMap,
     } = this.props;
 
     if (
@@ -152,10 +153,7 @@ class PushHeader extends React.Component {
       return;
     }
     if (isLoggedIn) {
-      const { id: decisionTaskId } = await PushModel.getDecisionTaskId(
-        pushId,
-        notify,
-      );
+      const { id: decisionTaskId } = decisionTaskMap[pushId];
 
       PushModel.triggerNewJobs(selectedRunnableJobs, decisionTaskId)
         .then(result => {
@@ -172,18 +170,22 @@ class PushHeader extends React.Component {
   };
 
   cancelAllJobs = () => {
-    const { notify, repoName } = this.props;
-
     if (
       window.confirm(
         'This will cancel all pending and running jobs for this push. It cannot be undone! Are you sure?',
       )
     ) {
-      const { push, isLoggedIn } = this.props;
+      const {
+        notify,
+        repoName,
+        push,
+        isLoggedIn,
+        decisionTaskMap,
+      } = this.props;
 
       if (!isLoggedIn) return;
 
-      JobModel.cancelAll(push.id, repoName, notify);
+      JobModel.cancelAll(push.id, repoName, notify, decisionTaskMap[push.id]);
     }
   };
 
@@ -407,6 +409,7 @@ PushHeader.propTypes = {
   notify: PropTypes.func.isRequired,
   jobCounts: PropTypes.object.isRequired,
   pushHealthVisibility: PropTypes.string.isRequired,
+  decisionTaskMap: PropTypes.object.isRequired,
   watchState: PropTypes.string,
 };
 
@@ -414,7 +417,11 @@ PushHeader.defaultProps = {
   watchState: 'none',
 };
 
+const mapStateToProps = ({ pushes: { decisionTaskMap } }) => ({
+  decisionTaskMap,
+});
+
 export default connect(
-  null,
+  mapStateToProps,
   { notify, setSelectedJob, pinJobs },
 )(PushHeader);
