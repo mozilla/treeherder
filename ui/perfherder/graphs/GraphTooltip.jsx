@@ -72,13 +72,12 @@ const GraphTooltip = ({ dataPoint, testData, user, updateData, projects }) => {
     });
   }
 
-  const jobsUrl = `${getJobsUrl({
+  const jobsUrl = getJobsUrl({
     repo: testDetails.repository_name,
     revision: dataPointDetails.revision,
-  })}${createQueryParams({
     selectedJob: dataPointDetails.jobId,
     group_state: 'expanded',
-  })}`;
+  });
 
   // TODO refactor create to use getData wrapper
   const createAlert = () =>
