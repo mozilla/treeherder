@@ -402,19 +402,19 @@ class GraphsContainer extends React.Component {
               <VictoryScatter
                 style={{
                   data: {
-                    fill: data =>
-                      (data.alertSummary || hasHighlightedRevision(data)) &&
+                    fill: ({ datum }) =>
+                      (datum.alertSummary || hasHighlightedRevision(datum)) &&
                       highlightPoints
-                        ? data.z
+                        ? datum.z
                         : '#fff',
-                    strokeOpacity: data =>
-                      (data.alertSummary || hasHighlightedRevision(data)) &&
+                    strokeOpacity: ({ datum }) =>
+                      (datum.alertSummary || hasHighlightedRevision(datum)) &&
                       highlightPoints
                         ? 0.3
                         : 100,
-                    stroke: d => d.z,
-                    strokeWidth: data =>
-                      (data.alertSummary || hasHighlightedRevision(data)) &&
+                    stroke: ({ datum }) => datum.z,
+                    strokeWidth: ({ datum }) =>
+                      (datum.alertSummary || hasHighlightedRevision(datum)) &&
                       highlightPoints
                         ? 12
                         : 2,
