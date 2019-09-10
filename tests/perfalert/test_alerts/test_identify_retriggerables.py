@@ -5,7 +5,7 @@ from operator import itemgetter as get_key
 import pytest
 
 from treeherder.model.models import Job
-from treeherder.perf.alerts import IdentifyingRetriggerables
+from treeherder.perf.alerts import IdentifyAlertRetriggerables
 from treeherder.perf.models import PerformanceDatum
 
 NON_RETRIGGERABLE_JOB_ID = 9
@@ -125,18 +125,18 @@ def prepare_graph_data_scenario(push_ids_to_keep, highlighted_push_id, perf_aler
 
 
 # Unit tests
-def test_identifying_retriggerables_as_unit():
+def test_identify_retriggerables_as_unit():
     # basic instantiation & usage
     one_day = datetime.timedelta(days=1)
 
     with pytest.raises(ValueError):
-        _ = IdentifyingRetriggerables(range_width=0, time_interval=one_day)
+        _ = IdentifyAlertRetriggerables(max_data_points=0, time_interval=one_day)
 
     with pytest.raises(ValueError):
-        _ = IdentifyingRetriggerables(range_width=4, time_interval=one_day)
+        _ = IdentifyAlertRetriggerables(max_data_points=4, time_interval=one_day)
 
     with pytest.raises(TypeError):
-        _ = IdentifyingRetriggerables(range_width=5, time_interval=1)
+        _ = IdentifyAlertRetriggerables(max_data_points=5, time_interval=1)
 
     # its small private methods
     annotated_data_points = [
@@ -147,7 +147,7 @@ def test_identifying_retriggerables_as_unit():
         {'job_id': 5, 'push_id': 3},
         {'job_id': 6, 'push_id': 3},
     ]
-    operation = IdentifyingRetriggerables(range_width=5, time_interval=one_day)
+    operation = IdentifyAlertRetriggerables(max_data_points=5, time_interval=one_day)
     flattened_data_points = operation._one_data_point_per_push(annotated_data_points)
     push_counter = Counter([data_point['push_id'] for data_point in flattened_data_points])
 
@@ -165,8 +165,8 @@ def test_identifying_retriggerables_as_unit():
 
 
 # Component tests
-def test_identifying_retriggerables_selects_all_data_points(gapped_performance_data, test_perf_alert):
-    identify_retriggerables = IdentifyingRetriggerables(range_width=5, time_interval=ONE_DAY_INTERVAL)
+def test_identify_retriggerables_selects_all_data_points(gapped_performance_data, test_perf_alert):
+    identify_retriggerables = IdentifyAlertRetriggerables(max_data_points=5, time_interval=ONE_DAY_INTERVAL)
     data_points_to_retrigger = identify_retriggerables(test_perf_alert)
 
     assert len(data_points_to_retrigger) == 5
@@ -181,17 +181,17 @@ def test_identifying_retriggerables_selects_all_data_points(gapped_performance_d
     assert max_push_timestamp <= datetime.datetime(year=2013, month=11, day=14)
 
 
-def test_identifying_retriggerables_selects_even_single_data_point(single_performance_datum, test_perf_alert):
-    identify_retriggerables = IdentifyingRetriggerables(range_width=5, time_interval=ONE_DAY_INTERVAL)
+def test_identify_retriggerables_selects_even_single_data_point(single_performance_datum, test_perf_alert):
+    identify_retriggerables = IdentifyAlertRetriggerables(max_data_points=5, time_interval=ONE_DAY_INTERVAL)
     data_points_to_retrigger = identify_retriggerables(test_perf_alert)
 
     assert len(data_points_to_retrigger) == 1
     assert {4} == set(map(get_key("job_id"), data_points_to_retrigger))
 
 
-def test_identifying_retriggerables_doesnt_select_out_of_range_data_points(
+def test_identify_retriggerables_doesnt_select_out_of_range_data_points(
         retriggerable_and_nonretriggerable_performance_data, test_perf_alert):
-    identify_retriggerables = IdentifyingRetriggerables(range_width=5, time_interval=ONE_DAY_INTERVAL)
+    identify_retriggerables = IdentifyAlertRetriggerables(max_data_points=5, time_interval=ONE_DAY_INTERVAL)
     data_points_to_retrigger = identify_retriggerables(test_perf_alert)
 
     job_ids_to_retrigger = set(map(get_key("job_id"), data_points_to_retrigger))

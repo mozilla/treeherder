@@ -1,7 +1,8 @@
-import datetime
 import logging
 import time
 from collections import namedtuple
+from datetime import (datetime,
+                      timedelta)
 from itertools import zip_longest
 from typing import (List,
                     Tuple)
@@ -41,7 +42,7 @@ def generate_new_alerts_in_series(signature):
     # (1) the last alert, if there is one
     # (2) the alerts max age
     # (use whichever is newer)
-    max_alert_age = (datetime.datetime.now() -
+    max_alert_age = (datetime.now() -
                      settings.PERFHERDER_ALERTS_MAX_AGE)
     series = PerformanceDatum.objects.filter(signature=signature).filter(
         push_timestamp__gte=max_alert_age).order_by('push_timestamp')
@@ -104,7 +105,7 @@ def generate_new_alerts_in_series(signature):
                     prev_push_id=prev.push_id,
                     defaults={
                         'manually_created': False,
-                        'created': datetime.datetime.utcfromtimestamp(
+                        'created': datetime.utcfromtimestamp(
                             cur.push_timestamp)
                     })
 
@@ -133,7 +134,7 @@ class AlertsPicker:
     For this algorithm, regressions are considered the most important, followed by improvements.
     '''
 
-    def __init__(self, max_alerts: int, max_improvements: int, platforms_of_interest: Tuple[str]):
+    def __init__(self, max_alerts: int, max_improvements: int, platforms_of_interest: Tuple[str, ...]):
         '''
         :param max_alerts: the maximum number of selected alerts
         :param max_improvements: max when handling only improvements
@@ -157,7 +158,7 @@ class AlertsPicker:
         self.max_improvements = max_improvements
         self.ordered_platforms_of_interest = platforms_of_interest
 
-    def extract_important_alerts(self, alerts: Tuple[PerformanceAlert]):
+    def extract_important_alerts(self, alerts: Tuple[PerformanceAlert, ...]):
         if any(not isinstance(alert, PerformanceAlert) for alert in alerts):
             raise ValueError('Provided parameter does not contain only PerformanceAlert objects.')
         relevant_alerts = self._extract_by_relevant_platforms(alerts)
@@ -247,18 +248,18 @@ class AlertsPicker:
         return sorted_alerts
 
 
-class IdentifyingRetriggerables:
-    def __init__(self, range_width: int, time_interval: datetime.timedelta, logger=None):
-        if range_width < 1:
+class IdentifyAlertRetriggerables:
+    def __init__(self, max_data_points: int, time_interval: timedelta, logger=None):
+        if max_data_points < 1:
             raise ValueError('Cannot set range width less than 1')
-        if range_width % 2 == 0:
+        if max_data_points % 2 == 0:
             raise ValueError('Must provide odd range width')
-        if not isinstance(time_interval, datetime.timedelta):
+        if not isinstance(time_interval, timedelta):
             raise TypeError('Must provide time interval as timedelta')
 
-        self._range_width = range_width
+        self._range_width = max_data_points
         self._time_interval = time_interval
-        self.log = logger or logging.getLogger(self.__call__.__name__)
+        self.log = logger or logging.getLogger(self.__class__.__name__)
 
     def __call__(self, alert: PerformanceAlert) -> List[dict]:
         """
@@ -279,10 +280,10 @@ class IdentifyingRetriggerables:
 
         return data_points_to_retrigger
 
-    def min_timestamp(self, alert_push_time: datetime.datetime) -> datetime.datetime:
+    def min_timestamp(self, alert_push_time: datetime) -> datetime:
         return alert_push_time - self._time_interval
 
-    def max_timestamp(self, alert_push_time: datetime.datetime) -> datetime.datetime:
+    def max_timestamp(self, alert_push_time: datetime) -> datetime:
         return alert_push_time + self._time_interval
 
     def _fetch_suspect_data_points(self, alert: PerformanceAlert) -> QuerySet:
@@ -331,3 +332,54 @@ class IdentifyingRetriggerables:
         if retrigger_range < self._range_width:
             self.log.warning('Found small backfill range (of size {} instead of {})'
                              .format(retrigger_range, self._range_width))
+
+
+class IdentifyLatestRetriggerables:
+    def __init__(self, since: datetime, data_points_lookup_interval: timedelta):
+        '''
+        Acquire/instantiate data used for finding alerts.
+        :param since: datetime since the lookup will occur.
+        :param data_points_lookup_interval: time range before/after data point in which search neighboring data points occurs.
+        '''
+        self.since = since
+        self.picker = AlertsPicker(
+            max_alerts=5,
+            max_improvements=2,
+            platforms_of_interest=('windows10', 'windows7', 'linux', 'osx', 'android'))
+        self.find_alert_retriggerables = IdentifyAlertRetriggerables(
+            max_data_points=5,
+            time_interval=data_points_lookup_interval)
+
+    def __call__(self, frameworks: List[str], repositories: List[str]) -> dict:
+        summaries_to_retrigger = self._fetch_by(
+            self._summaries(self.since),
+            frameworks,
+            repositories
+        )
+        return self._identify_retriggerables(summaries_to_retrigger)
+
+    def _summaries(self, timestamp: datetime) -> QuerySet:
+        return (PerformanceAlertSummary.objects
+                .select_related('framework', 'repository')
+                .filter(created__gte=timestamp))
+
+    def _fetch_by(self, summaries_to_retrigger: QuerySet, frameworks: List[str], repositories: List[str]) -> QuerySet:
+        if frameworks:
+            summaries_to_retrigger = summaries_to_retrigger.filter(framework__name__in=frameworks)
+        return summaries_to_retrigger.filter(repository__name__in=repositories)
+
+    def _identify_retriggerables(self, summaries_to_retrigger: QuerySet) -> dict:
+        json_output = []
+        for summary in summaries_to_retrigger:
+            important_alerts = self.picker.extract_important_alerts(
+                summary.alerts.all())
+
+            summary_record = {"alert_summary_id": summary.id, "alerts": []}
+            for alert in important_alerts:
+                data_points = self.find_alert_retriggerables(alert)
+
+                summary_record["alerts"].append(
+                    {"id": alert.id, "data_points_to_retrigger": data_points})
+            json_output.append(summary_record)
+
+        return json_output
