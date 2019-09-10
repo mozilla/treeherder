@@ -19,7 +19,7 @@ matrix:
         - yarn lint
         # `yarn lint` only checks the formatting of JS/JSX, this will also check CSS/HTML/JSON/Markdown/YAML.
         - yarn format:check
-        - yarn test
+        - yarn test:coverage
       after_success: yarn codecov
 
     - env: test-prod-build
