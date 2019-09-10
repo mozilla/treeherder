@@ -50,7 +50,7 @@ const GraphTooltip = ({ dataPoint, testData, user, updateData, projects }) => {
 
   if (alert) {
     alertStatus =
-      alert.status === alertStatusMap.acknowledged
+      alert.status === alertStatusMap.acknowledged && testDetails.alertSummary
         ? getStatus(testDetails.alertSummary.status)
         : getStatus(alert.status, alertStatusMap);
   }
