@@ -110,8 +110,13 @@ export default class CompareTableControls extends React.Component {
     const {
       showTestsWithNoise,
       dropdownOptions,
+      user,
+      isBaseAggregate,
+      notify,
+      hasSubtests,
       onPermalinkClick,
     } = this.props;
+
     const {
       hideUncomparable,
       hideUncertain,
@@ -162,10 +167,14 @@ export default class CompareTableControls extends React.Component {
         {results.size > 0 ? (
           Array.from(results).map(([testName, data]) => (
             <CompareTable
-              onPermalinkClick={onPermalinkClick}
               key={testName}
               data={data}
               testName={testName}
+              onPermalinkClick={onPermalinkClick}
+              user={user}
+              isBaseAggregate={isBaseAggregate}
+              notify={notify}
+              hasSubtests={hasSubtests}
             />
           ))
         ) : (
@@ -179,6 +188,10 @@ export default class CompareTableControls extends React.Component {
 CompareTableControls.propTypes = {
   compareResults: PropTypes.shape({}).isRequired,
   dropdownOptions: PropTypes.arrayOf(PropTypes.shape({})),
+  user: PropTypes.shape({}).isRequired,
+  isBaseAggregate: PropTypes.bool.isRequired,
+  notify: PropTypes.func.isRequired,
+  hasSubtests: PropTypes.bool,
   validated: PropTypes.shape({
     showOnlyImportant: PropTypes.string,
     showOnlyComparable: PropTypes.string,
@@ -194,6 +207,7 @@ CompareTableControls.propTypes = {
 
 CompareTableControls.defaultProps = {
   dropdownOptions: [],
+  hasSubtests: false,
   validated: {
     showOnlyImportant: undefined,
     showOnlyComparable: undefined,

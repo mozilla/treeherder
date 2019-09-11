@@ -33,7 +33,7 @@ export default class CompareTableView extends React.Component {
       compareResults: new Map(),
       testsNoResults: null,
       testsWithNoise: [],
-      failureMessage: '',
+      failureMessages: [],
       loading: false,
       timeRange: this.setTimeRange(),
       framework: getFrameworkData(this.props.validated),
@@ -83,7 +83,7 @@ export default class CompareTableView extends React.Component {
       newProject,
       newRevision,
     } = this.props.validated;
-    const { framework, timeRange } = this.state;
+    const { framework, timeRange, failureMessages } = this.state;
 
     this.setState({ loading: true });
 
@@ -96,14 +96,14 @@ export default class CompareTableView extends React.Component {
 
     if (originalResults.failureStatus) {
       return this.setState({
-        failureMessage: originalResults.data,
+        failureMessages: [originalResults.data, ...failureMessages],
         loading: false,
       });
     }
 
     if (newResults.failureStatus) {
       return this.setState({
-        failureMessage: newResults.data,
+        failureMessages: [newResults.data, ...failureMessages],
         loading: false,
       });
     }
@@ -161,6 +161,15 @@ export default class CompareTableView extends React.Component {
     this.setState({ timeRange }, () => this.getPerformanceData());
   };
 
+  notifyFailure = (message, severity) => {
+    const { failureMessages } = this.state;
+    if (severity === 'danger') {
+      this.setState({
+        failureMessages: [message, ...failureMessages],
+      });
+    }
+  };
+
   render() {
     const {
       originalProject,
@@ -176,7 +185,7 @@ export default class CompareTableView extends React.Component {
     const {
       compareResults,
       loading,
-      failureMessage,
+      failureMessages,
       testsWithNoise,
       timeRange,
       testsNoResults,
@@ -214,7 +223,7 @@ export default class CompareTableView extends React.Component {
 
     return (
       <Container fluid className="max-width-default">
-        {loading && !failureMessage && <LoadingSpinner />}
+        {loading && !failureMessages.length && <LoadingSpinner />}
 
         <ErrorBoundary
           errorClasses={errorMessageClass}
@@ -232,8 +241,8 @@ export default class CompareTableView extends React.Component {
             <div className="mx-auto">
               <Row className="justify-content-center">
                 <Col sm="8" className="text-center">
-                  {failureMessage && (
-                    <ErrorMessages failureMessage={failureMessage} />
+                  {failureMessages.length !== 0 && (
+                    <ErrorMessages errorMessages={failureMessages} />
                   )}
                 </Col>
               </Row>
@@ -278,6 +287,8 @@ export default class CompareTableView extends React.Component {
                 updateState={state => this.setState(state)}
                 onPermalinkClick={onPermalinkClick}
                 compareResults={compareResults}
+                isBaseAggregate={!originalRevision}
+                notify={this.notifyFailure}
                 showTestsWithNoise={
                   testsWithNoise.length > 0 && (
                     <Row>
@@ -315,6 +326,7 @@ CompareTableView.propTypes = {
     newSignature: PropTypes.string,
     framework: PropTypes.string,
   }),
+  user: PropTypes.shape({}).isRequired,
   dateRangeOptions: PropTypes.oneOfType([PropTypes.shape({}), PropTypes.bool]),
   filterByFramework: PropTypes.oneOfType([PropTypes.shape({}), PropTypes.bool]),
   getDisplayResults: PropTypes.func.isRequired,
