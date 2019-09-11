@@ -298,6 +298,10 @@ One of the ways in which we allow users to [access Treeherder data](../accessing
 is via direct access to our read-only RDS MySQL replica. Both ActiveData and Mozilla's
 ReDash instance use this approach.
 
+NOTE: Don't forget to try running `./manage.py runserver` with the user created before sending credentials to the user.
+
+NOTE2: Certain symbols (e.g. '%') in a password would work via MySql, however, fail via Django
+
 Each user should be given a unique MySQL username, created by [connecting](#connecting-to-rds-instances)
 to the master production RDS instance (not the replica) and running these SQL statements:
 
