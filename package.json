@@ -55,6 +55,7 @@
     "react-day-picker": "7.3.2",
     "react-dom": "16.9.0",
     "react-highlight-words": "0.16.0",
+    "react-hot-keys": "2.1.0",
     "react-hot-loader": "4.12.12",
     "react-hotkeys": "1.1.4",
     "react-lazylog": "4.3.2",
@@ -73,9 +74,9 @@
     "redux-thunk": "2.3.0",
     "taskcluster-client-web": "8.1.1",
     "taskcluster-lib-scopes": "10.0.2",
+    "victory": "33.0.5",
     "webpack": "4.39.3",
-    "webpack-cli": "3.3.8",
-    "victory": "33.0.5"
+    "webpack-cli": "3.3.8"
   },
   "devDependencies": {
     "@neutrinojs/eslint": "9.0.0-rc.3",
