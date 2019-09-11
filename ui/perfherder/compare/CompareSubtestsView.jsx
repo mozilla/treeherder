@@ -232,6 +232,7 @@ CompareSubtestsView.propTypes = {
   }),
   $stateParams: PropTypes.shape({}),
   $state: PropTypes.shape({}),
+  user: PropTypes.shape({}).isRequired,
 };
 
 CompareSubtestsView.defaultProps = {
@@ -252,7 +253,7 @@ const compareSubtestsView = withValidation(requiredParams)(CompareSubtestsView);
 
 perf.component(
   'compareSubtestsView',
-  react2angular(compareSubtestsView, [], ['$stateParams', '$state']),
+  react2angular(compareSubtestsView, ['user'], ['$stateParams', '$state']),
 );
 
 export default compareSubtestsView;

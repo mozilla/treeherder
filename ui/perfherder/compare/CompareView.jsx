@@ -269,6 +269,7 @@ CompareView.propTypes = {
   }),
   $stateParams: PropTypes.shape({}),
   $state: PropTypes.shape({}),
+  user: PropTypes.shape({}).isRequired,
 };
 
 CompareView.defaultProps = {
@@ -289,7 +290,7 @@ perf.component(
   'compareView',
   react2angular(
     compareView,
-    [],
+    ['user'],
     ['$location', '$scope', '$stateParams', '$state'],
   ),
 );

@@ -25,6 +25,10 @@ export const selectorCardText = {
   revisionPlaceHolder: 'select or enter a revision',
 };
 
+export const compareTableText = {
+  retriggerButtonTitle: 'Retrigger 5 times',
+};
+
 export const noDataFoundMessage = 'No Data Found';
 
 export const summaryStatusMap = {

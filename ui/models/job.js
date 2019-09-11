@@ -63,7 +63,7 @@ export default class JobModel {
 
   static get(repoName, pk, signal) {
     // a static method to retrieve a single instance of JobModel
-    return fetch(`${getProjectUrl(uri)}${pk}/`, { signal }).then(
+    return fetch(`${getProjectUrl(uri, repoName)}${pk}/`, { signal }).then(
       async response => {
         if (response.ok) {
           const job = await response.json();

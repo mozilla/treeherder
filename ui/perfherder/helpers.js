@@ -181,12 +181,20 @@ export const getCounterMap = function getCounterMap(
     return cmap;
   }
 
+  cmap.originalRetriggerableJobId = null;
+  cmap.newRetriggerableJobId = null;
+
   if (hasOrig) {
     const orig = analyzeSet(originalData.values, testName);
     cmap.originalValue = orig.average;
     cmap.originalRuns = orig.runs;
     cmap.originalStddev = orig.stddev;
     cmap.originalStddevPct = orig.stddevPct;
+
+    cmap.originalRepoName = originalData.repository_name;
+    if (originalData.job_ids && originalData.job_ids.length) {
+      [cmap.originalRetriggerableJobId] = originalData.job_ids;
+    }
   } else {
     cmap.originalRuns = [];
   }
@@ -197,6 +205,11 @@ export const getCounterMap = function getCounterMap(
     cmap.newRuns = newd.runs;
     cmap.newStddev = newd.stddev;
     cmap.newStddevPct = newd.stddevPct;
+
+    cmap.newRepoName = newData.repository_name;
+    if (newData.job_ids && newData.job_ids.length) {
+      [cmap.newRetriggerableJobId] = newData.job_ids;
+    }
   } else {
     cmap.newRuns = [];
   }

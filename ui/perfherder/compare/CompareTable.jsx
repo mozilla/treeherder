@@ -4,12 +4,15 @@ import PropTypes from 'prop-types';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import {
   faExclamationTriangle,
+  faRedo,
   faThumbsUp,
   faHashtag,
 } from '@fortawesome/free-solid-svg-icons';
 
+import JobModel from '../../models/job';
 import SimpleTooltip from '../../shared/SimpleTooltip';
 import { displayNumber } from '../helpers';
+import { compareTableText } from '../constants';
 import ProgressBar from '../ProgressBar';
 import { hashFunction } from '../../helpers/utils';
 
@@ -45,9 +48,46 @@ export default class CompareTable extends React.PureComponent {
     return `table-${tableSection}-${hashValue}`;
   };
 
-  render() {
-    const { data, onPermalinkClick, testName } = this.props;
+  retriggerJobs = async (results, times) => {
+    // retrigger base revision jobs
+    this.retriggerByRevision(
+      results.originalRetriggerableJobId,
+      results.originalRepoName,
+      true,
+      times,
+    );
+    // retrigger new revision jobs
+    this.retriggerByRevision(
+      results.newRetriggerableJobId,
+      results.newRepoName,
+      false,
+      times,
+    );
+  };
 
+  retriggerByRevision = async (jobId, repoName, isBaseline, times) => {
+    const { isBaseAggregate, notify, retriggerJob, getJob } = this.props;
+
+    // do not retrigger if the base is aggregate (there is a selected time range)
+    if (isBaseline && isBaseAggregate) {
+      return;
+    }
+
+    if (jobId) {
+      const job = await getJob(repoName, jobId);
+      retriggerJob([job], repoName, notify, times);
+    }
+  };
+
+  render() {
+    const {
+      data,
+      testName,
+      user,
+      hasSubtests,
+      isBaseAggregate,
+      onPermalinkClick,
+    } = this.props;
     return (
       <Table
         id={this.getHashBasedId(testName)}
@@ -77,18 +117,33 @@ export default class CompareTable extends React.PureComponent {
             {/* empty for progress bars (magnitude of difference) */}
             <th className="table-width-lg" />
             <th className="table-width-lg">Confidence</th>
-            <th className="text-right table-width-md"># Runs</th>
+            <th className="text-right table-width-md">
+              {hasSubtests &&
+                data &&
+                data.length &&
+                (data[0].newRetriggerableJobId || !isBaseAggregate) &&
+                user.isLoggedIn && (
+                  <Button
+                    className="retrigger-btn btn icon-green mr-1 py-0 px-1"
+                    title={compareTableText.retriggerButtonTitle}
+                    onClick={() => this.retriggerJobs(data[0], 5)}
+                  >
+                    <FontAwesomeIcon icon={faRedo} />
+                  </Button>
+                )}
+              # Runs
+            </th>
           </tr>
         </thead>
         <tbody>
-          {data.map(results => (
+          {data.map(rowLevelResults => (
             <tr
-              id={this.getHashBasedId(testName, results.name)}
+              id={this.getHashBasedId(testName, rowLevelResults.name)}
               aria-label="Comparison table row"
-              key={results.name}
+              key={rowLevelResults.name}
             >
               <th className="text-left font-weight-normal pl-1">
-                {results.name}
+                {rowLevelResults.name}
                 <span className="result-links">
                   <span>
                     <Button
@@ -96,7 +151,7 @@ export default class CompareTable extends React.PureComponent {
                       color="link"
                       onClick={() =>
                         onPermalinkClick(
-                          this.getHashBasedId(testName, results.name),
+                          this.getHashBasedId(testName, rowLevelResults.name),
                         )
                       }
                       title="Permalink to this test"
@@ -104,8 +159,8 @@ export default class CompareTable extends React.PureComponent {
                       <FontAwesomeIcon icon={faHashtag} />
                     </Button>
                   </span>
-                  {results.links &&
-                    results.links.map(link => (
+                  {rowLevelResults.links &&
+                    rowLevelResults.links.map(link => (
                       <span key={link.title}>
                         <a href={link.href}>{` ${link.title}`}</a>
                       </span>
@@ -113,88 +168,112 @@ export default class CompareTable extends React.PureComponent {
                 </span>
               </th>
               <TableAverage
-                value={results.originalValue}
-                stddev={results.originalStddev}
-                stddevpct={results.originalStddevPct}
-                replicates={results.originalRuns}
+                value={rowLevelResults.originalValue}
+                stddev={rowLevelResults.originalStddev}
+                stddevpct={rowLevelResults.originalStddevPct}
+                replicates={rowLevelResults.originalRuns}
               />
               <td>
-                {results.originalValue < results.newValue && <span>&lt;</span>}
-                {results.originalValue > results.newValue && <span>&gt;</span>}
+                {rowLevelResults.originalValue < rowLevelResults.newValue && (
+                  <span>&lt;</span>
+                )}
+                {rowLevelResults.originalValue > rowLevelResults.newValue && (
+                  <span>&gt;</span>
+                )}
               </td>
               <TableAverage
-                value={results.newValue}
-                stddev={results.newStddev}
-                stddevpct={results.newStddevPct}
-                replicates={results.newRuns}
+                value={rowLevelResults.newValue}
+                stddev={rowLevelResults.newStddev}
+                stddevpct={rowLevelResults.newStddevPct}
+                replicates={rowLevelResults.newRuns}
               />
-              <td className={this.getColorClass(results, 'background')}>
-                {results.delta &&
-                Math.abs(displayNumber(results.deltaPercentage)) !== 0 ? (
+              <td className={this.getColorClass(rowLevelResults, 'background')}>
+                {rowLevelResults.delta &&
+                Math.abs(displayNumber(rowLevelResults.deltaPercentage)) !==
+                  0 ? (
                   <SimpleTooltip
                     textClass="detail-hint"
                     text={
                       <React.Fragment>
-                        {(results.isRegression || results.isImprovement) && (
+                        {(rowLevelResults.isRegression ||
+                          rowLevelResults.isImprovement) && (
                           <FontAwesomeIcon
                             icon={
-                              results.isRegression
+                              rowLevelResults.isRegression
                                 ? faExclamationTriangle
                                 : faThumbsUp
                             }
                             title={
-                              results.isRegression
+                              rowLevelResults.isRegression
                                 ? 'regression'
                                 : 'improvement'
                             }
-                            className={this.getColorClass(results, 'text')}
+                            className={this.getColorClass(
+                              rowLevelResults,
+                              'text',
+                            )}
                             size="lg"
                           />
                         )}
-                        {`  ${displayNumber(results.deltaPercentage)}%`}
+                        {`  ${displayNumber(rowLevelResults.deltaPercentage)}%`}
                       </React.Fragment>
                     }
                     tooltipText={this.deltaTooltipText(
-                      results.delta,
-                      results.deltaPercentage,
-                      results.newIsBetter,
+                      rowLevelResults.delta,
+                      rowLevelResults.deltaPercentage,
+                      rowLevelResults.newIsBetter,
                     )}
                   />
                 ) : null}
-                {results.delta
-                  ? Math.abs(displayNumber(results.deltaPercentage)) === 0 && (
-                      <span>{displayNumber(results.deltaPercentage)}%</span>
+                {rowLevelResults.delta
+                  ? Math.abs(displayNumber(rowLevelResults.deltaPercentage)) ===
+                      0 && (
+                      <span>
+                        {displayNumber(rowLevelResults.deltaPercentage)}%
+                      </span>
                     )
                   : null}
               </td>
               <td>
-                {results.delta ? (
+                {rowLevelResults.delta ? (
                   <ProgressBar
-                    magnitude={results.magnitude}
-                    regression={!results.newIsBetter}
-                    color={this.getColorClass(results, 'bar')}
+                    magnitude={rowLevelResults.magnitude}
+                    regression={!rowLevelResults.newIsBetter}
+                    color={this.getColorClass(rowLevelResults, 'bar')}
                   />
                 ) : null}
               </td>
               <td>
-                {results.delta &&
-                results.confidence &&
-                results.confidenceText ? (
+                {rowLevelResults.delta &&
+                rowLevelResults.confidence &&
+                rowLevelResults.confidenceText ? (
                   <SimpleTooltip
                     textClass="detail-hint"
-                    text={`${displayNumber(results.confidence)} (${
-                      results.confidenceText
+                    text={`${displayNumber(rowLevelResults.confidence)} (${
+                      rowLevelResults.confidenceText
                     })`}
-                    tooltipText={results.confidenceTextLong}
+                    tooltipText={rowLevelResults.confidenceTextLong}
                   />
                 ) : null}
               </td>
               <td className="text-right">
-                {results.originalRuns && (
+                {!hasSubtests &&
+                  !rowLevelResults.isNoiseMetric &&
+                  (rowLevelResults.newRetriggerableJobId || !isBaseAggregate) &&
+                  user.isLoggedIn && (
+                    <Button
+                      className="retrigger-btn btn icon-green mr-1 py-0 px-1"
+                      title={compareTableText.retriggerButtonTitle}
+                      onClick={() => this.retriggerJobs(rowLevelResults, 5)}
+                    >
+                      <FontAwesomeIcon icon={faRedo} />
+                    </Button>
+                  )}
+                {rowLevelResults.originalRuns && (
                   <SimpleTooltip
                     textClass="detail-hint"
-                    text={`${results.originalRuns.length} / ${results.newRuns.length}`}
-                    tooltipText={`${results.originalRuns.length} base / ${results.newRuns.length} new`}
+                    text={`${rowLevelResults.originalRuns.length} / ${rowLevelResults.newRuns.length}`}
+                    tooltipText={`${rowLevelResults.originalRuns.length} base / ${rowLevelResults.newRuns.length} new`}
                   />
                 )}
               </td>
@@ -211,9 +290,19 @@ CompareTable.propTypes = {
   testName: PropTypes.string.isRequired,
   hashFunction: PropTypes.func,
   onPermalinkClick: PropTypes.func.isRequired,
+  user: PropTypes.shape({}).isRequired,
+  isBaseAggregate: PropTypes.bool.isRequired,
+  notify: PropTypes.func,
+  hasSubtests: PropTypes.bool,
+  retriggerJob: PropTypes.func,
+  getJob: PropTypes.func,
 };
 
 CompareTable.defaultProps = {
   data: null,
   hashFunction,
+  notify: null,
+  hasSubtests: false,
+  retriggerJob: JobModel.retrigger,
+  getJob: JobModel.get,
 };
