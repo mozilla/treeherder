@@ -71,11 +71,11 @@
     "redux-debounce": "1.0.1",
     "redux-mock-store": "1.5.3",
     "redux-thunk": "2.3.0",
-    "taskcluster-client-web": "8.1.1",
+    "taskcluster-client-web": "9.2.0",
     "taskcluster-lib-scopes": "10.0.2",
+    "victory": "33.0.5",
     "webpack": "4.39.3",
-    "webpack-cli": "3.3.8",
-    "victory": "33.0.5"
+    "webpack-cli": "3.3.8"
   },
   "devDependencies": {
     "@neutrinojs/eslint": "9.0.0-rc.3",
