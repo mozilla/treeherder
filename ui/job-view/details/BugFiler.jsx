@@ -428,6 +428,19 @@ export class BugFilerClass extends React.Component {
       priority = '--';
     }
 
+    // Bug in these components shall never get a priority automatically set
+    // to let the bugs show up during triage. See bug 1580287.
+    const noPriorityProdComp = [
+      { product: 'Firefox', component: 'Messaging System' },
+    ];
+    if (
+      noPriorityProdComp.some(
+        object => object.product === product && object.component === component,
+      )
+    ) {
+      priority = '--';
+    }
+
     // Fetch product information from bugzilla to get version numbers, then
     // submit the new bug.  Only request the versions because some products
     // take quite a long time to fetch the full object
