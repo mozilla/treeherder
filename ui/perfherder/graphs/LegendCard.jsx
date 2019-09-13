@@ -37,9 +37,14 @@ const LegendCard = ({
     });
 
     if (errorMessages.length) {
-      updates = { errorMessages };
+      updates = { errorMessages, visibilityChanged: false };
     } else {
-      updates = { testData: newTestData, colors: newColors, errorMessages };
+      updates = {
+        testData: newTestData,
+        colors: newColors,
+        errorMessages,
+        visibilityChanged: true,
+      };
     }
     updateStateParams(updates);
   };

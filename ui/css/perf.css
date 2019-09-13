@@ -49,6 +49,7 @@ h1 {
 }
 
 .graph-legend-card > p {
+  word-wrap: break-word;
   cursor: pointer;
   font-size: 13px;
 }
