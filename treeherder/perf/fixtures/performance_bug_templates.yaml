@@ -2,10 +2,10 @@
   pk: 1
   fields:
     framework: 1
-    keywords: perf, regression, talos-regression
-    default_component: Performance
+    keywords: perf, perf-alert, regression, talos-regression
+    default_component: General
     default_product: Testing
-    cc_list: dave.hunt@gmail.com, rwood@mozilla.com, igoldan@mozilla.com, fstrugariu@mozilla.com, alexandru.ionescu@softvision.ro, marian.raiciof@softvision.ro
+    cc_list: dave.hunt@gmail.com, rwood@mozilla.com, igoldan@mozilla.com, fstrugariu@mozilla.com
     text: |
       Talos has detected a Firefox performance regression from push:
 
@@ -19,21 +19,21 @@
 
       On the page above you can see an alert for each affected platform as well as a link to a graph showing the history of scores for this test. There is also a link to a treeherder page showing the Talos jobs in a pushlog format.
 
-      To learn more about the regressing test(s), please see: https://wiki.mozilla.org/TestEngineering/Performance/Talos
+      To learn more about the regressing test(s), please see: https://wiki.mozilla.org/Performance_sheriffing/Talos/Tests
 
-      For information on reproducing and debugging the regression, either on try or locally, see: https://wiki.mozilla.org/TestEngineering/Performance/Talos/Running
+      For information on reproducing and debugging the regression, either on try or locally, see: https://wiki.mozilla.org/Performance_sheriffing/Talos/Running
 
       *** Please let us know your plans within 3 business days, or the offending patch(es) will be backed out! ***
 
-      Our wiki page outlines the common responses and expectations: https://wiki.mozilla.org/TestEngineering/Performance/Talos/RegressionBugsHandling
+      Our wiki page outlines the common responses and expectations: https://wiki.mozilla.org/Performance_sheriffing/Talos/RegressionBugsHandling
 - model: perf.PerformanceBugTemplate
   pk: 2
   fields:
     framework: 2
-    keywords: regression
-    default_component: Performance
+    keywords: regression, perf-alert
+    default_component: General
     default_product: Testing
-    cc_list: dave.hunt@gmail.com, rwood@mozilla.com, nfroyd@mozilla.com, igoldan@mozilla.com, fstrugariu@mozilla.com, alexandru.ionescu@softvision.ro, marian.raiciof@softvision.ro
+    cc_list: dave.hunt@gmail.com, rwood@mozilla.com, nfroyd@mozilla.com, igoldan@mozilla.com, fstrugariu@mozilla.com
     text: |
       We have detected a build metrics regression from push:
 
@@ -54,10 +54,10 @@
   pk: 3
   fields:
     framework: 3
-    keywords: perf, regression
-    default_component: Performance
+    keywords: perf, perf-alert, regression
+    default_component: General
     default_product: Testing
-    cc_list: dave.hunt@gmail.com, rwood@mozilla.com, bob@bclary.com, igoldan@mozilla.com, fstrugariu@mozilla.com, alexandru.ionescu@softvision.ro, marian.raiciof@softvision.ro
+    cc_list: dave.hunt@gmail.com, rwood@mozilla.com, bob@bclary.com, igoldan@mozilla.com, fstrugariu@mozilla.com
     text: |
       We have detected an autophone (Android) regression from push:
 
@@ -76,10 +76,10 @@
   pk: 4
   fields:
     framework: 4
-    keywords: perf, regression
-    default_component: Performance
+    keywords: perf, perf-alert, regression
+    default_component: General
     default_product: Testing
-    cc_list: dave.hunt@gmail.com, rwood@mozilla.com, bob@bclary.com, igoldan@mozilla.com, erahm@mozilla.com, fstrugariu@mozilla.com, alexandru.ionescu@softvision.ro, marian.raiciof@softvision.ro
+    cc_list: dave.hunt@gmail.com, rwood@mozilla.com, bob@bclary.com, igoldan@mozilla.com, erahm@mozilla.com, fstrugariu@mozilla.com
     text: |
       We have detected an awsy regression from push:
 
@@ -98,10 +98,10 @@
   pk: 5
   fields:
     framework: 5
-    keywords: perf, regression
-    default_component: Performance
+    keywords: perf, perf-alert, regression
+    default_component: General
     default_product: Testing
-    cc_list: dave.hunt@gmail.com, rwood@mozilla.com, igoldan@mozilla.com, fstrugariu@mozilla.com, alexandru.ionescu@softvision.ro, marian.raiciof@softvision.ro
+    cc_list: dave.hunt@gmail.com, rwood@mozilla.com, igoldan@mozilla.com, fstrugariu@mozilla.com
     text: |
       We have detected an awfy regression from push:
 
@@ -120,10 +120,10 @@
   pk: 6
   fields:
     framework: 6
-    keywords: perf, regression
-    default_component: Performance
+    keywords: perf, perf-alert, regression
+    default_component: General
     default_product: Testing
-    cc_list: dave.hunt@gmail.com, rwood@mozilla.com, igoldan@mozilla.com, fstrugariu@mozilla.com, alexandru.ionescu@softvision.ro, marian.raiciof@softvision.ro
+    cc_list: dave.hunt@gmail.com, rwood@mozilla.com, igoldan@mozilla.com, fstrugariu@mozilla.com
     text: |
       We have detected a platform microbenchmarks regression from push:
 
@@ -142,10 +142,10 @@
   pk: 7
   fields:
     framework: 10
-    keywords: perf, regression
-    default_component: Performance
+    keywords: perf, perf-alert, regression
+    default_component: General
     default_product: Testing
-    cc_list: dave.hunt@gmail.com, rwood@mozilla.com, igoldan@mozilla.com, fstrugariu@mozilla.com, alexandru.ionescu@softvision.ro, marian.raiciof@softvision.ro
+    cc_list: dave.hunt@gmail.com, rwood@mozilla.com, igoldan@mozilla.com, fstrugariu@mozilla.com
     text: |
       Raptor has detected a Firefox performance regression from push:
 
@@ -159,8 +159,8 @@
 
       On the page above you can see an alert for each affected platform as well as a link to a graph showing the history of scores for this test. There is also a link to a Treeherder page showing the Raptor jobs in a pushlog format.
 
-      To learn more about the regressing test(s) or reproducing them, please see: https://wiki.mozilla.org/TestEngineering/Performance/Raptor
+      To learn more about the regressing test(s) or reproducing them, please see: https://wiki.mozilla.org/Performance_sheriffing/Raptor
 
       *** Please let us know your plans within 3 business days, or the offending patch(es) will be backed out! ***
 
-      Our wiki page outlines the common responses and expectations: https://wiki.mozilla.org/TestEngineering/Performance/Talos/RegressionBugsHandling
+      Our wiki page outlines the common responses and expectations: https://wiki.mozilla.org/Performance_sheriffing/Talos/RegressionBugsHandling
