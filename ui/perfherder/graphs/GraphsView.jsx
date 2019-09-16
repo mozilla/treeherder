@@ -180,15 +180,10 @@ class GraphsView extends React.Component {
       ),
     );
     alertSummaries = alertSummaries.flat();
-
-    let relatedAlertSummaries;
     let color;
     const newColors = [...colors];
 
     const graphData = seriesData.map(series => {
-      relatedAlertSummaries = alertSummaries.find(
-        item => item.id === series.id,
-      );
       color = newColors.pop();
       // signature_id, framework_id and repository_name are
       // not renamed in camel case in order to match the fields
@@ -196,7 +191,6 @@ class GraphsView extends React.Component {
       // new data if a user adds additional tests to the graph)
       return {
         color: color || ['border-secondary', ''],
-        relatedAlertSummaries,
         visible: Boolean(color),
         name: series.name,
         signature_id: series.signature_id,
@@ -212,7 +206,7 @@ class GraphsView extends React.Component {
           z: color ? color[1] : '',
           revision: dataPoint.revision,
           alertSummary: alertSummaries.find(
-            item => item.revision === dataPoint.revision,
+            item => item.push_id === dataPoint.push_id,
           ),
           signature_id: series.signature_id,
           pushId: dataPoint.push_id,
