@@ -46,6 +46,7 @@ class GraphsView extends React.Component {
       loading: false,
       colors: [...graphColors],
       showModal: false,
+      visibilityChanged: false,
     };
   }
 
@@ -163,12 +164,15 @@ class GraphsView extends React.Component {
         newTestData = [...testData, ...newTestData];
       }
 
-      this.setState({ testData: newTestData, loading: false }, () => {
-        if (!init) {
-          // we don't need to change params when getData is called on initial page load
-          this.changeParams();
-        }
-      });
+      this.setState(
+        { testData: newTestData, loading: false, visibilityChanged: false },
+        () => {
+          if (!init) {
+            // we don't need to change params when getData is called on initial page load
+            this.changeParams();
+          }
+        },
+      );
     }
   };
 
@@ -357,6 +361,7 @@ class GraphsView extends React.Component {
       options,
       colors,
       showModal,
+      visibilityChanged,
     } = this.state;
 
     return (
@@ -427,6 +432,7 @@ class GraphsView extends React.Component {
                       user={this.props.user}
                       updateData={this.updateData}
                       projects={projects}
+                      visibilityChanged={visibilityChanged}
                     />
                   )
                 }

@@ -107,7 +107,7 @@ class GraphsContainer extends React.Component {
   };
 
   updateGraphs = () => {
-    const { testData, updateStateParams } = this.props;
+    const { testData, updateStateParams, visibilityChanged } = this.props;
     const entireDomain = this.getEntireDomain();
     const scatterPlotData = testData.flatMap(item =>
       item.visible ? item.data : [],
@@ -117,7 +117,10 @@ class GraphsContainer extends React.Component {
       entireDomain,
       scatterPlotData,
     });
-    updateStateParams({ zoom: {} });
+
+    if (!visibilityChanged) {
+      updateStateParams({ zoom: {} });
+    }
   };
 
   getEntireDomain = () => {
