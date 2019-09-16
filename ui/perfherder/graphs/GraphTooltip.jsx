@@ -169,7 +169,7 @@ const GraphTooltip = ({ dataPoint, testData, user, updateData, projects }) => {
             </a>
             <span className="text-muted">
               {` - ${alertStatus} `}
-              {alert.related_summary_id && (
+              {alert && alert.related_summary_id && (
                 <span>
                   {alert.related_summary_id !== dataPointDetails.alertSummary.id
                     ? 'to'
