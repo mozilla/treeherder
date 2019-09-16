@@ -156,9 +156,6 @@ class Command(BaseCommand):
 
     def get_logger(self, is_debug):
         logger = logging.getLogger('cycle_data')
-        logger.setLevel(
-            logging.WARNING if is_debug else logging.CRITICAL)
-        logger.propagate = False
 
         console_handler = logging.StreamHandler()
         console_handler.setLevel(logging.WARNING)

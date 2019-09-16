@@ -422,6 +422,7 @@ class JobManager(models.Manager):
         jobs_cycled = 0
         while True:
             jobs_chunk = list(self.filter(repository=repository, submit_time__lt=jobs_max_timestamp)
+                                  .order_by('id')
                                   .values_list('guid', flat=True)[:chunk_size])
 
             if not jobs_chunk:
@@ -430,7 +431,7 @@ class JobManager(models.Manager):
 
             # Remove ORM entries for these jobs that don't currently have a
             # foreign key relation
-            lines = FailureLine.objects.filter(job_guid__in=jobs_chunk)
+            lines = FailureLine.objects.filter(job_guid__in=jobs_chunk).only('id')
 
             if settings.ELASTICSEARCH_URL:
                 # To delete the data from elasticsearch we need the document
