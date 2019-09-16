@@ -151,7 +151,7 @@ class GraphsContainer extends React.Component {
   };
 
   getTooltipPosition = (point, yOffset = 15) => ({
-    left: point.x - 280 / 2,
+    left: point.x - (280 / 2) * (1 + point.x / 1350),
     top: point.y - yOffset,
   });
 
