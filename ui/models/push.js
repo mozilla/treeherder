@@ -28,7 +28,7 @@ const convertDates = function convertDates(locationParams) {
   return locationParams;
 };
 
-const decisionTaskIdCache = {};
+export const decisionTaskIdCache = {};
 
 export default class PushModel {
   static async getList(options = {}) {
@@ -65,11 +65,9 @@ export default class PushModel {
     return fetch(getProjectUrl(`${pushEndpoint}${pk}/`, repoName));
   }
 
-  static async triggerMissingJobs(pushId, notify) {
-    const { id: decisionTaskId } = await PushModel.getDecisionTaskId(
-      pushId,
-      notify,
-    );
+  static async triggerMissingJobs(pushId, notify, decisionTask) {
+    const decisionTaskId =
+      decisionTask || (await PushModel.getDecisionTaskId(pushId, notify)).id;
 
     return TaskclusterModel.load(decisionTaskId).then(results => {
       const actionTaskId = slugid();
@@ -102,11 +100,9 @@ export default class PushModel {
     });
   }
 
-  static async triggerAllTalosJobs(times, pushId, notify) {
-    const { id: decisionTaskId } = await PushModel.getDecisionTaskId(
-      pushId,
-      notify,
-    );
+  static async triggerAllTalosJobs(times, pushId, notify, decisionTask) {
+    const decisionTaskId =
+      decisionTask || (await PushModel.getDecisionTaskId(pushId, notify)).id;
 
     return TaskclusterModel.load(decisionTaskId).then(results => {
       const actionTaskId = slugid();

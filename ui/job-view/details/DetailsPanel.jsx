@@ -211,8 +211,7 @@ class DetailsPanel extends React.Component {
               phSeriesResult,
             ]) => {
               // This version of the job has more information than what we get in the main job list.  This
-              // is what we'll pass to the rest of the details panel.  It has extra fields like
-              // taskcluster_metadata.
+              // is what we'll pass to the rest of the details panel.
               // Don't update the job instance in the greater job field so as to not add the memory overhead
               // of all the extra fields in ``selectedJobFull``.  It's not that much for just one job, but as
               // one selects job after job, over the course of a day, it can add up.  Therefore, we keep

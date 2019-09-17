@@ -11,7 +11,6 @@ import {
 import { getGroupMapKey } from '../../helpers/aggregateId';
 import { getAllUrlParams, getUrlParam } from '../../helpers/location';
 import JobModel from '../../models/job';
-import PushModel from '../../models/push';
 import RunnableJobModel from '../../models/runnableJob';
 import { getRevisionTitle } from '../../helpers/revision';
 import { getPercentComplete } from '../../helpers/display';
@@ -317,12 +316,11 @@ class Push extends React.PureComponent {
   };
 
   showRunnableJobs = async () => {
-    const { push, repoName, notify } = this.props;
+    const { push, repoName, notify, decisionTaskMap } = this.props;
 
     try {
-      const decisionTaskId = await PushModel.getDecisionTaskId(push.id, notify);
       const jobList = await RunnableJobModel.getList(repoName, {
-        decision_task_id: decisionTaskId,
+        decisionTask: decisionTaskMap[push.id],
         push_id: push.id,
       });
 
@@ -354,7 +352,7 @@ class Push extends React.PureComponent {
   };
 
   showFuzzyJobs = async () => {
-    const { push, repoName, notify } = this.props;
+    const { push, repoName, notify, decisionTaskMap } = this.props;
     const createRegExp = (str, opts) =>
       new RegExp(str.raw[0].replace(/\s/gm, ''), opts || '');
     const excludedJobNames = createRegExp`
@@ -367,11 +365,9 @@ class Push extends React.PureComponent {
       test-verify|test-windows10-64-ux|toolchain|upload-generated-sources)`;
 
     try {
-      const decisionTaskId = await PushModel.getDecisionTaskId(push.id, notify);
-
       notify('Fetching runnable jobs... This could take a while...');
       let fuzzyJobList = await RunnableJobModel.getList(repoName, {
-        decision_task_id: decisionTaskId,
+        decisionTask: decisionTaskMap[push.id],
       });
       fuzzyJobList = [
         ...new Set(
@@ -390,7 +386,6 @@ class Push extends React.PureComponent {
       this.setState({
         fuzzyJobList,
         filteredFuzzyList,
-        decisionTaskId: decisionTaskId.id,
       });
       this.toggleFuzzyModal();
     } catch (error) {
@@ -443,12 +438,12 @@ class Push extends React.PureComponent {
       groupCountsExpanded,
       isOnlyRevision,
       pushHealthVisibility,
+      decisionTaskMap,
     } = this.props;
     const {
       fuzzyJobList,
       fuzzyModal,
       filteredFuzzyList,
-      decisionTaskId,
       watched,
       runnableVisible,
       pushGroupState,
@@ -459,6 +454,8 @@ class Push extends React.PureComponent {
     } = this.state;
     const { id, push_timestamp, revision, author } = push;
     const tipRevision = push.revisions[0];
+    const decisionTask = decisionTaskMap[push.id];
+    const decisionTaskId = decisionTask ? decisionTask.id : null;
 
     if (isOnlyRevision) {
       this.setSingleRevisionWindowTitle();
@@ -554,10 +551,14 @@ Push.propTypes = {
   notify: PropTypes.func.isRequired,
   isOnlyRevision: PropTypes.bool.isRequired,
   pushHealthVisibility: PropTypes.string.isRequired,
+  decisionTaskMap: PropTypes.object.isRequired,
 };
 
-const mapStateToProps = ({ pushes: { allUnclassifiedFailureCount } }) => ({
+const mapStateToProps = ({
+  pushes: { allUnclassifiedFailureCount, decisionTaskMap },
+}) => ({
   allUnclassifiedFailureCount,
+  decisionTaskMap,
 });
 
 export default connect(
