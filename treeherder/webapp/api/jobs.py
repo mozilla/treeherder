@@ -184,7 +184,6 @@ class JobsProjectViewSet(viewsets.ViewSet):
         'machine',
         'signature',
         'repository',
-        'taskcluster_metadata',
     ]
 
     _property_query_mapping = [
