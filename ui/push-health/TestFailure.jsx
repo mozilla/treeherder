@@ -54,13 +54,19 @@ class TestFailure extends React.PureComponent {
       config,
       suggestedClassification,
       key,
+      tier,
     } = failure;
     const { detailsShowing } = this.state;
 
     return (
       <Col className="mt-2 mb-3 ml-2" key={key}>
         <Row className="border-bottom border-secondary justify-content-between">
-          <span>{testName}</span>
+          <span>
+            {testName}
+            {tier > 1 && (
+              <span className="ml-1 small text-muted">[tier-{tier}]</span>
+            )}
+          </span>
           {!!confidence && (
             <span title="Best guess at a classification" className="ml-auto">
               {classificationMap[suggestedClassification]}

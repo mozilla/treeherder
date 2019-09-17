@@ -35,7 +35,7 @@ def get_history(failure_classification_id, push_date, num_days, option_map, repo
     if not previous_failures_json or force_update:
         failure_lines = FailureLine.objects.filter(
             job_log__job__result='testfailed',
-            job_log__job__tier=1,
+            job_log__job__tier__lte=2,
             job_log__job__failure_classification_id=failure_classification_id,
             job_log__job__push__repository_id__in=repository_ids,
             job_log__job__push__time__gt=start_date,
@@ -86,7 +86,7 @@ def get_push_failures(push, option_map):
         action='test_result',
         job_log__job__push=push,
         job_log__job__result='testfailed',
-        job_log__job__tier=1
+        job_log__job__tier__lte=2
     ).exclude(
         test=None
     ).select_related(
@@ -125,13 +125,16 @@ def get_push_failures(push, option_map):
                 'logLines': [],
                 'suggestedClassification': 'New Failure',
                 'confidence': 0,
+                'tier': job.tier,
             }
             tests[test_key] = line
 
         # This ``test`` was either just added above, or already existed in the ``tests``
         # list in a previous iteration through ``failure_lines``
         test = tests[test_key]
-        test['logLines'].append(failure_line.to_mozlog_format())
+        if not has_line(failure_line, test['logLines']):
+            test['logLines'].append(failure_line.to_mozlog_format())
+
         if not has_job(job, test['failJobs']):
             test['failJobs'].append(job_to_dict(job))
 
@@ -149,6 +152,10 @@ def get_push_failures(push, option_map):
 
 def has_job(job, job_list):
     return next((find_job for find_job in job_list if find_job['id'] == job.id), False)
+
+
+def has_line(failure_line, log_line_list):
+    return next((find_line for find_line in log_line_list if find_line['line_number'] == failure_line.line), False)
 
 
 def get_push_health_test_failures(push, repository_ids):
