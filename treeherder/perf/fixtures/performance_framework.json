@@ -94,5 +94,13 @@
       "name": "devtools",
       "enabled": true
     }
+  },
+  {
+    "pk": 13,
+    "model": "perf.PerformanceFramework",
+    "fields": {
+      "name": "browsertime",
+      "enabled": true
+    }
   }
 ]
