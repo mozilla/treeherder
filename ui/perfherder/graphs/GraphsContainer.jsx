@@ -38,6 +38,7 @@ class GraphsContainer extends React.Component {
       showTooltip: false,
       lockTooltip: false,
       dataPoint: this.props.selectedDataPoint,
+      chartWidth: 1350 - (1700 - window.screen.availWidth),
     };
   }
 
@@ -151,7 +152,7 @@ class GraphsContainer extends React.Component {
   };
 
   getTooltipPosition = (point, yOffset = 15) => ({
-    left: point.x - (280 / 2) * (1 + point.x / 1350),
+    left: point.x - 280 / 2,
     top: point.y - yOffset,
   });
 
@@ -240,6 +241,7 @@ class GraphsContainer extends React.Component {
       showTooltip,
       lockTooltip,
       dataPoint,
+      chartWidth,
     } = this.state;
 
     const highlightPoints = !!highlights.length;
@@ -282,12 +284,12 @@ class GraphsContainer extends React.Component {
           <div className="tip" />
         </div>
         <Row>
-          <Col className="p-0 col-md-auto">
+          <Col className="graph-container-top p-0 col-md-auto">
             <VictoryChart
               padding={chartPadding}
-              width={1350}
+              width={chartWidth}
               height={150}
-              style={{ parent: { maxHeight: '150px', maxWidth: '1350px' } }}
+              style={{ parent: { maxHeight: '150px', maxWidth: toString(chartWidth).concat('px') } }}
               scale={{ x: 'time', y: 'linear' }}
               domainPadding={{ y: 30 }}
               containerComponent={
@@ -322,12 +324,12 @@ class GraphsContainer extends React.Component {
         </Row>
 
         <Row>
-          <Col className="p-0 col-md-auto">
+          <Col className="graph-container-bottom p-0 col-md-auto">
             <VictoryChart
               padding={chartPadding}
-              width={1350}
+              width={chartWidth}
               height={400}
-              style={{ parent: { maxHeight: '400px', maxWidth: '1350px' } }}
+              style={{ parent: { maxHeight: '400px', maxWidth: toString(chartWidth).concat('px') } }}
               scale={{ x: 'time', y: 'linear' }}
               domainPadding={{ y: 40 }}
               containerComponent={
