@@ -2,7 +2,7 @@
   pk: 1
   fields:
     framework: 1
-    keywords: perf, regression, talos-regression
+    keywords: perf, perf-alert, regression, talos-regression
     default_component: Performance
     default_product: Testing
     cc_list: dave.hunt@gmail.com, rwood@mozilla.com, igoldan@mozilla.com, fstrugariu@mozilla.com, alexandru.ionescu@softvision.ro, marian.raiciof@softvision.ro
@@ -30,7 +30,7 @@
   pk: 2
   fields:
     framework: 2
-    keywords: regression
+    keywords: perf-alert, regression
     default_component: Performance
     default_product: Testing
     cc_list: dave.hunt@gmail.com, rwood@mozilla.com, nfroyd@mozilla.com, igoldan@mozilla.com, fstrugariu@mozilla.com, alexandru.ionescu@softvision.ro, marian.raiciof@softvision.ro
@@ -54,7 +54,7 @@
   pk: 3
   fields:
     framework: 3
-    keywords: perf, regression
+    keywords: perf, perf-alert, regression
     default_component: Performance
     default_product: Testing
     cc_list: dave.hunt@gmail.com, rwood@mozilla.com, bob@bclary.com, igoldan@mozilla.com, fstrugariu@mozilla.com, alexandru.ionescu@softvision.ro, marian.raiciof@softvision.ro
@@ -76,7 +76,7 @@
   pk: 4
   fields:
     framework: 4
-    keywords: perf, regression
+    keywords: perf, perf-alert, regression
     default_component: Performance
     default_product: Testing
     cc_list: dave.hunt@gmail.com, rwood@mozilla.com, bob@bclary.com, igoldan@mozilla.com, erahm@mozilla.com, fstrugariu@mozilla.com, alexandru.ionescu@softvision.ro, marian.raiciof@softvision.ro
@@ -98,7 +98,7 @@
   pk: 5
   fields:
     framework: 5
-    keywords: perf, regression
+    keywords: perf, perf-alert, regression
     default_component: Performance
     default_product: Testing
     cc_list: dave.hunt@gmail.com, rwood@mozilla.com, igoldan@mozilla.com, fstrugariu@mozilla.com, alexandru.ionescu@softvision.ro, marian.raiciof@softvision.ro
@@ -120,7 +120,7 @@
   pk: 6
   fields:
     framework: 6
-    keywords: perf, regression
+    keywords: perf, perf-alert, regression
     default_component: Performance
     default_product: Testing
     cc_list: dave.hunt@gmail.com, rwood@mozilla.com, igoldan@mozilla.com, fstrugariu@mozilla.com, alexandru.ionescu@softvision.ro, marian.raiciof@softvision.ro
@@ -142,7 +142,7 @@
   pk: 7
   fields:
     framework: 10
-    keywords: perf, regression
+    keywords: perf, perf-alert, regression
     default_component: Performance
     default_product: Testing
     cc_list: dave.hunt@gmail.com, rwood@mozilla.com, igoldan@mozilla.com, fstrugariu@mozilla.com, alexandru.ionescu@softvision.ro, marian.raiciof@softvision.ro
