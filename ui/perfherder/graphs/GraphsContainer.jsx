@@ -273,11 +273,7 @@ class GraphsContainer extends React.Component {
             />
           </span>
           {dataPoint && showTooltip && (
-            <GraphTooltip
-              dataPoint={dataPoint}
-              testData={testData}
-              {...this.props}
-            />
+            <GraphTooltip dataPoint={dataPoint} {...this.props} />
           )}
           <div className="tip" />
         </div>
@@ -436,7 +432,6 @@ GraphsContainer.propTypes = {
     PropTypes.string,
     PropTypes.arrayOf(PropTypes.string),
   ]),
-  user: PropTypes.shape({}).isRequired,
   timeRange: PropTypes.shape({}).isRequired,
 };
 
