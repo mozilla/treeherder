@@ -186,6 +186,7 @@ class PushList extends React.Component {
                 className="btn btn-light-bordered"
                 onClick={() => fetchNextPushes(count)}
                 key={count}
+                data-testid={`get-next-${count}`}
               >
                 {count}
               </div>

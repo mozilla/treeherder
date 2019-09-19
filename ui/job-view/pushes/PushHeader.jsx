@@ -268,7 +268,7 @@ class PushHeader extends React.Component {
     const countSelectedRunnableJobs = selectedRunnableJobs.length;
 
     return (
-      <div className="push-header">
+      <div className="push-header" data-testid="push-header">
         <div className="push-bar">
           <span className="push-left">
             <span className="push-title-left">

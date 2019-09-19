@@ -6,6 +6,8 @@ import {
   cleanup,
   waitForElement,
   waitForElementToBeRemoved,
+  fireEvent,
+  getAllByTestId,
 } from '@testing-library/react';
 
 import {
@@ -61,6 +63,8 @@ describe('PushList', () => {
       </div>
     </Provider>
   );
+  const pushCount = () =>
+    waitForElement(() => getAllByTestId(document.body, 'push-header'));
 
   beforeAll(() => {
     fetchMock.get(getProjectUrl('/push/?full=true&count=10', repoName), {
@@ -114,69 +118,127 @@ describe('PushList', () => {
 
   test('should have 2 pushes', async () => {
     const { store } = configureStore();
-    const { getAllByText } = render(testPushList(store, new FilterModel()));
-    const pushes = await waitForElement(() => getAllByText('View Tests'));
+    render(testPushList(store, new FilterModel()));
 
-    expect(pushes).toHaveLength(2);
+    expect(await pushCount()).toHaveLength(2);
   });
 
   test('should switch to single loaded revision and back to 2', async () => {
     const { store } = configureStore();
-    const { getByTestId, getAllByText } = render(
-      testPushList(store, new FilterModel()),
-    );
+    const { getByTestId } = render(testPushList(store, new FilterModel()));
 
-    expect(await waitForElement(() => getAllByText('View Tests'))).toHaveLength(
-      2,
-    );
+    expect(await pushCount()).toHaveLength(2);
 
     // fireEvent.click(push) not clicking the link, so must set the url param
     setUrlParam('revision', push2Revision); // click push 2
     await waitForElementToBeRemoved(() => getByTestId('push-511138'));
 
-    expect(await waitForElement(() => getAllByText('View Tests'))).toHaveLength(
-      1,
-    );
+    expect(await pushCount()).toHaveLength(1);
 
     setUrlParam('revision', null);
     await waitForElement(() => getByTestId(push1Id));
-    expect(await waitForElement(() => getAllByText('View Tests'))).toHaveLength(
-      2,
-    );
+    expect(await pushCount()).toHaveLength(2);
   });
 
   test('should reload pushes when setting fromchange', async () => {
     const { store } = configureStore();
-    const { getByTestId, getAllByText } = render(
-      testPushList(store, new FilterModel()),
+    const { getByTestId } = render(testPushList(store, new FilterModel()));
+
+    expect(await pushCount()).toHaveLength(2);
+
+    const push2 = getByTestId(push2Id);
+    const actionMenuButton = push2.querySelector(
+      '[data-testid="push-action-menu-button"]',
     );
 
-    expect(await waitForElement(() => getAllByText('View Tests'))).toHaveLength(
-      2,
+    fireEvent.click(actionMenuButton);
+
+    const setBottomLink = await waitForElement(() =>
+      push2.querySelector('.bottom-of-range-menu-item'),
+    );
+
+    expect(setBottomLink.getAttribute('href')).toContain(
+      '/#/jobs?&fromchange=d5b037941b0ebabcc9b843f24d926e9d65961087',
     );
 
     setUrlParam('fromchange', push1Revision);
     await waitForElementToBeRemoved(() => getByTestId(push2Id));
-    expect(await waitForElement(() => getAllByText('View Tests'))).toHaveLength(
-      1,
-    );
+    expect(await pushCount()).toHaveLength(1);
   });
 
   test('should reload pushes when setting tochange', async () => {
     const { store } = configureStore();
-    const { getByTestId, getAllByText } = render(
-      testPushList(store, new FilterModel()),
+    const { getByTestId } = render(testPushList(store, new FilterModel()));
+
+    expect(await pushCount()).toHaveLength(2);
+
+    const push1 = getByTestId(push1Id);
+    const actionMenuButton = push1.querySelector(
+      '[data-testid="push-action-menu-button"]',
     );
 
-    expect(await waitForElement(() => getAllByText('View Tests'))).toHaveLength(
-      2,
+    fireEvent.click(actionMenuButton);
+
+    const setTopLink = await waitForElement(() =>
+      push1.querySelector('.top-of-range-menu-item'),
+    );
+
+    expect(setTopLink.getAttribute('href')).toContain(
+      '/#/jobs?&tochange=ba9c692786e95143b8df3f4b3e9b504dfbc589a0',
     );
 
     setUrlParam('tochange', push2Revision);
     await waitForElementToBeRemoved(() => getByTestId(push1Id));
-    expect(await waitForElement(() => getAllByText('View Tests'))).toHaveLength(
-      1,
+    expect(await pushCount()).toHaveLength(1);
+  });
+
+  test('should load N more pushes when click next N', async () => {
+    const { store } = configureStore();
+    const { getByTestId, getAllByTestId } = render(
+      testPushList(store, new FilterModel()),
     );
+    const nextNUrl = count =>
+      getProjectUrl(`/push/?full=true&count=${count + 1}&push_timestamp__lte=`);
+    const clickNext = count =>
+      fireEvent.click(getByTestId(`get-next-${count}`));
+
+    fetchMock.get(`begin:${nextNUrl(10)}`, {
+      ...pushListFixture,
+      results: pushListFixture.results.slice(3, 5),
+    });
+    fetchMock.get(`begin:${nextNUrl(20)}`, {
+      ...pushListFixture,
+      results: pushListFixture.results.slice(5, 6),
+    });
+    fetchMock.get(`begin:${nextNUrl(50)}`, {
+      ...pushListFixture,
+      results: pushListFixture.results.slice(6, 7),
+    });
+    fetchMock.get(
+      `begin:${getApiUrl('/jobs/?push_id=', repoName)}`,
+      jobListFixtureOne,
+    );
+
+    expect(await pushCount()).toHaveLength(2);
+
+    clickNext(10);
+    await waitForElement(() => getByTestId('push-511135'));
+    expect(fetchMock.called(`begin:${nextNUrl(10)}`)).toBe(true);
+    // It matters less that an actual count of 10 was returned
+    // than it does that the url for 10/20/50 was called and we added
+    // the pushes that were returned.  In this case, we're just
+    // using a shorter return set for simplicity.
+    expect(await pushCount()).toHaveLength(4);
+
+    clickNext(20);
+    await waitForElement(() => getAllByTestId('push-511133'));
+    expect(fetchMock.called(`begin:${nextNUrl(20)}`)).toBe(true);
+    expect(await pushCount()).toHaveLength(5);
+
+    clickNext(50);
+    await waitForElement(() => getAllByTestId('push-511132'));
+    expect(fetchMock.called(`begin:${nextNUrl(50)}`)).toBe(true);
+    expect(await pushCount()).toHaveLength(6);
   });
 
   test('jobs should have fields required for retriggers', async () => {
