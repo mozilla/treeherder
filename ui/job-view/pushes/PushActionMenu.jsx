@@ -132,6 +132,7 @@ class PushActionMenu extends React.PureComponent {
           data-hover="dropdown"
           data-toggle="dropdown"
           data-delay="1000"
+          data-testid="push-action-menu-button"
         >
           <span className="caret" />
         </button>
