@@ -11,7 +11,7 @@ import {
   VictoryAxis,
   VictoryBrushContainer,
   VictoryScatter,
-  VictoryZoomContainer,
+  VictorySelectionContainer,
 } from 'victory';
 import moment from 'moment';
 import debounce from 'lodash/debounce';
@@ -35,7 +35,6 @@ class GraphsContainer extends React.Component {
       scatterPlotData: this.props.testData.flatMap(item =>
         item.visible ? item.data : [],
       ),
-      entireDomain: this.getEntireDomain(),
       showTooltip: false,
       lockTooltip: false,
       dataPoint: this.props.selectedDataPoint,
@@ -46,7 +45,6 @@ class GraphsContainer extends React.Component {
     const { zoom, selectedDataPoint } = this.props;
 
     this.addHighlights();
-    this.updateData(zoom);
     if (selectedDataPoint) this.verifySelectedDataPoint();
   }
 
@@ -108,33 +106,17 @@ class GraphsContainer extends React.Component {
 
   updateGraphs = () => {
     const { testData, updateStateParams, visibilityChanged } = this.props;
-    const entireDomain = this.getEntireDomain();
     const scatterPlotData = testData.flatMap(item =>
       item.visible ? item.data : [],
     );
     this.addHighlights();
     this.setState({
-      entireDomain,
       scatterPlotData,
     });
 
     if (!visibilityChanged) {
       updateStateParams({ zoom: {} });
     }
-  };
-
-  getEntireDomain = () => {
-    const { testData } = this.props;
-    const data = testData.flatMap(item => (item.visible ? item.data : []));
-    const yValues = data.map(item => item.y);
-
-    if (!data.length) {
-      return {};
-    }
-    return {
-      y: [Math.min(...yValues), Math.max(...yValues)],
-      x: [data[0].x, last(data).x],
-    };
   };
 
   addHighlights = () => {
@@ -230,25 +212,6 @@ class GraphsContainer extends React.Component {
     return numberFormat.format(tick);
   };
 
-  updateData(zoom) {
-    const { testData } = this.props;
-
-    // we do this along with debouncing updateZoom to make zooming
-    // faster by removing unneeded data points based on the updated x,y
-    if (zoom.x && zoom.y) {
-      const scatterPlotData = testData
-        .flatMap(item => (item.visible ? item.data : []))
-        .filter(
-          data =>
-            data.x >= zoom.x[0] &&
-            data.x <= zoom.x[1] &&
-            data.y >= zoom.y[0] &&
-            data.y <= zoom.y[1],
-        );
-      this.setState({ scatterPlotData });
-    }
-  }
-
   // debounced
   hideTooltip() {
     const { showTooltip, lockTooltip } = this.state;
@@ -267,7 +230,6 @@ class GraphsContainer extends React.Component {
     }
 
     this.props.updateStateParams({ zoom });
-    this.updateData(zoom);
   }
 
   render() {
@@ -275,7 +237,6 @@ class GraphsContainer extends React.Component {
     const {
       highlights,
       scatterPlotData,
-      entireDomain,
       showTooltip,
       lockTooltip,
       dataPoint,
@@ -328,7 +289,6 @@ class GraphsContainer extends React.Component {
               height={150}
               style={{ parent: { maxHeight: '150px', maxWidth: '1350px' } }}
               scale={{ x: 'time', y: 'linear' }}
-              domain={entireDomain}
               domainPadding={{ y: 30 }}
               containerComponent={
                 <VictoryBrushContainer
@@ -381,13 +341,11 @@ class GraphsContainer extends React.Component {
               height={400}
               style={{ parent: { maxHeight: '400px', maxWidth: '1350px' } }}
               scale={{ x: 'time', y: 'linear' }}
-              domain={entireDomain}
+              domain={zoom}
               domainPadding={{ y: 40 }}
               containerComponent={
-                <VictoryZoomContainer
-                  zoomDomain={zoom}
-                  onZoomDomainChange={this.updateZoom}
-                  allowPan={false}
+                <VictorySelectionContainer
+                  onSelection={(points, bounds) => this.updateZoom(bounds)}
                 />
               }
             >
@@ -453,6 +411,7 @@ class GraphsContainer extends React.Component {
                           },
                         ];
                       },
+                      onMouseDown: evt => evt.stopPropagation(),
                     },
                   },
                 ]}
