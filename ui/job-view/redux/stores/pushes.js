@@ -180,7 +180,8 @@ const doUpdateJobMap = (jobList, jobMap, decisionTaskMap, pushList) => {
             .filter(
               job =>
                 job.job_type_name.includes('Decision Task') &&
-                job.result === 'success',
+                job.result === 'success' &&
+                job.job_type_symbol === 'D',
             )
             .map(job => ({
               push_id: job.push_id,

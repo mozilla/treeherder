@@ -141,7 +141,11 @@ export default class JobModel {
               ),
             )
             .catch(error => {
-              notify(`Retrigger failed: ${error}`, 'danger', { sticky: true });
+              notify(
+                `Retrigger failed with Decision task: ${decisionTaskId}: ${error}`,
+                'danger',
+                { sticky: true },
+              );
             });
         });
       }
