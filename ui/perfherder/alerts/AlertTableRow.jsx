@@ -54,10 +54,11 @@ export default class AlertTableRow extends React.Component {
       phTimeRanges
         .map(time => time.value)
         .find(
-          value => Date.now() / 1000.0 - alertSummary.push_timestamp < value,
+          value => Date.now() / 1000.0 - alertSummary.push_timestamp <= value,
         ),
     );
-    return timeRange;
+    // default value of one year, for one a push_timestamp exceeds the one year value slightly
+    return timeRange || 31536000;
   };
 
   toggleStar = async () => {
