@@ -399,8 +399,8 @@ test('selecting the alert summary checkbox then deselecting one alert only updat
   expect(alertCheckbox1).toHaveProperty('checked', false);
   expect(alertCheckbox2).toHaveProperty('checked', true);
 
-  let confirmingButton = await waitForElement(() => getByText('Confirming'));
-  fireEvent.click(confirmingButton);
+  let acknowledgeButton = await waitForElement(() => getByText('Acknowledge'));
+  fireEvent.click(acknowledgeButton);
 
   // only the selected alert has been updated
   expect(modifyAlertSpy).toHaveBeenCalled();
@@ -409,14 +409,14 @@ test('selecting the alert summary checkbox then deselecting one alert only updat
   expect(modifyAlertSpy.mock.results[0].value).toStrictEqual({
     data: {
       ...testAlertSummaries[0].alerts[0],
-      ...{ status: 5 },
+      ...{ status: 4 },
     },
     failureStatus: null,
   });
 
   // action panel has closed and all checkboxes reset
-  confirmingButton = await waitForElementToBeRemoved(() =>
-    queryByText('Confirming'),
+  acknowledgeButton = await waitForElementToBeRemoved(() =>
+    queryByText('Acknowledge'),
   );
   await wait(() => {
     expect(summaryCheckbox).toHaveProperty('checked', false);
