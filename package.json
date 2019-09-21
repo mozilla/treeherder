@@ -82,7 +82,7 @@
     "@neutrinojs/jest": "9.0.0-rc.3",
     "@testing-library/jest-dom": "4.1.0",
     "@testing-library/react": "9.1.4",
-    "codecov": "3.5.0",
+    "codecov": "3.6.1",
     "enzyme": "3.9.0",
     "enzyme-adapter-react-16": "1.13.2",
     "eslint": "6.3.0",
