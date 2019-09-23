@@ -18,6 +18,8 @@ TREEHERDER_SUBCOMMAND = 'from:treeherder'
 PERFHERDER_SUBCOMMAND = 'from:perfherder'
 MINIMUM_PERFHERDER_EXPIRE_INTERVAL = 365
 
+logger = logging.getLogger(__name__)
+
 
 class DataCycler:
     source = ''
@@ -38,8 +40,11 @@ class TreeherderCycler(DataCycler):
     source = TREEHERDER.title()
 
     def cycle(self):
-        for repository in Repository.objects.all():
-            self.logger.warning("Cycling repository: {0}".format(repository.name))
+        repositories = Repository.objects.all()
+        repo_count = len(repositories)
+
+        for idx, repository in enumerate(repositories):
+            self.logger.warning("Cycling repository: {0}. {1} of {2} repositories".format(repository.name, idx, repo_count))
             rs_deleted = Job.objects.cycle_data(repository,
                                                 self.cycle_interval,
                                                 self.chunk_size,
@@ -50,29 +55,24 @@ class TreeherderCycler(DataCycler):
         self.remove_leftovers()
 
     def remove_leftovers(self):
-        def extract_id_groups(id_names, used_dependencies):
-            id_groups = {id_name: set() for id_name in id_names}
+        self.logger.warning('Pruning ancillary data: job types, groups and machines')
 
-            for dependency in used_dependencies:
-                for id_name in id_names:
-                    id_groups[id_name].add(dependency[id_name])
-            return [id_groups[name] for name in id_names]
+        def prune(id_name, model):
+            self.logger.warning('Pruning {}s'.format(model.__name__))
+            used_ids = Job.objects.only(id_name).values_list(id_name, flat=True).distinct()
+            unused_ids = model.objects.exclude(id__in=used_ids).values_list('id', flat=True)
 
-        used_dependencies = (Job.objects
-                                .values('job_type_id', 'job_group_id', 'machine_id')
-                                .distinct())
+            self.logger.warning('Removing {} records from {}'.format(len(unused_ids), model.__name__))
 
-        (used_job_type_ids,
-         used_job_group_ids,
-         used_machine_ids) = extract_id_groups(
-            ['job_type_id',
-             'job_group_id',
-             'machine_id'],
-            used_dependencies)
+            while len(unused_ids):
+                delete_ids = unused_ids[:self.chunk_size]
+                self.logger.warning('deleting {} of {}'.format(len(delete_ids), len(unused_ids)))
+                model.objects.filter(id__in=delete_ids).delete()
+                unused_ids = unused_ids[self.chunk_size:]
 
-        JobType.objects.exclude(id__in=used_job_type_ids).delete()
-        JobGroup.objects.exclude(id__in=used_job_group_ids).delete()
-        Machine.objects.exclude(id__in=used_machine_ids).delete()
+        prune('job_type_id', JobType)
+        prune('job_group_id', JobGroup)
+        prune('machine_id', Machine)
 
 
 class PerfherderCycler(DataCycler):
@@ -146,24 +146,11 @@ class Command(BaseCommand):
         subparsers.add_parser(PERFHERDER_SUBCOMMAND)
 
     def handle(self, *args, **options):
-        logger = self.get_logger(options['is_debug'])
-
-        logger.warning("Cycle interval... {}".format(options['days']))
+        logger.warning("Cycle interval... {} days".format(options['days']))
 
         data_cycler = self.fabricate_data_cycler(options, logger)
         logger.warning('Cycling {0} data...'.format(data_cycler.source))
         data_cycler.cycle()
-
-    def get_logger(self, is_debug):
-        logger = logging.getLogger('cycle_data')
-
-        console_handler = logging.StreamHandler()
-        console_handler.setLevel(logging.WARNING)
-
-        formatter = logging.Formatter('%(asctime)s|%(name)s|%(levelname)s|%(message)s')
-        console_handler.setFormatter(formatter)
-        logger.addHandler(console_handler)
-        return logger
 
     def fabricate_data_cycler(self, options, logger):
         data_source = options.pop('data_source') or TREEHERDER_SUBCOMMAND

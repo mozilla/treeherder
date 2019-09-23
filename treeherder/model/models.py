@@ -425,6 +425,11 @@ class JobManager(models.Manager):
                                   .order_by('id')
                                   .values_list('guid', flat=True)[:chunk_size])
 
+            logger.warning('Pruning {}: chunk of {} older than {}'.format(
+                repository.name,
+                len(jobs_chunk),
+                jobs_max_timestamp.strftime('%b %d %Y')
+            ))
             if not jobs_chunk:
                 # no more jobs to cycle, we're done!
                 return jobs_cycled
@@ -446,12 +451,13 @@ class JobManager(models.Manager):
                     ),
                 )
                 bulk(failures, action='delete')
-
+            logger.warning('deleting FailureLines')
             lines.delete()
 
             # cycle jobs *after* related data has been deleted, to be sure
             # we don't have any orphan data
             try:
+                logger.warning('delete jobs')
                 self.filter(guid__in=jobs_chunk).delete()
             except UnicodeDecodeError as e:
                 # Some TextLogError `line` fields contain invalid Unicode, which causes a
