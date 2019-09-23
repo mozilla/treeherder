@@ -218,6 +218,7 @@ class GraphsView extends React.Component {
         })),
         lowerIsBetter: series.lower_is_better,
         resultSetData: series.data.map(dataPoint => dataPoint.push_id),
+        parentSignature: series.parent_signature,
       };
     });
     this.setState({ colors: newColors });

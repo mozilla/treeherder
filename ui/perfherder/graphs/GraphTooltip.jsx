@@ -143,8 +143,10 @@ const GraphTooltip = ({ dataPoint, testData, user, updateData, projects }) => {
                 newProject: testDetails.repository_name,
                 originalRevision: prevRevision,
                 newRevision: dataPointDetails.revision,
-                originalSignature: testDetails.signature_id,
-                newSignature: testDetails.signature_id,
+                originalSignature:
+                  testDetails.parentSignature || testDetails.signature_id,
+                newSignature:
+                  testDetails.parentSignature || testDetails.signature_id,
                 framework: testDetails.framework_id,
               })}`}
               target="_blank"
