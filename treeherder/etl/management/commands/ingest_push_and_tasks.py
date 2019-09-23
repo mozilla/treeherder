@@ -14,30 +14,28 @@ from treeherder.etl.taskcluster_pulse.handler import (EXCHANGE_EVENT_MAP,
 from treeherder.model.models import Repository
 
 logger = logging.getLogger(__name__)
-rootUrl = "https://taskcluster.net"
-options = {"rootUrl": rootUrl}
 loop = asyncio.get_event_loop()
 # Limiting the connection pool just in case we have too many
 conn = aiohttp.TCPConnector(limit=10)
 # Remove default timeout limit of 5 minutes
 timeout = aiohttp.ClientTimeout(total=0)
 session = taskcluster.aio.createSession(loop=loop, connector=conn, timeout=timeout)
-asyncQueue = taskcluster.aio.Queue(options, session=session)
 
 stateToExchange = {}
 for key, value in EXCHANGE_EVENT_MAP.items():
     stateToExchange[value] = key
 
 
-async def handleTaskId(taskId):
+async def handleTaskId(taskId, root_url):
+    asyncQueue = taskcluster.aio.Queue({"rootUrl": root_url}, session=session)
     results = await asyncio.gather(asyncQueue.status(taskId), asyncQueue.task(taskId))
     await handleTask({
         "status": results[0]["status"],
         "task": results[1],
-    })
+    }, root_url)
 
 
-async def handleTask(task):
+async def handleTask(task, root_url):
     taskId = task["status"]["taskId"]
     runs = task["status"]["runs"]
     # If we iterate in order of the runs, we will not be able to mark older runs as
@@ -51,7 +49,8 @@ async def handleTask(task):
                     "runs": runs,
                 },
                 "runId": run["runId"],
-            }
+            },
+            "root_url": root_url,
         }
         try:
             taskRuns = await handleMessage(message, task["task"])
@@ -64,10 +63,11 @@ async def handleTask(task):
             logger.exception(e)
 
 
-async def fetchGroupTasks(taskGroupId):
+async def fetchGroupTasks(taskGroupId, root_url):
     tasks = []
     query = {}
     continuationToken = ""
+    asyncQueue = taskcluster.aio.Queue({"rootUrl": root_url}, session=session)
     while True:
         if continuationToken:
             query = {"continuationToken": continuationToken}
@@ -80,8 +80,8 @@ async def fetchGroupTasks(taskGroupId):
     return tasks
 
 
-async def processTasks(taskGroupId):
-    tasks = await fetchGroupTasks(taskGroupId)
+async def processTasks(taskGroupId, root_url):
+    tasks = await fetchGroupTasks(taskGroupId, root_url)
     asyncTasks = []
     logger.info("We have %s tasks to process", len(tasks))
     for task in tasks:
@@ -105,6 +105,11 @@ class Command(BaseCommand):
             help="changeset to import"
         )
         parser.add_argument(
+            "--root-url",
+            dest="root_url",
+            help="root URL for optional taskIds"
+        )
+        parser.add_argument(
             "--task-id",
             dest="taskId",
             nargs="?",
@@ -114,7 +119,8 @@ class Command(BaseCommand):
     def handle(self, *args, **options):
         taskId = options["taskId"]
         if taskId:
-            loop.run_until_complete(handleTaskId(taskId))
+            root_url = options["root_url"]
+            loop.run_until_complete(handleTaskId(taskId, root_url))
         else:
             project = options["project"]
             changeset = options["changeset"]
@@ -138,5 +144,5 @@ class Command(BaseCommand):
             # XXX: Need logic to get from project/revision to taskGroupId
             taskGroupId = 'ZYnMSfwCS5Cc_Wi_e-ZlSA'
             logger.info("## START ##")
-            loop.run_until_complete(processTasks(taskGroupId))
+            loop.run_until_complete(processTasks(taskGroupId, repo.tc_root_url))
             logger.info("## END ##")
