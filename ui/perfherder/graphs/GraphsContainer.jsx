@@ -11,17 +11,17 @@ import {
   VictoryAxis,
   VictoryBrushContainer,
   VictoryScatter,
-  VictorySelectionContainer,
+  createContainer,
 } from 'victory';
 import moment from 'moment';
 import debounce from 'lodash/debounce';
 import last from 'lodash/last';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faTimes, faQuestionCircle } from '@fortawesome/free-solid-svg-icons';
-
-import SimpleTooltip from '../../shared/SimpleTooltip';
+import { faTimes } from '@fortawesome/free-solid-svg-icons';
 
 import GraphTooltip from './GraphTooltip';
+
+const VictoryZoomSelectionContainer = createContainer('zoom', 'selection');
 
 class GraphsContainer extends React.Component {
   constructor(props) {
@@ -203,7 +203,7 @@ class GraphsContainer extends React.Component {
   // doesn't work with this callback, which is why a class property is used instead)
   setLeftPadding = (tick, index, ticks) => {
     const highestTickLength = ticks[ticks.length - 1].toString();
-    const newLeftPadding = highestTickLength.length * 8 + 10;
+    const newLeftPadding = highestTickLength.length * 8 + 16;
     this.leftChartPadding =
       this.leftChartPadding > newLeftPadding
         ? this.leftChartPadding
@@ -319,18 +319,6 @@ class GraphsContainer extends React.Component {
               ))}
             </VictoryChart>
           </Col>
-          <Col className="p-0 col-md-auto">
-            <SimpleTooltip
-              text={
-                <FontAwesomeIcon
-                  className="pointer text-secondary"
-                  icon={faQuestionCircle}
-                  size="sm"
-                />
-              }
-              tooltipText="The bottom graph has mouse zoom enabled. When there's a large amount of data points, use the overview graph's selection marquee to narrow the x and y range before zooming with the mouse."
-            />
-          </Col>
         </Row>
 
         <Row>
@@ -341,11 +329,13 @@ class GraphsContainer extends React.Component {
               height={400}
               style={{ parent: { maxHeight: '400px', maxWidth: '1350px' } }}
               scale={{ x: 'time', y: 'linear' }}
-              domain={zoom}
               domainPadding={{ y: 40 }}
               containerComponent={
-                <VictorySelectionContainer
+                <VictoryZoomSelectionContainer
+                  zoomDomain={zoom}
                   onSelection={(points, bounds) => this.updateZoom(bounds)}
+                  allowPan={false}
+                  allowZoom={false}
                 />
               }
             >
@@ -423,7 +413,7 @@ class GraphsContainer extends React.Component {
                 tickFormat={this.setLeftPadding}
               />
               <VictoryAxis
-                tickCount={8}
+                tickCount={6}
                 tickFormat={x => moment.utc(x).format('MMM DD hh:mm')}
                 style={axisStyle}
                 fixLabelOverlap
