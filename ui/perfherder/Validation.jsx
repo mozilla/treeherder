@@ -14,7 +14,7 @@ import LoadingSpinner from '../shared/LoadingSpinner';
 import { summaryStatusMap } from './constants';
 
 const withValidation = (
-  { requiredParams, defaultState },
+  { requiredParams },
   verifyRevisions = true,
 ) => WrappedComponent => {
   class Validation extends React.Component {
@@ -38,11 +38,15 @@ const withValidation = (
     }
 
     async componentDidMount() {
-      if (Object.keys(defaultState).length && this.props.location) {
-        this.setState(defaultState);
-      }
-
       this.validateParams(parseQueryParams(this.props.location.search));
+    }
+
+    componentDidUpdate(prevProps) {
+      const { location } = this.props;
+
+      if (location.search !== prevProps.location.search) {
+        this.validateParams(parseQueryParams(location.search));
+      }
     }
 
     updateParams = params => {
@@ -161,7 +165,7 @@ const withValidation = (
           ...params,
           validationComplete: true,
         },
-        this.updateParams({ ...params, ...defaultState }),
+        this.updateParams({ ...params }),
       );
     }
 

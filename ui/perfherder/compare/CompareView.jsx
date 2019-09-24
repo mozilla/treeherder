@@ -7,6 +7,7 @@ import {
   createNoiseMetric,
   getCounterMap,
   createGraphsLinks,
+  onPermalinkClick,
 } from '../helpers';
 import { noiseMetricTitle, phTimeRanges } from '../constants';
 import withValidation from '../Validation';
@@ -226,12 +227,6 @@ class CompareView extends React.PureComponent {
     return updates;
   };
 
-  onPermalinkClick = hashBasedValue => {
-    const { history, location } = this.props;
-
-    history.replace(`${location.pathname}${location.search}#${hashBasedValue}`);
-  };
-
   getHashFragment = () => this.props.location.hash;
 
   render() {
@@ -240,8 +235,8 @@ class CompareView extends React.PureComponent {
         {...this.props}
         getQueryParams={this.getQueryParams}
         getDisplayResults={this.getDisplayResults}
-        onPermalinkClick={this.onPermalinkClick}
-        hashFragment={this.getHashFragment()}
+        onPermalinkClick={hashValue => onPermalinkClick(hashValue, this.props)}
+        hashFragment={this.props.location.hash}
         filterByFramework
       />
     );
@@ -271,6 +266,4 @@ const requiredParams = new Set([
   'newRevision',
 ]);
 
-export default withValidation({ defaultState: {}, requiredParams })(
-  CompareView,
-);
+export default withValidation({ requiredParams })(CompareView);

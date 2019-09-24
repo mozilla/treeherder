@@ -21,7 +21,7 @@ const Navigation = ({ user, setUser, notify }) => (
         </NavLink>
       </NavItem>
       <NavItem>
-        <NavLink href="#/alerts" className="btn-view-nav">
+        <NavLink href="#/alerts?hideDwnToInv=1" className="btn-view-nav">
           Alerts
         </NavLink>
       </NavItem>

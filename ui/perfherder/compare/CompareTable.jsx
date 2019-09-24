@@ -14,6 +14,7 @@ import { displayNumber } from '../helpers';
 import { compareTableText } from '../constants';
 import ProgressBar from '../ProgressBar';
 import { hashFunction } from '../../helpers/utils';
+import JobModel from '../../models/job';
 
 import TableAverage from './TableAverage';
 
@@ -295,10 +296,14 @@ CompareTable.propTypes = {
   testName: PropTypes.string.isRequired,
   hashFunction: PropTypes.func,
   onPermalinkClick: PropTypes.func,
+  getJob: PropTypes.func,
+  retriggerJob: PropTypes.func,
 };
 
 CompareTable.defaultProps = {
   data: null,
   hashFunction,
   onPermalinkClick: undefined,
+  getJob: JobModel.get,
+  retriggerJob: JobModel.retrigger,
 };

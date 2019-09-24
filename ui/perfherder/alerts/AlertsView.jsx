@@ -56,29 +56,20 @@ class AlertsView extends React.Component {
 
   componentDidUpdate(prevProps, prevState) {
     const { count } = this.state;
-    const { alertData } = this.props;
+    const { validated } = this.props;
 
     if (prevState.count !== count) {
       this.setState({ totalPages: this.generatePages(count) });
     }
 
     const params = parseQueryParams(this.props.location.search);
-    const pastParams = parseQueryParams(prevProps.location.search);
-
-    if (
-      this.props.location.search !== prevProps.location.search &&
-      !params.id &&
-      alertData.length
-    ) {
-      this.setState({
-        id: null,
-        alertSummaries: alertData[0],
-        count: alertData[1],
-      });
-    } else if (params.id !== pastParams.id) {
-      this.setState({ id: params.id }, () =>
-        this.fetchAlertSummaries(params.id),
-      );
+    // we're using local state for id instead of validated.id because once
+    // the user navigates from the id=<alert> view back to the main alerts view
+    // the Validation component won't reset the id (since the query param doesn't exist
+    // unless there is a value)
+    if (this.props.location.search !== prevProps.location.search) {
+      this.setState({ id: params.id || null }, this.fetchAlertSummaries);
+      validated.updateParams({ hideDwnToInv: 0 });
     }
   }
 
@@ -184,6 +175,8 @@ class AlertsView extends React.Component {
     if (response.alertSummaries) {
       const summary = response.alertSummaries;
 
+      // used with the id argument to update one specific alert summary in the array of
+      // alert summaries that's been updated based on an action taken in the AlertActionPanel
       if (update) {
         const index = alertSummaries.findIndex(
           item => item.id === summary.results[0].id,
@@ -198,8 +191,6 @@ class AlertsView extends React.Component {
           count: update ? count : Math.ceil(summary.count / 10),
         },
       };
-
-      this.props.updateAppState({ alertData: [alertSummaries, count] });
     } else {
       updates = { ...updates, ...response };
     }
@@ -338,7 +329,6 @@ AlertsView.defaultProps = {
   location: null,
 };
 
-export default withValidation(
-  { defaultState: { hideDwnToInv: 1 }, requiredParams: new Set([]) },
-  false,
-)(AlertsView);
+export default withValidation({ requiredParams: new Set([]) }, false)(
+  AlertsView,
+);

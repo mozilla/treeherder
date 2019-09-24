@@ -613,3 +613,9 @@ export const getSeriesData = async (
 
   return updates;
 };
+
+export const onPermalinkClick = (hashBasedValue, props) => {
+  const { history, location } = props;
+
+  history.replace(`${location.pathname}${location.search}#${hashBasedValue}`);
+};

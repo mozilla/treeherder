@@ -7,6 +7,7 @@ import {
   createNoiseMetric,
   getCounterMap,
   createGraphsLinks,
+  onPermalinkClick,
 } from '../helpers';
 import { noiseMetricTitle } from '../constants';
 import withValidation from '../Validation';
@@ -207,6 +208,8 @@ class CompareSubtestsView extends React.PureComponent {
         {...this.props}
         getQueryParams={this.getQueryParams}
         getDisplayResults={this.getDisplayResults}
+        onPermalinkClick={hashValue => onPermalinkClick(hashValue, this.props)}
+        hashFragment={this.props.location.hash}
         hasSubtests
       />
     );
@@ -239,6 +242,4 @@ const requiredParams = new Set([
   'newSignature',
 ]);
 
-export default withValidation({ defaultState: {}, requiredParams })(
-  CompareSubtestsView,
-);
+export default withValidation({ requiredParams })(CompareSubtestsView);

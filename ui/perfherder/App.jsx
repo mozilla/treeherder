@@ -27,7 +27,6 @@ class App extends React.Component {
       frameworks: [],
       user: {},
       errorMessages: [],
-      alertData: [],
       compareData: [],
     };
   }
@@ -56,7 +55,6 @@ class App extends React.Component {
       projects,
       frameworks,
       errorMessages,
-      alertData,
       compareData,
     } = this.state;
 
@@ -79,8 +77,6 @@ class App extends React.Component {
                     user={user}
                     projects={projects}
                     frameworks={frameworks}
-                    alertData={alertData}
-                    updateAppState={this.updateAppState}
                   />
                 )}
               />
@@ -92,8 +88,6 @@ class App extends React.Component {
                     user={user}
                     projects={projects}
                     frameworks={frameworks}
-                    alertData={alertData}
-                    updateAppState={this.updateAppState}
                   />
                 )}
               />
@@ -211,7 +205,7 @@ class App extends React.Component {
                   />
                 )}
               />
-              <Redirect from="/" to="/alerts" />
+              <Redirect from="/" to="/alerts?hideDwnToInv=1" />
             </Switch>
           </main>
         )}
