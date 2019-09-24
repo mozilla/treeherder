@@ -101,13 +101,12 @@ export default class TestDataModal extends React.Component {
     const updates = processResponse(response, 'relatedTests', errorMessages);
 
     if (updates.relatedTests.length) {
-      const tests =
-        updates.relatedTests.filter(
-          series =>
-            series.platform === relatedSeries.platform &&
-            series.testName === relatedSeries.test &&
-            series.name !== relatedSeries.name,
-        ) || [];
+      const tests = updates.relatedTests.filter(
+        series =>
+          series.platform === relatedSeries.platform &&
+          series.testName === relatedSeries.test &&
+          series.name !== relatedSeries.name,
+      );
 
       updates.relatedTests = tests;
     }
@@ -117,51 +116,33 @@ export default class TestDataModal extends React.Component {
     this.setState(updates);
   };
 
-  addRelatedPlatforms = async params => {
+  addRelatedBranches = async (params, samePlatform = true) => {
     const { relatedSeries } = this.props.options;
-    const { errorMessages, repository_name } = this.state;
-
-    const response = await PerfSeriesModel.getSeriesList(
-      repository_name.name,
-      params,
-    );
-    const updates = processResponse(response, 'relatedTests', errorMessages);
-
-    if (updates.relatedTests.length) {
-      const tests =
-        updates.relatedTests.filter(
-          series =>
-            series.platform !== relatedSeries.platform &&
-            series.name === relatedSeries.name,
-        ) || [];
-
-      updates.relatedTests = tests;
-    }
-    updates.showNoRelatedTests = updates.relatedTests.length === 0;
-    updates.loading = false;
-
-    this.setState(updates);
-  };
-
-  addRelatedBranches = async params => {
-    const { relatedSeries } = this.props.options;
-    const errorMessages = [];
+    const { errorMessages } = this.state;
 
     const relatedProjects = thPerformanceBranches.filter(
       repository_name => repository_name !== relatedSeries.repository_name,
     );
+
     const requests = relatedProjects.map(projectName =>
       PerfSeriesModel.getSeriesList(projectName, params),
     );
 
     const responses = await Promise.all(requests);
-    // eslint-disable-next-line func-names
-    const relatedTests = responses.flatMap(function(item) {
-      if (!item.failureStatus) {
-        return item.data;
-      }
-      errorMessages.push(item.data);
-    });
+    const relatedTests = responses
+      .flatMap(item => {
+        if (!item.failureStatus) {
+          return item.data;
+        }
+        errorMessages.push(item.data);
+      })
+      .filter(
+        item =>
+          item.name === relatedSeries.name &&
+          (samePlatform
+            ? item.platform === relatedSeries.platform
+            : item.platform !== relatedSeries.platform),
+      );
 
     this.setState({
       relatedTests,
@@ -204,11 +185,10 @@ export default class TestDataModal extends React.Component {
 
     params.framework = relatedSeries.framework_id;
     if (option === 'addRelatedPlatform') {
-      this.addRelatedPlatforms(params);
+      this.addRelatedBranches(params, false);
     } else if (option === 'addRelatedConfigs') {
       this.addRelatedConfigs(params);
     } else if (option === 'addRelatedBranches') {
-      params.id = relatedSeries.signature_id;
       this.addRelatedBranches(params);
     }
   };
@@ -244,7 +224,12 @@ export default class TestDataModal extends React.Component {
 
   closeModal = () => {
     this.setState(
-      { relatedTests: [], filteredData: [], showNoRelatedTests: false },
+      {
+        relatedTests: [],
+        filteredData: [],
+        showNoRelatedTests: false,
+        filterText: '',
+      },
       this.props.toggle,
     );
   };
@@ -260,7 +245,7 @@ export default class TestDataModal extends React.Component {
     }));
 
     getTestData(displayedTestParams);
-    this.setState({ selectedTests: [] });
+    this.setState({ selectedTests: [], filterText: '' });
     this.closeModal();
   };
 

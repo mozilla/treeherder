@@ -117,7 +117,7 @@ const LegendCard = ({
         <p
           className={subtitleStyle}
           onClick={() => addTestData('addRelatedPlatform')}
-          title="Add related platforms"
+          title="Add related platforms and branches"
           type="button"
         >
           {series.platform}
