@@ -150,18 +150,24 @@ export default class TestDataModal extends React.Component {
     const relatedProjects = thPerformanceBranches.filter(
       repository_name => repository_name !== relatedSeries.repository_name,
     );
+
     const requests = relatedProjects.map(projectName =>
       PerfSeriesModel.getSeriesList(projectName, params),
     );
 
     const responses = await Promise.all(requests);
-    // eslint-disable-next-line func-names
-    const relatedTests = responses.flatMap(function(item) {
-      if (!item.failureStatus) {
-        return item.data;
-      }
-      errorMessages.push(item.data);
-    });
+    const relatedTests = responses
+      .flatMap(item => {
+        if (!item.failureStatus) {
+          return item.data;
+        }
+        errorMessages.push(item.data);
+      })
+      .filter(
+        item =>
+          item.name === relatedSeries.name &&
+          item.platform === relatedSeries.platform,
+      );
 
     this.setState({
       relatedTests,
@@ -208,7 +214,6 @@ export default class TestDataModal extends React.Component {
     } else if (option === 'addRelatedConfigs') {
       this.addRelatedConfigs(params);
     } else if (option === 'addRelatedBranches') {
-      params.id = relatedSeries.signature_id;
       this.addRelatedBranches(params);
     }
   };
