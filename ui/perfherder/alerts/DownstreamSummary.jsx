@@ -7,7 +7,6 @@ import { getData } from '../../helpers/http';
 import { endpoints } from '../constants';
 import { getApiUrl } from '../../helpers/url';
 
-// TODO remove $stateParams and $state after switching to react router
 export default class DownstreamSummary extends React.Component {
   constructor(props) {
     super(props);

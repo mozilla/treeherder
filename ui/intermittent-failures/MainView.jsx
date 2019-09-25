@@ -184,8 +184,8 @@ const defaultState = {
       .subtract(7, 'days'),
   ),
   endday: ISODate(moment().utc()),
-  route: '/main',
   endpoint: bugsEndpoint,
+  route: '/main',
 };
 
 export default withView(defaultState)(MainView);

@@ -1154,11 +1154,6 @@
     "@testing-library/dom" "^6.1.0"
     "@types/testing-library__react" "^9.1.0"
 
-"@types/angular@*", "@types/angular@^1.6.39":
-  version "1.6.55"
-  resolved "https://registry.yarnpkg.com/@types/angular/-/angular-1.6.55.tgz#1d745af6deadcb5c2c0f6f6e9d85bc18c25a520b"
-  integrity sha512-jpQ5K6t76thd9Ook5x4Xj9K462hMje6/Q84SFxglBmaW8HOLblVnALpvg6w6aV3Oe6o9jWXnYH8gHHKrfSRxNQ==
-
 "@types/babel__core@^7.1.0":
   version "7.1.0"
   resolved "https://registry.yarnpkg.com/@types/babel__core/-/babel__core-7.1.0.tgz#710f2487dda4dcfd010ca6abb2b4dc7394365c51"
@@ -1230,18 +1225,6 @@
   version "7.0.3"
   resolved "https://registry.yarnpkg.com/@types/json-schema/-/json-schema-7.0.3.tgz#bdfd69d61e464dcc81b25159c270d75a73c1a636"
   integrity sha512-Il2DtDVRGDcqjDtE+rF8iqg1CArehSK84HZJCT7AMITlyXRBpuPhqGLDQMowraqqu1coEaimg4ZOqggt6L6L+A==
-
-"@types/lodash.frompairs@^4.0.5":
-  version "4.0.6"
-  resolved "https://registry.yarnpkg.com/@types/lodash.frompairs/-/lodash.frompairs-4.0.6.tgz#09b082c10fa753dc2001302b75ac79ca1e0a9ea3"
-  integrity sha512-rwCUf4NMKhXpiVjL/RXP8YOk+rd02/J4tACADEgaMXRVnzDbSSlBMKFZoX/ARmHVLg3Qc98Um4PErGv8FbxU7w==
-  dependencies:
-    "@types/lodash" "*"
-
-"@types/lodash@*", "@types/lodash@^4.14.85":
-  version "4.14.136"
-  resolved "https://registry.yarnpkg.com/@types/lodash/-/lodash-4.14.136.tgz#413e85089046b865d960c9ff1d400e04c31ab60f"
-  integrity sha512-0GJhzBdvsW2RUccNHOBkabI8HZVdOXmXbXhuKlDEd5Vv12P7oAVGfomGp3Ne21o5D/qu1WmthlNKFaoZJJeErA==
 
 "@types/minimatch@*":
   version "3.0.3"
@@ -1338,13 +1321,6 @@
   dependencies:
     lodash.unescape "4.0.1"
     semver "5.5.0"
-
-"@uirouter/angularjs@0.4.3":
-  version "0.4.3"
-  resolved "https://registry.yarnpkg.com/@uirouter/angularjs/-/angularjs-0.4.3.tgz#7e2630c59b2bd69ca485ff124f53b0169edddf39"
-  integrity sha512-jLmZ+VcsvS63E01wJWEqNLND6/6Ju9dZP6t21T+v6q8s9+Xzr8RX6QrrnRt35S0ARugFwJxFlmNFZSIef3jvDw==
-  dependencies:
-    angular "^1.0.8"
 
 "@webassemblyjs/ast@1.8.5":
   version "1.8.5"
@@ -1595,21 +1571,6 @@ ajv@6.10.2, ajv@^6.1.0, ajv@^6.10.0, ajv@^6.10.2, ajv@^6.5.5, ajv@^6.9.1:
     fast-json-stable-stringify "^2.0.0"
     json-schema-traverse "^0.4.1"
     uri-js "^4.2.2"
-
-angular-clipboard@1.7.0:
-  version "1.7.0"
-  resolved "https://registry.yarnpkg.com/angular-clipboard/-/angular-clipboard-1.7.0.tgz#9621a6ce66eab1ea9549aa8bfb3b71352307554f"
-  integrity sha512-4/eg3zZw1MJpIsMc+mWzeVNyWBu8YWpXPTdmbgyPRp/6f0xB6I3XR2iC6Mb4mg/5E9q6exCd0sX2yiIsw+ZLJw==
-
-angular1-ui-bootstrap4@2.4.22:
-  version "2.4.22"
-  resolved "https://registry.yarnpkg.com/angular1-ui-bootstrap4/-/angular1-ui-bootstrap4-2.4.22.tgz#378697405c957b96f947f42322f36660cd3fc88d"
-  integrity sha1-N4aXQFyVe5b5R/QjIvNmYM0/yI0=
-
-angular@1.7.8, angular@>=1.5, angular@>=1.5.0, angular@^1.0.8:
-  version "1.7.8"
-  resolved "https://registry.yarnpkg.com/angular/-/angular-1.7.8.tgz#b77ede272ce1b261e3be30c1451a0b346905a3c9"
-  integrity sha512-wtef/y4COxM7ZVhddd7JtAAhyYObq9YXKar9tsW7558BImeVYteJiTxCKeJOL45lJ/+7B4wrAC49j8gTFYEthg==
 
 ansi-colors@^3.0.0:
   version "3.2.4"
@@ -5802,11 +5763,6 @@ jest@24.9.0:
     import-local "^2.0.0"
     jest-cli "^24.9.0"
 
-jquery.flot@0.8.3:
-  version "0.8.3"
-  resolved "https://registry.yarnpkg.com/jquery.flot/-/jquery.flot-0.8.3.tgz#81d2ec4ffdf0dee729c8a442e8faa399e9b48207"
-  integrity sha512-/tEE8J5NjwvStHDaCHkvTJpD7wDS4hE1OEL8xEmhgQfUe0gLUem923PIceNez1mz4yBNx6Hjv7pJcowLNd+nbg==
-
 jquery@3.4.1:
   version "3.4.1"
   resolved "https://registry.yarnpkg.com/jquery/-/jquery-3.4.1.tgz#714f1f8d9dde4bdfa55764ba37ef214630d80ef2"
@@ -6106,11 +6062,6 @@ lodash.flattendeep@^4.4.0:
   version "4.4.0"
   resolved "https://registry.yarnpkg.com/lodash.flattendeep/-/lodash.flattendeep-4.4.0.tgz#fb030917f86a3134e5bc9bec0d69e0013ddfedb2"
   integrity sha1-+wMJF/hqMTTlvJvsDWngAT3f7bI=
-
-lodash.frompairs@^4.0.1:
-  version "4.0.1"
-  resolved "https://registry.yarnpkg.com/lodash.frompairs/-/lodash.frompairs-4.0.1.tgz#bc4e5207fa2757c136e573614e9664506b2b1bd2"
-  integrity sha1-vE5SB/onV8E25XNhTpZkUGsrG9I=
 
 lodash.isarguments@^3.0.0:
   version "3.1.0"
@@ -6636,16 +6587,6 @@ ng-text-truncate-2@1.0.1:
   version "1.0.1"
   resolved "https://registry.yarnpkg.com/ng-text-truncate-2/-/ng-text-truncate-2-1.0.1.tgz#167b92b04f092e940cc6d60a336fa604570392bd"
   integrity sha1-FnuSsE8JLpQMxtYKM2+mBFcDkr0=
-
-ngcomponent@^4.1.0:
-  version "4.1.0"
-  resolved "https://registry.yarnpkg.com/ngcomponent/-/ngcomponent-4.1.0.tgz#793e379138f552ea0cd2c767ad0aa7057678e228"
-  integrity sha512-cGL3iVoqMWTpCfaIwgRKhdaGqiy2Z+CCG0cVfjlBvdqE8saj8xap9B4OTf+qwObxLVZmDTJPDgx3bN6Q/lZ7BQ==
-  dependencies:
-    "@types/angular" "^1.6.39"
-    "@types/lodash" "^4.14.85"
-    angular ">=1.5.0"
-    lodash "^4.17.4"
 
 nice-try@^1.0.4:
   version "1.0.5"
@@ -7934,16 +7875,6 @@ react-virtualized@^9.21.0:
     loose-envify "^1.3.0"
     prop-types "^15.6.0"
     react-lifecycles-compat "^3.0.4"
-
-react2angular@4.0.6:
-  version "4.0.6"
-  resolved "https://registry.yarnpkg.com/react2angular/-/react2angular-4.0.6.tgz#ec49ef834d101c9a320e25229fc5afa5b29edc4f"
-  integrity sha512-MDl2WRoTyu7Gyh4+FAIlmsM2mxIa/DjSz6G/d90L1tK8ZRubqVEayKF6IPyAruC5DMhGDVJ7tlAIcu/gMNDjXg==
-  dependencies:
-    "@types/lodash.frompairs" "^4.0.5"
-    angular ">=1.5"
-    lodash.frompairs "^4.0.1"
-    ngcomponent "^4.1.0"
 
 react@16.9.0:
   version "16.9.0"

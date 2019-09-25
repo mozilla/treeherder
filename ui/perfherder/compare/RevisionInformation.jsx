@@ -11,7 +11,7 @@ function getRevisionSpecificDetails(
   resultSet,
   selectedTimeRange = undefined,
 ) {
-  const truncatedRevision = revision.substring(0, 12);
+  const truncatedRevision = revision ? revision.substring(0, 12) : '';
   const baselineOrNew = isBaseline || selectedTimeRange ? 'Base' : 'New';
 
   return (

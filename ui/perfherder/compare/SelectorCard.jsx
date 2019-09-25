@@ -200,7 +200,7 @@ export default class SelectorCard extends React.Component {
       missingRevision,
     } = this.props;
     return (
-      <Col sm="4" className="p-2">
+      <Col sm="4" className="p-2 text-left">
         <Card className="card-height">
           <CardHeader className="bg-lightgray">{title}</CardHeader>
           <CardBody>

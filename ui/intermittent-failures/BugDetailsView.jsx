@@ -238,8 +238,8 @@ BugDetailsView.defaultProps = {
 };
 
 const defaultState = {
-  route: '/bugdetails',
   endpoint: bugDetailsEndpoint,
+  route: '/bugdetails',
 };
 
 export default withView(defaultState)(BugDetailsView);

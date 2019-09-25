@@ -1,14 +1,14 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import { Alert, Col, Row, Container } from 'reactstrap';
+import { Link } from 'react-router-dom';
 
 import ErrorMessages from '../../shared/ErrorMessages';
 import {
   genericErrorMessage,
   errorMessageClass,
-  compareDefaultTimeRange,
-  phTimeRanges,
 } from '../../helpers/constants';
+import { compareDefaultTimeRange, phTimeRanges } from '../constants';
 import ErrorBoundary from '../../shared/ErrorBoundary';
 import { getData } from '../../helpers/http';
 import {
@@ -25,7 +25,6 @@ import RevisionInformation from './RevisionInformation';
 import CompareTableControls from './CompareTableControls';
 import NoiseTable from './NoiseTable';
 
-// TODO remove $stateParams and $state after switching to react router
 export default class CompareTableView extends React.Component {
   constructor(props) {
     super(props);
@@ -36,25 +35,35 @@ export default class CompareTableView extends React.Component {
       failureMessages: [],
       loading: false,
       timeRange: this.setTimeRange(),
-      framework: getFrameworkData(this.props.validated),
+      framework: getFrameworkData(this.props),
       title: '',
     };
   }
 
   componentDidMount() {
-    this.getPerformanceData();
+    const { compareData, location } = this.props;
+
+    if (
+      compareData &&
+      compareData.size > 0 &&
+      location.pathname === '/compare'
+    ) {
+      this.setState({ compareResults: compareData });
+    } else {
+      this.getPerformanceData();
+    }
   }
 
   componentDidUpdate(prevProps) {
     const { loading } = this.state;
     const { hashFragment } = this.props;
 
-    if (this.props !== prevProps) {
+    if (this.props.location.search !== prevProps.location.search) {
       this.getPerformanceData();
     }
 
     if (!loading && hashFragment) {
-      scrollToLine(`#${hashFragment}`, 100);
+      scrollToLine(hashFragment, 100);
     }
   }
 
@@ -146,7 +155,9 @@ export default class CompareTableView extends React.Component {
   };
 
   updateFramework = selection => {
-    const { frameworks, updateParams } = this.props.validated;
+    const { updateParams } = this.props.validated;
+    const { frameworks } = this.props;
+
     const framework = frameworks.find(item => item.name === selection);
 
     updateParams({ framework: framework.id });
@@ -178,10 +189,14 @@ export default class CompareTableView extends React.Component {
       newRevision,
       originalResultSet,
       newResultSet,
-      frameworks,
     } = this.props.validated;
 
-    const { filterByFramework, hasSubtests, onPermalinkClick } = this.props;
+    const {
+      filterByFramework,
+      hasSubtests,
+      onPermalinkClick,
+      frameworks,
+    } = this.props;
     const {
       compareResults,
       loading,
@@ -198,7 +213,12 @@ export default class CompareTableView extends React.Component {
 
     const compareDropdowns = [];
 
-    const params = { originalProject, newProject, newRevision };
+    const params = {
+      originalProject,
+      newProject,
+      newRevision,
+      framework: framework.id,
+    };
 
     if (originalRevision) {
       params.originalRevision = originalRevision;
@@ -231,11 +251,14 @@ export default class CompareTableView extends React.Component {
         >
           <React.Fragment>
             {hasSubtests && (
-              <p>
-                <a href={`perf.html#/compare${createQueryParams(params)}`}>
-                  Show all tests and platforms
-                </a>
-              </p>
+              <Link
+                to={{
+                  pathname: '/compare',
+                  search: createQueryParams(params),
+                }}
+              >
+                Back to all tests and platforms
+              </Link>
             )}
 
             <div className="mx-auto">
@@ -318,8 +341,6 @@ CompareTableView.propTypes = {
     originalProject: PropTypes.string,
     newProject: PropTypes.string,
     originalRevision: PropTypes.string,
-    projects: PropTypes.arrayOf(PropTypes.shape({})),
-    frameworks: PropTypes.arrayOf(PropTypes.shape({})),
     selectedTimeRange: PropTypes.string,
     updateParams: PropTypes.func.isRequired,
     originalSignature: PropTypes.string,
@@ -332,9 +353,9 @@ CompareTableView.propTypes = {
   getDisplayResults: PropTypes.func.isRequired,
   getQueryParams: PropTypes.func.isRequired,
   hasSubtests: PropTypes.bool,
-  onPermalinkClick: PropTypes.func.isRequired,
+  onPermalinkClick: PropTypes.func,
   hashFragment: PropTypes.string,
-  $stateParams: PropTypes.shape({}).isRequired,
+  frameworks: PropTypes.arrayOf(PropTypes.shape({})).isRequired,
 };
 
 CompareTableView.defaultProps = {
@@ -343,4 +364,5 @@ CompareTableView.defaultProps = {
   validated: PropTypes.shape({}),
   hasSubtests: false,
   hashFragment: '',
+  onPermalinkClick: undefined,
 };

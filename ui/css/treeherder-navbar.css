@@ -447,3 +447,22 @@ fieldset[disabled] .btn-view-nav-closed.active {
 .dropdown-item:hover {
   background-color: #d3d3d34d;
 }
+
+/* Used by Perfherder and IFV */
+.top-navbar {
+  background-color: #222;
+  height: 34px;
+  position: absolute;
+}
+
+.navbar-link {
+  color: lightgray;
+}
+
+.navbar-link:hover {
+  color: lightgray;
+}
+
+.navbar-link:visited {
+  color: lightgray;
+}

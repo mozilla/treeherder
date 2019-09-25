@@ -122,3 +122,13 @@ export const bugzillaBugsApi = function bugzillaBugsApi(api, params) {
 
 export const getRevisionUrl = (revision, projectName) =>
   revision ? getJobsUrl({ repo: projectName, revision }) : '';
+
+export const updateQueryParams = function updateHistoryWithQueryParams(
+  queryParams,
+  history,
+  location,
+) {
+  history.replace({ pathname: location.pathname, search: queryParams });
+  // we do this so the api's won't be called twice (location/history updates will trigger a lifecycle hook)
+  location.search = queryParams;
+};

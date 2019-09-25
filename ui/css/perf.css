@@ -1,3 +1,7 @@
+body {
+  overflow: auto;
+}
+
 section {
   height: calc(100% - 50px);
   overflow-y: auto;
@@ -75,6 +79,7 @@ h1 {
   pointer-events: none;
   width: 280px;
   z-index: 999;
+  text-align: left;
 }
 .graph-tooltip.locked {
   pointer-events: auto;

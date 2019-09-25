@@ -1,22 +1,20 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import { react2angular } from 'react2angular/index.es2015';
 import difference from 'lodash/difference';
 
-import perf from '../../js/perf';
 import { createQueryParams } from '../../helpers/url';
 import {
   createNoiseMetric,
   getCounterMap,
   createGraphsLinks,
+  onPermalinkClick,
 } from '../helpers';
 import { noiseMetricTitle } from '../constants';
 import withValidation from '../Validation';
 
 import CompareTableView from './CompareTableView';
 
-// TODO remove $stateParams and $state after switching to react router
-export class CompareSubtestsView extends React.PureComponent {
+class CompareSubtestsView extends React.PureComponent {
   createQueryParams = (parent_signature, repository, framework) => ({
     parent_signature,
     framework,
@@ -43,7 +41,6 @@ export class CompareSubtestsView extends React.PureComponent {
     if (originalRevision) {
       originalParams.revision = originalRevision;
     } else {
-      // can create a helper function for both views
       const startDateMs =
         (newResultSet.push_timestamp - timeRange.value) * 1000;
       const endDateMs = newResultSet.push_timestamp * 1000;
@@ -211,6 +208,8 @@ export class CompareSubtestsView extends React.PureComponent {
         {...this.props}
         getQueryParams={this.getQueryParams}
         getDisplayResults={this.getDisplayResults}
+        onPermalinkClick={hashValue => onPermalinkClick(hashValue, this.props)}
+        hashFragment={this.props.location.hash}
         hasSubtests
       />
     );
@@ -225,20 +224,14 @@ CompareSubtestsView.propTypes = {
     originalProject: PropTypes.string,
     newProject: PropTypes.string,
     originalRevision: PropTypes.string,
-    projects: PropTypes.arrayOf(PropTypes.shape({})),
     updateParams: PropTypes.func.isRequired,
     newSignature: PropTypes.string,
     originalSignature: PropTypes.string,
   }),
-  $stateParams: PropTypes.shape({}),
-  $state: PropTypes.shape({}),
-  user: PropTypes.shape({}).isRequired,
 };
 
 CompareSubtestsView.defaultProps = {
   validated: PropTypes.shape({}),
-  $stateParams: null,
-  $state: null,
 };
 
 const requiredParams = new Set([
@@ -249,11 +242,4 @@ const requiredParams = new Set([
   'newSignature',
 ]);
 
-const compareSubtestsView = withValidation(requiredParams)(CompareSubtestsView);
-
-perf.component(
-  'compareSubtestsView',
-  react2angular(compareSubtestsView, ['user'], ['$stateParams', '$state']),
-);
-
-export default compareSubtestsView;
+export default withValidation({ requiredParams })(CompareSubtestsView);

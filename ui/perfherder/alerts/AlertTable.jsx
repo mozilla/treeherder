@@ -122,7 +122,7 @@ export default class AlertTable extends React.Component {
   render() {
     const {
       user,
-      validated,
+      projects,
       alertSummaries,
       issueTrackers,
       fetchAlertSummaries,
@@ -140,7 +140,7 @@ export default class AlertTable extends React.Component {
 
     const downstreamIdsLength = downstreamIds.length;
     const repo = alertSummary
-      ? validated.projects.find(repo => repo.name === alertSummary.repository)
+      ? projects.find(repo => repo.name === alertSummary.repository)
       : null;
     const repoModel = new RepositoryModel(repo);
 
@@ -281,9 +281,6 @@ export default class AlertTable extends React.Component {
 AlertTable.propTypes = {
   alertSummary: PropTypes.shape({}),
   user: PropTypes.shape({}),
-  validated: PropTypes.shape({
-    projects: PropTypes.arrayOf(PropTypes.shape({})),
-  }).isRequired,
   alertSummaries: PropTypes.arrayOf(PropTypes.shape({})).isRequired,
   issueTrackers: PropTypes.arrayOf(PropTypes.shape({})),
   optionCollectionMap: PropTypes.shape({}).isRequired,
@@ -296,6 +293,7 @@ AlertTable.propTypes = {
   updateViewState: PropTypes.func.isRequired,
   bugTemplate: PropTypes.shape({}),
   modifyAlert: PropTypes.func,
+  projects: PropTypes.arrayOf(PropTypes.shape({})).isRequired,
 };
 
 AlertTable.defaultProps = {
