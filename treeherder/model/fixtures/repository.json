@@ -1558,7 +1558,8 @@
       "active_status": "active",
       "codebase": "android-components",
       "repository_group": 11,
-      "description": "A collection of Android libraries to build browsers or browser-like applications."
+      "description": "A collection of Android libraries to build browsers or browser-like applications.",
+      "tc_root_url": "https://taskcluster.net"
     }
   }
 ]

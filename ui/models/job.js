@@ -91,7 +91,6 @@ export default class JobModel {
     decisionTaskIdMap = null,
   ) {
     const jobTerm = jobs.length > 1 ? 'jobs' : 'job';
-
     try {
       notify(`Attempting to retrigger/add ${jobTerm} via actions.json`, 'info');
 
@@ -161,7 +160,7 @@ export default class JobModel {
     }
   }
 
-  static async cancelAll(pushId, repoName, notify, decisionTask, currentRepo) {
+  static async cancelAll(pushId, currentRepo, notify, decisionTask) {
     const { id: decisionTaskId } =
       decisionTask || (await PushModel.getDecisionTaskId(pushId, notify));
 

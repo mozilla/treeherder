@@ -217,6 +217,7 @@ class CompareSubtestsView extends React.PureComponent {
 }
 
 CompareSubtestsView.propTypes = {
+  projects: PropTypes.arrayOf(PropTypes.shape({})).isRequired,
   validated: PropTypes.shape({
     originalResultSet: PropTypes.shape({}),
     newResultSet: PropTypes.shape({}),

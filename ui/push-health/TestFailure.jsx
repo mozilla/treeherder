@@ -28,7 +28,7 @@ class TestFailure extends React.PureComponent {
   };
 
   retriggerJob = async job => {
-    const { user, repo, notify, currentRepo } = this.props;
+    const { user, notify, currentRepo } = this.props;
 
     if (!user.isLoggedIn) {
       notify('Must be logged in to retrigger a job', 'danger', {
@@ -36,7 +36,7 @@ class TestFailure extends React.PureComponent {
       });
       return;
     }
-    JobModel.retrigger([job], repo, notify, currentRepo);
+    JobModel.retrigger([job], currentRepo, notify);
   };
 
   render() {

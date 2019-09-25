@@ -115,6 +115,7 @@ export default class CompareTableControls extends React.Component {
       notify,
       hasSubtests,
       onPermalinkClick,
+      projects,
     } = this.props;
 
     const {
@@ -175,6 +176,7 @@ export default class CompareTableControls extends React.Component {
               isBaseAggregate={isBaseAggregate}
               notify={notify}
               hasSubtests={hasSubtests}
+              projects={projects}
             />
           ))
         ) : (
@@ -191,6 +193,7 @@ CompareTableControls.propTypes = {
   user: PropTypes.shape({}).isRequired,
   isBaseAggregate: PropTypes.bool.isRequired,
   notify: PropTypes.func.isRequired,
+  projects: PropTypes.arrayOf(PropTypes.shape({})).isRequired,
   hasSubtests: PropTypes.bool,
   validated: PropTypes.shape({
     showOnlyImportant: PropTypes.string,

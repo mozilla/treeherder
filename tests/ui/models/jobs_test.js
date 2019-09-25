@@ -5,6 +5,7 @@ import { decisionTaskIdCache } from '../../../ui/models/push';
 import { getApiUrl } from '../../../ui/helpers/url';
 import paginatedJobListFixtureOne from '../mock/job_list/pagination/page_1';
 import paginatedJobListFixtureTwo from '../mock/job_list/pagination/page_2';
+import repositories from '../mock/repositories';
 import { getProjectUrl } from '../../../ui/helpers/location';
 
 describe('JobModel', () => {
@@ -57,6 +58,7 @@ describe('JobModel', () => {
     const testJobs = [
       { id: 123, push_id: 526443, job_type_name: 'foo', task_id: 'TASKID' },
     ];
+    const currentRepo = repositories[2];
 
     beforeEach(() => {
       fetchMock.mock(
@@ -89,7 +91,7 @@ describe('JobModel', () => {
     test('retrigger uses passed-in decisionTaskMap', async () => {
       await JobModel.retrigger(
         testJobs,
-        'autoland',
+        currentRepo,
         notify,
         1,
         decisionTaskMap,
@@ -101,7 +103,7 @@ describe('JobModel', () => {
     });
 
     test('retrigger calls for decision task when not passed-in', async () => {
-      await JobModel.retrigger(testJobs, 'autoland', notify, 1);
+      await JobModel.retrigger(testJobs, currentRepo, notify, 1);
 
       expect(fetchMock.called(decisionTaskMapUrl)).toBe(true);
       expect(fetchMock.called(tcTaskUrl)).toBe(false);
@@ -109,7 +111,7 @@ describe('JobModel', () => {
     });
 
     test('cancel uses passed-in decisionTask', async () => {
-      await JobModel.cancel(testJobs, 'autoland', () => {}, decisionTaskMap);
+      await JobModel.cancel(testJobs, currentRepo, () => {}, decisionTaskMap);
 
       expect(fetchMock.called(decisionTaskMapUrl)).toBe(false);
       expect(fetchMock.called(tcTaskUrl)).toBe(true);
@@ -117,7 +119,7 @@ describe('JobModel', () => {
     });
 
     test('cancel calls for decision task when not passed-in', async () => {
-      await JobModel.cancel(testJobs, 'autoland', () => {});
+      await JobModel.cancel(testJobs, currentRepo, () => {});
 
       expect(fetchMock.called(decisionTaskMapUrl)).toBe(true);
       expect(fetchMock.called(tcTaskUrl)).toBe(true);
@@ -127,7 +129,7 @@ describe('JobModel', () => {
     test('cancelAll uses passed-in decisionTask', async () => {
       const decisionTask = { id: 'LVTawdmFR2-uJiWWS2NxSw', run: '0' };
 
-      await JobModel.cancelAll(526443, 'autoland', () => {}, decisionTask);
+      await JobModel.cancelAll(526443, currentRepo, () => {}, decisionTask);
 
       expect(fetchMock.called(decisionTaskMapUrl)).toBe(false);
       expect(fetchMock.called(tcTaskUrl)).toBe(false);
@@ -135,7 +137,7 @@ describe('JobModel', () => {
     });
 
     test('cancelAll calls for decision task when not passed-in', async () => {
-      await JobModel.cancelAll(526443, 'autoland', () => {});
+      await JobModel.cancelAll(526443, currentRepo, () => {});
 
       expect(fetchMock.called(decisionTaskMapUrl)).toBe(true);
       expect(fetchMock.called(tcTaskUrl)).toBe(false);

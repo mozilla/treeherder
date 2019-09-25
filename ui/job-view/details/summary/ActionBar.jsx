@@ -110,6 +110,7 @@ class ActionBar extends React.PureComponent {
             task: results.originalTask,
             input: {},
             staticActionVariables: results.staticActionVariables,
+            currentRepo,
           }).then(
             () => {
               notify(
@@ -370,6 +371,7 @@ class ActionBar extends React.PureComponent {
           notify: user.email,
         },
         staticActionVariables: results.staticActionVariables,
+        currentRepo,
       });
 
       notify(
