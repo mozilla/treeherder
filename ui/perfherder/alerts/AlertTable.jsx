@@ -92,36 +92,34 @@ export default class AlertTable extends React.Component {
     const {
       hideImprovements,
       hideDownstream,
-      myAlertSummary,
+      hideAssignedToOthers,
       filterText,
     } = this.props.filters;
-    const { alertSummary } = this.state;
     const { username } = this.props.user;
+    const { alertSummary } = this.state;
 
-    const isRegression = !hideImprovements || alert.is_regression;
-    const notDownstreamFromSummary =
+    const unconcealableRegression = !hideImprovements || alert.is_regression;
+    const notRelatedDownstream =
       alert.summary_id === alertSummary.id ||
       alert.status !== alertStatusMap.downstream;
-    const isReassigned =
+    const concealableReassigned =
       hideDownstream &&
       alert.status === alertStatusMap.reassigned &&
       alert.related_summary_id !== alertSummary.id;
-    const isDownstream =
+    const concealableDownstream =
       hideDownstream && alert.status === alertStatusMap.downstream;
-    const isNotValid =
+    const concealableInvalid =
       hideDownstream && alert.status === alertStatusMap.invalid;
+    const concealableAssignedToOthers =
+      hideAssignedToOthers && alertSummary.assignee_username !== username;
 
-    let matchesFilters =
-      isRegression &&
-      notDownstreamFromSummary &&
-      !isReassigned &&
-      !isDownstream &&
-      !isNotValid;
-
-    if (myAlertSummary) {
-      const assignedToMe = alert.classifier === username;
-      matchesFilters = assignedToMe;
-    }
+    const matchesFilters =
+      unconcealableRegression &&
+      notRelatedDownstream &&
+      !concealableReassigned &&
+      !concealableDownstream &&
+      !concealableInvalid &&
+      !concealableAssignedToOthers;
 
     if (!filterText) return matchesFilters;
 
@@ -339,7 +337,7 @@ AlertTable.propTypes = {
     filterText: PropTypes.string,
     hideDownstream: PropTypes.bool,
     hideImprovements: PropTypes.bool,
-    myAlertSummary: PropTypes.bool,
+    hideAssignedToOthers: PropTypes.bool,
   }).isRequired,
   fetchAlertSummaries: PropTypes.func.isRequired,
   updateViewState: PropTypes.func.isRequired,
