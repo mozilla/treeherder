@@ -1439,5 +1439,19 @@
       "repository_group": 8,
       "description": ""
     }
+  },
+  {
+    "pk": 111,
+    "model": "model.repository",
+    "fields": {
+      "dvcs_type": "git",
+      "name": "android-components",
+      "url": "https://github.com/mozilla-mobile/android-components",
+      "branch": "master",
+      "active_status": "active",
+      "codebase": "android-components",
+      "repository_group": 11,
+      "description": "A collection of Android libraries to build browsers or browser-like applications."
+    }
   }
 ]
