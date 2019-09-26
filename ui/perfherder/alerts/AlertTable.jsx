@@ -16,6 +16,7 @@ import {
 } from '../helpers';
 import TruncatedText from '../../shared/TruncatedText';
 import ErrorBoundary from '../../shared/ErrorBoundary';
+import { processResponse } from '../../helpers/http';
 
 import AlertHeader from './AlertHeader';
 import StatusDropdown from './StatusDropdown';
@@ -123,12 +124,14 @@ export default class AlertTable extends React.Component {
     this.setState({ filteredAlerts });
   };
 
-  updateAssignee = newAssigneeUsername => {
+  updateAssignee = async (newAssigneeUsername, errorMessages = []) => {
     const { alertSummary, updateAlertSummary } = this.props;
 
-    return updateAlertSummary(alertSummary.id, {
+    const response = await updateAlertSummary(alertSummary.id, {
       assignee_username: newAssigneeUsername,
     });
+
+    return processResponse(response, 'updatedAlertSummary', errorMessages);
   };
 
   render() {

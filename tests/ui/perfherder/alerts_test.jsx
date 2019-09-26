@@ -239,7 +239,9 @@ const alertsViewControls = () =>
       updateViewState={() => {}}
       user={testUser}
       modifyAlert={(alert, params) => mockModifyAlert.update(alert, params)}
-      updateAlertSummary={() => ({ failureStatus: null })}
+      updateAlertSummary={() =>
+        Promise.resolve({ failureStatus: false, data: 'alert summary data' })
+      }
       projects={repos}
       location={{
         pathname: '/alerts',

@@ -47,19 +47,21 @@ export default class Assignee extends React.Component {
       const { onAssigneeChange, updateViewState } = this.props;
       const newAssigneeUsername = event.target.value;
 
-      const { failureStatus } = await onAssigneeChange(newAssigneeUsername);
-      if (failureStatus) {
+      const response = await onAssigneeChange(newAssigneeUsername);
+
+      if (response.updatedAlertSummary) {
+        this.setState({
+          assigneeUsername: newAssigneeUsername,
+          inEditMode: false,
+        });
+      } else {
         return updateViewState({
           errorMessages: [
             `Failed to set new assignee "${newAssigneeUsername}"`,
+            ...response.errorMessages,
           ],
         });
       }
-
-      this.setState({
-        assigneeUsername: newAssigneeUsername,
-        inEditMode: false,
-      });
     }
   };
 
