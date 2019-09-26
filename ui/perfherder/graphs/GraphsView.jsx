@@ -366,7 +366,7 @@ class GraphsView extends React.Component {
             </Container>
           )}
 
-          <Row className="justify-content-center">
+          <Row className="justify-content-start container-fluid">
             <Col
               className={`ml-2 ${testData.length ? 'graph-chooser' : 'col-12'}`}
             >
@@ -374,6 +374,7 @@ class GraphsView extends React.Component {
                 {testData.length > 0 &&
                   testData.map(series => (
                     <div
+                      className={`inline`}
                       key={`${series.name} ${series.repository_name} ${series.platform}`}
                     >
                       <LegendCard

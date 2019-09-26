@@ -449,10 +449,63 @@ li.pagination-active.active > button {
   border-left-color: #b87e17;
 }
 
-@media only screen and (min-width: 1700px) {
+@media only screen and (min-width: 1600px) and (max-width: 1740px) {
   .custom-col-xxl-auto {
     flex: 0 0 auto;
     width: auto;
-    max-width: 100%;
+    max-width: 80%;
+  }
+}
+
+@media only screen and (min-width: 1500px) and (max-width: 1599px) {
+  .custom-col-xxl-auto {
+    flex: 0 0 auto;
+    width: auto;
+    max-width: 75%;
+  }
+}
+
+@media only screen and (min-width: 1400px) and (max-width: 1499px) {
+  .custom-col-xxl-auto {
+    flex: 0 0 auto;
+    width: auto;
+    max-width: 70%;
+  }
+}
+
+@media only screen and (min-width: 1000px) and (max-width: 1399px) {
+  .custom-col-xxl-auto {
+    flex: 0 0 auto;
+    width: auto;
+    max-width: 65%;
+  }
+}
+
+@media only screen and (max-width: 999px) {
+  .custom-col-xxl-auto {
+    flex: 0 0 auto;
+    width: auto;
+    max-width: 90%;
+  }
+  .graph-container svg {
+    max-width: 1350px;
+  }
+  .graph-container {
+    width: 1350px !important;
+  }
+  .graph-chooser {
+    max-width: 1499px;
+    width: max-content;
+  }
+  .graph-legend {
+    max-width: 1499px;
+    width: max-content;
+  }
+  .graph-legend-card {
+    min-width: 170px;
+    max-width: max-content;
+  }
+  .inline {
+    display: inline-block;
   }
 }

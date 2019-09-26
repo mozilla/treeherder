@@ -38,7 +38,6 @@ class GraphsContainer extends React.Component {
       showTooltip: false,
       lockTooltip: false,
       dataPoint: this.props.selectedDataPoint,
-      chartWidth: 1350 - (1700 - window.screen.availWidth),
     };
   }
 
@@ -284,18 +283,19 @@ class GraphsContainer extends React.Component {
           <div className="tip" />
         </div>
         <Row>
-          <Col className="graph-container-top p-0 col-md-auto">
+          <Col className="graph-container p-0 col-md-auto">
             <VictoryChart
               padding={chartPadding}
-              width={chartWidth}
+              width={1350}
               height={150}
-              style={{ parent: { maxHeight: '150px', maxWidth: toString(chartWidth).concat('px') } }}
+              style={{ parent: { maxHeight: '150px', maxWidth: '1350px' } }}
               scale={{ x: 'time', y: 'linear' }}
               domainPadding={{ y: 30 }}
               containerComponent={
                 <VictoryBrushContainer
                   brushDomain={zoom}
                   onBrushDomainChange={this.updateZoom}
+                  responsive={false}
                 />
               }
             >
@@ -324,12 +324,12 @@ class GraphsContainer extends React.Component {
         </Row>
 
         <Row>
-          <Col className="graph-container-bottom p-0 col-md-auto">
+          <Col className="graph-container p-0 col-md-auto">
             <VictoryChart
               padding={chartPadding}
-              width={chartWidth}
+              width={1350}
               height={400}
-              style={{ parent: { maxHeight: '400px', maxWidth: toString(chartWidth).concat('px') } }}
+              style={{ parent: { maxHeight: '400px', maxWidth: '1350px' } }}
               scale={{ x: 'time', y: 'linear' }}
               domainPadding={{ y: 40 }}
               containerComponent={
@@ -338,6 +338,7 @@ class GraphsContainer extends React.Component {
                   onSelection={(points, bounds) => this.updateZoom(bounds)}
                   allowPan={false}
                   allowZoom={false}
+                  responsive={false}
                 />
               }
             >
