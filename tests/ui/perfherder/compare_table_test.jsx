@@ -7,6 +7,7 @@ import {
   waitForElementToBeRemoved,
 } from '@testing-library/react';
 
+import projects from '../mock/repositories';
 import CompareTableControls from '../../../ui/perfherder/compare/CompareTableControls';
 import { compareTableText, filterText } from '../../../ui/perfherder/constants';
 import CompareTable from '../../../ui/perfherder/compare/CompareTable';
@@ -103,6 +104,7 @@ const compareTableControlsNode = (onPermalinkClick, userLoggedIn = false) => {
       notify={() => {}}
       isBaseAggregate={false}
       onPermalinkClick={handlePermalinkClick}
+      projects={projects}
     />
   );
 };
@@ -126,6 +128,7 @@ const compareTable = (
       getJob={(repoName, jobId) => {
         return { id: jobId };
       }}
+      projects={projects}
     />,
   );
 

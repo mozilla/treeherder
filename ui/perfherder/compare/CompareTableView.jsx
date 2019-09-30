@@ -196,6 +196,7 @@ export default class CompareTableView extends React.Component {
       hasSubtests,
       onPermalinkClick,
       frameworks,
+      projects,
     } = this.props;
     const {
       compareResults,
@@ -312,6 +313,7 @@ export default class CompareTableView extends React.Component {
                 compareResults={compareResults}
                 isBaseAggregate={!originalRevision}
                 notify={this.notifyFailure}
+                projects={projects}
                 showTestsWithNoise={
                   testsWithNoise.length > 0 && (
                     <Row>
@@ -352,6 +354,7 @@ CompareTableView.propTypes = {
   filterByFramework: PropTypes.oneOfType([PropTypes.shape({}), PropTypes.bool]),
   getDisplayResults: PropTypes.func.isRequired,
   getQueryParams: PropTypes.func.isRequired,
+  projects: PropTypes.arrayOf(PropTypes.shape({})).isRequired,
   hasSubtests: PropTypes.bool,
   onPermalinkClick: PropTypes.func,
   hashFragment: PropTypes.string,

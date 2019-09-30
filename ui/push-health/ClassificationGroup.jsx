@@ -42,7 +42,7 @@ class ClassificationGroup extends React.PureComponent {
   };
 
   retriggerAll = times => {
-    const { group, notify } = this.props;
+    const { group, notify, currentRepo } = this.props;
     // Reduce down to the unique jobs
     const jobs = group.reduce(
       (acc, test) => ({
@@ -53,7 +53,7 @@ class ClassificationGroup extends React.PureComponent {
     );
     const uniqueJobs = Object.values(jobs);
 
-    JobModel.retrigger(uniqueJobs, null, notify, times);
+    JobModel.retrigger(uniqueJobs, null, notify, currentRepo, times);
   };
 
   render() {
@@ -68,6 +68,7 @@ class ClassificationGroup extends React.PureComponent {
       user,
       hasRetriggerAll,
       notify,
+      currentRepo,
     } = this.props;
     const expandIcon = detailsShowing ? faMinusSquare : faPlusSquare;
 
@@ -123,6 +124,7 @@ class ClassificationGroup extends React.PureComponent {
                   key={failure.key}
                   failure={failure}
                   repo={repo}
+                  currentRepo={currentRepo}
                   revision={revision}
                   user={user}
                   notify={notify}
@@ -139,6 +141,7 @@ ClassificationGroup.propTypes = {
   group: PropTypes.array.isRequired,
   name: PropTypes.string.isRequired,
   repo: PropTypes.string.isRequired,
+  currentRepo: PropTypes.object.isRequired,
   revision: PropTypes.string.isRequired,
   user: PropTypes.object.isRequired,
   notify: PropTypes.func.isRequired,

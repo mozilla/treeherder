@@ -198,14 +198,14 @@ class PinBoard extends React.Component {
   };
 
   cancelAllPinnedJobs = () => {
-    const { notify, repoName, pinnedJobs, decisionTaskMap } = this.props;
+    const { notify, currentRepo, pinnedJobs, decisionTaskMap } = this.props;
 
     if (
       window.confirm('This will cancel all the selected jobs. Are you sure?')
     ) {
       JobModel.cancel(
         Object.values(pinnedJobs),
-        repoName,
+        currentRepo,
         notify,
         decisionTaskMap,
       );
@@ -354,10 +354,10 @@ class PinBoard extends React.Component {
   };
 
   retriggerAllPinnedJobs = async () => {
-    const { pinnedJobs, notify, repoName, decisionTaskMap } = this.props;
+    const { pinnedJobs, notify, currentRepo, decisionTaskMap } = this.props;
     const jobs = Object.values(pinnedJobs);
 
-    JobModel.retrigger(jobs, repoName, notify, 1, decisionTaskMap);
+    JobModel.retrigger(jobs, currentRepo, notify, 1, decisionTaskMap);
   };
 
   render() {
@@ -650,7 +650,6 @@ PinBoard.propTypes = {
   setClassificationComment: PropTypes.func.isRequired,
   setSelectedJob: PropTypes.func.isRequired,
   notify: PropTypes.func.isRequired,
-  repoName: PropTypes.string.isRequired,
   currentRepo: PropTypes.object.isRequired,
   failureClassificationId: PropTypes.number.isRequired,
   failureClassificationComment: PropTypes.string.isRequired,

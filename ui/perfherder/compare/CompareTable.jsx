@@ -15,6 +15,7 @@ import { compareTableText } from '../constants';
 import ProgressBar from '../ProgressBar';
 import { hashFunction } from '../../helpers/utils';
 import JobModel from '../../models/job';
+import RepositoryModel from '../../models/repository';
 
 import TableAverage from './TableAverage';
 
@@ -50,22 +51,24 @@ export default class CompareTable extends React.PureComponent {
 
   retriggerJobs = async (results, times) => {
     // retrigger base revision jobs
+    const { projects } = this.props;
+
     this.retriggerByRevision(
       results.originalRetriggerableJobId,
-      results.originalRepoName,
+      RepositoryModel.getRepo(results.originalRepoName, projects),
       true,
       times,
     );
     // retrigger new revision jobs
     this.retriggerByRevision(
       results.newRetriggerableJobId,
-      results.newRepoName,
+      RepositoryModel.getRepo(results.newRepoName, projects),
       false,
       times,
     );
   };
 
-  retriggerByRevision = async (jobId, repoName, isBaseline, times) => {
+  retriggerByRevision = async (jobId, currentRepo, isBaseline, times) => {
     const { isBaseAggregate, notify, retriggerJob, getJob } = this.props;
 
     // do not retrigger if the base is aggregate (there is a selected time range)
@@ -74,8 +77,8 @@ export default class CompareTable extends React.PureComponent {
     }
 
     if (jobId) {
-      const job = await getJob(repoName, jobId);
-      retriggerJob([job], repoName, notify, times);
+      const job = await getJob(currentRepo.name, jobId);
+      retriggerJob([job], currentRepo, notify, times);
     }
   };
 

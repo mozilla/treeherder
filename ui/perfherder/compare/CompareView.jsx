@@ -244,6 +244,7 @@ class CompareView extends React.PureComponent {
 }
 
 CompareView.propTypes = {
+  projects: PropTypes.arrayOf(PropTypes.shape({})).isRequired,
   validated: PropTypes.shape({
     originalResultSet: PropTypes.shape({}),
     newResultSet: PropTypes.shape({}),
