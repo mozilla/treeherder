@@ -44,7 +44,6 @@ export const summaryStatusMap = {
   wontfix: 6,
   fixed: 7,
   backedout: 8,
-  confirming: 9,
 };
 
 export const alertStatusMap = {
@@ -53,7 +52,6 @@ export const alertStatusMap = {
   reassigned: 2,
   invalid: 3,
   acknowledged: 4,
-  confirming: 5,
 };
 
 export const graphColors = [

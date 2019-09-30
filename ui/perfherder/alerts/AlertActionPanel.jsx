@@ -3,7 +3,6 @@ import PropTypes from 'prop-types';
 import { Button, Row, Col } from 'reactstrap';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import {
-  faClock,
   faCheck,
   faBan,
   faLevelDownAlt,
@@ -101,11 +100,6 @@ export default class AlertActionPanel extends React.Component {
       alert => alert.status !== alertStatusMap.untriaged,
     );
 
-  allAlertsConfirming = () =>
-    this.props.selectedAlerts.every(
-      alert => alert.status === alertStatusMap.confirming,
-    );
-
   updateAndClose = async (event, alertId, newStatus, modal) => {
     event.preventDefault();
     this.updateAndFetch(newStatus, parseInt(alertId, 10));
@@ -169,23 +163,7 @@ export default class AlertActionPanel extends React.Component {
             </Col>
           )}
 
-          {!this.hasTriagedAlerts() && !this.allAlertsConfirming() && (
-            <Col sm="auto" className="p-2">
-              <SimpleTooltip
-                text={
-                  <Button
-                    color="secondary"
-                    onClick={() => this.updateAlerts('confirming')}
-                  >
-                    <FontAwesomeIcon icon={faClock} /> Confirming
-                  </Button>
-                }
-                tooltipText="Retriggers & backfills are pending"
-              />
-            </Col>
-          )}
-
-          {(!this.hasTriagedAlerts() || this.allAlertsConfirming()) && (
+          {!this.hasTriagedAlerts() && (
             <React.Fragment>
               <Col sm="auto" className="p-2">
                 <SimpleTooltip
