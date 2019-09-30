@@ -11,7 +11,7 @@
       "repository_group": 1,
       "description": "",
       "expire_performance_data": false,
-      "tc_root_url": "https//taskcluster.net"
+      "tc_root_url": "https://taskcluster.net"
     }
   },
   {
@@ -27,7 +27,7 @@
       "description": "",
       "performance_alerts_enabled": true,
       "expire_performance_data": false,
-      "tc_root_url": "https//taskcluster.net"
+      "tc_root_url": "https://taskcluster.net"
     }
   },
   {
