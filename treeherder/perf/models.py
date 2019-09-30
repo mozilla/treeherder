@@ -53,6 +53,11 @@ class PerformanceSignature(models.Model):
     # generous max_length permits up to 8 verbose option names
     extra_options = models.CharField(max_length=360, blank=True)
 
+    # TODO: reduce length to minimum value
+    # TODO: make this nonnullable, once we demand
+    #  all PERFHERDER_DATA dumps to provide the unit field
+    measurement_unit = models.CharField(max_length=50, null=True)
+
     # these properties override the default settings for how alert
     # generation works
     ALERT_PCT = 0
