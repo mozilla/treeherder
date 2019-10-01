@@ -144,21 +144,21 @@
       },
       "required": ["name", "subtests"],
       "type": "object"
-    }
-  },
-  "browser_meta_schema": {
-    "properties": {
-      "version": {
-        "title": "Version of the browser tested.",
-        "type": "string"
-      },
-      "name": {
-        "title": "Name of the browser tested.",
-        "type": "string"
-      },
     },
-    "required": ["version", "name"],
-    "type": "object"
+    "browser_meta_schema": {
+      "properties": {
+        "name": {
+          "title": "Name of the browser tested",
+          "type": "string"
+        },
+        "version": {
+          "title": "Version of the browser tested",
+          "type": "string"
+        }
+      },
+      "required": ["name", "version"],
+      "type": "object"
+    }
   },
   "description": "Structure for submitting performance data as part of a job",
   "id": "https://treeherder.mozilla.org/schemas/v1/performance-artifact.json#",
