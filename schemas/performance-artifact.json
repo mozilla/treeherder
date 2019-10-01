@@ -146,9 +146,26 @@
       "type": "object"
     }
   },
+  "browser_meta_schema": {
+    "properties": {
+      "version": {
+        "title": "Version of the browser tested.",
+        "type": "string"
+      },
+      "name": {
+        "title": "Name of the browser tested.",
+        "type": "string"
+      },
+    },
+    "required": ["version", "name"],
+    "type": "object"
+  },
   "description": "Structure for submitting performance data as part of a job",
   "id": "https://treeherder.mozilla.org/schemas/v1/performance-artifact.json#",
   "properties": {
+    "browser_meta": {
+      "$ref": "#/definitions/browser_meta_schema"
+    },
     "framework": {
       "$ref": "#/definitions/framework_schema"
     },
