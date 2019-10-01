@@ -44,23 +44,17 @@ export default class Assignee extends React.Component {
 
   pressedEnter = async event => {
     if (event.key === 'Enter') {
-      const { updateAssignee, updateViewState } = this.props;
+      const { updateAssignee } = this.props;
       const newAssigneeUsername = event.target.value;
 
-      const { data, failureStatus } = await updateAssignee(newAssigneeUsername);
+      const { failureStatus } = await updateAssignee(newAssigneeUsername);
 
-      if (failureStatus) {
-        return updateViewState({
-          errorMessages: [
-            `Failed to set new assignee "${newAssigneeUsername}". (${data})`,
-          ],
+      if (!failureStatus) {
+        this.setState({
+          assigneeUsername: newAssigneeUsername,
+          inEditMode: false,
         });
       }
-
-      this.setState({
-        assigneeUsername: newAssigneeUsername,
-        inEditMode: false,
-      });
     }
   };
 
@@ -142,7 +136,6 @@ export default class Assignee extends React.Component {
 
 Assignee.propTypes = {
   updateAssignee: PropTypes.func.isRequired,
-  updateViewState: PropTypes.func.isRequired,
   user: PropTypes.shape({}).isRequired,
   assigneeUsername: PropTypes.string,
 };

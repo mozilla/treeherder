@@ -24,7 +24,6 @@ const AlertHeader = ({
   issueTrackers,
   user,
   updateAssignee,
-  updateViewState,
 }) => {
   const getIssueTrackerUrl = () => {
     const { issueTrackerUrl } = issueTrackers.find(
@@ -116,7 +115,6 @@ const AlertHeader = ({
             assigneeUsername={alertSummary.assignee_username}
             updateAssignee={updateAssignee}
             user={user}
-            updateViewState={updateViewState}
           />
         </Col>
       </Row>
@@ -129,7 +127,6 @@ AlertHeader.propTypes = {
   repoModel: PropTypes.shape({}).isRequired,
   user: PropTypes.shape({}).isRequired,
   issueTrackers: PropTypes.arrayOf(PropTypes.shape({})),
-  updateViewState: PropTypes.func.isRequired,
 };
 
 AlertHeader.defaultProps = {

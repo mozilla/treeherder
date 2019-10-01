@@ -124,11 +124,29 @@ export default class AlertTable extends React.Component {
   };
 
   updateAssignee = async newAssigneeUsername => {
-    const { alertSummary, updateAlertSummary } = this.props;
+    const {
+      updateAlertSummary,
+      updateViewState,
+      fetchAlertSummaries,
+    } = this.props;
+    const { alertSummary } = this.state;
 
-    return updateAlertSummary(alertSummary.id, {
+    const { data, failureStatus } = await updateAlertSummary(alertSummary.id, {
       assignee_username: newAssigneeUsername,
     });
+
+    if (!failureStatus) {
+      // now refresh UI, by syncing with backend
+      fetchAlertSummaries(alertSummary.id);
+    } else {
+      updateViewState({
+        errorMessages: [
+          `Failed to set new assignee "${newAssigneeUsername}". (${data})`,
+        ],
+      });
+    }
+
+    return { failureStatus };
   };
 
   render() {
@@ -194,7 +212,6 @@ export default class AlertTable extends React.Component {
                             issueTrackers={issueTrackers}
                             user={user}
                             updateAssignee={this.updateAssignee}
-                            updateViewState={updateViewState}
                           />
                         </Label>
                       </FormGroup>
