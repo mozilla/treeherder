@@ -114,7 +114,7 @@ const AlertHeader = ({
         <Col className="p-0" xs="auto">
           <Assignee
             assigneeUsername={alertSummary.assignee_username}
-            onAssigneeChange={updateAssignee}
+            updateAssignee={updateAssignee}
             user={user}
             updateViewState={updateViewState}
           />
