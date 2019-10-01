@@ -30,7 +30,6 @@ module.exports = {
     'consistent-return': 'off',
     'default-case': 'off',
     'jsx-a11y/click-events-have-key-events': 'off',
-    'jsx-a11y/no-static-element-interactions': 'off',
     'no-alert': 'off',
     'no-continue': 'off',
     'no-param-reassign': 'off',
