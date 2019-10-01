@@ -1,4 +1,5 @@
 /* eslint-disable react/no-did-update-set-state */
+/* eslint-disable jsx-a11y/no-static-element-interactions */
 
 // disabling due to a new bug with this rule: https://github.com/eslint/eslint/issues/12117
 /* eslint-disable no-unused-vars */
