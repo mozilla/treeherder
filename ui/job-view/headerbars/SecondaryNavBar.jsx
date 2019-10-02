@@ -1,5 +1,3 @@
-/* eslint-disable jsx-a11y/no-static-element-interactions */
-
 import React from 'react';
 import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
@@ -236,7 +234,8 @@ class SecondaryNavBar extends React.PureComponent {
           </span>
           <form role="search" className="form-inline flex-row">
             {serverChanged && (
-              <span
+              <button
+                type="button"
                 className="btn btn-sm btn-view-nav nav-menu-btn"
                 onClick={updateButtonClick}
                 id="revisionChangedLabel"
@@ -244,7 +243,7 @@ class SecondaryNavBar extends React.PureComponent {
               >
                 <FontAwesomeIcon icon={faExclamationCircle} />
                 &nbsp;Treeherder update available
-              </span>
+              </button>
             )}
 
             {/* Unclassified Failures Button */}
@@ -340,7 +339,8 @@ class SecondaryNavBar extends React.PureComponent {
             </span>
 
             <span>
-              <span
+              <button
+                type="button"
                 className="btn btn-view-nav btn-sm"
                 onClick={toggleFieldFilterVisible}
                 title="Filter by a job field"
@@ -350,7 +350,7 @@ class SecondaryNavBar extends React.PureComponent {
                   size="sm"
                   title="Filter by a job field"
                 />
-              </span>
+              </button>
             </span>
 
             {/* Quick Filter Field */}
