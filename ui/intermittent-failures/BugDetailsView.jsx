@@ -11,7 +11,12 @@ import {
 } from '../helpers/url';
 import SimpleTooltip from '../shared/SimpleTooltip';
 
-import { calculateMetrics, prettyDate, tableRowStyling } from './helpers';
+import {
+  calculateMetrics,
+  prettyDate,
+  tableRowStyling,
+  removePath,
+} from './helpers';
 import Layout from './Layout';
 import withView from './View';
 import DateOptions from './DateOptions';
@@ -108,7 +113,7 @@ const BugDetailsView = props => {
                       key={index} // eslint-disable-line react/no-array-index-key
                       className="failure_li text-truncate"
                     >
-                      {line}
+                      {removePath(line)}
                     </li>
                   ))}
                 </ul>
