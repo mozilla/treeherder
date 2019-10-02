@@ -66,8 +66,7 @@ ul {
 }
 
 .failure_li {
-  max-width: 800px;
-  max-width: 76vw;
+  max-width: 1000px;
   list-style-type: none;
   text-align: left;
 }
