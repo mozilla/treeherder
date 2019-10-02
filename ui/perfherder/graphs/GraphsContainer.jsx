@@ -221,7 +221,7 @@ class GraphsContainer extends React.Component {
       this.rightChartPadding > newRightPadding
         ? this.rightChartPadding
         : newRightPadding;
-    return moment.utc(tick).format('MMM DD hh:mm')
+    return moment.utc(tick).format('MMM DD hh:mm');
   };
 
   // debounced
@@ -264,9 +264,12 @@ class GraphsContainer extends React.Component {
       tickLabels: { fontSize: 13 },
     };
 
-    const chartPadding = { top: 10, bottom: 50 };
-    chartPadding.left = this.leftChartPadding;
-    chartPadding.right = this.rightChartPadding;
+    const chartPadding = {
+      top: 10,
+      left: this.leftChartPadding,
+      right: this.rightChartPadding,
+      bottom: 50,
+    };
 
     return (
       <React.Fragment>
