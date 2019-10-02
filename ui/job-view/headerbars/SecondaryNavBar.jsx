@@ -1,4 +1,3 @@
-/* eslint-disable jsx-a11y/control-has-associated-label */
 /* eslint-disable jsx-a11y/no-static-element-interactions */
 
 import React from 'react';
@@ -208,6 +207,9 @@ class SecondaryNavBar extends React.PureComponent {
           .map(name => RepositoryModel.getRepo(name, repos))
           .filter(name => name)) ||
       [];
+    const toggleDuplicateJobsTitle = duplicateJobsVisible
+      ? 'Hide duplicate jobs'
+      : 'Show duplicate jobs';
 
     return (
       <div
@@ -283,11 +285,8 @@ class SecondaryNavBar extends React.PureComponent {
               } ${!duplicateJobsVisible ? 'strikethrough' : ''}`}
               tabIndex="0"
               role="button"
-              title={
-                duplicateJobsVisible
-                  ? 'Hide duplicate jobs'
-                  : 'Show duplicate jobs'
-              }
+              title={toggleDuplicateJobsTitle}
+              label={toggleDuplicateJobsTitle}
               onClick={() =>
                 !groupCountsExpanded && this.toggleShowDuplicateJobs()
               }
