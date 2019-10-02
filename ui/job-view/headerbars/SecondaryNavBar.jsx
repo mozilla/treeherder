@@ -138,10 +138,22 @@ class SecondaryNavBar extends React.PureComponent {
     setUrlParam('group_state', groupState);
   };
 
-  toggleUnclassifiedFailures = () => {
+  toggleUnclassifiedFailures = event => {
     const { filterModel } = this.props;
 
     filterModel.toggleUnclassifiedFailures();
+
+    this.indicateUnclassifiedFailuresToggle(event);
+  };
+
+  indicateUnclassifiedFailuresToggle = event => {
+    const unclassifiedButton = event.currentTarget;
+
+    if (unclassifiedButton.className.match('active')) {
+      unclassifiedButton.classList.remove('active');
+    } else {
+      unclassifiedButton.classList.add('active');
+    }
   };
 
   clearFilterBox = () => {
