@@ -527,6 +527,9 @@ export const getTitle = alertSummary => {
   return title;
 };
 
+export const updateAlertSummary = async (alertSummaryId, params) =>
+  update(getApiUrl(`${endpoints.alertSummary}${alertSummaryId}/`), params);
+
 export const convertParams = (params, value) =>
   Boolean(params[value] !== undefined && parseInt(params[value], 10));
 

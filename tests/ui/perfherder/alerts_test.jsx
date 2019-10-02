@@ -3,9 +3,9 @@ import {
   render,
   cleanup,
   fireEvent,
+  wait,
   waitForElement,
   waitForElementToBeRemoved,
-  wait,
 } from '@testing-library/react';
 
 import AlertsViewControls from '../../../ui/perfherder/alerts/AlertsViewControls';
@@ -14,9 +14,9 @@ import { summaryStatusMap } from '../../../ui/perfherder/constants';
 import repos from '../mock/repositories';
 
 const testUser = {
-  username: 'test user',
+  username: 'mozilla-ldap/test_user@mozilla.com',
   is_superuser: false,
-  is_staff: true,
+  isStaff: true,
   email: 'test_user@mozilla.com',
 };
 
@@ -95,6 +95,8 @@ const testAlertSummaries = [
     revision: '930f0f51b681aea2a5e915a2770f80a9914ed3df',
     push_timestamp: 1558111832,
     prev_push_revision: '76e3a842e496d78a80cd547b7bf94f041f9bc612',
+    assignee_username: null,
+    assignee_email: null,
   },
   {
     id: 20239,
@@ -170,6 +172,8 @@ const testAlertSummaries = [
     revision: 'd4a9b4dd03ca5c3db2bd10e8097d9817435ba37d',
     push_timestamp: 1558583128,
     prev_push_revision: 'c8e9b6a81194dff2d37b4f67d23a419fd4587e49',
+    assignee_username: 'mozilla-ldap/test_user@mozilla.com',
+    assignee_email: 'test_user@mozilla.com',
   },
 ];
 
@@ -213,6 +217,11 @@ const mockModifyAlert = {
   },
 };
 
+// eslint-disable-next-line no-unused-vars
+const mockUpdateAlertSummary = (alertSummaryId, params) => ({
+  failureStatus: null,
+});
+
 const alertsViewControls = () =>
   render(
     <AlertsViewControls
@@ -230,6 +239,9 @@ const alertsViewControls = () =>
       updateViewState={() => {}}
       user={testUser}
       modifyAlert={(alert, params) => mockModifyAlert.update(alert, params)}
+      updateAlertSummary={() =>
+        Promise.resolve({ failureStatus: false, data: 'alert summary data' })
+      }
       projects={repos}
       location={{
         pathname: '/alerts',
@@ -427,6 +439,108 @@ test('selecting the alert summary checkbox then deselecting one alert only updat
   });
 
   modifyAlertSpy.mockClear();
+});
+
+test("display of alert summaries's assignee badge", async () => {
+  const { getAllByTitle, getAllByText } = alertsViewControls();
+
+  const ownershipBadges = getAllByTitle('Click to change assignee');
+  const takeButtons = getAllByText('Take');
+
+  // summary with no assignee defaults to "Unassigned" badge &
+  // displays the 'Take' button
+  expect(ownershipBadges[0]).toHaveTextContent('Unassigned');
+  expect(takeButtons).toHaveLength(1);
+
+  // summary with assignee displays username extracted from email &
+  // hides the 'Take' button
+  expect(ownershipBadges[1]).toHaveTextContent('test_user');
+});
+
+test("'Take' button hides when clicking on 'Unassigned' badge", async () => {
+  const {
+    getByText,
+    queryByText,
+    queryByPlaceholderText,
+  } = alertsViewControls();
+
+  const unassignedBadge = await waitForElement(() => getByText('Unassigned'));
+
+  await fireEvent.click(unassignedBadge);
+  expect(queryByText('Take')).not.toBeInTheDocument();
+  // and the placeholder nicely shows up
+  expect(queryByPlaceholderText('nobody@mozilla.org')).toBeInTheDocument();
+});
+
+test('setting an assignee on unassigned alert summary updates the badge accordingly', async () => {
+  const { getByText, getByPlaceholderText } = alertsViewControls();
+
+  const unassignedBadge = await waitForElement(() => getByText('Unassigned'));
+
+  fireEvent.click(unassignedBadge);
+  const inputField = await waitForElement(() =>
+    getByPlaceholderText('nobody@mozilla.org'),
+  );
+  fireEvent.change(inputField, {
+    target: { value: 'mozilla-ldap/test_assignee@mozilla.com' },
+  });
+  // pressing 'Enter' has some issues on react-testing-library;
+  // found workaround on https://github.com/testing-library/react-testing-library/issues/269
+  fireEvent.keyPress(inputField, { key: 'Enter', keyCode: 13 });
+
+  // ensure this updated the assignee
+  await waitForElement(() => getByText('test_assignee'));
+});
+
+test('setting an assignee on an already assigned summary is possible', async () => {
+  const { getByText, getByDisplayValue } = alertsViewControls();
+
+  const unassignedBadge = await waitForElement(() => getByText('test_user'));
+
+  fireEvent.click(unassignedBadge);
+  const inputField = await waitForElement(() =>
+    getByDisplayValue('mozilla-ldap/test_user@mozilla.com'),
+  );
+  fireEvent.change(inputField, {
+    target: { value: 'mozilla-ldap/test_another_user@mozilla.com' },
+  });
+  // pressing 'Enter' has some issues on react-testing-library;
+  // found workaround on https://github.com/testing-library/react-testing-library/issues/269
+  fireEvent.keyPress(inputField, { key: 'Enter', keyCode: 13 });
+
+  // ensure this updated the assignee
+  await waitForElement(() => getByText('test_another_user'));
+});
+
+test("'Escape' from partially editted assignee does not update original assignee", async () => {
+  const { getByText, getByDisplayValue } = alertsViewControls();
+
+  const unassignedBadge = await waitForElement(() => getByText('test_user'));
+
+  fireEvent.click(unassignedBadge);
+  const inputField = await waitForElement(() =>
+    getByDisplayValue('mozilla-ldap/test_user@mozilla.com'),
+  );
+  fireEvent.change(inputField, {
+    target: { value: 'mozilla-ldap/test_another_' },
+  });
+  fireEvent.keyDown(inputField, { key: 'Escape' });
+
+  // ensure assignee wasn't updated
+  await waitForElement(() => getByText('test_user'));
+});
+
+test("Clicking on 'Take' prefills with logged in user", async () => {
+  const { getByText, getByDisplayValue } = alertsViewControls();
+
+  const takeButton = getByText('Take');
+
+  fireEvent.click(takeButton);
+
+  // ensure it preffiled input field
+  await waitForElement(() =>
+    getByDisplayValue('mozilla-ldap/test_user@mozilla.com'),
+  );
 });
 
 // TODO should write tests for alert summary dropdown menu actions performed in StatusDropdown

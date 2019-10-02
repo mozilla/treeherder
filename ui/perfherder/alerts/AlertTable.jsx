@@ -9,7 +9,11 @@ import {
   errorMessageClass,
 } from '../../helpers/constants';
 import RepositoryModel from '../../models/repository';
-import { getInitializedAlerts, containsText } from '../helpers';
+import {
+  getInitializedAlerts,
+  containsText,
+  updateAlertSummary,
+} from '../helpers';
 import TruncatedText from '../../shared/TruncatedText';
 import ErrorBoundary from '../../shared/ErrorBoundary';
 
@@ -119,6 +123,32 @@ export default class AlertTable extends React.Component {
     this.setState({ filteredAlerts });
   };
 
+  updateAssignee = async newAssigneeUsername => {
+    const {
+      updateAlertSummary,
+      updateViewState,
+      fetchAlertSummaries,
+    } = this.props;
+    const { alertSummary } = this.state;
+
+    const { data, failureStatus } = await updateAlertSummary(alertSummary.id, {
+      assignee_username: newAssigneeUsername,
+    });
+
+    if (!failureStatus) {
+      // now refresh UI, by syncing with backend
+      fetchAlertSummaries(alertSummary.id);
+    } else {
+      updateViewState({
+        errorMessages: [
+          `Failed to set new assignee "${newAssigneeUsername}". (${data})`,
+        ],
+      });
+    }
+
+    return { failureStatus };
+  };
+
   render() {
     const {
       user,
@@ -180,6 +210,8 @@ export default class AlertTable extends React.Component {
                             alertSummary={alertSummary}
                             repoModel={repoModel}
                             issueTrackers={issueTrackers}
+                            user={user}
+                            updateAssignee={this.updateAssignee}
                           />
                         </Label>
                       </FormGroup>
@@ -280,7 +312,7 @@ export default class AlertTable extends React.Component {
 
 AlertTable.propTypes = {
   alertSummary: PropTypes.shape({}),
-  user: PropTypes.shape({}),
+  user: PropTypes.shape({}).isRequired,
   alertSummaries: PropTypes.arrayOf(PropTypes.shape({})).isRequired,
   issueTrackers: PropTypes.arrayOf(PropTypes.shape({})),
   optionCollectionMap: PropTypes.shape({}).isRequired,
@@ -293,13 +325,16 @@ AlertTable.propTypes = {
   updateViewState: PropTypes.func.isRequired,
   bugTemplate: PropTypes.shape({}),
   modifyAlert: PropTypes.func,
+  updateAlertSummary: PropTypes.func,
   projects: PropTypes.arrayOf(PropTypes.shape({})).isRequired,
 };
 
 AlertTable.defaultProps = {
   alertSummary: null,
-  user: null,
   issueTrackers: [],
   bugTemplate: null,
   modifyAlert: undefined,
+  // leverage dependency injection
+  // to improve code testability
+  updateAlertSummary,
 };

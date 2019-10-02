@@ -12,10 +12,15 @@ import moment from 'moment';
 import template from 'lodash/template';
 import templateSettings from 'lodash/templateSettings';
 
-import { getTextualSummary, getTitle, getStatus } from '../helpers';
-import { getData, update } from '../../helpers/http';
+import {
+  getTextualSummary,
+  getTitle,
+  getStatus,
+  updateAlertSummary,
+} from '../helpers';
+import { getData } from '../../helpers/http';
 import { getApiUrl, bzBaseUrl, createQueryParams } from '../../helpers/url';
-import { endpoints, summaryStatusMap } from '../constants';
+import { summaryStatusMap } from '../constants';
 import DropdownMenuItems from '../../shared/DropdownMenuItems';
 
 import AlertModal from './AlertModal';
@@ -111,10 +116,11 @@ export default class StatusDropdown extends React.Component {
   changeAlertSummary = async params => {
     const { alertSummary, updateState, updateViewState } = this.props;
 
-    const { data, failureStatus } = await update(
-      getApiUrl(`${endpoints.alertSummary}${alertSummary.id}/`),
+    const { data, failureStatus } = await updateAlertSummary(
+      alertSummary.id,
       params,
     );
+
     if (failureStatus) {
       return updateViewState({
         errorMessages: [
