@@ -119,3 +119,15 @@ export const tableRowStyling = function tableRowStyling(state, bug) {
   }
   return {};
 };
+
+export const removePath = function removePath(line = '') {
+  const [a, testNameWithPath, ...rest] = line.split(' | ');
+  const pathArray = testNameWithPath && testNameWithPath.split('/');
+
+  if (pathArray && pathArray.length > 1) {
+    const testName = pathArray[pathArray.length - 1];
+    return [a, testName, rest].join(' | ');
+  }
+
+  return line;
+};
