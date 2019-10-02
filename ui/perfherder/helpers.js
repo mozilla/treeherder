@@ -22,7 +22,9 @@ import {
 } from './constants';
 
 export const displayNumber = input =>
-  Number.isNaN(input) ? 'N/A' : Number(input).toFixed(2);
+  Number.isNaN(input)
+    ? 'N/A'
+    : (Math.round(Number(input) * 1e2) / 1e2).toLocaleString();
 
 export const calcPercentOf = function calcPercentOf(a, b) {
   return b ? (100 * a) / b : 0;
