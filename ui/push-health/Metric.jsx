@@ -1,5 +1,3 @@
-/* eslint-disable jsx-a11y/no-static-element-interactions */
-
 import React from 'react';
 import PropTypes from 'prop-types';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
@@ -49,7 +47,12 @@ export default class Metric extends React.PureComponent {
           <div className={`bg-${resultColor} pr-2 mr-2`} />
           <Col>
             <Row className="justify-content-between">
-              <div onClick={this.toggleDetails} className="btn">
+              <div
+                onClick={this.toggleDetails}
+                className="btn"
+                role="button"
+                tabIndex="0"
+              >
                 <span className="metric-name align-top font-weight-bold">
                   {name}
                 </span>

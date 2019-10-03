@@ -1,5 +1,3 @@
-/* eslint-disable jsx-a11y/no-static-element-interactions */
-
 import React from 'react';
 import PropTypes from 'prop-types';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
@@ -69,6 +67,8 @@ export class Revision extends React.PureComponent {
               type="button"
               className="pointer"
               onClick={() => Revision.copyToClipboard(commitRevision)}
+              role="button"
+              tabIndex="0"
             >
               <FontAwesomeIcon icon={faClipboard} title="Copy full hash" />
             </span>

@@ -1,5 +1,3 @@
-/* eslint-disable jsx-a11y/no-static-element-interactions */
-
 import React from 'react';
 import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
@@ -35,6 +33,8 @@ function RelatedBugSaved(props) {
         className="btn classification-delete-icon hover-warning btn-xs pinned-job-close-btn annotations-bug"
         onClick={() => deleteBug(bug)}
         title={`Delete relation to bug ${bug_id}`}
+        role="button"
+        tabIndex="0"
       >
         <FontAwesomeIcon icon={faTimesCircle} title="Delete" />
       </span>
@@ -100,6 +100,8 @@ function TableRow(props) {
           onClick={deleteEvent}
           className="classification-delete-icon hover-warning pointable"
           title="Delete this classification"
+          role="button"
+          tabIndex="0"
         >
           <FontAwesomeIcon icon={faTimesCircle} title="Delete classification" />
         </span>

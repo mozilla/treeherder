@@ -1,5 +1,4 @@
 /* eslint-disable jsx-a11y/no-noninteractive-element-interactions */
-/* eslint-disable jsx-a11y/no-static-element-interactions */
 
 import React from 'react';
 import PropTypes from 'prop-types';
@@ -90,7 +89,12 @@ const LegendCard = ({
 
   return (
     <FormGroup check className="pl-0 border">
-      <span className="close mr-3 my-2 ml-2" onClick={removeTest}>
+      <span
+        className="close mr-3 my-2 ml-2"
+        onClick={removeTest}
+        role="button"
+        tabIndex="0"
+      >
         <FontAwesomeIcon
           className="pointer"
           icon={faTimes}

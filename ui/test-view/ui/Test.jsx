@@ -1,6 +1,5 @@
 /* eslint-disable max-classes-per-file */
 /* eslint-disable jsx-a11y/no-noninteractive-element-interactions */
-/* eslint-disable jsx-a11y/no-static-element-interactions */
 
 import React from 'react';
 import PropTypes from 'prop-types';
@@ -246,7 +245,12 @@ class TestComponent extends React.Component {
   render() {
     return (
       <td className="test-table">
-        <span className="test" onClick={this.onClick}>
+        <span
+          className="test"
+          onClick={this.onClick}
+          role="button"
+          tabIndex="0"
+        >
           {this.props.name}
         </span>
         <span className="platform-list">

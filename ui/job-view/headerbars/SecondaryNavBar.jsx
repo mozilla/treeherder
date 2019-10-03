@@ -1,5 +1,3 @@
-/* eslint-disable jsx-a11y/no-static-element-interactions */
-
 import React from 'react';
 import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
@@ -238,6 +236,8 @@ class SecondaryNavBar extends React.PureComponent {
                 onClick={updateButtonClick}
                 id="revisionChangedLabel"
                 title="New version of Treeherder has been deployed. Reload to pick up changes."
+                role="button"
+                tabIndex="0"
               >
                 <FontAwesomeIcon icon={faExclamationCircle} />
                 &nbsp;Treeherder update available
@@ -345,6 +345,8 @@ class SecondaryNavBar extends React.PureComponent {
                 className="btn btn-view-nav btn-sm"
                 onClick={toggleFieldFilterVisible}
                 title="Filter by a job field"
+                role="button"
+                tabIndex="0"
               >
                 <FontAwesomeIcon
                   icon={faFilter}

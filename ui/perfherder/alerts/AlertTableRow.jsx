@@ -1,5 +1,4 @@
 /* eslint-disable react/no-did-update-set-state */
-/* eslint-disable jsx-a11y/no-static-element-interactions */
 
 import React from 'react';
 import PropTypes from 'prop-types';
@@ -231,6 +230,8 @@ export default class AlertTableRow extends React.Component {
             className={starred ? 'visible' : ''}
             data-testid={`alert ${alert.id.toString()} star`}
             onClick={this.toggleStar}
+            role="button"
+            tabIndex="0"
           >
             <FontAwesomeIcon
               title={starred ? 'starred' : 'not starred'}

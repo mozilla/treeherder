@@ -1,5 +1,3 @@
-/* eslint-disable jsx-a11y/no-static-element-interactions */
-
 import React from 'react';
 import PropTypes from 'prop-types';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
@@ -34,6 +32,8 @@ export default class SuggestionsListItem extends React.Component {
             className="btn btn-xs btn-light-bordered link-style"
             onClick={() => toggleBugFiler(suggestion)}
             title="file a bug for this failure"
+            role="button"
+            tabIndex="0"
           >
             <FontAwesomeIcon icon={faBug} title="File bug" />
           </span>
@@ -60,6 +60,8 @@ export default class SuggestionsListItem extends React.Component {
             rel="noopener"
             onClick={this.clickShowMore}
             className="show-hide-more"
+            role="button"
+            tabIndex="0"
           >
             Show / Hide more
           </span>
