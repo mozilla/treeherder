@@ -1,4 +1,4 @@
-/* eslint-disable jsx-a11y/control-has-associated-label */
+// /* eslint-disable jsx-a11y/control-has-associated-label */
 /* eslint-disable jsx-a11y/no-static-element-interactions */
 
 import React from 'react';
@@ -170,6 +170,7 @@ class PushList extends React.Component {
           <div
             className="progress active progress-bar progress-bar-striped"
             role="progressbar"
+            aria-label="list-push"
           />
         )}
         {pushList.length === 0 && !loadingPushes && (
