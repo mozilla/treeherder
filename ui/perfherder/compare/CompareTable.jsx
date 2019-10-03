@@ -120,14 +120,14 @@ export default class CompareTable extends React.PureComponent {
             {/* empty for less than/greater than data */}
             <th
               className="table-width-sm"
-              label="empty cell for less than/greater than data"
+              aria-label="less than/greater than data"
             />
             <th className="table-width-lg">New</th>
             <th className="table-width-lg">Delta</th>
             {/* empty for progress bars (magnitude of difference) */}
             <th
               className="table-width-lg"
-              label="empty cell for progress bars (magnitude of difference)"
+              aria-label="progress bars (magnitude of difference)"
             />
             <th className="table-width-lg">Confidence</th>
             <th className="text-right table-width-md">
