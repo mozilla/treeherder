@@ -1,6 +1,3 @@
-/* eslint-disable react/no-did-update-set-state */
-/* eslint-disable jsx-a11y/no-static-element-interactions */
-
 // disabling due to a new bug with this rule: https://github.com/eslint/eslint/issues/12117
 /* eslint-disable no-unused-vars */
 import React from 'react';
@@ -72,13 +69,17 @@ class GraphsContainer extends React.Component {
     }
 
     if (prevProps.timeRange !== timeRange && this.state.dataPoint) {
-      this.setState({
-        dataPoint: null,
-        showTooltip: false,
-        lockTooltip: false,
-      });
+      this.onUpdate();
     }
   }
+
+  onUpdate = () => {
+    this.setState({
+      dataPoint: null,
+      showTooltip: false,
+      lockTooltip: false,
+    });
+  };
 
   verifySelectedDataPoint = () => {
     const { selectedDataPoint, testData, updateStateParams } = this.props;
@@ -282,7 +283,12 @@ class GraphsContainer extends React.Component {
           }`}
           ref={this.tooltip}
         >
-          <span className="close mr-3 my-2 ml-2" onClick={this.closeTooltip}>
+          <span
+            className="close mr-3 my-2 ml-2"
+            role="button"
+            onClick={this.closeTooltip}
+            tabIndex={0}
+          >
             <FontAwesomeIcon
               className="pointer text-white"
               icon={faTimes}
