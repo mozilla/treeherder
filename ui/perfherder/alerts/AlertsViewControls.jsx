@@ -13,6 +13,10 @@ export default class AlertsViewControls extends React.Component {
     this.state = {
       hideImprovements: convertParams(this.validated, 'hideImprovements'),
       hideDownstream: convertParams(this.validated, 'hideDwnToInv'),
+      hideAssignedToOthers: convertParams(
+        this.validated,
+        'hideAssignedToOthers',
+      ),
       filterText: '',
     };
   }
@@ -54,7 +58,11 @@ export default class AlertsViewControls extends React.Component {
       fetchAlertSummaries,
       user,
     } = this.props;
-    const { hideImprovements, hideDownstream } = this.state;
+    const {
+      hideImprovements,
+      hideDownstream,
+      hideAssignedToOthers,
+    } = this.state;
 
     const alertFilters = [
       {
@@ -68,6 +76,14 @@ export default class AlertsViewControls extends React.Component {
         stateName: 'hideDownstream',
       },
     ];
+
+    if (user.isLoggedIn) {
+      alertFilters.push({
+        text: 'My alerts',
+        state: hideAssignedToOthers,
+        stateName: 'hideAssignedToOthers',
+      });
+    }
 
     return (
       <React.Fragment>
