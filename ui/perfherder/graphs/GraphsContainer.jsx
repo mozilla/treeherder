@@ -306,7 +306,11 @@ class GraphsContainer extends React.Component {
               />
               <VictoryAxis
                 tickCount={10}
-                tickFormat={x => moment.utc(x).format('MMM DD')}
+                tickFormat={x =>
+                  moment(x) < moment('1975-01-01')
+                    ? moment.utc(new Date()).format('MMM DD')
+                    : moment.utc(x).format('MMM DD')
+                }
                 style={axisStyle}
               />
               {testData.map(item => (
@@ -415,7 +419,11 @@ class GraphsContainer extends React.Component {
               />
               <VictoryAxis
                 tickCount={6}
-                tickFormat={x => moment.utc(x).format('MMM DD hh:mm')}
+                tickFormat={x =>
+                  moment(x) < moment('1975-01-01')
+                    ? moment.utc(new Date()).format('MMM DD hh:mm')
+                    : moment.utc(x).format('MMM DD hh:mm')
+                }
                 style={axisStyle}
                 fixLabelOverlap
               />
