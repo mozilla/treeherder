@@ -1,6 +1,7 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
+import { Button } from 'reactstrap';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faCircle, faDotCircle } from '@fortawesome/free-regular-svg-icons';
 import {
@@ -231,17 +232,15 @@ class SecondaryNavBar extends React.PureComponent {
           </span>
           <form role="search" className="form-inline flex-row">
             {serverChanged && (
-              <span
+              <Button
                 className="btn btn-sm btn-view-nav nav-menu-btn"
-                role="button"
-                tabIndex="0"
                 onClick={updateButtonClick}
                 id="revisionChangedLabel"
                 title="New version of Treeherder has been deployed. Reload to pick up changes."
               >
                 <FontAwesomeIcon icon={faExclamationCircle} />
                 &nbsp;Treeherder update available
-              </span>
+              </Button>
             )}
 
             {/* Unclassified Failures Button */}
