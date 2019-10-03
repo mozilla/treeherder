@@ -1,4 +1,4 @@
-/* eslint-disable jsx-a11y/no-static-element-interactions */
+// /* eslint-disable jsx-a11y/no-static-element-interactions */
 
 import React from 'react';
 import { Link } from 'react-router-dom';
@@ -35,6 +35,8 @@ function BugColumn({
       <span
         className="ml-1 small-text bug-details"
         onClick={() => updateAppState({ graphData, tableData })}
+        role="button"
+        tabIndex="0"
       >
         <Link
           to={{

@@ -1,4 +1,4 @@
-/* eslint-disable jsx-a11y/no-static-element-interactions */
+// /* eslint-disable jsx-a11y/no-static-element-interactions */
 
 import React from 'react';
 import { hot } from 'react-hot-loader/root';
@@ -391,6 +391,8 @@ class App extends React.Component {
               <div
                 id="onscreen-overlay"
                 onClick={() => this.showOnScreenShortcuts(false)}
+                role="button"
+                tabIndex="0"
               >
                 <div id="onscreen-shortcuts">
                   <div className="col-8">

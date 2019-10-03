@@ -1,4 +1,4 @@
-/* eslint-disable jsx-a11y/no-static-element-interactions */
+// /* eslint-disable jsx-a11y/no-static-element-interactions */
 
 import React from 'react';
 import PropTypes from 'prop-types';
@@ -403,6 +403,8 @@ class PinBoard extends React.Component {
                         ? 'btn-lg selected-job'
                         : 'btn-xs'
                     }`}
+                    role="button"
+                    tabIndex="0"
                     title={job.hoverText}
                     onClick={() => setSelectedJob(job)}
                     data-job-id={job.job_id}
@@ -415,6 +417,8 @@ class PinBoard extends React.Component {
                         ? 'btn-lg selected-job'
                         : 'btn-xs'
                     }`}
+                    role="button"
+                    tabIndex="0"
                     onClick={() => unPinJob(job)}
                     title="un-pin this job"
                   >
@@ -432,6 +436,8 @@ class PinBoard extends React.Component {
                 id="add-related-bug-button"
                 onClick={() => this.toggleEnterBugNumber(!enteringBugNumber)}
                 className="pointable"
+                role="button"
+                tabIndex="0"
                 title="Add a related bug"
               >
                 <FontAwesomeIcon
@@ -446,6 +452,8 @@ class PinBoard extends React.Component {
                   onClick={() => {
                     this.toggleEnterBugNumber(!enteringBugNumber);
                   }}
+                  role="button"
+                  tabIndex="0"
                 >
                   click to add a related bug
                 </span>
@@ -484,6 +492,8 @@ class PinBoard extends React.Component {
                       className="btn btn-ltgray btn-xs pinned-job-close-btn"
                       onClick={() => removeBug(bug.id)}
                       title="remove this bug"
+                      role="button"
+                      tabIndex="0"
                     >
                       <FontAwesomeIcon icon={faTimes} title="Remove bug" />
                     </span>
