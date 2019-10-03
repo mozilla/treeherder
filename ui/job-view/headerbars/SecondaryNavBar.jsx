@@ -234,8 +234,9 @@ class SecondaryNavBar extends React.PureComponent {
           </span>
           <form role="search" className="form-inline flex-row">
             {serverChanged && (
-              <button
-                type="button"
+              <span
+                role="button"
+                tabIndex="-1"
                 className="btn btn-sm btn-view-nav nav-menu-btn"
                 onClick={updateButtonClick}
                 id="revisionChangedLabel"
@@ -243,7 +244,7 @@ class SecondaryNavBar extends React.PureComponent {
               >
                 <FontAwesomeIcon icon={faExclamationCircle} />
                 &nbsp;Treeherder update available
-              </button>
+              </span>
             )}
 
             {/* Unclassified Failures Button */}
@@ -339,8 +340,9 @@ class SecondaryNavBar extends React.PureComponent {
             </span>
 
             <span>
-              <button
-                type="button"
+              <span
+                role="button"
+                tabIndex="-1"
                 className="btn btn-view-nav btn-sm"
                 onClick={toggleFieldFilterVisible}
                 title="Filter by a job field"
@@ -350,7 +352,7 @@ class SecondaryNavBar extends React.PureComponent {
                   size="sm"
                   title="Filter by a job field"
                 />
-              </button>
+              </span>
             </span>
 
             {/* Quick Filter Field */}
