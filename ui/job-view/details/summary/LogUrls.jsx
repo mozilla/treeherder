@@ -39,11 +39,11 @@ export default function LogUrls(props) {
 
   return (
     <React.Fragment>
-      {logUrls.map(jobLogUrl => (
-        <li key={`logview-${jobLogUrl.id}`}>
+      {logUrls.length && (
+        <li key={`logview-${logUrls[0].id}`}>
           <a
             className="logviewer-btn"
-            {...getLogUrlProps(jobLogUrl, logViewerUrl, logViewerFullUrl)}
+            {...getLogUrlProps(logUrls[0], logViewerUrl, logViewerFullUrl)}
           >
             <img
               alt="Logviewer"
@@ -52,7 +52,8 @@ export default function LogUrls(props) {
             />
           </a>
         </li>
-      ))}
+      )}
+
       {!logUrls.length && (
         <li>
           <Button
