@@ -145,6 +145,13 @@ class PushViewSet(viewsets.ViewSet):
         if author:
             pushes = pushes.filter(author=author)
 
+        # Filter by commit author
+        # A distinct is needed to avoid duplicate push results
+        # when a author has several commits in one push
+        commit_author = filter_params.get("commit_author")
+        if commit_author:
+            pushes = pushes.filter(commits__author__contains=commit_author).distinct()
+
         try:
             count = int(filter_params.get("count", 10))
         except ValueError:

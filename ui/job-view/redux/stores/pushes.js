@@ -30,7 +30,7 @@ export const UPDATE_JOB_MAP = 'UPDATE_JOB_MAP';
 const DEFAULT_PUSH_COUNT = 10;
 // Keys that, if present on the url, must be passed into the push
 // polling endpoint
-const PUSH_POLLING_KEYS = ['tochange', 'enddate', 'revision', 'author'];
+const PUSH_POLLING_KEYS = ['tochange', 'enddate', 'revision', 'author', 'commit_author'];
 const PUSH_FETCH_KEYS = [...PUSH_POLLING_KEYS, 'fromchange', 'startdate'];
 
 const getRevisionTips = pushList => {
