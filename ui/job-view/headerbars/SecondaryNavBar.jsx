@@ -1,4 +1,3 @@
-/* eslint-disable jsx-a11y/control-has-associated-label */
 /* eslint-disable jsx-a11y/no-static-element-interactions */
 
 import React from 'react';
@@ -291,6 +290,7 @@ class SecondaryNavBar extends React.PureComponent {
               onClick={() =>
                 !groupCountsExpanded && this.toggleShowDuplicateJobs()
               }
+              aria-label="toggle-duplicate-jobs"
             />
             <span className="btn-group">
               {/* Toggle Group State Button */}
