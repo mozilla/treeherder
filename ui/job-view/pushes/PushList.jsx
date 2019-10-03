@@ -3,6 +3,7 @@ import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
 import intersection from 'lodash/intersection';
 import isEqual from 'lodash/isEqual';
+import { Button } from 'reactstrap';
 
 import ErrorBoundary from '../../shared/ErrorBoundary';
 import { notify } from '../redux/stores/notifications';
@@ -183,16 +184,14 @@ class PushList extends React.Component {
           <span>get next:</span>
           <div className="btn-group">
             {[10, 20, 50].map(count => (
-              <div
-                role="button"
-                tabIndex="0"
+              <Button
                 className="btn btn-light-bordered"
                 onClick={() => fetchNextPushes(count)}
                 key={count}
                 data-testid={`get-next-${count}`}
               >
                 {count}
-              </div>
+              </Button>
             ))}
           </div>
         </div>

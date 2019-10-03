@@ -195,6 +195,9 @@ class SecondaryNavBar extends React.PureComponent {
       duplicateJobsVisible,
       toggleFieldFilterVisible,
     } = this.props;
+    const showHideDuplicateJobs = duplicateJobsVisible
+      ? 'Hide duplicate jobs'
+      : 'Show duplicate jobs';
     const { watchedRepoNames, searchQueryStr, repoName } = this.state;
     // This array needs to be RepositoryModel objects, not strings.
     // If ``repos`` is not yet populated, then leave as empty array.
@@ -275,18 +278,12 @@ class SecondaryNavBar extends React.PureComponent {
             )}
 
             {/* Toggle Duplicate Jobs */}
-            <span
+            <Button
               className={`btn btn-view-nav btn-sm btn-toggle-duplicate-jobs ${
                 groupCountsExpanded ? 'disabled' : ''
               } ${!duplicateJobsVisible ? 'strikethrough' : ''}`}
-              tabIndex="0"
-              role="button"
-              aria-label="Show/Hide duplicate jobs"
-              title={
-                duplicateJobsVisible
-                  ? 'Hide duplicate jobs'
-                  : 'Show duplicate jobs'
-              }
+              aria-label={showHideDuplicateJobs}
+              title={showHideDuplicateJobs}
               onClick={() =>
                 !groupCountsExpanded && this.toggleShowDuplicateJobs()
               }
@@ -340,9 +337,7 @@ class SecondaryNavBar extends React.PureComponent {
             </span>
 
             <span>
-              <span
-                role="button"
-                tabIndex="0"
+              <Button
                 aria-label="Filter by a job field"
                 className="btn btn-view-nav btn-sm"
                 onClick={toggleFieldFilterVisible}
@@ -353,7 +348,7 @@ class SecondaryNavBar extends React.PureComponent {
                   size="sm"
                   title="Filter by a job field"
                 />
-              </span>
+              </Button>
             </span>
 
             {/* Quick Filter Field */}
