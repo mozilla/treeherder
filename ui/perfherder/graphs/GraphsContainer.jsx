@@ -265,7 +265,7 @@ class GraphsContainer extends React.Component {
           ref={this.tooltip}
         >
           <span
-            className="close mr-3 my-2 ml-2" 
+            className="close mr-3 my-2 ml-2"
             onClick={this.closeTooltip}
             role="button"
             tabIndex="0"
