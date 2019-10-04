@@ -11,6 +11,9 @@ import {
 import LogoMenu from '../shared/LogoMenu';
 import DropdownMenuItems from '../shared/DropdownMenuItems';
 
+import Login from '../shared/auth/Login';
+import HelpMenu from '../shared/HelpMenu';
+
 import { treeOptions } from './constants';
 
 export default class Navigation extends React.Component {
@@ -44,6 +47,10 @@ export default class Navigation extends React.Component {
             />
           </UncontrolledDropdown>
         </Collapse>
+        <Navbar className="ml-auto">
+        <HelpMenu />
+          <Login />
+          </Navbar> 
       </Navbar>
     );
   }
