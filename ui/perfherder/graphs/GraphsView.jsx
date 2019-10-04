@@ -28,7 +28,6 @@ import ErrorMessages from '../../shared/ErrorMessages';
 import ErrorBoundary from '../../shared/ErrorBoundary';
 import LoadingSpinner from '../../shared/LoadingSpinner';
 
-import GraphsContainer from './GraphsContainer';
 import LegendCard from './LegendCard';
 import GraphsViewControls from './GraphsViewControls';
 
@@ -351,7 +350,7 @@ class GraphsView extends React.Component {
       visibilityChanged,
     } = this.state;
 
-    const { projects, frameworks } = this.props;
+    const { projects, frameworks, user } = this.props;
     return (
       <ErrorBoundary
         errorClasses={errorMessageClass}
@@ -399,36 +398,22 @@ class GraphsView extends React.Component {
               <GraphsViewControls
                 timeRange={timeRange}
                 frameworks={frameworks}
+                user={user}
                 projects={projects}
                 options={options}
                 getTestData={this.getTestData}
                 testData={testData}
                 showModal={showModal}
-                toggle={() => this.setState({ showModal: !showModal })}
-                graphs={
-                  testData.length > 0 && (
-                    <GraphsContainer
-                      timeRange={timeRange}
-                      highlightAlerts={highlightAlerts}
-                      highlightedRevisions={highlightedRevisions}
-                      zoom={zoom}
-                      selectedDataPoint={selectedDataPoint}
-                      testData={testData}
-                      updateStateParams={state =>
-                        this.setState(state, this.changeParams)
-                      }
-                      user={this.props.user}
-                      updateData={this.updateData}
-                      projects={projects}
-                      visibilityChanged={visibilityChanged}
-                    />
-                  )
-                }
+                highlightAlerts={highlightAlerts}
+                highlightedRevisions={highlightedRevisions}
+                zoom={zoom}
+                selectedDataPoint={selectedDataPoint}
                 updateStateParams={state =>
                   this.setState(state, this.changeParams)
                 }
-                highlightAlerts={highlightAlerts}
-                highlightedRevisions={highlightedRevisions}
+                visibilityChanged={visibilityChanged}
+                updateData={this.updateData}
+                toggle={() => this.setState({ showModal: !showModal })}
                 updateTimeRange={timeRange =>
                   this.setState(
                     {
@@ -464,7 +449,6 @@ GraphsView.propTypes = {
       PropTypes.arrayOf(PropTypes.string),
     ]),
   }),
-  user: PropTypes.shape({}).isRequired,
 };
 
 GraphsView.defaultProps = {

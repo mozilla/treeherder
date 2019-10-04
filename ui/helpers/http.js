@@ -40,7 +40,7 @@ export const getData = async function getData(url, options = {}) {
 
 // TODO: The credentials param can be removed in July once Firefox 62 ships and it is the default.
 export const create = function postJson(uri, data) {
-  return fetch(uri, {
+  return getData(uri, {
     method: 'POST',
     headers: generateHeaders(),
     body: JSON.stringify(data),

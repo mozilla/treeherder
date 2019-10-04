@@ -12,7 +12,14 @@ import { create } from '../../helpers/http';
 import RepositoryModel from '../../models/repository';
 import { displayNumber, getStatus } from '../helpers';
 
-const GraphTooltip = ({ dataPoint, testData, user, updateData, projects }) => {
+const GraphTooltip = ({
+  dataPoint,
+  testData,
+  user,
+  updateData,
+  projects,
+  updateStateParams,
+}) => {
   // we either have partial information provided by the selected
   // query parameter or the full dataPoint object provided from the
   // graph library
@@ -79,29 +86,46 @@ const GraphTooltip = ({ dataPoint, testData, user, updateData, projects }) => {
     group_state: 'expanded',
   });
 
-  // TODO refactor create to use getData wrapper
-  const createAlert = () =>
-    create(getApiUrl(endpoints.alertSummary), {
+  const createAlert = async () => {
+    let data;
+    let failureStatus;
+
+    ({ data, failureStatus } = await create(getApiUrl(endpoints.alertSummary), {
       repository_id: testDetails.projectId,
       framework_id: testDetails.framework_id,
       push_id: dataPointDetails.pushId,
       prev_push_id: prevPushId,
-    })
-      .then(response => response.json())
-      .then(response => {
-        const newAlertSummaryId = response.alert_summary_id;
-        return create(getApiUrl('/performance/alert/'), {
-          summary_id: newAlertSummaryId,
-          signature_id: testDetails.signature_id,
-        }).then(() =>
-          updateData(
-            testDetails.signature_id,
-            testDetails.projectId,
-            newAlertSummaryId,
-            flotIndex,
-          ),
-        );
+    }));
+
+    if (failureStatus) {
+      return updateStateParams({
+        errorMessages: [
+          `Failed to create an alert summary for push ${dataPointDetails.push_id}: ${data}`,
+        ],
       });
+    }
+
+    const newAlertSummaryId = data.alert_summary_id;
+    ({ data, failureStatus } = await create(getApiUrl(endpoints.alert), {
+      summary_id: newAlertSummaryId,
+      signature_id: testDetails.signature_id,
+    }));
+
+    if (failureStatus) {
+      updateStateParams({
+        errorMessages: [
+          `Failed to create an alert for alert summary ${newAlertSummaryId}: ${data}`,
+        ],
+      });
+    }
+
+    updateData(
+      testDetails.signature_id,
+      testDetails.projectId,
+      newAlertSummaryId,
+      flotIndex,
+    );
+  };
 
   return (
     <div className="body">
