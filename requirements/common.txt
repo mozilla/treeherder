@@ -210,9 +210,9 @@ redis==3.3.8 \
     --hash=sha256:c504251769031b0dd7dd5cf786050a6050197c6de0d37778c80c08cb04ae8275 \
     --hash=sha256:98a22fb750c9b9bb46e75e945dc3f61d0ab30d06117cbb21ff9cd1d315fedd3b
 
-elasticsearch==7.0.2 \
-    --hash=sha256:d1b176b87a7fb75dca82978c82a4023e8b21cbc98f4018cb51190fb0b8b43764 \
-    --hash=sha256:cbc73831c63fa2824538df76fcb2c4be007b43dbd9e7788ae70ea6d24109925b
+elasticsearch==7.0.5 \
+    --hash=sha256:7644fa0a9ae524344185bda561826a781a5c6bd4d3eb98a24515c567aab88327 \
+    --hash=sha256:693935914d59a517dfffdaab547ff906712a386d9e25027517464960221cbd4c
 
 # required by requests and elasticsearch
 urllib3==1.25.3 \
