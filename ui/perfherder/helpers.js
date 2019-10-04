@@ -21,11 +21,8 @@ import {
   phTimeRanges,
 } from './constants';
 
-export const formatNumber = input => {
-  return new Intl.NumberFormat('en-US', { maximumFractionDigits: 2 }).format(
-    input,
-  );
-};
+export const formatNumber = input =>
+  new Intl.NumberFormat('en-US', { maximumFractionDigits: 2 }).format(input);
 
 export const displayNumber = input =>
   Number.isNaN(input) ? 'N/A' : Number(input).toFixed(2);
