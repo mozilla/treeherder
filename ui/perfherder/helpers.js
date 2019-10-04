@@ -21,10 +21,14 @@ import {
   phTimeRanges,
 } from './constants';
 
+export const formatNumber = input => {
+  return new Intl.NumberFormat('en-US', { maximumFractionDigits: 2 }).format(
+    input,
+  );
+};
+
 export const displayNumber = input =>
-  Number.isNaN(input)
-    ? 'N/A'
-    : (Math.round(Number(input) * 1e2) / 1e2).toLocaleString();
+  Number.isNaN(input) ? 'N/A' : Number(input).toFixed(2);
 
 export const calcPercentOf = function calcPercentOf(a, b) {
   return b ? (100 * a) / b : 0;

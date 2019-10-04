@@ -2,16 +2,16 @@ import React from 'react';
 import PropTypes from 'prop-types';
 
 import SimpleTooltip from '../../shared/SimpleTooltip';
-import { displayNumber } from '../helpers';
+import { displayNumber, formatNumber } from '../helpers';
 
 import TooltipGraph from './TooltipGraph';
 
 const TableAverage = ({ value, stddev, stddevpct, replicates }) => {
   let tooltipText;
   if (replicates.length > 1) {
-    tooltipText = `Runs: < ${replicates.join(' ')} > ${displayNumber(
-      stddev,
-    )} = ${displayNumber(stddevpct)}% standard deviation)`;
+    tooltipText = `Runs: < ${replicates.join(' ')} > ${formatNumber(
+      displayNumber(stddev),
+    )} = ${formatNumber(displayNumber(stddevpct))}% standard deviation)`;
   } else if (replicates.length === 1) {
     tooltipText = 'Only one run (consider more for greater confidence)';
   }
@@ -29,10 +29,10 @@ const TableAverage = ({ value, stddev, stddevpct, replicates }) => {
           textClass="detail-hint"
           text={
             replicates.length === 1
-              ? displayNumber(value)
-              : `${displayNumber(value)} ${'\u00B1'} ${displayNumber(
-                  stddevpct,
-                )}`
+              ? formatNumber(displayNumber(value))
+              : `${formatNumber(
+                  displayNumber(value),
+                )} ${'\u00B1'} ${formatNumber(displayNumber(stddevpct))}`
           }
           tooltipText={
             notZeroSum ? (
