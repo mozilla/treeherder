@@ -8810,29 +8810,25 @@ tar@^4:
     safe-buffer "^5.1.2"
     yallist "^3.0.3"
 
-taskcluster-client-web@8.1.1:
-  version "8.1.1"
-  resolved "https://registry.yarnpkg.com/taskcluster-client-web/-/taskcluster-client-web-8.1.1.tgz#6f557f5e3c26d9305568860300e4e5f7c18d2632"
-  integrity sha512-slyN56AT02HcV/kwrBBEg/IWRS20XVqFVT9x6gEuD7Pa7FE7KvVZdqJUR+X2z3PZhzEz3/wmhumVZnXsA1BdTw==
+taskcluster-client-web@18.0.3:
+  version "18.0.3"
+  resolved "https://registry.yarnpkg.com/taskcluster-client-web/-/taskcluster-client-web-18.0.3.tgz#f226aeccc9e37e77861dd684b142e78380ffc91a"
+  integrity sha512-sg1irBzJQRiG6a6vmbqKCrcEhmHrwq8DTSrzSO0u97fB7/L0/Jw+EEaDOKefnvi/dl1wziMlAzfVW4alF8xiIA==
   dependencies:
+    crypto-js "^3.1.9-1"
     hawk "^7.0.7"
     query-string "^6.1.0"
-    taskcluster-lib-urls "^10.0.0"
+    taskcluster-lib-urls "^12.0.0"
 
 taskcluster-lib-scopes@10.0.2:
   version "10.0.2"
   resolved "https://registry.yarnpkg.com/taskcluster-lib-scopes/-/taskcluster-lib-scopes-10.0.2.tgz#ec7df9c13ba187dfb9836623fe53e9290fa6770b"
   integrity sha512-imeywPQva/St/uykCxTq7QrP0Hlte3mSpV917kvdVqunrsHs0k3E90kdi9KdGyDRzncVeKbCjTZjyaDf7VndVg==
 
-taskcluster-lib-urls@12.0.0:
+taskcluster-lib-urls@12.0.0, taskcluster-lib-urls@^12.0.0:
   version "12.0.0"
   resolved "https://registry.yarnpkg.com/taskcluster-lib-urls/-/taskcluster-lib-urls-12.0.0.tgz#f56190eec9e9597d37a42ad0e7f461e8e0e6732b"
   integrity sha512-OrEFE0m3p/+mGsmIwjttLhSKg3io6MpJLhYtPNjVSZA9Ix8Y5tprN3vM6a3MjWt5asPF6AKZsfT43cgpGwJB0g==
-
-taskcluster-lib-urls@^10.0.0:
-  version "10.1.1"
-  resolved "https://registry.yarnpkg.com/taskcluster-lib-urls/-/taskcluster-lib-urls-10.1.1.tgz#67d5b9449b947e5234eafdd15c46267dde29bf74"
-  integrity sha512-tdrK++rCX73FMXk/cXwS6RLTjA3pX8hJlxg1ECLs3L3llCOPMNhQ4wi6lb6yMgHc/s5on/Edj6AlAH7gkxzgPg==
 
 teamwork@3.x.x:
   version "3.2.0"
