@@ -8,6 +8,7 @@ import {
   faFilter,
   faTimesCircle,
 } from '@fortawesome/free-solid-svg-icons';
+import { Button } from 'reactstrap';
 
 import { getBtnClass } from '../../helpers/job';
 import { hasUrlFilterChanges, thFilterGroups } from '../../helpers/filter';
@@ -234,9 +235,7 @@ class SecondaryNavBar extends React.PureComponent {
           </span>
           <form role="search" className="form-inline flex-row">
             {serverChanged && (
-              <span
-                role="button"
-                tabIndex="-1"
+              <Button
                 className="btn btn-sm btn-view-nav nav-menu-btn"
                 onClick={updateButtonClick}
                 id="revisionChangedLabel"
@@ -244,26 +243,24 @@ class SecondaryNavBar extends React.PureComponent {
               >
                 <FontAwesomeIcon icon={faExclamationCircle} />
                 &nbsp;Treeherder update available
-              </span>
+              </Button>
             )}
 
             {/* Unclassified Failures Button */}
-            <span
+            <Button
               className={`btn btn-sm ${
                 allUnclassifiedFailureCount
                   ? 'btn-unclassified-failures'
                   : 'btn-view-nav'
               }`}
               title="Loaded failures / toggle filtering for unclassified failures"
-              tabIndex="-1"
-              role="button"
               onClick={this.toggleUnclassifiedFailures}
             >
               <span id="unclassified-failure-count">
                 {allUnclassifiedFailureCount}
               </span>{' '}
               unclassified
-            </span>
+            </Button>
 
             {/* Filtered Unclassified Failures Button */}
             {filteredUnclassifiedFailureCount !==
@@ -279,12 +276,10 @@ class SecondaryNavBar extends React.PureComponent {
             )}
 
             {/* Toggle Duplicate Jobs */}
-            <span
+            <Button
               className={`btn btn-view-nav btn-sm btn-toggle-duplicate-jobs ${
                 groupCountsExpanded ? 'disabled' : ''
               } ${!duplicateJobsVisible ? 'strikethrough' : ''}`}
-              tabIndex="0"
-              role="button"
               title={toggleDuplicateJobsTitle}
               label={toggleDuplicateJobsTitle}
               onClick={() =>
@@ -293,10 +288,8 @@ class SecondaryNavBar extends React.PureComponent {
             />
             <span className="btn-group">
               {/* Toggle Group State Button */}
-              <span
+              <Button
                 className="btn btn-view-nav btn-sm btn-toggle-group-state"
-                tabIndex="-1"
-                role="button"
                 title={
                   groupCountsExpanded
                     ? 'Collapse job groups'
@@ -309,7 +302,7 @@ class SecondaryNavBar extends React.PureComponent {
                   {groupCountsExpanded ? '-' : '+'}
                 </span>{' '}
                 )
-              </span>
+              </Button>
             </span>
 
             {/* Result Status Filter Chicklets */}
