@@ -279,9 +279,9 @@ secondary-nav-bar {
 }
 .btn-unclassified-failures:hover,
 .btn-unclassified-failures:focus {
-  background-color: #25292b;
+  background-color: rgba(78, 93, 21, 0.56);
   border-color: #cdce1d;
-  color: white;
+  color: lightgray;
 }
 .btn-unclassified-failures:active,
 .btn-unclassified-failures.active {

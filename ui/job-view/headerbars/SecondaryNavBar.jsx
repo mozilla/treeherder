@@ -138,22 +138,10 @@ class SecondaryNavBar extends React.PureComponent {
     setUrlParam('group_state', groupState);
   };
 
-  toggleUnclassifiedFailures = event => {
+  toggleUnclassifiedFailures = () => {
     const { filterModel } = this.props;
 
     filterModel.toggleUnclassifiedFailures();
-
-    this.indicateUnclassifiedFailuresToggle(event);
-  };
-
-  indicateUnclassifiedFailuresToggle = event => {
-    const unclassifiedButton = event.currentTarget;
-
-    if (unclassifiedButton.className.match('active')) {
-      unclassifiedButton.classList.remove('active');
-    } else {
-      unclassifiedButton.classList.add('active');
-    }
   };
 
   clearFilterBox = () => {
@@ -201,6 +189,7 @@ class SecondaryNavBar extends React.PureComponent {
     const {
       updateButtonClick,
       serverChanged,
+      filterModel,
       setCurrentRepoTreeStatus,
       repos,
       allUnclassifiedFailureCount,
@@ -263,7 +252,12 @@ class SecondaryNavBar extends React.PureComponent {
                 allUnclassifiedFailureCount
                   ? 'btn-unclassified-failures'
                   : 'btn-view-nav'
-              }`}
+              }${
+                filterModel.isUnclassifiedFailures()
+                  ? ' active'
+                  : ''
+              }`
+            }
               title="Loaded failures / toggle filtering for unclassified failures"
               tabIndex="-1"
               role="button"
