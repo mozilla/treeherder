@@ -1,6 +1,6 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import { Button } from 'reactstrap';
+import { Button, Label } from 'reactstrap';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faFileAlt } from '@fortawesome/free-regular-svg-icons';
 
@@ -39,7 +39,50 @@ export default function LogUrls(props) {
 
   return (
     <React.Fragment>
-      {logUrls.length && (
+      {/* Log Viewer */}
+      {/* Case 1: Two or more logurls - Display a dropdown */}
+      {logUrls.length > 1 && (
+        <li key="logview">
+          <span className="dropdown">
+            <span
+              role="button"
+              title="Select a log viewer"
+              data-toggle="dropdown"
+              className="btn btn-view-nav btn-sm nav-menu-btn dropdown-toggle"
+            >
+              <img
+                alt="Logviewer"
+                src={logviewerIcon}
+                className="logviewer-icon"
+              />
+            </span>
+            <ul className="dropdown-menu checkbox-dropdown-menu" role="menu">
+              {logUrls.map(logUrl => {
+                return (
+                  <li key={`logview-${logUrl.id}`}>
+                    <div>
+                      <Label className="dropdown-item">
+                        <a
+                          {...getLogUrlProps(
+                            logUrl,
+                            logViewerUrl,
+                            logViewerFullUrl,
+                          )}
+                        >
+                          {logUrl.name} ({logUrl.id})
+                        </a>
+                      </Label>
+                    </div>
+                  </li>
+                );
+              })}
+            </ul>
+          </span>
+        </li>
+      )}
+
+      {/* Case 2: Only one logurl - Display a button */}
+      {logUrls.length === 1 && (
         <li key={`logview-${logUrls[0].id}`}>
           <a
             className="logviewer-btn"
@@ -54,6 +97,7 @@ export default function LogUrls(props) {
         </li>
       )}
 
+      {/* Case 3: No logurl - Display disabled button */}
       {!logUrls.length && (
         <li>
           <Button
@@ -70,19 +114,60 @@ export default function LogUrls(props) {
         </li>
       )}
 
-      {logUrls.map(jobLogUrl => (
-        <li key={`raw-${jobLogUrl.id}`}>
+      {/* Raw Log */}
+      {/* Case 1: Two or more logurls - Display a dropdown */}
+      {logUrls.length > 1 && (
+        <li key="raw">
+          <span className="dropdown">
+            <span
+              role="button"
+              title="Select a raw log"
+              data-toggle="dropdown"
+              className="btn btn-view-nav btn-sm nav-menu-btn dropdown-toggle"
+            >
+              <FontAwesomeIcon icon={faFileAlt} size="lg" />
+            </span>
+            <ul className="dropdown-menu checkbox-dropdown-menu" role="menu">
+              {logUrls.map(logUrl => {
+                return (
+                  <li key={`raw-${logUrl.id}`}>
+                    <div>
+                      <Label className="dropdown-item">
+                        <a
+                          title="Open the raw log in a new window"
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          href={logUrl.url}
+                          copy-value={logUrl.url}
+                        >
+                          {logUrl.name} ({logUrl.id})
+                        </a>
+                      </Label>
+                    </div>
+                  </li>
+                );
+              })}
+            </ul>
+          </span>
+        </li>
+      )}
+
+      {/* Case 2: Only one logurl - Display a button */}
+      {logUrls.length === 1 && (
+        <li key={`raw-${logUrls[0].id}`}>
           <a
             title="Open the raw log in a new window"
             target="_blank"
             rel="noopener noreferrer"
-            href={jobLogUrl.url}
-            copy-value={jobLogUrl.url}
+            href={logUrls[0].url}
+            copy-value={logUrls[0].url}
           >
             <FontAwesomeIcon icon={faFileAlt} size="lg" title="Raw Log" />
           </a>
         </li>
-      ))}
+      )}
+
+      {/* Case 3: No logurl - Display disabled button */}
       {!logUrls.length && (
         <li>
           <Button
