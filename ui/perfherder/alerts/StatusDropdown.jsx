@@ -243,7 +243,7 @@ export default class StatusDropdown extends React.Component {
                       })
                     }
                   >
-                    {"Mark as won't fix"}
+                    Mark as won&apos;t fix
                   </DropdownItem>
                 )}
 
