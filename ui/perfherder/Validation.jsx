@@ -124,7 +124,6 @@ const withValidation = (
       const { projects, frameworks } = this.props;
       let errors = [];
 
-      // eslint-disable-next-line no-unused-vars
       for (const [param, value] of Object.entries(params)) {
         if (!value && requiredParams.has(param)) {
           errors.push(`${param} is required`);

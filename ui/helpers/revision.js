@@ -15,7 +15,6 @@ export const isSHAorCommit = function isSHAorCommit(str) {
 
 export const getRevisionTitle = function getRevisionTitle(revisions) {
   let title;
-  // eslint-disable-next-line no-unused-vars
   for (const revision of revisions) {
     title = revision.comments;
     /*
