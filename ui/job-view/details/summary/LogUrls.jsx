@@ -34,12 +34,33 @@ function getLogUrlProps(logUrl, logViewerUrl, logViewerFullUrl) {
   }
 }
 
+const cloneLogsUrls = [
+  { id: 440915850,
+    job_id: 269912805,
+    name: 'builds-4h',
+    parse_status: parsed,
+    url: 'https://queue.taskcluster.net/v1/task/AcEBYiT5RyCTuOHbT-G2HQ/runs/0/artifacts/public/logs/live_backing.log' },
+
+  { id: 440915850,
+    job_id: 269912805,
+    name: 'builds-4h',
+    parse_status: parsed,
+    url:'https://queue.taskcluster.net/v1/task/AcEBYiT5RyCTuOHbT-G2HQ/runs/0/artifacts/public/logs/live_backing.log'},
+  {
+    id: 440915850,
+    job_id: 269912805,
+    name: 'builds-4h',
+    parse_status: parsed,
+    url: 'https://queue.taskcluster.net/v1/task/AcEBYiT5RyCTuOHbT-G2HQ/runs/0/artifacts/public/logs/live_backing.log'
+  },
+];
+
 export default function LogUrls(props) {
-  const { logUrls, logViewerUrl, logViewerFullUrl } = props;
+  const { cloneLogUrls, logUrls, logViewerUrl, logViewerFullUrl } = props;
 
   return (
     <React.Fragment>
-      {logUrls.map(jobLogUrl => (
+      {cloneLogUrls.map(jobLogUrl => (
         <li key={`logview-${jobLogUrl.id}`}>
           <a
             className="logviewer-btn"
