@@ -1,11 +1,9 @@
-/* eslint-disable jsx-a11y/control-has-associated-label */
-/* eslint-disable jsx-a11y/no-static-element-interactions */
-
 import React from 'react';
 import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
 import intersection from 'lodash/intersection';
 import isEqual from 'lodash/isEqual';
+import { Button } from 'reactstrap';
 
 import ErrorBoundary from '../../shared/ErrorBoundary';
 import { notify } from '../redux/stores/notifications';
@@ -142,6 +140,7 @@ class PushList extends React.Component {
     return (
       <div
         id="push-list"
+        role="presentation"
         onClick={evt => this.clearIfEligibleTarget(evt.target)}
       >
         {jobsLoaded && <span className="hidden ready" />}
@@ -168,6 +167,7 @@ class PushList extends React.Component {
           ))}
         {loadingPushes && (
           <div
+            aria-label="push progress"
             className="progress active progress-bar progress-bar-striped"
             role="progressbar"
           />
@@ -184,14 +184,14 @@ class PushList extends React.Component {
           <span>get next:</span>
           <div className="btn-group">
             {[10, 20, 50].map(count => (
-              <div
+              <Button
                 className="btn btn-light-bordered"
                 onClick={() => fetchNextPushes(count)}
                 key={count}
                 data-testid={`get-next-${count}`}
               >
                 {count}
-              </div>
+              </Button>
             ))}
           </div>
         </div>
