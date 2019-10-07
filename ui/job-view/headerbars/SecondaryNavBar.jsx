@@ -252,12 +252,7 @@ class SecondaryNavBar extends React.PureComponent {
                 allUnclassifiedFailureCount
                   ? 'btn-unclassified-failures'
                   : 'btn-view-nav'
-              }${
-                filterModel.isUnclassifiedFailures()
-                  ? ' active'
-                  : ''
-              }`
-            }
+              }${filterModel.isUnclassifiedFailures() ? ' active' : ''}`}
               title="Loaded failures / toggle filtering for unclassified failures"
               tabIndex="-1"
               role="button"
