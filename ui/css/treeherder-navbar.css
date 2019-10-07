@@ -430,12 +430,6 @@ fieldset[disabled] .btn-view-nav-closed.active {
   list-style: none;
 }
 
-.dropdown-menu li > button {
-  border: 0;
-  padding: 0;
-  background: transparent;
-}
-
 .dropdown-header {
   font-size: 12px;
 }

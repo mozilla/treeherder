@@ -99,12 +99,20 @@ function FiltersMenu(props) {
             title="Pin all jobs that pass the global filters"
             className="dropdown-item"
           >
-            <button type="button" onClick={pinAllShownJobs}>
+            <button
+              type="button"
+              className="border-0 bg-transparent p-0"
+              onClick={pinAllShownJobs}
+            >
               Pin all showing
             </button>
           </li>
           <li title="Show only superseded jobs" className="dropdown-item">
-            <button type="button" onClick={filterModel.setOnlySuperseded}>
+            <button
+              type="button"
+              className="border-0 bg-transparent p-0"
+              onClick={filterModel.setOnlySuperseded}
+            >
               Superseded only
             </button>
           </li>
@@ -112,7 +120,11 @@ function FiltersMenu(props) {
             <a href={getJobsUrl({ author: email })}>My pushes only</a>
           </li>
           <li title="Reset to default status filters" className="dropdown-item">
-            <button type="button" onClick={filterModel.resetNonFieldFilters}>
+            <button
+              type="button"
+              className="border-0 bg-transparent p-0"
+              onClick={filterModel.resetNonFieldFilters}
+            >
               Reset
             </button>
           </li>

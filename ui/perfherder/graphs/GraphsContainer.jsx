@@ -1,7 +1,7 @@
 // disabling due to a new bug with this rule: https://github.com/eslint/eslint/issues/12117
 /* eslint-disable no-unused-vars */
 import React from 'react';
-import { Row, Col } from 'reactstrap';
+import { Row, Col, Button } from 'reactstrap';
 import PropTypes from 'prop-types';
 import {
   VictoryChart,
@@ -69,11 +69,11 @@ class GraphsContainer extends React.Component {
     }
 
     if (prevProps.timeRange !== timeRange && this.state.dataPoint) {
-      this.onUpdate();
+      this.resetDataPoint();
     }
   }
 
-  onUpdate = () => {
+  resetDataPoint = () => {
     this.setState({
       dataPoint: null,
       showTooltip: false,
@@ -283,19 +283,14 @@ class GraphsContainer extends React.Component {
           }`}
           ref={this.tooltip}
         >
-          <span
-            className="close mr-3 my-2 ml-2"
-            role="button"
-            onClick={this.closeTooltip}
-            tabIndex={0}
-          >
+          <Button className="close mr-3 my-2 ml-2" onClick={this.closeTooltip}>
             <FontAwesomeIcon
               className="pointer text-white"
               icon={faTimes}
               size="xs"
               title="close tooltip"
             />
-          </span>
+          </Button>
           {dataPoint && showTooltip && (
             <GraphTooltip dataPoint={dataPoint} {...this.props} />
           )}
