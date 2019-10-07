@@ -31,6 +31,7 @@ class GraphsContainer extends React.Component {
     this.hideTooltip = debounce(this.hideTooltip.bind(this), 250);
     this.tooltip = React.createRef();
     this.leftChartPadding = 25;
+    this.rightChartPadding = 10;
     this.state = {
       highlights: [],
       scatterPlotData: this.props.testData.flatMap(item =>
@@ -213,6 +214,16 @@ class GraphsContainer extends React.Component {
     return numberFormat.format(tick);
   };
 
+  setRightPadding = (tick, index, ticks) => {
+    const highestTickLength = ticks[ticks.length - 1].toString();
+    const newRightPadding = highestTickLength.length / 2;
+    this.rightChartPadding =
+      this.rightChartPadding > newRightPadding
+        ? this.rightChartPadding
+        : newRightPadding;
+    return moment.utc(tick).format('MMM DD hh:mm');
+  };
+
   // debounced
   hideTooltip() {
     const { showTooltip, lockTooltip } = this.state;
@@ -253,8 +264,12 @@ class GraphsContainer extends React.Component {
       tickLabels: { fontSize: 13 },
     };
 
-    const chartPadding = { top: 10, right: 10, bottom: 50 };
-    chartPadding.left = this.leftChartPadding;
+    const chartPadding = {
+      top: 10,
+      left: this.leftChartPadding,
+      right: this.rightChartPadding,
+      bottom: 50,
+    };
 
     return (
       <React.Fragment>
@@ -274,11 +289,7 @@ class GraphsContainer extends React.Component {
             />
           </span>
           {dataPoint && showTooltip && (
-            <GraphTooltip
-              dataPoint={dataPoint}
-              testData={testData}
-              {...this.props}
-            />
+            <GraphTooltip dataPoint={dataPoint} {...this.props} />
           )}
           <div className="tip" />
         </div>
@@ -415,7 +426,7 @@ class GraphsContainer extends React.Component {
               />
               <VictoryAxis
                 tickCount={6}
-                tickFormat={x => moment.utc(x).format('MMM DD hh:mm')}
+                tickFormat={this.setRightPadding}
                 style={axisStyle}
                 fixLabelOverlap
               />
@@ -437,7 +448,6 @@ GraphsContainer.propTypes = {
     PropTypes.string,
     PropTypes.arrayOf(PropTypes.string),
   ]),
-  user: PropTypes.shape({}).isRequired,
   timeRange: PropTypes.shape({}).isRequired,
 };
 

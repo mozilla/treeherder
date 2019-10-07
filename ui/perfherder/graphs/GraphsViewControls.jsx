@@ -14,6 +14,7 @@ import { phTimeRanges } from '../constants';
 import DropdownMenuItems from '../../shared/DropdownMenuItems';
 
 import TestDataModal from './TestDataModal';
+import GraphsContainer from './GraphsContainer';
 
 export default class GraphsViewControls extends React.Component {
   changeHighlightedRevision = (index, newValue) => {
@@ -28,7 +29,6 @@ export default class GraphsViewControls extends React.Component {
   render() {
     const {
       timeRange,
-      graphs,
       updateStateParams,
       highlightAlerts,
       highlightedRevisions,
@@ -36,6 +36,7 @@ export default class GraphsViewControls extends React.Component {
       hasNoData,
       toggle,
       showModal,
+      testData,
     } = this.props;
 
     return (
@@ -75,7 +76,8 @@ export default class GraphsViewControls extends React.Component {
           </Row>
         ) : (
           <React.Fragment>
-            {graphs}
+            {testData.length > 0 && <GraphsContainer {...this.props} />}
+
             <Row className="justify-content-start pt-2">
               {highlightedRevisions.length > 0 &&
                 highlightedRevisions.map((revision, index) => (
@@ -117,7 +119,6 @@ export default class GraphsViewControls extends React.Component {
 
 GraphsViewControls.propTypes = {
   updateStateParams: PropTypes.func.isRequired,
-  graphs: PropTypes.oneOfType([PropTypes.shape({}), PropTypes.bool]).isRequired,
   timeRange: PropTypes.shape({}).isRequired,
   highlightAlerts: PropTypes.bool.isRequired,
   highlightedRevisions: PropTypes.oneOfType([

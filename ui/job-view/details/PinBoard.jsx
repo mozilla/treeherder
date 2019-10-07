@@ -114,7 +114,7 @@ class PinBoard extends React.Component {
     });
   };
 
-  saveClassification = job => {
+  saveClassification = async job => {
     const { recalculateUnclassifiedCounts, notify } = this.props;
     const classification = this.createNewClassification();
 
@@ -125,21 +125,19 @@ class PinBoard extends React.Component {
       recalculateUnclassifiedCounts();
 
       classification.job_id = job.id;
-      return classification
-        .create()
-        .then(() => {
-          notify(`Classification saved for ${job.title}`, 'success');
-          // update the job to show that it's now classified
-          const jobInstance = findJobInstance(job.id);
+      const { data, failureStatus } = await classification.create();
+      if (!failureStatus) {
+        notify(`Classification saved for ${job.title}`, 'success');
+        // update the job to show that it's now classified
+        const jobInstance = findJobInstance(job.id);
 
-          if (jobInstance) {
-            jobInstance.refilter();
-          }
-        })
-        .catch(response => {
-          const message = `Error saving classification for ${job.platform} ${job.job_type_name}`;
-          notify(formatModelError(response, message), 'danger');
-        });
+        if (jobInstance) {
+          jobInstance.refilter();
+        }
+      } else {
+        const message = `Error saving classification for ${job.platform} ${job.job_type_name}: ${data}`;
+        notify(message, 'danger');
+      }
     }
   };
 
