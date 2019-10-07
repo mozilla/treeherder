@@ -1,3 +1,5 @@
+/* eslint-disable jsx-a11y/control-has-associated-label */
+
 import React from 'react';
 import { Button, Table } from 'reactstrap';
 import PropTypes from 'prop-types';
@@ -118,17 +120,11 @@ export default class CompareTable extends React.PureComponent {
             </th>
             <th className="table-width-lg">Base</th>
             {/* empty for less than/greater than data */}
-            <th
-              aria-label="less than/greater than data"
-              className="table-width-sm"
-            />
+            <th className="table-width-sm" />
             <th className="table-width-lg">New</th>
             <th className="table-width-lg">Delta</th>
             {/* empty for progress bars (magnitude of difference) */}
-            <th
-              aria-label="progress bars (magnitude of difference)"
-              className="table-width-lg"
-            />
+            <th className="table-width-lg" />
             <th className="table-width-lg">Confidence</th>
             <th className="text-right table-width-md">
               {hasSubtests &&
