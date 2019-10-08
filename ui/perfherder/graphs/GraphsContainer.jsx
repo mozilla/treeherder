@@ -20,6 +20,8 @@ import last from 'lodash/last';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faTimes } from '@fortawesome/free-solid-svg-icons';
 
+import { formatNumber } from '../helpers';
+
 import GraphTooltip from './GraphTooltip';
 
 const VictoryZoomSelectionContainer = createContainer('zoom', 'selection');
@@ -210,8 +212,8 @@ class GraphsContainer extends React.Component {
       this.leftChartPadding > newLeftPadding
         ? this.leftChartPadding
         : newLeftPadding;
-    const numberFormat = new Intl.NumberFormat();
-    return numberFormat.format(tick);
+
+    return formatNumber(tick);
   };
 
   setRightPadding = (tick, index, ticks) => {

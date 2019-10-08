@@ -154,7 +154,7 @@ export default class FilterModel {
   };
 
   toggleUnclassifiedFailures = () => {
-    if (this._isUnclassifiedFailures()) {
+    if (this.isUnclassifiedFailures()) {
       this.resetNonFieldFilters();
     } else {
       this.urlParams.resultStatus = [...thFailureResults];
@@ -284,7 +284,7 @@ export default class FilterModel {
   /**
    * check if we're in the state of showing only unclassified failures
    */
-  _isUnclassifiedFailures = () =>
+  isUnclassifiedFailures = () =>
     arraysEqual(this.urlParams.resultStatus, thFailureResults) &&
     arraysEqual(this.urlParams.classifiedState, ['unclassified']);
 }
