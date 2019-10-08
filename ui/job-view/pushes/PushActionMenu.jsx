@@ -55,7 +55,14 @@ class PushActionMenu extends React.PureComponent {
   };
 
   triggerMissingJobs = () => {
-    const { notify, revision, pushId, currentRepo } = this.props;
+    const {
+      notify,
+      revision,
+      pushId,
+      currentRepo,
+      decisionTaskMap,
+    } = this.props;
+    const decisionTask = decisionTaskMap[pushId];
 
     if (
       !window.confirm(
@@ -65,13 +72,25 @@ class PushActionMenu extends React.PureComponent {
       return;
     }
 
-    PushModel.triggerMissingJobs(pushId, notify, currentRepo).catch(e => {
+    PushModel.triggerMissingJobs(
+      pushId,
+      notify,
+      decisionTask,
+      currentRepo,
+    ).catch(e => {
       notify(formatTaskclusterError(e), 'danger', { sticky: true });
     });
   };
 
   triggerAllTalosJobs = () => {
-    const { notify, revision, pushId, currentRepo } = this.props;
+    const {
+      notify,
+      revision,
+      pushId,
+      currentRepo,
+      decisionTaskMap,
+    } = this.props;
+    const decisionTask = decisionTaskMap[pushId];
 
     if (
       !window.confirm(
@@ -92,7 +111,13 @@ class PushActionMenu extends React.PureComponent {
       );
     }
 
-    PushModel.triggerAllTalosJobs(times, pushId, notify, currentRepo)
+    PushModel.triggerAllTalosJobs(
+      times,
+      pushId,
+      notify,
+      decisionTask,
+      currentRepo,
+    )
       .then(msg => {
         notify(msg, 'success');
       })
@@ -267,6 +292,7 @@ PushActionMenu.propTypes = {
   isLoggedIn: PropTypes.bool.isRequired,
   revision: PropTypes.string.isRequired,
   currentRepo: PropTypes.object.isRequired,
+  decisionTaskMap: PropTypes.object.isRequired,
   pushId: PropTypes.number.isRequired,
   hideRunnableJobs: PropTypes.func.isRequired,
   showRunnableJobs: PropTypes.func.isRequired,
@@ -274,7 +300,11 @@ PushActionMenu.propTypes = {
   notify: PropTypes.func.isRequired,
 };
 
+const mapStateToProps = ({ pushes: { decisionTaskMap } }) => ({
+  decisionTaskMap,
+});
+
 export default connect(
-  null,
+  mapStateToProps,
   { notify },
 )(PushActionMenu);
