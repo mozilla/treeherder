@@ -213,6 +213,17 @@ class GraphsContainer extends React.Component {
     return numberFormat.format(tick);
   };
 
+  checkDate = x => {
+    let isVisible = false;
+    // eslint-disable-next-line no-return-assign
+    this.props.testData.map(item =>
+      item.visible ? (isVisible = true) : isVisible,
+    );
+    return isVisible
+      ? moment.utc(x).format('MMM DD')
+      : moment.utc(new Date()).format('MMM DD');
+  };
+
   // debounced
   hideTooltip() {
     const { showTooltip, lockTooltip } = this.state;
@@ -306,11 +317,7 @@ class GraphsContainer extends React.Component {
               />
               <VictoryAxis
                 tickCount={10}
-                tickFormat={x =>
-                  moment(x).diff(moment(['1975-01-01']), 'years') < 10
-                    ? moment.utc(new Date()).format('MMM DD')
-                    : moment.utc(x).format('MMM DD')
-                }
+                tickFormat={x => this.checkDate(x)}
                 style={axisStyle}
               />
               {testData.map(item => (
@@ -419,11 +426,7 @@ class GraphsContainer extends React.Component {
               />
               <VictoryAxis
                 tickCount={6}
-                tickFormat={x =>
-                  moment(x).diff(moment(['1975-01-01']), 'years') < 10
-                    ? moment.utc(new Date()).format('MMM DD hh:mm')
-                    : moment.utc(x).format('MMM DD hh:mm')
-                }
+                tickFormat={x => this.checkDate(x)}
                 style={axisStyle}
                 fixLabelOverlap
               />
