@@ -1,9 +1,10 @@
+import environ
 from django.core.management.base import BaseCommand
 
 from treeherder.services.pulse import (TaskConsumer,
-                                       prepare_consumer,
-                                       pulse_conn,
-                                       task_sources)
+                                       prepare_consumers)
+
+env = environ.Env()
 
 
 class Command(BaseCommand):
@@ -16,15 +17,19 @@ class Command(BaseCommand):
     help = "Read jobs from a set of pulse exchanges and queue for ingestion"
 
     def handle(self, *args, **options):
-        with pulse_conn as connection:
-            consumer = prepare_consumer(
-                connection,
-                TaskConsumer,
-                task_sources,
-                lambda key: "#.{}".format(key),
-            )
+        # Specifies the Pulse services from which Treeherder will consume task
+        # information.  This value is a JSON array of the form [{pulse_url: ..,
+        # root_url: ..}, ..]
+        task_sources = env.json("PULSE_TASK_SOURCES", default=[])
 
-            try:
-                consumer.run()
-            except KeyboardInterrupt:
-                self.stdout.write("Pulse Job listening stopped...")
+        consumers = prepare_consumers(
+            TaskConsumer,
+            task_sources,
+            lambda key: "#.{}".format(key),
+        )
+
+        try:
+            consumers.run()
+        except KeyboardInterrupt:
+            pass
+        self.stdout.write("Pulse Task listening stopped...")

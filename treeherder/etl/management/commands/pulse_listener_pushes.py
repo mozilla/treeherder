@@ -1,9 +1,10 @@
+import environ
 from django.core.management.base import BaseCommand
 
 from treeherder.services.pulse import (PushConsumer,
-                                       prepare_consumer,
-                                       pulse_conn,
-                                       push_sources)
+                                       prepare_consumers)
+
+env = environ.Env()
 
 
 class Command(BaseCommand):
@@ -16,14 +17,19 @@ class Command(BaseCommand):
     help = "Read pushes from a set of pulse exchanges and queue for ingestion"
 
     def handle(self, *args, **options):
-        with pulse_conn as connection:
-            consumer = prepare_consumer(
-                connection,
-                PushConsumer,
-                push_sources,
-            )
+        # Specifies the Pulse services from which Treeherder will ingest push
+        # information.  Sources can include properties `hgmo`, `github`, or both, to
+        # listen to events from those sources.  The value is a JSON array of the form
+        # [{pulse_url: .., hgmo: true, root_url: ..}, ..]
+        push_sources = env.json('PULSE_PUSH_SOURCES', default=[])
 
-            try:
-                consumer.run()
-            except KeyboardInterrupt:
-                self.stdout.write("Pulse Push listening stopped...")
+        consumers = prepare_consumers(
+            PushConsumer,
+            push_sources,
+        )
+
+        try:
+            consumers.run()
+        except KeyboardInterrupt:
+            pass
+        self.stdout.write("Pulse Push listening stopped...")

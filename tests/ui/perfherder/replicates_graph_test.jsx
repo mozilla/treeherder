@@ -221,7 +221,6 @@ test('graph with available data displays properly', async () => {
     expectedIndexes.map(index => getByText(index.toString())),
   );
 
-  // eslint-disable-next-line no-unused-vars
   for (const replicateIndex of xAxisReplicateIndexes) {
     expect(replicateIndex).toBeInTheDocument();
   }

@@ -66,7 +66,10 @@
     "NEW_RELIC_LICENSE_KEY": {
       "required": true
     },
-    "PULSE_URL": {
+    "PULSE_PUSH_SOURCES": {
+      "required": true
+    },
+    "PULSE_TASK_SOURCES": {
       "required": true
     },
     "REDIS_URL": {

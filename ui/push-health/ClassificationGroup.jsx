@@ -55,7 +55,7 @@ class ClassificationGroup extends React.PureComponent {
     );
     const uniqueJobs = Object.values(jobs);
 
-    JobModel.retrigger(uniqueJobs, null, notify, currentRepo, times);
+    JobModel.retrigger(uniqueJobs, currentRepo, notify, times);
   };
 
   render() {
