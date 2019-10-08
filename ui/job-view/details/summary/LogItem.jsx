@@ -58,7 +58,7 @@ export default function LogItem(props) {
               role="button"
               title={`Select a ${logDescription}`}
               data-toggle="dropdown"
-              className="btn-view-nav btn-sm nav-menu-btn dropdown-toggle"
+              className="logviewer-btn btn-view-nav btn-sm nav-menu-btn dropdown-toggle"
             >
               {props.children}
             </span>
@@ -92,6 +92,7 @@ export default function LogItem(props) {
       {logUrls.length === 1 && (
         <li key={logKey}>
           <a
+            className="logviewer-btn"
             {...getLogUrlProps(
               logKey,
               logUrls[0],
@@ -108,7 +109,7 @@ export default function LogItem(props) {
       {!logUrls.length && (
         <li key={logKey}>
           <Button
-            className="disabled bg-transparent border-0"
+            className="logviewer-btn disabled bg-transparent border-0"
             title="No logs available for this job"
             aria-label="No logs available for this job"
           >
