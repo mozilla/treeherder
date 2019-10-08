@@ -1,7 +1,6 @@
 export const extendProperties = function extendProperties(dest, src) {
   /* Version of _.extend that works with property descriptors */
   if (dest !== src) {
-    // eslint-disable-next-line no-unused-vars
     for (const key in src) {
       if (!Object.prototype.hasOwnProperty.call(src, key)) {
         continue;
