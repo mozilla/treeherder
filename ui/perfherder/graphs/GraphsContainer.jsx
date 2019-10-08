@@ -283,7 +283,7 @@ class GraphsContainer extends React.Component {
           }`}
           ref={this.tooltip}
         >
-          <Button className="close mr-3 my-2 ml-2" onClick={this.closeTooltip}>
+          <Button className="mr-3 my-2 ml-2" close onClick={this.closeTooltip}>
             <FontAwesomeIcon
               className="pointer text-white"
               icon={faTimes}

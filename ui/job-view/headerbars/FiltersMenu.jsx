@@ -1,7 +1,7 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
-import { Label } from 'reactstrap';
+import { Button, Label } from 'reactstrap';
 
 import { thAllResultStatuses } from '../../helpers/constants';
 import { getJobsUrl } from '../../helpers/url';
@@ -99,34 +99,31 @@ function FiltersMenu(props) {
             title="Pin all jobs that pass the global filters"
             className="dropdown-item"
           >
-            <button
-              type="button"
+            <Button
               className="border-0 bg-transparent p-0"
               onClick={pinAllShownJobs}
             >
               Pin all showing
-            </button>
+            </Button>
           </li>
           <li title="Show only superseded jobs" className="dropdown-item">
-            <button
-              type="button"
+            <Button
               className="border-0 bg-transparent p-0"
               onClick={filterModel.setOnlySuperseded}
             >
               Superseded only
-            </button>
+            </Button>
           </li>
           <li title={`Show only pushes for ${email}`} className="dropdown-item">
             <a href={getJobsUrl({ author: email })}>My pushes only</a>
           </li>
           <li title="Reset to default status filters" className="dropdown-item">
-            <button
-              type="button"
+            <Button
               className="border-0 bg-transparent p-0"
               onClick={filterModel.resetNonFieldFilters}
             >
               Reset
-            </button>
+            </Button>
           </li>
         </ul>
       </span>
