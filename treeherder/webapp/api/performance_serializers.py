@@ -252,3 +252,15 @@ class PerformanceSummarySerializer(serializers.ModelSerializer):
         test_suite = suite if test == '' or test == suite else '{} {}'.format(suite, test)
         return '{} {} {}'.format(test_suite, value['option_name'],
                                  value['extra_options'])
+
+class ValidityDashboardParamsSerializer(serializers.Serializer):
+    # startday = serializers.DateTimeField(required=False, allow_null=True, default=None)
+    # endday = serializers.DateTimeField(required=False, allow_null=True, default=None)
+    # revision = serializers.CharField(required=False, allow_null=True, default=None)
+    # repository = serializers.CharField()
+    framework = serializers.CharField(default=None)
+    # interval = serializers.IntegerField(required=False, allow_null=True, default=None)
+    # parent_signature = serializers.CharField(required=False, allow_null=True, default=None)
+    # signature = serializers.CharField(required=False, allow_null=True, default=None)
+    # no_subtests = serializers.BooleanField(required=False)
+    # all_data = serializers.BooleanField(required=False, default=False)
