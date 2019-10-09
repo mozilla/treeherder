@@ -214,14 +214,13 @@ class GraphsContainer extends React.Component {
   };
 
   checkDate = x => {
-    let isVisible = false;
-    // eslint-disable-next-line no-return-assign
-    this.props.testData.map(item =>
-      item.visible ? (isVisible = true) : isVisible,
+    const graphData = this.props.testData.filter(
+      item => item.visible === true && item.data.length > 0,
     );
-    return isVisible
+
+    return graphData.length > 0
       ? moment.utc(x).format('MMM DD')
-      : moment.utc(new Date()).format('MMM DD');
+      : moment.utc().format('MMM DD');
   };
 
   // debounced
