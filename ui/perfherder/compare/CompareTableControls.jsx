@@ -91,7 +91,6 @@ export default class CompareTableControls extends React.Component {
 
     const filteredResults = new Map(compareResults);
 
-    // eslint-disable-next-line no-unused-vars
     for (const [testName, values] of filteredResults) {
       const filteredValues = values.filter(result =>
         this.filterResult(testName, result),

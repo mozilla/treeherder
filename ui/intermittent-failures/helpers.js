@@ -119,3 +119,5 @@ export const tableRowStyling = function tableRowStyling(state, bug) {
   }
   return {};
 };
+
+export const removePath = (line = '') => line.replace(/\/?([\w\d-.]+\/)+/, '');

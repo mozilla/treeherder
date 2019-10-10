@@ -277,5 +277,25 @@ describe('Filtering', () => {
       await waitForElement(() => getAllByText(symbolToRemove));
       expect(jobCount()).toBe(40);
     });
+
+    test('Filters | Reset should get back to original set of jobs', async () => {
+      const { getAllByText, findAllByText, findByText } = render(<App />);
+      const symbolToRemove = 'yaml';
+      await waitForElement(() => findAllByText('B'));
+      clickFilterChicklet('dkgray');
+
+      await waitForElementToBeRemoved(() => getAllByText(symbolToRemove));
+      expect(jobCount()).toBe(30);
+
+      // undo the filtering with the "Filters | Reset" menu item
+      const filtersMenu = await findByText('Filters');
+      fireEvent.click(filtersMenu);
+
+      const resetMenuItem = await waitForElement(() => findByText('Reset'));
+      fireEvent.click(resetMenuItem);
+
+      await waitForElement(() => getAllByText(symbolToRemove));
+      expect(jobCount()).toBe(40);
+    });
   });
 });

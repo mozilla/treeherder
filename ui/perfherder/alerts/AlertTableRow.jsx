@@ -12,7 +12,7 @@ import {
 import { faStar as faStarRegular } from '@fortawesome/free-regular-svg-icons';
 
 import { createQueryParams } from '../../helpers/url';
-import { getStatus, getGraphsURL, modifyAlert } from '../helpers';
+import { getStatus, getGraphsURL, modifyAlert, formatNumber } from '../helpers';
 import SimpleTooltip from '../../shared/SimpleTooltip';
 import ProgressBar from '../ProgressBar';
 import {
@@ -200,8 +200,6 @@ export default class AlertTableRow extends React.Component {
       ? `Classified by ${alert.classifier_email}`
       : 'Classified automatically';
 
-    const numberFormat = new Intl.NumberFormat();
-
     return (
       <tr
         className={
@@ -248,9 +246,7 @@ export default class AlertTableRow extends React.Component {
             this.getTitleText(alert, alertStatus)
           )}
         </td>
-        <td className="table-width-md">
-          {numberFormat.format(alert.prev_value)}
-        </td>
+        <td className="table-width-md">{formatNumber(alert.prev_value)}</td>
         <td className="table-width-sm">
           <span
             className={alert.is_regression ? 'text-danger' : 'text-success'}
@@ -259,9 +255,7 @@ export default class AlertTableRow extends React.Component {
             {alert.prev_value > alert.new_value && <span>&gt;</span>}
           </span>
         </td>
-        <td className="table-width-md">
-          {numberFormat.format(alert.new_value)}
-        </td>
+        <td className="table-width-md">{formatNumber(alert.new_value)}</td>
         <td className="table-width-md">
           <SimpleTooltip
             textClass="detail-hint"
@@ -286,7 +280,7 @@ export default class AlertTableRow extends React.Component {
                   icon={faUser}
                 />
               ) : (
-                numberFormat.format(alert.t_value)
+                formatNumber(alert.t_value)
               )
             }
             tooltipText={
