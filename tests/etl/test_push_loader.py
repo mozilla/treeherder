@@ -130,7 +130,7 @@ def test_ingest_hg_push_good_repo(hg_push, test_repository, mock_hg_push_commits
     """Test graceful handling of an unknown HG repo"""
     hg_push["payload"]["repo_url"] = "https://hg.mozilla.org/mozilla-central"
     assert Push.objects.count() == 0
-    PushLoader().process(hg_push, "exchange/hgpushes/v1")
+    PushLoader().process(hg_push, "exchange/hgpushes/v1", "https://tc.example.com")
     assert Push.objects.count() == 1
 
 
@@ -138,7 +138,7 @@ def test_ingest_hg_push_good_repo(hg_push, test_repository, mock_hg_push_commits
 def test_ingest_hg_push_bad_repo(hg_push):
     """Test graceful handling of an unknown HG repo"""
     hg_push["payload"]["repo_url"] = "https://bad.repo.com"
-    PushLoader().process(hg_push, "exchange/hgpushes/v1")
+    PushLoader().process(hg_push, "exchange/hgpushes/v1", "https://tc.example.com")
     assert Push.objects.count() == 0
 
 
@@ -146,7 +146,7 @@ def test_ingest_hg_push_bad_repo(hg_push):
 def test_ingest_github_push_bad_repo(github_push):
     """Test graceful handling of an unknown GH repo"""
     github_push["details"]["event.head.repo.url"] = "https://bad.repo.com"
-    PushLoader().process(github_push, "exchange/taskcluster-github/v1/push")
+    PushLoader().process(github_push, "exchange/taskcluster-github/v1/push", "https://tc.example.com")
     assert Push.objects.count() == 0
 
 
@@ -165,5 +165,5 @@ def test_ingest_github_push_comma_separated_branches(branch, expected_pushes, gi
     test_repository.save()
     github_push["details"]["event.base.repo.branch"] = branch
     assert Push.objects.count() == 0
-    PushLoader().process(github_push, "exchange/taskcluster-github/v1/push")
+    PushLoader().process(github_push, "exchange/taskcluster-github/v1/push", "https://tc.example.com")
     assert Push.objects.count() == expected_pushes

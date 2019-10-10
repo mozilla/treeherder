@@ -1,13 +1,14 @@
 import logging
+import threading
 
 import newrelic.agent
-from kombu import (Exchange,
+from kombu import (Connection,
+                   Exchange,
                    Queue)
 from kombu.mixins import ConsumerMixin
 
 from treeherder.etl.common import fetch_json
-from treeherder.etl.tasks.pulse_tasks import (store_pulse_jobs,
-                                              store_pulse_pushes,
+from treeherder.etl.tasks.pulse_tasks import (store_pulse_pushes,
                                               store_pulse_tasks)
 
 from .exchange import get_exchange
@@ -19,22 +20,67 @@ logger = logging.getLogger(__name__)
 # the current ingestion queue.
 PULSE_GUARDIAN_URL = "https://pulseguardian.mozilla.org/"
 
+TASKCLUSTER_TASK_BINDINGS = [
+    "exchange/taskcluster-queue/v1/task-pending.#",
+    "exchange/taskcluster-queue/v1/task-running.#",
+    "exchange/taskcluster-queue/v1/task-completed.#",
+    "exchange/taskcluster-queue/v1/task-failed.#",
+    "exchange/taskcluster-queue/v1/task-exception.#",
+]
+
+GITHUB_PUSH_BINDINGS = [
+    "exchange/taskcluster-github/v1/push.#",
+    "exchange/taskcluster-github/v1/pull-request.#",
+]
+
+HGMO_PUSH_BINDINGS = [
+    "exchange/hgpushes/v1.#",
+]
+
 
 class PulseConsumer(ConsumerMixin):
     """
     Consume jobs from Pulse exchanges
     """
 
-    def __init__(self, connection):
-        self.connection = connection
+    def __init__(self, source, build_routing_key):
+        self.connection = Connection(source['pulse_url'])
         self.consumers = []
         self.queue = None
-        self.queue_name = "queue/{}/{}".format(connection.userid, self.queue_suffix)
+        self.queue_name = "queue/{}/{}".format(self.connection.userid, self.queue_suffix)
+        self.root_url = source['root_url']
+        self.source = source
+        self.build_routing_key = build_routing_key
 
     def get_consumers(self, Consumer, channel):
         return [
             Consumer(**c) for c in self.consumers
         ]
+
+    def bindings(self):
+        """Get the bindings for this consumer, each of the form `<exchange>.<routing_keys>`,
+        with `<routing_keys>` being `:`-separated."""
+        return []
+
+    def prepare(self):
+        bindings = []
+        for binding in self.bindings():
+            # split source string into exchange and routing key sections
+            exchange, _, routing_keys = binding.partition('.')
+
+            # built an exchange object with our connection and exchange name
+            exchange = get_exchange(self.connection, exchange)
+
+            # split the routing keys up using the delimiter
+            for routing_key in routing_keys.split(':'):
+                if self.build_routing_key is not None:  # build routing key
+                    routing_key = self.build_routing_key(routing_key)
+
+                binding = self.bind_to(exchange, routing_key)
+                bindings.append(binding)
+
+        # prune stale queues using the binding strings
+        self.prune_bindings(bindings)
 
     def bind_to(self, exchange, routing_key):
         if not self.queue:
@@ -52,6 +98,12 @@ class PulseConsumer(ConsumerMixin):
             self.queue.declare()
         else:
             self.queue.bind_to(exchange=exchange, routing_key=routing_key)
+
+        # get the binding key for this consumer
+        binding = self.get_binding_str(exchange.name, routing_key)
+        logger.info("Pulse queue {} bound to: {}".format(self.queue_name, binding))
+
+        return binding
 
     def unbind_from(self, exchange, routing_key):
         self.queue.unbind_from(exchange, routing_key)
@@ -91,25 +143,11 @@ class PulseConsumer(ConsumerMixin):
         return fetch_json("{}queue/{}/bindings".format(PULSE_GUARDIAN_URL, queue_name))
 
 
-# We will remove this class once it is not in use anymore
-class JobConsumer(PulseConsumer):
-    queue_suffix = "jobs"
-
-    @newrelic.agent.background_task(name='pulse-listener-jobs.on_message', group='Pulse Listener')
-    def on_message(self, body, message):
-        exchange = message.delivery_info['exchange']
-        routing_key = message.delivery_info['routing_key']
-        logger.info('received job message from %s#%s', exchange, routing_key)
-        store_pulse_jobs.apply_async(
-            args=[body, exchange, routing_key],
-            queue='store_pulse_jobs'
-        )
-        message.ack()
-
-
 class TaskConsumer(PulseConsumer):
-    # Use a different name than JobConsumer
     queue_suffix = "tasks"
+
+    def bindings(self):
+        return TASKCLUSTER_TASK_BINDINGS
 
     @newrelic.agent.background_task(name='pulse-listener-tasks.on_message', group='Pulse Listener')
     def on_message(self, body, message):
@@ -117,38 +155,22 @@ class TaskConsumer(PulseConsumer):
         routing_key = message.delivery_info['routing_key']
         logger.info('received job message from %s#%s', exchange, routing_key)
         store_pulse_tasks.apply_async(
-            args=[body, exchange, routing_key],
+            args=[body, exchange, routing_key, self.root_url],
             queue='store_pulse_tasks'
         )
         message.ack()
 
 
-class UpdateJobFixtures(PulseConsumer):
-    processedMessages = 0
-    maxMessages = 5
-    # This is the name of your queue on Pulse Guardian
-    queue_suffix = "foo"
-    messages = []
-
-    def on_message(self, body, message):
-        exchange = message.delivery_info['exchange']
-        routing_key = message.delivery_info['routing_key']
-        logger.debug('received job message from %s', exchange)
-        # handleMessage expects messages in this format
-        self.messages.append({
-            "exchange": exchange,
-            "routes": routing_key,
-            "payload": body,
-        })
-        message.ack()
-        self.processedMessages += 1
-        self.close()
-        if self.processedMessages > self.maxMessages:
-            raise Exception('We have processed {} and need to store them'.format(self.processedMessages))
-
-
 class PushConsumer(PulseConsumer):
     queue_suffix = "resultsets"
+
+    def bindings(self):
+        rv = []
+        if self.source.get('hgmo'):
+            rv += HGMO_PUSH_BINDINGS
+        if self.source.get('github'):
+            rv += GITHUB_PUSH_BINDINGS
+        return rv
 
     @newrelic.agent.background_task(name='pulse-listener-pushes.on_message', group='Pulse Listener')
     def on_message(self, body, message):
@@ -156,42 +178,31 @@ class PushConsumer(PulseConsumer):
         routing_key = message.delivery_info['routing_key']
         logger.info('received push message from %s#%s', exchange, routing_key)
         store_pulse_pushes.apply_async(
-            args=[body, exchange, routing_key],
+            args=[body, exchange, routing_key, self.root_url],
             queue='store_pulse_pushes'
         )
         message.ack()
 
 
-def bind_to(consumer, exchange, routing_key):
-    # bind the given consumer to the current exchange with a routing key
-    consumer.bind_to(exchange=exchange, routing_key=routing_key)
+class Consumers:
+    """
+    Run a collection of consumers in parallel.  These may be connected to different
+    AMQP servers, and Kombu only supports communicating wiht one connection per
+    thread, so we use multiple threads, one per consumer.
+    """
+    def __init__(self, consumers):
+        self.consumers = consumers
 
-    # get the binding key for this consumer
-    binding = consumer.get_binding_str(exchange.name, routing_key)
-    logger.info("Pulse queue {} bound to: {}".format(consumer.queue_name, binding))
+    def run(self):
+        def thd(consumer):
+            consumer.prepare()
+            consumer.run()
+        threads = [threading.Thread(target=thd, args=(c,), daemon=True) for c in self.consumers]
+        for t in threads:
+            t.start()
+        for t in threads:
+            t.join()
 
-    return binding
 
-
-def prepare_consumer(connection, consumer_cls, sources, build_routing_key=None):
-    consumer = consumer_cls(connection)
-    bindings = []
-    for source in sources:
-        # split source string into exchange and routing key sections
-        exchange, _, routing_keys = source.partition('.')
-
-        # built an exchange object with our connection and exchange name
-        exchange = get_exchange(connection, exchange)
-
-        # split the routing keys up using the delimiter
-        for routing_key in routing_keys.split(':'):
-            if build_routing_key is not None:  # build routing key
-                routing_key = build_routing_key(routing_key)
-
-            binding = bind_to(consumer, exchange, routing_key)
-            bindings.append(binding)
-
-    # prune stale queues using the binding strings
-    consumer.prune_bindings(bindings)
-
-    return consumer
+def prepare_consumers(consumer_cls, sources, build_routing_key=None):
+    return Consumers([consumer_cls(source, build_routing_key) for source in sources])

@@ -10,19 +10,12 @@ from treeherder.etl.push_loader import PushLoader
 from treeherder.etl.taskcluster_pulse.handler import handleMessage
 from treeherder.workers.task import retryable_task
 
-
-@retryable_task(name='store-pulse-jobs', max_retries=10)
-def store_pulse_jobs(pulse_job, exchange, routing_key):
-    """
-    Fetches the jobs pending from pulse exchanges and loads them.
-    """
-    newrelic.agent.add_custom_parameter("exchange", exchange)
-    newrelic.agent.add_custom_parameter("routing_key", routing_key)
-    JobLoader().process_job(pulse_job)
+# NOTE: default values for root_url parameters can be removed once all tasks that lack
+# that parameter have been processed
 
 
 @retryable_task(name='store-pulse-tasks', max_retries=10)
-def store_pulse_tasks(pulse_job, exchange, routing_key):
+def store_pulse_tasks(pulse_job, exchange, routing_key, root_url='https://taskcluster.net'):
     """
     Fetches tasks from Taskcluster
     """
@@ -33,17 +26,18 @@ def store_pulse_tasks(pulse_job, exchange, routing_key):
     runs = loop.run_until_complete(handleMessage({
         "exchange": exchange,
         "payload": pulse_job,
+        "root_url": root_url,
     }))
     for run in runs:
-        JobLoader().process_job(run)
+        JobLoader().process_job(run, root_url)
 
 
 @retryable_task(name='store-pulse-pushes', max_retries=10)
-def store_pulse_pushes(body, exchange, routing_key):
+def store_pulse_pushes(body, exchange, routing_key, root_url='https://taskcluster.net'):
     """
     Fetches the pushes pending from pulse exchanges and loads them.
     """
     newrelic.agent.add_custom_parameter("exchange", exchange)
     newrelic.agent.add_custom_parameter("routing_key", routing_key)
 
-    PushLoader().process(body, exchange)
+    PushLoader().process(body, exchange, root_url)
