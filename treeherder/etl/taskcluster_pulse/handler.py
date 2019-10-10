@@ -130,7 +130,7 @@ async def handleMessage(message, taskDefinition=None):
     # This will only work if the previous run has not yet been processed by Treeherder
     # since _remove_existing_jobs() will prevent it
     if message["payload"]["runId"] > 0:
-        jobs.append(await handleTaskRerun(parsedRoute, task, message["payload"]))
+        jobs.append(await handleTaskRerun(parsedRoute, task, message))
 
     if not taskType:
         raise Exception("Unknown exchange: {exchange}".format(exchange=message["exchange"]))

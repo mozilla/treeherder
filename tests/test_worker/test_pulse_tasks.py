@@ -32,7 +32,7 @@ def test_retry_missing_revision_succeeds(sample_data, sample_push,
         return orig_retry(exc=exc, countdown=countdown)
 
     monkeypatch.setattr(store_pulse_tasks, "retry", retry_mock)
-    store_pulse_tasks.delay(job, "foo", "bar")  # TODO: call this correctly
+    store_pulse_tasks.delay(job, "foo", "bar")
 
     assert Job.objects.count() == 1
     assert Job.objects.values()[0]["guid"] == job["taskId"]

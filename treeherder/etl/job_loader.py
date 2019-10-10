@@ -52,7 +52,6 @@ class JobLoader:
 
                 repository = Repository.objects.get(name=project)
 
-                print(repository)
                 if repository.tc_root_url != root_url:
                     logger.warning("Skipping job for %s with incorrect root_url %s",
                                    repository.name, root_url)
