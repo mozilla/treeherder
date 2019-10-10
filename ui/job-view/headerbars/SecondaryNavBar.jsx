@@ -1,6 +1,3 @@
-/* eslint-disable jsx-a11y/control-has-associated-label */
-/* eslint-disable jsx-a11y/no-static-element-interactions */
-
 import React from 'react';
 import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
@@ -239,6 +236,8 @@ class SecondaryNavBar extends React.PureComponent {
                 className="btn btn-sm btn-view-nav nav-menu-btn"
                 onClick={updateButtonClick}
                 id="revisionChangedLabel"
+                role="button"
+                tabIndex="0"
                 title="New version of Treeherder has been deployed. Reload to pick up changes."
               >
                 <FontAwesomeIcon icon={faExclamationCircle} />
@@ -284,6 +283,11 @@ class SecondaryNavBar extends React.PureComponent {
               } ${!duplicateJobsVisible ? 'strikethrough' : ''}`}
               tabIndex="0"
               role="button"
+              aria-label={
+                duplicateJobsVisible
+                  ? 'Hide duplicate jobs'
+                  : 'Show duplicate jobs'
+              }
               title={
                 duplicateJobsVisible
                   ? 'Hide duplicate jobs'
@@ -345,6 +349,8 @@ class SecondaryNavBar extends React.PureComponent {
               <span
                 className="btn btn-view-nav btn-sm"
                 onClick={toggleFieldFilterVisible}
+                role="button"
+                tabIndex="0"
                 title="Filter by a job field"
               >
                 <FontAwesomeIcon
