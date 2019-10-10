@@ -1,5 +1,6 @@
 {
   "A35mWTRuQmyj88yMnIF0fA": {
+    "root_url": "https://taskcluster.net",
     "exchange": "exchange/taskcluster-queue/v1/task-pending",
     "payload": {
       "runId": 0,
@@ -27,6 +28,7 @@
     "routes": "primary.A35mWTRuQmyj88yMnIF0fA.0._._.aws-provisioner-v1.gecko-t-linux-large.gecko-level-3.XrWNyFwpT2in-wLY9frb-w._"
   },
   "A3dJ8bDIQRKzHiZBhM0c5Q": {
+    "root_url": "https://taskcluster.net",
     "exchange": "exchange/taskcluster-queue/v1/task-pending",
     "payload": {
       "runId": 0,
@@ -54,6 +56,7 @@
     "routes": "primary.A3dJ8bDIQRKzHiZBhM0c5Q.0._._.aws-provisioner-v1.gecko-t-linux-large.gecko-level-3.XrWNyFwpT2in-wLY9frb-w._"
   },
   "A47ePPIaRFOWxw8oVOvmCA": {
+    "root_url": "https://taskcluster.net",
     "exchange": "exchange/taskcluster-queue/v1/task-pending",
     "payload": {
       "runId": 0,
@@ -81,6 +84,7 @@
     "routes": "primary.A47ePPIaRFOWxw8oVOvmCA.0._._.aws-provisioner-v1.gecko-t-linux-large.gecko-level-3.XrWNyFwpT2in-wLY9frb-w._"
   },
   "A4AV9EXXREGCV-hVKT0blQ": {
+    "root_url": "https://taskcluster.net",
     "exchange": "exchange/taskcluster-queue/v1/task-pending",
     "payload": {
       "runId": 0,
@@ -108,6 +112,7 @@
     "routes": "primary.A4AV9EXXREGCV-hVKT0blQ.0._._.aws-provisioner-v1.gecko-t-linux-large.gecko-level-3.XrWNyFwpT2in-wLY9frb-w._"
   },
   "ADfskOGaS7KUj0AuUb324A": {
+    "root_url": "https://taskcluster.net",
     "exchange": "exchange/taskcluster-queue/v1/task-pending",
     "payload": {
       "runId": 0,
@@ -135,6 +140,7 @@
     "routes": "primary.ADfskOGaS7KUj0AuUb324A.0._._.aws-provisioner-v1.gecko-t-linux-large.gecko-level-3.XrWNyFwpT2in-wLY9frb-w._"
   },
   "AcUWtRf7QB-4XQS8nSTilg": {
+    "root_url": "https://taskcluster.net",
     "exchange": "exchange/taskcluster-queue/v1/task-pending",
     "payload": {
       "runId": 0,
@@ -162,6 +168,7 @@
     "routes": "primary.AcUWtRf7QB-4XQS8nSTilg.0._._.aws-provisioner-v1.gecko-t-linux-large.gecko-level-3.XrWNyFwpT2in-wLY9frb-w._"
   },
   "Ai-bmuTzS7eRBYFhSPnZ1w": {
+    "root_url": "https://taskcluster.net",
     "exchange": "exchange/taskcluster-queue/v1/task-running",
     "payload": {
       "runId": 0,
@@ -196,6 +203,7 @@
     "routes": "primary.Ai-bmuTzS7eRBYFhSPnZ1w.0.us-west-1.i-0429b6e2c0ac7474d.aws-provisioner-v1.gecko-t-linux-large.gecko-level-3.XrWNyFwpT2in-wLY9frb-w._"
   },
   "AlcvKmrGS8e9FXrFTYnhpA": {
+    "root_url": "https://taskcluster.net",
     "exchange": "exchange/taskcluster-queue/v1/task-pending",
     "payload": {
       "runId": 0,
@@ -223,6 +231,7 @@
     "routes": "primary.AlcvKmrGS8e9FXrFTYnhpA.0._._.aws-provisioner-v1.gecko-t-linux-large.gecko-level-3.XrWNyFwpT2in-wLY9frb-w._"
   },
   "ApotNgqaQh6OGDW8TMSWlQ": {
+    "root_url": "https://taskcluster.net",
     "exchange": "exchange/taskcluster-queue/v1/task-pending",
     "payload": {
       "runId": 0,
@@ -250,6 +259,7 @@
     "routes": "primary.ApotNgqaQh6OGDW8TMSWlQ.0._._.aws-provisioner-v1.gecko-t-linux-large.gecko-level-3.XrWNyFwpT2in-wLY9frb-w._"
   },
   "AqMhSaDqSAG7nfjfxjKLZA": {
+    "root_url": "https://taskcluster.net",
     "exchange": "exchange/taskcluster-queue/v1/task-pending",
     "payload": {
       "runId": 0,
@@ -277,6 +287,7 @@
     "routes": "primary.AqMhSaDqSAG7nfjfxjKLZA.0._._.aws-provisioner-v1.gecko-t-linux-large.gecko-level-3.XrWNyFwpT2in-wLY9frb-w._"
   },
   "AseHcKjPRhi-NBsvwH54gw": {
+    "root_url": "https://taskcluster.net",
     "exchange": "exchange/taskcluster-queue/v1/task-pending",
     "payload": {
       "runId": 0,
@@ -304,6 +315,7 @@
     "routes": "primary.AseHcKjPRhi-NBsvwH54gw.0._._.aws-provisioner-v1.gecko-t-linux-large.gecko-level-3.XrWNyFwpT2in-wLY9frb-w._"
   },
   "B3EheQ-IQ5aPzw34KS_a6g": {
+    "root_url": "https://taskcluster.net",
     "exchange": "exchange/taskcluster-queue/v1/task-completed",
     "payload": {
       "runId": 0,
@@ -339,6 +351,7 @@
     "routes": "primary.B3EheQ-IQ5aPzw34KS_a6g.0.mdc2.t-mojave-r7-153.releng-hardware.gecko-t-osx-1014.gecko-level-3.EJAo7mQyRqS-jmzebhceFA._"
   },
   "BFqlkKMaTVqv3ROSlUT6kQ": {
+    "root_url": "https://taskcluster.net",
     "exchange": "exchange/taskcluster-queue/v1/task-pending",
     "payload": {
       "runId": 0,
@@ -366,6 +379,7 @@
     "routes": "primary.BFqlkKMaTVqv3ROSlUT6kQ.0._._.aws-provisioner-v1.gecko-t-linux-xlarge.gecko-level-3.XrWNyFwpT2in-wLY9frb-w._"
   },
   "BHejD_RvTW2HR2THXfwDAQ": {
+    "root_url": "https://taskcluster.net",
     "exchange": "exchange/taskcluster-queue/v1/task-pending",
     "payload": {
       "runId": 0,
@@ -393,6 +407,7 @@
     "routes": "primary.BHejD_RvTW2HR2THXfwDAQ.0._._.aws-provisioner-v1.gecko-t-linux-large.gecko-level-3.XrWNyFwpT2in-wLY9frb-w._"
   },
   "BXWMaUV7TCunBcJQELbZqw": {
+    "root_url": "https://taskcluster.net",
     "exchange": "exchange/taskcluster-queue/v1/task-pending",
     "payload": {
       "runId": 0,
@@ -420,6 +435,7 @@
     "routes": "primary.BXWMaUV7TCunBcJQELbZqw.0._._.aws-provisioner-v1.gecko-t-linux-large.gecko-level-3.XrWNyFwpT2in-wLY9frb-w._"
   },
   "BZuYb2PTTQ-opGzxvZvA9A": {
+    "root_url": "https://taskcluster.net",
     "exchange": "exchange/taskcluster-queue/v1/task-pending",
     "payload": {
       "runId": 0,
@@ -447,6 +463,7 @@
     "routes": "primary.BZuYb2PTTQ-opGzxvZvA9A.0._._.aws-provisioner-v1.gecko-t-linux-large.gecko-level-3.XrWNyFwpT2in-wLY9frb-w._"
   },
   "BdHfGUHPTLm0IKz47oNJlA": {
+    "root_url": "https://taskcluster.net",
     "exchange": "exchange/taskcluster-queue/v1/task-pending",
     "payload": {
       "runId": 0,
@@ -474,6 +491,7 @@
     "routes": "primary.BdHfGUHPTLm0IKz47oNJlA.0._._.aws-provisioner-v1.gecko-t-linux-large.gecko-level-3.XrWNyFwpT2in-wLY9frb-w._"
   },
   "BdHy_4vQSA2ZQoxXc-6ieA": {
+    "root_url": "https://taskcluster.net",
     "exchange": "exchange/taskcluster-queue/v1/task-pending",
     "payload": {
       "runId": 0,
@@ -501,6 +519,7 @@
     "routes": "primary.BdHy_4vQSA2ZQoxXc-6ieA.0._._.aws-provisioner-v1.gecko-t-linux-large.gecko-level-3.XrWNyFwpT2in-wLY9frb-w._"
   },
   "BfEK00F_TSm20TD799GdMw": {
+    "root_url": "https://taskcluster.net",
     "exchange": "exchange/taskcluster-queue/v1/task-pending",
     "payload": {
       "runId": 0,
@@ -528,6 +547,7 @@
     "routes": "primary.BfEK00F_TSm20TD799GdMw.0._._.aws-provisioner-v1.gecko-t-linux-xlarge.gecko-level-3.XrWNyFwpT2in-wLY9frb-w._"
   },
   "Bg8h-Ct_SPSrEEYuvPAYSQ": {
+    "root_url": "https://taskcluster.net",
     "exchange": "exchange/taskcluster-queue/v1/task-pending",
     "payload": {
       "runId": 0,
@@ -555,6 +575,7 @@
     "routes": "primary.Bg8h-Ct_SPSrEEYuvPAYSQ.0._._.aws-provisioner-v1.gecko-t-linux-large.gecko-level-3.XrWNyFwpT2in-wLY9frb-w._"
   },
   "BpnQqda2Q0izXw4k0RUT6w": {
+    "root_url": "https://taskcluster.net",
     "exchange": "exchange/taskcluster-queue/v1/task-pending",
     "payload": {
       "runId": 0,
@@ -582,6 +603,7 @@
     "routes": "primary.BpnQqda2Q0izXw4k0RUT6w.0._._.aws-provisioner-v1.gecko-t-linux-large.gecko-level-3.XrWNyFwpT2in-wLY9frb-w._"
   },
   "CBO2K8XGQEaNpX1BkwJmNw": {
+    "root_url": "https://taskcluster.net",
     "exchange": "exchange/taskcluster-queue/v1/task-pending",
     "payload": {
       "runId": 0,
@@ -609,6 +631,7 @@
     "routes": "primary.CBO2K8XGQEaNpX1BkwJmNw.0._._.aws-provisioner-v1.gecko-t-linux-large.gecko-level-3.XrWNyFwpT2in-wLY9frb-w._"
   },
   "CER7YmG9QmCd-R66vfWkVQ": {
+    "root_url": "https://taskcluster.net",
     "exchange": "exchange/taskcluster-queue/v1/task-running",
     "payload": {
       "runId": 0,
@@ -643,6 +666,7 @@
     "routes": "primary.CER7YmG9QmCd-R66vfWkVQ.0.us-west-1.i-0da13f5d4e5576fd5.aws-provisioner-v1.gecko-1-decision.gecko-level-1.VQg1HZ5yS0ixZvsnHLWuFw._"
   },
   "DPCuZCk-SWC6SeftAbytzw": {
+    "root_url": "https://taskcluster.net",
     "exchange": "exchange/taskcluster-queue/v1/task-pending",
     "payload": {
       "runId": 0,
@@ -670,6 +694,7 @@
     "routes": "primary.DPCuZCk-SWC6SeftAbytzw.0._._.aws-provisioner-v1.gecko-t-linux-xlarge.gecko-level-3.XrWNyFwpT2in-wLY9frb-w._"
   },
   "D_6WScWhTLysuSIkbqfjsg": {
+    "root_url": "https://taskcluster.net",
     "exchange": "exchange/taskcluster-queue/v1/task-pending",
     "payload": {
       "runId": 0,
@@ -697,6 +722,7 @@
     "routes": "primary.D_6WScWhTLysuSIkbqfjsg.0._._.aws-provisioner-v1.gecko-t-linux-large.gecko-level-3.XrWNyFwpT2in-wLY9frb-w._"
   },
   "DxhjVp-uQtGhRLm1w0xdiA": {
+    "root_url": "https://taskcluster.net",
     "exchange": "exchange/taskcluster-queue/v1/task-pending",
     "payload": {
       "runId": 0,
@@ -724,6 +750,7 @@
     "routes": "primary.DxhjVp-uQtGhRLm1w0xdiA.0._._.aws-provisioner-v1.gecko-t-linux-large.gecko-level-3.XrWNyFwpT2in-wLY9frb-w._"
   },
   "ENXQRjSMRWyWK_zAEYEoXg": {
+    "root_url": "https://taskcluster.net",
     "exchange": "exchange/taskcluster-queue/v1/task-completed",
     "payload": {
       "runId": 0,
@@ -759,6 +786,7 @@
     "routes": "primary.ENXQRjSMRWyWK_zAEYEoXg.0.mdc2.t-yosemite-r7-098.releng-hardware.gecko-t-osx-1010.gecko-level-3.HkX-TbGXQaSX4ucqGMQNBA._"
   },
   "EvNqsyBISNCH8mwfDVRnSQ": {
+    "root_url": "https://taskcluster.net",
     "exchange": "exchange/taskcluster-queue/v1/task-running",
     "payload": {
       "runId": 0,
@@ -793,6 +821,7 @@
     "routes": "primary.EvNqsyBISNCH8mwfDVRnSQ.0.us-west-2.i-062aa60828009efec.aws-provisioner-v1.gecko-1-decision.gecko-level-1.VQg1HZ5yS0ixZvsnHLWuFw._"
   },
   "F93bme7iSP2k0TsCwqSBVw": {
+    "root_url": "https://taskcluster.net",
     "exchange": "exchange/taskcluster-queue/v1/task-pending",
     "payload": {
       "runId": 0,
@@ -820,6 +849,7 @@
     "routes": "primary.F93bme7iSP2k0TsCwqSBVw.0._._.aws-provisioner-v1.gecko-t-linux-large.gecko-level-3.XrWNyFwpT2in-wLY9frb-w._"
   },
   "FgjNkrvXS0WDDJJUpVXZsA": {
+    "root_url": "https://taskcluster.net",
     "exchange": "exchange/taskcluster-queue/v1/task-pending",
     "payload": {
       "runId": 0,
@@ -847,6 +877,7 @@
     "routes": "primary.FgjNkrvXS0WDDJJUpVXZsA.0._._.aws-provisioner-v1.gecko-t-linux-large.gecko-level-3.XrWNyFwpT2in-wLY9frb-w._"
   },
   "Fj3fDgrvRXitCVX2RiJUaw": {
+    "root_url": "https://taskcluster.net",
     "exchange": "exchange/taskcluster-queue/v1/task-pending",
     "payload": {
       "runId": 0,
@@ -874,6 +905,7 @@
     "routes": "primary.Fj3fDgrvRXitCVX2RiJUaw.0._._.aws-provisioner-v1.gecko-t-linux-large.gecko-level-3.XrWNyFwpT2in-wLY9frb-w._"
   },
   "FkHz3gGPSVmL6YJOupYBXw": {
+    "root_url": "https://taskcluster.net",
     "exchange": "exchange/taskcluster-queue/v1/task-pending",
     "payload": {
       "runId": 0,
@@ -901,6 +933,7 @@
     "routes": "primary.FkHz3gGPSVmL6YJOupYBXw.0._._.aws-provisioner-v1.gecko-t-linux-large.gecko-level-3.XrWNyFwpT2in-wLY9frb-w._"
   },
   "FsgLMdKwRzWJAwUhYy2g0Q": {
+    "root_url": "https://taskcluster.net",
     "exchange": "exchange/taskcluster-queue/v1/task-pending",
     "payload": {
       "runId": 0,
@@ -928,6 +961,7 @@
     "routes": "primary.FsgLMdKwRzWJAwUhYy2g0Q.0._._.aws-provisioner-v1.gecko-t-linux-large.gecko-level-3.XrWNyFwpT2in-wLY9frb-w._"
   },
   "GTFxZJWzSKSNc_XElgtWHQ": {
+    "root_url": "https://taskcluster.net",
     "exchange": "exchange/taskcluster-queue/v1/task-pending",
     "payload": {
       "runId": 0,
@@ -955,6 +989,7 @@
     "routes": "primary.GTFxZJWzSKSNc_XElgtWHQ.0._._.aws-provisioner-v1.gecko-t-linux-xlarge.gecko-level-3.XrWNyFwpT2in-wLY9frb-w._"
   },
   "GWxTc8p_RUa5_Xo4RtMiCA": {
+    "root_url": "https://taskcluster.net",
     "exchange": "exchange/taskcluster-queue/v1/task-completed",
     "payload": {
       "runId": 0,
@@ -990,6 +1025,7 @@
     "routes": "primary.GWxTc8p_RUa5_Xo4RtMiCA.0.packet-sjc1.machine-39.terraform-packet.gecko-t-linux.gecko-level-3.HkX-TbGXQaSX4ucqGMQNBA._"
   },
   "HsvD9YlDQKaoP4AQsuGeJw": {
+    "root_url": "https://taskcluster.net",
     "exchange": "exchange/taskcluster-queue/v1/task-completed",
     "payload": {
       "runId": 0,
@@ -1025,6 +1061,7 @@
     "routes": "primary.HsvD9YlDQKaoP4AQsuGeJw.0.mdc2.t-yosemite-r7-123.releng-hardware.gecko-t-osx-1010.gecko-level-3.HkX-TbGXQaSX4ucqGMQNBA._"
   },
   "JKDqO-yySta79-Y92Dq2yQ": {
+    "root_url": "https://taskcluster.net",
     "exchange": "exchange/taskcluster-queue/v1/task-pending",
     "payload": {
       "runId": 0,
@@ -1052,6 +1089,7 @@
     "routes": "primary.JKDqO-yySta79-Y92Dq2yQ.0._._.aws-provisioner-v1.gecko-t-linux-large.gecko-level-3.XrWNyFwpT2in-wLY9frb-w._"
   },
   "JM6eV6S-R5-Dy08gjoBHrQ": {
+    "root_url": "https://taskcluster.net",
     "exchange": "exchange/taskcluster-queue/v1/task-pending",
     "payload": {
       "runId": 0,
@@ -1079,6 +1117,7 @@
     "routes": "primary.JM6eV6S-R5-Dy08gjoBHrQ.0._._.aws-provisioner-v1.gecko-t-linux-large.gecko-level-3.XrWNyFwpT2in-wLY9frb-w._"
   },
   "K2IZ74mWQfiEn2U6XnVLPQ": {
+    "root_url": "https://taskcluster.net",
     "exchange": "exchange/taskcluster-queue/v1/task-pending",
     "payload": {
       "runId": 0,
@@ -1106,6 +1145,7 @@
     "routes": "primary.K2IZ74mWQfiEn2U6XnVLPQ.0._._.aws-provisioner-v1.gecko-t-linux-large.gecko-level-3.XrWNyFwpT2in-wLY9frb-w._"
   },
   "K5R8rkgARZWMvH4JpmSPrQ": {
+    "root_url": "https://taskcluster.net",
     "exchange": "exchange/taskcluster-queue/v1/task-pending",
     "payload": {
       "runId": 0,
@@ -1133,6 +1173,7 @@
     "routes": "primary.K5R8rkgARZWMvH4JpmSPrQ.0._._.aws-provisioner-v1.gecko-t-linux-large.gecko-level-3.XrWNyFwpT2in-wLY9frb-w._"
   },
   "KYZKwkbvRc-qPE22g286yQ": {
+    "root_url": "https://taskcluster.net",
     "exchange": "exchange/taskcluster-queue/v1/task-completed",
     "payload": {
       "runId": 0,
@@ -1168,6 +1209,7 @@
     "routes": "primary.KYZKwkbvRc-qPE22g286yQ.0.us-east-1.i-06c2c7e06fc36c6c5.aws-provisioner-v1.gecko-t-linux-large.gecko-level-1.CjxziyApQDCcPUMhKFiIGg._"
   },
   "KnBj0KLcTjuyNaTxt5LVqw": {
+    "root_url": "https://taskcluster.net",
     "exchange": "exchange/taskcluster-queue/v1/task-running",
     "payload": {
       "runId": 0,
@@ -1202,6 +1244,7 @@
     "routes": "primary.KnBj0KLcTjuyNaTxt5LVqw.0.us-west-1.i-019077061bddb4fe7.aws-provisioner-v1.gecko-1-decision.gecko-level-1.VQg1HZ5yS0ixZvsnHLWuFw._"
   },
   "LBJoI2wUTNCteg-5CnaYZQ": {
+    "root_url": "https://taskcluster.net",
     "exchange": "exchange/taskcluster-queue/v1/task-completed",
     "payload": {
       "runId": 0,
@@ -1237,6 +1280,7 @@
     "routes": "primary.LBJoI2wUTNCteg-5CnaYZQ.0.us-west-1.i-0b63c3556524f5295.aws-provisioner-v1.gecko-t-linux-large.gecko-level-3.EJAo7mQyRqS-jmzebhceFA._"
   },
   "LWArw4t5QaCHiHsEJo6hFA": {
+    "root_url": "https://taskcluster.net",
     "exchange": "exchange/taskcluster-queue/v1/task-running",
     "payload": {
       "runId": 0,
@@ -1271,6 +1315,7 @@
     "routes": "primary.LWArw4t5QaCHiHsEJo6hFA.0.us-west-1.i-0be69dc84b0354bde.aws-provisioner-v1.gecko-1-decision.gecko-level-1.VQg1HZ5yS0ixZvsnHLWuFw._"
   },
   "MrYMxyDDSwWXJey-uo4T3g": {
+    "root_url": "https://taskcluster.net",
     "exchange": "exchange/taskcluster-queue/v1/task-completed",
     "payload": {
       "runId": 0,
@@ -1306,6 +1351,7 @@
     "routes": "primary.MrYMxyDDSwWXJey-uo4T3g.0.us-west-1.i-08b6fd26055d2603e.aws-provisioner-v1.gecko-t-win10-64-gpu.gecko-level-3.EJAo7mQyRqS-jmzebhceFA._"
   },
   "NWz-q9MoSL-WMfO7kiwhtg": {
+    "root_url": "https://taskcluster.net",
     "exchange": "exchange/taskcluster-queue/v1/task-pending",
     "payload": {
       "runId": 0,
@@ -1333,6 +1379,7 @@
     "routes": "primary.NWz-q9MoSL-WMfO7kiwhtg.0._._.aws-provisioner-v1.gecko-t-linux-large.gecko-level-3.XrWNyFwpT2in-wLY9frb-w._"
   },
   "OiZYxvi5RfKol0A4SBbvOw": {
+    "root_url": "https://taskcluster.net",
     "exchange": "exchange/taskcluster-queue/v1/task-completed",
     "payload": {
       "runId": 0,
@@ -1368,6 +1415,7 @@
     "routes": "primary.OiZYxvi5RfKol0A4SBbvOw.0.us-east-1.i-0d0f91277e3f902cc.aws-provisioner-v1.gecko-t-linux-xlarge.gecko-level-3.Vo0j4wv3RFai2uA5IGZ1Cw._"
   },
   "PCVDCxY9QM-lEgaGhrCPrw": {
+    "root_url": "https://taskcluster.net",
     "exchange": "exchange/taskcluster-queue/v1/task-completed",
     "payload": {
       "runId": 0,
@@ -1403,6 +1451,7 @@
     "routes": "primary.PCVDCxY9QM-lEgaGhrCPrw.0.us-west-1.i-0bd696849d1151857.aws-provisioner-v1.gecko-t-win10-64.gecko-level-1.EiRNaGPeQjCB0ceF-A-Kdw._"
   },
   "Pr3zPNMqS8CAY6hHB_lwow": {
+    "root_url": "https://taskcluster.net",
     "exchange": "exchange/taskcluster-queue/v1/task-pending",
     "payload": {
       "runId": 0,
@@ -1430,6 +1479,7 @@
     "routes": "primary.Pr3zPNMqS8CAY6hHB_lwow.0._._.aws-provisioner-v1.gecko-t-linux-xlarge.gecko-level-3.XrWNyFwpT2in-wLY9frb-w._"
   },
   "Q5dgajTmQaG3bW8xf8mWRw": {
+    "root_url": "https://taskcluster.net",
     "exchange": "exchange/taskcluster-queue/v1/task-pending",
     "payload": {
       "runId": 0,
@@ -1457,6 +1507,7 @@
     "routes": "primary.Q5dgajTmQaG3bW8xf8mWRw.0._._.aws-provisioner-v1.gecko-t-linux-large.gecko-level-3.XrWNyFwpT2in-wLY9frb-w._"
   },
   "QDGdgQTQRC2xZNR3Zs_IhA": {
+    "root_url": "https://taskcluster.net",
     "exchange": "exchange/taskcluster-queue/v1/task-completed",
     "payload": {
       "runId": 0,
@@ -1492,6 +1543,7 @@
     "routes": "primary.QDGdgQTQRC2xZNR3Zs_IhA.0.us-west-2.i-0de7ae42ffc13af93.aws-provisioner-v1.gecko-t-win10-64.gecko-level-1.EiRNaGPeQjCB0ceF-A-Kdw._"
   },
   "QUhTaNzmR-SnLuVMscnSYA": {
+    "root_url": "https://taskcluster.net",
     "exchange": "exchange/taskcluster-queue/v1/task-running",
     "payload": {
       "runId": 0,
@@ -1526,6 +1578,7 @@
     "routes": "primary.QUhTaNzmR-SnLuVMscnSYA.0.us-west-1.i-0da13f5d4e5576fd5.aws-provisioner-v1.gecko-1-decision.gecko-level-1.VQg1HZ5yS0ixZvsnHLWuFw._"
   },
   "QbJceuUbQF-SAHp_tuN4bg": {
+    "root_url": "https://taskcluster.net",
     "exchange": "exchange/taskcluster-queue/v1/task-pending",
     "payload": {
       "runId": 0,
@@ -1553,6 +1606,7 @@
     "routes": "primary.QbJceuUbQF-SAHp_tuN4bg.0._._.aws-provisioner-v1.gecko-t-linux-large.gecko-level-3.XrWNyFwpT2in-wLY9frb-w._"
   },
   "TNBQvfFkR0KoVFz_7QIkIw": {
+    "root_url": "https://taskcluster.net",
     "exchange": "exchange/taskcluster-queue/v1/task-pending",
     "payload": {
       "runId": 0,
@@ -1580,6 +1634,7 @@
     "routes": "primary.TNBQvfFkR0KoVFz_7QIkIw.0._._.aws-provisioner-v1.gecko-t-linux-large.gecko-level-3.XrWNyFwpT2in-wLY9frb-w._"
   },
   "TacsT1-FSMia0IGkYP-cTQ": {
+    "root_url": "https://taskcluster.net",
     "exchange": "exchange/taskcluster-queue/v1/task-pending",
     "payload": {
       "runId": 0,
@@ -1607,6 +1662,7 @@
     "routes": "primary.TacsT1-FSMia0IGkYP-cTQ.0._._.aws-provisioner-v1.gecko-t-linux-large.gecko-level-3.XrWNyFwpT2in-wLY9frb-w._"
   },
   "TbO_k663R3St6hBFE92StQ": {
+    "root_url": "https://taskcluster.net",
     "exchange": "exchange/taskcluster-queue/v1/task-pending",
     "payload": {
       "runId": 0,
@@ -1634,6 +1690,7 @@
     "routes": "primary.TbO_k663R3St6hBFE92StQ.0._._.aws-provisioner-v1.gecko-t-linux-large.gecko-level-3.XrWNyFwpT2in-wLY9frb-w._"
   },
   "TwPxQPQiQLC0jwp0Crf4sw": {
+    "root_url": "https://taskcluster.net",
     "exchange": "exchange/taskcluster-queue/v1/task-pending",
     "payload": {
       "runId": 0,
@@ -1661,6 +1718,7 @@
     "routes": "primary.TwPxQPQiQLC0jwp0Crf4sw.0._._.aws-provisioner-v1.gecko-t-linux-xlarge.gecko-level-3.XrWNyFwpT2in-wLY9frb-w._"
   },
   "UAEeps8wSMmoL4r0MdjlXA": {
+    "root_url": "https://taskcluster.net",
     "exchange": "exchange/taskcluster-queue/v1/task-running",
     "payload": {
       "runId": 0,
@@ -1695,6 +1753,7 @@
     "routes": "primary.UAEeps8wSMmoL4r0MdjlXA.0.us-west-2.i-07dbb95ac410df8f7.aws-provisioner-v1.gecko-t-linux-large.gecko-level-3.XrWNyFwpT2in-wLY9frb-w._"
   },
   "UWjPMpssTgq0kA7hj9QtJw": {
+    "root_url": "https://taskcluster.net",
     "exchange": "exchange/taskcluster-queue/v1/task-pending",
     "payload": {
       "runId": 0,
@@ -1722,6 +1781,7 @@
     "routes": "primary.UWjPMpssTgq0kA7hj9QtJw.0._._.aws-provisioner-v1.gecko-t-linux-large.gecko-level-3.XrWNyFwpT2in-wLY9frb-w._"
   },
   "UZ37gpDqTRS1pBNnp0Spsg": {
+    "root_url": "https://taskcluster.net",
     "exchange": "exchange/taskcluster-queue/v1/task-completed",
     "payload": {
       "runId": 0,
@@ -1757,6 +1817,7 @@
     "routes": "primary.UZ37gpDqTRS1pBNnp0Spsg.0.us-west-2.i-0d6489faaf7371ecb.aws-provisioner-v1.gecko-t-linux-large.gecko-level-3.HkX-TbGXQaSX4ucqGMQNBA._"
   },
   "UoGLhHlwT4mH3h3ukcm_Ig": {
+    "root_url": "https://taskcluster.net",
     "exchange": "exchange/taskcluster-queue/v1/task-pending",
     "payload": {
       "runId": 0,
@@ -1784,6 +1845,7 @@
     "routes": "primary.UoGLhHlwT4mH3h3ukcm_Ig.0._._.aws-provisioner-v1.gecko-t-linux-large.gecko-level-3.XrWNyFwpT2in-wLY9frb-w._"
   },
   "UxS4jt6lQdyUYnPcmN-z-w": {
+    "root_url": "https://taskcluster.net",
     "exchange": "exchange/taskcluster-queue/v1/task-pending",
     "payload": {
       "runId": 0,
@@ -1811,6 +1873,7 @@
     "routes": "primary.UxS4jt6lQdyUYnPcmN-z-w.0._._.aws-provisioner-v1.gecko-t-linux-xlarge.gecko-level-3.XrWNyFwpT2in-wLY9frb-w._"
   },
   "VGU4RUKFScaK8eBikMi9IQ": {
+    "root_url": "https://taskcluster.net",
     "exchange": "exchange/taskcluster-queue/v1/task-pending",
     "payload": {
       "runId": 0,
@@ -1838,6 +1901,7 @@
     "routes": "primary.VGU4RUKFScaK8eBikMi9IQ.0._._.aws-provisioner-v1.gecko-t-linux-large.gecko-level-3.XrWNyFwpT2in-wLY9frb-w._"
   },
   "VqbRb6bZSlywWOQN62tk-g": {
+    "root_url": "https://taskcluster.net",
     "exchange": "exchange/taskcluster-queue/v1/task-pending",
     "payload": {
       "runId": 0,
@@ -1865,6 +1929,7 @@
     "routes": "primary.VqbRb6bZSlywWOQN62tk-g.0._._.aws-provisioner-v1.gecko-t-linux-large.gecko-level-3.XrWNyFwpT2in-wLY9frb-w._"
   },
   "VspVGZYjSAqqsg6CGgv-rw": {
+    "root_url": "https://taskcluster.net",
     "exchange": "exchange/taskcluster-queue/v1/task-pending",
     "payload": {
       "runId": 0,
@@ -1892,6 +1957,7 @@
     "routes": "primary.VspVGZYjSAqqsg6CGgv-rw.0._._.aws-provisioner-v1.gecko-t-linux-large.gecko-level-3.XrWNyFwpT2in-wLY9frb-w._"
   },
   "WkFYxflwT76VzWNc6hryiQ": {
+    "root_url": "https://taskcluster.net",
     "exchange": "exchange/taskcluster-queue/v1/task-pending",
     "payload": {
       "runId": 0,
@@ -1919,6 +1985,7 @@
     "routes": "primary.WkFYxflwT76VzWNc6hryiQ.0._._.aws-provisioner-v1.gecko-t-linux-large.gecko-level-3.XrWNyFwpT2in-wLY9frb-w._"
   },
   "XOw2FYEdSb2hwS_lj2bDAg": {
+    "root_url": "https://taskcluster.net",
     "exchange": "exchange/taskcluster-queue/v1/task-running",
     "payload": {
       "runId": 0,
@@ -1953,6 +2020,7 @@
     "routes": "primary.XOw2FYEdSb2hwS_lj2bDAg.0.us-west-1.i-019077061bddb4fe7.aws-provisioner-v1.gecko-1-decision.gecko-level-1.VQg1HZ5yS0ixZvsnHLWuFw._"
   },
   "XQdfjjACRJCmpqKjLxLRXA": {
+    "root_url": "https://taskcluster.net",
     "exchange": "exchange/taskcluster-queue/v1/task-pending",
     "payload": {
       "runId": 0,
@@ -1980,6 +2048,7 @@
     "routes": "primary.XQdfjjACRJCmpqKjLxLRXA.0._._.aws-provisioner-v1.gecko-t-linux-xlarge.gecko-level-3.XrWNyFwpT2in-wLY9frb-w._"
   },
   "XiZuJW7MQ-GrC7iV81YWdw": {
+    "root_url": "https://taskcluster.net",
     "exchange": "exchange/taskcluster-queue/v1/task-pending",
     "payload": {
       "runId": 0,
@@ -2007,6 +2076,7 @@
     "routes": "primary.XiZuJW7MQ-GrC7iV81YWdw.0._._.aws-provisioner-v1.gecko-t-linux-large.gecko-level-3.XrWNyFwpT2in-wLY9frb-w._"
   },
   "Xxznj5R9QCS-7iqptegltQ": {
+    "root_url": "https://taskcluster.net",
     "exchange": "exchange/taskcluster-queue/v1/task-pending",
     "payload": {
       "runId": 0,
@@ -2034,6 +2104,7 @@
     "routes": "primary.Xxznj5R9QCS-7iqptegltQ.0._._.aws-provisioner-v1.gecko-t-linux-large.gecko-level-3.XrWNyFwpT2in-wLY9frb-w._"
   },
   "Y32tr9w0Tlu67dz74wiCyg": {
+    "root_url": "https://taskcluster.net",
     "exchange": "exchange/taskcluster-queue/v1/task-pending",
     "payload": {
       "runId": 0,
@@ -2061,6 +2132,7 @@
     "routes": "primary.Y32tr9w0Tlu67dz74wiCyg.0._._.aws-provisioner-v1.gecko-t-linux-large.gecko-level-3.XrWNyFwpT2in-wLY9frb-w._"
   },
   "Y6Zdr078RvemM_nabfiE3A": {
+    "root_url": "https://taskcluster.net",
     "exchange": "exchange/taskcluster-queue/v1/task-pending",
     "payload": {
       "runId": 0,
@@ -2088,6 +2160,7 @@
     "routes": "primary.Y6Zdr078RvemM_nabfiE3A.0._._.aws-provisioner-v1.gecko-t-linux-large.gecko-level-3.XrWNyFwpT2in-wLY9frb-w._"
   },
   "YUU6v89vRd669kauRLNk5g": {
+    "root_url": "https://taskcluster.net",
     "exchange": "exchange/taskcluster-queue/v1/task-pending",
     "payload": {
       "runId": 0,
@@ -2115,6 +2188,7 @@
     "routes": "primary.YUU6v89vRd669kauRLNk5g.0._._.aws-provisioner-v1.gecko-t-linux-large.gecko-level-3.XrWNyFwpT2in-wLY9frb-w._"
   },
   "YYCniY1ITuGl0fRNghknlQ": {
+    "root_url": "https://taskcluster.net",
     "exchange": "exchange/taskcluster-queue/v1/task-pending",
     "payload": {
       "runId": 0,
@@ -2142,6 +2216,7 @@
     "routes": "primary.YYCniY1ITuGl0fRNghknlQ.0._._.aws-provisioner-v1.gecko-t-linux-large.gecko-level-3.XrWNyFwpT2in-wLY9frb-w._"
   },
   "YgnJMukTS0efJHzTI5_AnA": {
+    "root_url": "https://taskcluster.net",
     "exchange": "exchange/taskcluster-queue/v1/task-pending",
     "payload": {
       "runId": 0,
@@ -2169,6 +2244,7 @@
     "routes": "primary.YgnJMukTS0efJHzTI5_AnA.0._._.aws-provisioner-v1.gecko-t-linux-xlarge.gecko-level-3.XrWNyFwpT2in-wLY9frb-w._"
   },
   "ZPrilAZcSimdmLj9flM24w": {
+    "root_url": "https://taskcluster.net",
     "exchange": "exchange/taskcluster-queue/v1/task-pending",
     "payload": {
       "runId": 0,
@@ -2196,6 +2272,7 @@
     "routes": "primary.ZPrilAZcSimdmLj9flM24w.0._._.aws-provisioner-v1.gecko-t-linux-large.gecko-level-3.XrWNyFwpT2in-wLY9frb-w._"
   },
   "ZnJOMTOcRwCZG09VY4InxQ": {
+    "root_url": "https://taskcluster.net",
     "exchange": "exchange/taskcluster-queue/v1/task-pending",
     "payload": {
       "runId": 0,
@@ -2223,6 +2300,7 @@
     "routes": "primary.ZnJOMTOcRwCZG09VY4InxQ.0._._.aws-provisioner-v1.gecko-t-linux-large.gecko-level-3.XrWNyFwpT2in-wLY9frb-w._"
   },
   "ZyNAZZR0SmOcgqC_k_wqsQ": {
+    "root_url": "https://taskcluster.net",
     "exchange": "exchange/taskcluster-queue/v1/task-completed",
     "payload": {
       "runId": 0,
@@ -2258,6 +2336,7 @@
     "routes": "primary.ZyNAZZR0SmOcgqC_k_wqsQ.0.us-west-2.i-01e55895145a2d19c.aws-provisioner-v1.gecko-3-b-linux.gecko-level-3.XrWNyFwpT2in-wLY9frb-w._"
   },
   "a1uUehQvSciykK6DUUNQbQ": {
+    "root_url": "https://taskcluster.net",
     "exchange": "exchange/taskcluster-queue/v1/task-pending",
     "payload": {
       "runId": 0,
@@ -2285,6 +2364,7 @@
     "routes": "primary.a1uUehQvSciykK6DUUNQbQ.0._._.aws-provisioner-v1.gecko-t-linux-large.gecko-level-3.XrWNyFwpT2in-wLY9frb-w._"
   },
   "a5UF8fEyQw-fx_32Qo-WjQ": {
+    "root_url": "https://taskcluster.net",
     "exchange": "exchange/taskcluster-queue/v1/task-running",
     "payload": {
       "runId": 0,
@@ -2319,6 +2399,7 @@
     "routes": "primary.a5UF8fEyQw-fx_32Qo-WjQ.0.bitbar.pixel2-44.proj-autophone.gecko-t-bitbar-gw-perf-p2.gecko-level-3.HkX-TbGXQaSX4ucqGMQNBA._"
   },
   "aNf8J_ctQp6IjWJTxCAPbQ": {
+    "root_url": "https://taskcluster.net",
     "exchange": "exchange/taskcluster-queue/v1/task-pending",
     "payload": {
       "runId": 0,
@@ -2346,6 +2427,7 @@
     "routes": "primary.aNf8J_ctQp6IjWJTxCAPbQ.0._._.aws-provisioner-v1.gecko-t-linux-large.gecko-level-3.XrWNyFwpT2in-wLY9frb-w._"
   },
   "aNlE6teASbGqtSK4XSeMkg": {
+    "root_url": "https://taskcluster.net",
     "exchange": "exchange/taskcluster-queue/v1/task-pending",
     "payload": {
       "runId": 0,
@@ -2373,6 +2455,7 @@
     "routes": "primary.aNlE6teASbGqtSK4XSeMkg.0._._.aws-provisioner-v1.gecko-t-linux-xlarge.gecko-level-3.XrWNyFwpT2in-wLY9frb-w._"
   },
   "ac7vsMLASl6XS1O_VzlLXQ": {
+    "root_url": "https://taskcluster.net",
     "exchange": "exchange/taskcluster-queue/v1/task-pending",
     "payload": {
       "runId": 0,
@@ -2400,6 +2483,7 @@
     "routes": "primary.ac7vsMLASl6XS1O_VzlLXQ.0._._.aws-provisioner-v1.gecko-t-linux-xlarge.gecko-level-3.XrWNyFwpT2in-wLY9frb-w._"
   },
   "aeWDjRcUQhudU4axBiCQ8A": {
+    "root_url": "https://taskcluster.net",
     "exchange": "exchange/taskcluster-queue/v1/task-pending",
     "payload": {
       "runId": 0,
@@ -2427,6 +2511,7 @@
     "routes": "primary.aeWDjRcUQhudU4axBiCQ8A.0._._.aws-provisioner-v1.gecko-t-linux-large.gecko-level-3.XrWNyFwpT2in-wLY9frb-w._"
   },
   "b0DpnSIQQymnTTSXxRWmmg": {
+    "root_url": "https://taskcluster.net",
     "exchange": "exchange/taskcluster-queue/v1/task-pending",
     "payload": {
       "runId": 0,
@@ -2454,6 +2539,7 @@
     "routes": "primary.b0DpnSIQQymnTTSXxRWmmg.0._._.aws-provisioner-v1.gecko-t-linux-large.gecko-level-3.XrWNyFwpT2in-wLY9frb-w._"
   },
   "ba34BnYgT_mv1g5BvrlXnQ": {
+    "root_url": "https://taskcluster.net",
     "exchange": "exchange/taskcluster-queue/v1/task-pending",
     "payload": {
       "runId": 0,
@@ -2481,6 +2567,7 @@
     "routes": "primary.ba34BnYgT_mv1g5BvrlXnQ.0._._.aws-provisioner-v1.gecko-t-linux-large.gecko-level-3.XrWNyFwpT2in-wLY9frb-w._"
   },
   "c9SSXwx3TnKm7MnNEit0OA": {
+    "root_url": "https://taskcluster.net",
     "exchange": "exchange/taskcluster-queue/v1/task-pending",
     "payload": {
       "runId": 0,
@@ -2508,6 +2595,7 @@
     "routes": "primary.c9SSXwx3TnKm7MnNEit0OA.0._._.aws-provisioner-v1.gecko-t-linux-large.gecko-level-3.XrWNyFwpT2in-wLY9frb-w._"
   },
   "dUcobAuPTEqHok4rpJl1Dg": {
+    "root_url": "https://taskcluster.net",
     "exchange": "exchange/taskcluster-queue/v1/task-pending",
     "payload": {
       "runId": 0,
@@ -2535,6 +2623,7 @@
     "routes": "primary.dUcobAuPTEqHok4rpJl1Dg.0._._.aws-provisioner-v1.gecko-t-linux-large.gecko-level-3.XrWNyFwpT2in-wLY9frb-w._"
   },
   "eokGh4-OSbOqAzVhJypYPg": {
+    "root_url": "https://taskcluster.net",
     "exchange": "exchange/taskcluster-queue/v1/task-completed",
     "payload": {
       "runId": 0,
@@ -2570,6 +2659,7 @@
     "routes": "primary.eokGh4-OSbOqAzVhJypYPg.0.eu-central-1.i-09f5a2a05cb655f08.aws-provisioner-v1.gecko-t-win7-32.gecko-level-3.UuixJvjhQU6rf9aGtGo9Wg._"
   },
   "eugCBPRNRD-zyP_I9Jcn1w": {
+    "root_url": "https://taskcluster.net",
     "exchange": "exchange/taskcluster-queue/v1/task-running",
     "payload": {
       "runId": 0,
@@ -2604,6 +2694,7 @@
     "routes": "primary.eugCBPRNRD-zyP_I9Jcn1w.0.us-west-1.i-0be69dc84b0354bde.aws-provisioner-v1.gecko-1-decision.gecko-level-1.VQg1HZ5yS0ixZvsnHLWuFw._"
   },
   "fu4duSjBRte-V6y_oQ_BrQ": {
+    "root_url": "https://taskcluster.net",
     "exchange": "exchange/taskcluster-queue/v1/task-running",
     "payload": {
       "runId": 0,

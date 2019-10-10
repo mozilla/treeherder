@@ -286,8 +286,6 @@ CELERY_TASK_QUEUES = [
     Queue('log_autoclassify_fail', Exchange('default'), routing_key='autoclassify.failures'),
     Queue('pushlog', Exchange('default'), routing_key='pushlog'),
     Queue('generate_perf_alerts', Exchange('default'), routing_key='generate_perf_alerts'),
-    # We will remove this soon after this commit is deployed
-    Queue('store_pulse_jobs', Exchange('default'), routing_key='store_pulse_jobs'),
     Queue('store_pulse_tasks', Exchange('default'), routing_key='store_pulse_tasks'),
     Queue('store_pulse_pushes', Exchange('default'), routing_key='store_pulse_pushes'),
     Queue('seta_analyze_failures', Exchange('default'), routing_key='seta_analyze_failures'),

@@ -13,11 +13,8 @@ from treeherder.etl.schema import get_json_schema
 from treeherder.etl.taskcluster_pulse.parse_route import parseRoute
 
 logger = logging.getLogger(__name__)
-root_url = "https://taskcluster.net"
-options = {"rootUrl": root_url}
 loop = asyncio.get_event_loop()
 session = taskcluster.aio.createSession(loop=loop)
-asyncQueue = taskcluster.aio.Queue(options, session=session)
 
 
 # Build a mapping from exchange name to task status
@@ -58,7 +55,7 @@ def resultFromRun(jobRun):
 
 # Creates a log entry for Treeherder to retrieve and parse.  This log is
 # displayed on the Treeherder Log Viewer once parsed.
-def createLogReference(taskId, runId):
+def createLogReference(root_url, taskId, runId):
     logUrl = taskcluster_urls.api(
         root_url,
         "queue",
@@ -112,6 +109,7 @@ def validateTask(task):
 async def handleMessage(message, taskDefinition=None):
     jobs = []
     taskId = message["payload"]["status"]["taskId"]
+    asyncQueue = taskcluster.aio.Queue({"rootUrl": message["root_url"]}, session=session)
     task = (await asyncQueue.task(taskId)) if not taskDefinition else taskDefinition
     try:
         parsedRoute = parseRouteInfo("tc-treeherder", taskId, task["routes"], task)
@@ -132,18 +130,18 @@ async def handleMessage(message, taskDefinition=None):
     # This will only work if the previous run has not yet been processed by Treeherder
     # since _remove_existing_jobs() will prevent it
     if message["payload"]["runId"] > 0:
-        jobs.append(await handleTaskRerun(parsedRoute, task, message["payload"]))
+        jobs.append(await handleTaskRerun(parsedRoute, task, message))
 
     if not taskType:
         raise Exception("Unknown exchange: {exchange}".format(exchange=message["exchange"]))
     elif taskType == "pending":
-        jobs.append(handleTaskPending(parsedRoute, task, message["payload"]))
+        jobs.append(handleTaskPending(parsedRoute, task, message))
     elif taskType == "running":
-        jobs.append(handleTaskRunning(parsedRoute, task, message["payload"]))
+        jobs.append(handleTaskRunning(parsedRoute, task, message))
     elif taskType in ("completed", "failed"):
-        jobs.append(await handleTaskCompleted(parsedRoute, task, message["payload"]))
+        jobs.append(await handleTaskCompleted(parsedRoute, task, message))
     elif taskType == "exception":
-        jobs.append(await handleTaskException(parsedRoute, task, message["payload"]))
+        jobs.append(await handleTaskException(parsedRoute, task, message))
 
     return jobs
 
@@ -153,9 +151,9 @@ async def handleMessage(message, taskDefinition=None):
 #
 # Specific handlers for each message type will add/remove information necessary
 # for the type of task event..
-def buildMessage(pushInfo, task, runId, message):
-    taskId = message["status"]["taskId"]
-    jobRun = message["status"]["runs"][runId]
+def buildMessage(pushInfo, task, runId, payload):
+    taskId = payload["status"]["taskId"]
+    jobRun = payload["status"]["runs"][runId]
     treeherderConfig = task["extra"]["treeherder"]
 
     job = {
@@ -226,11 +224,13 @@ def buildMessage(pushInfo, task, runId, message):
 
 
 def handleTaskPending(pushInfo, task, message):
-    return buildMessage(pushInfo, task, message["runId"], message)
+    payload = message['payload']
+    return buildMessage(pushInfo, task, payload["runId"], payload)
 
 
 async def handleTaskRerun(pushInfo, task, message):
-    job = buildMessage(pushInfo, task, message["runId"]-1, message)
+    payload = message['payload']
+    job = buildMessage(pushInfo, task, payload["runId"]-1, payload)
     job["state"] = "completed"
     job["result"] = "fail"
     job["isRetried"] = True
@@ -238,40 +238,47 @@ async def handleTaskRerun(pushInfo, task, message):
     # don't include a link
     job["logs"] = []
     job = await addArtifactUploadedLinks(
-        message["status"]["taskId"],
-        message["runId"]-1,
+        message["root_url"],
+        payload["status"]["taskId"],
+        payload["runId"]-1,
         job)
     return job
 
 
 def handleTaskRunning(pushInfo, task, message):
-    job = buildMessage(pushInfo, task, message["runId"], message)
-    job["timeStarted"] = message["status"]["runs"][message["runId"]]["started"]
+    payload = message['payload']
+    job = buildMessage(pushInfo, task, payload["runId"], payload)
+    job["timeStarted"] = payload["status"]["runs"][payload["runId"]]["started"]
     return job
 
 
 async def handleTaskCompleted(pushInfo, task, message):
-    jobRun = message["status"]["runs"][message["runId"]]
-    job = buildMessage(pushInfo, task, message["runId"], message)
+    payload = message['payload']
+    jobRun = payload["status"]["runs"][payload["runId"]]
+    job = buildMessage(pushInfo, task, payload["runId"], payload)
 
     job["timeStarted"] = jobRun["started"]
     job["timeCompleted"] = jobRun["resolved"]
-    job["logs"] = [createLogReference(message["status"]["taskId"], jobRun["runId"])]
+    job["logs"] = [
+        createLogReference(message['root_url'], payload["status"]["taskId"], jobRun["runId"]),
+    ]
     job = await addArtifactUploadedLinks(
-        message["status"]["taskId"],
-        message["runId"],
+        message["root_url"],
+        payload["status"]["taskId"],
+        payload["runId"],
         job)
     return job
 
 
 async def handleTaskException(pushInfo, task, message):
-    jobRun = message["status"]["runs"][message["runId"]]
+    payload = message['payload']
+    jobRun = payload["status"]["runs"][payload["runId"]]
     # Do not report runs that were created as an exception.  Such cases
     # are deadline-exceeded
     if jobRun["reasonCreated"] == "exception":
         return
 
-    job = buildMessage(pushInfo, task, message["runId"], message)
+    job = buildMessage(pushInfo, task, payload["runId"], payload)
     # Jobs that get cancelled before running don't have a started time
     if jobRun.get("started"):
         job["timeStarted"] = jobRun["started"]
@@ -280,13 +287,15 @@ async def handleTaskException(pushInfo, task, message):
     # don't include a link
     job["logs"] = []
     job = await addArtifactUploadedLinks(
-        message["status"]["taskId"],
-        message["runId"],
+        message["root_url"],
+        payload["status"]["taskId"],
+        payload["runId"],
         job)
     return job
 
 
-async def fetchArtifacts(taskId, runId):
+async def fetchArtifacts(root_url, taskId, runId):
+    asyncQueue = taskcluster.aio.Queue({"rootUrl": root_url}, session=session)
     res = await asyncQueue.listArtifacts(taskId, runId)
     artifacts = res["artifacts"]
 
@@ -307,10 +316,10 @@ async def fetchArtifacts(taskId, runId):
     return artifacts
 
 
-async def addArtifactUploadedLinks(taskId, runId, job):
+async def addArtifactUploadedLinks(root_url, taskId, runId, job):
     artifacts = []
     try:
-        artifacts = await fetchArtifacts(taskId, runId)
+        artifacts = await fetchArtifacts(root_url, taskId, runId)
     except Exception:
         logger.warning("Artifacts could not be found for task: %s run: %s", taskId, runId)
         return job

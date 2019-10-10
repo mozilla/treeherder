@@ -44,13 +44,18 @@ class JobLoader:
         "machine_platform": "runMachine"
     }
 
-    def process_job(self, pulse_job):
+    def process_job(self, pulse_job, root_url):
         if self._is_valid_job(pulse_job):
             try:
                 project = pulse_job["origin"]["project"]
                 newrelic.agent.add_custom_parameter("project", project)
 
                 repository = Repository.objects.get(name=project)
+
+                if repository.tc_root_url != root_url:
+                    logger.warning("Skipping job for %s with incorrect root_url %s",
+                                   repository.name, root_url)
+                    return
 
                 if pulse_job["state"] != "unscheduled":
                     try:
