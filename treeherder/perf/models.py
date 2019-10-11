@@ -53,6 +53,11 @@ class PerformanceSignature(models.Model):
     # generous max_length permits up to 8 verbose option names
     extra_options = models.CharField(max_length=360, blank=True)
 
+    # TODO: reduce length to minimum value
+    # TODO: make this nonnullable, once we demand
+    #  all PERFHERDER_DATA dumps to provide the unit field
+    measurement_unit = models.CharField(max_length=50, null=True)
+
     # these properties override the default settings for how alert
     # generation works
     ALERT_PCT = 0
@@ -273,7 +278,6 @@ class PerformanceAlertSummary(models.Model):
     WONTFIX = 6
     FIXED = 7
     BACKED_OUT = 8
-    CONFIRMING = 9
 
     STATUSES = ((UNTRIAGED, 'Untriaged'),
                 (DOWNSTREAM, 'Downstream'),
@@ -283,8 +287,7 @@ class PerformanceAlertSummary(models.Model):
                 (INVESTIGATING, 'Investigating'),
                 (WONTFIX, 'Won\'t fix'),
                 (FIXED, 'Fixed'),
-                (BACKED_OUT, 'Backed out'),
-                (CONFIRMING, 'Confirming'))
+                (BACKED_OUT, 'Backed out'))
 
     status = models.IntegerField(choices=STATUSES, default=UNTRIAGED)
 
@@ -324,9 +327,6 @@ class PerformanceAlertSummary(models.Model):
         # if any untriaged, then set to untriaged
         if any(alert.status == PerformanceAlert.UNTRIAGED for alert in alerts):
             return PerformanceAlertSummary.UNTRIAGED
-
-        if any(alert.status == PerformanceAlert.CONFIRMING for alert in alerts):
-            return PerformanceAlertSummary.CONFIRMING
 
         # if all invalid, then set to invalid
         if all(alert.status == PerformanceAlert.INVALID for alert in alerts):
@@ -412,20 +412,18 @@ class PerformanceAlert(models.Model):
     REASSIGNED = 2
     INVALID = 3
     ACKNOWLEDGED = 4
-    CONFIRMING = 5
 
     # statuses where we relate this alert to another summary
     RELATIONAL_STATUS_IDS = (DOWNSTREAM, REASSIGNED)
     # statuses where this alert is related only to the summary it was
     # originally assigned to
-    UNRELATIONAL_STATUS_IDS = (UNTRIAGED, INVALID, ACKNOWLEDGED, CONFIRMING)
+    UNRELATIONAL_STATUS_IDS = (UNTRIAGED, INVALID, ACKNOWLEDGED)
 
     STATUSES = ((UNTRIAGED, 'Untriaged'),
                 (DOWNSTREAM, 'Downstream'),
                 (REASSIGNED, 'Reassigned'),
                 (INVALID, 'Invalid'),
-                (ACKNOWLEDGED, 'Acknowledged'),
-                (CONFIRMING, 'Confirming'))
+                (ACKNOWLEDGED, 'Acknowledged'))
 
     status = models.IntegerField(choices=STATUSES, default=UNTRIAGED)
 

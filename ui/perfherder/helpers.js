@@ -21,6 +21,9 @@ import {
   phTimeRanges,
 } from './constants';
 
+export const formatNumber = input =>
+  new Intl.NumberFormat('en-US', { maximumFractionDigits: 2 }).format(input);
+
 export const displayNumber = input =>
   Number.isNaN(input) ? 'N/A' : Number(input).toFixed(2);
 
@@ -526,6 +529,9 @@ export const getTitle = alertSummary => {
   title += ` (${platformInfo})`;
   return title;
 };
+
+export const updateAlertSummary = async (alertSummaryId, params) =>
+  update(getApiUrl(`${endpoints.alertSummary}${alertSummaryId}/`), params);
 
 export const convertParams = (params, value) =>
   Boolean(params[value] !== undefined && parseInt(params[value], 10));

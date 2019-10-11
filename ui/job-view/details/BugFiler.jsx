@@ -416,7 +416,6 @@ export class BugFilerClass extends React.Component {
     const descriptionStrings = `${logLinks}\n\n---\n\n${comment}`;
 
     const keywords = isIntermittent ? ['intermittent-failure'] : [];
-    keywords.push('regression');
     let severity = 'normal';
     let priority = 'P5';
     const crashSignature = crashSignatures.join('\n');
@@ -471,22 +470,16 @@ export class BugFilerClass extends React.Component {
           comment_tags: 'treeherder',
         };
 
-        const bugResp = await create(
+        const { data, failureStatus } = await create(
           getApiUrl('/bugzilla/create_bug/'),
           payload,
         );
-        // const bugResp = await create('http://httpstat.us/404', payload);
-        const data = await bugResp.json();
-        if (bugResp.ok) {
+
+        if (!failureStatus) {
           successCallback(data);
           toggle();
         } else {
-          this.submitFailure(
-            'Treeherder Bug Filer API',
-            bugResp.status,
-            bugResp.statusText,
-            data,
-          );
+          this.submitFailure('Treeherder Bug Filer API', failureStatus, data);
         }
       } else {
         this.submitFailure(

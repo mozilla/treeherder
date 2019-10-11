@@ -264,7 +264,7 @@ class AlertsView extends React.Component {
             user={user}
             {...this.props}
           />
-          {pageNums.length > 0 && (
+          {pageNums.length > 1 && (
             <Row className="justify-content-center pb-5">
               {/* The first and last pagination navigation links
               aren't working correctly (icons aren't visible)

@@ -9,7 +9,11 @@ import {
   errorMessageClass,
 } from '../../helpers/constants';
 import RepositoryModel from '../../models/repository';
-import { getInitializedAlerts, containsText } from '../helpers';
+import {
+  getInitializedAlerts,
+  containsText,
+  updateAlertSummary,
+} from '../helpers';
 import TruncatedText from '../../shared/TruncatedText';
 import ErrorBoundary from '../../shared/ErrorBoundary';
 
@@ -85,20 +89,37 @@ export default class AlertTable extends React.Component {
   };
 
   filterAlert = alert => {
-    const { hideImprovements, hideDownstream, filterText } = this.props.filters;
+    const {
+      hideImprovements,
+      hideDownstream,
+      hideAssignedToOthers,
+      filterText,
+    } = this.props.filters;
+    const { username } = this.props.user;
     const { alertSummary } = this.state;
 
+    const unconcealableRegression = !hideImprovements || alert.is_regression;
+    const notRelatedDownstream =
+      alert.summary_id === alertSummary.id ||
+      alert.status !== alertStatusMap.downstream;
+    const concealableReassigned =
+      hideDownstream &&
+      alert.status === alertStatusMap.reassigned &&
+      alert.related_summary_id !== alertSummary.id;
+    const concealableDownstream =
+      hideDownstream && alert.status === alertStatusMap.downstream;
+    const concealableInvalid =
+      hideDownstream && alert.status === alertStatusMap.invalid;
+    const concealableAssignedToOthers =
+      hideAssignedToOthers && alertSummary.assignee_username !== username;
+
     const matchesFilters =
-      (!hideImprovements || alert.is_regression) &&
-      (alert.summary_id === alertSummary.id ||
-        alert.status !== alertStatusMap.downstream) &&
-      !(
-        hideDownstream &&
-        alert.status === alertStatusMap.reassigned &&
-        alert.related_summary_id !== alertSummary.id
-      ) &&
-      !(hideDownstream && alert.status === alertStatusMap.downstream) &&
-      !(hideDownstream && alert.status === alertStatusMap.invalid);
+      unconcealableRegression &&
+      notRelatedDownstream &&
+      !concealableReassigned &&
+      !concealableDownstream &&
+      !concealableInvalid &&
+      !concealableAssignedToOthers;
 
     if (!filterText) return matchesFilters;
 
@@ -117,6 +138,32 @@ export default class AlertTable extends React.Component {
       this.filterAlert(alert),
     );
     this.setState({ filteredAlerts });
+  };
+
+  updateAssignee = async newAssigneeUsername => {
+    const {
+      updateAlertSummary,
+      updateViewState,
+      fetchAlertSummaries,
+    } = this.props;
+    const { alertSummary } = this.state;
+
+    const { data, failureStatus } = await updateAlertSummary(alertSummary.id, {
+      assignee_username: newAssigneeUsername,
+    });
+
+    if (!failureStatus) {
+      // now refresh UI, by syncing with backend
+      fetchAlertSummaries(alertSummary.id);
+    } else {
+      updateViewState({
+        errorMessages: [
+          `Failed to set new assignee "${newAssigneeUsername}". (${data})`,
+        ],
+      });
+    }
+
+    return { failureStatus };
   };
 
   render() {
@@ -180,6 +227,8 @@ export default class AlertTable extends React.Component {
                             alertSummary={alertSummary}
                             repoModel={repoModel}
                             issueTrackers={issueTrackers}
+                            user={user}
+                            updateAssignee={this.updateAssignee}
                           />
                         </Label>
                       </FormGroup>
@@ -280,7 +329,7 @@ export default class AlertTable extends React.Component {
 
 AlertTable.propTypes = {
   alertSummary: PropTypes.shape({}),
-  user: PropTypes.shape({}),
+  user: PropTypes.shape({}).isRequired,
   alertSummaries: PropTypes.arrayOf(PropTypes.shape({})).isRequired,
   issueTrackers: PropTypes.arrayOf(PropTypes.shape({})),
   optionCollectionMap: PropTypes.shape({}).isRequired,
@@ -288,18 +337,22 @@ AlertTable.propTypes = {
     filterText: PropTypes.string,
     hideDownstream: PropTypes.bool,
     hideImprovements: PropTypes.bool,
+    hideAssignedToOthers: PropTypes.bool,
   }).isRequired,
   fetchAlertSummaries: PropTypes.func.isRequired,
   updateViewState: PropTypes.func.isRequired,
   bugTemplate: PropTypes.shape({}),
   modifyAlert: PropTypes.func,
+  updateAlertSummary: PropTypes.func,
   projects: PropTypes.arrayOf(PropTypes.shape({})).isRequired,
 };
 
 AlertTable.defaultProps = {
   alertSummary: null,
-  user: null,
   issueTrackers: [],
   bugTemplate: null,
   modifyAlert: undefined,
+  // leverage dependency injection
+  // to improve code testability
+  updateAlertSummary,
 };

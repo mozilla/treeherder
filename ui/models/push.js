@@ -66,8 +66,9 @@ export default class PushModel {
   }
 
   static async triggerMissingJobs(pushId, notify, decisionTask, currentRepo) {
-    const decisionTaskId =
-      decisionTask || (await PushModel.getDecisionTaskId(pushId, notify)).id;
+    const decisionTaskId = decisionTask
+      ? decisionTask.id
+      : (await PushModel.getDecisionTaskId(pushId, notify)).id;
 
     return TaskclusterModel.load(decisionTaskId, null, currentRepo).then(
       results => {
@@ -110,8 +111,9 @@ export default class PushModel {
     decisionTask,
     currentRepo,
   ) {
-    const decisionTaskId =
-      decisionTask || (await PushModel.getDecisionTaskId(pushId, notify)).id;
+    const decisionTaskId = decisionTask
+      ? decisionTask.id
+      : (await PushModel.getDecisionTaskId(pushId, notify)).id;
 
     return TaskclusterModel.load(decisionTaskId, null, currentRepo).then(
       results => {

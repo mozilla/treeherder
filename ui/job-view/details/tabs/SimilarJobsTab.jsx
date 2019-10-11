@@ -171,6 +171,7 @@ class SimilarJobsTab extends React.Component {
                 <th>Job</th>
                 <th>Pushed</th>
                 <th>Author</th>
+                <th>Duration</th>
                 <th>Revision</th>
               </tr>
             </thead>
@@ -205,6 +206,7 @@ class SimilarJobsTab extends React.Component {
                       {similarJob.result_set.author}
                     </a>
                   </td>
+                  <td>{similarJob.duration} min</td>
                   <td>
                     <a href={similarJob.revisionResultsetFilterUrl}>
                       {similarJob.result_set.revisions[0].revision}

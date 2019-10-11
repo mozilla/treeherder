@@ -13,6 +13,10 @@ export default class AlertsViewControls extends React.Component {
     this.state = {
       hideImprovements: convertParams(this.validated, 'hideImprovements'),
       hideDownstream: convertParams(this.validated, 'hideDwnToInv'),
+      hideAssignedToOthers: convertParams(
+        this.validated,
+        'hideAssignedToOthers',
+      ),
       filterText: '',
     };
   }
@@ -48,8 +52,18 @@ export default class AlertsViewControls extends React.Component {
   };
 
   render() {
-    const { hideImprovements, hideDownstream } = this.state;
-    const { dropdownOptions, alertSummaries } = this.props;
+    const {
+      alertSummaries,
+      dropdownOptions,
+      fetchAlertSummaries,
+      user,
+    } = this.props;
+    const {
+      hideImprovements,
+      hideDownstream,
+      hideAssignedToOthers,
+    } = this.state;
+
     const alertFilters = [
       {
         text: 'Hide improvements',
@@ -62,6 +76,14 @@ export default class AlertsViewControls extends React.Component {
         stateName: 'hideDownstream',
       },
     ];
+
+    if (user.isLoggedIn) {
+      alertFilters.push({
+        text: 'My alerts',
+        state: hideAssignedToOthers,
+        stateName: 'hideAssignedToOthers',
+      });
+    }
 
     return (
       <React.Fragment>
@@ -78,7 +100,9 @@ export default class AlertsViewControls extends React.Component {
               filters={this.state}
               key={alertSummary.id}
               alertSummary={alertSummary}
+              fetchAlertSummaries={fetchAlertSummaries}
               {...this.props}
+              user={user}
             />
           ))}
       </React.Fragment>
@@ -91,7 +115,9 @@ AlertsViewControls.propTypes = {
     updateParams: PropTypes.func,
   }).isRequired,
   dropdownOptions: PropTypes.arrayOf(PropTypes.shape({})),
+  fetchAlertSummaries: PropTypes.func.isRequired,
   alertSummaries: PropTypes.arrayOf(PropTypes.shape({})),
+  user: PropTypes.shape({}).isRequired,
 };
 
 AlertsViewControls.defaultProps = {

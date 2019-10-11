@@ -1,9 +1,9 @@
 import React from 'react';
 import { connect } from 'react-redux';
-import Select from 'react-select';
 import PropTypes from 'prop-types';
 import Ajv from 'ajv';
 import jsonSchemaDefaults from 'json-schema-defaults';
+import keyBy from 'lodash/keyBy';
 // js-yaml is missing the `browser` entry from the package definition,
 // so we have to explicitly import the dist file otherwise we get the
 // node version which pulls in a number of unwanted polyfills. See:
@@ -13,17 +13,20 @@ import { slugid } from 'taskcluster-client-web';
 import tcLibUrls from 'taskcluster-lib-urls';
 import {
   Button,
+  DropdownToggle,
   Label,
   Modal,
   ModalHeader,
   ModalBody,
   ModalFooter,
+  UncontrolledDropdown,
 } from 'reactstrap';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faCheckSquare } from '@fortawesome/free-regular-svg-icons';
 
 import { formatTaskclusterError } from '../helpers/errorMessage';
 import TaskclusterModel from '../models/taskcluster';
+import DropdownMenuItems from '../shared/DropdownMenuItems';
 
 import { notify } from './redux/stores/notifications';
 
@@ -38,8 +41,7 @@ class CustomJobActions extends React.PureComponent {
       originalTask: null,
       validate: null,
       actions: null,
-      selectedActionOption: '',
-      actionOptions: {},
+      selectedAction: {},
       schema: '',
       payload: '',
     };
@@ -58,21 +60,18 @@ class CustomJobActions extends React.PureComponent {
       } = results;
 
       if (actions.length) {
-        const actionOptions = actions.map(action => ({
-          value: action,
-          label: action.title,
-        }));
+        const mappedActions = keyBy(actions, 'name');
+        const selectedAction = actions[0];
 
         this.setState(
           {
             originalTask,
             originalTaskId,
-            actions,
+            actions: mappedActions,
             staticActionVariables,
-            actionOptions,
-            selectedActionOption: actionOptions[0],
+            selectedAction,
           },
-          () => this.updateSelectedAction(actions[0]),
+          () => this.updateSelectedAction(selectedAction),
         );
       } else {
         notify(
@@ -87,10 +86,13 @@ class CustomJobActions extends React.PureComponent {
     this.setState({ decisionTaskId });
   }
 
-  onChangeAction = actionOption => {
-    if (actionOption.value) {
-      this.setState({ selectedActionOption: actionOption });
-      this.updateSelectedAction(actionOption.value);
+  onChangeAction = actionName => {
+    const { actions } = this.state;
+    const selectedAction = actions[actionName];
+
+    if (actionName) {
+      this.setState({ selectedAction });
+      this.updateSelectedAction(selectedAction);
     }
   };
 
@@ -121,11 +123,10 @@ class CustomJobActions extends React.PureComponent {
       decisionTaskId,
       originalTaskId,
       originalTask,
-      selectedActionOption,
+      selectedAction: action,
       staticActionVariables,
     } = this.state;
     const { notify, currentRepo } = this.props;
-    const action = selectedActionOption.value;
 
     let input = null;
     if (validate && payload) {
@@ -194,16 +195,8 @@ class CustomJobActions extends React.PureComponent {
 
   render() {
     const { isLoggedIn, toggle } = this.props;
-    const {
-      triggering,
-      selectedActionOption,
-      schema,
-      actions,
-      actionOptions,
-      payload,
-    } = this.state;
+    const { triggering, selectedAction, schema, actions, payload } = this.state;
     const isOpen = true;
-    const selectedAction = selectedActionOption.value;
 
     return (
       <Modal isOpen={isOpen} toggle={this.close} size="lg">
@@ -220,14 +213,20 @@ class CustomJobActions extends React.PureComponent {
             <div>
               <div className="form-group">
                 <Label for="action-select-input">Action</Label>
-                <Select
-                  inputId="action-select"
+                <UncontrolledDropdown
                   aria-describedby="selectedActionHelp"
-                  value={selectedActionOption}
-                  onChange={this.onChangeAction}
-                  options={actionOptions}
-                  name="Action"
-                />
+                  className="mb-1"
+                  id="action-select-input"
+                >
+                  <DropdownToggle caret outline>
+                    {selectedAction.name}
+                  </DropdownToggle>
+                  <DropdownMenuItems
+                    selectedItem={selectedAction.name}
+                    updateData={this.onChangeAction}
+                    options={Object.keys(actions)}
+                  />
+                </UncontrolledDropdown>
                 <p id="selectedActionHelp" className="help-block">
                   {selectedAction.description}
                 </p>
