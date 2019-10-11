@@ -530,7 +530,7 @@ def test_alert_timestamps_via_endpoint(authorized_sheriff_client, test_sheriff, 
     # keeps first_triaged the same
     authorized_sheriff_client.force_authenticate(user=test_sheriff)
     resp = authorized_sheriff_client.put(reverse('performance-alerts-list') + '1/',
-                                         {'status': PerformanceAlert.ACKNOWLEDGED})
+                                         {'status': PerformanceAlert.CONFIRMING})
     assert resp.status_code == 200
     test_perf_alert.refresh_from_db()
 
