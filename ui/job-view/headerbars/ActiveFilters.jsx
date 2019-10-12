@@ -2,6 +2,7 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faTimesCircle } from '@fortawesome/free-solid-svg-icons';
+import { Button } from 'reactstrap';
 
 import { getFieldChoices } from '../../helpers/filter';
 
@@ -83,10 +84,8 @@ export default class ActiveFilters extends React.Component {
       <div className="alert-info active-filters-bar">
         {!!filterBarFilters.length && (
           <div>
-            <span
+            <Button
               className="pointable"
-              role="button"
-              tabIndex="0"
               title="Clear all of these filters"
               onClick={filterModel.clearNonStatusFilters}
             >
@@ -94,7 +93,7 @@ export default class ActiveFilters extends React.Component {
                 icon={faTimesCircle}
                 title="Clear all these filters"
               />{' '}
-            </span>
+            </Button>
             <span className="active-filters-title">
               <b>Active Filters</b>
             </span>
@@ -104,10 +103,8 @@ export default class ActiveFilters extends React.Component {
                   className="filtersbar-filter"
                   key={`${filter.field}${filterValue}`}
                 >
-                  <span
+                  <Button
                     className="pointable"
-                    role="button"
-                    tabIndex="0"
                     title={`Clear filter: ${filter.field}`}
                     onClick={() =>
                       filterModel.removeFilter(filter.field, filterValue)
@@ -118,7 +115,7 @@ export default class ActiveFilters extends React.Component {
                       title={`Clear filter: ${filter.field}`}
                     />
                     &nbsp;
-                  </span>
+                  </Button>
                   <span title={`Filter by ${filter.field}: ${filterValue}`}>
                     <b>{filter.field}:</b>
                     {filter.field === 'failure_classification_id' && (
