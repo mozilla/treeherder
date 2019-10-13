@@ -105,8 +105,12 @@
   border: 2px solid;
   border-radius: 3px;
   font-size: 12px;
-  transform: scale(1.7, 1.7);
   z-index: 1;
+  transition: 0.3s;
+}
+
+.btn-lg-xform:hover {
+  opacity: 0.9;
 }
 
 .filter-shown {
