@@ -49,6 +49,11 @@
   padding-right: 10px;
 }
 
+.fixed-by-commit {
+  color: red;
+  margin-left: 10px;
+}
+
 .push-progress {
   color: #6f6d70;
   font-style: italic;
