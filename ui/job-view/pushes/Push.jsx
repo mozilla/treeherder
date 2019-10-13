@@ -69,15 +69,22 @@ class Push extends React.PureComponent {
     window.removeEventListener(thEvents.applyNewJobs, this.handleApplyNewJobs);
     window.removeEventListener('hashchange', this.handleUrlChanges);
   }
-
+  
   getJobCount(jobList) {
+    function filterCommit(job) {
+      if (job.failure_classification_id == 2) {
+        return true
+      }
+    }    
+    const filteredByCommit = jobList.filter(filterCommit);
+
     return jobList.reduce(
       (memo, job) =>
         job.result !== 'superseded'
           ? { ...memo, [job.state]: memo[job.state] + 1 }
           : memo,
       { running: 0, pending: 0, completed: 0 },
-    );
+    )
   }
 
   getJobGroupInfo(job) {
