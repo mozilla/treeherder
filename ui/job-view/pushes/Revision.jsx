@@ -2,10 +2,13 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faUser } from '@fortawesome/free-regular-svg-icons';
+import { Tooltip } from 'reactstrap';
 
 import { parseAuthor } from '../../helpers/revision';
 import BugLinkify from '../../shared/BugLinkify';
 import Clipboard from '../../shared/Clipboard';
+import { bugzillaBugsApi } from '../../helpers/url';
+import { getData } from '../../helpers/http';
 
 export function Initials(props) {
   const str = props.author || '';
@@ -42,6 +45,10 @@ export class Revision extends React.PureComponent {
     super(props);
     const { revision } = this.props;
 
+    this.state = {
+      tooltipOpen: this.toggleBugTooltip(),
+    };
+
     // eslint-disable-next-line prefer-destructuring
     this.comment = revision.comments.split('\n')[0];
     this.tags =
@@ -49,9 +56,29 @@ export class Revision extends React.PureComponent {
       this.comment.search('Back out') >= 0
         ? 'backout'
         : '';
+
+    this.toggleBugTooltip = this.toggleBugTooltip.bind(this);
+    this.toggleTooltip = this.toggleTooltip.bind(this);
   }
 
+  toggleBugTooltip = async () => {
+    const bugComment = this.comment.split(' ');
+    const bugId = bugComment[1];
+    const { data, failureStatus } = await getData(
+      bugzillaBugsApi('bug', { id: bugId }),
+    );
+    return { data, failureStatus };
+  };
+
+  toggleTooltip = () => {
+    const { tooltipOpen } = this.state;
+    this.setState({
+      tooltipOpen: !tooltipOpen,
+    });
+  };
+
   render() {
+    const { tooltipOpen } = this.state;
     const { revision, repo } = this.props;
     const { name, email } = parseAuthor(revision.author);
     const commitRevision = revision.revision;
@@ -70,12 +97,18 @@ export class Revision extends React.PureComponent {
             </a>
           </span>
           <Initials title={`${name}: ${email}`} author={name} />
-          <span title={this.comment}>
-            <span className="revision-comment">
-              <em>
-                <BugLinkify>{this.comment}</BugLinkify>
-              </em>
-            </span>
+          <span>
+            <Tooltip
+              target="BugCommitMessage"
+              isOpen={tooltipOpen}
+              toggle={() => this.toggleTooltip()}
+            >
+              <span className="revision-comment">
+                <em>
+                  <BugLinkify>{this.comment}</BugLinkify>
+                </em>
+              </span>
+            </Tooltip>
           </span>
         </span>
       </li>
