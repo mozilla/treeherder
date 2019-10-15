@@ -90,7 +90,8 @@ class ActionBar extends React.PureComponent {
       return notify('Must be logged in to create a gecko profile', 'danger');
     }
 
-    const decisionTaskId = decisionTaskMap[selectedJobFull.push_id];
+    const { id: decisionTaskId } = decisionTaskMap[selectedJobFull.push_id];
+
     TaskclusterModel.load(decisionTaskId, selectedJobFull, currentRepo).then(
       results => {
         try {
