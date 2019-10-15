@@ -190,7 +190,6 @@ export default class CompareTableView extends React.Component {
       newRevision,
       originalResultSet,
       newResultSet,
-      updateParams,
       pageTitle,
     } = this.props.validated;
 
@@ -283,7 +282,6 @@ export default class CompareTableView extends React.Component {
                             ? `${title} subtest summary`
                             : 'Perfherder Compare Revisions'
                         }
-                        updateParams={updateParams}
                         pageTitleQueryParam={pageTitle}
                       />
                     </h1>
