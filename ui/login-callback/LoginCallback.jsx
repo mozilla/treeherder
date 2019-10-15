@@ -18,6 +18,7 @@ class LoginCallback extends React.PureComponent {
   }
 
   async componentDidMount() {
+    console.log(this.props)
     // make the user login if there is no access token
     if (!window.location.hash) {
       return webAuth.authorize();

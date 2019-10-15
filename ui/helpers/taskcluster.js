@@ -1,9 +1,22 @@
 import { OIDCCredentialAgent, Queue } from 'taskcluster-client-web';
 
-import { loginRootUrl, getUserSessionUrl } from './url';
+import { loginRootUrl, getUserSessionUrl, createQueryParams, loginCallbackUrl } from './url';
 
 const taskcluster = (() => {
   let credentialAgent = null;
+
+  const getAuthToken = (rootUrl=loginRootUrl) => {
+    const params = {
+      client_id: 'treeherder-localhost',
+      response_type: 'code',
+      // redirect_uri: `${window.location.protocol}//${window.location.host}${loginCallbackUrl}`,
+      redirect_uri: 'http://localhost:5000',
+      scope: 'treeherder',
+      state: '99',
+    }
+    // `${rootUrl}/login/oauth/authorize`
+    window.open(`https://hassan.taskcluster-dev.net/login/oauth/authorize${createQueryParams(params)}`);
+  }
 
   // Create an OIDC credential agent if it doesn't exist.
   const tcAgent = () => {
@@ -27,22 +40,13 @@ const taskcluster = (() => {
   };
 
   return {
-    getAgent: tcAgent,
+    getAgent: getAuthToken,
     // When the access token is refreshed, simply update it on the credential agent
     getQueue: () =>
       new Queue({
         credentialAgent: tcAgent(),
         rootUrl: loginRootUrl,
       }),
-    updateAgent: () => {
-      const userSession = localStorage.getItem('userSession');
-
-      if (userSession) {
-        tcAgent().accessToken = JSON.parse(userSession).accessToken;
-      } else {
-        credentialAgent = null;
-      }
-    },
   };
 })();
 
