@@ -48,6 +48,10 @@ module.exports = {
         favicon: 'ui/img/tree_open.png',
         title: 'Intermittent Failures View',
       },
+      'taskcluster-auth': {
+        entry: 'taskcluster-auth-callback/index.jsx',
+        title: 'Taskcluster Authentication',
+      },
     },
     output: '.build/',
     tests: 'tests/ui/',

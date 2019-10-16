@@ -60,25 +60,26 @@ export default class TaskclusterModel {
       const hookPayload = jsone(action.hookPayload, context);
       const { hookId, hookGroupId } = action;
       const auth = new Auth({ rootUrl: currentRepo.tc_root_url });
-      const hooks = new Hooks({
-        credentialAgent: taskcluster.getAgent(),
-        rootUrl: currentRepo.tc_root_url,
-      });
-      const decisionTask = await queue.task(decisionTaskId);
-      const expansion = await auth.expandScopes({
-        scopes: decisionTask.scopes,
-      });
-      const expression = `in-tree:hook-action:${hookGroupId}/${hookId}`;
+      taskcluster.getAgent();
+      // const hooks = new Hooks({
+      //   credentialAgent: taskcluster.getAgent(),
+      //   rootUrl: currentRepo.tc_root_url,
+      // });
+      // const decisionTask = await queue.task(decisionTaskId);
+      // const expansion = await auth.expandScopes({
+      //   scopes: decisionTask.scopes,
+      // });
+      // const expression = `in-tree:hook-action:${hookGroupId}/${hookId}`;
 
-      if (!satisfiesExpression(expansion.scopes, expression)) {
-        throw new Error(
-          `Action is misconfigured: decision task's scopes do not satisfy ${expression}`,
-        );
-      }
+      // if (!satisfiesExpression(expansion.scopes, expression)) {
+      //   throw new Error(
+      //     `Action is misconfigured: decision task's scopes do not satisfy ${expression}`,
+      //   );
+      // }
 
-      const result = await hooks.triggerHook(hookGroupId, hookId, hookPayload);
+      // const result = await hooks.triggerHook(hookGroupId, hookId, hookPayload);
 
-      return result.status.taskId;
+      // return result.status.taskId;
     }
   }
 

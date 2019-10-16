@@ -32,10 +32,9 @@ export const repoEndpoint = '/repository/';
 
 export const perfSummaryEndpoint = 'performance/summary/';
 
-export const getRunnableJobsURL = function getRunnableJobsURL(
-  decisionTask,
-  rootUrl,
-) {
+export const tcAuthCallbackUrl = '/taskcluster-auth.html';
+
+export const getRunnableJobsURL = function getRunnableJobsURL(decisionTask, rootUrl) {
   const { id, run } = decisionTask;
   const tcUrl = tcLibUrls.withRootUrl(rootUrl);
 
