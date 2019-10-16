@@ -476,8 +476,8 @@ export class BugFilerClass extends React.Component {
         );
 
         if (!failureStatus) {
-          successCallback(data);
           toggle();
+          successCallback(data);
         } else {
           this.submitFailure('Treeherder Bug Filer API', failureStatus, data);
         }
