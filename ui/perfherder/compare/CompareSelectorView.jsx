@@ -83,6 +83,7 @@ export default class CompareSelectorView extends React.Component {
       };
     }
     history.push(`/compare${createQueryParams(params)}`);
+    return null;
   };
 
   toggleFrameworkDropdown = () => {

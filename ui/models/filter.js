@@ -256,6 +256,7 @@ export default class FilterModel {
               return false;
             }
             break;
+          default:
         }
       }
       return true;

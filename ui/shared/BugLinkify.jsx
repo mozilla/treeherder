@@ -26,18 +26,18 @@ export default class BugLinkify extends React.Component {
   }
 
   getBugsAsLinkProtocol(text) {
-    let bugText = text;
-    const bugMatches = text.match(/-- ([0-9]+)|bug.([0-9]+)/gi);
-    const bugProtocol = 'bug:$1';
+    this.bugText = text;
+    this.bugMatches = text.match(/-- ([0-9]+)|bug.([0-9]+)/gi);
+    this.bugProtocol = 'bug:$1';
 
-    if (bugMatches) {
+    if (this.bugMatches) {
       // Need a pass for each matching style for if there are multiple styles
       // in the string.
-      bugText = bugText.replace(/Bug ([0-9]+)/g, bugProtocol);
-      bugText = bugText.replace(/bug ([0-9]+)/g, bugProtocol);
-      bugText = bugText.replace(/-- ([0-9]+)/g, bugProtocol);
+      this.bugText = this.bugText.replace(/Bug ([0-9]+)/g, this.bugProtocol);
+      this.bugText = this.bugText.replace(/bug ([0-9]+)/g, this.bugProtocol);
+      this.bugText = this.bugText.replace(/-- ([0-9]+)/g, this.bugProtocol);
     }
-    return bugText;
+    return this.bugText;
   }
 
   render() {

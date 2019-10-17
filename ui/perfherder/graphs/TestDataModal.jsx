@@ -143,6 +143,7 @@ export default class TestDataModal extends React.Component {
           return item.data;
         }
         errorMessages.push(item.data);
+        return null;
       })
       .filter(
         item =>

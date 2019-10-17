@@ -41,6 +41,7 @@ class LoginCallback extends React.PureComponent {
     } catch (err) {
       this.setError(err);
     }
+    return null;
   }
 
   setError(err) {

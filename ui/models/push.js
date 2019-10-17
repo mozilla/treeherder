@@ -100,6 +100,7 @@ export default class PushModel {
           // notification box.
           notify(formatTaskclusterError(e), 'danger', { sticky: true });
         }
+        return null;
       },
     );
   }
@@ -140,6 +141,7 @@ export default class PushModel {
           // notification box.
           notify(formatTaskclusterError(e), 'danger', { sticky: true });
         }
+        return null;
       },
     );
   }

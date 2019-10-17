@@ -62,6 +62,7 @@ export default class SelectorCard extends React.Component {
     if (this.state.checkboxSelected || revisionState === 'newRevision') {
       this.fetchRevisions(selectedRepo);
     }
+    return null;
   };
 
   fetchRevisions = async selectedRepo => {
@@ -176,6 +177,7 @@ export default class SelectorCard extends React.Component {
       validating: false,
       validated: true,
     });
+    return null;
   };
 
   render() {

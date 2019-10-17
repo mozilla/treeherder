@@ -103,6 +103,7 @@ export default class CompareTableControls extends React.Component {
       }
     }
     this.setState({ results: filteredResults });
+    return null;
   };
 
   render() {

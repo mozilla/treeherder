@@ -74,6 +74,8 @@ class ActionBar extends React.PureComponent {
         break;
       case 'parsed':
         document.querySelector('.logviewer-btn').click();
+        break;
+      default:
     }
   };
 
@@ -136,8 +138,10 @@ class ActionBar extends React.PureComponent {
         } catch (e) {
           notify(formatTaskclusterError(e), 'danger', { sticky: true });
         }
+        return null;
       },
     );
+    return null;
   };
 
   retriggerJob = async jobs => {
@@ -160,6 +164,7 @@ class ActionBar extends React.PureComponent {
     });
 
     JobModel.retrigger(jobs, currentRepo, notify, 1, decisionTaskMap);
+    return null;
   };
 
   backfillJob = async () => {
@@ -217,6 +222,7 @@ class ActionBar extends React.PureComponent {
         } catch (e) {
           notify(formatTaskclusterError(e), 'danger', { sticky: true });
         }
+        return null;
       },
     );
   };
@@ -288,7 +294,7 @@ class ActionBar extends React.PureComponent {
             return;
           }
 
-          return TaskclusterModel.submit({
+          TaskclusterModel.submit({
             action: isolationtask,
             decisionTaskId,
             taskId: results.originalTaskId,
@@ -393,6 +399,7 @@ class ActionBar extends React.PureComponent {
       // notification box.
       notify(formatTaskclusterError(e), 'danger', { sticky: true });
     }
+    return null;
   };
 
   cancelJobs = jobs => {
@@ -407,6 +414,7 @@ class ActionBar extends React.PureComponent {
       notify,
       decisionTaskMap,
     );
+    return null;
   };
 
   cancelJob = () => {

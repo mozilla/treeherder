@@ -174,6 +174,7 @@ class SecondaryNavBar extends React.PureComponent {
       // localStorage is disabled/not supported.
       return [];
     }
+    return null;
   }
 
   saveWatchedRepos(repos) {

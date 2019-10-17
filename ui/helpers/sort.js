@@ -23,4 +23,5 @@ export const sortAlphaNum = (a, b) => {
     }
     return rv;
   }
+  return null;
 };

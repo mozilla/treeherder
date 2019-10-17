@@ -127,6 +127,7 @@ const GraphTooltip = ({
       newAlertSummaryId,
       flotIndex,
     );
+    return null;
   };
 
   return (

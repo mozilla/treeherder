@@ -129,6 +129,7 @@ export default class StatusDropdown extends React.Component {
       });
     }
     updateState({ alertSummary: data });
+    return null;
   };
 
   isResolved = alertStatus =>

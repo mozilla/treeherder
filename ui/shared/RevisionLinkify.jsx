@@ -28,10 +28,10 @@ export default class RevisionLinkify extends React.Component {
   }
 
   getRevisionsAsLinkProtocol(text) {
-    const revMatches = text.match(revRe);
-    const revProtocol = 'rev:$1';
+    this.revMatches = text.match(revRe);
+    this.revProtocol = 'rev:$1';
 
-    return revMatches ? text.replace(revRe, revProtocol) : text;
+    return this.revMatches ? text.replace(revRe, this.revProtocol) : text;
   }
 
   render() {
