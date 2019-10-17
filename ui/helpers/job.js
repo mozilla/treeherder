@@ -110,6 +110,7 @@ export const findSelectedInstance = function findSelectedInstance() {
   if (selectedEl) {
     return findInstance(selectedEl);
   }
+  return null;
 };
 
 // Check if the element is visible on screen or not.
@@ -149,6 +150,7 @@ export const findGroupInstance = function findGroupInstance(job) {
   if (groupEl) {
     return findInstance(groupEl);
   }
+  return null;
 };
 
 // Fetch the React instance based on the jobId, and if scrollTo
@@ -163,6 +165,7 @@ export const findJobInstance = function findJobInstance(jobId, scrollTo) {
     }
     return findInstance(jobEl);
   }
+  return null;
 };
 
 export const addAggregateFields = function addAggregateFields(job) {

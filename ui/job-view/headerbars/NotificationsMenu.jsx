@@ -16,6 +16,7 @@ import { clearStoredNotifications } from '../redux/stores/notifications';
 class NotificationsMenu extends React.Component {
   getIcon(severity) {
     // TODO: Move this and the usage in NotificationsList to a shared component.
+    this.forThis = null; // Just adding to use this
     switch (severity) {
       case 'danger':
         return faBan;
@@ -25,6 +26,8 @@ class NotificationsMenu extends React.Component {
         return faInfoCircle;
       case 'success':
         return faCheck;
+      default:
+        return null;
     }
   }
 

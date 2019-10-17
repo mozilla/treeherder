@@ -80,6 +80,7 @@ export default class TaskclusterModel {
 
       return result.status.taskId;
     }
+    return null;
   }
 
   static async load(decisionTaskID, job, currentRepo) {

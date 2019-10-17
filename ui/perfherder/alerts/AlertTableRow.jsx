@@ -83,6 +83,7 @@ export default class AlertTableRow extends React.Component {
       });
     }
     this.setState(updatedStar);
+    return null;
   };
 
   getReassignment = alert => {
@@ -121,6 +122,7 @@ export default class AlertTableRow extends React.Component {
       selectedAlerts.splice(index, 1);
       return updateSelectedAlerts({ selectedAlerts, allSelected: false });
     }
+    return null;
   };
 
   getTitleText = (alert, alertStatus) => {

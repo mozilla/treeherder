@@ -13,11 +13,11 @@ export default class AuthService {
   }
 
   _fetchUser(userSession) {
-    const loginUrl = getApiUrl('/auth/login/');
+    this.loginUrl = getApiUrl('/auth/login/');
 
     // eslint-disable-next-line no-async-promise-executor
     return new Promise(async (resolve, reject) => {
-      const userResponse = await fetch(loginUrl, {
+      const userResponse = await fetch(this.loginUrl, {
         headers: {
           Authorization: `Bearer ${userSession.accessToken}`,
           'Access-Token-Expires-At': userSession.accessTokenExpiresAt,
@@ -27,13 +27,13 @@ export default class AuthService {
         credentials: 'same-origin',
       });
 
-      const user = await userResponse.json();
+      this.user = await userResponse.json();
 
       if (!userResponse.ok) {
-        reject(new Error(user.detail || userResponse.statusText));
+        reject(new Error(this.user.detail || userResponse.statusText));
       }
 
-      resolve(new UserModel(user));
+      resolve(new UserModel(this.user));
     });
   }
 
@@ -47,7 +47,7 @@ export default class AuthService {
   async _renewAuth() {
     try {
       if (!localStorage.getItem('userSession')) {
-        return;
+        return null;
       }
 
       const authResult = await renew();
@@ -65,6 +65,7 @@ export default class AuthService {
       /* eslint-disable no-console */
       console.error('Could not renew login:', err);
     }
+    return null;
   }
 
   resetRenewalTimer() {
@@ -90,6 +91,7 @@ export default class AuthService {
   }
 
   logout() {
+    this.usingThis = null; // Just for using this
     localStorage.removeItem('userSession');
     localStorage.setItem('user', JSON.stringify(loggedOutUser));
   }

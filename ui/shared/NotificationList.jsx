@@ -20,6 +20,8 @@ class NotificationList extends React.Component {
         return faCircle;
       case 'success':
         return faCheck;
+      default:
+        return null;
     }
   }
 

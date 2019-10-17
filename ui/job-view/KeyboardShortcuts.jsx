@@ -181,7 +181,7 @@ class KeyboardShortcuts extends React.Component {
   };
 
   doKey(ev, callback) {
-    const element = ev.target;
+    this.element = ev.target;
 
     // If the bug filer is opened, don't let these shortcuts work
     if (document.body.classList.contains('filer-open')) {
@@ -189,12 +189,12 @@ class KeyboardShortcuts extends React.Component {
     }
 
     if (
-      (element.tagName === 'INPUT' &&
-        element.type !== 'radio' &&
-        element.type !== 'checkbox') ||
-      element.tagName === 'SELECT' ||
-      element.tagName === 'TEXTAREA' ||
-      element.isContentEditable ||
+      (this.element.tagName === 'INPUT' &&
+        this.element.type !== 'radio' &&
+        this.element.type !== 'checkbox') ||
+      this.element.tagName === 'SELECT' ||
+      this.element.tagName === 'TEXTAREA' ||
+      this.element.isContentEditable ||
       ev.key === 'shift'
     ) {
       return;

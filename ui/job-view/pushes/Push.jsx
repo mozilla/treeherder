@@ -71,6 +71,7 @@ class Push extends React.PureComponent {
   }
 
   getJobCount(jobList) {
+    this.forThis = null; // Just adding to use this
     return jobList.reduce(
       (memo, job) =>
         job.result !== 'superseded'
@@ -81,6 +82,7 @@ class Push extends React.PureComponent {
   }
 
   getJobGroupInfo(job) {
+    this.forThis = null; // Just adding to use this
     const {
       job_group_name: name,
       job_group_symbol,

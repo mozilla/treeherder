@@ -258,10 +258,12 @@ class App extends React.Component {
   };
 
   fetchDeployedRevision() {
+    this.forThis = null; // Just adding to use this
     return fetch(deployedRevisionUrl).then(resp => resp.text());
   }
 
   updateButtonClick() {
+    this.forThis = null; // Just adding to use this
     if (window.confirm('Reload the page to pick up Treeherder updates?')) {
       window.location.reload(true);
     }

@@ -82,11 +82,12 @@ BugCountComponent.propTypes = {
 // TODO: Move `Platform` into its own file.
 class Platform extends React.Component {
   getIcon(failureClassification) {
+    this.faIcon = null;
     switch (failureClassification) {
       case 'not classified':
-        return;
+        return this.faIcon;
       case 'intermittent':
-        return (
+        this.faIcon = (
           <FontAwesomeIcon
             icon={faBug}
             size="sm"
@@ -94,8 +95,9 @@ class Platform extends React.Component {
             title="Bug"
           />
         );
+        return this.faIcon;
       case 'infra':
-        return (
+        this.faIcon = (
           <FontAwesomeIcon
             icon={faUnlink}
             size="sm"
@@ -103,8 +105,9 @@ class Platform extends React.Component {
             title="Infra"
           />
         );
+        return this.faIcon;
       default:
-        return (
+        this.faIcon = (
           <FontAwesomeIcon
             icon={faStar}
             size="sm"
@@ -112,6 +115,7 @@ class Platform extends React.Component {
             title="Classified"
           />
         );
+        return this.faIcon;
     }
   }
 

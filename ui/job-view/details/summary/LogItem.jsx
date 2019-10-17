@@ -36,6 +36,8 @@ function getLogUrlProps(logKey, logUrl, logViewerUrl, logViewerFullUrl) {
         className: 'disabled',
         title: 'Log parsing in progress',
       };
+    default:
+      return null;
   }
 }
 

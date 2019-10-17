@@ -39,10 +39,13 @@ class PushActionMenu extends React.PureComponent {
   }
 
   getRangeChangeUrl(param, revision) {
-    let url = window.location.href;
-    url = url.replace(`&${param}=${getUrlParam(param)}`, '');
-    url = url.replace(`&${'selectedJob'}=${getUrlParam('selectedJob')}`, '');
-    return `${url}&${param}=${revision}`;
+    this.url = window.location.href;
+    this.url = this.url.replace(`&${param}=${getUrlParam(param)}`, '');
+    this.url = this.url.replace(
+      `&${'selectedJob'}=${getUrlParam('selectedJob')}`,
+      '',
+    );
+    return `${this.url}&${param}=${revision}`;
   }
 
   handleUrlChanges = () => {

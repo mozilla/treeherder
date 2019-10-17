@@ -340,6 +340,7 @@ class PinBoard extends React.Component {
         return true;
       }
     }
+    return null;
   };
 
   bugNumberKeyPress = ev => {

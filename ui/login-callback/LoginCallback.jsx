@@ -28,7 +28,7 @@ class LoginCallback extends React.PureComponent {
     if (window !== window.top) {
       window.parent.postMessage(window.location.hash, window.origin);
 
-      return;
+      return null;
     }
 
     try {
@@ -47,6 +47,7 @@ class LoginCallback extends React.PureComponent {
     } catch (err) {
       this.setError(err);
     }
+    return null;
   }
 
   setError(err) {

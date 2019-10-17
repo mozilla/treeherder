@@ -36,6 +36,7 @@ const MainView = props => {
     if (regex.test(text)) {
       return row;
     }
+    return null;
   };
 
   const columns = [

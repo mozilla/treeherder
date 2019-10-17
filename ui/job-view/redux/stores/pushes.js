@@ -368,6 +368,7 @@ export const updateRange = range => {
       dispatch(clearPushes());
       return dispatch(fetchPushes());
     }
+    return null;
   };
 };
 

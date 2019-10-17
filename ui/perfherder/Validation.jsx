@@ -100,6 +100,7 @@ const withValidation = (
         ...origResultResponse,
         validationComplete: true,
       });
+      return null;
     }
 
     async verifyRevision(project, revision, resultSetName) {
@@ -108,9 +109,12 @@ const withValidation = (
         commit_revision: revision,
       });
 
-      if (failureStatus) {
+      this.data = data;
+      this.failureStatus = failureStatus;
+
+      if (this.failureStatus) {
         return {
-          errorMessages: [`Error fetching revision ${revision}: ${data}`],
+          errorMessages: [`Error fetching revision ${revision}: ${this.data}`],
         };
       }
       if (!data.results.length) {
@@ -166,6 +170,7 @@ const withValidation = (
         },
         this.updateParams({ ...params }),
       );
+      return null;
     }
 
     render() {
