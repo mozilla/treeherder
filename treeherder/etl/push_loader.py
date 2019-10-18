@@ -18,6 +18,14 @@ class PushLoader:
 
     def process(self, message_body, exchange, root_url):
         transformer = self.get_transformer_class(exchange)(message_body)
+        # Only pay attention to 'synchronize' Github pull requests
+        if transformer.branch == "pull request" and message_body["action"] != 'synchronize':
+            logger.warning("Ignoring %s action for %s",
+                message_body["action"],
+                message_body["body"]["pull_request"]["html_url"]
+            )
+            return
+
         try:
             newrelic.agent.add_custom_parameter("url", transformer.repo_url)
             newrelic.agent.add_custom_parameter("branch", transformer.branch)
@@ -61,7 +69,14 @@ class PushLoader:
             "Unsupported push exchange: {}".format(exchange))
 
 
-class GithubTransformer:
+class BaseTransformer:
+    branch = None
+
+    def get_branch(self):
+        return self.branch
+
+
+class GithubTransformer(BaseTransformer):
 
     CREDENTIALS = {
         "client_id": env("GITHUB_CLIENT_ID", default=None),
@@ -197,7 +212,7 @@ class GithubPullRequestTransformer(GithubTransformer):
         return self.fetch_push(pr_url, repository)
 
 
-class HgPushTransformer:
+class HgPushTransformer(BaseTransformer):
     # {
     #   "root": {
     #     "payload": {
