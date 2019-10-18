@@ -1561,5 +1561,20 @@
       "description": "A collection of Android libraries to build browsers or browser-like applications.",
       "tc_root_url": "https://firefox-ci-tc.services.mozilla.com"
     }
+  },
+  {
+    "pk": 112,
+    "model": "model.repository",
+    "fields": {
+      "dvcs_type": "git",
+      "name": "android-components-prs",
+      "url": "https://github.com/mozilla-mobile/android-components",
+      "branch": "pull request",
+      "active_status": "active",
+      "codebase": "android-components",
+      "repository_group": 11,
+      "description": "Pull requests for android-components.",
+      "tc_root_url": "https://taskcluster.net"
+    }
   }
 ]
