@@ -1,26 +1,11 @@
 import React from 'react';
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faSpinner } from '@fortawesome/free-solid-svg-icons';
 import { Row } from 'reactstrap';
 
-import {
-  createQueryParams,
-  tcAuthCallbackUrl,
-  parseQueryParams,
-} from '../helpers/url';
+import { parseQueryParams } from '../helpers/url';
 import { getData } from '../helpers/http';
 import ErrorMessages from '../shared/ErrorMessages';
 
-const tcClientIdMap = {
-  'https://treeherder.mozilla.org': 'production',
-  'https://treeherder.allizom.org': 'stage',
-  'https://treeherder-prototype.herokuapp.com': 'dev',
-  'http://localhost:5000': 'localhost',
-};
-
-const clientId = `treeherder-${tcClientIdMap[window.location.origin]}`;
-const redirectURI = `${window.location.origin}${tcAuthCallbackUrl}`;
-const errorMessage = `There was a problem verifying your Taskcluster credentials. Please try again later.`;
+import { clientId, redirectURI, errorMessage } from './constants';
 
 export default class TaskclusterCallback extends React.PureComponent {
   constructor(props) {
@@ -28,7 +13,6 @@ export default class TaskclusterCallback extends React.PureComponent {
 
     this.state = {
       errorMessage: '',
-      success: false,
     };
   }
 
@@ -36,16 +20,10 @@ export default class TaskclusterCallback extends React.PureComponent {
     // We're not using react router's location prop for simplicity;
     // we can't provide taskcluster with a redirect URI with a hash/fragment
     // per oath2 protocol which would be used by the hash router for parsing query params
-    const { code, rootUrl, state } = parseQueryParams(
-      window.location.search || window.location.hash,
-    );
+    const { code, state } = parseQueryParams(window.location.search);
     const requestState = localStorage.getItem('requestState');
 
-    if (!code && rootUrl) {
-      localStorage.setItem('tcRootUrl', rootUrl);
-      const nonce = this.generateNonce();
-      this.getAuthCode(rootUrl, nonce);
-    } else if (code && requestState && requestState === state) {
+    if (code && requestState && requestState === state) {
       this.getCredentials(code);
     } else {
       this.setState({
@@ -53,43 +31,6 @@ export default class TaskclusterCallback extends React.PureComponent {
       });
     }
   }
-
-  componentWillUnmount() {
-    localStorage.removeItem('userCredentials');
-  }
-
-  generateNonce = () => {
-    let value = '';
-    const characters =
-      'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
-
-    for (let i = 0; i <= 20; i++) {
-      value += characters.charAt(
-        Math.floor(this.secureRandom() * characters.length),
-      );
-    }
-
-    localStorage.setItem('requestState', value);
-    return value;
-  };
-
-  // from the MDN crypto.getRandomValues doc
-  secureRandom = () =>
-    window.crypto.getRandomValues(new Uint32Array(1))[0] / 4294967295;
-
-  getAuthCode = (rootUrl, state) => {
-    const params = {
-      client_id: clientId,
-      response_type: 'code',
-      redirect_uri: redirectURI,
-      scope: 'treeherder',
-      state,
-    };
-
-    window.location.href = `${rootUrl}login/oauth/authorize${createQueryParams(
-      params,
-    )}`;
-  };
 
   getCredentials = async code => {
     const rootUrl = localStorage.getItem('tcRootUrl');
@@ -108,16 +49,11 @@ export default class TaskclusterCallback extends React.PureComponent {
     if (response.failureStatus) {
       this.setState({ errorMessage });
     } else {
-      localStorage.setItem('userCredentials', { rootUrl: response.data });
-      this.setState({ success: true }, () => {
-        if (window.opener) {
-          window.close();
-        } else {
-          // handle case where the user navigates directly to the login route
-          window.location.href = window.origin;
-          console.log(window.location)
-        }
-      });
+      localStorage.setItem(
+        'userCredentials',
+        JSON.stringify({ [rootUrl]: response.data }),
+      );
+      window.close();
     }
   };
 
@@ -147,8 +83,7 @@ export default class TaskclusterCallback extends React.PureComponent {
   };
 
   render() {
-    const { errorMessage, success } = this.state;
-
+    const { errorMessage } = this.state;
     return (
       <div className="pt-5">
         {errorMessage ? (
@@ -156,13 +91,8 @@ export default class TaskclusterCallback extends React.PureComponent {
         ) : (
           <Row className="justify-content-center">
             <p className="lead text-center">
-              {!success
-                ? 'Getting Taskcluster credentials...'
-                : 'Successfully retrieved credentials. Redirecting...'}
+              Getting Taskcluster credentials...
             </p>
-            {/* <div>
-              <FontAwesomeIcon icon={faSpinner} spin />
-            </div> */}
           </Row>
         )}
       </div>
