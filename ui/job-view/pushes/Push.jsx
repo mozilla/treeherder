@@ -44,6 +44,7 @@ class Push extends React.PureComponent {
       selectedRunnableJobs: [],
       watched: 'none',
       jobCounts: { pending: 0, running: 0, completed: 0 },
+      fbcCounts: '',
       pushGroupState: 'collapsed',
       collapsed: collapsedPushes.includes(push.id),
     };
@@ -71,12 +72,12 @@ class Push extends React.PureComponent {
   }
   
   getJobCount(jobList) {
-    function filterCommit(job) {
-      if (job.failure_classification_id == 2) {
+      const filteredByCommit = jobList.filter(job =>
+      {if (job.failure_classification_id == 2) {
         return true
       }
-    }    
-    const filteredByCommit = jobList.filter(filterCommit);
+      });
+      this.setState({fbcCounts: filteredByCommit.length})
 
     return jobList.reduce(
       (memo, job) =>
@@ -455,6 +456,7 @@ class Push extends React.PureComponent {
       pushGroupState,
       platforms,
       jobCounts,
+      fbcCounts,
       selectedRunnableJobs,
       collapsed,
     } = this.state;
@@ -492,6 +494,7 @@ class Push extends React.PureComponent {
           author={author}
           revision={revision}
           jobCounts={jobCounts}
+          fbcCounts={fbcCounts}
           watchState={watched}
           isLoggedIn={isLoggedIn}
           currentRepo={currentRepo}
