@@ -58,7 +58,7 @@ async def handleTask(task, root_url):
                 for run in taskRuns:
                     logger.info("Loading into DB:\t%s/%s", taskId, run["retryId"])
                     # XXX: This seems our current bottleneck
-                    JobLoader().process_job(run)
+                    JobLoader().process_job(run, root_url)
         except Exception as e:
             logger.exception(e)
 
@@ -85,7 +85,7 @@ async def processTasks(taskGroupId, root_url):
     asyncTasks = []
     logger.info("We have %s tasks to process", len(tasks))
     for task in tasks:
-        asyncTasks.append(asyncio.create_task(handleTask(task)))
+        asyncTasks.append(asyncio.create_task(handleTask(task, root_url)))
 
     await asyncio.gather(*asyncTasks)
 
@@ -107,6 +107,7 @@ class Command(BaseCommand):
         parser.add_argument(
             "--root-url",
             dest="root_url",
+            default="https://taskcluster.net",
             help="root URL for optional taskIds"
         )
         parser.add_argument(
