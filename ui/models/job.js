@@ -124,7 +124,7 @@ export default class JobModel {
                 tasks: taskLabels,
               };
             }
-            console.log('retrigger in TaskclusterJobModel');
+
             await TaskclusterModel.submit({
               action: retriggerAction,
               actionTaskId,

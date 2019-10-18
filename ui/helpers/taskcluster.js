@@ -1,12 +1,17 @@
-import { OIDCCredentialAgent, Queue } from 'taskcluster-client-web';
+import { Queue } from 'taskcluster-client-web';
 import debounce from 'lodash/debounce';
+import moment from 'moment';
 
 import { clientId, redirectURI } from '../taskcluster-auth-callback/constants';
 
-import { loginRootUrl, getUserSessionUrl, createQueryParams } from './url';
+import { loginRootUrl, createQueryParams } from './url';
+// TODO
+// update LoginCallback so text styling is the same as TaskclusterCallback
+// remove/update the rest of this class and get working with the models
+export const tcCredentialsMessage =
+  'Need to retrieve or renew Taskcluster credentials.';
 
 const taskcluster = (() => {
-  let credentialAgent = null;
   let _rootUrl = null;
 
   // from the MDN crypto.getRandomValues doc
@@ -54,51 +59,37 @@ const taskcluster = (() => {
     },
   );
 
-  const verifyCredentials = (
-    rootUrl = 'https://hassan.taskcluster-dev.net/',
-  ) => {
+  const getCredentials = rootUrl => {
     const userCredentials = JSON.parse(localStorage.getItem('userCredentials'));
-    _rootUrl = rootUrl;
+    // TODO remove staging instance
+    _rootUrl =
+      rootUrl === loginRootUrl
+        ? 'https://hassan.taskcluster-dev.net/'
+        : rootUrl;
 
-    // TODO also verify credentials haven't expired - current staging instance sets
-    // expiring to time of query: moment(userCredentials[rootUrl].expires).isAfter(moment()))
-    if (!userCredentials[rootUrl]) {
+    if (
+      !userCredentials[_rootUrl] ||
+      !moment(userCredentials[_rootUrl].expires).isAfter(moment())
+    ) {
       getAuthCode();
     }
 
-    // TODO create custom messages if they are null - "must verify credentials, try action again"
-    return userCredentials[rootUrl];
-  };
-
-  // Create an OIDC credential agent if it doesn't exist.
-  const tcAgent = () => {
-    if (credentialAgent) {
-      return credentialAgent;
-    }
-
-    const userSession = localStorage.getItem('userSession');
-    const oidcProvider = 'mozilla-auth0';
-
-    if (userSession) {
-      credentialAgent = new OIDCCredentialAgent({
-        accessToken: JSON.parse(userSession).accessToken,
-        oidcProvider,
-        url: getUserSessionUrl(oidcProvider),
-        rootUrl: loginRootUrl,
-      });
-    }
-
-    return credentialAgent;
+    return userCredentials[_rootUrl];
   };
 
   return {
-    getAgent: verifyCredentials,
-    // When the access token is refreshed, simply update it on the credential agent
-    getQueue: () =>
-      new Queue({
-        credentialAgent: tcAgent(),
-        rootUrl: loginRootUrl,
-      }),
+    getCredentials,
+    getQueue: rootUrl => {
+      const userCredentials = getCredentials(rootUrl);
+      if (!userCredentials) {
+        throw Error(tcCredentialsMessage);
+      }
+
+      return new Queue({
+        rootUrl,
+        credentials: userCredentials.credentials,
+      });
+    },
   };
 })();
 

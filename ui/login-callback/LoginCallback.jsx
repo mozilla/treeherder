@@ -1,10 +1,9 @@
 import React from 'react';
 import { hot } from 'react-hot-loader/root';
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faSpinner } from '@fortawesome/free-solid-svg-icons';
 
 import AuthService from '../shared/auth/AuthService';
 import { webAuth, parseHash } from '../helpers/auth';
+import CallbackMessage from '../shared/CallbackMessage';
 
 class LoginCallback extends React.PureComponent {
   constructor(props) {
@@ -56,24 +55,12 @@ class LoginCallback extends React.PureComponent {
   }
 
   render() {
-    if (this.state.loginError) {
-      return <p>{this.state.loginError}</p>;
-    }
-
-    if (window.location.hash) {
-      return (
-        <div>
-          <span>Logging in..&nbsp;</span>
-          <FontAwesomeIcon icon={faSpinner} spin />
-        </div>
-      );
-    }
-
+    const { loginError } = this.state;
     return (
-      <div>
-        <span>Redirecting..&nbsp;</span>
-        <FontAwesomeIcon icon={faSpinner} spin />
-      </div>
+      <CallbackMessage
+        errorMessage={loginError}
+        text={window.location.hash ? 'Logging in...' : 'Redirecting...'}
+      />
     );
   }
 }

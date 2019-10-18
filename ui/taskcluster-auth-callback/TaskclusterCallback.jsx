@@ -1,9 +1,8 @@
 import React from 'react';
-import { Row } from 'reactstrap';
 
 import { parseQueryParams } from '../helpers/url';
 import { getData } from '../helpers/http';
-import ErrorMessages from '../shared/ErrorMessages';
+import CallbackMessage from '../shared/CallbackMessage';
 
 import { clientId, redirectURI, errorMessage } from './constants';
 
@@ -17,9 +16,9 @@ export default class TaskclusterCallback extends React.PureComponent {
   }
 
   componentDidMount() {
-    // We're not using react router's location prop for simplicity;
-    // we can't provide taskcluster with a redirect URI with a hash/fragment
-    // per oath2 protocol which would be used by the hash router for parsing query params
+    // We're not using react router's location prop because we can't provide
+    // taskcluster with a redirect URI that contains a fragment (hash) per
+    // oath2 protocol (which is used by the hash router for parsing query params)
     const { code, state } = parseQueryParams(window.location.search);
     const requestState = localStorage.getItem('requestState');
 
@@ -85,17 +84,10 @@ export default class TaskclusterCallback extends React.PureComponent {
   render() {
     const { errorMessage } = this.state;
     return (
-      <div className="pt-5">
-        {errorMessage ? (
-          <ErrorMessages failureMessage={errorMessage} />
-        ) : (
-          <Row className="justify-content-center">
-            <p className="lead text-center">
-              Getting Taskcluster credentials...
-            </p>
-          </Row>
-        )}
-      </div>
+      <CallbackMessage
+        errorMessage={errorMessage}
+        text="Getting Taskcluster credentials..."
+      />
     );
   }
 }
