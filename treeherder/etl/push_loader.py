@@ -84,7 +84,7 @@ class GithubTransformer:
 
     def __init__(self, message_body):
         self.message_body = message_body
-        self.repo_url = message_body["details"]["event.head.repo.url"].replace(".git", "")
+        self.repo_url = self.get_repo()
         self.branch = self.get_branch()
 
     def get_branch(self):
@@ -163,6 +163,9 @@ class GithubPushTransformer(GithubTransformer):
     def get_cleaned_commits(self, compare):
         return compare["commits"]
 
+    def get_repo(self):
+        return self.message_body["details"]["event.head.repo.url"].replace(".git", "")
+
 
 class GithubPullRequestTransformer(GithubTransformer):
     # {
@@ -177,7 +180,7 @@ class GithubPullRequestTransformer(GithubTransformer):
     #         "event.base.sha": "ff6a66a27c2c234e5820b8ffe48f17d85f1eb2db",
     #         "event.base.ref": "master",
     #         "event.head.user.login": "mozilla",
-    #         "event.head.repo.url": "https: // github.com / mozilla / treeherder.git",
+    #         "event.head.repo.url": "https: // github.com / armenzg / treeherder.git",
     #         "event.head.repo.branch": "github - pulse - pushes",
     #         "event.head.sha": "0efea0fa1396369b5058e16139a8ab51cdd7bd29",
     #         "event.head.ref": "github - pulse - pushes",
@@ -194,6 +197,9 @@ class GithubPullRequestTransformer(GithubTransformer):
         Pull requests don't use the actual branch, just the string "pull request"
         """
         return "pull request"
+
+    def get_repo(self):
+        return self.message_body["details"]["event.base.repo.url"].replace(".git", "")
 
     def transform(self, repository):
         pr_url = self.URL_BASE.format(
