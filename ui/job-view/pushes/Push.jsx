@@ -43,12 +43,7 @@ class Push extends React.PureComponent {
       runnableVisible: false,
       selectedRunnableJobs: [],
       watched: 'none',
-<<<<<<< HEAD
       jobCounts: { pending: 0, running: 0, completed: 0, fixedByCommit: 0 },
-=======
-      jobCounts: { pending: 0, running: 0, completed: 0 },
-      fbcCounts: '',
->>>>>>> refs/remotes/origin/master
       pushGroupState: 'collapsed',
       collapsed: collapsedPushes.includes(push.id),
     };
@@ -76,25 +71,15 @@ class Push extends React.PureComponent {
   }
   
   getJobCount(jobList) {
-<<<<<<< HEAD
     const filteredByCommit = jobList.filter(
       job => job.failure_classification_id === 2,
     );
-=======
-      const filteredByCommit = jobList.filter(job =>
-      {if (job.failure_classification_id == 2) {
-        return true
-      }
-      });
-      this.setState({fbcCounts: filteredByCommit.length})
->>>>>>> refs/remotes/origin/master
 
     return jobList.reduce(
       (memo, job) =>
         job.result !== 'superseded'
           ? { ...memo, [job.state]: memo[job.state] + 1 }
           : memo,
-<<<<<<< HEAD
       {
         running: 0,
         pending: 0,
@@ -102,10 +87,6 @@ class Push extends React.PureComponent {
         fixedByCommit: filteredByCommit.length,
       },
     );
-=======
-      { running: 0, pending: 0, completed: 0 },
-    )
->>>>>>> refs/remotes/origin/master
   }
 
   getJobGroupInfo(job) {
@@ -476,11 +457,7 @@ class Push extends React.PureComponent {
       pushGroupState,
       platforms,
       jobCounts,
-<<<<<<< HEAD
       fixedByCommit,
-=======
-      fbcCounts,
->>>>>>> refs/remotes/origin/master
       selectedRunnableJobs,
       collapsed,
     } = this.state;
@@ -518,11 +495,7 @@ class Push extends React.PureComponent {
           author={author}
           revision={revision}
           jobCounts={jobCounts}
-<<<<<<< HEAD
           fixedByCommit={fixedByCommit}
-=======
-          fbcCounts={fbcCounts}
->>>>>>> refs/remotes/origin/master
           watchState={watched}
           isLoggedIn={isLoggedIn}
           currentRepo={currentRepo}
