@@ -107,6 +107,7 @@
   font-size: 12px;
   z-index: 1;
   transition: 0.3s;
+  transform: scale(1.1, 1.1);
 }
 
 .btn-lg-xform:hover {
