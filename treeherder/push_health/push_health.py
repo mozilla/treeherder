@@ -5,6 +5,7 @@ from collections import defaultdict
 from django.core.cache import cache
 
 from treeherder.model.models import (FailureLine,
+                                     Job,
                                      OptionCollection)
 from treeherder.push_health.classification import (get_grouped,
                                                    set_classifications)
@@ -79,6 +80,11 @@ def get_history(failure_classification_id, push_date, num_days, option_map, repo
 #    used for the pass/fail ratio on the test to help determine if it is intermittent.
 #
 def get_push_failures(push, option_map):
+    all_testfailed = Job.objects.filter(
+        push=push,
+        tier__lte=2,
+        result='testfailed',
+    ).exclude(machine_platform__platform='lint')
     # Using .distinct(<fields>) here would help by removing duplicate FailureLines
     # for the same job (with different sub-tests), but it's only supported by
     # postgres.  Just using .distinct() has no effect.
@@ -144,10 +150,14 @@ def get_push_failures(push, option_map):
             if not has_job(failed_job, test['failJobs']) and test['jobKey'] == failed_job.job_key:
                 test['passInFailedJobs'].append(job_to_dict(failed_job))
 
+    # filter out testfailed jobs that are supported by failureline to get unsupported jobs
+    supported_job_ids = all_failed_jobs.keys()
+    unsupported_jobs = [job_to_dict(job) for job in all_testfailed if job.id not in supported_job_ids]
+
     # Each line of the sorted list that is returned here represents one test file per platform/
     # config.  Each line will have at least one failing job, but may have several
     # passing/failing jobs associated with it.
-    return sorted(tests.values(), key=lambda k: k['testName'])
+    return (sorted(tests.values(), key=lambda k: k['testName']), unsupported_jobs)
 
 
 def has_job(job, job_list):
@@ -176,7 +186,7 @@ def get_push_health_test_failures(push, repository_ids):
         fixed_by_commit_history_days,
         option_map,
         repository_ids)
-    push_failures = get_push_failures(push, option_map)
+    push_failures, unsupported_jobs = get_push_failures(push, option_map)
     filtered_push_failures = [
         failure for failure in push_failures if filter_failure(failure)
     ]
@@ -187,4 +197,8 @@ def get_push_health_test_failures(push, repository_ids):
         fixed_by_commit_history,
     )
     set_matching_passed_jobs(filtered_push_failures, push)
-    return get_grouped(filtered_push_failures)
+
+    failures = get_grouped(filtered_push_failures)
+    failures['unsupported'] = unsupported_jobs
+
+    return failures
