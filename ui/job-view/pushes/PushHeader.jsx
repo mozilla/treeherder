@@ -65,6 +65,7 @@ function PushCounts(props) {
   const total = completed + inProgress;
   const percentComplete = getPercentComplete(props);
 
+
   return (
     <div>
       {fixedByCommit >= 1 && (
@@ -75,6 +76,7 @@ function PushCounts(props) {
           {fixedByCommit}
         </span>
       )}
+<<<<<<< HEAD
       <span className="push-progress">
         {percentComplete === 100 && <span>- Complete -</span>}
         {percentComplete < 100 && total > 0 && (
@@ -84,6 +86,9 @@ function PushCounts(props) {
         )}
       </span>
     </div>
+=======
+    </span>  
+>>>>>>> 64d114edb44996f28e2d5a1c084c315091b4ea7a
   );
 }
 
@@ -115,6 +120,7 @@ class PushHeader extends React.Component {
     } = prevProps;
     const {
       jobCounts,
+      fbcCounts,
       watchState,
       isLoggedIn,
       selectedRunnableJobs,
@@ -258,6 +264,7 @@ class PushHeader extends React.Component {
       isLoggedIn,
       pushId,
       jobCounts,
+      fbcCounts,
       author,
       revision,
       runnableVisible,
@@ -312,6 +319,9 @@ class PushHeader extends React.Component {
               <Author author={author} url={authorPushFilterUrl} />
             </span>
           </span>
+          {fbcCounts >= 1 && 
+          <span className="fixed-by-commit">{fbcCounts}</span>
+            }
           {showPushHealthStatus && (
             <PushHealthStatus
               repoName={currentRepo.name}
