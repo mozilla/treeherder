@@ -65,7 +65,6 @@ function PushCounts(props) {
   const total = completed + inProgress;
   const percentComplete = getPercentComplete(props);
 
-
   return (
     <div>
       {fixedByCommit >= 1 && (
@@ -259,7 +258,6 @@ class PushHeader extends React.Component {
       isLoggedIn,
       pushId,
       jobCounts,
-      fixedByCommit,
       author,
       revision,
       runnableVisible,

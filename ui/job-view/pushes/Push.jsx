@@ -69,7 +69,7 @@ class Push extends React.PureComponent {
     window.removeEventListener(thEvents.applyNewJobs, this.handleApplyNewJobs);
     window.removeEventListener('hashchange', this.handleUrlChanges);
   }
-  
+
   getJobCount(jobList) {
     const filteredByCommit = jobList.filter(
       job => job.failure_classification_id === 2,
