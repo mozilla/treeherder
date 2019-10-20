@@ -116,7 +116,6 @@ class PushHeader extends React.Component {
     } = prevProps;
     const {
       jobCounts,
-      fbcCounts,
       watchState,
       isLoggedIn,
       selectedRunnableJobs,
@@ -260,7 +259,6 @@ class PushHeader extends React.Component {
       isLoggedIn,
       pushId,
       jobCounts,
-      fbcCounts,
       author,
       revision,
       runnableVisible,
@@ -315,9 +313,6 @@ class PushHeader extends React.Component {
               <Author author={author} url={authorPushFilterUrl} />
             </span>
           </span>
-          {fbcCounts >= 1 && 
-          <span className="fixed-by-commit">{fbcCounts}</span>
-            }
           {showPushHealthStatus && (
             <PushHealthStatus
               repoName={currentRepo.name}
