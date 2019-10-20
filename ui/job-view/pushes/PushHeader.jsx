@@ -76,7 +76,6 @@ function PushCounts(props) {
           {fixedByCommit}
         </span>
       )}
-<<<<<<< HEAD
       <span className="push-progress">
         {percentComplete === 100 && <span>- Complete -</span>}
         {percentComplete < 100 && total > 0 && (
@@ -86,9 +85,6 @@ function PushCounts(props) {
         )}
       </span>
     </div>
-=======
-    </span>  
->>>>>>> 64d114edb44996f28e2d5a1c084c315091b4ea7a
   );
 }
 
