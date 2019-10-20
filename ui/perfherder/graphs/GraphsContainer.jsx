@@ -223,7 +223,17 @@ class GraphsContainer extends React.Component {
       this.rightChartPadding > newRightPadding
         ? this.rightChartPadding
         : newRightPadding;
-    return moment.utc(tick).format('MMM DD hh:mm');
+    return this.checkDate(tick);
+  };
+
+  checkDate = x => {
+    const graphData = this.props.testData.filter(
+      item => item.visible === true && item.data.length > 0,
+    );
+
+    return graphData.length > 0
+      ? moment.utc(x).format('MMM DD')
+      : moment.utc().format('MMM DD');
   };
 
   // debounced
@@ -319,7 +329,7 @@ class GraphsContainer extends React.Component {
               />
               <VictoryAxis
                 tickCount={10}
-                tickFormat={x => moment.utc(x).format('MMM DD')}
+                tickFormat={x => this.checkDate(x)}
                 style={axisStyle}
               />
               {testData.map(item => (
