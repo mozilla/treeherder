@@ -32,6 +32,9 @@ h1,
 
 .bug-column:hover .bug-details {
   display: initial;
+  padding: 0;
+  border: none;
+  background: none;
 }
 
 /* overriding bootstrap default input style */

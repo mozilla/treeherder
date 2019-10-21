@@ -1,9 +1,12 @@
-/* eslint-disable jsx-a11y/no-noninteractive-element-interactions */
-
 import React from 'react';
 import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
-import { Label } from 'reactstrap';
+import {
+  UncontrolledDropdown,
+  DropdownMenu,
+  DropdownItem,
+  DropdownToggle,
+} from 'reactstrap';
 
 import { thAllResultStatuses } from '../../helpers/constants';
 import { getJobsUrl } from '../../helpers/url';
@@ -38,92 +41,75 @@ function FiltersMenu(props) {
   const { email } = user;
 
   return (
-    <span>
-      <span className="dropdown">
-        <button
-          id="filterLabel"
-          type="button"
-          title="Set filters"
-          data-toggle="dropdown"
-          className="btn btn-view-nav nav-menu-btn dropdown-toggle"
-        >
-          Filters
-        </button>
-        <ul
-          id="filter-dropdown"
-          className="dropdown-menu nav-dropdown-menu-right checkbox-dropdown-menu"
-          role="menu"
-          aria-labelledby="filterLabel"
-        >
-          <li>
-            {resultStatusMenuItems.map(filterName => (
-              <span key={filterName}>
-                <span>
-                  <Label className="dropdown-item">
-                    <input
-                      type="checkbox"
-                      className="mousetrap"
-                      id={filterName}
-                      checked={resultStatus.includes(filterName)}
-                      onChange={() =>
-                        filterModel.toggleResultStatuses([filterName])
-                      }
-                    />
-                    {filterName}
-                  </Label>
-                </span>
-              </span>
-            ))}
-          </li>
-          <li className="dropdown-divider separator" />
-          <Label className="dropdown-item">
+    <UncontrolledDropdown>
+      <DropdownToggle
+        caret
+        id="filterLabel"
+        className="btn btn-view-nav nav-menu-btn"
+        title="Set filters"
+      >
+        Filters
+      </DropdownToggle>
+      <DropdownMenu id="filter-dropdown">
+        {resultStatusMenuItems.map(filterName => (
+          <DropdownItem toggle={false} key={filterName}>
             <input
               type="checkbox"
-              id="classified"
-              checked={classifiedState.includes('classified')}
-              onChange={() => filterModel.toggleClassifiedFilter('classified')}
+              className="mousetrap"
+              id={filterName}
+              checked={resultStatus.includes(filterName)}
+              onChange={() => filterModel.toggleResultStatuses([filterName])}
             />
-            classified
-          </Label>
-          <Label className="dropdown-item">
-            <input
-              type="checkbox"
-              id="unclassified"
-              checked={classifiedState.includes('unclassified')}
-              onChange={() =>
-                filterModel.toggleClassifiedFilter('unclassified')
-              }
-            />
-            unclassified
-          </Label>
-          <li className="dropdown-divider separator" />
-          <li
-            title="Pin all jobs that pass the global filters"
-            className="dropdown-item"
-            onClick={pinAllShownJobs}
-          >
-            Pin all showing
-          </li>
-          <li
-            title="Show only superseded jobs"
-            className="dropdown-item"
-            onClick={filterModel.setOnlySuperseded}
-          >
-            Superseded only
-          </li>
-          <li title={`Show only pushes for ${email}`} className="dropdown-item">
-            <a href={getJobsUrl({ author: email })}>My pushes only</a>
-          </li>
-          <li
-            title="Reset to default status filters"
-            className="dropdown-item"
-            onClick={filterModel.resetNonFieldFilters}
-          >
-            Reset
-          </li>
-        </ul>
-      </span>
-    </span>
+            {filterName}
+          </DropdownItem>
+        ))}
+        <DropdownItem divider />
+        <DropdownItem toggle={false}>
+          <input
+            type="checkbox"
+            id="classified"
+            checked={classifiedState.includes('classified')}
+            onChange={() => filterModel.toggleClassifiedFilter('classified')}
+          />
+          classified
+        </DropdownItem>
+        <DropdownItem toggle={false}>
+          <input
+            type="checkbox"
+            id="unclassified"
+            checked={classifiedState.includes('unclassified')}
+            onChange={() => filterModel.toggleClassifiedFilter('unclassified')}
+          />
+          unclassified
+        </DropdownItem>
+        <DropdownItem divider />
+        <DropdownItem
+          onClick={pinAllShownJobs}
+          title="Pin all jobs that pass the global filters"
+        >
+          Pin all showing
+        </DropdownItem>
+        <DropdownItem
+          onClick={filterModel.setOnlySuperseded}
+          title="Show only superseded jobs"
+        >
+          Superseded only
+        </DropdownItem>
+        <DropdownItem
+          className="dropdown-item-link"
+          title={`Show only pushes for ${email}`}
+          href={getJobsUrl({ author: email })}
+        >
+          My pushes only
+        </DropdownItem>
+        <DropdownItem
+          onClick={filterModel.resetNonFieldFilters}
+          title="Reset to default status filters"
+        >
+          Reset
+        </DropdownItem>
+      </DropdownMenu>
+    </UncontrolledDropdown>
   );
 }
 

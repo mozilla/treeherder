@@ -1,8 +1,7 @@
-/* eslint-disable jsx-a11y/no-static-element-interactions */
-
 import React from 'react';
 import { Link } from 'react-router-dom';
 import PropTypes from 'prop-types';
+import { Button } from 'reactstrap';
 
 import { getBugUrl } from '../helpers/url';
 
@@ -32,7 +31,7 @@ function BugColumn({
         {id}
       </a>
       &nbsp;
-      <span
+      <Button
         className="ml-1 small-text bug-details"
         onClick={() => updateAppState({ graphData, tableData })}
       >
@@ -45,7 +44,7 @@ function BugColumn({
         >
           details
         </Link>
-      </span>
+      </Button>
     </div>
   );
 }
