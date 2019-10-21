@@ -56,6 +56,11 @@ class PerformanceSignature(models.Model):
     suite_public_name = models.CharField(max_length=30, null=True)
     test_public_name = models.CharField(max_length=30, null=True)
 
+    # free form tags which data producers can specify;
+    # enhances semantic labeling & search capabilities,
+    # without decoupling perf data
+    tags = models.CharField(max_length=360, blank=True)
+
     # extra options to distinguish the test (that don't fit into
     # option collection for whatever reason)
     # generous max_length permits up to 8 verbose option names

@@ -243,3 +243,21 @@ def test_measurement_unit_can_be_updated(test_repository, later_perf_push, perf_
         suite='cheezburger metrics',
         test='test2')
     assert not_changed_subtest_signature.measurement_unit == MEASUREMENT_UNIT
+
+
+def test_changing_extra_options_decouples_perf_signatures(test_repository, later_perf_push, perf_job,
+                                                          generic_reference_data, sample_perf_artifact):
+    updated_perf_artifact = copy.deepcopy(sample_perf_artifact)
+    updated_perf_artifact['blob']['suites'][0]['extraOptions'] = ['different-extra-options']
+    later_job = create_generic_job('lateguid', test_repository,
+                                   later_perf_push.id, generic_reference_data)
+    _, submit_datum = _prepare_test_data(sample_perf_artifact)
+    _, updated_submit_datum = _prepare_test_data(updated_perf_artifact)
+
+    store_performance_artifact(perf_job, submit_datum)
+    initial_signature_amount = PerformanceSignature.objects.all().count()
+    store_performance_artifact(later_job, updated_submit_datum)
+
+    # Perfherder treats perf data with new properties as entirely new data.
+    # Thus, it creates new & separate signatures for them.
+    assert initial_signature_amount < PerformanceSignature.objects.all().count()
