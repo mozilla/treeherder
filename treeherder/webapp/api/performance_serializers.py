@@ -253,14 +253,19 @@ class PerformanceSummarySerializer(serializers.ModelSerializer):
         return '{} {} {}'.format(test_suite, value['option_name'],
                                  value['extra_options'])
 
-class ValidityDashboardParamsSerializer(serializers.Serializer):
-    # startday = serializers.DateTimeField(required=False, allow_null=True, default=None)
-    # endday = serializers.DateTimeField(required=False, allow_null=True, default=None)
-    # revision = serializers.CharField(required=False, allow_null=True, default=None)
-    # repository = serializers.CharField()
+
+class TestSuiteHealthParamsSerializer(serializers.Serializer):
     framework = serializers.CharField(default=None)
-    # interval = serializers.IntegerField(required=False, allow_null=True, default=None)
-    # parent_signature = serializers.CharField(required=False, allow_null=True, default=None)
-    # signature = serializers.CharField(required=False, allow_null=True, default=None)
-    # no_subtests = serializers.BooleanField(required=False)
-    # all_data = serializers.BooleanField(required=False, default=False)
+
+
+class CommaSeparatedField(serializers.Field):
+    def to_representation(self, value):
+        return value.split(',')
+
+
+class TestSuiteHealthSerializer(serializers.Serializer):
+    test = serializers.CharField()
+    suite = serializers.CharField()
+    platforms = CommaSeparatedField()
+    repositories = CommaSeparatedField()
+    total_alerts = serializers.IntegerField()
