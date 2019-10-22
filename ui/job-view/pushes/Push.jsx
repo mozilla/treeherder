@@ -500,6 +500,7 @@ class Push extends React.PureComponent {
           selectedRunnableJobs={selectedRunnableJobs}
           notificationSupported={notificationSupported}
           pushHealthVisibility={pushHealthVisibility}
+          groupCountsExpanded={groupCountsExpanded}
         />
         <div className="push-body-divider" />
         {!collapsed ? (
