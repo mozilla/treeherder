@@ -457,7 +457,6 @@ class Push extends React.PureComponent {
       pushGroupState,
       platforms,
       jobCounts,
-      fixedByCommit,
       selectedRunnableJobs,
       collapsed,
     } = this.state;
@@ -495,7 +494,6 @@ class Push extends React.PureComponent {
           author={author}
           revision={revision}
           jobCounts={jobCounts}
-          fixedByCommit={fixedByCommit}
           watchState={watched}
           isLoggedIn={isLoggedIn}
           currentRepo={currentRepo}
