@@ -5,11 +5,9 @@ import moment from 'moment';
 import { clientId, redirectURI } from '../taskcluster-auth-callback/constants';
 
 import { loginRootUrl, createQueryParams } from './url';
-// TODO
-// update LoginCallback so text styling is the same as TaskclusterCallback
-// remove/update the rest of this class and get working with the models
+
 export const tcCredentialsMessage =
-  'Need to retrieve or renew Taskcluster credentials.';
+  'Need to retrieve or renew Taskcluster credentials before action can be performed.';
 
 const taskcluster = (() => {
   let _rootUrl = null;
@@ -68,28 +66,39 @@ const taskcluster = (() => {
         : rootUrl;
 
     if (
+      !userCredentials ||
       !userCredentials[_rootUrl] ||
       !moment(userCredentials[_rootUrl].expires).isAfter(moment())
     ) {
       getAuthCode();
+      return null;
+    }
+    return userCredentials[_rootUrl];
+  };
+
+  const getMockCredentials = () => ({
+    clientId: 'test client',
+    accessToken: '123fgt',
+  });
+
+  const getQueue = (rootUrl, testMode = false) => {
+    const userCredentials = testMode
+      ? getMockCredentials()
+      : getCredentials(rootUrl);
+    if (!userCredentials) {
+      throw Error(tcCredentialsMessage);
     }
 
-    return userCredentials[_rootUrl];
+    return new Queue({
+      rootUrl,
+      credentials: userCredentials.credentials,
+    });
   };
 
   return {
     getCredentials,
-    getQueue: rootUrl => {
-      const userCredentials = getCredentials(rootUrl);
-      if (!userCredentials) {
-        throw Error(tcCredentialsMessage);
-      }
-
-      return new Queue({
-        rootUrl,
-        credentials: userCredentials.credentials,
-      });
-    },
+    getQueue,
+    getMockCredentials,
   };
 })();
 
@@ -98,7 +107,7 @@ export const getAction = (actionArray, actionName) => {
 
   if (!action) {
     throw Error(
-      `'${actionName}' action is not available for this task. Available: ${actionArray
+      `'${actionName}' action is not available for this task.  Available: ${actionArray
         .map(act => act.name)
         .join(', ')}`,
     );

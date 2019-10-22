@@ -23,6 +23,7 @@ export default class TaskclusterModel {
     input,
     staticActionVariables,
     currentRepo,
+    testMode = false,
   }) {
     const context = defaults(
       {},
@@ -34,7 +35,7 @@ export default class TaskclusterModel {
       staticActionVariables,
     );
 
-    const queue = taskcluster.getQueue(currentRepo.tc_root_url);
+    const queue = taskcluster.getQueue(currentRepo.tc_root_url, testMode);
 
     if (action.kind === 'task') {
       context.task = task;
@@ -53,9 +54,9 @@ export default class TaskclusterModel {
       const { hookId, hookGroupId } = action;
       const auth = new Auth({ rootUrl: currentRepo.tc_root_url });
 
-      const userCredentials = taskcluster.getCredentials(
-        currentRepo.tc_root_url,
-      );
+      const userCredentials = testMode
+        ? taskcluster.getMockCredentials()
+        : taskcluster.getCredentials(currentRepo.tc_root_url);
       if (!userCredentials) {
         throw new Error(tcCredentialsMessage);
       }
@@ -81,12 +82,12 @@ export default class TaskclusterModel {
     }
   }
 
-  static async load(decisionTaskID, job, currentRepo) {
+  static async load(decisionTaskID, job, currentRepo, testMode = false) {
     if (!decisionTaskID) {
       throw Error("No decision task, can't find taskcluster actions");
     }
 
-    const queue = taskcluster.getQueue(currentRepo.tc_root_url);
+    const queue = taskcluster.getQueue(currentRepo.tc_root_url, testMode);
     const actionsUrl = queue.buildUrl(
       queue.getLatestArtifact,
       decisionTaskID,
@@ -98,7 +99,7 @@ export default class TaskclusterModel {
     let originalTaskPromise = Promise.resolve(null);
     if (job) {
       originalTaskId = job.task_id;
-      const queue = taskcluster.getQueue(currentRepo.tc_root_url);
+      const queue = taskcluster.getQueue(currentRepo.tc_root_url, testMode);
       originalTaskPromise = queue.task(originalTaskId);
     }
 
