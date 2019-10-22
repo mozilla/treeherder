@@ -79,14 +79,28 @@ def createLogReference(root_url, taskId, runId):
 def parseRouteInfo(prefix, taskId, routes, task):
     matchingRoutes = list(filter(lambda route: route.split(".")[0] == "tc-treeherder", routes))
 
-    if len(matchingRoutes) != 1:
+    parsedRoute = None
+    # XXX: Temporary change for prototype while https://github.com/mozilla-mobile/android-components/pull/4771 lands
+    try:
+        android_repo = "https://github.com/mozilla-mobile/android-components"
+        envs = task["payload"]["env"]
+        if (
+            envs["MOBILE_BASE_REPOSITORY"] == android_repo and
+            # This check is to ignore tasks for the `staging` repo
+            envs["MOBILE_HEAD_REPOSITORY"] != envs["MOBILE_BASE_REPOSITORY"]
+        ):
+            rev = task["payload"]["env"]["MOBILE_HEAD_REV"]
+            parsedRoute = parseRoute("tc-treeherder.v2.android-components-prs.{}.0".format(rev))
+    except KeyError:
+        pass
+
+    if parsedRoute is None and len(matchingRoutes) != 1:
         raise PulseHandlerError(
             "Could not determine Treeherder route. Either there is no route, " +
             "or more than one matching route exists." +
             "Task ID: {taskId} Routes: {routes}".format(taskId=taskId, routes=routes)
         )
-
-    parsedRoute = parseRoute(matchingRoutes[0])
+        parsedRoute = parseRoute(matchingRoutes[0])
 
     return parsedRoute
 
