@@ -252,3 +252,20 @@ class PerformanceSummarySerializer(serializers.ModelSerializer):
         test_suite = suite if test == '' or test == suite else '{} {}'.format(suite, test)
         return '{} {} {}'.format(test_suite, value['option_name'],
                                  value['extra_options'])
+
+
+class TestSuiteHealthParamsSerializer(serializers.Serializer):
+    framework = serializers.CharField(default=None)
+
+
+class CommaSeparatedField(serializers.Field):
+    def to_representation(self, value):
+        return value.split(',')
+
+
+class TestSuiteHealthSerializer(serializers.Serializer):
+    test = serializers.CharField()
+    suite = serializers.CharField()
+    platforms = CommaSeparatedField()
+    repositories = CommaSeparatedField()
+    total_alerts = serializers.IntegerField()
