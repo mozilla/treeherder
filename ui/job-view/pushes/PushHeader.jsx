@@ -60,20 +60,30 @@ Author.propTypes = {
 };
 
 function PushCounts(props) {
-  const { pending, running, completed } = props;
+  const { pending, running, completed, fixedByCommit } = props;
   const inProgress = pending + running;
   const total = completed + inProgress;
   const percentComplete = getPercentComplete(props);
 
   return (
-    <span className="push-progress">
-      {percentComplete === 100 && <span>- Complete -</span>}
-      {percentComplete < 100 && total > 0 && (
-        <span title="Proportion of jobs that are complete">
-          {percentComplete}% - {inProgress} in progress
+    <div>
+      {fixedByCommit >= 1 && (
+        <span
+          className="badge badge-warning"
+          title="Count of Fixed By Commit tasks for this push"
+        >
+          {fixedByCommit}
         </span>
       )}
-    </span>
+      <span className="push-progress">
+        {percentComplete === 100 && <span>- Complete -</span>}
+        {percentComplete < 100 && total > 0 && (
+          <span title="Proportion of jobs that are complete">
+            {percentComplete}% - {inProgress} in progress
+          </span>
+        )}
+      </span>
+    </div>
   );
 }
 
@@ -81,6 +91,7 @@ PushCounts.propTypes = {
   pending: PropTypes.number.isRequired,
   running: PropTypes.number.isRequired,
   completed: PropTypes.number.isRequired,
+  fixedByCommit: PropTypes.number.isRequired,
 };
 
 class PushHeader extends React.Component {
@@ -317,6 +328,7 @@ class PushHeader extends React.Component {
             pending={jobCounts.pending}
             running={jobCounts.running}
             completed={jobCounts.completed}
+            fixedByCommit={jobCounts.fixedByCommit}
           />
           <span className="push-buttons">
             {jobCounts.pending + jobCounts.running > 0 && (
