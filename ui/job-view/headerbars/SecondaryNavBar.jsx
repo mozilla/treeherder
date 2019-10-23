@@ -1,4 +1,3 @@
-/* eslint-disable jsx-a11y/control-has-associated-label */
 /* eslint-disable jsx-a11y/no-static-element-interactions */
 
 import React from 'react';
@@ -283,6 +282,11 @@ class SecondaryNavBar extends React.PureComponent {
               } ${!duplicateJobsVisible ? 'strikethrough' : ''}`}
               tabIndex="0"
               role="button"
+              aria-label={
+                duplicateJobsVisible
+                  ? 'Hide duplicate jobs'
+                  : 'Show duplicate jobs'
+              }
               title={
                 duplicateJobsVisible
                   ? 'Hide duplicate jobs'
