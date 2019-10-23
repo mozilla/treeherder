@@ -13,76 +13,13 @@
   ],
   "env": {
     "BROKER_URL": {
-      "required": true
-    },
-    "BUG_COMMENTER_API_KEY": {
-      "required": true
-    },
-    "BUG_FILER_API_KEY": {
-      "required": true
-    },
-    "CLOUDAMQP_URL": {
-      "required": true
-    },
-    "DATABASE_URL": {
-      "required": true
-    },
-    "GITHUB_CLIENT_ID": {
-      "required": true
-    },
-    "GITHUB_CLIENT_SECRET": {
-      "required": true
-    },
-    "HEROKU_APP_ID": {
-      "required": true
-    },
-    "HEROKU_APP_NAME": {
-      "required": true
-    },
-    "HEROKU_RELEASE_CREATED_AT": {
-      "required": true
-    },
-    "HEROKU_RELEASE_VERSION": {
-      "required": true
-    },
-    "HEROKU_SKIP_NODE_PLUGIN": {
-      "required": true
-    },
-    "HEROKU_SLUG_COMMIT": {
-      "required": true
-    },
-    "HEROKU_SLUG_DESCRIPTION": {
-      "required": true
-    },
-    "NEW_RELIC_API_KEY": {
-      "required": true
-    },
-    "NEW_RELIC_APP_NAME": {
-      "required": true
-    },
-    "NEW_RELIC_CONFIG_FILE": {
-      "required": true
-    },
-    "NEW_RELIC_LICENSE_KEY": {
-      "required": true
-    },
-    "PULSE_PUSH_SOURCES": {
-      "required": true
-    },
-    "PULSE_TASK_SOURCES": {
-      "required": true
-    },
-    "REDIS_URL": {
-      "required": true
-    },
-    "SITE_URL": {
-      "required": true
+      "value": "$CLOUDAMQP_URL"
     },
     "TREEHERDER_DJANGO_SECRET_KEY": {
-      "required": true
+      "generator": "secret"
     },
     "YARN_PRODUCTION": {
-      "required": true
+      "value": "true"
     }
   },
   "formation": {
