@@ -13,76 +13,25 @@
   ],
   "env": {
     "BROKER_URL": {
-      "required": true
-    },
-    "BUG_COMMENTER_API_KEY": {
-      "required": true
-    },
-    "BUG_FILER_API_KEY": {
-      "required": true
-    },
-    "CLOUDAMQP_URL": {
-      "required": true
-    },
-    "DATABASE_URL": {
-      "required": true
-    },
-    "GITHUB_CLIENT_ID": {
-      "required": true
-    },
-    "GITHUB_CLIENT_SECRET": {
-      "required": true
-    },
-    "HEROKU_APP_ID": {
-      "required": true
-    },
-    "HEROKU_APP_NAME": {
-      "required": true
-    },
-    "HEROKU_RELEASE_CREATED_AT": {
-      "required": true
-    },
-    "HEROKU_RELEASE_VERSION": {
-      "required": true
-    },
-    "HEROKU_SKIP_NODE_PLUGIN": {
-      "required": true
-    },
-    "HEROKU_SLUG_COMMIT": {
-      "required": true
-    },
-    "HEROKU_SLUG_DESCRIPTION": {
-      "required": true
-    },
-    "NEW_RELIC_API_KEY": {
-      "required": true
-    },
-    "NEW_RELIC_APP_NAME": {
-      "required": true
-    },
-    "NEW_RELIC_CONFIG_FILE": {
-      "required": true
-    },
-    "NEW_RELIC_LICENSE_KEY": {
-      "required": true
+      "value": "$CLOUDAMQP_URL"
     },
     "PULSE_PUSH_SOURCES": {
-      "required": true
+      "value": "[{'root_url': 'https://taskcluster.net', 'github': true, 'hgmo': true, 'pulse_url': 'amqp://mozilla_treeherder_testing:mozilla123@pulse.mozilla.org:5671/?ssl=true'}]"
     },
     "PULSE_TASK_SOURCES": {
-      "required": true
+      "value": "[{'root_url': 'https://taskcluster.net', 'pulse_url': 'amqp://mozilla_treeherder_testing:mozilla123@pulse.mozilla.org:5671/?ssl=true'}]"
     },
-    "REDIS_URL": {
-      "required": true
+    "ROOT_URL": {
+      "value": "https://taskcluster.net"
     },
     "SITE_URL": {
-      "required": true
+      "value": "https://treeherder-prototype-pr-TBD.herokuapp.com/"
     },
     "TREEHERDER_DJANGO_SECRET_KEY": {
-      "required": true
+      "value": "secret-key-of-at-least-50-characters-to-pass-check-deploy"
     },
     "YARN_PRODUCTION": {
-      "required": true
+      "value": "true"
     }
   },
   "formation": {
