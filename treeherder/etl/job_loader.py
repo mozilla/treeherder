@@ -66,6 +66,10 @@ class JobLoader:
                 newrelic.agent.add_custom_parameter("project", project)
 
                 repository = Repository.objects.get(name=project)
+                if repository.active_status != 'active':
+                    (real_task_id, _) = task_and_retry_ids(pulse_job["taskId"])
+                    logger.debug("Task %s belongs to a repository that is not active.", real_task_id)
+                    return
 
                 if repository.tc_root_url != root_url:
                     logger.warning("Skipping job for %s with incorrect root_url %s",
