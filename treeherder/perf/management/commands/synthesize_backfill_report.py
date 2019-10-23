@@ -7,7 +7,7 @@ from typing import (List,
 import simplejson
 from django.core.management.base import BaseCommand
 
-from treeherder.perf.alerts import IdentifyLatestRetriggerables
+from treeherder.perf.alerts import IdentifyLatestRetriggerables, ReportsMaintainer
 from treeherder.perf.models import PerformanceFramework
 
 
@@ -41,7 +41,11 @@ class Command(BaseCommand):
     def handle(self, *args, **options):
         frameworks, repositories, since, days_to_lookup = self._parse_args(**options)
         self._validate_args(frameworks, repositories)
+
         latest_retriggerables = IdentifyLatestRetriggerables(since, days_to_lookup)(frameworks, repositories)
+        ReportsMaintainer.handle_reports(latest_retriggerables)
+
+        # TODO-igoldan: replace with a summary report
         return simplejson.dumps(latest_retriggerables, default=str)
 
     def _parse_args(self, **options) -> Tuple[List, List, datetime, timedelta]:

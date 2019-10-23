@@ -514,3 +514,55 @@ class PerformanceBugTemplate(models.Model):
 
     def __str__(self):
         return '{} bug template'.format(self.framework.name)
+
+
+class BackfillReport(models.Model):
+    # TODO-igoldan: provide proper docs
+    summary = models.OneToOneField(PerformanceAlertSummary,
+                                   on_delete=models.CASCADE,
+                                   primary_key=True,
+                                   related_name='backfill_report')
+
+    created = models.DateTimeField(auto_now_add=True)
+    last_updated = models.DateTimeField(auto_now=True)
+
+    @property
+    def is_outdated(self):
+        # alert summary updated since last report was made
+        return self.summary.last_updated > self.last_updated
+
+    class Meta:
+        db_table = "backfill_report"
+
+    def __str__(self):
+        # TODO-igoldan: ensure datetime is readable
+        return "BackfillReport(summary #{}, last update {})".format(self.summary.id, self.last_updated)
+
+
+class BackfillRecord(models.Model):
+    alert = models.OneToOneField(PerformanceAlert,
+                                 on_delete=models.CASCADE,
+                                 primary_key=True,
+                                 related_name='backfill_record')
+
+    report = models.ForeignKey(BackfillReport,
+                               on_delete=models.CASCADE,
+                               related_name='records')
+
+    # all data required to retrigger/backfill
+    # associated perf alert, as JSON dump
+    # TODO-igoldan: could we employ a JSONField?
+    context = models.TextField()
+
+    created = models.DateTimeField(auto_now_add=True)
+
+    def save(self, *args, **kwargs):
+        # refresh parent's latest update time
+        super().save(*args, **kwargs)
+        self.report.save(using=kwargs.get('using'))
+
+    class Meta:
+        db_table = "backfill_record"
+
+    def __str__(self):
+        return "BackfillRecord(alert #{}, from {})".format(self.alert.id, self.report)

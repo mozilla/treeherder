@@ -1,3 +1,4 @@
+import json
 import logging
 import time
 from collections import namedtuple
@@ -5,16 +6,18 @@ from datetime import (datetime,
                       timedelta)
 from itertools import zip_longest
 from typing import (List,
-                    Tuple)
+                    Tuple,
+                    )
 
 from django.conf import settings
 from django.db import transaction
+from django.db.models import F, Q
 from django.db.models.query import QuerySet
 
 from treeherder.perf.models import (PerformanceAlert,
                                     PerformanceAlertSummary,
                                     PerformanceDatum,
-                                    PerformanceSignature)
+                                    PerformanceSignature, BackfillReport, BackfillRecord)
 from treeherder.perfalert.perfalert import (RevisionDatum,
                                             detect_changes)
 
@@ -350,25 +353,32 @@ class IdentifyLatestRetriggerables:
             max_data_points=5,
             time_interval=data_points_lookup_interval)
 
-    def __call__(self, frameworks: List[str], repositories: List[str]) -> dict:
+    def __call__(self, frameworks: List[str], repositories: List[str]) -> List[dict]:
         summaries_to_retrigger = self._fetch_by(
-            self._summaries(self.since),
+            self._summaries_requiring_reports(self.since),
             frameworks,
             repositories
         )
         return self._identify_retriggerables(summaries_to_retrigger)
 
-    def _summaries(self, timestamp: datetime) -> QuerySet:
-        return (PerformanceAlertSummary.objects
-                .select_related('framework', 'repository')
-                .filter(created__gte=timestamp))
+    @staticmethod
+    def _summaries_requiring_reports(timestamp: datetime) -> QuerySet:
+        recent_summaries_with_no_reports = Q(last_updated__gte=timestamp,
+                                             backfill_report__isnull=True)
+        summaries_with_outdated_reports = Q(last_updated__gt=F('backfill_report__last_updated'))
 
-    def _fetch_by(self, summaries_to_retrigger: QuerySet, frameworks: List[str], repositories: List[str]) -> QuerySet:
+        return (PerformanceAlertSummary.objects
+                .prefetch_related('backfill_report')
+                .select_related('framework', 'repository')
+                .filter(recent_summaries_with_no_reports | summaries_with_outdated_reports))
+
+    @staticmethod
+    def _fetch_by(summaries_to_retrigger: QuerySet, frameworks: List[str], repositories: List[str]) -> QuerySet:
         if frameworks:
             summaries_to_retrigger = summaries_to_retrigger.filter(framework__name__in=frameworks)
         return summaries_to_retrigger.filter(repository__name__in=repositories)
 
-    def _identify_retriggerables(self, summaries_to_retrigger: QuerySet) -> dict:
+    def _identify_retriggerables(self, summaries_to_retrigger: QuerySet) -> List[dict]:
         json_output = []
         for summary in summaries_to_retrigger:
             important_alerts = self.picker.extract_important_alerts(
@@ -383,3 +393,36 @@ class IdentifyLatestRetriggerables:
             json_output.append(summary_record)
 
         return json_output
+
+
+class ReportsMaintainer:
+    @classmethod
+    def handle_reports(cls, latest_retriggerables: List[dict]):
+        for summary_record in latest_retriggerables:
+            summary_id = summary_record['alert_summary_id']
+            backfill_report, created = BackfillReport.objects.get_or_create(summary_id=summary_id)
+
+            if created or backfill_report.is_outdated:
+                cls.provide_records(backfill_report, summary_record['alerts'])
+
+    @classmethod
+    def provide_records(cls, backfill_report: BackfillReport,
+                        alert_records: List[dict]):
+        # any existing records are outdated; remove them
+        BackfillRecord.objects.filter(report=backfill_report).delete()
+
+        for record in alert_records:
+            alert_id, context_dump = cls._extract_alert_record(record)
+            backfill_record = BackfillRecord.objects.create(alert_id=record['id'],
+                                                            report=backfill_report,
+                                                            context=context_dump)
+            backfill_record.save()
+
+    @classmethod
+    def _extract_alert_record(cls, alert_record: dict) -> Tuple[int, str]:
+        alert_id = alert_record['id']
+        context_dump = json.dumps({
+            'data_points_to_retrigger': alert_record['data_points_to_retrigger']
+        })
+
+        return alert_id, context_dump
