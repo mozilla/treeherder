@@ -327,6 +327,10 @@ class JobLoader:
 
     def _is_valid_job(self, pulse_job):
         try:
+            # e.g. mozilla-l10n-automation-bot@users.noreply.github.com
+            # Changing the pulse schema will also require a schema change
+            if len(pulse_job["owner"]) > 50:
+                pulse_job["owner"] = pulse_job["owner"][0:49]
             jsonschema.validate(pulse_job, get_json_schema("pulse-job.yml"))
         except (jsonschema.ValidationError, jsonschema.SchemaError) as e:
             logger.error("JSON Schema validation error during job ingestion: %s", e)
