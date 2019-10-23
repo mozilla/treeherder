@@ -19,76 +19,76 @@
   ],
   "env": {
     "BROKER_URL": {
-      "required": true
+      "generator": "secret"
     },
     "BUG_COMMENTER_API_KEY": {
-      "required": true
+      "generator": "secret"
     },
     "BUG_FILER_API_KEY": {
-      "required": true
+      "generator": "secret"
     },
     "CLOUDAMQP_URL": {
-      "required": true
+      "generator": "secret"
     },
     "DATABASE_URL": {
-      "required": true
+      "generator": "secret"
     },
     "GITHUB_CLIENT_ID": {
-      "required": true
+      "generator": "secret"
     },
     "GITHUB_CLIENT_SECRET": {
-      "required": true
+      "generator": "secret"
     },
     "HEROKU_APP_ID": {
-      "required": true
+      "generator": "secret"
     },
     "HEROKU_APP_NAME": {
-      "required": true
+      "generator": "secret"
     },
     "HEROKU_RELEASE_CREATED_AT": {
-      "required": true
+      "generator": "secret"
     },
     "HEROKU_RELEASE_VERSION": {
-      "required": true
+      "generator": "secret"
     },
     "HEROKU_SKIP_NODE_PLUGIN": {
-      "required": true
+      "generator": "secret"
     },
     "HEROKU_SLUG_COMMIT": {
-      "required": true
+      "generator": "secret"
     },
     "HEROKU_SLUG_DESCRIPTION": {
-      "required": true
+      "generator": "secret"
     },
     "NEW_RELIC_API_KEY": {
-      "required": true
+      "generator": "secret"
     },
     "NEW_RELIC_APP_NAME": {
-      "required": true
+      "generator": "secret"
     },
     "NEW_RELIC_CONFIG_FILE": {
-      "required": true
+      "generator": "secret"
     },
     "NEW_RELIC_LICENSE_KEY": {
-      "required": true
+      "generator": "secret"
     },
     "PULSE_PUSH_SOURCES": {
-      "required": true
+      "generator": "secret"
     },
     "PULSE_TASK_SOURCES": {
-      "required": true
+      "generator": "secret"
     },
     "REDIS_URL": {
-      "required": true
+      "generator": "secret"
     },
     "SITE_URL": {
-      "required": true
+      "generator": "secret"
     },
     "TREEHERDER_DJANGO_SECRET_KEY": {
-      "required": true
+      "generator": "secret"
     },
     "YARN_PRODUCTION": {
-      "required": true
+      "generator": "secret"
     }
   },
   "formation": {
