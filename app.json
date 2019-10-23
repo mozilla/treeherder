@@ -1,5 +1,16 @@
 {
-  "addons": ["scheduler", "cloudamqp", "heroku-redis", "papertrail:choklad"],
+  "addons": [
+    "scheduler",
+    "cloudamqp",
+    "heroku-redis",
+    "papertrail:choklad",
+    {
+      "plan": "jawsdb:leopard",
+      "options": {
+        "version": "5.7"
+      }
+    }
+  ],
   "buildpacks": [
     {
       "url": "https://buildpack-registry.s3.amazonaws.com/buildpacks/edmorley/timestamps.tgz"
@@ -14,6 +25,9 @@
   "env": {
     "BROKER_URL": {
       "value": "$CLOUDAMQP_URL"
+    },
+    "DATABASE_URL": {
+      "value": "$JAWSDB_URL"
     },
     "PULSE_PUSH_SOURCES": {
       "value": "[{'root_url': 'https://taskcluster.net', 'github': true, 'hgmo': true, 'pulse_url': 'amqp://mozilla_treeherder_testing:mozilla123@pulse.mozilla.org:5671/?ssl=true'}]"
