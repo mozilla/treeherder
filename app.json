@@ -18,77 +18,23 @@
     }
   ],
   "env": {
-    "BROKER_URL": {
-      "generator": "secret"
-    },
-    "BUG_COMMENTER_API_KEY": {
-      "generator": "secret"
-    },
-    "BUG_FILER_API_KEY": {
-      "generator": "secret"
-    },
-    "CLOUDAMQP_URL": {
-      "generator": "secret"
-    },
-    "DATABASE_URL": {
-      "generator": "secret"
-    },
-    "GITHUB_CLIENT_ID": {
-      "generator": "secret"
-    },
-    "GITHUB_CLIENT_SECRET": {
-      "generator": "secret"
-    },
-    "HEROKU_APP_ID": {
-      "generator": "secret"
-    },
-    "HEROKU_APP_NAME": {
-      "generator": "secret"
-    },
-    "HEROKU_RELEASE_CREATED_AT": {
-      "generator": "secret"
-    },
-    "HEROKU_RELEASE_VERSION": {
-      "generator": "secret"
-    },
-    "HEROKU_SKIP_NODE_PLUGIN": {
-      "generator": "secret"
-    },
-    "HEROKU_SLUG_COMMIT": {
-      "generator": "secret"
-    },
-    "HEROKU_SLUG_DESCRIPTION": {
-      "generator": "secret"
-    },
-    "NEW_RELIC_API_KEY": {
-      "generator": "secret"
-    },
-    "NEW_RELIC_APP_NAME": {
-      "generator": "secret"
-    },
-    "NEW_RELIC_CONFIG_FILE": {
-      "generator": "secret"
-    },
-    "NEW_RELIC_LICENSE_KEY": {
-      "generator": "secret"
-    },
     "PULSE_PUSH_SOURCES": {
-      "generator": "secret"
+      "value": "[{'root_url': 'https://taskcluster.net', 'github': true, 'hgmo': true, 'pulse_url': 'amqp://mozilla_treeherder_testing:mozilla123@pulse.mozilla.org:5671/?ssl=true'}]"
     },
     "PULSE_TASK_SOURCES": {
-      "generator": "secret"
+      "value": "[{'root_url': 'https://taskcluster.net', 'pulse_url': 'amqp://mozilla_treeherder_testing:mozilla123@pulse.mozilla.org:5671/?ssl=true'}]"
     },
-    "REDIS_URL": {
-      "generator": "secret"
+    "ROOT_URL": {
+      "value": "https://taskcluster.net"
     },
     "SITE_URL": {
-      "generator": "secret"
+      "value": "https://treeherder-prototype-pr-TBD.herokuapp.com/"
     },
     "TREEHERDER_DJANGO_SECRET_KEY": {
-      "generator": "secret"
+      "value": "secret-key-of-at-least-50-characters-to-pass-check-deploy"
     },
     "YARN_PRODUCTION": {
-      "generator": "secret"
+      "value": "true"
     }
   },
   "formation": {
