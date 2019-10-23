@@ -1,3 +1,4 @@
+import os
 import re
 from datetime import timedelta
 from os.path import (abspath,
@@ -95,8 +96,10 @@ TEMPLATES = [{
 #   'mysql://username:password@host:optional_port/database_name'
 #
 # which django-environ converts into the Django DB settings dict format.
+# CLEARDB_DATABASE_URL is set if you're using a Heroku Review app
+db_env_variable = 'CLEARDB_DATABASE_URL' if os.environ.get('CLEARDB_DATABASE_URL') else 'DATABASE_URL'
 DATABASES = {
-    'default': env.db_url('DATABASE_URL'),
+    'default': env.db_url(db_env_variable),
 }
 
 # Only used when syncing local database with production replicas

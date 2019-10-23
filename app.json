@@ -1,5 +1,11 @@
 {
-  "addons": ["scheduler", "cloudamqp", "heroku-redis", "papertrail:choklad"],
+  "addons": [
+    "scheduler",
+    "cloudamqp",
+    "heroku-redis",
+    "papertrail:choklad",
+    "cleardb:punch"
+  ],
   "buildpacks": [
     {
       "url": "https://buildpack-registry.s3.amazonaws.com/buildpacks/edmorley/timestamps.tgz"
