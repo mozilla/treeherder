@@ -1,5 +1,3 @@
-/* eslint-disable jsx-a11y/no-static-element-interactions */
-
 import React from 'react';
 import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
@@ -142,6 +140,7 @@ class PushList extends React.Component {
       <div
         id="push-list"
         onClick={evt => this.clearIfEligibleTarget(evt.target)}
+        role="presentation"
       >
         {jobsLoaded && <span className="hidden ready" />}
         {repoName &&
@@ -189,6 +188,8 @@ class PushList extends React.Component {
                 onClick={() => fetchNextPushes(count)}
                 key={count}
                 data-testid={`get-next-${count}`}
+                role="button"
+                tabIndex="0"
               >
                 {count}
               </div>
