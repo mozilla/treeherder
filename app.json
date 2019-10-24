@@ -4,7 +4,10 @@
     "cloudamqp",
     "heroku-redis",
     "papertrail:choklad",
-    "cleardb:punch"
+    "cleardb",
+    {
+      "plan": "cleardb:punch"
+    }
   ],
   "buildpacks": [
     {
