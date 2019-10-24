@@ -53,7 +53,7 @@ else
     CHANGELOG="Unknown changelog due to error fetching revision.txt!"
 fi
 
-if [[ -v NEW_RELIC_CONFIG_FILE ]] then
+if [[ -v NEW_RELIC_CONFIG_FILE ]]; then
     # The author of the deploy isn't currently available to us. Have filed:
     # https://help.heroku.com/tickets/343783
     USER="Heroku"
