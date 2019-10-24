@@ -18,6 +18,9 @@
     }
   ],
   "env": {
+    "BROKER_URL": {
+      "value": "$CLOUDAMQP_URL"
+    },
     "PULSE_PUSH_SOURCES": {
       "value": "[{'root_url': 'https://taskcluster.net', 'github': true, 'hgmo': true, 'pulse_url': 'amqp://mozilla_treeherder_testing:mozilla123@pulse.mozilla.org:5671/?ssl=true'}]"
     },
