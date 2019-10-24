@@ -35,14 +35,6 @@
     }
   },
   "formation": {
-    "pulse_listener_jobs": {
-      "quantity": 1,
-      "size": "Standard-1X"
-    },
-    "worker_store_pulse_old": {
-      "quantity": 1,
-      "size": "Standard-1X"
-    },
     "worker_store_pulse_data": {
       "quantity": 1,
       "size": "Standard-1X"
