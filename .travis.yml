@@ -8,7 +8,7 @@ matrix:
     - env: js-tests
       language: node_js
       # The Node version here must be kept in sync with that in `package.json`.
-      node_js: '12'
+      node_js: '12.12.0'
       cache:
         directories:
           - node_modules
@@ -25,7 +25,7 @@ matrix:
     - env: test-prod-build
       language: node_js
       # The Node version here must be kept in sync with that in `package.json`.
-      node_js: '12'
+      node_js: '12.12.0'
       install:
         - yarn install --prod --frozen-lockfile
       script:
