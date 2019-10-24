@@ -26,15 +26,11 @@
     }
   },
   "formation": {
-    "pulse_listener_jobs": {
-      "quantity": 1,
+    "celery_scheduler": {
+      "quantity": 0,
       "size": "Standard-1X"
     },
-    "worker_store_pulse_old": {
-      "quantity": 1,
-      "size": "Standard-1X"
-    },
-    "worker_store_pulse_data": {
+    "pulse_listener_pushes": {
       "quantity": 1,
       "size": "Standard-1X"
     },
@@ -42,24 +38,20 @@
       "quantity": 1,
       "size": "Standard-1X"
     },
-    "celery_scheduler": {
+    "web": {
       "quantity": 1,
       "size": "Standard-1X"
     },
     "worker_log_parser": {
-      "quantity": 1,
+      "quantity": 0,
       "size": "Standard-1X"
     },
     "worker_misc": {
-      "quantity": 1,
+      "quantity": 0,
       "size": "Standard-1X"
     },
-    "pulse_listener_pushes": {
-      "quantity": 1,
-      "size": "Standard-1X"
-    },
-    "web": {
-      "quantity": 1,
+    "worker_store_pulse_data": {
+      "quantity": 5,
       "size": "Standard-1X"
     }
   },
