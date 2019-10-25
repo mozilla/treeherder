@@ -32,6 +32,7 @@
     "HEROKU_APP_NAME": {
       "required": true
     },
+    "PULSE_URL": "amqp://treeherder-shared-pulse-user:mozilla123@pulse.mozilla.org:5671/?ssl=true",
     "TREEHERDER_DJANGO_SECRET_KEY": {
       "generator": "secret"
     },
