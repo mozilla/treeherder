@@ -15,6 +15,9 @@
     "BROKER_URL": {
       "value": "$CLOUDAMQP_URL"
     },
+    "HEROKU_APP_NAME": {
+      "required": true
+    },
     "TREEHERDER_DJANGO_SECRET_KEY": {
       "generator": "secret"
     },
