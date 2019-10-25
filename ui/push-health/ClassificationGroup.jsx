@@ -1,5 +1,3 @@
-/* eslint-disable jsx-a11y/no-noninteractive-element-interactions */
-
 import React from 'react';
 import PropTypes from 'prop-types';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
@@ -76,8 +74,13 @@ class ClassificationGroup extends React.PureComponent {
 
     return (
       <Row className={`justify-content-between ${className}`}>
-        <h4 className="w-100" onClick={this.toggleDetails}>
-          <span className={`pointable badge badge-${headerColor} w-100`}>
+        <h4 className="w-100">
+          <span
+            className={`pointable badge badge-${headerColor} w-100`}
+            onClick={this.toggleDetails}
+            role="button"
+            tabIndex="0"
+          >
             {name} : {Object.keys(group).length}
             <FontAwesomeIcon
               icon={expandIcon}
