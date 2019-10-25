@@ -114,6 +114,11 @@ for alias in DATABASES:
         # Override Django's default connection charset of 'utf8', otherwise it's
         # still not possible to insert non-BMP unicode into utf8mb4 tables.
         'charset': 'utf8mb4',
+        # From MySQL 5.7 onwards and on fresh installs of MySQL 5.6, the default value of the sql_mode
+        # option contains STRICT_TRANS_TABLES. That option escalates warnings into errors when data are
+        # truncated upon insertion, so Django highly recommends activating a strict mode for MySQL to
+        # prevent data loss (either STRICT_TRANS_TABLES or STRICT_ALL_TABLES).
+        'init_command': "SET sql_mode='STRICT_TRANS_TABLES'"
     }
     if connection_should_use_tls(DATABASES[alias]['HOST']):
         # Use TLS when connecting to RDS.
