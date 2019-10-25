@@ -86,7 +86,6 @@ def _load_perf_datum(job, perf_datum):
             }
             # store extraOptions list as space separated string
             suite_extra_options = ' '.join(sorted(suite['extraOptions']))
-
         summary_signature_hash = None
 
         # if we have a summary value, create or get its signature by all its subtest
@@ -107,6 +106,7 @@ def _load_perf_datum(job, perf_datum):
                     'option_collection': option_collection,
                     'platform': job.machine_platform,
                     'extra_options': suite_extra_options,
+                    'measurement_unit': suite.get('unit'),
                     'lower_is_better': suite.get('lowerIsBetter', True),
                     'has_subtests': True,
                     # these properties below can be either True, False, or null
@@ -157,6 +157,7 @@ def _load_perf_datum(job, perf_datum):
                     'option_collection': option_collection,
                     'platform': job.machine_platform,
                     'extra_options': suite_extra_options,
+                    'measurement_unit': subtest.get('unit'),
                     'lower_is_better': subtest.get('lowerIsBetter', True),
                     'has_subtests': False,
                     # these properties below can be either True, False, or

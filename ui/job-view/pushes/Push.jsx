@@ -43,7 +43,7 @@ class Push extends React.PureComponent {
       runnableVisible: false,
       selectedRunnableJobs: [],
       watched: 'none',
-      jobCounts: { pending: 0, running: 0, completed: 0 },
+      jobCounts: { pending: 0, running: 0, completed: 0, fixedByCommit: 0 },
       pushGroupState: 'collapsed',
       collapsed: collapsedPushes.includes(push.id),
     };
@@ -71,12 +71,21 @@ class Push extends React.PureComponent {
   }
 
   getJobCount(jobList) {
+    const filteredByCommit = jobList.filter(
+      job => job.failure_classification_id === 2,
+    );
+
     return jobList.reduce(
       (memo, job) =>
         job.result !== 'superseded'
           ? { ...memo, [job.state]: memo[job.state] + 1 }
           : memo,
-      { running: 0, pending: 0, completed: 0 },
+      {
+        running: 0,
+        pending: 0,
+        completed: 0,
+        fixedByCommit: filteredByCommit.length,
+      },
     );
   }
 
@@ -500,6 +509,7 @@ class Push extends React.PureComponent {
           selectedRunnableJobs={selectedRunnableJobs}
           notificationSupported={notificationSupported}
           pushHealthVisibility={pushHealthVisibility}
+          groupCountsExpanded={groupCountsExpanded}
         />
         <div className="push-body-divider" />
         {!collapsed ? (

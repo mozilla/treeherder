@@ -1,21 +1,10 @@
-from .connection import pulse_conn
-from .consumers import (JobConsumer,
-                        PushConsumer,
+from .consumers import (PushConsumer,
                         TaskConsumer,
-                        UpdateJobFixtures,
-                        prepare_consumer)
-from .sources import (job_sources,
-                      push_sources,
-                      task_sources)
+                        prepare_consumers)
 
 __all__ = [
-    "JobConsumer",
     "PushConsumer",
     "TaskConsumer",
-    "UpdateJobFixtures",
-    "job_sources",
-    "task_sources",
-    "prepare_consumer",
+    "prepare_consumers",
     "pulse_conn",
-    "push_sources",
 ]

@@ -16,21 +16,6 @@ from treeherder.perf.models import (PerformanceAlert,
                                     PerformanceSignature)
 
 
-@pytest.fixture
-def perf_push(test_repository):
-    return Push.objects.create(
-        repository=test_repository,
-        revision='1234abcd',
-        author='foo@bar.com',
-        time=datetime.datetime.now())
-
-
-@pytest.fixture
-def perf_job(perf_push, failure_classifications, generic_reference_data):
-    return create_generic_job('myfunguid', perf_push.repository,
-                              perf_push.id, generic_reference_data)
-
-
 def _generate_perf_data_range(test_repository,
                               generic_reference_data,
                               create_perf_framework=True,
@@ -67,10 +52,12 @@ def _generate_perf_data_range(test_repository,
                 'suites': [
                     {
                         'name': 'cheezburger metrics',
+                        'unit': 'ms',
                         'subtests': [
                             {
                                 'name': 'test1',
-                                'value': value
+                                'value': value,
+                                'unit': 'ms'
                             }
                         ]
                     }
@@ -95,7 +82,7 @@ def _generate_perf_data_range(test_repository,
 
 def _verify_signature(repo_name, framework_name, suitename,
                       testname, option_collection_hash, platform,
-                      lower_is_better, extra_opts,
+                      lower_is_better, extra_opts, measurement_unit,
                       last_updated=None, alert_threshold=None,
                       alert_change_type=None,
                       min_back_window=None, max_back_window=None,
@@ -113,6 +100,7 @@ def _verify_signature(repo_name, framework_name, suitename,
     assert signature.platform.platform == platform
     assert signature.repository == repository
     assert signature.extra_options == extra_options
+    assert signature.measurement_unit == measurement_unit
     assert signature.lower_is_better == lower_is_better
     assert signature.alert_threshold == alert_threshold
     assert signature.min_back_window == min_back_window
@@ -126,137 +114,6 @@ def _verify_signature(repo_name, framework_name, suitename,
     # only verify last updated if explicitly specified
     if last_updated:
         assert signature.last_updated == last_updated
-
-
-def _verify_datum(suitename, testname, value, push_timestamp):
-    datum = PerformanceDatum.objects.get(
-        signature=PerformanceSignature.objects.get(suite=suitename,
-                                                   test=testname))
-    assert datum.value == value
-    assert datum.push_timestamp == push_timestamp
-
-
-def test_load_generic_data(test_repository,
-                           perf_push, perf_job, generic_reference_data):
-    framework_name = 'cheezburger'
-    PerformanceFramework.objects.get_or_create(name=framework_name, enabled=True)
-
-    datum = {
-        'job_guid': 'fake_job_guid',
-        'name': 'test',
-        'type': 'test',
-        'blob': {
-            'framework': {'name': framework_name},
-            'suites': [
-                {
-                    'name': 'cheezburger metrics',
-                    'extraOptions': ['shell', 'e10s'],
-                    'lowerIsBetter': True,
-                    'value': 10.0,
-                    'subtests': [
-                        {
-                            'name': 'test1',
-                            'value': 20.0,
-                            'lowerIsBetter': True
-                        },
-                        {
-                            'name': 'test2',
-                            'value': 30.0,
-                            'lowerIsBetter': False
-                        },
-                        {
-                            'name': 'test3',
-                            'value': 40.0
-                        }
-                    ]
-                },
-                {
-                    'name': 'cheezburger metrics 2',
-                    'lowerIsBetter': False,
-                    'value': 10.0,
-                    'subtests': [
-                        {
-                            'name': 'test1',
-                            'value': 20.0
-                        }
-                    ]
-                },
-                {
-                    'name': 'cheezburger metrics 3',
-                    'value': 10.0,
-                    'subtests': [
-                        {
-                            'name': 'test1',
-                            'value': 20.0
-                        }
-                    ]
-                }
-            ]
-        }
-    }
-
-    # the perf data adapter expects unserialized performance data
-    submit_datum = copy.copy(datum)
-    submit_datum['blob'] = json.dumps({
-        'performance_data': submit_datum['blob']
-    })
-
-    store_performance_artifact(perf_job, submit_datum)
-    assert 8 == PerformanceSignature.objects.all().count()
-    assert 1 == PerformanceFramework.objects.all().count()
-    framework = PerformanceFramework.objects.first()
-    assert framework_name == framework.name
-
-    perf_datum = datum['blob']
-
-    for suite in perf_datum['suites']:
-        # verify summary, then subtests
-        _verify_signature(test_repository.name,
-                          perf_datum['framework']['name'],
-                          suite['name'],
-                          '',
-                          'my_option_hash',
-                          'my_platform',
-                          suite.get('lowerIsBetter', True),
-                          suite.get('extraOptions'),
-                          perf_push.time)
-        _verify_datum(suite['name'], '', suite['value'], perf_push.time)
-        for subtest in suite['subtests']:
-            _verify_signature(test_repository.name,
-                              perf_datum['framework']['name'],
-                              suite['name'],
-                              subtest['name'],
-                              'my_option_hash',
-                              'my_platform',
-                              subtest.get('lowerIsBetter', True),
-                              suite.get('extraOptions'),
-                              perf_push.time)
-            _verify_datum(suite['name'], subtest['name'], subtest['value'],
-                          perf_push.time)
-
-    summary_signature = PerformanceSignature.objects.get(
-        suite=perf_datum['suites'][0]['name'], test='')
-    # Ensure we don't inadvertently change the way we generate signature hashes.
-    assert summary_signature.signature_hash == 'f451f0c9000a7f99e5dc2f05792bfdb0e11d0cac'
-    subtest_signatures = PerformanceSignature.objects.filter(
-        parent_signature=summary_signature).values_list('signature_hash', flat=True)
-    assert len(subtest_signatures) == 3
-
-    # send another datum, a little later, verify that signature's
-    # `last_updated` is changed accordingly
-    later_timestamp = datetime.datetime.fromtimestamp(int(time.time()) + 5)
-    later_push = Push.objects.create(
-        repository=test_repository,
-        revision='1234abcd12',
-        author='foo@bar.com',
-        time=later_timestamp)
-    later_job = create_generic_job('lateguid', test_repository,
-                                   later_push.id, generic_reference_data)
-    store_performance_artifact(later_job, submit_datum)
-    signature = PerformanceSignature.objects.get(
-        suite=perf_datum['suites'][0]['name'],
-        test=perf_datum['suites'][0]['subtests'][0]['name'])
-    assert signature.last_updated == later_timestamp
 
 
 def test_no_performance_framework(test_repository,
@@ -289,6 +146,7 @@ def test_same_signature_multiple_performance_frameworks(test_repository,
                             {
                                 'name': 'test1',
                                 'value': 20.0,
+                                'unit': 'ms'
                             }
                         ]
                     }
@@ -397,6 +255,7 @@ def test_alert_generation(test_repository, test_issue_tracker,
                       'my_platform',
                       True,
                       None,
+                      'ms',
                       alert_threshold=extra_subtest_metadata.get('alertThreshold'),
                       alert_change_type=extra_subtest_metadata.get('alertChangeType'),
                       min_back_window=extra_subtest_metadata.get('minBackWindow'),
@@ -411,6 +270,7 @@ def test_alert_generation(test_repository, test_issue_tracker,
                           'my_platform',
                           True,
                           None,
+                          'ms',
                           alert_threshold=extra_suite_metadata.get('alertThreshold'),
                           alert_change_type=extra_suite_metadata.get('alertChangeType'),
                           min_back_window=extra_suite_metadata.get('minBackWindow'),

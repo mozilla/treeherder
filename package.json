@@ -7,7 +7,7 @@
   },
   "license": "MPL-2.0",
   "engines": {
-    "node": "12.11.1",
+    "node": "12.12.0",
     "yarn": "1.19.1"
   },
   "resolutions": {
@@ -18,7 +18,7 @@
     "@fortawesome/free-brands-svg-icons": "5.11.2",
     "@fortawesome/free-regular-svg-icons": "5.11.2",
     "@fortawesome/free-solid-svg-icons": "5.11.2",
-    "@fortawesome/react-fontawesome": "0.1.5",
+    "@fortawesome/react-fontawesome": "0.1.7",
     "@neutrinojs/copy": "9.0.0-rc.4",
     "@neutrinojs/react": "9.0.0-rc.4",
     "@types/prop-types": "*",
@@ -45,7 +45,7 @@
     "prop-types": "15.7.2",
     "query-string": "6.8.3",
     "react": "16.10.2",
-    "react-day-picker": "7.3.2",
+    "react-day-picker": "7.4.0",
     "react-dom": "16.10.2",
     "react-highlight-words": "0.16.0",
     "react-hot-loader": "4.12.15",
@@ -66,22 +66,22 @@
     "taskcluster-lib-scopes": "10.0.2",
     "taskcluster-lib-urls": "12.0.0",
     "victory": "33.1.1",
-    "webpack": "4.41.0",
+    "webpack": "4.41.2",
     "webpack-cli": "3.3.9"
   },
   "devDependencies": {
     "@neutrinojs/eslint": "9.0.0-rc.4",
     "@neutrinojs/jest": "9.0.0-rc.4",
-    "@testing-library/jest-dom": "4.1.1",
+    "@testing-library/jest-dom": "4.1.2",
     "@testing-library/react": "9.3.0",
     "codecov": "3.6.1",
     "enzyme": "3.9.0",
-    "enzyme-adapter-react-16": "1.13.2",
+    "enzyme-adapter-react-16": "1.15.1",
     "eslint": "6.5.1",
     "eslint-config-airbnb": "18.0.1",
     "eslint-config-prettier": "6.4.0",
     "eslint-plugin-import": "2.18.2",
-    "eslint-plugin-jest": "22.17.0",
+    "eslint-plugin-jest": "22.20.0",
     "eslint-plugin-jsx-a11y": "6.2.3",
     "eslint-plugin-prettier": "3.1.1",
     "eslint-plugin-react": "7.16.0",
@@ -89,7 +89,7 @@
     "jest": "24.9.0",
     "node-fetch": "2.6.0",
     "prettier": "1.18.2",
-    "webpack-dev-server": "3.8.2"
+    "webpack-dev-server": "3.9.0"
   },
   "scripts": {
     "build": "node ./node_modules/webpack/bin/webpack.js --mode production",

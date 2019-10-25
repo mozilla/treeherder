@@ -14,9 +14,9 @@ responses==0.10.6 \
     --hash=sha256:97193c0183d63fba8cd3a041c75464e4b09ea0aff6328800d1546598567dde0b \
     --hash=sha256:502d9c0c8008439cfcdef7e251f507fcfdd503b56e8c0c87c3c3e3393953f790
 
-django-extensions==2.2.1 \
-    --hash=sha256:8a2552fdeb222b23895ef52cdc28fc56efba976f6da07ca92937f6f5e626e345 \
-    --hash=sha256:4aafdb865104eaa5d681b9976b36c52c9d441be89b7d782e40808f1c5c0c8f93
+django-extensions==2.2.5 \
+    --hash=sha256:a9db7c56a556d244184f589f2437b4228de86ee45e5ebb837fb20c6d54e95ea5 \
+    --hash=sha256:b58320d3fe3d6ae7d1d8e38959713fa92272f4921e662d689058d942a5b444f7
 
 pytest-selenium==1.17.0 \
     --hash=sha256:caf049839d12297e01f0521a968e44ae854f4eca1afd80b28f6a2510df02c883 \
@@ -56,9 +56,9 @@ more-itertools==7.2.0 \
 packaging==19.1 \
     --hash=sha256:630ac83e8f8a9566c4f88038447ed9e16e6f10582767a01f31c769d9a71e \
     --hash=sha256:a7ac867b97fdc07ee80a8058fe4435ccd274ecc3b0ed61d852d7d53055528cf9
-pluggy==0.12.0 \
-    --hash=sha256:b9817417e95936bf75d85d3f8767f7df6cdde751fc40aed3bb3074cbcb77757c \
-    --hash=sha256:0825a152ac059776623854c1543d65a4ad408eb3d33ee114dff91e57ec6ae6fc
+pluggy==0.13.0 \
+    --hash=sha256:0db4b7601aae1d35b4a033282da476845aa19185c1e6964b25cf324b5e4ec3e6 \
+    --hash=sha256:fa5fa1622fa6dd5c030e9cad086fa19ef6a0cf6d7a2d12318e10cb49d6d68f34
 py==1.8.0 \
     --hash=sha256:64f65755aee5b381cea27766a3a147c3f15b9b6b9ac88676de66ba2ae36793fa \
     --hash=sha256:dc639b046a6e2cff5bbe40194ad65936d6ba360b52b3c3fe1d08a82dd50b5e53
@@ -70,9 +70,9 @@ wcwidth==0.1.7 \
 
 # Required by mock
 funcsigs==1.0.2 --hash=sha256:330cc27ccbf7f1e992e69fef78261dc7c6569012cf397db8d3de0234e6c937ca
-pbr==5.4.2 \
-    --hash=sha256:56e52299170b9492513c64be44736d27a512fa7e606f21942160b68ce510b4bc \
-    --hash=sha256:9b321c204a88d8ab5082699469f52cc94c5da45c51f114113d01b3d993c24cdf
+pbr==5.4.3 \
+    --hash=sha256:b32c8ccaac7b1a20c0ce00ce317642e6cf231cf038f9875e0280e28af5bf7ac9 \
+    --hash=sha256:2c8e420cd4ed4cec4e7999ee47409e876af575d4c35a45840d59e8b5f3155ab8
 
 # Required by flake8
 entrypoints==0.3 --hash=sha256:589f874b313739ad35be6e0cd7efde2a4e9b6fea91edcc34e58ecbb8dbe56d19
