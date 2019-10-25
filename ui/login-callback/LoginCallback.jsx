@@ -1,9 +1,11 @@
 import React from 'react';
 import { hot } from 'react-hot-loader/root';
+import moment from 'moment';
 
 import AuthService from '../shared/auth/AuthService';
 import { webAuth, parseHash } from '../helpers/auth';
 import CallbackMessage from '../shared/CallbackMessage';
+import taskcluster from '../helpers/taskcluster';
 
 class LoginCallback extends React.PureComponent {
   constructor(props) {
@@ -26,7 +28,6 @@ class LoginCallback extends React.PureComponent {
     // a postMessage back, and that's it.
     if (window !== window.top) {
       window.parent.postMessage(window.location.hash, window.origin);
-
       return;
     }
 
@@ -35,13 +36,7 @@ class LoginCallback extends React.PureComponent {
 
       if (authResult.accessToken) {
         await this.authService.saveCredentialsFromAuthResult(authResult);
-
-        if (window.opener) {
-          window.close();
-        } else {
-          // handle case where the user navigates directly to the login route
-          window.location.href = window.origin;
-        }
+        this.checkTaskclusterCredentials();
       }
     } catch (err) {
       this.setError(err);
@@ -53,6 +48,25 @@ class LoginCallback extends React.PureComponent {
       loginError: err.message ? err.message : err.errorDescription,
     });
   }
+
+  checkTaskclusterCredentials = () => {
+    const userCredentials = JSON.parse(localStorage.getItem('userCredentials'));
+    // TODO update with firefox-ci rootUrl
+    const defaultRootUrl = 'https://hassan.taskcluster-dev.net/';
+
+    if (
+      !userCredentials ||
+      !userCredentials[defaultRootUrl] ||
+      !moment(userCredentials[defaultRootUrl].expires).isAfter(moment())
+    ) {
+      taskcluster.getAuthCode(true);
+    } else if (window.opener) {
+      window.close();
+    } else {
+      // handle case where the user navigates directly to the login route
+      window.location.href = window.origin;
+    }
+  };
 
   render() {
     const { loginError } = this.state;

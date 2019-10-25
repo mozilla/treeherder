@@ -47,12 +47,16 @@ export default class TaskclusterCallback extends React.PureComponent {
 
     if (response.failureStatus) {
       this.setState({ errorMessage });
-    } else {
-      localStorage.setItem(
-        'userCredentials',
-        JSON.stringify({ [rootUrl]: response.data }),
-      );
+      return;
+    }
+    localStorage.setItem(
+      'userCredentials',
+      JSON.stringify({ [rootUrl]: response.data }),
+    );
+    if (window.opener) {
       window.close();
+    } else {
+      window.location.href = window.origin;
     }
   };
 
@@ -62,8 +66,7 @@ export default class TaskclusterCallback extends React.PureComponent {
       body: `grant_type=authorization_code&code=${code}&redirect_uri=${redirectURI}&client_id=${clientId}`,
       headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
     };
-    const response = await getData(`${rootUrl}login/oauth/token`, options);
-    return response;
+    return getData(`${rootUrl}login/oauth/token`, options);
   };
 
   fetchCredentials = async (token, rootUrl) => {
@@ -74,11 +77,7 @@ export default class TaskclusterCallback extends React.PureComponent {
         'Content-Type': 'application/json',
       },
     };
-    const response = await getData(
-      `${rootUrl}login/oauth/credentials`,
-      options,
-    );
-    return response;
+    return getData(`${rootUrl}login/oauth/credentials`, options);
   };
 
   render() {

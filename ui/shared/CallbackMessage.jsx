@@ -4,7 +4,7 @@ import { Row } from 'reactstrap';
 
 import ErrorMessages from './ErrorMessages';
 
-const CallBackMessage = ({ errorMessage, text }) => (
+const CallbackMessage = ({ errorMessage, text }) => (
   <div className="pt-5">
     {errorMessage ? (
       <ErrorMessages failureMessage={errorMessage} />
@@ -16,13 +16,13 @@ const CallBackMessage = ({ errorMessage, text }) => (
   </div>
 );
 
-CallBackMessage.propTypes = {
+CallbackMessage.propTypes = {
   errorMessage: PropTypes.string,
   text: PropTypes.string.isRequired,
 };
 
-CallBackMessage.defaultProps = {
+CallbackMessage.defaultProps = {
   errorMessage: '',
 };
 
-export default CallBackMessage;
+export default CallbackMessage;

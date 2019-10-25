@@ -1,5 +1,6 @@
 import { Queue } from 'taskcluster-client-web';
 import debounce from 'lodash/debounce';
+import delay from 'lodash/delay';
 import moment from 'moment';
 
 import { clientId, redirectURI } from '../taskcluster-auth-callback/constants';
@@ -10,7 +11,8 @@ export const tcCredentialsMessage =
   'Need to retrieve or renew Taskcluster credentials before action can be performed.';
 
 const taskcluster = (() => {
-  let _rootUrl = null;
+  // TODO set default to firefox-ci rootUrl
+  let _rootUrl = 'https://hassan.taskcluster-dev.net/';
 
   // from the MDN crypto.getRandomValues doc
   const secureRandom = () =>
@@ -31,31 +33,39 @@ const taskcluster = (() => {
     return value;
   };
 
-  const getAuthCode = debounce(
-    () => {
-      const nonce = generateNonce();
-      localStorage.setItem('requestState', nonce);
-      localStorage.setItem('tcRootUrl', _rootUrl);
+  const getAuthCode = (useExistingWindow = false) => {
+    const nonce = generateNonce();
+    // we're storing these for use in the TaskclusterCallback component (taskcluster-auth.html)
+    // since that's the only way for it to get access to them
+    localStorage.setItem('requestState', nonce);
+    localStorage.setItem('tcRootUrl', _rootUrl);
 
-      const params = {
-        client_id: clientId,
-        response_type: 'code',
-        redirect_uri: redirectURI,
-        scope: 'treeherder',
-        state: nonce,
-      };
+    // the expires param is optional and if it's greater than the maxExpires value that's been
+    // registered with the client (set to 3 days) or is omitted, expiry will default to maxExpires
+    const params = {
+      client_id: clientId,
+      response_type: 'code',
+      redirect_uri: redirectURI,
+      scope: 'treeherder',
+      state: nonce,
+    };
 
+    if (useExistingWindow) {
+      window.location.href = `${_rootUrl}login/oauth/authorize${createQueryParams(
+        params,
+      )}`;
+    } else {
       window.open(
         `${_rootUrl}login/oauth/authorize${createQueryParams(params)}`,
         '_blank',
       );
-    },
-    300,
-    {
-      leading: true,
-      trailing: false,
-    },
-  );
+    }
+  };
+
+  const getDebouncedAuthCode = debounce(getAuthCode, 500, {
+    leading: true,
+    trailing: false,
+  });
 
   const getCredentials = rootUrl => {
     const userCredentials = JSON.parse(localStorage.getItem('userCredentials'));
@@ -66,14 +76,22 @@ const taskcluster = (() => {
         : rootUrl;
 
     if (
-      !userCredentials ||
-      !userCredentials[_rootUrl] ||
-      !moment(userCredentials[_rootUrl].expires).isAfter(moment())
+      userCredentials &&
+      userCredentials[_rootUrl] &&
+      moment(userCredentials[_rootUrl].expires).isAfter(moment())
     ) {
-      getAuthCode();
-      return null;
+      return userCredentials[_rootUrl];
     }
-    return userCredentials[_rootUrl];
+
+    getDebouncedAuthCode();
+    return delay(() => {
+      const userCredentials = JSON.parse(
+        localStorage.getItem('userCredentials'),
+      );
+      return userCredentials && userCredentials[_rootUrl]
+        ? userCredentials[_rootUrl]
+        : null;
+    }, 2000);
   };
 
   const getMockCredentials = () => ({
@@ -99,6 +117,7 @@ const taskcluster = (() => {
     getCredentials,
     getQueue,
     getMockCredentials,
+    getAuthCode,
   };
 })();
 
