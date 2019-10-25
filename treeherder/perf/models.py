@@ -324,10 +324,8 @@ class PerformanceAlertSummary(models.Model):
         self.__prev_bug_number = self.bug_number
 
     def update_status(self, using=None):
-        autodetermined_status = self.autodetermine_status()
-        if autodetermined_status != self.status:
-            self.status = autodetermined_status
-            self.save(using=using)
+        self.status = self.autodetermine_status()
+        self.save(using=using)
 
     def autodetermine_status(self):
         alerts = (PerformanceAlert.objects.filter(summary=self) | PerformanceAlert.objects.filter(related_summary=self))
@@ -517,7 +515,10 @@ class PerformanceBugTemplate(models.Model):
 
 
 class BackfillReport(models.Model):
-    # TODO-igoldan: provide proper docs
+    """
+    Groups & stores all context required to retrigger/backfill
+    relevant alerts from a performance alert summary.
+    """
     summary = models.OneToOneField(PerformanceAlertSummary,
                                    on_delete=models.CASCADE,
                                    primary_key=True,
@@ -531,11 +532,14 @@ class BackfillReport(models.Model):
         # alert summary updated since last report was made
         return self.summary.last_updated > self.last_updated
 
+    def expel_records(self):
+        BackfillRecord.objects.filter(report=self).delete()
+        self.save()  # refresh last_updated
+
     class Meta:
         db_table = "backfill_report"
 
     def __str__(self):
-        # TODO-igoldan: ensure datetime is readable
         return "BackfillReport(summary #{}, last update {})".format(self.summary.id, self.last_updated)
 
 
@@ -560,6 +564,10 @@ class BackfillRecord(models.Model):
         # refresh parent's latest update time
         super().save(*args, **kwargs)
         self.report.save(using=kwargs.get('using'))
+
+    def delete(self, using=None, keep_parents=False):
+        super().delete(using, keep_parents)
+        self.report.save()  # refresh last_updated
 
     class Meta:
         db_table = "backfill_record"

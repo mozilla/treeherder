@@ -720,3 +720,49 @@ def sample_option_collections(transactional_db):
     OptionCollection.objects.create(
         option_collection_hash='option_hash2',
         option=option2)
+
+
+@pytest.fixture
+def backfill_record_context():
+    return {"data_points_to_retrigger": [
+        {
+            "perf_datum_id": 933219901,
+            "value": 0.8714208119774209,
+            "job_id": 269034923,
+            "push_id": 565159,
+            "push_timestamp": "2019-10-02 02:22:28",
+            "push__revision": "04e8766a29242d4deae31b5b04e6ac61ebf61ffd"
+        },
+        {
+            "perf_datum_id": 933219962,
+            "value": 0.9160434865973892,
+            "job_id": 269034920,
+            "push_id": 565160,
+            "push_timestamp": "2019-10-02 02:23:29",
+            "push__revision": "9b42bdc4889fe7782df9b2a0aa990ed5e62cb04c"
+        },
+        {
+            "perf_datum_id": 931772364,
+            "value": 0.9508247997807697,
+            "job_id": 268828343,
+            "push_id": 565161,
+            "push_timestamp": "2019-10-02 02:24:35",
+            "push__revision": "057b59fdadad75e888a739e85a683b2ff7bfc62e"
+        },
+        {
+            "perf_datum_id": 931924904,
+            "value": 0.9829230628232519,
+            "job_id": 268840223,
+            "push_id": 565188,
+            "push_timestamp": "2019-10-02 04:03:09",
+            "push__revision": "49ef9afb62bb909389b105a1751e9b46e6f1688d"
+        },
+        {
+            "perf_datum_id": 931927300,
+            "value": 0.9873498499464002,
+            "job_id": 268840309,
+            "push_id": 565193,
+            "push_timestamp": "2019-10-02 04:08:06",
+            "push__revision": "f5cce52461bac31945b083e51a085fb429a36f04"
+        }
+    ]}
