@@ -1,7 +1,7 @@
 {
   "addons": [
     "scheduler",
-    "cloudamqp",
+    "cloudamqp:tiger",
     "heroku-redis",
     "papertrail:choklad",
     {
