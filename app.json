@@ -39,7 +39,7 @@
       "value": "https://taskcluster.net"
     },
     "SITE_URL": {
-      "value": "https://treeherder-prototype-pr-TBD.herokuapp.com/"
+      "value": "https://treeherder-prototype-pr-FOO.herokuapp.com/"
     },
     "TREEHERDER_DJANGO_SECRET_KEY": {
       "value": "secret-key-of-at-least-50-characters-to-pass-check-deploy"
