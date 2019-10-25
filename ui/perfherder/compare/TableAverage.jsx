@@ -9,9 +9,11 @@ import TooltipGraph from './TooltipGraph';
 const TableAverage = ({ value, stddev, stddevpct, replicates }) => {
   let tooltipText;
   if (replicates.length > 1) {
-    tooltipText = `Runs: < ${replicates.join(' ')} > ${formatNumber(
-      displayNumber(stddev),
-    )} = ${formatNumber(displayNumber(stddevpct))}% standard deviation)`;
+    tooltipText = `Runs: < ${replicates
+      .map(value => formatNumber(value))
+      .join(' ')} > ${formatNumber(displayNumber(stddev))} = ${formatNumber(
+      displayNumber(stddevpct),
+    )}% standard deviation)`;
   } else if (replicates.length === 1) {
     tooltipText = 'Only one run (consider more for greater confidence)';
   }
