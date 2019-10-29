@@ -1,6 +1,3 @@
-/* eslint-disable jsx-a11y/no-noninteractive-element-interactions */
-/* eslint-disable jsx-a11y/no-static-element-interactions */
-
 import React from 'react';
 import PropTypes from 'prop-types';
 import { Badge, FormGroup, Input } from 'reactstrap';
@@ -97,7 +94,12 @@ const LegendCard = ({
 
   return (
     <FormGroup check className="pl-0 border">
-      <span className="close mr-3 my-2 ml-2" onClick={removeTest}>
+      <span
+        role="button"
+        tabIndex="-1"
+        className="close mr-3 my-2 ml-2"
+        onClick={removeTest}
+      >
         <FontAwesomeIcon
           className="pointer"
           icon={faTimes}
@@ -106,29 +108,33 @@ const LegendCard = ({
         />
       </span>
       <div className={`${series.color[0]} graph-legend-card p-3`}>
-        <p
-          className={`p-0 mb-0 pointer border-0 ${
-            series.visible ? series.color[0] : 'text-muted'
-          } text-left`}
+        <span
+          role="button"
+          tabIndex="-1"
           onClick={() => addTestData('addRelatedConfigs')}
-          title="Add related configurations"
-          type="button"
         >
-          {series.name}
-        </p>
-        <p
-          className={subtitleStyle}
+          <p
+            className={`p-0 mb-0 pointer border-0 ${
+              series.visible ? series.color[0] : 'text-muted'
+            } text-left`}
+            title="Add related configurations"
+          >
+            {series.name}
+          </p>
+        </span>
+        <span
+          role="button"
+          tabIndex="-1"
           onClick={() => addTestData('addRelatedBranches')}
-          title="Add related branches"
-          type="button"
         >
-          {series.repository_name}
-        </p>
-        <p
-          className={subtitleStyle}
+          <p className={subtitleStyle} title="Add related branches">
+            {series.repository_name}
+          </p>
+        </span>
+        <span
+          role="button"
+          tabIndex="-1"
           onClick={() => addTestData('addRelatedPlatform')}
-          title="Add related platforms and branches"
-          type="button"
         >
           {series.platform}
         </p>

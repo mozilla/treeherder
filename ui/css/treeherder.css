@@ -15,6 +15,7 @@
 }
 
 .dropdown-item.disabled {
+  padding: 0.25rem 1.5rem;
   cursor: not-allowed;
   font-style: italic;
 }

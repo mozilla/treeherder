@@ -1,6 +1,4 @@
 /* eslint-disable max-classes-per-file */
-/* eslint-disable jsx-a11y/no-noninteractive-element-interactions */
-/* eslint-disable jsx-a11y/no-static-element-interactions */
 
 import React from 'react';
 import PropTypes from 'prop-types';
@@ -48,7 +46,12 @@ class BugCountComponent extends React.Component {
 
   render() {
     return (
-      <td className="bug-count" onClick={this.onClick}>
+      <span
+        role="button"
+        tabIndex="-1"
+        className="bug-count"
+        onClick={this.onClick}
+      >
         {// TODO: Clean this up
         // eslint-disable-next-line no-nested-ternary
         this.props.test.bugs === undefined ? (
@@ -67,7 +70,7 @@ class BugCountComponent extends React.Component {
             0
           </Badge>
         )}
-      </td>
+      </span>
     );
   }
 }
@@ -246,7 +249,12 @@ class TestComponent extends React.Component {
   render() {
     return (
       <td className="test-table">
-        <span className="test" onClick={this.onClick}>
+        <span
+          role="button"
+          tabIndex="-1"
+          className="test"
+          onClick={this.onClick}
+        >
           {this.props.name}
         </span>
         <span className="platform-list">

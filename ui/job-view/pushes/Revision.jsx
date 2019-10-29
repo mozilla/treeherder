@@ -1,5 +1,3 @@
-/* eslint-disable jsx-a11y/no-static-element-interactions */
-
 import React from 'react';
 import PropTypes from 'prop-types';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
@@ -66,7 +64,8 @@ export class Revision extends React.PureComponent {
         <span className="revision" data-tags={this.tags}>
           <span className="pl-4 pr-1 revision-holder">
             <span
-              type="button"
+              role="button"
+              tabIndex="-1"
               className="pointer"
               onClick={() => Revision.copyToClipboard(commitRevision)}
             >

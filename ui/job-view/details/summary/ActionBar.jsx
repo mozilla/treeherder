@@ -1,5 +1,3 @@
-/* eslint-disable jsx-a11y/no-static-element-interactions */
-
 import React from 'react';
 import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
@@ -533,6 +531,8 @@ class ActionBar extends React.PureComponent {
               >
                 <li>
                   <span
+                    role="button"
+                    tabIndex="-1"
                     id="backfill-btn"
                     className={`btn dropdown-item ${
                       !user.isLoggedIn || !this.canBackfill() ? 'disabled' : ''

@@ -1,5 +1,3 @@
-/* eslint-disable jsx-a11y/no-noninteractive-element-interactions */
-
 import React from 'react';
 import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
@@ -166,24 +164,26 @@ class PushActionMenu extends React.PureComponent {
 
         <ul className="dropdown-menu pull-right">
           {runnableVisible ? (
-            <li
-              title="Hide Runnable Jobs"
-              className="dropdown-item"
-              onClick={hideRunnableJobs}
-            >
-              Hide Runnable Jobs
+            <li title="Hide Runnable Jobs" className="dropdown-item">
+              <button type="button" onClick={hideRunnableJobs}>
+                Hide Runnable Jobs
+              </button>
             </li>
           ) : (
             <li
               title={
                 isLoggedIn ? 'Add new jobs to this push' : 'Must be logged in'
               }
-              className={
-                isLoggedIn ? 'dropdown-item' : 'dropdown-item disabled'
-              }
-              onClick={showRunnableJobs}
             >
-              Add new jobs
+              <button
+                className={
+                  isLoggedIn ? 'dropdown-item' : 'dropdown-item disabled'
+                }
+                type="button"
+                onClick={showRunnableJobs}
+              >
+                Add new jobs
+              </button>
             </li>
           )}
           {true && (
@@ -193,12 +193,16 @@ class PushActionMenu extends React.PureComponent {
                   ? 'Add new jobs to this push via a fuzzy search'
                   : 'Must be logged in'
               }
-              className={
-                isLoggedIn ? 'dropdown-item' : 'dropdown-item disabled'
-              }
-              onClick={showFuzzyJobs}
             >
-              Add new jobs (Search)
+              <button
+                className={
+                  isLoggedIn ? 'dropdown-item' : 'dropdown-item disabled'
+                }
+                type="button"
+                onClick={showFuzzyJobs}
+              >
+                Add new jobs (Search)
+              </button>
             </li>
           )}
           {triggerMissingRepos.includes(currentRepo.name) && (
@@ -208,12 +212,16 @@ class PushActionMenu extends React.PureComponent {
                   ? 'Trigger all jobs that were optimized away'
                   : 'Must be logged in'
               }
-              className={
-                isLoggedIn ? 'dropdown-item' : 'dropdown-item disabled'
-              }
-              onClick={this.triggerMissingJobs}
             >
-              Trigger missing jobs
+              <button
+                type="button"
+                onClick={this.triggerMissingJobs}
+                className={
+                  isLoggedIn ? 'dropdown-item' : 'dropdown-item disabled'
+                }
+              >
+                Trigger missing jobs
+              </button>
             </li>
           )}
           <li
@@ -222,10 +230,16 @@ class PushActionMenu extends React.PureComponent {
                 ? 'Trigger all talos performance tests'
                 : 'Must be logged in'
             }
-            className={isLoggedIn ? 'dropdown-item' : 'dropdown-item disabled'}
-            onClick={() => this.triggerAllTalosJobs(revision)}
           >
-            Trigger all Talos jobs
+            <button
+              onClick={() => this.triggerAllTalosJobs(revision)}
+              className={
+                isLoggedIn ? 'dropdown-item' : 'dropdown-item disabled'
+              }
+              type="button"
+            >
+              Trigger all Talos jobs
+            </button>
           </li>
           <li>
             <a
@@ -240,10 +254,15 @@ class PushActionMenu extends React.PureComponent {
           </li>
           <li
             className="dropdown-item"
-            onClick={this.toggleCustomJobActions}
             title="View/Edit/Submit Action tasks for this push"
           >
-            Custom Push Action...
+            <button
+              className="dropdown-item"
+              type="button"
+              onClick={this.toggleCustomJobActions}
+            >
+              Custom Push Action...
+            </button>
           </li>
           <li>
             <a

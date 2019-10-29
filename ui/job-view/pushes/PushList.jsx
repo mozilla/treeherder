@@ -1,6 +1,3 @@
-/* eslint-disable jsx-a11y/control-has-associated-label */
-/* eslint-disable jsx-a11y/no-static-element-interactions */
-
 import React from 'react';
 import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
@@ -141,6 +138,8 @@ class PushList extends React.Component {
     }
     return (
       <div
+        role="button"
+        tabIndex="-1"
         id="push-list"
         onClick={evt => this.clearIfEligibleTarget(evt.target)}
       >
@@ -168,6 +167,7 @@ class PushList extends React.Component {
           ))}
         {loadingPushes && (
           <div
+            aria-label="Progress Bar"
             className="progress active progress-bar progress-bar-striped"
             role="progressbar"
           />
@@ -185,6 +185,8 @@ class PushList extends React.Component {
           <div className="btn-group">
             {[10, 20, 50].map(count => (
               <div
+                role="button"
+                tabIndex="-1"
                 className="btn btn-light-bordered"
                 onClick={() => fetchNextPushes(count)}
                 key={count}

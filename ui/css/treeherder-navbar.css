@@ -440,6 +440,12 @@ fieldset[disabled] .btn-view-nav-closed.active {
   padding-top: 0.5rem;
 }
 
+.dropdown-menu li button {
+  background: transparent;
+  border: 0;
+  padding: 0;
+}
+
 #infra-dropdown {
   min-width: 21rem;
 }

@@ -1,6 +1,3 @@
-/* eslint-disable jsx-a11y/control-has-associated-label */
-/* eslint-disable jsx-a11y/no-static-element-interactions */
-
 import React from 'react';
 import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
@@ -209,6 +206,9 @@ class SecondaryNavBar extends React.PureComponent {
           .map(name => RepositoryModel.getRepo(name, repos))
           .filter(name => name)) ||
       [];
+    const DuplicateJobsTitle = duplicateJobsVisible
+      ? 'Hide duplicate jobs'
+      : 'Show duplicate jobs';
 
     return (
       <div
@@ -236,6 +236,8 @@ class SecondaryNavBar extends React.PureComponent {
           <form role="search" className="form-inline flex-row">
             {serverChanged && (
               <span
+                role="button"
+                tabIndex="-1"
                 className="btn btn-sm btn-view-nav nav-menu-btn"
                 onClick={updateButtonClick}
                 id="revisionChangedLabel"
@@ -284,11 +286,8 @@ class SecondaryNavBar extends React.PureComponent {
               } ${!duplicateJobsVisible ? 'strikethrough' : ''}`}
               tabIndex="0"
               role="button"
-              title={
-                duplicateJobsVisible
-                  ? 'Hide duplicate jobs'
-                  : 'Show duplicate jobs'
-              }
+              title={DuplicateJobsTitle}
+              aria-label={DuplicateJobsTitle}
               onClick={() =>
                 !groupCountsExpanded && this.toggleShowDuplicateJobs()
               }
@@ -343,6 +342,8 @@ class SecondaryNavBar extends React.PureComponent {
 
             <span>
               <span
+                role="button"
+                tabIndex="-1"
                 className="btn btn-view-nav btn-sm"
                 onClick={toggleFieldFilterVisible}
                 title="Filter by a job field"

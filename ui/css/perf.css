@@ -52,7 +52,7 @@ h1 {
   border-left: 10px solid;
 }
 
-.graph-legend-card > p {
+.graph-legend-card span p {
   word-wrap: break-word;
   cursor: pointer;
   font-size: 13px;

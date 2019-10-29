@@ -1,5 +1,4 @@
 /* eslint-disable react/no-did-update-set-state */
-/* eslint-disable jsx-a11y/no-static-element-interactions */
 
 // disabling due to a new bug with this rule: https://github.com/eslint/eslint/issues/12117
 /* eslint-disable no-unused-vars */
@@ -294,14 +293,18 @@ class GraphsContainer extends React.Component {
           }`}
           ref={this.tooltip}
         >
-          <span className="close mr-3 my-2 ml-2" onClick={this.closeTooltip}>
+          <button
+            type="button"
+            className="close mr-3 my-2 ml-2"
+            onClick={this.closeTooltip}
+          >
             <FontAwesomeIcon
               className="pointer text-white"
               icon={faTimes}
               size="xs"
               title="close tooltip"
             />
-          </span>
+          </button>
           {dataPoint && showTooltip && (
             <GraphTooltip dataPoint={dataPoint} {...this.props} />
           )}
