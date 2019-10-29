@@ -51,6 +51,11 @@ class PerformanceSignature(models.Model):
                                          null=True, blank=True)
     has_subtests = models.BooleanField()
 
+    # we treat suite & test as human unreadable identifiers
+    #  these are their human readable form
+    suite_public_name = models.CharField(max_length=30, null=True)
+    test_public_name = models.CharField(max_length=30, null=True)
+
     # extra options to distinguish the test (that don't fit into
     # option collection for whatever reason)
     # generous max_length permits up to 8 verbose option names
@@ -95,6 +100,10 @@ class PerformanceSignature(models.Model):
             # particular set of properties
             ('repository', 'suite', 'test', 'framework',
              'platform', 'option_collection', 'extra_options', 'last_updated'),
+            # suite_public_name/test_public_name must be unique
+            # and different than suite/test
+            ('repository', 'framework', 'platform', 'option_collection',
+             'suite_public_name', 'test_public_name', 'extra_options'),
             # ensure there is only one signature of any hash per
             # repository (same hash in different repositories is allowed)
             ('repository', 'framework', 'signature_hash'),
