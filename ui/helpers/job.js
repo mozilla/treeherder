@@ -38,9 +38,9 @@ export const getBtnClass = function getBtnClass(
 
 export const isReftest = function isReftest(job) {
   const {
-    job_group_name: gName,
-    job_type_name: jName,
-    job_type_symbol: jSymbol,
+    jobGroupName: gName,
+    jobTypeName: jName,
+    jobTypeSymbol: jSymbol,
   } = job;
   return (
     [gName, jName].some(name => name.toLowerCase().includes('reftest')) ||
@@ -50,7 +50,7 @@ export const isReftest = function isReftest(job) {
 };
 
 export const isPerfTest = function isPerfTest(job) {
-  return [job.job_group_name, job.job_type_name].some(
+  return [job.jobGroupName, job.jobTypeName].some(
     name =>
       name.toLowerCase().includes('talos') ||
       name.toLowerCase().includes('raptor'),
@@ -68,10 +68,10 @@ export const isTestIsolatable = function isTestIsolatable(job) {
   if (!isolatableRepos.includes(repoName)) {
     return false;
   }
-  if (job.job_type_name.toLowerCase().includes('jsreftest')) {
+  if (job.jobTypeName.toLowerCase().includes('jsreftest')) {
     return false;
   }
-  return [job.job_group_name, job.job_type_name].some(
+  return [job.jobGroupName, job.jobTypeName].some(
     name =>
       !name.toLowerCase().includes('source-test') &&
       (name.toLowerCase().includes('crashtest') ||
@@ -130,13 +130,13 @@ export const scrollToElement = function scrollToElement(el) {
 };
 
 export const findGroupElement = function findGroupElement(job) {
-  const { push_id, job_group_symbol, tier, platform, platform_option } = job;
+  const { pushID, jobGroupSymbol, tier, platform, platformOption } = job;
   const groupMapKey = getGroupMapKey(
-    push_id,
-    job_group_symbol,
+    pushID,
+    jobGroupSymbol,
     tier,
     platform,
-    platform_option,
+    platformOption,
   );
   return document.querySelector(
     `#push-list span[data-group-key='${groupMapKey}']`,
@@ -167,32 +167,32 @@ export const findJobInstance = function findJobInstance(jobId, scrollTo) {
 
 export const addAggregateFields = function addAggregateFields(job) {
   const {
-    job_group_name,
-    job_group_symbol,
-    job_type_name,
-    job_type_symbol,
+    jobGroupName,
+    jobGroupSymbol,
+    jobTypeName,
+    jobTypeSymbol,
     state,
     result,
     platform,
-    platform_option,
+    platformOption,
     signature,
-    submit_timestamp,
-    start_timestamp,
-    end_timestamp,
+    submitTimestamp,
+    startTimestamp,
+    endTimestamp,
   } = job;
 
   job.resultStatus = state === 'completed' ? result : state;
   // we want to join the group and type information together
   // so we can search for it as one token (useful when
   // we want to do a search on something like `fxup-esr(`)
-  const symbolInfo = job_group_symbol === '?' ? '' : job_group_symbol;
+  const symbolInfo = jobGroupSymbol === '?' ? '' : jobGroupSymbol;
 
   job.title = [
     thPlatformMap[platform] || platform,
-    platform_option,
-    job_group_name === 'unknown' ? undefined : job_group_name,
-    job_type_name,
-    `${symbolInfo}(${job_type_symbol})`,
+    platformOption,
+    jobGroupName === 'unknown' ? undefined : jobGroupName,
+    jobTypeName,
+    `${symbolInfo}(${jobTypeSymbol})`,
   ]
     .filter(item => typeof item !== 'undefined')
     .join(' ');
@@ -202,16 +202,16 @@ export const addAggregateFields = function addAggregateFields(job) {
     // If start time is 0, then duration should be from requesttime to now
     // If we have starttime and no endtime, then duration should be starttime to now
     // If we have both starttime and endtime, then duration will be between those two
-    const endtime = end_timestamp || Date.now() / 1000;
-    const starttime = start_timestamp || submit_timestamp;
+    const endtime = endTimestamp || Date.now() / 1000;
+    const starttime = startTimestamp || submitTimestamp;
     const diff = Math.max(endtime - starttime, 60);
 
     job.duration = Math.round(diff / 60, 0);
   }
 
-  job.hoverText = `${job_type_name} - ${job.resultStatus} - ${
-    job.duration
-  } min${job.duration > 1 ? 's' : ''}`;
+  job.hoverText = `${jobTypeName} - ${job.resultStatus} - ${job.duration} min${
+    job.duration > 1 ? 's' : ''
+  }`;
   return job;
 };
 

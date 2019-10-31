@@ -56,7 +56,7 @@ describe('JobModel', () => {
     );
     const notify = () => {};
     const testJobs = [
-      { id: 123, push_id: 526443, job_type_name: 'foo', task_id: 'TASKID' },
+      { id: 123, push_id: 526443, jobTypeName: 'foo', task_id: 'TASKID' },
     ];
     const currentRepo = repositories[2];
 
@@ -82,10 +82,10 @@ describe('JobModel', () => {
 
     test('jobs should have required fields', async () => {
       const { data: jobs } = await JobModel.getList({ push_id: 526443 });
-      const { signature, job_type_name } = jobs[0];
+      const { signature, jobTypeName } = jobs[0];
 
       expect(signature).toBe('2aa083621bb989d6acf1151667288d5fe9616178');
-      expect(job_type_name).toBe('Gecko Decision Task');
+      expect(jobTypeName).toBe('Gecko Decision Task');
     });
 
     test('retrigger uses passed-in decisionTaskMap', async () => {

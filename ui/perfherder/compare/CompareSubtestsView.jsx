@@ -15,8 +15,8 @@ import withValidation from '../Validation';
 import CompareTableView from './CompareTableView';
 
 class CompareSubtestsView extends React.PureComponent {
-  createQueryParams = (parent_signature, repository, framework) => ({
-    parent_signature,
+  createQueryParams = (parentSignature, repository, framework) => ({
+    parentSignature,
     framework,
     repository,
   });
@@ -90,16 +90,16 @@ class CompareSubtestsView extends React.PureComponent {
         )}`,
       });
     }
-    const signature_hash = !oldResults
-      ? newResults.signature_hash
-      : oldResults.signature_hash;
+    const signatureHash = !oldResults
+      ? newResults.signatureHash
+      : oldResults.signatureHash;
 
     links = createGraphsLinks(
       this.props.validated,
       links,
       framework,
       timeRange,
-      signature_hash,
+      signatureHash,
     );
     return links;
   };
@@ -134,10 +134,10 @@ class CompareSubtestsView extends React.PureComponent {
       cmap.name = testName;
 
       if (
-        (oldResults && oldResults.parent_signature === originalSignature) ||
-        (oldResults && oldResults.parent_signature === newSignature) ||
-        newResults.parent_signature === originalSignature ||
-        newResults.parent_signature === newSignature
+        (oldResults && oldResults.parentSignature === originalSignature) ||
+        (oldResults && oldResults.parentSignature === newSignature) ||
+        newResults.parentSignature === originalSignature ||
+        newResults.parentSignature === newSignature
       ) {
         cmap.highlightedTest = true;
       }

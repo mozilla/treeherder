@@ -9,10 +9,10 @@ import {
 import SelectorCard from '../../../ui/perfherder/compare/SelectorCard';
 import { selectorCardText } from '../../../ui/perfherder/constants';
 
-const valid_hash = 'validhash21fb1fd66aea14a2f5ecfc06e68f75c';
+const validHash = 'validhash21fb1fd66aea14a2f5ecfc06e68f75c';
 
 const mockGetRevisions = async () => ({
-  data: { results: [{ id: 524930, revision: valid_hash }] },
+  data: { results: [{ id: 524930, revision: validHash }] },
   failureStatus: null,
 });
 
@@ -43,7 +43,7 @@ const selectorCard = (getRevisions, updateState, parentState, ref) =>
   render(renderReactNode(getRevisions, updateState, parentState, ref));
 
 test('correct hash for input value is valid', async () => {
-  const parentState = { selectedRevision: valid_hash };
+  const parentState = { selectedRevision: validHash };
 
   const renderResult = selectorCard(
     mockGetRevisions,
@@ -57,13 +57,13 @@ test('correct hash for input value is valid', async () => {
     getByPlaceholderText(selectorCardText.revisionPlaceHolder),
   );
   expect(inputRevision).toBeInTheDocument();
-  expect(inputRevision.value).toBe(valid_hash);
+  expect(inputRevision.value).toBe(validHash);
   expect(queryByText(selectorCardText.invalidRevisionLength)).toBeNull();
 });
 
 test('hash with whitespaces for input value is valid', async () => {
-  const hash_with_whitespaces = `  ${valid_hash}  `;
-  const parentState = { selectedRevision: hash_with_whitespaces };
+  const hashWithWhitespaces = `  ${validHash}  `;
+  const parentState = { selectedRevision: hashWithWhitespaces };
 
   const renderResult = selectorCard(
     mockGetRevisions,
@@ -78,7 +78,7 @@ test('hash with whitespaces for input value is valid', async () => {
   );
 
   expect(inputRevision).toBeInTheDocument();
-  expect(inputRevision.value).toBe(hash_with_whitespaces);
+  expect(inputRevision.value).toBe(hashWithWhitespaces);
   expect(queryByText(selectorCardText.invalidRevisionLength)).toBeNull();
 });
 
@@ -98,14 +98,14 @@ test('incorrect hash for input value is invalid', async () => {
   expect(inputRevision).toBeInTheDocument();
   expect(inputRevision.value).toBe('');
 
-  const incorrect_hash = 'incorrect_hash';
-  fireEvent.change(inputRevision, { target: { value: incorrect_hash } });
+  const incorrectHash = 'incorrectHash';
+  fireEvent.change(inputRevision, { target: { value: incorrectHash } });
 
   renderResult.rerender(
     renderReactNode(mockGetRevisions, parentSetState, parentState),
   );
 
-  expect(inputRevision.value).toBe(incorrect_hash);
+  expect(inputRevision.value).toBe(incorrectHash);
   const validationMessage = queryByText(selectorCardText.invalidRevisionLength);
   expect(validationMessage).toBeInTheDocument();
 });

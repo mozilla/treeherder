@@ -62,8 +62,8 @@ const GraphTooltip = ({
         : getStatus(alert.status, alertStatusMap);
   }
 
-  const repository_name = projects.find(
-    repository_name => repository_name.name === testDetails.repository_name,
+  const repositoryName = projects.find(
+    repositoryName => repositoryName.name === testDetails.repositoryName,
   );
 
   let prevRevision;
@@ -72,7 +72,7 @@ const GraphTooltip = ({
   if (prevFlotDataPointIndex !== -1) {
     prevRevision = testDetails.data[prevFlotDataPointIndex].revision;
     prevPushId = testDetails.data[prevFlotDataPointIndex].pushId;
-    const repoModel = new RepositoryModel(repository_name);
+    const repoModel = new RepositoryModel(repositoryName);
     pushUrl = repoModel.getPushLogRangeHref({
       fromchange: prevRevision,
       tochange: dataPointDetails.revision,
@@ -80,7 +80,7 @@ const GraphTooltip = ({
   }
 
   const jobsUrl = getJobsUrl({
-    repo: testDetails.repository_name,
+    repo: testDetails.repositoryName,
     revision: dataPointDetails.revision,
     selectedJob: dataPointDetails.jobId,
     group_state: 'expanded',
@@ -130,7 +130,7 @@ const GraphTooltip = ({
   return (
     <div className="body">
       <div>
-        <p>({testDetails.repository_name})</p>
+        <p>({testDetails.repositoryName})</p>
         <p className="small">{testDetails.platform}</p>
       </div>
       <div>
@@ -163,8 +163,8 @@ const GraphTooltip = ({
             ,{' '}
             <a
               href={`#/comparesubtest${createQueryParams({
-                originalProject: testDetails.repository_name,
-                newProject: testDetails.repository_name,
+                originalProject: testDetails.repositoryName,
+                newProject: testDetails.repositoryName,
                 originalRevision: prevRevision,
                 newRevision: dataPointDetails.revision,
                 originalSignature:

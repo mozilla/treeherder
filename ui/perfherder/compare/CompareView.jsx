@@ -113,15 +113,15 @@ class CompareView extends React.PureComponent {
         href: detailsLink,
       });
     }
-    const signature_hash = !oldResults
-      ? newResults.signature_hash
-      : oldResults.signature_hash;
+    const signatureHash = !oldResults
+      ? newResults.signatureHash
+      : oldResults.signatureHash;
     links = createGraphsLinks(
       this.props.validated,
       links,
       framework,
       timeRange,
-      signature_hash,
+      signatureHash,
     );
     return links;
   };

@@ -130,7 +130,7 @@ const fetchNewJobs = () => {
 
     const resp = await JobModel.getList(
       {
-        push_id__in: pushIds.join(','),
+        pushID__in: pushIds.join(','),
         last_modified__gt: lastModified.toISOString().replace('Z', ''),
       },
       { fetchAll: true },
@@ -141,8 +141,8 @@ const fetchNewJobs = () => {
       // break the jobs up per push
       const { data } = resp;
       const jobs = data.reduce((acc, job) => {
-        const pushJobs = acc[job.push_id] ? [...acc[job.push_id], job] : [job];
-        return { ...acc, [job.push_id]: pushJobs };
+        const pushJobs = acc[job.pushID] ? [...acc[job.pushID], job] : [job];
+        return { ...acc, [job.pushID]: pushJobs };
       }, {});
       // If a job is selected, and one of the jobs we just fetched is the
       // updated version of that selected job, then send that with the event.
@@ -183,11 +183,11 @@ const doUpdateJobMap = (jobList, jobMap, decisionTaskMap, pushList) => {
                 job.job_type_symbol === 'D',
             )
             .map(job => ({
-              push_id: job.push_id,
+              pushID: job.pushID,
               id: job.task_id,
               run: job.retry_id,
             })),
-          'push_id',
+          'pushID',
         ),
       },
       jobsLoaded: pushList.every(push => push.jobsLoaded),
@@ -352,10 +352,10 @@ export const updateRange = range => {
 
     window.dispatchEvent(new CustomEvent(thEvents.clearPinboard));
     if (revisionPushList.length) {
-      const { id: push_id } = revisionPushList[0];
+      const { id: pushID } = revisionPushList[0];
       const revisionJobMap = Object.entries(jobMap).reduce(
         (acc, [id, job]) =>
-          job.push_id === push_id ? { ...acc, [id]: job } : acc,
+          job.pushID === pushID ? { ...acc, [id]: job } : acc,
         {},
       );
       dispatch(clearSelectedJob(0));

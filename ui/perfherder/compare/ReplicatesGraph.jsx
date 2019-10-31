@@ -84,8 +84,8 @@ export default class ReplicatesGraph extends React.Component {
       return { replicateData };
     }
     const numRuns = perfDatum.values.length;
-    const replicatePromises = perfDatum.job_ids.map(job_id =>
-      getReplicateData({ job_id }),
+    const replicatePromises = perfDatum.jobIDs.map(jobID =>
+      getReplicateData({ jobID }),
     );
 
     return Promise.all(replicatePromises).then(

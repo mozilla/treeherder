@@ -91,20 +91,20 @@ class Push extends React.PureComponent {
 
   getJobGroupInfo(job) {
     const {
-      job_group_name: name,
-      job_group_symbol,
+      jobGroupName: name,
+      jobGroupSymbol,
       platform,
-      platform_option,
+      platformOption,
       tier,
-      push_id,
+      pushID,
     } = job;
-    const symbol = job_group_symbol === '?' ? '' : job_group_symbol;
+    const symbol = jobGroupSymbol === '?' ? '' : jobGroupSymbol;
     const mapKey = getGroupMapKey(
-      push_id,
+      pushID,
       symbol,
       tier,
       platform,
-      platform_option,
+      platformOption,
     );
 
     return { name, tier, symbol, mapKey };
@@ -154,7 +154,7 @@ class Push extends React.PureComponent {
     const { push, notify } = this.props;
     const { data, failureStatus } = await JobModel.getList(
       {
-        push_id: push.id,
+        pushID: push.id,
       },
       { fetchAll: true },
     );
@@ -210,12 +210,12 @@ class Push extends React.PureComponent {
       let platform = platforms.find(
         platform =>
           platformName === platform.name &&
-          job.platform_option === platform.option,
+          job.platformOption === platform.option,
       );
       if (platform === undefined) {
         platform = {
           name: platformName,
-          option: job.platform_option,
+          option: job.platformOption,
           groups: [],
         };
         platforms.push(platform);
@@ -330,7 +330,7 @@ class Push extends React.PureComponent {
     try {
       const jobList = await RunnableJobModel.getList(currentRepo.name, {
         decisionTask: decisionTaskMap[push.id],
-        push_id: push.id,
+        pushID: push.id,
       });
 
       if (jobList.length === 0) {
@@ -384,7 +384,7 @@ class Push extends React.PureComponent {
             const obj = {};
             obj.name = job.job_type_name;
             obj.symbol = job.job_type_symbol;
-            obj.groupsymbol = job.job_group_symbol;
+            obj.groupsymbol = job.jobGroupSymbol;
             return obj;
           }),
         ),
@@ -460,7 +460,7 @@ class Push extends React.PureComponent {
       selectedRunnableJobs,
       collapsed,
     } = this.state;
-    const { id, push_timestamp, revision, author } = push;
+    const { id, pushTimestamp, revision, author } = push;
     const tipRevision = push.revisions[0];
     const decisionTask = decisionTaskMap[push.id];
     const decisionTaskId = decisionTask ? decisionTask.id : null;
@@ -490,7 +490,7 @@ class Push extends React.PureComponent {
         <PushHeader
           push={push}
           pushId={id}
-          pushTimestamp={push_timestamp}
+          pushTimestamp={pushTimestamp}
           author={author}
           revision={revision}
           jobCounts={jobCounts}

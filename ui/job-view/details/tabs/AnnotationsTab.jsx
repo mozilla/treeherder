@@ -18,23 +18,23 @@ import { recalculateUnclassifiedCounts } from '../../redux/stores/pushes';
 
 function RelatedBugSaved(props) {
   const { deleteBug, bug } = props;
-  const { bug_id } = bug;
+  const { bugID } = bug;
 
   return (
     <span className="btn-group pinboard-related-bugs-btn">
       <a
         className="btn btn-xs annotations-bug related-bugs-link"
-        href={getBugUrl(bug_id)}
+        href={getBugUrl(bugID)}
         target="_blank"
         rel="noopener noreferrer"
-        title={`View bug ${bug_id}`}
+        title={`View bug ${bugID}`}
       >
-        <em>{bug_id}</em>
+        <em>{bugID}</em>
       </a>
       <span
         className="btn classification-delete-icon hover-warning btn-xs pinned-job-close-btn annotations-bug"
         onClick={() => deleteBug(bug)}
-        title={`Delete relation to bug ${bug_id}`}
+        title={`Delete relation to bug ${bugID}`}
       >
         <FontAwesomeIcon icon={faTimesCircle} title="Delete" />
       </span>
@@ -55,7 +55,7 @@ function RelatedBug(props) {
       <p className="annotations-bug-header font-weight-bold">Bugs</p>
       <ul className="annotations-bug-list">
         {bugs.map(bug => (
-          <li key={bug.bug_id}>
+          <li key={bug.bugID}>
             <RelatedBugSaved bug={bug} deleteBug={() => deleteBug(bug)} />
           </li>
         ))}
@@ -205,13 +205,13 @@ class AnnotationsTab extends React.Component {
     bug.destroy().then(
       () => {
         notify(
-          `Association to bug ${bug.bug_id} successfully deleted`,
+          `Association to bug ${bug.bugID} successfully deleted`,
           'success',
         );
         window.dispatchEvent(new CustomEvent(thEvents.classificationChanged));
       },
       () => {
-        notify(`Association to bug ${bug.bug_id} deletion failed`, 'danger', {
+        notify(`Association to bug ${bug.bugID} deletion failed`, 'danger', {
           sticky: true,
         });
       },

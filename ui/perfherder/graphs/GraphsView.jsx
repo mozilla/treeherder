@@ -111,13 +111,13 @@ class GraphsView extends React.Component {
   };
 
   createSeriesParams = series => {
-    const { repository_name, signature_id, framework_id } = series;
+    const { repositoryName, signatureID, frameworkID } = series;
     const { timeRange } = this.state;
 
     return {
-      repository: repository_name,
-      signature: signature_id,
-      framework: framework_id,
+      repository: repositoryName,
+      signature: signatureID,
+      framework: frameworkID,
       interval: timeRange.value,
       all_data: true,
     };
@@ -167,7 +167,7 @@ class GraphsView extends React.Component {
     const { colors } = this.state;
     let alertSummaries = await Promise.all(
       seriesData.map(series =>
-        this.getAlertSummaries(series.signature_id, series.repository_id),
+        this.getAlertSummaries(series.signatureID, series.repository_id),
       ),
     );
     alertSummaries = alertSummaries.flat();
@@ -176,7 +176,7 @@ class GraphsView extends React.Component {
 
     const graphData = seriesData.map(series => {
       color = newColors.pop();
-      // signature_id, framework_id and repository_name are
+      // signatureID, frameworkID and repositoryName are
       // not renamed in camel case in order to match the fields
       // returned by the performance/summary API (since we only fetch
       // new data if a user adds additional tests to the graph)
@@ -184,13 +184,13 @@ class GraphsView extends React.Component {
         color: color || ['border-secondary', ''],
         visible: Boolean(color),
         name: series.name,
-        signature_id: series.signature_id,
+        signatureID: series.signatureID,
         signatureHash: series.signature_hash,
-        framework_id: series.framework_id,
+        frameworkID: series.frameworkID,
         platform: series.platform,
-        repository_name: series.repository_name,
+        repositoryName: series.repositoryName,
         projectId: series.repository_id,
-        id: `${series.repository_name} ${series.name}`,
+        id: `${series.repositoryName} ${series.name}`,
         data: series.data.map(dataPoint => ({
           x: new Date(dataPoint.push_timestamp),
           y: dataPoint.value,
@@ -199,7 +199,7 @@ class GraphsView extends React.Component {
           alertSummary: alertSummaries.find(
             item => item.push_id === dataPoint.push_id,
           ),
-          signature_id: series.signature_id,
+          signatureID: series.signatureID,
           pushId: dataPoint.push_id,
           jobId: dataPoint.job_id,
         })),
@@ -212,12 +212,12 @@ class GraphsView extends React.Component {
     return graphData;
   };
 
-  getAlertSummaries = async (signature_id, repository) => {
+  getAlertSummaries = async (signatureID, repository) => {
     const { errorMessages } = this.state;
 
     const url = getApiUrl(
       `${endpoints.alertSummary}${createQueryParams({
-        alerts__series_signature: signature_id,
+        alerts__series_signature: signatureID,
         repository,
       })}`,
     );
@@ -233,25 +233,23 @@ class GraphsView extends React.Component {
   };
 
   updateData = async (
-    signature_id,
-    repository_name,
+    signatureID,
+    repositoryName,
     alertSummaryId,
     dataPointIndex,
   ) => {
     const { testData } = this.state;
 
-    const updatedData = testData.find(
-      test => test.signature_id === signature_id,
-    );
+    const updatedData = testData.find(test => test.signatureID === signatureID);
     const alertSummaries = await this.getAlertSummaries(
-      signature_id,
-      repository_name,
+      signatureID,
+      repositoryName,
     );
     const alertSummary = alertSummaries.find(
       result => result.id === alertSummaryId,
     );
     updatedData.data[dataPointIndex].alertSummary = alertSummary;
-    const newTestData = unionBy([updatedData], testData, 'signature_id');
+    const newTestData = unionBy([updatedData], testData, 'signatureID');
 
     this.setState({ testData: newTestData });
   };
@@ -260,16 +258,16 @@ class GraphsView extends React.Component {
     series.map(encodedSeries => {
       const partialSeriesArray = encodedSeries.split(',');
       const partialSeriesObject = {
-        repository_name: partialSeriesArray[0],
+        repositoryName: partialSeriesArray[0],
         // TODO deprecate signature_hash
-        signature_id:
+        signatureID:
           partialSeriesArray[1] && partialSeriesArray[1].length === 40
             ? partialSeriesArray[1]
             : parseInt(partialSeriesArray[1], 10),
         // TODO partialSeriesArray[2] is for the 1 that's inserted in the url
         // for visibility of test legend cards but isn't actually being used
         // to control visibility so it should be removed at some point
-        framework_id: parseInt(partialSeriesArray[3], 10),
+        frameworkID: parseInt(partialSeriesArray[3], 10),
       };
 
       return partialSeriesObject;
@@ -301,7 +299,7 @@ class GraphsView extends React.Component {
 
     const newSeries = testData.map(
       series =>
-        `${series.repository_name},${series.signature_id},1,${series.framework_id}`,
+        `${series.repositoryName},${series.signatureID},1,${series.frameworkID}`,
     );
     const params = {
       series: newSeries,
@@ -321,8 +319,8 @@ class GraphsView extends React.Component {
     if (!selectedDataPoint) {
       delete params.selected;
     } else {
-      const { signature_id, pushId, x, y } = selectedDataPoint;
-      params.selected = [signature_id, pushId, x, y].join(',');
+      const { signatureID, pushId, x, y } = selectedDataPoint;
+      params.selected = [signatureID, pushId, x, y].join(',');
     }
 
     if (Object.keys(zoom).length === 0) {
@@ -373,7 +371,7 @@ class GraphsView extends React.Component {
                 {testData.length > 0 &&
                   testData.map(series => (
                     <div
-                      key={`${series.name} ${series.repository_name} ${series.platform}`}
+                      key={`${series.name} ${series.repositoryName} ${series.platform}`}
                     >
                       <LegendCard
                         series={series}

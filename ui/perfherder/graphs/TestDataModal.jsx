@@ -25,7 +25,7 @@ export default class TestDataModal extends React.Component {
     this.state = {
       platforms: [],
       framework: { name: 'talos', id: 1 },
-      repository_name: this.findObject(
+      repositoryName: this.findObject(
         this.props.projects,
         'name',
         'mozilla-central',
@@ -44,11 +44,11 @@ export default class TestDataModal extends React.Component {
   }
 
   async componentDidMount() {
-    const { errorMessages, repository_name, framework } = this.state;
+    const { errorMessages, repositoryName, framework } = this.state;
     const { timeRange, getInitialData } = this.props;
     const updates = await getInitialData(
       errorMessages,
-      repository_name,
+      repositoryName,
       framework,
       timeRange,
     );
@@ -76,12 +76,12 @@ export default class TestDataModal extends React.Component {
   }
 
   async getPlatforms() {
-    const { repository_name, framework, errorMessages } = this.state;
+    const { repositoryName, framework, errorMessages } = this.state;
     const { timeRange } = this.props;
 
     const params = { interval: timeRange.value, framework: framework.id };
     const response = await PerfSeriesModel.getPlatformList(
-      repository_name.name,
+      repositoryName.name,
       params,
     );
 
@@ -92,10 +92,10 @@ export default class TestDataModal extends React.Component {
 
   addRelatedConfigs = async params => {
     const { relatedSeries } = this.props.options;
-    const { errorMessages, repository_name } = this.state;
+    const { errorMessages, repositoryName } = this.state;
 
     const response = await PerfSeriesModel.getSeriesList(
-      repository_name.name,
+      repositoryName.name,
       params,
     );
     const updates = processResponse(response, 'relatedTests', errorMessages);
@@ -121,7 +121,7 @@ export default class TestDataModal extends React.Component {
     const { errorMessages } = this.state;
 
     const relatedProjects = thPerformanceBranches.filter(
-      repository_name => repository_name !== relatedSeries.repository_name,
+      repositoryName => repositoryName !== relatedSeries.repositoryName,
     );
 
     const requests = relatedProjects.map(projectName =>
@@ -159,7 +159,7 @@ export default class TestDataModal extends React.Component {
       framework,
       includeSubtests,
       errorMessages,
-      repository_name,
+      repositoryName,
     } = this.state;
     const { timeRange, getSeriesData, testData } = this.props;
 
@@ -175,7 +175,7 @@ export default class TestDataModal extends React.Component {
       const updates = await getSeriesData(
         params,
         errorMessages,
-        repository_name,
+        repositoryName,
         testData,
       );
 
@@ -239,7 +239,7 @@ export default class TestDataModal extends React.Component {
     const { getTestData } = this.props;
 
     const displayedTestParams = selectedTests.map(series => ({
-      repository_name: series.projectName,
+      repositoryName: series.projectName,
       signature_id: parseInt(series.id, 10),
       framework_id: parseInt(series.frameworkId, 10),
     }));
@@ -254,7 +254,7 @@ export default class TestDataModal extends React.Component {
       platforms,
       seriesData,
       framework,
-      repository_name,
+      repositoryName,
       platform,
       includeSubtests,
       selectedTests,
@@ -281,10 +281,10 @@ export default class TestDataModal extends React.Component {
       },
       {
         options: projects.length ? projects.map(item => item.name) : [],
-        selectedItem: repository_name.name || '',
+        selectedItem: repositoryName.name || '',
         updateData: value =>
           this.setState(
-            { repository_name: this.findObject(projects, 'name', value) },
+            { repositoryName: this.findObject(projects, 'name', value) },
             this.getPlatforms,
           ),
         title: 'Project',
