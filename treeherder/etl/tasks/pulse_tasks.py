@@ -29,7 +29,8 @@ def store_pulse_tasks(pulse_job, exchange, routing_key, root_url='https://taskcl
         "root_url": root_url,
     }))
     for run in runs:
-        JobLoader().process_job(run, root_url)
+        if run:
+            JobLoader().process_job(run, root_url)
 
 
 @retryable_task(name='store-pulse-pushes', max_retries=10)

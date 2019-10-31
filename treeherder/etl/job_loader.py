@@ -326,6 +326,8 @@ class JobLoader:
         return resmap[result]
 
     def _is_valid_job(self, pulse_job):
+        if pulse_job is None:
+            return False
         try:
             # e.g. mozilla-l10n-automation-bot@users.noreply.github.com
             # Changing the pulse schema will also require a schema change
