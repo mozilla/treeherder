@@ -7,9 +7,9 @@ export default class RunnableJobModel {
     Object.assign(this, data);
   }
 
-  static async getList(repoName, params) {
+  static async getList(repo, params) {
     const { push_id, decisionTask } = params;
-    const uri = getRunnableJobsURL(decisionTask);
+    const uri = getRunnableJobsURL(decisionTask, repo.tc_root_url);
     const rawJobs = await fetch(uri).then(response => response.json());
 
     return Object.entries(rawJobs).map(([key, value]) =>
