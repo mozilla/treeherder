@@ -13,6 +13,7 @@ import PushModel from '../models/push';
 import TextLogStepModel from '../models/textLogStep';
 import JobDetails from '../shared/JobDetails';
 import JobInfo from '../shared/JobInfo';
+import RepositoryModel from '../models/repository';
 
 import Navigation from './Navigation';
 import ErrorLines from './ErrorLines';
@@ -54,6 +55,7 @@ class App extends React.PureComponent {
       repoName: queryString.get('repo'),
       jobId: queryString.get('job_id'),
       jobUrl: null,
+      currentRepo: null,
     };
   }
 
@@ -90,14 +92,23 @@ class App extends React.PureComponent {
               const push = await resp.json();
               const { revision } = push;
 
-              this.setState({
-                revision,
-                jobUrl: getJobsUrl({
-                  repo: repoName,
+              this.setState(
+                {
                   revision,
-                  selectedJob: jobId,
-                }),
-              });
+                  jobUrl: getJobsUrl({
+                    repo: repoName,
+                    revision,
+                    selectedJob: jobId,
+                  }),
+                },
+                async () => {
+                  RepositoryModel.getList().then(repos => {
+                    const newRepo = repos.find(repo => repo.name === repoName);
+
+                    this.setState({ currentRepo: newRepo });
+                  });
+                },
+              );
             });
           },
         );
@@ -183,6 +194,7 @@ class App extends React.PureComponent {
       errors,
       highlight,
       jobUrl,
+      currentRepo,
     } = this.state;
     const extraFields = [
       {
@@ -212,6 +224,7 @@ class App extends React.PureComponent {
                   revision={revision}
                   className="list-unstyled"
                   showJobFilters={false}
+                  currentRepo={currentRepo}
                 />
                 <JobDetails jobDetails={jobDetails} />
               </div>

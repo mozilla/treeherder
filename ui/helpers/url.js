@@ -70,8 +70,10 @@ export const getBugUrl = function getBugUrl(bug_id) {
   return `${bzBaseUrl}show_bug.cgi?id=${bug_id}`;
 };
 
-export const getInspectTaskUrl = function getInspectTaskUrl(taskId) {
-  return `https://tools.taskcluster.net/tasks/${taskId}`;
+export const getInspectTaskUrl = function getInspectTaskUrl(taskId, rootUrl) {
+  const tcUrl = tcLibUrls.withRootUrl(rootUrl);
+
+  return tcUrl.api('tools', `tasks/${taskId}`, '');
 };
 
 export const getReftestUrl = function getReftestUrl(logUrl) {
