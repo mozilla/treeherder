@@ -131,9 +131,9 @@ async def handleMessage(message, taskDefinition=None):
     try:
         parsedRoute = parseRouteInfo("tc-treeherder", taskId, task["routes"], task)
     except PulseHandlerError as e:
-        logger.warning("%s", str(e))
+        logger.debug("%s", str(e))
         return jobs
-    logger.debug("Message received for task %s with route %s", taskId, str(task["routes"])[0:100])
+    logger.debug("Message received for task %s", taskId)
 
     # Validation failures are common and logged, so do nothing more.
     if not validateTask(task):
