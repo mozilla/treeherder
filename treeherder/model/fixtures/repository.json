@@ -1028,7 +1028,7 @@
       "repository_group": 10,
       "description": "The Servo Parallel Browser Engine − master",
       "expire_performance_data": false,
-      "tc_root_url": "https://taskcluster.net"
+      "tc_root_url": "https://community-tc.services.mozilla.com"
     }
   },
   {
@@ -1381,7 +1381,7 @@
       "repository_group": 10,
       "description": "The Servo Parallel Browser Engine − try (multiple branches)",
       "expire_performance_data": false,
-      "tc_root_url": "https://taskcluster.net"
+      "tc_root_url": "https://community-tc.services.mozilla.com"
     }
   },
   {
@@ -1397,7 +1397,7 @@
       "repository_group": 10,
       "description": "The Servo Parallel Browser Engine − auto: testing PRs after review and before merging to master.",
       "expire_performance_data": false,
-      "tc_root_url": "https://taskcluster.net"
+      "tc_root_url": "https://community-tc.services.mozilla.com"
     }
   },
   {
@@ -1413,7 +1413,7 @@
       "repository_group": 10,
       "description": "The Servo Parallel Browser Engine − try, Taskcluster only",
       "expire_performance_data": false,
-      "tc_root_url": "https://taskcluster.net"
+      "tc_root_url": "https://community-tc.services.mozilla.com"
     }
   },
   {
@@ -1429,7 +1429,7 @@
       "repository_group": 10,
       "description": "The Servo Parallel Browser Engine − pull requests",
       "expire_performance_data": false,
-      "tc_root_url": "https://taskcluster.net"
+      "tc_root_url": "https://community-tc.services.mozilla.com"
     }
   },
   {
