@@ -126,10 +126,10 @@ def test_reports_are_generated_for_relevant_alerts_only(test_perf_alert_summary,
                   amount=1)
 
     report_maintainer = BackfillReportMaintainer(alerts_picker,
-                                                 mock_backfill_context_fetcher,
-                                                 since=EPOCH)
+                                                 mock_backfill_context_fetcher)
 
-    report_maintainer.provide_updated_reports(frameworks=[test_perf_framework.name],
+    report_maintainer.provide_updated_reports(since=EPOCH,
+                                              frameworks=[test_perf_framework.name],
                                               repositories=[test_repository.name])
 
     assert not BackfillReport.objects.exists()
@@ -149,16 +149,17 @@ def test_running_report_twice_on_unchanged_data_doesnt_change_anything(test_perf
     assert not BackfillReport.objects.exists()
 
     report_maintainer = BackfillReportMaintainer(alerts_picker,
-                                                 mock_backfill_context_fetcher,
-                                                 since=EPOCH)
+                                                 mock_backfill_context_fetcher)
 
     # run report once
-    report_maintainer.provide_updated_reports(frameworks=[test_perf_framework.name],
+    report_maintainer.provide_updated_reports(since=EPOCH,
+                                              frameworks=[test_perf_framework.name],
                                               repositories=[test_repository.name])
     initial_records_timestamps, initial_report_timestamps = __fetch_report_timestamps(test_perf_alert_summary)
 
     # run report twice (no changes happened on underlying data)
-    report_maintainer.provide_updated_reports(frameworks=[test_perf_framework.name],
+    report_maintainer.provide_updated_reports(since=EPOCH,
+                                              frameworks=[test_perf_framework.name],
                                               repositories=[test_repository.name])
     records_timestamps, report_timestamps = __fetch_report_timestamps(test_perf_alert_summary)
 
@@ -180,10 +181,10 @@ def test_reports_are_updated_after_alert_summaries_change(test_perf_alert_summar
     assert not BackfillReport.objects.exists()
 
     report_maintainer = BackfillReportMaintainer(alerts_picker,
-                                                 mock_backfill_context_fetcher,
-                                                 since=EPOCH)
+                                                 mock_backfill_context_fetcher)
 
-    report_maintainer.provide_updated_reports(frameworks=[test_perf_framework.name],
+    report_maintainer.provide_updated_reports(since=EPOCH,
+                                              frameworks=[test_perf_framework.name],
                                               repositories=[test_repository.name])
 
     assert BackfillReport.objects.count() == 1
@@ -191,7 +192,8 @@ def test_reports_are_updated_after_alert_summaries_change(test_perf_alert_summar
 
     # new alerts will cause report updates
     create_alerts(test_perf_alert_summary, amount=3)  # relevant alerts
-    report_maintainer.provide_updated_reports(frameworks=[test_perf_framework.name],
+    report_maintainer.provide_updated_reports(since=EPOCH,
+                                              frameworks=[test_perf_framework.name],
                                               repositories=[test_repository.name])
 
     assert BackfillRecord.objects.count() == 5
@@ -201,7 +203,8 @@ def test_reports_are_updated_after_alert_summaries_change(test_perf_alert_summar
     alert.status = PerformanceAlert.ACKNOWLEDGED
     alert.save()
     initial_report_timestamps, initial_records_timestamps = __fetch_report_timestamps(test_perf_alert_summary)
-    report_maintainer.provide_updated_reports(frameworks=[test_perf_framework.name],
+    report_maintainer.provide_updated_reports(since=EPOCH,
+                                              frameworks=[test_perf_framework.name],
                                               repositories=[test_repository.name])
 
     report_timestamps, records_timestmaps = __fetch_report_timestamps(test_perf_alert_summary)

@@ -12,7 +12,7 @@ class TestBackfillReportClass:
 
         assert backfill_record.is_outdated is False
 
-        # now change summary, so it's more recent thant its report
+        # now change summary, so it's more recent that its report
         test_perf_alert_summary.last_updated = django_now()
         test_perf_alert_summary.save()
 

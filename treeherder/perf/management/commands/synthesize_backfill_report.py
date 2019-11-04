@@ -48,9 +48,9 @@ class Command(BaseCommand):
                                      platforms_of_interest=('windows10', 'windows7', 'linux', 'osx', 'android'))
         backfill_context_fetcher = IdentifyAlertRetriggerables(max_data_points=5,
                                                                time_interval=days_to_lookup)
-        reporter = BackfillReportMaintainer(alerts_picker, backfill_context_fetcher, since)
+        reporter = BackfillReportMaintainer(alerts_picker, backfill_context_fetcher)
 
-        reporter.provide_updated_reports(frameworks, repositories)
+        reporter.provide_updated_reports(since, frameworks, repositories)
 
     def _parse_args(self, **options) -> Tuple[List, List, datetime, timedelta]:
         return (options['frameworks'],

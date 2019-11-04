@@ -1,4 +1,3 @@
-import json
 import logging
 import time
 from collections import namedtuple
@@ -8,6 +7,7 @@ from itertools import zip_longest
 from typing import (List,
                     Tuple)
 
+import simplejson as json
 from django.conf import settings
 from django.db import transaction
 from django.db.models import (F,
@@ -338,20 +338,19 @@ class IdentifyAlertRetriggerables:
 
 
 class BackfillReportMaintainer:
-    def __init__(self, alerts_picker: AlertsPicker, backfill_context_fetcher: IdentifyAlertRetriggerables,
-                 since: datetime, logger=None):
+    def __init__(self, alerts_picker: AlertsPicker, backfill_context_fetcher: IdentifyAlertRetriggerables, logger=None):
         '''
         Acquire/instantiate data used for finding alerts.
-        :param since: datetime since the lookup will occur.
         '''
-        self.since = since
         self.alerts_picker = alerts_picker
         self.fetch_backfill_context = backfill_context_fetcher
         self.log = logger or logging.getLogger(self.__class__.__name__)
 
-    def provide_updated_reports(self, frameworks: List[str], repositories: List[str]) -> List[BackfillReport]:
+    def provide_updated_reports(self, since: datetime,
+                                frameworks: List[str],
+                                repositories: List[str]) -> List[BackfillReport]:
         summaries_to_retrigger = self._fetch_by(
-            self._summaries_requiring_reports(self.since),
+            self._summaries_requiring_reports(since),
             frameworks,
             repositories
         )
@@ -374,6 +373,7 @@ class BackfillReportMaintainer:
 
             backfill_report, created = BackfillReport.objects.get_or_create(summary_id=summary.id)
             if created or backfill_report.is_outdated:
+                backfill_report.expel_records()  # associated records are outdated & irrelevant
                 self._provide_records(backfill_report, alert_context_map)
             reports.append(backfill_report)
 
@@ -384,9 +384,6 @@ class BackfillReportMaintainer:
 
     def _provide_records(self, backfill_report: BackfillReport,
                          alert_context_map: List[Tuple]):
-        # any existing records are outdated; remove them
-        backfill_report.expel_records()
-
         for alert, retrigger_context in alert_context_map:
             BackfillRecord.objects.create(alert=alert,
                                           report=backfill_report,
@@ -405,7 +402,9 @@ class BackfillReportMaintainer:
     def _fetch_by(self, summaries_to_retrigger: QuerySet, frameworks: List[str], repositories: List[str]) -> QuerySet:
         if frameworks:
             summaries_to_retrigger = summaries_to_retrigger.filter(framework__name__in=frameworks)
-        return summaries_to_retrigger.filter(repository__name__in=repositories)
+        if repositories:
+            summaries_to_retrigger = summaries_to_retrigger.filter(repository__name__in=repositories)
+        return summaries_to_retrigger
 
     def _associate_retrigger_context(self, important_alerts: List[PerformanceAlert]) -> List[Tuple]:
         retrigger_map = []
