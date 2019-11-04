@@ -33,6 +33,12 @@
       "required": true
     },
     "PULSE_URL": "amqp://treeherder-shared-pulse-user:mozilla123@pulse.mozilla.org:5671/?ssl=true",
+    "PULSE_RESULSETS_QUEUE_NAME": {
+      "generator": "secret"
+    },
+    "PULSE_TASKS_QUEUE_NAME": {
+      "generator": "secret"
+    },
     "TREEHERDER_DJANGO_SECRET_KEY": {
       "generator": "secret"
     },
