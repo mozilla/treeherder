@@ -1561,5 +1561,21 @@
       "description": "A collection of Android libraries to build browsers or browser-like applications.",
       "tc_root_url": "https://taskcluster.net"
     }
+  },
+  {
+    "pk": 112,
+    "model": "model.repository",
+    "fields": {
+      "dvcs_type": "git",
+      "name": "servo-communitytc",
+      "url": "https://github.com/servo/servo",
+      "branch": "try-communitytc",
+      "active_status": "active",
+      "codebase": "servo",
+      "repository_group": 10,
+      "description": "The Servo Parallel Browser Engine − testing the migration to https://community-tc.services.mozilla.com/",
+      "expire_performance_data": false,
+      "tc_root_url": "https://community-tc.services.mozilla.com/"
+    }
   }
 ]
