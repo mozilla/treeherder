@@ -3,6 +3,7 @@ import asyncio
 import logging
 import os
 
+import environ
 import jsonschema
 import slugid
 import taskcluster
@@ -12,8 +13,10 @@ import taskcluster_urls
 from treeherder.etl.schema import get_json_schema
 from treeherder.etl.taskcluster_pulse.parse_route import parseRoute
 
+env = environ.Env()
 logger = logging.getLogger(__name__)
 loop = asyncio.get_event_loop()
+projectsToIngest = env("PROJECTS_TO_INGEST", default=None)
 session = taskcluster.aio.createSession(loop=loop)
 
 
@@ -112,6 +115,18 @@ async def handleMessage(message, taskDefinition=None):
     asyncQueue = taskcluster.aio.Queue({"rootUrl": message["root_url"]}, session=session)
     task = (await asyncQueue.task(taskId)) if not taskDefinition else taskDefinition
 
+    try:
+        parsedRoute = parseRouteInfo("tc-treeherder", taskId, task["routes"], task)
+    except PulseHandlerError as e:
+        logger.debug("%s", str(e))
+        return jobs
+
+    # This logic is useful to reduce the number of tasks we ingest and requirying
+    # less dynos and less database writes. You can adjust PROJECTS_TO_INGEST on the app to meet your needs
+    if projectsToIngest and not parsedRoute["project"] in projectsToIngest.split(','):
+        logger.debug("Ignoring tasks not matching PROJECTS_TO_INGEST (Task id: %s)", taskId)
+        return jobs
+
     # Bug 1590512 - A more general solution is needed to avoid using env variables that
     # are only available for mobile related tasks (this does not work for fenix)
     try:
@@ -128,11 +143,6 @@ async def handleMessage(message, taskDefinition=None):
     except KeyError:
         pass
 
-    try:
-        parsedRoute = parseRouteInfo("tc-treeherder", taskId, task["routes"], task)
-    except PulseHandlerError as e:
-        logger.debug("%s", str(e))
-        return jobs
     logger.debug("Message received for task %s", taskId)
 
     # Validation failures are common and logged, so do nothing more.
