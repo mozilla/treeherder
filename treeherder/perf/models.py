@@ -102,8 +102,8 @@ class PerformanceSignature(models.Model):
              'platform', 'option_collection', 'extra_options', 'last_updated'),
             # suite_public_name/test_public_name must be unique
             # and different than suite/test
-            ('repository', 'framework', 'platform', 'option_collection',
-             'suite_public_name', 'test_public_name', 'extra_options'),
+            ('repository', 'suite_public_name', 'test_public_name', 'framework',
+             'platform', 'option_collection', 'extra_options'),
             # ensure there is only one signature of any hash per
             # repository (same hash in different repositories is allowed)
             ('repository', 'framework', 'signature_hash'),
