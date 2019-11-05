@@ -208,6 +208,7 @@ class GraphsView extends React.Component {
           jobId: dataPoint.job_id,
           dataPointId: dataPoint.id,
         })),
+        measurementUnit: series.measurement_unit,
         lowerIsBetter: series.lower_is_better,
         resultSetData: series.data.map(dataPoint => dataPoint.push_id),
         parentSignature: series.parent_signature,

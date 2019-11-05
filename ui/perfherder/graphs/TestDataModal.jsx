@@ -40,6 +40,7 @@ export default class TestDataModal extends React.Component {
       showNoRelatedTests: false,
       filterText: '',
       loading: true,
+      selectedUnits: new Set(),
     };
   }
 
@@ -186,7 +187,6 @@ export default class TestDataModal extends React.Component {
         repositoryName,
         testData,
       );
-
       this.setState(updates);
       return;
     }
@@ -215,16 +215,22 @@ export default class TestDataModal extends React.Component {
   };
 
   updateSelectedTests = (test, removeTest = false) => {
-    const { selectedTests } = this.state;
+    let { selectedTests, selectedUnits } = this.state;
     const index = selectedTests.indexOf(test);
 
     if (index === -1) {
+      selectedTests = [...selectedTests, ...[test]];
+      selectedUnits = this.extractUniqueUnits(selectedTests);
+
       this.setState({
-        selectedTests: [...selectedTests, ...[test]],
+        selectedTests,
+        selectedUnits,
       });
     } else if (index !== -1 && removeTest) {
       selectedTests.splice(index, 1);
-      this.setState({ selectedTests });
+      selectedUnits = this.extractUniqueUnits(selectedTests);
+
+      this.setState({ selectedTests, selectedUnits });
     }
   };
 
@@ -256,9 +262,48 @@ export default class TestDataModal extends React.Component {
     }));
 
     getTestData(displayedTestParams);
-    this.setState({ selectedTests: [], filterText: '' });
+    this.setState({
+      selectedTests: [],
+      selectedUnits: new Set(),
+      filterText: '',
+    });
     this.closeModal();
   };
+
+  selectableTestClassName = test => {
+    return this.hasDifferentUnit(test) ? 'bg-warning' : '';
+  };
+
+  selectableTestTitle = test => {
+    if (this.hasDifferentUnit(test)) {
+      return `Warning: ${this.getOriginalTestName(
+        test,
+      )} has a different measurement unit (${test.measurementUnit}) `;
+    }
+    return this.getOriginalTestName(test);
+  };
+
+  hasDifferentUnit = test => {
+    const { plottedUnits } = this.props;
+    const { selectedUnits } = this.state;
+    const unit = test.measurementUnit || null;
+
+    const differentThanPlottedUnits =
+      plottedUnits.size && !plottedUnits.has(unit);
+    const selectedUnitTypesMismatch = selectedUnits.size >= 2;
+    const differentThanSelectedUnits =
+      selectedUnits.size && !selectedUnits.has(unit);
+
+    return (
+      differentThanPlottedUnits ||
+      selectedUnitTypesMismatch ||
+      differentThanSelectedUnits
+    );
+  };
+
+  extractUniqueUnits(tests) {
+    return new Set(tests.map(aTest => aTest.measurementUnit || null));
+  }
 
   render() {
     const {
@@ -355,6 +400,7 @@ export default class TestDataModal extends React.Component {
                   {relatedTests.length > 0 ? 'Related tests' : 'Tests'}
                 </Label>
                 <Input
+                  className="fa"
                   data-testid="tests"
                   type="select"
                   name="selectMulti"
@@ -365,9 +411,10 @@ export default class TestDataModal extends React.Component {
                     tests.sort().map(test => (
                       <option
                         key={test.id}
+                        className={this.selectableTestClassName(test)}
                         data-testid={test.id.toString()}
                         onClick={() => this.updateSelectedTests(test)}
-                        title={this.getOriginalTestName(test)}
+                        title={this.selectableTestTitle(test)}
                       >
                         {this.getOriginalTestName(test)}
                       </option>
@@ -395,8 +442,9 @@ export default class TestDataModal extends React.Component {
                     selectedTests.map(test => (
                       <option
                         key={test.id}
+                        className={this.selectableTestClassName(test)}
                         onClick={() => this.updateSelectedTests(test, true)}
-                        title={this.getFullTestName(test)}
+                        title={this.selectableTestTitle(test)}
                       >
                         {this.getFullTestName(test)}
                       </option>
@@ -431,6 +479,7 @@ export default class TestDataModal extends React.Component {
 
 TestDataModal.propTypes = {
   projects: PropTypes.arrayOf(PropTypes.shape({})).isRequired,
+  plottedUnits: PropTypes.instanceOf(Set).isRequired,
   timeRange: PropTypes.shape({}).isRequired,
   getTestData: PropTypes.func.isRequired,
   options: PropTypes.shape({

@@ -71,6 +71,7 @@ def test_no_summary_performance_data(client, test_perf_signature,
             'framework_id': test_perf_signature.framework.id,
             'machine_platform': test_perf_signature.platform.platform,
             'extra_options': test_perf_signature.extra_options.split(' '),
+            'measurement_unit': test_perf_signature.measurement_unit,
         }
     }
 
@@ -166,6 +167,8 @@ def test_summary_performance_data(client, test_repository,
         if signature.extra_options:
             # extra_options stored as charField but api returns as list
             expected['extra_options'] = signature.extra_options.split(' ')
+        if signature.measurement_unit:
+            expected['measurement_unit'] = signature.measurement_unit
         assert resp.data[signature.signature_hash] == expected
 
 
@@ -397,6 +400,7 @@ def test_perf_summary(client, test_perf_signature, test_perf_data):
         'lower_is_better': test_perf_signature.lower_is_better,
         'has_subtests': test_perf_signature.has_subtests,
         'tags': test_perf_signature.tags,
+        'measurement_unit': test_perf_signature.measurement_unit,
         'values': [test_perf_data[0].value],
         'name': 'mysuite mytest opt e10s opt',
         'parent_signature': None,

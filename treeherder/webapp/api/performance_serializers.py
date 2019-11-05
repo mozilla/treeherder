@@ -257,7 +257,7 @@ class PerformanceSummarySerializer(serializers.ModelSerializer):
         model = PerformanceSignature
         fields = ['signature_id', 'framework_id', 'signature_hash', 'platform', 'test', 'suite',
                   'lower_is_better', 'has_subtests', 'tags', 'values', 'name', 'parent_signature', 'job_ids',
-                  'repository_name', 'repository_id', 'data']
+                  'repository_name', 'repository_id', 'data', 'measurement_unit']
 
     def get_name(self, value):
         test = value['test']

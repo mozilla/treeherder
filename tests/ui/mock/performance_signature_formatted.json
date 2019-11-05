@@ -44,5 +44,21 @@
     "options": ["opt", "e10s", "stylo"],
     "frameworkId": 1,
     "lowerIsBetter": true
+  },
+  {
+    "id": 1648572,
+    "name": "dromaeo_dom opt e10s stylo",
+    "testName": "dromaeo_dom",
+    "suite": "dromaeo_dom",
+    "test": null,
+    "signature": "baf7d0091b502d1596c9791a47cb25efeda8a5fa",
+    "hasSubtests": true,
+    "parentSignature": null,
+    "projectName": "mozilla-central",
+    "platform": "linux64",
+    "options": ["opt", "e10s", "stylo"],
+    "frameworkId": 1,
+    "measurementUnit": "score",
+    "lowerIsBetter": true
   }
 ]

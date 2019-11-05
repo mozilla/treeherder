@@ -423,6 +423,7 @@ def test_perf_signature(test_repository, test_perf_framework):
         has_subtests=False,
         tags='warm pageload',
         extra_options='e10s opt',
+        measurement_unit='ms',
         last_updated=datetime.datetime.now()
     )
     return signature

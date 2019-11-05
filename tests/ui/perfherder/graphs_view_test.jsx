@@ -156,3 +156,35 @@ test('InputFilter from TestDataModal can filter by tags', async () => {
   expect(selectedTests.children).toHaveLength(1);
   expect(selectedTests.children[0].text).toBe(fullTestName);
 });
+
+test("Selectable tests with different units than what's already plotted show warning in the Test Data Modal", async () => {
+  const { getByText, getAllByTitle } = graphsViewControls();
+
+  fireEvent.click(getByText('Add test data'));
+
+  // dromaeo_dom's unit is "score", while other tests don't have any
+  const mismatchedTests = await waitForElement(() =>
+    getAllByTitle(/^Warning:.*/i),
+  );
+
+  expect(mismatchedTests).toHaveLength(1);
+});
+
+test("Selecting a test with similar unit in the Test Data Modal doesn't give warning", async () => {
+  const { getByText, getByTestId, queryAllByTitle } = graphsViewControls();
+
+  fireEvent.click(getByText('Add test data'));
+
+  const matchingTest = await waitForElement(() =>
+    getByTestId(seriesData[1].id.toString()),
+  );
+
+  fireEvent.click(matchingTest);
+
+  const mismatchedTests = await waitForElement(() =>
+    queryAllByTitle(/^Warning:.*/i),
+  );
+
+  // no extra warnings where added in selected tests' section
+  expect(mismatchedTests).toHaveLength(1);
+});

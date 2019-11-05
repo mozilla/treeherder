@@ -138,6 +138,9 @@ const GraphTooltip = ({
       <div>
         <p>
           {displayNumber(value)}
+          {testDetails.measurementUnit && (
+            <span> {testDetails.measurementUnit}</span>
+          )}
           <span className="text-muted">
             {testDetails.lowerIsBetter
               ? ' (lower is better)'
