@@ -13,6 +13,28 @@ import LoadingSpinner from '../shared/LoadingSpinner';
 
 import { summaryStatusMap } from './constants';
 
+const verifyRevision = async function verifyRevision(
+  project,
+  revision,
+  resultSetName,
+) {
+  const { data, failureStatus } = await PushModel.getList({
+    repo: project,
+    commit_revision: revision,
+  });
+
+  if (failureStatus) {
+    return {
+      errorMessages: [`Error fetching revision ${revision}: ${data}`],
+    };
+  }
+  if (!data.results.length) {
+    return { errorMessages: [`No results found for revision ${revision}`] };
+  }
+
+  return { [resultSetName]: data.results[0] };
+};
+
 const withValidation = (
   { requiredParams },
   verifyRevisions = true,
@@ -68,9 +90,10 @@ const withValidation = (
       return errors;
     };
 
+    // eslint-disable-next-line consistent-return
     async checkRevisions(params) {
       if (!params.originalRevision) {
-        const newResultResponse = await this.verifyRevision(
+        const newResultResponse = await verifyRevision(
           params.newProject,
           params.newRevision,
           'newResultSet',
@@ -82,12 +105,8 @@ const withValidation = (
         });
       }
       const [newResultResponse, origResultResponse] = await Promise.all([
-        this.verifyRevision(
-          params.newProject,
-          params.newRevision,
-          'newResultSet',
-        ),
-        this.verifyRevision(
+        verifyRevision(params.newProject, params.newRevision, 'newResultSet'),
+        verifyRevision(
           params.originalProject,
           params.originalRevision,
           'originalResultSet',
@@ -100,30 +119,9 @@ const withValidation = (
         ...origResultResponse,
         validationComplete: true,
       });
-      return null;
     }
 
-    async verifyRevision(project, revision, resultSetName) {
-      const { data, failureStatus } = await PushModel.getList({
-        repo: project,
-        commit_revision: revision,
-      });
-
-      this.data = data;
-      this.failureStatus = failureStatus;
-
-      if (this.failureStatus) {
-        return {
-          errorMessages: [`Error fetching revision ${revision}: ${this.data}`],
-        };
-      }
-      if (!data.results.length) {
-        return { errorMessages: [`No results found for revision ${revision}`] };
-      }
-
-      return { [resultSetName]: data.results[0] };
-    }
-
+    // eslint-disable-next-line consistent-return
     validateParams(params) {
       const { projects, frameworks } = this.props;
       let errors = [];
@@ -170,7 +168,6 @@ const withValidation = (
         },
         this.updateParams({ ...params }),
       );
-      return null;
     }
 
     render() {

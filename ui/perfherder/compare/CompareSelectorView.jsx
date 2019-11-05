@@ -50,6 +50,7 @@ export default class CompareSelectorView extends React.Component {
     });
   };
 
+  // eslint-disable-next-line consistent-return
   submitData = () => {
     const {
       originalProject,
@@ -83,7 +84,6 @@ export default class CompareSelectorView extends React.Component {
       };
     }
     history.push(`/compare${createQueryParams(params)}`);
-    return null;
   };
 
   toggleFrameworkDropdown = () => {

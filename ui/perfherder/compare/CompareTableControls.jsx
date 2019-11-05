@@ -68,6 +68,7 @@ export default class CompareTableControls extends React.Component {
     return containsText(textToSearch, filterText) && matchesFilters;
   };
 
+  // eslint-disable-next-line consistent-return
   updateFilteredResults = () => {
     const {
       filterText,
@@ -103,7 +104,6 @@ export default class CompareTableControls extends React.Component {
       }
     }
     this.setState({ results: filteredResults });
-    return null;
   };
 
   render() {

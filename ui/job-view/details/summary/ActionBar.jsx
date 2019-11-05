@@ -80,6 +80,7 @@ class ActionBar extends React.PureComponent {
     );
   };
 
+  // eslint-disable-next-line consistent-return
   createGeckoProfile = async () => {
     const {
       user,
@@ -94,6 +95,7 @@ class ActionBar extends React.PureComponent {
 
     const decisionTaskId = decisionTaskMap[selectedJobFull.push_id];
     TaskclusterModel.load(decisionTaskId, selectedJobFull, currentRepo).then(
+      // eslint-disable-next-line consistent-return
       results => {
         try {
           const geckoprofile = getAction(results.actions, 'geckoprofile');
@@ -131,12 +133,11 @@ class ActionBar extends React.PureComponent {
         } catch (e) {
           notify(formatTaskclusterError(e), 'danger', { sticky: true });
         }
-        return null;
       },
     );
-    return null;
   };
 
+  // eslint-disable-next-line consistent-return
   retriggerJob = async jobs => {
     const { user, notify, decisionTaskMap, currentRepo } = this.props;
 
@@ -157,7 +158,6 @@ class ActionBar extends React.PureComponent {
     });
 
     JobModel.retrigger(jobs, currentRepo, notify, 1, decisionTaskMap);
-    return null;
   };
 
   backfillJob = async () => {
@@ -188,6 +188,7 @@ class ActionBar extends React.PureComponent {
     const { id: decisionTaskId } = decisionTaskMap[selectedJobFull.push_id];
 
     TaskclusterModel.load(decisionTaskId, selectedJobFull, currentRepo).then(
+      // eslint-disable-next-line consistent-return
       results => {
         try {
           const backfilltask = getAction(results.actions, 'backfill');
@@ -215,7 +216,6 @@ class ActionBar extends React.PureComponent {
         } catch (e) {
           notify(formatTaskclusterError(e), 'danger', { sticky: true });
         }
-        return null;
       },
     );
   };
@@ -345,6 +345,7 @@ class ActionBar extends React.PureComponent {
     return title;
   };
 
+  // eslint-disable-next-line consistent-return
   createInteractiveTask = async () => {
     const {
       user,
@@ -392,9 +393,9 @@ class ActionBar extends React.PureComponent {
       // notification box.
       notify(formatTaskclusterError(e), 'danger', { sticky: true });
     }
-    return null;
   };
 
+  // eslint-disable-next-line consistent-return
   cancelJobs = jobs => {
     const { user, notify, decisionTaskMap, currentRepo } = this.props;
 
@@ -407,7 +408,6 @@ class ActionBar extends React.PureComponent {
       notify,
       decisionTaskMap,
     );
-    return null;
   };
 
   cancelJob = () => {

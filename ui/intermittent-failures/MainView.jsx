@@ -33,10 +33,7 @@ const MainView = props => {
   const textFilter = (filter, row) => {
     const text = row[filter.id];
     const regex = RegExp(filter.value, 'i');
-    if (regex.test(text)) {
-      return row;
-    }
-    return null;
+    return regex.test(text) ? row : null;
   };
 
   const columns = [

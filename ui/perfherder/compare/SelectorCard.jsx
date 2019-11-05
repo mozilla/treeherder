@@ -45,6 +45,7 @@ export default class SelectorCard extends React.Component {
     this.validateQueryParams();
   }
 
+  // eslint-disable-next-line consistent-return
   validateQueryParams = () => {
     const { projects, selectedRepo, revisionState } = this.props;
     const validProject = projects.find(item => item.name === selectedRepo);
@@ -62,7 +63,6 @@ export default class SelectorCard extends React.Component {
     if (this.state.checkboxSelected || revisionState === 'newRevision') {
       this.fetchRevisions(selectedRepo);
     }
-    return null;
   };
 
   fetchRevisions = async selectedRepo => {
@@ -126,6 +126,7 @@ export default class SelectorCard extends React.Component {
     });
   };
 
+  // eslint-disable-next-line consistent-return
   validateInput = async value => {
     const {
       updateState,
@@ -177,7 +178,6 @@ export default class SelectorCard extends React.Component {
       validating: false,
       validated: true,
     });
-    return null;
   };
 
   render() {

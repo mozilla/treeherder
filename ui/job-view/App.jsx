@@ -48,6 +48,16 @@ const getWindowHeight = function getWindowHeight() {
   return windowHeight - navBarHeight;
 };
 
+const fetchDeployedRevision = function fetchDeployedRevision() {
+  return fetch(deployedRevisionUrl).then(resp => resp.text());
+};
+
+const updateButtonClick = function updateButtonClick() {
+  if (window.confirm('Reload the page to pick up Treeherder updates?')) {
+    window.location.reload(true);
+  }
+};
+
 class App extends React.Component {
   constructor(props) {
     super(props);
@@ -108,10 +118,10 @@ class App extends React.Component {
     window.addEventListener(thEvents.filtersUpdated, this.handleFiltersUpdated);
 
     // Get the current Treeherder revision and poll to notify on updates.
-    this.fetchDeployedRevision().then(revision => {
+    fetchDeployedRevision().then(revision => {
       this.setState({ serverRev: revision });
       this.updateInterval = setInterval(() => {
-        this.fetchDeployedRevision().then(revision => {
+        fetchDeployedRevision().then(revision => {
           const {
             serverChangedTimestamp,
             serverRev,
@@ -257,18 +267,6 @@ class App extends React.Component {
     this.setState({ showShortCuts: newValue });
   };
 
-  fetchDeployedRevision() {
-    this.forThis = null; // Just adding to use this
-    return fetch(deployedRevisionUrl).then(resp => resp.text());
-  }
-
-  updateButtonClick() {
-    this.forThis = null; // Just adding to use this
-    if (window.confirm('Reload the page to pick up Treeherder updates?')) {
-      window.location.reload(true);
-    }
-  }
-
   handleSplitChange(latestSplitSize) {
     this.setState({
       latestSplitPct: (latestSplitSize / getWindowHeight()) * 100,
@@ -328,7 +326,7 @@ class App extends React.Component {
           >
             <PrimaryNavBar
               repos={repos}
-              updateButtonClick={this.updateButtonClick}
+              updateButtonClick={updateButtonClick}
               serverChanged={serverChanged}
               filterModel={filterModel}
               setUser={this.setUser}
@@ -357,7 +355,7 @@ class App extends React.Component {
                   />
                 )}
                 {serverChangedDelayed && (
-                  <UpdateAvailable updateButtonClick={this.updateButtonClick} />
+                  <UpdateAvailable updateButtonClick={updateButtonClick} />
                 )}
                 {currentRepo && (
                   <div id="th-global-content" className="th-global-content">

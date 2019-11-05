@@ -65,6 +65,7 @@ export default class AlertTableRow extends React.Component {
     return timeRange || 31536000;
   };
 
+  // eslint-disable-next-line consistent-return
   toggleStar = async () => {
     const { starred } = this.state;
     const { alert } = this.props;
@@ -83,7 +84,6 @@ export default class AlertTableRow extends React.Component {
       });
     }
     this.setState(updatedStar);
-    return null;
   };
 
   getReassignment = alert => {
@@ -106,6 +106,7 @@ export default class AlertTableRow extends React.Component {
     );
   };
 
+  // eslint-disable-next-line consistent-return
   updateCheckbox = () => {
     const { updateSelectedAlerts, selectedAlerts, alert } = this.props;
     const { checkboxSelected } = this.state;
@@ -122,7 +123,6 @@ export default class AlertTableRow extends React.Component {
       selectedAlerts.splice(index, 1);
       return updateSelectedAlerts({ selectedAlerts, allSelected: false });
     }
-    return null;
   };
 
   getTitleText = (alert, alertStatus) => {

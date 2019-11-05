@@ -71,6 +71,7 @@ export default class PushModel {
       : (await PushModel.getDecisionTaskId(pushId, notify)).id;
 
     return TaskclusterModel.load(decisionTaskId, null, currentRepo).then(
+      // eslint-disable-next-line consistent-return
       results => {
         const actionTaskId = slugid();
 
@@ -100,7 +101,6 @@ export default class PushModel {
           // notification box.
           notify(formatTaskclusterError(e), 'danger', { sticky: true });
         }
-        return null;
       },
     );
   }
@@ -117,13 +117,14 @@ export default class PushModel {
       : (await PushModel.getDecisionTaskId(pushId, notify)).id;
 
     return TaskclusterModel.load(decisionTaskId, null, currentRepo).then(
-      results => {
+      // eslint-disable-next-line consistent-return
+      async results => {
         const actionTaskId = slugid();
 
         try {
           const allTalosTask = getAction(results.actions, 'run-all-talos');
 
-          return TaskclusterModel.submit({
+          await TaskclusterModel.submit({
             action: allTalosTask,
             actionTaskId,
             decisionTaskId,
@@ -132,16 +133,13 @@ export default class PushModel {
             input: { times },
             staticActionVariables: results.staticActionVariables,
             currentRepo,
-          }).then(
-            () =>
-              `Request sent to trigger all talos jobs ${times} time(s) via actions.json (${actionTaskId})`,
-          );
+          });
+          return `Request sent to trigger all talos jobs ${times} time(s) via actions.json (${actionTaskId})`;
         } catch (e) {
           // The full message is too large to fit in a Treeherder
           // notification box.
           notify(formatTaskclusterError(e), 'danger', { sticky: true });
         }
-        return null;
       },
     );
   }

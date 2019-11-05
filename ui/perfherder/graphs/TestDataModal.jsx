@@ -130,12 +130,12 @@ export default class TestDataModal extends React.Component {
 
     const responses = await Promise.all(requests);
     const relatedTests = responses
+      // eslint-disable-next-line consistent-return
       .flatMap(item => {
         if (!item.failureStatus) {
           return item.data;
         }
         errorMessages.push(item.data);
-        return null;
       })
       .filter(
         item =>

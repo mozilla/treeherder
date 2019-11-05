@@ -29,6 +29,37 @@ import { RevisionList } from './RevisionList';
 const watchCycleStates = ['none', 'push', 'job', 'none'];
 const platformArray = Object.values(thPlatformMap);
 
+const getJobCount = function getJobCount(jobList) {
+  return jobList.reduce(
+    (memo, job) =>
+      job.result !== 'superseded'
+        ? { ...memo, [job.state]: memo[job.state] + 1 }
+        : memo,
+    { running: 0, pending: 0, completed: 0 },
+  );
+};
+
+const getJobGroupInfo = function getJobGroupInfo(job) {
+  const {
+    job_group_name: name,
+    job_group_symbol,
+    platform,
+    platform_option,
+    tier,
+    push_id,
+  } = job;
+  const symbol = job_group_symbol === '?' ? '' : job_group_symbol;
+  const mapKey = getGroupMapKey(
+    push_id,
+    symbol,
+    tier,
+    platform,
+    platform_option,
+  );
+
+  return { name, tier, symbol, mapKey };
+};
+
 class Push extends React.PureComponent {
   constructor(props) {
     super(props);
@@ -68,39 +99,6 @@ class Push extends React.PureComponent {
   componentWillUnmount() {
     window.removeEventListener(thEvents.applyNewJobs, this.handleApplyNewJobs);
     window.removeEventListener('hashchange', this.handleUrlChanges);
-  }
-
-  getJobCount(jobList) {
-    this.forThis = null; // Just adding to use this
-    return jobList.reduce(
-      (memo, job) =>
-        job.result !== 'superseded'
-          ? { ...memo, [job.state]: memo[job.state] + 1 }
-          : memo,
-      { running: 0, pending: 0, completed: 0 },
-    );
-  }
-
-  getJobGroupInfo(job) {
-    this.forThis = null; // Just adding to use this
-    const {
-      job_group_name: name,
-      job_group_symbol,
-      platform,
-      platform_option,
-      tier,
-      push_id,
-    } = job;
-    const symbol = job_group_symbol === '?' ? '' : job_group_symbol;
-    const mapKey = getGroupMapKey(
-      push_id,
-      symbol,
-      tier,
-      platform,
-      platform_option,
-    );
-
-    return { name, tier, symbol, mapKey };
   }
 
   setSingleRevisionWindowTitle() {
@@ -174,7 +172,7 @@ class Push extends React.PureComponent {
       const platforms = this.sortGroupedJobs(
         this.groupJobByPlatform(newJobList),
       );
-      const jobCounts = this.getJobCount(newJobList);
+      const jobCounts = getJobCount(newJobList);
 
       this.setState({
         platforms,
@@ -214,7 +212,7 @@ class Push extends React.PureComponent {
         platforms.push(platform);
       }
 
-      const groupInfo = this.getJobGroupInfo(job);
+      const groupInfo = getJobGroupInfo(job);
       // search for the right group
       let group = platform.groups.find(
         group =>

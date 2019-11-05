@@ -86,6 +86,7 @@ const GraphTooltip = ({
     group_state: 'expanded',
   });
 
+  // eslint-disable-next-line consistent-return
   const createAlert = async () => {
     let data;
     let failureStatus;
@@ -125,7 +126,6 @@ const GraphTooltip = ({
       newAlertSummaryId,
       flotIndex,
     );
-    return null;
   };
 
   return (

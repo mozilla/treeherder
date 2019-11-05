@@ -15,6 +15,13 @@ import { thEvents } from '../../helpers/constants';
 // Trigger missing jobs is dangerous on repos other than these (see bug 1335506)
 const triggerMissingRepos = ['mozilla-inbound', 'autoland'];
 
+const getRangeChangeUrl = function getRangeChangeUrl(param, revision) {
+  let url = window.location.href;
+  url = url.replace(`&${param}=${getUrlParam(param)}`, '');
+  url = url.replace(`&${'selectedJob'}=${getUrlParam('selectedJob')}`, '');
+  return `${url}&${param}=${revision}`;
+};
+
 class PushActionMenu extends React.PureComponent {
   constructor(props) {
     super(props);
@@ -22,8 +29,8 @@ class PushActionMenu extends React.PureComponent {
     const { revision } = this.props;
 
     this.state = {
-      topOfRangeUrl: this.getRangeChangeUrl('tochange', revision),
-      bottomOfRangeUrl: this.getRangeChangeUrl('fromchange', revision),
+      topOfRangeUrl: getRangeChangeUrl('tochange', revision),
+      bottomOfRangeUrl: getRangeChangeUrl('fromchange', revision),
       customJobActionsShowing: false,
     };
   }
@@ -38,22 +45,12 @@ class PushActionMenu extends React.PureComponent {
     window.removeEventListener(thEvents.filtersUpdated, this.handleUrlChanges);
   }
 
-  getRangeChangeUrl(param, revision) {
-    this.url = window.location.href;
-    this.url = this.url.replace(`&${param}=${getUrlParam(param)}`, '');
-    this.url = this.url.replace(
-      `&${'selectedJob'}=${getUrlParam('selectedJob')}`,
-      '',
-    );
-    return `${this.url}&${param}=${revision}`;
-  }
-
   handleUrlChanges = () => {
     const { revision } = this.props;
 
     this.setState({
-      topOfRangeUrl: this.getRangeChangeUrl('tochange', revision),
-      bottomOfRangeUrl: this.getRangeChangeUrl('fromchange', revision),
+      topOfRangeUrl: getRangeChangeUrl('tochange', revision),
+      bottomOfRangeUrl: getRangeChangeUrl('fromchange', revision),
     });
   };
 

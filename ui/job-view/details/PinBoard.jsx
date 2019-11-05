@@ -328,6 +328,7 @@ class PinBoard extends React.Component {
 
   isNumber = text => !text || /^[0-9]*$/.test(text);
 
+  // eslint-disable-next-line consistent-return
   saveEnteredBugNumber = () => {
     const { newBugNumber, enteringBugNumber } = this.state;
 
@@ -340,7 +341,6 @@ class PinBoard extends React.Component {
         return true;
       }
     }
-    return null;
   };
 
   bugNumberKeyPress = ev => {

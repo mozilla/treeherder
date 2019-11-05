@@ -81,13 +81,14 @@ BugCountComponent.propTypes = {
 
 // TODO: Move `Platform` into its own file.
 class Platform extends React.Component {
+  // eslint-disable-next-line class-methods-use-this
   getIcon(failureClassification) {
-    this.faIcon = null;
+    let faIcon = null;
     switch (failureClassification) {
       case 'not classified':
-        return this.faIcon;
+        return faIcon;
       case 'intermittent':
-        this.faIcon = (
+        faIcon = (
           <FontAwesomeIcon
             icon={faBug}
             size="sm"
@@ -95,9 +96,9 @@ class Platform extends React.Component {
             title="Bug"
           />
         );
-        return this.faIcon;
+        return faIcon;
       case 'infra':
-        this.faIcon = (
+        faIcon = (
           <FontAwesomeIcon
             icon={faUnlink}
             size="sm"
@@ -105,9 +106,9 @@ class Platform extends React.Component {
             title="Infra"
           />
         );
-        return this.faIcon;
+        return faIcon;
       default:
-        this.faIcon = (
+        faIcon = (
           <FontAwesomeIcon
             icon={faStar}
             size="sm"
@@ -115,7 +116,7 @@ class Platform extends React.Component {
             title="Classified"
           />
         );
-        return this.faIcon;
+        return faIcon;
     }
   }
 

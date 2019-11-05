@@ -12,33 +12,28 @@ function getLogUrlProps(logKey, logUrl, logViewerUrl, logViewerFullUrl) {
       'copy-value': logUrl.url,
     };
   }
-  switch (logUrl.parse_status) {
-    case 'parsed':
-      return {
-        target: '_blank',
-        rel: 'noopener',
-        href: logViewerUrl,
-        'copy-value': logViewerFullUrl,
-        title: 'Open the log viewer in a new window',
-      };
-    case 'failed':
-      return {
-        className: 'disabled',
-        title: 'Log parsing has failed',
-      };
-    case 'skipped-size':
-      return {
-        className: 'disabled',
-        title: 'Log parsing was skipped',
-      };
-    case 'pending':
-      return {
-        className: 'disabled',
-        title: 'Log parsing in progress',
-      };
-    default:
-      return null;
-  }
+  const logUrl_parse_status = {
+    parsed: {
+      target: '_blank',
+      rel: 'noopener',
+      href: logViewerUrl,
+      'copy-value': logViewerFullUrl,
+      title: 'Open the log viewer in a new window',
+    },
+    failed: {
+      className: 'disabled',
+      title: 'Log parsing has failed',
+    },
+    'skipped-size': {
+      className: 'disabled',
+      title: 'Log parsing was skipped',
+    },
+    pending: {
+      className: 'disabled',
+      title: 'Log parsing in progress',
+    },
+  };
+  return logUrl_parse_status(logUrl.parse_status);
 }
 
 export default function LogItem(props) {

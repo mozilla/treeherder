@@ -11,18 +11,13 @@ import {
 class NotificationList extends React.Component {
   static getIcon(severity) {
     // TODO: Move this and the usage in NotificationsMenu to a shared component.
-    switch (severity) {
-      case 'danger':
-        return faBan;
-      case 'warning':
-        return faExclamationTriangle;
-      case 'info':
-        return faCircle;
-      case 'success':
-        return faCheck;
-      default:
-        return null;
-    }
+    const severityObj = {
+      danger: faBan,
+      warning: faExclamationTriangle,
+      info: faCircle,
+      success: faCheck,
+    };
+    return severityObj[severity];
   }
 
   render() {
