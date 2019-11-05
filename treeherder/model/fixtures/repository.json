@@ -1424,7 +1424,7 @@
       "name": "servo-prs",
       "url": "https://github.com/servo/servo",
       "branch": "pull request",
-      "active_status": "onhold",
+      "active_status": "active",
       "codebase": "servo",
       "repository_group": 10,
       "description": "The Servo Parallel Browser Engine − pull requests",
