@@ -18,6 +18,7 @@ class LoginCallback extends React.PureComponent {
     this.authService = new AuthService();
   }
 
+  // eslint-disable-next-line consistent-return
   async componentDidMount() {
     // make the user login if there is no access token
     if (!window.location.hash) {
@@ -28,6 +29,8 @@ class LoginCallback extends React.PureComponent {
     // a postMessage back, and that's it.
     if (window !== window.top) {
       window.parent.postMessage(window.location.hash, window.origin);
+
+      // eslint-disable-next-line consistent-return
       return;
     }
 
@@ -41,7 +44,6 @@ class LoginCallback extends React.PureComponent {
     } catch (err) {
       this.setError(err);
     }
-    return null;
   }
 
   setError(err) {

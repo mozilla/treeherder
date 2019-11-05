@@ -14,6 +14,7 @@ export default class TaskclusterModel {
     );
   }
 
+  // eslint-disable-next-line consistent-return
   static async submit({
     action,
     actionTaskId,
@@ -80,7 +81,6 @@ export default class TaskclusterModel {
 
       return result.status.taskId;
     }
-    return null;
   }
 
   static async load(decisionTaskID, job, currentRepo, testMode = false) {

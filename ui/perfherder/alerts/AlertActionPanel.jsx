@@ -30,6 +30,7 @@ export default class AlertActionPanel extends React.Component {
       selectedAlerts.map(alert => this.props.modifyAlert(alert, modification)),
     );
 
+  // eslint-disable-next-line consistent-return
   updateAndFetch = async (newStatus, alertId = null) => {
     const {
       selectedAlerts,
@@ -72,7 +73,6 @@ export default class AlertActionPanel extends React.Component {
     // so we need to fetch them in order to capture the changes in the UI
     summariesToUpdate.forEach(summary => fetchAlertSummaries(summary.id));
     this.clearSelectedAlerts();
-    return null;
   };
 
   clearSelectedAlerts = () => {

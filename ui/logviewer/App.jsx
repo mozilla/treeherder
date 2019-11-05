@@ -21,10 +21,9 @@ import ErrorLines from './ErrorLines';
 const getUrlLineNumber = function getUrlLineNumber() {
   const lineNumberParam = getUrlParam('lineNumber');
 
-  if (lineNumberParam) {
-    return lineNumberParam.split('-').map(line => parseInt(line, 10));
-  }
-  return null;
+  return lineNumberParam
+    ? lineNumberParam.split('-').map(line => parseInt(line, 10))
+    : null;
 };
 
 const errorLinesCss = function errorLinesCss(errors) {

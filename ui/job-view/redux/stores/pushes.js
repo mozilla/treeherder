@@ -340,6 +340,7 @@ export const updateJobMap = jobList => ({
 });
 
 export const updateRange = range => {
+  // eslint-disable-next-line consistent-return
   return (dispatch, getState) => {
     const {
       pushes: { pushList, jobMap },
@@ -368,7 +369,6 @@ export const updateRange = range => {
       dispatch(clearPushes());
       return dispatch(fetchPushes());
     }
-    return null;
   };
 };
 

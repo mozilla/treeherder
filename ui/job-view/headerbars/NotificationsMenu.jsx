@@ -14,21 +14,16 @@ import { shortDateFormat } from '../../helpers/display';
 import { clearStoredNotifications } from '../redux/stores/notifications';
 
 class NotificationsMenu extends React.Component {
+  // eslint-disable-next-line class-methods-use-this
   getIcon(severity) {
     // TODO: Move this and the usage in NotificationsList to a shared component.
-    this.forThis = null; // Just adding to use this
-    switch (severity) {
-      case 'danger':
-        return faBan;
-      case 'warning':
-        return faExclamationTriangle;
-      case 'info':
-        return faInfoCircle;
-      case 'success':
-        return faCheck;
-      default:
-        return null;
-    }
+    const severityObj = {
+      danger: faBan,
+      warning: faExclamationTriangle,
+      info: faInfoCircle,
+      success: faCheck,
+    };
+    return severityObj[severity];
   }
 
   render() {

@@ -156,6 +156,7 @@ class SecondaryNavBar extends React.PureComponent {
     this.saveWatchedRepos(watchedRepoNames.filter(repo => repo !== name));
   };
 
+  // eslint-disable-next-line consistent-return
   loadWatchedRepos() {
     const { repoName } = this.state;
 
@@ -174,7 +175,6 @@ class SecondaryNavBar extends React.PureComponent {
       // localStorage is disabled/not supported.
       return [];
     }
-    return null;
   }
 
   saveWatchedRepos(repos) {

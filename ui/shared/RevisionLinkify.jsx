@@ -4,6 +4,13 @@ import ReactLinkify, { linkify } from 'react-linkify';
 
 const revRe = /([a-f\d]{12,40})/;
 
+const getRevisionsAsLinkProtocol = function getRevisionsAsLinkProtocol(text) {
+  const revMatches = text.match(revRe);
+  const revProtocol = 'rev:$1';
+
+  return revMatches ? text.replace(revRe, revProtocol) : text;
+};
+
 export default class RevisionLinkify extends React.Component {
   constructor(props) {
     super(props);
@@ -27,19 +34,12 @@ export default class RevisionLinkify extends React.Component {
     });
   }
 
-  getRevisionsAsLinkProtocol(text) {
-    this.revMatches = text.match(revRe);
-    this.revProtocol = 'rev:$1';
-
-    return this.revMatches ? text.replace(revRe, this.revProtocol) : text;
-  }
-
   render() {
     return (
       <ReactLinkify
         properties={{ target: '_blank', rel: 'noopener noreferrer' }}
       >
-        {this.getRevisionsAsLinkProtocol(this.props.children)}
+        {getRevisionsAsLinkProtocol(this.props.children)}
       </ReactLinkify>
     );
   }

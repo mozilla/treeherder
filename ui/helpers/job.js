@@ -93,24 +93,23 @@ export const isUnclassifiedFailure = function isUnclassifiedFailure(job) {
 // Fetch the React instance of an object from a DOM element.
 // Credit for this approach goes to SO: https://stackoverflow.com/a/48335220/333614
 export const findInstance = function findInstance(el) {
+  if (!el) {
+    return;
+  }
   const key = Object.keys(el).find(key =>
     key.startsWith('__reactInternalInstance$'),
   );
   if (key) {
     const fiberNode = el[key];
+    // eslint-disable-next-line consistent-return
     return fiberNode && fiberNode.return && fiberNode.return.stateNode;
   }
-  return null;
 };
 
 // Fetch the React instance of the currently selected job.
 export const findSelectedInstance = function findSelectedInstance() {
   const selectedEl = document.querySelector('#push-list .job-btn.selected-job');
-
-  if (selectedEl) {
-    return findInstance(selectedEl);
-  }
-  return null;
+  return findInstance(selectedEl);
 };
 
 // Check if the element is visible on screen or not.
@@ -152,11 +151,7 @@ export const findGroupElement = function findGroupElement(job) {
 
 export const findGroupInstance = function findGroupInstance(job) {
   const groupEl = findGroupElement(job);
-
-  if (groupEl) {
-    return findInstance(groupEl);
-  }
-  return null;
+  return findInstance(groupEl);
 };
 
 // Fetch the React instance based on the jobId, and if scrollTo
@@ -165,13 +160,10 @@ export const findJobInstance = function findJobInstance(jobId, scrollTo) {
   const jobEl = document.querySelector(
     `#push-list button[data-job-id='${jobId}']`,
   );
-  if (jobEl) {
-    if (scrollTo) {
-      scrollToElement(jobEl);
-    }
-    return findInstance(jobEl);
+  if (scrollTo) {
+    scrollToElement(jobEl);
   }
-  return null;
+  return findInstance(jobEl);
 };
 
 export const addAggregateFields = function addAggregateFields(job) {

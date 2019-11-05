@@ -29,6 +29,39 @@ import { RevisionList } from './RevisionList';
 const watchCycleStates = ['none', 'push', 'job', 'none'];
 const platformArray = Object.values(thPlatformMap);
 
+const getJobCount = function getJobCount(jobList) {
+  const filteredByCommit = jobList.filter(
+    job => job.failure_classification_id === 2,
+  );
+  return jobList.reduce(
+    (memo, job) =>
+      job.result !== 'superseded'
+        ? { ...memo, [job.state]: memo[job.state] + 1 }
+        : memo,
+    {
+      running: 0,
+      pending: 0,
+      completed: 0,
+      fixedByCommit: filteredByCommit.length,
+    },
+  );
+};
+
+const getJobGroupInfo = function getJobGroupInfo(job) {
+  const {
+    job_group_name: name,
+    job_group_symbol: jobGroupSymbol,
+    platform,
+    platform_option: platformOption,
+    tier,
+    push_id: pushId,
+  } = job;
+  const symbol = jobGroupSymbol === '?' ? '' : jobGroupSymbol;
+  const mapKey = getGroupMapKey(pushId, symbol, tier, platform, platformOption);
+
+  return { name, tier, symbol, mapKey };
+};
+
 class Push extends React.PureComponent {
   constructor(props) {
     super(props);
@@ -68,46 +101,6 @@ class Push extends React.PureComponent {
   componentWillUnmount() {
     window.removeEventListener(thEvents.applyNewJobs, this.handleApplyNewJobs);
     window.removeEventListener('hashchange', this.handleUrlChanges);
-  }
-
-  getJobCount(jobList) {
-    const filteredByCommit = jobList.filter(
-      job => job.failure_classification_id === 2,
-    );
-
-    return jobList.reduce(
-      (memo, job) =>
-        job.result !== 'superseded'
-          ? { ...memo, [job.state]: memo[job.state] + 1 }
-          : memo,
-      {
-        running: 0,
-        pending: 0,
-        completed: 0,
-        fixedByCommit: filteredByCommit.length,
-      },
-    );
-  }
-
-  getJobGroupInfo(job) {
-    const {
-      job_group_name: name,
-      job_group_symbol: jobGroupSymbol,
-      platform,
-      platform_option: platformOption,
-      tier,
-      push_id: pushId,
-    } = job;
-    const symbol = jobGroupSymbol === '?' ? '' : jobGroupSymbol;
-    const mapKey = getGroupMapKey(
-      pushId,
-      symbol,
-      tier,
-      platform,
-      platformOption,
-    );
-
-    return { name, tier, symbol, mapKey };
   }
 
   setSingleRevisionWindowTitle() {
@@ -181,7 +174,7 @@ class Push extends React.PureComponent {
       const platforms = this.sortGroupedJobs(
         this.groupJobByPlatform(newJobList),
       );
-      const jobCounts = this.getJobCount(newJobList);
+      const jobCounts = getJobCount(newJobList);
 
       this.setState({
         platforms,
@@ -221,7 +214,7 @@ class Push extends React.PureComponent {
         platforms.push(platform);
       }
 
-      const groupInfo = this.getJobGroupInfo(job);
+      const groupInfo = getJobGroupInfo(job);
       // search for the right group
       let group = platform.groups.find(
         group =>

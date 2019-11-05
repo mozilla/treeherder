@@ -113,6 +113,7 @@ export default class StatusDropdown extends React.Component {
     this.toggle(state);
   };
 
+  // eslint-disable-next-line consistent-return
   changeAlertSummary = async params => {
     const { alertSummary, updateState, updateViewState } = this.props;
 
@@ -129,7 +130,6 @@ export default class StatusDropdown extends React.Component {
       });
     }
     updateState({ alertSummary: data });
-    return null;
   };
 
   isResolved = alertStatus =>

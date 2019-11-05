@@ -1,3 +1,4 @@
+/* eslint-disable consistent-return */
 // eslint-disable-next-line import/prefer-default-export
 export const sortAlphaNum = (a, b) => {
   // Implement a better alphanumeric sort so that mochitest-10
@@ -23,5 +24,4 @@ export const sortAlphaNum = (a, b) => {
     }
     return rv;
   }
-  return null;
 };

@@ -39,6 +39,31 @@ const keyMap = {
   deleteClassification: 'ctrl+backspace',
 };
 
+const doKey = function doKey(ev, callback) {
+  const element = ev.target;
+
+  // If the bug filer is opened, don't let these shortcuts work
+  if (document.body.classList.contains('filer-open')) {
+    return;
+  }
+
+  if (
+    (element.tagName === 'INPUT' &&
+      element.type !== 'radio' &&
+      element.type !== 'checkbox') ||
+    element.tagName === 'SELECT' ||
+    element.tagName === 'TEXTAREA' ||
+    element.isContentEditable ||
+    ev.key === 'shift'
+  ) {
+    return;
+  }
+
+  // If we get here, then execute the HotKey.
+  ev.preventDefault();
+  callback(ev);
+};
+
 class KeyboardShortcuts extends React.Component {
   componentDidMount() {
     // HotKeys requires focus be a component inside itself to work
@@ -180,55 +205,29 @@ class KeyboardShortcuts extends React.Component {
     }
   };
 
-  doKey(ev, callback) {
-    this.element = ev.target;
-
-    // If the bug filer is opened, don't let these shortcuts work
-    if (document.body.classList.contains('filer-open')) {
-      return;
-    }
-
-    if (
-      (this.element.tagName === 'INPUT' &&
-        this.element.type !== 'radio' &&
-        this.element.type !== 'checkbox') ||
-      this.element.tagName === 'SELECT' ||
-      this.element.tagName === 'TEXTAREA' ||
-      this.element.isContentEditable ||
-      ev.key === 'shift'
-    ) {
-      return;
-    }
-
-    // If we get here, then execute the HotKey.
-    ev.preventDefault();
-    callback(ev);
-  }
-
   render() {
     const { filterModel, showOnScreenShortcuts } = this.props;
     const handlers = {
-      addRelatedBug: ev => this.doKey(ev, this.addRelatedBug),
-      pinEditComment: ev => this.doKey(ev, this.pinEditComment),
-      quickFilter: ev => this.doKey(ev, this.quickFilter),
-      clearFilter: ev => this.doKey(ev, this.clearFilter),
-      toggleInProgress: ev => this.doKey(ev, filterModel.toggleInProgress),
+      addRelatedBug: ev => doKey(ev, this.addRelatedBug),
+      pinEditComment: ev => doKey(ev, this.pinEditComment),
+      quickFilter: ev => doKey(ev, this.quickFilter),
+      clearFilter: ev => doKey(ev, this.clearFilter),
+      toggleInProgress: ev => doKey(ev, filterModel.toggleInProgress),
       nextUnclassified: ev =>
-        this.doKey(ev, () => this.changeSelectedJob('next', true)),
+        doKey(ev, () => this.changeSelectedJob('next', true)),
       previousUnclassified: ev =>
-        this.doKey(ev, () => this.changeSelectedJob('previous', true)),
-      openLogviewer: ev => this.doKey(ev, this.openLogviewer),
-      jobRetrigger: ev => this.doKey(ev, this.jobRetrigger),
-      selectNextTab: ev => this.doKey(ev, this.selectNextTab),
+        doKey(ev, () => this.changeSelectedJob('previous', true)),
+      openLogviewer: ev => doKey(ev, this.openLogviewer),
+      jobRetrigger: ev => doKey(ev, this.jobRetrigger),
+      selectNextTab: ev => doKey(ev, this.selectNextTab),
       toggleUnclassifiedFailures: ev =>
-        this.doKey(ev, filterModel.toggleUnclassifiedFailures),
-      clearPinboard: ev => this.doKey(ev, this.clearPinboard),
+        doKey(ev, filterModel.toggleUnclassifiedFailures),
+      clearPinboard: ev => doKey(ev, this.clearPinboard),
       previousJob: ev =>
-        this.doKey(ev, () => this.changeSelectedJob('previous', false)),
-      nextJob: ev =>
-        this.doKey(ev, () => this.changeSelectedJob('next', false)),
-      pinJob: ev => this.doKey(ev, this.pinJob),
-      toggleOnScreenShortcuts: ev => this.doKey(ev, showOnScreenShortcuts),
+        doKey(ev, () => this.changeSelectedJob('previous', false)),
+      nextJob: ev => doKey(ev, () => this.changeSelectedJob('next', false)),
+      pinJob: ev => doKey(ev, this.pinJob),
+      toggleOnScreenShortcuts: ev => doKey(ev, showOnScreenShortcuts),
       /* these should happen regardless of being in an input field */
       clearScreen: this.clearScreen,
       saveClassification: this.saveClassification,

@@ -2,6 +2,21 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import ReactLinkify, { linkify } from 'react-linkify';
 
+const getBugsAsLinkProtocol = function getBugsAsLinkProtocol(text) {
+  let bugText = text;
+  const bugMatches = text.match(/-- ([0-9]+)|bug.([0-9]+)/gi);
+  const bugProtocol = 'bug:$1';
+
+  if (bugMatches) {
+    // Need a pass for each matching style for if there are multiple styles
+    // in the string.
+    bugText = bugText.replace(/Bug ([0-9]+)/g, bugProtocol);
+    bugText = bugText.replace(/bug ([0-9]+)/g, bugProtocol);
+    bugText = bugText.replace(/-- ([0-9]+)/g, bugProtocol);
+  }
+  return bugText;
+};
+
 export default class BugLinkify extends React.Component {
   constructor(props) {
     super(props);
@@ -25,27 +40,12 @@ export default class BugLinkify extends React.Component {
     });
   }
 
-  getBugsAsLinkProtocol(text) {
-    this.bugText = text;
-    this.bugMatches = text.match(/-- ([0-9]+)|bug.([0-9]+)/gi);
-    this.bugProtocol = 'bug:$1';
-
-    if (this.bugMatches) {
-      // Need a pass for each matching style for if there are multiple styles
-      // in the string.
-      this.bugText = this.bugText.replace(/Bug ([0-9]+)/g, this.bugProtocol);
-      this.bugText = this.bugText.replace(/bug ([0-9]+)/g, this.bugProtocol);
-      this.bugText = this.bugText.replace(/-- ([0-9]+)/g, this.bugProtocol);
-    }
-    return this.bugText;
-  }
-
   render() {
     return (
       <ReactLinkify
         properties={{ target: '_blank', rel: 'noopener noreferrer' }}
       >
-        {this.getBugsAsLinkProtocol(this.props.children)}
+        {getBugsAsLinkProtocol(this.props.children)}
       </ReactLinkify>
     );
   }

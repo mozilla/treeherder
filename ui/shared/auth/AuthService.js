@@ -6,34 +6,44 @@ import {
 import { getApiUrl } from '../../helpers/url';
 import UserModel from '../../models/user';
 
+const _fetchUser = function _fetchUser(userSession) {
+  const loginUrl = getApiUrl('/auth/login/');
+
+  // eslint-disable-next-line no-async-promise-executor
+  return new Promise(async (resolve, reject) => {
+    const userResponse = await fetch(loginUrl, {
+      headers: {
+        Authorization: `Bearer ${userSession.accessToken}`,
+        'Access-Token-Expires-At': userSession.accessTokenExpiresAt,
+        'Id-Token': userSession.idToken,
+      },
+      method: 'GET',
+      credentials: 'same-origin',
+    });
+
+    const user = await userResponse.json();
+
+    if (!userResponse.ok) {
+      reject(new Error(user.detail || userResponse.statusText));
+    }
+
+    resolve(new UserModel(user));
+  });
+};
+
+const saveCredentialsFromAuthResult = async function saveCredentialsFromAuthResult(
+  authResult,
+) {
+  const userSession = userSessionFromAuthResult(authResult);
+  const user = await _fetchUser(userSession);
+
+  localStorage.setItem('userSession', JSON.stringify(userSession));
+  localStorage.setItem('user', JSON.stringify(user));
+};
+
 export default class AuthService {
   constructor() {
     this.renewalTimer = null;
-  }
-
-  _fetchUser(userSession) {
-    this.loginUrl = getApiUrl('/auth/login/');
-
-    // eslint-disable-next-line no-async-promise-executor
-    return new Promise(async (resolve, reject) => {
-      const userResponse = await fetch(this.loginUrl, {
-        headers: {
-          Authorization: `Bearer ${userSession.accessToken}`,
-          'Access-Token-Expires-At': userSession.accessTokenExpiresAt,
-          'Id-Token': userSession.idToken,
-        },
-        method: 'GET',
-        credentials: 'same-origin',
-      });
-
-      this.user = await userResponse.json();
-
-      if (!userResponse.ok) {
-        reject(new Error(this.user.detail || userResponse.statusText));
-      }
-
-      resolve(new UserModel(this.user));
-    });
   }
 
   _clearRenewalTimer() {
@@ -46,14 +56,15 @@ export default class AuthService {
   async _renewAuth() {
     try {
       if (!localStorage.getItem('userSession')) {
-        return null;
+        return;
       }
 
       const authResult = await renew();
 
       if (authResult) {
-        await this.saveCredentialsFromAuthResult(authResult);
+        await saveCredentialsFromAuthResult(authResult);
 
+        // eslint-disable-next-line consistent-return
         return this.resetRenewalTimer();
       }
     } catch (err) {
@@ -64,7 +75,6 @@ export default class AuthService {
       /* eslint-disable no-console */
       console.error('Could not renew login:', err);
     }
-    return null;
   }
 
   resetRenewalTimer() {
@@ -93,13 +103,5 @@ export default class AuthService {
     this.usingThis = null; // Just for using this
     localStorage.removeItem('userSession');
     localStorage.setItem('user', JSON.stringify(loggedOutUser));
-  }
-
-  async saveCredentialsFromAuthResult(authResult) {
-    const userSession = userSessionFromAuthResult(authResult);
-    const user = await this._fetchUser(userSession);
-
-    localStorage.setItem('userSession', JSON.stringify(userSession));
-    localStorage.setItem('user', JSON.stringify(user));
   }
 }
