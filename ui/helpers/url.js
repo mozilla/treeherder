@@ -71,9 +71,7 @@ export const getBugUrl = function getBugUrl(bug_id) {
 };
 
 export const getInspectTaskUrl = function getInspectTaskUrl(taskId, rootUrl) {
-  const tcUrl = tcLibUrls.withRootUrl(rootUrl);
-
-  return tcUrl.api('tools', `tasks/${taskId}`, '');
+  return tcLibUrls.ui(rootUrl, `tasks/${taskId}`);
 };
 
 export const getReftestUrl = function getReftestUrl(logUrl) {
