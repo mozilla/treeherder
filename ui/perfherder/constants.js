@@ -29,6 +29,7 @@ export const compareTableText = {
   retriggerButtonTitle: 'Retrigger 5 times',
 };
 
+export const noResultsMessage = 'No results to show';
 export const noDataFoundMessage = 'No Data Found';
 
 export const summaryStatusMap = {

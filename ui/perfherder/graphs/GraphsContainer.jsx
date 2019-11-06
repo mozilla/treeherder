@@ -242,7 +242,6 @@ class GraphsContainer extends React.Component {
     if (showTooltip && lockTooltip) {
       this.closeTooltip();
     }
-
     this.props.updateStateParams({ zoom });
   }
 

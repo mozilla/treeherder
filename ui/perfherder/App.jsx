@@ -10,6 +10,7 @@ import ErrorMessages from '../shared/ErrorMessages';
 import { endpoints } from './constants';
 import GraphsView from './graphs/GraphsView';
 import AlertsView from './alerts/AlertsView';
+import HealthView from './health/HealthView';
 import CompareView from './compare/CompareView';
 import CompareSelectorView from './compare/CompareSelectorView';
 import CompareSubtestsView from './compare/CompareSubtestsView';
@@ -20,11 +21,12 @@ class App extends React.Component {
   constructor(props) {
     super(props);
 
-    // store alerts and comapre view data so the API's won't be
+    // store alerts and compare view data so the API's won't be
     // called again when navigating back from related views.
     this.state = {
       projects: [],
       frameworks: [],
+      platforms: [],
       user: {},
       errorMessages: [],
       compareData: [],
@@ -54,6 +56,7 @@ class App extends React.Component {
       user,
       projects,
       frameworks,
+      platforms,
       errorMessages,
       compareData,
     } = this.state;
@@ -202,6 +205,30 @@ class App extends React.Component {
                     user={user}
                     projects={projects}
                     frameworks={frameworks}
+                  />
+                )}
+              />
+              <Route
+                path="/health"
+                render={props => (
+                  <HealthView
+                    {...props}
+                    projects={projects}
+                    frameworks={frameworks}
+                    platforms={platforms}
+                    updateAppState={this.updateAppState}
+                  />
+                )}
+              />
+              <Route
+                path="/health?framework=:framework"
+                render={props => (
+                  <HealthView
+                    {...props}
+                    projects={projects}
+                    frameworks={frameworks}
+                    platforms={platforms}
+                    updateAppState={this.updateAppState}
                   />
                 )}
               />

@@ -1,6 +1,8 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import { Navbar, Nav, NavItem, NavLink } from 'reactstrap';
+import { faQuestionCircle } from '@fortawesome/free-solid-svg-icons';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 
 import LogoMenu from '../shared/LogoMenu';
 import Login from '../shared/auth/Login';
@@ -23,6 +25,11 @@ const Navigation = ({ user, setUser, notify }) => (
       <NavItem>
         <NavLink href="#/alerts?hideDwnToInv=1" className="btn-view-nav">
           Alerts
+        </NavLink>
+      </NavItem>
+      <NavItem>
+        <NavLink href="#/health" className="btn-view-nav">
+          Health
         </NavLink>
       </NavItem>
     </Nav>
