@@ -454,3 +454,13 @@ li.pagination-active.active > button {
     max-width: 100%;
   }
 }
+
+.edit-icon {
+  visibility: hidden;
+  font-size: 14px;
+  vertical-align: middle;
+}
+
+.page-title-text:hover .edit-icon {
+  visibility: visible;
+}

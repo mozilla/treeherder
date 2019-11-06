@@ -22,6 +22,7 @@ import LoadingSpinner from '../../shared/LoadingSpinner';
 import { scrollToLine } from '../../helpers/utils';
 
 import RevisionInformation from './RevisionInformation';
+import ComparePageTitle from './ComparePageTitle';
 import CompareTableControls from './CompareTableControls';
 import NoiseTable from './NoiseTable';
 
@@ -189,6 +190,7 @@ export default class CompareTableView extends React.Component {
       newRevision,
       originalResultSet,
       newResultSet,
+      pageTitle,
     } = this.props.validated;
 
     const {
@@ -274,9 +276,14 @@ export default class CompareTableView extends React.Component {
                 <Row>
                   <Col sm="12" className="text-center pb-1">
                     <h1>
-                      {hasSubtests
-                        ? `${title} subtest summary`
-                        : 'Perfherder Compare Revisions'}
+                      <ComparePageTitle
+                        title={
+                          hasSubtests
+                            ? `${title} subtest summary`
+                            : 'Perfherder Compare Revisions'
+                        }
+                        pageTitleQueryParam={pageTitle}
+                      />
                     </h1>
                     <RevisionInformation
                       originalProject={originalProject}
