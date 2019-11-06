@@ -1,8 +1,6 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import { Navbar, Nav, NavItem, NavLink } from 'reactstrap';
-import { faQuestionCircle } from '@fortawesome/free-solid-svg-icons';
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 
 import LogoMenu from '../shared/LogoMenu';
 import Login from '../shared/auth/Login';

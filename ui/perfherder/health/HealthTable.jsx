@@ -23,7 +23,7 @@ export default class HealthTable extends React.Component {
   render() {
     const { results, projectsMap, platformsMap, defaultPageSize } = this.props;
 
-    const showPagination = results.length > defaultPageSize ? true : false;
+    const showPagination = results.length > defaultPageSize;
 
     const columns = [
       {

@@ -69,7 +69,7 @@ class HeathView extends React.PureComponent {
       result[currentObject.id] = currentObject[propertyName];
       return result;
     }, {});
-    console.log(state, objectsMap);
+
     this.setState({ [state]: objectsMap });
   };
 
