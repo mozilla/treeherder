@@ -102,7 +102,7 @@ def query_sanitized_data(repo_name='autoland'):
 
      We need to find the latest gecko decision task ID (by querying the index [1][2]).
 
-     [1] https://index.taskcluster.net/v1/task/gecko.v2.%s.latest.taskgraph.decision/
+     [1] https://index.firefox-ci-tc.services.mozilla.com/v1/task/gecko.v2.%s.latest.taskgraph.decision/
      [2] Index's data structure:
       {
         "namespace": "gecko.v2.autoland.latest.taskgraph.decision",

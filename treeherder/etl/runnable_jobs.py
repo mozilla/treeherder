@@ -8,8 +8,8 @@ from treeherder.etl.common import fetch_json
 
 logger = logging.getLogger(__name__)
 
-RUNNABLE_JOBS_URL = 'https://queue.taskcluster.net/v1/task/{task_id}/runs/{run_number}/artifacts/public/runnable-jobs.json'
-TASKCLUSTER_INDEX_URL = 'https://index.taskcluster.net/v1/task/gecko.v2.%s.latest.taskgraph.decision'
+RUNNABLE_JOBS_URL = 'https://queue.firefox-ci-tc.services.mozilla.com/v1/task/{task_id}/runs/{run_number}/artifacts/public/runnable-jobs.json'
+TASKCLUSTER_INDEX_URL = 'https://index.firefox-ci-tc.services.mozilla.com/v1/task/gecko.v2.%s.latest.taskgraph.decision'
 
 
 def _taskcluster_runnable_jobs(project):
