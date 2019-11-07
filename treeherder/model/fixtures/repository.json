@@ -1189,7 +1189,7 @@
       "codebase": "servo",
       "repository_group": 7,
       "description": "GPU renderer for Servo",
-      "tc_root_url": "https://community-tc.services.mozilla.com"
+      "tc_root_url": "https://firefox-ci-tc.services.mozilla.com"
     }
   },
   {
