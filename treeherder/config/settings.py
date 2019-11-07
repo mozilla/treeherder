@@ -204,11 +204,6 @@ LOGGING = {
             'level': 'WARNING',
             'propagate': True,
         },
-        'elasticsearch.trace': {
-            'filters': ['require_debug_true'],
-            'handlers': ['console'],
-            'level': 'INFO',
-        },
         'treeherder': {
             'handlers': ['console'],
             'level': 'DEBUG' if DEBUG else 'WARNING',
@@ -360,9 +355,6 @@ if DEBUG:
 
     INSTALLED_APPS.append('debug_toolbar')
 
-# Elasticsearch
-# Note: Elasticsearch is currently disabled in all environments (see bug 1527868).
-ELASTICSEARCH_URL = env.str('ELASTICSEARCH_URL', default=None)
 
 # Rest Framework
 REST_FRAMEWORK = {

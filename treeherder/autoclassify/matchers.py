@@ -3,11 +3,9 @@ from difflib import SequenceMatcher
 from itertools import chain
 
 import newrelic.agent
-from django.conf import settings
 from django.db.models import Q
 
 from treeherder.model.models import TextLogErrorMatch
-from treeherder.services.elasticsearch import search
 from treeherder.utils.queryset import chunked_qs_reverse
 
 from .utils import (score_matches,
@@ -53,79 +51,6 @@ def precise_matcher(text_log_error):
 
 
 @newrelic.agent.function_trace()
-def elasticsearch_matcher(text_log_error):
-    """
-    Query Elasticsearch and score the results.
-
-    Uses a filtered search checking test, status, expected, and the message
-    as a phrase query with non-alphabet tokens removed.
-    """
-    # Note: Elasticsearch is currently disabled in all environments (see bug 1527868).
-    if not settings.ELASTICSEARCH_URL:
-        return []
-
-    failure_line = text_log_error.metadata.failure_line
-
-    if failure_line.action != "test_result" or not failure_line.message:
-        logger.debug("Skipped elasticsearch matching")
-        return
-
-    filters = [
-        {'term': {'test': failure_line.test}},
-        {'term': {'status': failure_line.status}},
-        {'term': {'expected': failure_line.expected}},
-        {'exists': {'field': 'best_classification'}}
-    ]
-    if failure_line.subtest:
-        query = filters.append({'term': {'subtest': failure_line.subtest}})
-
-    query = {
-        'query': {
-            'bool': {
-                'filter': filters,
-                'must': [{
-                    'match_phrase': {
-                        'message': failure_line.message[:1024],
-                    },
-                }],
-            },
-        },
-    }
-
-    try:
-        results = search(query)
-    except Exception:
-        logger.error("Elasticsearch lookup failed: %s %s %s %s %s",
-                     failure_line.test, failure_line.subtest, failure_line.status,
-                     failure_line.expected, failure_line.message)
-        raise
-
-    if len(results) > 1:
-        args = (
-            text_log_error.id,
-            failure_line.id,
-            len(results),
-        )
-        logger.info('text_log_error=%i failure_line=%i Elasticsearch produced %i results' % args)
-        newrelic.agent.record_custom_event('es_matches', {
-            'num_results': len(results),
-            'text_log_error_id': text_log_error.id,
-            'failure_line_id': failure_line.id,
-        })
-
-    scorer = MatchScorer(failure_line.message)
-    matches = [(item, item['message']) for item in results]
-    best_match = scorer.best_match(matches)
-    if not best_match:
-        return
-
-    score, es_result = best_match
-    # TODO: score all results and return
-    # TODO: just return results with score above cut off?
-    return [(score, es_result['best_classification'])]
-
-
-@newrelic.agent.function_trace()
 def crash_signature_matcher(text_log_error):
     """
     Query for TextLogErrorMatches with the same crash signature.
@@ -138,7 +63,7 @@ def crash_signature_matcher(text_log_error):
 
     if (failure_line.action != "crash" or
         failure_line.signature is None or
-        failure_line.signature == "None"):
+            failure_line.signature == "None"):
         return
 
     f = {
@@ -178,6 +103,7 @@ def crash_signature_matcher(text_log_error):
 
 class MatchScorer:
     """Simple scorer for similarity of strings based on python's difflib SequenceMatcher."""
+
     def __init__(self, target):
         """:param target: The string to which candidate strings will be compared."""
         self.matcher = SequenceMatcher(lambda x: x == " ")

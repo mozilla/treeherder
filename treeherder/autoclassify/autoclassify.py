@@ -73,7 +73,8 @@ def match_errors(job, matchers=None):
         mark_best_classifications(errors)
 
         # did we find matches for every error?
-        matches_over_threshold = {m.text_log_error_id for m in matches if m.score >= AUTOCLASSIFY_GOOD_ENOUGH_RATIO}
+        matches_over_threshold = {
+            m.text_log_error_id for m in matches if m.score >= AUTOCLASSIFY_GOOD_ENOUGH_RATIO}
         all_matched = {tle.id for tle in all_errors} <= matches_over_threshold
 
         create_note(job, all_matched)
@@ -95,7 +96,8 @@ def find_best_matches(errors, matchers):
     We use the Good Enough™ ratio as a watershed level for match scores.
     """
     for text_log_error in errors:
-        matches = find_all_matches(text_log_error, matchers)  # TextLogErrorMatch instances, unsaved!
+        # TextLogErrorMatch instances, unsaved!
+        matches = find_all_matches(text_log_error, matchers)
 
         best_match = first(matches, key=lambda m: (-m.score, -m.classified_failure_id))
         if not best_match:
@@ -154,7 +156,6 @@ def mark_best_classification(text_log_error, classified_failure):
     """
     text_log_error.metadata.best_classification = classified_failure
     text_log_error.metadata.save(update_fields=['best_classification'])
-    text_log_error.metadata.failure_line.elastic_search_insert()
 
 
 def mark_best_classifications(errors):

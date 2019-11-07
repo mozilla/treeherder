@@ -1,9 +1,5 @@
-import pytest
-from django.conf import settings
-
 from treeherder.autoclassify.autoclassify import match_errors
 from treeherder.autoclassify.matchers import (crash_signature_matcher,
-                                              elasticsearch_matcher,
                                               precise_matcher)
 from treeherder.model.models import (BugJobMap,
                                      ClassifiedFailure,
@@ -50,7 +46,8 @@ def test_classify_test_failure(text_log_errors_failure_lines,
     for (error_line, failure_line), expected in zip(zip(*expected_classified),
                                                     classified_failures):
         assert list(error_line.classified_failures.values_list('id', flat=True)) == [expected.id]
-        assert list(failure_line.error.classified_failures.values_list('id', flat=True)) == [expected.id]
+        assert list(failure_line.error.classified_failures.values_list(
+            'id', flat=True)) == [expected.id]
 
     for error_line, failure_line in zip(*expected_unclassified):
         assert error_line.classified_failures.count() == 0
@@ -76,7 +73,8 @@ def test_no_autoclassify_job_success(text_log_errors_failure_lines,
     for (error_line, failure_line), expected in zip(zip(*expected_classified),
                                                     classified_failures):
         assert list(error_line.classified_failures.values_list('id', flat=True)) == [expected.id]
-        assert list(failure_line.error.classified_failures.values_list('id', flat=True)) == [expected.id]
+        assert list(failure_line.error.classified_failures.values_list(
+            'id', flat=True)) == [expected.id]
 
     for error_line, failure_line in zip(*expected_unclassified):
         assert error_line.classified_failures.count() == 0
@@ -212,49 +210,18 @@ def test_classify_skip_ignore(test_job_2,
         assert item.error.classified_failures.count() == 0
 
 
-@pytest.mark.skipif(not settings.ELASTICSEARCH_URL,
-                    reason="Requires Elasticsearch, which is not configured (bug 1527868)")
-def test_classify_es(test_job_2, failure_lines, classified_failures):
-    _, test_failure_lines = create_lines(test_job_2,
-                                         [(test_line, {}),
-                                          (test_line, {"message": "message2"}),
-                                          (test_line, {"message": "message 1.2"}),
-                                          (test_line, {"message": "message 0x1F"}),
-                                          (test_line, {"subtest": "subtest3"}),
-                                          (test_line, {"status": "TIMEOUT"}),
-                                          (test_line, {"expected": "ERROR"})])
-
-    do_autoclassify(test_job_2, test_failure_lines, [elasticsearch_matcher])
-
-    expected_classified = test_failure_lines[:4]
-    expected_unclassified = test_failure_lines[4:]
-
-    for actual in expected_classified:
-        assert [item.id for item in actual.error.classified_failures.all()] == [classified_failures[0].id]
-
-    for item in expected_unclassified:
-        assert item.error.classified_failures.count() == 0
-
-
 def test_classify_multiple(test_job_2, failure_lines, classified_failures):
     _, test_failure_lines = create_lines(test_job_2,
                                          [(test_line, {}),
                                           (test_line, {"message": "message 1.2"})])
 
     expected_classified_precise = [test_failure_lines[0]]
-    expected_classified_fuzzy = [test_failure_lines[1]]
 
-    do_autoclassify(test_job_2, test_failure_lines, [precise_matcher,
-                                                     elasticsearch_matcher])
+    do_autoclassify(test_job_2, test_failure_lines, [precise_matcher])
 
     for actual, expected in zip(expected_classified_precise, classified_failures):
         assert list(actual.error.classified_failures.values_list('id', flat=True)) == [expected.id]
         assert actual.error.matches.first().matcher_name == "precise_matcher"
-
-    if settings.ELASTICSEARCH_URL:
-        for actual, expected in zip(expected_classified_fuzzy, classified_failures):
-            assert list(actual.error.classified_failures.values_list('id', flat=True)) == [expected.id]
-            assert actual.error.matches.first().matcher_name == "elasticsearch_matcher"
 
 
 def test_classify_crash(test_repository, test_job, test_job_2, test_matcher):
@@ -278,7 +245,8 @@ def test_classify_crash(test_repository, test_job, test_job_2, test_matcher):
     expected_unclassified = failure_lines[2:]
 
     for actual in expected_classified:
-        assert list(actual.error.classified_failures.values_list('id', flat=True)) == [classified_failure.id]
+        assert list(actual.error.classified_failures.values_list(
+            'id', flat=True)) == [classified_failure.id]
 
     for item in expected_unclassified:
         assert item.error.classified_failures.count() == 0
