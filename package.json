@@ -52,7 +52,7 @@
     "react-hotkeys": "1.1.4",
     "react-lazylog": "4.4.1",
     "react-linkify": "0.2.2",
-    "react-redux": "7.1.1",
+    "react-redux": "7.1.3",
     "react-router-dom": "5.1.2",
     "react-split-pane": "0.1.87",
     "react-table": "6.10.3",
