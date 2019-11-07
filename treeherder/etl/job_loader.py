@@ -71,11 +71,6 @@ class JobLoader:
                     logger.debug("Task %s belongs to a repository that is not active.", real_task_id)
                     return
 
-                if repository.tc_root_url != root_url:
-                    logger.warning("Skipping job for %s with incorrect root_url %s",
-                                   repository.name, root_url)
-                    return
-
                 if pulse_job["state"] != "unscheduled":
                     try:
                         self.validate_revision(repository, pulse_job)

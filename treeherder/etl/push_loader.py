@@ -28,20 +28,6 @@ class PushLoader:
                 repos = repos.filter(branch=None)
             repo = repos.get(url=transformer.repo_url, active_status="active")
             newrelic.agent.add_custom_parameter("repository", repo.name)
-
-            if repo.tc_root_url != root_url:
-                repo_info = transformer.get_info()
-                repo_info.update({
-                    "url": transformer.repo_url,
-                    "branch": transformer.branch,
-                    "root_url": root_url,
-                })
-                newrelic.agent.record_custom_event("skip_repository_wrong_root_url",
-                                                   repo_info)
-                logger.warning("Skipping push for %s with incorrect root_url %s",
-                               repo.name, root_url)
-                return
-
         except ObjectDoesNotExist:
             repo_info = transformer.get_info()
             repo_info.update({
