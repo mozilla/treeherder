@@ -218,10 +218,6 @@ chardet==3.0.4 \
 idna==2.8 \
     --hash=sha256:ea8b7f6188e6fa117537c3df7da9fc686d485087abf6ac197f9c46432f7e4a3c \
     --hash=sha256:c357b3f628cf53ae2c4c05627ecc484553142ca23264e593d327bcde5e9c3407
-    
-urllib3==1.25.3 \	
-    --hash=sha256:b246607a25ac80bedac05c6f282e3cdaf3afb65420fd024ac94435cabe6e18d1 \	
-    --hash=sha256:dbe59173209418ae49d485b87d1681aefa36252ee85884c31346debd19463232	
 
 # required for taskcluster
 slugid==2.0.0 \
