@@ -328,7 +328,7 @@ class Push extends React.PureComponent {
     const { push, notify, decisionTaskMap, currentRepo } = this.props;
 
     try {
-      const jobList = await RunnableJobModel.getList(currentRepo, {
+      const jobList = await RunnableJobModel.getList(currentRepo.name, {
         decisionTask: decisionTaskMap[push.id],
         push_id: push.id,
       });
@@ -375,7 +375,7 @@ class Push extends React.PureComponent {
 
     try {
       notify('Fetching runnable jobs... This could take a while...');
-      let fuzzyJobList = await RunnableJobModel.getList(currentRepo, {
+      let fuzzyJobList = await RunnableJobModel.getList(currentRepo.name, {
         decisionTask: decisionTaskMap[push.id],
       });
       fuzzyJobList = [

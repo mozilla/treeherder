@@ -31,11 +31,21 @@ export default function InfraMenu() {
         <li>
           <a
             className="dropdown-item"
-            href="https://firefox-ci-tc.services.mozilla.com/provisioners"
+            href="https://tools.taskcluster.net/provisioners/releng-hardware/worker-types?layout=table&orderBy=pendingTasks&lastActive=false"
             target="_blank"
             rel="noopener noreferrer"
           >
-            Taskcluster Workers
+            Taskcluster Workers: releng-hardware
+          </a>
+        </li>
+        <li>
+          <a
+            className="dropdown-item"
+            href="https://tools.taskcluster.net/provisioners/aws-provisioner-v1/worker-types?layout=table&orderBy=pendingCapacity&lastActive=false"
+            target="_blank"
+            rel="noopener noreferrer"
+          >
+            Taskcluster Workers: aws-provisioner-v1
           </a>
         </li>
         <li>
