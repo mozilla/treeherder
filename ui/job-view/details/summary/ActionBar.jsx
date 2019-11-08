@@ -11,11 +11,17 @@ import {
   faRedo,
   faThumbtack,
   faTimesCircle,
+  faCrosshairs,
 } from '@fortawesome/free-solid-svg-icons';
 
 import { thEvents } from '../../../helpers/constants';
 import { formatTaskclusterError } from '../../../helpers/errorMessage';
-import { isReftest, isPerfTest, isTestIsolatable } from '../../../helpers/job';
+import {
+  isReftest,
+  isPerfTest,
+  isTestIsolatable,
+  findJobInstance,
+} from '../../../helpers/job';
 import { getInspectTaskUrl, getReftestUrl } from '../../../helpers/url';
 import JobModel from '../../../models/job';
 import TaskclusterModel from '../../../models/taskcluster';
@@ -478,6 +484,21 @@ class ActionBar extends React.PureComponent {
                   </a>
                 </li>
               ))}
+            <li>
+              <Button
+                id="find-job-btn"
+                title="Scroll to selection"
+                className="actionbar-nav-btn btn icon-blue bg-transparent border-0"
+                onClick={() =>
+                  findJobInstance(jobLogUrls[0] && jobLogUrls[0].job_id, true)
+                }
+              >
+                <FontAwesomeIcon
+                  icon={faCrosshairs}
+                  title="Find job instance"
+                />
+              </Button>
+            </li>
             {this.canCancel() && (
               <li>
                 <Button
