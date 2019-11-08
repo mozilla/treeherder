@@ -50,7 +50,7 @@ const taskcluster = (() => {
       expires: '5 minutes',
     };
     const url = `${_rootUrl}/login/oauth/authorize${createQueryParams(params)}`;
-    console.log(url);
+
     if (useExistingWindow) {
       window.location.href = url;
     } else {

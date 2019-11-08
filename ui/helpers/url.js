@@ -37,7 +37,7 @@ export const getRunnableJobsURL = function getRunnableJobsURL(
 ) {
   const { id, run } = decisionTask;
   const tcUrl = tcLibUrls.withRootUrl(rootUrl);
-  console.log(rootUrl)
+
   const url = tcUrl.api(
     'queue',
     'v1',
