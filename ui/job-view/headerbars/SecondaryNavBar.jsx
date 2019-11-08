@@ -205,7 +205,9 @@ class SecondaryNavBar extends React.PureComponent {
           .map(name => RepositoryModel.getRepo(name, repos))
           .filter(name => name)) ||
       [];
-
+    const toggleDuplicatedDescription = duplicateJobsVisible
+      ? 'Hide duplicate jobs'
+      : 'Show duplicate jobs';
     return (
       <div
         id="watched-repo-navbar"
@@ -282,16 +284,8 @@ class SecondaryNavBar extends React.PureComponent {
               } ${!duplicateJobsVisible ? 'strikethrough' : ''}`}
               tabIndex="0"
               role="button"
-              aria-label={
-                duplicateJobsVisible
-                  ? 'Hide duplicate jobs'
-                  : 'Show duplicate jobs'
-              }
-              title={
-                duplicateJobsVisible
-                  ? 'Hide duplicate jobs'
-                  : 'Show duplicate jobs'
-              }
+              aria-label={toggleDuplicatedDescription}
+              title={toggleDuplicatedDescription}
               onClick={() =>
                 !groupCountsExpanded && this.toggleShowDuplicateJobs()
               }
