@@ -48,6 +48,7 @@ const taskcluster = (() => {
       redirect_uri: redirectURI,
       scope: 'treeherder',
       state: nonce,
+      expires: '5 minutes'
     };
     const url = `${_rootUrl}login/oauth/authorize${createQueryParams(params)}`;
 
