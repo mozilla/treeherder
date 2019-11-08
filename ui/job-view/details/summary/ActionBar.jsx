@@ -429,6 +429,7 @@ class ActionBar extends React.PureComponent {
       currentRepo,
     } = this.props;
     const { customJobActionsShowing } = this.state;
+
     return (
       <div id="job-details-actionbar">
         <nav className="navbar navbar-dark details-panel-navbar">
@@ -485,7 +486,7 @@ class ActionBar extends React.PureComponent {
             <li>
               <Button
                 id="find-job-btn"
-                title="Find this job instance"
+                title="Scroll to selection"
                 className="actionbar-nav-btn btn icon-blue bg-transparent border-0"
                 onClick={() =>
                   findJobInstance(jobLogUrls[0] && jobLogUrls[0].job_id, true)
