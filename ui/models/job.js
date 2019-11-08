@@ -26,7 +26,11 @@ export default class JobModel {
     );
 
     if (!failureStatus) {
-      const { results, job_property_names, next: nextUrl } = data;
+      const {
+        results,
+        job_property_names: jobPropertyNames,
+        next: nextUrl,
+      } = data;
       let itemList;
       let nextPagesJobs = [];
 
@@ -42,19 +46,19 @@ export default class JobModel {
           nextPagesJobs = nextData;
         }
       }
-      if (job_property_names) {
+      if (jobPropertyNames) {
         // the results came as list of fields
         // we need to convert them to objects
         itemList = results.map(elem =>
           addAggregateFields(
-            job_property_names.reduce(
+            jobPropertyNames.reduce(
               (prev, prop, i) => ({ ...prev, [prop]: elem[i] }),
               {},
             ),
           ),
         );
       } else {
-        itemList = results.map(job_obj => addAggregateFields(job_obj));
+        itemList = results.map(jobObj => addAggregateFields(jobObj));
       }
       return { data: [...itemList, ...nextPagesJobs], failureStatus: null };
     }
