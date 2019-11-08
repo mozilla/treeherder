@@ -34,7 +34,6 @@ export default class HealthTableControls extends React.Component {
 
   updateFilteredResults = () => {
     const { filterText } = this.state;
-
     const { healthResults } = this.props;
 
     if (!filterText) {
@@ -53,7 +52,7 @@ export default class HealthTableControls extends React.Component {
 
     if (!filterText) return true;
 
-    const textToSearch = `${result.test} ${result.test_suite}`;
+    const textToSearch = `${result.test} ${result.suite}`;
     return containsText(textToSearch, filterText);
   };
 

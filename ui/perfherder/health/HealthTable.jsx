@@ -44,12 +44,12 @@ export default class HealthTable extends React.Component {
           }
           return <Spinner color="info" />;
         },
-        width: 250,
+        width: 300,
         style: { textAlign: 'center' },
         sortable: false,
       },
       {
-        Header: 'Repositories',
+        Header: 'Projects',
         accessor: 'repositories',
         Cell: props => {
           if (projectsMap) {
@@ -58,7 +58,7 @@ export default class HealthTable extends React.Component {
           }
           return <Spinner color="secondary" />;
         },
-        width: 250,
+        width: 300,
         style: { textAlign: 'center' },
         sortable: false,
       },
@@ -84,6 +84,7 @@ export default class HealthTable extends React.Component {
           noDataText={noResultsMessage}
           defaultPageSize={defaultPageSize}
           showPagination={showPagination}
+          showPaginationTop={showPagination}
         />
       </Container>
     );

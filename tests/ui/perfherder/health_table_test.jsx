@@ -7,36 +7,44 @@ import HealthTable from '../../../ui/perfherder/health/HealthTable';
 const results = [
   {
     framework: 'awsy',
-    test_suite: 'Base Content Explicit',
+    suite: 'Base Content Explicit',
     test: 'test1',
-    platforms: ['linux64', 'linux64-nightly', 'osx-10-10', 'windows10-64'],
-    repositories: [
-      'ash',
-      'autoland',
-      'birch',
-      'cedar',
-      'mozilla-beta',
-      'mozilla-central',
-      'mozilla-inbound',
-      'try',
-    ],
+    platforms: ['2', '1'],
+    repositories: ['2', '1'],
     total_alerts: 202,
   },
   {
     framework: 'awsy',
-    test_suite: 'Base Content Heap Unclassified',
+    suite: 'Base Content Heap Unclassified',
     test: 'test2',
-    platforms: ['linux64'],
-    repositories: ['try'],
+    platforms: ['1'],
+    repositories: ['2'],
     total_alerts: 97,
   },
 ];
 
-const healthTable = data => render(<HealthTable results={data} />);
+const projectsMap = {
+  1: 'project1',
+  2: 'project2',
+};
+
+const platformsMap = {
+  1: 'platform1',
+  2: 'platform2',
+};
+
+const healthTable = (data, projectsMap = [], platformsMap = []) =>
+  render(
+    <HealthTable
+      results={data}
+      projectsMap={projectsMap}
+      platformsMap={platformsMap}
+    />,
+  );
 
 afterEach(cleanup);
 
-test('health table with no data should show message', async () => {
+test('health table with no data displays appropriate message', async () => {
   const { getByText } = healthTable();
 
   const message = await waitForElement(() => getByText(noResultsMessage));
@@ -45,7 +53,7 @@ test('health table with no data should show message', async () => {
 });
 
 test('health table should show data', async () => {
-  const { getByText } = healthTable(results);
+  const { getByText } = healthTable(results, projectsMap, platformsMap);
 
   const result1 = await waitForElement(() => getByText(results[0].test));
   const result2 = await waitForElement(() => getByText(results[1].test));

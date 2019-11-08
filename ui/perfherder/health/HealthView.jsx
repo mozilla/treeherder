@@ -28,8 +28,16 @@ class HeathView extends React.PureComponent {
   }
 
   componentDidMount() {
-    const { projects, platforms, updateAppState } = this.props;
-    // get platforms and create the platforms map
+    const { projects } = this.props;
+    this.createPlatformsMap();
+    // create projectsMap
+    this.createObjectsMap(projects, 'projectsMap', 'name');
+    this.getHealthData();
+  }
+
+  createPlatformsMap = async () => {
+    const { platforms, updateAppState } = this.props;
+
     if (platforms.length) {
       // if the platforms were already cached, use those
       this.createObjectsMap(platforms, 'platformsMap', 'platform');
@@ -40,10 +48,7 @@ class HeathView extends React.PureComponent {
         this.createObjectsMap(data, 'platformsMap', 'platform');
       });
     }
-    // create projectsMap
-    this.createObjectsMap(projects, 'projectsMap', 'name');
-    this.getHealthData();
-  }
+  };
 
   getTestSuiteHealthData = async params => {
     // TODO: handle failureStatus

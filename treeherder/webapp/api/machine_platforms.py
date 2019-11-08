@@ -11,6 +11,6 @@ class MachinePlatformsViewSet(viewsets.ViewSet):
         A ViewSet for listing all the machine platforms.
     """
     def list(self, request):
-        queryset = MachinePlatform.objects.all()
-        serializer = MachinePlatformSerializer(queryset, many=True)
-        return Response(serializer.data)
+        platforms = MachinePlatform.objects.all()
+        platforms_serializer = MachinePlatformSerializer(platforms, many=True)
+        return Response(platforms_serializer.data)
