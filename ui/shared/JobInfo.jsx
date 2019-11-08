@@ -31,7 +31,7 @@ const getTimeFields = function getTimeFields(job) {
 
 export default class JobInfo extends React.PureComponent {
   render() {
-    const { job, extraFields, showJobFilters } = this.props;
+    const { job, extraFields, showJobFilters, currentRepo } = this.props;
     const {
       signature,
       title,
@@ -67,12 +67,12 @@ export default class JobInfo extends React.PureComponent {
             <span>{title}</span>
           )}
         </li>
-        {task_id && (
+        {task_id && currentRepo && (
           <li className="small">
             <strong>Task: </strong>
             <a
               id="taskInfo"
-              href={getInspectTaskUrl(task_id)}
+              href={getInspectTaskUrl(task_id, currentRepo.tc_root_url)}
               target="_blank"
               rel="noopener noreferrer"
             >
@@ -121,9 +121,11 @@ JobInfo.propTypes = {
     }),
   ),
   showJobFilters: PropTypes.bool,
+  currentRepo: PropTypes.shape({}),
 };
 
 JobInfo.defaultProps = {
   extraFields: [],
   showJobFilters: true,
+  currentRepo: null,
 };

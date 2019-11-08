@@ -529,7 +529,10 @@ class ActionBar extends React.PureComponent {
                         target="_blank"
                         rel="noopener noreferrer"
                         className="dropdown-item pl-4"
-                        href={getInspectTaskUrl(selectedJobFull.task_id)}
+                        href={getInspectTaskUrl(
+                          selectedJobFull.task_id,
+                          currentRepo.tc_root_url,
+                        )}
                       >
                         Inspect Task
                       </a>

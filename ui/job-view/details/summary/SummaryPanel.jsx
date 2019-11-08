@@ -71,7 +71,11 @@ class SummaryPanel extends React.PureComponent {
               />
             )}
             <StatusPanel selectedJobFull={selectedJobFull} />
-            <JobInfo job={selectedJobFull} extraFields={logStatus} />
+            <JobInfo
+              job={selectedJobFull}
+              extraFields={logStatus}
+              currentRepo={currentRepo}
+            />
           </ul>
         </div>
       </div>
