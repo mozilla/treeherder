@@ -7,6 +7,7 @@ import {
   faStar as faStarSolid,
   faTimesCircle,
 } from '@fortawesome/free-solid-svg-icons';
+import { Button } from 'reactstrap';
 
 import { thEvents } from '../../../helpers/constants';
 import { getBugUrl } from '../../../helpers/url';
@@ -29,15 +30,13 @@ function RelatedBugSaved(props) {
       >
         <em>{bugId}</em>
       </a>
-      <span
-        role="button"
-        tabIndex="-1"
-        className="btn classification-delete-icon hover-warning btn-xs pinned-job-close-btn annotations-bug"
+      <Button
+        className="btn classification-delete-icon hover-warning btn-xs pinned-job-close-btn annotations-bug py-0 px-1 bg-transparent"
         onClick={() => deleteBug(bug)}
         title={`Delete relation to bug ${bugId}`}
       >
         <FontAwesomeIcon icon={faTimesCircle} title="Delete" />
-      </span>
+      </Button>
     </span>
   );
 }
@@ -96,15 +95,13 @@ function TableRow(props) {
       </td>
       <td>{text}</td>
       <td>
-        <span
-          role="button"
-          tabIndex="-1"
+        <Button
           onClick={deleteEvent}
-          className="classification-delete-icon hover-warning pointable"
+          className="classification-delete-icon hover-warning pointable p-0 bg-transparent border-0"
           title="Delete this classification"
         >
           <FontAwesomeIcon icon={faTimesCircle} title="Delete classification" />
-        </span>
+        </Button>
       </td>
     </tr>
   );

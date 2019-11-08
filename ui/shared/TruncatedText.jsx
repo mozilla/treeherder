@@ -1,5 +1,6 @@
 import React from 'react';
 import PropTypes from 'prop-types';
+import { Button } from 'reactstrap';
 
 export default class TruncatedText extends React.Component {
   constructor(props) {
@@ -20,15 +21,15 @@ export default class TruncatedText extends React.Component {
           {text}
         </p>
         {text.length > maxLength && (
-          <span
-            role="button"
-            tabIndex="0"
+          <Button
+            className="bg-transparent border-0 p-0"
+            size="sm"
             onClick={() => this.setState({ showMoreResults: !showMoreResults })}
           >
             <p className={`${showMoreClass} mb-0 text-right  pointer`}>
               {`show ${showMoreResults ? 'less' : 'more'}`}
             </p>
-          </span>
+          </Button>
         )}
       </React.Fragment>
     );

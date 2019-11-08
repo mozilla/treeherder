@@ -1,7 +1,13 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
-import { Button } from 'reactstrap';
+import {
+  Button,
+  Dropdown,
+  DropdownToggle,
+  DropdownMenu,
+  DropdownItem,
+} from 'reactstrap';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faChartBar } from '@fortawesome/free-regular-svg-icons';
 import {
@@ -36,6 +42,7 @@ class ActionBar extends React.PureComponent {
 
     this.state = {
       customJobActionsShowing: false,
+      dropdownIsOpen: false,
     };
   }
 
@@ -417,6 +424,11 @@ class ActionBar extends React.PureComponent {
     this.setState({ customJobActionsShowing: !customJobActionsShowing });
   };
 
+  dropdownToggle = () => {
+    const { dropdownIsOpen } = this.state;
+    this.setState({ dropdownIsOpen: !dropdownIsOpen });
+  };
+
   render() {
     const {
       selectedJobFull,
@@ -514,35 +526,29 @@ class ActionBar extends React.PureComponent {
                 </Button>
               </li>
             )}
-            <li className="dropdown ml-auto">
-              <Button
+            <Dropdown
+              isOpen={this.state.dropdownIsOpen}
+              toggle={this.dropdownToggle}
+              className="ml-auto"
+            >
+              <DropdownToggle
                 id="actionbar-menu-btn"
                 title="Other job actions"
-                aria-haspopup="true"
-                aria-expanded="false"
                 className="btn actionbar-nav-btn btn-sm dropdown-toggle bg-transparent text-light border-0 pr-2 py-2 m-0"
-                data-toggle="dropdown"
               >
                 <FontAwesomeIcon icon={faEllipsisH} title="Other job actions" />
-              </Button>
-              <ul
-                className="dropdown-menu actionbar-menu dropdown-menu-right"
-                role="menu"
-              >
-                <li>
-                  <span
-                    role="button"
-                    tabIndex="-1"
-                    id="backfill-btn"
-                    className={`btn dropdown-item ${
-                      !user.isLoggedIn || !this.canBackfill() ? 'disabled' : ''
-                    }`}
-                    title={this.backfillButtonTitle()}
-                    onClick={() => !this.canBackfill() || this.backfillJob()}
-                  >
-                    Backfill
-                  </span>
-                </li>
+              </DropdownToggle>
+              <DropdownMenu className="dropdown-menu actionbar-menu dropdown-menu-right">
+                <DropdownItem
+                  id="backfill-btn"
+                  className={`${
+                    !user.isLoggedIn || !this.canBackfill() ? 'disabled' : ''
+                  }`}
+                  title={this.backfillButtonTitle()}
+                  onClick={() => !this.canBackfill() || this.backfillJob()}
+                >
+                  Backfill
+                </DropdownItem>
                 {selectedJobFull.task_id && (
                   <React.Fragment>
                     <li>
@@ -568,37 +574,25 @@ class ActionBar extends React.PureComponent {
                       </Button>
                     </li>
                     {isPerfTest(selectedJobFull) && (
-                      <li>
-                        <Button
-                          className="dropdown-item py-2"
-                          onClick={this.createGeckoProfile}
-                        >
-                          Create Gecko Profile
-                        </Button>
-                      </li>
+                      <DropdownItem
+                        className="py-2"
+                        onClick={this.createGeckoProfile}
+                      >
+                        Create Gecko Profile
+                      </DropdownItem>
                     )}
                     {isTestIsolatable(selectedJobFull) && (
-                      <li>
-                        <Button
-                          className="dropdown-item py-2"
-                          onClick={this.isolateJob}
-                        >
-                          Run Isolation Tests
-                        </Button>
-                      </li>
+                      <DropdownItem className="py-2" onClick={this.isolateJob}>
+                        Run Isolation Tests
+                      </DropdownItem>
                     )}
-                    <li>
-                      <Button
-                        onClick={this.toggleCustomJobActions}
-                        className="dropdown-item"
-                      >
-                        Custom Action...
-                      </Button>
-                    </li>
+                    <DropdownItem onClick={this.toggleCustomJobActions}>
+                      Custom Action...
+                    </DropdownItem>
                   </React.Fragment>
                 )}
-              </ul>
-            </li>
+              </DropdownMenu>
+            </Dropdown>
           </ul>
         </nav>
         {customJobActionsShowing && (

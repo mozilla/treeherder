@@ -94,47 +94,29 @@ const LegendCard = ({
 
   return (
     <FormGroup check className="pl-0 border">
-      <span
-        role="button"
-        tabIndex="-1"
-        className="close mr-3 my-2 ml-2"
-        onClick={removeTest}
-      >
-        <FontAwesomeIcon
-          className="pointer"
-          icon={faTimes}
-          size="xs"
-          title=""
-        />
-      </span>
+      <Button className="mr-3 my-2 ml-0" close onClick={removeTest} />
       <div className={`${series.color[0]} graph-legend-card p-3`}>
-        <span
-          role="button"
-          tabIndex="-1"
+        <Button
           onClick={() => addTestData('addRelatedConfigs')}
+          className={`p-0 bg-transparent mb-0 pointer border-0 ${
+            series.visible ? series.color[0] : 'text-muted'
+          } text-left`}
+          color="light"
+          title="Add related configurations"
         >
-          <p
-            className={`p-0 mb-0 pointer border-0 ${
-              series.visible ? series.color[0] : 'text-muted'
-            } text-left`}
-            title="Add related configurations"
-          >
-            {series.name}
-          </p>
-        </span>
-        <span
-          role="button"
-          tabIndex="-1"
+          {series.name}
+        </Button>
+        <Button
           onClick={() => addTestData('addRelatedBranches')}
+          className={subtitleStyle}
+          title="Add related branches"
         >
-          <p className={subtitleStyle} title="Add related branches">
-            {series.repository_name}
-          </p>
-        </span>
-        <span
-          role="button"
-          tabIndex="-1"
+          {series.repository_name}
+        </Button>
+        <Button
           onClick={() => addTestData('addRelatedPlatform')}
+          className={subtitleStyle}
+          title="Add related platforms and branches"
         >
           {series.platform}
         </p>

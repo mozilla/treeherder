@@ -1,6 +1,7 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
+import { Button } from 'reactstrap';
 
 import { getUrlParam } from '../../helpers/location';
 import { formatTaskclusterError } from '../../helpers/errorMessage';
@@ -165,9 +166,7 @@ class PushActionMenu extends React.PureComponent {
         <ul className="dropdown-menu pull-right">
           {runnableVisible ? (
             <li title="Hide Runnable Jobs" className="dropdown-item">
-              <button type="button" onClick={hideRunnableJobs}>
-                Hide Runnable Jobs
-              </button>
+              <Button onClick={hideRunnableJobs}>Hide Runnable Jobs</Button>
             </li>
           ) : (
             <li
@@ -175,15 +174,14 @@ class PushActionMenu extends React.PureComponent {
                 isLoggedIn ? 'Add new jobs to this push' : 'Must be logged in'
               }
             >
-              <button
+              <Button
                 className={
                   isLoggedIn ? 'dropdown-item' : 'dropdown-item disabled'
                 }
-                type="button"
                 onClick={showRunnableJobs}
               >
                 Add new jobs
-              </button>
+              </Button>
             </li>
           )}
           {true && (
@@ -194,15 +192,14 @@ class PushActionMenu extends React.PureComponent {
                   : 'Must be logged in'
               }
             >
-              <button
+              <Button
                 className={
                   isLoggedIn ? 'dropdown-item' : 'dropdown-item disabled'
                 }
-                type="button"
                 onClick={showFuzzyJobs}
               >
                 Add new jobs (Search)
-              </button>
+              </Button>
             </li>
           )}
           {triggerMissingRepos.includes(currentRepo.name) && (
@@ -213,15 +210,14 @@ class PushActionMenu extends React.PureComponent {
                   : 'Must be logged in'
               }
             >
-              <button
-                type="button"
+              <Button
                 onClick={this.triggerMissingJobs}
                 className={
                   isLoggedIn ? 'dropdown-item' : 'dropdown-item disabled'
                 }
               >
                 Trigger missing jobs
-              </button>
+              </Button>
             </li>
           )}
           <li
@@ -231,15 +227,14 @@ class PushActionMenu extends React.PureComponent {
                 : 'Must be logged in'
             }
           >
-            <button
+            <Button
               onClick={() => this.triggerAllTalosJobs(revision)}
               className={
                 isLoggedIn ? 'dropdown-item' : 'dropdown-item disabled'
               }
-              type="button"
             >
               Trigger all Talos jobs
-            </button>
+            </Button>
           </li>
           <li>
             <a
@@ -252,17 +247,13 @@ class PushActionMenu extends React.PureComponent {
               Mark with Bugherder
             </a>
           </li>
-          <li
-            className="dropdown-item"
-            title="View/Edit/Submit Action tasks for this push"
-          >
-            <button
-              className="dropdown-item"
-              type="button"
+          <li title="View/Edit/Submit Action tasks for this push">
+            <Button
               onClick={this.toggleCustomJobActions}
+              className="dropdown-item"
             >
               Custom Push Action...
-            </button>
+            </Button>
           </li>
           <li>
             <a

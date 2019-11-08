@@ -1,6 +1,7 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
+import { Button } from 'reactstrap';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faCircle, faDotCircle } from '@fortawesome/free-regular-svg-icons';
 import {
@@ -206,7 +207,7 @@ class SecondaryNavBar extends React.PureComponent {
           .map(name => RepositoryModel.getRepo(name, repos))
           .filter(name => name)) ||
       [];
-    const DuplicateJobsTitle = duplicateJobsVisible
+    const duplicateJobsTitle = duplicateJobsVisible
       ? 'Hide duplicate jobs'
       : 'Show duplicate jobs';
 
@@ -235,9 +236,7 @@ class SecondaryNavBar extends React.PureComponent {
           </span>
           <form role="search" className="form-inline flex-row">
             {serverChanged && (
-              <span
-                role="button"
-                tabIndex="-1"
+              <Button
                 className="btn btn-sm btn-view-nav nav-menu-btn"
                 onClick={updateButtonClick}
                 id="revisionChangedLabel"
@@ -245,26 +244,24 @@ class SecondaryNavBar extends React.PureComponent {
               >
                 <FontAwesomeIcon icon={faExclamationCircle} />
                 &nbsp;Treeherder update available
-              </span>
+              </Button>
             )}
 
             {/* Unclassified Failures Button */}
-            <span
+            <Button
               className={`btn btn-sm ${
                 allUnclassifiedFailureCount
                   ? 'btn-unclassified-failures'
                   : 'btn-view-nav'
               }${filterModel.isUnclassifiedFailures() ? ' active' : ''}`}
               title="Loaded failures / toggle filtering for unclassified failures"
-              tabIndex="-1"
-              role="button"
               onClick={this.toggleUnclassifiedFailures}
             >
               <span id="unclassified-failure-count">
                 {allUnclassifiedFailureCount}
               </span>{' '}
               unclassified
-            </span>
+            </Button>
 
             {/* Filtered Unclassified Failures Button */}
             {filteredUnclassifiedFailureCount !==
@@ -280,24 +277,20 @@ class SecondaryNavBar extends React.PureComponent {
             )}
 
             {/* Toggle Duplicate Jobs */}
-            <span
+            <Button
               className={`btn btn-view-nav btn-sm btn-toggle-duplicate-jobs ${
                 groupCountsExpanded ? 'disabled' : ''
               } ${!duplicateJobsVisible ? 'strikethrough' : ''}`}
-              tabIndex="0"
-              role="button"
-              title={DuplicateJobsTitle}
-              aria-label={DuplicateJobsTitle}
+              title={duplicateJobsTitle}
+              aria-label={duplicateJobsTitle}
               onClick={() =>
                 !groupCountsExpanded && this.toggleShowDuplicateJobs()
               }
             />
             <span className="btn-group">
               {/* Toggle Group State Button */}
-              <span
+              <Button
                 className="btn btn-view-nav btn-sm btn-toggle-group-state"
-                tabIndex="-1"
-                role="button"
                 title={
                   groupCountsExpanded
                     ? 'Collapse job groups'
@@ -310,7 +303,7 @@ class SecondaryNavBar extends React.PureComponent {
                   {groupCountsExpanded ? '-' : '+'}
                 </span>{' '}
                 )
-              </span>
+              </Button>
             </span>
 
             {/* Result Status Filter Chicklets */}
@@ -341,9 +334,7 @@ class SecondaryNavBar extends React.PureComponent {
             </span>
 
             <span>
-              <span
-                role="button"
-                tabIndex="-1"
+              <Button
                 className="btn btn-view-nav btn-sm"
                 onClick={toggleFieldFilterVisible}
                 title="Filter by a job field"
@@ -353,7 +344,7 @@ class SecondaryNavBar extends React.PureComponent {
                   size="sm"
                   title="Filter by a job field"
                 />
-              </span>
+              </Button>
             </span>
 
             {/* Quick Filter Field */}

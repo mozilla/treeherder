@@ -4,7 +4,7 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import { Link } from 'react-router-dom';
 import { connect } from 'react-redux';
-import { Badge } from 'reactstrap';
+import { Badge, Button } from 'reactstrap';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import {
   faBug,
@@ -46,10 +46,9 @@ class BugCountComponent extends React.Component {
 
   render() {
     return (
-      <span
-        role="button"
-        tabIndex="-1"
-        className="bug-count"
+      <Button
+        className="text-body px-5 bug-count"
+        color="link"
         onClick={this.onClick}
       >
         {// TODO: Clean this up
@@ -65,12 +64,12 @@ class BugCountComponent extends React.Component {
           <Badge
             size="sm"
             color="danger"
-            style={{ fontWeight: 400, fontSize: '.8rem', margin: '0 .5rem' }}
+            style={{ fontWeight: 400, fontSize: '.8rem' }}
           >
             0
           </Badge>
         )}
-      </span>
+      </Button>
     );
   }
 }
@@ -249,14 +248,14 @@ class TestComponent extends React.Component {
   render() {
     return (
       <td className="test-table">
-        <span
-          role="button"
-          tabIndex="-1"
-          className="test"
+        <Button
+          className="text-body p-0 test"
+          size="sm"
+          color="link"
           onClick={this.onClick}
         >
           {this.props.name}
-        </span>
+        </Button>
         <span className="platform-list">
           {this.props.test.jobs.map(job => (
             <Platform

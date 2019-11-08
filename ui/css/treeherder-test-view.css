@@ -131,6 +131,11 @@ main .progress {
 
 .test {
   cursor: pointer;
+  font-size: 0.8rem;
+}
+
+.test:hover {
+  text-decoration: none;
 }
 
 td.bug-count {

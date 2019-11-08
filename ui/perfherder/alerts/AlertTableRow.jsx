@@ -2,7 +2,7 @@
 
 import React from 'react';
 import PropTypes from 'prop-types';
-import { FormGroup, Input } from 'reactstrap';
+import { FormGroup, Input, Button } from 'reactstrap';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import {
   faStar as faStarSolid,
@@ -224,18 +224,17 @@ export default class AlertTableRow extends React.Component {
           </FormGroup>
         </td>
         <td className="px-0">
-          <span
-            role="button"
-            tabIndex="-1"
-            className={starred ? 'visible' : ''}
+          <Button
+            className={`${starred ? 'visible' : ''} bg-transparent p-0`}
             data-testid={`alert ${alert.id.toString()} star`}
+            color="light"
             onClick={this.toggleStar}
           >
             <FontAwesomeIcon
               title={starred ? 'starred' : 'not starred'}
               icon={starred ? faStarSolid : faStarRegular}
             />
-          </span>
+          </Button>
         </td>
         <td className="text-left">
           {alertStatus !== 'untriaged' ? (

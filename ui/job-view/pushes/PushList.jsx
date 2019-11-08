@@ -3,6 +3,7 @@ import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
 import intersection from 'lodash/intersection';
 import isEqual from 'lodash/isEqual';
+import { Button, ButtonGroup } from 'reactstrap';
 
 import ErrorBoundary from '../../shared/ErrorBoundary';
 import { notify } from '../redux/stores/notifications';
@@ -138,7 +139,7 @@ class PushList extends React.Component {
     }
     return (
       <div
-        role="button"
+        role="grid"
         tabIndex="-1"
         id="push-list"
         onClick={evt => this.clearIfEligibleTarget(evt.target)}
@@ -182,20 +183,19 @@ class PushList extends React.Component {
         )}
         <div className="card card-body get-next">
           <span>get next:</span>
-          <div className="btn-group">
+          <ButtonGroup>
             {[10, 20, 50].map(count => (
-              <div
-                role="button"
-                tabIndex="-1"
-                className="btn btn-light-bordered"
+              <Button
+                className="btn-light-bordered text-body"
                 onClick={() => fetchNextPushes(count)}
                 key={count}
+                toggle="true"
                 data-testid={`get-next-${count}`}
               >
                 {count}
-              </div>
+              </Button>
             ))}
-          </div>
+          </ButtonGroup>
         </div>
       </div>
     );

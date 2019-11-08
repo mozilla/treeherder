@@ -1,6 +1,7 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { Button } from 'reactstrap';
 import { faUser, faClipboard } from '@fortawesome/free-regular-svg-icons';
 
 import { parseAuthor } from '../../helpers/revision';
@@ -63,14 +64,14 @@ export class Revision extends React.PureComponent {
       <li>
         <span className="revision" data-tags={this.tags}>
           <span className="pl-4 pr-1 revision-holder">
-            <span
-              role="button"
-              tabIndex="-1"
-              className="pointer"
+            <Button
+              className="pointer bg-transparent px-2 py-0"
+              color="light"
+              size="sm"
               onClick={() => Revision.copyToClipboard(commitRevision)}
             >
               <FontAwesomeIcon icon={faClipboard} title="Copy full hash" />
-            </span>
+            </Button>
             <a
               title={`Open revision ${commitRevision} on ${repo.url}`}
               href={repo.getRevisionHref(commitRevision)}

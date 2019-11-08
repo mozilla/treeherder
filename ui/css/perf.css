@@ -52,13 +52,13 @@ h1 {
   border-left: 10px solid;
 }
 
-.graph-legend-card span p {
+.graph-legend-card {
   word-wrap: break-word;
   cursor: pointer;
   font-size: 13px;
 }
 
-.graph-legend-card > p:hover {
+.graph-legend-card:hover {
   text-decoration: underline;
 }
 

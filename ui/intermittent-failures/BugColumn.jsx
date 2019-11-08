@@ -1,5 +1,6 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
+import { Button } from 'reactstrap';
 import PropTypes from 'prop-types';
 
 import { getBugUrl } from '../helpers/url';
@@ -30,10 +31,9 @@ function BugColumn({
         {id}
       </a>
       &nbsp;
-      <span
-        role="button"
-        tabIndex="-1"
-        className="ml-1 small-text bug-details"
+      <Button
+        className="ml-1 p-0 bg-transparent border-0 small-text bug-details"
+        size="sm"
         onClick={() => updateAppState({ graphData, tableData })}
       >
         <Link
@@ -45,7 +45,7 @@ function BugColumn({
         >
           details
         </Link>
-      </span>
+      </Button>
     </div>
   );
 }

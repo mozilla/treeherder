@@ -4,6 +4,7 @@ import SplitPane from 'react-split-pane';
 import pick from 'lodash/pick';
 import isEqual from 'lodash/isEqual';
 import { Provider } from 'react-redux';
+import { Button } from 'reactstrap';
 
 import { thFavicons, thEvents } from '../helpers/constants';
 import ShortcutTable from '../shared/ShortcutTable';
@@ -384,9 +385,7 @@ class App extends React.Component {
             </SplitPane>
             <Notifications />
             {showShortCuts && (
-              <div
-                role="button"
-                tabIndex="-1"
+              <Button
                 id="onscreen-overlay"
                 onClick={() => this.showOnScreenShortcuts(false)}
               >
@@ -395,7 +394,7 @@ class App extends React.Component {
                     <ShortcutTable />
                   </div>
                 </div>
-              </div>
+              </Button>
             )}
           </KeyboardShortcuts>
         </Provider>
