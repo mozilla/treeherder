@@ -658,7 +658,7 @@ def generic_reference_data(test_repository):
         machine_os_name=r.machine_platform.os_name,
         machine_platform=r.machine_platform.platform,
         machine_architecture=r.machine_platform.architecture,
-        job_group_name=r.job_group.name,
+        jobGroupName=r.job_group.name,
         job_group_symbol=r.job_group.symbol,
         job_type_name=r.job_type.name,
         job_type_symbol=r.job_type.symbol,

@@ -194,7 +194,7 @@ class Migration(migrations.Migration):
                 ('machine_os_name', models.CharField(db_index=True, max_length=25)),
                 ('machine_platform', models.CharField(db_index=True, max_length=100)),
                 ('machine_architecture', models.CharField(db_index=True, max_length=25)),
-                ('job_group_name', models.CharField(blank=True, db_index=True, max_length=100)),
+                ('jobGroupName', models.CharField(blank=True, db_index=True, max_length=100)),
                 ('job_group_symbol', models.CharField(blank=True, db_index=True, max_length=25)),
                 ('job_type_name', models.CharField(db_index=True, max_length=100)),
                 ('job_type_symbol', models.CharField(blank=True, db_index=True, max_length=25)),

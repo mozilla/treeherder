@@ -69,7 +69,7 @@ class App extends React.PureComponent {
         // Test to disable successful steps checkbox on taskcluster jobs
         // Test to expose the reftest button in the logviewer actionbar
         const reftestUrl =
-          rawLogUrl && job.job_group_name && isReftest(job)
+          rawLogUrl && job.jobGroupName && isReftest(job)
             ? getReftestUrl(rawLogUrl)
             : null;
         const jobDetails = await JobDetailModel.getJobDetails({

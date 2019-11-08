@@ -176,7 +176,7 @@ def _load_job(repository, job_datum, push_id):
             'machine_os_name': machine_platform.os_name,
             'machine_platform': machine_platform.platform,
             'machine_architecture': machine_platform.architecture,
-            'job_group_name': job_group.name,
+            'jobGroupName': job_group.name,
             'job_group_symbol': job_group.symbol,
             'job_type_name': job_type.name,
             'job_type_symbol': job_type.symbol,

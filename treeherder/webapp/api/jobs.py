@@ -51,7 +51,7 @@ class JobFilter(django_filters.FilterSet):
         field_name='signature__build_system_type')
     job_group_id = django_filters.NumberFilter(
         field_name='job_group_id')
-    job_group_name = django_filters.CharFilter(
+    jobGroupName = django_filters.CharFilter(
         field_name='job_group__name')
     job_group_symbol = django_filters.CharFilter(
         field_name='job_group__symbol')
@@ -136,7 +136,7 @@ class JobsViewSet(viewsets.ReadOnlyModelViewSet):
     _output_field_names = [
         'failure_classification_id',
         'id',
-        'job_group_name',
+        'jobGroupName',
         'job_group_symbol',
         'job_type_name',
         'job_type_symbol',
@@ -197,7 +197,7 @@ class JobsProjectViewSet(viewsets.ViewSet):
         ('id', 'id', None),
         ('job_group_description', 'job_group__description', None),
         ('job_group_id', 'job_group_id', None),
-        ('job_group_name', 'job_group__name', None),
+        ('jobGroupName', 'job_group__name', None),
         ('job_group_symbol', 'job_group__symbol', None),
         ('job_guid', 'guid', None),
         ('job_type_description', 'job_type__description', None),

@@ -80,7 +80,7 @@
     "duration",
     "failure_classification_id",
     "id",
-    "job_group_name",
+    "jobGroupName",
     "job_group_symbol",
     "job_type_name",
     "job_type_symbol",

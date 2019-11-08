@@ -38,7 +38,7 @@ def _taskcluster_runnable_jobs(project):
             {
                 'build_platform': node.get('platform', ''),
                 'build_system_type': 'taskcluster',
-                'job_group_name': node.get('groupName', ''),
+                'jobGroupName': node.get('groupName', ''),
                 'job_group_symbol': node.get('groupSymbol', ''),
                 'job_type_name': label,
                 'job_type_symbol': node['symbol'],

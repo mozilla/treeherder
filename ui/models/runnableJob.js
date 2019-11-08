@@ -16,7 +16,7 @@ export default class RunnableJobModel {
       addAggregateFields({
         build_platform: value.platform || '',
         build_system_type: 'taskcluster',
-        job_group_name: value.groupName || '',
+        jobGroupName: value.groupName || '',
         job_group_symbol: value.groupSymbol || '',
         job_type_name: key,
         job_type_symbol: value.symbol,

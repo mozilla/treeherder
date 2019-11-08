@@ -13,7 +13,7 @@ describe('BugFiler', () => {
     'http://localhost:5000/logviewer.html#?job_id=89017089&repo=mozilla-inbound';
   const reftest = '';
   const selectedJob = {
-    job_group_name: 'Mochitests executed by TaskCluster',
+    jobGroupName: 'Mochitests executed by TaskCluster',
     job_type_name: 'test-linux64/debug-mochitest-browser-chrome-10',
     job_type_symbol: 'bc10',
   };
@@ -95,7 +95,7 @@ describe('BugFiler', () => {
         parsedLog={parsedLog}
         reftestUrl={isReftest(selectedJob) ? reftest : ''}
         successCallback={successCallback}
-        jobGroupName={selectedJob.job_group_name}
+        jobGroupName={selectedJob.jobGroupName}
         notify={() => {}}
       />,
     );
@@ -298,7 +298,7 @@ describe('BugFiler', () => {
         parsedLog={parsedLog}
         reftestUrl={isReftest(selectedJob) ? reftest : ''}
         successCallback={successCallback}
-        jobGroupName={selectedJob.job_group_name}
+        jobGroupName={selectedJob.jobGroupName}
         notify={() => {}}
       />,
     );

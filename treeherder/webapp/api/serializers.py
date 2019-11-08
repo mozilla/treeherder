@@ -66,7 +66,7 @@ class JobProjectSerializer(serializers.ModelSerializer):
             'id': job.id,
             'job_group_description': job.job_group.description,
             'job_group_id': job.job_group_id,
-            'job_group_name': job.job_group.name,
+            'jobGroupName': job.job_group.name,
             'job_group_symbol': job.job_group.symbol,
             'job_guid': job.guid,
             'job_type_description': job.job_type.description,

@@ -153,7 +153,7 @@ class FailureSummaryTab extends React.Component {
             parsedLog={logViewerFullUrl}
             reftestUrl={isReftest(selectedJobFull) ? reftestUrl : ''}
             successCallback={this.bugFilerCallback}
-            jobGroupName={selectedJobFull.job_group_name}
+            jobGroupName={selectedJobFull.jobGroupName}
           />
         )}
       </div>

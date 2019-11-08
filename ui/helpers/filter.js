@@ -17,7 +17,7 @@ export const thMatchType = {
 export const thFieldChoices = {
   job_type_name: { name: 'job name', matchType: thMatchType.substr },
   job_type_symbol: { name: 'job symbol', matchType: thMatchType.exactstr },
-  job_group_name: { name: 'group name', matchType: thMatchType.substr },
+  jobGroupName: { name: 'group name', matchType: thMatchType.substr },
   job_group_symbol: { name: 'group symbol', matchType: thMatchType.exactstr },
   machine_name: { name: 'machine name', matchType: thMatchType.substr },
   platform: { name: 'platform', matchType: thMatchType.substr },
