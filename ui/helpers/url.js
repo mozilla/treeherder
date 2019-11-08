@@ -66,8 +66,8 @@ export const getApiUrl = function getApiUrl(uri) {
   return getServiceUrl(`/api${uri}`);
 };
 
-export const getBugUrl = function getBugUrl(bug_id) {
-  return `${bzBaseUrl}show_bug.cgi?id=${bug_id}`;
+export const getBugUrl = function getBugUrl(bugId) {
+  return `${bzBaseUrl}show_bug.cgi?id=${bugId}`;
 };
 
 export const getInspectTaskUrl = function getInspectTaskUrl(taskId, rootUrl) {
@@ -83,12 +83,12 @@ export const getReftestUrl = function getReftestUrl(logUrl) {
 // need that since the ids are unique across projects.
 // Bug 1441938 - The project_bound_router is not needed and cumbersome in some cases
 export const getLogViewerUrl = function getLogViewerUrl(
-  job_id,
+  jobId,
   repoName,
-  line_number,
+  lineNumber,
 ) {
-  const rv = `logviewer.html#?job_id=${job_id}&repo=${repoName}`;
-  return line_number ? `${rv}&lineNumber=${line_number}` : rv;
+  const rv = `logviewer.html#?job_id=${jobId}&repo=${repoName}`;
+  return lineNumber ? `${rv}&lineNumber=${lineNumber}` : rv;
 };
 
 export const getPerfAnalysisUrl = function getPerfAnalysisUrl(url) {

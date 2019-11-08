@@ -92,19 +92,19 @@ class Push extends React.PureComponent {
   getJobGroupInfo(job) {
     const {
       job_group_name: name,
-      job_group_symbol,
+      job_group_symbol: jobGroupSymbol,
       platform,
-      platform_option,
+      platform_option: platformOption,
       tier,
-      push_id,
+      push_id: pushId,
     } = job;
-    const symbol = job_group_symbol === '?' ? '' : job_group_symbol;
+    const symbol = jobGroupSymbol === '?' ? '' : jobGroupSymbol;
     const mapKey = getGroupMapKey(
-      push_id,
+      pushId,
       symbol,
       tier,
       platform,
-      platform_option,
+      platformOption,
     );
 
     return { name, tier, symbol, mapKey };
@@ -460,7 +460,7 @@ class Push extends React.PureComponent {
       selectedRunnableJobs,
       collapsed,
     } = this.state;
-    const { id, push_timestamp, revision, author } = push;
+    const { id, push_timestamp: pushTimestamp, revision, author } = push;
     const tipRevision = push.revisions[0];
     const decisionTask = decisionTaskMap[push.id];
     const decisionTaskId = decisionTask ? decisionTask.id : null;
@@ -490,7 +490,7 @@ class Push extends React.PureComponent {
         <PushHeader
           push={push}
           pushId={id}
-          pushTimestamp={push_timestamp}
+          pushTimestamp={pushTimestamp}
           author={author}
           revision={revision}
           jobCounts={jobCounts}

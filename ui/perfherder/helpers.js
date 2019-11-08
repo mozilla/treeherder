@@ -59,7 +59,7 @@ export const getStdDev = function getStandardDeviation(values, avg) {
 export const getTTest = function getTTest(
   valuesC,
   valuesT,
-  stddev_default_factor,
+  stddevDefaultFactor,
 ) {
   const lenC = valuesC.length;
   const lenT = valuesT.length;
@@ -71,9 +71,9 @@ export const getTTest = function getTTest(
   const avgC = calcAverage(valuesC);
   const avgT = calcAverage(valuesT);
   let stddevC =
-    lenC > 1 ? getStdDev(valuesC, avgC) : stddev_default_factor * avgC;
+    lenC > 1 ? getStdDev(valuesC, avgC) : stddevDefaultFactor * avgC;
   let stddevT =
-    lenT > 1 ? getStdDev(valuesT, avgT) : stddev_default_factor * avgT;
+    lenT > 1 ? getStdDev(valuesT, avgT) : stddevDefaultFactor * avgT;
 
   if (lenC === 1) {
     stddevC = (valuesC[0] * stddevT) / avgT;
@@ -571,13 +571,13 @@ export const processSelectedParam = tooltipArray => ({
 
 export const getInitialData = async (
   errorMessages,
-  repository_name,
+  repositoryName,
   framework,
   timeRange,
 ) => {
   const params = { interval: timeRange.value, framework: framework.id };
   const platforms = await PerfSeriesModel.getPlatformList(
-    repository_name.name,
+    repositoryName.name,
     params,
   );
 
@@ -595,7 +595,7 @@ export const updateSeriesData = (origSeriesData, testData) =>
 export const getSeriesData = async (
   params,
   errorMessages,
-  repository_name,
+  repositoryName,
   testData,
 ) => {
   let updates = {
@@ -605,7 +605,7 @@ export const getSeriesData = async (
     loading: false,
   };
   const response = await PerfSeriesModel.getSeriesList(
-    repository_name.name,
+    repositoryName.name,
     params,
   );
   updates = {
