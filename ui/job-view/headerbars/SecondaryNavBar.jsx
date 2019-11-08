@@ -233,17 +233,17 @@ class SecondaryNavBar extends React.PureComponent {
           </span>
           <form role="search" className="form-inline flex-row">
             {serverChanged && (
-              <span
+              <button
                 className="btn btn-sm btn-view-nav nav-menu-btn"
                 onClick={updateButtonClick}
-                role="button"
                 tabIndex="0"
+                type="button"
                 id="revisionChangedLabel"
                 title="New version of Treeherder has been deployed. Reload to pick up changes."
               >
                 <FontAwesomeIcon icon={faExclamationCircle} />
                 &nbsp;Treeherder update available
-              </span>
+              </button>
             )}
 
             {/* Unclassified Failures Button */}
