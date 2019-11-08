@@ -49,16 +49,12 @@ const taskcluster = (() => {
       scope: 'treeherder',
       state: nonce,
     };
+    const url = `${_rootUrl}login/oauth/authorize${createQueryParams(params)}`;
 
     if (useExistingWindow) {
-      window.location.href = `${_rootUrl}login/oauth/authorize${createQueryParams(
-        params,
-      )}`;
+      window.location.href = url;
     } else {
-      window.open(
-        `${_rootUrl}login/oauth/authorize${createQueryParams(params)}`,
-        '_blank',
-      );
+      window.open(url, '_blank');
     }
   };
 
