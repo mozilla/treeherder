@@ -66,7 +66,7 @@ export default class TaskclusterCallback extends React.PureComponent {
       body: `grant_type=authorization_code&code=${code}&redirect_uri=${redirectURI}&client_id=${clientId}`,
       headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
     };
-    return getData(`${rootUrl}login/oauth/token`, options);
+    return getData(`${rootUrl}/login/oauth/token`, options);
   };
 
   fetchCredentials = async (token, rootUrl) => {
@@ -77,7 +77,7 @@ export default class TaskclusterCallback extends React.PureComponent {
         'Content-Type': 'application/json',
       },
     };
-    return getData(`${rootUrl}login/oauth/credentials`, options);
+    return getData(`${rootUrl}/login/oauth/credentials`, options);
   };
 
   render() {

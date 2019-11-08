@@ -51,8 +51,7 @@ class LoginCallback extends React.PureComponent {
 
   checkTaskclusterCredentials = () => {
     const userCredentials = JSON.parse(localStorage.getItem('userCredentials'));
-    // TODO update with firefox-ci rootUrl
-    const defaultRootUrl = 'https://hassan.taskcluster-dev.net/';
+    const defaultRootUrl = 'https://firefox-ci-tc.services.mozilla.com';
 
     if (
       !userCredentials ||

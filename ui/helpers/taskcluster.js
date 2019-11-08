@@ -5,14 +5,13 @@ import moment from 'moment';
 
 import { clientId, redirectURI } from '../taskcluster-auth-callback/constants';
 
-import { loginRootUrl, createQueryParams } from './url';
+import { createQueryParams } from './url';
 
 export const tcCredentialsMessage =
   'Need to retrieve or renew Taskcluster credentials before action can be performed.';
 
 const taskcluster = (() => {
-  // TODO set default to firefox-ci rootUrl
-  let _rootUrl = 'https://hassan.taskcluster-dev.net/';
+  let _rootUrl = 'https://firefox-ci-tc.services.mozilla.com';
 
   // from the MDN crypto.getRandomValues doc
   const secureRandom = () =>
@@ -50,8 +49,8 @@ const taskcluster = (() => {
       state: nonce,
       expires: '5 minutes',
     };
-    const url = `${_rootUrl}login/oauth/authorize${createQueryParams(params)}`;
-
+    const url = `${_rootUrl}/login/oauth/authorize${createQueryParams(params)}`;
+    console.log(url);
     if (useExistingWindow) {
       window.location.href = url;
     } else {
@@ -66,11 +65,7 @@ const taskcluster = (() => {
 
   const getCredentials = rootUrl => {
     const userCredentials = JSON.parse(localStorage.getItem('userCredentials'));
-    // TODO remove staging instance
-    _rootUrl =
-      rootUrl === loginRootUrl
-        ? 'https://hassan.taskcluster-dev.net/'
-        : rootUrl;
+    _rootUrl = rootUrl;
 
     if (
       userCredentials &&
