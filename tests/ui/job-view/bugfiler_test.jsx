@@ -14,8 +14,8 @@ describe('BugFiler', () => {
   const reftest = '';
   const selectedJob = {
     jobGroupName: 'Mochitests executed by TaskCluster',
-    job_type_name: 'test-linux64/debug-mochitest-browser-chrome-10',
-    job_type_symbol: 'bc10',
+    jobTypeName: 'test-linux64/debug-mochitest-browser-chrome-10',
+    jobTypeSymbol: 'bc10',
   };
   const suggestions = [
     { search: 'ShutdownLeaks | process() called before end of test suite' },

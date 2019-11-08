@@ -109,7 +109,7 @@ describe('FilterModel', () => {
         ],
         classifiedState: ['classified', 'unclassified'],
         tier: ['1', '2'],
-        job_type_name: ['mochi'],
+        jobTypeName: ['mochi'],
       });
     });
   });

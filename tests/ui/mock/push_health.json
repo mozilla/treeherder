@@ -25,7 +25,7 @@
                 "result": "testfailed",
                 "failure_classification_id": 1,
                 "push_id": 556229,
-                "job_type_name": "test-linux64/opt-mochitest-devtools-chrome-fis-e10s-4"
+                "jobTypeName": "test-linux64/opt-mochitest-devtools-chrome-fis-e10s-4"
               }
             ],
             "passJobs": [],
@@ -62,7 +62,7 @@
                 "result": "testfailed",
                 "failure_classification_id": 1,
                 "push_id": 556229,
-                "job_type_name": "test-linux64/debug-mochitest-devtools-chrome-fis-e10s-6"
+                "jobTypeName": "test-linux64/debug-mochitest-devtools-chrome-fis-e10s-6"
               }
             ],
             "passJobs": [],
@@ -99,7 +99,7 @@
                 "result": "testfailed",
                 "failure_classification_id": 1,
                 "push_id": 556229,
-                "job_type_name": "test-linux64/opt-mochitest-devtools-chrome-fis-e10s-4"
+                "jobTypeName": "test-linux64/opt-mochitest-devtools-chrome-fis-e10s-4"
               }
             ],
             "passJobs": [],

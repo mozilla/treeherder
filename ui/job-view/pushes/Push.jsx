@@ -242,7 +242,7 @@ class Push extends React.PureComponent {
         group.jobs = sortBy(group.jobs, job =>
           // Symbol could be something like 1, 2 or 3. Or A, B, C or R1, R2, R10.
           // So this will pad the numeric portion with 0s like R001, R010, etc.
-          job.job_type_symbol.replace(/([\D]*)([\d]*)/g, (matcher, s1, s2) =>
+          job.jobTypeSymbol.replace(/([\D]*)([\d]*)/g, (matcher, s1, s2) =>
             s2 !== '' ? s1 + `00${s2}`.slice(-3) : matcher,
           ),
         );
@@ -382,8 +382,8 @@ class Push extends React.PureComponent {
         ...new Set(
           fuzzyJobList.map(job => {
             const obj = {};
-            obj.name = job.job_type_name;
-            obj.symbol = job.job_type_symbol;
+            obj.name = job.jobTypeName;
+            obj.symbol = job.jobTypeSymbol;
             obj.groupsymbol = job.jobGroupSymbol;
             return obj;
           }),

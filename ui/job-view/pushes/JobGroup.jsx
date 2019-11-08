@@ -70,7 +70,7 @@ export class JobGroupComponent extends React.Component {
       buttons = jobs;
     } else {
       const stateCounts = {};
-      const typeSymbolCounts = countBy(jobs, 'job_type_symbol');
+      const typeSymbolCounts = countBy(jobs, 'jobTypeSymbol');
       jobs.forEach(job => {
         const { resultStatus, visible } = job;
         const btnClass = getBtnClass(resultStatus);
@@ -82,7 +82,7 @@ export class JobGroupComponent extends React.Component {
         };
         if (
           thFailureResults.includes(resultStatus) ||
-          (typeSymbolCounts[job.job_type_symbol] > 1 && duplicateJobsVisible)
+          (typeSymbolCounts[job.jobTypeSymbol] > 1 && duplicateJobsVisible)
         ) {
           // render the job itself, not a count
           buttons.push(job);

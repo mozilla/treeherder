@@ -249,6 +249,6 @@ describe('PushList', () => {
     const { job } = jobInstance.props;
 
     expect(job.signature).toBe('306fd1e8d922922cd171fa31f0d914300ff52228');
-    expect(job.job_type_name).toBe('source-test-mozlint-yaml');
+    expect(job.jobTypeName).toBe('source-test-mozlint-yaml');
   });
 });

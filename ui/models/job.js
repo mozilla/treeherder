@@ -106,7 +106,7 @@ export default class JobModel {
         TaskclusterModel.load(decisionTaskId, null, currentRepo).then(
           async results => {
             const actionTaskId = slugid();
-            const taskLabels = value.map(job => job.job_type_name);
+            const taskLabels = value.map(job => job.jobTypeName);
 
             let retriggerAction = results.actions.find(
               action => action.name === 'retrigger-multiple',

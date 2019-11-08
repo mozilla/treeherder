@@ -53,11 +53,11 @@ class JobFilter(django_filters.FilterSet):
         field_name='job_group_id')
     jobGroupName = django_filters.CharFilter(
         field_name='job_group__name')
-    job_group_symbol = django_filters.CharFilter(
+    jobGroupSymbol = django_filters.CharFilter(
         field_name='job_group__symbol')
-    job_type_name = django_filters.CharFilter(
+    jobTypeName = django_filters.CharFilter(
         field_name='job_type__name')
-    job_type_symbol = django_filters.CharFilter(
+    jobTypeSymbol = django_filters.CharFilter(
         field_name='job_type__symbol')
     machine_name = django_filters.CharFilter(
         field_name='machine__name')
@@ -137,9 +137,9 @@ class JobsViewSet(viewsets.ReadOnlyModelViewSet):
         'failure_classification_id',
         'id',
         'jobGroupName',
-        'job_group_symbol',
-        'job_type_name',
-        'job_type_symbol',
+        'jobGroupSymbol',
+        'jobTypeName',
+        'jobTypeSymbol',
         'last_modified',
         'platform',
         'push_id',
@@ -198,12 +198,12 @@ class JobsProjectViewSet(viewsets.ViewSet):
         ('job_group_description', 'job_group__description', None),
         ('job_group_id', 'job_group_id', None),
         ('jobGroupName', 'job_group__name', None),
-        ('job_group_symbol', 'job_group__symbol', None),
+        ('jobGroupSymbol', 'job_group__symbol', None),
         ('job_guid', 'guid', None),
         ('job_type_description', 'job_type__description', None),
         ('job_type_id', 'job_type_id', None),
-        ('job_type_name', 'job_type__name', None),
-        ('job_type_symbol', 'job_type__symbol', None),
+        ('jobTypeName', 'job_type__name', None),
+        ('jobTypeSymbol', 'job_type__symbol', None),
         ('last_modified', 'last_modified', None),
         ('machine_name', 'machine__name', None),
         ('machine_platform_architecture', 'machine_platform__architecture', None),

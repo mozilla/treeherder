@@ -15,31 +15,31 @@ def runnable_jobs_data():
     runnable_jobs = [
             {
                 "build_system_type": "buildbot",
-                "job_type_name": "W3C Web Platform Tests",
+                "jobTypeName": "W3C Web Platform Tests",
                 "platform": "windows8-64",
                 "platform_option": "debug",
                 "ref_data_name": "Windows 8 64-bit {} debug test web-platform-tests-1".format(repository_name),
             }, {
                 "build_system_type": "buildbot",
-                "job_type_name": "Reftest e10s",
+                "jobTypeName": "Reftest e10s",
                 "platform": "linux32",
                 "platform_option": "opt",
                 "ref_data_name": "Ubuntu VM 12.04 {} opt test reftest-e10s-1".format(repository_name),
             }, {
                 "build_system_type": "buildbot",
-                "job_type_name": "Build",
+                "jobTypeName": "Build",
                 "platform": "osx-10-7",
                 "platform_option": "opt",
                 "ref_data_name": "OS X 10.7 {} build".format(repository_name),
             }, {
                 "build_system_type": "taskcluster",
-                "job_type_name": "test-linux32/opt-reftest-e10s-1",
+                "jobTypeName": "test-linux32/opt-reftest-e10s-1",
                 "platform": "linux32",
                 "platform_option": "opt",
                 "ref_data_name": "test-linux32/opt-reftest-e10s-1",
             }, {
                 "build_system_type": "taskcluster",
-                "job_type_name": "test-linux64/opt-reftest-e10s-2",
+                "jobTypeName": "test-linux64/opt-reftest-e10s-2",
                 "platform": "linux64",
                 "platform_option": "opt",
                 "ref_data_name": "test-linux64/opt-reftest-e10s-2",

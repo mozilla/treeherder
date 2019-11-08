@@ -192,7 +192,7 @@ class SimilarJobsTab extends React.Component {
                       )}`}
                       type="button"
                     >
-                      {similarJob.job_type_symbol}
+                      {similarJob.jobTypeSymbol}
                       {similarJob.failure_classification_id > 1 && (
                         <span>*</span>
                       )}
@@ -267,7 +267,7 @@ class SimilarJobsTab extends React.Component {
                   </tr>
                   <tr>
                     <th>Job name</th>
-                    <td>{selectedSimilarJob.job_type_name}</td>
+                    <td>{selectedSimilarJob.jobTypeName}</td>
                   </tr>
                   <tr>
                     <th>Started</th>

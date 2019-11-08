@@ -12,9 +12,9 @@ API_RETURN = {
     'build_platform': 'plaform name',
     'build_system_type': 'taskcluster',
     'jobGroupName': 'Group Name',
-    'job_group_symbol': 'GRP',
-    'job_type_name': JOB_NAME,
-    'job_type_symbol': 'sym',
+    'jobGroupSymbol': 'GRP',
+    'jobTypeName': JOB_NAME,
+    'jobTypeSymbol': 'sym',
     'platform': 'plaform name',
     'platform_option': 'opt',
     'ref_data_name': JOB_NAME,
@@ -25,9 +25,9 @@ RUNNABLE_JOBS_CONTENTS = {
     JOB_NAME: {
         'collection':  {'opt': True},
         'groupName': API_RETURN['jobGroupName'],
-        'groupSymbol': API_RETURN['job_group_symbol'],
+        'groupSymbol': API_RETURN['jobGroupSymbol'],
         'platform': API_RETURN['platform'],
-        'symbol': API_RETURN['job_type_symbol'],
+        'symbol': API_RETURN['jobTypeSymbol'],
     }
 }
 

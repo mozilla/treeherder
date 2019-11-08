@@ -10,12 +10,12 @@ def is_job_blacklisted(testtype):
     return testtype in SETA_UNSUPPORTED_TESTTYPES
 
 
-def parse_testtype(build_system_type, job_type_name, platform_option, ref_data_name):
+def parse_testtype(build_system_type, jobTypeName, platform_option, ref_data_name):
     '''
                        Buildbot       Taskcluster
                        -----------    -----------
     build_system_type  buildbot       taskcluster
-    job_type_name      Mochitest      task label
+    jobTypeName      Mochitest      task label
     platform_option    debug,opt,pgo  debug,opt,pgo
     ref_data_name      buildername    task label OR signature hash
     '''
@@ -31,10 +31,10 @@ def parse_testtype(build_system_type, job_type_name, platform_option, ref_data_n
         #       ignore any BBB task since we will be analyzing instead the Buildbot job associated
         #       to it. If BBB tasks were a production system and there was a technical advantage
         #       we could look into analyzing that instead of the BB job.
-        if job_type_name.startswith(tuple(SETA_SUPPORTED_TC_JOBTYPES)):
-            # we should get "jittest-3" as testtype for a job_type_name like
+        if jobTypeName.startswith(tuple(SETA_SUPPORTED_TC_JOBTYPES)):
+            # we should get "jittest-3" as testtype for a jobTypeName like
             # test-linux64/debug-jittest-3
-            return transform(job_type_name.split('-{buildtype}'.
+            return transform(jobTypeName.split('-{buildtype}'.
                              format(buildtype=platform_option))[-1])
 
 

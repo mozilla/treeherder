@@ -141,7 +141,7 @@ class PinBoard extends React.Component {
           jobInstance.refilter();
         }
       } else {
-        const message = `Error saving classification for ${job.platform} ${job.job_type_name}: ${data}`;
+        const message = `Error saving classification for ${job.platform} ${job.jobTypeName}: ${data}`;
         notify(message, 'danger');
       }
     }
@@ -161,12 +161,12 @@ class PinBoard extends React.Component {
         .create()
         .then(() => {
           notify(
-            `Bug association saved for ${job.platform} ${job.job_type_name}`,
+            `Bug association saved for ${job.platform} ${job.jobTypeName}`,
             'success',
           );
         })
         .catch(response => {
-          const message = `Error saving bug association for ${job.platform} ${job.job_type_name}`;
+          const message = `Error saving bug association for ${job.platform} ${job.jobTypeName}`;
           notify(formatModelError(response, message), 'danger');
         });
     });
@@ -411,7 +411,7 @@ class PinBoard extends React.Component {
                     onClick={() => setSelectedJob(job)}
                     data-job-id={job.job_id}
                   >
-                    {job.job_type_symbol}
+                    {job.jobTypeSymbol}
                   </span>
                   <span
                     className={`btn btn-ltgray pinned-job-close-btn ${

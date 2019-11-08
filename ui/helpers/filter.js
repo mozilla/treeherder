@@ -15,10 +15,10 @@ export const thMatchType = {
 
 // choices available for the field filters
 export const thFieldChoices = {
-  job_type_name: { name: 'job name', matchType: thMatchType.substr },
-  job_type_symbol: { name: 'job symbol', matchType: thMatchType.exactstr },
+  jobTypeName: { name: 'job name', matchType: thMatchType.substr },
+  jobTypeSymbol: { name: 'job symbol', matchType: thMatchType.exactstr },
   jobGroupName: { name: 'group name', matchType: thMatchType.substr },
-  job_group_symbol: { name: 'group symbol', matchType: thMatchType.exactstr },
+  jobGroupSymbol: { name: 'group symbol', matchType: thMatchType.exactstr },
   machine_name: { name: 'machine name', matchType: thMatchType.substr },
   platform: { name: 'platform', matchType: thMatchType.substr },
   tier: { name: 'tier', matchType: thMatchType.exactstr },

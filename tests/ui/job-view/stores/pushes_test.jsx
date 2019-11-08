@@ -250,7 +250,7 @@ describe('Pushes Redux store', () => {
   });
 
   test('should get new unclassified counts with recalculateUnclassifiedCounts', async () => {
-    setUrlParam('job_type_symbol', 'B');
+    setUrlParam('jobTypeSymbol', 'B');
     const { data: jobList } = await JobModel.getList({ push_id: 1 });
 
     const state = reducer(
@@ -285,7 +285,7 @@ describe('Pushes Redux store', () => {
     expect(Object.keys(reduced.jobMap)).toHaveLength(3);
     const job = reduced.jobMap['259539684'];
     expect(job.signature).toBe('f64069faca8636e9dc415bef8e9a4ee055d56687');
-    expect(job.job_type_name).toBe(
+    expect(job.jobTypeName).toBe(
       'test-android-hw-p2-8-0-arm7-api-16/debug-fennec-jittest-1proc-2',
     );
   });

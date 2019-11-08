@@ -67,7 +67,7 @@ def _sanitize_data(runnable_jobs_data):
 
         testtype = parse_testtype(
             build_system_type=job['build_system_type'],
-            job_type_name=job['job_type_name'],
+            jobTypeName=job['jobTypeName'],
             platform_option=job['platform_option'],
             ref_data_name=job['ref_data_name']
         )

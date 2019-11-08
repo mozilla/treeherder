@@ -86,7 +86,7 @@ class SETAJobPriorities:
             # get testtype e.g. web-platform-tests-4
             testtype = parse_testtype(
                 build_system_type=job['build_system_type'],
-                job_type_name=job['job_type_name'],
+                jobTypeName=job['jobTypeName'],
                 platform_option=job['platform_option'],
                 ref_data_name=job['ref_data_name']
             )

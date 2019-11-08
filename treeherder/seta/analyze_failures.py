@@ -113,7 +113,7 @@ def get_failures_fixed_by_commit():
 
             testtype = parse_testtype(
                 build_system_type=job_note.job.signature.build_system_type,  # e.g. taskcluster
-                job_type_name=job_note.job.job_type.name,  # e.g. Mochitest
+                jobTypeName=job_note.job.job_type.name,  # e.g. Mochitest
                 platform_option=job_note.job.get_platform_option(option_collection_map),  # e.g. 'opt'
                 ref_data_name=job_note.job.signature.name,  # buildername or task label
             )
