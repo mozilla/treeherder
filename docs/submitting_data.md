@@ -153,7 +153,6 @@ The following steps are required:
 
 [pulse guardian]: https://pulseguardian.mozilla.org/whats_pulse
 [pulse]: https://wiki.mozilla.org/Auto-tools/Projects/Pulse
-[pulse inspector]: https://tools.taskcluster.net/pulse-inspector/
 [pulse job schema]: https://github.com/mozilla/treeherder/blob/master/schemas/pulse-job.yml
 [treeherder bug]: https://bugzilla.mozilla.org/enter_bug.cgi?component=Treeherder:%20Data%20Ingestion&form_name=enter_bug&product=Tree%20Management
 [mozillapulse]: https://pypi.python.org/pypi/MozillaPulse

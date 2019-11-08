@@ -123,9 +123,10 @@ Here is a set of example parameters that could be used to run it:
 ./manage.py publish_to_pulse mozilla-inbound.staging amqp://treeherder-test:mypassword@pulse.mozilla.org:5672/ ./scratch/test_job.json
 ```
 
-You can use the handy [Pulse Inspector] to view messages in your exchange to
-test that they are arriving at Pulse the way you expect.
+You can use the handy Pulse Inspector to view messages in your exchange to
+test that they are arriving at Pulse the way you expect. Each exchange has its
+own inspector that can be accessed like so: <rootUrl>/pulse-messages/
+ex: https://community-tc.services.mozilla.com/pulse-messages/
 
 [pulse guardian]: https://pulseguardian.mozilla.org/whats_pulse
-[pulse inspector]: https://tools.taskcluster.net/pulse-inspector/
 [yml schema]: https://github.com/mozilla/treeherder/blob/master/schemas/pulse-job.yml

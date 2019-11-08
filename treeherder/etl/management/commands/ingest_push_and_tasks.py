@@ -117,7 +117,7 @@ class Command(BaseCommand):
         parser.add_argument(
             "--root-url",
             dest="root_url",
-            default="https://taskcluster.net",
+            default="https://firefox-ci-tc.services.mozilla.com",
             help="Taskcluster root URL for non-Firefox tasks (e.g. https://community-tc.services.mozilla.com"
         )
         parser.add_argument(
