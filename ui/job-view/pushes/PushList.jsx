@@ -166,7 +166,7 @@ class PushList extends React.Component {
           ))}
         {loadingPushes && (
           <div
-            aria-label="progress bar"
+            aria-label="loading pushes progress bar"
             className="progress active progress-bar progress-bar-striped"
             role="progressbar"
           />
