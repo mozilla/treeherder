@@ -45,10 +45,6 @@ export const getRunnableJobsURL = function getRunnableJobsURL(
   );
   return url;
 };
-// TODO remove
-export const getUserSessionUrl = function getUserSessionUrl(oidcProvider) {
-  return `https://login.taskcluster.net/v1/oidc-credentials/${oidcProvider}`;
-};
 
 export const createQueryParams = function createQueryParams(params) {
   const query =

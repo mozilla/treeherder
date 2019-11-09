@@ -47,7 +47,6 @@ const taskcluster = (() => {
       redirect_uri: redirectURI,
       scope: 'hooks:trigger-hook:*',
       state: nonce,
-      expires: '5 minutes',
     };
     const url = `${_rootUrl}/login/oauth/authorize${createQueryParams(params)}`;
 
