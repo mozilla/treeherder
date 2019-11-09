@@ -44,12 +44,14 @@ describe('JobModel', () => {
   });
 
   describe('Taskcluster actions', () => {
+    // TODO change to firefox-ci
+    const rootUrl = 'taskcluster.net';
     const decisionTaskMap = {
       '526443': { id: 'LVTawdmFR2-uJiWWS2NxSw', run: '0' },
     };
-    const tcActionsUrl =
-      'https://queue.taskcluster.net/v1/task/LVTawdmFR2-uJiWWS2NxSw/artifacts/public%2Factions.json';
-    const tcTaskUrl = 'https://queue.taskcluster.net/v1/task/TASKID';
+
+    const tcActionsUrl = `https://queue.${rootUrl}/v1/task/LVTawdmFR2-uJiWWS2NxSw/artifacts/public%2Factions.json`;
+    const tcTaskUrl = `https://queue.${rootUrl}/v1/task/TASKID`;
     const decisionTaskMapUrl = getProjectUrl(
       '/push/decisiontask/?push_ids=526443',
       'autoland',
@@ -95,6 +97,7 @@ describe('JobModel', () => {
         notify,
         1,
         decisionTaskMap,
+        true,
       );
 
       expect(fetchMock.called(decisionTaskMapUrl)).toBe(false);
@@ -103,7 +106,7 @@ describe('JobModel', () => {
     });
 
     test('retrigger calls for decision task when not passed-in', async () => {
-      await JobModel.retrigger(testJobs, currentRepo, notify, 1);
+      await JobModel.retrigger(testJobs, currentRepo, notify, 1, null, true);
 
       expect(fetchMock.called(decisionTaskMapUrl)).toBe(true);
       expect(fetchMock.called(tcTaskUrl)).toBe(false);
@@ -111,7 +114,13 @@ describe('JobModel', () => {
     });
 
     test('cancel uses passed-in decisionTask', async () => {
-      await JobModel.cancel(testJobs, currentRepo, () => {}, decisionTaskMap);
+      await JobModel.cancel(
+        testJobs,
+        currentRepo,
+        () => {},
+        decisionTaskMap,
+        true,
+      );
 
       expect(fetchMock.called(decisionTaskMapUrl)).toBe(false);
       expect(fetchMock.called(tcTaskUrl)).toBe(true);
@@ -119,7 +128,7 @@ describe('JobModel', () => {
     });
 
     test('cancel calls for decision task when not passed-in', async () => {
-      await JobModel.cancel(testJobs, currentRepo, () => {});
+      await JobModel.cancel(testJobs, currentRepo, () => {}, null, true);
 
       expect(fetchMock.called(decisionTaskMapUrl)).toBe(true);
       expect(fetchMock.called(tcTaskUrl)).toBe(true);
@@ -129,7 +138,13 @@ describe('JobModel', () => {
     test('cancelAll uses passed-in decisionTask', async () => {
       const decisionTask = { id: 'LVTawdmFR2-uJiWWS2NxSw', run: '0' };
 
-      await JobModel.cancelAll(526443, currentRepo, () => {}, decisionTask);
+      await JobModel.cancelAll(
+        526443,
+        currentRepo,
+        () => {},
+        decisionTask,
+        true,
+      );
 
       expect(fetchMock.called(decisionTaskMapUrl)).toBe(false);
       expect(fetchMock.called(tcTaskUrl)).toBe(false);
@@ -137,7 +152,7 @@ describe('JobModel', () => {
     });
 
     test('cancelAll calls for decision task when not passed-in', async () => {
-      await JobModel.cancelAll(526443, currentRepo, () => {});
+      await JobModel.cancelAll(526443, currentRepo, () => {}, null, true);
 
       expect(fetchMock.called(decisionTaskMapUrl)).toBe(true);
       expect(fetchMock.called(tcTaskUrl)).toBe(false);

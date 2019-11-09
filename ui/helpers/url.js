@@ -13,9 +13,6 @@ export const hgBaseUrl = 'https://hg.mozilla.org/';
 
 export const dxrBaseUrl = 'https://dxr.mozilla.org/';
 
-// the rootUrl of the TC deployment for which user login gets credentials
-export const loginRootUrl = 'https://taskcluster.net';
-
 export const bugsEndpoint = 'failures/';
 
 export const bugDetailsEndpoint = 'failuresbybug/';
@@ -32,6 +29,8 @@ export const repoEndpoint = '/repository/';
 
 export const perfSummaryEndpoint = 'performance/summary/';
 
+export const tcAuthCallbackUrl = '/taskcluster-auth.html';
+
 export const getRunnableJobsURL = function getRunnableJobsURL(
   decisionTask,
   rootUrl,
@@ -39,15 +38,12 @@ export const getRunnableJobsURL = function getRunnableJobsURL(
   const { id, run } = decisionTask;
   const tcUrl = tcLibUrls.withRootUrl(rootUrl);
 
-  return tcUrl.api(
+  const url = tcUrl.api(
     'queue',
     'v1',
     `/task/${id}/runs/${run}/artifacts/public/runnable-jobs.json`,
   );
-};
-
-export const getUserSessionUrl = function getUserSessionUrl(oidcProvider) {
-  return `https://login.taskcluster.net/v1/oidc-credentials/${oidcProvider}`;
+  return url;
 };
 
 export const createQueryParams = function createQueryParams(params) {
