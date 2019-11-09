@@ -42,6 +42,9 @@ class PerformanceSignature(models.Model):
     option_collection = models.ForeignKey(OptionCollection, on_delete=models.CASCADE)
     suite = models.CharField(max_length=80)
     test = models.CharField(max_length=80, blank=True)
+    application = models.CharField(max_length=10, null=True,
+                                   help_text="Application that runs the signature's tests. "
+                                             "Generally used to record browser's name, but not necessarily.")
     lower_is_better = models.BooleanField(default=True)
     last_updated = models.DateTimeField(db_index=True)
     parent_signature = models.ForeignKey('self', on_delete=models.CASCADE, related_name='subtests',
@@ -90,8 +93,8 @@ class PerformanceSignature(models.Model):
         unique_together = (
             # ensure there is only one signature per repository with a
             # particular set of properties
-            ('repository', 'framework', 'platform', 'option_collection',
-             'suite', 'test', 'last_updated', 'extra_options'),
+            ('repository', 'suite', 'test', 'framework', 'application',
+             'platform', 'option_collection', 'extra_options', 'last_updated'),
             # ensure there is only one signature of any hash per
             # repository (same hash in different repositories is allowed)
             ('repository', 'framework', 'signature_hash'),
