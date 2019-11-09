@@ -109,6 +109,14 @@ other data sets available there.
 
 [redash]: https://redash.io
 
+## ActiveData
+
+[ActiveData] imports Treeherder's production data into its Elasticsearch cluster.
+See the [getting started with ActiveData] guide for more details.
+
+[activedata]: https://wiki.mozilla.org/EngineeringProductivity/Projects/ActiveData
+[getting started with activedata]: https://github.com/mozilla/ActiveData/blob/dev/docs/GettingStarted.md
+
 ## Direct database access
 
 If there are any use-cases that are not possible via one of the above, we can provide read-only
