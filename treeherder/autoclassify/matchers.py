@@ -63,7 +63,7 @@ def crash_signature_matcher(text_log_error):
 
     if (failure_line.action != "crash" or
         failure_line.signature is None or
-            failure_line.signature == "None"):
+        failure_line.signature == "None"):
         return
 
     f = {
@@ -103,7 +103,6 @@ def crash_signature_matcher(text_log_error):
 
 class MatchScorer:
     """Simple scorer for similarity of strings based on python's difflib SequenceMatcher."""
-
     def __init__(self, target):
         """:param target: The string to which candidate strings will be compared."""
         self.matcher = SequenceMatcher(lambda x: x == " ")

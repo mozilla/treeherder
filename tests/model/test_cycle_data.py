@@ -46,8 +46,7 @@ def test_cycle_all_data(test_repository, failure_classifications, sample_data,
 
 
 def test_cycle_all_but_one_job(test_repository, failure_classifications, sample_data,
-                               sample_push, mock_log_parser,
-                               failure_lines):
+                               sample_push, mock_log_parser, failure_lines):
     """
     Test cycling all but one job in a group of jobs to confirm there are no
     unexpected deletions
@@ -143,10 +142,8 @@ def test_cycle_job_model_reference_data(test_repository, failure_classifications
     assert Machine.objects.filter(id=m_id).count() == 0
 
     # assert that we still have everything that shouldn't have been cycled
-    assert JobType.objects.filter(
-        id__in=original_job_type_ids).count() == len(original_job_type_ids)
-    assert JobGroup.objects.filter(
-        id__in=original_job_group_ids).count() == len(original_job_group_ids)
+    assert JobType.objects.filter(id__in=original_job_type_ids).count() == len(original_job_type_ids)
+    assert JobGroup.objects.filter(id__in=original_job_group_ids).count() == len(original_job_group_ids)
     assert Machine.objects.filter(id__in=original_machine_ids).count() == len(original_machine_ids)
 
 
@@ -236,8 +233,7 @@ def test_cycle_performance_data(test_repository, repository_name, push_stored,
 
     if should_expire:
         assert list(PerformanceDatum.objects.values_list('id', flat=True)) == [1]
-        assert list(PerformanceSignature.objects.values_list(
-            'id', flat=True)) == [test_perf_signature.id]
+        assert list(PerformanceSignature.objects.values_list('id', flat=True)) == [test_perf_signature.id]
     else:
         assert PerformanceDatum.objects.count() == 2
         assert PerformanceSignature.objects.count() == 2

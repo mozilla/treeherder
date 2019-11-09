@@ -93,8 +93,7 @@ def test_update_error_replace(client,
     assert error_line.metadata.best_is_verified
 
     expected_matcher = "ManualDetector"
-    assert error_line.matches.get(
-        classified_failure=classified_failure).matcher_name == expected_matcher
+    assert error_line.matches.get(classified_failure=classified_failure).matcher_name == expected_matcher
 
 
 def test_update_error_mark_job(client,
