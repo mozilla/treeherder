@@ -45,7 +45,7 @@ const taskcluster = (() => {
       client_id: clientId,
       response_type: 'code',
       redirect_uri: redirectURI,
-      scope: 'treeherder',
+      scope: 'hooks:trigger-hook:*',
       state: nonce,
       expires: '5 minutes',
     };
