@@ -5,6 +5,7 @@ from collections import defaultdict
 import django_filters
 from django.conf import settings
 from django.db import transaction
+from django.db.models import Count
 from rest_framework import (exceptions,
                             filters,
                             generics,
@@ -32,7 +33,10 @@ from .performance_serializers import (IssueTrackerSerializer,
                                       PerformanceBugTemplateSerializer,
                                       PerformanceFrameworkSerializer,
                                       PerformanceQueryParamsSerializer,
-                                      PerformanceSummarySerializer)
+                                      PerformanceSummarySerializer,
+                                      TestSuiteHealthParamsSerializer,
+                                      TestSuiteHealthSerializer)
+from .utils import GroupConcat
 
 
 class PerformanceSignatureViewSet(viewsets.ViewSet):
@@ -491,4 +495,26 @@ class PerformanceSummary(generics.ListAPIView):
                 item['repository_name'] = repository_name
 
         serializer = self.get_serializer(self.queryset, many=True)
+        return Response(data=serializer.data)
+
+
+class TestSuiteHealthViewSet(viewsets.ViewSet):
+
+    def list(self, request):
+        query_params = TestSuiteHealthParamsSerializer(data=request.query_params)
+        if not query_params.is_valid():
+            return Response(data=query_params.errors,
+                            status=HTTP_400_BAD_REQUEST)
+
+        framework_id = query_params.validated_data['framework']
+        query_set = (PerformanceSignature.objects
+                     .prefetch_related('performancealert')
+                     .filter(framework_id=framework_id, parent_signature_id=None)
+                     .values('suite', 'test')
+                     .annotate(repositories=GroupConcat('repository_id', distinct=True))
+                     .annotate(platforms=GroupConcat('platform_id', distinct=True))
+                     .annotate(total_alerts=Count('performancealert'))
+                     .order_by('suite', 'test'))
+
+        serializer = TestSuiteHealthSerializer(query_set, many=True)
         return Response(data=serializer.data)

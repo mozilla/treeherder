@@ -672,7 +672,8 @@ class Job(models.Model):
     def get_duration(submit_time, start_time, end_time):
         endtime = end_time if to_timestamp(end_time) else datetime.datetime.now()
         starttime = start_time if to_timestamp(start_time) else submit_time
-        return round((endtime - starttime).total_seconds() / 60)
+        seconds = max((endtime - starttime).total_seconds(), 60)
+        return max(round(seconds / 60), 1)
 
 
 class TaskclusterMetadata(models.Model):

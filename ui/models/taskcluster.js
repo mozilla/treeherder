@@ -1,10 +1,9 @@
 import defaults from 'lodash/defaults';
 import jsone from 'json-e';
-import { Auth, Hooks, Queue } from 'taskcluster-client-web';
+import { Auth, Hooks } from 'taskcluster-client-web';
 import { satisfiesExpression } from 'taskcluster-lib-scopes';
 
-import taskcluster from '../helpers/taskcluster';
-import { loginRootUrl } from '../helpers/url';
+import taskcluster, { tcCredentialsMessage } from '../helpers/taskcluster';
 
 export default class TaskclusterModel {
   static taskInContext(tagSetList, taskTags) {
@@ -25,15 +24,8 @@ export default class TaskclusterModel {
     input,
     staticActionVariables,
     currentRepo,
+    testMode = false,
   }) {
-    if (currentRepo.tc_root_url !== loginRootUrl) {
-      // This limit could be lifted by allowing users to login to multiple TC deployments at once, using
-      // https://github.com/taskcluster/taskcluster-rfcs/blob/master/rfcs/0147-third-party-login.md
-      throw Error(
-        `Actions are not supported for this repository, as it does not use TC deployment ${loginRootUrl}`,
-      );
-    }
-
     const context = defaults(
       {},
       {
@@ -43,7 +35,8 @@ export default class TaskclusterModel {
       },
       staticActionVariables,
     );
-    const queue = taskcluster.getQueue();
+
+    const queue = taskcluster.getQueue(currentRepo.tc_root_url, testMode);
 
     if (action.kind === 'task') {
       context.task = task;
@@ -61,9 +54,16 @@ export default class TaskclusterModel {
       const hookPayload = jsone(action.hookPayload, context);
       const { hookId, hookGroupId } = action;
       const auth = new Auth({ rootUrl: currentRepo.tc_root_url });
+
+      const userCredentials = testMode
+        ? taskcluster.getMockCredentials()
+        : taskcluster.getCredentials(currentRepo.tc_root_url);
+      if (!userCredentials) {
+        throw new Error(tcCredentialsMessage);
+      }
       const hooks = new Hooks({
-        credentialAgent: taskcluster.getAgent(),
         rootUrl: currentRepo.tc_root_url,
+        credentials: userCredentials.credentials,
       });
       const decisionTask = await queue.task(decisionTaskId);
       const expansion = await auth.expandScopes({
@@ -83,20 +83,12 @@ export default class TaskclusterModel {
     }
   }
 
-  static async load(decisionTaskID, job, currentRepo) {
+  static async load(decisionTaskID, job, currentRepo, testMode = false) {
     if (!decisionTaskID) {
       throw Error("No decision task, can't find taskcluster actions");
     }
 
-    if (currentRepo.tc_root_url !== loginRootUrl) {
-      // This limit could be lifted by allowing users to login to multiple TC deployments at once, using
-      // https://github.com/taskcluster/taskcluster-rfcs/blob/master/rfcs/0147-third-party-login.md
-      throw Error(
-        `Actions are not supported for this repository, as it does not use TC deployment ${loginRootUrl}`,
-      );
-    }
-
-    const queue = taskcluster.getQueue();
+    const queue = taskcluster.getQueue(currentRepo.tc_root_url, testMode);
     const actionsUrl = queue.buildUrl(
       queue.getLatestArtifact,
       decisionTaskID,
@@ -108,7 +100,7 @@ export default class TaskclusterModel {
     let originalTaskPromise = Promise.resolve(null);
     if (job) {
       originalTaskId = job.task_id;
-      const queue = new Queue({ rootUrl: currentRepo.tc_root_url });
+      const queue = taskcluster.getQueue(currentRepo.tc_root_url, testMode);
       originalTaskPromise = queue.task(originalTaskId);
     }
 

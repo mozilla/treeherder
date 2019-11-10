@@ -3,6 +3,8 @@ from datetime import (datetime,
                       timedelta)
 
 import django_filters
+from django.db.models import (Aggregate,
+                              CharField)
 
 # queries are faster when filtering a range by id rather than name
 # trunk: mozilla-central, mozilla-inbound, autoland
@@ -13,6 +15,19 @@ REPO_GROUPS = {
     'firefox-releases': [6, 7],
     'comm-releases': [38],
 }
+
+
+class GroupConcat(Aggregate):
+    function = 'GROUP_CONCAT'
+    template = '%(function)s(%(distinct)s%(expressions)s)'
+    allow_distinct = True
+
+    def __init__(self, expression, distinct=False, **extra):
+        super().__init__(
+            expression,
+            distinct='DISTINCT ' if distinct else '',
+            output_field=CharField(),
+            **extra)
 
 
 class NumberInFilter(django_filters.filters.BaseInFilter,

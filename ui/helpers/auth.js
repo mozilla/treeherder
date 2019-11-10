@@ -7,9 +7,8 @@ export const webAuth = new WebAuth({
   clientID: 'q8fZZFfGEmSB2c5uSI8hOkKdDGXnlo5z',
   domain: 'auth.mozilla.auth0.com',
   responseType: 'id_token token',
-  audience: 'login.taskcluster.net',
   redirectUri: `${window.location.protocol}//${window.location.host}${loginCallbackUrl}`,
-  scope: 'taskcluster-credentials openid profile email',
+  scope: 'openid profile email',
 });
 
 export const userSessionFromAuthResult = authResult => {
@@ -44,7 +43,7 @@ export const userSessionFromAuthResult = authResult => {
   //   "state": "<HASH>",
   //   "expiresIn": 86400,
   //   "tokenType": "Bearer",
-  //   "scope": "openid profile email taskcluster-credentials"
+  //   "scope": "openid profile email"
   // }
   //
   // For more details, see:

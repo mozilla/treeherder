@@ -74,7 +74,7 @@ class Push extends React.PureComponent {
       runnableVisible: false,
       selectedRunnableJobs: [],
       watched: 'none',
-      jobCounts: { pending: 0, running: 0, completed: 0 },
+      jobCounts: { pending: 0, running: 0, completed: 0, fixedByCommit: 0 },
       pushGroupState: 'collapsed',
       collapsed: collapsedPushes.includes(push.id),
     };
@@ -319,7 +319,7 @@ class Push extends React.PureComponent {
     const { push, notify, decisionTaskMap, currentRepo } = this.props;
 
     try {
-      const jobList = await RunnableJobModel.getList(currentRepo.name, {
+      const jobList = await RunnableJobModel.getList(currentRepo, {
         decisionTask: decisionTaskMap[push.id],
         push_id: push.id,
       });
@@ -366,7 +366,7 @@ class Push extends React.PureComponent {
 
     try {
       notify('Fetching runnable jobs... This could take a while...');
-      let fuzzyJobList = await RunnableJobModel.getList(currentRepo.name, {
+      let fuzzyJobList = await RunnableJobModel.getList(currentRepo, {
         decisionTask: decisionTaskMap[push.id],
       });
       fuzzyJobList = [
@@ -500,6 +500,7 @@ class Push extends React.PureComponent {
           selectedRunnableJobs={selectedRunnableJobs}
           notificationSupported={notificationSupported}
           pushHealthVisibility={pushHealthVisibility}
+          groupCountsExpanded={groupCountsExpanded}
         />
         <div className="push-body-divider" />
         {!collapsed ? (

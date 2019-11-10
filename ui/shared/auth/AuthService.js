@@ -3,7 +3,6 @@ import {
   renew,
   loggedOutUser,
 } from '../../helpers/auth';
-import taskcluster from '../../helpers/taskcluster';
 import { getApiUrl } from '../../helpers/url';
 import UserModel from '../../models/user';
 

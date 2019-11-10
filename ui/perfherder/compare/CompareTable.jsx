@@ -12,7 +12,7 @@ import {
 } from '@fortawesome/free-solid-svg-icons';
 
 import SimpleTooltip from '../../shared/SimpleTooltip';
-import { displayNumber } from '../helpers';
+import { displayNumber, formatNumber } from '../helpers';
 import { compareTableText } from '../constants';
 import ProgressBar from '../ProgressBar';
 import { hashFunction } from '../../helpers/utils';
@@ -32,7 +32,7 @@ export default class CompareTable extends React.PureComponent {
   };
 
   deltaTooltipText = (delta, percentage, improvement) =>
-    `Mean difference: ${displayNumber(delta)} (= ${Math.abs(
+    `Mean difference: ${formatNumber(displayNumber(delta))} (= ${Math.abs(
       displayNumber(percentage),
     )}% ${improvement ? 'better' : 'worse'})`;
 

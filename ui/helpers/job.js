@@ -174,7 +174,6 @@ export const addAggregateFields = function addAggregateFields(job) {
     platform,
     platform_option,
     signature,
-    duration,
     submit_timestamp,
     start_timestamp,
     end_timestamp,
@@ -197,16 +196,20 @@ export const addAggregateFields = function addAggregateFields(job) {
     .join(' ');
   job.searchStr = `${job.title} ${signature}`;
 
-  if (!duration) {
+  if (!('duration' in job)) {
     // If start time is 0, then duration should be from requesttime to now
     // If we have starttime and no endtime, then duration should be starttime to now
     // If we have both starttime and endtime, then duration will be between those two
     const endtime = end_timestamp || Date.now() / 1000;
     const starttime = start_timestamp || submit_timestamp;
-    job.duration = Math.round((endtime - starttime) / 60, 0);
+    const diff = Math.max(endtime - starttime, 60);
+
+    job.duration = Math.round(diff / 60, 0);
   }
 
-  job.hoverText = `${job_type_name} - ${job.resultStatus} - ${job.duration} mins`;
+  job.hoverText = `${job_type_name} - ${job.resultStatus} - ${
+    job.duration
+  } min${job.duration > 1 ? 's' : ''}`;
   return job;
 };
 

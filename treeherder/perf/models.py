@@ -42,6 +42,9 @@ class PerformanceSignature(models.Model):
     option_collection = models.ForeignKey(OptionCollection, on_delete=models.CASCADE)
     suite = models.CharField(max_length=80)
     test = models.CharField(max_length=80, blank=True)
+    application = models.CharField(max_length=10, null=True,
+                                   help_text="Application that runs the signature's tests. "
+                                             "Generally used to record browser's name, but not necessarily.")
     lower_is_better = models.BooleanField(default=True)
     last_updated = models.DateTimeField(db_index=True)
     parent_signature = models.ForeignKey('self', on_delete=models.CASCADE, related_name='subtests',
@@ -90,8 +93,8 @@ class PerformanceSignature(models.Model):
         unique_together = (
             # ensure there is only one signature per repository with a
             # particular set of properties
-            ('repository', 'framework', 'platform', 'option_collection',
-             'suite', 'test', 'last_updated', 'extra_options'),
+            ('repository', 'suite', 'test', 'framework', 'application',
+             'platform', 'option_collection', 'extra_options', 'last_updated'),
             # ensure there is only one signature of any hash per
             # repository (same hash in different repositories is allowed)
             ('repository', 'framework', 'signature_hash'),
@@ -278,7 +281,6 @@ class PerformanceAlertSummary(models.Model):
     WONTFIX = 6
     FIXED = 7
     BACKED_OUT = 8
-    CONFIRMING = 9
 
     STATUSES = ((UNTRIAGED, 'Untriaged'),
                 (DOWNSTREAM, 'Downstream'),
@@ -288,8 +290,7 @@ class PerformanceAlertSummary(models.Model):
                 (INVESTIGATING, 'Investigating'),
                 (WONTFIX, 'Won\'t fix'),
                 (FIXED, 'Fixed'),
-                (BACKED_OUT, 'Backed out'),
-                (CONFIRMING, 'Confirming'))
+                (BACKED_OUT, 'Backed out'))
 
     status = models.IntegerField(choices=STATUSES, default=UNTRIAGED)
 
@@ -329,9 +330,6 @@ class PerformanceAlertSummary(models.Model):
         # if any untriaged, then set to untriaged
         if any(alert.status == PerformanceAlert.UNTRIAGED for alert in alerts):
             return PerformanceAlertSummary.UNTRIAGED
-
-        if any(alert.status == PerformanceAlert.CONFIRMING for alert in alerts):
-            return PerformanceAlertSummary.CONFIRMING
 
         # if all invalid, then set to invalid
         if all(alert.status == PerformanceAlert.INVALID for alert in alerts):
@@ -417,20 +415,18 @@ class PerformanceAlert(models.Model):
     REASSIGNED = 2
     INVALID = 3
     ACKNOWLEDGED = 4
-    CONFIRMING = 5
 
     # statuses where we relate this alert to another summary
     RELATIONAL_STATUS_IDS = (DOWNSTREAM, REASSIGNED)
     # statuses where this alert is related only to the summary it was
     # originally assigned to
-    UNRELATIONAL_STATUS_IDS = (UNTRIAGED, INVALID, ACKNOWLEDGED, CONFIRMING)
+    UNRELATIONAL_STATUS_IDS = (UNTRIAGED, INVALID, ACKNOWLEDGED)
 
     STATUSES = ((UNTRIAGED, 'Untriaged'),
                 (DOWNSTREAM, 'Downstream'),
                 (REASSIGNED, 'Reassigned'),
                 (INVALID, 'Invalid'),
-                (ACKNOWLEDGED, 'Acknowledged'),
-                (CONFIRMING, 'Confirming'))
+                (ACKNOWLEDGED, 'Acknowledged'))
 
     status = models.IntegerField(choices=STATUSES, default=UNTRIAGED)
 

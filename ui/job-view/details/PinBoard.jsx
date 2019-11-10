@@ -114,9 +114,13 @@ class PinBoard extends React.Component {
     });
   };
 
-  saveClassification = async job => {
-    const { recalculateUnclassifiedCounts, notify } = this.props;
+  saveClassification = async pinnedJob => {
+    const { recalculateUnclassifiedCounts, notify, jobMap } = this.props;
     const classification = this.createNewClassification();
+    // Ensure the version of the job we have is the one that is displayed in
+    // the main job field.  Not the "full" selected job instance only shown in
+    // the job details panel.
+    const job = jobMap[pinnedJob.id];
 
     // classification can be left unset making this a no-op
     if (classification.failure_classification_id > 0) {
@@ -131,6 +135,8 @@ class PinBoard extends React.Component {
         // update the job to show that it's now classified
         const jobInstance = findJobInstance(job.id);
 
+        // Filter in case we are hiding unclassified.  Also causes a repaint on the job
+        // to show it if has been newly classified or not.
         if (jobInstance) {
           jobInstance.refilter();
         }
@@ -638,6 +644,7 @@ class PinBoard extends React.Component {
 PinBoard.propTypes = {
   recalculateUnclassifiedCounts: PropTypes.func.isRequired,
   decisionTaskMap: PropTypes.object.isRequired,
+  jobMap: PropTypes.object.isRequired,
   classificationTypes: PropTypes.array.isRequired,
   isLoggedIn: PropTypes.bool.isRequired,
   isPinBoardVisible: PropTypes.bool.isRequired,
@@ -666,7 +673,7 @@ PinBoard.defaultProps = {
 };
 
 const mapStateToProps = ({
-  pushes: { revisionTips, decisionTaskMap },
+  pushes: { revisionTips, decisionTaskMap, jobMap },
   pinnedJobs: {
     isPinBoardVisible,
     pinnedJobs,
@@ -677,6 +684,7 @@ const mapStateToProps = ({
 }) => ({
   revisionTips,
   decisionTaskMap,
+  jobMap,
   isPinBoardVisible,
   pinnedJobs,
   pinnedJobBugs,

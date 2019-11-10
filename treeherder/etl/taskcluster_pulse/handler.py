@@ -111,6 +111,23 @@ async def handleMessage(message, taskDefinition=None):
     taskId = message["payload"]["status"]["taskId"]
     asyncQueue = taskcluster.aio.Queue({"rootUrl": message["root_url"]}, session=session)
     task = (await asyncQueue.task(taskId)) if not taskDefinition else taskDefinition
+
+    # Bug 1590512 - A more general solution is needed to avoid using env variables that
+    # are only available for mobile related tasks (this does not work for fenix)
+    try:
+        envs = task["payload"]["env"]
+        if envs["MOBILE_BASE_REPOSITORY"] == "https://github.com/mozilla-mobile/android-components":
+            # Ignore tasks that are associated to a pull request
+            if envs["MOBILE_BASE_REPOSITORY"] != envs["MOBILE_HEAD_REPOSITORY"]:
+                logger.info("Task: %s belong to a pull request which we ignore.", taskId)
+                return jobs
+            # Bug 1587542 - Temporary change to ignore Github tasks not associated to 'master'
+            if envs["MOBILE_HEAD_REF"] != "refs/heads/master":
+                logger.info("Task: %s is not for the `master` branch.", taskId)
+                return jobs
+    except KeyError:
+        pass
+
     try:
         parsedRoute = parseRouteInfo("tc-treeherder", taskId, task["routes"], task)
     except PulseHandlerError as e:

@@ -416,13 +416,11 @@ export class BugFilerClass extends React.Component {
     const descriptionStrings = `${logLinks}\n\n---\n\n${comment}`;
 
     const keywords = isIntermittent ? ['intermittent-failure'] : [];
-    let severity = 'normal';
     let priority = 'P5';
     const crashSignature = crashSignatures.join('\n');
 
     if (crashSignature.length > 0) {
       keywords.push('crash');
-      severity = 'critical';
       // Set no priority for crashes to get them included in triage meetings.
       priority = '--';
     }
@@ -464,7 +462,7 @@ export class BugFilerClass extends React.Component {
           depends_on: dependsOn,
           see_also: seeAlso,
           crash_signature: crashSignature,
-          severity,
+          severity: 'normal',
           priority,
           comment: descriptionStrings,
           comment_tags: 'treeherder',
@@ -476,8 +474,8 @@ export class BugFilerClass extends React.Component {
         );
 
         if (!failureStatus) {
-          successCallback(data);
           toggle();
+          successCallback(data);
         } else {
           this.submitFailure('Treeherder Bug Filer API', failureStatus, data);
         }

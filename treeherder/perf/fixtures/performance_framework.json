@@ -16,14 +16,6 @@
     }
   },
   {
-    "pk": 3,
-    "model": "perf.PerformanceFramework",
-    "fields": {
-      "name": "autophone",
-      "enabled": true
-    }
-  },
-  {
     "pk": 4,
     "model": "perf.PerformanceFramework",
     "fields": {
@@ -44,30 +36,6 @@
     "model": "perf.PerformanceFramework",
     "fields": {
       "name": "platform_microbench",
-      "enabled": true
-    }
-  },
-  {
-    "pk": 7,
-    "model": "perf.PerformanceFramework",
-    "fields": {
-      "name": "talos-aws",
-      "enabled": true
-    }
-  },
-  {
-    "pk": 8,
-    "model": "perf.PerformanceFramework",
-    "fields": {
-      "name": "servo-perf",
-      "enabled": true
-    }
-  },
-  {
-    "pk": 9,
-    "model": "perf.PerformanceFramework",
-    "fields": {
-      "name": "hasal",
       "enabled": true
     }
   },

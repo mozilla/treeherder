@@ -1,10 +1,11 @@
 import React from 'react';
 import { hot } from 'react-hot-loader/root';
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faSpinner } from '@fortawesome/free-solid-svg-icons';
+import moment from 'moment';
 
 import AuthService from '../shared/auth/AuthService';
 import { webAuth, parseHash } from '../helpers/auth';
+import CallbackMessage from '../shared/CallbackMessage';
+import taskcluster from '../helpers/taskcluster';
 
 class LoginCallback extends React.PureComponent {
   constructor(props) {
@@ -28,7 +29,6 @@ class LoginCallback extends React.PureComponent {
     // a postMessage back, and that's it.
     if (window !== window.top) {
       window.parent.postMessage(window.location.hash, window.origin);
-
       // eslint-disable-next-line consistent-return
       return;
     }
@@ -38,13 +38,7 @@ class LoginCallback extends React.PureComponent {
 
       if (authResult.accessToken) {
         await this.authService.saveCredentialsFromAuthResult(authResult);
-
-        if (window.opener) {
-          window.close();
-        } else {
-          // handle case where the user navigates directly to the login route
-          window.location.href = window.origin;
-        }
+        this.checkTaskclusterCredentials();
       }
     } catch (err) {
       this.setError(err);
@@ -57,25 +51,31 @@ class LoginCallback extends React.PureComponent {
     });
   }
 
+  checkTaskclusterCredentials = () => {
+    const userCredentials = JSON.parse(localStorage.getItem('userCredentials'));
+    const defaultRootUrl = 'https://firefox-ci-tc.services.mozilla.com';
+
+    if (
+      !userCredentials ||
+      !userCredentials[defaultRootUrl] ||
+      !moment(userCredentials[defaultRootUrl].expires).isAfter(moment())
+    ) {
+      taskcluster.getAuthCode(true);
+    } else if (window.opener) {
+      window.close();
+    } else {
+      // handle case where the user navigates directly to the login route
+      window.location.href = window.origin;
+    }
+  };
+
   render() {
-    if (this.state.loginError) {
-      return <p>{this.state.loginError}</p>;
-    }
-
-    if (window.location.hash) {
-      return (
-        <div>
-          <span>Logging in..&nbsp;</span>
-          <FontAwesomeIcon icon={faSpinner} spin />
-        </div>
-      );
-    }
-
+    const { loginError } = this.state;
     return (
-      <div>
-        <span>Redirecting..&nbsp;</span>
-        <FontAwesomeIcon icon={faSpinner} spin />
-      </div>
+      <CallbackMessage
+        errorMessage={loginError}
+        text={window.location.hash ? 'Logging in...' : 'Redirecting...'}
+      />
     );
   }
 }

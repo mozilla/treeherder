@@ -89,6 +89,7 @@ export default class JobModel {
     notify,
     times = 1,
     decisionTaskIdMap = null,
+    testMode = false,
   ) {
     const jobTerm = jobs.length > 1 ? 'jobs' : 'job';
     try {
@@ -103,8 +104,8 @@ export default class JobModel {
       for (const [key, value] of Object.entries(uniquePerPushJobs)) {
         const decisionTaskId = taskIdMap[key].id;
 
-        TaskclusterModel.load(decisionTaskId, null, currentRepo).then(
-          async results => {
+        TaskclusterModel.load(decisionTaskId, null, currentRepo, testMode)
+          .then(async results => {
             const actionTaskId = slugid();
             const taskLabels = value.map(job => job.job_type_name);
 
@@ -134,6 +135,7 @@ export default class JobModel {
               input: actionInput,
               staticActionVariables: results.staticActionVariables,
               currentRepo,
+              testMode,
             })
               .then(() =>
                 notify(
@@ -147,8 +149,8 @@ export default class JobModel {
                   { sticky: true },
                 );
               });
-          },
-        );
+          })
+          .catch(error => notify(error.message, 'danger', { sticky: true }));
       }
     } catch (e) {
       notify(
@@ -159,15 +161,26 @@ export default class JobModel {
     }
   }
 
-  static async cancelAll(pushId, currentRepo, notify, decisionTask) {
+  static async cancelAll(
+    pushId,
+    currentRepo,
+    notify,
+    decisionTask,
+    testMode = false,
+  ) {
     const { id: decisionTaskId } =
       decisionTask || (await PushModel.getDecisionTaskId(pushId, notify));
-
-    const results = await TaskclusterModel.load(
-      decisionTaskId,
-      null,
-      currentRepo,
-    );
+    let results;
+    try {
+      results = await TaskclusterModel.load(
+        decisionTaskId,
+        null,
+        currentRepo,
+        testMode,
+      );
+    } catch (e) {
+      notify(e.message, 'danger', { sticky: true });
+    }
 
     try {
       const cancelAllTask = getAction(results.actions, 'cancel-all');
@@ -178,6 +191,7 @@ export default class JobModel {
         input: {},
         staticActionVariables: results.staticActionVariables,
         currentRepo,
+        testMode,
       });
     } catch (e) {
       // The full message is too large to fit in a Treeherder
@@ -188,7 +202,13 @@ export default class JobModel {
     notify('Request sent to cancel all jobs via action.json', 'success');
   }
 
-  static async cancel(jobs, currentRepo, notify, decisionTaskIdMap) {
+  static async cancel(
+    jobs,
+    currentRepo,
+    notify,
+    decisionTaskIdMap = null,
+    testMode = false,
+  ) {
     const jobTerm = jobs.length > 1 ? 'jobs' : 'job';
     const taskIdMap =
       decisionTaskIdMap ||
@@ -206,11 +226,17 @@ export default class JobModel {
       /* eslint-disable no-await-in-loop */
       for (const job of jobs) {
         const decisionTaskId = taskIdMap[job.push_id].id;
-        const results = await TaskclusterModel.load(
-          decisionTaskId,
-          job,
-          currentRepo,
-        );
+        let results;
+        try {
+          results = await TaskclusterModel.load(
+            decisionTaskId,
+            job,
+            currentRepo,
+            testMode,
+          );
+        } catch (e) {
+          notify(e.message, 'danger', { sticky: true });
+        }
 
         try {
           const cancelTask = getAction(results.actions, 'cancel');
@@ -222,6 +248,7 @@ export default class JobModel {
             input: {},
             staticActionVariables: results.staticActionVariables,
             currentRepo,
+            testMode,
           });
         } catch (e) {
           // The full message is too large to fit in a Treeherder

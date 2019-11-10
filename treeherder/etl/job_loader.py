@@ -15,6 +15,21 @@ from treeherder.model.models import (Push,
 logger = logging.getLogger(__name__)
 
 
+# TODO: Improve the code https://bugzilla.mozilla.org/show_bug.cgi?id=1560596
+# add some taskcluster metadata if it's available
+# currently taskcluster doesn't pass the taskId directly, so we'll
+# derive it from the guid, where it is stored in uncompressed
+# guid form of a slug (see: https://github.com/taskcluster/slugid)
+# FIXME: add support for processing the taskcluster information
+# properly, when it's available:
+# https://bugzilla.mozilla.org/show_bug.cgi?id=1323110#c7
+def task_and_retry_ids(job_guid):
+    (decoded_task_id, retry_id) = job_guid.split('/')
+    # As of slugid v2, slugid.encode() returns a string not bytestring under Python 3.
+    real_task_id = slugid.encode(uuid.UUID(decoded_task_id))
+    return (real_task_id, retry_id)
+
+
 class JobLoader:
     """Validate, transform and load a list of Jobs"""
 
@@ -51,10 +66,9 @@ class JobLoader:
                 newrelic.agent.add_custom_parameter("project", project)
 
                 repository = Repository.objects.get(name=project)
-
-                if repository.tc_root_url != root_url:
-                    logger.warning("Skipping job for %s with incorrect root_url %s",
-                                   repository.name, root_url)
+                if repository.active_status != 'active':
+                    (real_task_id, _) = task_and_retry_ids(pulse_job["taskId"])
+                    logger.debug("Task %s belongs to a repository that is not active.", real_task_id)
                     return
 
                 if pulse_job["state"] != "unscheduled":
@@ -86,10 +100,12 @@ class JobLoader:
             )
 
         if not Push.objects.filter(**filter_kwargs).exists():
+            (real_task_id, _) = task_and_retry_ids(pulse_job["taskId"])
             raise MissingPushException(
-                "No push found in {} for revision {}".format(
+                "No push found in {} for revision {} for task {}".format(
                     pulse_job["origin"]["project"],
-                    revision))
+                    revision,
+                    real_task_id))
 
     def transform(self, pulse_job):
         """
@@ -139,18 +155,8 @@ class JobLoader:
             platform_src = pulse_job[v] if v in pulse_job else default_platform
             x["job"][k] = self._get_platform(platform_src)
 
-        # TODO: Improve the code https://bugzilla.mozilla.org/show_bug.cgi?id=1560596
-        # add some taskcluster metadata if it's available
-        # currently taskcluster doesn't pass the taskId directly, so we'll
-        # derive it from the guid, where it is stored in uncompressed
-        # guid form of a slug (see: https://github.com/taskcluster/slugid)
-        # FIXME: add support for processing the taskcluster information
-        # properly, when it's available:
-        # https://bugzilla.mozilla.org/show_bug.cgi?id=1323110#c7
         try:
-            (decoded_task_id, retry_id) = job_guid.split('/')
-            # As of slugid v2, slugid.encode() returns a string not bytestring under Python 3.
-            real_task_id = slugid.encode(uuid.UUID(decoded_task_id))
+            (real_task_id, retry_id) = task_and_retry_ids(job_guid)
             x["job"].update({
                 "taskcluster_task_id": real_task_id,
                 "taskcluster_retry_id": int(retry_id)
@@ -315,7 +321,13 @@ class JobLoader:
         return resmap[result]
 
     def _is_valid_job(self, pulse_job):
+        if pulse_job is None:
+            return False
         try:
+            # e.g. mozilla-l10n-automation-bot@users.noreply.github.com
+            # Changing the pulse schema will also require a schema change
+            if len(pulse_job["owner"]) > 50:
+                pulse_job["owner"] = pulse_job["owner"][0:49]
             jsonschema.validate(pulse_job, get_json_schema("pulse-job.yml"))
         except (jsonschema.ValidationError, jsonschema.SchemaError) as e:
             logger.error("JSON Schema validation error during job ingestion: %s", e)

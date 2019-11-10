@@ -8,6 +8,7 @@ from django.conf import settings
 from django.core.management.base import BaseCommand
 
 from treeherder.etl.job_loader import JobLoader
+from treeherder.etl.push_loader import PushLoader
 from treeherder.etl.pushlog import HgPushlogProcess
 from treeherder.etl.taskcluster_pulse.handler import (EXCHANGE_EVENT_MAP,
                                                       handleMessage)
@@ -58,7 +59,7 @@ async def handleTask(task, root_url):
                 for run in taskRuns:
                     logger.info("Loading into DB:\t%s/%s", taskId, run["retryId"])
                     # XXX: This seems our current bottleneck
-                    JobLoader().process_job(run)
+                    JobLoader().process_job(run, root_url)
         except Exception as e:
             logger.exception(e)
 
@@ -72,11 +73,11 @@ async def fetchGroupTasks(taskGroupId, root_url):
         if continuationToken:
             query = {"continuationToken": continuationToken}
         response = await asyncQueue.listTaskGroup(taskGroupId, query=query)
-        tasks.extend(response['tasks'])
-        continuationToken = response.get('continuationToken')
+        tasks.extend(response["tasks"])
+        continuationToken = response.get("continuationToken")
         if continuationToken is None:
             break
-        logger.info('Requesting more tasks. %s tasks so far...', len(tasks))
+        logger.info("Requesting more tasks. %s tasks so far...", len(tasks))
     return tasks
 
 
@@ -85,7 +86,7 @@ async def processTasks(taskGroupId, root_url):
     asyncTasks = []
     logger.info("We have %s tasks to process", len(tasks))
     for task in tasks:
-        asyncTasks.append(asyncio.create_task(handleTask(task)))
+        asyncTasks.append(asyncio.create_task(handleTask(task, root_url)))
 
     await asyncio.gather(*asyncTasks)
 
@@ -96,18 +97,28 @@ class Command(BaseCommand):
 
     def add_arguments(self, parser):
         parser.add_argument(
-            "--project",
-            help="repository to query"
+            "ingestion_type",
+            nargs=1,
+            help="Type of ingestion to do: [task|hg-push|git-commit|pr]"
         )
         parser.add_argument(
-            "--changeset",
+            "-p", "--project",
+            help="Hg repository to query (e.g. autoland)"
+        )
+        parser.add_argument(
+            "-c", "--commit",
+            help="Commit to import"
+        )
+        parser.add_argument(
+            "--ingest-all-tasks",
             nargs="?",
-            help="changeset to import"
+            help="This will cause all tasks associated to a commit to be ingested. This can take a long time."
         )
         parser.add_argument(
             "--root-url",
             dest="root_url",
-            help="root URL for optional taskIds"
+            default="https://firefox-ci-tc.services.mozilla.com",
+            help="Taskcluster root URL for non-Firefox tasks (e.g. https://community-tc.services.mozilla.com"
         )
         parser.add_argument(
             "--task-id",
@@ -115,34 +126,65 @@ class Command(BaseCommand):
             nargs="?",
             help="taskId to ingest"
         )
+        parser.add_argument(
+            "--pr-url",
+            dest="prUrl",
+            help="Ingest a PR: e.g. https://github.com/mozilla-mobile/android-components/pull/4821"
+        )
 
     def handle(self, *args, **options):
-        taskId = options["taskId"]
-        if taskId:
-            root_url = options["root_url"]
-            loop.run_until_complete(handleTaskId(taskId, root_url))
-        else:
+        typeOfIngestion = options["ingestion_type"][0]
+        root_url = options["root_url"]
+
+        if typeOfIngestion == "task":
+            assert options["taskId"]
+            loop.run_until_complete(handleTaskId(options["taskId"], root_url))
+        elif typeOfIngestion == "pr":
+            assert options["prUrl"]
+            pr_url = options["prUrl"]
+            splitUrl = pr_url.split("/")
+            org = splitUrl[3]
+            repo = splitUrl[4]
+            pulse = {
+                "exchange": "exchange/taskcluster-github/v1/pull-request",
+                "routingKey": "primary.{}.{}.synchronize".format(org, repo),
+                "payload": {
+                    "repository": repo,
+                    "organization": org,
+                    "action": "synchronize",
+                    "details": {
+                        "event.pullNumber": splitUrl[6],
+                        "event.base.repo.url": "https://github.com/{}/{}.git".format(org, repo),
+                        "event.head.repo.url": "https://github.com/{}/{}.git".format(org, repo),
+                    },
+                }
+            }
+            PushLoader().process(pulse["payload"], pulse["exchange"], root_url)
+        elif typeOfIngestion == "git-push":
+            pass
+        elif typeOfIngestion == "hg-push":
             project = options["project"]
-            changeset = options["changeset"]
+            commit = options["commit"]
 
             # get reference to repo
-            repo = Repository.objects.get(name=project, active_status='active')
+            repo = Repository.objects.get(name=project, active_status="active")
             fetch_push_id = None
 
             # make sure all tasks are run synchronously / immediately
             settings.CELERY_TASK_ALWAYS_EAGER = True
 
             # get hg pushlog
-            pushlog_url = '%s/json-pushes/?full=1&version=2' % repo.url
+            pushlog_url = "%s/json-pushes/?full=1&version=2" % repo.url
 
             # ingest this particular revision for this project
             process = HgPushlogProcess()
             # Use the actual push SHA, in case the changeset specified was a tag
             # or branch name (eg tip). HgPushlogProcess returns the full SHA.
-            process.run(pushlog_url, project, changeset=changeset, last_push_id=fetch_push_id)
+            process.run(pushlog_url, project, changeset=commit, last_push_id=fetch_push_id)
 
-            # XXX: Need logic to get from project/revision to taskGroupId
-            taskGroupId = 'ZYnMSfwCS5Cc_Wi_e-ZlSA'
-            logger.info("## START ##")
-            loop.run_until_complete(processTasks(taskGroupId, repo.tc_root_url))
-            logger.info("## END ##")
+            if options["ingest_all_tasks"]:
+                raise Exception("This is not yet implemented")
+                # XXX: Need logic to get from project/revision to taskGroupId
+                logger.info("## START ##")
+                loop.run_until_complete(processTasks("ZYnMSfwCS5Cc_Wi_e-ZlSA", repo.tc_root_url))
+                logger.info("## END ##")
