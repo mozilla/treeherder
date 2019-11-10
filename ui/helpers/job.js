@@ -124,6 +124,9 @@ const isOnScreen = function isOnScreen(el) {
 
 // Scroll the element into view.
 export const scrollToElement = function scrollToElement(el) {
+  if (!el) {
+    return;
+  }
   if (!isOnScreen(el)) {
     el.scrollIntoView({ behavior: 'smooth', block: 'center' });
   }

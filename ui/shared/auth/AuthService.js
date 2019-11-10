@@ -41,6 +41,11 @@ const saveCredentialsFromAuthResult = async function saveCredentialsFromAuthResu
   localStorage.setItem('user', JSON.stringify(user));
 };
 
+const logout = function logout() {
+  localStorage.removeItem('userSession');
+  localStorage.setItem('user', JSON.stringify(loggedOutUser));
+};
+
 export default class AuthService {
   constructor() {
     this.renewalTimer = null;
@@ -70,7 +75,7 @@ export default class AuthService {
     } catch (err) {
       // instance where a new scope was added and is now required in order to be logged in
       if (err.error === 'consent_required') {
-        this.logout();
+        logout();
       }
       /* eslint-disable no-console */
       console.error('Could not renew login:', err);
@@ -97,11 +102,5 @@ export default class AuthService {
       this._clearRenewalTimer();
       this.renewalTimer = setTimeout(() => this._renewAuth(), timeout);
     }
-  }
-
-  logout() {
-    this.usingThis = null; // Just for using this
-    localStorage.removeItem('userSession');
-    localStorage.setItem('user', JSON.stringify(loggedOutUser));
   }
 }
