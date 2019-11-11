@@ -286,7 +286,7 @@ class PushSerializer(serializers.ModelSerializer):
         model = models.Push
         fields = ['id', 'revision', 'author',
                   'revisions', 'revision_count', 'push_timestamp',
-                  'repository_id']
+                  'repository_id', 'time']
 
 
 class FailuresSerializer(serializers.ModelSerializer):
