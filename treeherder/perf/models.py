@@ -93,7 +93,7 @@ class PerformanceSignature(models.Model):
         unique_together = (
             # ensure there is only one signature per repository with a
             # particular set of properties
-            ('repository', 'suite', 'test', 'framework', 'application',
+            ('repository', 'suite', 'test', 'framework',
              'platform', 'option_collection', 'extra_options', 'last_updated'),
             # ensure there is only one signature of any hash per
             # repository (same hash in different repositories is allowed)
