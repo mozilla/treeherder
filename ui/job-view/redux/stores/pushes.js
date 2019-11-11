@@ -170,6 +170,8 @@ const fetchNewJobs = () => {
 const doUpdateJobMap = (jobList, jobMap, decisionTaskMap, pushList) => {
   if (jobList.length) {
     // lodash ``keyBy`` is significantly faster than doing a ``reduce``
+    const pushMap = keyBy(pushList, 'id');
+
     return {
       jobMap: { ...jobMap, ...keyBy(jobList, 'id') },
       decisionTaskMap: {
@@ -186,6 +188,7 @@ const doUpdateJobMap = (jobList, jobMap, decisionTaskMap, pushList) => {
               push_id: job.push_id,
               id: job.task_id,
               run: job.retry_id,
+              pushTime: pushMap[job.push_id].time,
             })),
           'push_id',
         ),

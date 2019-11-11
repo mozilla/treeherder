@@ -25,6 +25,7 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faCheckSquare } from '@fortawesome/free-regular-svg-icons';
 
 import { formatTaskclusterError } from '../helpers/errorMessage';
+import { getRepoRootUrl } from '../helpers/taskcluster';
 import TaskclusterModel from '../models/taskcluster';
 import DropdownMenuItems from '../shared/DropdownMenuItems';
 
@@ -36,7 +37,7 @@ class CustomJobActions extends React.PureComponent {
 
     this.state = {
       ajv: new Ajv({ format: 'full', verbose: true, allErrors: true }),
-      decisionTaskId: null,
+      decisionTask: null,
       originalTaskId: null,
       originalTask: null,
       validate: null,
@@ -49,9 +50,11 @@ class CustomJobActions extends React.PureComponent {
 
   async componentDidMount() {
     const { pushId, job, notify, decisionTaskMap, currentRepo } = this.props;
-    const { id: decisionTaskId } = decisionTaskMap[pushId];
+    const decisionTask = decisionTaskMap[pushId];
+    const { id: decisionTaskId, pushTime } = decisionTask;
+    const tcRootUrl = getRepoRootUrl(pushTime, currentRepo);
 
-    TaskclusterModel.load(decisionTaskId, job, currentRepo).then(results => {
+    TaskclusterModel.load(decisionTaskId, job, tcRootUrl).then(results => {
       const {
         originalTask,
         originalTaskId,
@@ -83,7 +86,7 @@ class CustomJobActions extends React.PureComponent {
         );
       }
     });
-    this.setState({ decisionTaskId });
+    this.setState({ decisionTask });
   }
 
   onChangeAction = actionName => {
@@ -120,15 +123,17 @@ class CustomJobActions extends React.PureComponent {
       ajv,
       validate,
       payload,
-      decisionTaskId,
+      decisionTask,
       originalTaskId,
       originalTask,
       selectedAction: action,
       staticActionVariables,
     } = this.state;
     const { notify, currentRepo } = this.props;
-
+    const { id: decisionTaskId, pushTime } = decisionTask;
+    const tcRootUrl = getRepoRootUrl(pushTime, currentRepo);
     let input = null;
+
     if (validate && payload) {
       try {
         input = jsyaml.safeLoad(payload);
@@ -153,7 +158,7 @@ class CustomJobActions extends React.PureComponent {
       task: originalTask,
       input,
       staticActionVariables,
-      currentRepo,
+      tcRootUrl,
     }).then(
       taskId => {
         this.setState({ triggering: false });

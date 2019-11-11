@@ -463,7 +463,6 @@ class Push extends React.PureComponent {
     const { id, push_timestamp, revision, author } = push;
     const tipRevision = push.revisions[0];
     const decisionTask = decisionTaskMap[push.id];
-    const decisionTaskId = decisionTask ? decisionTask.id : null;
 
     if (isOnlyRevision) {
       this.setSingleRevisionWindowTitle();
@@ -484,7 +483,7 @@ class Push extends React.PureComponent {
           filteredJobList={filteredFuzzyList}
           className="fuzzy-modal"
           pushId={id}
-          decisionTaskId={decisionTaskId}
+          decisionTaskId={decisionTask}
           currentRepo={currentRepo}
         />
         <PushHeader

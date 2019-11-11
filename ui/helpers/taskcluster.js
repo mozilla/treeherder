@@ -126,4 +126,13 @@ export const getAction = (actionArray, actionName) => {
   return action;
 };
 
+// TODO: Remove this hack once we are clear of the legacy issues in Bug 1595381
+export const getRepoRootUrl = (pushTime, currentRepo) => {
+  const tcwDate = new Date('2019-11-09');
+
+  return pushTime < tcwDate
+    ? 'https://taskcluster.net'
+    : currentRepo.tc_root_url;
+};
+
 export default taskcluster;

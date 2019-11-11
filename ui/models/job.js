@@ -6,7 +6,7 @@ import { formatTaskclusterError } from '../helpers/errorMessage';
 import { addAggregateFields } from '../helpers/job';
 import { getProjectUrl } from '../helpers/location';
 import { getData } from '../helpers/http';
-import { getAction } from '../helpers/taskcluster';
+import { getAction, getRepoRootUrl } from '../helpers/taskcluster';
 
 import PushModel from './push';
 import TaskclusterModel from './taskcluster';
@@ -102,9 +102,11 @@ export default class JobModel {
       const uniquePerPushJobs = groupBy(jobs, job => job.push_id);
 
       for (const [key, value] of Object.entries(uniquePerPushJobs)) {
-        const decisionTaskId = taskIdMap[key].id;
+        const decisionTask = taskIdMap[key];
+        const decisionTaskId = decisionTask.id;
+        const tcRootUrl = getRepoRootUrl(decisionTask.pushTime, currentRepo);
 
-        TaskclusterModel.load(decisionTaskId, null, currentRepo, testMode)
+        TaskclusterModel.load(decisionTaskId, null, tcRootUrl, testMode)
           .then(async results => {
             const actionTaskId = slugid();
             const taskLabels = value.map(job => job.job_type_name);
@@ -134,7 +136,7 @@ export default class JobModel {
               task: null,
               input: actionInput,
               staticActionVariables: results.staticActionVariables,
-              currentRepo,
+              tcRootUrl,
               testMode,
             })
               .then(() =>
@@ -168,14 +170,16 @@ export default class JobModel {
     decisionTask,
     testMode = false,
   ) {
-    const { id: decisionTaskId } =
+    const { id: decisionTaskId, pushTime } =
       decisionTask || (await PushModel.getDecisionTaskId(pushId, notify));
+    const tcRootUrl = getRepoRootUrl(pushTime, currentRepo);
     let results;
+
     try {
       results = await TaskclusterModel.load(
         decisionTaskId,
         null,
-        currentRepo,
+        tcRootUrl,
         testMode,
       );
     } catch (e) {
@@ -190,7 +194,7 @@ export default class JobModel {
         decisionTaskId,
         input: {},
         staticActionVariables: results.staticActionVariables,
-        currentRepo,
+        tcRootUrl,
         testMode,
       });
     } catch (e) {
@@ -225,13 +229,15 @@ export default class JobModel {
 
       /* eslint-disable no-await-in-loop */
       for (const job of jobs) {
-        const decisionTaskId = taskIdMap[job.push_id].id;
+        const { id: decisionTaskId, pushTime } = taskIdMap[job.push_id];
+        const tcRootUrl = getRepoRootUrl(pushTime, currentRepo);
         let results;
+
         try {
           results = await TaskclusterModel.load(
             decisionTaskId,
             job,
-            currentRepo,
+            tcRootUrl,
             testMode,
           );
         } catch (e) {
@@ -247,7 +253,7 @@ export default class JobModel {
             taskId: results.originalTaskId,
             input: {},
             staticActionVariables: results.staticActionVariables,
-            currentRepo,
+            tcRootUrl,
             testMode,
           });
         } catch (e) {

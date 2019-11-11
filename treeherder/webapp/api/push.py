@@ -277,7 +277,8 @@ class PushViewSet(viewsets.ViewSet):
             push_id__in=push_ids,
             job_type__in=job_types,
             result='success',
-        ).select_related('taskcluster_metadata')
+            # TODO: Remove select_related: push once we are clear of the legacy issues in Bug 1595381
+        ).select_related('taskcluster_metadata', 'push')
 
     @action(detail=False)
     def decisiontask(self, request, project):
@@ -292,6 +293,8 @@ class PushViewSet(viewsets.ViewSet):
                 {job.push_id: {
                     'id': job.taskcluster_metadata.task_id,
                     'run': job.guid.split('/')[1],
+                    # TODO: Remove this hack once we are clear of the legacy issues in Bug 1595381
+                    'pushTime': job.push.time
                 } for job in decision_jobs}
             )
         logger.error('/decisiontask/ found no decision jobs for {}'.format(push_ids))

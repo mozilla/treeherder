@@ -28,7 +28,7 @@ import TaskclusterModel from '../../../models/taskcluster';
 import CustomJobActions from '../../CustomJobActions';
 import { notify } from '../../redux/stores/notifications';
 import { pinJob } from '../../redux/stores/pinnedJobs';
-import { getAction } from '../../../helpers/taskcluster';
+import { getAction, getRepoRootUrl } from '../../../helpers/taskcluster';
 
 import LogUrls from './LogUrls';
 
@@ -96,9 +96,12 @@ class ActionBar extends React.PureComponent {
       return notify('Must be logged in to create a gecko profile', 'danger');
     }
 
-    const { id: decisionTaskId } = decisionTaskMap[selectedJobFull.push_id];
+    const { id: decisionTaskId, pushTime } = decisionTaskMap[
+      selectedJobFull.push_id
+    ];
+    const tcRootUrl = getRepoRootUrl(pushTime, currentRepo);
 
-    TaskclusterModel.load(decisionTaskId, selectedJobFull, currentRepo).then(
+    TaskclusterModel.load(decisionTaskId, selectedJobFull, tcRootUrl).then(
       results => {
         try {
           const geckoprofile = getAction(results.actions, 'geckoprofile');
@@ -119,7 +122,7 @@ class ActionBar extends React.PureComponent {
             task: results.originalTask,
             input: {},
             staticActionVariables: results.staticActionVariables,
-            currentRepo,
+            tcRootUrl,
           }).then(
             () => {
               notify(
@@ -187,9 +190,12 @@ class ActionBar extends React.PureComponent {
       return;
     }
 
-    const { id: decisionTaskId } = decisionTaskMap[selectedJobFull.push_id];
+    const { id: decisionTaskId, pushTime } = decisionTaskMap[
+      selectedJobFull.push_id
+    ];
+    const tcRootUrl = getRepoRootUrl(pushTime, currentRepo);
 
-    TaskclusterModel.load(decisionTaskId, selectedJobFull, currentRepo).then(
+    TaskclusterModel.load(decisionTaskId, selectedJobFull, tcRootUrl).then(
       results => {
         try {
           const backfilltask = getAction(results.actions, 'backfill');
@@ -200,7 +206,7 @@ class ActionBar extends React.PureComponent {
             taskId: results.originalTaskId,
             input: {},
             staticActionVariables: results.staticActionVariables,
-            currentRepo,
+            tcRootUrl,
           }).then(
             () => {
               notify(
@@ -229,7 +235,10 @@ class ActionBar extends React.PureComponent {
       decisionTaskMap,
       currentRepo,
     } = this.props;
-    const { id: decisionTaskId } = decisionTaskMap[selectedJobFull.push_id];
+    const { id: decisionTaskId, pushTime } = decisionTaskMap[
+      selectedJobFull.push_id
+    ];
+    const tcRootUrl = getRepoRootUrl(pushTime, currentRepo);
 
     if (!isTestIsolatable(selectedJobFull)) {
       return;
@@ -253,7 +262,7 @@ class ActionBar extends React.PureComponent {
       return;
     }
 
-    TaskclusterModel.load(decisionTaskId, selectedJobFull, currentRepo).then(
+    TaskclusterModel.load(decisionTaskId, selectedJobFull, tcRootUrl).then(
       results => {
         try {
           const isolationtask = getAction(
@@ -294,7 +303,7 @@ class ActionBar extends React.PureComponent {
             taskId: results.originalTaskId,
             input: { times },
             staticActionVariables: results.staticActionVariables,
-            currentRepo,
+            tcRootUrl,
           }).then(
             () => {
               notify(
@@ -362,11 +371,14 @@ class ActionBar extends React.PureComponent {
       );
     }
 
-    const { id: decisionTaskId } = decisionTaskMap[selectedJobFull.push_id];
+    const { id: decisionTaskId, pushTime } = decisionTaskMap[
+      selectedJobFull.push_id
+    ];
+    const tcRootUrl = getRepoRootUrl(pushTime, currentRepo);
     const results = await TaskclusterModel.load(
       decisionTaskId,
       selectedJobFull,
-      currentRepo,
+      tcRootUrl,
     );
 
     try {
@@ -380,7 +392,7 @@ class ActionBar extends React.PureComponent {
           notify: user.email,
         },
         staticActionVariables: results.staticActionVariables,
-        currentRepo,
+        tcRootUrl,
       });
 
       notify(

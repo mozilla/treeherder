@@ -168,12 +168,13 @@ class PushHeader extends React.Component {
       return;
     }
     if (isLoggedIn) {
-      const { id: decisionTaskId } = decisionTaskMap[pushId];
+      const decisionTask = decisionTaskMap[pushId];
 
       PushModel.triggerNewJobs(
         selectedRunnableJobs,
-        decisionTaskId,
+        decisionTask,
         currentRepo,
+        notify,
       )
         .then(result => {
           notify(result, 'success');

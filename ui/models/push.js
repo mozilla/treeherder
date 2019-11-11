@@ -6,7 +6,7 @@ import { getData } from '../helpers/http';
 import { getProjectUrl, getUrlParam } from '../helpers/location';
 import { createQueryParams, pushEndpoint } from '../helpers/url';
 import { formatTaskclusterError } from '../helpers/errorMessage';
-import { getAction } from '../helpers/taskcluster';
+import { getAction, getRepoRootUrl } from '../helpers/taskcluster';
 
 import TaskclusterModel from './taskcluster';
 
@@ -66,11 +66,11 @@ export default class PushModel {
   }
 
   static async triggerMissingJobs(pushId, notify, decisionTask, currentRepo) {
-    const decisionTaskId = decisionTask
-      ? decisionTask.id
-      : (await PushModel.getDecisionTaskId(pushId, notify)).id;
+    const { id: decisionTaskId, pushTime } =
+      decisionTask || (await PushModel.getDecisionTaskId(pushId, notify));
+    const tcRootUrl = getRepoRootUrl(pushTime, currentRepo);
 
-    return TaskclusterModel.load(decisionTaskId, null, currentRepo).then(
+    return TaskclusterModel.load(decisionTaskId, null, tcRootUrl).then(
       results => {
         const actionTaskId = slugid();
 
@@ -88,7 +88,7 @@ export default class PushModel {
             task: null,
             input: {},
             staticActionVariables: results.staticActionVariables,
-            currentRepo,
+            tcRootUrl,
           }).then(
             notify(
               `Request sent to trigger missing jobs (${actionTaskId})`,
@@ -111,11 +111,11 @@ export default class PushModel {
     decisionTask,
     currentRepo,
   ) {
-    const decisionTaskId = decisionTask
-      ? decisionTask.id
-      : (await PushModel.getDecisionTaskId(pushId, notify)).id;
+    const { id: decisionTaskId, pushTime } =
+      decisionTask || (await PushModel.getDecisionTaskId(pushId, notify));
+    const tcRootUrl = getRepoRootUrl(pushTime, currentRepo);
 
-    return TaskclusterModel.load(decisionTaskId, null, currentRepo).then(
+    return TaskclusterModel.load(decisionTaskId, null, tcRootUrl).then(
       results => {
         const actionTaskId = slugid();
 
@@ -130,7 +130,7 @@ export default class PushModel {
             task: null,
             input: { times },
             staticActionVariables: results.staticActionVariables,
-            currentRepo,
+            tcRootUrl,
           }).then(
             () =>
               `Request sent to trigger all talos jobs ${times} time(s) via actions.json (${actionTaskId})`,
@@ -144,8 +144,14 @@ export default class PushModel {
     );
   }
 
-  static triggerNewJobs(jobs, decisionTaskId, currentRepo) {
-    return TaskclusterModel.load(decisionTaskId, null, currentRepo).then(
+  static async triggerNewJobs(jobs, decisionTask, currentRepo, notify) {
+    // triggerNewJobs always happens for only one push at a time, so we can use the first one.
+    const pushId = jobs[0].push_id;
+    const { id: decisionTaskId, pushTime } =
+      decisionTask || (await PushModel.getDecisionTaskId(pushId, notify));
+    const tcRootUrl = getRepoRootUrl(pushTime, currentRepo);
+
+    return TaskclusterModel.load(decisionTaskId, null, tcRootUrl).then(
       results => {
         const actionTaskId = slugid();
         const addNewJobsTask = getAction(results.actions, 'add-new-jobs');
@@ -158,7 +164,7 @@ export default class PushModel {
           task: null,
           input: { tasks: jobs },
           staticActionVariables: results.staticActionVariables,
-          currentRepo,
+          tcRootUrl,
         }).then(
           () =>
             `Request sent to trigger new jobs via actions.json (${actionTaskId})`,
