@@ -20,7 +20,9 @@ class Command(BaseCommand):
         # Specifies the Pulse services from which Treeherder will consume task
         # information.  This value is a JSON array of the form [{pulse_url: ..,
         # root_url: ..}, ..]
-        task_sources = env.json("PULSE_TASK_SOURCES", default=[])
+        task_sources = env.json(
+            "PULSE_TASK_SOURCES",
+            default=[{"root_url": "https://taskcluster.net", "pulse_url": env("PULSE_URL")}])
 
         consumers = prepare_consumers(
             TaskConsumer,
