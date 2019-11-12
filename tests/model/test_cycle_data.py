@@ -1,7 +1,6 @@
 import datetime
 
 import pytest
-from django.conf import settings
 from django.core.management import call_command
 
 from tests import test_utils
@@ -21,9 +20,6 @@ from treeherder.perf.exceptions import MaxRuntimeExceeded
 from treeherder.perf.models import (PerformanceDatum,
                                     PerformanceDatumManager,
                                     PerformanceSignature)
-from treeherder.services.elasticsearch import (all_documents,
-                                               count_index,
-                                               refresh_index)
 
 
 def test_cycle_all_data(test_repository, failure_classifications, sample_data,
@@ -48,14 +44,9 @@ def test_cycle_all_data(test_repository, failure_classifications, sample_data,
     assert JobDetail.objects.count() == 0
     assert JobLog.objects.count() == 0
 
-    if settings.ELASTICSEARCH_URL:
-        # There should be nothing in elastic search after cycling
-        assert count_index() == 0
-
 
 def test_cycle_all_but_one_job(test_repository, failure_classifications, sample_data,
-                               sample_push, mock_log_parser, elasticsearch,
-                               failure_lines):
+                               sample_push, mock_log_parser, failure_lines):
     """
     Test cycling all but one job in a group of jobs to confirm there are no
     unexpected deletions
@@ -100,13 +91,6 @@ def test_cycle_all_but_one_job(test_repository, failure_classifications, sample_
         assert (set(item.id for item in object_type.objects.all()) ==
                 set(item.id for item in objects))
 
-    if settings.ELASTICSEARCH_URL:
-        refresh_index()
-        # get all documents
-        indexed_ids = set(int(item['_id']) for item in all_documents())
-        expected = set(item.id for item in extra_objects["failure_lines"][1])
-        assert indexed_ids == expected
-
 
 def test_cycle_all_data_in_chunks(test_repository, failure_classifications, sample_data,
                                   sample_push, mock_log_parser):
@@ -125,17 +109,12 @@ def test_cycle_all_data_in_chunks(test_repository, failure_classifications, samp
     create_failure_lines(Job.objects.get(id=1),
                          [(test_line, {})] * 7)
 
-    if settings.ELASTICSEARCH_URL:
-        assert count_index() > 0
-
     call_command('cycle_data', 'from:treeherder', sleep_time=0, days=1, chunk_size=3)
 
     # There should be no jobs after cycling
     assert Job.objects.count() == 0
     assert FailureLine.objects.count() == 0
     assert JobDetail.objects.count() == 0
-    if settings.ELASTICSEARCH_URL:
-        assert count_index() == 0
 
 
 def test_cycle_job_model_reference_data(test_repository, failure_classifications,

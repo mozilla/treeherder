@@ -64,7 +64,4 @@ BugListItem.defaultProps = {
   title: null,
 };
 
-export default connect(
-  null,
-  { addBug },
-)(BugListItem);
+export default connect(null, { addBug })(BugListItem);

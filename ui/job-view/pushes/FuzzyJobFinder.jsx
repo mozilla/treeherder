@@ -325,7 +325,4 @@ FuzzyJobFinder.defaultProps = {
   decisionTaskId: '',
 };
 
-export default connect(
-  null,
-  { notify },
-)(FuzzyJobFinder);
+export default connect(null, { notify })(FuzzyJobFinder);

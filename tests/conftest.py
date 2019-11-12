@@ -72,17 +72,6 @@ def block_unmocked_requests():
 
 
 @pytest.fixture
-def elasticsearch(request):
-    from treeherder.services.elasticsearch import reinit_index, refresh_index
-
-    if not settings.ELASTICSEARCH_URL:
-        return
-
-    reinit_index()
-    refresh_index()
-
-
-@pytest.fixture
 def sample_data():
     """Returns a SampleData() object"""
     from .sampledata import SampleData
@@ -304,7 +293,7 @@ def pulse_exchange(pulse_connection, request):
 
 
 @pytest.fixture
-def failure_lines(test_job, elasticsearch):
+def failure_lines(test_job):
     from tests.autoclassify.utils import test_line, create_failure_lines
 
     return create_failure_lines(test_job,
@@ -346,7 +335,6 @@ def test_matcher(request):
 def classified_failures(test_job, text_log_errors_failure_lines, test_matcher,
                         failure_classifications):
     from treeherder.model.models import ClassifiedFailure
-    from treeherder.services.elasticsearch import refresh_index
 
     _, failure_lines = text_log_errors_failure_lines
 
@@ -360,9 +348,6 @@ def classified_failures(test_job, text_log_errors_failure_lines, test_matcher,
             mark_best_classification(failure_line.error, classified_failure)
 
             classified_failures.append(classified_failure)
-
-    if settings.ELASTICSEARCH_URL:
-        refresh_index()
 
     return classified_failures
 

@@ -5,6 +5,7 @@ from os.path import (abspath,
                      join)
 
 import environ
+from django.core.exceptions import ImproperlyConfigured
 from furl import furl
 from kombu import (Exchange,
                    Queue)
@@ -26,7 +27,12 @@ GRAPHQL = env.bool("GRAPHQL", default=True)
 SECRET_KEY = env("TREEHERDER_DJANGO_SECRET_KEY")
 
 # Hosts
-SITE_URL = env("SITE_URL")
+try:
+    SITE_URL = env("SITE_URL")
+except ImproperlyConfigured:
+    # This is to support Heroku Review apps which host is different for each PR
+    SITE_URL = "https://{}.herokuapp.com".format(env("HEROKU_APP_NAME"))
+
 SITE_HOSTNAME = furl(SITE_URL).host
 # Including localhost allows using the backend locally
 ALLOWED_HOSTS = [SITE_HOSTNAME, 'localhost']
@@ -114,6 +120,11 @@ for alias in DATABASES:
         # Override Django's default connection charset of 'utf8', otherwise it's
         # still not possible to insert non-BMP unicode into utf8mb4 tables.
         'charset': 'utf8mb4',
+        # From MySQL 5.7 onwards and on fresh installs of MySQL 5.6, the default value of the sql_mode
+        # option contains STRICT_TRANS_TABLES. That option escalates warnings into errors when data are
+        # truncated upon insertion, so Django highly recommends activating a strict mode for MySQL to
+        # prevent data loss (either STRICT_TRANS_TABLES or STRICT_ALL_TABLES).
+        'init_command': "SET sql_mode='STRICT_TRANS_TABLES'"
     }
     if connection_should_use_tls(DATABASES[alias]['HOST']):
         # Use TLS when connecting to RDS.
@@ -203,11 +214,6 @@ LOGGING = {
             'handlers': ['console'],
             'level': 'WARNING',
             'propagate': True,
-        },
-        'elasticsearch.trace': {
-            'filters': ['require_debug_true'],
-            'handlers': ['console'],
-            'level': 'INFO',
         },
         'treeherder': {
             'handlers': ['console'],
@@ -360,9 +366,6 @@ if DEBUG:
 
     INSTALLED_APPS.append('debug_toolbar')
 
-# Elasticsearch
-# Note: Elasticsearch is currently disabled in all environments (see bug 1527868).
-ELASTICSEARCH_URL = env.str('ELASTICSEARCH_URL', default=None)
 
 # Rest Framework
 REST_FRAMEWORK = {

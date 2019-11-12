@@ -12,7 +12,7 @@ import {
   thFieldChoices,
   thMatchType,
   thFilterDefaults,
-  deprecated_thFilterPrefix,
+  deprecatedThFilterPrefix,
   allFilterParams,
 } from '../helpers/filter';
 import { getAllUrlParams } from '../helpers/location';
@@ -20,7 +20,7 @@ import { getAllUrlParams } from '../helpers/location';
 export const getNonFilterUrlParams = () =>
   [...getAllUrlParams().entries()].reduce(
     (acc, [urlField, urlValue]) =>
-      allFilterParams.includes(urlField.replace(deprecated_thFilterPrefix, ''))
+      allFilterParams.includes(urlField.replace(deprecatedThFilterPrefix, ''))
         ? acc
         : { ...acc, [urlField]: urlValue },
     {},
@@ -33,7 +33,7 @@ export const getFilterUrlParamsWithDefaults = () => {
   // Also remove usage of the 'filter-' prefix.
   const groupedValues = [...getAllUrlParams().entries()].reduce(
     (acc, [urlField, urlValue]) => {
-      const field = urlField.replace(deprecated_thFilterPrefix, '');
+      const field = urlField.replace(deprecatedThFilterPrefix, '');
       if (!allFilterParams.includes(field)) {
         return acc;
       }

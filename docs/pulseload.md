@@ -31,9 +31,13 @@ would be:
 
 You will need the root URL for the Taskcluster deployment, such as `https://firefox-ci-tc.services.mozilla.com`.
 
-On your localhost set PULSE_PUSH_SOURCES as follows, subsituting the appropriate URLs:
+NOTE: If you use PULSE_URL you will not need to configure the other env variables.
+
+On your localhost set PULSE_URL or PULSE_PUSH_SOURCES as follows, subsituting the appropriate URLs:
 
 ```bash
+export PULSE_URL=<pulse url>
+# OR
 export PULSE_PUSH_SOURCES='[{"root_url": "<root url>", "github": true, "hgmo": true, "pulse_url": "<pulse url>"}]'
 ```
 
@@ -43,6 +47,8 @@ Next, run the Treeherder management command to read Pushes from the default **Pu
 exchange:
 
 ```bash
+docker-compose run -e PULSE_URL backend ./manage.py pulse_listener_pushes
+# OR
 docker-compose run -e PULSE_PUSH_SOURCES backend ./manage.py pulse_listener_pushes
 ```
 
@@ -56,12 +62,16 @@ ingested in step 5.
 As in step 3, open a new terminal and this time create `PULSE_TASK_SOURCES`:
 
 ```bash
+export PULSE_URL=<pulse url>
+# OR
 export PULSE_TASK_SOURCES='[{"root_url": "<root url>", "pulse_url": "<pulse url>"}]'
 ```
 
 Then run the management command for listing to jobs:
 
 ```bash
+docker-compose run -e PULSE_URL backend ./manage.py pulse_listener_pushes
+# OR
 docker-compose run -e PULSE_TASK_SOURCES backend ./manage.py pulse_listener_tasks
 ```
 

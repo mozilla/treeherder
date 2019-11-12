@@ -120,7 +120,6 @@ const mapStateToProps = ({ notifications: { storedNotifications } }) => ({
   storedNotifications,
 });
 
-export default connect(
-  mapStateToProps,
-  { clearStoredNotifications },
-)(NotificationsMenu);
+export default connect(mapStateToProps, { clearStoredNotifications })(
+  NotificationsMenu,
+);

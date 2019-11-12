@@ -692,17 +692,14 @@ const mapStateToProps = ({
   failureClassificationComment,
 });
 
-export default connect(
-  mapStateToProps,
-  {
-    notify,
-    setSelectedJob,
-    recalculateUnclassifiedCounts,
-    addBug,
-    removeBug,
-    unPinJob,
-    unPinAll,
-    setClassificationId,
-    setClassificationComment,
-  },
-)(PinBoard);
+export default connect(mapStateToProps, {
+  notify,
+  setSelectedJob,
+  recalculateUnclassifiedCounts,
+  addBug,
+  removeBug,
+  unPinJob,
+  unPinAll,
+  setClassificationId,
+  setClassificationComment,
+})(PinBoard);

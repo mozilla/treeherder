@@ -428,7 +428,4 @@ const mapStateToProps = ({
   pinnedJobs: { isPinBoardVisible },
 }) => ({ selectedJob, pushList, isPinBoardVisible });
 
-export default connect(
-  mapStateToProps,
-  { setPinBoardVisible },
-)(DetailsPanel);
+export default connect(mapStateToProps, { setPinBoardVisible })(DetailsPanel);

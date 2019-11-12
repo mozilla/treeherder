@@ -9,10 +9,10 @@ import {
 
 import { replaceLocation, setUrlParam } from '../../../ui/helpers/location';
 import TestFailure from '../../../ui/push-health/TestFailure';
-import push_health from '../mock/push_health';
+import pushHealth from '../mock/push_health';
 
 const repoName = 'autoland';
-const failures = push_health.metrics[0].failures.needInvestigation;
+const failures = pushHealth.metrics[0].failures.needInvestigation;
 
 beforeEach(() => {
   fetchMock.get('https://treestatus.mozilla-releng.net/trees/autoland', {

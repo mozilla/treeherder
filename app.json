@@ -1,5 +1,16 @@
 {
-  "addons": ["scheduler", "cloudamqp", "heroku-redis"],
+  "addons": [
+    "scheduler",
+    "cloudamqp:tiger",
+    "heroku-redis",
+    "papertrail:choklad",
+    {
+      "plan": "jawsdb:leopard",
+      "options": {
+        "version": "5.7"
+      }
+    }
+  ],
   "buildpacks": [
     {
       "url": "https://buildpack-registry.s3.amazonaws.com/buildpacks/edmorley/timestamps.tgz"
@@ -13,88 +24,37 @@
   ],
   "env": {
     "BROKER_URL": {
-      "required": true
-    },
-    "BUG_COMMENTER_API_KEY": {
-      "required": true
-    },
-    "BUG_FILER_API_KEY": {
-      "required": true
-    },
-    "CLOUDAMQP_URL": {
-      "required": true
+      "value": "$CLOUDAMQP_URL"
     },
     "DATABASE_URL": {
-      "required": true
-    },
-    "GITHUB_CLIENT_ID": {
-      "required": true
-    },
-    "GITHUB_CLIENT_SECRET": {
-      "required": true
-    },
-    "HEROKU_APP_ID": {
-      "required": true
+      "value": "$JAWSDB_URL"
     },
     "HEROKU_APP_NAME": {
       "required": true
     },
-    "HEROKU_RELEASE_CREATED_AT": {
-      "required": true
+    "PULSE_URL": "amqp://treeherder-shared-pulse-user:mozilla123@pulse.mozilla.org:5671/?ssl=true",
+    "PULSE_RESULSETS_QUEUE_NAME": {
+      "generator": "secret"
     },
-    "HEROKU_RELEASE_VERSION": {
-      "required": true
+    "PULSE_TASKS_QUEUE_NAME": {
+      "generator": "secret"
     },
-    "HEROKU_SKIP_NODE_PLUGIN": {
-      "required": true
-    },
-    "HEROKU_SLUG_COMMIT": {
-      "required": true
-    },
-    "HEROKU_SLUG_DESCRIPTION": {
-      "required": true
-    },
-    "NEW_RELIC_API_KEY": {
-      "required": true
-    },
-    "NEW_RELIC_APP_NAME": {
-      "required": true
-    },
-    "NEW_RELIC_CONFIG_FILE": {
-      "required": true
-    },
-    "NEW_RELIC_LICENSE_KEY": {
-      "required": true
-    },
-    "PULSE_PUSH_SOURCES": {
-      "required": true
-    },
-    "PULSE_TASK_SOURCES": {
-      "required": true
-    },
-    "REDIS_URL": {
-      "required": true
-    },
-    "SITE_URL": {
-      "required": true
+    "PROJECTS_TO_INGEST": {
+      "value": "autoland,android-components"
     },
     "TREEHERDER_DJANGO_SECRET_KEY": {
-      "required": true
+      "generator": "secret"
     },
     "YARN_PRODUCTION": {
-      "required": true
+      "value": "true"
     }
   },
   "formation": {
-    "pulse_listener_jobs": {
-      "quantity": 1,
+    "celery_scheduler": {
+      "quantity": 0,
       "size": "Standard-1X"
     },
-    "worker_store_pulse_old": {
-      "quantity": 1,
-      "size": "Standard-1X"
-    },
-    "worker_store_pulse_data": {
+    "pulse_listener_pushes": {
       "quantity": 1,
       "size": "Standard-1X"
     },
@@ -102,24 +62,20 @@
       "quantity": 1,
       "size": "Standard-1X"
     },
-    "celery_scheduler": {
+    "web": {
       "quantity": 1,
       "size": "Standard-1X"
     },
     "worker_log_parser": {
-      "quantity": 1,
+      "quantity": 0,
       "size": "Standard-1X"
     },
     "worker_misc": {
-      "quantity": 1,
+      "quantity": 0,
       "size": "Standard-1X"
     },
-    "pulse_listener_pushes": {
-      "quantity": 1,
-      "size": "Standard-1X"
-    },
-    "web": {
-      "quantity": 1,
+    "worker_store_pulse_data": {
+      "quantity": 5,
       "size": "Standard-1X"
     }
   },

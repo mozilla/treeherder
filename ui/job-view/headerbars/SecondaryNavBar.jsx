@@ -405,7 +405,6 @@ const mapStateToProps = ({
   pushes: { allUnclassifiedFailureCount, filteredUnclassifiedFailureCount },
 }) => ({ allUnclassifiedFailureCount, filteredUnclassifiedFailureCount });
 
-export default connect(
-  mapStateToProps,
-  { recalculateUnclassifiedCounts },
-)(SecondaryNavBar);
+export default connect(mapStateToProps, { recalculateUnclassifiedCounts })(
+  SecondaryNavBar,
+);

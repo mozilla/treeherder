@@ -329,6 +329,7 @@ AlertsView.defaultProps = {
   location: null,
 };
 
-export default withValidation({ requiredParams: new Set([]) }, false)(
-  AlertsView,
-);
+export default withValidation(
+  { requiredParams: new Set([]) },
+  false,
+)(AlertsView);

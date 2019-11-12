@@ -866,7 +866,4 @@ BugFilerClass.propTypes = {
   notify: PropTypes.func.isRequired,
 };
 
-export default connect(
-  null,
-  { notify },
-)(BugFilerClass);
+export default connect(null, { notify })(BugFilerClass);

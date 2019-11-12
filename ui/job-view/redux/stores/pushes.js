@@ -353,10 +353,10 @@ export const updateRange = range => {
 
     window.dispatchEvent(new CustomEvent(thEvents.clearPinboard));
     if (revisionPushList.length) {
-      const { id: push_id } = revisionPushList[0];
+      const { id: pushId } = revisionPushList[0];
       const revisionJobMap = Object.entries(jobMap).reduce(
         (acc, [id, job]) =>
-          job.push_id === push_id ? { ...acc, [id]: job } : acc,
+          job.push_id === pushId ? { ...acc, [id]: job } : acc,
         {},
       );
       dispatch(clearSelectedJob(0));

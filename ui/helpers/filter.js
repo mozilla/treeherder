@@ -111,4 +111,4 @@ export const hasUrlFilterChanges = function hasUrlFilterChanges(
 };
 
 // DEPRECATED: Used to convert from old filter format to new.
-export const deprecated_thFilterPrefix = 'filter-';
+export const deprecatedThFilterPrefix = 'filter-';

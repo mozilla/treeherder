@@ -116,7 +116,4 @@ PrimaryNavBar.propTypes = {
   getAllShownJobs: PropTypes.func.isRequired,
 };
 
-export default connect(
-  null,
-  { notify },
-)(PrimaryNavBar);
+export default connect(null, { notify })(PrimaryNavBar);

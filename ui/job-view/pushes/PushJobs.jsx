@@ -154,7 +154,4 @@ PushJobs.propTypes = {
   filterModel: PropTypes.object.isRequired,
 };
 
-export default connect(
-  null,
-  { setSelectedJob, togglePinJob },
-)(PushJobs);
+export default connect(null, { setSelectedJob, togglePinJob })(PushJobs);

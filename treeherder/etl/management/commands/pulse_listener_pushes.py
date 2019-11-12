@@ -21,7 +21,9 @@ class Command(BaseCommand):
         # information.  Sources can include properties `hgmo`, `github`, or both, to
         # listen to events from those sources.  The value is a JSON array of the form
         # [{pulse_url: .., hgmo: true, root_url: ..}, ..]
-        push_sources = env.json('PULSE_PUSH_SOURCES', default=[])
+        push_sources = env.json(
+            "PULSE_PUSH_SOURCES",
+            default=[{"root_url": "https://taskcluster.net", "github": True, "hgmo": True, "pulse_url": env("PULSE_URL")}])
 
         consumers = prepare_consumers(
             PushConsumer,

@@ -14,7 +14,6 @@ from treeherder.etl.text import astral_filter
 from treeherder.model.models import (FailureLine,
                                      Group,
                                      JobLog)
-from treeherder.services.elasticsearch import bulk
 
 logger = logging.getLogger(__name__)
 
@@ -80,10 +79,6 @@ def write_failure_lines(job_log, log_iter):
         with transaction.atomic():
             log_list = list(transformer(log_list))
             failure_lines = create(job_log, log_list)
-
-    if settings.ELASTICSEARCH_URL:
-        # store the FailureLines in Elasticsearch
-        bulk(failure_lines)
 
     return failure_lines
 

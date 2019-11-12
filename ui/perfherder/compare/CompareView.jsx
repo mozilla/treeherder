@@ -113,7 +113,7 @@ class CompareView extends React.PureComponent {
         href: detailsLink,
       });
     }
-    const signature_hash = !oldResults
+    const signatureHash = !oldResults
       ? newResults.signature_hash
       : oldResults.signature_hash;
     links = createGraphsLinks(
@@ -121,7 +121,7 @@ class CompareView extends React.PureComponent {
       links,
       framework,
       timeRange,
-      signature_hash,
+      signatureHash,
     );
     return links;
   };

@@ -248,15 +248,12 @@ const mapStateToProps = ({
   pinnedJobs,
 });
 
-export default connect(
-  mapStateToProps,
-  {
-    notify,
-    clearSelectedJob,
-    setSelectedJobFromQueryString,
-    fetchNextPushes,
-    fetchPushes,
-    updateRange,
-    pollPushes,
-  },
-)(PushList);
+export default connect(mapStateToProps, {
+  notify,
+  clearSelectedJob,
+  setSelectedJobFromQueryString,
+  fetchNextPushes,
+  fetchPushes,
+  updateRange,
+  pollPushes,
+})(PushList);
