@@ -355,6 +355,9 @@ async def addArtifactUploadedLinks(root_url, taskId, runId, job):
     links = []
     for artifact in artifacts:
         name = os.path.basename(artifact["name"])
+        # Bug 1595902 - It seems that directories are showing up as artifacts; skip them
+        if not name:
+            continue
         if not seen.get(name):
             seen[name] = [artifact["name"]]
         else:
