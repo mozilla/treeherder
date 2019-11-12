@@ -101,46 +101,6 @@ class Push extends React.PureComponent {
     window.removeEventListener('hashchange', this.handleUrlChanges);
   }
 
-  getJobCount(jobList) {
-    const filteredByCommit = jobList.filter(
-      job => job.failure_classification_id === 2,
-    );
-
-    return jobList.reduce(
-      (memo, job) =>
-        job.result !== 'superseded'
-          ? { ...memo, [job.state]: memo[job.state] + 1 }
-          : memo,
-      {
-        running: 0,
-        pending: 0,
-        completed: 0,
-        fixedByCommit: filteredByCommit.length,
-      },
-    );
-  }
-
-  getJobGroupInfo(job) {
-    const {
-      job_group_name: name,
-      job_group_symbol: jobGroupSymbol,
-      platform,
-      platform_option: platformOption,
-      tier,
-      push_id: pushId,
-    } = job;
-    const symbol = jobGroupSymbol === '?' ? '' : jobGroupSymbol;
-    const mapKey = getGroupMapKey(
-      pushId,
-      symbol,
-      tier,
-      platform,
-      platformOption,
-    );
-
-    return { name, tier, symbol, mapKey };
-  }
-
   setSingleRevisionWindowTitle() {
     const { allUnclassifiedFailureCount, currentRepo, push } = this.props;
     const percentComplete = getPercentComplete(this.state.jobCounts);
