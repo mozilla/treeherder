@@ -89,7 +89,7 @@
     "fetch-mock": "7.7.3",
     "jest": "24.9.0",
     "node-fetch": "2.6.0",
-    "prettier": "1.18.2",
+    "prettier": "1.19.1",
     "webpack-dev-server": "3.9.0"
   },
   "scripts": {

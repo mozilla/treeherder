@@ -184,7 +184,4 @@ FailureSummaryTab.defaultProps = {
   logViewerFullUrl: null,
 };
 
-export default connect(
-  null,
-  { addBug, pinJob },
-)(FailureSummaryTab);
+export default connect(null, { addBug, pinJob })(FailureSummaryTab);

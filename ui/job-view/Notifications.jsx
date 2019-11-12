@@ -33,7 +33,4 @@ const mapStateToProps = ({ notifications: { notifications } }) => ({
   notifications,
 });
 
-export default connect(
-  mapStateToProps,
-  { clearNotification },
-)(Notifications);
+export default connect(mapStateToProps, { clearNotification })(Notifications);

@@ -92,14 +92,15 @@ export default class PerfSeriesModel {
     if (response.failureStatus) {
       return response;
     }
-    const data = Object.entries(response.data).map(
-      ([signature, signatureProps]) =>
-        getSeriesSummary(
-          projectName,
-          signature,
-          signatureProps,
-          this.optionCollectionMap,
-        ),
+    const data = Object.entries(
+      response.data,
+    ).map(([signature, signatureProps]) =>
+      getSeriesSummary(
+        projectName,
+        signature,
+        signatureProps,
+        this.optionCollectionMap,
+      ),
     );
     return { data, failureStatus: null };
   }

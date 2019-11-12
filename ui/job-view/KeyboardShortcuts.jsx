@@ -286,14 +286,11 @@ const mapStateToProps = ({
   pinnedJobs,
 });
 
-export default connect(
-  mapStateToProps,
-  {
-    clearAllOnScreenNotifications,
-    notify,
-    updateJobDetails,
-    clearSelectedJob,
-    pinJob,
-    unPinAll,
-  },
-)(KeyboardShortcuts);
+export default connect(mapStateToProps, {
+  clearAllOnScreenNotifications,
+  notify,
+  updateJobDetails,
+  clearSelectedJob,
+  pinJob,
+  unPinAll,
+})(KeyboardShortcuts);

@@ -570,7 +570,8 @@ const mapStateToProps = ({
   decisionTaskMap,
 });
 
-export default connect(
-  mapStateToProps,
-  { notify, updateJobMap, recalculateUnclassifiedCounts },
-)(Push);
+export default connect(mapStateToProps, {
+  notify,
+  updateJobMap,
+  recalculateUnclassifiedCounts,
+})(Push);
