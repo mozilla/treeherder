@@ -25,9 +25,6 @@ module.exports = {
   },
   rules: {
     // TODO: Fix & remove the majority of these deviations from AirBnB style (bug 1183749).
-    'class-methods-use-this': 'off',
-    'consistent-return': 'off',
-    'default-case': 'off',
     'jsx-a11y/click-events-have-key-events': 'off',
     'no-alert': 'off',
     'no-continue': 'off',
