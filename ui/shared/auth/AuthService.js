@@ -3,7 +3,6 @@ import {
   renew,
   loggedOutUser,
 } from '../../helpers/auth';
-import taskcluster from '../../helpers/taskcluster';
 import { getApiUrl } from '../../helpers/url';
 import UserModel from '../../models/user';
 
@@ -100,7 +99,5 @@ export default class AuthService {
 
     localStorage.setItem('userSession', JSON.stringify(userSession));
     localStorage.setItem('user', JSON.stringify(user));
-
-    taskcluster.updateAgent();
   }
 }

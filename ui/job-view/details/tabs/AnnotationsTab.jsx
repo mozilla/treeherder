@@ -18,23 +18,23 @@ import { recalculateUnclassifiedCounts } from '../../redux/stores/pushes';
 
 function RelatedBugSaved(props) {
   const { deleteBug, bug } = props;
-  const { bug_id } = bug;
+  const { bug_id: bugId } = bug;
 
   return (
     <span className="btn-group pinboard-related-bugs-btn">
       <a
         className="btn btn-xs annotations-bug related-bugs-link"
-        href={getBugUrl(bug_id)}
+        href={getBugUrl(bugId)}
         target="_blank"
         rel="noopener noreferrer"
-        title={`View bug ${bug_id}`}
+        title={`View bug ${bugId}`}
       >
-        <em>{bug_id}</em>
+        <em>{bugId}</em>
       </a>
       <span
         className="btn classification-delete-icon hover-warning btn-xs pinned-job-close-btn annotations-bug"
         onClick={() => deleteBug(bug)}
-        title={`Delete relation to bug ${bug_id}`}
+        title={`Delete relation to bug ${bugId}`}
       >
         <FontAwesomeIcon icon={faTimesCircle} title="Delete" />
       </span>

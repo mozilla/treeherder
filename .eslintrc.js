@@ -24,8 +24,6 @@ module.exports = {
     browser: true,
   },
   rules: {
-    // TODO: Fix & remove the majority of these deviations from AirBnB style (bug 1183749).
-    camelcase: 'off',
     'class-methods-use-this': 'off',
     'consistent-return': 'off',
     'default-case': 'off',

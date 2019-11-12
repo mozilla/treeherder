@@ -7666,10 +7666,20 @@ react-dom@16.11.0:
     prop-types "^15.6.2"
     scheduler "^0.17.0"
 
-react-fast-compare@^2.0.0:
+react-fast-compare@^2.0.0, react-fast-compare@^2.0.2:
   version "2.0.4"
   resolved "https://registry.yarnpkg.com/react-fast-compare/-/react-fast-compare-2.0.4.tgz#e84b4d455b0fec113e0402c329352715196f81f9"
   integrity sha512-suNP+J1VU1MWFKcyt7RtjiSWUjvidmQSlqu+eHslq+342xCbGTYmC0mEhPCOHxlW0CywylOC1u2DFAT+bv4dBw==
+
+react-helmet@5.2.1:
+  version "5.2.1"
+  resolved "https://registry.yarnpkg.com/react-helmet/-/react-helmet-5.2.1.tgz#16a7192fdd09951f8e0fe22ffccbf9bb3e591ffa"
+  integrity sha512-CnwD822LU8NDBnjCpZ4ySh8L6HYyngViTZLfBBb3NjtrpN8m49clH8hidHouq20I51Y6TpCTISCBbqiY5GamwA==
+  dependencies:
+    object-assign "^4.1.1"
+    prop-types "^15.5.4"
+    react-fast-compare "^2.0.2"
+    react-side-effect "^1.1.0"
 
 react-highlight-words@0.16.0:
   version "0.16.0"
@@ -7788,6 +7798,13 @@ react-router@5.1.2:
     react-is "^16.6.0"
     tiny-invariant "^1.0.2"
     tiny-warning "^1.0.0"
+
+react-side-effect@^1.1.0:
+  version "1.2.0"
+  resolved "https://registry.yarnpkg.com/react-side-effect/-/react-side-effect-1.2.0.tgz#0e940c78faba0c73b9b0eba9cd3dda8dfb7e7dae"
+  integrity sha512-v1ht1aHg5k/thv56DRcjw+WtojuuDHFUgGfc+bFHOWsF4ZK6C2V57DO0Or0GPsg6+LSTE0M6Ry/gfzhzSwbc5w==
+  dependencies:
+    shallowequal "^1.0.1"
 
 react-split-pane@0.1.87:
   version "0.1.87"
@@ -8492,7 +8509,7 @@ sha.js@^2.4.0, sha.js@^2.4.8:
     inherits "^2.0.1"
     safe-buffer "^5.0.1"
 
-shallowequal@^1.1.0:
+shallowequal@^1.0.1, shallowequal@^1.1.0:
   version "1.1.0"
   resolved "https://registry.yarnpkg.com/shallowequal/-/shallowequal-1.1.0.tgz#188d521de95b9087404fd4dcb68b13df0ae4e7f8"
   integrity sha512-y0m1JoUZSlPAjXVtPPW70aZWfIL/dSP7AFkRnniLCrK/8MDKog3TySTBmckD+RObVxH0v4Tox67+F14PdED2oQ==
@@ -9550,10 +9567,10 @@ victory-box-plot@^33.1.2:
     prop-types "^15.5.8"
     victory-core "^33.1.2"
 
-victory-brush-container@^33.1.2:
-  version "33.1.2"
-  resolved "https://registry.yarnpkg.com/victory-brush-container/-/victory-brush-container-33.1.2.tgz#3a8c854f82ab58e5f28131f55c086705884b6e9e"
-  integrity sha512-spYsIR7nBXXLb7TEq7/PUpiNbejkPZpuvkEzH1x3vEkbY6OX5tui10bPZdFSEgeB8qQv8J6tgRFfdZxp5+aMSQ==
+victory-brush-container@^33.1.3:
+  version "33.1.3"
+  resolved "https://registry.yarnpkg.com/victory-brush-container/-/victory-brush-container-33.1.3.tgz#5ae8c8e301bd7d64662dd89744a2a8b7631e2255"
+  integrity sha512-7m2XV0UnkTrt2zdFAt/SnEoPzMCaC6JX3A4z9M/BCfeHDA12FP5BrPTFVduRmrS7f6xD7GlGacyepUg1XOPFQw==
   dependencies:
     lodash "^4.17.15"
     prop-types "^15.5.8"
@@ -9604,13 +9621,13 @@ victory-core@^33.1.2:
     prop-types "^15.5.8"
     react-fast-compare "^2.0.0"
 
-victory-create-container@^33.1.2:
-  version "33.1.2"
-  resolved "https://registry.yarnpkg.com/victory-create-container/-/victory-create-container-33.1.2.tgz#df14c6d2e3cf7cbd263f7fd319cd20214241e00c"
-  integrity sha512-HiZfU8vDSYASB6mngHIz/QE9dXhTI64tvQZnUfuK76Uq/66J+hwxGOh56efnBWmJJRGWq2EWgSz9yNSzXsOq6Q==
+victory-create-container@^33.1.3:
+  version "33.1.3"
+  resolved "https://registry.yarnpkg.com/victory-create-container/-/victory-create-container-33.1.3.tgz#cfb31158e61882bbafbb664d782498237e3b4419"
+  integrity sha512-qnAtIpmSBFW7cDzqkmVtVRD//iqFXQsndeJ+uDyRkHpRVdVvGwH5ATzl/z5Qj14r+f7cvgjYAZb+TbsINqdW2A==
   dependencies:
     lodash "^4.17.15"
-    victory-brush-container "^33.1.2"
+    victory-brush-container "^33.1.3"
     victory-core "^33.1.2"
     victory-cursor-container "^33.1.2"
     victory-selection-container "^33.1.2"
@@ -9760,21 +9777,21 @@ victory-zoom-container@^33.1.2:
     prop-types "^15.5.8"
     victory-core "^33.1.2"
 
-victory@33.1.2:
-  version "33.1.2"
-  resolved "https://registry.yarnpkg.com/victory/-/victory-33.1.2.tgz#95d3afb21cb5d67e07a1f370e4cc34508976bf93"
-  integrity sha512-Fl08yjwCWbK9TIcbL7IbfhyHSeQ3wo0ALkk4sfOz3CAyDL/RabvBZemHk+uLkFcske3gFkYig9ZKu8Xl6L1GOw==
+victory@33.1.3:
+  version "33.1.3"
+  resolved "https://registry.yarnpkg.com/victory/-/victory-33.1.3.tgz#b8a72ffd8f2169eadba885839459c8a3552fadd8"
+  integrity sha512-ZKLybovzd2GCO4n+A3vl8fZm1WNX9O4dxk3IDwMxexL6dwVttdolZCtW6P0efpslI2+nIKH6HNaMfHEisku+Zg==
   dependencies:
     victory-area "^33.1.2"
     victory-axis "^33.1.2"
     victory-bar "^33.1.2"
     victory-box-plot "^33.1.2"
-    victory-brush-container "^33.1.2"
+    victory-brush-container "^33.1.3"
     victory-brush-line "^33.1.2"
     victory-candlestick "^33.1.2"
     victory-chart "^33.1.2"
     victory-core "^33.1.2"
-    victory-create-container "^33.1.2"
+    victory-create-container "^33.1.3"
     victory-cursor-container "^33.1.2"
     victory-errorbar "^33.1.2"
     victory-group "^33.1.2"

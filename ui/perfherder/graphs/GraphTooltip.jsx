@@ -62,8 +62,8 @@ const GraphTooltip = ({
         : getStatus(alert.status, alertStatusMap);
   }
 
-  const repository_name = projects.find(
-    repository_name => repository_name.name === testDetails.repository_name,
+  const repositoryName = projects.find(
+    repositoryName => repositoryName.name === testDetails.repository_name,
   );
 
   let prevRevision;
@@ -72,7 +72,7 @@ const GraphTooltip = ({
   if (prevFlotDataPointIndex !== -1) {
     prevRevision = testDetails.data[prevFlotDataPointIndex].revision;
     prevPushId = testDetails.data[prevFlotDataPointIndex].pushId;
-    const repoModel = new RepositoryModel(repository_name);
+    const repoModel = new RepositoryModel(repositoryName);
     pushUrl = repoModel.getPushLogRangeHref({
       fromchange: prevRevision,
       tochange: dataPointDetails.revision,

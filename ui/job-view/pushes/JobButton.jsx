@@ -84,21 +84,21 @@ export default class JobButtonComponent extends React.Component {
     const { isSelected, isRunnableSelected } = this.state;
     const {
       state,
-      failure_classification_id,
+      failure_classification_id: failureClassificationId,
       visible,
       id,
-      job_type_symbol,
+      job_type_symbol: jobTypeSymbol,
       resultStatus,
     } = job;
 
     if (!visible) return null;
     const runnable = state === 'runnable';
-    const btnClass = getBtnClass(resultStatus, failure_classification_id);
+    const btnClass = getBtnClass(resultStatus, failureClassificationId);
     let classifiedIcon = null;
 
-    if (failure_classification_id > 1) {
+    if (failureClassificationId > 1) {
       classifiedIcon =
-        failure_classification_id === 7 ? faStarRegular : faStarSolid;
+        failureClassificationId === 7 ? faStarRegular : faStarSolid;
     }
 
     const classes = ['btn', btnClass, 'filter-shown'];
@@ -125,7 +125,7 @@ export default class JobButtonComponent extends React.Component {
     attributes.className = classes.join(' ');
     return (
       <button type="button" {...attributes}>
-        {job_type_symbol}
+        {jobTypeSymbol}
         {classifiedIcon && (
           <FontAwesomeIcon
             icon={classifiedIcon}

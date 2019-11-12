@@ -15,8 +15,8 @@ import withValidation from '../Validation';
 import CompareTableView from './CompareTableView';
 
 class CompareSubtestsView extends React.PureComponent {
-  createQueryParams = (parent_signature, repository, framework) => ({
-    parent_signature,
+  createQueryParams = (parentSignature, repository, framework) => ({
+    parent_signature: parentSignature,
     framework,
     repository,
   });
@@ -90,7 +90,7 @@ class CompareSubtestsView extends React.PureComponent {
         )}`,
       });
     }
-    const signature_hash = !oldResults
+    const signatureHash = !oldResults
       ? newResults.signature_hash
       : oldResults.signature_hash;
 
@@ -99,7 +99,7 @@ class CompareSubtestsView extends React.PureComponent {
       links,
       framework,
       timeRange,
-      signature_hash,
+      signatureHash,
     );
     return links;
   };

@@ -187,9 +187,9 @@ export default class ActiveFilters extends React.Component {
                     <option value="" disabled>
                       select value
                     </option>
-                    {Object.entries(newFilterChoices).map(([fci, fci_obj]) => (
-                      <option value={fci_obj.id} key={fci}>
-                        {fci_obj.name}
+                    {Object.entries(newFilterChoices).map(([fci, fciObj]) => (
+                      <option value={fciObj.id} key={fci}>
+                        {fciObj.name}
                       </option>
                     ))}
                   </select>
