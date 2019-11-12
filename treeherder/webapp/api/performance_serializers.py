@@ -41,12 +41,15 @@ class PerformanceSignatureSerializer(serializers.ModelSerializer):
     extra_options = TestOptionsSerializer(read_only=True,
                                           allow_blank=True)
     measurement_unit = serializers.CharField(read_only=True)
+    suite_public_name = serializers.CharField(read_only=True, required=False)
+    test_public_name = serializers.CharField(read_only=True, required=False)
 
     class Meta:
         model = PerformanceSignature
         fields = ['id', 'framework_id', 'signature_hash', 'machine_platform',
                   'suite', 'test', 'lower_is_better', 'has_subtests',
-                  'option_collection_hash', 'extra_options', 'measurement_unit']
+                  'option_collection_hash', 'extra_options', 'measurement_unit',
+                  'suite_public_name', 'test_public_name']
 
 
 class PerformanceDecimalField(serializers.DecimalField):
