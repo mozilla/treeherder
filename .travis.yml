@@ -9,9 +9,7 @@ matrix:
       language: node_js
       # The Node version here must be kept in sync with that in `package.json`.
       node_js: '12.13.0'
-      cache:
-        directories:
-          - node_modules
+      cache: yarn
       before_install:
         # Try to keep version in sync with `package.json`
         - curl -o- -L https://yarnpkg.com/install.sh | bash -s -- --version 1.19.1
