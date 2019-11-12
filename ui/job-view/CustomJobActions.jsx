@@ -318,7 +318,4 @@ const mapStateToProps = ({ pushes: { decisionTaskMap } }) => ({
   decisionTaskMap,
 });
 
-export default connect(
-  mapStateToProps,
-  { notify },
-)(CustomJobActions);
+export default connect(mapStateToProps, { notify })(CustomJobActions);

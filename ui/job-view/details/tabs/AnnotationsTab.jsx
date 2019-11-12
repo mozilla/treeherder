@@ -256,7 +256,6 @@ AnnotationsTab.propTypes = {
   selectedJobFull: PropTypes.object.isRequired,
 };
 
-export default connect(
-  null,
-  { notify, recalculateUnclassifiedCounts },
-)(AnnotationsTab);
+export default connect(null, { notify, recalculateUnclassifiedCounts })(
+  AnnotationsTab,
+);

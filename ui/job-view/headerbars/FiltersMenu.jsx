@@ -142,7 +142,8 @@ FiltersMenu.defaultProps = {
 
 const mapStateToProps = ({ selectedJob: { selectedJob } }) => ({ selectedJob });
 
-export default connect(
-  mapStateToProps,
-  { setSelectedJob, clearSelectedJob, pinJobs },
-)(FiltersMenu);
+export default connect(mapStateToProps, {
+  setSelectedJob,
+  clearSelectedJob,
+  pinJobs,
+})(FiltersMenu);
