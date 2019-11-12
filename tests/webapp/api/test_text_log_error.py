@@ -1,4 +1,3 @@
-from django.conf import settings
 from django.urls import reverse
 
 from tests.autoclassify.utils import (create_failure_lines,
@@ -12,7 +11,6 @@ from treeherder.model.models import (BugJobMap,
                                      JobNote,
                                      TextLogError,
                                      TextLogErrorMetadata)
-from treeherder.services.elasticsearch import get_document
 
 
 def test_get_error(client, text_log_errors_failure_lines):
@@ -64,11 +62,6 @@ def test_update_error_verify(client,
 
     assert error_line.metadata.best_classification == classified_failures[0]
     assert error_line.metadata.best_is_verified
-
-    if settings.ELASTICSEARCH_URL:
-        es_line = get_document(error_line.metadata.failure_line.id)
-        assert es_line['best_classification'] == classified_failures[0].id
-        assert es_line['best_is_verified']
 
 
 def test_update_error_replace(client,
@@ -388,11 +381,6 @@ def test_update_error_verify_bug(client,
 
     assert error_line.metadata.best_classification == classified_failures[0]
     assert error_line.metadata.best_is_verified
-
-    if settings.ELASTICSEARCH_URL:
-        es_line = get_document(error_line.metadata.failure_line.id)
-        assert es_line['best_classification'] == classified_failures[0].id
-        assert es_line['best_is_verified']
 
 
 def test_update_error_verify_new_bug(client,
