@@ -3,7 +3,7 @@ import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
 import {
   Button,
-  Dropdown,
+  UncontrolledDropdown,
   DropdownToggle,
   DropdownMenu,
   DropdownItem,
@@ -42,7 +42,6 @@ class ActionBar extends React.PureComponent {
 
     this.state = {
       customJobActionsShowing: false,
-      dropdownIsOpen: false,
     };
   }
 
@@ -424,11 +423,6 @@ class ActionBar extends React.PureComponent {
     this.setState({ customJobActionsShowing: !customJobActionsShowing });
   };
 
-  dropdownToggle = () => {
-    const { dropdownIsOpen } = this.state;
-    this.setState({ dropdownIsOpen: !dropdownIsOpen });
-  };
-
   render() {
     const {
       selectedJobFull,
@@ -526,11 +520,7 @@ class ActionBar extends React.PureComponent {
                 </Button>
               </li>
             )}
-            <Dropdown
-              isOpen={this.state.dropdownIsOpen}
-              toggle={this.dropdownToggle}
-              className="ml-auto"
-            >
+            <UncontrolledDropdown className="ml-auto">
               <DropdownToggle
                 id="actionbar-menu-btn"
                 title="Other job actions"
@@ -592,7 +582,7 @@ class ActionBar extends React.PureComponent {
                   </React.Fragment>
                 )}
               </DropdownMenu>
-            </Dropdown>
+            </UncontrolledDropdown>
           </ul>
         </nav>
         {customJobActionsShowing && (
