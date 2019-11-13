@@ -1,3 +1,5 @@
+import logging
+
 import newrelic.agent
 
 from treeherder.etl.common import make_request
@@ -5,7 +7,9 @@ from treeherder.etl.common import make_request
 from .artifactbuilders import (BuildbotJobArtifactBuilder,
                                BuildbotLogViewArtifactBuilder,
                                BuildbotPerformanceDataArtifactBuilder)
+from .parsers import EmptyPerformanceData
 
+logger = logging.getLogger(__name__)
 # Max log size in bytes we will download (prior to decompression).
 MAX_DOWNLOAD_SIZE_IN_BYTES = 5 * 1024 * 1024
 
@@ -110,9 +114,12 @@ BuildbotPerformanceDataArtifactBuilder
             # as `\n` or `\r`, and so split into unwanted additional lines by `iter_lines()`.
             for line in response.iter_lines():
                 for builder in self.builders:
-                    # Using `replace` to prevent malformed unicode (which might possibly exist
-                    # in test message output) from breaking parsing of the rest of the log.
-                    builder.parse_line(line.decode('utf-8', 'replace'))
+                    try:
+                        # Using `replace` to prevent malformed unicode (which might possibly exist
+                        # in test message output) from breaking parsing of the rest of the log.
+                        builder.parse_line(line.decode('utf-8', 'replace'))
+                    except EmptyPerformanceData:
+                        logger.warning("We have parsed an empty PERFHERDER_DATA for %s", self.url)
 
         # gather the artifacts from all builders
         for builder in self.builders:
