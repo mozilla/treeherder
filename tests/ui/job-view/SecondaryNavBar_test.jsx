@@ -1,7 +1,12 @@
 import React from 'react';
 import { fetchMock } from 'fetch-mock';
 import { Provider } from 'react-redux';
-import { render, cleanup, waitForElement } from '@testing-library/react';
+import {
+  render,
+  cleanup,
+  waitForElement,
+  fireEvent,
+} from '@testing-library/react';
 import thunk from 'redux-thunk';
 import configureMockStore from 'redux-mock-store';
 
@@ -33,7 +38,7 @@ afterEach(() => {
 });
 
 describe('SecondaryNavBar', () => {
-  const testSecondaryNavBar = (store, filterModel) => (
+  const testSecondaryNavBar = (store, filterModel, props) => (
     <Provider store={store}>
       <SecondaryNavBar
         updateButtonClick={() => {}}
@@ -44,6 +49,7 @@ describe('SecondaryNavBar', () => {
         duplicateJobsVisible={false}
         groupCountsExpanded={false}
         toggleFieldFilterVisible={() => {}}
+        {...props}
       />
     </Provider>
   );
@@ -75,5 +81,25 @@ describe('SecondaryNavBar', () => {
     expect(await waitForElement(() => getByText(repoName))).toBeInTheDocument();
     expect(await waitForElement(() => getByText('22'))).toBeInTheDocument();
     expect(await waitForElement(() => getByText('10'))).toBeInTheDocument();
+  });
+
+  test('should call updateButtonClick, on revision changed button click', async () => {
+    const store = mockStore({
+      pushes: {
+        ...initialState,
+      },
+    });
+
+    const props = {
+      serverChanged: true,
+      updateButtonClick: jest.fn(),
+    };
+
+    const { container } = render(
+      testSecondaryNavBar(store, new FilterModel(), props),
+    );
+    const el = container.querySelector('#revisionChangedLabel');
+    fireEvent.click(el);
+    expect(props.updateButtonClick).toHaveBeenCalled();
   });
 });
