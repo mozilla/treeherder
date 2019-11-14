@@ -7,11 +7,17 @@ from itertools import zip_longest
 from typing import (List,
                     Tuple)
 
+import simplejson as json
 from django.conf import settings
 from django.db import transaction
+from django.db.models import (F,
+                              Q)
 from django.db.models.query import QuerySet
 
-from treeherder.perf.models import (PerformanceAlert,
+from treeherder.perf.exceptions import MissingRecords
+from treeherder.perf.models import (BackfillRecord,
+                                    BackfillReport,
+                                    PerformanceAlert,
                                     PerformanceAlertSummary,
                                     PerformanceDatum,
                                     PerformanceSignature)
@@ -268,10 +274,7 @@ class IdentifyAlertRetriggerables:
         annotated_data_points = self._fetch_suspect_data_points(alert)  # in time_interval around alert
         flattened_data_points = self._one_data_point_per_push(annotated_data_points)
 
-        try:
-            alert_index = self._find_push_id_index(alert.summary.push_id, flattened_data_points)
-        except LookupError as ex:
-            raise RuntimeError("Unexpected lookup failure") from ex
+        alert_index = self._find_push_id_index(alert.summary.push_id, flattened_data_points)
 
         retrigger_window = self.__compute_window_slices(alert_index)
         data_points_to_retrigger = flattened_data_points[retrigger_window]
@@ -334,52 +337,95 @@ class IdentifyAlertRetriggerables:
                              .format(retrigger_range, self._range_width))
 
 
-class IdentifyLatestRetriggerables:
-    def __init__(self, since: datetime, data_points_lookup_interval: timedelta):
+class BackfillReportMaintainer:
+    def __init__(self, alerts_picker: AlertsPicker, backfill_context_fetcher: IdentifyAlertRetriggerables, logger=None):
         '''
         Acquire/instantiate data used for finding alerts.
-        :param since: datetime since the lookup will occur.
-        :param data_points_lookup_interval: time range before/after data point in which search neighboring data points occurs.
         '''
-        self.since = since
-        self.picker = AlertsPicker(
-            max_alerts=5,
-            max_improvements=2,
-            platforms_of_interest=('windows10', 'windows7', 'linux', 'osx', 'android'))
-        self.find_alert_retriggerables = IdentifyAlertRetriggerables(
-            max_data_points=5,
-            time_interval=data_points_lookup_interval)
+        self.alerts_picker = alerts_picker
+        self.fetch_backfill_context = backfill_context_fetcher
+        self.log = logger or logging.getLogger(self.__class__.__name__)
 
-    def __call__(self, frameworks: List[str], repositories: List[str]) -> dict:
+    def provide_updated_reports(self, since: datetime,
+                                frameworks: List[str],
+                                repositories: List[str]) -> List[BackfillReport]:
         summaries_to_retrigger = self._fetch_by(
-            self._summaries(self.since),
+            self._summaries_requiring_reports(since),
             frameworks,
             repositories
         )
-        return self._identify_retriggerables(summaries_to_retrigger)
+        return self.compile_reports_for(summaries_to_retrigger)
 
-    def _summaries(self, timestamp: datetime) -> QuerySet:
+    def compile_reports_for(self, summaries_to_retrigger: QuerySet) -> List[BackfillReport]:
+        reports = []
+
+        for summary in summaries_to_retrigger:
+            important_alerts = self._pick_important_alerts(summary)
+            if len(important_alerts) == 0 and self._doesnt_have_report(summary):
+                continue  # won't create blank reports
+            # but will update if case
+
+            try:
+                alert_context_map = self._associate_retrigger_context(important_alerts)
+            except MissingRecords as ex:
+                self.log.warning(f"Failed to compute report for alert summary {summary}. {ex}")
+                continue
+
+            backfill_report, created = BackfillReport.objects.get_or_create(summary_id=summary.id)
+            if created or backfill_report.is_outdated:
+                backfill_report.expel_records()  # associated records are outdated & irrelevant
+                self._provide_records(backfill_report, alert_context_map)
+            reports.append(backfill_report)
+
+        return reports
+
+    def _pick_important_alerts(self, from_summary: PerformanceAlertSummary) -> List[PerformanceAlert]:
+        return self.alerts_picker.extract_important_alerts(from_summary.alerts.all())
+
+    def _provide_records(self, backfill_report: BackfillReport,
+                         alert_context_map: List[Tuple]):
+        for alert, retrigger_context in alert_context_map:
+            BackfillRecord.objects.create(alert=alert,
+                                          report=backfill_report,
+                                          context=json.dumps(retrigger_context))
+
+    def _summaries_requiring_reports(self, timestamp: datetime) -> QuerySet:
+        recent_summaries_with_no_reports = Q(last_updated__gte=timestamp,
+                                             backfill_report__isnull=True)
+        summaries_with_outdated_reports = Q(last_updated__gt=F('backfill_report__last_updated'))
+
         return (PerformanceAlertSummary.objects
+                .prefetch_related('backfill_report')
                 .select_related('framework', 'repository')
-                .filter(created__gte=timestamp))
+                .filter(recent_summaries_with_no_reports | summaries_with_outdated_reports))
 
     def _fetch_by(self, summaries_to_retrigger: QuerySet, frameworks: List[str], repositories: List[str]) -> QuerySet:
         if frameworks:
             summaries_to_retrigger = summaries_to_retrigger.filter(framework__name__in=frameworks)
-        return summaries_to_retrigger.filter(repository__name__in=repositories)
+        if repositories:
+            summaries_to_retrigger = summaries_to_retrigger.filter(repository__name__in=repositories)
+        return summaries_to_retrigger
 
-    def _identify_retriggerables(self, summaries_to_retrigger: QuerySet) -> dict:
-        json_output = []
-        for summary in summaries_to_retrigger:
-            important_alerts = self.picker.extract_important_alerts(
-                summary.alerts.all())
+    def _associate_retrigger_context(self, important_alerts: List[PerformanceAlert]) -> List[Tuple]:
+        retrigger_map = []
+        incomplete_mapping = False
 
-            summary_record = {"alert_summary_id": summary.id, "alerts": []}
-            for alert in important_alerts:
-                data_points = self.find_alert_retriggerables(alert)
+        for alert in important_alerts:
+            try:
+                data_points = self.fetch_backfill_context(alert)
+            except LookupError as ex:
+                incomplete_mapping = True
+                self.log.debug(f"Couldn't identify retrigger context for alert {alert}. (Exception: {ex})")
+                continue
 
-                summary_record["alerts"].append(
-                    {"id": alert.id, "data_points_to_retrigger": data_points})
-            json_output.append(summary_record)
+            retrigger_map.append((alert, data_points))
 
-        return json_output
+        if incomplete_mapping:
+            expected = len(important_alerts)
+            missing = expected - len(retrigger_map)
+            raise MissingRecords(f'{missing} out of {expected} records are missing!')
+
+        return retrigger_map
+
+    def _doesnt_have_report(self, summary):
+        return not hasattr(summary, 'backfill_report')
