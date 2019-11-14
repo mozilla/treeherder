@@ -1,5 +1,3 @@
-/* eslint-disable jsx-a11y/no-noninteractive-element-interactions */
-
 import React from 'react';
 import PropTypes from 'prop-types';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
@@ -7,7 +5,7 @@ import {
   faPlusSquare,
   faMinusSquare,
 } from '@fortawesome/free-regular-svg-icons';
-import { Row, Collapse } from 'reactstrap';
+import { Badge, Card, CardBody, Row, Collapse } from 'reactstrap';
 import Markdown from 'react-markdown';
 
 import UnsupportedJob from './UnsupportedJob';
@@ -20,7 +18,7 @@ Requirements:
 
 1. Logging must be Structured Logging using MozLog or a harness that uses MozLog.
 2. Each failure must be summarized in a log file ending with \`_errorsummary.log\`.
-3. The \`_errorsummary.log\` must have at least one line that has an \`action\` of \`test_result\`.
+3. The \`*_errorsummary.log\` must have at least one line that has an \`action\` of \`test_result\`.
 `;
 
 class UnsupportedGroup extends React.PureComponent {
@@ -43,23 +41,27 @@ class UnsupportedGroup extends React.PureComponent {
 
     return (
       <Row className={`justify-content-between ${className}`}>
-        <h4 className="w-100" onClick={this.toggleDetails}>
-          <span className={`pointable badge badge-${headerColor} w-100`}>
+        <h4 className="w-100">
+          <Badge
+            className="pointable w-100"
+            color={headerColor}
+            onClick={this.toggleDetails}
+          >
             {name} : {Object.keys(group).length}
             <FontAwesomeIcon
               icon={expandIcon}
               className="ml-1"
               title="expand"
             />
-          </span>
+          </Badge>
         </h4>
         <Collapse isOpen={detailsShowing} className="w-100">
           <Markdown source={description} />
           <div>
             {group &&
               group.map(job => (
-                <div className="card" key={job.id}>
-                  <div className="card-body">
+                <Card key={job.id}>
+                  <CardBody>
                     <UnsupportedJob
                       job={job}
                       jobName={job.job_type_name}
@@ -67,8 +69,8 @@ class UnsupportedGroup extends React.PureComponent {
                       repo={repo}
                       revision={revision}
                     />
-                  </div>
-                </div>
+                  </CardBody>
+                </Card>
               ))}
           </div>
         </Collapse>

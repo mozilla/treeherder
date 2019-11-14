@@ -2,6 +2,7 @@ import React, { PureComponent } from 'react';
 import PropTypes from 'prop-types';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faBug, faStar } from '@fortawesome/free-solid-svg-icons';
+import Markdown from 'react-markdown';
 
 import { getBtnClass } from '../helpers/job';
 import { bzBaseUrl, getJobsUrl, getLogViewerUrl } from '../helpers/url';
@@ -81,10 +82,12 @@ class UnsupportedJob extends PureComponent {
             className="text-dark"
           />
         </a>
-        {errorSummary && (
+        {errorSummary ? (
           <a href={errorSummary.url} target="_blank" rel="noopener noreferrer">
             {errorSummary.value}
           </a>
+        ) : (
+          <Markdown>No ``*_errorsummary.log`` exists for this task.</Markdown>
         )}
       </span>
     );
