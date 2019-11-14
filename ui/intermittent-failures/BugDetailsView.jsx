@@ -143,7 +143,7 @@ const BugDetailsView = props => {
         <React.Fragment>
           <Row>
             <Helmet>
-              <title>{`Bug ${bug} - ${summary}`}</title>
+              <title>{`Bug ${bug}${summary ? ` - ${summary}` : ''}`}</title>
             </Helmet>
             <Col xs="12" className="text-left">
               <Breadcrumb listClassName="bg-white">
