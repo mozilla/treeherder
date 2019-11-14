@@ -7,6 +7,8 @@ import { Badge, FormGroup, Input } from 'reactstrap';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faTimes } from '@fortawesome/free-solid-svg-icons';
 
+import { legendCardText } from '../constants';
+
 const LegendCard = ({
   series,
   testData,
@@ -87,9 +89,9 @@ const LegendCard = ({
     resetParams(newData);
   };
 
-  const getFrameworkName = framwork_id => {
-    const framework = frameworks.find(item => item.id === framwork_id);
-    return framework ? framework.name : 'no-framework';
+  const getFrameworkName = frameworkId => {
+    const framework = frameworks.find(item => item.id === frameworkId);
+    return framework ? framework.name : legendCardText.unknownFrameworkMessage;
   };
   const subtitleStyle = 'p-0 mb-0 border-0 text-secondary text-left';
 

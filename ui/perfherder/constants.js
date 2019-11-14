@@ -19,6 +19,10 @@ export const filterText = {
   inputPlaceholder: 'filter text e.g. linux tp5o',
 };
 
+export const legendCardText = {
+  unknownFrameworkMessage: 'unknown framework',
+};
+
 export const selectorCardText = {
   invalidRevision: 'Invalid revision',
   invalidRevisionLength: 'Revision must be at least 40 characters',
