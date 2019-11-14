@@ -45,6 +45,7 @@ export default class JobInfo extends React.PureComponent {
       job_type_name: jobTypeName,
       build_architecture: buildArchitecture,
       build_os: buildOs,
+      submit_timestamp: submitTimestamp,
     } = job;
     const timeFields = getTimeFields(job);
 
@@ -77,7 +78,11 @@ export default class JobInfo extends React.PureComponent {
             <strong>Task: </strong>
             <a
               id="taskInfo"
-              href={getInspectTaskUrl(taskId, currentRepo.tc_root_url)}
+              href={getInspectTaskUrl(
+                taskId,
+                currentRepo.tc_root_url,
+                submitTimestamp,
+              )}
               target="_blank"
               rel="noopener noreferrer"
             >
