@@ -17,18 +17,31 @@ from treeherder.perf.models import (IssueTracker,
 from treeherder.webapp.api.utils import to_timestamp
 
 
+class PerformanceDecimalField(serializers.DecimalField):
+    def __init__(self, *args, **kwargs):
+        kwargs['max_digits'] = 20
+        kwargs['decimal_places'] = 2
+        kwargs['coerce_to_string'] = False
+        super().__init__(*args, **kwargs)
+
+
+class TimestampField(serializers.Field):
+    def to_representation(self, value):
+        return to_timestamp(value.time)
+
+
+class WordsField(serializers.CharField):
+    def to_representation(self, obj):
+        # if string's value is blank, just return nothing
+        if isinstance(obj, str):
+            return obj.split(' ')
+        return []
+
+
 class PerformanceFrameworkSerializer(serializers.ModelSerializer):
     class Meta:
         model = PerformanceFramework
         fields = ['id', 'name']
-
-
-class TestOptionsSerializer(serializers.CharField):
-    def to_representation(self, obj):
-        # if extra_options str is blank, just return nothing
-        if isinstance(obj, str):
-            return obj.split(' ')
-        return []
 
 
 class PerformanceSignatureSerializer(serializers.ModelSerializer):
@@ -38,8 +51,8 @@ class PerformanceSignatureSerializer(serializers.ModelSerializer):
     machine_platform = serializers.SlugRelatedField(read_only=True,
                                                     slug_field="platform",
                                                     source="platform")
-    extra_options = TestOptionsSerializer(read_only=True,
-                                          allow_blank=True)
+    tags = WordsField(read_only=True, allow_blank=True)
+    extra_options = WordsField(read_only=True, allow_blank=True)
     measurement_unit = serializers.CharField(read_only=True)
     suite_public_name = serializers.CharField(read_only=True, required=False)
     test_public_name = serializers.CharField(read_only=True, required=False)
@@ -48,16 +61,8 @@ class PerformanceSignatureSerializer(serializers.ModelSerializer):
         model = PerformanceSignature
         fields = ['id', 'framework_id', 'signature_hash', 'machine_platform',
                   'suite', 'test', 'lower_is_better', 'has_subtests',
-                  'option_collection_hash', 'extra_options', 'measurement_unit',
+                  'option_collection_hash', 'tags', 'extra_options', 'measurement_unit',
                   'suite_public_name', 'test_public_name']
-
-
-class PerformanceDecimalField(serializers.DecimalField):
-    def __init__(self, *args, **kwargs):
-        kwargs['max_digits'] = 20
-        kwargs['decimal_places'] = 2
-        kwargs['coerce_to_string'] = False
-        super().__init__(*args, **kwargs)
 
 
 class PerformanceAlertSerializer(serializers.ModelSerializer):
@@ -124,12 +129,6 @@ class PerformanceAlertSerializer(serializers.ModelSerializer):
                   'prev_value', 'new_value', 't_value', 'amount_abs',
                   'amount_pct', 'summary_id', 'related_summary_id',
                   'manually_created', 'classifier', 'starred', 'classifier_email']
-
-
-class TimestampField(serializers.Field):
-
-    def to_representation(self, value):
-        return to_timestamp(value.time)
 
 
 class PerformanceAlertSummarySerializer(serializers.ModelSerializer):
