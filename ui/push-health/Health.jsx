@@ -14,7 +14,8 @@ import PushModel from '../models/push';
 import { resultColorMap } from './helpers';
 import Metric from './Metric';
 import Navigation from './Navigation';
-import TestFailures from './TestFailures';
+import TestMetric from './TestMetric';
+import JobListMetric from './JobListMetric';
 
 export default class Health extends React.PureComponent {
   constructor(props) {
@@ -122,7 +123,14 @@ export default class Health extends React.PureComponent {
               <Table size="sm" className="table-fixed">
                 <tbody>
                   <tr>
-                    <TestFailures
+                    <JobListMetric
+                      data={linting}
+                      repo={repo}
+                      revision={revision}
+                    />
+                  </tr>
+                  <tr>
+                    <TestMetric
                       data={tests}
                       repo={repo}
                       currentRepo={currentRepo}
@@ -131,12 +139,12 @@ export default class Health extends React.PureComponent {
                       notify={this.notify}
                     />
                   </tr>
-                  {[linting, builds, coverage, performance].map(metric => (
-                    <tr>
+                  {[builds, coverage, performance].map(metric => (
+                    <tr key={metric.name}>
                       <Metric result={metric.result} name={metric.name}>
                         <div>
                           {metric.details.map(detail => (
-                            <div>{detail}</div>
+                            <div key={detail}>{detail}</div>
                           ))}
                         </div>
                       </Metric>

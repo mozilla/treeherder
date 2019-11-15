@@ -13,6 +13,7 @@ from treeherder.model.models import (Job,
                                      JobType,
                                      Push,
                                      Repository)
+from treeherder.push_health.linting import get_lint_failures
 from treeherder.push_health.tests import get_test_failures
 from treeherder.webapp.api.serializers import PushSerializer
 from treeherder.webapp.api.utils import (REPO_GROUPS,
@@ -212,8 +213,13 @@ class PushViewSet(viewsets.ViewSet):
             return Response("No push with id: {0}".format(pk),
                             status=HTTP_404_NOT_FOUND)
         push_health_test_failures = get_test_failures(push, REPO_GROUPS['trunk'])
+        push_health_lint_failures = get_lint_failures(push)
 
-        return Response({'needInvestigation': len(push_health_test_failures['needInvestigation'])})
+        return Response({
+            'needInvestigation':
+                len(push_health_test_failures['needInvestigation']) +
+                len(push_health_lint_failures)
+        })
 
     @action(detail=False)
     def health(self, request, project):
@@ -234,20 +240,23 @@ class PushViewSet(viewsets.ViewSet):
         if len(push_health_test_failures['needInvestigation']):
             test_result = 'fail'
 
+        lint_failures = get_lint_failures(push)
+        lint_result = 'fail' if len(lint_failures) else 'pass'
+
         return Response({
             'revision': revision,
             'id': push.id,
-            'result': test_result,
+            'result': 'pass' if all(metric == 'pass' for metric in [test_result, lint_result]) else 'fail',
             'metrics': {
+                'linting': {
+                    'name': 'Linting',
+                    'result': lint_result,
+                    'details': lint_failures,
+                },
                 'tests': {
                     'name': 'Tests',
                     'result': test_result,
                     'details': push_health_test_failures,
-                },
-                'linting': {
-                    'name': 'Linting (Not yet implemented)',
-                    'result': 'none',
-                    'details': ['lint stuff would be good'],
                 },
                 'builds': {
                     'name': 'Builds (Not yet implemented)',
