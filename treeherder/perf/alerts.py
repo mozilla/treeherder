@@ -387,7 +387,7 @@ class BackfillReportMaintainer:
         for alert, retrigger_context in alert_context_map:
             BackfillRecord.objects.create(alert=alert,
                                           report=backfill_report,
-                                          context=json.dumps(retrigger_context))
+                                          context=json.dumps(retrigger_context, default=str))
 
     def _summaries_requiring_reports(self, timestamp: datetime) -> QuerySet:
         recent_summaries_with_no_reports = Q(last_updated__gte=timestamp,
