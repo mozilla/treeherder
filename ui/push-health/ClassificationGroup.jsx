@@ -1,5 +1,3 @@
-/* eslint-disable jsx-a11y/no-noninteractive-element-interactions */
-
 import React from 'react';
 import PropTypes from 'prop-types';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
@@ -11,6 +9,7 @@ import {
 import {
   Row,
   Collapse,
+  Badge,
   ButtonGroup,
   ButtonDropdown,
   Button,
@@ -76,15 +75,19 @@ class ClassificationGroup extends React.PureComponent {
 
     return (
       <Row className={`justify-content-between ${className}`}>
-        <h4 className="w-100" onClick={this.toggleDetails}>
-          <span className={`pointable badge badge-${headerColor} w-100`}>
+        <h4 className="w-100">
+          <Badge
+            className="pointable w-100"
+            onClick={this.toggleDetails}
+            color={headerColor}
+          >
             {name} : {Object.keys(group).length}
             <FontAwesomeIcon
               icon={expandIcon}
               className="ml-1"
               title="expand"
             />
-          </span>
+          </Badge>
         </h4>
         <Collapse isOpen={detailsShowing} className="w-100">
           {hasRetriggerAll && (

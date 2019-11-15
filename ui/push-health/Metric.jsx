@@ -1,5 +1,3 @@
-/* eslint-disable jsx-a11y/no-static-element-interactions */
-
 import React from 'react';
 import PropTypes from 'prop-types';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
@@ -7,7 +5,7 @@ import {
   faPlusSquare,
   faMinusSquare,
 } from '@fortawesome/free-regular-svg-icons';
-import { Badge, Row, Col, Collapse, Card, CardBody } from 'reactstrap';
+import { Button, Badge, Row, Col, Collapse, Card, CardBody } from 'reactstrap';
 
 import { resultColorMap } from './helpers';
 import TestFailures from './TestFailures';
@@ -49,14 +47,14 @@ export default class Metric extends React.PureComponent {
           <div className={`bg-${resultColor} pr-2 mr-2`} />
           <Col>
             <Row className="justify-content-between">
-              <div onClick={this.toggleDetails} className="btn">
+              <Button onClick={this.toggleDetails} outline className="border-0">
                 <span className="metric-name align-top font-weight-bold">
                   {name}
                 </span>
                 <span className="btn">
                   <FontAwesomeIcon icon={expandIcon} title="expand" />
                 </span>
-              </div>
+              </Button>
               <span>
                 <Badge color={resultColor} className="ml-1 text-uppercase">
                   {result}
