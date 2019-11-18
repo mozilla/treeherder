@@ -553,6 +553,7 @@ class ActionBar extends React.PureComponent {
                         href={getInspectTaskUrl(
                           selectedJobFull.task_id,
                           currentRepo.tc_root_url,
+                          selectedJobFull.submit_timestamp,
                         )}
                       >
                         Inspect Task
