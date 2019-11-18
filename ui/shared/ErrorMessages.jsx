@@ -48,10 +48,7 @@ class ErrorMessages extends React.PureComponent {
 }
 
 ErrorMessages.propTypes = {
-  failureMessage: PropTypes.oneOfType([
-    PropTypes.object,
-    PropTypes.arrayOf(PropTypes.string),
-  ]),
+  failureMessage: PropTypes.string,
   errorMessages: PropTypes.arrayOf(PropTypes.string),
 };
 

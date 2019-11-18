@@ -12,7 +12,10 @@ import testData from '../mock/performance_summary.json';
 import seriesData from '../mock/performance_signature_formatted.json';
 import seriesData2 from '../mock/performance_signature_formatted2.json';
 
-const frameworks = [{ id: 1, name: 'talos' }, { id: 2, name: 'build_metrics' }];
+const frameworks = [
+  { id: 1, name: 'talos' },
+  { id: 2, name: 'build_metrics' },
+];
 const platforms = ['linux64', 'windows10-64', 'windows7-32'];
 
 const updates = {

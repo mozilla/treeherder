@@ -6,7 +6,6 @@ import time
 from hashlib import sha1
 
 import newrelic.agent
-from django.conf import settings
 from django.contrib.auth.models import User
 from django.core.cache import cache
 from django.core.exceptions import ObjectDoesNotExist
@@ -21,10 +20,6 @@ from django.utils import timezone
 
 from treeherder.webapp.api.utils import (REPO_GROUPS,
                                          to_timestamp)
-
-from ..services.elasticsearch import (bulk,
-                                      index)
-from ..utils.queryset import chunked_qs
 
 logger = logging.getLogger(__name__)
 
@@ -439,19 +434,6 @@ class JobManager(models.Manager):
             # foreign key relation
             lines = FailureLine.objects.filter(job_guid__in=jobs_chunk).only('id')
 
-            if settings.ELASTICSEARCH_URL:
-                # To delete the data from elasticsearch we need the document
-                # id.  However selecting all this data can be rather slow, so
-                # split the job into multiple smaller chunks.
-
-                failures = itertools.chain.from_iterable(
-                    chunked_qs(
-                        lines,
-                        chunk_size=chunk_size,
-                        fields=['id', 'test'],
-                    ),
-                )
-                bulk(failures, action='delete')
             logger.warning('deleting FailureLines')
             lines.delete()
 
@@ -1062,12 +1044,6 @@ class FailureLine(models.Model):
 
         return rv
 
-    def elastic_search_insert(self):
-        if not settings.ELASTICSEARCH_URL:
-            return
-
-        index(self)
-
     def to_dict(self):
         try:
             metadata = self.text_log_error_metadata
@@ -1341,8 +1317,6 @@ class TextLogError(models.Model):
             self.metadata.best_classification = classification
             self.metadata.best_is_verified = True
             self.metadata.save(update_fields=['best_classification', 'best_is_verified'])
-
-        self.metadata.failure_line.elastic_search_insert()
 
         # Send event to NewRelic when a verifing an autoclassified failure.
         match = self.matches.filter(classified_failure=classification).first()

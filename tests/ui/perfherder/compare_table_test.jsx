@@ -1,3 +1,4 @@
+/* eslint-disable jest/expect-expect */
 import React from 'react';
 import {
   render,
@@ -9,8 +10,9 @@ import {
 
 import projects from '../mock/repositories';
 import CompareTableControls from '../../../ui/perfherder/compare/CompareTableControls';
-import { compareTableText, filterText } from '../../../ui/perfherder/constants';
 import CompareTable from '../../../ui/perfherder/compare/CompareTable';
+import ComparePageTitle from '../../../ui/perfherder/compare/ComparePageTitle';
+import { compareTableText, filterText } from '../../../ui/perfherder/constants';
 
 // TODO addtional tests:
 // 1) that the table is receiving the correct data structure after data
@@ -129,6 +131,15 @@ const compareTable = (
         return { id: jobId };
       }}
       projects={projects}
+    />,
+  );
+
+const comparepageTitle = () =>
+  render(
+    <ComparePageTitle
+      title="Perfherder Compare Revisions"
+      updateParams={() => {}}
+      pageTitleQueryParam="Perfherder Compare Revisions"
     />,
   );
 
@@ -312,4 +323,101 @@ test('retrigger button should not appear for test with no jobs', async () => {
   await fireEvent.click(retriggerButtons[1]);
 
   expect(mockDataRetrigger.retriggers).toHaveLength(0);
+});
+
+test('display of page title', async () => {
+  const { getAllByTitle, getAllByText } = comparepageTitle();
+
+  const pageTitleTitle = getAllByTitle('Click to change the page title');
+  const pageTitleDefaultText = getAllByText('Perfherder Compare Revisions');
+
+  // title defaults to 'Perfherder Compare Revisions'
+  expect(pageTitleTitle[0]).toHaveTextContent('Perfherder Compare Revisions');
+  expect(pageTitleDefaultText).toHaveLength(1);
+});
+
+test('Button hides when clicking on it and a Input is displayed', async () => {
+  const { queryByText, container } = comparepageTitle();
+  const pageTitleDefaultText = queryByText('Perfherder Compare Revisions');
+  await fireEvent.click(pageTitleDefaultText);
+  expect(container.firstChild).toHaveClass('input-group');
+});
+
+test('clicking the title button does not change the title', async () => {
+  const { getByText, getByDisplayValue } = comparepageTitle();
+
+  const pageTitleDefaultText = await waitForElement(() =>
+    getByText('Perfherder Compare Revisions'),
+  );
+
+  fireEvent.click(pageTitleDefaultText);
+  await waitForElement(() => getByDisplayValue('Perfherder Compare Revisions'));
+
+  await waitForElement(() => getByDisplayValue('Perfherder Compare Revisions'));
+});
+
+test('setting a title on page updates the title accordingly', async () => {
+  const { getByText, getByDisplayValue } = comparepageTitle();
+
+  const pageTitleDefaultText = await waitForElement(() =>
+    getByText('Perfherder Compare Revisions'),
+  );
+
+  fireEvent.click(pageTitleDefaultText);
+  const inputField = await waitForElement(() =>
+    getByDisplayValue('Perfherder Compare Revisions'),
+  );
+  fireEvent.change(inputField, {
+    target: { value: 'some new value' },
+  });
+  // pressing 'Enter' has some issues on react-testing-library;
+  // found workaround on https://github.com/testing-library/react-testing-library/issues/269
+  fireEvent.keyPress(inputField, { key: 'Enter', keyCode: 13 });
+
+  // ensure this updated the title
+  await waitForElement(() => getByDisplayValue('some new value'));
+});
+
+test('re-editing the title is possible', async () => {
+  const { getByText, getByDisplayValue } = comparepageTitle();
+
+  const pageTitleDefaultText = await waitForElement(() =>
+    getByText('Perfherder Compare Revisions'),
+  );
+
+  fireEvent.click(pageTitleDefaultText);
+  const inputField = await waitForElement(() =>
+    getByDisplayValue('Perfherder Compare Revisions'),
+  );
+  fireEvent.change(inputField, {
+    target: { value: 'some new value' },
+  });
+  fireEvent.keyPress(inputField, { key: 'Enter', keyCode: 13 });
+
+  await waitForElement(() => getByDisplayValue('some new value'));
+  fireEvent.change(inputField, {
+    target: { value: 'another new value' },
+  });
+  fireEvent.keyPress(inputField, { key: 'Enter', keyCode: 13 });
+
+  await waitForElement(() => getByDisplayValue('another new value'));
+});
+
+test("'Escape' from partially edited title does not update original title", async () => {
+  const { getByText, getByDisplayValue } = comparepageTitle();
+
+  const pageTitleDefaultText = await waitForElement(() =>
+    getByText('Perfherder Compare Revisions'),
+  );
+
+  fireEvent.click(pageTitleDefaultText);
+  const inputField = await waitForElement(() =>
+    getByDisplayValue('Perfherder Compare Revisions'),
+  );
+  fireEvent.change(inputField, {
+    target: { value: 'new value' },
+  });
+  fireEvent.keyDown(inputField, { key: 'Escape' });
+
+  await waitForElement(() => getByText('Perfherder Compare Revisions'));
 });

@@ -2,11 +2,12 @@ import React from 'react';
 import PropTypes from 'prop-types';
 
 import ClassificationGroup from './ClassificationGroup';
+import UnsupportedGroup from './UnsupportedGroup';
 
 export default class TestFailures extends React.PureComponent {
   render() {
     const { failures, repo, revision, user, notify, currentRepo } = this.props;
-    const { needInvestigation, intermittent } = failures;
+    const { needInvestigation, intermittent, unsupported } = failures;
     const needInvestigationLength = Object.keys(needInvestigation).length;
 
     return (
@@ -34,6 +35,14 @@ export default class TestFailures extends React.PureComponent {
           expanded={false}
           user={user}
           notify={notify}
+        />
+        <UnsupportedGroup
+          group={unsupported}
+          name="Unsupported"
+          repo={repo}
+          revision={revision}
+          className="mb-5"
+          headerColor="warning"
         />
       </div>
     );

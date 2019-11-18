@@ -1,6 +1,7 @@
 import logging
 import threading
 
+import environ
 import newrelic.agent
 from kombu import (Connection,
                    Exchange,
@@ -13,6 +14,7 @@ from treeherder.etl.tasks.pulse_tasks import (store_pulse_pushes,
 
 from .exchange import get_exchange
 
+env = environ.Env()
 logger = logging.getLogger(__name__)
 
 
@@ -144,7 +146,7 @@ class PulseConsumer(ConsumerMixin):
 
 
 class TaskConsumer(PulseConsumer):
-    queue_suffix = "tasks"
+    queue_suffix = env("PULSE_TASKS_QUEUE_NAME", default="tasks")
 
     def bindings(self):
         return TASKCLUSTER_TASK_BINDINGS
@@ -162,7 +164,7 @@ class TaskConsumer(PulseConsumer):
 
 
 class PushConsumer(PulseConsumer):
-    queue_suffix = "resultsets"
+    queue_suffix = env("PULSE_RESULSETS_QUEUE_NAME", default="resultsets")
 
     def bindings(self):
         rv = []

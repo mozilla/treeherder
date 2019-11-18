@@ -1,6 +1,7 @@
 import json
 
-from treeherder.log_parser.parsers import PerformanceParser
+from treeherder.log_parser.parsers import (EmptyPerformanceData,
+                                           PerformanceParser)
 
 
 def test_performance_log_parsing_malformed_perfherder_data():
@@ -12,8 +13,11 @@ def test_performance_log_parsing_malformed_perfherder_data():
 
     # invalid json
     parser.parse_line("PERFHERDER_DATA: {oh noes i am not valid json}", 1)
-    # doesn't comply with schema
-    parser.parse_line("PERFHERDER_DATA: {}", 2)
+    try:
+        # Empty performance data
+        parser.parse_line("PERFHERDER_DATA: {}", 2)
+    except EmptyPerformanceData:
+        pass
 
     valid_perfherder_data = {
         "framework": {"name": "talos"}, "suites": [{

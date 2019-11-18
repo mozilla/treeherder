@@ -92,19 +92,19 @@ class Push extends React.PureComponent {
   getJobGroupInfo(job) {
     const {
       job_group_name: name,
-      job_group_symbol,
+      job_group_symbol: jobGroupSymbol,
       platform,
-      platform_option,
+      platform_option: platformOption,
       tier,
-      push_id,
+      push_id: pushId,
     } = job;
-    const symbol = job_group_symbol === '?' ? '' : job_group_symbol;
+    const symbol = jobGroupSymbol === '?' ? '' : jobGroupSymbol;
     const mapKey = getGroupMapKey(
-      push_id,
+      pushId,
       symbol,
       tier,
       platform,
-      platform_option,
+      platformOption,
     );
 
     return { name, tier, symbol, mapKey };
@@ -328,7 +328,7 @@ class Push extends React.PureComponent {
     const { push, notify, decisionTaskMap, currentRepo } = this.props;
 
     try {
-      const jobList = await RunnableJobModel.getList(currentRepo.name, {
+      const jobList = await RunnableJobModel.getList(currentRepo, {
         decisionTask: decisionTaskMap[push.id],
         push_id: push.id,
       });
@@ -375,7 +375,7 @@ class Push extends React.PureComponent {
 
     try {
       notify('Fetching runnable jobs... This could take a while...');
-      let fuzzyJobList = await RunnableJobModel.getList(currentRepo.name, {
+      let fuzzyJobList = await RunnableJobModel.getList(currentRepo, {
         decisionTask: decisionTaskMap[push.id],
       });
       fuzzyJobList = [
@@ -460,7 +460,7 @@ class Push extends React.PureComponent {
       selectedRunnableJobs,
       collapsed,
     } = this.state;
-    const { id, push_timestamp, revision, author } = push;
+    const { id, push_timestamp: pushTimestamp, revision, author } = push;
     const tipRevision = push.revisions[0];
     const decisionTask = decisionTaskMap[push.id];
     const decisionTaskId = decisionTask ? decisionTask.id : null;
@@ -490,7 +490,7 @@ class Push extends React.PureComponent {
         <PushHeader
           push={push}
           pushId={id}
-          pushTimestamp={push_timestamp}
+          pushTimestamp={pushTimestamp}
           author={author}
           revision={revision}
           jobCounts={jobCounts}
@@ -570,7 +570,8 @@ const mapStateToProps = ({
   decisionTaskMap,
 });
 
-export default connect(
-  mapStateToProps,
-  { notify, updateJobMap, recalculateUnclassifiedCounts },
-)(Push);
+export default connect(mapStateToProps, {
+  notify,
+  updateJobMap,
+  recalculateUnclassifiedCounts,
+})(Push);

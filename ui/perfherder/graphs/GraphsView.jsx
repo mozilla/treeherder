@@ -111,13 +111,17 @@ class GraphsView extends React.Component {
   };
 
   createSeriesParams = series => {
-    const { repository_name, signature_id, framework_id } = series;
+    const {
+      repository_name: repositoryName,
+      signature_id: signatureId,
+      framework_id: frameworkId,
+    } = series;
     const { timeRange } = this.state;
 
     return {
-      repository: repository_name,
-      signature: signature_id,
-      framework: framework_id,
+      repository: repositoryName,
+      signature: signatureId,
+      framework: frameworkId,
       interval: timeRange.value,
       all_data: true,
     };
@@ -212,12 +216,12 @@ class GraphsView extends React.Component {
     return graphData;
   };
 
-  getAlertSummaries = async (signature_id, repository) => {
+  getAlertSummaries = async (signatureId, repository) => {
     const { errorMessages } = this.state;
 
     const url = getApiUrl(
       `${endpoints.alertSummary}${createQueryParams({
-        alerts__series_signature: signature_id,
+        alerts__series_signature: signatureId,
         repository,
       })}`,
     );
@@ -233,19 +237,19 @@ class GraphsView extends React.Component {
   };
 
   updateData = async (
-    signature_id,
-    repository_name,
+    signatureId,
+    repositoryName,
     alertSummaryId,
     dataPointIndex,
   ) => {
     const { testData } = this.state;
 
     const updatedData = testData.find(
-      test => test.signature_id === signature_id,
+      test => test.signature_id === signatureId,
     );
     const alertSummaries = await this.getAlertSummaries(
-      signature_id,
-      repository_name,
+      signatureId,
+      repositoryName,
     );
     const alertSummary = alertSummaries.find(
       result => result.id === alertSummaryId,
@@ -321,8 +325,8 @@ class GraphsView extends React.Component {
     if (!selectedDataPoint) {
       delete params.selected;
     } else {
-      const { signature_id, pushId, x, y } = selectedDataPoint;
-      params.selected = [signature_id, pushId, x, y].join(',');
+      const { signature_id: signatureId, pushId, x, y } = selectedDataPoint;
+      params.selected = [signatureId, pushId, x, y].join(',');
     }
 
     if (Object.keys(zoom).length === 0) {

@@ -8,10 +8,12 @@ matrix:
     - env: js-tests
       language: node_js
       # The Node version here must be kept in sync with that in `package.json`.
-      node_js: '12.12.0'
-      cache:
-        directories:
-          - node_modules
+      node_js: '12.13.0'
+      cache: yarn
+      before_install:
+        # Try to keep version in sync with `package.json`
+        - curl -o- -L https://yarnpkg.com/install.sh | bash -s -- --version 1.19.1
+        - export PATH="$HOME/.yarn/bin:$PATH"
       install:
         - yarn install --frozen-lockfile
       script:
@@ -25,7 +27,7 @@ matrix:
     - env: test-prod-build
       language: node_js
       # The Node version here must be kept in sync with that in `package.json`.
-      node_js: '12.12.0'
+      node_js: '12.13.0'
       install:
         - yarn install --prod --frozen-lockfile
       script:
@@ -53,7 +55,7 @@ matrix:
     - env: python-tests-selenium
       language: node_js
       # The Node version here must be kept in sync with that in `package.json`.
-      node_js: '12'
+      node_js: '12.13.0'
       cache:
         directories:
           - node_modules

@@ -446,7 +446,6 @@ const mapStateToProps = ({ pushes: { decisionTaskMap } }) => ({
   decisionTaskMap,
 });
 
-export default connect(
-  mapStateToProps,
-  { notify, setSelectedJob, pinJobs },
-)(PushHeader);
+export default connect(mapStateToProps, { notify, setSelectedJob, pinJobs })(
+  PushHeader,
+);

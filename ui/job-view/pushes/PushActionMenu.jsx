@@ -304,7 +304,4 @@ const mapStateToProps = ({ pushes: { decisionTaskMap } }) => ({
   decisionTaskMap,
 });
 
-export default connect(
-  mapStateToProps,
-  { notify },
-)(PushActionMenu);
+export default connect(mapStateToProps, { notify })(PushActionMenu);

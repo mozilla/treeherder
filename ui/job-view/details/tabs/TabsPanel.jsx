@@ -263,7 +263,4 @@ const mapStateToProps = ({
   pinnedJobs: { pinnedJobs, isPinBoardVisible },
 }) => ({ pinnedJobs, isPinBoardVisible });
 
-export default connect(
-  mapStateToProps,
-  { clearSelectedJob },
-)(TabsPanel);
+export default connect(mapStateToProps, { clearSelectedJob })(TabsPanel);

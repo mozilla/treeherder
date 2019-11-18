@@ -4,3 +4,7 @@ class NoDataCyclingAtAll(Exception):
 
 class MaxRuntimeExceeded(Exception):
     pass
+
+
+class MissingRecords(Exception):
+    pass

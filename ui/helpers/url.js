@@ -1,6 +1,7 @@
 // NB: Treeherder sets a Content-Security-Policy header in production, so when
 // adding new domains *for use by fetch()*, update the `connect-src` directive:
 // https://github.com/mozilla/treeherder/blob/master/treeherder/middleware.py
+import tcLibUrls from 'taskcluster-lib-urls';
 
 export const uiJobsUrlBase = '/#/jobs';
 
@@ -11,9 +12,6 @@ export const bzBaseUrl = 'https://bugzilla.mozilla.org/';
 export const hgBaseUrl = 'https://hg.mozilla.org/';
 
 export const dxrBaseUrl = 'https://dxr.mozilla.org/';
-
-// the rootUrl of the TC deployment for which user login gets credentials
-export const loginRootUrl = 'https://taskcluster.net';
 
 export const bugsEndpoint = 'failures/';
 
@@ -31,14 +29,21 @@ export const repoEndpoint = '/repository/';
 
 export const perfSummaryEndpoint = 'performance/summary/';
 
-export const getRunnableJobsURL = function getRunnableJobsURL(decisionTask) {
+export const tcAuthCallbackUrl = '/taskcluster-auth.html';
+
+export const getRunnableJobsURL = function getRunnableJobsURL(
+  decisionTask,
+  rootUrl,
+) {
   const { id, run } = decisionTask;
+  const tcUrl = tcLibUrls.withRootUrl(rootUrl);
 
-  return `https://queue.taskcluster.net/v1/task/${id}/runs/${run}/artifacts/public/runnable-jobs.json`;
-};
-
-export const getUserSessionUrl = function getUserSessionUrl(oidcProvider) {
-  return `https://login.taskcluster.net/v1/oidc-credentials/${oidcProvider}`;
+  const url = tcUrl.api(
+    'queue',
+    'v1',
+    `/task/${id}/runs/${run}/artifacts/public/runnable-jobs.json`,
+  );
+  return url;
 };
 
 export const createQueryParams = function createQueryParams(params) {
@@ -57,12 +62,12 @@ export const getApiUrl = function getApiUrl(uri) {
   return getServiceUrl(`/api${uri}`);
 };
 
-export const getBugUrl = function getBugUrl(bug_id) {
-  return `${bzBaseUrl}show_bug.cgi?id=${bug_id}`;
+export const getBugUrl = function getBugUrl(bugId) {
+  return `${bzBaseUrl}show_bug.cgi?id=${bugId}`;
 };
 
-export const getInspectTaskUrl = function getInspectTaskUrl(taskId) {
-  return `https://tools.taskcluster.net/tasks/${taskId}`;
+export const getInspectTaskUrl = function getInspectTaskUrl(taskId, rootUrl) {
+  return tcLibUrls.ui(rootUrl, `tasks/${taskId}`);
 };
 
 export const getReftestUrl = function getReftestUrl(logUrl) {
@@ -74,12 +79,12 @@ export const getReftestUrl = function getReftestUrl(logUrl) {
 // need that since the ids are unique across projects.
 // Bug 1441938 - The project_bound_router is not needed and cumbersome in some cases
 export const getLogViewerUrl = function getLogViewerUrl(
-  job_id,
+  jobId,
   repoName,
-  line_number,
+  lineNumber,
 ) {
-  const rv = `logviewer.html#?job_id=${job_id}&repo=${repoName}`;
-  return line_number ? `${rv}&lineNumber=${line_number}` : rv;
+  const rv = `logviewer.html#?job_id=${jobId}&repo=${repoName}`;
+  return lineNumber ? `${rv}&lineNumber=${lineNumber}` : rv;
 };
 
 export const getPerfAnalysisUrl = function getPerfAnalysisUrl(url) {

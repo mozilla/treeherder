@@ -42,16 +42,29 @@ class PerformanceSignature(models.Model):
     option_collection = models.ForeignKey(OptionCollection, on_delete=models.CASCADE)
     suite = models.CharField(max_length=80)
     test = models.CharField(max_length=80, blank=True)
+    application = models.CharField(max_length=10, null=True,
+                                   help_text="Application that runs the signature's tests. "
+                                             "Generally used to record browser's name, but not necessarily.")
     lower_is_better = models.BooleanField(default=True)
     last_updated = models.DateTimeField(db_index=True)
     parent_signature = models.ForeignKey('self', on_delete=models.CASCADE, related_name='subtests',
                                          null=True, blank=True)
     has_subtests = models.BooleanField()
 
+    # we treat suite & test as human unreadable identifiers
+    #  these are their human readable form
+    suite_public_name = models.CharField(max_length=30, null=True)
+    test_public_name = models.CharField(max_length=30, null=True)
+
+    # free form tags which data producers can specify;
+    # enhances semantic labeling & search capabilities,
+    # without decoupling perf data
+    tags = models.CharField(max_length=360, blank=True)
+
     # extra options to distinguish the test (that don't fit into
     # option collection for whatever reason)
     # generous max_length permits up to 8 verbose option names
-    extra_options = models.CharField(max_length=360, blank=True)
+    extra_options = models.CharField(max_length=422, blank=True)
 
     # TODO: reduce length to minimum value
     # TODO: make this nonnullable, once we demand
@@ -90,8 +103,12 @@ class PerformanceSignature(models.Model):
         unique_together = (
             # ensure there is only one signature per repository with a
             # particular set of properties
-            ('repository', 'framework', 'platform', 'option_collection',
-             'suite', 'test', 'last_updated', 'extra_options'),
+            ('repository', 'suite', 'test', 'framework',
+             'platform', 'option_collection', 'extra_options', 'last_updated'),
+            # suite_public_name/test_public_name must be unique
+            # and different than suite/test
+            ('repository', 'suite_public_name', 'test_public_name', 'framework',
+             'platform', 'option_collection', 'extra_options'),
             # ensure there is only one signature of any hash per
             # repository (same hash in different repositories is allowed)
             ('repository', 'framework', 'signature_hash'),
@@ -312,10 +329,8 @@ class PerformanceAlertSummary(models.Model):
         self.__prev_bug_number = self.bug_number
 
     def update_status(self, using=None):
-        autodetermined_status = self.autodetermine_status()
-        if autodetermined_status != self.status:
-            self.status = autodetermined_status
-            self.save(using=using)
+        self.status = self.autodetermine_status()
+        self.save(using=using)
 
     def autodetermine_status(self):
         alerts = (PerformanceAlert.objects.filter(summary=self) | PerformanceAlert.objects.filter(related_summary=self))
@@ -502,3 +517,65 @@ class PerformanceBugTemplate(models.Model):
 
     def __str__(self):
         return '{} bug template'.format(self.framework.name)
+
+
+class BackfillReport(models.Model):
+    """
+    Groups & stores all context required to retrigger/backfill
+    relevant alerts from a performance alert summary.
+    """
+    summary = models.OneToOneField(PerformanceAlertSummary,
+                                   on_delete=models.CASCADE,
+                                   primary_key=True,
+                                   related_name='backfill_report')
+
+    created = models.DateTimeField(auto_now_add=True)
+    last_updated = models.DateTimeField(auto_now=True)
+
+    @property
+    def is_outdated(self):
+        # alert summary updated since last report was made
+        return self.summary.last_updated > self.last_updated
+
+    def expel_records(self):
+        BackfillRecord.objects.filter(report=self).delete()
+        self.save()  # refresh last_updated
+
+    class Meta:
+        db_table = "backfill_report"
+
+    def __str__(self):
+        return "BackfillReport(summary #{}, last update {})".format(self.summary.id, self.last_updated)
+
+
+class BackfillRecord(models.Model):
+    alert = models.OneToOneField(PerformanceAlert,
+                                 on_delete=models.CASCADE,
+                                 primary_key=True,
+                                 related_name='backfill_record')
+
+    report = models.ForeignKey(BackfillReport,
+                               on_delete=models.CASCADE,
+                               related_name='records')
+
+    # all data required to retrigger/backfill
+    # associated perf alert, as JSON dump
+    # TODO-igoldan: could we employ a JSONField?
+    context = models.TextField()
+
+    created = models.DateTimeField(auto_now_add=True)
+
+    def save(self, *args, **kwargs):
+        # refresh parent's latest update time
+        super().save(*args, **kwargs)
+        self.report.save(using=kwargs.get('using'))
+
+    def delete(self, using=None, keep_parents=False):
+        super().delete(using, keep_parents)
+        self.report.save()  # refresh last_updated
+
+    class Meta:
+        db_table = "backfill_record"
+
+    def __str__(self):
+        return "BackfillRecord(alert #{}, from {})".format(self.alert.id, self.report)

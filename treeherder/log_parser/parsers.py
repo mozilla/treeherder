@@ -6,6 +6,8 @@ from html.parser import HTMLParser
 import jsonschema
 from django.conf import settings
 
+from treeherder.log_parser.utils import validate_perf_data
+
 logger = logging.getLogger(__name__)
 
 
@@ -487,10 +489,6 @@ class ErrorParser(ParserBase):
                     self.RE_ERR_MATCH.match(trimline) or self.RE_ERR_SEARCH.search(trimline))
 
 
-with open('schemas/performance-artifact.json') as f:
-    PERF_SCHEMA = json.load(f)
-
-
 class PerformanceParser(ParserBase):
     """a sub-parser to find generic performance data"""
 
@@ -506,9 +504,11 @@ class PerformanceParser(ParserBase):
         match = self.RE_PERFORMANCE.match(line)
         if match:
             try:
-                dict = json.loads(match.group(1))
-                jsonschema.validate(dict, PERF_SCHEMA)
-                self.artifact.append(dict)
+                data = json.loads(match.group(1))
+                if not bool(data):
+                    raise EmptyPerformanceData("The perf data is empty.")
+                validate_perf_data(data)
+                self.artifact.append(data)
             except ValueError:
                 logger.warning("Unable to parse Perfherder data from line: %s",
                                line)
@@ -517,3 +517,7 @@ class PerformanceParser(ParserBase):
                                "json schema: %s", line, e)
 
             # Don't mark the parser as complete, in case there are multiple performance artifacts.
+
+
+class EmptyPerformanceData(Exception):
+    pass

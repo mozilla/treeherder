@@ -1,11 +1,10 @@
 import copy
 import logging
-import os
 from hashlib import sha1
 
 import simplejson as json
-from jsonschema import validate
 
+from treeherder.log_parser.utils import validate_perf_data
 from treeherder.model.models import OptionCollection
 from treeherder.perf.models import (PerformanceDatum,
                                     PerformanceFramework,
@@ -15,8 +14,11 @@ from treeherder.perf.tasks import generate_alerts
 logger = logging.getLogger(__name__)
 
 
-PERFHERDER_SCHEMA = json.load(open(os.path.join('schemas',
-                                                'performance-artifact.json')))
+def _get_application_name(validated_perf_datum: dict):
+    try:
+        return validated_perf_datum['application']['name']
+    except KeyError:
+        return None
 
 
 def _get_signature_hash(signature_properties):
@@ -53,7 +55,7 @@ def _create_or_update_signature(repository, signature_hash, framework, defaults)
 
 
 def _load_perf_datum(job, perf_datum):
-    validate(perf_datum, PERFHERDER_SCHEMA)
+    validate_perf_data(perf_datum)
 
     extra_properties = {}
     extra_options = ''
@@ -107,6 +109,7 @@ def _load_perf_datum(job, perf_datum):
                     'platform': job.machine_platform,
                     'extra_options': suite_extra_options,
                     'measurement_unit': suite.get('unit'),
+                    'application': _get_application_name(perf_datum),
                     'lower_is_better': suite.get('lowerIsBetter', True),
                     'has_subtests': True,
                     # these properties below can be either True, False, or null

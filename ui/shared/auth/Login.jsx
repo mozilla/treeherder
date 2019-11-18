@@ -6,17 +6,13 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faUser } from '@fortawesome/free-solid-svg-icons';
 
 import { loggedOutUser } from '../../helpers/auth';
-import taskcluster from '../../helpers/taskcluster';
 import { getApiUrl, loginCallbackUrl } from '../../helpers/url';
 import UserModel from '../../models/user';
 
 import AuthService from './AuthService';
 
-/**
- * This component handles logging in to Taskcluster Authentication
- *
- * See: https://docs.taskcluster.net/manual/3rdparty
- */
+// This component handles user Authentication with Auth0
+
 class Login extends React.Component {
   constructor(props) {
     super(props);
@@ -58,8 +54,6 @@ class Login extends React.Component {
     const { setUser } = this.props;
 
     this.authService.logout();
-    // logging out will not trigger a storage event since localStorage is being set by the same window
-    taskcluster.updateAgent();
     setUser(loggedOutUser);
   };
 
@@ -75,9 +69,6 @@ class Login extends React.Component {
         // Show the user as logged out in all other opened tabs
         this.setLoggedOut();
       }
-    } else if (e.key === 'userSession') {
-      // used when a different tab updates userSession,
-      taskcluster.updateAgent();
     }
   };
 

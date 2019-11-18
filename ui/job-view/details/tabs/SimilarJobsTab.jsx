@@ -333,7 +333,4 @@ SimilarJobsTab.propTypes = {
   selectedJobFull: PropTypes.object.isRequired,
 };
 
-export default connect(
-  null,
-  { notify },
-)(SimilarJobsTab);
+export default connect(null, { notify })(SimilarJobsTab);

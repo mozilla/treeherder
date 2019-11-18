@@ -262,9 +262,7 @@ class App extends React.Component {
   }
 
   updateButtonClick() {
-    if (window.confirm('Reload the page to pick up Treeherder updates?')) {
-      window.location.reload(true);
-    }
+    window.location.reload(true);
   }
 
   handleSplitChange(latestSplitSize) {

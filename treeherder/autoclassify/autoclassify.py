@@ -154,7 +154,6 @@ def mark_best_classification(text_log_error, classified_failure):
     """
     text_log_error.metadata.best_classification = classified_failure
     text_log_error.metadata.save(update_fields=['best_classification'])
-    text_log_error.metadata.failure_line.elastic_search_insert()
 
 
 def mark_best_classifications(errors):

@@ -15,18 +15,23 @@ if [[ -v SKIP_PREDEPLOY ]]; then
     exit 0
 fi
 
+PRE_COMMAND=""
+if [[ -v NEW_RELIC_CONFIG_FILE ]]; then
+    PRE_COMMAND="newrelic-admin run-program"
+fi
+
 echo "-----> PRE-DEPLOY: Running Django system checks..."
 ./manage.py check --deploy --fail-level WARNING
 
 echo "-----> PRE-DEPLOY: Running Django migration..."
-newrelic-admin run-program ./manage.py migrate --noinput
+$PRE_COMMAND ./manage.py migrate --noinput
 
 echo "-----> PRE-DEPLOY: Loading initial data..."
 # Retry load_initial_data if it fails, to work around:
 # https://bugzilla.mozilla.org/show_bug.cgi?id=1428031
 # TODO: Look into this again when using newer MySQL and Django 2.x.
 ATTEMPTS=0
-until newrelic-admin run-program ./manage.py load_initial_data; do
+until $PRE_COMMAND ./manage.py load_initial_data; do
     if (( ++ATTEMPTS == 10 )); then
         echo "Failed to load initial data after ${ATTEMPTS} attempts!"
         exit 1
@@ -35,29 +40,31 @@ until newrelic-admin run-program ./manage.py load_initial_data; do
     sleep 5
 done
 
-echo "-----> PRE-DEPLOY: Reporting deployment to New Relic..."
-# eg: "v750: Deploy 5d6b1f0"
-DESCRIPTION="$HEROKU_RELEASE_VERSION: $HEROKU_SLUG_DESCRIPTION"
-# Use the revision from the live site rather than a local file generated during
-# buildpack compile, so that in the case of prior deploy failures it's up to date.
-# The curl command is allowed to fail so that deploys work in maintenance mode.
-OLD_REVISION="$(curl -sSf --retry 5 --retry-max-time 15 "${SITE_URL}/revision.txt" || true)"
-if [[ -n "$OLD_REVISION" ]]; then
-    CHANGELOG="https://github.com/mozilla/treeherder/compare/${OLD_REVISION}...${HEROKU_SLUG_COMMIT}"
-else
-    CHANGELOG="Unknown changelog due to error fetching revision.txt!"
+if [[ -v NEW_RELIC_CONFIG_FILE ]]; then
+    echo "-----> PRE-DEPLOY: Reporting deployment to New Relic..."
+    # eg: "v750: Deploy 5d6b1f0"
+    DESCRIPTION="$HEROKU_RELEASE_VERSION: $HEROKU_SLUG_DESCRIPTION"
+    # Use the revision from the live site rather than a local file generated during
+    # buildpack compile, so that in the case of prior deploy failures it's up to date.
+    # The curl command is allowed to fail so that deploys work in maintenance mode.
+    OLD_REVISION="$(curl -sSf --retry 5 --retry-max-time 15 "${SITE_URL}/revision.txt" || true)"
+    if [[ -n "$OLD_REVISION" ]]; then
+        CHANGELOG="https://github.com/mozilla/treeherder/compare/${OLD_REVISION}...${HEROKU_SLUG_COMMIT}"
+    else
+        CHANGELOG="Unknown changelog due to error fetching revision.txt!"
+    fi
+    # The author of the deploy isn't currently available to us. Have filed:
+    # https://help.heroku.com/tickets/343783
+    USER="Heroku"
+    # Report the deploy to New Relic using their Python agent. In addition to
+    # the passed arguments, record-deploy references the environment variables
+    # `NEW_RELIC_APP_NAME` and `NEW_RELIC_API_KEY`.
+    newrelic-admin record-deploy "$NEW_RELIC_APP_ID" \
+                                 "$NEW_RELIC_CONFIG_FILE" \
+                                 "$HEROKU_SLUG_COMMIT" \
+                                 "$DESCRIPTION" \
+                                 "$CHANGELOG" \
+                                 "$USER"
 fi
-# The author of the deploy isn't currently available to us. Have filed:
-# https://help.heroku.com/tickets/343783
-USER="Heroku"
-# Report the deploy to New Relic using their Python agent. In addition to
-# the passed arguments, record-deploy references the environment variables
-# `NEW_RELIC_APP_NAME` and `NEW_RELIC_API_KEY`.
-newrelic-admin record-deploy "$NEW_RELIC_APP_ID" \
-                             "$NEW_RELIC_CONFIG_FILE" \
-                             "$HEROKU_SLUG_COMMIT" \
-                             "$DESCRIPTION" \
-                             "$CHANGELOG" \
-                             "$USER"
 
 echo "-----> PRE-DEPLOY: Complete!"

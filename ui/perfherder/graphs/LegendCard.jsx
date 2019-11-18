@@ -3,9 +3,11 @@
 
 import React from 'react';
 import PropTypes from 'prop-types';
-import { FormGroup, Input } from 'reactstrap';
+import { Badge, FormGroup, Input } from 'reactstrap';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faTimes } from '@fortawesome/free-solid-svg-icons';
+
+import { legendCardText } from '../constants';
 
 const LegendCard = ({
   series,
@@ -13,6 +15,7 @@ const LegendCard = ({
   updateState,
   updateStateParams,
   selectedDataPoint,
+  frameworks,
   colors,
 }) => {
   const updateSelectedTest = () => {
@@ -86,6 +89,10 @@ const LegendCard = ({
     resetParams(newData);
   };
 
+  const getFrameworkName = frameworkId => {
+    const framework = frameworks.find(item => item.id === frameworkId);
+    return framework ? framework.name : legendCardText.unknownFrameworkMessage;
+  };
   const subtitleStyle = 'p-0 mb-0 border-0 text-secondary text-left';
 
   return (
@@ -125,10 +132,8 @@ const LegendCard = ({
         >
           {series.platform}
         </p>
-        <span className="small">{`${series.signatureHash.slice(
-          0,
-          16,
-        )}...`}</span>
+        <Badge> {getFrameworkName(series.framework_id)} </Badge>
+        <div className="small">{`${series.signatureHash.slice(0, 16)}...`}</div>
       </div>
       <Input
         className="show-hide-check"
