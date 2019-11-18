@@ -14,6 +14,13 @@ from treeherder.perf.tasks import generate_alerts
 logger = logging.getLogger(__name__)
 
 
+def _get_application_name(validated_perf_datum: dict):
+    try:
+        return validated_perf_datum['application']['name']
+    except KeyError:
+        return None
+
+
 def _get_signature_hash(signature_properties):
     signature_prop_values = list(signature_properties.keys())
     str_values = []
@@ -102,6 +109,7 @@ def _load_perf_datum(job, perf_datum):
                     'platform': job.machine_platform,
                     'extra_options': suite_extra_options,
                     'measurement_unit': suite.get('unit'),
+                    'application': _get_application_name(perf_datum),
                     'lower_is_better': suite.get('lowerIsBetter', True),
                     'has_subtests': True,
                     # these properties below can be either True, False, or null
