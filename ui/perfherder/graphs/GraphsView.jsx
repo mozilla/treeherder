@@ -206,6 +206,7 @@ class GraphsView extends React.Component {
           signature_id: series.signature_id,
           pushId: dataPoint.push_id,
           jobId: dataPoint.job_id,
+          dataPointId: dataPoint.id,
         })),
         lowerIsBetter: series.lower_is_better,
         resultSetData: series.data.map(dataPoint => dataPoint.push_id),
@@ -325,8 +326,15 @@ class GraphsView extends React.Component {
     if (!selectedDataPoint) {
       delete params.selected;
     } else {
-      const { signature_id: signatureId, pushId, x, y } = selectedDataPoint;
-      params.selected = [signatureId, pushId, x, y].join(',');
+      const {
+        signature_id: signatureId,
+        pushId,
+        dataPointId,
+        x,
+        y,
+      } = selectedDataPoint;
+
+      params.selected = [signatureId, pushId, x, y, dataPointId].join(',');
     }
 
     if (Object.keys(zoom).length === 0) {

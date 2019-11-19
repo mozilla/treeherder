@@ -458,7 +458,7 @@ class PerformanceSummary(generics.ListAPIView):
 
         signature_ids = [item['id'] for item in list(self.queryset)]
 
-        data = (PerformanceDatum.objects.select_related('push', 'repository')
+        data = (PerformanceDatum.objects.select_related('push', 'repository', 'id')
                                 .filter(signature_id__in=signature_ids, repository__name=repository_name))
 
         if revision:
