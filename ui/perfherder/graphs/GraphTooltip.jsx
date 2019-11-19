@@ -28,8 +28,10 @@ const GraphTooltip = ({
     item => item.signature_id === datum.signature_id,
   );
 
-  const flotIndex = testDetails.data.findIndex(
-    item => item.pushId === datum.pushId,
+  const flotIndex = testDetails.data.findIndex(item =>
+    datum.dataPointId
+      ? item.dataPointId === datum.dataPointId
+      : item.pushId === datum.pushId,
   );
   const dataPointDetails = testDetails.data[flotIndex];
 
