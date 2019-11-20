@@ -13,7 +13,7 @@ from treeherder.model.models import (Job,
                                      JobType,
                                      Push,
                                      Repository)
-from treeherder.push_health.push_health import get_push_health_test_failures
+from treeherder.push_health.tests import get_test_failures
 from treeherder.webapp.api.serializers import PushSerializer
 from treeherder.webapp.api.utils import (REPO_GROUPS,
                                          to_datetime,
@@ -211,7 +211,7 @@ class PushViewSet(viewsets.ViewSet):
         except Push.DoesNotExist:
             return Response("No push with id: {0}".format(pk),
                             status=HTTP_404_NOT_FOUND)
-        push_health_test_failures = get_push_health_test_failures(push, REPO_GROUPS['trunk'])
+        push_health_test_failures = get_test_failures(push, REPO_GROUPS['trunk'])
 
         return Response({'needInvestigation': len(push_health_test_failures['needInvestigation'])})
 
@@ -227,7 +227,7 @@ class PushViewSet(viewsets.ViewSet):
         except Push.DoesNotExist:
             return Response("No push with revision: {0}".format(revision),
                             status=HTTP_404_NOT_FOUND)
-        push_health_test_failures = get_push_health_test_failures(push, REPO_GROUPS['trunk'])
+        push_health_test_failures = get_test_failures(push, REPO_GROUPS['trunk'])
         test_result = 'pass'
         if len(push_health_test_failures['unsupported']):
             test_result = 'indeterminate'
