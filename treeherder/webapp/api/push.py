@@ -238,37 +238,37 @@ class PushViewSet(viewsets.ViewSet):
             'revision': revision,
             'id': push.id,
             'result': test_result,
-            'metrics': [
-                {
+            'metrics': {
+                'tests': {
                     'name': 'Tests',
                     'result': test_result,
-                    'failures': push_health_test_failures,
+                    'details': push_health_test_failures,
                 },
-                {
+                'linting': {
+                    'name': 'Linting (Not yet implemented)',
+                    'result': 'none',
+                    'details': ['lint stuff would be good'],
+                },
+                'builds': {
                     'name': 'Builds (Not yet implemented)',
-                    'result': 'pass',
+                    'result': 'none',
                     'details': ['Wow, everything passed!'],
                 },
-                {
-                    'name': 'Linting (Not yet implemented)',
-                    'result': 'pass',
-                    'details': ['Gosh, this code is really nicely formatted.'],
-                },
-                {
+                'coverage': {
                     'name': 'Coverage (Not yet implemented)',
-                    'result': 'pass',
+                    'result': 'none',
                     'details': [
                         'Covered 42% of the tests that are needed for feature ``foo``.',
                         'Covered 100% of the tests that are needed for feature ``bar``.',
                         'The ratio of people to cake is too many...',
                     ],
                 },
-                {
+                'performance': {
                     'name': 'Performance (Not yet implemented)',
-                    'result': 'pass',
+                    'result': 'none',
                     'details': ['Ludicrous Speed'],
                 },
-            ],
+            },
         })
 
     @cache_memoize(60 * 60)
