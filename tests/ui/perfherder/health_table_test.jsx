@@ -33,7 +33,7 @@ const platformsMap = {
   2: 'platform2',
 };
 
-const healthTable = (data, projectsMap = [], platformsMap = []) =>
+const healthTable = (data, projectsMap = false, platformsMap = false) =>
   render(
     <HealthTable
       results={data}

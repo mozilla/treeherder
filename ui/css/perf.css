@@ -408,6 +408,20 @@ button:disabled {
   stroke: #ffffff;
 }
 
+.item-outlined {
+  display: inline-block;
+  font-size: 12px;
+  font-weight: 600;
+  padding: 3px 6px;
+  border: 1px solid;
+  color: #17a2b8;
+  line-height: 1;
+  text-align: center;
+  white-space: nowrap;
+  vertical-align: middle;
+  border-radius: 5px;
+}
+
 /* for use with global max-width-default style */
 .max-width-row-text {
   max-width: 1194px;

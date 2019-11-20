@@ -12,6 +12,7 @@ import {
 import ErrorBoundary from '../../shared/ErrorBoundary';
 import { getData } from '../../helpers/http';
 import { createApiUrl } from '../../helpers/url';
+import ErrorMessages from '../../shared/ErrorMessages';
 
 import HealthTableControls from './HealthTableControls';
 
@@ -22,51 +23,62 @@ class HeathView extends React.PureComponent {
     this.state = {
       framework: getFrameworkData(this.props),
       loading: false,
+      failureMessages: [],
       projectsMap: false,
       platformsMap: false,
     };
   }
 
   componentDidMount() {
-    const { projects } = this.props;
-    this.createPlatformsMap();
-    // create projectsMap
-    this.createObjectsMap(projects, 'projectsMap', 'name');
     this.getHealthData();
   }
 
+  getHealthData = async () => {
+    const { projects } = this.props;
+    const { framework } = this.state;
+
+    this.setState({ loading: true });
+
+    await this.createPlatformsMap();
+    // create projectsMap
+    await this.createObjectsMap(projects, 'projectsMap', 'name');
+
+    const updates = await this.getTestSuiteHealthData({
+      framework: framework.id,
+    });
+    this.setState({ ...updates, loading: false });
+  };
+
   createPlatformsMap = async () => {
     const { platforms, updateAppState } = this.props;
+    const { failureMessages } = this.state;
 
     if (platforms.length) {
       // if the platforms were already cached, use those
       this.createObjectsMap(platforms, 'platformsMap', 'platform');
     } else {
       // get the platforms, cache them and create the platformsMap
-      getData('api/machineplatforms/').then(({ data }) => {
-        updateAppState({ platforms: data });
-        this.createObjectsMap(data, 'platformsMap', 'platform');
+      getData('api/machineplatforms/').then(({ data, failureStatus }) => {
+        if (failureStatus) {
+          this.setState({ failureMessages: [data, ...failureMessages] });
+        } else {
+          updateAppState({ platforms: data });
+          this.createObjectsMap(data, 'platformsMap', 'platform');
+        }
       });
     }
   };
 
   getTestSuiteHealthData = async params => {
-    // TODO: handle failureStatus
-    const { data } = await getData(
+    const { failureMessages } = this.state;
+
+    const { data, failureStatus } = await getData(
       createApiUrl('performance/validity-dashboard/', params),
     );
-    return data;
-  };
-
-  getHealthData = async () => {
-    const { framework } = this.state;
-    this.setState({ loading: true });
-
-    const results = await this.getTestSuiteHealthData({
-      framework: framework.id,
-    });
-
-    this.setState({ results, loading: false });
+    if (failureStatus) {
+      return { failureMessages: [data, ...failureMessages] };
+    }
+    return { results: data };
   };
 
   createObjectsMap = (objects, state, propertyName) => {
@@ -93,6 +105,7 @@ class HeathView extends React.PureComponent {
       framework,
       results,
       loading,
+      failureMessages,
       projectsMap,
       platformsMap,
     } = this.state;
@@ -114,8 +127,14 @@ class HeathView extends React.PureComponent {
         message={genericErrorMessage}
       >
         <Container fluid className="max-width-default">
-          {loading && <LoadingSpinner />}
-
+          {loading && !failureMessages.length && <LoadingSpinner />}
+          <Row className="justify-content-center">
+            <Col sm="8" className="text-center">
+              {failureMessages.length !== 0 && (
+                <ErrorMessages errorMessages={failureMessages} />
+              )}
+            </Col>
+          </Row>
           <Row>
             <Col sm="12" className="text-center pb-1">
               <h1>Perfherder Health</h1>
@@ -151,6 +170,7 @@ HeathView.defaultProps = {
   location: null,
 };
 
-export default withValidation({ requiredParams: new Set([]) }, false)(
-  HeathView,
-);
+export default withValidation(
+  { requiredParams: new Set([]) },
+  false,
+)(HeathView);
