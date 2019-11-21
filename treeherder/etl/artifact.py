@@ -21,8 +21,16 @@ def store_job_info_artifact(job, job_info_artifact):
     Store the contents of the job info artifact
     in job details
     """
-    job_details = json.loads(job_info_artifact['blob'])['job_details']
-    for job_detail in job_details:
+    new_job_details = json.loads(job_info_artifact['blob'])['job_details']
+    existing_job_details = JobDetail.objects.filter(job=job)
+
+    # Use a dict for to_create because sometimes we are sent duplicate details which would cause
+    # an IntegrityError during bulk_create due to the constraints of a unique index.
+    # So we use a key to weed the dups out.
+    to_create = {}
+    to_update = []
+
+    for job_detail in new_job_details:
         job_detail_dict = {
             'title': job_detail.get('title'),
             'value': job_detail['value'],
@@ -35,14 +43,24 @@ def store_job_info_artifact(job, job_info_artifact):
                                v[:max_field_length], job.guid)
                 job_detail_dict[k] = v[:max_field_length]
 
-        # move the url field to be updated in defaults now that it's
-        # had its size trimmed, if necessary
-        job_detail_dict['defaults'] = {'url': job_detail_dict['url']}
-        del job_detail_dict['url']
+        title = job_detail_dict['title']
+        value = job_detail_dict['value']
 
-        JobDetail.objects.update_or_create(
-            job=job,
-            **job_detail_dict)
+        existing_job_detail = existing_job_details.filter(job=job, title=title, value=value).first()
+        if existing_job_detail:
+            # move the url field to be updated in defaults now that it's
+            # had its size trimmed, if necessary
+            # job_detail_dict['defaults'] = {'url': job_detail_dict['url']}
+            # del job_detail_dict['url']
+            to_update.append(JobDetail(id=existing_job_detail.id, job=job, **job_detail_dict))
+        else:
+            key = '{}{}'.format(title, value)
+            to_create[key] = JobDetail(job=job, **job_detail_dict)
+
+    if len(to_update):
+        JobDetail.objects.bulk_update(to_update, ['title', 'value', 'url'])
+    if len(to_create):
+        JobDetail.objects.bulk_create(to_create.values())
 
 
 def store_text_log_summary_artifact(job, text_log_summary_artifact):
