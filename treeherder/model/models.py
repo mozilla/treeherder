@@ -417,7 +417,7 @@ class JobManager(models.Manager):
 
         jobs_cycled = 0
         while True:
-            jobs_chunk = list(self.filter(submit_time__lt=jobs_max_timestamp)
+            jobs_chunk = list(self.filter(last_modified__lt=jobs_max_timestamp)
                                   .order_by('id')
                                   .values_list('guid', flat=True)[:chunk_size])
 
