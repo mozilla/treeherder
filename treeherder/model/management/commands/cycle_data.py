@@ -6,8 +6,7 @@ from django.core.management.base import BaseCommand
 from treeherder.model.models import (Job,
                                      JobGroup,
                                      JobType,
-                                     Machine,
-                                     Repository)
+                                     Machine)
 from treeherder.perf.models import PerformanceDatum
 
 logging.basicConfig(format='%(levelname)s:%(message)s')
@@ -40,17 +39,11 @@ class TreeherderCycler(DataCycler):
     source = TREEHERDER.title()
 
     def cycle(self):
-        repositories = Repository.objects.all()
-        repo_count = len(repositories)
-
-        for idx, repository in enumerate(repositories):
-            self.logger.warning("Cycling repository: {0}. {1} of {2} repositories".format(repository.name, idx, repo_count))
-            rs_deleted = Job.objects.cycle_data(repository,
-                                                self.cycle_interval,
-                                                self.chunk_size,
-                                                self.sleep_time)
-            self.logger.warning("Deleted {} jobs from {}"
-                                .format(rs_deleted, repository.name))
+        self.logger.warning("Cycling jobs across all repositories")
+        rs_deleted = Job.objects.cycle_data(self.cycle_interval,
+                                            self.chunk_size,
+                                            self.sleep_time)
+        self.logger.warning("Deleted {} jobs".format(rs_deleted))
 
         self.remove_leftovers()
 
