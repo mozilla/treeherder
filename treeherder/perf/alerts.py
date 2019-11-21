@@ -50,8 +50,7 @@ def generate_new_alerts_in_series(signature):
     # (use whichever is newer)
     max_alert_age = (datetime.now() -
                      settings.PERFHERDER_ALERTS_MAX_AGE)
-    series = PerformanceDatum.objects.filter(signature=signature).filter(
-        push_timestamp__gte=max_alert_age).order_by('push_timestamp')
+    series = PerformanceDatum.objects.filter(signature=signature, push_timestamp__gte=max_alert_age)
     latest_alert_timestamp = PerformanceAlert.objects.filter(
         series_signature=signature).select_related(
         'summary__push__time').order_by(
