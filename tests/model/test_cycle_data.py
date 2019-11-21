@@ -30,10 +30,10 @@ def test_cycle_all_data(test_repository, failure_classifications, sample_data,
     job_data = sample_data.job_data[:20]
     test_utils.do_job_ingestion(test_repository, job_data, sample_push, False)
 
-    # set the submit time to be a week before today
+    # set the last_modified time to be a week before today
     cycle_date_ts = datetime.datetime.now() - datetime.timedelta(weeks=1)
     for job in Job.objects.all():
-        job.submit_time = cycle_date_ts
+        job.last_modified = cycle_date_ts
         job.save()
 
     call_command('cycle_data', 'from:treeherder', sleep_time=0, days=1)
@@ -55,9 +55,9 @@ def test_cycle_all_but_one_job(test_repository, failure_classifications, sample_
     job_data = sample_data.job_data[:20]
     test_utils.do_job_ingestion(test_repository, job_data, sample_push, False)
 
-    # one job should not be deleted, set its submit time to now
+    # one job should not be deleted, set its last_modified time to now
     job_not_deleted = Job.objects.get(id=2)
-    job_not_deleted.submit_time = datetime.datetime.now()
+    job_not_deleted.last_modified = datetime.datetime.now()
     job_not_deleted.save()
 
     extra_objects = {
@@ -72,10 +72,10 @@ def test_cycle_all_but_one_job(test_repository, failure_classifications, sample_
             value='testvalue')])
     }
 
-    # set other job's submit time to be a week ago from now
+    # set other job's last_modified time to be a week ago from now
     cycle_date_ts = datetime.datetime.now() - datetime.timedelta(weeks=1)
     for job in Job.objects.all().exclude(id=job_not_deleted.id):
-        job.submit_time = cycle_date_ts
+        job.last_modified = cycle_date_ts
         job.save()
     num_job_logs_to_be_deleted = JobLog.objects.all().exclude(
         id=job_not_deleted.id).count()
@@ -103,7 +103,7 @@ def test_cycle_all_data_in_chunks(test_repository, failure_classifications, samp
     # build a date that will cause the data to be cycled
     cycle_date_ts = datetime.datetime.now() - datetime.timedelta(weeks=1)
     for job in Job.objects.all():
-        job.submit_time = cycle_date_ts
+        job.last_modified = cycle_date_ts
         job.save()
 
     create_failure_lines(Job.objects.get(id=1),
@@ -151,7 +151,7 @@ def test_cycle_job_with_performance_data(test_repository, failure_classification
                                          test_job, mock_log_parser,
                                          test_perf_signature):
     # build a date that will cause the data to be cycled
-    test_job.submit_time = datetime.datetime.now() - datetime.timedelta(weeks=1)
+    test_job.last_modified = datetime.datetime.now() - datetime.timedelta(weeks=1)
     test_job.save()
 
     p = PerformanceDatum.objects.create(
