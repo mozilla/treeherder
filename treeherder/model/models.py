@@ -406,7 +406,7 @@ class JobManager(models.Manager):
     Convenience functions for operations on groups of jobs
     """
 
-    def cycle_data(self, repository, cycle_interval, chunk_size, sleep_time):
+    def cycle_data(self, cycle_interval, chunk_size, sleep_time):
         """
         Delete data older than cycle_interval, splitting the target data into
         chunks of chunk_size size. Returns the number of result sets deleted
@@ -417,12 +417,11 @@ class JobManager(models.Manager):
 
         jobs_cycled = 0
         while True:
-            jobs_chunk = list(self.filter(repository=repository, submit_time__lt=jobs_max_timestamp)
+            jobs_chunk = list(self.filter(submit_time__lt=jobs_max_timestamp)
                                   .order_by('id')
                                   .values_list('guid', flat=True)[:chunk_size])
 
-            logger.warning('Pruning {}: chunk of {} older than {}'.format(
-                repository.name,
+            logger.warning('Pruning jobs: chunk of {} older than {}'.format(
                 len(jobs_chunk),
                 jobs_max_timestamp.strftime('%b %d %Y')
             ))
@@ -461,6 +460,9 @@ class JobManager(models.Manager):
             if sleep_time:
                 # Allow some time for other queries to get through
                 time.sleep(sleep_time)
+
+            if len(jobs_chunk) < chunk_size:
+                return jobs_cycled
 
 
 class Job(models.Model):
