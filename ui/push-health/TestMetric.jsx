@@ -5,7 +5,7 @@ import ClassificationGroup from './ClassificationGroup';
 import UnsupportedGroup from './UnsupportedGroup';
 import Metric from './Metric';
 
-export default class TestFailures extends React.PureComponent {
+export default class TestMetric extends React.PureComponent {
   render() {
     const { data, repo, revision, user, notify, currentRepo } = this.props;
     const { name, result, details } = data;
@@ -53,7 +53,7 @@ export default class TestFailures extends React.PureComponent {
   }
 }
 
-TestFailures.propTypes = {
+TestMetric.propTypes = {
   data: PropTypes.object.isRequired,
   user: PropTypes.object.isRequired,
   repo: PropTypes.string.isRequired,
