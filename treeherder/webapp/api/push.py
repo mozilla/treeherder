@@ -13,6 +13,7 @@ from treeherder.model.models import (Job,
                                      JobType,
                                      Push,
                                      Repository)
+from treeherder.push_health.builds import get_build_failures
 from treeherder.push_health.linting import get_lint_failures
 from treeherder.push_health.tests import get_test_failures
 from treeherder.webapp.api.serializers import PushSerializer
@@ -214,10 +215,12 @@ class PushViewSet(viewsets.ViewSet):
                             status=HTTP_404_NOT_FOUND)
         push_health_test_failures = get_test_failures(push, REPO_GROUPS['trunk'])
         push_health_lint_failures = get_lint_failures(push)
+        push_health_build_failures = get_build_failures(push)
 
         return Response({
             'needInvestigation':
                 len(push_health_test_failures['needInvestigation']) +
+                len(push_health_build_failures) +
                 len(push_health_lint_failures)
         })
 
@@ -240,13 +243,16 @@ class PushViewSet(viewsets.ViewSet):
         if len(push_health_test_failures['needInvestigation']):
             test_result = 'fail'
 
+        build_failures = get_build_failures(push)
+        build_result = 'fail' if len(build_failures) else 'pass'
+
         lint_failures = get_lint_failures(push)
         lint_result = 'fail' if len(lint_failures) else 'pass'
 
         return Response({
             'revision': revision,
             'id': push.id,
-            'result': 'pass' if all(metric == 'pass' for metric in [test_result, lint_result]) else 'fail',
+            'result': 'pass' if all(metric == 'pass' for metric in [test_result, lint_result, build_result]) else 'fail',
             'metrics': {
                 'linting': {
                     'name': 'Linting',
@@ -259,9 +265,9 @@ class PushViewSet(viewsets.ViewSet):
                     'details': push_health_test_failures,
                 },
                 'builds': {
-                    'name': 'Builds (Not yet implemented)',
-                    'result': 'none',
-                    'details': ['Wow, everything passed!'],
+                    'name': 'Builds',
+                    'result': build_result,
+                    'details': build_failures,
                 },
                 'coverage': {
                     'name': 'Coverage (Not yet implemented)',

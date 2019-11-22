@@ -130,6 +130,13 @@ export default class Health extends React.PureComponent {
                     />
                   </tr>
                   <tr>
+                    <JobListMetric
+                      data={builds}
+                      repo={repo}
+                      revision={revision}
+                    />
+                  </tr>
+                  <tr>
                     <TestMetric
                       data={tests}
                       repo={repo}
@@ -139,7 +146,7 @@ export default class Health extends React.PureComponent {
                       notify={this.notify}
                     />
                   </tr>
-                  {[builds, coverage, performance].map(metric => (
+                  {[coverage, performance].map(metric => (
                     <tr key={metric.name}>
                       <Metric result={metric.result} name={metric.name}>
                         <div>
