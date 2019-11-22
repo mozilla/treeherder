@@ -461,6 +461,9 @@ class JobManager(models.Manager):
                 # Allow some time for other queries to get through
                 time.sleep(sleep_time)
 
+            if len(jobs_chunk) < chunk_size:
+                return jobs_cycled
+
 
 class Job(models.Model):
     """

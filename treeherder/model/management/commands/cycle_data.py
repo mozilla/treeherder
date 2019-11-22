@@ -2,6 +2,7 @@ import datetime
 import logging
 
 from django.core.management.base import BaseCommand
+from django.db.utils import OperationalError
 
 from treeherder.model.models import (Job,
                                      JobGroup,
@@ -40,10 +41,14 @@ class TreeherderCycler(DataCycler):
 
     def cycle(self):
         self.logger.warning("Cycling jobs across all repositories")
-        rs_deleted = Job.objects.cycle_data(self.cycle_interval,
-                                            self.chunk_size,
-                                            self.sleep_time)
-        self.logger.warning("Deleted {} jobs".format(rs_deleted))
+
+        try:
+            rs_deleted = Job.objects.cycle_data(self.cycle_interval,
+                                                self.chunk_size,
+                                                self.sleep_time)
+            self.logger.warning("Deleted {} jobs".format(rs_deleted))
+        except OperationalError as e:
+            self.logger.errror("Error running cycle_data: {}".format(e))
 
         self.remove_leftovers()
 
