@@ -188,6 +188,10 @@ class CompareSubtestsView extends React.PureComponent {
     compareResults = new Map([...compareResults.entries()].sort());
     const updates = { compareResults, testsWithNoise, loading: false };
 
+    if (compareResults.size === 0) {
+      return updates;
+    }
+
     const resultsArr = compareResults
       .get(parentTestName)
       .map(value => value.name);
