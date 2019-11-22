@@ -161,6 +161,7 @@ def _load_perf_datum(job, perf_datum):
                     'platform': job.machine_platform,
                     'extra_options': suite_extra_options,
                     'measurement_unit': subtest.get('unit'),
+                    'application': _get_application_name(perf_datum),
                     'lower_is_better': subtest.get('lowerIsBetter', True),
                     'has_subtests': False,
                     # these properties below can be either True, False, or
