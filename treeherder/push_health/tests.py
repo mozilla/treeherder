@@ -79,7 +79,7 @@ def get_history(failure_classification_id, push_date, num_days, option_map, repo
 #    though the job failed, we count it as a 'pass' for the test in question.  This 'pass' is
 #    used for the pass/fail ratio on the test to help determine if it is intermittent.
 #
-def get_push_failures(push, option_map):
+def get_current_test_failures(push, option_map):
     all_testfailed = Job.objects.filter(
         push=push,
         tier__lte=2,
@@ -168,7 +168,7 @@ def has_line(failure_line, log_line_list):
     return next((find_line for find_line in log_line_list if find_line['line_number'] == failure_line.line), False)
 
 
-def get_push_health_test_failures(push, repository_ids):
+def get_test_failures(push, repository_ids):
     # query for jobs for the last two weeks excluding today
     # find tests that have failed in the last 14 days
     # this is very cache-able for reuse on other pushes.
@@ -186,7 +186,7 @@ def get_push_health_test_failures(push, repository_ids):
         fixed_by_commit_history_days,
         option_map,
         repository_ids)
-    push_failures, unsupported_jobs = get_push_failures(push, option_map)
+    push_failures, unsupported_jobs = get_current_test_failures(push, option_map)
     filtered_push_failures = [
         failure for failure in push_failures if filter_failure(failure)
     ]

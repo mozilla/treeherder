@@ -14,6 +14,7 @@ import PushModel from '../models/push';
 import { resultColorMap } from './helpers';
 import Metric from './Metric';
 import Navigation from './Navigation';
+import TestFailures from './TestFailures';
 
 export default class Health extends React.PureComponent {
   constructor(props) {
@@ -25,7 +26,8 @@ export default class Health extends React.PureComponent {
       user: { isLoggedIn: false },
       revision: params.get('revision'),
       repo: params.get('repo'),
-      healthData: null,
+      metrics: {},
+      result: null,
       failureMessage: null,
       notifications: [],
     };
@@ -55,9 +57,7 @@ export default class Health extends React.PureComponent {
   updatePushHealth = async () => {
     const { repo, revision } = this.state;
     const { data, failureStatus } = await PushModel.getHealth(repo, revision);
-    const newState = !failureStatus
-      ? { healthData: data }
-      : { failureMessage: data };
+    const newState = !failureStatus ? data : { failureMessage: data };
 
     this.setState(newState);
   };
@@ -85,17 +85,17 @@ export default class Health extends React.PureComponent {
 
   render() {
     const {
-      healthData,
+      metrics,
+      result,
       user,
       repo,
       revision,
       failureMessage,
       notifications,
     } = this.state;
+    const { tests, linting, builds, coverage, performance } = metrics;
     const { currentRepo } = this.props;
-    const overallResult = healthData
-      ? resultColorMap[healthData.result]
-      : 'none';
+    const overallResult = result ? resultColorMap[result] : 'none';
 
     return (
       <React.Fragment>
@@ -105,7 +105,7 @@ export default class Health extends React.PureComponent {
             notifications={notifications}
             clearNotification={this.clearNotification}
           />
-          {healthData && (
+          {!!tests && !!currentRepo && (
             <div className="d-flex flex-column">
               <h3 className="text-center">
                 <span className={`badge badge-xl mb-3 badge-${overallResult}`}>
@@ -121,20 +121,25 @@ export default class Health extends React.PureComponent {
               </h3>
               <Table size="sm" className="table-fixed">
                 <tbody>
-                  {healthData.metrics.map(metric => (
-                    <tr key={metric.name}>
-                      <Metric
-                        name={metric.name}
-                        result={metric.result}
-                        value={metric.value}
-                        details={metric.details}
-                        failures={metric.failures}
-                        repo={repo}
-                        currentRepo={currentRepo}
-                        revision={revision}
-                        user={user}
-                        notify={this.notify}
-                      />
+                  <tr>
+                    <TestFailures
+                      data={tests}
+                      repo={repo}
+                      currentRepo={currentRepo}
+                      revision={revision}
+                      user={user}
+                      notify={this.notify}
+                    />
+                  </tr>
+                  {[linting, builds, coverage, performance].map(metric => (
+                    <tr>
+                      <Metric result={metric.result} name={metric.name}>
+                        <div>
+                          {metric.details.map(detail => (
+                            <div>{detail}</div>
+                          ))}
+                        </div>
+                      </Metric>
                     </tr>
                   ))}
                 </tbody>
@@ -142,7 +147,7 @@ export default class Health extends React.PureComponent {
             </div>
           )}
           {failureMessage && <ErrorMessages failureMessage={failureMessage} />}
-          {!failureMessage && !healthData && <Spinner />}
+          {!failureMessage && !tests && <Spinner />}
         </Container>
       </React.Fragment>
     );
@@ -151,5 +156,9 @@ export default class Health extends React.PureComponent {
 
 Health.propTypes = {
   location: PropTypes.object.isRequired,
-  currentRepo: PropTypes.object.isRequired,
+  currentRepo: PropTypes.object,
+};
+
+Health.defaultProps = {
+  currentRepo: null,
 };

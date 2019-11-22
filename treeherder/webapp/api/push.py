@@ -13,7 +13,7 @@ from treeherder.model.models import (Job,
                                      JobType,
                                      Push,
                                      Repository)
-from treeherder.push_health.push_health import get_push_health_test_failures
+from treeherder.push_health.tests import get_test_failures
 from treeherder.webapp.api.serializers import PushSerializer
 from treeherder.webapp.api.utils import (REPO_GROUPS,
                                          to_datetime,
@@ -211,7 +211,7 @@ class PushViewSet(viewsets.ViewSet):
         except Push.DoesNotExist:
             return Response("No push with id: {0}".format(pk),
                             status=HTTP_404_NOT_FOUND)
-        push_health_test_failures = get_push_health_test_failures(push, REPO_GROUPS['trunk'])
+        push_health_test_failures = get_test_failures(push, REPO_GROUPS['trunk'])
 
         return Response({'needInvestigation': len(push_health_test_failures['needInvestigation'])})
 
@@ -227,7 +227,7 @@ class PushViewSet(viewsets.ViewSet):
         except Push.DoesNotExist:
             return Response("No push with revision: {0}".format(revision),
                             status=HTTP_404_NOT_FOUND)
-        push_health_test_failures = get_push_health_test_failures(push, REPO_GROUPS['trunk'])
+        push_health_test_failures = get_test_failures(push, REPO_GROUPS['trunk'])
         test_result = 'pass'
         if len(push_health_test_failures['unsupported']):
             test_result = 'indeterminate'
@@ -238,37 +238,37 @@ class PushViewSet(viewsets.ViewSet):
             'revision': revision,
             'id': push.id,
             'result': test_result,
-            'metrics': [
-                {
+            'metrics': {
+                'tests': {
                     'name': 'Tests',
                     'result': test_result,
-                    'failures': push_health_test_failures,
+                    'details': push_health_test_failures,
                 },
-                {
+                'linting': {
+                    'name': 'Linting (Not yet implemented)',
+                    'result': 'none',
+                    'details': ['lint stuff would be good'],
+                },
+                'builds': {
                     'name': 'Builds (Not yet implemented)',
-                    'result': 'pass',
+                    'result': 'none',
                     'details': ['Wow, everything passed!'],
                 },
-                {
-                    'name': 'Linting (Not yet implemented)',
-                    'result': 'pass',
-                    'details': ['Gosh, this code is really nicely formatted.'],
-                },
-                {
+                'coverage': {
                     'name': 'Coverage (Not yet implemented)',
-                    'result': 'pass',
+                    'result': 'none',
                     'details': [
                         'Covered 42% of the tests that are needed for feature ``foo``.',
                         'Covered 100% of the tests that are needed for feature ``bar``.',
                         'The ratio of people to cake is too many...',
                     ],
                 },
-                {
+                'performance': {
                     'name': 'Performance (Not yet implemented)',
-                    'result': 'pass',
+                    'result': 'none',
                     'details': ['Ludicrous Speed'],
                 },
-            ],
+            },
         })
 
     @cache_memoize(60 * 60)
