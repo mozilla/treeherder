@@ -7806,10 +7806,10 @@ react-is@^16.10.2, react-is@^16.6.0, react-is@^16.7.0, react-is@^16.8.1, react-i
   resolved "https://registry.yarnpkg.com/react-is/-/react-is-16.12.0.tgz#2cc0fe0fba742d97fd527c42a13bec4eeb06241c"
   integrity sha512-rPCkf/mWBtKc97aLL9/txD8DZdemK0vkA3JMLShjlJB3Pj3s+lpf1KaBzMfQrAmhMQB0n1cU/SUGgKKBCe837Q==
 
-react-lazylog@4.4.1:
-  version "4.4.1"
-  resolved "https://registry.yarnpkg.com/react-lazylog/-/react-lazylog-4.4.1.tgz#63f2a2d10cfb9399f728fe98dfa9ba819b538192"
-  integrity sha512-6nGTZcID73SQ0MM/Tsv/+fc8s9eHMDo4aoKTOqp0M5IFjMYpGgE1bDXsWCdvxne67fRgmH7cPlgKezTc5B3uVQ==
+react-lazylog@4.4.4:
+  version "4.4.4"
+  resolved "https://registry.yarnpkg.com/react-lazylog/-/react-lazylog-4.4.4.tgz#546ab0fc63cc0c0458fa1357d6b5b96e3f044918"
+  integrity sha512-gDaksqj0r3vPWDECSnLlxsEUcPDKkcY2Svi0/7rhNLCB4rhlaZZNR3zsV3quwWIuBaingNAwNXnq2RQ7OMZoPA==
   dependencies:
     "@mattiasbuelens/web-streams-polyfill" "^0.2.0"
     fetch-readablestream "^0.2.0"
