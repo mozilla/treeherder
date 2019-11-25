@@ -199,12 +199,13 @@ class PerformanceDatumViewSet(viewsets.ViewSet):
 
         datums = PerformanceDatum.objects.filter(
             repository=repository).select_related(
-                'signature__signature_hash').order_by('push_timestamp')
+                'signature', 'push')
 
         if signature_hashes:
             signature_ids = PerformanceSignature.objects.filter(
                 repository=repository,
                 signature_hash__in=signature_hashes).values_list('id', flat=True)
+
             datums = datums.filter(signature__id__in=list(signature_ids))
         elif signature_ids:
             datums = datums.filter(signature__id__in=list(signature_ids))
