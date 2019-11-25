@@ -105,6 +105,7 @@ def _load_perf_datum(job, perf_datum):
                 job.repository, summary_signature_hash, framework, {
                     'test': '',
                     'suite': suite['name'],
+                    'suite_public_name': suite.get('publicName'),
                     'option_collection': option_collection,
                     'platform': job.machine_platform,
                     'extra_options': suite_extra_options,
@@ -157,10 +158,13 @@ def _load_perf_datum(job, perf_datum):
                 job.repository, subtest_signature_hash, framework, {
                     'test': subtest_properties['test'],
                     'suite': suite['name'],
+                    'test_public_name': subtest.get('publicName'),
+                    'suite_public_name': suite.get('publicName'),
                     'option_collection': option_collection,
                     'platform': job.machine_platform,
                     'extra_options': suite_extra_options,
                     'measurement_unit': subtest.get('unit'),
+                    'application': _get_application_name(perf_datum),
                     'lower_is_better': subtest.get('lowerIsBetter', True),
                     'has_subtests': False,
                     # these properties below can be either True, False, or

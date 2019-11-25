@@ -66,8 +66,14 @@ export const getBugUrl = function getBugUrl(bugId) {
   return `${bzBaseUrl}show_bug.cgi?id=${bugId}`;
 };
 
-export const getInspectTaskUrl = function getInspectTaskUrl(taskId, rootUrl) {
-  return tcLibUrls.ui(rootUrl, `tasks/${taskId}`);
+export const getInspectTaskUrl = function getInspectTaskUrl(
+  taskId,
+  rootUrl,
+  timestamp,
+) {
+  // 1573257600 is the timestamp for the 2019-11-09 taskcluster migration date
+  const _rootUrl = timestamp < 1573257600 ? 'https://taskcluster.net' : rootUrl;
+  return tcLibUrls.ui(_rootUrl, `tasks/${taskId}`);
 };
 
 export const getReftestUrl = function getReftestUrl(logUrl) {

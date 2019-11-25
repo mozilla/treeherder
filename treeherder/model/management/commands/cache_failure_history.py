@@ -3,9 +3,9 @@ import datetime
 from django.core.management.base import BaseCommand
 
 from treeherder.model.models import OptionCollection
-from treeherder.push_health.push_health import (fixed_by_commit_history_days,
-                                                get_history,
-                                                intermittent_history_days)
+from treeherder.push_health.tests import (fixed_by_commit_history_days,
+                                          get_history,
+                                          intermittent_history_days)
 from treeherder.webapp.api.utils import REPO_GROUPS
 
 

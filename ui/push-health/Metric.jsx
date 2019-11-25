@@ -8,7 +8,6 @@ import {
 import { Button, Badge, Row, Col, Collapse, Card, CardBody } from 'reactstrap';
 
 import { resultColorMap } from './helpers';
-import TestFailures from './TestFailures';
 
 export default class Metric extends React.PureComponent {
   constructor(props) {
@@ -17,7 +16,7 @@ export default class Metric extends React.PureComponent {
     const { result } = this.props;
 
     this.state = {
-      detailsShowing: result !== 'pass',
+      detailsShowing: !['pass', 'none'].includes(result),
     };
   }
 
@@ -27,17 +26,7 @@ export default class Metric extends React.PureComponent {
 
   render() {
     const { detailsShowing } = this.state;
-    const {
-      result,
-      name,
-      details,
-      failures,
-      repo,
-      revision,
-      user,
-      notify,
-      currentRepo,
-    } = this.props;
+    const { result, name, children } = this.props;
     const resultColor = resultColorMap[result];
     const expandIcon = detailsShowing ? faMinusSquare : faPlusSquare;
 
@@ -63,24 +52,7 @@ export default class Metric extends React.PureComponent {
             </Row>
             <Collapse isOpen={detailsShowing}>
               <Card>
-                <CardBody>
-                  {name === 'Tests' && (
-                    <TestFailures
-                      failures={failures}
-                      repo={repo}
-                      currentRepo={currentRepo}
-                      revision={revision}
-                      user={user}
-                      notify={notify}
-                    />
-                  )}
-                  {details &&
-                    details.map(detail => (
-                      <div key={detail} className="ml-3">
-                        {detail}
-                      </div>
-                    ))}
-                </CardBody>
+                <CardBody>{children}</CardBody>
               </Card>
             </Collapse>
           </Col>
@@ -91,18 +63,7 @@ export default class Metric extends React.PureComponent {
 }
 
 Metric.propTypes = {
-  repo: PropTypes.string.isRequired,
-  currentRepo: PropTypes.object.isRequired,
-  revision: PropTypes.string.isRequired,
   result: PropTypes.string.isRequired,
   name: PropTypes.string.isRequired,
-  user: PropTypes.object.isRequired,
-  notify: PropTypes.func.isRequired,
-  details: PropTypes.array,
-  failures: PropTypes.object,
-};
-
-Metric.defaultProps = {
-  details: null,
-  failures: null,
+  children: PropTypes.object.isRequired,
 };

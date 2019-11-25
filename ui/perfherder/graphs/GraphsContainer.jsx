@@ -85,8 +85,10 @@ class GraphsContainer extends React.Component {
 
     const dataPointFound = testData.find(item => {
       if (item.signature_id === selectedDataPoint.signature_id) {
-        return item.data.find(
-          datum => datum.pushId === selectedDataPoint.pushId,
+        return item.data.find(datum =>
+          selectedDataPoint.dataPointId
+            ? datum.dataPointId === selectedDataPoint.dataPointId
+            : datum.pushId === selectedDataPoint.pushId,
         );
       }
       return false;
@@ -188,6 +190,7 @@ class GraphsContainer extends React.Component {
           pushId: dataPoint.datum.pushId,
           x: dataPoint.x,
           y: dataPoint.y,
+          dataPointId: dataPoint.datum.dataPointId,
         },
       });
     }

@@ -13,7 +13,9 @@ from treeherder.model.models import (Job,
                                      JobType,
                                      Push,
                                      Repository)
-from treeherder.push_health.push_health import get_push_health_test_failures
+from treeherder.push_health.builds import get_build_failures
+from treeherder.push_health.linting import get_lint_failures
+from treeherder.push_health.tests import get_test_failures
 from treeherder.webapp.api.serializers import PushSerializer
 from treeherder.webapp.api.utils import (REPO_GROUPS,
                                          to_datetime,
@@ -211,9 +213,16 @@ class PushViewSet(viewsets.ViewSet):
         except Push.DoesNotExist:
             return Response("No push with id: {0}".format(pk),
                             status=HTTP_404_NOT_FOUND)
-        push_health_test_failures = get_push_health_test_failures(push, REPO_GROUPS['trunk'])
+        push_health_test_failures = get_test_failures(push, REPO_GROUPS['trunk'])
+        push_health_lint_failures = get_lint_failures(push)
+        push_health_build_failures = get_build_failures(push)
 
-        return Response({'needInvestigation': len(push_health_test_failures['needInvestigation'])})
+        return Response({
+            'needInvestigation':
+                len(push_health_test_failures['needInvestigation']) +
+                len(push_health_build_failures) +
+                len(push_health_lint_failures)
+        })
 
     @action(detail=False)
     def health(self, request, project):
@@ -227,48 +236,54 @@ class PushViewSet(viewsets.ViewSet):
         except Push.DoesNotExist:
             return Response("No push with revision: {0}".format(revision),
                             status=HTTP_404_NOT_FOUND)
-        push_health_test_failures = get_push_health_test_failures(push, REPO_GROUPS['trunk'])
+        push_health_test_failures = get_test_failures(push, REPO_GROUPS['trunk'])
         test_result = 'pass'
         if len(push_health_test_failures['unsupported']):
             test_result = 'indeterminate'
         if len(push_health_test_failures['needInvestigation']):
             test_result = 'fail'
 
+        build_failures = get_build_failures(push)
+        build_result = 'fail' if len(build_failures) else 'pass'
+
+        lint_failures = get_lint_failures(push)
+        lint_result = 'fail' if len(lint_failures) else 'pass'
+
         return Response({
             'revision': revision,
             'id': push.id,
-            'result': test_result,
-            'metrics': [
-                {
+            'result': 'pass' if all(metric == 'pass' for metric in [test_result, lint_result, build_result]) else 'fail',
+            'metrics': {
+                'linting': {
+                    'name': 'Linting',
+                    'result': lint_result,
+                    'details': lint_failures,
+                },
+                'tests': {
                     'name': 'Tests',
                     'result': test_result,
-                    'failures': push_health_test_failures,
+                    'details': push_health_test_failures,
                 },
-                {
-                    'name': 'Builds (Not yet implemented)',
-                    'result': 'pass',
-                    'details': ['Wow, everything passed!'],
+                'builds': {
+                    'name': 'Builds',
+                    'result': build_result,
+                    'details': build_failures,
                 },
-                {
-                    'name': 'Linting (Not yet implemented)',
-                    'result': 'pass',
-                    'details': ['Gosh, this code is really nicely formatted.'],
-                },
-                {
+                'coverage': {
                     'name': 'Coverage (Not yet implemented)',
-                    'result': 'pass',
+                    'result': 'none',
                     'details': [
                         'Covered 42% of the tests that are needed for feature ``foo``.',
                         'Covered 100% of the tests that are needed for feature ``bar``.',
                         'The ratio of people to cake is too many...',
                     ],
                 },
-                {
+                'performance': {
                     'name': 'Performance (Not yet implemented)',
-                    'result': 'pass',
+                    'result': 'none',
                     'details': ['Ludicrous Speed'],
                 },
-            ],
+            },
         })
 
     @cache_memoize(60 * 60)
