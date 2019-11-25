@@ -48,7 +48,7 @@ class TreeherderCycler(DataCycler):
                                                 self.sleep_time)
             self.logger.warning("Deleted {} jobs".format(rs_deleted))
         except OperationalError as e:
-            self.logger.errror("Error running cycle_data: {}".format(e))
+            self.logger.error("Error running cycle_data: {}".format(e))
 
         self.remove_leftovers()
 
