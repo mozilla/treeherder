@@ -235,6 +235,7 @@ class PerformanceSummarySerializer(serializers.ModelSerializer):
     values = serializers.ListField(child=serializers.DecimalField(
         rounding=decimal.ROUND_HALF_EVEN, decimal_places=2, max_digits=None, coerce_to_string=False), default=[])
     name = serializers.SerializerMethodField()
+    parent_name = serializers.SerializerMethodField()
     suite = serializers.CharField()
     parent_signature = serializers.IntegerField(source="parent_signature_id")
     signature_id = serializers.IntegerField(source="id")
@@ -245,12 +246,19 @@ class PerformanceSummarySerializer(serializers.ModelSerializer):
     class Meta:
         model = PerformanceSignature
         fields = ['signature_id', 'framework_id', 'signature_hash', 'platform', 'test', 'suite',
-                  'lower_is_better', 'has_subtests', 'values', 'name', 'parent_signature', 'job_ids',
-                  'repository_name', 'repository_id', 'data']
+                  'lower_is_better', 'has_subtests', 'test_public_name', 'suite_public_name', 'values',
+                  'name', 'parent_name', 'parent_signature', 'job_ids', 'repository_name', 'repository_id',
+                  'data']
 
-    def get_name(self, value):
-        test = value['test']
-        suite = value['suite']
+    def get_name(self, value) -> str:
+        return self._get_name(value, for_parent_only=False)
+
+    def get_parent_name(self, value) -> str:
+        return self._get_name(value, for_parent_only=True)
+
+    def _get_name(self, value, for_parent_only: bool) -> str:
+        test = '' if for_parent_only else value['test_public_name'] or value['test']
+        suite = value['suite_public_name'] or value['suite']
         test_suite = suite if test == '' or test == suite else '{} {}'.format(suite, test)
         return '{} {} {}'.format(test_suite, value['option_name'],
                                  value['extra_options'])

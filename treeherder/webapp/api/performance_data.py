@@ -453,8 +453,9 @@ class PerformanceSummary(generics.ListAPIView):
                                                    int(time.time() - int(interval))))
 
         # TODO signature_hash is being returned for legacy support - should be removed at some point
-        self.queryset = (signature_data.values('framework_id', 'id', 'lower_is_better', 'has_subtests', 'extra_options', 'suite',
-                                               'signature_hash', 'platform__platform', 'test', 'option_collection_id',
+        self.queryset = (signature_data.values('framework_id', 'id', 'lower_is_better', 'has_subtests', 'extra_options',
+                                               'suite', 'signature_hash', 'platform__platform', 'test',
+                                               'suite_public_name', 'test_public_name', 'option_collection_id',
                                                'parent_signature_id', 'repository_id'))
 
         signature_ids = [item['id'] for item in list(self.queryset)]

@@ -123,7 +123,7 @@ class CompareSubtestsView extends React.PureComponent {
       frameworkID: framework.id,
     };
 
-    rowNames.forEach(testName => {
+    rowNames.forEach((displayName, testName) => {
       const oldResults = origResultsMap.find(sig => sig.test === testName);
       const newResults = newResultsMap.find(sig => sig.test === testName);
 
@@ -131,7 +131,7 @@ class CompareSubtestsView extends React.PureComponent {
       if (cmap.isEmpty) {
         return;
       }
-      cmap.name = testName;
+      cmap.name = displayName;
 
       if (
         (oldResults && oldResults.parent_signature === originalSignature) ||

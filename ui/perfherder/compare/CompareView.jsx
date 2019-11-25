@@ -199,6 +199,8 @@ class CompareView extends React.PureComponent {
       });
     });
 
+    // TODO-igoldan: extract into public named tables, if case
+
     rowNames.forEach(value => {
       const cmap = getCounterMap(
         noiseMetricTitle,

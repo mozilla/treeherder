@@ -118,26 +118,46 @@ export default class CompareTableView extends React.Component {
       });
     }
 
-    const data = [...originalResults.data, ...newResults.data];
+    const combinedData = [...originalResults.data, ...newResults.data];
     let rowNames;
     let tableNames;
     let title;
 
-    if (!data.length) {
+    if (!combinedData.length) {
       return this.setState({ loading: false });
     }
 
     if (hasSubtests) {
-      let subtestName = data[0].name.split(' ');
-      subtestName.splice(1, 1);
-      subtestName = subtestName.join(' ');
+      const subtestName = this.deduceTableNameToDisplay(combinedData);
 
-      title = `${data[0].platform}: ${subtestName}`;
+      title = `${combinedData[0].platform}: ${subtestName}`;
       tableNames = [subtestName];
-      rowNames = [...new Set(data.map(item => item.test))].sort();
+      const testNames = [
+        ...new Set(combinedData.map(item => item.test)),
+      ].sort();
+      rowNames = new Map();
+      for (const testName of testNames) {
+        rowNames.set(
+          testName,
+          new Set(
+            combinedData
+              .filter(item => item.test === testName)
+              .map(item => item.test_public_name || item.test),
+          ),
+        );
+      }
+
+      for (const [testName, displayNames] of rowNames) {
+        if (displayNames.size > 1) {
+          rowNames.set(testName, testName);
+        } else {
+          const displayName = displayNames.values().next().value;
+          rowNames.set(testName, displayName);
+        }
+      }
     } else {
-      tableNames = [...new Set(data.map(item => item.name))].sort();
-      rowNames = [...new Set(data.map(item => item.platform))].sort();
+      tableNames = [...new Set(combinedData.map(item => item.name))].sort();
+      rowNames = [...new Set(combinedData.map(item => item.platform))].sort();
     }
 
     const text = originalRevision
@@ -180,6 +200,20 @@ export default class CompareTableView extends React.Component {
         failureMessages: [message, ...failureMessages],
       });
     }
+  };
+
+  deduceTableNameToDisplay = combinedData => {
+    const suitesToDisplay = new Set();
+    for (const dataItem of combinedData) {
+      suitesToDisplay.add(dataItem.parent_name);
+    }
+
+    if (suitesToDisplay.size === 1) {
+      // all subtests share identical suite name
+      return suitesToDisplay.values().next().value;
+    }
+    // fallback to regular suite name
+    return combinedData[0].suite;
   };
 
   render() {

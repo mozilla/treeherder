@@ -9,11 +9,10 @@ import OptionCollectionModel from './optionCollection';
 export const getTestName = function getTestName(signatureProps) {
   // only return suite name if testname is identical, and handle
   // undefined test name
-  return [
-    ...new Set(
-      [signatureProps.suite, signatureProps.test].filter(item => item),
-    ),
-  ].join(' ');
+  const suite = signatureProps.suite_public_name || signatureProps.suite;
+  const test = signatureProps.test_public_name || signatureProps.test;
+
+  return [...new Set([suite, test].filter(item => item))].join(' ');
 };
 
 export const getSeriesOptions = function getSeriesOptions(
