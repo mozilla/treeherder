@@ -1,6 +1,7 @@
 import copy
 import logging
 from hashlib import sha1
+from typing import List
 
 import simplejson as json
 
@@ -37,6 +38,10 @@ def _get_signature_hash(signature_properties):
     return sha.hexdigest()
 
 
+def _order_and_concat(words: List) -> str:
+    return ' '.join(sorted(words))
+
+
 def _create_or_update_signature(repository, signature_hash, framework, defaults):
     signature, created = PerformanceSignature.objects.get_or_create(
         repository=repository,
@@ -58,7 +63,6 @@ def _load_perf_datum(job, perf_datum):
     validate_perf_data(perf_datum)
 
     extra_properties = {}
-    extra_options = ''
     reference_data = {
         'option_collection_hash': job.signature.option_collection_hash,
         'machine_platform': job.signature.machine_platform
@@ -81,13 +85,14 @@ def _load_perf_datum(job, perf_datum):
         return
     for suite in perf_datum['suites']:
         suite_extra_properties = copy.copy(extra_properties)
-        suite_extra_options = copy.copy(extra_options)
+        ordered_tags = _order_and_concat(suite.get('tags', []))
+        suite_extra_options = ''
+
         if suite.get('extraOptions'):
             suite_extra_properties = {
                 'test_options': sorted(suite['extraOptions'])
             }
-            # store extraOptions list as space separated string
-            suite_extra_options = ' '.join(sorted(suite['extraOptions']))
+            suite_extra_options = _order_and_concat(suite['extraOptions'])
         summary_signature_hash = None
 
         # if we have a summary value, create or get its signature by all its subtest
@@ -108,6 +113,7 @@ def _load_perf_datum(job, perf_datum):
                     'suite_public_name': suite.get('publicName'),
                     'option_collection': option_collection,
                     'platform': job.machine_platform,
+                    'tags': ordered_tags,
                     'extra_options': suite_extra_options,
                     'measurement_unit': suite.get('unit'),
                     'application': _get_application_name(perf_datum),
@@ -162,6 +168,7 @@ def _load_perf_datum(job, perf_datum):
                     'suite_public_name': suite.get('publicName'),
                     'option_collection': option_collection,
                     'platform': job.machine_platform,
+                    'tags': ordered_tags,
                     'extra_options': suite_extra_options,
                     'measurement_unit': subtest.get('unit'),
                     'application': _get_application_name(perf_datum),
