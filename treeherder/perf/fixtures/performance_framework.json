@@ -70,5 +70,13 @@
       "name": "browsertime",
       "enabled": true
     }
+  },
+  {
+    "pk": 14,
+    "model": "perf.PerformanceFramework",
+    "fields": {
+      "name": "vcs",
+      "enabled": true
+    }
   }
 ]
