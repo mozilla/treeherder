@@ -10,7 +10,7 @@ import {
   genericErrorMessage,
 } from '../../helpers/constants';
 import ErrorBoundary from '../../shared/ErrorBoundary';
-import { getData } from '../../helpers/http';
+import { getData, processResponse } from '../../helpers/http';
 import { createApiUrl } from '../../helpers/url';
 import ErrorMessages from '../../shared/ErrorMessages';
 
@@ -19,11 +19,10 @@ import HealthTableControls from './HealthTableControls';
 class HeathView extends React.PureComponent {
   constructor(props) {
     super(props);
-    this.validated = this.props.validated;
     this.state = {
       framework: getFrameworkData(this.props),
       loading: false,
-      failureMessages: [],
+      errorMessages: [],
       projectsMap: false,
       platformsMap: false,
     };
@@ -51,7 +50,7 @@ class HeathView extends React.PureComponent {
 
   createPlatformsMap = async () => {
     const { platforms, updateAppState } = this.props;
-    const { failureMessages } = this.state;
+    const { errorMessages } = this.state;
 
     if (platforms.length) {
       // if the platforms were already cached, use those
@@ -60,7 +59,7 @@ class HeathView extends React.PureComponent {
       // get the platforms, cache them and create the platformsMap
       getData('api/machineplatforms/').then(({ data, failureStatus }) => {
         if (failureStatus) {
-          this.setState({ failureMessages: [data, ...failureMessages] });
+          this.setState({ errorMessages: [data, ...errorMessages] });
         } else {
           updateAppState({ platforms: data });
           this.createObjectsMap(data, 'platformsMap', 'platform');
@@ -70,15 +69,13 @@ class HeathView extends React.PureComponent {
   };
 
   getTestSuiteHealthData = async params => {
-    const { failureMessages } = this.state;
+    const { errorMessages } = this.state;
 
-    const { data, failureStatus } = await getData(
+    const response = await getData(
       createApiUrl('performance/validity-dashboard/', params),
     );
-    if (failureStatus) {
-      return { failureMessages: [data, ...failureMessages] };
-    }
-    return { results: data };
+
+    return processResponse(response, 'results', errorMessages);
   };
 
   createObjectsMap = (objects, state, propertyName) => {
@@ -105,7 +102,7 @@ class HeathView extends React.PureComponent {
       framework,
       results,
       loading,
-      failureMessages,
+      errorMessages,
       projectsMap,
       platformsMap,
     } = this.state;
@@ -113,7 +110,7 @@ class HeathView extends React.PureComponent {
     const frameworkNames =
       frameworks && frameworks.length ? frameworks.map(item => item.name) : [];
 
-    const healthDropdows = [
+    const healthDropdowns = [
       {
         options: frameworkNames,
         selectedItem: framework.name,
@@ -127,11 +124,11 @@ class HeathView extends React.PureComponent {
         message={genericErrorMessage}
       >
         <Container fluid className="max-width-default">
-          {loading && !failureMessages.length && <LoadingSpinner />}
+          {loading && !errorMessages.length && <LoadingSpinner />}
           <Row className="justify-content-center">
             <Col sm="8" className="text-center">
-              {failureMessages.length !== 0 && (
-                <ErrorMessages errorMessages={failureMessages} />
+              {errorMessages.length !== 0 && (
+                <ErrorMessages errorMessages={errorMessages} />
               )}
             </Col>
           </Row>
@@ -142,7 +139,7 @@ class HeathView extends React.PureComponent {
           </Row>
           <HealthTableControls
             healthResults={results}
-            dropdownOptions={healthDropdows}
+            dropdownOptions={healthDropdowns}
             projectsMap={projectsMap}
             platformsMap={platformsMap}
           />
@@ -155,8 +152,6 @@ class HeathView extends React.PureComponent {
 HeathView.propTypes = {
   location: PropTypes.shape({}),
   validated: PropTypes.shape({
-    projects: PropTypes.arrayOf(PropTypes.shape({})),
-    frameworks: PropTypes.arrayOf(PropTypes.shape({})),
     updateParams: PropTypes.func.isRequired,
     framework: PropTypes.string,
   }).isRequired,

@@ -63,8 +63,6 @@ export default class HealthTableControls extends React.Component {
     return (
       <Container fluid className="my-3 px-0">
         <FilterControls
-          filterOptions={[]}
-          updateFilter={() => {}}
           updateFilterText={this.updateFilterText}
           dropdownOptions={dropdownOptions}
           dropdownCol

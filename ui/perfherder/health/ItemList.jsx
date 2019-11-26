@@ -1,18 +1,21 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 
-import ItemBadge from './ItemBadge';
-
 export default function ItemList(props) {
   const { items, maxSeen } = props;
 
   return (
     <span>
       {items.slice(0, maxSeen).map(item => (
-        <ItemBadge itemText={item} />
+        <span className="item-badge mr-1">{item}</span>
       ))}
       {items.length > maxSeen && (
-        <ItemBadge itemText="..." title={items.slice(maxSeen).join(', ')} />
+        <span
+          className="item-badge mr-1"
+          title={items.slice(maxSeen).join(', ')}
+        >
+          ...
+        </span>
       )}
     </span>
   );

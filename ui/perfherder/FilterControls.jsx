@@ -91,8 +91,8 @@ const FilterControls = ({
 
 FilterControls.propTypes = {
   dropdownOptions: PropTypes.arrayOf(PropTypes.shape({})),
-  filterOptions: PropTypes.arrayOf(PropTypes.shape({})).isRequired,
-  updateFilter: PropTypes.func.isRequired,
+  filterOptions: PropTypes.arrayOf(PropTypes.shape({})),
+  updateFilter: PropTypes.func,
   updateFilterText: PropTypes.func.isRequired,
   dropdownCol: PropTypes.bool,
 };
@@ -100,6 +100,8 @@ FilterControls.propTypes = {
 FilterControls.defaultProps = {
   dropdownOptions: null,
   dropdownCol: false,
+  filterOptions: [],
+  updateFilter: null,
 };
 
 export default FilterControls;
