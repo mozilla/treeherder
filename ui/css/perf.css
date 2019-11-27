@@ -408,6 +408,11 @@ button:disabled {
   stroke: #ffffff;
 }
 
+.item-badge {
+  padding: 3px 6px;
+  color: #17a2b8;
+}
+
 /* for use with global max-width-default style */
 .max-width-row-text {
   max-width: 1194px;

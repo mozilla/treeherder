@@ -25,6 +25,11 @@ const Navigation = ({ user, setUser, notify }) => (
           Alerts
         </NavLink>
       </NavItem>
+      <NavItem>
+        <NavLink href="#/health" className="btn-view-nav">
+          Health
+        </NavLink>
+      </NavItem>
     </Nav>
     <Navbar className="ml-auto">
       <HelpMenu />

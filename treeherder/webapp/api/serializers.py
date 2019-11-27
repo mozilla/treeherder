@@ -358,3 +358,10 @@ class FailuresQueryParamsSerializer(serializers.Serializer):
                 raise serializers.ValidationError('{} does not exist.'.format(tree))
 
         return tree
+
+
+class MachinePlatformSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = models.MachinePlatform
+        fields = ('id', 'platform')
