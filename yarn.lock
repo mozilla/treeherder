@@ -9179,10 +9179,10 @@ taskcluster-lib-scopes@10.0.2:
   resolved "https://registry.yarnpkg.com/taskcluster-lib-scopes/-/taskcluster-lib-scopes-10.0.2.tgz#ec7df9c13ba187dfb9836623fe53e9290fa6770b"
   integrity sha512-imeywPQva/St/uykCxTq7QrP0Hlte3mSpV917kvdVqunrsHs0k3E90kdi9KdGyDRzncVeKbCjTZjyaDf7VndVg==
 
-taskcluster-lib-urls@12.1.0:
-  version "12.1.0"
-  resolved "https://registry.yarnpkg.com/taskcluster-lib-urls/-/taskcluster-lib-urls-12.1.0.tgz#8d25c2e20a5d926ee7adcb142876cf58b57bb4e6"
-  integrity sha512-zwHbZfhORlSylBrbYWevjNKcLgdTfcyANhvjGs5ckUuiJGeD0s19B7sDuYO0z5CZ6EmLOmY/LIRc7ZR772W/OA==
+taskcluster-lib-urls@13.0.0:
+  version "13.0.0"
+  resolved "https://registry.yarnpkg.com/taskcluster-lib-urls/-/taskcluster-lib-urls-13.0.0.tgz#fb0737d20cddc54c7117782ee154b2c20676e430"
+  integrity sha512-5yeKRYyNDU5lJnz/PUsS4M+EubN0Whz82izAdjth5notHNBN0zvMr2z4us+InDrX769oR44lkzesjSLTDHod3w==
 
 taskcluster-lib-urls@^10.0.0:
   version "10.1.1"
