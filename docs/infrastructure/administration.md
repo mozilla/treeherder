@@ -315,6 +315,8 @@ CREATE USER 'myuser' IDENTIFIED BY 'PASSWORD >=30 CHARACTERS LONG' REQUIRE SSL;
 GRANT SELECT (id, username, email) ON treeherder.auth_user to 'myuser';
 
 -- Tables containing no sensitive data.
+GRANT SELECT ON treeherder.backfill_record to 'myuser';
+GRANT SELECT ON treeherder.backfill_report to 'myuser';
 GRANT SELECT ON treeherder.bug_job_map to 'myuser';
 GRANT SELECT ON treeherder.bugscache to 'myuser';
 GRANT SELECT ON treeherder.build_platform to 'myuser';
