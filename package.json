@@ -8,7 +8,7 @@
   "license": "MPL-2.0",
   "engines": {
     "node": "12.13.1",
-    "yarn": "1.19.2"
+    "yarn": "1.21.0"
   },
   "resolutions": {
     "d3": "5.14.2"
@@ -67,7 +67,7 @@
     "taskcluster-client-web": "8.1.1",
     "taskcluster-lib-scopes": "10.0.2",
     "taskcluster-lib-urls": "13.0.0",
-    "victory": "33.1.5",
+    "victory": "33.1.6",
     "webpack": "4.41.2",
     "webpack-cli": "3.3.10"
   },
@@ -83,7 +83,7 @@
     "eslint-config-airbnb": "18.0.1",
     "eslint-config-prettier": "6.7.0",
     "eslint-plugin-import": "2.18.2",
-    "eslint-plugin-jest": "23.0.5",
+    "eslint-plugin-jest": "23.1.1",
     "eslint-plugin-jsx-a11y": "6.2.3",
     "eslint-plugin-prettier": "3.1.1",
     "eslint-plugin-react": "7.16.0",
