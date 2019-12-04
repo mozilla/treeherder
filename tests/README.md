@@ -57,6 +57,11 @@ Be sure you are in the `treeherder` main directory, with your virtual environmen
     ./tests/env.sh
     pytest tests
 
+### Pre commit checks
+
+If you made some changes, and want to submit a pull request; run the `./runtests.sh` script (found in the main directory).  It will run some linters to check your submission.
+
+
 ### Using containers
 
 After `docker-compose up`, you may spin up any number of `backend` containers. You may want to run ingestion tasks, or go exploring. 
