@@ -124,7 +124,7 @@ def test_push_list_single_long_revision(client, eleven_jobs_stored, test_reposit
         u'repository': test_repository.name}
     )
 
-@pytest.mark.skipif(IS_WINDOWS, "timezone mixup happening somewhere")
+@pytest.mark.skipif(IS_WINDOWS, reason="timezone mixup happening somewhere")
 def test_push_list_filter_by_revision(client, eleven_jobs_stored, test_repository):
     """
     test retrieving a push list, filtered by a revision range
@@ -159,7 +159,7 @@ def test_push_list_filter_by_revision(client, eleven_jobs_stored, test_repositor
     )
 
 
-@pytest.mark.skipif(IS_WINDOWS, "timezone mixup happening somewhere")
+@pytest.mark.skipif(IS_WINDOWS, reason="timezone mixup happening somewhere")
 def test_push_list_filter_by_date(client,
                                   test_repository,
                                   sample_push):
