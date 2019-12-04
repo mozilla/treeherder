@@ -39,6 +39,5 @@ WORKDIR /app
 
 # Common and dev deps installed separately to prove that common.txt works standalone
 # (given that dev.txt is not installed on Heroku)
-RUN pip install --no-cache-dir --disable-pip-version-check --require-hashes -r requirements/common.txt
-RUN pip install --no-cache-dir --disable-pip-version-check --require-hashes -r requirements/dev.txt
-RUN pip install --no-cache-dir --disable-pip-version-check -r requirements/docs.txt
+RUN pip install pydevd
+RUN pip install --no-cache-dir -r requirements.txt

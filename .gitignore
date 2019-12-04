@@ -7,6 +7,12 @@ yarn-error.log
 npm-error.log
 vagrant/env_local.sh
 
+# virtualenv to avoid polluting your local python
+venv
+
+# another cvs
+.svn
+
 # vi
 *.swp
 
