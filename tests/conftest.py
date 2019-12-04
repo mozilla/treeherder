@@ -28,12 +28,13 @@ from treeherder.perf.models import (IssueTracker,
                                     PerformanceSignature)
 from treeherder.services.pulse.exchange import get_exchange
 
+APIClient = None
 try:
     # this is part of circular import but
     # it imports same-named modules in the correct order
     from rest_framework.test import APIClient
 except ImportError:
-    APIClient = None
+    pass
 
 
 IS_WINDOWS = "windows" in platform.system().lower()
