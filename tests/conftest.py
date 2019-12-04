@@ -9,6 +9,12 @@ import pytest
 import responses
 from _pytest.monkeypatch import MonkeyPatch
 from django.conf import settings
+try:
+    # this is part of circular import but
+    # it imports same-named modules in the correct order
+    from rest_framework.test import APIClient
+except ImportError:
+    APIClient = None
 
 from treeherder.autoclassify.autoclassify import mark_best_classification
 from treeherder.etl.jobs import store_job_data
@@ -505,7 +511,9 @@ def client():
     A django-rest-framework APIClient instance:
     http://www.django-rest-framework.org/api-guide/testing/#apiclient
     """
-    from rest_framework.test import APIClient
+    if not APIClient:
+        # late import
+        from rest_framework.test import APIClient
     return APIClient()
 
 
