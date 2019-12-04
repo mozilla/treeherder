@@ -514,6 +514,8 @@ def client():
     A django-rest-framework APIClient instance:
     http://www.django-rest-framework.org/api-guide/testing/#apiclient
     """
+    global APIClient
+
     if not APIClient:
         # late import
         from rest_framework.test import APIClient
