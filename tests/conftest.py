@@ -9,12 +9,6 @@ import pytest
 import responses
 from _pytest.monkeypatch import MonkeyPatch
 from django.conf import settings
-try:
-    # this is part of circular import but
-    # it imports same-named modules in the correct order
-    from rest_framework.test import APIClient
-except ImportError:
-    APIClient = None
 
 from treeherder.autoclassify.autoclassify import mark_best_classification
 from treeherder.etl.jobs import store_job_data
@@ -33,6 +27,14 @@ from treeherder.perf.models import (IssueTracker,
                                     PerformanceFramework,
                                     PerformanceSignature)
 from treeherder.services.pulse.exchange import get_exchange
+
+try:
+    # this is part of circular import but
+    # it imports same-named modules in the correct order
+    from rest_framework.test import APIClient
+except ImportError:
+    APIClient = None
+
 
 IS_WINDOWS = "windows" in platform.system().lower()
 
