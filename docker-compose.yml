@@ -21,8 +21,8 @@ services:
       - TREEHERDER_DJANGO_SECRET_KEY=secret-key-of-at-least-50-characters-to-pass-check-deploy
       - NEW_RELIC_DEVELOPER_MODE=True
     entrypoint: './docker/entrypoint.sh'
-    command: 'venv/bin/python venv/lib/python3.7/site-packages/pydevd.py --multiprocess --qt-support=auto --client host.docker.internal --port 7001 --file manage.py runserver 0.0.0.0:8000'
-#    command: 'venv/bin/python manage.py runserver 0.0.0.0:8000'
+#    command: 'venv/bin/python venv/lib/python3.7/site-packages/pydevd.py --multiprocess --qt-support=auto --client host.docker.internal --port 7001 --file manage.py runserver 0.0.0.0:8000'
+    command: 'venv/bin/python manage.py runserver 0.0.0.0:8000'
     # Django's runserver doesn't listen to the default of SIGTERM, so docker-compose
     # must send SIGINT instead to avoid waiting 10 seconds for the time out.
     stop_signal: SIGINT
