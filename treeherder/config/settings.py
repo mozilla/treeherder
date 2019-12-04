@@ -1,4 +1,3 @@
-import platform
 import re
 from datetime import timedelta
 from os.path import (abspath,
@@ -21,8 +20,6 @@ env = environ.Env()
 
 # Top Level configuration
 DEBUG = env.bool("TREEHERDER_DEBUG", default=False)
-
-IS_WINDOWS = "windows" in platform.system().lower()
 
 GRAPHQL = env.bool("GRAPHQL", default=True)
 

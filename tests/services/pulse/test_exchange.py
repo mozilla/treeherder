@@ -1,7 +1,7 @@
 import pytest
 from kombu import Exchange
 
-from treeherder.config.settings import IS_WINDOWS
+from tests.conftest import IS_WINDOWS
 from treeherder.services.pulse.exchange import get_exchange
 
 from .utils import create_and_destroy_exchange

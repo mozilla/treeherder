@@ -1,7 +1,7 @@
 import pytest
 from django.conf import settings
 
-from treeherder.config.settings import IS_WINDOWS
+from tests.conftest import IS_WINDOWS
 from treeherder.services.pulse.consumers import (Consumers,
                                                  PulseConsumer)
 

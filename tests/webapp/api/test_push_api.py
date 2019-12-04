@@ -4,7 +4,7 @@ import json
 import pytest
 from django.urls import reverse
 
-from treeherder.config.settings import IS_WINDOWS
+from tests.conftest import IS_WINDOWS
 from treeherder.etl.push import store_push_data
 from treeherder.model.models import (FailureClassification,
                                      JobNote,
