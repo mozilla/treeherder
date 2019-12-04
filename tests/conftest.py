@@ -32,7 +32,7 @@ APIClient = None
 try:
     # this is part of circular import but
     # it imports same-named modules in the correct order
-    from rest_framework.test import APIClient
+    from rest_framework.test import APIClient  # noqa: E401
 except ImportError:
     pass
 
