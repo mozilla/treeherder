@@ -1,4 +1,4 @@
-import { fetchMock } from 'fetch-mock';
+import fetchMock from 'fetch-mock';
 
 import JobModel from '../../../ui/models/job';
 import { decisionTaskIdCache } from '../../../ui/models/push';
