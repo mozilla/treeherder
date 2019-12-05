@@ -89,12 +89,10 @@ def get_current_test_failures(push, option_map):
     # for the same job (with different sub-tests), but it's only supported by
     # postgres.  Just using .distinct() has no effect.
     new_failure_lines = FailureLine.objects.filter(
-        action='test_result',
+        action__in=['test_result', 'log'],
         job_log__job__push=push,
         job_log__job__result='testfailed',
         job_log__job__tier__lte=2
-    ).exclude(
-        test=None
     ).select_related(
         'job_log__job__job_type', 'job_log__job__machine_platform'
     )

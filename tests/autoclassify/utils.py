@@ -4,6 +4,7 @@ from mozlog.formatters.tbplformatter import TbplFormatter
 
 from treeherder.model.models import (FailureLine,
                                      Job,
+                                     JobLog,
                                      TextLogError,
                                      TextLogErrorMetadata,
                                      TextLogStep)
@@ -39,6 +40,8 @@ def create_failure_lines(job, failure_line_list,
         data.update(base_data)
         data.update(updates)
         failure_line = FailureLine(**data)
+        job_log = JobLog.objects.create(job=job, name='foo', url='bar{}'.format(i), status=1)
+        failure_line.job_log = job_log
         failure_line.save()
         failure_lines.append(failure_line)
 
