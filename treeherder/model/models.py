@@ -12,8 +12,12 @@ from django.core.exceptions import ObjectDoesNotExist
 from django.core.validators import MinLengthValidator
 from django.db import (models,
                        transaction)
-from django.db.models import (Count,
-                              Q, Min, Max)
+from django.db.models import (
+    Count,
+    Max,
+    Min,
+    Q
+)
 from django.db.utils import ProgrammingError
 from django.forms import model_to_dict
 from django.utils import timezone
