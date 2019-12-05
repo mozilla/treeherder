@@ -76,7 +76,7 @@ const AlertHeader = ({
                 target="_blank"
                 rel="noopener noreferrer"
               >
-                <DropdownItem>Jobs</DropdownItem>
+                <DropdownItem tag="a">Jobs</DropdownItem>
               </a>
               <a
                 className="text-dark"
@@ -87,7 +87,7 @@ const AlertHeader = ({
                 target="_blank"
                 rel="noopener noreferrer"
               >
-                <DropdownItem>Pushlog</DropdownItem>
+                <DropdownItem tag="a">Pushlog</DropdownItem>
               </a>
             </DropdownMenu>
           </UncontrolledDropdown>

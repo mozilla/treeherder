@@ -10,15 +10,15 @@ export default function TiersMenu(props) {
 
   return (
     <span className="dropdown">
-      <span
+      <button
         id="tierLabel"
-        role="button"
+        type="button"
         title="Show/hide job tiers"
         data-toggle="dropdown"
         className="btn btn-view-nav btn-sm nav-menu-btn dropdown-toggle"
       >
         Tiers
-      </span>
+      </button>
       <ul className="dropdown-menu checkbox-dropdown-menu" role="menu">
         {TIERS.map(tier => {
           const isOnlyTier = shownTiers.length === 1 && tier === shownTiers[0];

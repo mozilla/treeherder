@@ -200,9 +200,13 @@ export default class StatusDropdown extends React.Component {
             {getStatus(alertSummary.status)}
           </DropdownToggle>
           <DropdownMenu>
-            <DropdownItem onClick={this.copySummary}>Copy Summary</DropdownItem>
+            <DropdownItem tag="a" onClick={this.copySummary}>
+              Copy Summary
+            </DropdownItem>
             {!alertSummary.bug_number && (
-              <DropdownItem onClick={this.fileBug}>File bug</DropdownItem>
+              <DropdownItem tag="a" onClick={this.fileBug}>
+                File bug
+              </DropdownItem>
             )}
             {user.isStaff && (
               <React.Fragment>
