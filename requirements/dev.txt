@@ -42,9 +42,9 @@ isort==4.3.21 \
 # Required by pluggy
 zipp==0.5.2 \
     --hash=sha256:8a5712cfd3bb4248015eb3b0b3c54a5f6ee3f2425963ef2a0125b8bc40aafaec
-importlib-metadata==0.19 \
-    --hash=sha256:80d2de76188eabfbfcf27e6a37342c2827801e59c4cc14b0371c56fed43820e3 \
-    --hash=sha256:23d3d873e008a513952355379d93cbcab874c58f4f034ff657c7a87422fa64e8
+importlib-metadata==1.1.2 \
+    --hash=sha256:6e41b925839cad2e9808f037206e12291c1e61531c5cbc705056d3f11bcd13a6 \
+    --hash=sha256:d0931f65e871b6132ca30ec9d074e7edc46a270466f632db684c0f07a241847b
 
 # Required by pytest
 atomicwrites==1.3.0 \
