@@ -1,5 +1,5 @@
 import React from 'react';
-import { fetchMock } from 'fetch-mock';
+import fetchMock from 'fetch-mock';
 import { render, cleanup, waitForElement } from '@testing-library/react';
 
 import { replaceLocation, setUrlParam } from '../../../ui/helpers/location';

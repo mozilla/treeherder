@@ -1,6 +1,6 @@
 import React from 'react';
 import { mount } from 'enzyme/build';
-import { fetchMock } from 'fetch-mock';
+import fetchMock from 'fetch-mock';
 
 import { hgBaseUrl, bzBaseUrl } from '../../../ui/helpers/url';
 import { isReftest } from '../../../ui/helpers/job';
