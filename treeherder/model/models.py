@@ -1305,7 +1305,7 @@ class TextLogError(models.Model):
         # None as opposed to RelatedManager.
         if self.metadata is None:
             TextLogErrorMetadata.objects.create(text_log_error=self,
-                best_classification=classification,
+                                                best_classification=classification,
                                                 best_is_verified=True)
         else:
             self.metadata.best_classification = classification
