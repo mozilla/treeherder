@@ -1339,21 +1339,21 @@ class TextLogErrorMetadata(models.Model):
     TODO: Merge into TextLogError.
     """
     text_log_error = models.OneToOneField(TextLogError,
-        primary_key=True,
-        related_name="_metadata",
+                                          primary_key=True,
+                                          related_name="_metadata",
                                           on_delete=models.CASCADE)
 
     failure_line = models.OneToOneField(FailureLine,
-        on_delete=models.CASCADE,
-        related_name="text_log_error_metadata",
+                                        on_delete=models.CASCADE,
+                                        related_name="text_log_error_metadata",
                                         null=True)
 
     # Note that the case of best_classification = None and best_is_verified = True
     # has the special semantic that the line is ignored and should not be considered
     # for future autoclassifications.
     best_classification = models.ForeignKey(ClassifiedFailure,
-        related_name="best_for_errors",
-        null=True,
+                                            related_name="best_for_errors",
+                                            null=True,
                                             on_delete=models.SET_NULL)
     best_is_verified = models.BooleanField(default=False)
 
