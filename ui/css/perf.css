@@ -271,9 +271,9 @@ th {
 }
 
 .compare-table .subtest-header > th:first-child,
-.compare-table:hover .subtest-header > th,
-.compare-table:hover .subtest-header a,
-.compare-table:hover .subtest-header button,
+.compare-table .subtest-header > th,
+.compare-table .subtest-header a,
+.compare-table .subtest-header button,
 .compare-table {
   color: #333;
 }
@@ -297,12 +297,12 @@ th {
   transition: visibility 150ms ease-in-out;
 }
 
-.compare-table tr:hover .result-links span {
+.compare-table tr .result-links span {
   color: #333;
 }
 
-.compare-table tr:hover .result-links a,
-.compare-table tr:hover .result-links button {
+.compare-table tr .result-links a,
+.compare-table tr .result-links button {
   color: #23527c;
 }
 

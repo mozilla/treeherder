@@ -7,14 +7,16 @@ import SimpleTooltip from '../shared/SimpleTooltip';
 const ProgressBar = ({ magnitude, regression, color }) => (
   <SimpleTooltip
     text={
-      <Progress multi>
+      <Progress multi aria-label="Magnitude of Difference">
         {/* the % of the bars that are colored and transparent is based on the newIsBetter metric,
         which determines whether the colored bar for magnitude is displayed on the left or right */}
+        <span className="sr-only sr-only-focusable">Magnitude 1</span>
         <Progress
           bar
           value={regression ? 100 - magnitude : magnitude}
           color={regression ? 'transparent' : color}
         />
+        <span className="sr-only sr-only-focusable">Magnitude 2</span>
         <Progress
           bar
           value={regression ? magnitude : 100 - magnitude}
