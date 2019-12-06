@@ -641,3 +641,18 @@ export const onPermalinkClick = (hashBasedValue, history, element) => {
     `${history.location.pathname}${history.location.search}#${hashBasedValue}`,
   );
 };
+
+// human readable signature name
+const getSignatureName = (testName, platformName) =>
+  [testName, platformName].filter(item => item !== null).join(' ');
+
+export const getHashBasedId = function getHashBasedId(
+  testName,
+  hashFunction,
+  platformName = null,
+) {
+  const tableSection = platformName === null ? 'header' : 'row';
+  const hashValue = hashFunction(getSignatureName(testName, platformName));
+
+  return `table-${tableSection}-${hashValue}`;
+};
