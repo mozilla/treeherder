@@ -355,7 +355,6 @@ CompareTableView.propTypes = {
   getQueryParams: PropTypes.func.isRequired,
   projects: PropTypes.arrayOf(PropTypes.shape({})).isRequired,
   hasSubtests: PropTypes.bool,
-  hashFragment: PropTypes.string,
   frameworks: PropTypes.arrayOf(PropTypes.shape({})).isRequired,
 };
 
@@ -364,5 +363,4 @@ CompareTableView.defaultProps = {
   filterByFramework: null,
   validated: PropTypes.shape({}),
   hasSubtests: false,
-  hashFragment: '',
 };
