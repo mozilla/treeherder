@@ -635,8 +635,9 @@ export const scrollWithOffset = function scrollWithOffset(el) {
   window.scrollTo({ top: yCoordinate + yOffset, behavior: 'smooth' });
 };
 
-export const onPermalinkClick = (hashBasedValue, props) => {
-  const { history, location } = props;
-  // scrollWithOffset()
-  history.replace(`${location.pathname}${location.search}#${hashBasedValue}`);
+export const onPermalinkClick = (hashBasedValue, history, element) => {
+  scrollWithOffset(element);
+  history.replace(
+    `${history.location.pathname}${history.location.search}#${hashBasedValue}`,
+  );
 };

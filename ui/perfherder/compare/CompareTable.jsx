@@ -92,7 +92,9 @@ export default class CompareTable extends React.PureComponent {
       hasSubtests,
       isBaseAggregate,
       onPermalinkClick,
+      history,
     } = this.props;
+
     return (
       <Table
         id={this.getHashBasedId(testName)}
@@ -100,6 +102,9 @@ export default class CompareTable extends React.PureComponent {
         sz="small"
         className="compare-table mb-0 px-0"
         key={testName}
+        innerRef={el => {
+          this.header = el;
+        }}
       >
         <thead>
           <tr className="subtest-header bg-lightgray">
@@ -110,7 +115,11 @@ export default class CompareTable extends React.PureComponent {
                   className="permalink p-0 ml-1"
                   color="link"
                   onClick={() =>
-                    onPermalinkClick(this.getHashBasedId(testName))
+                    onPermalinkClick(
+                      this.getHashBasedId(testName),
+                      history,
+                      this.header,
+                    )
                   }
                   title="Permalink to this test table"
                 >

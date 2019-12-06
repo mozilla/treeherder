@@ -7,7 +7,6 @@ import {
   createNoiseMetric,
   getCounterMap,
   createGraphsLinks,
-  onPermalinkClick,
 } from '../helpers';
 import { noiseMetricTitle, phTimeRanges } from '../constants';
 import withValidation from '../Validation';
@@ -235,7 +234,6 @@ class CompareView extends React.PureComponent {
         {...this.props}
         getQueryParams={this.getQueryParams}
         getDisplayResults={this.getDisplayResults}
-        onPermalinkClick={hashValue => onPermalinkClick(hashValue, this.props)}
         hashFragment={this.props.location.hash}
         filterByFramework
       />

@@ -192,13 +192,7 @@ export default class CompareTableView extends React.Component {
       pageTitle,
     } = this.props.validated;
 
-    const {
-      filterByFramework,
-      hasSubtests,
-      onPermalinkClick,
-      frameworks,
-      projects,
-    } = this.props;
+    const { filterByFramework, hasSubtests, frameworks, projects } = this.props;
     const {
       compareResults,
       loading,
@@ -315,7 +309,6 @@ export default class CompareTableView extends React.Component {
                 {...this.props}
                 dropdownOptions={compareDropdowns}
                 updateState={state => this.setState(state)}
-                onPermalinkClick={onPermalinkClick}
                 compareResults={compareResults}
                 isBaseAggregate={!originalRevision}
                 notify={this.notifyFailure}
@@ -362,7 +355,6 @@ CompareTableView.propTypes = {
   getQueryParams: PropTypes.func.isRequired,
   projects: PropTypes.arrayOf(PropTypes.shape({})).isRequired,
   hasSubtests: PropTypes.bool,
-  onPermalinkClick: PropTypes.func,
   hashFragment: PropTypes.string,
   frameworks: PropTypes.arrayOf(PropTypes.shape({})).isRequired,
 };
@@ -373,5 +365,4 @@ CompareTableView.defaultProps = {
   validated: PropTypes.shape({}),
   hasSubtests: false,
   hashFragment: '',
-  onPermalinkClick: undefined,
 };

@@ -3,7 +3,7 @@ import PropTypes from 'prop-types';
 import { Container } from 'reactstrap';
 
 import { filterText } from '../constants';
-import { convertParams, containsText } from '../helpers';
+import { convertParams, containsText, onPermalinkClick } from '../helpers';
 import FilterControls from '../FilterControls';
 
 import CompareTable from './CompareTable';
@@ -115,6 +115,7 @@ export default class CompareTableControls extends React.Component {
       hasSubtests,
       onPermalinkClick,
       projects,
+      history,
     } = this.props;
 
     const {
@@ -176,6 +177,7 @@ export default class CompareTableControls extends React.Component {
               notify={notify}
               hasSubtests={hasSubtests}
               projects={projects}
+              history={history}
             />
           ))
         ) : (
@@ -217,5 +219,5 @@ CompareTableControls.defaultProps = {
     showOnlyNoise: undefined,
   },
   showTestsWithNoise: null,
-  onPermalinkClick: undefined,
+  onPermalinkClick,
 };
