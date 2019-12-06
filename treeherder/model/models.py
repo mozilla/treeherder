@@ -421,11 +421,11 @@ class JobManager(models.Manager):
             if min_id is None:
                 return jobs_cycled
             max_id = min_id + chunk_size
-            max_chunk = Job.objects.filter(id__lte=max_id).aggregate(
+            max_chunk = Job.objects.filter(id__lt=max_id).aggregate(
                 submit_time=Max("submit_time"), id=Max("id"), count=Count("id")
             )
             if (
-                max_chunk["count"] == -0
+                max_chunk["count"] == 0
                 or max_chunk["submit_time"] > jobs_max_timestamp
             ):
                 # this next chunk is too young, we are done
@@ -441,7 +441,7 @@ class JobManager(models.Manager):
             # foreign key relation
             logger.warning("deleting FailureLines")
             delete_guid = list(
-                Job.objects.filter(id__lte=max_id)
+                Job.objects.filter(id__lt=max_id)
                 .only("guid")
                 .values_list("guid", flat=True)
             )
@@ -450,7 +450,7 @@ class JobManager(models.Manager):
             # cycle jobs *after* related data has been deleted, to be sure
             # we don't have any orphan data
             logger.warning("delete jobs")
-            self.filter(id__lte=max_id).only("id").delete()
+            self.filter(id__lt=max_id).only("id").delete()
 
             jobs_cycled += max_chunk["count"]
 
