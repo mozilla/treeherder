@@ -6,48 +6,14 @@ import PropTypes from 'prop-types';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faHashtag, faRedo } from '@fortawesome/free-solid-svg-icons';
 
-import { getHashBasedId } from '../helpers';
+import { getHashBasedId, retriggerJobs } from '../helpers';
 import { compareTableText } from '../constants';
 import { hashFunction } from '../../helpers/utils';
 import JobModel from '../../models/job';
-import RepositoryModel from '../../models/repository';
 
 import CompareTableRow from './CompareTableRow';
 
 export default class CompareTable extends React.PureComponent {
-  retriggerJobs = async (results, times) => {
-    // retrigger base revision jobs
-    const { projects } = this.props;
-
-    this.retriggerByRevision(
-      results.originalRetriggerableJobId,
-      RepositoryModel.getRepo(results.originalRepoName, projects),
-      true,
-      times,
-    );
-    // retrigger new revision jobs
-    this.retriggerByRevision(
-      results.newRetriggerableJobId,
-      RepositoryModel.getRepo(results.newRepoName, projects),
-      false,
-      times,
-    );
-  };
-
-  retriggerByRevision = async (jobId, currentRepo, isBaseline, times) => {
-    const { isBaseAggregate, notify, retriggerJob, getJob } = this.props;
-
-    // do not retrigger if the base is aggregate (there is a selected time range)
-    if (isBaseline && isBaseAggregate) {
-      return;
-    }
-
-    if (jobId) {
-      const job = await getJob(currentRepo.name, jobId);
-      retriggerJob([job], currentRepo, notify, times);
-    }
-  };
-
   render() {
     const {
       data,
@@ -61,7 +27,7 @@ export default class CompareTable extends React.PureComponent {
 
     return (
       <Table
-        id={getHashBasedId(testName)}
+        id={getHashBasedId(testName, hashFunction)}
         aria-label="Comparison table"
         sz="small"
         className="compare-table mb-0 px-0"
@@ -80,7 +46,7 @@ export default class CompareTable extends React.PureComponent {
                   color="link"
                   onClick={() =>
                     onPermalinkClick(
-                      getHashBasedId(testName),
+                      getHashBasedId(testName, hashFunction),
                       history,
                       this.header,
                     )
@@ -108,7 +74,7 @@ export default class CompareTable extends React.PureComponent {
                   <Button
                     className="retrigger-btn btn icon-green mr-1 py-0 px-1"
                     title={compareTableText.retriggerButtonTitle}
-                    onClick={() => this.retriggerJobs(data[0], 5)}
+                    onClick={() => retriggerJobs(data[0], 5, this.props)}
                   >
                     <FontAwesomeIcon icon={faRedo} />
                   </Button>
@@ -120,7 +86,9 @@ export default class CompareTable extends React.PureComponent {
         <tbody>
           {data.map(rowLevelResults => (
             <CompareTableRow
+              key={rowLevelResults.name}
               rowLevelResults={rowLevelResults}
+              hashFunction={hashFunction}
               {...this.props}
             />
           ))}

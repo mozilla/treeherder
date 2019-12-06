@@ -9,6 +9,7 @@ import PerfSeriesModel, {
   getTestName,
 } from '../models/perfSeries';
 import { thPerformanceBranches } from '../helpers/constants';
+import RepositoryModel from '../models/repository';
 
 import {
   endpoints,
@@ -655,4 +656,45 @@ export const getHashBasedId = function getHashBasedId(
   const hashValue = hashFunction(getSignatureName(testName, platformName));
 
   return `table-${tableSection}-${hashValue}`;
+};
+
+const retriggerByRevision = async (
+  jobId,
+  currentRepo,
+  isBaseline,
+  times,
+  props,
+) => {
+  const { isBaseAggregate, notify, retriggerJob, getJob } = props;
+
+  // do not retrigger if the base is aggregate (there is a selected time range)
+  if (isBaseline && isBaseAggregate) {
+    return;
+  }
+
+  if (jobId) {
+    const job = await getJob(currentRepo.name, jobId);
+    retriggerJob([job], currentRepo, notify, times);
+  }
+};
+
+export const retriggerJobs = async (results, times, props) => {
+  // retrigger base revision jobs
+  const { projects } = props;
+
+  retriggerByRevision(
+    results.originalRetriggerableJobId,
+    RepositoryModel.getRepo(results.originalRepoName, projects),
+    true,
+    times,
+    props,
+  );
+  // retrigger new revision jobs
+  retriggerByRevision(
+    results.newRetriggerableJobId,
+    RepositoryModel.getRepo(results.newRepoName, projects),
+    false,
+    times,
+    props,
+  );
 };
