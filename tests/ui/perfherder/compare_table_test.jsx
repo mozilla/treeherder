@@ -91,13 +91,11 @@ const getMockRetrigger = data => {
 
 const regexComptableHeaderId = /table-header-\d+/;
 const regexComptableRowId = /table-row-\d+/;
+const mockHandlePermalinkClick = jest.fn();
 
 afterEach(cleanup);
 
-const compareTableControlsNode = (onPermalinkClick, userLoggedIn = false) => {
-  // eslint-disable-next-line no-unused-vars
-  const handlePermalinkClick = onPermalinkClick || (hashBasedValue => {});
-
+const compareTableControlsNode = (userLoggedIn = false) => {
   return (
     <CompareTableControls
       compareResults={results}
@@ -105,14 +103,14 @@ const compareTableControlsNode = (onPermalinkClick, userLoggedIn = false) => {
       user={{ isLoggedIn: userLoggedIn }}
       notify={() => {}}
       isBaseAggregate={false}
-      onPermalinkClick={handlePermalinkClick}
+      onPermalinkClick={mockHandlePermalinkClick}
       projects={projects}
     />
   );
 };
 
-const compareTableControls = (onPermalinkClick, userLoggedIn = false) =>
-  render(compareTableControlsNode(onPermalinkClick, userLoggedIn));
+const compareTableControls = (userLoggedIn = false) =>
+  render(compareTableControlsNode(userLoggedIn));
 
 const compareTable = (
   userLoggedIn,
@@ -233,10 +231,7 @@ test('table header & rows all have hash-based ids', async () => {
 });
 
 test('clicking compare table permalinks callbacks with unique hash-based ids', async () => {
-  const mockHandlePermalinkClick = jest.fn();
-  const { getByTitle, getAllByTitle } = compareTableControls(
-    mockHandlePermalinkClick,
-  );
+  const { getByTitle, getAllByTitle } = compareTableControls();
 
   const compareTablePermalink = await waitForElement(() =>
     getByTitle('Permalink to this test table'),
@@ -263,12 +258,12 @@ test('clicking compare table permalinks callbacks with unique hash-based ids', a
 });
 
 test('retrigger buttons should appear only when the user is logged in', async () => {
-  const { queryAllByTitle, rerender } = compareTableControls(() => {}, false);
+  const { queryAllByTitle, rerender } = compareTableControls(false);
   let retriggerButtons = queryAllByTitle(compareTableText.retriggerButtonTitle);
   expect(retriggerButtons).toHaveLength(0);
 
   // simulate login
-  rerender(compareTableControlsNode(() => {}, true));
+  rerender(compareTableControlsNode(true));
 
   retriggerButtons = queryAllByTitle(compareTableText.retriggerButtonTitle);
   expect(retriggerButtons).toHaveLength(2);
