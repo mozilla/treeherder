@@ -627,8 +627,16 @@ export const getSeriesData = async (
   return updates;
 };
 
+export const scrollWithOffset = function scrollWithOffset(el) {
+  // solution from https://github.com/rafrex/react-router-hash-link/issues/25#issuecomment-536688104
+
+  const yCoordinate = el.getBoundingClientRect().top + window.pageYOffset;
+  const yOffset = -35;
+  window.scrollTo({ top: yCoordinate + yOffset, behavior: 'smooth' });
+};
+
 export const onPermalinkClick = (hashBasedValue, props) => {
   const { history, location } = props;
-
+  // scrollWithOffset()
   history.replace(`${location.pathname}${location.search}#${hashBasedValue}`);
 };

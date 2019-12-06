@@ -455,8 +455,6 @@ fieldset[disabled] .btn-view-nav-closed.active {
 /* Used by Perfherder and IFV */
 .top-navbar {
   background-color: #222;
-  height: 34px;
-  position: absolute;
 }
 
 .navbar-link {

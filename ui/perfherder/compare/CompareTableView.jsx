@@ -16,10 +16,9 @@ import {
   perfSummaryEndpoint,
   createQueryParams,
 } from '../../helpers/url';
-import { getFrameworkData } from '../helpers';
+import { getFrameworkData, scrollWithOffset } from '../helpers';
 import TruncatedText from '../../shared/TruncatedText';
 import LoadingSpinner from '../../shared/LoadingSpinner';
-import { scrollToLine } from '../../helpers/utils';
 
 import RevisionInformation from './RevisionInformation';
 import ComparePageTitle from './ComparePageTitle';
@@ -53,18 +52,18 @@ export default class CompareTableView extends React.Component {
     } else {
       this.getPerformanceData();
     }
+
+    if (location.hash) {
+      setTimeout(() => {
+        const el = document.querySelector(location.hash);
+        if (el) scrollWithOffset(el);
+      }, 1500);
+    }
   }
 
   componentDidUpdate(prevProps) {
-    const { loading } = this.state;
-    const { hashFragment } = this.props;
-
     if (this.props.location.search !== prevProps.location.search) {
       this.getPerformanceData();
-    }
-
-    if (!loading && hashFragment) {
-      scrollToLine(hashFragment, 100);
     }
   }
 
