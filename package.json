@@ -18,7 +18,7 @@
     "@fortawesome/free-brands-svg-icons": "5.11.2",
     "@fortawesome/free-regular-svg-icons": "5.11.2",
     "@fortawesome/free-solid-svg-icons": "5.11.2",
-    "@fortawesome/react-fontawesome": "0.1.7",
+    "@fortawesome/react-fontawesome": "0.1.8",
     "@neutrinojs/copy": "9.0.0-rc.5",
     "@neutrinojs/react": "9.0.0-rc.5",
     "@types/prop-types": "*",
