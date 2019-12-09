@@ -263,6 +263,10 @@ th {
   cursor: default;
 }
 
+.compare-table th h3 {
+  font-size: inherit;
+}
+
 .compare-table .subtest-header > th,
 .compare-table .subtest-header a,
 .compare-table .subtest-header button {

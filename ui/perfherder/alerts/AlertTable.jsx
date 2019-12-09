@@ -248,6 +248,17 @@ export default class AlertTable extends React.Component {
                   </tr>
                 </thead>
                 <tbody>
+                  <tr>
+                    <th>&nbsp;</th>
+                    <th>&nbsp;</th>
+                    <th>Alert Name</th>
+                    <th>&nbsp;</th>
+                    <th>&nbsp;</th>
+                    <th>&nbsp;</th>
+                    <th>Detail Hint</th>
+                    <th>Magnitude</th>
+                    <th>Confidence</th>
+                  </tr>
                   {filteredAlerts.map(alert => (
                     <AlertTableRow
                       key={alert.id}
