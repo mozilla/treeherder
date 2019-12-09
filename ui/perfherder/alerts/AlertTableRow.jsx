@@ -17,6 +17,7 @@ import SimpleTooltip from '../../shared/SimpleTooltip';
 import ProgressBar from '../ProgressBar';
 import {
   alertStatusMap,
+  backfillRetriggeredTitle,
   phDefaultTimeRangeValue,
   phTimeRanges,
 } from '../constants';
@@ -123,6 +124,19 @@ export default class AlertTableRow extends React.Component {
     }
   };
 
+  renderAlertStatus = (alert, alertStatus, statusColor) => {
+    return (
+      <React.Fragment>
+        (<span className={statusColor}>{alertStatus}</span>
+        {alert.related_summary_id && this.getReassignment(alert)}
+        {alert.backfill_record ? (
+          <span className="text-info">, important</span>
+        ) : null}
+        )
+      </React.Fragment>
+    );
+  };
+
   getTitleText = (alert, alertStatus) => {
     const { repository, framework, id } = this.props.alertSummary;
 
@@ -143,11 +157,14 @@ export default class AlertTableRow extends React.Component {
     const timeRange = this.getTimeRange();
     return (
       <span>
-        <span className={textEffect} id={`alert ${alert.id} title`}>
+        <span
+          className={textEffect}
+          id={`alert ${alert.id} title`}
+          title={alert.backfill_record ? backfillRetriggeredTitle : ''}
+        >
           {alert.title}
         </span>{' '}
-        (<span className={statusColor}>{alertStatus}</span>
-        {alert.related_summary_id && this.getReassignment(alert)}){' '}
+        {this.renderAlertStatus(alert, alertStatus, statusColor)}
         <span className="result-links">
           <a
             href={getGraphsURL(alert, timeRange, repository, framework)}

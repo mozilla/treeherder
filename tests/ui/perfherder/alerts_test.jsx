@@ -11,7 +11,10 @@ import {
 
 import AlertsViewControls from '../../../ui/perfherder/alerts/AlertsViewControls';
 import optionCollectionMap from '../mock/optionCollectionMap';
-import { summaryStatusMap } from '../../../ui/perfherder/constants';
+import {
+  backfillRetriggeredTitle,
+  summaryStatusMap,
+} from '../../../ui/perfherder/constants';
 import repos from '../mock/repositories';
 
 const testUser = {
@@ -110,6 +113,7 @@ const testAlertSummaries = [
       {
         id: 69526,
         status: 0,
+        backfill_record: {},
         series_signature: {
           id: 1948230,
           framework_id: 1,
@@ -542,6 +546,15 @@ test("Clicking on 'Take' prefills with logged in user", async () => {
   await waitForElement(() =>
     getByDisplayValue('mozilla-ldap/test_user@mozilla.com'),
   );
+});
+
+test('Alerts retriggered by the backfill bot have a title', async () => {
+  const { queryAllByTitle } = alertsViewControls();
+
+  const titles = await waitForElement(() =>
+    queryAllByTitle(backfillRetriggeredTitle),
+  );
+  expect(titles).toHaveLength(1);
 });
 
 // TODO should write tests for alert summary dropdown menu actions performed in StatusDropdown
