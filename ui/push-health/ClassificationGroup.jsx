@@ -9,7 +9,6 @@ import {
 import {
   Row,
   Collapse,
-  Badge,
   ButtonGroup,
   ButtonDropdown,
   Button,
@@ -76,10 +75,9 @@ class ClassificationGroup extends React.PureComponent {
     return (
       <Row className={`justify-content-between ${className}`}>
         <h4 className="w-100">
-          <Badge
-            className="pointable w-100"
+          <Button
+            className={`pointable badge badge-${headerColor} w-100`}
             onClick={this.toggleDetails}
-            color={headerColor}
           >
             {name} : {Object.keys(group).length}
             <FontAwesomeIcon
@@ -87,7 +85,7 @@ class ClassificationGroup extends React.PureComponent {
               className="ml-1"
               title="expand"
             />
-          </Badge>
+          </Button>
         </h4>
         <Collapse isOpen={detailsShowing} className="w-100">
           {hasRetriggerAll && (

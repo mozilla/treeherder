@@ -15,17 +15,11 @@ import {
   faRedo,
   faThumbtack,
   faTimesCircle,
-  faCrosshairs,
 } from '@fortawesome/free-solid-svg-icons';
 
 import { thEvents } from '../../../helpers/constants';
 import { formatTaskclusterError } from '../../../helpers/errorMessage';
-import {
-  isReftest,
-  isPerfTest,
-  isTestIsolatable,
-  findJobInstance,
-} from '../../../helpers/job';
+import { isReftest, isPerfTest, isTestIsolatable } from '../../../helpers/job';
 import { getInspectTaskUrl, getReftestUrl } from '../../../helpers/url';
 import JobModel from '../../../models/job';
 import TaskclusterModel from '../../../models/taskcluster';
@@ -488,21 +482,6 @@ class ActionBar extends React.PureComponent {
                   </a>
                 </li>
               ))}
-            <li>
-              <Button
-                id="find-job-btn"
-                title="Scroll to selection"
-                className="actionbar-nav-btn btn icon-blue bg-transparent border-0"
-                onClick={() =>
-                  findJobInstance(jobLogUrls[0] && jobLogUrls[0].job_id, true)
-                }
-              >
-                <FontAwesomeIcon
-                  icon={faCrosshairs}
-                  title="Find job instance"
-                />
-              </Button>
-            </li>
             {this.canCancel() && (
               <li>
                 <Button
@@ -541,28 +520,23 @@ class ActionBar extends React.PureComponent {
                 </DropdownItem>
                 {selectedJobFull.task_id && (
                   <React.Fragment>
-                    <li>
-                      <a
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="dropdown-item pl-4"
-                        href={getInspectTaskUrl(
-                          selectedJobFull.task_id,
-                          currentRepo.tc_root_url,
-                          selectedJobFull.submit_timestamp,
-                        )}
-                      >
-                        Inspect Task
-                      </a>
-                    </li>
-                    <li>
-                      <Button
-                        className="dropdown-item py-2"
-                        onClick={this.createInteractiveTask}
-                      >
-                        Create Interactive Task
-                      </Button>
-                    </li>
+                    <DropdownItem
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="pl-4"
+                      href={getInspectTaskUrl(
+                        selectedJobFull.task_id,
+                        currentRepo.tc_root_url,
+                      )}
+                    >
+                      Inspect Task
+                    </DropdownItem>
+                    <DropdownItem
+                      className="py-2"
+                      onClick={this.createInteractiveTask}
+                    >
+                      Create Interactive Task
+                    </DropdownItem>
                     {isPerfTest(selectedJobFull) && (
                       <DropdownItem
                         className="py-2"

@@ -5,9 +5,10 @@ import {
   faPlusSquare,
   faMinusSquare,
 } from '@fortawesome/free-regular-svg-icons';
-import { Button, Badge, Row, Col, Collapse, Card, CardBody } from 'reactstrap';
+import { Badge, Row, Col, Collapse, Card, CardBody, Button } from 'reactstrap';
 
 import { resultColorMap } from './helpers';
+import TestFailure from './TestFailure';
 
 export default class Metric extends React.PureComponent {
   constructor(props) {
@@ -16,7 +17,7 @@ export default class Metric extends React.PureComponent {
     const { result } = this.props;
 
     this.state = {
-      detailsShowing: !['pass', 'none'].includes(result),
+      detailsShowing: result !== 'pass',
     };
   }
 
@@ -26,7 +27,17 @@ export default class Metric extends React.PureComponent {
 
   render() {
     const { detailsShowing } = this.state;
-    const { result, name, children } = this.props;
+    const {
+      result,
+      name,
+      details,
+      failures,
+      repo,
+      revision,
+      user,
+      notify,
+      currentRepo,
+    } = this.props;
     const resultColor = resultColorMap[result];
     const expandIcon = detailsShowing ? faMinusSquare : faPlusSquare;
 
@@ -36,7 +47,10 @@ export default class Metric extends React.PureComponent {
           <div className={`bg-${resultColor} pr-2 mr-2`} />
           <Col>
             <Row className="justify-content-between">
-              <Button onClick={this.toggleDetails} outline className="border-0">
+              <Button
+                onClick={this.toggleDetails}
+                className="bg-transparent text-body border-0"
+              >
                 <span className="metric-name align-top font-weight-bold">
                   {name}
                 </span>
@@ -52,7 +66,24 @@ export default class Metric extends React.PureComponent {
             </Row>
             <Collapse isOpen={detailsShowing}>
               <Card>
-                <CardBody>{children}</CardBody>
+                <CardBody>
+                  {name === 'Tests' && (
+                    <TestFailure
+                      failures={failures}
+                      repo={repo}
+                      currentRepo={currentRepo}
+                      revision={revision}
+                      user={user}
+                      notify={notify}
+                    />
+                  )}
+                  {details &&
+                    details.map(detail => (
+                      <div key={detail} className="ml-3">
+                        {detail}
+                      </div>
+                    ))}
+                </CardBody>
               </Card>
             </Collapse>
           </Col>
@@ -63,7 +94,18 @@ export default class Metric extends React.PureComponent {
 }
 
 Metric.propTypes = {
+  repo: PropTypes.string.isRequired,
+  currentRepo: PropTypes.object.isRequired,
+  revision: PropTypes.string.isRequired,
   result: PropTypes.string.isRequired,
   name: PropTypes.string.isRequired,
-  children: PropTypes.object.isRequired,
+  user: PropTypes.object.isRequired,
+  notify: PropTypes.func.isRequired,
+  details: PropTypes.array,
+  failures: PropTypes.object,
+};
+
+Metric.defaultProps = {
+  details: null,
+  failures: null,
 };

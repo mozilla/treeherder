@@ -1,8 +1,6 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import { Badge, FormGroup, Input } from 'reactstrap';
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faTimes } from '@fortawesome/free-solid-svg-icons';
+import { Badge, FormGroup, Input, Button } from 'reactstrap';
 
 import { legendCardText } from '../constants';
 
@@ -90,36 +88,37 @@ const LegendCard = ({
     const framework = frameworks.find(item => item.id === frameworkId);
     return framework ? framework.name : legendCardText.unknownFrameworkMessage;
   };
-  const subtitleStyle = 'p-0 mb-0 border-0 text-secondary text-left';
+  const subtitleStyle =
+    'bg-transparent p-0 my-0 border-0 text-secondary text-left btn-block';
 
   return (
     <FormGroup check className="pl-0 border">
-      <Button className="mr-3 my-2 ml-0" close onClick={removeTest} />
+      <Button className="mr-3 my-2 ml-2" close onClick={removeTest} />
       <div className={`${series.color[0]} graph-legend-card p-3`}>
         <Button
-          onClick={() => addTestData('addRelatedConfigs')}
-          className={`p-0 bg-transparent mb-0 pointer border-0 ${
+          className={`p-0 mb-0 pointer border-0 ${
             series.visible ? series.color[0] : 'text-muted'
-          } text-left`}
-          color="light"
+          } text-left bg-transparent`}
+          onClick={() => addTestData('addRelatedConfigs')}
           title="Add related configurations"
+          color="light"
         >
           {series.name}
         </Button>
         <Button
-          onClick={() => addTestData('addRelatedBranches')}
           className={subtitleStyle}
+          onClick={() => addTestData('addRelatedBranches')}
           title="Add related branches"
         >
           {series.repository_name}
         </Button>
         <Button
-          onClick={() => addTestData('addRelatedPlatform')}
           className={subtitleStyle}
+          onClick={() => addTestData('addRelatedPlatform')}
           title="Add related platforms and branches"
         >
           {series.platform}
-        </p>
+        </Button>
         <Badge> {getFrameworkName(series.framework_id)} </Badge>
         <div className="small">{`${series.signatureHash.slice(0, 16)}...`}</div>
       </div>
