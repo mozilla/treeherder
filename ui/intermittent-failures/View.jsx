@@ -114,7 +114,7 @@ const withView = defaultState => WrappedComponent => {
 
     batchBugRequests = async bugIds => {
       const urlParams = {
-        include_fields: 'id,status,summary,whiteboard',
+        include_fields: 'id,product,component,status,summary,whiteboard',
       };
       // TODO: bump up the max to ~1200 when this bug is fixed:
       // https://bugzilla.mozilla.org/show_bug.cgi?id=1497721

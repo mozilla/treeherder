@@ -45,6 +45,7 @@ const MainView = props => {
       headerClassName: 'bug-column-header',
       className: 'bug-column',
       maxWidth: 150,
+      width: 115,
       Cell: _props => (
         <BugColumn
           data={_props.original}
@@ -63,6 +64,18 @@ const MainView = props => {
       accessor: 'count',
       maxWidth: 100,
       filterable: false,
+    },
+    {
+      Header: 'Product',
+      accessor: 'product',
+      maxWidth: 100,
+      filterMethod: (filter, row) => textFilter(filter, row),
+    },
+    {
+      Header: 'Component',
+      accessor: 'component',
+      maxWidth: 100,
+      filterMethod: (filter, row) => textFilter(filter, row),
     },
     {
       Header: 'Summary',
