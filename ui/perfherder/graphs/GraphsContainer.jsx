@@ -1,6 +1,3 @@
-/* eslint-disable react/no-did-update-set-state */
-/* eslint-disable jsx-a11y/no-static-element-interactions */
-
 // disabling due to a new bug with this rule: https://github.com/eslint/eslint/issues/12117
 /* eslint-disable no-unused-vars */
 import React from 'react';
@@ -14,12 +11,12 @@ import {
   VictoryLabel,
   VictoryScatter,
   createContainer,
+  VictoryTooltip,
+  VictoryPortal,
 } from 'victory';
 import moment from 'moment';
 import debounce from 'lodash/debounce';
 import last from 'lodash/last';
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faTimes } from '@fortawesome/free-solid-svg-icons';
 
 import { formatNumber } from '../helpers';
 
@@ -30,8 +27,6 @@ const VictoryZoomSelectionContainer = createContainer('zoom', 'selection');
 class GraphsContainer extends React.Component {
   constructor(props) {
     super(props);
-    this.updateZoom = debounce(this.updateZoom.bind(this), 500);
-    this.hideTooltip = debounce(this.hideTooltip.bind(this), 250);
     this.tooltip = React.createRef();
     this.leftChartPadding = 25;
     this.rightChartPadding = 10;
@@ -40,9 +35,8 @@ class GraphsContainer extends React.Component {
       scatterPlotData: this.props.testData.flatMap(item =>
         item.visible ? item.data : [],
       ),
-      showTooltip: false,
       lockTooltip: false,
-      dataPoint: this.props.selectedDataPoint,
+      externalMutation: undefined,
     };
   }
 
@@ -72,12 +66,8 @@ class GraphsContainer extends React.Component {
       this.updateGraphs();
     }
 
-    if (prevProps.timeRange !== timeRange && this.state.dataPoint) {
-      this.setState({
-        dataPoint: null,
-        showTooltip: false,
-        lockTooltip: false,
-      });
+    if (prevProps.timeRange !== timeRange) {
+      this.closeTooltip();
     }
   }
 
@@ -96,8 +86,7 @@ class GraphsContainer extends React.Component {
     });
 
     if (dataPointFound) {
-      this.setState({ dataPoint: selectedDataPoint });
-      this.showTooltip(selectedDataPoint, true);
+      this.showTooltip(selectedDataPoint);
     } else {
       updateStateParams({
         errorMessages: [
@@ -162,27 +151,9 @@ class GraphsContainer extends React.Component {
     top: point.y - yOffset,
   });
 
-  showTooltip = (dataPoint, lock) => {
-    const position = this.getTooltipPosition(dataPoint);
-    this.hideTooltip.cancel();
-    this.tooltip.current.style.cssText = `left: ${position.left}px; top: ${position.top}px;`;
-
-    this.setState({
-      showTooltip: true,
-      lockTooltip: lock,
-      dataPoint,
-    });
-  };
-
   setTooltip = (dataPoint, lock = false) => {
     const { lockTooltip } = this.state;
     const { updateStateParams } = this.props;
-
-    // we don't want the mouseOver event to reposition the tooltip
-    if (lockTooltip && !lock) {
-      return;
-    }
-    this.showTooltip(dataPoint, lock);
 
     if (lock) {
       updateStateParams({
@@ -195,15 +166,10 @@ class GraphsContainer extends React.Component {
         },
       });
     }
-  };
-
-  closeTooltip = () => {
     this.setState({
-      showTooltip: false,
-      lockTooltip: false,
-      dataPoint: null,
+      lockTooltip: lock,
     });
-    this.props.updateStateParams({ selectedDataPoint: null });
+    return { active: true };
   };
 
   // The Victory library doesn't provide a way of dynamically setting the left
@@ -249,23 +215,61 @@ class GraphsContainer extends React.Component {
     return null;
   };
 
-  // debounced
-  hideTooltip() {
-    const { showTooltip, lockTooltip } = this.state;
+  hideTooltip = props =>
+    this.state.lockTooltip ? { active: true } : { active: undefined };
 
-    if (showTooltip && !lockTooltip) {
-      this.setState({ showTooltip: false });
-    }
-  }
+  // TODO can deprecate storage of x and y coordinates in selectedDataPoint
+  // and remove dataPoint state here.
+  showTooltip = selectedDataPoint => {
+    this.setState({
+      externalMutation: [
+        {
+          childName: 'scatter-plot',
+          target: 'labels',
+          eventKey: 'all',
+          mutation: props => {
+            if (props.datum.dataPointId === selectedDataPoint.dataPointId) {
+              return { active: true };
+            }
+            return {};
+          },
+          callback: this.removeMutation,
+        },
+      ],
+      lockTooltip: true,
+    });
+  };
 
-  // debounced
+  closeTooltip = () => {
+    this.setState({
+      externalMutation: [
+        {
+          childName: 'scatter-plot',
+          target: 'labels',
+          eventKey: 'all',
+          mutation: () => ({ active: false }),
+          callback: this.removeMutation,
+        },
+      ],
+      lockTooltip: false,
+    });
+    this.props.updateStateParams({ selectedDataPoint: null });
+  };
+
+  removeMutation = () => {
+    this.setState({
+      externalMutation: undefined,
+    });
+  };
+
   updateZoom(zoom) {
-    const { showTooltip, lockTooltip } = this.state;
+    const { lockTooltip } = this.state;
+    const { updateStateParams } = this.props;
 
-    if (showTooltip && lockTooltip) {
+    if (lockTooltip) {
       this.closeTooltip();
     }
-    this.props.updateStateParams({ zoom });
+    updateStateParams({ zoom });
   }
 
   render() {
@@ -273,9 +277,8 @@ class GraphsContainer extends React.Component {
     const {
       highlights,
       scatterPlotData,
-      showTooltip,
       lockTooltip,
-      dataPoint,
+      externalMutation,
     } = this.state;
 
     const yAxisLabel = this.computeYAxisLabel();
@@ -301,26 +304,6 @@ class GraphsContainer extends React.Component {
 
     return (
       <React.Fragment>
-        <div
-          data-testid="graph-tooltip"
-          className={`graph-tooltip ${showTooltip ? 'show' : 'hide'} ${
-            lockTooltip ? 'locked' : ''
-          }`}
-          ref={this.tooltip}
-        >
-          <span className="close mr-3 my-2 ml-2" onClick={this.closeTooltip}>
-            <FontAwesomeIcon
-              className="pointer text-white"
-              icon={faTimes}
-              size="xs"
-              title="close tooltip"
-            />
-          </span>
-          {dataPoint && showTooltip && (
-            <GraphTooltip dataPoint={dataPoint} {...this.props} />
-          )}
-          <div className="tip" />
-        </div>
         <Row>
           <Col className="p-0 col-md-auto">
             <VictoryChart
@@ -367,12 +350,14 @@ class GraphsContainer extends React.Component {
         <Row>
           <Col className="p-0 col-md-auto">
             <VictoryChart
+              name="chart1"
               padding={chartPadding}
               width={1350}
               height={400}
               style={{ parent: { maxHeight: '400px', maxWidth: '1350px' } }}
               scale={{ x: 'time', y: 'linear' }}
               domainPadding={{ y: 40 }}
+              externalEventMutations={externalMutation}
               containerComponent={
                 <VictoryZoomSelectionContainer
                   zoomDomain={zoom}
@@ -381,6 +366,49 @@ class GraphsContainer extends React.Component {
                   allowZoom={false}
                 />
               }
+              events={[
+                {
+                  childName: 'scatter-plot',
+                  target: 'data',
+                  eventHandlers: {
+                    onClick: () => {
+                      return [
+                        {
+                          target: 'labels',
+                          eventKey: 'all',
+                          mutation: () => {},
+                        },
+                        {
+                          target: 'labels',
+                          mutation: props => this.setTooltip(props, true),
+                        },
+                      ];
+                    },
+                    onMouseOver: () => {
+                      return [
+                        {
+                          target: 'labels',
+                          mutation: () => {},
+                        },
+                        {
+                          target: 'labels',
+                          mutation: props => this.setTooltip(props),
+                        },
+                      ];
+                    },
+                    onMouseOut: () => {
+                      return [
+                        {
+                          target: 'labels',
+                          mutation: props => this.hideTooltip(props),
+                        },
+                      ];
+                    },
+                    // work-around to allow onClick events with VictorySelection container
+                    onMouseDown: evt => evt.stopPropagation(),
+                  },
+                },
+              ]}
             >
               {highlights.length > 0 &&
                 highlights.map(item => (
@@ -394,6 +422,7 @@ class GraphsContainer extends React.Component {
                 ))}
 
               <VictoryScatter
+                name="scatter-plot"
                 style={{
                   data: {
                     fill: ({ datum }) =>
@@ -416,38 +445,20 @@ class GraphsContainer extends React.Component {
                 }}
                 size={() => 5}
                 data={scatterPlotData}
-                events={[
-                  {
-                    target: 'data',
-                    eventHandlers: {
-                      onClick: () => {
-                        return [
-                          {
-                            target: 'data',
-                            mutation: props => this.setTooltip(props, true),
-                          },
-                        ];
-                      },
-                      onMouseOver: () => {
-                        return [
-                          {
-                            target: 'data',
-                            mutation: props => this.setTooltip(props),
-                          },
-                        ];
-                      },
-                      onMouseOut: () => {
-                        return [
-                          {
-                            target: 'data',
-                            callback: this.hideTooltip,
-                          },
-                        ];
-                      },
-                      onMouseDown: evt => evt.stopPropagation(),
-                    },
-                  },
-                ]}
+                labels={() => ''}
+                labelComponent={
+                  <VictoryTooltip
+                    flyoutComponent={
+                      <VictoryPortal>
+                        <GraphTooltip
+                          lockTooltip={lockTooltip}
+                          closeTooltip={this.closeTooltip}
+                          {...this.props}
+                        />
+                      </VictoryPortal>
+                    }
+                  />
+                }
               />
               <VictoryAxis
                 dependentAxis
