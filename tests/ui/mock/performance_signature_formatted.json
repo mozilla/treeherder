@@ -5,6 +5,7 @@
     "testName": "a11yr",
     "suite": "a11yr",
     "test": null,
+    "tags": ["ry11a"],
     "signature": "fcefb979eac44d057f9c05434580ce7845f4c2d6",
     "hasSubtests": true,
     "parentSignature": null,

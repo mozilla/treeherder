@@ -205,9 +205,12 @@ export default class TestDataModal extends React.Component {
 
   updateFilterText = filterText => {
     const { seriesData } = this.state;
-    const filteredData = seriesData.filter(test =>
-      containsText(test.name, filterText),
-    );
+    const filteredData = seriesData.filter(test => {
+      const tags = test.tags.join(' ');
+      const textToSearch = `${test.name} ${tags}`;
+
+      return containsText(textToSearch, filterText);
+    });
     this.setState({ filteredData, filterText });
   };
 

@@ -66,10 +66,11 @@ def test_no_summary_performance_data(client, test_perf_signature,
             'id': test_perf_signature.id,
             'test': test_perf_signature.test,
             'suite': test_perf_signature.suite,
+            'tags': test_perf_signature.tags.split(' '),
             'option_collection_hash': test_perf_signature.option_collection.option_collection_hash,
             'framework_id': test_perf_signature.framework.id,
             'machine_platform': test_perf_signature.platform.platform,
-            'extra_options': test_perf_signature.extra_options.split(' ')
+            'extra_options': test_perf_signature.extra_options.split(' '),
         }
     }
 
@@ -143,8 +144,7 @@ def test_summary_performance_data(client, test_repository,
     assert resp.status_code == 200
 
     assert len(resp.data.keys()) == 2
-    assert set(resp.data.keys()) == set([test_perf_signature.signature_hash,
-                                         summary_signature_hash])
+    assert set(resp.data.keys()) == {test_perf_signature.signature_hash, summary_signature_hash}
 
     for signature in [summary_perf_signature, test_perf_signature]:
         expected = {
@@ -158,6 +158,9 @@ def test_summary_performance_data(client, test_repository,
             expected['test'] = signature.test
         if signature.has_subtests:
             expected['has_subtests'] = True
+        if signature.tags:
+            # tags stored as charField but api returns as list
+            expected['tags'] = signature.tags.split(' ')
         if signature.parent_signature:
             expected['parent_signature'] = signature.parent_signature.signature_hash
         if signature.extra_options:
@@ -211,7 +214,7 @@ def test_filter_data_by_framework(client, test_repository, test_perf_signature,
     assert resp.status_code == 200
     datums = resp.data[test_perf_signature.signature_hash]
     assert len(datums) == 2
-    assert set([datum['signature_id'] for datum in datums]) == set([1, 2])
+    assert set(datum['signature_id'] for datum in datums) == {1, 2}
 
     # Filtering by first framework
     resp = client.get(reverse('performance-data-list',
@@ -236,7 +239,7 @@ def test_filter_data_by_framework(client, test_repository, test_perf_signature,
     assert datums[0]['signature_id'] == 2
 
 
-def test_filter_signatures_by_interval(client, test_repository, test_perf_signature):
+def test_filter_signatures_by_interval(client, test_perf_signature):
     # interval for the last 24 hours, only one signature exists last updated within that timeframe
     resp = client.get(reverse('performance-signatures-list',
                               kwargs={
@@ -251,7 +254,7 @@ def test_filter_signatures_by_interval(client, test_repository, test_perf_signat
     (SEVEN_DAYS_AGO, ONE_DAY_AGO, 1, 1),
     (THREE_DAYS_AGO, '', 1, 1),
     (ONE_DAY_AGO, '', 0, 0)])
-def test_filter_signatures_by_range(client, test_repository, test_perf_signature,
+def test_filter_signatures_by_range(client, test_perf_signature,
                                     start_date, end_date, exp_count, exp_id):
     # set signature last updated to 3 days ago
     test_perf_signature.last_updated = THREE_DAYS_AGO
@@ -393,6 +396,7 @@ def test_perf_summary(client, test_perf_signature, test_perf_data):
         'test': test_perf_signature.test,
         'lower_is_better': test_perf_signature.lower_is_better,
         'has_subtests': test_perf_signature.has_subtests,
+        'tags': test_perf_signature.tags,
         'values': [test_perf_data[0].value],
         'name': 'mysuite mytest opt e10s opt',
         'parent_signature': None,
