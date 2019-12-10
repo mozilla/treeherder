@@ -23,7 +23,7 @@ production site. You do not need to set up the Docker environment unless making 
 - Start the development server by running:
 
   ```bash
-  $ yarn start
+  yarn start
   ```
 
   <!-- prettier-ignore -->
@@ -37,7 +37,7 @@ production site. You do not need to set up the Docker environment unless making 
   To run the unminified UI with data from the staging site instead of the production site, type:
 
   ```bash
-  $ yarn start:stage
+  yarn start:stage
   ```
 
 ## Server and Full-stack Development
@@ -131,26 +131,17 @@ Ingestion tasks populate the database with version control push logs, queued/run
 
 - Then in a new terminal window, run `docker-compose run backend bash`, and follow the steps from the [loading pulse data](pulseload.md) page.
 
-### Ingesting a single push (at a time)
+### Manual ingestion
 
-<!-- prettier-ignore -->
-!!! warning
-    With the end of life of buildbot, this command is no longer able to ingest jobs.
-    For now, after running it, you will need to manually follow the steps from the
-    [loading pulse data](pulseload.md) page.
+`NOTE`; You have to include `--root-url https://community-tc.services.mozilla.com` in order to ingest from the [Taskcluster Community instance](https://community-tc.services.mozilla.com), otherwise, it will default to the Firefox CI.
 
-Alternatively, instead of running a full ingestion task, you can process just
-the jobs associated with any single push generated in the last 4 hours
-([builds-4h]), in a synchronous manner. This is ideal for testing. For example:
-
-[builds-4h]: http://builddata.pub.build.mozilla.org/buildjson/
+#### Ingesting pushes & tasks
 
 ```bash
-docker-compose run backend ./manage.py ingest_push mozilla-inbound 63f8a47cfdf5
+docker-compose run backend ./manage.py ingest push -p autoland -r 63f8a47cfdf5
 ```
 
-If running this locally, replace `63f8a47cfdf5` with a recent revision (= pushed within
-the last four hours) on mozilla-inbound.
+`NOTE`: In the future you will also be able to append `--ingest-all-tasks` to ingest all tasks.
 
 ### Ingesting a range of pushes
 
@@ -160,10 +151,29 @@ It is also possible to ingest the last N pushes for a repository:
 docker-compose run backend ./manage.py ingest_push mozilla-central --last-n-pushes 100
 ```
 
-In this mode, only the pushlog data will be ingested: additional results
+In this mode, only the push information will be ingested: tasks
 associated with the pushes will not. This mode is useful to seed pushes so
 they are visible on the web interface and so you can easily copy and paste
-changesets from the web interface into subsequent `ingest_push` commands.
+changesets from the web interface into subsequent commands to ingest all tasks.
+
+#### Ingesting Github PRs
+
+`NOTE`: This will only ingest the commits if there's an active Github PRs project. It will only ingest the commits.
+
+```bash
+docker-compose run backend ./manage.py ingest pr --pr-url https://github.com/mozilla-mobile/android-components/pull/4821
+```
+
+#### Ingesting individual task
+
+This will work if the push associated to the task exists in the database.
+
+```bash
+# Make sure to ingest 1bd9d4f431c4c9f93388bd04a6368cb07398f646 for autoland first
+docker-compose run backend ./manage.py ingest task --task-id KQ5h1BVYTBy_XT21wFpLog
+```
+
+## Learn more
 
 Continue to **Working with the Server** section after looking at the [Code Style](code_style.md) doc.
 
