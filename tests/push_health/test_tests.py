@@ -1,5 +1,5 @@
+from treeherder.model.models import Push
 from treeherder.push_health.tests import get_test_failures
-from treeherder.model.models import FailureLine, Push
 
 
 # Should get no unsupported, even though some FailureLines are just "log"
@@ -14,4 +14,3 @@ def test_get_current_failures_with_log(sample_push, test_job, failure_line_logs)
 
     assert len(test_failures['needInvestigation']) == 2
     assert len(test_failures['unsupported']) == 0
-
