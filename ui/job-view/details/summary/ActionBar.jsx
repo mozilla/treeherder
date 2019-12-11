@@ -509,6 +509,7 @@ class ActionBar extends React.PureComponent {
               </DropdownToggle>
               <DropdownMenu className="dropdown-menu actionbar-menu dropdown-menu-right">
                 <DropdownItem
+                  tag="a"
                   id="backfill-btn"
                   className={`${
                     !user.isLoggedIn || !this.canBackfill() ? 'disabled' : ''
@@ -521,6 +522,7 @@ class ActionBar extends React.PureComponent {
                 {selectedJobFull.task_id && (
                   <React.Fragment>
                     <DropdownItem
+                      tag="a"
                       target="_blank"
                       rel="noopener noreferrer"
                       className="pl-4"
@@ -532,6 +534,7 @@ class ActionBar extends React.PureComponent {
                       Inspect Task
                     </DropdownItem>
                     <DropdownItem
+                      tag="a"
                       className="py-2"
                       onClick={this.createInteractiveTask}
                     >
@@ -539,6 +542,7 @@ class ActionBar extends React.PureComponent {
                     </DropdownItem>
                     {isPerfTest(selectedJobFull) && (
                       <DropdownItem
+                        tag="a"
                         className="py-2"
                         onClick={this.createGeckoProfile}
                       >
@@ -546,11 +550,15 @@ class ActionBar extends React.PureComponent {
                       </DropdownItem>
                     )}
                     {isTestIsolatable(selectedJobFull) && (
-                      <DropdownItem className="py-2" onClick={this.isolateJob}>
+                      <DropdownItem
+                        tag="a"
+                        className="py-2"
+                        onClick={this.isolateJob}
+                      >
                         Run Isolation Tests
                       </DropdownItem>
                     )}
-                    <DropdownItem onClick={this.toggleCustomJobActions}>
+                    <DropdownItem tag="a" onClick={this.toggleCustomJobActions}>
                       Custom Action...
                     </DropdownItem>
                   </React.Fragment>
