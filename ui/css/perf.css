@@ -207,8 +207,21 @@ h1 {
 
 .push-information {
   font-size: 18px;
-  color: #777;
+  color: #555;
   margin-left: -4px;
+  display: grid;
+  grid-template-columns: 1fr auto 1fr;
+  gap: 2rem;
+}
+
+.push-information-revisions {
+  list-style: none;
+  font-size: 0.7em;
+  font-style: italic;
+  color: #757575;
+  padding: 0;
+  padding-top: 5px;
+  text-align: left;
 }
 
 .vertical-box {

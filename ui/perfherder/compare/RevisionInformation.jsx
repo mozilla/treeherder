@@ -4,6 +4,21 @@ import { ListGroup, ListGroupItem } from 'reactstrap';
 
 import { getJobsUrl } from '../../helpers/url';
 
+function getRevisionComments(resultSet) {
+  const [firstRevisionComment, ...restRevisionsComments] =
+    resultSet && Array.isArray(resultSet.revisions)
+      ? resultSet.revisions.map(r => r.comments)
+      : [];
+  const revisionCommentsTitle = restRevisionsComments.join('\n');
+
+  return firstRevisionComment ? (
+    <ul className="push-information-revisions">
+      <li>{firstRevisionComment}</li>
+      {revisionCommentsTitle && <li title={revisionCommentsTitle}>…</li>}
+    </ul>
+  ) : null;
+}
+
 function getRevisionSpecificDetails(
   revision,
   project,
@@ -27,8 +42,7 @@ function getRevisionSpecificDetails(
       &nbsp;({project}) -&nbsp;
       {resultSet && resultSet.author}
       {!resultSet && selectedTimeRange && selectedTimeRange.text}
-      {isBaseline && ' - '}
-      {resultSet ? <span>{resultSet.comments}</span> : ''}
+      {getRevisionComments(resultSet)}
     </React.Fragment>
   );
 }
@@ -45,7 +59,7 @@ export default function RevisionInformation(props) {
   } = props;
 
   return (
-    <ListGroup className="d-inline push-information m-0">
+    <ListGroup className="push-information m-0 list-group">
       {originalRevision && (
         <ListGroupItem className="d-inline border-0 p-0">
           {getRevisionSpecificDetails(
@@ -67,6 +81,7 @@ export default function RevisionInformation(props) {
           )}
         </ListGroupItem>
       )}
+      —
       {newRevision && (
         <ListGroupItem className="d-inline border-0 p-0">
           {getRevisionSpecificDetails(
