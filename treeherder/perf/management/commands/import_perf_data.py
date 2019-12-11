@@ -21,7 +21,9 @@ from treeherder.model.models import (BuildPlatform,
                                      ReferenceDataSignatures,
                                      Repository,
                                      RepositoryGroup)
-from treeherder.perf.models import (IssueTracker,
+from treeherder.perf.models import (BackfillRecord,
+                                    BackfillReport,
+                                    IssueTracker,
                                     PerformanceAlert,
                                     PerformanceAlertSummary,
                                     PerformanceDatum,
@@ -48,6 +50,20 @@ def progress_notifier(item_processor, iterable: list, item_name: str, tabs_no=0,
         if percentage % 10 == 0 and percentage != prev_percentage:
             print('{0}Fetched {1}% of {2} item(s)'.format('\t'*tabs_no, percentage, item_name))
             prev_percentage = percentage
+
+
+def _ignore_classifier(table_name, model):
+    model.classifier = None
+
+
+def _ignore_assignee(table_name, model):
+    model.assignee = None
+
+
+SENSITIVE_TABLES_MAP = {
+    'performance_alert': _ignore_classifier,
+    'performance_alert_summary': _ignore_assignee
+}
 
 
 class Data:
@@ -107,7 +123,9 @@ class DecentSizedData(Data):
 
 
 class MassiveData(Data):
-    BIG_SIZED_TABLES = [PerformanceAlertSummary,
+    BIG_SIZED_TABLES = [BackfillReport,
+                        BackfillRecord,
+                        PerformanceAlertSummary,
                         PerformanceAlert,
                         ReferenceDataSignatures,
                         PerformanceDatum,
@@ -117,7 +135,6 @@ class MassiveData(Data):
                         JobType,
                         Push,
                         BuildPlatform,
-                        MachinePlatform,
                         Machine]
 
     priority_dict = {'reference_data_signature': {'download_order': 1,
@@ -128,8 +145,6 @@ class MassiveData(Data):
                                         'model': BuildPlatform},
                      'machine': {'download_order': 1,
                                  'model': Machine},
-                     'machine_platform': {'download_order': 1,
-                                          'model': MachinePlatform},
                      'job_group': {'download_order': 1,
                                    'model': JobGroup},
                      'job_type': {'download_order': 1,
@@ -143,7 +158,11 @@ class MassiveData(Data):
                      'performance_datum': {'download_order': 3,
                                            'model': PerformanceDatum},
                      'performance_alert': {'download_order': 3,
-                                           'model': PerformanceAlert}}
+                                           'model': PerformanceAlert},
+                     'backfill_report': {'download_order': 3,
+                                         'model': BackfillReport},
+                     'backfill_record': {'download_order': 4,
+                                         'model': BackfillRecord}}
 
     def __init__(self, source, target, num_workers, frameworks, repositories, time_window,
                  progress_notifier=None, **kwargs):
@@ -183,7 +202,8 @@ class MassiveData(Data):
                                  'build_platform': interproc_instance.list(),
                                  'machine': interproc_instance.list(),
                                  'performance_signature': interproc_instance.list(),
-                                 'machine_platform': interproc_instance.list()}
+                                 'backfill_report': interproc_instance.list(),
+                                 'backfill_record': interproc_instance.list()}
 
     def delete_local_data(self):
         for model in self.BIG_SIZED_TABLES:
@@ -205,11 +225,12 @@ class MassiveData(Data):
         """
         UPSTREAM_DATABASE_URL credentials don't generally have read rights on
         the auth_user table (which contains users' password hashes).
-        Simply setting `classifier = None` won't cause access errors.
+        Simply setting `model.sensitive_field = None` won't cause access errors.
         """
-        if table_name == 'performance_alert':
+        ignore_sensitive_fields = SENSITIVE_TABLES_MAP.get(table_name)
+        if ignore_sensitive_fields is not None:
             for model in model_values:
-                model.classifier = None
+                ignore_sensitive_fields(table_name, model)
 
     def fillup_target(self, **filters):
         # fetch all alert summaries & alerts
@@ -227,8 +248,12 @@ class MassiveData(Data):
 
         processes_list = []
         num_workers = min(self.num_workers, alert_summaries_len)
+        try:
+            stop_idx = step_size = math.ceil(alert_summaries_len/num_workers)
+        except ZeroDivisionError:
+            raise RuntimeError('No alert summaries to fetch.')
+
         start_idx = 0
-        stop_idx = step_size = math.ceil(alert_summaries_len/num_workers)
         for idx in range(num_workers):
             alerts = alert_summaries[start_idx:stop_idx]
             p = Process(target=self.db_worker, args=(idx+1, alerts))
@@ -254,6 +279,7 @@ class MassiveData(Data):
         self.update_list('push', alert_summary.push)
         self.update_list('push', alert_summary.prev_push)
         self.update_list('performance_alert_summary', alert_summary)
+        self.update_list('backfill_report', alert_summary)
         # bring in all its alerts
         alerts = list(PerformanceAlert.objects
                       .using(self.source)
@@ -291,6 +317,7 @@ class MassiveData(Data):
         # we don't have access to user table...
         alert.classifier = None
         self.models_instances['performance_alert'].append(alert.id)
+        self.models_instances['backfill_record'].append(alert.id)
 
     def bring_in_performance_data(self, time_of_alert, performance_signature):
         performance_data = list(PerformanceDatum.objects
@@ -319,7 +346,6 @@ class MassiveData(Data):
 
         self.update_list('reference_data_signature', job.signature)
         self.update_list('build_platform', job.build_platform)
-        self.update_list('machine_platform', job.machine_platform)
         self.update_list('machine', job.machine)
         self.update_list('job_group', job.job_group)
         self.update_list('job_type', job.job_type)
