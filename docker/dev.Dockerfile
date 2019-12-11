@@ -33,12 +33,16 @@ ENV SHELLCHECK_VERSION="0.4.6"
 RUN curl -sSfL "https://storage.googleapis.com/shellcheck/shellcheck-v${SHELLCHECK_VERSION}.linux.x86_64.tar.xz" \
     | tar -Jx --strip-components=1 -C /usr/local/bin
 
-# /app will be mounted via a volume defined in docker-compose
-ADD . /app
-WORKDIR /app
 
+WORKDIR /app
+RUN mkdir requirements
+COPY requirements requirements
 # Common and dev deps installed separately to prove that common.txt works standalone
 # (given that dev.txt is not installed on Heroku)
-RUN pip install --no-cache-dir --disable-pip-version-check --require-hashes -r requirements/common.txt
-RUN pip install --no-cache-dir --disable-pip-version-check --require-hashes -r requirements/dev.txt
-RUN pip install --no-cache-dir --disable-pip-version-check -r requirements/docs.txt
+RUN pip install --no-cache-dir --disable-pip-version-check --require-hashes -r requirements/common.txt \
+    && pip install --no-cache-dir --disable-pip-version-check --require-hashes -r requirements/dev.txt \
+    && pip install --no-cache-dir --disable-pip-version-check -r requirements/docs.txt
+
+# /app will be mounted via a volume defined in docker-compose
+ADD . /app
+
