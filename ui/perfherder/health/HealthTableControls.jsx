@@ -32,6 +32,7 @@ export default class HealthTableControls extends React.Component {
     this.setState({ filterText }, () => this.updateFilteredResults());
   };
 
+  // eslint-disable-next-line consistent-return
   updateFilteredResults = () => {
     const { filterText } = this.state;
     const { healthResults } = this.props;

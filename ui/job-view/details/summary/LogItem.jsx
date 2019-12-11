@@ -12,7 +12,7 @@ function getLogUrlProps(logKey, logUrl, logViewerUrl, logViewerFullUrl) {
       'copy-value': logUrl.url,
     };
   }
-  const logUrl_parse_status = {
+  const logUrlParseStatus = {
     parsed: {
       target: '_blank',
       rel: 'noopener',
@@ -33,7 +33,7 @@ function getLogUrlProps(logKey, logUrl, logViewerUrl, logViewerFullUrl) {
       title: 'Log parsing in progress',
     },
   };
-  return logUrl_parse_status(logUrl.parse_status);
+  return logUrlParseStatus(logUrl.parse_status);
 }
 
 export default function LogItem(props) {
