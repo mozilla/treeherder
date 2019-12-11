@@ -1,6 +1,5 @@
-/* eslint-disable jsx-a11y/no-noninteractive-element-interactions */
-
 import React from 'react';
+import { Button } from 'reactstrap';
 import PropTypes from 'prop-types';
 
 export default class TruncatedText extends React.Component {
@@ -22,12 +21,12 @@ export default class TruncatedText extends React.Component {
           {text}
         </p>
         {text.length > maxLength && (
-          <p
+          <Button
             className={`${showMoreClass} mb-0 text-right  pointer`}
             onClick={() => this.setState({ showMoreResults: !showMoreResults })}
           >
             {`show ${showMoreResults ? 'less' : 'more'}`}
-          </p>
+          </Button>
         )}
       </React.Fragment>
     );

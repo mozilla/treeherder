@@ -248,15 +248,15 @@ export default class AlertTable extends React.Component {
                   </tr>
                 </thead>
                 <tbody>
-                  <tr>
-                    <th>&nbsp;</th>
-                    <th>&nbsp;</th>
-                    <th>Alert Name</th>
-                    <th>&nbsp;</th>
-                    <th>&nbsp;</th>
-                    <th>&nbsp;</th>
-                    <th>Detail Hint</th>
-                    <th>Magnitude</th>
+                  <tr className="border">
+                    <th> </th>
+                    <th> </th>
+                    <th>Test and platform</th>
+                    <th>Previous Value</th>
+                    <th> </th>
+                    <th>New Value</th>
+                    <th>Absolute Difference</th>
+                    <th>Magnitude of Change</th>
                     <th>Confidence</th>
                   </tr>
                   {filteredAlerts.map(alert => (
