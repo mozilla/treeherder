@@ -13,7 +13,7 @@ We need all but the main `backend` service running.  Since multiple `backend` in
 
 ### Install into virtual environment
 
-Treeherder, Django, and the required libraries will ruin you local Python install. It is best to setup a virtual environment to contain the quirks it introduces.
+Treeherder, requires specific library versions that will likely interfere with with what you have installed. It is best to setup a virtual environment to contain the quirks it introduces.
 
 Be sure you are in the `treeherder` main directory
 
@@ -51,7 +51,7 @@ Django can perform a number of checks to ensure you are configured correctly
 
 ### Run the tests
 
-Be sure you are in the `treeherder` main directory, with your virtual environment activated, and your environment variables set:
+Be sure docker-compose is up, you are in the `treeherder` main directory, your virtual environment is activated, and your environment variables are set:
 
     source venv/bin/activate
     ./tests/env.sh
