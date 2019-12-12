@@ -46,6 +46,7 @@ def create_failure_lines(job, failure_line_list,
             url='bar{}'.format(i),
             status=1
         )
+        print('create jobLog for job id: {}'.format(job.id))
         failure_line.job_log = job_log
         failure_line.save()
         failure_lines.append(failure_line)
