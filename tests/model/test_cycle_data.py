@@ -78,7 +78,7 @@ def test_cycle_all_but_one_job(test_repository, failure_classifications, sample_
         job.submit_time = cycle_date_ts
         job.save()
     num_job_logs_to_be_deleted = JobLog.objects.all().exclude(
-        id=job_not_deleted.id).count()
+        job__id=job_not_deleted.id).count()
     num_job_logs_before = JobLog.objects.count()
 
     call_command('cycle_data', 'from:treeherder', sleep_time=0, days=1, debug=True)

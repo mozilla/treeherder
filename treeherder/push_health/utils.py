@@ -1,6 +1,6 @@
 def clean_test(test_name):
     try:
-        clean_name = str(test_name)
+        clean_name = str(test_name) if test_name else 'Non-Test Error'
     except UnicodeEncodeError:
         return ''
 
