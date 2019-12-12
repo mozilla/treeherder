@@ -42,7 +42,7 @@ def create_failure_lines(job, failure_line_list,
         failure_line = FailureLine(**data)
         job_log = JobLog.objects.create(
             job=job,
-            name='{}{}'.format(base_data['test'], job.id),
+            name='{}{}'.format(base_data.get('test'), job.id),
             url='bar{}'.format(i),
             status=1
         )
