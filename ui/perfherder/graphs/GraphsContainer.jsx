@@ -416,6 +416,7 @@ class GraphsContainer extends React.Component {
 
               <VictoryScatter
                 name="scatter-plot"
+                symbol={({ datum }) => datum._z}
                 style={{
                   data: {
                     fill: ({ datum }) =>

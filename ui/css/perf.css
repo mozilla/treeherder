@@ -450,12 +450,12 @@ li.pagination-active.active > button {
 }
 
 /* graph colors */
-.blue {
-  border-left-color: #1752b8;
+.pink {
+  border-left-color: #ffe2f5;
 }
 
-.green {
-  border-left-color: #19a572;
+.purple {
+  border-left-color: #601a4a;
 }
 
 .darkorchid {
@@ -474,8 +474,8 @@ li.pagination-active.active > button {
   border-left-color: #e252cf;
 }
 
-.brown {
-  border-left-color: #b87e17;
+.yellow {
+  border-left-color: #f9ed00;
 }
 
 @media only screen and (min-width: 1700px) {

@@ -145,7 +145,7 @@ const LegendCard = ({
           title="Add related configurations"
           type="button"
         >
-          {series.name}
+          {series.symbol} {series.name}
         </p>
         <p
           className={subtitleStyle}

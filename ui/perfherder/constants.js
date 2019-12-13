@@ -65,10 +65,19 @@ export const alertStatusMap = {
 export const graphColors = [
   ['scarlet', '#b81752'],
   ['turquoise', '#17a2b8'],
-  ['green', '#19a572'],
-  ['brown', '#b87e17'],
+  ['purple', '#601A4A'],
+  ['pink', '#ffe2f5'],
+  ['yellow', '#f9ed00'],
   ['darkorchid', '#9932cc'],
-  ['blue', '#1752b8'],
+];
+
+export const graphSymbols = [
+  'circle',
+  'diamond',
+  'plus',
+  'square',
+  'star',
+  'triangleUp',
 ];
 
 export const phFrameworksWithRelatedBranches = [
