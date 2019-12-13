@@ -13,6 +13,8 @@ from django.core.validators import MinLengthValidator
 from django.db import (models,
                        transaction)
 from django.db.models import (Count,
+                              Max,
+                              Min,
                               Q)
 from django.db.utils import ProgrammingError
 from django.forms import model_to_dict
@@ -411,58 +413,50 @@ class JobManager(models.Manager):
         Delete data older than cycle_interval, splitting the target data into
         chunks of chunk_size size. Returns the number of result sets deleted
         """
-
-        # Retrieve list of jobs to delete
         jobs_max_timestamp = datetime.datetime.now() - cycle_interval
 
         jobs_cycled = 0
         while True:
-            jobs_chunk = list(self.filter(submit_time__lt=jobs_max_timestamp)
-                                  .order_by('id')
-                                  .values_list('guid', flat=True)[:chunk_size])
-
-            logger.warning('Pruning jobs: chunk of {} older than {}'.format(
-                len(jobs_chunk),
-                jobs_max_timestamp.strftime('%b %d %Y')
-            ))
-            if not jobs_chunk:
-                # no more jobs to cycle, we're done!
+            min_id = Job.objects.aggregate(Min("id"))["id__min"]
+            if min_id is None:
                 return jobs_cycled
+            max_id = min_id + chunk_size
+            max_chunk = Job.objects.filter(id__lt=max_id).aggregate(
+                submit_time=Max("submit_time"), id=Max("id"), count=Count("id")
+            )
+            if (
+                max_chunk["count"] == 0
+                or max_chunk["submit_time"] > jobs_max_timestamp
+            ):
+                # this next chunk is too young, we are done
+                return jobs_cycled
+
+            logger.warning(
+                "Pruning jobs: chunk of {} older than {}".format(
+                    max_chunk["count"], jobs_max_timestamp.strftime("%b %d %Y")
+                )
+            )
 
             # Remove ORM entries for these jobs that don't currently have a
             # foreign key relation
-            lines = FailureLine.objects.filter(job_guid__in=jobs_chunk).only('id')
-
-            logger.warning('deleting FailureLines')
-            lines.delete()
+            logger.warning("deleting FailureLines")
+            delete_guid = list(
+                Job.objects.filter(id__lt=max_id)
+                .only("guid")
+                .values_list("guid", flat=True)
+            )
+            FailureLine.objects.filter(job_guid__in=delete_guid).only("id").delete()
 
             # cycle jobs *after* related data has been deleted, to be sure
             # we don't have any orphan data
-            try:
-                logger.warning('delete jobs')
-                self.filter(guid__in=jobs_chunk).delete()
-            except UnicodeDecodeError as e:
-                # Some TextLogError `line` fields contain invalid Unicode, which causes a
-                # UnicodeDecodeError since Django's .delete() fetches all fields (even those
-                # not required for the delete). As such we delete the offending `TextLogError`s
-                # separately (using only() to prevent pulling in `line`), before trying again.
-                # This can likely be removed once all pre-Python 3 migration `TextLogError`s
-                # have expired (check New Relic Insights at that point to confirm). See:
-                # https://bugzilla.mozilla.org/show_bug.cgi?id=1528710
-                newrelic.agent.record_custom_event('cycle_data UnicodeDecodeError workaround', {
-                    'exception': str(e),
-                })
-                TextLogError.objects.filter(step__job__guid__in=jobs_chunk).only('id').delete()
-                self.filter(guid__in=jobs_chunk).delete()
+            logger.warning("delete jobs")
+            self.filter(id__lt=max_id).only("id").delete()
 
-            jobs_cycled += len(jobs_chunk)
+            jobs_cycled += max_chunk["count"]
 
             if sleep_time:
                 # Allow some time for other queries to get through
                 time.sleep(sleep_time)
-
-            if len(jobs_chunk) < chunk_size:
-                return jobs_cycled
 
 
 class Job(models.Model):

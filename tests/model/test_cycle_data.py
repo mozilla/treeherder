@@ -2,6 +2,7 @@ import datetime
 
 import pytest
 from django.core.management import call_command
+from django.db.models import Max
 
 from tests import test_utils
 from tests.autoclassify.utils import (create_failure_lines,
@@ -56,7 +57,7 @@ def test_cycle_all_but_one_job(test_repository, failure_classifications, sample_
     test_utils.do_job_ingestion(test_repository, job_data, sample_push, False)
 
     # one job should not be deleted, set its submit time to now
-    job_not_deleted = Job.objects.get(id=2)
+    job_not_deleted = Job.objects.get(id=Job.objects.aggregate(Max("id"))["id__max"])
     job_not_deleted.submit_time = datetime.datetime.now()
     job_not_deleted.save()
 
@@ -81,15 +82,16 @@ def test_cycle_all_but_one_job(test_repository, failure_classifications, sample_
         job__id=job_not_deleted.id).count()
     num_job_logs_before = JobLog.objects.count()
 
-    call_command('cycle_data', 'from:treeherder', sleep_time=0, days=1, debug=True)
+    call_command('cycle_data', 'from:treeherder', sleep_time=0, days=1, debug=True, chunk_size=1)
 
     assert Job.objects.count() == 1
     assert JobLog.objects.count() == (num_job_logs_before -
                                       num_job_logs_to_be_deleted)
 
     for (object_type, objects) in extra_objects.values():
-        assert (set(item.id for item in object_type.objects.all()) ==
-                set(item.id for item in objects))
+        actual = set(item.id for item in object_type.objects.all())
+        expected = set(item.id for item in objects)
+        assert (actual == expected)
 
 
 def test_cycle_all_data_in_chunks(test_repository, failure_classifications, sample_data,
