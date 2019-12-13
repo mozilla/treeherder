@@ -43,6 +43,7 @@ class TestFailure extends React.PureComponent {
     const { failure, repo, revision } = this.props;
     const {
       testName,
+      action,
       jobName,
       jobSymbol,
       failJobs,
@@ -62,6 +63,12 @@ class TestFailure extends React.PureComponent {
       <Col className="mt-2 mb-3 ml-2" key={key}>
         <Row className="border-bottom border-secondary justify-content-between">
           <span>
+            <span
+              color="secondary"
+              className="font-weight-bold text-uppercase mr-1"
+            >
+              {action} :
+            </span>
             {testName}
             {tier > 1 && (
               <span className="ml-1 small text-muted">[tier-{tier}]</span>
@@ -132,34 +139,37 @@ class TestFailure extends React.PureComponent {
             />
           ))}
         </div>
-        {!!logLines.length &&
-          logLines.map(logLine => (
-            <Row
-              className="small text-monospace mt-2 ml-3"
-              key={logLine.line_number}
+        {!!logLines.length && (
+          <div>
+            <Button
+              className="border-0 text-info bg-transparent p-1"
+              onClick={this.toggleDetails}
             >
-              {detailsShowing ? (
-                <div className="pre-wrap text-break">
-                  {logLine.subtest}
-                  <Row className="ml-3">
-                    <div>{logLine.message}</div>
-                  </Row>
-                </div>
-              ) : (
-                <div className="pre-wrap text-break">
-                  {!!logLine.subtest && logLine.subtest.substr(0, 200)}
-                </div>
-              )}
-            </Row>
-          ))}
-        <div>
-          <Button
-            className="border-0 text-info bg-transparent p-1"
-            onClick={this.toggleDetails}
+              {detailsShowing ? 'less...' : 'more...'}
+            </Button>
+          </div>
+        )}
+        {logLines.map(logLine => (
+          <Row
+            className="small text-monospace mt-2 ml-3"
+            key={logLine.line_number}
           >
-            {detailsShowing ? 'less...' : 'more...'}
-          </Button>
-        </div>
+            {detailsShowing ? (
+              <div className="pre-wrap text-break">
+                {logLine.subtest}
+                <Row className="ml-3">
+                  <div>{logLine.message}</div>
+                  <div>{logLine.signature}</div>
+                  <div>{logLine.stackwalk_stdout}</div>
+                </Row>
+              </div>
+            ) : (
+              <div className="pre-wrap text-break">
+                {!!logLine.subtest && logLine.subtest.substr(0, 200)}
+              </div>
+            )}
+          </Row>
+        ))}
       </Col>
     );
   }

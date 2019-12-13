@@ -1,5 +1,6 @@
 import datetime
 import json
+import logging
 from collections import defaultdict
 
 from django.core.cache import cache
@@ -15,6 +16,8 @@ from treeherder.push_health.similar_jobs import (job_to_dict,
 from treeherder.push_health.utils import (clean_config,
                                           clean_platform,
                                           clean_test)
+
+logger = logging.getLogger(__name__)
 
 ONE_WEEK_IN_SECONDS = 604800
 intermittent_history_days = 14
@@ -89,7 +92,7 @@ def get_current_test_failures(push, option_map):
     # for the same job (with different sub-tests), but it's only supported by
     # postgres.  Just using .distinct() has no effect.
     new_failure_lines = FailureLine.objects.filter(
-        action__in=['test_result', 'log'],
+        action__in=['test_result', 'log', 'crash'],
         job_log__job__push=push,
         job_log__job__result='testfailed',
         job_log__job__tier__lte=2
@@ -117,6 +120,7 @@ def get_current_test_failures(push, option_map):
         if test_key not in tests:
             line = {
                 'testName': test_name,
+                'action': failure_line.action.split('_')[0],
                 'jobName': job_name,
                 'jobSymbol': job_symbol,
                 'platform': platform,
@@ -167,6 +171,7 @@ def has_line(failure_line, log_line_list):
 
 
 def get_test_failures(push, repository_ids):
+    logger.info('Getting test failures for push: {}'.format(push.id))
     # query for jobs for the last two weeks excluding today
     # find tests that have failed in the last 14 days
     # this is very cache-able for reuse on other pushes.
