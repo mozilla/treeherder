@@ -72,6 +72,7 @@ class ClassificationGroup extends React.PureComponent {
       currentRepo,
     } = this.props;
     const expandIcon = detailsShowing ? faMinusSquare : faPlusSquare;
+    const expandTitle = detailsShowing ? 'Minus sign' : 'Plus sign';
 
     return (
       <Row className={`justify-content-between ${className}`}>
@@ -80,12 +81,14 @@ class ClassificationGroup extends React.PureComponent {
             className="pointable w-100"
             onClick={this.toggleDetails}
             color={headerColor}
+            role="button"
+            aria-expanded={detailsShowing}
           >
             {name} : {Object.keys(group).length}
             <FontAwesomeIcon
               icon={expandIcon}
               className="ml-1"
-              title="expand"
+              title={expandTitle}
             />
           </Badge>
         </h4>
