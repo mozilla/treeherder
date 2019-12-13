@@ -29,7 +29,9 @@ export default class Metric extends React.PureComponent {
     const { result, name, children } = this.props;
     const resultColor = resultColorMap[result];
     const expandIcon = detailsShowing ? faMinusSquare : faPlusSquare;
-    const expandTitle = detailsShowing ? 'Minus sign' : 'Plus sign';
+    const expandTitle = detailsShowing
+      ? 'Click to collapse'
+      : 'Click to expand';
 
     return (
       <td>
@@ -47,7 +49,11 @@ export default class Metric extends React.PureComponent {
                   {name}
                 </span>
                 <span className="btn">
-                  <FontAwesomeIcon icon={expandIcon} title={expandTitle} />
+                  <FontAwesomeIcon
+                    icon={expandIcon}
+                    title={expandTitle}
+                    aria-label={expandTitle}
+                  />
                 </span>
               </Button>
               <span>
