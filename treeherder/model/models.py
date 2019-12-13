@@ -147,12 +147,13 @@ class Push(models.Model):
             Q(failure_classification__isnull=True) |
             Q(failure_classification__name='not classified')).exclude(tier=3)
 
-        status_dict = {}
+        status_dict = {'completed': 0, 'pending': 0, 'running': 0}
         for (state, result, total) in jobs.values_list(
                 'state', 'result').annotate(
                     total=Count('result')):
             if state == 'completed':
                 status_dict[result] = total
+                status_dict[state] += total
             else:
                 status_dict[state] = total
         if 'superseded' in status_dict:

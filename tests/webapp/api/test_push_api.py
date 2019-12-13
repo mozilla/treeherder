@@ -394,7 +394,7 @@ def test_push_status(client, test_job, test_user):
     )
     assert resp.status_code == 200
     assert isinstance(resp.json(), dict)
-    assert resp.json() == {'success': 1}
+    assert resp.json() == {'success': 1, 'completed': 1, 'pending': 0, 'running': 0}
 
     JobNote.objects.create(job=test_job,
                            failure_classification=failure_classification,
@@ -407,4 +407,4 @@ def test_push_status(client, test_job, test_user):
     )
     assert resp.status_code == 200
     assert isinstance(resp.json(), dict)
-    assert resp.json() == {}
+    assert resp.json() == {'completed': 0, 'pending': 0, 'running': 0}
