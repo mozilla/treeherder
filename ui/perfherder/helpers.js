@@ -563,19 +563,10 @@ export const containsText = (string, text) => {
   return regex.test(string);
 };
 
-export const processSelectedParam = tooltipArray => {
-  const values = {
-    signature_id: parseInt(tooltipArray[0], 10),
-    pushId: parseInt(tooltipArray[1], 10),
-    x: parseFloat(tooltipArray[2]),
-    y: parseFloat(tooltipArray[3]),
-  };
-
-  if (tooltipArray[4]) {
-    values.dataPointId = parseInt(tooltipArray[4], 10);
-  }
-  return values;
-};
+export const processSelectedParam = tooltipArray => ({
+  signature_id: parseInt(tooltipArray[0], 10),
+  dataPointId: parseInt(tooltipArray[1], 10),
+});
 
 export const getInitialData = async (
   errorMessages,

@@ -76,10 +76,8 @@ class GraphsContainer extends React.Component {
 
     const dataPointFound = testData.find(item => {
       if (item.signature_id === selectedDataPoint.signature_id) {
-        return item.data.find(datum =>
-          selectedDataPoint.dataPointId
-            ? datum.dataPointId === selectedDataPoint.dataPointId
-            : datum.pushId === selectedDataPoint.pushId,
+        return item.data.find(
+          datum => datum.dataPointId === selectedDataPoint.dataPointId,
         );
       }
       return false;
@@ -159,9 +157,6 @@ class GraphsContainer extends React.Component {
       updateStateParams({
         selectedDataPoint: {
           signature_id: dataPoint.datum.signature_id,
-          pushId: dataPoint.datum.pushId,
-          x: dataPoint.x,
-          y: dataPoint.y,
           dataPointId: dataPoint.datum.dataPointId,
         },
       });
@@ -218,8 +213,6 @@ class GraphsContainer extends React.Component {
   hideTooltip = props =>
     this.state.lockTooltip ? { active: true } : { active: undefined };
 
-  // TODO can deprecate storage of x and y coordinates in selectedDataPoint
-  // and remove dataPoint state here.
   showTooltip = selectedDataPoint => {
     this.setState({
       externalMutation: [

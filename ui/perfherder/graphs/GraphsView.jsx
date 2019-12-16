@@ -327,15 +327,9 @@ class GraphsView extends React.Component {
     if (!selectedDataPoint) {
       delete params.selected;
     } else {
-      const {
-        signature_id: signatureId,
-        pushId,
-        dataPointId,
-        x,
-        y,
-      } = selectedDataPoint;
+      const { signature_id: signatureId, dataPointId } = selectedDataPoint;
 
-      params.selected = [signatureId, pushId, x, y, dataPointId].join(',');
+      params.selected = [signatureId, dataPointId].join(',');
     }
 
     if (Object.keys(zoom).length === 0) {
