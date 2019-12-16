@@ -4,14 +4,14 @@ import { Table, Container, Spinner } from 'reactstrap';
 
 import ErrorMessages from '../shared/ErrorMessages';
 import NotificationList from '../shared/NotificationList';
-import { getJobsUrl } from '../helpers/url';
 import {
   clearNotificationAtIndex,
   clearExpiredTransientNotifications,
 } from '../helpers/notifications';
 import PushModel from '../models/push';
+import StatusProgress from '../shared/StatusProgress';
+import { getPercentComplete } from '../helpers/display';
 
-import { resultColorMap } from './helpers';
 import Metric from './Metric';
 import Navigation from './Navigation';
 import TestMetric from './TestMetric';
@@ -93,14 +93,22 @@ export default class Health extends React.PureComponent {
       revision,
       failureMessage,
       notifications,
+      status,
     } = this.state;
     const { tests, linting, builds, coverage, performance } = metrics;
     const { currentRepo } = this.props;
-    const overallResult = result ? resultColorMap[result] : 'none';
+    const percentComplete = status ? getPercentComplete(status) : 0;
 
     return (
       <React.Fragment>
-        <Navigation user={user} setUser={this.setUser} notify={this.notify} />
+        <Navigation
+          user={user}
+          setUser={this.setUser}
+          notify={this.notify}
+          result={result}
+          repo={repo}
+          revision={revision}
+        />
         <Container fluid className="mt-2">
           <NotificationList
             notifications={notifications}
@@ -108,20 +116,16 @@ export default class Health extends React.PureComponent {
           />
           {!!tests && !!currentRepo && (
             <div className="d-flex flex-column">
-              <h3 className="text-center">
-                <span className={`badge badge-xl mb-3 badge-${overallResult}`}>
-                  <a
-                    href={getJobsUrl({ repo, revision })}
-                    className="text-white"
-                    target="_blank"
-                    rel="noopener noreferrer"
-                  >
-                    {repo} - {revision}
-                  </a>
-                </span>
-              </h3>
               <Table size="sm" className="table-fixed">
                 <tbody>
+                  <tr>
+                    <Metric name="Progress" result="">
+                      <div>
+                        <div>{percentComplete}% Complete</div>
+                        <StatusProgress counts={status} />
+                      </div>
+                    </Metric>
+                  </tr>
                   <tr>
                     <JobListMetric
                       data={linting}

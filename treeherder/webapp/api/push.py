@@ -284,6 +284,7 @@ class PushViewSet(viewsets.ViewSet):
                     'details': ['Ludicrous Speed'],
                 },
             },
+            'status': push.get_status(),
         })
 
     @cache_memoize(60 * 60)
