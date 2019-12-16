@@ -95,7 +95,7 @@ export default class Health extends React.PureComponent {
       notifications,
       status,
     } = this.state;
-    const { tests, linting, builds, coverage, performance } = metrics;
+    const { tests, linting, builds, performance } = metrics;
     const { currentRepo } = this.props;
     const percentComplete = status ? getPercentComplete(status) : 0;
 
@@ -150,17 +150,13 @@ export default class Health extends React.PureComponent {
                       notify={this.notify}
                     />
                   </tr>
-                  {[coverage, performance].map(metric => (
-                    <tr key={metric.name}>
-                      <Metric result={metric.result} name={metric.name}>
-                        <div>
-                          {metric.details.map(detail => (
-                            <div key={detail}>{detail}</div>
-                          ))}
-                        </div>
-                      </Metric>
-                    </tr>
-                  ))}
+                  <tr>
+                    <JobListMetric
+                      data={performance}
+                      repo={repo}
+                      revision={revision}
+                    />
+                  </tr>
                 </tbody>
               </Table>
             </div>
