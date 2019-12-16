@@ -71,6 +71,7 @@ label.dropdown-item {
 }
 
 .nav-menu-btn {
+  width: 98%;
   margin-right: -4px;
   padding-left: 14px;
   padding-right: 14px;

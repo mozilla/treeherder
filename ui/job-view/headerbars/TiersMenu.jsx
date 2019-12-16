@@ -22,7 +22,7 @@ export default function TiersMenu(props) {
       >
         Tiers
       </DropdownToggle>
-      <DropdownMenu className="checkbox-dropdown-menu">
+      <DropdownMenu>
         {TIERS.map(tier => {
           const isOnlyTier = shownTiers.length === 1 && tier === shownTiers[0];
           return (
