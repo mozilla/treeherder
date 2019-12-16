@@ -29,6 +29,7 @@ export default class Metric extends React.PureComponent {
     const { result, name, children } = this.props;
     const resultColor = resultColorMap[result];
     const expandIcon = detailsShowing ? faMinusSquare : faPlusSquare;
+    const expandTitle = detailsShowing ? 'Minus sign' : 'Plus sign';
 
     return (
       <td>
@@ -36,12 +37,17 @@ export default class Metric extends React.PureComponent {
           <div className={`bg-${resultColor} pr-2 mr-2`} />
           <Col>
             <Row className="justify-content-between">
-              <Button onClick={this.toggleDetails} outline className="border-0">
+              <Button
+                onClick={this.toggleDetails}
+                outline
+                className="border-0"
+                aria-expanded={detailsShowing}
+              >
                 <span className="metric-name align-top font-weight-bold">
                   {name}
                 </span>
                 <span className="btn">
-                  <FontAwesomeIcon icon={expandIcon} title="expand" />
+                  <FontAwesomeIcon icon={expandIcon} title={expandTitle} />
                 </span>
               </Button>
               <span>

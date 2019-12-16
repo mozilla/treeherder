@@ -217,6 +217,7 @@ export default class SelectorCard extends React.Component {
                 <DropdownMenu className="overflow-auto dropdown-menu-height">
                   {projects.map(item => (
                     <DropdownItem
+                      tag="a"
                       key={item.name}
                       onClick={event =>
                         this.updateRevisions(event.target.innerText)
@@ -284,6 +285,7 @@ export default class SelectorCard extends React.Component {
                       <DropdownMenu>
                         {data.results.map(item => (
                           <DropdownItem
+                            tag="a"
                             key={item.id}
                             onClick={event =>
                               this.selectRevision(
