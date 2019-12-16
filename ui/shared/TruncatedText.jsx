@@ -22,7 +22,7 @@ export default class TruncatedText extends React.Component {
         </p>
         {text.length > maxLength && (
           <Button
-            className={`${showMoreClass} mb-0 text-right  pointer`}
+            className={`${showMoreClass} bg-transparent border border-0 mb-0 text-right  pointer`}
             onClick={() => this.setState({ showMoreResults: !showMoreResults })}
           >
             {`show ${showMoreResults ? 'less' : 'more'}`}
