@@ -71,11 +71,14 @@ label.dropdown-item {
 }
 
 .nav-menu-btn {
-  width: 98%;
   margin-right: -4px;
   padding-left: 14px;
   padding-right: 14px;
   font-size: 13px;
+}
+
+.nav-menu-btn.dropdown-toggle {
+  width: 98%;
 }
 
 .nav-menu-btn:after {
