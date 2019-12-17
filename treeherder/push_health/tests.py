@@ -1,6 +1,7 @@
 import datetime
 import json
 import logging
+import re
 from collections import defaultdict
 
 from django.core.cache import cache
@@ -115,7 +116,7 @@ def get_current_test_failures(push, option_map):
         job_symbol = job.job_type.symbol
         job.job_key = '{}{}{}'.format(config, platform, job_name)
         all_failed_jobs[job.id] = job
-        test_key = '{}{}{}{}'.format(test_name, config, platform, job_name)
+        test_key = re.sub(r'\W+', '', '{}{}{}{}'.format(test_name, config, platform, job_name))
 
         if test_key not in tests:
             line = {
