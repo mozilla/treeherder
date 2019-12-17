@@ -1,6 +1,6 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import { Badge, Button, Row, Col } from 'reactstrap';
+import { Badge, Button, Row, Col, UncontrolledTooltip } from 'reactstrap';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faRedo } from '@fortawesome/free-solid-svg-icons';
 
@@ -56,13 +56,14 @@ class TestFailure extends React.PureComponent {
       suggestedClassification,
       key,
       tier,
+      passFailRatio,
     } = failure;
     const { detailsShowing } = this.state;
 
     return (
       <Col className="mt-2 mb-3 ml-2" key={key}>
-        <Row className="border-bottom border-secondary justify-content-between">
-          <span>
+        <Row className="border-top border-secondary justify-content-between">
+          <Row className="ml-1 w-100">
             <span
               color="secondary"
               className="font-weight-bold text-uppercase mr-1"
@@ -73,7 +74,15 @@ class TestFailure extends React.PureComponent {
             {tier > 1 && (
               <span className="ml-1 small text-muted">[tier-{tier}]</span>
             )}
-          </span>
+            <span id={key} className="ml-auto mr-3">
+              <strong>Pass/Fail Ratio:</strong>{' '}
+              {Math.round(passFailRatio * 100)}%
+            </span>
+            <UncontrolledTooltip target={key} placement="left">
+              Greater than 50% (and/or classification history) will make this an
+              intermittent
+            </UncontrolledTooltip>
+          </Row>
           {!!confidence && (
             <span title="Best guess at a classification" className="ml-auto">
               {classificationMap[suggestedClassification]}

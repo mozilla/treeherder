@@ -67,6 +67,11 @@ def set_matching_passed_jobs(failures, push):
                 # This sets the ``passJobs`` key in the ``failures`` object that was passed in,
                 # which is then returned from the API.
                 failure['passJobs'] = passing_job_map[job_key]
+        # This helps the user when determining if this is an intermittent.  If it
+        # gets above 50%, then it's intermittent.
+        passed_count = len(failure['passJobs']) + len(failure['passInFailedJobs'])
+        # Persist this so it is communicated on the front-end
+        failure['passFailRatio'] = passed_count / (len(failure['failJobs']) + passed_count)
 
 
 def get_job_key(job):
