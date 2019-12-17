@@ -301,21 +301,11 @@ th {
   transition: visibility 150ms ease-in-out;
 }
 
-.compare-table tr .result-links span {
-  color: #333;
-}
-
-.compare-table tr .result-links a,
-.compare-table tr .result-links button {
+.compare-table tr:hover .result-links a,
+.compare-table tr:hover .result-links button,
+.compare-table tr:focus-within .result-links a,
+.compare-table tr:focus-within .result-links button {
   color: #23527c;
-  opacity: 0.5;
-}
-
-.compare-table tr .result-links a:hover,
-.compare-table tr .result-links button:hover,
-.compare-table tr .result-links a:focus,
-.compare-table tr .result-links button:focus {
-  opacity: 1;
 }
 
 .compare-table tr:hover .retrigger-btn {
