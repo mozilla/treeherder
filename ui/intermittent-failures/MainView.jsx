@@ -11,6 +11,8 @@ import {
   calculateMetrics,
   prettyDate,
   ISODate,
+  tableProps,
+  theadFilterThProps,
   tableRowStyling,
 } from './helpers';
 import withView from './View';
@@ -159,6 +161,8 @@ const MainView = props => {
             showPageSizeOptions
             columns={columns}
             className="-striped"
+            getTableProps={tableProps}
+            getTheadFilterThProps={theadFilterThProps}
             getTrProps={tableRowStyling}
             showPaginationTop
             defaultPageSize={50}
