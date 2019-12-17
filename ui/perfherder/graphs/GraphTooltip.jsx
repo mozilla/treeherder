@@ -143,6 +143,7 @@ const GraphTooltip = ({
       <div
         className={`graph-tooltip ${lockTooltip ? 'locked' : null}`}
         xmlns="http://www.w3.org/1999/xhtml"
+        data-testid="graphTooltip"
       >
         <Button
           outline

@@ -689,3 +689,41 @@ export const retriggerJobs = async (results, times, props) => {
     props,
   );
 };
+
+export const createGraphData = (seriesData, alertSummaries, colors) =>
+  seriesData.map(series => {
+    const color = colors.pop();
+    // signature_id, framework_id and repository_name are
+    // not renamed in camel case in order to match the fields
+    // returned by the performance/summary API (since we only fetch
+    // new data if a user adds additional tests to the graph)
+    return {
+      color: color || ['border-secondary', ''],
+      visible: Boolean(color),
+      name: series.name,
+      signature_id: series.signature_id,
+      signatureHash: series.signature_hash,
+      framework_id: series.framework_id,
+      platform: series.platform,
+      repository_name: series.repository_name,
+      projectId: series.repository_id,
+      id: `${series.repository_name} ${series.name}`,
+      data: series.data.map(dataPoint => ({
+        x: new Date(dataPoint.push_timestamp),
+        y: dataPoint.value,
+        z: color ? color[1] : '',
+        revision: dataPoint.revision,
+        alertSummary: alertSummaries.find(
+          item => item.push_id === dataPoint.push_id,
+        ),
+        signature_id: series.signature_id,
+        pushId: dataPoint.push_id,
+        jobId: dataPoint.job_id,
+        dataPointId: dataPoint.id,
+      })),
+      measurementUnit: series.measurement_unit || '',
+      lowerIsBetter: series.lower_is_better,
+      resultSetData: series.data.map(dataPoint => dataPoint.push_id),
+      parentSignature: series.parent_signature,
+    };
+  });

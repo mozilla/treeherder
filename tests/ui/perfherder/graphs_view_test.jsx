@@ -12,6 +12,10 @@ import repos from '../mock/repositories';
 import testData from '../mock/performance_summary.json';
 import seriesData from '../mock/performance_signature_formatted.json';
 import seriesData2 from '../mock/performance_signature_formatted2.json';
+import { createGraphData } from '../../../ui/perfherder/helpers';
+import { graphColors } from '../../../ui/perfherder/constants';
+
+const graphData = createGraphData(testData, [], [...graphColors]);
 
 const frameworks = [
   { id: 1, name: 'talos' },
@@ -45,27 +49,29 @@ const mockShowModal = jest
   .mockReturnValueOnce(true)
   .mockReturnValueOnce(false);
 
-const graphsViewControls = () =>
+const graphsViewControls = (hasNoData = true) =>
   render(
     <GraphsViewControls
       updateStateParams={() => {}}
-      graphs={false}
       highlightAlerts={false}
       highlightedRevisions={['', '']}
       updateTimeRange={() => {}}
-      hasNoData
+      hasNoData={hasNoData}
       frameworks={frameworks}
       projects={repos}
       timeRange={{ value: 172800, text: 'Last two days' }}
       options={{}}
       getTestData={() => {}}
-      testData={testData}
+      testData={graphData}
       getInitialData={() => ({
         platforms,
       })}
       getSeriesData={mockGetSeriesData}
       showModal={Boolean(mockShowModal)}
       toggle={mockShowModal}
+      selectedDataPoint={{ signature_id: 1647494, dataPointId: 887279300 }}
+      user={{ isStaff: true }}
+      updateData={() => {}}
     />,
   );
 
@@ -187,4 +193,23 @@ test("Selecting a test with similar unit in the Test Data Modal doesn't give war
 
   // no extra warnings were added in selected tests' section
   expect(mismatchedTests).toHaveLength(1);
+});
+
+test('Using select query param displays tooltip for correct datapoint', async () => {
+  const { getByTestId, getByText } = graphsViewControls(false);
+
+  const graphContainer = await waitForElement(() =>
+    getByTestId('graphContainer'),
+  );
+
+  expect(graphContainer).toBeInTheDocument();
+
+  const graphTooltip = await waitForElement(() => getByTestId('graphTooltip'));
+  const expectedRevision = '3afb892abb74c6d281f3e66431408cbb2e16b8c4';
+  const revision = await waitForElement(() =>
+    getByText(expectedRevision.slice(0, 13)),
+  );
+
+  expect(graphTooltip).toBeInTheDocument();
+  expect(revision).toBeInTheDocument();
 });
