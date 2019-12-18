@@ -41,6 +41,7 @@ module.exports = {
       },
       perf: {
         entry: 'perfherder/index.jsx',
+        favicon: 'ui/img/line_chart.png',
         title: 'Perfherder',
       },
       'intermittent-failures': {
