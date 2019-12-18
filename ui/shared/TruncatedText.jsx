@@ -11,7 +11,7 @@ export default class TruncatedText extends React.Component {
   }
 
   render() {
-    const { text, maxLength, title, showMoreClass } = this.props;
+    const { text, maxLength, title, color } = this.props;
     const { showMoreResults } = this.state;
 
     return (
@@ -22,8 +22,10 @@ export default class TruncatedText extends React.Component {
         </p>
         {text.length > maxLength && (
           <Button
-            color="link"
-            className={`${showMoreClass} d-block p-0 ml-auto`}
+            color={color || 'link'}
+            outline={color}
+            className={`${color ||
+              'font-weight-bold text-reset'} d-block ml-auto`}
             onClick={() => this.setState({ showMoreResults: !showMoreResults })}
           >
             {`show ${showMoreResults ? 'less' : 'more'}`}
@@ -38,10 +40,8 @@ TruncatedText.propTypes = {
   text: PropTypes.string.isRequired,
   title: PropTypes.string,
   maxLength: PropTypes.number.isRequired,
-  showMoreClass: PropTypes.string,
 };
 
 TruncatedText.defaultProps = {
-  showMoreClass: 'font-weight-bold',
   title: '',
 };
