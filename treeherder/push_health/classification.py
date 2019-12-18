@@ -75,5 +75,7 @@ def get_grouped(failures):
             classified['intermittent'].append(failure)
         else:
             classified['needInvestigation'].append(failure)
+            # If it needs investigation, we, by definition, don't have 100% confidence.
+            failure['confidence'] = min(failure['confidence'], 90)
 
     return classified

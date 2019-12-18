@@ -12,7 +12,7 @@ import TestFailure from '../../../ui/push-health/TestFailure';
 import pushHealth from '../mock/push_health';
 
 const repoName = 'autoland';
-const failures = pushHealth.metrics[0].failures.needInvestigation;
+const failure = pushHealth.metrics[0].failures.needInvestigation[0];
 
 beforeEach(() => {
   fetchMock.get('https://treestatus.mozilla-releng.net/trees/autoland', {
@@ -24,6 +24,7 @@ beforeEach(() => {
     },
   });
   setUrlParam('repo', repoName);
+  failure.key = 'wazzon';
 });
 
 afterEach(() => {
@@ -39,12 +40,13 @@ describe('TestFailure', () => {
       repo="autoland"
       user={{ email: 'foo' }}
       revision="abc"
+      currentRepo={{ name: repoName }}
       notify={() => {}}
     />
   );
 
   test('should show the test name', async () => {
-    const { getByText } = render(testTestFailure(failures[0]));
+    const { getByText } = render(testTestFailure(failure));
 
     expect(
       await waitForElement(() =>
@@ -56,7 +58,7 @@ describe('TestFailure', () => {
   });
 
   test('should show small details by default', async () => {
-    const { getByText } = render(testTestFailure(failures[0]));
+    const { getByText } = render(testTestFailure(failure));
 
     expect(
       await waitForElement(() =>
@@ -72,7 +74,7 @@ describe('TestFailure', () => {
   });
 
   test('should show details when click more...', async () => {
-    const { getByText } = render(testTestFailure(failures[0]));
+    const { getByText } = render(testTestFailure(failure));
     const moreLink = getByText('more...');
     fireEvent.click(moreLink);
 
