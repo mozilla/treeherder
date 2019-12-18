@@ -32,7 +32,8 @@ def test_alerts_get(client, test_repository, test_perf_alert):
         'status',
         't_value',
         'classifier',
-        'classifier_email'
+        'classifier_email',
+        'backfill_record'
     ])
     assert resp.json()['results'][0]['related_summary_id'] is None
 
