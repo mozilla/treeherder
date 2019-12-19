@@ -34,9 +34,9 @@ class PushHealthStatus extends Component {
   }
 
   async loadLatestStatus() {
-    const { repoName, pushId } = this.props;
+    const { repoName, revision } = this.props;
 
-    PushModel.getHealthSummary(repoName, pushId).then(resp => {
+    PushModel.getHealthSummary(repoName, revision).then(resp => {
       const { data, error } = resp;
       if (!error) {
         const { needInvestigation } = data;
@@ -76,7 +76,6 @@ class PushHealthStatus extends Component {
 }
 
 PushHealthStatus.propTypes = {
-  pushId: PropTypes.number.isRequired,
   revision: PropTypes.string.isRequired,
   repoName: PropTypes.string.isRequired,
   jobCounts: PropTypes.shape({

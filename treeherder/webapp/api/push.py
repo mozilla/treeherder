@@ -203,16 +203,17 @@ class PushViewSet(viewsets.ViewSet):
                             status=HTTP_404_NOT_FOUND)
         return Response(push.get_status())
 
-    @action(detail=True)
-    def health_summary(self, request, project, pk=None):
+    @action(detail=False)
+    def health_summary(self, request, project):
         """
         Return a calculated summary of the health of this push.
         """
+        revision = request.query_params.get('revision')
 
         try:
-            push = Push.objects.get(id=pk)
+            push = Push.objects.get(revision=revision, repository__name=project)
         except Push.DoesNotExist:
-            return Response("No push with id: {0}".format(pk),
+            return Response("No push with revision: {0}".format(revision),
                             status=HTTP_404_NOT_FOUND)
         push_health_test_failures = get_test_failures(push, REPO_GROUPS['trunk'])
         push_health_lint_failures = get_lint_failures(push)
