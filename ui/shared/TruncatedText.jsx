@@ -22,9 +22,9 @@ export default class TruncatedText extends React.Component {
         </p>
         {text.length > maxLength && (
           <Button
-            color={color || 'link'}
-            outline={color}
-            className={`${color ||
+            color={color}
+            outline={color !== 'link'}
+            className={`${color !== 'link' ||
               'font-weight-bold text-reset'} d-block ml-auto`}
             onClick={() => this.setState({ showMoreResults: !showMoreResults })}
           >
@@ -40,8 +40,10 @@ TruncatedText.propTypes = {
   text: PropTypes.string.isRequired,
   title: PropTypes.string,
   maxLength: PropTypes.number.isRequired,
+  color: PropTypes.string,
 };
 
 TruncatedText.defaultProps = {
   title: '',
+  color: 'link',
 };
