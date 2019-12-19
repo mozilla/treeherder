@@ -1,9 +1,8 @@
 /* eslint-disable react/no-did-update-set-state */
-/* eslint-disable jsx-a11y/no-static-element-interactions */
 
 import React from 'react';
 import PropTypes from 'prop-types';
-import { FormGroup, Input } from 'reactstrap';
+import { Button, FormGroup, Input, Label } from 'reactstrap';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import {
   faStar as faStarSolid,
@@ -216,6 +215,7 @@ export default class AlertTableRow extends React.Component {
     const tooltipText = alert.classifier_email
       ? `Classified by ${alert.classifier_email}`
       : 'Classified automatically';
+    const bookmarkClass = starred ? 'visible' : '';
 
     return (
       <tr
@@ -226,8 +226,9 @@ export default class AlertTableRow extends React.Component {
       >
         <td className="table-width-xs px-1">
           <FormGroup check className="ml-2 pl-4">
+            <Label hidden>alert {alert.id} title</Label>
             <Input
-              aria-labelledby={`alert ${alert.id} title`}
+              aria-label={`alert ${alert.id} title`}
               data-testid={`alert ${alert.id} checkbox`}
               type="checkbox"
               disabled={!user.isStaff}
@@ -242,8 +243,14 @@ export default class AlertTableRow extends React.Component {
           </FormGroup>
         </td>
         <td className="px-0">
-          <span
-            className={starred ? 'visible' : ''}
+          <Button
+            color="black"
+            aria-label={
+              starred
+                ? 'Remove bookmark from this Alert'
+                : 'Bookmark this Alert'
+            }
+            className={`${bookmarkClass} border p-0 border-0 bg-transparent`}
             data-testid={`alert ${alert.id.toString()} star`}
             onClick={this.toggleStar}
           >
@@ -251,7 +258,7 @@ export default class AlertTableRow extends React.Component {
               title={starred ? 'starred' : 'not starred'}
               icon={starred ? faStarSolid : faStarRegular}
             />
-          </span>
+          </Button>
         </td>
         <td className="text-left">
           {alertStatus !== 'untriaged' ? (

@@ -77,6 +77,7 @@ export default class CompareTableRow extends React.PureComponent {
                     )
                   }
                   title="Permalink to this test"
+                  aria-label={`Permalink to test ${rowLevelResults.name}`}
                 >
                   <FontAwesomeIcon icon={faHashtag} />
                 </Button>

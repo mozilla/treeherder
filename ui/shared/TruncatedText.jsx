@@ -1,6 +1,5 @@
-/* eslint-disable jsx-a11y/no-noninteractive-element-interactions */
-
 import React from 'react';
+import { Button } from 'reactstrap';
 import PropTypes from 'prop-types';
 
 export default class TruncatedText extends React.Component {
@@ -12,7 +11,7 @@ export default class TruncatedText extends React.Component {
   }
 
   render() {
-    const { text, maxLength, title, showMoreClass } = this.props;
+    const { text, maxLength, title, color } = this.props;
     const { showMoreResults } = this.state;
 
     return (
@@ -22,12 +21,15 @@ export default class TruncatedText extends React.Component {
           {text}
         </p>
         {text.length > maxLength && (
-          <p
-            className={`${showMoreClass} mb-0 text-right  pointer`}
+          <Button
+            color={color}
+            outline={color !== 'link'}
+            className={`${color !== 'link' ||
+              'font-weight-bold text-reset'} d-block ml-auto`}
             onClick={() => this.setState({ showMoreResults: !showMoreResults })}
           >
             {`show ${showMoreResults ? 'less' : 'more'}`}
-          </p>
+          </Button>
         )}
       </React.Fragment>
     );
@@ -38,10 +40,10 @@ TruncatedText.propTypes = {
   text: PropTypes.string.isRequired,
   title: PropTypes.string,
   maxLength: PropTypes.number.isRequired,
-  showMoreClass: PropTypes.string,
+  color: PropTypes.string,
 };
 
 TruncatedText.defaultProps = {
-  showMoreClass: 'font-weight-bold',
   title: '',
+  color: 'link',
 };

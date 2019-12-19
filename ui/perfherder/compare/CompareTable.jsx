@@ -52,6 +52,7 @@ export default class CompareTable extends React.PureComponent {
                     )
                   }
                   title="Permalink to this test table"
+                  aria-label={`Permalink to test ${testName} table`}
                 >
                   <FontAwesomeIcon icon={faHashtag} />
                 </Button>
@@ -62,8 +63,7 @@ export default class CompareTable extends React.PureComponent {
             <th className="table-width-sm" />
             <th className="table-width-lg">New</th>
             <th className="table-width-lg">Delta</th>
-            {/* empty for progress bars (magnitude of difference) */}
-            <th className="table-width-lg" />
+            <th className="table-width-lg">Magnitude of Difference</th>
             <th className="table-width-lg">Confidence</th>
             <th className="text-right table-width-md">
               {hasSubtests &&
