@@ -173,9 +173,12 @@ export default class PushModel {
     );
   }
 
-  static getHealthSummary(repoName, pushId) {
+  static getHealthSummary(repoName, revision) {
     return getData(
-      getProjectUrl(`${pushEndpoint}${pushId}/health_summary/`, repoName),
+      getProjectUrl(
+        `${pushEndpoint}health_summary/?revision=${revision}`,
+        repoName,
+      ),
     );
   }
 
