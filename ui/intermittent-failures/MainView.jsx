@@ -105,7 +105,7 @@ const MainView = props => {
     } = calculateMetrics(graphData));
   }
 
-  const theadFilterThProps = (state, bug, data) => {
+  const getHeaderAriaLabel = (state, bug, data) => {
     const ariaLabelValue =
       data.Header === 'Count'
         ? 'Filter not available for count'
@@ -170,7 +170,7 @@ const MainView = props => {
             columns={columns}
             className="-striped"
             getTableProps={() => ({ role: 'table' })}
-            getTheadFilterThProps={theadFilterThProps}
+            getTheadFilterThProps={getHeaderAriaLabel}
             getTrProps={tableRowStyling}
             showPaginationTop
             defaultPageSize={50}
