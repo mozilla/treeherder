@@ -11,8 +11,6 @@ import {
   calculateMetrics,
   prettyDate,
   ISODate,
-  tableProps,
-  theadFilterThProps,
   tableRowStyling,
 } from './helpers';
 import withView from './View';
@@ -107,6 +105,16 @@ const MainView = props => {
     } = calculateMetrics(graphData));
   }
 
+  const theadFilterThProps = (state, bug, data) => {
+    const ariaLabelValue =
+      data.Header === 'Count'
+        ? 'Filter not available for count'
+        : `Type to filter ${data.Header}`;
+    return {
+      'aria-label': ariaLabelValue,
+    };
+  };
+
   return (
     <Layout
       {...props}
@@ -161,7 +169,7 @@ const MainView = props => {
             showPageSizeOptions
             columns={columns}
             className="-striped"
-            getTableProps={tableProps}
+            getTableProps={() => ({ role: 'table' })}
             getTheadFilterThProps={theadFilterThProps}
             getTrProps={tableRowStyling}
             showPaginationTop

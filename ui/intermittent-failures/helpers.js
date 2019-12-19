@@ -120,24 +120,4 @@ export const tableRowStyling = function tableRowStyling(state, bug) {
   return {};
 };
 
-export const tableProps = function tableProps() {
-  return {
-    role: 'table',
-  };
-};
-
-export const theadFilterThProps = function theadFilterThProps(
-  state,
-  bug,
-  data,
-) {
-  const ariaLabelValue =
-    data.Header === 'Count'
-      ? 'Filter not available for count'
-      : `Type to filter ${data.Header}`;
-  return {
-    'aria-label': ariaLabelValue,
-  };
-};
-
 export const removePath = (line = '') => line.replace(/\/?([\w\d-.]+\/)+/, '');
