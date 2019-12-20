@@ -10,6 +10,7 @@ job_fields = [
     'option_collection_hash',
     'job_type_id',
     'result',
+    'state',
     'failure_classification_id',
     'push_id',
 ]
@@ -46,14 +47,21 @@ def set_matching_passed_jobs(failures, push):
         push=push,
         result='success'
     ).filter(query).select_related('job_type')
+    in_progress_jobs = Job.objects.filter(
+        push=push,
+        result='unknown'
+    ).filter(query).select_related('job_type')
 
     #
     # Group the passing jobs into groups based on their platform, option and job_type
     #
     # convert from ORM objects to dicts for when we return this object
     passing_job_dicts = [job_to_dict(job) for job in passing_jobs]
+    in_progress_job_dicts = [job_to_dict(job) for job in in_progress_jobs]
     sorted_passing_jobs = sorted(passing_job_dicts, key=get_job_key)
+    sorted_in_progress_jobs = sorted(in_progress_job_dicts, key=get_job_key)
     passing_job_map = {key: list(group) for key, group in groupby(sorted_passing_jobs, get_job_key)}
+    in_progress_job_map = {key: list(group) for key, group in groupby(sorted_in_progress_jobs, get_job_key)}
 
     #
     # Assign matching passing jobs to the test failures
@@ -67,6 +75,8 @@ def set_matching_passed_jobs(failures, push):
                 # This sets the ``passJobs`` key in the ``failures`` object that was passed in,
                 # which is then returned from the API.
                 failure['passJobs'] = passing_job_map[job_key]
+            if job_key in in_progress_job_map:
+                failure['inProgressJobs'] = in_progress_job_map[job_key]
         # This helps the user when determining if this is an intermittent.  If it
         # gets above 50%, then it's intermittent.
         passed_count = len(failure['passJobs']) + len(failure['passInFailedJobs'])

@@ -13,8 +13,10 @@ class Job extends PureComponent {
     const {
       id,
       result,
+      state,
       failure_classification_id: failureClassificationId,
     } = job;
+    const resultStatus = state === 'completed' ? result : state;
 
     return (
       <span className="mr-2" key={id}>
@@ -22,9 +24,9 @@ class Job extends PureComponent {
           className={`btn job-btn filter-shown btn-sm mt-1 ${getBtnClass(
             result,
             failureClassificationId,
-          )}`}
+          )} border`}
           href={getJobsUrl({ selectedJob: job.id, repo, revision })}
-          title={jobName}
+          title={`${jobName} - ${resultStatus}`}
         >
           {jobSymbol}
         </a>

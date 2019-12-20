@@ -46,6 +46,7 @@ class TestFailure extends React.PureComponent {
       action,
       jobName,
       jobSymbol,
+      inProgressJobs,
       failJobs,
       passJobs,
       passInFailedJobs,
@@ -145,6 +146,16 @@ class TestFailure extends React.PureComponent {
               repo={repo}
               revision={revision}
               key={passedInAFailedJob.id}
+            />
+          ))}
+          {inProgressJobs.map(inProgressJob => (
+            <Job
+              job={inProgressJob}
+              jobName={jobName}
+              jobSymbol={jobSymbol}
+              repo={repo}
+              revision={revision}
+              key={inProgressJob.id}
             />
           ))}
         </div>
