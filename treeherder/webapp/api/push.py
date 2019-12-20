@@ -15,6 +15,7 @@ from treeherder.model.models import (Job,
                                      Repository)
 from treeherder.push_health.builds import get_build_failures
 from treeherder.push_health.linting import get_lint_failures
+from treeherder.push_health.performance import get_perf_failures
 from treeherder.push_health.tests import get_test_failures
 from treeherder.webapp.api.serializers import PushSerializer
 from treeherder.webapp.api.utils import (REPO_GROUPS,
@@ -249,6 +250,9 @@ class PushViewSet(viewsets.ViewSet):
         lint_failures = get_lint_failures(push)
         lint_result = 'fail' if len(lint_failures) else 'pass'
 
+        perf_failures = get_perf_failures(push)
+        perf_result = 'fail' if len(perf_failures) else 'pass'
+
         return Response({
             'revision': revision,
             'id': push.id,
@@ -269,19 +273,10 @@ class PushViewSet(viewsets.ViewSet):
                     'result': build_result,
                     'details': build_failures,
                 },
-                'coverage': {
-                    'name': 'Coverage (Not yet implemented)',
-                    'result': 'none',
-                    'details': [
-                        'Covered 42% of the tests that are needed for feature ``foo``.',
-                        'Covered 100% of the tests that are needed for feature ``bar``.',
-                        'The ratio of people to cake is too many...',
-                    ],
-                },
                 'performance': {
-                    'name': 'Performance (Not yet implemented)',
-                    'result': 'none',
-                    'details': ['Ludicrous Speed'],
+                    'name': 'Performance',
+                    'result': perf_result,
+                    'details': perf_failures,
                 },
             },
             'status': push.get_status(),
