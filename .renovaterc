@@ -1,6 +1,7 @@
 {
   "extends": [
     "config:js-app",
+    "schedule:earlyMondays",
     ":maintainLockFilesWeekly",
     ":prNotPending",
     ":unpublishSafe"
@@ -15,5 +16,16 @@
   "labels": ["dependencies", "javascript"],
   "reviewers": ["armenzg"],
   "semanticCommits": false,
+  "minor": {
+    "enabled": false
+  },
+  "separateMinorPatch": true,
+  "patch": {
+    "automerge": true,
+    "automergeType": "branch"
+  },
+  "lockFileMaintenance": {
+    "automerge": true
+  },
   "travis": { "enabled": true }
 }
