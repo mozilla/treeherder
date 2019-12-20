@@ -1,7 +1,7 @@
-/* eslint-disable jsx-a11y/control-has-associated-label */
 /* eslint-disable jsx-a11y/no-static-element-interactions */
 
 import React from 'react';
+import { Button } from 'reactstrap';
 import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
@@ -247,22 +247,20 @@ class SecondaryNavBar extends React.PureComponent {
             )}
 
             {/* Unclassified Failures Button */}
-            <span
+            <Button
               className={`btn btn-sm ${
                 allUnclassifiedFailureCount
                   ? 'btn-unclassified-failures'
                   : 'btn-view-nav'
               }${filterModel.isUnclassifiedFailures() ? ' active' : ''}`}
               title="Loaded failures / toggle filtering for unclassified failures"
-              tabIndex="-1"
-              role="button"
               onClick={this.toggleUnclassifiedFailures}
             >
               <span id="unclassified-failure-count">
                 {allUnclassifiedFailureCount}
               </span>{' '}
               unclassified
-            </span>
+            </Button>
 
             {/* Filtered Unclassified Failures Button */}
             {filteredUnclassifiedFailureCount !==
@@ -278,8 +276,8 @@ class SecondaryNavBar extends React.PureComponent {
             )}
 
             {/* Toggle Duplicate Jobs */}
-            <span
-              className={`btn btn-view-nav btn-sm btn-toggle-duplicate-jobs ${
+            <Button
+              className={`btn btn-view-nav btn-sm btn-toggle-duplicate-jobs bg-transparent border border-0 ${
                 groupCountsExpanded ? 'disabled' : ''
               } ${!duplicateJobsVisible ? 'strikethrough' : ''}`}
               tabIndex="0"
@@ -293,7 +291,7 @@ class SecondaryNavBar extends React.PureComponent {
                 !groupCountsExpanded && this.toggleShowDuplicateJobs()
               }
             />
-            <span className="btn-group">
+            <Button className="btn-group p-0 bg-transparent border border-0">
               {/* Toggle Group State Button */}
               <span
                 className="btn btn-view-nav btn-sm btn-toggle-group-state"
@@ -312,7 +310,7 @@ class SecondaryNavBar extends React.PureComponent {
                 </span>{' '}
                 )
               </span>
-            </span>
+            </Button>
 
             {/* Result Status Filter Chicklets */}
             <span className="resultStatusChicklets">
