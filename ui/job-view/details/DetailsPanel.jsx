@@ -280,12 +280,7 @@ class DetailsPanel extends React.Component {
                       d.signature_id,
                       1,
                       d.series.frameworkId,
-                    ]}&selected=${[
-                      currentRepo.name,
-                      d.signature_id,
-                      selectedJob.push_id,
-                      d.id,
-                    ]}`,
+                    ]}&selected=${[d.signature_id, d.id]}`,
                     value: d.value,
                     title: d.series.name,
                   }));
