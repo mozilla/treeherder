@@ -128,6 +128,7 @@ def get_current_test_failures(push, option_map):
                 'config': config,
                 'key': test_key,
                 'jobKey': job.job_key,
+                'inProgressJobs': [],
                 'failJobs': [],
                 'passJobs': [],
                 'passInFailedJobs': [],  # This test passed in a job that failed for another test
