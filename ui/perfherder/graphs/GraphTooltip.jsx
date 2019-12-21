@@ -26,6 +26,7 @@ const GraphTooltip = ({
   datum,
   x,
   y,
+  windowWidth,
 }) => {
   const testDetails = testData.find(
     item => item.signature_id === datum.signature_id,
@@ -133,8 +134,9 @@ const GraphTooltip = ({
   };
 
   const verticalOffset = 15;
+  const horizontalOffset = x >= 1275 && windowWidth <= 1825 ? 100 : 0;
   const centered = {
-    x: x - 280 / 2,
+    x: x - 280 / 2 - horizontalOffset,
     y: y - (186 + verticalOffset),
   };
 
@@ -263,7 +265,10 @@ const GraphTooltip = ({
             )}
           </div>
         </div>
-        <div className="tip" />
+        <div
+          className="tip"
+          style={{ transform: `translateX(${horizontalOffset}px)` }}
+        />
       </div>
     </foreignObject>
   );

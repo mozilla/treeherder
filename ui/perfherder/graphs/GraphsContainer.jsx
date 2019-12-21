@@ -37,6 +37,7 @@ class GraphsContainer extends React.Component {
       ),
       lockTooltip: false,
       externalMutation: undefined,
+      width: window.innerWidth,
     };
   }
 
@@ -45,6 +46,9 @@ class GraphsContainer extends React.Component {
 
     this.addHighlights();
     if (selectedDataPoint) this.verifySelectedDataPoint();
+    window.addEventListener('resize', () =>
+      this.setState({ width: window.innerWidth }),
+    );
   }
 
   componentDidUpdate(prevProps) {
@@ -268,6 +272,7 @@ class GraphsContainer extends React.Component {
       scatterPlotData,
       lockTooltip,
       externalMutation,
+      width,
     } = this.state;
 
     const yAxisLabel = this.computeYAxisLabel();
@@ -344,7 +349,7 @@ class GraphsContainer extends React.Component {
               height={400}
               style={{ parent: { maxHeight: '400px', maxWidth: '1350px' } }}
               scale={{ x: 'time', y: 'linear' }}
-              domainPadding={{ y: 40 }}
+              domainPadding={{ y: 40, x: [10, 10] }}
               externalEventMutations={externalMutation}
               containerComponent={
                 <VictoryZoomSelectionContainer
@@ -442,6 +447,7 @@ class GraphsContainer extends React.Component {
                         <GraphTooltip
                           lockTooltip={lockTooltip}
                           closeTooltip={this.closeTooltip}
+                          windowWidth={width}
                           {...this.props}
                         />
                       </VictoryPortal>
