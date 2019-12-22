@@ -37,6 +37,32 @@ h1 {
   }
 }
 
+.btn-info {
+  background-color: #0d7d8f !important;
+  border-color: #0d7d8f !important;
+}
+
+.btn-info:hover {
+  background-color: #0a5e6d !important;
+}
+
+.btn-outline-info {
+  color: #0d7d8f;
+  border-color: #0d7d8f;
+}
+
+.btn-outline-info:hover,
+.btn-outline-info:not(:disabled):not(.disabled).active {
+  background-color: #0d7d8f;
+  border-color: #0d7d8f;
+}
+
+.btn-info.disabled,
+.btn-info.disabled:hover {
+  color: black;
+  background-color: #30b9ce80;
+}
+
 #perf-logo {
   padding: 15px;
   border: none;
@@ -211,7 +237,7 @@ h1 {
 
 .push-information {
   font-size: 18px;
-  color: #555;
+  color: #727272;
   margin-left: -4px;
   display: grid;
   grid-template-columns: 1fr auto 1fr;
@@ -282,6 +308,19 @@ th {
 
 .compare-table th h3 {
   font-size: inherit;
+}
+
+.compare-table .text-success {
+  color: #1e8836 !important;
+}
+
+.compare-table .text-info {
+  color: #127989 !important;
+}
+
+.compare-table .btn-secondary.disabled {
+  background-color: #d1d1d1;
+  color: black;
 }
 
 .compare-table .subtest-header > th,
@@ -493,4 +532,14 @@ li.pagination-active.active > button {
 
 .page-title-text:hover .edit-icon {
   visibility: visible;
+}
+
+/* ReactTable stlye */
+.ReactTable .-pagination .-btn[disabled] {
+  background-color: rgba(0,0,0,0.03);
+  opacity: 1;
+}
+
+.ReactTable .item-badge {
+  color: #0d7b86;
 }
