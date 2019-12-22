@@ -72,11 +72,6 @@ ul {
   text-align: left;
 }
 
-/* ReactTable style */
-.ReactTable .-pagination .-btn:focus {
-  box-shadow: 0 0 0 0.2rem rgba(130, 138, 145, 0.5);
-}
-
 /* overriding react-dates default input and button style */
 input.DateInput_input {
   font-size: 1rem;
@@ -96,4 +91,33 @@ button.DateRangePickerInput_clearDates {
   top: 45%;
   padding: 5px 8px;
   margin: 1px 10px 0 5px;
+}
+
+/* Graphic overriding style */
+.mx-auto .mg-x-axis text,
+.mx-auto .mg-y-axis text,
+.mx-auto .mg-histogram .axis text {
+  opacity: 1;
+}
+
+.mg-x-axis .mg-year-marker text {
+  opacity: 0.9;
+}
+
+/* ReactTable style */
+.ReactTable .-pagination .-btn:focus {
+  box-shadow: 0 0 0 0.2rem rgba(130, 138, 145, 0.5);
+}
+
+.ReactTable .-pagination .-btn[disabled] {
+  background-color: rgba(0, 0, 0, 0.03);
+  opacity: 1;
+}
+
+.ReactTable .item-badge {
+  color: #0d7b86;
+}
+
+.rt-tbody a {
+  color: #187c86;
 }
