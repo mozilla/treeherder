@@ -268,6 +268,46 @@ describe('BugFiler', () => {
     expect(summary[1]).toBe('xhr.https.html');
   });
 
+  test('should set "assertion" keyword if summary contains "assertion fail"', () => {
+    const rawSummary =
+      'Assertion failure: [GFX1]: Failed to create software bitmap: Size(16,8) Code: 0x8899000c, at z:/build/build/src/obj-firefox/dist/include/mozilla/gfx/Logging.h:740';
+    const bugFiler = getBugFilerForSummary(rawSummary);
+    const { keywords } = bugFiler.state();
+    expect(keywords).toEqual(expect.arrayContaining(['assertion']));
+  });
+
+  test('should set "assertion" keyword if summary contains "ASSERTION:"', () => {
+    const rawSummary =
+      "ASSERTION: No list accessible for listitem accessible!: 'Error', filemozilla/accessible/xul/XULListboxAccessible.cpp, line 478";
+    const bugFiler = getBugFilerForSummary(rawSummary);
+    const { keywords } = bugFiler.state();
+    expect(keywords).toEqual(expect.arrayContaining(['assertion']));
+  });
+
+  test('should set "assertion" keyword if summary contains "assertion count d+ is w+ than expected d+ assertion"', () => {
+    const rawSummary =
+      'REFTEST TEST-UNEXPECTED-FAIL | http://10.0.2.2:8854/tests/layout/generic/crashtests/847209.html | assertion count 6 is more than expected 4 assertions';
+    const bugFiler = getBugFilerForSummary(rawSummary);
+    const { keywords } = bugFiler.state();
+    expect(keywords).toEqual(expect.arrayContaining(['assertion']));
+  });
+
+  test('should set "assertion" keyword if summary contains "AssertionError"', () => {
+    const rawSummary =
+      'TEST-UNEXPECTED-FAIL | testing/marionette/harness/marionette_harness/tests/unit/test_window_rect.py TestWindowRect.test_set_position_and_size | AssertionError: 0 != 10';
+    const bugFiler = getBugFilerForSummary(rawSummary);
+    const { keywords } = bugFiler.state();
+    expect(keywords).toEqual(expect.arrayContaining(['assertion']));
+  });
+
+  test('should not set "assertion" keyword if summary contains none', () => {
+    const rawSummary =
+      'TEST-UNEXPECTED-FAIL | browser/base/content/test/performance/browser_tabdetach.js | unexpected reflow at scrollByPixels@chrome://global/content/elements/arrowscrollbox.js hit 1 times';
+    const bugFiler = getBugFilerForSummary(rawSummary);
+    const { keywords } = bugFiler.state();
+    expect(keywords).toEqual(expect.not.arrayContaining(['assertion']));
+  });
+
   test('should strip omitted leads from thisFailure', () => {
     const suggestions = [
       {
