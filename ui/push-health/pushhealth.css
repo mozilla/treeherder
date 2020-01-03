@@ -14,3 +14,7 @@
 .table-fixed {
   table-layout: fixed;
 }
+
+.react-tooltip-lite {
+  border-radius: 5px;
+}

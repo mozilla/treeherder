@@ -7806,6 +7806,13 @@ react-test-renderer@^16.0.0-0:
     react-is "^16.8.6"
     scheduler "^0.18.0"
 
+react-tooltip-lite@1.11.1:
+  version "1.11.1"
+  resolved "https://registry.yarnpkg.com/react-tooltip-lite/-/react-tooltip-lite-1.11.1.tgz#d529679a5e9a2765e55a180a0fb4d2f3c813e356"
+  integrity sha512-l+iVOFA4gu4Fydv8aAQ5q7E3x+TL4tQLudGlbTRgWlURVaYZusM8rLDO9axymzcB4u38g/ouscNqaBgjezFEjQ==
+  dependencies:
+    prop-types "^15.5.8"
+
 react-transition-group@^2.3.1:
   version "2.9.0"
   resolved "https://registry.yarnpkg.com/react-transition-group/-/react-transition-group-2.9.0.tgz#df9cdb025796211151a436c69a8f3b97b5b07c8d"
