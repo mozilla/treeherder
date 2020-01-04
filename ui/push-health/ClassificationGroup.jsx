@@ -16,11 +16,15 @@ import {
   DropdownMenu,
   DropdownToggle,
   DropdownItem,
+  Navbar,
+  Nav,
+  NavItem,
+  UncontrolledButtonDropdown,
 } from 'reactstrap';
 
 import JobModel from '../models/job';
 
-import TestFailure from './TestFailure';
+import GroupedTests from './GroupedTests';
 
 class ClassificationGroup extends React.PureComponent {
   constructor(props) {
@@ -29,6 +33,8 @@ class ClassificationGroup extends React.PureComponent {
     this.state = {
       detailsShowing: props.expanded,
       retriggerDropdownOpen: false,
+      groupedBy: 'path',
+      orderedBy: 'count',
     };
   }
 
@@ -57,8 +63,21 @@ class ClassificationGroup extends React.PureComponent {
     JobModel.retrigger(uniqueJobs, currentRepo, notify, times);
   };
 
+  setGroupedBy = groupedBy => {
+    this.setState({ groupedBy });
+  };
+
+  setOrderedBy = orderedBy => {
+    this.setState({ orderedBy });
+  };
+
   render() {
-    const { detailsShowing, retriggerDropdownOpen } = this.state;
+    const {
+      detailsShowing,
+      retriggerDropdownOpen,
+      groupedBy,
+      orderedBy,
+    } = this.state;
     const {
       group,
       name,
@@ -97,50 +116,113 @@ class ClassificationGroup extends React.PureComponent {
         </h4>
         <Collapse isOpen={detailsShowing} className="w-100">
           {hasRetriggerAll && Object.keys(group).length > 0 && (
-            <ButtonGroup>
-              <Button
-                title="Retrigger all 'Need Investigation' jobs once"
-                onClick={() => this.retriggerAll(1)}
-              >
-                <FontAwesomeIcon
-                  icon={faRedo}
-                  title="Retrigger"
-                  className="mr-2"
-                />
-                Retrigger all
-              </Button>
-              <ButtonDropdown
-                isOpen={retriggerDropdownOpen}
-                toggle={this.toggleRetrigger}
-              >
-                <DropdownToggle caret />
-                <DropdownMenu>
-                  {[5, 10, 15].map(times => (
-                    <DropdownItem
-                      key={times}
-                      title={`Retrigger all 'Need Investigation' jobs ${times} times`}
-                      onClick={() => this.retriggerAll(times)}
+            <Navbar className="mb-4">
+              <Nav>
+                <NavItem>
+                  <ButtonGroup size="sm">
+                    <Button
+                      title="Retrigger all 'Need Investigation' jobs once"
+                      onClick={() => this.retriggerAll(1)}
+                      size="sm"
                     >
-                      Retrigger all {times} times
-                    </DropdownItem>
-                  ))}
-                </DropdownMenu>
-              </ButtonDropdown>
-            </ButtonGroup>
+                      <FontAwesomeIcon
+                        icon={faRedo}
+                        title="Retrigger"
+                        className="mr-2"
+                      />
+                      Retrigger all
+                    </Button>
+                    <ButtonDropdown
+                      isOpen={retriggerDropdownOpen}
+                      toggle={this.toggleRetrigger}
+                      size="sm"
+                    >
+                      <DropdownToggle caret />
+                      <DropdownMenu>
+                        {[5, 10, 15].map(times => (
+                          <DropdownItem
+                            key={times}
+                            title={`Retrigger all 'Need Investigation' jobs ${times} times`}
+                            onClick={() => this.retriggerAll(times)}
+                            tag="a"
+                          >
+                            Retrigger all {times} times
+                          </DropdownItem>
+                        ))}
+                      </DropdownMenu>
+                    </ButtonDropdown>
+                  </ButtonGroup>
+                </NavItem>
+                <NavItem>
+                  <UncontrolledButtonDropdown size="sm" className="ml-1">
+                    <DropdownToggle
+                      className="btn-sm ml-1 text-capitalize"
+                      id="groupTestsDropdown"
+                      caret
+                    >
+                      Group By: {groupedBy}
+                    </DropdownToggle>
+                    <DropdownMenu toggler="groupTestsDropdown">
+                      <DropdownItem
+                        tag="a"
+                        onClick={() => this.setGroupedBy('none')}
+                      >
+                        None
+                      </DropdownItem>
+                      <DropdownItem
+                        tag="a"
+                        onClick={() => this.setGroupedBy('path')}
+                      >
+                        Path
+                      </DropdownItem>
+                      <DropdownItem
+                        tag="a"
+                        onClick={() => this.setGroupedBy('platform')}
+                      >
+                        Platform
+                      </DropdownItem>
+                    </DropdownMenu>
+                  </UncontrolledButtonDropdown>
+                </NavItem>
+                <NavItem>
+                  <UncontrolledButtonDropdown size="sm" className="ml-1">
+                    <DropdownToggle
+                      className="btn-sm ml-1 text-capitalize"
+                      id="groupTestsDropdown"
+                      caret
+                    >
+                      Order By: {orderedBy}
+                    </DropdownToggle>
+                    <DropdownMenu toggler="groupTestsDropdown">
+                      <DropdownItem
+                        tag="a"
+                        onClick={() => this.setOrderedBy('count')}
+                      >
+                        Count
+                      </DropdownItem>
+                      <DropdownItem
+                        tag="a"
+                        onClick={() => this.setOrderedBy('text')}
+                      >
+                        Text
+                      </DropdownItem>
+                    </DropdownMenu>
+                  </UncontrolledButtonDropdown>
+                </NavItem>
+              </Nav>
+            </Navbar>
           )}
           <div>
-            {group &&
-              group.map(failure => (
-                <TestFailure
-                  key={failure.key}
-                  failure={failure}
-                  repo={repo}
-                  currentRepo={currentRepo}
-                  revision={revision}
-                  user={user}
-                  notify={notify}
-                />
-              ))}
+            <GroupedTests
+              group={group}
+              repo={repo}
+              revision={revision}
+              user={user}
+              groupedBy={groupedBy}
+              orderedBy={orderedBy}
+              currentRepo={currentRepo}
+              notify={notify}
+            />
           </div>
         </Collapse>
       </Row>

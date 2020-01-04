@@ -41,6 +41,7 @@ describe('TestFailure', () => {
       user={{ email: 'foo' }}
       revision="abc"
       currentRepo={{ name: repoName }}
+      groupedBy="platform"
       notify={() => {}}
     />
   );
