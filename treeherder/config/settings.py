@@ -21,6 +21,9 @@ env = environ.Env()
 # Top Level configuration
 DEBUG = env.bool("TREEHERDER_DEBUG", default=False)
 
+# Papertrail logs WARNING messages. This env variable allows modifying the behaviour
+LOGGING_LEVEL = 'DEBUG' if DEBUG else env.bool("LOGGING_LEVEL", default='WARNING')
+
 GRAPHQL = env.bool("GRAPHQL", default=True)
 
 # Make this unique, and don't share it with anybody.
@@ -217,8 +220,8 @@ LOGGING = {
         },
         'treeherder': {
             'handlers': ['console'],
-            'level': 'DEBUG' if DEBUG else 'WARNING',
-            'propagate': not DEBUG,
+            'level': LOGGING_LEVEL,
+            'propagate': LOGGING_LEVEL != 'WARNING',
         },
         'kombu': {
             'handlers': ['console'],
