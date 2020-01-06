@@ -1,8 +1,8 @@
 {
   "addons": [
     "scheduler",
-    "cloudamqp:tiger",
-    "heroku-redis",
+    "cloudamqp:bunny",
+    "heroku-redis:premium-1",
     "papertrail:choklad",
     {
       "plan": "jawsdb:leopard",
