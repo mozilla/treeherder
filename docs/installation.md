@@ -141,7 +141,8 @@ Ingestion tasks populate the database with version control push logs, queued/run
 docker-compose run backend ./manage.py ingest push -p autoland -r 63f8a47cfdf5
 ```
 
-`NOTE`: In the future you will also be able to append `--ingest-all-tasks` to ingest all tasks.
+You can ingest all tasks for a push. Check the help output for the script to determine the
+parameters needed.
 
 ### Ingesting a range of pushes
 

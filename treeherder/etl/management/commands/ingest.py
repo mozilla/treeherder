@@ -110,9 +110,19 @@ class Command(BaseCommand):
             help="Commit/revision to import"
         )
         parser.add_argument(
+            "--enable-eager-celery",
+            action="store_true",
+            help="This will cause all Celery queues to excute (like log parsing). This will take way longer."
+        )
+        parser.add_argument(
             "--ingest-all-tasks",
-            nargs="?",
+            action="store_true",
             help="This will cause all tasks associated to a commit to be ingested. This can take a long time."
+        )
+        parser.add_argument(
+            "--gecko-decision-task",
+            dest="gecko_decision_task",
+            help="Specify the Gecko decision task for a specific push"
         )
         parser.add_argument(
             "--root-url",
@@ -163,36 +173,31 @@ class Command(BaseCommand):
         elif typeOfIngestion == "git-push":
             raise Exception("This is not yet implemented")
         elif typeOfIngestion == "push":
-            project = options["project"]
-            commit = options["commit"]
-
-            # get reference to repo
-            repo = Repository.objects.get(name=project, active_status="active")
-            fetch_push_id = None
-
-            # make sure all tasks are run synchronously / immediately
-            settings.CELERY_TASK_ALWAYS_EAGER = True
-
-            # get hg pushlog
-            pushlog_url = "%s/json-pushes/?full=1&version=2" % repo.url
-
-            # ingest this particular revision for this project
-            process = HgPushlogProcess()
-            # Use the actual push SHA, in case the changeset specified was a tag
-            # or branch name (eg tip). HgPushlogProcess returns the full SHA.
-            process.run(pushlog_url, project, changeset=commit, last_push_id=fetch_push_id)
-
-            if options["ingest_all_tasks"]:
-                # XXX: Need logic to get from project/revision to taskGroupId
-                logger.info("## START ##")
-                # loop.run_until_complete(processTasks("ZYnMSfwCS5Cc_Wi_e-ZlSA", repo.tc_root_url))
-                logger.info("## END ##")
-                raise Exception(
-                    "This is not yet implemented. You can still use it by changing the code to "
-                    "grab the task group ID for your push."
+            if not options["enable_eager_celery"]:
+                logger.info(
+                    "If you want all logs to be parsed use --enable-eager-celery"
                 )
             else:
+                # Make sure all tasks are run synchronously / immediately
+                settings.CELERY_TASK_ALWAYS_EAGER = True
+
+            # get reference to repo and ingest this particular revision for this project
+            project = options["project"]
+            commit = options["commit"]
+            repo = Repository.objects.get(name=project, active_status="active")
+            pushlog_url = "%s/json-pushes/?full=1&version=2" % repo.url
+            process = HgPushlogProcess()
+            process.run(pushlog_url, project, changeset=commit, last_push_id=None)
+
+            if options["ingest_all_tasks"]:
+                gecko_decision_task = options.get("gecko_decision_task")
+                # XXX: Need logic to get from project/revision to the Gecko decision task
+                assert gecko_decision_task is not None, "For now you also need to specify --gecko-decision-task"
+                logger.info("## START ##")
+                loop.run_until_complete(processTasks(gecko_decision_task, repo.tc_root_url))
+                logger.info("## END ##")
+            else:
                 logger.info(
-                    "When implemented you will be able to use --ingest-all-tasks to ingest "
-                    "all tasks associated to this push."
+                    "You can ingest all tasks for a push with --ingest-all-tasks and "
+                    "--gecko-decision-task."
                 )
