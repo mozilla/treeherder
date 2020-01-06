@@ -7,7 +7,8 @@ from rest_framework import (exceptions,
                             serializers)
 
 from treeherder.model.models import Repository
-from treeherder.perf.models import (IssueTracker,
+from treeherder.perf.models import (BackfillRecord,
+                                    IssueTracker,
                                     PerformanceAlert,
                                     PerformanceAlertSummary,
                                     PerformanceBugTemplate,
@@ -36,6 +37,14 @@ class WordsField(serializers.CharField):
         if isinstance(obj, str):
             return obj.split(' ')
         return []
+
+
+class BackfillRecordSerializer(serializers.Serializer):
+    context = serializers.JSONField()
+
+    class Meta:
+        model = BackfillRecord
+        fields = ('alert', 'context')
 
 
 class PerformanceFrameworkSerializer(serializers.ModelSerializer):
@@ -78,6 +87,7 @@ class PerformanceAlertSerializer(serializers.ModelSerializer):
         slug_field="username", allow_null=True, required=False,
         queryset=User.objects.all())
     classifier_email = serializers.SerializerMethodField()
+    backfill_record = BackfillRecordSerializer(read_only=True, allow_null=True)
 
     # Force `is_regression` to be an optional field, even when using PUT, since in
     # Django 2.1 BooleanField no longer has an implicit `blank=True` on the model.
@@ -128,7 +138,8 @@ class PerformanceAlertSerializer(serializers.ModelSerializer):
         fields = ['id', 'status', 'series_signature', 'is_regression',
                   'prev_value', 'new_value', 't_value', 'amount_abs',
                   'amount_pct', 'summary_id', 'related_summary_id',
-                  'manually_created', 'classifier', 'starred', 'classifier_email']
+                  'manually_created', 'classifier', 'starred',
+                  'classifier_email', 'backfill_record']
 
 
 class PerformanceAlertSummarySerializer(serializers.ModelSerializer):

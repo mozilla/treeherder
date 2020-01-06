@@ -1,4 +1,4 @@
-import { fetchMock } from 'fetch-mock';
+import fetchMock from 'fetch-mock';
 
 import PushModel from '../../../ui/models/push';
 import { getProjectUrl } from '../../../ui/helpers/location';

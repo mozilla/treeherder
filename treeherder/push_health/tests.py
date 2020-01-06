@@ -1,5 +1,7 @@
 import datetime
 import json
+import logging
+import re
 from collections import defaultdict
 
 from django.core.cache import cache
@@ -15,6 +17,8 @@ from treeherder.push_health.similar_jobs import (job_to_dict,
 from treeherder.push_health.utils import (clean_config,
                                           clean_platform,
                                           clean_test)
+
+logger = logging.getLogger(__name__)
 
 ONE_WEEK_IN_SECONDS = 604800
 intermittent_history_days = 14
@@ -89,12 +93,10 @@ def get_current_test_failures(push, option_map):
     # for the same job (with different sub-tests), but it's only supported by
     # postgres.  Just using .distinct() has no effect.
     new_failure_lines = FailureLine.objects.filter(
-        action='test_result',
+        action__in=['test_result', 'log', 'crash'],
         job_log__job__push=push,
         job_log__job__result='testfailed',
         job_log__job__tier__lte=2
-    ).exclude(
-        test=None
     ).select_related(
         'job_log__job__job_type', 'job_log__job__machine_platform'
     )
@@ -114,17 +116,19 @@ def get_current_test_failures(push, option_map):
         job_symbol = job.job_type.symbol
         job.job_key = '{}{}{}'.format(config, platform, job_name)
         all_failed_jobs[job.id] = job
-        test_key = '{}{}{}{}'.format(test_name, config, platform, job_name)
+        test_key = re.sub(r'\W+', '', '{}{}{}{}'.format(test_name, config, platform, job_name))
 
         if test_key not in tests:
             line = {
                 'testName': test_name,
+                'action': failure_line.action.split('_')[0],
                 'jobName': job_name,
                 'jobSymbol': job_symbol,
                 'platform': platform,
                 'config': config,
                 'key': test_key,
                 'jobKey': job.job_key,
+                'inProgressJobs': [],
                 'failJobs': [],
                 'passJobs': [],
                 'passInFailedJobs': [],  # This test passed in a job that failed for another test
@@ -169,9 +173,12 @@ def has_line(failure_line, log_line_list):
 
 
 def get_test_failures(push, repository_ids):
+    logger.info('Getting test failures for push: {}'.format(push.id))
     # query for jobs for the last two weeks excluding today
     # find tests that have failed in the last 14 days
     # this is very cache-able for reuse on other pushes.
+
+    # option_map is used to map platforms for the job.option_collection_hash
     option_map = OptionCollection.objects.get_option_collection_map()
     push_date = push.time.date()
     intermittent_history, cache_key = get_history(
@@ -186,16 +193,30 @@ def get_test_failures(push, repository_ids):
         fixed_by_commit_history_days,
         option_map,
         repository_ids)
+
+    # ``push_failures`` are tests that have FailureLine records created by out Log Parser.
+    #     These are tests we are able to show to examine to see if we can determine they are
+    #     intermittent.  If they are not, we tell the user they need investigation.
+    # ``unsupported_jobs`` are jobs that either don't have an ``*_errorsummary.log`` file,
+    #     or have one that does not have enough information for us to interpret.  So we place
+    #     these jobs into the "Unsupported" category.  The jobs either need to change either at
+    #     the test-level or harness level so we can interpret them.  In some cases, the Treeherder
+    #     code here can be updated to interpret information we don't currently handle.
+    # These are failures ONLY for the current push, not relative to history.
     push_failures, unsupported_jobs = get_current_test_failures(push, option_map)
     filtered_push_failures = [
         failure for failure in push_failures if filter_failure(failure)
     ]
 
+    # Based on the intermittent and FixedByCommit history, set the appropriate classification
+    # where we think each test falls.
     set_classifications(
         filtered_push_failures,
         intermittent_history,
         fixed_by_commit_history,
     )
+    # If we have failed tests that have also passed, we gather them both.  This helps us determine
+    # if a job is intermittent based on the current push results.
     set_matching_passed_jobs(filtered_push_failures, push)
 
     failures = get_grouped(filtered_push_failures)

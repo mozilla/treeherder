@@ -4,50 +4,53 @@ import { Badge } from 'reactstrap';
 
 import PushModel from '../models/push';
 import { getPushHealthUrl } from '../helpers/url';
+import { didObjectsChange } from '../helpers/object';
 
 class PushHealthStatus extends Component {
   constructor(props) {
     super(props);
 
     this.state = {
-      healthStatus: 'Loading...',
+      healthStatus: '',
       needInvestigation: 0,
     };
   }
 
   async componentDidMount() {
-    await this.loadLatestStatus();
+    const {
+      jobCounts: { completed },
+    } = this.props;
+
+    if (completed > 0) {
+      await this.loadLatestStatus();
+    }
   }
 
-  shouldComponentUpdate(nextProps, nextState) {
+  async componentDidUpdate(prevProps) {
     const { jobCounts } = this.props;
-    const { healthStatus } = this.state;
+    const fields = ['completed', 'fixedByCommit', 'pending', 'running'];
 
-    return (
-      jobCounts !== nextProps.jobCounts ||
-      healthStatus !== nextState.healthStatus
-    );
-  }
-
-  async componentDidUpdate() {
-    await this.loadLatestStatus();
+    if (didObjectsChange(jobCounts, prevProps.jobCounts, fields)) {
+      await this.loadLatestStatus();
+    }
   }
 
   async loadLatestStatus() {
-    const { repoName, pushId } = this.props;
+    const { repoName, revision } = this.props;
+    const { data, failureStatus } = await PushModel.getHealthSummary(
+      repoName,
+      revision,
+    );
 
-    PushModel.getHealthSummary(repoName, pushId).then(resp => {
-      const { data, error } = resp;
-      if (!error) {
-        const { needInvestigation } = data;
-        const testsNeed = needInvestigation > 1 ? 'tests need' : 'test needs';
-        const healthStatus = needInvestigation
-          ? `${needInvestigation} ${testsNeed} investigation`
-          : 'OK';
+    if (!failureStatus) {
+      const { needInvestigation } = data;
+      const testsNeed = needInvestigation > 1 ? 'tests need' : 'test needs';
+      const healthStatus = needInvestigation
+        ? `${needInvestigation} ${testsNeed} investigation`
+        : 'OK';
 
-        this.setState({ healthStatus, needInvestigation });
-      }
-    });
+      this.setState({ healthStatus, needInvestigation });
+    }
   }
 
   render() {
@@ -76,7 +79,6 @@ class PushHealthStatus extends Component {
 }
 
 PushHealthStatus.propTypes = {
-  pushId: PropTypes.number.isRequired,
   revision: PropTypes.string.isRequired,
   repoName: PropTypes.string.isRequired,
   jobCounts: PropTypes.shape({

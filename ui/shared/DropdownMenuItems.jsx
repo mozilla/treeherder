@@ -8,6 +8,7 @@ const DropdownMenuItems = ({ selectedItem, updateData, options }) => (
   <DropdownMenu className="overflow-auto dropdown-menu-height">
     {options.map(item => (
       <DropdownItem
+        tag="a"
         key={item}
         onClick={event => updateData(event.target.innerText)}
       >

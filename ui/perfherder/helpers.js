@@ -9,6 +9,7 @@ import PerfSeriesModel, {
   getTestName,
 } from '../models/perfSeries';
 import { thPerformanceBranches } from '../helpers/constants';
+import RepositoryModel from '../models/repository';
 
 import {
   endpoints,
@@ -627,8 +628,73 @@ export const getSeriesData = async (
   return updates;
 };
 
-export const onPermalinkClick = (hashBasedValue, props) => {
-  const { history, location } = props;
+export const scrollWithOffset = function scrollWithOffset(el) {
+  // solution from https://github.com/rafrex/react-router-hash-link/issues/25#issuecomment-536688104
 
-  history.replace(`${location.pathname}${location.search}#${hashBasedValue}`);
+  const yCoordinate = el.getBoundingClientRect().top + window.pageYOffset;
+  const yOffset = -35;
+  window.scrollTo({ top: yCoordinate + yOffset, behavior: 'smooth' });
+};
+
+export const onPermalinkClick = (hashBasedValue, history, element) => {
+  scrollWithOffset(element);
+  history.replace(
+    `${history.location.pathname}${history.location.search}#${hashBasedValue}`,
+  );
+};
+
+// human readable signature name
+const getSignatureName = (testName, platformName) =>
+  [testName, platformName].filter(item => item !== null).join(' ');
+
+export const getHashBasedId = function getHashBasedId(
+  testName,
+  hashFunction,
+  platformName = null,
+) {
+  const tableSection = platformName === null ? 'header' : 'row';
+  const hashValue = hashFunction(getSignatureName(testName, platformName));
+
+  return `table-${tableSection}-${hashValue}`;
+};
+
+const retriggerByRevision = async (
+  jobId,
+  currentRepo,
+  isBaseline,
+  times,
+  props,
+) => {
+  const { isBaseAggregate, notify, retriggerJob, getJob } = props;
+
+  // do not retrigger if the base is aggregate (there is a selected time range)
+  if (isBaseline && isBaseAggregate) {
+    return;
+  }
+
+  if (jobId) {
+    const job = await getJob(currentRepo.name, jobId);
+    retriggerJob([job], currentRepo, notify, times);
+  }
+};
+
+export const retriggerJobs = async (results, times, props) => {
+  // retrigger base revision jobs
+  const { projects } = props;
+
+  retriggerByRevision(
+    results.originalRetriggerableJobId,
+    RepositoryModel.getRepo(results.originalRepoName, projects),
+    true,
+    times,
+    props,
+  );
+  // retrigger new revision jobs
+  retriggerByRevision(
+    results.newRetriggerableJobId,
+    RepositoryModel.getRepo(results.newRepoName, projects),
+    false,
+    times,
+    props,
+  );
 };

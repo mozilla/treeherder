@@ -248,6 +248,17 @@ export default class AlertTable extends React.Component {
                   </tr>
                 </thead>
                 <tbody>
+                  <tr className="border">
+                    <th> </th>
+                    <th> </th>
+                    <th>Test and platform</th>
+                    <th>Previous Value</th>
+                    <th> </th>
+                    <th>New Value</th>
+                    <th>Absolute Difference</th>
+                    <th>Magnitude of Change</th>
+                    <th>Confidence</th>
+                  </tr>
                   {filteredAlerts.map(alert => (
                     <AlertTableRow
                       key={alert.id}
@@ -296,10 +307,10 @@ export default class AlertTable extends React.Component {
                   {alertSummary.notes && (
                     <div className="bg-white px-3 py-4">
                       <TruncatedText
+                        color="info"
                         title="Notes: "
                         maxLength={167}
                         text={alertSummary.notes}
-                        showMoreClass="text-info"
                       />
                     </div>
                   )}

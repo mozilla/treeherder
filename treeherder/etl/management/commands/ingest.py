@@ -106,8 +106,8 @@ class Command(BaseCommand):
             help="Hg repository to query (e.g. autoland)"
         )
         parser.add_argument(
-            "-c", "--commit",
-            help="Commit to import"
+            "-c", "--commit", "-r", "--revision",
+            help="Commit/revision to import"
         )
         parser.add_argument(
             "--ingest-all-tasks",
@@ -161,8 +161,8 @@ class Command(BaseCommand):
             }
             PushLoader().process(pulse["payload"], pulse["exchange"], root_url)
         elif typeOfIngestion == "git-push":
-            pass
-        elif typeOfIngestion == "hg-push":
+            raise Exception("This is not yet implemented")
+        elif typeOfIngestion == "push":
             project = options["project"]
             commit = options["commit"]
 
@@ -183,8 +183,16 @@ class Command(BaseCommand):
             process.run(pushlog_url, project, changeset=commit, last_push_id=fetch_push_id)
 
             if options["ingest_all_tasks"]:
-                raise Exception("This is not yet implemented")
                 # XXX: Need logic to get from project/revision to taskGroupId
                 logger.info("## START ##")
-                loop.run_until_complete(processTasks("ZYnMSfwCS5Cc_Wi_e-ZlSA", repo.tc_root_url))
+                # loop.run_until_complete(processTasks("ZYnMSfwCS5Cc_Wi_e-ZlSA", repo.tc_root_url))
                 logger.info("## END ##")
+                raise Exception(
+                    "This is not yet implemented. You can still use it by changing the code to "
+                    "grab the task group ID for your push."
+                )
+            else:
+                logger.info(
+                    "When implemented you will be able to use --ingest-all-tasks to ingest "
+                    "all tasks associated to this push."
+                )

@@ -10,6 +10,8 @@ export const endpoints = {
 };
 
 export const noiseMetricTitle = 'noise metric';
+export const backfillRetriggeredTitle =
+  'This alert was retriggered by the backfill bot.';
 
 export const filterText = {
   showImportant: 'Show only important changes',

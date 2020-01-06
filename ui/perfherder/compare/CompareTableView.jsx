@@ -16,10 +16,9 @@ import {
   perfSummaryEndpoint,
   createQueryParams,
 } from '../../helpers/url';
-import { getFrameworkData } from '../helpers';
+import { getFrameworkData, scrollWithOffset } from '../helpers';
 import TruncatedText from '../../shared/TruncatedText';
 import LoadingSpinner from '../../shared/LoadingSpinner';
-import { scrollToLine } from '../../helpers/utils';
 
 import RevisionInformation from './RevisionInformation';
 import ComparePageTitle from './ComparePageTitle';
@@ -53,18 +52,18 @@ export default class CompareTableView extends React.Component {
     } else {
       this.getPerformanceData();
     }
+
+    if (location.hash) {
+      setTimeout(() => {
+        const el = document.querySelector(location.hash);
+        if (el) scrollWithOffset(el);
+      }, 1500);
+    }
   }
 
   componentDidUpdate(prevProps) {
-    const { loading } = this.state;
-    const { hashFragment } = this.props;
-
     if (this.props.location.search !== prevProps.location.search) {
       this.getPerformanceData();
-    }
-
-    if (!loading && hashFragment) {
-      scrollToLine(hashFragment, 100);
     }
   }
 
@@ -193,13 +192,7 @@ export default class CompareTableView extends React.Component {
       pageTitle,
     } = this.props.validated;
 
-    const {
-      filterByFramework,
-      hasSubtests,
-      onPermalinkClick,
-      frameworks,
-      projects,
-    } = this.props;
+    const { filterByFramework, hasSubtests, frameworks, projects } = this.props;
     const {
       compareResults,
       loading,
@@ -316,7 +309,6 @@ export default class CompareTableView extends React.Component {
                 {...this.props}
                 dropdownOptions={compareDropdowns}
                 updateState={state => this.setState(state)}
-                onPermalinkClick={onPermalinkClick}
                 compareResults={compareResults}
                 isBaseAggregate={!originalRevision}
                 notify={this.notifyFailure}
@@ -363,8 +355,6 @@ CompareTableView.propTypes = {
   getQueryParams: PropTypes.func.isRequired,
   projects: PropTypes.arrayOf(PropTypes.shape({})).isRequired,
   hasSubtests: PropTypes.bool,
-  onPermalinkClick: PropTypes.func,
-  hashFragment: PropTypes.string,
   frameworks: PropTypes.arrayOf(PropTypes.shape({})).isRequired,
 };
 
@@ -373,6 +363,4 @@ CompareTableView.defaultProps = {
   filterByFramework: null,
   validated: PropTypes.shape({}),
   hasSubtests: false,
-  hashFragment: '',
-  onPermalinkClick: undefined,
 };
