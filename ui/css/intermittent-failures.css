@@ -30,7 +30,8 @@ h1,
   display: none;
 }
 
-.bug-column:hover .bug-details {
+.bug-column:hover .bug-details,
+.bug-column:focus-within .bug-details {
   display: initial;
 }
 
@@ -69,4 +70,9 @@ ul {
   max-width: 1000px;
   list-style-type: none;
   text-align: left;
+}
+
+/* ReactTable style */
+.ReactTable .-pagination .-btn:focus {
+  box-shadow: 0 0 0 0.2rem rgba(130, 138, 145, 0.5);
 }

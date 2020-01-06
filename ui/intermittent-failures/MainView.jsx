@@ -105,6 +105,16 @@ const MainView = props => {
     } = calculateMetrics(graphData));
   }
 
+  const getHeaderAriaLabel = (state, bug, data) => {
+    const ariaLabelValue =
+      data.Header === 'Count'
+        ? 'Filter not available for count'
+        : `Type to filter ${data.Header}`;
+    return {
+      'aria-label': ariaLabelValue,
+    };
+  };
+
   return (
     <Layout
       {...props}
@@ -159,6 +169,8 @@ const MainView = props => {
             showPageSizeOptions
             columns={columns}
             className="-striped"
+            getTableProps={() => ({ role: 'table' })}
+            getTheadFilterThProps={getHeaderAriaLabel}
             getTrProps={tableRowStyling}
             showPaginationTop
             defaultPageSize={50}
