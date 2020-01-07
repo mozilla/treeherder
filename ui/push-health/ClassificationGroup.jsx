@@ -96,7 +96,7 @@ class ClassificationGroup extends React.PureComponent {
           </Badge>
         </h4>
         <Collapse isOpen={detailsShowing} className="w-100">
-          {hasRetriggerAll && (
+          {hasRetriggerAll && Object.keys(group).length > 0 && (
             <ButtonGroup>
               <Button
                 title="Retrigger all 'Need Investigation' jobs once"

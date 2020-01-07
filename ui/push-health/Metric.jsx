@@ -1,75 +1,53 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import {
-  faPlusSquare,
-  faMinusSquare,
-} from '@fortawesome/free-regular-svg-icons';
+import { faMinusSquare } from '@fortawesome/free-regular-svg-icons';
 import { Button, Badge, Row, Col, Collapse, Card, CardBody } from 'reactstrap';
 
 import { resultColorMap } from './helpers';
 
 export default class Metric extends React.PureComponent {
-  constructor(props) {
-    super(props);
-
-    const { result } = this.props;
-
-    this.state = {
-      detailsShowing: !['pass', 'none'].includes(result),
-    };
-  }
-
-  toggleDetails = () => {
-    this.setState(prevState => ({ detailsShowing: !prevState.detailsShowing }));
-  };
-
   render() {
-    const { detailsShowing } = this.state;
-    const { result, name, children } = this.props;
+    const { result, name, expanded, children, toggleExpanded } = this.props;
     const resultColor = resultColorMap[result];
-    const expandIcon = detailsShowing ? faMinusSquare : faPlusSquare;
-    const expandTitle = detailsShowing
-      ? 'Click to collapse'
-      : 'Click to expand';
 
     return (
-      <td>
+      <Collapse isOpen={expanded} className="w-100 mt-2">
         <Row className="flex-nowrap">
-          <div className={`bg-${resultColor} pr-2 mr-2`} />
+          <Col className={`bg-${resultColor} pr-2 mr-2 flex-grow-0`} />
           <Col>
             <Row className="justify-content-between">
               <Button
-                onClick={this.toggleDetails}
+                onClick={() => toggleExpanded(name)}
                 outline
                 className="border-0"
-                aria-expanded={detailsShowing}
+                aria-expanded={expanded}
               >
                 <span className="metric-name align-top font-weight-bold">
                   {name}
                 </span>
+                <span>
+                  <Badge
+                    color={resultColor}
+                    className="ml-1 mt-1 align-middle text-uppercase"
+                  >
+                    {result}
+                  </Badge>
+                </span>
                 <span className="btn">
                   <FontAwesomeIcon
-                    icon={expandIcon}
-                    title={expandTitle}
-                    aria-label={expandTitle}
+                    icon={faMinusSquare}
+                    title="Click to collapse"
                   />
                 </span>
               </Button>
-              <span>
-                <Badge color={resultColor} className="ml-1 text-uppercase">
-                  {result}
-                </Badge>
-              </span>
             </Row>
-            <Collapse isOpen={detailsShowing}>
-              <Card>
-                <CardBody>{children}</CardBody>
-              </Card>
-            </Collapse>
+            <Card>
+              <CardBody>{children}</CardBody>
+            </Card>
           </Col>
         </Row>
-      </td>
+      </Collapse>
     );
   }
 }
@@ -78,4 +56,10 @@ Metric.propTypes = {
   result: PropTypes.string.isRequired,
   name: PropTypes.string.isRequired,
   children: PropTypes.object.isRequired,
+  toggleExpanded: PropTypes.func.isRequired,
+  expanded: PropTypes.bool,
+};
+
+Metric.defaultProps = {
+  expanded: true,
 };

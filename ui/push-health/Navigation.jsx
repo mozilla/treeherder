@@ -10,29 +10,40 @@ import { resultColorMap } from './helpers';
 
 export default class Navigation extends React.PureComponent {
   render() {
-    const { user, setUser, result, notify, repo, revision } = this.props;
+    const {
+      user,
+      setUser,
+      result,
+      notify,
+      repo,
+      revision,
+      children,
+    } = this.props;
     const overallResult = result ? resultColorMap[result] : 'none';
 
     return (
-      <Navbar dark color="dark">
-        <LogoMenu menuText="Push Health" />
-        <h4>
-          <Badge color={overallResult}>
-            <a
-              href={getJobsUrl({ repo, revision })}
-              className="text-white"
-              target="_blank"
-              rel="noopener noreferrer"
-            >
-              <span title="repository">{repo}</span> -
-              <span title="revision" className="ml-1">
-                {revision}
-              </span>
-            </a>
-          </Badge>
-        </h4>
-        <Login user={user} setUser={setUser} notify={notify} />
-      </Navbar>
+      <React.Fragment>
+        <Navbar dark color="dark" sticky="top">
+          <LogoMenu menuText="Push Health" />
+          <h4>
+            <Badge color={overallResult}>
+              <a
+                href={getJobsUrl({ repo, revision })}
+                className="text-white"
+                target="_blank"
+                rel="noopener noreferrer"
+              >
+                <span title="repository">{repo}</span> -
+                <span title="revision" className="ml-1">
+                  {revision}
+                </span>
+              </a>
+            </Badge>
+          </h4>
+          <Login user={user} setUser={setUser} notify={notify} />
+        </Navbar>
+        {children}
+      </React.Fragment>
     );
   }
 }
@@ -44,8 +55,10 @@ Navigation.propTypes = {
   revision: PropTypes.string.isRequired,
   notify: PropTypes.func.isRequired,
   result: PropTypes.string,
+  children: PropTypes.object,
 };
 
 Navigation.defaultProps = {
   result: '',
+  children: null,
 };
