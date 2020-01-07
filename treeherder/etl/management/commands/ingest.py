@@ -2,10 +2,10 @@ import asyncio
 import logging
 
 import aiohttp
+import requests
 import taskcluster
 import taskcluster.aio
 import taskcluster_urls as liburls
-import requests
 from django.conf import settings
 from django.core.management.base import BaseCommand
 
