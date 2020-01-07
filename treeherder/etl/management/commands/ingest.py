@@ -4,6 +4,8 @@ import logging
 import aiohttp
 import taskcluster
 import taskcluster.aio
+import taskcluster_urls as liburls
+import requests
 from django.conf import settings
 from django.core.management.base import BaseCommand
 
@@ -25,7 +27,6 @@ session = taskcluster.aio.createSession(loop=loop, connector=conn, timeout=timeo
 stateToExchange = {}
 for key, value in EXCHANGE_EVENT_MAP.items():
     stateToExchange[value] = key
-
 
 async def handleTaskId(taskId, root_url):
     asyncQueue = taskcluster.aio.Queue({"rootUrl": root_url}, session=session)
@@ -91,6 +92,20 @@ async def processTasks(taskGroupId, root_url):
     await asyncio.gather(*asyncTasks)
 
 
+def find_task_id(index_path, root_url):
+    index_url = liburls.api(root_url, 'index', 'v1', 'task/{}'.format(index_path))
+    response = requests.get(index_url)
+    if response.status_code == 404:
+        raise Exception("Index URL {} not found".format(index_url))
+    return response.json()['taskId']
+
+
+def get_decision_task_id(project, revision, root_url):
+    index_fmt = 'gecko.v2.{}.revision.{}.taskgraph.decision'
+    index_path = index_fmt.format(project, revision)
+    return find_task_id(index_path, root_url)
+
+
 class Command(BaseCommand):
     """Management command to ingest data from a single push."""
     help = "Ingests a single push and tasks into Treeherder"
@@ -115,14 +130,9 @@ class Command(BaseCommand):
             help="This will cause all Celery queues to excute (like log parsing). This will take way longer."
         )
         parser.add_argument(
-            "--ingest-all-tasks",
+            "-a", "--ingest-all-tasks",
             action="store_true",
             help="This will cause all tasks associated to a commit to be ingested. This can take a long time."
-        )
-        parser.add_argument(
-            "--gecko-decision-task",
-            dest="gecko_decision_task",
-            help="Specify the Gecko decision task for a specific push"
         )
         parser.add_argument(
             "--root-url",
@@ -190,14 +200,11 @@ class Command(BaseCommand):
             process.run(pushlog_url, project, changeset=commit, last_push_id=None)
 
             if options["ingest_all_tasks"]:
-                gecko_decision_task = options.get("gecko_decision_task")
-                # XXX: Need logic to get from project/revision to the Gecko decision task
-                assert gecko_decision_task is not None, "For now you also need to specify --gecko-decision-task"
+                gecko_decision_task = get_decision_task_id(project, commit, repo.tc_root_url)
                 logger.info("## START ##")
                 loop.run_until_complete(processTasks(gecko_decision_task, repo.tc_root_url))
                 logger.info("## END ##")
             else:
                 logger.info(
-                    "You can ingest all tasks for a push with --ingest-all-tasks and "
-                    "--gecko-decision-task."
+                    "You can ingest all tasks for a push with -a/--ingest-all-tasks."
                 )
