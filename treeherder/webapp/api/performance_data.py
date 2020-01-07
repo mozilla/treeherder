@@ -106,13 +106,13 @@ class PerformanceSignatureViewSet(viewsets.ViewSet):
         ret = {}
         for (id, signature_hash, option_collection_hash, platform, framework,
              suite, test, lower_is_better, extra_options,
-             has_subtests, parent_signature_hash) in signature_data.values_list(
+             has_subtests, tags, parent_signature_hash) in signature_data.values_list(
                  'id',
                  'signature_hash',
                  'option_collection__option_collection_hash',
                  'platform__platform', 'framework', 'suite',
                  'test', 'lower_is_better',
-                 'extra_options', 'has_subtests',
+                 'extra_options', 'has_subtests', 'tags',
                  'parent_signature__signature_hash').distinct():
             ret[signature_hash] = {
                 'id': id,
@@ -131,6 +131,9 @@ class PerformanceSignatureViewSet(viewsets.ViewSet):
                 ret[signature_hash]['test'] = test
             if has_subtests:
                 ret[signature_hash]['has_subtests'] = True
+            if tags:
+                # tags stored as charField but api returns as list
+                ret[signature_hash]['tags'] = tags.split(' ')
             if parent_signature_hash:
                 # this value is often null, save some bandwidth by excluding
                 # it if not present
@@ -453,9 +456,9 @@ class PerformanceSummary(generics.ListAPIView):
                                                    int(time.time() - int(interval))))
 
         # TODO signature_hash is being returned for legacy support - should be removed at some point
-        self.queryset = (signature_data.values('framework_id', 'id', 'lower_is_better', 'has_subtests', 'extra_options', 'suite',
-                                               'signature_hash', 'platform__platform', 'test', 'option_collection_id',
-                                               'parent_signature_id', 'repository_id'))
+        self.queryset = (signature_data.values('framework_id', 'id', 'lower_is_better', 'has_subtests', 'extra_options',
+                                               'suite', 'signature_hash', 'platform__platform', 'test',
+                                               'option_collection_id', 'parent_signature_id', 'repository_id', 'tags'))
 
         signature_ids = [item['id'] for item in list(self.queryset)]
 

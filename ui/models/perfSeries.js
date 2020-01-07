@@ -59,6 +59,7 @@ export const getSeriesSummary = function getSeriesSummary(
     test: signatureProps.test || null,
     signature,
     hasSubtests: signatureProps.has_subtests || false,
+    tags: signatureProps.tags || [],
     parentSignature: signatureProps.parent_signature || null,
     projectName,
     platform,

@@ -6,6 +6,7 @@ import {
   waitForElement,
 } from '@testing-library/react';
 
+import { filterText } from '../../../ui/perfherder/constants';
 import GraphsViewControls from '../../../ui/perfherder/graphs/GraphsViewControls';
 import repos from '../mock/repositories';
 import testData from '../mock/performance_summary.json';
@@ -27,6 +28,11 @@ const updates = {
 };
 const updates2 = { ...updates };
 updates2.seriesData = seriesData2;
+
+const setFilterText = (filterField, text) => {
+  fireEvent.click(filterField);
+  fireEvent.change(filterField, { target: { value: text } });
+};
 
 const mockGetSeriesData = jest
   .fn()
@@ -121,4 +127,32 @@ test('Selecting a test in the Test Data Modal adds it to Selected Tests section;
   fireEvent.click(fullTestToSelect);
   expect(mockShowModal.mock.calls).toHaveLength(1);
   expect(selectedTests).not.toContain(fullTestToSelect);
+});
+
+test('InputFilter from TestDataModal can filter by tags', async () => {
+  const {
+    getByText,
+    getByTestId,
+    getByPlaceholderText,
+    getByTitle,
+  } = graphsViewControls();
+
+  const { name, tag, projectName, platform } = seriesData[0];
+  const fullTestName = projectName.concat(' ', platform, ' ', name);
+
+  fireEvent.click(getByText('Add test data'));
+
+  const textInput = await waitForElement(() =>
+    getByPlaceholderText(filterText.inputPlaceholder),
+  );
+  setFilterText(textInput, tag);
+
+  const fullTestToSelect = await waitForElement(() => getByTitle(name));
+
+  fireEvent.click(fullTestToSelect);
+
+  const selectedTests = getByTestId('selectedTests');
+
+  expect(selectedTests.children).toHaveLength(1);
+  expect(selectedTests.children[0].text).toBe(fullTestName);
 });
