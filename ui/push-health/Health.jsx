@@ -1,6 +1,11 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import { Table, Container, Spinner } from 'reactstrap';
+import { Button, Navbar, Nav, Container, Row, Spinner } from 'reactstrap';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import {
+  faCheckCircle,
+  faExclamationTriangle,
+} from '@fortawesome/free-solid-svg-icons';
 
 import ErrorMessages from '../shared/ErrorMessages';
 import NotificationList from '../shared/NotificationList';
@@ -12,6 +17,7 @@ import PushModel from '../models/push';
 import StatusProgress from '../shared/StatusProgress';
 import { getPercentComplete } from '../helpers/display';
 
+import { resultColorMap } from './helpers';
 import Metric from './Metric';
 import Navigation from './Navigation';
 import TestMetric from './TestMetric';
@@ -31,12 +37,25 @@ export default class Health extends React.PureComponent {
       result: null,
       failureMessage: null,
       notifications: [],
+      progressExpanded: true,
+      lintingExpanded: false,
+      buildsExpanded: false,
+      testsExpanded: false,
+      performanceExpanded: false,
     };
   }
 
-  componentDidMount() {
+  async componentDidMount() {
     // Get the test data
-    this.updatePushHealth();
+    const { metrics } = await this.updatePushHealth();
+    const expandedStates = Object.entries(metrics).reduce(
+      (acc, [key, metric]) => ({
+        ...acc,
+        [`${key}Expanded`]: metric.result !== 'pass',
+      }),
+    );
+
+    this.setState(expandedStates);
 
     // Update the tests every two minutes.
     this.testTimerId = setInterval(() => this.updatePushHealth(), 120000);
@@ -61,6 +80,7 @@ export default class Health extends React.PureComponent {
     const newState = !failureStatus ? data : { failureMessage: data };
 
     this.setState(newState);
+    return newState;
   };
 
   notify = (message, severity, options = {}) => {
@@ -84,6 +104,15 @@ export default class Health extends React.PureComponent {
     this.setState(clearNotificationAtIndex(notifications, index));
   };
 
+  toggleExpanded = metricName => {
+    const key = `${metricName.toLowerCase()}Expanded`;
+    const { [key]: oldToggle } = this.state;
+
+    this.setState({
+      [key]: !oldToggle,
+    });
+  };
+
   render() {
     const {
       metrics,
@@ -94,10 +123,20 @@ export default class Health extends React.PureComponent {
       failureMessage,
       notifications,
       status,
+      progressExpanded,
+      lintingExpanded,
+      buildsExpanded,
+      testsExpanded,
+      performanceExpanded,
     } = this.state;
     const { tests, linting, builds, performance } = metrics;
     const { currentRepo } = this.props;
     const percentComplete = status ? getPercentComplete(status) : 0;
+    const progress = {
+      name: 'Progress',
+      value: percentComplete,
+      result: percentComplete === 100 ? 'done' : 'in progress',
+    };
 
     return (
       <React.Fragment>
@@ -108,7 +147,42 @@ export default class Health extends React.PureComponent {
           result={result}
           repo={repo}
           revision={revision}
-        />
+        >
+          <Navbar color="light" light expand="sm" sticky="top">
+            {!!tests && (
+              <Nav className="metric-buttons mb-3 pt-2 pl-3">
+                {[progress, linting, builds, tests, performance].map(metric => (
+                  <Button
+                    size="sm"
+                    className="mr-2"
+                    color={resultColorMap[metric.result]}
+                    title={`Click to toggle ${
+                      metric.name
+                    }: ${metric.result.toUpperCase()}`}
+                    onClick={() => this.toggleExpanded(metric.name)}
+                    key={metric.name}
+                  >
+                    {metric.name}
+                    {['pass', 'fail', 'indeterminate'].includes(
+                      metric.result,
+                    ) ? (
+                      <FontAwesomeIcon
+                        className="ml-1"
+                        icon={
+                          metric.result === 'pass'
+                            ? faCheckCircle
+                            : faExclamationTriangle
+                        }
+                      />
+                    ) : (
+                      <span className="ml-1">{metric.value}%</span>
+                    )}
+                  </Button>
+                ))}
+              </Nav>
+            )}
+          </Navbar>
+        </Navigation>
         <Container fluid className="mt-2">
           <NotificationList
             notifications={notifications}
@@ -116,49 +190,58 @@ export default class Health extends React.PureComponent {
           />
           {!!tests && !!currentRepo && (
             <div className="d-flex flex-column">
-              <Table size="sm" className="table-fixed">
-                <tbody>
-                  <tr>
-                    <Metric name="Progress" result="">
-                      <div>
-                        <div>{percentComplete}% Complete</div>
-                        <StatusProgress counts={status} />
-                      </div>
-                    </Metric>
-                  </tr>
-                  <tr>
-                    <JobListMetric
-                      data={linting}
-                      repo={repo}
-                      revision={revision}
-                    />
-                  </tr>
-                  <tr>
-                    <JobListMetric
-                      data={builds}
-                      repo={repo}
-                      revision={revision}
-                    />
-                  </tr>
-                  <tr>
-                    <TestMetric
-                      data={tests}
-                      repo={repo}
-                      currentRepo={currentRepo}
-                      revision={revision}
-                      user={user}
-                      notify={this.notify}
-                    />
-                  </tr>
-                  <tr>
-                    <JobListMetric
-                      data={performance}
-                      repo={repo}
-                      revision={revision}
-                    />
-                  </tr>
-                </tbody>
-              </Table>
+              <Row className="w-100">
+                <Metric
+                  name="Progress"
+                  result=""
+                  expanded={progressExpanded}
+                  toggleExpanded={this.toggleExpanded}
+                >
+                  <div>
+                    <div>{percentComplete}% Complete</div>
+                    <StatusProgress counts={status} />
+                  </div>
+                </Metric>
+              </Row>
+              <Row>
+                <JobListMetric
+                  data={linting}
+                  repo={repo}
+                  revision={revision}
+                  expanded={lintingExpanded}
+                  toggleExpanded={this.toggleExpanded}
+                />
+              </Row>
+              <Row>
+                <JobListMetric
+                  data={builds}
+                  repo={repo}
+                  revision={revision}
+                  expanded={buildsExpanded}
+                  toggleExpanded={this.toggleExpanded}
+                />
+              </Row>
+              <Row>
+                <TestMetric
+                  data={tests}
+                  repo={repo}
+                  currentRepo={currentRepo}
+                  revision={revision}
+                  user={user}
+                  notify={this.notify}
+                  expanded={testsExpanded}
+                  toggleExpanded={this.toggleExpanded}
+                />
+              </Row>
+              <Row>
+                <JobListMetric
+                  data={performance}
+                  repo={repo}
+                  revision={revision}
+                  expanded={performanceExpanded}
+                  toggleExpanded={this.toggleExpanded}
+                />
+              </Row>
             </div>
           )}
           {failureMessage && <ErrorMessages failureMessage={failureMessage} />}
