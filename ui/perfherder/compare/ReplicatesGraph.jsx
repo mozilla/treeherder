@@ -1,9 +1,14 @@
 import React from 'react';
 import PropTypes from 'prop-types';
+import {
+  VictoryChart,
+  VictoryBar,
+  VictoryLegend,
+  VictoryTooltip,
+} from 'victory';
 
 import { errorMessageClass } from '../../helpers/constants';
 import ErrorBoundary from '../../shared/ErrorBoundary';
-import Graph from '../../shared/Graph';
 import PerfSeriesModel from '../../models/perfSeries';
 import { getData } from '../../helpers/http';
 import { createApiUrl, perfSummaryEndpoint } from '../../helpers/url';
@@ -31,34 +36,15 @@ export default class ReplicatesGraph extends React.Component {
 
     return this.setState({
       drawingData,
-      graphSpecs: this.getGraphSpecs(title, numRuns, replicateDataError),
+      graphTitle: this.getGraphTitle(title, numRuns, replicateDataError),
       dataLoading: false,
     });
   };
 
-  getGraphSpecs = (title, numRuns, error = false) =>
+  getGraphTitle = (title, numRuns, error = false) =>
     !error
-      ? {
-          target: '',
-          data: [],
-          width: 1000,
-          height: 275,
-          chart_type: 'bar',
-          x_accessor: 'replicate',
-          y_accessor: 'value',
-          legend: '',
-          title: `${title} replicates over ${numRuns} run${
-            numRuns > 1 ? 's' : ''
-          }`,
-        }
-      : {
-          target: '',
-          title: `${title} replicates`,
-          chart_type: 'missing-data',
-          missing_text: noDataFoundMessage,
-          width: 1000,
-          height: 275,
-        };
+      ? `${title} replicates over ${numRuns} run${numRuns > 1 ? 's' : ''}`
+      : `${title} replicates`;
 
   fetchReplicateGraphData = async () => {
     const {
@@ -102,10 +88,10 @@ export default class ReplicatesGraph extends React.Component {
             return subtest.replicates;
           }),
         );
-        // metrics-graphics doesn't accept "0" as x_accesor
+
         replicateValues = replicateValues.map((value, index) => ({
-          replicate: (index + 1).toString(),
-          value,
+          x: index + 1,
+          y: value,
         }));
 
         return {
@@ -121,11 +107,11 @@ export default class ReplicatesGraph extends React.Component {
   };
 
   render() {
-    const { graphSpecs, drawingData, dataLoading } = this.state;
+    const { graphTitle, drawingData, dataLoading } = this.state;
     const data =
       drawingData && drawingData.replicateValues
         ? drawingData.replicateValues
-        : undefined;
+        : [];
 
     return dataLoading ? (
       <LoadingSpinner />
@@ -134,7 +120,46 @@ export default class ReplicatesGraph extends React.Component {
         errorClasses={errorMessageClass}
         message="Failed to display replicates graph"
       >
-        <Graph specs={graphSpecs} data={data} />
+        {data.length > 0 ? (
+          <React.Fragment>
+            <VictoryChart
+              width={1000}
+              height={300}
+              domainPadding={{ x: 13 }}
+              style={{ parent: { maxHeight: '300px' } }}
+            >
+              <VictoryLegend
+                x={375}
+                y={0}
+                title={graphTitle}
+                centerTitle
+                orientation="horizontal"
+                gutter={20}
+                style={{
+                  title: {
+                    fontSize: 16,
+                    fontFamily: 'Helvetica Neue',
+                    fontWeight: 'bold',
+                  },
+                }}
+                data={[]}
+              />
+              <VictoryBar
+                name="bar"
+                data={data}
+                style={{
+                  data: { fill: '#17a2b8', width: 25 },
+                }}
+                labels={({ datum }) =>
+                  `replicates: ${datum.x} value: ${datum.y}`
+                }
+                labelComponent={<VictoryTooltip />}
+              />
+            </VictoryChart>
+          </React.Fragment>
+        ) : (
+          <p className="lead text-left">{noDataFoundMessage}</p>
+        )}
       </ErrorBoundary>
     );
   }
