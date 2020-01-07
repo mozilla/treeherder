@@ -185,6 +185,6 @@ test("Selecting a test with similar unit in the Test Data Modal doesn't give war
     queryAllByTitle(/^Warning:.*/i),
   );
 
-  // no extra warnings where added in selected tests' section
+  // no extra warnings were added in selected tests' section
   expect(mismatchedTests).toHaveLength(1);
 });

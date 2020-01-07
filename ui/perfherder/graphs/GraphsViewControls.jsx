@@ -28,7 +28,7 @@ export default class GraphsViewControls extends React.Component {
 
   extractMeasurementUnitsSet = testData => {
     const measurementUnits = testData.map(
-      testDetails => testDetails.measurementUnit || null,
+      testDetails => testDetails.measurementUnit,
     );
     return new Set(measurementUnits);
   };

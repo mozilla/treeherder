@@ -64,7 +64,7 @@ export const getSeriesSummary = function getSeriesSummary(
     projectName,
     platform,
     options,
-    measurementUnit: signatureProps.measurement_unit,
+    measurementUnit: signatureProps.measurement_unit || '',
     frameworkId: signatureProps.framework_id,
     lowerIsBetter:
       signatureProps.lower_is_better === undefined ||

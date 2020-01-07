@@ -286,7 +286,7 @@ export default class TestDataModal extends React.Component {
   hasDifferentUnit = test => {
     const { plottedUnits } = this.props;
     const { selectedUnits } = this.state;
-    const unit = test.measurementUnit || null;
+    const unit = test.measurementUnit;
 
     const differentThanPlottedUnits =
       plottedUnits.size && !plottedUnits.has(unit);
@@ -302,7 +302,7 @@ export default class TestDataModal extends React.Component {
   };
 
   extractUniqueUnits(tests) {
-    return new Set(tests.map(aTest => aTest.measurementUnit || null));
+    return new Set(tests.map(aTest => aTest.measurementUnit));
   }
 
   render() {
