@@ -75,7 +75,7 @@
       "size": "Standard-1X"
     },
     "worker_store_pulse_data": {
-      "quantity": 5,
+      "quantity": 10,
       "size": "Standard-1X"
     }
   },
