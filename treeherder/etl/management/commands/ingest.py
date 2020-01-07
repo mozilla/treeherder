@@ -127,7 +127,7 @@ class Command(BaseCommand):
         parser.add_argument(
             "--enable-eager-celery",
             action="store_true",
-            help="This will cause all Celery queues to excute (like log parsing). This will take way longer."
+            help="This will cause all Celery queues to execute (like log parsing). This will take way longer."
         )
         parser.add_argument(
             "-a", "--ingest-all-tasks",
