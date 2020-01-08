@@ -11,6 +11,7 @@ import {
   VictoryLine,
   VictoryAxis,
   VictoryBrushContainer,
+  VictoryLabel,
   VictoryScatter,
   createContainer,
 } from 'victory';
@@ -239,6 +240,15 @@ class GraphsContainer extends React.Component {
       : moment.utc().format('MMM DD');
   };
 
+  computeYAxisLabel = () => {
+    const { measurementUnits } = this.props;
+
+    if (measurementUnits && measurementUnits.size === 1) {
+      return [...measurementUnits][0];
+    }
+    return null;
+  };
+
   // debounced
   hideTooltip() {
     const { showTooltip, lockTooltip } = this.state;
@@ -267,6 +277,10 @@ class GraphsContainer extends React.Component {
       lockTooltip,
       dataPoint,
     } = this.state;
+
+    const yAxisLabel = this.computeYAxisLabel();
+    const positionedTick = <VictoryLabel dx={-2} />;
+    const positionedLabel = <VictoryLabel dy={24} />;
 
     const highlightPoints = !!highlights.length;
 
@@ -328,6 +342,9 @@ class GraphsContainer extends React.Component {
                 tickCount={4}
                 style={axisStyle}
                 tickFormat={this.setLeftPadding}
+                tickLabelComponent={positionedTick}
+                axisLabelComponent={positionedLabel}
+                label={yAxisLabel}
               />
               <VictoryAxis
                 tickCount={10}
@@ -437,6 +454,9 @@ class GraphsContainer extends React.Component {
                 tickCount={9}
                 style={axisStyle}
                 tickFormat={this.setLeftPadding}
+                tickLabelComponent={positionedTick}
+                axisLabelComponent={positionedLabel}
+                label={yAxisLabel}
               />
               <VictoryAxis
                 tickCount={6}
@@ -454,6 +474,7 @@ class GraphsContainer extends React.Component {
 
 GraphsContainer.propTypes = {
   testData: PropTypes.arrayOf(PropTypes.shape({})),
+  measurementUnits: PropTypes.instanceOf(Set).isRequired,
   updateStateParams: PropTypes.func.isRequired,
   zoom: PropTypes.shape({}),
   selectedDataPoint: PropTypes.shape({}),

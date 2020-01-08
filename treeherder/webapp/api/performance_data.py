@@ -105,14 +105,14 @@ class PerformanceSignatureViewSet(viewsets.ViewSet):
 
         ret = {}
         for (id, signature_hash, option_collection_hash, platform, framework,
-             suite, test, lower_is_better, extra_options,
+             suite, test, lower_is_better, extra_options, measurement_unit,
              has_subtests, tags, parent_signature_hash) in signature_data.values_list(
                  'id',
                  'signature_hash',
                  'option_collection__option_collection_hash',
                  'platform__platform', 'framework', 'suite',
                  'test', 'lower_is_better',
-                 'extra_options', 'has_subtests', 'tags',
+                 'extra_options', 'measurement_unit', 'has_subtests', 'tags',
                  'parent_signature__signature_hash').distinct():
             ret[signature_hash] = {
                 'id': id,
@@ -142,6 +142,8 @@ class PerformanceSignatureViewSet(viewsets.ViewSet):
             if extra_options:
                 # extra_options stored as charField but api returns as list
                 ret[signature_hash]['extra_options'] = extra_options.split(' ')
+            if measurement_unit:
+                ret[signature_hash]['measurement_unit'] = measurement_unit
 
         return Response(ret)
 
@@ -458,7 +460,7 @@ class PerformanceSummary(generics.ListAPIView):
         # TODO signature_hash is being returned for legacy support - should be removed at some point
         self.queryset = (signature_data.values('framework_id', 'id', 'lower_is_better', 'has_subtests', 'extra_options',
                                                'suite', 'signature_hash', 'platform__platform', 'test',
-                                               'option_collection_id', 'parent_signature_id', 'repository_id', 'tags'))
+                                               'option_collection_id', 'parent_signature_id', 'repository_id', 'tags', 'measurement_unit'))
 
         signature_ids = [item['id'] for item in list(self.queryset)]
 
