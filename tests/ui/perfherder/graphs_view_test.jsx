@@ -6,14 +6,13 @@ import {
   waitForElement,
 } from '@testing-library/react';
 
-import { filterText } from '../../../ui/perfherder/constants';
+import { filterText, graphColors } from '../../../ui/perfherder/constants';
 import GraphsViewControls from '../../../ui/perfherder/graphs/GraphsViewControls';
 import repos from '../mock/repositories';
 import testData from '../mock/performance_summary.json';
 import seriesData from '../mock/performance_signature_formatted.json';
 import seriesData2 from '../mock/performance_signature_formatted2.json';
 import { createGraphData } from '../../../ui/perfherder/helpers';
-import { graphColors } from '../../../ui/perfherder/constants';
 
 const graphData = createGraphData(testData, [], [...graphColors]);
 
@@ -49,7 +48,7 @@ const mockShowModal = jest
   .mockReturnValueOnce(true)
   .mockReturnValueOnce(false);
 
-const graphsViewControls = (hasNoData = true) =>
+const graphsViewControls = (data = testData, hasNoData = true) =>
   render(
     <GraphsViewControls
       updateStateParams={() => {}}
@@ -62,7 +61,7 @@ const graphsViewControls = (hasNoData = true) =>
       timeRange={{ value: 172800, text: 'Last two days' }}
       options={{}}
       getTestData={() => {}}
-      testData={graphData}
+      testData={data}
       getInitialData={() => ({
         platforms,
       })}
@@ -196,7 +195,7 @@ test("Selecting a test with similar unit in the Test Data Modal doesn't give war
 });
 
 test('Using select query param displays tooltip for correct datapoint', async () => {
-  const { getByTestId, getByText } = graphsViewControls(false);
+  const { getByTestId, getByText } = graphsViewControls(graphData, false);
 
   const graphContainer = await waitForElement(() =>
     getByTestId('graphContainer'),

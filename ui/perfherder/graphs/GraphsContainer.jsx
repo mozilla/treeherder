@@ -210,7 +210,7 @@ class GraphsContainer extends React.Component {
     return null;
   };
 
-  hideTooltip = props =>
+  hideTooltip = () =>
     this.state.lockTooltip ? { active: true } : { active: undefined };
 
   showTooltip = selectedDataPoint => {
@@ -393,7 +393,7 @@ class GraphsContainer extends React.Component {
                       return [
                         {
                           target: 'labels',
-                          mutation: props => this.hideTooltip(props),
+                          mutation: this.hideTooltip,
                         },
                       ];
                     },
