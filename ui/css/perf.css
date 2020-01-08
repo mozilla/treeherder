@@ -81,10 +81,8 @@ h1 {
 }
 
 .graph-tooltip {
-  position: absolute;
   pointer-events: none;
   width: 280px;
-  z-index: 999;
   text-align: left;
 }
 .graph-tooltip.locked {
