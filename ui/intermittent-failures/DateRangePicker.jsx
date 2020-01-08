@@ -61,7 +61,7 @@ export default class DateRangePicker extends React.Component {
   };
 
   render() {
-    const { startDate, endDate } = this.state;
+    const { startDate, endDate, calendarFocused } = this.state;
 
     return (
       <div className="InputFromTo d-inline-block">
@@ -73,13 +73,14 @@ export default class DateRangePicker extends React.Component {
           onDatesChange={({ startDate, endDate }) =>
             this.setState({ startDate, endDate })
           }
-          focusedInput={this.state.calendarFocused}
+          focusedInput={calendarFocused}
           onFocusChange={this.onFocusChange}
           showClearDates
           numberOfMonths={2}
-          isOutsideRange={() => false}
+          initialVisibleMonth={() => moment().subtract(1, 'month')}
+          isOutsideRange={day => moment().diff(day) < 0}
         />
-        <Button color="secondary" className="ml-2" onClick={this.updateData}>
+        <Button color="secondary" className="ml-3" onClick={this.updateData}>
           update
         </Button>
       </div>
