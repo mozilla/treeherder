@@ -76,3 +76,24 @@ ul {
 .ReactTable .-pagination .-btn:focus {
   box-shadow: 0 0 0 0.2rem rgba(130, 138, 145, 0.5);
 }
+
+/* overriding react-dates default input and button style */
+input.DateInput_input {
+  font-size: 1rem;
+  padding: 0.275rem 0.75rem;
+}
+
+div.DateRangePickerInput__showClearDates {
+  padding-right: 15px;
+}
+
+svg.DateRangePickerInput_clearDates_svg {
+  height: 10px;
+  width: 10px;
+}
+
+button.DateRangePickerInput_clearDates {
+  top: 45%;
+  padding: 5px 8px;
+  margin: 1px 10px 0 5px;
+}
