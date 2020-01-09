@@ -5,6 +5,8 @@ import { getInspectTaskUrl } from '../helpers/url';
 import { getJobSearchStrHref } from '../helpers/job';
 import { toDateStr } from '../helpers/display';
 
+import Clipboard from './Clipboard';
+
 const getTimeFields = function getTimeFields(job) {
   // time fields to show in detail panel, but that should be grouped together
   const {
@@ -88,6 +90,7 @@ export default class JobInfo extends React.PureComponent {
             >
               {taskId}
             </a>
+            <Clipboard title="Copy task ID" text={taskId} />
           </li>
         )}
         <li className="small">
