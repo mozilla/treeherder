@@ -2,10 +2,10 @@
   "addons": [
     "scheduler",
     "cloudamqp:tiger",
-    "heroku-redis",
+    "heroku-redis:premium-0",
     "papertrail:choklad",
     {
-      "plan": "jawsdb:leopard",
+      "plan": "jawsdb:blacktip",
       "options": {
         "version": "5.7"
       }
