@@ -60,7 +60,7 @@ export class Revision extends React.PureComponent {
       <li>
         <span className="revision" data-tags={this.tags}>
           <span className="pl-4 pr-1 revision-holder">
-            <Clipboard title="Copy full hash" text={commitRevision} />
+            <Clipboard description="full hash" text={commitRevision} />
             <a
               title={`Open revision ${commitRevision} on ${repo.url}`}
               href={repo.getRevisionHref(commitRevision)}

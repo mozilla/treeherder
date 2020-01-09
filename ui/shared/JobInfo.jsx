@@ -90,7 +90,7 @@ export default class JobInfo extends React.PureComponent {
             >
               {taskId}
             </a>
-            <Clipboard title="Copy task ID" text={taskId} />
+            <Clipboard description="task ID" text={taskId} />
           </li>
         )}
         <li className="small">
