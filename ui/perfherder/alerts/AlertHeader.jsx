@@ -68,7 +68,8 @@ const AlertHeader = ({
               {alertSummary.revision.slice(0, 12)}
             </DropdownToggle>
             <DropdownMenu>
-              <a
+              <DropdownItem
+                tag="a"
                 className="text-dark"
                 href={getJobsUrl({
                   repo: alertSummary.repository,
@@ -78,9 +79,10 @@ const AlertHeader = ({
                 target="_blank"
                 rel="noopener noreferrer"
               >
-                <DropdownItem tag="a">Jobs</DropdownItem>
-              </a>
-              <a
+                Jobs
+              </DropdownItem>
+              <DropdownItem
+                tag="a"
                 className="text-dark"
                 href={repoModel.getPushLogRangeHref({
                   fromchange: alertSummary.prev_push_revision,
@@ -89,8 +91,8 @@ const AlertHeader = ({
                 target="_blank"
                 rel="noopener noreferrer"
               >
-                <DropdownItem tag="a">Pushlog</DropdownItem>
-              </a>
+                Pushlog
+              </DropdownItem>
             </DropdownMenu>
           </UncontrolledDropdown>
           <span>·</span>
