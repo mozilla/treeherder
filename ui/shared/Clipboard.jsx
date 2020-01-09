@@ -1,5 +1,3 @@
-/* eslint-disable jsx-a11y/no-static-element-interactions */
-
 import React from 'react';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faClipboard } from '@fortawesome/free-regular-svg-icons';
@@ -13,13 +11,13 @@ export default class Clipboard extends React.PureComponent {
     const { title, text } = this.props;
 
     return (
-      <span
+      <button
         type="button"
-        className="pointer"
+        title={title}
         onClick={() => Clipboard.copyToClipboard(text)}
       >
-        <FontAwesomeIcon icon={faClipboard} title={title} />
-      </span>
+        <FontAwesomeIcon icon={faClipboard} />
+      </button>
     );
   }
 }
