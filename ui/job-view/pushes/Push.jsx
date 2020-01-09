@@ -34,7 +34,7 @@ const fetchTestManifests = async (project, revision) => {
   const rootUrl = 'https://firefox-ci-tc.services.mozilla.com';
   const url = `${rootUrl}/api/index/v1/task/gecko.v2.${project}.revision.${revision}.taskgraph.decision/artifacts/public/manifests-by-task.json`;
   const response = await fetch(url);
-  if (response.status === 200) {
+  if ([200, 304].indexOf(response.status)) {
     taskNameToManifests = await response.json();
   }
   return taskNameToManifests;
