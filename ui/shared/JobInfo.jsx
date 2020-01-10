@@ -117,6 +117,12 @@ export default class JobInfo extends React.PureComponent {
             ) : (
               <span>{field.value}</span>
             )}
+            {field.clipboard && (
+              <Clipboard
+                description={field.clipboard.description}
+                text={field.clipboard.text}
+              />
+            )}
           </li>
         ))}
       </ul>
@@ -127,10 +133,14 @@ export default class JobInfo extends React.PureComponent {
 JobInfo.propTypes = {
   job: PropTypes.object.isRequired,
   extraFields: PropTypes.arrayOf(
-    PropTypes.shape({
+    PropTypes.exact({
       title: PropTypes.string.isRequired,
       url: PropTypes.string,
       value: PropTypes.string,
+      clipboard: PropTypes.exact({
+        description: PropTypes.string.isRequired,
+        text: PropTypes.string,
+      }),
     }),
   ),
   showJobFilters: PropTypes.bool,

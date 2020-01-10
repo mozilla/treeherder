@@ -4,6 +4,10 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faClipboard } from '@fortawesome/free-regular-svg-icons';
 
 const Clipboard = ({ description, text }) => {
+  if (!text) {
+    return null;
+  }
+
   const copyToClipboard = () => navigator.clipboard.writeText(text);
 
   return (
@@ -20,7 +24,11 @@ const Clipboard = ({ description, text }) => {
 
 Clipboard.propTypes = {
   description: PropTypes.string.isRequired,
-  text: PropTypes.string.isRequired,
+  text: PropTypes.string,
+};
+
+Clipboard.defaultProps = {
+  text: null,
 };
 
 export { Clipboard as default };
