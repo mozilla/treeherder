@@ -104,7 +104,7 @@ button.DateRangePickerInput_clearDates {
   opacity: 0.9;
 }
 
-/* ReactTable style */
+/* ReactTable overriding row, button and link color style for contrast pass */
 .ReactTable .-pagination .-btn:focus {
   box-shadow: 0 0 0 0.2rem rgba(130, 138, 145, 0.5);
 }

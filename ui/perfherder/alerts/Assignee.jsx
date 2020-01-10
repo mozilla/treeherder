@@ -100,7 +100,7 @@ export default class Assignee extends React.Component {
       <React.Fragment>
         <Button
           className="ml-1"
-          color="outline-info"
+          color="darker-secondary"
           size="xs"
           onClick={this.goToEditMode}
           title="Click to change assignee"
@@ -110,6 +110,7 @@ export default class Assignee extends React.Component {
         {!assigneeUsername && (
           <Button
             className="ml-1"
+            color="darker-secondary"
             size="xs"
             disabled={!user.isStaff}
             onClick={this.prefillWithLoggedInUsername}

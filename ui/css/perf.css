@@ -37,30 +37,55 @@ h1 {
   }
 }
 
-.btn-info {
-  background-color: #0d7d8f !important;
-  border-color: #0d7d8f !important;
+.btn-darker-secondary {
+  color: #ffffff;
+  background-color: #6c757d;
+  border-color: #6c757d;
 }
 
-.btn-info:hover {
-  background-color: #0a5e6d !important;
+.btn-darker-secondary:hover {
+  color: #ffffff;
+  background-color: #5a6268;
+  border-color: #545b62;
 }
 
-.btn-outline-info {
+.btn-darker-secondary.disabled {
+  color: #242424;
+  background-color: white;
+  border-color: #6c757d;
+}
+
+.btn-darker-info {
+  background-color: #0d7d8f;
+  border-color: #0d7d8f;
+  color: #ffffff;
+}
+
+.btn-darker-info:hover {
+  color: #ffffff;
+  background-color: #0a5e6d;
+}
+
+.btn-outline-darker-info {
   color: #0d7d8f;
   border-color: #0d7d8f;
 }
 
-.btn-outline-info:hover,
-.btn-outline-info:not(:disabled):not(.disabled).active {
+.btn-outline-darker-info:hover,
+.btn-outline-darker-info:not(:disabled):not(.disabled).active {
   background-color: #0d7d8f;
   border-color: #0d7d8f;
+  color: #ffffff;
 }
 
-.btn-info.disabled,
-.btn-info.disabled:hover {
+.btn-darker-info.disabled,
+.btn-darker-info.disabled:hover {
   color: black;
   background-color: #30b9ce80;
+}
+
+.text-darker-info {
+  color: #0d7d8f;
 }
 
 #perf-logo {
@@ -310,19 +335,6 @@ th {
   font-size: inherit;
 }
 
-.compare-table .text-success {
-  color: #1e8836 !important;
-}
-
-.compare-table .text-info {
-  color: #127989 !important;
-}
-
-.compare-table .btn-secondary.disabled {
-  background-color: #d1d1d1;
-  color: black;
-}
-
 .compare-table .subtest-header > th,
 .compare-table .subtest-header a,
 .compare-table .subtest-header button {
@@ -485,6 +497,7 @@ button:disabled {
 li.pagination-active.active > button {
   background-color: lightgray !important;
   border-color: lightgray !important;
+  color: black !important;
 }
 
 /* graph colors */
@@ -534,7 +547,7 @@ li.pagination-active.active > button {
   visibility: visible;
 }
 
-/* ReactTable stlye */
+/* ReactTable button and badge overriding style for contrast */
 .ReactTable .-pagination .-btn[disabled] {
   background-color: rgba(0, 0, 0, 0.03);
   opacity: 1;

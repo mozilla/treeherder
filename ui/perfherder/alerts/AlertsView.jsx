@@ -273,7 +273,7 @@ class AlertsView extends React.Component {
                 {page > 1 && (
                   <PaginationItem>
                     <PaginationLink
-                      className="text-info"
+                      className="text-darker-info"
                       previous
                       onClick={() => this.navigatePage(page - 1)}
                     />
@@ -283,10 +283,10 @@ class AlertsView extends React.Component {
                   <PaginationItem
                     key={num}
                     active={num === page}
-                    className="text-info pagination-active"
+                    className="text-darker-info pagination-active"
                   >
                     <PaginationLink
-                      className="text-info"
+                      className="text-darker-info"
                       onClick={() => this.navigatePage(num)}
                     >
                       {num}
@@ -296,7 +296,7 @@ class AlertsView extends React.Component {
                 {page < count && (
                   <PaginationItem>
                     <PaginationLink
-                      className="text-info"
+                      className="text-darker-info"
                       next
                       onClick={() => this.navigatePage(page + 1)}
                     />
