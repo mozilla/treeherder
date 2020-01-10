@@ -11,6 +11,7 @@ const Clipboard = ({ description, text }) => {
       type="button"
       title={`Copy ${description}`}
       onClick={copyToClipboard}
+      className="px-1 mx-1"
     >
       <FontAwesomeIcon icon={faClipboard} />
     </button>
