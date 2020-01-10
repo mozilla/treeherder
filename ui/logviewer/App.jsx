@@ -201,6 +201,10 @@ class App extends React.PureComponent {
         title: 'Revision',
         url: jobUrl,
         value: revision,
+        clipboard: {
+          description: 'full hash',
+          text: revision,
+        },
       },
     ];
 
