@@ -1,5 +1,6 @@
 /* eslint-disable jsx-a11y/no-noninteractive-element-interactions */
 /* eslint-disable jsx-a11y/no-static-element-interactions */
+/* eslint-disable prefer-destructuring */
 
 import React from 'react';
 import PropTypes from 'prop-types';
@@ -7,7 +8,7 @@ import { Badge, FormGroup, Input } from 'reactstrap';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faTimes } from '@fortawesome/free-solid-svg-icons';
 
-import { legendCardText } from '../constants';
+import { graphColors, legendCardText } from '../constants';
 
 const LegendCard = ({
   series,
@@ -29,10 +30,18 @@ const LegendCard = ({
         if (isVisible && newColors.length) {
           item.color = newColors.pop();
           item.visible = isVisible;
+          item.data = item.data.map(test => {
+            test.z = item.color[1];
+            return test;
+          });
         } else if (!isVisible) {
           newColors.push(item.color);
           item.color = ['border-secondary', ''];
           item.visible = isVisible;
+          item.data = item.data.map(test => {
+            test.z = item.color[1];
+            return test;
+          });
         } else {
           errorMessages.push(
             "The graph supports viewing 6 tests at a time. To select and view a test that isn't currently visible, first deselect a visible test",
@@ -60,8 +69,9 @@ const LegendCard = ({
     updateState({ options, showModal: true });
   };
 
-  const resetParams = testData => {
-    const updates = { testData, colors: [...colors, ...[series.color]] };
+  const resetParams = (testData, newColors = null) => {
+    const updates = { testData };
+    if (newColors) updates.colors = newColors;
 
     if (
       selectedDataPoint &&
@@ -86,7 +96,29 @@ const LegendCard = ({
     }
 
     newData.splice(index, 1);
-    resetParams(newData);
+
+    // when removing a test, check to see if the next test in the queue had a color;
+    // if it had secondary and was deselected, reset its color and visibility to
+    // the removed test's color, otherwise push that color back into the colors list
+    if (
+      newData[graphColors.length - 1] &&
+      newData[graphColors.length - 1].color[0] === 'border-secondary'
+    ) {
+      newData[graphColors.length - 1].color = series.color;
+      newData[graphColors.length - 1].visible = true;
+      newData[graphColors.length - 1].data = newData[
+        graphColors.length - 1
+      ].data.map(item => {
+        item.z = series.color[1];
+        return item;
+      });
+      resetParams(newData);
+    } else if (series.color[0] === 'border-secondary') {
+      resetParams(newData);
+    } else {
+      const newColors = [...colors, ...[series.color]];
+      resetParams(newData, newColors);
+    }
   };
 
   const getFrameworkName = frameworkId => {
