@@ -53,6 +53,7 @@ export default class Health extends React.PureComponent {
         ...acc,
         [`${key}Expanded`]: metric.result !== 'pass',
       }),
+      {},
     );
 
     this.setState(expandedStates);
