@@ -3,10 +3,17 @@ import PropTypes from 'prop-types';
 import { Container } from 'reactstrap';
 
 import { filterText } from '../constants';
-import { convertParams, containsText, onPermalinkClick } from '../helpers';
+import {
+  convertParams,
+  containsText,
+  onPermalinkClick,
+  retriggerJobs,
+} from '../helpers';
 import FilterControls from '../FilterControls';
+import JobModel from '../../models/job';
 
 import CompareTable from './CompareTable';
+import RetriggerModal from './RetriggerModal';
 
 export default class CompareTableControls extends React.Component {
   constructor(props) {
@@ -19,6 +26,8 @@ export default class CompareTableControls extends React.Component {
       showNoise: convertParams(this.validated, 'showOnlyNoise'),
       results: new Map(),
       filterText: '',
+      showRetriggerModal: false,
+      currentRetriggerRow: {},
     };
   }
 
@@ -105,6 +114,30 @@ export default class CompareTableControls extends React.Component {
     this.setState({ results: filteredResults });
   };
 
+  toggleRetriggerModal = () => {
+    this.setState(prevState => ({
+      showRetriggerModal: !prevState.showRetriggerModal,
+    }));
+  };
+
+  updateAndClose = async (event, params) => {
+    const { currentRetriggerRow } = this.state;
+    const { baseRetriggerTimes, newRetriggerTimes } = params;
+    event.preventDefault();
+    await retriggerJobs(
+      currentRetriggerRow,
+      baseRetriggerTimes,
+      newRetriggerTimes,
+      this.props,
+    );
+    this.toggleRetriggerModal();
+  };
+
+  onModalOpen = rowResults => {
+    this.setState({ currentRetriggerRow: rowResults });
+    this.toggleRetriggerModal();
+  };
+
   render() {
     const {
       showTestsWithNoise,
@@ -124,6 +157,8 @@ export default class CompareTableControls extends React.Component {
       showImportant,
       showNoise,
       results,
+      showRetriggerModal,
+      currentRetriggerRow,
     } = this.state;
 
     const compareFilters = [
@@ -156,6 +191,13 @@ export default class CompareTableControls extends React.Component {
     ];
     return (
       <Container fluid className="my-3 px-0">
+        <RetriggerModal
+          showModal={showRetriggerModal}
+          toggle={this.toggleRetriggerModal}
+          updateAndClose={this.updateAndClose}
+          currentRetriggerRow={currentRetriggerRow}
+          isBaseAggregate={isBaseAggregate}
+        />
         <FilterControls
           filterOptions={compareFilters}
           updateFilter={this.updateFilter}
@@ -178,6 +220,7 @@ export default class CompareTableControls extends React.Component {
               hasSubtests={hasSubtests}
               projects={projects}
               history={history}
+              onModalOpen={this.onModalOpen}
             />
           ))
         ) : (
@@ -207,6 +250,10 @@ CompareTableControls.propTypes = {
     PropTypes.bool,
   ]),
   onPermalinkClick: PropTypes.func,
+  // eslint-disable-next-line react/no-unused-prop-types
+  getJob: PropTypes.func,
+  // eslint-disable-next-line react/no-unused-prop-types
+  retriggerJob: PropTypes.func,
 };
 
 CompareTableControls.defaultProps = {
@@ -220,4 +267,6 @@ CompareTableControls.defaultProps = {
   },
   showTestsWithNoise: null,
   onPermalinkClick,
+  getJob: JobModel.get,
+  retriggerJob: JobModel.retrigger,
 };

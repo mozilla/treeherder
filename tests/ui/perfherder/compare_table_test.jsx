@@ -95,44 +95,51 @@ const mockHandlePermalinkClick = jest.fn();
 
 afterEach(cleanup);
 
-const compareTableControlsNode = (userLoggedIn = false) => {
+const compareTableControlsNode = (
+  userLoggedIn = false,
+  isBaseAggregate = false,
+  mockDataRetrigger = { retriggers: [] },
+) => {
   return (
     <CompareTableControls
       compareResults={results}
       filterOptions={{}}
       user={{ isLoggedIn: userLoggedIn }}
       notify={() => {}}
-      isBaseAggregate={false}
+      isBaseAggregate={isBaseAggregate}
       onPermalinkClick={mockHandlePermalinkClick}
       projects={projects}
+      retriggerJob={getMockRetrigger(mockDataRetrigger)}
+      getJob={(repoName, jobId) => {
+        return { id: jobId };
+      }}
     />
   );
 };
 
-const compareTableControls = (userLoggedIn = false) =>
-  render(compareTableControlsNode(userLoggedIn));
-
-const compareTable = (
-  userLoggedIn,
+const compareTableControls = (
+  userLoggedIn = false,
   isBaseAggregate = false,
   mockDataRetrigger = { retriggers: [] },
 ) =>
+  render(
+    compareTableControlsNode(userLoggedIn, isBaseAggregate, mockDataRetrigger),
+  );
+
+const compareTable = (userLoggedIn, isBaseAggregate = false) =>
   render(
     <CompareTable
       user={{ isLoggedIn: userLoggedIn }}
       data={result}
       testName="Test Name"
       notify={() => {}}
+      onModalOpen={() => {}}
       isBaseAggregate={isBaseAggregate}
-      retriggerJob={getMockRetrigger(mockDataRetrigger)}
-      getJob={(repoName, jobId) => {
-        return { id: jobId };
-      }}
       projects={projects}
     />,
   );
 
-const comparepageTitle = () =>
+const comparePageTitle = () =>
   render(
     <ComparePageTitle
       title="Perfherder Compare Revisions"
@@ -271,13 +278,23 @@ test('retrigger buttons should appear only when the user is logged in', async ()
 
 test('retrigger should trigger jobs for base and new repositories', async () => {
   const mockDataRetrigger = { retriggers: [] };
-  const { queryAllByTitle } = compareTable(true, false, mockDataRetrigger);
+  const { queryAllByTitle, getByText } = compareTableControls(
+    true,
+    false,
+    mockDataRetrigger,
+  );
   const retriggerButtons = queryAllByTitle(
     compareTableText.retriggerButtonTitle,
   );
 
   expect(retriggerButtons).toHaveLength(2);
   await fireEvent.click(retriggerButtons[0]);
+
+  const retriggerButtonModal = await waitForElement(() =>
+    getByText('Retrigger'),
+  );
+  expect(retriggerButtonModal).toBeInTheDocument();
+  await fireEvent.click(retriggerButtonModal);
 
   expect(mockDataRetrigger.retriggers).toHaveLength(2);
   expect(mockDataRetrigger.retriggers[0].jobs).toHaveLength(1);
@@ -292,13 +309,22 @@ test('retrigger should trigger jobs for base and new repositories', async () => 
 
 test('retrigger should only work on new repo when base is aggregate', async () => {
   const mockDataRetrigger = { retriggers: [] };
-  const { queryAllByTitle } = compareTable(true, true, mockDataRetrigger);
+  const { queryAllByTitle, getByText } = compareTableControls(
+    true,
+    true,
+    mockDataRetrigger,
+  );
   const retriggerButtons = queryAllByTitle(
     compareTableText.retriggerButtonTitle,
   );
 
   expect(retriggerButtons).toHaveLength(1);
   await fireEvent.click(retriggerButtons[0]);
+  const retriggerButtonModal = await waitForElement(() =>
+    getByText('Retrigger'),
+  );
+  expect(retriggerButtonModal).toBeInTheDocument();
+  await fireEvent.click(retriggerButtonModal);
 
   expect(mockDataRetrigger.retriggers).toHaveLength(1);
   expect(mockDataRetrigger.retriggers[0].jobs).toHaveLength(1);
@@ -321,7 +347,7 @@ test('retrigger button should not appear for test with no jobs', async () => {
 });
 
 test('display of page title', async () => {
-  const { getAllByTitle, getAllByText } = comparepageTitle();
+  const { getAllByTitle, getAllByText } = comparePageTitle();
 
   const pageTitleTitle = getAllByTitle('Click to change the page title');
   const pageTitleDefaultText = getAllByText('Perfherder Compare Revisions');
@@ -332,14 +358,14 @@ test('display of page title', async () => {
 });
 
 test('Button hides when clicking on it and a Input is displayed', async () => {
-  const { queryByText, container } = comparepageTitle();
+  const { queryByText, container } = comparePageTitle();
   const pageTitleDefaultText = queryByText('Perfherder Compare Revisions');
   await fireEvent.click(pageTitleDefaultText);
   expect(container.firstChild).toHaveClass('input-group');
 });
 
 test('clicking the title button does not change the title', async () => {
-  const { getByText, getByDisplayValue } = comparepageTitle();
+  const { getByText, getByDisplayValue } = comparePageTitle();
 
   const pageTitleDefaultText = await waitForElement(() =>
     getByText('Perfherder Compare Revisions'),
@@ -352,7 +378,7 @@ test('clicking the title button does not change the title', async () => {
 });
 
 test('setting a title on page updates the title accordingly', async () => {
-  const { getByText, getByDisplayValue } = comparepageTitle();
+  const { getByText, getByDisplayValue } = comparePageTitle();
 
   const pageTitleDefaultText = await waitForElement(() =>
     getByText('Perfherder Compare Revisions'),
@@ -374,7 +400,7 @@ test('setting a title on page updates the title accordingly', async () => {
 });
 
 test('re-editing the title is possible', async () => {
-  const { getByText, getByDisplayValue } = comparepageTitle();
+  const { getByText, getByDisplayValue } = comparePageTitle();
 
   const pageTitleDefaultText = await waitForElement(() =>
     getByText('Perfherder Compare Revisions'),
@@ -399,7 +425,7 @@ test('re-editing the title is possible', async () => {
 });
 
 test("'Escape' from partially edited title does not update original title", async () => {
-  const { getByText, getByDisplayValue } = comparepageTitle();
+  const { getByText, getByDisplayValue } = comparePageTitle();
 
   const pageTitleDefaultText = await waitForElement(() =>
     getByText('Perfherder Compare Revisions'),

@@ -669,7 +669,12 @@ const retriggerByRevision = async (
   }
 };
 
-export const retriggerJobs = async (results, times, props) => {
+export const retriggerJobs = async (
+  results,
+  baseRetriggerTimes,
+  newRetriggerTimes,
+  props,
+) => {
   // retrigger base revision jobs
   const { projects } = props;
 
@@ -677,7 +682,7 @@ export const retriggerJobs = async (results, times, props) => {
     results.originalRetriggerableJobId,
     RepositoryModel.getRepo(results.originalRepoName, projects),
     true,
-    times,
+    baseRetriggerTimes,
     props,
   );
   // retrigger new revision jobs
@@ -685,7 +690,7 @@ export const retriggerJobs = async (results, times, props) => {
     results.newRetriggerableJobId,
     RepositoryModel.getRepo(results.newRepoName, projects),
     false,
-    times,
+    newRetriggerTimes,
     props,
   );
 };

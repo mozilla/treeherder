@@ -32,7 +32,7 @@ export const selectorCardText = {
 };
 
 export const compareTableText = {
-  retriggerButtonTitle: 'Retrigger 5 times',
+  retriggerButtonTitle: 'Retrigger jobs',
 };
 
 export const noResultsMessage = 'No results to show';
