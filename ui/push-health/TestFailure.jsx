@@ -1,6 +1,6 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import { Badge, Button, Row, Col } from 'reactstrap';
+import { Badge, Button, Row, Col, UncontrolledTooltip } from 'reactstrap';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faRedo } from '@fortawesome/free-solid-svg-icons';
 
@@ -43,8 +43,10 @@ class TestFailure extends React.PureComponent {
     const { failure, repo, revision } = this.props;
     const {
       testName,
+      action,
       jobName,
       jobSymbol,
+      inProgressJobs,
       failJobs,
       passJobs,
       passInFailedJobs,
@@ -55,18 +57,33 @@ class TestFailure extends React.PureComponent {
       suggestedClassification,
       key,
       tier,
+      passFailRatio,
     } = failure;
     const { detailsShowing } = this.state;
 
     return (
       <Col className="mt-2 mb-3 ml-2" key={key}>
-        <Row className="border-bottom border-secondary justify-content-between">
-          <span>
+        <Row className="border-top border-secondary justify-content-between">
+          <Row className="ml-1 w-100">
+            <span
+              color="secondary"
+              className="font-weight-bold text-uppercase mr-1"
+            >
+              {action} :
+            </span>
             {testName}
             {tier > 1 && (
               <span className="ml-1 small text-muted">[tier-{tier}]</span>
             )}
-          </span>
+            <span id={key} className="ml-auto mr-3">
+              <strong>Pass/Fail Ratio:</strong>{' '}
+              {Math.round(passFailRatio * 100)}%
+            </span>
+            <UncontrolledTooltip target={key} placement="left">
+              Greater than 50% (and/or classification history) will make this an
+              intermittent
+            </UncontrolledTooltip>
+          </Row>
           {!!confidence && (
             <span title="Best guess at a classification" className="ml-auto">
               {classificationMap[suggestedClassification]}
@@ -131,35 +148,48 @@ class TestFailure extends React.PureComponent {
               key={passedInAFailedJob.id}
             />
           ))}
-        </div>
-        {!!logLines.length &&
-          logLines.map(logLine => (
-            <Row
-              className="small text-monospace mt-2 ml-3"
-              key={logLine.line_number}
-            >
-              {detailsShowing ? (
-                <div className="pre-wrap text-break">
-                  {logLine.subtest}
-                  <Row className="ml-3">
-                    <div>{logLine.message}</div>
-                  </Row>
-                </div>
-              ) : (
-                <div className="pre-wrap text-break">
-                  {!!logLine.subtest && logLine.subtest.substr(0, 200)}
-                </div>
-              )}
-            </Row>
+          {inProgressJobs.map(inProgressJob => (
+            <Job
+              job={inProgressJob}
+              jobName={jobName}
+              jobSymbol={jobSymbol}
+              repo={repo}
+              revision={revision}
+              key={inProgressJob.id}
+            />
           ))}
-        <div>
-          <Button
-            className="border-0 text-info bg-transparent p-1"
-            onClick={this.toggleDetails}
-          >
-            {detailsShowing ? 'less...' : 'more...'}
-          </Button>
         </div>
+        {!!logLines.length && (
+          <div>
+            <Button
+              className="border-0 text-info bg-transparent p-1"
+              onClick={this.toggleDetails}
+            >
+              {detailsShowing ? 'less...' : 'more...'}
+            </Button>
+          </div>
+        )}
+        {logLines.map(logLine => (
+          <Row
+            className="small text-monospace mt-2 ml-3"
+            key={logLine.line_number}
+          >
+            {detailsShowing ? (
+              <div className="pre-wrap text-break">
+                {logLine.subtest}
+                <Row className="ml-3">
+                  <div>{logLine.message}</div>
+                  <div>{logLine.signature}</div>
+                  <div>{logLine.stackwalk_stdout}</div>
+                </Row>
+              </div>
+            ) : (
+              <div className="pre-wrap text-break">
+                {!!logLine.subtest && logLine.subtest.substr(0, 200)}
+              </div>
+            )}
+          </Row>
+        ))}
       </Col>
     );
   }

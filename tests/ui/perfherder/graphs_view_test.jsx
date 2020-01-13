@@ -6,11 +6,15 @@ import {
   waitForElement,
 } from '@testing-library/react';
 
+import { filterText, graphColors } from '../../../ui/perfherder/constants';
 import GraphsViewControls from '../../../ui/perfherder/graphs/GraphsViewControls';
 import repos from '../mock/repositories';
 import testData from '../mock/performance_summary.json';
 import seriesData from '../mock/performance_signature_formatted.json';
 import seriesData2 from '../mock/performance_signature_formatted2.json';
+import { createGraphData } from '../../../ui/perfherder/helpers';
+
+const graphData = createGraphData(testData, [], [...graphColors]);
 
 const frameworks = [
   { id: 1, name: 'talos' },
@@ -28,6 +32,11 @@ const updates = {
 const updates2 = { ...updates };
 updates2.seriesData = seriesData2;
 
+const setFilterText = (filterField, text) => {
+  fireEvent.click(filterField);
+  fireEvent.change(filterField, { target: { value: text } });
+};
+
 const mockGetSeriesData = jest
   .fn()
   .mockResolvedValueOnce(updates)
@@ -39,27 +48,29 @@ const mockShowModal = jest
   .mockReturnValueOnce(true)
   .mockReturnValueOnce(false);
 
-const graphsViewControls = () =>
+const graphsViewControls = (data = testData, hasNoData = true) =>
   render(
     <GraphsViewControls
       updateStateParams={() => {}}
-      graphs={false}
       highlightAlerts={false}
       highlightedRevisions={['', '']}
       updateTimeRange={() => {}}
-      hasNoData
+      hasNoData={hasNoData}
       frameworks={frameworks}
       projects={repos}
       timeRange={{ value: 172800, text: 'Last two days' }}
       options={{}}
       getTestData={() => {}}
-      testData={testData}
+      testData={data}
       getInitialData={() => ({
         platforms,
       })}
       getSeriesData={mockGetSeriesData}
       showModal={Boolean(mockShowModal)}
       toggle={mockShowModal}
+      selectedDataPoint={{ signature_id: 1647494, dataPointId: 887279300 }}
+      user={{ isStaff: true }}
+      updateData={() => {}}
     />,
   );
 
@@ -121,4 +132,83 @@ test('Selecting a test in the Test Data Modal adds it to Selected Tests section;
   fireEvent.click(fullTestToSelect);
   expect(mockShowModal.mock.calls).toHaveLength(1);
   expect(selectedTests).not.toContain(fullTestToSelect);
+});
+
+test('InputFilter from TestDataModal can filter by tags', async () => {
+  const {
+    getByText,
+    getByTestId,
+    getByPlaceholderText,
+    getByTitle,
+  } = graphsViewControls();
+
+  const { name, tag, projectName, platform } = seriesData[0];
+  const fullTestName = projectName.concat(' ', platform, ' ', name);
+
+  fireEvent.click(getByText('Add test data'));
+
+  const textInput = await waitForElement(() =>
+    getByPlaceholderText(filterText.inputPlaceholder),
+  );
+  setFilterText(textInput, tag);
+
+  const fullTestToSelect = await waitForElement(() => getByTitle(name));
+
+  fireEvent.click(fullTestToSelect);
+
+  const selectedTests = getByTestId('selectedTests');
+
+  expect(selectedTests.children).toHaveLength(1);
+  expect(selectedTests.children[0].text).toBe(fullTestName);
+});
+
+test("Selectable tests with different units than what's already plotted show warning in the Test Data Modal", async () => {
+  const { getByText, getAllByTitle } = graphsViewControls();
+
+  fireEvent.click(getByText('Add test data'));
+
+  // dromaeo_dom's unit is "score", while other tests don't have any
+  const mismatchedTests = await waitForElement(() =>
+    getAllByTitle(/^Warning:.*/i),
+  );
+
+  expect(mismatchedTests).toHaveLength(1);
+});
+
+test("Selecting a test with similar unit in the Test Data Modal doesn't give warning", async () => {
+  const { getByText, getByTestId, queryAllByTitle } = graphsViewControls();
+
+  fireEvent.click(getByText('Add test data'));
+
+  const matchingTest = await waitForElement(() =>
+    getByTestId(seriesData[1].id.toString()),
+  );
+
+  fireEvent.click(matchingTest);
+
+  const mismatchedTests = await waitForElement(() =>
+    queryAllByTitle(/^Warning:.*/i),
+  );
+
+  // no extra warnings were added in selected tests' section
+  expect(mismatchedTests).toHaveLength(1);
+});
+
+test('Using select query param displays tooltip for correct datapoint', async () => {
+  const { getByTestId, getByText } = graphsViewControls(graphData, false);
+
+  const graphContainer = await waitForElement(() =>
+    getByTestId('graphContainer'),
+  );
+
+  expect(graphContainer).toBeInTheDocument();
+
+  const graphTooltip = await waitForElement(() => getByTestId('graphTooltip'));
+  const expectedRevision = '3afb892abb74c6d281f3e66431408cbb2e16b8c4';
+  const revision = await waitForElement(() =>
+    getByText(expectedRevision.slice(0, 13)),
+  );
+
+  expect(graphTooltip).toBeInTheDocument();
+  expect(revision).toBeInTheDocument();
 });

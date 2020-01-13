@@ -2,8 +2,10 @@ import asyncio
 import logging
 
 import aiohttp
+import requests
 import taskcluster
 import taskcluster.aio
+import taskcluster_urls as liburls
 from django.conf import settings
 from django.core.management.base import BaseCommand
 
@@ -91,6 +93,20 @@ async def processTasks(taskGroupId, root_url):
     await asyncio.gather(*asyncTasks)
 
 
+def find_task_id(index_path, root_url):
+    index_url = liburls.api(root_url, 'index', 'v1', 'task/{}'.format(index_path))
+    response = requests.get(index_url)
+    if response.status_code == 404:
+        raise Exception("Index URL {} not found".format(index_url))
+    return response.json()['taskId']
+
+
+def get_decision_task_id(project, revision, root_url):
+    index_fmt = 'gecko.v2.{}.revision.{}.taskgraph.decision'
+    index_path = index_fmt.format(project, revision)
+    return find_task_id(index_path, root_url)
+
+
 class Command(BaseCommand):
     """Management command to ingest data from a single push."""
     help = "Ingests a single push and tasks into Treeherder"
@@ -106,12 +122,17 @@ class Command(BaseCommand):
             help="Hg repository to query (e.g. autoland)"
         )
         parser.add_argument(
-            "-c", "--commit",
-            help="Commit to import"
+            "-c", "--commit", "-r", "--revision",
+            help="Commit/revision to import"
         )
         parser.add_argument(
-            "--ingest-all-tasks",
-            nargs="?",
+            "--enable-eager-celery",
+            action="store_true",
+            help="This will cause all Celery queues to execute (like log parsing). This will take way longer."
+        )
+        parser.add_argument(
+            "-a", "--ingest-all-tasks",
+            action="store_true",
             help="This will cause all tasks associated to a commit to be ingested. This can take a long time."
         )
         parser.add_argument(
@@ -161,30 +182,30 @@ class Command(BaseCommand):
             }
             PushLoader().process(pulse["payload"], pulse["exchange"], root_url)
         elif typeOfIngestion == "git-push":
-            pass
-        elif typeOfIngestion == "hg-push":
+            raise Exception("This is not yet implemented")
+        elif typeOfIngestion == "push":
+            if not options["enable_eager_celery"]:
+                logger.info(
+                    "If you want all logs to be parsed use --enable-eager-celery"
+                )
+            else:
+                # Make sure all tasks are run synchronously / immediately
+                settings.CELERY_TASK_ALWAYS_EAGER = True
+
+            # get reference to repo and ingest this particular revision for this project
             project = options["project"]
             commit = options["commit"]
-
-            # get reference to repo
             repo = Repository.objects.get(name=project, active_status="active")
-            fetch_push_id = None
-
-            # make sure all tasks are run synchronously / immediately
-            settings.CELERY_TASK_ALWAYS_EAGER = True
-
-            # get hg pushlog
             pushlog_url = "%s/json-pushes/?full=1&version=2" % repo.url
-
-            # ingest this particular revision for this project
             process = HgPushlogProcess()
-            # Use the actual push SHA, in case the changeset specified was a tag
-            # or branch name (eg tip). HgPushlogProcess returns the full SHA.
-            process.run(pushlog_url, project, changeset=commit, last_push_id=fetch_push_id)
+            process.run(pushlog_url, project, changeset=commit, last_push_id=None)
 
             if options["ingest_all_tasks"]:
-                raise Exception("This is not yet implemented")
-                # XXX: Need logic to get from project/revision to taskGroupId
+                gecko_decision_task = get_decision_task_id(project, commit, repo.tc_root_url)
                 logger.info("## START ##")
-                loop.run_until_complete(processTasks("ZYnMSfwCS5Cc_Wi_e-ZlSA", repo.tc_root_url))
+                loop.run_until_complete(processTasks(gecko_decision_task, repo.tc_root_url))
                 logger.info("## END ##")
+            else:
+                logger.info(
+                    "You can ingest all tasks for a push with -a/--ingest-all-tasks."
+                )

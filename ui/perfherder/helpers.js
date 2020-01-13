@@ -9,6 +9,7 @@ import PerfSeriesModel, {
   getTestName,
 } from '../models/perfSeries';
 import { thPerformanceBranches } from '../helpers/constants';
+import RepositoryModel from '../models/repository';
 
 import {
   endpoints,
@@ -562,19 +563,10 @@ export const containsText = (string, text) => {
   return regex.test(string);
 };
 
-export const processSelectedParam = tooltipArray => {
-  const values = {
-    signature_id: parseInt(tooltipArray[0], 10),
-    pushId: parseInt(tooltipArray[1], 10),
-    x: parseFloat(tooltipArray[2]),
-    y: parseFloat(tooltipArray[3]),
-  };
-
-  if (tooltipArray[4]) {
-    values.dataPointId = parseInt(tooltipArray[4], 10);
-  }
-  return values;
-};
+export const processSelectedParam = tooltipArray => ({
+  signature_id: parseInt(tooltipArray[0], 10),
+  dataPointId: parseInt(tooltipArray[1], 10),
+});
 
 export const getInitialData = async (
   errorMessages,
@@ -627,8 +619,111 @@ export const getSeriesData = async (
   return updates;
 };
 
-export const onPermalinkClick = (hashBasedValue, props) => {
-  const { history, location } = props;
+export const scrollWithOffset = function scrollWithOffset(el) {
+  // solution from https://github.com/rafrex/react-router-hash-link/issues/25#issuecomment-536688104
 
-  history.replace(`${location.pathname}${location.search}#${hashBasedValue}`);
+  const yCoordinate = el.getBoundingClientRect().top + window.pageYOffset;
+  const yOffset = -35;
+  window.scrollTo({ top: yCoordinate + yOffset, behavior: 'smooth' });
 };
+
+export const onPermalinkClick = (hashBasedValue, history, element) => {
+  scrollWithOffset(element);
+  history.replace(
+    `${history.location.pathname}${history.location.search}#${hashBasedValue}`,
+  );
+};
+
+// human readable signature name
+const getSignatureName = (testName, platformName) =>
+  [testName, platformName].filter(item => item !== null).join(' ');
+
+export const getHashBasedId = function getHashBasedId(
+  testName,
+  hashFunction,
+  platformName = null,
+) {
+  const tableSection = platformName === null ? 'header' : 'row';
+  const hashValue = hashFunction(getSignatureName(testName, platformName));
+
+  return `table-${tableSection}-${hashValue}`;
+};
+
+const retriggerByRevision = async (
+  jobId,
+  currentRepo,
+  isBaseline,
+  times,
+  props,
+) => {
+  const { isBaseAggregate, notify, retriggerJob, getJob } = props;
+
+  // do not retrigger if the base is aggregate (there is a selected time range)
+  if (isBaseline && isBaseAggregate) {
+    return;
+  }
+
+  if (jobId) {
+    const job = await getJob(currentRepo.name, jobId);
+    retriggerJob([job], currentRepo, notify, times);
+  }
+};
+
+export const retriggerJobs = async (results, times, props) => {
+  // retrigger base revision jobs
+  const { projects } = props;
+
+  retriggerByRevision(
+    results.originalRetriggerableJobId,
+    RepositoryModel.getRepo(results.originalRepoName, projects),
+    true,
+    times,
+    props,
+  );
+  // retrigger new revision jobs
+  retriggerByRevision(
+    results.newRetriggerableJobId,
+    RepositoryModel.getRepo(results.newRepoName, projects),
+    false,
+    times,
+    props,
+  );
+};
+
+export const createGraphData = (seriesData, alertSummaries, colors) =>
+  seriesData.map(series => {
+    const color = colors.pop();
+    // signature_id, framework_id and repository_name are
+    // not renamed in camel case in order to match the fields
+    // returned by the performance/summary API (since we only fetch
+    // new data if a user adds additional tests to the graph)
+    return {
+      color: color || ['border-secondary', ''],
+      visible: Boolean(color),
+      name: series.name,
+      signature_id: series.signature_id,
+      signatureHash: series.signature_hash,
+      framework_id: series.framework_id,
+      platform: series.platform,
+      repository_name: series.repository_name,
+      projectId: series.repository_id,
+      id: `${series.repository_name} ${series.name}`,
+      data: series.data.map(dataPoint => ({
+        x: new Date(dataPoint.push_timestamp),
+        y: dataPoint.value,
+        z: color ? color[1] : '',
+        revision: dataPoint.revision,
+        alertSummary: alertSummaries.find(
+          item => item.push_id === dataPoint.push_id,
+        ),
+        signature_id: series.signature_id,
+        pushId: dataPoint.push_id,
+        jobId: dataPoint.job_id,
+        dataPointId: dataPoint.id,
+      })),
+      measurementUnit: series.measurement_unit || '',
+      lowerIsBetter: series.lower_is_better,
+      resultSetData: series.data.map(dataPoint => dataPoint.push_id),
+      parentSignature: series.parent_signature,
+    };
+  });

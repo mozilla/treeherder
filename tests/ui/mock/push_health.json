@@ -30,6 +30,7 @@
             ],
             "passJobs": [],
             "passInFailedJobs": [],
+            "inProgressJobs": [],
             "logLines": [
               {
                 "action": "test_result",
@@ -67,6 +68,7 @@
             ],
             "passJobs": [],
             "passInFailedJobs": [],
+            "inProgressJobs": [],
             "logLines": [
               {
                 "action": "test_result",
@@ -104,6 +106,7 @@
             ],
             "passJobs": [],
             "passInFailedJobs": [],
+            "inProgressJobs": [],
             "logLines": [
               {
                 "action": "test_result",

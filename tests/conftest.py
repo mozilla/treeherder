@@ -302,6 +302,15 @@ def failure_lines(test_job):
 
 
 @pytest.fixture
+def failure_line_logs(test_job):
+    from tests.autoclassify.utils import test_line, create_failure_lines
+
+    return create_failure_lines(test_job,
+                                [(test_line, {'action': 'log', 'test': None}),
+                                 (test_line, {'subtest': 'subtest2'})])
+
+
+@pytest.fixture
 def failure_classifications(transactional_db):
     from treeherder.model.models import FailureClassification
     for name in ["not classified", "fixed by commit", "expected fail",
@@ -412,7 +421,9 @@ def test_perf_signature(test_repository, test_perf_framework):
         suite='mysuite',
         test='mytest',
         has_subtests=False,
+        tags='warm pageload',
         extra_options='e10s opt',
+        measurement_unit='ms',
         last_updated=datetime.datetime.now()
     )
     return signature

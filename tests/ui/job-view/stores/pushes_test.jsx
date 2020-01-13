@@ -1,4 +1,4 @@
-import { fetchMock } from 'fetch-mock';
+import fetchMock from 'fetch-mock';
 import thunk from 'redux-thunk';
 import { cleanup } from '@testing-library/react';
 import configureMockStore from 'redux-mock-store';

@@ -373,16 +373,18 @@ class App extends React.Component {
                   </div>
                 )}
               </div>
-              {currentRepo && (
-                <DetailsPanel
-                  resizedHeight={detailsHeight}
-                  currentRepo={currentRepo}
-                  repoName={repoName}
-                  user={user}
-                  classificationTypes={classificationTypes}
-                  classificationMap={classificationMap}
-                />
-              )}
+              <>
+                {currentRepo && (
+                  <DetailsPanel
+                    resizedHeight={detailsHeight}
+                    currentRepo={currentRepo}
+                    repoName={repoName}
+                    user={user}
+                    classificationTypes={classificationTypes}
+                    classificationMap={classificationMap}
+                  />
+                )}
+              </>
             </SplitPane>
             <Notifications />
             {showShortCuts && (

@@ -102,7 +102,8 @@ def test_alert_summaries_get(client, test_perf_alert_summary,
         'summary_id',
         'related_summary_id',
         'classifier',
-        'classifier_email'
+        'classifier_email',
+        'backfill_record'
     ])
     assert resp.json()['results'][0]['related_alerts'] == []
 
@@ -154,7 +155,8 @@ def test_alert_summaries_get_onhold(client, test_perf_alert_summary,
         'summary_id',
         'related_summary_id',
         'classifier',
-        'classifier_email'
+        'classifier_email',
+        'backfill_record'
     ])
     assert resp.json()['results'][0]['related_alerts'] == []
 

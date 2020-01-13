@@ -15,9 +15,9 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faBug, faSpinner, faUnlink } from '@fortawesome/free-solid-svg-icons';
 
 import { store, actions } from '../redux/store';
+import StatusProgress from '../../shared/StatusProgress';
 
 import { Test, BugCount } from './Test';
-import StatusProgress from './StatusProgress';
 import StatusNavbar from './StatusNavbar';
 
 const mapStateToProps = ({ groups }) => groups;
@@ -70,10 +70,12 @@ class Groups extends React.Component {
   }
 
   render() {
+    const { counts } = this.props;
+
     return (
       <div>
         <StatusNavbar />
-        <StatusProgress />
+        {counts && <StatusProgress counts={counts} />}
         <Container fluid style={{ marginBottom: '.5rem', marginTop: '5rem' }}>
           <Form onSubmit={e => e.preventDefault()}>
             <Row>
@@ -190,6 +192,7 @@ Groups.propTypes = {
   hideClassified: PropTypes.object.isRequired,
   bugSuggestions: PropTypes.object.isRequired,
   groups: PropTypes.object.isRequired,
+  counts: PropTypes.object.isRequired,
   rowData: PropTypes.object.isRequired,
   fetchStatus: PropTypes.string,
 };

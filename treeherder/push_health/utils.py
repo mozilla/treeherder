@@ -1,6 +1,6 @@
 def clean_test(test_name):
     try:
-        clean_name = str(test_name)
+        clean_name = str(test_name) if test_name else 'Non-Test Error'
     except UnicodeEncodeError:
         return ''
 
@@ -42,9 +42,9 @@ def clean_test(test_name):
     if " (finished)" in clean_name:
         clean_name = clean_name.split(" (finished)")[0]
 
-    # TODO: does this affect anything?
-    if clean_name in ['Main app process exited normally',
-                      None,
+    # Now that we don't bail on a blank test_name, these filters
+    # may sometimes apply.
+    if clean_name in [None,
                       'Last test finished',
                       '(SimpleTest/TestRunner.js)']:
         return None

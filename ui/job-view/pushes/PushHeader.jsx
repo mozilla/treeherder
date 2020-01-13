@@ -318,7 +318,6 @@ class PushHeader extends React.Component {
           {showPushHealthStatus && (
             <PushHealthStatus
               repoName={currentRepo.name}
-              pushId={pushId}
               revision={revision}
               jobCounts={jobCounts}
             />

@@ -1,6 +1,11 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import { Label } from 'reactstrap';
+import {
+  Label,
+  UncontrolledDropdown,
+  DropdownToggle,
+  DropdownMenu,
+} from 'reactstrap';
 
 const TIERS = ['1', '2', '3'];
 
@@ -9,17 +14,15 @@ export default function TiersMenu(props) {
   const shownTiers = filterModel.urlParams.tier || [];
 
   return (
-    <span className="dropdown">
-      <span
+    <UncontrolledDropdown>
+      <DropdownToggle
         id="tierLabel"
-        role="button"
         title="Show/hide job tiers"
-        data-toggle="dropdown"
         className="btn btn-view-nav btn-sm nav-menu-btn dropdown-toggle"
       >
         Tiers
-      </span>
-      <ul className="dropdown-menu checkbox-dropdown-menu" role="menu">
+      </DropdownToggle>
+      <DropdownMenu>
         {TIERS.map(tier => {
           const isOnlyTier = shownTiers.length === 1 && tier === shownTiers[0];
           return (
@@ -34,6 +37,7 @@ export default function TiersMenu(props) {
                   className={`dropdown-item ${isOnlyTier ? 'disabled' : ''}`}
                 >
                   <input
+                    style={{ pointerEvents: 'none' }}
                     id="tier-checkbox"
                     type="checkbox"
                     className="mousetrap"
@@ -47,8 +51,8 @@ export default function TiersMenu(props) {
             </li>
           );
         })}
-      </ul>
-    </span>
+      </DropdownMenu>
+    </UncontrolledDropdown>
   );
 }
 

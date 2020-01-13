@@ -41,6 +41,12 @@ const withValidation = (
       this.validateParams(parseQueryParams(this.props.location.search));
     }
 
+    shouldComponentUpdate(prevProps) {
+      const { location } = this.props;
+
+      return location.hash === prevProps.location.hash;
+    }
+
     componentDidUpdate(prevProps) {
       const { location } = this.props;
 

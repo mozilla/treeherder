@@ -1,5 +1,11 @@
-body {
+html {
   overflow: auto;
+  height: auto;
+}
+
+body {
+  overflow: visible;
+  height: auto;
 }
 
 section {
@@ -75,10 +81,8 @@ h1 {
 }
 
 .graph-tooltip {
-  position: absolute;
   pointer-events: none;
   width: 280px;
-  z-index: 999;
   text-align: left;
 }
 .graph-tooltip.locked {
@@ -201,8 +205,21 @@ h1 {
 
 .push-information {
   font-size: 18px;
-  color: #777;
+  color: #555;
   margin-left: -4px;
+  display: grid;
+  grid-template-columns: 1fr auto 1fr;
+  gap: 2rem;
+}
+
+.push-information-revisions {
+  list-style: none;
+  font-size: 0.7em;
+  font-style: italic;
+  color: #757575;
+  padding: 0;
+  padding-top: 5px;
+  text-align: left;
 }
 
 .vertical-box {
@@ -257,6 +274,10 @@ th {
   cursor: default;
 }
 
+.compare-table th h3 {
+  font-size: inherit;
+}
+
 .compare-table .subtest-header > th,
 .compare-table .subtest-header a,
 .compare-table .subtest-header button {
@@ -265,9 +286,9 @@ th {
 }
 
 .compare-table .subtest-header > th:first-child,
-.compare-table:hover .subtest-header > th,
-.compare-table:hover .subtest-header a,
-.compare-table:hover .subtest-header button,
+.compare-table .subtest-header > th,
+.compare-table .subtest-header a,
+.compare-table .subtest-header button,
 .compare-table {
   color: #333;
 }
@@ -291,12 +312,10 @@ th {
   transition: visibility 150ms ease-in-out;
 }
 
-.compare-table tr:hover .result-links span {
-  color: #333;
-}
-
 .compare-table tr:hover .result-links a,
-.compare-table tr:hover .result-links button {
+.compare-table tr:hover .result-links button,
+.compare-table tr:focus-within .result-links a,
+.compare-table tr:focus-within .result-links button {
   color: #23527c;
 }
 
