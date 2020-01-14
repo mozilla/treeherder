@@ -18,9 +18,11 @@ const LegendCard = ({
   selectedDataPoint,
   frameworks,
   colors,
+  symbols,
 }) => {
   const updateSelectedTest = () => {
     const newColors = [...colors];
+    const newSymbols = [...symbols];
     const errorMessages = [];
     let updates;
     const newTestData = [...testData].map(item => {
@@ -29,6 +31,7 @@ const LegendCard = ({
 
         if (isVisible && newColors.length) {
           item.color = newColors.pop();
+          item.symbol = newSymbols.pop();
           item.visible = isVisible;
           item.data = item.data.map(test => ({
             ...test,
@@ -36,7 +39,9 @@ const LegendCard = ({
           }));
         } else if (!isVisible) {
           newColors.push(item.color);
+          newSymbols.push(item.symbol);
           item.color = ['border-secondary', ''];
+          item.symbol = ['circle', 'outline'];
           item.visible = isVisible;
           item.data = item.data.map(test => ({
             ...test,
@@ -57,6 +62,7 @@ const LegendCard = ({
       updates = {
         testData: newTestData,
         colors: newColors,
+        symbols: newSymbols,
         errorMessages,
         visibilityChanged: true,
       };
@@ -126,6 +132,7 @@ const LegendCard = ({
     return framework ? framework.name : legendCardText.unknownFrameworkMessage;
   };
   const subtitleStyle = 'p-0 mb-0 border-0 text-secondary text-left';
+  const symbolType = series.symbol || ['circle', 'outline'];
 
   return (
     <FormGroup check className="pl-0 border">
@@ -147,8 +154,8 @@ const LegendCard = ({
           type="button"
         >
           <GraphIcon
-            iconType={series.symbol[0]}
-            fill={series.symbol[1] === 'fill' ? series.color[1] : '#ffffff'}
+            iconType={symbolType[0]}
+            fill={symbolType[1] === 'fill' ? series.color[1] : '#ffffff'}
             stroke={series.color[1]}
           />
 

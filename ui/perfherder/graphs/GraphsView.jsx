@@ -320,6 +320,7 @@ class GraphsView extends React.Component {
       zoom,
       options,
       colors,
+      symbols,
       showModal,
       visibilityChanged,
     } = this.state;
@@ -358,6 +359,7 @@ class GraphsView extends React.Component {
                           this.setState(state, this.changeParams)
                         }
                         colors={colors}
+                        symbols={symbols}
                         selectedDataPoint={selectedDataPoint}
                       />
                     </div>
@@ -395,6 +397,7 @@ class GraphsView extends React.Component {
                       zoom: {},
                       selectedDataPoint: null,
                       colors: [...graphColors],
+                      symbols: [...graphSymbols],
                     },
                     this.getTestData,
                   )

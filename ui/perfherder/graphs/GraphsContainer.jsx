@@ -416,21 +416,26 @@ class GraphsContainer extends React.Component {
 
               <VictoryScatter
                 name="scatter-plot"
-                symbol={({ datum }) => datum._z}
+                symbol={({ datum }) => (datum._z ? datum._z[0] : 'circle')}
                 style={{
                   data: {
-                    fill: ({ datum }) =>
-                      ((datum.alertSummary || hasHighlightedRevision(datum)) &&
+                    fill: ({ datum }) => {
+                      const symbolType = datum._z || '';
+                      return ((datum.alertSummary ||
+                        hasHighlightedRevision(datum)) &&
                         highlightPoints) ||
-                      datum._z[1] === 'fill'
+                        symbolType[1] === 'fill'
                         ? datum.z
-                        : '#fff',
+                        : '#fff';
+                    },
                     strokeOpacity: ({ datum }) =>
                       (datum.alertSummary || hasHighlightedRevision(datum)) &&
                       highlightPoints
                         ? 0.3
                         : 100,
-                    stroke: ({ datum }) => datum.z,
+                    stroke: ({ datum }) => {
+                      return datum.z;
+                    },
                     strokeWidth: ({ datum }) =>
                       (datum.alertSummary || hasHighlightedRevision(datum)) &&
                       highlightPoints
