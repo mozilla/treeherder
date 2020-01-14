@@ -2,10 +2,10 @@
   "addons": [
     "scheduler",
     "cloudamqp:tiger",
-    "heroku-redis",
+    "heroku-redis:premium-0",
     "papertrail:choklad",
     {
-      "plan": "jawsdb:leopard",
+      "plan": "jawsdb:blacktip",
       "options": {
         "version": "5.7"
       }
@@ -32,6 +32,7 @@
     "HEROKU_APP_NAME": {
       "required": true
     },
+    "LOGGING_LEVEL": "INFO",
     "PULSE_URL": "amqp://treeherder-shared-pulse-user:mozilla123@pulse.mozilla.org:5671/?ssl=true",
     "PULSE_RESULSETS_QUEUE_NAME": {
       "generator": "secret"
@@ -40,7 +41,7 @@
       "generator": "secret"
     },
     "PROJECTS_TO_INGEST": {
-      "value": "autoland,android-components"
+      "value": "autoland"
     },
     "TREEHERDER_DJANGO_SECRET_KEY": {
       "generator": "secret"
