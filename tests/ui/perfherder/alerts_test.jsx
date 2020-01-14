@@ -19,7 +19,7 @@ import repos from '../mock/repositories';
 
 const testUser = {
   username: 'mozilla-ldap/test_user@mozilla.com',
-  is_superuser: false,
+  isLoggedIn: true,
   isStaff: true,
   email: 'test_user@mozilla.com',
 };
@@ -227,8 +227,16 @@ const mockUpdateAlertSummary = (alertSummaryId, params) => ({
   failureStatus: null,
 });
 
-const alertsViewControls = () =>
-  render(
+const alertsViewControls = ({
+  isListingAlertSummaries = null,
+  user: userMock = null,
+  alertDropdowns: alertDropdownMock = null,
+} = {}) => {
+  const user = userMock !== null ? userMock : testUser;
+  const alertDropdowns =
+    alertDropdownMock !== null ? alertDropdownMock : testAlertDropdowns;
+
+  return render(
     <AlertsViewControls
       validated={{
         hideDwnToInv: undefined,
@@ -236,13 +244,14 @@ const alertsViewControls = () =>
         filter: undefined,
         updateParams: () => {},
       }}
-      dropdownOptions={testAlertDropdowns}
+      isListingAlertSummaries={isListingAlertSummaries}
+      dropdownOptions={alertDropdowns}
       alertSummaries={testAlertSummaries}
       issueTrackers={testIssueTrackers}
       optionCollectionMap={optionCollectionMap}
       fetchAlertSummaries={() => {}}
       updateViewState={() => {}}
-      user={testUser}
+      user={user}
       modifyAlert={(alert, params) => mockModifyAlert.update(alert, params)}
       updateAlertSummary={() =>
         Promise.resolve({ failureStatus: false, data: 'alert summary data' })
@@ -254,6 +263,7 @@ const alertsViewControls = () =>
       }}
     />,
   );
+};
 
 const modifyAlertSpy = jest.spyOn(mockModifyAlert, 'update');
 
@@ -555,6 +565,41 @@ test('Alerts retriggered by the backfill bot have a title', async () => {
     queryAllByTitle(backfillRetriggeredTitle),
   );
   expect(titles).toHaveLength(1);
+});
+
+describe('"My alerts" checkbox\'s display behaviors', () => {
+  // By default, user is logged in &
+  // status & framework dropdowns are available
+
+  test('Not displayed in Alerts view (detailed mode)', async () => {
+    const { queryByText } = alertsViewControls({
+      isListingAlertSummaries: false,
+    }); // as Django detailed view mode
+
+    expect(queryByText('My alerts')).not.toBeInTheDocument();
+  });
+
+  test('Not displayed in Alerts view (detailed mode), even when param is missing', async () => {
+    const { queryByText } = alertsViewControls({ alertDropdowns: [] });
+
+    expect(queryByText('My alerts')).not.toBeInTheDocument();
+  });
+
+  test('Displayed in Alerts view (list mode)', async () => {
+    const { getByText } = alertsViewControls({ isListingAlertSummaries: true }); // as Django detailed view mode
+
+    const myAlertsCheckbox = await waitForElement(() => getByText('My alerts'));
+    expect(myAlertsCheckbox).toBeInTheDocument();
+  });
+
+  test('Not displayed if user is not logged in', async () => {
+    const { queryByText } = alertsViewControls({
+      isListingAlertSummaries: false,
+      user: { isLoggedIn: false },
+    });
+
+    expect(queryByText('My alerts')).not.toBeInTheDocument();
+  });
 });
 
 // TODO should write tests for alert summary dropdown menu actions performed in StatusDropdown
