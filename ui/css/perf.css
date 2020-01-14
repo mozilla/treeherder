@@ -450,32 +450,28 @@ li.pagination-active.active > button {
 }
 
 /* graph colors */
-.pink {
-  border-left-color: #ffe2f5;
+.orange {
+  border-left-color: #ffba4a;
 }
 
-.purple {
-  border-left-color: #601a4a;
+.firered {
+  border-left-color: #c92b2a;
 }
 
-.darkorchid {
-  border-left-color: #9932cc;
+.cerulean {
+  border-left-color: #20bde0;
 }
 
-.scarlet {
-  border-left-color: #b81752;
+.grape {
+  border-left-color: #464678;
 }
 
-.turquoise {
-  border-left-color: #17a2b8;
+.gras {
+  border-left-color: #940a83;
 }
 
-.magenta {
-  border-left-color: #e252cf;
-}
-
-.yellow {
-  border-left-color: #f9ed00;
+.darkpuce {
+  border-left-color: #4b2d45;
 }
 
 @media only screen and (min-width: 1700px) {

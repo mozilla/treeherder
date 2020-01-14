@@ -8,6 +8,7 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faTimes } from '@fortawesome/free-solid-svg-icons';
 
 import { graphColors, legendCardText } from '../constants';
+import GraphIcon from '../../shared/GraphIcon';
 
 const LegendCard = ({
   series,
@@ -145,7 +146,13 @@ const LegendCard = ({
           title="Add related configurations"
           type="button"
         >
-          {series.symbol} {series.name}
+          <GraphIcon
+            iconType={series.symbol[0]}
+            fill={series.symbol[1] === 'fill' ? series.color[1] : '#ffffff'}
+            stroke={series.color[1]}
+          />
+
+          {series.name}
         </p>
         <p
           className={subtitleStyle}

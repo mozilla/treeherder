@@ -63,21 +63,21 @@ export const alertStatusMap = {
 };
 
 export const graphColors = [
-  ['scarlet', '#b81752'],
-  ['turquoise', '#17a2b8'],
-  ['purple', '#601A4A'],
-  ['pink', '#ffe2f5'],
-  ['yellow', '#f9ed00'],
-  ['darkorchid', '#9932cc'],
+  ['orange', '#ffba4a'],
+  ['firered', '#c92b2a'],
+  ['cerulean', '#20bde0'],
+  ['grape', '#464678'],
+  ['gras', '#940a83'],
+  ['darkpuce', '#4b2d45'],
 ];
 
 export const graphSymbols = [
-  'circle',
-  'diamond',
-  'plus',
-  'square',
-  'star',
-  'triangleUp',
+  ['circle', 'outline'],
+  ['square', 'outline'],
+  ['triangleUp', 'outline'],
+  ['circle', 'fill'],
+  ['square', 'fill'],
+  ['triangleUp', 'fill'],
 ];
 
 export const phFrameworksWithRelatedBranches = [

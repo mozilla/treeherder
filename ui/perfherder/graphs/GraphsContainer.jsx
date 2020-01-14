@@ -420,8 +420,9 @@ class GraphsContainer extends React.Component {
                 style={{
                   data: {
                     fill: ({ datum }) =>
-                      (datum.alertSummary || hasHighlightedRevision(datum)) &&
-                      highlightPoints
+                      ((datum.alertSummary || hasHighlightedRevision(datum)) &&
+                        highlightPoints) ||
+                      datum._z[1] === 'fill'
                         ? datum.z
                         : '#fff',
                     strokeOpacity: ({ datum }) =>
