@@ -27,6 +27,7 @@ def test_push_list_basic(client, eleven_jobs_stored, test_repository):
     assert len(results) == 10
     exp_keys = set([
         u'id',
+        u'repository',
         u'repository_id',
         u'author',
         u'revision',
