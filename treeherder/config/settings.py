@@ -45,6 +45,9 @@ APPEND_SLASH = False
 ROOT_URLCONF = "treeherder.config.urls"
 WSGI_APPLICATION = 'treeherder.config.wsgi.application'
 
+# Send full URL within origin but only origin for cross-origin requests
+SECURE_REFERRER_POLICY = "origin-when-cross-origin"
+
 # Application definition
 INSTALLED_APPS = [
     'django.contrib.auth',
