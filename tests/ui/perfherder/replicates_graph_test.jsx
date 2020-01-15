@@ -215,28 +215,27 @@ test('graph with available data displays properly', async () => {
   expect(yAxisLegendUpperValue).toBeInTheDocument();
 
   const numRuns = mockedReplicateData.suites[0].subtests[0].replicates.length;
-  const expectedIndexes = Array.from(Array(numRuns).keys()).slice(1); // 0 isn't listed as x axis index
+  const expectedIndexes = Array.from(Array(numRuns).keys());
 
-  const xAxisReplicateIndexes = await waitForElement(() =>
-    expectedIndexes.map(index => getByText(index.toString())),
+  const xAxisUpperValue = await waitForElement(() =>
+    // 0 isn't listed as an x axis index
+    getByText(expectedIndexes.length.toString()),
   );
 
-  for (const replicateIndex of xAxisReplicateIndexes) {
-    expect(replicateIndex).toBeInTheDocument();
-  }
+  expect(xAxisUpperValue).toBeInTheDocument();
 });
 
-test('graph with no data displays a default stub', async () => {
+test('graph with no data displays a message', async () => {
   const { getByText, queryByText } = replicatesGraph(
     mockedGetData,
     failingGetReplicateData,
   );
 
-  const graphHeader = await waitForElement(() => getByText('Test replicates'));
-  const noDataMsg = await waitForElement(() => getByText(noDataFoundMessage));
+  const noDataMsg = await waitForElement(() =>
+    getByText(noDataFoundMessage('Test replicates')),
+  );
   const legendNumbers = queryByText(/[0-9]+/);
 
-  expect(graphHeader).toBeInTheDocument();
   expect(noDataMsg).toBeInTheDocument();
   expect(legendNumbers).toBeNull();
 });

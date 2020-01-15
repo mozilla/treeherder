@@ -158,7 +158,7 @@ export default class ReplicatesGraph extends React.Component {
             </VictoryChart>
           </React.Fragment>
         ) : (
-          <p className="lead text-left">{noDataFoundMessage}</p>
+          <p className="lead text-left">{noDataFoundMessage(graphTitle)}</p>
         )}
       </ErrorBoundary>
     );

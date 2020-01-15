@@ -36,7 +36,7 @@ export const compareTableText = {
 };
 
 export const noResultsMessage = 'No results to show';
-export const noDataFoundMessage = 'No Data Found';
+export const noDataFoundMessage = title => `No Data Found for ${title}`;
 
 export const summaryStatusMap = {
   all: -1,
