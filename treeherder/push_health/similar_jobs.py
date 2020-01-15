@@ -9,6 +9,7 @@ job_fields = [
     'machine_platform_id',
     'option_collection_hash',
     'job_type_id',
+    'job_group_id',
     'result',
     'state',
     'failure_classification_id',

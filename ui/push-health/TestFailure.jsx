@@ -53,6 +53,8 @@ class TestFailure extends React.PureComponent {
       action,
       jobName,
       jobSymbol,
+      jobGroup,
+      jobGroupSymbol,
       inProgressJobs,
       failJobs,
       passJobs,
@@ -86,6 +88,12 @@ class TestFailure extends React.PureComponent {
               {platform} {config}:
             </span>
           )}
+          <span
+            className="mx-1 px-1 border border-secondary rounded"
+            title={jobGroup}
+          >
+            {jobGroupSymbol}
+          </span>
           {tier > 1 && (
             <span className="ml-1 small text-muted">[tier-{tier}]</span>
           )}
