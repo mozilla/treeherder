@@ -162,11 +162,12 @@ class Push extends React.PureComponent {
   };
 
   fetchTestManifests = async () => {
-    const { push } = this.props;
-    const { repository, revision } = push;
+    // XXX: We might be able to get rid of the backend change if we can use currentRepo
+    const { currentRepo, push } = this.props;
+    // const { revision } = push;
     const jobTypeNameToManifests = await fetchTestManifests(
-      repository,
-      revision,
+      currentRepo.name,
+      push.revision,
     );
     this.setState({ jobTypeNameToManifests });
     // This causes the jobs to receive the test_path property

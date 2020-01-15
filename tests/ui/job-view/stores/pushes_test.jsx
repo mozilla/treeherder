@@ -272,7 +272,7 @@ describe('Pushes Redux store', () => {
       { type: UPDATE_JOB_MAP, jobList },
     );
 
-    expect(Object.keys(reduced.jobMap)).toHaveLength(3);
+    expect(Object.keys(reduced.jobMap)).toHaveLength(4);
   });
 
   test('jobMap jobs should have fields required for retriggering', async () => {
@@ -282,7 +282,7 @@ describe('Pushes Redux store', () => {
       { type: UPDATE_JOB_MAP, jobList },
     );
 
-    expect(Object.keys(reduced.jobMap)).toHaveLength(3);
+    expect(Object.keys(reduced.jobMap)).toHaveLength(4);
     const job = reduced.jobMap['259539684'];
     expect(job.signature).toBe('f64069faca8636e9dc415bef8e9a4ee055d56687');
     expect(job.job_type_name).toBe(

@@ -255,4 +255,31 @@ describe('PushList', () => {
     expect(job.signature).toBe('306fd1e8d922922cd171fa31f0d914300ff52228');
     expect(job.job_type_name).toBe('source-test-mozlint-yaml');
   });
+
+  test('jobs should have test_path field to filter', async () => {
+    fetchMock.get(
+      'https://firefoxci.taskcluster-artifacts.net/Q2FRx4QcSlyWvBgJGjpkNg/0/public/manifests-by-task.json',
+      {
+        'test-linux1804-64/debug-mochitest-devtools-chrome-e10s-5': [
+          'devtools/client/inspector/compatibility/test/browser/browser.ini',
+          'devtools/client/inspector/grids/test/browser.ini',
+          'devtools/client/inspector/rules/test/browser.ini',
+          'devtools/client/jsonview/test/browser.ini',
+        ],
+      },
+    );
+    const { store } = configureStore();
+    const { getByText } = render(testPushList(store, new FilterModel()));
+    const jobEl = await waitForElement(() => getByText('dt5'));
+    const jobInstance = findJobInstance(jobEl.getAttribute('data-job-id'));
+    const { job } = jobInstance.props;
+
+    expect(job.signature).toBe('0bac4980342a6f185082426471f9151a0de9ae50');
+    expect(job.job_type_name).toBe(
+      'test-linux1804-64/debug-mochitest-devtools-chrome-e10s-5',
+    );
+    // TODO: We need the fetch for the tests manifest artifact to complete and set the
+    // state so we can have a value different than an empty array
+    expect(job.test_paths).toStrictEqual([]);
+  });
 });
