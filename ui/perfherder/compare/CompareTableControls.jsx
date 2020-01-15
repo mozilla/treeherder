@@ -250,9 +250,7 @@ CompareTableControls.propTypes = {
     PropTypes.bool,
   ]),
   onPermalinkClick: PropTypes.func,
-  // eslint-disable-next-line react/no-unused-prop-types
   getJob: PropTypes.func,
-  // eslint-disable-next-line react/no-unused-prop-types
   retriggerJob: PropTypes.func,
 };
 

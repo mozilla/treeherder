@@ -1,8 +1,8 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import {
+  Col,
   Form,
-  FormGroup,
   Input,
   InputGroup,
   InputGroupAddon,
@@ -63,19 +63,21 @@ export default class RetriggerModal extends React.Component {
 
   getInputTitle = (isBaseline = false) => {
     const { isBaseAggregate, currentRetriggerRow } = this.props;
-    let inputTitle;
+    let disableReason;
 
     if (isBaseline) {
       if (isBaseAggregate) {
-        inputTitle = 'Disabled input because base revision is aggregate';
+        disableReason = 'base revision is aggregate';
       } else if (!currentRetriggerRow.originalRetriggerableJobId) {
-        inputTitle = 'Disabled input because there are no jobs to retrigger';
+        disableReason = 'there are no jobs to retrigger';
       }
     } else if (!currentRetriggerRow.newRetriggerableJobId) {
-      inputTitle = 'Disabled input because there are no jobs to retrigger';
+      disableReason = 'there are no jobs to retrigger';
     }
 
-    return inputTitle;
+    return disableReason === undefined
+      ? disableReason
+      : `Disabled input because ${disableReason}`;
   };
 
   isValueValid = value => {
@@ -139,7 +141,7 @@ export default class RetriggerModal extends React.Component {
         <Form>
           <ModalBody>
             <div className="row">
-              <FormGroup
+              <Col
                 className="col-xs-10 col-sm-6 col-md-6 col-lg-6 form-inline"
                 inline
               >
@@ -161,8 +163,8 @@ export default class RetriggerModal extends React.Component {
                     }
                   />
                 </InputGroup>
-              </FormGroup>
-              <FormGroup
+              </Col>
+              <Col
                 className="col-xs-10 col-sm-6 col-md-6 col-lg-6 form-inline"
                 inline
               >
@@ -181,7 +183,7 @@ export default class RetriggerModal extends React.Component {
                     disabled={!currentRetriggerRow.newRetriggerableJobId}
                   />
                 </InputGroup>
-              </FormGroup>
+              </Col>
             </div>
             <div className="text-center">
               {invalidInput && (
@@ -193,7 +195,7 @@ export default class RetriggerModal extends React.Component {
           </ModalBody>
           <ModalFooter>
             <Button
-              color="primary"
+              color="info"
               onClick={this.onRetriggerClick}
               disabled={invalidInput}
             >
