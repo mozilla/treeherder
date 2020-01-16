@@ -2,8 +2,9 @@ import React, { PureComponent } from 'react';
 import PropTypes from 'prop-types';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faStar } from '@fortawesome/free-solid-svg-icons';
-import Tooltip from 'react-tooltip-lite';
+import { Col, Row } from 'reactstrap';
 
+import SimpleTooltip from '../shared/SimpleTooltip';
 import { getBtnClass } from '../helpers/job';
 import { getJobsUrl, getLogViewerUrl } from '../helpers/url';
 import logviewerIcon from '../img/logviewerIcon.svg';
@@ -21,15 +22,36 @@ class Job extends PureComponent {
 
     return (
       <span className="ml-1">
-        <Tooltip
-          tagName="span"
-          useDefaultStyles
-          content={
-            <span className="mr-2" key={id}>
-              <div>{jobName}</div>
-              <div>Result: {resultStatus}</div>
+        <SimpleTooltip
+          autohide={false}
+          text={
+            <span>
+              <a
+                className={`p-1 rounded ${getBtnClass(
+                  result,
+                  failureClassificationId,
+                )} border`}
+                href={getJobsUrl({ selectedJob: job.id, repo, revision })}
+                target="_blank"
+                rel="noopener noreferrer"
+              >
+                {jobSymbol}
+              </a>
+              {failureClassificationId !== 1 && (
+                <FontAwesomeIcon
+                  icon={faStar}
+                  title="Classified"
+                  color="lightgray"
+                />
+              )}
+            </span>
+          }
+          tooltipText={
+            <Col className="align-items-start" key={id}>
+              <Row className="mb-2">{jobName}</Row>
+              <Row>Result: {resultStatus}</Row>
               {job.result === 'testfailed' && (
-                <div>
+                <Row>
                   Open Log Viewer:
                   <a
                     className="logviewer-btn ml-1"
@@ -45,28 +67,11 @@ class Job extends PureComponent {
                       className="logviewer-icon text-light mb-1"
                     />
                   </a>
-                </div>
+                </Row>
               )}
-            </span>
+            </Col>
           }
-        >
-          <a
-            className={`btn job-btn filter-shown btn-sm mt-1 ${getBtnClass(
-              result,
-              failureClassificationId,
-            )} border`}
-            href={getJobsUrl({ selectedJob: job.id, repo, revision })}
-          >
-            {jobSymbol}
-          </a>
-          {failureClassificationId !== 1 && (
-            <FontAwesomeIcon
-              icon={faStar}
-              title="Classified"
-              color="lightgray"
-            />
-          )}
-        </Tooltip>
+        />
       </span>
     );
   }
