@@ -25,7 +25,6 @@ export default class SimpleTooltip extends React.Component {
         <UncontrolledTooltip
           placement={placement}
           target={this.tooltipRef}
-          className="tooltip"
           innerClassName={tooltipClass}
         >
           {tooltipText}
