@@ -1,6 +1,5 @@
 /* eslint-disable jsx-a11y/no-noninteractive-element-interactions */
 /* eslint-disable jsx-a11y/no-static-element-interactions */
-/* eslint-disable prefer-destructuring */
 
 import React from 'react';
 import PropTypes from 'prop-types';
@@ -30,18 +29,18 @@ const LegendCard = ({
         if (isVisible && newColors.length) {
           item.color = newColors.pop();
           item.visible = isVisible;
-          item.data = item.data.map(test => {
-            test.z = item.color[1];
-            return test;
-          });
+          item.data = item.data.map(test => ({
+            ...test,
+            z: item.color[1],
+          }));
         } else if (!isVisible) {
           newColors.push(item.color);
           item.color = ['border-secondary', ''];
           item.visible = isVisible;
-          item.data = item.data.map(test => {
-            test.z = item.color[1];
-            return test;
-          });
+          item.data = item.data.map(test => ({
+            ...test,
+            z: item.color[1],
+          }));
         } else {
           errorMessages.push(
             "The graph supports viewing 6 tests at a time. To select and view a test that isn't currently visible, first deselect a visible test",
@@ -108,10 +107,10 @@ const LegendCard = ({
       newData[graphColors.length - 1].visible = true;
       newData[graphColors.length - 1].data = newData[
         graphColors.length - 1
-      ].data.map(item => {
-        item.z = series.color[1];
-        return item;
-      });
+      ].data.map(item => ({
+        ...item,
+        z: series.color[1],
+      }));
       resetParams(newData);
     } else if (series.color[0] === 'border-secondary') {
       resetParams(newData);
