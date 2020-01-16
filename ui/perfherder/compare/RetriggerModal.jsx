@@ -141,10 +141,7 @@ export default class RetriggerModal extends React.Component {
         <Form>
           <ModalBody>
             <div className="row">
-              <Col
-                className="col-xs-10 col-sm-6 col-md-6 col-lg-6 form-inline"
-                inline
-              >
+              <Col className="col-xs-10 col-sm-6 col-md-6 col-lg-6 form-inline">
                 <InputGroup title={this.getInputTitle(true)}>
                   <InputGroupAddon addonType="prepend">
                     <InputGroupText>Base revision:</InputGroupText>
@@ -164,10 +161,7 @@ export default class RetriggerModal extends React.Component {
                   />
                 </InputGroup>
               </Col>
-              <Col
-                className="col-xs-10 col-sm-6 col-md-6 col-lg-6 form-inline"
-                inline
-              >
+              <Col className="col-xs-10 col-sm-6 col-md-6 col-lg-6 form-inline">
                 <InputGroup title={this.getInputTitle()}>
                   <InputGroupAddon addonType="prepend">
                     <InputGroupText>New revision:</InputGroupText>

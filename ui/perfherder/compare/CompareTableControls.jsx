@@ -7,10 +7,9 @@ import {
   convertParams,
   containsText,
   onPermalinkClick,
-  retriggerJobs,
+  retriggerMultipleJobs,
 } from '../helpers';
 import FilterControls from '../FilterControls';
-import JobModel from '../../models/job';
 
 import CompareTable from './CompareTable';
 import RetriggerModal from './RetriggerModal';
@@ -124,7 +123,8 @@ export default class CompareTableControls extends React.Component {
     const { currentRetriggerRow } = this.state;
     const { baseRetriggerTimes, newRetriggerTimes } = params;
     event.preventDefault();
-    await retriggerJobs(
+
+    await retriggerMultipleJobs(
       currentRetriggerRow,
       baseRetriggerTimes,
       newRetriggerTimes,
@@ -250,10 +250,10 @@ CompareTableControls.propTypes = {
     PropTypes.bool,
   ]),
   onPermalinkClick: PropTypes.func,
-  // eslint-disable-next-line react/no-unused-prop-types
-  getJob: PropTypes.func,
-  // eslint-disable-next-line react/no-unused-prop-types
-  retriggerJob: PropTypes.func,
+  // // eslint-disable-next-line react/no-unused-prop-types
+  // getJob: PropTypes.func,
+  // // eslint-disable-next-line react/no-unused-prop-types
+  // retriggerJob: PropTypes.func,
 };
 
 CompareTableControls.defaultProps = {
@@ -267,6 +267,6 @@ CompareTableControls.defaultProps = {
   },
   showTestsWithNoise: null,
   onPermalinkClick,
-  getJob: JobModel.get,
-  retriggerJob: JobModel.retrigger,
+  // getJob: JobModel.get,
+  // retriggerJob: JobModel.retrigger,
 };

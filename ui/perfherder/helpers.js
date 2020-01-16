@@ -10,6 +10,7 @@ import PerfSeriesModel, {
 } from '../models/perfSeries';
 import { thPerformanceBranches } from '../helpers/constants';
 import RepositoryModel from '../models/repository';
+import JobModel from '../models/job';
 
 import {
   endpoints,
@@ -656,7 +657,7 @@ const retriggerByRevision = async (
   times,
   props,
 ) => {
-  const { isBaseAggregate, notify, retriggerJob, getJob } = props;
+  const { isBaseAggregate, notify } = props;
 
   // do not retrigger if the base is aggregate (there is a selected time range)
   if (isBaseline && isBaseAggregate) {
@@ -664,12 +665,12 @@ const retriggerByRevision = async (
   }
 
   if (jobId) {
-    const job = await getJob(currentRepo.name, jobId);
-    retriggerJob([job], currentRepo, notify, times);
+    const job = await JobModel.get(currentRepo.name, jobId);
+    JobModel.retrigger([job], currentRepo, notify, times);
   }
 };
 
-export const retriggerJobs = async (
+export const retriggerMultipleJobs = async (
   results,
   baseRetriggerTimes,
   newRetriggerTimes,

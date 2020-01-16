@@ -13,6 +13,7 @@ import CompareTableControls from '../../../ui/perfherder/compare/CompareTableCon
 import CompareTable from '../../../ui/perfherder/compare/CompareTable';
 import ComparePageTitle from '../../../ui/perfherder/compare/ComparePageTitle';
 import { compareTableText, filterText } from '../../../ui/perfherder/constants';
+import JobModel from '../../../ui/models/job';
 
 // TODO addtional tests:
 // 1) that the table is receiving the correct data structure after data
@@ -80,25 +81,22 @@ const result = [
 ];
 
 const results = new Map([['a11yr pgo e10s stylo', result]]);
-const getMockRetrigger = data => {
-  return (jobs, repoName, notify, times) => {
-    if (!('retriggers' in data)) {
-      data.retriggers = [];
-    }
-    data.retriggers.push({ jobs, repoName, notify, times });
-  };
-};
 
+jest.mock('../../../ui/models/job');
+
+const mockHandlePermalinkClick = jest.fn();
 const regexComptableHeaderId = /table-header-\d+/;
 const regexComptableRowId = /table-row-\d+/;
-const mockHandlePermalinkClick = jest.fn();
 
+beforeEach(() => {
+  JobModel.retrigger.mockClear();
+  JobModel.get.mockClear();
+});
 afterEach(cleanup);
 
 const compareTableControlsNode = (
   userLoggedIn = false,
   isBaseAggregate = false,
-  mockDataRetrigger = { retriggers: [] },
 ) => {
   return (
     <CompareTableControls
@@ -109,10 +107,6 @@ const compareTableControlsNode = (
       isBaseAggregate={isBaseAggregate}
       onPermalinkClick={mockHandlePermalinkClick}
       projects={projects}
-      retriggerJob={getMockRetrigger(mockDataRetrigger)}
-      getJob={(repoName, jobId) => {
-        return { id: jobId };
-      }}
     />
   );
 };
@@ -277,12 +271,7 @@ test('retrigger buttons should appear only when the user is logged in', async ()
 });
 
 test('retrigger should trigger jobs for base and new repositories', async () => {
-  const mockDataRetrigger = { retriggers: [] };
-  const { queryAllByTitle, getByText } = compareTableControls(
-    true,
-    false,
-    mockDataRetrigger,
-  );
+  const { queryAllByTitle, getByText } = compareTableControls(true, false);
   const retriggerButtons = queryAllByTitle(
     compareTableText.retriggerButtonTitle,
   );
@@ -296,24 +285,18 @@ test('retrigger should trigger jobs for base and new repositories', async () => 
   expect(retriggerButtonModal).toBeInTheDocument();
   await fireEvent.click(retriggerButtonModal);
 
-  expect(mockDataRetrigger.retriggers).toHaveLength(2);
-  expect(mockDataRetrigger.retriggers[0].jobs).toHaveLength(1);
-  expect(mockDataRetrigger.retriggers[0].jobs[0].id).toEqual(
+  expect(JobModel.retrigger).toHaveBeenCalledTimes(2);
+  expect(JobModel.get).toHaveBeenCalledTimes(2);
+  expect(JobModel.get.mock.calls[0][1]).toEqual(
     result[0].originalRetriggerableJobId,
   );
-  expect(mockDataRetrigger.retriggers[1].jobs).toHaveLength(1);
-  expect(mockDataRetrigger.retriggers[1].jobs[0].id).toEqual(
+  expect(JobModel.get.mock.calls[1][1]).toEqual(
     result[0].newRetriggerableJobId,
   );
 });
 
 test('retrigger should only work on new repo when base is aggregate', async () => {
-  const mockDataRetrigger = { retriggers: [] };
-  const { queryAllByTitle, getByText } = compareTableControls(
-    true,
-    true,
-    mockDataRetrigger,
-  );
+  const { queryAllByTitle, getByText } = compareTableControls(true, true);
   const retriggerButtons = queryAllByTitle(
     compareTableText.retriggerButtonTitle,
   );
@@ -326,16 +309,16 @@ test('retrigger should only work on new repo when base is aggregate', async () =
   expect(retriggerButtonModal).toBeInTheDocument();
   await fireEvent.click(retriggerButtonModal);
 
-  expect(mockDataRetrigger.retriggers).toHaveLength(1);
-  expect(mockDataRetrigger.retriggers[0].jobs).toHaveLength(1);
-  expect(mockDataRetrigger.retriggers[0].jobs[0].id).toEqual(
+  expect(JobModel.retrigger).toHaveBeenCalledTimes(1);
+  expect(JobModel.get).toHaveBeenCalledTimes(1);
+  expect(JobModel.retrigger.mock.calls[0][0]).toHaveLength(1);
+  expect(JobModel.get.mock.calls[0][1]).toEqual(
     result[0].newRetriggerableJobId,
   );
 });
 
 test('retrigger button should not appear for test with no jobs', async () => {
-  const mockDataRetrigger = { retriggers: [] };
-  const { queryAllByTitle } = compareTable(true, false, mockDataRetrigger);
+  const { queryAllByTitle } = compareTable(true, false);
   const retriggerButtons = queryAllByTitle(
     compareTableText.retriggerButtonTitle,
   );
@@ -343,7 +326,7 @@ test('retrigger button should not appear for test with no jobs', async () => {
   expect(retriggerButtons).toHaveLength(2);
   await fireEvent.click(retriggerButtons[1]);
 
-  expect(mockDataRetrigger.retriggers).toHaveLength(0);
+  expect(JobModel.retrigger).toHaveBeenCalledTimes(0);
 });
 
 test('display of page title', async () => {
