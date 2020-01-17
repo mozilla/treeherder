@@ -6,3 +6,9 @@ ui/js/
 
 # Ignore AngularJS HTML templates since they don't always parse correctly.
 ui/partials/
+
+# Ignore dev directory
+venv
+
+# Ignore markdown
+tests/*.md
