@@ -162,16 +162,16 @@
 
 /* Orange, testfailed */
 .btn-orange {
-  background-color: #b95402;
+  background-color: #eba870;
   border-color: #dd6602;
-  color: white;
+  color: #743603;
 }
 .btn-orange:hover,
 .btn-orange:focus,
 .btn-orange:active,
 .btn-orange.active {
-  background-color: #996709;
-  border-color: #aa4f02;
+  background-color: #743603;
+  border-color: #743603;
   color: white;
 }
 .btn-orange.disabled:hover,
@@ -224,16 +224,16 @@ fieldset[disabled] .btn-orange-classified.active {
 
 /* Red, busted */
 .btn-red {
-  background-color: #cf0b18;
+  background-color: #b86262;
   border-color: #a1020e;
-  color: white;
+  color: #280003;
 }
 .btn-red:hover,
 .btn-red:focus,
 .btn-red:active,
 .btn-red.active {
-  background-color: #a9020c;
-  border-color: #90010a;
+  background-color: #a1020e;
+  border-color: #a1020e;
   color: white;
 }
 .btn-red.disabled:hover,
@@ -326,7 +326,7 @@ fieldset[disabled] .btn-dkblue.active {
 .btn-green-classified-count,
 .btn-green-count:hover,
 .btn-green-classified-count:hover {
-  color: rgba(3, 81, 33, 0.75);
+  color: rgba(2, 130, 51, 0.95);
   font-weight: bold;
 }
 .btn-green:hover,
@@ -355,16 +355,16 @@ fieldset[disabled] .btn-green.active {
 
 /* Purple, infrastructure exception */
 .btn-purple {
-  background-color: #876d92;
+  background-color: #9a7da6;
   border-color: #6f0296;
-  color: white;
+  color: #3a004d;
 }
 .btn-purple:hover,
 .btn-purple:focus,
 .btn-purple:active,
 .btn-purple.active {
-  background-color: #7d02a9;
-  border-color: #6b0190;
+  background-color: #3a004d;
+  border-color: #3a004d;
   color: white;
 }
 .btn-purple.disabled:hover,
@@ -454,7 +454,8 @@ fieldset[disabled] .btn-ltblue.active {
 .btn-ltgray-count,
 .btn-ltgray-classified,
 .btn-ltgray-classified-count {
-  color: #697279;
+  color: #747474;
+  font-style: italic;
 }
 .btn-ltgray-count:hover,
 .btn-ltgray-classified-count:hover {
@@ -525,7 +526,7 @@ fieldset[disabled] .btn-mdgray.active {
 .btn-dkgray-classified-count,
 .btn-dkgray-count:hover,
 .btn-dkgray-classified-count:hover {
-  color: #696969;
+  color: #5e5e5e;
 }
 .btn-dkgray:hover,
 .btn-dkgray-classified:hover,

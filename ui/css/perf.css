@@ -37,57 +37,6 @@ h1 {
   }
 }
 
-.btn-darker-secondary {
-  color: #ffffff;
-  background-color: #6c757d;
-  border-color: #6c757d;
-}
-
-.btn-darker-secondary:hover {
-  color: #ffffff;
-  background-color: #5a6268;
-  border-color: #545b62;
-}
-
-.btn-darker-secondary.disabled {
-  color: #242424;
-  background-color: white;
-  border-color: #6c757d;
-}
-
-.btn-darker-info {
-  background-color: #0d7d8f;
-  border-color: #0d7d8f;
-  color: #ffffff;
-}
-
-.btn-darker-info:hover {
-  color: #ffffff;
-  background-color: #0a5e6d;
-}
-
-.btn-outline-darker-info {
-  color: #0d7d8f;
-  border-color: #0d7d8f;
-}
-
-.btn-outline-darker-info:hover,
-.btn-outline-darker-info:not(:disabled):not(.disabled).active {
-  background-color: #0d7d8f;
-  border-color: #0d7d8f;
-  color: #ffffff;
-}
-
-.btn-darker-info.disabled,
-.btn-darker-info.disabled:hover {
-  color: black;
-  background-color: #30b9ce80;
-}
-
-.text-darker-info {
-  color: #0d7d8f;
-}
-
 #perf-logo {
   padding: 15px;
   border: none;
@@ -545,14 +494,4 @@ li.pagination-active.active > button {
 
 .page-title-text:hover .edit-icon {
   visibility: visible;
-}
-
-/* ReactTable button and badge overriding style for contrast */
-.ReactTable .-pagination .-btn[disabled] {
-  background-color: rgba(0, 0, 0, 0.03);
-  opacity: 1;
-}
-
-.ReactTable .item-badge {
-  color: #0d7b86;
 }

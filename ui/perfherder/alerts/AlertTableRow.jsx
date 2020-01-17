@@ -100,7 +100,7 @@ export default class AlertTableRow extends React.Component {
         <a
           href={`#/alerts?id=${alertId}`}
           rel="noopener noreferrer"
-          className="text-info"
+          className="text-darker-info"
         >{`alert #${alertId}`}</a>
       </span>
     );

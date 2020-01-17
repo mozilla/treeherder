@@ -96,7 +96,7 @@ const AlertHeader = ({
           <Col className="p-0" xs="auto">
             {alertSummary.issue_tracker && issueTrackers.length > 0 ? (
               <a
-                className="text-info align-middle"
+                className="btn btn-secondary btn-xs ml-1 text-white"
                 href={getIssueTrackerUrl(alertSummary)}
                 target="_blank"
                 rel="noopener noreferrer"
@@ -106,7 +106,6 @@ const AlertHeader = ({
             ) : (
               { bugNumber }
             )}
-            <span>·</span>
           </Col>
         )}
         <Col className="p-0" xs="auto">
