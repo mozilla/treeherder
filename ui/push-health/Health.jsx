@@ -149,7 +149,7 @@ export default class Health extends React.PureComponent {
           repo={repo}
           revision={revision}
         >
-          <Navbar color="light" light expand="sm" sticky="top">
+          <Navbar color="light" light expand="sm">
             {!!tests && (
               <Nav className="metric-buttons mb-3 pt-2 pl-3">
                 {[progress, linting, builds, tests, performance].map(metric => (
