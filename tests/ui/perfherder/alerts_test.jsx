@@ -8,14 +8,19 @@ import {
   waitForElement,
   waitForElementToBeRemoved,
 } from '@testing-library/react';
+import { createMemoryHistory } from 'history';
+import fetchMock from 'fetch-mock';
 
-import AlertsViewControls from '../../../ui/perfherder/alerts/AlertsViewControls';
-import optionCollectionMap from '../mock/optionCollectionMap';
 import {
   backfillRetriggeredTitle,
+  endpoints,
   summaryStatusMap,
 } from '../../../ui/perfherder/constants';
 import repos from '../mock/repositories';
+import { createQueryParams, getApiUrl } from '../../../ui/helpers/url';
+import AlertsView from '../../../ui/perfherder/alerts/AlertsView';
+import AlertsViewControls from '../../../ui/perfherder/alerts/AlertsViewControls';
+import optionCollectionMap from '../mock/optionCollectionMap';
 
 const testUser = {
   username: 'mozilla-ldap/test_user@mozilla.com',
@@ -23,6 +28,20 @@ const testUser = {
   isStaff: true,
   email: 'test_user@mozilla.com',
 };
+
+const frameworks = [
+  'all',
+  'talos',
+  'build_metrics',
+  'awsy',
+  'awfy',
+  'platform_microbench',
+  'raptor',
+  'js-bench',
+  'devtools',
+  'browsertime',
+  'vcs',
+];
 
 const testAlertSummaries = [
   {
@@ -108,7 +127,7 @@ const testAlertSummaries = [
     prev_push_id: 480864,
     created: '2019-05-24T10:51:16.976819',
     repository: 'mozilla-inbound',
-    framework: 1,
+    framework: 2,
     alerts: [
       {
         id: 69526,
@@ -144,7 +163,7 @@ const testAlertSummaries = [
         status: 3,
         series_signature: {
           id: 1948296,
-          framework_id: 1,
+          framework_id: 2,
           signature_hash: '5ece5cd7460330dea3b655c7f8d786b79369081e',
           machine_platform: 'windows7-32-shippable',
           suite: 'ts_paint_webext',
@@ -202,7 +221,7 @@ const testAlertDropdowns = [
     updateData: () => {},
   },
   {
-    options: ['talos', 'build metrics'],
+    options: frameworks,
     selectedItem: 'talos',
     updateData: () => {},
   },
@@ -226,6 +245,31 @@ const mockModifyAlert = {
 const mockUpdateAlertSummary = (alertSummaryId, params) => ({
   failureStatus: null,
 });
+const alertsView = () =>
+  render(
+    <AlertsView
+      user={testUser}
+      projects={repos}
+      location={{
+        pathname: '/alerts',
+        search: '',
+      }}
+      history={createMemoryHistory('/alerts')}
+      frameworks={[
+        { id: -1, name: frameworks[0] },
+        { id: 1, name: frameworks[1] },
+        { id: 2, name: frameworks[2] },
+        { id: 4, name: frameworks[3] },
+        { id: 5, name: frameworks[4] },
+        { id: 6, name: frameworks[5] },
+        { id: 10, name: frameworks[6] },
+        { id: 11, name: frameworks[7] },
+        { id: 12, name: frameworks[8] },
+        { id: 13, name: frameworks[9] },
+        { id: 14, name: frameworks[10] },
+      ]}
+    />,
+  );
 
 const alertsViewControls = ({
   isListingAlertSummaries = null,
@@ -261,11 +305,66 @@ const alertsViewControls = ({
         pathname: '/alerts',
         search: '',
       }}
+      history={createMemoryHistory('/alerts')}
     />,
   );
 };
 
 const modifyAlertSpy = jest.spyOn(mockModifyAlert, 'update');
+
+beforeAll(() => {
+  fetchMock.mock(getApiUrl(endpoints.issueTrackers), testIssueTrackers);
+
+  fetchMock.mock(
+    `${getApiUrl(endpoints.alertSummary)}${createQueryParams({
+      framework: testAlertSummaries[0].framework,
+      page: 1,
+      status: testAlertSummaries[0].status,
+    })}`,
+    {
+      count: 2,
+      next: null,
+      previous: null,
+      results: testAlertSummaries,
+    },
+  );
+
+  fetchMock.mock(
+    `${getApiUrl(endpoints.alertSummary)}${createQueryParams({
+      framework: testAlertSummaries[0].framework,
+      page: 1,
+    })}`,
+    {
+      count: 2,
+      next: null,
+      previous: null,
+      results: testAlertSummaries,
+    },
+  );
+
+  fetchMock.mock(
+    `${getApiUrl(endpoints.alertSummary)}${createQueryParams({
+      page: 1,
+    })}`,
+    {
+      count: 2,
+      next: null,
+      previous: null,
+      results: testAlertSummaries,
+    },
+  );
+
+  fetchMock.mock(getApiUrl('/optioncollectionhash/'), [
+    {
+      option_collection_hash: '102210fe594ee9b33d82058545b1ed14f4c8206e',
+      options: [
+        {
+          name: '32',
+        },
+      ],
+    },
+  ]);
+});
 
 test('toggle buttons should filter alert summary and alerts by selected filter', async () => {
   const { getByText, getByTestId } = alertsViewControls();
@@ -600,6 +699,21 @@ describe('"My alerts" checkbox\'s display behaviors', () => {
 
     expect(queryByText('My alerts')).not.toBeInTheDocument();
   });
+});
+
+test('Selecting `all` from framework button does not filter by framework', async () => {
+  const { queryAllByText, getByTestId } = alertsView();
+
+  const allFromDropdown = await waitForElement(() => queryAllByText('all'));
+
+  fireEvent.click(allFromDropdown[0]);
+  fireEvent.click(allFromDropdown[1]);
+
+  const alert1 = await waitForElement(() => getByTestId('69526'));
+  const alert2 = await waitForElement(() => getByTestId('69530'));
+
+  expect(alert1).toBeInTheDocument();
+  expect(alert2).toBeInTheDocument();
 });
 
 // TODO should write tests for alert summary dropdown menu actions performed in StatusDropdown

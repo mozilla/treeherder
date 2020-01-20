@@ -87,7 +87,6 @@ class AlertsView extends React.Component {
     const { updateParams } = this.props.validated;
     const { frameworks } = this.props;
     const framework = frameworks.find(item => item.name === selection);
-
     updateParams({ framework: framework.id });
     this.setState({ framework, bugTemplate: null }, () =>
       this.fetchAlertSummaries(),
@@ -121,6 +120,25 @@ class AlertsView extends React.Component {
     return pages;
   };
 
+  composeParams = (id, page, framework, status) => {
+    const params = id
+      ? { id }
+      : { framework: framework.id, page, status: summaryStatusMap[status] };
+
+    // -1 ('all') is created for UI purposes but is not a valid API parameter
+    const doNotFilter = -1;
+    const listMode = !id;
+
+    if (listMode && params.status === doNotFilter) {
+      delete params.status;
+    }
+    if (listMode && params.framework === doNotFilter) {
+      delete params.framework;
+    }
+
+    return params;
+  };
+
   async fetchAlertSummaries(id = this.state.id, update = false) {
     // turn off loading when update is true (used to update alert statuses)
     this.setState({ loading: !update, errorMessages: [] });
@@ -137,21 +155,7 @@ class AlertsView extends React.Component {
     } = this.state;
 
     let updates = { loading: false };
-    let params;
-
-    if (id) {
-      params = { id };
-    } else {
-      params = {
-        framework: framework.id,
-        page,
-      };
-    }
-
-    if (!id && summaryStatusMap[status] !== -1) {
-      // -1 ('all') is created for UI purposes but is not a valid API parameter
-      params.status = summaryStatusMap[status];
-    }
+    const params = this.composeParams(id, page, framework, status);
 
     const url = getApiUrl(
       `${endpoints.alertSummary}${createQueryParams(params)}`,
@@ -222,11 +226,13 @@ class AlertsView extends React.Component {
         options: Object.keys(summaryStatusMap),
         selectedItem: status,
         updateData: this.updateStatus,
+        namespace: 'status',
       },
       {
         options: frameworkNames,
         selectedItem: framework.name,
         updateData: this.updateFramework,
+        namespace: 'framework',
       },
     ];
     // this is not strictly accurate since we have no way of knowing the final count
