@@ -44,7 +44,7 @@
     "react-helmet": "5.2.1",
     "react-highlight-words": "0.16.0",
     "react-hot-loader": "4.12.18",
-    "react-hotkeys": "2.0.0",
+    "react-hotkeys": "1.1.4",
     "react-lazylog": "4.4.4",
     "react-linkify": "0.2.2",
     "react-markdown": "4.2.2",
