@@ -29,13 +29,14 @@ const LegendCard = ({
       if (item.signature_id === series.signature_id) {
         const isVisible = !item.visible;
 
-        if (isVisible && newColors.length) {
+        if (isVisible && newColors.length && newSymbols.length) {
           item.color = newColors.pop();
           item.symbol = newSymbols.pop();
           item.visible = isVisible;
           item.data = item.data.map(test => ({
             ...test,
             z: item.color[1],
+            _z: item.symbol,
           }));
         } else if (!isVisible) {
           newColors.push(item.color);
@@ -46,6 +47,7 @@ const LegendCard = ({
           item.data = item.data.map(test => ({
             ...test,
             z: item.color[1],
+            _z: item.symbol,
           }));
         } else {
           errorMessages.push(
@@ -75,9 +77,10 @@ const LegendCard = ({
     updateState({ options, showModal: true });
   };
 
-  const resetParams = (testData, newColors = null) => {
+  const resetParams = (testData, newColors = null, newSymbols = null) => {
     const updates = { testData };
     if (newColors) updates.colors = newColors;
+    if (newSymbols) updates.symbols = newSymbols;
 
     if (
       selectedDataPoint &&

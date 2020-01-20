@@ -66,7 +66,7 @@ export const graphColors = [
   ['orange', '#ffba4a'],
   ['firered', '#c92b2a'],
   ['cerulean', '#20bde0'],
-  ['grape', '#464678'],
+  ['bluebell', '#9c9ccc'],
   ['gras', '#940a83'],
   ['darkpuce', '#4b2d45'],
 ];
