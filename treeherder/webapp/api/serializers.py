@@ -279,7 +279,6 @@ class PushSerializer(serializers.ModelSerializer):
     revisions = serializers.SerializerMethodField()
     revision_count = serializers.SerializerMethodField()
     push_timestamp = serializers.SerializerMethodField()
-    repository = serializers.SlugRelatedField(slug_field='name', read_only=True)
     repository_id = serializers.PrimaryKeyRelatedField(
         source="repository", read_only=True)
 
@@ -287,7 +286,7 @@ class PushSerializer(serializers.ModelSerializer):
         model = models.Push
         fields = ['id', 'revision', 'author',
                   'revisions', 'revision_count', 'push_timestamp',
-                  'repository', 'repository_id']
+                  'repository_id']
 
 
 class FailuresSerializer(serializers.ModelSerializer):
