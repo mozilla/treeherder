@@ -15,23 +15,7 @@ import { findInstance } from '../../../ui/helpers/job';
 describe('Push', () => {
   const repoName = 'autoland';
   const currentRepo = {
-    id: 4,
-    repository_group: {
-      name: 'development',
-      description: 'meh',
-    },
     name: repoName,
-    dvcs_type: 'hg',
-    url: 'https://hg.mozilla.org/autoland',
-    branch: null,
-    codebase: 'gecko',
-    description: '',
-    active_status: 'active',
-    performance_alerts_enabled: false,
-    expire_performance_data: true,
-    is_try_repo: false,
-    pushLogUrl: 'https://hg.mozilla.org/autoland/pushloghtml',
-    revisionHrefPrefix: 'https://hg.mozilla.org/autoland/rev/',
     getRevisionHref: () => 'foo',
     getPushLogHref: () => 'foo',
   };
@@ -61,16 +45,6 @@ describe('Push', () => {
       ...pushListFixture,
       results: pushListFixture.results[1],
     });
-    fetchMock.get(
-      getProjectUrl(
-        '/push/?full=true&count=10&tochange=d5b037941b0ebabcc9b843f24d926e9d65961087',
-        repoName,
-      ),
-      {
-        ...pushListFixture,
-        results: pushListFixture.results[1],
-      },
-    );
     fetchMock.mock(
       getApiUrl('/jobs/?push_id=511137', repoName),
       jobListFixture,
