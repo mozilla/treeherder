@@ -5,5 +5,7 @@ set -euo pipefail
 echo '-----> Running Django migrations and loading reference data'
 ./manage.py migrate --noinput
 ./manage.py load_initial_data
+echo '-----> Initialize SETA'
+./manage.py initialize_seta
 
 exec "$@"
