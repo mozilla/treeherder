@@ -30,53 +30,53 @@ project_bound_router = routers.SimpleRouter()
 project_bound_router.register(
     r'jobs',
     jobs.JobsProjectViewSet,
-    base_name='jobs',
+    basename='jobs',
 )
 
 project_bound_router.register(
     r'seta/job-priorities',
     seta.SetaJobPriorityViewSet,
-    base_name='seta-job-priorities'
+    basename='seta-job-priorities'
 )
 
 project_bound_router.register(
     r'push',
     push.PushViewSet,
-    base_name='push',
+    basename='push',
 )
 
 project_bound_router.register(
     r'note',
     note.NoteViewSet,
-    base_name='note',
+    basename='note',
 )
 
 project_bound_router.register(
     r'bug-job-map',
     bug.BugJobMapViewSet,
-    base_name='bug-job-map',
+    basename='bug-job-map',
 )
 
 project_bound_router.register(
     r'job-log-url',
     job_log_url.JobLogUrlViewSet,
-    base_name='job-log-url',
+    basename='job-log-url',
 )
 
 project_bound_router.register(
     r'performance/data',
     performance_data.PerformanceDatumViewSet,
-    base_name='performance-data')
+    basename='performance-data')
 
 project_bound_router.register(
     r'performance/signatures',
     performance_data.PerformanceSignatureViewSet,
-    base_name='performance-signatures')
+    basename='performance-signatures')
 
 project_bound_router.register(
     r'performance/platforms',
     performance_data.PerformancePlatformViewSet,
-    base_name='performance-signatures-platforms')
+    basename='performance-signatures-platforms')
 
 
 class TextLogErrorRouter(routers.DefaultRouter):
@@ -94,45 +94,45 @@ class TextLogErrorRouter(routers.DefaultRouter):
 tle_router = TextLogErrorRouter()
 tle_router.register(r'text-log-error',
                     text_log_error.TextLogErrorViewSet,
-                    base_name='text-log-error')
+                    basename='text-log-error')
 
 
 # refdata endpoints:
 default_router = routers.DefaultRouter()
-default_router.register(r'jobs', jobs.JobsViewSet, base_name='jobs')
+default_router.register(r'jobs', jobs.JobsViewSet, basename='jobs')
 default_router.register(r'repository', refdata.RepositoryViewSet)
 default_router.register(r'taskclustermetadata', refdata.TaskclusterMetadataViewSet,
-                        base_name='taskclustermetadata')
+                        basename='taskclustermetadata')
 default_router.register(r'optioncollectionhash', refdata.OptionCollectionHashViewSet,
-                        base_name='optioncollectionhash')
+                        basename='optioncollectionhash')
 default_router.register(r'failureclassification', refdata.FailureClassificationViewSet)
-default_router.register(r'user', refdata.UserViewSet, base_name='user')
+default_router.register(r'user', refdata.UserViewSet, basename='user')
 default_router.register(r'machineplatforms', machine_platforms.MachinePlatformsViewSet,
-                        base_name='machineplatforms')
+                        basename='machineplatforms')
 default_router.register(r'performance/alertsummary',
                         performance_data.PerformanceAlertSummaryViewSet,
-                        base_name='performance-alert-summaries')
+                        basename='performance-alert-summaries')
 default_router.register(r'performance/alert',
                         performance_data.PerformanceAlertViewSet,
-                        base_name='performance-alerts')
+                        basename='performance-alerts')
 default_router.register(r'performance/framework',
                         performance_data.PerformanceFrameworkViewSet,
-                        base_name='performance-frameworks')
+                        basename='performance-frameworks')
 default_router.register(r'performance/bug-template',
                         performance_data.PerformanceBugTemplateViewSet,
-                        base_name='performance-bug-template')
+                        basename='performance-bug-template')
 default_router.register(r'performance/issue-tracker',
                         performance_data.PerformanceIssueTrackerViewSet,
-                        base_name='performance-issue-tracker')
+                        basename='performance-issue-tracker')
 default_router.register(r'performance/validity-dashboard',
                         performance_data.TestSuiteHealthViewSet,
-                        base_name='validity-dashboard')
+                        basename='validity-dashboard')
 default_router.register(r'bugzilla', bugzilla.BugzillaViewSet,
-                        base_name='bugzilla')
+                        basename='bugzilla')
 default_router.register(r'jobdetail', jobs.JobDetailViewSet,
-                        base_name='jobdetail')
+                        basename='jobdetail')
 default_router.register(r'auth', auth.AuthViewSet,
-                        base_name='auth')
+                        basename='auth')
 
 urlpatterns = [
     url(r'^project/(?P<project>[\w-]{0,50})/', include(project_bound_router.urls)),

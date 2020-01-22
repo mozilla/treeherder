@@ -1,12 +1,11 @@
-/* eslint-disable jsx-a11y/no-static-element-interactions */
-
 import React from 'react';
 import PropTypes from 'prop-types';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faUser, faClipboard } from '@fortawesome/free-regular-svg-icons';
+import { faUser } from '@fortawesome/free-regular-svg-icons';
 
 import { parseAuthor } from '../../helpers/revision';
 import BugLinkify from '../../shared/BugLinkify';
+import Clipboard from '../../shared/Clipboard';
 
 export function Initials(props) {
   const str = props.author || '';
@@ -39,10 +38,6 @@ Initials.propTypes = {
 };
 
 export class Revision extends React.PureComponent {
-  static copyToClipboard(text) {
-    navigator.clipboard.writeText(text);
-  }
-
   constructor(props) {
     super(props);
     const { revision } = this.props;
@@ -65,13 +60,7 @@ export class Revision extends React.PureComponent {
       <li>
         <span className="revision" data-tags={this.tags}>
           <span className="pl-4 pr-1 revision-holder">
-            <span
-              type="button"
-              className="pointer"
-              onClick={() => Revision.copyToClipboard(commitRevision)}
-            >
-              <FontAwesomeIcon icon={faClipboard} title="Copy full hash" />
-            </span>
+            <Clipboard description="full hash" text={commitRevision} />
             <a
               title={`Open revision ${commitRevision} on ${repo.url}`}
               href={repo.getRevisionHref(commitRevision)}

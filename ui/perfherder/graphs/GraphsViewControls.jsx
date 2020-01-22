@@ -26,6 +26,13 @@ export default class GraphsViewControls extends React.Component {
     updateStateParams({ highlightedRevisions: newRevisions });
   };
 
+  extractMeasurementUnitsSet = testData => {
+    const measurementUnits = testData.map(
+      testDetails => testDetails.measurementUnit,
+    );
+    return new Set(measurementUnits);
+  };
+
   render() {
     const {
       timeRange,
@@ -39,9 +46,16 @@ export default class GraphsViewControls extends React.Component {
       testData,
     } = this.props;
 
+    const measurementUnits = this.extractMeasurementUnitsSet(testData);
+
     return (
       <Container fluid className="justify-content-start">
-        <TestDataModal showModal={showModal} toggle={toggle} {...this.props} />
+        <TestDataModal
+          showModal={showModal}
+          toggle={toggle}
+          plottedUnits={measurementUnits}
+          {...this.props}
+        />
         <Row className="pb-3">
           <Col sm="auto" className="pl-0 py-2 pr-2" key={timeRange}>
             <UncontrolledDropdown
@@ -76,7 +90,12 @@ export default class GraphsViewControls extends React.Component {
           </Row>
         ) : (
           <React.Fragment>
-            {testData.length > 0 && <GraphsContainer {...this.props} />}
+            {testData.length > 0 && (
+              <GraphsContainer
+                measurementUnits={measurementUnits}
+                {...this.props}
+              />
+            )}
 
             <Row className="justify-content-start pt-2">
               {highlightedRevisions.length > 0 &&

@@ -7,13 +7,27 @@ import Metric from './Metric';
 
 export default class TestMetric extends React.PureComponent {
   render() {
-    const { data, repo, revision, user, notify, currentRepo } = this.props;
+    const {
+      data,
+      repo,
+      revision,
+      user,
+      notify,
+      currentRepo,
+      expanded,
+      toggleExpanded,
+    } = this.props;
     const { name, result, details } = data;
     const { needInvestigation, intermittent, unsupported } = details;
     const needInvestigationLength = Object.keys(needInvestigation).length;
 
     return (
-      <Metric name={name} result={result}>
+      <Metric
+        name={name}
+        result={result}
+        expanded={expanded}
+        toggleExpanded={toggleExpanded}
+      >
         <div className="border-bottom border-secondary">
           <ClassificationGroup
             group={needInvestigation}
@@ -60,4 +74,6 @@ TestMetric.propTypes = {
   currentRepo: PropTypes.object.isRequired,
   revision: PropTypes.string.isRequired,
   notify: PropTypes.func.isRequired,
+  toggleExpanded: PropTypes.func.isRequired,
+  expanded: PropTypes.bool.isRequired,
 };

@@ -22,7 +22,7 @@ class Command(BaseCommand):
         # root_url: ..}, ..]
         task_sources = env.json(
             "PULSE_TASK_SOURCES",
-            default=[{"root_url": "https://taskcluster.net", "pulse_url": env("PULSE_URL")}])
+            default=[{"root_url": "https://firefox-ci-tc.services.mozilla.com", "pulse_url": env("PULSE_URL")}])
 
         consumers = prepare_consumers(
             TaskConsumer,

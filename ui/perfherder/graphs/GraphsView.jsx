@@ -17,7 +17,7 @@ import {
   genericErrorMessage,
   errorMessageClass,
 } from '../../helpers/constants';
-import { processSelectedParam } from '../helpers';
+import { processSelectedParam, createGraphData } from '../helpers';
 import {
   endpoints,
   graphColors,
@@ -169,50 +169,17 @@ class GraphsView extends React.Component {
 
   createGraphObject = async seriesData => {
     const { colors } = this.state;
-    let alertSummaries = await Promise.all(
+    const alertSummaries = await Promise.all(
       seriesData.map(series =>
         this.getAlertSummaries(series.signature_id, series.repository_id),
       ),
     );
-    alertSummaries = alertSummaries.flat();
-    let color;
     const newColors = [...colors];
-
-    const graphData = seriesData.map(series => {
-      color = newColors.pop();
-      // signature_id, framework_id and repository_name are
-      // not renamed in camel case in order to match the fields
-      // returned by the performance/summary API (since we only fetch
-      // new data if a user adds additional tests to the graph)
-      return {
-        color: color || ['border-secondary', ''],
-        visible: Boolean(color),
-        name: series.name,
-        signature_id: series.signature_id,
-        signatureHash: series.signature_hash,
-        framework_id: series.framework_id,
-        platform: series.platform,
-        repository_name: series.repository_name,
-        projectId: series.repository_id,
-        id: `${series.repository_name} ${series.name}`,
-        data: series.data.map(dataPoint => ({
-          x: new Date(dataPoint.push_timestamp),
-          y: dataPoint.value,
-          z: color ? color[1] : '',
-          revision: dataPoint.revision,
-          alertSummary: alertSummaries.find(
-            item => item.push_id === dataPoint.push_id,
-          ),
-          signature_id: series.signature_id,
-          pushId: dataPoint.push_id,
-          jobId: dataPoint.job_id,
-          dataPointId: dataPoint.id,
-        })),
-        lowerIsBetter: series.lower_is_better,
-        resultSetData: series.data.map(dataPoint => dataPoint.push_id),
-        parentSignature: series.parent_signature,
-      };
-    });
+    const graphData = createGraphData(
+      seriesData,
+      alertSummaries.flat(),
+      newColors,
+    );
     this.setState({ colors: newColors });
     return graphData;
   };
@@ -326,15 +293,9 @@ class GraphsView extends React.Component {
     if (!selectedDataPoint) {
       delete params.selected;
     } else {
-      const {
-        signature_id: signatureId,
-        pushId,
-        dataPointId,
-        x,
-        y,
-      } = selectedDataPoint;
+      const { signature_id: signatureId, dataPointId } = selectedDataPoint;
 
-      params.selected = [signatureId, pushId, x, y, dataPointId].join(',');
+      params.selected = [signatureId, dataPointId].join(',');
     }
 
     if (Object.keys(zoom).length === 0) {

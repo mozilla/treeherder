@@ -1,9 +1,9 @@
 import React from 'react';
-import 'react-day-picker/lib/style.css';
-import DayPickerInput from 'react-day-picker/DayPickerInput';
+import 'react-dates/initialize';
+import 'react-dates/lib/css/_datepicker.css';
+import { DateRangePicker as DatePickerAirbnb } from 'react-dates';
 import moment from 'moment';
 import PropTypes from 'prop-types';
-import { parseDate, formatDate } from 'react-day-picker/moment';
 import { Button } from 'reactstrap';
 
 import { ISODate } from './helpers';
@@ -12,8 +12,9 @@ export default class DateRangePicker extends React.Component {
   constructor(props) {
     super(props);
     this.state = {
-      from: undefined,
-      to: undefined,
+      startDate: undefined,
+      endDate: undefined,
+      calendarFocused: false,
     };
   }
 
@@ -26,76 +27,60 @@ export default class DateRangePicker extends React.Component {
   };
 
   showFromMonth = () => {
-    const { from } = this.state;
-    if (!from) {
+    const { startDate } = this.state;
+    if (!startDate) {
       return;
     }
-    this.to.getDayPicker().showMonth(from);
+    this.to.getDayPicker().showMonth(startDate);
   };
 
-  fromChange = from => {
-    this.setState({ from }, () => {
-      if (!this.state.to) {
+  fromChange = startDate => {
+    this.setState({ startDate }, () => {
+      if (!this.state.endDate) {
         this.focusTo();
       }
     });
   };
 
-  toChange = to => {
-    this.setState({ to }, this.showFromMonth);
+  toChange = endDate => {
+    this.setState({ endDate }, this.showFromMonth);
   };
 
   updateData = () => {
-    const { from, to } = this.state;
+    const { startDate, endDate } = this.state;
 
-    const startday = ISODate(moment(from));
-    const endday = ISODate(moment(to));
+    const startday = ISODate(moment(startDate));
+    const endday = ISODate(moment(endDate));
 
+    this.setState(() => ({ calendarFocused: false }));
     this.props.updateState({ startday, endday });
   };
 
+  onFocusChange = calendarFocused => {
+    this.setState(() => ({ calendarFocused }));
+  };
+
   render() {
-    const { from, to } = this.state;
-    const modifiers = { start: from, end: to };
+    const { startDate, endDate, calendarFocused } = this.state;
 
     return (
       <div className="InputFromTo d-inline-block">
-        <DayPickerInput
-          value={from}
-          placeholder="From"
-          formatDate={formatDate}
-          parseDate={parseDate}
-          format="ddd MMM D, YYYY"
-          dayPickerProps={{
-            selectedDays: [from, { from, to }],
-            toMonth: to,
-            modifiers,
-            numberOfMonths: 2,
-          }}
-          onDayChange={this.fromChange}
+        <DatePickerAirbnb
+          startDate={startDate}
+          startDateId="startDateId"
+          endDate={endDate}
+          endDateId="endDateId"
+          onDatesChange={({ startDate, endDate }) =>
+            this.setState({ startDate, endDate })
+          }
+          focusedInput={calendarFocused}
+          onFocusChange={this.onFocusChange}
+          showClearDates
+          numberOfMonths={2}
+          initialVisibleMonth={() => moment().subtract(1, 'month')}
+          isOutsideRange={day => moment().diff(day) < 0}
         />
-        <span className="ml-1 mr-1">-</span>
-        <span className="InputFromTo-to">
-          <DayPickerInput
-            ref={element => {
-              this.to = element;
-            }}
-            value={to}
-            placeholder="To"
-            formatDate={formatDate}
-            parseDate={parseDate}
-            format="ddd MMM D, YYYY"
-            dayPickerProps={{
-              selectedDays: [from, { from, to }],
-              month: from,
-              fromMonth: from,
-              modifiers,
-              numberOfMonths: 2,
-            }}
-            onDayChange={this.toChange}
-          />
-        </span>
-        <Button color="secondary" className="ml-2" onClick={this.updateData}>
+        <Button color="secondary" className="ml-3" onClick={this.updateData}>
           update
         </Button>
       </div>

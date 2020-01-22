@@ -1,6 +1,3 @@
-/* eslint-disable react/no-did-update-set-state */
-/* eslint-disable jsx-a11y/no-static-element-interactions */
-
 // disabling due to a new bug with this rule: https://github.com/eslint/eslint/issues/12117
 /* eslint-disable no-unused-vars */
 import React from 'react';
@@ -11,14 +8,15 @@ import {
   VictoryLine,
   VictoryAxis,
   VictoryBrushContainer,
+  VictoryLabel,
   VictoryScatter,
   createContainer,
+  VictoryTooltip,
+  VictoryPortal,
 } from 'victory';
 import moment from 'moment';
 import debounce from 'lodash/debounce';
 import last from 'lodash/last';
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faTimes } from '@fortawesome/free-solid-svg-icons';
 
 import { formatNumber } from '../helpers';
 
@@ -29,8 +27,6 @@ const VictoryZoomSelectionContainer = createContainer('zoom', 'selection');
 class GraphsContainer extends React.Component {
   constructor(props) {
     super(props);
-    this.updateZoom = debounce(this.updateZoom.bind(this), 500);
-    this.hideTooltip = debounce(this.hideTooltip.bind(this), 250);
     this.tooltip = React.createRef();
     this.leftChartPadding = 25;
     this.rightChartPadding = 10;
@@ -39,9 +35,9 @@ class GraphsContainer extends React.Component {
       scatterPlotData: this.props.testData.flatMap(item =>
         item.visible ? item.data : [],
       ),
-      showTooltip: false,
       lockTooltip: false,
-      dataPoint: this.props.selectedDataPoint,
+      externalMutation: undefined,
+      width: window.innerWidth,
     };
   }
 
@@ -50,6 +46,9 @@ class GraphsContainer extends React.Component {
 
     this.addHighlights();
     if (selectedDataPoint) this.verifySelectedDataPoint();
+    window.addEventListener('resize', () =>
+      this.setState({ width: window.innerWidth }),
+    );
   }
 
   componentDidUpdate(prevProps) {
@@ -71,12 +70,8 @@ class GraphsContainer extends React.Component {
       this.updateGraphs();
     }
 
-    if (prevProps.timeRange !== timeRange && this.state.dataPoint) {
-      this.setState({
-        dataPoint: null,
-        showTooltip: false,
-        lockTooltip: false,
-      });
+    if (prevProps.timeRange !== timeRange) {
+      this.closeTooltip();
     }
   }
 
@@ -85,26 +80,19 @@ class GraphsContainer extends React.Component {
 
     const dataPointFound = testData.find(item => {
       if (item.signature_id === selectedDataPoint.signature_id) {
-        return item.data.find(datum =>
-          selectedDataPoint.dataPointId
-            ? datum.dataPointId === selectedDataPoint.dataPointId
-            : datum.pushId === selectedDataPoint.pushId,
+        return item.data.find(
+          datum => datum.dataPointId === selectedDataPoint.dataPointId,
         );
       }
       return false;
     });
 
     if (dataPointFound) {
-      this.setState({ dataPoint: selectedDataPoint });
-      this.showTooltip(selectedDataPoint, true);
+      this.showTooltip(selectedDataPoint);
     } else {
       updateStateParams({
         errorMessages: [
-          `Tooltip for datapoint with signature ${
-            selectedDataPoint.signature_id
-          } and date ${moment
-            .utc(selectedDataPoint.x)
-            .format('MMM DD hh:mm')} UTC can't be found.`,
+          "This datapoint can't be found for the specified date range.",
         ],
       });
     }
@@ -161,48 +149,22 @@ class GraphsContainer extends React.Component {
     top: point.y - yOffset,
   });
 
-  showTooltip = (dataPoint, lock) => {
-    const position = this.getTooltipPosition(dataPoint);
-    this.hideTooltip.cancel();
-    this.tooltip.current.style.cssText = `left: ${position.left}px; top: ${position.top}px;`;
-
-    this.setState({
-      showTooltip: true,
-      lockTooltip: lock,
-      dataPoint,
-    });
-  };
-
   setTooltip = (dataPoint, lock = false) => {
     const { lockTooltip } = this.state;
     const { updateStateParams } = this.props;
-
-    // we don't want the mouseOver event to reposition the tooltip
-    if (lockTooltip && !lock) {
-      return;
-    }
-    this.showTooltip(dataPoint, lock);
 
     if (lock) {
       updateStateParams({
         selectedDataPoint: {
           signature_id: dataPoint.datum.signature_id,
-          pushId: dataPoint.datum.pushId,
-          x: dataPoint.x,
-          y: dataPoint.y,
           dataPointId: dataPoint.datum.dataPointId,
         },
       });
     }
-  };
-
-  closeTooltip = () => {
     this.setState({
-      showTooltip: false,
-      lockTooltip: false,
-      dataPoint: null,
+      lockTooltip: lock,
     });
-    this.props.updateStateParams({ selectedDataPoint: null });
+    return { active: true };
   };
 
   // The Victory library doesn't provide a way of dynamically setting the left
@@ -239,34 +201,83 @@ class GraphsContainer extends React.Component {
       : moment.utc().format('MMM DD');
   };
 
-  // debounced
-  hideTooltip() {
-    const { showTooltip, lockTooltip } = this.state;
+  computeYAxisLabel = () => {
+    const { measurementUnits } = this.props;
 
-    if (showTooltip && !lockTooltip) {
-      this.setState({ showTooltip: false });
+    if (measurementUnits && measurementUnits.size === 1) {
+      return [...measurementUnits][0];
     }
-  }
+    return null;
+  };
 
-  // debounced
-  updateZoom(zoom) {
-    const { showTooltip, lockTooltip } = this.state;
+  hideTooltip = () =>
+    this.state.lockTooltip ? { active: true } : { active: undefined };
 
-    if (showTooltip && lockTooltip) {
+  showTooltip = selectedDataPoint => {
+    this.setState({
+      externalMutation: [
+        {
+          childName: 'scatter-plot',
+          target: 'labels',
+          eventKey: 'all',
+          mutation: props => {
+            if (props.datum.dataPointId === selectedDataPoint.dataPointId) {
+              return { active: true };
+            }
+            return {};
+          },
+          callback: this.removeMutation,
+        },
+      ],
+      lockTooltip: true,
+    });
+  };
+
+  closeTooltip = () => {
+    this.setState({
+      externalMutation: [
+        {
+          childName: 'scatter-plot',
+          target: 'labels',
+          eventKey: 'all',
+          mutation: () => ({ active: false }),
+          callback: this.removeMutation,
+        },
+      ],
+      lockTooltip: false,
+    });
+    this.props.updateStateParams({ selectedDataPoint: null });
+  };
+
+  removeMutation = () => {
+    this.setState({
+      externalMutation: undefined,
+    });
+  };
+
+  updateZoom = zoom => {
+    const { lockTooltip } = this.state;
+    const { updateStateParams } = this.props;
+
+    if (lockTooltip) {
       this.closeTooltip();
     }
-    this.props.updateStateParams({ zoom });
-  }
+    updateStateParams({ zoom });
+  };
 
   render() {
     const { testData, zoom, highlightedRevisions } = this.props;
     const {
       highlights,
       scatterPlotData,
-      showTooltip,
       lockTooltip,
-      dataPoint,
+      externalMutation,
+      width,
     } = this.state;
+
+    const yAxisLabel = this.computeYAxisLabel();
+    const positionedTick = <VictoryLabel dx={-2} />;
+    const positionedLabel = <VictoryLabel dy={24} />;
 
     const highlightPoints = !!highlights.length;
 
@@ -286,27 +297,7 @@ class GraphsContainer extends React.Component {
     };
 
     return (
-      <React.Fragment>
-        <div
-          data-testid="graph-tooltip"
-          className={`graph-tooltip ${showTooltip ? 'show' : 'hide'} ${
-            lockTooltip ? 'locked' : ''
-          }`}
-          ref={this.tooltip}
-        >
-          <span className="close mr-3 my-2 ml-2" onClick={this.closeTooltip}>
-            <FontAwesomeIcon
-              className="pointer text-white"
-              icon={faTimes}
-              size="xs"
-              title="close tooltip"
-            />
-          </span>
-          {dataPoint && showTooltip && (
-            <GraphTooltip dataPoint={dataPoint} {...this.props} />
-          )}
-          <div className="tip" />
-        </div>
+      <span data-testid="graphContainer">
         <Row>
           <Col className="p-0 col-md-auto">
             <VictoryChart
@@ -328,6 +319,9 @@ class GraphsContainer extends React.Component {
                 tickCount={4}
                 style={axisStyle}
                 tickFormat={this.setLeftPadding}
+                tickLabelComponent={positionedTick}
+                axisLabelComponent={positionedLabel}
+                label={yAxisLabel}
               />
               <VictoryAxis
                 tickCount={10}
@@ -355,7 +349,8 @@ class GraphsContainer extends React.Component {
               height={400}
               style={{ parent: { maxHeight: '400px', maxWidth: '1350px' } }}
               scale={{ x: 'time', y: 'linear' }}
-              domainPadding={{ y: 40 }}
+              domainPadding={{ y: 40, x: [10, 10] }}
+              externalEventMutations={externalMutation}
               containerComponent={
                 <VictoryZoomSelectionContainer
                   zoomDomain={zoom}
@@ -364,6 +359,49 @@ class GraphsContainer extends React.Component {
                   allowZoom={false}
                 />
               }
+              events={[
+                {
+                  childName: 'scatter-plot',
+                  target: 'data',
+                  eventHandlers: {
+                    onClick: () => {
+                      return [
+                        {
+                          target: 'labels',
+                          eventKey: 'all',
+                          mutation: () => {},
+                        },
+                        {
+                          target: 'labels',
+                          mutation: props => this.setTooltip(props, true),
+                        },
+                      ];
+                    },
+                    onMouseOver: () => {
+                      return [
+                        {
+                          target: 'labels',
+                          mutation: () => {},
+                        },
+                        {
+                          target: 'labels',
+                          mutation: props => this.setTooltip(props),
+                        },
+                      ];
+                    },
+                    onMouseOut: () => {
+                      return [
+                        {
+                          target: 'labels',
+                          mutation: this.hideTooltip,
+                        },
+                      ];
+                    },
+                    // work-around to allow onClick events with VictorySelection container
+                    onMouseDown: evt => evt.stopPropagation(),
+                  },
+                },
+              ]}
             >
               {highlights.length > 0 &&
                 highlights.map(item => (
@@ -377,6 +415,7 @@ class GraphsContainer extends React.Component {
                 ))}
 
               <VictoryScatter
+                name="scatter-plot"
                 style={{
                   data: {
                     fill: ({ datum }) =>
@@ -399,44 +438,31 @@ class GraphsContainer extends React.Component {
                 }}
                 size={() => 5}
                 data={scatterPlotData}
-                events={[
-                  {
-                    target: 'data',
-                    eventHandlers: {
-                      onClick: () => {
-                        return [
-                          {
-                            target: 'data',
-                            mutation: props => this.setTooltip(props, true),
-                          },
-                        ];
-                      },
-                      onMouseOver: () => {
-                        return [
-                          {
-                            target: 'data',
-                            mutation: props => this.setTooltip(props),
-                          },
-                        ];
-                      },
-                      onMouseOut: () => {
-                        return [
-                          {
-                            target: 'data',
-                            callback: this.hideTooltip,
-                          },
-                        ];
-                      },
-                      onMouseDown: evt => evt.stopPropagation(),
-                    },
-                  },
-                ]}
+                labels={() => ''}
+                labelComponent={
+                  <VictoryTooltip
+                    renderInPortal={false}
+                    flyoutComponent={
+                      <VictoryPortal>
+                        <GraphTooltip
+                          lockTooltip={lockTooltip}
+                          closeTooltip={this.closeTooltip}
+                          windowWidth={width}
+                          {...this.props}
+                        />
+                      </VictoryPortal>
+                    }
+                  />
+                }
               />
               <VictoryAxis
                 dependentAxis
                 tickCount={9}
                 style={axisStyle}
                 tickFormat={this.setLeftPadding}
+                tickLabelComponent={positionedTick}
+                axisLabelComponent={positionedLabel}
+                label={yAxisLabel}
               />
               <VictoryAxis
                 tickCount={6}
@@ -447,13 +473,14 @@ class GraphsContainer extends React.Component {
             </VictoryChart>
           </Col>
         </Row>
-      </React.Fragment>
+      </span>
     );
   }
 }
 
 GraphsContainer.propTypes = {
   testData: PropTypes.arrayOf(PropTypes.shape({})),
+  measurementUnits: PropTypes.instanceOf(Set).isRequired,
   updateStateParams: PropTypes.func.isRequired,
   zoom: PropTypes.shape({}),
   selectedDataPoint: PropTypes.shape({}),

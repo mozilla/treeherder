@@ -13,6 +13,7 @@ import CompareTableControls from '../../../ui/perfherder/compare/CompareTableCon
 import CompareTable from '../../../ui/perfherder/compare/CompareTable';
 import ComparePageTitle from '../../../ui/perfherder/compare/ComparePageTitle';
 import { compareTableText, filterText } from '../../../ui/perfherder/constants';
+import JobModel from '../../../ui/models/job';
 
 // TODO addtional tests:
 // 1) that the table is receiving the correct data structure after data
@@ -80,59 +81,59 @@ const result = [
 ];
 
 const results = new Map([['a11yr pgo e10s stylo', result]]);
-const getMockRetrigger = data => {
-  return (jobs, repoName, notify, times) => {
-    if (!('retriggers' in data)) {
-      data.retriggers = [];
-    }
-    data.retriggers.push({ jobs, repoName, notify, times });
-  };
-};
 
+jest.mock('../../../ui/models/job');
+
+const mockHandlePermalinkClick = jest.fn();
 const regexComptableHeaderId = /table-header-\d+/;
 const regexComptableRowId = /table-row-\d+/;
-const mockHandlePermalinkClick = jest.fn();
 
+beforeEach(() => {
+  JobModel.retrigger.mockClear();
+  JobModel.get.mockClear();
+});
 afterEach(cleanup);
 
-const compareTableControlsNode = (userLoggedIn = false) => {
+const compareTableControlsNode = (
+  userLoggedIn = false,
+  isBaseAggregate = false,
+) => {
   return (
     <CompareTableControls
       compareResults={results}
       filterOptions={{}}
       user={{ isLoggedIn: userLoggedIn }}
       notify={() => {}}
-      isBaseAggregate={false}
+      isBaseAggregate={isBaseAggregate}
       onPermalinkClick={mockHandlePermalinkClick}
       projects={projects}
     />
   );
 };
 
-const compareTableControls = (userLoggedIn = false) =>
-  render(compareTableControlsNode(userLoggedIn));
-
-const compareTable = (
-  userLoggedIn,
+const compareTableControls = (
+  userLoggedIn = false,
   isBaseAggregate = false,
   mockDataRetrigger = { retriggers: [] },
 ) =>
+  render(
+    compareTableControlsNode(userLoggedIn, isBaseAggregate, mockDataRetrigger),
+  );
+
+const compareTable = (userLoggedIn, isBaseAggregate = false) =>
   render(
     <CompareTable
       user={{ isLoggedIn: userLoggedIn }}
       data={result}
       testName="Test Name"
       notify={() => {}}
+      onModalOpen={() => {}}
       isBaseAggregate={isBaseAggregate}
-      retriggerJob={getMockRetrigger(mockDataRetrigger)}
-      getJob={(repoName, jobId) => {
-        return { id: jobId };
-      }}
       projects={projects}
     />,
   );
 
-const comparepageTitle = () =>
+const comparePageTitle = () =>
   render(
     <ComparePageTitle
       title="Perfherder Compare Revisions"
@@ -270,8 +271,7 @@ test('retrigger buttons should appear only when the user is logged in', async ()
 });
 
 test('retrigger should trigger jobs for base and new repositories', async () => {
-  const mockDataRetrigger = { retriggers: [] };
-  const { queryAllByTitle } = compareTable(true, false, mockDataRetrigger);
+  const { queryAllByTitle, getByText } = compareTableControls(true, false);
   const retriggerButtons = queryAllByTitle(
     compareTableText.retriggerButtonTitle,
   );
@@ -279,37 +279,46 @@ test('retrigger should trigger jobs for base and new repositories', async () => 
   expect(retriggerButtons).toHaveLength(2);
   await fireEvent.click(retriggerButtons[0]);
 
-  expect(mockDataRetrigger.retriggers).toHaveLength(2);
-  expect(mockDataRetrigger.retriggers[0].jobs).toHaveLength(1);
-  expect(mockDataRetrigger.retriggers[0].jobs[0].id).toEqual(
+  const retriggerButtonModal = await waitForElement(() =>
+    getByText('Retrigger'),
+  );
+  expect(retriggerButtonModal).toBeInTheDocument();
+  await fireEvent.click(retriggerButtonModal);
+
+  expect(JobModel.retrigger).toHaveBeenCalledTimes(2);
+  expect(JobModel.get).toHaveBeenCalledTimes(2);
+  expect(JobModel.get.mock.calls[0][1]).toEqual(
     result[0].originalRetriggerableJobId,
   );
-  expect(mockDataRetrigger.retriggers[1].jobs).toHaveLength(1);
-  expect(mockDataRetrigger.retriggers[1].jobs[0].id).toEqual(
+  expect(JobModel.get.mock.calls[1][1]).toEqual(
     result[0].newRetriggerableJobId,
   );
 });
 
 test('retrigger should only work on new repo when base is aggregate', async () => {
-  const mockDataRetrigger = { retriggers: [] };
-  const { queryAllByTitle } = compareTable(true, true, mockDataRetrigger);
+  const { queryAllByTitle, getByText } = compareTableControls(true, true);
   const retriggerButtons = queryAllByTitle(
     compareTableText.retriggerButtonTitle,
   );
 
   expect(retriggerButtons).toHaveLength(1);
   await fireEvent.click(retriggerButtons[0]);
+  const retriggerButtonModal = await waitForElement(() =>
+    getByText('Retrigger'),
+  );
+  expect(retriggerButtonModal).toBeInTheDocument();
+  await fireEvent.click(retriggerButtonModal);
 
-  expect(mockDataRetrigger.retriggers).toHaveLength(1);
-  expect(mockDataRetrigger.retriggers[0].jobs).toHaveLength(1);
-  expect(mockDataRetrigger.retriggers[0].jobs[0].id).toEqual(
+  expect(JobModel.retrigger).toHaveBeenCalledTimes(1);
+  expect(JobModel.get).toHaveBeenCalledTimes(1);
+  expect(JobModel.retrigger.mock.calls[0][0]).toHaveLength(1);
+  expect(JobModel.get.mock.calls[0][1]).toEqual(
     result[0].newRetriggerableJobId,
   );
 });
 
 test('retrigger button should not appear for test with no jobs', async () => {
-  const mockDataRetrigger = { retriggers: [] };
-  const { queryAllByTitle } = compareTable(true, false, mockDataRetrigger);
+  const { queryAllByTitle } = compareTable(true, false);
   const retriggerButtons = queryAllByTitle(
     compareTableText.retriggerButtonTitle,
   );
@@ -317,11 +326,11 @@ test('retrigger button should not appear for test with no jobs', async () => {
   expect(retriggerButtons).toHaveLength(2);
   await fireEvent.click(retriggerButtons[1]);
 
-  expect(mockDataRetrigger.retriggers).toHaveLength(0);
+  expect(JobModel.retrigger).toHaveBeenCalledTimes(0);
 });
 
 test('display of page title', async () => {
-  const { getAllByTitle, getAllByText } = comparepageTitle();
+  const { getAllByTitle, getAllByText } = comparePageTitle();
 
   const pageTitleTitle = getAllByTitle('Click to change the page title');
   const pageTitleDefaultText = getAllByText('Perfherder Compare Revisions');
@@ -332,14 +341,14 @@ test('display of page title', async () => {
 });
 
 test('Button hides when clicking on it and a Input is displayed', async () => {
-  const { queryByText, container } = comparepageTitle();
+  const { queryByText, container } = comparePageTitle();
   const pageTitleDefaultText = queryByText('Perfherder Compare Revisions');
   await fireEvent.click(pageTitleDefaultText);
   expect(container.firstChild).toHaveClass('input-group');
 });
 
 test('clicking the title button does not change the title', async () => {
-  const { getByText, getByDisplayValue } = comparepageTitle();
+  const { getByText, getByDisplayValue } = comparePageTitle();
 
   const pageTitleDefaultText = await waitForElement(() =>
     getByText('Perfherder Compare Revisions'),
@@ -352,7 +361,7 @@ test('clicking the title button does not change the title', async () => {
 });
 
 test('setting a title on page updates the title accordingly', async () => {
-  const { getByText, getByDisplayValue } = comparepageTitle();
+  const { getByText, getByDisplayValue } = comparePageTitle();
 
   const pageTitleDefaultText = await waitForElement(() =>
     getByText('Perfherder Compare Revisions'),
@@ -374,7 +383,7 @@ test('setting a title on page updates the title accordingly', async () => {
 });
 
 test('re-editing the title is possible', async () => {
-  const { getByText, getByDisplayValue } = comparepageTitle();
+  const { getByText, getByDisplayValue } = comparePageTitle();
 
   const pageTitleDefaultText = await waitForElement(() =>
     getByText('Perfherder Compare Revisions'),
@@ -399,7 +408,7 @@ test('re-editing the title is possible', async () => {
 });
 
 test("'Escape' from partially edited title does not update original title", async () => {
-  const { getByText, getByDisplayValue } = comparepageTitle();
+  const { getByText, getByDisplayValue } = comparePageTitle();
 
   const pageTitleDefaultText = await waitForElement(() =>
     getByText('Perfherder Compare Revisions'),

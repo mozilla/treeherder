@@ -59,10 +59,12 @@ export const getSeriesSummary = function getSeriesSummary(
     test: signatureProps.test || null,
     signature,
     hasSubtests: signatureProps.has_subtests || false,
+    tags: signatureProps.tags || [],
     parentSignature: signatureProps.parent_signature || null,
     projectName,
     platform,
     options,
+    measurementUnit: signatureProps.measurement_unit || '',
     frameworkId: signatureProps.framework_id,
     lowerIsBetter:
       signatureProps.lower_is_better === undefined ||

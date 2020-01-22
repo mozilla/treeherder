@@ -3,5 +3,6 @@ export const resultColorMap = {
   pass: 'success',
   fail: 'danger',
   indeterminate: 'warning',
-  none: 'default',
+  done: 'info',
+  'in progress': 'secondary',
 };

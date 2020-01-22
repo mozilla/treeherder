@@ -4,26 +4,31 @@ import countBy from 'lodash/countBy';
 import moment from 'moment';
 import { Button } from 'reactstrap';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faExclamationCircle } from '@fortawesome/free-solid-svg-icons';
+import {
+  faExclamationCircle,
+  faTimes,
+} from '@fortawesome/free-solid-svg-icons';
 
 import { alertStatusMap, endpoints } from '../constants';
 import { getJobsUrl, createQueryParams, getApiUrl } from '../../helpers/url';
 import { create } from '../../helpers/http';
 import RepositoryModel from '../../models/repository';
 import { displayNumber, getStatus } from '../helpers';
+import Clipboard from '../../shared/Clipboard';
 
 const GraphTooltip = ({
-  dataPoint,
   testData,
   user,
   updateData,
   projects,
   updateStateParams,
+  lockTooltip,
+  closeTooltip,
+  datum,
+  x,
+  y,
+  windowWidth,
 }) => {
-  // we either have partial information provided by the selected
-  // query parameter or the full dataPoint object provided from the
-  // graph library
-  const datum = dataPoint.datum ? dataPoint.datum : dataPoint;
   const testDetails = testData.find(
     item => item.signature_id === datum.signature_id,
   );
@@ -36,7 +41,7 @@ const GraphTooltip = ({
   const dataPointDetails = testDetails.data[flotIndex];
 
   const retriggers = countBy(testDetails.resultSetData, resultSetId =>
-    resultSetId === dataPoint.pushId ? 'retrigger' : 'original',
+    resultSetId === datum.pushId ? 'retrigger' : 'original',
   );
   const retriggerNum = retriggers.retrigger - 1;
   const prevFlotDataPointIndex = flotIndex - 1;
@@ -129,113 +134,154 @@ const GraphTooltip = ({
     );
   };
 
-  return (
-    <div className="body">
-      <div>
-        <p>({testDetails.repository_name})</p>
-        <p className="small">{testDetails.platform}</p>
-      </div>
-      <div>
-        <p>
-          {displayNumber(value)}
-          <span className="text-muted">
-            {testDetails.lowerIsBetter
-              ? ' (lower is better)'
-              : ' (higher is better)'}
-          </span>
-        </p>
-        <p className="small">
-          &Delta; {displayNumber(deltaValue.toFixed(1))} (
-          {(100 * deltaPercent).toFixed(1)}%)
-        </p>
-      </div>
+  const verticalOffset = 15;
+  const horizontalOffset = x >= 1275 && windowWidth <= 1825 ? 100 : 0;
+  const centered = {
+    x: x - 280 / 2 - horizontalOffset,
+    y: y - (186 + verticalOffset),
+  };
 
-      <div>
-        {prevRevision && (
-          <span>
-            <a href={pushUrl} target="_blank" rel="noopener noreferrer">
-              {dataPointDetails.revision.slice(0, 13)}
-            </a>{' '}
-            (
-            {dataPointDetails.jobId && (
-              <a href={jobsUrl} target="_blank" rel="noopener noreferrer">
-                job
-              </a>
-            )}
-            ,{' '}
-            <a
-              href={`#/comparesubtest${createQueryParams({
-                originalProject: testDetails.repository_name,
-                newProject: testDetails.repository_name,
-                originalRevision: prevRevision,
-                newRevision: dataPointDetails.revision,
-                originalSignature:
-                  testDetails.parentSignature || testDetails.signature_id,
-                newSignature:
-                  testDetails.parentSignature || testDetails.signature_id,
-                framework: testDetails.framework_id,
-              })}`}
-              target="_blank"
-              rel="noopener noreferrer"
-            >
-              compare
-            </a>
-            )
-          </span>
-        )}
-        {dataPointDetails.alertSummary && (
-          <p>
-            <a
-              href={`perf.html#/alerts?id=${dataPointDetails.alertSummary.id}`}
-            >
-              <FontAwesomeIcon
-                className="text-warning"
-                icon={faExclamationCircle}
-                size="sm"
-              />
-              {` Alert # ${dataPointDetails.alertSummary.id}`}
-            </a>
-            <span className="text-muted">
-              {` - ${alertStatus} `}
-              {alert && alert.related_summary_id && (
-                <span>
-                  {alert.related_summary_id !== dataPointDetails.alertSummary.id
-                    ? 'to'
-                    : 'from'}
-                  <a
-                    href={`#/alerts?id=${alert.related_summary_id}`}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                  >{` alert # ${alert.related_summary_id}`}</a>
-                </span>
+  return (
+    <foreignObject width="100%" height="100%" x={centered.x} y={centered.y}>
+      <div
+        className={`graph-tooltip ${lockTooltip ? 'locked' : null}`}
+        xmlns="http://www.w3.org/1999/xhtml"
+        data-testid="graphTooltip"
+      >
+        <Button
+          outline
+          color="secondary"
+          className="close mr-3 my-2 ml-2"
+          onClick={closeTooltip}
+        >
+          <FontAwesomeIcon
+            className="pointer text-white"
+            icon={faTimes}
+            size="xs"
+            title="close tooltip"
+          />
+        </Button>
+        <div className="body">
+          <div>
+            <p>({testDetails.repository_name})</p>
+            <p className="small">{testDetails.platform}</p>
+          </div>
+          <div>
+            <p>
+              {displayNumber(value)}
+              {testDetails.measurementUnit && (
+                <span> {testDetails.measurementUnit}</span>
               )}
-            </span>
-          </p>
-        )}
-        {!dataPointDetails.alertSummary && prevPushId && (
-          <p className="pt-2">
-            {user.isStaff ? (
-              <Button color="info" outline size="sm" onClick={createAlert}>
-                create alert
-              </Button>
-            ) : (
-              <span>(log in as a a sheriff to create)</span>
+              <span className="text-muted">
+                {testDetails.lowerIsBetter
+                  ? ' (lower is better)'
+                  : ' (higher is better)'}
+              </span>
+            </p>
+            <p className="small">
+              &Delta; {displayNumber(deltaValue.toFixed(1))} (
+              {(100 * deltaPercent).toFixed(1)}%)
+            </p>
+          </div>
+
+          <div>
+            {prevRevision && (
+              <span>
+                <a href={pushUrl} target="_blank" rel="noopener noreferrer">
+                  {dataPointDetails.revision.slice(0, 13)}
+                </a>{' '}
+                (
+                {dataPointDetails.jobId && (
+                  <a href={jobsUrl} target="_blank" rel="noopener noreferrer">
+                    job
+                  </a>
+                )}
+                ,{' '}
+                <a
+                  href={`#/comparesubtest${createQueryParams({
+                    originalProject: testDetails.repository_name,
+                    newProject: testDetails.repository_name,
+                    originalRevision: prevRevision,
+                    newRevision: dataPointDetails.revision,
+                    originalSignature:
+                      testDetails.parentSignature || testDetails.signature_id,
+                    newSignature:
+                      testDetails.parentSignature || testDetails.signature_id,
+                    framework: testDetails.framework_id,
+                  })}`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                >
+                  compare
+                </a>
+                ){' '}
+                <Clipboard
+                  text={dataPointDetails.revision}
+                  description="Revision"
+                  outline
+                />
+              </span>
             )}
-          </p>
-        )}
-        <p className="small text-white pt-2">{`${moment
-          .utc(dataPointDetails.x)
-          .format('MMM DD hh:mm:ss')} UTC`}</p>
-        {Boolean(retriggerNum) && (
-          <p className="small">{`Retriggers: ${retriggerNum}`}</p>
-        )}
+            {dataPointDetails.alertSummary && (
+              <p>
+                <a
+                  href={`perf.html#/alerts?id=${dataPointDetails.alertSummary.id}`}
+                >
+                  <FontAwesomeIcon
+                    className="text-warning"
+                    icon={faExclamationCircle}
+                    size="sm"
+                  />
+                  {` Alert # ${dataPointDetails.alertSummary.id}`}
+                </a>
+                <span className="text-muted">
+                  {` - ${alertStatus} `}
+                  {alert && alert.related_summary_id && (
+                    <span>
+                      {alert.related_summary_id !==
+                      dataPointDetails.alertSummary.id
+                        ? 'to'
+                        : 'from'}
+                      <a
+                        href={`#/alerts?id=${alert.related_summary_id}`}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                      >{` alert # ${alert.related_summary_id}`}</a>
+                    </span>
+                  )}
+                </span>
+              </p>
+            )}
+            {!dataPointDetails.alertSummary && prevPushId && (
+              <p className="pt-2">
+                {user.isStaff ? (
+                  <Button color="info" outline size="sm" onClick={createAlert}>
+                    create alert
+                  </Button>
+                ) : (
+                  <span>(log in as a a sheriff to create)</span>
+                )}
+              </p>
+            )}
+            <p className="small text-white pt-2">{`${moment
+              .utc(dataPointDetails.x)
+              .format('MMM DD hh:mm:ss')} UTC`}</p>
+            {Boolean(retriggerNum) && (
+              <p className="small">{`Retriggers: ${retriggerNum}`}</p>
+            )}
+          </div>
+        </div>
+        <div
+          className="tip"
+          style={{ transform: `translateX(${horizontalOffset}px)` }}
+        />
       </div>
-    </div>
+    </foreignObject>
   );
 };
 
 GraphTooltip.propTypes = {
-  dataPoint: PropTypes.shape({}).isRequired,
+  dataPoint: PropTypes.shape({}),
   testData: PropTypes.arrayOf(PropTypes.shape({})).isRequired,
   user: PropTypes.shape({}).isRequired,
   updateData: PropTypes.func.isRequired,
@@ -244,6 +290,7 @@ GraphTooltip.propTypes = {
 
 GraphTooltip.defaultProps = {
   projects: [],
+  dataPoint: undefined,
 };
 
 export default GraphTooltip;

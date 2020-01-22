@@ -5,6 +5,8 @@ import { getInspectTaskUrl } from '../helpers/url';
 import { getJobSearchStrHref } from '../helpers/job';
 import { toDateStr } from '../helpers/display';
 
+import Clipboard from './Clipboard';
+
 const getTimeFields = function getTimeFields(job) {
   // time fields to show in detail panel, but that should be grouped together
   const {
@@ -88,6 +90,7 @@ export default class JobInfo extends React.PureComponent {
             >
               {taskId}
             </a>
+            <Clipboard description="task ID" text={taskId} />
           </li>
         )}
         <li className="small">
@@ -114,6 +117,12 @@ export default class JobInfo extends React.PureComponent {
             ) : (
               <span>{field.value}</span>
             )}
+            {field.clipboard && (
+              <Clipboard
+                description={field.clipboard.description}
+                text={field.clipboard.text}
+              />
+            )}
           </li>
         ))}
       </ul>
@@ -124,10 +133,14 @@ export default class JobInfo extends React.PureComponent {
 JobInfo.propTypes = {
   job: PropTypes.object.isRequired,
   extraFields: PropTypes.arrayOf(
-    PropTypes.shape({
+    PropTypes.exact({
       title: PropTypes.string.isRequired,
       url: PropTypes.string,
       value: PropTypes.string,
+      clipboard: PropTypes.exact({
+        description: PropTypes.string.isRequired,
+        text: PropTypes.string,
+      }),
     }),
   ),
   showJobFilters: PropTypes.bool,

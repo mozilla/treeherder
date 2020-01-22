@@ -41,6 +41,7 @@ module.exports = {
       },
       perf: {
         entry: 'perfherder/index.jsx',
+        favicon: 'ui/img/line_chart.png',
         title: 'Perfherder',
       },
       'intermittent-failures': {
@@ -154,7 +155,7 @@ module.exports = {
         neutrino.config.performance
           .hints('error')
           .maxAssetSize(1.7 * 1024 * 1024)
-          .maxEntrypointSize(2 * 1024 * 1024);
+          .maxEntrypointSize(2.5 * 1024 * 1024);
       }
     },
   ],
