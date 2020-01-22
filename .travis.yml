@@ -44,12 +44,12 @@ matrix:
       language: minimal
       install:
         - docker-compose build
-        - #pip install codecov --user
+        - pip install --user codecov 
         - #pip install pytest-cov --user
         - #pip install pytest-xdist --user
         - #pip install kombu --user
         - #pip install responses --user
-        - pip install --user codecov && codecov -t "995256be-3a1f-4d10-b181-e24f88603b6b"
+        - #pip install --user codecov && codecov -t "995256be-3a1f-4d10-b181-e24f88603b6b"
       script:
         # Several security features in settings.py (eg setting HSTS headers) are conditional on
         # 'https://' being in the site URL. In addition, we override the test environment's debug
@@ -58,7 +58,7 @@ matrix:
         # Using `-bb` mode to surface BytesWarnings: https://docs.python.org/3.7/using/cmdline.html#cmdoption-b
         - docker-compose run backend python -bb -m pytest tests/ --runslow --ignore=tests/selenium/
         - #pytest --cov=./ --cov-report=xml
-        - #codecov
+        - codecov
 
 
     - env: python-tests-selenium
