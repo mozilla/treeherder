@@ -59,7 +59,10 @@ matrix:
         - docker-compose run backend python -bb -m pytest tests/ --runslow --ignore=tests/selenium/
         - #pytest --cov=./ --cov-report=xml
         - #codecov
-        - bash <(curl -s https://codecov.io/bash)
+        - #coverage run test.py
+
+      after_success:
+        -codecov
 
 
     - env: python-tests-selenium
