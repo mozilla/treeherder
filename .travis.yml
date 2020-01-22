@@ -47,7 +47,7 @@ matrix:
         - pip install --user codecov 
         - pip install --user pytest-cov 
         - #pip install pytest-xdist --user
-        - #pip install kombu --user
+        - pip install kombu --user
         - pip install requests --user
         - pip install responses --user
         - #pip install --user codecov && codecov -t "995256be-3a1f-4d10-b181-e24f88603b6b"
