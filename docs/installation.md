@@ -67,16 +67,6 @@ Both Django's runserver and webpack-dev-server will automatically refresh every 
 !!! note
     There will be no data to display until the ingestion tasks are run.
 
-### Running the migrations
-
-NOTE: The Django migrations and SETA initialization is automatically applied with the Docker developer instance
-
-To run the Django migrations:
-
-```bash
-docker-compose run backend sh -c "./initialize_data.sh"
-```
-
 ### Using the minified UI
 
 If you would like to use the minified production version of the UI with the development backend:
