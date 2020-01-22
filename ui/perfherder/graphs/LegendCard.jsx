@@ -163,6 +163,16 @@ const LegendCard = ({
         >
           {series.platform}
         </p>
+        {series.application && (
+          <p
+            className={subtitleStyle}
+            title="Add related applications"
+            onClick={() => addTestData('addRelatedApplications')}
+            type="button"
+          >
+            {series.application}
+          </p>
+        )}
         <Badge> {getFrameworkName(series.framework_id)} </Badge>
         <div className="small">{`${series.signatureHash.slice(0, 16)}...`}</div>
       </div>

@@ -11,8 +11,8 @@ import { errorMessageClass } from '../../helpers/constants';
 import ErrorBoundary from '../../shared/ErrorBoundary';
 import PerfSeriesModel from '../../models/perfSeries';
 import { getData } from '../../helpers/http';
-import { createApiUrl, perfSummaryEndpoint } from '../../helpers/url';
-import { noDataFoundMessage } from '../constants';
+import { createApiUrl } from '../../helpers/url';
+import { endpoints, noDataFoundMessage } from '../constants';
 import LoadingSpinner from '../../shared/LoadingSpinner';
 
 export default class ReplicatesGraph extends React.Component {
@@ -57,7 +57,7 @@ export default class ReplicatesGraph extends React.Component {
     const replicateData = {};
 
     const perfDatumResponse = await getData(
-      createApiUrl(perfSummaryEndpoint, {
+      createApiUrl(endpoints.summary, {
         revision,
         repository: projectName,
         signature: subtestSignature,
