@@ -44,7 +44,7 @@ matrix:
       language: minimal
       install:
         - docker-compose build
-        - pip install codecov
+        - pip install codecov --user
       script:
         # Several security features in settings.py (eg setting HSTS headers) are conditional on
         # 'https://' being in the site URL. In addition, we override the test environment's debug
