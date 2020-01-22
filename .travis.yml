@@ -58,7 +58,8 @@ matrix:
         # Using `-bb` mode to surface BytesWarnings: https://docs.python.org/3.7/using/cmdline.html#cmdoption-b
         - docker-compose run backend python -bb -m pytest tests/ --runslow --ignore=tests/selenium/
         - #pytest --cov=./ --cov-report=xml
-        - codecov
+        - #codecov
+        - bash <(curl -s https://codecov.io/bash)
 
 
     - env: python-tests-selenium
