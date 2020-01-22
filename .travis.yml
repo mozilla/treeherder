@@ -47,6 +47,7 @@ matrix:
         - pip install codecov --user
         - pip install pytest-cov --user
         - pip install kombu --user
+        - pip install requests --user
       script:
         # Several security features in settings.py (eg setting HSTS headers) are conditional on
         # 'https://' being in the site URL. In addition, we override the test environment's debug
