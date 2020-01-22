@@ -45,7 +45,8 @@ matrix:
       install:
         - docker-compose build
         - pip install codecov --user
-        - pip install pytest-cov --user
+        - #pip install pytest-cov --user
+        - pip install pytest-xdist --user
         - pip install kombu --user
         - pip install responses --user
       script:
