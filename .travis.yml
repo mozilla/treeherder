@@ -44,12 +44,12 @@ matrix:
       language: minimal
       install:
         - docker-compose build
-        - pip install --user codecov 
-        - pip install --user pytest-cov 
+        - pip3 install --user codecov 
+        - pip3 install --user pytest-cov 
         - #pip install pytest-xdist --user
-        - pip install kombu --user
-        - pip install requests --user
-        - pip install responses --user
+        - pip3 install kombu --user
+        - pip3 install requests --user
+        - pip3 install responses --user
         - #pip install --user codecov && codecov -t "995256be-3a1f-4d10-b181-e24f88603b6b"
       script:
         # Several security features in settings.py (eg setting HSTS headers) are conditional on
