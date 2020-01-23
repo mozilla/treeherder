@@ -20,16 +20,18 @@ Be sure you are in the `treeherder` main directory
     pip install virtualenv
     virtualenv venv
     source venv/bin/activate
-    venv/bin/pip install -r tests/requirements.txt
+    venv/bin/pip install -r requirements/common.txt
+    venv/bin/pip install -r requirements/dev.txt
+    venv/bin/pip install -r requirements/docs.txt
 
 ...or Windows...
 
     pip install virtualenv
     virtualenv venv
     venv\Scripts\activate
-    pip install -r tests/requirements.txt
-
-Please notice the special `requirements.txt` file
+    python -m pip install -r requirements\common.txt
+    python -m pip install -r requirements\dev.txt
+    python -m pip install -r requirements\docs.txt  
 
 ### Set environment variables
 
@@ -60,6 +62,8 @@ Be sure docker-compose is up, you are in the `treeherder` main directory, your v
 ### Pre commit checks
 
 If you made some changes, and want to submit a pull request; run the `./runtests.sh` script (found in the main directory).  It will run some linters to check your submission.
+
+> For Windows, you can run the checks in a container (see below)
 
 
 ### Using containers
