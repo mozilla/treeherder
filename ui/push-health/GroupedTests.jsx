@@ -7,12 +7,15 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faCaretDown } from '@fortawesome/free-solid-svg-icons';
 
 import TestFailure from './TestFailure';
+import { filterTests } from './helpers';
 
 class GroupedTests extends Component {
   getGroupedTests = tests => {
-    const { groupedBy } = this.props;
-
-    const grouped = groupBy(tests, test => {
+    const { groupedBy, searchStr } = this.props;
+    const filteredTests = searchStr.length
+      ? filterTests(tests, searchStr)
+      : tests;
+    const grouped = groupBy(filteredTests, test => {
       switch (groupedBy) {
         case 'none':
           return 'none';
@@ -53,7 +56,7 @@ class GroupedTests extends Component {
       <div>
         {groupedTests &&
           sortedGroups.map(group => (
-            <div key={group.id}>
+            <div key={group.id} data-testid="test-grouping">
               <Button
                 id={`${group.id}-group`}
                 color="secondary"
@@ -98,6 +101,7 @@ GroupedTests.propTypes = {
   currentRepo: PropTypes.object.isRequired,
   user: PropTypes.object.isRequired,
   notify: PropTypes.func.isRequired,
+  searchStr: PropTypes.string.isRequired,
 };
 
 export default GroupedTests;
