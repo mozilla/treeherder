@@ -162,16 +162,15 @@ class Push extends React.PureComponent {
   };
 
   fetchTestManifests = async () => {
-    // XXX: We might be able to get rid of the backend change if we can use currentRepo
     const { currentRepo, push } = this.props;
-    // const { revision } = push;
+    const { jobList } = this.state;
+
     const jobTypeNameToManifests = await fetchTestManifests(
       currentRepo.name,
       push.revision,
     );
     this.setState({ jobTypeNameToManifests });
-    // This causes the jobs to receive the test_path property
-    const { jobList } = this.state;
+    // This adds to the jobs the test_path property
     this.mapPushJobs(jobList);
   };
 
@@ -204,10 +203,10 @@ class Push extends React.PureComponent {
       // remove old versions of jobs we just fetched.
       const existingJobs = jobList.filter(job => !newIds.includes(job.id));
       // Join both lists and add test_paths property
-      const newJobList = [...existingJobs, ...jobs].map(job => {
-        job.test_paths = jobTypeNameToManifests[job.job_type_name] || [];
-        return job;
-      });
+      const newJobList = [...existingJobs, ...jobs].map(job => ({
+        ...job,
+        test_paths: jobTypeNameToManifests[job.job_type_name] || [],
+      }));
       const platforms = this.sortGroupedJobs(
         this.groupJobByPlatform(newJobList),
       );
