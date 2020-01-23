@@ -1,5 +1,9 @@
 # Dependencies needed only for development/testing.
 
+codecov==2.0.15 \
+--hash=sha256:ae00d68e18d8a20e9c3288ba3875ae03db3a8e892115bf9b83ef20507732bed4 \
+--hash=sha256:8ed8b7c6791010d359baed66f84f061bba5bd41174bf324c31311e8737602788
+
 pytest==5.0.1 \
     --hash=sha256:a736fed91c12681a7b34617c8fcefe39ea04599ca72c608751c31d89579a3f77 \
     --hash=sha256:6ef6d06de77ce2961156013e9dff62f1b2688aa04d0dc244299fe7d67e09370d
