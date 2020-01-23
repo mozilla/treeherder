@@ -1,8 +1,14 @@
 # Dependencies needed only for development/testing.
 
+coverage==5.0.3 \
+    --hash=sha256:d649dc0bcace6fcdb446ae02b98798a856593b19b637c1b9af8edadf2b150bea
+
 codecov==2.0.15 \
---hash=sha256:ae00d68e18d8a20e9c3288ba3875ae03db3a8e892115bf9b83ef20507732bed4 \
---hash=sha256:8ed8b7c6791010d359baed66f84f061bba5bd41174bf324c31311e8737602788
+    --hash=sha256:ae00d68e18d8a20e9c3288ba3875ae03db3a8e892115bf9b83ef20507732bed4 \
+    --hash=sha256:8ed8b7c6791010d359baed66f84f061bba5bd41174bf324c31311e8737602788
+
+pytest-cov==2.8.1 \
+    --hash=sha256:cdbdef4f870408ebdbfeb44e63e07eb18bb4619fae852f6e760645fa36172626
 
 pytest==5.0.1 \
     --hash=sha256:a736fed91c12681a7b34617c8fcefe39ea04599ca72c608751c31d89579a3f77 \

@@ -44,7 +44,6 @@ matrix:
       language: minimal
       install:
         - docker-compose build
-        
       script:
         # Several security features in settings.py (eg setting HSTS headers) are conditional on
         # 'https://' being in the site URL. In addition, we override the test environment's debug
@@ -53,7 +52,6 @@ matrix:
         # Using `-bb` mode to surface BytesWarnings: https://docs.python.org/3.7/using/cmdline.html#cmdoption-b
         - docker-compose run backend python -bb -m pytest tests/ --runslow --ignore=tests/selenium/
      
-
     - env: python-tests-selenium
       language: node_js
       # The Node version here must be kept in sync with that in `package.json`.
