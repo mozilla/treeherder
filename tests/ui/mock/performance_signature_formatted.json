@@ -13,6 +13,7 @@
     "platform": "linux64",
     "options": ["opt", "e10s", "stylo"],
     "frameworkId": 1,
+    "application": "firefox",
     "lowerIsBetter": true
   },
   {
@@ -21,6 +22,7 @@
     "testName": "about_preferences_basic",
     "suite": "about_preferences_basic",
     "test": null,
+    "tags": ["basic_preferences_about"],
     "signature": "9db5c2909418068b3004ea3911675ee3e6e5f6da",
     "hasSubtests": true,
     "parentSignature": null,
@@ -36,6 +38,7 @@
     "testName": "basic_compositor_video",
     "suite": "basic_compositor_video",
     "test": null,
+    "tags": ["video_compositor_basic"],
     "signature": "aaf7d0091b502d1596c9791a47cb25efeda8a5ff",
     "hasSubtests": true,
     "parentSignature": null,
@@ -51,6 +54,7 @@
     "testName": "dromaeo_dom",
     "suite": "dromaeo_dom",
     "test": null,
+    "tags": ["dom_dromaeo"],
     "signature": "baf7d0091b502d1596c9791a47cb25efeda8a5fa",
     "hasSubtests": true,
     "parentSignature": null,

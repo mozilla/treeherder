@@ -99,6 +99,49 @@ export default class TestDataModal extends React.Component {
     this.processOptions();
   }
 
+  addRelatedApplications = async params => {
+    const { relatedSeries: relatedSignature } = this.props.options;
+    const { errorMessages } = this.state;
+    let relatedTests = [];
+
+    const { data, failureStatus } = await PerfSeriesModel.getSeriesList(
+      relatedSignature.repository_name,
+      params,
+    );
+
+    if (!failureStatus) {
+      relatedTests = data.filter(signature => {
+        const differentApplications =
+          signature.application !== relatedSignature.application;
+        const similarTestNames =
+          this.removeSubstring(signature.application, signature.name) ===
+          this.removeSubstring(
+            relatedSignature.application,
+            relatedSignature.name,
+          );
+        const samePlatform = signature.platform === relatedSignature.platform;
+        const sameProject =
+          signature.projectName === relatedSignature.repository_name;
+
+        return (
+          differentApplications &&
+          similarTestNames &&
+          samePlatform &&
+          sameProject
+        );
+      });
+    } else {
+      errorMessages.push(data);
+    }
+
+    this.setState({
+      relatedTests,
+      showNoRelatedTests: relatedTests.length === 0,
+      errorMessages,
+      loading: false,
+    });
+  };
+
   addRelatedConfigs = async params => {
     const { relatedSeries } = this.props.options;
     const { errorMessages, repository_name: repositoryName } = this.state;
@@ -198,6 +241,8 @@ export default class TestDataModal extends React.Component {
       this.addRelatedConfigs(params);
     } else if (option === 'addRelatedBranches') {
       this.addRelatedBranches(params);
+    } else if (option === 'addRelatedApplications') {
+      this.addRelatedApplications(params);
     }
   };
 
@@ -206,8 +251,10 @@ export default class TestDataModal extends React.Component {
   updateFilterText = filterText => {
     const { seriesData } = this.state;
     const filteredData = seriesData.filter(test => {
+      // spell out all searchable characteristics
+      // into a single encompassing string
       const tags = test.tags.join(' ');
-      const textToSearch = `${test.name} ${tags}`;
+      const textToSearch = `${test.name} ${tags} ${test.application}`;
 
       return containsText(textToSearch, filterText);
     });
@@ -300,6 +347,14 @@ export default class TestDataModal extends React.Component {
       differentThanSelectedUnits
     );
   };
+
+  removeSubstring = (subString, fromString) =>
+    fromString.includes(subString)
+      ? fromString
+          .split(subString)
+          .join('')
+          .trim()
+      : fromString;
 
   extractUniqueUnits(tests) {
     return new Set(tests.map(aTest => aTest.measurementUnit));

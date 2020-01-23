@@ -14,6 +14,7 @@ import { getJobsUrl, createQueryParams, getApiUrl } from '../../helpers/url';
 import { create } from '../../helpers/http';
 import RepositoryModel from '../../models/repository';
 import { displayNumber, getStatus } from '../helpers';
+import Clipboard from '../../shared/Clipboard';
 
 const GraphTooltip = ({
   testData,
@@ -213,7 +214,12 @@ const GraphTooltip = ({
                 >
                   compare
                 </a>
-                )
+                ){' '}
+                <Clipboard
+                  text={dataPointDetails.revision}
+                  description="Revision"
+                  outline
+                />
               </span>
             )}
             {dataPointDetails.alertSummary && (

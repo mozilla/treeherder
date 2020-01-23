@@ -6,10 +6,7 @@ import queryString from 'query-string';
 
 import { getData, processResponse, processErrors } from '../../helpers/http';
 import {
-  getApiUrl,
   createApiUrl,
-  perfSummaryEndpoint,
-  createQueryParams,
   parseQueryParams,
   updateQueryParams,
 } from '../../helpers/url';
@@ -135,7 +132,7 @@ class GraphsView extends React.Component {
     const responses = await Promise.all(
       tests.map(series =>
         getData(
-          createApiUrl(perfSummaryEndpoint, this.createSeriesParams(series)),
+          createApiUrl(endpoints.summary, this.createSeriesParams(series)),
         ),
       ),
     );
@@ -187,14 +184,12 @@ class GraphsView extends React.Component {
   getAlertSummaries = async (signatureId, repository) => {
     const { errorMessages } = this.state;
 
-    const url = getApiUrl(
-      `${endpoints.alertSummary}${createQueryParams({
+    const data = await getData(
+      createApiUrl(endpoints.alertSummary, {
         alerts__series_signature: signatureId,
         repository,
-      })}`,
+      }),
     );
-
-    const data = await getData(url);
     const response = processResponse(data, 'alertSummaries', errorMessages);
 
     if (response.alertSummaries) {

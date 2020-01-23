@@ -4,23 +4,17 @@ import PropTypes from 'prop-types';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import {
   faExclamationTriangle,
-  faRedo,
   faThumbsUp,
   faHashtag,
 } from '@fortawesome/free-solid-svg-icons';
 
 import SimpleTooltip from '../../shared/SimpleTooltip';
-import {
-  displayNumber,
-  formatNumber,
-  getHashBasedId,
-  retriggerJobs,
-} from '../helpers';
-import { compareTableText } from '../constants';
+import { displayNumber, formatNumber, getHashBasedId } from '../helpers';
 import ProgressBar from '../ProgressBar';
 import { hashFunction } from '../../helpers/utils';
 
 import TableAverage from './TableAverage';
+import RetriggerButton from './RetriggerButton';
 
 export default class CompareTableRow extends React.PureComponent {
   getColorClass = (data, type) => {
@@ -47,6 +41,7 @@ export default class CompareTableRow extends React.PureComponent {
       history,
       rowLevelResults,
       hashFunction,
+      onModalOpen,
     } = this.props;
 
     return (
@@ -179,13 +174,11 @@ export default class CompareTableRow extends React.PureComponent {
             !rowLevelResults.isNoiseMetric &&
             (rowLevelResults.newRetriggerableJobId || !isBaseAggregate) &&
             user.isLoggedIn && (
-              <Button
-                className="retrigger-btn btn icon-green mr-1 py-0 px-1"
-                title={compareTableText.retriggerButtonTitle}
-                onClick={() => retriggerJobs(rowLevelResults, 5, this.props)}
-              >
-                <FontAwesomeIcon icon={faRedo} />
-              </Button>
+              <RetriggerButton
+                onClick={() => {
+                  onModalOpen(rowLevelResults);
+                }}
+              />
             )}
           {rowLevelResults.originalRuns && (
             <SimpleTooltip
@@ -202,6 +195,7 @@ export default class CompareTableRow extends React.PureComponent {
 
 CompareTableRow.propTypes = {
   testName: PropTypes.string.isRequired,
+  onModalOpen: PropTypes.func.isRequired,
   hashFunction: PropTypes.func,
   onPermalinkClick: PropTypes.func,
 };

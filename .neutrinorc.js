@@ -155,7 +155,7 @@ module.exports = {
         neutrino.config.performance
           .hints('error')
           .maxAssetSize(1.7 * 1024 * 1024)
-          .maxEntrypointSize(2 * 1024 * 1024);
+          .maxEntrypointSize(2.5 * 1024 * 1024);
       }
     },
   ],

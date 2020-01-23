@@ -1,6 +1,13 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import { Badge, Button, Row, Col, UncontrolledTooltip } from 'reactstrap';
+import {
+  Badge,
+  Button,
+  Row,
+  Col,
+  UncontrolledTooltip,
+  UncontrolledCollapse,
+} from 'reactstrap';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faRedo } from '@fortawesome/free-solid-svg-icons';
 
@@ -40,12 +47,14 @@ class TestFailure extends React.PureComponent {
   };
 
   render() {
-    const { failure, repo, revision } = this.props;
+    const { failure, repo, revision, groupedBy } = this.props;
     const {
       testName,
       action,
       jobName,
       jobSymbol,
+      jobGroup,
+      jobGroupSymbol,
       inProgressJobs,
       failJobs,
       passJobs,
@@ -62,42 +71,9 @@ class TestFailure extends React.PureComponent {
     const { detailsShowing } = this.state;
 
     return (
-      <Col className="mt-2 mb-3 ml-2" key={key}>
-        <Row className="border-top border-secondary justify-content-between">
-          <Row className="ml-1 w-100">
-            <span
-              color="secondary"
-              className="font-weight-bold text-uppercase mr-1"
-            >
-              {action} :
-            </span>
-            {testName}
-            {tier > 1 && (
-              <span className="ml-1 small text-muted">[tier-{tier}]</span>
-            )}
-            <span id={key} className="ml-auto mr-3">
-              <strong>Pass/Fail Ratio:</strong>{' '}
-              {Math.round(passFailRatio * 100)}%
-            </span>
-            <UncontrolledTooltip target={key} placement="left">
-              Greater than 50% (and/or classification history) will make this an
-              intermittent
-            </UncontrolledTooltip>
-          </Row>
-          {!!confidence && (
-            <span title="Best guess at a classification" className="ml-auto">
-              {classificationMap[suggestedClassification]}
-              <Badge
-                color="secondary"
-                className="ml-2 mr-3"
-                title="Confidence in this classification guess"
-              >
-                {confidence}
-              </Badge>
-            </span>
-          )}
-        </Row>
-        <div className="small">
+      <Row className="border-top m-3" key={key}>
+        <Col>
+          <Row>{groupedBy !== 'path' && <span>{testName}</span>}</Row>
           <Button
             onClick={() => this.retriggerJob(failJobs[0])}
             outline
@@ -107,8 +83,22 @@ class TestFailure extends React.PureComponent {
           >
             <FontAwesomeIcon icon={faRedo} title="Retrigger" />
           </Button>
-          <span>
-            {platform} {config}:
+          {groupedBy !== 'platform' && (
+            <span>
+              {platform} {config}:
+            </span>
+          )}
+          <span
+            className="mx-1 px-1 border border-secondary rounded"
+            title={jobGroup}
+          >
+            {jobGroupSymbol}
+          </span>
+          {tier > 1 && (
+            <span className="ml-1 small text-muted">[tier-{tier}]</span>
+          )}
+          <span color="secondary" className="text-uppercase ml-1 mr-1">
+            {action} :
           </span>
           {failJobs.map(failJob => (
             <Job
@@ -158,39 +148,63 @@ class TestFailure extends React.PureComponent {
               key={inProgressJob.id}
             />
           ))}
-        </div>
-        {!!logLines.length && (
-          <div>
-            <Button
-              className="border-0 text-info bg-transparent p-1"
-              onClick={this.toggleDetails}
-            >
-              {detailsShowing ? 'less...' : 'more...'}
-            </Button>
-          </div>
-        )}
-        {logLines.map(logLine => (
-          <Row
-            className="small text-monospace mt-2 ml-3"
-            key={logLine.line_number}
-          >
-            {detailsShowing ? (
-              <div className="pre-wrap text-break">
-                {logLine.subtest}
-                <Row className="ml-3">
-                  <div>{logLine.message}</div>
-                  <div>{logLine.signature}</div>
-                  <div>{logLine.stackwalk_stdout}</div>
-                </Row>
-              </div>
-            ) : (
-              <div className="pre-wrap text-break">
-                {!!logLine.subtest && logLine.subtest.substr(0, 200)}
-              </div>
+          {!!logLines.length && (
+            <span>
+              <Button
+                id={key}
+                className="border-0 text-info btn-sm p-1"
+                outline
+                onClick={this.toggleDetails}
+              >
+                {detailsShowing ? 'less...' : 'more...'}
+              </Button>
+              <UncontrolledCollapse toggler={key}>
+                {logLines.map(logLine => (
+                  <Row
+                    className="small text-monospace mt-2 ml-3"
+                    key={logLine.line_number}
+                  >
+                    <div className="pre-wrap text-break">
+                      {logLine.subtest}
+                      <Row className="ml-3">
+                        <div>{logLine.message}</div>
+                        <div>{logLine.signature}</div>
+                        <div>{logLine.stackwalk_stdout}</div>
+                      </Row>
+                    </div>
+                  </Row>
+                ))}
+              </UncontrolledCollapse>
+            </span>
+          )}
+        </Col>
+        <span className="ml-1">
+          <Row className="justify-content-between mr-2">
+            {!!confidence && (
+              <span title="Best guess at a classification" className="ml-auto">
+                {classificationMap[suggestedClassification]}
+                <Badge
+                  color="secondary"
+                  className="ml-2 mr-3"
+                  title="Confidence in this classification guess"
+                >
+                  {confidence}
+                </Badge>
+              </span>
             )}
           </Row>
-        ))}
-      </Col>
+          <Row>
+            <span id={`${key}-ratio`} className="mr-3">
+              <strong>Pass/Fail Ratio:</strong>{' '}
+              {Math.round(passFailRatio * 100)}%
+            </span>
+            <UncontrolledTooltip target={`${key}-ratio`} placement="left">
+              Greater than 50% (and/or classification history) will make this an
+              intermittent
+            </UncontrolledTooltip>
+          </Row>
+        </span>
+      </Row>
     );
   }
 }
@@ -214,6 +228,7 @@ TestFailure.propTypes = {
   user: PropTypes.object.isRequired,
   revision: PropTypes.string.isRequired,
   notify: PropTypes.func.isRequired,
+  groupedBy: PropTypes.string.isRequired,
 };
 
 export default TestFailure;

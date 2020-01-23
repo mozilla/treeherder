@@ -66,6 +66,7 @@ export const getSeriesSummary = function getSeriesSummary(
     options,
     measurementUnit: signatureProps.measurement_unit || '',
     frameworkId: signatureProps.framework_id,
+    application: signatureProps.application || null,
     lowerIsBetter:
       signatureProps.lower_is_better === undefined ||
       signatureProps.lower_is_better,
@@ -117,7 +118,6 @@ export default class PerfSeriesModel {
   }
 
   static getSeriesData(projectName, params) {
-    // console.log('getSeriesData query-string', queryString.stringify(params));
     return fetch(
       `${getProjectUrl(
         '/performance/data/',

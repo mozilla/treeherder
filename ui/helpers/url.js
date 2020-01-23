@@ -13,11 +13,11 @@ export const hgBaseUrl = 'https://hg.mozilla.org/';
 
 export const dxrBaseUrl = 'https://dxr.mozilla.org/';
 
-export const bugsEndpoint = 'failures/';
+export const bugsEndpoint = '/failures/';
 
-export const bugDetailsEndpoint = 'failuresbybug/';
+export const bugDetailsEndpoint = '/failuresbybug/';
 
-export const graphsEndpoint = 'failurecount/';
+export const graphsEndpoint = '/failurecount/';
 
 export const deployedRevisionUrl = '/revision.txt';
 
@@ -26,8 +26,6 @@ export const loginCallbackUrl = '/login.html';
 export const pushEndpoint = '/push/';
 
 export const repoEndpoint = '/repository/';
-
-export const perfSummaryEndpoint = 'performance/summary/';
 
 export const tcAuthCallbackUrl = '/taskcluster-auth.html';
 
@@ -120,10 +118,11 @@ export const parseQueryParams = function parseQueryParams(search) {
   );
 };
 
-// TODO: Combine this with getApiUrl().
+// `api` requires a preceding forward slash
 export const createApiUrl = function createApiUrl(api, params) {
+  const apiUrl = getApiUrl(api);
   const query = createQueryParams(params);
-  return `/api/${api}${query}`;
+  return `${apiUrl}${query}`;
 };
 
 // bugs can be one bug or a comma separated (no spaces) string of bugs
