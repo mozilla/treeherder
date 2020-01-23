@@ -13,7 +13,7 @@ import {
 } from 'reactstrap';
 
 import { createDropdowns } from '../FilterControls';
-import InputFilter from '../InputFilter';
+import InputFilter from '../../shared/InputFilter';
 import { processResponse } from '../../helpers/http';
 import PerfSeriesModel from '../../models/perfSeries';
 import { thPerformanceBranches } from '../../helpers/constants';

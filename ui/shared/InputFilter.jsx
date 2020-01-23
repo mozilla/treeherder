@@ -3,7 +3,7 @@ import PropTypes from 'prop-types';
 import { InputGroup, Input } from 'reactstrap';
 import debounce from 'lodash/debounce';
 
-import { filterText } from './constants';
+import { filterText } from '../perfherder/constants';
 
 export default class InputFilter extends React.Component {
   // eslint-disable-next-line react/sort-comp
@@ -34,13 +34,13 @@ export default class InputFilter extends React.Component {
   };
 
   render() {
-    const { disabled } = this.props;
+    const { disabled, placeholder } = this.props;
     const { input } = this.state;
 
     return (
       <InputGroup>
         <Input
-          placeholder={filterText.inputPlaceholder}
+          placeholder={placeholder}
           onChange={this.updateInput}
           value={input}
           disabled={disabled}
@@ -54,8 +54,10 @@ export default class InputFilter extends React.Component {
 InputFilter.propTypes = {
   updateFilterText: PropTypes.func.isRequired,
   disabled: PropTypes.bool,
+  placeholder: PropTypes.string,
 };
 
 InputFilter.defaultProps = {
   disabled: false,
+  placeholder: filterText.inputPlaceholder,
 };

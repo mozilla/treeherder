@@ -89,6 +89,7 @@ class ClassificationGroup extends React.PureComponent {
       hasRetriggerAll,
       notify,
       currentRepo,
+      searchStr,
     } = this.props;
     const expandIcon = detailsShowing ? faMinusSquare : faPlusSquare;
     const expandTitle = detailsShowing
@@ -222,6 +223,7 @@ class ClassificationGroup extends React.PureComponent {
               orderedBy={orderedBy}
               currentRepo={currentRepo}
               notify={notify}
+              searchStr={searchStr}
             />
           </div>
         </Collapse>
