@@ -51,6 +51,10 @@ matrix:
         - docker-compose run -e SITE_URL=https://treeherder.dev -e TREEHERDER_DEBUG=False backend python -bb ./manage.py check --deploy --fail-level WARNING
         # Using `-bb` mode to surface BytesWarnings: https://docs.python.org/3.7/using/cmdline.html#cmdoption-b
         - docker-compose run backend python -bb -m pytest tests/ --runslow --ignore=tests/selenium/
+        - docker-compose run backend bash
+        - pytest tests/ --runslow --ignore=tests/selenium/
+        - pytest --cov=./ --cov-report=xml
+        - codecov         
      
     - env: python-tests-selenium
       language: node_js
