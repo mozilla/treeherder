@@ -13,11 +13,11 @@ export const hgBaseUrl = 'https://hg.mozilla.org/';
 
 export const dxrBaseUrl = 'https://dxr.mozilla.org/';
 
-export const bugsEndpoint = 'failures/';
+export const bugsEndpoint = '/failures/';
 
-export const bugDetailsEndpoint = 'failuresbybug/';
+export const bugDetailsEndpoint = '/failuresbybug/';
 
-export const graphsEndpoint = 'failurecount/';
+export const graphsEndpoint = '/failurecount/';
 
 export const deployedRevisionUrl = '/revision.txt';
 
@@ -118,6 +118,7 @@ export const parseQueryParams = function parseQueryParams(search) {
   );
 };
 
+// `api` requires a preceding forward slash
 export const createApiUrl = function createApiUrl(api, params) {
   const apiUrl = getApiUrl(api);
   const query = createQueryParams(params);
