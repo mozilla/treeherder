@@ -10,7 +10,7 @@ export default class Assignee extends React.Component {
     this.state = {
       assigneeUsername,
       inEditMode: false,
-      newAssigneeUsername: "",
+      newAssigneeUsername: '',
     };
   }
 
@@ -89,16 +89,14 @@ export default class Assignee extends React.Component {
   };
 
   render() {
-    
     const { user } = this.props;
     const { assigneeUsername, inEditMode } = this.state;
     let newAssigneeUsername;
     if (!this.state.newAssigneeUsername) {
-      newAssigneeUsername = ""
+      newAssigneeUsername = '';
   } else {
-      newAssigneeUsername = this.state.newAssigneeUsername
+      newAssigneeUsername = this.state.newAssigneeUsername;
   }
-
     const { nickname, placeholder } = this.extractNicknameAndPlaceholder(
       assigneeUsername,
     );
@@ -148,5 +146,5 @@ Assignee.propTypes = {
 };
 
 Assignee.defaultProps = {
-  assigneeUsername: "",
+  assigneeUsername: '',
 };
