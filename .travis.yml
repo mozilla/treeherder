@@ -44,6 +44,13 @@ matrix:
       language: minimal
       install:
         - docker-compose build
+        - pip3 install --user codecov 
+        - pip3 install --user pytest-cov 
+        - #pip install pytest-xdist --user
+        - pip3 install kombu --user
+        - pip3 install requests --user
+        - pip3 install responses --user
+        - #pip install --user codecov && codecov -t "995256be-3a1f-4d10-b181-e24f88603b6b"
       script:
         # Several security features in settings.py (eg setting HSTS headers) are conditional on
         # 'https://' being in the site URL. In addition, we override the test environment's debug
@@ -51,6 +58,13 @@ matrix:
         - docker-compose run -e SITE_URL=https://treeherder.dev -e TREEHERDER_DEBUG=False backend python -bb ./manage.py check --deploy --fail-level WARNING
         # Using `-bb` mode to surface BytesWarnings: https://docs.python.org/3.7/using/cmdline.html#cmdoption-b
         - docker-compose run backend python -bb -m pytest tests/ --runslow --ignore=tests/selenium/
+        - pytest --cov=./ --cov-report=xml
+        - #codecov
+        - #coverage run test.py
+
+      after_success:
+        -codecov
+
 
     - env: python-tests-selenium
       language: node_js
@@ -74,3 +88,4 @@ notifications:
   email:
     on_success: never
     on_failure: always
+   
