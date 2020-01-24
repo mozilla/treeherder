@@ -58,9 +58,19 @@ export default class AuthService {
         return this.resetRenewalTimer();
       }
     } catch (err) {
+      // instance where a new scope was added and is now required in order to be logged in
+      if (err.error === 'consent_required') {
+        this.logout();
+      }
+
+      // if the renewal fails, only log out the user if the access token has expired
+      const userSession = JSON.parse(localStorage.getItem('userSession'));
+      if (new Date(userSession.accessTokenExpiresAt * 1000) < new Date()) {
+        this.logout();
+      }
+
       /* eslint-disable no-console */
       console.error('Could not renew login:', err);
-      this.logout();
     }
   }
 
