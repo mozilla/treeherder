@@ -243,6 +243,7 @@ class KeyboardShortcuts extends React.Component {
         keyMap={keyMap}
         focused
         tabIndex={-1}
+        data-testid="hot-keys-id"
       >
         {this.props.children}
       </HotKeys>
