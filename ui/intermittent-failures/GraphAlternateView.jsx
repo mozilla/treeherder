@@ -1,32 +1,31 @@
-/* eslint-disable array-callback-return */
-
 import React from 'react';
 import ReactTable from 'react-table';
+import PropTypes from 'prop-types';
 
 const GraphAlternateView = ({ graphData, colNum }) => {
   const columnsOne = [
     {
       Header: 'Date',
-      accessor: 'x',
+      accessor: 'date',
     },
     {
       Header: 'Failure Count per Push',
-      accessor: 'y',
+      accessor: 'failurePerPush',
     },
   ];
 
   const columnsTwo = [
     {
       Header: 'Date',
-      accessor: 'x',
+      accessor: 'date',
     },
     {
       Header: 'Failure Count',
-      accessor: 'y',
+      accessor: 'failureCount',
     },
     {
       Header: 'Push Count',
-      accessor: 'z',
+      accessor: 'pushCount',
     },
   ];
 
@@ -35,38 +34,30 @@ const GraphAlternateView = ({ graphData, colNum }) => {
     data: [],
   };
 
-  const convertDateToString = date =>
-    date.toLocaleDateString('en-US', {
-      day: 'numeric',
-      month: 'short',
-    });
-
-  graphData.map((item, index) => {
+  graphData.forEach(item => {
     if (colNum === 1) {
-      item.data.map(itemOne => {
-        alternateGraph.column = columnsOne;
+      alternateGraph.column = columnsOne;
 
-        const dataPoint = {};
+      item.data.forEach(itemOne => {
+        const { date, failurePerPush } = itemOne;
 
-        dataPoint.x = convertDateToString(itemOne.x);
-        dataPoint.y = itemOne.y.toFixed(2);
-
-        alternateGraph.data.push(dataPoint);
+        alternateGraph.data.push({
+          date,
+          failurePerPush,
+        });
       });
     } else {
       alternateGraph.column = columnsTwo;
 
-      item.data.map((itemTwo, indexTwo) => {
-        const dataPoint = {};
+      item.data.forEach((itemTwo, indexTwo) => {
+        const { date, failureCount, pushCount } = itemTwo;
 
-        if (index > 0) {
-          alternateGraph.data[indexTwo].z = itemTwo.y;
-        } else {
-          dataPoint.x = convertDateToString(itemTwo.x);
-          dataPoint.y = itemTwo.y;
-
-          alternateGraph.data.push(dataPoint);
-        }
+        alternateGraph.data[indexTwo] = {
+          date,
+          ...alternateGraph.data[indexTwo],
+          ...(failureCount && { failureCount }),
+          ...(pushCount && { pushCount }),
+        };
       });
     }
   });
@@ -85,3 +76,11 @@ const GraphAlternateView = ({ graphData, colNum }) => {
 };
 
 export default GraphAlternateView;
+
+GraphAlternateView.propTypes = {
+  colNum: PropTypes.number,
+};
+
+GraphAlternateView.defaultProps = {
+  colNum: 1,
+};
