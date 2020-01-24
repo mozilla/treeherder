@@ -23,7 +23,7 @@ class Login extends React.Component {
   constructor(props) {
     super(props);
 
-    this.authService = new AuthService();
+    this.authService = new AuthService(this.props.setUser);
   }
 
   componentDidMount() {

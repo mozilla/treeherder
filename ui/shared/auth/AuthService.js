@@ -7,8 +7,9 @@ import { getApiUrl } from '../../helpers/url';
 import UserModel from '../../models/user';
 
 export default class AuthService {
-  constructor() {
+  constructor(setUser) {
     this.renewalTimer = null;
+    this.setUser = setUser;
   }
 
   _fetchUser(userSession) {
@@ -57,12 +58,9 @@ export default class AuthService {
         return this.resetRenewalTimer();
       }
     } catch (err) {
-      // instance where a new scope was added and is now required in order to be logged in
-      if (err.error === 'consent_required') {
-        this.logout();
-      }
       /* eslint-disable no-console */
       console.error('Could not renew login:', err);
+      this.logout();
     }
   }
 
@@ -91,6 +89,8 @@ export default class AuthService {
   logout() {
     localStorage.removeItem('userSession');
     localStorage.setItem('user', JSON.stringify(loggedOutUser));
+
+    if (this.setUser) this.setUser(loggedOutUser);
   }
 
   async saveCredentialsFromAuthResult(authResult) {
