@@ -253,6 +253,47 @@ class AlertsView extends React.Component {
               make changes
             </Alert>
           )}
+          {pageNums.length > 1 && (
+            <Row className="justify-content-center pb-5">
+              {/* The first and last pagination navigation links
+              aren't working correctly (icons aren't visible)
+              so they haven't been added */}
+              <Pagination aria-label={`Page ${page}`}>
+                {page > 1 && (
+                  <PaginationItem>
+                    <PaginationLink
+                      className="text-info"
+                      previous
+                      onClick={() => this.navigatePage(page - 1)}
+                    />
+                  </PaginationItem>
+                )}
+                {pageNums.map(num => (
+                  <PaginationItem
+                    key={num}
+                    active={num === page}
+                    className="text-info pagination-active"
+                  >
+                    <PaginationLink
+                      className="text-info"
+                      onClick={() => this.navigatePage(num)}
+                    >
+                      {num}
+                    </PaginationLink>
+                  </PaginationItem>
+                ))}
+                {page < count && (
+                  <PaginationItem>
+                    <PaginationLink
+                      className="text-info"
+                      next
+                      onClick={() => this.navigatePage(page + 1)}
+                    />
+                  </PaginationItem>
+                )}
+              </Pagination>
+            </Row>
+          )}
           <AlertsViewControls
             dropdownOptions={id ? [] : alertDropdowns}
             alertSummaries={alertSummaries}
