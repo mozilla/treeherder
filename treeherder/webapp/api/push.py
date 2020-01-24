@@ -218,12 +218,15 @@ class PushViewSet(viewsets.ViewSet):
         push_health_test_failures = get_test_failures(push, REPO_GROUPS['trunk'])
         push_health_lint_failures = get_lint_failures(push)
         push_health_build_failures = get_build_failures(push)
+        push_health_perf_failures = get_perf_failures(push)
 
         return Response({
             'needInvestigation':
                 len(push_health_test_failures['needInvestigation']) +
                 len(push_health_build_failures) +
-                len(push_health_lint_failures)
+                len(push_health_lint_failures) +
+                len(push_health_perf_failures),
+            'unsupported': len(push_health_test_failures['unsupported']),
         })
 
     @action(detail=False)
@@ -254,10 +257,17 @@ class PushViewSet(viewsets.ViewSet):
         perf_failures = get_perf_failures(push)
         perf_result = 'fail' if len(perf_failures) else 'pass'
 
+        push_result = 'pass'
+        for metric_result in [test_result, lint_result, build_result, perf_result]:
+            if metric_result == 'indeterminate' and push_result != 'fail':
+                push_result = metric_result
+            elif metric_result == 'fail':
+                push_result = metric_result
+
         return Response({
             'revision': revision,
             'id': push.id,
-            'result': 'pass' if all(metric == 'pass' for metric in [test_result, lint_result, build_result]) else 'fail',
+            'result': push_result,
             'metrics': {
                 'linting': {
                     'name': 'Linting',
