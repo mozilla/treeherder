@@ -1,14 +1,7 @@
 /* eslint-disable react/no-did-update-set-state */
 import React from 'react';
 import PropTypes from 'prop-types';
-import {
-  Alert,
-  Container,
-  Row,
-  Pagination,
-  PaginationItem,
-  PaginationLink,
-} from 'reactstrap';
+import { Alert, Container } from 'reactstrap';
 
 import withValidation from '../Validation';
 import { convertParams, getFrameworkData, getStatus } from '../helpers';
@@ -28,6 +21,7 @@ import {
 import ErrorBoundary from '../../shared/ErrorBoundary';
 import LoadingSpinner from '../../shared/LoadingSpinner';
 
+import Paging from './Pagination';
 import AlertsViewControls from './AlertsViewControls';
 
 class AlertsView extends React.Component {
@@ -208,8 +202,6 @@ class AlertsView extends React.Component {
       alertSummaries,
       issueTrackers,
       optionCollectionMap,
-      page,
-      count,
       bugTemplate,
       id,
     } = this.state;
@@ -253,47 +245,7 @@ class AlertsView extends React.Component {
               make changes
             </Alert>
           )}
-          {pageNums.length > 1 && (
-            <Row className="justify-content-center pb-5">
-              {/* The first and last pagination navigation links
-              aren't working correctly (icons aren't visible)
-              so they haven't been added */}
-              <Pagination aria-label={`Page ${page}`}>
-                {page > 1 && (
-                  <PaginationItem>
-                    <PaginationLink
-                      className="text-info"
-                      previous
-                      onClick={() => this.navigatePage(page - 1)}
-                    />
-                  </PaginationItem>
-                )}
-                {pageNums.map(num => (
-                  <PaginationItem
-                    key={num}
-                    active={num === page}
-                    className="text-info pagination-active"
-                  >
-                    <PaginationLink
-                      className="text-info"
-                      onClick={() => this.navigatePage(num)}
-                    >
-                      {num}
-                    </PaginationLink>
-                  </PaginationItem>
-                ))}
-                {page < count && (
-                  <PaginationItem>
-                    <PaginationLink
-                      className="text-info"
-                      next
-                      onClick={() => this.navigatePage(page + 1)}
-                    />
-                  </PaginationItem>
-                )}
-              </Pagination>
-            </Row>
-          )}
+          <Paging pageNums={pageNums} validated={this.props.validated} />
           <AlertsViewControls
             dropdownOptions={id ? [] : alertDropdowns}
             alertSummaries={alertSummaries}
@@ -305,47 +257,7 @@ class AlertsView extends React.Component {
             user={user}
             {...this.props}
           />
-          {pageNums.length > 1 && (
-            <Row className="justify-content-center pb-5">
-              {/* The first and last pagination navigation links
-              aren't working correctly (icons aren't visible)
-              so they haven't been added */}
-              <Pagination aria-label={`Page ${page}`}>
-                {page > 1 && (
-                  <PaginationItem>
-                    <PaginationLink
-                      className="text-info"
-                      previous
-                      onClick={() => this.navigatePage(page - 1)}
-                    />
-                  </PaginationItem>
-                )}
-                {pageNums.map(num => (
-                  <PaginationItem
-                    key={num}
-                    active={num === page}
-                    className="text-info pagination-active"
-                  >
-                    <PaginationLink
-                      className="text-info"
-                      onClick={() => this.navigatePage(num)}
-                    >
-                      {num}
-                    </PaginationLink>
-                  </PaginationItem>
-                ))}
-                {page < count && (
-                  <PaginationItem>
-                    <PaginationLink
-                      className="text-info"
-                      next
-                      onClick={() => this.navigatePage(page + 1)}
-                    />
-                  </PaginationItem>
-                )}
-              </Pagination>
-            </Row>
-          )}
+          <Paging pageNums={pageNums} validated={this.props.validated} />
           {!loading && alertSummaries.length === 0 && (
             <p className="lead text-center">No alerts to show</p>
           )}
