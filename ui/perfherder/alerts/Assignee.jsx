@@ -94,9 +94,9 @@ export default class Assignee extends React.Component {
     let newAssigneeUsername;
     if (!this.state.newAssigneeUsername) {
       newAssigneeUsername = '';
-  } else {
+      `··`} else {
       newAssigneeUsername = this.state.newAssigneeUsername;
-  }
+    `··` }
     const { nickname, placeholder } = this.extractNicknameAndPlaceholder(
       assigneeUsername,
     );
