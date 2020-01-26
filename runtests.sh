@@ -28,3 +28,8 @@ SITE_URL="https://treeherder.dev" TREEHERDER_DEBUG="False" python -bb ./manage.p
 
 echo "Running Python tests"
 python -bb -m pytest tests/
+
+echo "Running Python tests for codecov"
+bash pytest tests/ 
+bash pytest --cov=./ --cov-report=xml
+bash codecov
