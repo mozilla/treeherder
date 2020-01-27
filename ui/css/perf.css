@@ -451,27 +451,27 @@ li.pagination-active.active > button {
 
 /* graph colors */
 .orange {
-  border-left-color: #ffba4a;
+  border-left-color: #ffb851;
 }
 
 .firered {
-  border-left-color: #c92b2a;
+  border-left-color: #c92d2f;
 }
 
 .cerulean {
-  border-left-color: #20bde0;
+  border-left-color: #16bcde;
 }
 
 .bluebell {
-  border-left-color: #9c9ccc;
+  border-left-color: #464876;
 }
 
 .gras {
-  border-left-color: #940a83;
+  border-left-color: #921181;
 }
 
 .darkpuce {
-  border-left-color: #4b2d45;
+  border-left-color: #4c3146;
 }
 
 @media only screen and (min-width: 1700px) {
