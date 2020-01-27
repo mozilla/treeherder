@@ -1,7 +1,7 @@
 # repos that SETA supports
 SETA_PROJECTS = [
-    'mozilla-inbound',
-    'autoland'
+    'autoland',
+    'try'
 ]
 
 # for taskcluster, only jobs that start with any of these names

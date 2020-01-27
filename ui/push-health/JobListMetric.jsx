@@ -6,11 +6,16 @@ import Job from './Job';
 
 export default class JobListMetric extends React.PureComponent {
   render() {
-    const { data, repo, revision } = this.props;
+    const { data, repo, revision, expanded, toggleExpanded } = this.props;
     const { name, result, details } = data;
 
     return (
-      <Metric name={name} result={result}>
+      <Metric
+        name={name}
+        result={result}
+        expanded={expanded}
+        toggleExpanded={toggleExpanded}
+      >
         <div>
           {details.length ? (
             details.map(job => (
@@ -36,4 +41,6 @@ JobListMetric.propTypes = {
   data: PropTypes.object.isRequired,
   repo: PropTypes.string.isRequired,
   revision: PropTypes.string.isRequired,
+  toggleExpanded: PropTypes.func.isRequired,
+  expanded: PropTypes.bool.isRequired,
 };

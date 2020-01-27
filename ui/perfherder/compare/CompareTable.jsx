@@ -4,13 +4,12 @@ import React from 'react';
 import { Button, Table } from 'reactstrap';
 import PropTypes from 'prop-types';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faHashtag, faRedo } from '@fortawesome/free-solid-svg-icons';
+import { faHashtag } from '@fortawesome/free-solid-svg-icons';
 
-import { getHashBasedId, retriggerJobs } from '../helpers';
-import { compareTableText } from '../constants';
+import { getHashBasedId } from '../helpers';
 import { hashFunction } from '../../helpers/utils';
-import JobModel from '../../models/job';
 
+import RetriggerButton from './RetriggerButton';
 import CompareTableRow from './CompareTableRow';
 
 export default class CompareTable extends React.PureComponent {
@@ -23,6 +22,7 @@ export default class CompareTable extends React.PureComponent {
       isBaseAggregate,
       onPermalinkClick,
       history,
+      onModalOpen,
     } = this.props;
 
     return (
@@ -71,15 +71,9 @@ export default class CompareTable extends React.PureComponent {
                 data.length &&
                 (data[0].newRetriggerableJobId || !isBaseAggregate) &&
                 user.isLoggedIn && (
-                  <Button
-                    className="retrigger-btn btn icon-green mr-1 py-0 px-1"
-                    title={compareTableText.retriggerButtonTitle}
-                    onClick={() => retriggerJobs(data[0], 5, this.props)}
-                  >
-                    <FontAwesomeIcon icon={faRedo} />
-                  </Button>
+                  <RetriggerButton onClick={() => onModalOpen(data[0])} />
                 )}
-              # Runs
+              Total Runs
             </th>
           </tr>
         </thead>
@@ -89,6 +83,7 @@ export default class CompareTable extends React.PureComponent {
               key={rowLevelResults.name}
               rowLevelResults={rowLevelResults}
               hashFunction={hashFunction}
+              onModalOpen={onModalOpen}
               {...this.props}
             />
           ))}
@@ -101,16 +96,13 @@ export default class CompareTable extends React.PureComponent {
 CompareTable.propTypes = {
   data: PropTypes.arrayOf(PropTypes.shape({})),
   testName: PropTypes.string.isRequired,
+  onModalOpen: PropTypes.func.isRequired,
   hashFunction: PropTypes.func,
   onPermalinkClick: PropTypes.func,
-  getJob: PropTypes.func,
-  retriggerJob: PropTypes.func,
 };
 
 CompareTable.defaultProps = {
   data: null,
   hashFunction,
   onPermalinkClick: undefined,
-  getJob: JobModel.get,
-  retriggerJob: JobModel.retrigger,
 };

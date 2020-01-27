@@ -420,6 +420,7 @@ def test_perf_signature(test_repository, test_perf_framework):
         option_collection=option_collection,
         suite='mysuite',
         test='mytest',
+        application='firefox',
         has_subtests=False,
         tags='warm pageload',
         extra_options='e10s opt',

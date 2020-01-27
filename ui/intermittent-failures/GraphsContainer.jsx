@@ -2,9 +2,7 @@ import React from 'react';
 import { Row, Button, Col } from 'reactstrap';
 import PropTypes from 'prop-types';
 
-import Graph from '../shared/Graph';
-
-import { graphOneSpecs, graphTwoSpecs } from './constants';
+import Graph from './Graph';
 
 export default class GraphsContainer extends React.Component {
   constructor(props) {
@@ -25,7 +23,7 @@ export default class GraphsContainer extends React.Component {
     return (
       <React.Fragment>
         <Row className="pt-5">
-          <Graph specs={graphOneSpecs} data={graphOneData} />
+          <Graph graphData={graphOneData} title="Failure Count per Push" />
         </Row>
         <Row>
           <Col xs="12" className="mx-auto pb-5">
@@ -41,7 +39,20 @@ export default class GraphsContainer extends React.Component {
         </Row>
         {showGraphTwo && (
           <Row className="pt-5">
-            <Graph specs={graphTwoSpecs} data={graphTwoData} />
+            <Graph
+              graphData={graphTwoData}
+              title="Failure Count vs Push Count"
+              legendData={[
+                {
+                  name: 'Failure Count',
+                  symbol: { fill: 'blue' },
+                },
+                {
+                  name: 'Push Count',
+                  symbol: { fill: 'green' },
+                },
+              ]}
+            />
           </Row>
         )}
       </React.Fragment>

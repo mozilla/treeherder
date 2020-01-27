@@ -11,8 +11,7 @@ import {
 
 import SimpleTooltip from '../shared/SimpleTooltip';
 import DropdownMenuItems from '../shared/DropdownMenuItems';
-
-import InputFilter from './InputFilter';
+import InputFilter from '../shared/InputFilter';
 
 export const createDropdowns = (dropdownOptions, colClass, outline = false) => (
   <React.Fragment>

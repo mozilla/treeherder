@@ -100,6 +100,10 @@ describe('PushList', () => {
       getApiUrl('/jobs/?push_id=511137', repoName),
       jobListFixtureTwo,
     );
+    fetchMock.get(
+      'begin:https://firefox-ci-tc.services.mozilla.com/api/index/v1/task/gecko.v2',
+      404,
+    );
   });
 
   afterAll(() => {

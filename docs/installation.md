@@ -69,6 +69,8 @@ Both Django's runserver and webpack-dev-server will automatically refresh every 
 
 ### Running the migrations
 
+NOTE: The Django migrations and SETA initialization is automatically applied with the Docker developer instance
+
 To run the Django migrations:
 
 ```bash
@@ -114,6 +116,16 @@ Alternatively, you can `export` that value in your terminal prior to executing
 
 ```bash
 DATABASE_URL=mysql://user:password@hostname/treeherder docker-compose up
+```
+
+### Deleting the MySql database
+
+The MySql database is kept locally and is not destroyed when the Docker containers are destroyed.
+If you want to start from scratch type the following commands:
+
+```bash
+docker-compose down
+docker volume rm treeherder_mysql_data
 ```
 
 ### Running the ingestion tasks

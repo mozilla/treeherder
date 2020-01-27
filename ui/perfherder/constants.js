@@ -3,10 +3,11 @@ export const tValueConfidence = 5; // Anything above this is "high" in confidenc
 
 // Backend server endpoints
 export const endpoints = {
-  issueTrackers: '/performance/issue-tracker/',
-  frameworks: '/performance/framework/',
-  alertSummary: '/performance/alertsummary/',
   alert: '/performance/alert/',
+  alertSummary: '/performance/alertsummary/',
+  frameworks: '/performance/framework/',
+  issueTrackers: '/performance/issue-tracker/',
+  summary: '/performance/summary/',
 };
 
 export const noiseMetricTitle = 'noise metric';
@@ -32,11 +33,11 @@ export const selectorCardText = {
 };
 
 export const compareTableText = {
-  retriggerButtonTitle: 'Retrigger 5 times',
+  retriggerButtonTitle: 'Retrigger jobs',
 };
 
 export const noResultsMessage = 'No results to show';
-export const noDataFoundMessage = 'No Data Found';
+export const noDataFoundMessage = title => `No Data Found for ${title}`;
 
 export const summaryStatusMap = {
   all: -1,

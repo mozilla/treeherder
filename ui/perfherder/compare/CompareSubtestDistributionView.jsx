@@ -4,11 +4,8 @@ import { Container, Row } from 'reactstrap';
 import RepositoryModel from '../../models/repository';
 import PushModel from '../../models/push';
 import { getData } from '../../helpers/http';
-import {
-  createApiUrl,
-  perfSummaryEndpoint,
-  parseQueryParams,
-} from '../../helpers/url';
+import { createApiUrl, parseQueryParams } from '../../helpers/url';
+import { endpoints } from '../constants';
 import LoadingSpinner from '../../shared/LoadingSpinner';
 
 import RevisionInformation from './RevisionInformation';
@@ -118,7 +115,7 @@ export default class CompareSubtestDistributionView extends React.Component {
     originalSubtestSignature,
   ) => {
     const seriesData = await getData(
-      createApiUrl(perfSummaryEndpoint, {
+      createApiUrl(endpoints.summary, {
         repository: originalProjectName,
         revision: originalRevision,
         signature: originalSubtestSignature,

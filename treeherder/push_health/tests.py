@@ -98,7 +98,7 @@ def get_current_test_failures(push, option_map):
         job_log__job__result='testfailed',
         job_log__job__tier__lte=2
     ).select_related(
-        'job_log__job__job_type', 'job_log__job__machine_platform'
+        'job_log__job__job_type', 'job_log__job__job_group', 'job_log__job__machine_platform'
     )
 
     # using a dict here to avoid duplicates due to multiple failure_lines for
@@ -114,9 +114,11 @@ def get_current_test_failures(push, option_map):
         platform = clean_platform(job.machine_platform.platform)
         job_name = job.job_type.name
         job_symbol = job.job_type.symbol
-        job.job_key = '{}{}{}'.format(config, platform, job_name)
+        job_group = job.job_group.name
+        job_group_symbol = job.job_group.symbol
+        job.job_key = '{}{}{}{}'.format(config, platform, job_name, job_group)
         all_failed_jobs[job.id] = job
-        test_key = re.sub(r'\W+', '', '{}{}{}{}'.format(test_name, config, platform, job_name))
+        test_key = re.sub(r'\W+', '', '{}{}{}{}{}'.format(test_name, config, platform, job_name, job_group))
 
         if test_key not in tests:
             line = {
@@ -124,6 +126,8 @@ def get_current_test_failures(push, option_map):
                 'action': failure_line.action.split('_')[0],
                 'jobName': job_name,
                 'jobSymbol': job_symbol,
+                'jobGroup': job_group,
+                'jobGroupSymbol': job_group_symbol,
                 'platform': platform,
                 'config': config,
                 'key': test_key,

@@ -67,6 +67,10 @@ describe('App', () => {
       results: [],
       meta: { repository: repoName, offset: 0, count: 2000 },
     });
+    fetchMock.get(
+      'begin:https://firefox-ci-tc.services.mozilla.com/api/index/v1/task/gecko.v2',
+      404,
+    );
 
     // Need to mock this function for the app switching tests.
     // Source: https://github.com/mui-org/material-ui/issues/15726#issuecomment-493124813

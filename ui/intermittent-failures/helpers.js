@@ -36,9 +36,9 @@ export const mergeData = function mergeDataFromTwoApis(data, bugs) {
 };
 
 export const calculateMetrics = function calculateMetricsForGraphs(data) {
-  const dateCounts = [];
-  const dateTestRunCounts = [];
-  const dateFreqs = [];
+  const dateCounts = { color: 'blue', data: [] };
+  const dateTestRunCounts = { color: 'green', data: [] };
+  const dateFreqs = { color: '#dd6602', data: [] };
   let totalFailures = 0;
   let totalRuns = 0;
 
@@ -46,17 +46,17 @@ export const calculateMetrics = function calculateMetricsForGraphs(data) {
     const failures = data[i].failure_count;
     const testRuns = data[i].test_runs;
     const freq = testRuns < 1 || failures < 1 ? 0 : failures / testRuns;
-    // metrics graphics only accepts JS Date objects
     const date = moment(data[i].date).toDate();
 
     totalFailures += failures;
     totalRuns += testRuns;
-    dateCounts.push({ date, value: failures });
-    dateTestRunCounts.push({ date, value: testRuns });
-    dateFreqs.push({ date, value: freq });
+    dateCounts.data.push({ x: date, y: failures });
+    dateTestRunCounts.data.push({ x: date, y: testRuns });
+    dateFreqs.data.push({ x: date, y: freq });
   }
+
   return {
-    graphOneData: dateFreqs,
+    graphOneData: [dateFreqs],
     graphTwoData: [dateCounts, dateTestRunCounts],
     totalFailures,
     totalRuns,
