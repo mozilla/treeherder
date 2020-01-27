@@ -163,15 +163,21 @@ class Push extends React.PureComponent {
 
   fetchTestManifests = async () => {
     const { currentRepo, push } = this.props;
-    const { jobList } = this.state;
 
     const jobTypeNameToManifests = await fetchTestManifests(
       currentRepo.name,
       push.revision,
     );
-    this.setState({ jobTypeNameToManifests });
-    // This adds to the jobs the test_path property
-    this.mapPushJobs(jobList);
+    // Call setState with callback to guarantee the state of jobTypeNameToManifest
+    // to be set since it is read within mapPushJobs and we might have a race
+    // condition. We are also reading jobList now rather than before fetching
+    // the artifact because it gives us an empty list
+    this.setState(
+      {
+        jobTypeNameToManifests,
+      },
+      () => this.mapPushJobs(this.state.jobList),
+    );
   };
 
   fetchJobs = async () => {
