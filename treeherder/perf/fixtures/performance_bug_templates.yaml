@@ -18,9 +18,10 @@
 
       On the page above you can see an alert for each affected platform as well as a link to a graph showing the history of scores for this test. There is also a link to a treeherder page showing the Talos jobs in a pushlog format.
 
-      To learn more about the regressing test(s), please see: https://wiki.mozilla.org/TestEngineering/Performance/Talos
-
-      For information on reproducing and debugging the regression, either on try or locally, see: https://wiki.mozilla.org/TestEngineering/Performance/Talos/Running
+      To learn more about:
+          1. sheriffs' context, please see: https://wiki.mozilla.org/TestEngineering/Performance/Sheriffing/Workflow#Context
+          2. talos test(s), please see: https://wiki.mozilla.org/TestEngineering/Performance/Talos
+          3. reproducing and debugging the regression, either on try or locally, see: https://wiki.mozilla.org/TestEngineering/Performance/Talos/Running
 
       *** Please let us know your plans within 3 business days, or the offending patch(es) will be backed out! ***
 
@@ -46,7 +47,9 @@
 
       On the page above you can see an alert for each affected platform as well as a link to a graph showing the history of scores for this test. There is also a link to a treeherder page showing the jobs in a pushlog format.
 
-      To learn more about the regressing test(s), please see: https://developer.mozilla.org/en-US/docs/Mozilla/Performance/Automated_Performance_Testing_and_Sheriffing/Build_Metrics
+      To learn more about:
+          1. sheriffs' context, please see: https://wiki.mozilla.org/TestEngineering/Performance/Sheriffing/Workflow#Context
+          2. build metrics test(s), please see: https://developer.mozilla.org/en-US/docs/Mozilla/Performance/Automated_Performance_Testing_and_Sheriffing/Build_Metrics
 
       *** Please let us know your plans within 3 business days, or the offending patch(es) will be backed out! ***
 - model: perf.PerformanceBugTemplate
@@ -70,7 +73,9 @@
 
       On the page above you can see an alert for each affected platform as well as a link to a graph showing the history of scores for this test. There is also a link to a treeherder page showing the jobs in a pushlog format.
 
-      To learn more about the regressing test(s), please see: https://wiki.mozilla.org/AWSY/Tests
+      To learn more about:
+          1. sheriffs' context, please see: https://wiki.mozilla.org/TestEngineering/Performance/Sheriffing/Workflow#Context
+          2. AWSY test(s), please see: https://wiki.mozilla.org/AWSY/Tests
 - model: perf.PerformanceBugTemplate
   pk: 5
   fields:
@@ -112,7 +117,9 @@
 
       On the page above you can see an alert for each affected platform as well as a link to a graph showing the history of scores for this test. There is also a link to a treeherder page showing the jobs in a pushlog format.
 
-      To learn more about the regressing test(s), please see: https://developer.mozilla.org/en-US/docs/Mozilla/Performance/Automated_Performance_Testing_and_Sheriffing/Platform_Microbenchmarks
+      To learn more about:
+          1. sheriffs' context, please see: https://wiki.mozilla.org/TestEngineering/Performance/Sheriffing/Workflow#Context
+          2. Benchmark test(s), please see: https://developer.mozilla.org/en-US/docs/Mozilla/Performance/Automated_Performance_Testing_and_Sheriffing/Platform_Microbenchmarks
 - model: perf.PerformanceBugTemplate
   pk: 7
   fields:
@@ -133,7 +140,9 @@
 
       On the page above you can see an alert for each affected platform as well as a link to a graph showing the history of scores for this test. There is also a link to a Treeherder page showing the Raptor jobs in a pushlog format.
 
-      To learn more about the regressing test(s) or reproducing them, please see: https://wiki.mozilla.org/TestEngineering/Performance/Raptor
+      To learn more about:
+          1. sheriffs' context, please see: https://wiki.mozilla.org/TestEngineering/Performance/Sheriffing/Workflow#Context
+          2. the raptor regressing test(s) or reproducing them, please see: https://wiki.mozilla.org/TestEngineering/Performance/Raptor
 
       *** Please let us know your plans within 3 business days, or the offending patch(es) will be backed out! ***
 
