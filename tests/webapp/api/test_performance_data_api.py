@@ -65,6 +65,7 @@ def test_no_summary_performance_data(client, test_perf_signature,
         test_perf_signature.signature_hash: {
             'id': test_perf_signature.id,
             'test': test_perf_signature.test,
+            'application': test_perf_signature.application,
             'suite': test_perf_signature.suite,
             'tags': test_perf_signature.tags.split(' '),
             'option_collection_hash': test_perf_signature.option_collection.option_collection_hash,
@@ -169,6 +170,8 @@ def test_summary_performance_data(client, test_repository,
             expected['extra_options'] = signature.extra_options.split(' ')
         if signature.measurement_unit:
             expected['measurement_unit'] = signature.measurement_unit
+        if signature.application:
+            expected['application'] = signature.application
         assert resp.data[signature.signature_hash] == expected
 
 
@@ -397,6 +400,7 @@ def test_perf_summary(client, test_perf_signature, test_perf_data):
         'signature_hash': test_perf_signature.signature_hash,
         'platform': test_perf_signature.platform.platform,
         'test': test_perf_signature.test,
+        'application': test_perf_signature.application,
         'lower_is_better': test_perf_signature.lower_is_better,
         'has_subtests': test_perf_signature.has_subtests,
         'tags': test_perf_signature.tags,

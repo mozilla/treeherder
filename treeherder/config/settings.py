@@ -22,7 +22,7 @@ env = environ.Env()
 DEBUG = env.bool("TREEHERDER_DEBUG", default=False)
 
 # Papertrail logs WARNING messages. This env variable allows modifying the behaviour
-LOGGING_LEVEL = 'DEBUG' if DEBUG else env.bool("LOGGING_LEVEL", default='WARNING')
+LOGGING_LEVEL = env.bool("LOGGING_LEVEL", default='DEBUG' if DEBUG else 'WARNING')
 
 GRAPHQL = env.bool("GRAPHQL", default=True)
 
@@ -47,6 +47,11 @@ WSGI_APPLICATION = 'treeherder.config.wsgi.application'
 
 # Send full URL within origin but only origin for cross-origin requests
 SECURE_REFERRER_POLICY = "origin-when-cross-origin"
+
+# We can't set X_FRAME_OPTIONS to DENY since renewal of an Auth0 token
+# requires opening the auth handler page in an invisible iframe with the
+# same origin.
+X_FRAME_OPTIONS = 'SAMEORIGIN'
 
 # Application definition
 INSTALLED_APPS = [
@@ -255,10 +260,6 @@ SILENCED_SYSTEM_CHECKS = [
     # We can't set CSRF_COOKIE_HTTPONLY to True since the requests to the API
     # made using Angular's `httpProvider` require access to the cookie.
     'security.W017',
-    # We can't set X_FRAME_OPTIONS to DENY since renewal of an Auth0 token
-    # requires opening the auth handler page in an invisible iframe with the
-    # same origin.  This is the default setting ('SAMEORIGIN') for Django's
-    # X_FRAME_OPTIONS setting so it isn't set in this file.
     'security.W019'
 ]
 

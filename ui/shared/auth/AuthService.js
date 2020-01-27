@@ -7,8 +7,9 @@ import { getApiUrl } from '../../helpers/url';
 import UserModel from '../../models/user';
 
 export default class AuthService {
-  constructor() {
+  constructor(setUser) {
     this.renewalTimer = null;
+    this.setUser = setUser;
   }
 
   _fetchUser(userSession) {
@@ -61,6 +62,13 @@ export default class AuthService {
       if (err.error === 'consent_required') {
         this.logout();
       }
+
+      // if the renewal fails, only log out the user if the access token has expired
+      const userSession = JSON.parse(localStorage.getItem('userSession'));
+      if (new Date(userSession.accessTokenExpiresAt * 1000) < new Date()) {
+        this.logout();
+      }
+
       /* eslint-disable no-console */
       console.error('Could not renew login:', err);
     }
@@ -91,6 +99,8 @@ export default class AuthService {
   logout() {
     localStorage.removeItem('userSession');
     localStorage.setItem('user', JSON.stringify(loggedOutUser));
+
+    if (this.setUser) this.setUser(loggedOutUser);
   }
 
   async saveCredentialsFromAuthResult(authResult) {

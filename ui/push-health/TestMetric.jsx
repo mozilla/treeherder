@@ -16,6 +16,7 @@ export default class TestMetric extends React.PureComponent {
       currentRepo,
       expanded,
       toggleExpanded,
+      searchStr,
     } = this.props;
     const { name, result, details } = data;
     const { needInvestigation, intermittent, unsupported } = details;
@@ -40,6 +41,7 @@ export default class TestMetric extends React.PureComponent {
             user={user}
             hasRetriggerAll
             notify={notify}
+            searchStr={searchStr}
           />
           <ClassificationGroup
             group={intermittent}
@@ -52,6 +54,7 @@ export default class TestMetric extends React.PureComponent {
             expanded={false}
             user={user}
             notify={notify}
+            searchStr={searchStr}
           />
           <UnsupportedGroup
             group={unsupported}
@@ -76,4 +79,5 @@ TestMetric.propTypes = {
   notify: PropTypes.func.isRequired,
   toggleExpanded: PropTypes.func.isRequired,
   expanded: PropTypes.bool.isRequired,
+  searchStr: PropTypes.string.isRequired,
 };

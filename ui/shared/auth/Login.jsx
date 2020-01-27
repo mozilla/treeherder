@@ -1,6 +1,12 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import { Button } from 'reactstrap';
+import {
+  Button,
+  DropdownMenu,
+  DropdownItem,
+  DropdownToggle,
+  UncontrolledDropdown,
+} from 'reactstrap';
 import isEqual from 'lodash/isEqual';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faUser } from '@fortawesome/free-solid-svg-icons';
@@ -17,7 +23,7 @@ class Login extends React.Component {
   constructor(props) {
     super(props);
 
-    this.authService = new AuthService();
+    this.authService = new AuthService(this.props.setUser);
   }
 
   componentDidMount() {
@@ -99,45 +105,30 @@ class Login extends React.Component {
 
     return (
       <React.Fragment>
-        {user.isLoggedIn && (
-          <span className="dropdown">
-            <Button
-              id="logoutLabel"
-              title={`Logged in as: ${user.email}`}
-              data-toggle="dropdown"
-              className="btn btn-view-nav"
+        {user && user.isLoggedIn ? (
+          <UncontrolledDropdown>
+            <DropdownToggle
+              color="transparent"
+              className="navbar-link nav-menu-btn"
+              nav
+              caret
             >
-              <div className="dropdown-toggle">
-                <span className="nav-user-icon mr-1 rounded">
-                  <FontAwesomeIcon icon={faUser} size="xs" title="User" />
-                </span>
-                <span>{user.fullName}</span>
-              </div>
-            </Button>
-            <ul
-              className="dropdown-menu nav-dropdown-menu-right"
-              role="menu"
-              aria-labelledby="logoutLabel"
-            >
-              <li>
-                <Button
-                  onClick={this.logout}
-                  className="dropdown-item"
-                  type="submit"
-                >
-                  Logout
-                </Button>
-              </li>
-            </ul>
-          </span>
-        )}
-        {!user.isLoggedIn && (
-          <Button
-            className="btn btn-view-nav nav-menu-btn"
-            onClick={this.login}
-            type="submit"
-          >
-            {' '}
+              <span
+                className="bg-info px-1 mr-1 rounded text-light"
+                aria-label={`Logged in as: ${user.email}`}
+              >
+                <FontAwesomeIcon icon={faUser} size="xs" />
+              </span>
+              <span>{user.fullName}</span>
+            </DropdownToggle>
+            <DropdownMenu right>
+              <DropdownItem tag="a" onClick={this.logout}>
+                Logout
+              </DropdownItem>
+            </DropdownMenu>
+          </UncontrolledDropdown>
+        ) : (
+          <Button onClick={this.login} className="btn-view-nav nav-menu-btn">
             Login / Register
           </Button>
         )}
