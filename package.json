@@ -68,7 +68,7 @@
   "devDependencies": {
     "@neutrinojs/eslint": "9.0.0",
     "@neutrinojs/jest": "9.0.0",
-    "@testing-library/jest-dom": "5.0.0",
+    "@testing-library/jest-dom": "5.0.2",
     "@testing-library/react": "9.3.3",
     "codecov": "3.6.1",
     "enzyme": "3.9.0",
