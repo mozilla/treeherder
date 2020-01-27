@@ -2,7 +2,7 @@ import React from 'react';
 import ReactTable from 'react-table';
 import PropTypes from 'prop-types';
 
-const GraphAlternateView = ({ graphData, colNum }) => {
+const GraphAlternateView = ({ className, graphData, colNum, title }) => {
   const columnsOne = [
     {
       Header: 'Date',
@@ -63,15 +63,18 @@ const GraphAlternateView = ({ graphData, colNum }) => {
   });
 
   return (
-    <ReactTable
-      data={alternateGraph.data}
-      showPageSizeOptions
-      columns={alternateGraph.column}
-      className="-striped mb-5 alternate-table"
-      getTableProps={() => ({ role: 'table' })}
-      showPaginationTop
-      defaultPageSize={10}
-    />
+    <div className="alternate-table mb-3">
+      <h3>{title}</h3>
+      <ReactTable
+        data={alternateGraph.data}
+        showPageSizeOptions
+        columns={alternateGraph.column}
+        className={`${className} -striped mb-5`}
+        getTableProps={() => ({ role: 'table' })}
+        showPaginationTop
+        defaultPageSize={10}
+      />
+    </div>
   );
 };
 

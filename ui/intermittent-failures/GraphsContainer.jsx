@@ -32,7 +32,11 @@ export default class GraphsContainer extends React.Component {
       <React.Fragment>
         <Row className="pt-5">
           {showAlternateView ? (
-            <GraphAlternateView graphData={graphOneData} />
+            <GraphAlternateView
+              graphData={graphOneData}
+              className="failure-per-count"
+              title="Failure Count Per Push"
+            />
           ) : (
             <Graph graphData={graphOneData} title="Failure Count per Push" />
           )}
@@ -73,7 +77,12 @@ export default class GraphsContainer extends React.Component {
           </Row>
         )}
         {showGraphTwo && showAlternateView && (
-          <GraphAlternateView graphData={graphTwoData} colNum={2} />
+          <GraphAlternateView
+            graphData={graphTwoData}
+            className="failure-and-count"
+            colNum={2}
+            title="Failure Count vs Push Count"
+          />
         )}
       </React.Fragment>
     );
