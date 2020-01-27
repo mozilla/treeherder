@@ -57,9 +57,7 @@ class PushHealthStatus extends Component {
     const { repoName, revision } = this.props;
     const { healthStatus, needInvestigation } = this.state;
     const color = needInvestigation ? 'danger' : 'success';
-    const extraTitle = needInvestigation
-      ? 'Count of tests that need investigation'
-      : 'Push looks good';
+    const extraTitle = needInvestigation ? 'Needs investigation' : 'Looks good';
 
     return (
       <a
@@ -69,7 +67,7 @@ class PushHealthStatus extends Component {
       >
         <Badge
           color={color}
-          title={`Push Health status for Tests only - click for details: ${extraTitle}`}
+          title={`Push Health status - click for details: ${extraTitle}`}
         >
           {healthStatus}
         </Badge>

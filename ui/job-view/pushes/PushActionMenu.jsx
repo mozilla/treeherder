@@ -268,8 +268,9 @@ class PushActionMenu extends React.PureComponent {
               href={getPushHealthUrl({ repo: currentRepo.name, revision })}
               target="_blank"
               rel="noopener noreferrer"
+              title="Enable Health Badges in the Health menu"
             >
-              Prototype: Push Health
+              Push Health
             </a>
           </li>
         </ul>
