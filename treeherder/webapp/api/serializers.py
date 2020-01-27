@@ -8,21 +8,6 @@ from treeherder.model import models
 from treeherder.webapp.api.utils import (REPO_GROUPS,
                                          to_timestamp)
 
-
-class NoOpSerializer(serializers.Serializer):
-    """
-    This serializer is necessary because we are using JSONField.
-    The json renderers/parsers already take care of the serialization/deserialization of the objects
-    to/from json, so we need a field serializer for those fields that just return the input.
-    """
-
-    def to_internal_value(self, data):
-        return data
-
-    def to_representation(self, value):
-        return value
-
-
 class UserSerializer(serializers.ModelSerializer):
 
     class Meta:
