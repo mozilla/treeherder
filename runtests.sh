@@ -27,4 +27,4 @@ echo "Running Django system checks"
 SITE_URL="https://treeherder.dev" TREEHERDER_DEBUG="False" python -bb ./manage.py check --deploy --fail-level WARNING
 
 echo "Running Python tests"
-python -bb -m pytest tests/
+python -m pytest tests/

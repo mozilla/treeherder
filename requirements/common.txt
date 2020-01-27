@@ -191,9 +191,8 @@ django-environ==0.4.5 \
     --hash=sha256:6c9d87660142608f63ec7d5ce5564c49b603ea8ff25da595fd6098f6dc82afde
 
 # Whilst we don't use six ourselves any more, it's still required by a number of dependencies.
-six==1.12.0 \
-    --hash=sha256:3350809f0555b11f552448330d0b52d5f24c91a322ea4a15ef22629740f3761c \
-    --hash=sha256:d16a0141ec1a18405cd4ce8b4613101da75da0e9a7aec5bdd4fa804d0e0eba73
+six==1.13.0 \
+    --hash=sha256:1f1b7d42e254082a9db6279deae68afb421ceba6158efa6131de7b3003ee93fd
 
 python-dateutil==2.8.0 \
     --hash=sha256:7e6584c74aeed623791615e26efd690f29817a27c73085b78e4bad02493df2fb \
@@ -381,3 +380,25 @@ pyrsistent==0.15.4 \
 
 django-cache-memoize==0.1.6 \
     --hash=sha256:d239e8c37734b0a70b74f94fa33b180b3b0c82c3784beb21209bb4ab64a3e6fb
+
+# Required for extraction to BigQuery
+pymysql==0.9.3 \
+    --hash=sha256:3943fbbbc1e902f41daf7f9165519f140c4451c179380677e6a848587042561a
+google-cloud-bigquery==1.23.1 \
+    --hash=sha256:7e4c54a5256d9b1fe17dd08fd964ad8d8c67007a1b2c782838c77fdb2d594ccc
+protobuf==3.11.2 \
+    --hash=sha256:a2e6f57114933882ec701807f217df2fb4588d47f71f227c0a163446b930d507
+google_resumable_media==0.5.0 \
+    --hash=sha256:b86140d5a0b6d290084b11bde90ee9aecad357ba0e0d67388d016b8340320927
+google_cloud_core==1.2.0 \
+    --hash=sha256:83712d41a89ab0f48769a0c2fad0e5eadf521df9bd22b83355efb79b28648027
+google_api_core==1.16.0 \
+    --hash=sha256:859f7392676761f2b160c6ee030c3422135ada4458f0948c5690a6a7c8d86294
+google_auth==1.10.1 \
+    --hash=sha256:053bd396de4a8e83bfd27d0606645735cf68cfe88ec166655efd823f2969a9ee
+googleapis-common-protos==1.51.0 \
+    --hash=sha256:013c91704279119150e44ef770086fdbba158c1f978a6402167d47d5409e226e
+cachetools==4.0.0 \
+    --hash=sha256:b304586d357c43221856be51d73387f93e2a961598a9b6b6670664746f3b6c6c
+pyasn1_modules==0.2.8 \
+    --hash=sha256:a50b808ffeb97cb3601dd25981f6b016cbb3d31fbf57a8b8a87428e6158d0c74
