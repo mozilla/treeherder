@@ -35,3 +35,4 @@ celerybeat-schedule
 
 # Ignore coverage results
 coverage
+coverage.xml 
