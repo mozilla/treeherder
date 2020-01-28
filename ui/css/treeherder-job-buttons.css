@@ -162,16 +162,16 @@
 
 /* Orange, testfailed */
 .btn-orange {
-  background-color: #eba870;
-  border-color: #dd6602;
+  background-color: #f7c194;
+  border-color: #a87f5c;
   color: #743603;
 }
 .btn-orange:hover,
 .btn-orange:focus,
 .btn-orange:active,
 .btn-orange.active {
-  background-color: #743603;
-  border-color: #743603;
+  background-color: #c15700;
+  border-color: #9f4a03;
   color: white;
 }
 .btn-orange.disabled:hover,
@@ -224,9 +224,9 @@ fieldset[disabled] .btn-orange-classified.active {
 
 /* Red, busted */
 .btn-red {
-  background-color: #b86262;
+  background-color: #b74c4c;
   border-color: #a1020e;
-  color: #280003;
+  color: white;
 }
 .btn-red:hover,
 .btn-red:focus,
@@ -526,15 +526,15 @@ fieldset[disabled] .btn-mdgray.active {
 .btn-dkgray-classified-count,
 .btn-dkgray-count:hover,
 .btn-dkgray-classified-count:hover {
-  color: #5e5e5e;
+  color: #333333;
 }
 .btn-dkgray:hover,
 .btn-dkgray-classified:hover,
 .btn-dkgray:focus,
 .btn-dkgray:active,
 .btn-dkgray.active {
-  background-color: #69616d;
-  border-color: #626163;
+  background-color: #333333;
+  border-color: #1c1c1c;
   color: white;
 }
 .btn-dkgray.disabled:hover,
