@@ -7,7 +7,8 @@ import { Badge, FormGroup, Input } from 'reactstrap';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faTimes } from '@fortawesome/free-solid-svg-icons';
 
-import { graphColors, legendCardText } from '../constants';
+import { getFrameworkName } from '../helpers';
+import { graphColors } from '../constants';
 import GraphIcon from '../../shared/GraphIcon';
 
 const LegendCard = ({
@@ -130,10 +131,6 @@ const LegendCard = ({
     }
   };
 
-  const getFrameworkName = frameworkId => {
-    const framework = frameworks.find(item => item.id === frameworkId);
-    return framework ? framework.name : legendCardText.unknownFrameworkMessage;
-  };
   const subtitleStyle = 'p-0 mb-0 border-0 text-secondary text-left';
   const symbolType = series.symbol || ['circle', 'outline'];
 
@@ -190,7 +187,7 @@ const LegendCard = ({
             {series.application}
           </p>
         )}
-        <Badge> {getFrameworkName(series.framework_id)} </Badge>
+        <Badge> {getFrameworkName(frameworks, series.framework_id)} </Badge>
         <div className="small">{`${series.signatureHash.slice(0, 16)}...`}</div>
       </div>
       <Input

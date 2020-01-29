@@ -8,17 +8,19 @@ import {
   Container,
   Row,
   Col,
+  Badge,
 } from 'reactstrap';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faExternalLinkAlt } from '@fortawesome/free-solid-svg-icons';
 import moment from 'moment';
 
-import { getTitle } from '../helpers';
+import { getTitle, getFrameworkName } from '../helpers';
 import { getJobsUrl } from '../../helpers/url';
 
 import Assignee from './Assignee';
 
 const AlertHeader = ({
+  frameworks,
   alertSummary,
   repoModel,
   issueTrackers,
@@ -45,6 +47,9 @@ const AlertHeader = ({
           data-testid={`alert summary ${alertSummary.id.toString()} title`}
         >
           <h3 className="font-weight-bold align-middle">
+            <Badge className="mr-2">
+              {getFrameworkName(frameworks, alertSummary.framework)}
+            </Badge>
             Alert #{alertSummary.id} - {alertSummary.repository} -{' '}
             {getTitle(alertSummary)}{' '}
             <FontAwesomeIcon

@@ -21,6 +21,7 @@ import {
   alertStatusMap,
   phFrameworksWithRelatedBranches,
   phTimeRanges,
+  unknownFrameworkMessage,
 } from './constants';
 
 export const formatNumber = input =>
@@ -548,6 +549,11 @@ export const getFrameworkData = props => {
     return frameworkObject;
   }
   return { id: 1, name: 'talos' };
+};
+
+export const getFrameworkName = (frameworks, frameworkId) => {
+  const framework = frameworks.find(item => item.id === frameworkId);
+  return framework ? framework.name : unknownFrameworkMessage;
 };
 
 export const getStatus = (statusNum, statusMap = summaryStatusMap) => {

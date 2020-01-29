@@ -13,6 +13,7 @@ import fetchMock from 'fetch-mock';
 
 import {
   backfillRetriggeredTitle,
+  unknownFrameworkMessage,
   endpoints,
   summaryStatusMap,
 } from '../../../ui/perfherder/constants';
@@ -43,6 +44,8 @@ const frameworks = [
   { id: 14, name: 'vcs' },
 ];
 
+const dummyFrameworkName = 'someTestFramework';
+const invalidFrameworkId = -1;
 const testAlertSummaries = [
   {
     id: 20174,
@@ -50,7 +53,7 @@ const testAlertSummaries = [
     prev_push_id: 477665,
     created: '2019-05-20T11:41:31.419156',
     repository: 'mozilla-inbound',
-    framework: 1,
+    framework: invalidFrameworkId,
     alerts: [
       {
         id: 69344,
@@ -127,7 +130,7 @@ const testAlertSummaries = [
     prev_push_id: 480864,
     created: '2019-05-24T10:51:16.976819',
     repository: 'mozilla-inbound',
-    framework: 2,
+    framework: 1,
     alerts: [
       {
         id: 69526,
@@ -293,6 +296,7 @@ const alertsViewControls = ({
         pathname: '/alerts',
         search: '',
       }}
+      frameworks={[{ id: 1, name: dummyFrameworkName }]}
       history={createMemoryHistory('/alerts')}
     />,
   );
@@ -305,9 +309,9 @@ beforeAll(() => {
 
   fetchMock.mock(
     `${getApiUrl(endpoints.alertSummary)}${createQueryParams({
-      framework: testAlertSummaries[0].framework,
+      framework: testAlertSummaries[1].framework,
       page: 1,
-      status: testAlertSummaries[0].status,
+      status: testAlertSummaries[1].status,
     })}`,
     {
       count: 2,
@@ -319,7 +323,7 @@ beforeAll(() => {
 
   fetchMock.mock(
     `${getApiUrl(endpoints.alertSummary)}${createQueryParams({
-      framework: testAlertSummaries[0].framework,
+      framework: testAlertSummaries[1].framework,
       page: 1,
     })}`,
     {
@@ -687,6 +691,25 @@ describe('"My alerts" checkbox\'s display behaviors', () => {
 
     expect(queryByText('My alerts')).not.toBeInTheDocument();
   });
+});
+
+test('Framework name is displayed near alert summary', async () => {
+  const { queryAllByText } = alertsViewControls();
+
+  const frameworkName = await waitForElement(() =>
+    queryAllByText(dummyFrameworkName),
+  );
+  // one summary from testAlertSummaries have one bad framework id
+  expect(frameworkName).toHaveLength(testAlertSummaries.length - 1);
+});
+
+test('Correct message is displayed if the framework id is invalid', async () => {
+  const { queryAllByText } = alertsViewControls();
+
+  const frameworkName = await waitForElement(() =>
+    queryAllByText(unknownFrameworkMessage),
+  );
+  expect(frameworkName).toHaveLength(1);
 });
 
 test('Selecting `all` from framework button does not filter by framework', async () => {

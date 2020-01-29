@@ -22,10 +22,6 @@ export const filterText = {
   inputPlaceholder: 'filter text e.g. linux tp5o',
 };
 
-export const legendCardText = {
-  unknownFrameworkMessage: 'unknown framework',
-};
-
 export const selectorCardText = {
   invalidRevision: 'Invalid revision',
   invalidRevisionLength: 'Revision must be at least 40 characters',
@@ -38,6 +34,7 @@ export const compareTableText = {
 
 export const noResultsMessage = 'No results to show';
 export const noDataFoundMessage = title => `No Data Found for ${title}`;
+export const unknownFrameworkMessage = 'unknown framework';
 
 export const summaryStatusMap = {
   all: -1,
