@@ -64,7 +64,7 @@ const GraphAlternateView = ({ className, graphData, colNum, title }) => {
 
   return (
     <div className="alternate-table mb-3">
-      <h3>{title}</h3>
+      <p className="subheader mb-3">{title}</p>
       <ReactTable
         data={alternateGraph.data}
         showPageSizeOptions

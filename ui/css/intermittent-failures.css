@@ -42,47 +42,8 @@ h1,
   margin: 0 auto;
 }
 
-.alternate-table .rt-th {
-  font-weight: bold;
-  font-size: 1.2rem;
-}
-
-/* Failures Count per Push Table */
-.failure-per-count .rt-th:last-child {
-  background-color: rgb(221, 102, 2, 0.8);
-}
-
-.failure-per-count .rt-tr .rt-td:last-child {
-  background-color: rgba(221, 102, 2, 0.3);
-}
-
-.failure-per-count .rt-tr.-odd .rt-td:last-child {
-  background-color: rgba(221, 102, 2, 0.5);
-}
-
-/* Failure Count vs Push Count Table */
-.failure-and-count .rt-th:nth-child(2) {
-  background-color: rgba(109, 172, 238, 0.8);
-}
-
-.failure-and-count .rt-th:last-child {
-  background-color: rgba(48, 179, 38, 0.8);
-}
-
-.failure-and-count .rt-tr .rt-td:nth-child(2) {
-  background-color: rgba(109, 172, 238, 0.3);
-}
-
-.failure-and-count .rt-tr.-odd .rt-td:nth-child(2) {
-  background-color: rgba(109, 172, 238, 0.5);
-}
-
-.failure-and-count .rt-tr .rt-td:last-child {
-  background-color: rgba(48, 179, 37, 0.3);
-}
-
-.failure-and-count .rt-tr.-odd .rt-td:last-child {
-  background-color: rgba(48, 179, 38, 0.5);
+.alternate-table .ReactTable.-striped .rt-tr.-odd {
+  background-color: rgba(221, 102, 2, 0.2);
 }
 
 /* overriding bootstrap default input style */
