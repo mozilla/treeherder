@@ -160,6 +160,19 @@
   vertical-align: super;
 }
 
+/* Bold buttons */
+
+.btn-green,
+.btn-orange,
+.btn-purple,
+.btn-red,
+.btn-dkblue,
+.btn-pink,
+.btn-yellow,
+.btn-ltblue {
+  font-weight: bold;
+}
+
 /* Orange, testfailed */
 .btn-orange {
   background-color: #f7c194;
@@ -291,7 +304,6 @@ fieldset[disabled] .btn-red-classified.active {
 .btn-dkblue-count:hover,
 .btn-dkblue-classified-count:hover {
   color: #283aa2;
-  font-weight: bold;
 }
 .btn-dkblue:hover,
 .btn-dkblue-classified:hover,
@@ -423,7 +435,6 @@ fieldset[disabled] .btn-purple-classified.active {
 .btn-ltblue-count:hover,
 .btn-ltblue-classified-count:hover {
   color: #3f77c6;
-  font-weight: bold;
 }
 .btn-ltblue:hover,
 .btn-ltblue-classified:hover,
@@ -455,7 +466,6 @@ fieldset[disabled] .btn-ltblue.active {
 .btn-ltgray-classified,
 .btn-ltgray-classified-count {
   color: #747474;
-  font-style: italic;
 }
 .btn-ltgray-count:hover,
 .btn-ltgray-classified-count:hover {
@@ -562,7 +572,6 @@ fieldset[disabled] .btn-dkgray.active {
   background-color: #fcf8e3;
   border-color: #fbd890;
   color: #8a6d3b;
-  font-weight: bold;
 }
 .btn-yellow-count:hover,
 .btn-yellow-classified-count:hover {
@@ -601,7 +610,6 @@ fieldset[disabled] .btn-yellow.active {
 .btn-pink-count:hover,
 .btn-pink-classified-count:hover {
   color: #cf2b9f;
-  font-weight: bold;
 }
 .btn-pink:hover,
 .btn-pink-classified:hover,
