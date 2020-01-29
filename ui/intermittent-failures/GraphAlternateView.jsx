@@ -3,7 +3,7 @@ import ReactTable from 'react-table';
 import PropTypes from 'prop-types';
 
 const GraphAlternateView = ({ className, graphData, colNum, title }) => {
-  const columnsOne = [
+  const columnsTwo = [
     {
       Header: 'Date',
       accessor: 'date',
@@ -14,7 +14,7 @@ const GraphAlternateView = ({ className, graphData, colNum, title }) => {
     },
   ];
 
-  const columnsTwo = [
+  const columnsThree = [
     {
       Header: 'Date',
       accessor: 'date',
@@ -34,12 +34,12 @@ const GraphAlternateView = ({ className, graphData, colNum, title }) => {
     data: [],
   };
 
-  graphData.forEach(item => {
+  graphData.forEach(graphItem => {
     if (colNum === 1) {
-      alternateGraph.column = columnsOne;
+      alternateGraph.column = columnsTwo;
 
-      item.data.forEach(itemOne => {
-        const { date, failurePerPush } = itemOne;
+      graphItem.data.forEach(item => {
+        const { date, failurePerPush } = item;
 
         alternateGraph.data.push({
           date,
@@ -47,14 +47,13 @@ const GraphAlternateView = ({ className, graphData, colNum, title }) => {
         });
       });
     } else {
-      alternateGraph.column = columnsTwo;
+      alternateGraph.column = columnsThree;
 
-      item.data.forEach((itemTwo, indexTwo) => {
-        const { date, failureCount, pushCount } = itemTwo;
-
-        alternateGraph.data[indexTwo] = {
+      graphItem.data.forEach((item, index) => {
+        const { date, failureCount, pushCount } = item;
+        alternateGraph.data[index] = {
           date,
-          ...alternateGraph.data[indexTwo],
+          ...alternateGraph.data[index],
           ...(failureCount && { failureCount }),
           ...(pushCount && { pushCount }),
         };
@@ -85,5 +84,5 @@ GraphAlternateView.propTypes = {
 };
 
 GraphAlternateView.defaultProps = {
-  colNum: 1,
+  colNum: 2,
 };

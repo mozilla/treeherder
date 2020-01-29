@@ -35,6 +35,7 @@ export default class GraphsContainer extends React.Component {
             <GraphAlternateView
               graphData={graphOneData}
               className="failure-per-count"
+              colNum={1}
               title="Failure Count Per Push"
             />
           ) : (
@@ -80,7 +81,6 @@ export default class GraphsContainer extends React.Component {
           <GraphAlternateView
             graphData={graphTwoData}
             className="failure-and-count"
-            colNum={2}
             title="Failure Count vs Push Count"
           />
         )}
