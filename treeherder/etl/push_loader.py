@@ -90,32 +90,15 @@ class GithubTransformer:
         params.update(self.CREDENTIALS)
 
         logger.info("Fetching push details: %s", url)
+        revisions, push_timestamp = self.revisions_and_timestamp(fetch_json(url, params))
 
-        commits = self.get_cleaned_commits(fetch_json(url, params))
-        head_commit = commits[-1]
         push = {
-            "revision": head_commit["sha"],
-            "push_timestamp": to_timestamp(
-                head_commit["commit"]["author"]["date"]),
-            "author": head_commit["commit"]["author"]["email"],
+            "revision": self.message_body["details"]["event.head.sha"],
+            "push_timestamp": push_timestamp,
+            "author": "@" + self.message_body["body"]["sender"]["login"],
+            "revisions": revisions,
         }
-
-        revisions = []
-        for commit in commits:
-            revisions.append({
-                "comment": commit["commit"]["message"],
-                "author": u"{} <{}>".format(
-                    commit["commit"]["author"]["name"],
-                    commit["commit"]["author"]["email"]),
-                "revision": commit["sha"]
-            })
-
-        push["revisions"] = revisions
         return push
-
-    def get_cleaned_commits(self, commits):
-        """Allow a subclass to change the order of the commits"""
-        return commits
 
 
 class GithubPushTransformer(GithubTransformer):
@@ -135,19 +118,42 @@ class GithubPushTransformer(GithubTransformer):
     #     version:1
     # }
 
-    URL_BASE = "https://api.github.com/repos/{}/{}/compare/{}...{}"
+    EVENTS_API_URL = "https://api.github.com/repos/{}/{}/events"
 
     def transform(self, repository):
-        push_url = self.URL_BASE.format(
+        push_url = self.EVENTS_API_URL.format(
             self.message_body["organization"],
             self.message_body["repository"],
-            self.message_body["details"]["event.base.sha"],
-            self.message_body["details"]["event.head.sha"],
         )
         return self.fetch_push(push_url, repository)
 
-    def get_cleaned_commits(self, compare):
-        return compare["commits"]
+    def revisions_and_timestamp(self, events):
+        revisions = [
+            {
+                "comment": commit["message"],
+                "author": u"{} <{}>".format(
+                    commit["author"]["name"],
+                    commit["author"]["email"]),
+                "revision": commit["id"]
+            }
+            for commit in self.message_body["body"]["commits"]
+        ]
+
+        details = self.message_body["details"]
+        for event in events:
+            if (
+                event["type"] == "PushEvent" and
+                event["payload"]["ref"] == details["event.head.ref"] and
+                event["payload"]["after"] == details["event.head.sha"] and
+                event["payload"]["before"] == details["event.base.sha"]
+            ):
+                timestamp = to_timestamp(event["created_at"])
+                break
+        else:
+            # Couldn't find the corresponding event, use the commit's date as a best approximation
+            timestamp = to_timestamp(self.message_body["body"]["head_commit"]["timestamp"])
+
+        return revisions, timestamp
 
     def get_repo(self):
         return self.message_body["details"]["event.head.repo.url"].replace(".git", "")
@@ -176,7 +182,7 @@ class GithubPullRequestTransformer(GithubTransformer):
     #     "version": 1
     # }
 
-    URL_BASE = "https://api.github.com/repos/{}/{}/pulls/{}/commits"
+    COMMITS_LIST_API_URL = "https://api.github.com/repos/{}/{}/pulls/{}/commits"
 
     def get_branch(self):
         """
@@ -188,13 +194,27 @@ class GithubPullRequestTransformer(GithubTransformer):
         return self.message_body["details"]["event.base.repo.url"].replace(".git", "")
 
     def transform(self, repository):
-        pr_url = self.URL_BASE.format(
+        pr_url = self.COMMITS_LIST_API_URL.format(
             self.message_body["organization"],
             self.message_body["repository"],
             self.message_body["details"]["event.pullNumber"]
         )
 
         return self.fetch_push(pr_url, repository)
+
+    def revisions_and_timestamp(self, commits):
+        revisions = [
+            {
+                "comment": commit["commit"]["message"],
+                "author": u"{} <{}>".format(
+                    commit["commit"]["author"]["name"],
+                    commit["commit"]["author"]["email"]),
+                "revision": commit["sha"]
+            }
+            for commit in reversed(commits)
+        ]
+        timestamp = to_timestamp(self.message_body["body"]["pull_request"]["updated_at"])
+        return revisions, timestamp
 
 
 class HgPushTransformer:
