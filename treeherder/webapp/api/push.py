@@ -14,6 +14,7 @@ from treeherder.model.models import (Job,
                                      Push,
                                      Repository)
 from treeherder.push_health.builds import get_build_failures
+from treeherder.push_health.compare import get_parent
 from treeherder.push_health.linting import get_lint_failures
 from treeherder.push_health.performance import get_perf_failures
 from treeherder.push_health.tests import get_test_failures
@@ -237,7 +238,8 @@ class PushViewSet(viewsets.ViewSet):
         revision = request.query_params.get('revision')
 
         try:
-            push = Push.objects.get(revision=revision, repository__name=project)
+            repository = Repository.objects.get(name=project)
+            push = Push.objects.get(revision=revision, repository=repository)
         except Push.DoesNotExist:
             return Response("No push with revision: {0}".format(revision),
                             status=HTTP_404_NOT_FOUND)
@@ -247,6 +249,10 @@ class PushViewSet(viewsets.ViewSet):
             test_result = 'indeterminate'
         if len(push_health_test_failures['needInvestigation']):
             test_result = 'fail'
+
+        # Parent link only supported for Hg at this time.
+        # Bug https://bugzilla.mozilla.org/show_bug.cgi?id=1612645
+        parent_details = None if repository.dvcs_type == 'git' else get_parent(repository, revision, push)
 
         build_failures = get_build_failures(push)
         build_result = 'fail' if len(build_failures) else 'pass'
@@ -269,6 +275,11 @@ class PushViewSet(viewsets.ViewSet):
             'id': push.id,
             'result': push_result,
             'metrics': {
+                'parent': {
+                    'name': 'Parent',
+                    'result': 'none',
+                    'details': parent_details,
+                },
                 'linting': {
                     'name': 'Linting',
                     'result': lint_result,
