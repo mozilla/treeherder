@@ -34,23 +34,17 @@ const GraphAlternateView = ({ className, graphData, colNum, title }) => {
     data: [],
   };
 
-  graphData.forEach(graphItem => {
-    if (colNum === 1) {
-      alternateGraph.column = columnsTwo;
-
-      graphItem.data.forEach(item => {
-        const { date, failurePerPush } = item;
-
-        alternateGraph.data.push({
-          date,
-          failurePerPush,
-        });
-      });
-    } else {
-      alternateGraph.column = columnsThree;
-
+  if (colNum === 1) {
+    alternateGraph.column = columnsTwo;
+    alternateGraph.data = graphData[0].data;
+  } else {
+    alternateGraph.column = columnsThree;
+    // iterate between different types of data
+    graphData.forEach(graphItem => {
+      // iterate each data point
       graphItem.data.forEach((item, index) => {
         const { date, failureCount, pushCount } = item;
+        // populate array with data points, with combined properties
         alternateGraph.data[index] = {
           date,
           ...alternateGraph.data[index],
@@ -58,8 +52,8 @@ const GraphAlternateView = ({ className, graphData, colNum, title }) => {
           ...(pushCount && { pushCount }),
         };
       });
-    }
-  });
+    });
+  }
 
   return (
     <div className="alternate-table mb-3">
