@@ -33,6 +33,7 @@ export default class CompareTableView extends React.Component {
       timeRange: this.setTimeRange(),
       framework: getFrameworkData(this.props),
       title: '',
+      tabTitle: null,
     };
   }
 
@@ -139,9 +140,11 @@ export default class CompareTableView extends React.Component {
       ? `${originalRevision} (${originalProject})`
       : originalProject;
 
-    window.document.title =
-      title || `Comparison between ${text} and ${newRevision} (${newProject})`;
-
+    this.setState({
+      tabTitle:
+        title ||
+        `Comparison between ${text} and ${newRevision} (${newProject})`,
+    });
     const updates = getDisplayResults(originalResults.data, newResults.data, {
       ...this.state,
       ...{ tableNames, rowNames },
@@ -198,6 +201,7 @@ export default class CompareTableView extends React.Component {
       testsNoResults,
       title,
       framework,
+      tabTitle,
     } = this.state;
 
     const frameworkNames =
@@ -236,7 +240,6 @@ export default class CompareTableView extends React.Component {
     return (
       <Container fluid className="max-width-default">
         {loading && !failureMessages.length && <LoadingSpinner />}
-
         <ErrorBoundary
           errorClasses={errorMessageClass}
           message={genericErrorMessage}
@@ -272,6 +275,7 @@ export default class CompareTableView extends React.Component {
                             : 'Perfherder Compare Revisions'
                         }
                         pageTitleQueryParam={pageTitle}
+                        defaultPageTitle={tabTitle}
                       />
                     </h1>
                     <RevisionInformation
