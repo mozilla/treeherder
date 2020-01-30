@@ -64,11 +64,11 @@ export const alertStatusMap = {
 
 export const graphColors = [
   ['orange', '#FFB851'],
-  ['firered', '#C92D2F'],
+  ['fire-red', '#C92D2F'],
   ['cerulean', '#16BCDE'],
-  ['bluebell', '#464876'],
+  ['blue-bell', '#464876'],
   ['gras', '#921181'],
-  ['darkpuce', '#4C3146'],
+  ['dark-puce', '#4C3146'],
 ];
 
 export const graphSymbols = [
