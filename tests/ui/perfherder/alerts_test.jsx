@@ -30,17 +30,17 @@ const testUser = {
 };
 
 const frameworks = [
-  'all',
-  'talos',
-  'build_metrics',
-  'awsy',
-  'awfy',
-  'platform_microbench',
-  'raptor',
-  'js-bench',
-  'devtools',
-  'browsertime',
-  'vcs',
+  { id: -1, name: 'all' },
+  { id: 1, name: 'talos' },
+  { id: 2, name: 'build_metrics' },
+  { id: 4, name: 'awsy' },
+  { id: 5, name: 'awfy' },
+  { id: 6, name: 'platform_microbench' },
+  { id: 10, name: 'raptor' },
+  { id: 11, name: 'js-bench' },
+  { id: 12, name: 'devtools' },
+  { id: 13, name: 'browsertime' },
+  { id: 14, name: 'vcs' },
 ];
 
 const testAlertSummaries = [
@@ -221,7 +221,7 @@ const testAlertDropdowns = [
     updateData: () => {},
   },
   {
-    options: frameworks,
+    options: [frameworks.map(item => item.name)],
     selectedItem: 'talos',
     updateData: () => {},
   },
@@ -255,19 +255,7 @@ const alertsView = () =>
         search: '',
       }}
       history={createMemoryHistory('/alerts')}
-      frameworks={[
-        { id: -1, name: frameworks[0] },
-        { id: 1, name: frameworks[1] },
-        { id: 2, name: frameworks[2] },
-        { id: 4, name: frameworks[3] },
-        { id: 5, name: frameworks[4] },
-        { id: 6, name: frameworks[5] },
-        { id: 10, name: frameworks[6] },
-        { id: 11, name: frameworks[7] },
-        { id: 12, name: frameworks[8] },
-        { id: 13, name: frameworks[9] },
-        { id: 14, name: frameworks[10] },
-      ]}
+      frameworks={frameworks}
     />,
   );
 

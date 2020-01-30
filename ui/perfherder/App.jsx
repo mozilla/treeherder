@@ -39,9 +39,6 @@ class App extends React.Component {
       getData(getApiUrl(endpoints.frameworks)),
     ]);
 
-    const ignoreFrameworks = { id: -1, name: 'all' };
-    frameworks.data.unshift(ignoreFrameworks);
-
     const errorMessages = [];
     const updates = {
       ...processResponse(projects, 'projects', errorMessages),

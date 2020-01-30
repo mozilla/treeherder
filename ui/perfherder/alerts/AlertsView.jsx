@@ -9,6 +9,7 @@ import {
   PaginationItem,
   PaginationLink,
 } from 'reactstrap';
+import cloneDeep from 'lodash/cloneDeep';
 
 import withValidation from '../Validation';
 import { convertParams, getFrameworkData, getStatus } from '../helpers';
@@ -33,10 +34,17 @@ import AlertsViewControls from './AlertsViewControls';
 class AlertsView extends React.Component {
   constructor(props) {
     super(props);
+    const { frameworks } = this.props;
     this.validated = this.props.validated;
+
+    const extendedOptions = this.extendDropdownOptions(frameworks);
     this.state = {
       status: this.getDefaultStatus(),
-      framework: getFrameworkData(this.props),
+      framework: getFrameworkData({
+        validated: this.props.validated,
+        frameworks: extendedOptions,
+      }),
+      frameworkOptions: extendedOptions,
       page: this.validated.page ? parseInt(this.validated.page, 10) : 1,
       errorMessages: [],
       alertSummaries: [],
@@ -73,6 +81,13 @@ class AlertsView extends React.Component {
     }
   }
 
+  extendDropdownOptions = frameworks => {
+    const frameworkOptions = cloneDeep(frameworks);
+    const ignoreFrameworks = { id: -1, name: 'all' };
+    frameworkOptions.unshift(ignoreFrameworks);
+    return frameworkOptions;
+  };
+
   getDefaultStatus = () => {
     const { validated } = this.props;
 
@@ -85,8 +100,8 @@ class AlertsView extends React.Component {
 
   updateFramework = selection => {
     const { updateParams } = this.props.validated;
-    const { frameworks } = this.props;
-    const framework = frameworks.find(item => item.name === selection);
+    const { frameworkOptions } = this.state;
+    const framework = frameworkOptions.find(item => item.name === selection);
     updateParams({ framework: framework.id });
     this.setState({ framework, bugTemplate: null }, () =>
       this.fetchAlertSummaries(),
@@ -203,9 +218,10 @@ class AlertsView extends React.Component {
   }
 
   render() {
-    const { user, frameworks } = this.props;
+    const { user } = this.props;
     const {
       framework,
+      frameworkOptions,
       status,
       errorMessages,
       loading,
@@ -219,7 +235,9 @@ class AlertsView extends React.Component {
     } = this.state;
 
     const frameworkNames =
-      frameworks && frameworks.length ? frameworks.map(item => item.name) : [];
+      frameworkOptions && frameworkOptions.length
+        ? frameworkOptions.map(item => item.name)
+        : [];
 
     const alertDropdowns = [
       {
