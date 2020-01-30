@@ -37,7 +37,7 @@ matrix:
       language: minimal
       install:
         - docker-compose build
-        - pip install codecov
+        - pip install codecov --user
       script:
         - docker-compose run backend bash -c "pytest --cov=./ --cov-report=xml" ./runtests.sh
       after_success :
@@ -47,7 +47,7 @@ matrix:
       language: minimal
       install:
         - docker-compose build
-        - pip install codecov
+        - pip install codecov --user
       script:
         # Several security features in settings.py (eg setting HSTS headers) are conditional on
         # 'https://' being in the site URL. In addition, we override the test environment's debug
@@ -69,7 +69,7 @@ matrix:
         - docker-compose build
       install:
         - yarn install
-        - pip install codecov
+        - pip install codecov --user
       before_script:
         # Run in `before_script` to prevent the Selenium tests from running if the UI build fails.
         - yarn build
