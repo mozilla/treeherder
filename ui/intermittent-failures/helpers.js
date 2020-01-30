@@ -105,7 +105,10 @@ export const validateQueryParams = function validateQueryParams(
 
 export const tableRowStyling = function tableRowStyling(state, bug) {
   if (bug) {
-    const style = { color: '#aaa' };
+    const style = {
+      color: 'rgb(117, 117, 117)',
+      'background-color': 'rgba(0, 0, 0, 0.009)',
+    };
 
     if (bug.row.status === 'RESOLVED' || bug.row.status === 'VERIFIED') {
       style.textDecoration = 'line-through';

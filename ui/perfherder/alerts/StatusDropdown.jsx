@@ -192,11 +192,7 @@ export default class StatusDropdown extends React.Component {
           updateAndClose={this.updateAndClose}
         />
         <UncontrolledDropdown tag="span">
-          <DropdownToggle
-            className="btn-link text-info p-0"
-            color="transparent"
-            caret
-          >
+          <DropdownToggle className="btn-xs" color="darker-secondary" caret>
             {getStatus(alertSummary.status)}
           </DropdownToggle>
           <DropdownMenu>
