@@ -1,6 +1,7 @@
 import React from 'react';
 import ReactTable from 'react-table';
 import PropTypes from 'prop-types';
+import { zipWith } from 'lodash';
 
 const GraphAlternateView = ({ className, graphData, colNum, title }) => {
   const columnsTwo = [
@@ -39,20 +40,20 @@ const GraphAlternateView = ({ className, graphData, colNum, title }) => {
     alternateGraph.data = graphData[0].data;
   } else {
     alternateGraph.column = columnsThree;
-    // iterate between different types of data
-    graphData.forEach(graphItem => {
-      // iterate each data point
-      graphItem.data.forEach((item, index) => {
-        const { date, failureCount, pushCount } = item;
-        // populate array with data points, with combined properties
-        alternateGraph.data[index] = {
+    // create new array with objects with combined properties
+    alternateGraph.data = zipWith(
+      graphData[0].data,
+      graphData[1].data,
+      (a, b) => {
+        const { date, failureCount } = a;
+        const { pushCount } = b;
+        return {
           date,
-          ...alternateGraph.data[index],
-          ...(failureCount && { failureCount }),
-          ...(pushCount && { pushCount }),
+          failureCount,
+          pushCount,
         };
-      });
-    });
+      },
+    );
   }
 
   return (
