@@ -22,7 +22,7 @@ matrix:
         # `yarn lint` only checks the formatting of JS/JSX, this will also check CSS/HTML/JSON/Markdown/YAML.
         - yarn format:check
         - yarn test:coverage
-      after_success: yarn codecov
+      after_success: yarn codecov -t 995256be-3a1f-4d10-b181-e24f88603b6b
 
     - env: test-prod-build
       language: node_js
@@ -39,8 +39,8 @@ matrix:
         - docker-compose build
         - pip install codecov --user
       script:
-        - docker-compose run backend bash -c "pytest --cov=./ --cov-report=xml" ./runtests.sh
-      after_success :
+        - docker-compose run backend ./runtests.sh
+      after_success:
         - codecov -f coverage.xml -t 995256be-3a1f-4d10-b181-e24f88603b6b
 
     - env: python-tests-main
@@ -54,8 +54,8 @@ matrix:
         # value so the tests pass. The real environment variable will be checked during deployment.
         - docker-compose run -e SITE_URL=https://treeherder.dev -e TREEHERDER_DEBUG=False backend python -bb ./manage.py check --deploy --fail-level WARNING
         # Using `-bb` mode to surface BytesWarnings: https://docs.python.org/3.7/using/cmdline.html#cmdoption-b
-        - sudo docker-compose run backend bash -c "pytest --cov=./ --cov-report=xml" python -bb -m pytests tests/ --runslow --ignore=tests/selenium
-      after_success :
+        - docker-compose run backend bash -c "pytest --cov=./ --cov-report=xml tests/ --runslow --ignore=tests/selenium"
+      after_success:
         - codecov -f coverage.xml -t 995256be-3a1f-4d10-b181-e24f88603b6b
 
     - env: python-tests-selenium
@@ -75,7 +75,7 @@ matrix:
         - yarn build
       script:
         # Using `-bb` mode to surface BytesWarnings: https://docs.python.org/3.7/using/cmdline.html#cmdoption-b
-        - docker-compose run backend bash -c "pytest --cov=./ --cov-report=xml" python -bb -m pytest tests/selenium/
+        - docker-compose run backend bash -c "pytest --cov=./ --cov-report=xml tests/selenium/"
       after_success:
         - codecov -f coverage.xml -t 995256be-3a1f-4d10-b181-e24f88603b6b
 
