@@ -60,7 +60,7 @@ def test_extract_job(complex_job, extract_job_settings, now):
     doc.guid = complex_job.guid
     doc.last_modified = complex_job.last_modified
 
-    assertAlmostEqual(acc, JOB, places=4)
+    assertAlmostEqual(acc, JOB, places=3)  # TH MIXES LOCAL TIMEZONE WITH GMT: https://bugzilla.mozilla.org/show_bug.cgi?id=1612603
 
 
 EXTRACT_JOB_SQL = """
