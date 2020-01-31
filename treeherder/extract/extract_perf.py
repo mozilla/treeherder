@@ -12,11 +12,7 @@ from mo_sql import SQL
 from mo_times import Timer
 from redis import Redis
 
-from treeherder.extract import VENDOR_PATH
-
 CONFIG_FILE = (File.new_instance(__file__).parent / "extract_perf.json").abspath
-
-_keep_import = VENDOR_PATH
 
 
 class ExtractPerf:

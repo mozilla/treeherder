@@ -3,7 +3,7 @@ import os
 import pytest
 from mo_logs import (constants,
                      startup,
-                     strings)
+                     strings, Log)
 from mo_logs.convert import unix2datetime
 from mo_math.randoms import Random
 from mo_times import Date
@@ -186,7 +186,7 @@ def complex_job(
 
 @pytest.fixture
 def extract_job_settings():
-    # NOT NEEDED FOR TESTING
+    # These values not directly accessed during testing, but the code requires that they be present.
     os.environ["NEW_RELIC_APP_NAME"] = "testing"
     os.environ["BIGQUERY_PRIVATE_KEY_ID"] = "1"
     os.environ["BIGQUERY_PRIVATE_KEY"] = "1"
@@ -201,4 +201,5 @@ def extract_job_settings():
     settings = startup.read_settings(filename=extract_jobs.CONFIG_FILE, complain=False)
     settings.source.database.ssl = None  # NOT REQUIRED FOR TEST DATABASE
     constants.set(settings.constants)
+    Log.start(settings.debug)
     return settings

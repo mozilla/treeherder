@@ -4,7 +4,7 @@ from treeherder.extract.extract_alerts import ExtractAlerts
 
 
 class Command(BaseCommand):
-    """Management command to extract alertss"""
+    """Management command to extract alerts"""
     help = "Extract recent alerts from Treeherder, and push them to BigQuery"
 
     def add_arguments(self, parser):
