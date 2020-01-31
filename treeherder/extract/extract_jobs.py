@@ -1,27 +1,19 @@
+from jx_bigquery import bigquery
+from jx_mysql.mysql import (MySQL,
+                            sql_query)
+from jx_mysql.mysql_snowflake_extractor import MySqlSnowflakeExtractor
+from mo_files import File
+from mo_json import (json2value,
+                     value2json)
+from mo_logs import (Log,
+                     constants,
+                     startup)
+from mo_sql import SQL
+from mo_times import Timer
+from mo_times.dates import parse
 from redis import Redis
 
-try:  # AVOID isort
-    from treeherder import extract
-
-    _ = extract
-
-    from jx_bigquery import bigquery
-    from jx_mysql.mysql import MySQL, sql_query
-    from jx_mysql.mysql_snowflake_extractor import MySqlSnowflakeExtractor
-    from mo_files import File
-    from mo_json import json2value, value2json
-    from mo_logs import Log, constants, startup
-    from mo_sql import SQL
-    from mo_times import Timer
-    from mo_times.dates import parse
-    from treeherder.extract import VENDOR_PATH
-except Exception as e:
-    raise e
-
-
 CONFIG_FILE = (File.new_instance(__file__).parent / "extract_jobs.json").abspath
-
-_keep_import = VENDOR_PATH
 
 
 class ExtractJobs:

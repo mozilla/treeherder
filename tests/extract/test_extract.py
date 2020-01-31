@@ -1,16 +1,10 @@
-try:  # AVOID isort
-    from treeherder import extract
-
-    _ = extract
-    from jx_base.expressions import NULL
-    from jx_mysql.mysql import MySQL
-    from jx_mysql.mysql_snowflake_extractor import MySqlSnowflakeExtractor
-    from mo_future import text
-    from mo_logs.strings import strip
-    from mo_sql import SQL
-    from mo_testing.fuzzytestcase import assertAlmostEqual
-except Exception as e:
-    raise e
+from jx_base.expressions import NULL
+from jx_mysql.mysql import MySQL
+from jx_mysql.mysql_snowflake_extractor import MySqlSnowflakeExtractor
+from mo_future import text
+from mo_logs.strings import strip
+from mo_sql import SQL
+from mo_testing.fuzzytestcase import assertAlmostEqual
 
 
 def test_make_repository(test_repository, extract_job_settings):

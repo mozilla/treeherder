@@ -1,7 +1,5 @@
 import logging
 
-from redis import Redis
-
 from jx_bigquery import bigquery
 from jx_mysql.mysql import (MySQL,
                             quote_value)
@@ -17,6 +15,8 @@ from mo_times import (DAY,
                       Timer)
 from mo_times.dates import (Date,
                             parse)
+from redis import Redis
+
 from treeherder.extract import VENDOR_PATH
 
 CONFIG_FILE = (File.new_instance(__file__).parent / "extract_alerts.json").abspath

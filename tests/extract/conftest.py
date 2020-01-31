@@ -1,32 +1,29 @@
-try:  # AVOID isort
-    from treeherder.extract import extract_jobs
+import os
 
-    import os
-    import pytest
+import pytest
+from mo_logs import (constants,
+                     startup,
+                     strings)
+from mo_logs.convert import unix2datetime
+from mo_math.randoms import Random
+from mo_times import Date
 
-    from mo_logs import constants, startup, strings
-    from mo_logs.convert import unix2datetime
-    from mo_math.randoms import Random
-    from mo_times import Date
-    from treeherder.config.settings import DATABASES
-    from treeherder.model.models import (
-        ClassifiedFailure,
-        FailureClassification,
-        FailureLine,
-        Job,
-        JobDetail,
-        JobLog,
-        Option,
-        OptionCollection,
-        Push,
-        Repository,
-        RepositoryGroup,
-        TaskclusterMetadata,
-        TextLogError,
-        TextLogStep,
-    )
-except Exception as e:
-    raise e
+from treeherder.config.settings import DATABASES
+from treeherder.extract import extract_jobs
+from treeherder.model.models import (ClassifiedFailure,
+                                     FailureClassification,
+                                     FailureLine,
+                                     Job,
+                                     JobDetail,
+                                     JobLog,
+                                     Option,
+                                     OptionCollection,
+                                     Push,
+                                     Repository,
+                                     RepositoryGroup,
+                                     TaskclusterMetadata,
+                                     TextLogError,
+                                     TextLogStep)
 
 
 @pytest.fixture

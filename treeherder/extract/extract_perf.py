@@ -1,5 +1,3 @@
-from redis import Redis
-
 from jx_bigquery import bigquery
 from jx_mysql.mysql import (MySQL,
                             sql_query)
@@ -12,6 +10,8 @@ from mo_logs import (Log,
                      startup)
 from mo_sql import SQL
 from mo_times import Timer
+from redis import Redis
+
 from treeherder.extract import VENDOR_PATH
 
 CONFIG_FILE = (File.new_instance(__file__).parent / "extract_perf.json").abspath
