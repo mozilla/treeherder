@@ -48,6 +48,11 @@ WSGI_APPLICATION = 'treeherder.config.wsgi.application'
 # Send full URL within origin but only origin for cross-origin requests
 SECURE_REFERRER_POLICY = "origin-when-cross-origin"
 
+# We can't set X_FRAME_OPTIONS to DENY since renewal of an Auth0 token
+# requires opening the auth handler page in an invisible iframe with the
+# same origin.
+X_FRAME_OPTIONS = 'SAMEORIGIN'
+
 # Application definition
 INSTALLED_APPS = [
     'django.contrib.auth',
@@ -255,10 +260,6 @@ SILENCED_SYSTEM_CHECKS = [
     # We can't set CSRF_COOKIE_HTTPONLY to True since the requests to the API
     # made using Angular's `httpProvider` require access to the cookie.
     'security.W017',
-    # We can't set X_FRAME_OPTIONS to DENY since renewal of an Auth0 token
-    # requires opening the auth handler page in an invisible iframe with the
-    # same origin.  This is the default setting ('SAMEORIGIN') for Django's
-    # X_FRAME_OPTIONS setting so it isn't set in this file.
     'security.W019'
 ]
 
@@ -384,6 +385,7 @@ REST_FRAMEWORK = {
         'rest_framework.renderers.JSONRenderer',
         'rest_framework.renderers.BrowsableAPIRenderer',
     ),
+    'DEFAULT_SCHEMA_CLASS': 'rest_framework.schemas.coreapi.AutoSchema',
     'DEFAULT_VERSION': '1.0',
     'DEFAULT_VERSIONING_CLASS': 'rest_framework.versioning.AcceptHeaderVersioning',
     'TEST_REQUEST_DEFAULT_FORMAT': 'json',

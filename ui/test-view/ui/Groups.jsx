@@ -1,6 +1,7 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import {
+  Alert,
   Form,
   FormGroup,
   Input,
@@ -70,13 +71,25 @@ class Groups extends React.Component {
   }
 
   render() {
-    const { counts } = this.props;
+    const { counts, location } = this.props;
+    const searchParams = new URLSearchParams(location.search);
+    const revision = searchParams.get('revision');
+    const repo = searchParams.get('repo');
 
     return (
       <div>
         <StatusNavbar />
         {counts && <StatusProgress counts={counts} />}
         <Container fluid style={{ marginBottom: '.5rem', marginTop: '5rem' }}>
+          <Alert color="warning">
+            This view has been deprecated. Please see{' '}
+            <a href={`/pushhealth.html?repo=${repo}&revision=${revision}`}>
+              Push Health
+            </a>{' '}
+            for this data going forward. If there are any features of this app
+            that you can not find in Push Health, please write up bugs. Thank
+            you!
+          </Alert>
           <Form onSubmit={e => e.preventDefault()}>
             <Row>
               <Col md={3} sm={12} xs={12} style={{ textAlign: 'right' }}>

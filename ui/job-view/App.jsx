@@ -75,7 +75,7 @@ class App extends React.Component {
       duplicateJobsVisible: urlParams.get('duplicate_jobs') === 'visible',
       showShortCuts: false,
       pushHealthVisibility:
-        localStorage.getItem(PUSH_HEALTH_VISIBILITY) || 'None',
+        localStorage.getItem(PUSH_HEALTH_VISIBILITY) || 'Try',
     };
   }
 

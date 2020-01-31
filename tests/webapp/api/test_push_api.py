@@ -1,5 +1,4 @@
 import datetime
-import json
 
 import pytest
 from django.urls import reverse
@@ -18,10 +17,7 @@ def test_push_list_basic(client, eleven_jobs_stored, test_repository):
     """
     resp = client.get(
         reverse("push-list", kwargs={"project": test_repository.name}))
-
-    # The .json() method of the Django test client doesn't handle unicode properly on
-    # Python 2, so we have to deserialize ourselves. TODO: Clean up once on Python 3.
-    data = json.loads(resp.content)
+    data = resp.json()
     results = data['results']
     meta = data['meta']
 
@@ -70,9 +66,7 @@ def test_push_list_empty_push_still_show(client, sample_push, test_repository):
         reverse("push-list", kwargs={"project": test_repository.name}),
     )
     assert resp.status_code == 200
-    # The .json() method of the Django test client doesn't handle unicode properly on
-    # Python 2, so we have to deserialize ourselves. TODO: Clean up once on Python 3.
-    data = json.loads(resp.content)
+    data = resp.json()
     assert len(data['results']) == 10
 
 
@@ -134,9 +128,7 @@ def test_push_list_filter_by_revision(client, eleven_jobs_stored, test_repositor
         {"fromchange": "130965d3df6c", "tochange": "f361dcb60bbe"}
     )
     assert resp.status_code == 200
-    # The .json() method of the Django test client doesn't handle unicode properly on
-    # Python 2, so we have to deserialize ourselves. TODO: Clean up once on Python 3.
-    data = json.loads(resp.content)
+    data = resp.json()
     results = data['results']
     meta = data['meta']
     assert len(results) == 4
@@ -177,9 +169,7 @@ def test_push_list_filter_by_date(client,
         {"startdate": "2013-08-10", "enddate": "2013-08-13"}
     )
     assert resp.status_code == 200
-    # The .json() method of the Django test client doesn't handle unicode properly on
-    # Python 2, so we have to deserialize ourselves. TODO: Clean up once on Python 3.
-    data = json.loads(resp.content)
+    data = resp.json()
     results = data['results']
     meta = data['meta']
     assert len(results) == 4
@@ -320,10 +310,7 @@ def test_push_list_without_jobs(client,
         reverse("push-list", kwargs={"project": test_repository.name})
     )
     assert resp.status_code == 200
-
-    # The .json() method of the Django test client doesn't handle unicode properly on
-    # Python 2, so we have to deserialize ourselves. TODO: Clean up once on Python 3.
-    data = json.loads(resp.content)
+    data = resp.json()
     results = data['results']
     assert len(results) == 10
     assert all([('platforms' not in result) for result in results])

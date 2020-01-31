@@ -38,6 +38,10 @@ describe('Filtering', () => {
         tree: repoName,
       },
     });
+    fetchMock.get(
+      'begin:https://firefox-ci-tc.services.mozilla.com/api/index/v1/task/gecko.v2',
+      404,
+    );
 
     fetchMock.get(
       getProjectUrl('/push/?full=true&count=10', repoName),

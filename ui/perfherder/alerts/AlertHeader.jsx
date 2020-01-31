@@ -57,14 +57,10 @@ const AlertHeader = ({
       <Row className="font-weight-normal">
         <Col className="p-0" xs="auto">{`${moment(
           alertSummary.push_timestamp * 1000,
-        ).format('ddd MMM D, HH:mm:ss')} ·`}</Col>
+        ).format('ddd MMM D, HH:mm:ss')}`}</Col>
         <Col className="p-0" xs="auto">
           <UncontrolledDropdown tag="span">
-            <DropdownToggle
-              className="btn-link text-info p-0"
-              color="transparent"
-              caret
-            >
+            <DropdownToggle className="btn-xs ml-2" color="secondary" caret>
               {alertSummary.revision.slice(0, 12)}
             </DropdownToggle>
             <DropdownMenu>
@@ -95,13 +91,12 @@ const AlertHeader = ({
               </DropdownItem>
             </DropdownMenu>
           </UncontrolledDropdown>
-          <span>·</span>
         </Col>
         {bugNumber && (
           <Col className="p-0" xs="auto">
             {alertSummary.issue_tracker && issueTrackers.length > 0 ? (
               <a
-                className="text-info align-middle"
+                className="btn btn-secondary btn-xs ml-1 text-white"
                 href={getIssueTrackerUrl(alertSummary)}
                 target="_blank"
                 rel="noopener noreferrer"
@@ -111,7 +106,6 @@ const AlertHeader = ({
             ) : (
               { bugNumber }
             )}
-            <span>·</span>
           </Col>
         )}
         <Col className="p-0" xs="auto">

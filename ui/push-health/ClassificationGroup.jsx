@@ -24,6 +24,7 @@ import {
 
 import JobModel from '../models/job';
 
+import './pushhealth.css';
 import GroupedTests from './GroupedTests';
 
 class ClassificationGroup extends React.PureComponent {
@@ -89,6 +90,7 @@ class ClassificationGroup extends React.PureComponent {
       hasRetriggerAll,
       notify,
       currentRepo,
+      searchStr,
     } = this.props;
     const expandIcon = detailsShowing ? faMinusSquare : faPlusSquare;
     const expandTitle = detailsShowing
@@ -144,6 +146,7 @@ class ClassificationGroup extends React.PureComponent {
                             key={times}
                             title={`Retrigger all 'Need Investigation' jobs ${times} times`}
                             onClick={() => this.retriggerAll(times)}
+                            className="pointable"
                             tag="a"
                           >
                             Retrigger all {times} times
@@ -164,18 +167,21 @@ class ClassificationGroup extends React.PureComponent {
                     </DropdownToggle>
                     <DropdownMenu toggler="groupTestsDropdown">
                       <DropdownItem
+                        className="pointable"
                         tag="a"
                         onClick={() => this.setGroupedBy('none')}
                       >
                         None
                       </DropdownItem>
                       <DropdownItem
+                        className="pointable"
                         tag="a"
                         onClick={() => this.setGroupedBy('path')}
                       >
                         Path
                       </DropdownItem>
                       <DropdownItem
+                        className="pointable"
                         tag="a"
                         onClick={() => this.setGroupedBy('platform')}
                       >
@@ -195,12 +201,14 @@ class ClassificationGroup extends React.PureComponent {
                     </DropdownToggle>
                     <DropdownMenu toggler="groupTestsDropdown">
                       <DropdownItem
+                        className="pointable"
                         tag="a"
                         onClick={() => this.setOrderedBy('count')}
                       >
                         Count
                       </DropdownItem>
                       <DropdownItem
+                        className="pointable"
                         tag="a"
                         onClick={() => this.setOrderedBy('text')}
                       >
@@ -222,6 +230,7 @@ class ClassificationGroup extends React.PureComponent {
               orderedBy={orderedBy}
               currentRepo={currentRepo}
               notify={notify}
+              searchStr={searchStr}
             />
           </div>
         </Collapse>

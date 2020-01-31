@@ -38,6 +38,7 @@ def test_clear_pinboard(base_url, selenium, test_jobs):
     assert len(page.pinboard.jobs) == 0
 
 
+@pytest.mark.skip(reason="Needs to be updated to be replaced with react-testing-library")
 def test_pin_all_jobs(base_url, selenium, test_jobs):
     page = Treeherder(selenium, base_url).open()
     page.wait.until(lambda _: len(page.all_jobs) == len(test_jobs))

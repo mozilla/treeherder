@@ -1,5 +1,5 @@
 {
-  "count": 3,
+  "count": 4,
   "next": null,
   "previous": null,
   "results": [
@@ -56,6 +56,24 @@
       "33ba86f5b1d8ad61599cb04b8d1f50b97fe19379",
       "running",
       2
+    ],
+    [
+      24,
+      1,
+      378271,
+      "Mochitests",
+      "M",
+      "test-linux1804-64/debug-mochitest-devtools-chrome-e10s-5",
+      "dt5",
+      "2020-01-17T15:05:08.791908",
+      "option_collection_hash_TBD",
+      "linux1804-64",
+      "debug",
+      526445,
+      "success",
+      "0bac4980342a6f185082426471f9151a0de9ae50",
+      "completed",
+      1
     ]
   ],
   "job_property_names": [

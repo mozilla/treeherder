@@ -696,15 +696,17 @@ export const retriggerMultipleJobs = async (
   );
 };
 
-export const createGraphData = (seriesData, alertSummaries, colors) =>
+export const createGraphData = (seriesData, alertSummaries, colors, symbols) =>
   seriesData.map(series => {
     const color = colors.pop();
+    const symbol = symbols.pop();
     // signature_id, framework_id and repository_name are
     // not renamed in camel case in order to match the fields
     // returned by the performance/summary API (since we only fetch
     // new data if a user adds additional tests to the graph)
     return {
       color: color || ['border-secondary', ''],
+      symbol: symbol || ['circle', 'outline'],
       visible: Boolean(color),
       name: series.name,
       signature_id: series.signature_id,
@@ -718,6 +720,7 @@ export const createGraphData = (seriesData, alertSummaries, colors) =>
         x: new Date(dataPoint.push_timestamp),
         y: dataPoint.value,
         z: color ? color[1] : '',
+        _z: symbol || ['circle', 'outline'],
         revision: dataPoint.revision,
         alertSummary: alertSummaries.find(
           item => item.push_id === dataPoint.push_id,

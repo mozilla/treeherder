@@ -22,6 +22,7 @@ export const thFieldChoices = {
   machine_name: { name: 'machine name', matchType: thMatchType.substr },
   platform: { name: 'platform', matchType: thMatchType.substr },
   tier: { name: 'tier', matchType: thMatchType.exactstr },
+  test_paths: { name: 'test path', matchType: thMatchType.substr },
   failure_classification_id: {
     name: 'failure classification',
     matchType: thMatchType.choice,
