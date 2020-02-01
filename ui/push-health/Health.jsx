@@ -172,7 +172,7 @@ export default class Health extends React.PureComponent {
           repo={repo}
           revision={revision}
         >
-          <Navbar color="light" light expand="sm">
+          <Navbar color="light" light expand="sm" className="w-100">
             {!!tests && (
               <Nav className="metric-buttons mb-2 pt-2 pl-3 justify-content-between w-100">
                 <span>

@@ -63,7 +63,7 @@ main .progress {
 .badge-success,
 .bg-success,
 .btn-success {
-  background-color: #1d9862 !important;
+  background-color: #087646 !important;
 }
 
 .badge-warning,
@@ -75,7 +75,7 @@ main .progress {
 .badge-info,
 .bg-info,
 .btn-info {
-  background-color: #1d7dbb !important;
+  background-color: #1b73ac !important;
 }
 
 .badge-secondary,
@@ -116,12 +116,12 @@ main .progress {
 }
 
 .badge-infra {
-  background-color: #d78236;
+  background-color: #b15e13;
   color: white;
 }
 
 .badge-intermittent {
-  background-color: #d78236;
+  background-color: #b15e13;
   color: white;
 }
 

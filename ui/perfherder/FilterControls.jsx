@@ -16,7 +16,11 @@ import InputFilter from '../shared/InputFilter';
 export const createDropdowns = (dropdownOptions, colClass, outline = false) => (
   <React.Fragment>
     {dropdownOptions.map(dropdown => (
-      <Col sm="auto" className={colClass} key={dropdown.selectedItem}>
+      <Col
+        sm="auto"
+        className={colClass}
+        key={`${dropdown.namespace || ''}${dropdown.selectedItem}`}
+      >
         <UncontrolledDropdown
           className="mr-0 text-nowrap"
           title={dropdown.title}
@@ -29,6 +33,7 @@ export const createDropdowns = (dropdownOptions, colClass, outline = false) => (
             options={dropdown.options}
             selectedItem={dropdown.selectedItem}
             updateData={dropdown.updateData}
+            namespace={dropdown.namespace}
           />
         </UncontrolledDropdown>
       </Col>
@@ -45,7 +50,7 @@ const FilterControls = ({
 }) => {
   const createButton = filter => (
     <Button
-      color="info"
+      color="darker-info"
       outline
       onClick={() => updateFilter(filter.stateName)}
       active={filter.state}

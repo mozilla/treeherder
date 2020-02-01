@@ -8,6 +8,7 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faTimes } from '@fortawesome/free-solid-svg-icons';
 
 import { graphColors, legendCardText } from '../constants';
+import GraphIcon from '../../shared/GraphIcon';
 
 const LegendCard = ({
   series,
@@ -17,29 +18,36 @@ const LegendCard = ({
   selectedDataPoint,
   frameworks,
   colors,
+  symbols,
 }) => {
   const updateSelectedTest = () => {
     const newColors = [...colors];
+    const newSymbols = [...symbols];
     const errorMessages = [];
     let updates;
     const newTestData = [...testData].map(item => {
       if (item.signature_id === series.signature_id) {
         const isVisible = !item.visible;
 
-        if (isVisible && newColors.length) {
+        if (isVisible && newColors.length && newSymbols.length) {
           item.color = newColors.pop();
+          item.symbol = newSymbols.pop();
           item.visible = isVisible;
           item.data = item.data.map(test => ({
             ...test,
             z: item.color[1],
+            _z: item.symbol,
           }));
         } else if (!isVisible) {
           newColors.push(item.color);
+          newSymbols.push(item.symbol);
           item.color = ['border-secondary', ''];
+          item.symbol = ['circle', 'outline'];
           item.visible = isVisible;
           item.data = item.data.map(test => ({
             ...test,
             z: item.color[1],
+            _z: item.symbol,
           }));
         } else {
           errorMessages.push(
@@ -56,6 +64,7 @@ const LegendCard = ({
       updates = {
         testData: newTestData,
         colors: newColors,
+        symbols: newSymbols,
         errorMessages,
         visibilityChanged: true,
       };
@@ -68,9 +77,10 @@ const LegendCard = ({
     updateState({ options, showModal: true });
   };
 
-  const resetParams = (testData, newColors = null) => {
+  const resetParams = (testData, newColors = null, newSymbols = null) => {
     const updates = { testData };
     if (newColors) updates.colors = newColors;
+    if (newSymbols) updates.symbols = newSymbols;
 
     if (
       selectedDataPoint &&
@@ -125,6 +135,7 @@ const LegendCard = ({
     return framework ? framework.name : legendCardText.unknownFrameworkMessage;
   };
   const subtitleStyle = 'p-0 mb-0 border-0 text-secondary text-left';
+  const symbolType = series.symbol || ['circle', 'outline'];
 
   return (
     <FormGroup check className="pl-0 border">
@@ -145,6 +156,12 @@ const LegendCard = ({
           title="Add related configurations"
           type="button"
         >
+          <GraphIcon
+            iconType={symbolType[0]}
+            fill={symbolType[1] === 'fill' ? series.color[1] : '#ffffff'}
+            stroke={series.color[1]}
+          />
+
           {series.name}
         </p>
         <p

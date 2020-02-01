@@ -34,7 +34,7 @@ const fetchTestManifests = async (project, revision) => {
   const rootUrl = 'https://firefox-ci-tc.services.mozilla.com';
   const url = `${rootUrl}/api/index/v1/task/gecko.v2.${project}.revision.${revision}.taskgraph.decision/artifacts/public/manifests-by-task.json`;
   const response = await fetch(url);
-  if ([200, 304].indexOf(response.status) > -1) {
+  if ([200, 303, 304].indexOf(response.status) > -1) {
     taskNameToManifests = await response.json();
   }
   return taskNameToManifests;
@@ -163,15 +163,21 @@ class Push extends React.PureComponent {
 
   fetchTestManifests = async () => {
     const { currentRepo, push } = this.props;
-    const { jobList } = this.state;
 
     const jobTypeNameToManifests = await fetchTestManifests(
       currentRepo.name,
       push.revision,
     );
-    this.setState({ jobTypeNameToManifests });
-    // This adds to the jobs the test_path property
-    this.mapPushJobs(jobList);
+    // Call setState with callback to guarantee the state of jobTypeNameToManifest
+    // to be set since it is read within mapPushJobs and we might have a race
+    // condition. We are also reading jobList now rather than before fetching
+    // the artifact because it gives us an empty list
+    this.setState(
+      {
+        jobTypeNameToManifests,
+      },
+      () => this.mapPushJobs(this.state.jobList),
+    );
   };
 
   fetchJobs = async () => {
@@ -203,10 +209,10 @@ class Push extends React.PureComponent {
       // remove old versions of jobs we just fetched.
       const existingJobs = jobList.filter(job => !newIds.includes(job.id));
       // Join both lists and add test_paths property
-      const newJobList = [...existingJobs, ...jobs].map(job => ({
-        ...job,
-        test_paths: jobTypeNameToManifests[job.job_type_name] || [],
-      }));
+      const newJobList = [...existingJobs, ...jobs].map(job => {
+        job.test_paths = jobTypeNameToManifests[job.job_type_name] || [];
+        return job;
+      });
       const platforms = this.sortGroupedJobs(
         this.groupJobByPlatform(newJobList),
       );

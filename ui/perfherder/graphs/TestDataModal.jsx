@@ -427,7 +427,7 @@ export default class TestDataModal extends React.Component {
               {createDropdowns(modalOptions, 'p-2', true)}
               <Col sm="auto" className="p-2">
                 <Button
-                  color="info"
+                  color="darker-info"
                   outline
                   onClick={() =>
                     this.setState(
@@ -516,7 +516,7 @@ export default class TestDataModal extends React.Component {
             <Row className="p-2">
               <Col className="py-2 px-0 text-right">
                 <Button
-                  color="info"
+                  color="darker-info"
                   disabled={!selectedTests.length}
                   onClick={this.submitData}
                   onKeyPress={event => event.preventDefault()}
