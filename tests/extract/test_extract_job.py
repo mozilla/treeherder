@@ -3,7 +3,6 @@ from jx_mysql.mysql import MySQL
 from jx_mysql.mysql_snowflake_extractor import MySqlSnowflakeExtractor
 from mo_files import File
 from mo_future import text
-from mo_logs.strings import strip
 from mo_sql import SQL
 from mo_testing.fuzzytestcase import assertAlmostEqual
 
