@@ -351,7 +351,7 @@ class PushHeader extends React.Component {
               href={`/testview.html?repo=${currentRepo.name}&revision=${revision}`}
               target="_blank"
               rel="noopener noreferrer"
-              title="View details on failed test results for this push"
+              title="DEPRECATED: Please use Push Health instead"
             >
               View Tests
             </a>

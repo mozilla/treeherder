@@ -8,14 +8,10 @@ import {
   genericErrorMessage,
   errorMessageClass,
 } from '../../helpers/constants';
-import { compareDefaultTimeRange, phTimeRanges } from '../constants';
+import { compareDefaultTimeRange, endpoints, phTimeRanges } from '../constants';
 import ErrorBoundary from '../../shared/ErrorBoundary';
 import { getData } from '../../helpers/http';
-import {
-  createApiUrl,
-  perfSummaryEndpoint,
-  createQueryParams,
-} from '../../helpers/url';
+import { createApiUrl, createQueryParams } from '../../helpers/url';
 import { getFrameworkData, scrollWithOffset } from '../helpers';
 import TruncatedText from '../../shared/TruncatedText';
 import LoadingSpinner from '../../shared/LoadingSpinner';
@@ -99,8 +95,8 @@ export default class CompareTableView extends React.Component {
     const [originalParams, newParams] = getQueryParams(timeRange, framework);
 
     const [originalResults, newResults] = await Promise.all([
-      getData(createApiUrl(perfSummaryEndpoint, originalParams)),
-      getData(createApiUrl(perfSummaryEndpoint, newParams)),
+      getData(createApiUrl(endpoints.summary, originalParams)),
+      getData(createApiUrl(endpoints.summary, newParams)),
     ]);
 
     if (originalResults.failureStatus) {

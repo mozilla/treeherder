@@ -130,7 +130,6 @@ export default class WatchedRepo extends React.Component {
         <a
           href={changeRepoUrl}
           className={`watched-repo-main-btn btn btn-sm ${btnClass} ${activeClass}`}
-          type="button"
           title={status}
         >
           <FontAwesomeIcon

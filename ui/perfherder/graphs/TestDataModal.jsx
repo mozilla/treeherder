@@ -13,7 +13,7 @@ import {
 } from 'reactstrap';
 
 import { createDropdowns } from '../FilterControls';
-import InputFilter from '../InputFilter';
+import InputFilter from '../../shared/InputFilter';
 import { processResponse } from '../../helpers/http';
 import PerfSeriesModel from '../../models/perfSeries';
 import { thPerformanceBranches } from '../../helpers/constants';
@@ -98,6 +98,49 @@ export default class TestDataModal extends React.Component {
     this.setState(updates);
     this.processOptions();
   }
+
+  addRelatedApplications = async params => {
+    const { relatedSeries: relatedSignature } = this.props.options;
+    const { errorMessages } = this.state;
+    let relatedTests = [];
+
+    const { data, failureStatus } = await PerfSeriesModel.getSeriesList(
+      relatedSignature.repository_name,
+      params,
+    );
+
+    if (!failureStatus) {
+      relatedTests = data.filter(signature => {
+        const differentApplications =
+          signature.application !== relatedSignature.application;
+        const similarTestNames =
+          this.removeSubstring(signature.application, signature.name) ===
+          this.removeSubstring(
+            relatedSignature.application,
+            relatedSignature.name,
+          );
+        const samePlatform = signature.platform === relatedSignature.platform;
+        const sameProject =
+          signature.projectName === relatedSignature.repository_name;
+
+        return (
+          differentApplications &&
+          similarTestNames &&
+          samePlatform &&
+          sameProject
+        );
+      });
+    } else {
+      errorMessages.push(data);
+    }
+
+    this.setState({
+      relatedTests,
+      showNoRelatedTests: relatedTests.length === 0,
+      errorMessages,
+      loading: false,
+    });
+  };
 
   addRelatedConfigs = async params => {
     const { relatedSeries } = this.props.options;
@@ -198,6 +241,8 @@ export default class TestDataModal extends React.Component {
       this.addRelatedConfigs(params);
     } else if (option === 'addRelatedBranches') {
       this.addRelatedBranches(params);
+    } else if (option === 'addRelatedApplications') {
+      this.addRelatedApplications(params);
     }
   };
 
@@ -206,8 +251,10 @@ export default class TestDataModal extends React.Component {
   updateFilterText = filterText => {
     const { seriesData } = this.state;
     const filteredData = seriesData.filter(test => {
+      // spell out all searchable characteristics
+      // into a single encompassing string
       const tags = test.tags.join(' ');
-      const textToSearch = `${test.name} ${tags}`;
+      const textToSearch = `${test.name} ${tags} ${test.application}`;
 
       return containsText(textToSearch, filterText);
     });
@@ -301,6 +348,14 @@ export default class TestDataModal extends React.Component {
     );
   };
 
+  removeSubstring = (subString, fromString) =>
+    fromString.includes(subString)
+      ? fromString
+          .split(subString)
+          .join('')
+          .trim()
+      : fromString;
+
   extractUniqueUnits(tests) {
     return new Set(tests.map(aTest => aTest.measurementUnit));
   }
@@ -372,7 +427,7 @@ export default class TestDataModal extends React.Component {
               {createDropdowns(modalOptions, 'p-2', true)}
               <Col sm="auto" className="p-2">
                 <Button
-                  color="info"
+                  color="darker-info"
                   outline
                   onClick={() =>
                     this.setState(
@@ -461,7 +516,7 @@ export default class TestDataModal extends React.Component {
             <Row className="p-2">
               <Col className="py-2 px-0 text-right">
                 <Button
-                  color="info"
+                  color="darker-info"
                   disabled={!selectedTests.length}
                   onClick={this.submitData}
                   onKeyPress={event => event.preventDefault()}

@@ -255,7 +255,12 @@ const GraphTooltip = ({
             {!dataPointDetails.alertSummary && prevPushId && (
               <p className="pt-2">
                 {user.isStaff ? (
-                  <Button color="info" outline size="sm" onClick={createAlert}>
+                  <Button
+                    color="darker-info"
+                    outline
+                    size="sm"
+                    onClick={createAlert}
+                  >
                     create alert
                   </Button>
                 ) : (

@@ -162,9 +162,9 @@ def _update_table(data):
                     buildsystem=job["build_system_type"]
                 )
                 jobpriority.save()
-                logger.info('New job was found (%s,%s,%s,%s)',
-                            job['testtype'], job['platform_option'], job['platform'],
-                            job["build_system_type"])
+                logger.debug('New job was found (%s,%s,%s,%s)',
+                             job['testtype'], job['platform_option'], job['platform'],
+                             job["build_system_type"])
                 new_jobs += 1
             except Exception as error:
                 logger.warning(str(error))

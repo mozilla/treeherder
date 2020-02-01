@@ -1,3 +1,6 @@
+import fs from 'fs';
+import path from 'path';
+
 import React from 'react';
 import fetchMock from 'fetch-mock';
 import {
@@ -12,7 +15,23 @@ import TestFailure from '../../../ui/push-health/TestFailure';
 import pushHealth from '../mock/push_health';
 
 const repoName = 'autoland';
-const failure = pushHealth.metrics[0].failures.needInvestigation[0];
+const failure = pushHealth.metrics.tests.details.needInvestigation[0];
+const cssFile = fs.readFileSync(
+  path.resolve(
+    __dirname,
+    '../../../node_modules/bootstrap/dist/css/bootstrap.css',
+  ),
+);
+
+// Need to use this technique to add the CSS to the document since JSDOM doesn't
+// load the Reactstrap/Bootstrap CSS.
+// Credit: https://stackoverflow.com/questions/52813527/cannot-check-expectelm-not-tobevisible-for-semantic-ui-react-component
+const useStyles = container => {
+  const style = document.createElement('style');
+  style.type = 'text/css';
+  style.innerHTML = cssFile;
+  container.append(style);
+};
 
 beforeEach(() => {
   fetchMock.get('https://treestatus.mozilla-releng.net/trees/autoland', {
@@ -51,39 +70,44 @@ describe('TestFailure', () => {
 
     expect(
       await waitForElement(() =>
-        getByText(
-          'devtools/client/application/test/browser/browser_application_panel_sidebar.js',
-        ),
+        getByText('IndexedDB/idb-explicit-commit.any.worker.html'),
       ),
     ).toBeInTheDocument();
   });
 
-  test('should show small details by default', async () => {
-    const { getByText } = render(testTestFailure(failure));
+  test('should not show details by default', async () => {
+    const { container, getByText } = render(testTestFailure(failure));
+    useStyles(container);
 
+    // Must use .toBeVisible() rather than .toBeInTheDocument because
+    // Collapse just hides elements, doesn't remove them.
     expect(
       await waitForElement(() =>
-        getByText(
-          'A promise chain failed to handle a rejection: Connection closed, pending request to server0.conn17.child1/manifestActor19, type fetchCanonicalManifest failed',
-          { exact: false },
-        ),
+        getByText('Transactions that explicitly commit ', {
+          exact: false,
+        }),
       ),
-    ).toBeInTheDocument();
+    ).not.toBeVisible();
     expect(
       await waitForElement(() => getByText('more...')),
     ).toBeInTheDocument();
   });
 
   test('should show details when click more...', async () => {
-    const { getByText } = render(testTestFailure(failure));
+    const { container, getByText } = render(testTestFailure(failure));
     const moreLink = getByText('more...');
+
+    useStyles(container);
     fireEvent.click(moreLink);
 
     expect(
       await waitForElement(() =>
-        getByText('Rejection date: Tue Sep 17 2019', { exact: false }),
+        getByText(
+          'Error in remote: uncaught exception: Error: assert_unreached',
+          { exact: false },
+        ),
       ),
-    ).toBeInTheDocument();
+    ).toBeVisible();
     expect(
       await waitForElement(() => getByText('less...')),
     ).toBeInTheDocument();

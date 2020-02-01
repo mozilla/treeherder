@@ -18,6 +18,7 @@ services:
       - UPSTREAM_DATABASE_URL=${UPSTREAM_DATABASE_URL:-}
       - REDIS_URL=redis://redis:6379
       - SITE_URL=http://backend:8000/
+      - LOGGING_LEVEL=INFO
       - TREEHERDER_DEBUG=True
       - TREEHERDER_DJANGO_SECRET_KEY=secret-key-of-at-least-50-characters-to-pass-check-deploy
       - NEW_RELIC_DEVELOPER_MODE=True

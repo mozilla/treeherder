@@ -6,10 +6,7 @@ import queryString from 'query-string';
 
 import { getData, processResponse, processErrors } from '../../helpers/http';
 import {
-  getApiUrl,
   createApiUrl,
-  perfSummaryEndpoint,
-  createQueryParams,
   parseQueryParams,
   updateQueryParams,
 } from '../../helpers/url';
@@ -21,6 +18,7 @@ import { processSelectedParam, createGraphData } from '../helpers';
 import {
   endpoints,
   graphColors,
+  graphSymbols,
   phTimeRanges,
   phDefaultTimeRangeValue,
 } from '../constants';
@@ -45,6 +43,7 @@ class GraphsView extends React.Component {
       options: {},
       loading: false,
       colors: [...graphColors],
+      symbols: [...graphSymbols],
       showModal: false,
       visibilityChanged: false,
     };
@@ -135,7 +134,7 @@ class GraphsView extends React.Component {
     const responses = await Promise.all(
       tests.map(series =>
         getData(
-          createApiUrl(perfSummaryEndpoint, this.createSeriesParams(series)),
+          createApiUrl(endpoints.summary, this.createSeriesParams(series)),
         ),
       ),
     );
@@ -168,33 +167,35 @@ class GraphsView extends React.Component {
   };
 
   createGraphObject = async seriesData => {
-    const { colors } = this.state;
+    const { colors, symbols } = this.state;
     const alertSummaries = await Promise.all(
       seriesData.map(series =>
         this.getAlertSummaries(series.signature_id, series.repository_id),
       ),
     );
     const newColors = [...colors];
+    const newSymbols = [...symbols];
+
     const graphData = createGraphData(
       seriesData,
       alertSummaries.flat(),
       newColors,
+      newSymbols,
     );
-    this.setState({ colors: newColors });
+
+    this.setState({ colors: newColors, symbols: newSymbols });
     return graphData;
   };
 
   getAlertSummaries = async (signatureId, repository) => {
     const { errorMessages } = this.state;
 
-    const url = getApiUrl(
-      `${endpoints.alertSummary}${createQueryParams({
+    const data = await getData(
+      createApiUrl(endpoints.alertSummary, {
         alerts__series_signature: signatureId,
         repository,
-      })}`,
+      }),
     );
-
-    const data = await getData(url);
     const response = processResponse(data, 'alertSummaries', errorMessages);
 
     if (response.alertSummaries) {
@@ -319,6 +320,7 @@ class GraphsView extends React.Component {
       zoom,
       options,
       colors,
+      symbols,
       showModal,
       visibilityChanged,
     } = this.state;
@@ -357,6 +359,7 @@ class GraphsView extends React.Component {
                           this.setState(state, this.changeParams)
                         }
                         colors={colors}
+                        symbols={symbols}
                         selectedDataPoint={selectedDataPoint}
                       />
                     </div>
@@ -394,6 +397,7 @@ class GraphsView extends React.Component {
                       zoom: {},
                       selectedDataPoint: null,
                       colors: [...graphColors],
+                      symbols: [...graphSymbols],
                     },
                     this.getTestData,
                   )

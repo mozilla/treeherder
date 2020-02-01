@@ -9,6 +9,7 @@ import {
   PaginationItem,
   PaginationLink,
 } from 'reactstrap';
+import cloneDeep from 'lodash/cloneDeep';
 
 import withValidation from '../Validation';
 import { convertParams, getFrameworkData, getStatus } from '../helpers';
@@ -33,10 +34,17 @@ import AlertsViewControls from './AlertsViewControls';
 class AlertsView extends React.Component {
   constructor(props) {
     super(props);
+    const { frameworks } = this.props;
     this.validated = this.props.validated;
+
+    const extendedOptions = this.extendDropdownOptions(frameworks);
     this.state = {
       status: this.getDefaultStatus(),
-      framework: getFrameworkData(this.props),
+      framework: getFrameworkData({
+        validated: this.props.validated,
+        frameworks: extendedOptions,
+      }),
+      frameworkOptions: extendedOptions,
       page: this.validated.page ? parseInt(this.validated.page, 10) : 1,
       errorMessages: [],
       alertSummaries: [],
@@ -73,6 +81,13 @@ class AlertsView extends React.Component {
     }
   }
 
+  extendDropdownOptions = frameworks => {
+    const frameworkOptions = cloneDeep(frameworks);
+    const ignoreFrameworks = { id: -1, name: 'all' };
+    frameworkOptions.unshift(ignoreFrameworks);
+    return frameworkOptions;
+  };
+
   getDefaultStatus = () => {
     const { validated } = this.props;
 
@@ -85,9 +100,8 @@ class AlertsView extends React.Component {
 
   updateFramework = selection => {
     const { updateParams } = this.props.validated;
-    const { frameworks } = this.props;
-    const framework = frameworks.find(item => item.name === selection);
-
+    const { frameworkOptions } = this.state;
+    const framework = frameworkOptions.find(item => item.name === selection);
     updateParams({ framework: framework.id });
     this.setState({ framework, bugTemplate: null }, () =>
       this.fetchAlertSummaries(),
@@ -121,6 +135,25 @@ class AlertsView extends React.Component {
     return pages;
   };
 
+  composeParams = (id, page, framework, status) => {
+    const params = id
+      ? { id }
+      : { framework: framework.id, page, status: summaryStatusMap[status] };
+
+    // -1 ('all') is created for UI purposes but is not a valid API parameter
+    const doNotFilter = -1;
+    const listMode = !id;
+
+    if (listMode && params.status === doNotFilter) {
+      delete params.status;
+    }
+    if (listMode && params.framework === doNotFilter) {
+      delete params.framework;
+    }
+
+    return params;
+  };
+
   async fetchAlertSummaries(id = this.state.id, update = false) {
     // turn off loading when update is true (used to update alert statuses)
     this.setState({ loading: !update, errorMessages: [] });
@@ -137,21 +170,7 @@ class AlertsView extends React.Component {
     } = this.state;
 
     let updates = { loading: false };
-    let params;
-
-    if (id) {
-      params = { id };
-    } else {
-      params = {
-        framework: framework.id,
-        page,
-      };
-    }
-
-    if (!id && summaryStatusMap[status] !== -1) {
-      // -1 ('all') is created for UI purposes but is not a valid API parameter
-      params.status = summaryStatusMap[status];
-    }
+    const params = this.composeParams(id, page, framework, status);
 
     const url = getApiUrl(
       `${endpoints.alertSummary}${createQueryParams(params)}`,
@@ -199,9 +218,10 @@ class AlertsView extends React.Component {
   }
 
   render() {
-    const { user, frameworks } = this.props;
+    const { user } = this.props;
     const {
       framework,
+      frameworkOptions,
       status,
       errorMessages,
       loading,
@@ -215,18 +235,22 @@ class AlertsView extends React.Component {
     } = this.state;
 
     const frameworkNames =
-      frameworks && frameworks.length ? frameworks.map(item => item.name) : [];
+      frameworkOptions && frameworkOptions.length
+        ? frameworkOptions.map(item => item.name)
+        : [];
 
     const alertDropdowns = [
       {
         options: Object.keys(summaryStatusMap),
         selectedItem: status,
         updateData: this.updateStatus,
+        namespace: 'status',
       },
       {
         options: frameworkNames,
         selectedItem: framework.name,
         updateData: this.updateFramework,
+        namespace: 'framework',
       },
     ];
     // this is not strictly accurate since we have no way of knowing the final count
@@ -273,7 +297,7 @@ class AlertsView extends React.Component {
                 {page > 1 && (
                   <PaginationItem>
                     <PaginationLink
-                      className="text-info"
+                      className="text-darker-info"
                       previous
                       onClick={() => this.navigatePage(page - 1)}
                     />
@@ -283,10 +307,10 @@ class AlertsView extends React.Component {
                   <PaginationItem
                     key={num}
                     active={num === page}
-                    className="text-info pagination-active"
+                    className="text-darker-info pagination-active"
                   >
                     <PaginationLink
-                      className="text-info"
+                      className="text-darker-info"
                       onClick={() => this.navigatePage(num)}
                     >
                       {num}
@@ -296,7 +320,7 @@ class AlertsView extends React.Component {
                 {page < count && (
                   <PaginationItem>
                     <PaginationLink
-                      className="text-info"
+                      className="text-darker-info"
                       next
                       onClick={() => this.navigatePage(page + 1)}
                     />

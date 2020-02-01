@@ -5,16 +5,34 @@ import {
   fireEvent,
   waitForElement,
 } from '@testing-library/react';
+import fetchMock from 'fetch-mock';
+import queryString from 'query-string';
 
-import { filterText, graphColors } from '../../../ui/perfherder/constants';
+import {
+  endpoints,
+  filterText,
+  graphColors,
+  graphSymbols,
+} from '../../../ui/perfherder/constants';
 import GraphsViewControls from '../../../ui/perfherder/graphs/GraphsViewControls';
 import repos from '../mock/repositories';
 import testData from '../mock/performance_summary.json';
 import seriesData from '../mock/performance_signature_formatted.json';
 import seriesData2 from '../mock/performance_signature_formatted2.json';
+import { getProjectUrl } from '../../../ui/helpers/location';
 import { createGraphData } from '../../../ui/perfherder/helpers';
+import {
+  createApiUrl,
+  createQueryParams,
+  getApiUrl,
+} from '../../../ui/helpers/url';
 
-const graphData = createGraphData(testData, [], [...graphColors]);
+const graphData = createGraphData(
+  testData,
+  [],
+  [...graphColors],
+  [...graphSymbols],
+);
 
 const frameworks = [
   { id: 1, name: 'talos' },
@@ -211,4 +229,110 @@ test('Using select query param displays tooltip for correct datapoint', async ()
 
   expect(graphTooltip).toBeInTheDocument();
   expect(revision).toBeInTheDocument();
+});
+
+test('InputFilter from TestDataModal can filter by application name', async () => {
+  const {
+    getByText,
+    getByTestId,
+    getByPlaceholderText,
+    getByTitle,
+  } = graphsViewControls();
+
+  const { name, application, projectName, platform } = seriesData[0];
+  const fullTestName = projectName.concat(' ', platform, ' ', name);
+
+  fireEvent.click(getByText('Add test data'));
+
+  const textInput = await waitForElement(() =>
+    getByPlaceholderText(filterText.inputPlaceholder),
+  );
+  setFilterText(textInput, application);
+
+  const fullTestToSelect = await waitForElement(() => getByTitle(name));
+
+  fireEvent.click(fullTestToSelect);
+
+  const selectedTests = getByTestId('selectedTests');
+
+  expect(selectedTests.children).toHaveLength(1);
+  expect(selectedTests.children[0].text).toBe(fullTestName);
+});
+
+describe('Mocked API calls', () => {
+  beforeAll(() => {
+    fetchMock.mock(
+      createApiUrl(endpoints.summary, {
+        repository: testData[0].repository_name,
+        signature: testData[0].signature_id,
+        framework: testData[0].framework_id,
+        interval: 1209600,
+        all_data: true,
+      }),
+      {
+        data: seriesData,
+        failureStatus: null,
+      },
+    );
+
+    fetchMock.mock(
+      `${getProjectUrl(
+        '/performance/platforms/',
+        seriesData[0].projectName,
+      )}${createQueryParams({
+        interval: 1209600,
+        framework: testData[0].framework_id,
+      })}`,
+      [
+        'windows10-64-qr',
+        'linux64',
+        'linux64-shippable',
+        'windows7-32-shippable',
+        'macosx1014-64-shippable',
+        'windows10-64-shippable-qr',
+        'linux64-qr',
+        'windows7-32',
+        'linux64-shippable-qr',
+        'windows10-64',
+        'windows10-64-ref-hw-2017',
+        'windows10-64-shippable',
+        'windows10-aarch64',
+      ],
+    );
+
+    fetchMock.mock(getApiUrl('/optioncollectionhash/'), [
+      {
+        option_collection_hash: 'cb4e5208b4cd87268b208e49452ed6e89a68e0b8',
+        options: [
+          {
+            name: '32',
+          },
+        ],
+      },
+    ]);
+
+    fetchMock.mock(
+      `${getProjectUrl(
+        '/performance/signatures/',
+        seriesData[0].projectName,
+      )}?${queryString.stringify({
+        framework: 1,
+        interval: 1209600,
+        platform: 'linux64',
+        subtests: 0,
+      })}`,
+      {
+        fcefb979eac44d057f9c05434580ce7845f4c2d6: {
+          id: 1647494,
+          framework_id: 1,
+          option_collection_hash: 'fcefb979eac44d057f9c05434580ce7845f4c2d6',
+          machine_platform: 'linux64',
+          suite: 'a11yr',
+          has_subtests: true,
+          extra_options: ['opt', 'e10s', 'stylo'],
+        },
+      },
+    );
+  });
+  // Add here high level GraphsView tests...
 });

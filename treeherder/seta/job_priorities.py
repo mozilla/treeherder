@@ -26,6 +26,9 @@ class SETAJobPriorities:
     """
     def _process(self, project, build_system, job_priorities):
         '''Return list of ref_data_name for job_priorities'''
+        if not job_priorities:
+            raise SetaError("Call docker-compose run backend ./manage.py initialize_seta")
+
         jobs = []
 
         # we cache the reference data names in order to reduce API calls
@@ -107,8 +110,7 @@ class SETAJobPriorities:
             elif job['build_system_type'] == build_system:
                 ref_data_names[key] = job['ref_data_name']
 
-        for ref_data_name in sorted(ignored_jobs):
-            logger.info('Ignoring %s', ref_data_name)
+        logger.debug('Ignoring %s', ', '.join(sorted(ignored_jobs)))
 
         return ref_data_names
 

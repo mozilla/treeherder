@@ -12,6 +12,12 @@ import {
   faQuestion,
   faQuestionCircle,
 } from '@fortawesome/free-solid-svg-icons';
+import {
+  DropdownMenu,
+  DropdownItem,
+  DropdownToggle,
+  UncontrolledDropdown,
+} from 'reactstrap';
 
 const menuItems = [
   {
@@ -58,46 +64,33 @@ const menuItems = [
   },
 ];
 
-export default function HelpMenu() {
-  return (
-    <span id="help-menu" className="dropdown">
-      <button
-        id="helpLabel"
-        type="button"
+const HelpMenu = () => (
+  <UncontrolledDropdown>
+    <DropdownToggle className="btn-view-nav nav-menu-btn" nav caret>
+      <FontAwesomeIcon
+        icon={faQuestionCircle}
+        className="lightgray mr-1"
         title="Treeherder help"
-        aria-label="Treeherder help"
-        data-toggle="dropdown"
-        className="btn btn-view-nav nav-help-btn dropdown-toggle"
-      >
-        <FontAwesomeIcon
-          icon={faQuestionCircle}
-          className="lightgray mr-1"
-          title="Treeherder help"
-        />
-      </button>
-      <ul
-        className="dropdown-menu nav-dropdown-menu-right icon-menu"
-        role="menu"
-        aria-labelledby="helpLabel"
-      >
-        {menuItems.map(item => (
-          <li key={item.text}>
-            <a
-              href={item.href}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="dropdown-item"
-            >
-              <FontAwesomeIcon
-                icon={item.icon}
-                fixedWidth
-                className="midgray mr-2"
-              />
-              {item.text}
-            </a>
-          </li>
-        ))}
-      </ul>
-    </span>
-  );
-}
+      />
+    </DropdownToggle>
+    <DropdownMenu right className="icon-menu">
+      {menuItems.map(item => (
+        <DropdownItem
+          tag="a"
+          target="_blank"
+          rel="noopener noreferrer"
+          href={item.href}
+        >
+          <FontAwesomeIcon
+            icon={item.icon}
+            fixedWidth
+            className="midgray mr-2"
+          />
+          {item.text}
+        </DropdownItem>
+      ))}
+    </DropdownMenu>
+  </UncontrolledDropdown>
+);
+
+export default HelpMenu;

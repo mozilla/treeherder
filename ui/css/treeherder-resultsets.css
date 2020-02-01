@@ -49,6 +49,10 @@
   padding-right: 10px;
 }
 
+.push-health .badge.badge-success {
+  background-color: #1b7e32;
+}
+
 .push-progress {
   color: #6f6d70;
   font-style: italic;
@@ -139,7 +143,7 @@ th-action-button .btn-push {
 }
 
 .revision[data-tags~='backout'] .revision-comment {
-  color: red;
+  color: #e20303;
 }
 
 .commit-sha {
@@ -157,11 +161,11 @@ th-action-button .btn-push {
   font-style: italic;
   font-weight: bold;
   padding-left: 3px;
-  color: gray;
+  color: #767676;
 }
 
 .revision-comment {
-  color: #777;
+  color: #767676;
 }
 
 /*
@@ -196,7 +200,11 @@ th-action-button .btn-push {
 }
 
 .job-list table tr:nth-child(even) {
-  background: #f8f8f8;
+  background: #f8f8f896;
+}
+
+.table-hover tbody tr:hover {
+  background-color: rgba(0, 0, 0, 0.03);
 }
 
 .get-next {

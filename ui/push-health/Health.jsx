@@ -16,6 +16,12 @@ import {
 import PushModel from '../models/push';
 import StatusProgress from '../shared/StatusProgress';
 import { getPercentComplete } from '../helpers/display';
+import {
+  createQueryParams,
+  parseQueryParams,
+  updateQueryParams,
+} from '../helpers/url';
+import InputFilter from '../shared/InputFilter';
 
 import { resultColorMap } from './helpers';
 import Metric from './Metric';
@@ -42,6 +48,7 @@ export default class Health extends React.PureComponent {
       buildsExpanded: false,
       testsExpanded: false,
       performanceExpanded: false,
+      searchStr: params.get('searchStr') || '',
     };
   }
 
@@ -114,6 +121,21 @@ export default class Health extends React.PureComponent {
     });
   };
 
+  filter = searchStr => {
+    const { location, history } = this.props;
+    const newParams = { ...parseQueryParams(location.search), searchStr };
+
+    if (!searchStr.length) {
+      delete newParams.searchStr;
+    }
+
+    const queryString = createQueryParams(newParams);
+
+    updateQueryParams(queryString, history, location);
+
+    this.setState({ searchStr });
+  };
+
   render() {
     const {
       metrics,
@@ -129,6 +151,7 @@ export default class Health extends React.PureComponent {
       buildsExpanded,
       testsExpanded,
       performanceExpanded,
+      searchStr,
     } = this.state;
     const { tests, linting, builds, performance } = metrics;
     const { currentRepo } = this.props;
@@ -149,37 +172,47 @@ export default class Health extends React.PureComponent {
           repo={repo}
           revision={revision}
         >
-          <Navbar color="light" light expand="sm" sticky="top">
+          <Navbar color="light" light expand="sm" className="w-100">
             {!!tests && (
-              <Nav className="metric-buttons mb-3 pt-2 pl-3">
-                {[progress, linting, builds, tests, performance].map(metric => (
-                  <Button
-                    size="sm"
-                    className="mr-2"
-                    color={resultColorMap[metric.result]}
-                    title={`Click to toggle ${
-                      metric.name
-                    }: ${metric.result.toUpperCase()}`}
-                    onClick={() => this.toggleExpanded(metric.name)}
-                    key={metric.name}
-                  >
-                    {metric.name}
-                    {['pass', 'fail', 'indeterminate'].includes(
-                      metric.result,
-                    ) ? (
-                      <FontAwesomeIcon
-                        className="ml-1"
-                        icon={
-                          metric.result === 'pass'
-                            ? faCheckCircle
-                            : faExclamationTriangle
-                        }
-                      />
-                    ) : (
-                      <span className="ml-1">{metric.value}%</span>
-                    )}
-                  </Button>
-                ))}
+              <Nav className="metric-buttons mb-2 pt-2 pl-3 justify-content-between w-100">
+                <span>
+                  {[progress, linting, builds, tests, performance].map(
+                    metric => (
+                      <Button
+                        size="sm"
+                        className="mr-2"
+                        color={resultColorMap[metric.result]}
+                        title={`Click to toggle ${
+                          metric.name
+                        }: ${metric.result.toUpperCase()}`}
+                        onClick={() => this.toggleExpanded(metric.name)}
+                        key={metric.name}
+                      >
+                        {metric.name}
+                        {['pass', 'fail', 'indeterminate'].includes(
+                          metric.result,
+                        ) ? (
+                          <FontAwesomeIcon
+                            className="ml-1"
+                            icon={
+                              metric.result === 'pass'
+                                ? faCheckCircle
+                                : faExclamationTriangle
+                            }
+                          />
+                        ) : (
+                          <span className="ml-1">{metric.value}%</span>
+                        )}
+                      </Button>
+                    ),
+                  )}
+                </span>
+                <span className="mr-2">
+                  <InputFilter
+                    updateFilterText={this.filter}
+                    placeholder="filter path or platform"
+                  />
+                </span>
               </Nav>
             )}
           </Navbar>
@@ -232,6 +265,7 @@ export default class Health extends React.PureComponent {
                   notify={this.notify}
                   expanded={testsExpanded}
                   toggleExpanded={this.toggleExpanded}
+                  searchStr={searchStr}
                 />
               </Row>
               <Row>

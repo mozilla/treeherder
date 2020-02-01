@@ -29,6 +29,17 @@ import { RevisionList } from './RevisionList';
 const watchCycleStates = ['none', 'push', 'job', 'none'];
 const platformArray = Object.values(thPlatformMap);
 
+const fetchTestManifests = async (project, revision) => {
+  let taskNameToManifests = {};
+  const rootUrl = 'https://firefox-ci-tc.services.mozilla.com';
+  const url = `${rootUrl}/api/index/v1/task/gecko.v2.${project}.revision.${revision}.taskgraph.decision/artifacts/public/manifests-by-task.json`;
+  const response = await fetch(url);
+  if ([200, 303, 304].indexOf(response.status) > -1) {
+    taskNameToManifests = await response.json();
+  }
+  return taskNameToManifests;
+};
+
 class Push extends React.PureComponent {
   constructor(props) {
     super(props);
@@ -49,12 +60,12 @@ class Push extends React.PureComponent {
     };
   }
 
-  componentDidMount() {
+  async componentDidMount() {
     // if ``nojobs`` is on the query string, then don't load jobs.
     // this allows someone to more quickly load ranges of revisions
     // when they don't care about the specific jobs and results.
     if (!getAllUrlParams().has('nojobs')) {
-      this.fetchJobs();
+      await Promise.all([this.fetchJobs(), this.fetchTestManifests()]);
     }
 
     window.addEventListener(thEvents.applyNewJobs, this.handleApplyNewJobs);
@@ -150,6 +161,25 @@ class Push extends React.PureComponent {
     return selectedRunnableJobs;
   };
 
+  fetchTestManifests = async () => {
+    const { currentRepo, push } = this.props;
+
+    const jobTypeNameToManifests = await fetchTestManifests(
+      currentRepo.name,
+      push.revision,
+    );
+    // Call setState with callback to guarantee the state of jobTypeNameToManifest
+    // to be set since it is read within mapPushJobs and we might have a race
+    // condition. We are also reading jobList now rather than before fetching
+    // the artifact because it gives us an empty list
+    this.setState(
+      {
+        jobTypeNameToManifests,
+      },
+      () => this.mapPushJobs(this.state.jobList),
+    );
+  };
+
   fetchJobs = async () => {
     const { push, notify } = this.props;
     const { data, failureStatus } = await JobModel.getList(
@@ -168,6 +198,7 @@ class Push extends React.PureComponent {
 
   mapPushJobs = (jobs, skipJobMap) => {
     const { updateJobMap, recalculateUnclassifiedCounts, push } = this.props;
+    const { jobTypeNameToManifests = {} } = this.state;
 
     // whether or not we got any jobs for this push, the operation to fetch
     // them has completed.
@@ -177,7 +208,11 @@ class Push extends React.PureComponent {
       const newIds = jobs.map(job => job.id);
       // remove old versions of jobs we just fetched.
       const existingJobs = jobList.filter(job => !newIds.includes(job.id));
-      const newJobList = [...existingJobs, ...jobs];
+      // Join both lists and add test_paths property
+      const newJobList = [...existingJobs, ...jobs].map(job => {
+        job.test_paths = jobTypeNameToManifests[job.job_type_name] || [];
+        return job;
+      });
       const platforms = this.sortGroupedJobs(
         this.groupJobByPlatform(newJobList),
       );

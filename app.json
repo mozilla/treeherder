@@ -41,7 +41,7 @@
       "generator": "secret"
     },
     "PROJECTS_TO_INGEST": {
-      "value": "autoland"
+      "value": "autoland,try"
     },
     "TREEHERDER_DJANGO_SECRET_KEY": {
       "generator": "secret"
