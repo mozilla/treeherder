@@ -1,5 +1,6 @@
 import asyncio
 import logging
+from concurrent.futures import ThreadPoolExecutor
 
 import aiohttp
 import requests
@@ -24,6 +25,9 @@ conn = aiohttp.TCPConnector(limit=10)
 timeout = aiohttp.ClientTimeout(total=0)
 session = taskcluster.aio.createSession(loop=loop, connector=conn, timeout=timeout)
 
+# Executor to run threads in parallel
+executor = ThreadPoolExecutor()
+
 stateToExchange = {}
 for key, value in EXCHANGE_EVENT_MAP.items():
     stateToExchange[value] = key
@@ -39,8 +43,12 @@ async def handleTaskId(taskId, root_url):
 
 
 async def handleTask(task, root_url):
+    async def _to_future(*args):
+        return await loop.run_in_executor(executor, JobLoader().process_job, *args)
+
     taskId = task["status"]["taskId"]
     runs = task["status"]["runs"]
+
     # If we iterate in order of the runs, we will not be able to mark older runs as
     # "retry" instead of exception
     for run in reversed(runs):
@@ -57,13 +65,20 @@ async def handleTask(task, root_url):
         }
         try:
             taskRuns = await handleMessage(message, task["task"])
-            if taskRuns:
-                for run in taskRuns:
-                    logger.info("Loading into DB:\t%s/%s", taskId, run["retryId"])
-                    # XXX: This seems our current bottleneck
-                    JobLoader().process_job(run, root_url)
         except Exception as e:
             logger.exception(e)
+
+        if taskRuns:
+            retryIds = [run["retryId"] for run in taskRuns]
+            # Schedule and run jobs inside the thread pool executor
+            scheduledJobs = [_to_future(run, root_url) for run in taskRuns]
+            # Await for each job for to be processed
+            for retryId, job in zip(retryIds, asyncio.as_completed(scheduledJobs)):
+                logger.info("Loading into DB:\t%s/%s", taskId, retryId)
+                try:
+                    await job
+                except Exception as e:
+                    logger.exception(e)
 
 
 async def fetchGroupTasks(taskGroupId, root_url):
