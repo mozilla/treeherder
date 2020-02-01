@@ -1,17 +1,23 @@
 import logging
 
 from django.db.models import Q
-from redis import Redis
-
 from jx_bigquery import bigquery
 from jx_mysql.mysql import MySQL
 from jx_mysql.mysql_snowflake_extractor import MySqlSnowflakeExtractor
 from mo_files import File
-from mo_json import json2value, value2json
-from mo_logs import Log, constants, startup
+from mo_json import (json2value,
+                     value2json)
+from mo_logs import (Log,
+                     constants,
+                     startup)
 from mo_sql import SQL
-from mo_times import DAY, Timer, YEAR
-from mo_times.dates import Date, parse
+from mo_times import (DAY,
+                      YEAR,
+                      Timer)
+from mo_times.dates import (Date,
+                            parse)
+from redis import Redis
+
 from treeherder.perf.models import PerformanceAlertSummary
 
 CONFIG_FILE = (File.new_instance(__file__).parent / "extract_alerts.json").abspath

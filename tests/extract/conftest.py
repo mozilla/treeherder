@@ -1,9 +1,10 @@
 import os
 
 import pytest
-from mo_logs import (constants,
+from mo_logs import (Log,
+                     constants,
                      startup,
-                     strings, Log)
+                     strings)
 from mo_logs.convert import unix2datetime
 from mo_math.randoms import Random
 from mo_times import Date
