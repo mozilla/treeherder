@@ -1,0 +1,148 @@
+[
+  {
+    "autoclassify_status": 1,
+    "build_platform": {
+      "architecture": "x86",
+      "os_name": "my_os",
+      "platform": "my_platform"
+    },
+    "submit_time": 1578427253,
+    "start_time": 1578430841,
+    "end_time": 1578432680,
+    "failure_classification": "not classified",
+    "id": 1,
+    "job_detail": [
+      {
+        "title": "artifact uploaded",
+        "url": "https://example.com/api/queue/v1/task/WWb9ExAvQUa78ku0DIxdSQ/runs/0/artifacts/public/test_info/wpt_raw.log",
+        "value": "wpt_raw.log"
+      },
+      {
+        "title": "artifact uploaded",
+        "url": "https://example.com/api/queue/v1/task/WWb9ExAvQUa78ku0DIxdSQ/runs/0/artifacts/public/test_info/wptreport.json",
+        "value": "wptreport.json"
+      },
+      {
+        "title": "CPU usage",
+        "value": "26.8%"
+      },
+      {
+        "title": "I/O read bytes / time",
+        "value": "179,900,416 / 41"
+      }
+    ],
+    "job_group": {
+      "description": null,
+      "name": "myjobgroup",
+      "symbol": "S"
+    },
+    "job_log": [
+      {
+        "name": "builds-4h",
+        "status": 1,
+        "url": "https://example.com/api/queue/v1/task/WWb9ExAvQUa78ku0DIxdSQ/runs/0/artifacts/public/logs/live_backing.log"
+      },
+      {
+        "failure_line": [
+          {
+            "action": "test_groups",
+            "best_classification": {
+              "bug_number": 1234567,
+              "created": 1579277905,
+              "modified": 1579277905
+            },
+            "best_is_verified": 1,
+            "line": 15
+          },
+          {
+            "action": "crash",
+            "best_classification": {
+              "bug_number": 1234567,
+              "created": 1579277905,
+              "modified": 1579277905
+            },
+            "best_is_verified": 0,
+            "line": 24031,
+            "signature": "@ mozilla::dom::CustomElementData::SetCustomElementDefinition(mozilla::dom::CustomElementDefinition*)",
+            "test": "/custom-elements/upgrading.html"
+          }
+        ],
+        "name": "errorsummary_json",
+        "status": 1,
+        "url": "https://example.com/api/queue/v1/task/WWb9ExAvQUa78ku0DIxdSQ/runs/0/artifacts/public/test_info/wpt_errorsummary.log"
+      }
+    ],
+    "job_type": {
+      "name": "myjob",
+      "symbol": "j"
+    },
+    "machine": {
+      "name": "mymachine"
+    },
+    "machine_platform": {
+      "architecture": "x86",
+      "os_name": "my_os",
+      "platform": "my_platform"
+    },
+    "options": {
+      "option": "debug"
+    },
+    "product": {
+      "name": "myproduct"
+    },
+    "push": {
+      "author": "testing@mozilla.com",
+      "repository": "autoland",
+      "revision": "ae6bb3a1066959a8c43d003a3caab0af769455bf",
+      "time": 1578445105
+    },
+    "reason": "scheduled",
+    "repository": "test_treeherder_jobs",
+    "result": "success",
+    "signature": {
+      "build_architecture": "x86",
+      "build_os_name": "my_os",
+      "build_platform": "my_platform",
+      "build_system_type": "buildbot",
+      "first_submission_timestamp": 0,
+      "job_group_name": "myjobgroup",
+      "job_group_symbol": "S",
+      "job_type_name": "myjob",
+      "job_type_symbol": "j",
+      "machine_architecture": "x86",
+      "machine_os_name": "my_os",
+      "machine_platform": "my_platform",
+      "name": "myreferencedatasignaeture",
+      "option_collection_hash": "my_option_hash",
+      "repository": "test_treeherder_jobs",
+      "signature": "1234"
+    },
+    "state": "completed",
+    "taskcluster_metadata": [
+      {
+        "retry_id": 0,
+        "task_id": "WWb9ExAvQUa78ku0DIxdSQ"
+      }
+    ],
+    "text_log_step": [
+      {
+        "finished_line_number": 88739,
+        "name": "Unnamed step",
+        "result": 7,
+        "started_line_number": 0,
+        "text_log_error": [
+          {
+            "line": "line contents here",
+            "line_number": 619845839
+          },
+          {
+            "line": "ERROR! more line contents",
+            "line_number": 6
+          }
+        ]
+      }
+    ],
+    "tier": 1,
+    "who": "example@mozilla.com"
+  }
+]
