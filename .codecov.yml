@@ -4,3 +4,9 @@ coverage:
     project:
       default:
         threshold: 2
+    ui:
+      flags:ui
+      target: 40% 
+flags:
+  ui:
+    -./ui
