@@ -1,27 +1,20 @@
 import logging
 
-from jx_bigquery import bigquery
-from jx_mysql.mysql import (MySQL,
-                            quote_value)
-from jx_mysql.mysql_snowflake_extractor import MySqlSnowflakeExtractor
-from mo_files import File
-from mo_json import (json2value,
-                     value2json)
-from mo_logs import (Log,
-                     constants,
-                     startup)
-from mo_sql import SQL
-from mo_times import (DAY,
-                      Timer)
-from mo_times.dates import (Date,
-                            parse)
+from django.db.models import Q
 from redis import Redis
 
-from treeherder.extract import VENDOR_PATH
+from jx_bigquery import bigquery
+from jx_mysql.mysql import MySQL
+from jx_mysql.mysql_snowflake_extractor import MySqlSnowflakeExtractor
+from mo_files import File
+from mo_json import json2value, value2json
+from mo_logs import Log, constants, startup
+from mo_sql import SQL
+from mo_times import DAY, Timer, YEAR
+from mo_times.dates import Date, parse
+from treeherder.perf.models import PerformanceAlertSummary
 
 CONFIG_FILE = (File.new_instance(__file__).parent / "extract_alerts.json").abspath
-
-_keep_import = VENDOR_PATH
 
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.INFO)
@@ -82,24 +75,39 @@ class ExtractAlerts:
                     last_modified=last_modified,
                     alert_id=alert_id,
                 )
-                last_year = Date.today() - (
-                    364 * DAY
+                last_year = (
+                    Date.today() - YEAR + DAY
                 )  # ONLY YOUNG RECORDS CAN GO INTO BIGQUERY
+
+                # SELECT
+                #     s.od
+                # FROM
+                #     treeherder.performance_alert_summary s
+                # LEFT JOIN
+                #     treeherder.performance_alert a ON s.id=a.summary_id
+                # WHERE
+                #     s.created>{last_year} AND (s.last_updated>{last_modified} OR a.last_updated>{last_modified})
+                # GROUP BY
+                #     s.id
+                # ORDER BY
+                #     s.id
+                # LIMIT
+                #     {settings.extractor.chunk_size}
                 get_ids = SQL(
-                    "SELECT s.id "
-                    + "\nFROM treeherder.performance_alert_summary s"
-                    + "\nLEFT JOIN treeherder.performance_alert a ON s.id=a.summary_id"
-                    + "\nWHERE s.created>"
-                    + quote_value(last_year).sql
-                    + " AND (s.last_updated > "
-                    + quote_value(last_modified).sql
-                    + "\nOR a.last_updated > "
-                    + quote_value(last_modified).sql
-                    + ")"
-                    + "\nGROUP BY s.id"
-                    + "\nORDER BY s.id"
-                    + "\nLIMIT "
-                    + quote_value(settings.extractor.chunk_size).sql
+                    str(
+                        (
+                            PerformanceAlertSummary.objects.filter(
+                                Q(created__gt=last_year.datetime)
+                                & (
+                                    Q(last_updated__gt=last_modified.datetime)
+                                    | Q(alerts__last_updated__gt=last_modified.datetime)
+                                )
+                            )
+                            .annotate()
+                            .values("id")
+                            .order_by("id")[: settings.extractor.chunk_size]
+                        ).query
+                    )
                 )
 
                 sql = extractor.get_sql(get_ids)

@@ -34,7 +34,7 @@ def failure_class(transactional_db):
 
 @pytest.fixture
 def now():
-    return unix2datetime(Date.now().unix)
+    return Date.now().datetime
 
 
 @pytest.fixture
@@ -145,8 +145,8 @@ def complex_job(
     bcf = ClassifiedFailure.objects.create(
         **{
             "bug_number": 1234567,
-            "created": unix2datetime(Date("2020-01-17 12:00:00").unix),
-            "modified": unix2datetime(Date("2020-01-17 12:00:00").unix),
+            "created": Date("2020-01-17 12:00:00").datetime,
+            "modified": Date("2020-01-17 12:00:00").datetime,
         }
     )
 

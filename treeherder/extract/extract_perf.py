@@ -1,16 +1,14 @@
+from redis import Redis
+
 from jx_bigquery import bigquery
-from jx_mysql.mysql import (MySQL,
-                            sql_query)
+from jx_mysql.mysql import MySQL
 from jx_mysql.mysql_snowflake_extractor import MySqlSnowflakeExtractor
 from mo_files import File
-from mo_json import (json2value,
-                     value2json)
-from mo_logs import (Log,
-                     constants,
-                     startup)
+from mo_json import json2value, value2json
+from mo_logs import Log, constants, startup
 from mo_sql import SQL
 from mo_times import Timer
-from redis import Redis
+from treeherder.perf.models import PerformanceDatum
 
 CONFIG_FILE = (File.new_instance(__file__).parent / "extract_perf.json").abspath
 
@@ -66,14 +64,23 @@ class ExtractPerf:
             while True:
                 Log.note("Extracting perfs for perf.id={{perf_id}}", perf_id=perf_id)
 
-                get_ids = sql_query(
-                    {
-                        "from": "performance_datum",
-                        "select": ["id"],
-                        "where": {"gt": {"id": perf_id}},
-                        "sort": ["id"],
-                        "limit": settings.extractor.chunk_size,
-                    }
+                # get_ids = sql_query(
+                #     {
+                #         "from": "performance_datum",
+                #         "select": ["id"],
+                #         "where": {"gt": {"id": perf_id}},
+                #         "sort": ["id"],
+                #         "limit": settings.extractor.chunk_size,
+                #     }
+                # )
+                get_ids = SQL(
+                    str(
+                        (
+                            PerformanceDatum.objects.filter(id__gt=perf_id)
+                            .values("id")
+                            .order_by("id")[: settings.extractor.chunk_size]
+                        ).query
+                    )
                 )
 
                 sql = extractor.get_sql(get_ids)
