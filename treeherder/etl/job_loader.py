@@ -1,14 +1,13 @@
 import logging
 import uuid
-from threading import BoundedSemaphore
 
 import jsonschema
 import newrelic.agent
 import slugid
-from django.conf import settings
-from django.db import connection
 
 from treeherder.etl.common import to_timestamp
+from treeherder.etl.database_mutex import (acquire_connection,
+                                           release_connection)
 from treeherder.etl.exceptions import MissingPushException
 from treeherder.etl.jobs import store_job_data
 from treeherder.etl.schema import get_json_schema
@@ -62,15 +61,9 @@ class JobLoader:
         "machine_platform": "runMachine"
     }
 
-    def __init__(self):
-        # Semaphore to limit the number of threads opening DB
-        # connections when processing jobs
-        self.conn_sem = BoundedSemaphore(settings.CONN_RESOURCES)
-
     def process_job(self, pulse_job, root_url):
         if self._is_valid_job(pulse_job):
-            # Decrement semaphore's resource before opening any connections
-            self.conn_sem.acquire()
+            acquire_connection()
             try:
                 project = pulse_job["origin"]["project"]
                 newrelic.agent.add_custom_parameter("project", project)
@@ -78,7 +71,7 @@ class JobLoader:
                 repository = Repository.objects.get(name=project)
                 if repository.active_status != 'active':
                     (real_task_id, _) = task_and_retry_ids(pulse_job["taskId"])
-                    self._disconnect_and_release()
+                    release_connection()
                     logger.debug("Task %s belongs to a repository that is not active.", real_task_id)
                     return
 
@@ -87,14 +80,14 @@ class JobLoader:
                         self.validate_revision(repository, pulse_job)
                         transformed_job = self.transform(pulse_job)
                         store_job_data(repository, [transformed_job])
-                        self._disconnect_and_release()
+                        release_connection()
                         # Returning the transformed_job is only for testing purposes
                         return transformed_job
                     except AttributeError:
                         logger.warning("Skipping job due to bad attribute", exc_info=1)
             except Repository.DoesNotExist:
                 logger.info("Job with unsupported project: %s", project)
-            self._disconnect_and_release()
+            release_connection()
 
     def validate_revision(self, repository, pulse_job):
         revision = pulse_job["origin"].get("revision")
@@ -346,8 +339,3 @@ class JobLoader:
             logger.error("JSON Schema validation error during job ingestion: %s", e)
             return False
         return True
-
-    def _disconnect_and_release(self):
-        """Disconnect treadh from the DB and release semaphore's resource"""
-        connection.close()
-        self.conn_sem.release()
