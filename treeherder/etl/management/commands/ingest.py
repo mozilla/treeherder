@@ -1,4 +1,5 @@
 import asyncio
+import inspect
 import logging
 from concurrent.futures import ThreadPoolExecutor
 
@@ -43,12 +44,8 @@ async def handleTaskId(taskId, root_url):
 
 
 async def handleTask(task, root_url):
-    async def _to_future(*args):
-        return await loop.run_in_executor(executor, JobLoader().process_job, *args)
-
     taskId = task["status"]["taskId"]
     runs = task["status"]["runs"]
-
     # If we iterate in order of the runs, we will not be able to mark older runs as
     # "retry" instead of exception
     for run in reversed(runs):
@@ -63,22 +60,17 @@ async def handleTask(task, root_url):
             },
             "root_url": root_url,
         }
+
         try:
             taskRuns = await handleMessage(message, task["task"])
         except Exception as e:
             logger.exception(e)
 
         if taskRuns:
-            retryIds = [run["retryId"] for run in taskRuns]
             # Schedule and run jobs inside the thread pool executor
-            scheduledJobs = [_to_future(run, root_url) for run in taskRuns]
-            # Await for each job for to be processed
-            for retryId, job in zip(retryIds, asyncio.as_completed(scheduledJobs)):
-                logger.info("Loading into DB:\t%s/%s", taskId, retryId)
-                try:
-                    await job
-                except Exception as e:
-                    logger.exception(e)
+            jobFutures = [routine_to_future(
+                JobLoader().process_job, run, root_url) for run in taskRuns]
+            await await_futures(jobFutures)
 
 
 async def fetchGroupTasks(taskGroupId, root_url):
@@ -99,13 +91,41 @@ async def fetchGroupTasks(taskGroupId, root_url):
 
 
 async def processTasks(taskGroupId, root_url):
-    tasks = await fetchGroupTasks(taskGroupId, root_url)
-    asyncTasks = []
-    logger.info("We have %s tasks to process", len(tasks))
-    for task in tasks:
-        asyncTasks.append(asyncio.create_task(handleTask(task, root_url)))
+    try:
+        tasks = await fetchGroupTasks(taskGroupId, root_url)
+        logger.info("We have %s tasks to process", len(tasks))
+    except Exception as e:
+        logger.exception(e)
 
-    await asyncio.gather(*asyncTasks)
+    if not tasks:  # No tasks to process
+        return
+
+    # Schedule and run tasks inside the thread pool executor
+    taskFutures = [routine_to_future(handleTask, t, root_url) for t in tasks]
+    await await_futures(taskFutures)
+
+
+async def routine_to_future(func, *args):
+    """Arrange for a function to be executed in the thread pool executor.
+    Returns an asyncio.Futures object.
+    """
+    def _wrap_coroutine(func, *args):
+        """Wraps a coroutine into a regular routine to be ran by threads"""
+        asyncio.run(func(*args))
+
+    event_loop = asyncio.get_event_loop()
+    if inspect.iscoroutinefunction(func):
+        return await event_loop.run_in_executor(executor, _wrap_coroutine, func, *args)
+    return await event_loop.run_in_executor(executor, func, *args)
+
+
+async def await_futures(fs):
+    """Await for each asyncio.Futures given by fs to copmlete."""
+    for fut in fs:
+        try:
+            await fut
+        except Exception as e:
+            logger.exception(e)
 
 
 def find_task_id(index_path, root_url):
