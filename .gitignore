@@ -40,7 +40,8 @@ celerybeat-schedule
 .env
 
 # Ignore coverage results
-coverage
+coverage.xml
+.coverage
 
 # extract dev support code
 treeherder/extract/vendor

@@ -125,13 +125,17 @@ export default class ActiveFilters extends React.Component {
                         {this.getFilterValue(filter.field, filterValue)}
                       </span>
                     )}
-                    {filter.field === 'author' && (
-                      <span> {filterValue.split('@')[0].substr(0, 20)}</span>
+                    {(filter.field === 'revision' ||
+                      filter.field === 'tochange' ||
+                      filter.field === 'fromchange') && (
+                      <span> {filterValue.substr(0, 12)}</span>
                     )}
-                    {filter.field !== 'author' &&
-                      filter.field !== 'failure_classification_id' && (
-                        <span> {filterValue.substr(0, 12)}</span>
-                      )}
+                    {![
+                      'failure_classification_id',
+                      'fromchange',
+                      'revision',
+                      'tochange',
+                    ].includes(filter.field) && <span> {filterValue}</span>}
                   </span>
                 </span>
               )),
