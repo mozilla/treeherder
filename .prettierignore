@@ -8,4 +8,5 @@ ui/js/
 ui/partials/
 
 venv
+treeherder/extract/vendor
 tests/*.md

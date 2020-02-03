@@ -41,3 +41,7 @@ celerybeat-schedule
 
 # Ignore coverage results
 coverage
+
+# extract dev support code
+treeherder/extract/vendor
+/resources/pem
