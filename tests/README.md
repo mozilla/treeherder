@@ -1,6 +1,6 @@
 ## Backend development
 
-The backend test suite can be run locally. 
+The backend test suite can be run outside the Docker container.
 
 ### Start the services
 
@@ -13,16 +13,15 @@ We need all but the main `backend` service running.  Since multiple `backend` in
 
 ### Install into virtual environment
 
-Treeherder, requires specific library versions that will likely interfere with with what you have installed. It is best to setup a virtual environment to contain the quirks it introduces.
+Treeherder requires specific library versions that will likely interfere with what you have installed. It is best to setup a virtual environment to contain the quirks it introduces.
 
 Be sure you are in the `treeherder` main directory
 
     pip install virtualenv
     virtualenv venv
     source venv/bin/activate
-    venv/bin/pip install -r requirements/common.txt
-    venv/bin/pip install -r requirements/dev.txt
-    venv/bin/pip install -r requirements/docs.txt
+    python -m pip install -r requirements/common.txt
+    python -m pip install -r requirements/dev.txt
 
 ...or Windows...
 
@@ -31,7 +30,6 @@ Be sure you are in the `treeherder` main directory
     venv\Scripts\activate
     python -m pip install -r requirements\common.txt
     python -m pip install -r requirements\dev.txt
-    python -m pip install -r requirements\docs.txt  
 
 ### Set environment variables
 
