@@ -5,6 +5,6 @@ coverage:
       default:
         threshold: 2
     ui:
-      flags:ui target: 40%
-flags:
-  ui: -./ui
+      paths: ./ui
+      target: 40
+      threshold: 0.01
