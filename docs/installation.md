@@ -40,6 +40,10 @@ production site. You do not need to set up the Docker environment unless making 
   yarn start:stage
   ```
 
+### Following code directories
+
+Before pushing new code, please make sure you are following our [Code Style](code_style.md#ui) and [Accessibility Guidelines](accessibility.md).
+
 ## Server and Full-stack Development
 
 To get started:
