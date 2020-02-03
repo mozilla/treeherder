@@ -41,8 +41,9 @@ celerybeat-schedule
 
 # Ignore coverage results
 coverage
+coverage.xml
+.coverage
 
 # Ignore dev environment residue
-/treeherder/extract/vendor/pyLibrary/vendor/sqlite
 /resources/pem
 /treeherder/extract/vendor
