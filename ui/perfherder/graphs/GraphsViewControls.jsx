@@ -76,7 +76,7 @@ export default class GraphsViewControls extends React.Component {
             </UncontrolledDropdown>
           </Col>
           <Col sm="auto" className="p-2">
-            <Button color="info" onClick={toggle}>
+            <Button color="darker-info" onClick={toggle}>
               Add test data
             </Button>
           </Col>
@@ -118,7 +118,7 @@ export default class GraphsViewControls extends React.Component {
                 ))}
               <Col sm="auto" className="pl-0">
                 <Button
-                  color="info"
+                  color="darker-info"
                   outline
                   onClick={() =>
                     updateStateParams({ highlightAlerts: !highlightAlerts })

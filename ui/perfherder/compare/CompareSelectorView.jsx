@@ -165,7 +165,7 @@ export default class CompareSelectorView extends React.Component {
                     />
                   </ButtonDropdown>
                   <Button
-                    color="info"
+                    color="darker-info"
                     onClick={
                       newRevision !== '' && disableButton
                         ? null

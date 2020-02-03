@@ -15,6 +15,10 @@ body {
   padding: 5px;
 }
 
+#userguide a {
+  color: #0056b3;
+}
+
 /*
  * Job notation table
  */
@@ -54,7 +58,7 @@ body {
  */
 
 #ug-job-name {
-  color: #428bca;
+  color: #3675ac;
 }
 
 #ug-raw-log-icon {
