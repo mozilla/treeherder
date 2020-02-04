@@ -12,7 +12,7 @@ So, we ask that you substitute the Bootstrap color to the Treeherder one, accord
 |     `text-info` | `text-darker-info`     |
 | `btn-secondary` | `btn-darker-secondary` |
 
-For example, if inserting a text color into an element, use `className="text-darker-secondary"`.
+For example, if inserting a text color into an element, use `className="text-darker-info"`, instead of using `className="text-info"`.
 
 ### Colors in buttons
 
@@ -33,7 +33,7 @@ For example:
 
 ### Inserting new colors
 
-If you are inserting new colors into the Treeherder UI, please make sure the color + background-color combination passes the minimum constrast ratio defined by WCAG.
+If you add new colors to the style sheets, please make sure the text and background color combination passes the minimum contrast ratio defined by WCAG.
 
 In order to check if it passes, you can use [WebAIM contrast checker](https://webaim.org/resources/contrastchecker/) or use [Firefox's Accessibility Devtools](https://developer.mozilla.org/en-US/docs/Tools/Accessibility_inspector#Check_for_accessibility_issues).
 
