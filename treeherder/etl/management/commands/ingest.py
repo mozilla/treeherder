@@ -11,8 +11,8 @@ import taskcluster_urls as liburls
 from django.conf import settings
 from django.core.management.base import BaseCommand
 
-from treeherder.etl.db_sema import (acquire_connection,
-                                    release_connection)
+from treeherder.etl.db_semaphore import (acquire_connection,
+                                         release_connection)
 from treeherder.etl.job_loader import JobLoader
 from treeherder.etl.push_loader import PushLoader
 from treeherder.etl.pushlog import HgPushlogProcess
