@@ -6,8 +6,6 @@ import newrelic.agent
 import slugid
 
 from treeherder.etl.common import to_timestamp
-from treeherder.etl.database_mutex import (acquire_connection,
-                                           release_connection)
 from treeherder.etl.exceptions import MissingPushException
 from treeherder.etl.jobs import store_job_data
 from treeherder.etl.schema import get_json_schema
@@ -63,7 +61,6 @@ class JobLoader:
 
     def process_job(self, pulse_job, root_url):
         if self._is_valid_job(pulse_job):
-            acquire_connection()
             real_task_id, retry_id = task_and_retry_ids(pulse_job["taskId"])
             logger.info("Loading into DB:\t%s/%s", real_task_id, retry_id)
             try:
@@ -72,7 +69,6 @@ class JobLoader:
 
                 repository = Repository.objects.get(name=project)
                 if repository.active_status != 'active':
-                    release_connection()
                     logger.debug("Task %s belongs to a repository that is not active.", real_task_id)
                     return
 
@@ -81,14 +77,12 @@ class JobLoader:
                         self.validate_revision(repository, pulse_job)
                         transformed_job = self.transform(pulse_job)
                         store_job_data(repository, [transformed_job])
-                        release_connection()
                         # Returning the transformed_job is only for testing purposes
                         return transformed_job
                     except AttributeError:
                         logger.warning("Skipping job due to bad attribute", exc_info=1)
             except Repository.DoesNotExist:
                 logger.info("Job with unsupported project: %s", project)
-            release_connection()
 
     def validate_revision(self, repository, pulse_job):
         revision = pulse_job["origin"].get("revision")

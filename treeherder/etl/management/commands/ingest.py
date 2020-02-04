@@ -11,6 +11,8 @@ import taskcluster_urls as liburls
 from django.conf import settings
 from django.core.management.base import BaseCommand
 
+from treeherder.etl.db_sema import (acquire_connection,
+                                    release_connection)
 from treeherder.etl.job_loader import JobLoader
 from treeherder.etl.push_loader import PushLoader
 from treeherder.etl.pushlog import HgPushlogProcess
@@ -19,6 +21,7 @@ from treeherder.etl.taskcluster_pulse.handler import (EXCHANGE_EVENT_MAP,
 from treeherder.model.models import Repository
 
 logger = logging.getLogger(__name__)
+logger.setLevel(logging.INFO)
 loop = asyncio.get_event_loop()
 # Limiting the connection pool just in case we have too many
 conn = aiohttp.TCPConnector(limit=10)
@@ -68,8 +71,7 @@ async def handleTask(task, root_url):
 
         if taskRuns:
             # Schedule and run jobs inside the thread pool executor
-            jobFutures = [routine_to_future(
-                JobLoader().process_job, run, root_url) for run in taskRuns]
+            jobFutures = [routine_to_future(process_job, run, root_url) for run in taskRuns]
             await await_futures(jobFutures)
 
 
@@ -126,6 +128,12 @@ async def await_futures(fs):
             await fut
         except Exception as e:
             logger.exception(e)
+
+
+def process_job(pulse_job, root_url):
+    acquire_connection()
+    JobLoader().process_job(pulse_job, root_url)
+    release_connection()
 
 
 def find_task_id(index_path, root_url):
