@@ -72,10 +72,10 @@ export const graphColors = [
 export const graphSymbols = [
   ['circle', 'outline'],
   ['square', 'outline'],
-  ['triangleUp', 'outline'],
+  ['diamond', 'outline'],
   ['circle', 'fill'],
   ['square', 'fill'],
-  ['triangleUp', 'fill'],
+  ['diamond', 'fill'],
 ];
 
 export const phFrameworksWithRelatedBranches = [
