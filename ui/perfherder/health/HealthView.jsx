@@ -9,9 +9,10 @@ import {
   errorMessageClass,
   genericErrorMessage,
 } from '../../helpers/constants';
+import { endpoints } from '../constants';
 import ErrorBoundary from '../../shared/ErrorBoundary';
 import { getData, processResponse } from '../../helpers/http';
-import { createApiUrl } from '../../helpers/url';
+import { createApiUrl, platformsEndpoint } from '../../helpers/url';
 import ErrorMessages from '../../shared/ErrorMessages';
 
 import HealthTableControls from './HealthTableControls';
@@ -57,14 +58,16 @@ class HeathView extends React.PureComponent {
       this.createObjectsMap(platforms, 'platformsMap', 'platform');
     } else {
       // get the platforms, cache them and create the platformsMap
-      getData('api/machineplatforms/').then(({ data, failureStatus }) => {
-        if (failureStatus) {
-          this.setState({ errorMessages: [data, ...errorMessages] });
-        } else {
-          updateAppState({ platforms: data });
-          this.createObjectsMap(data, 'platformsMap', 'platform');
-        }
-      });
+      getData(createApiUrl(platformsEndpoint)).then(
+        ({ data, failureStatus }) => {
+          if (failureStatus) {
+            this.setState({ errorMessages: [data, ...errorMessages] });
+          } else {
+            updateAppState({ platforms: data });
+            this.createObjectsMap(data, 'platformsMap', 'platform');
+          }
+        },
+      );
     }
   };
 
@@ -72,7 +75,7 @@ class HeathView extends React.PureComponent {
     const { errorMessages } = this.state;
 
     const response = await getData(
-      createApiUrl('performance/validity-dashboard/', params),
+      createApiUrl(endpoints.validityDashboard, params),
     );
 
     return processResponse(response, 'results', errorMessages);
