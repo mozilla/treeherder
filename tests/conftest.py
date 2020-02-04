@@ -29,7 +29,6 @@ from treeherder.perf.models import (IssueTracker,
                                     PerformanceSignature)
 from treeherder.services.pulse.exchange import get_exchange
 
-
 IS_WINDOWS = "windows" in platform.system().lower()
 
 
