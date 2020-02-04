@@ -61,14 +61,13 @@ class JobLoader:
 
     def process_job(self, pulse_job, root_url):
         if self._is_valid_job(pulse_job):
-            real_task_id, retry_id = task_and_retry_ids(pulse_job["taskId"])
-            logger.info("Loading into DB:\t%s/%s", real_task_id, retry_id)
             try:
                 project = pulse_job["origin"]["project"]
                 newrelic.agent.add_custom_parameter("project", project)
 
                 repository = Repository.objects.get(name=project)
                 if repository.active_status != 'active':
+                    (real_task_id, _) = task_and_retry_ids(pulse_job["taskId"])
                     logger.debug("Task %s belongs to a repository that is not active.", real_task_id)
                     return
 

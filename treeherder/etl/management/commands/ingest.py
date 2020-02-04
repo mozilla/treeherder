@@ -22,6 +22,7 @@ from treeherder.model.models import Repository
 
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.INFO)
+
 loop = asyncio.get_event_loop()
 # Limiting the connection pool just in case we have too many
 conn = aiohttp.TCPConnector(limit=10)
@@ -71,7 +72,8 @@ async def handleTask(task, root_url):
 
         if taskRuns:
             # Schedule and run jobs inside the thread pool executor
-            jobFutures = [routine_to_future(process_job, run, root_url) for run in taskRuns]
+            jobFutures = [routine_to_future(
+                process_job_with_threads, run, root_url) for run in taskRuns]
             await await_futures(jobFutures)
 
 
@@ -103,7 +105,7 @@ async def processTasks(taskGroupId, root_url):
         return
 
     # Schedule and run tasks inside the thread pool executor
-    taskFutures = [routine_to_future(handleTask, t, root_url) for t in tasks]
+    taskFutures = [routine_to_future(handleTask, task, root_url) for task in tasks]
     await await_futures(taskFutures)
 
 
@@ -112,7 +114,7 @@ async def routine_to_future(func, *args):
     Returns an asyncio.Futures object.
     """
     def _wrap_coroutine(func, *args):
-        """Wraps a coroutine into a regular routine to be ran by threads"""
+        """Wraps a coroutine into a regular routine to be ran by threads."""
         asyncio.run(func(*args))
 
     event_loop = asyncio.get_event_loop()
@@ -130,8 +132,9 @@ async def await_futures(fs):
             logger.exception(e)
 
 
-def process_job(pulse_job, root_url):
+def process_job_with_threads(pulse_job, root_url):
     acquire_connection()
+    logger.info("Loading into DB:\t%s", pulse_job["taskId"])
     JobLoader().process_job(pulse_job, root_url)
     release_connection()
 
