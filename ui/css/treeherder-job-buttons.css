@@ -465,7 +465,8 @@ fieldset[disabled] .btn-ltblue.active {
 .btn-ltgray-count,
 .btn-ltgray-classified,
 .btn-ltgray-classified-count {
-  color: #747474;
+  color: #737373;
+  border: 1px solid #737373;
 }
 .btn-ltgray-count:hover,
 .btn-ltgray-classified-count:hover {
@@ -536,7 +537,9 @@ fieldset[disabled] .btn-mdgray.active {
 .btn-dkgray-classified-count,
 .btn-dkgray-count:hover,
 .btn-dkgray-classified-count:hover {
-  color: #333333;
+  background-color: #737373;
+  border-color: #737373;
+  color: white;
 }
 .btn-dkgray:hover,
 .btn-dkgray-classified:hover,
