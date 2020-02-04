@@ -8,6 +8,7 @@ export const endpoints = {
   frameworks: '/performance/framework/',
   issueTrackers: '/performance/issue-tracker/',
   summary: '/performance/summary/',
+  validityDashboard: '/performance/validity-dashboard/',
 };
 
 export const noiseMetricTitle = 'noise metric';

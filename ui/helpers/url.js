@@ -23,6 +23,8 @@ export const deployedRevisionUrl = '/revision.txt';
 
 export const loginCallbackUrl = '/login.html';
 
+export const platformsEndpoint = '/machineplatforms/';
+
 export const pushEndpoint = '/push/';
 
 export const repoEndpoint = '/repository/';
