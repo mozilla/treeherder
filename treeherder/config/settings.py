@@ -27,14 +27,14 @@ LOGGING_LEVEL = env.bool("LOGGING_LEVEL", default='DEBUG' if DEBUG else 'WARNING
 GRAPHQL = env.bool("GRAPHQL", default=True)
 
 # Make this unique, and don't share it with anybody.
-SECRET_KEY = env("TREEHERDER_DJANGO_SECRET_KEY")
+SECRET_KEY = env("TREEHERDER_DJANGO_SECRET_KEY",default='DEBUG')
 
 # Hosts
 try:
     SITE_URL = env("SITE_URL")
 except ImproperlyConfigured:
     # This is to support Heroku Review apps which host is different for each PR
-    SITE_URL = "https://{}.herokuapp.com".format(env("HEROKU_APP_NAME"))
+    SITE_URL = "https://{}.herokuapp.com".format(env("HEROKU_APP_NAME",default='DEBUG'))
 
 SITE_HOSTNAME = furl(SITE_URL).host
 # Including localhost allows using the backend locally
@@ -113,11 +113,11 @@ TEMPLATES = [{
 #
 # which django-environ converts into the Django DB settings dict format.
 DATABASES = {
-    'default': env.db_url('DATABASE_URL'),
+    'default': env.db_url('DATABASE_URL',default='DEBUG'),
 }
 
 # Only used when syncing local database with production replicas
-UPSTREAM_DATABASE_URL = env('UPSTREAM_DATABASE_URL', default=None)
+UPSTREAM_DATABASE_URL = env('UPSTREAM_DATABASE_URL', default='DEBUG')
 if UPSTREAM_DATABASE_URL:
     DATABASES['upstream'] = env.db_url_config(UPSTREAM_DATABASE_URL)
 
@@ -137,16 +137,17 @@ for alias in DATABASES:
         # prevent data loss (either STRICT_TRANS_TABLES or STRICT_ALL_TABLES).
         'init_command': "SET sql_mode='STRICT_TRANS_TABLES'"
     }
-    if connection_should_use_tls(DATABASES[alias]['HOST']):
+    if connection_should_use_tls(DATABASES[alias]):
         # Use TLS when connecting to RDS.
         # https://docs.aws.amazon.com/AmazonRDS/latest/UserGuide/CHAP_MySQL.html#MySQL.Concepts.SSLSupport
         # https://mysqlclient.readthedocs.io/user_guide.html#functions-and-attributes
         DATABASES[alias]['OPTIONS']['ssl'] = {
             'ca': 'deployment/aws/rds-combined-ca-bundle.pem',
         }
+    
 
 # Caches
-REDIS_URL = env('REDIS_URL')
+REDIS_URL = env('REDIS_URL',default='DEBUG')
 if connection_should_use_tls(REDIS_URL):
     # Connect using TLS on Heroku.
     REDIS_URL = get_tls_redis_url(REDIS_URL)
@@ -309,7 +310,7 @@ CELERY_TASK_QUEUES = [
 CELERY_TASK_CREATE_MISSING_QUEUES = False
 
 # Celery broker setup
-CELERY_BROKER_URL = env('BROKER_URL')
+CELERY_BROKER_URL = env('BROKER_URL',default='DEBUG')
 
 # Force Celery to use TLS when appropriate (ie if not localhost),
 # rather than relying on `CELERY_BROKER_URL` having `amqps://` or `?ssl=` set.

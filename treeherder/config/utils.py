@@ -26,8 +26,8 @@ def get_tls_redis_url(redis_url):
     https://devcenter.heroku.com/articles/securing-heroku-redis#connecting-directly-to-stunnel
     """
     url = furl(redis_url)
-    url.port += 1
-    url.scheme += 's'
+    #url.port += 1
+    #url.scheme += 's'
     # Disable TLS certificate validation (restoring the behaviour of the older redis-py 2.x),
     # since for now Heroku Redis uses self-signed certificates:
     # https://bugzilla.mozilla.org/show_bug.cgi?id=1510000
