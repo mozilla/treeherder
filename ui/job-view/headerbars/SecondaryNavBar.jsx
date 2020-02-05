@@ -19,6 +19,7 @@ import RepositoryModel from '../../models/repository';
 import ErrorBoundary from '../../shared/ErrorBoundary';
 import { recalculateUnclassifiedCounts } from '../redux/stores/pushes';
 
+import TierIndicator from './TierIndicator';
 import WatchedRepo from './WatchedRepo';
 
 const MAX_WATCHED_REPOS = 3;
@@ -352,7 +353,9 @@ class SecondaryNavBar extends React.PureComponent {
                 />
               </span>
             </span>
-
+            <span>
+              <TierIndicator filterModel={filterModel} />
+            </span>
             {/* Quick Filter Field */}
             <span
               id="quick-filter-parent"
