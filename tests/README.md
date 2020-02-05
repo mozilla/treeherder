@@ -8,6 +8,8 @@ We need all but the main `backend` service running.  Since multiple `backend` in
 
     # ENSURE THE IMAGES ARE CLEAN
     docker-compose down
+    docker volume rm treeherder_mysql_data 
+    
     # SETUP ALL IMAGES
     docker-compose up --build
 
