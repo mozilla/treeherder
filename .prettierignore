@@ -6,3 +6,6 @@ ui/js/
 
 # Ignore AngularJS HTML templates since they don't always parse correctly.
 ui/partials/
+
+# Ignore markdown
+*.md

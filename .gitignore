@@ -1,8 +1,7 @@
-.vagrant/
+.*/
 node_modules/
 .DS_store
 *.pyc
-.vscode/
 yarn-error.log
 npm-error.log
 vagrant/env_local.sh
@@ -11,21 +10,13 @@ vagrant/env_local.sh
 *.swp
 
 # Caches
-.pytest_cache/
 .eslintcache
-
 # PyCharm
-.idea/
 *.iml
 
 # emacs
 *~
 \#*
-
-# Treeherder-specific
-.build/
-.build-docs/
-.django-static/
 
 # Celery
 celerybeat-schedule

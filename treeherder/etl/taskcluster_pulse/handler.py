@@ -348,7 +348,7 @@ async def addArtifactUploadedLinks(root_url, taskId, runId, job):
     try:
         artifacts = await fetchArtifacts(root_url, taskId, runId)
     except Exception:
-        logger.warning("Artifacts could not be found for task: %s run: %s", taskId, runId)
+        logger.debug("Artifacts could not be found for task: %s run: %s", taskId, runId)
         return job
 
     seen = {}
