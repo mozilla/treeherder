@@ -465,8 +465,7 @@ fieldset[disabled] .btn-ltblue.active {
 .btn-ltgray-count,
 .btn-ltgray-classified,
 .btn-ltgray-classified-count {
-  color: #737373;
-  border: 1px solid #737373;
+  color: #757575;
 }
 .btn-ltgray-count:hover,
 .btn-ltgray-classified-count:hover {
@@ -537,17 +536,15 @@ fieldset[disabled] .btn-mdgray.active {
 .btn-dkgray-classified-count,
 .btn-dkgray-count:hover,
 .btn-dkgray-classified-count:hover {
-  background-color: #737373;
-  border-color: #737373;
-  color: white;
+  color: black;
 }
 .btn-dkgray:hover,
 .btn-dkgray-classified:hover,
 .btn-dkgray:focus,
 .btn-dkgray:active,
 .btn-dkgray.active {
-  background-color: #333333;
-  border-color: #1c1c1c;
+  background-color: black;
+  border-color: black;
   color: white;
 }
 .btn-dkgray.disabled:hover,
