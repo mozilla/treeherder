@@ -1,7 +1,11 @@
 # Dependencies needed only for development/testing.
 
+colorama==0.4.3 \
+    --hash=sha256:7d73d2a99753107a36ac6b455ee49046802e59d9d076ef8e47b61499fa29afff
+
 coverage==5.0.3 \
-    --hash=sha256:d649dc0bcace6fcdb446ae02b98798a856593b19b637c1b9af8edadf2b150bea
+    --hash=sha256:d649dc0bcace6fcdb446ae02b98798a856593b19b637c1b9af8edadf2b150bea \
+    --hash=sha256:c60097190fe9dc2b329a0eb03393e2e0829156a589bd732e70794c0dd804258e
 
 pytest-cov==2.8.1 \
     --hash=sha256:cdbdef4f870408ebdbfeb44e63e07eb18bb4619fae852f6e760645fa36172626

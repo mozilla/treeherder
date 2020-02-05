@@ -1,5 +1,7 @@
+import pytest
 from django.conf import settings
 
+from tests.conftest import IS_WINDOWS
 from treeherder.services.pulse.consumers import (Consumers,
                                                  PulseConsumer)
 
@@ -27,6 +29,7 @@ def test_Consumers():
     assert cons2.ran
 
 
+@pytest.mark.skipif(IS_WINDOWS, reason="celery does not work on windows")
 def test_PulseConsumer(pulse_connection):
     class TestConsumer(PulseConsumer):
         queue_suffix = "test"

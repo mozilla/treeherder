@@ -2,6 +2,7 @@ import copy
 import datetime
 import json
 import os
+import platform
 
 import kombu
 import pytest
@@ -27,6 +28,8 @@ from treeherder.perf.models import (IssueTracker,
                                     PerformanceFramework,
                                     PerformanceSignature)
 from treeherder.services.pulse.exchange import get_exchange
+
+IS_WINDOWS = "windows" in platform.system().lower()
 
 
 def pytest_addoption(parser):
