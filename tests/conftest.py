@@ -29,24 +29,11 @@ from treeherder.perf.models import (IssueTracker,
 from treeherder.services.pulse.exchange import get_exchange
 
 
-def pytest_addoption(parser):
-    parser.addoption(
-        "--runslow",
-        action="store_true",
-        help="run slow tests",
-    )
-
-
 def pytest_runtest_setup(item):
     """
     Per-test setup.
-    - Add an option to run those tests marked as 'slow'
     - Clear the django cache between runs
     """
-
-    if 'slow' in item.keywords and not item.config.getoption("--runslow"):
-        pytest.skip("need --runslow option to run")
-
     from django.core.cache import cache
     cache.clear()
 

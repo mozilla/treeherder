@@ -68,7 +68,6 @@ matrix:
         # Run in `before_script` to prevent the Selenium tests from running if the UI build fails.
         - yarn build
       script:
-        # Using `-bb` mode to surface BytesWarnings: https://docs.python.org/3.7/using/cmdline.html#cmdoption-b
         - docker-compose run backend bash -c "pytest --cov --cov-report=xml tests/selenium/"
       after_success:
         - codecov -f coverage.xml
