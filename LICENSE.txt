@@ -248,7 +248,6 @@ Contributor are reinstated on an ongoing basis if such Contributor
 notifies You of the non-compliance by some reasonable means, this is the
 first time You have received notice of non-compliance with this License
 from such Contributor, and You become compliant prior to 30 days after
-
 Your receipt of the notice.
 
 5.2. If You initiate litigation against any entity by asserting a patent
