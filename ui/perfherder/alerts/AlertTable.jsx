@@ -170,6 +170,7 @@ export default class AlertTable extends React.Component {
     const {
       user,
       projects,
+      frameworks,
       alertSummaries,
       issueTrackers,
       fetchAlertSummaries,
@@ -224,6 +225,7 @@ export default class AlertTable extends React.Component {
                             }
                           />
                           <AlertHeader
+                            frameworks={frameworks}
                             alertSummary={alertSummary}
                             repoModel={repoModel}
                             issueTrackers={issueTrackers}

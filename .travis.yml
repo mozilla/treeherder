@@ -54,7 +54,7 @@ matrix:
         # value so the tests pass. The real environment variable will be checked during deployment.
         - docker-compose run -e SITE_URL=https://treeherder.dev -e TREEHERDER_DEBUG=False backend python -bb ./manage.py check --deploy --fail-level WARNING
         # Using `-bb` mode to surface BytesWarnings: https://docs.python.org/3.7/using/cmdline.html#cmdoption-b
-        - docker-compose run backend bash -c "pytest --cov-report=xml tests/ --runslow --ignore=tests/selenium"
+        - docker-compose run backend bash -c "pytest --cov --cov-report=xml tests/ --runslow --ignore=tests/selenium"
       after_success:
         - codecov -f coverage.xml
 
@@ -75,7 +75,7 @@ matrix:
         - yarn build
       script:
         # Using `-bb` mode to surface BytesWarnings: https://docs.python.org/3.7/using/cmdline.html#cmdoption-b
-        - docker-compose run backend bash -c "pytest --cov-report=xml tests/selenium/"
+        - docker-compose run backend bash -c "pytest --cov --cov-report=xml tests/selenium/"
       after_success:
         - codecov -f coverage.xml
 

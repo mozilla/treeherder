@@ -1,5 +1,7 @@
 import asyncio
+import inspect
 import logging
+from concurrent.futures import ThreadPoolExecutor
 
 import aiohttp
 import requests
@@ -9,6 +11,8 @@ import taskcluster_urls as liburls
 from django.conf import settings
 from django.core.management.base import BaseCommand
 
+from treeherder.etl.db_semaphore import (acquire_connection,
+                                         release_connection)
 from treeherder.etl.job_loader import JobLoader
 from treeherder.etl.push_loader import PushLoader
 from treeherder.etl.pushlog import HgPushlogProcess
@@ -17,12 +21,17 @@ from treeherder.etl.taskcluster_pulse.handler import (EXCHANGE_EVENT_MAP,
 from treeherder.model.models import Repository
 
 logger = logging.getLogger(__name__)
+logger.setLevel(logging.INFO)
+
 loop = asyncio.get_event_loop()
 # Limiting the connection pool just in case we have too many
 conn = aiohttp.TCPConnector(limit=10)
 # Remove default timeout limit of 5 minutes
 timeout = aiohttp.ClientTimeout(total=0)
 session = taskcluster.aio.createSession(loop=loop, connector=conn, timeout=timeout)
+
+# Executor to run threads in parallel
+executor = ThreadPoolExecutor()
 
 stateToExchange = {}
 for key, value in EXCHANGE_EVENT_MAP.items():
@@ -55,15 +64,17 @@ async def handleTask(task, root_url):
             },
             "root_url": root_url,
         }
+
         try:
             taskRuns = await handleMessage(message, task["task"])
-            if taskRuns:
-                for run in taskRuns:
-                    logger.info("Loading into DB:\t%s/%s", taskId, run["retryId"])
-                    # XXX: This seems our current bottleneck
-                    JobLoader().process_job(run, root_url)
         except Exception as e:
             logger.exception(e)
+
+        if taskRuns:
+            # Schedule and run jobs inside the thread pool executor
+            jobFutures = [routine_to_future(
+                process_job_with_threads, run, root_url) for run in taskRuns]
+            await await_futures(jobFutures)
 
 
 async def fetchGroupTasks(taskGroupId, root_url):
@@ -84,13 +95,48 @@ async def fetchGroupTasks(taskGroupId, root_url):
 
 
 async def processTasks(taskGroupId, root_url):
-    tasks = await fetchGroupTasks(taskGroupId, root_url)
-    asyncTasks = []
-    logger.info("We have %s tasks to process", len(tasks))
-    for task in tasks:
-        asyncTasks.append(asyncio.create_task(handleTask(task, root_url)))
+    try:
+        tasks = await fetchGroupTasks(taskGroupId, root_url)
+        logger.info("We have %s tasks to process", len(tasks))
+    except Exception as e:
+        logger.exception(e)
 
-    await asyncio.gather(*asyncTasks)
+    if not tasks:  # No tasks to process
+        return
+
+    # Schedule and run tasks inside the thread pool executor
+    taskFutures = [routine_to_future(handleTask, task, root_url) for task in tasks]
+    await await_futures(taskFutures)
+
+
+async def routine_to_future(func, *args):
+    """Arrange for a function to be executed in the thread pool executor.
+    Returns an asyncio.Futures object.
+    """
+    def _wrap_coroutine(func, *args):
+        """Wraps a coroutine into a regular routine to be ran by threads."""
+        asyncio.run(func(*args))
+
+    event_loop = asyncio.get_event_loop()
+    if inspect.iscoroutinefunction(func):
+        return await event_loop.run_in_executor(executor, _wrap_coroutine, func, *args)
+    return await event_loop.run_in_executor(executor, func, *args)
+
+
+async def await_futures(fs):
+    """Await for each asyncio.Futures given by fs to copmlete."""
+    for fut in fs:
+        try:
+            await fut
+        except Exception as e:
+            logger.exception(e)
+
+
+def process_job_with_threads(pulse_job, root_url):
+    acquire_connection()
+    logger.info("Loading into DB:\t%s", pulse_job["taskId"])
+    JobLoader().process_job(pulse_job, root_url)
+    release_connection()
 
 
 def find_task_id(index_path, root_url):

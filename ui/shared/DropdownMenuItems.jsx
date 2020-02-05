@@ -10,7 +10,7 @@ const DropdownMenuItems = ({
   options,
   namespace = '',
 }) => (
-  <DropdownMenu className="overflow-hidden dropdown-menu-height">
+  <DropdownMenu className="overflow-auto dropdown-menu-height">
     {options.map(item => (
       <DropdownItem
         tag="a"
