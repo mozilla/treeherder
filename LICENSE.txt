@@ -247,7 +247,7 @@ come back into compliance. Moreover, Your grants from a particular
 Contributor are reinstated on an ongoing basis if such Contributor
 notifies You of the non-compliance by some reasonable means, this is the
 first time You have received notice of non-compliance with this License
-from suchContributor import andYoubecomecompliantpriorto30daysafter
+from such Contributor, and You become compliant prior to 30 days after
 
 Your receipt of the notice.
 
