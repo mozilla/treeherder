@@ -7,7 +7,7 @@ echo "Running pip check"
 pip check
 
 echo "Checking CELERY_TASK_QUEUES matches Procfile"
-python -bb ./lints/queuelint.py
+python ./lints/queuelint.py
 
 echo "Running flake8"
 flake8 --show-source || { echo "flake8 errors found!"; exit 1; }
@@ -23,8 +23,7 @@ echo "Running test docs generation"
 mkdocs build
 
 echo "Running Django system checks"
-# See .travis.yml for explanation of the environment variable overriding.
-SITE_URL="https://treeherder.dev" TREEHERDER_DEBUG="False" python -bb ./manage.py check --deploy --fail-level WARNING
-
-echo "Running Python tests"
-pytest --cov --cov-report=xml tests/
+# Several security features in settings.py (eg setting HSTS headers) are conditional on
+# 'https://' being in the site URL. In addition, we override the test environment's debug
+# value so the tests pass. The real environment variable will be checked during deployment.
+SITE_URL="https://treeherder.dev" TREEHERDER_DEBUG="False" python ./manage.py check --deploy --fail-level WARNING

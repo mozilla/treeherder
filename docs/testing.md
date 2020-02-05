@@ -57,10 +57,10 @@ The tests will perform an initial run and then re-execute each time a project fi
 
 ## Python
 
-To run all Python unit tests, including linting, sorting, etc:
+To run all Python tests, including linting, sorting, etc:
 
 ```bash
-docker-compose run backend sh -c "./runtests.sh"
+docker-compose run backend sh -c "./runchecks.sh && pytest tests/"
 ```
 
 ### Running a specific set of Python unit tests
@@ -71,19 +71,19 @@ of specificity:
 All tests:
 
 ```bash
-docker-compose run backend python -bb -m pytest tests/
+docker-compose run backend pytest tests/
 ```
 
 Just `/etl` tests
 
 ```bash
-docker-compose run backend python -bb -m pytest tests/etl/
+docker-compose run backend pytest tests/etl/
 ```
 
 Just the `test_ingest_pending_pulse_job` within the `/etl` tests
 
 ```bash
-docker-compose run backend python -bb -m pytest tests/ -k test_ingest_pending_pulse_job
+docker-compose run backend pytest tests/ -k test_ingest_pending_pulse_job
 ```
 
 ## Selenium
@@ -91,17 +91,11 @@ docker-compose run backend python -bb -m pytest tests/ -k test_ingest_pending_pu
 The Selenium tests are written in Python, so when you execute some of the
 commands above, you will execute the Selenium tests as well.
 
-The Selenium tests require a UI build. So you will need to use two terminal
-windows. In the first, run this:
+The Selenium tests require a UI build:
 
 ```bash
 docker-compose up --build
-```
-
-Then to execute the tests:
-
-```bash
-docker-compose run backend python -bb -m pytest tests/selenium/
+docker-compose run backend pytest tests/selenium/
 ```
 
 [eslint]: https://eslint.org
