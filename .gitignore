@@ -6,12 +6,6 @@ yarn-error.log
 npm-error.log
 vagrant/env_local.sh
 
-# virtualenv to avoid polluting your local python
-venv
-
-# another cvs
-.svn
-
 # vi
 *.swp
 
@@ -34,7 +28,3 @@ celerybeat-schedule
 coverage
 coverage.xml
 .coverage
-
-# Ignore dev environment residue
-/resources/pem
-/treeherder/extract/vendor
