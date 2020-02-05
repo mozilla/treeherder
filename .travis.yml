@@ -34,7 +34,9 @@ matrix:
         - yarn build
 
     - env: python-linters
-      language: minimal
+      language: python
+      python:
+        - "3.7"
       install:
         - pip install -r requirements/common.txt
         - pip install -r requirements/dev.txt
