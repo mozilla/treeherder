@@ -7,6 +7,5 @@ ui/js/
 # Ignore AngularJS HTML templates since they don't always parse correctly.
 ui/partials/
 
-venv
-treeherder/extract/vendor
-tests/*.md
+# Ignore markdown
+*.md

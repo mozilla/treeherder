@@ -20,16 +20,17 @@ Treeherder requires specific library versions that will likely interfere with wh
 Be sure you are in the `treeherder` main directory
 
     pip install virtualenv
-    virtualenv venv
-    source venv/bin/activate
+    virtualenv .venv                   # IMPORTANT: Notice the dot in the name
+    source .venv/bin/activate
     python -m pip install -r requirements/common.txt
     python -m pip install -r requirements/dev.txt
 
 ...or Windows...
 
     pip install virtualenv
-    virtualenv venv
-    venv\Scripts\activate
+    rem IMPORTANT: Notice the dot in `.venv`
+    virtualenv .venv             
+    .venv\Scripts\activate
     python -m pip install -r requirements\common.txt
     python -m pip install -r requirements\dev.txt
 
@@ -55,7 +56,7 @@ Django can perform a number of checks to ensure you are configured correctly
 
 Be sure docker-compose is up, you are in the `treeherder` main directory, your virtual environment is activated, and your environment variables are set:
 
-    source venv/bin/activate
+    source .venv/bin/activate
     ./tests/env.sh
     pytest tests
 
