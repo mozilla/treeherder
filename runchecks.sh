@@ -1,5 +1,9 @@
 #!/usr/bin/env bash
 
+# This script does not need a Docker set up to execute
+# You need to run it within a Python virtualenv with the packages
+# from common.txt, dev.txt and docs.txt
+
 # Make non-zero exit codes & other errors fatal.
 set -euo pipefail
 
@@ -16,23 +20,10 @@ echo "Running isort"
 isort --check-only --diff --quiet \
  || { echo "isort errors found! Run 'isort' with no options to fix."; exit 1; }
 
-echo "Running shellcheck"
-git grep -El '^#!/.+\b(bash|sh)\b' | xargs shellcheck
+echo "Running shellcheck (if availablein PATH)"
+if hash shellcheck 2>/dev/null; then
+  git grep -El '^#!/.+\b(bash|sh)\b' | xargs shellcheck
+fi
 
 echo "Running test docs generation"
 mkdocs build
-
-echo "Running Django system checks"
-# We can remove these env variables once the default values are properly set:
-# https://github.com/mozilla/treeherder/issues/5926
-BROKER_URL=localhost//guest:guest@rabbitmq//
-DATABASE_URL=mysql://root@localhost:3306/treeherder
-REDIS_URL=redis://localhost:6379
-SITE_URL=http://backend:8000/
-TREEHERDER_DEBUG=True
-TREEHERDER_DJANGO_SECRET_KEY=secret-key-of-at-least-50-characters-to-pass-check-deploy
-NEW_RELIC_DEVELOPER_MODE=True
-# Several security features in settings.py (eg setting HSTS headers) are conditional on
-# 'https://' being in the site URL. In addition, we override the test environment's debug
-# value so the tests pass. The real environment variable will be checked during deployment.
-python ./manage.py check --deploy --fail-level WARNING

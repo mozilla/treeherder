@@ -35,13 +35,16 @@ matrix:
 
     - env: python-linters
       language: python
-      python:
-        - '3.7'
+      python: '3.7'
+      cache:
+        directories:
+          - ${HOME}/venv
       install:
         - pip install -r requirements/common.txt
         - pip install -r requirements/dev.txt
         - pip install -r requirements/docs.txt
       script:
+        - git grep -El '^#!/.+\b(bash|sh)\b' | xargs shellcheck
         - ./runchecks.sh
 
     - env: python-tests-main
@@ -70,6 +73,10 @@ matrix:
         # Run in `before_script` to prevent the Selenium tests from running if the UI build fails.
         - yarn build
       script:
+        # Several security features in settings.py (eg setting HSTS headers) are conditional on
+        # 'https://' being in the site URL. In addition, we override the test environment's debug
+        # value so the tests pass. The real environment variable will be checked during deployment.
+        - docker-compose run backend bash -c "./manage.py check --deploy --fail-level WARNING"
         - docker-compose run backend bash -c "pytest --cov --cov-report=xml tests/selenium/"
       after_success:
         - codecov -f coverage.xml

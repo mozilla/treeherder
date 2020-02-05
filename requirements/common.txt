@@ -80,10 +80,6 @@ newrelic==5.2.1.129 \
     --hash=sha256:da9adab674d9fe7aa8fbabb6691b33fb7be94a32b6a80548ec7018be9df8ef65
 
 # Required by Django
-mysqlclient==1.4.6 \
-    --hash=sha256:9e6080a7aee4cc6a06b58b59239f20f1d259c1d2fddf68ddeed242d2311c7087 \
-    --hash=sha256:f3fdaa9a38752a3b214a6fe79d7cae3653731a53e577821f9187e67cbecb2e16
-
 asgiref==3.2.3 \
     --hash=sha256:ea448f92fc35a0ef4b1508f53a04c4670255a3f33d22a81c8fc9c872036adbe5
 
