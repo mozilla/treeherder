@@ -1,0 +1,96 @@
+{
+  "extractor": {
+    "app_name": {
+      "$ref": "env://NEW_RELIC_APP_NAME"
+    },
+    "key": "treeherder.extract.perf.state",
+    "sql": "treeherder.extract.perf.sql",
+    "chunk_size": 4000
+  },
+  "source": {
+    "fact_table": "performance_datum",
+    "show_foreign_keys": false,
+    "null_values": ["-", "unknown", ""],
+    "add_relations": [],
+    "include": [],
+    "exclude": [
+      "runnable_job",
+      "auth_user",
+      "job_log",
+      "text_log_step",
+      "performance_alert_summary",
+      "text_log_step",
+      "failure_line",
+      "job_note",
+      "job_detail"
+    ],
+    "exclude_path": [
+      "id.signature.parent_signature",
+      "id.signature.performance_alert"
+    ],
+    "reference_only": [
+      "performance_framework.name",
+      "user.email",
+      "repository.name",
+      "machine_platform.platform",
+      "failure_classification.name",
+      "option.name",
+      "push"
+    ],
+    "database": {
+      "debug": false,
+      "ssl": {
+        "ca": "https://s3.amazonaws.com/rds-downloads/rds-combined-ca-bundle.pem"
+      },
+      "host": {
+        "$ref": "env://DATABASE_URL"
+      }
+    }
+  },
+  "destination": {
+    "account_info": {
+      "private_key_id": {
+        "$ref": "env://BIGQUERY_PRIVATE_KEY_ID"
+      },
+      "private_key": {
+        "$ref": "env://BIGQUERY_PRIVATE_KEY"
+      },
+      "type": "service_account",
+      "project_id": "moz-fx-dev-ekyle-treeherder",
+      "client_email": "test-treeherder-extract@moz-fx-dev-ekyle-treeherder.iam.gserviceaccount.com",
+      "client_id": "116659350535089980029",
+      "auth_uri": "https://accounts.google.com/o/oauth2/auth",
+      "token_uri": "https://oauth2.googleapis.com/token",
+      "auth_provider_x509_cert_url": "https://www.googleapis.com/oauth2/v1/certs",
+      "client_x509_cert_url": "https://www.googleapis.com/robot/v1/metadata/x509/test-treeherder-extract%40moz-fx-dev-ekyle-treeherder.iam.gserviceaccount.com"
+    },
+    "dataset": {
+      "$ref": "env://NEW_RELIC_APP_NAME"
+    },
+    "table": "perf",
+    "top_level_fields": {},
+    "id": {
+      "field": "id",
+      "version": "job.submit_time"
+    },
+    "schema": {
+      "id": "integer"
+    },
+    "sharded": true
+  },
+  "constants": {
+    "pyLibrary.env.http.default_headers": {
+      "Referer": "https://github.com/mozilla/treeherder"
+    }
+  },
+  "debug": {
+    "trace": true,
+    "logs": [
+      { "log_type": "console" },
+      {
+        "log_type": "logger",
+        "name": "extract_perf"
+      }
+    ]
+  }
+}

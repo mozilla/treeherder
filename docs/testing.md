@@ -71,19 +71,19 @@ of specificity:
 All tests:
 
 ```bash
-docker-compose run backend python -bb -m pytest tests/
+docker-compose run backend python -m pytest tests/
 ```
 
 Just `/etl` tests
 
 ```bash
-docker-compose run backend python -bb -m pytest tests/etl/
+docker-compose run backend python -m pytest tests/etl/
 ```
 
 Just the `test_ingest_pending_pulse_job` within the `/etl` tests
 
 ```bash
-docker-compose run backend python -bb -m pytest tests/ -k test_ingest_pending_pulse_job
+docker-compose run backend python -m pytest tests/ -k test_ingest_pending_pulse_job
 ```
 
 ## Selenium
@@ -101,7 +101,7 @@ docker-compose up --build
 Then to execute the tests:
 
 ```bash
-docker-compose run backend python -bb -m pytest tests/selenium/
+docker-compose run backend python -m pytest tests/selenium/
 ```
 
 [eslint]: https://eslint.org
