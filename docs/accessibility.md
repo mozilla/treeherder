@@ -4,15 +4,17 @@
 
 As a general rule, accessible software is achieved by following web development best practices. As Treeherder uses the `reactstrap` library, it is recommended using one of its components, if possible.
 
-If you can not find a suitable component, prefer [HTML5 semantic tags](https://developer.mozilla.org/en-US/docs/Glossary/Semantics#Semantics_in_HTML) and avoid using generic tags, such as `span` and `div`. Use those only when there is no other more semantic tag. Moreover, try to use more **headings** (`h1` to `h6`) whenever possible, because screen readers users usually navigate by headings and that is only possible when developers insert them in the code.
+If you can not find a suitable component, prefer [HTML5 semantic tags](https://developer.mozilla.org/en-US/docs/Glossary/Semantics#Semantics_in_HTML) and avoid using generic tags, such as `span` and `div`. Moreover, try to use more **headings** (`h1` to `h6`) whenever possible, because screen readers users usually navigate by headings and that is only possible when developers insert them in the code.
 
-If you can build your layout neither with `reactstrap` nor with semantic tags, please insert an `aria-role`. Down below, there are some elements constructed that way in Treeherder:
-
-- [Tables](https://developer.mozilla.org/en-US/docs/Web/Accessibility/ARIA/Roles/Table_Role);
-- [Progress Bar](https://developer.mozilla.org/en-US/docs/Web/Accessibility/ARIA/ARIA_Techniques/Using_the_progressbar_role);
-- [List](https://developer.mozilla.org/en-US/docs/Web/Accessibility/ARIA/Roles/List_role);
+If you can build your layout neither with `reactstrap` nor with semantic tags, please insert `aria-role` in them. There are examples of how to use `aria-role` in: [Tables](https://developer.mozilla.org/en-US/docs/Web/Accessibility/ARIA/Roles/Table_Role), [Progress Bar](https://developer.mozilla.org/en-US/docs/Web/Accessibility/ARIA/ARIA_Techniques/Using_the_progressbar_role), [List](https://developer.mozilla.org/en-US/docs/Web/Accessibility/ARIA/Roles/List_role).
 
 `aria-role` is important because it gives meaning to the generic HTML tag. That gives some direction to screen readers on which functionalities to provide and some information to users.
+
+**In summary**, implement your layout trying to use these in the following order:
+
+1. Use `reactstrap`;
+2. Use HTML semantic tags;
+3. Use `aria-role` attributes.
 
 ### Reactstrap
 
@@ -166,18 +168,16 @@ If in doubt, please check the [`reactstrap` Form documentation](https://reactstr
 
 Across Perfherder, there are some Progress Bars, which are built using `reactstrap` components. There is still an [issue](https://github.com/reactstrap/reactstrap/issues/1681), however, when adding labels on each bar. While this is still not solved, it is recommended to add an `aria-label` in the wrapping component, explaining the values of the bar.
 
-An example from the Alerts view:
+For example:
 
 ```jsx
 <Progress
   multi
-  aria-label={`Magnitude of difference based on lower is better. Metric: ${
-    regression ? 100 - magnitude : magnitude
-  } % regressed`}
+  aria-label={`Description of progress bar. Metric: ${finalValue}`}
 >
-  <div aria-hidden="true" className="progress w-100">
-    <Progress bar value={regression ? 100 - magnitude : magnitude} />
-    <Progress bar value={regression ? magnitude : 100 - magnitude} />
+  <div aria-hidden="true">
+    <Progress bar value={valueOne} />
+    <Progress bar value={valueTwo} />
   </div>
 </Progress>
 ```
