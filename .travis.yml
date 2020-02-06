@@ -76,7 +76,7 @@ matrix:
         # Several security features in settings.py (eg setting HSTS headers) are conditional on
         # 'https://' being in the site URL. In addition, we override the test environment's debug
         # value so the tests pass. The real environment variable will be checked during deployment.
-        - docker-compose run backend bash -c "SITE_URL=https://treeherder.dev TREEHERDER_DEBUG=False \
+        - docker-compose run backend bash -c "SITE_URL=https://treeherder.dev TREEHERDER_DEBUG=False
           ./manage.py check --deploy --fail-level WARNING"
         - docker-compose run backend bash -c "pytest --cov --cov-report=xml tests/selenium/"
       after_success:
