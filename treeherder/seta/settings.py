@@ -21,6 +21,7 @@ SETA_SUPPORTED_TC_JOBTYPES = [
     'build-macosx64-fuzzing',
     'build-win64-asan-fuzzing',
     'build-win64-fuzzing',
+    'spidermonkey-sm-fuzzing-linux64',
 ]
 
 # platforms listed here will not be supported by SETA
