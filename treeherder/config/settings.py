@@ -31,10 +31,10 @@ SECRET_KEY = env("TREEHERDER_DJANGO_SECRET_KEY", default='DEBUG')
 
 # Hosts
 try:
-    SITE_URL = env("SITE_URL")
+    SITE_URL = env("SITE_URL", default='DEBUG')
 except ImproperlyConfigured:
     # This is to support Heroku Review apps which host is different for each PR
-    SITE_URL = "https://{}.herokuapp.com".format(env("HEROKU_APP_NAME", default='DEBUG'))
+    SITE_URL = "https://{}.herokuapp.com".format(env("HEROKU_APP_NAME"))
 
 SITE_HOSTNAME = furl(SITE_URL).host
 # Including localhost allows using the backend locally
@@ -113,11 +113,11 @@ TEMPLATES = [{
 #
 # which django-environ converts into the Django DB settings dict format.
 DATABASES = {
-    'default': env.db_url('DATABASE_URL',default='DEBUG'),
+    'default': env.db_url('DATABASE_URL', default='DEBUG'),
 }
 
 # Only used when syncing local database with production replicas
-UPSTREAM_DATABASE_URL = env('UPSTREAM_DATABASE_URL', default='DEBUG')
+UPSTREAM_DATABASE_URL = env('UPSTREAM_DATABASE_URL', default=None)
 if UPSTREAM_DATABASE_URL:
     DATABASES['upstream'] = env.db_url_config(UPSTREAM_DATABASE_URL)
 
@@ -137,14 +137,13 @@ for alias in DATABASES:
         # prevent data loss (either STRICT_TRANS_TABLES or STRICT_ALL_TABLES).
         'init_command': "SET sql_mode='STRICT_TRANS_TABLES'"
     }
-    if connection_should_use_tls(DATABASES[alias]):
+    if connection_should_use_tls(DATABASES[alias]['HOST']):
         # Use TLS when connecting to RDS.
         # https://docs.aws.amazon.com/AmazonRDS/latest/UserGuide/CHAP_MySQL.html#MySQL.Concepts.SSLSupport
         # https://mysqlclient.readthedocs.io/user_guide.html#functions-and-attributes
         DATABASES[alias]['OPTIONS']['ssl'] = {
             'ca': 'deployment/aws/rds-combined-ca-bundle.pem',
         }
-    
 
 # Caches
 REDIS_URL = env('REDIS_URL', default='DEBUG')
@@ -310,7 +309,7 @@ CELERY_TASK_QUEUES = [
 CELERY_TASK_CREATE_MISSING_QUEUES = False
 
 # Celery broker setup
-CELERY_BROKER_URL = env('BROKER_URL', default='DEBUG')
+CELERY_BROKER_URL = env('BROKER_URL', default='TRUE')
 
 # Force Celery to use TLS when appropriate (ie if not localhost),
 # rather than relying on `CELERY_BROKER_URL` having `amqps://` or `?ssl=` set.
@@ -433,3 +432,6 @@ PERFHERDER_ALERTS_FORE_WINDOW = 12
 
 # Only generate alerts for data newer than this time in seconds in perfherder
 PERFHERDER_ALERTS_MAX_AGE = timedelta(weeks=2)
+
+# Resource count to limit the number of threads opening connections with the DB
+CONN_RESOURCES = 50
