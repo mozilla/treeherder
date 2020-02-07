@@ -310,7 +310,7 @@ CELERY_TASK_QUEUES = [
 CELERY_TASK_CREATE_MISSING_QUEUES = False
 
 # Celery broker setup
-CELERY_BROKER_URL = env('BROKER_URL' ,default='http://localhost:15672')
+CELERY_BROKER_URL = env('BROKER_URL' , default='http://localhost:15672')
 
 # Force Celery to use TLS when appropriate (ie if not localhost),
 # rather than relying on `CELERY_BROKER_URL` having `amqps://` or `?ssl=` set.
