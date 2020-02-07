@@ -61,21 +61,21 @@ export const alertStatusMap = {
 };
 
 export const graphColors = [
+  ['dark-puce', '#4C3146'],
   ['orange', '#FFB851'],
+  ['purple', '#921181'],
   ['fire-red', '#C92D2F'],
   ['cerulean', '#16BCDE'],
   ['blue-bell', '#464876'],
-  ['purple', '#921181'],
-  ['dark-puce', '#4C3146'],
 ];
 
 export const graphSymbols = [
-  ['circle', 'outline'],
+  ['diamond', 'outline'],
+  ['diamond', 'fill'],
   ['square', 'outline'],
-  ['triangleUp', 'outline'],
-  ['circle', 'fill'],
   ['square', 'fill'],
-  ['triangleUp', 'fill'],
+  ['circle', 'outline'],
+  ['circle', 'fill'],
 ];
 
 export const phFrameworksWithRelatedBranches = [
