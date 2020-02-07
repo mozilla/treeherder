@@ -315,8 +315,7 @@ input[type='checkbox'] {
   background-color: #0a5e6d;
 }
 
-.btn-darker-info.disabled,
-.btn-darker-info.disabled:hover {
+.btn-darker-info.disabled {
   color: black;
   background-color: #30b9ce80;
 }
@@ -331,6 +330,12 @@ input[type='checkbox'] {
   background-color: #0d7d8f;
   border-color: #0d7d8f;
   color: #ffffff;
+}
+
+.btn-outline-darker-info.disabled {
+  color: #02363f;
+  background-color: white;
+  border-color: #0d7d8f;
 }
 
 /*
@@ -354,6 +359,14 @@ input[type='checkbox'] {
 
 .bg-lightgray {
   background-color: lightgray;
+}
+
+.bg-darker-info {
+  background-color: #0d7d8f;
+}
+
+.bg-darker-secondary {
+  background-color: #6c757d;
 }
 
 .midgray,
@@ -416,6 +429,10 @@ h4 {
 
 .text-darker-info {
   color: #0d7d8f;
+}
+
+.text-darker-secondary {
+  color: #6c757d;
 }
 
 /*
