@@ -168,7 +168,7 @@ class Commit(models.Model):
     A single commit in a push
     '''
     push = models.ForeignKey(Push, on_delete=models.CASCADE, related_name='commits')
-    revision = models.CharField(max_length=40)
+    revision = models.CharField(max_length=40, db_index=True)
     author = models.CharField(max_length=150)
     comments = models.TextField()
 

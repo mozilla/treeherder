@@ -80,6 +80,7 @@ class PushHealthStatus extends Component {
             href={getPushHealthUrl({ repo: repoName, revision })}
             target="_blank"
             rel="noopener noreferrer"
+            data-testid={`health-status-${revision}`}
           >
             <Badge
               color={badgeColor}
