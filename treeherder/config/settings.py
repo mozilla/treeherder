@@ -27,11 +27,11 @@ LOGGING_LEVEL = env.bool("LOGGING_LEVEL", default='DEBUG' if DEBUG else 'WARNING
 GRAPHQL = env.bool("GRAPHQL", default=True)
 
 # Make this unique, and don't share it with anybody.
-SECRET_KEY = env("TREEHERDER_DJANGO_SECRET_KEY", default='DEBUG')
+SECRET_KEY = env("TREEHERDER_DJANGO_SECRET_KEY", default='SECRET_KEY')
 
 # Hosts
 try:
-    SITE_URL = env("SITE_URL", default='DEBUG')
+    SITE_URL = env("SITE_URL", default='http://localhost/8000')
 except ImproperlyConfigured:
     # This is to support Heroku Review apps which host is different for each PR
     SITE_URL = "https://{}.herokuapp.com".format(env("HEROKU_APP_NAME"))
@@ -73,6 +73,7 @@ INSTALLED_APPS = [
     'treeherder.webapp',
     'treeherder.log_parser',
     'treeherder.etl',
+    'treeherder.extract',
     'treeherder.perf',
     'treeherder.autoclassify',
     'treeherder.seta',
@@ -113,11 +114,11 @@ TEMPLATES = [{
 #
 # which django-environ converts into the Django DB settings dict format.
 DATABASES = {
-    'default': env.db_url('DATABASE_URL', default='DEBUG'),
+    'default': env.db_url('DATABASE_URL', default='https://root@mysql/treeherder'),
 }
 
 # Only used when syncing local database with production replicas
-UPSTREAM_DATABASE_URL = env('UPSTREAM_DATABASE_URL', default=None)
+UPSTREAM_DATABASE_URL = env('UPSTREAM_DATABASE_URL', default='https://root@mysql/treeherder')
 if UPSTREAM_DATABASE_URL:
     DATABASES['upstream'] = env.db_url_config(UPSTREAM_DATABASE_URL)
 
@@ -146,7 +147,7 @@ for alias in DATABASES:
         }
 
 # Caches
-REDIS_URL = env('REDIS_URL', default='DEBUG')
+REDIS_URL = env('REDIS_URL', default='http://localhost/6379')
 if connection_should_use_tls(REDIS_URL):
     # Connect using TLS on Heroku.
     REDIS_URL = get_tls_redis_url(REDIS_URL)
@@ -309,7 +310,7 @@ CELERY_TASK_QUEUES = [
 CELERY_TASK_CREATE_MISSING_QUEUES = False
 
 # Celery broker setup
-CELERY_BROKER_URL = env('BROKER_URL', default='TRUE')
+CELERY_BROKER_URL = env('BROKER_URL' ,default='http://localhost:15672')
 
 # Force Celery to use TLS when appropriate (ie if not localhost),
 # rather than relying on `CELERY_BROKER_URL` having `amqps://` or `?ssl=` set.
