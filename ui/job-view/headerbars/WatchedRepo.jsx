@@ -199,7 +199,7 @@ export default class WatchedRepo extends React.Component {
           )}
           <li className="watched-repo-dropdown-item">
             <a
-              href={`https://mozilla-releng.net/treestatus/show/${treeStatusName}`}
+              href={`https://treestatus.mozilla-releng.net/static/ui/treestatus/show/${treeStatusName}`}
               className="dropdown-item"
               target="_blank"
               rel="noopener noreferrer"
