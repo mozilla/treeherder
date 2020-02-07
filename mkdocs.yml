@@ -37,6 +37,7 @@ nav:
       - Testing: 'testing.md'
       - Loading Pulse data: 'pulseload.md'
       - Code Style: 'code_style.md'
+      - Accessibility: 'accessibility.md'
       - Common tasks: 'common_tasks.md'
       - Backend tasks: 'backend_tasks.md'
   - Infrastructure:

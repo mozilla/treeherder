@@ -8,6 +8,10 @@
 
 If you only want to hack on the frontend, see the UI Development section below. If you want to hack on the backend or work full-stack, see the [Server and Full-stack Development](#server-and-full-stack-development) section.
 
+### Code Standards
+
+Before pushing new code, please make sure you are following our [Code Style](code_style.md#ui) and [Accessibility Guidelines](accessibility.md).
+
 ## UI Development
 
 To get started:
