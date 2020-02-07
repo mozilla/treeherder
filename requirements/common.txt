@@ -120,9 +120,9 @@ django-cors-headers==3.2.0 \
     --hash=sha256:a8b2772582e8025412f4d4b54b617d8b707076ffd53a2b961bd24f10ec207a7c \
     --hash=sha256:84933651fbbde8f2bc084bef2f077b79db1ec1389432f21dd661eaae6b3d6a95
 
-mozlog==4.2.0 \
-    --hash=sha256:ad433902b5865a76706750ffc7119b32286e97b971e6d325d2909d0bf0670801 \
-    --hash=sha256:dc85cfb9d47af6811f2367f471de7028c36204340c5e68a928115409ea75d9a9
+mozlog==5.0 \
+    --hash=sha256:d5db61808632ad1c79a34401fba5522e04bfc307961072f067a49fc63edca2a2 \
+    --hash=sha256:5c8f366f397491fee69148f819223d070050cf88001060fee6800736827e3040
 
 # Required by djangorestframework's API documentation
 coreapi==2.3.3 \
