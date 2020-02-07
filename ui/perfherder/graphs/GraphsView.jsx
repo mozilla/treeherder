@@ -45,6 +45,7 @@ class GraphsView extends React.Component {
       colors: [...graphColors],
       symbols: [...graphSymbols],
       showModal: false,
+      showTable: false,
       visibilityChanged: false,
     };
   }
@@ -153,7 +154,6 @@ class GraphsView extends React.Component {
       if (newDisplayedTests.length) {
         newTestData = [...testData, ...newTestData];
       }
-
       this.setState(
         { testData: newTestData, loading: false, visibilityChanged: false },
         () => {
@@ -322,6 +322,7 @@ class GraphsView extends React.Component {
       colors,
       symbols,
       showModal,
+      showTable,
       visibilityChanged,
     } = this.state;
 
@@ -380,6 +381,7 @@ class GraphsView extends React.Component {
                 getTestData={this.getTestData}
                 testData={testData}
                 showModal={showModal}
+                showTable={showTable}
                 highlightAlerts={highlightAlerts}
                 highlightedRevisions={highlightedRevisions}
                 zoom={zoom}
@@ -390,6 +392,7 @@ class GraphsView extends React.Component {
                 visibilityChanged={visibilityChanged}
                 updateData={this.updateData}
                 toggle={() => this.setState({ showModal: !showModal })}
+                toggleTableView={() => this.setState({ showTable: !showTable })}
                 updateTimeRange={timeRange =>
                   this.setState(
                     {

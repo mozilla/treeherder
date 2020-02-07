@@ -42,7 +42,9 @@ export default class GraphsViewControls extends React.Component {
       updateTimeRange,
       hasNoData,
       toggle,
+      toggleTableView,
       showModal,
+      showTable,
       testData,
     } = this.props;
 
@@ -80,6 +82,13 @@ export default class GraphsViewControls extends React.Component {
               Add test data
             </Button>
           </Col>
+          {!hasNoData && (
+            <Col sm="auto" className="p-2">
+              <Button color="darker-info" onClick={toggleTableView}>
+                {showTable ? 'Graphs View' : 'Table View'}
+              </Button>
+            </Col>
+          )}
         </Row>
 
         {hasNoData ? (
