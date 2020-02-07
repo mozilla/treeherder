@@ -14,7 +14,7 @@ export default class DateRangePicker extends React.Component {
     this.state = {
       startDate: undefined,
       endDate: undefined,
-      calendarFocused: false,
+      calendarFocused: null,
     };
   }
 
@@ -52,7 +52,7 @@ export default class DateRangePicker extends React.Component {
     const startday = ISODate(moment(startDate));
     const endday = ISODate(moment(endDate));
 
-    this.setState(() => ({ calendarFocused: false }));
+    this.setState(() => ({ calendarFocused: null }));
     this.props.updateState({ startday, endday });
   };
 
