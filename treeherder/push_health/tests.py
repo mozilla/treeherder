@@ -50,14 +50,17 @@ def get_history(failure_classification_id, push_date, num_days, option_map, repo
         ).select_related(
             'job_log__job__machine_platform', 'job_log__job__push'
         ).values(
+            'action',
             'test',
+            'signature',
+            'message',
             'job_log__job__machine_platform__platform',
             'job_log__job__option_collection_hash'
         ).distinct()
         previous_failures = defaultdict(lambda: defaultdict(lambda: defaultdict(int)))
         for line in failure_lines:
             previous_failures[
-                clean_test(line['test'])
+                clean_test(line['action'], line['test'], line['signature'], line['message'])
             ][
                 clean_platform(line['job_log__job__machine_platform__platform'])
             ][
@@ -106,7 +109,9 @@ def get_current_test_failures(push, option_map):
     tests = {}
     all_failed_jobs = {}
     for failure_line in new_failure_lines:
-        test_name = clean_test(failure_line.test)
+        test_name = clean_test(
+            failure_line.action, failure_line.test, failure_line.signature, failure_line.message
+        )
         if not test_name:
             continue
         job = failure_line.job_log.job

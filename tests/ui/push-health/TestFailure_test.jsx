@@ -15,7 +15,8 @@ import TestFailure from '../../../ui/push-health/TestFailure';
 import pushHealth from '../mock/push_health';
 
 const repoName = 'autoland';
-const failure = pushHealth.metrics.tests.details.needInvestigation[0];
+const crashFailure = pushHealth.metrics.tests.details.needInvestigation[0];
+const testFailure = pushHealth.metrics.tests.details.needInvestigation[2];
 const cssFile = fs.readFileSync(
   path.resolve(
     __dirname,
@@ -43,7 +44,7 @@ beforeEach(() => {
     },
   });
   setUrlParam('repo', repoName);
-  failure.key = 'wazzon';
+  testFailure.key = 'wazzon';
 });
 
 afterEach(() => {
@@ -66,7 +67,7 @@ describe('TestFailure', () => {
   );
 
   test('should show the test name', async () => {
-    const { getByText } = render(testTestFailure(failure));
+    const { getByText } = render(testTestFailure(testFailure));
 
     expect(
       await waitForElement(() =>
@@ -76,7 +77,7 @@ describe('TestFailure', () => {
   });
 
   test('should not show details by default', async () => {
-    const { container, getByText } = render(testTestFailure(failure));
+    const { container, getByText } = render(testTestFailure(testFailure));
     useStyles(container);
 
     // Must use .toBeVisible() rather than .toBeInTheDocument because
@@ -94,7 +95,7 @@ describe('TestFailure', () => {
   });
 
   test('should show details when click more...', async () => {
-    const { container, getByText } = render(testTestFailure(failure));
+    const { container, getByText } = render(testTestFailure(testFailure));
     const moreLink = getByText('more...');
 
     useStyles(container);
@@ -106,6 +107,30 @@ describe('TestFailure', () => {
           'Error in remote: uncaught exception: Error: assert_unreached',
           { exact: false },
         ),
+      ),
+    ).toBeVisible();
+    expect(
+      await waitForElement(() => getByText('less...')),
+    ).toBeInTheDocument();
+  });
+
+  test('should show crash stack and signature when click more...', async () => {
+    const { container, getByText, getAllByText } = render(
+      testTestFailure(crashFailure),
+    );
+    const moreLink = getByText('more...');
+
+    useStyles(container);
+    fireEvent.click(moreLink);
+
+    expect(
+      await waitForElement(
+        () => getAllByText('@ nsDebugImpl::Abort(char const*, int)')[0],
+      ),
+    ).toBeVisible();
+    expect(
+      await waitForElement(() =>
+        getByText('Operating system: Mac OS X', { exact: false }),
       ),
     ).toBeVisible();
     expect(

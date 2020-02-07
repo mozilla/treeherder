@@ -1,6 +1,13 @@
-def clean_test(test_name):
+def clean_test(action, test, signature, message):
     try:
-        clean_name = str(test_name) if test_name else 'Non-Test Error'
+        clean_name = 'Non-Test Error'
+        if action == 'test_result':
+            clean_name = test
+        elif action == 'crash':
+            clean_name = signature
+        elif action == 'log':
+            clean_name = message if len(message) < 50 else '{}...'.format(message[:50])
+
     except UnicodeEncodeError:
         return ''
 
@@ -8,10 +15,8 @@ def clean_test(test_name):
         return None
 
     if ' == ' in clean_name or ' != ' in clean_name:
-        if ' != ' in clean_name:
-            left, right = clean_name.split(' != ')
-        elif ' == ' in clean_name:
-            left, right = clean_name.split(' == ')
+        splitter = ' == ' if ' == ' in clean_name else ' != '
+        left, right = clean_name.split(splitter)
 
         if 'tests/layout/' in left and 'tests/layout/' in right:
             left = 'layout%s' % left.split('tests/layout')[1]
@@ -23,7 +28,7 @@ def clean_test(test_name):
         elif clean_name.startswith('http://10.0'):
             left = '/tests/'.join(left.split('/tests/')[1:])
             right = '/tests/'.join(right.split('/tests/')[1:])
-        clean_name = "%s == %s" % (left, right)
+        clean_name = "%s%s%s" % (left, splitter, right)
 
     if 'build/tests/reftest/tests/' in clean_name:
         clean_name = clean_name.split('build/tests/reftest/tests/')[1]
@@ -44,8 +49,7 @@ def clean_test(test_name):
 
     # Now that we don't bail on a blank test_name, these filters
     # may sometimes apply.
-    if clean_name in [None,
-                      'Last test finished',
+    if clean_name in ['Last test finished',
                       '(SimpleTest/TestRunner.js)']:
         return None
 
