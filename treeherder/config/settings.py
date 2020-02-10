@@ -27,11 +27,11 @@ LOGGING_LEVEL = env.bool("LOGGING_LEVEL", default='DEBUG' if DEBUG else 'WARNING
 GRAPHQL = env.bool("GRAPHQL", default=True)
 
 # Make this unique, and don't share it with anybody.
-SECRET_KEY = env("TREEHERDER_DJANGO_SECRET_KEY")
+SECRET_KEY = env("TREEHERDER_DJANGO_SECRET_KEY", default='secret-key-of-at-least-50-characters-to-pass-check-deploy')
 
 # Hosts
 try:
-    SITE_URL = env("SITE_URL")
+    SITE_URL = env("SITE_URL", default='http://localhost:8000')
 except ImproperlyConfigured:
     # This is to support Heroku Review apps which host is different for each PR
     SITE_URL = "https://{}.herokuapp.com".format(env("HEROKU_APP_NAME"))
@@ -114,7 +114,7 @@ TEMPLATES = [{
 #
 # which django-environ converts into the Django DB settings dict format.
 DATABASES = {
-    'default': env.db_url('DATABASE_URL'),
+    'default': env.db_url('DATABASE_URL', default='http://root@mysql/treeherder'),
 }
 
 # Only used when syncing local database with production replicas
@@ -147,7 +147,7 @@ for alias in DATABASES:
         }
 
 # Caches
-REDIS_URL = env('REDIS_URL')
+REDIS_URL = env('REDIS_URL', default='http://localhost:6379')
 if connection_should_use_tls(REDIS_URL):
     # Connect using TLS on Heroku.
     REDIS_URL = get_tls_redis_url(REDIS_URL)
@@ -310,7 +310,7 @@ CELERY_TASK_QUEUES = [
 CELERY_TASK_CREATE_MISSING_QUEUES = False
 
 # Celery broker setup
-CELERY_BROKER_URL = env('BROKER_URL')
+CELERY_BROKER_URL = env('BROKER_URL', default='http://localhost:15672')
 
 # Force Celery to use TLS when appropriate (ie if not localhost),
 # rather than relying on `CELERY_BROKER_URL` having `amqps://` or `?ssl=` set.
