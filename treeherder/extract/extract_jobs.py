@@ -28,13 +28,13 @@ class ExtractJobs:
 
             Log.note("test value {{test|json}}", test=settings.test)
 
-            self.extract(settings)
+            self.extract(settings, force, restart, merge)
         except Exception as e:
             Log.error("could not extract jobs")
         finally:
             Log.stop()
 
-    def extract(self, settings):
+    def extract(self, settings, force, restart, merge):
         if not settings.extractor.app_name:
             Log.error("Expecting an extractor.app_name in config file")
 
