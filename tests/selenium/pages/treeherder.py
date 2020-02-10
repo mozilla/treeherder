@@ -104,10 +104,6 @@ class Treeherder(Base):
         self.find_element(By.CSS_SELECTOR, 'body').send_keys(shortcut)
 
     @property
-    def pinboard(self):
-        return self.Pinboard(self)
-
-    @property
     def pushes(self):
         return [self.ResultSet(self, el) for el in self.find_elements(*self._pushes_locator)]
 
@@ -228,7 +224,6 @@ class Treeherder(Base):
         _commits_locator = (By.CSS_SELECTOR, '.revision-list .revision')
         _job_groups_locator = (By.CSS_SELECTOR, '.job-group')
         _jobs_locator = (By.CSS_SELECTOR, '.job-btn.filter-shown')
-        _pin_all_jobs_locator = (By.CLASS_NAME, 'pin-all-jobs-btn')
         _set_bottom_of_range_locator = (By.CLASS_NAME, 'bottom-of-range-menu-item')
         _set_top_of_range_locator = (By.CLASS_NAME, 'top-of-range-menu-item')
 
@@ -255,10 +250,6 @@ class Treeherder(Base):
         def filter_by_author(self):
             self.find_element(*self._author_locator).click()
             return self.page.wait_for_page_to_load()
-
-        def pin_all_jobs(self):
-            self.find_element(*self._pin_all_jobs_locator).click()
-            self.wait.until(lambda _: self.page.pinboard.is_displayed)
 
         def set_as_bottom_of_range(self):
             el = self.page.find_element(By.CSS_SELECTOR, '.push')
@@ -356,7 +347,6 @@ class Treeherder(Base):
             _root_locator = (By.ID, 'summary-panel')
             _keywords_locator = (By.CSS_SELECTOR, 'a[title="Filter jobs containing these keywords"]')
             _log_viewer_locator = (By.CLASS_NAME, 'logviewer-btn')
-            _pin_job_locator = (By.ID, 'pin-job-btn')
             _result_locator = (By.CSS_SELECTOR, '#result-status-pane div:nth-of-type(1) span')
 
             @property
@@ -370,13 +360,6 @@ class Treeherder(Base):
             def filter_by_keywords(self):
                 self.find_element(*self._keywords_locator).click()
 
-            def pin_job(self, method='pointer'):
-                if method == 'keyboard':
-                    self.page._keyboard_shortcut(Keys.SPACE)
-                else:
-                    self.find_element(*self._pin_job_locator).click()
-                self.wait.until(lambda _: self.page.pinboard.is_displayed)
-
             def open_log_viewer(self, method='pointer'):
                 if method == 'keyboard':
                     self.page._keyboard_shortcut('l')
@@ -389,30 +372,3 @@ class Treeherder(Base):
 
                 from pages.log_viewer import LogViewer
                 return LogViewer(self.driver).wait_for_page_to_load()
-
-    class Pinboard(Region):
-
-        _root_locator = (By.ID, 'pinboard-panel')
-        _clear_all_locator = (By.CSS_SELECTOR, '#pinboard-controls .dropdown-menu li:nth-child(3) button')
-        _jobs_locator = (By.CLASS_NAME, 'pinned-job')
-        _save_menu_locator = (By.CSS_SELECTOR, '#pinboard-controls .save-btn-dropdown')
-
-        def clear(self):
-            el = self.find_element(*self._save_menu_locator)
-            el.click()
-            self.wait.until(lambda _: el.get_attribute('aria-expanded') == 'true')
-            self.find_element(*self._clear_all_locator).click()
-
-        @property
-        def is_displayed(self):
-            return self.root.is_displayed()
-
-        @property
-        def jobs(self):
-            return [self.Job(self.page, el) for el in self.find_elements(*self._jobs_locator)]
-
-        class Job(Region):
-
-            @property
-            def symbol(self):
-                return self.root.text
