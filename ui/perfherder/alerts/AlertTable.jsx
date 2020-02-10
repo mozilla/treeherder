@@ -170,6 +170,7 @@ export default class AlertTable extends React.Component {
     const {
       user,
       projects,
+      frameworks,
       alertSummaries,
       issueTrackers,
       fetchAlertSummaries,
@@ -224,6 +225,7 @@ export default class AlertTable extends React.Component {
                             }
                           />
                           <AlertHeader
+                            frameworks={frameworks}
                             alertSummary={alertSummary}
                             repoModel={repoModel}
                             issueTrackers={issueTrackers}
@@ -307,7 +309,7 @@ export default class AlertTable extends React.Component {
                   {alertSummary.notes && (
                     <div className="bg-white px-3 py-4">
                       <TruncatedText
-                        color="info"
+                        color="darker-info"
                         title="Notes: "
                         maxLength={167}
                         text={alertSummary.notes}

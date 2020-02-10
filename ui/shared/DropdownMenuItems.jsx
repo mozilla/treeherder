@@ -4,13 +4,18 @@ import { DropdownMenu, DropdownItem } from 'reactstrap';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faCheck } from '@fortawesome/free-solid-svg-icons';
 
-const DropdownMenuItems = ({ selectedItem, updateData, options }) => (
+const DropdownMenuItems = ({
+  selectedItem,
+  updateData,
+  options,
+  namespace = '',
+}) => (
   <DropdownMenu className="overflow-auto dropdown-menu-height">
     {options.map(item => (
       <DropdownItem
         tag="a"
-        key={item}
-        onClick={event => updateData(event.target.innerText)}
+        key={`${namespace}${item}`}
+        onClick={() => updateData(item)}
       >
         <FontAwesomeIcon
           icon={faCheck}

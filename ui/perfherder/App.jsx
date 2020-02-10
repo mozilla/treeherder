@@ -38,6 +38,7 @@ class App extends React.Component {
       getData(getApiUrl(repoEndpoint)),
       getData(getApiUrl(endpoints.frameworks)),
     ]);
+
     const errorMessages = [];
     const updates = {
       ...processResponse(projects, 'projects', errorMessages),

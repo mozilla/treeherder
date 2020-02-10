@@ -37,20 +37,26 @@ matrix:
       language: minimal
       install:
         - docker-compose build
+        - pip install codecov --user
       script:
         - docker-compose run backend ./runtests.sh
+      after_success:
+        - codecov -f coverage.xml
 
     - env: python-tests-main
       language: minimal
       install:
         - docker-compose build
+        - pip install codecov --user
       script:
         # Several security features in settings.py (eg setting HSTS headers) are conditional on
         # 'https://' being in the site URL. In addition, we override the test environment's debug
         # value so the tests pass. The real environment variable will be checked during deployment.
         - docker-compose run -e SITE_URL=https://treeherder.dev -e TREEHERDER_DEBUG=False backend python -bb ./manage.py check --deploy --fail-level WARNING
         # Using `-bb` mode to surface BytesWarnings: https://docs.python.org/3.7/using/cmdline.html#cmdoption-b
-        - docker-compose run backend python -bb -m pytest tests/ --runslow --ignore=tests/selenium/
+        - docker-compose run backend bash -c "pytest --cov --cov-report=xml tests/ --runslow --ignore=tests/selenium"
+      after_success:
+        - codecov -f coverage.xml
 
     - env: python-tests-selenium
       language: node_js
@@ -63,12 +69,15 @@ matrix:
         - docker-compose build
       install:
         - yarn install
+        - pip install codecov --user
       before_script:
         # Run in `before_script` to prevent the Selenium tests from running if the UI build fails.
         - yarn build
       script:
         # Using `-bb` mode to surface BytesWarnings: https://docs.python.org/3.7/using/cmdline.html#cmdoption-b
-        - docker-compose run backend python -bb -m pytest tests/selenium/
+        - docker-compose run backend bash -c "pytest --cov --cov-report=xml tests/selenium/"
+      after_success:
+        - codecov -f coverage.xml
 
 notifications:
   email:

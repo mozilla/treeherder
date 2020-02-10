@@ -211,7 +211,7 @@ h1 {
 
 .push-information {
   font-size: 18px;
-  color: #555;
+  color: #727272;
   margin-left: -4px;
   display: grid;
   grid-template-columns: 1fr auto 1fr;
@@ -446,35 +446,32 @@ button:disabled {
 li.pagination-active.active > button {
   background-color: lightgray !important;
   border-color: lightgray !important;
+  color: black !important;
 }
 
 /* graph colors */
-.blue {
-  border-left-color: #1752b8;
+.orange {
+  border-left-color: #ffb851;
 }
 
-.green {
-  border-left-color: #19a572;
+.fire-red {
+  border-left-color: #c92d2f;
 }
 
-.darkorchid {
-  border-left-color: #9932cc;
+.cerulean {
+  border-left-color: #16bcde;
 }
 
-.scarlet {
-  border-left-color: #b81752;
+.blue-bell {
+  border-left-color: #464876;
 }
 
-.turquoise {
-  border-left-color: #17a2b8;
+.purple {
+  border-left-color: #921181;
 }
 
-.magenta {
-  border-left-color: #e252cf;
-}
-
-.brown {
-  border-left-color: #b87e17;
+.dark-puce {
+  border-left-color: #4c3146;
 }
 
 @media only screen and (min-width: 1700px) {

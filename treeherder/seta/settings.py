@@ -9,7 +9,19 @@ SETA_PROJECTS = [
 SETA_SUPPORTED_TC_JOBTYPES = [
     'test-',
     'desktop-test',
-    'android-test'
+    'android-test,'
+    'build-android-x86-fuzzing',
+    'build-android-x86_64-asan-fuzzing',
+    'build-linux64-asan-fuzzing-ccov',
+    'build-linux64-asan-fuzzing',
+    'build-linux64-fuzzing-ccov',
+    'build-linux64-fuzzing',
+    'build-linux64-tsan-fuzzing',
+    'build-macosx64-asan-fuzzing',
+    'build-macosx64-fuzzing',
+    'build-win64-asan-fuzzing',
+    'build-win64-fuzzing',
+    'spidermonkey-sm-fuzzing-linux64',
 ]
 
 # platforms listed here will not be supported by SETA
@@ -39,7 +51,6 @@ SETA_UNSUPPORTED_TESTTYPES = [
     'nightly',
     'non-unified',
     'valgrind',
-    'build',
     'Opt',
     'Debug',
     'Dbg',

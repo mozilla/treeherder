@@ -7,7 +7,7 @@ import {
 } from '@testing-library/react';
 
 import LegendCard from '../../../ui/perfherder/graphs/LegendCard';
-import { legendCardText } from '../../../ui/perfherder/constants';
+import { unknownFrameworkMessage } from '../../../ui/perfherder/constants';
 
 const testData = [
   {
@@ -75,7 +75,7 @@ test('legend card with incorrect framework displays the unknown framework badge 
   const { queryByText } = legendCard(testData[1], testData);
 
   const frameworkBadge = await waitForElement(() =>
-    queryByText(legendCardText.unknownFrameworkMessage),
+    queryByText(unknownFrameworkMessage),
   );
   expect(frameworkBadge).toBeInTheDocument();
 });

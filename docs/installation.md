@@ -8,6 +8,10 @@
 
 If you only want to hack on the frontend, see the UI Development section below. If you want to hack on the backend or work full-stack, see the [Server and Full-stack Development](#server-and-full-stack-development) section.
 
+### Code Standards
+
+Before pushing new code, please make sure you are following our [Code Style](code_style.md#ui) and [Accessibility Guidelines](accessibility.md).
+
 ## UI Development
 
 To get started:
@@ -66,16 +70,6 @@ Both Django's runserver and webpack-dev-server will automatically refresh every 
 <!-- prettier-ignore -->
 !!! note
     There will be no data to display until the ingestion tasks are run.
-
-### Running the migrations
-
-NOTE: The Django migrations and SETA initialization is automatically applied with the Docker developer instance
-
-To run the Django migrations:
-
-```bash
-docker-compose run backend sh -c "./initialize_data.sh"
-```
 
 ### Using the minified UI
 

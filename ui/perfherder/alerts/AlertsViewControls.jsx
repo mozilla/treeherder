@@ -9,6 +9,17 @@ import AlertTable from './AlertTable';
 export default class AlertsViewControls extends React.Component {
   constructor(props) {
     super(props);
+
+    let { isListingAlertSummaries } = props;
+    if (
+      isListingAlertSummaries === null ||
+      isListingAlertSummaries === undefined
+    ) {
+      isListingAlertSummaries =
+        // no dropdown options were provided
+        props.dropdownOptions !== null && props.dropdownOptions.length > 0;
+    }
+
     this.validated = this.props.validated;
     this.state = {
       hideImprovements: convertParams(this.validated, 'hideImprovements'),
@@ -17,6 +28,7 @@ export default class AlertsViewControls extends React.Component {
         this.validated,
         'hideAssignedToOthers',
       ),
+      isListingAlertSummaries,
       filterText: '',
     };
   }
@@ -62,6 +74,7 @@ export default class AlertsViewControls extends React.Component {
       hideImprovements,
       hideDownstream,
       hideAssignedToOthers,
+      isListingAlertSummaries,
     } = this.state;
 
     const alertFilters = [
@@ -77,7 +90,7 @@ export default class AlertsViewControls extends React.Component {
       },
     ];
 
-    if (user.isLoggedIn) {
+    if (user.isLoggedIn && isListingAlertSummaries) {
       alertFilters.push({
         text: 'My alerts',
         state: hideAssignedToOthers,
@@ -114,6 +127,7 @@ AlertsViewControls.propTypes = {
   validated: PropTypes.shape({
     updateParams: PropTypes.func,
   }).isRequired,
+  isListingAlertSummaries: PropTypes.bool,
   dropdownOptions: PropTypes.arrayOf(PropTypes.shape({})),
   fetchAlertSummaries: PropTypes.func.isRequired,
   alertSummaries: PropTypes.arrayOf(PropTypes.shape({})),
@@ -121,6 +135,7 @@ AlertsViewControls.propTypes = {
 };
 
 AlertsViewControls.defaultProps = {
+  isListingAlertSummaries: null,
   dropdownOptions: null,
   alertSummaries: [],
 };

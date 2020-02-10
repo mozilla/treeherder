@@ -8,6 +8,7 @@ export const endpoints = {
   frameworks: '/performance/framework/',
   issueTrackers: '/performance/issue-tracker/',
   summary: '/performance/summary/',
+  validityDashboard: '/performance/validity-dashboard/',
 };
 
 export const noiseMetricTitle = 'noise metric';
@@ -22,10 +23,6 @@ export const filterText = {
   inputPlaceholder: 'filter text e.g. linux tp5o',
 };
 
-export const legendCardText = {
-  unknownFrameworkMessage: 'unknown framework',
-};
-
 export const selectorCardText = {
   invalidRevision: 'Invalid revision',
   invalidRevisionLength: 'Revision must be at least 40 characters',
@@ -38,6 +35,7 @@ export const compareTableText = {
 
 export const noResultsMessage = 'No results to show';
 export const noDataFoundMessage = title => `No Data Found for ${title}`;
+export const unknownFrameworkMessage = 'unknown framework';
 
 export const summaryStatusMap = {
   all: -1,
@@ -63,12 +61,21 @@ export const alertStatusMap = {
 };
 
 export const graphColors = [
-  ['scarlet', '#b81752'],
-  ['turquoise', '#17a2b8'],
-  ['green', '#19a572'],
-  ['brown', '#b87e17'],
-  ['darkorchid', '#9932cc'],
-  ['blue', '#1752b8'],
+  ['dark-puce', '#4C3146'],
+  ['orange', '#FFB851'],
+  ['purple', '#921181'],
+  ['fire-red', '#C92D2F'],
+  ['cerulean', '#16BCDE'],
+  ['blue-bell', '#464876'],
+];
+
+export const graphSymbols = [
+  ['diamond', 'outline'],
+  ['diamond', 'fill'],
+  ['square', 'outline'],
+  ['square', 'fill'],
+  ['circle', 'outline'],
+  ['circle', 'fill'],
 ];
 
 export const phFrameworksWithRelatedBranches = [

@@ -7,6 +7,7 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import {
   faStar as faStarSolid,
   faUser,
+  faCheck,
 } from '@fortawesome/free-solid-svg-icons';
 import { faStar as faStarRegular } from '@fortawesome/free-regular-svg-icons';
 
@@ -99,7 +100,7 @@ export default class AlertTableRow extends React.Component {
         <a
           href={`#/alerts?id=${alertId}`}
           rel="noopener noreferrer"
-          className="text-info"
+          className="text-darker-info"
         >{`alert #${alertId}`}</a>
       </span>
     );
@@ -126,10 +127,14 @@ export default class AlertTableRow extends React.Component {
   renderAlertStatus = (alert, alertStatus, statusColor) => {
     return (
       <React.Fragment>
-        (<span className={statusColor}>{alertStatus}</span>
+        (
+        {statusColor === 'text-success' && (
+          <FontAwesomeIcon icon={faCheck} color="#28a745" />
+        )}{' '}
+        <span className={statusColor}>{alertStatus}</span>
         {alert.related_summary_id && this.getReassignment(alert)}
         {alert.backfill_record ? (
-          <span className="text-info">, important</span>
+          <span className="text-darker-info">, important</span>
         ) : null}
         )
       </React.Fragment>

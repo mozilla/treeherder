@@ -92,7 +92,7 @@ def test_store_error_summary_astral(activate_responses, test_repository, test_jo
     log_path = SampleData().get_log_path("plain-chunked_errorsummary_astral.log")
     log_url = 'http://my-log.mozilla.org'
 
-    with open(log_path) as log_handler:
+    with open(log_path, encoding='utf8') as log_handler:
         responses.add(responses.GET, log_url, content_type="text/plain;charset=utf-8",
                       body=log_handler.read(), status=200)
 
