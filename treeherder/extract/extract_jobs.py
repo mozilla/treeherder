@@ -20,13 +20,21 @@ CONFIG_FILE = (File.new_instance(__file__).parent / "extract_jobs.json").abspath
 
 class ExtractJobs:
     def run(self, force=False, restart=False, merge=False):
-        # SETUP LOGGING
-        settings = startup.read_settings(filename=CONFIG_FILE)
-        constants.set(settings.constants)
-        Log.start(settings.debug)
+        try:
+            # SETUP LOGGING
+            settings = startup.read_settings(filename=CONFIG_FILE)
+            constants.set(settings.constants)
+            Log.start(settings.debug)
 
-        Log.note("test value {{test|json}}", test=settings.test)
+            Log.note("test value {{test|json}}", test=settings.test)
 
+            self.extract(settings)
+        except Exception as e:
+            Log.error("could not extract jobs")
+        finally:
+            Log.stop()
+
+    def extract(self, settings):
         if not settings.extractor.app_name:
             Log.error("Expecting an extractor.app_name in config file")
 
