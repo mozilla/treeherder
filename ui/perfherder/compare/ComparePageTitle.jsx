@@ -1,4 +1,5 @@
 import React from 'react';
+import { Helmet } from 'react-helmet';
 import PropTypes from 'prop-types';
 import { Button, Input, InputGroup } from 'reactstrap';
 import { faEdit } from '@fortawesome/free-solid-svg-icons';
@@ -13,6 +14,7 @@ export default class ComparePageTitle extends React.Component {
       inEditMode: false,
       pageTitle: props.pageTitleQueryParam || props.title,
       newPageTitle: props.pageTitleQueryParam || props.title,
+      tabTitle: null,
     };
   }
 
@@ -23,12 +25,13 @@ export default class ComparePageTitle extends React.Component {
   };
 
   resetToDefault = async event => {
-    const { title } = this.props;
+    const { title, defaultPageTitle } = this.props;
     const { newPageTitle } = this.state || event.target.value;
     this.setState({
       inEditMode: false,
       pageTitle: title,
       newPageTitle: title,
+      tabTitle: defaultPageTitle,
     });
     this.changeQueryParam(newPageTitle);
   };
@@ -42,7 +45,7 @@ export default class ComparePageTitle extends React.Component {
 
     this.setState({ inEditMode: false });
     if (newTitle !== pageTitle) {
-      this.setState({ pageTitle: newTitle });
+      this.setState({ pageTitle: newTitle, tabTitle: newTitle });
       this.changeQueryParam(newTitle);
     }
   };
@@ -77,52 +80,61 @@ export default class ComparePageTitle extends React.Component {
   };
 
   render() {
-    const { inEditMode, pageTitle, newPageTitle } = this.state;
+    const { inEditMode, pageTitle, newPageTitle, tabTitle } = this.state;
 
-    return !inEditMode ? (
-      <Button
-        className="text-center"
-        size="lg"
-        color="white"
-        onClick={this.goToEditMode}
-        title="Click to change the page title"
-      >
-        <h1 className="page-title-text">
-          {pageTitle}
-          <FontAwesomeIcon
-            icon={faEdit}
-            className="fa-xs align-top edit-icon"
-          />
-        </h1>
-      </Button>
-    ) : (
-      <InputGroup>
-        <Input
-          className="pb-1 col-sm-12 page-title-input"
-          ref={this.inputRef}
-          color="white"
-          style={{
-            textAlign: 'center',
-            fontSize: 'xx-large',
-          }}
-          value={newPageTitle}
-          onChange={event => this.editpageTitle(event.target.value)}
-          onKeyDown={event => this.userActionListener(event)}
-          autoFocus
-        />
-        <Button
-          className="ml-3 my-2"
-          vertical="center"
-          size="lg"
-          color="secondary"
-          onClick={this.injectEnter}
-        >
-          Save
-        </Button>
-        <Button size="lg" color="link" onClick={this.injectEscape}>
-          Cancel
-        </Button>
-      </InputGroup>
+    return (
+      <React.Fragment>
+        <Helmet>
+          <meta charSet="utf-8" />
+          <title>{tabTitle || this.props.defaultPageTitle}</title>
+        </Helmet>
+
+        {!inEditMode ? (
+          <Button
+            className="text-center"
+            size="lg"
+            color="white"
+            onClick={this.goToEditMode}
+            title="Click to change the page title"
+          >
+            <h1 className="page-title-text">
+              {pageTitle}
+              <FontAwesomeIcon
+                icon={faEdit}
+                className="fa-xs align-top edit-icon"
+              />
+            </h1>
+          </Button>
+        ) : (
+          <InputGroup>
+            <Input
+              className="pb-1 col-sm-12 page-title-input"
+              ref={this.inputRef}
+              color="white"
+              style={{
+                textAlign: 'center',
+                fontSize: 'xx-large',
+              }}
+              value={newPageTitle}
+              onChange={event => this.editpageTitle(event.target.value)}
+              onKeyDown={event => this.userActionListener(event)}
+              autoFocus
+            />
+            <Button
+              className="ml-3 my-2"
+              vertical="center"
+              size="lg"
+              color="secondary"
+              onClick={this.injectEnter}
+            >
+              Save
+            </Button>
+            <Button size="lg" color="link" onClick={this.injectEscape}>
+              Cancel
+            </Button>
+          </InputGroup>
+        )}
+      </React.Fragment>
     );
   }
 }
