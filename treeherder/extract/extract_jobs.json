@@ -51,6 +51,7 @@
       }
     }
   },
+  "test": {"$ref": "env://BIGQUERY_TEST"},
   "destination": {
     "account_info": {
       "private_key_id": {

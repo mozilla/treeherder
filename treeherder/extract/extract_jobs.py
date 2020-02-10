@@ -25,6 +25,8 @@ class ExtractJobs:
         constants.set(settings.constants)
         Log.start(settings.debug)
 
+        Log.note("test value {{test|json}}", test=settings.test)
+
         if not settings.extractor.app_name:
             Log.error("Expecting an extractor.app_name in config file")
 
