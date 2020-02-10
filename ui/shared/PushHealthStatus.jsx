@@ -55,7 +55,7 @@ class PushHealthStatus extends Component {
   render() {
     const { repoName, revision } = this.props;
     const { needInvestigation, unsupported } = this.state;
-    const items = needInvestigation > 1 ? 'items' : 'item';
+    const testsNeed = needInvestigation > 1 ? 'tests need' : 'test needs';
     const icon =
       needInvestigation + unsupported === 0 ? faCheck : faExclamationTriangle;
     let healthStatus = 'OK';
@@ -63,12 +63,12 @@ class PushHealthStatus extends Component {
     let extraTitle = 'Looks good';
 
     if (unsupported) {
-      healthStatus = `${unsupported} unsupported ${items}`;
+      healthStatus = `${unsupported} unsupported tests`;
       badgeColor = 'warning';
       extraTitle = 'Indeterminate';
     }
     if (needInvestigation) {
-      healthStatus = `${needInvestigation} ${items}`;
+      healthStatus = `${needInvestigation} ${testsNeed} investigation`;
       badgeColor = 'danger';
       extraTitle = 'Needs investigation';
     }
