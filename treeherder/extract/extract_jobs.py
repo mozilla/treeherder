@@ -30,7 +30,7 @@ class ExtractJobs:
 
             self.extract(settings, force, restart, merge)
         except Exception as e:
-            Log.error("could not extract jobs")
+            Log.error("could not extract jobs", cause=e)
         finally:
             Log.stop()
 
