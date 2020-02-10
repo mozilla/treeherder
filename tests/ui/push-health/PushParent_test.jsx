@@ -69,7 +69,7 @@ describe('PushParent', () => {
       queryByTestId('health-status-76ee1827c820f34b3b595f887f57b4c847316fcc'),
     ).not.toBeInTheDocument();
     expect(
-      await waitForElement(() => getByText('87 tests need investigation')),
+      await waitForElement(() => getByText('87 items')),
     ).toBeInTheDocument();
   });
 
@@ -91,7 +91,7 @@ describe('PushParent', () => {
       getByText('00000827c820f34b3b595f887f57b4c847316fcc'),
     ).toBeInTheDocument();
     expect(
-      await waitForElement(() => getByText('87 tests need investigation')),
+      await waitForElement(() => getByText('87 items')),
     ).toBeInTheDocument();
   });
 

@@ -69,7 +69,7 @@ function PushCounts(props) {
     <div>
       {fixedByCommit >= 1 && (
         <span
-          className="badge badge-warning"
+          className="badge badge-warning ml-1"
           title="Count of Fixed By Commit tasks for this push"
         >
           {fixedByCommit}
