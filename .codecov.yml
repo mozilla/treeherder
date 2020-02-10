@@ -4,6 +4,6 @@ coverage:
     project:
       default:
         threshold: 2
-        tests:
-          target: 40%
-          paths: ui/
+      tests:
+        target: 40%
+        paths: ui/
