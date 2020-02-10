@@ -326,9 +326,9 @@ aniso8601==6.0.0 \
     --hash=sha256:7849749cf00ae0680ad2bdfe4419c7a662bef19c03691a19e008c8b9a5267802 \
     --hash=sha256:bb167645c79f7a438f9dfab6161af9bed75508c645b1f07d1158240841d22673
 
-python-jose[pycryptodome]==3.0.1 \
-    --hash=sha256:29701d998fe560e52f17246c3213a882a4a39da7e42c7015bcc1f7823ceaff1c \
-    --hash=sha256:ed7387f0f9af2ea0ddc441d83a6eb47a5909bd0c8a72ac3250e75afec2cc1371
+python-jose[pycryptodome]==3.1.0 \
+    --hash=sha256:1ac4caf4bfebd5a70cf5bd82702ed850db69b0b6e1d0ae7368e5f99ac01c9571 \
+    --hash=sha256:8484b7fdb6962e9d242cce7680469ecf92bda95d10bbcbbeb560cacdff3abfce
 
 # Used by python-jose
 rsa==4.0 \
