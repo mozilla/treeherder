@@ -114,7 +114,7 @@ TEMPLATES = [{
 #
 # which django-environ converts into the Django DB settings dict format.
 DATABASES = {
-    'default': env.db_url('DATABASE_URL', default='root@localhost:3306/treeherder'),
+    'default': env.db_url('DATABASE_URL', default='mysql://root@localhost:3306/treeherder'),
 }
 
 # Only used when syncing local database with production replicas
@@ -147,7 +147,7 @@ for alias in DATABASES:
         }
 
 # Caches
-REDIS_URL = env('REDIS_URL', default='http://localhost:6379')
+REDIS_URL = env('REDIS_URL', default='redis://localhost:6379')
 if connection_should_use_tls(REDIS_URL):
     # Connect using TLS on Heroku.
     REDIS_URL = get_tls_redis_url(REDIS_URL)
