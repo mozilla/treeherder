@@ -156,7 +156,7 @@ def test_ingest_github_push_bad_repo(github_push):
     ("foo", 1),
 ])
 def test_ingest_github_push_comma_separated_branches(branch, expected_pushes, github_push,
-                                                     test_repository, mock_github_push_compare):
+                                                     test_repository, mock_github_events):
     """Test a repository accepting pushes for multiple branches"""
     test_repository.url = "https://github.com/mozilla/test_treeherder"
     test_repository.branch = "master,foo,bar"
