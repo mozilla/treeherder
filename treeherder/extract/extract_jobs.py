@@ -13,6 +13,7 @@ from mo_sql import SQL
 from mo_threads import Till
 from mo_times import Timer
 from mo_times.dates import parse
+from pyLibrary.env import git
 
 CONFIG_FILE = (File.new_instance(__file__).parent / "extract_jobs.json").abspath
 
@@ -26,7 +27,12 @@ class ExtractJobs:
             Log.start(settings.debug)
 
             Log.note("test value {{test|json}}", test=settings.test)
-            Till(seconds=5).wait()
+            Log.note(
+                "stats {{num_lines}}, {{num_char}}",
+                num_lines=len(settings.destination.account_info.private_key.split("\n")),
+                num_char=len(settings.destination.account_info.private_key)
+            )
+
             self.extract(settings, force, restart, merge)
         except Exception as e:
             Log.error("could not extract jobs", cause=e)
