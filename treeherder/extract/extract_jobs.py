@@ -5,8 +5,10 @@ from jx_mysql.mysql import (MySQL,
                             sql_query)
 from jx_mysql.mysql_snowflake_extractor import MySqlSnowflakeExtractor
 from mo_files import File
-from mo_json import (json2value,
-                     value2json, python_type_to_json_type, NUMBER)
+from mo_json import (NUMBER,
+                     json2value,
+                     python_type_to_json_type,
+                     value2json)
 from mo_logs import (Log,
                      constants,
                      startup)
