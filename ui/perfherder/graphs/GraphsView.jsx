@@ -18,6 +18,7 @@ import { processSelectedParam, createGraphData } from '../helpers';
 import {
   endpoints,
   graphColors,
+  graphSymbols,
   phTimeRanges,
   phDefaultTimeRangeValue,
 } from '../constants';
@@ -42,6 +43,7 @@ class GraphsView extends React.Component {
       options: {},
       loading: false,
       colors: [...graphColors],
+      symbols: [...graphSymbols],
       showModal: false,
       visibilityChanged: false,
     };
@@ -165,19 +167,23 @@ class GraphsView extends React.Component {
   };
 
   createGraphObject = async seriesData => {
-    const { colors } = this.state;
+    const { colors, symbols } = this.state;
     const alertSummaries = await Promise.all(
       seriesData.map(series =>
         this.getAlertSummaries(series.signature_id, series.repository_id),
       ),
     );
     const newColors = [...colors];
+    const newSymbols = [...symbols];
+
     const graphData = createGraphData(
       seriesData,
       alertSummaries.flat(),
       newColors,
+      newSymbols,
     );
-    this.setState({ colors: newColors });
+
+    this.setState({ colors: newColors, symbols: newSymbols });
     return graphData;
   };
 
@@ -314,6 +320,7 @@ class GraphsView extends React.Component {
       zoom,
       options,
       colors,
+      symbols,
       showModal,
       visibilityChanged,
     } = this.state;
@@ -352,6 +359,7 @@ class GraphsView extends React.Component {
                           this.setState(state, this.changeParams)
                         }
                         colors={colors}
+                        symbols={symbols}
                         selectedDataPoint={selectedDataPoint}
                       />
                     </div>
@@ -389,6 +397,7 @@ class GraphsView extends React.Component {
                       zoom: {},
                       selectedDataPoint: null,
                       colors: [...graphColors],
+                      symbols: [...graphSymbols],
                     },
                     this.getTestData,
                   )

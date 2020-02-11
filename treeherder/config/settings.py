@@ -73,6 +73,7 @@ INSTALLED_APPS = [
     'treeherder.webapp',
     'treeherder.log_parser',
     'treeherder.etl',
+    'treeherder.extract',
     'treeherder.perf',
     'treeherder.autoclassify',
     'treeherder.seta',
@@ -385,6 +386,7 @@ REST_FRAMEWORK = {
         'rest_framework.renderers.JSONRenderer',
         'rest_framework.renderers.BrowsableAPIRenderer',
     ),
+    'DEFAULT_SCHEMA_CLASS': 'rest_framework.schemas.coreapi.AutoSchema',
     'DEFAULT_VERSION': '1.0',
     'DEFAULT_VERSIONING_CLASS': 'rest_framework.versioning.AcceptHeaderVersioning',
     'TEST_REQUEST_DEFAULT_FORMAT': 'json',
@@ -431,3 +433,6 @@ PERFHERDER_ALERTS_FORE_WINDOW = 12
 
 # Only generate alerts for data newer than this time in seconds in perfherder
 PERFHERDER_ALERTS_MAX_AGE = timedelta(weeks=2)
+
+# Resource count to limit the number of threads opening connections with the DB
+CONN_RESOURCES = 50

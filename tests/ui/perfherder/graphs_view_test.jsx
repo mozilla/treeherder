@@ -12,6 +12,7 @@ import {
   endpoints,
   filterText,
   graphColors,
+  graphSymbols,
 } from '../../../ui/perfherder/constants';
 import GraphsViewControls from '../../../ui/perfherder/graphs/GraphsViewControls';
 import repos from '../mock/repositories';
@@ -26,7 +27,12 @@ import {
   getApiUrl,
 } from '../../../ui/helpers/url';
 
-const graphData = createGraphData(testData, [], [...graphColors]);
+const graphData = createGraphData(
+  testData,
+  [],
+  [...graphColors],
+  [...graphSymbols],
+);
 
 const frameworks = [
   { id: 1, name: 'talos' },

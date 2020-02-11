@@ -80,6 +80,7 @@ const HelpMenu = () => (
           target="_blank"
           rel="noopener noreferrer"
           href={item.href}
+          key={item.text}
         >
           <FontAwesomeIcon
             icon={item.icon}

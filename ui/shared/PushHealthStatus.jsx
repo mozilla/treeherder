@@ -1,6 +1,11 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
-import { Badge } from 'reactstrap';
+import { Badge, Spinner } from 'reactstrap';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import {
+  faCheck,
+  faExclamationTriangle,
+} from '@fortawesome/free-solid-svg-icons';
 
 import PushModel from '../models/push';
 import { getPushHealthUrl } from '../helpers/url';
@@ -11,8 +16,8 @@ class PushHealthStatus extends Component {
     super(props);
 
     this.state = {
-      healthStatus: '',
-      needInvestigation: 0,
+      unsupported: null,
+      needInvestigation: null,
     };
   }
 
@@ -43,35 +48,52 @@ class PushHealthStatus extends Component {
     );
 
     if (!failureStatus) {
-      const { needInvestigation } = data;
-      const testsNeed = needInvestigation > 1 ? 'tests need' : 'test needs';
-      const healthStatus = needInvestigation
-        ? `${needInvestigation} ${testsNeed} investigation`
-        : 'OK';
-
-      this.setState({ healthStatus, needInvestigation });
+      this.setState({ ...data });
     }
   }
 
   render() {
     const { repoName, revision } = this.props;
-    const { healthStatus, needInvestigation } = this.state;
-    const color = needInvestigation ? 'danger' : 'success';
-    const extraTitle = needInvestigation ? 'Needs investigation' : 'Looks good';
+    const { needInvestigation, unsupported } = this.state;
+    const items = needInvestigation > 1 ? 'items' : 'item';
+    const icon =
+      needInvestigation + unsupported === 0 ? faCheck : faExclamationTriangle;
+    let healthStatus = 'OK';
+    let badgeColor = 'success';
+    let extraTitle = 'Looks good';
+
+    if (unsupported) {
+      healthStatus = `${unsupported} unsupported ${items}`;
+      badgeColor = 'warning';
+      extraTitle = 'Indeterminate';
+    }
+    if (needInvestigation) {
+      healthStatus = `${needInvestigation} ${items}`;
+      badgeColor = 'danger';
+      extraTitle = 'Needs investigation';
+    }
 
     return (
-      <a
-        href={getPushHealthUrl({ repo: repoName, revision })}
-        target="_blank"
-        rel="noopener noreferrer"
-      >
-        <Badge
-          color={color}
-          title={`Push Health status - click for details: ${extraTitle}`}
-        >
-          {healthStatus}
-        </Badge>
-      </a>
+      <React.Fragment>
+        {needInvestigation !== null ? (
+          <a
+            href={getPushHealthUrl({ repo: repoName, revision })}
+            target="_blank"
+            rel="noopener noreferrer"
+            data-testid={`health-status-${revision}`}
+          >
+            <Badge
+              color={badgeColor}
+              title={`Push Health status - click for details: ${extraTitle}`}
+            >
+              <FontAwesomeIcon className="mr-1" icon={icon} />
+              {healthStatus}
+            </Badge>
+          </a>
+        ) : (
+          <Spinner size="sm" />
+        )}
+      </React.Fragment>
     );
   }
 }

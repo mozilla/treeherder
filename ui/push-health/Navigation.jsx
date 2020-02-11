@@ -1,6 +1,6 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import { Badge, Navbar } from 'reactstrap';
+import { Badge, Navbar, Nav } from 'reactstrap';
 
 import LogoMenu from '../shared/LogoMenu';
 import { getJobsUrl } from '../helpers/url';
@@ -23,26 +23,28 @@ export default class Navigation extends React.PureComponent {
 
     return (
       <React.Fragment>
-        <Navbar dark color="dark" sticky="top">
-          <LogoMenu menuText="Push Health" />
-          <h4>
-            <Badge color={overallResult}>
-              <a
-                href={getJobsUrl({ repo, revision })}
-                className="text-white"
-                target="_blank"
-                rel="noopener noreferrer"
-              >
-                <span title="repository">{repo}</span> -
-                <span title="revision" className="ml-1">
-                  {revision}
-                </span>
-              </a>
-            </Badge>
-          </h4>
-          <Login user={user} setUser={setUser} notify={notify} />
+        <Navbar dark color="dark" sticky="top" className="flex-column">
+          <Nav className="w-100 justify-content-between">
+            <LogoMenu menuText="Push Health" />
+            <h4>
+              <Badge color={overallResult}>
+                <a
+                  href={getJobsUrl({ repo, revision })}
+                  className="text-white"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                >
+                  <span title="repository">{repo}</span> -
+                  <span title="revision" className="ml-1">
+                    {revision}
+                  </span>
+                </a>
+              </Badge>
+            </h4>
+            <Login user={user} setUser={setUser} notify={notify} />
+          </Nav>
+          {children}
         </Navbar>
-        {children}
       </React.Fragment>
     );
   }

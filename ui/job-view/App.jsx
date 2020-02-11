@@ -378,7 +378,6 @@ class App extends React.Component {
                   <DetailsPanel
                     resizedHeight={detailsHeight}
                     currentRepo={currentRepo}
-                    repoName={repoName}
                     user={user}
                     classificationTypes={classificationTypes}
                     classificationMap={classificationMap}

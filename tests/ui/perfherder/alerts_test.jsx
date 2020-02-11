@@ -8,22 +8,44 @@ import {
   waitForElement,
   waitForElementToBeRemoved,
 } from '@testing-library/react';
+import { createMemoryHistory } from 'history';
+import fetchMock from 'fetch-mock';
 
-import AlertsViewControls from '../../../ui/perfherder/alerts/AlertsViewControls';
-import optionCollectionMap from '../mock/optionCollectionMap';
 import {
   backfillRetriggeredTitle,
+  unknownFrameworkMessage,
+  endpoints,
   summaryStatusMap,
 } from '../../../ui/perfherder/constants';
 import repos from '../mock/repositories';
+import { createQueryParams, getApiUrl } from '../../../ui/helpers/url';
+import AlertsView from '../../../ui/perfherder/alerts/AlertsView';
+import AlertsViewControls from '../../../ui/perfherder/alerts/AlertsViewControls';
+import optionCollectionMap from '../mock/optionCollectionMap';
 
 const testUser = {
   username: 'mozilla-ldap/test_user@mozilla.com',
-  is_superuser: false,
+  isLoggedIn: true,
   isStaff: true,
   email: 'test_user@mozilla.com',
 };
 
+const frameworks = [
+  { id: -1, name: 'all' },
+  { id: 1, name: 'talos' },
+  { id: 2, name: 'build_metrics' },
+  { id: 4, name: 'awsy' },
+  { id: 5, name: 'awfy' },
+  { id: 6, name: 'platform_microbench' },
+  { id: 10, name: 'raptor' },
+  { id: 11, name: 'js-bench' },
+  { id: 12, name: 'devtools' },
+  { id: 13, name: 'browsertime' },
+  { id: 14, name: 'vcs' },
+];
+
+const dummyFrameworkName = 'someTestFramework';
+const invalidFrameworkId = -1;
 const testAlertSummaries = [
   {
     id: 20174,
@@ -31,7 +53,7 @@ const testAlertSummaries = [
     prev_push_id: 477665,
     created: '2019-05-20T11:41:31.419156',
     repository: 'mozilla-inbound',
-    framework: 1,
+    framework: invalidFrameworkId,
     alerts: [
       {
         id: 69344,
@@ -144,7 +166,7 @@ const testAlertSummaries = [
         status: 3,
         series_signature: {
           id: 1948296,
-          framework_id: 1,
+          framework_id: 2,
           signature_hash: '5ece5cd7460330dea3b655c7f8d786b79369081e',
           machine_platform: 'windows7-32-shippable',
           suite: 'ts_paint_webext',
@@ -202,7 +224,7 @@ const testAlertDropdowns = [
     updateData: () => {},
   },
   {
-    options: ['talos', 'build metrics'],
+    options: [frameworks.map(item => item.name)],
     selectedItem: 'talos',
     updateData: () => {},
   },
@@ -226,9 +248,30 @@ const mockModifyAlert = {
 const mockUpdateAlertSummary = (alertSummaryId, params) => ({
   failureStatus: null,
 });
-
-const alertsViewControls = () =>
+const alertsView = () =>
   render(
+    <AlertsView
+      user={testUser}
+      projects={repos}
+      location={{
+        pathname: '/alerts',
+        search: '',
+      }}
+      history={createMemoryHistory('/alerts')}
+      frameworks={frameworks}
+    />,
+  );
+
+const alertsViewControls = ({
+  isListingAlertSummaries = null,
+  user: userMock = null,
+  alertDropdowns: alertDropdownMock = null,
+} = {}) => {
+  const user = userMock !== null ? userMock : testUser;
+  const alertDropdowns =
+    alertDropdownMock !== null ? alertDropdownMock : testAlertDropdowns;
+
+  return render(
     <AlertsViewControls
       validated={{
         hideDwnToInv: undefined,
@@ -236,13 +279,14 @@ const alertsViewControls = () =>
         filter: undefined,
         updateParams: () => {},
       }}
-      dropdownOptions={testAlertDropdowns}
+      isListingAlertSummaries={isListingAlertSummaries}
+      dropdownOptions={alertDropdowns}
       alertSummaries={testAlertSummaries}
       issueTrackers={testIssueTrackers}
       optionCollectionMap={optionCollectionMap}
       fetchAlertSummaries={() => {}}
       updateViewState={() => {}}
-      user={testUser}
+      user={user}
       modifyAlert={(alert, params) => mockModifyAlert.update(alert, params)}
       updateAlertSummary={() =>
         Promise.resolve({ failureStatus: false, data: 'alert summary data' })
@@ -252,10 +296,67 @@ const alertsViewControls = () =>
         pathname: '/alerts',
         search: '',
       }}
+      frameworks={[{ id: 1, name: dummyFrameworkName }]}
+      history={createMemoryHistory('/alerts')}
     />,
   );
+};
 
 const modifyAlertSpy = jest.spyOn(mockModifyAlert, 'update');
+
+beforeAll(() => {
+  fetchMock.mock(getApiUrl(endpoints.issueTrackers), testIssueTrackers);
+
+  fetchMock.mock(
+    `${getApiUrl(endpoints.alertSummary)}${createQueryParams({
+      framework: testAlertSummaries[1].framework,
+      page: 1,
+      status: testAlertSummaries[1].status,
+    })}`,
+    {
+      count: 2,
+      next: null,
+      previous: null,
+      results: testAlertSummaries,
+    },
+  );
+
+  fetchMock.mock(
+    `${getApiUrl(endpoints.alertSummary)}${createQueryParams({
+      framework: testAlertSummaries[1].framework,
+      page: 1,
+    })}`,
+    {
+      count: 2,
+      next: null,
+      previous: null,
+      results: testAlertSummaries,
+    },
+  );
+
+  fetchMock.mock(
+    `${getApiUrl(endpoints.alertSummary)}${createQueryParams({
+      page: 1,
+    })}`,
+    {
+      count: 2,
+      next: null,
+      previous: null,
+      results: testAlertSummaries,
+    },
+  );
+
+  fetchMock.mock(getApiUrl('/optioncollectionhash/'), [
+    {
+      option_collection_hash: '102210fe594ee9b33d82058545b1ed14f4c8206e',
+      options: [
+        {
+          name: '32',
+        },
+      ],
+    },
+  ]);
+});
 
 test('toggle buttons should filter alert summary and alerts by selected filter', async () => {
   const { getByText, getByTestId } = alertsViewControls();
@@ -555,6 +656,75 @@ test('Alerts retriggered by the backfill bot have a title', async () => {
     queryAllByTitle(backfillRetriggeredTitle),
   );
   expect(titles).toHaveLength(1);
+});
+
+describe('"My alerts" checkbox\'s display behaviors', () => {
+  // By default, user is logged in &
+  // status & framework dropdowns are available
+
+  test('Not displayed in Alerts view (detailed mode)', async () => {
+    const { queryByText } = alertsViewControls({
+      isListingAlertSummaries: false,
+    }); // as Django detailed view mode
+
+    expect(queryByText('My alerts')).not.toBeInTheDocument();
+  });
+
+  test('Not displayed in Alerts view (detailed mode), even when param is missing', async () => {
+    const { queryByText } = alertsViewControls({ alertDropdowns: [] });
+
+    expect(queryByText('My alerts')).not.toBeInTheDocument();
+  });
+
+  test('Displayed in Alerts view (list mode)', async () => {
+    const { getByText } = alertsViewControls({ isListingAlertSummaries: true }); // as Django detailed view mode
+
+    const myAlertsCheckbox = await waitForElement(() => getByText('My alerts'));
+    expect(myAlertsCheckbox).toBeInTheDocument();
+  });
+
+  test('Not displayed if user is not logged in', async () => {
+    const { queryByText } = alertsViewControls({
+      isListingAlertSummaries: false,
+      user: { isLoggedIn: false },
+    });
+
+    expect(queryByText('My alerts')).not.toBeInTheDocument();
+  });
+});
+
+test('Framework name is displayed near alert summary', async () => {
+  const { queryAllByText } = alertsViewControls();
+
+  const frameworkName = await waitForElement(() =>
+    queryAllByText(dummyFrameworkName),
+  );
+  // one summary from testAlertSummaries have one bad framework id
+  expect(frameworkName).toHaveLength(testAlertSummaries.length - 1);
+});
+
+test('Correct message is displayed if the framework id is invalid', async () => {
+  const { queryAllByText } = alertsViewControls();
+
+  const frameworkName = await waitForElement(() =>
+    queryAllByText(unknownFrameworkMessage),
+  );
+  expect(frameworkName).toHaveLength(1);
+});
+
+test('Selecting `all` from framework button does not filter by framework', async () => {
+  const { queryAllByText, getByTestId } = alertsView();
+
+  const allFromDropdown = await waitForElement(() => queryAllByText('all'));
+
+  fireEvent.click(allFromDropdown[0]);
+  fireEvent.click(allFromDropdown[1]);
+
+  const alert1 = await waitForElement(() => getByTestId('69526'));
+  const alert2 = await waitForElement(() => getByTestId('69530'));
+
+  expect(alert1).toBeInTheDocument();
+  expect(alert2).toBeInTheDocument();
 });
 
 // TODO should write tests for alert summary dropdown menu actions performed in StatusDropdown
