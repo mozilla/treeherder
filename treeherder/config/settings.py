@@ -114,7 +114,7 @@ TEMPLATES = [{
 #
 # which django-environ converts into the Django DB settings dict format.
 DATABASES = {
-    'default': env.db_url('DATABASE_URL', default='http://root@mysql/treeherder'),
+    'default': env.db_url('DATABASE_URL', default='root@localhost:3306/treeherder'),
 }
 
 # Only used when syncing local database with production replicas
