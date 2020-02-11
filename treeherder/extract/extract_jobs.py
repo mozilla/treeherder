@@ -46,7 +46,7 @@ class ExtractJobs:
                     destination.merge_shards()
 
             # RECOVER LAST SQL STATE
-            redis = redis.from_url(REDIS_URL)
+            redis = Redis.from_url(REDIS_URL)
             state = redis.get(settings.extractor.key)
 
             if restart or not state:
