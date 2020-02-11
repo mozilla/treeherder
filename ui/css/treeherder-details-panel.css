@@ -186,21 +186,6 @@ div#details-panel-content .actionbar-nav > li > button:focus {
   }
 }
 
-#actionbar-menu-btn:focus {
-  box-shadow: none;
-  border: none;
-  outline: none;
-}
-
-/* Remove the caret from the ellipses */
-#actionbar-menu-btn.dropdown-toggle::after {
-  display: none;
-}
-
-#job-details-actionbar #actionbar-menu-btn + ul > li {
-  padding: 0;
-}
-
 /*
  * Job details panel (left side)
  */

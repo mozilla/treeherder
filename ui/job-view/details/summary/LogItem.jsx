@@ -1,6 +1,12 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import { Button, Label } from 'reactstrap';
+import {
+  Button,
+  UncontrolledDropdown,
+  DropdownItem,
+  DropdownMenu,
+  DropdownToggle,
+} from 'reactstrap';
 
 function getLogUrlProps(logKey, logUrl, logViewerUrl, logViewerFullUrl) {
   if (logKey === 'rawlog') {
@@ -49,75 +55,61 @@ export default function LogItem(props) {
   } = props;
 
   return (
-    <React.Fragment>
+    <li key={logKey}>
       {/* Case 1: Two or more logurls - Display a dropdown */}
       {logUrls.length > 1 && (
-        <li key={logKey}>
-          <span className="dropdown">
-            <span
-              role="button"
-              title={`Select a ${logDescription}`}
-              data-toggle="dropdown"
-              className="logviewer-btn btn-view-nav btn-sm nav-menu-btn dropdown-toggle"
-            >
-              {props.children}
-            </span>
-            <ul className="dropdown-menu checkbox-dropdown-menu" role="menu">
-              {logUrls.map(logUrl => {
-                return (
-                  <li key={`${logKey}-${logUrl.id}`}>
-                    <div>
-                      <Label className="dropdown-item">
-                        <a
-                          {...getLogUrlProps(
-                            logKey,
-                            logUrl,
-                            logViewerUrl,
-                            logViewerFullUrl,
-                          )}
-                        >
-                          {logUrl.name} ({logUrl.id})
-                        </a>
-                      </Label>
-                    </div>
-                  </li>
-                );
-              })}
-            </ul>
-          </span>
-        </li>
+        <UncontrolledDropdown>
+          <DropdownToggle
+            title={`Select a ${logDescription}`}
+            className="logviewer-btn btn-view-nav"
+          >
+            {props.children}
+          </DropdownToggle>
+          <DropdownMenu>
+            {logUrls.map(logUrl => (
+              <DropdownItem
+                tag="a"
+                {...getLogUrlProps(
+                  logKey,
+                  logUrl,
+                  logViewerUrl,
+                  logViewerFullUrl,
+                )}
+                key={`${logKey}-${logUrl.id}`}
+              >
+                {logUrl.name} ({logUrl.id})
+              </DropdownItem>
+            ))}
+          </DropdownMenu>
+        </UncontrolledDropdown>
       )}
 
       {/* Case 2: Only one logurl - Display a button */}
       {logUrls.length === 1 && (
-        <li key={logKey}>
-          <a
-            className="logviewer-btn"
-            {...getLogUrlProps(
-              logKey,
-              logUrls[0],
-              logViewerUrl,
-              logViewerFullUrl,
-            )}
-          >
-            {props.children}
-          </a>
-        </li>
+        <a
+          className="logviewer-btn"
+          {...getLogUrlProps(
+            logKey,
+            logUrls[0],
+            logViewerUrl,
+            logViewerFullUrl,
+          )}
+        >
+          {props.children}
+        </a>
       )}
 
       {/* Case 3: No logurl - Display disabled button */}
       {!logUrls.length && (
-        <li key={logKey}>
-          <Button
-            className="logviewer-btn disabled bg-transparent border-0"
-            title="No logs available for this job"
-            aria-label="No logs available for this job"
-          >
-            {props.children}
-          </Button>
-        </li>
+        <Button
+          className="logviewer-btn disabled bg-transparent border-0"
+          title="No logs available for this job"
+          aria-label="No logs available for this job"
+        >
+          {props.children}
+        </Button>
       )}
-    </React.Fragment>
+    </li>
   );
 }
 

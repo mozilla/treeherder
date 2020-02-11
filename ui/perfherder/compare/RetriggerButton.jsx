@@ -11,7 +11,7 @@ export default function RetriggerButton(props) {
 
   return (
     <Button
-      className="retrigger-btn btn icon-green mr-1 py-0 px-1"
+      className="retrigger-btn icon-green mr-1 py-0 px-1"
       title={title}
       onClick={onClick}
     >
