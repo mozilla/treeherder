@@ -12,6 +12,7 @@ from mo_logs import (Log,
 from mo_sql import SQL
 from mo_times import Timer
 from mo_times.dates import parse
+from treeherder.config.settings import REDIS_URL
 
 CONFIG_FILE = (File.new_instance(__file__).parent / "extract_jobs.json").abspath
 
@@ -45,7 +46,7 @@ class ExtractJobs:
                     destination.merge_shards()
 
             # RECOVER LAST SQL STATE
-            redis = Redis()
+            redis = redis.from_url(REDIS_URL)
             state = redis.get(settings.extractor.key)
 
             if restart or not state:
