@@ -1,6 +1,6 @@
 from django.db.models import Q
 from jx_bigquery import bigquery
-from jx_mysql.mysql import MySQL
+from jx_mysql.mysql import MySQL, sql_query
 from jx_mysql.mysql_snowflake_extractor import MySqlSnowflakeExtractor
 from mo_files import File
 from mo_json import (json2value,
@@ -87,43 +87,25 @@ class ExtractJobs:
                 # get_ids = ConcatSQL(
                 #     (SQL_SELECT, sql_alias(quote_value(283890114), "id"))
                 # )
-                # get_ids = sql_query(
-                #     {
-                #         "from": "job",
-                #         "select": ["id"],
-                #         "where": {
-                #             "or": [
-                #                 {"gt": {"last_modified": parse(last_modified)}},
-                #                 {
-                #                     "and": [
-                #                         {"eq": {"last_modified": parse(last_modified)}},
-                #                         {"gt": {"id": job_id}},
-                #                     ]
-                #                 },
-                #             ]
-                #         },
-                #         "sort": ["last_modified", "id"],
-                #         "limit": settings.extractor.chunk_size,
-                #     }
-                # )
-
-                get_ids = SQL(str(
-                    (
-                        Job.objects.filter(
-                            Q(last_modified__gt=parse(last_modified).datetime)
-                            | (
-                                Q(last_modified=parse(last_modified).datetime)
-                                & Q(id__gt=job_id)
-                            )
-                        )
-                        .annotate()
-                        .values("id")
-                        .order_by("last_modified", "id")[
-                            : settings.extractor.chunk_size
-                        ]
-                    ).query
-                ))
-
+                get_ids = sql_query(
+                    {
+                        "from": "job",
+                        "select": ["id"],
+                        "where": {
+                            "or": [
+                                {"gt": {"last_modified": parse(last_modified)}},
+                                {
+                                    "and": [
+                                        {"eq": {"last_modified": parse(last_modified)}},
+                                        {"gt": {"id": job_id}},
+                                    ]
+                                },
+                            ]
+                        },
+                        "sort": ["last_modified", "id"],
+                        "limit": settings.extractor.chunk_size,
+                    }
+                )
                 sql = extractor.get_sql(get_ids)
 
                 # PULL FROM source, AND PUSH TO destination

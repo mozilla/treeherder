@@ -1,10 +1,16 @@
+import pytest
+from django.db.models import Q
+
 from jx_base.expressions import NULL
-from jx_mysql.mysql import MySQL
+from jx_mysql.mysql import MySQL, quote_value
 from jx_mysql.mysql_snowflake_extractor import MySqlSnowflakeExtractor
 from mo_files import File
 from mo_future import text
 from mo_sql import SQL
 from mo_testing.fuzzytestcase import assertAlmostEqual
+from mo_times import Date
+from mo_times.dates import parse
+from treeherder.model.models import Job
 
 
 def test_make_repository(test_repository, extract_job_settings):
@@ -36,18 +42,70 @@ def test_make_job(complex_job, extract_job_settings):
     assert result[0].num == 4
 
 
-# VERIFY SQL OVER DATABASE
 def test_extract_job_sql(extract_job_settings, transactional_db):
+    """
+    VERIFY SQL OVER DATABASE
+    """
     extractor = MySqlSnowflakeExtractor(extract_job_settings.source)
     sql = extractor.get_sql(SQL("SELECT 0"))
     assert "".join(sql.sql.split()) == "".join(EXTRACT_JOB_SQL.split())
 
 
+def test_django_can_not_encode_datetime(extract_job_settings):
+    """
+    DJANGO DOES NOT ENCODE THE DATETIME PROPERLY
+    """
+    epoch = parse(Date.EPOCH).datetime
+    get_ids = SQL(str(
+        (
+            Job.objects.filter(
+                Q(last_modified__gt=epoch)
+                | (
+                        Q(last_modified=epoch)
+                        & Q(id__gt=0)
+                )
+            )
+                .annotate()
+                .values("id")
+                .order_by("last_modified", "id")[:2000]
+        ).query
+    ))
+    source = MySQL(extract_job_settings.source.database)
+
+    with pytest.raises(Exception):
+        with source.transaction():
+            list(source.query(get_ids, stream=True, row_tuples=True))
+
+
+def test_django_can_not_encode_datetime_strings(extract_job_settings):
+    """
+    DJANGO/MYSQL DATETIME MATH WORKS WHEN STRINGS
+    """
+    epoch_string = Date.EPOCH.format()
+    sql_query = SQL(str(
+        (
+            Job.objects.filter(
+                Q(last_modified__gt=epoch_string)
+                | (
+                        Q(last_modified=epoch_string)
+                        & Q(id__gt=0)
+                )
+            )
+                .annotate()
+                .values("id")
+                .order_by("last_modified", "id")[:2000]
+        ).query
+    ))
+    source = MySQL(extract_job_settings.source.database)
+
+    with pytest.raises(Exception):
+        with source.transaction():
+            list(source.query(sql_query, stream=True, row_tuples=True))
+
+
+
 def test_extract_job(complex_job, extract_job_settings, now):
     source = MySQL(extract_job_settings.source.database)
-    # with source.transaction():
-    #     result = source.query(SQL("SELECT * from text_log_error"))
-    # assert result[0].guid == complex_job.guid
     extractor = MySqlSnowflakeExtractor(extract_job_settings.source)
     sql = extractor.get_sql(SQL("SELECT " + text(complex_job.id) + " as id"))
 
