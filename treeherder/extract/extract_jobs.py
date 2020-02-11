@@ -1,7 +1,6 @@
-from redis import Redis
-
 from jx_bigquery import bigquery
-from jx_mysql.mysql import MySQL, sql_query
+from jx_mysql.mysql import (MySQL,
+                            sql_query)
 from jx_mysql.mysql_snowflake_extractor import MySqlSnowflakeExtractor
 from mo_files import File
 from mo_json import (json2value,
@@ -12,6 +11,8 @@ from mo_logs import (Log,
 from mo_sql import SQL
 from mo_times import Timer
 from mo_times.dates import parse
+from redis import Redis
+
 from treeherder.config.settings import REDIS_URL
 
 CONFIG_FILE = (File.new_instance(__file__).parent / "extract_jobs.json").abspath

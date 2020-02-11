@@ -11,6 +11,7 @@ from mo_sql import SQL
 from mo_times import Timer
 from redis import Redis
 
+from treeherder.config.settings import REDIS_URL
 from treeherder.perf.models import PerformanceDatum
 
 CONFIG_FILE = (File.new_instance(__file__).parent / "extract_perf.json").abspath
@@ -18,11 +19,19 @@ CONFIG_FILE = (File.new_instance(__file__).parent / "extract_perf.json").abspath
 
 class ExtractPerf:
     def run(self, force=False, restart=False, merge=False):
-        # SETUP LOGGING
-        settings = startup.read_settings(filename=CONFIG_FILE)
-        constants.set(settings.constants)
-        Log.start(settings.debug)
+        try:
+            # SETUP LOGGING
+            settings = startup.read_settings(filename=CONFIG_FILE)
+            constants.set(settings.constants)
+            Log.start(settings.debug)
 
+            self.extract(settings, force, restart, merge)
+        except Exception as e:
+            Log.error("could not extract perf", cause=e)
+        finally:
+            Log.stop()
+
+    def extract(self, settings, force, restart, merge):
         if not settings.extractor.app_name:
             Log.error("Expecting an extractor.app_name in config file")
 
@@ -37,7 +46,7 @@ class ExtractPerf:
                     destination.merge_shards()
 
             # RECOVER LAST SQL STATE
-            redis = Redis()
+            redis = Redis.from_url(REDIS_URL)
             state = redis.get(settings.extractor.key)
 
             if restart or not state:
