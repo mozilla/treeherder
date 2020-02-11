@@ -22,9 +22,6 @@ from treeherder.perf.models import PerformanceAlertSummary
 
 CONFIG_FILE = (File.new_instance(__file__).parent / "extract_alerts.json").abspath
 
-logger = logging.getLogger(__name__)
-logger.setLevel(logging.INFO)
-
 
 class ExtractAlerts:
     def run(self, force=False, restart=False, merge=False):
