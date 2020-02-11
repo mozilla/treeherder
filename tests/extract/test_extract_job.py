@@ -75,7 +75,7 @@ def test_django_cannot_encode_datetime(extract_job_settings):
             list(source.query(get_ids, stream=True, row_tuples=True))
 
 
-def test_django_can_not_encode_datetime_strings(extract_job_settings):
+def test_django_cannot_encode_datetime_strings(extract_job_settings):
     """
     DJANGO/MYSQL DATETIME MATH WORKS WHEN STRINGS
     """
