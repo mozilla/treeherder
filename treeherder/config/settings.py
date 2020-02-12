@@ -21,6 +21,8 @@ env = environ.Env()
 # Top Level configuration
 DEBUG = env.bool("TREEHERDER_DEBUG", default=False)
 
+NEW_RELIC_DEVELOPER_MODE=env.bool("NEW_RELIC_DEVELOPER_MODE", default=True if DEBUG else False)
+
 # Papertrail logs WARNING messages. This env variable allows modifying the behaviour
 LOGGING_LEVEL = env.bool("LOGGING_LEVEL", default='DEBUG' if DEBUG else 'WARNING')
 
