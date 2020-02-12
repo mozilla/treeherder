@@ -1,7 +1,7 @@
 [
   {
     "buildtype": "asan",
-    "testtype": "build-android-x86_64-asan-fuzzing/opt",
+    "testtype": "build-android-x86_64-asan-fuzzing",
     "platform": "*",
     "priority": 5,
     "expiration_date": "*",
@@ -9,7 +9,7 @@
   },
   {
     "buildtype": "asan",
-    "testtype": "build-linux64-asan-fuzzing/opt",
+    "testtype": "build-linux64-asan-fuzzing",
     "platform": "linux64",
     "priority": 5,
     "expiration_date": "*",
@@ -17,7 +17,7 @@
   },
   {
     "buildtype": "opt",
-    "testtype": "build-linux64-fuzzing-ccov/opt",
+    "testtype": "build-linux64-fuzzing-ccov",
     "platform": "linux64",
     "priority": 5,
     "expiration_date": "*",
@@ -25,7 +25,7 @@
   },
   {
     "buildtype": "debug",
-    "testtype": "build-linux64-fuzzing/debug",
+    "testtype": "build-linux64-fuzzing",
     "platform": "linux64",
     "priority": 5,
     "expiration_date": "*",
@@ -33,7 +33,7 @@
   },
   {
     "buildtype": "asan",
-    "testtype": "build-macosx64-asan-fuzzing/opt",
+    "testtype": "build-macosx64-asan-fuzzing",
     "platform": "*",
     "priority": 5,
     "expiration_date": "*",
@@ -41,7 +41,7 @@
   },
   {
     "buildtype": "debug",
-    "testtype": "build-macosx64-fuzzing/debug",
+    "testtype": "build-macosx64-fuzzing",
     "platform": "*",
     "priority": 5,
     "expiration_date": "*",
@@ -49,7 +49,7 @@
   },
   {
     "buildtype": "asan",
-    "testtype": "build-win64-asan-fuzzing/opt",
+    "testtype": "build-win64-asan-fuzzing",
     "platform": "windows2012-64",
     "priority": 5,
     "expiration_date": "*",
@@ -57,7 +57,7 @@
   },
   {
     "buildtype": "debug",
-    "testtype": "build-win64-fuzzing/debug",
+    "testtype": "build-win64-fuzzing",
     "platform": "windows2012-64",
     "priority": 5,
     "expiration_date": "*",
@@ -65,7 +65,7 @@
   },
   {
     "buildtype": "opt",
-    "testtype": "spidermonkey-sm-fuzzing-linux64/opt",
+    "testtype": "spidermonkey-sm-fuzzing-linux64",
     "platform": "linux64",
     "priority": 5,
     "expiration_date": "*",
