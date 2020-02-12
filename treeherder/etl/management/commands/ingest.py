@@ -228,7 +228,48 @@ class Command(BaseCommand):
             }
             PushLoader().process(pulse["payload"], pulse["exchange"], root_url)
         elif typeOfIngestion == "git-push":
-            raise Exception("This is not yet implemented")
+            pulse = {
+                "exchange": "exchange/taskcluster-github/v1/push",
+                # "routingKey": "primary.servo.servo.synchronize",
+                "payload": {
+                    "repository": "servo",
+                    "organization": "servo",
+                    "details": {
+                        "event.type": "push",
+                        "event.base.repo.branch": "master",
+                        # "event.base.sha": "d3fc617de67fc19101ae624914e8dae92f7c8ef0",
+                        # "event.head.repo.branch": "master",
+                        # "event.head.user.login": "mozilla-test_treeherder",
+                        "event.head.repo.url": "https://github.com/servo/servo.git",
+                        # "event.head.sha": "5219f00e7af7b52e66e362d20bb5d4b0ceb84bfa",
+                        # "event.head.ref": "refs/heads/master",
+                        # "event.head.user.email": "mozilla-test_treeherder@noreply.github.com"
+                    },
+                    "body": {
+                        "commits": [
+                            {
+                                "sha": "c2014cca15bd7f23db0ad9c9e4bbf480df743c1b",
+                                "author": {
+                                    "email": "toakes@mozilla.com",
+                                    "name": "Tiger Oakes"
+                                },
+                                "message": "Fixes #4854 - Switch back to constant request code",
+                                "url": "https://api.github.com/repos/armenzg/android-components/commits/c2014cca15bd7f23db0ad9c9e4bbf480df743c1b"
+                            },
+                            {
+                                "sha": "41116f1f2ca93e73f5bdc88f5e1eae75eebb7b65",
+                                "author": {
+                                    "email": "arturomejiamarmol@gmail.com",
+                                    "name": "Arturo Mejia"
+                                },
+                                "message": "For issue #4839: Update tracking protection policies.",
+                                "url": "https://api.github.com/repos/armenzg/android-components/commits/41116f1f2ca93e73f5bdc88f5e1eae75eebb7b65"
+                            },
+                        ]
+                    }
+                }
+            }
+            PushLoader().process(pulse["payload"], pulse["exchange"], root_url)
         elif typeOfIngestion == "push":
             if not options["enable_eager_celery"]:
                 logger.info(
