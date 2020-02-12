@@ -1,6 +1,4 @@
 from django.db.models import Q
-from redis import Redis
-
 from jx_bigquery import bigquery
 from jx_mysql.mysql import MySQL
 from jx_mysql.mysql_snowflake_extractor import MySqlSnowflakeExtractor
@@ -14,7 +12,9 @@ from mo_sql import SQL
 from mo_times import (DAY,
                       YEAR,
                       Timer)
-from mo_times.dates import (Date)
+from mo_times.dates import Date
+from redis import Redis
+
 from treeherder.config.settings import REDIS_URL
 from treeherder.perf.models import PerformanceAlertSummary
 

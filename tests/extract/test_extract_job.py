@@ -1,6 +1,5 @@
 import pytest
 from django.db.models import Q
-
 from jx_base.expressions import NULL
 from jx_mysql.mysql import MySQL
 from jx_mysql.mysql_snowflake_extractor import MySqlSnowflakeExtractor
@@ -9,6 +8,7 @@ from mo_future import text
 from mo_sql import SQL
 from mo_testing.fuzzytestcase import assertAlmostEqual
 from mo_times import Date
+
 from treeherder.model.models import Job
 
 

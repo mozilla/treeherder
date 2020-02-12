@@ -1,31 +1,23 @@
-from decimal import Decimal
-
-from jx_python.containers.list_usingPythonList import ListContainer
-
-from jx_python import jx
-from mo_dots import wrap
-from redis import Redis
-
 from jx_bigquery import bigquery
 from jx_mysql.mysql import (MySQL,
                             sql_query)
 from jx_mysql.mysql_snowflake_extractor import MySqlSnowflakeExtractor
+from jx_python import jx
 from mo_files import File
-from mo_json import (NUMBER,
-                     json2value,
-                     python_type_to_json_type,
+from mo_json import (json2value,
                      value2json)
 from mo_logs import (Log,
                      constants,
-                     startup, strings)
+                     startup,
+                     strings)
 from mo_sql import SQL
 from mo_times import Timer
 from mo_times.dates import Date
+from redis import Redis
+
 from treeherder.config.settings import REDIS_URL
 
 CONFIG_FILE = (File.new_instance(__file__).parent / "extract_jobs.json").abspath
-
-python_type_to_json_type[Decimal] = NUMBER
 
 
 class ExtractJobs:

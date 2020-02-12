@@ -36,7 +36,7 @@ class Command(BaseCommand):
         ExtractJobs().run(
             force=options.get("force"),
             restart=options.get("restart"),
-            start= options.get("start"),
+            start=options.get("start"),
             merge=options.get("merge"),
 
         )
