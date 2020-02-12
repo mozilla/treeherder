@@ -1,5 +1,5 @@
 export BROKER_URL=localhost//guest:guest@rabbitmq//
-export DATABASE_URL=mysql://root@localhost:3306/treeherder
+export DATABASE_URL=mysql://root@127.0.0.1:3306/treeherder
 export REDIS_URL=redis://localhost:6379
 export SITE_URL=http://backend:8000/
 export TREEHERDER_DEBUG=True

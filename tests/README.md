@@ -2,6 +2,21 @@
 
 The backend test suite can be run outside the Docker container.
 
+### Prerequisits
+
+**Ubuntu**
+
+The `mysqlclient` and `Python` versions are very particular on Ubuntu (and maybe Windows too). These specific versions are known to work:
+
+    sudo apt-get install libmysqlclient-dev
+    apt-get install python3.7.5
+    apt-get install libmysqlclient-1.4.6
+    
+Ensure you are using the correct python; we will use `python37` here, but it may be different on your machine
+  
+    python37 -m pip install wheel
+
+
 ### Start the services
 
 We need all but the main `backend` service running.  Since multiple `backend` instances are allowed, we will simply start everything up
