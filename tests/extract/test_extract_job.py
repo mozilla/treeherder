@@ -1,5 +1,6 @@
 import pytest
 from django.db.models import Q
+
 from jx_base.expressions import NULL
 from jx_mysql.mysql import MySQL
 from jx_mysql.mysql_snowflake_extractor import MySqlSnowflakeExtractor
@@ -8,8 +9,6 @@ from mo_future import text
 from mo_sql import SQL
 from mo_testing.fuzzytestcase import assertAlmostEqual
 from mo_times import Date
-from mo_times.dates import parse
-
 from treeherder.model.models import Job
 
 
@@ -55,7 +54,7 @@ def test_django_cannot_encode_datetime(extract_job_settings):
     """
     DJANGO DOES NOT ENCODE THE DATETIME PROPERLY
     """
-    epoch = parse(Date.EPOCH).datetime
+    epoch = Date(Date.EPOCH).datetime
     get_ids = SQL(
         str(
             (

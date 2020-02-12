@@ -1,5 +1,11 @@
 from decimal import Decimal
 
+from jx_python.containers.list_usingPythonList import ListContainer
+
+from jx_python import jx
+from mo_dots import wrap
+from redis import Redis
+
 from jx_bigquery import bigquery
 from jx_mysql.mysql import (MySQL,
                             sql_query)
@@ -11,12 +17,10 @@ from mo_json import (NUMBER,
                      value2json)
 from mo_logs import (Log,
                      constants,
-                     startup)
+                     startup, strings)
 from mo_sql import SQL
 from mo_times import Timer
-from mo_times.dates import parse
-from redis import Redis
-
+from mo_times.dates import Date
 from treeherder.config.settings import REDIS_URL
 
 CONFIG_FILE = (File.new_instance(__file__).parent / "extract_jobs.json").abspath
@@ -25,20 +29,20 @@ python_type_to_json_type[Decimal] = NUMBER
 
 
 class ExtractJobs:
-    def run(self, force=False, restart=False, merge=False):
+    def run(self, force=False, restart=False, start=None, merge=False):
         try:
             # SETUP LOGGING
             settings = startup.read_settings(filename=CONFIG_FILE)
             constants.set(settings.constants)
             Log.start(settings.debug)
 
-            self.extract(settings, force, restart, merge)
+            self.extract(settings, force, restart, start, merge)
         except Exception as e:
             Log.error("could not extract jobs", cause=e)
         finally:
             Log.stop()
 
-    def extract(self, settings, force, restart, merge):
+    def extract(self, settings, force, restart, start, merge):
         if not settings.extractor.app_name:
             Log.error("Expecting an extractor.app_name in config file")
 
@@ -56,13 +60,27 @@ class ExtractJobs:
             redis = Redis.from_url(REDIS_URL)
             state = redis.get(settings.extractor.key)
 
-            if restart or not state:
+            if start:
+                state = start, 0
+            elif restart or not state:
                 state = (0, 0)
                 redis.set(settings.extractor.key, value2json(state).encode("utf8"))
             else:
                 state = json2value(state.decode("utf8"))
 
             last_modified, job_id = state
+
+            where = {
+                "or": [
+                    {"gt": {"last_modified": Date(last_modified)}},
+                    {
+                        "and": [
+                            {"eq": {"last_modified": Date(last_modified)}},
+                            {"gt": {"id": job_id}},
+                        ]
+                    },
+                ]
+            }
 
             # SCAN SCHEMA, GENERATE EXTRACTION SQL
             extractor = MySqlSnowflakeExtractor(settings.source)
@@ -95,17 +113,7 @@ class ExtractJobs:
                     {
                         "from": "job",
                         "select": ["id"],
-                        "where": {
-                            "or": [
-                                {"gt": {"last_modified": parse(last_modified)}},
-                                {
-                                    "and": [
-                                        {"eq": {"last_modified": parse(last_modified)}},
-                                        {"gt": {"id": job_id}},
-                                    ]
-                                },
-                            ]
-                        },
+                        "where": where,
                         "sort": ["last_modified", "id"],
                         "limit": settings.extractor.chunk_size,
                     }
@@ -119,6 +127,11 @@ class ExtractJobs:
                     extractor.construct_docs(cursor, acc.append, False)
                 if not acc:
                     break
+
+                # SOME LIMITS PLACES ON STRING SIZE
+                for fl in jx.drill(acc, "job_log.failure_line"):
+                    fl.message = strings.limit(fl.message, 10000)
+
                 destination.extend(acc)
 
                 # RECORD THE STATE

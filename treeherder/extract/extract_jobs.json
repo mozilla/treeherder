@@ -30,7 +30,6 @@
       "text_log_error_metadata",
       "failure_line.stackwalk_stdout",
       "failure_line.stackwalk_stderr",
-      "failure_line.stack",
     ],
     "reference_only": [
       "classified_failure",

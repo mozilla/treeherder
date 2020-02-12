@@ -1,4 +1,6 @@
 from django.db.models import Q
+from redis import Redis
+
 from jx_bigquery import bigquery
 from jx_mysql.mysql import MySQL
 from jx_mysql.mysql_snowflake_extractor import MySqlSnowflakeExtractor
@@ -12,10 +14,7 @@ from mo_sql import SQL
 from mo_times import (DAY,
                       YEAR,
                       Timer)
-from mo_times.dates import (Date,
-                            parse)
-from redis import Redis
-
+from mo_times.dates import (Date)
 from treeherder.config.settings import REDIS_URL
 from treeherder.perf.models import PerformanceAlertSummary
 
@@ -61,7 +60,7 @@ class ExtractAlerts:
                 state = json2value(state.decode("utf8"))
 
             last_modified, alert_id = state
-            last_modified = parse(last_modified)
+            last_modified = Date(last_modified)
 
             # SCAN SCHEMA, GENERATE EXTRACTION SQL
             extractor = MySqlSnowflakeExtractor(settings.source)
