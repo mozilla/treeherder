@@ -23,6 +23,12 @@ export default class TestDataModal extends React.Component {
   constructor(props) {
     super(props);
     this.state = {
+      // "Pinned" values to be used in dropdown menus
+      pinned: {
+        frameworks: [],
+        projects: ['autoloand', 'mozilla-central', 'mozilla-beta', 'try'],
+        platforms: [],
+      },
       platforms: [],
       framework: { name: 'talos', id: 1 },
       repository_name: this.findObject(
@@ -374,6 +380,7 @@ export default class TestDataModal extends React.Component {
       showNoRelatedTests,
       filterText,
       loading,
+      pinned,
     } = this.state;
     const { projects, frameworks, showModal } = this.props;
 
@@ -393,6 +400,7 @@ export default class TestDataModal extends React.Component {
       {
         options: projects.length ? projects.map(item => item.name) : [],
         selectedItem: repositoryName.name || '',
+        pinned: pinned.projects,
         updateData: value =>
           this.setState(
             { repository_name: this.findObject(projects, 'name', value) },

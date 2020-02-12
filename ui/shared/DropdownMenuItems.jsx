@@ -8,23 +8,44 @@ const DropdownMenuItems = ({
   selectedItem,
   updateData,
   options,
+  pinned = [],
   namespace = '',
 }) => (
   <DropdownMenu className="overflow-auto dropdown-menu-height">
-    {options.map(item => (
-      <DropdownItem
-        tag="a"
-        key={`${namespace}${item}`}
-        onClick={() => updateData(item)}
-      >
-        <FontAwesomeIcon
-          icon={faCheck}
-          className={`mr-1 ${selectedItem === item ? '' : 'hide'}`}
-          title={selectedItem === item ? 'Checked' : ''}
-        />
-        {item}
-      </DropdownItem>
-    ))}
+    {/* Items pinned to top of dropdown */}
+    {pinned.length > 0 &&
+      pinned.map(item => (
+        <DropdownItem
+          tag="a"
+          key={`${namespace}${item}`}
+          onClick={() => updateData(item)}
+        >
+          <FontAwesomeIcon
+            icon={faCheck}
+            className={`mr-1 ${selectedItem === item ? '' : 'hide'}`}
+            title={selectedItem === item ? 'Checked' : ''}
+          />
+          {item}
+        </DropdownItem>
+      ))}
+
+    {options
+      .filter(item => !pinned.includes(item))
+      .sort((a, b) => a > b)
+      .map(item => (
+        <DropdownItem
+          tag="a"
+          key={`${namespace}${item}`}
+          onClick={() => updateData(item)}
+        >
+          <FontAwesomeIcon
+            icon={faCheck}
+            className={`mr-1 ${selectedItem === item ? '' : 'hide'}`}
+            title={selectedItem === item ? 'Checked' : ''}
+          />
+          {item}
+        </DropdownItem>
+      ))}
   </DropdownMenu>
 );
 
