@@ -60,7 +60,7 @@ export default class Health extends React.PureComponent {
     const expandedStates = Object.entries(metrics).reduce(
       (acc, [key, metric]) => ({
         ...acc,
-        [`${key}Expanded`]: metric.result !== 'pass',
+        [`${key}Expanded`]: metric.result === 'fail',
       }),
       {},
     );
