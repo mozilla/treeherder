@@ -138,13 +138,21 @@ class GithubPushTransformer(GithubTransformer):
     URL_BASE = "https://api.github.com/repos/{}/{}/compare/{}...{}"
 
     def transform(self, repository):
-        push_url = self.URL_BASE.format(
-            self.message_body["organization"],
-            self.message_body["repository"],
-            self.message_body["details"]["event.base.sha"],
-            self.message_body["details"]["event.head.sha"],
-        )
-        return self.fetch_push(push_url, repository)
+        push = {
+            "revision": self.message_body["details"]["event.head.sha"],
+            "push_timestamp": self.message_body["body"]["repository"]["pushed_at"],
+            "author": self.message_body["body"]["head_commit"]["author"]["email"],
+            "revisions": [],
+        }
+        for commit in self.message_body["body"]["commits"]:
+            push["revisions"].append({
+                "comment": commit["message"],
+                "author": u"{} <{}>".format(
+                    commit["author"]["name"],
+                    commit["author"]["email"]),
+                "revision": commit["id"]
+            })
+        return push
 
     def get_cleaned_commits(self, compare):
         return compare["commits"]
