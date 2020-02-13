@@ -20,7 +20,7 @@
     {
         "payload": {
           "body": {
-            "ref": "refs/heads/staging.tmp",
+            "ref": "refs/heads/master",
             "before": "7285afe57ae6207fdb5d6db45133dac2053b7820",
             "after": "5fdb785b28b356f50fc1d9cb180d401bb03fc1f1",
             "repository": {
@@ -252,25 +252,25 @@
           },
           "organization": "mozilla-mobile",
           "details": {
-            "event.base.ref": "refs/heads/staging.tmp",
+            "event.base.ref": "refs/heads/master",
             "event.base.repo.name": "android-components",
             "event.base.repo.url": "https://github.com/mozilla-mobile/android-components.git",
             "event.base.sha": "7285afe57ae6207fdb5d6db45133dac2053b7820",
             "event.base.user.login": "bors[bot]",
-            "event.head.ref": "refs/heads/staging.tmp",
+            "event.head.ref": "refs/heads/master",
             "event.head.repo.name": "android-components",
             "event.head.repo.url": "https://github.com/mozilla-mobile/android-components.git",
             "event.head.sha": "5fdb785b28b356f50fc1d9cb180d401bb03fc1f1",
             "event.head.user.login": "bors[bot]",
             "event.head.user.id": 26634292,
             "event.type": "push",
-            "event.base.repo.branch": "staging.tmp",
-            "event.head.repo.branch": "staging.tmp",
+            "event.base.repo.branch": "master",
+            "event.head.repo.branch": "master",
             "event.head.user.email": "bors@users.noreply.github.com"
           },
           "installationId": 5110595,
           "tasks_for": "github-push",
-          "branch": "staging.tmp",
+          "branch": "master",
           "repository": "android-components",
           "eventId": "6c722d22-4dac-11ea-8d13-04e94ccdb80b",
           "version": 1
