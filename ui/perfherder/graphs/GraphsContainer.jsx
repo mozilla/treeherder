@@ -490,7 +490,7 @@ class GraphsContainer extends React.Component {
 
         {showTable && (
           <Row>
-            <TableView testData={testData} />
+            <TableView testData={testData} {...this.props} />
           </Row>
         )}
       </span>

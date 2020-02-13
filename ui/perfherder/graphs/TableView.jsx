@@ -3,7 +3,7 @@ import ReactTable from 'react-table';
 import moment from 'moment';
 import { groupBy, forIn } from 'lodash';
 
-const TableView = props => {
+const TableView = ({ testData, highlightAlerts, highlightedRevisions }) => {
   const allDataPoints = [];
   const tableDataPoints = [];
 
@@ -11,11 +11,11 @@ const TableView = props => {
     {
       Header: 'Date',
       accessor: 'date',
-      className: 'table-header',
+      headerClassName: 'table-header',
     },
   ];
 
-  props.testData.forEach((item, index) => {
+  testData.forEach((item, index) => {
     if (item.visible) {
       // unique key object name
       const id = `name${index}`;
@@ -30,9 +30,15 @@ const TableView = props => {
           </span>
         ),
         Cell: ({ original }) => {
-          return <span>{original[value]}</span>;
+          return <div>{original[value]}</div>;
         },
         headerClassName: `table-header ${item.color[0]}`,
+        getProps: (state, rowInfo) => ({
+          style: {
+            background: rowInfo && rowInfo.original.highlighted && '#ffde2f',
+          },
+          'aria-label': 'highlighted revision',
+        }),
       });
 
       // populate array with only data points
@@ -41,6 +47,11 @@ const TableView = props => {
           [id]: item.name,
           date: moment(dataPoint.x).format('MMM DD, h:mm:ss a'),
           [value]: dataPoint.y.toFixed(2),
+          highlighted:
+            highlightAlerts &&
+            highlightedRevisions.some(
+              item => item && dataPoint.revision.includes(item),
+            ),
         });
       });
     }
