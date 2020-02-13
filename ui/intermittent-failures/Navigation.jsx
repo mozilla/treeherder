@@ -9,6 +9,8 @@ import {
 } from 'reactstrap';
 
 import LogoMenu from '../shared/LogoMenu';
+import Login from '../shared/auth/Login';
+import HelpMenu from '../shared/HelpMenu';
 import DropdownMenuItems from '../shared/DropdownMenuItems';
 
 import { treeOptions } from './constants';
@@ -24,7 +26,7 @@ export default class Navigation extends React.Component {
   };
 
   render() {
-    const { updateState, tree } = this.props;
+    const { updateState, tree, user, setUser, notify } = this.props;
     return (
       <Navbar expand fixed="top" className="top-navbar">
         <LogoMenu
@@ -44,6 +46,10 @@ export default class Navigation extends React.Component {
             />
           </UncontrolledDropdown>
         </Collapse>
+        <Navbar className="ml-auto">
+          <HelpMenu />
+          <Login user={user} setUser={setUser} notify={notify} />
+        </Navbar>
       </Navbar>
     );
   }
@@ -56,6 +62,9 @@ Nav.propTypes = {
 Navigation.propTypes = {
   tree: PropTypes.string,
   updateState: PropTypes.func.isRequired,
+  user: PropTypes.shape({}).isRequired,
+  setUser: PropTypes.func.isRequired,
+  notify: PropTypes.func.isRequired,
 };
 
 Navigation.defaultProps = {
