@@ -11,6 +11,7 @@ const TableView = props => {
     {
       Header: 'Date',
       accessor: 'date',
+      className: 'table-header',
     },
   ];
 
@@ -22,8 +23,16 @@ const TableView = props => {
 
       // add columns for each test
       columns.push({
-        Header: item.name,
-        accessor: value,
+        Header: (
+          <span>
+            <p className="font-weight-bold mb-1">{item.name}</p> <br />
+            {item.platform} | {item.repository_name}{' '}
+          </span>
+        ),
+        Cell: ({ original }) => {
+          return <span>{original[value]}</span>;
+        },
+        headerClassName: `table-header ${item.color[0]}`,
       });
 
       // populate array with only data points

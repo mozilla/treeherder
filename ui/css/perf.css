@@ -491,3 +491,42 @@ li.pagination-active.active > button {
 .page-title-text:hover .edit-icon {
   visibility: visible;
 }
+
+/* table in graphs view */
+.table-header {
+  white-space: pre-line !important;
+  word-wrap: break-word;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.table-header.blue-bell {
+  background-color: #464876;
+  color: white;
+}
+
+.table-header.orange {
+  background-color: #ffb851;
+  color: black;
+}
+
+.table-header.fire-red {
+  background-color: #c92d2f;
+  color: white;
+}
+
+.table-header.cerulean {
+  background-color: #16bcde;
+  color: black;
+}
+
+.table-header.purple {
+  background-color: #921181;
+  color: white;
+}
+
+.table-header.dark-puce {
+  background-color: #4c3146;
+  color: white;
+}
