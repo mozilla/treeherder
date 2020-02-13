@@ -1,17 +1,12 @@
 import datetime
 import logging
 
-from django.core.cache import cache
-
-from treeherder.etl.runnable_jobs import list_runnable_jobs
-from treeherder.etl.seta import (is_job_blacklisted,
-                                 parse_testtype,
+from treeherder.etl.seta import (get_reference_data_names,
+                                 is_job_blacklisted,
                                  valid_platform)
-from treeherder.seta.common import unique_key
 from treeherder.seta.models import JobPriority
 from treeherder.seta.settings import (SETA_LOW_VALUE_PRIORITY,
-                                      SETA_PROJECTS,
-                                      SETA_REF_DATA_NAMES_CACHE_TIMEOUT)
+                                      SETA_PROJECTS)
 
 logger = logging.getLogger(__name__)
 
@@ -31,15 +26,7 @@ class SETAJobPriorities:
 
         jobs = []
 
-        # we cache the reference data names in order to reduce API calls
-        cache_key = '{}-{}-ref_data_names_cache'.format(project, build_system)
-        ref_data_names_map = cache.get(cache_key)
-        if not ref_data_names_map:
-            # cache expired so re-build the reference data names map; the map
-            # contains the ref_data_name of every treeherder *test* job for this project
-            ref_data_names_map = self._build_ref_data_names(project, build_system)
-            # update the cache
-            cache.set(cache_key, ref_data_names_map, SETA_REF_DATA_NAMES_CACHE_TIMEOUT)
+        ref_data_names_map = get_reference_data_names(project, build_system)
 
         # now check the JobPriority table against the list of valid runnable
         for jp in job_priorities:
@@ -71,48 +58,6 @@ class SETAJobPriorities:
             raise SetaError('Valid build_system_type values are buildbot or taskcluster.')
         if project not in SETA_PROJECTS:
             raise SetaError("The specified project repo '%s' is not supported by SETA." % project)
-
-    def _build_ref_data_names(self, project, build_system):
-        '''
-        We want all reference data names for every task that runs on a specific project.
-
-        For example:
-            * Buildbot - "Windows 8 64-bit mozilla-inbound debug test web-platform-tests-1"
-            * TaskCluster = "test-linux64/opt-mochitest-webgl-e10s-1"
-        '''
-        ignored_jobs = []
-        ref_data_names = {}
-
-        runnable_jobs = list_runnable_jobs(project)
-
-        for job in runnable_jobs:
-            # get testtype e.g. web-platform-tests-4
-            testtype = parse_testtype(
-                build_system_type=job['build_system_type'],
-                job_type_name=job['job_type_name'],
-                platform_option=job['platform_option'],
-                ref_data_name=job['ref_data_name']
-            )
-
-            if not valid_platform(job['platform']):
-                continue
-
-            if is_job_blacklisted(testtype):
-                ignored_jobs.append(job['ref_data_name'])
-                continue
-
-            key = unique_key(testtype=testtype,
-                             buildtype=job['platform_option'],
-                             platform=job['platform'])
-
-            if build_system == '*':
-                ref_data_names[key] = job['ref_data_name']
-            elif job['build_system_type'] == build_system:
-                ref_data_names[key] = job['ref_data_name']
-
-        logger.debug('Ignoring %s', ', '.join(sorted(ignored_jobs)))
-
-        return ref_data_names
 
     def seta_job_scheduling(self, project, build_system_type, priority=None):
         self._validate_request(build_system_type, project)

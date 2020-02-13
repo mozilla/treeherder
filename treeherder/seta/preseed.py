@@ -4,10 +4,48 @@ import logging
 import os
 
 from treeherder.seta.models import JobPriority
+from treeherder.etl.seta import (get_reference_data_names, transform)
+from treeherder.seta.settings import SETA_LOW_VALUE_PRIORITY
 
 THE_FUTURE = datetime.datetime(2100, 12, 31)
 
 logger = logging.getLogger(__name__)
+
+REF_NAMES = None
+
+def validate_preseed_entry(entry):
+    global REF_NAMES
+    assert entry["testtype"] != "*"
+    assert entry["buildtype"] != "*"
+    assert entry["platform"] != "*"
+    # We also support *, however, that was only useful with Buildbot
+    assert entry["buildsystem"] == "taskcluster"
+    # We support values different than *, however, it is not useful for preseed
+    assert entry["expiration_date"] == "*"
+    assert 1 <= entry["priority"] <= SETA_LOW_VALUE_PRIORITY
+
+    # Collect potential matches
+    potential_matches = []
+    for unique_identifier, ref_name in REF_NAMES.items():
+        # XXX: Now that we have fuzzy build the term testtypes is not accurate
+        if ref_name == entry["testtype"]:
+            potential_matches.append(unique_identifier)
+
+    assert len(potential_matches) > 0, \
+        Exception("%s is not valid. Please check runnable_jobs.json from a Gecko decision task.", entry["testtype"])
+
+    # XXX: Same transformation as in treeherder.etl.seta.parse_testtype
+    unique_identifier = (
+        transform(entry["testtype"]).split('-{buildtype}'.format(buildtype=entry["buildtype"]))[-1],
+        entry["buildtype"],
+        entry["platform"],
+    )
+    try:
+        REF_NAMES[unique_identifier]
+    except KeyError:
+        logger.warning("Preseed.json entry %s matches the following:", unique_identifier)
+        logger.warning(potential_matches)
+        raise Exception("We failed to match your preseed.json entry. Please check output above.")
 
 
 def load_preseed():
@@ -20,11 +58,20 @@ def load_preseed():
     The fields buildtype, testtype and platform can have * which makes ut match  all flavors of
     the * field. For example: (linux64, pgo, *) matches all Linux 64 pgo tests
     """
-
+    logger.debug("START")
+    # XXX: Caching of runnable jobs is not working very well use global variable for now
+    global REF_NAMES
+    if not REF_NAMES:
+        REF_NAMES = get_reference_data_names("mozilla-central", "taskcluster")
     if not JobPriority.objects.exists():
+        logger.debug("There's no JobPriority objects in the table")
         return
+
     preseed = preseed_data()
     for job in preseed:
+        validate_preseed_entry(job)
+
+        logger.debug("Processing %s", (job["testtype"], job["buildtype"], job["platform"]))
         queryset = JobPriority.objects.all()
 
         for field in ('testtype', 'buildtype', 'platform'):
@@ -38,6 +85,7 @@ def load_preseed():
             # We can have wildcards, so loop on all returned values in data
             for jp in queryset:
                 process_job_priority(jp, job)
+    logger.debug("END")
 
 
 def preseed_data():
@@ -51,7 +99,7 @@ def create_new_entry(job):
     if job['expiration_date'] == '*':
         job['expiration_date'] = THE_FUTURE
 
-    logger.debug("Adding a new job to the database: %s", job)
+    logger.info("Adding a new job priority to the database: %s", job)
     JobPriority.objects.create(
         testtype=job['testtype'],
         buildtype=job['buildtype'],
