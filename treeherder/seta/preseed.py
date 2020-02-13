@@ -3,8 +3,9 @@ import json
 import logging
 import os
 
+from treeherder.etl.seta import (get_reference_data_names,
+                                 transform)
 from treeherder.seta.models import JobPriority
-from treeherder.etl.seta import (get_reference_data_names, transform)
 from treeherder.seta.settings import SETA_LOW_VALUE_PRIORITY
 
 THE_FUTURE = datetime.datetime(2100, 12, 31)
@@ -12,6 +13,7 @@ THE_FUTURE = datetime.datetime(2100, 12, 31)
 logger = logging.getLogger(__name__)
 
 REF_NAMES = None
+
 
 def validate_preseed_entry(entry):
     global REF_NAMES
