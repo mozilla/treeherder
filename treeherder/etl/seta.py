@@ -1,15 +1,17 @@
 import logging
 
 from django.core.cache import cache
+
 from treeherder.etl.runnable_jobs import list_runnable_jobs
-from treeherder.seta.models import JobPriority
 from treeherder.seta.common import unique_key
+from treeherder.seta.models import JobPriority
 from treeherder.seta.settings import (SETA_REF_DATA_NAMES_CACHE_TIMEOUT,
                                       SETA_SUPPORTED_TC_JOBTYPES,
                                       SETA_UNSUPPORTED_PLATFORMS,
                                       SETA_UNSUPPORTED_TESTTYPES)
 
 logger = logging.getLogger(__name__)
+
 
 def is_job_blacklisted(testtype):
     if not testtype:
