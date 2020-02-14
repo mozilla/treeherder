@@ -57,10 +57,11 @@ matrix:
         - docker-compose build
         # This initializes MySql and the other containers
         - docker-compose run --detach backend
-        - mysql -u root -e 'create database test_treeherder;'
+        # - mysql -u root -e 'create database test_treeherder;'
         - pip install -r requirements/common.txt
         - pip install -r requirements/dev.txt
       script:
+        - mysql -u root -h 127.0.0.1 -P 3306
         # Exercising running tests outside of Docker
         - DATABASE_URL=mysql://root@localhost:3306/test_treeherder ./tests/env.sh ./manage.py check
         # Ignoring tests/extract because it needs work to mute the excesive output
