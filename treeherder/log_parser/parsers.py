@@ -416,6 +416,10 @@ class ErrorParser(ParserBase):
 
     RE_MOZHARNESS_PREFIX = re.compile(r"^\d+:\d+:\d+ +(?:DEBUG|INFO|WARNING) - +")
 
+    # Only look near the start of the line. Shortens e.g. base64 encoded images
+    # from reftests.
+    LINE_CHARACTERS_TRIM = 60
+
     def __init__(self):
         """A simple error detection sub-parser"""
         super().__init__("errors")
@@ -472,8 +476,10 @@ class ErrorParser(ParserBase):
         if self.RE_ERR_1_MATCH.match(line):
             return True
 
-        # Remove mozharness prefixes prior to matching
-        trimline = re.sub(self.RE_MOZHARNESS_PREFIX, "", line).rstrip()
+        # 1) Remove mozharness prefixes prior to matching
+        # 2) Only look near the start of the line. Shortens e.g. base64 encoded
+        #    images from reftests.
+        trimline = re.sub(self.RE_MOZHARNESS_PREFIX, "", line)[:self.LINE_CHARACTERS_TRIM].rstrip()
         if self.RE_EXCLUDE_2_SEARCH.search(trimline):
             return False
 

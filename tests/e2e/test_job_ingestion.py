@@ -86,6 +86,8 @@ def test_store_job_with_unparsed_log(test_repository, failure_classifications,
     store_job_data(test_repository, [job_data])
 
     # should have 2 errors
+    for errorLine in TextLogError.objects:
+        print(errorLine.line)
     assert TextLogError.objects.count() == 2
     # verify that get_error_summary was called (to warm the bug suggestions
     # cache)
