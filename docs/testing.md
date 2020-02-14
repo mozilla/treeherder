@@ -13,26 +13,26 @@ does not match the style requirements.
 To run ESLint by itself, you may run the lint task:
 
 ```bash
-$ yarn lint
+yarn lint
 ```
 
 Or to automatically fix issues found (where possible):
 
 ```bash
-$ yarn lint --fix
+yarn lint --fix
 ```
 
 You can also check against Prettier:
 
 ```bash
-$ yarn format:check
+yarn format:check
 ```
 
 and to have it actually fix (to the best of its ability) any format issues,
 just do:
 
 ```bash
-$ yarn format
+yarn format
 ```
 
 See the [code style](code_style.md#ui) section for more details.
@@ -50,7 +50,7 @@ While working on the frontend, you may wish to watch JavaScript files and re-run
 automatically when files change. To do this, you may run one of the following commands:
 
 ```bash
-$ yarn test:watch
+yarn test:watch
 ```
 
 The tests will perform an initial run and then re-execute each time a project file is changed.
@@ -63,7 +63,10 @@ To run all Python tests, including linting, sorting, etc:
 docker-compose run backend sh -c "./runchecks.sh && pytest tests/"
 ```
 
-### Running a specific set of Python unit tests
+NOTE: For instructions on how to run tests outside of Docker look at [tests/README.md](https://github.com/mozilla/treeherder/blob/master/tests/README.md).
+Running them within Docker is still the recommended option.
+
+### Running a specific set of Python tests
 
 Here are some examples of ways to run the python tests with varying levels
 of specificity:

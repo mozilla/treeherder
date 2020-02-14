@@ -3,12 +3,14 @@ import { Row, Button, Col } from 'reactstrap';
 import PropTypes from 'prop-types';
 
 import Graph from './Graph';
+import GraphAlternateView from './GraphAlternateView';
 
 export default class GraphsContainer extends React.Component {
   constructor(props) {
     super(props);
     this.state = {
       showGraphTwo: false,
+      showAlternateView: false,
     };
   }
 
@@ -16,28 +18,48 @@ export default class GraphsContainer extends React.Component {
     this.setState(prevState => ({ showGraphTwo: !prevState.showGraphTwo }));
   };
 
+  toggleAltViewGraph = () => {
+    this.setState(prevState => ({
+      showAlternateView: !prevState.showAlternateView,
+    }));
+  };
+
   render() {
     const { graphOneData, graphTwoData, children } = this.props;
-    const { showGraphTwo } = this.state;
+    const { showGraphTwo, showAlternateView } = this.state;
 
     return (
       <React.Fragment>
         <Row className="pt-5">
-          <Graph graphData={graphOneData} title="Failure Count per Push" />
+          {showAlternateView ? (
+            <GraphAlternateView
+              graphData={graphOneData}
+              className="failure-per-count"
+              colNum={1}
+              title="Failure Count Per Push"
+            />
+          ) : (
+            <Graph graphData={graphOneData} title="Failure Count per Push" />
+          )}
         </Row>
         <Row>
           <Col xs="12" className="mx-auto pb-5">
+            <Button onClick={this.toggleAltViewGraph} className="mr-3">
+              {showAlternateView ? 'Show graph view' : 'Show table view'}
+            </Button>
             <Button
               color="secondary"
               onClick={this.toggleGraph}
               className="d-inline-block mr-3"
             >
-              {`${showGraphTwo ? 'less' : 'more'} graphs`}
+              {`${showGraphTwo ? 'less' : 'more'} ${
+                showAlternateView ? 'tables' : 'graphs'
+              }`}
             </Button>
             {children}
           </Col>
         </Row>
-        {showGraphTwo && (
+        {showGraphTwo && !showAlternateView && (
           <Row className="pt-5">
             <Graph
               graphData={graphTwoData}
@@ -54,6 +76,13 @@ export default class GraphsContainer extends React.Component {
               ]}
             />
           </Row>
+        )}
+        {showGraphTwo && showAlternateView && (
+          <GraphAlternateView
+            graphData={graphTwoData}
+            className="failure-and-count"
+            title="Failure Count vs Push Count"
+          />
         )}
       </React.Fragment>
     );

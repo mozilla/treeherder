@@ -29,7 +29,7 @@ describe('GroupedTests', () => {
 
     expect(
       await waitForElement(() => getAllByTestId('test-grouping')),
-    ).toHaveLength(32);
+    ).toHaveLength(35);
   });
 
   test('should filter when grouped by test path', async () => {

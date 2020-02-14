@@ -11,8 +11,10 @@ const GraphIcon = ({ iconType, fill, stroke }) => {
     case 'square':
       iconPath = <rect x="1" y="1" width="15" height="15" />;
       break;
-    case 'triangleUp':
-      iconPath = <polygon points="1,13.5 7.1,2.3 13.5,13.5" />;
+    case 'diamond':
+      iconPath = (
+        <rect x="-7" y="9" width="10" height="10" transform="rotate(-45)" />
+      );
       break;
     default:
       iconPath = <circle cx="10" cy="10" r="5" />;

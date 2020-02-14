@@ -46,13 +46,29 @@ export const calculateMetrics = function calculateMetricsForGraphs(data) {
     const failures = data[i].failure_count;
     const testRuns = data[i].test_runs;
     const freq = testRuns < 1 || failures < 1 ? 0 : failures / testRuns;
-    const date = moment(data[i].date).toDate();
+    const date = moment(data[i].date).format('MMM DD');
+    const dateObj = moment(data[i].date).toDate();
 
     totalFailures += failures;
     totalRuns += testRuns;
-    dateCounts.data.push({ x: date, y: failures });
-    dateTestRunCounts.data.push({ x: date, y: testRuns });
-    dateFreqs.data.push({ x: date, y: freq });
+    dateCounts.data.push({
+      date,
+      failureCount: failures,
+      x: dateObj,
+      y: failures,
+    });
+    dateTestRunCounts.data.push({
+      date,
+      pushCount: testRuns,
+      x: dateObj,
+      y: testRuns,
+    });
+    dateFreqs.data.push({
+      date,
+      failurePerPush: freq.toFixed(2),
+      x: dateObj,
+      y: freq,
+    });
   }
 
   return {
@@ -107,7 +123,7 @@ export const tableRowStyling = function tableRowStyling(state, bug) {
   if (bug) {
     const style = {
       color: 'rgb(117, 117, 117)',
-      'background-color': 'rgba(0, 0, 0, 0.009)',
+      backgroundColor: 'rgba(0, 0, 0, 0.009)',
     };
 
     if (bug.row.status === 'RESOLVED' || bug.row.status === 'VERIFIED') {

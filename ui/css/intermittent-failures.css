@@ -35,6 +35,17 @@ h1,
   display: initial;
 }
 
+/* Graph Alternate View - Table */
+.alternate-table {
+  max-width: 660px;
+  width: 100%;
+  margin: 0 auto;
+}
+
+.alternate-table .ReactTable.-striped .rt-tr.-odd {
+  background-color: rgba(221, 102, 2, 0.2);
+}
+
 /* overriding bootstrap default input style */
 input {
   padding: 0.4em 1em;
@@ -70,6 +81,11 @@ ul {
   max-width: 1000px;
   list-style-type: none;
   text-align: left;
+}
+
+/* ReactTable style */
+.ReactTable .-pagination .-btn:focus {
+  box-shadow: 0 0 0 0.2rem rgba(130, 138, 145, 0.5);
 }
 
 /* overriding react-dates default input and button style */

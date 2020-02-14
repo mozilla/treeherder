@@ -4,6 +4,7 @@ export const resultColorMap = {
   indeterminate: 'warning',
   done: 'info',
   'in progress': 'secondary',
+  none: 'info',
 };
 
 export const filterTests = (tests, searchStr) => {

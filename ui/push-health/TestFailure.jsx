@@ -3,6 +3,7 @@ import PropTypes from 'prop-types';
 import {
   Badge,
   Button,
+  Container,
   Row,
   Col,
   UncontrolledTooltip,
@@ -160,18 +161,42 @@ class TestFailure extends React.PureComponent {
               </Button>
               <UncontrolledCollapse toggler={key}>
                 {logLines.map(logLine => (
-                  <Row
-                    className="small text-monospace mt-2 ml-3"
-                    key={logLine.line_number}
-                  >
-                    <div className="pre-wrap text-break">
+                  <Row className="small mt-2" key={logLine.line_number}>
+                    <Container className="pre-wrap text-break">
                       {logLine.subtest}
-                      <Row className="ml-3">
-                        <div>{logLine.message}</div>
-                        <div>{logLine.signature}</div>
-                        <div>{logLine.stackwalk_stdout}</div>
-                      </Row>
-                    </div>
+                      <Col>
+                        {logLine.message && (
+                          <Row className="mb-3">
+                            <Col xs="1" className="font-weight-bold">
+                              Message:
+                            </Col>
+                            <Col className="text-monospace">
+                              {logLine.message}
+                            </Col>
+                          </Row>
+                        )}
+                        {logLine.signature && (
+                          <Row className="mb-3">
+                            <Col xs="1" className="font-weight-bold">
+                              Signature:
+                            </Col>
+                            <Col className="text-monospace">
+                              {logLine.signature}
+                            </Col>
+                          </Row>
+                        )}
+                        {logLine.stackwalk_stdout && (
+                          <Row className="mb-3">
+                            <Col xs="1" className="font-weight-bold">
+                              Stack
+                            </Col>
+                            <Col className="text-monospace">
+                              {logLine.stackwalk_stdout}
+                            </Col>
+                          </Row>
+                        )}
+                      </Col>
+                    </Container>
                   </Row>
                 ))}
               </UncontrolledCollapse>
