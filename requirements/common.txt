@@ -462,7 +462,8 @@ google-cloud-bigquery==1.23.1 \
     --hash=sha256:7e4c54a5256d9b1fe17dd08fd964ad8d8c67007a1b2c782838c77fdb2d594ccc
 protobuf==3.11.2 \
     --hash=sha256:a2e6f57114933882ec701807f217df2fb4588d47f71f227c0a163446b930d507 \
-    --hash=sha256:a6b970a2eccfcbabe1acf230fbf112face1c4700036c95e195f3554d7bcb04c1
+    --hash=sha256:a6b970a2eccfcbabe1acf230fbf112face1c4700036c95e195f3554d7bcb04c1 \
+    --hash=sha256:d61b14a9090da77fe87e38ba4c6c43d3533dcbeb5d84f5474e7ac63c532dcc9c
 google_resumable_media==0.5.0 \
     --hash=sha256:b86140d5a0b6d290084b11bde90ee9aecad357ba0e0d67388d016b8340320927
 google_cloud_core==1.2.0 \
