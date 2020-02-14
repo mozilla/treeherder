@@ -54,8 +54,10 @@ matrix:
         directories:
           - ${HOME}/venv
       install:
-          - docker-compose up --build
+        - docker-compose build
       script:
+        # This initializes MySql and the other containers
+        - docker-compose run --detach backend
         # Exercising running tests outside of Docker
         - ./tests/env.sh ./manage.py check
         # Ignoring tests/extract because it needs work to mute the excesive output
