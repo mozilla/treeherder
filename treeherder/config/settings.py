@@ -1,5 +1,5 @@
-import re
 import platform
+import re
 from datetime import timedelta
 from os.path import (abspath,
                      dirname,
@@ -120,7 +120,7 @@ TEMPLATES = [{
 #
 # which django-environ converts into the Django DB settings dict format.
 DATABASES = {
-    'default': env.db_url('DATABASE_URL', default='mysql://root@localhost:3306/treeherder' if IS_WINDOWS=="windows" else 'mysql://root@127.0.0.1:3306/treeherder'),
+    'default': env.db_url('DATABASE_URL', default='mysql://root@localhost:3306/treeherder' if IS_WINDOWS == "windows" else 'mysql://root@127.0.0.1:3306/treeherder'),
 }
 
 # Only used when syncing local database with production replicas
