@@ -54,6 +54,8 @@ matrix:
         directories:
           - ${HOME}/venv
       install:
+        - pip install -r requirements/common.txt
+        - pip install -r requirements/dev.txt
         - docker-compose build
       script:
         # This initializes MySql and the other containers
