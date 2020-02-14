@@ -1,4 +1,5 @@
 import re
+import platform
 from datetime import timedelta
 from os.path import (abspath,
                      dirname,
@@ -15,6 +16,9 @@ from treeherder.config.utils import (connection_should_use_tls,
 
 # TODO: Switch to pathlib once using Python 3.
 SRC_DIR = dirname(dirname(dirname(abspath(__file__))))
+
+# used to determine type of OS being used for debug mode
+IS_WINDOWS = "windows" in platform.system().lower()
 
 env = environ.Env()
 
@@ -116,7 +120,7 @@ TEMPLATES = [{
 #
 # which django-environ converts into the Django DB settings dict format.
 DATABASES = {
-    'default': env.db_url('DATABASE_URL', default='mysql://root@127.0.0.1:3306/treeherder'),
+    'default': env.db_url('DATABASE_URL', default='mysql://root@localhost:3306/treeherder' if IS_WINDOWS=="windows" else 'mysql://root@127.0.0.1:3306/treeherder'),
 }
 
 # Only used when syncing local database with production replicas
