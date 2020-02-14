@@ -89,7 +89,9 @@ def job_priorities_to_jobtypes():
     return jobtypes
 
 
-def get_reference_data_names(project, build_system):
+# The only difference between projects is that their list will be based
+# on their own specific runnable_jobs.json artifact
+def get_reference_data_names(project="autoland", build_system="taskcluster"):
     '''
     We want all reference data names for every task that runs on a specific project.
 

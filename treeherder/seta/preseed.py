@@ -57,16 +57,15 @@ def load_preseed(validate=False):
     The fields buildtype, testtype and platform can have * which makes ut match  all flavors of
     the * field. For example: (linux64, pgo, *) matches all Linux 64 pgo tests
     """
-    logger.debug("START")
+    logger.info("About to load preseed.json")
     if not JobPriority.objects.exists():
-        logger.debug("There's no JobPriority objects in the table")
+        logger.warning("There's no JobPriority objects in the table. Call first ./manage.py initialize_seta")
         return
 
     preseed = preseed_data()
     if validate:
         logger.info("We are going to validate the values from preseed.json")
-        # XXX: That we choose 'mozilla-central' does not quite matter
-        ref_names = get_reference_data_names("mozilla-central", "taskcluster")
+        ref_names = get_reference_data_names()
     for job in preseed:
         if validate:
             validate_preseed_entry(job, ref_names)
@@ -85,7 +84,7 @@ def load_preseed(validate=False):
             # We can have wildcards, so loop on all returned values in data
             for jp in queryset:
                 process_job_priority(jp, job)
-    logger.debug("END")
+    logger.debug("Finished")
 
 
 def preseed_data():

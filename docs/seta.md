@@ -19,31 +19,39 @@ In order to find open bugs for SETA visit list of [SETA bugs].
 
 [seta bugs]: https://bugzilla.mozilla.org/buglist.cgi?product=Tree%20Management&component=Treeherder%3A%20SETA&resolution=---
 
-## APIs
+## API
 
 - `/api/project/{project}/seta/job-priorities/`
-
   - This is the API that consumers like the Gecko decision task will use
+  - Currently only available for `autoland` and `try`
 
 ## Local set up
 
 - Follow the steps at [Starting a local Treeherder instance].
-- Run:
+  - Basically `docker-compose up`. This will initialize SETA's data
 
-```bash
-docker-compose run backend ./manage.py initialize_seta
-```
-
-- Then try out the various APIs:
-  - <http://localhost:5000/api/project/mozilla-inbound/seta/job-priorities/>
+- Try out the various APIs:
+  - <http://localhost:8000/api/project/autoland/seta/job-priorities/>
 
 [starting a local treeherder instance]: installation.md#starting-a-local-treeherder-instance
-[bug 1389123]: https://bugzilla.mozilla.org/show_bug.cgi?id=1389123
+
+## Local development
+
+If you have ingested invalid `preseed.json` data you can clear like this:
+
+```bash
+./manage.py initialize_seta --clear-job-priority-table
+```
+
+If you want to validate `preseed.json` you can do so like this:
+
+```bash
+./manage.py load_preseed --validate
+```
 
 ## Maintenance
 
-Sometimes the default behaviour of SETA is not adequate (e.g. new jobs noticed get a 2 week expiration date & a high priority)
-when adding new platforms (e.g. stylo).
+Sometimes the default behaviour of SETA is not adequate (e.g. new jobs noticed get a 2 week expiration date & a high priority) when adding new platforms (e.g. stylo).
 Instead of investing more on accommodating for various scenarios we’ve decided to document how to make changes in the DB when we have to.
 
 If you want to inspect the priorities for various jobs and platforms you can query the JobPriority table from reDash.
@@ -60,13 +68,7 @@ heroku run --app treeherder-prod -- bash
 ```
 
 Sometimes, before you can adjust priorities of the jobs, you need to make sure they make it into the JobPriority table.
-In order to do so we need to:
-
-- Make sure the scheduling changes have made it into mozilla-inbound
-
-  - SETA uses mozilla-inbound as a reference for jobs for all trunk trees
-
-- Update the job priority table from the shell:
+In order to do so we need to update the job priority table from the shell:
 
   Open the Python shell using `./manage.py shell`, then enter:
 
