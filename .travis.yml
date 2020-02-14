@@ -33,7 +33,7 @@ matrix:
       script:
         - yarn build
 
-    - env: python-linters
+    - env: python-linters-and-tests-outside-docker
       language: python
       python: '3.7'
       cache:
@@ -46,6 +46,8 @@ matrix:
       script:
         - git grep -El '^#!/.+\b(bash|sh)\b' | xargs shellcheck
         - ./runchecks.sh
+        # Exercising running tests outside of Docker
+        - pytest tests/ --ignore=tests/selenium
 
     - env: python-tests-main
       language: minimal
@@ -78,6 +80,8 @@ matrix:
         # value so the tests pass. The real environment variable will be checked during deployment.
         - docker-compose run backend bash -c "SITE_URL=https://treeherder.dev TREEHERDER_DEBUG=False
           ./manage.py check --deploy --fail-level WARNING"
+        # XXX: We have the Gecko driver inside of the Docker instance, thus, needing Selenium tests
+        # running inside the Docker container
         - docker-compose run backend bash -c "pytest --cov --cov-report=xml tests/selenium/"
       after_success:
         - codecov -f coverage.xml
