@@ -1,5 +1,3 @@
-/* eslint-disable jsx-a11y/no-static-element-interactions */
-
 import React from 'react';
 import { Link } from 'react-router-dom';
 import PropTypes from 'prop-types';
@@ -33,6 +31,8 @@ function BugColumn({
       </a>
       &nbsp;
       <span
+        role="link"
+        tabIndex={0}
         className="ml-1 small-text bug-details"
         onClick={() => updateAppState({ graphData, tableData })}
       >

@@ -1,5 +1,3 @@
-/* eslint-disable jsx-a11y/no-static-element-interactions */
-
 import React from 'react';
 import PropTypes from 'prop-types';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
@@ -86,6 +84,8 @@ export default class ActiveFilters extends React.Component {
         {!!filterBarFilters.length && (
           <div>
             <span
+              role="button"
+              tabIndex={0}
               className="pointable"
               title="Clear all of these filters"
               onClick={filterModel.clearNonStatusFilters}
@@ -105,6 +105,8 @@ export default class ActiveFilters extends React.Component {
                   key={`${filter.field}${filterValue}`}
                 >
                   <span
+                    role="button"
+                    tabIndex={0}
                     className="pointable"
                     title={`Clear filter: ${filter.field}`}
                     onClick={() =>

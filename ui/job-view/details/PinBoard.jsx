@@ -1,5 +1,3 @@
-/* eslint-disable jsx-a11y/no-static-element-interactions */
-
 import React from 'react';
 import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
@@ -399,6 +397,8 @@ class PinBoard extends React.Component {
               {Object.values(pinnedJobs).map(job => (
                 <span className="btn-group" key={job.id}>
                   <span
+                    role="button"
+                    tabIndex={0}
                     className={`btn pinned-job ${getBtnClass(
                       job.resultStatus,
                       job.failure_classification_id,
@@ -414,6 +414,8 @@ class PinBoard extends React.Component {
                     {job.job_type_symbol}
                   </span>
                   <span
+                    role="button"
+                    tabIndex={0}
                     className={`btn btn-ltgray pinned-job-close-btn ${
                       selectedJobId === job.id
                         ? 'btn-lg selected-job'
@@ -433,6 +435,8 @@ class PinBoard extends React.Component {
           <div id="pinboard-related-bugs">
             <div className="content">
               <span
+                role="button"
+                tabIndex={0}
                 id="add-related-bug-button"
                 onClick={() => this.toggleEnterBugNumber(!enteringBugNumber)}
                 className="pointable"
@@ -446,6 +450,8 @@ class PinBoard extends React.Component {
               </span>
               {!this.hasPinnedJobBugs() && (
                 <span
+                  role="button"
+                  tabIndex={0}
                   className="pinboard-preload-txt pinboard-related-bug-preload-txt"
                   onClick={() => {
                     this.toggleEnterBugNumber(!enteringBugNumber);
@@ -485,6 +491,8 @@ class PinBoard extends React.Component {
                       <em>{bug.id}</em>
                     </a>
                     <span
+                      role="button"
+                      tabIndex={0}
                       className="btn btn-ltgray btn-xs pinned-job-close-btn"
                       onClick={() => removeBug(bug.id)}
                       title="remove this bug"

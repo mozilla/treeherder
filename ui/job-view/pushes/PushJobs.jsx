@@ -1,5 +1,3 @@
-/* eslint-disable jsx-a11y/no-noninteractive-element-interactions */
-
 import React from 'react';
 import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
@@ -108,32 +106,34 @@ class PushJobs extends React.Component {
 
     return (
       <table id={this.aggregateId} className="table-hover">
-        <tbody onMouseDown={this.onMouseDown}>
-          {platforms ? (
-            platforms.map(platform => (
-              <Platform
-                platform={platform}
-                repoName={repoName}
-                filterModel={filterModel}
-                pushGroupState={pushGroupState}
-                key={`${platform.name}${platform.option}`}
-                duplicateJobsVisible={duplicateJobsVisible}
-                groupCountsExpanded={groupCountsExpanded}
-                runnableVisible={runnableVisible}
-              />
-            ))
-          ) : (
-            <tr>
-              <td>
-                <FontAwesomeIcon
-                  icon={faSpinner}
-                  pulse
-                  className="th-spinner"
-                  title="Loading..."
+        <tbody>
+          <div role="button" tabIndex={0} onMouseDown={this.onMouseDown}>
+            {platforms ? (
+              platforms.map(platform => (
+                <Platform
+                  platform={platform}
+                  repoName={repoName}
+                  filterModel={filterModel}
+                  pushGroupState={pushGroupState}
+                  key={`${platform.name}${platform.option}`}
+                  duplicateJobsVisible={duplicateJobsVisible}
+                  groupCountsExpanded={groupCountsExpanded}
+                  runnableVisible={runnableVisible}
                 />
-              </td>
-            </tr>
-          )}
+              ))
+            ) : (
+              <tr>
+                <td>
+                  <FontAwesomeIcon
+                    icon={faSpinner}
+                    pulse
+                    className="th-spinner"
+                    title="Loading..."
+                  />
+                </td>
+              </tr>
+            )}
+          </div>
         </tbody>
       </table>
     );

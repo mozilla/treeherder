@@ -1,5 +1,3 @@
-/* eslint-disable jsx-a11y/no-static-element-interactions */
-
 import React from 'react';
 import { hot } from 'react-hot-loader/root';
 import SplitPane from 'react-split-pane';
@@ -388,6 +386,8 @@ class App extends React.Component {
             <Notifications />
             {showShortCuts && (
               <div
+                role="button"
+                tabIndex={0}
                 id="onscreen-overlay"
                 onClick={() => this.showOnScreenShortcuts(false)}
               >

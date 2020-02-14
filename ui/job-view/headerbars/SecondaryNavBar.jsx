@@ -1,5 +1,3 @@
-/* eslint-disable jsx-a11y/no-static-element-interactions */
-
 import React from 'react';
 import { Button } from 'reactstrap';
 import PropTypes from 'prop-types';
@@ -237,6 +235,8 @@ class SecondaryNavBar extends React.PureComponent {
           <form role="search" className="form-inline flex-row">
             {serverChanged && (
               <span
+                role="link"
+                tabIndex={0}
                 className="btn btn-sm btn-view-nav nav-menu-btn"
                 onClick={updateButtonClick}
                 id="revisionChangedLabel"
@@ -342,6 +342,8 @@ class SecondaryNavBar extends React.PureComponent {
 
             <span>
               <span
+                role="button"
+                tabIndex={0}
                 className="btn btn-view-nav btn-sm"
                 onClick={toggleFieldFilterVisible}
                 title="Filter by a job field"
