@@ -61,7 +61,7 @@ matrix:
         # This initializes MySql and the other containers
         - docker-compose run --detach backend
         # Exercising running tests outside of Docker
-        - DATABASE_URL=mysql://root@127.0.0.1:3306/treeherder ./tests/env.sh ./manage.py check
+        - DATABASE_URL=mysql://root@localhost:3306/test_treeherder ./tests/env.sh ./manage.py check
         # Ignoring tests/extract because it needs work to mute the excesive output
         - ./tests/env.sh pytest tests/ --ignore=tests/selenium --ignore=tests/extract
 
