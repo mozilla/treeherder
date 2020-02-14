@@ -5,7 +5,7 @@
     "heroku-redis:premium-0",
     "papertrail:choklad",
     {
-      "plan": "jawsdb:whitetip",
+      "plan": "jawsdb:blacktip",
       "options": {
         "version": "5.7"
       }
