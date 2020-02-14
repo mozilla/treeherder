@@ -138,10 +138,11 @@ class GithubPushTransformer(GithubTransformer):
     URL_BASE = "https://api.github.com/repos/{}/{}/compare/{}...{}"
 
     def transform(self, repository):
+        head_commit = self.message_body["body"]["head_commit"]
         push = {
-            "revision": self.message_body["details"]["event.head.sha"],
-            "push_timestamp": self.message_body["body"]["repository"]["pushed_at"],
-            "author": self.message_body["body"]["head_commit"]["author"]["email"],
+            "revision": head_commit["id"],
+            "push_timestamp": to_timestamp(head_commit["timestamp"]),
+            "author": head_commit["author"]["email"],
             "revisions": [],
         }
         for commit in self.message_body["body"]["commits"]:
