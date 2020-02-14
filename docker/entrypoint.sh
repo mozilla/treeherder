@@ -16,7 +16,7 @@ done
 echo '-----> MySQL service is available'
 
 # Only execute if we're using the mysql container
-if [ "${DATABASE_URL}" == "mysql://root@mysql/treeherder" ]; then
+if [ "${DATABASE_URL-}" == "mysql://root@mysql/treeherder" ]; then
     # Initialize migrations and SETA
     ./initialize_data.sh
 fi
