@@ -1,6 +1,6 @@
+import os
 import platform
 import re
-import os
 from datetime import timedelta
 from os.path import (abspath,
                      dirname,
@@ -20,17 +20,17 @@ SRC_DIR = dirname(dirname(dirname(abspath(__file__))))
 
 env = environ.Env()
 
-#Checking for OS type
+# Checking for OS type
 IS_WINDOWS = "windows" in platform.system().lower()
 
 # Top Level configuration
 DEBUG = env.bool("TREEHERDER_DEBUG", default=False)
 
 #  Default environment variables check
-REQUIRED_PRODUCTION_ENV_VARIABLES = ["TREEHERDER_DJANGO_SECRET_KEY","BROKER_URL","DATABASE_URL","REDIS_URL","TREEHERDER_DEBUG","NEW_RELIC_DEVELOPER_MODE"]
+REQUIRED_PRODUCTION_ENV_VARIABLES = ["TREEHERDER_DJANGO_SECRET_KEY", "BROKER_URL", "DATABASE_URL", "REDIS_URL", "TREEHERDER_DEBUG", "NEW_RELIC_DEVELOPER_MODE"]
 if not DEBUG:
-   for env in REQUIRED_PRODUCTION_ENV_VARIABLES:
-      assert os.environ.get(env), "{} is a required env variable for a production set up".format(env)
+    for env in REQUIRED_PRODUCTION_ENV_VARIABLES:
+        assert os.environ.get(env), "{} is a required env variable for a production set up".format(env)
 
 NEW_RELIC_DEVELOPER_MODE = env.bool("NEW_RELIC_DEVELOPER_MODE", default=True if DEBUG else False)
 
@@ -126,9 +126,9 @@ TEMPLATES = [{
 #   'mysql://username:password@host:optional_port/database_name'
 #
 # which django-environ converts into the Django DB settings dict format.
-LOCALHOST_MYSQL_HOST='mysql://root@{}:3306/treeherder'.format('localhost' if IS_WINDOWS else '127.0.0.1')
+LOCALHOST_MYSQL_HOST = 'mysql://root@{}:3306/treeherder'.format('localhost' if IS_WINDOWS else '127.0.0.1')
 DATABASES = {
-    'default': env.db_url('DATABASE_URL', default = LOCALHOST_MYSQL_HOST),
+    'default': env.db_url('DATABASE_URL', default=LOCALHOST_MYSQL_HOST),
 }
 
 # Only used when syncing local database with production replicas
