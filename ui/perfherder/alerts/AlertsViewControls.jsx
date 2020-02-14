@@ -3,87 +3,79 @@ import PropTypes from 'prop-types';
 import { Row } from 'reactstrap';
 
 import FilterControls from '../FilterControls';
-import { convertParams } from '../helpers';
+import { summaryStatusMap } from '../constants';
 
 import AlertTable from './AlertTable';
 import PaginationGroup from './Pagination';
 
 export default class AlertsViewControls extends React.Component {
-  constructor(props) {
-    super(props);
-
-    let { isListingAlertSummaries } = props;
-    if (
-      isListingAlertSummaries === null ||
-      isListingAlertSummaries === undefined
-    ) {
-      isListingAlertSummaries =
-        // no dropdown options were provided
-        props.dropdownOptions !== null && props.dropdownOptions.length > 0;
-    }
-
-    this.validated = this.props.validated;
-    this.state = {
-      hideImprovements: convertParams(this.validated, 'hideImprovements'),
-      hideDownstream: convertParams(this.validated, 'hideDwnToInv'),
-      hideAssignedToOthers: convertParams(
-        this.validated,
-        'hideAssignedToOthers',
-      ),
-      isListingAlertSummaries,
-      filterText: '',
-    };
-  }
-
-  componentDidUpdate(prevProps) {
-    const { validated } = this.props;
-
-    if (
-      validated.hideImprovements !== prevProps.validated.hideImprovements ||
-      validated.hideDwnToInv !== prevProps.validated.hideDwnToInv
-    ) {
-      // eslint-disable-next-line react/no-did-update-set-state
-      this.setState({
-        hideImprovements: convertParams(
-          this.props.validated,
-          'hideImprovements',
-        ),
-        hideDownstream: convertParams(this.props.validated, 'hideDwnToInv'),
-      });
-    }
-  }
+  updateFilterText = filterText => {
+    this.props.setFiltersState({ filterText });
+  };
 
   updateFilter = filter => {
-    this.setState(
-      prevState => ({ [filter]: !prevState[filter] }),
-      () =>
-        this.props.validated.updateParams({
-          [filter === 'hideDownstream' ? 'hideDwnToInv' : filter]: +this.state[
-            filter
-          ],
-        }),
+    const { setFiltersState, filters } = this.props;
+    const prevValue = filters[filter];
+    setFiltersState({ [filter]: !prevValue });
+  };
+
+  updateStatus = status => {
+    const { setFiltersState } = this.props;
+    setFiltersState({ status });
+  };
+
+  updateFramework = selectedFramework => {
+    const { frameworkOptions, updateViewState, setFiltersState } = this.props;
+    const framework = frameworkOptions.find(
+      item => item.name === selectedFramework,
     );
+    updateViewState({ bugTemplate: null });
+    setFiltersState({ framework }, this.fetchAlertSummaries);
   };
 
   render() {
     const {
       alertSummaries,
-      dropdownOptions,
       fetchAlertSummaries,
       pageNums,
       validated,
       page,
       count,
+      isListMode,
       user,
+      frameworkOptions,
+      filters,
     } = this.props;
     const {
+      filterText,
       hideImprovements,
       hideDownstream,
       hideAssignedToOthers,
-      isListingAlertSummaries,
-    } = this.state;
+      framework,
+      status,
+    } = filters;
 
-    const alertFilters = [
+    const frameworkNames =
+      frameworkOptions && frameworkOptions.length
+        ? frameworkOptions.map(item => item.name)
+        : [];
+
+    const alertDropdowns = [
+      {
+        options: Object.keys(summaryStatusMap),
+        selectedItem: status,
+        updateData: this.updateStatus,
+        namespace: 'status',
+      },
+      {
+        options: frameworkNames,
+        selectedItem: framework.name,
+        updateData: this.updateFramework,
+        namespace: 'framework',
+      },
+    ];
+
+    const alertCheckboxes = [
       {
         text: 'Hide improvements',
         state: hideImprovements,
@@ -96,8 +88,8 @@ export default class AlertsViewControls extends React.Component {
       },
     ];
 
-    if (user.isLoggedIn && isListingAlertSummaries) {
-      alertFilters.push({
+    if (user.isLoggedIn && isListMode) {
+      alertCheckboxes.push({
         text: 'My alerts',
         state: hideAssignedToOthers,
         stateName: 'hideAssignedToOthers',
@@ -107,10 +99,11 @@ export default class AlertsViewControls extends React.Component {
     return (
       <React.Fragment>
         <FilterControls
-          dropdownOptions={dropdownOptions}
-          filterOptions={alertFilters}
+          dropdownOptions={isListMode ? alertDropdowns : []}
+          filterOptions={alertCheckboxes}
           updateFilter={this.updateFilter}
-          updateFilterText={filterText => this.setState({ filterText })}
+          updateFilterText={this.updateFilterText}
+          updateOnEnter={isListMode}
           dropdownCol
         />
         {pageNums
@@ -129,12 +122,17 @@ export default class AlertsViewControls extends React.Component {
         {alertSummaries.length > 0 &&
           alertSummaries.map(alertSummary => (
             <AlertTable
-              filters={this.state}
+              filters={{
+                filterText,
+                hideImprovements,
+                hideDownstream,
+                hideAssignedToOthers,
+              }}
               key={alertSummary.id}
               alertSummary={alertSummary}
               fetchAlertSummaries={fetchAlertSummaries}
-              {...this.props}
               user={user}
+              {...this.props}
             />
           ))}
         {pageNums
@@ -159,19 +157,27 @@ AlertsViewControls.propTypes = {
   validated: PropTypes.shape({
     updateParams: PropTypes.func,
   }).isRequired,
-  isListingAlertSummaries: PropTypes.bool,
-  dropdownOptions: PropTypes.arrayOf(PropTypes.shape({})),
+  isListMode: PropTypes.bool.isRequired,
+  filters: PropTypes.shape({
+    filterText: PropTypes.string.isRequired,
+    hideImprovements: PropTypes.bool.isRequired,
+    hideDownstream: PropTypes.bool.isRequired,
+    hideAssignedToOthers: PropTypes.bool.isRequired,
+    framework: PropTypes.shape({}).isRequired,
+    status: PropTypes.string.isRequired,
+  }).isRequired,
+  setFiltersState: PropTypes.func.isRequired,
   fetchAlertSummaries: PropTypes.func.isRequired,
   page: PropTypes.number,
   count: PropTypes.number,
   alertSummaries: PropTypes.arrayOf(PropTypes.shape({})),
+  frameworkOptions: PropTypes.arrayOf(PropTypes.shape({})),
   user: PropTypes.shape({}).isRequired,
 };
 
 AlertsViewControls.defaultProps = {
-  isListingAlertSummaries: null,
-  dropdownOptions: null,
   alertSummaries: [],
+  frameworkOptions: [],
   page: 1,
   count: 1,
 };
