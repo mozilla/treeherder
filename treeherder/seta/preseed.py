@@ -12,11 +12,8 @@ THE_FUTURE = datetime.datetime(2100, 12, 31)
 
 logger = logging.getLogger(__name__)
 
-REF_NAMES = None
 
-
-def validate_preseed_entry(entry):
-    global REF_NAMES
+def validate_preseed_entry(entry, ref_names):
     assert entry["testtype"] != "*"
     assert entry["buildtype"] != "*"
     assert entry["platform"] != "*"
@@ -28,7 +25,7 @@ def validate_preseed_entry(entry):
 
     # Collect potential matches
     potential_matches = []
-    for unique_identifier, ref_name in REF_NAMES.items():
+    for unique_identifier, ref_name in ref_names.items():
         # XXX: Now that we have fuzzy build the term testtypes is not accurate
         if ref_name == entry["testtype"]:
             potential_matches.append(unique_identifier)
@@ -43,14 +40,14 @@ def validate_preseed_entry(entry):
         entry["platform"],
     )
     try:
-        REF_NAMES[unique_identifier]
+        ref_names[unique_identifier]
     except KeyError:
         logger.warning("Preseed.json entry %s matches the following:", unique_identifier)
         logger.warning(potential_matches)
         raise Exception("We failed to match your preseed.json entry. Please check output above.")
 
 
-def load_preseed():
+def load_preseed(validate=False):
     """ Update JobPriority information from preseed.json
 
     The preseed data has these fields: buildtype, testtype, platform, priority, expiration_date
@@ -61,17 +58,18 @@ def load_preseed():
     the * field. For example: (linux64, pgo, *) matches all Linux 64 pgo tests
     """
     logger.debug("START")
-    # XXX: Caching of runnable jobs is not working very well use global variable for now
-    global REF_NAMES
-    if not REF_NAMES:
-        REF_NAMES = get_reference_data_names("mozilla-central", "taskcluster")
     if not JobPriority.objects.exists():
         logger.debug("There's no JobPriority objects in the table")
         return
 
     preseed = preseed_data()
+    if validate:
+        logger.info("We are going to validate the values from preseed.json")
+        # XXX: That we choose 'mozilla-central' does not quite matter
+        ref_names = get_reference_data_names("mozilla-central", "taskcluster")
     for job in preseed:
-        validate_preseed_entry(job)
+        if validate:
+            validate_preseed_entry(job, ref_names)
 
         logger.debug("Processing %s", (job["testtype"], job["buildtype"], job["platform"]))
         queryset = JobPriority.objects.all()

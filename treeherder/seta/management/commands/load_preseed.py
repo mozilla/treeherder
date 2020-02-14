@@ -9,5 +9,12 @@ class Command(BaseCommand):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
+    def add_arguments(self, parser):
+        parser.add_argument(
+            "--validate",
+            action="store_true",
+            help="This will validate that all entries in preseed.json are valid"
+        )
+
     def handle(self, *args, **options):
-        load_preseed()
+        load_preseed(options.get("validate"))
