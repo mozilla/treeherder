@@ -228,54 +228,27 @@ class Command(BaseCommand):
             }
             PushLoader().process(pulse["payload"], pulse["exchange"], root_url)
         elif typeOfIngestion == "git-push":
+            # Step 1: Use logic to from URL to generated metadata
+            # Step 2: Switch to ingest a Servo push
             pulse = {
                 "exchange": "exchange/taskcluster-github/v1/push",
                 "routingKey": "primary.mozilla-mobile.android-components",
                 "payload": {
                     "organization": "mozilla-mobile",
                     "details": {
-                        "event.base.ref": "refs/heads/master",
-                        "event.base.repo.url": "https://github.com/mozilla-mobile/android-components.git",
-                        "event.base.sha": "7285afe57ae6207fdb5d6db45133dac2053b7820",
                         "event.head.repo.url": "https://github.com/mozilla-mobile/android-components.git",
-                        "event.head.sha": "5fdb785b28b356f50fc1d9cb180d401bb03fc1f1",
                         "event.base.repo.branch": "master",
-                        "event.head.repo.branch": "master",
-                        "event.head.user.email": "bors@users.noreply.github.com"
                     },
                     "repository": "android-components",
                     "body": {
-                        "repository": {
-                            "created_at": 1521645843,
-                            "updated_at": "2020-02-12T15:21:24Z",
-                            "pushed_at": 1581521353,
-                        },
-                        "commits": [
-                            {
-                                "id": "8a4cb15deb60e490ec7dfae03ca350bde3688dcb",
-                                "tree_id": "f7071289b2d2e51edd7ecf525132ef60e19e554e",
-                                "message": "Closes #4779 - Fix `ExperimentsDebugActivity` command to change server",
-                                "timestamp": "2020-02-06T13:22:20-06:00",
-                                "url": "https://github.com/mozilla-mobile/android-components/commit/8a4cb15deb60e490ec7dfae03ca350bde3688dcb",
-                                "author": {
-                                    "name": "Travis Long",
-                                    "email": "tlong@mozilla.com",
-                                },
-                            },
-                            {
-                                "id": "5fdb785b28b356f50fc1d9cb180d401bb03fc1f1",
-                                "message": "[ci skip][skip ci][skip netlify] -bors-staging-tmp-5835",
-                                "author": {
-                                    "name": "bors[bot]",
-                                    "email": "26634292+bors[bot]@users.noreply.github.com",
-                                },
-                            }
-                        ],
+                        "commits": [], # XXX: Fetch the information from Github
                         "head_commit": {
+                            "id": "5fdb785b28b356f50fc1d9cb180d401bb03fc1f1",
                             "author": {
                                 "name": "bors[bot]",
                                 "email": "26634292+bors[bot]@users.noreply.github.com",
                             },
+                            "timestamp": "2020-02-12T15:29:12Z",
                         },
                     },
                 }
