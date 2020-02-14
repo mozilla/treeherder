@@ -57,15 +57,14 @@ matrix:
         - docker-compose build
         # This initializes MySql and the other containers
         - docker-compose run --detach backend
+        - DATABASE_HOST=127.0.0.1 ./docker/entrypoint.sh
         # - mysql -u root -e 'create database test_treeherder;'
         - pip install -r requirements/common.txt
         - pip install -r requirements/dev.txt
       script:
-        - mysql -u root -h 127.0.0.1 -P 3306
         # Exercising running tests outside of Docker
-        - DATABASE_URL=mysql://root@localhost:3306/test_treeherder ./tests/env.sh ./manage.py check
-        # Ignoring tests/extract because it needs work to mute the excesive output
-        - DATABASE_URL=mysql://root@localhost:3306/test_treeherder ./tests/env.sh pytest tests/ --ignore=tests/selenium --ignore=tests/extract
+        - DATABASE_URL=mysql://root@127.0.0.1:3306/test_treeherder ./tests/env.sh ./manage.py check
+        - DATABASE_URL=mysql://root@127.0.0.1:3306/test_treeherder ./tests/env.sh pytest tests/ --ignore=tests/selenium
 
     - env: python-tests-inside-docker
       language: minimal
