@@ -424,8 +424,8 @@ django-cache-memoize==0.1.6 \
     --hash=sha256:d239e8c37734b0a70b74f94fa33b180b3b0c82c3784beb21209bb4ab64a3e6fb
 
 # Required for extraction to BigQuery
-mo-times==3.46.20032 \
-    --hash=sha256:94661e2fdfe43b85a1bdd3a40e2b77c4aa91c5863389acb0c2017e4690415af4 (
+mo-times==3.50.20043 \
+    --hash=sha256:794a36aeeacc504b778a00a431d073f9d1ef77fb7278bb8bff224c99a7cc3720 (
 mo-future==3.45.20031 \
     --hash=sha256:aeed75cbd211e297526f7b0ea5f3111b6930edd0e334cc5042ee6bd263078ee1
 pyLibrary==3.45.20031 \
