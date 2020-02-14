@@ -382,6 +382,16 @@ input[type='checkbox'] {
   color: #dd6602;
 }
 
+.badge-darker-info {
+  background: #0d7d8f;
+  color: white;
+}
+
+.badge-darker-secondary {
+  background-color: #6c757d;
+  color: white;
+}
+
 /*
  * Text
  */
