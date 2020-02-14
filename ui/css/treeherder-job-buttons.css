@@ -176,7 +176,6 @@
 /* Orange, testfailed */
 .btn-orange {
   background-color: #f7c194;
-  border-color: #a87f5c;
   color: #743603;
 }
 .btn-orange:hover,
@@ -184,7 +183,6 @@
 .btn-orange:active,
 .btn-orange.active {
   background-color: #c15700;
-  border-color: #9f4a03;
   color: white;
 }
 .btn-orange.disabled:hover,
@@ -238,7 +236,6 @@ fieldset[disabled] .btn-orange-classified.active {
 /* Red, busted */
 .btn-red {
   background-color: #b74c4c;
-  border-color: #a1020e;
   color: white;
 }
 .btn-red:hover,
@@ -246,7 +243,6 @@ fieldset[disabled] .btn-orange-classified.active {
 .btn-red:active,
 .btn-red.active {
   background-color: #a1020e;
-  border-color: #a1020e;
   color: white;
 }
 .btn-red.disabled:hover,
@@ -368,7 +364,6 @@ fieldset[disabled] .btn-green.active {
 /* Purple, infrastructure exception */
 .btn-purple {
   background-color: #9a7da6;
-  border-color: #6f0296;
   color: #3a004d;
 }
 .btn-purple:hover,
@@ -376,7 +371,6 @@ fieldset[disabled] .btn-green.active {
 .btn-purple:active,
 .btn-purple.active {
   background-color: #3a004d;
-  border-color: #3a004d;
   color: white;
 }
 .btn-purple.disabled:hover,
@@ -465,7 +459,7 @@ fieldset[disabled] .btn-ltblue.active {
 .btn-ltgray-count,
 .btn-ltgray-classified,
 .btn-ltgray-classified-count {
-  color: #747474;
+  color: #757575;
 }
 .btn-ltgray-count:hover,
 .btn-ltgray-classified-count:hover {
@@ -536,15 +530,15 @@ fieldset[disabled] .btn-mdgray.active {
 .btn-dkgray-classified-count,
 .btn-dkgray-count:hover,
 .btn-dkgray-classified-count:hover {
-  color: #333333;
+  color: black;
 }
 .btn-dkgray:hover,
 .btn-dkgray-classified:hover,
 .btn-dkgray:focus,
 .btn-dkgray:active,
 .btn-dkgray.active {
-  background-color: #333333;
-  border-color: #1c1c1c;
+  background-color: black;
+  border-color: black;
   color: white;
 }
 .btn-dkgray.disabled:hover,

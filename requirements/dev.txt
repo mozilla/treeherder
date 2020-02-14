@@ -24,9 +24,9 @@ responses==0.10.9 \
     --hash=sha256:515fd7c024097e5da76e9c4cf719083d181f1c3ddc09c2e0e49284ce863dd263 \
     --hash=sha256:8ce8cb4e7e1ad89336f8865af152e0563d2e7f0e0b86d2cf75f015f819409243
 
-django-extensions==2.2.5 \
-    --hash=sha256:a9db7c56a556d244184f589f2437b4228de86ee45e5ebb837fb20c6d54e95ea5 \
-    --hash=sha256:b58320d3fe3d6ae7d1d8e38959713fa92272f4921e662d689058d942a5b444f7
+django-extensions==2.2.8 \
+    --hash=sha256:1a03c4e8bade575f8c2be6c76456f8a2be3f9b02ab9f47d3535afa9562dc0493 \
+    --hash=sha256:2699cc1d6fb4bd393c0b5832fea4bc685f2ace5800b3c9ff222b2080f161ac04
 
 pytest-selenium==1.17.0 \
     --hash=sha256:caf049839d12297e01f0521a968e44ae854f4eca1afd80b28f6a2510df02c883 \
@@ -37,9 +37,9 @@ PyPOM==2.2.0 \
     --hash=sha256:6772ec99f0a21a5bdc8c092007a8c813ed18359e67ed70258bbb233df5e28829
 
 # Required by django-extension's runserver_plus command.
-Werkzeug==0.15.5 \
-    --hash=sha256:87ae4e5b5366da2347eb3116c0e6c681a0e939a33b2805e2c0cbd282664932c4 \
-    --hash=sha256:a13b74dd3c45f758d4ebdb224be8f1ab8ef58b3c0ffc1783a8c7d9f4f50227e6
+Werkzeug==1.0.0 \
+    --hash=sha256:6dc65cf9091cf750012f56f2cad759fa9e879f511b5ff8685e456b4e3bf90d16 \
+    --hash=sha256:169ba8a33788476292d04186ab33b01d6add475033dfc07215e6d219cc077096
 
 flake8==3.7.9 \
     --hash=sha256:49356e766643ad15072a789a20915d3c91dc89fd313ccd71802303fd67e4deca \
@@ -97,9 +97,9 @@ pyflakes==2.1.1 \
     --hash=sha256:17dbeb2e3f4d772725c777fabc446d5634d1038f234e77343108ce445ea69ce0 \
     --hash=sha256:d976835886f8c5b31d47970ed689944a0262b5f3afa00a5a7b4dc81e5449f8a2
 
-pytest-django==3.5.1 \
-    --hash=sha256:4adfe5fb3ed47f0ba55506dd3daf688b1f74d5e69148c10ad2dd2f79f40c0d62 \
-    --hash=sha256:264fb4c506db5d48a6364c311a0b00b7b48a52715bad8839b2d8bee9b99ed6bb
+pytest-django==3.8.0 \
+    --hash=sha256:456fa6854d04ee625d6bbb8b38ca2259e7040a6f93333bfe8bc8159b7e987203 \
+    --hash=sha256:489b904f695f9fb880ce591cf5a4979880afb467763b1f180c07574554bdfd26
 
 # Required by pytest-selenium
 selenium==3.141.0 \
@@ -162,9 +162,8 @@ zope.interface==4.7.1 \
     --hash=sha256:db381f6fdaef483ad435f778086ccc4890120aff8df2ba5cfeeac24d280b3145 \
     --hash=sha256:b47b1028be4758c3167e474884ccc079b94835f058984b15c145966c4df64d27 \
     --hash=sha256:4bb937e998be9d5e345f486693e477ba79e4344674484001a0b646be1d530487
-zope.component==4.5 \
-    --hash=sha256:984a06ba3def0b02b1117fa4c45b56e772e8c29c0340820fbf367e440a93a3a4 \
-    --hash=sha256:6edfd626c3b593b72895a8cfcf79bff41f4619194ce996a85bce31ac02b94e55
+zope.component==4.6 \
+    --hash=sha256:ec2afc5bbe611dcace98bb39822c122d44743d635dafc7315b9aef25097db9e6
 zope.hookable==5.0.0 \
     --hash=sha256:dbeb127a04473f5a989169eb400b67beb921c749599b77650941c21fe39cb8d9 \
     --hash=sha256:30890892652766fc80d11f078aca9a5b8150bef6b88aba23799581a53515c404 \
