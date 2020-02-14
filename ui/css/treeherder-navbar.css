@@ -89,6 +89,7 @@ label.dropdown-item.active,
 
 .nav-menu-btn:after {
   font-size: 14px;
+  vertical-align: middle;
 }
 
 .nav-help-btn {
