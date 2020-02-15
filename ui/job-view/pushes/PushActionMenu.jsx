@@ -238,10 +238,18 @@ class PushActionMenu extends React.PureComponent {
             >
               Custom Push Action...
             </DropdownItem>
-            <DropdownItem tag="a" href={topOfRangeUrl}>
+            <DropdownItem
+              tag="a"
+              href={topOfRangeUrl}
+              data-testid="top-of-range-menu-item"
+            >
               Set as top of range
             </DropdownItem>
-            <DropdownItem tag="a" href={bottomOfRangeUrl}>
+            <DropdownItem
+              tag="a"
+              href={bottomOfRangeUrl}
+              data-testid="bottom-of-range-menu-item"
+            >
               Set as bottom of range
             </DropdownItem>
             <DropdownItem divider />

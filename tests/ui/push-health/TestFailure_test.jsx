@@ -1,6 +1,3 @@
-import fs from 'fs';
-import path from 'path';
-
 import React from 'react';
 import fetchMock from 'fetch-mock';
 import {
@@ -17,22 +14,6 @@ import pushHealth from '../mock/push_health';
 const repoName = 'autoland';
 const crashFailure = pushHealth.metrics.tests.details.needInvestigation[0];
 const testFailure = pushHealth.metrics.tests.details.needInvestigation[2];
-const cssFile = fs.readFileSync(
-  path.resolve(
-    __dirname,
-    '../../../node_modules/bootstrap/dist/css/bootstrap.css',
-  ),
-);
-
-// Need to use this technique to add the CSS to the document since JSDOM doesn't
-// load the Reactstrap/Bootstrap CSS.
-// Credit: https://stackoverflow.com/questions/52813527/cannot-check-expectelm-not-tobevisible-for-semantic-ui-react-component
-const useStyles = container => {
-  const style = document.createElement('style');
-  style.type = 'text/css';
-  style.innerHTML = cssFile;
-  container.append(style);
-};
 
 beforeEach(() => {
   fetchMock.get('https://treestatus.mozilla-releng.net/trees/autoland', {
@@ -77,28 +58,25 @@ describe('TestFailure', () => {
   });
 
   test('should not show details by default', async () => {
-    const { container, getByText } = render(testTestFailure(testFailure));
-    useStyles(container);
+    const { getByText, getByTestId } = render(testTestFailure(testFailure));
+    const logLineToggle = await waitForElement(() => getByTestId('log-lines'));
 
-    // Must use .toBeVisible() rather than .toBeInTheDocument because
-    // Collapse just hides elements, doesn't remove them.
-    expect(
-      await waitForElement(() =>
-        getByText('Transactions that explicitly commit ', {
-          exact: false,
-        }),
-      ),
-    ).not.toBeVisible();
+    // For collapsible components, you must check for 'collapse' (hidden) or 'collapse show' (visible)
+    // or aria-expanded attribute because collapse just hides elements, doesn't remove them.
+    expect(logLineToggle).toHaveClass('collapse');
+    expect(logLineToggle).toHaveAttribute(
+      'aria-expanded',
+      expect.stringMatching('false'),
+    );
     expect(
       await waitForElement(() => getByText('more...')),
     ).toBeInTheDocument();
   });
 
   test('should show details when click more...', async () => {
-    const { container, getByText } = render(testTestFailure(testFailure));
+    const { getByText } = render(testTestFailure(testFailure));
     const moreLink = getByText('more...');
 
-    useStyles(container);
     fireEvent.click(moreLink);
 
     expect(
@@ -115,12 +93,9 @@ describe('TestFailure', () => {
   });
 
   test('should show crash stack and signature when click more...', async () => {
-    const { container, getByText, getAllByText } = render(
-      testTestFailure(crashFailure),
-    );
+    const { getByText, getAllByText } = render(testTestFailure(crashFailure));
     const moreLink = getByText('more...');
 
-    useStyles(container);
     fireEvent.click(moreLink);
 
     expect(
