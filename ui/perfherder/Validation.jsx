@@ -51,6 +51,7 @@ const withValidation = (
       const { location } = this.props;
 
       if (location.search !== prevProps.location.search) {
+        // delete from state params the ones
         this.validateParams(parseQueryParams(location.search));
       }
     }

@@ -19,7 +19,7 @@ export const createDropdowns = (dropdownOptions, colClass, outline = false) => (
       <Col
         sm="auto"
         className={colClass}
-        key={`${dropdown.namespace || ''}${dropdown.selectedItem}`}
+        key={`dropdown ${dropdown.namespace || ''}${dropdown.selectedItem}`}
       >
         <UncontrolledDropdown
           className="mr-0 text-nowrap"
@@ -46,6 +46,7 @@ const FilterControls = ({
   filterOptions,
   updateFilterText,
   updateFilter,
+  updateOnEnter,
   dropdownCol,
 }) => {
   const createButton = filter => (
@@ -72,7 +73,10 @@ const FilterControls = ({
           createDropdowns(dropdownOptions, 'py-2 pl-0 pr-3')}
 
         <Col className="col-2 py-2 pl-0 pr-2">
-          <InputFilter updateFilterText={updateFilterText} />
+          <InputFilter
+            updateFilterText={updateFilterText}
+            updateOnEnter={updateOnEnter}
+          />
         </Col>
 
         {filterOptions.length > 0 &&
@@ -98,6 +102,7 @@ FilterControls.propTypes = {
   filterOptions: PropTypes.arrayOf(PropTypes.shape({})),
   updateFilter: PropTypes.func,
   updateFilterText: PropTypes.func.isRequired,
+  updateOnEnter: PropTypes.bool, // only used by the InputFilter
   dropdownCol: PropTypes.bool,
 };
 
@@ -106,6 +111,7 @@ FilterControls.defaultProps = {
   dropdownCol: false,
   filterOptions: [],
   updateFilter: null,
+  updateOnEnter: false,
 };
 
 export default FilterControls;

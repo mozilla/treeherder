@@ -27,25 +27,19 @@ import AlertsViewControls from './AlertsViewControls';
 class AlertsView extends React.Component {
   constructor(props) {
     super(props);
-    const { frameworks } = this.props;
-    this.validated = this.props.validated;
-
+    const { frameworks, validated } = this.props;
     const extendedOptions = this.extendDropdownOptions(frameworks);
     this.state = {
-      status: this.getDefaultStatus(),
-      framework: getFrameworkData({
-        validated: this.props.validated,
-        frameworks: extendedOptions,
-      }),
+      filters: this.getFiltersFromParams(validated, extendedOptions),
       frameworkOptions: extendedOptions,
-      page: this.validated.page ? parseInt(this.validated.page, 10) : 1,
+      page: validated.page ? parseInt(validated.page, 10) : 1,
       errorMessages: [],
       alertSummaries: [],
       issueTrackers: [],
       loading: false,
       optionCollectionMap: null,
       count: 0,
-      id: this.validated.id,
+      id: validated.id,
       bugTemplate: null,
       totalPages: 0,
     };
@@ -56,11 +50,27 @@ class AlertsView extends React.Component {
   }
 
   componentDidUpdate(prevProps, prevState) {
-    const { count } = this.state;
+    const { count, frameworkOptions } = this.state;
     const { validated } = this.props;
+    const prevValitated = prevProps.validated;
 
     if (prevState.count !== count) {
       this.setState({ totalPages: this.generatePages(count) });
+    }
+
+    // filters updated directly in the url
+    if (
+      validated.hideAssignedToOthers !== prevValitated.hideAssignedToOthers ||
+      validated.hideImprovements !== prevValitated.hideImprovements ||
+      validated.hideDwnToInv !== prevValitated.hideDwnToInv ||
+      validated.filterText !== prevValitated.filterText ||
+      validated.status !== prevValitated.status ||
+      validated.framework !== prevValitated.framework
+    ) {
+      this.setFiltersState(
+        this.getFiltersFromParams(validated, frameworkOptions),
+        false,
+      );
     }
 
     const params = parseQueryParams(this.props.location.search);
@@ -70,15 +80,35 @@ class AlertsView extends React.Component {
     // unless there is a value)
     if (this.props.location.search !== prevProps.location.search) {
       this.setState({ id: params.id || null }, this.fetchAlertSummaries);
-      validated.updateParams({ hideDwnToInv: 0 });
+      if (params.id) {
+        validated.updateParams({ hideDwnToInv: 0 });
+      }
     }
   }
+
+  getFiltersFromParams = (validated, frameworkOptions) => {
+    return {
+      status: this.getDefaultStatus(),
+      framework: getFrameworkData({
+        validated,
+        frameworks: frameworkOptions,
+      }),
+      filterText: this.getDefaultFilterText(),
+      hideImprovements: convertParams(validated, 'hideImprovements'),
+      hideDownstream: convertParams(validated, 'hideDwnToInv'),
+      hideAssignedToOthers: convertParams(validated, 'hideAssignedToOthers'),
+    };
+  };
 
   extendDropdownOptions = frameworks => {
     const frameworkOptions = cloneDeep(frameworks);
     const ignoreFrameworks = { id: -1, name: 'all' };
     frameworkOptions.unshift(ignoreFrameworks);
     return frameworkOptions;
+  };
+
+  isListMode = () => {
+    return Boolean(!this.state.id);
   };
 
   getDefaultStatus = () => {
@@ -91,20 +121,50 @@ class AlertsView extends React.Component {
     return getStatus(parseInt(validated.status, 10));
   };
 
-  updateFramework = selection => {
-    const { updateParams } = this.props.validated;
-    const { frameworkOptions } = this.state;
-    const framework = frameworkOptions.find(item => item.name === selection);
-    updateParams({ framework: framework.id });
-    this.setState({ framework, bugTemplate: null }, () =>
-      this.fetchAlertSummaries(),
-    );
+  getDefaultFilterText = () => {
+    const { filterText } = this.props.validated;
+    return filterText === undefined || filterText === null ? '' : filterText;
   };
 
-  updateStatus = status => {
-    const statusId = summaryStatusMap[status];
-    this.props.validated.updateParams({ status: statusId });
-    this.setState({ status }, () => this.fetchAlertSummaries());
+  setFiltersState = (updatedFilters, doUpdateParams = true) => {
+    const { filters } = this.state;
+    const currentFilters = cloneDeep(filters);
+    Object.assign(currentFilters, updatedFilters);
+
+    if (this.isListMode()) {
+      if (doUpdateParams) {
+        this.props.validated.updateParams(
+          this.getParamsFromFilters(updatedFilters),
+        );
+      }
+      this.setState({ filters: currentFilters }, this.fetchAlertSummaries);
+    } else {
+      this.setState({ filters: currentFilters });
+    }
+  };
+
+  getParamsFromFilters = filters => {
+    const params = {};
+    for (const [filterName, filterValue] of Object.entries(filters)) {
+      Object.assign(params, this.mapParamFromFilter(filterName, filterValue));
+    }
+    return params;
+  };
+
+  mapParamFromFilter = (filterName, filterValue) => {
+    switch (filterName) {
+      case 'framework':
+        return { [filterName]: filterValue.id };
+      case 'status':
+        return { [filterName]: summaryStatusMap[filterValue] };
+      case 'hideDownstream':
+        return { hideDwnToInv: +filterValue };
+      case 'hideImprovements':
+      case 'hideAssignedToOthers':
+        return { [filterName]: +filterValue };
+      default:
+        return { [filterName]: filterValue };
+    }
   };
 
   getCurrentPages = () => {
@@ -145,19 +205,42 @@ class AlertsView extends React.Component {
   async fetchAlertSummaries(id = this.state.id, update = false, page = 1) {
     // turn off loading when update is true (used to update alert statuses)
     this.setState({ loading: !update, errorMessages: [] });
-
+    const { user } = this.props;
     const {
-      framework,
-      status,
+      filters,
       errorMessages,
       issueTrackers,
       optionCollectionMap,
       alertSummaries,
       count,
     } = this.state;
+    const {
+      status,
+      framework,
+      filterText,
+      hideImprovements,
+      hideDownstream,
+      hideAssignedToOthers,
+    } = filters;
+
     this.setState({ page });
     let updates = { loading: false };
     const params = this.composeParams(id, page, framework, status);
+
+    if (this.isListMode()) {
+      if (filterText) {
+        params.filter_text = filterText;
+      }
+      if (hideImprovements) {
+        params.hide_improvements = hideImprovements;
+      }
+      if (hideDownstream) {
+        params.hide_related_and_invalid = hideDownstream;
+      }
+      if (hideAssignedToOthers) {
+        params.with_assignee = user.username;
+      }
+    }
 
     const url = getApiUrl(
       `${endpoints.alertSummary}${createQueryParams(params)}`,
@@ -206,39 +289,18 @@ class AlertsView extends React.Component {
   render() {
     const { user } = this.props;
     const {
-      framework,
-      frameworkOptions,
-      status,
+      filters,
       errorMessages,
       loading,
       alertSummaries,
+      frameworkOptions,
       issueTrackers,
       optionCollectionMap,
       bugTemplate,
-      id,
       page,
       count,
     } = this.state;
 
-    const frameworkNames =
-      frameworkOptions && frameworkOptions.length
-        ? frameworkOptions.map(item => item.name)
-        : [];
-
-    const alertDropdowns = [
-      {
-        options: Object.keys(summaryStatusMap),
-        selectedItem: status,
-        updateData: this.updateStatus,
-        namespace: 'status',
-      },
-      {
-        options: frameworkNames,
-        selectedItem: framework.name,
-        updateData: this.updateFramework,
-        namespace: 'framework',
-      },
-    ];
     // this is not strictly accurate since we have no way of knowing the final count
     // until the results are filtered (and we're only retrieving 10 results at a time)
     const pageNums = this.getCurrentPages();
@@ -264,15 +326,18 @@ class AlertsView extends React.Component {
             </Alert>
           )}
           <AlertsViewControls
-            dropdownOptions={id ? [] : alertDropdowns}
+            isListMode={this.isListMode()}
+            filters={filters}
             pageNums={pageNums}
             alertSummaries={alertSummaries}
+            frameworkOptions={frameworkOptions}
             issueTrackers={issueTrackers}
             optionCollectionMap={optionCollectionMap}
             fetchAlertSummaries={(id, update, page) =>
               this.fetchAlertSummaries(id, update, page)
             }
             updateViewState={state => this.setState(state)}
+            setFiltersState={this.setFiltersState}
             bugTemplate={bugTemplate}
             user={user}
             page={page}
