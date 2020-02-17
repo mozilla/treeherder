@@ -26,12 +26,6 @@ IS_WINDOWS = "windows" in platform.system().lower()
 # Top Level configuration
 DEBUG = env.bool("TREEHERDER_DEBUG", default=False)
 
-#  Default environment variables check
-REQUIRED_PRODUCTION_ENV_VARIABLES = ["TREEHERDER_DJANGO_SECRET_KEY", "BROKER_URL", "DATABASE_URL", "REDIS_URL", "TREEHERDER_DEBUG", "NEW_RELIC_DEVELOPER_MODE"]
-if not DEBUG:
-    for env in REQUIRED_PRODUCTION_ENV_VARIABLES:
-        assert os.environ.get(env), "{} is a required env variable for a production set up".format(env)
-
 NEW_RELIC_DEVELOPER_MODE = env.bool("NEW_RELIC_DEVELOPER_MODE", default=True if DEBUG else False)
 
 # Papertrail logs WARNING messages. This env variable allows modifying the behaviour
@@ -373,7 +367,6 @@ CELERY_BEAT_SCHEDULE = {
         }
     },
 }
-
 # CORS Headers
 CORS_ORIGIN_ALLOW_ALL = True  # allow requests from any host
 
@@ -450,3 +443,10 @@ PERFHERDER_ALERTS_MAX_AGE = timedelta(weeks=2)
 
 # Resource count to limit the number of threads opening connections with the DB
 CONN_RESOURCES = 50
+
+
+#  Default environment variables check
+REQUIRED_PRODUCTION_ENV_VARIABLES = ["TREEHERDER_DJANGO_SECRET_KEY", "BROKER_URL", "DATABASE_URL", "REDIS_URL", "TREEHERDER_DEBUG", "NEW_RELIC_DEVELOPER_MODE"]
+if not DEBUG:
+    for env in REQUIRED_PRODUCTION_ENV_VARIABLES:
+        assert os.environ.get(env), "{} is a required env variable for a production set up".format(env)
