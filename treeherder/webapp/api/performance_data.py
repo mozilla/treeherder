@@ -315,9 +315,9 @@ class PerformanceAlertSummaryFilter(django_filters.FilterSet):
 
     def _hide_related_and_invalid(self, queryset, name, value):
         return (queryset.exclude(
-            state__in=[PerformanceAlertSummary.DOWNSTREAM,
-                       PerformanceAlertSummary.REASSIGNED,
-                       PerformanceAlertSummary.INVALID]))
+            status__in=[PerformanceAlertSummary.DOWNSTREAM,
+                        PerformanceAlertSummary.REASSIGNED,
+                        PerformanceAlertSummary.INVALID]))
 
     def _with_assignee(self, queryset, name, value):
         return queryset.filter(assignee__username=value)
@@ -326,7 +326,8 @@ class PerformanceAlertSummaryFilter(django_filters.FilterSet):
         model = PerformanceAlertSummary
         fields = ['id', 'status', 'framework', 'repository',
                   'alerts__series_signature',
-                  'filter_text']
+                  'filter_text', 'hide_improvements',
+                  'hide_related_and_invalid', 'with_assignee']
 
 
 class PerformanceAlertSummaryViewSet(viewsets.ModelViewSet):
