@@ -29,7 +29,7 @@
       "runnable_job",
       "text_log_error_metadata",
       "failure_line.stackwalk_stdout",
-      "failure_line.stackwalk_stderr",
+      "failure_line.stackwalk_stderr"
     ],
     "reference_only": [
       "classified_failure",
@@ -97,7 +97,9 @@
   "debug": {
     "trace": true,
     "logs": [
-      { "log_type": "console" },
+      {
+        "log_type": "console"
+      },
       {
         "log_type": "logger",
         "name": "extract_jobs"
