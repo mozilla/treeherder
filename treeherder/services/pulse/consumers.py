@@ -8,6 +8,7 @@ from kombu import (Connection,
                    Queue)
 from kombu.mixins import ConsumerMixin
 
+from treeherder.config import settings
 from treeherder.etl.common import fetch_json
 from treeherder.etl.tasks.pulse_tasks import (store_pulse_pushes,
                                               store_pulse_tasks)
@@ -164,7 +165,7 @@ class TaskConsumer(PulseConsumer):
 
 
 class PushConsumer(PulseConsumer):
-    queue_suffix = env("PULSE_RESULSETS_QUEUE_NAME", default="resultsets")
+    queue_suffix = settings.PULSE_RESULSETS_QUEUE_NAME
 
     def bindings(self):
         rv = []

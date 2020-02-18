@@ -1,6 +1,7 @@
 import environ
 from django.core.management.base import BaseCommand
 
+from treeherder.config import settings
 from treeherder.services.pulse import (PushConsumer,
                                        prepare_consumers)
 
@@ -17,13 +18,7 @@ class Command(BaseCommand):
     help = "Read pushes from a set of pulse exchanges and queue for ingestion"
 
     def handle(self, *args, **options):
-        # Specifies the Pulse services from which Treeherder will ingest push
-        # information.  Sources can include properties `hgmo`, `github`, or both, to
-        # listen to events from those sources.  The value is a JSON array of the form
-        # [{pulse_url: .., hgmo: true, root_url: ..}, ..]
-        push_sources = env.json(
-            "PULSE_PUSH_SOURCES",
-            default=[{"root_url": "https://firefox-ci-tc.services.mozilla.com", "github": True, "hgmo": True, "pulse_url": env("PULSE_URL")}])
+        push_sources = settings.PULSE_PUSH_SOURCES
 
         consumers = prepare_consumers(
             PushConsumer,

@@ -1,4 +1,6 @@
+import random
 import re
+import string
 from datetime import timedelta
 from os.path import (abspath,
                      dirname,
@@ -28,6 +30,28 @@ GRAPHQL = env.bool("GRAPHQL", default=True)
 
 # Make this unique, and don't share it with anybody.
 SECRET_KEY = env("TREEHERDER_DJANGO_SECRET_KEY")
+
+# Check Pulse values are properly set rather than upon script initialization
+# Specifies the Pulse services from which Treeherder will ingest push
+# information.  Sources can include properties `hgmo`, `github`, or both, to
+# listen to events from those sources.  The value is a JSON array of the form
+# [{pulse_url: .., hgmo: true, root_url: ..}, ..]
+PULSE_CREDENTIALS = env.str("PULSE_CREDENTIALS", default="treeherder-shared-pulse-user:mozilla123")
+PULSE_PUSH_SOURCES = env.json("PULSE_PUSH_SOURCES", None)
+PULSE_RESULSETS_QUEUE_NAME = "resulsets"
+
+if PULSE_PUSH_SOURCES is None:
+    PULSE_PUSH_SOURCES = [{
+        "root_url": "https://firefox-ci-tc.services.mozilla.com",
+        "github": True,
+        "hgmo": True,
+        "pulse_url": "amqp://{}@pulse.mozilla.org:5671/{}?ssl=true".format(PULSE_CREDENTIALS, "")
+    }, {
+        "root_url": "https://firefox-ci-tc.services.mozilla.com",
+        "github": True,
+        "pulse_url": "amqp://{}@pulse.mozilla.org:5671/{}?ssl=true".format(PULSE_CREDENTIALS, "communitytc")
+    }]
+    PULSE_RESULSETS_QUEUE_NAME = ''.join(random.choices(string.ascii_lowercase + string.digits, k=15))
 
 # Hosts
 try:
