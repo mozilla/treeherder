@@ -15,13 +15,13 @@ import {
   backfillRetriggeredTitle,
   unknownFrameworkMessage,
   endpoints,
-  summaryStatusMap,
 } from '../../../ui/perfherder/constants';
 import repos from '../mock/repositories';
-import { createQueryParams, getApiUrl } from '../../../ui/helpers/url';
+import { getApiUrl } from '../../../ui/helpers/url';
 import AlertsView from '../../../ui/perfherder/alerts/AlertsView';
 import AlertsViewControls from '../../../ui/perfherder/alerts/AlertsViewControls';
 import optionCollectionMap from '../mock/optionCollectionMap';
+import testAlertSummaries from '../mock/alert_summaries';
 
 const testUser = {
   username: 'mozilla-ldap/test_user@mozilla.com',
@@ -30,8 +30,8 @@ const testUser = {
   email: 'test_user@mozilla.com',
 };
 
+const ignoreFrameworkOption = { id: -1, name: 'all' };
 const frameworks = [
-  { id: -1, name: 'all' },
   { id: 1, name: 'talos' },
   { id: 2, name: 'build_metrics' },
   { id: 4, name: 'awsy' },
@@ -45,165 +45,6 @@ const frameworks = [
 ];
 
 const dummyFrameworkName = 'someTestFramework';
-const invalidFrameworkId = -1;
-const testAlertSummaries = [
-  {
-    id: 20174,
-    push_id: 477720,
-    prev_push_id: 477665,
-    created: '2019-05-20T11:41:31.419156',
-    repository: 'mozilla-inbound',
-    framework: invalidFrameworkId,
-    alerts: [
-      {
-        id: 69344,
-        status: 0,
-        series_signature: {
-          id: 1944439,
-          framework_id: 1,
-          signature_hash: '387af86a444be0b42bf1063359040942d8f59f21',
-          machine_platform: 'linux64-shippable-qr',
-          suite: 'tp5o',
-          test: 'responsiveness',
-          lower_is_better: true,
-          has_subtests: false,
-          option_collection_hash: '102210fe594ee9b33d82058545b1ed14f4c8206e',
-          extra_options: ['e10s', 'stylo'],
-        },
-        is_regression: false,
-        prev_value: 1.67,
-        new_value: 1.6,
-        t_value: 7.97,
-        amount_abs: -0.08,
-        amount_pct: 4.67,
-        summary_id: 20174,
-        related_summary_id: null,
-        manually_created: false,
-        classifier: null,
-        starred: false,
-        classifier_email: null,
-      },
-      {
-        id: 69345,
-        status: 0,
-        series_signature: {
-          id: 1945375,
-          framework_id: 1,
-          signature_hash: '461af9d92db3f2d97dc6e4c4d47e7ad256356861',
-          machine_platform: 'linux64-shippable-qr',
-          suite: 'tp5o_webext',
-          test: 'responsiveness',
-          lower_is_better: true,
-          has_subtests: false,
-          option_collection_hash: '102210fe594ee9b33d82058545b1ed14f4c8206e',
-          extra_options: ['e10s', 'stylo'],
-        },
-        is_regression: false,
-        prev_value: 2.01,
-        new_value: 1.9,
-        t_value: 7.5,
-        amount_abs: -0.12,
-        amount_pct: 5.83,
-        summary_id: 20174,
-        related_summary_id: null,
-        manually_created: false,
-        classifier: null,
-        starred: false,
-        classifier_email: null,
-      },
-    ],
-    related_alerts: [],
-    status: 0,
-    bug_number: null,
-    bug_updated: null,
-    issue_tracker: 1,
-    notes: null,
-    revision: '930f0f51b681aea2a5e915a2770f80a9914ed3df',
-    push_timestamp: 1558111832,
-    prev_push_revision: '76e3a842e496d78a80cd547b7bf94f041f9bc612',
-    assignee_username: null,
-    assignee_email: null,
-  },
-  {
-    id: 20239,
-    push_id: 480946,
-    prev_push_id: 480864,
-    created: '2019-05-24T10:51:16.976819',
-    repository: 'mozilla-inbound',
-    framework: 1,
-    alerts: [
-      {
-        id: 69526,
-        status: 0,
-        backfill_record: {},
-        series_signature: {
-          id: 1948230,
-          framework_id: 1,
-          signature_hash: '76aef17be607c7921b519db44b1d6a781b5775a6',
-          machine_platform: 'windows10-64-shippable',
-          suite: 'ts_paint',
-          test: 'ts_paint',
-          lower_is_better: true,
-          has_subtests: false,
-          option_collection_hash: '102210fe594ee9b33d82058545b1ed14f4c8206e',
-          extra_options: ['e10s', 'stylo'],
-        },
-        is_regression: true,
-        prev_value: 315.75,
-        new_value: 322.58,
-        t_value: 7.29,
-        amount_abs: 6.83,
-        amount_pct: 2.16,
-        summary_id: 20239,
-        related_summary_id: null,
-        manually_created: false,
-        classifier: null,
-        starred: false,
-        classifier_email: null,
-      },
-      {
-        id: 69530,
-        status: 3,
-        series_signature: {
-          id: 1948296,
-          framework_id: 2,
-          signature_hash: '5ece5cd7460330dea3b655c7f8d786b79369081e',
-          machine_platform: 'windows7-32-shippable',
-          suite: 'ts_paint_webext',
-          test: 'ts_paint_webext',
-          lower_is_better: true,
-          has_subtests: false,
-          option_collection_hash: '102210fe594ee9b33d82058545b1ed14f4c8206e',
-          extra_options: ['e10s', 'stylo'],
-        },
-        is_regression: true,
-        prev_value: 327.62,
-        new_value: 338.5,
-        t_value: 7.02,
-        amount_abs: 10.88,
-        amount_pct: 3.32,
-        summary_id: 20239,
-        related_summary_id: null,
-        manually_created: false,
-        classifier: 'mozilla-ldap/user@mozilla.com',
-        starred: false,
-        classifier_email: 'user@mozilla.com',
-      },
-    ],
-    related_alerts: [],
-    status: 0,
-    bug_number: null,
-    bug_updated: null,
-    issue_tracker: 1,
-    notes: null,
-    revision: 'd4a9b4dd03ca5c3db2bd10e8097d9817435ba37d',
-    push_timestamp: 1558583128,
-    prev_push_revision: 'c8e9b6a81194dff2d37b4f67d23a419fd4587e49',
-    assignee_username: 'mozilla-ldap/test_user@mozilla.com',
-    assignee_email: 'test_user@mozilla.com',
-  },
-];
-
 const testIssueTrackers = [
   {
     id: 1,
@@ -214,19 +55,6 @@ const testIssueTrackers = [
     id: 2,
     text: 'Github - Servo',
     issueTrackerUrl: 'https://github.com/servo/servo/pull/',
-  },
-];
-
-const testAlertDropdowns = [
-  {
-    options: Object.keys(summaryStatusMap),
-    selectedItem: 'untriaged',
-    updateData: () => {},
-  },
-  {
-    options: [frameworks.map(item => item.name)],
-    selectedItem: 'talos',
-    updateData: () => {},
   },
 ];
 
@@ -263,13 +91,10 @@ const alertsView = () =>
   );
 
 const alertsViewControls = ({
-  isListingAlertSummaries = null,
+  isListMode = true,
   user: userMock = null,
-  alertDropdowns: alertDropdownMock = null,
 } = {}) => {
   const user = userMock !== null ? userMock : testUser;
-  const alertDropdowns =
-    alertDropdownMock !== null ? alertDropdownMock : testAlertDropdowns;
 
   return render(
     <AlertsViewControls
@@ -279,8 +104,7 @@ const alertsViewControls = ({
         filter: undefined,
         updateParams: () => {},
       }}
-      isListingAlertSummaries={isListingAlertSummaries}
-      dropdownOptions={alertDropdowns}
+      isListMode={isListMode}
       alertSummaries={testAlertSummaries}
       issueTrackers={testIssueTrackers}
       optionCollectionMap={optionCollectionMap}
@@ -296,8 +120,18 @@ const alertsViewControls = ({
         pathname: '/alerts',
         search: '',
       }}
+      filters={{
+        filterText: '',
+        hideImprovements: false,
+        hideDownstream: false,
+        hideAssignedToOthers: false,
+        framework: { name: 'talos', id: 1 },
+        status: 'untriaged',
+      }}
       frameworks={[{ id: 1, name: dummyFrameworkName }]}
       history={createMemoryHistory('/alerts')}
+      frameworkOptions={[ignoreFrameworkOption, ...frameworks]}
+      setFiltersState={() => {}}
     />,
   );
 };
@@ -307,44 +141,12 @@ const modifyAlertSpy = jest.spyOn(mockModifyAlert, 'update');
 beforeAll(() => {
   fetchMock.mock(getApiUrl(endpoints.issueTrackers), testIssueTrackers);
 
-  fetchMock.mock(
-    `${getApiUrl(endpoints.alertSummary)}${createQueryParams({
-      framework: testAlertSummaries[1].framework,
-      page: 1,
-      status: testAlertSummaries[1].status,
-    })}`,
-    {
-      count: 2,
-      next: null,
-      previous: null,
-      results: testAlertSummaries,
-    },
-  );
-
-  fetchMock.mock(
-    `${getApiUrl(endpoints.alertSummary)}${createQueryParams({
-      framework: testAlertSummaries[1].framework,
-      page: 1,
-    })}`,
-    {
-      count: 2,
-      next: null,
-      previous: null,
-      results: testAlertSummaries,
-    },
-  );
-
-  fetchMock.mock(
-    `${getApiUrl(endpoints.alertSummary)}${createQueryParams({
-      page: 1,
-    })}`,
-    {
-      count: 2,
-      next: null,
-      previous: null,
-      results: testAlertSummaries,
-    },
-  );
+  fetchMock.mock(`begin:${getApiUrl(endpoints.alertSummary)}`, {
+    count: 2,
+    next: null,
+    previous: null,
+    results: testAlertSummaries,
+  });
 
   fetchMock.mock(getApiUrl('/optioncollectionhash/'), [
     {
@@ -359,7 +161,7 @@ beforeAll(() => {
 });
 
 test('toggle buttons should filter alert summary and alerts by selected filter', async () => {
-  const { getByText, getByTestId } = alertsViewControls();
+  const { getByText, getByTestId } = alertsView();
   const hideImprovements = getByText('Hide improvements');
   const hideDownstream = getByText('Hide downstream / reassigned to / invalid');
 
@@ -664,20 +466,14 @@ describe('"My alerts" checkbox\'s display behaviors', () => {
 
   test('Not displayed in Alerts view (detailed mode)', async () => {
     const { queryByText } = alertsViewControls({
-      isListingAlertSummaries: false,
+      isListMode: false,
     }); // as Django detailed view mode
 
     expect(queryByText('My alerts')).not.toBeInTheDocument();
   });
 
-  test('Not displayed in Alerts view (detailed mode), even when param is missing', async () => {
-    const { queryByText } = alertsViewControls({ alertDropdowns: [] });
-
-    expect(queryByText('My alerts')).not.toBeInTheDocument();
-  });
-
   test('Displayed in Alerts view (list mode)', async () => {
-    const { getByText } = alertsViewControls({ isListingAlertSummaries: true }); // as Django detailed view mode
+    const { getByText } = alertsViewControls({ isListMode: true }); // as Django detailed view mode
 
     const myAlertsCheckbox = await waitForElement(() => getByText('My alerts'));
     expect(myAlertsCheckbox).toBeInTheDocument();
@@ -685,7 +481,6 @@ describe('"My alerts" checkbox\'s display behaviors', () => {
 
   test('Not displayed if user is not logged in', async () => {
     const { queryByText } = alertsViewControls({
-      isListingAlertSummaries: false,
       user: { isLoggedIn: false },
     });
 

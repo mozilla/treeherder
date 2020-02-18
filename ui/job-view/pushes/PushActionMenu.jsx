@@ -8,7 +8,7 @@ import { getUrlParam } from '../../helpers/location';
 import { formatTaskclusterError } from '../../helpers/errorMessage';
 import CustomJobActions from '../CustomJobActions';
 import PushModel from '../../models/push';
-import { getPushHealthUrl } from '../../helpers/url';
+import { getPushHealthUrl, getCompareChooserUrl } from '../../helpers/url';
 import { notify } from '../redux/stores/notifications';
 import { thEvents } from '../../helpers/constants';
 
@@ -271,6 +271,20 @@ class PushActionMenu extends React.PureComponent {
               title="Enable Health Badges in the Health menu"
             >
               Push Health
+            </a>
+          </li>
+          <li>
+            <a
+              className="dropdown-item"
+              href={getCompareChooserUrl({
+                newProject: currentRepo.name,
+                newRevision: revision,
+              })}
+              target="_blank"
+              rel="noopener noreferrer"
+              title="Compare performance against another revision"
+            >
+              Compare Performance
             </a>
           </li>
         </ul>

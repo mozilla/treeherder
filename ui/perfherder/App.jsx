@@ -85,7 +85,7 @@ class App extends React.Component {
                 )}
               />
               <Route
-                path="/alerts?id=:id&status=:status&framework=:framework&filter=:filter&hideImprovements=:hideImprovements&hideDwnToInv=:hideDwnToInv&page=:page"
+                path="/alerts?id=:id&status=:status&framework=:framework&filter=:filter&hideImprovements=:hideImprovements&hideDwnToInv=:hideDwnToInv&hideAssignedToOthers=:hideAssignedToOthers&filterText=:filterText&page=:page"
                 render={props => (
                   <AlertsView
                     {...props}
