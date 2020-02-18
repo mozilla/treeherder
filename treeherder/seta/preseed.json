@@ -1,1 +1,74 @@
-[]
+[
+  {
+    "buildtype": "asan",
+    "testtype": "build-android-x86_64-asan-fuzzing/opt",
+    "platform": "android-5-0-x86_64",
+    "priority": 5,
+    "expiration_date": "*",
+    "buildsystem": "taskcluster"
+  },
+  {
+    "buildtype": "asan",
+    "testtype": "build-linux64-asan-fuzzing/opt",
+    "platform": "linux64",
+    "priority": 5,
+    "expiration_date": "*",
+    "buildsystem": "taskcluster"
+  },
+  {
+    "buildtype": "opt",
+    "testtype": "build-linux64-fuzzing-ccov/opt",
+    "platform": "linux64",
+    "priority": 5,
+    "expiration_date": "*",
+    "buildsystem": "taskcluster"
+  },
+  {
+    "buildtype": "debug",
+    "testtype": "build-linux64-fuzzing/debug",
+    "platform": "linux64",
+    "priority": 5,
+    "expiration_date": "*",
+    "buildsystem": "taskcluster"
+  },
+  {
+    "buildtype": "asan",
+    "testtype": "build-macosx64-asan-fuzzing/opt",
+    "platform": "osx-cross",
+    "priority": 5,
+    "expiration_date": "*",
+    "buildsystem": "taskcluster"
+  },
+  {
+    "buildtype": "debug",
+    "testtype": "build-macosx64-fuzzing/debug",
+    "platform": "osx-cross",
+    "priority": 5,
+    "expiration_date": "*",
+    "buildsystem": "taskcluster"
+  },
+  {
+    "buildtype": "asan",
+    "testtype": "build-win64-asan-fuzzing/opt",
+    "platform": "windows2012-64",
+    "priority": 5,
+    "expiration_date": "*",
+    "buildsystem": "taskcluster"
+  },
+  {
+    "buildtype": "debug",
+    "testtype": "build-win64-fuzzing/debug",
+    "platform": "windows2012-64",
+    "priority": 5,
+    "expiration_date": "*",
+    "buildsystem": "taskcluster"
+  },
+  {
+    "buildtype": "opt",
+    "testtype": "spidermonkey-sm-fuzzing-linux64/opt",
+    "platform": "linux64",
+    "priority": 5,
+    "expiration_date": "*",
+    "buildsystem": "taskcluster"
+  }
+]
