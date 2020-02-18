@@ -33,6 +33,12 @@ Then run the individual tools within that shell, like so:
   pytest tests/selenium/test_pin_jobs.py::test_pin_all_jobs
   ```
 
+  To run all tests, including slow tests that are normally skipped, use:
+
+  ```bash
+  pytest --runslow tests/
+  ```
+
   For more options, see `pytest --help` or <https://docs.pytest.org/en/stable/usage.html>.
 
   To assist with debugging Selenium test failures, an HTML reporting containing screenshots
