@@ -38,6 +38,7 @@ matrix:
       python: '3.7'
       cache: pip
       install:
+        - pip freeze
         - pip install -r requirements/common.txt
         - pip install -r requirements/dev.txt
         - pip install -r requirements/docs.txt
