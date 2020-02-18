@@ -36,6 +36,7 @@ matrix:
     - env: python-linters
       language: python
       python: '3.7'
+      cache: pip
       # XXX: Analyze if the venv caching system is working correctly since
       # I can see the pip installing steps taking a while to finish
       install:
@@ -49,6 +50,7 @@ matrix:
     - env: python-tests-outside-docker
       language: python
       python: '3.7'
+      cache: pip
       # XXX: Analyze if the venv caching system is working correctly since
       # I can see the pip installing steps taking a while to finish
       install:
