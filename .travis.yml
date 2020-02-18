@@ -37,8 +37,6 @@ matrix:
       language: python
       python: '3.7'
       cache: pip
-      # XXX: Analyze if the venv caching system is working correctly since
-      # I can see the pip installing steps taking a while to finish
       install:
         - pip install -r requirements/common.txt
         - pip install -r requirements/dev.txt
@@ -51,18 +49,13 @@ matrix:
       language: python
       python: '3.7'
       cache: pip
-      # XXX: Analyze if the venv caching system is working correctly since
-      # I can see the pip installing steps taking a while to finish
       install:
         - docker-compose build
         # This initializes MySql and the other containers
         - docker-compose run --detach backend
         - pip install -r requirements/common.txt -r requirements/dev.txt
-        # This help us to make sure that the DB is ready
-        - DATABASE_HOST=127.0.0.1 ./docker/entrypoint.sh
       script:
         # Exercising running tests outside of Docker
-        - DATABASE_URL=mysql://root@127.0.0.1:3306/treeherder ./tests/env.sh ./manage.py check
         - DATABASE_URL=mysql://root@127.0.0.1:3306/treeherder ./tests/env.sh pytest tests/ --ignore=tests/selenium
         # This is to deal with running the containers with --detached
         - docker-compose down
