@@ -50,10 +50,9 @@ matrix:
       python: '3.7'
       cache: pip
       install:
-        # This initializes MySql and the other containers
-        - docker-compose run --detach mysql
-        - docker-compose run --detach redis
-        - docker-compose run --detach rabbitmq
+        # Initialize MySql and Redis containers
+        - docker-compose up --detach mysql
+        - docker-compose up --detach redis
         - pip install -r requirements/common.txt -r requirements/dev.txt
       script:
         # Exercising running tests outside of Docker

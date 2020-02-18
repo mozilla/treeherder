@@ -39,9 +39,7 @@ Treeherder requires a number of environment variables that point to the services
 
 If you plan to use an IDE, here is the same, as a very long line
 
-```
-BROKER_URL=localhost//guest:guest@rabbitmq//;DATABASE_URL=mysql://root@localhost:3306/treeherder;REDIS_URL=redis://localhost:6379;SITE_URL=http://backend:8000/;TREEHERDER_DEBUG=True;TREEHERDER_DJANGO_SECRET_KEY=secret-key-of-at-least-50-characters-to-pass-check-deploy;NEW_RELIC_DEVELOPER_MODE=True
-```
+    BROKER_URL=localhost//guest:guest@rabbitmq//;DATABASE_URL=mysql://root@localhost:3306/treeherder;REDIS_URL=redis://localhost:6379;SITE_URL=http://backend:8000/;TREEHERDER_DEBUG=True;TREEHERDER_DJANGO_SECRET_KEY=secret-key-of-at-least-50-characters-to-pass-check-deploy;NEW_RELIC_DEVELOPER_MODE=True
 
 ## Ensure everything is working
 
@@ -54,8 +52,7 @@ Django can perform a number of checks to ensure you are configured correctly
 Be sure docker-compose is up, you are in the `treeherder` main directory, your virtual environment is activated, and your environment variables are set:
 
     source .venv/bin/activate
-    ./tests/env.sh
-    pytest tests
+    ./tests/env.sh pytest tests
 
 ## Pre commit checks
 
@@ -65,7 +62,7 @@ If you made some changes, and want to submit a pull request; run the `./runtests
 
 ## Using containers
 
-After `docker-compose up`, you may spin up any number of `backend` containers. You may want to run ingestion tasks, or go exploring. 
+After `docker-compose up`, you may spin up any number of `backend` containers. You may want to run ingestion tasks, or go exploring.
 
     docker-compose exec backend bash
 
