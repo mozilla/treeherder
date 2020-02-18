@@ -241,7 +241,7 @@ class Command(BaseCommand):
                     },
                     "repository": "android-components",
                     "body": {
-                        "commits": [], # XXX: Fetch the information from Github
+                        "commits": [],  # XXX: Fetch the information from Github
                         "head_commit": {
                             "id": "5fdb785b28b356f50fc1d9cb180d401bb03fc1f1",
                             "author": {
