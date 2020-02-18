@@ -8,7 +8,6 @@ import PerfSeriesModel, {
   getSeriesName,
   getTestName,
 } from '../models/perfSeries';
-import { thPerformanceBranches } from '../helpers/constants';
 import RepositoryModel from '../models/repository';
 import JobModel from '../models/job';
 
@@ -392,10 +391,7 @@ export const getGraphsURL = (
   // the otherwise rather useless signature hash to avoid having to fetch this
   // information from the server)
   if (phFrameworksWithRelatedBranches.includes(performanceFrameworkId)) {
-    const branches =
-      alertRepository === 'mozilla-beta'
-        ? ['autoland']
-        : thPerformanceBranches.filter(branch => branch !== alertRepository);
+    const branches = alertRepository === 'mozilla-beta' ? ['autoland'] : [];
     url += branches
       .map(
         branch =>
