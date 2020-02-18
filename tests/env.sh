@@ -1,4 +1,4 @@
-export BROKER_URL=localhost//guest:guest@rabbitmq//
+export BROKER_URL=amqp://guest:guest@localhost:5672//
 export DATABASE_URL=${DATABASE_URL:-mysql://root@localhost:3306/treeherder}
 export REDIS_URL=redis://localhost:6379
 export SITE_URL=http://backend:8000/

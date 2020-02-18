@@ -63,7 +63,7 @@ matrix:
       script:
         # Exercising running tests outside of Docker
         - DATABASE_URL=mysql://root@127.0.0.1:3306/treeherder ./tests/env.sh ./manage.py check
-        # - DATABASE_URL=mysql://root@127.0.0.1:3306/treeherder ./tests/env.sh pytest tests/ --ignore=tests/selenium
+        - DATABASE_URL=mysql://root@127.0.0.1:3306/treeherder ./tests/env.sh pytest tests/ --ignore=tests/selenium
         # This is to deal with running the containers with --detached
         - docker-compose down
 
