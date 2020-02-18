@@ -65,6 +65,7 @@ matrix:
         # Exercising running tests outside of Docker
         - DATABASE_URL=mysql://root@127.0.0.1:3306/treeherder ./tests/env.sh ./manage.py check
         - DATABASE_URL=mysql://root@127.0.0.1:3306/treeherder ./tests/env.sh pytest tests/ --ignore=tests/selenium
+        - docker-compose down
 
     - env: python-tests-inside-docker
       language: minimal
