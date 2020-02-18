@@ -9,6 +9,8 @@ import {
   DropdownToggle,
   Input,
 } from 'reactstrap';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faTable, faChartArea } from '@fortawesome/free-solid-svg-icons';
 
 import { phTimeRanges } from '../constants';
 import DropdownMenuItems from '../../shared/DropdownMenuItems';
@@ -58,7 +60,19 @@ export default class GraphsViewControls extends React.Component {
           plottedUnits={measurementUnits}
           {...this.props}
         />
-        <Row className="pb-3">
+        <Row className="pb-3 max-width-default mx-auto">
+          {!hasNoData && (
+            <Col sm="auto" className="pl-0 py-2 pr-3">
+              <Button color="darker-info" onClick={toggleTableView}>
+                {showTable ? (
+                  <FontAwesomeIcon className="mr-2" icon={faChartArea} />
+                ) : (
+                  <FontAwesomeIcon className="mr-2" icon={faTable} />
+                )}
+                {showTable ? 'Graphs View' : 'Table View'}
+              </Button>
+            </Col>
+          )}
           <Col sm="auto" className="pl-0 py-2 pr-2" key={timeRange}>
             <UncontrolledDropdown
               className="mr-0 text-nowrap"
@@ -82,13 +96,6 @@ export default class GraphsViewControls extends React.Component {
               Add test data
             </Button>
           </Col>
-          {!hasNoData && (
-            <Col sm="auto" className="p-2">
-              <Button color="darker-info" onClick={toggleTableView}>
-                {showTable ? 'Graphs View' : 'Table View'}
-              </Button>
-            </Col>
-          )}
         </Row>
 
         {hasNoData ? (
@@ -106,7 +113,7 @@ export default class GraphsViewControls extends React.Component {
               />
             )}
 
-            <Row className="justify-content-start pt-2">
+            <Row className="justify-content-start pt-2 pb-5 max-width-default mx-auto">
               {highlightedRevisions.length > 0 &&
                 highlightedRevisions.map((revision, index) => (
                   // eslint-disable-next-line react/no-array-index-key

@@ -494,39 +494,49 @@ li.pagination-active.active > button {
 
 /* table in graphs view */
 .table-header {
-  white-space: pre-line !important;
-  word-wrap: break-word;
-  display: flex;
-  justify-content: center;
-  align-items: center;
+  border-top: 10px solid;
 }
 
 .table-header.blue-bell {
-  background-color: #464876;
-  color: white;
+  border-top-color: #464876;
 }
 
 .table-header.orange {
-  background-color: #ffb851;
-  color: black;
+  border-top-color: #ffb851;
 }
 
 .table-header.fire-red {
-  background-color: #c92d2f;
-  color: white;
+  border-top-color: #c92d2f;
 }
 
 .table-header.cerulean {
-  background-color: #16bcde;
-  color: black;
+  border-top-color: #16bcde;
 }
 
 .table-header.purple {
-  background-color: #921181;
-  color: white;
+  border-top-color: #921181;
 }
 
 .table-header.dark-puce {
-  background-color: #4c3146;
-  color: white;
+  border-top-color: #4c3146;
+}
+
+.table-graphs-view .job-links {
+  display: none;
+}
+
+.table-graphs-view .rt-td:hover .job-links,
+.table-graphs-view .rt-td:focus .job-links {
+  display: initial;
+}
+
+.table-graphs-view .-pagination .-btn[disabled] {
+  background: transparent;
+  border: 2px solid rgba(0, 0, 0, 0.03);
+  color: rgba(0, 0, 0, 0.55);
+}
+
+.table-graphs-view .-pagination .-btn:not([disabled]),
+.table-graphs-view .-pagination .-btn:not([disabled]):hover {
+  color: rgba(0, 0, 0, 0.66);
 }
