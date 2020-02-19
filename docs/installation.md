@@ -141,20 +141,24 @@ Ingestion tasks populate the database with version control push logs, queued/run
 
 `NOTE`; You have to include `--root-url https://community-tc.services.mozilla.com` in order to ingest from the [Taskcluster Community instance](https://community-tc.services.mozilla.com), otherwise, it will default to the Firefox CI.
 
-#### Set up
+`NOTE`: In one terminal window run `docker-compose up`. All following sections assume this step.
 
-In one terminal window run `docker-compose up`.
+#### Ingesting pushes
 
-NOTE: All following steps will assume you have all containers initialized.
-
-#### Ingesting pushes & tasks
+Mercurial pushes:
 
 ```bash
 docker-compose exec backend ./manage.py ingest push -p autoland -r 63f8a47cfdf5
 ```
 
-You can ingest all tasks for a push. Check the help output for the script to determine the
+`NOTE`: You can ingest all tasks for a push. Check the help output for the script to determine the
 parameters needed.
+
+Github pushes:
+
+```bash
+docker-compose exec backend ./manage.py ingest git-push -p servo-try -c 92fc94588f3b6987082923c0003012fd696b1a2d
+```
 
 #### Ingesting a range of pushes
 
