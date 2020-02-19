@@ -312,8 +312,9 @@ taskcluster-urls==12.1.0 \
     --hash=sha256:4a62c776aeba6d45044789a8845ec4d8521bc1bb6ebfc86d79ee759bcdd4f2f7 \
     --hash=sha256:1dc740c32c7beb31e11ed7ccf9da2d47a504acdb3170c8900649433b0fd16fb2
 
-graphene-django==2.8.0 \
-    --hash=sha256:a290fc41a58ee61b43ff4b4885e866ef48bb8d66b0e7088fd8dc2bd677856e6a
+graphene-django==2.8.2 \
+    --hash=sha256:d9e019a23f442ca31f0e012f578f2b84d40fbf66b88930fc747f7ad8f9a9f7c8 \
+    --hash=sha256:1f65861af9422e42418c6caad3ab6b75ee52b2410dc860de3060a5dcd3840359
 
 # Used by graphene-django
 graphene==2.1.8 \
