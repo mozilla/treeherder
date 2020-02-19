@@ -127,11 +127,9 @@ class ExtractJobs:
                 # RECORD THE STATE
                 last_doc = acc[-1]
                 last_modified, job_id = last_doc.last_modified, last_doc.id
-                redis_value = value2json((last_modified, job_id)).encode("utf8")
-                Log.note("record {{value}} to redis at {{key}}", value=redis_value, key=settings.extractor.key)
                 redis.set(
                     settings.extractor.key,
-                    redis_value,
+                    value2json((last_modified, job_id)).encode("utf8"),
                 )
 
                 if len(acc) < settings.extractor.chunk_size:
