@@ -286,53 +286,6 @@ input[type='checkbox'] {
   border-color: #2e6da4;
 }
 
-.btn-darker-secondary {
-  color: #ffffff;
-  background-color: #6c757d;
-  border-color: #6c757d;
-}
-
-.btn-darker-secondary:hover {
-  color: #ffffff;
-  background-color: #5a6268;
-  border-color: #545b62;
-}
-
-.btn-darker-secondary.disabled {
-  color: #242424;
-  background-color: white;
-  border-color: #6c757d;
-}
-
-.btn-darker-info {
-  background-color: #0d7d8f;
-  border-color: #0d7d8f;
-  color: #ffffff;
-}
-
-.btn-darker-info:hover {
-  color: #ffffff;
-  background-color: #0a5e6d;
-}
-
-.btn-darker-info.disabled,
-.btn-darker-info.disabled:hover {
-  color: black;
-  background-color: #30b9ce80;
-}
-
-.btn-outline-darker-info {
-  color: #0d7d8f;
-  border-color: #0d7d8f;
-}
-
-.btn-outline-darker-info:hover,
-.btn-outline-darker-info:not(:disabled):not(.disabled).active {
-  background-color: #0d7d8f;
-  border-color: #0d7d8f;
-  color: #ffffff;
-}
-
 /*
  * Colors
  */
@@ -414,8 +367,88 @@ h4 {
   font-size: 18px;
 }
 
+/*
+ * Bootstrap/Reactstrap Custom Colors
+ */
+
+/* Darker Info */
 .text-darker-info {
   color: #0d7d8f;
+}
+
+.badge-darker-info {
+  background: #0d7d8f;
+  color: white;
+}
+
+.bg-darker-info {
+  background-color: #0d7d8f;
+}
+
+.btn-darker-info {
+  background-color: #0d7d8f;
+  border-color: #0d7d8f;
+  color: #ffffff;
+}
+
+.btn-darker-info:hover {
+  color: #ffffff;
+  background-color: #0a5e6d;
+}
+
+.btn-darker-info.disabled {
+  color: black;
+  background-color: #30b9ce80;
+}
+
+.btn-outline-darker-info {
+  color: #0d7d8f;
+  border-color: #0d7d8f;
+}
+
+.btn-outline-darker-info:hover,
+.btn-outline-darker-info:not(:disabled):not(.disabled).active {
+  background-color: #0d7d8f;
+  border-color: #0d7d8f;
+  color: #ffffff;
+}
+
+.btn-outline-darker-info.disabled {
+  color: #02363f;
+  background-color: white;
+  border-color: #0d7d8f;
+}
+
+/* Darker Secondary */
+.text-darker-secondary {
+  color: #6c757d;
+}
+
+.badge-darker-secondary {
+  background-color: #6c757d;
+  color: white;
+}
+
+.bg-darker-secondary {
+  background-color: #6c757d;
+}
+
+.btn-darker-secondary {
+  color: #ffffff;
+  background-color: #6c757d;
+  border-color: #6c757d;
+}
+
+.btn-darker-secondary:hover {
+  color: #ffffff;
+  background-color: #5a6268;
+  border-color: #545b62;
+}
+
+.btn-darker-secondary.disabled {
+  color: #242424;
+  background-color: white;
+  border-color: #6c757d;
 }
 
 /*

@@ -54,6 +54,10 @@ For example:
 </Button>
 ```
 
+Known reactstrap components that accept the `color` prop and work with custom Treeherder colors: `Badge`, `Button`, `Card`, `DropdownToggle`, `FormText`, `NavBar`, `Progress`, `Spinner`.
+
+In case you need to add more custom colors, please add on [treeherder-global.css](https://github.com/mozilla/treeherder/blob/master/ui/css/treeherder-global.css#L371) style sheet.
+
 ### Inserting new colors
 
 If you add new colors to the style sheets, please make sure the text and background color combination passes the minimum contrast ratio defined by WCAG.
