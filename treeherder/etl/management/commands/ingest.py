@@ -13,6 +13,7 @@ from django.core.management.base import BaseCommand
 
 from treeherder.etl.db_semaphore import (acquire_connection,
                                          release_connection)
+from treeherder.etl.common import fetch_json
 from treeherder.etl.job_loader import JobLoader
 from treeherder.etl.push_loader import PushLoader
 from treeherder.etl.pushlog import HgPushlogProcess
@@ -228,27 +229,62 @@ class Command(BaseCommand):
             }
             PushLoader().process(pulse["payload"], pulse["exchange"], root_url)
         elif typeOfIngestion == "git-push":
-            # Step 1: Use logic to from URL to generated metadata
-            # Step 2: Switch to ingest a Servo push
+            project = options["project"]
+            commit = options["commit"]
+            branch = None
+            # Ingesting pushes out of band from the ingestion pipeline would require
+            # a lot of work (not impossible) because the way Servo uses the "auto"
+            # and "try-" branches. A commit can temporarily belong to those branches.
+            # Instead we will require the user to use the --branch value for those cases
+            if project.startswith("servo"):
+                branch = project.split("-")[-1]
+                assert branch in ["auto", "try", "master"], \
+                    "Ingesting Servo pushes requires setting the branch to one " \
+                    "of these values: (auto,try,master)."
+
+            repository = Repository.objects.filter(name=project)
+            url = repository[0].url
+            splitUrl = url.split('/')
+            owner = splitUrl[3]
+            repo = splitUrl[4]
+            githubApi = "https://api.github.com"
+            baseUrl = "{}/repos/{}/{}".format(githubApi, owner, repo)
+            defaultBranch = fetch_json(baseUrl)["default_branch"]
+            # e.g. https://api.github.com/repos/servo/servo/compare/master...1418c0555ff77e5a3d6cf0c6020ba92ece36be2e
+            compareUrl = "{}/compare/{}...{}".format(baseUrl, defaultBranch, commit)
+            compareResponse = fetch_json(compareUrl)
+            headCommit = compareResponse["commits"][-1]
+            assert headCommit["sha"] == commit
+            commits = []
+            for c in compareResponse["commits"]:
+                commits.append({
+                    "message": c["commit"]["message"],
+                    "author": {
+                        "name": c["commit"]["committer"]["name"],
+                        "email": c["commit"]["committer"]["email"],
+                    },
+                    "id": c["sha"],
+                })
+
             pulse = {
                 "exchange": "exchange/taskcluster-github/v1/push",
-                "routingKey": "primary.mozilla-mobile.android-components",
+                "routingKey": "primary.{}.{}".format(owner, repo),
                 "payload": {
-                    "organization": "mozilla-mobile",
+                    "organization": owner,
                     "details": {
-                        "event.head.repo.url": "https://github.com/mozilla-mobile/android-components.git",
-                        "event.base.repo.branch": "master",
+                        "event.head.repo.url": "https://github.com/{}/{}.git".format(owner, repo),
+                        "event.base.repo.branch": branch
                     },
-                    "repository": "android-components",
+                    "repository": repo,
                     "body": {
-                        "commits": [],  # XXX: Fetch the information from Github
+                        "commits": commits,
                         "head_commit": {
-                            "id": "5fdb785b28b356f50fc1d9cb180d401bb03fc1f1",
+                            "id": headCommit["sha"],
                             "author": {
-                                "name": "bors[bot]",
-                                "email": "26634292+bors[bot]@users.noreply.github.com",
+                                "name": headCommit["committer"]["login"],
+                                "email": headCommit["commit"]["committer"]["email"],
                             },
-                            "timestamp": "2020-02-12T15:29:12Z",
+                            "timestamp": headCommit["commit"]["committer"]["date"],
                         },
                     },
                 }
