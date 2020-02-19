@@ -62,18 +62,6 @@ class ExtractJobs:
 
             last_modified, job_id = state
 
-            where = {
-                "or": [
-                    {"gt": {"last_modified": Date(last_modified)}},
-                    {
-                        "and": [
-                            {"eq": {"last_modified": Date(last_modified)}},
-                            {"gt": {"id": job_id}},
-                        ]
-                    },
-                ]
-            }
-
             # SCAN SCHEMA, GENERATE EXTRACTION SQL
             extractor = MySqlSnowflakeExtractor(settings.source)
             canonical_sql = extractor.get_sql(SQL("SELECT 0"))
@@ -105,7 +93,17 @@ class ExtractJobs:
                     {
                         "from": "job",
                         "select": ["id"],
-                        "where": where,
+                        "where": {
+                            "or": [
+                                {"gt": {"last_modified": Date(last_modified)}},
+                                {
+                                    "and": [
+                                        {"eq": {"last_modified": Date(last_modified)}},
+                                        {"gt": {"id": job_id}},
+                                    ]
+                                },
+                            ]
+                        },
                         "sort": ["last_modified", "id"],
                         "limit": settings.extractor.chunk_size,
                     }
