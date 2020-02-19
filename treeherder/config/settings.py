@@ -446,7 +446,12 @@ CONN_RESOURCES = 50
 
 
 #  Default environment variables check
-REQUIRED_PRODUCTION_ENV_VARIABLES = ["TREEHERDER_DJANGO_SECRET_KEY", "BROKER_URL", "DATABASE_URL", "REDIS_URL", "TREEHERDER_DEBUG", "NEW_RELIC_DEVELOPER_MODE"]
+REQUIRED_PRODUCTION_ENV_VARIABLES = ["TREEHERDER_DJANGO_SECRET_KEY", "BROKER_URL", 
+                                     "DATABASE_URL", "REDIS_URL", "TREEHERDER_DEBUG",
+                                     "NEW_RELIC_DEVELOPER_MODE"]
 if not DEBUG:
     for env in REQUIRED_PRODUCTION_ENV_VARIABLES:
-        assert os.environ.get(env), "{} is a required env variable for a production set up".format(env)
+        if os.environ.get(env):
+            REQUIRED_PRODUCTION_ENV_VARIABLES.remove(env)
+    if len(REQUIRED_PRODUCTION_ENV_VARIABLES) != 0:
+        print("For a production set up please set the missing variables: {}".format(", ".join(REQUIRED_PRODUCTION_ENV_VARIABLES)))
