@@ -370,11 +370,7 @@ class MachinePlatformSerializer(serializers.ModelSerializer):
 
 class ChangelogSerializer(serializers.ModelSerializer):
 
-    files = serializers.SlugRelatedField(
-        many=True,
-        read_only=True,
-        slug_field='files'
-     )
+    files = serializers.StringRelatedField(many=True)
 
     class Meta:
         model = Changelog
