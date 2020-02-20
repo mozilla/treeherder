@@ -2,25 +2,21 @@ import fnmatch
 
 
 class Filters:
-
     def deployment(self, change, *options):
         message = change["message"]
         if "*PRODUCTION*" in message or "*STAGING*" in message:
             change["tags"] = ["deployment"]
             return change
 
-
     def only_releases(self, change, *options):
         if change["type"] == "release":
             return change
-
 
     def remove_auto_commits(self, change, *options):
         message = change["message"]
         start_text = ("Scheduled weekly dependency update", "Merge pull request")
         if not message.startswith(start_text):
             return change
-
 
     def filter_by_path(self, change, *options):
         if "files" not in change:

@@ -8,37 +8,42 @@ class Migration(migrations.Migration):
 
     initial = True
 
-    dependencies = [
-    ]
+    dependencies = []
 
     operations = [
         migrations.CreateModel(
-            name='Changelog',
+            name="Changelog",
             fields=[
-                ('id', models.CharField(max_length=255, primary_key=True, serialize=False)),
-                ('date', models.DateTimeField(db_index=True)),
-                ('author', models.CharField(max_length=100)),
-                ('owner', models.CharField(max_length=100)),
-                ('project', models.CharField(max_length=100)),
-                ('project_url', models.CharField(max_length=360)),
-                ('message', models.CharField(max_length=360)),
-                ('description', models.CharField(max_length=360)),
-                ('type', models.CharField(max_length=100)),
-                ('url', models.CharField(max_length=360)),
+                (
+                    "id",
+                    models.CharField(max_length=255, primary_key=True, serialize=False),
+                ),
+                ("date", models.DateTimeField(db_index=True)),
+                ("author", models.CharField(max_length=100)),
+                ("owner", models.CharField(max_length=100)),
+                ("project", models.CharField(max_length=100)),
+                ("project_url", models.CharField(max_length=360)),
+                ("message", models.CharField(max_length=360)),
+                ("description", models.CharField(max_length=360)),
+                ("type", models.CharField(max_length=100)),
+                ("url", models.CharField(max_length=360)),
             ],
-            options={
-                'db_table': 'changelog_entry',
-            },
+            options={"db_table": "changelog_entry"},
         ),
         migrations.CreateModel(
-            name='ChangelogFile',
+            name="ChangelogFile",
             fields=[
-                ('id', models.AutoField(primary_key=True, serialize=False)),
-                ('name', models.SlugField(max_length=255, unique=True)),
-                ('changelog', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='files', to='changelog.Changelog')),
+                ("id", models.AutoField(primary_key=True, serialize=False)),
+                ("name", models.SlugField(max_length=255, unique=True)),
+                (
+                    "changelog",
+                    models.ForeignKey(
+                        on_delete=django.db.models.deletion.CASCADE,
+                        related_name="files",
+                        to="changelog.Changelog",
+                    ),
+                ),
             ],
-            options={
-                'db_table': 'changelog_file',
-            },
+            options={"db_table": "changelog_file"},
         ),
     ]

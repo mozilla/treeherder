@@ -10,6 +10,9 @@ warnings.simplefilter('default', DeprecationWarning)
 
 # Suppress noisy warnings from dependencies
 
+# github3.py still uses collections for ABC classes
+warnings.filterwarnings('ignore', category=DeprecationWarning, module='github3')
+
 # Reported in https://support.newrelic.com/tickets/338064
 warnings.filterwarnings('ignore', category=DeprecationWarning, module='newrelic')
 

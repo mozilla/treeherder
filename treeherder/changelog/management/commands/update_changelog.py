@@ -11,11 +11,11 @@ class Command(BaseCommand):
 
     def add_arguments(self, parser):
         parser.add_argument(
-            '--days',
-            action='append',
-            help='Number of days to look at',
+            "--days",
+            action="append",
+            help="Number of days to look at",
             type=int,
-            default=1
+            default=1,
         )
 
     def handle(self, *args, **options):

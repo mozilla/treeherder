@@ -82,10 +82,9 @@ class GitHub:
                 yield res
 
 
-readers = {"github": GitHub()}
-
-
 def collect(since):
+    readers = {"github": GitHub()}
+
     for repo_info in CFG["repositories"]:
         source = dict(repo_info["source"])
         reader = readers.get(source["type"])

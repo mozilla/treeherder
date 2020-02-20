@@ -7,4 +7,4 @@ def get_changes(days=15):
     """Grabbing the latest changes done in the past days.
     """
     min_date = timezone.now() - timedelta(days=days)
-    return Changelog.objects.filter(date__gte=min_date).order_by('date')
+    return Changelog.objects.filter(date__gte=min_date).order_by("date")

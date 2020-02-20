@@ -14,7 +14,7 @@ class Changelog(models.Model):
     url = models.CharField(max_length=360)
 
     class Meta:
-        db_table = 'changelog_entry'
+        db_table = "changelog_entry"
 
     def __str__(self):
         return "[%s] %s by %s" % (self.id, self.message, self.author)
@@ -22,11 +22,13 @@ class Changelog(models.Model):
 
 class ChangelogFile(models.Model):
     id = models.AutoField(primary_key=True)
-    changelog = models.ForeignKey(Changelog, related_name='files', on_delete=models.CASCADE)
+    changelog = models.ForeignKey(
+        Changelog, related_name="files", on_delete=models.CASCADE
+    )
     name = models.SlugField(max_length=255, unique=True)
 
     class Meta:
-        db_table = 'changelog_file'
+        db_table = "changelog_file"
 
     def __str__(self):
         return self.name

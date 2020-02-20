@@ -21,5 +21,7 @@ def update_changelog(days=1):
             if entry["date"].endswith("Z"):
                 entry["date"] = entry["date"][:-1]
             changelog = Changelog.objects.create(**entry)
-            [ChangelogFile.objects.create(name=name, changelog=changelog)
-             for name in files]
+            [
+                ChangelogFile.objects.create(name=name, changelog=changelog)
+                for name in files
+            ]
