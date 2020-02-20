@@ -21,6 +21,11 @@ class Command(BaseCommand):
             help="start extraction from the beginning"
         )
         parser.add_argument(
+            "--start",
+            dest="start",
+            help="date/time to start extraction"
+        )
+        parser.add_argument(
             "--merge",
             action='store_true',
             dest="merge",
@@ -31,5 +36,7 @@ class Command(BaseCommand):
         ExtractJobs().run(
             force=options.get("force"),
             restart=options.get("restart"),
-            merge=options.get("merge")
+            start=options.get("start"),
+            merge=options.get("merge"),
+
         )
