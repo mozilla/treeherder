@@ -1,4 +1,3 @@
-import datetime
 import json
 import logging
 import os
@@ -6,9 +5,8 @@ import os
 from treeherder.etl.seta import (get_reference_data_names,
                                  transform)
 from treeherder.seta.models import JobPriority
-from treeherder.seta.settings import SETA_LOW_VALUE_PRIORITY
-
-THE_FUTURE = datetime.datetime(2100, 12, 31)
+from treeherder.seta.settings import (SETA_LOW_VALUE_PRIORITY,
+                                      THE_FUTURE)
 
 logger = logging.getLogger(__name__)
 
