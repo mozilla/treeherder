@@ -106,6 +106,8 @@ div#details-panel-content .details-panel-navbar > ul.tab-headers > li {
 .details-panel-navbar .actionbar-nav > li > .btn {
   color: #9fa3a5;
   padding: 4px 15px;
+  margin-bottom: 4px;
+  display: inline-block;
 }
 
 div#details-panel-content .actionbar-nav > li > a:hover,
