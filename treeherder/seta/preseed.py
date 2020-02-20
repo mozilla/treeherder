@@ -56,9 +56,6 @@ def load_preseed(validate=False):
     the * field. For example: (linux64, pgo, *) matches all Linux 64 pgo tests
     """
     logger.info("About to load preseed.json")
-    if not JobPriority.objects.exists():
-        logger.warning("There's no JobPriority objects in the table. Call first ./manage.py initialize_seta")
-        return
 
     preseed = preseed_data()
     if validate:
