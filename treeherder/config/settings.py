@@ -318,7 +318,7 @@ CELERY_TASK_QUEUES = [
 CELERY_TASK_CREATE_MISSING_QUEUES = False
 
 # Celery broker setup
-CELERY_BROKER_URL = env('BROKER_URL', default='localhost//guest:guest@rabbitmq//')
+CELERY_BROKER_URL = env('BROKER_URL', default='amqp://guest:guest@localhost:5672//')
 
 # Force Celery to use TLS when appropriate (ie if not localhost),
 # rather than relying on `CELERY_BROKER_URL` having `amqps://` or `?ssl=` set.
