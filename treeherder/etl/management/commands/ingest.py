@@ -154,6 +154,68 @@ def get_decision_task_id(project, revision, root_url):
     return find_task_id(index_path, root_url)
 
 
+def ingestGitPush(options, root_url):
+    project = options["project"]
+    commit = options["commit"]
+    branch = None
+    # Ingesting pushes out of band from the ingestion pipeline would require
+    # a lot of work (not impossible) because the way Servo uses the "auto"
+    # and "try-" branches. A commit can temporarily belong to those branches.
+    # We need to imply the original branch directly from the project name
+    if project.startswith("servo"):
+        branch = project.split("-")[-1]
+        assert branch in ["auto", "try", "master"], \
+            "Valid servo projects are: servo-auto, servo-try, servo-master."
+
+    repository = Repository.objects.filter(name=project)
+    url = repository[0].url
+    splitUrl = url.split('/')
+    owner = splitUrl[3]
+    repo = splitUrl[4]
+    githubApi = "https://api.github.com"
+    baseUrl = "{}/repos/{}/{}".format(githubApi, owner, repo)
+    defaultBranch = fetch_json(baseUrl)["default_branch"]
+    # e.g. https://api.github.com/repos/servo/servo/compare/master...1418c0555ff77e5a3d6cf0c6020ba92ece36be2e
+    compareUrl = "{}/compare/{}...{}".format(baseUrl, defaultBranch, commit)
+    compareResponse = fetch_json(compareUrl)
+    headCommit = compareResponse["commits"][-1]
+    assert headCommit["sha"] == commit
+    commits = []
+    for c in compareResponse["commits"]:
+        commits.append({
+            "message": c["commit"]["message"],
+            "author": {
+                "name": c["commit"]["committer"]["name"],
+                "email": c["commit"]["committer"]["email"],
+            },
+            "id": c["sha"],
+        })
+
+    pulse = {
+        "exchange": "exchange/taskcluster-github/v1/push",
+        "routingKey": "primary.{}.{}".format(owner, repo),
+        "payload": {
+            "organization": owner,
+            "details": {
+                "event.head.repo.url": "https://github.com/{}/{}.git".format(owner, repo),
+                "event.base.repo.branch": branch
+            },
+            "repository": repo,
+            "body": {
+                "commits": commits,
+                "head_commit": {
+                    "id": headCommit["sha"],
+                    "author": {
+                        "name": headCommit["committer"]["login"],
+                        "email": headCommit["commit"]["committer"]["email"],
+                    },
+                    "timestamp": headCommit["commit"]["committer"]["date"],
+                },
+            },
+        }
+    }
+    PushLoader().process(pulse["payload"], pulse["exchange"], root_url)
+
 class Command(BaseCommand):
     """Management command to ingest data from a single push."""
     help = "Ingests a single push and tasks into Treeherder"
@@ -229,67 +291,7 @@ class Command(BaseCommand):
             }
             PushLoader().process(pulse["payload"], pulse["exchange"], root_url)
         elif typeOfIngestion == "git-push":
-            project = options["project"]
-            commit = options["commit"]
-            branch = None
-            # Ingesting pushes out of band from the ingestion pipeline would require
-            # a lot of work (not impossible) because the way Servo uses the "auto"
-            # and "try-" branches. A commit can temporarily belong to those branches.
-            # Instead we will require the user to use the --branch value for those cases
-            if project.startswith("servo"):
-                branch = project.split("-")[-1]
-                assert branch in ["auto", "try", "master"], \
-                    "Ingesting Servo pushes requires setting the branch to one " \
-                    "of these values: (auto,try,master)."
-
-            repository = Repository.objects.filter(name=project)
-            url = repository[0].url
-            splitUrl = url.split('/')
-            owner = splitUrl[3]
-            repo = splitUrl[4]
-            githubApi = "https://api.github.com"
-            baseUrl = "{}/repos/{}/{}".format(githubApi, owner, repo)
-            defaultBranch = fetch_json(baseUrl)["default_branch"]
-            # e.g. https://api.github.com/repos/servo/servo/compare/master...1418c0555ff77e5a3d6cf0c6020ba92ece36be2e
-            compareUrl = "{}/compare/{}...{}".format(baseUrl, defaultBranch, commit)
-            compareResponse = fetch_json(compareUrl)
-            headCommit = compareResponse["commits"][-1]
-            assert headCommit["sha"] == commit
-            commits = []
-            for c in compareResponse["commits"]:
-                commits.append({
-                    "message": c["commit"]["message"],
-                    "author": {
-                        "name": c["commit"]["committer"]["name"],
-                        "email": c["commit"]["committer"]["email"],
-                    },
-                    "id": c["sha"],
-                })
-
-            pulse = {
-                "exchange": "exchange/taskcluster-github/v1/push",
-                "routingKey": "primary.{}.{}".format(owner, repo),
-                "payload": {
-                    "organization": owner,
-                    "details": {
-                        "event.head.repo.url": "https://github.com/{}/{}.git".format(owner, repo),
-                        "event.base.repo.branch": branch
-                    },
-                    "repository": repo,
-                    "body": {
-                        "commits": commits,
-                        "head_commit": {
-                            "id": headCommit["sha"],
-                            "author": {
-                                "name": headCommit["committer"]["login"],
-                                "email": headCommit["commit"]["committer"]["email"],
-                            },
-                            "timestamp": headCommit["commit"]["committer"]["date"],
-                        },
-                    },
-                }
-            }
-            PushLoader().process(pulse["payload"], pulse["exchange"], root_url)
+            ingestGitPush(options, root_url)
         elif typeOfIngestion == "push":
             if not options["enable_eager_celery"]:
                 logger.info(

@@ -141,7 +141,7 @@ Ingestion tasks populate the database with version control push logs, queued/run
 
 `NOTE`; You have to include `--root-url https://community-tc.services.mozilla.com` in order to ingest from the [Taskcluster Community instance](https://community-tc.services.mozilla.com), otherwise, it will default to the Firefox CI.
 
-`NOTE`: In one terminal window run `docker-compose up`. All following sections assume this step.
+Open a terminal window and run `docker-compose up`. All following sections assume this step.
 
 #### Ingesting pushes
 

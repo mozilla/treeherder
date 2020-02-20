@@ -167,7 +167,7 @@ class GithubPushTransformer(GithubTransformer):
         return push
 
     def get_repo(self):
-        return self.message_body["details"]["event.base.repo.url"].replace(".git", "")
+        return self.message_body["details"]["event.head.repo.url"].replace(".git", "")
 
 
 class GithubPullRequestTransformer(GithubTransformer):
