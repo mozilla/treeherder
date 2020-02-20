@@ -102,7 +102,7 @@ class AlertsView extends React.Component {
 
   extendDropdownOptions = frameworks => {
     const frameworkOptions = cloneDeep(frameworks);
-    const ignoreFrameworks = { id: -1, name: 'all' };
+    const ignoreFrameworks = { id: -1, name: 'all frameworks' };
     frameworkOptions.unshift(ignoreFrameworks);
     return frameworkOptions;
   };
