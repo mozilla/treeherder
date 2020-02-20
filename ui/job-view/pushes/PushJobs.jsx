@@ -105,9 +105,9 @@ class PushJobs extends React.Component {
     } = this.props;
 
     return (
-      <table id={this.aggregateId} className="table-hover">
-        <tbody>
-          <div role="button" tabIndex={0} onMouseDown={this.onMouseDown}>
+      <div role="button" tabIndex={0} onMouseDown={this.onMouseDown}>
+        <table id={this.aggregateId} className="table-hover">
+          <tbody>
             {platforms ? (
               platforms.map(platform => (
                 <Platform
@@ -133,9 +133,9 @@ class PushJobs extends React.Component {
                 </td>
               </tr>
             )}
-          </div>
-        </tbody>
-      </table>
+          </tbody>
+        </table>
+      </div>
     );
   }
 }

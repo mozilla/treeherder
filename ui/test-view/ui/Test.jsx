@@ -4,7 +4,7 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import { Link } from 'react-router-dom';
 import { connect } from 'react-redux';
-import { Badge } from 'reactstrap';
+import { Badge, Button } from 'reactstrap';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import {
   faBug,
@@ -246,14 +246,9 @@ class TestComponent extends React.Component {
   render() {
     return (
       <td className="test-table">
-        <span
-          role="button"
-          tabIndex={0}
-          className="test"
-          onClick={this.onClick}
-        >
+        <Button className="test" onClick={this.onClick}>
           {this.props.name}
-        </span>
+        </Button>
         <span className="platform-list">
           {this.props.test.jobs.map(job => (
             <Platform

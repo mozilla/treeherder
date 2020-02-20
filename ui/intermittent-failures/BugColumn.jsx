@@ -30,22 +30,17 @@ function BugColumn({
         {id}
       </a>
       &nbsp;
-      <span
-        role="link"
-        tabIndex={0}
+      <Link
         className="ml-1 small-text bug-details"
         onClick={() => updateAppState({ graphData, tableData })}
+        to={{
+          pathname: '/bugdetails',
+          search: `?startday=${startday}&endday=${endday}&tree=${tree}&bug=${id}`,
+          state: { startday, endday, tree, id, summary, location },
+        }}
       >
-        <Link
-          to={{
-            pathname: '/bugdetails',
-            search: `?startday=${startday}&endday=${endday}&tree=${tree}&bug=${id}`,
-            state: { startday, endday, tree, id, summary, location },
-          }}
-        >
-          details
-        </Link>
-      </span>
+        details
+      </Link>
     </div>
   );
 }

@@ -1,6 +1,6 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import { Badge, FormGroup, Input } from 'reactstrap';
+import { Badge, Button, FormGroup, Input } from 'reactstrap';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faTimes } from '@fortawesome/free-solid-svg-icons';
 
@@ -133,10 +133,8 @@ const LegendCard = ({
 
   return (
     <FormGroup check className="pl-0 border">
-      <span
-        role="button"
-        tabIndex={0}
-        className="close mr-3 my-2 ml-2"
+      <Button
+        className="close mr-3 my-2 ml-2 bg-transparent"
         onClick={removeTest}
       >
         <FontAwesomeIcon
@@ -145,11 +143,11 @@ const LegendCard = ({
           size="xs"
           title=""
         />
-      </span>
+      </Button>
       <div className={`${series.color[0]} graph-legend-card p-3`}>
-        <div
-          role="button"
-          tabIndex={0}
+        <Button
+          color="link"
+          outline
           className={`p-0 mb-0 pointer border-0 ${
             series.visible ? series.color[0] : 'text-muted'
           } text-left`}
@@ -163,35 +161,35 @@ const LegendCard = ({
           />
 
           {series.name}
-        </div>
-        <div
-          role="button"
-          tabIndex={0}
-          className={subtitleStyle}
+        </Button>
+        <Button
+          color="link"
+          outline
+          className={`w-100  ${subtitleStyle}`}
           onClick={() => addTestData('addRelatedBranches')}
           title="Add related branches"
         >
           {series.repository_name}
-        </div>
-        <div
-          role="button"
-          tabIndex={0}
-          className={subtitleStyle}
+        </Button>
+        <Button
+          color="link"
+          outline
+          className={`w-100  ${subtitleStyle}`}
           onClick={() => addTestData('addRelatedPlatform')}
           title="Add related platforms and branches"
         >
           {series.platform}
-        </div>
+        </Button>
         {series.application && (
-          <div
-            role="button"
-            tabIndex={0}
-            className={subtitleStyle}
+          <Button
+            color="link"
+            outline
+            className={`w-100  ${subtitleStyle}`}
             title="Add related applications"
             onClick={() => addTestData('addRelatedApplications')}
           >
             {series.application}
-          </div>
+          </Button>
         )}
         <Badge> {getFrameworkName(frameworks, series.framework_id)} </Badge>
         <div className="small">{`${series.signatureHash.slice(0, 16)}...`}</div>

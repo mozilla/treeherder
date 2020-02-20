@@ -1,5 +1,6 @@
 import React from 'react';
 import PropTypes from 'prop-types';
+import { Button } from 'reactstrap';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faBug } from '@fortawesome/free-solid-svg-icons';
 
@@ -28,15 +29,15 @@ export default class SuggestionsListItem extends React.Component {
     return (
       <li>
         <div>
-          <span
-            role="button"
-            tabIndex={0}
-            className="btn btn-xs btn-light-bordered link-style"
+          <Button
+            color="link"
+            size="xs"
+            className="btn btn-light-bordered link-style"
             onClick={() => toggleBugFiler(suggestion)}
             title="file a bug for this failure"
           >
             <FontAwesomeIcon icon={faBug} title="File bug" />
-          </span>
+          </Button>
           <span>{suggestion.search}</span>
         </div>
 
@@ -56,15 +57,14 @@ export default class SuggestionsListItem extends React.Component {
 
         {/* <!--All other bugs--> */}
         {suggestion.valid_all_others && suggestion.valid_open_recent && (
-          <span
-            role="button"
-            tabIndex={0}
+          <Button
+            color="link"
             rel="noopener"
             onClick={this.clickShowMore}
             className="show-hide-more"
           >
             Show / Hide more
-          </span>
+          </Button>
         )}
 
         {suggestion.valid_all_others &&
