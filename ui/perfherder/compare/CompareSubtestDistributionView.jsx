@@ -122,6 +122,11 @@ export default class CompareSubtestDistributionView extends React.Component {
       }),
     );
 
+    if (seriesData.failureStatus) {
+      // eslint-disable-next-line no-console
+      console.log('Error occured', seriesData.failureStatus);
+    }
+
     const {
       suite: testSuite,
       test: subtest,
