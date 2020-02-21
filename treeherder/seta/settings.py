@@ -1,3 +1,7 @@
+import datetime
+
+THE_FUTURE = datetime.datetime(2100, 12, 31)
+
 # repos that SETA supports
 SETA_PROJECTS = [
     'autoland',
