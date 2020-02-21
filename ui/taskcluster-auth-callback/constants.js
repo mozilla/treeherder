@@ -5,6 +5,9 @@ export const tcClientIdMap = {
   'https://treeherder.allizom.org': 'stage',
   'https://treeherder-prototype.herokuapp.com': 'dev',
   'http://localhost:5000': 'localhost',
+  'https://treeherder-taskcluster-staging.herokuapp.com':
+    'taskcluster-staging',
+  'https://treeherder-prototype2.herokuapp.com': 'dev2',
 };
 
 export const clientId = `treeherder-${tcClientIdMap[window.location.origin]}`;
