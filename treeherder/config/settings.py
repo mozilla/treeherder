@@ -29,7 +29,6 @@ DEBUG = env.bool("TREEHERDER_DEBUG", default=False)
 #  Default environment variables check
 REQUIRED_PRODUCTION_ENV_VARIABLES = ["BROKER_URL",
                                      "DATABASE_URL",
-                                     "NEW_RELIC_DEVELOPER_MODE",
                                      "REDIS_URL",
                                      "TREEHERDER_DJANGO_SECRET_KEY"]
 if os.environ.get("HEROKU_APP_ID"):
