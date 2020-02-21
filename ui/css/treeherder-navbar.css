@@ -120,20 +120,6 @@ secondary-nav-bar {
   color: lightgrey;
 }
 
-.watched-repo-info-btn {
-  padding-left: 6px;
-  padding-right: 9px;
-  border-right: 0;
-}
-
-.watched-repo-dropdown-item {
-  margin: 0 10px;
-}
-
-.watched-repo-dropdown-item > a {
-  white-space: normal;
-}
-
 .watched-repo-navbar {
   overflow: visible;
   flex-direction: row;
@@ -323,8 +309,8 @@ fieldset[disabled] .btn-unclassified-failures.active {
 .btn-view-nav:focus,
 .btn-view-nav:active,
 .btn-view-nav.active {
-  background-color: #2c3133;
-  border-color: #1a1d20;
+  background-color: #2c3133 !important;
+  border-color: #1a1d20 !important;
   color: white;
 }
 .btn-view-nav.disabled:hover,
@@ -395,7 +381,7 @@ fieldset[disabled] .btn-view-nav-closed.active {
 }
 
 #notification-dropdown {
-  min-width: 25em;
+  max-width: 25em;
   max-height: 20em;
   overflow-y: scroll;
   padding-left: 20px;
@@ -408,8 +394,6 @@ fieldset[disabled] .btn-view-nav-closed.active {
 }
 
 .notification-dropdown-line {
-  padding-top: 3px;
-  padding-bottom: 3px;
   overflow-x: hidden;
   text-overflow: ellipsis;
 }

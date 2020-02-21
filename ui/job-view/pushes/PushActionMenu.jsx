@@ -1,8 +1,12 @@
-/* eslint-disable jsx-a11y/no-noninteractive-element-interactions */
-
 import React from 'react';
 import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
+import {
+  DropdownMenu,
+  DropdownItem,
+  DropdownToggle,
+  UncontrolledDropdown,
+} from 'reactstrap';
 
 import { getUrlParam } from '../../helpers/location';
 import { formatTaskclusterError } from '../../helpers/errorMessage';
@@ -150,132 +154,116 @@ class PushActionMenu extends React.PureComponent {
     } = this.state;
 
     return (
-      <span className="btn-group dropdown" dropdown="true">
-        <button
-          dropdown-toggle="true"
-          className="btn btn-sm btn-push dropdown-toggle"
-          type="button"
-          title="Action menu"
-          data-hover="dropdown"
-          data-toggle="dropdown"
-          data-delay="1000"
-          data-testid="push-action-menu-button"
-        >
-          <span className="caret" />
-        </button>
-
-        <ul className="dropdown-menu pull-right">
-          {runnableVisible ? (
-            <li
-              title="Hide Runnable Jobs"
-              className="dropdown-item"
-              onClick={hideRunnableJobs}
-            >
-              Hide Runnable Jobs
-            </li>
-          ) : (
-            <li
-              title={
-                isLoggedIn ? 'Add new jobs to this push' : 'Must be logged in'
-              }
-              className={
-                isLoggedIn ? 'dropdown-item' : 'dropdown-item disabled'
-              }
-              onClick={showRunnableJobs}
-            >
-              Add new jobs
-            </li>
-          )}
-          {true && (
-            <li
+      <React.Fragment>
+        <UncontrolledDropdown className="btn-group">
+          <DropdownToggle
+            size="sm"
+            className="btn-push"
+            title="Action menu"
+            data-testid="push-action-menu-button"
+            caret
+          />
+          <DropdownMenu>
+            {runnableVisible ? (
+              <DropdownItem
+                tag="a"
+                title="Hide Runnable Jobs"
+                onClick={hideRunnableJobs}
+              >
+                Hide Runnable Jobs
+              </DropdownItem>
+            ) : (
+              <DropdownItem
+                tag="a"
+                title={
+                  isLoggedIn ? 'Add new jobs to this push' : 'Must be logged in'
+                }
+                className={isLoggedIn ? '' : 'disabled'}
+                onClick={showRunnableJobs}
+              >
+                Add new jobs
+              </DropdownItem>
+            )}
+            <DropdownItem
+              tag="a"
               title={
                 isLoggedIn
                   ? 'Add new jobs to this push via a fuzzy search'
                   : 'Must be logged in'
               }
-              className={
-                isLoggedIn ? 'dropdown-item' : 'dropdown-item disabled'
-              }
+              className={isLoggedIn ? '' : 'disabled'}
               onClick={showFuzzyJobs}
             >
               Add new jobs (Search)
-            </li>
-          )}
-          {triggerMissingRepos.includes(currentRepo.name) && (
-            <li
+            </DropdownItem>
+            {triggerMissingRepos.includes(currentRepo.name) && (
+              <DropdownItem
+                tag="a"
+                title={
+                  isLoggedIn
+                    ? 'Trigger all jobs that were optimized away'
+                    : 'Must be logged in'
+                }
+                className={isLoggedIn ? '' : 'disabled'}
+                onClick={this.triggerMissingJobs}
+              >
+                Trigger missing jobs
+              </DropdownItem>
+            )}
+            <DropdownItem
+              tag="a"
               title={
                 isLoggedIn
-                  ? 'Trigger all jobs that were optimized away'
+                  ? 'Trigger all talos performance tests'
                   : 'Must be logged in'
               }
-              className={
-                isLoggedIn ? 'dropdown-item' : 'dropdown-item disabled'
-              }
-              onClick={this.triggerMissingJobs}
+              className={isLoggedIn ? '' : 'disabled'}
+              onClick={() => this.triggerAllTalosJobs(revision)}
             >
-              Trigger missing jobs
-            </li>
-          )}
-          <li
-            title={
-              isLoggedIn
-                ? 'Trigger all talos performance tests'
-                : 'Must be logged in'
-            }
-            className={isLoggedIn ? 'dropdown-item' : 'dropdown-item disabled'}
-            onClick={() => this.triggerAllTalosJobs(revision)}
-          >
-            Trigger all Talos jobs
-          </li>
-          <li>
-            <a
+              Trigger all Talos jobs
+            </DropdownItem>
+            <DropdownItem
+              tag="a"
               target="_blank"
               rel="noopener noreferrer"
-              className="dropdown-item"
               href={`https://bugherder.mozilla.org/?cset=${revision}&tree=${currentRepo.name}`}
               title="Use Bugherder to mark the bugs in this push"
             >
               Mark with Bugherder
-            </a>
-          </li>
-          <li
-            className="dropdown-item"
-            onClick={this.toggleCustomJobActions}
-            title="View/Edit/Submit Action tasks for this push"
-          >
-            Custom Push Action...
-          </li>
-          <li>
-            <a
-              className="dropdown-item top-of-range-menu-item"
+            </DropdownItem>
+            <DropdownItem
+              tag="a"
+              onClick={this.toggleCustomJobActions}
+              title="View/Edit/Submit Action tasks for this push"
+            >
+              Custom Push Action...
+            </DropdownItem>
+            <DropdownItem
+              tag="a"
               href={topOfRangeUrl}
+              data-testid="top-of-range-menu-item"
             >
               Set as top of range
-            </a>
-          </li>
-          <li>
-            <a
-              className="dropdown-item bottom-of-range-menu-item"
+            </DropdownItem>
+            <DropdownItem
+              tag="a"
               href={bottomOfRangeUrl}
+              data-testid="bottom-of-range-menu-item"
             >
               Set as bottom of range
-            </a>
-          </li>
-          <li className="dropdown-divider" />
-          <li>
-            <a
-              className="dropdown-item"
+            </DropdownItem>
+            <DropdownItem divider />
+            <DropdownItem
+              tag="a"
               href={getPushHealthUrl({ repo: currentRepo.name, revision })}
               target="_blank"
               rel="noopener noreferrer"
               title="Enable Health Badges in the Health menu"
             >
               Push Health
-            </a>
-          </li>
-          <li>
-            <a
-              className="dropdown-item"
+            </DropdownItem>
+            <DropdownItem
+              tag="a"
               href={getCompareChooserUrl({
                 newProject: currentRepo.name,
                 newRevision: revision,
@@ -285,9 +273,9 @@ class PushActionMenu extends React.PureComponent {
               title="Compare performance against another revision"
             >
               Compare Performance
-            </a>
-          </li>
-        </ul>
+            </DropdownItem>
+          </DropdownMenu>
+        </UncontrolledDropdown>
         {customJobActionsShowing && (
           <CustomJobActions
             job={null}
@@ -297,7 +285,7 @@ class PushActionMenu extends React.PureComponent {
             toggle={this.toggleCustomJobActions}
           />
         )}
-      </span>
+      </React.Fragment>
     );
   }
 }

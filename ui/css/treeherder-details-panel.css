@@ -106,6 +106,8 @@ div#details-panel-content .details-panel-navbar > ul.tab-headers > li {
 .details-panel-navbar .actionbar-nav > li > .btn {
   color: #9fa3a5;
   padding: 4px 15px;
+  margin-bottom: 4px;
+  display: inline-block;
 }
 
 div#details-panel-content .actionbar-nav > li > a:hover,
@@ -184,21 +186,6 @@ div#details-panel-content .actionbar-nav > li > button:focus {
   100% {
     transform: rotate(1turn);
   }
-}
-
-#actionbar-menu-btn:focus {
-  box-shadow: none;
-  border: none;
-  outline: none;
-}
-
-/* Remove the caret from the ellipses */
-#actionbar-menu-btn.dropdown-toggle::after {
-  display: none;
-}
-
-#job-details-actionbar #actionbar-menu-btn + ul > li {
-  padding: 0;
 }
 
 /*

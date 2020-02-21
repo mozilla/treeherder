@@ -15,7 +15,7 @@ CSP_DIRECTIVES = [
     "script-src 'self' 'unsafe-eval' 'report-sample'",
     # The unsafe-inline is required for react-select's use of emotion (CSS in JS). See bug 1507903.
     # The Google entries are required for IFV's use of the Open Sans font from their CDN.
-    "style-src 'self' 'unsafe-inline' 'report-sample' https://fonts.googleapis.com",
+    "style-src 'self' 'unsafe-inline' 'report-sample' https://fonts.googleapis.com https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css",
     "font-src 'self' https://fonts.gstatic.com",
     # The `data:` is required for images that were inlined by webpack's url-loader (as an optimisation).
     "img-src 'self' data:",

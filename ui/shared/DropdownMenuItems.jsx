@@ -14,7 +14,7 @@ const createDropdownItem = (item, namespace, updateData, selectedItem) => {
       <FontAwesomeIcon
         icon={faCheck}
         className={`mr-1 ${selectedItem === item ? '' : 'hide'}`}
-        title={selectedItem === item ? 'Checked' : ''}
+        title={selectedItem === item ? 'Selected' : ''}
       />
       {item}
     </DropdownItem>
@@ -26,7 +26,7 @@ const DropdownMenuItems = ({
   updateData,
   options,
   pinned,
-  namespace = '',
+  namespace,
 }) => (
   <DropdownMenu className="overflow-auto dropdown-menu-height">
     {/* Items pinned to top of dropdown */}
@@ -52,12 +52,14 @@ DropdownMenuItems.propTypes = {
   selectedItem: PropTypes.string,
   options: PropTypes.arrayOf(PropTypes.string).isRequired,
   pinned: PropTypes.arrayOf(PropTypes.string),
+  namespace: PropTypes.string,
 };
 
 DropdownMenuItems.defaultProps = {
   updateData: null,
   selectedItem: null,
   pinned: [],
+  namespace: '',
 };
 
 export default DropdownMenuItems;

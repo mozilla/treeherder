@@ -10,6 +10,14 @@ import {
   faTimes,
   faTimesCircle,
 } from '@fortawesome/free-solid-svg-icons';
+import {
+  ButtonGroup,
+  Button,
+  DropdownMenu,
+  DropdownItem,
+  DropdownToggle,
+  UncontrolledDropdown,
+} from 'reactstrap';
 
 import TreeStatusModel from '../../models/treeStatus';
 import BugLinkify from '../../shared/BugLinkify';
@@ -126,11 +134,12 @@ export default class WatchedRepo extends React.Component {
     const changeRepoUrl = getRepoUrl(watchedRepo);
 
     return (
-      <span className="btn-group">
-        <a
+      <ButtonGroup>
+        <Button
           href={changeRepoUrl}
-          className={`watched-repo-main-btn btn btn-sm ${btnClass} ${activeClass}`}
+          className={`btn-view-nav ${btnClass} ${activeClass}`}
           title={status}
+          size="sm"
         >
           <FontAwesomeIcon
             icon={icon}
@@ -139,86 +148,76 @@ export default class WatchedRepo extends React.Component {
             pulse={pulseIcon}
           />{' '}
           {watchedRepo}
-        </a>
-        <button
-          className={`watched-repo-info-btn btn btn-sm btn-view-nav ${activeClass}`}
-          type="button"
-          title={`${watchedRepo} info`}
-          aria-label={`${watchedRepo} info`}
-          data-toggle="dropdown"
-        >
-          <FontAwesomeIcon icon={faInfoCircle} title={`${watchedRepo} info`} />
-        </button>
-        {watchedRepo !== repoName && (
-          <button
-            className={`watched-repo-unwatch-btn btn btn-sm btn-view-nav ${activeClass}`}
-            type="button"
-            onClick={() => unwatchRepo(watchedRepo)}
-            title={`Unwatch ${watchedRepo}`}
-            aria-label={`Unwatch ${watchedRepo}`}
-          >
-            <FontAwesomeIcon icon={faTimes} title="Unwatch" />
-          </button>
-        )}
+        </Button>
+        <UncontrolledDropdown>
+          <DropdownToggle className={`btn-view-nav ${activeClass}`}>
+            <FontAwesomeIcon
+              icon={faInfoCircle}
+              title={`${watchedRepo} info`}
+            />
+          </DropdownToggle>
+          {watchedRepo !== repoName && (
+            <Button
+              className={`btn-view-nav ${activeClass}`}
+              onClick={() => unwatchRepo(watchedRepo)}
+              size="sm"
+            >
+              <FontAwesomeIcon
+                icon={faTimes}
+                title={`Unwatch ${watchedRepo}`}
+              />
+            </Button>
+          )}
+          <DropdownMenu>
+            {status === 'unsupported' && (
+              <React.Fragment>
+                <DropdownItem
+                  tag="a"
+                  href="https://mozilla-releng.net/treestatus"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                >
+                  {watchedRepo} is not listed on Tree Status
+                </DropdownItem>
+                <DropdownItem divider />
+              </React.Fragment>
+            )}
+            {!!reason && (
+              <React.Fragment>
+                <DropdownItem tag="a">
+                  <BugLinkify>{reason}</BugLinkify>
+                </DropdownItem>
+                <DropdownItem divider />
+              </React.Fragment>
+            )}
 
-        <ul className="dropdown-menu" role="menu">
-          {status === 'unsupported' && (
-            <React.Fragment>
-              <li className="watched-repo-dropdown-item">
-                <span>
-                  {watchedRepo} is not listed on{' '}
-                  <a
-                    href="https://mozilla-releng.net/treestatus"
-                    target="_blank"
-                    rel="noopener noreferrer"
-                  >
-                    Tree Status
-                  </a>
-                </span>
-              </li>
-              <li className="dropdown-divider" />
-            </React.Fragment>
-          )}
-          {!!reason && (
-            <li className="watched-repo-dropdown-item">
-              <span>
-                <BugLinkify>{reason}</BugLinkify>
-              </span>
-            </li>
-          )}
-          {!!reason && !!messageOfTheDay && <li className="dropdown-divider" />}
-          {!!messageOfTheDay && (
-            <li className="watched-repo-dropdown-item">
-              <span>
-                <BugLinkify>{messageOfTheDay}</BugLinkify>
-              </span>
-            </li>
-          )}
-          {(!!reason || !!messageOfTheDay) && (
-            <li className="dropdown-divider" />
-          )}
-          <li className="watched-repo-dropdown-item">
-            <a
+            {!!messageOfTheDay && (
+              <React.Fragment>
+                <DropdownItem tag="a">
+                  <BugLinkify>{messageOfTheDay}</BugLinkify>
+                </DropdownItem>
+                <DropdownItem divider />
+              </React.Fragment>
+            )}
+            <DropdownItem
+              tag="a"
               href={`https://treestatus.mozilla-releng.net/static/ui/treestatus/show/${treeStatusName}`}
-              className="dropdown-item"
               target="_blank"
               rel="noopener noreferrer"
             >
               Tree Status
-            </a>
-          </li>
-          <li className="watched-repo-dropdown-item">
-            <a
+            </DropdownItem>
+            <DropdownItem
+              tag="a"
               href={repo.pushLogUrl}
-              className="dropdown-item"
               target="_blank"
               rel="noopener noreferrer"
             >
               Pushlog
-            </a>
-          </li>
-        </ul>
-      </span>
+            </DropdownItem>
+          </DropdownMenu>
+        </UncontrolledDropdown>
+      </ButtonGroup>
     );
   }
 }

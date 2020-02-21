@@ -24,6 +24,17 @@ import PushList from '../../../ui/job-view/pushes/PushList';
 import { getApiUrl } from '../../../ui/helpers/url';
 import { findJobInstance } from '../../../ui/helpers/job';
 
+// solution to createRange is not a function error for popper (used by reactstrap)
+// https://github.com/mui-org/material-ui/issues/15726#issuecomment-493124813
+global.document.createRange = () => ({
+  setStart: () => {},
+  setEnd: () => {},
+  commonAncestorContainer: {
+    nodeName: 'BODY',
+    ownerDocument: document,
+  },
+});
+
 describe('PushList', () => {
   const repoName = 'autoland';
   const currentRepo = {
@@ -158,7 +169,7 @@ describe('PushList', () => {
     fireEvent.click(actionMenuButton);
 
     const setBottomLink = await waitForElement(() =>
-      push2.querySelector('.bottom-of-range-menu-item'),
+      push2.querySelector('[data-testid="bottom-of-range-menu-item"]'),
     );
 
     expect(setBottomLink.getAttribute('href')).toContain(
@@ -184,7 +195,7 @@ describe('PushList', () => {
     fireEvent.click(actionMenuButton);
 
     const setTopLink = await waitForElement(() =>
-      push1.querySelector('.top-of-range-menu-item'),
+      push1.querySelector('[data-testid="top-of-range-menu-item"]'),
     );
 
     expect(setTopLink.getAttribute('href')).toContain(
