@@ -522,21 +522,10 @@ li.pagination-active.active > button {
 }
 
 .table-graphs-view .job-links {
-  display: none;
+  opacity: 0.3;
 }
 
 .table-graphs-view .rt-td:hover .job-links,
-.table-graphs-view .rt-td:focus .job-links {
-  display: initial;
-}
-
-.table-graphs-view .-pagination .-btn[disabled] {
-  background: transparent;
-  border: 2px solid rgba(0, 0, 0, 0.03);
-  color: rgba(0, 0, 0, 0.55);
-}
-
-.table-graphs-view .-pagination .-btn:not([disabled]),
-.table-graphs-view .-pagination .-btn:not([disabled]):hover {
-  color: rgba(0, 0, 0, 0.66);
+.table-graphs-view .rt-td:focus-within .job-links {
+  opacity: 1;
 }

@@ -346,7 +346,18 @@ class GraphsView extends React.Component {
               <Col
                 className={`${testData.length ? 'graph-chooser' : 'col-12'}`}
               >
-                <Container className="graph-legend pl-0 pb-4">
+                <button
+                  type="button"
+                  className="sr-only"
+                  onClick={() => this.setState({ showTable: !showTable })}
+                >
+                  Table View
+                </button>
+                <Container
+                  role="region"
+                  aria-label="Graph Legend"
+                  className="graph-legend pl-0 pb-4"
+                >
                   {testData.length > 0 &&
                     testData.map(series => (
                       <div
@@ -375,6 +386,8 @@ class GraphsView extends React.Component {
               } ${showTable && 'w-100'}`}
             >
               <GraphsViewControls
+                colors={colors}
+                symbols={symbols}
                 timeRange={timeRange}
                 frameworks={frameworks}
                 user={user}
