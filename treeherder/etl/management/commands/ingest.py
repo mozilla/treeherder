@@ -176,10 +176,28 @@ def ingestGitPush(options, root_url):
     baseUrl = "{}/repos/{}/{}".format(githubApi, owner, repo)
     defaultBranch = fetch_json(baseUrl)["default_branch"]
     # e.g. https://api.github.com/repos/servo/servo/compare/master...1418c0555ff77e5a3d6cf0c6020ba92ece36be2e
-    compareUrl = "{}/compare/{}...{}".format(baseUrl, defaultBranch, commit)
-    compareResponse = fetch_json(compareUrl)
+    compareUrl = "{}/compare/{}...{}"
+    compareResponse = fetch_json(compareUrl.format(baseUrl, defaultBranch, commit))
+    headCommit = None
+    mergeBaseCommit = compareResponse["merge_base_commit"]
+    if mergeBaseCommit:
+        # Since we don't use PushEvents that contain the "before" field [1]
+        # we need to discover the right parent. A merge commit has two parents
+        # [1] https://github.com/taskcluster/taskcluster/blob/3dda0adf85619d18c5dcf255259f3e274d2be346/services/github/src/api.js#L55
+        parents = compareResponse["merge_base_commit"]["parents"]
+        eventBaseSha = None
+        for p in parents:
+            c = fetch_json(p["url"])
+            if c["parents"] and len(c["parents"]) > 1:
+                eventBaseSha = p["sha"]
+                logger.info("We have a new base: %s", eventBaseSha)
+                break
+        # When using the correct sha the "commits" field will have information
+        compareResponse = fetch_json(compareUrl.format(baseUrl, eventBaseSha, commit))
+
     headCommit = compareResponse["commits"][-1]
     assert headCommit["sha"] == commit
+
     commits = []
     for c in compareResponse["commits"]:
         commits.append({
