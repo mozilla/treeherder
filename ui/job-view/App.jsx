@@ -1,4 +1,5 @@
 import React from 'react';
+import { Modal } from 'reactstrap';
 import { hot } from 'react-hot-loader/root';
 import SplitPane from 'react-split-pane';
 import pick from 'lodash/pick';
@@ -384,20 +385,13 @@ class App extends React.Component {
               </>
             </SplitPane>
             <Notifications />
-            {showShortCuts && (
-              <div
-                role="button"
-                tabIndex={0}
-                id="onscreen-overlay"
-                onClick={() => this.showOnScreenShortcuts(false)}
-              >
-                <div id="onscreen-shortcuts">
-                  <div className="col-8">
-                    <ShortcutTable />
-                  </div>
-                </div>
-              </div>
-            )}
+            <Modal
+              isOpen={showShortCuts}
+              toggle={() => this.showOnScreenShortcuts(false)}
+              id="onscreen-shortcuts"
+            >
+              <ShortcutTable />
+            </Modal>
           </KeyboardShortcuts>
         </Provider>
       </div>
