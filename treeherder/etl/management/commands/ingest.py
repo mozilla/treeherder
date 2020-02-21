@@ -234,6 +234,7 @@ def ingestGitPush(options, root_url):
     }
     PushLoader().process(pulse["payload"], pulse["exchange"], root_url)
 
+
 class Command(BaseCommand):
     """Management command to ingest data from a single push."""
     help = "Ingests a single push and tasks into Treeherder"
