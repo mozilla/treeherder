@@ -26,6 +26,19 @@ IS_WINDOWS = "windows" in platform.system().lower()
 # Top Level configuration
 DEBUG = env.bool("TREEHERDER_DEBUG", default=False)
 
+#  Default environment variables check
+REQUIRED_PRODUCTION_ENV_VARIABLES = ["BROKER_URL",
+                                     "DATABASE_URL",
+                                     "NEW_RELIC_DEVELOPER_MODE",
+                                     "REDIS_URL",
+                                     "TREEHERDER_DJANGO_SECRET_KEY"]
+if os.environ.get("HEROKU_APP_ID"):
+    for env in REQUIRED_PRODUCTION_ENV_VARIABLES:
+        if os.environ.get(env):
+            REQUIRED_PRODUCTION_ENV_VARIABLES.remove(env)
+assert len(REQUIRED_PRODUCTION_ENV_VARIABLES) == 0, "For a production set up please set the missing variables: {}".format(", ".join(REQUIRED_PRODUCTION_ENV_VARIABLES))
+
+
 NEW_RELIC_DEVELOPER_MODE = env.bool("NEW_RELIC_DEVELOPER_MODE", default=True if DEBUG else False)
 
 # Papertrail logs WARNING messages. This env variable allows modifying the behaviour
@@ -444,15 +457,3 @@ PERFHERDER_ALERTS_MAX_AGE = timedelta(weeks=2)
 
 # Resource count to limit the number of threads opening connections with the DB
 CONN_RESOURCES = 50
-
-
-#  Default environment variables check
-REQUIRED_PRODUCTION_ENV_VARIABLES = ["TREEHERDER_DJANGO_SECRET_KEY", "BROKER_URL",
-                                     "DATABASE_URL", "REDIS_URL", "TREEHERDER_DEBUG",
-                                     "NEW_RELIC_DEVELOPER_MODE"]
-if not DEBUG:
-    for env in REQUIRED_PRODUCTION_ENV_VARIABLES:
-        if os.environ.get(env):
-            REQUIRED_PRODUCTION_ENV_VARIABLES.remove(env)
-    if len(REQUIRED_PRODUCTION_ENV_VARIABLES) != 0:
-        print("For a production set up please set the missing variables: {}".format(", ".join(REQUIRED_PRODUCTION_ENV_VARIABLES)))
