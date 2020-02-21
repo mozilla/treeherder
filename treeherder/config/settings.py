@@ -36,7 +36,7 @@ if os.environ.get("HEROKU_APP_ID"):
     for env in REQUIRED_PRODUCTION_ENV_VARIABLES:
         if os.environ.get(env):
             REQUIRED_PRODUCTION_ENV_VARIABLES.remove(env)
-assert len(REQUIRED_PRODUCTION_ENV_VARIABLES) == 0, "For a production set up please set the missing variables: {}".format(", ".join(REQUIRED_PRODUCTION_ENV_VARIABLES))
+    assert len(REQUIRED_PRODUCTION_ENV_VARIABLES) == 0, "For a production set up please set the missing variables: {}".format(", ".join(REQUIRED_PRODUCTION_ENV_VARIABLES))
 
 
 NEW_RELIC_DEVELOPER_MODE = env.bool("NEW_RELIC_DEVELOPER_MODE", default=True if DEBUG else False)
