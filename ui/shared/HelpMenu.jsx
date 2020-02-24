@@ -66,7 +66,7 @@ const menuItems = [
 
 const HelpMenu = () => (
   <UncontrolledDropdown>
-    <DropdownToggle className="btn-view-nav nav-menu-btn" nav caret>
+    <DropdownToggle className="btn-view-nav nav-menu-btn" caret>
       <FontAwesomeIcon
         icon={faQuestionCircle}
         className="lightgray mr-1"
