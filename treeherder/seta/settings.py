@@ -1,3 +1,7 @@
+import datetime
+
+THE_FUTURE = datetime.datetime(2100, 12, 31)
+
 # repos that SETA supports
 SETA_PROJECTS = [
     'autoland',
@@ -68,8 +72,7 @@ SETA_LOW_VALUE_PRIORITY = 5
 # analyze_failures retrieves jobs marked 'fixed by commit' for these repos
 SETA_FIXED_BY_COMMIT_REPOS = [
     'autoland',
-    'mozilla-central',
-    'mozilla-inbound'
+    'mozilla-central'
 ]
 
 # analyze_failures retrieves jobs marked 'fixed by commit' for the past N days

@@ -44,7 +44,7 @@
     "database": {
       "debug": false,
       "ssl": {
-        "ca": "https://s3.amazonaws.com/rds-downloads/rds-combined-ca-bundle.pem"
+        "pem": "https://s3.amazonaws.com/rds-downloads/rds-combined-ca-bundle.pem"
       },
       "host": {
         "$ref": "env://DATABASE_URL"
@@ -97,7 +97,9 @@
   "debug": {
     "trace": true,
     "logs": [
-      { "log_type": "console" },
+      {
+        "log_type": "console"
+      },
       {
         "log_type": "logger",
         "name": "extract_jobs"

@@ -366,6 +366,7 @@ class ErrorParser(ParserBase):
         "SUMMARY: AddressSanitizer",
         "SUMMARY: LeakSanitizer",
         "SUMMARY: ThreadSanitizer",
+        "ThreadSanitizer: nested bug",
         "Automation Error:",
         "command timed out:",
         "wget: unable ",

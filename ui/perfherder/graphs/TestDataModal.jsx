@@ -31,6 +31,7 @@ export default class TestDataModal extends React.Component {
         'mozilla-central',
       ),
       platform: 'linux64',
+      pinnedProjects: ['autoland', 'mozilla-central', 'mozilla-beta', 'try'],
       errorMessages: [],
       includeSubtests: false,
       seriesData: [],
@@ -97,6 +98,10 @@ export default class TestDataModal extends React.Component {
     const updates = processResponse(response, 'platforms', errorMessages);
     this.setState(updates);
     this.processOptions();
+  }
+
+  getDropdownOptions(options) {
+    return options.length ? options.map(item => item.name) : [];
   }
 
   addRelatedApplications = async params => {
@@ -374,9 +379,10 @@ export default class TestDataModal extends React.Component {
       showNoRelatedTests,
       filterText,
       loading,
+      pinnedProjects,
     } = this.state;
     const { projects, frameworks, showModal } = this.props;
-
+    const projectOptions = this.getDropdownOptions(projects);
     const modalOptions = [
       {
         options: frameworks.length ? frameworks.map(item => item.name) : [],
@@ -391,8 +397,11 @@ export default class TestDataModal extends React.Component {
         title: 'Framework',
       },
       {
-        options: projects.length ? projects.map(item => item.name) : [],
+        options: projectOptions,
         selectedItem: repositoryName.name || '',
+        pinnedProjects: projectOptions.filter(item =>
+          pinnedProjects.includes(item),
+        ),
         updateData: value =>
           this.setState(
             { repository_name: this.findObject(projects, 'name', value) },

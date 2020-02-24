@@ -1,9 +1,14 @@
-/* eslint-disable jsx-a11y/no-noninteractive-element-interactions */
-
 import React from 'react';
 import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
-import { Label } from 'reactstrap';
+import {
+  DropdownMenu,
+  DropdownItem,
+  DropdownToggle,
+  UncontrolledDropdown,
+} from 'reactstrap';
+import { faCheck } from '@fortawesome/free-solid-svg-icons';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 
 import { thAllResultStatuses } from '../../helpers/constants';
 import { getJobsUrl } from '../../helpers/url';
@@ -38,92 +43,90 @@ function FiltersMenu(props) {
   const { email } = user;
 
   return (
-    <span>
-      <span className="dropdown">
-        <button
-          id="filterLabel"
-          type="button"
-          title="Set filters"
-          data-toggle="dropdown"
-          className="btn btn-view-nav nav-menu-btn dropdown-toggle"
-        >
-          Filters
-        </button>
-        <ul
-          id="filter-dropdown"
-          className="dropdown-menu nav-dropdown-menu-right checkbox-dropdown-menu"
-          role="menu"
-          aria-labelledby="filterLabel"
-        >
-          <li>
-            {resultStatusMenuItems.map(filterName => (
-              <span key={filterName}>
-                <span>
-                  <Label className="dropdown-item">
-                    <input
-                      type="checkbox"
-                      className="mousetrap"
-                      id={filterName}
-                      checked={resultStatus.includes(filterName)}
-                      onChange={() =>
-                        filterModel.toggleResultStatuses([filterName])
-                      }
-                    />
-                    {filterName}
-                  </Label>
-                </span>
-              </span>
-            ))}
-          </li>
-          <li className="dropdown-divider separator" />
-          <Label className="dropdown-item">
-            <input
-              type="checkbox"
-              id="classified"
-              checked={classifiedState.includes('classified')}
-              onChange={() => filterModel.toggleClassifiedFilter('classified')}
+    <UncontrolledDropdown>
+      <DropdownToggle
+        title="Set filters"
+        className="btn-view-nav nav-menu-btn"
+        nav
+        caret
+      >
+        Filters
+      </DropdownToggle>
+      <DropdownMenu>
+        {resultStatusMenuItems.map(filterName => (
+          <DropdownItem
+            key={filterName}
+            tag="a"
+            onClick={() => filterModel.toggleResultStatuses([filterName])}
+          >
+            <FontAwesomeIcon
+              icon={faCheck}
+              className={`mr-1 ${
+                resultStatus.includes(filterName) ? '' : 'hide'
+              }`}
+              title={resultStatus.includes(filterName) ? 'Selected' : ''}
             />
-            classified
-          </Label>
-          <Label className="dropdown-item">
-            <input
-              type="checkbox"
-              id="unclassified"
-              checked={classifiedState.includes('unclassified')}
-              onChange={() =>
-                filterModel.toggleClassifiedFilter('unclassified')
-              }
-            />
-            unclassified
-          </Label>
-          <li className="dropdown-divider separator" />
-          <li
-            title="Pin all jobs that pass the global filters"
-            className="dropdown-item"
-            onClick={pinAllShownJobs}
-          >
-            Pin all showing
-          </li>
-          <li
-            title="Show only superseded jobs"
-            className="dropdown-item"
-            onClick={filterModel.setOnlySuperseded}
-          >
-            Superseded only
-          </li>
-          <li title={`Show only pushes for ${email}`} className="dropdown-item">
-            <a href={getJobsUrl({ author: email })}>My pushes only</a>
-          </li>
-          <li
-            title="Reset to default status filters"
-            className="dropdown-item"
-            onClick={filterModel.resetNonFieldFilters}
-          >
-            Reset
-          </li>
-        </ul>
-      </span>
-    </span>
+            {filterName}
+          </DropdownItem>
+        ))}
+        <DropdownItem divider />
+        <DropdownItem
+          tag="a"
+          onClick={() => filterModel.toggleClassifiedFilter('classified')}
+        >
+          <FontAwesomeIcon
+            icon={faCheck}
+            className={`mr-1 ${
+              classifiedState.includes('classified') ? '' : 'hide'
+            }`}
+            title={classifiedState.includes('classified') ? 'Selected' : ''}
+          />
+          classified
+        </DropdownItem>
+        <DropdownItem
+          tag="a"
+          onClick={() => filterModel.toggleClassifiedFilter('unclassified')}
+        >
+          <FontAwesomeIcon
+            icon={faCheck}
+            className={`mr-1 ${
+              classifiedState.includes('unclassified') ? '' : 'hide'
+            }`}
+            title={classifiedState.includes('unclassified') ? 'Selected' : ''}
+          />
+          unclassified
+        </DropdownItem>
+        <DropdownItem divider />
+        <DropdownItem
+          tag="a"
+          title="Pin all jobs that pass the global filters"
+          onClick={pinAllShownJobs}
+        >
+          Pin all showing
+        </DropdownItem>
+        <DropdownItem
+          tag="a"
+          title="Show only superseded jobs"
+          onClick={filterModel.setOnlySuperseded}
+        >
+          Superseded only
+        </DropdownItem>
+        <DropdownItem
+          tag="a"
+          title={`Show only pushes for ${email}`}
+          href={getJobsUrl({ author: email })}
+        >
+          My pushes only
+        </DropdownItem>
+        <DropdownItem
+          tag="a"
+          title="Reset to default status filters"
+          onClick={filterModel.resetNonFieldFilters}
+        >
+          Reset
+        </DropdownItem>
+      </DropdownMenu>
+    </UncontrolledDropdown>
   );
 }
 

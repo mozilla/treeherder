@@ -2,7 +2,7 @@
   {
     "buildtype": "asan",
     "testtype": "build-android-x86_64-asan-fuzzing/opt",
-    "platform": "*",
+    "platform": "android-5-0-x86_64",
     "priority": 5,
     "expiration_date": "*",
     "buildsystem": "taskcluster"
@@ -34,7 +34,7 @@
   {
     "buildtype": "asan",
     "testtype": "build-macosx64-asan-fuzzing/opt",
-    "platform": "*",
+    "platform": "osx-cross",
     "priority": 5,
     "expiration_date": "*",
     "buildsystem": "taskcluster"
@@ -42,7 +42,7 @@
   {
     "buildtype": "debug",
     "testtype": "build-macosx64-fuzzing/debug",
-    "platform": "*",
+    "platform": "osx-cross",
     "priority": 5,
     "expiration_date": "*",
     "buildsystem": "taskcluster"
