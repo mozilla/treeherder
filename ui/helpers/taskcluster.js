@@ -3,7 +3,12 @@ import debounce from 'lodash/debounce';
 import delay from 'lodash/delay';
 import moment from 'moment';
 
-import { clientId, redirectURI } from '../taskcluster-auth-callback/constants';
+import {
+  clientId,
+  redirectURI,
+  checkRootUrl,
+  prodFirefoxRootUrl,
+} from '../taskcluster-auth-callback/constants';
 
 import { createQueryParams } from './url';
 
@@ -11,7 +16,7 @@ export const tcCredentialsMessage =
   'Need to retrieve or renew Taskcluster credentials before action can be performed.';
 
 const taskcluster = (() => {
-  let _rootUrl = 'https://firefox-ci-tc.services.mozilla.com';
+  let _rootUrl = checkRootUrl(prodFirefoxRootUrl);
 
   // from the MDN crypto.getRandomValues doc
   const secureRandom = () =>
@@ -64,7 +69,7 @@ const taskcluster = (() => {
 
   const getCredentials = rootUrl => {
     const userCredentials = JSON.parse(localStorage.getItem('userCredentials'));
-    _rootUrl = rootUrl;
+    _rootUrl = checkRootUrl(rootUrl);
 
     if (
       userCredentials &&
