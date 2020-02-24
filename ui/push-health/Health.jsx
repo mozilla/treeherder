@@ -98,7 +98,7 @@ export default class Health extends React.PureComponent {
     const notification = {
       ...options,
       message,
-      severity: severity || 'info',
+      severity: severity || 'darker-info',
       created: Date.now(),
     };
     const newNotifications = [notification, ...notifications];

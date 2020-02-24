@@ -37,7 +37,9 @@ export default class TestMetric extends React.PureComponent {
             currentRepo={currentRepo}
             revision={revision}
             className="mb-5"
-            headerColor={needInvestigationLength ? 'danger' : 'secondary'}
+            headerColor={
+              needInvestigationLength ? 'danger' : 'darker-secondary'
+            }
             user={user}
             hasRetriggerAll
             notify={notify}
