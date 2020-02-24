@@ -165,14 +165,14 @@
           "timestamp": "2020-02-06T13:22:20-06:00",
           "url": "https://github.com/mozilla-mobile/android-components/commit/8a4cb15deb60e490ec7dfae03ca350bde3688dcb",
           "author": {
-            "name": "Travis Long",
-            "email": "tlong@mozilla.com",
-            "username": "travis79"
+            "name": "User",
+            "email": "user@mozilla.com",
+            "username": "user"
           },
           "committer": {
-            "name": "Travis Long",
-            "email": "tlong@mozilla.com",
-            "username": "travis79"
+            "name": "User",
+            "email": "user@mozilla.com",
+            "username": "user"
           },
           "added": [],
           "removed": [],

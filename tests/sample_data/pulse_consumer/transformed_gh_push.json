@@ -4,7 +4,7 @@
   "revision": "5fdb785b28b356f50fc1d9cb180d401bb03fc1f1",
   "revisions": [
     {
-      "author": "Travis Long <tlong@mozilla.com>",
+      "author": "User <user@mozilla.com>",
       "comment": "Closes #4779 - Fix `ExperimentsDebugActivity` command to change server",
       "revision": "8a4cb15deb60e490ec7dfae03ca350bde3688dcb"
     },
