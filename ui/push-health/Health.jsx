@@ -6,6 +6,7 @@ import {
   faCheckCircle,
   faExclamationTriangle,
 } from '@fortawesome/free-solid-svg-icons';
+import camelCase from 'lodash/camelCase';
 
 import ErrorMessages from '../shared/ErrorMessages';
 import NotificationList from '../shared/NotificationList';
@@ -28,7 +29,7 @@ import Metric from './Metric';
 import Navigation from './Navigation';
 import TestMetric from './TestMetric';
 import JobListMetric from './JobListMetric';
-import PushParent from './PushParent';
+import ParentPush from './ParentPush';
 
 export default class Health extends React.PureComponent {
   constructor(props) {
@@ -45,7 +46,7 @@ export default class Health extends React.PureComponent {
       failureMessage: null,
       notifications: [],
       progressExpanded: true,
-      parentExpanded: false,
+      parentPushExpanded: false,
       lintingExpanded: false,
       buildsExpanded: false,
       testsExpanded: false,
@@ -114,13 +115,22 @@ export default class Health extends React.PureComponent {
     this.setState(clearNotificationAtIndex(notifications, index));
   };
 
-  toggleExpanded = metricName => {
-    const key = `${metricName.toLowerCase()}Expanded`;
-    const { [key]: oldToggle } = this.state;
+  setExpanded = (metricName, expanded) => {
+    const root = camelCase(metricName);
+    const key = `${root}Expanded`;
+    const { [key]: oldExpanded } = this.state;
 
-    this.setState({
-      [key]: !oldToggle,
-    });
+    if (oldExpanded !== expanded) {
+      this.setState({
+        [key]: expanded,
+      });
+    } else if (expanded) {
+      const elem = document.getElementById(`${root}Metric`);
+
+      if (elem) {
+        elem.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      }
+    }
   };
 
   filter = searchStr => {
@@ -149,7 +159,7 @@ export default class Health extends React.PureComponent {
       notifications,
       status,
       progressExpanded,
-      parentExpanded,
+      parentPushExpanded,
       lintingExpanded,
       buildsExpanded,
       testsExpanded,
@@ -180,7 +190,7 @@ export default class Health extends React.PureComponent {
             {!!tests && (
               <Nav className="metric-buttons mb-2 pt-2 pl-3 justify-content-between w-100">
                 <span>
-                  {[progress, parent, linting, builds, tests, performance].map(
+                  {[progress, linting, builds, tests, performance, parent].map(
                     metric => (
                       <span key={metric.name}>
                         {!!metric.details && (
@@ -191,7 +201,7 @@ export default class Health extends React.PureComponent {
                             title={`Click to toggle ${
                               metric.name
                             }: ${metric.result.toUpperCase()}`}
-                            onClick={() => this.toggleExpanded(metric.name)}
+                            onClick={() => this.setExpanded(metric.name, true)}
                             key={metric.name}
                           >
                             {metric.name}
@@ -237,7 +247,7 @@ export default class Health extends React.PureComponent {
                   name="Progress"
                   result=""
                   expanded={progressExpanded}
-                  toggleExpanded={this.toggleExpanded}
+                  setExpanded={this.setExpanded}
                 >
                   <div>
                     <div>{percentComplete}% Complete</div>
@@ -245,25 +255,13 @@ export default class Health extends React.PureComponent {
                   </div>
                 </Metric>
               </Row>
-              {parent.details && (
-                <Row className="w-100">
-                  <Metric
-                    name="Parent"
-                    result=""
-                    expanded={parentExpanded}
-                    toggleExpanded={this.toggleExpanded}
-                  >
-                    <PushParent parent={parent.details} />
-                  </Metric>
-                </Row>
-              )}
               <Row>
                 <JobListMetric
                   data={linting}
                   repo={repo}
                   revision={revision}
                   expanded={lintingExpanded}
-                  toggleExpanded={this.toggleExpanded}
+                  setExpanded={this.setExpanded}
                 />
               </Row>
               <Row>
@@ -272,7 +270,7 @@ export default class Health extends React.PureComponent {
                   repo={repo}
                   revision={revision}
                   expanded={buildsExpanded}
-                  toggleExpanded={this.toggleExpanded}
+                  setExpanded={this.setExpanded}
                 />
               </Row>
               <Row>
@@ -284,7 +282,7 @@ export default class Health extends React.PureComponent {
                   user={user}
                   notify={this.notify}
                   expanded={testsExpanded}
-                  toggleExpanded={this.toggleExpanded}
+                  setExpanded={this.setExpanded}
                   searchStr={searchStr}
                 />
               </Row>
@@ -294,9 +292,21 @@ export default class Health extends React.PureComponent {
                   repo={repo}
                   revision={revision}
                   expanded={performanceExpanded}
-                  toggleExpanded={this.toggleExpanded}
+                  setExpanded={this.setExpanded}
                 />
               </Row>
+              {parent.details && (
+                <Row className="w-100">
+                  <Metric
+                    name="Parent Push"
+                    result=""
+                    expanded={parentPushExpanded}
+                    setExpanded={this.setExpanded}
+                  >
+                    <ParentPush parent={parent.details} />
+                  </Metric>
+                </Row>
+              )}
             </div>
           )}
           {failureMessage && <ErrorMessages failureMessage={failureMessage} />}

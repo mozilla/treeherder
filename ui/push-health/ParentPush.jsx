@@ -6,7 +6,7 @@ import PushHealthStatus from '../shared/PushHealthStatus';
 import { getJobsUrl } from '../helpers/url';
 import RepositoryModel from '../models/repository';
 
-const PushParent = props => {
+const ParentPush = props => {
   const {
     parent: { repository, revision, jobCounts, exactMatch, parentSha, id },
   } = props;
@@ -53,7 +53,7 @@ const PushParent = props => {
   );
 };
 
-PushParent.propTypes = {
+ParentPush.propTypes = {
   parent: PropTypes.shape({
     repository: PropTypes.object.isRequired,
     revision: PropTypes.string.isRequired,
@@ -66,4 +66,4 @@ PushParent.propTypes = {
   }).isRequired,
 };
 
-export default PushParent;
+export default ParentPush;

@@ -15,7 +15,7 @@ export default class TestMetric extends React.PureComponent {
       notify,
       currentRepo,
       expanded,
-      toggleExpanded,
+      setExpanded,
       searchStr,
     } = this.props;
     const { name, result, details } = data;
@@ -27,7 +27,7 @@ export default class TestMetric extends React.PureComponent {
         name={name}
         result={result}
         expanded={expanded}
-        toggleExpanded={toggleExpanded}
+        setExpanded={setExpanded}
       >
         <div className="border-bottom border-secondary">
           <ClassificationGroup
@@ -52,7 +52,7 @@ export default class TestMetric extends React.PureComponent {
             currentRepo={currentRepo}
             revision={revision}
             className="mb-5"
-            headerColor="secondary"
+            headerColor="darker-secondary"
             expanded={false}
             user={user}
             notify={notify}
@@ -79,7 +79,7 @@ TestMetric.propTypes = {
   currentRepo: PropTypes.object.isRequired,
   revision: PropTypes.string.isRequired,
   notify: PropTypes.func.isRequired,
-  toggleExpanded: PropTypes.func.isRequired,
+  setExpanded: PropTypes.func.isRequired,
   expanded: PropTypes.bool.isRequired,
   searchStr: PropTypes.string.isRequired,
 };
