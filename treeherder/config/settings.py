@@ -1,3 +1,5 @@
+import os
+import platform
 import re
 from datetime import timedelta
 from os.path import (abspath,
@@ -18,8 +20,25 @@ SRC_DIR = dirname(dirname(dirname(abspath(__file__))))
 
 env = environ.Env()
 
+# Checking for OS type
+IS_WINDOWS = "windows" in platform.system().lower()
+
 # Top Level configuration
 DEBUG = env.bool("TREEHERDER_DEBUG", default=False)
+
+#  Default environment variables check
+REQUIRED_PRODUCTION_ENV_VARIABLES = ["BROKER_URL",
+                                     "DATABASE_URL",
+                                     "REDIS_URL",
+                                     "TREEHERDER_DJANGO_SECRET_KEY"]
+if os.environ.get("HEROKU_APP_ID"):
+    for env in REQUIRED_PRODUCTION_ENV_VARIABLES:
+        if os.environ.get(env):
+            REQUIRED_PRODUCTION_ENV_VARIABLES.remove(env)
+    assert len(REQUIRED_PRODUCTION_ENV_VARIABLES) == 0, "For a production set up please set the missing variables: {}".format(", ".join(REQUIRED_PRODUCTION_ENV_VARIABLES))
+
+
+NEW_RELIC_DEVELOPER_MODE = env.bool("NEW_RELIC_DEVELOPER_MODE", default=True if DEBUG else False)
 
 # Papertrail logs WARNING messages. This env variable allows modifying the behaviour
 LOGGING_LEVEL = env.str("LOGGING_LEVEL", default='DEBUG' if DEBUG else 'WARNING')
@@ -27,11 +46,11 @@ LOGGING_LEVEL = env.str("LOGGING_LEVEL", default='DEBUG' if DEBUG else 'WARNING'
 GRAPHQL = env.bool("GRAPHQL", default=True)
 
 # Make this unique, and don't share it with anybody.
-SECRET_KEY = env("TREEHERDER_DJANGO_SECRET_KEY")
+SECRET_KEY = env("TREEHERDER_DJANGO_SECRET_KEY", default='secret-key-of-at-least-50-characters-to-pass-check-deploy')
 
 # Hosts
 try:
-    SITE_URL = env("SITE_URL")
+    SITE_URL = env("SITE_URL", default='http://localhost:8000')
 except ImproperlyConfigured:
     # This is to support Heroku Review apps which host is different for each PR
     SITE_URL = "https://{}.herokuapp.com".format(env("HEROKU_APP_NAME"))
@@ -113,8 +132,9 @@ TEMPLATES = [{
 #   'mysql://username:password@host:optional_port/database_name'
 #
 # which django-environ converts into the Django DB settings dict format.
+LOCALHOST_MYSQL_HOST = 'mysql://root@{}:3306/treeherder'.format('localhost' if IS_WINDOWS else '127.0.0.1')
 DATABASES = {
-    'default': env.db_url('DATABASE_URL'),
+    'default': env.db_url('DATABASE_URL', default=LOCALHOST_MYSQL_HOST),
 }
 
 # Only used when syncing local database with production replicas
@@ -147,7 +167,7 @@ for alias in DATABASES:
         }
 
 # Caches
-REDIS_URL = env('REDIS_URL')
+REDIS_URL = env('REDIS_URL', default='redis://localhost:6379')
 if connection_should_use_tls(REDIS_URL):
     # Connect using TLS on Heroku.
     REDIS_URL = get_tls_redis_url(REDIS_URL)
@@ -310,7 +330,7 @@ CELERY_TASK_QUEUES = [
 CELERY_TASK_CREATE_MISSING_QUEUES = False
 
 # Celery broker setup
-CELERY_BROKER_URL = env('BROKER_URL')
+CELERY_BROKER_URL = env('BROKER_URL', default='amqp://guest:guest@localhost:5672//')
 
 # Force Celery to use TLS when appropriate (ie if not localhost),
 # rather than relying on `CELERY_BROKER_URL` having `amqps://` or `?ssl=` set.
