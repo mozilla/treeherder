@@ -119,35 +119,52 @@ class GithubTransformer:
 
 
 class GithubPushTransformer(GithubTransformer):
+    # https://github.com/taskcluster/taskcluster/blob/master/services/github/src/api.js#L254-L260
     # {
-    #     organization:mozilla - services
-    #     details:{
-    #         event.type:push
-    #         event.base.repo.branch:master
-    #         event.head.repo.branch:master
-    #         event.head.user.login:mozilla-cloudops-deploy
-    #         event.head.repo.url:https://github.com/mozilla-services/cloudops-jenkins.git
-    #         event.head.sha:845aa1c93726af92accd9b748ea361a37d5238b6
-    #         event.head.ref:refs/heads/master
-    #         event.head.user.email:mozilla-cloudops-deploy@noreply.github.com
+    #   exchange: exchange/taskcluster-github/v1/push
+    #   routingKey: primary.mozilla-mobile.android-components
+    #   payload: {
+    #     organization: mozilla-mobile
+    #     details: {
+    #       event.head.repo.url: https://github.com/mozilla-mobile/android-components.git
+    #       event.base.repo.branch: staging.tmp
     #     }
-    #     repository:cloudops-jenkins
-    #     version:1
+    #     repository: android-components
+    #     body: {
+    #       commits: [{
+    #         message: [ci skip][skip ci][skip netlify] -bors-staging-tmp-5835
+    #         author:
+    #           name: bors[bot]
+    #           email: 26634292+bors[bot]@users.noreply.github.com
+    #       }]
+    #       head_commit: {
+    #         id: 5fdb785b28b356f50fc1d9cb180d401bb03fc1f1
+    #         author: {
+    #           name: bors[bot]
+    #           email: 26634292+bors[bot]@users.noreply.github.com
+    #         }
+    #         timestamp: 2020-02-12T15:29:12Z
+    #       }
+    #     }
     # }
 
-    URL_BASE = "https://api.github.com/repos/{}/{}/compare/{}...{}"
-
     def transform(self, repository):
-        push_url = self.URL_BASE.format(
-            self.message_body["organization"],
-            self.message_body["repository"],
-            self.message_body["details"]["event.base.sha"],
-            self.message_body["details"]["event.head.sha"],
-        )
-        return self.fetch_push(push_url, repository)
-
-    def get_cleaned_commits(self, compare):
-        return compare["commits"]
+        head_commit = self.message_body["body"]["head_commit"]
+        push = {
+            "revision": head_commit["id"],
+            "push_timestamp": to_timestamp(head_commit["timestamp"]),
+            "author": head_commit["author"]["email"],
+            "revisions": [],
+        }
+        for commit in self.message_body["body"]["commits"]:
+            push["revisions"].append({
+                "comment": commit["message"],
+                "author": u"{} <{}>".format(
+                    commit["author"]["name"],
+                    commit["author"]["email"]),
+                "revision": commit["id"]
+            })
+        return push
 
     def get_repo(self):
         return self.message_body["details"]["event.head.repo.url"].replace(".git", "")
