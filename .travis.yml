@@ -42,7 +42,6 @@ matrix:
         - pip install -r requirements/dev.txt
         - pip install -r requirements/docs.txt
       script:
-        - git grep -El '^#!/.+\b(bash|sh)\b' | xargs shellcheck
         - ./runchecks.sh
 
     - env: python-tests-outside-docker
