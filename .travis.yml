@@ -60,7 +60,7 @@ matrix:
       script:
         - ./manage.py check
         # Exercising running tests outside of Docker
-        - DATABASE_URL=mysql://root@127.0.0.1:3306/treeherder pytest tests/ --ignore=tests/selenium --ignore=tests/extract
+        - pytest tests/ --ignore=tests/selenium --ignore=tests/extract
         # This is to deal with running the containers with --detached
         - docker-compose down
 
