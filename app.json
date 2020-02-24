@@ -29,6 +29,7 @@
     "DATABASE_URL": {
       "value": "$JAWSDB_URL"
     },
+    "HEROKU_REVIEW_APP": true,
     "HEROKU_APP_NAME": {
       "required": true
     },

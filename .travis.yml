@@ -22,7 +22,7 @@ matrix:
         # `yarn lint` only checks the formatting of JS/JSX, this will also check CSS/HTML/JSON/Markdown/YAML.
         - yarn format:check
         - yarn test:coverage
-      after_success: yarn codecov
+        - yarn codecov
 
     - env: test-prod-build
       language: node_js
@@ -51,13 +51,12 @@ matrix:
       cache: pip
       install:
         # Initialize services required to run tests
-        - docker-compose up --detach mysql
-        - docker-compose up --detach redis
-        - docker-compose up --detach rabbitmq
+        - docker-compose up --detach mysql redis rabbitmq
         - pip install -r requirements/common.txt -r requirements/dev.txt
       script:
+        - ./manage.py check
         # Exercising running tests outside of Docker
-        - DATABASE_URL=mysql://root@127.0.0.1:3306/treeherder ./tests/env.sh pytest tests/ --ignore=tests/selenium
+        - DATABASE_URL=mysql://root@127.0.0.1:3306/treeherder pytest tests/ --ignore=tests/selenium
         # This is to deal with running the containers with --detached
         - docker-compose down
 
@@ -68,7 +67,6 @@ matrix:
         - pip install codecov --user
       script:
         - docker-compose run backend bash -c "pytest --cov --cov-report=xml tests/ --runslow --ignore=tests/selenium"
-      after_success:
         - codecov -f coverage.xml
 
     - env: python-tests-selenium
@@ -95,7 +93,6 @@ matrix:
         # XXX: We have the Gecko driver inside of the Docker instance, thus, needing Selenium tests
         # running inside the Docker container
         - docker-compose run backend bash -c "pytest --cov --cov-report=xml tests/selenium/"
-      after_success:
         - codecov -f coverage.xml
 
 notifications:

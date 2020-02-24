@@ -33,9 +33,9 @@ Be sure you are in the `treeherder` main directory
 
 ## Set environment variables
 
-Treeherder requires a number of environment variables that point to the services.  In our case, those services are in local docker containers.
+For Windows, Treeherder requires a number of environment variables that point to the services.  In our case, those services are in local docker containers.
 
-    ./tests/env.sh     # env.bat for Windows
+    ./tests/env.bat
 
 If you plan to use an IDE, here is the same, as a very long line
 
@@ -52,7 +52,7 @@ Django can perform a number of checks to ensure you are configured correctly
 Be sure docker-compose is up, you are in the `treeherder` main directory, your virtual environment is activated, and your environment variables are set:
 
     source .venv/bin/activate
-    ./tests/env.sh pytest tests
+    pytest tests
 
 ## Pre commit checks
 
