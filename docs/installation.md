@@ -141,21 +141,31 @@ Ingestion tasks populate the database with version control push logs, queued/run
 
 `NOTE`; You have to include `--root-url https://community-tc.services.mozilla.com` in order to ingest from the [Taskcluster Community instance](https://community-tc.services.mozilla.com), otherwise, it will default to the Firefox CI.
 
-#### Ingesting pushes & tasks
+Open a terminal window and run `docker-compose up`. All following sections assume this step.
+
+#### Ingesting pushes
+
+Mercurial pushes:
 
 ```bash
-docker-compose run backend ./manage.py ingest push -p autoland -r 63f8a47cfdf5
+docker-compose exec backend ./manage.py ingest push -p autoland -r 63f8a47cfdf5
 ```
 
-You can ingest all tasks for a push. Check the help output for the script to determine the
+`NOTE`: You can ingest all tasks for a push. Check the help output for the script to determine the
 parameters needed.
 
-### Ingesting a range of pushes
+Github pushes:
+
+```bash
+docker-compose exec backend ./manage.py ingest git-push -p servo-try -c 92fc94588f3b6987082923c0003012fd696b1a2d
+```
+
+#### Ingesting a range of pushes
 
 It is also possible to ingest the last N pushes for a repository:
 
 ```bash
-docker-compose run backend ./manage.py ingest_push mozilla-central --last-n-pushes 100
+docker-compose exec backend ./manage.py ingest_push mozilla-central --last-n-pushes 100
 ```
 
 In this mode, only the push information will be ingested: tasks
@@ -168,7 +178,7 @@ changesets from the web interface into subsequent commands to ingest all tasks.
 `NOTE`: This will only ingest the commits if there's an active Github PRs project. It will only ingest the commits.
 
 ```bash
-docker-compose run backend ./manage.py ingest pr --pr-url https://github.com/mozilla-mobile/android-components/pull/4821
+docker-compose exec backend ./manage.py ingest pr --pr-url https://github.com/mozilla-mobile/android-components/pull/4821
 ```
 
 #### Ingesting individual task
@@ -177,7 +187,7 @@ This will work if the push associated to the task exists in the database.
 
 ```bash
 # Make sure to ingest 1bd9d4f431c4c9f93388bd04a6368cb07398f646 for autoland first
-docker-compose run backend ./manage.py ingest task --task-id KQ5h1BVYTBy_XT21wFpLog
+docker-compose exec backend ./manage.py ingest task --task-id KQ5h1BVYTBy_XT21wFpLog
 ```
 
 ## Learn more

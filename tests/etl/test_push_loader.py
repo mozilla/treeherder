@@ -113,7 +113,7 @@ def test_ingest_github_pull_request(test_repository, github_pr, transformed_gith
 
 def test_ingest_github_push(test_repository, github_push, transformed_github_push,
                             mock_github_push_compare):
-    xformer = GithubPushTransformer(github_push)
+    xformer = GithubPushTransformer(github_push["payload"])
     push = xformer.transform(test_repository.name)
     assert transformed_github_push == push
 
@@ -145,8 +145,8 @@ def test_ingest_hg_push_bad_repo(hg_push):
 @pytest.mark.django_db
 def test_ingest_github_push_bad_repo(github_push):
     """Test graceful handling of an unknown GH repo"""
-    github_push["details"]["event.head.repo.url"] = "https://bad.repo.com"
-    PushLoader().process(github_push, "exchange/taskcluster-github/v1/push", "https://tc.example.com")
+    github_push["payload"]["details"]["event.head.repo.url"] = "https://bad.repo.com"
+    PushLoader().process(github_push["payload"], "exchange/taskcluster-github/v1/push", "https://tc.example.com")
     assert Push.objects.count() == 0
 
 
@@ -160,10 +160,10 @@ def test_ingest_github_push_bad_repo(github_push):
 def test_ingest_github_push_comma_separated_branches(branch, expected_pushes, github_push,
                                                      test_repository, mock_github_push_compare):
     """Test a repository accepting pushes for multiple branches"""
-    test_repository.url = "https://github.com/mozilla/test_treeherder"
+    test_repository.url = "https://github.com/mozilla-mobile/android-components"
     test_repository.branch = "master,foo,bar"
     test_repository.save()
-    github_push["details"]["event.base.repo.branch"] = branch
+    github_push["payload"]["details"]["event.base.repo.branch"] = branch
     assert Push.objects.count() == 0
-    PushLoader().process(github_push, "exchange/taskcluster-github/v1/push", "https://tc.example.com")
+    PushLoader().process(github_push["payload"], "exchange/taskcluster-github/v1/push", "https://tc.example.com")
     assert Push.objects.count() == expected_pushes
