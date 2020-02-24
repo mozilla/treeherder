@@ -6,10 +6,9 @@ from contextlib import contextmanager
 from datetime import (datetime,
                       timedelta)
 
-from treeherder.changelog.collector import (collect,  # noqa
-                                            github3)
-
 warnings.filterwarnings("ignore", category=DeprecationWarning, module="github3")
+from treeherder.changelog.collector import collect  # noqa isort:skip
+from treeherder.changelog.collector import github3  # noqa isort:skip
 
 
 def random_id():
