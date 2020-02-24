@@ -4,8 +4,8 @@ from django.contrib.auth.models import User
 from django.core.exceptions import ObjectDoesNotExist
 from rest_framework import serializers
 
-from treeherder.model import models
 from treeherder.changelog.models import Changelog
+from treeherder.model import models
 from treeherder.webapp.api.utils import (REPO_GROUPS,
                                          to_timestamp)
 

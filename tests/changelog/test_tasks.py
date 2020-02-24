@@ -1,11 +1,9 @@
 import pytest
-import warnings
 
-warnings.filterwarnings("ignore", category=DeprecationWarning, module="github3")
-from .test_collector import fake_env
-
-from treeherder.changelog.tasks import update_changelog
 from treeherder.changelog.models import Changelog
+from treeherder.changelog.tasks import update_changelog
+
+from .test_collector import fake_env
 
 
 @pytest.mark.django_db()

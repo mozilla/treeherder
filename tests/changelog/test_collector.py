@@ -1,13 +1,15 @@
-from datetime import datetime, timedelta
+import binascii
 import json
 import os
-import binascii
-from contextlib import contextmanager
-
 import warnings
+from contextlib import contextmanager
+from datetime import (datetime,
+                      timedelta)
+
+from treeherder.changelog.collector import (collect,  # noqa
+                                            github3)
 
 warnings.filterwarnings("ignore", category=DeprecationWarning, module="github3")
-from treeherder.changelog.collector import collect, github3
 
 
 def random_id():

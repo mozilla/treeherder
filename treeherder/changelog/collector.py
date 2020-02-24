@@ -1,12 +1,11 @@
 """ Collector, grabs changes in various sources and put them in a DB.
 """
-import github3
 import json
 import os
 
-from treeherder.changelog import models
-from treeherder.changelog.filters import Filters
+import github3
 
+from treeherder.changelog.filters import Filters
 
 MAX_ITEMS = 100
 CFG = os.path.join(os.path.dirname(__file__), "repositories.json")

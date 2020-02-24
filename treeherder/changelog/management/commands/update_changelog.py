@@ -1,4 +1,5 @@
 from django.core.management.base import BaseCommand
+
 from treeherder.changelog.tasks import update_changelog
 
 

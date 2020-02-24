@@ -1,5 +1,7 @@
-from django.utils import timezone
 from datetime import timedelta
+
+from django.utils import timezone
+
 from treeherder.changelog.models import Changelog
 
 
