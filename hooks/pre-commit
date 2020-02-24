@@ -1,8 +1,10 @@
 #!/usr/bin/env bash
 
 echo "Running isort"
+pip install isort
 isort --check-only --diff --quiet \
  || { echo "isort errors found! Run 'isort' with no options to fix."; exit 1; }
 
 echo "Runnig flake8"
+pip install flake8
 flake8 --show-source || { echo "flake8 errors found!"; exit 1; }
