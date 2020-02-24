@@ -159,7 +159,7 @@ class TestFailure extends React.PureComponent {
               >
                 {detailsShowing ? 'less...' : 'more...'}
               </Button>
-              <UncontrolledCollapse toggler={key}>
+              <UncontrolledCollapse toggler={key} data-testid="log-lines">
                 {logLines.map(logLine => (
                   <Row className="small mt-2" key={logLine.line_number}>
                     <Container className="pre-wrap text-break">

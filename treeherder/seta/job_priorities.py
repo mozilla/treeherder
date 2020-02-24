@@ -6,7 +6,8 @@ from treeherder.etl.seta import (get_reference_data_names,
                                  valid_platform)
 from treeherder.seta.models import JobPriority
 from treeherder.seta.settings import (SETA_LOW_VALUE_PRIORITY,
-                                      SETA_PROJECTS)
+                                      SETA_PROJECTS,
+                                      THE_FUTURE)
 
 logger = logging.getLogger(__name__)
 
@@ -67,7 +68,7 @@ class SETAJobPriorities:
             job_priorities = []
             for jp in self._query_job_priorities(priority=priority,
                                                  excluded_build_system_type='buildbot'):
-                if jp.has_expired():
+                if jp.has_expired() or jp.expiration_date == THE_FUTURE:
                     job_priorities.append(jp)
             ref_data_names = self._process(project,
                                            build_system='taskcluster',

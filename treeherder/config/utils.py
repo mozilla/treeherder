@@ -6,7 +6,7 @@ def connection_should_use_tls(url):
     # certificates set up. We could try using TLS locally using self-signed certs,
     # but until Travis has support it's not overly useful.
     host = furl(url).host or url  # The url passed is already just the hostname.
-    return host not in ('localhost', 'mysql', 'redis', 'rabbitmq')
+    return host not in ('0.0.0.0', 'localhost', 'mysql', 'redis', 'rabbitmq', '127.0.0.1')
 
 
 def get_tls_redis_url(redis_url):

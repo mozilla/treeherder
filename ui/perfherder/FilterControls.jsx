@@ -30,6 +30,7 @@ export const createDropdowns = (dropdownOptions, colClass, outline = false) => (
             {dropdown.selectedItem}
           </DropdownToggle>
           <DropdownMenuItems
+            pinned={dropdown.pinnedProjects}
             options={dropdown.options}
             selectedItem={dropdown.selectedItem}
             updateData={dropdown.updateData}

@@ -1,5 +1,3 @@
-import logging
-
 from django.db.models import Q
 from jx_bigquery import bigquery
 from jx_mysql.mysql import MySQL
@@ -14,25 +12,30 @@ from mo_sql import SQL
 from mo_times import (DAY,
                       YEAR,
                       Timer)
-from mo_times.dates import (Date,
-                            parse)
+from mo_times.dates import Date
 from redis import Redis
 
+from treeherder.config.settings import REDIS_URL
 from treeherder.perf.models import PerformanceAlertSummary
 
 CONFIG_FILE = (File.new_instance(__file__).parent / "extract_alerts.json").abspath
 
-logger = logging.getLogger(__name__)
-logger.setLevel(logging.INFO)
-
 
 class ExtractAlerts:
     def run(self, force=False, restart=False, merge=False):
-        # SETUP LOGGING
-        settings = startup.read_settings(filename=CONFIG_FILE)
-        constants.set(settings.constants)
-        Log.start(settings.debug)
+        try:
+            # SETUP LOGGING
+            settings = startup.read_settings(filename=CONFIG_FILE)
+            constants.set(settings.constants)
+            Log.start(settings.debug)
 
+            self.extract(settings, force, restart, merge)
+        except Exception as e:
+            Log.error("could not extract alerts", cause=e)
+        finally:
+            Log.stop()
+
+    def extract(self, settings, force, restart, merge):
         if not settings.extractor.app_name:
             Log.error("Expecting an extractor.app_name in config file")
 
@@ -47,7 +50,7 @@ class ExtractAlerts:
                     destination.merge_shards()
 
             # RECOVER LAST SQL STATE
-            redis = Redis()
+            redis = Redis.from_url(REDIS_URL)
             state = redis.get(settings.extractor.key)
 
             if restart or not state:
@@ -57,7 +60,7 @@ class ExtractAlerts:
                 state = json2value(state.decode("utf8"))
 
             last_modified, alert_id = state
-            last_modified = parse(last_modified)
+            last_modified = Date(last_modified)
 
             # SCAN SCHEMA, GENERATE EXTRACTION SQL
             extractor = MySqlSnowflakeExtractor(settings.source)

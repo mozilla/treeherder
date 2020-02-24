@@ -89,13 +89,6 @@ input[type='checkbox'] {
   cursor: pointer;
 }
 
-/* For cases where the base Bootstrap 4 equivalent doesn't
-   work, due to our special uses.*/
-.nav-dropdown-menu-right {
-  left: auto;
-  right: 0;
-}
-
 .form-control:focus {
   border: 1px solid #ced4da;
   box-shadow: none;

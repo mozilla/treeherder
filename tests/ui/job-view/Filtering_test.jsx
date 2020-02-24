@@ -20,6 +20,17 @@ import {
 import jobListFixtureOne from '../mock/job_list/job_1';
 import jobMap from '../mock/job_map';
 
+// solution to createRange is not a function error for popper (used by reactstrap)
+// https://github.com/mui-org/material-ui/issues/15726#issuecomment-493124813
+global.document.createRange = () => ({
+  setStart: () => {},
+  setEnd: () => {},
+  commonAncestorContainer: {
+    nodeName: 'BODY',
+    ownerDocument: document,
+  },
+});
+
 describe('Filtering', () => {
   const repoName = 'autoland';
 

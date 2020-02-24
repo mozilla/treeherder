@@ -73,11 +73,7 @@
   background-color: transparent;
   padding-left: 9px;
   padding-right: 10px;
-}
-
-.btn-push.btn:focus {
-  -webkit-box-shadow: inset 0 3px 5px rgba(0, 0, 0, 0.125);
-  box-shadow: inset 0 3px 5px rgba(0, 0, 0, 0.125);
+  border: 0;
 }
 
 .btn-push:hover {
@@ -95,11 +91,6 @@ fieldset[disabled] .btn-push:hover {
   background-color: #7c7a7d;
   border-color: #7c7a7d;
   color: white;
-}
-
-th-action-button .btn-push {
-  padding-left: 6px;
-  font-size: 14px;
 }
 
 .watch-commit-btn:not([data-watch-state='none']) {
