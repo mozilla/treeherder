@@ -186,10 +186,10 @@ def ingestGitPush(options, root_url):
         # [1] https://github.com/taskcluster/taskcluster/blob/3dda0adf85619d18c5dcf255259f3e274d2be346/services/github/src/api.js#L55
         parents = compareResponse["merge_base_commit"]["parents"]
         eventBaseSha = None
-        for p in parents:
-            c = fetch_json(p["url"])
-            if c["parents"] and len(c["parents"]) > 1:
-                eventBaseSha = p["sha"]
+        for parent in parents:
+            _commit = fetch_json(parent["url"])
+            if _commit["parents"] and len(_commit["parents"]) > 1:
+                eventBaseSha = parent["sha"]
                 logger.info("We have a new base: %s", eventBaseSha)
                 break
         # When using the correct sha the "commits" field will have information
