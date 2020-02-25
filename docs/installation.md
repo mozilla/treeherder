@@ -50,6 +50,12 @@ To get started:
 
 - Install Docker & docker-compose (both are installed if using Docker for Windows/Mac).
 
+- To setup custom Github hooks, run 
+  ```python
+  pre-commit install
+  ````
+  This will run all the indent formatting before you commit.
+
 - If you just wish to [run the tests](backend_tasks.md#running-the-tests),
   you can stop now without performing the remaining steps.
 
