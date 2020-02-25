@@ -12,6 +12,12 @@ If you only want to hack on the frontend, see the UI Development section below. 
 
 Before pushing new code, please make sure you are following our [Code Style](code_style.md#ui) and [Accessibility Guidelines](accessibility.md).
 
+- For maintaining the code liniting properly for the backend,setup custom Github hooks, run 
+  ```python
+  pre-commit install
+  ````
+  This will run all the indent formatting before you commit.
+
 ## UI Development
 
 To get started:
@@ -49,12 +55,6 @@ production site. You do not need to set up the Docker environment unless making 
 To get started:
 
 - Install Docker & docker-compose (both are installed if using Docker for Windows/Mac).
-
-- To setup custom Github hooks, run 
-  ```python
-  pre-commit install
-  ````
-  This will run all the indent formatting before you commit.
 
 - If you just wish to [run the tests](backend_tasks.md#running-the-tests),
   you can stop now without performing the remaining steps.
