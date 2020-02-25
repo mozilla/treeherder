@@ -271,6 +271,13 @@ class PushViewSet(viewsets.ViewSet):
             elif metric_result == 'fail':
                 push_result = metric_result
 
+        newrelic.agent.record_custom_event('push_health_need_investigation', {
+            'revision': revision,
+            'repo': repository.name,
+            'needInvestigation': len(push_health_test_failures['needInvestigation']),
+            'unsupported': len(push_health_test_failures['unsupported']),
+        })
+
         return Response({
             'revision': revision,
             'id': push.id,
