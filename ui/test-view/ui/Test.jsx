@@ -1,12 +1,10 @@
 /* eslint-disable max-classes-per-file */
-/* eslint-disable jsx-a11y/no-noninteractive-element-interactions */
-/* eslint-disable jsx-a11y/no-static-element-interactions */
 
 import React from 'react';
 import PropTypes from 'prop-types';
 import { Link } from 'react-router-dom';
 import { connect } from 'react-redux';
-import { Badge } from 'reactstrap';
+import { Badge, Button } from 'reactstrap';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import {
   faBug,
@@ -48,25 +46,27 @@ class BugCountComponent extends React.Component {
 
   render() {
     return (
-      <td className="bug-count" onClick={this.onClick}>
-        {// TODO: Clean this up
-        // eslint-disable-next-line no-nested-ternary
-        this.props.test.bugs === undefined ? (
-          <FontAwesomeIcon
-            icon={faMinus}
-            title="Click to expand and fetch bugs"
-          />
-        ) : Object.keys(this.props.test.bugs).length > 0 ? (
-          Object.keys(this.props.test.bugs).length
-        ) : (
-          <Badge
-            size="sm"
-            color="danger"
-            style={{ fontWeight: 400, fontSize: '.8rem', margin: '0 .5rem' }}
-          >
-            0
-          </Badge>
-        )}
+      <td className="bug-count">
+        <div role="button" tabIndex={0} onClick={this.onClick}>
+          {// TODO: Clean this up
+          // eslint-disable-next-line no-nested-ternary
+          this.props.test.bugs === undefined ? (
+            <FontAwesomeIcon
+              icon={faMinus}
+              title="Click to expand and fetch bugs"
+            />
+          ) : Object.keys(this.props.test.bugs).length > 0 ? (
+            Object.keys(this.props.test.bugs).length
+          ) : (
+            <Badge
+              size="sm"
+              color="danger"
+              style={{ fontWeight: 400, fontSize: '.8rem', margin: '0 .5rem' }}
+            >
+              0
+            </Badge>
+          )}
+        </div>
       </td>
     );
   }
@@ -246,9 +246,9 @@ class TestComponent extends React.Component {
   render() {
     return (
       <td className="test-table">
-        <span className="test" onClick={this.onClick}>
+        <Button className="test" onClick={this.onClick}>
           {this.props.name}
-        </span>
+        </Button>
         <span className="platform-list">
           {this.props.test.jobs.map(job => (
             <Platform

@@ -1,5 +1,3 @@
-/* eslint-disable jsx-a11y/no-static-element-interactions */
-
 import React from 'react';
 import { Button } from 'reactstrap';
 import PropTypes from 'prop-types';
@@ -236,15 +234,16 @@ class SecondaryNavBar extends React.PureComponent {
           </span>
           <form role="search" className="form-inline flex-row">
             {serverChanged && (
-              <span
-                className="btn btn-sm btn-view-nav nav-menu-btn"
+              <Button
+                size="sm"
+                className="btn-view-nav nav-menu-btn"
                 onClick={updateButtonClick}
                 id="revisionChangedLabel"
                 title="New version of Treeherder has been deployed. Reload to pick up changes."
               >
                 <FontAwesomeIcon icon={faExclamationCircle} />
                 &nbsp;Treeherder update available
-              </span>
+              </Button>
             )}
 
             {/* Unclassified Failures Button */}
@@ -341,8 +340,9 @@ class SecondaryNavBar extends React.PureComponent {
             </span>
 
             <span>
-              <span
-                className="btn btn-view-nav btn-sm"
+              <Button
+                size="sm"
+                className="btn-view-nav"
                 onClick={toggleFieldFilterVisible}
                 title="Filter by a job field"
               >
@@ -351,7 +351,7 @@ class SecondaryNavBar extends React.PureComponent {
                   size="sm"
                   title="Filter by a job field"
                 />
-              </span>
+              </Button>
             </span>
             <span>
               <TierIndicator filterModel={filterModel} />

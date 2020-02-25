@@ -1,8 +1,7 @@
-/* eslint-disable jsx-a11y/no-static-element-interactions */
-
 import React from 'react';
 import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
+import { Button } from 'reactstrap';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faStar as faStarRegular } from '@fortawesome/free-regular-svg-icons';
 import {
@@ -31,13 +30,15 @@ function RelatedBugSaved(props) {
       >
         <em>{bugId}</em>
       </a>
-      <span
-        className="btn classification-delete-icon hover-warning btn-xs pinned-job-close-btn annotations-bug"
+      <Button
+        color="link"
+        size="xs"
+        className="classification-delete-icon hover-warning pinned-job-close-btn annotations-bug"
         onClick={() => deleteBug(bug)}
         title={`Delete relation to bug ${bugId}`}
       >
         <FontAwesomeIcon icon={faTimesCircle} title="Delete" />
-      </span>
+      </Button>
     </span>
   );
 }
@@ -96,13 +97,14 @@ function TableRow(props) {
       </td>
       <td>{text}</td>
       <td>
-        <span
+        <Button
+          color="link"
           onClick={deleteEvent}
           className="classification-delete-icon hover-warning pointable"
           title="Delete this classification"
         >
           <FontAwesomeIcon icon={faTimesCircle} title="Delete classification" />
-        </span>
+        </Button>
       </td>
     </tr>
   );

@@ -1,8 +1,6 @@
-/* eslint-disable jsx-a11y/control-has-associated-label */
-/* eslint-disable jsx-a11y/no-static-element-interactions */
-
 import React from 'react';
 import PropTypes from 'prop-types';
+import { Button } from 'reactstrap';
 import { connect } from 'react-redux';
 import intersection from 'lodash/intersection';
 import isEqual from 'lodash/isEqual';
@@ -141,6 +139,8 @@ class PushList extends React.Component {
     }
     return (
       <div
+        role="button"
+        tabIndex={0}
         id="push-list"
         onClick={evt => this.clearIfEligibleTarget(evt.target)}
       >
@@ -170,6 +170,7 @@ class PushList extends React.Component {
           <div
             className="progress active progress-bar progress-bar-striped"
             role="progressbar"
+            aria-label="Loading tests"
           />
         )}
         {pushList.length === 0 && !loadingPushes && (
@@ -184,14 +185,16 @@ class PushList extends React.Component {
           <span>get next:</span>
           <div className="btn-group">
             {[10, 20, 50].map(count => (
-              <div
-                className="btn btn-light-bordered"
+              <Button
+                color="darker-secondary"
+                outline
+                className="btn-light-bordered"
                 onClick={() => fetchNextPushes(count)}
                 key={count}
                 data-testid={`get-next-${count}`}
               >
                 {count}
-              </div>
+              </Button>
             ))}
           </div>
         </div>

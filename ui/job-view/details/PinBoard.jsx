@@ -1,5 +1,3 @@
-/* eslint-disable jsx-a11y/no-static-element-interactions */
-
 import React from 'react';
 import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
@@ -408,23 +406,23 @@ class PinBoard extends React.Component {
               )}
               {Object.values(pinnedJobs).map(job => (
                 <span className="btn-group" key={job.id}>
-                  <span
-                    className={`btn pinned-job ${getBtnClass(
+                  <Button
+                    className={`pinned-job mb-1 ${getBtnClass(
                       job.resultStatus,
                       job.failure_classification_id,
-                    )} ${
-                      selectedJobId === job.id
-                        ? 'btn-lg selected-job'
-                        : 'btn-xs'
-                    }`}
+                    )} ${selectedJobId === job.id ? 'selected-job' : ''}`}
                     title={job.hoverText}
                     onClick={() => setSelectedJob(job)}
                     data-job-id={job.job_id}
+                    size={selectedJobId === job.id ? 'large' : 'small'}
+                    outline
                   >
                     {job.job_type_symbol}
-                  </span>
-                  <span
-                    className={`btn btn-ltgray pinned-job-close-btn ${
+                  </Button>
+                  <Button
+                    color="secondary"
+                    outline
+                    className={`pinned-job-close-btn ${
                       selectedJobId === job.id
                         ? 'btn-lg selected-job'
                         : 'btn-xs'
@@ -433,7 +431,7 @@ class PinBoard extends React.Component {
                     title="un-pin this job"
                   >
                     <FontAwesomeIcon icon={faTimes} title="Unpin job" />
-                  </span>
+                  </Button>
                 </span>
               ))}
             </div>
@@ -442,10 +440,11 @@ class PinBoard extends React.Component {
           {/* Related bugs */}
           <div id="pinboard-related-bugs">
             <div className="content">
-              <span
+              <Button
+                color="link"
                 id="add-related-bug-button"
                 onClick={() => this.toggleEnterBugNumber(!enteringBugNumber)}
-                className="pointable"
+                className="pointable p-0"
                 title="Add a related bug"
               >
                 <FontAwesomeIcon
@@ -453,16 +452,17 @@ class PinBoard extends React.Component {
                   className="add-related-bugs-icon"
                   title="Add related bugs"
                 />
-              </span>
+              </Button>
               {!this.hasPinnedJobBugs() && (
-                <span
-                  className="pinboard-preload-txt pinboard-related-bug-preload-txt"
+                <Button
+                  color="link"
+                  className="pinboard-preload-txt pinboard-related-bug-preload-txt p-0 text-decoration-none"
                   onClick={() => {
                     this.toggleEnterBugNumber(!enteringBugNumber);
                   }}
                 >
                   click to add a related bug
-                </span>
+                </Button>
               )}
               {enteringBugNumber && (
                 <span className="add-related-bugs-form">
@@ -494,13 +494,15 @@ class PinBoard extends React.Component {
                     >
                       <em>{bug.id}</em>
                     </a>
-                    <span
-                      className="btn btn-ltgray btn-xs pinned-job-close-btn"
+                    <Button
+                      color="secondary"
+                      outline
+                      className="btn-xs pinned-job-close-btn"
                       onClick={() => removeBug(bug.id)}
                       title="remove this bug"
                     >
                       <FontAwesomeIcon icon={faTimes} title="Remove bug" />
-                    </span>
+                    </Button>
                   </span>
                 </span>
               ))}

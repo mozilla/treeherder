@@ -1,5 +1,3 @@
-/* eslint-disable jsx-a11y/no-static-element-interactions */
-
 import React from 'react';
 import { Link } from 'react-router-dom';
 import PropTypes from 'prop-types';
@@ -32,20 +30,17 @@ function BugColumn({
         {id}
       </a>
       &nbsp;
-      <span
+      <Link
         className="ml-1 small-text bug-details"
         onClick={() => updateAppState({ graphData, tableData })}
+        to={{
+          pathname: '/bugdetails',
+          search: `?startday=${startday}&endday=${endday}&tree=${tree}&bug=${id}`,
+          state: { startday, endday, tree, id, summary, location },
+        }}
       >
-        <Link
-          to={{
-            pathname: '/bugdetails',
-            search: `?startday=${startday}&endday=${endday}&tree=${tree}&bug=${id}`,
-            state: { startday, endday, tree, id, summary, location },
-          }}
-        >
-          details
-        </Link>
-      </span>
+        details
+      </Link>
     </div>
   );
 }
