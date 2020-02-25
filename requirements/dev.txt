@@ -1,8 +1,5 @@
 # Dependencies needed only for development/testing.
 
-pre-commit==2.1.1 \
-    --hash=sha256:09ebe467f43ce24377f8c2f200fe3cd2570d328eb2ce0568c8e96ce19da45fa6
-
 colorama==0.4.3 \
     --hash=sha256:7d73d2a99753107a36ac6b455ee49046802e59d9d076ef8e47b61499fa29afff
 
