@@ -250,14 +250,14 @@ class HgPushTransformer:
         return self.message_body["payload"]
 
     def transform(self, repository):
-        logger.info("transforming for %s", repository)
+        logger.debug("transforming for %s", repository)
         url = self.message_body["payload"]["pushlog_pushes"][0]["push_full_json_url"]
         return self.fetch_push(url, repository)
 
     def fetch_push(self, url, repository, sha=None):
         newrelic.agent.add_custom_parameter("sha", sha)
 
-        logger.info("fetching for %s %s", repository, url)
+        logger.debug("fetching for %s %s", repository, url)
         # there will only ever be one, with this url
         push = list(fetch_json(url)["pushes"].values())[0]
 
