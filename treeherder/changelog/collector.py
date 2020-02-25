@@ -4,6 +4,7 @@ import json
 import os
 
 import github3
+from django.conf import settings
 
 from treeherder.changelog.filters import Filters
 
@@ -25,8 +26,8 @@ class GitHub:
         """ The two-factor authentication is useful when running Github from a
         personal github account.
         """
-        # XXX add a cheeck to know if we run into the CI, if it's the case
-        # and this function is called, we need to raise an error.
+        if "localhost" not in settings.SITE_HOSTNAME:
+            raise ValueError("Cannot perform 2FA if not running locally")
         code = ""
         while not code:
             code = input("Enter 2FA code: ")
