@@ -4,13 +4,6 @@ from pages.perfherder import Perfherder
 
 
 @pytest.mark.skip(reason="Needs to be updated to work with react or replaced with react-testing-library")
-def test_add_test_data(base_url, selenium):
-    '''This tests that we can click the add test data button'''
-    page = Perfherder(selenium, base_url).open()
-    page.add_test_data()
-
-
-@pytest.mark.skip(reason="Needs to be updated to work with react or replaced with react-testing-library")
 def test_load_test_data(base_url, selenium, test_perf_data):
     """
     Test that user is able to select test data from the "test chooser" and
