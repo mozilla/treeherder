@@ -155,7 +155,7 @@ class TaskConsumer(PulseConsumer):
     def on_message(self, body, message):
         exchange = message.delivery_info['exchange']
         routing_key = message.delivery_info['routing_key']
-        logger.info('received job message from %s#%s', exchange, routing_key)
+        logger.debug('received job message from %s#%s', exchange, routing_key)
         store_pulse_tasks.apply_async(
             args=[body, exchange, routing_key, self.root_url],
             queue='store_pulse_tasks'
