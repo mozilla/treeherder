@@ -14,6 +14,7 @@ Before pushing new code, please make sure you are following our [Code Style](cod
 
 - For maintaining the code liniting properly for the backend,setup custom Github hooks, run 
   ```python
+  pip install pre-commit
   pre-commit install
   ````
   This will run all the indent formatting before you commit.
