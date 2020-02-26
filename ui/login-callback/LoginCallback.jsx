@@ -6,6 +6,10 @@ import AuthService from '../shared/auth/AuthService';
 import { webAuth, parseHash } from '../helpers/auth';
 import CallbackMessage from '../shared/CallbackMessage';
 import taskcluster from '../helpers/taskcluster';
+import {
+  prodFirefoxRootUrl,
+  checkRootUrl,
+} from '../taskcluster-auth-callback/constants';
 
 class LoginCallback extends React.PureComponent {
   constructor(props) {
@@ -51,7 +55,7 @@ class LoginCallback extends React.PureComponent {
 
   checkTaskclusterCredentials = () => {
     const userCredentials = JSON.parse(localStorage.getItem('userCredentials'));
-    const defaultRootUrl = 'https://firefox-ci-tc.services.mozilla.com';
+    const defaultRootUrl = checkRootUrl(prodFirefoxRootUrl);
 
     if (
       !userCredentials ||
