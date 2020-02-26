@@ -70,9 +70,18 @@ Be sure docker-compose is up, you are in the `treeherder` main directory, your v
 
 ### Pre commit checks
 
-If you made some changes, and want to submit a pull request; run the `./runtests.sh` script (found in the main directory).  It will run some linters to check your submission.
+The pre-commit git hooks will also perform some flake8 and isort checks and block your commit.  If you want to force the commit 
+
+    git commit --no-verify -m "message about commit
+
+If you made some changes, and want to submit a pull request; run 
+
+    ./runtests.sh
+
+script (found in the main directory).  It will run some linters to check your submission.
 
 > For Windows, you can run the checks in a container (see below)
+
 
 
 ### Using containers
