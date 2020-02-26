@@ -11,11 +11,12 @@ To use this within the Docker environment, run:
 docker-compose run -p 8000:8000 backend mkdocs serve -a 0.0.0.0:8000
 ```
 
-Or if you would rather not use Docker, instead activate a virtualenv on the host
-machine, and from the root of the Treeherder repo, run:
+Or if you would rather not use Docker, instead use poetry,run:
 
 ```bash
-> pip install -r requirements/docs.txt
+> pip install poetry
+> poetry install
+> poetry shell
 > mkdocs serve
 ```
 

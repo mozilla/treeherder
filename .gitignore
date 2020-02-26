@@ -28,3 +28,6 @@ celerybeat-schedule
 coverage
 coverage.xml
 .coverage
+
+# Ignore poetry lock
+poetry.lock
