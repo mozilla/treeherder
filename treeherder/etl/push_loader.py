@@ -13,6 +13,10 @@ env = environ.Env()
 logger = logging.getLogger(__name__)
 
 
+class PushLoaderError(Exception):
+    pass
+
+
 class PushLoader:
     """Transform and load a list of pushes"""
 
@@ -164,6 +168,8 @@ class GithubPushTransformer(GithubTransformer):
                     commit["author"]["email"]),
                 "revision": commit["id"]
             })
+        if not push["revisions"]:
+            raise PushLoaderError("Github push {} does not contain any revisions. Please investigate.".format(head_commit["id"]))
         return push
 
     def get_repo(self):

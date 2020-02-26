@@ -8,7 +8,8 @@ from treeherder.etl.push_loader import (GithubPullRequestTransformer,
                                         GithubPushTransformer,
                                         HgPushTransformer,
                                         PulsePushError,
-                                        PushLoader)
+                                        PushLoader,
+                                        PushLoaderError)
 from treeherder.model.models import Push
 
 
@@ -151,19 +152,30 @@ def test_ingest_github_push_bad_repo(github_push):
 
 
 @pytest.mark.django_db
+def test_ingest_github_push_no_commits(github_push, test_repository):
+    test_repository.url = github_push["payload"]["body"]["repository"]["url"]
+    test_repository.branch = github_push["payload"]["branch"]
+    test_repository.save()
+    # This is what will cause the exception
+    github_push["payload"]["body"]["commits"] = []
+    with pytest.raises(PushLoaderError):
+        PushLoader().process(github_push["payload"], github_push["exchange"], "https://tc.example.com")
+    assert Push.objects.count() == 0
+
+
+@pytest.mark.django_db
 @pytest.mark.parametrize("branch, expected_pushes", [
     ("master", 1),
     ("bar", 1),
     ("baz", 0),
     ("foo", 1),
 ])
-def test_ingest_github_push_comma_separated_branches(branch, expected_pushes, github_push,
-                                                     test_repository, mock_github_push_compare):
+def test_ingest_github_push_comma_separated_branches(branch, expected_pushes, github_push, test_repository):
     """Test a repository accepting pushes for multiple branches"""
-    test_repository.url = "https://github.com/mozilla-mobile/android-components"
+    test_repository.url = github_push["payload"]["body"]["repository"]["url"]
     test_repository.branch = "master,foo,bar"
     test_repository.save()
     github_push["payload"]["details"]["event.base.repo.branch"] = branch
     assert Push.objects.count() == 0
-    PushLoader().process(github_push["payload"], "exchange/taskcluster-github/v1/push", "https://tc.example.com")
+    PushLoader().process(github_push["payload"], github_push["exchange"], "https://tc.example.com")
     assert Push.objects.count() == expected_pushes
