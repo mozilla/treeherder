@@ -91,7 +91,7 @@ if DEBUG:
     INSTALLED_APPS.append('django_extensions')
 
 # Heroku-review-app (defined in app.json)
-if env.bool("HEROKU_REVIEW_APP", default=False):
+if env("HEROKU_REVIEW_APP", default=False):
     SITE_URL = "https://{}.herokuapp.com".format(env("HEROKU_APP_NAME"))
 
 # Middleware
