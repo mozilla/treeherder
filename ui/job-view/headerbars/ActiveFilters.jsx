@@ -3,7 +3,6 @@ import PropTypes from 'prop-types';
 import { Button } from 'reactstrap';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faTimesCircle } from '@fortawesome/free-solid-svg-icons';
-import { Button } from 'reactstrap';
 
 import { getFieldChoices } from '../../helpers/filter';
 
