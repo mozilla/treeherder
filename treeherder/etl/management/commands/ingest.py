@@ -174,14 +174,15 @@ def ingestGitPush(options, root_url):
     repo = splitUrl[4]
     githubApi = "https://api.github.com"
     baseUrl = "{}/repos/{}/{}".format(githubApi, owner, repo)
+    commitInfo = fetch_json('{}/commits/{}'.format(baseUrl, commit))
+    # import pdb; pdb.set_trace()
     defaultBranch = fetch_json(baseUrl)["default_branch"]
     # e.g. https://api.github.com/repos/servo/servo/compare/master...941458b22346a458e06a6a6050fc5ad8e1e385a5
-    compareUrl = "{}/compare/{}...{}"
-    resp = fetch_json(compareUrl.format(baseUrl, defaultBranch, commit))
+    resp = fetch_json("{}/compare/{}...{}".format(baseUrl, defaultBranch, commit))
     commits = resp.get("commits")
     merge_base_commit = resp.get("merge_base_commit")
-    headCommit = commits[-1] if commits else merge_base_commit
-    assert headCommit["sha"] == commit
+    # headCommit = commits[-1] if commits else merge_base_commit
+    # assert headCommit["sha"] == commit
 
     commits = []
     for c in resp["commits"]:
@@ -197,6 +198,7 @@ def ingestGitPush(options, root_url):
     # If you want to create a new entry for github_push.json this is the place
     # where you can generate it with:
     # print(json.dumps(pulse, sort_keys=True, indent=4, separators=(',', ': ')))
+    # import pdb; pdb.set_trace()
     pulse = {
         "exchange": "exchange/taskcluster-github/v1/push",
         "routingKey": "primary.{}.{}".format(owner, repo),
@@ -204,20 +206,13 @@ def ingestGitPush(options, root_url):
             "organization": owner,
             "details": {
                 "event.head.repo.url": "https://github.com/{}/{}.git".format(owner, repo),
-                "event.base.repo.branch": branch
+                "event.base.repo.branch": branch,
+                "event.head.sha": commit,
+                "event.head.user.login": commitInfo["author"]["login"]
             },
-            "repository": repo,
             "body": {
                 "commits": commits,
-                "head_commit": {
-                    "id": headCommit["sha"],
-                    "author": {
-                        "name": headCommit["committer"]["login"],
-                        "email": headCommit["commit"]["committer"]["email"],
-                    },
-                    "timestamp": headCommit["commit"]["committer"]["date"],
-                },
-            },
+            }
         }
     }
     if merge_base_commit:

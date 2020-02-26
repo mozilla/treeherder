@@ -155,21 +155,26 @@ class GithubPushTransformer(GithubTransformer):
     URL_BASE = "https://api.github.com/repos/{}/{}/compare/{}...{}"
 
     def transform(self, repository):
-        head_commit = self.message_body["body"]["head_commit"]
+        # import pdb; pdb.set_trace()
+        commit = self.message_body["details"]["event.head.sha"]
         push = {
-            "revision": head_commit["id"],
-            "push_timestamp": to_timestamp(head_commit["timestamp"]),
-            "author": head_commit["author"]["email"],
+            "revision": commit,
+            "author": self.message_body["details"]["event.head.user.login"],
             "revisions": [],
         }
-        commits = self.message_body["body"]["commits"]
-        mergeBaseCommit = self.message_body["body"].get("merge_base_commit")
+        commits = self.message_body["body"].get("commits")
+        merge_base_commit = self.message_body["body"].get("merge_base_commit")
+
+        headCommit = commits[-1] if commits else merge_base_commit
+        # import pdb; pdb.set_trace()
+        assert headCommit["sha"] == commit
         # In some cases a merge commit does not have commits because they've already landed on master
         if not commits:
+            # import pdb; pdb.set_trace()
             # Since we don't use PushEvents that contain the "before" field [1]
             # we need to discover the right parent. A merge commit has two parents
             # [1] https://github.com/taskcluster/taskcluster/blob/3dda0adf85619d18c5dcf255259f3e274d2be346/services/github/src/api.js#L55
-            parents = mergeBaseCommit["parents"]
+            parents = merge_base_commit["parents"]
             eventBaseSha = None
             for parent in parents:
                 _commit = fetch_json(parent["url"])
@@ -206,6 +211,7 @@ class GithubPushTransformer(GithubTransformer):
             })
         if not push["revisions"]:
             raise PushLoaderError("Github push {} does not contain any revisions. Please investigate.".format(head_commit["id"]))
+        push["push_timestamp"] = to_timestamp(head_commit["timestamp"])
         return push
 
     def get_repo(self):
