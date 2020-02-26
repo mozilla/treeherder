@@ -13,10 +13,6 @@ env = environ.Env()
 logger = logging.getLogger(__name__)
 
 
-class PushLoaderError(Exception):
-    pass
-
-
 class PushLoader:
     """Transform and load a list of pushes"""
 
@@ -155,64 +151,21 @@ class GithubPushTransformer(GithubTransformer):
     URL_BASE = "https://api.github.com/repos/{}/{}/compare/{}...{}"
 
     def transform(self, repository):
-        # import pdb; pdb.set_trace()
-        commit = self.message_body["details"]["event.head.sha"]
-        push = {
-            "revision": commit,
-            "author": self.message_body["details"]["event.head.user.login"],
-            "revisions": [],
-        }
-        commits = self.message_body["body"].get("commits")
-        merge_base_commit = self.message_body["body"].get("merge_base_commit")
-
-        headCommit = commits[-1] if commits else merge_base_commit
-        # import pdb; pdb.set_trace()
-        assert headCommit["sha"] == commit
-        # In some cases a merge commit does not have commits because they've already landed on master
-        if not commits:
-            # import pdb; pdb.set_trace()
-            # Since we don't use PushEvents that contain the "before" field [1]
-            # we need to discover the right parent. A merge commit has two parents
-            # [1] https://github.com/taskcluster/taskcluster/blob/3dda0adf85619d18c5dcf255259f3e274d2be346/services/github/src/api.js#L55
-            parents = merge_base_commit["parents"]
-            eventBaseSha = None
-            for parent in parents:
-                _commit = fetch_json(parent["url"])
-                logger.debug(parent["url"])
-                if _commit["parents"] and len(_commit["parents"]) > 1:
-                    eventBaseSha = parent["sha"]
-                    logger.debug("We have a new base: %s", eventBaseSha)
-                    break
-            # When using the correct base sha the "commits" field will have information
-            compareResponse = fetch_json(self.URL_BASE.format(
-                self.message_body["organization"],
-                self.message_body["repository"],
-                eventBaseSha,
-                head_commit["id"]))
-            # Format in the expected format
-            for c in compareResponse["commits"]:
-                commits.append({
-                    "message": c["commit"]["message"],
-                    "author": {
-                        "name": c["commit"]["committer"]["name"],
-                        "email": c["commit"]["committer"]["email"],
-                    },
-                    "id": c["sha"],
-                })
-            self.message_body["body"]["commits"] = commits
-
-        for commit in self.message_body["body"]["commits"]:
-            push["revisions"].append({
-                "comment": commit["message"],
-                "author": u"{} <{}>".format(
-                    commit["author"]["name"],
-                    commit["author"]["email"]),
-                "revision": commit["id"]
-            })
-        if not push["revisions"]:
-            raise PushLoaderError("Github push {} does not contain any revisions. Please investigate.".format(head_commit["id"]))
+        push_url = self.URL_BASE.format(
+            self.message_body["organization"],
+            self.message_body["repository"],
+            self.message_body["details"]["event.base.sha"],
+            self.message_body["details"]["event.head.sha"],
+        )
+        push = self.fetch_push(push_url, repository)
+        # XXX: Is this the right place?
+        body = self.message_body["body"]
+        head_commit = body["commits"][-1] if body["commits"] else body["head_commit"]
         push["push_timestamp"] = to_timestamp(head_commit["timestamp"])
         return push
+
+    def get_cleaned_commits(self, compare):
+        return compare["commits"]
 
     def get_repo(self):
         return self.message_body["details"]["event.head.repo.url"].replace(".git", "")
