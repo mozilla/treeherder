@@ -152,6 +152,8 @@ class GithubPushTransformer(GithubTransformer):
     #     }
     # }
 
+    URL_BASE = "https://api.github.com/repos/{}/{}/compare/{}...{}"
+
     def transform(self, repository):
         head_commit = self.message_body["body"]["head_commit"]
         push = {
@@ -160,6 +162,40 @@ class GithubPushTransformer(GithubTransformer):
             "author": head_commit["author"]["email"],
             "revisions": [],
         }
+        commits = self.message_body["body"]["commits"]
+        mergeBaseCommit = self.message_body["body"].get("merge_base_commit")
+        # In some cases a merge commit does not have commits because they've already landed on master
+        if not commits:
+            # Since we don't use PushEvents that contain the "before" field [1]
+            # we need to discover the right parent. A merge commit has two parents
+            # [1] https://github.com/taskcluster/taskcluster/blob/3dda0adf85619d18c5dcf255259f3e274d2be346/services/github/src/api.js#L55
+            parents = mergeBaseCommit["parents"]
+            eventBaseSha = None
+            for parent in parents:
+                _commit = fetch_json(parent["url"])
+                logger.debug(parent["url"])
+                if _commit["parents"] and len(_commit["parents"]) > 1:
+                    eventBaseSha = parent["sha"]
+                    logger.debug("We have a new base: %s", eventBaseSha)
+                    break
+            # When using the correct base sha the "commits" field will have information
+            compareResponse = fetch_json(self.URL_BASE.format(
+                self.message_body["organization"],
+                self.message_body["repository"],
+                eventBaseSha,
+                head_commit["id"]))
+            # Format in the expected format
+            for c in compareResponse["commits"]:
+                commits.append({
+                    "message": c["commit"]["message"],
+                    "author": {
+                        "name": c["commit"]["committer"]["name"],
+                        "email": c["commit"]["committer"]["email"],
+                    },
+                    "id": c["sha"],
+                })
+            self.message_body["body"]["commits"] = commits
+
         for commit in self.message_body["body"]["commits"]:
             push["revisions"].append({
                 "comment": commit["message"],

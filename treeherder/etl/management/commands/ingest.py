@@ -175,31 +175,16 @@ def ingestGitPush(options, root_url):
     githubApi = "https://api.github.com"
     baseUrl = "{}/repos/{}/{}".format(githubApi, owner, repo)
     defaultBranch = fetch_json(baseUrl)["default_branch"]
-    # e.g. https://api.github.com/repos/servo/servo/compare/master...1418c0555ff77e5a3d6cf0c6020ba92ece36be2e
+    # e.g. https://api.github.com/repos/servo/servo/compare/master...941458b22346a458e06a6a6050fc5ad8e1e385a5
     compareUrl = "{}/compare/{}...{}"
-    compareResponse = fetch_json(compareUrl.format(baseUrl, defaultBranch, commit))
-    headCommit = None
-    mergeBaseCommit = compareResponse["merge_base_commit"]
-    if mergeBaseCommit:
-        # Since we don't use PushEvents that contain the "before" field [1]
-        # we need to discover the right parent. A merge commit has two parents
-        # [1] https://github.com/taskcluster/taskcluster/blob/3dda0adf85619d18c5dcf255259f3e274d2be346/services/github/src/api.js#L55
-        parents = compareResponse["merge_base_commit"]["parents"]
-        eventBaseSha = None
-        for parent in parents:
-            _commit = fetch_json(parent["url"])
-            if _commit["parents"] and len(_commit["parents"]) > 1:
-                eventBaseSha = parent["sha"]
-                logger.info("We have a new base: %s", eventBaseSha)
-                break
-        # When using the correct sha the "commits" field will have information
-        compareResponse = fetch_json(compareUrl.format(baseUrl, eventBaseSha, commit))
-
-    headCommit = compareResponse["commits"][-1]
+    resp = fetch_json(compareUrl.format(baseUrl, defaultBranch, commit))
+    commits = resp.get("commits")
+    merge_base_commit = resp.get("merge_base_commit")
+    headCommit = commits[-1] if commits else merge_base_commit
     assert headCommit["sha"] == commit
 
     commits = []
-    for c in compareResponse["commits"]:
+    for c in resp["commits"]:
         commits.append({
             "message": c["commit"]["message"],
             "author": {
@@ -209,6 +194,9 @@ def ingestGitPush(options, root_url):
             "id": c["sha"],
         })
 
+    # If you want to create a new entry for github_push.json this is the place
+    # where you can generate it with:
+    # print(json.dumps(pulse, sort_keys=True, indent=4, separators=(',', ': ')))
     pulse = {
         "exchange": "exchange/taskcluster-github/v1/push",
         "routingKey": "primary.{}.{}".format(owner, repo),
@@ -232,6 +220,8 @@ def ingestGitPush(options, root_url):
             },
         }
     }
+    if merge_base_commit:
+        pulse["payload"]["body"]["merge_base_commit"] = merge_base_commit
     PushLoader().process(pulse["payload"], pulse["exchange"], root_url)
 
 
