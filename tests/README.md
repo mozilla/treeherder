@@ -13,6 +13,14 @@ We need all but the main `backend` service running.  Since multiple `backend` in
     # SETUP ALL IMAGES
     docker-compose up --build
 
+### Prepare your development environment
+
+Ensure pre-commit hooks are enabled
+
+    pip install pre-commit
+    pre-commit install
+
+
 ### Install into virtual environment
 
 Treeherder requires specific library versions that will likely interfere with what you have installed. It is best to setup a virtual environment to contain the quirks it introduces.
