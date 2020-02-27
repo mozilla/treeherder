@@ -74,8 +74,7 @@ matrix:
         - codecov -f coverage.xml
 
     # Run Python Selenium tests
-    - env: python-tests-selenium
-      language: node_js
+    - language: node_js
       # The Node version here must be kept in sync with that in `package.json`.
       node_js: '12.13.0'
       cache:

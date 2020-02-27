@@ -11,7 +11,6 @@ import taskcluster_urls as liburls
 from django.conf import settings
 from django.core.management.base import BaseCommand
 
-from treeherder.etl.common import fetch_json
 from treeherder.etl.db_semaphore import (acquire_connection,
                                          release_connection)
 from treeherder.etl.job_loader import JobLoader
@@ -154,87 +153,6 @@ def get_decision_task_id(project, revision, root_url):
     return find_task_id(index_path, root_url)
 
 
-def ingestGitPush(options, root_url):
-    project = options["project"]
-    commit = options["commit"]
-    branch = None
-    # Ingesting pushes out of band from the ingestion pipeline would require
-    # a lot of work (not impossible) because the way Servo uses the "auto"
-    # and "try-" branches. A commit can temporarily belong to those branches.
-    # We need to imply the original branch directly from the project name
-    if project.startswith("servo"):
-        branch = project.split("-")[-1]
-        assert branch in ["auto", "try", "master"], \
-            "Valid servo projects are: servo-auto, servo-try, servo-master."
-
-    repository = Repository.objects.filter(name=project)
-    url = repository[0].url
-    splitUrl = url.split('/')
-    owner = splitUrl[3]
-    repo = splitUrl[4]
-    githubApi = "https://api.github.com"
-    baseUrl = "{}/repos/{}/{}".format(githubApi, owner, repo)
-    defaultBranch = fetch_json(baseUrl)["default_branch"]
-    # e.g. https://api.github.com/repos/servo/servo/compare/master...1418c0555ff77e5a3d6cf0c6020ba92ece36be2e
-    compareUrl = "{}/compare/{}...{}"
-    compareResponse = fetch_json(compareUrl.format(baseUrl, defaultBranch, commit))
-    headCommit = None
-    mergeBaseCommit = compareResponse["merge_base_commit"]
-    if mergeBaseCommit:
-        # Since we don't use PushEvents that contain the "before" field [1]
-        # we need to discover the right parent. A merge commit has two parents
-        # [1] https://github.com/taskcluster/taskcluster/blob/3dda0adf85619d18c5dcf255259f3e274d2be346/services/github/src/api.js#L55
-        parents = compareResponse["merge_base_commit"]["parents"]
-        eventBaseSha = None
-        for parent in parents:
-            _commit = fetch_json(parent["url"])
-            if _commit["parents"] and len(_commit["parents"]) > 1:
-                eventBaseSha = parent["sha"]
-                logger.info("We have a new base: %s", eventBaseSha)
-                break
-        # When using the correct sha the "commits" field will have information
-        compareResponse = fetch_json(compareUrl.format(baseUrl, eventBaseSha, commit))
-
-    headCommit = compareResponse["commits"][-1]
-    assert headCommit["sha"] == commit
-
-    commits = []
-    for c in compareResponse["commits"]:
-        commits.append({
-            "message": c["commit"]["message"],
-            "author": {
-                "name": c["commit"]["committer"]["name"],
-                "email": c["commit"]["committer"]["email"],
-            },
-            "id": c["sha"],
-        })
-
-    pulse = {
-        "exchange": "exchange/taskcluster-github/v1/push",
-        "routingKey": "primary.{}.{}".format(owner, repo),
-        "payload": {
-            "organization": owner,
-            "details": {
-                "event.head.repo.url": "https://github.com/{}/{}.git".format(owner, repo),
-                "event.base.repo.branch": branch
-            },
-            "repository": repo,
-            "body": {
-                "commits": commits,
-                "head_commit": {
-                    "id": headCommit["sha"],
-                    "author": {
-                        "name": headCommit["committer"]["login"],
-                        "email": headCommit["commit"]["committer"]["email"],
-                    },
-                    "timestamp": headCommit["commit"]["committer"]["date"],
-                },
-            },
-        }
-    }
-    PushLoader().process(pulse["payload"], pulse["exchange"], root_url)
-
-
 class Command(BaseCommand):
     """Management command to ingest data from a single push."""
     help = "Ingests a single push and tasks into Treeherder"
@@ -310,7 +228,7 @@ class Command(BaseCommand):
             }
             PushLoader().process(pulse["payload"], pulse["exchange"], root_url)
         elif typeOfIngestion == "git-push":
-            ingestGitPush(options, root_url)
+            raise Exception("This is not yet implemented")
         elif typeOfIngestion == "push":
             if not options["enable_eager_celery"]:
                 logger.info(

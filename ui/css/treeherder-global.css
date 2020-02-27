@@ -499,22 +499,14 @@ h4 {
 /*
  * Onscreen help
  */
-
-#onscreen-overlay {
-  position: fixed;
-  width: 100%;
-  height: 100%;
-  z-index: 9000;
-  background: rgba(0, 0, 0, 0.4);
-}
-
 #onscreen-shortcuts {
   position: fixed;
   top: 50%;
-  left: 16.5%;
-  transform: translateY(-50%);
+  left: 50%;
+  transform: translate(-50%, -50%);
   z-index: 10000;
   width: 100%;
+  max-width: 960px;
 }
 
 #onscreen-shortcuts div div.card {

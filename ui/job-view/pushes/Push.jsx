@@ -19,6 +19,10 @@ import {
   updateJobMap,
   recalculateUnclassifiedCounts,
 } from '../redux/stores/pushes';
+import {
+  checkRootUrl,
+  prodFirefoxRootUrl,
+} from '../../taskcluster-auth-callback/constants';
 
 import FuzzyJobFinder from './FuzzyJobFinder';
 import { Revision } from './Revision';
@@ -31,8 +35,10 @@ const platformArray = Object.values(thPlatformMap);
 
 const fetchTestManifests = async (project, revision) => {
   let taskNameToManifests = {};
-  const rootUrl = 'https://firefox-ci-tc.services.mozilla.com';
-  const url = `${rootUrl}/api/index/v1/task/gecko.v2.${project}.revision.${revision}.taskgraph.decision/artifacts/public/manifests-by-task.json`;
+  const rootUrl = prodFirefoxRootUrl;
+  const url = `${checkRootUrl(
+    rootUrl,
+  )}/api/index/v1/task/gecko.v2.${project}.revision.${revision}.taskgraph.decision/artifacts/public/manifests-by-task.json`;
   const response = await fetch(url);
   if ([200, 303, 304].indexOf(response.status) > -1) {
     taskNameToManifests = await response.json();

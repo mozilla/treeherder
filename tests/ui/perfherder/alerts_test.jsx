@@ -507,11 +507,10 @@ test('Correct message is displayed if the framework id is invalid', async () => 
   expect(frameworkName).toHaveLength(1);
 });
 
-test('Selecting `all` from framework button does not filter by framework', async () => {
+test('Selecting `all` from (frameworks|projects) dropdown shows all (frameworks|projects)', async () => {
   const { queryAllByText, getByTestId } = alertsView();
 
-  const allFromDropdown = await waitForElement(() => queryAllByText('all'));
-
+  const allFromDropdown = await waitForElement(() => queryAllByText(/all/));
   fireEvent.click(allFromDropdown[0]);
   fireEvent.click(allFromDropdown[1]);
 
