@@ -17,6 +17,7 @@ import {
 import PushModel from '../models/push';
 import StatusProgress from '../shared/StatusProgress';
 import { getPercentComplete } from '../helpers/display';
+import { scrollToLine } from '../helpers/utils';
 import {
   createQueryParams,
   parseQueryParams,
@@ -30,7 +31,6 @@ import Navigation from './Navigation';
 import TestMetric from './TestMetric';
 import JobListMetric from './JobListMetric';
 import ParentPush from './ParentPush';
-import { scrollToLine } from '../helpers/utils';
 
 export default class Health extends React.PureComponent {
   constructor(props) {
