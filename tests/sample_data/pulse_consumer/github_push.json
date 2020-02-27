@@ -261,7 +261,8 @@
     "routingKey": "primary.mozilla-mobile.android-components",
     "redelivered": false,
     "cc": []
-  }, {
+  },
+  {
     "payload": {
       "body": {
         "ref": "refs/heads/try",
