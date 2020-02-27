@@ -30,6 +30,7 @@ import Navigation from './Navigation';
 import TestMetric from './TestMetric';
 import JobListMetric from './JobListMetric';
 import ParentPush from './ParentPush';
+import { scrollToLine } from '../helpers/utils';
 
 export default class Health extends React.PureComponent {
   constructor(props) {
@@ -125,11 +126,10 @@ export default class Health extends React.PureComponent {
         [key]: expanded,
       });
     } else if (expanded) {
-      const elem = document.getElementById(`${root}Metric`);
-
-      if (elem) {
-        elem.scrollIntoView({ behavior: 'smooth', block: 'center' });
-      }
+      scrollToLine(`#${root}Metric`, 0, 0, {
+        behavior: 'smooth',
+        block: 'center',
+      });
     }
   };
 
@@ -235,7 +235,7 @@ export default class Health extends React.PureComponent {
             )}
           </Navbar>
         </Navigation>
-        <Container fluid className="mt-2">
+        <Container fluid className="mt-2 mb-5">
           <NotificationList
             notifications={notifications}
             clearNotification={this.clearNotification}
