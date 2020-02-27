@@ -181,15 +181,23 @@ def ingestGitPush(options, root_url):
     commits = resp.get("commits")
     merge_base_commit = resp.get("merge_base_commit")
 
+    # Pulse Github push messages are Github push *events* that contain
+    # the `timestamp` of a push event. This information is no where to be found
+    # in the `commits` and `compare` APIs, thus, we need to consider the date
+    # of the latest commit. The `events` API only contains the latest 300 events
+    # (this includes comments, labels & others besides push events). Alternatively,
+    # if Treeherder provided an API to get info for a commit we could grab it from there.
     commits = []
-    for c in resp["commits"]:
+    for _commit in resp["commits"]:
         commits.append({
-            "message": c["commit"]["message"],
+            "message": _commit["commit"]["message"],
             "author": {
-                "name": c["commit"]["committer"]["name"],
-                "email": c["commit"]["committer"]["email"],
+                "name": _commit["commit"]["committer"]["name"],
+                "email": _commit["commit"]["committer"]["email"],
             },
-            "id": c["sha"],
+            "id": _commit["sha"],
+            # XXX: A fair estimation
+            "timestamp": _commit["commit"]["author"]["date"]
         })
 
     pulse = {
@@ -200,12 +208,16 @@ def ingestGitPush(options, root_url):
             "details": {
                 "event.head.repo.url": "https://github.com/{}/{}.git".format(owner, repo),
                 "event.base.repo.branch": branch,
+                # XXX: This is used for the `compare` API. The "event.base.sha" is only contained
+                # in Pulse events, thus, making it hard to correctly establish
+                "event.base.sha": branch,
                 "event.head.sha": commit,
                 "event.head.user.login": commitInfo["author"]["login"]
             },
             "body": {
                 "commits": commits,
-            }
+            },
+            "repository": repo
         }
     }
     if merge_base_commit:

@@ -95,8 +95,9 @@ class GithubTransformer:
         head_commit = commits[-1]
         push = {
             "revision": head_commit["sha"],
-            "push_timestamp": to_timestamp(
-                head_commit["commit"]["author"]["date"]),
+            # The commits in Pulse messages come from a Github push event which contains
+            # the "timestamp" field. The commits from the "compare" API do not contain that field
+            "push_timestamp": to_timestamp(self.message_body["body"]["commits"][-1]["timestamp"]),
             "author": head_commit["commit"]["author"]["email"],
         }
 
@@ -157,12 +158,7 @@ class GithubPushTransformer(GithubTransformer):
             self.message_body["details"]["event.base.sha"],
             self.message_body["details"]["event.head.sha"],
         )
-        push = self.fetch_push(push_url, repository)
-        # XXX: Is this the right place?
-        body = self.message_body["body"]
-        head_commit = body["commits"][-1] if body["commits"] else body["head_commit"]
-        push["push_timestamp"] = to_timestamp(head_commit["timestamp"])
-        return push
+        return self.fetch_push(push_url, repository)
 
     def get_cleaned_commits(self, compare):
         return compare["commits"]
