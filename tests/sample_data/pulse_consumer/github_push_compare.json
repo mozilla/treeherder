@@ -420,14 +420,14 @@
     },
     {
       "sha": "f7352f24db7b97314617cd6a6c2c2a30210b2db4",
-      "filename": "ui/css/treeherder-resultsets.css",
+      "filename": "ui/css/treeherder-pushes.css",
       "status": "modified",
       "additions": 4,
       "deletions": 0,
       "changes": 4,
-      "blob_url": "https://github.com/mozilla/treeherder/blob/5219f00e7af7b52e66e362d20bb5d4b0ceb84bfa/ui/css/treeherder-resultsets.css",
-      "raw_url": "https://github.com/mozilla/treeherder/raw/5219f00e7af7b52e66e362d20bb5d4b0ceb84bfa/ui/css/treeherder-resultsets.css",
-      "contents_url": "https://api.github.com/repos/mozilla/treeherder/contents/ui/css/treeherder-resultsets.css?ref=5219f00e7af7b52e66e362d20bb5d4b0ceb84bfa",
+      "blob_url": "https://github.com/mozilla/treeherder/blob/5219f00e7af7b52e66e362d20bb5d4b0ceb84bfa/ui/css/treeherder-pushes.css",
+      "raw_url": "https://github.com/mozilla/treeherder/raw/5219f00e7af7b52e66e362d20bb5d4b0ceb84bfa/ui/css/treeherder-pushes.css",
+      "contents_url": "https://api.github.com/repos/mozilla/treeherder/contents/ui/css/treeherder-pushes.css?ref=5219f00e7af7b52e66e362d20bb5d4b0ceb84bfa",
       "patch": "@@ -121,6 +121,10 @@ fieldset[disabled] .btn-resultset:hover {\n   overflow: auto;\n }\n \n+.revision[data-tags~=\"backout\"] .revision-comment{\n+  color: red;\n+}\n+\n .revision-holder > a {\n   padding-top: 2px;\n   font: 11px \"Lucida Console\",Monaco,monospace;"
     },
     {

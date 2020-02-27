@@ -52,4 +52,4 @@ Imports in JS/JSX must be ordered like so (with newlines between each group):
 
 For CSS, we use [reactstrap](https://reactstrap.github.io/) and Bootstrap's utility classes as
 much as possible before adding custom CSS to a style sheet. Any custom style that can be made
-reusable should be named generically and stored in the `ui/css/treeherder-global.css` file.
+reusable should be named generically and stored in the `ui/css/treeherder-custom-styles.css` file.

@@ -4,6 +4,7 @@ import Highlighter from 'react-highlight-words';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faThumbtack } from '@fortawesome/free-solid-svg-icons';
 import { connect } from 'react-redux';
+import { Button } from 'reactstrap';
 
 import { getSearchWords } from '../../../../helpers/display';
 import { getBugUrl } from '../../../../helpers/url';
@@ -22,14 +23,16 @@ function BugListItem(props) {
 
   return (
     <li>
-      <button
-        className="btn btn-xs btn-light-bordered"
+      <Button
+        className="bg-light px-2 py-1"
+        outline
+        size="xs"
         type="button"
         onClick={() => addBug(bug, selectedJobFull)}
         title="add to list of bugs to associate with all pinned jobs"
       >
         <FontAwesomeIcon icon={faThumbtack} title="Select bug" />
-      </button>
+      </Button>
       <a
         className={`${bugClassName} ml-1`}
         href={bugUrl}

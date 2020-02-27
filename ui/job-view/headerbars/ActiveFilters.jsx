@@ -201,20 +201,23 @@ export default class ActiveFilters extends React.Component {
                     ))}
                   </select>
                 )}
-                <button
+                <Button
                   type="submit"
-                  className="btn btn-light-bordered btn-sm"
+                  size="sm"
+                  className="bg-light"
                   onClick={this.addNewFieldFilter}
+                  outline
                 >
                   add
-                </button>
-                <button
-                  type="button"
-                  className="btn btn-light-bordered btn-sm"
+                </Button>
+                <Button
+                  className="bg-light"
+                  outline
+                  size="sm"
                   onClick={this.clearNewFieldFilter}
                 >
                   cancel
-                </button>
+                </Button>
               </div>
             </form>
           </div>

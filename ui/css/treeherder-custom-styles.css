@@ -1,36 +1,14 @@
 /*
- * Global settings
+ * Treeherder style settings
  *
- * This file contains settings which are either not specific to our
+ * This file contains opt-in styles which can be used across Treeherder
+ * without affecting settings which are either not specific to our
  * UI component css files, or are shared across Treeherder, Logviewer,
  * UserGuide, and/or Perfherder.
  *
  * Please consider the appropriate css file and attribute location
  * when adding new styles.
  */
-
-html,
-body {
-  height: 100%;
-  font-size: 14px;
-  line-height: 1.42;
-  overflow: hidden;
-}
-
-body {
-  line-height: inherit;
-  font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
-}
-
-a:visited,
-.link-style:visited {
-  color: purple;
-}
-
-a {
-  color: #337ab7;
-  cursor: pointer;
-}
 
 /* Bootstrap 4 will not show <a> as a link style if it has no href.
    This adds that style back. */
@@ -65,10 +43,6 @@ a {
   padding-left: 4px;
   padding-top: 2px;
   justify-content: center;
-}
-
-input[type='checkbox'] {
-  margin-right: 5px;
 }
 
 .dropdown-menu > li > a {
@@ -229,69 +203,8 @@ input[type='checkbox'] {
 }
 
 /*
- * Buttons
- *
- * Currently used in pushes only but could be
- * potentially used elsewhere.
- */
-
-.btn {
-  cursor: pointer;
-}
-
-.th-action-button span.dropdown:hover ul.dropdown-menu {
-  display: block;
-}
-
-.th-action-button:after {
-  content: none;
-}
-
-.label[href] {
-  color: #fff;
-}
-
-.btn-link {
-  font-weight: normal;
-  color: #337ab7;
-  border-radius: 0;
-}
-
-.btn-xs {
-  padding: 3px 6px 3px 6px;
-  font-size: 12px;
-}
-
-.btn-sm {
-  padding: 5px 10px;
-  font-size: 12px;
-  line-height: 1.5;
-}
-
-.btn-light-bordered {
-  border: 1px solid darkgrey;
-  background-color: white;
-}
-
-.btn-primary-soft {
-  color: #fff;
-  background-color: #337ab7;
-  border-color: #2e6da4;
-}
-
-/*
  * Colors
  */
-
-.white,
-.white a {
-  color: white;
-}
-
-.xlightgray,
-.xlightgray a {
-  color: #e6e6e6;
-}
 
 .lightgray,
 .lightgray a {
@@ -319,19 +232,6 @@ input[type='checkbox'] {
  * Text
  */
 
-kbd {
-  display: inline-block;
-  padding: 3px 5px;
-  font: 11px/10px Consolas, 'Liberation Mono', Menlo, Courier, monospace;
-  color: #555;
-  vertical-align: middle;
-  background-color: #fcfcfc;
-  border-width: 1px;
-  border-style: solid;
-  border-color: #ccc #ccc #bbb;
-  border-radius: 3px;
-}
-
 .queryparam {
   display: inline-block;
   font: 12px Consolas, 'Liberation Mono', Menlo, Courier, monospace;
@@ -350,14 +250,6 @@ kbd {
 
 .help-block {
   color: #737373;
-}
-
-label {
-  font-weight: bold;
-}
-
-h4 {
-  font-size: 18px;
 }
 
 /*

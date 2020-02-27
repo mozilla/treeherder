@@ -13,7 +13,6 @@ const InfraMenu = () => (
     <DropdownToggle
       className="btn-view-nav nav-menu-btn"
       title="Infrastructure status"
-      nav
       caret
     >
       Infra
