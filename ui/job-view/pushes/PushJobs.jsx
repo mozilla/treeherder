@@ -1,5 +1,3 @@
-/* eslint-disable jsx-a11y/no-noninteractive-element-interactions */
-
 import React from 'react';
 import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
@@ -107,35 +105,37 @@ class PushJobs extends React.Component {
     } = this.props;
 
     return (
-      <table id={this.aggregateId} className="table-hover">
-        <tbody onMouseDown={this.onMouseDown}>
-          {platforms ? (
-            platforms.map(platform => (
-              <Platform
-                platform={platform}
-                repoName={repoName}
-                filterModel={filterModel}
-                pushGroupState={pushGroupState}
-                key={`${platform.name}${platform.option}`}
-                duplicateJobsVisible={duplicateJobsVisible}
-                groupCountsExpanded={groupCountsExpanded}
-                runnableVisible={runnableVisible}
-              />
-            ))
-          ) : (
-            <tr>
-              <td>
-                <FontAwesomeIcon
-                  icon={faSpinner}
-                  pulse
-                  className="th-spinner"
-                  title="Loading..."
+      <div role="button" tabIndex={0} onMouseDown={this.onMouseDown}>
+        <table id={this.aggregateId} className="table-hover">
+          <tbody>
+            {platforms ? (
+              platforms.map(platform => (
+                <Platform
+                  platform={platform}
+                  repoName={repoName}
+                  filterModel={filterModel}
+                  pushGroupState={pushGroupState}
+                  key={`${platform.name}${platform.option}`}
+                  duplicateJobsVisible={duplicateJobsVisible}
+                  groupCountsExpanded={groupCountsExpanded}
+                  runnableVisible={runnableVisible}
                 />
-              </td>
-            </tr>
-          )}
-        </tbody>
-      </table>
+              ))
+            ) : (
+              <tr>
+                <td>
+                  <FontAwesomeIcon
+                    icon={faSpinner}
+                    pulse
+                    className="th-spinner"
+                    title="Loading..."
+                  />
+                </td>
+              </tr>
+            )}
+          </tbody>
+        </table>
+      </div>
     );
   }
 }

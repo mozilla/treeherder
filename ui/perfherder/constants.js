@@ -38,7 +38,7 @@ export const noDataFoundMessage = title => `No Data Found for ${title}`;
 export const unknownFrameworkMessage = 'unknown framework';
 
 export const summaryStatusMap = {
-  all: -1,
+  'all statuses': -1,
   untriaged: 0,
   downstream: 1,
   // Reassigned is in the performance_alert_summary model but it isn't a valid status parameter

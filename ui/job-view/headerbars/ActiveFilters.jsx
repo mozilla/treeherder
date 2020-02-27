@@ -1,7 +1,6 @@
-/* eslint-disable jsx-a11y/no-static-element-interactions */
-
 import React from 'react';
 import PropTypes from 'prop-types';
+import { Button } from 'reactstrap';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faTimesCircle } from '@fortawesome/free-solid-svg-icons';
 
@@ -85,8 +84,10 @@ export default class ActiveFilters extends React.Component {
       <div className="alert-info active-filters-bar">
         {!!filterBarFilters.length && (
           <div>
-            <span
-              className="pointable"
+            <Button
+              color="darker-info"
+              outline
+              className="pointable bg-transparent border-0 pt-0 pr-1 pb-1"
               title="Clear all of these filters"
               onClick={filterModel.clearNonStatusFilters}
             >
@@ -94,7 +95,7 @@ export default class ActiveFilters extends React.Component {
                 icon={faTimesCircle}
                 title="Clear all these filters"
               />{' '}
-            </span>
+            </Button>
             <span className="active-filters-title">
               <b>Active Filters</b>
             </span>
@@ -104,8 +105,10 @@ export default class ActiveFilters extends React.Component {
                   className="filtersbar-filter"
                   key={`${filter.field}${filterValue}`}
                 >
-                  <span
-                    className="pointable"
+                  <Button
+                    color="darker-info"
+                    outline
+                    className="pointable bg-transparent border-0 py-0 pr-1"
                     title={`Clear filter: ${filter.field}`}
                     onClick={() =>
                       filterModel.removeFilter(filter.field, filterValue)
@@ -116,7 +119,7 @@ export default class ActiveFilters extends React.Component {
                       title={`Clear filter: ${filter.field}`}
                     />
                     &nbsp;
-                  </span>
+                  </Button>
                   <span title={`Filter by ${filter.field}: ${filterValue}`}>
                     <b>{filter.field}:</b>
                     {filter.field === 'failure_classification_id' && (

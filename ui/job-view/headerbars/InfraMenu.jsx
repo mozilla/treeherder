@@ -6,6 +6,8 @@ import {
   UncontrolledDropdown,
 } from 'reactstrap';
 
+import { prodFirefoxRootUrl } from '../../taskcluster-auth-callback/constants';
+
 const InfraMenu = () => (
   <UncontrolledDropdown>
     <DropdownToggle
@@ -26,7 +28,7 @@ const InfraMenu = () => (
         CI Duty
       </DropdownItem>
       <DropdownItem
-        href="https://firefox-ci-tc.services.mozilla.com/provisioners"
+        href={`${prodFirefoxRootUrl}/provisioners`}
         target="_blank"
         rel="noopener noreferrer"
       >

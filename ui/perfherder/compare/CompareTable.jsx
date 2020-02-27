@@ -1,5 +1,3 @@
-/* eslint-disable jsx-a11y/control-has-associated-label */
-
 import React from 'react';
 import { Button, Table } from 'reactstrap';
 import PropTypes from 'prop-types';
@@ -60,7 +58,7 @@ export default class CompareTable extends React.PureComponent {
             </th>
             <th className="table-width-lg">Base</th>
             {/* empty for less than/greater than data */}
-            <th className="table-width-sm" />
+            <th className="table-width-sm" aria-label="Comparison" />
             <th className="table-width-lg">New</th>
             <th className="table-width-lg">Delta</th>
             <th className="table-width-lg">Magnitude of Difference</th>
