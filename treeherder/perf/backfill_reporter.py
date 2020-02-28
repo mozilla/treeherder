@@ -1,4 +1,8 @@
+from datetime import datetime
+from typing import List
+
 from treeherder.perf.alerts import (AlertsPicker,
+                                    BackfillReport,
                                     BackfillReportMaintainer,
                                     IdentifyAlertRetriggerables)
 
@@ -7,7 +11,7 @@ class BackfillReporter:
     """
     Wrapper class used to aggregate the reporting of backfill reports.
     """
-    def __init__(self, options):
+    def __init__(self, options: dict):
         """
         :param options: data for the BackfillReporter's internals
         Example: options = {'max_alerts': 5,
@@ -23,5 +27,7 @@ class BackfillReporter:
                                                                time_interval=options.get('time_interval'))
         self.reportMaintainer = BackfillReportMaintainer(alerts_picker, backfill_context_fetcher)
 
-    def report(self, since, frameworks, repositories):
+    def report(self, since: datetime,
+               frameworks: List[str],
+               repositories: List[str]) -> List[BackfillReport]:
         return self.reportMaintainer.provide_updated_reports(since, frameworks, repositories)

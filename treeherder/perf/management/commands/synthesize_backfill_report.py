@@ -6,7 +6,7 @@ from typing import (List,
 
 from django.core.management.base import BaseCommand
 
-from treeherder.perf.backfill_reporter import BackfillReporter
+from treeherder.perf.perf_sheriff_bot import PerfSfheriffBot
 from treeherder.perf.models import PerformanceFramework
 
 
@@ -40,14 +40,15 @@ class Command(BaseCommand):
     def handle(self, *args, **options):
         frameworks, repositories, since, days_to_lookup = self._parse_args(**options)
         self._validate_args(frameworks, repositories)
-        options = {'max_alerts': 5,
-                   'max_improvements': 2,
-                   'platforms_of_interest': ('windows10', 'windows7', 'linux', 'osx', 'android'),
-                   'max_data_points': 5,
-                   'time_interval': days_to_lookup,
-                   }
-        reporter = BackfillReporter(options)
-        reporter.report(since, frameworks, repositories)
+        report_options = {'max_alerts': 5,
+                          'max_improvements': 2,
+                          'platforms_of_interest': ('windows10', 'windows7', 'linux', 'osx', 'android'),
+                          'max_data_points': 5,
+                          'time_interval': days_to_lookup,
+                          }
+
+        perf_sheriff_bot = PerfSfheriffBot(report_options)
+        perf_sheriff_bot.report(since, frameworks, repositories)
 
     def _parse_args(self, **options) -> Tuple[List, List, datetime, timedelta]:
         return (options['frameworks'],
