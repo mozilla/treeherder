@@ -2,8 +2,17 @@ import React from 'react';
 import { render, cleanup } from '@testing-library/react';
 
 import TableView from '../../../ui/perfherder/graphs/TableView';
+import { graphColors, graphSymbols } from '../../../ui/perfherder/constants';
 import repos from '../mock/repositories';
-import testData from '../mock/performance_testData.json';
+import testData from '../mock/performance_summary.json';
+import { createGraphData } from '../../../ui/perfherder/helpers';
+
+const graphData = createGraphData(
+  testData,
+  [],
+  [...graphColors],
+  [...graphSymbols],
+);
 
 const tableView = (
   testData,
@@ -24,24 +33,21 @@ const tableView = (
 afterEach(cleanup);
 
 test('should display test name', async () => {
-  const { getByText } = tableView(testData);
+  const { getByText } = tableView(graphData);
 
-  expect(
-    getByText('perf_reftest_singletons opt e10s stylo'),
-  ).toBeInTheDocument();
-  expect(getByText('tart_flex opt e10s stylo')).toBeInTheDocument();
+  expect(getByText('a11yr opt e10s stylo')).toBeInTheDocument();
 });
 
 test('should have revision links', async () => {
-  const { getAllByTitle } = tableView(testData);
+  const { getAllByTitle } = tableView(graphData);
 
-  expect(getAllByTitle('Revision Link')).toHaveLength(5);
+  expect(getAllByTitle('Revision Link')).toHaveLength(4);
 });
 
 test('cell should have highlighted aria-label when highlightAlert is true', async () => {
-  const { getAllByLabelText } = tableView(testData, true, [
-    '94c8f28a15e8a051aeaad4722deb3fcc8125dab2',
+  const { getAllByLabelText } = tableView(graphData, true, [
+    '2909b0a1eb06cc34ce0a11544e5e6826aba87c06',
   ]);
 
-  expect(getAllByLabelText('highlighted', { exact: false })).toHaveLength(3);
+  expect(getAllByLabelText('highlighted', { exact: false })).toHaveLength(2);
 });

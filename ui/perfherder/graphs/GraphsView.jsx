@@ -1,6 +1,6 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import { Container, Col, Row } from 'reactstrap';
+import { Button, Container, Col, Row } from 'reactstrap';
 import unionBy from 'lodash/unionBy';
 import queryString from 'query-string';
 
@@ -346,13 +346,12 @@ class GraphsView extends React.Component {
               <Col
                 className={`${testData.length ? 'graph-chooser' : 'col-12'}`}
               >
-                <button
-                  type="button"
+                <Button
                   className="sr-only"
                   onClick={() => this.setState({ showTable: !showTable })}
                 >
                   Table View
-                </button>
+                </Button>
                 <Container
                   role="region"
                   aria-label="Graph Legend"
