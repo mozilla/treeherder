@@ -22,6 +22,7 @@ export default function TierIndicator(props) {
             }
             disabled={isOnlyTier}
             outline={!shownTiers.includes(tier)}
+            key={tier}
           >
             {tier}
           </Button>
