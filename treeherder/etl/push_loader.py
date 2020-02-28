@@ -128,6 +128,7 @@ class GithubTransformer:
 
 
 class GithubPushTransformer(GithubTransformer):
+    # Pulse message comes from here:
     # https://github.com/taskcluster/taskcluster/blob/master/services/github/src/api.js#L254-L260
     # {
     #   exchange: exchange/taskcluster-github/v1/push
@@ -135,8 +136,10 @@ class GithubPushTransformer(GithubTransformer):
     #   payload: {
     #     organization: mozilla-mobile
     #     details: {
-    #       event.head.repo.url: https://github.com/mozilla-mobile/android-components.git
     #       event.base.repo.branch: staging.tmp
+    #       event.base.sha: 7285afe57ae6207fdb5d6db45133dac2053b7820
+    #       event.head.repo.url: https://github.com/mozilla-mobile/android-components.git
+    #       event.head.sha: 5fdb785b28b356f50fc1d9cb180d401bb03fc1f1
     #     }
     #     repository: android-components
     #     body: {
@@ -145,7 +148,9 @@ class GithubPushTransformer(GithubTransformer):
     #         author:
     #           name: bors[bot]
     #           email: 26634292+bors[bot]@users.noreply.github.com
+    #         timestamp: 2020-02-12T15:29:12Z
     #       }]
+    #       # Head commit is only available for merge commits
     #       head_commit: {
     #         id: 5fdb785b28b356f50fc1d9cb180d401bb03fc1f1
     #         author: {

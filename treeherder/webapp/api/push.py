@@ -276,7 +276,7 @@ class PushViewSet(viewsets.ViewSet):
             'result': push_result,
             'metrics': {
                 'parent': {
-                    'name': 'Parent',
+                    'name': 'Parent Push',
                     'result': 'none',
                     'details': parent_details,
                 },

@@ -176,8 +176,8 @@ def ingestGitPush(options, root_url):
     githubApi = "https://api.github.com"
     baseUrl = "{}/repos/{}/{}".format(githubApi, owner, repo)
     defaultBranch = fetch_json(baseUrl)["default_branch"]
-    # XXX: This is used for the `compare` API. The "event.base.sha" is only contained
-    # in Pulse events, thus, making it hard to correctly establish
+    # This is used for the `compare` API. The "event.base.sha" is only contained in Pulse events, thus,
+    # we need to determine the correct value
     eventBaseSha = defaultBranch
     # e.g. https://api.github.com/repos/servo/servo/compare/master...1418c0555ff77e5a3d6cf0c6020ba92ece36be2e
     compareUrl = "{}/compare/{}...{}"
@@ -185,7 +185,7 @@ def ingestGitPush(options, root_url):
     headCommit = None
     mergeBaseCommit = compareResponse["merge_base_commit"]
     if mergeBaseCommit:
-        # Since we don't use PushEvents that contain the "before" field [1]
+        # Since we don't use PushEvents that contain the "before" or "event.base.shae" fields [1]
         # we need to discover the right parent. A merge commit has two parents
         # [1] https://github.com/taskcluster/taskcluster/blob/3dda0adf85619d18c5dcf255259f3e274d2be346/services/github/src/api.js#L55
         parents = compareResponse["merge_base_commit"]["parents"]
@@ -195,7 +195,7 @@ def ingestGitPush(options, root_url):
                 eventBaseSha = parent["sha"]
                 logger.info("We have a new base: %s", eventBaseSha)
                 break
-        # When using the correct sha the "commits" field will have information
+        # When using the correct eventBaseSha the "commits" field will be correct
         compareResponse = fetch_json(compareUrl.format(baseUrl, eventBaseSha, commit))
 
     headCommit = compareResponse["commits"][-1]

@@ -52,5 +52,5 @@ LogoMenu.propTypes = {
 
 LogoMenu.defaultProps = {
   menuImage: null,
-  colorClass: 'white',
+  colorClass: 'text-white',
 };

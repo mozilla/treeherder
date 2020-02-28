@@ -1,0 +1,60 @@
+/*
+ * Treeherder Base settings
+ *
+ * This file contains settings which are either not specific to our
+ * UI component css files, or are shared across Treeherder, Logviewer,
+ * UserGuide, and/or Perfherder.
+ *
+ * Including this class will make modifications to elements.
+ *
+ * Please add CSS class styles to the `treeherder-custom-styles.css` file
+ * rather than here.
+ */
+
+html,
+body {
+  height: 100%;
+  font-size: 14px;
+  line-height: 1.42;
+  overflow: hidden;
+}
+
+body {
+  line-height: inherit;
+  font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+}
+
+a:visited,
+.link-style:visited {
+  color: purple;
+}
+
+a {
+  color: #337ab7;
+  cursor: pointer;
+}
+
+label {
+  font-weight: bold;
+}
+
+h4 {
+  font-size: 18px;
+}
+
+kbd {
+  display: inline-block;
+  padding: 3px 5px;
+  font: 11px/10px Consolas, 'Liberation Mono', Menlo, Courier, monospace;
+  color: #555;
+  vertical-align: middle;
+  background-color: #fcfcfc;
+  border-width: 1px;
+  border-style: solid;
+  border-color: #ccc #ccc #bbb;
+  border-radius: 3px;
+}
+
+input[type='checkbox'] {
+  margin-right: 5px;
+}
