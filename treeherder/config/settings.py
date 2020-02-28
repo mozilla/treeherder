@@ -6,7 +6,6 @@ from os.path import (abspath,
                      join)
 
 import environ
-from django.core.exceptions import ImproperlyConfigured
 from furl import furl
 from kombu import (Exchange,
                    Queue)
@@ -36,9 +35,8 @@ GRAPHQL = env.bool("GRAPHQL", default=True)
 SECRET_KEY = env("TREEHERDER_DJANGO_SECRET_KEY", default='secret-key-of-at-least-50-characters-to-pass-check-deploy')
 
 # Hosts
-try:
-    SITE_URL = env("SITE_URL", default='http://localhost:8000')
-except ImproperlyConfigured:
+SITE_URL = env("SITE_URL", default='http://localhost:8000')
+if env("HEROKU_REVIEW_APP", default=False):
     # This is to support Heroku Review apps which host is different for each PR
     SITE_URL = "https://{}.herokuapp.com".format(env("HEROKU_APP_NAME"))
 
