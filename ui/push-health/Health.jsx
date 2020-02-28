@@ -30,7 +30,7 @@ import Metric from './Metric';
 import Navigation from './Navigation';
 import TestMetric from './TestMetric';
 import JobListMetric from './JobListMetric';
-import ParentPush from './ParentPush';
+import CommitHistory from './CommitHistory';
 
 export default class Health extends React.PureComponent {
   constructor(props) {
@@ -47,7 +47,7 @@ export default class Health extends React.PureComponent {
       failureMessage: null,
       notifications: [],
       progressExpanded: true,
-      parentPushExpanded: false,
+      commitHistoryExpanded: false,
       lintingExpanded: false,
       buildsExpanded: false,
       testsExpanded: false,
@@ -159,14 +159,14 @@ export default class Health extends React.PureComponent {
       notifications,
       status,
       progressExpanded,
-      parentPushExpanded,
+      commitHistoryExpanded,
       lintingExpanded,
       buildsExpanded,
       testsExpanded,
       performanceExpanded,
       searchStr,
     } = this.state;
-    const { tests, parent, linting, builds, performance } = metrics;
+    const { tests, commitHistory, linting, builds, performance } = metrics;
     const { currentRepo } = this.props;
     const percentComplete = status ? getPercentComplete(status) : 0;
     const progress = {
@@ -190,40 +190,45 @@ export default class Health extends React.PureComponent {
             {!!tests && (
               <Nav className="metric-buttons mb-2 pt-2 pl-3 justify-content-between w-100">
                 <span>
-                  {[progress, linting, builds, tests, performance, parent].map(
-                    metric => (
-                      <span key={metric.name}>
-                        {!!metric.details && (
-                          <Button
-                            size="sm"
-                            className="mr-2"
-                            color={resultColorMap[metric.result]}
-                            title={`Click to toggle ${
-                              metric.name
-                            }: ${metric.result.toUpperCase()}`}
-                            onClick={() => this.setExpanded(metric.name, true)}
-                            key={metric.name}
-                          >
-                            {metric.name}
-                            {['pass', 'fail', 'indeterminate'].includes(
-                              metric.result,
-                            ) ? (
-                              <FontAwesomeIcon
-                                className="ml-1"
-                                icon={
-                                  metric.result === 'pass'
-                                    ? faCheckCircle
-                                    : faExclamationTriangle
-                                }
-                              />
-                            ) : (
-                              <span className="ml-1">{metric.value}</span>
-                            )}
-                          </Button>
-                        )}
-                      </span>
-                    ),
-                  )}
+                  {[
+                    progress,
+                    linting,
+                    builds,
+                    tests,
+                    performance,
+                    commitHistory,
+                  ].map(metric => (
+                    <span key={metric.name}>
+                      {!!metric.details && (
+                        <Button
+                          size="sm"
+                          className="mr-2"
+                          color={resultColorMap[metric.result]}
+                          title={`Click to toggle ${
+                            metric.name
+                          }: ${metric.result.toUpperCase()}`}
+                          onClick={() => this.setExpanded(metric.name, true)}
+                          key={metric.name}
+                        >
+                          {metric.name}
+                          {['pass', 'fail', 'indeterminate'].includes(
+                            metric.result,
+                          ) ? (
+                            <FontAwesomeIcon
+                              className="ml-1"
+                              icon={
+                                metric.result === 'pass'
+                                  ? faCheckCircle
+                                  : faExclamationTriangle
+                              }
+                            />
+                          ) : (
+                            <span className="ml-1">{metric.value}</span>
+                          )}
+                        </Button>
+                      )}
+                    </span>
+                  ))}
                 </span>
                 <span className="mr-2">
                   <InputFilter
@@ -295,15 +300,15 @@ export default class Health extends React.PureComponent {
                   setExpanded={this.setExpanded}
                 />
               </Row>
-              {parent.details && (
+              {commitHistory.details && (
                 <Row className="w-100">
                   <Metric
-                    name="Parent Push"
+                    name="Commit History"
                     result=""
-                    expanded={parentPushExpanded}
+                    expanded={commitHistoryExpanded}
                     setExpanded={this.setExpanded}
                   >
-                    <ParentPush parent={parent.details} />
+                    <CommitHistory history={commitHistory.details} />
                   </Metric>
                 </Row>
               )}
