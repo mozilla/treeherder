@@ -16,8 +16,7 @@ Or if you would rather not use Docker, instead use poetry,run:
 ```bash
 > pip install poetry
 > poetry install
-> poetry shell
-> mkdocs serve
+> poetry run mkdocs serve
 ```
 
 In either case, the docs will then be available at: <http://localhost:8000>
