@@ -336,6 +336,12 @@
   border-color: #6c757d;
 }
 
+.btn-outline-darker-secondary {
+  color: #6c757d;
+  background-color: #fff;
+  border-color: #6c757d;
+}
+
 /*
  * Tables and panels
  */

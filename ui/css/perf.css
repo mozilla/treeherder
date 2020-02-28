@@ -58,13 +58,13 @@ h1 {
   border-left: 10px solid;
 }
 
-.graph-legend-card > p {
+.graph-legend-card > button {
   word-wrap: break-word;
-  cursor: pointer;
   font-size: 13px;
+  max-width: 200px;
 }
 
-.graph-legend-card > p:hover {
+.graph-legend-card > button:hover {
   text-decoration: underline;
 }
 
