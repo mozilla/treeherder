@@ -56,7 +56,7 @@ For example:
 
 Known reactstrap components that accept the `color` prop and work with custom Treeherder colors: `Badge`, `Button`, `Card`, `DropdownToggle`, `FormText`, `NavBar`, `Progress`, `Spinner`.
 
-In case you need to add more custom colors, please add on [treeherder-global.css](https://github.com/mozilla/treeherder/blob/master/ui/css/treeherder-global.css#L371) style sheet.
+In case you need to add more custom colors, please add on [treeherder-custom-styles.css](https://github.com/mozilla/treeherder/blob/master/ui/css/treeherder-custom-styles.css#L348) style sheet.
 
 ### Inserting new colors
 

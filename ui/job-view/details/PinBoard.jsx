@@ -582,7 +582,7 @@ class PinBoard extends React.Component {
           >
             <ButtonGroup className="save-btn-group">
               <Button
-                className={`btn-light-bordered save-btn ${
+                className={`save-btn ${
                   !isLoggedIn || !this.canSaveClassifications()
                     ? 'disabled'
                     : ''
@@ -598,7 +598,7 @@ class PinBoard extends React.Component {
                 <DropdownToggle
                   size="xs"
                   caret
-                  className={`btn-light-bordered ${
+                  className={`bg-light ${
                     !this.hasPinnedJobs() && !this.pinboardIsDirty()
                       ? 'disabled'
                       : ''

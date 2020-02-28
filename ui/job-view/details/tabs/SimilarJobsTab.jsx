@@ -3,6 +3,7 @@ import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faSpinner } from '@fortawesome/free-solid-svg-icons';
+import { Button } from 'reactstrap';
 
 import { thMaxPushFetchSize } from '../../../helpers/constants';
 import { toDateStr, toShortDateStr } from '../../../helpers/display';
@@ -217,13 +218,14 @@ class SimilarJobsTab extends React.Component {
             </tbody>
           </table>
           {hasNextPage && (
-            <button
-              className="btn btn-light-bordered btn-sm link-style"
+            <Button
+              outline
+              className="bg-light"
               type="button"
               onClick={this.showNext}
             >
               Show previous jobs
-            </button>
+            </Button>
           )}
         </div>
         <div className="similar-job-detail-panel">

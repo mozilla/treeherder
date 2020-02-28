@@ -59,7 +59,7 @@ class GroupedTests extends Component {
             <div key={group.id} data-testid="test-grouping">
               <Button
                 id={`${group.id}-group`}
-                color="secondary"
+                color="darker-secondary"
                 outline
                 className="p-3 bg-light text-center text-monospace border-bottom-0 border-right-0 border-left-0 border-secondary w-100"
                 title="Click to expand for test detail"

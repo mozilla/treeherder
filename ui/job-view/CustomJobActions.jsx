@@ -276,8 +276,8 @@ class CustomJobActions extends React.PureComponent {
         <ModalFooter>
           {isLoggedIn ? (
             <Button
-              color="secondary"
-              className={`btn btn-primary-soft ${triggering ? 'disabled' : ''}`}
+              color="darker-info"
+              className={triggering ? 'disabled' : ''}
               onClick={this.triggerAction}
               title={isLoggedIn ? 'Trigger this action' : 'Not logged in'}
             >

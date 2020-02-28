@@ -2,7 +2,7 @@ import React from 'react';
 import fetchMock from 'fetch-mock';
 import { render, cleanup, waitForElement } from '@testing-library/react';
 
-import PushParent from '../../../ui/push-health/PushParent';
+import ParentPush from '../../../ui/push-health/ParentPush';
 
 beforeEach(() => {
   fetchMock.get(
@@ -57,7 +57,7 @@ const getParent = (
 };
 
 describe('PushParent', () => {
-  const testPushParent = parent => <PushParent parent={parent} />;
+  const testPushParent = parent => <ParentPush parent={parent} />;
 
   test('should show a parent commit and health icon for that parent', async () => {
     const parent = getParent();

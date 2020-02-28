@@ -15,11 +15,11 @@ export const hashFunction = someString => {
   return hash >>> 0;
 };
 
-export const scrollToLine = (selector, time, iteration = 0) => {
+export const scrollToLine = (selector, time, iteration = 0, options = true) => {
   const line = document.querySelector(selector);
 
   if (line !== null) {
-    line.scrollIntoView(true);
+    line.scrollIntoView(options);
     return;
   }
   if (iteration < 10) {
