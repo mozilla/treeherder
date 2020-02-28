@@ -1,4 +1,5 @@
 import copy
+import json
 import os
 
 import pytest
@@ -66,13 +67,22 @@ def mock_github_push_compare(activate_responses):
         "github_push_compare.json"
     )
     with open(path) as f:
-        mocked_content = f.read()
-    responses.add(responses.GET,
-                  "https://api.github.com/repos/mozilla-services/test_treeherder/compare/"
-                  "71c02dbb26cb60beee94bac433086bc540c9d6d4..."
-                  "5219f00e7af7b52e66e362d20bb5d4b0ceb84bfa",
-                  body=mocked_content, status=200, match_querystring=False,
-                  content_type='application/json')
+        mocked_content = json.load(f)
+
+    responses.add(
+        responses.GET,
+        "https://api.github.com/repos/mozilla-mobile/android-components/compare/"
+        "7285afe57ae6207fdb5d6db45133dac2053b7820..."
+        "5fdb785b28b356f50fc1d9cb180d401bb03fc1f1",
+        json=mocked_content[0], status=200, match_querystring=False,
+        content_type='application/json')
+    responses.add(
+        responses.GET,
+        "https://api.github.com/repos/servo/servo/compare/"
+        "4c25e02f26f7536edbf23a360d56604fb9507378..."
+        "ad9bfc2a62b70b9f3dbb1c3a5969f30bacce3d74",
+        json=mocked_content[1], status=200, match_querystring=False,
+        content_type='application/json')
 
 
 @pytest.fixture
@@ -113,7 +123,7 @@ def test_ingest_github_pull_request(test_repository, github_pr, transformed_gith
 
 def test_ingest_github_push(test_repository, github_push, transformed_github_push,
                             mock_github_push_compare):
-    xformer = GithubPushTransformer(github_push)
+    xformer = GithubPushTransformer(github_push[0]["payload"])
     push = xformer.transform(test_repository.name)
     assert transformed_github_push == push
 
@@ -145,9 +155,19 @@ def test_ingest_hg_push_bad_repo(hg_push):
 @pytest.mark.django_db
 def test_ingest_github_push_bad_repo(github_push):
     """Test graceful handling of an unknown GH repo"""
-    github_push["details"]["event.head.repo.url"] = "https://bad.repo.com"
-    PushLoader().process(github_push, "exchange/taskcluster-github/v1/push", "https://tc.example.com")
+    github_push[0]["payload"]["details"]["event.head.repo.url"] = "https://bad.repo.com"
+    PushLoader().process(github_push[0]["payload"], github_push[0]["exchange"], "https://tc.example.com")
     assert Push.objects.count() == 0
+
+
+@pytest.mark.django_db
+def test_ingest_github_push_merge_commit(github_push, test_repository, mock_github_push_compare):
+    """Test a a merge push which will require hitting the network for the right info"""
+    test_repository.url = github_push[1]["payload"]["details"]["event.head.repo.url"].replace(".git", "")
+    test_repository.branch = github_push[1]["payload"]["details"]["event.base.repo.branch"]
+    test_repository.save()
+    PushLoader().process(github_push[1]["payload"], github_push[1]["exchange"], "https://tc.example.com")
+    assert Push.objects.count() == 1
 
 
 @pytest.mark.django_db
@@ -157,13 +177,13 @@ def test_ingest_github_push_bad_repo(github_push):
     ("baz", 0),
     ("foo", 1),
 ])
-def test_ingest_github_push_comma_separated_branches(branch, expected_pushes, github_push,
-                                                     test_repository, mock_github_push_compare):
+def test_ingest_github_push_comma_separated_branches(branch, expected_pushes, github_push, test_repository,
+                                                     mock_github_push_compare):
     """Test a repository accepting pushes for multiple branches"""
-    test_repository.url = "https://github.com/mozilla/test_treeherder"
+    test_repository.url = github_push[0]["payload"]["details"]["event.head.repo.url"].replace(".git", "")
     test_repository.branch = "master,foo,bar"
     test_repository.save()
-    github_push["details"]["event.base.repo.branch"] = branch
+    github_push[0]["payload"]["details"]["event.base.repo.branch"] = branch
     assert Push.objects.count() == 0
-    PushLoader().process(github_push, "exchange/taskcluster-github/v1/push", "https://tc.example.com")
+    PushLoader().process(github_push[0]["payload"], github_push[0]["exchange"], "https://tc.example.com")
     assert Push.objects.count() == expected_pushes

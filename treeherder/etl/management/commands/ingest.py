@@ -11,6 +11,7 @@ import taskcluster_urls as liburls
 from django.conf import settings
 from django.core.management.base import BaseCommand
 
+from treeherder.etl.common import fetch_json
 from treeherder.etl.db_semaphore import (acquire_connection,
                                          release_connection)
 from treeherder.etl.job_loader import JobLoader
@@ -153,6 +154,77 @@ def get_decision_task_id(project, revision, root_url):
     return find_task_id(index_path, root_url)
 
 
+def ingestGitPush(options, root_url):
+    project = options["project"]
+    commit = options["commit"]
+    branch = None
+    # Ingesting pushes out of band from the ingestion pipeline would require
+    # a lot of work (not impossible) because the way Servo uses the "auto"
+    # and "try-" branches. A commit can temporarily belong to those branches.
+    # We need to imply the original branch directly from the project name
+    if project.startswith("servo"):
+        branch = project.split("-")[-1]
+        assert branch in ["auto", "try", "master"], \
+            "Valid servo projects are: servo-auto, servo-try, servo-master."
+
+    repository = Repository.objects.filter(name=project)
+    url = repository[0].url
+    splitUrl = url.split('/')
+    owner = splitUrl[3]
+    repo = splitUrl[4]
+    githubApi = "https://api.github.com"
+    baseUrl = "{}/repos/{}/{}".format(githubApi, owner, repo)
+    commitInfo = fetch_json('{}/commits/{}'.format(baseUrl, commit))
+    defaultBranch = fetch_json(baseUrl)["default_branch"]
+    # e.g. https://api.github.com/repos/servo/servo/compare/master...941458b22346a458e06a6a6050fc5ad8e1e385a5
+    resp = fetch_json("{}/compare/{}...{}".format(baseUrl, defaultBranch, commit))
+    commits = resp.get("commits")
+    merge_base_commit = resp.get("merge_base_commit")
+
+    # Pulse Github push messages are Github push *events* that contain
+    # the `timestamp` of a push event. This information is no where to be found
+    # in the `commits` and `compare` APIs, thus, we need to consider the date
+    # of the latest commit. The `events` API only contains the latest 300 events
+    # (this includes comments, labels & others besides push events). Alternatively,
+    # if Treeherder provided an API to get info for a commit we could grab it from there.
+    commits = []
+    for _commit in resp["commits"]:
+        commits.append({
+            "message": _commit["commit"]["message"],
+            "author": {
+                "name": _commit["commit"]["committer"]["name"],
+                "email": _commit["commit"]["committer"]["email"],
+            },
+            "id": _commit["sha"],
+            # XXX: A fair estimation
+            "timestamp": _commit["commit"]["author"]["date"]
+        })
+
+    pulse = {
+        "exchange": "exchange/taskcluster-github/v1/push",
+        "routingKey": "primary.{}.{}".format(owner, repo),
+        "payload": {
+            "organization": owner,
+            "details": {
+                "event.head.repo.url": "https://github.com/{}/{}.git".format(owner, repo),
+                "event.base.repo.branch": branch,
+                # XXX: This is used for the `compare` API. The "event.base.sha" is only contained
+                # in Pulse events, thus, making it hard to correctly establish
+                "event.base.sha": branch,
+                "event.head.sha": commit,
+                "event.head.user.login": commitInfo["author"]["login"]
+            },
+            "body": {
+                "commits": commits,
+            },
+            "repository": repo
+        }
+    }
+    if merge_base_commit:
+        pulse["payload"]["body"]["merge_base_commit"] = merge_base_commit
+    PushLoader().process(pulse["payload"], pulse["exchange"], root_url)
+
+
 class Command(BaseCommand):
     """Management command to ingest data from a single push."""
     help = "Ingests a single push and tasks into Treeherder"
@@ -228,7 +300,7 @@ class Command(BaseCommand):
             }
             PushLoader().process(pulse["payload"], pulse["exchange"], root_url)
         elif typeOfIngestion == "git-push":
-            raise Exception("This is not yet implemented")
+            ingestGitPush(options, root_url)
         elif typeOfIngestion == "push":
             if not options["enable_eager_celery"]:
                 logger.info(

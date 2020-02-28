@@ -100,6 +100,15 @@ class GithubTransformer:
             "author": head_commit["commit"]["author"]["email"],
         }
 
+        body = self.message_body
+        # Github pull request events do not have the "commits" property
+        if body.get("commits"):
+            # A Github push event does not contain commits for merge pushes and need to use the head_commit
+            head_commit = body["commits"][-1] if body["commits"] else body["head_commit"]
+            # The commits in Pulse messages come from a Github push event which contains
+            # the "timestamp" field. The commits from the "compare" API do not contain that field
+            push["push_timestamp"] = to_timestamp(head_commit["timestamp"])
+
         revisions = []
         for commit in commits:
             revisions.append({
@@ -119,20 +128,38 @@ class GithubTransformer:
 
 
 class GithubPushTransformer(GithubTransformer):
+    # Pulse message comes from here:
+    # https://github.com/taskcluster/taskcluster/blob/master/services/github/src/api.js#L254-L260
     # {
-    #     organization:mozilla - services
-    #     details:{
-    #         event.type:push
-    #         event.base.repo.branch:master
-    #         event.head.repo.branch:master
-    #         event.head.user.login:mozilla-cloudops-deploy
-    #         event.head.repo.url:https://github.com/mozilla-services/cloudops-jenkins.git
-    #         event.head.sha:845aa1c93726af92accd9b748ea361a37d5238b6
-    #         event.head.ref:refs/heads/master
-    #         event.head.user.email:mozilla-cloudops-deploy@noreply.github.com
+    #   exchange: exchange/taskcluster-github/v1/push
+    #   routingKey: primary.mozilla-mobile.android-components
+    #   payload: {
+    #     organization: mozilla-mobile
+    #     details: {
+    #       event.base.repo.branch: staging.tmp
+    #       event.base.sha: 7285afe57ae6207fdb5d6db45133dac2053b7820
+    #       event.head.repo.url: https://github.com/mozilla-mobile/android-components.git
+    #       event.head.sha: 5fdb785b28b356f50fc1d9cb180d401bb03fc1f1
     #     }
-    #     repository:cloudops-jenkins
-    #     version:1
+    #     repository: android-components
+    #     body: {
+    #       commits: [{
+    #         message: [ci skip][skip ci][skip netlify] -bors-staging-tmp-5835
+    #         author:
+    #           name: bors[bot]
+    #           email: 26634292+bors[bot]@users.noreply.github.com
+    #         timestamp: 2020-02-12T15:29:12Z
+    #       }]
+    #       # Head commit is only available for merge commits
+    #       head_commit: {
+    #         id: 5fdb785b28b356f50fc1d9cb180d401bb03fc1f1
+    #         author: {
+    #           name: bors[bot]
+    #           email: 26634292+bors[bot]@users.noreply.github.com
+    #         }
+    #         timestamp: 2020-02-12T15:29:12Z
+    #       }
+    #     }
     # }
 
     URL_BASE = "https://api.github.com/repos/{}/{}/compare/{}...{}"
