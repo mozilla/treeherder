@@ -62,6 +62,11 @@
     "webpack": "4.41.6",
     "webpack-cli": "3.3.11"
   },
+  "lint-staged": {
+    "*.{css,html,js,jsx,json,md,yaml,yml}": [
+      "yarn format --write"
+    ]
+  },
   "devDependencies": {
     "@neutrinojs/eslint": "9.0.0",
     "@neutrinojs/jest": "9.0.0",
@@ -98,5 +103,10 @@
     "test:coverage": "node ./node_modules/jest/bin/jest --coverage",
     "test": "node ./node_modules/jest/bin/jest",
     "test:watch": "node ./node_modules/jest/bin/jest --watch"
+  },
+  "husky": {
+    "hooks": {
+      "pre-commit": "lint-staged"
+    }
   }
 }
