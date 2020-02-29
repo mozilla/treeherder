@@ -12,7 +12,6 @@ const generateHeaders = function generateHeaders() {
 
 export const getData = async function getData(url, options = {}) {
   let failureStatus = null;
-
   const response = await fetch(url, options);
 
   if (!response.ok) {
