@@ -86,11 +86,6 @@
     "prettier": "1.19.1",
     "webpack-dev-server": "3.9.0"
   },
-  "husky": {
-    "hooks": {
-      "pre-commit": "lint-staged"
-    }
-  },
   "scripts": {
     "build": "node ./node_modules/webpack/bin/webpack.js --mode production",
     "build:dev": "node ./node_modules/webpack/bin/webpack.js --mode development",
@@ -105,10 +100,15 @@
     "test:coverage": "node ./node_modules/jest/bin/jest --coverage",
     "test": "node ./node_modules/jest/bin/jest",
     "test:watch": "node ./node_modules/jest/bin/jest --watch"
-  }
+  },
   "lint-staged": {
     "*.{css,html,js,jsx,json,md,yaml,yml}": [
       "yarn format --write" , "git add"
     ]
+  },
+  "husky": {
+    "hooks": {
+      "pre-commit": "lint-staged"
+    }
   }
 }
