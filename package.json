@@ -25,11 +25,13 @@
     "auth0-js": "9.11.3",
     "fuse.js": "3.4.6",
     "history": "4.10.1",
+    "husky": "4.2.3",
     "js-cookie": "2.2.1",
     "js-yaml": "3.13.1",
     "json-e": "3.0.1",
     "json-schema-defaults": "0.4.0",
     "lodash": "4.17.15",
+    "lint-staged": "10.0.8",
     "moment": "2.24.0",
     "neutrino": "9.0.0",
     "numeral": "2.0.6",
@@ -98,5 +100,15 @@
     "test:coverage": "node ./node_modules/jest/bin/jest --coverage",
     "test": "node ./node_modules/jest/bin/jest",
     "test:watch": "node ./node_modules/jest/bin/jest --watch"
+  },
+  "lint-staged": {
+    "**/*.{css,html,js,jsx,json,md,yaml,yml}": [
+      "yarn format --write" , "git add"
+    ]
+  },
+  "husky": {
+    "hooks": {
+      "pre-commit": "lint-staged"
+    }
   }
 }
