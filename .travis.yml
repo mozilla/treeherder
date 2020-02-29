@@ -40,7 +40,7 @@ matrix:
         - pip install codecov --user
       script:
         - docker-compose run backend ./runtests.sh
-        - codecov -f coverage.xml
+      -codecov -f coverage.xml
 
     - env: python-tests-main
       language: minimal
