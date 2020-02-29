@@ -103,7 +103,8 @@
   },
   "lint-staged": {
     "**/*.{css,html,js,jsx,json,md,yaml,yml}": [
-      "yarn format --write" , "git add"
+      "yarn format --write",
+      "git add"
     ]
   },
   "husky": {
