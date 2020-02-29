@@ -102,7 +102,7 @@
     "test:watch": "node ./node_modules/jest/bin/jest --watch"
   },
   "lint-staged": {
-    "*.{css,html,js,jsx,json,md,yaml,yml}": [
+    "**/*.{css,html,js,jsx,json,md,yaml,yml}": [
       "yarn format --write" , "git add"
     ]
   },
