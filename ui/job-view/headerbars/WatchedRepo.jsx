@@ -130,7 +130,6 @@ export default class WatchedRepo extends React.Component {
     const activeClass = watchedRepo === repoName ? 'active' : '';
     const { btnClass, icon, color } = statusInfo;
     const pulseIcon = statusInfo.pulseIcon || null;
-    const treeStatusName = TreeStatusModel.getTreeStatusName(watchedRepo);
     const changeRepoUrl = getRepoUrl(watchedRepo);
 
     return (
@@ -201,7 +200,7 @@ export default class WatchedRepo extends React.Component {
             )}
             <DropdownItem
               tag="a"
-              href={`https://treestatus.mozilla-releng.net/static/ui/treestatus/show/${treeStatusName}`}
+              href={`https://treestatus.mozilla-releng.net/static/ui/treestatus/show/${watchedRepo}`}
               target="_blank"
               rel="noopener noreferrer"
             >
