@@ -1,6 +1,7 @@
 import React from 'react';
-import { Container, Row } from 'reactstrap';
+import { Container, Row, Col } from 'reactstrap';
 
+import ErrorMessages from '../../shared/ErrorMessages';
 import RepositoryModel from '../../models/repository';
 import PushModel from '../../models/push';
 import { getData } from '../../helpers/http';
@@ -19,6 +20,7 @@ export default class CompareSubtestDistributionView extends React.Component {
       dataLoading: true,
       originalProject: null,
       newProject: null,
+      failureMessages: [],
     };
   }
 
@@ -114,6 +116,8 @@ export default class CompareSubtestDistributionView extends React.Component {
     originalRevision,
     originalSubtestSignature,
   ) => {
+    const { failureMessages } = this.state;
+
     const seriesData = await getData(
       createApiUrl(endpoints.summary, {
         repository: originalProjectName,
@@ -123,8 +127,9 @@ export default class CompareSubtestDistributionView extends React.Component {
     );
 
     if (seriesData.failureStatus) {
-      // eslint-disable-next-line no-console
-      console.log('Error occured', seriesData.failureStatus);
+      return this.setState({
+        failureMessages: [...seriesData.data, ...failureMessages],
+      });
     }
 
     const {
@@ -162,6 +167,11 @@ export default class CompareSubtestDistributionView extends React.Component {
             <LoadingSpinner />
           ) : (
             <Row className="justify-content-center mt-4">
+              <Col className="text-center">
+                {this.state.failureMessages.length !== 0 && (
+                  <ErrorMessages errorMessages={this.state.failureMessages} />
+                )}
+              </Col>
               <React.Fragment>
                 <h2>
                   {platform}: {testName} replicate distribution
