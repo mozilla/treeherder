@@ -151,6 +151,7 @@ export default class CompareSubtestDistributionView extends React.Component {
       dataLoading,
       platform,
       testName,
+      failureMessages,
     } = this.state;
     const {
       originalRevision,
@@ -168,8 +169,8 @@ export default class CompareSubtestDistributionView extends React.Component {
           ) : (
             <Row className="justify-content-center mt-4">
               <Col className="text-center">
-                {this.failureMessages.length !== 0 && (
-                  <ErrorMessages errorMessages={this.failureMessages} />
+                {failureMessages.length !== 0 && (
+                  <ErrorMessages errorMessages={failureMessages} />
                 )}
               </Col>
               <React.Fragment>
