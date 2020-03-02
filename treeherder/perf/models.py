@@ -18,7 +18,6 @@ SIGNATURE_HASH_LENGTH = 40
 
 
 class PerformanceFramework(models.Model):
-
     name = models.SlugField(max_length=255, unique=True)
     enabled = models.BooleanField(default=False)
 
@@ -30,7 +29,6 @@ class PerformanceFramework(models.Model):
 
 
 class PerformanceSignature(models.Model):
-
     signature_hash = models.CharField(max_length=SIGNATURE_HASH_LENGTH,
                                       validators=[
                                           MinLengthValidator(SIGNATURE_HASH_LENGTH)
@@ -210,7 +208,6 @@ into chunks of chunk_size size."""
 
 
 class PerformanceDatum(models.Model):
-
     objects = PerformanceDatumManager()
 
     repository = models.ForeignKey(Repository, on_delete=models.CASCADE)
@@ -560,10 +557,24 @@ class BackfillRecord(models.Model):
 
     # all data required to retrigger/backfill
     # associated perf alert, as JSON dump
-    # TODO-igoldan: could we employ a JSONField?
+    # TODO: could we employ a JSONField?
     context = models.TextField()
-
     created = models.DateTimeField(auto_now_add=True)
+
+    PRELIMINARY = 0
+    READY_FOR_PROCESSING = 1
+    BACKFILLED = 2
+    FINISHED = 3
+    FAILED = 4
+
+    STATUSES = ((PRELIMINARY, 'Preliminary'),
+                (READY_FOR_PROCESSING, 'Ready for processing'),
+                (BACKFILLED, 'Backfilled'),
+                (FINISHED, 'Finished'),
+                (FAILED, 'Failed'))
+
+    status = models.IntegerField(choices=STATUSES, default=PRELIMINARY)
+    log_details = models.TextField()  # JSON expected, not supported by Django
 
     def save(self, *args, **kwargs):
         # refresh parent's latest update time
