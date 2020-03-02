@@ -33,14 +33,12 @@ const DropdownMenuItems = ({
     {pinned.length > 0 &&
       options
         .filter(item => pinned.includes(item))
-        .sort((a, b) => a > b)
         .map(item =>
           createDropdownItem(item, namespace, updateData, selectedItem),
         )}
     {pinned.length > 0 && <DropdownItem divider />}
     {options
       .filter(item => !pinned.includes(item))
-      .sort((a, b) => a > b)
       .map(item =>
         createDropdownItem(item, namespace, updateData, selectedItem),
       )}
