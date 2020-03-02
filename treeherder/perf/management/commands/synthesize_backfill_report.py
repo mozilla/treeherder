@@ -6,8 +6,10 @@ from typing import (List,
 
 from django.core.management.base import BaseCommand
 
-from treeherder.perf.perf_sheriff_bot import PerfSfheriffBot
+from treeherder.perf.alerts import (AlertsPicker,
+                                    IdentifyAlertRetriggerables)
 from treeherder.perf.models import PerformanceFramework
+from treeherder.perf.perf_sheriff_bot import PerfSfheriffBot
 
 
 class Command(BaseCommand):
@@ -40,14 +42,12 @@ class Command(BaseCommand):
     def handle(self, *args, **options):
         frameworks, repositories, since, days_to_lookup = self._parse_args(**options)
         self._validate_args(frameworks, repositories)
-        report_options = {'max_alerts': 5,
-                          'max_improvements': 2,
-                          'platforms_of_interest': ('windows10', 'windows7', 'linux', 'osx', 'android'),
-                          'max_data_points': 5,
-                          'time_interval': days_to_lookup,
-                          }
-
-        perf_sheriff_bot = PerfSfheriffBot(report_options)
+        alerts_picker = AlertsPicker(max_alerts=options.get('max_alerts'),
+                                     max_improvements=options.get('max_improvements'),
+                                     platforms_of_interest=options.get('platforms_of_interest'))
+        backfill_context_fetcher = IdentifyAlertRetriggerables(max_data_points=options.get('max_data_points'),
+                                                               time_interval=options.get('time_interval'))
+        perf_sheriff_bot = PerfSfheriffBot(alerts_picker, backfill_context_fetcher)
         perf_sheriff_bot.report(since, frameworks, repositories)
 
     def _parse_args(self, **options) -> Tuple[List, List, datetime, timedelta]:

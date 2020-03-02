@@ -1,19 +1,20 @@
 from datetime import datetime
 from typing import List
 
-from treeherder.perf.alerts import BackfillReport
-from treeherder.perf.backfill_reporter import BackfillReporter
+from treeherder.perf.alerts import (AlertsPicker,
+                                    BackfillReport,
+                                    BackfillReportMaintainer,
+                                    IdentifyAlertRetriggerables)
 
 
 class PerfSfheriffBot:
     """
-    Wrapper for alerts report and backfill activites.
+    Wrapper class used to aggregate the reporting of backfill reports.
     """
-    def __init__(self, report_options: dict):
-        self.reporter = BackfillReporter(report_options)
+    def __init__(self, alerts_picker: AlertsPicker, backfill_context_fetcher: IdentifyAlertRetriggerables):
+        self.reportMaintainer = BackfillReportMaintainer(alerts_picker, backfill_context_fetcher)
 
-    def report(self, since: datetime, frameworks: List[str], repositories: List[str]) -> List[BackfillReport]:
-        return self.reporter.report(since, frameworks, repositories)
-
-    def backfill(self):
-        pass
+    def report(self, since: datetime,
+               frameworks: List[str],
+               repositories: List[str]) -> List[BackfillReport]:
+        return self.reportMaintainer.provide_updated_reports(since, frameworks, repositories)
