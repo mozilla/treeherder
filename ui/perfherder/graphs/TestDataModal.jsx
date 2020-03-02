@@ -399,8 +399,8 @@ export default class TestDataModal extends React.Component {
       {
         options: projectOptions,
         selectedItem: repositoryName.name || '',
-        pinnedProjects: projectOptions.filter(item =>
-          pinnedProjects.includes(item),
+        pinnedProjects: pinnedProjects.filter(item =>
+          projectOptions.includes(item),
         ),
         updateData: value =>
           this.setState(
