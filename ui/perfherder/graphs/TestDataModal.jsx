@@ -399,8 +399,8 @@ export default class TestDataModal extends React.Component {
       {
         options: projectOptions,
         selectedItem: repositoryName.name || '',
-        pinnedProjects: projectOptions.filter(item =>
-          pinnedProjects.includes(item),
+        pinnedProjects: pinnedProjects.filter(item =>
+          projectOptions.includes(item),
         ),
         updateData: value =>
           this.setState(
@@ -429,6 +429,7 @@ export default class TestDataModal extends React.Component {
 
     return (
       <Modal size="lg" isOpen={showModal}>
+        {this.state.pinnedProjects}
         <ModalHeader toggle={this.closeModal}>Add Test Data</ModalHeader>
         <ModalBody className="container-fluid test-chooser">
           <Form>
