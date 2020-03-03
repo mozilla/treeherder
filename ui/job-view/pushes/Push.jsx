@@ -47,10 +47,9 @@ const fetchTestManifests = async (project, revision) => {
     const decompressed = await inflate(binData, { to: 'string' });
     taskNameToManifests = JSON.parse(decompressed);
   } else if (response.status === 404) {
-    // This else/if block is for backward compatibility
-    // XXX: Remove after end of July 2020
+    // This block if for backward compatibility
     const resp = await fetch(url.replace('.json.gz', '.json'));
-    if ([200, 303, 304].includes(resp.status)) {
+    if ([200, 303, 304].indexOf(resp.status) > -1) {
       taskNameToManifests = await resp.json();
     }
   }
