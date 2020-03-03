@@ -113,26 +113,26 @@ export default class GraphsViewControls extends React.Component {
               />
             )}
 
-            {!showTable && (
-              <Row className="justify-content-start pt-2 pb-5 max-width-default mx-auto">
-                {highlightedRevisions.length > 0 &&
-                  highlightedRevisions.map((revision, index) => (
-                    // eslint-disable-next-line react/no-array-index-key
-                    <Col sm="2" className="pl-0 pr-3" key={index}>
-                      <Input
-                        type="text"
-                        name={`revision ${revision}`}
-                        placeholder="revision to highlight"
-                        value={revision}
-                        onChange={event =>
-                          this.changeHighlightedRevision(
-                            index,
-                            event.target.value,
-                          )
-                        }
-                      />
-                    </Col>
-                  ))}
+            <Row className="justify-content-start pt-2 pb-5 max-width-default mx-auto">
+              {highlightedRevisions.length > 0 &&
+                highlightedRevisions.map((revision, index) => (
+                  // eslint-disable-next-line react/no-array-index-key
+                  <Col sm="2" className="pl-0 pr-3" key={index}>
+                    <Input
+                      type="text"
+                      name={`revision ${revision}`}
+                      placeholder="revision to highlight"
+                      value={revision}
+                      onChange={event =>
+                        this.changeHighlightedRevision(
+                          index,
+                          event.target.value,
+                        )
+                      }
+                    />
+                  </Col>
+                ))}
+              {!showTable && (
                 <Col sm="auto" className="pl-0">
                   <Button
                     color="darker-info"
@@ -145,8 +145,8 @@ export default class GraphsViewControls extends React.Component {
                     Highlight alerts
                   </Button>
                 </Col>
-              </Row>
-            )}
+              )}
+            </Row>
           </React.Fragment>
         )}
       </Container>
