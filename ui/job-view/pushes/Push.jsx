@@ -2,6 +2,7 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
 import sortBy from 'lodash/sortBy';
+import { inflate } from 'pako';
 
 import {
   thEvents,
@@ -38,10 +39,19 @@ const fetchTestManifests = async (project, revision) => {
   const rootUrl = prodFirefoxRootUrl;
   const url = `${checkRootUrl(
     rootUrl,
-  )}/api/index/v1/task/gecko.v2.${project}.revision.${revision}.taskgraph.decision/artifacts/public/manifests-by-task.json`;
+  )}/api/index/v1/task/gecko.v2.${project}.revision.${revision}.taskgraph.decision/artifacts/public/manifests-by-task.json.gz`;
   const response = await fetch(url);
   if ([200, 303, 304].indexOf(response.status) > -1) {
-    taskNameToManifests = await response.json();
+    const blob = await response.blob();
+    const binData = await blob.arrayBuffer();
+    const decompressed = await inflate(binData, { to: 'string' });
+    taskNameToManifests = JSON.parse(decompressed);
+  } else if (response.status === 404) {
+    // This block if for backward compatibility
+    const resp = await fetch(url.replace('.json.gz', '.json'));
+    if ([200, 303, 304].indexOf(resp.status) > -1) {
+      taskNameToManifests = await resp.json();
+    }
   }
   return taskNameToManifests;
 };
