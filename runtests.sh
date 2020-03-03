@@ -24,7 +24,8 @@ isort \
  -sg "*.md" \
  -sg "*.txt" \
  || { echo "isort errors found! Run 'isort' with no options to fix."; exit 1; }
-# isort -y --skip __pycache__ --skip node_modules --skip migrations -sg "*/.*/*" -sg "*.md" -sg "*.txt" \
+# Automatically fix
+# isort -y --skip __pycache__ --skip node_modules --skip migrations -sg "*/.*/*" -sg "*.md" -sg "*.txt"
 
 echo "Running shellcheck"
 git grep -El '^#!/.+\b(bash|sh)\b' | xargs shellcheck
