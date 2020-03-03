@@ -439,7 +439,7 @@ PERFHERDER_ALERTS_FORE_WINDOW = 12
 # Only generate alerts for data newer than this time in seconds in perfherder
 PERFHERDER_ALERTS_MAX_AGE = timedelta(weeks=2)
 
-# PerfSheriff Bot settings
+# Performance sheriff bot settings
 MAX_BACKFILLS_PER_PLATFORM = {
     'linux': 200,
 }
