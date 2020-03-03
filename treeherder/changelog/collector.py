@@ -18,16 +18,14 @@ with open(CFG) as f:
 class GitHub:
     def __init__(self):
         self.token = os.environ["GITHUB_CLIENT_SECRET"]
-        self.id = os.environ["GITHUB_CLIENT_ID"]
-        self.gh = github3.login(token=self.token, two_factor_callback=self._2FA)
+        if "localhost" in settings.SITE_HOSTNAME:
+            _2fa = None
+        else:
+            _2fa = self._2FA
+        self.gh = github3.login(token=self.token, two_factor_callback=_2fa)
         self.filters = Filters()
 
     def _2FA(self):
-        """ The two-factor authentication is useful when running Github from a
-        personal github account.
-        """
-        if "localhost" not in settings.SITE_HOSTNAME:
-            raise ValueError("Cannot perform 2FA if not running locally")
         code = ""
         while not code:
             code = input("Enter 2FA code: ")

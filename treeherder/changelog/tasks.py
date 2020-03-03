@@ -21,7 +21,9 @@ def update_changelog(days=1):
             # lame hack to remove TZ awareness
             if entry["date"].endswith("Z"):
                 entry["date"] = entry["date"][:-1]
-            changelog = Changelog.objects.create(**entry)
+            changelog, created = Changelog.objects.update_or_create(**entry)
+            if not created:
+                continue
             [
                 ChangelogFile.objects.create(name=name, changelog=changelog)
                 for name in files
