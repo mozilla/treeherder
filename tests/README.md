@@ -13,6 +13,16 @@ We need all but the main `backend` service running.  Since multiple `backend` in
     # SETUP ALL IMAGES
     docker-compose up --build
 
+### Prepare your development environment
+
+Ensure pre-commit hooks are enabled. 
+
+**Do not enable on Windows** - `isort` is not given the correct parameters, it conflicts with travis verification, and will never pass.
+
+    pip install pre-commit
+    pre-commit install
+
+
 ### Install into virtual environment
 
 Treeherder requires specific library versions that will likely interfere with what you have installed. It is best to setup a virtual environment to contain the quirks it introduces.
@@ -60,11 +70,20 @@ Be sure docker-compose is up, you are in the `treeherder` main directory, your v
     ./tests/env.sh
     pytest tests
 
-### Pre commit checks
+### Pre commit checks (**not for Windows**)
 
-If you made some changes, and want to submit a pull request; run the `./runtests.sh` script (found in the main directory).  It will run some linters to check your submission.
+The pre-commit git hooks will also perform some flake8 and isort checks and block your commit.  If you want to force the commit 
+
+    git commit --no-verify -m "message about commit
+
+If you made some changes, and want to submit a pull request; run 
+
+    ./runtests.sh
+
+script (found in the main directory).  It will run some linters to check your submission.
 
 > For Windows, you can run the checks in a container (see below)
+
 
 
 ### Using containers
