@@ -13,7 +13,7 @@ echo "Running flake8"
 flake8 --show-source || { echo "flake8 errors found!"; exit 1; }
 
 echo "Running isort"
-isort --check-only --diff --quiet \
+isort --check-only --diff --quiet -sp /app/setup.cfg \
  || { echo "isort errors found! Run 'isort' with no options to fix."; exit 1; }
 
 echo "Running shellcheck"

@@ -8,10 +8,10 @@ from mo_logs import (Log,
 from mo_logs.convert import unix2datetime
 from mo_math.randoms import Random
 from mo_times import Date
-
 from treeherder.config.settings import DATABASES
 from treeherder.extract import extract_jobs
 from treeherder.model.models import (ClassifiedFailure,
+                                     Commit,
                                      FailureClassification,
                                      FailureLine,
                                      Job,
@@ -45,6 +45,7 @@ def complex_job(
     fc = FailureClassification.objects.create(id=1, name="not classified")
     repository_group = RepositoryGroup.objects.create(name="common")
     repo = Repository.objects.create(name="autoland", repository_group=repository_group)
+
     push = Push.objects.create(
         **{
             "author": "testing@mozilla.com",
@@ -52,6 +53,19 @@ def complex_job(
             "revision": "ae6bb3a1066959a8c43d003a3caab0af769455bf",
             "time": unix2datetime(1578427105),
         }
+    )
+
+    Commit.objects.create(
+        push=push,
+        revision="ae6bb3a1066959a8c43d003a3caab0af769455bf",
+        author="testing@mozilla.com",
+        comments="no comment"
+    )
+    Commit.objects.create(
+        push=push,
+        revision="0123456789012345678901234567890123456789",
+        author="testing2@mozilla.com",
+        comments="no comment2"
     )
 
     debug = Option.objects.create(name="debug")
