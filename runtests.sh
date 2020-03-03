@@ -20,12 +20,15 @@ isort \
  --skip __pycache__ \
  --skip node_modules \
  --skip migrations \
- -sg "*/.*/*" \
- -sg "*.md" \
- -sg "*.txt" \
+ --skip-glob "*/.*/*" \
+ --skip-glob "*.md" \
+ --skip-glob "*.txt" \
+ --multi-line 1 \
+ --force-grid-wrap \
+ --lines 100 \
  || { echo "isort errors found! Run 'isort' with no options to fix."; exit 1; }
-# Automatically fix
-# isort -y --skip __pycache__ --skip node_modules --skip migrations -sg "*/.*/*" -sg "*.md" -sg "*.txt"
+# Autofix
+# isort -y --skip __pycache__ --skip node_modules --skip migrations --skip-glob "*/.*/*" --skip-glob "*.md" --skip-glob "*.txt" --multi-line 1 --force-grid-wrap --lines 100
 
 echo "Running shellcheck"
 git grep -El '^#!/.+\b(bash|sh)\b' | xargs shellcheck
