@@ -13,22 +13,8 @@ echo "Running flake8"
 flake8 --show-source || { echo "flake8 errors found!"; exit 1; }
 
 echo "Running isort"
-isort \
- --check-only \
- --diff \
- --quiet \
- --skip __pycache__ \
- --skip node_modules \
- --skip migrations \
- --skip-glob "*/.*/*" \
- --skip-glob "*.md" \
- --skip-glob "*.txt" \
- --multi-line 1 \
- --force-grid-wrap \
- --lines 100 \
+isort --check-only --diff --quiet \
  || { echo "isort errors found! Run 'isort' with no options to fix."; exit 1; }
-# Autofix
-# isort -y --skip __pycache__ --skip node_modules --skip migrations --skip-glob "*/.*/*" --skip-glob "*.md" --skip-glob "*.txt" --multi-line 1 --force-grid-wrap --lines 100
 
 echo "Running shellcheck"
 git grep -El '^#!/.+\b(bash|sh)\b' | xargs shellcheck
