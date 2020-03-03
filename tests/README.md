@@ -70,7 +70,7 @@ Be sure docker-compose is up, you are in the `treeherder` main directory, your v
     ./tests/env.sh
     pytest tests
 
-### Pre commit checks
+### Pre commit checks (**not for Windows**)
 
 The pre-commit git hooks will also perform some flake8 and isort checks and block your commit.  If you want to force the commit 
 
