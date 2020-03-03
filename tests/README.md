@@ -15,7 +15,9 @@ We need all but the main `backend` service running.  Since multiple `backend` in
 
 ### Prepare your development environment
 
-Ensure pre-commit hooks are enabled
+Ensure pre-commit hooks are enabled. 
+
+**Do not enable on Windows** - `isort` is not given the correct parameters, it conflicts with travis verification, and will never pass.
 
     pip install pre-commit
     pre-commit install
