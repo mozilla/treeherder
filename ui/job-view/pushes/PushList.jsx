@@ -139,7 +139,7 @@ class PushList extends React.Component {
     }
     return (
       <div
-        role="button"
+        role="grid"
         tabIndex={0}
         id="push-list"
         onClick={evt => this.clearIfEligibleTarget(evt.target)}
@@ -153,6 +153,7 @@ class PushList extends React.Component {
               key={push.id}
             >
               <Push
+                role="gridcell"
                 push={push}
                 isLoggedIn={isLoggedIn || false}
                 currentRepo={currentRepo}
