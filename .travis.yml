@@ -29,10 +29,11 @@ matrix:
         - NODE_ENV=production YARN_PRODUCTION=true
       # Since we're using Python/pip and Node/yarn use the generic image
       language: generic
-      # XXX: Caching in the this image does not work as expected
       cache:
-        - pip
-        - yarn
+        directories:
+          - $HOME/.cache/yarn
+          - $HOME/.cache/pip
+          - node_modules
       before_install:
         # XXX: I have not been able to install 3.7.2 to match runtime.txt
         - pyenv global 3.7.1
