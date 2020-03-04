@@ -7,3 +7,8 @@ repos:
     rev: 4.3.21
     hooks:
       - id: isort
+  - repo: git://github.com/detailyang/pre-commit-shell
+    rev: v1.0.6
+    hooks:
+    - id: shell-lint
+      args: [--format=json]
