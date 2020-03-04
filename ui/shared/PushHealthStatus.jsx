@@ -5,6 +5,7 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import {
   faCheck,
   faExclamationTriangle,
+  faClock,
 } from '@fortawesome/free-solid-svg-icons';
 
 import PushModel from '../models/push';
@@ -53,24 +54,41 @@ class PushHealthStatus extends Component {
   }
 
   render() {
-    const { repoName, revision } = this.props;
+    const {
+      repoName,
+      revision,
+      jobCounts: { pending, running, completed },
+    } = this.props;
     const { needInvestigation, unsupported } = this.state;
-    const items = needInvestigation > 1 ? 'items' : 'item';
-    const icon =
-      needInvestigation + unsupported === 0 ? faCheck : faExclamationTriangle;
-    let healthStatus = 'OK';
-    let badgeColor = 'success';
-    let extraTitle = 'Looks good';
+    let healthStatus = 'In progress';
+    let badgeColor = 'darker-secondary';
+    let extraTitle = 'No errors so far';
+    let icon = faClock;
 
-    if (unsupported) {
-      healthStatus = `${unsupported} unsupported ${items}`;
-      badgeColor = 'warning';
-      extraTitle = 'Indeterminate';
-    }
-    if (needInvestigation) {
-      healthStatus = `${needInvestigation} ${items}`;
-      badgeColor = 'danger';
-      extraTitle = 'Needs investigation';
+    if (completed) {
+      if (unsupported) {
+        healthStatus = `${unsupported} unsupported ${
+          unsupported > 1 ? 'items' : 'item'
+        }`;
+        badgeColor = 'warning';
+        extraTitle = 'Indeterminate';
+        icon = faExclamationTriangle;
+      }
+      if (needInvestigation) {
+        healthStatus = `${needInvestigation} ${
+          needInvestigation > 1 ? 'items' : 'item'
+        }`;
+        badgeColor = 'danger';
+        extraTitle = 'Needs investigation';
+        icon = faExclamationTriangle;
+      }
+      const inProgress = pending + running;
+      if (!inProgress && !unsupported && !needInvestigation) {
+        healthStatus = `OK`;
+        badgeColor = 'success';
+        extraTitle = 'Looks good';
+        icon = faCheck;
+      }
     }
 
     return (
