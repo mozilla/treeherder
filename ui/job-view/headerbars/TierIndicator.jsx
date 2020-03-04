@@ -18,7 +18,7 @@ export default function TierIndicator(props) {
             title={
               isOnlyTier
                 ? "Can't Toggle because least one tier must be selected at all times"
-                : `Toogle tier ${tier} jobs`
+                : `Toggle tier ${tier} jobs`
             }
             disabled={isOnlyTier}
             outline={!shownTiers.includes(tier)}

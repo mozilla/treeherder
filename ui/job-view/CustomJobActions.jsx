@@ -27,6 +27,7 @@ import { faCheckSquare } from '@fortawesome/free-regular-svg-icons';
 import { formatTaskclusterError } from '../helpers/errorMessage';
 import TaskclusterModel from '../models/taskcluster';
 import DropdownMenuItems from '../shared/DropdownMenuItems';
+import { checkRootUrl } from '../taskcluster-auth-callback/constants';
 
 import { notify } from './redux/stores/notifications';
 
@@ -158,7 +159,10 @@ class CustomJobActions extends React.PureComponent {
       taskId => {
         this.setState({ triggering: false });
         let message = 'Custom action request sent successfully:';
-        let url = tcLibUrls.ui(currentRepo.tc_root_url, `/tasks/${taskId}`);
+        let url = tcLibUrls.ui(
+          checkRootUrl(currentRepo.tc_root_url),
+          `/tasks/${taskId}`,
+        );
 
         // For the time being, we are redirecting specific actions to
         // specific urls that are different than usual. At this time, we are
@@ -276,8 +280,8 @@ class CustomJobActions extends React.PureComponent {
         <ModalFooter>
           {isLoggedIn ? (
             <Button
-              color="secondary"
-              className={`btn btn-primary-soft ${triggering ? 'disabled' : ''}`}
+              color="darker-info"
+              className={triggering ? 'disabled' : ''}
               onClick={this.triggerAction}
               title={isLoggedIn ? 'Trigger this action' : 'Not logged in'}
             >

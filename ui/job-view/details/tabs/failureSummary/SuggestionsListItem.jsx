@@ -30,9 +30,9 @@ export default class SuggestionsListItem extends React.Component {
       <li>
         <div>
           <Button
-            color="link"
+            className="bg-light py-1 px-2"
+            outline
             size="xs"
-            className="btn btn-light-bordered link-style"
             onClick={() => toggleBugFiler(suggestion)}
             title="file a bug for this failure"
           >

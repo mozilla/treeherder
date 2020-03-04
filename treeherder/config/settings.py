@@ -9,7 +9,6 @@ import environ
 from furl import furl
 from kombu import (Exchange,
                    Queue)
-
 from treeherder.config.utils import (connection_should_use_tls,
                                      get_tls_redis_url)
 

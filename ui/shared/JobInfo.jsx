@@ -4,6 +4,7 @@ import PropTypes from 'prop-types';
 import { getInspectTaskUrl } from '../helpers/url';
 import { getJobSearchStrHref } from '../helpers/job';
 import { toDateStr } from '../helpers/display';
+import { checkRootUrl } from '../taskcluster-auth-callback/constants';
 
 import Clipboard from './Clipboard';
 
@@ -82,7 +83,7 @@ export default class JobInfo extends React.PureComponent {
               id="taskInfo"
               href={getInspectTaskUrl(
                 taskId,
-                currentRepo.tc_root_url,
+                checkRootUrl(currentRepo.tc_root_url),
                 submitTimestamp,
               )}
               target="_blank"

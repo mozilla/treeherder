@@ -30,7 +30,7 @@ class HealthMenu extends PureComponent {
         <DropdownToggle
           caret
           title="Change visibility of the Push Health badge/link"
-          className="btn btn-view-nav btn-sm nav-menu-btn dropdown-toggle"
+          className="btn-view-nav nav-menu-btn"
         >
           Health
         </DropdownToggle>

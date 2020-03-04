@@ -4,6 +4,7 @@ import { Auth, Hooks } from 'taskcluster-client-web';
 import { satisfiesExpression } from 'taskcluster-lib-scopes';
 
 import taskcluster, { tcCredentialsMessage } from '../helpers/taskcluster';
+import { checkRootUrl } from '../taskcluster-auth-callback/constants';
 
 export default class TaskclusterModel {
   static taskInContext(tagSetList, taskTags) {
@@ -34,8 +35,8 @@ export default class TaskclusterModel {
       },
       staticActionVariables,
     );
-
-    const queue = taskcluster.getQueue(currentRepo.tc_root_url, testMode);
+    const rootUrl = checkRootUrl(currentRepo.tc_root_url);
+    const queue = taskcluster.getQueue(rootUrl, testMode);
 
     if (action.kind === 'task') {
       context.task = task;
@@ -52,7 +53,7 @@ export default class TaskclusterModel {
     if (action.kind === 'hook') {
       const hookPayload = jsone(action.hookPayload, context);
       const { hookId, hookGroupId } = action;
-      const auth = new Auth({ rootUrl: currentRepo.tc_root_url });
+      const auth = new Auth({ rootUrl });
 
       const userCredentials = testMode
         ? taskcluster.getMockCredentials()
@@ -61,7 +62,7 @@ export default class TaskclusterModel {
         throw new Error(tcCredentialsMessage);
       }
       const hooks = new Hooks({
-        rootUrl: currentRepo.tc_root_url,
+        rootUrl,
         credentials: userCredentials.credentials,
       });
       const decisionTask = await queue.task(decisionTaskId);
@@ -86,8 +87,8 @@ export default class TaskclusterModel {
     if (!decisionTaskID) {
       throw Error("No decision task, can't find taskcluster actions");
     }
-
-    const queue = taskcluster.getQueue(currentRepo.tc_root_url, testMode);
+    const rootUrl = checkRootUrl(currentRepo.tc_root_url);
+    const queue = taskcluster.getQueue(rootUrl, testMode);
     const actionsUrl = queue.buildUrl(
       queue.getLatestArtifact,
       decisionTaskID,
@@ -99,7 +100,7 @@ export default class TaskclusterModel {
     let originalTaskPromise = Promise.resolve(null);
     if (job) {
       originalTaskId = job.task_id;
-      const queue = taskcluster.getQueue(currentRepo.tc_root_url, testMode);
+      const queue = taskcluster.getQueue(rootUrl, testMode);
       originalTaskPromise = queue.task(originalTaskId);
     }
 

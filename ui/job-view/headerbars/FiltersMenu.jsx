@@ -47,7 +47,6 @@ function FiltersMenu(props) {
       <DropdownToggle
         title="Set filters"
         className="btn-view-nav nav-menu-btn"
-        nav
         caret
       >
         Filters
