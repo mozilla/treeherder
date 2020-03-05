@@ -176,6 +176,8 @@ def ingestGitPush(options, root_url):
     githubApi = "https://api.github.com"
     baseUrl = "{}/repos/{}/{}".format(githubApi, owner, repo)
     defaultBranch = fetch_json(baseUrl)["default_branch"]
+    if not branch:
+        branch = defaultBranch
     # This is used for the `compare` API. The "event.base.sha" is only contained in Pulse events, thus,
     # we need to determine the correct value
     eventBaseSha = defaultBranch
@@ -185,13 +187,14 @@ def ingestGitPush(options, root_url):
     headCommit = None
     mergeBaseCommit = compareResponse["merge_base_commit"]
     if mergeBaseCommit:
-        # Since we don't use PushEvents that contain the "before" or "event.base.shae" fields [1]
+        logger.info("We have a merge commit. We need to find the right eventBaseSha")
+        # Since we don't use PushEvents that contain the "before" or "event.base.sha" fields [1]
         # we need to discover the right parent. A merge commit has two parents
         # [1] https://github.com/taskcluster/taskcluster/blob/3dda0adf85619d18c5dcf255259f3e274d2be346/services/github/src/api.js#L55
         parents = compareResponse["merge_base_commit"]["parents"]
         for parent in parents:
             _commit = fetch_json(parent["url"])
-            if _commit["parents"] and len(_commit["parents"]) > 1:
+            if _commit["parents"] and len(_commit["parents"]) > 0:
                 eventBaseSha = parent["sha"]
                 logger.info("We have a new base: %s", eventBaseSha)
                 break
@@ -211,13 +214,9 @@ def ingestGitPush(options, root_url):
     for _commit in compareResponse["commits"]:
         commits.append({
             "message": _commit["commit"]["message"],
-            "author": {
-                "name": _commit["commit"]["committer"]["name"],
-                "email": _commit["commit"]["committer"]["email"],
-            },
+            "author": _commit["commit"]["author"],
+            "committer": _commit["commit"]["committer"],
             "id": _commit["sha"],
-            # XXX: A fair estimation
-            "timestamp": _commit["commit"]["author"]["date"]
         })
 
     pulse = {
