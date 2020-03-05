@@ -123,7 +123,8 @@ def get_current_test_failures(push, option_map):
         job_group_symbol = job.job_group.symbol
         job.job_key = '{}{}{}{}'.format(config, platform, job_name, job_group)
         all_failed_jobs[job.id] = job
-        test_key = re.sub(r'\W+', '', '{}{}{}{}{}'.format(test_name, config, platform, job_name, job_group))
+        # The 't' ensures the key starts with a character, as required for a query selector
+        test_key = re.sub(r'\W+', '', 't{}{}{}{}{}'.format(test_name, config, platform, job_name, job_group))
 
         if test_key not in tests:
             line = {

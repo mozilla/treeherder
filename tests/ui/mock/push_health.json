@@ -3,8 +3,8 @@
   "id": 630837,
   "result": "fail",
   "metrics": {
-    "parent": {
-      "name": "Parent",
+    "commitHistory": {
+      "name": "Commit History",
       "result": "none",
       "details": {
         "parentSha": "eeb6fd68c0223a72d8714734a34d3e6da69995e1",
@@ -35,7 +35,40 @@
           "running": 0,
           "success": 293,
           "testfailed": 5
-        }
+        },
+        "revisions": [
+          {
+            "comments": "Bug 1596812 Part 1 - Update our custom nsisui.exe. r=agashlin\n\nSummary:\n\nMinify this file by removing the dialogs we don't need and hide all the\nunnecessary controls in the one we do need, so the stub installer code\ndoesn't have to do that manually (I would have removed those controls\naltogether, but the NSIS compiler errors out if you do that).\n\nDifferential Revision: https://phabricator.services.mozilla.com/D56576\n\n\n\nTest Plan:\n\nReviewers: agashlin\n\nSubscribers:\n\nBug #: 1596812\nDifferential Diff: PHID-DIFF-2cdiggedu3yo3ijopy7k",
+            "author": "Molly Howell <mhowell@mozilla.com>",
+            "revision": "298d6ae2f80cad932f8ec605395e7d263c86e734"
+          },
+          {
+            "comments": "Bug 1596812 Part 2 - NSIS WebBrowser plugin. r=agashlin\n\nSummary:\n\nThis is all the code and build files for an NSIS plugin that enables\nrendering a web page as the content of an NSIS dialog.\n\nDocumentation and the compiled binary are in later commits in this series.\n\nDifferential Revision: https://phabricator.services.mozilla.com/D56577\n\nDepends on D56576\n\nTest Plan:\n\nReviewers: agashlin\n\nSubscribers:\n\nBug #: 1596812\nDifferential Diff: PHID-DIFF-qxemgpfgytrfewwdnp3c",
+            "author": "Molly Howell <mhowell@mozilla.com>",
+            "revision": "c639aa34f1249c0b280ad71b7a131c8a8bd40a28"
+          },
+          {
+            "comments": "Bug 1596812 Part 3 - Compiled binary for the WebBrowser plugin. r=agashlin\n\nSummary:\n\nDifferential Revision: https://phabricator.services.mozilla.com/D56579\n\nDepends on D56577\n\nTest Plan:\n\nReviewers: agashlin\n\nSubscribers:\n\nBug #: 1596812\nDifferential Diff: PHID-DIFF-thzbkzegigfe45ytmmq3",
+            "author": "Molly Howell <mhowell@mozilla.com>",
+            "revision": "9ee489147076c8776003ff47bbf7ba4122afda44"
+          },
+          {
+            "comments": "Bug 1596812 Part 4 - Add the WebBrowser plugin to the installer build files. r=agashlin\n\nSummary:\n\nDifferential Revision: https://phabricator.services.mozilla.com/D56580\n\nDepends on D56579\n\nTest Plan:\n\nReviewers: agashlin\n\nSubscribers:\n\nBug #: 1596812\nDifferential Diff: PHID-DIFF-fczkua6yvptm5a7nhwdj",
+            "author": "Molly Howell <mhowell@mozilla.com>",
+            "revision": "8dff5e5e9e4fa080e93fa358e42fd2422d1e2d60"
+          },
+          {
+            "comments": "Bug 1596812 Part 5 - Add the web content files and include them in the installer build. r=agashlin\n\nSummary:\n\nDifferential Revision: https://phabricator.services.mozilla.com/D56581\n\nDepends on D56580\n\nTest Plan:\n\nReviewers: agashlin\n\nSubscribers:\n\nBug #: 1596812\nDifferential Diff: PHID-DIFF-klktifjsu4dzhdvk5464",
+            "author": "Molly Howell <mhowell@mozilla.com>",
+            "revision": "d00d10fe888660fe536a6e6e3f2a243c0a70431c"
+          },
+          {
+            "comments": "try_task_config for https://phabricator.services.mozilla.com/D56581\nDifferential Diff: PHID-DIFF-klktifjsu4dzhdvk5464",
+            "author": "libmozevent <release-mgmt-analysis@mozilla.com>",
+            "revision": "62489dedc9c4af40387b91993fa70b0e643b6b71"
+          }
+        ],
+        "revisionCount": 6
       }
     },
     "linting": { "name": "Linting", "result": "pass", "details": [] },

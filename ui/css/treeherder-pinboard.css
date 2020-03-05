@@ -91,17 +91,20 @@
 }
 
 .pinned-job {
+  font-size: 12px;
   margin-bottom: 2px;
   padding: 1px 2px;
   width: 3.5em;
 }
 
 .pinned-job-close-btn {
+  font-size: 12px;
   padding: 1px 2px 1px 2px;
   border-color: #fafafa #fafafa #fafafa transparent;
 }
 
 .pinboard-preload-txt {
+  font-size: 12px;
   color: #bfbfbf;
 }
 

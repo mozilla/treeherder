@@ -36,7 +36,7 @@ const Layout = props => {
   }
   return (
     <Container fluid className="my-5 max-width-default">
-      <Navigation updateState={updateState} tree={tree} />
+      <Navigation updateState={updateState} tree={tree} {...props} />
       {(isFetchingGraphs || isFetchingTable) &&
         !(
           tableFailureStatus ||

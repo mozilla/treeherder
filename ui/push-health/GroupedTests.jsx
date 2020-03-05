@@ -1,4 +1,4 @@
-import React, { Component } from 'react';
+import React, { PureComponent } from 'react';
 import PropTypes from 'prop-types';
 import { Button, UncontrolledCollapse } from 'reactstrap';
 import groupBy from 'lodash/groupBy';
@@ -6,10 +6,20 @@ import orderBy from 'lodash/orderBy';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faCaretDown } from '@fortawesome/free-solid-svg-icons';
 
+import Clipboard from '../shared/Clipboard';
+
 import TestFailure from './TestFailure';
 import { filterTests } from './helpers';
 
-class GroupedTests extends Component {
+class GroupedTests extends PureComponent {
+  constructor(props) {
+    super(props);
+
+    this.state = {
+      clipboardVisible: null,
+    };
+  }
+
   getGroupedTests = tests => {
     const { groupedBy, searchStr } = this.props;
     const filteredTests = searchStr.length
@@ -29,6 +39,10 @@ class GroupedTests extends Component {
     return grouped;
   };
 
+  setClipboardVisible = key => {
+    this.setState({ clipboardVisible: key });
+  };
+
   render() {
     const {
       group,
@@ -40,6 +54,7 @@ class GroupedTests extends Component {
       orderedBy,
       groupedBy,
     } = this.props;
+    const { clipboardVisible } = this.state;
 
     const groupedTests = this.getGroupedTests(group);
     const groupedArray = Object.entries(groupedTests).map(([key, tests]) => ({
@@ -57,20 +72,31 @@ class GroupedTests extends Component {
         {groupedTests &&
           sortedGroups.map(group => (
             <div key={group.id} data-testid="test-grouping">
-              <Button
-                id={`${group.id}-group`}
-                color="darker-secondary"
-                outline
-                className="p-3 bg-light text-center text-monospace border-bottom-0 border-right-0 border-left-0 border-secondary w-100"
-                title="Click to expand for test detail"
+              <span
+                className="d-flex border-top w-100 bg-light p-2 border-top-1 border-secondary justify-content-center rounded"
+                onMouseEnter={() => this.setClipboardVisible(group.key)}
+                onMouseLeave={() => this.setClipboardVisible(null)}
               >
-                {group.key === 'none' ? 'All' : group.key} -
-                <span className="ml-2 font-italic">
-                  {group.tests.length} test{group.tests.length > 1 && 's'}
-                </span>
-                <FontAwesomeIcon icon={faCaretDown} className="ml-1" />
-              </Button>
-              <UncontrolledCollapse toggler={`${group.id}-group`}>
+                <Clipboard
+                  text={group.key}
+                  description="group text"
+                  visible={clipboardVisible === group.key}
+                />
+                <Button
+                  id={`group-${group.id}`}
+                  className="text-center text-monospace border-0"
+                  title="Click to expand for test detail"
+                  outline
+                >
+                  {group.key === 'none' ? 'All' : group.key} -
+                  <span className="ml-2 font-italic">
+                    {group.tests.length} test{group.tests.length > 1 && 's'}
+                  </span>
+                  <FontAwesomeIcon icon={faCaretDown} className="ml-1" />
+                </Button>
+              </span>
+
+              <UncontrolledCollapse toggler={`group-${group.id}`}>
                 {group.tests.map(failure => (
                   <TestFailure
                     key={failure.key}

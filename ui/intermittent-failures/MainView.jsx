@@ -193,6 +193,7 @@ MainView.propTypes = {
   tableData: PropTypes.arrayOf(PropTypes.shape({})),
   graphData: PropTypes.arrayOf(PropTypes.shape({})),
   initialParamsSet: PropTypes.bool.isRequired,
+  notify: PropTypes.func.isRequired,
 };
 
 MainView.defaultProps = {
