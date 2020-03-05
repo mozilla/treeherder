@@ -18,7 +18,10 @@ afterEach(() => {
 });
 
 describe('CommitHistory', () => {
-  const testCommitHistory = history => <CommitHistory history={history} />;
+  const revision = 'eeb6fd68c0223a72d8714734a34d3e6da69995e1';
+  const testCommitHistory = history => (
+    <CommitHistory history={history} revision={revision} />
+  );
 
   test('should show a parent commit and health icon for that parent', async () => {
     const { details: commitHistory } = pushHealth.metrics.commitHistory;
