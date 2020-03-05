@@ -116,21 +116,21 @@ describe('Filtering', () => {
     });
 
     test('should have 1 push', async () => {
-      const { getAllByText, getByTestId } = render(<App />);
+      const { getAllByText, getAllByTestId, getByTestId } = render(<App />);
       // wait till the ``reviewbot`` authored push is shown before filtering.
       await waitForElement(() => getAllByText('reviewbot'));
       setUrlParam('author', 'reviewbot');
       await waitForElementToBeRemoved(() => getByTestId('push-511138'));
 
       const filteredPushes = await waitForElement(() =>
-        getAllByText('View Tests'),
+        getAllByTestId('push-header'),
       );
       expect(filteredPushes).toHaveLength(1);
 
       setUrlParam('author', null);
       await waitForElement(() => getAllByText('jarilvalenciano@gmail.com'));
       const unFilteredPushes = await waitForElement(() =>
-        getAllByText('View Tests'),
+        getAllByTestId('push-header'),
       );
       expect(unFilteredPushes).toHaveLength(10);
     });

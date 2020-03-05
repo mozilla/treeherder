@@ -94,7 +94,15 @@
       "author": "testing@mozilla.com",
       "repository": "autoland",
       "revision": "ae6bb3a1066959a8c43d003a3caab0af769455bf",
-      "time": 1578445105
+      "time": 1578445105,
+      "commit": [
+        {
+          "revision": "ae6bb3a1066959a8c43d003a3caab0af769455bf"
+        },
+        {
+          "revision": "0123456789012345678901234567890123456789"
+        }
+      ]
     },
     "reason": "scheduled",
     "repository": "test_treeherder_jobs",

@@ -322,6 +322,7 @@ ul.failure-summary-list li .btn-xs {
 
 /* We override global anchor color to replicate TBPL here */
 .show-hide-more {
+  font-size: 11px;
   padding: 0 0 0 37px;
   color: #0000ee;
   cursor: pointer;

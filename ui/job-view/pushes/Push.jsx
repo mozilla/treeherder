@@ -23,12 +23,12 @@ import {
   checkRootUrl,
   prodFirefoxRootUrl,
 } from '../../taskcluster-auth-callback/constants';
+import { RevisionList } from '../../shared/RevisionList';
+import { Revision } from '../../shared/Revision';
 
 import FuzzyJobFinder from './FuzzyJobFinder';
-import { Revision } from './Revision';
 import PushHeader from './PushHeader';
 import PushJobs from './PushJobs';
-import { RevisionList } from './RevisionList';
 
 const watchCycleStates = ['none', 'push', 'job', 'none'];
 const platformArray = Object.values(thPlatformMap);
@@ -501,7 +501,14 @@ class Push extends React.PureComponent {
       selectedRunnableJobs,
       collapsed,
     } = this.state;
-    const { id, push_timestamp: pushTimestamp, revision, author } = push;
+    const {
+      id,
+      push_timestamp: pushTimestamp,
+      revision,
+      revisions,
+      revision_count: revisionCount,
+      author,
+    } = push;
     const tipRevision = push.revisions[0];
     const decisionTask = decisionTaskMap[push.id];
     const decisionTaskId = decisionTask ? decisionTask.id : null;
@@ -555,7 +562,15 @@ class Push extends React.PureComponent {
         <div className="push-body-divider" />
         {!collapsed ? (
           <div className="row push clearfix">
-            {currentRepo && <RevisionList push={push} repo={currentRepo} />}
+            {currentRepo && (
+              <RevisionList
+                revision={revision}
+                revisions={revisions}
+                revisionCount={revisionCount}
+                repo={currentRepo}
+                widthClass="col-5"
+              />
+            )}
             <span className="job-list job-list-pad col-7">
               <PushJobs
                 push={push}

@@ -346,15 +346,6 @@ class PushHeader extends React.Component {
                 {watchStateLabel}
               </button>
             )}
-            <a
-              className="btn btn-sm btn-push test-view-btn"
-              href={`/testview.html?repo=${currentRepo.name}&revision=${revision}`}
-              target="_blank"
-              rel="noopener noreferrer"
-              title="DEPRECATED: Please use Push Health instead"
-            >
-              View Tests
-            </a>
             {isLoggedIn && (
               <button
                 type="button"
