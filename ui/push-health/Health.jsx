@@ -308,7 +308,10 @@ export default class Health extends React.PureComponent {
                     expanded={commitHistoryExpanded}
                     setExpanded={this.setExpanded}
                   >
-                    <CommitHistory history={commitHistory.details} />
+                    <CommitHistory
+                      history={commitHistory.details}
+                      revision={revision}
+                    />
                   </Metric>
                 </Row>
               )}
