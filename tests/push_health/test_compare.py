@@ -12,7 +12,7 @@ def test_get_response_object(test_push, test_repository):
     assert resp['parentSha'] == '1234'
     assert resp['id'] == 1
     assert resp['exactMatch'] is False
-    assert resp['revision'] == '4c45a777949168d16c03a4cba167678b7ab65f76'
+    assert resp['parentPushRevision'] == '4c45a777949168d16c03a4cba167678b7ab65f76'
 
 
 @responses.activate
@@ -53,7 +53,7 @@ def test_get_commit_history_automationrelevance(test_push, test_repository):
 
     history = get_commit_history(test_repository, test_revision, test_push)
     assert history['parentSha'] == parent_revision
-    assert history['revision'] == parent_revision
+    assert history['parentPushRevision'] == parent_revision
 
 
 @responses.activate
@@ -99,7 +99,7 @@ def test_get_commit_history_json_pushes(test_push, test_repository):
 
     history = get_commit_history(test_repository, test_revision, test_push)
     assert history['parentSha'] == parent_revision
-    assert history['revision'] == parent_revision
+    assert history['parentPushRevision'] == parent_revision
 
 
 @responses.activate
@@ -122,4 +122,4 @@ def test_get_commit_history_not_found(test_push, test_repository):
 
     parent = get_commit_history(test_repository, test_revision, test_push)
     assert parent['parentSha'] == parent_revision
-    assert parent['revision'] is None
+    assert parent['parentPushRevision'] is None

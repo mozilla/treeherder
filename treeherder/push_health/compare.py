@@ -9,10 +9,23 @@ logger = logging.getLogger(__name__)
 
 
 def get_response_object(parent_sha, revisions, revision_count, push, repository):
+    """Build a response object that shows the parent and commit history.
+
+    parent_sha -- The SHA of the parent of the latest commit
+    revisions -- The revisions/commits of the current Push
+    revision_count -- The count of those revisions (may be different from len(revisions)
+        because we only keep so many actual revisions in Treeherder, even if the Push has
+        more.
+    push -- The Push for the parent.  This might be the actual parent Push, or the closest
+        thing we could find.  Could also be the Push for the commit of the `parent_sha`.
+    repository -- The repository of the parent.  If we can't find a parent Push, then this
+        will be the repository of the current Push.
+    """
+
     resp = {
         'parentSha': parent_sha,
         'exactMatch': False,
-        'revision': None,
+        'parentPushRevision': None,
         'repository': RepositorySerializer(repository).data,
         'id': None,
         'jobCounts': None,
@@ -21,7 +34,9 @@ def get_response_object(parent_sha, revisions, revision_count, push, repository)
     }
     if push:
         resp.update({
-            'revision': push.revision,
+            # This will be the revision of the Parent, as long as we could find a Push in
+            # Treeherder for it.
+            'parentPushRevision': push.revision,
             'id': push.id,
             'jobCounts': push.get_status(),
             'exactMatch': parent_sha == push.revision,
