@@ -25,7 +25,7 @@ class ChangelogFile(models.Model):
     changelog = models.ForeignKey(
         Changelog, related_name="files", on_delete=models.CASCADE
     )
-    name = models.SlugField(max_length=255, unique=True)
+    name = models.SlugField(max_length=255)
 
     class Meta:
         db_table = "changelog_file"

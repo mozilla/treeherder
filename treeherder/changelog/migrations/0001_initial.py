@@ -34,7 +34,7 @@ class Migration(migrations.Migration):
             name="ChangelogFile",
             fields=[
                 ("id", models.AutoField(primary_key=True, serialize=False)),
-                ("name", models.SlugField(max_length=255, unique=True)),
+                ("name", models.SlugField(max_length=255)),
                 (
                     "changelog",
                     models.ForeignKey(
