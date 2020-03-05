@@ -18,7 +18,7 @@ afterEach(() => {
 });
 
 describe('CommitHistory', () => {
-  const revision = 'eeb6fd68c0223a72d8714734a34d3e6da69995e1';
+  const revision = 'b6affc2813062a8e5a227a3ecf679e13c0c7a853';
   const testCommitHistory = history => (
     <CommitHistory history={history} revision={revision} />
   );

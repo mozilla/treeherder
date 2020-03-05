@@ -29,6 +29,7 @@ class CommitHistory extends React.PureComponent {
         exactMatch,
         parentSha,
         id,
+        parentPushRevision,
         revisions,
         revisionCount,
       },
@@ -69,16 +70,19 @@ class CommitHistory extends React.PureComponent {
         {id && (
           <div className="ml-5">
             <a
-              href={`${getJobsUrl({ revision, repo: repository.name })}`}
+              href={`${getJobsUrl({
+                revision: parentPushRevision,
+                repo: repository.name,
+              })}`}
               className="mx-3"
               target="_blank"
               rel="noopener noreferrer"
               title="Open this push in Treeherder"
             >
-              {revision}
+              {parentPushRevision}
             </a>
             <PushHealthStatus
-              revision={revision}
+              revision={parentPushRevision}
               repoName={repository.name}
               jobCounts={jobCounts}
             />
@@ -100,6 +104,7 @@ CommitHistory.propTypes = {
   history: PropTypes.shape({
     repository: PropTypes.object.isRequired,
     revisionCount: PropTypes.number.isRequired,
+    parentPushRevision: PropTypes.string.isRequired,
     job_counts: PropTypes.shape({
       completed: PropTypes.number.isRequired,
       pending: PropTypes.number.isRequired,
