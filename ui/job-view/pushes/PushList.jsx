@@ -138,9 +138,9 @@ class PushList extends React.Component {
       this.setWindowTitle();
     }
     return (
+      // Bug 1619873 - interactive roles are not a good fit in this case
+      /* eslint-disable jsx-a11y/no-static-element-interactions */
       <div
-        role="grid"
-        tabIndex={0}
         id="push-list"
         onClick={evt => this.clearIfEligibleTarget(evt.target)}
       >
@@ -153,7 +153,6 @@ class PushList extends React.Component {
               key={push.id}
             >
               <Push
-                role="gridcell"
                 push={push}
                 isLoggedIn={isLoggedIn || false}
                 currentRepo={currentRepo}
