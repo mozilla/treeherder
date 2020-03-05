@@ -10,25 +10,39 @@ class PaginationGroup extends React.Component {
   };
 
   render() {
-    const { pageNums, page, count } = this.props;
+    const { viewablePageNums, currentPage, count } = this.props;
+    // First and last viewable pages from the pagination. The controls
+    // shows maximum 5 pages.
+    const firstViewablePage = viewablePageNums[0];
+    const lastViewablePage = viewablePageNums[viewablePageNums.length - 1];
+
     return (
       /* The first and last pagination navigation links
          aren't working correctly (icons aren't visible)
          so they haven't been added */
-      <Pagination aria-label={`Page ${page}`}>
-        {page > 1 && (
+      <Pagination aria-label={`Page ${currentPage}`}>
+        {firstViewablePage > 1 && (
+          <PaginationItem className="text-info">
+            <PaginationLink
+              className="text-info"
+              first
+              onClick={() => this.navigatePage(1)}
+            />
+          </PaginationItem>
+        )}
+        {currentPage > 1 && (
           <PaginationItem>
             <PaginationLink
               className="text-info"
               previous
-              onClick={() => this.navigatePage(page - 1)}
+              onClick={() => this.navigatePage(currentPage - 1)}
             />
           </PaginationItem>
         )}
-        {pageNums.map((num) => (
+        {viewablePageNums.map((num) => (
           <PaginationItem
             key={num}
-            active={num === page}
+            active={num === currentPage}
             className="text-info pagination-active"
           >
             <PaginationLink
@@ -39,12 +53,21 @@ class PaginationGroup extends React.Component {
             </PaginationLink>
           </PaginationItem>
         ))}
-        {page < count && (
+        {currentPage < count && (
           <PaginationItem>
             <PaginationLink
               className="text-info"
               next
-              onClick={() => this.navigatePage(page + 1)}
+              onClick={() => this.navigatePage(currentPage + 1)}
+            />
+          </PaginationItem>
+        )}
+        {lastViewablePage < count && (
+          <PaginationItem className="text-info">
+            <PaginationLink
+              className="text-info"
+              last
+              onClick={() => this.navigatePage(count)}
             />
           </PaginationItem>
         )}
@@ -54,15 +77,15 @@ class PaginationGroup extends React.Component {
 }
 
 PaginationGroup.propTypes = {
-  pageNums: PropTypes.arrayOf(PropTypes.number).isRequired,
-  page: PropTypes.number,
+  viewablePageNums: PropTypes.arrayOf(PropTypes.number).isRequired,
+  currentPage: PropTypes.number,
   count: PropTypes.number,
   fetchData: PropTypes.func.isRequired,
   updateParams: PropTypes.func.isRequired,
 };
 
 PaginationGroup.defaultProps = {
-  page: 1,
+  currentPage: 1,
   count: 1,
 };
 
