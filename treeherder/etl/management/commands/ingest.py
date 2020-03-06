@@ -4,6 +4,7 @@ import logging
 from concurrent.futures import ThreadPoolExecutor
 
 import aiohttp
+import environ
 import requests
 import taskcluster
 import taskcluster.aio
@@ -22,6 +23,9 @@ from treeherder.etl.taskcluster_pulse.handler import (EXCHANGE_EVENT_MAP,
 from treeherder.model.models import Repository
 
 GITHUB_API = "https://api.github.com"
+
+env = environ.Env()
+TOKEN = env("GITHUB_TOKEN", default=None)
 
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.INFO)
@@ -157,6 +161,10 @@ def get_decision_task_id(project, revision, root_url):
 
 
 def fetchApi(path):
+    headers = {}
+    if TOKEN:
+        headers["Authorization"] = "token ${}".format(TOKEN)
+
     return fetch_json("{}/{}".format(GITHUB_API, path))
 
 
@@ -173,6 +181,7 @@ def repo_meta(project):
         "branch": _repo.branch,
         "owner": splitUrl[3],
         "repo": splitUrl[4],
+        "tc_root_url": _repo.tc_root_url,
     }
 
 
@@ -199,17 +208,6 @@ def query_data(repo_meta, commit):
         # When using the correct eventBaseSha the "commits" field will be correct
         compareResponse = compareUrl(repo_meta, eventBaseSha, commit)
 
-    # headCommit = compareResponse["commits"][-1]
-    # assert headCommit["sha"] == commit
-    # headCommit =
-    # assert compareResponse["commits"][-1]["sha"] == commit
-
-    # Pulse Github push messages are Github push *events* that contain
-    # the `timestamp` of a push event. This information is no where to be found
-    # in the `commits` and `compare` APIs, thus, we need to consider the date
-    # of the latest commit. The `events` API only contains the latest 300 events
-    # (this includes comments, labels & others besides push events). Alternatively,
-    # if Treeherder provided an API to get info for a commit we could grab it from there.
     commits = []
     for _commit in compareResponse["commits"]:
         commits.append({
@@ -222,45 +220,39 @@ def query_data(repo_meta, commit):
     return eventBaseSha, commits
 
 
-def github_push_to_pulse(project, commit):
-    _repo = repo_meta(project)
-    event_base_sha, commits = query_data(_repo, commit)
+def github_push_to_pulse(repo_meta, commit):
+    event_base_sha, commits = query_data(repo_meta, commit)
 
     return {
         "exchange": "exchange/taskcluster-github/v1/push",
-        "routingKey": "primary.{}.{}".format(_repo["owner"], _repo["repo"]),
+        "routingKey": "primary.{}.{}".format(repo_meta["owner"], repo_meta["repo"]),
         "payload": {
-            "organization": _repo["owner"],
+            "organization": repo_meta["owner"],
             "details": {
-                "event.head.repo.url": "{}.git".format(_repo["url"]),
-                "event.base.repo.branch": _repo["branch"],
+                "event.head.repo.url": "{}.git".format(repo_meta["url"]),
+                "event.base.repo.branch": repo_meta["branch"],
                 "event.base.sha": event_base_sha,
                 "event.head.sha": commit,
             },
             "body": {
                 "commits": commits,
             },
-            "repository": _repo["repo"]
+            "repository": repo_meta["repo"]
         }
     }
 
 
-def ingestGitPushes():
-    pass
-    # _repo = Repository.objects.filter(name="fenix")[0]
-    # commits = fetchApi("repos/{}/{}/commits".format(owner, repo))
-    # for _commit in commits:
-    #     pulse = github_push_to_pulse(_repo, _commit)
-    #     PushLoader().process(pulse["payload"], pulse["exchange"], _repo.tc_root_url)
-    #     import pdb; pdb.set_trace()
+def ingestGitPush(project, commit):
+    _repo = repo_meta("fenix")
+    pulse = github_push_to_pulse(_repo, commit["sha"])
+    PushLoader().process(pulse["payload"], pulse["exchange"], _repo["tc_root_url"])
 
 
-def ingestGitPush(options, root_url):
-    project = options["project"]
-    commit = options["commit"]
-
-    pulse = github_push_to_pulse(project, commit)
-    PushLoader().process(pulse["payload"], pulse["exchange"], root_url)
+def ingestGitPushes(project="fenix"):
+    _repo = repo_meta(project)
+    commits = fetchApi("repos/{}/{}/commits".format(_repo["owner"], _repo["repo"]))
+    for _commit in commits:
+        ingestGitPush(project, _commit)
 
 
 class Command(BaseCommand):
@@ -337,10 +329,14 @@ class Command(BaseCommand):
                 }
             }
             PushLoader().process(pulse["payload"], pulse["exchange"], root_url)
-        elif typeOfIngestion == "git-push":
-            ingestGitPush(options, root_url)
-        elif typeOfIngestion == "git-pushes":
-            ingestGitPushes(options)
+        elif typeOfIngestion.find("git") > -1:
+            if not TOKEN:
+                logger.warning("If you don't set up GITHUB_CLIENT_ID and GITHUB_CLIENT_SECRET you can hit Github's rate limitting.")
+
+            if typeOfIngestion == "git-push":
+                ingestGitPush(options["project"], options["commit"])
+            elif typeOfIngestion == "git-pushes":
+                ingestGitPushes()
         elif typeOfIngestion == "push":
             if not options["enable_eager_celery"]:
                 logger.info(

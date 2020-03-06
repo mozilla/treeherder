@@ -27,10 +27,11 @@ def make_request(url, method='GET', headers=None, timeout=30, **kwargs):
     return response
 
 
-def fetch_json(url, params=None):
+def fetch_json(url, params=None, headers={}):
+    headers["Accept"] = "application/json"
     response = make_request(url,
                             params=params,
-                            headers={'Accept': 'application/json'})
+                            headers=headers)
     return response.json()
 
 

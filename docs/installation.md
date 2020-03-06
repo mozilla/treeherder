@@ -13,12 +13,14 @@ If you only want to hack on the frontend, see the UI Development section below. 
 Before pushing new code, please make sure you are following our [Code Style](code_style.md#ui) and [Accessibility Guidelines](accessibility.md).
 
 - If you would like pre-commit linting checks you can set it up like this:
-  ```console
-  % pip install pre-commit
-  % pre-commit install
-  pre-commit installed at .git/hooks/pre-commit
-  ````
-  From here on, linting checks will be executed every time you commit.
+
+```console
+% pip install pre-commit
+% pre-commit install
+pre-commit installed at .git/hooks/pre-commit
+````
+
+From here on, linting checks will be executed every time you commit.
 
 ## UI Development
 
@@ -153,33 +155,30 @@ Open a terminal window and run `docker-compose up`. All following sections assum
 
 #### Ingesting pushes
 
-Mercurial pushes:
+`NOTE`: Pnly the push information will be ingested. Tasks
+associated with the pushes will not. This mode is useful to seed pushes so
+they are visible on the web interface and so you can easily copy and paste
+changesets from the web interface into subsequent commands to ingest all tasks.
 
-```bash
+Ingest a single Mercurial push or the last N pushes:
+
+```console
 docker-compose exec backend ./manage.py ingest push -p autoland -r 63f8a47cfdf5
+docker-compose exec backend ./manage.py ingest_push mozilla-central --last-n-pushes 100
+```
+
+Ingest a single Github push or the last 10:
+
+```console
+docker-compose exec backend ./manage.py ingest git-push -p servo-try -c 92fc94588f3b6987082923c0003012fd696b1a2d
+docker-compose exec backend ./manage.py ingest git-pushes
 ```
 
 `NOTE`: You can ingest all tasks for a push. Check the help output for the script to determine the
 parameters needed.
 
-Github pushes:
-
-```bash
-docker-compose exec backend ./manage.py ingest git-push -p servo-try -c 92fc94588f3b6987082923c0003012fd696b1a2d
-```
-
-#### Ingesting a range of pushes
-
-It is also possible to ingest the last N pushes for a repository:
-
-```bash
-docker-compose exec backend ./manage.py ingest_push mozilla-central --last-n-pushes 100
-```
-
-In this mode, only the push information will be ingested: tasks
-associated with the pushes will not. This mode is useful to seed pushes so
-they are visible on the web interface and so you can easily copy and paste
-changesets from the web interface into subsequent commands to ingest all tasks.
+`NOTE`: If you make too many calls to the Github API you will start getting 403 messages because of the rate limit.
+To avoid this visit [your settings](https://github.com/settings/tokens). You don't need to grant scopes to it. Set up `GITHUB_CLIENT_SECRET`
 
 #### Ingesting Github PRs
 
