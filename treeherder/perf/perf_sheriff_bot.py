@@ -4,7 +4,7 @@ from typing import List
 from treeherder.perf.alerts import BackfillReport
 
 
-class PerfSfheriffBot:
+class PerfSheriffBot:
     """
     Wrapper class used to aggregate the reporting of backfill reports.
     """
