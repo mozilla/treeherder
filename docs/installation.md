@@ -17,7 +17,7 @@ Before pushing new code, please make sure you are following our [Code Style](cod
   % pip install pre-commit
   % pre-commit install
   pre-commit installed at .git/hooks/pre-commit
-  ````
+  ```
   From here on, linting checks will be executed every time you commit.
 
 ## UI Development
