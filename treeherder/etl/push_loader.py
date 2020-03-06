@@ -95,8 +95,13 @@ class GithubTransformer:
         head_commit = commits[-1]
         push = {
             "revision": head_commit["sha"],
+            # A push can be co-authored
+            # The author's date is when the code was committed locally by the author
+            # The committer's date is the info as to when the PR is merged (committed) into master
             "push_timestamp": to_timestamp(
-                head_commit["commit"]["committer"]["date"]),
+                head_commit["commit"]["committer"]["date"]
+            ),
+            # We want the original author's email to show up in the UI
             "author": head_commit["commit"]["author"]["email"],
         }
 
@@ -152,24 +157,19 @@ class GithubPushTransformer(GithubTransformer):
     #       }
     #     }
     # }
+    URL_BASE = "https://api.github.com/repos/{}/{}/compare/{}...{}"
 
     def transform(self, repository):
-        head_commit = self.message_body["body"]["head_commit"]
-        push = {
-            "revision": head_commit["id"],
-            "push_timestamp": to_timestamp(head_commit["timestamp"]),
-            "author": head_commit["author"]["email"],
-            "revisions": [],
-        }
-        for commit in self.message_body["body"]["commits"]:
-            push["revisions"].append({
-                "comment": commit["message"],
-                "author": u"{} <{}>".format(
-                    commit["author"]["name"],
-                    commit["author"]["email"]),
-                "revision": commit["id"]
-            })
-        return push
+        push_url = self.URL_BASE.format(
+            self.message_body["organization"],
+            self.message_body["repository"],
+            self.message_body["details"]["event.base.sha"],
+            self.message_body["details"]["event.head.sha"],
+        )
+        return self.fetch_push(push_url, repository)
+
+    def get_cleaned_commits(self, compare):
+        return compare["commits"]
 
     def get_repo(self):
         return self.message_body["details"]["event.head.repo.url"].replace(".git", "")

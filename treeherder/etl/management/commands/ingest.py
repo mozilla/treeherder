@@ -160,6 +160,10 @@ def fetchApi(path):
     return fetch_json("{}/{}".format(GITHUB_API, path))
 
 
+def compareUrl(_repo, base, commit):
+    return fetchApi("repos/{}/{}/compare/{}...{}".format(_repo["owner"], _repo["repo"], base, commit))
+
+
 def repo_meta(project):
     _repo = Repository.objects.filter(name=project)[0]
     assert _repo, "The project {} you specified is incorrect".format(project)
@@ -172,14 +176,14 @@ def repo_meta(project):
     }
 
 
-def query_data(_repo, commit):
+def query_data(repo_meta, commit):
     # This is used for the `compare` API. The "event.base.sha" is only contained in Pulse events, thus,
     # we need to determine the correct value
-    eventBaseSha = _repo["branch"]
+    eventBaseSha = repo_meta["branch"]
     # e.g. https://api.github.com/repos/servo/servo/compare/master...1418c0555ff77e5a3d6cf0c6020ba92ece36be2e
-    compareResponse = fetchApi("compare/{}...{}".format(_repo["branch"], commit))
-    headCommit = None
-    mergeBaseCommit = compareResponse["merge_base_commit"]
+    compareResponse = compareUrl(repo_meta, repo_meta["branch"], commit)
+    # headCommit = None
+    mergeBaseCommit = compareResponse.get("merge_base_commit")
     if mergeBaseCommit:
         logger.info("We have a merge commit. We need to find the right eventBaseSha")
         # Since we don't use PushEvents that contain the "before" or "event.base.sha" fields [1]
@@ -193,10 +197,12 @@ def query_data(_repo, commit):
                 logger.info("We have a new base: %s", eventBaseSha)
                 break
         # When using the correct eventBaseSha the "commits" field will be correct
-        compareResponse = fetchApi("compare/{}...{}".format(eventBaseSha, commit))
+        compareResponse = compareUrl(repo_meta, eventBaseSha, commit)
 
-    headCommit = compareResponse["commits"][-1]
-    assert headCommit["sha"] == commit
+    # headCommit = compareResponse["commits"][-1]
+    # assert headCommit["sha"] == commit
+    # headCommit =
+    # assert compareResponse["commits"][-1]["sha"] == commit
 
     # Pulse Github push messages are Github push *events* that contain
     # the `timestamp` of a push event. This information is no where to be found
@@ -213,12 +219,12 @@ def query_data(_repo, commit):
             "id": _commit["sha"],
         })
 
-    return eventBaseSha, headCommit, commits
+    return eventBaseSha, commits
 
 
 def github_push_to_pulse(project, commit):
     _repo = repo_meta(project)
-    event_base_sha, head_commit, commits = query_data(_repo, commit)
+    event_base_sha, commits = query_data(_repo, commit)
 
     return {
         "exchange": "exchange/taskcluster-github/v1/push",
