@@ -1,10 +1,10 @@
 import asyncio
 import inspect
 import logging
+import os
 from concurrent.futures import ThreadPoolExecutor
 
 import aiohttp
-import environ
 import requests
 import taskcluster
 import taskcluster.aio
@@ -23,9 +23,6 @@ from treeherder.etl.taskcluster_pulse.handler import (EXCHANGE_EVENT_MAP,
 from treeherder.model.models import Repository
 
 GITHUB_API = "https://api.github.com"
-
-env = environ.Env()
-TOKEN = env("GITHUB_TOKEN", default=None)
 
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.INFO)
@@ -160,16 +157,22 @@ def get_decision_task_id(project, revision, root_url):
     return find_task_id(index_path, root_url)
 
 
-def fetchApi(path):
-    headers = {}
-    if TOKEN:
-        headers["Authorization"] = "token ${}".format(TOKEN)
-
-    return fetch_json("{}/{}".format(GITHUB_API, path))
+def fetch_api(path):
+    url = "{}/{}".format(GITHUB_API, path)
+    logger.info(url)
+    return fetch_json(url)
 
 
-def compareUrl(_repo, base, commit):
-    return fetchApi("repos/{}/{}/compare/{}...{}".format(_repo["owner"], _repo["repo"], base, commit))
+def compare_shas(_repo, base, head):
+    return fetch_api("repos/{}/{}/compare/{}...{}".format(_repo["owner"], _repo["repo"], base, head))
+
+
+def commits_info(_repo):
+    return fetch_api("repos/{}/{}/commits".format(_repo["owner"], _repo["repo"]))
+
+
+def commit_info(_repo, sha):
+    return fetch_api("repos/{}/{}/commits/{}".format(_repo["owner"], _repo["repo"], sha))
 
 
 def repo_meta(project):
@@ -186,27 +189,44 @@ def repo_meta(project):
 
 
 def query_data(repo_meta, commit):
+    """ Find the right event base sha to get the right list of commits
+
+    This is not an issue in GithubPushLoader because the PushEvent from Taskcluster
+    already contains the data
+    """
     # This is used for the `compare` API. The "event.base.sha" is only contained in Pulse events, thus,
     # we need to determine the correct value
-    eventBaseSha = repo_meta["branch"]
+    event_base_sha = repo_meta["branch"]
     # e.g. https://api.github.com/repos/servo/servo/compare/master...1418c0555ff77e5a3d6cf0c6020ba92ece36be2e
-    compareResponse = compareUrl(repo_meta, repo_meta["branch"], commit)
+    compareResponse = compare_shas(repo_meta, repo_meta["branch"], commit)
     # headCommit = None
-    mergeBaseCommit = compareResponse.get("merge_base_commit")
-    if mergeBaseCommit:
-        logger.info("We have a merge commit. We need to find the right eventBaseSha")
+    merge_base_commit = compareResponse.get("merge_base_commit")
+    if merge_base_commit:
+        logger.info("We have a merge commit. We need to find the right event_base_sha")
         # Since we don't use PushEvents that contain the "before" or "event.base.sha" fields [1]
         # we need to discover the right parent. A merge commit has two parents
         # [1] https://github.com/taskcluster/taskcluster/blob/3dda0adf85619d18c5dcf255259f3e274d2be346/services/github/src/api.js#L55
         parents = compareResponse["merge_base_commit"]["parents"]
-        for parent in parents:
-            _commit = fetch_json(parent["url"])
-            if _commit["parents"]:
-                eventBaseSha = parent["sha"]
-                logger.info("We have a new base: %s", eventBaseSha)
-                break
-        # When using the correct eventBaseSha the "commits" field will be correct
-        compareResponse = compareUrl(repo_meta, eventBaseSha, commit)
+        if len(parents) == 1:
+            parent = parents[0]
+            commit_info = fetch_json(parent["url"])
+            committer_date = commit_info["commit"]["committer"]["date"]
+            # All commits involved in a PR that is merge share the same committer's date
+            if merge_base_commit["commit"]["committer"]["date"] == committer_date:
+                # Recursively find the forking parent
+                event_base_sha, _ = query_data(repo_meta, parent["sha"])
+            else:
+                event_base_sha = parent["sha"]
+        else:
+            for parent in parents:
+                _commit = fetch_json(parent["url"])
+                # Only the commit parent with more than 1 parent is what we want
+                if _commit["parents"] and len(_commit["parents"]) > 1:
+                    event_base_sha = parent["sha"]
+                    logger.info("We have a new base: %s", event_base_sha)
+                    break
+        # When using the correct event_base_sha the "commits" field will be correct
+        compareResponse = compare_shas(repo_meta, event_base_sha, commit)
 
     commits = []
     for _commit in compareResponse["commits"]:
@@ -217,7 +237,7 @@ def query_data(repo_meta, commit):
             "id": _commit["sha"],
         })
 
-    return eventBaseSha, commits
+    return event_base_sha, commits
 
 
 def github_push_to_pulse(repo_meta, commit):
@@ -244,15 +264,26 @@ def github_push_to_pulse(repo_meta, commit):
 
 def ingestGitPush(project, commit):
     _repo = repo_meta("fenix")
-    pulse = github_push_to_pulse(_repo, commit["sha"])
+    pulse = github_push_to_pulse(_repo, commit)
     PushLoader().process(pulse["payload"], pulse["exchange"], _repo["tc_root_url"])
 
 
 def ingestGitPushes(project="fenix"):
     _repo = repo_meta(project)
-    commits = fetchApi("repos/{}/{}/commits".format(_repo["owner"], _repo["repo"]))
+    commits = commits_info(_repo)
+    pushes = []
+    merge_dates = {}
     for _commit in commits:
-        ingestGitPush(project, _commit)
+        info = commit_info(_repo, _commit["sha"])
+        committer_date = info["commit"]["committer"]["date"]
+        # All commits involved in a push shared the committer_date, thus, we only
+        # want to process the first commit
+        if not merge_dates.get(committer_date):
+            merge_dates[committer_date] = committer_date
+            pushes.append(_commit)
+
+    for _push in pushes:
+        ingestGitPush(project, _push["sha"])
 
 
 class Command(BaseCommand):
@@ -330,7 +361,7 @@ class Command(BaseCommand):
             }
             PushLoader().process(pulse["payload"], pulse["exchange"], root_url)
         elif typeOfIngestion.find("git") > -1:
-            if not TOKEN:
+            if not os.environ.get("GITHUB_TOKEN"):
                 logger.warning("If you don't set up GITHUB_TOKEN you might hit Github's rate limitting. See docs for info.")
 
             if typeOfIngestion == "git-push":

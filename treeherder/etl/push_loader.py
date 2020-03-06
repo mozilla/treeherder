@@ -62,10 +62,12 @@ class PushLoader:
 
 class GithubTransformer:
 
+    # Deprecated on Nov. 13th, 2020 - https://developer.github.com/v3/#oauth2-keysecret
     CREDENTIALS = {
         "client_id": env("GITHUB_CLIENT_ID", default=None),
         "client_secret": env("GITHUB_CLIENT_SECRET", default=None),
     }
+    GITHUB_TOKEN = env("GITHUB_TOKEN", default=None)
 
     def __init__(self, message_body):
         self.message_body = message_body
@@ -85,12 +87,17 @@ class GithubTransformer:
         return info
 
     def fetch_push(self, url, repository):
-        params = {}
-        params.update(self.CREDENTIALS)
+        params = None
+        headers = {}
+        # Prefer new authentication method
+        if self.GITHUB_TOKEN:
+            headers["Authorization"] = "token {}".format(self.GITHUB_TOKEN)
+        else:
+            params = self.CREDENTIALS
 
         logger.info("Fetching push details: %s", url)
 
-        commits = self.get_cleaned_commits(fetch_json(url, params))
+        commits = self.get_cleaned_commits(fetch_json(url, params=params, headers=headers))
         head_commit = commits[-1]
         push = {
             "revision": head_commit["sha"],
