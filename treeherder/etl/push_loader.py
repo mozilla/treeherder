@@ -88,16 +88,14 @@ class GithubTransformer:
 
     def fetch_push(self, url, repository):
         params = None
-        headers = {}
-        # Prefer new authentication method
-        if self.GITHUB_TOKEN:
-            headers["Authorization"] = "token {}".format(self.GITHUB_TOKEN)
-        else:
+        # make_request adds the headers but over here we prevent passing the params until
+        # we fully switch over
+        if not self.GITHUB_TOKEN:
             params = self.CREDENTIALS
 
         logger.info("Fetching push details: %s", url)
 
-        commits = self.get_cleaned_commits(fetch_json(url, params=params, headers=headers))
+        commits = self.get_cleaned_commits(fetch_json(url, params=params))
         head_commit = commits[-1]
         push = {
             "revision": head_commit["sha"],
