@@ -11,3 +11,12 @@ repos:
     rev: v0.7.0.1-1
     hooks:
       - id: shellcheck
+  - repo: local
+    hooks:
+      - id: js-style
+        name: JS style
+        description: Run prettier on files included in the commit. prettier npm module should be installed before-hand.
+        entry: prettier --config=.prettierrc --write
+        pass_filenames: true
+        types: [file, javascript]
+        language: system
