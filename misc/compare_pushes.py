@@ -27,7 +27,7 @@ def main(args):
     # Support comma separated projects
     projects = args.projects.split(',')
     for _project in projects:
-        print("Comparing {} against production.".format(_project))
+        logger.info("Comparing {} against production.".format(_project))
         # Remove properties that are irrelevant for the comparison
         pushes = compare_to_client.get_pushes(_project, count=50)
         for _push in sorted(pushes, key=lambda push: push["revision"]):
@@ -45,15 +45,15 @@ def main(args):
             assert pushes[index]["revision"] == production_pushes[index]["revision"]
             difference = DeepDiff(pushes[index], production_pushes[index])
             if difference:
-                print(difference.to_json())
-                print("{}/#/jobs?repo={}&revision={}".format(
-                    compare_to_client.server_url,
-                    _project,
-                    pushes[index]["revision"]))
-                print("{}/#/jobs?repo={}&revision={}".format(
-                    production_client.server_url,
-                    _project,
-                    production_pushes[index]["revision"]))
+                logger.info(difference.to_json())
+                logger.info("{}/#/jobs?repo={}&revision={}".format(
+                            compare_to_client.server_url,
+                            _project,
+                            pushes[index]["revision"]))
+                logger.info("{}/#/jobs?repo={}&revision={}".format(
+                            production_client.server_url,
+                            _project,
+                            production_pushes[index]["revision"]))
 
 
 def get_args():

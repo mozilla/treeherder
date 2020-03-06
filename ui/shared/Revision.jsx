@@ -54,12 +54,7 @@ export class Revision extends React.PureComponent {
     this.setState({ clipboardVisible: show });
   };
 
-  isBackout = () => {
-    const {
-      revision: { comments },
-    } = this.props;
-    const comment = comments.split('\n')[0];
-
+  isBackout = comment => {
     return comment.search('Backed out') >= 0 || comment.search('Back out') >= 0;
   };
 
@@ -68,10 +63,13 @@ export class Revision extends React.PureComponent {
       revision: { comments, author, revision },
       repo,
     } = this.props;
+    const comment = comments.split('\n')[0];
     const { clipboardVisible } = this.state;
     const { name, email } = parseAuthor(author);
     const commitRevision = revision;
-    const commentColor = this.isBackout() ? 'text-danger' : 'text-secondary';
+    const commentColor = this.isBackout(comment)
+      ? 'text-danger'
+      : 'text-secondary';
 
     return (
       <Row
@@ -96,11 +94,11 @@ export class Revision extends React.PureComponent {
         </span>
         <AuthorInitials title={`${name}: ${email}`} author={name} />
         <span
-          title={comments}
+          title={comment}
           className={`ml-2 revision-comment overflow-hidden text-nowrap ${commentColor}`}
         >
           <em>
-            <BugLinkify>{comments}</BugLinkify>
+            <BugLinkify>{comment}</BugLinkify>
           </em>
         </span>
       </Row>
