@@ -120,18 +120,23 @@ See the [getting started with ActiveData] guide for more details.
 
 ## Direct database access
 
-If the use-cases above aren't sufficient, we can provide read-only
-access to Treeherder's production MySQL RDS replica. Please [file an infrastructure bug]
-requesting that someone from the Treeherder team [grant access to the read-only replica].
+If the use-cases above aren't sufficient or you're working on a fullstack Perfherder bug, 
+we can provide read-only access to Treeherder's production MySQL RDS replica.
+Please [file an infrastructure bug] requesting that someone from the
+Treeherder team [grant access to the read-only replica].
+
+<!-- prettier-ignore -->
+!!! note
+    You won't be able to login when using a read-only replica like the above.
 
 Alternatively if write access is required, we can [create a temporary RDS instance] from
 a production database snapshot.
 
 ## Import performance data from upstream
 
-If you're working on a fullstack Perfherder bug and the use-cases above still aren't enough, you should ask for
-read-only access to one of Treeherder's MySQL RDS replicas. Please [file an infrastructure bug]
-requesting that someone from the Treeherder team [grant access to the read-only replica].
+If the use-cases above still aren't enough, you should ask for read-only access to one of
+Treeherder's MySQL RDS replicas. Please [file an infrastructure bug] requesting that
+someone from the Treeherder team [grant access to the read-only replica].
 
 You should be given the credentials in [connection URL format].
 
