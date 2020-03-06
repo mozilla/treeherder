@@ -20,6 +20,7 @@ import last from 'lodash/last';
 
 import { formatNumber } from '../helpers';
 
+import TableView from './TableView';
 import GraphTooltip from './GraphTooltip';
 
 const VictoryZoomSelectionContainer = createContainer('zoom', 'selection');
@@ -266,7 +267,7 @@ class GraphsContainer extends React.Component {
   };
 
   render() {
-    const { testData, zoom, highlightedRevisions } = this.props;
+    const { testData, showTable, zoom, highlightedRevisions } = this.props;
     const {
       highlights,
       scatterPlotData,
@@ -298,188 +299,200 @@ class GraphsContainer extends React.Component {
 
     return (
       <span data-testid="graphContainer">
-        <Row>
-          <Col className="p-0 col-md-auto">
-            <VictoryChart
-              padding={chartPadding}
-              width={1350}
-              height={150}
-              style={{ parent: { maxHeight: '150px', maxWidth: '1350px' } }}
-              scale={{ x: 'time', y: 'linear' }}
-              domainPadding={{ y: 30 }}
-              containerComponent={
-                <VictoryBrushContainer
-                  brushDomain={zoom}
-                  onBrushDomainChange={this.updateZoom}
-                />
-              }
-            >
-              <VictoryAxis
-                dependentAxis
-                tickCount={4}
-                style={axisStyle}
-                tickFormat={this.setLeftPadding}
-                tickLabelComponent={positionedTick}
-                axisLabelComponent={positionedLabel}
-                label={yAxisLabel}
-              />
-              <VictoryAxis
-                tickCount={10}
-                tickFormat={x => this.checkDate(x)}
-                style={axisStyle}
-              />
-              {testData.map(item => (
-                <VictoryLine
-                  key={item.name}
-                  data={item.visible ? item.data : []}
-                  style={{
-                    data: { stroke: item.color[1] },
-                  }}
-                />
-              ))}
-            </VictoryChart>
-          </Col>
-        </Row>
-
-        <Row>
-          <Col className="p-0 col-md-auto">
-            <VictoryChart
-              padding={chartPadding}
-              width={1350}
-              height={400}
-              style={{ parent: { maxHeight: '400px', maxWidth: '1350px' } }}
-              scale={{ x: 'time', y: 'linear' }}
-              domainPadding={{ y: 40, x: [10, 10] }}
-              externalEventMutations={externalMutation}
-              containerComponent={
-                <VictoryZoomSelectionContainer
-                  zoomDomain={zoom}
-                  onSelection={(points, bounds) => this.updateZoom(bounds)}
-                  allowPan={false}
-                  allowZoom={false}
-                />
-              }
-              events={[
-                {
-                  childName: 'scatter-plot',
-                  target: 'data',
-                  eventHandlers: {
-                    onClick: () => {
-                      return [
-                        {
-                          target: 'labels',
-                          eventKey: 'all',
-                          mutation: () => {},
-                        },
-                        {
-                          target: 'labels',
-                          mutation: props => this.setTooltip(props, true),
-                        },
-                      ];
-                    },
-                    onMouseOver: () => {
-                      return [
-                        {
-                          target: 'labels',
-                          mutation: () => {},
-                        },
-                        {
-                          target: 'labels',
-                          mutation: props => this.setTooltip(props),
-                        },
-                      ];
-                    },
-                    onMouseOut: () => {
-                      return [
-                        {
-                          target: 'labels',
-                          mutation: this.hideTooltip,
-                        },
-                      ];
-                    },
-                    // work-around to allow onClick events with VictorySelection container
-                    onMouseDown: evt => evt.stopPropagation(),
-                  },
-                },
-              ]}
-            >
-              {highlights.length > 0 &&
-                highlights.map(item => (
-                  <VictoryLine
-                    key={item}
-                    style={{
-                      data: { stroke: 'gray', strokeWidth: 1 },
-                    }}
-                    x={() => item.x}
+        {!showTable && (
+          <React.Fragment>
+            <Row>
+              <Col className="p-0 col-md-auto">
+                <VictoryChart
+                  padding={chartPadding}
+                  width={1350}
+                  height={150}
+                  style={{ parent: { maxHeight: '150px', maxWidth: '1350px' } }}
+                  scale={{ x: 'time', y: 'linear' }}
+                  domainPadding={{ y: 30 }}
+                  containerComponent={
+                    <VictoryBrushContainer
+                      brushDomain={zoom}
+                      onBrushDomainChange={this.updateZoom}
+                    />
+                  }
+                >
+                  <VictoryAxis
+                    dependentAxis
+                    tickCount={4}
+                    style={axisStyle}
+                    tickFormat={this.setLeftPadding}
+                    tickLabelComponent={positionedTick}
+                    axisLabelComponent={positionedLabel}
+                    label={yAxisLabel}
                   />
-                ))}
+                  <VictoryAxis
+                    tickCount={10}
+                    tickFormat={x => this.checkDate(x)}
+                    style={axisStyle}
+                  />
+                  {testData.map(item => (
+                    <VictoryLine
+                      key={item.name}
+                      data={item.visible ? item.data : []}
+                      style={{
+                        data: { stroke: item.color[1] },
+                      }}
+                    />
+                  ))}
+                </VictoryChart>
+              </Col>
+            </Row>
 
-              <VictoryScatter
-                name="scatter-plot"
-                symbol={({ datum }) => (datum._z ? datum._z[0] : 'circle')}
-                style={{
-                  data: {
-                    fill: ({ datum }) => {
-                      const symbolType = datum._z || '';
-                      return ((datum.alertSummary ||
-                        hasHighlightedRevision(datum)) &&
-                        highlightPoints) ||
-                        symbolType[1] === 'fill'
-                        ? datum.z
-                        : '#fff';
+            <Row>
+              <Col className="p-0 col-md-auto">
+                <VictoryChart
+                  padding={chartPadding}
+                  width={1350}
+                  height={400}
+                  style={{ parent: { maxHeight: '400px', maxWidth: '1350px' } }}
+                  scale={{ x: 'time', y: 'linear' }}
+                  domainPadding={{ y: 40, x: [10, 10] }}
+                  externalEventMutations={externalMutation}
+                  containerComponent={
+                    <VictoryZoomSelectionContainer
+                      zoomDomain={zoom}
+                      onSelection={(points, bounds) => this.updateZoom(bounds)}
+                      allowPan={false}
+                      allowZoom={false}
+                    />
+                  }
+                  events={[
+                    {
+                      childName: 'scatter-plot',
+                      target: 'data',
+                      eventHandlers: {
+                        onClick: () => {
+                          return [
+                            {
+                              target: 'labels',
+                              eventKey: 'all',
+                              mutation: () => {},
+                            },
+                            {
+                              target: 'labels',
+                              mutation: props => this.setTooltip(props, true),
+                            },
+                          ];
+                        },
+                        onMouseOver: () => {
+                          return [
+                            {
+                              target: 'labels',
+                              mutation: () => {},
+                            },
+                            {
+                              target: 'labels',
+                              mutation: props => this.setTooltip(props),
+                            },
+                          ];
+                        },
+                        onMouseOut: () => {
+                          return [
+                            {
+                              target: 'labels',
+                              mutation: this.hideTooltip,
+                            },
+                          ];
+                        },
+                        // work-around to allow onClick events with VictorySelection container
+                        onMouseDown: evt => evt.stopPropagation(),
+                      },
                     },
-                    strokeOpacity: ({ datum }) =>
-                      (datum.alertSummary || hasHighlightedRevision(datum)) &&
-                      highlightPoints
-                        ? 0.3
-                        : 100,
-                    stroke: ({ datum }) => {
-                      return datum.z;
-                    },
-                    strokeWidth: ({ datum }) =>
-                      (datum.alertSummary || hasHighlightedRevision(datum)) &&
-                      highlightPoints
-                        ? 12
-                        : 2,
-                  },
-                }}
-                size={() => 5}
-                data={scatterPlotData}
-                labels={() => ''}
-                labelComponent={
-                  <VictoryTooltip
-                    renderInPortal={false}
-                    flyoutComponent={
-                      <VictoryPortal>
-                        <GraphTooltip
-                          lockTooltip={lockTooltip}
-                          closeTooltip={this.closeTooltip}
-                          windowWidth={width}
-                          {...this.props}
-                        />
-                      </VictoryPortal>
+                  ]}
+                >
+                  {highlights.length > 0 &&
+                    highlights.map(item => (
+                      <VictoryLine
+                        key={item}
+                        style={{
+                          data: { stroke: 'gray', strokeWidth: 1 },
+                        }}
+                        x={() => item.x}
+                      />
+                    ))}
+
+                  <VictoryScatter
+                    name="scatter-plot"
+                    symbol={({ datum }) => (datum._z ? datum._z[0] : 'circle')}
+                    style={{
+                      data: {
+                        fill: ({ datum }) => {
+                          const symbolType = datum._z || '';
+                          return ((datum.alertSummary ||
+                            hasHighlightedRevision(datum)) &&
+                            highlightPoints) ||
+                            symbolType[1] === 'fill'
+                            ? datum.z
+                            : '#fff';
+                        },
+                        strokeOpacity: ({ datum }) =>
+                          (datum.alertSummary ||
+                            hasHighlightedRevision(datum)) &&
+                          highlightPoints
+                            ? 0.3
+                            : 100,
+                        stroke: ({ datum }) => {
+                          return datum.z;
+                        },
+                        strokeWidth: ({ datum }) =>
+                          (datum.alertSummary ||
+                            hasHighlightedRevision(datum)) &&
+                          highlightPoints
+                            ? 12
+                            : 2,
+                      },
+                    }}
+                    size={() => 5}
+                    data={scatterPlotData}
+                    labels={() => ''}
+                    labelComponent={
+                      <VictoryTooltip
+                        renderInPortal={false}
+                        flyoutComponent={
+                          <VictoryPortal>
+                            <GraphTooltip
+                              lockTooltip={lockTooltip}
+                              closeTooltip={this.closeTooltip}
+                              windowWidth={width}
+                              {...this.props}
+                            />
+                          </VictoryPortal>
+                        }
+                      />
                     }
                   />
-                }
-              />
-              <VictoryAxis
-                dependentAxis
-                tickCount={9}
-                style={axisStyle}
-                tickFormat={this.setLeftPadding}
-                tickLabelComponent={positionedTick}
-                axisLabelComponent={positionedLabel}
-                label={yAxisLabel}
-              />
-              <VictoryAxis
-                tickCount={6}
-                tickFormat={this.setRightPadding}
-                style={axisStyle}
-                fixLabelOverlap
-              />
-            </VictoryChart>
-          </Col>
-        </Row>
+                  <VictoryAxis
+                    dependentAxis
+                    tickCount={9}
+                    style={axisStyle}
+                    tickFormat={this.setLeftPadding}
+                    tickLabelComponent={positionedTick}
+                    axisLabelComponent={positionedLabel}
+                    label={yAxisLabel}
+                  />
+                  <VictoryAxis
+                    tickCount={6}
+                    tickFormat={this.setRightPadding}
+                    style={axisStyle}
+                    fixLabelOverlap
+                  />
+                </VictoryChart>
+              </Col>
+            </Row>
+          </React.Fragment>
+        )}
+
+        {showTable && (
+          <Row>
+            <TableView testData={testData} {...this.props} />
+          </Row>
+        )}
       </span>
     );
   }

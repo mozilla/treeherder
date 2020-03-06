@@ -6,7 +6,6 @@ from os.path import (abspath,
                      join)
 
 import environ
-from django.core.exceptions import ImproperlyConfigured
 from furl import furl
 from kombu import (Exchange,
                    Queue)
@@ -28,7 +27,7 @@ DEBUG = env.bool("TREEHERDER_DEBUG", default=False)
 NEW_RELIC_DEVELOPER_MODE = env.bool("NEW_RELIC_DEVELOPER_MODE", default=True if DEBUG else False)
 
 # Papertrail logs WARNING messages. This env variable allows modifying the behaviour
-LOGGING_LEVEL = env.str("LOGGING_LEVEL", default='DEBUG' if DEBUG else 'WARNING')
+LOGGING_LEVEL = env.str("LOGGING_LEVEL", default='INFO')
 
 GRAPHQL = env.bool("GRAPHQL", default=True)
 
@@ -36,9 +35,8 @@ GRAPHQL = env.bool("GRAPHQL", default=True)
 SECRET_KEY = env("TREEHERDER_DJANGO_SECRET_KEY", default='secret-key-of-at-least-50-characters-to-pass-check-deploy')
 
 # Hosts
-try:
-    SITE_URL = env("SITE_URL", default='http://localhost:8000')
-except ImproperlyConfigured:
+SITE_URL = env("SITE_URL", default='http://localhost:8000')
+if env("HEROKU_REVIEW_APP", default=False):
     # This is to support Heroku Review apps which host is different for each PR
     SITE_URL = "https://{}.herokuapp.com".format(env("HEROKU_APP_NAME"))
 
@@ -440,6 +438,12 @@ PERFHERDER_ALERTS_FORE_WINDOW = 12
 
 # Only generate alerts for data newer than this time in seconds in perfherder
 PERFHERDER_ALERTS_MAX_AGE = timedelta(weeks=2)
+
+# Performance sheriff bot settings
+MAX_BACKFILLS_PER_PLATFORM = {
+    'linux': 200,
+}
+RESET_BACKFILL_LIMITS = timedelta(hours=24)
 
 # Resource count to limit the number of threads opening connections with the DB
 CONN_RESOURCES = 50

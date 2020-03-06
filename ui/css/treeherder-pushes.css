@@ -122,15 +122,8 @@ fieldset[disabled] .btn-push:hover {
  * Revision list
  */
 
-.revision-list {
-  overflow: hidden;
-  white-space: nowrap;
-}
-
 .revision {
   font-size: 12px;
-  padding-top: 2px;
-  overflow: auto;
 }
 
 .revision[data-tags~='backout'] .revision-comment {
@@ -139,24 +132,6 @@ fieldset[disabled] .btn-push:hover {
 
 .commit-sha {
   font-size: 11px;
-}
-
-.user-push-icon {
-  color: gray;
-}
-
-.user-push-initials {
-  display: inline-block;
-  min-width: 18px;
-  font-size: 8px;
-  font-style: italic;
-  font-weight: bold;
-  padding-left: 3px;
-  color: #767676;
-}
-
-.revision-comment {
-  color: #767676;
 }
 
 /*

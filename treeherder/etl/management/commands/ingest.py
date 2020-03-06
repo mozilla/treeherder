@@ -174,39 +174,30 @@ def ingestGitPush(options, root_url):
     repo = splitUrl[4]
     githubApi = "https://api.github.com"
     baseUrl = "{}/repos/{}/{}".format(githubApi, owner, repo)
+    commitInfo = fetch_json('{}/commits/{}'.format(baseUrl, commit))
     defaultBranch = fetch_json(baseUrl)["default_branch"]
-    # e.g. https://api.github.com/repos/servo/servo/compare/master...1418c0555ff77e5a3d6cf0c6020ba92ece36be2e
-    compareUrl = "{}/compare/{}...{}"
-    compareResponse = fetch_json(compareUrl.format(baseUrl, defaultBranch, commit))
-    headCommit = None
-    mergeBaseCommit = compareResponse["merge_base_commit"]
-    if mergeBaseCommit:
-        # Since we don't use PushEvents that contain the "before" field [1]
-        # we need to discover the right parent. A merge commit has two parents
-        # [1] https://github.com/taskcluster/taskcluster/blob/3dda0adf85619d18c5dcf255259f3e274d2be346/services/github/src/api.js#L55
-        parents = compareResponse["merge_base_commit"]["parents"]
-        eventBaseSha = None
-        for parent in parents:
-            _commit = fetch_json(parent["url"])
-            if _commit["parents"] and len(_commit["parents"]) > 1:
-                eventBaseSha = parent["sha"]
-                logger.info("We have a new base: %s", eventBaseSha)
-                break
-        # When using the correct sha the "commits" field will have information
-        compareResponse = fetch_json(compareUrl.format(baseUrl, eventBaseSha, commit))
+    # e.g. https://api.github.com/repos/servo/servo/compare/master...941458b22346a458e06a6a6050fc5ad8e1e385a5
+    resp = fetch_json("{}/compare/{}...{}".format(baseUrl, defaultBranch, commit))
+    commits = resp.get("commits")
+    merge_base_commit = resp.get("merge_base_commit")
 
-    headCommit = compareResponse["commits"][-1]
-    assert headCommit["sha"] == commit
-
+    # Pulse Github push messages are Github push *events* that contain
+    # the `timestamp` of a push event. This information is no where to be found
+    # in the `commits` and `compare` APIs, thus, we need to consider the date
+    # of the latest commit. The `events` API only contains the latest 300 events
+    # (this includes comments, labels & others besides push events). Alternatively,
+    # if Treeherder provided an API to get info for a commit we could grab it from there.
     commits = []
-    for c in compareResponse["commits"]:
+    for _commit in resp["commits"]:
         commits.append({
-            "message": c["commit"]["message"],
+            "message": _commit["commit"]["message"],
             "author": {
-                "name": c["commit"]["committer"]["name"],
-                "email": c["commit"]["committer"]["email"],
+                "name": _commit["commit"]["committer"]["name"],
+                "email": _commit["commit"]["committer"]["email"],
             },
-            "id": c["sha"],
+            "id": _commit["sha"],
+            # XXX: A fair estimation
+            "timestamp": _commit["commit"]["author"]["date"]
         })
 
     pulse = {
@@ -216,22 +207,21 @@ def ingestGitPush(options, root_url):
             "organization": owner,
             "details": {
                 "event.head.repo.url": "https://github.com/{}/{}.git".format(owner, repo),
-                "event.base.repo.branch": branch
+                "event.base.repo.branch": branch,
+                # XXX: This is used for the `compare` API. The "event.base.sha" is only contained
+                # in Pulse events, thus, making it hard to correctly establish
+                "event.base.sha": branch,
+                "event.head.sha": commit,
+                "event.head.user.login": commitInfo["author"]["login"]
             },
-            "repository": repo,
             "body": {
                 "commits": commits,
-                "head_commit": {
-                    "id": headCommit["sha"],
-                    "author": {
-                        "name": headCommit["committer"]["login"],
-                        "email": headCommit["commit"]["committer"]["email"],
-                    },
-                    "timestamp": headCommit["commit"]["committer"]["date"],
-                },
             },
+            "repository": repo
         }
     }
+    if merge_base_commit:
+        pulse["payload"]["body"]["merge_base_commit"] = merge_base_commit
     PushLoader().process(pulse["payload"], pulse["exchange"], root_url)
 
 

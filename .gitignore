@@ -5,6 +5,7 @@ node_modules/
 yarn-error.log
 npm-error.log
 vagrant/env_local.sh
+__pycache__
 
 # vi
 *.swp

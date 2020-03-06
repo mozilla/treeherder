@@ -53,7 +53,6 @@ export default function ReposMenu(props) {
       <DropdownToggle
         id="repoLabel"
         className="btn-view-nav nav-menu-btn"
-        nav
         caret
         title="Watch a repo"
       >

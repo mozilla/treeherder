@@ -24,6 +24,10 @@
   display: inline-block;
 }
 
+.filtersbar-filter button {
+  font-size: 12px;
+}
+
 .new-filter-input {
   margin-top: 5px;
 }

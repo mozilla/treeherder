@@ -2,9 +2,9 @@ export const resultColorMap = {
   pass: 'success',
   fail: 'danger',
   indeterminate: 'warning',
-  done: 'info',
-  'in progress': 'secondary',
-  none: 'info',
+  done: 'darker-info',
+  'in progress': 'darker-secondary',
+  none: 'darker-info',
 };
 
 export const filterTests = (tests, searchStr) => {

@@ -102,7 +102,7 @@ class AlertsView extends React.Component {
 
   extendDropdownOptions = frameworks => {
     const frameworkOptions = cloneDeep(frameworks);
-    const ignoreFrameworks = { id: -1, name: 'all' };
+    const ignoreFrameworks = { id: -1, name: 'all frameworks' };
     frameworkOptions.unshift(ignoreFrameworks);
     return frameworkOptions;
   };
@@ -333,7 +333,7 @@ class AlertsView extends React.Component {
             frameworkOptions={frameworkOptions}
             issueTrackers={issueTrackers}
             optionCollectionMap={optionCollectionMap}
-            fetchAlertSummaries={(id, update, page) =>
+            fetchAlertSummaries={(id, page, update = true) =>
               this.fetchAlertSummaries(id, update, page)
             }
             updateViewState={state => this.setState(state)}

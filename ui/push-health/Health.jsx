@@ -6,6 +6,7 @@ import {
   faCheckCircle,
   faExclamationTriangle,
 } from '@fortawesome/free-solid-svg-icons';
+import camelCase from 'lodash/camelCase';
 
 import ErrorMessages from '../shared/ErrorMessages';
 import NotificationList from '../shared/NotificationList';
@@ -16,6 +17,7 @@ import {
 import PushModel from '../models/push';
 import StatusProgress from '../shared/StatusProgress';
 import { getPercentComplete } from '../helpers/display';
+import { scrollToLine } from '../helpers/utils';
 import {
   createQueryParams,
   parseQueryParams,
@@ -28,7 +30,7 @@ import Metric from './Metric';
 import Navigation from './Navigation';
 import TestMetric from './TestMetric';
 import JobListMetric from './JobListMetric';
-import PushParent from './PushParent';
+import CommitHistory from './CommitHistory';
 
 export default class Health extends React.PureComponent {
   constructor(props) {
@@ -45,7 +47,7 @@ export default class Health extends React.PureComponent {
       failureMessage: null,
       notifications: [],
       progressExpanded: true,
-      parentExpanded: false,
+      commitHistoryExpanded: false,
       lintingExpanded: false,
       buildsExpanded: false,
       testsExpanded: false,
@@ -98,7 +100,7 @@ export default class Health extends React.PureComponent {
     const notification = {
       ...options,
       message,
-      severity: severity || 'info',
+      severity: severity || 'darker-info',
       created: Date.now(),
     };
     const newNotifications = [notification, ...notifications];
@@ -114,13 +116,21 @@ export default class Health extends React.PureComponent {
     this.setState(clearNotificationAtIndex(notifications, index));
   };
 
-  toggleExpanded = metricName => {
-    const key = `${metricName.toLowerCase()}Expanded`;
-    const { [key]: oldToggle } = this.state;
+  setExpanded = (metricName, expanded) => {
+    const root = camelCase(metricName);
+    const key = `${root}Expanded`;
+    const { [key]: oldExpanded } = this.state;
 
-    this.setState({
-      [key]: !oldToggle,
-    });
+    if (oldExpanded !== expanded) {
+      this.setState({
+        [key]: expanded,
+      });
+    } else if (expanded) {
+      scrollToLine(`#${root}Metric`, 0, 0, {
+        behavior: 'smooth',
+        block: 'center',
+      });
+    }
   };
 
   filter = searchStr => {
@@ -149,14 +159,14 @@ export default class Health extends React.PureComponent {
       notifications,
       status,
       progressExpanded,
-      parentExpanded,
+      commitHistoryExpanded,
       lintingExpanded,
       buildsExpanded,
       testsExpanded,
       performanceExpanded,
       searchStr,
     } = this.state;
-    const { tests, parent, linting, builds, performance } = metrics;
+    const { tests, commitHistory, linting, builds, performance } = metrics;
     const { currentRepo } = this.props;
     const percentComplete = status ? getPercentComplete(status) : 0;
     const progress = {
@@ -180,40 +190,45 @@ export default class Health extends React.PureComponent {
             {!!tests && (
               <Nav className="metric-buttons mb-2 pt-2 pl-3 justify-content-between w-100">
                 <span>
-                  {[progress, parent, linting, builds, tests, performance].map(
-                    metric => (
-                      <span key={metric.name}>
-                        {!!metric.details && (
-                          <Button
-                            size="sm"
-                            className="mr-2"
-                            color={resultColorMap[metric.result]}
-                            title={`Click to toggle ${
-                              metric.name
-                            }: ${metric.result.toUpperCase()}`}
-                            onClick={() => this.toggleExpanded(metric.name)}
-                            key={metric.name}
-                          >
-                            {metric.name}
-                            {['pass', 'fail', 'indeterminate'].includes(
-                              metric.result,
-                            ) ? (
-                              <FontAwesomeIcon
-                                className="ml-1"
-                                icon={
-                                  metric.result === 'pass'
-                                    ? faCheckCircle
-                                    : faExclamationTriangle
-                                }
-                              />
-                            ) : (
-                              <span className="ml-1">{metric.value}</span>
-                            )}
-                          </Button>
-                        )}
-                      </span>
-                    ),
-                  )}
+                  {[
+                    progress,
+                    linting,
+                    builds,
+                    tests,
+                    performance,
+                    commitHistory,
+                  ].map(metric => (
+                    <span key={metric.name}>
+                      {!!metric.details && (
+                        <Button
+                          size="sm"
+                          className="mr-2"
+                          color={resultColorMap[metric.result]}
+                          title={`Click to toggle ${
+                            metric.name
+                          }: ${metric.result.toUpperCase()}`}
+                          onClick={() => this.setExpanded(metric.name, true)}
+                          key={metric.name}
+                        >
+                          {metric.name}
+                          {['pass', 'fail', 'indeterminate'].includes(
+                            metric.result,
+                          ) ? (
+                            <FontAwesomeIcon
+                              className="ml-1"
+                              icon={
+                                metric.result === 'pass'
+                                  ? faCheckCircle
+                                  : faExclamationTriangle
+                              }
+                            />
+                          ) : (
+                            <span className="ml-1">{metric.value}</span>
+                          )}
+                        </Button>
+                      )}
+                    </span>
+                  ))}
                 </span>
                 <span className="mr-2">
                   <InputFilter
@@ -225,7 +240,7 @@ export default class Health extends React.PureComponent {
             )}
           </Navbar>
         </Navigation>
-        <Container fluid className="mt-2">
+        <Container fluid className="mt-2 mb-5">
           <NotificationList
             notifications={notifications}
             clearNotification={this.clearNotification}
@@ -237,7 +252,7 @@ export default class Health extends React.PureComponent {
                   name="Progress"
                   result=""
                   expanded={progressExpanded}
-                  toggleExpanded={this.toggleExpanded}
+                  setExpanded={this.setExpanded}
                 >
                   <div>
                     <div>{percentComplete}% Complete</div>
@@ -245,25 +260,13 @@ export default class Health extends React.PureComponent {
                   </div>
                 </Metric>
               </Row>
-              {parent.details && (
-                <Row className="w-100">
-                  <Metric
-                    name="Parent"
-                    result=""
-                    expanded={parentExpanded}
-                    toggleExpanded={this.toggleExpanded}
-                  >
-                    <PushParent parent={parent.details} />
-                  </Metric>
-                </Row>
-              )}
               <Row>
                 <JobListMetric
                   data={linting}
                   repo={repo}
                   revision={revision}
                   expanded={lintingExpanded}
-                  toggleExpanded={this.toggleExpanded}
+                  setExpanded={this.setExpanded}
                 />
               </Row>
               <Row>
@@ -272,7 +275,7 @@ export default class Health extends React.PureComponent {
                   repo={repo}
                   revision={revision}
                   expanded={buildsExpanded}
-                  toggleExpanded={this.toggleExpanded}
+                  setExpanded={this.setExpanded}
                 />
               </Row>
               <Row>
@@ -284,7 +287,7 @@ export default class Health extends React.PureComponent {
                   user={user}
                   notify={this.notify}
                   expanded={testsExpanded}
-                  toggleExpanded={this.toggleExpanded}
+                  setExpanded={this.setExpanded}
                   searchStr={searchStr}
                 />
               </Row>
@@ -294,9 +297,24 @@ export default class Health extends React.PureComponent {
                   repo={repo}
                   revision={revision}
                   expanded={performanceExpanded}
-                  toggleExpanded={this.toggleExpanded}
+                  setExpanded={this.setExpanded}
                 />
               </Row>
+              {commitHistory.details && (
+                <Row className="w-100">
+                  <Metric
+                    name="Commit History"
+                    result=""
+                    expanded={commitHistoryExpanded}
+                    setExpanded={this.setExpanded}
+                  >
+                    <CommitHistory
+                      history={commitHistory.details}
+                      revision={revision}
+                    />
+                  </Metric>
+                </Row>
+              )}
             </div>
           )}
           {failureMessage && <ErrorMessages failureMessage={failureMessage} />}

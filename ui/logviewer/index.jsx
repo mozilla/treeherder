@@ -2,7 +2,8 @@ import React from 'react';
 import { render } from 'react-dom';
 
 // Treeherder Styles
-import '../css/treeherder-global.css';
+import '../css/treeherder-base.css';
+import '../css/treeherder-custom-styles.css';
 import '../css/treeherder-navbar.css';
 import './logviewer.css';
 

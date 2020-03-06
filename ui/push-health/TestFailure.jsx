@@ -98,7 +98,10 @@ class TestFailure extends React.PureComponent {
           {tier > 1 && (
             <span className="ml-1 small text-muted">[tier-{tier}]</span>
           )}
-          <span color="secondary" className="text-uppercase ml-1 mr-1">
+          <span
+            color="text-darker-secondary"
+            className="text-uppercase ml-1 mr-1"
+          >
             {action} :
           </span>
           {failJobs.map(failJob => (
@@ -153,7 +156,7 @@ class TestFailure extends React.PureComponent {
             <span>
               <Button
                 id={key}
-                className="border-0 text-info btn-sm p-1"
+                className="border-0 text-darker-info btn-sm p-1"
                 outline
                 onClick={this.toggleDetails}
               >
@@ -209,7 +212,7 @@ class TestFailure extends React.PureComponent {
               <span title="Best guess at a classification" className="ml-auto">
                 {classificationMap[suggestedClassification]}
                 <Badge
-                  color="secondary"
+                  color="darker-secondary"
                   className="ml-2 mr-3"
                   title="Confidence in this classification guess"
                 >
