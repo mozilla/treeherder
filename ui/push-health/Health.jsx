@@ -15,6 +15,7 @@ import {
   clearExpiredTransientNotifications,
 } from '../helpers/notifications';
 import PushModel from '../models/push';
+import RepositoryModel from '../models/repository';
 import StatusProgress from '../shared/StatusProgress';
 import { getPercentComplete } from '../helpers/display';
 import { scrollToLine } from '../helpers/utils';
@@ -42,6 +43,7 @@ export default class Health extends React.PureComponent {
       user: { isLoggedIn: false },
       revision: params.get('revision'),
       repo: params.get('repo'),
+      currentRepo: null,
       metrics: {},
       result: null,
       failureMessage: null,
@@ -57,6 +59,7 @@ export default class Health extends React.PureComponent {
   }
 
   async componentDidMount() {
+    const { repo } = this.state;
     // Get the test data
     const { metrics } = await this.updatePushHealth();
     const expandedStates = Object.entries(metrics).reduce(
@@ -67,7 +70,10 @@ export default class Health extends React.PureComponent {
       {},
     );
 
-    this.setState(expandedStates);
+    const repos = await RepositoryModel.getList();
+    const currentRepo = repos.find(repoObj => repoObj.name === repo);
+
+    this.setState({ ...expandedStates, currentRepo });
 
     // Update the tests every two minutes.
     this.testTimerId = setInterval(() => this.updatePushHealth(), 120000);
@@ -165,9 +171,9 @@ export default class Health extends React.PureComponent {
       testsExpanded,
       performanceExpanded,
       searchStr,
+      currentRepo,
     } = this.state;
     const { tests, commitHistory, linting, builds, performance } = metrics;
-    const { currentRepo } = this.props;
     const percentComplete = status ? getPercentComplete(status) : 0;
     const progress = {
       name: 'Progress',
@@ -311,6 +317,7 @@ export default class Health extends React.PureComponent {
                     <CommitHistory
                       history={commitHistory.details}
                       revision={revision}
+                      currentRepo={currentRepo}
                     />
                   </Metric>
                 </Row>
@@ -327,9 +334,4 @@ export default class Health extends React.PureComponent {
 
 Health.propTypes = {
   location: PropTypes.object.isRequired,
-  currentRepo: PropTypes.object,
-};
-
-Health.defaultProps = {
-  currentRepo: null,
 };
