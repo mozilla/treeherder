@@ -3,6 +3,7 @@ import logging
 import environ
 import newrelic.agent
 from django.core.exceptions import ObjectDoesNotExist
+
 from treeherder.etl.common import (fetch_json,
                                    to_timestamp)
 from treeherder.etl.push import store_push_data
