@@ -100,15 +100,6 @@ class GithubTransformer:
             "author": head_commit["commit"]["author"]["email"],
         }
 
-        # body = self.message_body
-        # # Github pull request events do not have the "commits" property
-        # if body.get("commits"):
-        #     # A Github push event does not contain commits for merge pushes and need to use the head_commit
-        #     head_commit = body["commits"][-1] if body["commits"] else body["head_commit"]
-        #     # The commits in Pulse messages come from a Github push event which contains
-        #     # the "timestamp" field. The commits from the "compare" API do not contain that field
-        #     push["push_timestamp"] = to_timestamp(head_commit["timestamp"])
-
         revisions = []
         for commit in commits:
             revisions.append({
@@ -162,19 +153,23 @@ class GithubPushTransformer(GithubTransformer):
     #     }
     # }
 
-    URL_BASE = "https://api.github.com/repos/{}/{}/compare/{}...{}"
-
     def transform(self, repository):
-        push_url = self.URL_BASE.format(
-            self.message_body["organization"],
-            self.message_body["repository"],
-            self.message_body["details"]["event.base.sha"],
-            self.message_body["details"]["event.head.sha"],
-        )
-        return self.fetch_push(push_url, repository)
-
-    def get_cleaned_commits(self, compare):
-        return compare["commits"]
+        head_commit = self.message_body["body"]["head_commit"]
+        push = {
+            "revision": head_commit["id"],
+            "push_timestamp": to_timestamp(head_commit["timestamp"]),
+            "author": head_commit["author"]["email"],
+            "revisions": [],
+        }
+        for commit in self.message_body["body"]["commits"]:
+            push["revisions"].append({
+                "comment": commit["message"],
+                "author": u"{} <{}>".format(
+                    commit["author"]["name"],
+                    commit["author"]["email"]),
+                "revision": commit["id"]
+            })
+        return push
 
     def get_repo(self):
         return self.message_body["details"]["event.head.repo.url"].replace(".git", "")
