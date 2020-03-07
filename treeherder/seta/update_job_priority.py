@@ -14,7 +14,8 @@ import logging
 from treeherder.etl.runnable_jobs import list_runnable_jobs
 from treeherder.etl.seta import (parse_testtype,
                                  valid_platform)
-from treeherder.seta.common import (job_priority_index,
+from treeherder.seta.common import (convert_job_type_name_to_testtype,
+                                    job_priority_index,
                                     unique_key)
 from treeherder.seta.models import JobPriority
 from treeherder.seta.settings import SETA_LOW_VALUE_PRIORITY
@@ -41,7 +42,10 @@ def _unique_key(job):
     This makes sure that we use a consistent key between our code and selecting jobs from the
     table.
     """
-    return unique_key(testtype=str(job['testtype']),
+    testtype = str(job['testtype'])
+    if not testtype:
+        raise Exception('Bad job {}'.format(job))
+    return unique_key(testtype=testtype,
                       buildtype=str(job['platform_option']),
                       platform=str(job['platform']))
 

@@ -12,8 +12,11 @@ SETA_PROJECTS = [
 # will be supported i.e. may be optimized out by SETA
 SETA_SUPPORTED_TC_JOBTYPES = [
     'test-',
+    'source-test-',
     'desktop-test',
     'android-test',
+    'iris-',
+    'webrender-',
     'build-android-x86-fuzzing',
     'build-android-x86_64-asan-fuzzing',
     'build-linux64-asan-fuzzing-ccov',

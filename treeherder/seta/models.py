@@ -3,7 +3,8 @@ import logging
 from django.db import models
 from django.utils import timezone
 
-from treeherder.seta.common import unique_key
+from treeherder.seta.common import (convert_job_type_name_to_testtype,
+                                    unique_key)
 from treeherder.seta.settings import SETA_LOW_VALUE_PRIORITY
 
 logger = logging.getLogger(__name__)
