@@ -163,31 +163,43 @@ const GraphTooltip = ({
         </Button>
         <div className="body">
           <div>
-            <p>({testDetails.repository_name})</p>
-            <p className="small">{testDetails.platform}</p>
+            <p data-testid="repoName">({testDetails.repository_name})</p>
+            <p className="small" data-testid="platform">
+              {testDetails.platform}
+            </p>
           </div>
           <div>
             <p>
-              {displayNumber(value)}
+              <span data-testid="test-value">{displayNumber(value)}</span>
               {testDetails.measurementUnit && (
                 <span> {testDetails.measurementUnit}</span>
               )}
-              <span className="text-muted">
+              <span className="text-muted" data-testid="lower-or-higher">
                 {testDetails.lowerIsBetter
                   ? ' (lower is better)'
                   : ' (higher is better)'}
               </span>
             </p>
             <p className="small">
-              &Delta; {displayNumber(deltaValue.toFixed(1))} (
-              {(100 * deltaPercent).toFixed(1)}%)
+              &Delta;{' '}
+              <span data-testid="delta">
+                {displayNumber(deltaValue.toFixed(1))}
+              </span>{' '}
+              <span data-testid="delta-percent">
+                ({(100 * deltaPercent).toFixed(1)}%)
+              </span>
             </p>
           </div>
 
           <div>
             {prevRevision && (
               <span>
-                <a href={pushUrl} target="_blank" rel="noopener noreferrer">
+                <a
+                  href={pushUrl}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  data-testid="revision"
+                >
                   {dataPointDetails.revision.slice(0, 13)}
                 </a>{' '}
                 (
@@ -268,7 +280,10 @@ const GraphTooltip = ({
                 )}
               </p>
             )}
-            <p className="small text-white pt-2">{`${moment
+            <p
+              className="small text-white pt-2"
+              data-testid="date"
+            >{`${moment
               .utc(dataPointDetails.x)
               .format('MMM DD hh:mm:ss')} UTC`}</p>
             {Boolean(retriggerNum) && (
