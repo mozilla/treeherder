@@ -49,37 +49,6 @@ def parse_testtype(build_system_type, job_type_name, platform_option, ref_data_n
     return testtype
 
 
-def transform(testtype):
-    '''
-    A lot of these transformations are from tasks before task labels and some of them are if we
-    grab data directly from Treeherder jobs endpoint instead of runnable jobs API.
-    '''
-    # XXX: Evaluate which of these transformations are still valid
-    if testtype.startswith('[funsize'):
-        testtype = None
-    elif testtype.startswith('build-') or testtype.startswith('spidermonkey-'):
-        testtype = testtype.split('/')[0]
-    else:
-        testtype = testtype.split('/opt-')[-1]
-        testtype = testtype.split('/debug-')[-1]
-
-        # this is plain-reftests for android
-        testtype = testtype.replace('plain-', '')
-
-        testtype = testtype.strip()
-
-        # https://bugzilla.mozilla.org/show_bug.cgi?id=1313844
-        testtype = testtype.replace('browser-chrome-e10s', 'e10s-browser-chrome')
-        testtype = testtype.replace('devtools-chrome-e10s', 'e10s-devtools-chrome')
-        testtype = testtype.replace('[TC] Android 4.3 API15+ ', '')
-
-        # mochitest-gl-1 <-- Android 4.3 armv7 API 15+ mozilla-inbound opt test mochitest-gl-1
-        # mochitest-webgl-9  <-- test-android-4.3-arm7-api-15/opt-mochitest-webgl-9
-        testtype = testtype.replace('webgl-', 'gl-')
-
-    return testtype
-
-
 def valid_platform(platform):
     # We only care about in-tree scheduled tests and ignore out of band system like autophone.
     return platform not in SETA_UNSUPPORTED_PLATFORMS

@@ -3,8 +3,7 @@ import logging
 import os
 
 from treeherder.seta.common import convert_job_type_name_to_testtype
-from treeherder.etl.seta import (get_reference_data_names,
-                                 transform)
+from treeherder.etl.seta import get_reference_data_names
 from treeherder.seta.models import JobPriority
 from treeherder.seta.settings import (SETA_LOW_VALUE_PRIORITY,
                                       THE_FUTURE)
@@ -74,9 +73,8 @@ def validate_preseed_entry(entry, ref_names):
         logger.warning("Preseed.json entry testtype %s is not a valid task name:", entry["testtype"])
         raise Exception("preseed.json entry contains invalid testtype. Please check output above.")
 
-    # XXX: Same transformation as in treeherder.etl.seta.parse_testtype
     unique_identifier = (
-        transform(testtype),
+        testtype,
         entry["buildtype"],
         entry["platform"],
     )
