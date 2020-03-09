@@ -404,7 +404,7 @@ class Command(BaseCommand):
             PushLoader().process(pulse["payload"], pulse["exchange"], root_url)
         elif typeOfIngestion.find("git") > -1:
             if not os.environ.get("GITHUB_TOKEN"):
-                logger.warning("If you don't set up GITHUB_TOKEN you might hit Github's rate limitting. See docs for info.")
+                logger.warning("If you don't set up GITHUB_TOKEN you might hit Github's rate limiting. See docs for info.")
 
             if typeOfIngestion == "git-push":
                 ingest_git_push(options["project"], options["commit"])
