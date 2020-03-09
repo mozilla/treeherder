@@ -11,6 +11,7 @@ import taskcluster.aio
 import taskcluster_urls as liburls
 from django.conf import settings
 from django.core.management.base import BaseCommand
+
 from treeherder.client.thclient import TreeherderClient
 from treeherder.etl.common import fetch_json
 from treeherder.etl.db_semaphore import (acquire_connection,
