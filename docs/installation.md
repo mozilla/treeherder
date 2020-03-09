@@ -155,7 +155,7 @@ Open a terminal window and run `docker-compose up`. All following sections assum
 
 #### Ingesting pushes
 
-`NOTE`: Pnly the push information will be ingested. Tasks
+`NOTE`: Only the push information will be ingested. Tasks
 associated with the pushes will not. This mode is useful to seed pushes so
 they are visible on the web interface and so you can easily copy and paste
 changesets from the web interface into subsequent commands to ingest all tasks.
@@ -171,14 +171,15 @@ Ingest a single Github push or the last 10:
 
 ```console
 docker-compose exec backend ./manage.py ingest git-push -p servo-try -c 92fc94588f3b6987082923c0003012fd696b1a2d
-docker-compose exec backend ./manage.py ingest git-pushes
+docker-compose exec -e GITHUB_TOKEN=<foo> backend ./manage.py ingest git-pushes -p android-components
 ```
 
 `NOTE`: You can ingest all tasks for a push. Check the help output for the script to determine the
 parameters needed.
 
 `NOTE`: If you make too many calls to the Github API you will start getting 403 messages because of the rate limit.
-To avoid this visit [your settings](https://github.com/settings/tokens). You don't need to grant scopes to it. Set up `GITHUB_CLIENT_SECRET`
+To avoid this visit [your settings](https://github.com/settings/tokens) and set up `GITHUB_TOKEN`. You don't need
+to grant scopes for it.
 
 #### Ingesting Github PRs
 

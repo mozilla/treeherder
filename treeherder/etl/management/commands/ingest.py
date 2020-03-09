@@ -160,7 +160,6 @@ def get_decision_task_id(project, revision, root_url):
 
 def fetch_api(path):
     url = "{}/{}".format(GITHUB_API, path)
-    # logger.info(url)
     return fetch_json(url)
 
 
@@ -200,12 +199,11 @@ def query_data(repo_meta, commit):
     event_base_sha = repo_meta["branch"]
     # e.g. https://api.github.com/repos/servo/servo/compare/master...1418c0555ff77e5a3d6cf0c6020ba92ece36be2e
     compareResponse = compare_shas(repo_meta, repo_meta["branch"], commit)
-    # headCommit = None
     merge_base_commit = compareResponse.get("merge_base_commit")
     if merge_base_commit:
         commiter_date = merge_base_commit["commit"]["committer"]["date"]
         # Since we don't use PushEvents that contain the "before" or "event.base.sha" fields [1]
-        # we need to discover the right parent. A merge commit has two parents
+        # we need to discover the right parent which existed in the base branch.
         # [1] https://github.com/taskcluster/taskcluster/blob/3dda0adf85619d18c5dcf255259f3e274d2be346/services/github/src/api.js#L55
         parents = compareResponse["merge_base_commit"]["parents"]
         if len(parents) == 1:
@@ -225,6 +223,7 @@ def query_data(repo_meta, commit):
                 if commiter_date != _commit["commit"]["committer"]["date"]:
                     event_base_sha = _commit["sha"]
                     break
+        # This is to make sure that the value has changed
         assert event_base_sha != repo_meta["branch"]
         logger.info("We have a new base: %s", event_base_sha)
         # When using the correct event_base_sha the "commits" field will be correct
