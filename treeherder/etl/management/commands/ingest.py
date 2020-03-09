@@ -11,7 +11,7 @@ import taskcluster.aio
 import taskcluster_urls as liburls
 from django.conf import settings
 from django.core.management.base import BaseCommand
-
+from treeherder.client.thclient import TreeherderClient
 from treeherder.etl.common import fetch_json
 from treeherder.etl.db_semaphore import (acquire_connection,
                                          release_connection)
@@ -159,7 +159,7 @@ def get_decision_task_id(project, revision, root_url):
 
 def fetch_api(path):
     url = "{}/{}".format(GITHUB_API, path)
-    logger.info(url)
+    # logger.info(url)
     return fetch_json(url)
 
 
@@ -262,18 +262,18 @@ def github_push_to_pulse(repo_meta, commit):
     }
 
 
-def ingestGitPush(project, commit):
-    _repo = repo_meta("fenix")
+def ingest_git_push(project, commit):
+    _repo = repo_meta(project)
     pulse = github_push_to_pulse(_repo, commit)
     PushLoader().process(pulse["payload"], pulse["exchange"], _repo["tc_root_url"])
 
 
-def ingestGitPushes(project="fenix"):
+def ingest_git_pushes(project, dry_run=False):
     _repo = repo_meta(project)
-    commits = commits_info(_repo)
+    github_commits = commits_info(_repo)
     pushes = []
     merge_dates = {}
-    for _commit in commits:
+    for _commit in github_commits:
         info = commit_info(_repo, _commit["sha"])
         committer_date = info["commit"]["committer"]["date"]
         # All commits involved in a push shared the committer_date, thus, we only
@@ -282,8 +282,16 @@ def ingestGitPushes(project="fenix"):
             merge_dates[committer_date] = committer_date
             pushes.append(_commit)
 
-    for _push in pushes:
-        ingestGitPush(project, _push["sha"])
+    if not dry_run:
+        for _push in pushes:
+            ingest_git_push(project, _push["sha"])
+
+    client = TreeherderClient(server_url="http://localhost:8000")
+    th_pushes = client.get_pushes(project, count=len(pushes))
+    assert len(pushes) == len(th_pushes)
+    for index, _push in enumerate(pushes):
+        if _push["sha"] != th_pushes[index]["revision"]:
+            logger.warning("{} does not match {}".format(_push["revision"], th_pushes[index]["revision"]))
 
 
 class Command(BaseCommand):
@@ -331,6 +339,12 @@ class Command(BaseCommand):
             dest="prUrl",
             help="Ingest a PR: e.g. https://github.com/mozilla-mobile/android-components/pull/4821"
         )
+        parser.add_argument(
+            "--dry-run",
+            dest="dryRun",
+            action="store_true",
+            help="Do not make changes to the database"
+        )
 
     def handle(self, *args, **options):
         typeOfIngestion = options["ingestion_type"][0]
@@ -365,9 +379,9 @@ class Command(BaseCommand):
                 logger.warning("If you don't set up GITHUB_TOKEN you might hit Github's rate limitting. See docs for info.")
 
             if typeOfIngestion == "git-push":
-                ingestGitPush(options["project"], options["commit"])
+                ingest_git_push(options["project"], options["commit"])
             elif typeOfIngestion == "git-pushes":
-                ingestGitPushes()
+                ingest_git_pushes(options["project"], options["dryRun"])
         elif typeOfIngestion == "push":
             if not options["enable_eager_celery"]:
                 logger.info(

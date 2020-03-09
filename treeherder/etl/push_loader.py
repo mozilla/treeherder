@@ -92,11 +92,12 @@ class GithubTransformer:
         # make_request adds the headers but over here we prevent passing the params until
         # we fully switch over
         if not self.GITHUB_TOKEN:
+            logger.warning("Using soon to be deprecated Github authentication.")
             params = self.CREDENTIALS
 
         logger.info("Fetching push details: %s", url)
 
-        commits = self.get_cleaned_commits(fetch_json(url, params=params))
+        commits = self.get_cleaned_commits(fetch_json(url, params))
         head_commit = commits[-1]
         push = {
             "revision": head_commit["sha"],
@@ -174,6 +175,9 @@ class GithubPushTransformer(GithubTransformer):
         return self.fetch_push(push_url, repository)
 
     def get_cleaned_commits(self, compare):
+        if len(compare["commits"]) == 0:
+            import pdb
+            pdb.set_trace()
         return compare["commits"]
 
     def get_repo(self):
