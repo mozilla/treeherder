@@ -202,6 +202,7 @@ def query_data(repo_meta, commit):
     # headCommit = None
     merge_base_commit = compareResponse.get("merge_base_commit")
     if merge_base_commit:
+        commiter_date = merge_base_commit["commit"]["committer"]["date"]
         logger.info("We have a merge commit. We need to find the right event_base_sha")
         # Since we don't use PushEvents that contain the "before" or "event.base.sha" fields [1]
         # we need to discover the right parent. A merge commit has two parents
@@ -211,7 +212,7 @@ def query_data(repo_meta, commit):
             parent = parents[0]
             commit_info = fetch_json(parent["url"])
             committer_date = commit_info["commit"]["committer"]["date"]
-            # All commits involved in a PR that is merge share the same committer's date
+            # All commits involved in a PR share the same committer's date
             if merge_base_commit["commit"]["committer"]["date"] == committer_date:
                 # Recursively find the forking parent
                 event_base_sha, _ = query_data(repo_meta, parent["sha"])
@@ -220,11 +221,12 @@ def query_data(repo_meta, commit):
         else:
             for parent in parents:
                 _commit = fetch_json(parent["url"])
-                # Only the commit parent with more than 1 parent is what we want
-                if _commit["parents"] and len(_commit["parents"]) > 1:
-                    event_base_sha = parent["sha"]
-                    logger.info("We have a new base: %s", event_base_sha)
+                # All commits involved in a merge share the same committer's date
+                if commiter_date != _commit["commit"]["committer"]["date"]:
+                    event_base_sha = _commit["sha"]
                     break
+        assert event_base_sha != repo_meta["branch"]
+        logger.info("We have a new base: %s", event_base_sha)
         # When using the correct event_base_sha the "commits" field will be correct
         compareResponse = compare_shas(repo_meta, event_base_sha, commit)
 
