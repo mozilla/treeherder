@@ -1,6 +1,6 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import { Alert } from 'reactstrap';
+import { Alert, Col } from 'reactstrap';
 
 import PushHealthStatus from '../shared/PushHealthStatus';
 import { RevisionList } from '../shared/RevisionList';
@@ -24,7 +24,7 @@ class CommitHistory extends React.PureComponent {
   render() {
     const {
       history: {
-        repository,
+        parentRepository,
         jobCounts,
         exactMatch,
         parentSha,
@@ -34,66 +34,65 @@ class CommitHistory extends React.PureComponent {
         revisionCount,
       },
       revision,
+      currentRepo,
     } = this.props;
     const { clipboardVisible } = this.state;
-    const repoModel = new RepositoryModel(repository);
+    const parentRepoModel = new RepositoryModel(parentRepository);
+    const parentLinkUrl = exactMatch
+      ? `${getJobsUrl({
+          revision: parentPushRevision,
+          repo: parentRepository.name,
+        })}`
+      : parentRepoModel.getRevisionHref(parentSha);
 
     return (
       <React.Fragment>
         <h5>Parent Push</h5>
-        {!exactMatch && (
-          <div className="ml-4">
-            <div
-              className="mb-2 ml-3"
-              onMouseEnter={() => this.showClipboard(true)}
-              onMouseLeave={() => this.showClipboard(false)}
-            >
-              <Clipboard
-                description="full hash"
-                text={parentSha}
-                visible={clipboardVisible}
-              />
-              <a
-                href={repoModel.getRevisionHref(parentSha)}
-                target="_blank"
-                rel="noopener noreferrer"
-              >
-                {parentSha}
-              </a>
+        <div className="ml-4">
+          {!exactMatch && (
+            <div>
+              <Alert color="warning" className="m-3 font-italics">
+                Warning: Could not find an exact match parent Push in
+                Treeherder.
+              </Alert>
+              {id && <div>Closest match: </div>}
             </div>
-            <Alert color="warning" className="m-3 font-italics">
-              Warning: Could not find an exact match parent Push in Treeherder.
-            </Alert>
-            {id && <div>Closest match: </div>}
-          </div>
-        )}
-        {id && (
-          <div className="ml-5">
+          )}
+          <Col
+            className="mb-2 ml-2"
+            onMouseEnter={() => this.showClipboard(true)}
+            onMouseLeave={() => this.showClipboard(false)}
+          >
+            <Clipboard
+              description="full hash"
+              text={parentSha}
+              visible={clipboardVisible}
+            />
             <a
-              href={`${getJobsUrl({
-                revision: parentPushRevision,
-                repo: repository.name,
-              })}`}
-              className="mx-3"
+              href={parentLinkUrl}
               target="_blank"
               rel="noopener noreferrer"
-              title="Open this push in Treeherder"
+              title="Open this push"
+              data-testid="parent-commit-sha"
+              className="mr-1 text-monospace commit-sha"
             >
-              {parentPushRevision}
+              {parentPushRevision || parentSha}
             </a>
-            <PushHealthStatus
-              revision={parentPushRevision}
-              repoName={repository.name}
-              jobCounts={jobCounts}
-            />
-          </div>
-        )}
+            {exactMatch && (
+              <PushHealthStatus
+                revision={parentPushRevision}
+                repoName={parentRepository.name}
+                jobCounts={jobCounts}
+              />
+            )}
+          </Col>
+        </div>
         <h5 className="mt-4">Commit revisions</h5>
         <RevisionList
           revision={revision}
           revisions={revisions.slice(0, 20)}
           revisionCount={revisionCount}
-          repo={repoModel}
+          repo={currentRepo}
         />
       </React.Fragment>
     );
@@ -102,9 +101,9 @@ class CommitHistory extends React.PureComponent {
 
 CommitHistory.propTypes = {
   history: PropTypes.shape({
-    repository: PropTypes.object.isRequired,
+    parentRepository: PropTypes.object.isRequired,
     revisionCount: PropTypes.number.isRequired,
-    parentPushRevision: PropTypes.string.isRequired,
+    parentPushRevision: PropTypes.string,
     job_counts: PropTypes.shape({
       completed: PropTypes.number.isRequired,
       pending: PropTypes.number.isRequired,
@@ -113,6 +112,7 @@ CommitHistory.propTypes = {
     id: PropTypes.number,
   }).isRequired,
   revision: PropTypes.string.isRequired,
+  currentRepo: PropTypes.object.isRequired,
 };
 
 export default CommitHistory;

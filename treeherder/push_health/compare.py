@@ -26,7 +26,7 @@ def get_response_object(parent_sha, revisions, revision_count, push, repository)
         'parentSha': parent_sha,
         'exactMatch': False,
         'parentPushRevision': None,
-        'repository': RepositorySerializer(repository).data,
+        'parentRepository': RepositorySerializer(repository).data,
         'id': None,
         'jobCounts': None,
         'revisions': revisions,
