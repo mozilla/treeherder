@@ -1,14 +1,10 @@
 import calendar
-import logging
 import os
 
 import newrelic.agent
 import requests
 from dateutil import parser
 from django.conf import settings
-
-logger = logging.getLogger(__name__)
-logger.setLevel(logging.DEBUG)
 
 # For local development you can use a token to avoid the rate limting
 GITHUB_TOKEN = os.environ.get("GITHUB_TOKEN")

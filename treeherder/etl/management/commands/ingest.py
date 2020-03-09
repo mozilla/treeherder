@@ -203,7 +203,6 @@ def query_data(repo_meta, commit):
     merge_base_commit = compareResponse.get("merge_base_commit")
     if merge_base_commit:
         commiter_date = merge_base_commit["commit"]["committer"]["date"]
-        logger.info("We have a merge commit. We need to find the right event_base_sha")
         # Since we don't use PushEvents that contain the "before" or "event.base.sha" fields [1]
         # we need to discover the right parent. A merge commit has two parents
         # [1] https://github.com/taskcluster/taskcluster/blob/3dda0adf85619d18c5dcf255259f3e274d2be346/services/github/src/api.js#L55
@@ -271,6 +270,10 @@ def ingest_git_push(project, commit):
 
 
 def ingest_git_pushes(project, dry_run=False):
+    if not os.environ.get("GITHUB_TOKEN"):
+        raise Exception("Set GITHUB_TOKEN env variable to avoid rate limiting - Visit https://github.com/settings/tokens.")
+
+    logger.info("--> Converting Github commits to pushes")
     _repo = repo_meta(project)
     github_commits = commits_info(_repo)
     not_push_revision = []
@@ -291,14 +294,16 @@ def ingest_git_pushes(project, dry_run=False):
         # The 1st parent is the push from `master` from which we forked
         oldest_parent_revision = info["parents"][0]["sha"]
         push_to_date[oldest_parent_revision] = info["commit"]["committer"]["date"]
-        logger.info("Push: {}".format(oldest_parent_revision))
+        logger.info("Push: {} - Date: {}".format(oldest_parent_revision, push_to_date[oldest_parent_revision]))
         push_revision.append(_commit["sha"])
 
     if not dry_run:
+        logger.info("--> Ingest Github pushes")
         for revision in push_revision:
             ingest_git_push(project, revision)
 
     # Test that the *order* of the pushes is correct
+    logger.info("--> Validating that the ingested pushes are in the right order")
     client = TreeherderClient(server_url="http://localhost:8000")
     th_pushes = client.get_pushes(project, count=len(push_revision))
     assert len(push_revision) == len(th_pushes)
