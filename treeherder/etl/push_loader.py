@@ -64,12 +64,10 @@ class PushLoader:
 
 class GithubTransformer:
 
-    # Deprecated on Nov. 13th, 2020 - https://developer.github.com/v3/#oauth2-keysecret
     CREDENTIALS = {
         "client_id": env("GITHUB_CLIENT_ID", default=None),
         "client_secret": env("GITHUB_CLIENT_SECRET", default=None),
     }
-    GITHUB_TOKEN = env("GITHUB_TOKEN", default=None)
 
     def __init__(self, message_body):
         self.message_body = message_body
@@ -172,9 +170,6 @@ class GithubPushTransformer(GithubTransformer):
         return self.fetch_push(push_url, repository)
 
     def get_cleaned_commits(self, compare):
-        if len(compare["commits"]) == 0:
-            import pdb
-            pdb.set_trace()
         return compare["commits"]
 
     def get_repo(self):
