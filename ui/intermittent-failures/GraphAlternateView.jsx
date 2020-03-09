@@ -62,6 +62,7 @@ const GraphAlternateView = ({ className, graphData, colNum, title }) => {
       <ReactTable
         data={alternateGraph.data}
         showPageSizeOptions
+        sortable={false}
         columns={alternateGraph.column}
         className={`${className} -striped mb-5`}
         getTableProps={() => ({ role: 'table' })}
