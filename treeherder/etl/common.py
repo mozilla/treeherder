@@ -21,7 +21,6 @@ def make_request(url, method='GET', headers=None, timeout=30, **kwargs):
     if url.find("api.github.com") > -1:
         if GITHUB_TOKEN:
             headers["Authorization"] = "token {}".format(GITHUB_TOKEN)
-    logger.debug(url)
     response = requests.request(method,
                                 url,
                                 headers=headers,

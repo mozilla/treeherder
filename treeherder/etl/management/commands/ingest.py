@@ -273,27 +273,38 @@ def ingest_git_push(project, commit):
 def ingest_git_pushes(project, dry_run=False):
     _repo = repo_meta(project)
     github_commits = commits_info(_repo)
-    pushes = []
-    merge_dates = {}
+    not_push_revision = []
+    push_revision = []
+    push_to_date = {}
     for _commit in github_commits:
         info = commit_info(_repo, _commit["sha"])
-        committer_date = info["commit"]["committer"]["date"]
-        # All commits involved in a push shared the committer_date, thus, we only
-        # want to process the first commit
-        if not merge_dates.get(committer_date):
-            merge_dates[committer_date] = committer_date
-            pushes.append(_commit)
+        # Revisions that are marked as non-push should be ignored
+        if _commit["sha"] in not_push_revision:
+            logger.debug("Not a revision of a push: {}".format(_commit["sha"]))
+            continue
+
+        # Establish which revisions to ignore
+        for index, parent in enumerate(info["parents"]):
+            if index != 0:
+                not_push_revision.append(parent["sha"])
+
+        # The 1st parent is the push from `master` from which we forked
+        oldest_parent_revision = info["parents"][0]["sha"]
+        push_to_date[oldest_parent_revision] = info["commit"]["committer"]["date"]
+        logger.info("Push: {}".format(oldest_parent_revision))
+        push_revision.append(_commit["sha"])
 
     if not dry_run:
-        for _push in pushes:
-            ingest_git_push(project, _push["sha"])
+        for revision in push_revision:
+            ingest_git_push(project, revision)
 
+    # Test that the *order* of the pushes is correct
     client = TreeherderClient(server_url="http://localhost:8000")
-    th_pushes = client.get_pushes(project, count=len(pushes))
-    assert len(pushes) == len(th_pushes)
-    for index, _push in enumerate(pushes):
-        if _push["sha"] != th_pushes[index]["revision"]:
-            logger.warning("{} does not match {}".format(_push["revision"], th_pushes[index]["revision"]))
+    th_pushes = client.get_pushes(project, count=len(push_revision))
+    assert len(push_revision) == len(th_pushes)
+    for index, revision in enumerate(push_revision):
+        if revision != th_pushes[index]["revision"]:
+            logger.warning("{} does not match {}".format(revision, th_pushes[index]["revision"]))
 
 
 class Command(BaseCommand):
