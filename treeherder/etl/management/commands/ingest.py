@@ -191,12 +191,13 @@ def repo_meta(project):
 def query_data(repo_meta, commit):
     """ Find the right event base sha to get the right list of commits
 
-    This is not an issue in GithubPushLoader because the PushEvent from Taskcluster
+    This is not an issue in GithubPushTransformer because the PushEvent from Taskcluster
     already contains the data
     """
     # This is used for the `compare` API. The "event.base.sha" is only contained in Pulse events, thus,
     # we need to determine the correct value
     event_base_sha = repo_meta["branch"]
+    # First we try with `master` being the base sha
     # e.g. https://api.github.com/repos/servo/servo/compare/master...1418c0555ff77e5a3d6cf0c6020ba92ece36be2e
     compareResponse = compare_shas(repo_meta, repo_meta["branch"], commit)
     merge_base_commit = compareResponse.get("merge_base_commit")
@@ -270,6 +271,15 @@ def ingest_git_push(project, commit):
 
 
 def ingest_git_pushes(project, dry_run=False):
+    """
+    This method takes all commits for a repo from Github and determines which ones are considered
+    part of a push or a merge. Treeherder groups commits by push.
+
+    Once we determine which commits are considered the tip revision for a push/merge we then ingest it.
+
+    Once we complete the ingestion we compare Treeherder's push API and compare if the pushes are sorted
+    the same way as in Github.
+    """
     if not os.environ.get("GITHUB_TOKEN"):
         raise Exception("Set GITHUB_TOKEN env variable to avoid rate limiting - Visit https://github.com/settings/tokens.")
 

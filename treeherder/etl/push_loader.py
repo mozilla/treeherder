@@ -89,12 +89,8 @@ class GithubTransformer:
         return info
 
     def fetch_push(self, url, repository):
-        params = None
-        # make_request adds the headers but over here we prevent passing the params until
-        # we fully switch over
-        if not self.GITHUB_TOKEN:
-            logger.warning("Using soon to be deprecated Github authentication.")
-            params = self.CREDENTIALS
+        params = {}
+        params.update(self.CREDENTIALS)
 
         logger.info("Fetching push details: %s", url)
 
