@@ -16,6 +16,8 @@ services:
       - BROKER_URL=amqp://guest:guest@rabbitmq//
       - DATABASE_URL=${DATABASE_URL:-mysql://root@mysql/treeherder}
       - UPSTREAM_DATABASE_URL=${UPSTREAM_DATABASE_URL:-}
+      - PERF_SHERIFF_BOT_CLIENT_ID=${PERF_SHERIFF_BOT_CLIENT_ID:-}
+      - PERF_SHERIFF_BOT_ACCESS_TOKEN=${PERF_SHERIFF_BOT_ACCESS_TOKEN:-}
       - REDIS_URL=redis://redis:6379
       - SITE_URL=http://backend:8000/
       - LOGGING_LEVEL=INFO

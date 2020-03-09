@@ -138,9 +138,10 @@ class PushList extends React.Component {
       this.setWindowTitle();
     }
     return (
+      // Bug 1619873 - role="list" works better here than an interactive role
+      /* eslint-disable jsx-a11y/no-noninteractive-element-interactions */
       <div
-        role="button"
-        tabIndex={0}
+        role="list"
         id="push-list"
         onClick={evt => this.clearIfEligibleTarget(evt.target)}
       >
@@ -153,6 +154,7 @@ class PushList extends React.Component {
               key={push.id}
             >
               <Push
+                role="listitem"
                 push={push}
                 isLoggedIn={isLoggedIn || false}
                 currentRepo={currentRepo}
