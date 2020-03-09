@@ -14,8 +14,7 @@ import logging
 from treeherder.etl.runnable_jobs import list_runnable_jobs
 from treeherder.etl.seta import (parse_testtype,
                                  valid_platform)
-from treeherder.seta.common import (convert_job_type_name_to_testtype,
-                                    job_priority_index,
+from treeherder.seta.common import (job_priority_index,
                                     unique_key)
 from treeherder.seta.models import JobPriority
 from treeherder.seta.settings import SETA_LOW_VALUE_PRIORITY

@@ -2,8 +2,8 @@ import json
 import logging
 import os
 
-from treeherder.seta.common import convert_job_type_name_to_testtype
 from treeherder.etl.seta import get_reference_data_names
+from treeherder.seta.common import convert_job_type_name_to_testtype
 from treeherder.seta.models import JobPriority
 from treeherder.seta.settings import (SETA_LOW_VALUE_PRIORITY,
                                       THE_FUTURE)
@@ -47,6 +47,7 @@ entry in preseed.json
   "buildsytem": "taskcluster"
 }
 '''
+
 
 def validate_preseed_entry(entry, ref_names):
     assert entry["testtype"] != "*"
@@ -135,13 +136,11 @@ def create_new_entry(job):
 
     logger.info("Adding a new job priority to the database: %s", job)
 
-    testtype = job['testtype']
-    buildtype = job['buildtype']
-    testtype = convert_job_type_name_to_testtype(testtype)
+    testtype = convert_job_type_name_to_testtype(job['testtype'])
 
     JobPriority.objects.create(
         testtype=testtype,
-        buildtype=buildtype,
+        buildtype=job['buildtype'],
         platform=job['platform'],
         priority=job['priority'],
         expiration_date=job['expiration_date'],

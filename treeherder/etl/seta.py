@@ -3,8 +3,8 @@ import logging
 from django.core.cache import cache
 
 from treeherder.etl.runnable_jobs import list_runnable_jobs
-from treeherder.seta.common import (unique_key,
-                                    convert_job_type_name_to_testtype)
+from treeherder.seta.common import (convert_job_type_name_to_testtype,
+                                    unique_key)
 from treeherder.seta.models import JobPriority
 from treeherder.seta.settings import (SETA_REF_DATA_NAMES_CACHE_TIMEOUT,
                                       SETA_SUPPORTED_TC_JOBTYPES,
@@ -38,10 +38,6 @@ def parse_testtype(build_system_type, job_type_name, platform_option, ref_data_n
         # opt test web-platform-tests-4"
         testtype = ref_data_name.split(' ')[-1]
     else:
-        # NOTE: Buildbot bridge tasks always have a Buildbot job associated to it. We will
-        #       ignore any BBB task since we will be analyzing instead the Buildbot job associated
-        #       to it. If BBB tasks were a production system and there was a technical advantage
-        #       we could look into analyzing that instead of the BB job.
         if job_type_name.startswith(tuple(SETA_SUPPORTED_TC_JOBTYPES)):
             # we should get "jittest-3" as testtype for a job_type_name like
             # test-linux64/debug-jittest-3
