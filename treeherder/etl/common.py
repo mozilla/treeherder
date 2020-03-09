@@ -10,13 +10,17 @@ from django.conf import settings
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.DEBUG)
 
+# For local development you can use a token to avoid the rate limting
+GITHUB_TOKEN = os.environ.get("GITHUB_TOKEN")
+
 
 def make_request(url, method='GET', headers=None, timeout=30, **kwargs):
     """A wrapper around requests to set defaults & call raise_for_status()."""
     headers = headers or {}
     headers['User-Agent'] = 'treeherder/{}'.format(settings.SITE_HOSTNAME)
-    if os.environ.get("GITHUB_TOKEN") and url.find("api.github.com") > -1:
-        headers["Authorization"] = "token {}".format(os.environ["GITHUB_TOKEN"])
+    if url.find("api.github.com") > -1:
+        if GITHUB_TOKEN:
+            headers["Authorization"] = "token {}".format(GITHUB_TOKEN)
     logger.debug(url)
     response = requests.request(method,
                                 url,
