@@ -43,10 +43,9 @@ class PushLoader:
 
         transformed_data = transformer.transform(repo.name)
 
-        logger.info("Storing push for %s %s %s %s",
+        logger.info("Storing push for %s %s %s",
                     repo.name,
                     transformer.repo_url,
-                    transformer.message_body["details"]["event.head.sha"],
                     transformer.branch)
         store_push_data(repo, [transformed_data])
 
@@ -158,6 +157,7 @@ class GithubPushTransformer(GithubTransformer):
     #       }
     #     }
     # }
+
     URL_BASE = "https://api.github.com/repos/{}/{}/compare/{}...{}"
 
     def transform(self, repository):
