@@ -61,6 +61,7 @@ jobs:
       before_install:
         # XXX: I have not been able to install 3.7.2 to match runtime.txt
         - pyenv global 3.7.1
+        - pip install --upgrade pip
         - nvm install 12.14.1
         - nvm use 12.14.1
         # Steps to validate versions in use
