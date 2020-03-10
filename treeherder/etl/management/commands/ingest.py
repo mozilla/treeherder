@@ -13,6 +13,7 @@ from django.conf import settings
 from django.core.management.base import BaseCommand
 
 from treeherder.client.thclient import TreeherderClient
+from treeherder.config.settings import GITHUB_TOKEN
 from treeherder.etl.common import fetch_json
 from treeherder.etl.db_semaphore import (acquire_connection,
                                          release_connection)
@@ -277,7 +278,7 @@ def ingest_git_pushes(project, dry_run=False):
     Once we complete the ingestion we compare Treeherder's push API and compare if the pushes are sorted
     the same way as in Github.
     """
-    if not os.environ.get("GITHUB_TOKEN"):
+    if not GITHUB_TOKEN:
         raise Exception("Set GITHUB_TOKEN env variable to avoid rate limiting - Visit https://github.com/settings/tokens.")
 
     logger.info("--> Converting Github commits to pushes")

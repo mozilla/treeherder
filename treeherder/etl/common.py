@@ -1,13 +1,11 @@
 import calendar
-import os
 
 import newrelic.agent
 import requests
 from dateutil import parser
 from django.conf import settings
 
-# For local development you can use a token to avoid the rate limting
-GITHUB_TOKEN = os.environ.get("GITHUB_TOKEN")
+from treeherder.config.settings import GITHUB_TOKEN
 
 
 def make_request(url, method='GET', headers=None, timeout=30, **kwargs):
