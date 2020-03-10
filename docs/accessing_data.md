@@ -7,6 +7,7 @@ Treeherder's data can be accessed via:
 - [Redash](#redash)
 - [ActiveData](#activedata)
 - [Direct database access](#direct-database-access)
+- [Import performance data from upstream](#import-performance-data-from-upstream)
 
 ## REST API
 
@@ -119,13 +120,62 @@ See the [getting started with ActiveData] guide for more details.
 
 ## Direct database access
 
-If there are any use-cases that are not possible via one of the above, we can provide read-only
-access to Treeherder's production MySQL RDS replica. Please [file an infrastructure bug]
-requesting that someone from the Treeherder team [grant access to the read-only replica].
+If the use-cases above aren't sufficient or you're working on a fullstack Perfherder bug, 
+we can provide read-only access to Treeherder's production MySQL RDS replica.
+Please [file an infrastructure bug] requesting that someone from the
+Treeherder team [grant access to the read-only replica].
+
+<!-- prettier-ignore -->
+!!! note
+    You won't be able to login when using a read-only replica like the above.
 
 Alternatively if write access is required, we can [create a temporary RDS instance] from
 a production database snapshot.
 
+## Import performance data from upstream
+
+If the use-cases above still aren't enough, you should ask for read-only access to one of
+Treeherder's MySQL RDS replicas. Please [file an infrastructure bug] requesting that
+someone from the Treeherder team [grant access to the read-only replica].
+
+You should be given the credentials in [connection URL format].
+
+Once you have the connection URL pointing to the MySQL replica, please provide it in the `.env` local file.
+It should look something like this:
+
+```bash
+UPSTREAM_DATABASE_URL=mysql://<username>:<password>@<database_host>/treeherder
+```
+
+Now you're ready to import real data, right from the upstream database!
+
+First, [start a local Treeherder instance]. Once that's up, connect to the backend container using:
+
+```bash
+docker container exec -it backend bash
+```
+
+From there, just use the `import_perf_data` Django management command.
+A typical import looks like the following:
+
+```bash
+./manage.py import_perf_data --time-window 2 --frameworks raptor talos --repositories autoland mozilla-beta --num-workers 4
+```
+
+In about 10 minutes you should have a subset of that data available on your local database.
+The example above fetches 2 days worth of performance data, originating from 2 frameworks and 2 repositories.
+
+If you need to edit the performance data from the frontend's UI, some extra steps are needed.
+
+You have to grant your account perf sheriff rights.
+To do that, make sure you've logged in from the UI.
+
+Using your favourite SQL client, enter your local database and query the `auth_user` table, looking for the record
+associated to your account. The `username` column should contain something like `mozilla-ldap/<your_login_email>`.
+Once you identify the correct row, set its `is_staff` field to 1 and that's it!
+
 [file an infrastructure bug]: https://bugzilla.mozilla.org/enter_bug.cgi?product=Tree%20Management&component=Treeherder%3A%20Infrastructure
 [grant access to the read-only replica]: infrastructure/administration.md#granting-access-to-the-read-only-replica
 [create a temporary rds instance]: infrastructure/administration.md#creating-a-temporary-instance
+[connection URL format]: https://dev.mysql.com/doc/connector-j/8.0/en/connector-j-reference-jdbc-url-format.html
+[start a local Treeherder instance]: installation.md#starting-a-local-treeherder-instance

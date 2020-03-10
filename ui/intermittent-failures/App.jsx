@@ -1,6 +1,9 @@
 import React from 'react';
 import { HashRouter, Route, Switch, Redirect } from 'react-router-dom';
+import { Container } from 'reactstrap';
 import { hot } from 'react-hot-loader/root';
+
+import ErrorMessages from '../shared/ErrorMessages';
 
 import MainView from './MainView';
 import BugDetailsView from './BugDetailsView';
@@ -14,6 +17,8 @@ class App extends React.Component {
     this.state = {
       graphData: null,
       tableData: null,
+      user: {},
+      errorMessages: [],
     };
   }
 
@@ -22,9 +27,15 @@ class App extends React.Component {
   };
 
   render() {
+    const { user, graphData, tableData, errorMessages } = this.state;
     return (
       <HashRouter>
         <main>
+          {errorMessages.length > 0 && (
+            <Container className="pt-5 max-width-default">
+              <ErrorMessages errorMessages={errorMessages} />
+            </Container>
+          )}
           <Switch>
             <Route
               exact
@@ -32,9 +43,14 @@ class App extends React.Component {
               render={props => (
                 <MainView
                   {...props}
-                  mainGraphData={this.state.graphData}
-                  mainTableData={this.state.tableData}
+                  mainGraphData={graphData}
+                  mainTableData={tableData}
                   updateAppState={this.updateAppState}
+                  user={user}
+                  setUser={user => this.setState({ user })}
+                  notify={message =>
+                    this.setState({ errorMessages: [message] })
+                  }
                 />
               )}
             />
@@ -43,8 +59,8 @@ class App extends React.Component {
               render={props => (
                 <MainView
                   {...props}
-                  mainGraphData={this.state.graphData}
-                  mainTableData={this.state.tableData}
+                  mainGraphData={graphData}
+                  mainTableData={tableData}
                   updateAppState={this.updateAppState}
                 />
               )}

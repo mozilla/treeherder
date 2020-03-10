@@ -5,7 +5,7 @@
     },
     "key": "treeherder.extract.perf.state",
     "sql": "treeherder.extract.perf.sql",
-    "chunk_size": 4000
+    "chunk_size": 2000
   },
   "source": {
     "fact_table": "performance_datum",
