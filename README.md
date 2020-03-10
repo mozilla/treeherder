@@ -29,3 +29,31 @@ Visit our **readthedocs** page for other setup and configuration at:
 <https://treeherder.readthedocs.io>
 
 File any bugs you may encounter [here](https://bugzilla.mozilla.org/enter_bug.cgi?product=Tree+Management&component=Treeherder).
+
+
+#### Contributing
+
+Firstly, ask if the bug is available and manifest your interest in contributing to it. One of the maintainers will **assign** you the bug. Only then you should work on it.
+
+After adressing the issue, make sure [every test passes](https://treeherder.readthedocs.io/testing.html) before sending a pull request.
+
+We also recommend using [`git rebase`](https://git-scm.com/docs/git-rebase). There are less conflicts this way and the git history is cleaner.
+
+##### Sending a Pull Request
+We receive contributions from both Bugzilla and Github. We have some specifications to keep track of them:
+
+1. If your bug comes from **Bugzilla**
+
+    After addressing the issue, please send a pull request to this repository, with the **Bugzilla's number ID** in the **title**.
+
+    `"Bug xxxxxx - [title of the bug or brief explanation]"`
+
+    For example: "Bug 123456 - Fix scrolling behavior in Perfherder"
+
+2. If your bug comes from **Github**
+
+    In the **description** of the pull request, please mention the **issue number**. That can be done by typing #[issue's number].
+    
+    For example: "This pull request fixes #5135".
+    
+    Github automatically links both issue and pull request to one another.
