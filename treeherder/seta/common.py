@@ -69,10 +69,6 @@ def convert_job_type_name_to_testtype(job_type_name):
             m = re_job_type_name['pattern'].match(job_type_name)
             if m:
                 testtype = m.group(1)
-                # logger.debug(
-                #     'convert_job_type_name_to_testtype("{}") == "{}" matched rule {}  {}'.format(
-                #         job_type_name, testtype, re_job_type_name['name'],
-                #         re_job_type_name['pattern'].pattern))
                 break
     if not testtype:
         logger.warning('convert_job_type_name_to_testtype("{}") not matched. '

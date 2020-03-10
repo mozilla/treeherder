@@ -106,8 +106,6 @@ def get_reference_data_names(project="autoland", build_system="taskcluster"):
             ref_data_names[key] = job['ref_data_name']
         elif job['build_system_type'] == build_system:
             ref_data_names[key] = job['ref_data_name']
-        else:
-            logger.warning('get_reference_data_names: key {}, buildsystem {} != job build_system_type for job {}'.format(key, build_system, job['build_system_type'], job))
 
     logger.debug('Ignoring %s', ', '.join(sorted(ignored_jobs)))
 
