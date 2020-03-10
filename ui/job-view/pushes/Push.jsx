@@ -41,15 +41,16 @@ const fetchTestManifests = async (project, revision) => {
     rootUrl,
   )}/api/index/v1/task/gecko.v2.${project}.revision.${revision}.taskgraph.decision/artifacts/public/manifests-by-task.json.gz`;
   const response = await fetch(url);
-  if ([200, 303, 304].indexOf(response.status) > -1) {
+  if ([200, 303, 304].includes(response.status)) {
     const blob = await response.blob();
     const binData = await blob.arrayBuffer();
     const decompressed = await inflate(binData, { to: 'string' });
     taskNameToManifests = JSON.parse(decompressed);
   } else if (response.status === 404) {
-    // This block if for backward compatibility
+    // This else/if block is for backward compatibility
+    // XXX: Remove after end of July 2020
     const resp = await fetch(url.replace('.json.gz', '.json'));
-    if ([200, 303, 304].indexOf(resp.status) > -1) {
+    if ([200, 303, 304].includes(resp.status)) {
       taskNameToManifests = await resp.json();
     }
   }
