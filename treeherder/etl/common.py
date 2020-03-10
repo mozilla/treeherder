@@ -5,11 +5,16 @@ import requests
 from dateutil import parser
 from django.conf import settings
 
+from treeherder.config.settings import GITHUB_TOKEN
+
 
 def make_request(url, method='GET', headers=None, timeout=30, **kwargs):
     """A wrapper around requests to set defaults & call raise_for_status()."""
     headers = headers or {}
     headers['User-Agent'] = 'treeherder/{}'.format(settings.SITE_HOSTNAME)
+    if url.find("api.github.com") > -1:
+        if GITHUB_TOKEN:
+            headers["Authorization"] = "token {}".format(GITHUB_TOKEN)
     response = requests.request(method,
                                 url,
                                 headers=headers,
