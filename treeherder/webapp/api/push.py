@@ -14,7 +14,7 @@ from treeherder.model.models import (Job,
                                      Push,
                                      Repository)
 from treeherder.push_health.builds import get_build_failures
-from treeherder.push_health.compare import get_parent
+from treeherder.push_health.compare import get_commit_history
 from treeherder.push_health.linting import get_lint_failures
 from treeherder.push_health.performance import get_perf_failures
 from treeherder.push_health.tests import get_test_failures
@@ -252,7 +252,8 @@ class PushViewSet(viewsets.ViewSet):
 
         # Parent link only supported for Hg at this time.
         # Bug https://bugzilla.mozilla.org/show_bug.cgi?id=1612645
-        parent_details = None if repository.dvcs_type == 'git' else get_parent(repository, revision, push)
+        commit_history_details = None if repository.dvcs_type == 'git' \
+            else get_commit_history(repository, revision, push)
 
         build_failures = get_build_failures(push)
         build_result = 'fail' if len(build_failures) else 'pass'
@@ -270,15 +271,22 @@ class PushViewSet(viewsets.ViewSet):
             elif metric_result == 'fail':
                 push_result = metric_result
 
+        newrelic.agent.record_custom_event('push_health_need_investigation', {
+            'revision': revision,
+            'repo': repository.name,
+            'needInvestigation': len(push_health_test_failures['needInvestigation']),
+            'unsupported': len(push_health_test_failures['unsupported']),
+        })
+
         return Response({
             'revision': revision,
             'id': push.id,
             'result': push_result,
             'metrics': {
-                'parent': {
-                    'name': 'Parent Push',
+                'commitHistory': {
+                    'name': 'Commit History',
                     'result': 'none',
-                    'details': parent_details,
+                    'details': commit_history_details,
                 },
                 'linting': {
                     'name': 'Linting',

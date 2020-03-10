@@ -10,7 +10,9 @@
 set -euo pipefail
 
 # Make the current Git revision accessible at <site-root>/revision.txt
-echo "$SOURCE_VERSION" > .build/revision.txt
+export REVISION=${SOURCE_VERSION:-$(git rev-parse HEAD)}
+echo "$REVISION" > .build/revision.txt
+echo "This is the revision of the build: $REVISION"
 
 # Generate gzipped versions of files that would benefit from compression, that
 # WhiteNoise can then serve in preference to the originals. This is required
@@ -23,4 +25,7 @@ python -m whitenoise.compress .build
 # (and avoid environment variable pollution from the nodejs profile script), since
 # they are no longer required after `yarn heroku-postbuild` has run. The buildpack
 # cache will still contain them, so this doesn't slow down the next slug compile.
-rm -r .heroku/node/ .heroku/yarn/ .profile.d/nodejs.sh node_modules/
+# Only delete if running as part of Heroku because the Travis run takes too long to delete it
+if [[ -d .heroku/ ]]; then
+    rm -r .heroku/node/ .heroku/yarn/ .profile.d/nodejs.sh node_modules/
+fi

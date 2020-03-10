@@ -1,0 +1,18 @@
+{
+  "title": "PerfSheriffBot's schema for storing logs",
+  "description": "Used to store the outcome of PerfSheriffBot actions (i.e. backfill, retrigger)",
+  "type": "object",
+  "properties": {
+    "action": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 20
+    },
+    "outcome": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 100
+    }
+  },
+  "required": ["action", "outcome"]
+}

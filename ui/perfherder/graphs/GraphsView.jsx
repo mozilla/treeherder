@@ -1,6 +1,6 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import { Container, Col, Row } from 'reactstrap';
+import { Button, Container, Col, Row } from 'reactstrap';
 import unionBy from 'lodash/unionBy';
 import queryString from 'query-string';
 
@@ -45,6 +45,7 @@ class GraphsView extends React.Component {
       colors: [...graphColors],
       symbols: [...graphSymbols],
       showModal: false,
+      showTable: false,
       visibilityChanged: false,
     };
   }
@@ -153,7 +154,6 @@ class GraphsView extends React.Component {
       if (newDisplayedTests.length) {
         newTestData = [...testData, ...newTestData];
       }
-
       this.setState(
         { testData: newTestData, loading: false, visibilityChanged: false },
         () => {
@@ -322,6 +322,7 @@ class GraphsView extends React.Component {
       colors,
       symbols,
       showModal,
+      showTable,
       visibilityChanged,
     } = this.state;
 
@@ -331,7 +332,7 @@ class GraphsView extends React.Component {
         errorClasses={errorMessageClass}
         message={genericErrorMessage}
       >
-        <Container fluid className="pt-5">
+        <Container fluid className="pt-5 pr-5 pl-5">
           {loading && <LoadingSpinner />}
 
           {errorMessages.length > 0 && (
@@ -341,37 +342,51 @@ class GraphsView extends React.Component {
           )}
 
           <Row className="justify-content-center">
-            <Col
-              className={`ml-2 ${testData.length ? 'graph-chooser' : 'col-12'}`}
-            >
-              <Container className="graph-legend pl-0 pb-4">
-                {testData.length > 0 &&
-                  testData.map(series => (
-                    <div
-                      key={`${series.name} ${series.repository_name} ${series.platform}`}
-                    >
-                      <LegendCard
-                        series={series}
-                        testData={testData}
-                        {...this.props}
-                        updateState={state => this.setState(state)}
-                        updateStateParams={state =>
-                          this.setState(state, this.changeParams)
-                        }
-                        colors={colors}
-                        symbols={symbols}
-                        selectedDataPoint={selectedDataPoint}
-                      />
-                    </div>
-                  ))}
-              </Container>
-            </Col>
+            {!showTable && (
+              <Col
+                className={`${testData.length ? 'graph-chooser' : 'col-12'}`}
+              >
+                <Button
+                  className="sr-only"
+                  onClick={() => this.setState({ showTable: !showTable })}
+                >
+                  Table View
+                </Button>
+                <Container
+                  role="region"
+                  aria-label="Graph Legend"
+                  className="graph-legend pl-0 pb-4"
+                >
+                  {testData.length > 0 &&
+                    testData.map(series => (
+                      <div
+                        key={`${series.name} ${series.repository_name} ${series.platform}`}
+                      >
+                        <LegendCard
+                          series={series}
+                          testData={testData}
+                          {...this.props}
+                          updateState={state => this.setState(state)}
+                          updateStateParams={state =>
+                            this.setState(state, this.changeParams)
+                          }
+                          colors={colors}
+                          symbols={symbols}
+                          selectedDataPoint={selectedDataPoint}
+                        />
+                      </div>
+                    ))}
+                </Container>
+              </Col>
+            )}
             <Col
               className={`pl-0 ${
                 testData.length ? 'custom-col-xxl-auto' : 'col-auto'
-              }`}
+              } ${showTable && 'w-100'}`}
             >
               <GraphsViewControls
+                colors={colors}
+                symbols={symbols}
                 timeRange={timeRange}
                 frameworks={frameworks}
                 user={user}
@@ -380,6 +395,7 @@ class GraphsView extends React.Component {
                 getTestData={this.getTestData}
                 testData={testData}
                 showModal={showModal}
+                showTable={showTable}
                 highlightAlerts={highlightAlerts}
                 highlightedRevisions={highlightedRevisions}
                 zoom={zoom}
@@ -390,6 +406,7 @@ class GraphsView extends React.Component {
                 visibilityChanged={visibilityChanged}
                 updateData={this.updateData}
                 toggle={() => this.setState({ showModal: !showModal })}
+                toggleTableView={() => this.setState({ showTable: !showTable })}
                 updateTimeRange={timeRange =>
                   this.setState(
                     {

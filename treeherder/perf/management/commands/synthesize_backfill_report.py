@@ -10,6 +10,7 @@ from treeherder.perf.alerts import (AlertsPicker,
                                     BackfillReportMaintainer,
                                     IdentifyAlertRetriggerables)
 from treeherder.perf.models import PerformanceFramework
+from treeherder.perf.perf_sheriff_bot import PerfSheriffBot
 
 
 class Command(BaseCommand):
@@ -42,15 +43,14 @@ class Command(BaseCommand):
     def handle(self, *args, **options):
         frameworks, repositories, since, days_to_lookup = self._parse_args(**options)
         self._validate_args(frameworks, repositories)
-
         alerts_picker = AlertsPicker(max_alerts=5,
                                      max_improvements=2,
                                      platforms_of_interest=('windows10', 'windows7', 'linux', 'osx', 'android'))
         backfill_context_fetcher = IdentifyAlertRetriggerables(max_data_points=5,
                                                                time_interval=days_to_lookup)
-        reporter = BackfillReportMaintainer(alerts_picker, backfill_context_fetcher)
-
-        reporter.provide_updated_reports(since, frameworks, repositories)
+        report_maintainer = BackfillReportMaintainer(alerts_picker, backfill_context_fetcher)
+        perf_sheriff_bot = PerfSheriffBot(report_maintainer)
+        perf_sheriff_bot.report(since, frameworks, repositories)
 
     def _parse_args(self, **options) -> Tuple[List, List, datetime, timedelta]:
         return (options['frameworks'],

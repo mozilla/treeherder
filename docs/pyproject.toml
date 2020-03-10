@@ -1,0 +1,13 @@
+[tool.poetry]
+name = "docs-package"
+version = "1.0.0"
+description = "This is the package installer for docs"
+authors = ["Mozilla"]
+
+[tool.poetry.dependencies]
+python = "^3.7"
+
+[tool.poetry.dev-dependencies]
+mkdocs = "1.0.4"
+mkdocs-material = "4.6.3"
+mdx_truly_sane_lists = "1.2"

@@ -12,13 +12,17 @@ If you only want to hack on the frontend, see the UI Development section below. 
 
 Before pushing new code, please make sure you are following our [Code Style](code_style.md#ui) and [Accessibility Guidelines](accessibility.md).
 
-- If you would like pre-commit linting checks you can set it up like this:
-  ```console
-  % pip install pre-commit
-  % pre-commit install
-  pre-commit installed at .git/hooks/pre-commit
-  ````
-  From here on, linting checks will be executed every time you commit.
+### Pre-commit checks
+
+If you would like pre-commit linting checks you can set it up like this:
+
+```console
+% pip install pre-commit
+% pre-commit install
+pre-commit installed at .git/hooks/pre-commit
+```
+
+From here on, linting checks will be executed every time you commit.
 
 ## UI Development
 

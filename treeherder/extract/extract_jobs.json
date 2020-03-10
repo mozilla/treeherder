@@ -22,7 +22,6 @@
     "exclude": [
       "auth_user",
       "group_failure_lines",
-      "commit",
       "performance_datum",
       "performance_alert_summary",
       "performance_signature",
@@ -39,7 +38,8 @@
       "matcher.name",
       "option.name",
       "repository.name",
-      "user.email"
+      "user.email",
+      "commit.revision"
     ],
     "database": {
       "debug": false,

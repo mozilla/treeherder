@@ -50,6 +50,10 @@ describe('Push', () => {
       jobListFixture,
     );
     fetchMock.get(
+      'https://firefox-ci-tc.services.mozilla.com/api/index/v1/task/gecko.v2.autoland.revision.d5b037941b0ebabcc9b843f24d926e9d65961087.taskgraph.decision/artifacts/public/manifests-by-task.json.gz',
+      404,
+    );
+    fetchMock.get(
       'https://firefox-ci-tc.services.mozilla.com/api/index/v1/task/gecko.v2.autoland.revision.d5b037941b0ebabcc9b843f24d926e9d65961087.taskgraph.decision/artifacts/public/manifests-by-task.json',
       {
         'test-linux1804-64/debug-mochitest-devtools-chrome-e10s-5': [

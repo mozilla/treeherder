@@ -491,3 +491,41 @@ li.pagination-active.active > button {
 .page-title-text:hover .edit-icon {
   visibility: visible;
 }
+
+/* table in graphs view */
+.table-header {
+  border-top: 10px solid;
+}
+
+.table-header.blue-bell {
+  border-top-color: #464876;
+}
+
+.table-header.orange {
+  border-top-color: #ffb851;
+}
+
+.table-header.fire-red {
+  border-top-color: #c92d2f;
+}
+
+.table-header.cerulean {
+  border-top-color: #16bcde;
+}
+
+.table-header.purple {
+  border-top-color: #921181;
+}
+
+.table-header.dark-puce {
+  border-top-color: #4c3146;
+}
+
+.table-graphs-view .job-links {
+  opacity: 0.3;
+}
+
+.table-graphs-view .rt-td:hover .job-links,
+.table-graphs-view .rt-td:focus-within .job-links {
+  opacity: 1;
+}

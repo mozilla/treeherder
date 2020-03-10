@@ -435,5 +435,15 @@ PERFHERDER_ALERTS_FORE_WINDOW = 12
 # Only generate alerts for data newer than this time in seconds in perfherder
 PERFHERDER_ALERTS_MAX_AGE = timedelta(weeks=2)
 
+# Performance sheriff bot settings
+MAX_BACKFILLS_PER_PLATFORM = {
+    'linux': 200,
+}
+RESET_BACKFILL_LIMITS = timedelta(hours=24)
+
+# Taskcluster credentials for PerfSheriffBot
+PERF_SHERIFF_BOT_CLIENT_ID = env('PERF_SHERIFF_BOT_CLIENT_ID', default=None)
+PERF_SHERIFF_BOT_ACCESS_TOKEN = env('PERF_SHERIFF_BOT_ACCESS_TOKEN', default=None)
+
 # Resource count to limit the number of threads opening connections with the DB
 CONN_RESOURCES = 50

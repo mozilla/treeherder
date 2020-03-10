@@ -2,6 +2,7 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
 import sortBy from 'lodash/sortBy';
+import { inflate } from 'pako';
 
 import {
   thEvents,
@@ -23,12 +24,12 @@ import {
   checkRootUrl,
   prodFirefoxRootUrl,
 } from '../../taskcluster-auth-callback/constants';
+import { RevisionList } from '../../shared/RevisionList';
+import { Revision } from '../../shared/Revision';
 
 import FuzzyJobFinder from './FuzzyJobFinder';
-import { Revision } from './Revision';
 import PushHeader from './PushHeader';
 import PushJobs from './PushJobs';
-import { RevisionList } from './RevisionList';
 
 const watchCycleStates = ['none', 'push', 'job', 'none'];
 const platformArray = Object.values(thPlatformMap);
@@ -38,10 +39,20 @@ const fetchTestManifests = async (project, revision) => {
   const rootUrl = prodFirefoxRootUrl;
   const url = `${checkRootUrl(
     rootUrl,
-  )}/api/index/v1/task/gecko.v2.${project}.revision.${revision}.taskgraph.decision/artifacts/public/manifests-by-task.json`;
+  )}/api/index/v1/task/gecko.v2.${project}.revision.${revision}.taskgraph.decision/artifacts/public/manifests-by-task.json.gz`;
   const response = await fetch(url);
-  if ([200, 303, 304].indexOf(response.status) > -1) {
-    taskNameToManifests = await response.json();
+  if ([200, 303, 304].includes(response.status)) {
+    const blob = await response.blob();
+    const binData = await blob.arrayBuffer();
+    const decompressed = await inflate(binData, { to: 'string' });
+    taskNameToManifests = JSON.parse(decompressed);
+  } else if (response.status === 404) {
+    // This else/if block is for backward compatibility
+    // XXX: Remove after end of July 2020
+    const resp = await fetch(url.replace('.json.gz', '.json'));
+    if ([200, 303, 304].includes(resp.status)) {
+      taskNameToManifests = await resp.json();
+    }
   }
   return taskNameToManifests;
 };
@@ -501,7 +512,14 @@ class Push extends React.PureComponent {
       selectedRunnableJobs,
       collapsed,
     } = this.state;
-    const { id, push_timestamp: pushTimestamp, revision, author } = push;
+    const {
+      id,
+      push_timestamp: pushTimestamp,
+      revision,
+      revisions,
+      revision_count: revisionCount,
+      author,
+    } = push;
     const tipRevision = push.revisions[0];
     const decisionTask = decisionTaskMap[push.id];
     const decisionTaskId = decisionTask ? decisionTask.id : null;
@@ -555,7 +573,15 @@ class Push extends React.PureComponent {
         <div className="push-body-divider" />
         {!collapsed ? (
           <div className="row push clearfix">
-            {currentRepo && <RevisionList push={push} repo={currentRepo} />}
+            {currentRepo && (
+              <RevisionList
+                revision={revision}
+                revisions={revisions}
+                revisionCount={revisionCount}
+                repo={currentRepo}
+                widthClass="col-5"
+              />
+            )}
             <span className="job-list job-list-pad col-7">
               <PushJobs
                 push={push}
