@@ -70,13 +70,5 @@
     "priority": 5,
     "expiration_date": "*",
     "buildsystem": "taskcluster"
-  },
-  {
-    "buildtype": "debug",
-    "testtype": "build-android-x86-fuzzing/debug",
-    "platform": "android-4-2-x86",
-    "priority": 5,
-    "expiration_date": "*",
-    "buildsystem": "taskcluster"
   }
 ]
