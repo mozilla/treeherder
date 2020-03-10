@@ -51,34 +51,20 @@ jobs:
         # This generates the revision and does the Brotly/Gzip compression
         - ./bin/post_compile
 
-    # Run basic linters
-    - language: generic # Since we're using Python/pip and Node/yarn use the generic image
-      node_js: '12.13.0' # The Node version here must be kept in sync with that in `package.json`.
-      python: '3.7.2'
-      cache:
-        - pip
-        - yarn
-      before_install:
-        - python --version
-        # XXX: I have not been able to install 3.7.2 to match runtime.txt
-        - pyenv global 3.7.1
-        - pip install --upgrade pip
-        - pip install --upgrade setuptools
-        - nvm install 12.14.1
-        - nvm use 12.14.1
-        # Steps to validate versions in use
-        - pyenv --version
-        - python --version
-        - pip --version
-        - node --version
-        - yarn --version
-      install:
-        - yarn install
-        - pip install -r requirements/common.txt -r requirements/dev.txt
-        - pip install -r requirements/docs.txt # Install separatedely since they have no hashes
+    # Run JS linters
+    - language: node_js
+      cache: yarn
       script:
         - yarn lint
         - yarn format:check
+
+    # Run Python linters
+    - language: python
+      cache: pip
+      install:
+        - pip install -r requirements/common.txt -r requirements/dev.txt
+        - pip install -r requirements/docs.txt # Install separately since it has no hashes
+      script:
         - ./runchecks.sh
 
     # Run Python tests outside of the Docker containers
