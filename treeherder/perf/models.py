@@ -590,3 +590,12 @@ class BackfillRecord(models.Model):
 
     def __str__(self):
         return "BackfillRecord(alert #{}, from {})".format(self.alert.id, self.report)
+
+
+class PerformanceSettings(models.Model):
+    id = models.AutoField(primary_key=True)
+    name = models.CharField(max_length=255)
+    settings = models.TextField()
+
+    class Meta:
+        db_table = "performance_settings"
