@@ -23,8 +23,6 @@ from treeherder.etl.taskcluster_pulse.handler import (EXCHANGE_EVENT_MAP,
                                                       handleMessage)
 from treeherder.model.models import Repository
 
-GITHUB_API = "https://api.github.com"
-
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.INFO)
 
@@ -159,8 +157,7 @@ def get_decision_task_id(project, revision, root_url):
 
 
 def fetch_api(path):
-    url = "{}/{}".format(GITHUB_API, path)
-    return fetch_json(url)
+    return fetch_json("https://api.github.com/{}".format(path))
 
 
 def compare_shas(_repo, base, head):
