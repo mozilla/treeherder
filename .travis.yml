@@ -1,12 +1,9 @@
 dist: xenial
 # Use the latest Travis images since they are more up to date than the stable release.
 group: edge
-services:
-  - docker
 matrix:
   include:
-    - env: js-tests
-      language: node_js
+    - language: node_js
       # The Node version here must be kept in sync with that in `package.json`.
       node_js: '12.13.0'
       cache: yarn
@@ -24,17 +21,41 @@ matrix:
         - yarn test:coverage
         - yarn codecov
 
-    - env: test-prod-build
-      language: node_js
-      # The Node version here must be kept in sync with that in `package.json`.
-      node_js: '12.13.0'
+    # This build is configured to catch issues on PRs that would only be detected as part of Heroku's
+    # build step when the code has already been merged to master
+    # The step ./bin/post_compile requires the output of `yarn build`, thus, we need to build
+    # both the JS and Python builds
+    - env:
+        - NODE_ENV=production YARN_PRODUCTION=true
+      # Since we're using Python/pip and Node/yarn use the generic image
+      language: generic
+      cache:
+        directories:
+          - $HOME/.cache/yarn
+          - $HOME/.cache/pip
+          - node_modules
+      before_install:
+        # XXX: I have not been able to install 3.7.2 to match runtime.txt
+        - pyenv global 3.7.1
+        - nvm install 12.14.1
+        - nvm use 12.14.1
+        # Steps to validate versions in use
+        - python --version
+        - pip --version
+        - node --version
+        - yarn --version
       install:
-        - yarn install --prod --frozen-lockfile
+        - pip install -r requirements.txt
+        - yarn install
       script:
-        - yarn build
+        - yarn heroku-postbuild
+        - ./manage.py collectstatic --noinput
+        # This generates the revision and does the Brotly/Gzip compression
+        - ./bin/post_compile
 
-    - env: python-linters
-      language: minimal
+    - language: minimal
+      services:
+        - docker
       install:
         - docker-compose build
         - pip install codecov --user
@@ -42,8 +63,9 @@ matrix:
         - docker-compose run backend ./runtests.sh
         - codecov -f coverage.xml
 
-    - env: python-tests-main
-      language: minimal
+    - language: minimal
+      services:
+        - docker
       install:
         - docker-compose build
         - pip install codecov --user
@@ -56,13 +78,12 @@ matrix:
         - docker-compose run backend bash -c "pytest --cov --cov-report=xml tests/ --runslow --ignore=tests/selenium"
         - codecov -f coverage.xml
 
-    - env: python-tests-selenium
-      language: node_js
+    - language: node_js
+      services:
+        - docker
       # The Node version here must be kept in sync with that in `package.json`.
       node_js: '12.13.0'
-      cache:
-        directories:
-          - node_modules
+      cache: yarn
       before_install:
         - docker-compose build
       install:
