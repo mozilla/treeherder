@@ -59,9 +59,11 @@ jobs:
         - pip
         - yarn
       before_install:
+        - python --version
         # XXX: I have not been able to install 3.7.2 to match runtime.txt
         - pyenv global 3.7.1
         - pip install --upgrade pip
+        - pip install --upgrade setuptools
         - nvm install 12.14.1
         - nvm use 12.14.1
         # Steps to validate versions in use
@@ -81,7 +83,7 @@ jobs:
 
     # Run Python tests outside of the Docker containers
     - language: python
-      python: '3.7.2'
+      python: '3.7'
       cache: pip
       install:
         # Initialize services required to run tests
