@@ -15,6 +15,10 @@ jobs:
       install:
         - yarn install --frozen-lockfile
       script:
+        # `yarn build` is tested as part of the Heroku build job
+        - yarn lint
+        # `yarn lint` only checks the formatting of JS/JSX, this will also check CSS/HTML/JSON/Markdown/YAML.
+        - yarn format:check
         - yarn test:coverage
         - yarn codecov
 
@@ -51,23 +55,7 @@ jobs:
         # This generates the revision and does the Brotly/Gzip compression
         - ./bin/post_compile
 
-    # Run JS linters
-    - language: node_js
-      cache: yarn
-      script:
-        - yarn lint
-        - yarn format:check
-
-    # Run Python linters
-    - language: python
-      cache: pip
-      install:
-        - pip install -r requirements/common.txt -r requirements/dev.txt
-        - pip install -r requirements/docs.txt # Install separately since it has no hashes
-      script:
-        - ./runchecks.sh
-
-    # Run Python tests outside of the Docker containers
+    # Run Python tests & linters outside of the Docker containers
     - language: python
       python: '3.7'
       cache: pip
@@ -75,7 +63,9 @@ jobs:
         # Initialize services required to run tests
         - docker-compose up --detach mysql redis rabbitmq
         - pip install -r requirements/common.txt -r requirements/dev.txt
+        - pip install -r requirements/docs.txt # Install separately since it has no hashes
       script:
+        - ./runchecks.sh
         - ./manage.py check
         # Exercising running tests outside of Docker
         - pytest tests/ --ignore=tests/selenium --ignore=tests/extract
