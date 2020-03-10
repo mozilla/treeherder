@@ -23,6 +23,7 @@ from treeherder.etl.pushlog import HgPushlogProcess
 from treeherder.etl.taskcluster_pulse.handler import (EXCHANGE_EVENT_MAP,
                                                       handleMessage)
 from treeherder.model.models import Repository
+from treeherder.utils import github
 
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.INFO)
@@ -157,22 +158,6 @@ def get_decision_task_id(project, revision, root_url):
     return find_task_id(index_path, root_url)
 
 
-def fetch_api(path):
-    return fetch_json("https://api.github.com/{}".format(path))
-
-
-def compare_shas(_repo, base, head):
-    return fetch_api("repos/{}/{}/compare/{}...{}".format(_repo["owner"], _repo["repo"], base, head))
-
-
-def commits_info(_repo):
-    return fetch_api("repos/{}/{}/commits".format(_repo["owner"], _repo["repo"]))
-
-
-def commit_info(_repo, sha):
-    return fetch_api("repos/{}/{}/commits/{}".format(_repo["owner"], _repo["repo"], sha))
-
-
 def repo_meta(project):
     _repo = Repository.objects.filter(name=project)[0]
     assert _repo, "The project {} you specified is incorrect".format(project)
@@ -197,7 +182,7 @@ def query_data(repo_meta, commit):
     event_base_sha = repo_meta["branch"]
     # First we try with `master` being the base sha
     # e.g. https://api.github.com/repos/servo/servo/compare/master...1418c0555ff77e5a3d6cf0c6020ba92ece36be2e
-    compareResponse = compare_shas(repo_meta, repo_meta["branch"], commit)
+    compareResponse = github.compare_shas(repo_meta, repo_meta["branch"], commit)
     merge_base_commit = compareResponse.get("merge_base_commit")
     if merge_base_commit:
         commiter_date = merge_base_commit["commit"]["committer"]["date"]
@@ -226,7 +211,7 @@ def query_data(repo_meta, commit):
         assert event_base_sha != repo_meta["branch"]
         logger.info("We have a new base: %s", event_base_sha)
         # When using the correct event_base_sha the "commits" field will be correct
-        compareResponse = compare_shas(repo_meta, event_base_sha, commit)
+        compareResponse = github.compare_shas(repo_meta, event_base_sha, commit)
 
     commits = []
     for _commit in compareResponse["commits"]:
@@ -283,12 +268,12 @@ def ingest_git_pushes(project, dry_run=False):
 
     logger.info("--> Converting Github commits to pushes")
     _repo = repo_meta(project)
-    github_commits = commits_info(_repo)
+    github_commits = github.commits_info(_repo)
     not_push_revision = []
     push_revision = []
     push_to_date = {}
     for _commit in github_commits:
-        info = commit_info(_repo, _commit["sha"])
+        info = github.commit_info(_repo, _commit["sha"])
         # Revisions that are marked as non-push should be ignored
         if _commit["sha"] in not_push_revision:
             logger.debug("Not a revision of a push: {}".format(_commit["sha"]))
