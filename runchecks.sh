@@ -11,7 +11,7 @@ echo "Running pip check"
 pip check
 
 echo "Checking CELERY_TASK_QUEUES matches Procfile"
-python ./lints/queuelint.py
+./lints/queuelint.py
 
 echo "Running flake8"
 flake8 --show-source || { echo "flake8 errors found!"; exit 1; }
@@ -20,9 +20,11 @@ echo "Running isort"
 isort --check-only --diff --quiet \
  || { echo "isort errors found! Run 'isort' with no options to fix."; exit 1; }
 
-echo "Running shellcheck (if availablein PATH)"
 if hash shellcheck 2>/dev/null; then
+  echo "Running shellcheck"
   git grep -El '^#!/.+\b(bash|sh)\b' | xargs shellcheck
+else
+  echo "Not running shellcheck since it is not in the PATH"
 fi
 
 echo "Running test docs generation"
