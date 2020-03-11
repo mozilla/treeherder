@@ -2,6 +2,7 @@ import React from 'react';
 import fetchMock from 'fetch-mock';
 import { Provider } from 'react-redux';
 import { render, cleanup, waitForElement } from '@testing-library/react';
+import { gzip } from 'pako';
 
 import { getProjectUrl, replaceLocation } from '../../../ui/helpers/location';
 import FilterModel from '../../../ui/models/filter';
@@ -49,36 +50,44 @@ describe('Push', () => {
       getApiUrl('/jobs/?push_id=511137', repoName),
       jobListFixture,
     );
-    const tcUrl = 'https://firefox-ci-tc.services.mozilla.com/api/index/v1/task/gecko.v2.autoland.revision.d5b037941b0ebabcc9b843f24d926e9d65961087.taskgraph.decision/artifacts/public'
-    fetchMock.get(
-      `${tcUrl}/manifests-by-task.json.gz`,
-      404,
+    const tcUrl =
+      'https://firefox-ci-tc.services.mozilla.com/api/index/v1/task/gecko.v2.autoland.revision.d5b037941b0ebabcc9b843f24d926e9d65961087.taskgraph.decision/artifacts/public';
+    fetchMock.get(`${tcUrl}/manifests-by-task.json.gz`, 404);
+    fetchMock.get(`${tcUrl}/manifests-by-task.json`, {
+      'test-linux1804-64/debug-mochitest-devtools-chrome-e10s-5': [
+        'devtools/client/inspector/compatibility/test/browser/browser.ini',
+        'devtools/client/inspector/grids/test/browser.ini',
+        'devtools/client/inspector/rules/test/browser.ini',
+        'devtools/client/jsonview/test/browser.ini',
+      ],
+    });
+    const contents = gzip(
+      JSON.stringify({
+        'layout/reftests/list-item/reftest.list': [
+          'bullet-intrinsic-isize-1.html',
+          'bullet-intrinsic-isize-2.html',
+          'bullet-justify-1.html',
+        ],
+        'toolkit/mozapps/extensions/test/mochitest/mochitest.ini': [
+          'test_bug887098.html',
+        ],
+        'dom/webgpu/mochitest/mochitest-no-pref.ini': ['test_disabled.html'],
+      }),
     );
     fetchMock.get(
-      `${tcUrl}/manifests-by-task.json`,
+      'https://firefox-ci-tc.services.mozilla.com/api/index/v1/task/gecko.v2.autoland.revision.d5b037941b0ebabcc9b843f24d926e9d65961087.taskgraph.decision/artifacts/public/tests-by-manifest.json.gz',
+      contents,
       {
-        'test-linux1804-64/debug-mochitest-devtools-chrome-e10s-5': [
-          'devtools/client/inspector/compatibility/test/browser/browser.ini',
-          'devtools/client/inspector/grids/test/browser.ini',
-          'devtools/client/inspector/rules/test/browser.ini',
-          'devtools/client/jsonview/test/browser.ini',
-        ],
+        headers: {
+          'accept-encoding': 'gzip,deflate',
+        },
       },
     );
-    // XXX: We need to mock a Gzip file rather than a Json file
-    fetchMock.get(
-      'https://firefox-ci-tc.services.mozilla.com/api/index/v1/task/gecko.v2.autoland.revision.d5b037941b0ebabcc9b843f24d926e9d65961087.taskgraph.decision/artifacts/public/tests-by-manifest.json',
-      {
-        "layout/reftests/list-item/reftest.list": [
-          "bullet-intrinsic-isize-1.html",
-          "bullet-intrinsic-isize-2.html",
-          "bullet-justify-1.html",
-        ],
-        "toolkit/mozapps/extensions/test/mochitest/mochitest.ini": [
-          "test_bug887098.html"
-        ],
-        "dom/webgpu/mochitest/mochitest-no-pref.ini": ["test_disabled.html"],
-    );
+    fetchMock.get(`${tcUrl}/tests-by-manifest.json`, contents, {
+      headers: {
+        user: 'me', // only match requests with certain headers
+      },
+    });
   });
 
   afterAll(() => {
