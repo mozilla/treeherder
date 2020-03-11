@@ -72,27 +72,6 @@
 
       To learn more about the regressing test(s), please see: https://wiki.mozilla.org/AWSY/Tests
 - model: perf.PerformanceBugTemplate
-  pk: 5
-  fields:
-    framework: 5
-    keywords: perf, perf-alert, regression
-    default_component: Performance
-    default_product: Testing
-    text: |
-      We have detected an awfy regression from push:
-
-      {{ revisionHref }}
-
-      As author of one of the patches included in that push, we need your help to address this regression.
-
-      {{ alertSummary }}
-
-      You can find links to graphs and comparison views for each of the above tests at: {{ alertHref }}
-
-      On the page above you can see an alert for each affected platform as well as a link to a graph showing the history of scores for this test. There is also a link to a treeherder page showing the jobs in a pushlog format.
-
-      To learn more about the regressing test(s), please see: https://www.arewefastyet.com/
-- model: perf.PerformanceBugTemplate
   pk: 6
   fields:
     framework: 6
