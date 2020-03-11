@@ -69,7 +69,6 @@ services:
     environment:
       - MYSQL_ALLOW_EMPTY_PASSWORD=true
       - MYSQL_DATABASE=treeherder
-      - MYSQL_ROOT_PASSWORD=TopSecretPassword
     volumes:
       - ./docker/mysql.cnf:/etc/mysql/conf.d/mysql.cnf
       - mysql_data:/var/lib/mysql
