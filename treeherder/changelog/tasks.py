@@ -3,8 +3,7 @@ import datetime
 from django.db import transaction
 
 from treeherder.changelog.collector import collect
-from treeherder.changelog.models import (Changelog,
-                                         ChangelogFile)
+from treeherder.changelog.models import Changelog, ChangelogFile
 
 
 def update_changelog(days=1):

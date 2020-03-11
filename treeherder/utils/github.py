@@ -41,17 +41,25 @@ def fetch_text(url):
     return response.text
 
 
-def fetch_api(path):
-    return fetch_json("https://api.github.com/{}".format(path))
+def fetch_api(path, params=None):
+    return fetch_json("https://api.github.com/{}".format(path), params)
+
+
+def get_releases(owner, repo, params=None):
+    return fetch_api("repos/{}/{}/releases".format(owner, repo), params)
+
+
+def get_repo(owner, repo, params=None):
+    return fetch_api("repos/{}/{}".format(owner, repo), params)
 
 
 def compare_shas(owner, repo, base, head):
     return fetch_api("repos/{}/{}/compare/{}...{}".format(owner, repo, base, head))
 
 
-def commits_info(owner, repo):
-    return fetch_api("repos/{}/{}/commits".format(owner, repo))
+def commits_info(owner, repo, params=None):
+    return fetch_api("repos/{}/{}/commits".format(owner, repo), params)
 
 
-def commit_info(owner, repo, sha):
-    return fetch_api("repos/{}/{}/commits/{}".format(owner, repo, sha))
+def commit_info(owner, repo, sha, params=None):
+    return fetch_api("repos/{}/{}/commits/{}".format(owner, repo, sha), params)

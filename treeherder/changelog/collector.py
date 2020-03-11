@@ -3,10 +3,8 @@
 import json
 import os
 
-import github3
-from django.conf import settings
-
 from treeherder.changelog.filters import Filters
+from treeherder.utils import github
 
 MAX_ITEMS = 100
 CFG = os.path.join(os.path.dirname(__file__), "repositories.json")
@@ -17,28 +15,15 @@ with open(CFG) as f:
 
 class GitHub:
     def __init__(self):
-        self.token = os.environ["GITHUB_CLIENT_SECRET"]
-        if "localhost" in settings.SITE_HOSTNAME:
-            _2fa = None
-        else:
-            _2fa = self._2FA
-        self.gh = github3.login(token=self.token, two_factor_callback=_2fa)
         self.filters = Filters()
 
-    def _2FA(self):
-        code = ""
-        while not code:
-            code = input("Enter 2FA code: ")
-        return code
-
-    def get_changes(self, user, repository, **kw):
-        repo = self.gh.repository(user, repository)
+    def get_changes(self, **kw):
+        owner = kw["user"]
+        repository = kw["repository"]
         filters = kw.get("filters")
-
         gh_options = {"number": kw.get("number", MAX_ITEMS)}
 
-        for release in repo.releases(**gh_options):
-            release = json.loads(release.as_json())
+        for release in github.get_releases(owner, repository, params=gh_options):
             release["files"] = []
             # no "since" option for releases() we filter manually here
             if "since" in kw and release["published_at"] <= kw["since"]:
@@ -56,12 +41,14 @@ class GitHub:
         if "since" in kw:
             gh_options["since"] = kw["since"]
 
-        for commit in repo.commits(**gh_options):
-            commit = json.loads(commit.as_json())
+        for commit in github.commits_info(owner, repository, params=gh_options):
             if filters:
                 for filter in filters:
                     if isinstance(filter, list) and filter[0] == "filter_by_path":
-                        commit["files"] = repo.commit(commit["sha"]).files
+                        commit_info = github.commit_info(
+                            owner, repository, commit["sha"]
+                        )
+                        commit["files"] = commit_info["files"]
                         break
 
             message = commit["commit"]["message"]
@@ -89,7 +76,6 @@ def collect(since):
         if not reader:
             raise NotImplementedError(source["type"])
         source["since"] = since
-
         for change in reader.get_changes(**source):
             change.update(repo_info["metadata"])  # XXX duplicated for now
             yield change
