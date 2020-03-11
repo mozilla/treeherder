@@ -5,18 +5,15 @@ THE_FUTURE = datetime.datetime(2100, 12, 31)
 # repos that SETA supports
 SETA_PROJECTS = [
     'autoland',
-    'try',
+    'try'
 ]
 
 # for taskcluster, only jobs that start with any of these names
 # will be supported i.e. may be optimized out by SETA
 SETA_SUPPORTED_TC_JOBTYPES = [
     'test-',
-    'source-test-',
     'desktop-test',
-    'android-test',
-    'iris-',
-    'webrender-',
+    'android-test,'
     'build-android-x86-fuzzing',
     'build-android-x86_64-asan-fuzzing',
     'build-linux64-asan-fuzzing-ccov',
@@ -48,7 +45,7 @@ SETA_UNSUPPORTED_PLATFORMS = [
     'windows8-32',  # We don't test 32-bit builds on Windows 8 test infra
     'Win 6.3.9600 x86_64',
     'linux64-stylo',
-    'windowsxp',
+    'windowsxp'
 ]
 
 # testtypes listed here will not be supported by SETA
@@ -61,11 +58,11 @@ SETA_UNSUPPORTED_TESTTYPES = [
     'Opt',
     'Debug',
     'Dbg',
-    '(opt)',
+    '(opt)'
     'PGO Opt',
     'Valgrind Opt',
     'Artifact Opt',
-    '(debug)',
+    '(debug)'
 ]
 
 # SETA job priority values
@@ -75,7 +72,7 @@ SETA_LOW_VALUE_PRIORITY = 5
 # analyze_failures retrieves jobs marked 'fixed by commit' for these repos
 SETA_FIXED_BY_COMMIT_REPOS = [
     'autoland',
-    'mozilla-central',
+    'mozilla-central'
 ]
 
 # analyze_failures retrieves jobs marked 'fixed by commit' for the past N days

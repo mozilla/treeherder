@@ -3,8 +3,7 @@ import logging
 from django.core.cache import cache
 
 from treeherder.etl.runnable_jobs import list_runnable_jobs
-from treeherder.seta.common import (convert_job_type_name_to_testtype,
-                                    unique_key)
+from treeherder.seta.common import unique_key
 from treeherder.seta.models import JobPriority
 from treeherder.seta.settings import (SETA_REF_DATA_NAMES_CACHE_TIMEOUT,
                                       SETA_SUPPORTED_TC_JOBTYPES,
@@ -31,17 +30,49 @@ def parse_testtype(build_system_type, job_type_name, platform_option, ref_data_n
     '''
     # XXX: Figure out how to ignore build, lint, etc. jobs
     # https://bugzilla.mozilla.org/show_bug.cgi?id=1318659
-    testtype = None
     if build_system_type == 'buildbot':
         # The testtype of builbot job can been found in 'ref_data_name'
         # like web-platform-tests-4 in "Ubuntu VM 12.04 x64 mozilla-inbound
         # opt test web-platform-tests-4"
-        testtype = ref_data_name.split(' ')[-1]
+        return ref_data_name.split(' ')[-1]
     else:
+        # NOTE: Buildbot bridge tasks always have a Buildbot job associated to it. We will
+        #       ignore any BBB task since we will be analyzing instead the Buildbot job associated
+        #       to it. If BBB tasks were a production system and there was a technical advantage
+        #       we could look into analyzing that instead of the BB job.
         if job_type_name.startswith(tuple(SETA_SUPPORTED_TC_JOBTYPES)):
             # we should get "jittest-3" as testtype for a job_type_name like
             # test-linux64/debug-jittest-3
-            testtype = convert_job_type_name_to_testtype(job_type_name)
+            return transform(job_type_name.split('-{buildtype}'.
+                             format(buildtype=platform_option))[-1])
+
+
+def transform(testtype):
+    '''
+    A lot of these transformations are from tasks before task labels and some of them are if we
+    grab data directly from Treeherder jobs endpoint instead of runnable jobs API.
+    '''
+    # XXX: Evaluate which of these transformations are still valid
+    if testtype.startswith('[funsize'):
+        return None
+
+    testtype = testtype.split('/opt-')[-1]
+    testtype = testtype.split('/debug-')[-1]
+
+    # this is plain-reftests for android
+    testtype = testtype.replace('plain-', '')
+
+    testtype = testtype.strip()
+
+    # https://bugzilla.mozilla.org/show_bug.cgi?id=1313844
+    testtype = testtype.replace('browser-chrome-e10s', 'e10s-browser-chrome')
+    testtype = testtype.replace('devtools-chrome-e10s', 'e10s-devtools-chrome')
+    testtype = testtype.replace('[TC] Android 4.3 API15+ ', '')
+
+    # mochitest-gl-1 <-- Android 4.3 armv7 API 15+ mozilla-inbound opt test mochitest-gl-1
+    # mochitest-webgl-9  <-- test-android-4.3-arm7-api-15/opt-mochitest-webgl-9
+    testtype = testtype.replace('webgl-', 'gl-')
+
     return testtype
 
 
@@ -94,8 +125,6 @@ def get_reference_data_names(project="autoland", build_system="taskcluster"):
 
         if is_job_blacklisted(testtype):
             ignored_jobs.append(job['ref_data_name'])
-            if testtype:
-                logger.debug('get_reference_data_names: blacklisted testtype {} for job {}'.format(testtype, job))
             continue
 
         key = unique_key(testtype=testtype,
