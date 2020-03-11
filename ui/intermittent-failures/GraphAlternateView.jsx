@@ -8,12 +8,12 @@ const GraphAlternateView = ({ className, graphData, colNum, title }) => {
     {
       Header: 'Date',
       accessor: 'date',
-      sortable: false
+      sortable: false,
     },
     {
       Header: 'Failure Count per Push',
       accessor: 'failurePerPush',
-      sortable: false
+      sortable: false,
     },
   ];
 
@@ -21,17 +21,17 @@ const GraphAlternateView = ({ className, graphData, colNum, title }) => {
     {
       Header: 'Date',
       accessor: 'date',
-      sortable: false
+      sortable: false,
     },
     {
       Header: 'Failure Count',
       accessor: 'failureCount',
-      sortable: false
+      sortable: false,
     },
     {
       Header: 'Push Count',
       accessor: 'pushCount',
-      sortable: false
+      sortable: false,
     },
   ];
 
