@@ -1,8 +1,8 @@
 import logging
 
-from treeherder.utils.github import fetch_json
 from treeherder.model.models import (Commit,
                                      Push)
+from treeherder.utils.github import fetch_json
 from treeherder.webapp.api.serializers import RepositorySerializer
 
 logger = logging.getLogger(__name__)

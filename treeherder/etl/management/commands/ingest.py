@@ -14,7 +14,6 @@ from django.core.management.base import BaseCommand
 
 from treeherder.client.thclient import TreeherderClient
 from treeherder.config.settings import GITHUB_TOKEN
-from treeherder.utils.github import fetch_json
 from treeherder.etl.db_semaphore import (acquire_connection,
                                          release_connection)
 from treeherder.etl.job_loader import JobLoader
@@ -24,6 +23,7 @@ from treeherder.etl.taskcluster_pulse.handler import (EXCHANGE_EVENT_MAP,
                                                       handleMessage)
 from treeherder.model.models import Repository
 from treeherder.utils import github
+from treeherder.utils.github import fetch_json
 
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.INFO)
