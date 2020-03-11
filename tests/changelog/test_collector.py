@@ -1,12 +1,14 @@
-import re
 import binascii
 import json
 import os
+import re
 import warnings
 from contextlib import contextmanager
-from datetime import datetime, timedelta
+from datetime import (datetime,
+                      timedelta)
 
 import responses
+
 from treeherder.changelog.collector import collect  # noqa isort:skip
 
 
