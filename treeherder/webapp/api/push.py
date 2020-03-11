@@ -18,6 +18,7 @@ from treeherder.push_health.compare import get_commit_history
 from treeherder.push_health.linting import get_lint_failures
 from treeherder.push_health.performance import get_perf_failures
 from treeherder.push_health.tests import get_test_failures
+from treeherder.push_health.usage import get_usage
 from treeherder.webapp.api.serializers import PushSerializer
 from treeherder.webapp.api.utils import (REPO_GROUPS,
                                          to_datetime,
@@ -231,6 +232,11 @@ class PushViewSet(viewsets.ViewSet):
         })
 
     @action(detail=False)
+    def health_usage(self, request, project):
+        usage = get_usage()
+        return Response({'usage': usage})
+
+    @action(detail=False)
     def health(self, request, project):
         """
         Return a calculated assessment of the health of this push.
@@ -276,6 +282,7 @@ class PushViewSet(viewsets.ViewSet):
             'repo': repository.name,
             'needInvestigation': len(push_health_test_failures['needInvestigation']),
             'unsupported': len(push_health_test_failures['unsupported']),
+            'author': push.author,
         })
 
         return Response({

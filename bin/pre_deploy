@@ -67,4 +67,10 @@ if [[ -v NEW_RELIC_CONFIG_FILE ]]; then
                                  "$USER"
 fi
 
+echo "-----> PRE-DEPLOY: New Relic API Key check"
+if [[ -z "$NEW_RELIC_INSIGHTS_API_KEY" ]]; then
+    echo "Error: missing NEW_RELIC_INSIGHTS_API_KEY"
+    exit 1
+fi
+
 echo "-----> PRE-DEPLOY: Complete!"

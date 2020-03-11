@@ -25,6 +25,7 @@ services:
       - TREEHERDER_DEBUG=True
       - TREEHERDER_DJANGO_SECRET_KEY=secret-key-of-at-least-50-characters-to-pass-check-deploy
       - NEW_RELIC_DEVELOPER_MODE=True
+      - NEW_RELIC_INSIGHTS_API_KEY=${NEW_RELIC_INSIGHTS_API_KEY:-}
     entrypoint: './docker/entrypoint.sh'
     command: './manage.py runserver 0.0.0.0:8000'
     # Django's runserver doesn't listen to the default of SIGTERM, so docker-compose
