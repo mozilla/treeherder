@@ -4,8 +4,8 @@ import environ
 import newrelic.agent
 from django.core.exceptions import ObjectDoesNotExist
 
-from treeherder.etl.common import (fetch_json,
-                                   to_timestamp)
+from treeherder.utils.github import fetch_json,
+from treeherder.etl.common to_timestamp
 from treeherder.etl.push import store_push_data
 from treeherder.model.models import Repository
 

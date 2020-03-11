@@ -9,7 +9,7 @@ from django.db.utils import (IntegrityError,
                              OperationalError)
 from requests.exceptions import HTTPError
 
-from treeherder.etl.common import fetch_text
+from treeherder.utils.github import fetch_text
 from treeherder.etl.text import astral_filter
 from treeherder.model.models import (FailureLine,
                                      Group,
