@@ -255,22 +255,3 @@ zope.proxy==4.3.3 \
 # To test async code
 pytest-asyncio==0.10.0 \
     --hash=sha256:d734718e25cfc32d2bf78d346e99d33724deeba774cc4afdf491530c6184b63b
-
-# To support install pre-commit hooks
-pre-commit==2.1.1 \
-    --hash=sha256:09ebe467f43ce24377f8c2f200fe3cd2570d328eb2ce0568c8e96ce19da45fa6
-
-cfgv==2.0.0 \
-    --hash=sha256:3bd31385cd2bebddbba8012200aaf15aa208539f1b33973759b4d02fc2148da5
-
-toml==0.10.0 \
-    --hash=sha256:235682dd292d5899d361a811df37e04a8828a5b1da3115886b73cf81ebc9100e
-
-nodeenv==0.11.1 \
-    --hash=sha256:2933390f9bbec22ed4c7863649d2c4b90c954620a5aa02879a07b820d8e4752d
-
-virtualenv==15.2 \
-    --hash=sha256:e8e05d4714a1c51a2f5921e62f547fcb0f713ebbe959e0a7f585cc8bef71d11f
-
-identify==1.0.0 \
-    --hash=sha256:0d793387835609d548f9f8462e67f77e3022ea2b9458bb9b13f20979a41b25de
