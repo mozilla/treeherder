@@ -8,10 +8,12 @@ const GraphAlternateView = ({ className, graphData, colNum, title }) => {
     {
       Header: 'Date',
       accessor: 'date',
+      sortable: false
     },
     {
       Header: 'Failure Count per Push',
       accessor: 'failurePerPush',
+      sortable: false
     },
   ];
 
@@ -19,14 +21,17 @@ const GraphAlternateView = ({ className, graphData, colNum, title }) => {
     {
       Header: 'Date',
       accessor: 'date',
+      sortable: false
     },
     {
       Header: 'Failure Count',
       accessor: 'failureCount',
+      sortable: false
     },
     {
       Header: 'Push Count',
       accessor: 'pushCount',
+      sortable: false
     },
   ];
 
@@ -62,7 +67,6 @@ const GraphAlternateView = ({ className, graphData, colNum, title }) => {
       <ReactTable
         data={alternateGraph.data}
         showPageSizeOptions
-        sortable={false}
         columns={alternateGraph.column}
         className={`${className} -striped mb-5`}
         getTableProps={() => ({ role: 'table' })}
