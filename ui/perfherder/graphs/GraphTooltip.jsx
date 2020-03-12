@@ -179,8 +179,8 @@ const GraphTooltip = ({
               </span>
             </p>
             <p className="small">
-              &Delta; <span>{displayNumber(deltaValue.toFixed(1))}</span>{' '}
-              <span>({(100 * deltaPercent).toFixed(1)}%)</span>
+              &Delta; {displayNumber(deltaValue.toFixed(1))} (
+              {(100 * deltaPercent).toFixed(1)}%)
             </p>
           </div>
 
