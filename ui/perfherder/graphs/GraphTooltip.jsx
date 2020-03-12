@@ -168,7 +168,7 @@ const GraphTooltip = ({
           </div>
           <div>
             <p>
-              <span>{displayNumber(value)}</span>
+              {displayNumber(value)}
               {testDetails.measurementUnit && (
                 <span> {testDetails.measurementUnit}</span>
               )}
