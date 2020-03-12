@@ -164,9 +164,7 @@ const GraphTooltip = ({
         <div className="body">
           <div>
             <p data-testid="repoName">({testDetails.repository_name})</p>
-            <p className="small" data-testid="platform">
-              {testDetails.platform}
-            </p>
+            <p className="small">{testDetails.platform}</p>
           </div>
           <div>
             <p>
@@ -174,17 +172,14 @@ const GraphTooltip = ({
               {testDetails.measurementUnit && (
                 <span> {testDetails.measurementUnit}</span>
               )}
-              <span className="text-muted" data-testid="lower-or-higher">
+              <span className="text-muted">
                 {testDetails.lowerIsBetter
                   ? ' (lower is better)'
                   : ' (higher is better)'}
               </span>
             </p>
             <p className="small">
-              &Delta;{' '}
-              <span data-testid="delta">
-                {displayNumber(deltaValue.toFixed(1))}
-              </span>{' '}
+              &Delta; <span>{displayNumber(deltaValue.toFixed(1))}</span>{' '}
               <span data-testid="delta-percent">
                 ({(100 * deltaPercent).toFixed(1)}%)
               </span>
@@ -280,10 +275,7 @@ const GraphTooltip = ({
                 )}
               </p>
             )}
-            <p
-              className="small text-white pt-2"
-              data-testid="date"
-            >{`${moment
+            <p className="small text-white pt-2">{`${moment
               .utc(dataPointDetails.x)
               .format('MMM DD hh:mm:ss')} UTC`}</p>
             {Boolean(retriggerNum) && (
