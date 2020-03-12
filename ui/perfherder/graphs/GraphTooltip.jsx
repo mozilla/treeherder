@@ -168,7 +168,7 @@ const GraphTooltip = ({
           </div>
           <div>
             <p>
-              <span data-testid="test-value">{displayNumber(value)}</span>
+              <span>{displayNumber(value)}</span>
               {testDetails.measurementUnit && (
                 <span> {testDetails.measurementUnit}</span>
               )}
@@ -180,21 +180,14 @@ const GraphTooltip = ({
             </p>
             <p className="small">
               &Delta; <span>{displayNumber(deltaValue.toFixed(1))}</span>{' '}
-              <span data-testid="delta-percent">
-                ({(100 * deltaPercent).toFixed(1)}%)
-              </span>
+              <span>({(100 * deltaPercent).toFixed(1)}%)</span>
             </p>
           </div>
 
           <div>
             {prevRevision && (
               <span>
-                <a
-                  href={pushUrl}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  data-testid="revision"
-                >
+                <a href={pushUrl} target="_blank" rel="noopener noreferrer">
                   {dataPointDetails.revision.slice(0, 13)}
                 </a>{' '}
                 (
