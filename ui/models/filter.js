@@ -279,6 +279,10 @@ export default class FilterModel {
       return null;
     }
 
+    if (field === 'test_paths' && job[field]) {
+      // Make all paths unix style
+      return job[field].map(testPath => testPath.replace(/\\/g, /\//));
+    }
     return job[field];
   };
 
