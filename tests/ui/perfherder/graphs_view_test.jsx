@@ -5,7 +5,6 @@ import {
   fireEvent,
   waitForElement,
 } from '@testing-library/react';
-// import moment from 'moment';
 import fetchMock from 'fetch-mock';
 import queryString from 'query-string';
 
