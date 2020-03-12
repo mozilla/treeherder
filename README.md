@@ -33,18 +33,22 @@ File any bugs you may encounter [here](https://bugzilla.mozilla.org/enter_bug.cg
 
 #### Contributing
 
-Firstly, ask if the bug is available and manifest your interest in contributing to it. One of the maintainers will **assign** you the bug. Only then you should work on it.
+Everyone is welcome to contribute!
+
+If a bug is not assigned to someone, you can request the bug be assigned to you. You should ask the component owner with your request ("Request information" in Bugzilla and mention in Github).
+
+If you do not receive a response within 2-3 days, you can follow up in the **#treeherder** matrix channel.
 
 After adressing the issue, make sure [every test passes](https://treeherder.readthedocs.io/testing.html) before sending a pull request.
 
-We also recommend using [`git rebase`](https://git-scm.com/docs/git-rebase). There are less conflicts this way and the git history is cleaner.
+We also recommend setting an `upstream` remote that points to the [Mozilla's Github repo](https://github.com/mozilla/treeherder.git), in addition to `origin` that points to your fork. You should then frequently use `git rebase upstream` rather than merging from your fork to keep your branch current. There are less conflicts this way and the git history is cleaner.
 
 ##### Sending a Pull Request
 We receive contributions from both Bugzilla and Github. We have some specifications to keep track of them:
 
-1. If your bug comes from **Bugzilla**
+1. If your bug comes from **[Bugzilla](https://bugzilla.mozilla.org/query.cgi?query_format=advanced&product=Tree+Management&f1=component&o1=substring&v1=Treeherder&resolution=---)**
 
-    After addressing the issue, please send a pull request to this repository, with the **Bugzilla's number ID** in the **title**.
+    After addressing the issue, please send a pull request to this repository, with the **Bugzilla's number ID** in the **title**, so that our bot attaches your patch to the corresponding Bugzilla bug.
 
     `"Bug xxxxxx - [title of the bug or brief explanation]"`
 
