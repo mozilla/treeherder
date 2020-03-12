@@ -9,9 +9,34 @@ import FilterModel from '../../../ui/models/filter';
 import pushListFixture from '../mock/push_list';
 import jobListFixture from '../mock/job_list/job_2';
 import configureStore from '../../../ui/job-view/redux/configureStore';
-import Push from '../../../ui/job-view/pushes/Push';
+import Push, { joinArtifacts } from '../../../ui/job-view/pushes/Push';
 import { getApiUrl } from '../../../ui/helpers/url';
 import { findInstance } from '../../../ui/helpers/job';
+
+const testsByManifest = {
+  'devtools/client/framework/browser-toolbox/test/browser.ini': [
+    'browser_browser_toolbox.js',
+    'browser_browser_toolbox_debugger.js',
+    'browser_browser_toolbox_fission_contentframe_inspector.js',
+    'browser_browser_toolbox_fission_inspector.js',
+    'browser_browser_toolbox_rtl.js',
+  ],
+  'devtools/client/framework/test/browser.ini': ['foo.js'],
+};
+const manifestsByTask = {
+  'test-linux1804-64/debug-mochitest-devtools-chrome-e10s-1': [
+    'devtools/client/framework/browser-toolbox/test/browser.ini',
+    'devtools/client/framework/test/browser.ini',
+    'devtools/client/framework/test/metrics/browser_metrics_inspector.ini',
+    'devtools/client/inspector/changes/test/browser.ini',
+    'devtools/client/inspector/extensions/test/browser.ini',
+    'devtools/client/inspector/markup/test/browser.ini',
+    'devtools/client/jsonview/test/browser.ini',
+    'devtools/client/shared/test/browser.ini',
+    'devtools/client/styleeditor/test/browser.ini',
+    'devtools/client/webconsole/test/node/fixtures/stubs/stubs.ini',
+  ],
+};
 
 describe('Push', () => {
   const repoName = 'autoland';
@@ -52,15 +77,6 @@ describe('Push', () => {
     );
     const tcUrl =
       'https://firefox-ci-tc.services.mozilla.com/api/index/v1/task/gecko.v2.autoland.revision.d5b037941b0ebabcc9b843f24d926e9d65961087.taskgraph.decision/artifacts/public';
-    const testsByManifest = {
-      'devtools/client/framework/browser-toolbox/test/browser.ini': [
-        'browser_browser_toolbox.js',
-        'browser_browser_toolbox_debugger.js',
-        'browser_browser_toolbox_fission_contentframe_inspector.js',
-        'browser_browser_toolbox_fission_inspector.js',
-        'browser_browser_toolbox_rtl.js',
-      ],
-    };
     // XXX: Fix this to re-enable test
     // I need to figure out the right options to get a gzip blob
     fetchMock.get(`${tcUrl}/tests-by-manifest.json.gz`, {
@@ -69,20 +85,6 @@ describe('Push', () => {
       }),
       sendAsJson: false,
     });
-    const manifestsByTask = {
-      'test-linux1804-64/debug-mochitest-devtools-chrome-e10s-1': [
-        'devtools/client/framework/browser-toolbox/test/browser.ini',
-        'devtools/client/framework/test/browser.ini',
-        'devtools/client/framework/test/metrics/browser_metrics_inspector.ini',
-        'devtools/client/inspector/changes/test/browser.ini',
-        'devtools/client/inspector/extensions/test/browser.ini',
-        'devtools/client/inspector/markup/test/browser.ini',
-        'devtools/client/jsonview/test/browser.ini',
-        'devtools/client/shared/test/browser.ini',
-        'devtools/client/styleeditor/test/browser.ini',
-        'devtools/client/webconsole/test/node/fixtures/stubs/stubs.ini',
-      ],
-    };
     fetchMock.get(`${tcUrl}/manifests-by-task.json.gz`, {
       body: new Blob(await gzip(JSON.stringify(manifestsByTask)), {
         type: 'application/gzip',
@@ -127,5 +129,21 @@ describe('Push', () => {
       'devtools/client/styleeditor/test/browser.ini',
       'devtools/client/webconsole/test/node/fixtures/stubs/stubs.ini',
     ]);
+  });
+});
+
+describe('Artifact transformations', () => {
+  test('Merge artifacts', () => {
+    const taskNameToTestPaths = joinArtifacts(manifestsByTask, testsByManifest);
+    expect(taskNameToTestPaths).toMatchObject({
+      'test-linux1804-64/debug-mochitest-devtools-chrome-e10s-1': [
+        'devtools/client/framework/browser-toolbox/test/browser_browser_toolbox.js',
+        'devtools/client/framework/browser-toolbox/test/browser_browser_toolbox_debugger.js',
+        'devtools/client/framework/browser-toolbox/test/browser_browser_toolbox_fission_contentframe_inspector.js',
+        'devtools/client/framework/browser-toolbox/test/browser_browser_toolbox_fission_inspector.js',
+        'devtools/client/framework/browser-toolbox/test/browser_browser_toolbox_rtl.js',
+        'devtools/client/framework/test/foo.js',
+      ],
+    });
   });
 });

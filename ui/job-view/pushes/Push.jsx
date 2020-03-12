@@ -34,6 +34,25 @@ import PushJobs from './PushJobs';
 const watchCycleStates = ['none', 'push', 'job', 'none'];
 const platformArray = Object.values(thPlatformMap);
 
+export const joinArtifacts = (manifestsByTask, testsByManifest) => {
+  // We need to create a map from taskName to testPaths:
+  // e.g. taskName: test-linux1804-64-shippable/opt-mochitest-devtools-chrome-e10s-1
+  // e.g. manifest: devtools/client/framework/browser-toolbox/test/browser.ini
+  // e.g. testPath: devtools/client/framework/browser-toolbox/test/browser_browser_toolbox_debugger.js
+  const taskNameToTestPaths = {};
+  Object.entries(manifestsByTask).forEach(([taskName, manifetsts]) => {
+    manifetsts.forEach(manifest => {
+      const splitPath = manifest.split('/');
+      const basePath = splitPath.splice(0, splitPath.length - 1).join('/');
+      taskNameToTestPaths[taskName] = taskNameToTestPaths[taskName] || [];
+      (testsByManifest[manifest] || []).forEach(test => {
+        taskNameToTestPaths[taskName].push(`${basePath}/${test}`);
+      });
+    });
+  });
+  return taskNameToTestPaths;
+};
+
 const fetchGeckoDecisionArtifact = async (project, revision, filePath) => {
   let artifactContents = {};
   const rootUrl = prodFirefoxRootUrl;
@@ -179,7 +198,7 @@ class Push extends React.PureComponent {
   fetchTestManifests = async () => {
     const { currentRepo, push } = this.props;
 
-    const [jobTypeNameToManifests, testsByManifest] = await Promise.all([
+    const [manifestsByTask, testsByManifest] = await Promise.all([
       fetchGeckoDecisionArtifact(
         currentRepo.name,
         push.revision,
@@ -191,31 +210,14 @@ class Push extends React.PureComponent {
         'tests-by-manifest.json.gz',
       ),
     ]);
-    // We need to create a map from jobTypeName to testPaths:
-    // jobTypeName: test-linux1804-64-shippable/opt-mochitest-devtools-chrome-e10s-1
-    // testPath: devtools/client/framework/browser-toolbox/test/browser_browser_toolbox_debugger.js
-    const jobTypeNameToTestPaths = {};
-    Object.entries(jobTypeNameToManifests).forEach(
-      ([jobTypeName, manifetsts]) => {
-        manifetsts.forEach(manifest => {
-          const tests = testsByManifest[manifest] || [];
-          const splitPath = manifest.split('/');
-          const basePath = splitPath.splice(0, splitPath.length - 1).join('/');
-          jobTypeNameToTestPaths[jobTypeName] = tests.reduce(
-            (testsWithBasePath, test) =>
-              testsWithBasePath.concat(`${basePath}/${test}`),
-            [],
-          );
-        });
-      },
-    );
-    // Call setState with callback to guarantee the state of jobTypeNameToTestPaths
+    const taskNameToTestPaths = joinArtifacts(manifestsByTask, testsByManifest);
+    // Call setState with callback to guarantee the state of taskNameToTestPaths
     // to be set since it is read within mapPushJobs and we might have a race
     // condition. We are also reading jobList now rather than before fetching
     // the artifact because it gives us an empty list
     this.setState(
       {
-        jobTypeNameToTestPaths,
+        taskNameToTestPaths,
       },
       () => this.mapPushJobs(this.state.jobList),
     );
@@ -239,7 +241,7 @@ class Push extends React.PureComponent {
 
   mapPushJobs = (jobs, skipJobMap) => {
     const { updateJobMap, recalculateUnclassifiedCounts, push } = this.props;
-    const { jobTypeNameToTestPaths = {} } = this.state;
+    const { taskNameToTestPaths = {} } = this.state;
 
     // whether or not we got any jobs for this push, the operation to fetch
     // them has completed.
@@ -251,7 +253,7 @@ class Push extends React.PureComponent {
       const existingJobs = jobList.filter(job => !newIds.includes(job.id));
       // Join both lists and add test_paths property
       const newJobList = [...existingJobs, ...jobs].map(job => {
-        job.test_paths = jobTypeNameToTestPaths[job.job_type_name] || [];
+        job.test_paths = taskNameToTestPaths[job.job_type_name] || [];
         return job;
       });
       const platforms = this.sortGroupedJobs(
