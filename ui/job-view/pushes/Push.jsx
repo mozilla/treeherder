@@ -2,13 +2,13 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
 import sortBy from 'lodash/sortBy';
-import { inflate } from 'pako';
 
 import {
   thEvents,
   thOptionOrder,
   thPlatformMap,
 } from '../../helpers/constants';
+import decompress from '../../helpers/gzip';
 import { getGroupMapKey } from '../../helpers/aggregateId';
 import { getAllUrlParams, getUrlParam } from '../../helpers/location';
 import JobModel from '../../models/job';
@@ -42,14 +42,13 @@ const fetchGeckoDecisionArtifact = async (project, revision, filePath) => {
   )}/api/index/v1/task/gecko.v2.${project}.revision.${revision}.taskgraph.decision/artifacts/public/${filePath}`;
   const response = await fetch(url);
   if (url.endsWith('.gz')) {
-    if ([200, 303, 304].indexOf(response.status) > -1) {
+    if ([200, 303, 304].includes(response.status)) {
       const blob = await response.blob();
       const binData = await blob.arrayBuffer();
-      const decompressed = await inflate(binData, { to: 'string' });
-      artifactContents = JSON.parse(decompressed);
+      artifactContents = await decompress(binData);
     }
   } else if (url.endsWith('.json')) {
-    if ([200, 303, 304].indexOf(response.status) > -1) {
+    if ([200, 303, 304].includes(response.status)) {
       artifactContents = await response.json();
     }
   }
