@@ -33,7 +33,7 @@ class GitHub:
                 "date": release["published_at"],
                 "author": release["author"]["login"],
                 "message": "Released " + name,
-                "id": release["id"],
+                "remote_id": release["id"],
                 "type": "release",
                 "url": release["html_url"],
             }
@@ -57,7 +57,7 @@ class GitHub:
                 "date": commit["commit"]["author"]["date"],
                 "author": commit["commit"]["author"]["name"],
                 "message": message,
-                "id": commit["sha"],
+                "remote_id": commit["sha"],
                 "type": "commit",
                 "url": commit["html_url"],
                 "files": [f["filename"] for f in commit.get("files", [])],

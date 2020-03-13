@@ -2,7 +2,7 @@ import logging
 
 import newrelic.agent
 
-from treeherder.utils.github import make_request
+from treeherder.utils.http import make_request
 
 from .artifactbuilders import (BuildbotJobArtifactBuilder,
                                BuildbotLogViewArtifactBuilder,

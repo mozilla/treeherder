@@ -16,7 +16,7 @@ def test_changelog_list(client, test_job_with_notes):
         "date": datetime.now(),
         "author": "tarek",
         "message": "commit",
-        "id": "2689367b205c16ce32ed4200942b8b8b1e262dfc70d9bc9fbc77c49699a4f1df",
+        "remote_id": "2689367b205c16ce32ed4200942b8b8b1e262dfc70d9bc9fbc77c49699a4f1df",
         "type": "commit",
         "url": "http://example.com/some/url",
     }

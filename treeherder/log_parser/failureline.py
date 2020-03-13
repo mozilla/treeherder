@@ -13,7 +13,7 @@ from treeherder.etl.text import astral_filter
 from treeherder.model.models import (FailureLine,
                                      Group,
                                      JobLog)
-from treeherder.utils.github import fetch_text
+from treeherder.utils.http import fetch_text
 
 logger = logging.getLogger(__name__)
 
