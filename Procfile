@@ -36,9 +36,9 @@ celery_scheduler: REMAP_SIGTERM=SIGQUIT newrelic-admin run-program celery beat -
 # to the `store_pulse_{pushes,jobs}` queues for `worker_store_pulse_data` to process.
 # NB: These should not be scaled up to more than 1 of each.
 # TODO: Merge these two listeners into one since they use so little CPU each (bug 1530965).
-pulse_listener_tasks_pushes: newrelic-admin run-program ./manage.py pulse_listener_pushes & newrelic-admin run-program ./manage.py pulse_listener_tasks & wait -n
+pulse_listener_tasks_pushes: newrelic-admin run-program ./manage.py pulse_listener
 
-# Processes pushes/jobs from Pulse that were collected by `pulse_listener_{pushes,jobs)`.
+# Processes pushes/jobs from Pulse that were collected by `pulse_listener`.
 worker_store_pulse_data: REMAP_SIGTERM=SIGQUIT newrelic-admin run-program celery worker -A treeherder --without-gossip --without-mingle --without-heartbeat -Q store_pulse_pushes,store_pulse_tasks --concurrency=3
 
 # Handles the log parsing tasks scheduled by `worker_store_pulse_data` as part of job ingestion.
