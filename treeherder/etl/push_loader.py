@@ -4,10 +4,10 @@ import environ
 import newrelic.agent
 from django.core.exceptions import ObjectDoesNotExist
 
-from treeherder.etl.common import (fetch_json,
-                                   to_timestamp)
+from treeherder.etl.common import to_timestamp
 from treeherder.etl.push import store_push_data
 from treeherder.model.models import Repository
+from treeherder.utils.github import fetch_json
 
 env = environ.Env()
 logger = logging.getLogger(__name__)

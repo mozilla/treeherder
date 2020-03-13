@@ -14,7 +14,6 @@ from django.core.management.base import BaseCommand
 
 from treeherder.client.thclient import TreeherderClient
 from treeherder.config.settings import GITHUB_TOKEN
-from treeherder.etl.common import fetch_json
 from treeherder.etl.db_semaphore import (acquire_connection,
                                          release_connection)
 from treeherder.etl.job_loader import JobLoader
@@ -24,6 +23,7 @@ from treeherder.etl.taskcluster_pulse.handler import (EXCHANGE_EVENT_MAP,
                                                       handleMessage)
 from treeherder.model.models import Repository
 from treeherder.utils import github
+from treeherder.utils.github import fetch_json
 
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.INFO)
@@ -182,7 +182,7 @@ def query_data(repo_meta, commit):
     event_base_sha = repo_meta["branch"]
     # First we try with `master` being the base sha
     # e.g. https://api.github.com/repos/servo/servo/compare/master...1418c0555ff77e5a3d6cf0c6020ba92ece36be2e
-    compareResponse = github.compare_shas(repo_meta, repo_meta["branch"], commit)
+    compareResponse = github.compare_shas(repo_meta["owner"], repo_meta["repo"], repo_meta["branch"], commit)
     merge_base_commit = compareResponse.get("merge_base_commit")
     if merge_base_commit:
         commiter_date = merge_base_commit["commit"]["committer"]["date"]
@@ -211,7 +211,7 @@ def query_data(repo_meta, commit):
         assert event_base_sha != repo_meta["branch"]
         logger.info("We have a new base: %s", event_base_sha)
         # When using the correct event_base_sha the "commits" field will be correct
-        compareResponse = github.compare_shas(repo_meta, event_base_sha, commit)
+        compareResponse = github.compare_shas(repo_meta["owner"], repo_meta["repo"], event_base_sha, commit)
 
     commits = []
     for _commit in compareResponse["commits"]:
@@ -268,12 +268,13 @@ def ingest_git_pushes(project, dry_run=False):
 
     logger.info("--> Converting Github commits to pushes")
     _repo = repo_meta(project)
-    github_commits = github.commits_info(_repo)
+    owner, repo = _repo["owner"], _repo["repo"]
+    github_commits = github.commits_info(owner, repo)
     not_push_revision = []
     push_revision = []
     push_to_date = {}
     for _commit in github_commits:
-        info = github.commit_info(_repo, _commit["sha"])
+        info = github.commit_info(owner, repo, _commit["sha"])
         # Revisions that are marked as non-push should be ignored
         if _commit["sha"] in not_push_revision:
             logger.debug("Not a revision of a push: {}".format(_commit["sha"]))

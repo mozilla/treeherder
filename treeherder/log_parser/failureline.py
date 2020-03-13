@@ -9,11 +9,11 @@ from django.db.utils import (IntegrityError,
                              OperationalError)
 from requests.exceptions import HTTPError
 
-from treeherder.etl.common import fetch_text
 from treeherder.etl.text import astral_filter
 from treeherder.model.models import (FailureLine,
                                      Group,
                                      JobLog)
+from treeherder.utils.http import fetch_text
 
 logger = logging.getLogger(__name__)
 

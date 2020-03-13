@@ -8,9 +8,9 @@ from kombu import (Connection,
                    Queue)
 from kombu.mixins import ConsumerMixin
 
-from treeherder.etl.common import fetch_json
 from treeherder.etl.tasks.pulse_tasks import (store_pulse_pushes,
                                               store_pulse_tasks)
+from treeherder.utils.http import fetch_json
 
 from .exchange import get_exchange
 

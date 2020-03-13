@@ -1,0 +1,113 @@
+{
+  "repositories": [
+    {
+      "metadata": {
+        "description": "Tool for creating Windows cloud",
+        "owner": "Release Engineering",
+        "project": "OCC",
+        "project_url": "https://github.com/mozilla-releng/OpenCloudConfig"
+      },
+      "source": {
+        "filters": ["deployment"],
+        "items": 10,
+        "repository": "OpenCloudConfig",
+        "type": "github",
+        "user": "mozilla-releng"
+      }
+    },
+    {
+      "metadata": {
+        "description": "Tool for creating Windows cloud",
+        "owner": "Release Engineering",
+        "project": "Build Puppet",
+        "project_url": "https://github.com/mozilla-releng/build-puppet"
+      },
+      "source": {
+        "filters": ["remove_auto_commits"],
+        "items": 10,
+        "repository": "build-puppet",
+        "type": "github",
+        "user": "mozilla-releng"
+      }
+    },
+    {
+      "metadata": {
+        "description": "Framework that supports Mozilla's continuous integration and release processes.",
+        "owner": "Release Engineering",
+        "project": "TaskCluster",
+        "project_url": "https://github.com/taskcluster/taskcluster"
+      },
+      "source": {
+        "filters": ["only_releases"],
+        "items": 10,
+        "repository": "taskcluster",
+        "type": "github",
+        "user": "taskcluster"
+      }
+    },
+
+    {
+      "metadata": {
+        "description": "Docker task host for linux",
+        "owner": "Release Engineering",
+        "project": "Docker Worker",
+        "project_url": "https://github.com/taskcluster/docker-worker"
+      },
+      "source": {
+        "filters": ["only_releases"],
+        "items": 10,
+        "repository": "docker-worker",
+        "type": "github",
+        "user": "taskcluster"
+      }
+    },
+
+    {
+      "metadata": {
+        "description": "A generic worker for TaskCluster, written in go",
+        "owner": "Release Engineering",
+        "project": "Generic Worker",
+        "project_url": "https://github.com/taskcluster/generic-worker"
+      },
+      "source": {
+        "filters": ["only_releases"],
+        "items": 10,
+        "repository": "generic-worker",
+        "type": "github",
+        "user": "taskcluster"
+      }
+    },
+
+    {
+      "metadata": {
+        "description": "Taskcluster authentication proxy",
+        "owner": "Release Engineering",
+        "project": "Taskcluster Proxy",
+        "project_url": "https://github.com/taskcluster/taskcluster-proxy"
+      },
+      "source": {
+        "filters": ["only_releases"],
+        "items": 10,
+        "repository": "taskcluster-proxy",
+        "type": "github",
+        "user": "taskcluster"
+      }
+    },
+    {
+      "metadata": {
+        "description": "Simple implementation of a test run manager for mozilla tests at bitbar.",
+        "owner": "Bob Clary",
+        "project": "Bitbar device pool",
+        "project_url": "https://github.com/bclary/mozilla-bitbar-devicepool/"
+      },
+      "source": {
+        "filters": [],
+        "items": 10,
+        "repository": "mozilla-bitbar-devicepool",
+        "type": "github",
+        "user": "bclary",
+        "filters": [["filter_by_path", "config/config.yml"]]
+      }
+    }
+  ]
+}

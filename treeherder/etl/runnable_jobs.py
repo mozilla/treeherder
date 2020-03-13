@@ -4,7 +4,7 @@ import requests
 from django.core.exceptions import ValidationError
 from django.core.validators import URLValidator
 
-from treeherder.etl.common import fetch_json
+from treeherder.utils.github import fetch_json
 
 logger = logging.getLogger(__name__)
 

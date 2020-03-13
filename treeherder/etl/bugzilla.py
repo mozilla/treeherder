@@ -3,8 +3,8 @@ import logging
 import dateutil.parser
 from django.conf import settings
 
-from treeherder.etl.common import fetch_json
 from treeherder.model.models import Bugscache
+from treeherder.utils.github import fetch_json
 
 logger = logging.getLogger(__name__)
 
