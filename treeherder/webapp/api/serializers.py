@@ -374,6 +374,6 @@ class ChangelogSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Changelog
-        fields = ('id', 'date', 'author', 'message', 'description',
+        fields = ('id', 'remote_id', 'date', 'author', 'message', 'description',
                   'owner', 'project', 'project_url', 'type', 'url',
                   'files')
