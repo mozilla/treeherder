@@ -230,9 +230,11 @@ test('Using select query param displays tooltip for correct datapoint', async ()
     getByText(expectedRevision.slice(0, 13)),
   );
   const repoName = await waitForElement(() => getByTestId('repoName'));
+  const platform = await waitForElement(() => getByTestId('platform'));
   expect(graphTooltip).toBeInTheDocument();
   expect(revision).toBeInTheDocument();
   expect(repoName).toHaveTextContent(testData[0].repository_name);
+  expect(platform).toHaveTextContent(testData[0].platform);
 });
 
 test('InputFilter from TestDataModal can filter by application name', async () => {
