@@ -11,7 +11,11 @@ export default class PerformanceTab extends React.PureComponent {
     sortedDetails.sort((a, b) => a.title.localeCompare(b.title));
 
     return (
-      <div className="performance-panel" role="region" aria-label="Performance">
+      <div
+        className="performance-panel h-100 overflow-auto"
+        role="region"
+        aria-label="Performance"
+      >
         {!!sortedDetails.length && (
           <ul>
             <li>
