@@ -3,7 +3,7 @@
 
 ## Upgrading
 
-    pip-compile --generate-hashes --output-file requirements/common.txt > requirements/common.in
+    pip-compile --generate-hashes --output-file requirements/common.txt requirements/common.in
 
 
 pip-compile --upgrade
