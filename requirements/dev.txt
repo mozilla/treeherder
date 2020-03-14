@@ -254,3 +254,6 @@ zope.proxy==4.3.3 \
 # To test async code
 pytest-asyncio==0.10.0 \
     --hash=sha256:d734718e25cfc32d2bf78d346e99d33724deeba774cc4afdf491530c6184b63b
+
+# make pinning versions easier
+pip-tools
