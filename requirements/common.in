@@ -110,21 +110,11 @@ django-cache-memoize==0.1.6
 jx-bigquery
 jx-mysql
 jx-python
-jx-sqlite
-mo-collections
-mo-dots
 mo-files
 mo-future
 mo-json
-mo-json-config
-mo-kwargs
 mo-logs
-mo-math
 mo-sql
-mo-testing
-mo-times
-mo-threads
-pyLibrary
 pymysql
 google-cloud-bigquery
 protobuf
@@ -135,3 +125,5 @@ google_auth
 googleapis-common-protos
 cachetools
 pyasn1_modules
+
+
