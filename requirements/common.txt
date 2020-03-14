@@ -85,7 +85,7 @@ brotli==1.0.7 \
 cachetools==4.0.0 \
     --hash=sha256:9a52dd97a85f257f4e4127f15818e71a0c7899f121b34591fcc1173ea79a0198 \
     --hash=sha256:b304586d357c43221856be51d73387f93e2a961598a9b6b6670664746f3b6c6c \
-    # via -r requirements/common.in, google-auth
+    # via google-auth
 celery==4.3.0 \
     --hash=sha256:4c4532aa683f170f40bd76f928b70bc06ff171a959e06e71bf35f2f9d6031ef9 \
     --hash=sha256:528e56767ae7e43a16cfef24ee1062491f5754368d38fcfffa861cdb9ef219be \
@@ -156,26 +156,26 @@ future==0.18.2 \
 google-api-core==1.16.0 \
     --hash=sha256:859f7392676761f2b160c6ee030c3422135ada4458f0948c5690a6a7c8d86294 \
     --hash=sha256:92e962a087f1c4b8d1c5c88ade1c1dfd550047dcffb320c57ef6a534a20403e2 \
-    # via -r requirements/common.in, google-cloud-bigquery, google-cloud-core
+    # via google-cloud-bigquery, google-cloud-core
 google-auth==1.11.3 \
     --hash=sha256:4fddaf62bcfc3b9cc1bb2062130937a25ebe781b8eb15beec217c160b8cabb68 \
     --hash=sha256:ec172006e626bb90f6069e9358c373bc991a15da6cc55276986d9ecd29235b15 \
-    # via -r requirements/common.in, google-api-core, google-cloud-bigquery
+    # via google-api-core, google-cloud-bigquery
 google-cloud-bigquery==1.24.0 \
     --hash=sha256:23c9180e87f6093eb6f2ae880d7f7697fdab991a4616439ad0f95cd37014f0dd \
     --hash=sha256:7ffcceed8becea20cb4ce4bdf9b924822780416ff1a9d497f9a1238a3f1442b1 \
-    # via -r requirements/common.in, jx-bigquery
+    # via jx-bigquery
 google-cloud-core==1.3.0 \
     --hash=sha256:6ae5c62931e8345692241ac1939b85a10d6c38dc9e2854bdbacb7e5ac3033229 \
     --hash=sha256:878f9ad080a40cdcec85b92242c4b5819eeb8f120ebc5c9f640935e24fc129d8 \
-    # via -r requirements/common.in, google-cloud-bigquery
+    # via google-cloud-bigquery
 google-resumable-media==0.5.0 \
     --hash=sha256:2a8fd188afe1cbfd5998bf20602f76b0336aa892de88fe842a806b9a3ed78d2a \
     --hash=sha256:b86140d5a0b6d290084b11bde90ee9aecad357ba0e0d67388d016b8340320927 \
-    # via -r requirements/common.in, google-cloud-bigquery
+    # via google-cloud-bigquery
 googleapis-common-protos==1.51.0 \
     --hash=sha256:013c91704279119150e44ef770086fdbba158c1f978a6402167d47d5409e226e \
-    # via -r requirements/common.in, google-api-core
+    # via google-api-core
 graphene-django==2.8.0 \
     --hash=sha256:85376ed02941f579849033c027cd8b1e31be72765b504a08706ccb9234ecdc26 \
     --hash=sha256:a290fc41a58ee61b43ff4b4885e866ef48bb8d66b0e7088fd8dc2bd677856e6a \
@@ -267,16 +267,16 @@ markupsafe==1.1.1 \
     # via -r requirements/common.in, jinja2
 mo-collections==3.46.20032 \
     --hash=sha256:b96df523a7894e78c9160b45426b8db45d47841f5185f4dd1ccfe9a3708e89d6 \
-    # via jx-mysql, jx-python
+    # via jx-mysql, jx-python, mo-testing
 mo-dots==3.53.20059 \
     --hash=sha256:0896920102ba6b59f43b6b667503edc19a5f69a4ad290f67fa8b916ea87a6063 \
-    # via jx-bigquery, jx-mysql, jx-python, mo-collections, mo-files, mo-json, mo-json-config, mo-kwargs, mo-logs, mo-math, mo-sql, mo-threads, mo-times
+    # via jx-bigquery, jx-mysql, jx-python, mo-collections, mo-files, mo-json, mo-json-config, mo-kwargs, mo-logs, mo-math, mo-sql, mo-testing, mo-threads, mo-times
 mo-files==3.51.20059 \
     --hash=sha256:d1e160165060cb467bc0fb11317e09a39e2e9e01081b2b712dcb75062140e490 \
     # via -r requirements/common.in, jx-mysql, jx-python, mo-json-config
 mo-future==3.51.20059 \
     --hash=sha256:3d1bfce849d26f56ad6db05ae8e783756ac0d195bc55942a775d9013d3cc5c04 \
-    # via -r requirements/common.in, jx-bigquery, jx-mysql, jx-python, mo-collections, mo-dots, mo-files, mo-json, mo-json-config, mo-kwargs, mo-logs, mo-math, mo-sql, mo-threads, mo-times
+    # via -r requirements/common.in, jx-bigquery, jx-mysql, jx-python, mo-collections, mo-dots, mo-files, mo-json, mo-json-config, mo-kwargs, mo-logs, mo-math, mo-sql, mo-testing, mo-threads, mo-times
 mo-json-config==3.42.20031 \
     --hash=sha256:65f926de86c4cd21f6b13e4dbb858927a0e8be5e83635daa64ffe9f5133eb36b \
     # via jx-python
@@ -288,19 +288,22 @@ mo-kwargs==3.54.20059 \
     # via jx-bigquery, jx-mysql, jx-python, mo-collections
 mo-logs==3.53.20059 \
     --hash=sha256:a7ed0bfe70f5f37cfaa0745823d28d455bef773f72379b17c65138b1d702ec5d \
-    # via -r requirements/common.in, jx-bigquery, jx-mysql, jx-python, mo-collections, mo-files, mo-json, mo-json-config, mo-kwargs, mo-math, mo-sql, mo-threads, mo-times
+    # via -r requirements/common.in, jx-bigquery, jx-mysql, jx-python, mo-collections, mo-files, mo-json, mo-json-config, mo-kwargs, mo-math, mo-sql, mo-testing, mo-threads, mo-times
 mo-math==3.41.20031 \
     --hash=sha256:76ac7894c45986fcbe84eaa638643561bae59ada8f523ed4e064c556fdd1f9d3 \
-    # via jx-mysql, jx-python, mo-times
+    # via jx-mysql, jx-python, mo-testing, mo-times
 mo-sql==3.55.20074 \
     --hash=sha256:de8b700d3b1a1b687fa0f7ae44ccd3141b8cb1df3d179ce692d3756b56cc1237 \
-    # via -r requirements/common.in, jx-bigquery, jx-mysql
+    # via jx-bigquery, jx-mysql
+mo-testing==3.38.20029 \
+    --hash=sha256:48c4a9b10f2d20a6fdfe66a6e72d9c47c456023eefcc3845ed6c988b44380cac \
+    # via -r requirements/common.in
 mo-threads==3.51.20059 \
     --hash=sha256:7184e253f9dedbf640eb98526157a6d1ba33a7fb59237b17790bcfb7b2f85548 \
     # via jx-python
 mo-times==3.51.20059 \
     --hash=sha256:e68205a0ec752c8bddb392cd542d8754368b105406c4ec450e1620adef4e2035 \
-    # via jx-bigquery, jx-mysql, jx-python, mo-json
+    # via -r requirements/common.in, jx-bigquery, jx-mysql, jx-python, mo-json
 mohawk==1.1.0 \
     --hash=sha256:3ed296a30453d0b724679e0fd41e4e940497f8e461a9a9c3b7f36e43bab0fa09 \
     --hash=sha256:d2a0e3ab10a209cc79e95e28f2dd54bd4a73fd1998ffe27b7ba0f962b6be9723 \
@@ -367,11 +370,11 @@ protobuf==3.11.3 \
     --hash=sha256:ef2c2e56aaf9ee914d3dccc3408d42661aaf7d9bb78eaa8f17b2e6282f214481 \
     --hash=sha256:fac513a9dc2a74b99abd2e17109b53945e364649ca03d9f7a0b96aa8d1807d0a \
     --hash=sha256:fdfb6ad138dbbf92b5dbea3576d7c8ba7463173f7d2cb0ca1bd336ec88ddbd80 \
-    # via -r requirements/common.in, google-api-core, google-cloud-bigquery, googleapis-common-protos
+    # via google-api-core, google-cloud-bigquery, googleapis-common-protos
 pyasn1-modules==0.2.8 \
     --hash=sha256:905f84c712230b2c592c19470d3ca8d552de726050d1d1716282a1f6146be65e \
     --hash=sha256:a50b808ffeb97cb3601dd25981f6b016cbb3d31fbf57a8b8a87428e6158d0c74 \
-    # via -r requirements/common.in, google-auth
+    # via google-auth
 pyasn1==0.4.8 \
     --hash=sha256:39c7e2ec30515947ff4e87fb6f456dfc6e84857d34be479c9d4a4ba4bf46aa5d \
     --hash=sha256:aef77c9fb94a3ac588e87841208bdec464471d9871bd5050a287cc9a475cd0ba \
@@ -416,7 +419,7 @@ pylibrary==3.47.20042 \
 pymysql==0.9.3 \
     --hash=sha256:3943fbbbc1e902f41daf7f9165519f140c4451c179380677e6a848587042561a \
     --hash=sha256:d8c059dcd81dedb85a9f034d5e22dcb4442c0b201908bede99e306d65ea7c8e7 \
-    # via -r requirements/common.in, jx-mysql
+    # via jx-mysql
 pyrsistent==0.15.7 \
     --hash=sha256:cdc7b5e3ed77bed61270a47d35434a30617b9becdf2478af76ad2c6ade307280 \
     # via -r requirements/common.in, jsonschema

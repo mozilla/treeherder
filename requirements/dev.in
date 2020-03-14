@@ -58,9 +58,5 @@ zope.proxy==4.3.3
 # To test async code
 pytest-asyncio==0.10.0
 
-# testing extract to bigquery
-mo-testing
-mo-times
-
 # make pinning versions easier
 pip-tools
