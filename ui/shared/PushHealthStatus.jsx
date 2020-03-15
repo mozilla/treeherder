@@ -92,13 +92,12 @@ class PushHealthStatus extends Component {
     }
 
     return (
-      <React.Fragment>
+      <span data-testid={`health-status-${revision}`}>
         {needInvestigation !== null ? (
           <a
             href={getPushHealthUrl({ repo: repoName, revision })}
             target="_blank"
             rel="noopener noreferrer"
-            data-testid={`health-status-${revision}`}
           >
             <Badge
               color={badgeColor}
@@ -111,7 +110,7 @@ class PushHealthStatus extends Component {
         ) : (
           <Spinner size="sm" />
         )}
-      </React.Fragment>
+      </span>
     );
   }
 }

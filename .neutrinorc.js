@@ -35,11 +35,6 @@ module.exports = {
         title: 'Treeherder Login',
         template: 'ui/index.html',
       },
-      testview: {
-        entry: 'test-view/index.jsx',
-        title: 'Treeherder Test View',
-        template: 'ui/index.html',
-      },
       pushhealth: {
         entry: 'push-health/index.jsx',
         title: 'Push Health',

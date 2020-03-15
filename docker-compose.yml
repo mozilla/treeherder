@@ -15,6 +15,7 @@ services:
       # Those that do not vary across environments should go in `Dockerfile`.
       - BROKER_URL=amqp://guest:guest@rabbitmq//
       - DATABASE_URL=${DATABASE_URL:-mysql://root@mysql/treeherder}
+      - GITHUB_TOKEN=${GITHUB_TOKEN:-}
       - UPSTREAM_DATABASE_URL=${UPSTREAM_DATABASE_URL:-}
       - PERF_SHERIFF_BOT_CLIENT_ID=${PERF_SHERIFF_BOT_CLIENT_ID:-}
       - PERF_SHERIFF_BOT_ACCESS_TOKEN=${PERF_SHERIFF_BOT_ACCESS_TOKEN:-}

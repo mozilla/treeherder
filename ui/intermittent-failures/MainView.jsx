@@ -42,8 +42,8 @@ const MainView = props => {
     {
       Header: 'Bug',
       accessor: 'id',
-      headerClassName: 'bug-column-header',
-      className: 'bug-column',
+      headerClassName: 'bug-column-header text-left',
+      className: 'bug-column text-left',
       maxWidth: 150,
       width: 115,
       Cell: _props => (

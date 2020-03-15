@@ -67,6 +67,8 @@ const BugDetailsView = props => {
     {
       Header: 'Platform',
       accessor: 'platform',
+      className: 'text-left',
+      headerClassName: 'platform-column-header',
     },
     {
       Header: 'Build Type',
@@ -76,6 +78,8 @@ const BugDetailsView = props => {
       Header: 'Test Suite',
       accessor: 'test_suite',
       minWidth: 150,
+      className: 'text-left',
+      headerClassName: 'test-suite-header',
     },
     {
       Header: 'Machine Name',

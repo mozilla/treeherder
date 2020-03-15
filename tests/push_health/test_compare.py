@@ -54,6 +54,47 @@ def test_get_commit_history_automationrelevance(test_push, test_repository):
     history = get_commit_history(test_repository, test_revision, test_push)
     assert history['parentSha'] == parent_revision
     assert history['parentPushRevision'] == parent_revision
+    assert history['parentRepository']['name'] == test_repository.name
+
+
+@responses.activate
+def test_get_commit_history_parent_different_repo(
+        test_push,
+        test_repository,
+        test_repository_2
+        ):
+    test_revision = '4c45a777949168d16c03a4cba167678b7ab65f76'
+    parent_revision = 'abcdef77949168d16c03a4cba167678b7ab65f76'
+    Push.objects.create(
+        revision=parent_revision,
+        repository=test_repository_2,
+        author='foo@bar.baz',
+        time=datetime.datetime.now()
+    )
+
+    autorel_commits = {'changesets': [
+        {
+            'author': 'Cheech Marin <cheech.marin@gmail.com>', 'backsoutnodes': [],
+            'desc': 'Bug 1612891 - Suppress parsing easing error in early returns of ConvertKeyframeSequence.\n\nWe add a stack based class and supress the exception of parsing easing\nin the destructor, to avoid hitting the potential assertions.\n\nDifferential Revision: https://phabricator.services.mozilla.com/D64268\nDifferential Diff: PHID-DIFF-c4e7dcfpalwiem7bxsnk',
+            'node': '3ca259f9cbdea763e64f10e286e58b271d89ab9d',
+            'parents': [parent_revision],
+        },
+    ], 'visible': True}
+
+    autorel_url = 'https://hg.mozilla.org/{}/json-automationrelevance/{}'.format(
+        test_repository.name, test_revision)
+    responses.add(
+        responses.GET,
+        autorel_url,
+        json=autorel_commits,
+        content_type='application/json',
+        status=200
+    )
+
+    history = get_commit_history(test_repository, test_revision, test_push)
+    assert history['parentSha'] == parent_revision
+    assert history['parentPushRevision'] == parent_revision
+    assert history['parentRepository']['name'] == test_repository_2.name
 
 
 @responses.activate
@@ -100,6 +141,7 @@ def test_get_commit_history_json_pushes(test_push, test_repository):
     history = get_commit_history(test_repository, test_revision, test_push)
     assert history['parentSha'] == parent_revision
     assert history['parentPushRevision'] == parent_revision
+    assert history['parentRepository']['name'] == test_repository.name
 
 
 @responses.activate

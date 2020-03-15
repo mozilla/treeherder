@@ -4,10 +4,10 @@ import environ
 import newrelic.agent
 from django.core.exceptions import ObjectDoesNotExist
 
-from treeherder.etl.common import (fetch_json,
-                                   to_timestamp)
+from treeherder.etl.common import to_timestamp
 from treeherder.etl.push import store_push_data
 from treeherder.model.models import Repository
+from treeherder.utils.github import fetch_json
 
 env = environ.Env()
 logger = logging.getLogger(__name__)
@@ -95,19 +95,15 @@ class GithubTransformer:
         head_commit = commits[-1]
         push = {
             "revision": head_commit["sha"],
+            # A push can be co-authored
+            # The author's date is when the code was committed locally by the author
+            # The committer's date is the info as to when the PR is merged (committed) into master
             "push_timestamp": to_timestamp(
-                head_commit["commit"]["author"]["date"]),
+                head_commit["commit"]["committer"]["date"]
+            ),
+            # We want the original author's email to show up in the UI
             "author": head_commit["commit"]["author"]["email"],
         }
-
-        body = self.message_body
-        # Github pull request events do not have the "commits" property
-        if body.get("commits"):
-            # A Github push event does not contain commits for merge pushes and need to use the head_commit
-            head_commit = body["commits"][-1] if body["commits"] else body["head_commit"]
-            # The commits in Pulse messages come from a Github push event which contains
-            # the "timestamp" field. The commits from the "compare" API do not contain that field
-            push["push_timestamp"] = to_timestamp(head_commit["timestamp"])
 
         revisions = []
         for commit in commits:

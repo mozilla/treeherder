@@ -41,7 +41,10 @@ def _unique_key(job):
     This makes sure that we use a consistent key between our code and selecting jobs from the
     table.
     """
-    return unique_key(testtype=str(job['testtype']),
+    testtype = str(job['testtype'])
+    if not testtype:
+        raise Exception('Bad job {}'.format(job))
+    return unique_key(testtype=testtype,
                       buildtype=str(job['platform_option']),
                       platform=str(job['platform']))
 

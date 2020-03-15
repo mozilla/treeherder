@@ -11,13 +11,14 @@ To use this within the Docker environment, run:
 docker-compose run -p 8000:8000 backend mkdocs serve -a 0.0.0.0:8000
 ```
 
-Or if you would rather not use Docker, instead activate a virtualenv on the host
-machine, and from the root of the Treeherder repo, run:
+Or if you would rather not use Docker, instead use poetry,run:
 
-```bash
-> pip install -r requirements/docs.txt
-> mkdocs serve
+```console
+% pip install poetry
+% poetry install
+% poetry run mkdocs serve
 ```
+**Note-**On Windows you might need to fallback ```python -m venv venv``` or ```virtualenv``` to manage your virtualenv if ```poetry``` does not work for you.
 
 In either case, the docs will then be available at: <http://localhost:8000>
 

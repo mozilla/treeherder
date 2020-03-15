@@ -7,7 +7,7 @@ from rest_framework.decorators import action
 from rest_framework.response import Response
 from rest_framework.status import HTTP_400_BAD_REQUEST
 
-from treeherder.etl.common import make_request
+from treeherder.utils.http import make_request
 
 
 class BugzillaViewSet(viewsets.ViewSet):

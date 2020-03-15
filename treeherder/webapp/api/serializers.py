@@ -4,6 +4,7 @@ from django.contrib.auth.models import User
 from django.core.exceptions import ObjectDoesNotExist
 from rest_framework import serializers
 
+from treeherder.changelog.models import Changelog
 from treeherder.model import models
 from treeherder.webapp.api.utils import (REPO_GROUPS,
                                          to_timestamp)
@@ -365,3 +366,14 @@ class MachinePlatformSerializer(serializers.ModelSerializer):
     class Meta:
         model = models.MachinePlatform
         fields = ('id', 'platform')
+
+
+class ChangelogSerializer(serializers.ModelSerializer):
+
+    files = serializers.StringRelatedField(many=True)
+
+    class Meta:
+        model = Changelog
+        fields = ('id', 'remote_id', 'date', 'author', 'message', 'description',
+                  'owner', 'project', 'project_url', 'type', 'url',
+                  'files')
