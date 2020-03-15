@@ -28,12 +28,11 @@ class Command(BaseCommand):
             "PULSE_TASK_SOURCES",
             default=[{"root_url": "https://firefox-ci-tc.services.mozilla.com", "pulse_url": env("PULSE_URL")}])
 
-        listener_params = [(TaskConsumer, task_sources, lambda key: "#.{}".format(key)), (PushConsumer, push_sources)]
-        for task in listener_params:
-            flag = str(task[0])[8:-2].split(".")[4]
-            consumers = prepare_consumers(*task)
-            try:
-                consumers.run()
-            except KeyboardInterrupt:
-                pass
-            self.stdout.write("{} listening stopped......".format(flag))
+        listener_params = [(TaskConsumer, task_sources, lambda key: "#.{}".format(key)), (PushConsumer, push_sources, None)]
+        consumer = prepare_consumers(listener_params)
+        
+        try:
+            consumer.run()
+        except KeyboardInterrupt:
+            pass
+        self.stdout.write("Pulse and Task listening stopped......")
