@@ -206,5 +206,14 @@ class Consumers:
             t.join()
 
 
-def prepare_consumers(consumer_cls, sources, build_routing_key=None):
-    return Consumers([consumer_cls(source, build_routing_key) for source in sources])
+def prepare_consumers(listening_params):
+    for params in listening_params:
+        #print(params)
+        if str(params[0]) == "<class 'treeherder.services.pulse.consumers.TaskConsumer'>":
+            task=Consumers([params[0](source, params[2]) for source in params[1]])
+        #print(task)
+        elif str(params[0]) == "<class 'treeherder.services.pulse.consumers.PushConsumer'>":
+            push=Consumers([params[0](source, params[2]) for source in params[1]])
+    return task,push
+
+# Still not able to figure out on how to combine task and push and return them as new Consumers class  
