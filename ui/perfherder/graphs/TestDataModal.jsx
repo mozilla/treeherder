@@ -429,6 +429,7 @@ export default class TestDataModal extends React.Component {
 
     return (
       <Modal size="lg" isOpen={showModal}>
+        {pinnedProjects}
         <ModalHeader toggle={this.closeModal}>Add Test Data</ModalHeader>
         <ModalBody className="container-fluid test-chooser">
           <Form>
