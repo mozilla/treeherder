@@ -183,7 +183,12 @@ def fixture_create_jobs(test_repository, failure_classifications):
 
 @pytest.fixture
 def test_job(eleven_job_blobs, create_jobs):
-    return create_jobs(eleven_job_blobs[0:1])[0]
+    job = eleven_job_blobs[0]
+    job['job'].update({
+        'taskcluster_task_id': 'V3SVuxO8TFy37En_6HcXLs',
+        'taskcluster_retry_id': '0'
+    })
+    return create_jobs([job])[0]
 
 
 @pytest.fixture
@@ -219,6 +224,7 @@ def eleven_job_blobs(sample_data, sample_push, test_repository, mock_log_parser)
 
     max_index = len(sample_push) - 1
     push_index = 0
+    task_id_index = 0
 
     blobs = []
     for blob in jobs:
@@ -231,10 +237,12 @@ def eleven_job_blobs(sample_data, sample_push, test_repository, mock_log_parser)
             del blob['sources']
 
         blob['revision'] = sample_push[push_index]['revision']
-
+        blob['taskcluster_task_id'] = 'V3SVuxO8TFy37En_6HcXL{}'.format(task_id_index)
+        blob['taskcluster_retry_id'] = '0'
         blobs.append(blob)
 
         push_index += 1
+        task_id_index += 1
     return blobs
 
 

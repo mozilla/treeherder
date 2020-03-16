@@ -53,6 +53,7 @@ export default class Health extends React.PureComponent {
       lintingExpanded: false,
       buildsExpanded: false,
       testsExpanded: false,
+      showParentMatches: false,
       searchStr: params.get('searchStr') || '',
     };
   }
@@ -172,6 +173,7 @@ export default class Health extends React.PureComponent {
       testsExpanded,
       searchStr,
       currentRepo,
+      showParentMatches,
     } = this.state;
     const { tests, commitHistory, linting, builds } = metrics;
     const percentComplete = status ? getPercentComplete(status) : 0;
@@ -241,7 +243,17 @@ export default class Health extends React.PureComponent {
                     Performance
                   </Button>
                 </span>
-                <span className="mr-2">
+                <span className="mr-2 d-flex">
+                  <Button
+                    size="sm"
+                    className="text-nowrap mr-1"
+                    title="Toggle failures that also failed in the parent"
+                    onClick={() =>
+                      this.setState({ showParentMatches: !showParentMatches })
+                    }
+                  >
+                    {showParentMatches ? 'Hide' : 'Show'} parent matches
+                  </Button>
                   <InputFilter
                     updateFilterText={this.filter}
                     placeholder="filter path or platform"
@@ -317,12 +329,20 @@ export default class Health extends React.PureComponent {
                   expanded={testsExpanded}
                   setExpanded={this.setExpanded}
                   searchStr={searchStr}
+                  showParentMatches={showParentMatches}
                 />
               </Row>
             </div>
           )}
           {failureMessage && <ErrorMessages failureMessage={failureMessage} />}
-          {!failureMessage && !tests && <Spinner />}
+          {!failureMessage && !tests && (
+            <h4>
+              <Spinner />
+              <span className="ml-2 pb-1">
+                Gathering health data and comparing with parent push...
+              </span>
+            </h4>
+          )}
         </Container>
       </React.Fragment>
     );

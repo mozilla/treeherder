@@ -182,12 +182,7 @@ def test_job_detail(client, test_job):
     assert resp.status_code == 200
     assert isinstance(resp.json(), dict)
     assert resp.json()["id"] == test_job.id
-    assert not resp.json().get("taskcluster_metadata")
 
-    # add some taskcluster metadata to the test job so we can test that too
-    tm = TaskclusterMetadata.objects.create(job=test_job,
-                                            task_id='IYyscnNMTLuxzna7PNqUJQ',
-                                            retry_id=0)
     resp = client.get(
         reverse("jobs-detail",
                 kwargs={"project": test_job.repository.name,
@@ -195,8 +190,8 @@ def test_job_detail(client, test_job):
     )
     assert resp.status_code == 200
     assert resp.json()["taskcluster_metadata"] == {
-        "task_id": tm.task_id,
-        "retry_id": tm.retry_id
+        "task_id": 'V3SVuxO8TFy37En_6HcXLs',
+        "retry_id": 0
     }
 
 

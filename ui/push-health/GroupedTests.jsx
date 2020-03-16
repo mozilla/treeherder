@@ -1,6 +1,6 @@
 import React, { PureComponent } from 'react';
 import PropTypes from 'prop-types';
-import { Button, UncontrolledCollapse } from 'reactstrap';
+import { Badge, Button, UncontrolledCollapse } from 'reactstrap';
 import groupBy from 'lodash/groupBy';
 import orderBy from 'lodash/orderBy';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
@@ -9,7 +9,6 @@ import { faCaretDown } from '@fortawesome/free-solid-svg-icons';
 import Clipboard from '../shared/Clipboard';
 
 import TestFailure from './TestFailure';
-import { filterTests } from './helpers';
 
 class GroupedTests extends PureComponent {
   constructor(props) {
@@ -21,11 +20,9 @@ class GroupedTests extends PureComponent {
   }
 
   getGroupedTests = tests => {
-    const { groupedBy, searchStr } = this.props;
-    const filteredTests = searchStr.length
-      ? filterTests(tests, searchStr)
-      : tests;
-    const grouped = groupBy(filteredTests, test => {
+    const { groupedBy } = this.props;
+
+    return groupBy(tests, test => {
       switch (groupedBy) {
         case 'none':
           return 'none';
@@ -35,8 +32,6 @@ class GroupedTests extends PureComponent {
           return `${test.platform} ${test.config}`;
       }
     });
-
-    return grouped;
   };
 
   setClipboardVisible = key => {
@@ -61,6 +56,7 @@ class GroupedTests extends PureComponent {
       key,
       id: key.replace(/[^a-z0-9-]+/gi, ''), // make this a valid selector
       tests,
+      failedInParent: tests.filter(item => item.failedInParent).length,
     }));
     const sortedGroups =
       orderedBy === 'count'
@@ -92,6 +88,11 @@ class GroupedTests extends PureComponent {
                   <span className="ml-2 font-italic">
                     {group.tests.length} test{group.tests.length > 1 && 's'}
                   </span>
+                  {!!group.failedInParent && (
+                    <Badge color="info" className="mx-1">
+                      {group.failedInParent} from parent
+                    </Badge>
+                  )}
                   <FontAwesomeIcon icon={faCaretDown} className="ml-1" />
                 </Button>
               </span>
@@ -127,7 +128,6 @@ GroupedTests.propTypes = {
   currentRepo: PropTypes.object.isRequired,
   user: PropTypes.object.isRequired,
   notify: PropTypes.func.isRequired,
-  searchStr: PropTypes.string.isRequired,
 };
 
 export default GroupedTests;
