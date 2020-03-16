@@ -4,6 +4,7 @@ import { BrowserRouter, Route, Switch } from 'react-router-dom';
 
 import NotFound from './NotFound';
 import Health from './Health';
+import Usage from './Usage';
 
 function hasProps(search) {
   const params = new URLSearchParams(search);
@@ -24,7 +25,7 @@ const App = () => {
                 hasProps(props.location.search) ? (
                   <Health {...props} />
                 ) : (
-                  <NotFound {...props} />
+                  <Usage {...props} />
                 )
               }
             />

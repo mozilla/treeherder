@@ -1,0 +1,431 @@
+{
+  "usage": [
+    {
+      "push": {
+        "id": 662539,
+        "revision": "9afdc6aea965f311b4e9754f3a46315cc3a10b67",
+        "author": "mozilla@christophkerschbaumer.com",
+        "revisions": [
+          {
+            "result_set_id": 662539,
+            "repository_id": 4,
+            "revision": "9afdc6aea965f311b4e9754f3a46315cc3a10b67",
+            "author": "Christoph Kerschbaumer <ckerschb@christophkerschbaumer.com>",
+            "comments": "Try Chooser Enhanced (2327 tasks selected)\n\nPushed via `mach try chooser`"
+          },
+          {
+            "result_set_id": 662539,
+            "repository_id": 4,
+            "revision": "f5d81c848b43942236aaa8b37888258891dfc25a",
+            "author": "Christoph Kerschbaumer <ckerschb@christophkerschbaumer.com>",
+            "comments": "Bug 1508292: Implement Sec-Fetch-*. r=baku"
+          }
+        ],
+        "revision_count": 2,
+        "push_timestamp": 1584103367,
+        "repository_id": 4
+      },
+      "peak": { "needInvestigation": 152.0, "time": 1584115883 },
+      "latest": { "needInvestigation": 152.0, "time": 1584115883 }
+    },
+    {
+      "push": {
+        "id": 656451,
+        "revision": "bedb34ce02171f3044c9aaa3fa6de216e85e03bb",
+        "author": "neil@mozilla.com",
+        "revisions": [
+          {
+            "result_set_id": 656451,
+            "repository_id": 4,
+            "revision": "bedb34ce02171f3044c9aaa3fa6de216e85e03bb",
+            "author": "Neil Deakin <neil@mozilla.com>",
+            "comments": "try: -b do -p linux64-valgrind,win32,linux64,android-api-16,macosx64 -u crashtest,crashtest-ipc,marionette,mochitests,reftest,reftest-ipc,reftest-no-accel,web-platform-tests,xpcshell -t none\n\nPushed via `mach try syntax`"
+          },
+          {
+            "result_set_id": 656451,
+            "repository_id": 4,
+            "revision": "d2e0f2f794f80fa0c810a58aafca5adf6d13bfd3",
+            "author": "Neil Deakin <neil@mozilla.com>",
+            "comments": "imported patch actor-reader"
+          },
+          {
+            "result_set_id": 656451,
+            "repository_id": 4,
+            "revision": "dc4e45c996c0fd9f8a5a6a61a4486e23394348ba",
+            "author": "Neil Deakin <neil@mozilla.com>",
+            "comments": "imported patch remotepagemanager-obsolete"
+          },
+          {
+            "result_set_id": 656451,
+            "repository_id": 4,
+            "revision": "03902f8f04c50a9c551aec6db186de3bda23f6fb",
+            "author": "Neil Deakin <neil@mozilla.com>",
+            "comments": "imported patch actor-abouttabcrashed"
+          },
+          {
+            "result_set_id": 656451,
+            "repository_id": 4,
+            "revision": "db847dfa11f8daff137703170b9466e5f3af50ba",
+            "author": "Neil Deakin <neil@mozilla.com>",
+            "comments": "z# HG changeset patch\n# User Neil Deakin <neil@mozilla.com>\n# Parent  343442f3d9dfcc8faec1e2884ebbb21cd6c57f31"
+          },
+          {
+            "result_set_id": 656451,
+            "repository_id": 4,
+            "revision": "09875986e315ecc6f8f91b57284cfb9b0bd17aff",
+            "author": "Neil Deakin <neil@mozilla.com>",
+            "comments": "imported patch actor-newinstall"
+          },
+          {
+            "result_set_id": 656451,
+            "repository_id": 4,
+            "revision": "7bf9796fe8930ef6a9eab50cc2518e964dd0e984",
+            "author": "Neil Deakin <neil@mozilla.com>",
+            "comments": "imported patch actor-aboutprivatebrowsing"
+          },
+          {
+            "result_set_id": 656451,
+            "repository_id": 4,
+            "revision": "6e2053158c829b62ff65558450e36cbf035e7db2",
+            "author": "Neil Deakin <neil@mozilla.com>",
+            "comments": "imported patch actor-protections"
+          },
+          {
+            "result_set_id": 656451,
+            "repository_id": 4,
+            "revision": "378e1b6f6028f0aa82c1210867d12f605a548a90",
+            "author": "Neil Deakin <neil@mozilla.com>",
+            "comments": "imported patch nomm-formautocomplete"
+          },
+          {
+            "result_set_id": 656451,
+            "repository_id": 4,
+            "revision": "ec92553a5c747fb92b33dc4d5e4f1c2b6ccc7664",
+            "author": "Neil Deakin <neil@mozilla.com>",
+            "comments": "imported patch nomm-nscontextmenu"
+          },
+          {
+            "result_set_id": 656451,
+            "repository_id": 4,
+            "revision": "d650544aa7a1f57e1b31036d95db60ced0467062",
+            "author": "Neil Deakin <neil@mozilla.com>",
+            "comments": "Bug 1619952, remove message manager from browser_windowactivation.js and replace with SpecialPowers.spawn, r=gijs"
+          },
+          {
+            "result_set_id": 656451,
+            "repository_id": 4,
+            "revision": "2fb0745b65db894e398e09dd381f3a7e4ce215d8",
+            "author": "Neil Deakin <neil@mozilla.com>",
+            "comments": "Bug 1619950, remove message manager from browser_documentnavigation.js and replace with separate calls to SpecialPowers.spawn, r=gijs"
+          },
+          {
+            "result_set_id": 656451,
+            "repository_id": 4,
+            "revision": "39d7a1e41dcf655654d02b48201d72e147fe65d5",
+            "author": "Neil Deakin <neil@mozilla.com>",
+            "comments": "Bug 1619951, remove message manager from browser_tab_dragdrop.js and replace with SpecialPowers.spawn, r=jaws"
+          },
+          {
+            "result_set_id": 656451,
+            "repository_id": 4,
+            "revision": "107cac421012655f2ce553a650ae1db9ee21a57c",
+            "author": "Neil Deakin <neil@mozilla.com>",
+            "comments": "Bug 1619949, remove message manager from browser_backButtonFitts.js test and replace with BrowserTestUtils.waitForContentEvent, r=jaws"
+          },
+          {
+            "result_set_id": 656451,
+            "repository_id": 4,
+            "revision": "5aa987d21328303e91115f28b1e4e6b7d181c1d6",
+            "author": "Neil Deakin <neil@mozilla.com>",
+            "comments": "Bug 1599780, remove unused offline apps legacy actor.\n\nThe one message it responds to is never sent since bug 1574480 removed it, and the one event it listens to only ends up adding the window to a manifest set which is no longer used for anything since bug 1579444 removed it, r=johannh"
+          },
+          {
+            "result_set_id": 656451,
+            "repository_id": 4,
+            "revision": "8698548b45c57b529778f563f46287bbd5272dad",
+            "author": "Neil Deakin <neil@mozilla.com>",
+            "comments": "Bug 1598305, supply the return value of checkFn in calls to addContentEventListener to the listener so that the parent can retrieve information about the matching event, r=mccr8"
+          },
+          {
+            "result_set_id": 656451,
+            "repository_id": 4,
+            "revision": "41ebea1988dd9c58c3dd6b124e262a6e6aeaad48",
+            "author": "Neil Deakin <neil@mozilla.com>",
+            "comments": "Bug 1614713, move neterror actor over to the actor-based RemotePageChild, and move neterror-specific functions to the NetErrorChild subclass so that they cannot be accessed via other pages"
+          },
+          {
+            "result_set_id": 656451,
+            "repository_id": 4,
+            "revision": "20189ebdec04e56c89cb4f1d9c6b312d74a91f7e",
+            "author": "Neil Deakin <neil@mozilla.com>",
+            "comments": "Bug 1614713, add a remote page manager like object that uses JSWindowActor instead. Move access management into a separate module that can be used within a child or parent process. Ensure all RPM calls go through the access manager.\n\nDifferential Revision: https://phabricator.services.mozilla.com/D63713"
+          },
+          {
+            "result_set_id": 656451,
+            "repository_id": 4,
+            "revision": "410e1ef65d00e02d3cabf12a39660c98c1df8a0d",
+            "author": "Neil Deakin <neil@mozilla.com>",
+            "comments": "Bug 1558520, test that controllers work with out of process iframes of various arrangements, r=smaug\n\nDifferential Revision: https://phabricator.services.mozilla.com/D58795"
+          },
+          {
+            "result_set_id": 656451,
+            "repository_id": 4,
+            "revision": "edc5707b3941418d71bca4e55cd7e9c30f9d5226",
+            "author": "Neil Deakin <neil@mozilla.com>",
+            "comments": "[mq]: actor-controllers-lessactor"
+          }
+        ],
+        "revision_count": 21,
+        "push_timestamp": 1583431885,
+        "repository_id": 4
+      },
+      "peak": { "needInvestigation": 105.0, "time": 1584110483 },
+      "latest": { "needInvestigation": 105.0, "time": 1584112283 }
+    },
+    {
+      "push": {
+        "id": 661471,
+        "revision": "1e5bca3f28e29a32d6ec04dabdf2e6433d31197c",
+        "author": "nchevobbe@mozilla.com",
+        "revisions": [
+          {
+            "result_set_id": 661471,
+            "repository_id": 4,
+            "revision": "1e5bca3f28e29a32d6ec04dabdf2e6433d31197c",
+            "author": "Nicolas Chevobbe <nchevobbe@mozilla.com>",
+            "comments": "Fuzzy query='node-debugger | 'node-devtools&query='mozlint-eslint&query='mochitest-devtools-chrome-e10s | 'mochitest-chrome-1proc 'linux '64/&query='xpcshell-e10s 'linux '64/\n\nPushed via `mach try fuzzy`"
+          },
+          {
+            "result_set_id": 661471,
+            "repository_id": 4,
+            "revision": "84f5f6d157805efc1b211e5a6e23a460eb582b59",
+            "author": "Nicolas Chevobbe <nchevobbe@mozilla.com>",
+            "comments": "Bug XXX - Switch ActorPool usage to Pools. r=jdescottes."
+          }
+        ],
+        "revision_count": 2,
+        "push_timestamp": 1584007702,
+        "repository_id": 4
+      },
+      "peak": { "needInvestigation": 76.0, "time": 1584096083 },
+      "latest": { "needInvestigation": 76.0, "time": 1584097883 }
+    },
+    {
+      "push": {
+        "id": 662438,
+        "revision": "10ca1becca39a7d61a218395056d9562562067e2",
+        "author": "gaurijove@gmail.com",
+        "revisions": [
+          {
+            "result_set_id": 662438,
+            "repository_id": 4,
+            "revision": "10ca1becca39a7d61a218395056d9562562067e2",
+            "author": "jayati <gaurijove@gmail.com>",
+            "comments": "Try Chooser Enhanced (156 tasks selected)\n\nPushed via `mach try chooser`"
+          },
+          {
+            "result_set_id": 662438,
+            "repository_id": 4,
+            "revision": "854a11ac7078c9b13ee00adddf739b6c5f42e480",
+            "author": "jayati <gaurijove@gmail.com>",
+            "comments": "Bug 1619318- Ensures \"X\" button is focused when navigating using Tab key. r=prathiksha\n\nDifferential Revision: https://phabricator.services.mozilla.com/D66646"
+          }
+        ],
+        "revision_count": 2,
+        "push_timestamp": 1584090744,
+        "repository_id": 4
+      },
+      "peak": { "needInvestigation": 37.0, "time": 1584094283 },
+      "latest": { "needInvestigation": 37.0, "time": 1584094283 }
+    },
+    {
+      "push": {
+        "id": 659404,
+        "revision": "fb400084210c7bac63a8c6b51079f9cde4fe7ac2",
+        "author": "mozilla@christophkerschbaumer.com",
+        "revisions": [
+          {
+            "result_set_id": 659404,
+            "repository_id": 4,
+            "revision": "fb400084210c7bac63a8c6b51079f9cde4fe7ac2",
+            "author": "Christoph Kerschbaumer <ckerschb@christophkerschbaumer.com>",
+            "comments": "Try Chooser Enhanced (658 tasks selected)\n\nPushed via `mach try chooser`"
+          },
+          {
+            "result_set_id": 659404,
+            "repository_id": 4,
+            "revision": "e2caa259c1f87cb2a647de4bdc09127d1ccd7a46",
+            "author": "Christoph Kerschbaumer <ckerschb@christophkerschbaumer.com>",
+            "comments": "Bug 1599131: Remove carve outs for downloads within x-frame-options when fission enabled. r=smaug,mattwoodrow"
+          }
+        ],
+        "revision_count": 2,
+        "push_timestamp": 1583830647,
+        "repository_id": 4
+      },
+      "peak": { "needInvestigation": 24.0, "time": 1584042083 },
+      "latest": { "needInvestigation": 24.0, "time": 1584043883 }
+    },
+    {
+      "push": {
+        "id": 662529,
+        "revision": "f3716cfeebc22f6b0a7d3716bcc691402d77a4c1",
+        "author": "neil@mozilla.com",
+        "revisions": [
+          {
+            "result_set_id": 662529,
+            "repository_id": 4,
+            "revision": "f3716cfeebc22f6b0a7d3716bcc691402d77a4c1",
+            "author": "Neil Deakin <neil@mozilla.com>",
+            "comments": "try: -b do -p linux64-valgrind,win32,linux64,android-api-16,macosx64 -u crashtest,crashtest-ipc,marionette,mochitests,reftest,reftest-ipc,reftest-no-accel,web-platform-tests,xpcshell -t none\n\nPushed via `mach try syntax`"
+          },
+          {
+            "result_set_id": 662529,
+            "repository_id": 4,
+            "revision": "ad739fcce7edea019da665af7c7596f3acd42efd",
+            "author": "Neil Deakin <neil@mozilla.com>",
+            "comments": "[mq]: controllers-test-debug"
+          }
+        ],
+        "revision_count": 2,
+        "push_timestamp": 1584101890,
+        "repository_id": 4
+      },
+      "peak": { "needInvestigation": 16.0, "time": 1584110483 },
+      "latest": { "needInvestigation": 16.0, "time": 1584110483 }
+    },
+    {
+      "push": {
+        "id": 653072,
+        "revision": "bdb000dbec165634372c03ad2a8692ed81bf98a1",
+        "author": "mozilla@christophkerschbaumer.com",
+        "revisions": [
+          {
+            "result_set_id": 653072,
+            "repository_id": 4,
+            "revision": "bdb000dbec165634372c03ad2a8692ed81bf98a1",
+            "author": "Christoph Kerschbaumer <ckerschb@christophkerschbaumer.com>",
+            "comments": "Try Chooser Enhanced (658 tasks selected)\n\nPushed via `mach try chooser`"
+          },
+          {
+            "result_set_id": 653072,
+            "repository_id": 4,
+            "revision": "13909a3fd936f343d50c201a62c8e4a5f096a706",
+            "author": "Christoph Kerschbaumer <ckerschb@christophkerschbaumer.com>",
+            "comments": "Bug 1599131: Remove carve outs for downloads within x-frame-options when fission enabled. r=bz\n\nTags: #secure-revision\n\nBug #: 1599131\n\nDifferential Revision: https://phabricator.services.mozilla.com/D64947"
+          }
+        ],
+        "revision_count": 2,
+        "push_timestamp": 1583156900,
+        "repository_id": 4
+      },
+      "peak": { "needInvestigation": 11.0, "time": 1584043883 },
+      "latest": { "needInvestigation": 5.0, "time": 1584051083 }
+    },
+    {
+      "push": {
+        "id": 662497,
+        "revision": "0f372a5d92b39a9ae01cb3d70e2a3577a5f70092",
+        "author": "nchevobbe@mozilla.com",
+        "revisions": [
+          {
+            "result_set_id": 662497,
+            "repository_id": 4,
+            "revision": "0f372a5d92b39a9ae01cb3d70e2a3577a5f70092",
+            "author": "Nicolas Chevobbe <nchevobbe@mozilla.com>",
+            "comments": "Fuzzy query='node-debugger | 'node-devtools&query='mozlint-eslint&query='mochitest-devtools-chrome-e10s | 'mochitest-chrome-1proc 'windows10-64/ | 'macosx1014-64&query='mochitest-devtools-chrome-e10s | 'mochitest-chrome-1proc | 'mochitest-devtools-chrome-fis-e10s linux '64/&query='xpcshell-e10s 'linux '64/\n\nPushed via `mach try fuzzy`"
+          },
+          {
+            "result_set_id": 662497,
+            "repository_id": 4,
+            "revision": "ee9bb99389fa0cdd57291c1f36cdcf9d304c9e99",
+            "author": "Nicolas Chevobbe <nchevobbe@mozilla.com>",
+            "comments": "Bug XXX - Switch ActorPool usage to Pools. r=jdescottes."
+          }
+        ],
+        "revision_count": 2,
+        "push_timestamp": 1584097536,
+        "repository_id": 4
+      },
+      "peak": { "needInvestigation": 8.0, "time": 1584112283 },
+      "latest": { "needInvestigation": 8.0, "time": 1584119483 }
+    },
+    {
+      "push": {
+        "id": 661828,
+        "revision": "26ced03ab8c668486c15274bc883a5b38e8d0554",
+        "author": "jodvarko@mozilla.com",
+        "revisions": [
+          {
+            "result_set_id": 661828,
+            "repository_id": 4,
+            "revision": "26ced03ab8c668486c15274bc883a5b38e8d0554",
+            "author": "Jan Odvarko <odvarko@gmail.com>",
+            "comments": "try: -b do -p win64,linux64,macosx64 -u mochitest-dt -t none --artifact\n\nPushed via `mach try syntax`"
+          },
+          {
+            "result_set_id": 661828,
+            "repository_id": 4,
+            "revision": "1565503e1f1511e4c1fd5302edd41fe6a3cbf0aa",
+            "author": "Jan Odvarko <odvarko@gmail.com>",
+            "comments": "imported patch resize.diff"
+          }
+        ],
+        "revision_count": 2,
+        "push_timestamp": 1584034194,
+        "repository_id": 4
+      },
+      "peak": { "needInvestigation": 8.0, "time": 1584042083 },
+      "latest": { "needInvestigation": 8.0, "time": 1584043883 }
+    },
+    {
+      "push": {
+        "id": 662187,
+        "revision": "e2395b2ce641797d8b02eb41e5186523fe3007e9",
+        "author": "dmu@mozilla.com",
+        "revisions": [
+          {
+            "result_set_id": 662187,
+            "repository_id": 4,
+            "revision": "e2395b2ce641797d8b02eb41e5186523fe3007e9",
+            "author": "Daosheng Mu <daoshengmu@gmail.com>",
+            "comments": "Try Chooser Enhanced (987 tasks selected)\n\nPushed via `mach try chooser`\n"
+          },
+          {
+            "result_set_id": 662187,
+            "repository_id": 4,
+            "revision": "1bbf3104a491faeda7fcd6cc464d44700afc834b",
+            "author": "Daosheng Mu <daoshengmu@gmail.com>",
+            "comments": "Bug 1621369 - Part 4: Support WebXR to WebVR gamepad button/axis re-mapping.\r\n\r\nDifferential Revision: https://phabricator.services.mozilla.com/D66680"
+          },
+          {
+            "result_set_id": 662187,
+            "repository_id": 4,
+            "revision": "ab2b27a297408102e57169ddce1e14097749fe9d",
+            "author": "Daosheng Mu <daoshengmu@gmail.com>",
+            "comments": "Bug 1621369 - Part 3: Adjust Oculus controller button/axis order for WebXR.\r\n\r\nDifferential Revision: https://phabricator.services.mozilla.com/D66679"
+          },
+          {
+            "result_set_id": 662187,
+            "repository_id": 4,
+            "revision": "189fddf1bffe4ecfd5eb9197415b17a7712efd36",
+            "author": "Daosheng Mu <daoshengmu@gmail.com>",
+            "comments": "Bug 1621369 - Part 2: Replace OpenVRControllerType with VRControllerType in IPC.\r\n\r\nDifferential Revision: https://phabricator.services.mozilla.com/D66678"
+          },
+          {
+            "result_set_id": 662187,
+            "repository_id": 4,
+            "revision": "302316bf6fac373c97ce9a9341f1e1e3a0746486",
+            "author": "Daosheng Mu <daoshengmu@gmail.com>",
+            "comments": "Bug 1621369 - Part 1: Refactor OpenVR controller and adjust its button/axis order for WebXR.\n\nDifferential Revision: https://phabricator.services.mozilla.com/D66677\n"
+          }
+        ],
+        "revision_count": 5,
+        "push_timestamp": 1584053793,
+        "repository_id": 4
+      },
+      "peak": { "needInvestigation": 6.0, "time": 1584058283 },
+      "latest": { "needInvestigation": 6.0, "time": 1584058283 }
+    }
+  ]
+}
