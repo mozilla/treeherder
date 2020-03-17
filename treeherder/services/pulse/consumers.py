@@ -154,11 +154,42 @@ class TaskConsumer(PulseConsumer):
     @newrelic.agent.background_task(name='pulse-listener-tasks.on_message', group='Pulse Listener')
     def on_message(self, body, message):
         exchange = message.delivery_info['exchange']
+        print(exchange)
         routing_key = message.delivery_info['routing_key']
         logger.debug('received job message from %s#%s', exchange, routing_key)
         store_pulse_tasks.apply_async(
             args=[body, exchange, routing_key, self.root_url],
             queue='store_pulse_tasks'
+        )
+        message.ack()
+
+class Pulses(PulseConsumer):
+    queue_suffix = env("PULSE_SOMETHING", default="need")
+
+    def bindings(self):
+        rv = []
+        if self.source.get('hgmo'):
+            rv += HGMO_PUSH_BINDINGS
+        elif self.source.get('github'):
+            rv += GITHUB_PUSH_BINDINGS
+        else:
+            return TASKCLUSTER_TASK_BINDINGS 
+        return rv
+
+    @newrelic.agent.background_task(name='pulse-listener-tasks.on_message', group='Pulse Listener')
+    def on_message(self,body,message):
+        exchange = message.delivery_info['exchange']
+        routing_key = message.delivery_info['routing_key']
+        logger.debug('received job message from %s#%s', exchange, routing_key)
+        if exchange == 'exchange/taskcluster-queue/v1/.':
+            store_pulse_tasks.apply_async(
+            args=[body, exchange, routing_key, self.root_url],
+            queue='store_pulse_tasks'
+        )
+        else:
+            store_pulse_pushes.apply_async(
+            args=[body, exchange, routing_key, self.root_url],
+            queue='store_pulse_pushes'
         )
         message.ack()
 
@@ -177,6 +208,7 @@ class PushConsumer(PulseConsumer):
     @newrelic.agent.background_task(name='pulse-listener-pushes.on_message', group='Pulse Listener')
     def on_message(self, body, message):
         exchange = message.delivery_info['exchange']
+        print(exchange)
         routing_key = message.delivery_info['routing_key']
         logger.info('received push message from %s#%s', exchange, routing_key)
         store_pulse_pushes.apply_async(
@@ -214,6 +246,6 @@ def prepare_consumers(listening_params):
         #print(task)
         elif str(params[0]) == "<class 'treeherder.services.pulse.consumers.PushConsumer'>":
             push=Consumers([params[0](source, params[2]) for source in params[1]])
-    return task,push
+    return task
 
-# Still not able to figure out on how to combine task and push and return them as new Consumers class  
+# Still not able to figure out on how to combine task and push and return them as new Consumers s  
