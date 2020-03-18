@@ -1,6 +1,8 @@
 import environ
 from django.core.management.base import BaseCommand
-from treeherder.services.pulse import (PushConsumer,TaskConsumer,PulsesConsumer,
+from treeherder.services.pulse import (PulsesConsumer,
+                                       PushConsumer,
+                                       TaskConsumer,
                                        prepare_consumers)
 
 env = environ.Env()

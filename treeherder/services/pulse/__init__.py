@@ -1,6 +1,6 @@
-from .consumers import (PushConsumer,
+from .consumers import (PulsesConsumer,
+                        PushConsumer,
                         TaskConsumer,
-                        PulsesConsumer,
                         prepare_consumers)
 
 __all__ = [
