@@ -163,7 +163,7 @@ class TaskConsumer(PulseConsumer):
         )
         message.ack()
 
-class Pulses(PulseConsumer):
+class PulsesConsumer(PulseConsumer):
     queue_suffix = env("PULSE_SOMETHING", default="need")
 
     def bindings(self):
@@ -239,13 +239,7 @@ class Consumers:
 
 
 def prepare_consumers(listening_params):
-    for params in listening_params:
-        #print(params)
-        if str(params[0]) == "<class 'treeherder.services.pulse.consumers.TaskConsumer'>":
-            task=Consumers([params[0](source, params[2]) for source in params[1]])
-        #print(task)
-        elif str(params[0]) == "<class 'treeherder.services.pulse.consumers.PushConsumer'>":
-            push=Consumers([params[0](source, params[2]) for source in params[1]])
-    return task
-
-# Still not able to figure out on how to combine task and push and return them as new Consumers s  
+    unpacker=lambda x,y,z: (x,y,z)
+    consumer_class,sources,keys = unpacker(*listening_params)
+    print([consumer_class(source, key) for source in sources for key in keys])
+    retrun Consumers([consumer_class(source, key) for source in sources for key in keys])
