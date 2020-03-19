@@ -130,7 +130,7 @@ export default class CompareSelectorView extends React.Component {
                 selectedRepo={originalProject}
                 title="Base"
                 checkbox
-                text="By default, Perfherder will compare against performance data gathered over the last 2 days from when new revision was pushed"
+                text="Tick off and you can choose a specific revision as a base. Otherwise, Perfherder will compare against performance data gathered over the last 2 days from when new revision was pushed"
                 projectState="originalProject"
                 revisionState="originalRevision"
                 selectedRevision={originalRevision}
