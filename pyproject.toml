@@ -1,0 +1,55 @@
+[build-system]
+requires = ["poetry==1.0.5"]
+build-backend = "poetry.masonry.api"
+
+[tool.poetry]
+name = "treeherder"
+description = "Treeherder is a reporting dashboard for Mozilla checkins"
+version = "0.1.0"
+readme = "README.md"
+authors = [
+  "Shubham Kumar <shubhamkrai123@gmail.com>"
+]
+
+[tool.poetry.dependencies]
+python = "^3.6"
+mkdocs = "1.0.4"
+mkdocs-material = "4.6.3"
+mdx_truly_sane_lists = "1.2"
+
+[tool.poetry.dev-dependencies]
+colorama = "0.4.3"
+coverage = "5.0.3"
+pytest-cov = "2.8.1"
+pytest = "5.3.5"
+django-debug-toolbar = "2.2"
+mock = "4.0.1"
+responses = "0.10.12"
+django-extensions = "2.2.8"
+pytest-selenium = "1.17.0"
+PyPOM = "2.2.0"
+Werkzeug = "1.0.0"
+flake8 = "3.7.9"
+isort = "4.3.21"
+zipp = "3.0.0"
+importlib-metadata = "1.5.0"
+atomicwrites = "1.3.0"
+more-itertools = "8.2.0"
+packaging = "20.1"
+pluggy = "0.13.1"
+py = "1.8.1"
+pyparsing = "2.4.2"
+wcwidth = "0.1.8"
+funcsigs = "1.0.2"
+pbr = "5.4.4"
+entrypoints = "0.3"
+mccabe = "0.6.1"
+pycodestyle = "2.5.0"
+pyflakes = "2.1.1"
+pytest-django = "3.8.0"
+selenium = "3.141.0"
+pytest-html = "2.0.1"
+pytest-metadata = "1.8.0"
+pytest-variables = "1.9.0"
+pytest-base-url = "1.4.1"
+pytest-asyncio = "0.10.0"

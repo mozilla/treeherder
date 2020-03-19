@@ -33,12 +33,23 @@ ENV SHELLCHECK_VERSION="0.4.6"
 RUN curl -sSfL "https://storage.googleapis.com/shellcheck/shellcheck-v${SHELLCHECK_VERSION}.linux.x86_64.tar.xz" \
     | tar -Jx --strip-components=1 -C /usr/local/bin
 
+#Poetry Installation
+ENV POETRY_VERSION=1.0.5
+RUN pip install "poetry==$POETRY_VERSION"
+
 # /app will be mounted via a volume defined in docker-compose
 ADD . /app
 WORKDIR /app
 
+COPY poetry.lock pyproject.toml ./
+RUN pip install --no-cache-dir --upgrade pip \
+    && pip install --no-cache-dir poetry \
+    \
+    && poetry config settings.virtualenvs.create false \
+    && poetry install --no-dev \
+    \
+    && pip uninstall --yes poetry
+
 # Common and dev deps installed separately to prove that common.txt works standalone
 # (given that dev.txt is not installed on Heroku)
 RUN pip install --no-cache-dir --disable-pip-version-check --require-hashes -r requirements/common.txt
-RUN pip install --no-cache-dir --disable-pip-version-check --require-hashes -r requirements/dev.txt
-RUN pip install --no-cache-dir --disable-pip-version-check -r requirements/docs.txt
