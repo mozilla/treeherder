@@ -45,7 +45,6 @@ COPY poetry.lock pyproject.toml /app/
 RUN pip install --no-cache-dir --upgrade pip \
     && pip install --no-cache-dir poetry \
     \
-    && poetry config settings.virtualenvs.create false \
     && poetry install --no-dev \
     \
     && pip uninstall --yes poetry
