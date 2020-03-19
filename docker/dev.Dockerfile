@@ -41,7 +41,7 @@ RUN pip install "poetry==$POETRY_VERSION"
 ADD . /app
 WORKDIR /app
 
-COPY poetry.lock pyproject.toml ./
+COPY poetry.lock pyproject.toml /app/
 RUN pip install --no-cache-dir --upgrade pip \
     && pip install --no-cache-dir poetry \
     \
