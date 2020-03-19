@@ -41,6 +41,9 @@
     "PULSE_TASKS_QUEUE_NAME": {
       "generator": "secret"
     },
+    "PULSE_QUEUE_NAME": {
+      "generator": "secret"
+    },
     "PROJECTS_TO_INGEST": {
       "value": "autoland,try"
     },

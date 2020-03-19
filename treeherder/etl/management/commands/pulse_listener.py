@@ -1,9 +1,7 @@
 import environ
 from django.core.management.base import BaseCommand
-from treeherder.services.pulse import (PulsesConsumer,
-                                       PushConsumer,
-                                       TaskConsumer,
-                                       prepare_consumers)
+from treeherder.services.pulse import (JointConsumer,
+                                       prepare_consumers_joint)
 
 env = environ.Env()
 
@@ -12,7 +10,7 @@ class Command(BaseCommand):
     """
     Management command to read tasks and pushes from a set of pulse exchanges.
     This adds the pushes to a celery queue called ```store_tasks_pushes``` and
-    ```store_pulse_pushes```which does the actual storing of the pushes
+    ```store_pulse_pushes``` which does the actual storing of the pushes
     in the database.
     """
     help = "Read tasks and pushes from a set of pulse exchanges and queue for ingestion"
@@ -24,12 +22,14 @@ class Command(BaseCommand):
         # [{pulse_url: .., hgmo: true, root_url: ..}, ..]
         pulse_sources = env.json(
             "PULSE_SOURCES",
-            default=[{"root_url": "https://firefox-ci-tc.services.mozilla.com", "github": True, "hgmo": True, "pulse_url": env("PULSE_URL")},
-            {"root_url": "https://firefox-ci-tc.services.mozilla.com", "pulse_url": env("PULSE_URL")}])
-        
-        listener_params = (PulsesConsumer, pulse_sources, [lambda key: "#.{}".format(key),None])
-        consumer = prepare_consumers(listener_params)
-        
+            default=[{"root_url": "https://firefox-ci-tc.services.mozilla.com",
+                      "github": True, "hgmo": True, "pulse_url": env("PULSE_URL")},
+                     {"root_url": "https://firefox-ci-tc.services.mozilla.com",
+                      "pulse_url": env("PULSE_URL")}])
+
+        listener_params = (JointConsumer, pulse_sources, [lambda key: "#.{}".format(key), None])
+        consumer = prepare_consumers_joint(listener_params)
+
         try:
             consumer.run()
         except KeyboardInterrupt:
