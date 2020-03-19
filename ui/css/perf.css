@@ -502,15 +502,15 @@ li.pagination-active.active > button {
 }
 
 .table-header.orange {
-  border-top-color: #ffb851;
+  border-top-color: #854700;
 }
 
 .table-header.fire-red {
-  border-top-color: #c92d2f;
+  border-top-color: #A62628;
 }
 
 .table-header.cerulean {
-  border-top-color: #16bcde;
+  border-top-color: #0A5F71;
 }
 
 .table-header.purple {
