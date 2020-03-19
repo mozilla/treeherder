@@ -44,8 +44,8 @@ For more information on adding a new GitHub repository, see
 
 ## Debugging Tools
 
-You can use the Python Debugger ([pdb](https://docs.python.org/3.7/library/pdb.html)) in a docker container.
-After starting a local treeherder instance using [docker-compose](installation.md#server-and-full-stack-development),
+You can use the Python Debugger ([pdb](https://docs.python.org/3.7/library/pdb.html)) in a Docker container.
+After starting a local Treeherder instance using [docker-compose](installation.md#server-and-full-stack-development),
 in a separate shell type `docker attach backend`. Then set a breakpoint in your file using either `import pdb; pdb.set_trace()`
 or `breakpoint()` (for Python v3.7+). The pdb debugger will start in that shell once the breakpoint has been triggered.
 For example, it can be triggered via refreshing the browser (localhost) if the view you're on calls an API with a breakpoint on it.
