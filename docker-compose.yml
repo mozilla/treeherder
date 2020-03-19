@@ -41,6 +41,8 @@ services:
       - mysql
       - redis
       - rabbitmq
+    stdin_open: true
+    tty: true
 
   frontend:
     container_name: frontend
