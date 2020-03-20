@@ -12,26 +12,26 @@ does not match the style requirements.
 
 To run ESLint by itself, you may run the lint task:
 
-```bash
+```shell
 yarn lint
 ```
 
 Or to automatically fix issues found (where possible):
 
-```bash
+```shell
 yarn lint --fix
 ```
 
 You can also check against Prettier:
 
-```bash
+```shell
 yarn format:check
 ```
 
 and to have it actually fix (to the best of its ability) any format issues,
 just do:
 
-```bash
+```shell
 yarn format
 ```
 
@@ -49,7 +49,7 @@ To run the tests:
 While working on the frontend, you may wish to watch JavaScript files and re-run tests
 automatically when files change. To do this, you may run one of the following commands:
 
-```bash
+```shell
 yarn test:watch
 ```
 
@@ -59,7 +59,7 @@ The tests will perform an initial run and then re-execute each time a project fi
 
 To run all Python tests, including linting, sorting, etc:
 
-```bash
+```shell
 docker-compose run backend sh -c "./runchecks.sh && pytest tests/"
 ```
 
@@ -73,19 +73,19 @@ of specificity:
 
 All tests:
 
-```bash
+```shell
 docker-compose run backend pytest tests/
 ```
 
 Just `/etl` tests
 
-```bash
+```shell
 docker-compose run backend pytest tests/etl/
 ```
 
 Just the `test_ingest_pending_pulse_job` within the `/etl` tests
 
-```bash
+```shell
 docker-compose run backend pytest tests/ -k test_ingest_pending_pulse_job
 ```
 
@@ -96,7 +96,7 @@ commands above, you will execute the Selenium tests as well.
 
 The Selenium tests require a UI build:
 
-```bash
+```shell
 docker-compose up --build
 docker-compose run backend pytest tests/selenium/
 ```
