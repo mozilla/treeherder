@@ -194,13 +194,13 @@ class JointConsumer(PulseConsumer):
         rv = []
         if self.source.get('hgmo'):
             rv += HGMO_PUSH_BINDINGS
-        elif self.source.get('github'):
+        if self.source.get('github'):
             rv += GITHUB_PUSH_BINDINGS
-        else:
-            return TASKCLUSTER_TASK_BINDINGS
+        if self.source.get('pulse_url'):
+            rv += TASKCLUSTER_TASK_BINDINGS
         return rv
 
-    @newrelic.agent.background_task(name='pulse-listener-joint.on_message', group='Pulse Listener')
+    @newrelic.agent.background_task(name='pulse-joint-listener.on_message', group='Pulse Listener')
     def on_message(self, body, message):
         exchange = message.delivery_info['exchange']
         routing_key = message.delivery_info['routing_key']
@@ -242,7 +242,7 @@ def prepare_consumers(consumer_cls, sources, build_routing_key=None):
     return Consumers([consumer_cls(source, build_routing_key) for source in sources])
 
 
-def prepare_consumers_joint(listening_params):
+def prepare_joint_consumers(listening_params):
     def unpacker(x, y, z): return x, y, z
     consumer_class, sources, keys = unpacker(*listening_params)
     return Consumers([consumer_class(source, key) for source, key in zip(sources, keys)])
