@@ -1,8 +1,9 @@
 dist: xenial
 # Use the latest Travis images since they are more up to date than the stable release.
 group: edge
-matrix:
+jobs:
   include:
+    # Run JS tests
     - language: node_js
       # The Node version here must be kept in sync with that in `package.json`.
       node_js: '12.13.0'
@@ -14,13 +15,14 @@ matrix:
       install:
         - yarn install --frozen-lockfile
       script:
-        # `yarn build` is tested as part of the Selenium job.
+        # `yarn build` is tested as part of the Heroku build job
         - yarn lint
         # `yarn lint` only checks the formatting of JS/JSX, this will also check CSS/HTML/JSON/Markdown/YAML.
         - yarn format:check
         - yarn test:coverage
         - yarn codecov
 
+    # Run Heroku build & release related code
     # This build is configured to catch issues on PRs that would only be detected as part of Heroku's
     # build step when the code has already been merged to master
     # The step ./bin/post_compile requires the output of `yarn build`, thus, we need to build
@@ -53,31 +55,39 @@ matrix:
         # This generates the revision and does the Brotly/Gzip compression
         - ./bin/post_compile
 
-    - language: minimal
-      services:
-        - docker
+    # Run Python tests & linters outside of the Docker containers
+    - language: python
+      python: '3.7'
+      cache: pip
       install:
-        - docker-compose build
-        - pip install codecov --user
+        # Initialize services required to run tests
+        - docker-compose up --detach mysql redis rabbitmq
+        - pip install -r requirements/common.txt -r requirements/dev.txt
+        - pip install -r requirements/docs.txt # Install separately since it has no hashes
       script:
-        - docker-compose run backend ./runtests.sh
-        - codecov -f coverage.xml
-
-    - language: minimal
-      services:
-        - docker
-      install:
-        - docker-compose build
-        - pip install codecov --user
-      script:
+        - ./runchecks.sh
+        - ./manage.py check
         # Several security features in settings.py (eg setting HSTS headers) are conditional on
         # 'https://' being in the site URL. In addition, we override the test environment's debug
         # value so the tests pass. The real environment variable will be checked during deployment.
-        - docker-compose run -e SITE_URL=https://treeherder.dev -e TREEHERDER_DEBUG=False backend python -bb ./manage.py check --deploy --fail-level WARNING
-        # Using `-bb` mode to surface BytesWarnings: https://docs.python.org/3.7/using/cmdline.html#cmdoption-b
+        - SITE_URL=https://treeherder.dev TREEHERDER_DEBUG=False ./manage.py check --deploy --fail-level WARNING
+        # Exercising running tests outside of Docker
+        - pytest tests/ --ignore=tests/selenium --ignore=tests/extract
+        # This is to deal with running the containers with --detached
+        - docker-compose down
+
+    # Run Python tests inside of the Docker containers
+    - language: shell
+      services:
+        - docker
+      install:
+        - docker-compose build
+        - pip install codecov --user
+      script:
         - docker-compose run backend bash -c "pytest --cov --cov-report=xml tests/ --runslow --ignore=tests/selenium"
         - codecov -f coverage.xml
 
+    # Run Python Selenium tests
     - language: node_js
       services:
         - docker
@@ -93,7 +103,8 @@ matrix:
         # Run in `before_script` to prevent the Selenium tests from running if the UI build fails.
         - yarn build
       script:
-        # Using `-bb` mode to surface BytesWarnings: https://docs.python.org/3.7/using/cmdline.html#cmdoption-b
+        # XXX: We have the Gecko driver inside of the Docker instance, thus, needing Selenium tests
+        # running inside the Docker container
         - docker-compose run backend bash -c "pytest --cov --cov-report=xml tests/selenium/"
         - codecov -f coverage.xml
 

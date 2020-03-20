@@ -1,8 +1,8 @@
-## Backend development
+# Backend development
 
 The backend test suite can be run outside the Docker container.
 
-### Start the services
+## Start the services
 
 We need all but the main `backend` service running.  Since multiple `backend` instances are allowed, we will simply start everything up
 
@@ -13,17 +13,15 @@ We need all but the main `backend` service running.  Since multiple `backend` in
     # SETUP ALL IMAGES
     docker-compose up --build
 
-### Install into virtual environment
+## Install into virtual environment
 
 Treeherder requires specific library versions that will likely interfere with what you have installed. It is best to setup a virtual environment to contain the quirks it introduces.
 
 Be sure you are in the `treeherder` main directory
 
-    pip install virtualenv
-    virtualenv .venv                   # IMPORTANT: Notice the dot in the name
+    python -m venv .venv             # IMPORTANT: Notice the dot in the name
     source .venv/bin/activate
-    python -m pip install -r requirements/common.txt
-    python -m pip install -r requirements/dev.txt
+    pip install -r requirements/common.txt -r requirements/dev.txt
 
 ...or Windows...
 
@@ -31,45 +29,40 @@ Be sure you are in the `treeherder` main directory
     rem IMPORTANT: Notice the dot in `.venv`
     virtualenv .venv             
     .venv\Scripts\activate
-    python -m pip install -r requirements\common.txt
-    python -m pip install -r requirements\dev.txt
+    pip install -r requirements\common.txt -r requirements\dev.txt
 
-### Set environment variables
+## Set environment variables
 
-Treeherder requires a number of environment variables that point to the services.  In our case, those services are in local docker containers.
+For Windows, Treeherder requires a number of environment variables that point to the services.  In our case, those services are in local docker containers.
 
-    ./tests/env.sh     # env.bat for Windows
+    ./tests/env.bat
 
 If you plan to use an IDE, here is the same, as a very long line
 
-```
-BROKER_URL=localhost//guest:guest@rabbitmq//;DATABASE_URL=mysql://root@localhost:3306/treeherder;REDIS_URL=redis://localhost:6379;SITE_URL=http://backend:8000/;TREEHERDER_DEBUG=True;TREEHERDER_DJANGO_SECRET_KEY=secret-key-of-at-least-50-characters-to-pass-check-deploy;NEW_RELIC_DEVELOPER_MODE=True
-```
+    BROKER_URL=localhost//guest:guest@rabbitmq//;DATABASE_URL=mysql://root@localhost:3306/treeherder;REDIS_URL=redis://localhost:6379;SITE_URL=http://backend:8000/;TREEHERDER_DEBUG=True;TREEHERDER_DJANGO_SECRET_KEY=secret-key-of-at-least-50-characters-to-pass-check-deploy;NEW_RELIC_DEVELOPER_MODE=True
 
-### Ensure everything is working
+## Ensure everything is working
 
 Django can perform a number of checks to ensure you are configured correctly
 
-    python manage.py check
+    ./manage.py check
 
-### Run the tests
+## Run the tests
 
 Be sure docker-compose is up, you are in the `treeherder` main directory, your virtual environment is activated, and your environment variables are set:
 
     source .venv/bin/activate
-    ./tests/env.sh
     pytest tests
 
-### Pre commit checks
+## Pre commit checks
 
 If you made some changes, and want to submit a pull request; run the `./runtests.sh` script (found in the main directory).  It will run some linters to check your submission.
 
 > For Windows, you can run the checks in a container (see below)
 
+## Using containers
 
-### Using containers
-
-After `docker-compose up`, you may spin up any number of `backend` containers. You may want to run ingestion tasks, or go exploring. 
+After `docker-compose up`, you may spin up any number of `backend` containers. You may want to run ingestion tasks, or go exploring.
 
     docker-compose exec backend bash
 
