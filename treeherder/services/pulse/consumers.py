@@ -7,7 +7,6 @@ from kombu import (Connection,
                    Exchange,
                    Queue)
 from kombu.mixins import ConsumerMixin
-
 from treeherder.etl.tasks.pulse_tasks import (store_pulse_pushes,
                                               store_pulse_tasks)
 from treeherder.utils.http import fetch_json
@@ -154,6 +153,7 @@ class TaskConsumer(PulseConsumer):
     @newrelic.agent.background_task(name='pulse-listener-tasks.on_message', group='Pulse Listener')
     def on_message(self, body, message):
         exchange = message.delivery_info['exchange']
+        print(exchange)
         routing_key = message.delivery_info['routing_key']
         logger.debug('received job message from %s#%s', exchange, routing_key)
         store_pulse_tasks.apply_async(
@@ -177,6 +177,7 @@ class PushConsumer(PulseConsumer):
     @newrelic.agent.background_task(name='pulse-listener-pushes.on_message', group='Pulse Listener')
     def on_message(self, body, message):
         exchange = message.delivery_info['exchange']
+        print(exchange)
         routing_key = message.delivery_info['routing_key']
         logger.info('received push message from %s#%s', exchange, routing_key)
         store_pulse_pushes.apply_async(
@@ -186,8 +187,39 @@ class PushConsumer(PulseConsumer):
         message.ack()
 
 
+class JointConsumer(PulseConsumer):
+    queue_suffix = env("PULSE_QUEUE_NAME", default="queue")
+
+    def bindings(self):
+        rv = []
+        if self.source.get('hgmo'):
+            rv += HGMO_PUSH_BINDINGS
+        if self.source.get('github'):
+            rv += GITHUB_PUSH_BINDINGS
+        if self.source.get('pulse_url'):
+            rv += TASKCLUSTER_TASK_BINDINGS
+        return rv
+
+    @newrelic.agent.background_task(name='pulse-joint-listener.on_message', group='Pulse Listener')
+    def on_message(self, body, message):
+        exchange = message.delivery_info['exchange']
+        routing_key = message.delivery_info['routing_key']
+        logger.debug('received job message from %s#%s', exchange, routing_key)
+        if exchange == 'exchange/taskcluster-queue/v1/.':
+            store_pulse_tasks.apply_async(
+                args=[body, exchange, routing_key, self.root_url],
+                queue='store_pulse_tasks'
+            )
+        else:
+            store_pulse_pushes.apply_async(
+                args=[body, exchange, routing_key, self.root_url],
+                queue='store_pulse_pushes'
+            )
+        message.ack()
+
+
 class Consumers:
-    """
+    """pulse_listener_tasks_pushes: newrelic-admin run-program ./manage.py pulse_listener
     Run a collection of consumers in parallel.  These may be connected to different
     AMQP servers, and Kombu only supports communicating wiht one connection per
     thread, so we use multiple threads, one per consumer.
@@ -206,14 +238,11 @@ class Consumers:
             t.join()
 
 
-def prepare_consumers(listening_params):
-    for params in listening_params:
-        #print(params)
-        if str(params[0]) == "<class 'treeherder.services.pulse.consumers.TaskConsumer'>":
-            task=Consumers([params[0](source, params[2]) for source in params[1]])
-        #print(task)
-        elif str(params[0]) == "<class 'treeherder.services.pulse.consumers.PushConsumer'>":
-            push=Consumers([params[0](source, params[2]) for source in params[1]])
-    return task,push
+def prepare_consumers(consumer_cls, sources, build_routing_key=None):
+    return Consumers([consumer_cls(source, build_routing_key) for source in sources])
 
-# Still not able to figure out on how to combine task and push and return them as new Consumers class  
+
+def prepare_joint_consumers(listening_params):
+    def unpacker(x, y, z): return x, y, z
+    consumer_class, sources, keys = unpacker(*listening_params)
+    return Consumers([consumer_class(source, key) for source, key in zip(sources, keys)])
