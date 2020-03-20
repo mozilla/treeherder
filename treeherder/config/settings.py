@@ -25,6 +25,9 @@ IS_WINDOWS = "windows" in platform.system().lower()
 DEBUG = env.bool("TREEHERDER_DEBUG", default=False)
 LOGGING_LEVEL = env("LOGGING_LEVEL", default="INFO")
 
+NEW_RELIC_INSIGHTS_API_KEY = env("NEW_RELIC_INSIGHTS_API_KEY", default=None)
+NEW_RELIC_INSIGHTS_API_URL = 'https://insights-api.newrelic.com/v1/accounts/677903/query'
+
 # XXX This is likely something we can get rid of
 GRAPHQL = env.bool("GRAPHQL", default=True)
 
@@ -76,6 +79,7 @@ INSTALLED_APPS = [
     'treeherder.autoclassify',
     'treeherder.seta',
     'treeherder.intermittents_commenter',
+    'treeherder.changelog',
 ]
 
 # Docker/outside-of-Docker/Travis vs Heroku/Review-app
@@ -448,3 +452,7 @@ PERF_SHERIFF_BOT_ACCESS_TOKEN = env('PERF_SHERIFF_BOT_ACCESS_TOKEN', default=Non
 
 # Resource count to limit the number of threads opening connections with the DB
 CONN_RESOURCES = 50
+
+# This is only used for removing the rate limiting. You can create your own here:
+# https://github.com/settings/tokens
+GITHUB_TOKEN = env("GITHUB_TOKEN", default=None)

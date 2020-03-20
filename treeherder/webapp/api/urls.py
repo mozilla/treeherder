@@ -7,6 +7,7 @@ from rest_framework import routers
 from treeherder.webapp.api import (auth,
                                    bug,
                                    bugzilla,
+                                   changelog,
                                    csp_report,
                                    intermittents_view,
                                    job_log_url,
@@ -133,6 +134,8 @@ default_router.register(r'jobdetail', jobs.JobDetailViewSet,
                         basename='jobdetail')
 default_router.register(r'auth', auth.AuthViewSet,
                         basename='auth')
+default_router.register(r'changelog', changelog.ChangelogViewSet,
+                        basename='changelog')
 
 urlpatterns = [
     url(r'^project/(?P<project>[\w-]{0,50})/', include(project_bound_router.urls)),

@@ -333,7 +333,7 @@ class AlertsView extends React.Component {
             frameworkOptions={frameworkOptions}
             issueTrackers={issueTrackers}
             optionCollectionMap={optionCollectionMap}
-            fetchAlertSummaries={(id, page, update = true) =>
+            fetchAlertSummaries={(id, update = true, page) =>
               this.fetchAlertSummaries(id, update, page)
             }
             updateViewState={state => this.setState(state)}

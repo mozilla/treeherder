@@ -25,3 +25,6 @@ BUGFILER_API_URL = "https://thisisnotbugzilla.org"
 AUTHENTICATION_BACKENDS = (
     'treeherder.auth.backends.AuthBackend',
 )
+
+# For Push Health Usage dashboard
+NEW_RELIC_INSIGHTS_API_KEY = "123"

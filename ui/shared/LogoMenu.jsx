@@ -11,6 +11,7 @@ const choices = [
   { url: '/', text: 'Treeherder' },
   { url: '/perf.html', text: 'Perfherder' },
   { url: '/intermittent-failures.html', text: 'Intermittent Failures View' },
+  { url: '/pushhealth.html', text: 'Push Health Usage' },
 ];
 
 export default class LogoMenu extends React.PureComponent {

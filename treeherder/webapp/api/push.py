@@ -16,8 +16,8 @@ from treeherder.model.models import (Job,
 from treeherder.push_health.builds import get_build_failures
 from treeherder.push_health.compare import get_commit_history
 from treeherder.push_health.linting import get_lint_failures
-from treeherder.push_health.performance import get_perf_failures
 from treeherder.push_health.tests import get_test_failures
+from treeherder.push_health.usage import get_usage
 from treeherder.webapp.api.serializers import PushSerializer
 from treeherder.webapp.api.utils import (REPO_GROUPS,
                                          to_datetime,
@@ -219,16 +219,19 @@ class PushViewSet(viewsets.ViewSet):
         push_health_test_failures = get_test_failures(push, REPO_GROUPS['trunk'])
         push_health_lint_failures = get_lint_failures(push)
         push_health_build_failures = get_build_failures(push)
-        push_health_perf_failures = get_perf_failures(push)
 
         return Response({
             'needInvestigation':
                 len(push_health_test_failures['needInvestigation']) +
                 len(push_health_build_failures) +
-                len(push_health_lint_failures) +
-                len(push_health_perf_failures),
+                len(push_health_lint_failures),
             'unsupported': len(push_health_test_failures['unsupported']),
         })
+
+    @action(detail=False)
+    def health_usage(self, request, project):
+        usage = get_usage()
+        return Response({'usage': usage})
 
     @action(detail=False)
     def health(self, request, project):
@@ -261,11 +264,8 @@ class PushViewSet(viewsets.ViewSet):
         lint_failures = get_lint_failures(push)
         lint_result = 'fail' if len(lint_failures) else 'pass'
 
-        perf_failures = get_perf_failures(push)
-        perf_result = 'fail' if len(perf_failures) else 'pass'
-
         push_result = 'pass'
-        for metric_result in [test_result, lint_result, build_result, perf_result]:
+        for metric_result in [test_result, lint_result, build_result]:
             if metric_result == 'indeterminate' and push_result != 'fail':
                 push_result = metric_result
             elif metric_result == 'fail':
@@ -276,6 +276,7 @@ class PushViewSet(viewsets.ViewSet):
             'repo': repository.name,
             'needInvestigation': len(push_health_test_failures['needInvestigation']),
             'unsupported': len(push_health_test_failures['unsupported']),
+            'author': push.author,
         })
 
         return Response({
@@ -302,11 +303,6 @@ class PushViewSet(viewsets.ViewSet):
                     'name': 'Builds',
                     'result': build_result,
                     'details': build_failures,
-                },
-                'performance': {
-                    'name': 'Performance',
-                    'result': perf_result,
-                    'details': perf_failures,
                 },
             },
             'status': push.get_status(),

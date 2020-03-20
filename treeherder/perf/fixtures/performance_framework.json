@@ -24,14 +24,6 @@
     }
   },
   {
-    "pk": 5,
-    "model": "perf.PerformanceFramework",
-    "fields": {
-      "name": "awfy",
-      "enabled": true
-    }
-  },
-  {
     "pk": 6,
     "model": "perf.PerformanceFramework",
     "fields": {

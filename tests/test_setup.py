@@ -5,7 +5,7 @@ from django.core.cache import cache
 from django.core.management import call_command
 
 from treeherder.config.utils import get_tls_redis_url
-from treeherder.etl.common import fetch_text
+from treeherder.utils.http import fetch_text
 
 
 def test_block_unmocked_requests():
