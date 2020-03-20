@@ -46,16 +46,15 @@ export const getRunnableJobsURL = function getRunnableJobsURL(
   return url;
 };
 
-export const getArtifactsURL = params => {
+export const getArtifactsUrl = params => {
   const { taskId, run, rootUrl, artifactName } = params;
 
   const tcUrl = tcLibUrls.withRootUrl(rootUrl);
-  const url = tcUrl.api(
-    'queue',
-    'v1',
-    `/task/${taskId}/runs/${run}/artifacts/${artifactName}`,
-  );
-  console.log(url);
+  let url = tcUrl.api('queue', 'v1', `/task/${taskId}/runs/${run}/artifacts`);
+
+  if (artifactName) {
+    url += `/public/${artifactName}`;
+  }
   return url;
 };
 
