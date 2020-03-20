@@ -493,6 +493,10 @@ li.pagination-active.active > button {
 }
 
 /* table in graphs view */
+.text-muted { 
+  color: #53595F !important; 
+}
+
 .table-header {
   border-top: 10px solid;
 }
@@ -502,15 +506,15 @@ li.pagination-active.active > button {
 }
 
 .table-header.orange {
-  border-top-color: #854700;
+  border-top-color: #ffb851;
 }
 
 .table-header.fire-red {
-  border-top-color: #a62628;
+  border-top-color: #c92d2f;
 }
 
 .table-header.cerulean {
-  border-top-color: #0a5f71;
+  border-top-color: #16bcde;
 }
 
 .table-header.purple {
@@ -522,7 +526,7 @@ li.pagination-active.active > button {
 }
 
 .table-graphs-view .job-links {
-  opacity: 0.3;
+  opacity: 0.8;
 }
 
 .table-graphs-view .rt-td:hover .job-links,
