@@ -3,7 +3,8 @@ import os
 import pytest
 from mo_logs import (Log,
                      constants,
-                     startup)
+                     startup,
+                     strings)
 from mo_logs.convert import unix2datetime
 from mo_math.randoms import Random
 from mo_times import Date
@@ -206,10 +207,10 @@ def extract_job_settings():
     os.environ["BIGQUERY_PRIVATE_KEY_ID"] = "1"
     os.environ["BIGQUERY_PRIVATE_KEY"] = "1"
 
-    db_url = 'mysql://{}@{}/{}'.format(
-        DATABASES["default"]["USER"],
-        DATABASES["default"]["HOST"],
-        DATABASES["default"]["NAME"]
+    # USE THE TEST SCHEMA
+    db_url = os.environ["DATABASE_URL"]
+    db_url = db_url.replace(
+        strings.between(db_url, "/", None), DATABASES["default"]["TEST"]["NAME"]
     )
     os.environ["DATABASE_URL"] = db_url
 
