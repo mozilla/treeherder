@@ -1,8 +1,7 @@
 import environ
 from django.core.management.base import BaseCommand
-from treeherder.services.pulse import (PushConsumer,
-                                       TaskConsumer,
-                                       prepare_consumers)
+from treeherder.services.pulse import (JointConsumer,
+                                       prepare_joint_consumers)
 
 env = environ.Env()
 
@@ -21,16 +20,16 @@ class Command(BaseCommand):
         # information.  Sources can include properties `hgmo`, `github`, or both, to
         # listen to events from those sources.  The value is a JSON array of the form
         # [{pulse_url: .., hgmo: true, root_url: ..}, ..]
-        push_sources = env.json(
-            "PULSE_PUSH_SOURCES",
-            default=[{"root_url": "https://firefox-ci-tc.services.mozilla.com", "github": True, "hgmo": True, "pulse_url": env("PULSE_URL")}])
-        task_sources = env.json(
-            "PULSE_TASK_SOURCES",
-            default=[{"root_url": "https://firefox-ci-tc.services.mozilla.com", "pulse_url": env("PULSE_URL")}])
+        pulse_sources = env.json(
+            "PULSE_SOURCES",
+            default=[{"root_url": "https://firefox-ci-tc.services.mozilla.com",
+                      "github": True,
+                      "hgmo": True,
+                      "pulse_url": env("PULSE_URL")}])
 
-        listener_params = [(TaskConsumer, task_sources, lambda key: "#.{}".format(key)), (PushConsumer, push_sources, None)]
-        consumer = prepare_consumers(listener_params)
-        
+        listener_params = (JointConsumer, pulse_sources, [lambda key: "#.{}".format(key), None])
+        consumer = prepare_joint_consumers(listener_params)
+
         try:
             consumer.run()
         except KeyboardInterrupt:
