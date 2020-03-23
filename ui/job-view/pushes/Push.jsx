@@ -98,8 +98,12 @@ class Push extends React.PureComponent {
     // if ``nojobs`` is on the query string, then don't load jobs.
     // this allows someone to more quickly load ranges of revisions
     // when they don't care about the specific jobs and results.
-    if (!getAllUrlParams().has('nojobs')) {
-      await Promise.all([this.fetchJobs(), this.fetchTestManifests()]);
+    const allParams = getAllUrlParams();
+    if (!allParams.has('nojobs')) {
+      await this.fetchJobs();
+    }
+    if (allParams.has('test_paths')) {
+      await this.fetchTestManifests();
     }
 
     window.addEventListener(thEvents.applyNewJobs, this.handleApplyNewJobs);
