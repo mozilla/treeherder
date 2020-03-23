@@ -142,7 +142,17 @@ describe('Artifact transformations', () => {
         'devtools/client/framework/browser-toolbox/test/browser_browser_toolbox_fission_contentframe_inspector.js',
         'devtools/client/framework/browser-toolbox/test/browser_browser_toolbox_fission_inspector.js',
         'devtools/client/framework/browser-toolbox/test/browser_browser_toolbox_rtl.js',
+        'devtools/client/framework/browser-toolbox/test/browser.ini',
         'devtools/client/framework/test/foo.js',
+        'devtools/client/framework/test/browser.ini',
+        'devtools/client/framework/test/metrics/browser_metrics_inspector.ini',
+        'devtools/client/inspector/changes/test/browser.ini',
+        'devtools/client/inspector/extensions/test/browser.ini',
+        'devtools/client/inspector/markup/test/browser.ini',
+        'devtools/client/jsonview/test/browser.ini',
+        'devtools/client/shared/test/browser.ini',
+        'devtools/client/styleeditor/test/browser.ini',
+        'devtools/client/webconsole/test/node/fixtures/stubs/stubs.ini',
       ],
     });
   });

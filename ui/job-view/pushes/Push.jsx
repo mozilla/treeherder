@@ -48,6 +48,7 @@ export const joinArtifacts = (manifestsByTask, testsByManifest) => {
       (testsByManifest[manifest] || []).forEach(test => {
         taskNameToTestPaths[taskName].push(`${basePath}/${test}`);
       });
+      taskNameToTestPaths[taskName].push(manifest);
     });
   });
   return taskNameToTestPaths;
