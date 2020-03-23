@@ -25,7 +25,7 @@ services:
       - NEW_RELIC_INSIGHTS_API_KEY=${NEW_RELIC_INSIGHTS_API_KEY:-}
     entrypoint: './docker/entrypoint.sh'
     # We *ONLY* initialize the data when we're running the backend
-    command: './initialize_data.sh && ./manage.py runserver 0.0.0.0:8000'
+    command: './initialize_data.sh ./manage.py runserver 0.0.0.0:8000'
     # Django's runserver doesn't listen to the default of SIGTERM, so docker-compose
     # must send SIGINT instead to avoid waiting 10 seconds for the time out.
     stop_signal: SIGINT
