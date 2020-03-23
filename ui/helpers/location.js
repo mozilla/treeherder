@@ -1,8 +1,13 @@
 import { thDefaultRepo } from './constants';
-import { createQueryParams, getApiUrl, uiJobsUrlBase } from './url';
+import {
+  createQueryParams,
+  extractSearchString,
+  getApiUrl,
+  uiJobsUrlBase,
+} from './url';
 
 export const getQueryString = function getQueryString() {
-  return window.location.hash.split('?')[1];
+  return extractSearchString(window.location.hash);
 };
 
 export const getAllUrlParams = function getAllUrlParams() {
