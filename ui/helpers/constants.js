@@ -26,6 +26,7 @@ export const thPlatformMap = {
   'linux64-noopt': 'Linux x64 NoOpt',
   'linux64-aarch64': 'Linux AArch64',
   'linux1804-64': 'Linux 18.04 x64',
+  'linux1804-64-tsan': 'Linux 18.04/ x64 tsan',
   'linux1804-64-asan': 'Linux 18.04 x64 asan',
   'linux1804-64-asan-qr': 'Linux 18.04 x64 QuantumRender asan',
   'linux1804-64-devedition': 'Linux 18.04 x64 DevEdition',
