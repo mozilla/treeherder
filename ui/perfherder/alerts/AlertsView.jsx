@@ -133,9 +133,14 @@ class AlertsView extends React.Component {
 
     if (this.isListMode()) {
       if (doUpdateParams) {
-        this.props.validated.updateParams(
-          this.getParamsFromFilters(updatedFilters),
-        );
+        const updateParameters = this.getParamsFromFilters(updatedFilters);
+        if (
+          updatedFilters.hasOwnProperty('framework') &&
+          updatedFilters.hasOwnProperty('status')
+        ) {
+          updateParameters.page = 1;
+        }
+        this.props.validated.updateParams(updateParameters);
       }
       this.setState({ filters: currentFilters }, this.fetchAlertSummaries);
     } else {
