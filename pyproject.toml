@@ -3,12 +3,12 @@ requires = ["poetry==1.0.5"]
 build-backend = "poetry.masonry.api"
 
 [tool.poetry]
-name = "treeherder"
-description = "Treeherder is a reporting dashboard for Mozilla checkins"
+name = "Poetry"
+description = "Tool for package installation"
 version = "0.1.0"
 readme = "README.md"
 authors = [
-  "Shubham Kumar <shubhamkrai123@gmail.com>"
+  "Mozilla"
 ]
 
 [tool.poetry.dependencies]

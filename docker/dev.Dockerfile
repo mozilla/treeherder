@@ -44,10 +44,7 @@ WORKDIR /app
 COPY poetry.lock pyproject.toml /app/
 RUN pip install --no-cache-dir --upgrade pip \
     && pip install --no-cache-dir poetry \
-    \
-    && poetry install --no-dev \
-    \
-    && pip uninstall --yes poetry
+    && poetry install --no-dev
 
 # Common and dev deps installed separately to prove that common.txt works standalone
 # (given that dev.txt is not installed on Heroku)
