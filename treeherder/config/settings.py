@@ -458,9 +458,6 @@ RESET_BACKFILL_LIMITS = timedelta(hours=24)
 PERF_SHERIFF_BOT_CLIENT_ID = env('PERF_SHERIFF_BOT_CLIENT_ID', default=None)
 PERF_SHERIFF_BOT_ACCESS_TOKEN = env('PERF_SHERIFF_BOT_ACCESS_TOKEN', default=None)
 
-# Resource count to limit the number of threads opening connections with the DB
-CONN_RESOURCES = 50
-
 # This is only used for removing the rate limiting. You can create your own here:
 # https://github.com/settings/tokens
 GITHUB_TOKEN = env("GITHUB_TOKEN", default=None)
