@@ -1,3 +1,4 @@
+import os
 import platform
 import re
 from datetime import timedelta
@@ -33,6 +34,13 @@ GRAPHQL = env.bool("GRAPHQL", default=True)
 
 # Make this unique, and don't share it with anybody.
 SECRET_KEY = env("TREEHERDER_DJANGO_SECRET_KEY", default='secret-key-of-at-least-50-characters-to-pass-check-deploy')
+
+# Delete the Pulse automatically when no consumers left
+PULSE_AUTO_DELETE_QUEUES = env.bool("PULSE_AUTO_DELETE_QUEUES", default=False)
+
+# Changing PULSE_AUTO_DELETE_QUEUES to true when treeherder is running in virtual environment
+if hasattr(os.environ, 'VIRTUAL_ENV'):
+    PULSE_AUTO_DELETE_QUEUES = True
 
 # Hosts
 SITE_URL = env("SITE_URL", default='http://localhost:8000')

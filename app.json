@@ -44,6 +44,7 @@
     "PULSE_QUEUE_NAME": {
       "generator": "secret"
     },
+    "PULSE_AUTO_DELETE_QUEUES": true,
     "PROJECTS_TO_INGEST": {
       "value": "autoland,try"
     },

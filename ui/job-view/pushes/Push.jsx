@@ -2,13 +2,13 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
 import sortBy from 'lodash/sortBy';
-import { inflate } from 'pako';
 
 import {
   thEvents,
   thOptionOrder,
   thPlatformMap,
 } from '../../helpers/constants';
+import decompress from '../../helpers/gzip';
 import { getGroupMapKey } from '../../helpers/aggregateId';
 import { getAllUrlParams, getUrlParam } from '../../helpers/location';
 import JobModel from '../../models/job';
@@ -34,27 +34,45 @@ import PushJobs from './PushJobs';
 const watchCycleStates = ['none', 'push', 'job', 'none'];
 const platformArray = Object.values(thPlatformMap);
 
-const fetchTestManifests = async (project, revision) => {
-  let taskNameToManifests = {};
+export const joinArtifacts = (manifestsByTask, testsByManifest) => {
+  // We need to create a map from taskName to testPaths:
+  // e.g. taskName: test-linux1804-64-shippable/opt-mochitest-devtools-chrome-e10s-1
+  // e.g. manifest: devtools/client/framework/browser-toolbox/test/browser.ini
+  // e.g. testPath: devtools/client/framework/browser-toolbox/test/browser_browser_toolbox_debugger.js
+  const taskNameToTestPaths = {};
+  Object.entries(manifestsByTask).forEach(([taskName, manifetsts]) => {
+    manifetsts.forEach(manifest => {
+      const splitPath = manifest.split('/');
+      const basePath = splitPath.splice(0, splitPath.length - 1).join('/');
+      taskNameToTestPaths[taskName] = taskNameToTestPaths[taskName] || [];
+      (testsByManifest[manifest] || []).forEach(test => {
+        taskNameToTestPaths[taskName].push(`${basePath}/${test}`);
+      });
+      taskNameToTestPaths[taskName].push(manifest);
+    });
+  });
+  return taskNameToTestPaths;
+};
+
+const fetchGeckoDecisionArtifact = async (project, revision, filePath) => {
+  let artifactContents = {};
   const rootUrl = prodFirefoxRootUrl;
   const url = `${checkRootUrl(
     rootUrl,
-  )}/api/index/v1/task/gecko.v2.${project}.revision.${revision}.taskgraph.decision/artifacts/public/manifests-by-task.json.gz`;
+  )}/api/index/v1/task/gecko.v2.${project}.revision.${revision}.taskgraph.decision/artifacts/public/${filePath}`;
   const response = await fetch(url);
-  if ([200, 303, 304].includes(response.status)) {
-    const blob = await response.blob();
-    const binData = await blob.arrayBuffer();
-    const decompressed = await inflate(binData, { to: 'string' });
-    taskNameToManifests = JSON.parse(decompressed);
-  } else if (response.status === 404) {
-    // This else/if block is for backward compatibility
-    // XXX: Remove after end of July 2020
-    const resp = await fetch(url.replace('.json.gz', '.json'));
-    if ([200, 303, 304].includes(resp.status)) {
-      taskNameToManifests = await resp.json();
+  if (url.endsWith('.gz')) {
+    if ([200, 303, 304].includes(response.status)) {
+      const blob = await response.blob();
+      const binData = await blob.arrayBuffer();
+      artifactContents = await decompress(binData);
+    }
+  } else if (url.endsWith('.json')) {
+    if ([200, 303, 304].includes(response.status)) {
+      artifactContents = await response.json();
     }
   }
-  return taskNameToManifests;
+  return artifactContents;
 };
 
 class Push extends React.PureComponent {
@@ -81,8 +99,12 @@ class Push extends React.PureComponent {
     // if ``nojobs`` is on the query string, then don't load jobs.
     // this allows someone to more quickly load ranges of revisions
     // when they don't care about the specific jobs and results.
-    if (!getAllUrlParams().has('nojobs')) {
-      await Promise.all([this.fetchJobs(), this.fetchTestManifests()]);
+    const allParams = getAllUrlParams();
+    if (!allParams.has('nojobs')) {
+      await this.fetchJobs();
+    }
+    if (allParams.has('test_paths')) {
+      await this.fetchTestManifests();
     }
 
     window.addEventListener(thEvents.applyNewJobs, this.handleApplyNewJobs);
@@ -181,17 +203,26 @@ class Push extends React.PureComponent {
   fetchTestManifests = async () => {
     const { currentRepo, push } = this.props;
 
-    const jobTypeNameToManifests = await fetchTestManifests(
-      currentRepo.name,
-      push.revision,
-    );
-    // Call setState with callback to guarantee the state of jobTypeNameToManifest
+    const [manifestsByTask, testsByManifest] = await Promise.all([
+      fetchGeckoDecisionArtifact(
+        currentRepo.name,
+        push.revision,
+        'manifests-by-task.json.gz',
+      ),
+      fetchGeckoDecisionArtifact(
+        currentRepo.name,
+        push.revision,
+        'tests-by-manifest.json.gz',
+      ),
+    ]);
+    const taskNameToTestPaths = joinArtifacts(manifestsByTask, testsByManifest);
+    // Call setState with callback to guarantee the state of taskNameToTestPaths
     // to be set since it is read within mapPushJobs and we might have a race
     // condition. We are also reading jobList now rather than before fetching
     // the artifact because it gives us an empty list
     this.setState(
       {
-        jobTypeNameToManifests,
+        taskNameToTestPaths,
       },
       () => this.mapPushJobs(this.state.jobList),
     );
@@ -215,7 +246,7 @@ class Push extends React.PureComponent {
 
   mapPushJobs = (jobs, skipJobMap) => {
     const { updateJobMap, recalculateUnclassifiedCounts, push } = this.props;
-    const { jobTypeNameToManifests = {} } = this.state;
+    const { taskNameToTestPaths = {} } = this.state;
 
     // whether or not we got any jobs for this push, the operation to fetch
     // them has completed.
@@ -227,7 +258,7 @@ class Push extends React.PureComponent {
       const existingJobs = jobList.filter(job => !newIds.includes(job.id));
       // Join both lists and add test_paths property
       const newJobList = [...existingJobs, ...jobs].map(job => {
-        job.test_paths = jobTypeNameToManifests[job.job_type_name] || [];
+        job.test_paths = taskNameToTestPaths[job.job_type_name] || [];
         return job;
       });
       const platforms = this.sortGroupedJobs(
