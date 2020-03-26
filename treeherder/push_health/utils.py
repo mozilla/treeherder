@@ -6,7 +6,7 @@ def clean_test(action, test, signature, message):
         elif action == 'crash':
             clean_name = signature
         elif action == 'log':
-            clean_name = message if len(message) < 50 else '{}...'.format(message[:50])
+            clean_name = message
 
     except UnicodeEncodeError:
         return ''
