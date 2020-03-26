@@ -134,10 +134,7 @@ class AlertsView extends React.Component {
     if (this.isListMode()) {
       if (doUpdateParams) {
         const updateParameters = this.getParamsFromFilters(updatedFilters);
-        if (
-          updatedFilters.hasOwnProperty('framework') &&
-          updatedFilters.hasOwnProperty('status')
-        ) {
+        if (!updatedFilters.hasOwnProperty('page')) {
           updateParameters.page = 1;
         }
         this.props.validated.updateParams(updateParameters);
