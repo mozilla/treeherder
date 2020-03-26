@@ -6,7 +6,6 @@ from django.urls import reverse
 from rest_framework.status import HTTP_400_BAD_REQUEST
 
 from treeherder.model.models import (Job,
-                                     TaskclusterMetadata,
                                      TextLogError,
                                      TextLogStep)
 
