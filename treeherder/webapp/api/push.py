@@ -19,8 +19,7 @@ from treeherder.push_health.linting import get_lint_failures
 from treeherder.push_health.tests import get_test_failures
 from treeherder.push_health.usage import get_usage
 from treeherder.webapp.api.serializers import PushSerializer
-from treeherder.webapp.api.utils import (REPO_GROUPS,
-                                         to_datetime,
+from treeherder.webapp.api.utils import (to_datetime,
                                          to_timestamp)
 
 logger = logging.getLogger(__name__)
@@ -216,7 +215,8 @@ class PushViewSet(viewsets.ViewSet):
         except Push.DoesNotExist:
             return Response("No push with revision: {0}".format(revision),
                             status=HTTP_404_NOT_FOUND)
-        push_health_test_failures = get_test_failures(push, REPO_GROUPS['trunk'])
+
+        push_health_test_failures = get_test_failures(push)
         push_health_lint_failures = get_lint_failures(push)
         push_health_build_failures = get_build_failures(push)
 
@@ -246,19 +246,25 @@ class PushViewSet(viewsets.ViewSet):
         except Push.DoesNotExist:
             return Response("No push with revision: {0}".format(revision),
                             status=HTTP_404_NOT_FOUND)
-        push_health_test_failures = get_test_failures(push, REPO_GROUPS['trunk'])
+
+        commit_history_details = None
+        parent_push = None
+
+        # Parent compare only supported for Hg at this time.
+        # Bug https://bugzilla.mozilla.org/show_bug.cgi?id=1612645
+        if repository.dvcs_type == 'hg':
+            commit_history_details = get_commit_history(repository, revision, push)
+            if commit_history_details['exactMatch']:
+                parent_push = commit_history_details.pop('parentPush')
+
+        push_health_test_failures = get_test_failures(push, parent_push)
         test_result = 'pass'
         if len(push_health_test_failures['unsupported']):
             test_result = 'indeterminate'
         if len(push_health_test_failures['needInvestigation']):
             test_result = 'fail'
 
-        # Parent link only supported for Hg at this time.
-        # Bug https://bugzilla.mozilla.org/show_bug.cgi?id=1612645
-        commit_history_details = None if repository.dvcs_type == 'git' \
-            else get_commit_history(repository, revision, push)
-
-        build_failures = get_build_failures(push)
+        build_failures = get_build_failures(push, parent_push)
         build_result = 'fail' if len(build_failures) else 'pass'
 
         lint_failures = get_lint_failures(push)

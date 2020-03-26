@@ -90,15 +90,18 @@ class ClassificationGroup extends React.PureComponent {
       hasRetriggerAll,
       notify,
       currentRepo,
-      searchStr,
+      unfilteredLength,
     } = this.props;
     const expandIcon = detailsShowing ? faMinusSquare : faPlusSquare;
     const expandTitle = detailsShowing
       ? 'Click to collapse'
       : 'Click to expand';
-
+    const groupLength = Object.keys(group).length;
     return (
-      <Row className={`justify-content-between ${className}`}>
+      <Row
+        className={`justify-content-between ${className}`}
+        data-testid="classification-group"
+      >
         <h4 className="w-100">
           <Badge
             className="pointable w-100"
@@ -107,7 +110,9 @@ class ClassificationGroup extends React.PureComponent {
             role="button"
             aria-expanded={detailsShowing}
           >
-            {name} : {Object.keys(group).length}
+            {name} : {groupLength}{' '}
+            {unfilteredLength > groupLength &&
+              `(${unfilteredLength} unfiltered)`}
             <FontAwesomeIcon
               icon={expandIcon}
               className="ml-1"
@@ -117,7 +122,7 @@ class ClassificationGroup extends React.PureComponent {
           </Badge>
         </h4>
         <Collapse isOpen={detailsShowing} className="w-100">
-          {hasRetriggerAll && Object.keys(group).length > 0 && (
+          {hasRetriggerAll && groupLength > 0 && (
             <Navbar className="mb-4">
               <Nav>
                 <NavItem>
@@ -230,7 +235,6 @@ class ClassificationGroup extends React.PureComponent {
               orderedBy={orderedBy}
               currentRepo={currentRepo}
               notify={notify}
-              searchStr={searchStr}
             />
           </div>
         </Collapse>
@@ -247,6 +251,7 @@ ClassificationGroup.propTypes = {
   revision: PropTypes.string.isRequired,
   user: PropTypes.object.isRequired,
   notify: PropTypes.func.isRequired,
+  unfilteredLength: PropTypes.number.isRequired,
   hasRetriggerAll: PropTypes.bool,
   expanded: PropTypes.bool,
   className: PropTypes.string,

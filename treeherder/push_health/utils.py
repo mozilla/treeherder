@@ -79,3 +79,18 @@ def clean_platform(platform):
 def is_valid_failure_line(line):
     skip_lines = ['Return code:', 'unexpected status', 'unexpected crashes', 'exit status', 'Finished in']
     return not any(skip_line in line for skip_line in skip_lines)
+
+
+def get_job_key(job):
+    return '{}-{}-{}'.format(
+        job['job_type_name'],
+        job['platform'],
+        job['option_collection_hash']
+    )
+
+
+def mark_failed_in_parent(failures, parent_failures):
+    parent_failure_keys = {get_job_key(job) for job in parent_failures}
+
+    for failure in failures:
+        failure['failedInParent'] = get_job_key(failure) in parent_failure_keys

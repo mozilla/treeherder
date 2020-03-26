@@ -12,7 +12,7 @@ import TestFailure from '../../../ui/push-health/TestFailure';
 import pushHealth from '../mock/push_health';
 
 const repoName = 'autoland';
-const crashFailure = pushHealth.metrics.tests.details.needInvestigation[0];
+const crashFailure = pushHealth.metrics.tests.details.intermittent[0];
 const testFailure = pushHealth.metrics.tests.details.needInvestigation[2];
 
 beforeEach(() => {
@@ -52,7 +52,9 @@ describe('TestFailure', () => {
 
     expect(
       await waitForElement(() =>
-        getByText('IndexedDB/idb-explicit-commit.any.worker.html'),
+        getByText(
+          'layout/reftests/high-contrast/backplate-bg-image-006.html == layout/reftests/high-contrast/backplate-bg-image-006-ref.html',
+        ),
       ),
     ).toBeInTheDocument();
   });
@@ -82,7 +84,7 @@ describe('TestFailure', () => {
     expect(
       await waitForElement(() =>
         getByText(
-          'Error in remote: uncaught exception: Error: assert_unreached',
+          'image comparison, max difference: 15, number of differing pixels: 3200',
           { exact: false },
         ),
       ),
@@ -100,7 +102,7 @@ describe('TestFailure', () => {
 
     expect(
       await waitForElement(
-        () => getAllByText('@ nsDebugImpl::Abort(char const*, int)')[0],
+        () => getAllByText('@ __abort_with_payload + 0xa')[0],
       ),
     ).toBeVisible();
     expect(

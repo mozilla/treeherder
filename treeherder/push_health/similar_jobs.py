@@ -47,11 +47,11 @@ def set_matching_passed_jobs(failures, push):
     passing_jobs = Job.objects.filter(
         push=push,
         result='success'
-    ).filter(query).select_related('job_type')
+    ).filter(query).select_related('job_type', 'machine_platform', 'taskcluster_metadata')
     in_progress_jobs = Job.objects.filter(
         push=push,
         result='unknown'
-    ).filter(query).select_related('job_type')
+    ).filter(query).select_related('job_type', 'machine_platform', 'taskcluster_metadata')
 
     #
     # Group the passing jobs into groups based on their platform, option and job_type
@@ -91,9 +91,11 @@ def get_job_key(job):
 
 def job_to_dict(job):
     job_dict = {field: getattr(job, field) for field in job_fields}
-    # required for retriggers
-    job_dict['job_type_name'] = job.job_type.name
-    job_dict['job_type_symbol'] = job.job_type.symbol
-    job_dict['platform'] = job.machine_platform.platform
-
+    job_dict.update({
+        'job_type_name': job.job_type.name,
+        'job_type_symbol': job.job_type.symbol,
+        'platform': job.machine_platform.platform,
+        'task_id': job.taskcluster_metadata.task_id,
+        'run_id': job.taskcluster_metadata.retry_id,
+    })
     return job_dict
