@@ -1,13 +1,17 @@
 import logging
-import simplejson as json
+from datetime import (datetime,
+                      timedelta)
 
-from datetime import datetime, timedelta
-from treeherder.perf.models import PerformanceSettings
+import simplejson as json
 from django.conf import settings as django_settings
+
+from treeherder.perf.models import (BackfillRecord,
+                                    PerformanceSettings)
 
 logger = logging.getLogger(__name__)
 
 # TODO: extract strings into constants
+TIME_TO_MATURE = timedelta(hours=4)
 
 
 class SecretaryTool:
@@ -18,28 +22,52 @@ class SecretaryTool:
     def __init__(self):
         pass
 
-    @staticmethod
-    def manage_settings():
+    @classmethod
+    def manage_settings(cls):
         perf_sheriff_settings, created = PerformanceSettings.objects.get_or_create(
             name="perf_sheriff_bot",
-            defaults={"settings": SecretaryTool._get_default_settings()},
+            defaults={"settings": cls._get_default_settings()},
         )
 
         if created:
-            logger.info("Performance settings for perf_sheriff_bot not found. Creating with defaults...")
+            logger.info("Performance settings for perf_sheriff_bot not found. Creating with defaults.")
 
-        settings = json.loads(perf_sheriff_settings.settings)
         # reset limits if the settings expired
-        if SecretaryTool.is_expired(datetime.fromisoformat(settings["last_reset_date"])):
-            perf_sheriff_settings.settings = SecretaryTool._get_default_settings()
+        settings = json.loads(perf_sheriff_settings.settings)
+        if cls.are_expired(settings):
+            logger.info(f"Settings are expired. Expired settings: {settings}")
+            # self.log.warning(f"Failed to compute report for alert summary {summary}. {ex}")
+
+            perf_sheriff_settings.settings = cls._get_default_settings()
             perf_sheriff_settings.save()
 
-    @staticmethod
-    def is_expired(last_reset_date):
+    @classmethod
+    def prepare_for_processing(cls):
+        # get all PRELIMINARY records and set them to READY_FOR_PROCESSING
+        preliminary_records = BackfillRecord.objects.filter(status=BackfillRecord.PRELIMINARY)
+
+        for record in preliminary_records:
+            if record.created < datetime.utcnow() - TIME_TO_MATURE:
+                record.status = BackfillRecord.READY_FOR_PROCESSING
+                record.report.frozen = True
+                record.save()
+
+    @classmethod
+    def update_final_status(cls):
+        # get all BACKFILLED to check on for results and update accordingly
+        backfilled_records = BackfillRecord.objects.filter(status=BackfillRecord.BACKFILLED)
+
+        # TODO: update the backfill status using data from taskcluster
+        for record in backfilled_records:
+            pass
+
+    @classmethod
+    def are_expired(cls, settings):
+        last_reset_date = datetime.fromisoformat(settings["last_reset_date"])
         return datetime.utcnow() > last_reset_date + django_settings.RESET_BACKFILL_LIMITS
 
-    @staticmethod
-    def _get_default_settings(as_json=True):
+    @classmethod
+    def _get_default_settings(cls, as_json=True):
         default_settings = {
             "limits": django_settings.MAX_BACKFILLS_PER_PLATFORM,
             "last_reset_date": datetime.utcnow(),
