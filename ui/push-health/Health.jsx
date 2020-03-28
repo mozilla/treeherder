@@ -7,7 +7,10 @@ import {
   faExclamationTriangle,
 } from '@fortawesome/free-solid-svg-icons';
 import camelCase from 'lodash/camelCase';
+import { Helmet } from 'react-helmet';
 
+import faviconBroken from '../img/push-health-broken.png';
+import faviconOk from '../img/push-health-ok.png';
 import ErrorMessages from '../shared/ErrorMessages';
 import NotificationList from '../shared/NotificationList';
 import {
@@ -183,9 +186,19 @@ export default class Health extends React.PureComponent {
       result: percentComplete === 100 ? 'done' : 'in progress',
       details: [],
     };
+    const needInvestigationCount = tests
+      ? tests.details.needInvestigation.length
+      : 0;
 
     return (
       <React.Fragment>
+        <Helmet>
+          <link
+            rel="shortcut icon"
+            href={result === 'fail' ? faviconBroken : faviconOk}
+          />
+          <title>{`[${needInvestigationCount}] Push Health`}</title>
+        </Helmet>
         <Navigation
           user={user}
           setUser={this.setUser}
