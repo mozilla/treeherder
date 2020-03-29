@@ -424,64 +424,110 @@ django-cache-memoize==0.1.6 \
     --hash=sha256:d239e8c37734b0a70b74f94fa33b180b3b0c82c3784beb21209bb4ab64a3e6fb
 
 # Required for extraction to BigQuery
-jx-bigquery==3.55.20074 \
-    --hash=sha256:f2920f4535fd91edef243a64404d13aa28e096d123f0827f5bc158bbed61379b
+jx-bigquery==3.59.20089 \
+    --hash=sha256:de42d7049c7b4e6ee207d556931cb3b7358736d990eaa705a2a4afc40b38212f \
+    # via -r requirements/common.txt
 jx-mysql==3.49.20042 \
-    --hash=sha256:adb47e8e13151178cbb81e3e352776ec848b799e9b038de7796a889782564519
-jx-python==3.55.20074 \
-    --hash=sha256:ad6bf70e331e64309124e6275d9a3b115faf7cf5482fb5f68430e5048f0f85f3
-
-mo-collections==3.46.20032 \
-    --hash=sha256:b96df523a7894e78c9160b45426b8db45d47841f5185f4dd1ccfe9a3708e89d6
+    --hash=sha256:adb47e8e13151178cbb81e3e352776ec848b799e9b038de7796a889782564519 \
+    # via -r requirements/common.txt
+jx-python==3.57.20089 \
+    --hash=sha256:a10cd1ddb14e707e43af1b9b0fa7096957bb563af477035238a86ea2e0e0861a \
+    # via jx-bigquery, jx-mysql
+mo-collections==3.58.20089 \
+    --hash=sha256:66c4c13278ab31caef9a37b9c2f18b17ec2165c727897d7010f6224c453c6a13 \
+    # via jx-mysql, jx-python, mo-testing
 mo-dots==3.53.20059 \
-    --hash=sha256:0896920102ba6b59f43b6b667503edc19a5f69a4ad290f67fa8b916ea87a6063
+    --hash=sha256:0896920102ba6b59f43b6b667503edc19a5f69a4ad290f67fa8b916ea87a6063 \
+    # via jx-bigquery, jx-mysql, jx-python, mo-collections, mo-files, mo-json, mo-json-config, mo-kwargs, mo-logs, mo-math, mo-sql, mo-testing, mo-threads, mo-times
 mo-files==3.51.20059 \
-    --hash=sha256:d1e160165060cb467bc0fb11317e09a39e2e9e01081b2b712dcb75062140e490
+    --hash=sha256:d1e160165060cb467bc0fb11317e09a39e2e9e01081b2b712dcb75062140e490 \
+    # via jx-mysql, jx-python, mo-json-config
 mo-future==3.51.20059 \
-    --hash=sha256:3d1bfce849d26f56ad6db05ae8e783756ac0d195bc55942a775d9013d3cc5c04
+    --hash=sha256:3d1bfce849d26f56ad6db05ae8e783756ac0d195bc55942a775d9013d3cc5c04 \
+    # via jx-bigquery, jx-mysql, jx-python, mo-collections, mo-dots, mo-files, mo-json, mo-json-config, mo-kwargs, mo-logs, mo-math, mo-sql, mo-testing, mo-threads, mo-times
 mo-json-config==3.42.20031 \
-    --hash=sha256:65f926de86c4cd21f6b13e4dbb858927a0e8be5e83635daa64ffe9f5133eb36b
-mo-json==3.51.20059 \
-    --hash=sha256:8f03b9401385b3aa61eadb5866621a56963c3a05854f349ee6309e564003df5b
+    --hash=sha256:65f926de86c4cd21f6b13e4dbb858927a0e8be5e83635daa64ffe9f5133eb36b \
+    # via jx-python
+mo-json==3.57.20089 \
+    --hash=sha256:8c94213403ddea6e713a47d0e09671b68d12d1e21e755ff5562abb9ac85f7f47 \
+    # via jx-bigquery, jx-mysql, jx-python, mo-json-config
 mo-kwargs==3.54.20059 \
-    --hash=sha256:f6ada2f6e84a700db6cbdc5901c12fcba351005440c8aa3f256dbf17fd3eef88
-mo-logs==3.53.20059 \
-    --hash=sha256:a7ed0bfe70f5f37cfaa0745823d28d455bef773f72379b17c65138b1d702ec5d
-mo-math==3.41.20031 \
-    --hash=sha256:76ac7894c45986fcbe84eaa638643561bae59ada8f523ed4e064c556fdd1f9d3
+    --hash=sha256:f6ada2f6e84a700db6cbdc5901c12fcba351005440c8aa3f256dbf17fd3eef88 \
+    # via jx-bigquery, jx-mysql, jx-python, mo-collections
+mo-logs==3.57.20089 \
+    --hash=sha256:a8ce7d30b02f1a592f626a5d9d70fc537d96ea9dee4ca8ed76ebb717b74bb814 \
+    # via jx-bigquery, jx-mysql, jx-python, mo-collections, mo-files, mo-json, mo-json-config, mo-kwargs, mo-math, mo-sql, mo-testing, mo-threads, mo-times
+mo-math==3.57.20089 \
+    --hash=sha256:e2880178fb9ebeb6bda5a2e62d36f2fa0c47a3cfcf73b4269e116954d26e75d5 \
+    # via jx-mysql, jx-python, mo-testing, mo-times
 mo-sql==3.55.20074 \
-    --hash=sha256:de8b700d3b1a1b687fa0f7ae44ccd3141b8cb1df3d179ce692d3756b56cc1237
-mo-testing==3.38.20029 \
-    --hash=sha256:48c4a9b10f2d20a6fdfe66a6e72d9c47c456023eefcc3845ed6c988b44380cac
-mo-threads==3.51.20059 \
-    --hash=sha256:7184e253f9dedbf640eb98526157a6d1ba33a7fb59237b17790bcfb7b2f85548
-mo-times==3.51.20059 \
-    --hash=sha256:e68205a0ec752c8bddb392cd542d8754368b105406c4ec450e1620adef4e2035
+    --hash=sha256:de8b700d3b1a1b687fa0f7ae44ccd3141b8cb1df3d179ce692d3756b56cc1237 \
+    # via jx-bigquery, jx-mysql
+mo-testing==3.58.20089 \
+    --hash=sha256:2cd407e5a2d7a31abea93dc0e5c08f9d12e5e96d93d4658db47303d5b1ebaad1 \
+    # via -r requirements/common.txt
+mo-threads==3.57.20089 \
+    --hash=sha256:e7993fad18fedee21e9152f0c4ae9ff92c346f7e34c3a409e184e962dba7f5dc \
+    # via jx-python
+mo-times==3.57.20089 \
+    --hash=sha256:41ae479a77f4b4a211a202710fe3426a7b8a30b4399870127645ac787edcab58 \
+    # via jx-bigquery, jx-mysql, jx-python, mo-json
 pyLibrary==3.47.20042 \
     --hash=sha256:b15eb994c819eca8dc860af8ea6437e482d519c1a1c7618a28fc6bcd4f8043f5
 
-pymysql==0.9.3 \
-    --hash=sha256:3943fbbbc1e902f41daf7f9165519f140c4451c179380677e6a848587042561a
+google-api-core==1.16.0 \
+    --hash=sha256:859f7392676761f2b160c6ee030c3422135ada4458f0948c5690a6a7c8d86294 \
+    --hash=sha256:92e962a087f1c4b8d1c5c88ade1c1dfd550047dcffb320c57ef6a534a20403e2 \
+    # via google-cloud-bigquery, google-cloud-core
+google-auth==1.12.0 \
+    --hash=sha256:016924388770b7e66c7e9ade1c4c3144ee88812d79697fd6c0dad9abdfcda2fd \
+    --hash=sha256:01d686448f57d3bc027726474faa1aa650ba333bedb392e06938b0add8ec8d3a \
+    # via google-api-core, google-cloud-bigquery
 google-cloud-bigquery==1.24.0 \
     --hash=sha256:23c9180e87f6093eb6f2ae880d7f7697fdab991a4616439ad0f95cd37014f0dd \
-    --hash=sha256:7ffcceed8becea20cb4ce4bdf9b924822780416ff1a9d497f9a1238a3f1442b1
-protobuf==3.11.2 \
-    --hash=sha256:a2e6f57114933882ec701807f217df2fb4588d47f71f227c0a163446b930d507 \
-    --hash=sha256:a6b970a2eccfcbabe1acf230fbf112face1c4700036c95e195f3554d7bcb04c1 \
-    --hash=sha256:d61b14a9090da77fe87e38ba4c6c43d3533dcbeb5d84f5474e7ac63c532dcc9c
-google_resumable_media==0.5.0 \
-    --hash=sha256:b86140d5a0b6d290084b11bde90ee9aecad357ba0e0d67388d016b8340320927
-google_cloud_core==1.3.0 \
+    --hash=sha256:7ffcceed8becea20cb4ce4bdf9b924822780416ff1a9d497f9a1238a3f1442b1 \
+    # via jx-bigquery
+google-cloud-core==1.3.0 \
     --hash=sha256:6ae5c62931e8345692241ac1939b85a10d6c38dc9e2854bdbacb7e5ac3033229 \
-    --hash=sha256:878f9ad080a40cdcec85b92242c4b5819eeb8f120ebc5c9f640935e24fc129d8
-google_api_core==1.16.0 \
-    --hash=sha256:859f7392676761f2b160c6ee030c3422135ada4458f0948c5690a6a7c8d86294
-google_auth==1.11.2 \
-    --hash=sha256:28a848d47c55075a0f29d7e26b7a213515c137ab8f0670e546e46d1277060e47 \
-    --hash=sha256:1ee22e22f35d6e00f068d7b3999b2ce24ecb5d0dcbd485aa6896d2b83c8907d6
+    --hash=sha256:878f9ad080a40cdcec85b92242c4b5819eeb8f120ebc5c9f640935e24fc129d8 \
+    # via google-cloud-bigquery
+google-resumable-media==0.5.0 \
+    --hash=sha256:2a8fd188afe1cbfd5998bf20602f76b0336aa892de88fe842a806b9a3ed78d2a \
+    --hash=sha256:b86140d5a0b6d290084b11bde90ee9aecad357ba0e0d67388d016b8340320927 \
+    # via google-cloud-bigquery
 googleapis-common-protos==1.51.0 \
-    --hash=sha256:013c91704279119150e44ef770086fdbba158c1f978a6402167d47d5409e226e
+    --hash=sha256:013c91704279119150e44ef770086fdbba158c1f978a6402167d47d5409e226e \
+    # via google-api-core
+
 cachetools==4.0.0 \
-    --hash=sha256:b304586d357c43221856be51d73387f93e2a961598a9b6b6670664746f3b6c6c
-pyasn1_modules==0.2.8 \
-    --hash=sha256:a50b808ffeb97cb3601dd25981f6b016cbb3d31fbf57a8b8a87428e6158d0c74
+    --hash=sha256:9a52dd97a85f257f4e4127f15818e71a0c7899f121b34591fcc1173ea79a0198 \
+    --hash=sha256:b304586d357c43221856be51d73387f93e2a961598a9b6b6670664746f3b6c6c \
+    # via google-auth
+pymysql==0.9.3 \
+    --hash=sha256:3943fbbbc1e902f41daf7f9165519f140c4451c179380677e6a848587042561a \
+    --hash=sha256:d8c059dcd81dedb85a9f034d5e22dcb4442c0b201908bede99e306d65ea7c8e7 \
+    # via jx-mysql
+protobuf==3.11.3 \
+    --hash=sha256:0bae429443cc4748be2aadfdaf9633297cfaeb24a9a02d0ab15849175ce90fab \
+    --hash=sha256:24e3b6ad259544d717902777b33966a1a069208c885576254c112663e6a5bb0f \
+    --hash=sha256:310a7aca6e7f257510d0c750364774034272538d51796ca31d42c3925d12a52a \
+    --hash=sha256:52e586072612c1eec18e1174f8e3bb19d08f075fc2e3f91d3b16c919078469d0 \
+    --hash=sha256:73152776dc75f335c476d11d52ec6f0f6925774802cd48d6189f4d5d7fe753f4 \
+    --hash=sha256:7774bbbaac81d3ba86de646c39f154afc8156717972bf0450c9dbfa1dc8dbea2 \
+    --hash=sha256:82d7ac987715d8d1eb4068bf997f3053468e0ce0287e2729c30601feb6602fee \
+    --hash=sha256:8eb9c93798b904f141d9de36a0ba9f9b73cc382869e67c9e642c0aba53b0fc07 \
+    --hash=sha256:adf0e4d57b33881d0c63bb11e7f9038f98ee0c3e334c221f0858f826e8fb0151 \
+    --hash=sha256:c40973a0aee65422d8cb4e7d7cbded95dfeee0199caab54d5ab25b63bce8135a \
+    --hash=sha256:c77c974d1dadf246d789f6dad1c24426137c9091e930dbf50e0a29c1fcf00b1f \
+    --hash=sha256:dd9aa4401c36785ea1b6fff0552c674bdd1b641319cb07ed1fe2392388e9b0d7 \
+    --hash=sha256:e11df1ac6905e81b815ab6fd518e79be0a58b5dc427a2cf7208980f30694b956 \
+    --hash=sha256:e2f8a75261c26b2f5f3442b0525d50fd79a71aeca04b5ec270fc123536188306 \
+    --hash=sha256:e512b7f3a4dd780f59f1bf22c302740e27b10b5c97e858a6061772668cd6f961 \
+    --hash=sha256:ef2c2e56aaf9ee914d3dccc3408d42661aaf7d9bb78eaa8f17b2e6282f214481 \
+    --hash=sha256:fac513a9dc2a74b99abd2e17109b53945e364649ca03d9f7a0b96aa8d1807d0a \
+    --hash=sha256:fdfb6ad138dbbf92b5dbea3576d7c8ba7463173f7d2cb0ca1bd336ec88ddbd80 \
+    # via google-api-core, google-cloud-bigquery, googleapis-common-protos
+pyasn1-modules==0.2.8 \
+    --hash=sha256:905f84c712230b2c592c19470d3ca8d552de726050d1d1716282a1f6146be65e \
+    --hash=sha256:a50b808ffeb97cb3601dd25981f6b016cbb3d31fbf57a8b8a87428e6158d0c74 \
+    # via google-auth
