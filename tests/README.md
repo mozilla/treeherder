@@ -65,7 +65,7 @@ If you made some changes, and want to submit a pull request; run the `./runtests
 After `docker-compose up`, you may spin up any number of `backend` containers. You may want to run ingestion tasks, or go exploring.
 
     docker-compose exec backend bash
-
+    
 docker-compose has three execution modes
 
 * `exec` - run just the service, and assume the others are running
@@ -73,3 +73,13 @@ docker-compose has three execution modes
 * `up` - run all the services with ports open
 
 More can be read here: [docker-composes up vs run vs exec](https://medium.com/@zhao.li/how-to-understand-the-difference-between-docker-composes-up-vs-run-vs-exec-commands-a506151967df)
+
+Inside this container
+
+    ./runchecks.sh
+    ./manage.py check
+    export SITE_URL=https://treeherder.dev 
+    export TREEHERDER_DEBUG=False 
+    ./manage.py check --deploy --fail-level WARNING
+    pytest tests/ --ignore=tests/selenium --ignore=tests/extract
+

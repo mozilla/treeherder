@@ -52,7 +52,7 @@ def complex_job(
             "author": "testing@mozilla.com",
             "repository": repo,
             "revision": "ae6bb3a1066959a8c43d003a3caab0af769455bf",
-            "time": unix2datetime(1578427105),
+            "time": unix2datetime(1578427105).replace(tzinfo=None),
         }
     )
 
@@ -92,10 +92,10 @@ def complex_job(
         reason="scheduled",
         result="success",
         state="completed",
-        submit_time=unix2datetime(1578427253),
-        start_time=unix2datetime(1578430841),
-        last_modified=unix2datetime(1578432686.364459),
-        end_time=unix2datetime(1578432680),
+        submit_time=unix2datetime(1578427253).replace(tzinfo=None),
+        start_time=unix2datetime(1578430841).replace(tzinfo=None),
+        last_modified=unix2datetime(1578432686.364459).replace(tzinfo=None),
+        end_time=unix2datetime(1578432680).replace(tzinfo=None),
         tier=1,
     )
 
