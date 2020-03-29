@@ -79,7 +79,7 @@
     "sharded": true
   },
   "constants": {
-    "pyLibrary.env.http.default_headers": {
+    "mo-http.http.default_headers": {
       "Referer": "https://github.com/mozilla/treeherder"
     }
   },
