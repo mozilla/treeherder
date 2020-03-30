@@ -37,23 +37,6 @@ Be sure you are in the `treeherder` main directory
     pip install -r requirements\common.txt -r requirements\dev.txt
 
 
-## Setup git pre-commit hook
-
-We assume you have a default Python environment, which you will be using when you run a `pre-commit` hook. This default Python environment is separate from the Treeherder Python environment you will be setting up below.
-
-    .venv\Scripts\activate
-    pip install pre-commit
-    pre-commit install
-
-
-
-
-
-
-
-
-
-
 ## Set environment variables
 
 For Windows, Treeherder requires a number of environment variables that point to the services.  In our case, those services are in local docker containers.
@@ -101,3 +84,10 @@ Inside this container
 
     pytest tests
 
+## Setup git pre-commit hook
+
+Running checks locally will allow you to catch linting errors faster. We put the git pre-commit hook into the virtual environment to avoid polluting your dev machine
+
+    .venv\Scripts\activate
+    pip install pre-commit
+    pre-commit install
