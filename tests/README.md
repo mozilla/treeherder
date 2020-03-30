@@ -26,7 +26,8 @@ Be sure you are in the `treeherder` main directory
 
     python -m venv .venv             # IMPORTANT: Notice the dot in the name
     source .venv/bin/activate
-    pip install -r requirements/common.txt -r requirements/dev.txt
+    pip install -r requirements/dev.txt
+    pip install -r requirements/common.txt 
 
 ...or Windows...
 

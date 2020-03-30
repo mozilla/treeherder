@@ -62,8 +62,9 @@ jobs:
       install:
         # Initialize services required to run tests
         - docker-compose up --detach mysql redis rabbitmq
-        - pip install -r requirements/common.txt -r requirements/dev.txt
         - pip install -r requirements/docs.txt # Install separately since it has no hashes
+        - pip install -r requirements/dev.txt
+        - pip install -r requirements/common.txt
       script:
         - ./runchecks.sh
         - ./manage.py check
