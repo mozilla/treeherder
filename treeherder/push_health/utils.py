@@ -1,3 +1,13 @@
+# These strings will be omitted from test paths to more easily correllate
+# them to other test paths.
+trim_parts = [
+    'TEST-UNEXPECTED-FAIL',
+    'REFTEST TEST-UNEXPECTED-FAIL',
+    'TEST-UNEXPECTED-PASS',
+    'REFTEST TEST-UNEXPECTED-PASS',
+]
+
+
 def clean_test(action, test, signature, message):
     try:
         clean_name = 'Non-Test Error'
@@ -56,6 +66,12 @@ def clean_test(action, test, signature, message):
     clean_name = clean_name.strip()
     clean_name = clean_name.replace('\\', '/')
     clean_name = clean_name.lstrip('/')
+
+    if '|' in clean_name:
+        parts = clean_name.split('|')
+        clean_parts = filter(lambda x: not x.strip() in trim_parts, parts)
+        clean_name = '|'.join(clean_parts)
+
     return clean_name
 
 
