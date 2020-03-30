@@ -25,9 +25,9 @@ Be sure you are in the `treeherder` main directory
 
 ...or Windows...
 
-    pip install virtualenv
+    python -m pip install virtualenv
     rem IMPORTANT: Notice the dot in `.venv`
-    virtualenv .venv             
+    python -m virtualenv .venv             
     .venv\Scripts\activate
     pip install -r requirements\common.txt -r requirements\dev.txt
 
@@ -35,7 +35,7 @@ Be sure you are in the `treeherder` main directory
 
 For Windows, Treeherder requires a number of environment variables that point to the services.  In our case, those services are in local docker containers.
 
-    ./tests/env.bat
+    .\tests\env.bat
 
 If you plan to use an IDE, here is the same, as a very long line
 
@@ -60,9 +60,9 @@ If you made some changes, and want to submit a pull request; run the `./runtests
 
 > For Windows, you can run the checks in a container (see below)
 
-## Using containers
+## Run tests in container
 
-After `docker-compose up`, you may spin up any number of `backend` containers. You may want to run ingestion tasks, or go exploring.
+After `docker-compose up`, you may spin up any number of `backend` containers. You may want to run ingestion tasks, go exploring, or run the tests.
 
     docker-compose exec backend bash
     
@@ -76,10 +76,5 @@ More can be read here: [docker-composes up vs run vs exec](https://medium.com/@z
 
 Inside this container
 
-    ./runchecks.sh
-    ./manage.py check
-    export SITE_URL=https://treeherder.dev 
-    export TREEHERDER_DEBUG=False 
-    ./manage.py check --deploy --fail-level WARNING
-    pytest tests/ --ignore=tests/selenium --ignore=tests/extract
+    pytest tests
 
