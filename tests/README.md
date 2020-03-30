@@ -7,6 +7,11 @@ The backend test suite can be run outside the Docker container.
 We need all but the main `backend` service running.  Since multiple `backend` instances are allowed, we will simply start everything up
 
     # ENSURE THE IMAGES ARE CLEAN
+    docker rm "/mysql"
+    docker rm "/frontend"
+    docker rm "/rabbitmq" 
+    docker rm "/redis"
+    docker rm "/backend"
     docker-compose down
     docker volume rm treeherder_mysql_data 
     
@@ -25,17 +30,18 @@ Be sure you are in the `treeherder` main directory
 
 ...or Windows...
 
-    pip install virtualenv
+    python -m pip install virtualenv
     rem IMPORTANT: Notice the dot in `.venv`
-    virtualenv .venv             
+    python -m virtualenv .venv             
     .venv\Scripts\activate
     pip install -r requirements\common.txt -r requirements\dev.txt
+
 
 ## Set environment variables
 
 For Windows, Treeherder requires a number of environment variables that point to the services.  In our case, those services are in local docker containers.
 
-    ./tests/env.bat
+    .\tests\env.bat
 
 If you plan to use an IDE, here is the same, as a very long line
 
@@ -60,12 +66,12 @@ If you made some changes, and want to submit a pull request; run the `./runtests
 
 > For Windows, you can run the checks in a container (see below)
 
-## Using containers
+## Run tests in container
 
-After `docker-compose up`, you may spin up any number of `backend` containers. You may want to run ingestion tasks, or go exploring.
+After `docker-compose up`, you may spin up any number of `backend` containers. You may want to run ingestion tasks, go exploring, or run the tests.
 
     docker-compose exec backend bash
-
+    
 docker-compose has three execution modes
 
 * `exec` - run just the service, and assume the others are running
@@ -73,3 +79,15 @@ docker-compose has three execution modes
 * `up` - run all the services with ports open
 
 More can be read here: [docker-composes up vs run vs exec](https://medium.com/@zhao.li/how-to-understand-the-difference-between-docker-composes-up-vs-run-vs-exec-commands-a506151967df)
+
+Inside this container
+
+    pytest tests
+
+## Setup git pre-commit hook
+
+Running checks locally will allow you to catch linting errors faster. We put the git pre-commit hook into the virtual environment to avoid polluting your dev machine
+
+    .venv\Scripts\activate
+    pip install pre-commit
+    pre-commit install
