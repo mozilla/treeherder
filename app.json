@@ -35,12 +35,6 @@
     "HEROKU_REVIEW_APP": true,
     "LOGGING_LEVEL": "INFO",
     "PULSE_URL": "amqp://treeherder-shared-pulse-user:mozilla123@pulse.mozilla.org:5671/?ssl=true",
-    "PULSE_RESULSETS_QUEUE_NAME": {
-      "generator": "secret"
-    },
-    "PULSE_TASKS_QUEUE_NAME": {
-      "generator": "secret"
-    },
     "PULSE_QUEUE_NAME": {
       "generator": "secret"
     },
@@ -60,11 +54,7 @@
       "quantity": 0,
       "size": "Standard-1X"
     },
-    "pulse_listener_pushes": {
-      "quantity": 1,
-      "size": "Standard-1X"
-    },
-    "pulse_listener_tasks": {
+    "pulse_listener": {
       "quantity": 1,
       "size": "Standard-1X"
     },
