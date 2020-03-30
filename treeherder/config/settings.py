@@ -38,8 +38,8 @@ SECRET_KEY = env("TREEHERDER_DJANGO_SECRET_KEY", default='secret-key-of-at-least
 # Delete the Pulse automatically when no consumers left
 PULSE_AUTO_DELETE_QUEUES = env.bool("PULSE_AUTO_DELETE_QUEUES", default=False)
 
-# Changing PULSE_AUTO_DELETE_QUEUES to true when treeherder is running in virtual environment
-if hasattr(os.environ, 'VIRTUAL_ENV'):
+# Changing PULSE_AUTO_DELETE_QUEUES to True when Treeherder is running inside of virtual environment
+if os.environ.get("VIRTUAL_ENV"):
     PULSE_AUTO_DELETE_QUEUES = True
 
 # Hosts
