@@ -7,6 +7,11 @@ The backend test suite can be run outside the Docker container.
 We need all but the main `backend` service running.  Since multiple `backend` instances are allowed, we will simply start everything up
 
     # ENSURE THE IMAGES ARE CLEAN
+    docker rm "/mysql"
+    docker rm "/frontend"
+    docker rm "/rabbitmq" 
+    docker rm "/redis"
+    docker rm "/backend"
     docker-compose down
     docker volume rm treeherder_mysql_data 
     
