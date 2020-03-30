@@ -96,7 +96,7 @@ export default class AlertsViewControls extends React.Component {
       });
     }
 
-    const hasMorePages = pageNums.length > 0 && count !== 1;
+    const hasMorePages = () => pageNums.length > 0 && count !== 1;
 
     return (
       <React.Fragment>
@@ -109,7 +109,7 @@ export default class AlertsViewControls extends React.Component {
           dropdownCol
         />
         {pageNums
-          ? hasMorePages && (
+          ? hasMorePages() && (
               <Row className="justify-content-center">
                 <PaginationGroup
                   pageNums={pageNums}
@@ -138,7 +138,7 @@ export default class AlertsViewControls extends React.Component {
             />
           ))}
         {pageNums
-          ? hasMorePages && (
+          ? hasMorePages() && (
               <Row className="justify-content-center">
                 <PaginationGroup
                   pageNums={pageNums}
