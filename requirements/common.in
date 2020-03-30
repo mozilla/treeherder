@@ -109,11 +109,4 @@ django-cache-memoize==0.1.6
 # Required for extraction to BigQuery
 jx-bigquery
 jx-mysql
-jx-python
-mo-files
-mo-future
-mo-json
-mo-logs
 mo-testing
-mo-times
-
