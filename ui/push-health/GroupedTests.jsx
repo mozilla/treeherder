@@ -80,7 +80,7 @@ class GroupedTests extends PureComponent {
                 />
                 <Button
                   id={`group-${group.id}`}
-                  className="text-center text-monospace border-0"
+                  className="text-center text-break text-wrap text-monospace border-0"
                   title="Click to expand for test detail"
                   outline
                 >
