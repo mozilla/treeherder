@@ -3,6 +3,7 @@ import inspect
 import logging
 import os
 from concurrent.futures import ThreadPoolExecutor
+from threading import BoundedSemaphore
 
 import aiohttp
 import requests
@@ -11,11 +12,10 @@ import taskcluster.aio
 import taskcluster_urls as liburls
 from django.conf import settings
 from django.core.management.base import BaseCommand
+from django.db import connection
 
 from treeherder.client.thclient import TreeherderClient
 from treeherder.config.settings import GITHUB_TOKEN
-from treeherder.etl.db_semaphore import (acquire_connection,
-                                         release_connection)
 from treeherder.etl.job_loader import JobLoader
 from treeherder.etl.push_loader import PushLoader
 from treeherder.etl.pushlog import HgPushlogProcess
@@ -41,6 +41,25 @@ executor = ThreadPoolExecutor()
 stateToExchange = {}
 for key, value in EXCHANGE_EVENT_MAP.items():
     stateToExchange[value] = key
+
+# Semaphore to limit the number of threads opening DB connections when processing jobs
+conn_sem = BoundedSemaphore(50)
+
+
+def acquire_connection():
+    """
+    Decrement database resource count. If resource count is 0, block thread
+    until resource count becomes 1 before decrementing again.
+    """
+    conn_sem.acquire()
+
+
+def release_connection():
+    """
+    Close thread's conneciton to database and increment database resource count.
+    """
+    connection.close()
+    conn_sem.release()
 
 
 async def handleTaskId(taskId, root_url):
