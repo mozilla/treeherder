@@ -155,7 +155,6 @@ class TaskConsumer(PulseConsumer):
     @newrelic.agent.background_task(name='pulse-listener-tasks.on_message', group='Pulse Listener')
     def on_message(self, body, message):
         exchange = message.delivery_info['exchange']
-        print(exchange)
         routing_key = message.delivery_info['routing_key']
         logger.debug('received job message from %s#%s', exchange, routing_key)
         store_pulse_tasks.apply_async(
@@ -179,7 +178,6 @@ class PushConsumer(PulseConsumer):
     @newrelic.agent.background_task(name='pulse-listener-pushes.on_message', group='Pulse Listener')
     def on_message(self, body, message):
         exchange = message.delivery_info['exchange']
-        print(exchange)
         routing_key = message.delivery_info['routing_key']
         logger.info('received push message from %s#%s', exchange, routing_key)
         store_pulse_pushes.apply_async(
@@ -221,11 +219,6 @@ class JointConsumer(PulseConsumer):
 
 
 class Consumers:
-    """pulse_listener_tasks_pushes: newrelic-admin run-program ./manage.py pulse_listener
-    Run a collection of consumers in parallel.  These may be connected to different
-    AMQP servers, and Kombu only supports communicating wiht one connection per
-    thread, so we use multiple threads, one per consumer.
-    """
     def __init__(self, consumers):
         self.consumers = consumers
 
