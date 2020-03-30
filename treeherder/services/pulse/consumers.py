@@ -3,6 +3,7 @@ import threading
 
 import environ
 import newrelic.agent
+from django.conf import settings
 from kombu import (Connection,
                    Exchange,
                    Queue)
@@ -92,7 +93,7 @@ class PulseConsumer(ConsumerMixin):
                 exchange=exchange,
                 routing_key=routing_key,
                 durable=True,
-                auto_delete=False,
+                auto_delete=settings.PULSE_AUTO_DELETE_QUEUES,
             )
             self.consumers.append(dict(queues=self.queue,
                                        callbacks=[self.on_message]))

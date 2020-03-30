@@ -19,14 +19,14 @@ services:
       - UPSTREAM_DATABASE_URL=${UPSTREAM_DATABASE_URL:-}
       - PERF_SHERIFF_BOT_CLIENT_ID=${PERF_SHERIFF_BOT_CLIENT_ID:-}
       - PERF_SHERIFF_BOT_ACCESS_TOKEN=${PERF_SHERIFF_BOT_ACCESS_TOKEN:-}
+      - PULSE_AUTO_DELETE_QUEUES=True
       - REDIS_URL=redis://redis:6379
       - SITE_URL=http://backend:8000/
-      - LOGGING_LEVEL=INFO
       - TREEHERDER_DEBUG=True
-      - TREEHERDER_DJANGO_SECRET_KEY=secret-key-of-at-least-50-characters-to-pass-check-deploy
-      - NEW_RELIC_DEVELOPER_MODE=True
+      - NEW_RELIC_INSIGHTS_API_KEY=${NEW_RELIC_INSIGHTS_API_KEY:-}
     entrypoint: './docker/entrypoint.sh'
-    command: './manage.py runserver 0.0.0.0:8000'
+    # We *ONLY* initialize the data when we're running the backend
+    command: './initialize_data.sh ./manage.py runserver 0.0.0.0:8000'
     # Django's runserver doesn't listen to the default of SIGTERM, so docker-compose
     # must send SIGINT instead to avoid waiting 10 seconds for the time out.
     stop_signal: SIGINT
@@ -40,6 +40,8 @@ services:
       - mysql
       - redis
       - rabbitmq
+    stdin_open: true
+    tty: true
 
   frontend:
     container_name: frontend
@@ -75,7 +77,7 @@ services:
   redis:
     container_name: redis
     # https://hub.docker.com/_/redis/
-    image: redis:5.0.7-alpine
+    image: redis:5.0.8-alpine
     # Messages after starting the redis-server
     # WARNING: The TCP backlog setting of 511 cannot be enforced because /proc/sys/net/core/somaxconn is set to the lower value of 128
     # WARNING you have Transparent Huge Pages (THP) support enabled in your kernel. This will create latency and memory usage issues with Redis. To fix this issue run the command 'echo never > /sys/kernel/mm/transparent_hugepage/enabled' as root, and add it to your /etc/rc.local in order to retain the setting after a reboot. Redis must be restarted after THP is disabled.

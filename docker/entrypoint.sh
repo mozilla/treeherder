@@ -13,11 +13,6 @@ while ! nc -z "${DATABASE_HOST}" "${DATABASE_PORT}" &> /dev/null; do
     echo '-----> Waiting for MySQL server to be ready'
     sleep 1;
 done
-
-# Only execute if we're using the mysql container
-if [ "${DATABASE_URL}" == "mysql://root@mysql/treeherder" ]; then
-    # Initialize migrations and SETA
-    ./initialize_data.sh
-fi
+echo '-----> MySQL service is available'
 
 exec "$@"

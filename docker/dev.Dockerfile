@@ -14,9 +14,9 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
 
 #### Required for running Selenium tests ####
 ENV GECKODRIVER_VERSION='0.24.0'
-RUN curl -sSfL "https://github.com/mozilla/geckodriver/releases/download/v${GECKODRIVER_VERSION}/geckodriver-v${GECKODRIVER_VERSION}-linux64.tar.gz" \
+RUN curl -sSfL --retry 5 "https://github.com/mozilla/geckodriver/releases/download/v${GECKODRIVER_VERSION}/geckodriver-v${GECKODRIVER_VERSION}-linux64.tar.gz" \
     | tar -zxC "/usr/local/bin" \
-    && curl -sSfL 'https://download.mozilla.org/?product=firefox-beta-latest&lang=en-US&os=linux64' \
+    && curl -sSfL --retry 5 'https://download.mozilla.org/?product=firefox-beta-latest&lang=en-US&os=linux64' \
     | tar -jxC "/usr/local/bin"
 # Bug in Firefox which requires GTK+ and GLib in headless mode
 # https://bugzilla.mozilla.org/show_bug.cgi?id=1372998
@@ -30,7 +30,7 @@ ENV PATH="/usr/local/bin/firefox:${PATH}"
 
 #### Required for running shellcheck tests ####
 ENV SHELLCHECK_VERSION="0.4.6"
-RUN curl -sSfL "https://storage.googleapis.com/shellcheck/shellcheck-v${SHELLCHECK_VERSION}.linux.x86_64.tar.xz" \
+RUN curl -sSfL --retry 5 "https://storage.googleapis.com/shellcheck/shellcheck-v${SHELLCHECK_VERSION}.linux.x86_64.tar.xz" \
     | tar -Jx --strip-components=1 -C /usr/local/bin
 
 # /app will be mounted via a volume defined in docker-compose

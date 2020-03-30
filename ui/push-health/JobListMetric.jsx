@@ -1,5 +1,6 @@
 import React from 'react';
 import PropTypes from 'prop-types';
+import { Row } from 'reactstrap';
 
 import Metric from './Metric';
 import Job from './Job';
@@ -19,14 +20,9 @@ export default class JobListMetric extends React.PureComponent {
         <div>
           {details.length ? (
             details.map(job => (
-              <Job
-                job={job}
-                jobName={job.job_type_name}
-                jobSymbol={job.job_type_symbol}
-                repo={repo}
-                revision={revision}
-                key={job.id}
-              />
+              <Row key={job.id} className="mt-2">
+                <Job job={job} repo={repo} revision={revision} />
+              </Row>
             ))
           ) : (
             <div>All {name} passed</div>

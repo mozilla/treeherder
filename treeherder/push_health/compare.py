@@ -31,6 +31,7 @@ def get_response_object(parent_sha, revisions, revision_count, push, repository)
         'jobCounts': None,
         'revisions': revisions,
         'revisionCount': revision_count,
+        'parentPush': None,
     }
     if push:
         resp.update({
@@ -40,6 +41,7 @@ def get_response_object(parent_sha, revisions, revision_count, push, repository)
             'id': push.id,
             'jobCounts': push.get_status(),
             'exactMatch': parent_sha == push.revision,
+            'parentPush': push,
         })
     return resp
 

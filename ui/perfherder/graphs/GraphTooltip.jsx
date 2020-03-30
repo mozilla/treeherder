@@ -166,8 +166,10 @@ const GraphTooltip = ({
         </Button>
         <div className="body">
           <div>
-            <p>({testDetails.repository_name})</p>
-            <p className="small">{testDetails.platform}</p>
+            <p data-testid="repoName">({testDetails.repository_name})</p>
+            <p className="small" data-testid="platform">
+              {testDetails.platform}
+            </p>
           </div>
           <div>
             <p>

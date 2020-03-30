@@ -10,6 +10,6 @@ def get_perf_failures(push):
         tier__lte=2,
         result='testfailed',
         job_group__in=perf_groups
-    )
+    ).select_related('machine_platform', 'taskcluster_metadata')
 
     return [job_to_dict(job) for job in perf_failures]
