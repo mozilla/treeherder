@@ -144,7 +144,7 @@ export default class PerfSeriesModel {
       taskId,
       run,
       rootUrl,
-      artifactName: 'test_info/perfherder-data.json',
+      artifactPath: 'public/test_info/perfherder-data.json',
     });
     const replicateDatum = await getData(url);
     return replicateDatum;
