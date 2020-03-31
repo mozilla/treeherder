@@ -493,10 +493,6 @@ li.pagination-active.active > button {
 }
 
 /* table in graphs view */
-.text-muted {
-  color: #53595f;
-}
-
 .table-header {
   border-top: 10px solid;
 }
