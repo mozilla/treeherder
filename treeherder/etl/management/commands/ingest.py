@@ -4,6 +4,7 @@ import logging
 import os
 from concurrent.futures import ThreadPoolExecutor
 from threading import BoundedSemaphore
+from cProfile import Profile
 
 import aiohttp
 import requests
@@ -11,14 +12,17 @@ import taskcluster
 import taskcluster.aio
 import taskcluster_urls as liburls
 from django.conf import settings
-from django.core.management.base import BaseCommand
+from django.core.management.base import (BaseCommand,
+                                         CommandError)
 from django.db import connection
+
 
 from treeherder.client.thclient import TreeherderClient
 from treeherder.config.settings import GITHUB_TOKEN
 from treeherder.etl.job_loader import JobLoader
 from treeherder.etl.push_loader import PushLoader
-from treeherder.etl.pushlog import HgPushlogProcess
+from treeherder.etl.pushlog import (HgPushlogProcess,
+                                    last_push_id_from_server)
 from treeherder.etl.taskcluster_pulse.handler import (EXCHANGE_EVENT_MAP,
                                                       handleMessage)
 from treeherder.model.models import Repository
@@ -62,7 +66,7 @@ def release_connection():
     conn_sem.release()
 
 
-async def handleTaskId(taskId, root_url):
+async def handleTaskId(taskId: object, root_url: object) -> object:
     asyncQueue = taskcluster.aio.Queue({"rootUrl": root_url}, session=session)
     results = await asyncio.gather(asyncQueue.status(taskId), asyncQueue.task(taskId))
     await handleTask({
@@ -205,9 +209,10 @@ def query_data(repo_meta, commit):
     merge_base_commit = compareResponse.get("merge_base_commit")
     if merge_base_commit:
         commiter_date = merge_base_commit["commit"]["committer"]["date"]
-        # Since we don't use PushEvents that contain the "before" or "event.base.sha" fields [1]
-        # we need to discover the right parent which existed in the base branch.
-        # [1] https://github.com/taskcluster/taskcluster/blob/3dda0adf85619d18c5dcf255259f3e274d2be346/services/github/src/api.js#L55
+        # Since we don't use PushEvents that contain the "before" or "event.base.sha" fields [1] we need to discover
+        # the right parent which existed in the base branch. [1]
+        # https://github.com/taskcluster/taskcluster/blob/3dda0adf85619d18c5dcf255259f3e274d2be346/services/github
+        # /src/api.js#L55
         parents = compareResponse["merge_base_commit"]["parents"]
         if len(parents) == 1:
             parent = parents[0]
@@ -325,13 +330,69 @@ def ingest_git_pushes(project, dry_run=False):
             logger.warning("{} does not match {}".format(revision, th_pushes[index]["revision"]))
 
 
+def _handle(self, *args, **options):
+    project = options['project']
+    changeset = options['changeset']
+
+    if not options['last_n_pushes'] and not changeset:
+        raise CommandError('must specify --last-n-pushes or a positional '
+                           'changeset argument')
+
+    # get reference to repo
+    repo = Repository.objects.get(name=project, active_status='active')
+
+    if options['last_n_pushes']:
+        last_push_id = last_push_id_from_server(repo)
+        fetch_push_id = max(1, last_push_id - options['last_n_pushes'])
+        logger.info('last server push id: %d; fetching push %d and newer',
+                    last_push_id, fetch_push_id)
+    else:
+        fetch_push_id = None
+
+        # make sure all tasks are run synchronously / immediately
+    settings.CELERY_TASK_ALWAYS_EAGER = True
+
+    # get hg pushlog
+    pushlog_url = '%s/json-pushes/?full=1&version=2' % repo.url
+
+    # ingest this particular revision for this project
+    process = HgPushlogProcess()
+    # Use the actual push SHA, in case the changeset specified was a tag
+    # or branch name (eg tip). HgPushlogProcess returns the full SHA.
+    process.run(pushlog_url, project, changeset=changeset, last_push_id=fetch_push_id)
+
+    # Only perform additional processing if fetching a single changeset
+    # because we only have the sha1 if the tip-most push in "last N pushes"
+    # mode and can't filter appropriately.
+    if not fetch_push_id:
+        raise CommandError(
+            'This command is not yet able to ingest Taskcluster jobs automatically. '
+            'Please manually configure pulse job ingestion using this guide: '
+            'https://treeherder.readthedocs.io/pulseload.html'
+        )
+
+
 class Command(BaseCommand):
     """Management command to ingest data from a single push."""
     help = "Ingests a single push and tasks into Treeherder"
 
     def add_arguments(self, parser):
         parser.add_argument(
-            "ingestion_type",
+            '--profile-file',
+            help='Profile command and write result to profile file'
+        )
+        parser.add_argument(
+            '--last-n-pushes',
+            type=int,
+            help='fetch the last N pushes from the repository'
+        )
+        parser.add_argument(
+            '--changeset',
+            nargs='?',
+            help='changeset to import'
+        )
+        parser.add_argument(
+            "--ingestion_type",
             nargs=1,
             help="Type of ingestion to do: [task|hg-push|git-commit|pr]"
         )
@@ -378,64 +439,73 @@ class Command(BaseCommand):
         )
 
     def handle(self, *args, **options):
-        typeOfIngestion = options["ingestion_type"][0]
-        root_url = options["root_url"]
+        if options["profile_file"]:
+            profiler = Profile()
+            profiler.runcall(self._handle, *args, **options)
+            profiler.dump_stats(options['profile_file'])
 
-        if typeOfIngestion == "task":
-            assert options["taskId"]
-            loop.run_until_complete(handleTaskId(options["taskId"], root_url))
-        elif typeOfIngestion == "pr":
-            assert options["prUrl"]
-            pr_url = options["prUrl"]
-            splitUrl = pr_url.split("/")
-            org = splitUrl[3]
-            repo = splitUrl[4]
-            pulse = {
-                "exchange": "exchange/taskcluster-github/v1/pull-request",
-                "routingKey": "primary.{}.{}.synchronize".format(org, repo),
-                "payload": {
-                    "repository": repo,
-                    "organization": org,
-                    "action": "synchronize",
-                    "details": {
-                        "event.pullNumber": splitUrl[6],
-                        "event.base.repo.url": "https://github.com/{}/{}.git".format(org, repo),
-                        "event.head.repo.url": "https://github.com/{}/{}.git".format(org, repo),
-                    },
+        elif options["ingestion_type"]:
+            typeOfIngestion = options["ingestion_type"][0]
+            root_url = options["root_url"]
+
+            if typeOfIngestion == "task":
+                assert options["taskId"]
+                loop.run_until_complete(handleTaskId(options["taskId"], root_url))
+            elif typeOfIngestion == "pr":
+                assert options["prUrl"]
+                pr_url = options["prUrl"]
+                splitUrl = pr_url.split("/")
+                org = splitUrl[3]
+                repo = splitUrl[4]
+                pulse = {
+                    "exchange": "exchange/taskcluster-github/v1/pull-request",
+                    "routingKey": "primary.{}.{}.synchronize".format(org, repo),
+                    "payload": {
+                        "repository": repo,
+                        "organization": org,
+                        "action": "synchronize",
+                        "details": {
+                            "event.pullNumber": splitUrl[6],
+                            "event.base.repo.url": "https://github.com/{}/{}.git".format(org, repo),
+                            "event.head.repo.url": "https://github.com/{}/{}.git".format(org, repo),
+                        },
+                    }
                 }
-            }
-            PushLoader().process(pulse["payload"], pulse["exchange"], root_url)
-        elif typeOfIngestion.find("git") > -1:
-            if not os.environ.get("GITHUB_TOKEN"):
-                logger.warning("If you don't set up GITHUB_TOKEN you might hit Github's rate limiting. See docs for info.")
+                PushLoader().process(pulse["payload"], pulse["exchange"], root_url)
+            elif typeOfIngestion.find("git") > -1:
+                if not os.environ.get("GITHUB_TOKEN"):
+                    logger.warning("If you don't set up GITHUB_TOKEN you might hit Github's rate limiting. See docs for info.")
 
-            if typeOfIngestion == "git-push":
-                ingest_git_push(options["project"], options["commit"])
-            elif typeOfIngestion == "git-pushes":
-                ingest_git_pushes(options["project"], options["dryRun"])
-        elif typeOfIngestion == "push":
-            if not options["enable_eager_celery"]:
-                logger.info(
-                    "If you want all logs to be parsed use --enable-eager-celery"
-                )
-            else:
-                # Make sure all tasks are run synchronously / immediately
-                settings.CELERY_TASK_ALWAYS_EAGER = True
+                if typeOfIngestion == "git-push":
+                    ingest_git_push(options["project"], options["commit"])
+                elif typeOfIngestion == "git-pushes":
+                    ingest_git_pushes(options["project"], options["dryRun"])
+                elif typeOfIngestion == "push":
+                    if not options["enable_eager_celery"]:
+                        logger.info(
+                            "If you want all logs to be parsed use --enable-eager-celery"
+                        )
+                    else:
+                        # Make sure all tasks are run synchronously / immediately
+                        settings.CELERY_TASK_ALWAYS_EAGER = True
 
-            # get reference to repo and ingest this particular revision for this project
-            project = options["project"]
-            commit = options["commit"]
-            repo = Repository.objects.get(name=project, active_status="active")
-            pushlog_url = "%s/json-pushes/?full=1&version=2" % repo.url
-            process = HgPushlogProcess()
-            process.run(pushlog_url, project, changeset=commit, last_push_id=None)
+                    # get reference to repo and ingest this particular revision for this project
+                    project = options["project"]
+                    commit = options["commit"]
+                    repo = Repository.objects.get(name=project, active_status="active")
+                    pushlog_url = "%s/json-pushes/?full=1&version=2" % repo.url
+                    process = HgPushlogProcess()
+                    process.run(pushlog_url, project, changeset=commit, last_push_id=None)
 
-            if options["ingest_all_tasks"]:
-                gecko_decision_task = get_decision_task_id(project, commit, repo.tc_root_url)
-                logger.info("## START ##")
-                loop.run_until_complete(processTasks(gecko_decision_task, repo.tc_root_url))
-                logger.info("## END ##")
-            else:
-                logger.info(
-                    "You can ingest all tasks for a push with -a/--ingest-all-tasks."
-                )
+                    if options["ingest_all_tasks"]:
+                        gecko_decision_task = get_decision_task_id(project, commit, repo.tc_root_url)
+                        logger.info("## START ##")
+                        loop.run_until_complete(processTasks(gecko_decision_task, repo.tc_root_url))
+                        logger.info("## END ##")
+                    else:
+                        logger.info(
+                            "You can ingest all tasks for a push with -a/--ingest-all-tasks."
+                        )
+
+        else:
+            self._handle(*args, **options)
