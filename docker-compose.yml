@@ -74,7 +74,8 @@ services:
       - mysql_data:/var/lib/mysql
     ports:
       - '3306:3306'
-
+    cap_add:
+      - SYS_NICE  # CAP_SYS_NICE
   redis:
     container_name: redis
     # https://hub.docker.com/_/redis/
