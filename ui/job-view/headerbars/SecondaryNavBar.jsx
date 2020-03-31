@@ -370,7 +370,7 @@ class SecondaryNavBar extends React.PureComponent {
                 title="Click to enter filter values"
                 onChange={evt => this.setSearchStr(evt)}
                 onKeyDown={evt => this.search(evt)}
-                type="text"
+                type="search"
                 placeholder="Filter platforms & jobs"
               />
               <FontAwesomeIcon

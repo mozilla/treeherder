@@ -11,13 +11,20 @@ const Clipboard = ({ description, text, outline, visible }) => {
 
   const copyToClipboard = () => navigator.clipboard.writeText(text);
 
+  // This adapts automatically when the system theme changes light/dark
+  const colorTheme = () =>
+    window.matchMedia &&
+    window.matchMedia('(prefers-color-scheme: dark)').matches
+      ? 'light'
+      : 'dark';
+
   return (
     <Button
       type="button"
       title={`Copy ${description}`}
       onClick={copyToClipboard}
       className={`py-0 px-1 ${visible ? '' : 'invisible'}`}
-      color="light"
+      color={colorTheme()}
       outline={outline}
     >
       <FontAwesomeIcon icon={faClipboard} />

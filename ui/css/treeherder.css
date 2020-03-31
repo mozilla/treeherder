@@ -1,3 +1,135 @@
+@media (prefers-color-scheme: dark) {
+  #push-list a:visited,
+  #details-panel a:visited {
+    color: var(--purple) !important;
+  }
+
+  .show-hide-more {
+    color: var(--blue) !important;
+  }
+  #root {
+    background-color: var(--dark);
+    color: var(--gray);
+  }
+
+  .get-next {
+    background-color: var(--dark) !important;
+    color: var(--light) !important;
+  }
+
+  .get-next .btn {
+    color: var(--gray);
+  }
+
+  td:not(.job-row) .btn {
+    color: var(--light) !important;
+  }
+
+  .btn.group-symbol {
+    color: var(--gray) !important;
+  }
+
+  :not(.pinned-job-close-btn).btn-outline-secondary {
+    color: var(--gray);
+  }
+
+  .job-list table tr:nth-child(2n) {
+    background: var(--dark) !important;
+  }
+
+  .job-list table tr:hover .platform {
+    color: var(--light) !important;
+  }
+
+  ul.failure-summary-list li {
+    background-color: var(--dark) !important;
+    color: white;
+  }
+
+  ul.failure-summary-list li a:not(:visited) {
+    color: rgb(51, 122, 183);
+  }
+
+  .btn-similar-jobs {
+    background: var(--gray) !important;
+  }
+
+  .similar-job-list table,
+  .similar_job_detail table {
+    color: var(--gray) !important;
+  }
+
+  .modal-content,
+  .card {
+    background: var(--dark);
+    color: white;
+  }
+
+  .card-body.panel-spacing tr:nth-child(2n) {
+    background-color: var(--gray);
+  }
+
+  .modal-content textarea {
+    background-color: var(--gray);
+    color: white;
+  }
+
+  .form-control:disabled,
+  .form-control[readonly] {
+    background-color: var(--dark-gray);
+    color: white;
+  }
+
+  .modal-title {
+    color: white;
+  }
+
+  .dropdown-menu {
+    background: var(--gray);
+  }
+
+  .dropdown-header {
+    color: white !important;
+  }
+
+  #selectedActionHelp {
+    color: white;
+  }
+
+  #pinboard-contents {
+    background-color: var(--dark-gray) !important;
+  }
+
+  #pinboard-contents .content:not(#pinboard-classification-content) {
+    background-color: var(--gray) !important;
+  }
+
+  .pinboard-related-bugs-btn .pinned-job-close-btn {
+    border: unset;
+  }
+
+  .dropdown-item.disabled, .dropdown-item:disabled {
+    color: grey;
+  }
+
+  select, input[type=search] {
+    background-color: var(--gray) !important;
+    color: white;
+  }
+
+  option {
+    color: white;
+  }
+
+  .form-control:focus {
+    color: white;
+  }
+
+  .form-control::placeholder {
+    color: lightgray !important;
+  }
+}
+
 #root {
   display: flex;
   flex-direction: column;
