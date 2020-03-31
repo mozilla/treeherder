@@ -57,8 +57,7 @@ def test_secretary_tool_updates_only_matured_reports(test_perf_alert, test_perf_
     assert BackfillRecord.objects.count() == 2
     assert BackfillRecord.objects.filter(status=BackfillRecord.PRELIMINARY).count() == 2
 
-    SecretaryTool.prepare_for_processing()
-
+    SecretaryTool.mark_reports_for_backfill()
     assert BackfillRecord.objects.filter(status=BackfillRecord.PRELIMINARY).count() == 1
 
 
@@ -66,7 +65,7 @@ def test_secretary_tool_uses_existing_settings(performance_settings):
     assert PerformanceSettings.objects.count() == 1
     last_reset_date_before = json.loads(performance_settings.settings)["last_reset_date"]
 
-    SecretaryTool.manage_settings()
+    SecretaryTool.validate_settings()
 
     assert PerformanceSettings.objects.count() == 1
     settings_after = PerformanceSettings.objects.filter(name="perf_sheriff_bot").first()
@@ -77,7 +76,7 @@ def test_secretary_tool_resets_settings_if_expired(expired_performance_settings)
     assert PerformanceSettings.objects.count() == 1
     expired_last_reset_date = json.loads(expired_performance_settings.settings)["last_reset_date"]
 
-    SecretaryTool.manage_settings()
+    SecretaryTool.validate_settings()
 
     assert PerformanceSettings.objects.count() == 1
     settings_after = PerformanceSettings.objects.filter(name="perf_sheriff_bot").first()
@@ -87,6 +86,6 @@ def test_secretary_tool_resets_settings_if_expired(expired_performance_settings)
 def test_secretary_tool_creates_new_settings_if_none_exist(db):
     assert PerformanceSettings.objects.count() == 0
 
-    SecretaryTool.manage_settings()
+    SecretaryTool.validate_settings()
 
     assert PerformanceSettings.objects.count() == 1

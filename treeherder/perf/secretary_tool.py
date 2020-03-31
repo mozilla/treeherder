@@ -6,24 +6,23 @@ import simplejson as json
 from django.conf import settings as django_settings
 
 from treeherder.perf.models import (BackfillRecord,
+                                    BackfillReport,
                                     PerformanceSettings)
 
 logger = logging.getLogger(__name__)
-
-# TODO: extract strings into constants
-TIME_TO_MATURE = timedelta(hours=4)
 
 
 class SecretaryTool:
     """
     Tool used for doing the secretary work in the Performance Sheriff Bot.
     """
+    TIME_TO_MATURE = timedelta(hours=4)
 
     def __init__(self):
         pass
 
     @classmethod
-    def manage_settings(cls):
+    def validate_settings(cls):
         perf_sheriff_settings, created = PerformanceSettings.objects.get_or_create(
             name="perf_sheriff_bot",
             defaults={"settings": cls._get_default_settings()},
@@ -31,26 +30,33 @@ class SecretaryTool:
 
         if created:
             logger.info("Performance settings for perf_sheriff_bot not found. Creating with defaults.")
+            return
 
         # reset limits if the settings expired
         settings = json.loads(perf_sheriff_settings.settings)
         if cls.are_expired(settings):
             logger.info(f"Settings are expired. Expired settings: {settings}")
-            # self.log.warning(f"Failed to compute report for alert summary {summary}. {ex}")
 
             perf_sheriff_settings.settings = cls._get_default_settings()
             perf_sheriff_settings.save()
 
     @classmethod
-    def prepare_for_processing(cls):
-        # get all PRELIMINARY records and set them to READY_FOR_PROCESSING
-        preliminary_records = BackfillRecord.objects.filter(status=BackfillRecord.PRELIMINARY)
+    def mark_reports_for_backfill(cls):
+        # get the backfill reports that are mature, but not frozen
+        mature_date_limit = datetime.utcnow() - cls.TIME_TO_MATURE
+        mature_reports = BackfillReport.objects.filter(frozen=False, last_updated__lte=mature_date_limit)
 
-        for record in preliminary_records:
-            if record.created < datetime.utcnow() - TIME_TO_MATURE:
-                record.status = BackfillRecord.READY_FOR_PROCESSING
-                record.report.frozen = True
-                record.save()
+        for report in mature_reports:
+            should_freeze = False
+            for record in report.records.all():
+                if record.status == BackfillRecord.PRELIMINARY:
+                    record.status = BackfillRecord.READY_FOR_PROCESSING
+                    record.save()
+                    should_freeze = True
+
+            if should_freeze:
+                report.frozen = True
+                report.save()
 
     @classmethod
     def update_final_status(cls):
