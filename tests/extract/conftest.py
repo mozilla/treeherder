@@ -208,7 +208,7 @@ def extract_job_settings():
     os.environ["BIGQUERY_PRIVATE_KEY"] = "1"
 
     # USE THE TEST SCHEMA
-    db_url = os.environ["DATABASE_URL"]
+    db_url = "mysql://root@localhost:3306/treeherder"
     db_url = db_url.replace(
         strings.between(db_url, "/", None), DATABASES["default"]["TEST"]["NAME"]
     )
