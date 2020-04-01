@@ -422,8 +422,8 @@ class Command(BaseCommand):
         elif typeOfIngestion == "push":
             if not options["enable_eager_celery"]:
                 logger.info(
-                        "If you want all logs to be parsed use --enable-eager-celery"
-                    )
+                    "If you want all logs to be parsed use --enable-eager-celery"
+                )
             else:
                 # Make sure all tasks are run synchronously / immediately
                 settings.CELERY_TASK_ALWAYS_EAGER = True
