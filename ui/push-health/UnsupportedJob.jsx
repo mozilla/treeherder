@@ -13,6 +13,7 @@ import {
 } from '../helpers/url';
 import { getData } from '../helpers/http';
 import logviewerIcon from '../img/logviewerIcon.png';
+import { formatArtifacts } from '../helpers/display';
 
 class UnsupportedJob extends PureComponent {
   constructor(props) {
@@ -44,12 +45,10 @@ class UnsupportedJob extends PureComponent {
       );
 
       if (errorSummaryLog.length) {
-        // TODO create helper function
-        const value = errorSummaryLog[0].name.replace(/.*\//, '');
-        params.artifactPath = errorSummaryLog[0].name;
+        const errorSummary = formatArtifacts(errorSummaryLog, params);
 
         this.setState({
-          errorSummary: { url: getArtifactsUrl(params), value },
+          errorSummary: errorSummary[0],
         });
       }
     }

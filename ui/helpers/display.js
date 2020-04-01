@@ -1,3 +1,5 @@
+import { getArtifactsUrl } from './url';
+
 export const longDateFormat = {
   weekday: 'short',
   month: 'short',
@@ -40,4 +42,14 @@ export const getPercentComplete = function getPercentComplete(counts) {
   const total = completed + inProgress;
 
   return total > 0 ? Math.floor((completed / total) * 100) : 0;
+};
+
+export const formatArtifacts = function formatArtifacts(data, artifactParams) {
+  return data.map(item => {
+    const value = item.name.replace(/.*\//, '');
+    artifactParams.artifactPath = item.name;
+    // for backwards compatibility with JobDetail API
+    const title = 'artifact uploaded';
+    return { url: getArtifactsUrl(artifactParams), value, title };
+  });
 };
