@@ -41,7 +41,7 @@ MarkupSafe==1.1.1
 # Required by coreapi
 itypes==1.1.0
 uritemplate==3.0.1
-requests==2.22.0
+requests==2.23.0
 
 # Required by django.contrib.migrations
 sqlparse==0.3.0
