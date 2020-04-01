@@ -8,7 +8,7 @@ Django==3.0.3
 celery==4.3.0
 kombu==4.6.3
 simplejson==3.17.0
-newrelic==5.2.1.129
+newrelic==5.10.0.138
 
 # Required by Django
 mysqlclient==1.4.6
