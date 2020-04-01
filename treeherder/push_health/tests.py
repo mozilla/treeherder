@@ -5,6 +5,7 @@ import re
 from collections import defaultdict
 
 from django.core.cache import cache
+from django.db.models import Q
 
 from treeherder.model.models import (FailureLine,
                                      Job,
@@ -92,7 +93,9 @@ def get_current_test_failures(push, option_map):
         push=push,
         tier__lte=2,
         result='testfailed',
-    ).exclude(machine_platform__platform='lint').select_related('machine_platform', 'taskcluster_metadata')
+    ).exclude(
+        Q(machine_platform__platform='lint') | Q(job_type__symbol='mozlint'),
+    ).select_related('machine_platform', 'taskcluster_metadata')
     # Using .distinct(<fields>) here would help by removing duplicate FailureLines
     # for the same job (with different sub-tests), but it's only supported by
     # postgres.  Just using .distinct() has no effect.
