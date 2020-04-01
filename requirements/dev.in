@@ -1,6 +1,6 @@
 # Dependencies needed only for development/testing.
 colorama==0.4.3
-coverage==5.0.3
+coverage==5.0.4
 pytest-cov==2.8.1
 pytest==5.3.5
 django-debug-toolbar==2.2
