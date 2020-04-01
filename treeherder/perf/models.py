@@ -102,7 +102,7 @@ class PerformanceSignature(models.Model):
             # ensure there is only one signature per repository with a
             # particular set of properties
             ('repository', 'suite', 'test', 'framework',
-             'platform', 'option_collection', 'extra_options', 'last_updated'),
+             'platform', 'option_collection', 'extra_options', 'last_updated', 'application'),
             # suite_public_name/test_public_name must be unique
             # and different than suite/test
             ('repository', 'suite_public_name', 'test_public_name', 'framework',
