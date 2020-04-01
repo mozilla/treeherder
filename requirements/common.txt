@@ -118,10 +118,18 @@ django-environ==0.4.5 \
     --hash=sha256:6c9d87660142608f63ec7d5ce5564c49b603ea8ff25da595fd6098f6dc82afde \
     --hash=sha256:c57b3c11ec1f319d9474e3e5a79134f40174b17c7cc024bbb2fad84646b120c4 \
     # via -r requirements/common.in
+django-filter==2.2.0 \
+    --hash=sha256:558c727bce3ffa89c4a7a0b13bc8976745d63e5fd576b3a9a851650ef11c401b \
+    --hash=sha256:c3deb57f0dd7ff94d7dce52a047516822013e2b441bed472b722a317658cfd14 \
+    # via -r requirements/common.in
+django-redis==4.11.0 \
+    --hash=sha256:a5b1e3ffd3198735e6c529d9bdf38ca3fcb3155515249b98dc4d966b8ddf9d2b \
+    --hash=sha256:e1aad4cc5bd743d8d0b13d5cae0cef5410eaace33e83bff5fc3a139ad8db50b4 \
+    # via -r requirements/common.in
 django==3.0.3 \
     --hash=sha256:2f1ba1db8648484dd5c238fb62504777b7ad090c81c5f1fd8d5eb5ec21b5f283 \
     --hash=sha256:c91c91a7ad6ef67a874a4f76f58ba534f9208412692a840e1d125eb5c279cb0a \
-    # via -r requirements/common.in, django-cors-headers, djangorestframework, graphene-django
+    # via -r requirements/common.in, django-cors-headers, django-filter, django-redis, djangorestframework, graphene-django
 djangorestframework==3.11.0 \
     --hash=sha256:05809fc66e1c997fd9a32ea5730d9f4ba28b109b9da71fccfa5ff241201fd0a4 \
     --hash=sha256:e782087823c47a26826ee5b6fa0c542968219263fb3976ec3c31edab23a4001f \
@@ -408,6 +416,10 @@ pymysql==0.9.3 \
 pyrsistent==0.16.0 \
     --hash=sha256:28669905fe725965daa16184933676547c5bb40a5153055a8dee2a4bd7933ad3 \
     # via jsonschema
+python-dateutil==2.8.1 \
+    --hash=sha256:73ebfe9dbf22e832286dafa60473e4cd239f8592f699aa5adaf10050e6e1823c \
+    --hash=sha256:75bb3f31ea686f1197762692a9ee6a7550b59fc6ca3a1f4b5d7e32fb98e2da2a \
+    # via -r requirements/common.in
 python-jose[pycryptodome]==3.1.0 \
     --hash=sha256:1ac4caf4bfebd5a70cf5bd82702ed850db69b0b6e1d0ae7368e5f99ac01c9571 \
     --hash=sha256:8484b7fdb6962e9d242cce7680469ecf92bda95d10bbcbbeb560cacdff3abfce \
@@ -429,6 +441,10 @@ pyyaml==5.3 \
     --hash=sha256:e3a057b7a64f1222b56e47bcff5e4b94c4f61faac04c7c4ecb1985e18caa3994 \
     --hash=sha256:e9f45bd5b92c7974e59bcd2dcc8631a6b6cc380a904725fce7bc08872e691615 \
     # via -r requirements/common.in
+redis==3.4.1 \
+    --hash=sha256:0dcfb335921b88a850d461dc255ff4708294943322bd55de6cfd68972490ca1f \
+    --hash=sha256:b205cffd05ebfd0a468db74f0eedbff8df1a7bfc47521516ade4692991bb0833 \
+    # via django-redis
 requests==2.23.0 \
     --hash=sha256:43999036bfa82904b6af1d99e4882b560e5e2c68e5c4b0aa03b655f3d7d73fee \
     --hash=sha256:b3f43d496c6daba4493e7c431722aeb7dbc6288f52a6e04e7b6023b0247817e6 \
@@ -448,7 +464,7 @@ singledispatch==3.4.0.3 \
 six==1.14.0 \
     --hash=sha256:236bdbdce46e6e6a3d61a337c0f8b763ca1e8717c03b369e87a7ec7ce1319c0a \
     --hash=sha256:8f3cd2e254d8f793e7f3d6d9df77b92252b52637291d0f0da013c76ea2724b6c \
-    # via blessings, ecdsa, furl, google-api-core, google-auth, google-cloud-bigquery, google-resumable-media, graphene, graphene-django, graphql-core, graphql-relay, jsonschema, mohawk, mozlog, mozterm, orderedmultidict, promise, protobuf, pyrsistent, python-jose, singledispatch, taskcluster
+    # via blessings, ecdsa, furl, google-api-core, google-auth, google-cloud-bigquery, google-resumable-media, graphene, graphene-django, graphql-core, graphql-relay, jsonschema, mohawk, mozlog, mozterm, orderedmultidict, promise, protobuf, pyrsistent, python-dateutil, python-jose, singledispatch, taskcluster
 slugid==2.0.0 \
     --hash=sha256:a950d98b72691178bdd4d6c52743c4a2aa039207cf7a97d71060a111ff9ba297 \
     --hash=sha256:aec8b0e01c4ad32e38e12d609eab3ec912fd129aaf6b2ded0199b56a5f8fd67c \
