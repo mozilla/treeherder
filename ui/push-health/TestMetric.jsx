@@ -4,6 +4,7 @@ import PropTypes from 'prop-types';
 import ClassificationGroup from './ClassificationGroup';
 import UnsupportedGroup from './UnsupportedGroup';
 import Metric from './Metric';
+import { filterTests } from './helpers';
 
 export default class TestMetric extends React.PureComponent {
   render() {
@@ -17,10 +18,25 @@ export default class TestMetric extends React.PureComponent {
       expanded,
       setExpanded,
       searchStr,
+      showParentMatches,
     } = this.props;
     const { name, result, details } = data;
     const { needInvestigation, intermittent, unsupported } = details;
-    const needInvestigationLength = Object.keys(needInvestigation).length;
+    let filteredNeedInvestigation = needInvestigation;
+    let filteredIntermittent = intermittent;
+
+    if (searchStr.length || !showParentMatches) {
+      filteredNeedInvestigation = filterTests(
+        needInvestigation,
+        searchStr,
+        showParentMatches,
+      );
+      filteredIntermittent = filterTests(
+        intermittent,
+        searchStr,
+        showParentMatches,
+      );
+    }
 
     return (
       <Metric
@@ -31,32 +47,33 @@ export default class TestMetric extends React.PureComponent {
       >
         <div className="border-bottom border-secondary">
           <ClassificationGroup
-            group={needInvestigation}
+            group={filteredNeedInvestigation}
             name="Need Investigation"
             repo={repo}
             currentRepo={currentRepo}
             revision={revision}
             className="mb-5"
             headerColor={
-              needInvestigationLength ? 'danger' : 'darker-secondary'
+              filteredNeedInvestigation.length ? 'danger' : 'darker-secondary'
             }
+            unfilteredLength={needInvestigation.length}
             user={user}
             hasRetriggerAll
             notify={notify}
-            searchStr={searchStr}
           />
           <ClassificationGroup
-            group={intermittent}
+            group={filteredIntermittent}
             name="Known Intermittent"
             repo={repo}
             currentRepo={currentRepo}
             revision={revision}
             className="mb-5"
             headerColor="darker-secondary"
+            unfilteredLength={intermittent.length}
             expanded={false}
             user={user}
+            hasRetriggerAll
             notify={notify}
-            searchStr={searchStr}
           />
           <UnsupportedGroup
             group={unsupported}
@@ -82,4 +99,5 @@ TestMetric.propTypes = {
   setExpanded: PropTypes.func.isRequired,
   expanded: PropTypes.bool.isRequired,
   searchStr: PropTypes.string.isRequired,
+  showParentMatches: PropTypes.bool.isRequired,
 };

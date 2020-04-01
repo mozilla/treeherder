@@ -1088,7 +1088,7 @@ class FailureLine(models.Model):
         }
 
         # Remove empty values
-        data = {k: v for k, v in data.items() if v}
+        data = {k: v for k, v in data.items() if v is not None}
 
         return data
 

@@ -38,6 +38,7 @@ module.exports = {
       pushhealth: {
         entry: 'push-health/index.jsx',
         title: 'Push Health',
+        favicon: 'ui/img/push-health-ok.png',
         template: 'ui/index.html',
       },
       perf: {

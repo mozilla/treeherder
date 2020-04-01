@@ -113,7 +113,9 @@ export default class FilterModel {
    * will get updates.
    */
   push = () => {
-    window.location.hash = `#/jobs?${this.getFilterQueryString()}`;
+    const { origin } = window.location;
+
+    window.location.href = `${origin}/#/jobs?${this.getFilterQueryString()}`;
   };
 
   setOnlySuperseded = () => {
@@ -279,10 +281,6 @@ export default class FilterModel {
       return null;
     }
 
-    if (field === 'test_paths' && job[field]) {
-      // Make all paths unix style
-      return job[field].map(testPath => testPath.replace(/\\/g, /\//));
-    }
     return job[field];
   };
 

@@ -1,6 +1,6 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import { Alert, Col } from 'reactstrap';
+import { Alert, Button, Col } from 'reactstrap';
 
 import PushHealthStatus from '../shared/PushHealthStatus';
 import { RevisionList } from '../shared/RevisionList';
@@ -14,6 +14,7 @@ class CommitHistory extends React.PureComponent {
 
     this.state = {
       clipboardVisible: false,
+      showAllRevisions: false,
     };
   }
 
@@ -36,7 +37,7 @@ class CommitHistory extends React.PureComponent {
       revision,
       currentRepo,
     } = this.props;
-    const { clipboardVisible } = this.state;
+    const { clipboardVisible, showAllRevisions } = this.state;
     const parentRepoModel = new RepositoryModel(parentRepository);
     const parentLinkUrl = exactMatch
       ? `${getJobsUrl({
@@ -88,12 +89,32 @@ class CommitHistory extends React.PureComponent {
           </Col>
         </div>
         <h5 className="mt-4">Commit revisions</h5>
-        <RevisionList
-          revision={revision}
-          revisions={revisions.slice(0, 20)}
-          revisionCount={revisionCount}
-          repo={currentRepo}
-        />
+        {revisions.length <= 5 || showAllRevisions ? (
+          <RevisionList
+            revision={revision}
+            revisions={revisions.slice(0, 20)}
+            revisionCount={revisionCount}
+            repo={currentRepo}
+          />
+        ) : (
+          <span>
+            <RevisionList
+              revision={revision}
+              revisions={revisions.slice(0, 5)}
+              revisionCount={revisionCount}
+              repo={currentRepo}
+            />
+            <Button
+              outline
+              color="darker-secondary"
+              onClick={() =>
+                this.setState({ showAllRevisions: !showAllRevisions })
+              }
+            >
+              Show more...
+            </Button>
+          </span>
+        )}
       </React.Fragment>
     );
   }

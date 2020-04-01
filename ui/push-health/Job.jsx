@@ -2,7 +2,7 @@ import React, { PureComponent } from 'react';
 import PropTypes from 'prop-types';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faStar } from '@fortawesome/free-solid-svg-icons';
-import { Col, Row } from 'reactstrap';
+import { Badge, Col, Row } from 'reactstrap';
 
 import SimpleTooltip from '../shared/SimpleTooltip';
 import { getBtnClass } from '../helpers/job';
@@ -11,12 +11,15 @@ import logviewerIcon from '../img/logviewerIcon.svg';
 
 class Job extends PureComponent {
   render() {
-    const { job, jobName, jobSymbol, repo, revision } = this.props;
+    const { job, repo, revision } = this.props;
     const {
       id,
       result,
       state,
       failure_classification_id: failureClassificationId,
+      job_type_name: jobName,
+      job_type_symbol: jobSymbol,
+      failedInParent,
     } = job;
     const resultStatus = state === 'completed' ? result : state;
 
@@ -44,6 +47,7 @@ class Job extends PureComponent {
                   color="lightgray"
                 />
               )}
+              {!!failedInParent && <Badge color="info">Failed in parent</Badge>}
             </span>
           }
           tooltipText={
@@ -82,9 +86,9 @@ Job.propTypes = {
     id: PropTypes.number.isRequired,
     result: PropTypes.string.isRequired,
     failure_classification_id: PropTypes.number.isRequired,
+    job_type_name: PropTypes.string.isRequired,
+    job_type_symbol: PropTypes.string.isRequired,
   }).isRequired,
-  jobName: PropTypes.string.isRequired,
-  jobSymbol: PropTypes.string.isRequired,
   repo: PropTypes.string.isRequired,
   revision: PropTypes.string.isRequired,
 };

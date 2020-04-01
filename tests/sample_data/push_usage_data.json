@@ -1,0 +1,1588 @@
+{
+  "facets": [
+    {
+      "name": "4c45a777949168d16c03a4cba167678b7ab65f76",
+      "total": {
+        "results": [{ "max": 149.0 }],
+        "beginTimeSeconds": 1583965353,
+        "endTimeSeconds": 1584051753,
+        "inspectedCount": 20
+      },
+      "timeSeries": [
+        {
+          "results": [{ "max": 0.0 }],
+          "beginTimeSeconds": 1584031953,
+          "endTimeSeconds": 1584033753,
+          "inspectedCount": 0
+        },
+        {
+          "results": [{ "max": 149.0 }],
+          "beginTimeSeconds": 1584033753,
+          "endTimeSeconds": 1584035553,
+          "inspectedCount": 1
+        },
+        {
+          "results": [{ "max": 149.0 }],
+          "beginTimeSeconds": 1584035553,
+          "endTimeSeconds": 1584037353,
+          "inspectedCount": 10
+        },
+        {
+          "results": [{ "max": 149.0 }],
+          "beginTimeSeconds": 1584037353,
+          "endTimeSeconds": 1584039153,
+          "inspectedCount": 1
+        },
+        {
+          "results": [{ "max": 149.0 }],
+          "beginTimeSeconds": 1584039153,
+          "endTimeSeconds": 1584040953,
+          "inspectedCount": 8
+        },
+        {
+          "results": [{ "max": 30.0 }],
+          "beginTimeSeconds": 1584040953,
+          "endTimeSeconds": 1584042753,
+          "inspectedCount": 8
+        },
+        {
+          "results": [{ "max": 0.0 }],
+          "beginTimeSeconds": 1584042753,
+          "endTimeSeconds": 1584044553,
+          "inspectedCount": 0
+        }
+      ]
+    },
+    {
+      "name": "1cd5f1062ce081636af8083eb5b87e45d0f03d01",
+      "total": {
+        "results": [{ "max": 68.0 }],
+        "beginTimeSeconds": 1583965353,
+        "endTimeSeconds": 1584051753,
+        "inspectedCount": 1
+      },
+      "timeSeries": [
+        {
+          "results": [{ "max": 0.0 }],
+          "beginTimeSeconds": 1583965353,
+          "endTimeSeconds": 1583967153,
+          "inspectedCount": 0
+        },
+        {
+          "results": [{ "max": 0.0 }],
+          "beginTimeSeconds": 1583967153,
+          "endTimeSeconds": 1583968953,
+          "inspectedCount": 0
+        },
+        {
+          "results": [{ "max": 0.0 }],
+          "beginTimeSeconds": 1583968953,
+          "endTimeSeconds": 1583970753,
+          "inspectedCount": 0
+        },
+        {
+          "results": [{ "max": 0.0 }],
+          "beginTimeSeconds": 1583970753,
+          "endTimeSeconds": 1583972553,
+          "inspectedCount": 0
+        },
+        {
+          "results": [{ "max": 0.0 }],
+          "beginTimeSeconds": 1583972553,
+          "endTimeSeconds": 1583974353,
+          "inspectedCount": 0
+        },
+        {
+          "results": [{ "max": 0.0 }],
+          "beginTimeSeconds": 1583974353,
+          "endTimeSeconds": 1583976153,
+          "inspectedCount": 0
+        },
+        {
+          "results": [{ "max": 0.0 }],
+          "beginTimeSeconds": 1583976153,
+          "endTimeSeconds": 1583977953,
+          "inspectedCount": 0
+        },
+        {
+          "results": [{ "max": 0.0 }],
+          "beginTimeSeconds": 1583977953,
+          "endTimeSeconds": 1583979753,
+          "inspectedCount": 0
+        },
+        {
+          "results": [{ "max": 0.0 }],
+          "beginTimeSeconds": 1583979753,
+          "endTimeSeconds": 1583981553,
+          "inspectedCount": 0
+        },
+        {
+          "results": [{ "max": 0.0 }],
+          "beginTimeSeconds": 1583981553,
+          "endTimeSeconds": 1583983353,
+          "inspectedCount": 0
+        },
+        {
+          "results": [{ "max": 0.0 }],
+          "beginTimeSeconds": 1583983353,
+          "endTimeSeconds": 1583985153,
+          "inspectedCount": 0
+        },
+        {
+          "results": [{ "max": 0.0 }],
+          "beginTimeSeconds": 1583985153,
+          "endTimeSeconds": 1583986953,
+          "inspectedCount": 0
+        },
+        {
+          "results": [{ "max": 0.0 }],
+          "beginTimeSeconds": 1583986953,
+          "endTimeSeconds": 1583988753,
+          "inspectedCount": 0
+        },
+        {
+          "results": [{ "max": 0.0 }],
+          "beginTimeSeconds": 1583988753,
+          "endTimeSeconds": 1583990553,
+          "inspectedCount": 0
+        },
+        {
+          "results": [{ "max": 0.0 }],
+          "beginTimeSeconds": 1583990553,
+          "endTimeSeconds": 1583992353,
+          "inspectedCount": 0
+        },
+        {
+          "results": [{ "max": 0.0 }],
+          "beginTimeSeconds": 1583992353,
+          "endTimeSeconds": 1583994153,
+          "inspectedCount": 0
+        },
+        {
+          "results": [{ "max": 0.0 }],
+          "beginTimeSeconds": 1583994153,
+          "endTimeSeconds": 1583995953,
+          "inspectedCount": 0
+        },
+        {
+          "results": [{ "max": 0.0 }],
+          "beginTimeSeconds": 1583995953,
+          "endTimeSeconds": 1583997753,
+          "inspectedCount": 0
+        },
+        {
+          "results": [{ "max": 0.0 }],
+          "beginTimeSeconds": 1583997753,
+          "endTimeSeconds": 1583999553,
+          "inspectedCount": 0
+        },
+        {
+          "results": [{ "max": 0.0 }],
+          "beginTimeSeconds": 1583999553,
+          "endTimeSeconds": 1584001353,
+          "inspectedCount": 0
+        },
+        {
+          "results": [{ "max": 0.0 }],
+          "beginTimeSeconds": 1584001353,
+          "endTimeSeconds": 1584003153,
+          "inspectedCount": 0
+        },
+        {
+          "results": [{ "max": 0.0 }],
+          "beginTimeSeconds": 1584003153,
+          "endTimeSeconds": 1584004953,
+          "inspectedCount": 0
+        },
+        {
+          "results": [{ "max": 0.0 }],
+          "beginTimeSeconds": 1584004953,
+          "endTimeSeconds": 1584006753,
+          "inspectedCount": 0
+        },
+        {
+          "results": [{ "max": 0.0 }],
+          "beginTimeSeconds": 1584006753,
+          "endTimeSeconds": 1584008553,
+          "inspectedCount": 0
+        },
+        {
+          "results": [{ "max": 68.0 }],
+          "beginTimeSeconds": 1584008553,
+          "endTimeSeconds": 1584010353,
+          "inspectedCount": 1
+        },
+        {
+          "results": [{ "max": 0.0 }],
+          "beginTimeSeconds": 1584010353,
+          "endTimeSeconds": 1584012153,
+          "inspectedCount": 0
+        },
+        {
+          "results": [{ "max": 0.0 }],
+          "beginTimeSeconds": 1584012153,
+          "endTimeSeconds": 1584013953,
+          "inspectedCount": 0
+        },
+        {
+          "results": [{ "max": 0.0 }],
+          "beginTimeSeconds": 1584013953,
+          "endTimeSeconds": 1584015753,
+          "inspectedCount": 0
+        },
+        {
+          "results": [{ "max": 0.0 }],
+          "beginTimeSeconds": 1584015753,
+          "endTimeSeconds": 1584017553,
+          "inspectedCount": 0
+        },
+        {
+          "results": [{ "max": 0.0 }],
+          "beginTimeSeconds": 1584017553,
+          "endTimeSeconds": 1584019353,
+          "inspectedCount": 0
+        },
+        {
+          "results": [{ "max": 0.0 }],
+          "beginTimeSeconds": 1584019353,
+          "endTimeSeconds": 1584021153,
+          "inspectedCount": 0
+        },
+        {
+          "results": [{ "max": 0.0 }],
+          "beginTimeSeconds": 1584021153,
+          "endTimeSeconds": 1584022953,
+          "inspectedCount": 0
+        },
+        {
+          "results": [{ "max": 0.0 }],
+          "beginTimeSeconds": 1584022953,
+          "endTimeSeconds": 1584024753,
+          "inspectedCount": 0
+        },
+        {
+          "results": [{ "max": 0.0 }],
+          "beginTimeSeconds": 1584024753,
+          "endTimeSeconds": 1584026553,
+          "inspectedCount": 0
+        },
+        {
+          "results": [{ "max": 0.0 }],
+          "beginTimeSeconds": 1584026553,
+          "endTimeSeconds": 1584028353,
+          "inspectedCount": 0
+        },
+        {
+          "results": [{ "max": 0.0 }],
+          "beginTimeSeconds": 1584028353,
+          "endTimeSeconds": 1584030153,
+          "inspectedCount": 0
+        },
+        {
+          "results": [{ "max": 0.0 }],
+          "beginTimeSeconds": 1584030153,
+          "endTimeSeconds": 1584031953,
+          "inspectedCount": 0
+        },
+        {
+          "results": [{ "max": 0.0 }],
+          "beginTimeSeconds": 1584031953,
+          "endTimeSeconds": 1584033753,
+          "inspectedCount": 0
+        },
+        {
+          "results": [{ "max": 0.0 }],
+          "beginTimeSeconds": 1584033753,
+          "endTimeSeconds": 1584035553,
+          "inspectedCount": 0
+        },
+        {
+          "results": [{ "max": 0.0 }],
+          "beginTimeSeconds": 1584035553,
+          "endTimeSeconds": 1584037353,
+          "inspectedCount": 0
+        },
+        {
+          "results": [{ "max": 0.0 }],
+          "beginTimeSeconds": 1584037353,
+          "endTimeSeconds": 1584039153,
+          "inspectedCount": 0
+        },
+        {
+          "results": [{ "max": 0.0 }],
+          "beginTimeSeconds": 1584039153,
+          "endTimeSeconds": 1584040953,
+          "inspectedCount": 0
+        },
+        {
+          "results": [{ "max": 0.0 }],
+          "beginTimeSeconds": 1584040953,
+          "endTimeSeconds": 1584042753,
+          "inspectedCount": 0
+        },
+        {
+          "results": [{ "max": 0.0 }],
+          "beginTimeSeconds": 1584042753,
+          "endTimeSeconds": 1584044553,
+          "inspectedCount": 0
+        },
+        {
+          "results": [{ "max": 0.0 }],
+          "beginTimeSeconds": 1584044553,
+          "endTimeSeconds": 1584046353,
+          "inspectedCount": 0
+        },
+        {
+          "results": [{ "max": 0.0 }],
+          "beginTimeSeconds": 1584046353,
+          "endTimeSeconds": 1584048153,
+          "inspectedCount": 0
+        },
+        {
+          "results": [{ "max": 0.0 }],
+          "beginTimeSeconds": 1584048153,
+          "endTimeSeconds": 1584049953,
+          "inspectedCount": 0
+        },
+        {
+          "results": [{ "max": 0.0 }],
+          "beginTimeSeconds": 1584049953,
+          "endTimeSeconds": 1584051753,
+          "inspectedCount": 0
+        }
+      ]
+    },
+    {
+      "name": "c73645027199ac3e092002452b436dde461bbe28",
+      "total": {
+        "results": [{ "max": 62.0 }],
+        "beginTimeSeconds": 1583965353,
+        "endTimeSeconds": 1584051753,
+        "inspectedCount": 2
+      },
+      "timeSeries": [
+        {
+          "results": [{ "max": 0.0 }],
+          "beginTimeSeconds": 1583965353,
+          "endTimeSeconds": 1583967153,
+          "inspectedCount": 0
+        },
+        {
+          "results": [{ "max": 0.0 }],
+          "beginTimeSeconds": 1583967153,
+          "endTimeSeconds": 1583968953,
+          "inspectedCount": 0
+        },
+        {
+          "results": [{ "max": 0.0 }],
+          "beginTimeSeconds": 1583968953,
+          "endTimeSeconds": 1583970753,
+          "inspectedCount": 0
+        },
+        {
+          "results": [{ "max": 0.0 }],
+          "beginTimeSeconds": 1583970753,
+          "endTimeSeconds": 1583972553,
+          "inspectedCount": 0
+        },
+        {
+          "results": [{ "max": 0.0 }],
+          "beginTimeSeconds": 1583972553,
+          "endTimeSeconds": 1583974353,
+          "inspectedCount": 0
+        },
+        {
+          "results": [{ "max": 0.0 }],
+          "beginTimeSeconds": 1583974353,
+          "endTimeSeconds": 1583976153,
+          "inspectedCount": 0
+        },
+        {
+          "results": [{ "max": 0.0 }],
+          "beginTimeSeconds": 1583976153,
+          "endTimeSeconds": 1583977953,
+          "inspectedCount": 0
+        },
+        {
+          "results": [{ "max": 0.0 }],
+          "beginTimeSeconds": 1583977953,
+          "endTimeSeconds": 1583979753,
+          "inspectedCount": 0
+        },
+        {
+          "results": [{ "max": 0.0 }],
+          "beginTimeSeconds": 1583979753,
+          "endTimeSeconds": 1583981553,
+          "inspectedCount": 0
+        },
+        {
+          "results": [{ "max": 0.0 }],
+          "beginTimeSeconds": 1583981553,
+          "endTimeSeconds": 1583983353,
+          "inspectedCount": 0
+        },
+        {
+          "results": [{ "max": 0.0 }],
+          "beginTimeSeconds": 1583983353,
+          "endTimeSeconds": 1583985153,
+          "inspectedCount": 0
+        },
+        {
+          "results": [{ "max": 0.0 }],
+          "beginTimeSeconds": 1583985153,
+          "endTimeSeconds": 1583986953,
+          "inspectedCount": 0
+        },
+        {
+          "results": [{ "max": 0.0 }],
+          "beginTimeSeconds": 1583986953,
+          "endTimeSeconds": 1583988753,
+          "inspectedCount": 0
+        },
+        {
+          "results": [{ "max": 0.0 }],
+          "beginTimeSeconds": 1583988753,
+          "endTimeSeconds": 1583990553,
+          "inspectedCount": 0
+        },
+        {
+          "results": [{ "max": 0.0 }],
+          "beginTimeSeconds": 1583990553,
+          "endTimeSeconds": 1583992353,
+          "inspectedCount": 0
+        },
+        {
+          "results": [{ "max": 0.0 }],
+          "beginTimeSeconds": 1583992353,
+          "endTimeSeconds": 1583994153,
+          "inspectedCount": 0
+        },
+        {
+          "results": [{ "max": 0.0 }],
+          "beginTimeSeconds": 1583994153,
+          "endTimeSeconds": 1583995953,
+          "inspectedCount": 0
+        },
+        {
+          "results": [{ "max": 0.0 }],
+          "beginTimeSeconds": 1583995953,
+          "endTimeSeconds": 1583997753,
+          "inspectedCount": 0
+        },
+        {
+          "results": [{ "max": 0.0 }],
+          "beginTimeSeconds": 1583997753,
+          "endTimeSeconds": 1583999553,
+          "inspectedCount": 0
+        },
+        {
+          "results": [{ "max": 0.0 }],
+          "beginTimeSeconds": 1583999553,
+          "endTimeSeconds": 1584001353,
+          "inspectedCount": 0
+        },
+        {
+          "results": [{ "max": 0.0 }],
+          "beginTimeSeconds": 1584001353,
+          "endTimeSeconds": 1584003153,
+          "inspectedCount": 0
+        },
+        {
+          "results": [{ "max": 0.0 }],
+          "beginTimeSeconds": 1584003153,
+          "endTimeSeconds": 1584004953,
+          "inspectedCount": 0
+        },
+        {
+          "results": [{ "max": 0.0 }],
+          "beginTimeSeconds": 1584004953,
+          "endTimeSeconds": 1584006753,
+          "inspectedCount": 0
+        },
+        {
+          "results": [{ "max": 0.0 }],
+          "beginTimeSeconds": 1584006753,
+          "endTimeSeconds": 1584008553,
+          "inspectedCount": 0
+        },
+        {
+          "results": [{ "max": 0.0 }],
+          "beginTimeSeconds": 1584008553,
+          "endTimeSeconds": 1584010353,
+          "inspectedCount": 0
+        },
+        {
+          "results": [{ "max": 0.0 }],
+          "beginTimeSeconds": 1584010353,
+          "endTimeSeconds": 1584012153,
+          "inspectedCount": 0
+        },
+        {
+          "results": [{ "max": 0.0 }],
+          "beginTimeSeconds": 1584012153,
+          "endTimeSeconds": 1584013953,
+          "inspectedCount": 0
+        },
+        {
+          "results": [{ "max": 0.0 }],
+          "beginTimeSeconds": 1584013953,
+          "endTimeSeconds": 1584015753,
+          "inspectedCount": 0
+        },
+        {
+          "results": [{ "max": 0.0 }],
+          "beginTimeSeconds": 1584015753,
+          "endTimeSeconds": 1584017553,
+          "inspectedCount": 0
+        },
+        {
+          "results": [{ "max": 0.0 }],
+          "beginTimeSeconds": 1584017553,
+          "endTimeSeconds": 1584019353,
+          "inspectedCount": 0
+        },
+        {
+          "results": [{ "max": 0.0 }],
+          "beginTimeSeconds": 1584019353,
+          "endTimeSeconds": 1584021153,
+          "inspectedCount": 0
+        },
+        {
+          "results": [{ "max": 0.0 }],
+          "beginTimeSeconds": 1584021153,
+          "endTimeSeconds": 1584022953,
+          "inspectedCount": 0
+        },
+        {
+          "results": [{ "max": 0.0 }],
+          "beginTimeSeconds": 1584022953,
+          "endTimeSeconds": 1584024753,
+          "inspectedCount": 0
+        },
+        {
+          "results": [{ "max": 0.0 }],
+          "beginTimeSeconds": 1584024753,
+          "endTimeSeconds": 1584026553,
+          "inspectedCount": 0
+        },
+        {
+          "results": [{ "max": 0.0 }],
+          "beginTimeSeconds": 1584026553,
+          "endTimeSeconds": 1584028353,
+          "inspectedCount": 0
+        },
+        {
+          "results": [{ "max": 0.0 }],
+          "beginTimeSeconds": 1584028353,
+          "endTimeSeconds": 1584030153,
+          "inspectedCount": 0
+        },
+        {
+          "results": [{ "max": 62.0 }],
+          "beginTimeSeconds": 1584030153,
+          "endTimeSeconds": 1584031953,
+          "inspectedCount": 2
+        },
+        {
+          "results": [{ "max": 0.0 }],
+          "beginTimeSeconds": 1584031953,
+          "endTimeSeconds": 1584033753,
+          "inspectedCount": 0
+        },
+        {
+          "results": [{ "max": 0.0 }],
+          "beginTimeSeconds": 1584033753,
+          "endTimeSeconds": 1584035553,
+          "inspectedCount": 0
+        },
+        {
+          "results": [{ "max": 0.0 }],
+          "beginTimeSeconds": 1584035553,
+          "endTimeSeconds": 1584037353,
+          "inspectedCount": 0
+        },
+        {
+          "results": [{ "max": 0.0 }],
+          "beginTimeSeconds": 1584037353,
+          "endTimeSeconds": 1584039153,
+          "inspectedCount": 0
+        },
+        {
+          "results": [{ "max": 0.0 }],
+          "beginTimeSeconds": 1584039153,
+          "endTimeSeconds": 1584040953,
+          "inspectedCount": 0
+        },
+        {
+          "results": [{ "max": 0.0 }],
+          "beginTimeSeconds": 1584040953,
+          "endTimeSeconds": 1584042753,
+          "inspectedCount": 0
+        },
+        {
+          "results": [{ "max": 0.0 }],
+          "beginTimeSeconds": 1584042753,
+          "endTimeSeconds": 1584044553,
+          "inspectedCount": 0
+        },
+        {
+          "results": [{ "max": 0.0 }],
+          "beginTimeSeconds": 1584044553,
+          "endTimeSeconds": 1584046353,
+          "inspectedCount": 0
+        },
+        {
+          "results": [{ "max": 0.0 }],
+          "beginTimeSeconds": 1584046353,
+          "endTimeSeconds": 1584048153,
+          "inspectedCount": 0
+        },
+        {
+          "results": [{ "max": 0.0 }],
+          "beginTimeSeconds": 1584048153,
+          "endTimeSeconds": 1584049953,
+          "inspectedCount": 0
+        },
+        {
+          "results": [{ "max": 0.0 }],
+          "beginTimeSeconds": 1584049953,
+          "endTimeSeconds": 1584051753,
+          "inspectedCount": 0
+        }
+      ]
+    },
+    {
+      "name": "b6e5cd6373370c40d315b0e266c6c3e9aa48ae12",
+      "total": {
+        "results": [{ "max": 44.0 }],
+        "beginTimeSeconds": 1583965353,
+        "endTimeSeconds": 1584051753,
+        "inspectedCount": 41
+      },
+      "timeSeries": [
+        {
+          "results": [{ "max": 0.0 }],
+          "beginTimeSeconds": 1583965353,
+          "endTimeSeconds": 1583967153,
+          "inspectedCount": 0
+        },
+        {
+          "results": [{ "max": 0.0 }],
+          "beginTimeSeconds": 1583967153,
+          "endTimeSeconds": 1583968953,
+          "inspectedCount": 0
+        },
+        {
+          "results": [{ "max": 0.0 }],
+          "beginTimeSeconds": 1583968953,
+          "endTimeSeconds": 1583970753,
+          "inspectedCount": 0
+        },
+        {
+          "results": [{ "max": 0.0 }],
+          "beginTimeSeconds": 1583970753,
+          "endTimeSeconds": 1583972553,
+          "inspectedCount": 0
+        },
+        {
+          "results": [{ "max": 0.0 }],
+          "beginTimeSeconds": 1583972553,
+          "endTimeSeconds": 1583974353,
+          "inspectedCount": 0
+        },
+        {
+          "results": [{ "max": 0.0 }],
+          "beginTimeSeconds": 1583974353,
+          "endTimeSeconds": 1583976153,
+          "inspectedCount": 0
+        },
+        {
+          "results": [{ "max": 44.0 }],
+          "beginTimeSeconds": 1583976153,
+          "endTimeSeconds": 1583977953,
+          "inspectedCount": 9
+        },
+        {
+          "results": [{ "max": 0.0 }],
+          "beginTimeSeconds": 1583977953,
+          "endTimeSeconds": 1583979753,
+          "inspectedCount": 0
+        },
+        {
+          "results": [{ "max": 0.0 }],
+          "beginTimeSeconds": 1583979753,
+          "endTimeSeconds": 1583981553,
+          "inspectedCount": 0
+        },
+        {
+          "results": [{ "max": 0.0 }],
+          "beginTimeSeconds": 1583981553,
+          "endTimeSeconds": 1583983353,
+          "inspectedCount": 0
+        },
+        {
+          "results": [{ "max": 0.0 }],
+          "beginTimeSeconds": 1583983353,
+          "endTimeSeconds": 1583985153,
+          "inspectedCount": 0
+        },
+        {
+          "results": [{ "max": 0.0 }],
+          "beginTimeSeconds": 1583985153,
+          "endTimeSeconds": 1583986953,
+          "inspectedCount": 0
+        },
+        {
+          "results": [{ "max": 0.0 }],
+          "beginTimeSeconds": 1583986953,
+          "endTimeSeconds": 1583988753,
+          "inspectedCount": 0
+        },
+        {
+          "results": [{ "max": 0.0 }],
+          "beginTimeSeconds": 1583988753,
+          "endTimeSeconds": 1583990553,
+          "inspectedCount": 0
+        },
+        {
+          "results": [{ "max": 0.0 }],
+          "beginTimeSeconds": 1583990553,
+          "endTimeSeconds": 1583992353,
+          "inspectedCount": 0
+        },
+        {
+          "results": [{ "max": 0.0 }],
+          "beginTimeSeconds": 1583992353,
+          "endTimeSeconds": 1583994153,
+          "inspectedCount": 0
+        },
+        {
+          "results": [{ "max": 44.0 }],
+          "beginTimeSeconds": 1583994153,
+          "endTimeSeconds": 1583995953,
+          "inspectedCount": 14
+        },
+        {
+          "results": [{ "max": 44.0 }],
+          "beginTimeSeconds": 1583995953,
+          "endTimeSeconds": 1583997753,
+          "inspectedCount": 15
+        },
+        {
+          "results": [{ "max": 44.0 }],
+          "beginTimeSeconds": 1583997753,
+          "endTimeSeconds": 1583999553,
+          "inspectedCount": 3
+        },
+        {
+          "results": [{ "max": 0.0 }],
+          "beginTimeSeconds": 1583999553,
+          "endTimeSeconds": 1584001353,
+          "inspectedCount": 0
+        },
+        {
+          "results": [{ "max": 0.0 }],
+          "beginTimeSeconds": 1584001353,
+          "endTimeSeconds": 1584003153,
+          "inspectedCount": 0
+        },
+        {
+          "results": [{ "max": 0.0 }],
+          "beginTimeSeconds": 1584003153,
+          "endTimeSeconds": 1584004953,
+          "inspectedCount": 0
+        },
+        {
+          "results": [{ "max": 0.0 }],
+          "beginTimeSeconds": 1584004953,
+          "endTimeSeconds": 1584006753,
+          "inspectedCount": 0
+        },
+        {
+          "results": [{ "max": 0.0 }],
+          "beginTimeSeconds": 1584006753,
+          "endTimeSeconds": 1584008553,
+          "inspectedCount": 0
+        },
+        {
+          "results": [{ "max": 0.0 }],
+          "beginTimeSeconds": 1584008553,
+          "endTimeSeconds": 1584010353,
+          "inspectedCount": 0
+        },
+        {
+          "results": [{ "max": 0.0 }],
+          "beginTimeSeconds": 1584010353,
+          "endTimeSeconds": 1584012153,
+          "inspectedCount": 0
+        },
+        {
+          "results": [{ "max": 0.0 }],
+          "beginTimeSeconds": 1584012153,
+          "endTimeSeconds": 1584013953,
+          "inspectedCount": 0
+        },
+        {
+          "results": [{ "max": 0.0 }],
+          "beginTimeSeconds": 1584013953,
+          "endTimeSeconds": 1584015753,
+          "inspectedCount": 0
+        },
+        {
+          "results": [{ "max": 0.0 }],
+          "beginTimeSeconds": 1584015753,
+          "endTimeSeconds": 1584017553,
+          "inspectedCount": 0
+        },
+        {
+          "results": [{ "max": 0.0 }],
+          "beginTimeSeconds": 1584017553,
+          "endTimeSeconds": 1584019353,
+          "inspectedCount": 0
+        },
+        {
+          "results": [{ "max": 0.0 }],
+          "beginTimeSeconds": 1584019353,
+          "endTimeSeconds": 1584021153,
+          "inspectedCount": 0
+        },
+        {
+          "results": [{ "max": 0.0 }],
+          "beginTimeSeconds": 1584021153,
+          "endTimeSeconds": 1584022953,
+          "inspectedCount": 0
+        },
+        {
+          "results": [{ "max": 0.0 }],
+          "beginTimeSeconds": 1584022953,
+          "endTimeSeconds": 1584024753,
+          "inspectedCount": 0
+        },
+        {
+          "results": [{ "max": 0.0 }],
+          "beginTimeSeconds": 1584024753,
+          "endTimeSeconds": 1584026553,
+          "inspectedCount": 0
+        },
+        {
+          "results": [{ "max": 0.0 }],
+          "beginTimeSeconds": 1584026553,
+          "endTimeSeconds": 1584028353,
+          "inspectedCount": 0
+        },
+        {
+          "results": [{ "max": 0.0 }],
+          "beginTimeSeconds": 1584028353,
+          "endTimeSeconds": 1584030153,
+          "inspectedCount": 0
+        },
+        {
+          "results": [{ "max": 0.0 }],
+          "beginTimeSeconds": 1584030153,
+          "endTimeSeconds": 1584031953,
+          "inspectedCount": 0
+        },
+        {
+          "results": [{ "max": 0.0 }],
+          "beginTimeSeconds": 1584031953,
+          "endTimeSeconds": 1584033753,
+          "inspectedCount": 0
+        },
+        {
+          "results": [{ "max": 0.0 }],
+          "beginTimeSeconds": 1584033753,
+          "endTimeSeconds": 1584035553,
+          "inspectedCount": 0
+        },
+        {
+          "results": [{ "max": 0.0 }],
+          "beginTimeSeconds": 1584035553,
+          "endTimeSeconds": 1584037353,
+          "inspectedCount": 0
+        },
+        {
+          "results": [{ "max": 0.0 }],
+          "beginTimeSeconds": 1584037353,
+          "endTimeSeconds": 1584039153,
+          "inspectedCount": 0
+        },
+        {
+          "results": [{ "max": 0.0 }],
+          "beginTimeSeconds": 1584039153,
+          "endTimeSeconds": 1584040953,
+          "inspectedCount": 0
+        },
+        {
+          "results": [{ "max": 0.0 }],
+          "beginTimeSeconds": 1584040953,
+          "endTimeSeconds": 1584042753,
+          "inspectedCount": 0
+        },
+        {
+          "results": [{ "max": 0.0 }],
+          "beginTimeSeconds": 1584042753,
+          "endTimeSeconds": 1584044553,
+          "inspectedCount": 0
+        },
+        {
+          "results": [{ "max": 0.0 }],
+          "beginTimeSeconds": 1584044553,
+          "endTimeSeconds": 1584046353,
+          "inspectedCount": 0
+        },
+        {
+          "results": [{ "max": 0.0 }],
+          "beginTimeSeconds": 1584046353,
+          "endTimeSeconds": 1584048153,
+          "inspectedCount": 0
+        },
+        {
+          "results": [{ "max": 0.0 }],
+          "beginTimeSeconds": 1584048153,
+          "endTimeSeconds": 1584049953,
+          "inspectedCount": 0
+        },
+        {
+          "results": [{ "max": 0.0 }],
+          "beginTimeSeconds": 1584049953,
+          "endTimeSeconds": 1584051753,
+          "inspectedCount": 0
+        }
+      ]
+    }
+  ],
+  "totalResult": {
+    "total": {
+      "results": [{ "max": 149.0 }],
+      "beginTimeSeconds": 1583965353,
+      "endTimeSeconds": 1584051753,
+      "inspectedCount": 758
+    },
+    "timeSeries": [
+      {
+        "results": [{ "max": 0.0 }],
+        "beginTimeSeconds": 1583965353,
+        "endTimeSeconds": 1583967153,
+        "inspectedCount": 0
+      },
+      {
+        "results": [{ "max": 0.0 }],
+        "beginTimeSeconds": 1583967153,
+        "endTimeSeconds": 1583968953,
+        "inspectedCount": 0
+      },
+      {
+        "results": [{ "max": 0.0 }],
+        "beginTimeSeconds": 1583968953,
+        "endTimeSeconds": 1583970753,
+        "inspectedCount": 0
+      },
+      {
+        "results": [{ "max": 0.0 }],
+        "beginTimeSeconds": 1583970753,
+        "endTimeSeconds": 1583972553,
+        "inspectedCount": 0
+      },
+      {
+        "results": [{ "max": 23.0 }],
+        "beginTimeSeconds": 1583972553,
+        "endTimeSeconds": 1583974353,
+        "inspectedCount": 11
+      },
+      {
+        "results": [{ "max": 23.0 }],
+        "beginTimeSeconds": 1583974353,
+        "endTimeSeconds": 1583976153,
+        "inspectedCount": 6
+      },
+      {
+        "results": [{ "max": 44.0 }],
+        "beginTimeSeconds": 1583976153,
+        "endTimeSeconds": 1583977953,
+        "inspectedCount": 29
+      },
+      {
+        "results": [{ "max": 0.0 }],
+        "beginTimeSeconds": 1583977953,
+        "endTimeSeconds": 1583979753,
+        "inspectedCount": 29
+      },
+      {
+        "results": [{ "max": 0.0 }],
+        "beginTimeSeconds": 1583979753,
+        "endTimeSeconds": 1583981553,
+        "inspectedCount": 30
+      },
+      {
+        "results": [{ "max": 0.0 }],
+        "beginTimeSeconds": 1583981553,
+        "endTimeSeconds": 1583983353,
+        "inspectedCount": 13
+      },
+      {
+        "results": [{ "max": 0.0 }],
+        "beginTimeSeconds": 1583983353,
+        "endTimeSeconds": 1583985153,
+        "inspectedCount": 0
+      },
+      {
+        "results": [{ "max": 0.0 }],
+        "beginTimeSeconds": 1583985153,
+        "endTimeSeconds": 1583986953,
+        "inspectedCount": 1
+      },
+      {
+        "results": [{ "max": 0.0 }],
+        "beginTimeSeconds": 1583986953,
+        "endTimeSeconds": 1583988753,
+        "inspectedCount": 0
+      },
+      {
+        "results": [{ "max": 0.0 }],
+        "beginTimeSeconds": 1583988753,
+        "endTimeSeconds": 1583990553,
+        "inspectedCount": 0
+      },
+      {
+        "results": [{ "max": 0.0 }],
+        "beginTimeSeconds": 1583990553,
+        "endTimeSeconds": 1583992353,
+        "inspectedCount": 0
+      },
+      {
+        "results": [{ "max": 0.0 }],
+        "beginTimeSeconds": 1583992353,
+        "endTimeSeconds": 1583994153,
+        "inspectedCount": 0
+      },
+      {
+        "results": [{ "max": 44.0 }],
+        "beginTimeSeconds": 1583994153,
+        "endTimeSeconds": 1583995953,
+        "inspectedCount": 28
+      },
+      {
+        "results": [{ "max": 44.0 }],
+        "beginTimeSeconds": 1583995953,
+        "endTimeSeconds": 1583997753,
+        "inspectedCount": 31
+      },
+      {
+        "results": [{ "max": 44.0 }],
+        "beginTimeSeconds": 1583997753,
+        "endTimeSeconds": 1583999553,
+        "inspectedCount": 9
+      },
+      {
+        "results": [{ "max": 24.0 }],
+        "beginTimeSeconds": 1583999553,
+        "endTimeSeconds": 1584001353,
+        "inspectedCount": 16
+      },
+      {
+        "results": [{ "max": 24.0 }],
+        "beginTimeSeconds": 1584001353,
+        "endTimeSeconds": 1584003153,
+        "inspectedCount": 15
+      },
+      {
+        "results": [{ "max": 24.0 }],
+        "beginTimeSeconds": 1584003153,
+        "endTimeSeconds": 1584004953,
+        "inspectedCount": 16
+      },
+      {
+        "results": [{ "max": 24.0 }],
+        "beginTimeSeconds": 1584004953,
+        "endTimeSeconds": 1584006753,
+        "inspectedCount": 31
+      },
+      {
+        "results": [{ "max": 24.0 }],
+        "beginTimeSeconds": 1584006753,
+        "endTimeSeconds": 1584008553,
+        "inspectedCount": 25
+      },
+      {
+        "results": [{ "max": 68.0 }],
+        "beginTimeSeconds": 1584008553,
+        "endTimeSeconds": 1584010353,
+        "inspectedCount": 16
+      },
+      {
+        "results": [{ "max": 10.0 }],
+        "beginTimeSeconds": 1584010353,
+        "endTimeSeconds": 1584012153,
+        "inspectedCount": 6
+      },
+      {
+        "results": [{ "max": 0.0 }],
+        "beginTimeSeconds": 1584012153,
+        "endTimeSeconds": 1584013953,
+        "inspectedCount": 0
+      },
+      {
+        "results": [{ "max": 0.0 }],
+        "beginTimeSeconds": 1584013953,
+        "endTimeSeconds": 1584015753,
+        "inspectedCount": 3
+      },
+      {
+        "results": [{ "max": 10.0 }],
+        "beginTimeSeconds": 1584015753,
+        "endTimeSeconds": 1584017553,
+        "inspectedCount": 15
+      },
+      {
+        "results": [{ "max": 10.0 }],
+        "beginTimeSeconds": 1584017553,
+        "endTimeSeconds": 1584019353,
+        "inspectedCount": 15
+      },
+      {
+        "results": [{ "max": 10.0 }],
+        "beginTimeSeconds": 1584019353,
+        "endTimeSeconds": 1584021153,
+        "inspectedCount": 15
+      },
+      {
+        "results": [{ "max": 10.0 }],
+        "beginTimeSeconds": 1584021153,
+        "endTimeSeconds": 1584022953,
+        "inspectedCount": 15
+      },
+      {
+        "results": [{ "max": 10.0 }],
+        "beginTimeSeconds": 1584022953,
+        "endTimeSeconds": 1584024753,
+        "inspectedCount": 15
+      },
+      {
+        "results": [{ "max": 10.0 }],
+        "beginTimeSeconds": 1584024753,
+        "endTimeSeconds": 1584026553,
+        "inspectedCount": 6
+      },
+      {
+        "results": [{ "max": 0.0 }],
+        "beginTimeSeconds": 1584026553,
+        "endTimeSeconds": 1584028353,
+        "inspectedCount": 0
+      },
+      {
+        "results": [{ "max": 0.0 }],
+        "beginTimeSeconds": 1584028353,
+        "endTimeSeconds": 1584030153,
+        "inspectedCount": 0
+      },
+      {
+        "results": [{ "max": 62.0 }],
+        "beginTimeSeconds": 1584030153,
+        "endTimeSeconds": 1584031953,
+        "inspectedCount": 29
+      },
+      {
+        "results": [{ "max": 0.0 }],
+        "beginTimeSeconds": 1584031953,
+        "endTimeSeconds": 1584033753,
+        "inspectedCount": 30
+      },
+      {
+        "results": [{ "max": 149.0 }],
+        "beginTimeSeconds": 1584033753,
+        "endTimeSeconds": 1584035553,
+        "inspectedCount": 31
+      },
+      {
+        "results": [{ "max": 149.0 }],
+        "beginTimeSeconds": 1584035553,
+        "endTimeSeconds": 1584037353,
+        "inspectedCount": 52
+      },
+      {
+        "results": [{ "max": 149.0 }],
+        "beginTimeSeconds": 1584037353,
+        "endTimeSeconds": 1584039153,
+        "inspectedCount": 32
+      },
+      {
+        "results": [{ "max": 149.0 }],
+        "beginTimeSeconds": 1584039153,
+        "endTimeSeconds": 1584040953,
+        "inspectedCount": 55
+      },
+      {
+        "results": [{ "max": 24.0 }],
+        "beginTimeSeconds": 1584040953,
+        "endTimeSeconds": 1584042753,
+        "inspectedCount": 41
+      },
+      {
+        "results": [{ "max": 11.0 }],
+        "beginTimeSeconds": 1584042753,
+        "endTimeSeconds": 1584044553,
+        "inspectedCount": 30
+      },
+      {
+        "results": [{ "max": 0.0 }],
+        "beginTimeSeconds": 1584044553,
+        "endTimeSeconds": 1584046353,
+        "inspectedCount": 16
+      },
+      {
+        "results": [{ "max": 0.0 }],
+        "beginTimeSeconds": 1584046353,
+        "endTimeSeconds": 1584048153,
+        "inspectedCount": 15
+      },
+      {
+        "results": [{ "max": 0.0 }],
+        "beginTimeSeconds": 1584048153,
+        "endTimeSeconds": 1584049953,
+        "inspectedCount": 14
+      },
+      {
+        "results": [{ "max": 5.0 }],
+        "beginTimeSeconds": 1584049953,
+        "endTimeSeconds": 1584051753,
+        "inspectedCount": 17
+      }
+    ]
+  },
+  "unknownGroup": {
+    "total": {
+      "results": [{ "max": 0.0 }],
+      "beginTimeSeconds": 1583965353,
+      "endTimeSeconds": 1584051753,
+      "inspectedCount": 383
+    },
+    "timeSeries": [
+      {
+        "results": [{ "max": 0.0 }],
+        "beginTimeSeconds": 1583965353,
+        "endTimeSeconds": 1583967153,
+        "inspectedCount": 0
+      },
+      {
+        "results": [{ "max": 0.0 }],
+        "beginTimeSeconds": 1583967153,
+        "endTimeSeconds": 1583968953,
+        "inspectedCount": 0
+      },
+      {
+        "results": [{ "max": 0.0 }],
+        "beginTimeSeconds": 1583968953,
+        "endTimeSeconds": 1583970753,
+        "inspectedCount": 0
+      },
+      {
+        "results": [{ "max": 0.0 }],
+        "beginTimeSeconds": 1583970753,
+        "endTimeSeconds": 1583972553,
+        "inspectedCount": 0
+      },
+      {
+        "results": [{ "max": 0.0 }],
+        "beginTimeSeconds": 1583972553,
+        "endTimeSeconds": 1583974353,
+        "inspectedCount": 0
+      },
+      {
+        "results": [{ "max": 0.0 }],
+        "beginTimeSeconds": 1583974353,
+        "endTimeSeconds": 1583976153,
+        "inspectedCount": 0
+      },
+      {
+        "results": [{ "max": 0.0 }],
+        "beginTimeSeconds": 1583976153,
+        "endTimeSeconds": 1583977953,
+        "inspectedCount": 6
+      },
+      {
+        "results": [{ "max": 0.0 }],
+        "beginTimeSeconds": 1583977953,
+        "endTimeSeconds": 1583979753,
+        "inspectedCount": 29
+      },
+      {
+        "results": [{ "max": 0.0 }],
+        "beginTimeSeconds": 1583979753,
+        "endTimeSeconds": 1583981553,
+        "inspectedCount": 30
+      },
+      {
+        "results": [{ "max": 0.0 }],
+        "beginTimeSeconds": 1583981553,
+        "endTimeSeconds": 1583983353,
+        "inspectedCount": 13
+      },
+      {
+        "results": [{ "max": 0.0 }],
+        "beginTimeSeconds": 1583983353,
+        "endTimeSeconds": 1583985153,
+        "inspectedCount": 0
+      },
+      {
+        "results": [{ "max": 0.0 }],
+        "beginTimeSeconds": 1583985153,
+        "endTimeSeconds": 1583986953,
+        "inspectedCount": 1
+      },
+      {
+        "results": [{ "max": 0.0 }],
+        "beginTimeSeconds": 1583986953,
+        "endTimeSeconds": 1583988753,
+        "inspectedCount": 0
+      },
+      {
+        "results": [{ "max": 0.0 }],
+        "beginTimeSeconds": 1583988753,
+        "endTimeSeconds": 1583990553,
+        "inspectedCount": 0
+      },
+      {
+        "results": [{ "max": 0.0 }],
+        "beginTimeSeconds": 1583990553,
+        "endTimeSeconds": 1583992353,
+        "inspectedCount": 0
+      },
+      {
+        "results": [{ "max": 0.0 }],
+        "beginTimeSeconds": 1583992353,
+        "endTimeSeconds": 1583994153,
+        "inspectedCount": 0
+      },
+      {
+        "results": [{ "max": 0.0 }],
+        "beginTimeSeconds": 1583994153,
+        "endTimeSeconds": 1583995953,
+        "inspectedCount": 0
+      },
+      {
+        "results": [{ "max": 0.0 }],
+        "beginTimeSeconds": 1583995953,
+        "endTimeSeconds": 1583997753,
+        "inspectedCount": 1
+      },
+      {
+        "results": [{ "max": 0.0 }],
+        "beginTimeSeconds": 1583997753,
+        "endTimeSeconds": 1583999553,
+        "inspectedCount": 0
+      },
+      {
+        "results": [{ "max": 0.0 }],
+        "beginTimeSeconds": 1583999553,
+        "endTimeSeconds": 1584001353,
+        "inspectedCount": 0
+      },
+      {
+        "results": [{ "max": 0.0 }],
+        "beginTimeSeconds": 1584001353,
+        "endTimeSeconds": 1584003153,
+        "inspectedCount": 0
+      },
+      {
+        "results": [{ "max": 0.0 }],
+        "beginTimeSeconds": 1584003153,
+        "endTimeSeconds": 1584004953,
+        "inspectedCount": 1
+      },
+      {
+        "results": [{ "max": 0.0 }],
+        "beginTimeSeconds": 1584004953,
+        "endTimeSeconds": 1584006753,
+        "inspectedCount": 0
+      },
+      {
+        "results": [{ "max": 0.0 }],
+        "beginTimeSeconds": 1584006753,
+        "endTimeSeconds": 1584008553,
+        "inspectedCount": 0
+      },
+      {
+        "results": [{ "max": 0.0 }],
+        "beginTimeSeconds": 1584008553,
+        "endTimeSeconds": 1584010353,
+        "inspectedCount": 1
+      },
+      {
+        "results": [{ "max": 0.0 }],
+        "beginTimeSeconds": 1584010353,
+        "endTimeSeconds": 1584012153,
+        "inspectedCount": 0
+      },
+      {
+        "results": [{ "max": 0.0 }],
+        "beginTimeSeconds": 1584012153,
+        "endTimeSeconds": 1584013953,
+        "inspectedCount": 0
+      },
+      {
+        "results": [{ "max": 0.0 }],
+        "beginTimeSeconds": 1584013953,
+        "endTimeSeconds": 1584015753,
+        "inspectedCount": 3
+      },
+      {
+        "results": [{ "max": 0.0 }],
+        "beginTimeSeconds": 1584015753,
+        "endTimeSeconds": 1584017553,
+        "inspectedCount": 2
+      },
+      {
+        "results": [{ "max": 0.0 }],
+        "beginTimeSeconds": 1584017553,
+        "endTimeSeconds": 1584019353,
+        "inspectedCount": 0
+      },
+      {
+        "results": [{ "max": 0.0 }],
+        "beginTimeSeconds": 1584019353,
+        "endTimeSeconds": 1584021153,
+        "inspectedCount": 0
+      },
+      {
+        "results": [{ "max": 0.0 }],
+        "beginTimeSeconds": 1584021153,
+        "endTimeSeconds": 1584022953,
+        "inspectedCount": 1
+      },
+      {
+        "results": [{ "max": 0.0 }],
+        "beginTimeSeconds": 1584022953,
+        "endTimeSeconds": 1584024753,
+        "inspectedCount": 0
+      },
+      {
+        "results": [{ "max": 0.0 }],
+        "beginTimeSeconds": 1584024753,
+        "endTimeSeconds": 1584026553,
+        "inspectedCount": 0
+      },
+      {
+        "results": [{ "max": 0.0 }],
+        "beginTimeSeconds": 1584026553,
+        "endTimeSeconds": 1584028353,
+        "inspectedCount": 0
+      },
+      {
+        "results": [{ "max": 0.0 }],
+        "beginTimeSeconds": 1584028353,
+        "endTimeSeconds": 1584030153,
+        "inspectedCount": 0
+      },
+      {
+        "results": [{ "max": 0.0 }],
+        "beginTimeSeconds": 1584030153,
+        "endTimeSeconds": 1584031953,
+        "inspectedCount": 27
+      },
+      {
+        "results": [{ "max": 0.0 }],
+        "beginTimeSeconds": 1584031953,
+        "endTimeSeconds": 1584033753,
+        "inspectedCount": 30
+      },
+      {
+        "results": [{ "max": 0.0 }],
+        "beginTimeSeconds": 1584033753,
+        "endTimeSeconds": 1584035553,
+        "inspectedCount": 30
+      },
+      {
+        "results": [{ "max": 0.0 }],
+        "beginTimeSeconds": 1584035553,
+        "endTimeSeconds": 1584037353,
+        "inspectedCount": 29
+      },
+      {
+        "results": [{ "max": 0.0 }],
+        "beginTimeSeconds": 1584037353,
+        "endTimeSeconds": 1584039153,
+        "inspectedCount": 31
+      },
+      {
+        "results": [{ "max": 0.0 }],
+        "beginTimeSeconds": 1584039153,
+        "endTimeSeconds": 1584040953,
+        "inspectedCount": 30
+      },
+      {
+        "results": [{ "max": 0.0 }],
+        "beginTimeSeconds": 1584040953,
+        "endTimeSeconds": 1584042753,
+        "inspectedCount": 30
+      },
+      {
+        "results": [{ "max": 0.0 }],
+        "beginTimeSeconds": 1584042753,
+        "endTimeSeconds": 1584044553,
+        "inspectedCount": 27
+      },
+      {
+        "results": [{ "max": 0.0 }],
+        "beginTimeSeconds": 1584044553,
+        "endTimeSeconds": 1584046353,
+        "inspectedCount": 16
+      },
+      {
+        "results": [{ "max": 0.0 }],
+        "beginTimeSeconds": 1584046353,
+        "endTimeSeconds": 1584048153,
+        "inspectedCount": 15
+      },
+      {
+        "results": [{ "max": 0.0 }],
+        "beginTimeSeconds": 1584048153,
+        "endTimeSeconds": 1584049953,
+        "inspectedCount": 14
+      },
+      {
+        "results": [{ "max": 0.0 }],
+        "beginTimeSeconds": 1584049953,
+        "endTimeSeconds": 1584051753,
+        "inspectedCount": 16
+      }
+    ]
+  },
+  "performanceStats": {
+    "inspectedCount": 988,
+    "omittedCount": 0,
+    "matchCount": 758,
+    "wallClockTime": 21
+  },
+  "metadata": {
+    "eventTypes": ["push_health_need_investigation"],
+    "eventType": "push_health_need_investigation",
+    "openEnded": true,
+    "beginTime": "2020-03-11T22:22:33Z",
+    "endTime": "2020-03-12T22:22:33Z",
+    "beginTimeMillis": 1583965353869,
+    "endTimeMillis": 1584051753869,
+    "rawSince": "1 DAYS AGO",
+    "rawUntil": "NOW",
+    "rawCompareWith": "",
+    "bucketSizeMillis": 1800000,
+    "guid": "cdcba946-85d1-efae-fb94-4cacbd4f1f5c",
+    "routerGuid": "90db47e1-965c-d446-78af-2fcc0166f831",
+    "messages": [],
+    "facet": "revision",
+    "offset": 0,
+    "limit": 10,
+    "contents": {
+      "messages": [],
+      "timeSeries": {
+        "messages": [],
+        "contents": [
+          {
+            "function": "max",
+            "attribute": "needInvestigation",
+            "simple": true
+          }
+        ]
+      }
+    }
+  }
+}

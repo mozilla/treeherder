@@ -7,7 +7,10 @@ import {
   faExclamationTriangle,
 } from '@fortawesome/free-solid-svg-icons';
 import camelCase from 'lodash/camelCase';
+import { Helmet } from 'react-helmet';
 
+import faviconBroken from '../img/push-health-broken.png';
+import faviconOk from '../img/push-health-ok.png';
 import ErrorMessages from '../shared/ErrorMessages';
 import NotificationList from '../shared/NotificationList';
 import {
@@ -49,11 +52,11 @@ export default class Health extends React.PureComponent {
       failureMessage: null,
       notifications: [],
       progressExpanded: true,
-      commitHistoryExpanded: false,
+      commitHistoryExpanded: true,
       lintingExpanded: false,
       buildsExpanded: false,
       testsExpanded: false,
-      performanceExpanded: false,
+      showParentMatches: false,
       searchStr: params.get('searchStr') || '',
     };
   }
@@ -62,14 +65,16 @@ export default class Health extends React.PureComponent {
     const { repo } = this.state;
     // Get the test data
     const { metrics } = await this.updatePushHealth();
+    // Expand the metric if it is in a failed state, or if it is
+    // defaulted to `true` in the state in the constructor.
     const expandedStates = Object.entries(metrics).reduce(
       (acc, [key, metric]) => ({
         ...acc,
-        [`${key}Expanded`]: metric.result === 'fail',
+        [`${key}Expanded`]:
+          metric.result === 'fail' || this.state[`${key}Expanded`],
       }),
       {},
     );
-
     const repos = await RepositoryModel.getList();
     const currentRepo = repos.find(repoObj => repoObj.name === repo);
 
@@ -169,11 +174,11 @@ export default class Health extends React.PureComponent {
       lintingExpanded,
       buildsExpanded,
       testsExpanded,
-      performanceExpanded,
       searchStr,
       currentRepo,
+      showParentMatches,
     } = this.state;
-    const { tests, commitHistory, linting, builds, performance } = metrics;
+    const { tests, commitHistory, linting, builds } = metrics;
     const percentComplete = status ? getPercentComplete(status) : 0;
     const progress = {
       name: 'Progress',
@@ -181,9 +186,19 @@ export default class Health extends React.PureComponent {
       result: percentComplete === 100 ? 'done' : 'in progress',
       details: [],
     };
+    const needInvestigationCount = tests
+      ? tests.details.needInvestigation.length
+      : 0;
 
     return (
       <React.Fragment>
+        <Helmet>
+          <link
+            rel="shortcut icon"
+            href={result === 'fail' ? faviconBroken : faviconOk}
+          />
+          <title>{`[${needInvestigationCount}] Push Health`}</title>
+        </Helmet>
         <Navigation
           user={user}
           setUser={this.setUser}
@@ -196,47 +211,62 @@ export default class Health extends React.PureComponent {
             {!!tests && (
               <Nav className="metric-buttons mb-2 pt-2 pl-3 justify-content-between w-100">
                 <span>
-                  {[
-                    progress,
-                    linting,
-                    builds,
-                    tests,
-                    performance,
-                    commitHistory,
-                  ].map(metric => (
-                    <span key={metric.name}>
-                      {!!metric.details && (
-                        <Button
-                          size="sm"
-                          className="mr-2"
-                          color={resultColorMap[metric.result]}
-                          title={`Click to toggle ${
-                            metric.name
-                          }: ${metric.result.toUpperCase()}`}
-                          onClick={() => this.setExpanded(metric.name, true)}
-                          key={metric.name}
-                        >
-                          {metric.name}
-                          {['pass', 'fail', 'indeterminate'].includes(
-                            metric.result,
-                          ) ? (
-                            <FontAwesomeIcon
-                              className="ml-1"
-                              icon={
-                                metric.result === 'pass'
-                                  ? faCheckCircle
-                                  : faExclamationTriangle
-                              }
-                            />
-                          ) : (
-                            <span className="ml-1">{metric.value}</span>
-                          )}
-                        </Button>
-                      )}
-                    </span>
-                  ))}
+                  {[progress, commitHistory, linting, builds, tests].map(
+                    metric => (
+                      <span key={metric.name}>
+                        {!!metric && !!metric.details && (
+                          <Button
+                            size="sm"
+                            className="mr-2"
+                            color={resultColorMap[metric.result]}
+                            title={`Click to toggle ${
+                              metric.name
+                            }: ${metric.result.toUpperCase()}`}
+                            onClick={() => this.setExpanded(metric.name, true)}
+                            key={metric.name}
+                          >
+                            {metric.name}
+                            {['pass', 'fail', 'indeterminate'].includes(
+                              metric.result,
+                            ) ? (
+                              <FontAwesomeIcon
+                                className="ml-1"
+                                icon={
+                                  metric.result === 'pass'
+                                    ? faCheckCircle
+                                    : faExclamationTriangle
+                                }
+                              />
+                            ) : (
+                              <span className="ml-1">{metric.value}</span>
+                            )}
+                          </Button>
+                        )}
+                      </span>
+                    ),
+                  )}
+                  <Button
+                    size="sm"
+                    className="mr-2"
+                    title="Not yet implemented.  Coming soon."
+                    key="performance"
+                    disabled
+                    outline
+                  >
+                    Performance
+                  </Button>
                 </span>
-                <span className="mr-2">
+                <span className="mr-2 d-flex">
+                  <Button
+                    size="sm"
+                    className="text-nowrap mr-1"
+                    title="Toggle failures that also failed in the parent"
+                    onClick={() =>
+                      this.setState({ showParentMatches: !showParentMatches })
+                    }
+                  >
+                    {showParentMatches ? 'Hide' : 'Show'} parent matches
+                  </Button>
                   <InputFilter
                     updateFilterText={this.filter}
                     placeholder="filter path or platform"
@@ -266,6 +296,23 @@ export default class Health extends React.PureComponent {
                   </div>
                 </Metric>
               </Row>
+              {commitHistory.details && (
+                <Row className="w-100">
+                  <Metric
+                    name="Commit History"
+                    result=""
+                    expanded={commitHistoryExpanded}
+                    setExpanded={this.setExpanded}
+                  >
+                    <CommitHistory
+                      history={commitHistory.details}
+                      revision={revision}
+                      currentRepo={currentRepo}
+                      compareWithParent={this.compareWithParent}
+                    />
+                  </Metric>
+                </Row>
+              )}
               <Row>
                 <JobListMetric
                   data={linting}
@@ -295,37 +342,20 @@ export default class Health extends React.PureComponent {
                   expanded={testsExpanded}
                   setExpanded={this.setExpanded}
                   searchStr={searchStr}
+                  showParentMatches={showParentMatches}
                 />
               </Row>
-              <Row>
-                <JobListMetric
-                  data={performance}
-                  repo={repo}
-                  revision={revision}
-                  expanded={performanceExpanded}
-                  setExpanded={this.setExpanded}
-                />
-              </Row>
-              {commitHistory.details && (
-                <Row className="w-100">
-                  <Metric
-                    name="Commit History"
-                    result=""
-                    expanded={commitHistoryExpanded}
-                    setExpanded={this.setExpanded}
-                  >
-                    <CommitHistory
-                      history={commitHistory.details}
-                      revision={revision}
-                      currentRepo={currentRepo}
-                    />
-                  </Metric>
-                </Row>
-              )}
             </div>
           )}
           {failureMessage && <ErrorMessages failureMessage={failureMessage} />}
-          {!failureMessage && !tests && <Spinner />}
+          {!failureMessage && !tests && (
+            <h4>
+              <Spinner />
+              <span className="ml-2 pb-1">
+                Gathering health data and comparing with parent push...
+              </span>
+            </h4>
+          )}
         </Container>
       </React.Fragment>
     );

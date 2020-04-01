@@ -1,3 +1,4 @@
+import os
 import platform
 import re
 from datetime import timedelta
@@ -23,22 +24,26 @@ IS_WINDOWS = "windows" in platform.system().lower()
 
 # Top Level configuration
 DEBUG = env.bool("TREEHERDER_DEBUG", default=False)
+LOGGING_LEVEL = env("LOGGING_LEVEL", default="INFO")
 
-NEW_RELIC_DEVELOPER_MODE = env.bool("NEW_RELIC_DEVELOPER_MODE", default=True if DEBUG else False)
+NEW_RELIC_INSIGHTS_API_KEY = env("NEW_RELIC_INSIGHTS_API_KEY", default=None)
+NEW_RELIC_INSIGHTS_API_URL = 'https://insights-api.newrelic.com/v1/accounts/677903/query'
 
-# Papertrail logs WARNING messages. This env variable allows modifying the behaviour
-LOGGING_LEVEL = env.str("LOGGING_LEVEL", default='INFO')
-
+# XXX This is likely something we can get rid of
 GRAPHQL = env.bool("GRAPHQL", default=True)
 
 # Make this unique, and don't share it with anybody.
 SECRET_KEY = env("TREEHERDER_DJANGO_SECRET_KEY", default='secret-key-of-at-least-50-characters-to-pass-check-deploy')
 
+# Delete the Pulse automatically when no consumers left
+PULSE_AUTO_DELETE_QUEUES = env.bool("PULSE_AUTO_DELETE_QUEUES", default=False)
+
+# Changing PULSE_AUTO_DELETE_QUEUES to True when Treeherder is running inside of virtual environment
+if os.environ.get("VIRTUAL_ENV"):
+    PULSE_AUTO_DELETE_QUEUES = True
+
 # Hosts
 SITE_URL = env("SITE_URL", default='http://localhost:8000')
-if env("HEROKU_REVIEW_APP", default=False):
-    # This is to support Heroku Review apps which host is different for each PR
-    SITE_URL = "https://{}.herokuapp.com".format(env("HEROKU_APP_NAME"))
 
 SITE_HOSTNAME = furl(SITE_URL).host
 # Including localhost allows using the backend locally
@@ -84,8 +89,22 @@ INSTALLED_APPS = [
     'treeherder.intermittents_commenter',
     'treeherder.changelog',
 ]
+
+# Docker/outside-of-Docker/Travis vs Heroku/Review-app
 if DEBUG:
+    NEW_RELIC_DEVELOPER_MODE = True
+    # This controls whether the Django debug toolbar should be shown or not
+    # https://django-debug-toolbar.readthedocs.io/en/latest/configuration.html#show-toolbar-callback
+    # "You can provide your own function callback(request) which returns True or False."
+    DEBUG_TOOLBAR_CONFIG = {
+        'SHOW_TOOLBAR_CALLBACK': lambda request: DEBUG,
+    }
+    INSTALLED_APPS.append('debug_toolbar')
     INSTALLED_APPS.append('django_extensions')
+
+# Heroku-review-app (defined in app.json)
+if env("HEROKU_REVIEW_APP", default=False):
+    SITE_URL = "https://{}.herokuapp.com".format(env("HEROKU_APP_NAME"))
 
 # Middleware
 MIDDLEWARE = [middleware for middleware in [
@@ -369,17 +388,6 @@ CELERY_BEAT_SCHEDULE = {
 # CORS Headers
 CORS_ORIGIN_ALLOW_ALL = True  # allow requests from any host
 
-# Debug Toolbar
-if DEBUG:
-    # This controls wether the Django debug toolbar should be shown or not
-    # https://django-debug-toolbar.readthedocs.io/en/latest/configuration.html#show-toolbar-callback
-    # "You can provide your own function callback(request) which returns True or False."
-    DEBUG_TOOLBAR_CONFIG = {
-        'SHOW_TOOLBAR_CALLBACK': lambda request: DEBUG,
-    }
-
-    INSTALLED_APPS.append('debug_toolbar')
-
 
 # Rest Framework
 REST_FRAMEWORK = {
@@ -449,9 +457,6 @@ RESET_BACKFILL_LIMITS = timedelta(hours=24)
 # Taskcluster credentials for PerfSheriffBot
 PERF_SHERIFF_BOT_CLIENT_ID = env('PERF_SHERIFF_BOT_CLIENT_ID', default=None)
 PERF_SHERIFF_BOT_ACCESS_TOKEN = env('PERF_SHERIFF_BOT_ACCESS_TOKEN', default=None)
-
-# Resource count to limit the number of threads opening connections with the DB
-CONN_RESOURCES = 50
 
 # This is only used for removing the rate limiting. You can create your own here:
 # https://github.com/settings/tokens

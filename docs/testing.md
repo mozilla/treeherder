@@ -12,27 +12,27 @@ does not match the style requirements.
 
 To run ESLint by itself, you may run the lint task:
 
-```bash
-$ yarn lint
+```shell
+yarn lint
 ```
 
 Or to automatically fix issues found (where possible):
 
-```bash
-$ yarn lint --fix
+```shell
+yarn lint --fix
 ```
 
 You can also check against Prettier:
 
-```bash
-$ yarn format:check
+```shell
+yarn format:check
 ```
 
 and to have it actually fix (to the best of its ability) any format issues,
 just do:
 
-```bash
-$ yarn format
+```shell
+yarn format
 ```
 
 See the [code style](code_style.md#ui) section for more details.
@@ -49,41 +49,44 @@ To run the tests:
 While working on the frontend, you may wish to watch JavaScript files and re-run tests
 automatically when files change. To do this, you may run one of the following commands:
 
-```bash
-$ yarn test:watch
+```shell
+yarn test:watch
 ```
 
 The tests will perform an initial run and then re-execute each time a project file is changed.
 
 ## Python
 
-To run all Python unit tests, including linting, sorting, etc:
+To run all Python tests, including linting, sorting, etc:
 
-```bash
-docker-compose run backend sh -c "./runtests.sh"
+```shell
+docker-compose run backend sh -c "./runchecks.sh && pytest tests/"
 ```
 
-### Running a specific set of Python unit tests
+NOTE: For instructions on how to run tests outside of Docker look at [tests/README.md](https://github.com/mozilla/treeherder/blob/master/tests/README.md).
+Running them within Docker is still the recommended option.
+
+### Running a specific set of Python tests
 
 Here are some examples of ways to run the python tests with varying levels
 of specificity:
 
 All tests:
 
-```bash
-docker-compose run backend python -m pytest tests/
+```shell
+docker-compose run backend pytest tests/
 ```
 
 Just `/etl` tests
 
-```bash
-docker-compose run backend python -m pytest tests/etl/
+```shell
+docker-compose run backend pytest tests/etl/
 ```
 
 Just the `test_ingest_pending_pulse_job` within the `/etl` tests
 
-```bash
-docker-compose run backend python -m pytest tests/ -k test_ingest_pending_pulse_job
+```shell
+docker-compose run backend pytest tests/ -k test_ingest_pending_pulse_job
 ```
 
 ## Selenium
@@ -91,17 +94,11 @@ docker-compose run backend python -m pytest tests/ -k test_ingest_pending_pulse_
 The Selenium tests are written in Python, so when you execute some of the
 commands above, you will execute the Selenium tests as well.
 
-The Selenium tests require a UI build. So you will need to use two terminal
-windows. In the first, run this:
+The Selenium tests require a UI build:
 
-```bash
+```shell
 docker-compose up --build
-```
-
-Then to execute the tests:
-
-```bash
-docker-compose run backend python -m pytest tests/selenium/
+docker-compose run backend pytest tests/selenium/
 ```
 
 [eslint]: https://eslint.org

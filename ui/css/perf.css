@@ -522,7 +522,7 @@ li.pagination-active.active > button {
 }
 
 .table-graphs-view .job-links {
-  opacity: 0.3;
+  opacity: 0.8;
 }
 
 .table-graphs-view .rt-td:hover .job-links,
