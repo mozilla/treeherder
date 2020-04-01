@@ -383,6 +383,7 @@ class Command(BaseCommand):
             type=int,
             help="fetch the last N pushes from the repository"
         )
+
     def handle(self, *args, **options):
         typeOfIngestion = options["ingestion_type"][0]
         root_url = options["root_url"]
