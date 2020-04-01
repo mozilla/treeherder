@@ -64,7 +64,8 @@ services:
   mysql:
     container_name: mysql
     # https://hub.docker.com/r/library/mysql/
-    image: mysql:5.7.29
+    image: mysql:8.0.19
+    command: [--default-authentication-plugin=mysql_native_password]
     environment:
       - MYSQL_ALLOW_EMPTY_PASSWORD=true
       - MYSQL_DATABASE=treeherder
@@ -73,6 +74,8 @@ services:
       - mysql_data:/var/lib/mysql
     ports:
       - '3306:3306'
+    cap_add:
+      - SYS_NICE
 
   redis:
     container_name: redis
