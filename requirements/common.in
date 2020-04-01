@@ -12,7 +12,7 @@ newrelic==5.2.1.129
 
 # Required by Django
 mysqlclient==1.4.6
-asgiref==3.2.3
+asgiref==3.2.7
 
 # Required by celery
 billiard==3.6.2.0
