@@ -162,7 +162,7 @@ class GithubPushTransformer(GithubTransformer):
 
     def get_branch(self):
         """
-        Tag pushes  don't use the actual branch, just the string "tag"
+        Tag pushes don't use the actual branch, just the string "tag"
         """
         if self.message_body["details"].get("event.head.tag"):
             return "tag"
