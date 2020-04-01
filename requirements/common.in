@@ -5,7 +5,6 @@ whitenoise[brotli]==5.0.1
 # Used by Whitenoise to provide Brotli-compressed versions of static files.
 Django==3.0.3
 celery==4.3.0
-simplejson==3.17.0
 newrelic==5.2.1.129
 
 # Required by Django
@@ -24,17 +23,11 @@ coreapi==2.3.3
 PyYAML==5.3
 django-environ==0.4.5
 
-# Whilst we don't use six ourselves any more, it's still required by a number of dependencies.
-python-dateutil==2.8.1
-django-filter==2.2.0
-django-redis==4.11.0
-
 # required for taskcluster
 taskcluster==27.0.0
 graphene-django==2.8.0
 
 # Used by graphene-django
-typing==3.7.4.1
 iso8601==0.1.12
 python-jose[pycryptodome]==3.1.0
 
