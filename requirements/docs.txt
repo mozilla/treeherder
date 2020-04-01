@@ -8,6 +8,9 @@ click==7.1.1 \
     --hash=sha256:8a18b4ea89d8820c5d0c7da8a64b2c324b4dabb695804dbfea19b9be9d88c0cc \
     --hash=sha256:e345d143d80bf5ee7534056164e5e112ea5e22716bbb1ce727941f4c8b471b9a \
     # via mkdocs
+future==0.18.2 \
+    --hash=sha256:b1bead90b70cf6ec3f0710ae53a525360fa360d306a86583adc6bf83a4db537d \
+    # via lunr
 jinja2==2.11.1 \
     --hash=sha256:93187ffbc7808079673ef52771baa950426fd664d3aad1d0fa3e95644360e250 \
     --hash=sha256:b0eaf100007721b5c16c1fc1eecb87409464edc10469ddc9a22a27a99123be49 \
@@ -15,6 +18,10 @@ jinja2==2.11.1 \
 livereload==2.6.1 \
     --hash=sha256:78d55f2c268a8823ba499305dcac64e28ddeb9a92571e12d543cd304faf5817b \
     --hash=sha256:89254f78d7529d7ea0a3417d224c34287ebfe266b05e67e51facaf82c27f0f66 \
+    # via mkdocs
+lunr[languages]==0.5.6 \
+    --hash=sha256:1208622930c915a07e6f8e8640474357826bad48534c0f57969b6fca9bffc88e \
+    --hash=sha256:7be69d7186f65784a4f2adf81e5c58efd6a9921aa95966babcb1f2f2ada75c20 \
     # via mkdocs
 markdown==3.2.1 \
     --hash=sha256:90fee683eeabe1a92e149f7ba74e5ccdc81cd397bd6c516d93a8da0ef90b6902 \
@@ -58,15 +65,18 @@ markupsafe==1.1.1 \
 mdx_truly_sane_lists==1.2 \
     --hash=sha256:4600ade0fbd452db8233e25d644b62f59b2798e40595ea2e1923e29bc40c5b98 \
     --hash=sha256:cc8bfa00f331403504e12377a9c94e6b40fc7db031e283316baeeeeac68f1da9 \
-    # via -r requirements/docs.in
+    # via -r docs.in
 mkdocs-material==4.6.3 \
     --hash=sha256:1d486635b03f5a2ec87325842f7b10c7ae7daa0eef76b185572eece6a6ea212c \
     --hash=sha256:7f3afa0a09c07d0b89a6a9755fdb00513aee8f0cec3538bb903325c80f66f444 \
-    # via -r requirements/docs.in
-mkdocs==1.0.4 \
-    --hash=sha256:17d34329aad75d5de604b9ed4e31df3a4d235afefdc46ce7b1964fddb2e1e939 \
-    --hash=sha256:8cc8b38325456b9e942c981a209eaeb1e9f3f77b493ad755bfef889b9c8d356a \
-    # via -r requirements/docs.in, mkdocs-material
+    # via -r docs.in
+mkdocs==1.1 \
+    --hash=sha256:1e385a70aea8a9dedb731aea4fd5f3704b2074801c4f96f06b2920999babda8a \
+    --hash=sha256:9243291392f59e20b655e4e46210233453faf97787c2cf72176510e868143174 \
+    # via -r docs.in, mkdocs-material
+nltk==3.4.5 \
+    --hash=sha256:bed45551259aa2101381bbdd5df37d44ca2669c5c3dad72439fa459b29137d94 \
+    # via lunr
 pygments==2.6.1 \
     --hash=sha256:647344a061c249a3b74e230c739f434d7ea4d8b1d5f3721bc0f3558049b38f44 \
     --hash=sha256:ff7a40b4860b727ab48fad6360eb351cc1b33cbf9b15a0f689ca5353e9463324 \
@@ -91,7 +101,7 @@ pyyaml==5.3 \
 six==1.14.0 \
     --hash=sha256:236bdbdce46e6e6a3d61a337c0f8b763ca1e8717c03b369e87a7ec7ce1319c0a \
     --hash=sha256:8f3cd2e254d8f793e7f3d6d9df77b92252b52637291d0f0da013c76ea2724b6c \
-    # via livereload
+    # via livereload, lunr
 tornado==6.0.4 \
     --hash=sha256:0fe2d45ba43b00a41cd73f8be321a44936dc1aba233dee979f17a042b83eb6dc \
     --hash=sha256:22aed82c2ea340c3771e3babc5ef220272f6fd06b5108a53b4976d0d722bcd52 \
