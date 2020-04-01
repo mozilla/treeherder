@@ -5,6 +5,7 @@ whitenoise[brotli]==5.0.1
 # Used by Whitenoise to provide Brotli-compressed versions of static files.
 Django==3.0.3
 celery==4.3.0
+simplejson==3.17.0
 newrelic==5.2.1.129
 
 # Required by Django
