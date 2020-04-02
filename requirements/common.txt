@@ -485,3 +485,4 @@ cachetools==4.0.0 \
     --hash=sha256:b304586d357c43221856be51d73387f93e2a961598a9b6b6670664746f3b6c6c
 pyasn1_modules==0.2.8 \
     --hash=sha256:a50b808ffeb97cb3601dd25981f6b016cbb3d31fbf57a8b8a87428e6158d0c74
+pre-commit==2.2.0
