@@ -12,10 +12,10 @@ newrelic==5.2.1.129
 mysqlclient==1.4.6
 
 # Required by mozlog
-mozlog==5.0
 jsonschema==3.0.1
 djangorestframework==3.11.0
 django-cors-headers==3.2.1
+mozlog==5.0
 
 # Required by djangorestframework's API documentation
 coreapi==2.3.3
