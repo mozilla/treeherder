@@ -278,7 +278,7 @@ def test_filter_signatures_by_range(client, test_perf_signature,
 
 @pytest.mark.parametrize('interval, exp_datums_len, exp_push_ids', [
     (86400, 1, [1]),
-    (86400 * 3, 2, [2, 1])])
+    (86400 * 3, 2, [1, 1])])
 def test_filter_data_by_interval(client, test_repository, test_perf_signature,
                                  interval, exp_datums_len, exp_push_ids):
     # create some test data
@@ -312,7 +312,7 @@ def test_filter_data_by_interval(client, test_repository, test_perf_signature,
 
 @pytest.mark.parametrize('start_date, end_date, exp_datums_len, exp_push_ids', [
     (SEVEN_DAYS_AGO, THREE_DAYS_AGO, 1, [3]),
-    (THREE_DAYS_AGO, '', 2, [2, 1])])
+    (THREE_DAYS_AGO, '', 2, [1, 1])])
 def test_filter_data_by_range(client, test_repository, test_perf_signature,
                               start_date, end_date, exp_datums_len,
                               exp_push_ids):
