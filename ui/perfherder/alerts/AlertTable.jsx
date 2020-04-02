@@ -42,6 +42,7 @@ export default class AlertTable extends React.Component {
   componentDidUpdate(prevProps) {
     const { filters, alertSummary } = this.props;
 
+    this.notifyWatchers();
     if (prevProps.filters !== filters) {
       this.updateFilteredAlerts();
     }
@@ -166,6 +167,16 @@ export default class AlertTable extends React.Component {
     return { failureStatus };
   };
 
+  notifyWatchers = async () => {
+    const { alertWatched, alertSummary } = this.state;
+    if (!('Notification' in window)) {
+      return;
+    }
+    if (alertWatched) {
+      Notification(alertSummary.id);
+    }
+  };
+
   render() {
     const {
       user,
@@ -231,6 +242,7 @@ export default class AlertTable extends React.Component {
                             issueTrackers={issueTrackers}
                             user={user}
                             updateAssignee={this.updateAssignee}
+                            alertWatched={this.alertWatched}
                           />
                         </Label>
                       </FormGroup>

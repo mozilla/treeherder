@@ -45,6 +45,7 @@ export default class AlertsViewControls extends React.Component {
       user,
       frameworkOptions,
       filters,
+      alertWatched,
     } = this.props;
     const {
       filterText,
@@ -132,6 +133,7 @@ export default class AlertsViewControls extends React.Component {
               alertSummary={alertSummary}
               fetchAlertSummaries={fetchAlertSummaries}
               user={user}
+              alertWatched={alertWatched}
               {...this.props}
             />
           ))}

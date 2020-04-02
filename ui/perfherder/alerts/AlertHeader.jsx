@@ -26,6 +26,7 @@ const AlertHeader = ({
   issueTrackers,
   user,
   updateAssignee,
+  alertWatched,
 }) => {
   const getIssueTrackerUrl = () => {
     const { issueTrackerUrl } = issueTrackers.find(
@@ -118,6 +119,7 @@ const AlertHeader = ({
             assigneeUsername={alertSummary.assignee_username}
             updateAssignee={updateAssignee}
             user={user}
+            alertWatched={alertWatched}
           />
         </Col>
       </Row>
