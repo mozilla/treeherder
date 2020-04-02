@@ -206,6 +206,7 @@ def extract_job_settings():
     os.environ["NEW_RELIC_APP_NAME"] = "testing"
     os.environ["BIGQUERY_PRIVATE_KEY_ID"] = "1"
     os.environ["BIGQUERY_PRIVATE_KEY"] = "1"
+    os.environ["DATABASE_URL"] = "mysql://root@127.0.0.1:3306/treeherder"
 
     # USE THE TEST SCHEMA
     db_url = os.environ["DATABASE_URL"]
