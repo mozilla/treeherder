@@ -16,5 +16,8 @@ isort
 funcsigs
 pbr
 
+# Required by flake8
+pytest-django
+
 # make pinning versions easier
 pip-tools
