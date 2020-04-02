@@ -77,29 +77,15 @@ async-timeout==3.0.1
 multidict==4.7.4
 yarl==1.4.2
 taskcluster-urls==12.1.0
-graphene-django==2.8.0
 
-# Used by graphene-django
-graphene==2.1.8
-graphql-core==2.2.1
-graphql-relay==2.0.0
-typing==3.7.4.1
-promise==2.3
-rx==1.6.1
-singledispatch==3.4.0.3
-iso8601==0.1.12
-aniso8601==6.0.0
-python-jose[pycryptodome]==3.1.0
+# Required by treeherder.auth
+jose==1.0.0
 
-# Used by python-jose
-rsa==4.0
-pyasn1==0.4.8
-pycryptodome==3.9.4
-ecdsa==0.15
-future==0.18.2
+# Required by config.settings
 furl==2.1.0
-orderedmultidict==1.0.1
-first==2.0.2
+
+# Required for perf and etl/perf
+typing==3.7.4.1
 
 # Required by jsonschema
 attrs==19.3.0
