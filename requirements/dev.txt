@@ -145,6 +145,10 @@ pytest-cov==2.8.1 \
     --hash=sha256:cc6742d8bac45070217169f5f72ceee1e0e55b0221f54bcf24845972d3a47f2b \
     --hash=sha256:cdbdef4f870408ebdbfeb44e63e07eb18bb4619fae852f6e760645fa36172626 \
     # via -r requirements/dev.in
+pytest-django==3.8.0 \
+    --hash=sha256:456fa6854d04ee625d6bbb8b38ca2259e7040a6f93333bfe8bc8159b7e987203 \
+    --hash=sha256:489b904f695f9fb880ce591cf5a4979880afb467763b1f180c07574554bdfd26 \
+    # via -r requirements/dev.in
 pytest-html==2.0.1 \
     --hash=sha256:933da7a5e71e5eace9e475441ed88a684f20f6198aa36516cb947ac05edd9921 \
     --hash=sha256:bc40553ca2a1835479c2caf7d48604502cd66d0c5db58ddbca53d74946ee71bd \
@@ -164,7 +168,7 @@ pytest-variables==1.9.0 \
 pytest==5.3.5 \
     --hash=sha256:0d5fe9189a148acc3c3eb2ac8e1ac0742cb7618c084f3d228baaec0c254b318d \
     --hash=sha256:ff615c761e25eb25df19edddc0b970302d2a9091fbce0e7213298d85fb61fef6 \
-    # via -r requirements/dev.in, pytest-asyncio, pytest-base-url, pytest-cov, pytest-html, pytest-metadata, pytest-selenium, pytest-variables
+    # via -r requirements/dev.in, pytest-asyncio, pytest-base-url, pytest-cov, pytest-django, pytest-html, pytest-metadata, pytest-selenium, pytest-variables
 pytz==2019.3 \
     --hash=sha256:1c557d7d0e871de1f5ccd5833f60fb2550652da6be2693c1e02300743d21500d \
     --hash=sha256:b02c06db6cf09c12dd25137e563b31700d3b80fcc4ad23abb7a315f2789819be \
