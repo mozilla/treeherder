@@ -208,13 +208,6 @@ def extract_job_settings():
     os.environ["BIGQUERY_PRIVATE_KEY"] = "1"
     os.environ["DATABASE_URL"] = "mysql://root@127.0.0.1:3306/treeherder"
 
-    # USE THE TEST SCHEMA
-    db_url = os.environ["DATABASE_URL"]
-    db_url = db_url.replace(
-        strings.between(db_url, "/", None), DATABASES["default"]["TEST"]["NAME"]
-    )
-    os.environ["DATABASE_URL"] = db_url
-
     settings = startup.read_settings(filename=extract_jobs.CONFIG_FILE, complain=False)
     settings.source.database.ssl = None  # NOT REQUIRED FOR TEST DATABASE
     constants.set(settings.constants)
