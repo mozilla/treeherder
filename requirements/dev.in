@@ -1,4 +1,5 @@
 # Dependencies needed only for development/testing.
+PyPom==2.2.0
 coverage==5.0.3
 django-debug-toolbar==2.2
 django-extensions==2.2.8
@@ -10,7 +11,6 @@ pytest-cov==2.8.1
 pytest-django==3.8.0
 pytest-selenium==1.17.0
 pytest==5.3.5
-pypom==2.2.0
 responses==0.10.9
 
 # It makes generating requirements files with hashes easier
