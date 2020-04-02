@@ -8,7 +8,6 @@ from hashlib import sha1
 import newrelic.agent
 from django.core.exceptions import ObjectDoesNotExist
 from django.db.utils import IntegrityError
-from past.builtins import long
 
 from treeherder.etl.artifact import (serialize_artifact_json_blobs,
                                      store_job_artifacts)
@@ -33,7 +32,7 @@ logger = logging.getLogger(__name__)
 
 def _get_number(s):
     try:
-        return long(s)
+        return int(s)
     except (ValueError, TypeError):
         return 0
 
