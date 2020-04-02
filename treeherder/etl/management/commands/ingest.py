@@ -11,8 +11,7 @@ import taskcluster
 import taskcluster.aio
 import taskcluster_urls as liburls
 from django.conf import settings
-from django.core.management.base import (BaseCommand,
-                                        CommandError)
+from django.core.management.base import (BaseCommand, CommandError)
 from django.db import connection
 
 from treeherder.client.thclient import TreeherderClient
