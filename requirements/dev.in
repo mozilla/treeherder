@@ -19,5 +19,8 @@ pbr
 # Required by flake8
 pytest-django
 
+# To test async code
+pytest-asyncio
+
 # make pinning versions easier
 pip-tools

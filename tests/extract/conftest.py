@@ -1,15 +1,13 @@
 import os
 
 import pytest
+
 from mo_logs import (Log,
                      constants,
-                     startup,
-                     strings)
+                     startup)
 from mo_logs.convert import unix2datetime
 from mo_math.randoms import Random
 from mo_times import Date
-
-from treeherder.config.settings import DATABASES
 from treeherder.extract import extract_jobs
 from treeherder.model.models import (ClassifiedFailure,
                                      Commit,
