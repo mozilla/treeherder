@@ -320,6 +320,7 @@ export default class Health extends React.PureComponent {
                   revision={revision}
                   expanded={lintingExpanded}
                   setExpanded={this.setExpanded}
+                  showParentMatches={showParentMatches}
                 />
               </Row>
               <Row>
@@ -329,6 +330,7 @@ export default class Health extends React.PureComponent {
                   revision={revision}
                   expanded={buildsExpanded}
                   setExpanded={this.setExpanded}
+                  showParentMatches={showParentMatches}
                 />
               </Row>
               <Row>
