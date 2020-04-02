@@ -1,0 +1,7 @@
+# Dependencies for building the documentation, intended to be used standalone
+# since doc generation does not need all of the requirements in common.txt.
+# This file is used by Read the Docs, Travis and when building locally.
+
+mkdocs==1.0.4
+mkdocs-material==4.6.3
+mdx_truly_sane_lists==1.2

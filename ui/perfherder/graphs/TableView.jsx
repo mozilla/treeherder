@@ -115,7 +115,7 @@ const TableView = ({
             <div tabIndex={-1}>
               <span>
                 {value}{' '}
-                <span className="text-muted small">
+                <span className="text-darker-secondary">
                   &Delta; {displayNumber(deltaValue.toFixed(1))} (
                   {(100 * deltaPercent).toFixed(1)}
                   %)

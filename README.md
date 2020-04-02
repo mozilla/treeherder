@@ -1,4 +1,4 @@
-# treeherder
+# Treeherder
 
 [![What's Deployed](https://img.shields.io/badge/whatsdeployed-prototype,stage,prod-green.svg)](https://whatsdeployed.io/s-dqv)
 [![Build Status](https://travis-ci.org/mozilla/treeherder.png?branch=master)](https://travis-ci.org/mozilla/treeherder)
@@ -12,7 +12,7 @@
 
 #### Instances
 
-Treeherder exists on two instances, [stage](https://treeherder.allizom.org) for pre-deployment validation, and [production](https://treeherder.mozilla.org) for actual use.
+Treeherder exists on two instances: [staging](https://treeherder.allizom.org) for pre-deployment validation, and [production](https://treeherder.mozilla.org) for actual use.
 
 #### Installation
 
@@ -22,11 +22,9 @@ The steps to run only the UI are provided [here](https://treeherder.readthedocs.
 
 #### Links
 
-Visit our project tracking Wiki at:
-<https://wiki.mozilla.org/EngineeringProductivity/Projects/Treeherder>
+Visit our project tracking Wiki [here](https://wiki.mozilla.org/EngineeringProductivity/Projects/Treeherder).
 
-Visit our **readthedocs** page for other setup and configuration at:
-<https://treeherder.readthedocs.io>
+For other setup and configuration, visit our readthedocs page [here](https://treeherder.readthedocs.io).
 
 File any bugs you may encounter [here](https://bugzilla.mozilla.org/enter_bug.cgi?product=Tree+Management&component=Treeherder).
 

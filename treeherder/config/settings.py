@@ -38,8 +38,8 @@ SECRET_KEY = env("TREEHERDER_DJANGO_SECRET_KEY", default='secret-key-of-at-least
 # Delete the Pulse automatically when no consumers left
 PULSE_AUTO_DELETE_QUEUES = env.bool("PULSE_AUTO_DELETE_QUEUES", default=False)
 
-# Changing PULSE_AUTO_DELETE_QUEUES to true when treeherder is running in virtual environment
-if hasattr(os.environ, 'VIRTUAL_ENV'):
+# Changing PULSE_AUTO_DELETE_QUEUES to True when Treeherder is running inside of virtual environment
+if os.environ.get("VIRTUAL_ENV"):
     PULSE_AUTO_DELETE_QUEUES = True
 
 # Hosts
@@ -457,9 +457,6 @@ RESET_BACKFILL_LIMITS = timedelta(hours=24)
 # Taskcluster credentials for PerfSheriffBot
 PERF_SHERIFF_BOT_CLIENT_ID = env('PERF_SHERIFF_BOT_CLIENT_ID', default=None)
 PERF_SHERIFF_BOT_ACCESS_TOKEN = env('PERF_SHERIFF_BOT_ACCESS_TOKEN', default=None)
-
-# Resource count to limit the number of threads opening connections with the DB
-CONN_RESOURCES = 50
 
 # This is only used for removing the rate limiting. You can create your own here:
 # https://github.com/settings/tokens
