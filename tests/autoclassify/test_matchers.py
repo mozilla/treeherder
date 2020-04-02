@@ -1,4 +1,5 @@
 from decimal import Decimal
+
 from first import first
 
 from treeherder.autoclassify.matchers import precise_matcher
