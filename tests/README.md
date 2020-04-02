@@ -26,8 +26,8 @@ Be sure you are in the `treeherder` main directory
 
     python -m venv .venv             # IMPORTANT: Notice the dot in the name
     source .venv/bin/activate
-    python -m pip install -r requirements/dev.txt
-    python -m pip install -r requirements/common.txt
+    pip install -r requirements/dev.txt
+    pip install -r requirements/common.txt
 
 ...or Windows...
 
@@ -35,8 +35,8 @@ Be sure you are in the `treeherder` main directory
     rem IMPORTANT: Notice the dot in `.venv`
     python -m virtualenv .venv             
     .venv\Scripts\activate
-    python -m pip install -r requirements\dev.txt
-    python -m pip install -r requirements\common.txt
+    pip install -r requirements\dev.txt
+    pip install -r requirements\common.txt
 
 > The pip install order is important:  We want the `common` requirements to overwrite the `dev` requirements (in the event there are conflicts)
 
