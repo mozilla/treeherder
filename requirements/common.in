@@ -1,12 +1,12 @@
 # Packages needed for backend
 coreapi==2.3.3  # Probably not needed anymore
 Django==3.0.3
-django-cache-memoize==0.1.6
+django-cache-memoize==0.1.6  # Imported as cache_memoize
 django-cors-headers==3.2.1  # Listed as 3rd party app on settings.py
-django-environ==0.4.5
-django-filter==2.2.0
-django-redis==4.11.0
-djangorestframework==3.11.0
+django-environ==0.4.5  # Imported as environ
+django-filter==2.2.0  # Listed in DEFAULT_FILTER_BACKENDS on settings.py
+django-redis==4.11.0  # Listed in CACHES on settings.py
+djangorestframework==3.11.0  # Imported as rest_framework
 first==2.0.2
 furl==2.1.0
 graphene-django==2.8.0
@@ -17,7 +17,7 @@ mysqlclient==1.4.6  # Not imported directly
 newrelic==5.2.1.129
 python-dateutil==2.8.1
 python-jose[pycryptodome]==3.1.0
-pyyaml==5.3  # import yaml
+pyyaml==5.3  # Imported as just yaml
 requests==2.22.0
 taskcluster==27.0.0
 taskcluster-urls==12.1.0
