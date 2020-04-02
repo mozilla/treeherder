@@ -3,6 +3,7 @@ from functools import partial
 
 from django.db import (IntegrityError,
                        transaction)
+
 from first import first
 from mozlog.formatters.tbplformatter import TbplFormatter
 from treeherder.model.models import (FailureLine,

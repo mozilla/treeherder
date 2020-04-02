@@ -8,6 +8,7 @@ from mo_future import text
 from mo_sql import SQL
 from mo_testing.fuzzytestcase import assertAlmostEqual
 from mo_times import Date
+
 from treeherder.model.models import Job
 
 

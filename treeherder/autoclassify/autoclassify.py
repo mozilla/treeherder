@@ -4,6 +4,7 @@ import logging
 
 import newrelic.agent
 from django.db.utils import IntegrityError
+
 from first import first
 from treeherder.model.models import (Job,
                                      JobNote,

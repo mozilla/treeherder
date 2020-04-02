@@ -2,6 +2,7 @@ import copy
 
 import pytest
 from django.urls import reverse
+
 from first import first
 from treeherder.perf.models import (PerformanceAlert,
                                     PerformanceAlertSummary,
