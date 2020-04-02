@@ -486,7 +486,7 @@ singledispatch==3.4.0.3 \
 six==1.14.0 \
     --hash=sha256:236bdbdce46e6e6a3d61a337c0f8b763ca1e8717c03b369e87a7ec7ce1319c0a \
     --hash=sha256:8f3cd2e254d8f793e7f3d6d9df77b92252b52637291d0f0da013c76ea2724b6c \
-    # via blessings, ecdsa, furl, google-api-core, google-auth, google-cloud-bigquery, google-resumable-media, graphene, graphene-django, graphql-core, graphql-relay, jsonschema, mohawk, mozlog, mozterm, orderedmultidict, promise, protobuf, pyrsistent, python-dateutil, python-jose, singledispatch, taskcluster
+    # via -r requirements/common.in, blessings, ecdsa, furl, google-api-core, google-auth, google-cloud-bigquery, google-resumable-media, graphene, graphene-django, graphql-core, graphql-relay, jsonschema, mohawk, mozlog, mozterm, orderedmultidict, promise, protobuf, pyrsistent, python-dateutil, python-jose, singledispatch, taskcluster
 slugid==2.0.0 \
     --hash=sha256:a950d98b72691178bdd4d6c52743c4a2aa039207cf7a97d71060a111ff9ba297 \
     --hash=sha256:aec8b0e01c4ad32e38e12d609eab3ec912fd129aaf6b2ded0199b56a5f8fd67c \
