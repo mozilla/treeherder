@@ -340,8 +340,8 @@ mysqlclient==1.4.6 \
     --hash=sha256:f3fdaa9a38752a3b214a6fe79d7cae3653731a53e577821f9187e67cbecb2e16 \
     --hash=sha256:f646f8d17d02be0872291f258cce3813497bc7888cd4712a577fd1e719b2f213 \
     # via -r requirements/common.in
-newrelic==5.2.1.129 \
-    --hash=sha256:da9adab674d9fe7aa8fbabb6691b33fb7be94a32b6a80548ec7018be9df8ef65 \
+newrelic==5.10.0.138 \
+    --hash=sha256:5d83887781683975bd75ec624baa8de5e1e75c2bf89e7269ed2811b559da1504 \
     # via -r requirements/common.in
 orderedmultidict==1.0.1 \
     --hash=sha256:04070bbb5e87291cc9bfa51df413677faf2141c73c61d2a5f7b26bea3cd882ad \

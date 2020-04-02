@@ -6,7 +6,7 @@ whitenoise[brotli]==5.0.1
 Django==3.0.5
 celery==4.3.0
 simplejson==3.17.0
-newrelic==5.2.1.129
+newrelic
 
 # Required by Django
 mysqlclient==1.4.6
