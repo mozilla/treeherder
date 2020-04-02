@@ -8,7 +8,7 @@ This is a directory of requirements files. They are maintained using `pip-tools`
 
 ## Upgrading
 
-When you want to upgrade (be sure to run from main treeherder directory, this this directory)
+When you want to upgrade (be sure to run from main treeherder directory, than this directory)
 
     pip-compile --upgrade --generate-hashes --output-file requirements/common.txt requirements/common.in
     pip-compile --upgrade --generate-hashes --output-file requirements/dev.txt requirements/dev.in
