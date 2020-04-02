@@ -1,6 +1,6 @@
 from decimal import Decimal
-
 from first import first
+
 from treeherder.autoclassify.matchers import precise_matcher
 from treeherder.autoclassify.utils import score_matches
 from treeherder.model.models import (FailureLine,
