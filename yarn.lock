@@ -5983,10 +5983,10 @@ jsesc@~0.5.0:
   resolved "https://registry.yarnpkg.com/jsesc/-/jsesc-0.5.0.tgz#e7dee66e35d6fc16f710fe91d5cf69f70f08911d"
   integrity sha1-597mbjXW/Bb3EP6R1c9p9w8IkR0=
 
-json-e@4.0.1:
-  version "4.0.1"
-  resolved "https://registry.yarnpkg.com/json-e/-/json-e-4.0.1.tgz#79f29efebd79fdd196c2d643ca35c99c75c30fb7"
-  integrity sha512-09/zVZizxq6orDhk07ZMHSxc5FS4nlEBkd+5AWB+e0PcAqEXE+MWypWDQxM/4Fs5pRe/uZPdMjfL9I6ZxWIZCg==
+json-e@3.0.2:
+  version "3.0.2"
+  resolved "https://registry.yarnpkg.com/json-e/-/json-e-3.0.2.tgz#46b6c8e0dde340c3ead8f90efe35f3e1ee99e55b"
+  integrity sha512-6WtdeX8HkMvfKfT064c7pzonvQ5DNiAjUiiZH5S28XzAESkfl3uc1X7N8Yg+8Ka2lqqvYOnWincT926q0jMsSg==
   dependencies:
     json-stable-stringify-without-jsonify "^1.0.1"
 
