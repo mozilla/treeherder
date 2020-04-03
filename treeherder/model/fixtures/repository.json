@@ -1375,7 +1375,7 @@
       "dvcs_type": "git",
       "name": "servo-try",
       "url": "https://github.com/servo/servo",
-      "branch": "try,try-taskcluster,try-linux,try-mac,try-windows,try-wpt,try-wpt-2020,try-wpt-mac,try-wpt-android,try-android,try-magicleap,try-arm",
+      "branch": "try,try-taskcluster,try-linux,try-mac,try-windows,try-windows-rdp,try-wpt,try-wpt-2020,try-wpt-mac,try-wpt-android,try-android,try-magicleap,try-arm",
       "active_status": "active",
       "codebase": "servo",
       "repository_group": 10,
