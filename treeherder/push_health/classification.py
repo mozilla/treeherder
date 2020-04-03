@@ -1,3 +1,8 @@
+# Grouping names/keys for failures.
+KNOWN_ISSUES = 'knownIssues'
+NEED_INVESTIGATION = 'needInvestigation'
+
+
 def set_classifications(failures, intermittent_history, fixed_by_commit_history):
     for failure in failures:
         set_intermittent(failure, intermittent_history)
@@ -63,8 +68,8 @@ def get_log_lines(failure):
 
 def get_grouped(failures):
     classified = {
-        'needInvestigation': [],
-        'intermittent': [],
+        NEED_INVESTIGATION: [],
+        KNOWN_ISSUES: [],
     }
 
     for failure in failures:
@@ -72,9 +77,11 @@ def get_grouped(failures):
 
         if ((is_intermittent and failure['confidence'] == 100) or
                 failure['passFailRatio'] > .5):
-            classified['intermittent'].append(failure)
+            classified[KNOWN_ISSUES].append(failure)
+        elif failure['failedInParent']:
+            classified[KNOWN_ISSUES].append(failure)
         else:
-            classified['needInvestigation'].append(failure)
+            classified[NEED_INVESTIGATION].append(failure)
             # If it needs investigation, we, by definition, don't have 100% confidence.
             failure['confidence'] = min(failure['confidence'], 90)
 

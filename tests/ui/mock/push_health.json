@@ -824,7 +824,7 @@
             "passFailRatio": 0
           }
         ],
-        "intermittent": [
+        "knownIssues": [
           {
             "testName": "@ __abort_with_payload + 0xa",
             "action": "crash",

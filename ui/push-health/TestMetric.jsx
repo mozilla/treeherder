@@ -21,9 +21,9 @@ export default class TestMetric extends React.PureComponent {
       showParentMatches,
     } = this.props;
     const { name, result, details } = data;
-    const { needInvestigation, intermittent, unsupported } = details;
+    const { needInvestigation, knownIssues, unsupported } = details;
     let filteredNeedInvestigation = needInvestigation;
-    let filteredIntermittent = intermittent;
+    let filteredIntermittent = knownIssues;
 
     if (searchStr.length || !showParentMatches) {
       filteredNeedInvestigation = filterTests(
@@ -32,7 +32,7 @@ export default class TestMetric extends React.PureComponent {
         showParentMatches,
       );
       filteredIntermittent = filterTests(
-        intermittent,
+        knownIssues,
         searchStr,
         showParentMatches,
       );
@@ -63,13 +63,13 @@ export default class TestMetric extends React.PureComponent {
           />
           <ClassificationGroup
             group={filteredIntermittent}
-            name="Known Intermittent"
+            name="Known Issues"
             repo={repo}
             currentRepo={currentRepo}
             revision={revision}
             className="mb-5"
             headerColor="darker-secondary"
-            unfilteredLength={intermittent.length}
+            unfilteredLength={knownIssues.length}
             expanded={false}
             user={user}
             hasRetriggerAll

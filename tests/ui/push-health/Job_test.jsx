@@ -8,7 +8,7 @@ const repoName = 'try';
 const failJob =
   pushHealth.metrics.tests.details.needInvestigation[0].failJobs[0];
 const failBuild = pushHealth.metrics.builds.details[0];
-const passJob = pushHealth.metrics.tests.details.intermittent[0].passJobs[0];
+const passJob = pushHealth.metrics.tests.details.knownIssues[0].passJobs[0];
 
 describe('Job', () => {
   const testJob = job => (
