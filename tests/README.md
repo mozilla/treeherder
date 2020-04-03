@@ -73,7 +73,7 @@ If you made some changes, and want to submit a pull request; run the `./runtests
 After `docker-compose up`, you may spin up any number of `backend` containers. You may want to run ingestion tasks, go exploring, or run the tests.
 
     docker-compose exec backend bash
-
+    
 docker-compose has three execution modes
 
 * `exec` - run just the service, and assume the others are running

@@ -6,21 +6,21 @@
 [![Node devDependencies Status](https://david-dm.org/mozilla/treeherder/dev-status.svg)](https://david-dm.org/mozilla/treeherder?type=dev)
 [![Documentation Status](https://readthedocs.org/projects/treeherder/badge/?version=latest)](https://treeherder.readthedocs.io/?badge=latest)
 
-## Description
+#### Description
 
 [Treeherder](https://treeherder.mozilla.org) is a reporting dashboard for Mozilla checkins. It allows users to see the results of automatic builds and their respective tests. The Treeherder service manages the etl layer for data ingestion, web services, and the data model behind Treeherder.
 
-## Instances
+#### Instances
 
 Treeherder exists on two instances: [staging](https://treeherder.allizom.org) for pre-deployment validation, and [production](https://treeherder.mozilla.org) for actual use.
 
-## Installation
+#### Installation
 
 The steps to run Treeherder are provided [here](https://treeherder.readthedocs.io/installation.html).
 
 The steps to run only the UI are provided [here](https://treeherder.readthedocs.io/installation.html#ui-development).
 
-## Links
+#### Links
 
 Visit our project tracking Wiki [here](https://wiki.mozilla.org/EngineeringProductivity/Projects/Treeherder).
 
@@ -28,7 +28,8 @@ For other setup and configuration, visit our readthedocs page [here](https://t
 
 File any bugs you may encounter [here](https://bugzilla.mozilla.org/enter_bug.cgi?product=Tree+Management&component=Treeherder).
 
-## Contributing
+
+#### Contributing
 
 Everyone is welcome to contribute!
 
@@ -40,8 +41,7 @@ After adressing the issue, make sure [every test passes](https://treeherder.read
 
 We also recommend setting an `upstream` remote that points to the [Mozilla's Github repo](https://github.com/mozilla/treeherder.git), in addition to `origin` that points to your fork. You should then frequently use `git rebase upstream` rather than merging from your fork to keep your branch current. There are less conflicts this way and the git history is cleaner.
 
-## Sending a Pull Request
-
+##### Sending a Pull Request
 We receive contributions from both Bugzilla and Github. We have some specifications to keep track of them:
 
 1. If your bug comes from **[Bugzilla](https://bugzilla.mozilla.org/query.cgi?query_format=advanced&product=Tree+Management&f1=component&o1=substring&v1=Treeherder&resolution=---)**
@@ -55,7 +55,7 @@ We receive contributions from both Bugzilla and Github. We have some specificati
 2. If your bug comes from **Github**
 
     In the **description** of the pull request, please mention the **issue number**. That can be done by typing #[issue's number].
-
+    
     For example: "This pull request fixes #5135".
-
+    
     Github automatically links both issue and pull request to one another.
