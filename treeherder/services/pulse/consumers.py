@@ -8,7 +8,6 @@ from kombu import (Connection,
                    Exchange,
                    Queue)
 from kombu.mixins import ConsumerMixin
-
 from treeherder.etl.tasks.pulse_tasks import (store_pulse_pushes,
                                               store_pulse_tasks)
 from treeherder.utils.http import fetch_json
@@ -188,15 +187,20 @@ class PushConsumer(PulseConsumer):
 
 
 class JointConsumer(PulseConsumer):
+    """
+    Run a collection of consumers in parallel.  These may be connected to different
+    AMQP servers, and Kombu only supports communicating wiht one connection per
+    thread, so we use multiple threads, one per consumer.
+    """
     queue_suffix = env("PULSE_QUEUE_NAME", default="queue")
-
     def bindings(self):
+
         rv = []
         if self.source.get('hgmo'):
             rv += HGMO_PUSH_BINDINGS
         if self.source.get('github'):
             rv += GITHUB_PUSH_BINDINGS
-        if self.source.get('pulse_url'):
+        if self.source.get('tasks'):
             rv += TASKCLUSTER_TASK_BINDINGS
         return rv
 

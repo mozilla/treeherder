@@ -1,6 +1,5 @@
 import environ
 from django.core.management.base import BaseCommand
-
 from treeherder.services.pulse import (JointConsumer,
                                        prepare_joint_consumers)
 
@@ -26,7 +25,8 @@ class Command(BaseCommand):
             default=[{"root_url": "https://firefox-ci-tc.services.mozilla.com",
                       "github": True,
                       "hgmo": True,
-                      "pulse_url": env("PULSE_URL")}])
+                      "pulse_url": env("PULSE_URL"),
+                      "tasks": True}])
 
         listener_params = (JointConsumer, pulse_sources, [lambda key: "#.{}".format(key), None])
         consumer = prepare_joint_consumers(listener_params)

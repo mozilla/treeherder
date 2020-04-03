@@ -54,6 +54,14 @@
       "quantity": 0,
       "size": "Standard-1X"
     },
+    "pulse_listener_pushes": {
+      "quantity": 0,
+      "size": "Standard-1X"
+    },
+    "pulse_listener_tasks": {
+      "quantity": 0,
+      "size": "Standard-1X"
+    },
     "pulse_listener": {
       "quantity": 1,
       "size": "Standard-1X"
