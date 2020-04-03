@@ -66,6 +66,7 @@ jobs:
         - pip install -r requirements/dev.txt
         - pip install -r requirements/common.txt
       script:
+        - pre-commit run --all-files markdownlint
         - ./runchecks.sh
         - ./manage.py check
         # Several security features in settings.py (eg setting HSTS headers) are conditional on
