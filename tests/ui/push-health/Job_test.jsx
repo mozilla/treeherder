@@ -6,10 +6,9 @@ import pushHealth from '../mock/push_health';
 
 const repoName = 'try';
 const failJob =
-  pushHealth.metrics.tests.details.needInvestigation[5].failJobs[0];
+  pushHealth.metrics.tests.details.needInvestigation[0].failJobs[0];
 const failBuild = pushHealth.metrics.builds.details[0];
-const passJob =
-  pushHealth.metrics.tests.details.needInvestigation[5].passJobs[0];
+const passJob = pushHealth.metrics.tests.details.intermittent[0].passJobs[0];
 
 describe('Job', () => {
   const testJob = job => (
@@ -22,20 +21,20 @@ describe('Job', () => {
 
   test('should show a failed job in NeedsInvestigation', async () => {
     const { getByText } = render(testJob(failJob));
-    const job = await waitForElement(() => getByText('R2'));
+    const job = await waitForElement(() => getByText('R1'));
 
     expect(job.getAttribute('href')).toBe(
-      '/#/jobs?selectedJob=285869990&repo=try&revision=cd02b96bdce57d9ae53b632ca4740c871d3ecc32',
+      '/#/jobs?selectedJob=285852125&repo=try&revision=cd02b96bdce57d9ae53b632ca4740c871d3ecc32',
     );
     expect(job).toHaveClass('btn-orange-classified');
   });
 
-  test('should show a success job in NeedsInvestigation', async () => {
+  test('should show a success job in Intermitten', async () => {
     const { getByText } = render(testJob(passJob));
-    const job = await waitForElement(() => getByText('R2'));
+    const job = await waitForElement(() => getByText('bc6'));
 
     expect(job.getAttribute('href')).toBe(
-      '/#/jobs?selectedJob=285869991&repo=try&revision=cd02b96bdce57d9ae53b632ca4740c871d3ecc32',
+      '/#/jobs?selectedJob=285859045&repo=try&revision=cd02b96bdce57d9ae53b632ca4740c871d3ecc32',
     );
     expect(job).toHaveClass('btn-green');
   });

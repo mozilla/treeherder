@@ -10,7 +10,7 @@ import {
 import { errorMessageClass } from '../../helpers/constants';
 import ErrorBoundary from '../../shared/ErrorBoundary';
 import PerfSeriesModel from '../../models/perfSeries';
-import { getData } from '../../helpers/http';
+import { getData, processErrors } from '../../helpers/http';
 import { createApiUrl } from '../../helpers/url';
 import { endpoints, noDataFoundMessage } from '../constants';
 import LoadingSpinner from '../../shared/LoadingSpinner';
@@ -48,7 +48,7 @@ export default class ReplicatesGraph extends React.Component {
 
   fetchReplicateGraphData = async () => {
     const {
-      projectName,
+      project,
       revision,
       subtestSignature,
       getData,
@@ -59,7 +59,7 @@ export default class ReplicatesGraph extends React.Component {
     const perfDatumResponse = await getData(
       createApiUrl(endpoints.summary, {
         revision,
-        repository: projectName,
+        repository: project.name,
         signature: subtestSignature,
       }),
     );
@@ -70,40 +70,41 @@ export default class ReplicatesGraph extends React.Component {
       return { replicateData };
     }
     const numRuns = perfDatum.values.length;
+
     const replicatePromises = perfDatum.job_ids.map(jobId =>
-      getReplicateData({ job_id: jobId }),
+      getReplicateData({ jobId, rootUrl: project.tc_root_url }),
     );
 
-    return Promise.all(replicatePromises).then(
-      localReplicateData => {
-        let replicateValues = localReplicateData.concat.apply(
-          [],
-          localReplicateData.map(data => {
-            const testSuite = data.suites.find(
-              suite => suite.name === this.props.filters.testSuite,
-            );
-            const subtest = testSuite.subtests.find(
-              subtest => subtest.name === this.props.filters.subtest,
-            );
-            return subtest.replicates;
-          }),
+    const localReplicateData = await Promise.all(replicatePromises);
+    const errorMessages = processErrors(localReplicateData);
+
+    if (errorMessages.length) {
+      replicateData.replicateDataError = true;
+      return { replicateData };
+    }
+
+    let replicateValues = localReplicateData.concat.apply(
+      [],
+      localReplicateData.map(response => {
+        const testSuite = response.data.suites.find(
+          suite => suite.name === this.props.filters.testSuite,
         );
-
-        replicateValues = replicateValues.map((value, index) => ({
-          x: index + 1,
-          y: value,
-        }));
-
-        return {
-          replicateData,
-          drawingData: { numRuns, replicateValues },
-        };
-      },
-      () => {
-        replicateData.replicateDataError = true;
-        return { replicateData };
-      },
+        const subtest = testSuite.subtests.find(
+          subtest => subtest.name === this.props.filters.subtest,
+        );
+        return subtest.replicates;
+      }),
     );
+
+    replicateValues = replicateValues.map((value, index) => ({
+      x: index + 1,
+      y: value,
+    }));
+
+    return {
+      replicateData,
+      drawingData: { numRuns, replicateValues },
+    };
   };
 
   render() {
@@ -167,7 +168,7 @@ export default class ReplicatesGraph extends React.Component {
 
 ReplicatesGraph.propTypes = {
   title: PropTypes.string.isRequired, // TODO: stands for targetId
-  projectName: PropTypes.string.isRequired,
+  project: PropTypes.shape({}).isRequired,
   revision: PropTypes.string.isRequired,
   subtestSignature: PropTypes.string.isRequired,
   filters: PropTypes.shape({

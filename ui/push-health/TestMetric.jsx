@@ -82,6 +82,7 @@ export default class TestMetric extends React.PureComponent {
             revision={revision}
             className="mb-5"
             headerColor="warning"
+            currentRepo={currentRepo}
           />
         </div>
       </Metric>

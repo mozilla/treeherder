@@ -19,7 +19,9 @@
       "success",
       "2aa083621bb989d6acf1151667288d5fe9616178",
       "completed",
-      1
+      1,
+      "VaQoWKTbSdGSwBJn6UZV9g",
+      0
     ],
     [
       18,
@@ -37,7 +39,9 @@
       "busted",
       "e2e58eb7f14af83019d3f8433c0642dde8082c4d",
       "completed",
-      1
+      1,
+      "JFVlnwufR7G9tZu_pKM0dQ",
+      0
     ],
     [
       2,
@@ -55,7 +59,9 @@
       "unknown",
       "306fd1e8d922922cd171fa31f0d914300ff52228",
       "running",
-      1
+      1,
+      "QYxMB9-RR5qdI1xGjAmlIw",
+      0
     ],
     [
       2,
@@ -73,7 +79,9 @@
       "testfailed",
       "6862263481704547b805af8ba944438e1a6e63e9",
       "completed",
-      2
+      2,
+      "Fe4GqwoZQSStNUbe4EeSPQ",
+      0
     ]
   ],
   "job_property_names": [
@@ -92,6 +100,8 @@
     "result",
     "signature",
     "state",
-    "tier"
+    "tier",
+    "task_id",
+    "retry_id"
   ]
 }

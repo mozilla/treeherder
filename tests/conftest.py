@@ -135,7 +135,7 @@ def test_repository(transactional_db):
         repository_group_id=1,
         description="",
         performance_alerts_enabled=True,
-        tc_root_url="https://tc.example.com",
+        tc_root_url="https://firefox-ci-tc.services.mozilla.com",
     )
     return r
 

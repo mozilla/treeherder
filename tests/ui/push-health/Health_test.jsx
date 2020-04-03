@@ -21,21 +21,77 @@ describe('Health', () => {
   beforeAll(() => {
     fetchMock.get(getApiUrl('/repository/'), reposFixture);
     fetchMock.get(getApiUrl('/user/'), []);
-    fetchMock.get(getApiUrl('/jobdetail/?job_id=285852375'), {
-      results: [{ id: 285854763, value: 'foo' }],
-    });
-    fetchMock.get(getApiUrl('/jobdetail/?job_id=285854757'), {
-      results: [{ id: 285854763, value: 'foo' }],
-    });
-    fetchMock.get(getApiUrl('/jobdetail/?job_id=285854763'), {
-      results: [{ id: 285854763, value: 'foo' }],
-    });
-    fetchMock.get(getApiUrl('/jobdetail/?job_id=285867234'), {
-      results: [{ id: 285854763, value: 'foo' }],
-    });
-    fetchMock.get(getApiUrl('/jobdetail/?job_id=285871267'), {
-      results: [{ id: 285854763, value: 'foo' }],
-    });
+    fetchMock.get(
+      'https://firefox-ci-tc.services.mozilla.com/api/queue/v1/task/ZmoRedHAS56x-v4x8ZCARA/runs/0/artifacts',
+      {
+        artifacts: [
+          {
+            storageType: 'reference',
+            name: 'public/logs/live.log',
+            expires: '2021-01-20T22:31:56.770Z',
+            contentType: 'text/plain; charset=utf-8',
+          },
+        ],
+      },
+    );
+    fetchMock.get(
+      'https://firefox-ci-tc.services.mozilla.com/api/queue/v1/task/R6PG57o6SvaubJl7IMUy3A/runs/0/artifacts',
+      {
+        artifacts: [
+          {
+            storageType: 's3',
+            name: 'public/logs/live_backing.log',
+            expires: '2021-01-20T22:31:56.770Z',
+            contentType: 'text/plain; charset=utf-8',
+          },
+        ],
+      },
+    );
+    fetchMock.get(
+      'https://firefox-ci-tc.services.mozilla.com/api/queue/v1/task/ZcxHIe_pQweTuRjFA-849w/runs/0/artifacts',
+      {
+        artifacts: [
+          {
+            storageType: 's3',
+            name: 'public/logs/localconfig.json',
+            expires: '2021-01-20T22:31:56.770Z',
+            contentType: 'application/octet-stream',
+          },
+        ],
+      },
+    );
+    fetchMock.get(
+      'https://firefox-ci-tc.services.mozilla.com/api/queue/v1/task/AksxU4n9Q1aPituH1GSCKw/runs/0/artifacts',
+      {
+        artifacts: [
+          {
+            storageType: 's3',
+            name: 'public/test_info/report.html',
+            expires: '2021-01-20T22:31:56.770Z',
+            contentType: 'text/html; charset=utf-8',
+          },
+          {
+            storageType: 's3',
+            name: 'public/test_info/report.xml',
+            expires: '2021-01-20T22:31:56.770Z',
+            contentType: 'text/xml; charset=utf-8',
+          },
+        ],
+      },
+    );
+    fetchMock.get(
+      'https://firefox-ci-tc.services.mozilla.com/api/queue/v1/task/GSWobW08RayRuWsYtz9awA/runs/0/artifacts',
+      {
+        artifacts: [
+          {
+            storageType: 's3',
+            name: 'public/test_info/resource-usage.json',
+            expires: '2021-01-20T22:31:56.770Z',
+            contentType: 'application/octet-stream',
+          },
+        ],
+      },
+    );
     fetchMock.get(getApiUrl('/failureclassification/'), []);
     fetchMock.get(
       getProjectUrl(

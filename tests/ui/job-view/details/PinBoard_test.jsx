@@ -66,7 +66,10 @@ describe('DetailsPanel', () => {
       [],
     );
     fetchMock.get(getApiUrl('/jobdetail/?job_id=259537372'), { results: [] });
-
+    fetchMock.get(
+      'https://firefox-ci-tc.services.mozilla.com/api/queue/v1/task/JFVlnwufR7G9tZu_pKM0dQ/runs/0/artifacts',
+      { artifacts: [] },
+    );
     store = configureStore().store;
     store.dispatch(setPushes(pushFixture.results, {}));
   });
