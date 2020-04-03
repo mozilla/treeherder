@@ -47,7 +47,11 @@ class Job extends PureComponent {
                   color="lightgray"
                 />
               )}
-              {!!failedInParent && <Badge color="info">Failed in parent</Badge>}
+              {!!failedInParent && (
+                <Badge color="info" className="ml-1">
+                  Failed in parent
+                </Badge>
+              )}
             </span>
           }
           tooltipText={
