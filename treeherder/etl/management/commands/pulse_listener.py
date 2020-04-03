@@ -1,5 +1,6 @@
 import environ
 from django.core.management.base import BaseCommand
+
 from treeherder.services.pulse import (JointConsumer,
                                        prepare_joint_consumers)
 
