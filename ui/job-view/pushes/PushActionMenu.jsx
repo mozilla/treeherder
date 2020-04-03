@@ -86,50 +86,6 @@ class PushActionMenu extends React.PureComponent {
     });
   };
 
-  triggerAllTalosJobs = () => {
-    const {
-      notify,
-      revision,
-      pushId,
-      currentRepo,
-      decisionTaskMap,
-    } = this.props;
-    const decisionTask = decisionTaskMap[pushId];
-
-    if (
-      !window.confirm(
-        `This will trigger all Talos jobs for revision  ${revision}!\n\nClick "OK" if you want to proceed.`,
-      )
-    ) {
-      return;
-    }
-
-    let times = parseInt(
-      window.prompt('Enter number of instances to have for each talos job', 6),
-      10,
-    );
-    while (times < 1 || times > 6 || Number.isNaN(times)) {
-      times = window.prompt(
-        'We only allow instances of each talos job to be between 1 to 6 times. Enter again',
-        6,
-      );
-    }
-
-    PushModel.triggerAllTalosJobs(
-      times,
-      pushId,
-      notify,
-      decisionTask,
-      currentRepo,
-    )
-      .then(msg => {
-        notify(msg, 'success');
-      })
-      .catch(e => {
-        notify(formatTaskclusterError(e), 'danger', { sticky: true });
-      });
-  };
-
   toggleCustomJobActions = () => {
     const { customJobActionsShowing } = this.state;
 
@@ -210,18 +166,6 @@ class PushActionMenu extends React.PureComponent {
                 Trigger missing jobs
               </DropdownItem>
             )}
-            <DropdownItem
-              tag="a"
-              title={
-                isLoggedIn
-                  ? 'Trigger all talos performance tests'
-                  : 'Must be logged in'
-              }
-              className={isLoggedIn ? '' : 'disabled'}
-              onClick={() => this.triggerAllTalosJobs(revision)}
-            >
-              Trigger all Talos jobs
-            </DropdownItem>
             <DropdownItem
               tag="a"
               target="_blank"
