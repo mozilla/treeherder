@@ -40,7 +40,7 @@ class PerformanceSignature(models.Model):
     option_collection = models.ForeignKey(OptionCollection, on_delete=models.CASCADE)
     suite = models.CharField(max_length=80)
     test = models.CharField(max_length=80, blank=True)
-    application = models.CharField(max_length=10, null=True,
+    application = models.CharField(max_length=10, default='',
                                    help_text="Application that runs the signature's tests. "
                                              "Generally used to record browser's name, but not necessarily.")
     lower_is_better = models.BooleanField(default=True)
