@@ -52,8 +52,6 @@ class TestFailure extends React.PureComponent {
     const {
       testName,
       action,
-      jobName,
-      jobSymbol,
       jobGroup,
       jobGroupSymbol,
       inProgressJobs,
@@ -68,6 +66,7 @@ class TestFailure extends React.PureComponent {
       key,
       tier,
       passFailRatio,
+      failedInParent,
     } = failure;
     const { detailsShowing } = this.state;
 
@@ -107,8 +106,6 @@ class TestFailure extends React.PureComponent {
           {failJobs.map(failJob => (
             <Job
               job={failJob}
-              jobName={jobName}
-              jobSymbol={jobSymbol}
               repo={repo}
               revision={revision}
               key={failJob.id}
@@ -117,8 +114,6 @@ class TestFailure extends React.PureComponent {
           {passJobs.map(passJob => (
             <Job
               job={passJob}
-              jobName={jobName}
-              jobSymbol={jobSymbol}
               repo={repo}
               revision={revision}
               key={passJob.id}
@@ -135,8 +130,6 @@ class TestFailure extends React.PureComponent {
           {passInFailedJobs.map(passedInAFailedJob => (
             <Job
               job={passedInAFailedJob}
-              jobName={jobName}
-              jobSymbol={jobSymbol}
               repo={repo}
               revision={revision}
               key={passedInAFailedJob.id}
@@ -145,8 +138,6 @@ class TestFailure extends React.PureComponent {
           {inProgressJobs.map(inProgressJob => (
             <Job
               job={inProgressJob}
-              jobName={jobName}
-              jobSymbol={jobSymbol}
               repo={repo}
               revision={revision}
               key={inProgressJob.id}
@@ -221,6 +212,11 @@ class TestFailure extends React.PureComponent {
               </span>
             )}
           </Row>
+          {!!failedInParent && (
+            <Row>
+              <Badge color="info">Failed In Parent</Badge>
+            </Row>
+          )}
           <Row>
             <span id={`${key}-ratio`} className="mr-3">
               <strong>Pass/Fail Ratio:</strong>{' '}

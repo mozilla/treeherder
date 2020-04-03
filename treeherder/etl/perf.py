@@ -19,7 +19,7 @@ def _get_application_name(validated_perf_datum: dict):
     try:
         return validated_perf_datum['application']['name']
     except KeyError:
-        return None
+        return ''
 
 
 def _get_signature_hash(signature_properties):

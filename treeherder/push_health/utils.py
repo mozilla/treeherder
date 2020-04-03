@@ -1,3 +1,13 @@
+# These strings will be omitted from test paths to more easily correllate
+# them to other test paths.
+trim_parts = [
+    'TEST-UNEXPECTED-FAIL',
+    'REFTEST TEST-UNEXPECTED-FAIL',
+    'TEST-UNEXPECTED-PASS',
+    'REFTEST TEST-UNEXPECTED-PASS',
+]
+
+
 def clean_test(action, test, signature, message):
     try:
         clean_name = 'Non-Test Error'
@@ -6,7 +16,7 @@ def clean_test(action, test, signature, message):
         elif action == 'crash':
             clean_name = signature
         elif action == 'log':
-            clean_name = message if len(message) < 50 else '{}...'.format(message[:50])
+            clean_name = message
 
     except UnicodeEncodeError:
         return ''
@@ -56,6 +66,12 @@ def clean_test(action, test, signature, message):
     clean_name = clean_name.strip()
     clean_name = clean_name.replace('\\', '/')
     clean_name = clean_name.lstrip('/')
+
+    if '|' in clean_name:
+        parts = clean_name.split('|')
+        clean_parts = filter(lambda x: not x.strip() in trim_parts, parts)
+        clean_name = '|'.join(clean_parts)
+
     return clean_name
 
 
@@ -79,3 +95,18 @@ def clean_platform(platform):
 def is_valid_failure_line(line):
     skip_lines = ['Return code:', 'unexpected status', 'unexpected crashes', 'exit status', 'Finished in']
     return not any(skip_line in line for skip_line in skip_lines)
+
+
+def get_job_key(job):
+    return '{}-{}-{}'.format(
+        job['job_type_name'],
+        job['platform'],
+        job['option_collection_hash']
+    )
+
+
+def mark_failed_in_parent(failures, parent_failures):
+    parent_failure_keys = {get_job_key(job) for job in parent_failures}
+
+    for failure in failures:
+        failure['failedInParent'] = get_job_key(failure) in parent_failure_keys

@@ -170,10 +170,16 @@ class Push extends React.PureComponent {
     )}`;
   }
 
-  handleUrlChanges = () => {
+  handleUrlChanges = async () => {
     const { push } = this.props;
-    const collapsedPushes = getUrlParam('collapsedPushes') || '';
+    const allParams = getAllUrlParams();
+    const collapsedPushes = allParams.get('collapsedPushes') || '';
 
+    if (allParams.has('test_paths')) {
+      await this.fetchTestManifests();
+    } else {
+      this.setState({ taskNameToTestPaths: {} });
+    }
     this.setState({ collapsed: collapsedPushes.includes(push.id) });
   };
 

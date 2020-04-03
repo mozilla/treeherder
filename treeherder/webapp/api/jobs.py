@@ -184,6 +184,7 @@ class JobsProjectViewSet(viewsets.ViewSet):
         'machine',
         'signature',
         'repository',
+        'taskcluster_metadata'
     ]
 
     _property_query_mapping = [
@@ -221,6 +222,8 @@ class JobsProjectViewSet(viewsets.ViewSet):
         ('submit_timestamp', 'submit_time', to_timestamp),
         ('tier', 'tier', None),
         ('who', 'who', None),
+        ('task_id', 'taskcluster_metadata__task_id', None),
+        ('retry_id', 'taskcluster_metadata__retry_id', None),
     ]
 
     _option_collection_hash_idx = [pq[0] for pq in _property_query_mapping].index(
