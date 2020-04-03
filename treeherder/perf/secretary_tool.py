@@ -12,6 +12,7 @@ from treeherder.perf.models import (BackfillRecord,
 logger = logging.getLogger(__name__)
 
 
+# TODO: update the backfill status using data
 class SecretaryTool:
     """
     Tool used for doing the secretary work in the Performance Sheriff Bot.
@@ -57,15 +58,6 @@ class SecretaryTool:
             if should_freeze:
                 report.frozen = True
                 report.save()
-
-    @classmethod
-    def update_final_status(cls):
-        # get all BACKFILLED to check on for results and update accordingly
-        backfilled_records = BackfillRecord.objects.filter(status=BackfillRecord.BACKFILLED)
-
-        # TODO: update the backfill status using data from taskcluster
-        for record in backfilled_records:
-            pass
 
     @classmethod
     def are_expired(cls, settings):

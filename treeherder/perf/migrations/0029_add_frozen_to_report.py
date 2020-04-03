@@ -6,7 +6,7 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('perf', '0027_support_perfherder_settings'),
+        ('perf', '0028_default_application_to_empty_str'),
     ]
 
     operations = [
