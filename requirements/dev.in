@@ -9,7 +9,6 @@ responses==0.10.9
 django-extensions==2.2.8
 pytest-selenium==1.17.0
 PyPOM==2.2.0
-pre-commit==2.2.0
 
 # Required by django-extension's runserver_plus command.
 Werkzeug==1.0.0
