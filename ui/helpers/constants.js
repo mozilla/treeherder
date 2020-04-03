@@ -11,6 +11,7 @@ export const thPlatformMap = {
   'linux32-shippable': 'Linux shippable',
   'linux1804-32-shippable': 'Linux 18.04 shippable',
   linux64: 'Linux x64',
+  'linux1804-64-tsan': 'Linux 18.04 x64 tsan',
   'linux64-asan': 'Linux x64 asan',
   'linux64-asan-qr': 'Linux x64 QuantumRender asan',
   'linux64-asan-reporter': 'Linux x64 asan reporter',

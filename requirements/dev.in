@@ -17,3 +17,4 @@ pytest-asyncio
 
 # make pinning versions easier
 pip-tools
+pre-commit
