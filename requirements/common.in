@@ -15,7 +15,7 @@ mysqlclient==1.4.6
 asgiref==3.2.3
 
 # Required by celery
-billiard==3.6.2.0
+billiard==3.6.3.0
 pytz==2019.3
 
 # Required by kombu
