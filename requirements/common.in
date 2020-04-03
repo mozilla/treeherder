@@ -6,7 +6,7 @@ whitenoise[brotli]==5.0.1
 Brotli==1.0.7
 Django==3.0.3
 celery==4.3.0
-kombu==4.6.3
+kombu==4.6.8
 simplejson==3.17.0
 newrelic==5.2.1.129
 
