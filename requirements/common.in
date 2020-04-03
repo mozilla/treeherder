@@ -4,30 +4,28 @@ whitenoise[brotli]==5.0.1
 
 # Used by Whitenoise to provide Brotli-compressed versions of static files.
 Django==3.0.5
-celery==4.3.0
+celery==4.3.0  # Needed for data ingestion
 simplejson==3.17.0
 newrelic==5.2.1.129
 
 # Required by Django
-mysqlclient==1.4.6
+mysqlclient==1.4.6   # Not imported directly
 
 # Required by mozlog
 jsonschema==3.0.1
-djangorestframework==3.11.0
-django-cors-headers==3.2.1
+djangorestframework==3.11.0  # Imported as rest_framework
+django-cors-headers==3.2.1  # Listed as 3rd party app on settings.py
 mozlog==5.0
 
-# Required by djangorestframework's API documentation
-coreapi==2.3.3
+coreapi==2.3.3  # Probably not needed anymore
 
 # Used directly and also by Django's YAML serializer.
-PyYAML==5.3
-django-environ==0.4.5
+PyYAML==5.3  # Imported as yaml
+django-environ==0.4.5  # Imported as environ
 
-# Whilst we don't use six ourselves any more, it's still required by a number of dependencies.
 python-dateutil
-django-filter
-django-redis
+django-filter  # Listed in DEFAULT_FILTER_BACKENDS on settings.py
+django-redis  # Listed in CACHES on settings.py
 
 # required for taskcluster
 taskcluster==27.0.0
@@ -39,12 +37,10 @@ typing==3.7.4.1
 iso8601==0.1.12
 python-jose[pycryptodome]==3.1.0
 
-# Used by python-jose
-furl==2.1.0
-first
+furl==2.1.0  # Imported as furl
+first  # Imported as first
 
-# Required by jsonschema
-django-cache-memoize==0.1.6
+django-cache-memoize==0.1.6    # Imported as cache_memoize
 
 # Required for extraction to BigQuery
 jx-bigquery

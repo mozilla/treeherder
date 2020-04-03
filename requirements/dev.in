@@ -8,15 +8,8 @@ pytest-selenium
 PyPOM
 
 # Required by django-extension's runserver_plus command.
-Werkzeug
 flake8
 isort
-
-# Required by mock
-funcsigs
-pbr
-
-# Required by flake8
 pytest-django
 
 # To test async code
