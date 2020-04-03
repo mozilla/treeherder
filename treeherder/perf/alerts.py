@@ -371,7 +371,8 @@ class BackfillReportMaintainer:
                 continue
 
             backfill_report, created = BackfillReport.objects.get_or_create(summary_id=summary.id)
-            if created or backfill_report.is_outdated:
+            # only provide new records if the report is not frozen
+            if not backfill_report.frozen and (created or backfill_report.is_outdated):
                 backfill_report.expel_records()  # associated records are outdated & irrelevant
                 self._provide_records(backfill_report, alert_context_map)
             reports.append(backfill_report)

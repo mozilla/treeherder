@@ -528,6 +528,7 @@ class BackfillReport(models.Model):
 
     created = models.DateTimeField(auto_now_add=True)
     last_updated = models.DateTimeField(auto_now=True)
+    frozen = models.BooleanField(default=False)
 
     @property
     def is_outdated(self):
