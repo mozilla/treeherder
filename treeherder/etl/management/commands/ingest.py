@@ -435,9 +435,13 @@ class Command(BaseCommand):
 
             if not options['last_n_pushes'] and not commit:
                 raise CommandError('must specify --last_n_pushes or a positional commit argument')
-
+            elif options['last_n_pushes'] and options['ingest_all_tasks']:
+                raise CommandError('Can\'t specify last_n_pushes and ingest_all_tasks at same time')
+            elif options['last_n_pushes'] and options['commit']:
+                raise CommandError('Can\'t specify last_n_pushes and commit/revision at the same time')
             # get reference to repo
             repo = Repository.objects.get(name=project, active_status="active")
+            fetch_push_id = None
 
             if options['last_n_pushes']:
                 last_push_id = last_push_id_from_server(repo)
@@ -452,7 +456,6 @@ class Command(BaseCommand):
             else:
                 logger.info(
                     "You can ingest all tasks for a push with -a/--ingest-all-tasks."
-                    "or last n pushes with --last-n-pushes"
                 )
 
             # get hg pushlog
