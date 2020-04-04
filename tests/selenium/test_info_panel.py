@@ -1,5 +1,4 @@
 import pytest
-
 from pages.treeherder import Treeherder
 
 
