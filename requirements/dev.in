@@ -15,6 +15,7 @@ seed-isort-config
 flake8
 isort
 pytest-django
+black
 
 # To test async code
 pytest-asyncio
