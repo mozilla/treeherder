@@ -20,7 +20,6 @@ If you would like pre-commit linting checks you can set it up like this:
 % pip install pre-commit
 % pre-commit install
 pre-commit installed at .git/hooks/pre-commit
-% seed-isort-config
 ```
 
 From here on, linting checks will be executed every time you commit.
