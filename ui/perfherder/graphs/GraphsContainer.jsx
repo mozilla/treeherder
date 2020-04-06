@@ -4,6 +4,7 @@ import React from 'react';
 import { Row, Col } from 'reactstrap';
 import PropTypes from 'prop-types';
 import {
+  VictoryBar,
   VictoryChart,
   VictoryLine,
   VictoryAxis,
@@ -267,7 +268,13 @@ class GraphsContainer extends React.Component {
   };
 
   render() {
-    const { testData, showTable, zoom, highlightedRevisions } = this.props;
+    const {
+      testData,
+      changelogData,
+      showTable,
+      zoom,
+      highlightedRevisions,
+    } = this.props;
     const {
       highlights,
       scatterPlotData,
@@ -406,16 +413,25 @@ class GraphsContainer extends React.Component {
                     },
                   ]}
                 >
-                  {highlights.length > 0 &&
-                    highlights.map(item => (
-                      <VictoryLine
-                        key={item}
-                        style={{
-                          data: { stroke: 'gray', strokeWidth: 1 },
-                        }}
-                        x={() => item.x}
-                      />
-                    ))}
+                  {highlights.length > 0 && (
+                    <VictoryAxis
+                      tickValues={highlights.map(i => i.x)}
+                      style={{
+                        tickLabels: { display: 'none' },
+                        grid: { stroke: 'gray', strokeWidth: 1 },
+                      }}
+                    />
+                  )}
+
+                  {changelogData.length > 0 && (
+                    <VictoryAxis
+                      tickValues={changelogData.map(i => i.date)}
+                      style={{
+                        tickLabels: { display: 'none' },
+                        grid: { stroke: '#ff0000', strokeWidth: 1 },
+                      }}
+                    />
+                  )}
 
                   <VictoryScatter
                     name="scatter-plot"
@@ -500,6 +516,7 @@ class GraphsContainer extends React.Component {
 
 GraphsContainer.propTypes = {
   testData: PropTypes.arrayOf(PropTypes.shape({})),
+  changelogData: PropTypes.arrayOf(PropTypes.shape({})),
   measurementUnits: PropTypes.instanceOf(Set).isRequired,
   updateStateParams: PropTypes.func.isRequired,
   zoom: PropTypes.shape({}),
@@ -514,6 +531,7 @@ GraphsContainer.propTypes = {
 
 GraphsContainer.defaultProps = {
   testData: [],
+  changelogData: [],
   zoom: {},
   selectedDataPoint: undefined,
   highlightAlerts: true,

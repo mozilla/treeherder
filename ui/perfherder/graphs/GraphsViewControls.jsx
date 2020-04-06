@@ -170,6 +170,7 @@ GraphsViewControls.propTypes = {
     relatedSeries: PropTypes.shape({}),
   }),
   testData: PropTypes.arrayOf(PropTypes.shape({})),
+  changelogData: PropTypes.arrayOf(PropTypes.shape({})),
   showModal: PropTypes.bool,
   toggle: PropTypes.func.isRequired,
 };
@@ -177,5 +178,6 @@ GraphsViewControls.propTypes = {
 GraphsViewControls.defaultProps = {
   options: undefined,
   testData: [],
+  changelogData: [],
   showModal: false,
 };
