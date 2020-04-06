@@ -470,7 +470,7 @@ class JobsProjectViewSet(viewsets.ViewSet):
                                      *self._default_select_related)).qs
 
         # similar jobs we want in descending order from most recent
-        jobs = jobs.order_by('-start_time')
+        jobs = jobs.order_by('-push_id', '-start_time')
 
         response_body = self._get_job_list_response(jobs, offset, count,
                                                     return_type)
