@@ -166,7 +166,7 @@ Ingest a single Mercurial push or the last N pushes:
 
 ```console
 docker-compose exec backend ./manage.py ingest push -p autoland -r 63f8a47cfdf5
-docker-compose exec backend ./manage.py ingest_push mozilla-central --last-n-pushes 100
+docker-compose exec backend ./manage.py ingest mozilla-central --last-n-pushes 100
 ```
 
 Ingest a single Github push or the last 10:
