@@ -102,7 +102,7 @@ services:
       dockerfile: docker/dev.Dockerfile
     environment:
       - PULSE_URL=${PULSE_URL:-amqp://docker-shared-user:8r5VFxpJHtJahTVV5bYutykgDsXhGF@pulse.mozilla.org:5671/?ssl=1}
-      - LOGGING_LEVEL=DEBUG
+      - LOGGING_LEVEL=INFO
       - PULSE_AUTO_DELETE_QUEUES=True
       - DATABASE_URL=mysql://root@mysql:3306/treeherder
       - BROKER_URL=amqp://guest:guest@rabbitmq//
@@ -120,7 +120,7 @@ services:
       dockerfile: docker/dev.Dockerfile
     environment:
       - PULSE_URL=${PULSE_URL:-amqp://docker-shared-user:8r5VFxpJHtJahTVV5bYutykgDsXhGF@pulse.mozilla.org:5671/?ssl=1}
-      - LOGGING_LEVEL=DEBUG
+      - LOGGING_LEVEL=INFO
       - PULSE_AUTO_DELETE_QUEUES=True
       - DATABASE_URL=mysql://root@mysql:3306/treeherder
       - BROKER_URL=amqp://guest:guest@rabbitmq//
@@ -139,8 +139,9 @@ services:
     environment:
       - CELERY_BROKER_URL=amqp://guest:guest@rabbitmq:5672//
       - DATABASE_URL=mysql://root@mysql:3306/treeherder
+      - PROJECTS_TO_INGEST=autoland
     entrypoint: './docker/entrypoint.sh'
-    command: celery worker -A treeherder --uid=nobody --gid=nogroup --without-gossip --without-mingle --without-heartbeat -Q store_pulse_pushes,store_pulse_tasks --concurrency=3 --loglevel=INFO
+    command: celery worker -A treeherder --uid=nobody --gid=nogroup --without-gossip --without-mingle --without-heartbeat -Q store_pulse_pushes,store_pulse_tasks --concurrency=3 --loglevel=WARNING
     volumes:
       - .:/app
     depends_on:
