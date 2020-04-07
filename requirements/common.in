@@ -4,7 +4,7 @@ whitenoise[brotli]==5.0.1
 
 # Used by Whitenoise to provide Brotli-compressed versions of static files.
 Brotli==1.0.7
-Django==3.0.3
+Django==3.0.5
 celery==4.3.0
 kombu==4.6.3
 simplejson==3.17.0
