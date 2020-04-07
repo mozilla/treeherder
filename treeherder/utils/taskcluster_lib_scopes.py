@@ -3,8 +3,6 @@ TODO: Extract this module into a dedicated PyPI package, acting as the
     Python variant of https://github.com/taskcluster/taskcluster-lib-scopes
 """
 
-import re
-
 
 def satisfiesExpression(scopeset, expression):
     if not isinstance(scopeset, list):
@@ -26,7 +24,7 @@ def patternMatch(pattern: str, scope):
     if scope == pattern:
         return True
 
-    if re.search(r"\*$", pattern):
-        return scope.find(pattern[:-1]) == 0
+    if pattern.endswith('*'):
+        return scope.startswith(pattern[:-1])
 
     return False

@@ -1,5 +1,7 @@
+from django.conf import settings
 from django.core.management.base import BaseCommand
 
+from treeherder.perf.investigation_aids import DEFAULT_ROOT_URL as root_url
 from treeherder.perf.investigation_aids import (BackfillTool,
                                                 TaskclusterModel)
 
@@ -18,8 +20,10 @@ class Command(BaseCommand):
 
     def handle(self, *args, **options):
         job_id = options['job']
+        client_id = settings.PERF_SHERIFF_BOT_CLIENT_ID
+        access_token = settings.PERF_SHERIFF_BOT_ACCESS_TOKEN
 
-        taskcluster_model = TaskclusterModel()
+        taskcluster_model = TaskclusterModel(root_url, client_id, access_token)
         backfill_tool = BackfillTool(taskcluster_model)
 
         task_id = backfill_tool.backfill_job(job_id)
