@@ -7,6 +7,10 @@ django-extensions
 pytest-selenium
 PyPOM
 
+# for git commit hooks
+pre-commit
+seed-isort-config
+
 # Required by django-extension's runserver_plus command.
 flake8
 isort
@@ -17,4 +21,3 @@ pytest-asyncio
 
 # make pinning versions easier
 pip-tools
-pre-commit
