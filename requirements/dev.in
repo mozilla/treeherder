@@ -9,11 +9,9 @@ PyPOM
 
 # for git commit hooks
 pre-commit
-seed-isort-config
 
 # Required by django-extension's runserver_plus command.
 flake8
-isort
 pytest-django
 black
 

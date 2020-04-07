@@ -16,10 +16,6 @@ echo "Checking CELERY_TASK_QUEUES matches Procfile"
 echo "Running flake8"
 flake8 --show-source || { echo "flake8 errors found!"; exit 1; }
 
-echo "Running isort"
-isort --check-only --diff --quiet \
- || { echo "isort errors found! Run 'isort' with no options to fix."; exit 1; }
-
 if hash shellcheck 2>/dev/null; then
   echo "Running shellcheck"
   git grep -El '^#!/.+\b(bash|sh)\b' | xargs shellcheck
