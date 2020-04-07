@@ -1,66 +1,23 @@
 # Dependencies needed only for development/testing.
-colorama==0.4.3
-coverage==5.0.3
-pytest-cov==2.8.1
-pytest==5.3.5
+pytest-cov
 django-debug-toolbar==2.2
-mock==4.0.1
-responses==0.10.9
-django-extensions==2.2.8
-pytest-selenium==1.17.0
-PyPOM==2.2.0
-pre-commit==2.2.0
+mock
+responses
+django-extensions
+pytest-selenium
+PyPOM
 
-#Required by isort
+# for git commit hooks
+pre-commit
 seed-isort-config
 
 # Required by django-extension's runserver_plus command.
-Werkzeug==1.0.0
-flake8==3.7.9
-isort==4.3.21
-
-# Required by pluggy
-zipp==3.0.0
-importlib-metadata==1.5.0
-
-# Required by pytest
-atomicwrites==1.3.0
-more-itertools==8.2.0
-packaging==20.1
-pluggy==0.13.1
-py==1.8.1
-pyparsing==2.4.2
-wcwidth==0.1.8
-
-# Required by mock
-funcsigs==1.0.2
-pbr==5.4.4
-
-# Required by flake8
-entrypoints==0.3
-mccabe==0.6.1
-pycodestyle==2.5.0
-pyflakes==2.1.1
-pytest-django==3.8.0
-
-# Required by pytest-selenium
-selenium==3.141.0
-pytest-html==2.0.1
-pytest-metadata==1.8.0
-pytest-variables==1.9.0
-pytest-base-url==1.4.1
-
-# Required by PyPOM
-zope.event==4.4
-zope.interface==4.7.1
-zope.component==4.6
-zope.hookable==5.0.0
-zope.deferredimport==4.3.1
-zope.deprecation==4.4.0
-zope.proxy==4.3.3
+flake8
+isort
+pytest-django
 
 # To test async code
-pytest-asyncio==0.10.0
+pytest-asyncio
 
 # make pinning versions easier
 pip-tools
