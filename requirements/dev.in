@@ -4,7 +4,7 @@ coverage==5.0.3
 pytest-cov==2.8.1
 pytest==5.3.5
 django-debug-toolbar==2.2
-mock==4.0.1
+mock==4.0.2
 responses==0.10.9
 django-extensions==2.2.8
 pytest-selenium==1.17.0
