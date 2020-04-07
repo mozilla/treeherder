@@ -29,9 +29,6 @@ LOGGING_LEVEL = env("LOGGING_LEVEL", default="INFO")
 NEW_RELIC_INSIGHTS_API_KEY = env("NEW_RELIC_INSIGHTS_API_KEY", default=None)
 NEW_RELIC_INSIGHTS_API_URL = 'https://insights-api.newrelic.com/v1/accounts/677903/query'
 
-# XXX This is likely something we can get rid of
-GRAPHQL = env.bool("GRAPHQL", default=True)
-
 # Make this unique, and don't share it with anybody.
 SECRET_KEY = env("TREEHERDER_DJANGO_SECRET_KEY", default='secret-key-of-at-least-50-characters-to-pass-check-deploy')
 
@@ -75,7 +72,6 @@ INSTALLED_APPS = [
     'rest_framework',
     'corsheaders',
     'django_filters',
-    'graphene_django',
 
     # treeherder apps
     'treeherder.model',

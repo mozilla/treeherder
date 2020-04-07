@@ -29,10 +29,8 @@ django-redis  # Listed in CACHES on settings.py
 
 # required for taskcluster
 taskcluster==27.0.0
-graphene-django==2.8.0
 
 # Used by graphene-django
-graphql-core==2.2.1
 typing==3.7.4.1
 iso8601==0.1.12
 python-jose[pycryptodome]==3.1.0
