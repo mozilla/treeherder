@@ -77,7 +77,7 @@ def get_history(failure_classification_id, push_date, num_days, option_map, repo
 
 
 # For each failure item in ``tests``, we have 3 categories of jobs that are associated with it in order
-# to help determine if the test is 'intermittent' or not:
+# to help determine if the test is a known issue or not:
 #
 # 1. failJobs: These are jobs where this test has specifically failed in the job
 #    (it has a FailureLine record with the tests name).

@@ -5,9 +5,15 @@ import { faBug, faStar } from '@fortawesome/free-solid-svg-icons';
 import Markdown from 'react-markdown';
 
 import { getBtnClass } from '../helpers/job';
-import { bzBaseUrl, getJobsUrl, getLogViewerUrl } from '../helpers/url';
+import {
+  bzBaseUrl,
+  getJobsUrl,
+  getLogViewerUrl,
+  getArtifactsUrl,
+} from '../helpers/url';
+import { getData } from '../helpers/http';
 import logviewerIcon from '../img/logviewerIcon.png';
-import JobDetailModel from '../models/jobDetail';
+import { formatArtifacts } from '../helpers/display';
 
 class UnsupportedJob extends PureComponent {
   constructor(props) {
@@ -18,19 +24,38 @@ class UnsupportedJob extends PureComponent {
   }
 
   componentDidMount() {
-    const { job } = this.props;
-
-    JobDetailModel.getJobDetails({ job_id: job.id }).then(result => {
-      const errorSummary = result.find(detail =>
-        detail.value.endsWith('_errorsummary.log'),
-      );
-
-      this.setState({ errorSummary });
-    });
+    this.fetchErrorSummary();
   }
 
+  fetchErrorSummary = async () => {
+    const { job, currentRepo } = this.props;
+
+    const params = {
+      jobId: job.id,
+      taskId: job.task_id,
+      run: job.run_id,
+      rootUrl: currentRepo.tc_root_url,
+    };
+    const jobArtifactsUrl = getArtifactsUrl(params);
+    const { data, failureStatus } = await getData(jobArtifactsUrl);
+
+    if (!failureStatus && data.artifacts) {
+      const errorSummaryLog = data.artifacts.filter(item =>
+        item.name.endsWith('_errorsummary.log'),
+      );
+
+      if (errorSummaryLog.length) {
+        const errorSummary = formatArtifacts(errorSummaryLog, params);
+
+        this.setState({
+          errorSummary: errorSummary[0],
+        });
+      }
+    }
+  };
+
   render() {
-    const { job, jobName, jobSymbol, repo, revision } = this.props;
+    const { job, jobName, jobSymbol, currentRepo, revision } = this.props;
     const { errorSummary } = this.state;
     const {
       id,
@@ -45,7 +70,11 @@ class UnsupportedJob extends PureComponent {
             result,
             failureClassificationId,
           )}`}
-          href={getJobsUrl({ selectedJob: job.id, repo, revision })}
+          href={getJobsUrl({
+            selectedJob: job.id,
+            repo: currentRepo.name,
+            revision,
+          })}
           title={jobName}
         >
           {jobSymbol}
@@ -56,7 +85,7 @@ class UnsupportedJob extends PureComponent {
         {job.result === 'testfailed' && (
           <a
             className="logviewer-btn m-2"
-            href={getLogViewerUrl(job.id, repo)}
+            href={getLogViewerUrl(job.id, currentRepo.name)}
             target="_blank"
             rel="noopener noreferrer"
             title="Open the Log Viewer for this job"
@@ -102,7 +131,7 @@ UnsupportedJob.propTypes = {
   }).isRequired,
   jobName: PropTypes.string.isRequired,
   jobSymbol: PropTypes.string.isRequired,
-  repo: PropTypes.string.isRequired,
+  currentRepo: PropTypes.shape({}).isRequired,
   revision: PropTypes.string.isRequired,
 };
 

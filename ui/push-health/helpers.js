@@ -19,3 +19,7 @@ export const filterTests = (tests, searchStr, showParentMatches) => {
     ),
   );
 };
+
+export const filterJobs = (jobs, showParentMatches) => {
+  return jobs.filter(job => job.failedInParent === showParentMatches);
+};

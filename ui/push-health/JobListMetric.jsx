@@ -4,11 +4,24 @@ import { Row } from 'reactstrap';
 
 import Metric from './Metric';
 import Job from './Job';
+import { filterJobs } from './helpers';
 
 export default class JobListMetric extends React.PureComponent {
   render() {
-    const { data, repo, revision, expanded, setExpanded } = this.props;
+    const {
+      data,
+      repo,
+      revision,
+      expanded,
+      setExpanded,
+      showParentMatches,
+    } = this.props;
     const { name, result, details } = data;
+    const jobs = filterJobs(details, showParentMatches);
+    const msgForZeroJobs =
+      details.length && !jobs.length
+        ? `All failed ${name} also failed in Parent Push`
+        : `All ${name} passed`;
 
     return (
       <Metric
@@ -18,14 +31,14 @@ export default class JobListMetric extends React.PureComponent {
         setExpanded={setExpanded}
       >
         <div>
-          {details.length ? (
-            details.map(job => (
+          {jobs.length ? (
+            jobs.map(job => (
               <Row key={job.id} className="mt-2">
                 <Job job={job} repo={repo} revision={revision} />
               </Row>
             ))
           ) : (
-            <div>All {name} passed</div>
+            <div>{msgForZeroJobs}</div>
           )}
         </div>
       </Metric>
@@ -39,4 +52,5 @@ JobListMetric.propTypes = {
   revision: PropTypes.string.isRequired,
   setExpanded: PropTypes.func.isRequired,
   expanded: PropTypes.bool.isRequired,
+  showParentMatches: PropTypes.bool.isRequired,
 };

@@ -2,11 +2,18 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import chunk from 'lodash/chunk';
 import { connect } from 'react-redux';
+import uniqBy from 'lodash/uniqBy';
 
 import { setPinBoardVisible } from '../redux/stores/pinnedJobs';
 import { thEvents, thBugSuggestionLimit } from '../../helpers/constants';
 import { addAggregateFields } from '../../helpers/job';
-import { getLogViewerUrl, getReftestUrl } from '../../helpers/url';
+import {
+  getLogViewerUrl,
+  getReftestUrl,
+  getArtifactsUrl,
+} from '../../helpers/url';
+import { formatArtifacts } from '../../helpers/display';
+import { getData } from '../../helpers/http';
 import BugJobMapModel from '../../models/bugJobMap';
 import BugSuggestionsModel from '../../models/bugSuggestions';
 import JobClassificationModel from '../../models/classification';
@@ -187,6 +194,14 @@ class DetailsPanel extends React.Component {
           { job_id: selectedJob.id },
           this.selectJobController.signal,
         );
+        const artifactsParams = {
+          jobId: selectedJob.id,
+          taskId: selectedJob.task_id,
+          run: selectedJob.retry_id,
+          rootUrl: currentRepo.tc_root_url,
+        };
+
+        const jobArtifactsPromise = getData(getArtifactsUrl(artifactsParams));
 
         const jobLogUrlPromise = JobLogUrlModel.getList(
           { job_id: selectedJob.id },
@@ -205,6 +220,7 @@ class DetailsPanel extends React.Component {
           jobDetailPromise,
           jobLogUrlPromise,
           phSeriesPromise,
+          jobArtifactsPromise,
         ])
           .then(
             async ([
@@ -212,6 +228,7 @@ class DetailsPanel extends React.Component {
               jobDetailResult,
               jobLogUrlResult,
               phSeriesResult,
+              jobArtifactsResult,
             ]) => {
               // This version of the job has more information than what we get in the main job list.  This
               // is what we'll pass to the rest of the details panel.
@@ -224,7 +241,16 @@ class DetailsPanel extends React.Component {
 
               addAggregateFields(selectedJobFull);
 
-              jobDetails = jobDetailResult;
+              const jobArtifacts = jobArtifactsResult.data.artifacts
+                ? formatArtifacts(jobArtifactsResult.data.artifacts, {
+                    ...artifactsParams,
+                  })
+                : [];
+
+              jobDetails = uniqBy(
+                [...jobDetailResult, ...jobArtifacts],
+                'value',
+              );
 
               // the third result comes from the jobLogUrl promise
               // exclude the json log URLs

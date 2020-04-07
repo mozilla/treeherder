@@ -20,9 +20,9 @@ attrs==19.3.0 \
     --hash=sha256:08a96c641c3a74e44eb59afb61a24f2cb9f4d7188748e76ba4bb5edfa3cb7d1c \
     --hash=sha256:f7b7ce16570fe9965acd6d30101a28f62fb4a7f9e926b3bbc9b61f8b04247e72 \
     # via pytest
-certifi==2019.11.28 \
-    --hash=sha256:017c25db2a153ce562900032d5bc68e9f191e44e9a0f762f373977de9df1fbb3 \
-    --hash=sha256:25b64c7da4cd7479594d035c08c2d809eb4aab3a26e5a990ea98cc450c320f1f \
+certifi==2020.4.5.1 \
+    --hash=sha256:1d987a998c75633c40847cc966fcf5904906c920a7f17ef374f5aa4282abd304 \
+    --hash=sha256:51fcb31174be6e6664c5f69e3e1691a2d72a1a12e90f872cbdb1567eb47b6519 \
     # via requests
 cfgv==3.1.0 \
     --hash=sha256:1ccf53320421aeeb915275a196e23b3b8ae87dea8ac6698b1638001d4a486d53 \
@@ -100,9 +100,9 @@ flake8==3.7.9 \
     --hash=sha256:45681a117ecc81e870cbf1262835ae4af5e7a8b08e40b944a8a6e6b895914cfb \
     --hash=sha256:49356e766643ad15072a789a20915d3c91dc89fd313ccd71802303fd67e4deca \
     # via -r requirements/dev.in
-identify==1.4.13 \
-    --hash=sha256:a7577a1f55cee1d21953a5cf11a3c839ab87f5ef909a4cba6cf52ed72b4c6059 \
-    --hash=sha256:ab246293e6585a1c6361a505b68d5b501a0409310932b7de2c2ead667b564d89 \
+identify==1.4.14 \
+    --hash=sha256:2bb8760d97d8df4408f4e805883dad26a2d076f04be92a10a3e43f09c6060742 \
+    --hash=sha256:faffea0fd8ec86bb146ac538ac350ed0c73908326426d387eded0bcc9d077522 \
     # via pre-commit
 idna==2.9 \
     --hash=sha256:7588d1c14ae4c77d74036e8c22ff447b26d0fde8f007354fd48a7814db15b7cb \
@@ -159,9 +159,9 @@ pyflakes==2.1.1 \
     --hash=sha256:17dbeb2e3f4d772725c777fabc446d5634d1038f234e77343108ce445ea69ce0 \
     --hash=sha256:d976835886f8c5b31d47970ed689944a0262b5f3afa00a5a7b4dc81e5449f8a2 \
     # via flake8
-pyparsing==2.4.6 \
-    --hash=sha256:4c830582a84fb022400b85429791bc551f1f4871c33f23e44f353119e92f969f \
-    --hash=sha256:c342dccb5250c08d45fd6f8b4a559613ca603b57498511740e65cd11a2e7dcec \
+pyparsing==2.4.7 \
+    --hash=sha256:c203ec8783bf771a155b207279b9bccb8dea02d8f0c9e5f8ead507bc3246ecc1 \
+    --hash=sha256:ef9d7589ef3c200abe66653d3f1ab1033c3c419ae9b9bdb1240a85b024efc88b \
     # via packaging
 pypom==2.2.0 \
     --hash=sha256:4bdd57fceb72d7e6a3645cf6c9322f490d9cfb5d777eac2c851a3b658b813939 \
@@ -248,9 +248,9 @@ urllib3==1.25.8 \
     --hash=sha256:2f3db8b19923a873b3e5256dc9c2dedfa883e33d87c690d9c7913e1f40673cdc \
     --hash=sha256:87716c2d2a7121198ebcb7ce7cccf6ce5e9ba539041cfbaeecfb641dc0bf6acc \
     # via requests, selenium
-virtualenv==20.0.15 \
-    --hash=sha256:4e399f48c6b71228bf79f5febd27e3bbb753d9d5905776a86667bc61ab628a25 \
-    --hash=sha256:9e81279f4a9d16d1c0654a127c2c86e5bca2073585341691882c1e66e31ef8a5 \
+virtualenv==20.0.16 \
+    --hash=sha256:6ea131d41c477f6c4b7863948a9a54f7fa196854dbef73efbdff32b509f4d8bf \
+    --hash=sha256:94f647e12d1e6ced2541b93215e51752aecbd1bbb18eb1816e2867f7532b1fe1 \
     # via pre-commit
 wcwidth==0.1.9 \
     --hash=sha256:cafe2186b3c009a04067022ce1dcd79cb38d8d65ee4f4791b8888d6599d1bbe1 \

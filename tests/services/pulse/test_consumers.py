@@ -41,5 +41,5 @@ def test_PulseConsumer(pulse_connection):
             pass
 
     with create_and_destroy_exchange(pulse_connection, "foobar"):
-        cons = TestConsumer({"root_url": "https://tc.example.com", "pulse_url": settings.CELERY_BROKER_URL}, None)
+        cons = TestConsumer({"root_url": "https://firefox-ci-tc.services.mozilla.com", "pulse_url": settings.CELERY_BROKER_URL}, None)
         cons.prepare()

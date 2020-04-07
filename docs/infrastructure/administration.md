@@ -35,7 +35,7 @@ to perform tasks using the [Heroku CLI]. After installing it, run `heroku login`
 Commands can then be run against a particular app like so:
 
 ```bash
-heroku config --app treeherder-stage
+$ heroku config --app treeherder-stage
 ```
 
 For the list of available CLI commands, see the [CLI Usage] page or run `heroku help`.
@@ -48,17 +48,17 @@ For the list of available CLI commands, see the [CLI Usage] page or run `heroku 
     app to the local Git repository (to save having to pass `--app` each time) is not helpful.
     Instead, we recommend adding aliases similar to the following to your bash profile:
 
-```bash
-alias thd='HEROKU_APP=treeherder-prototype heroku'
-alias ths='HEROKU_APP=treeherder-stage heroku'
-alias thp='HEROKU_APP=treeherder-prod heroku'
-```  
+    ```bash
+    alias thd='HEROKU_APP=treeherder-prototype heroku'
+    alias ths='HEROKU_APP=treeherder-stage heroku'
+    alias thp='HEROKU_APP=treeherder-prod heroku'
+    ```
 
-This allows commands to be run against a specific app with minimal typing:
+    This allows commands to be run against a specific app with minimal typing:
 
-```bash
-ths config
-```
+    ```bash
+    $ ths config
+    ```
 
 ### Deploying Treeherder
 
@@ -89,14 +89,14 @@ activity can also be seen on the "activity" tab in the Heroku dashboard for each
 !!! tip
     To simplify pushing latest `master` to the `production` branch, use this bash alias:
 
-```bash
-# Replace `origin` with the remote name of the upstream Treeherder repository, if different.
-alias deploy='git fetch --all --prune && git push origin remotes/origin/master:production'
-```
+    ```bash
+    # Replace `origin` with the remote name of the upstream Treeherder repository, if different.
+    alias deploy='git fetch --all --prune && git push origin remotes/origin/master:production'
+    ```
 
-It pushes directly from the `remotes/origin/master` Git metadata branch, meaning the
-command works even when the local `master` branch isn't up to date and does not disturb
-the locally checked out branch or working directory.
+    It pushes directly from the `remotes/origin/master` Git metadata branch, meaning the
+    command works even when the local `master` branch isn't up to date and does not disturb
+    the locally checked out branch or working directory.
 
 <!-- prettier-ignore -->
 !!! warning
@@ -151,13 +151,13 @@ spun up for the duration of the command and then destroyed after.
 For example to start an interactive bash shell on stage:
 
 ```bash
-heroku run --app treeherder-stage -- bash
+$ heroku run --app treeherder-stage -- bash
 ```
 
 Or to run a detached Django management command against prod using a larger dyno size:
 
 ```bash
-heroku run:detached --app treeherder-prod --size=standard-2x -- ./manage.py ...
+$ heroku run:detached --app treeherder-prod --size=standard-2x -- ./manage.py ...
 ```
 
 [one-off dynos]: https://devcenter.heroku.com/articles/one-off-dynos
@@ -203,11 +203,11 @@ after logging in with the account ID `moz-devservices` and then [your IAM userna
 
 <!-- prettier-ignore -->
 !!! note
-For the `treeherder-prod` and `treeherder-stage` Heroku apps, their RDS instances have the
-same name as the app. However for `treeherder-prototype` the RDS instance is instead called
-`treeherder-dev`.
-There is also a read-only replica of production, named
-`treeherder-prod-ro`.
+    For the `treeherder-prod` and `treeherder-stage` Heroku apps, their RDS instances have the
+    same name as the app. However for `treeherder-prototype` the RDS instance is instead called
+    `treeherder-dev`.
+
+    There is also a read-only replica of production, named `treeherder-prod-ro`.
 
 ### Connecting to RDS instances
 

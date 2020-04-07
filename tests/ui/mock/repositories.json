@@ -14,7 +14,7 @@
     "active_status": "active",
     "performance_alerts_enabled": false,
     "expire_performance_data": false,
-    "tc_root_url": "https://taskcluster.net",
+    "tc_root_url": "https://firefox-ci-tc.services.mozilla.com",
     "is_try_repo": false,
     "pushLogUrl": "https://hg.mozilla.org/mozilla-central/pushloghtml",
     "revisionHrefPrefix": "https://hg.mozilla.org/mozilla-central/rev/"
@@ -34,7 +34,7 @@
     "active_status": "active",
     "performance_alerts_enabled": false,
     "expire_performance_data": true,
-    "tc_root_url": "https://taskcluster.net",
+    "tc_root_url": "https://firefox-ci-tc.services.mozilla.com",
     "is_try_repo": true,
     "pushLogUrl": "https://hg.mozilla.org/try/pushloghtml",
     "revisionHrefPrefix": "https://hg.mozilla.org/try/rev/"
@@ -54,7 +54,7 @@
     "active_status": "active",
     "performance_alerts_enabled": true,
     "expire_performance_data": false,
-    "tc_root_url": "https://taskcluster.net",
+    "tc_root_url": "https://firefox-ci-tc.services.mozilla.com",
     "is_try_repo": false,
     "pushLogUrl": "https://hg.mozilla.org/integration/autoland/pushloghtml",
     "revisionHrefPrefix": "https://hg.mozilla.org/integration/autoland/rev/"

@@ -18,7 +18,6 @@ Or if you would rather not use Docker, instead use poetry,run:
 % poetry install
 % poetry run mkdocs serve
 ```
-
 **Note** - On Windows you might need to fallback ```python -m venv venv``` or ```virtualenv``` to manage your virtualenv if ```poetry``` does not work for you.
 
 In either case, the docs will then be available at: <http://localhost:8000>
