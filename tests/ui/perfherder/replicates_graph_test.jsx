@@ -182,8 +182,10 @@ const mockedGetData = async () => ({
   ],
   failureStatus: null,
 });
-const successfulGetReplicateData = () => Promise.resolve(mockedReplicateData);
-const failingGetReplicateData = () => Promise.reject('No replicate data found');
+const successfulGetReplicateData = () =>
+  Promise.resolve({ failureStatus: null, data: mockedReplicateData });
+const failingGetReplicateData = () =>
+  Promise.resolve({ failureStatus: true, data: ['error message'] });
 
 afterEach(cleanup);
 
@@ -191,7 +193,7 @@ const replicatesGraph = (mockedGetData, mockedGetReplicateData) =>
   render(
     <ReplicatesGraph
       title="Test"
-      projectName="test-project"
+      project={{ name: 'test-project' }}
       revision="bfe72a7c57bde0d1825ba43cbd9afa34d03ed00d"
       subtestSignature="11222"
       filters={{ testSuite: TEST_SUITE_NAME, subtest: SUBTEST_NAME }}

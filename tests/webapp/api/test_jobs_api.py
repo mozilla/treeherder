@@ -69,7 +69,9 @@ def test_job_list(client, eleven_jobs_stored, test_repository,
         "tier",
         "last_modified",
         "ref_data_name",
-        "signature"
+        "signature",
+        "task_id",
+        "retry_id"
     ]
     for job in jobs:
         assert set(job.keys()) == set(exp_keys)

@@ -36,7 +36,14 @@ class UnsupportedGroup extends React.PureComponent {
 
   render() {
     const { detailsShowing } = this.state;
-    const { group, name, repo, revision, className, headerColor } = this.props;
+    const {
+      group,
+      name,
+      revision,
+      className,
+      headerColor,
+      currentRepo,
+    } = this.props;
     const expandIcon = detailsShowing ? faMinusSquare : faPlusSquare;
 
     return (
@@ -66,8 +73,8 @@ class UnsupportedGroup extends React.PureComponent {
                       job={job}
                       jobName={job.job_type_name}
                       jobSymbol={job.job_type_symbol}
-                      repo={repo}
                       revision={revision}
+                      currentRepo={currentRepo}
                     />
                   </CardBody>
                 </Card>
@@ -82,10 +89,10 @@ class UnsupportedGroup extends React.PureComponent {
 UnsupportedGroup.propTypes = {
   group: PropTypes.array.isRequired,
   name: PropTypes.string.isRequired,
-  repo: PropTypes.string.isRequired,
   revision: PropTypes.string.isRequired,
   className: PropTypes.string,
   headerColor: PropTypes.string,
+  currentRepo: PropTypes.shape({}).isRequired,
 };
 
 UnsupportedGroup.defaultProps = {

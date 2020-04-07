@@ -11,14 +11,16 @@ import taskcluster
 import taskcluster.aio
 import taskcluster_urls as liburls
 from django.conf import settings
-from django.core.management.base import BaseCommand
+from django.core.management.base import (BaseCommand,
+                                         CommandError)
 from django.db import connection
 
 from treeherder.client.thclient import TreeherderClient
 from treeherder.config.settings import GITHUB_TOKEN
 from treeherder.etl.job_loader import JobLoader
 from treeherder.etl.push_loader import PushLoader
-from treeherder.etl.pushlog import HgPushlogProcess
+from treeherder.etl.pushlog import (HgPushlogProcess,
+                                    last_push_id_from_server)
 from treeherder.etl.taskcluster_pulse.handler import (EXCHANGE_EVENT_MAP,
                                                       handleMessage)
 from treeherder.model.models import Repository
@@ -376,6 +378,11 @@ class Command(BaseCommand):
             action="store_true",
             help="Do not make changes to the database"
         )
+        parser.add_argument(
+            "--last-n-pushes",
+            type=int,
+            help="fetch the last N pushes from the repository"
+        )
 
     def handle(self, *args, **options):
         typeOfIngestion = options["ingestion_type"][0]
@@ -425,12 +432,23 @@ class Command(BaseCommand):
             # get reference to repo and ingest this particular revision for this project
             project = options["project"]
             commit = options["commit"]
-            repo = Repository.objects.get(name=project, active_status="active")
-            pushlog_url = "%s/json-pushes/?full=1&version=2" % repo.url
-            process = HgPushlogProcess()
-            process.run(pushlog_url, project, changeset=commit, last_push_id=None)
 
-            if options["ingest_all_tasks"]:
+            if not options['last_n_pushes'] and not commit:
+                raise CommandError('must specify --last_n_pushes or a positional commit argument')
+            elif options['last_n_pushes'] and options['ingest_all_tasks']:
+                raise CommandError('Can\'t specify last_n_pushes and ingest_all_tasks at same time')
+            elif options['last_n_pushes'] and options['commit']:
+                raise CommandError('Can\'t specify last_n_pushes and commit/revision at the same time')
+            # get reference to repo
+            repo = Repository.objects.get(name=project, active_status="active")
+            fetch_push_id = None
+
+            if options['last_n_pushes']:
+                last_push_id = last_push_id_from_server(repo)
+                fetch_push_id = max(1, last_push_id - options['last_n_pushes'])
+                logger.info('last server push id: %d; fetching push %d and newer',
+                            last_push_id, fetch_push_id)
+            elif options["ingest_all_tasks"]:
                 gecko_decision_task = get_decision_task_id(project, commit, repo.tc_root_url)
                 logger.info("## START ##")
                 loop.run_until_complete(processTasks(gecko_decision_task, repo.tc_root_url))
@@ -439,3 +457,11 @@ class Command(BaseCommand):
                 logger.info(
                     "You can ingest all tasks for a push with -a/--ingest-all-tasks."
                 )
+
+            # get hg pushlog
+            pushlog_url = "%s/json-pushes/?full=1&version=2" % repo.url
+            # ingest this particular revision for this project
+            process = HgPushlogProcess()
+            # Use the actual push SHA, in case the changeset specified was a tag
+            # or branch name (eg tip). HgPushlogProcess returns the full SHA.
+            process.run(pushlog_url, project, changeset=commit, last_push_id=fetch_push_id)

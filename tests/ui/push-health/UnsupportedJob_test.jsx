@@ -18,6 +18,8 @@ const unclassifiedJob = {
   job_type_name: 'test-linux64-asan/opt-reftest-e10s-7',
   job_type_symbol: 'R7',
   platform: 'linux64',
+  task_id: 'ZGSRdYjwQrmfTLpIK7n66A',
+  run_id: 0,
 };
 const classifiedJob = {
   id: 275148683,
@@ -30,29 +32,39 @@ const classifiedJob = {
   job_type_name: 'test-android-em-7.0-x86_64/opt-geckoview-junit-e10s',
   job_type_symbol: 'gv-junit',
   platform: 'android-em-7-0-x86_64',
+  task_id: 'IbqFZbxhQka3a1sYa-XPpg',
+  run_id: 0,
 };
 const details275146846 = {
-  results: [
+  artifacts: [
     {
-      job_id: 275146846,
-      job_guid: '64649175-88f0-42b9-9f4c-ba482bb9fae8/0',
-      title: 'artifact uploaded',
-      value: 'reftest_errorsummary.log',
-      url:
-        'https://queue.taskcluster.net/v1/task/ZGSRdYjwQrmfTLpIK7n66A/runs/0/artifacts/public/test_info//reftest_errorsummary.log',
+      storageType: 's3',
+      name: 'public/test_info//reftest_errorsummary.log',
+      expires: '2020-11-06T18:58:18.579Z',
+      contentType: 'text/plain',
+    },
+    {
+      storageType: 's3',
+      name: 'public/test_info//reftest_raw.log',
+      expires: '2020-11-06T18:58:18.579Z',
+      contentType: 'text/plain',
     },
   ],
 };
 
 const details275148683 = {
-  results: [
+  artifacts: [
     {
-      job_id: 275148683,
-      job_guid: '21ba8565-bc61-4246-b76b-5b186be5cfa6/0',
-      title: 'artifact uploaded',
-      value: 'resource-usage.json',
-      url:
-        'https://queue.taskcluster.net/v1/task/IbqFZbxhQka3a1sYa-XPpg/runs/0/artifacts/public/test_info//resource-usage.json',
+      storageType: 's3',
+      name: 'public/logs//localconfig.json',
+      expires: '2020-11-06T18:58:09.715Z',
+      contentType: 'application/json',
+    },
+    {
+      storageType: 's3',
+      name: 'public/test_info//resource-usage.json',
+      expires: '2020-11-06T18:58:09.715Z',
+      contentType: 'application/json',
     },
   ],
 };
@@ -66,9 +78,15 @@ beforeEach(() => {
       tree: 'autoland',
     },
   });
-  fetchMock.get('/api/jobdetail/?job_id=275146846', details275146846);
-  fetchMock.get('/api/jobdetail/?job_id=275148683', details275148683);
-  setUrlParam('repo', repoName);
+  fetchMock.get(
+    'https://firefox-ci-tc.services.mozilla.com/api/queue/v1/task/ZGSRdYjwQrmfTLpIK7n66A/runs/0/artifacts',
+    details275146846,
+  );
+  fetchMock.get(
+    'https://firefox-ci-tc.services.mozilla.com/api/queue/v1/task/IbqFZbxhQka3a1sYa-XPpg/runs/0/artifacts',
+    details275148683,
+  );
+  setUrlParam('try', repoName);
 });
 
 afterEach(() => {
@@ -83,7 +101,10 @@ describe('UnsupportedJob', () => {
       job={job}
       jobName={job.job_type_name}
       jobSymbol={job.job_type_symbol}
-      repo={repoName}
+      currentRepo={{
+        name: 'try',
+        tc_root_url: 'https://firefox-ci-tc.services.mozilla.com',
+      }}
       revision={revision}
     />
   );

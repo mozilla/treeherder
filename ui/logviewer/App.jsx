@@ -2,18 +2,21 @@ import React from 'react';
 import { hot } from 'react-hot-loader/root';
 import { LazyLog } from 'react-lazylog';
 import isEqual from 'lodash/isEqual';
+import uniqBy from 'lodash/uniqBy';
 
 import { getAllUrlParams, getUrlParam, setUrlParam } from '../helpers/location';
 import { scrollToLine } from '../helpers/utils';
 import { isReftest } from '../helpers/job';
-import { getJobsUrl, getReftestUrl } from '../helpers/url';
-import JobModel from '../models/job';
+import { getJobsUrl, getReftestUrl, getArtifactsUrl } from '../helpers/url';
+import { getData } from '../helpers/http';
 import JobDetailModel from '../models/jobDetail';
+import JobModel from '../models/job';
 import PushModel from '../models/push';
 import TextLogStepModel from '../models/textLogStep';
 import JobDetails from '../shared/JobDetails';
 import JobInfo from '../shared/JobInfo';
 import RepositoryModel from '../models/repository';
+import { formatArtifacts } from '../helpers/display';
 
 import Navigation from './Navigation';
 import ErrorLines from './ErrorLines';
@@ -62,9 +65,14 @@ class App extends React.PureComponent {
   componentDidMount() {
     const { repoName, jobId } = this.state;
 
-    JobModel.get(repoName, jobId)
-      .then(async job => {
-        // set the title of the browser window/tab
+    const repoPromise = RepositoryModel.getList();
+    const jobPromise = JobModel.get(repoName, jobId);
+
+    Promise.all([repoPromise, jobPromise])
+      .then(async ([repos, job]) => {
+        const currentRepo = repos.find(repo => repo.name === repoName);
+
+        // set the title of  the browser window/tab
         document.title = job.title;
         const rawLogUrl = job.logs && job.logs.length ? job.logs[0].url : null;
         // other properties, in order of appearance
@@ -74,6 +82,7 @@ class App extends React.PureComponent {
           rawLogUrl && job.job_group_name && isReftest(job)
             ? getReftestUrl(rawLogUrl)
             : null;
+
         const jobDetails = await JobDetailModel.getJobDetails({
           job_id: jobId,
         });
@@ -83,33 +92,46 @@ class App extends React.PureComponent {
             job,
             rawLogUrl,
             reftestUrl,
-            jobDetails,
             jobExists: true,
+            currentRepo,
           },
           async () => {
-            // get the revision and linkify it
-            PushModel.get(job.push_id).then(async resp => {
-              const push = await resp.json();
-              const { revision } = push;
+            const params = {
+              taskId: job.task_id,
+              run: job.retry_id,
+              rootUrl: currentRepo.tc_root_url,
+            };
+            const url = getArtifactsUrl(params);
+            const jobArtifactsPromise = getData(url);
+            const pushPromise = PushModel.get(job.push_id);
 
-              this.setState(
-                {
+            Promise.all([jobArtifactsPromise, pushPromise]).then(
+              async ([artifactsResp, pushResp]) => {
+                const { revision } = await pushResp.json();
+                const jobArtifacts =
+                  !artifactsResp.failureStatus && artifactsResp.data.artifacts
+                    ? formatArtifacts(artifactsResp.data.artifacts, params)
+                    : [];
+
+                // remove duplicates since the jobdetails endpoint will still
+                // contain uploaded artifacts until 4 months after we stop storing them
+                // see bug 1603249 for details; can be removed at some point
+                const mergedJobDetails = uniqBy(
+                  [...jobArtifacts, ...jobDetails],
+                  'value',
+                );
+
+                this.setState({
                   revision,
                   jobUrl: getJobsUrl({
                     repo: repoName,
                     revision,
                     selectedJob: jobId,
                   }),
-                },
-                async () => {
-                  RepositoryModel.getList().then(repos => {
-                    const newRepo = repos.find(repo => repo.name === repoName);
-
-                    this.setState({ currentRepo: newRepo });
-                  });
-                },
-              );
-            });
+                  jobDetails: mergedJobDetails,
+                });
+              },
+            );
           },
         );
       })

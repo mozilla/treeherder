@@ -12,7 +12,7 @@ import TestFailure from '../../../ui/push-health/TestFailure';
 import pushHealth from '../mock/push_health';
 
 const repoName = 'autoland';
-const crashFailure = pushHealth.metrics.tests.details.intermittent[0];
+const crashFailure = pushHealth.metrics.tests.details.knownIssues[0];
 const testFailure = pushHealth.metrics.tests.details.needInvestigation[2];
 
 beforeEach(() => {

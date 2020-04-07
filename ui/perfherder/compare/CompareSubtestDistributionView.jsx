@@ -173,14 +173,14 @@ export default class CompareSubtestDistributionView extends React.Component {
               <div className="pt-5">
                 <ReplicatesGraph
                   title="Base"
-                  projectName={originalProject.name}
+                  project={originalProject}
                   revision={originalRevision}
                   subtestSignature={originalSubtestSignature}
                   filters={this.state.filters}
                 />
                 <ReplicatesGraph
                   title="New"
-                  projectName={newProject.name}
+                  project={newProject}
                   revision={newRevision}
                   subtestSignature={newSubtestSignature}
                   filters={this.state.filters}

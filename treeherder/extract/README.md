@@ -1,4 +1,3 @@
-
 # Extracting to BigQuery
 
 ## Run in Heroku

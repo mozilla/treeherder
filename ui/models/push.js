@@ -104,46 +104,6 @@ export default class PushModel {
     );
   }
 
-  static async triggerAllTalosJobs(
-    times,
-    pushId,
-    notify,
-    decisionTask,
-    currentRepo,
-  ) {
-    const decisionTaskId = decisionTask
-      ? decisionTask.id
-      : (await PushModel.getDecisionTaskId(pushId, notify)).id;
-
-    return TaskclusterModel.load(decisionTaskId, null, currentRepo).then(
-      results => {
-        const actionTaskId = slugid();
-
-        try {
-          const allTalosTask = getAction(results.actions, 'run-all-talos');
-
-          return TaskclusterModel.submit({
-            action: allTalosTask,
-            actionTaskId,
-            decisionTaskId,
-            taskId: null,
-            task: null,
-            input: { times },
-            staticActionVariables: results.staticActionVariables,
-            currentRepo,
-          }).then(
-            () =>
-              `Request sent to trigger all talos jobs ${times} time(s) via actions.json (${actionTaskId})`,
-          );
-        } catch (e) {
-          // The full message is too large to fit in a Treeherder
-          // notification box.
-          notify(formatTaskclusterError(e), 'danger', { sticky: true });
-        }
-      },
-    );
-  }
-
   static triggerNewJobs(jobs, decisionTaskId, currentRepo) {
     return TaskclusterModel.load(decisionTaskId, null, currentRepo).then(
       results => {
