@@ -45,7 +45,7 @@ pytest-django==3.8.0
 
 # Required by pytest-selenium
 selenium==3.141.0
-pytest-html==2.0.1
+pytest-html==2.1.1
 pytest-metadata==1.8.0
 pytest-variables==1.9.0
 pytest-base-url==1.4.1
