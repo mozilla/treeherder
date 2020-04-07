@@ -120,7 +120,7 @@ See the [getting started with ActiveData] guide for more details.
 
 ## Direct database access
 
-If the use-cases above aren't sufficient or you're working on a fullstack Perfherder bug, 
+If the use-cases above aren't sufficient or you're working on a fullstack Perfherder bug,
 we can provide read-only access to Treeherder's production MySQL RDS replica.
 Please [file an infrastructure bug] requesting that someone from the
 Treeherder team [grant access to the read-only replica].
