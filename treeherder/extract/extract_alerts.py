@@ -92,7 +92,7 @@ class ExtractAlerts:
                 #     s.od
                 # FROM
                 #     treeherder.performance_alert_summary s
-                #     LEFT JOIN
+                # LEFT JOIN
                 #     treeherder.performance_alert a ON s.id=a.summary_id
                 # WHERE
                 #     s.created>{last_year} AND (s.last_updated>{last_modified} OR a.last_updated>{last_modified})
