@@ -4,9 +4,7 @@ from os.path import (dirname,
 
 import pytest
 
-from treeherder.perf.exceptions import CannotBackfill
-from treeherder.perf.investigation_aids import (BackfillTool,
-                                                TaskclusterModel)
+from treeherder.services.taskcluster import TaskclusterModel
 
 SAMPLE_DATA_PATH = join(
     dirname(dirname(__file__)),
@@ -60,12 +58,3 @@ def test_get_action(actions_json, expected_backfill_task):
 
     backfill_task = TaskclusterModel._get_action(action_array, "backfill")
     assert backfill_task == expected_backfill_task
-
-
-# BackfillTool
-def test_backfilling_job_from_try_repo_raises_exception(job_from_try):
-    backfill_tool = BackfillTool(
-        TaskclusterModel('https://fakerooturl.org', 'FAKE_CLIENT_ID', 'FAKE_ACCESS_TOKEN'))
-
-    with pytest.raises(CannotBackfill):
-        backfill_tool.backfill_job(job_from_try.id)

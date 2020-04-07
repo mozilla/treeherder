@@ -1,9 +1,9 @@
 from django.conf import settings
 from django.core.management.base import BaseCommand
 
-from treeherder.perf.investigation_aids import DEFAULT_ROOT_URL as root_url
-from treeherder.perf.investigation_aids import (BackfillTool,
-                                                TaskclusterModel)
+from treeherder.perf.backfill_tool import BackfillTool
+from treeherder.services.taskcluster import DEFAULT_ROOT_URL as root_url
+from treeherder.services.taskcluster import TaskclusterModel
 
 
 class Command(BaseCommand):
