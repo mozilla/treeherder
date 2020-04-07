@@ -44,7 +44,7 @@ uritemplate==3.0.1
 requests==2.22.0
 
 # Required by django.contrib.migrations
-sqlparse==0.3.0
+sqlparse==0.3.1
 
 # Used directly and also by Django's YAML serializer.
 PyYAML==5.3

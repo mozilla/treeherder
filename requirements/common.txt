@@ -17,36 +17,36 @@ aiohttp==3.6.2 \
     --hash=sha256:65f31b622af739a802ca6fd1a3076fd0ae523f8485c52924a89561ba10c49b48 \
     --hash=sha256:ae55bac364c405caa23a4f2d6cfecc6a0daada500274ffca4a9230e7129eac59 \
     --hash=sha256:b778ce0c909a2653741cb4b1ac7015b5c130ab9c897611df43ae6a58523cb965 \
-    # via -r requirements/common.in, taskcluster
+    # via -r common.in, taskcluster
 amqp==2.5.2 \
     --hash=sha256:6e649ca13a7df3faacdc8bbb280aa9a6602d22fd9d545336077e573a1f4ff3b8 \
     --hash=sha256:77f1aef9410698d20eaeac5b73a87817365f457a507d82edf292e12cbb83b08d \
-    # via -r requirements/common.in, kombu
+    # via -r common.in, kombu
 aniso8601==6.0.0 \
     --hash=sha256:b8a6a9b24611fc50cf2d9b45d371bfdc4fd0581d1cc52254f5502130a776d4af \
     --hash=sha256:bb167645c79f7a438f9dfab6161af9bed75508c645b1f07d1158240841d22673 \
-    # via -r requirements/common.in, graphene
+    # via -r common.in, graphene
 asgiref==3.2.3 \
     --hash=sha256:7e06d934a7718bf3975acbf87780ba678957b87c7adc056f13b6215d610695a0 \
     --hash=sha256:ea448f92fc35a0ef4b1508f53a04c4670255a3f33d22a81c8fc9c872036adbe5 \
-    # via -r requirements/common.in, django
+    # via -r common.in, django
 async-timeout==3.0.1 \
     --hash=sha256:0c3c816a028d47f659d6ff5c745cb2acf1f966da1fe5c19c77a70282b25f4c5f \
     --hash=sha256:4291ca197d287d274d0b6cb5d6f8f8f82d434ed288f962539ff18cc9012f9ea3 \
-    # via -r requirements/common.in, aiohttp, taskcluster
+    # via -r common.in, aiohttp, taskcluster
 attrs==19.3.0 \
     --hash=sha256:08a96c641c3a74e44eb59afb61a24f2cb9f4d7188748e76ba4bb5edfa3cb7d1c \
     --hash=sha256:f7b7ce16570fe9965acd6d30101a28f62fb4a7f9e926b3bbc9b61f8b04247e72 \
-    # via -r requirements/common.in, aiohttp, jsonschema
+    # via -r common.in, aiohttp, jsonschema
 billiard==3.6.2.0 \
     --hash=sha256:26fd494dc3251f8ce1f5559744f18aeed427fdaf29a75d7baae26752a5d3816f \
     --hash=sha256:f4e09366653aa3cb3ae8ed16423f9ba1665ff426f087bcdbbed86bf3664fe02c \
-    # via -r requirements/common.in, celery
+    # via -r common.in, celery
 blessings==1.7 \
     --hash=sha256:98e5854d805f50a5b58ac2333411b0482516a8210f23f43308baeb58d77c157d \
     --hash=sha256:b1fdd7e7a675295630f9ae71527a8ebc10bfefa236b3d6aa4932ee4462c17ba3 \
     --hash=sha256:caad5211e7ba5afe04367cdd4cfc68fa886e2e08f6f35e76b7387d2109ccea6e \
-    # via -r requirements/common.in, mozlog
+    # via -r common.in, mozlog
 brotli==1.0.7 \
     --hash=sha256:0538dc1744fd17c314d2adc409ea7d1b779783b89fd95bcfb0c2acc93a6ea5a7 \
     --hash=sha256:0970a47f471782912d7705160b2b0a9306e68e6fadf9cffcaeb42d8f0951e26c \
@@ -81,7 +81,7 @@ brotli==1.0.7 \
     --hash=sha256:f9dc52cd70907aafb99a773b66b156f2f995c7a0d284397c487c8b71ddbef2f9 \
     --hash=sha256:f9ee88bb52352588ceb811d045b5c9bb1dc38927bc150fd156244f60ff3f59f1 \
     --hash=sha256:fc7212e36ebeb81aebf7949c92897b622490d7c0e333a479c0395591e7994600 \
-    # via -r requirements/common.in, whitenoise
+    # via -r common.in, whitenoise
 cachetools==4.0.0 \
     --hash=sha256:9a52dd97a85f257f4e4127f15818e71a0c7899f121b34591fcc1173ea79a0198 \
     --hash=sha256:b304586d357c43221856be51d73387f93e2a961598a9b6b6670664746f3b6c6c \
@@ -89,70 +89,70 @@ cachetools==4.0.0 \
 celery==4.3.0 \
     --hash=sha256:4c4532aa683f170f40bd76f928b70bc06ff171a959e06e71bf35f2f9d6031ef9 \
     --hash=sha256:528e56767ae7e43a16cfef24ee1062491f5754368d38fcfffa861cdb9ef219be \
-    # via -r requirements/common.in
+    # via -r common.in
 certifi==2019.11.28 \
     --hash=sha256:017c25db2a153ce562900032d5bc68e9f191e44e9a0f762f373977de9df1fbb3 \
     --hash=sha256:25b64c7da4cd7479594d035c08c2d809eb4aab3a26e5a990ea98cc450c320f1f \
-    # via -r requirements/common.in, requests
+    # via -r common.in, requests
 chardet==3.0.4 \
     --hash=sha256:84ab92ed1c4d4f16916e05906b6b75a6c0fb5db821cc65e70cbd64a3e2a5eaae \
     --hash=sha256:fc323ffcaeaed0e0a02bf4d117757b98aed530d9ed4531e3e15460124c106691 \
-    # via -r requirements/common.in, aiohttp, requests
+    # via -r common.in, aiohttp, requests
 coreapi==2.3.3 \
     --hash=sha256:46145fcc1f7017c076a2ef684969b641d18a2991051fddec9458ad3f78ffc1cb \
     --hash=sha256:bf39d118d6d3e171f10df9ede5666f63ad80bba9a29a8ec17726a66cf52ee6f3 \
-    # via -r requirements/common.in
+    # via -r common.in
 coreschema==0.0.4 \
     --hash=sha256:5e6ef7bf38c1525d5e55a895934ab4273548629f16aed5c0a6caa74ebf45551f \
     --hash=sha256:9503506007d482ab0867ba14724b93c18a33b22b6d19fb419ef2d239dd4a1607 \
-    # via -r requirements/common.in, coreapi
+    # via -r common.in, coreapi
 django-cache-memoize==0.1.6 \
     --hash=sha256:7f271be70b11155929ee8a4a2b5f53c9fb46b9befa1b546caffa3298e6ac8f7d \
     --hash=sha256:d239e8c37734b0a70b74f94fa33b180b3b0c82c3784beb21209bb4ab64a3e6fb \
-    # via -r requirements/common.in
+    # via -r common.in
 django-cors-headers==3.2.1 \
     --hash=sha256:a5960addecc04527ab26617e51b8ed42f0adab4594b24bb0f3c33e2bd3857c3f \
     --hash=sha256:a785b5f446f6635810776d9f5f5d23e6a2a2f728ea982648370afaf0dfdf2627 \
-    # via -r requirements/common.in
+    # via -r common.in
 django-environ==0.4.5 \
     --hash=sha256:6c9d87660142608f63ec7d5ce5564c49b603ea8ff25da595fd6098f6dc82afde \
     --hash=sha256:c57b3c11ec1f319d9474e3e5a79134f40174b17c7cc024bbb2fad84646b120c4 \
-    # via -r requirements/common.in
+    # via -r common.in
 django-filter==2.2.0 \
     --hash=sha256:558c727bce3ffa89c4a7a0b13bc8976745d63e5fd576b3a9a851650ef11c401b \
     --hash=sha256:c3deb57f0dd7ff94d7dce52a047516822013e2b441bed472b722a317658cfd14 \
-    # via -r requirements/common.in
+    # via -r common.in
 django-redis==4.11.0 \
     --hash=sha256:a5b1e3ffd3198735e6c529d9bdf38ca3fcb3155515249b98dc4d966b8ddf9d2b \
     --hash=sha256:e1aad4cc5bd743d8d0b13d5cae0cef5410eaace33e83bff5fc3a139ad8db50b4 \
-    # via -r requirements/common.in
+    # via -r common.in
 django==3.0.3 \
     --hash=sha256:2f1ba1db8648484dd5c238fb62504777b7ad090c81c5f1fd8d5eb5ec21b5f283 \
     --hash=sha256:c91c91a7ad6ef67a874a4f76f58ba534f9208412692a840e1d125eb5c279cb0a \
-    # via -r requirements/common.in, django-cors-headers, django-filter, django-redis, djangorestframework, graphene-django
+    # via -r common.in, django-cors-headers, django-filter, django-redis, djangorestframework, graphene-django
 djangorestframework==3.11.0 \
     --hash=sha256:05809fc66e1c997fd9a32ea5730d9f4ba28b109b9da71fccfa5ff241201fd0a4 \
     --hash=sha256:e782087823c47a26826ee5b6fa0c542968219263fb3976ec3c31edab23a4001f \
-    # via -r requirements/common.in
+    # via -r common.in
 ecdsa==0.15 \
     --hash=sha256:867ec9cf6df0b03addc8ef66b56359643cb5d0c1dc329df76ba7ecfe256c8061 \
     --hash=sha256:8f12ac317f8a1318efa75757ef0a651abe12e51fc1af8838fb91079445227277 \
-    # via -r requirements/common.in, python-jose
+    # via -r common.in, python-jose
 elasticsearch==7.5.1 \
     --hash=sha256:1815ee1377e7d3cf32770738a70785fe4ab1f05be28336a330ed71cb295a7c6c \
     --hash=sha256:2a0ca516378ae9b87ac840e7bb529ec508f3010360dd9feed605dff2a898aff5 \
-    # via -r requirements/common.in
+    # via -r common.in
 first==2.0.2 \
     --hash=sha256:8d8e46e115ea8ac652c76123c0865e3ff18372aef6f03c22809ceefcea9dec86 \
     --hash=sha256:ff285b08c55f8c97ce4ea7012743af2495c9f1291785f163722bd36f6af6d3bf \
-    # via -r requirements/common.in
+    # via -r common.in
 furl==2.1.0 \
     --hash=sha256:c0e0231a1feee2acd256574b7033df3144775451c610cb587060d6a0d7e0b621 \
     --hash=sha256:f4d6f1e5479c376a5b7bdc62795d736d8c1b2a754f366a2ad2816e46e946e22e \
-    # via -r requirements/common.in
+    # via -r common.in
 future==0.18.2 \
     --hash=sha256:b1bead90b70cf6ec3f0710ae53a525360fa360d306a86583adc6bf83a4db537d \
-    # via -r requirements/common.in
+    # via -r common.in
 google-api-core==1.16.0 \
     --hash=sha256:859f7392676761f2b160c6ee030c3422135ada4458f0948c5690a6a7c8d86294 \
     --hash=sha256:92e962a087f1c4b8d1c5c88ade1c1dfd550047dcffb320c57ef6a534a20403e2 \
@@ -179,57 +179,57 @@ googleapis-common-protos==1.51.0 \
 graphene-django==2.8.0 \
     --hash=sha256:85376ed02941f579849033c027cd8b1e31be72765b504a08706ccb9234ecdc26 \
     --hash=sha256:a290fc41a58ee61b43ff4b4885e866ef48bb8d66b0e7088fd8dc2bd677856e6a \
-    # via -r requirements/common.in
+    # via -r common.in
 graphene==2.1.8 \
     --hash=sha256:09165f03e1591b76bf57b133482db9be6dac72c74b0a628d3c93182af9c5a896 \
     --hash=sha256:2cbe6d4ef15cfc7b7805e0760a0e5b80747161ce1b0f990dfdc0d2cf497c12f9 \
-    # via -r requirements/common.in, graphene-django
+    # via -r common.in, graphene-django
 graphql-core==2.2.1 \
     --hash=sha256:1488f2a5c2272dc9ba66e3042a6d1c30cea0db4c80bd1e911c6791ad6187d91b \
     --hash=sha256:da64c472d720da4537a2e8de8ba859210b62841bd47a9be65ca35177f62fe0e4 \
-    # via -r requirements/common.in, graphene, graphene-django, graphql-relay
+    # via -r common.in, graphene, graphene-django, graphql-relay
 graphql-relay==2.0.0 \
     --hash=sha256:0e94201af4089e1f81f07d7bd8f84799768e39d70fa1ea16d1df505b46cc6335 \
     --hash=sha256:75aa0758971e252964cb94068a4decd472d2a8295229f02189e3cbca1f10dbb5 \
     --hash=sha256:7fa74661246e826ef939ee92e768f698df167a7617361ab399901eaebf80dce6 \
-    # via -r requirements/common.in, graphene
+    # via -r common.in, graphene
 gunicorn==20.0.4 \
     --hash=sha256:1904bb2b8a43658807108d59c3f3d56c2b6121a701161de0ddf9ad140073c626 \
     --hash=sha256:cd4a810dd51bf497552cf3f863b575dabd73d6ad6a91075b65936b151cbf4f9c \
-    # via -r requirements/common.in
+    # via -r common.in
 idna==2.8 \
     --hash=sha256:c357b3f628cf53ae2c4c05627ecc484553142ca23264e593d327bcde5e9c3407 \
     --hash=sha256:ea8b7f6188e6fa117537c3df7da9fc686d485087abf6ac197f9c46432f7e4a3c \
-    # via -r requirements/common.in, requests, yarl
+    # via -r common.in, requests, yarl
 iso8601==0.1.12 \
     --hash=sha256:210e0134677cc0d02f6028087fee1df1e1d76d372ee1db0bf30bf66c5c1c89a3 \
     --hash=sha256:49c4b20e1f38aa5cf109ddcd39647ac419f928512c869dc01d5c7098eddede82 \
     --hash=sha256:bbbae5fb4a7abfe71d4688fd64bff70b91bbd74ef6a99d964bab18f7fdf286dd \
-    # via -r requirements/common.in
+    # via -r common.in
 itypes==1.1.0 \
     --hash=sha256:c6e77bb9fd68a4bfeb9d958fea421802282451a25bac4913ec94db82a899c073 \
-    # via -r requirements/common.in, coreapi
+    # via -r common.in, coreapi
 jinja2==2.11.1 \
     --hash=sha256:93187ffbc7808079673ef52771baa950426fd664d3aad1d0fa3e95644360e250 \
     --hash=sha256:b0eaf100007721b5c16c1fc1eecb87409464edc10469ddc9a22a27a99123be49 \
-    # via -r requirements/common.in, coreschema
+    # via -r common.in, coreschema
 jsonschema==3.0.1 \
     --hash=sha256:0c0a81564f181de3212efa2d17de1910f8732fa1b71c42266d983cd74304e20d \
     --hash=sha256:a5f6559964a3851f59040d3b961de5e68e70971afb88ba519d27e6a039efff1a \
-    # via -r requirements/common.in
+    # via -r common.in
 jx-bigquery==3.59.20089 \
     --hash=sha256:de42d7049c7b4e6ee207d556931cb3b7358736d990eaa705a2a4afc40b38212f \
-    # via -r requirements/common.in
+    # via -r common.in
 jx-mysql==3.49.20042 \
     --hash=sha256:adb47e8e13151178cbb81e3e352776ec848b799e9b038de7796a889782564519 \
-    # via -r requirements/common.in
+    # via -r common.in
 jx-python==3.57.20089 \
     --hash=sha256:a10cd1ddb14e707e43af1b9b0fa7096957bb563af477035238a86ea2e0e0861a \
     # via jx-bigquery, jx-mysql
 kombu==4.6.3 \
     --hash=sha256:55b71d3785def3470a16217fe0780f9e6f95e61bf9ad39ef8dce0177224eab77 \
     --hash=sha256:eb365ea795cd7e629ba2f1f398e0c3ba354b91ef4de225ffdf6ab45fdfc7d581 \
-    # via -r requirements/common.in, celery
+    # via -r common.in, celery
 markupsafe==1.1.1 \
     --hash=sha256:00bc623926325b26bb9605ae9eae8a215691f33cae5df11ca5424f06f2d1f473 \
     --hash=sha256:09027a7803a62ca78792ad89403b1b7a73a01c8cb65909cd876f7fcebd79b161 \
@@ -264,7 +264,7 @@ markupsafe==1.1.1 \
     --hash=sha256:cdb132fc825c38e1aeec2c8aa9338310d29d337bebbd7baa06889d09a60a1fa2 \
     --hash=sha256:e249096428b3ae81b08327a63a485ad0878de3fb939049038579ac0ef61e17e7 \
     --hash=sha256:e8313f01ba26fbbe36c7be1966a7b7424942f670f38e666995b88d012765b9be \
-    # via -r requirements/common.in, jinja2
+    # via -r common.in, jinja2
 mo-collections==3.58.20089 \
     --hash=sha256:66c4c13278ab31caef9a37b9c2f18b17ec2165c727897d7010f6224c453c6a13 \
     # via jx-mysql, jx-python, mo-testing
@@ -297,7 +297,7 @@ mo-sql==3.55.20074 \
     # via jx-bigquery, jx-mysql
 mo-testing==3.58.20089 \
     --hash=sha256:2cd407e5a2d7a31abea93dc0e5c08f9d12e5e96d93d4658db47303d5b1ebaad1 \
-    # via -r requirements/common.in
+    # via -r common.in
 mo-threads==3.57.20089 \
     --hash=sha256:e7993fad18fedee21e9152f0c4ae9ff92c346f7e34c3a409e184e962dba7f5dc \
     # via jx-python
@@ -307,15 +307,15 @@ mo-times==3.57.20089 \
 mohawk==1.1.0 \
     --hash=sha256:3ed296a30453d0b724679e0fd41e4e940497f8e461a9a9c3b7f36e43bab0fa09 \
     --hash=sha256:d2a0e3ab10a209cc79e95e28f2dd54bd4a73fd1998ffe27b7ba0f962b6be9723 \
-    # via -r requirements/common.in, taskcluster
+    # via -r common.in, taskcluster
 mozlog==5.0 \
     --hash=sha256:5c8f366f397491fee69148f819223d070050cf88001060fee6800736827e3040 \
     --hash=sha256:d5db61808632ad1c79a34401fba5522e04bfc307961072f067a49fc63edca2a2 \
-    # via -r requirements/common.in
+    # via -r common.in
 mozterm==1.0.0 \
     --hash=sha256:b1e91acec188de07c704dbb7b0100a7be5c1e06567b3beb67f6ea11d00a483a4 \
     --hash=sha256:f5eafa25c23d391e2a2bb1dd45ee928fc9e3c811977a3856b5a5a0778011053c \
-    # via -r requirements/common.in, mozlog
+    # via -r common.in, mozlog
 multidict==4.7.4 \
     --hash=sha256:13f3ebdb5693944f52faa7b2065b751cb7e578b8dd0a5bb8e4ab05ad0188b85e \
     --hash=sha256:26502cefa86d79b86752e96639352c7247846515c864d7c2eb85d036752b643c \
@@ -334,23 +334,23 @@ multidict==4.7.4 \
     --hash=sha256:d7d428488c67b09b26928950a395e41cc72bb9c3d5abfe9f0521940ee4f796d4 \
     --hash=sha256:dcfed56aa085b89d644af17442cdc2debaa73388feba4b8026446d168ca8dad7 \
     --hash=sha256:f29b885e4903bd57a7789f09fe9d60b6475a6c1a4c0eca874d8558f00f9d4b51 \
-    # via -r requirements/common.in, aiohttp, yarl
+    # via -r common.in, aiohttp, yarl
 mysqlclient==1.4.6 \
     --hash=sha256:4c82187dd6ab3607150fbb1fa5ef4643118f3da122b8ba31c3149ddd9cf0cb39 \
     --hash=sha256:9e6080a7aee4cc6a06b58b59239f20f1d259c1d2fddf68ddeed242d2311c7087 \
     --hash=sha256:f3fdaa9a38752a3b214a6fe79d7cae3653731a53e577821f9187e67cbecb2e16 \
     --hash=sha256:f646f8d17d02be0872291f258cce3813497bc7888cd4712a577fd1e719b2f213 \
-    # via -r requirements/common.in
+    # via -r common.in
 newrelic==5.2.1.129 \
     --hash=sha256:da9adab674d9fe7aa8fbabb6691b33fb7be94a32b6a80548ec7018be9df8ef65 \
-    # via -r requirements/common.in
+    # via -r common.in
 orderedmultidict==1.0.1 \
     --hash=sha256:04070bbb5e87291cc9bfa51df413677faf2141c73c61d2a5f7b26bea3cd882ad \
     --hash=sha256:43c839a17ee3cdd62234c47deca1a8508a3f2ca1d0678a3bf791c87cf84adbf3 \
-    # via -r requirements/common.in, furl
+    # via -r common.in, furl
 promise==2.3 \
     --hash=sha256:dfd18337c523ba4b6a58801c164c1904a9d4d1b1747c7d5dbf45b693a49d93d0 \
-    # via -r requirements/common.in, graphene-django, graphql-core, graphql-relay
+    # via -r common.in, graphene-django, graphql-core, graphql-relay
 protobuf==3.11.3 \
     --hash=sha256:0bae429443cc4748be2aadfdaf9633297cfaeb24a9a02d0ab15849175ce90fab \
     --hash=sha256:24e3b6ad259544d717902777b33966a1a069208c885576254c112663e6a5bb0f \
@@ -378,7 +378,7 @@ pyasn1-modules==0.2.8 \
 pyasn1==0.4.8 \
     --hash=sha256:39c7e2ec30515947ff4e87fb6f456dfc6e84857d34be479c9d4a4ba4bf46aa5d \
     --hash=sha256:aef77c9fb94a3ac588e87841208bdec464471d9871bd5050a287cc9a475cd0ba \
-    # via -r requirements/common.in, pyasn1-modules, python-jose, rsa
+    # via -r common.in, pyasn1-modules, python-jose, rsa
 pycryptodome==3.9.4 \
     --hash=sha256:042ae873baadd0c33b4d699a5c5b976ade3233a979d972f98ca82314632d868c \
     --hash=sha256:0502876279772b1384b660ccc91563d04490d562799d8e2e06b411e2d81128a9 \
@@ -412,7 +412,7 @@ pycryptodome==3.9.4 \
     --hash=sha256:d3fe3f33ad52bf0c19ee6344b695ba44ffbfa16f3c29ca61116b48d97bd970fb \
     --hash=sha256:e3a79a30d15d9c7c284a7734036ee8abdb5ca3a6f5774d293cdc9e1358c1dc10 \
     --hash=sha256:eec0689509389f19875f66ae8dedd59f982240cdab31b9f78a8dc266011df93a \
-    # via -r requirements/common.in, python-jose
+    # via -r common.in, python-jose
 pylibrary==3.47.20042 \
     --hash=sha256:b15eb994c819eca8dc860af8ea6437e482d519c1a1c7618a28fc6bcd4f8043f5 \
     # via jx-mysql
@@ -422,19 +422,19 @@ pymysql==0.9.3 \
     # via jx-mysql
 pyrsistent==0.15.7 \
     --hash=sha256:cdc7b5e3ed77bed61270a47d35434a30617b9becdf2478af76ad2c6ade307280 \
-    # via -r requirements/common.in, jsonschema
+    # via -r common.in, jsonschema
 python-dateutil==2.8.1 \
     --hash=sha256:73ebfe9dbf22e832286dafa60473e4cd239f8592f699aa5adaf10050e6e1823c \
     --hash=sha256:75bb3f31ea686f1197762692a9ee6a7550b59fc6ca3a1f4b5d7e32fb98e2da2a \
-    # via -r requirements/common.in
+    # via -r common.in
 python-jose[pycryptodome]==3.1.0 \
     --hash=sha256:1ac4caf4bfebd5a70cf5bd82702ed850db69b0b6e1d0ae7368e5f99ac01c9571 \
     --hash=sha256:8484b7fdb6962e9d242cce7680469ecf92bda95d10bbcbbeb560cacdff3abfce \
-    # via -r requirements/common.in
+    # via -r common.in
 pytz==2019.3 \
     --hash=sha256:1c557d7d0e871de1f5ccd5833f60fb2550652da6be2693c1e02300743d21500d \
     --hash=sha256:b02c06db6cf09c12dd25137e563b31700d3b80fcc4ad23abb7a315f2789819be \
-    # via -r requirements/common.in, celery, django, google-api-core
+    # via -r common.in, celery, django, google-api-core
 pyyaml==5.3 \
     --hash=sha256:059b2ee3194d718896c0ad077dd8c043e5e909d9180f387ce42012662a4946d6 \
     --hash=sha256:1cf708e2ac57f3aabc87405f04b86354f66799c8e62c28c5fc5f88b5521b2dbf \
@@ -447,23 +447,23 @@ pyyaml==5.3 \
     --hash=sha256:dbbb2379c19ed6042e8f11f2a2c66d39cceb8aeace421bfc29d085d93eda3689 \
     --hash=sha256:e3a057b7a64f1222b56e47bcff5e4b94c4f61faac04c7c4ecb1985e18caa3994 \
     --hash=sha256:e9f45bd5b92c7974e59bcd2dcc8631a6b6cc380a904725fce7bc08872e691615 \
-    # via -r requirements/common.in
+    # via -r common.in
 redis==3.4.1 \
     --hash=sha256:0dcfb335921b88a850d461dc255ff4708294943322bd55de6cfd68972490ca1f \
     --hash=sha256:b205cffd05ebfd0a468db74f0eedbff8df1a7bfc47521516ade4692991bb0833 \
-    # via -r requirements/common.in, django-redis
+    # via -r common.in, django-redis
 requests==2.22.0 \
     --hash=sha256:11e007a8a2aa0323f5a921e9e6a2d7e4e67d9877e85773fba9ba6419025cbeb4 \
     --hash=sha256:9cf5292fcd0f598c671cfc1e0d7d1a7f13bb8085e9a590f48c010551dc6c4b31 \
-    # via -r requirements/common.in, coreapi, google-api-core, mo-json-config, pylibrary, taskcluster
+    # via -r common.in, coreapi, google-api-core, mo-json-config, pylibrary, taskcluster
 rsa==4.0 \
     --hash=sha256:14ba45700ff1ec9eeb206a2ce76b32814958a98e372006c8fb76ba820211be66 \
     --hash=sha256:1a836406405730121ae9823e19c6e806c62bbad73f890574fff50efa4122c487 \
-    # via -r requirements/common.in, google-auth, python-jose
+    # via -r common.in, google-auth, python-jose
 rx==1.6.1 \
     --hash=sha256:13a1d8d9e252625c173dc795471e614eadfe1cf40ffc684e08b8fff0d9748c23 \
     --hash=sha256:7357592bc7e881a95e0c2013b73326f704953301ab551fbc8133a6fadab84105 \
-    # via -r requirements/common.in, graphql-core
+    # via -r common.in, graphql-core
 simplejson==3.17.0 \
     --hash=sha256:0fe3994207485efb63d8f10a833ff31236ed27e3b23dadd0bf51c9900313f8f2 \
     --hash=sha256:17163e643dbf125bb552de17c826b0161c68c970335d270e174363d19e7ea882 \
@@ -481,53 +481,53 @@ simplejson==3.17.0 \
     --hash=sha256:daaf4d11db982791be74b23ff4729af2c7da79316de0bebf880fa2d60bcc8c5a \
     --hash=sha256:fc046afda0ed8f5295212068266c92991ab1f4a50c6a7144b69364bdee4a0159 \
     --hash=sha256:fc9051d249dd5512e541f20330a74592f7a65b2d62e18122ca89bf71f94db748 \
-    # via -r requirements/common.in
+    # via -r common.in
 singledispatch==3.4.0.3 \
     --hash=sha256:5b06af87df13818d14f08a028e42f566640aef80805c3b50c5056b086e3c2b9c \
     --hash=sha256:833b46966687b3de7f438c761ac475213e53b306740f1abfaa86e1d1aae56aa8 \
-    # via -r requirements/common.in, graphene-django
+    # via -r common.in, graphene-django
 six==1.14.0 \
     --hash=sha256:236bdbdce46e6e6a3d61a337c0f8b763ca1e8717c03b369e87a7ec7ce1319c0a \
     --hash=sha256:8f3cd2e254d8f793e7f3d6d9df77b92252b52637291d0f0da013c76ea2724b6c \
-    # via -r requirements/common.in, blessings, ecdsa, furl, google-api-core, google-auth, google-cloud-bigquery, google-resumable-media, graphene, graphene-django, graphql-core, graphql-relay, jsonschema, mohawk, mozlog, mozterm, orderedmultidict, promise, protobuf, pyrsistent, python-dateutil, python-jose, singledispatch, taskcluster
+    # via -r common.in, blessings, ecdsa, furl, google-api-core, google-auth, google-cloud-bigquery, google-resumable-media, graphene, graphene-django, graphql-core, graphql-relay, jsonschema, mohawk, mozlog, mozterm, orderedmultidict, promise, protobuf, pyrsistent, python-dateutil, python-jose, singledispatch, taskcluster
 slugid==2.0.0 \
     --hash=sha256:a950d98b72691178bdd4d6c52743c4a2aa039207cf7a97d71060a111ff9ba297 \
     --hash=sha256:aec8b0e01c4ad32e38e12d609eab3ec912fd129aaf6b2ded0199b56a5f8fd67c \
-    # via -r requirements/common.in, taskcluster
-sqlparse==0.3.0 \
-    --hash=sha256:40afe6b8d4b1117e7dff5504d7a8ce07d9a1b15aeeade8a2d10f130a834f8177 \
-    --hash=sha256:7c3dca29c022744e95b547e867cee89f4fce4373f3549ccd8797d8eb52cdb873 \
-    # via -r requirements/common.in, django
+    # via -r common.in, taskcluster
+sqlparse==0.3.1 \
+    --hash=sha256:022fb9c87b524d1f7862b3037e541f68597a730a8843245c349fc93e1643dc4e \
+    --hash=sha256:e162203737712307dfe78860cc56c8da8a852ab2ee33750e33aeadf38d12c548 \
+    # via -r common.in, django
 taskcluster-urls==12.1.0 \
     --hash=sha256:1dc740c32c7beb31e11ed7ccf9da2d47a504acdb3170c8900649433b0fd16fb2 \
     --hash=sha256:4a62c776aeba6d45044789a8845ec4d8521bc1bb6ebfc86d79ee759bcdd4f2f7 \
-    # via -r requirements/common.in, taskcluster
+    # via -r common.in, taskcluster
 taskcluster==27.0.0 \
     --hash=sha256:2bed90238c8c2c7273624e8c64ce485987ca121588dac6490a23aca91943852e \
     --hash=sha256:4905b57911aec5cae2f4530e5571080285ec12cfa7367ce01b7a196fbf19749a \
     --hash=sha256:f79e07b074cd716936b80c2a4583c03be1254376fa36d2ba11932c44cd1af676 \
-    # via -r requirements/common.in
+    # via -r common.in
 typing==3.7.4.1 \
     --hash=sha256:91dfe6f3f706ee8cc32d38edbbf304e9b7583fb37108fef38229617f8b3eba23 \
     --hash=sha256:c8cabb5ab8945cd2f54917be357d134db9cc1eb039e59d1606dc1e60cb1d9d36 \
     --hash=sha256:f38d83c5a7a7086543a0f649564d661859c5146a85775ab90c0d2f93ffaa9714 \
-    # via -r requirements/common.in
+    # via -r common.in
 uritemplate==3.0.1 \
     --hash=sha256:07620c3f3f8eed1f12600845892b0e036a2420acf513c53f7de0abd911a5894f \
     --hash=sha256:5af8ad10cec94f215e3f48112de2022e1d5a37ed427fbd88652fa908f2ab7cae \
-    # via -r requirements/common.in, coreapi
+    # via -r common.in, coreapi
 urllib3==1.25.8 \
     --hash=sha256:2f3db8b19923a873b3e5256dc9c2dedfa883e33d87c690d9c7913e1f40673cdc \
     --hash=sha256:87716c2d2a7121198ebcb7ce7cccf6ce5e9ba539041cfbaeecfb641dc0bf6acc \
-    # via -r requirements/common.in, elasticsearch, requests
+    # via -r common.in, elasticsearch, requests
 vine==1.3.0 \
     --hash=sha256:133ee6d7a9016f177ddeaf191c1f58421a1dcc6ee9a42c58b34bed40e1d2cd87 \
     --hash=sha256:ea4947cc56d1fd6f2095c8d543ee25dad966f78692528e68b4fada11ba3f98af \
-    # via -r requirements/common.in, amqp, celery
+    # via -r common.in, amqp, celery
 whitenoise[brotli]==5.0.1 \
     --hash=sha256:0f9137f74bd95fa54329ace88d8dc695fbe895369a632e35f7a136e003e41d73 \
     --hash=sha256:62556265ec1011bd87113fb81b7516f52688887b7a010ee899ff1fd18fd22700 \
-    # via -r requirements/common.in
+    # via -r common.in
 yarl==1.4.2 \
     --hash=sha256:0c2ab325d33f1b824734b3ef51d4d54a54e0e7a23d13b86974507602334c2cce \
     --hash=sha256:0ca2f395591bbd85ddd50a82eb1fde9c1066fafe888c5c7cc1d810cf03fd3cc6 \
@@ -546,7 +546,7 @@ yarl==1.4.2 \
     --hash=sha256:c9959d49a77b0e07559e579f38b2f3711c2b8716b8410b320bf9713013215a1b \
     --hash=sha256:d8cdee92bc930d8b09d8bd2043cedd544d9c8bd7436a77678dd602467a993080 \
     --hash=sha256:e15199cdb423316e15f108f51249e44eb156ae5dba232cb73be555324a1d49c2 \
-    # via -r requirements/common.in, aiohttp
+    # via -r common.in, aiohttp
 
 # WARNING: The following packages were not pinned, but pip requires them to be
 # pinned when the requirements file includes hashes. Consider using the --allow-unsafe flag.
