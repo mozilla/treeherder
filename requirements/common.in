@@ -46,4 +46,3 @@ django-cache-memoize==0.1.6    # Imported as cache_memoize
 jx-bigquery
 jx-mysql
 mo-testing
-
