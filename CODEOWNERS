@@ -1,0 +1,10 @@
+# Visit https://help.github.com/en/github/creating-cloning-and-archiving-repositories/about-code-owners#codeowners-syntax
+# for learning about the syntax
+
+# Dot files
+.*                                      @armenzg
+docker/*                                @armenzg
+treeherder/etl/management/commands/*    @armenzg
+ui/push-health/*                        @camd
+ui/intermittent-failures/*              @sarah-clements
+ui/intermittents-commenter/*            @sarah-clements

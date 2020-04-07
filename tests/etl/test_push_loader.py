@@ -140,7 +140,7 @@ def test_ingest_hg_push_good_repo(hg_push, test_repository, mock_hg_push_commits
     """Test graceful handling of an unknown HG repo"""
     hg_push["payload"]["repo_url"] = "https://hg.mozilla.org/mozilla-central"
     assert Push.objects.count() == 0
-    PushLoader().process(hg_push, "exchange/hgpushes/v1", "https://tc.example.com")
+    PushLoader().process(hg_push, "exchange/hgpushes/v1", "https://firefox-ci-tc.services.mozilla.com")
     assert Push.objects.count() == 1
 
 
@@ -148,7 +148,7 @@ def test_ingest_hg_push_good_repo(hg_push, test_repository, mock_hg_push_commits
 def test_ingest_hg_push_bad_repo(hg_push):
     """Test graceful handling of an unknown HG repo"""
     hg_push["payload"]["repo_url"] = "https://bad.repo.com"
-    PushLoader().process(hg_push, "exchange/hgpushes/v1", "https://tc.example.com")
+    PushLoader().process(hg_push, "exchange/hgpushes/v1", "https://firefox-ci-tc.services.mozilla.com")
     assert Push.objects.count() == 0
 
 
@@ -156,7 +156,7 @@ def test_ingest_hg_push_bad_repo(hg_push):
 def test_ingest_github_push_bad_repo(github_push):
     """Test graceful handling of an unknown GH repo"""
     github_push[0]["payload"]["details"]["event.head.repo.url"] = "https://bad.repo.com"
-    PushLoader().process(github_push[0]["payload"], github_push[0]["exchange"], "https://tc.example.com")
+    PushLoader().process(github_push[0]["payload"], github_push[0]["exchange"], "https://firefox-ci-tc.services.mozilla.com")
     assert Push.objects.count() == 0
 
 
@@ -166,7 +166,7 @@ def test_ingest_github_push_merge_commit(github_push, test_repository, mock_gith
     test_repository.url = github_push[1]["payload"]["details"]["event.head.repo.url"].replace(".git", "")
     test_repository.branch = github_push[1]["payload"]["details"]["event.base.repo.branch"]
     test_repository.save()
-    PushLoader().process(github_push[1]["payload"], github_push[1]["exchange"], "https://tc.example.com")
+    PushLoader().process(github_push[1]["payload"], github_push[1]["exchange"], "https://firefox-ci-tc.services.mozilla.com")
     assert Push.objects.count() == 1
 
 
@@ -185,5 +185,5 @@ def test_ingest_github_push_comma_separated_branches(branch, expected_pushes, gi
     test_repository.save()
     github_push[0]["payload"]["details"]["event.base.repo.branch"] = branch
     assert Push.objects.count() == 0
-    PushLoader().process(github_push[0]["payload"], github_push[0]["exchange"], "https://tc.example.com")
+    PushLoader().process(github_push[0]["payload"], github_push[0]["exchange"], "https://firefox-ci-tc.services.mozilla.com")
     assert Push.objects.count() == expected_pushes

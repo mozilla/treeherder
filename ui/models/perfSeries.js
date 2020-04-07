@@ -1,9 +1,10 @@
 import queryString from 'query-string';
 
 import { getProjectUrl } from '../helpers/location';
-import { getApiUrl, createQueryParams } from '../helpers/url';
+import { createQueryParams, getArtifactsUrl } from '../helpers/url';
 import { getData } from '../helpers/http';
 
+import JobModel from './job';
 import OptionCollectionModel from './optionCollection';
 
 export const getTestName = function getTestName(signatureProps) {
@@ -131,21 +132,21 @@ export default class PerfSeriesModel {
     });
   }
 
-  static getReplicateData(params) {
-    const searchParams = { ...params, value: 'perfherder-data.json' };
+  static async getReplicateData({ jobId, rootUrl }) {
+    const { data, failureStatus } = await JobModel.getList({ id: jobId });
 
-    return fetch(
-      `${getApiUrl('/jobdetail/')}?${queryString.stringify(searchParams)}`,
-    ).then(async resp => {
-      if (resp.ok) {
-        const data = await resp.json();
+    if (failureStatus || !data.length) {
+      return { failureStatus: true, data: ['No data for this job'] };
+    }
 
-        if (data.results.length) {
-          const { url } = data.results[0];
-          return fetch(url).then(resultResp => resultResp.json());
-        }
-      }
-      return Promise.reject('No replicate data found');
+    const { task_id: taskId, retry_id: run } = data[0];
+    const url = getArtifactsUrl({
+      taskId,
+      run,
+      rootUrl,
+      artifactPath: 'public/test_info/perfherder-data.json',
     });
+    const replicateDatum = await getData(url);
+    return replicateDatum;
   }
 }

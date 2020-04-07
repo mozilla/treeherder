@@ -46,6 +46,18 @@ export const getRunnableJobsURL = function getRunnableJobsURL(
   return url;
 };
 
+export const getArtifactsUrl = params => {
+  const { taskId, run, rootUrl, artifactPath } = params;
+
+  const tcUrl = tcLibUrls.withRootUrl(rootUrl);
+  let url = tcUrl.api('queue', 'v1', `/task/${taskId}/runs/${run}/artifacts`);
+
+  if (artifactPath) {
+    url += `/${artifactPath}`;
+  }
+  return url;
+};
+
 export const createQueryParams = function createQueryParams(params) {
   const query =
     params instanceof URLSearchParams ? params : new URLSearchParams(params);
@@ -118,6 +130,12 @@ export const parseQueryParams = function parseQueryParams(search) {
     (acc, [key, value]) => ({ ...acc, [key]: value }),
     {},
   );
+};
+
+export const extractSearchString = function getQueryString(url) {
+  const parts = url.split('?');
+
+  return parts[parts.length - 1];
 };
 
 // `api` requires a preceding forward slash

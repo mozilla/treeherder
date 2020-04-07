@@ -40,7 +40,7 @@ class PerformanceSignature(models.Model):
     option_collection = models.ForeignKey(OptionCollection, on_delete=models.CASCADE)
     suite = models.CharField(max_length=80)
     test = models.CharField(max_length=80, blank=True)
-    application = models.CharField(max_length=10, null=True,
+    application = models.CharField(max_length=10, default='',
                                    help_text="Application that runs the signature's tests. "
                                              "Generally used to record browser's name, but not necessarily.")
     lower_is_better = models.BooleanField(default=True)
@@ -102,7 +102,7 @@ class PerformanceSignature(models.Model):
             # ensure there is only one signature per repository with a
             # particular set of properties
             ('repository', 'suite', 'test', 'framework',
-             'platform', 'option_collection', 'extra_options', 'last_updated'),
+             'platform', 'option_collection', 'extra_options', 'last_updated', 'application'),
             # suite_public_name/test_public_name must be unique
             # and different than suite/test
             ('repository', 'suite_public_name', 'test_public_name', 'framework',
@@ -528,6 +528,7 @@ class BackfillReport(models.Model):
 
     created = models.DateTimeField(auto_now_add=True)
     last_updated = models.DateTimeField(auto_now=True)
+    frozen = models.BooleanField(default=False)
 
     @property
     def is_outdated(self):

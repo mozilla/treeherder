@@ -45,13 +45,13 @@ describe('JobModel', () => {
 
   describe('Taskcluster actions', () => {
     // TODO change to firefox-ci
-    const rootUrl = 'taskcluster.net';
+    const rootUrl = 'https://firefox-ci-tc.services.mozilla.com';
     const decisionTaskMap = {
       '526443': { id: 'LVTawdmFR2-uJiWWS2NxSw', run: '0' },
     };
 
-    const tcActionsUrl = `https://queue.${rootUrl}/v1/task/LVTawdmFR2-uJiWWS2NxSw/artifacts/public%2Factions.json`;
-    const tcTaskUrl = `https://queue.${rootUrl}/v1/task/TASKID`;
+    const tcActionsUrl = `${rootUrl}/api/queue/v1/task/LVTawdmFR2-uJiWWS2NxSw/artifacts/public%2Factions.json`;
+    const tcTaskUrl = `${rootUrl}/api/queue/v1/task/TASKID`;
     const decisionTaskMapUrl = getProjectUrl(
       '/push/decisiontask/?push_ids=526443',
       'autoland',

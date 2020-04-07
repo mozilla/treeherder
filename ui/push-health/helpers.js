@@ -7,12 +7,19 @@ export const resultColorMap = {
   none: 'darker-info',
 };
 
-export const filterTests = (tests, searchStr) => {
+export const filterTests = (tests, searchStr, showParentMatches) => {
   const filters = searchStr.split(' ').map(filter => new RegExp(filter, 'i'));
+  const testsFilteredForParentMatches = tests.filter(
+    test => !test.failedInParent || (test.failedInParent && showParentMatches),
+  );
 
-  return tests.filter(test =>
+  return testsFilteredForParentMatches.filter(test =>
     filters.every(f =>
       f.test(`${test.testName} ${test.platform} ${test.config}`),
     ),
   );
+};
+
+export const filterJobs = (jobs, showParentMatches) => {
+  return jobs.filter(job => job.failedInParent === showParentMatches);
 };

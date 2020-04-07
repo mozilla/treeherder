@@ -144,27 +144,26 @@ class AlertsView extends React.Component {
   };
 
   getParamsFromFilters = filters => {
-    const params = {};
-    for (const [filterName, filterValue] of Object.entries(filters)) {
-      Object.assign(params, this.mapParamFromFilter(filterName, filterValue));
-    }
-    return params;
-  };
-
-  mapParamFromFilter = (filterName, filterValue) => {
-    switch (filterName) {
-      case 'framework':
-        return { [filterName]: filterValue.id };
-      case 'status':
-        return { [filterName]: summaryStatusMap[filterValue] };
-      case 'hideDownstream':
-        return { hideDwnToInv: +filterValue };
-      case 'hideImprovements':
-      case 'hideAssignedToOthers':
-        return { [filterName]: +filterValue };
-      default:
-        return { [filterName]: filterValue };
-    }
+    return {
+      page: 1, // default value
+      ...Object.fromEntries(
+        Object.entries(filters).map(([filterName, filterValue]) => {
+          switch (filterName) {
+            case 'framework':
+              return [filterName, filterValue.id];
+            case 'status':
+              return [filterName, summaryStatusMap[filterValue]];
+            case 'hideDownstream':
+              return ['hideDwnToInv', +filterValue];
+            case 'hideImprovements':
+            case 'hideAssignedToOthers':
+              return [filterName, +filterValue];
+            default:
+              return [filterName, filterValue];
+          }
+        }),
+      ),
+    };
   };
 
   getCurrentPages = () => {

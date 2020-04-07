@@ -1,0 +1,23 @@
+# Dependencies needed only for development/testing.
+pytest-cov
+django-debug-toolbar==2.2
+mock
+responses
+django-extensions
+pytest-selenium
+PyPOM
+
+# for git commit hooks
+pre-commit
+seed-isort-config
+
+# Required by django-extension's runserver_plus command.
+flake8
+isort
+pytest-django
+
+# To test async code
+pytest-asyncio
+
+# make pinning versions easier
+pip-tools
