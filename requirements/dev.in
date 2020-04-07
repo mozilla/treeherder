@@ -41,7 +41,7 @@ entrypoints==0.3
 mccabe==0.6.1
 pycodestyle==2.5.0
 pyflakes==2.1.1
-pytest-django==3.8.0
+pytest-django==3.9.0
 
 # Required by pytest-selenium
 selenium==3.141.0
