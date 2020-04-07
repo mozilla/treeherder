@@ -3,7 +3,7 @@
 ## Overview
 
 Treeherder is a Django-based Python 3 application that consumes CI data from a variety of
-sources - making it available via REST and GraphQL APIs to a static Neutrino/webpack-built
+sources - making it available via REST APIs to a static Neutrino/webpack-built
 React frontend.
 
 Treeherder's [production], [stage] and [prototype] instances are hosted on the [Heroku platform],

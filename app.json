@@ -34,6 +34,9 @@
     },
     "HEROKU_REVIEW_APP": true,
     "LOGGING_LEVEL": "INFO",
+    "PULSE_QUEUE_NAME": {
+      "generator": "secret"
+    },
     "PULSE_RESULSETS_QUEUE_NAME": {
       "generator": "secret"
     },
@@ -57,10 +60,14 @@
       "size": "Standard-1X"
     },
     "pulse_listener_pushes": {
-      "quantity": 1,
+      "quantity": 0,
       "size": "Standard-1X"
     },
     "pulse_listener_tasks": {
+      "quantity": 0,
+      "size": "Standard-1X"
+    },
+    "pulse_listener": {
       "quantity": 1,
       "size": "Standard-1X"
     },

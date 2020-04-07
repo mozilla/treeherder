@@ -187,12 +187,43 @@ class PushConsumer(PulseConsumer):
         message.ack()
 
 
-class Consumers:
+class JointConsumer(PulseConsumer):
     """
     Run a collection of consumers in parallel.  These may be connected to different
     AMQP servers, and Kombu only supports communicating wiht one connection per
     thread, so we use multiple threads, one per consumer.
     """
+    queue_suffix = env("PULSE_QUEUE_NAME", default="queue")
+    def bindings(self):
+
+        rv = []
+        if self.source.get('hgmo'):
+            rv += HGMO_PUSH_BINDINGS
+        if self.source.get('github'):
+            rv += GITHUB_PUSH_BINDINGS
+        if self.source.get('tasks'):
+            rv += TASKCLUSTER_TASK_BINDINGS
+        return rv
+
+    @newrelic.agent.background_task(name='pulse-joint-listener.on_message', group='Pulse Listener')
+    def on_message(self, body, message):
+        exchange = message.delivery_info['exchange']
+        routing_key = message.delivery_info['routing_key']
+        logger.debug('received job message from %s#%s', exchange, routing_key)
+        if exchange.startswith('exchange/taskcluster-queue/v1/'):
+            store_pulse_tasks.apply_async(
+                args=[body, exchange, routing_key, self.root_url],
+                queue='store_pulse_tasks'
+            )
+        else:
+            store_pulse_pushes.apply_async(
+                args=[body, exchange, routing_key, self.root_url],
+                queue='store_pulse_pushes'
+            )
+        message.ack()
+
+
+class Consumers:
     def __init__(self, consumers):
         self.consumers = consumers
 
@@ -209,3 +240,9 @@ class Consumers:
 
 def prepare_consumers(consumer_cls, sources, build_routing_key=None):
     return Consumers([consumer_cls(source, build_routing_key) for source in sources])
+
+
+def prepare_joint_consumers(listening_params):
+    def unpacker(x, y, z): return x, y, z
+    consumer_class, sources, keys = unpacker(*listening_params)
+    return Consumers([consumer_class(source, key) for source, key in zip(sources, keys)])
