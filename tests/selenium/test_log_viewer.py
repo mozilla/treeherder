@@ -1,6 +1,6 @@
 import pytest
-
 from pages.treeherder import Treeherder
+
 from treeherder.model.models import JobLog
 
 

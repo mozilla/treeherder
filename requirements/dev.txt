@@ -8,14 +8,22 @@ asgiref==3.2.7 \
     --hash=sha256:8036f90603c54e93521e5777b2b9a39ba1bad05773fcf2d208f0299d1df58ce5 \
     --hash=sha256:9ca8b952a0a9afa61d30aa6d3d9b570bb3fd6bafcf7ec9e6bed43b936133db1c \
     # via django
+aspy.refactor-imports==2.1.0 \
+    --hash=sha256:4a1e75cdbe1502c898222f7ebf7d8a2d9649978715364364a066328d11c60450 \
+    --hash=sha256:e8dd8a3ab3fd162fac539e752ecd9a609870254cddaaaa4434b0825bd8594857 \
+    # via seed-isort-config
 atomicwrites==1.3.0 \
     --hash=sha256:03472c30eb2c5d1ba9227e4c2ca66ab8287fbfbbda3888aa93dc2e28fc6811b4 \
     --hash=sha256:75a9445bac02d8d058d5e1fe689654ba5a6556a1dfd8ce6ec55a0ed79866cfa6 \
-    # via -r requirements/dev.in, pytest
+    # via -r requirements/dev.in
 attrs==19.3.0 \
     --hash=sha256:08a96c641c3a74e44eb59afb61a24f2cb9f4d7188748e76ba4bb5edfa3cb7d1c \
     --hash=sha256:f7b7ce16570fe9965acd6d30101a28f62fb4a7f9e926b3bbc9b61f8b04247e72 \
     # via pytest
+cached-property==1.5.1 \
+    --hash=sha256:3a026f1a54135677e7da5ce819b0c690f156f37976f3e30c5430740725203d7f \
+    --hash=sha256:9217a59f14a5682da7c4b8829deadbfc194ac22e9908ccf7c8820234e80a1504 \
+    # via aspy.refactor-imports
 certifi==2019.11.28 \
     --hash=sha256:017c25db2a153ce562900032d5bc68e9f191e44e9a0f762f373977de9df1fbb3 \
     --hash=sha256:25b64c7da4cd7479594d035c08c2d809eb4aab3a26e5a990ea98cc450c320f1f \
@@ -31,7 +39,7 @@ click==7.1.1 \
 colorama==0.4.3 \
     --hash=sha256:7d73d2a99753107a36ac6b455ee49046802e59d9d076ef8e47b61499fa29afff \
     --hash=sha256:e96da0d330793e2cb9485e9ddfd918d456036c7149416295932478192f4436a1 \
-    # via -r requirements/dev.in, pytest
+    # via -r requirements/dev.in
 coverage==5.0.3 \
     --hash=sha256:15cf13a6896048d6d947bf7d222f36e4809ab926894beb748fc9caa14605d9c3 \
     --hash=sha256:1daa3eceed220f9fdb80d5ff950dd95112cd27f70d004c7918ca6dfc6c47054c \
@@ -73,9 +81,9 @@ django-extensions==2.2.8 \
     --hash=sha256:1a03c4e8bade575f8c2be6c76456f8a2be3f9b02ab9f47d3535afa9562dc0493 \
     --hash=sha256:2699cc1d6fb4bd393c0b5832fea4bc685f2ace5800b3c9ff222b2080f161ac04 \
     # via -r requirements/dev.in
-django==3.0.4 \
-    --hash=sha256:50b781f6cbeb98f673aa76ed8e572a019a45e52bdd4ad09001072dfd91ab07c8 \
-    --hash=sha256:89e451bfbb815280b137e33e454ddd56481fdaa6334054e6e031041ee1eda360 \
+django==3.0.5 \
+    --hash=sha256:642d8eceab321ca743ae71e0f985ff8fdca59f07aab3a9fb362c617d23e33a76 \
+    --hash=sha256:d4666c2edefa38c5ede0ec1655424c56dc47ceb04b6d8d62a7eac09db89545c1 \
     # via django-debug-toolbar
 entrypoints==0.3 \
     --hash=sha256:589f874b313739ad35be6e0cd7efde2a4e9b6fea91edcc34e58ecbb8dbe56d19 \
@@ -196,6 +204,10 @@ requests==2.23.0 \
 responses==0.10.9 \
     --hash=sha256:515fd7c024097e5da76e9c4cf719083d181f1c3ddc09c2e0e49284ce863dd263 \
     --hash=sha256:8ce8cb4e7e1ad89336f8865af152e0563d2e7f0e0b86d2cf75f015f819409243 \
+    # via -r requirements/dev.in
+seed-isort-config==2.1.0 \
+    --hash=sha256:ae069c0ac7fa833838a951114a8126801a550c592ffa347ffaf47164c0eda21e \
+    --hash=sha256:c9e5a444492757d98aab32f5a39a6ed79ed272820133f12c437ccb713b6fd2ec \
     # via -r requirements/dev.in
 selenium==3.141.0 \
     --hash=sha256:2d7131d7bc5a5b99a2d9b04aaf2612c411b03b8ca1b1ee8d3de5845a9be2cb3c \
