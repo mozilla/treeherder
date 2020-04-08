@@ -2,12 +2,11 @@ import binascii
 import json
 import os
 import re
-from datetime import (datetime,
-                      timedelta)
+from datetime import datetime, timedelta
 
 import responses
 
-from treeherder.changelog.collector import collect  # noqa isort:skip
+from treeherder.changelog.collector import collect
 
 
 def random_id():

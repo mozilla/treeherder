@@ -5,6 +5,7 @@
 [![Node dependencies Status](https://david-dm.org/mozilla/treeherder/status.svg)](https://david-dm.org/mozilla/treeherder)
 [![Node devDependencies Status](https://david-dm.org/mozilla/treeherder/dev-status.svg)](https://david-dm.org/mozilla/treeherder?type=dev)
 [![Documentation Status](https://readthedocs.org/projects/treeherder/badge/?version=latest)](https://treeherder.readthedocs.io/?badge=latest)
+[![Code style: black](https://img.shields.io/badge/code%20style-black-000000.svg)](https://github.com/psf/black)
 
 ## Description
 

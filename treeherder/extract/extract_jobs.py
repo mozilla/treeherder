@@ -1,21 +1,17 @@
 from jx_bigquery import bigquery
-from jx_mysql.mysql import (MySQL,
-                            sql_query)
+from jx_mysql.mysql import MySQL, sql_query
 from jx_mysql.mysql_snowflake_extractor import MySqlSnowflakeExtractor
 from jx_python import jx
 from mo_files import File
-from mo_json import (json2value,
-                     value2json)
-from mo_logs import (Log,
-                     constants,
-                     startup,
-                     strings)
+from mo_json import json2value, value2json
+from mo_logs import Log, constants, startup, strings
 from mo_sql import SQL
 from mo_times import Timer
 from mo_times.dates import Date
 from redis import Redis
 
 from treeherder.config.settings import REDIS_URL
+
 
 CONFIG_FILE = (File.new_instance(__file__).parent / "extract_jobs.json").abspath
 
@@ -128,8 +124,7 @@ class ExtractJobs:
                 last_doc = acc[-1]
                 last_modified, job_id = last_doc.last_modified, last_doc.id
                 redis.set(
-                    settings.extractor.key,
-                    value2json((last_modified, job_id)).encode("utf8"),
+                    settings.extractor.key, value2json((last_modified, job_id)).encode("utf8"),
                 )
 
                 if len(acc) < settings.extractor.chunk_size:

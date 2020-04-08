@@ -1,0 +1,12 @@
+[tool.black]
+line-length = 100
+target-version = ['py37']
+skip-string-normalization = true
+include = '\.pyi?$'
+exclude = '''
+/(
+    treeherder/model/migrations
+  | treeherder/perf/migrations
+  | treeherder/changelog/migrations
+)/
+'''
