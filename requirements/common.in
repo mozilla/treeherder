@@ -15,7 +15,7 @@ mysqlclient==1.4.6   # Not imported directly
 jsonschema==3.0.1
 djangorestframework==3.11.0  # Imported as rest_framework
 django-cors-headers==3.2.1  # Listed as 3rd party app on settings.py
-mozlog==5.0
+mozlog==6.0
 
 coreapi==2.3.3  # Probably not needed anymore
 
