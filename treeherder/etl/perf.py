@@ -42,11 +42,12 @@ def _order_and_concat(words: List) -> str:
     return ' '.join(sorted(words))
 
 
-def _create_or_update_signature(repository, signature_hash, framework, defaults):
+def _create_or_update_signature(repository, signature_hash, framework, application, defaults):
     signature, created = PerformanceSignature.objects.get_or_create(
         repository=repository,
         signature_hash=signature_hash,
         framework=framework,
+        application=application,
         defaults=defaults)
     if not created:
         if signature.last_updated > defaults['last_updated']:
@@ -55,6 +56,7 @@ def _create_or_update_signature(repository, signature_hash, framework, defaults)
             repository=repository,
             signature_hash=signature_hash,
             framework=framework,
+            application=application,
             defaults=defaults)
     return signature
 
@@ -83,6 +85,7 @@ def _load_perf_datum(job, perf_datum):
         logger.info("Performance framework %s is not enabled, skipping",
                     perf_datum['framework']['name'])
         return
+    application = _get_application_name(perf_datum)
     for suite in perf_datum['suites']:
         suite_extra_properties = copy.copy(extra_properties)
         ordered_tags = _order_and_concat(suite.get('tags', []))
@@ -107,7 +110,7 @@ def _load_perf_datum(job, perf_datum):
             summary_signature_hash = _get_signature_hash(
                 summary_properties)
             signature = _create_or_update_signature(
-                job.repository, summary_signature_hash, framework, {
+                job.repository, summary_signature_hash, framework, application, {
                     'test': '',
                     'suite': suite['name'],
                     'suite_public_name': suite.get('publicName'),
@@ -116,7 +119,6 @@ def _load_perf_datum(job, perf_datum):
                     'tags': ordered_tags,
                     'extra_options': suite_extra_options,
                     'measurement_unit': suite.get('unit'),
-                    'application': _get_application_name(perf_datum),
                     'lower_is_better': suite.get('lowerIsBetter', True),
                     'has_subtests': True,
                     # these properties below can be either True, False, or null
@@ -161,7 +163,7 @@ def _load_perf_datum(job, perf_datum):
             value = list(subtest['value'] for subtest in suite['subtests'] if
                          subtest['name'] == subtest_properties['test'])
             signature = _create_or_update_signature(
-                job.repository, subtest_signature_hash, framework, {
+                job.repository, subtest_signature_hash, framework, application, {
                     'test': subtest_properties['test'],
                     'suite': suite['name'],
                     'test_public_name': subtest.get('publicName'),
@@ -171,7 +173,6 @@ def _load_perf_datum(job, perf_datum):
                     'tags': ordered_tags,
                     'extra_options': suite_extra_options,
                     'measurement_unit': subtest.get('unit'),
-                    'application': _get_application_name(perf_datum),
                     'lower_is_better': subtest.get('lowerIsBetter', True),
                     'has_subtests': False,
                     # these properties below can be either True, False, or
