@@ -3,7 +3,6 @@
 Treeherder's data can be accessed via:
 
 - [REST API](#rest-api)
-- [GraphQL API](#graphql-api)
 - [Redash](#redash)
 - [ActiveData](#activedata)
 - [Direct database access](#direct-database-access)
@@ -94,12 +93,6 @@ r = requests.get(url, headers={'User-Agent': ...})
 ```
 
 [bug 1230222]: https://bugzilla.mozilla.org/show_bug.cgi?id=1230222
-
-## GraphQL API
-
-This API is a work in progress. A browsable interface is available at:
-
-<https://treeherder.mozilla.org/graphql>
 
 ## Redash
 

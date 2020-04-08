@@ -2,7 +2,7 @@
 
 ## Running the tests
 
-You can run flake8, isort and the pytest suite inside Docker, using:
+You can run flake8 and the pytest suite inside Docker, using:
 
 ```bash
 docker-compose run backend ./runtests.sh
@@ -52,20 +52,6 @@ Then run the individual tools within that shell, like so:
 
   ```bash
   flake8
-  ```
-
-- [isort](https://github.com/timothycrosley/isort) (checks the [Python import style](code_style.md#python-imports)):
-
-  To run interactively:
-
-  ```bash
-  isort
-  ```
-
-  Or to apply all changes without confirmation:
-
-  ```bash
-  isort --apply
   ```
 
 ## Hide Jobs with Tiers
