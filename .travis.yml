@@ -60,7 +60,7 @@ jobs:
       python: '3.7'
       cache: pip
       install:
-        - pip install tox --user
+        - pip install tox
       script:
         - tox
         - tox -e virtualenv
