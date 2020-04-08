@@ -64,6 +64,8 @@ jobs:
         - docker-compose up --detach mysql redis rabbitmq
       script:
         - tox
+        - SITE_URL=https://treeherder.dev TREEHERDER_DEBUG=False ./manage.py check --deploy --fail-level WARNING
+        - tox -e virtualenv
         # This is to deal with running the containers with --detached
         - docker-compose down
 
