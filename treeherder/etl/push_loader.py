@@ -160,6 +160,15 @@ class GithubPushTransformer(GithubTransformer):
 
     URL_BASE = "https://api.github.com/repos/{}/{}/compare/{}...{}"
 
+    def get_branch(self):
+        """
+        Tag pushes don't use the actual branch, just the string "tag"
+        """
+        if self.message_body["details"].get("event.head.tag"):
+            return "tag"
+
+        return super(GithubPushTransformer, self).get_branch()
+
     def transform(self, repository):
         push_url = self.URL_BASE.format(
             self.message_body["organization"],
