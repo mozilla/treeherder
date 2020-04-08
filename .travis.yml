@@ -64,6 +64,9 @@ jobs:
         - docker-compose up --detach mysql redis rabbitmq
       script:
         - tox
+        - ./manage.py check --deploy --fail-level WARNING
+        # Exercising running tests outside of Docker
+        - pytest tests/ --ignore=tests/selenium --ignore=tests/extract
         # This is to deal with running the containers with --detached
         - docker-compose down
 
