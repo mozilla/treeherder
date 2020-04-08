@@ -64,10 +64,6 @@ jobs:
         - docker-compose up --detach mysql redis rabbitmq
       script:
         - tox
-        #Several security features in settings.py (eg setting HSTS headers) are conditional on
-        # 'https://' being in the site URL. In addition, we override the test environment's debug
-        # value so the tests pass. The real environment variable will be checked during deployment.
-        - SITE_URL=https://treeherder.dev TREEHERDER_DEBUG=False ./manage.py check --deploy --fail-level WARNING
         # This is to deal with running the containers with --detached
         - docker-compose down
 
