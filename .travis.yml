@@ -59,6 +59,8 @@ jobs:
     - language: python
       python: '3.7'
       cache: pip
+      install:
+        - pip insall tox
       script:
         - tox
         - tox -e virtualenv
@@ -68,6 +70,7 @@ jobs:
       services:
         - docker
       install:
+        - pip install tox
         - pip install codecov --user
       script:
         - tox -e docker
@@ -81,6 +84,7 @@ jobs:
       node_js: '12.13.0'
       cache: yarn
       install:
+        - pip install tox
         - pip install codecov --user
       script:
         - tox -e selenium
