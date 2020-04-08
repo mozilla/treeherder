@@ -85,6 +85,7 @@ services:
     command: redis-server --loglevel warning
     ports:
       - '6379:6379'
+
   rabbitmq:
     container_name: rabbitmq
     # https://hub.docker.com/r/library/rabbitmq/
@@ -94,6 +95,59 @@ services:
       - 'RABBITMQ_SERVER_ADDITIONAL_ERL_ARGS=-rabbit log [{console,[{level,error}]}]'
     ports:
       - '5672:5672'
+
+  pulse-push:
+    build:
+      context: .
+      dockerfile: docker/dev.Dockerfile
+    environment:
+      - PULSE_URL=${PULSE_URL:-amqp://docker-shared-user:8r5VFxpJHtJahTVV5bYutykgDsXhGF@pulse.mozilla.org:5671/?ssl=1}
+      - LOGGING_LEVEL=DEBUG
+      - PULSE_AUTO_DELETE_QUEUES=True
+      - DATABASE_URL=mysql://root@mysql:3306/treeherder
+      - BROKER_URL=amqp://guest:guest@rabbitmq//
+    entrypoint: './docker/entrypoint.sh'
+    command: ./manage.py pulse_listener_pushes
+    volumes:
+      - .:/app
+    depends_on:
+      - mysql
+      - rabbitmq
+
+  pulse-task:
+    build:
+      context: .
+      dockerfile: docker/dev.Dockerfile
+    environment:
+      - PULSE_URL=${PULSE_URL:-amqp://docker-shared-user:8r5VFxpJHtJahTVV5bYutykgDsXhGF@pulse.mozilla.org:5671/?ssl=1}
+      - LOGGING_LEVEL=INFO
+      - PULSE_AUTO_DELETE_QUEUES=True
+      - DATABASE_URL=mysql://root@mysql:3306/treeherder
+      - BROKER_URL=amqp://guest:guest@rabbitmq//
+    entrypoint: './docker/entrypoint.sh'
+    command: ./manage.py pulse_listener_tasks
+    volumes:
+      - .:/app
+    depends_on:
+      - mysql
+      - rabbitmq
+
+  celery:
+    build:
+      context: .
+      dockerfile: docker/dev.Dockerfile
+    environment:
+      - CELERY_BROKER_URL=amqp://guest:guest@rabbitmq:5672//
+      - DATABASE_URL=mysql://root@mysql:3306/treeherder
+      - PROJECTS_TO_INGEST=autoland
+    entrypoint: './docker/entrypoint.sh'
+    command: celery worker -A treeherder --uid=nobody --gid=nogroup --without-gossip --without-mingle --without-heartbeat -Q store_pulse_pushes,store_pulse_tasks --concurrency=1 --loglevel=WARNING
+    volumes:
+      - .:/app
+    depends_on:
+      - mysql
+      - redis
+      - rabbitmq
 volumes:
   # TODO: Experiment with using tmpfs when testing, to speed up database-using Python tests.
   mysql_data: {}
