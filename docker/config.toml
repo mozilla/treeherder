@@ -1,0 +1,8 @@
+[adr]
+verbose = 1
+
+[adr.cache]
+retention = 40320
+
+[adr.cache.stores]
+file = { driver = "file", path = "/adr_cache" }

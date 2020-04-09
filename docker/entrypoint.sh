@@ -5,6 +5,9 @@
 # Make non-zero exit codes & other errors fatal.
 set -euo pipefail
 
+mkdir -p /root/.config/adr
+cp docker/config.toml /root/.config/adr/config.toml
+
 # Keep these in sync with DATABASE_URL.
 DATABASE_HOST='mysql'
 DATABASE_PORT='3306'
