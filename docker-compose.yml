@@ -26,6 +26,7 @@ services:
       - SITE_URL=http://backend:8000/
       - TREEHERDER_DEBUG=True
       - NEW_RELIC_INSIGHTS_API_KEY=${NEW_RELIC_INSIGHTS_API_KEY:-}
+      - MOZCI_CONFIG_PATH=${MOZCI_CONFIG_PATH:-config.toml}
     entrypoint: './docker/entrypoint.sh'
     # We *ONLY* initialize the data when we're running the backend
     command: './initialize_data.sh ./manage.py runserver 0.0.0.0:8000'
@@ -108,6 +109,7 @@ services:
       - DATABASE_URL=mysql://root@mysql:3306/treeherder
       - BROKER_URL=amqp://guest:guest@rabbitmq//
       - SKIP_INGESTION=${SKIP_INGESTION:-False}
+      - MOZCI_CONFIG_PATH=${MOZCI_CONFIG_PATH:-config.toml}
     entrypoint: './docker/entrypoint.sh'
     command: ./manage.py pulse_listener
     volumes:
@@ -124,6 +126,7 @@ services:
       - CELERY_BROKER_URL=amqp://guest:guest@rabbitmq:5672//
       - DATABASE_URL=mysql://root@mysql:3306/treeherder
       - PROJECTS_TO_INGEST=${PROJECTS_TO_INGEST:-autoland}
+      - MOZCI_CONFIG_PATH=${MOZCI_CONFIG_PATH:-config.toml}
     entrypoint: './docker/entrypoint.sh'
     command: celery worker -A treeherder --uid=nobody --gid=nogroup --without-gossip --without-mingle --without-heartbeat -Q store_pulse_pushes,store_pulse_tasks --concurrency=1 --loglevel=WARNING
     volumes:

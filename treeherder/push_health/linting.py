@@ -9,7 +9,7 @@ def get_lint_failures(push):
         Q(machine_platform__platform='lint') | Q(job_type__symbol='mozlint'),
         push=push,
         tier__lte=2,
-    ).select_related('machine_platform', 'taskcluster_metadata')
+    ).select_related('machine_platform', 'taskcluster_metadata', 'job_type', 'job_group')
 
     result, failures, in_progress_count = get_job_results(lint_results, 'testfailed')
 

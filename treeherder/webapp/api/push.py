@@ -8,6 +8,8 @@ from rest_framework.decorators import action
 from rest_framework.response import Response
 from rest_framework.status import HTTP_400_BAD_REQUEST, HTTP_404_NOT_FOUND
 
+from mozci.push import Push as MozciPush
+
 from treeherder.log_parser.failureline import get_group_results
 from treeherder.model.models import Job, JobType, Push, Repository
 from treeherder.push_health.builds import get_build_failures
@@ -251,11 +253,14 @@ class PushViewSet(viewsets.ViewSet):
         commit_history = None
 
         for push in list(pushes):
+            mozciPush = MozciPush([revision], project)
+            likely_regression_labels = list(mozciPush.get_likely_regressions('label'))
             result_status, jobs = get_test_failure_jobs(push)
 
             test_result, push_health_test_failures = get_test_failures(
                 push,
                 jobs,
+                likely_regression_labels,
                 result_status,
             )
 
@@ -267,7 +272,7 @@ class PushViewSet(viewsets.ViewSet):
                 push
             )
 
-            test_failure_count = len(push_health_test_failures['needInvestigation'])
+            test_failure_count = len(push_health_test_failures['needInvestigation']['tests'])
             build_failure_count = len(push_health_build_failures)
             lint_failure_count = len(push_health_lint_failures)
             test_in_progress_count = 0
@@ -334,22 +339,19 @@ class PushViewSet(viewsets.ViewSet):
             repository = Repository.objects.get(name=project)
             push = Push.objects.get(revision=revision, repository=repository)
         except Push.DoesNotExist:
-            return Response(
-                "No push with revision: {0}".format(revision), status=HTTP_404_NOT_FOUND
-            )
+            return Response(f"No push with revision: {revision}", status=HTTP_404_NOT_FOUND)
+
+        mozciPush = MozciPush([revision], repository.name)
+        likely_regression_labels = list(mozciPush.get_likely_regressions('label'))
+        result_status, jobs = get_test_failure_jobs(push)
+        test_result, test_failures = get_test_failures(push, jobs, likely_regression_labels, result_status)
 
         commit_history_details = None
-        result_status, jobs = get_test_failure_jobs(push)
+
         # Parent compare only supported for Hg at this time.
         # Bug https://bugzilla.mozilla.org/show_bug.cgi?id=1612645
         if repository.dvcs_type == 'hg':
-            commit_history_details = get_commit_history(repository, revision, push)
-
-        test_result, push_health_test_failures = get_test_failures(
-            push,
-            jobs,
-            result_status,
-        )
+            commit_history_details = get_commit_history(mozciPush, push)
 
         build_result, build_failures, _unused = get_build_failures(push)
 
@@ -381,7 +383,7 @@ class PushViewSet(viewsets.ViewSet):
             {
                 'revision': revision,
                 'repo': repository.name,
-                'needInvestigation': len(push_health_test_failures['needInvestigation']),
+                'needInvestigation': len(likely_regression_labels),
                 'author': push.author,
             },
         )
@@ -392,6 +394,7 @@ class PushViewSet(viewsets.ViewSet):
                 'id': push.id,
                 'result': push_result,
                 'jobs': jobs,
+                'labels': likely_regression_labels,
                 'metrics': {
                     'commitHistory': {
                         'name': 'Commit History',
@@ -406,7 +409,7 @@ class PushViewSet(viewsets.ViewSet):
                     'tests': {
                         'name': 'Tests',
                         'result': test_result,
-                        'details': push_health_test_failures,
+                        'details': test_failures,
                     },
                     'builds': {
                         'name': 'Builds',

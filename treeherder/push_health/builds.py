@@ -11,7 +11,7 @@ def get_build_failures(push):
         push=push,
         tier__lte=2,
         job_type__in=build_types,
-    ).select_related('machine_platform', 'taskcluster_metadata')
+    ).select_related('machine_platform', 'taskcluster_metadata', 'job_type', 'job_group')
 
     result, failures, in_progress_count = get_job_results(build_results, 'busted')
 

@@ -16,4 +16,12 @@ export const filterTests = (tests, searchStr) => {
 };
 
 export const myPushesDefaultMessage =
-  'Log in or use the author query string to see pushes';
+  'Log in or use the author query string to see pushes';\
+
+export const filterUnstructuredFailures = (unstructuredFailures, searchStr) => {
+  const filters = searchStr.split(' ').map((filter) => new RegExp(filter, 'i'));
+
+  return unstructuredFailures.filter((test) =>
+    filters.every((f) => f.test(`${test.platform} ${test.config}`)),
+  );
+};
