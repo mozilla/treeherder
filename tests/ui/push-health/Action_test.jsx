@@ -5,7 +5,7 @@ import pushHealth from '../mock/push_health';
 import Action from '../../../ui/push-health/Action';
 
 const { jobs, metrics } = pushHealth;
-const tests = metrics.tests.details.needInvestigation;
+const { tests } = metrics.tests.details.needInvestigation;
 const repoName = 'autoland';
 
 describe('Action', () => {

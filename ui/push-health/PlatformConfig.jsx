@@ -150,6 +150,7 @@ PlatformConfig.propTypes = {
   currentRepo: PropTypes.shape({}).isRequired,
   notify: PropTypes.func.isRequired,
   updateParamsAndState: PropTypes.func.isRequired,
+  jobs: PropTypes.shape({}).isRequired,
 };
 
 PlatformConfig.defaultProps = {

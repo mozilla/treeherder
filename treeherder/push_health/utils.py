@@ -109,6 +109,8 @@ job_fields = [
     'failure_classification_id',
     'push_id',
     'start_time',
+    'tier',
+    'guid',
 ]
 
 
@@ -124,6 +126,8 @@ def job_to_dict(job):
         {
             'job_type_name': job.job_type.name,
             'job_type_symbol': job.job_type.symbol,
+            'job_group_name': job.job_group.name,
+            'job_group_symbol': job.job_group.symbol,
             'platform': job.machine_platform.platform,
             'task_id': job.taskcluster_metadata.task_id,
             'run_id': job.taskcluster_metadata.retry_id,

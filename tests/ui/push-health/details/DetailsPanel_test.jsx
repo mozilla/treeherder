@@ -11,7 +11,7 @@ import { getProjectUrl, setUrlParam } from '../../../../ui/helpers/location';
 
 const { jobs } = pushHealth;
 const task =
-  jobs[pushHealth.metrics.tests.details.needInvestigation[0].jobName][0];
+  jobs[pushHealth.metrics.tests.details.needInvestigation.tests[0].jobName][0];
 const selectedTaskFull = {
   ...fullJob,
   task_id: 'CwGewDH7RjOIZV-b77hGUQ',

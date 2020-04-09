@@ -13,7 +13,7 @@ class Action extends PureComponent {
         case 'none':
           return 'none';
         case 'path':
-          return test.testName.trim();
+          return `${test.testName}`.trim();
         case 'platform':
           return `${test.platform} ${test.config}`;
       }

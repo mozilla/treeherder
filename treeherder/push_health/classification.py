@@ -65,24 +65,3 @@ def get_log_lines(failure):
         if len(parts) == 3:
             messages.append(parts[2].strip())
     return messages
-
-
-def get_grouped(failures):
-    classified = {
-        NEED_INVESTIGATION: [],
-        KNOWN_ISSUES: [],
-    }
-
-    for failure in failures:
-        is_intermittent = failure['suggestedClassification'] == 'intermittent'
-
-        if (is_intermittent and failure['confidence'] == 100) or failure['totalFailures'] / failure[
-            'totalJobs'
-        ] <= 0.5:
-            classified[KNOWN_ISSUES].append(failure)
-        else:
-            classified[NEED_INVESTIGATION].append(failure)
-            # If it needs investigation, we, by definition, don't have 100% confidence.
-            failure['confidence'] = min(failure['confidence'], 90)
-
-    return classified
