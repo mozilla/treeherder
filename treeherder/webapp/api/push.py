@@ -224,7 +224,6 @@ class PushViewSet(viewsets.ViewSet):
                 'buildFailureCount': build_failure_count,
                 'lintFailureCount': lint_failure_count,
                 'needInvestigation': test_failure_count + build_failure_count + lint_failure_count,
-                'unsupported': len(push_health_test_failures['unsupported']),
             }
         )
 
@@ -260,8 +259,6 @@ class PushViewSet(viewsets.ViewSet):
 
         push_health_test_failures = get_test_failures(push, parent_push)
         test_result = 'pass'
-        if len(push_health_test_failures['unsupported']):
-            test_result = 'indeterminate'
         if len(push_health_test_failures['needInvestigation']):
             test_result = 'fail'
 
@@ -284,7 +281,6 @@ class PushViewSet(viewsets.ViewSet):
                 'revision': revision,
                 'repo': repository.name,
                 'needInvestigation': len(push_health_test_failures['needInvestigation']),
-                'unsupported': len(push_health_test_failures['unsupported']),
                 'author': push.author,
             },
         )

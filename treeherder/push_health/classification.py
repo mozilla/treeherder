@@ -57,7 +57,7 @@ def set_intermittent(failure, previous_failures):
 
 
 def is_classified_intermittent(failure):
-    return all(job['failure_classification_id'] == 4 for job in failure['failJobs'])
+    return any(job['failure_classification_id'] == 4 for job in failure['jobs'])
 
 
 def get_log_lines(failure):

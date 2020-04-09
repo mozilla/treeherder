@@ -1,5 +1,5 @@
 from treeherder.model.models import Job, JobGroup
-from treeherder.push_health.similar_jobs import job_to_dict
+from treeherder.push_health.utils import job_to_dict
 
 
 def get_perf_failures(push):

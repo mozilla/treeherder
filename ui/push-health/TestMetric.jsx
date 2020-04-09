@@ -77,7 +77,6 @@ TestMetric.propTypes = {
     details: PropTypes.shape({
       needInvestigation: PropTypes.array.isRequired,
       knownIssues: PropTypes.array.isRequired,
-      unsupported: PropTypes.array.isRequired,
     }).isRequired,
   }).isRequired,
   repo: PropTypes.string.isRequired,

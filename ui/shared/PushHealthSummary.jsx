@@ -17,7 +17,6 @@ class PushHealthSummary extends PureComponent {
       testFailureCount,
       buildFailureCount,
       lintFailureCount,
-      unsupported,
     } = status;
     const heartSize = 25;
 
@@ -74,10 +73,6 @@ class PushHealthSummary extends PureComponent {
                 <td className="py-1">Linting Failures</td>
                 <td className="py-1">{lintFailureCount}</td>
               </tr>
-              <tr className={`${unsupported ? 'font-weight-bold' : ''} py-1`}>
-                <td className="py-1">Unsupported</td>
-                <td className="py-1">{unsupported}</td>
-              </tr>
             </tbody>
           </Table>
         ) : (
@@ -96,7 +91,6 @@ PushHealthSummary.propTypes = {
     testFailureCount: PropTypes.number,
     buildFailureCount: PropTypes.number,
     lintFailureCount: PropTypes.number,
-    unsupported: PropTypes.number,
   }),
 };
 

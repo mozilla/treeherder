@@ -43,10 +43,7 @@ class PlatformConfig extends React.PureComponent {
     const {
       testName,
       jobName,
-      inProgressJobs,
-      failJobs,
-      passJobs,
-      passInFailedJobs,
+      jobs,
       key,
       tier,
       failedInParent,
@@ -54,10 +51,7 @@ class PlatformConfig extends React.PureComponent {
       jobSymbol,
     } = failure;
     const { detailsShowing, selectedTask } = this.state;
-    const taskList = sortBy(
-      [...failJobs, ...passJobs, ...passInFailedJobs, ...inProgressJobs],
-      ['start_time'],
-    );
+    const taskList = sortBy(jobs, ['start_time']);
     taskList.forEach((task) => addAggregateFields(task));
 
     return (
@@ -137,9 +131,7 @@ PlatformConfig.propTypes = {
     testName: PropTypes.string.isRequired,
     jobName: PropTypes.string.isRequired,
     jobSymbol: PropTypes.string.isRequired,
-    failJobs: PropTypes.arrayOf(PropTypes.shape({})),
-    passJobs: PropTypes.arrayOf(PropTypes.shape({})),
-    logLines: PropTypes.arrayOf(PropTypes.shape({})).isRequired,
+    jobs: PropTypes.arrayOf(PropTypes.shape({})),
     confidence: PropTypes.number.isRequired,
     platform: PropTypes.string.isRequired,
     config: PropTypes.string.isRequired,

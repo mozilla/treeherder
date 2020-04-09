@@ -48,8 +48,7 @@ def test_get_test_failures_no_parent(
     need_investigation = build_failures['needInvestigation']
 
     assert len(need_investigation) == 1
-    assert len(need_investigation[0]['failJobs']) == 1
-    assert len(need_investigation[0]['passJobs']) == 0
+    assert len(need_investigation[0]['jobs']) == 1
     assert not need_investigation[0]['failedInParent']
 
 
@@ -78,6 +77,5 @@ def test_get_test_failures_with_parent(
     need_investigation = build_failures['needInvestigation']
 
     assert len(need_investigation) == 1
-    assert len(need_investigation[0]['failJobs']) == 1
-    assert len(need_investigation[0]['passJobs']) == 0
+    assert len(need_investigation[0]['jobs']) == 1
     assert need_investigation[0]['failedInParent']

@@ -104,12 +104,42 @@ def is_valid_failure_line(line):
     return not any(skip_line in line for skip_line in skip_lines)
 
 
-def get_job_key(job):
-    return '{}-{}-{}'.format(job['job_type_name'], job['platform'], job['option_collection_hash'])
-
-
 def mark_failed_in_parent(failures, parent_failures):
     parent_failure_keys = {get_job_key(job) for job in parent_failures}
 
     for failure in failures:
         failure['failedInParent'] = get_job_key(failure) in parent_failure_keys
+
+
+job_fields = [
+    'id',
+    'machine_platform_id',
+    'option_collection_hash',
+    'job_type_id',
+    'job_group_id',
+    'result',
+    'state',
+    'failure_classification_id',
+    'push_id',
+    'start_time',
+]
+
+
+def get_job_key(job):
+    return '{}-{}-{}'.format(
+        job['machine_platform_id'], job['option_collection_hash'], job['job_type_id']
+    )
+
+
+def job_to_dict(job):
+    job_dict = {field: getattr(job, field) for field in job_fields}
+    job_dict.update(
+        {
+            'job_type_name': job.job_type.name,
+            'job_type_symbol': job.job_type.symbol,
+            'platform': job.machine_platform.platform,
+            'task_id': job.taskcluster_metadata.task_id,
+            'run_id': job.taskcluster_metadata.retry_id,
+        }
+    )
+    return job_dict
