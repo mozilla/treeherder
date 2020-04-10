@@ -31,7 +31,6 @@ django-redis  # Listed in CACHES on settings.py
 taskcluster
 
 # Used by graphene-django
-typing==3.7.4.1
 iso8601==0.1.12
 python-jose[pycryptodome]==3.1.0
 
