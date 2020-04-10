@@ -28,7 +28,7 @@ django-filter  # Listed in DEFAULT_FILTER_BACKENDS on settings.py
 django-redis  # Listed in CACHES on settings.py
 
 # required for taskcluster
-taskcluster==27.0.0
+taskcluster==29.0.1
 
 # Used by graphene-django
 typing==3.7.4.1
