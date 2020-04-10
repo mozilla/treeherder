@@ -27,14 +27,7 @@ python-dateutil
 django-filter  # Listed in DEFAULT_FILTER_BACKENDS on settings.py
 django-redis  # Listed in CACHES on settings.py
 
-# required for taskcluster
-taskcluster==27.0.0
-
-# Used by graphene-django
-typing==3.7.4.1
-iso8601==0.1.12
-python-jose[pycryptodome]==3.1.0
-
+taskcluster  # Imported as taskcluster
 furl==2.1.0  # Imported as furl
 first  # Imported as first
 
