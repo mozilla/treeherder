@@ -4,7 +4,7 @@ whitenoise[brotli]==5.0.1
 
 # Used by Whitenoise to provide Brotli-compressed versions of static files.
 Django==3.0.5
-celery==4.3.0  # Needed for data ingestion
+celery  # Needed for data ingestion
 simplejson==3.17.0
 newrelic==5.2.1.129
 
@@ -15,25 +15,21 @@ mysqlclient==1.4.6   # Not imported directly
 jsonschema==3.0.1
 djangorestframework==3.11.0  # Imported as rest_framework
 django-cors-headers==3.2.1  # Listed as 3rd party app on settings.py
-mozlog==5.0
+mozlog
 
 coreapi==2.3.3  # Probably not needed anymore
 
 # Used directly and also by Django's YAML serializer.
-PyYAML==5.3  # Imported as yaml
+PyYAML  # Imported as yaml
 django-environ==0.4.5  # Imported as environ
 
 python-dateutil
 django-filter  # Listed in DEFAULT_FILTER_BACKENDS on settings.py
 django-redis  # Listed in CACHES on settings.py
 
-# required for taskcluster
-taskcluster==27.0.0
-
-# Used by graphene-django
-typing==3.7.4.1
-iso8601==0.1.12
-python-jose[pycryptodome]==3.1.0
+taskcluster  # import taskcluster
+typing  # from typing import ...
+python-jose[pycryptodome]  # from jose import jwt
 
 furl==2.1.0  # Imported as furl
 first  # Imported as first
