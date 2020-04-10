@@ -17,6 +17,9 @@ class Command(BaseCommand):
     help = "Read jobs from a set of pulse exchanges and queue for ingestion"
 
     def handle(self, *args, **options):
+        if env.bool('SKIP_INGESTION', default=False):
+            self.stdout.write("Skipping ingestion of Pulse Tasks")
+            return
         # Specifies the Pulse services from which Treeherder will consume task
         # information.  This value is a JSON array of the form [{pulse_url: ..,
         # root_url: ..}, ..]
