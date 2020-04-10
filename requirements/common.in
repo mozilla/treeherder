@@ -20,7 +20,7 @@ mozlog
 coreapi==2.3.3  # Probably not needed anymore
 
 # Used directly and also by Django's YAML serializer.
-PyYAML==5.3  # Imported as yaml
+PyYAML  # Imported as yaml
 django-environ==0.4.5  # Imported as environ
 
 python-dateutil
