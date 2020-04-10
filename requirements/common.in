@@ -31,7 +31,7 @@ django-redis  # Listed in CACHES on settings.py
 taskcluster
 
 # Used by graphene-django
-iso8601==0.1.12
+typing==3.7.4.1
 python-jose[pycryptodome]==3.1.0
 
 furl==2.1.0  # Imported as furl
