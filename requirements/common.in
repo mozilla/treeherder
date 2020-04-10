@@ -32,7 +32,7 @@ taskcluster
 
 # Used by graphene-django
 typing==3.7.4.1
-python-jose[pycryptodome]==3.1.0
+iso8601==0.1.12
 
 furl==2.1.0  # Imported as furl
 first  # Imported as first
