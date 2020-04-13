@@ -166,7 +166,7 @@ class JobLoader:
         return "{}{}".format(job["display"].get("jobSymbol", ""), job["display"].get("chunkId", ""))
 
     def _get_artifacts(self, job, job_guid):
-        artifact_funcs = [self._get_job_info_artifact, self._get_text_log_summary_artifact]
+        artifact_funcs = [self._get_text_log_summary_artifact]
         pulse_artifacts = []
         for artifact_func in artifact_funcs:
             artifact = artifact_func(job, job_guid)
@@ -176,29 +176,6 @@ class JobLoader:
         # add in any arbitrary artifacts included in the "extra" section
         pulse_artifacts.extend(self._get_extra_artifacts(job, job_guid))
         return pulse_artifacts
-
-    def _get_job_info_artifact(self, job, job_guid):
-        if "jobInfo" in job:
-            ji = job["jobInfo"]
-            job_details = []
-            if "links" in ji:
-                for link in ji["links"]:
-                    job_details.append(
-                        {
-                            "url": link["url"],
-                            "content_type": "link",
-                            "value": link["linkText"],
-                            "title": link["label"],
-                        }
-                    )
-
-            artifact = {
-                "blob": {"job_details": job_details},
-                "type": "json",
-                "name": "Job Info",
-                "job_guid": job_guid,
-            }
-            return artifact
 
     def _get_text_log_summary_artifact(self, job, job_guid):
         # We can only have one text_log_summary artifact,

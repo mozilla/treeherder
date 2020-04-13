@@ -289,7 +289,7 @@ class TinderboxPrintParser(ParserBase):
             'duplicates_fields': {'value': 'url'},
         },
     )
-
+    # TODO remove
     def __init__(self):
         """Setup the artifact to hold the job details."""
         super().__init__("job_details")

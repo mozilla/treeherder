@@ -13,6 +13,7 @@ from treeherder.model.models import Job, JobDetail, TextLogError, TextLogStep
 logger = logging.getLogger(__name__)
 
 
+<<<<<<< HEAD
 def store_job_info_artifact(job, job_info_artifact):
     """
     Store the contents of the job info artifact
@@ -63,6 +64,8 @@ def store_job_info_artifact(job, job_info_artifact):
         JobDetail.objects.bulk_create(to_create.values())
 
 
+=======
+>>>>>>> remove store_job_artifacts and store_job_info_artifact
 def store_text_log_summary_artifact(job, text_log_summary_artifact):
     """
     Store the contents of the text log summary artifact
@@ -140,8 +143,6 @@ def store_job_artifacts(artifact_data):
 
             if artifact_name == 'performance_data':
                 store_performance_artifact(job, artifact)
-            elif artifact_name == 'Job Info':
-                store_job_info_artifact(job, artifact)
             elif artifact_name == 'text_log_summary':
                 try:
                     store_text_log_summary_artifact(job, artifact)
