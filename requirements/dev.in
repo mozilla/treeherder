@@ -20,6 +20,3 @@ pytest-asyncio
 
 # make pinning versions easier
 pip-tools
-
-# install tox for env testing
-tox
