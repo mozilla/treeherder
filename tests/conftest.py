@@ -3,6 +3,7 @@ import datetime
 import json
 import os
 import platform
+from os.path import join
 
 import kombu
 import pytest
@@ -787,3 +788,13 @@ def backfill_record_context():
             },
         ]
     }
+
+
+class JSONFixtureLoader:
+    def __init__(self, *prior_dirs):
+        self._prior_dirs = prior_dirs
+
+    def __call__(self, fixture_filename):
+        fixture_path = join(*self._prior_dirs, fixture_filename)
+        with open(fixture_path, 'r') as f:
+            return json.load(f)

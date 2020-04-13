@@ -5,11 +5,13 @@ import simplejson as json
 from django.conf import settings as django_settings
 
 from treeherder.perf.models import BackfillRecord, BackfillReport, PerformanceSettings
+from treeherder.utils import default_serializer
 
 logger = logging.getLogger(__name__)
 
 
 # TODO: update the backfill status using data
+# TODO: consider making this a singleton
 class SecretaryTool:
     """
     Tool used for doing the secretary work in the Performance Sheriff Bot.
@@ -65,11 +67,36 @@ class SecretaryTool:
         last_reset_date = datetime.fromisoformat(settings["last_reset_date"])
         return datetime.utcnow() > last_reset_date + django_settings.RESET_BACKFILL_LIMITS
 
+    def backfills_left(self, on_platform: str) -> int:
+        if on_platform != 'linux':
+            raise ValueError(f"Unsupported platform: {on_platform}.")
+
+        perf_seriff_settings = PerformanceSettings.objects.get(name="perf_sheriff_bot")
+        settings = json.loads(perf_seriff_settings.settings)
+        return settings['limits'][on_platform]
+
+    def consume_backfills(self, on_platform: str, amount: int) -> int:
+        if on_platform != 'linux':
+            raise ValueError(f"Unsupported platform: {on_platform}.")
+
+        perf_seriff_settings = PerformanceSettings.objects.get(name="perf_sheriff_bot")
+
+        settings = json.loads(perf_seriff_settings.settings)
+
+        _backfills_left = left = settings['limits'][on_platform] - amount
+        _backfills_left = left if left > 0 else 0
+
+        settings['limits'][on_platform] = _backfills_left
+
+        perf_seriff_settings.set_settings(settings)
+        perf_seriff_settings.save()
+        return _backfills_left
+
     @classmethod
     def _get_default_settings(cls, as_json=True):
         default_settings = {
-            "limits": django_settings.MAX_BACKFILLS_PER_PLATFORM,
-            "last_reset_date": datetime.utcnow(),
+            'limits': django_settings.MAX_BACKFILLS_PER_PLATFORM,
+            'last_reset_date': datetime.utcnow(),
         }
 
         return (
@@ -77,8 +104,3 @@ class SecretaryTool:
             if as_json
             else default_settings
         )
-
-
-def default_serializer(val):
-    if isinstance(val, datetime):
-        return val.isoformat()

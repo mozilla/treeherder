@@ -1,7 +1,9 @@
+import logging
 from argparse import ArgumentError
 from datetime import datetime, timedelta
 from typing import List, Tuple
 
+from django.conf import settings
 from django.core.management.base import BaseCommand
 
 from treeherder.perf.alerts import (
@@ -9,8 +11,15 @@ from treeherder.perf.alerts import (
     BackfillReportMaintainer,
     IdentifyAlertRetriggerables,
 )
+from treeherder.perf.backfill_tool import BackfillTool
+from treeherder.perf.exceptions import MaxRuntimeExceeded
+from treeherder.perf.secretary_tool import SecretaryTool
 from treeherder.perf.models import PerformanceFramework
 from treeherder.perf.perf_sheriff_bot import PerfSheriffBot
+from treeherder.services.taskcluster import DEFAULT_ROOT_URL as root_url
+from treeherder.services.taskcluster import TaskclusterModel
+
+logger = logging.getLogger(__name__)
 
 
 class Command(BaseCommand):
@@ -43,6 +52,9 @@ class Command(BaseCommand):
     def handle(self, *args, **options):
         frameworks, repositories, since, days_to_lookup = self._parse_args(**options)
         self._validate_args(frameworks, repositories)
+        client_id = settings.PERF_SHERIFF_BOT_CLIENT_ID
+        access_token = settings.PERF_SHERIFF_BOT_ACCESS_TOKEN
+
         alerts_picker = AlertsPicker(
             max_alerts=5,
             max_improvements=2,
@@ -52,8 +64,15 @@ class Command(BaseCommand):
             max_data_points=5, time_interval=days_to_lookup
         )
         report_maintainer = BackfillReportMaintainer(alerts_picker, backfill_context_fetcher)
-        perf_sheriff_bot = PerfSheriffBot(report_maintainer)
-        perf_sheriff_bot.report(since, frameworks, repositories)
+        backfill_tool = BackfillTool(TaskclusterModel(root_url, client_id, access_token))
+        secretary_tool = SecretaryTool()
+
+        try:
+            perf_sheriff_bot = PerfSheriffBot(report_maintainer, backfill_tool, secretary_tool)
+            perf_sheriff_bot._report(since, frameworks, repositories)
+        except MaxRuntimeExceeded as ex:
+            logging.info(ex)
+            logging.info('PerfSheriffBot went back to sleep')
 
     def _parse_args(self, **options) -> Tuple[List, List, datetime, timedelta]:
         return (
