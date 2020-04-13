@@ -7,7 +7,7 @@ import { noResultsMessage } from '../constants';
 
 import ItemList from './ItemList';
 
-export default function HealthTable(props) {
+export default function TestsTable(props) {
   const { results, projectsMap, platformsMap, defaultPageSize } = props;
 
   const showPagination = results.length > defaultPageSize;
@@ -83,7 +83,7 @@ export default function HealthTable(props) {
   );
 }
 
-HealthTable.propTypes = {
+TestsTable.propTypes = {
   results: PropTypes.arrayOf(PropTypes.shape({})),
   defaultPageSize: PropTypes.number,
   projectsMap: PropTypes.oneOfType([PropTypes.bool, PropTypes.shape({})])
@@ -92,7 +92,7 @@ HealthTable.propTypes = {
     .isRequired,
 };
 
-HealthTable.defaultProps = {
+TestsTable.defaultProps = {
   results: [],
   defaultPageSize: 20,
 };

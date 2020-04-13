@@ -26,8 +26,8 @@ const Navigation = ({ user, setUser, notify }) => (
         </NavLink>
       </NavItem>
       <NavItem>
-        <NavLink href="#/health" className="btn-view-nav">
-          Health
+        <NavLink href="#/tests" className="btn-view-nav">
+          Tests
         </NavLink>
       </NavItem>
     </Nav>

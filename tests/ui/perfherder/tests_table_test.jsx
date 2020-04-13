@@ -2,7 +2,7 @@ import React from 'react';
 import { render, cleanup, waitForElement } from '@testing-library/react';
 
 import { noResultsMessage } from '../../../ui/perfherder/constants';
-import HealthTable from '../../../ui/perfherder/health/HealthTable';
+import TestsTable from '../../../ui/perfherder/tests/TestsTable';
 
 const results = [
   {
@@ -33,9 +33,9 @@ const platformsMap = {
   2: 'platform2',
 };
 
-const healthTable = (data, projectsMap = false, platformsMap = false) =>
+const testsTable = (data, projectsMap = false, platformsMap = false) =>
   render(
-    <HealthTable
+    <TestsTable
       results={data}
       projectsMap={projectsMap}
       platformsMap={platformsMap}
@@ -44,16 +44,16 @@ const healthTable = (data, projectsMap = false, platformsMap = false) =>
 
 afterEach(cleanup);
 
-test('health table with no data displays appropriate message', async () => {
-  const { getByText } = healthTable();
+test('Tests table with no data displays appropriate message', async () => {
+  const { getByText } = testsTable();
 
   const message = await waitForElement(() => getByText(noResultsMessage));
 
   expect(message).toBeInTheDocument();
 });
 
-test('health table should show data', async () => {
-  const { getByText } = healthTable(results, projectsMap, platformsMap);
+test('Tests table should show data', async () => {
+  const { getByText } = testsTable(results, projectsMap, platformsMap);
 
   const result1 = await waitForElement(() => getByText(results[0].test));
   const result2 = await waitForElement(() => getByText(results[1].test));
