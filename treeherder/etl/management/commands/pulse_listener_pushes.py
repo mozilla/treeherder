@@ -17,6 +17,9 @@ class Command(BaseCommand):
     help = "Read pushes from a set of pulse exchanges and queue for ingestion"
 
     def handle(self, *args, **options):
+        if env.bool('SKIP_INGESTION', default=False):
+            self.stdout.write("Skipping ingestion of Pulse Pushes")
+            return
         # Specifies the Pulse services from which Treeherder will ingest push
         # information.  Sources can include properties `hgmo`, `github`, or both, to
         # listen to events from those sources.  The value is a JSON array of the form
