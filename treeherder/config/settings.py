@@ -101,6 +101,7 @@ if DEBUG:
 # Heroku-review-app (defined in app.json)
 if env("HEROKU_REVIEW_APP", default=False):
     SITE_URL = "https://{}.herokuapp.com".format(env("HEROKU_APP_NAME"))
+    ALLOWED_HOSTS = [SITE_URL]
 
 # Middleware
 MIDDLEWARE = [middleware for middleware in [
