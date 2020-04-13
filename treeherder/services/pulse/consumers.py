@@ -143,7 +143,7 @@ class PulseConsumer(ConsumerMixin):
 
 
 class TaskConsumer(PulseConsumer):
-    queue_suffix = env("PULSE_TASKS_QUEUE_NAME", default="tasks_{}".format(uuid.getnode()))
+    queue_suffix = env("PULSE_TASKS_QUEUE_NAME", default="tasks")
 
     def bindings(self):
         return TASKCLUSTER_TASK_BINDINGS
@@ -160,7 +160,7 @@ class TaskConsumer(PulseConsumer):
 
 
 class PushConsumer(PulseConsumer):
-    queue_suffix = env("PULSE_RESULSETS_QUEUE_NAME", default="resultsets_{}".format(uuid.getnode()))
+    queue_suffix = env("PULSE_RESULSETS_QUEUE_NAME", default="resultsets")
 
     def bindings(self):
         rv = []
@@ -188,7 +188,7 @@ class JointConsumer(PulseConsumer):
     thread, so we use multiple threads, one per consumer.
     """
 
-    queue_suffix = env("PULSE_QUEUE_NAME", default="queue")
+    queue_suffix = env("PULSE_QUEUE_NAME", default="queue_{}".format(uuid.getnode()))
 
     def bindings(self):
 
