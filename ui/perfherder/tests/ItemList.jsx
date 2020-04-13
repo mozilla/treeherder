@@ -7,7 +7,9 @@ export default function ItemList(props) {
   return (
     <span>
       {items.slice(0, maxSeen).map(item => (
-        <span className="item-badge mr-1">{item}</span>
+        <span key={item} className="item-badge mr-1">
+          {item}
+        </span>
       ))}
       {items.length > maxSeen && (
         <span
