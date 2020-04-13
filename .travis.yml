@@ -61,11 +61,8 @@ jobs:
       cache: pip
       install:
         - pip install tox
-        - docker-compose up --detach mysql redis rabbitmq
       script:
         - tox
-        # This is to deal with running the containers with --detached
-        - docker-compose down
 
     # Run Python tests inside of the Docker containers
     - language: shell
