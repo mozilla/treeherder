@@ -53,7 +53,7 @@ export default class PerformanceTab extends React.PureComponent {
 
 PerformanceTab.propTypes = {
   repoName: PropTypes.string.isRequired,
-  perfJobDetail: PropTypes.array,
+  perfJobDetail: PropTypes.arrayOf(PropTypes.object),
   revision: PropTypes.string,
 };
 

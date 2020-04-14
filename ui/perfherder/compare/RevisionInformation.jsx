@@ -101,9 +101,9 @@ RevisionInformation.propTypes = {
   originalRevision: PropTypes.string,
   newProject: PropTypes.string,
   newRevision: PropTypes.string,
-  originalResultSet: PropTypes.object,
-  newResultSet: PropTypes.object,
-  selectedTimeRange: PropTypes.object,
+  originalResultSet: PropTypes.shape({}),
+  newResultSet: PropTypes.shape({}),
+  selectedTimeRange: PropTypes.shape({}),
 };
 
 RevisionInformation.defaultProps = {

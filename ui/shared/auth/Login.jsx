@@ -139,7 +139,11 @@ class Login extends React.Component {
 
 Login.propTypes = {
   setUser: PropTypes.func.isRequired,
-  user: PropTypes.object,
+  user: PropTypes.shape({
+    email: PropTypes.string,
+    isLoggedIn: PropTypes.bool,
+    fullName: PropTypes.string,
+  }),
   notify: PropTypes.func,
 };
 

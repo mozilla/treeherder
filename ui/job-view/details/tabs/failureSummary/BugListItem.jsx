@@ -54,10 +54,10 @@ function BugListItem(props) {
 }
 
 BugListItem.propTypes = {
-  bug: PropTypes.object.isRequired,
-  suggestion: PropTypes.object.isRequired,
+  bug: PropTypes.shape({}).isRequired,
+  suggestion: PropTypes.shape({}).isRequired,
   addBug: PropTypes.func.isRequired,
-  selectedJobFull: PropTypes.object.isRequired,
+  selectedJobFull: PropTypes.shape({}).isRequired,
   bugClassName: PropTypes.string,
   title: PropTypes.string,
 };

@@ -65,7 +65,7 @@ export default class JobDetails extends React.PureComponent {
 }
 
 JobDetails.propTypes = {
-  jobDetails: PropTypes.array,
+  jobDetails: PropTypes.arrayOf(PropTypes.object),
 };
 
 JobDetails.defaultProps = {

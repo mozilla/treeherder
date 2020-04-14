@@ -97,12 +97,10 @@ GraphsContainer.propTypes = {
     }),
   ),
   graphTwoData: PropTypes.arrayOf(
-    PropTypes.arrayOf(
-      PropTypes.shape({
-        date: PropTypes.shape({ Date: PropTypes.string }),
-        value: PropTypes.number,
-      }),
-    ),
+    PropTypes.shape({
+      date: PropTypes.shape({ Date: PropTypes.string }),
+      value: PropTypes.number,
+    }),
     PropTypes.arrayOf(
       PropTypes.shape({
         date: PropTypes.shape({ Date: PropTypes.string }),
@@ -110,7 +108,7 @@ GraphsContainer.propTypes = {
       }),
     ),
   ),
-  children: PropTypes.object.isRequired,
+  children: PropTypes.element.isRequired,
 };
 
 GraphsContainer.defaultProps = {

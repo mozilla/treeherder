@@ -390,8 +390,8 @@ class SecondaryNavBar extends React.PureComponent {
 SecondaryNavBar.propTypes = {
   updateButtonClick: PropTypes.func.isRequired,
   serverChanged: PropTypes.bool.isRequired,
-  filterModel: PropTypes.object.isRequired,
-  repos: PropTypes.array.isRequired,
+  filterModel: PropTypes.shape({}).isRequired,
+  repos: PropTypes.arrayOf(PropTypes.object).isRequired,
   setCurrentRepoTreeStatus: PropTypes.func.isRequired,
   allUnclassifiedFailureCount: PropTypes.number.isRequired,
   recalculateUnclassifiedCounts: PropTypes.func.isRequired,

@@ -33,5 +33,5 @@ export default function TierIndicator(props) {
 }
 
 TierIndicator.propTypes = {
-  filterModel: PropTypes.object.isRequired,
+  filterModel: PropTypes.shape({}).isRequired,
 };

@@ -39,7 +39,6 @@ module.exports = {
     'react/destructuring-assignment': 'off',
     'react/jsx-fragments': 'off',
     'react/jsx-props-no-spreading': 'off',
-    'react/forbid-prop-types': 'off',
     'react/prop-types': 'off',
     // Override AirBnB's config for this rule to make it more strict.
     // https://github.com/benmosher/eslint-plugin-import/blob/master/docs/rules/order.md

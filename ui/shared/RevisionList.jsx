@@ -33,9 +33,11 @@ export class RevisionList extends React.PureComponent {
 
 RevisionList.propTypes = {
   revision: PropTypes.string.isRequired,
-  revisions: PropTypes.array.isRequired,
+  revisions: PropTypes.arrayOf(PropTypes.object).isRequired,
   revisionCount: PropTypes.number.isRequired,
-  repo: PropTypes.object.isRequired,
+  repo: PropTypes.shape({
+    pushLogUrl: PropTypes.string,
+  }).isRequired,
   widthClass: PropTypes.string,
 };
 

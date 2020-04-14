@@ -238,8 +238,10 @@ PushActionMenu.propTypes = {
   runnableVisible: PropTypes.bool.isRequired,
   isLoggedIn: PropTypes.bool.isRequired,
   revision: PropTypes.string.isRequired,
-  currentRepo: PropTypes.object.isRequired,
-  decisionTaskMap: PropTypes.object.isRequired,
+  currentRepo: PropTypes.shape({
+    name: PropTypes.string,
+  }).isRequired,
+  decisionTaskMap: PropTypes.shape({}).isRequired,
   pushId: PropTypes.number.isRequired,
   hideRunnableJobs: PropTypes.func.isRequired,
   showRunnableJobs: PropTypes.func.isRequired,

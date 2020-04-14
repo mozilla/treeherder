@@ -244,12 +244,12 @@ class ClassificationGroup extends React.PureComponent {
 }
 
 ClassificationGroup.propTypes = {
-  group: PropTypes.array.isRequired,
+  group: PropTypes.arrayOf(PropTypes.object).isRequired,
   name: PropTypes.string.isRequired,
   repo: PropTypes.string.isRequired,
-  currentRepo: PropTypes.object.isRequired,
+  currentRepo: PropTypes.shape({}).isRequired,
   revision: PropTypes.string.isRequired,
-  user: PropTypes.object.isRequired,
+  user: PropTypes.shape({}).isRequired,
   notify: PropTypes.func.isRequired,
   unfilteredLength: PropTypes.number.isRequired,
   hasRetriggerAll: PropTypes.bool,

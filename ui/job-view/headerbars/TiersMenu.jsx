@@ -53,5 +53,5 @@ export default function TiersMenu(props) {
 }
 
 TiersMenu.propTypes = {
-  filterModel: PropTypes.object.isRequired,
+  filterModel: PropTypes.shape({}).isRequired,
 };

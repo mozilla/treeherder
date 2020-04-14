@@ -45,7 +45,7 @@ function RelatedBugSaved(props) {
 
 RelatedBugSaved.propTypes = {
   deleteBug: PropTypes.func.isRequired,
-  bug: PropTypes.object.isRequired,
+  bug: PropTypes.shape({}).isRequired,
 };
 
 function RelatedBug(props) {
@@ -67,7 +67,7 @@ function RelatedBug(props) {
 
 RelatedBug.propTypes = {
   deleteBug: PropTypes.func.isRequired,
-  bugs: PropTypes.array.isRequired,
+  bugs: PropTypes.arrayOf(PropTypes.object).isRequired,
 };
 
 function TableRow(props) {
@@ -112,8 +112,8 @@ function TableRow(props) {
 
 TableRow.propTypes = {
   deleteClassification: PropTypes.func.isRequired,
-  classification: PropTypes.object.isRequired,
-  classificationMap: PropTypes.object.isRequired,
+  classification: PropTypes.shape({}).isRequired,
+  classificationMap: PropTypes.shape({}).isRequired,
 };
 
 function AnnotationsTable(props) {
@@ -145,8 +145,8 @@ function AnnotationsTable(props) {
 
 AnnotationsTable.propTypes = {
   deleteClassification: PropTypes.func.isRequired,
-  classifications: PropTypes.array.isRequired,
-  classificationMap: PropTypes.object.isRequired,
+  classifications: PropTypes.arrayOf(PropTypes.object).isRequired,
+  classificationMap: PropTypes.shape({}).isRequired,
 };
 
 class AnnotationsTab extends React.Component {
@@ -250,12 +250,12 @@ class AnnotationsTab extends React.Component {
 }
 
 AnnotationsTab.propTypes = {
-  classificationMap: PropTypes.object.isRequired,
-  bugs: PropTypes.array.isRequired,
-  classifications: PropTypes.array.isRequired,
+  classificationMap: PropTypes.shape({}).isRequired,
+  bugs: PropTypes.arrayOf(PropTypes.object).isRequired,
+  classifications: PropTypes.arrayOf(PropTypes.object).isRequired,
   recalculateUnclassifiedCounts: PropTypes.func.isRequired,
   notify: PropTypes.func.isRequired,
-  selectedJobFull: PropTypes.object.isRequired,
+  selectedJobFull: PropTypes.shape({}).isRequired,
 };
 
 export default connect(null, { notify, recalculateUnclassifiedCounts })(

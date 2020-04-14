@@ -89,10 +89,7 @@ Layout.propTypes = {
   header: PropTypes.oneOfType([PropTypes.shape({}), PropTypes.bool]),
   table: PropTypes.oneOfType([PropTypes.shape({}), PropTypes.bool]),
   graphOneData: PropTypes.arrayOf(PropTypes.shape({})),
-  graphTwoData: PropTypes.arrayOf(
-    PropTypes.arrayOf(PropTypes.shape({})),
-    PropTypes.arrayOf(PropTypes.shape({})),
-  ),
+  graphTwoData: PropTypes.arrayOf(PropTypes.shape({})),
   tableData: PropTypes.arrayOf(PropTypes.shape({})),
   graphData: PropTypes.oneOfType([
     PropTypes.arrayOf(PropTypes.shape({})),

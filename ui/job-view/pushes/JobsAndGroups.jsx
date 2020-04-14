@@ -54,9 +54,9 @@ export default class JobsAndGroups extends React.Component {
 }
 
 JobsAndGroups.propTypes = {
-  groups: PropTypes.array.isRequired,
+  groups: PropTypes.arrayOf(PropTypes.object).isRequired,
   repoName: PropTypes.string.isRequired,
-  filterModel: PropTypes.object.isRequired,
+  filterModel: PropTypes.shape({}).isRequired,
   filterPlatformCb: PropTypes.func.isRequired,
   pushGroupState: PropTypes.string.isRequired,
   duplicateJobsVisible: PropTypes.bool.isRequired,

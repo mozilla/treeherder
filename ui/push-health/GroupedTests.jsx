@@ -120,13 +120,13 @@ class GroupedTests extends PureComponent {
 }
 
 GroupedTests.propTypes = {
-  group: PropTypes.array.isRequired,
+  group: PropTypes.arrayOf(PropTypes.object).isRequired,
   groupedBy: PropTypes.string.isRequired,
   orderedBy: PropTypes.string.isRequired,
   revision: PropTypes.string.isRequired,
   repo: PropTypes.string.isRequired,
-  currentRepo: PropTypes.object.isRequired,
-  user: PropTypes.object.isRequired,
+  currentRepo: PropTypes.shape({}).isRequired,
+  user: PropTypes.shape({}).isRequired,
   notify: PropTypes.func.isRequired,
 };
 

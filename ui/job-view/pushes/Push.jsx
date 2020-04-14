@@ -681,9 +681,11 @@ class Push extends React.PureComponent {
 }
 
 Push.propTypes = {
-  push: PropTypes.object.isRequired,
-  currentRepo: PropTypes.object.isRequired,
-  filterModel: PropTypes.object.isRequired,
+  push: PropTypes.shape({}).isRequired,
+  currentRepo: PropTypes.shape({
+    name: PropTypes.string,
+  }).isRequired,
+  filterModel: PropTypes.shape({}).isRequired,
   isLoggedIn: PropTypes.bool.isRequired,
   notificationSupported: PropTypes.bool.isRequired,
   getAllShownJobs: PropTypes.func.isRequired,
@@ -695,7 +697,7 @@ Push.propTypes = {
   notify: PropTypes.func.isRequired,
   isOnlyRevision: PropTypes.bool.isRequired,
   pushHealthVisibility: PropTypes.string.isRequired,
-  decisionTaskMap: PropTypes.object.isRequired,
+  decisionTaskMap: PropTypes.shape({}).isRequired,
 };
 
 const mapStateToProps = ({

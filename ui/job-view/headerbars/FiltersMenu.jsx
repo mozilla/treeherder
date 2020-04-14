@@ -130,12 +130,12 @@ function FiltersMenu(props) {
 }
 
 FiltersMenu.propTypes = {
-  filterModel: PropTypes.object.isRequired,
+  filterModel: PropTypes.shape({}).isRequired,
   pinJobs: PropTypes.func.isRequired,
   setSelectedJob: PropTypes.func.isRequired,
   getAllShownJobs: PropTypes.func.isRequired,
-  selectedJob: PropTypes.object,
-  user: PropTypes.object.isRequired,
+  selectedJob: PropTypes.shape({}),
+  user: PropTypes.shape({}).isRequired,
 };
 
 FiltersMenu.defaultProps = {

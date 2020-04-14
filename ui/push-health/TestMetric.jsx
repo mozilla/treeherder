@@ -91,10 +91,18 @@ export default class TestMetric extends React.PureComponent {
 }
 
 TestMetric.propTypes = {
-  data: PropTypes.object.isRequired,
-  user: PropTypes.object.isRequired,
+  data: PropTypes.shape({
+    name: PropTypes.string.isRequired,
+    result: PropTypes.string.isRequired,
+    details: PropTypes.shape({
+      needInvestigation: PropTypes.array.isRequired,
+      knownIssues: PropTypes.array.isRequired,
+      unsupported: PropTypes.array.isRequired,
+    }).isRequired,
+  }).isRequired,
+  user: PropTypes.shape({}).isRequired,
   repo: PropTypes.string.isRequired,
-  currentRepo: PropTypes.object.isRequired,
+  currentRepo: PropTypes.shape({}).isRequired,
   revision: PropTypes.string.isRequired,
   notify: PropTypes.func.isRequired,
   setExpanded: PropTypes.func.isRequired,

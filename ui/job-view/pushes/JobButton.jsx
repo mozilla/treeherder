@@ -139,8 +139,8 @@ export default class JobButtonComponent extends React.Component {
 }
 
 JobButtonComponent.propTypes = {
-  job: PropTypes.object.isRequired,
-  filterModel: PropTypes.object.isRequired,
+  job: PropTypes.shape({}).isRequired,
+  filterModel: PropTypes.shape({}).isRequired,
   repoName: PropTypes.string.isRequired,
   visible: PropTypes.bool.isRequired,
   resultStatus: PropTypes.string.isRequired,

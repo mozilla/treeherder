@@ -859,8 +859,8 @@ export class BugFilerClass extends React.Component {
 BugFilerClass.propTypes = {
   isOpen: PropTypes.bool.isRequired,
   toggle: PropTypes.func.isRequired,
-  suggestion: PropTypes.object.isRequired,
-  suggestions: PropTypes.array.isRequired,
+  suggestion: PropTypes.shape({}).isRequired,
+  suggestions: PropTypes.arrayOf(PropTypes.object).isRequired,
   fullLog: PropTypes.string.isRequired,
   parsedLog: PropTypes.string.isRequired,
   reftestUrl: PropTypes.string.isRequired,

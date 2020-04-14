@@ -132,7 +132,16 @@ export default class JobInfo extends React.PureComponent {
 }
 
 JobInfo.propTypes = {
-  job: PropTypes.object.isRequired,
+  job: PropTypes.shape({
+    signature: PropTypes.string,
+    title: PropTypes.string,
+    taskId: PropTypes.string,
+    buildPlatform: PropTypes.string,
+    jobTypeName: PropTypes.string,
+    buildArchitecture: PropTypes.string,
+    buildOs: PropTypes.string,
+    submitTimestamp: PropTypes.string,
+  }).isRequired,
   extraFields: PropTypes.arrayOf(
     PropTypes.exact({
       title: PropTypes.string.isRequired,

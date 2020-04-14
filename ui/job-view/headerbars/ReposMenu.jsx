@@ -100,5 +100,5 @@ export default function ReposMenu(props) {
 }
 
 ReposMenu.propTypes = {
-  repos: PropTypes.array.isRequired,
+  repos: PropTypes.arrayOf(PropTypes.object).isRequired,
 };

@@ -87,7 +87,7 @@ class UnsupportedGroup extends React.PureComponent {
 }
 
 UnsupportedGroup.propTypes = {
-  group: PropTypes.array.isRequired,
+  group: PropTypes.arrayOf(PropTypes.object).isRequired,
   name: PropTypes.string.isRequired,
   revision: PropTypes.string.isRequired,
   className: PropTypes.string,

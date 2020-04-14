@@ -84,13 +84,13 @@ class SummaryPanel extends React.PureComponent {
 }
 
 SummaryPanel.propTypes = {
-  bugs: PropTypes.array.isRequired,
-  user: PropTypes.object.isRequired,
-  currentRepo: PropTypes.object.isRequired,
-  classificationMap: PropTypes.object.isRequired,
-  selectedJobFull: PropTypes.object.isRequired,
-  latestClassification: PropTypes.object,
-  jobLogUrls: PropTypes.array,
+  bugs: PropTypes.arrayOf(PropTypes.object).isRequired,
+  user: PropTypes.shape({}).isRequired,
+  currentRepo: PropTypes.shape({}).isRequired,
+  classificationMap: PropTypes.shape({}).isRequired,
+  selectedJobFull: PropTypes.shape({}).isRequired,
+  latestClassification: PropTypes.shape({}),
+  jobLogUrls: PropTypes.arrayOf(PropTypes.object),
   jobDetailLoading: PropTypes.bool,
   logParseStatus: PropTypes.string,
   logViewerUrl: PropTypes.string,

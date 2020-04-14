@@ -54,7 +54,7 @@ class PaginationGroup extends React.Component {
 }
 
 PaginationGroup.propTypes = {
-  pageNums: PropTypes.array.isRequired,
+  pageNums: PropTypes.arrayOf(PropTypes.number).isRequired,
   page: PropTypes.number,
   count: PropTypes.number,
   fetchData: PropTypes.func.isRequired,

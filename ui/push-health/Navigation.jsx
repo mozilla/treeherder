@@ -51,13 +51,13 @@ export default class Navigation extends React.PureComponent {
 }
 
 Navigation.propTypes = {
-  user: PropTypes.object.isRequired,
+  user: PropTypes.shape({}).isRequired,
   setUser: PropTypes.func.isRequired,
   repo: PropTypes.string.isRequired,
   revision: PropTypes.string.isRequired,
   notify: PropTypes.func.isRequired,
   result: PropTypes.string,
-  children: PropTypes.object,
+  children: PropTypes.element,
 };
 
 Navigation.defaultProps = {
