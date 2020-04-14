@@ -1,3 +1,12 @@
+"""IMPORTANT!
+This subcommand isn't intended for use on any non-local
+dev environments. Any attempt to configure it otherwise
+is considered a known and unapproved risk.
+
+The subcommand's sole purpose is to act as a smoke test
+harness that quickly does an end-to-end check over the
+functionality of the `BackfillTool`.
+"""
 from django.conf import settings
 from django.core.management.base import BaseCommand
 

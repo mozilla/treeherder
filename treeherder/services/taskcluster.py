@@ -12,10 +12,7 @@ DEFAULT_ROOT_URL = 'https://firefox-ci-tc.services.mozilla.com'
 
 
 class TaskclusterModel:
-    """
-    This basically rewrites frontend's TaskclusterModel from
-    Javascript to Python
-    """
+    """Javascript -> Python rewrite of frontend's TaskclusterModel"""
 
     def __init__(self, root_url, client_id=None, access_token=None):
         options = {'rootUrl': root_url}
@@ -82,11 +79,9 @@ class TaskclusterModel:
                 "input": input,
          }
         context.update(static_action_variables)
+        action_kind = action["kind"]
 
-        if action["kind"] == "task":
-            raise NotImplementedError("Unable to submit actions with 'task' kind.")
-
-        if action["kind"] == "hook":
+        if action_kind == "hook":
             hook_payload = jsone.render(action["hookPayload"], context)
             hook_id, hook_group_id = action["hookId"], action["hookGroupId"]
 
@@ -100,8 +95,10 @@ class TaskclusterModel:
             result = self.hooks.triggerHook(hook_group_id, hook_id, hook_payload)
             return result["status"]["taskId"]
 
+        raise NotImplementedError(f"Unable to submit actions with '{action_kind}' kind.")
+
     @classmethod
-    def _filter_relevant_actions(cls, actions_json: dict, original_task) -> List:
+    def _filter_relevant_actions(cls, actions_json: dict, original_task: dict) -> list:
         relevant_actions = {}
 
         for action in actions_json['actions']:
@@ -120,6 +117,15 @@ class TaskclusterModel:
 
     @staticmethod
     def _get_action(action_array: list, action_name: str) -> str:
+        """
+        Each action entry (from action array) must define a name, title and description.
+        The order of the array of actions is **significant**: actions should be displayed
+        in this order, and when multiple actions apply, **the first takes precedence**.
+
+        More updated details: https://docs.taskcluster.net/docs/manual/design/conventions/actions/spec#action-metadata
+
+        @return: most relevant action entry
+        """
         try:
             return [a for a in action_array if a["name"] == action_name][0]
         except IndexError:
@@ -129,9 +135,22 @@ class TaskclusterModel:
             raise LookupError(f"{action_name} action is not available for this task.  Available: {available_actions}")
 
     @classmethod
-    def _task_in_context(cls, tag_set_list, task_tags):
+    def _task_in_context(cls, context: List[dict], task_tags: dict) -> bool:
+        """
+        A task (as defined by its tags) is said to match a tag-set if its
+        tags are a super-set of the tag-set. A tag-set is a set of key-value pairs.
+
+        An action (as defined by its context) is said to be relevant for
+        a given task, if that task's tags match one of the tag-sets given
+        in the context property for the action.
+
+        More updated details: https://docs.taskcluster.net/docs/manual/design/conventions/actions/spec#action-context
+
+        @param context: list of tag-sets
+        @param task_tags: task's tags
+        """
         return any(
             all(tag in task_tags and task_tags[tag] == tag_set[tag]
                 for tag in tag_set.keys())
-            for tag_set in tag_set_list
+            for tag_set in context
         )
