@@ -1,0 +1,11 @@
+[
+  {
+    "kind": "decision-task"
+  },
+  {
+    "kind": "action-callback"
+  },
+  {
+    "kind": "cron-task"
+  }
+]
