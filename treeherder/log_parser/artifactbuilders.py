@@ -1,6 +1,7 @@
 import logging
 
-from .parsers import PerformanceParser, StepParser, TinderboxPrintParser
+from .parsers import (PerformanceParser,
+                      StepParser)
 
 logger = logging.getLogger(__name__)
 
@@ -59,20 +60,6 @@ class ArtifactBuilderBase:
         """Return the job artifact built by the parser."""
         self.artifact[self.parser.name] = self.parser.get_artifact()
         return self.artifact
-
-
-class BuildbotJobArtifactBuilder(ArtifactBuilderBase):
-    """
-    Gather properties for this job.
-
-    This parser gathers the data that shows in the job details panel.
-    """
-
-    def __init__(self, url=None):
-        """Construct a job artifact builder."""
-        super().__init__(url)
-        self.parser = TinderboxPrintParser()
-        self.name = "Job Info"
 
 
 class BuildbotLogViewArtifactBuilder(ArtifactBuilderBase):
