@@ -1,16 +1,7 @@
 {
   "A35mWTRuQmyj88yMnIF0fA": {
     "job": {
-      "artifacts": [
-        {
-          "blob": {
-            "job_details": []
-          },
-          "job_guid": "037e6659-346e-426c-a3f3-cc8c9c81747c/0",
-          "name": "Job Info",
-          "type": "json"
-        }
-      ],
+      "artifacts": [],
       "build_platform": {
         "architecture": "-",
         "os_name": "-",
@@ -47,16 +38,7 @@
   },
   "A3dJ8bDIQRKzHiZBhM0c5Q": {
     "job": {
-      "artifacts": [
-        {
-          "blob": {
-            "job_details": []
-          },
-          "job_guid": "037749f1-b0c8-4112-b31e-264184cd1ce5/0",
-          "name": "Job Info",
-          "type": "json"
-        }
-      ],
+      "artifacts": [],
       "build_platform": {
         "architecture": "-",
         "os_name": "-",
@@ -139,16 +121,7 @@
   },
   "A4AV9EXXREGCV-hVKT0blQ": {
     "job": {
-      "artifacts": [
-        {
-          "blob": {
-            "job_details": []
-          },
-          "job_guid": "038015f4-45d7-4441-8257-e855293d1b95/0",
-          "name": "Job Info",
-          "type": "json"
-        }
-      ],
+      "artifacts": [],
       "build_platform": {
         "architecture": "-",
         "os_name": "-",
@@ -185,16 +158,7 @@
   },
   "ADfskOGaS7KUj0AuUb324A": {
     "job": {
-      "artifacts": [
-        {
-          "blob": {
-            "job_details": []
-          },
-          "job_guid": "0037ec90-e19a-4bb2-948f-402e51bdf6e0/0",
-          "name": "Job Info",
-          "type": "json"
-        }
-      ],
+      "artifacts": [],
       "build_platform": {
         "architecture": "-",
         "os_name": "-",
@@ -231,16 +195,7 @@
   },
   "AcUWtRf7QB-4XQS8nSTilg": {
     "job": {
-      "artifacts": [
-        {
-          "blob": {
-            "job_details": []
-          },
-          "job_guid": "01c516b5-17fb-401f-b85d-04bc9d24e296/0",
-          "name": "Job Info",
-          "type": "json"
-        }
-      ],
+      "artifacts": [],
       "build_platform": {
         "architecture": "-",
         "os_name": "-",
@@ -277,16 +232,7 @@
   },
   "Ai-bmuTzS7eRBYFhSPnZ1w": {
     "job": {
-      "artifacts": [
-        {
-          "blob": {
-            "job_details": []
-          },
-          "job_guid": "022f9b9a-e4f3-4bb7-9105-816148f9d9d7/0",
-          "name": "Job Info",
-          "type": "json"
-        }
-      ],
+      "artifacts": [],
       "build_platform": {
         "architecture": "-",
         "os_name": "-",
@@ -324,16 +270,7 @@
   },
   "AlcvKmrGS8e9FXrFTYnhpA": {
     "job": {
-      "artifacts": [
-        {
-          "blob": {
-            "job_details": []
-          },
-          "job_guid": "02572f2a-6ac6-4bc7-bd15-7ac54d89e1a4/0",
-          "name": "Job Info",
-          "type": "json"
-        }
-      ],
+      "artifacts": [],
       "build_platform": {
         "architecture": "-",
         "os_name": "-",
@@ -370,16 +307,7 @@
   },
   "ApotNgqaQh6OGDW8TMSWlQ": {
     "job": {
-      "artifacts": [
-        {
-          "blob": {
-            "job_details": []
-          },
-          "job_guid": "029a2d36-0a9a-421e-8e18-35bc4cc49695/0",
-          "name": "Job Info",
-          "type": "json"
-        }
-      ],
+      "artifacts": [],
       "build_platform": {
         "architecture": "-",
         "os_name": "-",
@@ -416,16 +344,7 @@
   },
   "AqMhSaDqSAG7nfjfxjKLZA": {
     "job": {
-      "artifacts": [
-        {
-          "blob": {
-            "job_details": []
-          },
-          "job_guid": "02a32149-a0ea-4801-bb9d-f8dfc6328b64/0",
-          "name": "Job Info",
-          "type": "json"
-        }
-      ],
+      "artifacts": [],
       "build_platform": {
         "architecture": "-",
         "os_name": "-",
@@ -462,16 +381,7 @@
   },
   "AseHcKjPRhi-NBsvwH54gw": {
     "job": {
-      "artifacts": [
-        {
-          "blob": {
-            "job_details": []
-          },
-          "job_guid": "02c78770-a8cf-4618-be34-1b2fc07e7883/0",
-          "name": "Job Info",
-          "type": "json"
-        }
-      ],
+      "artifacts": [],
       "build_platform": {
         "architecture": "-",
         "os_name": "-",
@@ -508,16 +418,7 @@
   },
   "B3EheQ-IQ5aPzw34KS_a6g": {
     "job": {
-      "artifacts": [
-        {
-          "blob": {
-            "job_details": []
-          },
-          "job_guid": "07712179-0f88-4396-8fcf-0df8292fdaea/0",
-          "name": "Job Info",
-          "type": "json"
-        }
-      ],
+      "artifacts": [],
       "build_platform": {
         "architecture": "-",
         "os_name": "-",
@@ -562,16 +463,7 @@
   },
   "BFqlkKMaTVqv3ROSlUT6kQ": {
     "job": {
-      "artifacts": [
-        {
-          "blob": {
-            "job_details": []
-          },
-          "job_guid": "045aa590-a31a-4d5a-afdd-13929544fa91/0",
-          "name": "Job Info",
-          "type": "json"
-        }
-      ],
+      "artifacts": [],
       "build_platform": {
         "architecture": "-",
         "os_name": "-",
@@ -608,16 +500,7 @@
   },
   "BHejD_RvTW2HR2THXfwDAQ": {
     "job": {
-      "artifacts": [
-        {
-          "blob": {
-            "job_details": []
-          },
-          "job_guid": "0477a30f-f46f-4d6d-8747-64c75dfc0301/0",
-          "name": "Job Info",
-          "type": "json"
-        }
-      ],
+      "artifacts": [],
       "build_platform": {
         "architecture": "-",
         "os_name": "-",
@@ -654,16 +537,7 @@
   },
   "BXWMaUV7TCunBcJQELbZqw": {
     "job": {
-      "artifacts": [
-        {
-          "blob": {
-            "job_details": []
-          },
-          "job_guid": "05758c69-457b-4c2b-a705-c25010b6d9ab/0",
-          "name": "Job Info",
-          "type": "json"
-        }
-      ],
+      "artifacts": [],
       "build_platform": {
         "architecture": "-",
         "os_name": "-",
@@ -700,16 +574,7 @@
   },
   "BZuYb2PTTQ-opGzxvZvA9A": {
     "job": {
-      "artifacts": [
-        {
-          "blob": {
-            "job_details": []
-          },
-          "job_guid": "059b986f-63d3-4d0f-a8a4-6cf1bd9bc0f4/0",
-          "name": "Job Info",
-          "type": "json"
-        }
-      ],
+      "artifacts": [],
       "build_platform": {
         "architecture": "-",
         "os_name": "-",
@@ -746,16 +611,7 @@
   },
   "BdHfGUHPTLm0IKz47oNJlA": {
     "job": {
-      "artifacts": [
-        {
-          "blob": {
-            "job_details": []
-          },
-          "job_guid": "05d1df19-41cf-4cb9-b420-acf8ee834994/0",
-          "name": "Job Info",
-          "type": "json"
-        }
-      ],
+      "artifacts": [],
       "build_platform": {
         "architecture": "-",
         "os_name": "-",
@@ -792,16 +648,7 @@
   },
   "BdHy_4vQSA2ZQoxXc-6ieA": {
     "job": {
-      "artifacts": [
-        {
-          "blob": {
-            "job_details": []
-          },
-          "job_guid": "05d1f2ff-8bd0-480d-9942-8c5773eea278/0",
-          "name": "Job Info",
-          "type": "json"
-        }
-      ],
+      "artifacts": [],
       "build_platform": {
         "architecture": "-",
         "os_name": "-",
@@ -838,16 +685,7 @@
   },
   "BfEK00F_TSm20TD799GdMw": {
     "job": {
-      "artifacts": [
-        {
-          "blob": {
-            "job_details": []
-          },
-          "job_guid": "05f10ad3-417f-4d29-b6d1-30fbf7d19d33/0",
-          "name": "Job Info",
-          "type": "json"
-        }
-      ],
+      "artifacts": [],
       "build_platform": {
         "architecture": "-",
         "os_name": "-",
@@ -884,16 +722,7 @@
   },
   "Bg8h-Ct_SPSrEEYuvPAYSQ": {
     "job": {
-      "artifacts": [
-        {
-          "blob": {
-            "job_details": []
-          },
-          "job_guid": "060f21f8-2b7f-48f4-ab10-462ebcf01849/0",
-          "name": "Job Info",
-          "type": "json"
-        }
-      ],
+      "artifacts": [],
       "build_platform": {
         "architecture": "-",
         "os_name": "-",
@@ -930,16 +759,7 @@
   },
   "BpnQqda2Q0izXw4k0RUT6w": {
     "job": {
-      "artifacts": [
-        {
-          "blob": {
-            "job_details": []
-          },
-          "job_guid": "0699d0a9-d6b6-4348-b35f-0e24d11513eb/0",
-          "name": "Job Info",
-          "type": "json"
-        }
-      ],
+      "artifacts": [],
       "build_platform": {
         "architecture": "-",
         "os_name": "-",
@@ -976,16 +796,7 @@
   },
   "CBO2K8XGQEaNpX1BkwJmNw": {
     "job": {
-      "artifacts": [
-        {
-          "blob": {
-            "job_details": []
-          },
-          "job_guid": "0813b62b-c5c6-4046-8da5-7d4193026637/0",
-          "name": "Job Info",
-          "type": "json"
-        }
-      ],
+      "artifacts": [],
       "build_platform": {
         "architecture": "-",
         "os_name": "-",
@@ -1022,16 +833,7 @@
   },
   "CER7YmG9QmCd-R66vfWkVQ": {
     "job": {
-      "artifacts": [
-        {
-          "blob": {
-            "job_details": []
-          },
-          "job_guid": "08447b62-61bd-4260-9df9-1ebabdf5a455/0",
-          "name": "Job Info",
-          "type": "json"
-        }
-      ],
+      "artifacts": [],
       "build_platform": {
         "architecture": "-",
         "os_name": "-",
@@ -1069,16 +871,7 @@
   },
   "DPCuZCk-SWC6SeftAbytzw": {
     "job": {
-      "artifacts": [
-        {
-          "blob": {
-            "job_details": []
-          },
-          "job_guid": "0cf0ae64-293e-4960-ba49-e7ed01bcadcf/0",
-          "name": "Job Info",
-          "type": "json"
-        }
-      ],
+      "artifacts": [],
       "build_platform": {
         "architecture": "-",
         "os_name": "-",
@@ -1115,16 +908,7 @@
   },
   "D_6WScWhTLysuSIkbqfjsg": {
     "job": {
-      "artifacts": [
-        {
-          "blob": {
-            "job_details": []
-          },
-          "job_guid": "0ffe9649-c5a1-4cbc-acb9-22246ea7e3b2/0",
-          "name": "Job Info",
-          "type": "json"
-        }
-      ],
+      "artifacts": [],
       "build_platform": {
         "architecture": "-",
         "os_name": "-",
@@ -1161,16 +945,7 @@
   },
   "DxhjVp-uQtGhRLm1w0xdiA": {
     "job": {
-      "artifacts": [
-        {
-          "blob": {
-            "job_details": []
-          },
-          "job_guid": "0f186356-9fae-42d1-a144-b9b5c34c5d88/0",
-          "name": "Job Info",
-          "type": "json"
-        }
-      ],
+      "artifacts": [],
       "build_platform": {
         "architecture": "-",
         "os_name": "-",
@@ -1207,16 +982,7 @@
   },
   "ENXQRjSMRWyWK_zAEYEoXg": {
     "job": {
-      "artifacts": [
-        {
-          "blob": {
-            "job_details": []
-          },
-          "job_guid": "10d5d046-348c-456c-962b-fcc01181285e/0",
-          "name": "Job Info",
-          "type": "json"
-        }
-      ],
+      "artifacts": [],
       "build_platform": {
         "architecture": "-",
         "os_name": "-",
@@ -1261,16 +1027,7 @@
   },
   "EvNqsyBISNCH8mwfDVRnSQ": {
     "job": {
-      "artifacts": [
-        {
-          "blob": {
-            "job_details": []
-          },
-          "job_guid": "12f36ab3-2048-48d0-87f2-6c1f0d546749/0",
-          "name": "Job Info",
-          "type": "json"
-        }
-      ],
+      "artifacts": [],
       "build_platform": {
         "architecture": "-",
         "os_name": "-",
@@ -1308,16 +1065,7 @@
   },
   "F93bme7iSP2k0TsCwqSBVw": {
     "job": {
-      "artifacts": [
-        {
-          "blob": {
-            "job_details": []
-          },
-          "job_guid": "17dddb99-eee2-48fd-a4d1-3b02c2a48157/0",
-          "name": "Job Info",
-          "type": "json"
-        }
-      ],
+      "artifacts": [],
       "build_platform": {
         "architecture": "-",
         "os_name": "-",
@@ -1354,16 +1102,7 @@
   },
   "FgjNkrvXS0WDDJJUpVXZsA": {
     "job": {
-      "artifacts": [
-        {
-          "blob": {
-            "job_details": []
-          },
-          "job_guid": "1608cd92-bbd7-4b45-830c-9254a555d9b0/0",
-          "name": "Job Info",
-          "type": "json"
-        }
-      ],
+      "artifacts": [],
       "build_platform": {
         "architecture": "-",
         "os_name": "-",
@@ -1400,16 +1139,7 @@
   },
   "Fj3fDgrvRXitCVX2RiJUaw": {
     "job": {
-      "artifacts": [
-        {
-          "blob": {
-            "job_details": []
-          },
-          "job_guid": "163ddf0e-0aef-4578-ad09-55f64622546b/0",
-          "name": "Job Info",
-          "type": "json"
-        }
-      ],
+      "artifacts": [],
       "build_platform": {
         "architecture": "-",
         "os_name": "-",
@@ -1446,16 +1176,7 @@
   },
   "FkHz3gGPSVmL6YJOupYBXw": {
     "job": {
-      "artifacts": [
-        {
-          "blob": {
-            "job_details": []
-          },
-          "job_guid": "1641f3de-018f-4959-8be9-824eba96015f/0",
-          "name": "Job Info",
-          "type": "json"
-        }
-      ],
+      "artifacts": [],
       "build_platform": {
         "architecture": "-",
         "os_name": "-",
@@ -1492,16 +1213,7 @@
   },
   "FsgLMdKwRzWJAwUhYy2g0Q": {
     "job": {
-      "artifacts": [
-        {
-          "blob": {
-            "job_details": []
-          },
-          "job_guid": "16c80b31-d2b0-4735-8903-0521632da0d1/0",
-          "name": "Job Info",
-          "type": "json"
-        }
-      ],
+      "artifacts": [],
       "build_platform": {
         "architecture": "-",
         "os_name": "-",
@@ -1538,16 +1250,7 @@
   },
   "GTFxZJWzSKSNc_XElgtWHQ": {
     "job": {
-      "artifacts": [
-        {
-          "blob": {
-            "job_details": []
-          },
-          "job_guid": "19317164-95b3-48a4-8d73-f5c4960b561d/0",
-          "name": "Job Info",
-          "type": "json"
-        }
-      ],
+      "artifacts": [],
       "build_platform": {
         "architecture": "-",
         "os_name": "-",
@@ -1584,16 +1287,7 @@
   },
   "GWxTc8p_RUa5_Xo4RtMiCA": {
     "job": {
-      "artifacts": [
-        {
-          "blob": {
-            "job_details": []
-          },
-          "job_guid": "196c5373-ca7f-4546-b9fd-7a3846d32208/0",
-          "name": "Job Info",
-          "type": "json"
-        }
-      ],
+      "artifacts": [],
       "build_platform": {
         "architecture": "-",
         "os_name": "-",
@@ -1638,16 +1332,7 @@
   },
   "HsvD9YlDQKaoP4AQsuGeJw": {
     "job": {
-      "artifacts": [
-        {
-          "blob": {
-            "job_details": []
-          },
-          "job_guid": "1ecbc3f5-8943-40a6-a83f-8010b2e19e27/0",
-          "name": "Job Info",
-          "type": "json"
-        }
-      ],
+      "artifacts": [],
       "build_platform": {
         "architecture": "-",
         "os_name": "-",
@@ -1692,16 +1377,7 @@
   },
   "JKDqO-yySta79-Y92Dq2yQ": {
     "job": {
-      "artifacts": [
-        {
-          "blob": {
-            "job_details": []
-          },
-          "job_guid": "24a0ea3b-ecb2-4ad6-bbf7-e63dd83ab6c9/0",
-          "name": "Job Info",
-          "type": "json"
-        }
-      ],
+      "artifacts": [],
       "build_platform": {
         "architecture": "-",
         "os_name": "-",
@@ -1738,16 +1414,7 @@
   },
   "JM6eV6S-R5-Dy08gjoBHrQ": {
     "job": {
-      "artifacts": [
-        {
-          "blob": {
-            "job_details": []
-          },
-          "job_guid": "24ce9e57-a4be-479f-83cb-4f208e8047ad/0",
-          "name": "Job Info",
-          "type": "json"
-        }
-      ],
+      "artifacts": [],
       "build_platform": {
         "architecture": "-",
         "os_name": "-",
@@ -1784,16 +1451,7 @@
   },
   "K2IZ74mWQfiEn2U6XnVLPQ": {
     "job": {
-      "artifacts": [
-        {
-          "blob": {
-            "job_details": []
-          },
-          "job_guid": "2b6219ef-8996-41f8-849f-653a5e754b3d/0",
-          "name": "Job Info",
-          "type": "json"
-        }
-      ],
+      "artifacts": [],
       "build_platform": {
         "architecture": "-",
         "os_name": "-",
@@ -1830,16 +1488,7 @@
   },
   "K5R8rkgARZWMvH4JpmSPrQ": {
     "job": {
-      "artifacts": [
-        {
-          "blob": {
-            "job_details": []
-          },
-          "job_guid": "2b947cae-4800-4595-8cbc-7e09a6648fad/0",
-          "name": "Job Info",
-          "type": "json"
-        }
-      ],
+      "artifacts": [],
       "build_platform": {
         "architecture": "-",
         "os_name": "-",
@@ -1876,16 +1525,7 @@
   },
   "KYZKwkbvRc-qPE22g286yQ": {
     "job": {
-      "artifacts": [
-        {
-          "blob": {
-            "job_details": []
-          },
-          "job_guid": "29864ac2-46ef-45cf-aa3c-4db6836f3ac9/0",
-          "name": "Job Info",
-          "type": "json"
-        }
-      ],
+      "artifacts": [],
       "build_platform": {
         "architecture": "-",
         "os_name": "-",
@@ -1930,16 +1570,7 @@
   },
   "KnBj0KLcTjuyNaTxt5LVqw": {
     "job": {
-      "artifacts": [
-        {
-          "blob": {
-            "job_details": []
-          },
-          "job_guid": "2a7063d0-a2dc-4e3b-b235-a4f1b792d5ab/0",
-          "name": "Job Info",
-          "type": "json"
-        }
-      ],
+      "artifacts": [],
       "build_platform": {
         "architecture": "-",
         "os_name": "-",
@@ -1977,16 +1608,7 @@
   },
   "LBJoI2wUTNCteg-5CnaYZQ": {
     "job": {
-      "artifacts": [
-        {
-          "blob": {
-            "job_details": []
-          },
-          "job_guid": "2c126823-6c14-4cd0-ad7a-0fb90a769865/0",
-          "name": "Job Info",
-          "type": "json"
-        }
-      ],
+      "artifacts": [],
       "build_platform": {
         "architecture": "-",
         "os_name": "-",
@@ -2031,16 +1653,7 @@
   },
   "LWArw4t5QaCHiHsEJo6hFA": {
     "job": {
-      "artifacts": [
-        {
-          "blob": {
-            "job_details": []
-          },
-          "job_guid": "2d602bc3-8b79-41a0-8788-7b04268ea114/0",
-          "name": "Job Info",
-          "type": "json"
-        }
-      ],
+      "artifacts": [],
       "build_platform": {
         "architecture": "-",
         "os_name": "-",
@@ -2078,16 +1691,7 @@
   },
   "MrYMxyDDSwWXJey-uo4T3g": {
     "job": {
-      "artifacts": [
-        {
-          "blob": {
-            "job_details": []
-          },
-          "job_guid": "32b60cc7-20c3-4b05-9725-ecbeba8e13de/0",
-          "name": "Job Info",
-          "type": "json"
-        }
-      ],
+      "artifacts": [],
       "build_platform": {
         "architecture": "-",
         "os_name": "-",
@@ -2132,16 +1736,7 @@
   },
   "NWz-q9MoSL-WMfO7kiwhtg": {
     "job": {
-      "artifacts": [
-        {
-          "blob": {
-            "job_details": []
-          },
-          "job_guid": "356cfeab-d328-48bf-9631-f3bb922c21b6/0",
-          "name": "Job Info",
-          "type": "json"
-        }
-      ],
+      "artifacts": [],
       "build_platform": {
         "architecture": "-",
         "os_name": "-",
@@ -2178,16 +1773,7 @@
   },
   "OiZYxvi5RfKol0A4SBbvOw": {
     "job": {
-      "artifacts": [
-        {
-          "blob": {
-            "job_details": []
-          },
-          "job_guid": "3a2658c6-f8b9-45f2-a897-40384816ef3b/0",
-          "name": "Job Info",
-          "type": "json"
-        }
-      ],
+      "artifacts": [],
       "build_platform": {
         "architecture": "-",
         "os_name": "-",
@@ -2232,16 +1818,7 @@
   },
   "PCVDCxY9QM-lEgaGhrCPrw": {
     "job": {
-      "artifacts": [
-        {
-          "blob": {
-            "job_details": []
-          },
-          "job_guid": "3c25430b-163d-40cf-a512-068686b08faf/0",
-          "name": "Job Info",
-          "type": "json"
-        }
-      ],
+      "artifacts": [],
       "build_platform": {
         "architecture": "-",
         "os_name": "-",
@@ -2286,16 +1863,7 @@
   },
   "Pr3zPNMqS8CAY6hHB_lwow": {
     "job": {
-      "artifacts": [
-        {
-          "blob": {
-            "job_details": []
-          },
-          "job_guid": "3ebdf33c-d32a-4bc0-8063-a84707f970a3/0",
-          "name": "Job Info",
-          "type": "json"
-        }
-      ],
+      "artifacts": [],
       "build_platform": {
         "architecture": "-",
         "os_name": "-",
@@ -2332,16 +1900,7 @@
   },
   "Q5dgajTmQaG3bW8xf8mWRw": {
     "job": {
-      "artifacts": [
-        {
-          "blob": {
-            "job_details": []
-          },
-          "job_guid": "4397606a-34e6-41a1-b76d-6f317fc99647/0",
-          "name": "Job Info",
-          "type": "json"
-        }
-      ],
+      "artifacts": [],
       "build_platform": {
         "architecture": "-",
         "os_name": "-",
@@ -2378,16 +1937,7 @@
   },
   "QDGdgQTQRC2xZNR3Zs_IhA": {
     "job": {
-      "artifacts": [
-        {
-          "blob": {
-            "job_details": []
-          },
-          "job_guid": "40319d81-04d0-442d-b164-d47766cfc884/0",
-          "name": "Job Info",
-          "type": "json"
-        }
-      ],
+      "artifacts": [],
       "build_platform": {
         "architecture": "-",
         "os_name": "-",
@@ -2432,16 +1982,7 @@
   },
   "QUhTaNzmR-SnLuVMscnSYA": {
     "job": {
-      "artifacts": [
-        {
-          "blob": {
-            "job_details": []
-          },
-          "job_guid": "41485368-dce6-47e4-a72e-e54cb1c9d260/0",
-          "name": "Job Info",
-          "type": "json"
-        }
-      ],
+      "artifacts": [],
       "build_platform": {
         "architecture": "-",
         "os_name": "-",
@@ -2479,16 +2020,7 @@
   },
   "QbJceuUbQF-SAHp_tuN4bg": {
     "job": {
-      "artifacts": [
-        {
-          "blob": {
-            "job_details": []
-          },
-          "job_guid": "41b25c7a-e51b-405f-9200-7a7fb6e3786e/0",
-          "name": "Job Info",
-          "type": "json"
-        }
-      ],
+      "artifacts": [],
       "build_platform": {
         "architecture": "-",
         "os_name": "-",
@@ -2525,16 +2057,7 @@
   },
   "TNBQvfFkR0KoVFz_7QIkIw": {
     "job": {
-      "artifacts": [
-        {
-          "blob": {
-            "job_details": []
-          },
-          "job_guid": "4cd050bd-f164-4742-a854-5cffed022423/0",
-          "name": "Job Info",
-          "type": "json"
-        }
-      ],
+      "artifacts": [],
       "build_platform": {
         "architecture": "-",
         "os_name": "-",
@@ -2571,16 +2094,7 @@
   },
   "TacsT1-FSMia0IGkYP-cTQ": {
     "job": {
-      "artifacts": [
-        {
-          "blob": {
-            "job_details": []
-          },
-          "job_guid": "4da72c4f-5f85-48c8-9ad0-81a460ff9c4d/0",
-          "name": "Job Info",
-          "type": "json"
-        }
-      ],
+      "artifacts": [],
       "build_platform": {
         "architecture": "-",
         "os_name": "-",
@@ -2617,16 +2131,7 @@
   },
   "TbO_k663R3St6hBFE92StQ": {
     "job": {
-      "artifacts": [
-        {
-          "blob": {
-            "job_details": []
-          },
-          "job_guid": "4db3bf93-aeb7-4774-adea-104513dd92b5/0",
-          "name": "Job Info",
-          "type": "json"
-        }
-      ],
+      "artifacts": [],
       "build_platform": {
         "architecture": "-",
         "os_name": "-",
@@ -2663,16 +2168,7 @@
   },
   "TwPxQPQiQLC0jwp0Crf4sw": {
     "job": {
-      "artifacts": [
-        {
-          "blob": {
-            "job_details": []
-          },
-          "job_guid": "4f03f140-f422-40b0-b48f-0a740ab7f8b3/0",
-          "name": "Job Info",
-          "type": "json"
-        }
-      ],
+      "artifacts": [],
       "build_platform": {
         "architecture": "-",
         "os_name": "-",
@@ -2709,16 +2205,7 @@
   },
   "UAEeps8wSMmoL4r0MdjlXA": {
     "job": {
-      "artifacts": [
-        {
-          "blob": {
-            "job_details": []
-          },
-          "job_guid": "50011ea6-cf30-48c9-a82f-8af431d8e55c/0",
-          "name": "Job Info",
-          "type": "json"
-        }
-      ],
+      "artifacts": [],
       "build_platform": {
         "architecture": "-",
         "os_name": "-",
@@ -2756,16 +2243,7 @@
   },
   "UWjPMpssTgq0kA7hj9QtJw": {
     "job": {
-      "artifacts": [
-        {
-          "blob": {
-            "job_details": []
-          },
-          "job_guid": "5168cf32-9b2c-4e0a-b490-0ee18fd42d27/0",
-          "name": "Job Info",
-          "type": "json"
-        }
-      ],
+      "artifacts": [],
       "build_platform": {
         "architecture": "-",
         "os_name": "-",
@@ -2802,16 +2280,7 @@
   },
   "UZ37gpDqTRS1pBNnp0Spsg": {
     "job": {
-      "artifacts": [
-        {
-          "blob": {
-            "job_details": []
-          },
-          "job_guid": "519dfb82-90ea-4d14-b5a4-1367a744a9b2/0",
-          "name": "Job Info",
-          "type": "json"
-        }
-      ],
+      "artifacts": [],
       "build_platform": {
         "architecture": "-",
         "os_name": "-",
@@ -2856,16 +2325,7 @@
   },
   "UoGLhHlwT4mH3h3ukcm_Ig": {
     "job": {
-      "artifacts": [
-        {
-          "blob": {
-            "job_details": []
-          },
-          "job_guid": "52818b84-7970-4f89-87de-1dee91c9bf22/0",
-          "name": "Job Info",
-          "type": "json"
-        }
-      ],
+      "artifacts": [],
       "build_platform": {
         "architecture": "-",
         "os_name": "-",
@@ -2902,16 +2362,7 @@
   },
   "UxS4jt6lQdyUYnPcmN-z-w": {
     "job": {
-      "artifacts": [
-        {
-          "blob": {
-            "job_details": []
-          },
-          "job_guid": "5314b88e-dea5-41dc-9462-73dc98dfb3fb/0",
-          "name": "Job Info",
-          "type": "json"
-        }
-      ],
+      "artifacts": [],
       "build_platform": {
         "architecture": "-",
         "os_name": "-",
@@ -2948,16 +2399,7 @@
   },
   "VGU4RUKFScaK8eBikMi9IQ": {
     "job": {
-      "artifacts": [
-        {
-          "blob": {
-            "job_details": []
-          },
-          "job_guid": "54653845-4285-49c6-8af1-e06290c8bd21/0",
-          "name": "Job Info",
-          "type": "json"
-        }
-      ],
+      "artifacts": [],
       "build_platform": {
         "architecture": "-",
         "os_name": "-",
@@ -2994,16 +2436,7 @@
   },
   "VqbRb6bZSlywWOQN62tk-g": {
     "job": {
-      "artifacts": [
-        {
-          "blob": {
-            "job_details": []
-          },
-          "job_guid": "56a6d16f-a6d9-4a5c-b058-e40deb6b64fa/0",
-          "name": "Job Info",
-          "type": "json"
-        }
-      ],
+      "artifacts": [],
       "build_platform": {
         "architecture": "-",
         "os_name": "-",
@@ -3040,16 +2473,7 @@
   },
   "VspVGZYjSAqqsg6CGgv-rw": {
     "job": {
-      "artifacts": [
-        {
-          "blob": {
-            "job_details": []
-          },
-          "job_guid": "56ca5519-9623-480a-aab2-0e821a0bfeaf/0",
-          "name": "Job Info",
-          "type": "json"
-        }
-      ],
+      "artifacts": [],
       "build_platform": {
         "architecture": "-",
         "os_name": "-",
@@ -3086,16 +2510,7 @@
   },
   "WkFYxflwT76VzWNc6hryiQ": {
     "job": {
-      "artifacts": [
-        {
-          "blob": {
-            "job_details": []
-          },
-          "job_guid": "5a4158c5-f970-4fbe-95cd-635cea1af289/0",
-          "name": "Job Info",
-          "type": "json"
-        }
-      ],
+      "artifacts": [],
       "build_platform": {
         "architecture": "-",
         "os_name": "-",
@@ -3132,16 +2547,7 @@
   },
   "XOw2FYEdSb2hwS_lj2bDAg": {
     "job": {
-      "artifacts": [
-        {
-          "blob": {
-            "job_details": []
-          },
-          "job_guid": "5cec3615-811d-49bd-a1c1-2fe58f66c302/0",
-          "name": "Job Info",
-          "type": "json"
-        }
-      ],
+      "artifacts": [],
       "build_platform": {
         "architecture": "-",
         "os_name": "-",
@@ -3179,16 +2585,7 @@
   },
   "XQdfjjACRJCmpqKjLxLRXA": {
     "job": {
-      "artifacts": [
-        {
-          "blob": {
-            "job_details": []
-          },
-          "job_guid": "5d075f8e-3002-4490-a6a6-a2a32f12d15c/0",
-          "name": "Job Info",
-          "type": "json"
-        }
-      ],
+      "artifacts": [],
       "build_platform": {
         "architecture": "-",
         "os_name": "-",
@@ -3225,16 +2622,7 @@
   },
   "XiZuJW7MQ-GrC7iV81YWdw": {
     "job": {
-      "artifacts": [
-        {
-          "blob": {
-            "job_details": []
-          },
-          "job_guid": "5e266e25-6ecc-43e1-ab0b-b895f3561677/0",
-          "name": "Job Info",
-          "type": "json"
-        }
-      ],
+      "artifacts": [],
       "build_platform": {
         "architecture": "-",
         "os_name": "-",
@@ -3271,16 +2659,7 @@
   },
   "Xxznj5R9QCS-7iqptegltQ": {
     "job": {
-      "artifacts": [
-        {
-          "blob": {
-            "job_details": []
-          },
-          "job_guid": "5f1ce78f-947d-4024-beee-2aa9b5e825b5/0",
-          "name": "Job Info",
-          "type": "json"
-        }
-      ],
+      "artifacts": [],
       "build_platform": {
         "architecture": "-",
         "os_name": "-",
@@ -3317,16 +2696,7 @@
   },
   "Y32tr9w0Tlu67dz74wiCyg": {
     "job": {
-      "artifacts": [
-        {
-          "blob": {
-            "job_details": []
-          },
-          "job_guid": "637dadaf-dc34-4e5b-baed-dcfbe30882ca/0",
-          "name": "Job Info",
-          "type": "json"
-        }
-      ],
+      "artifacts": [],
       "build_platform": {
         "architecture": "-",
         "os_name": "-",
@@ -3363,16 +2733,7 @@
   },
   "Y6Zdr078RvemM_nabfiE3A": {
     "job": {
-      "artifacts": [
-        {
-          "blob": {
-            "job_details": []
-          },
-          "job_guid": "63a65daf-4efc-46f7-a633-f9da6df884dc/0",
-          "name": "Job Info",
-          "type": "json"
-        }
-      ],
+      "artifacts": [],
       "build_platform": {
         "architecture": "-",
         "os_name": "-",
@@ -3409,16 +2770,7 @@
   },
   "YUU6v89vRd669kauRLNk5g": {
     "job": {
-      "artifacts": [
-        {
-          "blob": {
-            "job_details": []
-          },
-          "job_guid": "61453abf-cf6f-45de-baf6-46ae44b364e6/0",
-          "name": "Job Info",
-          "type": "json"
-        }
-      ],
+      "artifacts": [],
       "build_platform": {
         "architecture": "-",
         "os_name": "-",
@@ -3455,16 +2807,7 @@
   },
   "YYCniY1ITuGl0fRNghknlQ": {
     "job": {
-      "artifacts": [
-        {
-          "blob": {
-            "job_details": []
-          },
-          "job_guid": "6180a789-8d48-4ee1-a5d1-f44d82192795/0",
-          "name": "Job Info",
-          "type": "json"
-        }
-      ],
+      "artifacts": [],
       "build_platform": {
         "architecture": "-",
         "os_name": "-",
@@ -3501,16 +2844,7 @@
   },
   "YgnJMukTS0efJHzTI5_AnA": {
     "job": {
-      "artifacts": [
-        {
-          "blob": {
-            "job_details": []
-          },
-          "job_guid": "6209c932-e913-4b47-9f24-7cd3239fc09c/0",
-          "name": "Job Info",
-          "type": "json"
-        }
-      ],
+      "artifacts": [],
       "build_platform": {
         "architecture": "-",
         "os_name": "-",
@@ -3547,16 +2881,7 @@
   },
   "ZPrilAZcSimdmLj9flM24w": {
     "job": {
-      "artifacts": [
-        {
-          "blob": {
-            "job_details": []
-          },
-          "job_guid": "64fae294-065c-4a29-9d98-b8fd7e5336e3/0",
-          "name": "Job Info",
-          "type": "json"
-        }
-      ],
+      "artifacts": [],
       "build_platform": {
         "architecture": "-",
         "os_name": "-",
@@ -3593,16 +2918,7 @@
   },
   "ZnJOMTOcRwCZG09VY4InxQ": {
     "job": {
-      "artifacts": [
-        {
-          "blob": {
-            "job_details": []
-          },
-          "job_guid": "66724e31-339c-4700-991b-4f55638227c5/0",
-          "name": "Job Info",
-          "type": "json"
-        }
-      ],
+      "artifacts": [],
       "build_platform": {
         "architecture": "-",
         "os_name": "-",
@@ -3639,16 +2955,7 @@
   },
   "ZyNAZZR0SmOcgqC_k_wqsQ": {
     "job": {
-      "artifacts": [
-        {
-          "blob": {
-            "job_details": []
-          },
-          "job_guid": "67234065-9474-4a63-9c82-a0bf93fc2ab1/0",
-          "name": "Job Info",
-          "type": "json"
-        }
-      ],
+      "artifacts": [],
       "build_platform": {
         "architecture": "-",
         "os_name": "-",
@@ -3693,16 +3000,7 @@
   },
   "a1uUehQvSciykK6DUUNQbQ": {
     "job": {
-      "artifacts": [
-        {
-          "blob": {
-            "job_details": []
-          },
-          "job_guid": "6b5b947a-142f-49c8-b290-ae835143506d/0",
-          "name": "Job Info",
-          "type": "json"
-        }
-      ],
+      "artifacts": [],
       "build_platform": {
         "architecture": "-",
         "os_name": "-",
@@ -3739,16 +3037,7 @@
   },
   "a5UF8fEyQw-fx_32Qo-WjQ": {
     "job": {
-      "artifacts": [
-        {
-          "blob": {
-            "job_details": []
-          },
-          "job_guid": "6b9505f1-f132-430f-9fc7-fdf6428f968d/0",
-          "name": "Job Info",
-          "type": "json"
-        }
-      ],
+      "artifacts": [],
       "build_platform": {
         "architecture": "-",
         "os_name": "-",
@@ -3786,16 +3075,7 @@
   },
   "aNf8J_ctQp6IjWJTxCAPbQ": {
     "job": {
-      "artifacts": [
-        {
-          "blob": {
-            "job_details": []
-          },
-          "job_guid": "68d7fc27-f72d-429e-888d-6253c4200f6d/0",
-          "name": "Job Info",
-          "type": "json"
-        }
-      ],
+      "artifacts": [],
       "build_platform": {
         "architecture": "-",
         "os_name": "-",
@@ -3832,16 +3112,7 @@
   },
   "aNlE6teASbGqtSK4XSeMkg": {
     "job": {
-      "artifacts": [
-        {
-          "blob": {
-            "job_details": []
-          },
-          "job_guid": "68d944ea-d780-49b1-aab5-22b85d278c92/0",
-          "name": "Job Info",
-          "type": "json"
-        }
-      ],
+      "artifacts": [],
       "build_platform": {
         "architecture": "-",
         "os_name": "-",
@@ -3878,16 +3149,7 @@
   },
   "ac7vsMLASl6XS1O_VzlLXQ": {
     "job": {
-      "artifacts": [
-        {
-          "blob": {
-            "job_details": []
-          },
-          "job_guid": "69ceefb0-c2c0-4a5e-974b-53bf57394b5d/0",
-          "name": "Job Info",
-          "type": "json"
-        }
-      ],
+      "artifacts": [],
       "build_platform": {
         "architecture": "-",
         "os_name": "-",
@@ -3924,16 +3186,7 @@
   },
   "aeWDjRcUQhudU4axBiCQ8A": {
     "job": {
-      "artifacts": [
-        {
-          "blob": {
-            "job_details": []
-          },
-          "job_guid": "69e5838d-1714-421b-9d53-86b1062090f0/0",
-          "name": "Job Info",
-          "type": "json"
-        }
-      ],
+      "artifacts": [],
       "build_platform": {
         "architecture": "-",
         "os_name": "-",
@@ -3970,16 +3223,7 @@
   },
   "b0DpnSIQQymnTTSXxRWmmg": {
     "job": {
-      "artifacts": [
-        {
-          "blob": {
-            "job_details": []
-          },
-          "job_guid": "6f40e99d-2210-4329-a74d-3497c515a69a/0",
-          "name": "Job Info",
-          "type": "json"
-        }
-      ],
+      "artifacts": [],
       "build_platform": {
         "architecture": "-",
         "os_name": "-",
@@ -4016,16 +3260,7 @@
   },
   "ba34BnYgT_mv1g5BvrlXnQ": {
     "job": {
-      "artifacts": [
-        {
-          "blob": {
-            "job_details": []
-          },
-          "job_guid": "6dadf806-7620-4ff9-afd6-0e41beb9579d/0",
-          "name": "Job Info",
-          "type": "json"
-        }
-      ],
+      "artifacts": [],
       "build_platform": {
         "architecture": "-",
         "os_name": "-",
@@ -4062,16 +3297,7 @@
   },
   "c9SSXwx3TnKm7MnNEit0OA": {
     "job": {
-      "artifacts": [
-        {
-          "blob": {
-            "job_details": []
-          },
-          "job_guid": "73d4925f-0c77-4e72-a6ec-c9cd122b7438/0",
-          "name": "Job Info",
-          "type": "json"
-        }
-      ],
+      "artifacts": [],
       "build_platform": {
         "architecture": "-",
         "os_name": "-",
@@ -4108,16 +3334,7 @@
   },
   "dUcobAuPTEqHok4rpJl1Dg": {
     "job": {
-      "artifacts": [
-        {
-          "blob": {
-            "job_details": []
-          },
-          "job_guid": "7547286c-0b8f-4c4a-87a2-4e2ba499750e/0",
-          "name": "Job Info",
-          "type": "json"
-        }
-      ],
+      "artifacts": [],
       "build_platform": {
         "architecture": "-",
         "os_name": "-",
@@ -4154,16 +3371,7 @@
   },
   "eokGh4-OSbOqAzVhJypYPg": {
     "job": {
-      "artifacts": [
-        {
-          "blob": {
-            "job_details": []
-          },
-          "job_guid": "7a890687-8f8e-49b3-aa03-3561272a583e/0",
-          "name": "Job Info",
-          "type": "json"
-        }
-      ],
+      "artifacts": [],
       "build_platform": {
         "architecture": "-",
         "os_name": "-",
@@ -4208,16 +3416,7 @@
   },
   "eugCBPRNRD-zyP_I9Jcn1w": {
     "job": {
-      "artifacts": [
-        {
-          "blob": {
-            "job_details": []
-          },
-          "job_guid": "7ae80204-f44d-443f-b3c8-ffc8f49727d7/0",
-          "name": "Job Info",
-          "type": "json"
-        }
-      ],
+      "artifacts": [],
       "build_platform": {
         "architecture": "-",
         "os_name": "-",
@@ -4255,16 +3454,7 @@
   },
   "fu4duSjBRte-V6y_oQ_BrQ": {
     "job": {
-      "artifacts": [
-        {
-          "blob": {
-            "job_details": []
-          },
-          "job_guid": "7eee1db9-28c1-46d7-be57-acbfa10fc1ad/0",
-          "name": "Job Info",
-          "type": "json"
-        }
-      ],
+      "artifacts": [],
       "build_platform": {
         "architecture": "-",
         "os_name": "-",
