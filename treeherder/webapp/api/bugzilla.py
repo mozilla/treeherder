@@ -45,6 +45,7 @@ class BugzillaViewSet(viewsets.ViewSet):
             'component': params.get("component"),
             'summary': summary,
             'keywords': params.get("keywords"),
+            'whiteboard': params.get("whiteboard"),
             'blocks': params.get("blocks"),
             'depends_on': params.get("depends_on"),
             'see_also': params.get("see_also"),
