@@ -9,7 +9,10 @@ from tests.test_utils import add_log_response
 from treeherder.etl.jobs import store_job_data
 from treeherder.log_parser.parsers import StepParser
 from treeherder.model.error_summary import get_error_summary
-from treeherder.model.models import Job, JobDetail, JobLog, TextLogError, TextLogStep
+from treeherder.model.models import (Job,
+                                     JobLog,
+                                     TextLogError,
+                                     TextLogStep)
 
 # TODO: Turn these into end to end taskcluster tests as part of removing buildbot
 # support in bug 1443251, or else delete them if they're duplicating coverage.
@@ -311,7 +314,10 @@ def test_store_job_artifacts_by_add_artifact(
         }
     )
 
+<<<<<<< HEAD
     ji_blob = json.dumps({"job_details": [{"title": "mytitle", "value": "myvalue"}]})
+=======
+>>>>>>> update test_job_ingestion
     pb_blob = json.dumps({"build_url": "feh", "chunk": 1, "config_file": "mah"})
 
     job_guid = 'd22c74d4aa6d2a1dcba96d95dccbd5fdca70cf33'
@@ -326,8 +332,17 @@ def test_store_job_artifacts_by_add_artifact(
                     'blob': tls_blob,
                     'job_guid': job_guid,
                 },
+<<<<<<< HEAD
                 {'name': 'Job Info', 'type': 'json', 'blob': ji_blob, 'job_guid': job_guid,},
                 {'name': 'privatebuild', 'type': 'json', 'blob': pb_blob, 'job_guid': job_guid,},
+=======
+                {
+                    'name': 'privatebuild',
+                    'type': 'json',
+                    'blob': pb_blob,
+                    'job_guid': job_guid,
+                },
+>>>>>>> update test_job_ingestion
             ],
             "job_guid": job_guid,
             "log_references": [
@@ -343,6 +358,7 @@ def test_store_job_artifacts_by_add_artifact(
 
     store_job_data(test_repository, [job_data])
 
+<<<<<<< HEAD
     assert JobDetail.objects.count() == 1
     assert model_to_dict(JobDetail.objects.get(job__guid=job_guid)) == {
         'id': 1,
@@ -352,6 +368,8 @@ def test_store_job_artifacts_by_add_artifact(
         'url': None,
     }
 
+=======
+>>>>>>> update test_job_ingestion
     assert TextLogStep.objects.count() == 1
     assert model_to_dict(TextLogStep.objects.get(job__guid=job_guid)) == {
         'id': 1,
