@@ -65,15 +65,9 @@ const parseSummary = suggestion => {
   // Strip out some extra stuff at the start of some failure paths
   let re = /file:\/\/\/.*?\/build\/tests\/reftest\/tests\//gi;
   summary = summary.replace(re, '');
-  re = /\/home\/worker\/workspace\/build\/src\//gi;
-  summary = summary.replace(re, '');
   re = /chrome:\/\/mochitests\/content\/a11y\//gi;
   summary = summary.replace(re, '');
-  re = /\/home\/worker\/checkouts\/gecko\//gi;
-  summary = summary.replace(re, '');
   re = /http:\/\/([0-9]+\.[0-9]+\.[0-9]+\.[0-9]+):([0-9]+)\/tests\//gi;
-  summary = summary.replace(re, '');
-  re = /jetpack-package\//gi;
   summary = summary.replace(re, '');
   re = /xpcshell([-a-zA-Z0-9]+)?.ini:/gi;
   summary = summary.replace(re, '');
