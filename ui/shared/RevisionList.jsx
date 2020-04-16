@@ -8,7 +8,14 @@ import { Revision } from './Revision';
 
 export class RevisionList extends React.PureComponent {
   render() {
-    const { revision, revisions, revisionCount, repo, widthClass } = this.props;
+    const {
+      revision,
+      revisions,
+      revisionCount,
+      repo,
+      widthClass,
+      children,
+    } = this.props;
 
     return (
       <Col className={`${widthClass} mb-3`}>
@@ -18,6 +25,7 @@ export class RevisionList extends React.PureComponent {
         {revisionCount > revisions.length && (
           <MoreRevisionsLink key="more" href={repo.getPushLogHref(revision)} />
         )}
+        {children}
       </Col>
     );
   }

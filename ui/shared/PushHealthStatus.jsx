@@ -42,13 +42,14 @@ class PushHealthStatus extends Component {
   }
 
   async loadLatestStatus() {
-    const { repoName, revision } = this.props;
+    const { repoName, revision, statusCallback } = this.props;
     const { data, failureStatus } = await PushModel.getHealthSummary(
       repoName,
       revision,
     );
 
     if (!failureStatus) {
+      statusCallback(data);
       this.setState({ ...data });
     }
   }
@@ -123,6 +124,11 @@ PushHealthStatus.propTypes = {
     running: PropTypes.number.isRequired,
     completed: PropTypes.number.isRequired,
   }).isRequired,
+  statusCallback: PropTypes.func,
+};
+
+PushHealthStatus.defaultProps = {
+  statusCallback: () => {},
 };
 
 export default PushHealthStatus;
