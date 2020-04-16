@@ -425,6 +425,14 @@ export class BugFilerClass extends React.Component {
       priority = '--';
     }
 
+    /* Intermittent bugs in the Core :: DOM: Security component need to have the
+       whiteboard '[domsecurity-intermittent]' to support filtering by the
+       triagers. Contact person is Christoph Kerschbaumer. */
+    const whiteboard =
+      isIntermittent && product === 'Core' && component === 'DOM: Security'
+        ? '[domsecurity-intermittent]'
+        : '';
+
     // Bug in these components shall never get a priority automatically set
     // to let the bugs show up during triage. See bug 1580287.
     const noPriorityProdComp = [
@@ -457,6 +465,7 @@ export class BugFilerClass extends React.Component {
           component,
           summary,
           keywords,
+          whiteboard,
           version: version.name,
           blocks,
           depends_on: dependsOn,
