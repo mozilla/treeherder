@@ -333,7 +333,7 @@ async def fetchArtifacts(root_url, taskId, runId):
 # we no longer store these in the job_detail table, but we still need to
 # fetch them in order to determine if there is an error_summary log;
 # TODO refactor this when there is a way to only retrieve the error_summary
-# artifact: https://bugzilla.mozilla.org/show_bug.cgi?id=1629716 
+# artifact: https://bugzilla.mozilla.org/show_bug.cgi?id=1629716
 async def addArtifactUploadedLinks(root_url, taskId, runId, job):
     artifacts = []
     try:

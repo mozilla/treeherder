@@ -1,7 +1,6 @@
 import json
 import logging
 import re
-from html.parser import HTMLParser
 
 import jsonschema
 from django.conf import settings

@@ -167,7 +167,8 @@ class JobLoader:
             job["display"].get("jobSymbol", ""),
             job["display"].get("chunkId", "")
         )
-    #TODO remove - no longer relevant
+
+    # TODO remove - no longer relevant
     def _get_artifacts(self, job, job_guid):
         artifact_funcs = [self._get_text_log_summary_artifact]
         pulse_artifacts = []
@@ -178,7 +179,7 @@ class JobLoader:
 
         # add in any arbitrary artifacts included in the "extra" section
         pulse_artifacts.extend(self._get_extra_artifacts(job, job_guid))
-        if len(pulse_artifacts): 
+        if len(pulse_artifacts):
             logger.warning("artifacts from _get_artifacts: %s", pulse_artifacts)
         return pulse_artifacts
 

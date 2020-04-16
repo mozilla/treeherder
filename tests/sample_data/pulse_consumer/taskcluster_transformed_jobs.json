@@ -75,16 +75,7 @@
   },
   "A47ePPIaRFOWxw8oVOvmCA": {
     "job": {
-      "artifacts": [
-        {
-          "blob": {
-            "job_details": []
-          },
-          "job_guid": "038ede3c-f21a-4453-96c7-0f2854ebe608/0",
-          "name": "Job Info",
-          "type": "json"
-        }
-      ],
+      "artifacts": [],
       "build_platform": {
         "architecture": "-",
         "os_name": "-",

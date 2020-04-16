@@ -295,7 +295,7 @@ def _load_job(repository, job_datum, push_id):
             # value from the job itself.
             if "job_guid" not in artifact:
                 artifact["job_guid"] = job_guid
-        #TODO remove
+        # TODO remove
         store_job_artifacts(artifacts)
 
     log_refs = job_datum.get('log_references', [])

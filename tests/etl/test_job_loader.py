@@ -59,7 +59,7 @@ async def new_pulse_jobs(sample_data, test_repository, push_stored):
     for message in list(pulseMessages.values()):
         taskId = message["payload"]["status"]["taskId"]
         task = tasks[taskId]
-        print(taskId)
+
         # If we pass task to handleMessage we won't hit the network
         taskRuns = await handleMessage(message, task)
         # handleMessage returns [] when it is a task that is not meant for Treeherder
@@ -132,23 +132,16 @@ def test_ingest_pulse_jobs(
 
     job_logs = JobLog.objects.filter(job_id=1)
     assert job_logs.count() == 2
-    logs_expected = [
-        {
-            "name": "builds-4h",
-            "url": "http://ftp.mozilla.org/pub/mozilla.org/spidermonkey/tinderbox-builds/mozilla-inbound-linux64/mozilla-inbound_linux64_spidermonkey-warnaserr-bm57-build1-build352.txt.gz",
-            "parse_status": 0,
-        },
-        {
-            "name": "errorsummary_json",
-            "url": "http://mozilla-releng-blobs.s3.amazonaws.com/blobs/Mozilla-Inbound-Non-PGO/sha512/05c7f57df6583c6351c6b49e439e2678e0f43c2e5b66695ea7d096a7519e1805f441448b5ffd4cc3b80b8b2c74b244288fda644f55ed0e226ef4e25ba02ca466",
-            "parse_status": 0,
-        },
-    ]
-    assert [
-        {"name": item.name, "url": item.url, "parse_status": item.status} for item in job_logs.all()
-    ] == logs_expected
-
-    assert JobDetail.objects.count() == 2
+    logs_expected = [{"name": "builds-4h",
+                      "url": "http://ftp.mozilla.org/pub/mozilla.org/spidermonkey/tinderbox-builds/mozilla-inbound-linux64/mozilla-inbound_linux64_spidermonkey-warnaserr-bm57-build1-build352.txt.gz",
+                      "parse_status": 0},
+                     {"name": "errorsummary_json",
+                      "url": "http://mozilla-releng-blobs.s3.amazonaws.com/blobs/Mozilla-Inbound-Non-PGO/sha512/05c7f57df6583c6351c6b49e439e2678e0f43c2e5b66695ea7d096a7519e1805f441448b5ffd4cc3b80b8b2c74b244288fda644f55ed0e226ef4e25ba02ca466",
+                      "parse_status": 0}]
+    assert [{"name": item.name, "url": item.url, "parse_status": item.status}
+            for item in job_logs.all()] == logs_expected
+    # we're no longer storing artifacts in this table
+    assert JobDetail.objects.count() == 0
 
 
 def test_ingest_pending_pulse_job(
@@ -175,7 +168,8 @@ def test_ingest_pending_pulse_job(
 
     # should not have processed any log or details for pending jobs
     assert JobLog.objects.count() == 2
-    assert JobDetail.objects.count() == 2
+    # we're no longer storing artifacts in this table
+    assert JobDetail.objects.count() == 0
 
 
 def test_ingest_pulse_jobs_bad_project(

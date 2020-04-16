@@ -8,64 +8,13 @@ from django.db.utils import IntegrityError
 from treeherder.etl.perf import store_performance_artifact
 from treeherder.etl.text import astral_filter
 from treeherder.model import error_summary
-from treeherder.model.models import Job, JobDetail, TextLogError, TextLogStep
+from treeherder.model.models import (Job,
+                                     TextLogError,
+                                     TextLogStep)
 
 logger = logging.getLogger(__name__)
 
 
-<<<<<<< HEAD
-def store_job_info_artifact(job, job_info_artifact):
-    """
-    Store the contents of the job info artifact
-    in job details
-    """
-    new_job_details = json.loads(job_info_artifact['blob'])['job_details']
-    existing_job_details = JobDetail.objects.filter(job=job)
-
-    # Use a dict for to_create because sometimes we are sent duplicate details which would cause
-    # an IntegrityError during bulk_create due to the constraints of a unique index.
-    # So we use a key to weed the dups out.
-    to_create = {}
-    to_update = []
-
-    for job_detail in new_job_details:
-        job_detail_dict = {
-            'title': job_detail.get('title'),
-            'value': job_detail['value'],
-            'url': job_detail.get('url'),
-        }
-        for (k, v) in job_detail_dict.items():
-            max_field_length = JobDetail._meta.get_field(k).max_length
-            if v is not None and len(v) > max_field_length:
-                logger.warning(
-                    "Job detail '%s' for job_guid %s too long, truncating",
-                    v[:max_field_length],
-                    job.guid,
-                )
-                job_detail_dict[k] = v[:max_field_length]
-
-        title = job_detail_dict['title']
-        value = job_detail_dict['value']
-
-        existing_job_detail = existing_job_details.filter(job=job, title=title, value=value).first()
-        if existing_job_detail:
-            # move the url field to be updated in defaults now that it's
-            # had its size trimmed, if necessary
-            # job_detail_dict['defaults'] = {'url': job_detail_dict['url']}
-            # del job_detail_dict['url']
-            to_update.append(JobDetail(id=existing_job_detail.id, job=job, **job_detail_dict))
-        else:
-            key = '{}{}'.format(title, value)
-            to_create[key] = JobDetail(job=job, **job_detail_dict)
-
-    if len(to_update):
-        JobDetail.objects.bulk_update(to_update, ['title', 'value', 'url'])
-    if len(to_create):
-        JobDetail.objects.bulk_create(to_create.values())
-
-
-=======
->>>>>>> remove store_job_artifacts and store_job_info_artifact
 def store_text_log_summary_artifact(job, text_log_summary_artifact):
     """
     Store the contents of the text log summary artifact
