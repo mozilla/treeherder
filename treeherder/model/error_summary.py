@@ -15,8 +15,8 @@ BUG_SUGGESTION_CACHE_TIMEOUT = 86400
 LEAK_RE = re.compile(r'\d+ bytes leaked \((.+)\)$|leak at (.+)$')
 CRASH_RE = re.compile(r'.+ application crashed \[@ (.+)\]$')
 MOZHARNESS_RE = re.compile(r'^\d+:\d+:\d+[ ]+(?:DEBUG|INFO|WARNING|ERROR|CRITICAL|FATAL) - [ ]?')
+PROCESS_ID_RE = re.compile(r"(?:PID \d+|GECKO\(\d+\)) \| +")
 REFTEST_RE = re.compile(r'\s+[=!]=\s+.*')
-OUTPUT_RE = re.compile(r'^\s*(?:GECKO\(\d+\)|PID \d+)\s*$')
 
 
 def get_error_summary(job):
@@ -58,7 +58,7 @@ def bug_suggestions_line(err, term_cache=None):
         term_cache = {}
 
     # remove the mozharness prefix
-    clean_line = get_mozharness_substring(err.line)
+    clean_line = get_cleaned_line(err.line)
 
     # get a meaningful search term out of the error line
     search_term = get_error_search_term(clean_line)
@@ -91,9 +91,10 @@ def bug_suggestions_line(err, term_cache=None):
     }
 
 
-def get_mozharness_substring(line):
+def get_cleaned_line(line):
     """Strip possible mozharness bits from the given line."""
-    return MOZHARNESS_RE.sub('', line).strip()
+    line_to_clean = MOZHARNESS_RE.sub('', line).strip()
+    return PROCESS_ID_RE.sub('', line_to_clean)
 
 
 def get_error_search_term(error_line):
@@ -113,9 +114,6 @@ def get_error_search_term(error_line):
     search_term = None
 
     if len(tokens) >= 3:
-        # If this is process output then discard the token with the PID
-        if len(tokens) > 3 and OUTPUT_RE.match(tokens[0]):
-            tokens = tokens[1:]
         # it's in the "FAILURE-TYPE | testNameOrFilePath | message" type format.
         test_name_or_path = tokens[1]
         message = tokens[2]
