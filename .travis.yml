@@ -60,33 +60,19 @@ jobs:
       python: '3.7'
       cache: pip
       install:
-        # Initialize services required to run tests
-        - docker-compose up --detach mysql redis rabbitmq
-        - pip install -r requirements/docs.txt # Install separately since it has no hashes
-        - pip install -r requirements/dev.txt
-        - pip install -r requirements/common.txt
+        - pip install tox
       script:
-        - pre-commit run --all-files markdownlint
-        - ./runchecks.sh
-        - ./manage.py check
-        # Several security features in settings.py (eg setting HSTS headers) are conditional on
-        # 'https://' being in the site URL. In addition, we override the test environment's debug
-        # value so the tests pass. The real environment variable will be checked during deployment.
-        - SITE_URL=https://treeherder.dev TREEHERDER_DEBUG=False ./manage.py check --deploy --fail-level WARNING
-        # Exercising running tests outside of Docker
-        - pytest tests/ --ignore=tests/selenium --ignore=tests/extract
-        # This is to deal with running the containers with --detached
-        - docker-compose down
+        - tox
 
     # Run Python tests inside of the Docker containers
     - language: shell
       services:
         - docker
       install:
-        - docker-compose build
+        - pip install tox --user
         - pip install codecov --user
       script:
-        - docker-compose run backend bash -c "pytest --cov --cov-report=xml tests/ --runslow --ignore=tests/selenium"
+        - tox -e docker
         - codecov -f coverage.xml
 
     # Run Python Selenium tests
@@ -96,18 +82,11 @@ jobs:
       # The Node version here must be kept in sync with that in `package.json`.
       node_js: '12.13.0'
       cache: yarn
-      before_install:
-        - docker-compose build
       install:
-        - yarn install
+        - pip install tox --user
         - pip install codecov --user
-      before_script:
-        # Run in `before_script` to prevent the Selenium tests from running if the UI build fails.
-        - yarn build
       script:
-        # XXX: We have the Gecko driver inside of the Docker instance, thus, needing Selenium tests
-        # running inside the Docker container
-        - docker-compose run backend bash -c "pytest --cov --cov-report=xml tests/selenium/"
+        - tox -e selenium
         - codecov -f coverage.xml
 
 notifications:
