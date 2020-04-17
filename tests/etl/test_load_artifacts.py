@@ -1,35 +1,8 @@
 import json
 
 from treeherder.etl.artifact import store_job_artifacts
-from treeherder.model.models import JobDetail, TextLogError, TextLogStep
-
-
-def test_load_long_job_details(test_job):
-    def max_length(field):
-        """Get the field's max_length for the JobDetail model"""
-        return JobDetail._meta.get_field(field).max_length
-
-    (long_title, long_value, long_url) = (
-        't' * (2 * max_length("title")),
-        'v' * (2 * max_length("value")),
-        'https://' + ('u' * (2 * max_length("url"))),
-    )
-    ji_artifact = {
-        'type': 'json',
-        'name': 'Job Info',
-        'blob': json.dumps(
-            {'job_details': [{'title': long_title, 'value': long_value, 'url': long_url}]}
-        ),
-        'job_guid': test_job.guid,
-    }
-    store_job_artifacts([ji_artifact])
-
-    assert JobDetail.objects.count() == 1
-
-    jd = JobDetail.objects.first()
-    assert jd.title == long_title[: max_length("title")]
-    assert jd.value == long_value[: max_length("value")]
-    assert jd.url == long_url[: max_length("url")]
+from treeherder.model.models import (TextLogError,
+                                     TextLogStep)
 
 
 def test_load_textlog_summary_twice(test_repository, test_job):
