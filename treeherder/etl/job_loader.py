@@ -170,6 +170,7 @@ class JobLoader:
     def _get_log_references(self, job):
         log_references = []
         for logref in job.get("logs", []):
+<<<<<<< HEAD
             log_references.append(
                 {
                     "name": logref["name"],
@@ -177,6 +178,13 @@ class JobLoader:
                     "parse_status": "parsed" if "steps" in logref else "pending",
                 }
             )
+=======
+            log_references.append({
+                "name": logref["name"],
+                "url": logref["url"],
+                "parse_status": "pending"
+            })
+>>>>>>> update e2e test_job_ingestion to reflect change in error summary parsing
         log_references.extend(self._get_errorsummary_log_references(job))
         return log_references
 

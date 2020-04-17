@@ -181,6 +181,7 @@ def test_store_job_with_parsed_log(
     assert mock_parse.called is False
 
 
+<<<<<<< HEAD
 def test_store_job_with_text_log_summary_artifact_parsed(
     test_repository, failure_classifications, push_stored, monkeypatch, text_log_summary_dict,
 ):
@@ -400,6 +401,8 @@ def test_store_job_artifacts_by_add_artifact(
     assert mock_parse.called is False
 
 
+=======
+>>>>>>> update e2e test_job_ingestion to reflect change in error summary parsing
 def test_store_job_with_tier(test_repository, failure_classifications, push_stored):
     """test submitting a job with tier specified"""
     job_guid = 'd22c74d4aa6d2a1dcba96d95dccbd5fdca70cf33'
