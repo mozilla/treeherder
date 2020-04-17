@@ -27,6 +27,10 @@
   visibility: hidden;
 }
 
+.small-text {
+  font-size: 12px;
+}
+
 /* this is better for drop down menu items because
   display: none will change text alignment */
 .hide {
@@ -374,6 +378,10 @@
 
 .modal-lg {
   max-width: 890px;
+}
+
+.row-height-tight {
+  line-height: 15px !important;
 }
 
 /* ReactTable overriding row, button and link color style for contrast pass */

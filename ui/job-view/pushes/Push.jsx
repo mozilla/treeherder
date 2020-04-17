@@ -26,6 +26,7 @@ import {
 } from '../../taskcluster-auth-callback/constants';
 import { RevisionList } from '../../shared/RevisionList';
 import { Revision } from '../../shared/Revision';
+import PushHealthSummary from '../../shared/PushHealthSummary';
 
 import FuzzyJobFinder from './FuzzyJobFinder';
 import PushHeader from './PushHeader';
@@ -92,6 +93,8 @@ class Push extends React.PureComponent {
       jobCounts: { pending: 0, running: 0, completed: 0, fixedByCommit: 0 },
       pushGroupState: 'collapsed',
       collapsed: collapsedPushes.includes(push.id),
+      singleTryPush: false,
+      pushHealthStatus: null,
     };
   }
 
@@ -107,12 +110,15 @@ class Push extends React.PureComponent {
       await this.fetchTestManifests();
     }
 
+    this.testForSingleTry();
+
     window.addEventListener(thEvents.applyNewJobs, this.handleApplyNewJobs);
     window.addEventListener('hashchange', this.handleUrlChanges);
   }
 
   componentDidUpdate(prevProps, prevState) {
     this.showUpdateNotifications(prevState);
+    this.testForSingleTry();
   }
 
   componentWillUnmount() {
@@ -169,6 +175,14 @@ class Push extends React.PureComponent {
       push.revisions,
     )}`;
   }
+
+  testForSingleTry = () => {
+    const { currentRepo } = this.props;
+    const revision = getUrlParam('revision');
+    const singleTryPush = !!revision && currentRepo.name === 'try';
+
+    this.setState({ singleTryPush });
+  };
 
   handleUrlChanges = async () => {
     const { push } = this.props;
@@ -523,6 +537,10 @@ class Push extends React.PureComponent {
     }));
   };
 
+  pushHealthStatusCallback = pushHealthStatus => {
+    this.setState({ pushHealthStatus });
+  };
+
   render() {
     const {
       push,
@@ -548,6 +566,8 @@ class Push extends React.PureComponent {
       jobCounts,
       selectedRunnableJobs,
       collapsed,
+      singleTryPush,
+      pushHealthStatus,
     } = this.state;
     const {
       id,
@@ -606,6 +626,7 @@ class Push extends React.PureComponent {
           notificationSupported={notificationSupported}
           pushHealthVisibility={pushHealthVisibility}
           groupCountsExpanded={groupCountsExpanded}
+          pushHealthStatusCallback={this.pushHealthStatusCallback}
         />
         <div className="push-body-divider" />
         {!collapsed ? (
@@ -617,7 +638,17 @@ class Push extends React.PureComponent {
                 revisionCount={revisionCount}
                 repo={currentRepo}
                 widthClass="col-5"
-              />
+              >
+                {singleTryPush && (
+                  <div className="ml-3 mt-4">
+                    <PushHealthSummary
+                      healthStatus={pushHealthStatus}
+                      revision={revision}
+                      repoName={currentRepo.name}
+                    />
+                  </div>
+                )}
+              </RevisionList>
             )}
             <span className="job-list job-list-pad col-7">
               <PushJobs
