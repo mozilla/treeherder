@@ -1,4 +1,3 @@
-import { slugid } from 'taskcluster-client-web';
 import groupBy from 'lodash/groupBy';
 
 import { createQueryParams, getApiUrl } from '../helpers/url';
@@ -110,7 +109,6 @@ export default class JobModel {
 
         TaskclusterModel.load(decisionTaskId, null, currentRepo, testMode)
           .then(async results => {
-            const actionTaskId = slugid();
             const taskLabels = value.map(job => job.job_type_name);
 
             let retriggerAction = results.actions.find(
@@ -132,7 +130,6 @@ export default class JobModel {
 
             await TaskclusterModel.submit({
               action: retriggerAction,
-              actionTaskId,
               decisionTaskId,
               taskId: null,
               task: null,
@@ -141,7 +138,7 @@ export default class JobModel {
               currentRepo,
               testMode,
             })
-              .then(() =>
+              .then(actionTaskId =>
                 notify(
                   `Request sent to retrigger/add new jobs via actions.json (${actionTaskId})`,
                 ),

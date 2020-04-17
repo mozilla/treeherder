@@ -9,7 +9,6 @@ import keyBy from 'lodash/keyBy';
 // node version which pulls in a number of unwanted polyfills. See:
 // https://github.com/nodeca/js-yaml/pull/462
 import jsyaml from 'js-yaml/dist/js-yaml';
-import { slugid } from 'taskcluster-client-web';
 import tcLibUrls from 'taskcluster-lib-urls';
 import {
   Button,
@@ -148,7 +147,6 @@ class CustomJobActions extends React.PureComponent {
 
     TaskclusterModel.submit({
       action,
-      actionTaskId: slugid(),
       decisionTaskId,
       taskId: originalTaskId,
       task: originalTask,

@@ -1,0 +1,9 @@
+{
+  "kind": "test",
+  "os": "linux",
+  "createdForUser": "tnikkel@mozilla.com",
+  "retrigger": "true",
+  "label": "test-linux64-shippable-qr/opt-raptor-assorted-dom-firefox-e10s",
+  "test-type": "raptor",
+  "worker-implementation": "generic-worker"
+}

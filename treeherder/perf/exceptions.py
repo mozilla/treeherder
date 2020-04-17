@@ -8,3 +8,7 @@ class MaxRuntimeExceeded(Exception):
 
 class MissingRecords(Exception):
     pass
+
+
+class CannotBackfill(Exception):
+    pass
