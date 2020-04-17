@@ -19,6 +19,7 @@ class PushHealthSummary extends PureComponent {
       lintFailureCount,
       unsupported,
     } = status;
+    const heartSize = 25;
 
     return (
       <div>
@@ -26,49 +27,54 @@ class PushHealthSummary extends PureComponent {
           href={getPushHealthUrl({ revision, repo: repoName })}
           title="View Push Health details for this push"
         >
-          <h4>
-            Push Health Summary
-            <FontAwesomeIcon icon={faExternalLinkAlt} className="ml-1" />
+          <div>
             {healthStatus !== null ? (
               <img
                 src={needInvestigation ? broken : ok}
                 alt={needInvestigation ? 'Broken' : 'OK'}
-                width="30"
-                height="30"
-                className="ml-1"
+                width={heartSize}
+                height={heartSize}
+                className="mr-1"
               />
             ) : (
               <span className="ml-1 text-darker-secondary">
                 <FontAwesomeIcon
                   icon={faHeart}
-                  height="30"
-                  width="30"
+                  height={heartSize}
+                  width={heartSize}
                   color="darker-secondary"
                 />
               </span>
             )}
-          </h4>
+            Push Health Summary
+            <FontAwesomeIcon
+              icon={faExternalLinkAlt}
+              className="ml-1 icon-superscript"
+            />
+          </div>
         </a>
         {healthStatus ? (
-          <Table className="ml-1 w-100">
+          <Table className="ml-3 w-100 small-text row-height-tight">
             <tbody>
-              <tr>
-                <th className="ml-2" scope="row">
-                  Test Failures
-                </th>
-                <td>{testFailureCount}</td>
+              <tr className={`${buildFailureCount ? 'font-weight-bold' : ''}`}>
+                <td className="py-1">Build Failures</td>
+                <td className="py-1">{buildFailureCount}</td>
               </tr>
-              <tr>
-                <th scope="row">Build Failures</th>
-                <td>{buildFailureCount}</td>
+              <tr
+                className={`${testFailureCount ? 'font-weight-bold' : ''} py-1`}
+              >
+                <td className="py-1">Test Failures</td>
+                <td className="py-1">{testFailureCount}</td>
               </tr>
-              <tr>
-                <th scope="row">Linting Failures</th>
-                <td>{lintFailureCount}</td>
+              <tr
+                className={`${lintFailureCount ? 'font-weight-bold' : ''} py-1`}
+              >
+                <td className="py-1">Linting Failures</td>
+                <td className="py-1">{lintFailureCount}</td>
               </tr>
-              <tr>
-                <th scope="row">Unsupported</th>
-                <td>{unsupported}</td>
+              <tr className={`${unsupported ? 'font-weight-bold' : ''} py-1`}>
+                <td className="py-1">Unsupported</td>
+                <td className="py-1">{unsupported}</td>
               </tr>
             </tbody>
           </Table>

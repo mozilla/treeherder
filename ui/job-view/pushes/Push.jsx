@@ -640,7 +640,7 @@ class Push extends React.PureComponent {
                 widthClass="col-5"
               >
                 {singleTryPush && (
-                  <div className="ml-5 mt-3">
+                  <div className="ml-3 mt-4">
                     <PushHealthSummary
                       healthStatus={pushHealthStatus}
                       revision={revision}
