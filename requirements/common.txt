@@ -142,13 +142,13 @@ furl==2.1.0 \
     --hash=sha256:c0e0231a1feee2acd256574b7033df3144775451c610cb587060d6a0d7e0b621 \
     --hash=sha256:f4d6f1e5479c376a5b7bdc62795d736d8c1b2a754f366a2ad2816e46e946e22e \
     # via -r requirements/common.in
-google-api-core==1.16.0 \
-    --hash=sha256:859f7392676761f2b160c6ee030c3422135ada4458f0948c5690a6a7c8d86294 \
-    --hash=sha256:92e962a087f1c4b8d1c5c88ade1c1dfd550047dcffb320c57ef6a534a20403e2 \
+google-api-core==1.17.0 \
+    --hash=sha256:c0e430658ed6be902d7ba7095fb0a9cac810270d71bf7ac4484e76c300407aae \
+    --hash=sha256:e4082a0b479dc2dee2f8d7b80ea8b5d0184885b773caab15ab1836277a01d689 \
     # via google-cloud-bigquery, google-cloud-core
-google-auth==1.13.1 \
-    --hash=sha256:a5ee4c40fef77ea756cf2f1c0adcf475ecb53af6700cf9c133354cdc9b267148 \
-    --hash=sha256:cab6c707e6ee20e567e348168a5c69dc6480384f777a9e5159f4299ad177dcc0 \
+google-auth==1.14.0 \
+    --hash=sha256:050f1713142fa57d4b34f4fd4a998210e330f6a29c84c6ce359b928cc11dc8ad \
+    --hash=sha256:9813eaae335c45e8a1b5d274610fa961ac8aa650568d1cfb005b2c07da6bde6c \
     # via google-api-core, google-cloud-bigquery
 google-cloud-bigquery==1.24.0 \
     --hash=sha256:23c9180e87f6093eb6f2ae880d7f7697fdab991a4616439ad0f95cd37014f0dd \
@@ -180,9 +180,9 @@ importlib-metadata==1.6.0 \
 itypes==1.1.0 \
     --hash=sha256:c6e77bb9fd68a4bfeb9d958fea421802282451a25bac4913ec94db82a899c073 \
     # via coreapi
-jinja2==2.11.1 \
-    --hash=sha256:93187ffbc7808079673ef52771baa950426fd664d3aad1d0fa3e95644360e250 \
-    --hash=sha256:b0eaf100007721b5c16c1fc1eecb87409464edc10469ddc9a22a27a99123be49 \
+jinja2==2.11.2 \
+    --hash=sha256:89aab215427ef59c34ad58735269eb58b1a5808103067f7bb9d5836c651b3bb0 \
+    --hash=sha256:f0a4641d3cf955324a89c04f3d94663aa4d638abe8f733ecd3582848e1c37035 \
     # via coreschema
 jsonschema==3.0.1 \
     --hash=sha256:0c0a81564f181de3212efa2d17de1910f8732fa1b71c42266d983cd74304e20d \
@@ -191,8 +191,8 @@ jsonschema==3.0.1 \
 jx-bigquery==3.62.20101 \
     --hash=sha256:3e1f469177f856b9540ed727993fa12ddf451f671d372e446b129dfe8890abf7 \
     # via -r requirements/common.in
-jx-mysql==3.60.20091 \
-    --hash=sha256:1fa42bcca8c98116de92c3ab1a8862d855141447d7609a02ddf85528a449479d \
+jx-mysql==3.63.20108 \
+    --hash=sha256:5638914a01c61174676488698ea0e33ee815dda85adf5e04b0e43cc3bf4abd4c \
     # via -r requirements/common.in
 jx-python==3.62.20101 \
     --hash=sha256:73cec3207fe2739f0829f15ddc8c6f87433aa1627194718477d43f3a87b9591f \
@@ -239,8 +239,8 @@ markupsafe==1.1.1 \
 mo-collections==3.60.20091 \
     --hash=sha256:a1b64745017e85c5b49b17c7826c7145e9dfa1176bd3cba5a1455db1422d1212 \
     # via jx-mysql, jx-python, mo-testing
-mo-dots==3.62.20101 \
-    --hash=sha256:fd3cd840946a724186535546db1fede3daf23577aabab3969e6af1ff5c178f81 \
+mo-dots==3.63.20108 \
+    --hash=sha256:ce7a8d8ecea09349f5fe2ebbb99229be17014f03a18869745ece07b4a1712c13 \
     # via jx-bigquery, jx-mysql, jx-python, mo-collections, mo-files, mo-http, mo-json, mo-json-config, mo-kwargs, mo-logs, mo-math, mo-sql, mo-testing, mo-threads, mo-times
 mo-files==3.60.20091 \
     --hash=sha256:ebd4bf8aebc76d8ee7cb587de65e592ac98bcacd3659910a74046b02b718531a \
@@ -254,14 +254,14 @@ mo-http==3.57.20089 \
 mo-json-config==3.42.20031 \
     --hash=sha256:65f926de86c4cd21f6b13e4dbb858927a0e8be5e83635daa64ffe9f5133eb36b \
     # via jx-python
-mo-json==3.57.20089 \
-    --hash=sha256:8c94213403ddea6e713a47d0e09671b68d12d1e21e755ff5562abb9ac85f7f47 \
+mo-json==3.63.20108 \
+    --hash=sha256:b4d40863a7015aeb409e231797d1be94f8da800ec50fa7c32ab47228637b750d \
     # via jx-bigquery, jx-mysql, jx-python, mo-http, mo-json-config
 mo-kwargs==3.54.20059 \
     --hash=sha256:f6ada2f6e84a700db6cbdc5901c12fcba351005440c8aa3f256dbf17fd3eef88 \
     # via jx-bigquery, jx-mysql, jx-python, mo-collections, mo-http
-mo-logs==3.57.20089 \
-    --hash=sha256:a8ce7d30b02f1a592f626a5d9d70fc537d96ea9dee4ca8ed76ebb717b74bb814 \
+mo-logs==3.63.20108 \
+    --hash=sha256:cc0c0d810d8afa4a7f241e379311e8a3938f434bd07709c3d4f9958c15fb175d \
     # via jx-bigquery, jx-mysql, jx-python, mo-collections, mo-files, mo-http, mo-json, mo-json-config, mo-kwargs, mo-math, mo-sql, mo-testing, mo-threads, mo-times
 mo-math==3.57.20089 \
     --hash=sha256:e2880178fb9ebeb6bda5a2e62d36f2fa0c47a3cfcf73b4269e116954d26e75d5 \
@@ -275,8 +275,8 @@ mo-testing==3.58.20089 \
 mo-threads==3.57.20089 \
     --hash=sha256:e7993fad18fedee21e9152f0c4ae9ff92c346f7e34c3a409e184e962dba7f5dc \
     # via jx-python, mo-http
-mo-times==3.57.20089 \
-    --hash=sha256:41ae479a77f4b4a211a202710fe3426a7b8a30b4399870127645ac787edcab58 \
+mo-times==3.63.20108 \
+    --hash=sha256:d4432a9d3b59f9ab7ce148d92b9f019a4158c54829bc4b7290967e104ddcd7c6 \
     # via jx-bigquery, jx-mysql, jx-python, mo-http, mo-json
 mohawk==1.1.0 \
     --hash=sha256:3ed296a30453d0b724679e0fd41e4e940497f8e461a9a9c3b7f36e43bab0fa09 \
@@ -477,9 +477,9 @@ uritemplate==3.0.1 \
     --hash=sha256:07620c3f3f8eed1f12600845892b0e036a2420acf513c53f7de0abd911a5894f \
     --hash=sha256:5af8ad10cec94f215e3f48112de2022e1d5a37ed427fbd88652fa908f2ab7cae \
     # via coreapi
-urllib3==1.25.8 \
-    --hash=sha256:2f3db8b19923a873b3e5256dc9c2dedfa883e33d87c690d9c7913e1f40673cdc \
-    --hash=sha256:87716c2d2a7121198ebcb7ce7cccf6ce5e9ba539041cfbaeecfb641dc0bf6acc \
+urllib3==1.25.9 \
+    --hash=sha256:3018294ebefce6572a474f0604c2021e33b3fd8006ecd11d62107a5d2a963527 \
+    --hash=sha256:88206b0eb87e6d677d424843ac5209e3fb9d0190d0ee169599165ec25e9d9115 \
     # via requests
 vine==1.3.0 \
     --hash=sha256:133ee6d7a9016f177ddeaf191c1f58421a1dcc6ee9a42c58b34bed40e1d2cd87 \
