@@ -133,7 +133,6 @@ class JobLoader:
                 "machine": self._get_machine(pulse_job),
                 "option_collection": self._get_option_collection(pulse_job),
                 "log_references": self._get_log_references(pulse_job),
-                "artifacts": [],
             },
             "superseded": pulse_job.get("coalesced", []),
             "revision": pulse_job["origin"]["revision"],
