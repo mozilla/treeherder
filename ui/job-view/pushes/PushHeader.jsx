@@ -274,6 +274,7 @@ class PushHeader extends React.Component {
       collapsed,
       pushHealthVisibility,
       currentRepo,
+      pushHealthStatusCallback,
     } = this.props;
     const cancelJobsTitle = isLoggedIn
       ? 'Cancel all jobs'
@@ -320,6 +321,7 @@ class PushHeader extends React.Component {
               repoName={currentRepo.name}
               revision={revision}
               jobCounts={jobCounts}
+              statusCallback={pushHealthStatusCallback}
             />
           )}
           <PushCounts
@@ -426,10 +428,12 @@ PushHeader.propTypes = {
   decisionTaskMap: PropTypes.object.isRequired,
   watchState: PropTypes.string,
   currentRepo: PropTypes.object.isRequired,
+  pushHealthStatusCallback: PropTypes.func,
 };
 
 PushHeader.defaultProps = {
   watchState: 'none',
+  pushHealthStatusCallback: null,
 };
 
 const mapStateToProps = ({ pushes: { decisionTaskMap } }) => ({
