@@ -1,6 +1,7 @@
 import os
 
 import pytest
+from jx_mysql.mysql import MySQL
 
 from mo_logs import Log, constants, startup
 from mo_logs.convert import unix2datetime
@@ -198,9 +199,18 @@ def env_setup():
     os.environ["NEW_RELIC_APP_NAME"] = "testing"
     os.environ["BIGQUERY_PRIVATE_KEY_ID"] = "1"
     os.environ["BIGQUERY_PRIVATE_KEY"] = "1"
-    os.environ["DATABASE_URL"] = (
-        os.environ.get("DATABASE_URL") or "mysql://root@127.0.0.1:3306/test_treeherder"
-    )
+
+    # THE DOCKER ENV IS DIFFERENT FROM THE DEV ENVIRONMENT
+    attempt = [
+        "mysql://root@127.0.0.1:3306/test_treeherder",
+        "mysql://root@mysql:3306/test_treeherder",
+    ]
+    for a in attempt:
+        try:
+            MySQL(host=a)
+            os.environ["DATABASE_URL"] = a
+        except Exception:
+            pass
 
 
 @pytest.fixture
