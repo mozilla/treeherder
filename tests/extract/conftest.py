@@ -201,7 +201,8 @@ def env_setup():
     os.environ["BIGQUERY_PRIVATE_KEY"] = "1"
 
     attempt = [
-        "mysql://root@127.0.0.1:3306/test_treeherder" "mysql://root@mysql:3306/test_treeherder"
+        "mysql://root@127.0.0.1:3306/test_treeherder",
+        "mysql://root@mysql:3306/test_treeherder",
     ]
     for a in attempt:
         try:
