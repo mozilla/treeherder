@@ -198,7 +198,7 @@ def env_setup():
     os.environ["NEW_RELIC_APP_NAME"] = "testing"
     os.environ["BIGQUERY_PRIVATE_KEY_ID"] = "1"
     os.environ["BIGQUERY_PRIVATE_KEY"] = "1"
-    os.environ["DATABASE_URL"] = "mysql://root@127.0.0.1:3306/treeherder"
+    os.environ["DATABASE_URL"] = "mysql://root@127.0.0.1:3306/test_treeherder"
 
 
 @pytest.fixture
