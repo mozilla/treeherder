@@ -60,6 +60,7 @@ export default class Metric extends React.PureComponent {
                   <FontAwesomeIcon
                     icon={faMinusSquare}
                     title="Click to collapse"
+                    alt=""
                   />
                 </span>
               </Button>

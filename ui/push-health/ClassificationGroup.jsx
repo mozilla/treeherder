@@ -118,6 +118,7 @@ class ClassificationGroup extends React.PureComponent {
               className="ml-1"
               title={expandTitle}
               aria-label={expandTitle}
+              alt=""
             />
           </Badge>
         </h4>
@@ -136,6 +137,7 @@ class ClassificationGroup extends React.PureComponent {
                         icon={faRedo}
                         title="Retrigger"
                         className="mr-2"
+                        alt=""
                       />
                       Retrigger all
                     </Button>
