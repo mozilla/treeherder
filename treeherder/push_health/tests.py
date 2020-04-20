@@ -16,6 +16,7 @@ from treeherder.webapp.api.utils import REPO_GROUPS
 
 logger = logging.getLogger(__name__)
 
+CACHE_KEY_ROOT = 'failure_history'
 ONE_WEEK_IN_SECONDS = 604800
 intermittent_history_days = 14
 fixed_by_commit_history_days = 30
@@ -32,7 +33,7 @@ def get_history(
 ):
     start_date = push_date - datetime.timedelta(days=num_days)
     end_date = push_date - datetime.timedelta(days=2)
-    cache_key = 'failure_history:{}:{}'.format(failure_classification_id, push_date)
+    cache_key = f'{CACHE_KEY_ROOT}:{failure_classification_id}:{push_date}'
     previous_failures_json = cache.get(cache_key)
 
     if not previous_failures_json or force_update:
