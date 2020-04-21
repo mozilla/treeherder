@@ -4,16 +4,17 @@ from datetime import timedelta
 
 from django.utils import timezone
 
-from treeherder.etl.seta import (is_job_blacklisted,
-                                 parse_testtype)
+from treeherder.etl.seta import is_job_blacklisted, parse_testtype
 from treeherder.model import models
 from treeherder.seta.common import unique_key
 from treeherder.seta.high_value_jobs import get_high_value_jobs
 from treeherder.seta.models import JobPriority
-from treeherder.seta.settings import (SETA_FIXED_BY_COMMIT_DAYS,
-                                      SETA_FIXED_BY_COMMIT_REPOS,
-                                      SETA_SUPPORTED_TC_JOBTYPES,
-                                      SETA_UNSUPPORTED_PLATFORMS)
+from treeherder.seta.settings import (
+    SETA_FIXED_BY_COMMIT_DAYS,
+    SETA_FIXED_BY_COMMIT_REPOS,
+    SETA_SUPPORTED_TC_JOBTYPES,
+    SETA_UNSUPPORTED_PLATFORMS,
+)
 from treeherder.seta.update_job_priority import update_job_priority_table
 
 logger = logging.getLogger(__name__)
@@ -62,16 +63,17 @@ def get_failures_fixed_by_commit():
     failures = defaultdict(list)
     option_collection_map = models.OptionCollection.objects.get_option_collection_map()
 
-    fixed_by_commit_data_set = models.JobNote.objects.filter(
+    fixed_by_commit_data_set = (
+        models.JobNote.objects.filter(
             failure_classification=2,
             created__gt=timezone.now() - timedelta(days=SETA_FIXED_BY_COMMIT_DAYS),
             text__isnull=False,
-            job__repository__name__in=SETA_FIXED_BY_COMMIT_REPOS
-        ).exclude(
-            job__signature__build_platform__in=SETA_UNSUPPORTED_PLATFORMS
-        ).exclude(
-            text=""
-        ).select_related('job', 'job__signature', 'job__job_type')
+            job__repository__name__in=SETA_FIXED_BY_COMMIT_REPOS,
+        )
+        .exclude(job__signature__build_platform__in=SETA_UNSUPPORTED_PLATFORMS)
+        .exclude(text="")
+        .select_related('job', 'job__signature', 'job__job_type')
+    )
 
     # check if at least one fixed by commit job meets our requirements without populating queryset
     if not fixed_by_commit_data_set.exists():
@@ -114,7 +116,9 @@ def get_failures_fixed_by_commit():
             testtype = parse_testtype(
                 build_system_type=job_note.job.signature.build_system_type,  # e.g. taskcluster
                 job_type_name=job_note.job.job_type.name,  # e.g. Mochitest
-                platform_option=job_note.job.get_platform_option(option_collection_map),  # e.g. 'opt'
+                platform_option=job_note.job.get_platform_option(
+                    option_collection_map
+                ),  # e.g. 'opt'
                 ref_data_name=job_note.job.signature.name,  # buildername or task label
             )
 
@@ -122,16 +126,21 @@ def get_failures_fixed_by_commit():
                 if is_job_blacklisted(testtype):
                     continue
             else:
-                logger.warning('We were unable to parse %s/%s',
-                               job_note.job.job_type.name, job_note.job.signature.name)
+                logger.warning(
+                    'We were unable to parse %s/%s',
+                    job_note.job.job_type.name,
+                    job_note.job.signature.name,
+                )
                 continue
 
             # we now have a legit fixed-by-commit job failure
-            failures[revision_id].append(unique_key(
-                testtype=testtype,
-                buildtype=job_note.job.get_platform_option(option_collection_map),  # e.g. 'opt'
-                platform=job_note.job.signature.build_platform
-            ))
+            failures[revision_id].append(
+                unique_key(
+                    testtype=testtype,
+                    buildtype=job_note.job.get_platform_option(option_collection_map),  # e.g. 'opt'
+                    platform=job_note.job.signature.build_platform,
+                )
+            )
         except models.Job.DoesNotExist:
             logger.warning('job_note %s has no job associated to it', job_note.id)
             continue

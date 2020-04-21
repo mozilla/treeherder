@@ -1,6 +1,5 @@
 # -*- coding: utf-8 -*-
-from treeherder.etl.text import (astral_filter,
-                                 filter_re)
+from treeherder.etl.text import astral_filter, filter_re
 
 
 def test_filter_re_matching():

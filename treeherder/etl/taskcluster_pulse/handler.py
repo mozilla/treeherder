@@ -32,6 +32,7 @@ EXCHANGE_EVENT_MAP = {
 
 class PulseHandlerError(Exception):
     """Base error"""
+
     pass
 
 
@@ -60,10 +61,7 @@ def resultFromRun(jobRun):
 # displayed on the Treeherder Log Viewer once parsed.
 def createLogReference(root_url, taskId, runId):
     logUrl = taskcluster_urls.api(
-        root_url,
-        "queue",
-        "v1",
-        "task/{taskId}/runs/{runId}/artifacts/public/logs/live_backing.log"
+        root_url, "queue", "v1", "task/{taskId}/runs/{runId}/artifacts/public/logs/live_backing.log"
     ).format(taskId=taskId, runId=runId)
     return {
         # XXX: This is a magical name see 1147958 which enables the log viewer.
@@ -81,9 +79,9 @@ def parseRouteInfo(prefix, taskId, routes, task):
 
     if len(matchingRoutes) != 1:
         raise PulseHandlerError(
-            "Could not determine Treeherder route. Either there is no route, " +
-            "or more than one matching route exists." +
-            "Task ID: {taskId} Routes: {routes}".format(taskId=taskId, routes=routes)
+            "Could not determine Treeherder route. Either there is no route, "
+            + "or more than one matching route exists."
+            + "Task ID: {taskId} Routes: {routes}".format(taskId=taskId, routes=routes)
         )
 
     parsedRoute = parseRoute(matchingRoutes[0])
@@ -184,36 +182,33 @@ def buildMessage(pushInfo, task, runId, payload):
     treeherderConfig = task["extra"]["treeherder"]
 
     job = {
-      "buildSystem": "taskcluster",
-      "owner": task["metadata"]["owner"],
-      "taskId": "{taskId}/{runId}".format(taskId=slugid.decode(taskId), runId=runId),
-      "retryId": runId,
-      "isRetried": False,
-      "display": {
-        # jobSymbols could be an integer (i.e. Chunk ID) but need to be strings
-        # for treeherder
-        "jobSymbol": str(treeherderConfig["symbol"]),
-        "groupSymbol": treeherderConfig.get("groupSymbol", "?"),
-        # Maximum job name length is 100 chars...
-        "jobName": task["metadata"]["name"][0:99],
-      },
-      "state": stateFromRun(jobRun),
-      "result": resultFromRun(jobRun),
-      "tier": treeherderConfig.get("tier", 1),
-      "timeScheduled": task["created"],
-      "jobKind": treeherderConfig.get("jobKind", "other"),
-      "reason": treeherderConfig.get("reason", "scheduled"),
-      "jobInfo": {
-        "links": [],
-        "summary": task["metadata"]["description"],
-      },
-      "version": 1,
+        "buildSystem": "taskcluster",
+        "owner": task["metadata"]["owner"],
+        "taskId": "{taskId}/{runId}".format(taskId=slugid.decode(taskId), runId=runId),
+        "retryId": runId,
+        "isRetried": False,
+        "display": {
+            # jobSymbols could be an integer (i.e. Chunk ID) but need to be strings
+            # for treeherder
+            "jobSymbol": str(treeherderConfig["symbol"]),
+            "groupSymbol": treeherderConfig.get("groupSymbol", "?"),
+            # Maximum job name length is 100 chars...
+            "jobName": task["metadata"]["name"][0:99],
+        },
+        "state": stateFromRun(jobRun),
+        "result": resultFromRun(jobRun),
+        "tier": treeherderConfig.get("tier", 1),
+        "timeScheduled": task["created"],
+        "jobKind": treeherderConfig.get("jobKind", "other"),
+        "reason": treeherderConfig.get("reason", "scheduled"),
+        "jobInfo": {"links": [], "summary": task["metadata"]["description"],},
+        "version": 1,
     }
 
     job["origin"] = {
-      "kind": pushInfo["origin"],
-      "project": pushInfo["project"],
-      "revision": pushInfo["revision"],
+        "kind": pushInfo["origin"],
+        "project": pushInfo["project"],
+        "revision": pushInfo["revision"],
     }
 
     if pushInfo["origin"] == "hg.mozilla.org":
@@ -235,10 +230,10 @@ def buildMessage(pushInfo, task, runId, payload):
 
     machine = treeherderConfig.get("machine", {})
     job["buildMachine"] = {
-      "name": jobRun.get("workerId", "unknown"),
-      "platform": machine.get("platform", task["workerType"]),
-      "os": machine.get("os", "-"),
-      "architecture": machine.get("architecture", "-"),
+        "name": jobRun.get("workerId", "unknown"),
+        "platform": machine.get("platform", task["workerType"]),
+        "os": machine.get("os", "-"),
+        "architecture": machine.get("architecture", "-"),
     }
 
     if treeherderConfig.get("productName"):
@@ -257,7 +252,7 @@ def handleTaskPending(pushInfo, task, message):
 
 async def handleTaskRerun(pushInfo, task, message):
     payload = message['payload']
-    job = buildMessage(pushInfo, task, payload["runId"]-1, payload)
+    job = buildMessage(pushInfo, task, payload["runId"] - 1, payload)
     job["state"] = "completed"
     job["result"] = "fail"
     job["isRetried"] = True
@@ -265,10 +260,8 @@ async def handleTaskRerun(pushInfo, task, message):
     # don't include a link
     job["logs"] = []
     job = await addArtifactUploadedLinks(
-        message["root_url"],
-        payload["status"]["taskId"],
-        payload["runId"]-1,
-        job)
+        message["root_url"], payload["status"]["taskId"], payload["runId"] - 1, job
+    )
     return job
 
 
@@ -290,10 +283,8 @@ async def handleTaskCompleted(pushInfo, task, message):
         createLogReference(message['root_url'], payload["status"]["taskId"], jobRun["runId"]),
     ]
     job = await addArtifactUploadedLinks(
-        message["root_url"],
-        payload["status"]["taskId"],
-        payload["runId"],
-        job)
+        message["root_url"], payload["status"]["taskId"], payload["runId"], job
+    )
     return job
 
 
@@ -314,10 +305,8 @@ async def handleTaskException(pushInfo, task, message):
     # don't include a link
     job["logs"] = []
     job = await addArtifactUploadedLinks(
-        message["root_url"],
-        payload["status"]["taskId"],
-        payload["runId"],
-        job)
+        message["root_url"], payload["status"]["taskId"], payload["runId"], job
+    )
     return job
 
 
@@ -328,9 +317,7 @@ async def fetchArtifacts(root_url, taskId, runId):
 
     continuationToken = res.get("continuationToken")
     while continuationToken is not None:
-        continuation = {
-          "continuationToken": res["continuationToken"]
-        }
+        continuation = {"continuationToken": res["continuationToken"]}
 
         try:
             res = await asyncQueue.listArtifacts(taskId, runId, continuation)
@@ -362,19 +349,22 @@ async def addArtifactUploadedLinks(root_url, taskId, runId, job):
             seen[name] = [artifact["name"]]
         else:
             seen[name].append(artifact["name"])
-            name = "{name} ({length})".format(name=name, length=len(seen[name])-1)
+            name = "{name} ({length})".format(name=name, length=len(seen[name]) - 1)
 
-        links.append({
-            "label": "artifact uploaded",
-            "linkText": name,
-            "url": taskcluster_urls.api(
-                root_url,
-                "queue",
-                "v1",
-                "task/{taskId}/runs/{runId}/artifacts/{artifact_name}".format(
-                    taskId=taskId, runId=runId, artifact_name=artifact["name"]
-                )),
-        })
+        links.append(
+            {
+                "label": "artifact uploaded",
+                "linkText": name,
+                "url": taskcluster_urls.api(
+                    root_url,
+                    "queue",
+                    "v1",
+                    "task/{taskId}/runs/{runId}/artifacts/{artifact_name}".format(
+                        taskId=taskId, runId=runId, artifact_name=artifact["name"]
+                    ),
+                ),
+            }
+        )
 
     job["jobInfo"]["links"] = links
     return job

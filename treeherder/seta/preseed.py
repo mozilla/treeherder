@@ -5,8 +5,7 @@ import os
 from treeherder.etl.seta import get_reference_data_names
 from treeherder.seta.common import convert_job_type_name_to_testtype
 from treeherder.seta.models import JobPriority
-from treeherder.seta.settings import (SETA_LOW_VALUE_PRIORITY,
-                                      THE_FUTURE)
+from treeherder.seta.settings import SETA_LOW_VALUE_PRIORITY, THE_FUTURE
 
 logger = logging.getLogger(__name__)
 
@@ -66,12 +65,16 @@ def validate_preseed_entry(entry, ref_names):
         if ref_name == entry["testtype"]:
             potential_matches.append(unique_identifier)
 
-    assert len(potential_matches) > 0, \
-        Exception("%s is not valid. Please check runnable_jobs.json from a Gecko decision task.", entry["testtype"])
+    assert len(potential_matches) > 0, Exception(
+        "%s is not valid. Please check runnable_jobs.json from a Gecko decision task.",
+        entry["testtype"],
+    )
 
     testtype = convert_job_type_name_to_testtype(entry["testtype"])
     if not testtype:
-        logger.warning("Preseed.json entry testtype %s is not a valid task name:", entry["testtype"])
+        logger.warning(
+            "Preseed.json entry testtype %s is not a valid task name:", entry["testtype"]
+        )
         raise Exception("preseed.json entry contains invalid testtype. Please check output above.")
 
     unique_identifier = (
@@ -109,8 +112,11 @@ def load_preseed(validate=False):
                 # testtype value seen in the preseed.json file. We
                 # must convert the job[field] value to the appropriate
                 # value before performing the query.
-                field_value = convert_job_type_name_to_testtype(job[field]) \
-                    if field == 'testtype' else job[field]
+                field_value = (
+                    convert_job_type_name_to_testtype(job[field])
+                    if field == 'testtype'
+                    else job[field]
+                )
                 queryset = queryset.filter(**{field: field_value})
 
         # Deal with the case where we have a new entry in preseed
@@ -144,7 +150,7 @@ def create_new_entry(job):
         platform=job['platform'],
         priority=job['priority'],
         expiration_date=job['expiration_date'],
-        buildsystem=job['buildsystem']
+        buildsystem=job['buildsystem'],
     )
 
 

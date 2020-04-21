@@ -1,8 +1,10 @@
 import responses
 
-from treeherder.etl.runnable_jobs import (RUNNABLE_JOBS_URL,
-                                          TASKCLUSTER_INDEX_URL,
-                                          _taskcluster_runnable_jobs)
+from treeherder.etl.runnable_jobs import (
+    RUNNABLE_JOBS_URL,
+    TASKCLUSTER_INDEX_URL,
+    _taskcluster_runnable_jobs,
+)
 
 TASK_ID = 'AFq3FRt4TyiTwIN7fUqOQg'
 CONTENT1 = {'taskId': TASK_ID}
@@ -19,11 +21,11 @@ API_RETURN = {
     'platform_option': 'opt',
     'ref_data_name': JOB_NAME,
     'state': 'runnable',
-    'result': 'runnable'
+    'result': 'runnable',
 }
 RUNNABLE_JOBS_CONTENTS = {
     JOB_NAME: {
-        'collection':  {'opt': True},
+        'collection': {'opt': True},
         'groupName': API_RETURN['job_group_name'],
         'groupSymbol': API_RETURN['job_group_symbol'],
         'platform': API_RETURN['platform'],
@@ -39,10 +41,20 @@ def test_taskcluster_runnable_jobs(test_repository):
     """
     repo = test_repository.name
 
-    responses.add(responses.GET, TASKCLUSTER_INDEX_URL % repo,
-                  json=CONTENT1, match_querystring=True, status=200)
-    responses.add(responses.GET, RUNNABLE_JOBS_URL,
-                  json=RUNNABLE_JOBS_CONTENTS, match_querystring=True, status=200)
+    responses.add(
+        responses.GET,
+        TASKCLUSTER_INDEX_URL % repo,
+        json=CONTENT1,
+        match_querystring=True,
+        status=200,
+    )
+    responses.add(
+        responses.GET,
+        RUNNABLE_JOBS_URL,
+        json=RUNNABLE_JOBS_CONTENTS,
+        match_querystring=True,
+        status=200,
+    )
     jobs_ret = _taskcluster_runnable_jobs(repo)
 
     assert len(jobs_ret) == 1

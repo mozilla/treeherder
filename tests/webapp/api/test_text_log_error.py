@@ -1,16 +1,16 @@
 from django.urls import reverse
 
-from tests.autoclassify.utils import (create_failure_lines,
-                                      create_text_log_errors,
-                                      test_line)
-from treeherder.model.models import (BugJobMap,
-                                     Bugscache,
-                                     ClassifiedFailure,
-                                     FailureLine,
-                                     Job,
-                                     JobNote,
-                                     TextLogError,
-                                     TextLogErrorMetadata)
+from tests.autoclassify.utils import create_failure_lines, create_text_log_errors, test_line
+from treeherder.model.models import (
+    BugJobMap,
+    Bugscache,
+    ClassifiedFailure,
+    FailureLine,
+    Job,
+    JobNote,
+    TextLogError,
+    TextLogErrorMetadata,
+)
 
 
 def test_get_error(client, text_log_errors_failure_lines):
@@ -19,29 +19,32 @@ def test_get_error(client, text_log_errors_failure_lines):
     """
     text_log_errors, _ = text_log_errors_failure_lines
 
-    resp = client.get(
-        reverse("text-log-error-detail", kwargs={"pk": text_log_errors[0].id}))
+    resp = client.get(reverse("text-log-error-detail", kwargs={"pk": text_log_errors[0].id}))
 
     assert resp.status_code == 200
 
     data = resp.json()
 
     assert isinstance(data, object)
-    exp_error_keys = ["id", "line", "line_number", "matches",
-                      "classified_failures", "bug_suggestions", "metadata"]
+    exp_error_keys = [
+        "id",
+        "line",
+        "line_number",
+        "matches",
+        "classified_failures",
+        "bug_suggestions",
+        "metadata",
+    ]
 
     assert set(data.keys()) == set(exp_error_keys)
 
-    exp_meta_keys = ["text_log_error", "failure_line", "best_classification",
-                     "best_is_verified"]
+    exp_meta_keys = ["text_log_error", "failure_line", "best_classification", "best_is_verified"]
     assert set(data["metadata"].keys()) == set(exp_meta_keys)
 
 
-def test_update_error_verify(client,
-                             test_repository,
-                             text_log_errors_failure_lines,
-                             classified_failures,
-                             test_user):
+def test_update_error_verify(
+    client, test_repository, text_log_errors_failure_lines, classified_failures, test_user
+):
 
     text_log_errors, _ = text_log_errors_failure_lines
     client.force_authenticate(user=test_user)
@@ -52,9 +55,7 @@ def test_update_error_verify(client,
 
     body = {"best_classification": classified_failures[0].id}
 
-    resp = client.put(
-        reverse("text-log-error-detail", kwargs={"pk": error_line.id}),
-        body)
+    resp = client.put(reverse("text-log-error-detail", kwargs={"pk": error_line.id}), body)
 
     assert resp.status_code == 200
 
@@ -64,11 +65,9 @@ def test_update_error_verify(client,
     assert error_line.metadata.best_is_verified
 
 
-def test_update_error_replace(client,
-                              test_repository,
-                              text_log_errors_failure_lines,
-                              classified_failures,
-                              test_user):
+def test_update_error_replace(
+    client, test_repository, text_log_errors_failure_lines, classified_failures, test_user
+):
     client.force_authenticate(user=test_user)
 
     text_log_errors, _ = text_log_errors_failure_lines
@@ -78,9 +77,7 @@ def test_update_error_replace(client,
 
     body = {"best_classification": classified_failures[1].id}
 
-    resp = client.put(
-        reverse("text-log-error-detail", kwargs={"pk": error_line.id}),
-        body)
+    resp = client.put(reverse("text-log-error-detail", kwargs={"pk": error_line.id}), body)
 
     assert resp.status_code == 200
 
@@ -93,22 +90,22 @@ def test_update_error_replace(client,
     assert error_line.metadata.best_is_verified
 
     expected_matcher = "ManualDetector"
-    assert error_line.matches.get(classified_failure=classified_failure).matcher_name == expected_matcher
+    assert (
+        error_line.matches.get(classified_failure=classified_failure).matcher_name
+        == expected_matcher
+    )
 
 
-def test_update_error_mark_job(client,
-                               test_job,
-                               text_log_errors_failure_lines,
-                               classified_failures,
-                               test_user):
+def test_update_error_mark_job(
+    client, test_job, text_log_errors_failure_lines, classified_failures, test_user
+):
     text_log_errors, _ = text_log_errors_failure_lines
 
     client.force_authenticate(user=test_user)
 
-    bug = Bugscache.objects.create(id=1234,
-                                   status="NEW",
-                                   modified="2014-01-01 00:00:00",
-                                   summary="test")
+    bug = Bugscache.objects.create(
+        id=1234, status="NEW", modified="2014-01-01 00:00:00", summary="test"
+    )
     classified_failures[1].bug_number = bug.id
     classified_failures[1].save()
 
@@ -117,8 +114,7 @@ def test_update_error_mark_job(client,
 
         body = {"best_classification": classified_failures[1].id}
 
-        resp = client.put(reverse("text-log-error-detail", kwargs={"pk": text_log_error.id}),
-                          body)
+        resp = client.put(reverse("text-log-error-detail", kwargs={"pk": text_log_error.id}), body)
 
         assert resp.status_code == 200
 
@@ -138,25 +134,20 @@ def test_update_error_mark_job(client,
     assert job_bugs[0].bug_id == bug.id
 
 
-def test_update_error_mark_job_with_human_note(client,
-                                               test_job,
-                                               text_log_errors_failure_lines,
-                                               classified_failures, test_user):
+def test_update_error_mark_job_with_human_note(
+    client, test_job, text_log_errors_failure_lines, classified_failures, test_user
+):
     text_log_errors, _ = text_log_errors_failure_lines
 
     client.force_authenticate(user=test_user)
 
-    JobNote.objects.create(job=test_job,
-                           failure_classification_id=4,
-                           user=test_user,
-                           text="note")
+    JobNote.objects.create(job=test_job, failure_classification_id=4, user=test_user, text="note")
 
     for error_line in text_log_errors:
 
         body = {"best_classification": classified_failures[1].id}
 
-        resp = client.put(reverse("text-log-error-detail", kwargs={"pk": error_line.id}),
-                          body)
+        resp = client.put(reverse("text-log-error-detail", kwargs={"pk": error_line.id}), body)
 
         assert resp.status_code == 200
 
@@ -168,25 +159,20 @@ def test_update_error_mark_job_with_human_note(client,
     assert note.user == test_user
 
 
-def test_update_error_line_mark_job_with_auto_note(client,
-                                                   test_job,
-                                                   text_log_errors_failure_lines,
-                                                   classified_failures,
-                                                   test_user):
+def test_update_error_line_mark_job_with_auto_note(
+    client, test_job, text_log_errors_failure_lines, classified_failures, test_user
+):
 
     text_log_errors, _ = text_log_errors_failure_lines
 
     client.force_authenticate(user=test_user)
 
-    JobNote.objects.create(job=test_job,
-                           failure_classification_id=7,
-                           text="note")
+    JobNote.objects.create(job=test_job, failure_classification_id=7, text="note")
 
     for text_log_error in text_log_errors:
         body = {"best_classification": classified_failures[1].id}
 
-        resp = client.put(reverse("text-log-error-detail", kwargs={"pk": text_log_error.id}),
-                          body)
+        resp = client.put(reverse("text-log-error-detail", kwargs={"pk": text_log_error.id}), body)
 
         assert resp.status_code == 200
 
@@ -204,38 +190,38 @@ def test_update_error_line_mark_job_with_auto_note(client,
     assert notes[1].text == "note"
 
 
-def test_update_errors(client,
-                       test_repository,
-                       text_log_errors_failure_lines,
-                       classified_failures,
-                       eleven_jobs_stored,
-                       test_user):
+def test_update_errors(
+    client,
+    test_repository,
+    text_log_errors_failure_lines,
+    classified_failures,
+    eleven_jobs_stored,
+    test_user,
+):
 
     jobs = (Job.objects.get(id=1), Job.objects.get(id=2))
 
     client.force_authenticate(user=test_user)
 
-    lines = [(test_line, {}),
-             (test_line, {"subtest": "subtest2"})]
+    lines = [(test_line, {}), (test_line, {"subtest": "subtest2"})]
     new_failure_lines = create_failure_lines(jobs[1], lines)
     new_text_log_errors = create_text_log_errors(jobs[1], lines)
 
-    for text_log_error, failure_line in zip(new_text_log_errors,
-                                            new_failure_lines):
-        TextLogErrorMetadata.objects.create(text_log_error=text_log_error,
-                                            failure_line=failure_line)
+    for text_log_error, failure_line in zip(new_text_log_errors, new_failure_lines):
+        TextLogErrorMetadata.objects.create(
+            text_log_error=text_log_error, failure_line=failure_line
+        )
 
-    failure_lines = FailureLine.objects.filter(
-        job_guid__in=[job.guid for job in jobs]).all()
-    text_log_errors = TextLogError.objects.filter(
-        step__job__in=jobs).all()
+    failure_lines = FailureLine.objects.filter(job_guid__in=[job.guid for job in jobs]).all()
+    text_log_errors = TextLogError.objects.filter(step__job__in=jobs).all()
 
     for text_log_error in text_log_errors:
         assert text_log_error.metadata.best_is_verified is False
 
-    body = [{"id": failure_line.id,
-             "best_classification": classified_failures[1].id}
-            for failure_line in failure_lines]
+    body = [
+        {"id": failure_line.id, "best_classification": classified_failures[1].id}
+        for failure_line in failure_lines
+    ]
     resp = client.put(reverse("text-log-error-list"), body)
 
     assert resp.status_code == 200
@@ -254,8 +240,9 @@ def test_update_errors(client,
         assert note.user == test_user
 
 
-def test_update_error_ignore(client, test_job, text_log_errors_failure_lines,
-                             classified_failures, test_user):
+def test_update_error_ignore(
+    client, test_job, text_log_errors_failure_lines, classified_failures, test_user
+):
 
     text_log_errors, _ = text_log_errors_failure_lines
     client.force_authenticate(user=test_user)
@@ -264,12 +251,9 @@ def test_update_error_ignore(client, test_job, text_log_errors_failure_lines,
     assert text_log_error.metadata.best_classification == classified_failures[0]
     assert text_log_error.metadata.best_is_verified is False
 
-    body = {"project": test_job.repository.name,
-            "best_classification": None}
+    body = {"project": test_job.repository.name, "best_classification": None}
 
-    resp = client.put(
-        reverse("text-log-error-detail", kwargs={"pk": text_log_error.id}),
-        body)
+    resp = client.put(reverse("text-log-error-detail", kwargs={"pk": text_log_error.id}), body)
 
     assert resp.status_code == 200
 
@@ -279,11 +263,9 @@ def test_update_error_ignore(client, test_job, text_log_errors_failure_lines,
     assert text_log_error.metadata.best_is_verified
 
 
-def test_update_error_all_ignore_mark_job(client,
-                                          test_job,
-                                          text_log_errors_failure_lines,
-                                          classified_failures,
-                                          test_user):
+def test_update_error_all_ignore_mark_job(
+    client, test_job, text_log_errors_failure_lines, classified_failures, test_user
+):
 
     text_log_errors, _ = text_log_errors_failure_lines
 
@@ -302,8 +284,7 @@ def test_update_error_all_ignore_mark_job(client,
 
         body = {"best_classification": None}
 
-        resp = client.put(reverse("text-log-error-detail", kwargs={"pk": error_line.id}),
-                          body)
+        resp = client.put(reverse("text-log-error-detail", kwargs={"pk": error_line.id}), body)
 
         assert resp.status_code == 200
 
@@ -317,11 +298,9 @@ def test_update_error_all_ignore_mark_job(client,
     assert JobNote.objects.count() == 1
 
 
-def test_update_error_partial_ignore_mark_job(client,
-                                              test_job,
-                                              text_log_errors_failure_lines,
-                                              classified_failures,
-                                              test_user):
+def test_update_error_partial_ignore_mark_job(
+    client, test_job, text_log_errors_failure_lines, classified_failures, test_user
+):
 
     text_log_errors, _ = text_log_errors_failure_lines
 
@@ -332,8 +311,7 @@ def test_update_error_partial_ignore_mark_job(client,
 
         body = {"best_classification": None if i == 0 else classified_failures[0].id}
 
-        resp = client.put(reverse("text-log-error-detail", kwargs={"pk": error_line.id}),
-                          body)
+        resp = client.put(reverse("text-log-error-detail", kwargs={"pk": error_line.id}), body)
 
         assert resp.status_code == 200
 
@@ -354,11 +332,9 @@ def test_update_error_partial_ignore_mark_job(client,
     assert note.user == test_user
 
 
-def test_update_error_verify_bug(client,
-                                 test_repository,
-                                 text_log_errors_failure_lines,
-                                 classified_failures,
-                                 test_user):
+def test_update_error_verify_bug(
+    client, test_repository, text_log_errors_failure_lines, classified_failures, test_user
+):
     text_log_errors, _ = text_log_errors_failure_lines
     client.force_authenticate(user=test_user)
 
@@ -371,9 +347,7 @@ def test_update_error_verify_bug(client,
 
     body = {"bug_number": classified_failures[0].bug_number}
 
-    resp = client.put(
-        reverse("text-log-error-detail", kwargs={"pk": error_line.id}),
-        body)
+    resp = client.put(reverse("text-log-error-detail", kwargs={"pk": error_line.id}), body)
 
     assert resp.status_code == 200
 
@@ -383,11 +357,9 @@ def test_update_error_verify_bug(client,
     assert error_line.metadata.best_is_verified
 
 
-def test_update_error_verify_new_bug(client,
-                                     test_repository,
-                                     text_log_errors_failure_lines,
-                                     classified_failures,
-                                     test_user):
+def test_update_error_verify_new_bug(
+    client, test_repository, text_log_errors_failure_lines, classified_failures, test_user
+):
     text_log_errors, _ = text_log_errors_failure_lines
     client.force_authenticate(user=test_user)
 
@@ -398,9 +370,7 @@ def test_update_error_verify_new_bug(client,
     assert 78910 not in [item.bug_number for item in classified_failures]
     body = {"bug_number": 78910}
 
-    resp = client.put(
-        reverse("text-log-error-detail", kwargs={"pk": error_line.id}),
-        body)
+    resp = client.put(reverse("text-log-error-detail", kwargs={"pk": error_line.id}), body)
 
     assert resp.status_code == 200
 
@@ -411,11 +381,9 @@ def test_update_error_verify_new_bug(client,
     assert error_line.metadata.best_classification.bug_number == 78910
 
 
-def test_update_error_verify_ignore_now(client,
-                                        test_repository,
-                                        text_log_errors_failure_lines,
-                                        classified_failures,
-                                        test_user):
+def test_update_error_verify_ignore_now(
+    client, test_repository, text_log_errors_failure_lines, classified_failures, test_user
+):
     text_log_errors, _ = text_log_errors_failure_lines
     client.force_authenticate(user=test_user)
 
@@ -426,9 +394,7 @@ def test_update_error_verify_ignore_now(client,
     assert 78910 not in [item.bug_number for item in classified_failures]
     body = {}
 
-    resp = client.put(
-        reverse("text-log-error-detail", kwargs={"pk": error_line.id}),
-        body)
+    resp = client.put(reverse("text-log-error-detail", kwargs={"pk": error_line.id}), body)
 
     assert resp.status_code == 200
 
@@ -438,11 +404,9 @@ def test_update_error_verify_ignore_now(client,
     assert error_line.metadata.best_is_verified
 
 
-def test_update_error_change_bug(client,
-                                 test_repository,
-                                 text_log_errors_failure_lines,
-                                 classified_failures,
-                                 test_user):
+def test_update_error_change_bug(
+    client, test_repository, text_log_errors_failure_lines, classified_failures, test_user
+):
     text_log_errors, _ = text_log_errors_failure_lines
     client.force_authenticate(user=test_user)
 
@@ -455,9 +419,7 @@ def test_update_error_change_bug(client,
     assert 78910 not in [item.bug_number for item in classified_failures]
     body = {"best_classification": classified_failure.id, "bug_number": 78910}
 
-    resp = client.put(
-        reverse("text-log-error-detail", kwargs={"pk": error_line.id}),
-        body)
+    resp = client.put(reverse("text-log-error-detail", kwargs={"pk": error_line.id}), body)
 
     assert resp.status_code == 200
 
@@ -469,11 +431,9 @@ def test_update_error_change_bug(client,
     assert error_line.metadata.best_classification.bug_number == 78910
 
 
-def test_update_error_bug_change_cf(client,
-                                    test_repository,
-                                    text_log_errors_failure_lines,
-                                    classified_failures,
-                                    test_user):
+def test_update_error_bug_change_cf(
+    client, test_repository, text_log_errors_failure_lines, classified_failures, test_user
+):
     text_log_errors, _ = text_log_errors_failure_lines
     client.force_authenticate(user=test_user)
 
@@ -485,12 +445,9 @@ def test_update_error_bug_change_cf(client,
     classified_failures[1].bug_number = 78910
     classified_failures[1].save()
 
-    body = {"best_classification": classified_failures[0].id,
-            "bug_number": 78910}
+    body = {"best_classification": classified_failures[0].id, "bug_number": 78910}
 
-    resp = client.put(
-        reverse("text-log-error-detail", kwargs={"pk": error_line.id}),
-        body)
+    resp = client.put(reverse("text-log-error-detail", kwargs={"pk": error_line.id}), body)
 
     assert resp.status_code == 200
 

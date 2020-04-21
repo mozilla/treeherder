@@ -22,9 +22,7 @@ BUGFILER_API_URL = "https://thisisnotbugzilla.org"
 # access.  But if we use the defaults in config.settings, we also get the
 # ``ModelBackend``, which will try to access the DB.  This ensures we don't
 # do that, since we don't have any tests that use the ``ModelBackend``.
-AUTHENTICATION_BACKENDS = (
-    'treeherder.auth.backends.AuthBackend',
-)
+AUTHENTICATION_BACKENDS = ('treeherder.auth.backends.AuthBackend',)
 
 # For Push Health Usage dashboard
 NEW_RELIC_INSIGHTS_API_KEY = "123"

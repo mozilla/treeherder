@@ -43,19 +43,16 @@ class Treeherder(Base):
 
     @property
     def active_watched_repo(self):
-        self.wait.until(lambda _: self.is_element_displayed(
-            *self._active_watched_repo_locator))
+        self.wait.until(lambda _: self.is_element_displayed(*self._active_watched_repo_locator))
         return self.find_element(*self._active_watched_repo_locator).text
 
     @property
     def all_jobs(self):
-        return list(itertools.chain.from_iterable(
-            r.jobs for r in self.pushes))
+        return list(itertools.chain.from_iterable(r.jobs for r in self.pushes))
 
     @property
     def all_job_groups(self):
-        return list(itertools.chain.from_iterable(
-            r.job_groups for r in self.pushes))
+        return list(itertools.chain.from_iterable(r.job_groups for r in self.pushes))
 
     def clear_filter(self, method='pointer'):
         if method == 'keyboard':
@@ -139,6 +136,7 @@ class Treeherder(Base):
     def switch_to_perfherder(self):
         self.header.switch_app()
         from pages.perfherder import Perfherder
+
         return Perfherder(self.driver, self.base_url).wait_for_page_to_load()
 
     def toggle_failures(self):
@@ -237,7 +235,10 @@ class Treeherder(Base):
 
         @property
         def job_groups(self):
-            return [self.JobGroup(self.page, root=el) for el in self.find_elements(*self._job_groups_locator)]
+            return [
+                self.JobGroup(self.page, root=el)
+                for el in self.find_elements(*self._job_groups_locator)
+            ]
 
         @property
         def jobs(self):
@@ -245,7 +246,9 @@ class Treeherder(Base):
 
         @property
         def commits(self):
-            return [self.page.Commit(self.page, el) for el in self.find_elements(*self._commits_locator)]
+            return [
+                self.page.Commit(self.page, el) for el in self.find_elements(*self._commits_locator)
+            ]
 
         def filter_by_author(self):
             self.find_element(*self._author_locator).click()
@@ -270,7 +273,6 @@ class Treeherder(Base):
             self.page.wait_for_page_to_load()
 
         class Job(Region):
-
             def click(self):
                 self.root.click()
                 self.wait.until(lambda _: self.page.details_panel.is_open)
@@ -299,7 +301,10 @@ class Treeherder(Base):
 
             @property
             def jobs(self):
-                return [Treeherder.ResultSet.Job(self.page, root=el) for el in self.find_elements(*self._jobs_locator)]
+                return [
+                    Treeherder.ResultSet.Job(self.page, root=el)
+                    for el in self.find_elements(*self._jobs_locator)
+                ]
 
     class Commit(Region):
 
@@ -334,9 +339,11 @@ class Treeherder(Base):
 
         @property
         def is_open(self):
-            return self.root.is_displayed() and \
-                not self.find_elements(*self._loading_locator) and \
-                self.job_details.result
+            return (
+                self.root.is_displayed()
+                and not self.find_elements(*self._loading_locator)
+                and self.job_details.result
+            )
 
         @property
         def job_details(self):
@@ -345,7 +352,10 @@ class Treeherder(Base):
         class SummaryPanel(Region):
 
             _root_locator = (By.ID, 'summary-panel')
-            _keywords_locator = (By.CSS_SELECTOR, 'a[title="Filter jobs containing these keywords"]')
+            _keywords_locator = (
+                By.CSS_SELECTOR,
+                'a[title="Filter jobs containing these keywords"]',
+            )
             _log_viewer_locator = (By.CLASS_NAME, 'logviewer-btn')
             _result_locator = (By.CSS_SELECTOR, '#result-status-pane div:nth-of-type(1) span')
 
@@ -371,4 +381,5 @@ class Treeherder(Base):
                 self.driver.switch_to.window(handles[0])
 
                 from pages.log_viewer import LogViewer
+
                 return LogViewer(self.driver).wait_for_page_to_load()

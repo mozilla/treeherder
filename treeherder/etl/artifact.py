@@ -8,10 +8,7 @@ from django.db.utils import IntegrityError
 from treeherder.etl.perf import store_performance_artifact
 from treeherder.etl.text import astral_filter
 from treeherder.model import error_summary
-from treeherder.model.models import (Job,
-                                     JobDetail,
-                                     TextLogError,
-                                     TextLogStep)
+from treeherder.model.models import Job, JobDetail, TextLogError, TextLogStep
 
 logger = logging.getLogger(__name__)
 
@@ -34,13 +31,16 @@ def store_job_info_artifact(job, job_info_artifact):
         job_detail_dict = {
             'title': job_detail.get('title'),
             'value': job_detail['value'],
-            'url': job_detail.get('url')
+            'url': job_detail.get('url'),
         }
         for (k, v) in job_detail_dict.items():
             max_field_length = JobDetail._meta.get_field(k).max_length
             if v is not None and len(v) > max_field_length:
-                logger.warning("Job detail '%s' for job_guid %s too long, truncating",
-                               v[:max_field_length], job.guid)
+                logger.warning(
+                    "Job detail '%s' for job_guid %s too long, truncating",
+                    v[:max_field_length],
+                    job.guid,
+                )
                 job_detail_dict[k] = v[:max_field_length]
 
         title = job_detail_dict['title']
@@ -67,12 +67,11 @@ def store_text_log_summary_artifact(job, text_log_summary_artifact):
     """
     Store the contents of the text log summary artifact
     """
-    step_data = json.loads(
-        text_log_summary_artifact['blob'])['step_data']
+    step_data = json.loads(text_log_summary_artifact['blob'])['step_data']
     result_map = {v: k for (k, v) in TextLogStep.RESULTS}
     with transaction.atomic():
         for step in step_data['steps']:
-            name = step['name'][:TextLogStep._meta.get_field('name').max_length]
+            name = step['name'][: TextLogStep._meta.get_field('name').max_length]
             # process start/end times if we have them
             # we currently don't support timezones in treeherder, so
             # just ignore that when importing/updating the bug to avoid
@@ -81,8 +80,7 @@ def store_text_log_summary_artifact(job, text_log_summary_artifact):
             time_kwargs = {}
             for tkey in ('started', 'finished'):
                 if step.get(tkey):
-                    time_kwargs[tkey] = dateutil.parser.parse(
-                        step[tkey], ignoretz=True)
+                    time_kwargs[tkey] = dateutil.parser.parse(step[tkey], ignoretz=True)
 
             log_step = TextLogStep.objects.create(
                 job=job,
@@ -90,14 +88,16 @@ def store_text_log_summary_artifact(job, text_log_summary_artifact):
                 finished_line_number=step['finished_linenumber'],
                 name=name,
                 result=result_map[step['result']],
-                **time_kwargs)
+                **time_kwargs,
+            )
 
             if step.get('errors'):
                 for error in step['errors']:
                     TextLogError.objects.create(
                         step=log_step,
                         line_number=error['linenumber'],
-                        line=astral_filter(error['line']))
+                        line=astral_filter(error['line']),
+                    )
 
     # get error summary immediately (to warm the cache)
     error_summary.get_error_summary(job)
@@ -126,8 +126,10 @@ def store_job_artifacts(artifact_data):
                 continue
             job_guid = artifact.get('job_guid')
             if not job_guid:
-                logger.error("load_job_artifacts: Artifact '%s' with no "
-                             "job guid set, skipping", artifact_name)
+                logger.error(
+                    "load_job_artifacts: Artifact '%s' with no " "job guid set, skipping",
+                    artifact_name,
+                )
                 continue
 
             try:
@@ -144,13 +146,16 @@ def store_job_artifacts(artifact_data):
                 try:
                     store_text_log_summary_artifact(job, artifact)
                 except IntegrityError:
-                    logger.warning("Couldn't insert text log information "
-                                   "for job with guid %s, this probably "
-                                   "means the job was already parsed",
-                                   job_guid)
+                    logger.warning(
+                        "Couldn't insert text log information "
+                        "for job with guid %s, this probably "
+                        "means the job was already parsed",
+                        job_guid,
+                    )
             else:
-                logger.warning("Unknown artifact type: %s submitted with job %s",
-                               artifact_name, job.guid)
+                logger.warning(
+                    "Unknown artifact type: %s submitted with job %s", artifact_name, job.guid
+                )
         else:
             logger.error('store_job_artifacts: artifact type %s not understood', artifact_name)
 
@@ -161,8 +166,7 @@ def serialize_artifact_json_blobs(artifacts):
     """
     for artifact in artifacts:
         blob = artifact['blob']
-        if (artifact['type'].lower() == 'json' and
-                not isinstance(blob, str)):
+        if artifact['type'].lower() == 'json' and not isinstance(blob, str):
             artifact['blob'] = json.dumps(blob)
 
     return artifacts

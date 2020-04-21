@@ -14,8 +14,10 @@ def fetch_intermittent_bugs(offset, limit):
     params = {
         'keywords': 'intermittent-failure',
         'chfieldfrom': '-1y',
-        'include_fields': ('id,summary,status,resolution,op_sys,cf_crash_signature,'
-                           'keywords,last_change_time, whiteboard'),
+        'include_fields': (
+            'id,summary,status,resolution,op_sys,cf_crash_signature,'
+            'keywords,last_change_time, whiteboard'
+        ),
         'offset': offset,
         'limit': limit,
     }
@@ -24,7 +26,6 @@ def fetch_intermittent_bugs(offset, limit):
 
 
 class BzApiBugProcess:
-
     def run(self):
         bug_list = []
 
@@ -43,8 +44,7 @@ class BzApiBugProcess:
 
         if bug_list:
             bugs_stored = set(Bugscache.objects.values_list('id', flat=True))
-            old_bugs = bugs_stored.difference(set(bug['id']
-                                                  for bug in bug_list))
+            old_bugs = bugs_stored.difference(set(bug['id'] for bug in bug_list))
             Bugscache.objects.filter(id__in=old_bugs).delete()
 
             for bug in bug_list:
@@ -62,8 +62,10 @@ class BzApiBugProcess:
                             'keywords': ",".join(bug['keywords']),
                             'os': bug.get('op_sys', ''),
                             'modified': dateutil.parser.parse(
-                                bug['last_change_time'], ignoretz=True),
+                                bug['last_change_time'], ignoretz=True
+                            ),
                             'whiteboard': bug.get('whiteboard', '')[:max_whiteboard_length],
-                        })
+                        },
+                    )
                 except Exception as e:
                     logger.error("error inserting bug '%s' into db: %s", bug, e)

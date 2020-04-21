@@ -14,10 +14,8 @@ def test_job(eleven_job_blobs, create_jobs):
 @pytest.fixture(name='log')
 def fixture_log(test_job):
     return JobLog.objects.create(
-        job=test_job,
-        name='log1',
-        url='https://example.com',
-        status=JobLog.PARSED)
+        job=test_job, name='log1', url='https://example.com', status=JobLog.PARSED
+    )
 
 
 def test_open_log_viewer(base_url, selenium, log):

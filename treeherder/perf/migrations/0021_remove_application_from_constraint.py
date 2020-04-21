@@ -13,6 +13,18 @@ class Migration(migrations.Migration):
     operations = [
         migrations.AlterUniqueTogether(
             name='performancesignature',
-            unique_together={('repository', 'framework', 'signature_hash'), ('repository', 'suite', 'test', 'framework', 'platform', 'option_collection', 'extra_options', 'last_updated')},
+            unique_together={
+                ('repository', 'framework', 'signature_hash'),
+                (
+                    'repository',
+                    'suite',
+                    'test',
+                    'framework',
+                    'platform',
+                    'option_collection',
+                    'extra_options',
+                    'last_updated',
+                ),
+            },
         ),
     ]

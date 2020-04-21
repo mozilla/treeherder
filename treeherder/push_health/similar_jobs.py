@@ -29,11 +29,13 @@ def set_matching_passed_jobs(failures, push):
     # Need to OR for each type of job that failed
     query_conditions = []
     for job in failed_jobs.values():
-        query_conditions.append(Q(
-            option_collection_hash=job['option_collection_hash'],
-            machine_platform=job['machine_platform_id'],
-            job_type=job['job_type_id'],
-        ))
+        query_conditions.append(
+            Q(
+                option_collection_hash=job['option_collection_hash'],
+                machine_platform=job['machine_platform_id'],
+                job_type=job['job_type_id'],
+            )
+        )
     # ``query`` here will end up being a set of OR conditions for each combination of
     # platform/config/job_type for the failed jobs.  This OR condition will give us a
     # list of passing versions of those same job conditions.
@@ -44,14 +46,16 @@ def set_matching_passed_jobs(failures, push):
     for condition in query_conditions:
         query |= condition
 
-    passing_jobs = Job.objects.filter(
-        push=push,
-        result='success'
-    ).filter(query).select_related('job_type', 'machine_platform', 'taskcluster_metadata')
-    in_progress_jobs = Job.objects.filter(
-        push=push,
-        result='unknown'
-    ).filter(query).select_related('job_type', 'machine_platform', 'taskcluster_metadata')
+    passing_jobs = (
+        Job.objects.filter(push=push, result='success')
+        .filter(query)
+        .select_related('job_type', 'machine_platform', 'taskcluster_metadata')
+    )
+    in_progress_jobs = (
+        Job.objects.filter(push=push, result='unknown')
+        .filter(query)
+        .select_related('job_type', 'machine_platform', 'taskcluster_metadata')
+    )
 
     #
     # Group the passing jobs into groups based on their platform, option and job_type
@@ -62,7 +66,9 @@ def set_matching_passed_jobs(failures, push):
     sorted_passing_jobs = sorted(passing_job_dicts, key=get_job_key)
     sorted_in_progress_jobs = sorted(in_progress_job_dicts, key=get_job_key)
     passing_job_map = {key: list(group) for key, group in groupby(sorted_passing_jobs, get_job_key)}
-    in_progress_job_map = {key: list(group) for key, group in groupby(sorted_in_progress_jobs, get_job_key)}
+    in_progress_job_map = {
+        key: list(group) for key, group in groupby(sorted_in_progress_jobs, get_job_key)
+    }
 
     #
     # Assign matching passing jobs to the test failures
@@ -86,16 +92,20 @@ def set_matching_passed_jobs(failures, push):
 
 
 def get_job_key(job):
-    return '{}-{}-{}'.format(job['machine_platform_id'], job['option_collection_hash'], job['job_type_id'])
+    return '{}-{}-{}'.format(
+        job['machine_platform_id'], job['option_collection_hash'], job['job_type_id']
+    )
 
 
 def job_to_dict(job):
     job_dict = {field: getattr(job, field) for field in job_fields}
-    job_dict.update({
-        'job_type_name': job.job_type.name,
-        'job_type_symbol': job.job_type.symbol,
-        'platform': job.machine_platform.platform,
-        'task_id': job.taskcluster_metadata.task_id,
-        'run_id': job.taskcluster_metadata.retry_id,
-    })
+    job_dict.update(
+        {
+            'job_type_name': job.job_type.name,
+            'job_type_symbol': job.job_type.symbol,
+            'platform': job.machine_platform.platform,
+            'task_id': job.taskcluster_metadata.task_id,
+            'run_id': job.taskcluster_metadata.retry_id,
+        }
+    )
     return job_dict

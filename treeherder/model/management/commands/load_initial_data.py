@@ -6,11 +6,13 @@ class Command(BaseCommand):
     help = "Load initial data into the master db"
 
     def handle(self, *args, **options):
-        call_command('loaddata',
-                     'repository_group',
-                     'repository',
-                     'failure_classification',
-                     'issue_tracker',
-                     'performance_framework',
-                     'performance_bug_templates')
+        call_command(
+            'loaddata',
+            'repository_group',
+            'repository',
+            'failure_classification',
+            'issue_tracker',
+            'performance_framework',
+            'performance_bug_templates',
+        )
         call_command('load_preseed')

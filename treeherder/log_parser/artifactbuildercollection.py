@@ -4,9 +4,11 @@ import newrelic.agent
 
 from treeherder.utils.http import make_request
 
-from .artifactbuilders import (BuildbotJobArtifactBuilder,
-                               BuildbotLogViewArtifactBuilder,
-                               BuildbotPerformanceDataArtifactBuilder)
+from .artifactbuilders import (
+    BuildbotJobArtifactBuilder,
+    BuildbotLogViewArtifactBuilder,
+    BuildbotPerformanceDataArtifactBuilder,
+)
 from .parsers import EmptyPerformanceData
 
 logger = logging.getLogger(__name__)
@@ -82,7 +84,7 @@ BuildbotPerformanceDataArtifactBuilder
             self.builders = [
                 BuildbotLogViewArtifactBuilder(url=self.url),
                 BuildbotJobArtifactBuilder(url=self.url),
-                BuildbotPerformanceDataArtifactBuilder(url=self.url)
+                BuildbotPerformanceDataArtifactBuilder(url=self.url),
             ]
 
     def parse(self):
@@ -96,17 +98,15 @@ BuildbotPerformanceDataArtifactBuilder
             download_size_in_bytes = int(response.headers.get('Content-Length', -1))
 
             # Temporary annotation of log size to help set thresholds in bug 1295997.
+            newrelic.agent.add_custom_parameter('unstructured_log_size', download_size_in_bytes)
             newrelic.agent.add_custom_parameter(
-                'unstructured_log_size',
-                download_size_in_bytes
-            )
-            newrelic.agent.add_custom_parameter(
-                'unstructured_log_encoding',
-                response.headers.get('Content-Encoding', 'None')
+                'unstructured_log_encoding', response.headers.get('Content-Encoding', 'None')
             )
 
             if download_size_in_bytes > MAX_DOWNLOAD_SIZE_IN_BYTES:
-                raise LogSizeException('Download size of %i bytes exceeds limit' % download_size_in_bytes)
+                raise LogSizeException(
+                    'Download size of %i bytes exceeds limit' % download_size_in_bytes
+                )
 
             # Lines must be explicitly decoded since `iter_lines()`` returns bytes by default
             # and we cannot use its `decode_unicode=True` mode, since otherwise Unicode newline

@@ -1,20 +1,11 @@
 import os
 
 import simplejson as json
-from jsonschema import (ValidationError,
-                        validate)
+from jsonschema import ValidationError, validate
 
 
 def _lookup_extra_options_max(schema):
-    return (
-        schema
-        ["definitions"]
-        ["suite_schema"]
-        ["properties"]
-        ["extraOptions"]
-        ["items"]
-        ["maxLength"]
-    )
+    return schema["definitions"]["suite_schema"]["properties"]["extraOptions"]["items"]["maxLength"]
 
 
 with open(os.path.join('schemas', 'performance-artifact.json')) as f:

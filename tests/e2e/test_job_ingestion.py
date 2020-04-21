@@ -9,11 +9,7 @@ from tests.test_utils import add_log_response
 from treeherder.etl.jobs import store_job_data
 from treeherder.log_parser.parsers import StepParser
 from treeherder.model.error_summary import get_error_summary
-from treeherder.model.models import (Job,
-                                     JobDetail,
-                                     JobLog,
-                                     TextLogError,
-                                     TextLogStep)
+from treeherder.model.models import Job, JobDetail, JobLog, TextLogError, TextLogStep
 
 # TODO: Turn these into end to end taskcluster tests as part of removing buildbot
 # support in bug 1443251, or else delete them if they're duplicating coverage.
@@ -24,25 +20,41 @@ def text_log_summary_dict():
     return {
         "step_data": {
             "steps": [
-                {"name": "Clone gecko tc-vcs ",
-                 "started_linenumber": 1,
-                 "finished_linenumber": 100000,
-                 "started": "2016-07-13 16:09:31",
-                 "finished": "2016-07-13 16:09:31",
-                 "result": "testfailed",
-                 "errors": [
-                     {"line": "12:34:13     INFO -  Assertion failure: addr % CellSize == 0, at ../../../js/src/gc/Heap.h:1041", "linenumber": 61918},
-                     {"line": "12:34:24  WARNING -  TEST-UNEXPECTED-FAIL | file:///builds/slave/talos-slave/test/build/tests/jsreftest/tests/jsreftest.html?test=ecma_5/JSON/parse-array-gc.js | Exited with code 1 during test run", "linenumber": 61919},
-                     {"line": "12:34:37  WARNING -  PROCESS-CRASH | file:///builds/slave/talos-slave/test/build/tests/jsreftest/tests/jsreftest.html?test=ecma_5/JSON/parse-array-gc.js | application crashed [@ js::gc::Cell::tenuredZone() const]", "linenumber": 61922},
-                     {"line": "12:34:38    ERROR - Return code: 256", "linenumber": 64435}
-                 ]},
-                {"name": "Build ./build-b2g-desktop.sh /home/worker/workspace", "started_linenumber": 1, "finished_linenumber": 1, "result": "success",
-                 "started": "2016-07-13 16:09:31",
-                 "finished": "2016-07-13 16:09:31"}
+                {
+                    "name": "Clone gecko tc-vcs ",
+                    "started_linenumber": 1,
+                    "finished_linenumber": 100000,
+                    "started": "2016-07-13 16:09:31",
+                    "finished": "2016-07-13 16:09:31",
+                    "result": "testfailed",
+                    "errors": [
+                        {
+                            "line": "12:34:13     INFO -  Assertion failure: addr % CellSize == 0, at ../../../js/src/gc/Heap.h:1041",
+                            "linenumber": 61918,
+                        },
+                        {
+                            "line": "12:34:24  WARNING -  TEST-UNEXPECTED-FAIL | file:///builds/slave/talos-slave/test/build/tests/jsreftest/tests/jsreftest.html?test=ecma_5/JSON/parse-array-gc.js | Exited with code 1 during test run",
+                            "linenumber": 61919,
+                        },
+                        {
+                            "line": "12:34:37  WARNING -  PROCESS-CRASH | file:///builds/slave/talos-slave/test/build/tests/jsreftest/tests/jsreftest.html?test=ecma_5/JSON/parse-array-gc.js | application crashed [@ js::gc::Cell::tenuredZone() const]",
+                            "linenumber": 61922,
+                        },
+                        {"line": "12:34:38    ERROR - Return code: 256", "linenumber": 64435},
+                    ],
+                },
+                {
+                    "name": "Build ./build-b2g-desktop.sh /home/worker/workspace",
+                    "started_linenumber": 1,
+                    "finished_linenumber": 1,
+                    "result": "success",
+                    "started": "2016-07-13 16:09:31",
+                    "finished": "2016-07-13 16:09:31",
+                },
             ],
-            "errors_truncated": False
+            "errors_truncated": False,
         },
-        "logurl": "https://queue.taskcluster.net/v1/task/nhxC4hC3RE6LSVWTZT4rag/runs/0/artifacts/public/logs/live_backing.log"
+        "logurl": "https://queue.taskcluster.net/v1/task/nhxC4hC3RE6LSVWTZT4rag/runs/0/artifacts/public/logs/live_backing.log",
     }
 
 
@@ -52,8 +64,9 @@ def check_job_log(test_repository, job_guid, parse_status):
     assert job_logs[0].status == parse_status
 
 
-def test_store_job_with_unparsed_log(test_repository, failure_classifications,
-                                     push_stored, monkeypatch, activate_responses):
+def test_store_job_with_unparsed_log(
+    test_repository, failure_classifications, push_stored, monkeypatch, activate_responses
+):
     """
     test submitting a job with an unparsed log parses the log,
     generates an appropriate set of text log steps, and calls
@@ -62,11 +75,10 @@ def test_store_job_with_unparsed_log(test_repository, failure_classifications,
 
     # create a wrapper around get_error_summary that records whether
     # it's been called
-    mock_get_error_summary = MagicMock(name='get_error_summary',
-                                       wraps=get_error_summary)
+    mock_get_error_summary = MagicMock(name='get_error_summary', wraps=get_error_summary)
     import treeherder.model.error_summary
-    monkeypatch.setattr(treeherder.model.error_summary, 'get_error_summary',
-                        mock_get_error_summary)
+
+    monkeypatch.setattr(treeherder.model.error_summary, 'get_error_summary', mock_get_error_summary)
     log_url = add_log_response("mozilla-central-macosx64-debug-bm65-build1-build15.txt.gz")
 
     job_guid = 'd22c74d4aa6d2a1dcba96d95dccbd5fdca70cf33'
@@ -76,12 +88,10 @@ def test_store_job_with_unparsed_log(test_repository, failure_classifications,
         'job': {
             'job_guid': job_guid,
             'state': 'completed',
-            'log_references': [{
-                'url': log_url,
-                'name': 'buildbot_text',
-                'parse_status': 'pending'
-            }]
-        }
+            'log_references': [
+                {'url': log_url, 'name': 'buildbot_text', 'parse_status': 'pending'}
+            ],
+        },
     }
     store_job_data(test_repository, [job_data])
 
@@ -94,9 +104,9 @@ def test_store_job_with_unparsed_log(test_repository, failure_classifications,
     assert len(get_error_summary(Job.objects.get(id=1))) == 2
 
 
-def test_store_job_pending_to_completed_with_unparsed_log(test_repository, push_stored,
-                                                          failure_classifications,
-                                                          activate_responses):
+def test_store_job_pending_to_completed_with_unparsed_log(
+    test_repository, push_stored, failure_classifications, activate_responses
+):
 
     job_guid = 'd22c74d4aa6d2a1dcba96d95dccbd5fdca70cf33'
 
@@ -104,10 +114,7 @@ def test_store_job_pending_to_completed_with_unparsed_log(test_repository, push_
     job_data = {
         'project': test_repository.name,
         'revision': push_stored[0]['revision'],
-        'job': {
-            'job_guid': job_guid,
-            'state': 'running'
-        }
+        'job': {'job_guid': job_guid, 'state': 'running'},
     }
     store_job_data(test_repository, [job_data])
     # should have no text log errors or bug suggestions
@@ -122,12 +129,10 @@ def test_store_job_pending_to_completed_with_unparsed_log(test_repository, push_
         'job': {
             'job_guid': job_guid,
             'state': 'completed',
-            'log_references': [{
-                'url': log_url,
-                'name': 'buildbot_text',
-                'parse_status': 'pending'
-            }]
-        }
+            'log_references': [
+                {'url': log_url, 'name': 'buildbot_text', 'parse_status': 'pending'}
+            ],
+        },
     }
     store_job_data(test_repository, [job_data])
 
@@ -136,9 +141,9 @@ def test_store_job_pending_to_completed_with_unparsed_log(test_repository, push_
     assert len(get_error_summary(Job.objects.get(guid=job_guid))) == 2
 
 
-def test_store_job_with_parsed_log(test_repository, push_stored,
-                                   failure_classifications,
-                                   monkeypatch):
+def test_store_job_with_parsed_log(
+    test_repository, push_stored, failure_classifications, monkeypatch
+):
     """
     test submitting a job with a pre-parsed log gets job_log_url
     parse_status of "parsed" and does not parse, even though no text_log_summary
@@ -157,12 +162,14 @@ def test_store_job_with_parsed_log(test_repository, push_stored,
         'job': {
             'job_guid': job_guid,
             'state': 'completed',
-            'log_references': [{
-                'url': 'http://ftp.mozilla.org/pub/mozilla.org/spidermonkey/...',
-                'name': 'buildbot_text',
-                'parse_status': 'parsed'
-            }]
-        }
+            'log_references': [
+                {
+                    'url': 'http://ftp.mozilla.org/pub/mozilla.org/spidermonkey/...',
+                    'name': 'buildbot_text',
+                    'parse_status': 'parsed',
+                }
+            ],
+        },
     }
 
     store_job_data(test_repository, [job_data])
@@ -172,12 +179,8 @@ def test_store_job_with_parsed_log(test_repository, push_stored,
 
 
 def test_store_job_with_text_log_summary_artifact_parsed(
-        test_repository,
-        failure_classifications,
-        push_stored,
-        monkeypatch,
-        text_log_summary_dict,
-        ):
+    test_repository, failure_classifications, push_stored, monkeypatch, text_log_summary_dict,
+):
     """
     test submitting a job with a pre-parsed log gets parse_status of
     "parsed" and doesn't parse the log, but we get the expected set of
@@ -194,18 +197,22 @@ def test_store_job_with_text_log_summary_artifact_parsed(
         'job': {
             'job_guid': job_guid,
             'state': 'completed',
-            'log_references': [{
-                'url': 'http://ftp.mozilla.org/pub/mozilla.org/spidermonkey/...',
-                'name': 'buildbot_text',
-                'parse_status': 'parsed'
-            }],
-            'artifacts': [{
-                "blob": json.dumps(text_log_summary_dict),
-                "type": "json",
-                "name": "text_log_summary",
-                "job_guid": job_guid
-            }]
-        }
+            'log_references': [
+                {
+                    'url': 'http://ftp.mozilla.org/pub/mozilla.org/spidermonkey/...',
+                    'name': 'buildbot_text',
+                    'parse_status': 'parsed',
+                }
+            ],
+            'artifacts': [
+                {
+                    "blob": json.dumps(text_log_summary_dict),
+                    "type": "json",
+                    "name": "text_log_summary",
+                    "job_guid": job_guid,
+                }
+            ],
+        },
     }
 
     store_job_data(test_repository, [job_data])
@@ -218,12 +225,8 @@ def test_store_job_with_text_log_summary_artifact_parsed(
 
 
 def test_store_job_with_text_log_summary_artifact_pending(
-        test_repository,
-        failure_classifications,
-        push_stored,
-        monkeypatch,
-        text_log_summary_dict,
-        ):
+    test_repository, failure_classifications, push_stored, monkeypatch, text_log_summary_dict,
+):
     """
     test submitting a job with a log set to pending, but with a text_log_summary.
 
@@ -241,18 +244,22 @@ def test_store_job_with_text_log_summary_artifact_pending(
         'job': {
             'job_guid': job_guid,
             'state': 'completed',
-            'log_references': [{
-                'url': 'http://ftp.mozilla.org/pub/mozilla.org/spidermonkey/...',
-                'name': 'buildbot_text',
-                'parse_status': 'pending'
-            }],
-            'artifacts': [{
-                "blob": json.dumps(text_log_summary_dict),
-                "type": "json",
-                "name": "text_log_summary",
-                "job_guid": job_guid
-            }]
-        }
+            'log_references': [
+                {
+                    'url': 'http://ftp.mozilla.org/pub/mozilla.org/spidermonkey/...',
+                    'name': 'buildbot_text',
+                    'parse_status': 'pending',
+                }
+            ],
+            'artifacts': [
+                {
+                    "blob": json.dumps(text_log_summary_dict),
+                    "type": "json",
+                    "name": "text_log_summary",
+                    "job_guid": job_guid,
+                }
+            ],
+        },
     }
 
     store_job_data(test_repository, [job_data])
@@ -265,11 +272,8 @@ def test_store_job_with_text_log_summary_artifact_pending(
 
 
 def test_store_job_artifacts_by_add_artifact(
-        test_repository,
-        failure_classifications,
-        push_stored,
-        monkeypatch,
-        ):
+    test_repository, failure_classifications, push_stored, monkeypatch,
+):
     """
     test submitting a job with artifacts added by ``add_artifact``
 
@@ -283,25 +287,31 @@ def test_store_job_artifacts_by_add_artifact(
     mock_parse = MagicMock(name="parse_line")
     monkeypatch.setattr(StepParser, 'parse_line', mock_parse)
 
-    tls_blob = json.dumps({
-        "logurl": "https://autophone-dev.s3.amazonaws.com/pub/mozilla.org/mobile/tinderbox-builds/mozilla-inbound-android-api-9/1432676531/en-US/autophone-autophone-s1s2-s1s2-nytimes-local.ini-1-nexus-one-1.log",
-        "step_data": {
-            "steps": [{
-                "name": "foobar",
-                "result": "testfailed",
-                "started_linenumber": 1,
-                "finished_linenumber": 100000,
-                "started": "2016-07-13 16:09:31",
-                "finished": "2016-07-13 16:09:31",
-                "errors": [
-                    {"line": "TEST_UNEXPECTED_FAIL | /sdcard/tests/autophone/s1s2test/nytimes.com/index.html | Failed to get uncached measurement.", "linenumber": 64435}
+    tls_blob = json.dumps(
+        {
+            "logurl": "https://autophone-dev.s3.amazonaws.com/pub/mozilla.org/mobile/tinderbox-builds/mozilla-inbound-android-api-9/1432676531/en-US/autophone-autophone-s1s2-s1s2-nytimes-local.ini-1-nexus-one-1.log",
+            "step_data": {
+                "steps": [
+                    {
+                        "name": "foobar",
+                        "result": "testfailed",
+                        "started_linenumber": 1,
+                        "finished_linenumber": 100000,
+                        "started": "2016-07-13 16:09:31",
+                        "finished": "2016-07-13 16:09:31",
+                        "errors": [
+                            {
+                                "line": "TEST_UNEXPECTED_FAIL | /sdcard/tests/autophone/s1s2test/nytimes.com/index.html | Failed to get uncached measurement.",
+                                "linenumber": 64435,
+                            }
+                        ],
+                    }
                 ]
-            }]
+            },
         }
-    })
+    )
 
-    ji_blob = json.dumps({"job_details": [{"title": "mytitle",
-                                           "value": "myvalue"}]})
+    ji_blob = json.dumps({"job_details": [{"title": "mytitle", "value": "myvalue"}]})
     pb_blob = json.dumps({"build_url": "feh", "chunk": 1, "config_file": "mah"})
 
     job_guid = 'd22c74d4aa6d2a1dcba96d95dccbd5fdca70cf33'
@@ -316,25 +326,15 @@ def test_store_job_artifacts_by_add_artifact(
                     'blob': tls_blob,
                     'job_guid': job_guid,
                 },
-                {
-                    'name': 'Job Info',
-                    'type': 'json',
-                    'blob': ji_blob,
-                    'job_guid': job_guid,
-                },
-                {
-                    'name': 'privatebuild',
-                    'type': 'json',
-                    'blob': pb_blob,
-                    'job_guid': job_guid,
-                },
+                {'name': 'Job Info', 'type': 'json', 'blob': ji_blob, 'job_guid': job_guid,},
+                {'name': 'privatebuild', 'type': 'json', 'blob': pb_blob, 'job_guid': job_guid,},
             ],
             "job_guid": job_guid,
             "log_references": [
                 {
                     "name": "autophone-nexus-one-1.log",
                     "parse_status": "parsed",
-                    "url": "https://autophone-dev.s3.amazonaws.com/pub/mozilla.org/mobile/tinderbox-builds/mozilla-inbound-android-api-9/1432676531/en-US/autophone-autophone-s1s2-s1s2-nytimes-local.ini-1-nexus-one-1.log"
+                    "url": "https://autophone-dev.s3.amazonaws.com/pub/mozilla.org/mobile/tinderbox-builds/mozilla-inbound-android-api-9/1432676531/en-US/autophone-autophone-s1s2-s1s2-nytimes-local.ini-1-nexus-one-1.log",
                 }
             ],
             "state": "completed",
@@ -349,7 +349,7 @@ def test_store_job_artifacts_by_add_artifact(
         'job': 1,
         'title': 'mytitle',
         'value': 'myvalue',
-        'url': None
+        'url': None,
     }
 
     assert TextLogStep.objects.count() == 1
@@ -361,7 +361,7 @@ def test_store_job_artifacts_by_add_artifact(
         'name': 'foobar',
         'result': 1,
         'started_line_number': 1,
-        'finished_line_number': 100000
+        'finished_line_number': 100000,
     }
 
     assert TextLogError.objects.count() == 1
@@ -388,11 +388,7 @@ def test_store_job_with_tier(test_repository, failure_classifications, push_stor
     job_data = {
         'project': test_repository.name,
         'revision': push_stored[0]['revision'],
-        'job': {
-            'job_guid': job_guid,
-            'state': 'completed',
-            'tier': 3,
-        }
+        'job': {'job_guid': job_guid, 'state': 'completed', 'tier': 3,},
     }
 
     store_job_data(test_repository, [job_data])
@@ -407,10 +403,7 @@ def test_store_job_with_default_tier(test_repository, failure_classifications, p
     job_data = {
         'project': test_repository.name,
         'revision': push_stored[0]['revision'],
-        'job': {
-            'job_guid': job_guid,
-            'state': 'completed',
-        }
+        'job': {'job_guid': job_guid, 'state': 'completed',},
     }
 
     store_job_data(test_repository, [job_data])

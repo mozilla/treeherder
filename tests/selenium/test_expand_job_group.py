@@ -9,10 +9,7 @@ def test_jobs(eleven_job_blobs, create_jobs):
     job_blobs = []
     for guid in [b['job']['job_guid'] for b in eleven_job_blobs]:
         job = copy.deepcopy(eleven_job_blobs[0])
-        job['job'].update({
-            'job_guid': guid,
-            'job_symbol': 'job',
-            'group_symbol': 'Group'})
+        job['job'].update({'job_guid': guid, 'job_symbol': 'job', 'group_symbol': 'Group'})
         job_blobs.append(job)
     return create_jobs(job_blobs)
 

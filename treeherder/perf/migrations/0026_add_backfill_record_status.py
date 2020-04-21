@@ -19,6 +19,15 @@ class Migration(migrations.Migration):
         migrations.AddField(
             model_name='backfillrecord',
             name='status',
-            field=models.IntegerField(choices=[(0, 'Preliminary'), (1, 'Ready for processing'), (2, 'Backfilled'), (3, 'Finished'), (4, 'Failed')], default=0),
+            field=models.IntegerField(
+                choices=[
+                    (0, 'Preliminary'),
+                    (1, 'Ready for processing'),
+                    (2, 'Backfilled'),
+                    (3, 'Finished'),
+                    (4, 'Failed'),
+                ],
+                default=0,
+            ),
         ),
     ]

@@ -3,13 +3,14 @@ import logging
 from django.core.cache import cache
 
 from treeherder.etl.runnable_jobs import list_runnable_jobs
-from treeherder.seta.common import (convert_job_type_name_to_testtype,
-                                    unique_key)
+from treeherder.seta.common import convert_job_type_name_to_testtype, unique_key
 from treeherder.seta.models import JobPriority
-from treeherder.seta.settings import (SETA_REF_DATA_NAMES_CACHE_TIMEOUT,
-                                      SETA_SUPPORTED_TC_JOBTYPES,
-                                      SETA_UNSUPPORTED_PLATFORMS,
-                                      SETA_UNSUPPORTED_TESTTYPES)
+from treeherder.seta.settings import (
+    SETA_REF_DATA_NAMES_CACHE_TIMEOUT,
+    SETA_SUPPORTED_TC_JOBTYPES,
+    SETA_UNSUPPORTED_PLATFORMS,
+    SETA_UNSUPPORTED_TESTTYPES,
+)
 
 logger = logging.getLogger(__name__)
 
@@ -86,7 +87,7 @@ def get_reference_data_names(project="autoland", build_system="taskcluster"):
             build_system_type=job['build_system_type'],
             job_type_name=job['job_type_name'],
             platform_option=job['platform_option'],
-            ref_data_name=job['ref_data_name']
+            ref_data_name=job['ref_data_name'],
         )
 
         if not valid_platform(job['platform']):
@@ -95,12 +96,16 @@ def get_reference_data_names(project="autoland", build_system="taskcluster"):
         if is_job_blacklisted(testtype):
             ignored_jobs.append(job['ref_data_name'])
             if testtype:
-                logger.debug('get_reference_data_names: blacklisted testtype {} for job {}'.format(testtype, job))
+                logger.debug(
+                    'get_reference_data_names: blacklisted testtype {} for job {}'.format(
+                        testtype, job
+                    )
+                )
             continue
 
-        key = unique_key(testtype=testtype,
-                         buildtype=job['platform_option'],
-                         platform=job['platform'])
+        key = unique_key(
+            testtype=testtype, buildtype=job['platform_option'], platform=job['platform']
+        )
 
         if build_system == '*':
             ref_data_names[key] = job['ref_data_name']

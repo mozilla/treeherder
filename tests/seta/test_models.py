@@ -12,22 +12,26 @@ YESTERDAY = timezone.now() - datetime.timedelta(days=1)
 
 # JobPriority tests
 def test_expired_job_priority():
-    jp = JobPriority(testtype='web-platform-tests-1',
-                     buildtype='opt',
-                     platform='windows8-64',
-                     priority=1,
-                     expiration_date=YESTERDAY,
-                     buildsystem='taskcluster')
+    jp = JobPriority(
+        testtype='web-platform-tests-1',
+        buildtype='opt',
+        platform='windows8-64',
+        priority=1,
+        expiration_date=YESTERDAY,
+        buildsystem='taskcluster',
+    )
     assert jp.has_expired()
 
 
 def test_not_expired_job_priority():
-    jp = JobPriority(testtype='web-platform-tests-1',
-                     buildtype='opt',
-                     platform='windows8-64',
-                     priority=1,
-                     expiration_date=TOMORROW,
-                     buildsystem='taskcluster')
+    jp = JobPriority(
+        testtype='web-platform-tests-1',
+        buildtype='opt',
+        platform='windows8-64',
+        priority=1,
+        expiration_date=TOMORROW,
+        buildsystem='taskcluster',
+    )
     assert not jp.has_expired()
 
 
@@ -41,7 +45,8 @@ def test_null_testtype():
             platform='windows8-64',
             priority=1,
             expiration_date=TOMORROW,
-            buildsystem='taskcluster')
+            buildsystem='taskcluster',
+        )
 
 
 @pytest.mark.django_db()
@@ -53,5 +58,6 @@ def test_null_expiration_date():
         platform='windows8-64',
         priority=1,
         expiration_date=None,
-        buildsystem='taskcluster')
+        buildsystem='taskcluster',
+    )
     assert jp.expiration_date is None

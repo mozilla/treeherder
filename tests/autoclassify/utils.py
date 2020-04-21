@@ -2,15 +2,23 @@ import datetime
 
 from mozlog.formatters.tbplformatter import TbplFormatter
 
-from treeherder.model.models import (FailureLine,
-                                     Job,
-                                     JobLog,
-                                     TextLogError,
-                                     TextLogErrorMetadata,
-                                     TextLogStep)
+from treeherder.model.models import (
+    FailureLine,
+    Job,
+    JobLog,
+    TextLogError,
+    TextLogErrorMetadata,
+    TextLogStep,
+)
 
-test_line = {"action": "test_result", "test": "test1", "subtest": "subtest1",
-             "status": "FAIL", "expected": "PASS", "message": "message1"}
+test_line = {
+    "action": "test_result",
+    "test": "test1",
+    "subtest": "subtest1",
+    "status": "FAIL",
+    "expected": "PASS",
+    "message": "message1",
+}
 log_line = {"action": "log", "level": "ERROR", "message": "message1"}
 crash_line = {"action": "crash", "signature": "signature", "test": "test1"}
 group_line = {"action": "test_groups"}
@@ -21,8 +29,7 @@ def create_lines(test_job, lines):
     failure_lines = create_failure_lines(test_job, lines)
 
     for error_line, failure_line in zip(error_lines, failure_lines):
-        TextLogErrorMetadata.objects.create(text_log_error=error_line,
-                                            failure_line=failure_line)
+        TextLogErrorMetadata.objects.create(text_log_error=error_line, failure_line=failure_line)
 
     test_job.autoclassify_status = Job.CROSSREFERENCED
     test_job.save()
@@ -30,13 +37,10 @@ def create_lines(test_job, lines):
     return error_lines, failure_lines
 
 
-def create_failure_lines(job, failure_line_list,
-                         start_line=0):
+def create_failure_lines(job, failure_line_list, start_line=0):
     failure_lines = []
     for i, (base_data, updates) in enumerate(failure_line_list[start_line:]):
-        data = {"job_guid": job.guid,
-                "repository": job.repository,
-                "line": i + start_line}
+        data = {"job_guid": job.guid, "repository": job.repository, "line": i + start_line}
         data.update(base_data)
         data.update(updates)
         failure_line = FailureLine(**data)
@@ -44,7 +48,7 @@ def create_failure_lines(job, failure_line_list,
             job=job,
             name='{}{}'.format(base_data.get('test'), job.id),
             url='bar{}'.format(i),
-            status=1
+            status=1,
         )
         print('create jobLog for job id: {}'.format(job.id))
         failure_line.job_log = job_log
@@ -82,7 +86,8 @@ def create_text_log_errors(job, failure_line_list):
         finished_line_number=10,
         started=datetime.datetime.now(),
         finished=datetime.datetime.now(),
-        result=TextLogStep.TEST_FAILED)
+        result=TextLogStep.TEST_FAILED,
+    )
 
     formatter = TbplFormatter()
     errors = []
@@ -90,9 +95,9 @@ def create_text_log_errors(job, failure_line_list):
         data = get_data(base_data, updates)
         if not data:
             continue
-        error = TextLogError.objects.create(step=step,
-                                            line=formatter(data).split("\n")[0],
-                                            line_number=i)
+        error = TextLogError.objects.create(
+            step=step, line=formatter(data).split("\n")[0], line_number=i
+        )
         errors.append(error)
 
     return errors

@@ -6,8 +6,7 @@ from rest_framework import serializers
 
 from treeherder.changelog.models import Changelog
 from treeherder.model import models
-from treeherder.webapp.api.utils import (REPO_GROUPS,
-                                         to_timestamp)
+from treeherder.webapp.api.utils import REPO_GROUPS, to_timestamp
 
 
 class NoOpSerializer(serializers.Serializer):
@@ -25,14 +24,12 @@ class NoOpSerializer(serializers.Serializer):
 
 
 class UserSerializer(serializers.ModelSerializer):
-
     class Meta:
         model = User
         fields = ["username", "is_superuser", "is_staff", "email"]
 
 
 class RepositoryGroupSerializer(serializers.ModelSerializer):
-
     class Meta:
         model = models.RepositoryGroup
         fields = ('name', 'description')
@@ -47,14 +44,12 @@ class RepositorySerializer(serializers.ModelSerializer):
 
 
 class TaskclusterMetadataSerializer(serializers.ModelSerializer):
-
     class Meta:
         model = models.TaskclusterMetadata
         fields = '__all__'
 
 
 class JobProjectSerializer(serializers.ModelSerializer):
-
     def to_representation(self, job):
         return {
             'build_architecture': job.build_platform.architecture,
@@ -90,7 +85,7 @@ class JobProjectSerializer(serializers.ModelSerializer):
             'state': job.state,
             'submit_timestamp': to_timestamp(job.submit_time),
             'tier': job.tier,
-            'who': job.who
+            'who': job.who,
         }
 
     class Meta:
@@ -99,7 +94,6 @@ class JobProjectSerializer(serializers.ModelSerializer):
 
 
 class JobSerializer(serializers.ModelSerializer):
-
     def to_representation(self, job):
         option_collection_map = self.context['option_collection_map']
         submit = job.pop('submit_time')
@@ -108,10 +102,12 @@ class JobSerializer(serializers.ModelSerializer):
         option_collection_hash = job.pop('option_collection_hash')
 
         ret_val = list(job.values())
-        ret_val.extend([
-            models.Job.get_duration(submit, start, end),  # duration
-            option_collection_map.get(option_collection_hash, '')  # platform option
-        ])
+        ret_val.extend(
+            [
+                models.Job.get_duration(submit, start, end),  # duration
+                option_collection_map.get(option_collection_hash, ''),  # platform option
+            ]
+        )
         return ret_val
 
     class Meta:
@@ -120,14 +116,12 @@ class JobSerializer(serializers.ModelSerializer):
 
 
 class FailureClassificationSerializer(serializers.ModelSerializer):
-
     class Meta:
         model = models.FailureClassification
         fields = '__all__'
 
 
 class BugscacheSerializer(serializers.ModelSerializer):
-
     class Meta:
         model = models.Bugscache
         fields = '__all__'
@@ -142,7 +136,6 @@ class ClassifiedFailureSerializer(serializers.ModelSerializer):
 
 
 class TextLogErrorMatchSerializer(serializers.ModelSerializer):
-
     class Meta:
         model = models.TextLogErrorMatch
         exclude = ['text_log_error']
@@ -153,9 +146,7 @@ class FailureLineNoStackSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = models.FailureLine
-        exclude = ['stack',
-                   'stackwalk_stdout',
-                   'stackwalk_stderr']
+        exclude = ['stack', 'stackwalk_stdout', 'stackwalk_stderr']
 
     def to_representation(self, failure_line):
         """
@@ -212,12 +203,11 @@ class TextLogStepSerializer(serializers.ModelSerializer):
 
 class JobDetailSerializer(serializers.ModelSerializer):
 
-    job_id = serializers.PrimaryKeyRelatedField(
-        source="job", read_only=True)
+    job_id = serializers.PrimaryKeyRelatedField(source="job", read_only=True)
 
     job_guid = serializers.SlugRelatedField(
-        slug_field="guid", source="job",
-        queryset=models.Job.objects.all())
+        slug_field="guid", source="job", queryset=models.Job.objects.all()
+    )
 
     class Meta:
         model = models.JobDetail
@@ -225,8 +215,7 @@ class JobDetailSerializer(serializers.ModelSerializer):
 
 
 class BugJobMapSerializer(serializers.ModelSerializer):
-    job_id = serializers.PrimaryKeyRelatedField(
-        source="job", read_only=True)
+    job_id = serializers.PrimaryKeyRelatedField(source="job", read_only=True)
 
     class Meta:
         model = models.BugJobMap
@@ -235,40 +224,33 @@ class BugJobMapSerializer(serializers.ModelSerializer):
 
 class JobNoteSerializer(serializers.ModelSerializer):
 
-    job_id = serializers.PrimaryKeyRelatedField(
-        source="job", read_only=True)
+    job_id = serializers.PrimaryKeyRelatedField(source="job", read_only=True)
 
     # these custom fields are for backwards compatibility
     failure_classification_id = serializers.SlugRelatedField(
-        slug_field="id",
-        source="failure_classification",
-        read_only=True)
+        slug_field="id", source="failure_classification", read_only=True
+    )
 
     class Meta:
         model = models.JobNote
-        fields = ['id', 'job_id', 'failure_classification_id',
-                  'created', 'who', 'text']
+        fields = ['id', 'job_id', 'failure_classification_id', 'created', 'who', 'text']
 
 
 class CommitSerializer(serializers.ModelSerializer):
 
-    result_set_id = serializers.PrimaryKeyRelatedField(
-        source="push", read_only=True)
+    result_set_id = serializers.PrimaryKeyRelatedField(source="push", read_only=True)
     repository_id = serializers.SlugRelatedField(
-        slug_field="repository_id", source="push", read_only=True)
+        slug_field="repository_id", source="push", read_only=True
+    )
 
     class Meta:
         model = models.Commit
-        fields = ['result_set_id', 'repository_id', 'revision', 'author',
-                  'comments']
+        fields = ['result_set_id', 'repository_id', 'revision', 'author', 'comments']
 
 
 class PushSerializer(serializers.ModelSerializer):
-
     def get_revisions(self, push):
-        serializer = CommitSerializer(
-            instance=push.commits.all().order_by('-id')[:20],
-            many=True)
+        serializer = CommitSerializer(instance=push.commits.all().order_by('-id')[:20], many=True)
         return serializer.data
 
     def get_revision_count(self, push):
@@ -280,14 +262,19 @@ class PushSerializer(serializers.ModelSerializer):
     revisions = serializers.SerializerMethodField()
     revision_count = serializers.SerializerMethodField()
     push_timestamp = serializers.SerializerMethodField()
-    repository_id = serializers.PrimaryKeyRelatedField(
-        source="repository", read_only=True)
+    repository_id = serializers.PrimaryKeyRelatedField(source="repository", read_only=True)
 
     class Meta:
         model = models.Push
-        fields = ['id', 'revision', 'author',
-                  'revisions', 'revision_count', 'push_timestamp',
-                  'repository_id']
+        fields = [
+            'id',
+            'revision',
+            'author',
+            'revisions',
+            'revision_count',
+            'push_timestamp',
+            'repository_id',
+        ]
 
 
 class FailuresSerializer(serializers.ModelSerializer):
@@ -318,14 +305,22 @@ class FailuresByBugSerializer(serializers.ModelSerializer):
     push_time = serializers.CharField(source="job__push__time")
     build_type = serializers.CharField()
     machine_name = serializers.CharField(source="job__machine__name")
-    lines = serializers.ListField(
-        child=serializers.CharField()
-    )
+    lines = serializers.ListField(child=serializers.CharField())
 
     class Meta:
         model = models.BugJobMap
-        fields = ('push_time', 'platform', 'revision', 'test_suite', 'tree', 'build_type', 'job_id',
-                  'bug_id', 'machine_name', 'lines')
+        fields = (
+            'push_time',
+            'platform',
+            'revision',
+            'test_suite',
+            'tree',
+            'build_type',
+            'job_id',
+            'bug_id',
+            'machine_name',
+            'lines',
+        )
 
 
 class FailureCountSerializer(serializers.ModelSerializer):
@@ -362,7 +357,6 @@ class FailuresQueryParamsSerializer(serializers.Serializer):
 
 
 class MachinePlatformSerializer(serializers.ModelSerializer):
-
     class Meta:
         model = models.MachinePlatform
         fields = ('id', 'platform')
@@ -374,6 +368,17 @@ class ChangelogSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Changelog
-        fields = ('id', 'remote_id', 'date', 'author', 'message', 'description',
-                  'owner', 'project', 'project_url', 'type', 'url',
-                  'files')
+        fields = (
+            'id',
+            'remote_id',
+            'date',
+            'author',
+            'message',
+            'description',
+            'owner',
+            'project',
+            'project_url',
+            'type',
+            'url',
+            'files',
+        )

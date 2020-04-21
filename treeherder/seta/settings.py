@@ -44,7 +44,7 @@ SETA_UNSUPPORTED_PLATFORMS = [
     'osx-10-11',
     'other',
     'taskcluster-images',
-    'windows7-64',   # We don't test 64-bit builds on Windows 7 test infra
+    'windows7-64',  # We don't test 64-bit builds on Windows 7 test infra
     'windows8-32',  # We don't test 32-bit builds on Windows 8 test infra
     'Win 6.3.9600 x86_64',
     'linux64-stylo',

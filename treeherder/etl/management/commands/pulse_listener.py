@@ -1,8 +1,7 @@
 import environ
 from django.core.management.base import BaseCommand
 
-from treeherder.services.pulse import (JointConsumer,
-                                       prepare_joint_consumers)
+from treeherder.services.pulse import JointConsumer, prepare_joint_consumers
 
 env = environ.Env()
 
@@ -14,6 +13,7 @@ class Command(BaseCommand):
     ```store_pulse_pushes```which does the actual storing of the pushes
     in the database.
     """
+
     help = "Read tasks and pushes from a set of pulse exchanges and queue for ingestion"
 
     def handle(self, *args, **options):
@@ -23,11 +23,16 @@ class Command(BaseCommand):
         # [{pulse_url: .., hgmo: true, root_url: ..}, ..]
         pulse_sources = env.json(
             "PULSE_SOURCES",
-            default=[{"root_url": "https://firefox-ci-tc.services.mozilla.com",
-                      "github": True,
-                      "hgmo": True,
-                      "pulse_url": env("PULSE_URL"),
-                      "tasks": True}])
+            default=[
+                {
+                    "root_url": "https://firefox-ci-tc.services.mozilla.com",
+                    "github": True,
+                    "hgmo": True,
+                    "pulse_url": env("PULSE_URL"),
+                    "tasks": True,
+                }
+            ],
+        )
 
         listener_params = (JointConsumer, pulse_sources, [lambda key: "#.{}".format(key), None])
         consumer = prepare_joint_consumers(listener_params)

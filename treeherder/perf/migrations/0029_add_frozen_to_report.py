@@ -11,8 +11,6 @@ class Migration(migrations.Migration):
 
     operations = [
         migrations.AddField(
-            model_name='backfillreport',
-            name='frozen',
-            field=models.BooleanField(default=False),
+            model_name='backfillreport', name='frozen', field=models.BooleanField(default=False),
         ),
     ]

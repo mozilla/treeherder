@@ -1,10 +1,8 @@
-from pypom import (Page,
-                   Region)
+from pypom import Page, Region
 from selenium.webdriver.common.by import By
 
 
 class Base(Page):
-
     @property
     def header(self):
         return self.Header(self)
@@ -21,11 +19,9 @@ class Base(Page):
             # Initially try to compare with the text of the menu item.
             # But if there's an image instead of just text, then compare the
             # ``alt`` property of the image instead.
-            self.wait.until(lambda _: self.is_element_displayed(
-                *self._app_menu_locator))
+            self.wait.until(lambda _: self.is_element_displayed(*self._app_menu_locator))
             menu = self.find_element(*self._app_menu_locator).text
-            return menu if menu else self.find_element(
-                *self._app_logo_locator).get_attribute("alt")
+            return menu if menu else self.find_element(*self._app_logo_locator).get_attribute("alt")
 
         def switch_app(self):
             self.find_element(*self._app_menu_locator).click()

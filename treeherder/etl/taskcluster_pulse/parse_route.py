@@ -26,10 +26,10 @@ def parseRoute(route):
         id = parsedRoute[4]
 
     pushInfo = {
-      "destination": parsedRoute[0],
-      "id": int(id) if id else 0,
-      "project": parsedProject,
-      "revision": parsedRoute[3],
+        "destination": parsedRoute[0],
+        "id": int(id) if id else 0,
+        "project": parsedProject,
+        "revision": parsedRoute[3],
     }
 
     if owner and parsedProject:

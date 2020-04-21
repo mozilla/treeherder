@@ -39,7 +39,8 @@ class Command(BaseCommand):
 
             connection.connect()
             with connection.cursor() as c:
-                c.execute("""SELECT job.id FROM job
+                c.execute(
+                    """SELECT job.id FROM job
                 INNER JOIN text_log_step ON text_log_step.job_id = job.id
                 INNER JOIN text_log_error as tle ON tle.step_id = text_log_step.id
                 INNER JOIN failure_line ON job.guid = failure_line.job_guid
@@ -54,7 +55,9 @@ class Command(BaseCommand):
                   job.id > %s AND
                   job.result NOT IN ('success', 'skipped', 'retry', 'usercancel', 'unknown', 'superseded')
                 GROUP BY job.id
-                ORDER BY job.id DESC;""", [job_id])
+                ORDER BY job.id DESC;""",
+                    [job_id],
+                )
                 rows = c.fetchall()
 
             connection.close()
@@ -85,4 +88,5 @@ def _crossreference_job(job_id):
         crossreference_job(job)
     except Exception:
         import traceback
+
         traceback.print_exc()

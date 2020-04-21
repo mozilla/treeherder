@@ -3,8 +3,7 @@ import json
 import pytest
 from django.urls import reverse
 
-from treeherder.model.models import (Job,
-                                     JobNote)
+from treeherder.model.models import Job, JobNote
 
 
 def test_note_list(client, test_job_with_notes):
@@ -12,22 +11,23 @@ def test_note_list(client, test_job_with_notes):
     test retrieving a list of notes from the note-list endpoint
     """
     resp = client.get(
-        reverse("note-list", kwargs={
-            "project": test_job_with_notes.repository.name
-        }),
-        {"job_id": test_job_with_notes.id}
+        reverse("note-list", kwargs={"project": test_job_with_notes.repository.name}),
+        {"job_id": test_job_with_notes.id},
     )
 
     assert resp.status_code == 200
     assert isinstance(resp.json(), list)
-    assert resp.json() == [{
-        "id": note.id,
-        "job_id": note.job.id,
-        "failure_classification_id": note.failure_classification.id,
-        "who": note.user.email,
-        "created": note.created.isoformat(),
-        "text": note.text
-    } for note in JobNote.objects.filter(job=test_job_with_notes)]
+    assert resp.json() == [
+        {
+            "id": note.id,
+            "job_id": note.job.id,
+            "failure_classification_id": note.failure_classification.id,
+            "who": note.user.email,
+            "created": note.created.isoformat(),
+            "text": note.text,
+        }
+        for note in JobNote.objects.filter(job=test_job_with_notes)
+    ]
 
 
 def test_note_detail(client, test_job_with_notes):
@@ -38,11 +38,7 @@ def test_note_detail(client, test_job_with_notes):
     note = JobNote.objects.get(id=1)
 
     resp = client.get(
-        reverse("note-detail",
-                kwargs={
-                    "project": test_job_with_notes.repository.name,
-                    "pk": 1
-                })
+        reverse("note-detail", kwargs={"project": test_job_with_notes.repository.name, "pk": 1})
     )
 
     assert resp.status_code == 200
@@ -53,7 +49,7 @@ def test_note_detail(client, test_job_with_notes):
         "failure_classification_id": 2,
         "who": note.user.email,
         "created": note.created.isoformat(),
-        "text": "you look like a man-o-lantern"
+        "text": "you look like a man-o-lantern",
     }
 
 
@@ -63,8 +59,7 @@ def test_note_detail_not_found(client, test_repository):
     endpoint.
     """
     resp = client.get(
-        reverse("note-detail",
-                kwargs={"project": test_repository.name, "pk": -32767}),
+        reverse("note-detail", kwargs={"project": test_repository.name, "pk": -32767}),
     )
     assert resp.status_code == 404
 
@@ -74,10 +69,7 @@ def test_note_detail_bad_project(client, test_repository):
     test retrieving a HTTP 404 from the note-detail
     endpoint.
     """
-    resp = client.get(
-        reverse("note-detail",
-                kwargs={"project": "foo", "pk": -32767}),
-    )
+    resp = client.get(reverse("note-detail", kwargs={"project": "foo", "pk": -32767}),)
     assert resp.status_code == 404
 
 
@@ -95,7 +87,7 @@ def test_create_note(client, test_job, test_user, test_no_auth):
             "job_id": test_job.id,
             "failure_classification_id": 2,
             "who": test_user.email,
-            "text": "you look like a man-o-lantern"
+            "text": "you look like a man-o-lantern",
         },
     )
 
@@ -117,13 +109,13 @@ def test_create_note(client, test_job, test_user, test_no_auth):
 
         # verify that the job's last_modified field got updated
         old_last_modified = test_job.last_modified
-        assert old_last_modified < Job.objects.values_list(
-            'last_modified', flat=True).get(id=test_job.id)
+        assert old_last_modified < Job.objects.values_list('last_modified', flat=True).get(
+            id=test_job.id
+        )
 
 
 @pytest.mark.parametrize('test_no_auth', [True, False])
-def test_delete_note(client, test_job_with_notes, test_repository,
-                     test_sheriff, test_no_auth):
+def test_delete_note(client, test_job_with_notes, test_repository, test_sheriff, test_no_auth):
     """
     test deleting a single note via endpoint
     """
@@ -133,8 +125,9 @@ def test_delete_note(client, test_job_with_notes, test_repository,
     notes_count = JobNote.objects.count()
 
     resp = client.delete(
-        reverse("note-detail", kwargs={"project": test_repository.name,
-                                       "pk": test_job_with_notes.id}),
+        reverse(
+            "note-detail", kwargs={"project": test_repository.name, "pk": test_job_with_notes.id}
+        ),
     )
     new_notes_count = JobNote.objects.count()
 

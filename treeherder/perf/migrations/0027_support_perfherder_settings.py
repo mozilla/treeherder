@@ -17,8 +17,6 @@ class Migration(migrations.Migration):
                 ('name', models.CharField(max_length=255)),
                 ('settings', models.TextField()),
             ],
-            options={
-                'db_table': 'performance_settings',
-            },
+            options={'db_table': 'performance_settings',},
         ),
     ]

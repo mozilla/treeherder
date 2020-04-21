@@ -1,9 +1,7 @@
-from rest_framework import (status,
-                            viewsets)
+from rest_framework import status, viewsets
 from rest_framework.response import Response
 
-from treeherder.seta.job_priorities import (SetaError,
-                                            seta_job_scheduling)
+from treeherder.seta.job_priorities import SetaError, seta_job_scheduling
 
 
 class SetaJobPriorityViewSet(viewsets.ViewSet):

@@ -8,6 +8,7 @@ from treeherder.log_parser.artifactbuildercollection import ArtifactBuilderColle
 
 class Command(BaseCommand):
     """Management command to test log parsing"""
+
     help = """
     Tests the artifact parser by downloading a specified URL, parsing it,
     and then printing the JSON structure representing its result
@@ -21,7 +22,7 @@ class Command(BaseCommand):
             dest='profile',
             type=int,
             default=None,
-            help='Profile running command a number of times'
+            help='Profile running command a number of times',
         )
 
     def handle(self, *args, **options):
@@ -43,5 +44,5 @@ class Command(BaseCommand):
 
         if options['profile']:
             print("Timings: %s" % times)
-            print("Average: %s" % (sum(times)/len(times)))
+            print("Average: %s" % (sum(times) / len(times)))
             print("Total: %s" % sum(times))

@@ -3,8 +3,7 @@ from rest_framework.exceptions import ParseError
 from rest_framework.response import Response
 from rest_framework.status import HTTP_404_NOT_FOUND
 
-from treeherder.model.models import (Job,
-                                     JobNote)
+from treeherder.model.models import Job, JobNote
 
 from .serializers import JobNoteSerializer
 
@@ -40,8 +39,7 @@ class NoteViewSet(viewsets.ViewSet):
             raise ParseError(detail="The job_id parameter must be an integer")
 
         job = Job.objects.get(repository__name=project, id=job_id)
-        serializer = JobNoteSerializer(JobNote.objects.filter(job=job),
-                                       many=True)
+        serializer = JobNoteSerializer(JobNote.objects.filter(job=job), many=True)
         return Response(serializer.data)
 
     def create(self, request, project):
@@ -49,17 +47,13 @@ class NoteViewSet(viewsets.ViewSet):
         POST method implementation
         """
         JobNote.objects.create(
-            job=Job.objects.get(repository__name=project,
-                                id=int(request.data['job_id'])),
+            job=Job.objects.get(repository__name=project, id=int(request.data['job_id'])),
             failure_classification_id=int(request.data['failure_classification_id']),
             user=request.user,
-            text=request.data.get('text', ''))
-
-        return Response(
-            {'message': 'note stored for job {0}'.format(
-                request.data['job_id']
-            )}
+            text=request.data.get('text', ''),
         )
+
+        return Response({'message': 'note stored for job {0}'.format(request.data['job_id'])})
 
     def destroy(self, request, project, pk=None):
         """
@@ -70,5 +64,4 @@ class NoteViewSet(viewsets.ViewSet):
             note.delete()
             return Response({"message": "Note deleted"})
         except JobNote.DoesNotExist:
-            return Response("No note with id: {0}".format(pk),
-                            status=HTTP_404_NOT_FOUND)
+            return Response("No note with id: {0}".format(pk), status=HTTP_404_NOT_FOUND)

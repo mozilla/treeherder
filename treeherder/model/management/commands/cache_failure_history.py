@@ -3,9 +3,11 @@ import datetime
 from django.core.management.base import BaseCommand
 
 from treeherder.model.models import OptionCollection
-from treeherder.push_health.tests import (fixed_by_commit_history_days,
-                                          get_history,
-                                          intermittent_history_days)
+from treeherder.push_health.tests import (
+    fixed_by_commit_history_days,
+    get_history,
+    intermittent_history_days,
+)
 from treeherder.webapp.api.utils import REPO_GROUPS
 
 
@@ -18,7 +20,7 @@ class Command(BaseCommand):
             action='store_true',
             dest='debug',
             default=False,
-            help='Write debug messages to stdout'
+            help='Write debug messages to stdout',
         )
         parser.add_argument(
             '--days',
@@ -26,7 +28,7 @@ class Command(BaseCommand):
             dest='days',
             default=5,
             type=int,
-            help='Number of history sets to store (one for each day prior to today)'
+            help='Number of history sets to store (one for each day prior to today)',
         )
 
     def handle(self, *args, **options):
@@ -41,21 +43,13 @@ class Command(BaseCommand):
             push_date = datetime.datetime.now().date() - datetime.timedelta(days=day)
 
             int_hist, cache_key = get_history(
-                4,
-                push_date,
-                intermittent_history_days,
-                option_map,
-                repository_ids,
-                True)
+                4, push_date, intermittent_history_days, option_map, repository_ids, True
+            )
             self.debug('Cached failure history for {}'.format(cache_key))
 
             fbc_hist, cache_key = get_history(
-                2,
-                push_date,
-                fixed_by_commit_history_days,
-                option_map,
-                repository_ids,
-                True)
+                2, push_date, fixed_by_commit_history_days, option_map, repository_ids, True
+            )
             self.debug('Cached failure history for {}'.format(cache_key))
 
     def debug(self, msg):
