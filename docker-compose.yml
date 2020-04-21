@@ -91,9 +91,9 @@ services:
     # https://hub.docker.com/r/library/rabbitmq/
     image: rabbitmq:3.8-alpine
     environment:
-      # Hide INFO and WARNING log levels to reduce log spam.
       - 'RABBITMQ_SERVER_ADDITIONAL_ERL_ARGS=-rabbit log [{console,[{level,error}]}]'
     ports:
+      # Hide INFO and WARNING log levels to reduce log spam.
       - '5672:5672'
 
   pulse-task-push:
@@ -106,6 +106,7 @@ services:
       - PULSE_AUTO_DELETE_QUEUES=True
       - DATABASE_URL=mysql://root@mysql:3306/treeherder
       - BROKER_URL=amqp://guest:guest@rabbitmq//
+      - SKIP_INGESTION=${SKIP_INGESTION:-False}
     entrypoint: './docker/entrypoint.sh'
     command: ./manage.py pulse_listener
     volumes:

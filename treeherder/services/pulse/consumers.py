@@ -1,6 +1,6 @@
 import logging
 import threading
-import uuid
+import socket
 
 import environ
 import newrelic.agent
@@ -188,7 +188,7 @@ class JointConsumer(PulseConsumer):
     thread, so we use multiple threads, one per consumer.
     """
 
-    queue_suffix = env("PULSE_QUEUE_NAME", default="queue_{}".format(uuid.getnode()))
+    queue_suffix = env("PULSE_QUEUE_NAME", default="queue_{}".format(socket.gethostname()))
 
     def bindings(self):
 
