@@ -50,7 +50,6 @@ jobs:
         - pip install -r requirements.txt
         - yarn install
       script:
-        - pre-commit run --all-files
         - yarn heroku-postbuild
         - ./manage.py collectstatic --noinput
         # This generates the revision and does the Brotly/Gzip compression
@@ -61,8 +60,10 @@ jobs:
       python: '3.7'
       cache: pip
       install:
+        - pip install pre-commit
         - pip install tox
       script:
+        - pre-commit run --all-files
         - tox
 
     # Run Python tests inside of the Docker containers
