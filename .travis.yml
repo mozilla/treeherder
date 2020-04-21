@@ -60,7 +60,6 @@ jobs:
       python: '3.7'
       cache: pip
       install:
-        - pip install pre-commit
         - pip install tox
       script:
         - pre-commit run --all-files
