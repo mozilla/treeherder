@@ -15,6 +15,8 @@ import {
   backfillRetriggeredTitle,
   unknownFrameworkMessage,
   endpoints,
+  filterText,
+  notSupportedAlertFiltersMessage,
 } from '../../../ui/perfherder/constants';
 import repos from '../mock/repositories';
 import { getApiUrl } from '../../../ui/helpers/url';
@@ -153,7 +155,7 @@ beforeAll(() => {
       option_collection_hash: '102210fe594ee9b33d82058545b1ed14f4c8206e',
       options: [
         {
-          name: '32',
+          name: testAlertSummaries[0].alerts[0].series_signature.options[0],
         },
       ],
     },
@@ -200,6 +202,41 @@ test('toggle buttons should filter alert summary and alerts by selected filter',
   expect(alertSummary2).toBeInTheDocument();
   expect(alert1).toBeInTheDocument();
   expect(alert2).not.toBeInTheDocument();
+});
+
+describe('alert filtering ignores repository and/or options', () => {
+  const testCases = [
+    [
+      repos[0].name,
+      testAlertSummaries[0].alerts[0].series_signature.options[0],
+    ],
+    [repos[0].name],
+    [testAlertSummaries[0].alerts[0].series_signature.options[0]],
+  ];
+  testCases.forEach(testCase => {
+    it(testCase.toString(), async () => {
+      const { getByPlaceholderText, getByText } = alertsView();
+      const alertsFilterInput = await waitForElement(() =>
+        getByPlaceholderText(filterText.inputPlaceholder),
+      );
+
+      fireEvent.change(alertsFilterInput, {
+        target: {
+          value: `${testCase.join(' ')} 
+                  ${
+                    testAlertSummaries[0].alerts[0].series_signature
+                      .machine_platform
+                  }`,
+        },
+      });
+      fireEvent.keyDown(alertsFilterInput, { key: 'Enter', keyCode: 13 });
+
+      const warningMessage = await getByText(
+        notSupportedAlertFiltersMessage(testCase),
+      );
+      expect(warningMessage).toBeInTheDocument();
+    });
+  });
 });
 
 test('clicking the star icon for an alert updates that alert', async () => {

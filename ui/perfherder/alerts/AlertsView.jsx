@@ -6,7 +6,11 @@ import cloneDeep from 'lodash/cloneDeep';
 
 import withValidation from '../Validation';
 import { convertParams, getFrameworkData, getStatus } from '../helpers';
-import { summaryStatusMap, endpoints } from '../constants';
+import {
+  summaryStatusMap,
+  endpoints,
+  notSupportedAlertFiltersMessage,
+} from '../constants';
 import {
   createQueryParams,
   getApiUrl,
@@ -36,6 +40,7 @@ class AlertsView extends React.Component {
       errorMessages: [],
       alertSummaries: [],
       issueTrackers: [],
+      notSupportedAlertFilters: [],
       loading: false,
       optionCollectionMap: null,
       count: 0,
@@ -100,17 +105,6 @@ class AlertsView extends React.Component {
     };
   };
 
-  extendDropdownOptions = frameworks => {
-    const frameworkOptions = cloneDeep(frameworks);
-    const ignoreFrameworks = { id: -1, name: 'all frameworks' };
-    frameworkOptions.unshift(ignoreFrameworks);
-    return frameworkOptions;
-  };
-
-  isListMode = () => {
-    return Boolean(!this.state.id);
-  };
-
   getDefaultStatus = () => {
     const { validated } = this.props;
 
@@ -126,7 +120,7 @@ class AlertsView extends React.Component {
     return filterText === undefined || filterText === null ? '' : filterText;
   };
 
-  setFiltersState = (updatedFilters, doUpdateParams = true) => {
+  setFiltersState = async (updatedFilters, doUpdateParams = true) => {
     const { filters } = this.state;
     const currentFilters = cloneDeep(filters);
     Object.assign(currentFilters, updatedFilters);
@@ -141,6 +135,22 @@ class AlertsView extends React.Component {
     } else {
       this.setState({ filters: currentFilters });
     }
+    this.setState({
+      notSupportedAlertFilters: this.selectNotSupportedFilters(
+        currentFilters.filterText,
+      ),
+    });
+  };
+
+  isListMode = () => {
+    return Boolean(!this.state.id);
+  };
+
+  extendDropdownOptions = frameworks => {
+    const frameworkOptions = cloneDeep(frameworks);
+    const ignoreFrameworks = { id: -1, name: 'all frameworks' };
+    frameworkOptions.unshift(ignoreFrameworks);
+    return frameworkOptions;
   };
 
   getParamsFromFilters = filters => {
@@ -199,6 +209,22 @@ class AlertsView extends React.Component {
     }
 
     return params;
+  };
+
+  selectNotSupportedFilters = userInput => {
+    /* Following filters are not supported (see bug 1616215 for more details):
+     * - `option`, because of technical dept, as described in bug 1616212
+     * - `repository`, because it has never been enabled & the new dropdown items could falsely hint it is.
+     */
+    const { projects } = this.props;
+    const { optionCollectionMap } = this.state;
+    const userInputArray = userInput.split(' ');
+
+    const repositories = projects.map(({ name }) => name);
+    const optionsCollection = Object.values(optionCollectionMap);
+
+    const allNotSupportedFilters = [...repositories, ...optionsCollection];
+    return allNotSupportedFilters.filter(elem => userInputArray.includes(elem));
   };
 
   async fetchAlertSummaries(id = this.state.id, update = false, page = 1) {
@@ -294,6 +320,7 @@ class AlertsView extends React.Component {
       alertSummaries,
       frameworkOptions,
       issueTrackers,
+      notSupportedAlertFilters,
       optionCollectionMap,
       bugTemplate,
       page,
@@ -324,6 +351,13 @@ class AlertsView extends React.Component {
               make changes
             </Alert>
           )}
+
+          {notSupportedAlertFilters.length > 0 && (
+            <Alert color="warning">
+              {notSupportedAlertFiltersMessage(notSupportedAlertFilters)}
+            </Alert>
+          )}
+
           <AlertsViewControls
             isListMode={this.isListMode()}
             filters={filters}
