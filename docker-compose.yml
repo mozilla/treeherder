@@ -96,26 +96,7 @@ services:
     ports:
       - '5672:5672'
 
-  pulse-push:
-    build:
-      context: .
-      dockerfile: docker/dev.Dockerfile
-    environment:
-      - PULSE_URL=${PULSE_URL:-amqp://docker-shared-user:8r5VFxpJHtJahTVV5bYutykgDsXhGF@pulse.mozilla.org:5671/?ssl=1}
-      - LOGGING_LEVEL=DEBUG
-      - PULSE_AUTO_DELETE_QUEUES=True
-      - DATABASE_URL=mysql://root@mysql:3306/treeherder
-      - BROKER_URL=amqp://guest:guest@rabbitmq//
-      - SKIP_INGESTION=${SKIP_INGESTION:-False}
-    entrypoint: './docker/entrypoint.sh'
-    command: ./manage.py pulse_listener_pushes
-    volumes:
-      - .:/app
-    depends_on:
-      - mysql
-      - rabbitmq
-
-  pulse-task:
+  pulse-task-push:
     build:
       context: .
       dockerfile: docker/dev.Dockerfile
@@ -127,7 +108,7 @@ services:
       - BROKER_URL=amqp://guest:guest@rabbitmq//
       - SKIP_INGESTION=${SKIP_INGESTION:-False}
     entrypoint: './docker/entrypoint.sh'
-    command: ./manage.py pulse_listener_tasks
+    command: ./manage.py pulse_listener
     volumes:
       - .:/app
     depends_on:
