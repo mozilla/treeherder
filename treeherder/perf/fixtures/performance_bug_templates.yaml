@@ -6,25 +6,13 @@
     default_component: Performance
     default_product: Testing
     text: |
-      Talos has detected a Firefox performance regression from push:
-
-      {{ revisionHref }}
-
-      As author of one of the patches included in that push, we need your help to address this regression.
+      Perfherder has detected a {{ framework }} performance regression from push [{{ revision }}]({{ revisionHref }}). As author of one of the patches included in that push, we need your help to address this regression.
 
       {{ alertSummary }}
 
-      You can find links to graphs and comparison views for each of the above tests at: {{ alertHref }}
+      Details of the alert can be found in the [alert summary]({{ alertHref }}), including links to graphs and comparisons for each of the affected tests. Please follow our [guide to handling regression bugs](https://wiki.mozilla.org/TestEngineering/Performance/Handling_regression_bugs) and **let us know your plans within 3 business days, or the offending patch(es) will be backed out** in accordance with our [regression policy](https://www.mozilla.org/en-US/about/governance/policies/regressions/).
 
-      On the page above you can see an alert for each affected platform as well as a link to a graph showing the history of scores for this test. There is also a link to a treeherder page showing the Talos jobs in a pushlog format.
-
-      To learn more about the regressing test(s), please see: https://wiki.mozilla.org/TestEngineering/Performance/Talos
-
-      For information on reproducing and debugging the regression, either on try or locally, see: https://wiki.mozilla.org/TestEngineering/Performance/Talos/Running
-
-      *** Please let us know your plans within 3 business days, or the offending patch(es) will be backed out! ***
-
-      Our wiki page outlines the common responses and expectations: https://wiki.mozilla.org/TestEngineering/Performance/Talos/RegressionBugsHandling
+      For more information on performance sheriffing please see our [FAQ](https://wiki.mozilla.org/TestEngineering/Performance/FAQ).
 - model: perf.PerformanceBugTemplate
   pk: 2
   fields:
@@ -34,21 +22,13 @@
     default_product: Testing
     cc_list: nfroyd@mozilla.com
     text: |
-      We have detected a build metrics regression from push:
-
-      {{ revisionHref }}
-
-      As author of one of the patches included in that push, we need your help to address this regression.
+      Perfherder has detected a {{ framework }} performance regression from push [{{ revision }}]({{ revisionHref }}). As author of one of the patches included in that push, we need your help to address this regression.
 
       {{ alertSummary }}
 
-      You can find links to graphs and comparison views for each of the above tests at: {{ alertHref }}
+      Details of the alert can be found in the [alert summary]({{ alertHref }}), including links to graphs and comparisons for each of the affected tests. Please follow our [guide to handling regression bugs](https://wiki.mozilla.org/TestEngineering/Performance/Handling_regression_bugs) and **let us know your plans within 3 business days, or the offending patch(es) will be backed out** in accordance with our [regression policy](https://www.mozilla.org/en-US/about/governance/policies/regressions/).
 
-      On the page above you can see an alert for each affected platform as well as a link to a graph showing the history of scores for this test. There is also a link to a treeherder page showing the jobs in a pushlog format.
-
-      To learn more about the regressing test(s), please see: https://developer.mozilla.org/en-US/docs/Mozilla/Performance/Automated_Performance_Testing_and_Sheriffing/Build_Metrics
-
-      *** Please let us know your plans within 3 business days, or the offending patch(es) will be backed out! ***
+      For more information on performance sheriffing please see our [FAQ](https://wiki.mozilla.org/TestEngineering/Performance/FAQ).
 - model: perf.PerformanceBugTemplate
   pk: 4
   fields:
@@ -58,19 +38,13 @@
     default_product: Testing
     cc_list: bob@bclary.com, erahm@mozilla.com
     text: |
-      We have detected an awsy regression from push:
-
-      {{ revisionHref }}
-
-      As author of one of the patches included in that push, we need your help to address this regression.
+      Perfherder has detected a {{ framework }} performance regression from push [{{ revision }}]({{ revisionHref }}). As author of one of the patches included in that push, we need your help to address this regression.
 
       {{ alertSummary }}
 
-      You can find links to graphs and comparison views for each of the above tests at: {{ alertHref }}
+      Details of the alert can be found in the [alert summary]({{ alertHref }}), including links to graphs and comparisons for each of the affected tests. Please follow our [guide to handling regression bugs](https://wiki.mozilla.org/TestEngineering/Performance/Handling_regression_bugs) and **let us know your plans within 3 business days, or the offending patch(es) will be backed out** in accordance with our [regression policy](https://www.mozilla.org/en-US/about/governance/policies/regressions/).
 
-      On the page above you can see an alert for each affected platform as well as a link to a graph showing the history of scores for this test. There is also a link to a treeherder page showing the jobs in a pushlog format.
-
-      To learn more about the regressing test(s), please see: https://wiki.mozilla.org/AWSY/Tests
+      For more information on performance sheriffing please see our [FAQ](https://wiki.mozilla.org/TestEngineering/Performance/FAQ).
 - model: perf.PerformanceBugTemplate
   pk: 5
   fields:
@@ -79,19 +53,13 @@
     default_component: Performance
     default_product: Testing
     text: |
-      We have detected an awfy regression from push:
-
-      {{ revisionHref }}
-
-      As author of one of the patches included in that push, we need your help to address this regression.
+      Perfherder has detected a {{ framework }} performance regression from push [{{ revision }}]({{ revisionHref }}). As author of one of the patches included in that push, we need your help to address this regression.
 
       {{ alertSummary }}
 
-      You can find links to graphs and comparison views for each of the above tests at: {{ alertHref }}
+      Details of the alert can be found in the [alert summary]({{ alertHref }}), including links to graphs and comparisons for each of the affected tests. Please follow our [guide to handling regression bugs](https://wiki.mozilla.org/TestEngineering/Performance/Handling_regression_bugs) and **let us know your plans within 3 business days, or the offending patch(es) will be backed out** in accordance with our [regression policy](https://www.mozilla.org/en-US/about/governance/policies/regressions/).
 
-      On the page above you can see an alert for each affected platform as well as a link to a graph showing the history of scores for this test. There is also a link to a treeherder page showing the jobs in a pushlog format.
-
-      To learn more about the regressing test(s), please see: https://www.arewefastyet.com/
+      For more information on performance sheriffing please see our [FAQ](https://wiki.mozilla.org/TestEngineering/Performance/FAQ).
 - model: perf.PerformanceBugTemplate
   pk: 6
   fields:
@@ -100,19 +68,13 @@
     default_component: Performance
     default_product: Testing
     text: |
-      We have detected a platform microbenchmarks regression from push:
-
-      {{ revisionHref }}
-
-      As author of one of the patches included in that push, we need your help to address this regression.
+      Perfherder has detected a {{ framework }} performance regression from push [{{ revision }}]({{ revisionHref }}). As author of one of the patches included in that push, we need your help to address this regression.
 
       {{ alertSummary }}
 
-      You can find links to graphs and comparison views for each of the above tests at: {{ alertHref }}
+      Details of the alert can be found in the [alert summary]({{ alertHref }}), including links to graphs and comparisons for each of the affected tests. Please follow our [guide to handling regression bugs](https://wiki.mozilla.org/TestEngineering/Performance/Handling_regression_bugs) and **let us know your plans within 3 business days, or the offending patch(es) will be backed out** in accordance with our [regression policy](https://www.mozilla.org/en-US/about/governance/policies/regressions/).
 
-      On the page above you can see an alert for each affected platform as well as a link to a graph showing the history of scores for this test. There is also a link to a treeherder page showing the jobs in a pushlog format.
-
-      To learn more about the regressing test(s), please see: https://developer.mozilla.org/en-US/docs/Mozilla/Performance/Automated_Performance_Testing_and_Sheriffing/Platform_Microbenchmarks
+      For more information on performance sheriffing please see our [FAQ](https://wiki.mozilla.org/TestEngineering/Performance/FAQ).
 - model: perf.PerformanceBugTemplate
   pk: 7
   fields:
@@ -121,20 +83,10 @@
     default_component: Performance
     default_product: Testing
     text: |
-      Raptor has detected a Firefox performance regression from push:
-
-      {{ revisionHref }}
-
-      As author of one of the patches included in that push, we need your help to address this regression.
+      Perfherder has detected a {{ framework }} performance regression from push [{{ revision }}]({{ revisionHref }}). As author of one of the patches included in that push, we need your help to address this regression.
 
       {{ alertSummary }}
 
-      You can find links to graphs and comparison views for each of the above tests at: {{ alertHref }}
+      Details of the alert can be found in the [alert summary]({{ alertHref }}), including links to graphs and comparisons for each of the affected tests. Please follow our [guide to handling regression bugs](https://wiki.mozilla.org/TestEngineering/Performance/Handling_regression_bugs) and **let us know your plans within 3 business days, or the offending patch(es) will be backed out** in accordance with our [regression policy](https://www.mozilla.org/en-US/about/governance/policies/regressions/).
 
-      On the page above you can see an alert for each affected platform as well as a link to a graph showing the history of scores for this test. There is also a link to a Treeherder page showing the Raptor jobs in a pushlog format.
-
-      To learn more about the regressing test(s) or reproducing them, please see: https://wiki.mozilla.org/TestEngineering/Performance/Raptor
-
-      *** Please let us know your plans within 3 business days, or the offending patch(es) will be backed out! ***
-
-      Our wiki page outlines the common responses and expectations: https://wiki.mozilla.org/TestEngineering/Performance/Talos/RegressionBugsHandling
+      For more information on performance sheriffing please see our [FAQ](https://wiki.mozilla.org/TestEngineering/Performance/FAQ).
