@@ -7,9 +7,7 @@ import simplejson as json
 
 from treeherder.log_parser.utils import validate_perf_data
 from treeherder.model.models import OptionCollection
-from treeherder.perf.models import (PerformanceDatum,
-                                    PerformanceFramework,
-                                    PerformanceSignature)
+from treeherder.perf.models import PerformanceDatum, PerformanceFramework, PerformanceSignature
 from treeherder.perf.tasks import generate_alerts
 
 logger = logging.getLogger(__name__)
@@ -48,7 +46,8 @@ def _create_or_update_signature(repository, signature_hash, framework, applicati
         signature_hash=signature_hash,
         framework=framework,
         application=application,
-        defaults=defaults)
+        defaults=defaults,
+    )
     if not created:
         if signature.last_updated > defaults['last_updated']:
             defaults['last_updated'] = signature.last_updated
@@ -57,7 +56,8 @@ def _create_or_update_signature(repository, signature_hash, framework, applicati
             signature_hash=signature_hash,
             framework=framework,
             application=application,
-            defaults=defaults)
+            defaults=defaults,
+        )
     return signature
 
 
@@ -67,23 +67,25 @@ def _load_perf_datum(job, perf_datum):
     extra_properties = {}
     reference_data = {
         'option_collection_hash': job.signature.option_collection_hash,
-        'machine_platform': job.signature.machine_platform
+        'machine_platform': job.signature.machine_platform,
     }
 
     option_collection = OptionCollection.objects.get(
-        option_collection_hash=job.signature.option_collection_hash)
+        option_collection_hash=job.signature.option_collection_hash
+    )
 
     try:
-        framework = PerformanceFramework.objects.get(
-            name=perf_datum['framework']['name'])
+        framework = PerformanceFramework.objects.get(name=perf_datum['framework']['name'])
     except PerformanceFramework.DoesNotExist:
-        logger.warning("Performance framework %s does not exist, skipping "
-                       "load of performance artifacts",
-                       perf_datum['framework']['name'])
+        logger.warning(
+            "Performance framework %s does not exist, skipping " "load of performance artifacts",
+            perf_datum['framework']['name'],
+        )
         return
     if not framework.enabled:
-        logger.info("Performance framework %s is not enabled, skipping",
-                    perf_datum['framework']['name'])
+        logger.info(
+            "Performance framework %s is not enabled, skipping", perf_datum['framework']['name']
+        )
         return
     application = _get_application_name(perf_datum)
     for suite in perf_datum['suites']:
@@ -92,9 +94,7 @@ def _load_perf_datum(job, perf_datum):
         suite_extra_options = ''
 
         if suite.get('extraOptions'):
-            suite_extra_properties = {
-                'test_options': sorted(suite['extraOptions'])
-            }
+            suite_extra_properties = {'test_options': sorted(suite['extraOptions'])}
             suite_extra_options = _order_and_concat(suite['extraOptions'])
         summary_signature_hash = None
 
@@ -102,15 +102,16 @@ def _load_perf_datum(job, perf_datum):
         # properties.
         if suite.get('value') is not None:
             # summary series
-            summary_properties = {
-                'suite': suite['name']
-            }
+            summary_properties = {'suite': suite['name']}
             summary_properties.update(reference_data)
             summary_properties.update(suite_extra_properties)
-            summary_signature_hash = _get_signature_hash(
-                summary_properties)
+            summary_signature_hash = _get_signature_hash(summary_properties)
             signature = _create_or_update_signature(
-                job.repository, summary_signature_hash, framework, application, {
+                job.repository,
+                summary_signature_hash,
+                framework,
+                application,
+                {
                     'test': '',
                     'suite': suite['name'],
                     'suite_public_name': suite.get('publicName'),
@@ -125,30 +126,32 @@ def _load_perf_datum(job, perf_datum):
                     # (None). Null indicates no preference has been set.
                     'should_alert': suite.get('shouldAlert'),
                     'alert_change_type': PerformanceSignature._get_alert_change_type(
-                        suite.get('alertChangeType')),
+                        suite.get('alertChangeType')
+                    ),
                     'alert_threshold': suite.get('alertThreshold'),
                     'min_back_window': suite.get('minBackWindow'),
                     'max_back_window': suite.get('maxBackWindow'),
                     'fore_window': suite.get('foreWindow'),
-                    'last_updated': job.push.time
-                })
+                    'last_updated': job.push.time,
+                },
+            )
             (_, datum_created) = PerformanceDatum.objects.get_or_create(
                 repository=job.repository,
                 job=job,
                 push=job.push,
                 signature=signature,
                 push_timestamp=job.push.time,
-                defaults={'value': suite['value']})
-            if signature.should_alert is not False and datum_created and \
-               job.repository.performance_alerts_enabled:
-                generate_alerts.apply_async(args=[signature.id],
-                                            queue='generate_perf_alerts')
+                defaults={'value': suite['value']},
+            )
+            if (
+                signature.should_alert is not False
+                and datum_created
+                and job.repository.performance_alerts_enabled
+            ):
+                generate_alerts.apply_async(args=[signature.id], queue='generate_perf_alerts')
 
         for subtest in suite['subtests']:
-            subtest_properties = {
-                'suite': suite['name'],
-                'test': subtest['name']
-            }
+            subtest_properties = {'suite': suite['name'], 'test': subtest['name']}
             subtest_properties.update(reference_data)
             subtest_properties.update(suite_extra_properties)
 
@@ -158,12 +161,20 @@ def _load_perf_datum(job, perf_datum):
                 summary_signature = PerformanceSignature.objects.get(
                     repository=job.repository,
                     framework=framework,
-                    signature_hash=summary_signature_hash)
+                    signature_hash=summary_signature_hash,
+                )
             subtest_signature_hash = _get_signature_hash(subtest_properties)
-            value = list(subtest['value'] for subtest in suite['subtests'] if
-                         subtest['name'] == subtest_properties['test'])
+            value = list(
+                subtest['value']
+                for subtest in suite['subtests']
+                if subtest['name'] == subtest_properties['test']
+            )
             signature = _create_or_update_signature(
-                job.repository, subtest_signature_hash, framework, application, {
+                job.repository,
+                subtest_signature_hash,
+                framework,
+                application,
+                {
                     'test': subtest_properties['test'],
                     'suite': suite['name'],
                     'test_public_name': subtest.get('publicName'),
@@ -180,31 +191,38 @@ def _load_perf_datum(job, perf_datum):
                     # set.
                     'should_alert': subtest.get('shouldAlert'),
                     'alert_change_type': PerformanceSignature._get_alert_change_type(
-                        subtest.get('alertChangeType')),
+                        subtest.get('alertChangeType')
+                    ),
                     'alert_threshold': subtest.get('alertThreshold'),
                     'min_back_window': subtest.get('minBackWindow'),
                     'max_back_window': subtest.get('maxBackWindow'),
                     'fore_window': subtest.get('foreWindow'),
                     'parent_signature': summary_signature,
-                    'last_updated': job.push.time
-                })
+                    'last_updated': job.push.time,
+                },
+            )
             (_, datum_created) = PerformanceDatum.objects.get_or_create(
                 repository=job.repository,
                 job=job,
                 push=job.push,
                 signature=signature,
                 push_timestamp=job.push.time,
-                defaults={'value': value[0]})
+                defaults={'value': value[0]},
+            )
 
             # by default if there is no summary, we should schedule a
             # generate alerts task for the subtest, since we have new data
             # (this can be over-ridden by the optional "should alert"
             # property)
-            if ((signature.should_alert or (signature.should_alert is None and
-                                            suite.get('value') is None)) and
-                datum_created and job.repository.performance_alerts_enabled):
-                generate_alerts.apply_async(args=[signature.id],
-                                            queue='generate_perf_alerts')
+            if (
+                (
+                    signature.should_alert
+                    or (signature.should_alert is None and suite.get('value') is None)
+                )
+                and datum_created
+                and job.repository.performance_alerts_enabled
+            ):
+                generate_alerts.apply_async(args=[signature.id], queue='generate_perf_alerts')
 
 
 def store_performance_artifact(job, artifact):

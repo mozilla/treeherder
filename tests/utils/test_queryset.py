@@ -1,8 +1,6 @@
-from tests.autoclassify.utils import (create_failure_lines,
-                                      test_line)
+from tests.autoclassify.utils import create_failure_lines, test_line
 from treeherder.model.models import FailureLine
-from treeherder.utils.queryset import (chunked_qs,
-                                       chunked_qs_reverse)
+from treeherder.utils.queryset import chunked_qs, chunked_qs_reverse
 
 
 def test_chunked_qs(test_job):

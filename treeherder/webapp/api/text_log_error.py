@@ -3,24 +3,19 @@ import logging
 from django.db import transaction
 from rest_framework import viewsets
 from rest_framework.response import Response
-from rest_framework.status import (HTTP_200_OK,
-                                   HTTP_400_BAD_REQUEST,
-                                   HTTP_404_NOT_FOUND)
+from rest_framework.status import HTTP_200_OK, HTTP_400_BAD_REQUEST, HTTP_404_NOT_FOUND
 
-from treeherder.model.models import (ClassifiedFailure,
-                                     TextLogError)
-from treeherder.webapp.api import (pagination,
-                                   serializers)
+from treeherder.model.models import ClassifiedFailure, TextLogError
+from treeherder.webapp.api import pagination, serializers
 
 logger = logging.getLogger(__name__)
 
 
 class TextLogErrorViewSet(viewsets.ModelViewSet):
     serializer_class = serializers.TextLogErrorSerializer
-    queryset = TextLogError.objects.prefetch_related("classified_failures",
-                                                     "matches",
-                                                     "_metadata",
-                                                     "_metadata__failure_line").all()
+    queryset = TextLogError.objects.prefetch_related(
+        "classified_failures", "matches", "_metadata", "_metadata__failure_line"
+    ).all()
     pagination_class = pagination.IdPagination
 
     @transaction.atomic
@@ -48,32 +43,39 @@ class TextLogErrorViewSet(viewsets.ModelViewSet):
 
             bug_number = item.get("bug_number")
 
-            if (not classification_id and
-                bug_number is not None and
-                bug_number not in bug_number_classifications):
-                bug_number_classifications[bug_number], _ = (
-                    ClassifiedFailure.objects.get_or_create(bug_number=bug_number))
+            if (
+                not classification_id
+                and bug_number is not None
+                and bug_number not in bug_number_classifications
+            ):
+                bug_number_classifications[bug_number], _ = ClassifiedFailure.objects.get_or_create(
+                    bug_number=bug_number
+                )
 
             ids.append((line_id, classification_id, bug_number))
 
-        error_lines = TextLogError.objects.prefetch_related('classified_failures').filter(id__in=error_line_ids)
+        error_lines = TextLogError.objects.prefetch_related('classified_failures').filter(
+            id__in=error_line_ids
+        )
         error_lines = {tle.id: tle for tle in error_lines}
         if len(error_lines) != len(error_line_ids):
             missing = error_line_ids - set(error_lines.keys())
-            return ("No text log error with id: {0}".format(", ".join(missing)),
-                    HTTP_404_NOT_FOUND)
+            return ("No text log error with id: {0}".format(", ".join(missing)), HTTP_404_NOT_FOUND)
 
         classifications = ClassifiedFailure.objects.filter(id__in=classification_ids)
         classifications = {c.id: c for c in classifications}
         if len(classifications) != len(classification_ids):
             missing = classification_ids - set(classifications.keys())
-            return ("No classification with id: {0}".format(", ".join(missing)),
-                    HTTP_404_NOT_FOUND)
+            return ("No classification with id: {0}".format(", ".join(missing)), HTTP_404_NOT_FOUND)
 
         jobs = set()
         for line_id, classification_id, bug_number in ids:
-            logger.debug("line_id: %s, classification_id: %s, bug_number: %s",
-                         line_id, classification_id, bug_number)
+            logger.debug(
+                "line_id: %s, classification_id: %s, bug_number: %s",
+                line_id,
+                classification_id,
+                bug_number,
+            )
             error_line = error_lines[line_id]
             if classification_id is not None:
                 logger.debug("Using classification id")
@@ -95,15 +97,14 @@ class TextLogErrorViewSet(viewsets.ModelViewSet):
             job.update_after_verification(user)
 
         # Force failure line to be reloaded, including .classified_failures
-        rv = (TextLogError.objects
-              .prefetch_related('classified_failures')
-              .filter(id__in=error_line_ids))
+        rv = TextLogError.objects.prefetch_related('classified_failures').filter(
+            id__in=error_line_ids
+        )
 
         if not many:
             rv = rv[0]
 
-        return (serializers.TextLogErrorSerializer(rv, many=many).data,
-                HTTP_200_OK)
+        return (serializers.TextLogErrorSerializer(rv, many=many).data, HTTP_200_OK)
 
     def update(self, request, pk=None):
         data = {"id": pk}

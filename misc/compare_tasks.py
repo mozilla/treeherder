@@ -16,7 +16,7 @@ logger = logging.getLogger(__name__)
 HOSTS = {
     "localhost": "http://localhost:8000",
     "stage": "https://treeherder.allizom.org",
-    "production": "https://treeherder.mozilla.org"
+    "production": "https://treeherder.mozilla.org",
 }
 
 
@@ -58,19 +58,26 @@ def print_url_to_taskcluster(job_guid):
 
 
 if __name__ == "__main__":
-    parser = argparse.ArgumentParser("Compare a push from a Treeherder instance to the production instance.")
-    parser.add_argument("--host", default="localhost",
-                        help="Host to compare. It defaults to localhost")
-    parser.add_argument("--revision", required=True,
-                        help="Revision to compare")
-    parser.add_argument("--project", default="mozilla-central",
-                        help="Project to compare. It defaults to mozilla-central")
+    parser = argparse.ArgumentParser(
+        "Compare a push from a Treeherder instance to the production instance."
+    )
+    parser.add_argument(
+        "--host", default="localhost", help="Host to compare. It defaults to localhost"
+    )
+    parser.add_argument("--revision", required=True, help="Revision to compare")
+    parser.add_argument(
+        "--project",
+        default="mozilla-central",
+        help="Project to compare. It defaults to mozilla-central",
+    )
 
     args = parser.parse_args()
 
     th_instance = TreeherderClient(server_url=HOSTS[args.host])
     th_instance_pushid = th_instance.get_pushes(args.project, revision=args.revision)[0]["id"]
-    th_instance_jobs = th_instance.get_jobs(args.project, push_id=th_instance_pushid, count=None) or []
+    th_instance_jobs = (
+        th_instance.get_jobs(args.project, push_id=th_instance_pushid, count=None) or []
+    )
 
     production = TreeherderClient(server_url=HOSTS["production"])
     production_pushid = production.get_pushes(args.project, revision=args.revision)[0]["id"]
@@ -103,7 +110,9 @@ if __name__ == "__main__":
     logger.info("We have found: %s jobs on the production instance.", len(production_jobs))
 
     if production_dict:
-        logger.info("There are the first 10 production jobs we do not have th_instancely. Follow the link to investigate.")
+        logger.info(
+            "There are the first 10 production jobs we do not have th_instancely. Follow the link to investigate."
+        )
         for job in list(production_dict.values())[0:10]:
             print_url_to_taskcluster(job["job_guid"])
 

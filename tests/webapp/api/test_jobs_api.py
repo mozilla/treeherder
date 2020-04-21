@@ -5,27 +5,22 @@ from dateutil import parser
 from django.urls import reverse
 from rest_framework.status import HTTP_400_BAD_REQUEST
 
-from treeherder.model.models import (Job,
-                                     TextLogError,
-                                     TextLogStep)
+from treeherder.model.models import Job, TextLogError, TextLogStep
 
 
-@pytest.mark.parametrize(('offset', 'count', 'expected_num'),
-                         [(None, None, 10),
-                          (None, 5, 5),
-                          (5, None, 6),
-                          (0, 5, 5),
-                          (10, 10, 1)])
-def test_job_list(client, eleven_jobs_stored, test_repository,
-                  offset, count, expected_num):
+@pytest.mark.parametrize(
+    ('offset', 'count', 'expected_num'),
+    [(None, None, 10), (None, 5, 5), (5, None, 6), (0, 5, 5), (10, 10, 1)],
+)
+def test_job_list(client, eleven_jobs_stored, test_repository, offset, count, expected_num):
     """
     test retrieving a list of json blobs from the jobs-list
     endpoint.
     """
-    url = reverse("jobs-list",
-                  kwargs={"project": test_repository.name})
-    params = '&'.join(['{}={}'.format(k, v) for k, v in
-                       [('offset', offset), ('count', count)] if v])
+    url = reverse("jobs-list", kwargs={"project": test_repository.name})
+    params = '&'.join(
+        ['{}={}'.format(k, v) for k, v in [('offset', offset), ('count', count)] if v]
+    )
     if params:
         url += '?{}'.format(params)
     resp = client.get(url)
@@ -71,7 +66,7 @@ def test_job_list(client, eleven_jobs_stored, test_repository,
         "ref_data_name",
         "signature",
         "task_id",
-        "retry_id"
+        "retry_id",
     ]
     for job in jobs:
         assert set(job.keys()) == set(exp_keys)
@@ -81,8 +76,7 @@ def test_job_list_bad_project(client, transactional_db):
     """
     test retrieving a job list with a bad project throws 404.
     """
-    badurl = reverse("jobs-list",
-                     kwargs={"project": "badproject"})
+    badurl = reverse("jobs-list", kwargs={"project": "badproject"})
 
     resp = client.get(badurl)
     assert resp.status_code == 404
@@ -92,8 +86,7 @@ def test_job_list_equals_filter(client, eleven_jobs_stored, test_repository):
     """
     test retrieving a job list with a querystring filter.
     """
-    url = reverse("jobs-list",
-                  kwargs={"project": test_repository.name})
+    url = reverse("jobs-list", kwargs={"project": test_repository.name})
     final_url = url + "?job_guid=f1c75261017c7c5ce3000931dce4c442fe0a1297"
 
     resp = client.get(final_url)
@@ -123,7 +116,10 @@ job_filter_values = [
     (u'option_collection_hash', u'32faaecac742100f7753f0c1d0aa0add01b4046b'),
     (u'platform', u'osx-10-7'),
     (u'reason', u'scheduler'),
-    (u'ref_data_name', u'Rev4 MacOSX Lion 10.7 mozilla-release debug test mochitest-browser-chrome'),
+    (
+        u'ref_data_name',
+        u'Rev4 MacOSX Lion 10.7 mozilla-release debug test mochitest-browser-chrome',
+    ),
     (u'result', u'success'),
     (u'result_set_id', 4),
     (u'signature', u'aebe9066ff1c765815ec0513a3389238c80ef166'),
@@ -131,7 +127,7 @@ job_filter_values = [
     (u'state', u'completed'),
     (u'submit_timestamp', 1384356854),
     (u'tier', 1),
-    (u'who', u'tests-mozilla-release-lion-debug-unittest')
+    (u'who', u'tests-mozilla-release-lion-debug-unittest'),
 ]
 
 
@@ -146,8 +142,7 @@ def test_job_list_filter_fields(client, eleven_jobs_stored, test_repository, fie
     The field of ``last_modified`` is auto-generated, so just skipping that
     to make this test easy.
     """
-    url = reverse("jobs-list",
-                  kwargs={"project": test_repository.name})
+    url = reverse("jobs-list", kwargs={"project": test_repository.name})
     final_url = url + "?{}={}".format(fieldname, expected)
     resp = client.get(final_url)
     assert resp.status_code == 200
@@ -159,11 +154,12 @@ def test_job_list_in_filter(client, eleven_jobs_stored, test_repository):
     """
     test retrieving a job list with a querystring filter.
     """
-    url = reverse("jobs-list",
-                  kwargs={"project": test_repository.name})
-    final_url = url + ("?job_guid__in="
-                       "f1c75261017c7c5ce3000931dce4c442fe0a1297,"
-                       "9abb6f7d54a49d763c584926377f09835c5e1a32")
+    url = reverse("jobs-list", kwargs={"project": test_repository.name})
+    final_url = url + (
+        "?job_guid__in="
+        "f1c75261017c7c5ce3000931dce4c442fe0a1297,"
+        "9abb6f7d54a49d763c584926377f09835c5e1a32"
+    )
 
     resp = client.get(final_url)
     assert resp.status_code == 200
@@ -176,23 +172,19 @@ def test_job_detail(client, test_job):
     endpoint.
     """
     resp = client.get(
-        reverse("jobs-detail",
-                kwargs={"project": test_job.repository.name,
-                        "pk": test_job.id})
+        reverse("jobs-detail", kwargs={"project": test_job.repository.name, "pk": test_job.id})
     )
     assert resp.status_code == 200
     assert isinstance(resp.json(), dict)
     assert resp.json()["id"] == test_job.id
 
     resp = client.get(
-        reverse("jobs-detail",
-                kwargs={"project": test_job.repository.name,
-                        "pk": test_job.id})
+        reverse("jobs-detail", kwargs={"project": test_job.repository.name, "pk": test_job.id})
     )
     assert resp.status_code == 200
     assert resp.json()["taskcluster_metadata"] == {
         "task_id": 'V3SVuxO8TFy37En_6HcXLs',
-        "retry_id": 0
+        "retry_id": 0,
     }
 
 
@@ -201,8 +193,7 @@ def test_job_detail_bad_project(client, transactional_db):
     test retrieving a single job from the jobs-detail
     endpoint.
     """
-    badurl = reverse("jobs-detail",
-                     kwargs={"project": "badproject", "pk": 1})
+    badurl = reverse("jobs-detail", kwargs={"project": "badproject", "pk": 1})
     resp = client.get(badurl)
     assert resp.status_code == 404
 
@@ -213,36 +204,37 @@ def test_job_detail_not_found(client, test_repository):
     endpoint.
     """
     resp = client.get(
-        reverse("jobs-detail",
-                kwargs={"project": test_repository.name, "pk": -32767}),
+        reverse("jobs-detail", kwargs={"project": test_repository.name, "pk": -32767}),
     )
     assert resp.status_code == 404
 
 
 def test_text_log_steps_and_errors(client, test_job):
 
-    TextLogStep.objects.create(job=test_job,
-                               name='step1',
-                               started=datetime.datetime.utcfromtimestamp(0),
-                               finished=datetime.datetime.utcfromtimestamp(100),
-                               started_line_number=1,
-                               finished_line_number=100,
-                               result=TextLogStep.SUCCESS)
-    step2 = TextLogStep.objects.create(job=test_job,
-                                       name='step2',
-                                       started=datetime.datetime.utcfromtimestamp(101),
-                                       finished=datetime.datetime.utcfromtimestamp(200),
-                                       started_line_number=101,
-                                       finished_line_number=200,
-                                       result=TextLogStep.TEST_FAILED)
-    TextLogError.objects.create(step=step2, line='failure 1',
-                                line_number=101)
-    TextLogError.objects.create(step=step2, line='failure 2',
-                                line_number=102)
+    TextLogStep.objects.create(
+        job=test_job,
+        name='step1',
+        started=datetime.datetime.utcfromtimestamp(0),
+        finished=datetime.datetime.utcfromtimestamp(100),
+        started_line_number=1,
+        finished_line_number=100,
+        result=TextLogStep.SUCCESS,
+    )
+    step2 = TextLogStep.objects.create(
+        job=test_job,
+        name='step2',
+        started=datetime.datetime.utcfromtimestamp(101),
+        finished=datetime.datetime.utcfromtimestamp(200),
+        started_line_number=101,
+        finished_line_number=200,
+        result=TextLogStep.TEST_FAILED,
+    )
+    TextLogError.objects.create(step=step2, line='failure 1', line_number=101)
+    TextLogError.objects.create(step=step2, line='failure 2', line_number=102)
     resp = client.get(
-        reverse("jobs-text-log-steps",
-                kwargs={"project": test_job.repository.name,
-                        "pk": test_job.id})
+        reverse(
+            "jobs-text-log-steps", kwargs={"project": test_job.repository.name, "pk": test_job.id}
+        )
     )
     assert resp.status_code == 200
     assert resp.json() == [
@@ -254,7 +246,7 @@ def test_text_log_steps_and_errors(client, test_job):
             'name': 'step1',
             'result': 'success',
             'started': '1970-01-01T00:00:00',
-            'started_line_number': 1
+            'started_line_number': 1,
         },
         {
             'errors': [
@@ -265,11 +257,11 @@ def test_text_log_steps_and_errors(client, test_job):
                     'bug_suggestions': {
                         'search': 'failure 1',
                         'search_terms': ['failure 1'],
-                        'bugs': {'open_recent': [], 'all_others': []}
+                        'bugs': {'open_recent': [], 'all_others': []},
                     },
                     'metadata': None,
                     'matches': [],
-                    'classified_failures': []
+                    'classified_failures': [],
                 },
                 {
                     'id': 2,
@@ -278,12 +270,12 @@ def test_text_log_steps_and_errors(client, test_job):
                     'bug_suggestions': {
                         'search': 'failure 2',
                         'search_terms': ['failure 2'],
-                        'bugs': {'open_recent': [], 'all_others': []}
+                        'bugs': {'open_recent': [], 'all_others': []},
                     },
                     'metadata': None,
                     'matches': [],
-                    'classified_failures': []
-                }
+                    'classified_failures': [],
+                },
             ],
             'finished': '1970-01-01T00:03:20',
             'finished_line_number': 200,
@@ -291,35 +283,37 @@ def test_text_log_steps_and_errors(client, test_job):
             'name': 'step2',
             'result': 'testfailed',
             'started': '1970-01-01T00:01:41',
-            'started_line_number': 101
-        }
+            'started_line_number': 101,
+        },
     ]
 
 
 def test_text_log_errors(client, test_job):
 
-    TextLogStep.objects.create(job=test_job,
-                               name='step1',
-                               started=datetime.datetime.utcfromtimestamp(0),
-                               finished=datetime.datetime.utcfromtimestamp(100),
-                               started_line_number=1,
-                               finished_line_number=100,
-                               result=TextLogStep.SUCCESS)
-    step2 = TextLogStep.objects.create(job=test_job,
-                                       name='step2',
-                                       started=datetime.datetime.utcfromtimestamp(101),
-                                       finished=datetime.datetime.utcfromtimestamp(200),
-                                       started_line_number=101,
-                                       finished_line_number=200,
-                                       result=TextLogStep.TEST_FAILED)
-    TextLogError.objects.create(step=step2, line='failure 1',
-                                line_number=101)
-    TextLogError.objects.create(step=step2, line='failure 2',
-                                line_number=102)
+    TextLogStep.objects.create(
+        job=test_job,
+        name='step1',
+        started=datetime.datetime.utcfromtimestamp(0),
+        finished=datetime.datetime.utcfromtimestamp(100),
+        started_line_number=1,
+        finished_line_number=100,
+        result=TextLogStep.SUCCESS,
+    )
+    step2 = TextLogStep.objects.create(
+        job=test_job,
+        name='step2',
+        started=datetime.datetime.utcfromtimestamp(101),
+        finished=datetime.datetime.utcfromtimestamp(200),
+        started_line_number=101,
+        finished_line_number=200,
+        result=TextLogStep.TEST_FAILED,
+    )
+    TextLogError.objects.create(step=step2, line='failure 1', line_number=101)
+    TextLogError.objects.create(step=step2, line='failure 2', line_number=102)
     resp = client.get(
-        reverse("jobs-text-log-errors",
-                kwargs={"project": test_job.repository.name,
-                        "pk": test_job.id})
+        reverse(
+            "jobs-text-log-errors", kwargs={"project": test_job.repository.name, "pk": test_job.id}
+        )
     )
     assert resp.status_code == 200
     assert resp.json() == [
@@ -330,11 +324,11 @@ def test_text_log_errors(client, test_job):
             'bug_suggestions': {
                 'search': 'failure 1',
                 'search_terms': ['failure 1'],
-                'bugs': {'open_recent': [], 'all_others': []}
+                'bugs': {'open_recent': [], 'all_others': []},
             },
             'metadata': None,
             'matches': [],
-            'classified_failures': []
+            'classified_failures': [],
         },
         {
             'id': 2,
@@ -343,32 +337,29 @@ def test_text_log_errors(client, test_job):
             'bug_suggestions': {
                 'search': 'failure 2',
                 'search_terms': ['failure 2'],
-                'bugs': {'open_recent': [], 'all_others': []}
+                'bugs': {'open_recent': [], 'all_others': []},
             },
             'metadata': None,
             'matches': [],
-            'classified_failures': []
-        }
+            'classified_failures': [],
+        },
     ]
 
 
-@pytest.mark.parametrize(('offset', 'count', 'expected_num'),
-                         [(None, None, 3),
-                          (None, 2, 2),
-                          (1, None, 2),
-                          (0, 1, 1),
-                          (2, 10, 1)])
-def test_list_similar_jobs(client, eleven_jobs_stored,
-                           offset, count, expected_num):
+@pytest.mark.parametrize(
+    ('offset', 'count', 'expected_num'),
+    [(None, None, 3), (None, 2, 2), (1, None, 2), (0, 1, 1), (2, 10, 1)],
+)
+def test_list_similar_jobs(client, eleven_jobs_stored, offset, count, expected_num):
     """
     test retrieving similar jobs
     """
     job = Job.objects.get(id=1)
 
-    url = reverse("jobs-similar-jobs",
-                  kwargs={"project": job.repository.name, "pk": job.id})
-    params = '&'.join(['{}={}'.format(k, v) for k, v in
-                       [('offset', offset), ('count', count)] if v])
+    url = reverse("jobs-similar-jobs", kwargs={"project": job.repository.name, "pk": job.id})
+    params = '&'.join(
+        ['{}={}'.format(k, v) for k, v in [('offset', offset), ('count', count)] if v]
+    )
     if params:
         url += '?{}'.format(params)
     resp = client.get(url)
@@ -384,22 +375,26 @@ def test_list_similar_jobs(client, eleven_jobs_stored,
     assert len(similar_jobs['results']) == expected_num
 
 
-@pytest.mark.parametrize('lm_key,lm_value,exp_status, exp_job_count', [
-    ("last_modified__gt", "2016-07-18T22:16:58.000", 200, 8),
-    ("last_modified__lt", "2016-07-18T22:16:58.000", 200, 3),
-    ("last_modified__gt", "-Infinity", HTTP_400_BAD_REQUEST, 0),
-    ("last_modified__gt", "whatever", HTTP_400_BAD_REQUEST, 0),
-    ])
-def test_last_modified(client, eleven_jobs_stored, test_repository,
-                       lm_key, lm_value, exp_status, exp_job_count):
+@pytest.mark.parametrize(
+    'lm_key,lm_value,exp_status, exp_job_count',
+    [
+        ("last_modified__gt", "2016-07-18T22:16:58.000", 200, 8),
+        ("last_modified__lt", "2016-07-18T22:16:58.000", 200, 3),
+        ("last_modified__gt", "-Infinity", HTTP_400_BAD_REQUEST, 0),
+        ("last_modified__gt", "whatever", HTTP_400_BAD_REQUEST, 0),
+    ],
+)
+def test_last_modified(
+    client, eleven_jobs_stored, test_repository, lm_key, lm_value, exp_status, exp_job_count
+):
     try:
         param_date = parser.parse(lm_value)
         newer_date = param_date - datetime.timedelta(minutes=10)
 
         # modify job last_modified for 3 jobs
-        Job.objects.filter(
-            id__in=[j.id for j in Job.objects.all()[:3]]).update(
-                last_modified=newer_date)
+        Job.objects.filter(id__in=[j.id for j in Job.objects.all()[:3]]).update(
+            last_modified=newer_date
+        )
     except ValueError:
         # no problem.  these params are the wrong
         pass

@@ -5,8 +5,7 @@ from django.core.management import call_command
 from django.core.management.base import BaseCommand
 
 from treeherder.model.models import Push
-from treeherder.perf.models import (PerformanceDatum,
-                                    PerformanceSignature)
+from treeherder.perf.models import PerformanceDatum, PerformanceSignature
 
 
 class Command(BaseCommand):
@@ -14,11 +13,13 @@ class Command(BaseCommand):
 
     def handle(self, *args, **options):
 
-        confirm = input("""
+        confirm = input(
+            """
 You have a requested a load of test performance data, this is a destructive
 operation that should only be performed on a development instance.
 
-Type 'yes' to continue, or 'no' to cancel: """)
+Type 'yes' to continue, or 'no' to cancel: """
+        )
         if confirm != "yes":
             return
 
@@ -36,11 +37,13 @@ Type 'yes' to continue, or 'no' to cancel: """)
             repository=s.repository,
             revision='1234abcd',
             author='foo@bar.com',
-            time=datetime.datetime.now())
+            time=datetime.datetime.now(),
+        )
 
-        for (t, v) in zip([i for i in range(INTERVAL)],
-                          ([0.5 for i in range(int(INTERVAL / 2))] +
-                           [1.0 for i in range(int(INTERVAL / 2))])):
+        for (t, v) in zip(
+            [i for i in range(INTERVAL)],
+            ([0.5 for i in range(int(INTERVAL / 2))] + [1.0 for i in range(int(INTERVAL / 2))]),
+        ):
             PerformanceDatum.objects.create(
                 repository=s.repository,
                 result_set_id=t,
@@ -48,4 +51,5 @@ Type 'yes' to continue, or 'no' to cancel: """)
                 signature=s,
                 push_timestamp=datetime.datetime.utcfromtimestamp(now + (t * 60 * 60)),
                 push_id=1,
-                value=v)
+                value=v,
+            )

@@ -7,28 +7,32 @@ from multiprocessing import Process
 from django.core.management.base import BaseCommand
 from django.db import connections
 
-from treeherder.model.models import (BuildPlatform,
-                                     FailureClassification,
-                                     Job,
-                                     JobGroup,
-                                     JobType,
-                                     Machine,
-                                     MachinePlatform,
-                                     Option,
-                                     OptionCollection,
-                                     Product,
-                                     Push,
-                                     ReferenceDataSignatures,
-                                     Repository,
-                                     RepositoryGroup)
-from treeherder.perf.models import (BackfillRecord,
-                                    BackfillReport,
-                                    IssueTracker,
-                                    PerformanceAlert,
-                                    PerformanceAlertSummary,
-                                    PerformanceDatum,
-                                    PerformanceFramework,
-                                    PerformanceSignature)
+from treeherder.model.models import (
+    BuildPlatform,
+    FailureClassification,
+    Job,
+    JobGroup,
+    JobType,
+    Machine,
+    MachinePlatform,
+    Option,
+    OptionCollection,
+    Product,
+    Push,
+    ReferenceDataSignatures,
+    Repository,
+    RepositoryGroup,
+)
+from treeherder.perf.models import (
+    BackfillRecord,
+    BackfillReport,
+    IssueTracker,
+    PerformanceAlert,
+    PerformanceAlertSummary,
+    PerformanceDatum,
+    PerformanceFramework,
+    PerformanceSignature,
+)
 
 LOG_EVERY = 5  # seconds
 
@@ -39,16 +43,18 @@ def occasional_log(message, seconds=LOG_EVERY):
         print(message)
 
 
-def progress_notifier(item_processor, iterable: list, item_name: str, tabs_no=0,):
+def progress_notifier(
+    item_processor, iterable: list, item_name: str, tabs_no=0,
+):
     total_items = len(iterable)
-    print('{0}Fetching {1} {2} item(s)...'.format('\t'*tabs_no, total_items, item_name))
+    print('{0}Fetching {1} {2} item(s)...'.format('\t' * tabs_no, total_items, item_name))
 
     prev_percentage = None
     for idx, item in enumerate(iterable):
         item_processor(item)
         percentage = int((idx + 1) * 100 / total_items)
         if percentage % 10 == 0 and percentage != prev_percentage:
-            print('{0}Fetched {1}% of {2} item(s)'.format('\t'*tabs_no, percentage, item_name))
+            print('{0}Fetched {1}% of {2} item(s)'.format('\t' * tabs_no, percentage, item_name))
             prev_percentage = percentage
 
 
@@ -62,7 +68,7 @@ def _ignore_assignee(table_name, model):
 
 SENSITIVE_TABLES_MAP = {
     'performance_alert': _ignore_classifier,
-    'performance_alert_summary': _ignore_assignee
+    'performance_alert_summary': _ignore_assignee,
 }
 
 
@@ -114,96 +120,105 @@ class DecentSizedData(Data):
     def fillup_target(self, **filters):
         print('Fetching all affordable data...\n')
         # TODO: JSON dump the list
-        print('From tables {0}'.format(
-            ', '.join([model._meta.db_table
-                       for model in self.DECENT_SIZED_TABLES])))
+        print(
+            'From tables {0}'.format(
+                ', '.join([model._meta.db_table for model in self.DECENT_SIZED_TABLES])
+            )
+        )
 
         self.delete_local_data()
         self.save_local_data()
 
 
 class MassiveData(Data):
-    BIG_SIZED_TABLES = [BackfillReport,
-                        BackfillRecord,
-                        PerformanceAlertSummary,
-                        PerformanceAlert,
-                        ReferenceDataSignatures,
-                        PerformanceDatum,
-                        PerformanceSignature,
-                        Job,
-                        JobGroup,
-                        JobType,
-                        Push,
-                        BuildPlatform,
-                        Machine]
+    BIG_SIZED_TABLES = [
+        BackfillReport,
+        BackfillRecord,
+        PerformanceAlertSummary,
+        PerformanceAlert,
+        ReferenceDataSignatures,
+        PerformanceDatum,
+        PerformanceSignature,
+        Job,
+        JobGroup,
+        JobType,
+        Push,
+        BuildPlatform,
+        Machine,
+    ]
 
-    priority_dict = {'reference_data_signature': {'download_order': 1,
-                                                  'model': ReferenceDataSignatures},
-                     'push': {'download_order': 1,
-                              'model': Push},
-                     'build_platform': {'download_order': 1,
-                                        'model': BuildPlatform},
-                     'machine': {'download_order': 1,
-                                 'model': Machine},
-                     'job_group': {'download_order': 1,
-                                   'model': JobGroup},
-                     'job_type': {'download_order': 1,
-                                  'model': JobType},
-                     'performance_signature': {'download_order': 2,
-                                               'model': PerformanceSignature},
-                     'job': {'download_order': 2,
-                             'model': Job},
-                     'performance_alert_summary': {'download_order': 2,
-                                                   'model': PerformanceAlertSummary},
-                     'performance_datum': {'download_order': 3,
-                                           'model': PerformanceDatum},
-                     'performance_alert': {'download_order': 3,
-                                           'model': PerformanceAlert},
-                     'backfill_report': {'download_order': 3,
-                                         'model': BackfillReport},
-                     'backfill_record': {'download_order': 4,
-                                         'model': BackfillRecord}}
+    priority_dict = {
+        'reference_data_signature': {'download_order': 1, 'model': ReferenceDataSignatures},
+        'push': {'download_order': 1, 'model': Push},
+        'build_platform': {'download_order': 1, 'model': BuildPlatform},
+        'machine': {'download_order': 1, 'model': Machine},
+        'job_group': {'download_order': 1, 'model': JobGroup},
+        'job_type': {'download_order': 1, 'model': JobType},
+        'performance_signature': {'download_order': 2, 'model': PerformanceSignature},
+        'job': {'download_order': 2, 'model': Job},
+        'performance_alert_summary': {'download_order': 2, 'model': PerformanceAlertSummary},
+        'performance_datum': {'download_order': 3, 'model': PerformanceDatum},
+        'performance_alert': {'download_order': 3, 'model': PerformanceAlert},
+        'backfill_report': {'download_order': 3, 'model': BackfillReport},
+        'backfill_record': {'download_order': 4, 'model': BackfillRecord},
+    }
 
-    def __init__(self, source, target, num_workers, frameworks, repositories, time_window,
-                 progress_notifier=None, **kwargs):
+    def __init__(
+        self,
+        source,
+        target,
+        num_workers,
+        frameworks,
+        repositories,
+        time_window,
+        progress_notifier=None,
+        **kwargs,
+    ):
 
         super().__init__(source, target, progress_notifier, **kwargs)
         self.time_window = time_window
         self.num_workers = num_workers
 
         oldest_day = datetime.datetime.now() - self.time_window
-        self.query_set = (PerformanceAlertSummary.objects
-                          .using(self.source)
-                          .select_related('framework', 'repository')
-                          .filter(created__gte=oldest_day))
+        self.query_set = (
+            PerformanceAlertSummary.objects.using(self.source)
+            .select_related('framework', 'repository')
+            .filter(created__gte=oldest_day)
+        )
 
         if frameworks:
             self.query_set = self.query_set.filter(framework__name__in=frameworks)
         if repositories:
             self.query_set = self.query_set.filter(repository__name__in=repositories)
 
-        self.frameworks = (frameworks if frameworks is not None
-                           else list(PerformanceFramework.objects
-                                     .using(self.source)
-                                     .values_list('name', flat=True)))
-        self.repositories = (repositories if repositories is not None
-                             else list(Repository.objects
-                                       .using(self.source)
-                                       .values_list('name', flat=True)))
+        self.frameworks = (
+            frameworks
+            if frameworks is not None
+            else list(
+                PerformanceFramework.objects.using(self.source).values_list('name', flat=True)
+            )
+        )
+        self.repositories = (
+            repositories
+            if repositories is not None
+            else list(Repository.objects.using(self.source).values_list('name', flat=True))
+        )
         interproc_instance = interproc()
-        self.models_instances = {'reference_data_signature': interproc_instance.list(),
-                                 'performance_alert': interproc_instance.list(),
-                                 'job': interproc_instance.list(),
-                                 'job_type': interproc_instance.list(),
-                                 'job_group': interproc_instance.list(),
-                                 'performance_datum': interproc_instance.list(),
-                                 'performance_alert_summary': interproc_instance.list(),
-                                 'push': interproc_instance.list(),
-                                 'build_platform': interproc_instance.list(),
-                                 'machine': interproc_instance.list(),
-                                 'performance_signature': interproc_instance.list(),
-                                 'backfill_report': interproc_instance.list(),
-                                 'backfill_record': interproc_instance.list()}
+        self.models_instances = {
+            'reference_data_signature': interproc_instance.list(),
+            'performance_alert': interproc_instance.list(),
+            'job': interproc_instance.list(),
+            'job_type': interproc_instance.list(),
+            'job_group': interproc_instance.list(),
+            'performance_datum': interproc_instance.list(),
+            'performance_alert_summary': interproc_instance.list(),
+            'push': interproc_instance.list(),
+            'build_platform': interproc_instance.list(),
+            'machine': interproc_instance.list(),
+            'performance_signature': interproc_instance.list(),
+            'backfill_report': interproc_instance.list(),
+            'backfill_record': interproc_instance.list(),
+        }
 
     def delete_local_data(self):
         for model in self.BIG_SIZED_TABLES:
@@ -211,13 +226,17 @@ class MassiveData(Data):
             model.objects.using(self.target).all().delete()
 
     def save_local_data(self):
-        priority_dict = collections.OrderedDict(sorted(self.priority_dict.items(),
-                                                       key=lambda item: item[1]['download_order']))
+        priority_dict = collections.OrderedDict(
+            sorted(self.priority_dict.items(), key=lambda item: item[1]['download_order'])
+        )
 
         for table_name, properties in priority_dict.items():
             print('Saving {0} data...'.format(table_name))
-            model_values = properties['model'].objects.using(self.source).filter(
-                pk__in=self.models_instances[table_name])
+            model_values = (
+                properties['model']
+                .objects.using(self.source)
+                .filter(pk__in=self.models_instances[table_name])
+            )
             self._ignore_sensitive_fields(table_name, model_values)
             properties['model'].objects.using(self.target).bulk_create(model_values)
 
@@ -249,14 +268,14 @@ class MassiveData(Data):
         processes_list = []
         num_workers = min(self.num_workers, alert_summaries_len)
         try:
-            stop_idx = step_size = math.ceil(alert_summaries_len/num_workers)
+            stop_idx = step_size = math.ceil(alert_summaries_len / num_workers)
         except ZeroDivisionError:
             raise RuntimeError('No alert summaries to fetch.')
 
         start_idx = 0
         for idx in range(num_workers):
             alerts = alert_summaries[start_idx:stop_idx]
-            p = Process(target=self.db_worker, args=(idx+1, alerts))
+            p = Process(target=self.db_worker, args=(idx + 1, alerts))
             processes_list.append(p)
 
             start_idx, stop_idx = stop_idx, stop_idx + step_size
@@ -281,10 +300,11 @@ class MassiveData(Data):
         self.update_list('performance_alert_summary', alert_summary)
         self.update_list('backfill_report', alert_summary)
         # bring in all its alerts
-        alerts = list(PerformanceAlert.objects
-                      .using(self.source)
-                      .select_related('series_signature')
-                      .filter(summary=alert_summary))
+        alerts = list(
+            PerformanceAlert.objects.using(self.source)
+            .select_related('series_signature')
+            .filter(summary=alert_summary)
+        )
 
         self.progress_notifier(self.bring_in_alert, alerts, 'alert', 2)
 
@@ -298,19 +318,18 @@ class MassiveData(Data):
             if alert.related_summary not in self.models_instances['performance_alert_summary']:
                 # if the alert summary identified isn't registered yet
                 # register it with all its alerts
-                self.progress_notifier(self.bring_in_alert_summary, [alert.related_summary],
-                                       'alert summary', 1)
+                self.progress_notifier(
+                    self.bring_in_alert_summary, [alert.related_summary], 'alert summary', 1
+                )
 
         # pull parent signature first
         parent_signature = alert.series_signature.parent_signature
         if parent_signature:
-            self.bring_in_performance_data(alert.created,
-                                           parent_signature)
+            self.bring_in_performance_data(alert.created, parent_signature)
             self.update_list('performance_signature', parent_signature)
 
         # then signature itself
-        self.bring_in_performance_data(alert.created,
-                                       alert.series_signature)
+        self.bring_in_performance_data(alert.created, alert.series_signature)
         self.update_list('performance_signature', alert.series_signature)
 
         # then alert itself
@@ -320,14 +339,17 @@ class MassiveData(Data):
         self.models_instances['backfill_record'].append(alert.id)
 
     def bring_in_performance_data(self, time_of_alert, performance_signature):
-        performance_data = list(PerformanceDatum.objects
-                                .using(self.source)
-                                .filter(repository=performance_signature.repository,
-                                        signature=performance_signature,
-                                        push_timestamp__gte=(time_of_alert - self.time_window)))
+        performance_data = list(
+            PerformanceDatum.objects.using(self.source).filter(
+                repository=performance_signature.repository,
+                signature=performance_signature,
+                push_timestamp__gte=(time_of_alert - self.time_window),
+            )
+        )
 
-        self.progress_notifier(self.bring_in_performance_datum, performance_data,
-                               'performance datum', 3)
+        self.progress_notifier(
+            self.bring_in_performance_datum, performance_data, 'performance datum', 3
+        )
 
     def bring_in_performance_datum(self, performance_datum):
         if performance_datum.id in self.models_instances['performance_datum']:
@@ -342,7 +364,7 @@ class MassiveData(Data):
         if job.id in self.models_instances['job']:
             return
 
-        occasional_log('{0}Fetching job #{1}'.format('\t'*4, job.id))
+        occasional_log('{0}Fetching job #{1}'.format('\t' * 4, job.id))
 
         self.update_list('reference_data_signature', job.signature)
         self.update_list('build_platform', job.build_platform)
@@ -364,31 +386,14 @@ class Command(BaseCommand):
 
     def add_arguments(self, parser):
         parser.add_argument(
-            '--num-workers',
-            action='store',
-            dest='num_workers',
-            type=int,
-            default=4
+            '--num-workers', action='store', dest='num_workers', type=int, default=4
         )
 
-        parser.add_argument(
-            '--time-window',
-            action='store',
-            type=int,
-            default=1
-        )
+        parser.add_argument('--time-window', action='store', type=int, default=1)
 
-        parser.add_argument(
-            '--frameworks',
-            nargs='+',
-            default=None
-        )
+        parser.add_argument('--frameworks', nargs='+', default=None)
 
-        parser.add_argument(
-            '--repositories',
-            nargs='+',
-            default=None
-        )
+        parser.add_argument('--repositories', nargs='+', default=None)
 
     def handle(self, *args, **options):
 
@@ -398,13 +403,15 @@ class Command(BaseCommand):
         repositories = options['repositories']
 
         affordable_data = DecentSizedData(source='upstream', target='default')
-        subseted_data = MassiveData(source='upstream',
-                                    target='default',
-                                    progress_notifier=progress_notifier,
-                                    time_window=time_window,
-                                    num_workers=num_workers,
-                                    frameworks=frameworks,
-                                    repositories=repositories)
+        subseted_data = MassiveData(
+            source='upstream',
+            target='default',
+            progress_notifier=progress_notifier,
+            time_window=time_window,
+            num_workers=num_workers,
+            frameworks=frameworks,
+            repositories=repositories,
+        )
 
         affordable_data.fillup_target()
         subseted_data.fillup_target(last_n_days=time_window)

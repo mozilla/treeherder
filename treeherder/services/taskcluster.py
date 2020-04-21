@@ -47,7 +47,7 @@ class TaskclusterModel:
             decision_task_id=decision_task_id,
             task_id=task_id,
             input=input,
-            static_action_variables=actions_context['staticActionVariables']
+            static_action_variables=actions_context['staticActionVariables'],
         )
 
     def _load(self, decision_task_id: str, task_id: str) -> dict:
@@ -67,17 +67,19 @@ class TaskclusterModel:
             'actions': self._filter_relevant_actions(actions_json, task_definition),
         }
 
-    def _submit(self,
-                action=None,
-                decision_task_id=None,
-                task_id=None,
-                input=None,
-                static_action_variables=None) -> str:
+    def _submit(
+        self,
+        action=None,
+        decision_task_id=None,
+        task_id=None,
+        input=None,
+        static_action_variables=None,
+    ) -> str:
         context = {
-                "taskGroupId": decision_task_id,
-                "taskId": task_id or None,
-                "input": input,
-         }
+            "taskGroupId": decision_task_id,
+            "taskId": task_id or None,
+            "input": input,
+        }
         context.update(static_action_variables)
         action_kind = action["kind"]
 
@@ -90,7 +92,9 @@ class TaskclusterModel:
             expression = f"in-tree:hook-action:{hook_group_id}/{hook_id}"
 
             if not satisfiesExpression(expansion["scopes"], expression):
-                raise RuntimeError(f"Action is misconfigured: decision task's scopes do not satisfy {expression}")
+                raise RuntimeError(
+                    f"Action is misconfigured: decision task's scopes do not satisfy {expression}"
+                )
 
             result = self.hooks.triggerHook(hook_group_id, hook_id, hook_payload)
             return result["status"]["taskId"]
@@ -107,8 +111,11 @@ class TaskclusterModel:
                 continue
 
             no_context_or_task_to_check = (not len(action['context'])) and (not original_task)
-            task_is_in_context = (original_task and original_task.get('tags') and
-                                  cls._task_in_context(action['context'], original_task['tags']))
+            task_is_in_context = (
+                original_task
+                and original_task.get('tags')
+                and cls._task_in_context(action['context'], original_task['tags'])
+            )
 
             if no_context_or_task_to_check or task_is_in_context:
                 relevant_actions[action_name] = action
@@ -129,10 +136,10 @@ class TaskclusterModel:
         try:
             return [a for a in action_array if a["name"] == action_name][0]
         except IndexError:
-            available_actions = ", ".join(sorted(
-                {a["name"] for a in action_array}
-            ))
-            raise LookupError(f"{action_name} action is not available for this task.  Available: {available_actions}")
+            available_actions = ", ".join(sorted({a["name"] for a in action_array}))
+            raise LookupError(
+                f"{action_name} action is not available for this task.  Available: {available_actions}"
+            )
 
     @classmethod
     def _task_in_context(cls, context: List[dict], task_tags: dict) -> bool:
@@ -150,7 +157,6 @@ class TaskclusterModel:
         @param task_tags: task's tags
         """
         return any(
-            all(tag in task_tags and task_tags[tag] == tag_set[tag]
-                for tag in tag_set.keys())
+            all(tag in task_tags and task_tags[tag] == tag_set[tag] for tag in tag_set.keys())
             for tag_set in context
         )

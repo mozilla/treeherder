@@ -4,9 +4,7 @@ from tests.test_utils import add_log_response
 from treeherder.etl.jobs import store_job_data
 from treeherder.etl.push import store_push_data
 from treeherder.model.error_summary import get_error_summary
-from treeherder.model.models import (Job,
-                                     JobDetail,
-                                     TextLogError)
+from treeherder.model.models import Job, JobDetail, TextLogError
 
 from ..sampledata import SampleData
 
@@ -45,9 +43,9 @@ def test_parse_log(test_repository, failure_classifications, jobs_with_local_log
     print(JobDetail.objects.count() == 4)
 
 
-def test_create_error_summary(failure_classifications,
-                              jobs_with_local_log, sample_push,
-                              test_repository):
+def test_create_error_summary(
+    failure_classifications, jobs_with_local_log, sample_push, test_repository
+):
     """
     check that a bug suggestions artifact gets inserted when running
     a parse_log task for a failed job, and that the number of

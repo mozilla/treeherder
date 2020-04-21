@@ -7,8 +7,7 @@ from django.core.exceptions import ObjectDoesNotExist
 from jose import jwt
 from rest_framework.exceptions import AuthenticationFailed
 
-from treeherder.config.settings import (AUTH0_CLIENTID,
-                                        AUTH0_DOMAIN)
+from treeherder.config.settings import AUTH0_CLIENTID, AUTH0_DOMAIN
 
 logger = logging.getLogger(__name__)
 
@@ -29,7 +28,6 @@ with open('treeherder/auth/jwks.json') as f:
 
 
 class AuthBackend:
-
     def _get_access_token_expiry(self, request):
         expiration_timestamp_in_seconds = request.META.get('HTTP_ACCESS_TOKEN_EXPIRES_AT')
 
@@ -141,7 +139,7 @@ class AuthBackend:
                     "kid": key["kid"],
                     "use": key["use"],
                     "n": key["n"],
-                    "e": key["e"]
+                    "e": key["e"],
                 }
                 break
 
@@ -156,7 +154,7 @@ class AuthBackend:
                 algorithms=['RS256'],
                 audience=AUTH0_CLIENTID,
                 access_token=access_token,
-                issuer="https://"+AUTH0_DOMAIN+"/"
+                issuer="https://" + AUTH0_DOMAIN + "/",
             )
             return user_info
         except jwt.ExpiredSignatureError:
@@ -173,7 +171,9 @@ class AuthBackend:
         now_in_seconds = int(time.time())
 
         # The session length is set to match whichever token expiration time is closer.
-        earliest_expiration_timestamp = min(access_token_expiry_timestamp, id_token_expiry_timestamp)
+        earliest_expiration_timestamp = min(
+            access_token_expiry_timestamp, id_token_expiry_timestamp
+        )
         seconds_until_expiry = earliest_expiration_timestamp - now_in_seconds
 
         if seconds_until_expiry <= 0:

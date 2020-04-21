@@ -1,5 +1,4 @@
 class CollectionNotStoredException(Exception):
-
     def __init__(self, error_list, *args, **kwargs):
         """
         error_list contains dictionaries, each containing
@@ -10,8 +9,10 @@ class CollectionNotStoredException(Exception):
 
     def __str__(self):
         return "\n".join(
-            ["[{project}] Error storing {collection} data: {message}".format(
-                **error) for error in self.error_list]
+            [
+                "[{project}] Error storing {collection} data: {message}".format(**error)
+                for error in self.error_list
+            ]
         )
 
 

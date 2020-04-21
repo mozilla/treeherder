@@ -24,9 +24,7 @@ class Changelog(models.Model):
 
 class ChangelogFile(models.Model):
     id = models.AutoField(primary_key=True)
-    changelog = models.ForeignKey(
-        Changelog, related_name="files", on_delete=models.CASCADE
-    )
+    changelog = models.ForeignKey(Changelog, related_name="files", on_delete=models.CASCADE)
     name = models.SlugField(max_length=255)
 
     class Meta:

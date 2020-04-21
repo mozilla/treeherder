@@ -45,9 +45,7 @@ class GitHub:
             if filters:
                 for filter in filters:
                     if isinstance(filter, list) and filter[0] == "filter_by_path":
-                        commit_info = github.commit_info(
-                            owner, repository, commit["sha"]
-                        )
+                        commit_info = github.commit_info(owner, repository, commit["sha"])
                         commit["files"] = commit_info["files"]
                         break
 

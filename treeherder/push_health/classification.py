@@ -11,7 +11,9 @@ def set_classifications(failures, intermittent_history, fixed_by_commit_history)
 
 def set_fixed_by_commit(failure, fixed_by_commit_history):
     # Not perfect, could have intermittent that is cause of fbc
-    if failure['testName'] in fixed_by_commit_history.keys() and not is_classified_intermittent(failure):
+    if failure['testName'] in fixed_by_commit_history.keys() and not is_classified_intermittent(
+        failure
+    ):
         failure['suggestedClassification'] = 'fixedByCommit'
         return True
     return False
@@ -37,8 +39,10 @@ def set_intermittent(failure, previous_failures):
 
     # TODO: how many unique regression in win7*reftest*
     # Marking all win7 reftest failures as int, too many font issues
-    if confidence == 0 and platform == 'windows7-32' and (
-        'opt-reftest' in job_name or 'debug-reftest' in job_name
+    if (
+        confidence == 0
+        and platform == 'windows7-32'
+        and ('opt-reftest' in job_name or 'debug-reftest' in job_name)
     ):
         confidence = 50
 
@@ -75,8 +79,7 @@ def get_grouped(failures):
     for failure in failures:
         is_intermittent = failure['suggestedClassification'] == 'intermittent'
 
-        if ((is_intermittent and failure['confidence'] == 100) or
-                failure['passFailRatio'] > .5):
+        if (is_intermittent and failure['confidence'] == 100) or failure['passFailRatio'] > 0.5:
             classified[KNOWN_ISSUES].append(failure)
         elif failure['failedInParent']:
             classified[KNOWN_ISSUES].append(failure)

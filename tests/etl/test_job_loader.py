@@ -8,10 +8,7 @@ import slugid
 from treeherder.etl.exceptions import MissingPushException
 from treeherder.etl.job_loader import JobLoader
 from treeherder.etl.taskcluster_pulse.handler import handleMessage
-from treeherder.model.models import (Job,
-                                     JobDetail,
-                                     JobLog,
-                                     TaskclusterMetadata)
+from treeherder.model.models import Job, JobDetail, JobLog, TaskclusterMetadata
 
 
 @pytest.fixture
@@ -47,7 +44,8 @@ def mock_artifact(taskId, runId, artifactName):
         baseUrl.format(taskId=taskId, runId=runId, artifactName=artifactName),
         body="",
         content_type='text/plain',
-        status=200)
+        status=200,
+    )
 
 
 @pytest.fixture
@@ -84,6 +82,7 @@ def new_transformed_jobs(sample_data, test_repository, push_stored):
 
 def test_job_transformation(pulse_jobs, transformed_pulse_jobs):
     import json
+
     jl = JobLoader()
     for idx, pulse_job in enumerate(pulse_jobs):
         assert jl._is_valid_job(pulse_job)
@@ -105,8 +104,9 @@ def test_new_job_transformation(new_pulse_jobs, new_transformed_jobs, failure_cl
             assert new_transformed_jobs[taskId] == transformed_job
 
 
-def test_ingest_pulse_jobs(pulse_jobs, test_repository, push_stored,
-                           failure_classifications, mock_log_parser):
+def test_ingest_pulse_jobs(
+    pulse_jobs, test_repository, push_stored, failure_classifications, mock_log_parser
+):
     """
     Ingest a job through the JSON Schema validated JobLoader used by Pulse
     """
@@ -121,28 +121,39 @@ def test_ingest_pulse_jobs(pulse_jobs, test_repository, push_stored,
     assert len(jobs) == 5
 
     assert [job.taskcluster_metadata for job in jobs]
-    assert set(TaskclusterMetadata.objects.values_list(
-        'task_id', flat=True)) == set(['IYyscnNMTLuxzna7PNqUJQ',
-                                       'XJCbbRQ6Sp-UL1lL-tw5ng',
-                                       'ZsSzJQu3Q7q2MfehIBAzKQ',
-                                       'bIzVZt9jQQKgvQYD3a2HQw'])
+    assert set(TaskclusterMetadata.objects.values_list('task_id', flat=True)) == set(
+        [
+            'IYyscnNMTLuxzna7PNqUJQ',
+            'XJCbbRQ6Sp-UL1lL-tw5ng',
+            'ZsSzJQu3Q7q2MfehIBAzKQ',
+            'bIzVZt9jQQKgvQYD3a2HQw',
+        ]
+    )
 
     job_logs = JobLog.objects.filter(job_id=1)
     assert job_logs.count() == 2
-    logs_expected = [{"name": "builds-4h",
-                      "url": "http://ftp.mozilla.org/pub/mozilla.org/spidermonkey/tinderbox-builds/mozilla-inbound-linux64/mozilla-inbound_linux64_spidermonkey-warnaserr-bm57-build1-build352.txt.gz",
-                      "parse_status": 0},
-                     {"name": "errorsummary_json",
-                      "url": "http://mozilla-releng-blobs.s3.amazonaws.com/blobs/Mozilla-Inbound-Non-PGO/sha512/05c7f57df6583c6351c6b49e439e2678e0f43c2e5b66695ea7d096a7519e1805f441448b5ffd4cc3b80b8b2c74b244288fda644f55ed0e226ef4e25ba02ca466",
-                      "parse_status": 0}]
-    assert [{"name": item.name, "url": item.url, "parse_status": item.status}
-            for item in job_logs.all()] == logs_expected
+    logs_expected = [
+        {
+            "name": "builds-4h",
+            "url": "http://ftp.mozilla.org/pub/mozilla.org/spidermonkey/tinderbox-builds/mozilla-inbound-linux64/mozilla-inbound_linux64_spidermonkey-warnaserr-bm57-build1-build352.txt.gz",
+            "parse_status": 0,
+        },
+        {
+            "name": "errorsummary_json",
+            "url": "http://mozilla-releng-blobs.s3.amazonaws.com/blobs/Mozilla-Inbound-Non-PGO/sha512/05c7f57df6583c6351c6b49e439e2678e0f43c2e5b66695ea7d096a7519e1805f441448b5ffd4cc3b80b8b2c74b244288fda644f55ed0e226ef4e25ba02ca466",
+            "parse_status": 0,
+        },
+    ]
+    assert [
+        {"name": item.name, "url": item.url, "parse_status": item.status} for item in job_logs.all()
+    ] == logs_expected
 
     assert JobDetail.objects.count() == 2
 
 
-def test_ingest_pending_pulse_job(pulse_jobs, push_stored,
-                                  failure_classifications, mock_log_parser):
+def test_ingest_pending_pulse_job(
+    pulse_jobs, push_stored, failure_classifications, mock_log_parser
+):
     """
     Test that ingesting a pending job (1) works and (2) ingests the
     taskcluster metadata
@@ -167,8 +178,9 @@ def test_ingest_pending_pulse_job(pulse_jobs, push_stored,
     assert JobDetail.objects.count() == 2
 
 
-def test_ingest_pulse_jobs_bad_project(pulse_jobs, test_repository, push_stored,
-                                       failure_classifications, mock_log_parser):
+def test_ingest_pulse_jobs_bad_project(
+    pulse_jobs, test_repository, push_stored, failure_classifications, mock_log_parser
+):
     """
     Test ingesting a pulse job with bad repo will skip, ingest others
     """
@@ -204,9 +216,7 @@ def test_ingest_pulse_jobs_with_missing_push(pulse_jobs):
     assert Job.objects.count() == 0
 
 
-def test_transition_pending_running_complete(first_job,
-                                             failure_classifications,
-                                             mock_log_parser):
+def test_transition_pending_running_complete(first_job, failure_classifications, mock_log_parser):
     jl = JobLoader()
 
     change_state_result(first_job, jl, "pending", "unknown", "pending", "unknown")
@@ -214,45 +224,43 @@ def test_transition_pending_running_complete(first_job,
     change_state_result(first_job, jl, "completed", "fail", "completed", "testfailed")
 
 
-def test_transition_complete_pending_stays_complete(first_job,
-                                                    failure_classifications,
-                                                    mock_log_parser):
+def test_transition_complete_pending_stays_complete(
+    first_job, failure_classifications, mock_log_parser
+):
     jl = JobLoader()
 
     change_state_result(first_job, jl, "completed", "fail", "completed", "testfailed")
     change_state_result(first_job, jl, "pending", "unknown", "completed", "testfailed")
 
 
-def test_transition_complete_running_stays_complete(first_job,
-                                                    failure_classifications,
-                                                    mock_log_parser):
+def test_transition_complete_running_stays_complete(
+    first_job, failure_classifications, mock_log_parser
+):
     jl = JobLoader()
 
     change_state_result(first_job, jl, "completed", "fail", "completed", "testfailed")
     change_state_result(first_job, jl, "running", "unknown", "completed", "testfailed")
 
 
-def test_transition_running_pending_stays_running(first_job,
-                                                  failure_classifications,
-                                                  mock_log_parser):
+def test_transition_running_pending_stays_running(
+    first_job, failure_classifications, mock_log_parser
+):
     jl = JobLoader()
 
     change_state_result(first_job, jl, "running", "unknown", "running", "unknown")
     change_state_result(first_job, jl, "pending", "unknown", "running", "unknown")
 
 
-def test_transition_running_superseded(first_job,
-                                       failure_classifications,
-                                       mock_log_parser):
+def test_transition_running_superseded(first_job, failure_classifications, mock_log_parser):
     jl = JobLoader()
 
     change_state_result(first_job, jl, "running", "unknown", "running", "unknown")
     change_state_result(first_job, jl, "completed", "superseded", "completed", "superseded")
 
 
-def test_transition_pending_retry_fail_stays_retry(first_job,
-                                                   failure_classifications,
-                                                   mock_log_parser):
+def test_transition_pending_retry_fail_stays_retry(
+    first_job, failure_classifications, mock_log_parser
+):
     jl = JobLoader()
 
     change_state_result(first_job, jl, "pending", "unknown", "pending", "unknown")
@@ -262,8 +270,7 @@ def test_transition_pending_retry_fail_stays_retry(first_job,
     change_state_result(first_job, jl, "completed", "fail", "completed", "retry")
 
 
-def test_skip_unscheduled(first_job, failure_classifications,
-                          mock_log_parser):
+def test_skip_unscheduled(first_job, failure_classifications, mock_log_parser):
     jl = JobLoader()
     first_job["state"] = "unscheduled"
     jl.process_job(first_job, 'https://firefox-ci-tc.services.mozilla.com')
@@ -280,8 +287,11 @@ def change_state_result(test_job, job_loader, new_state, new_result, exp_state, 
         # pending jobs wouldn't have logs and our store_job_data doesn't
         # support it.
         del job['logs']
-        errorsummary_indices = [i for i, item in enumerate(job["jobInfo"].get("links", []))
-                                if item.get("linkText", "").endswith("_errorsummary.log")]
+        errorsummary_indices = [
+            i
+            for i, item in enumerate(job["jobInfo"].get("links", []))
+            if item.get("linkText", "").endswith("_errorsummary.log")
+        ]
         for index in errorsummary_indices:
             del job["jobInfo"]["links"][index]
 

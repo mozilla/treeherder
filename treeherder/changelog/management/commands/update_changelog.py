@@ -11,9 +11,7 @@ class Command(BaseCommand):
     """
 
     def add_arguments(self, parser):
-        parser.add_argument(
-            "--days", help="Number of days to look at", type=int, default=1
-        )
+        parser.add_argument("--days", help="Number of days to look at", type=int, default=1)
 
     def handle(self, *args, **options):
         update_changelog(options["days"])

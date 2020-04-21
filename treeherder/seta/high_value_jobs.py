@@ -58,8 +58,11 @@ def build_removals(active_jobs, failures, target):
                 if revision not in remaining_failures:
                     failed_revisions.append(revision)
 
-            logger.info("jobtype: %s is the root failure(s) of these %s revisions",
-                        jobtype, failed_revisions)
+            logger.info(
+                "jobtype: %s is the root failure(s) of these %s revisions",
+                jobtype,
+                failed_revisions,
+            )
 
     return low_value_jobs
 
@@ -76,9 +79,8 @@ def get_high_value_jobs(fixed_by_commit_jobs, target=100):
     active_jobs = job_priorities_to_jobtypes()
 
     low_value_jobs = build_removals(
-        active_jobs=active_jobs,
-        failures=fixed_by_commit_jobs,
-        target=target)
+        active_jobs=active_jobs, failures=fixed_by_commit_jobs, target=target
+    )
 
     # Only return high value jobs
     for low_value_job in low_value_jobs:
@@ -90,7 +92,11 @@ def get_high_value_jobs(fixed_by_commit_jobs, target=100):
     total = len(fixed_by_commit_jobs)
     total_detected = check_removal(fixed_by_commit_jobs, low_value_jobs)
     percent_detected = 100 * len(total_detected) / total
-    logger.info("We will detect %.2f%% (%s) of the %s failures",
-                percent_detected, len(total_detected), total)
+    logger.info(
+        "We will detect %.2f%% (%s) of the %s failures",
+        percent_detected,
+        len(total_detected),
+        total,
+    )
 
     return active_jobs

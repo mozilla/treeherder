@@ -1,11 +1,7 @@
-from django.core.management.base import (BaseCommand,
-                                         CommandError)
-from django.db import (connection,
-                       transaction)
+from django.core.management.base import BaseCommand, CommandError
+from django.db import connection, transaction
 
-from treeherder.perf.models import (PerformanceAlert,
-                                    PerformanceDatum,
-                                    PerformanceSignature)
+from treeherder.perf.models import PerformanceAlert, PerformanceDatum, PerformanceSignature
 
 RAPTOR_TP6_SUBTESTS = 'raptor-tp6-subtests'
 USE_CASES = [RAPTOR_TP6_SUBTESTS]
@@ -30,13 +26,13 @@ class Command(BaseCommand):
         parser.add_argument(
             '--from',
             action='append',
-            help='Original signature (specify multiple times to get multiple signatures)'
+            help='Original signature (specify multiple times to get multiple signatures)',
         )
         parser.add_argument(
             '--to',
             action='append',
             help='New signature we want to move performance data to '
-                 '(specify multiple times to get multiple signatures)'
+            '(specify multiple times to get multiple signatures)',
         )
         parser.add_argument(
             '--for',
@@ -45,12 +41,14 @@ class Command(BaseCommand):
             metavar='USE CASE',
             help='''Rename "old" Raptor tp6 subtests, by pointing perf alerts & datum to new signatures.
                  Cannot be used in conjunction with --from/--to arguments.
-                 Available use cases: {}'''.format(','.join(USE_CASES))
+                 Available use cases: {}'''.format(
+                ','.join(USE_CASES)
+            ),
         )
         parser.add_argument(
             '--keep-leftovers',
             action='store_true',
-            help='Keep database rows even if they become useless after the script runs'
+            help='Keep database rows even if they become useless after the script runs',
         )
 
     def handle(self, *args, **options):
@@ -112,12 +110,13 @@ class Command(BaseCommand):
                old_signature.option_collection_id = new_signature.option_collection_id AND
                old_signature.extra_options = new_signature.extra_options AND
                old_signature.lower_is_better = new_signature.lower_is_better AND
-               old_signature.has_subtests = new_signature.has_subtests"""\
-            .format(tp6_name_pattern='raptor-tp6%',
-                    mozilla_central=self.mozilla_central,
-                    mozilla_inbound=self.mozilla_inbound,
-                    mozilla_beta=self.mozilla_beta,
-                    autoland=self.autoland)
+               old_signature.has_subtests = new_signature.has_subtests""".format(
+            tp6_name_pattern='raptor-tp6%',
+            mozilla_central=self.mozilla_central,
+            mozilla_inbound=self.mozilla_inbound,
+            mozilla_beta=self.mozilla_beta,
+            autoland=self.autoland,
+        )
 
         with connection.cursor() as cursor:
             cursor.execute(query_for_signature_pairs)
@@ -131,4 +130,6 @@ class Command(BaseCommand):
         with transaction.atomic():
             for from_sign, to_sign in signature_pairs:
                 PerformanceDatum.objects.filter(signature_id=from_sign).update(signature_id=to_sign)
-                PerformanceAlert.objects.filter(series_signature_id=from_sign).update(series_signature_id=to_sign)
+                PerformanceAlert.objects.filter(series_signature_id=from_sign).update(
+                    series_signature_id=to_sign
+                )

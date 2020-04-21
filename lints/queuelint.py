@@ -36,8 +36,14 @@ if settings_queues != procfile_queues:
     print("ERROR - mismatches found")
     missing_procfile = procfile_queues - settings_queues
     if missing_procfile:
-        print("The following queues were in the Procfile, but not in the settings file:\n%s\n" % "\n".join(missing_procfile))
+        print(
+            "The following queues were in the Procfile, but not in the settings file:\n%s\n"
+            % "\n".join(missing_procfile)
+        )
     missing_settings = settings_queues - procfile_queues
     if missing_settings:
-        print("The following queues were in the settings, but not in the Procfile:\n%s\n" % "\n".join(missing_settings))
+        print(
+            "The following queues were in the settings, but not in the Procfile:\n%s\n"
+            % "\n".join(missing_settings)
+        )
     sys.exit(1)

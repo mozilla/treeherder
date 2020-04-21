@@ -11,18 +11,15 @@ import taskcluster
 import taskcluster.aio
 import taskcluster_urls as liburls
 from django.conf import settings
-from django.core.management.base import (BaseCommand,
-                                         CommandError)
+from django.core.management.base import BaseCommand, CommandError
 from django.db import connection
 
 from treeherder.client.thclient import TreeherderClient
 from treeherder.config.settings import GITHUB_TOKEN
 from treeherder.etl.job_loader import JobLoader
 from treeherder.etl.push_loader import PushLoader
-from treeherder.etl.pushlog import (HgPushlogProcess,
-                                    last_push_id_from_server)
-from treeherder.etl.taskcluster_pulse.handler import (EXCHANGE_EVENT_MAP,
-                                                      handleMessage)
+from treeherder.etl.pushlog import HgPushlogProcess, last_push_id_from_server
+from treeherder.etl.taskcluster_pulse.handler import EXCHANGE_EVENT_MAP, handleMessage
 from treeherder.model.models import Repository
 from treeherder.utils import github
 from treeherder.utils.github import fetch_json
@@ -67,10 +64,7 @@ def release_connection():
 async def handleTaskId(taskId, root_url):
     asyncQueue = taskcluster.aio.Queue({"rootUrl": root_url}, session=session)
     results = await asyncio.gather(asyncQueue.status(taskId), asyncQueue.task(taskId))
-    await handleTask({
-        "status": results[0]["status"],
-        "task": results[1],
-    }, root_url)
+    await handleTask({"status": results[0]["status"], "task": results[1],}, root_url)
 
 
 async def handleTask(task, root_url):
@@ -81,13 +75,7 @@ async def handleTask(task, root_url):
     for run in reversed(runs):
         message = {
             "exchange": stateToExchange[run["state"]],
-            "payload": {
-                "status": {
-                    "taskId": taskId,
-                    "runs": runs,
-                },
-                "runId": run["runId"],
-            },
+            "payload": {"status": {"taskId": taskId, "runs": runs,}, "runId": run["runId"],},
             "root_url": root_url,
         }
 
@@ -98,8 +86,9 @@ async def handleTask(task, root_url):
 
         if taskRuns:
             # Schedule and run jobs inside the thread pool executor
-            jobFutures = [routine_to_future(
-                process_job_with_threads, run, root_url) for run in taskRuns]
+            jobFutures = [
+                routine_to_future(process_job_with_threads, run, root_url) for run in taskRuns
+            ]
             await await_futures(jobFutures)
 
 
@@ -139,6 +128,7 @@ async def routine_to_future(func, *args):
     """Arrange for a function to be executed in the thread pool executor.
     Returns an asyncio.Futures object.
     """
+
     def _wrap_coroutine(func, *args):
         """Wraps a coroutine into a regular routine to be ran by threads."""
         asyncio.run(func(*args))
@@ -203,7 +193,9 @@ def query_data(repo_meta, commit):
     event_base_sha = repo_meta["branch"]
     # First we try with `master` being the base sha
     # e.g. https://api.github.com/repos/servo/servo/compare/master...1418c0555ff77e5a3d6cf0c6020ba92ece36be2e
-    compareResponse = github.compare_shas(repo_meta["owner"], repo_meta["repo"], repo_meta["branch"], commit)
+    compareResponse = github.compare_shas(
+        repo_meta["owner"], repo_meta["repo"], repo_meta["branch"], commit
+    )
     merge_base_commit = compareResponse.get("merge_base_commit")
     if merge_base_commit:
         commiter_date = merge_base_commit["commit"]["committer"]["date"]
@@ -232,16 +224,20 @@ def query_data(repo_meta, commit):
         assert event_base_sha != repo_meta["branch"]
         logger.info("We have a new base: %s", event_base_sha)
         # When using the correct event_base_sha the "commits" field will be correct
-        compareResponse = github.compare_shas(repo_meta["owner"], repo_meta["repo"], event_base_sha, commit)
+        compareResponse = github.compare_shas(
+            repo_meta["owner"], repo_meta["repo"], event_base_sha, commit
+        )
 
     commits = []
     for _commit in compareResponse["commits"]:
-        commits.append({
-            "message": _commit["commit"]["message"],
-            "author": _commit["commit"]["author"],
-            "committer": _commit["commit"]["committer"],
-            "id": _commit["sha"],
-        })
+        commits.append(
+            {
+                "message": _commit["commit"]["message"],
+                "author": _commit["commit"]["author"],
+                "committer": _commit["commit"]["committer"],
+                "id": _commit["sha"],
+            }
+        )
 
     return event_base_sha, commits
 
@@ -260,11 +256,9 @@ def github_push_to_pulse(repo_meta, commit):
                 "event.base.sha": event_base_sha,
                 "event.head.sha": commit,
             },
-            "body": {
-                "commits": commits,
-            },
-            "repository": repo_meta["repo"]
-        }
+            "body": {"commits": commits,},
+            "repository": repo_meta["repo"],
+        },
     }
 
 
@@ -285,7 +279,9 @@ def ingest_git_pushes(project, dry_run=False):
     the same way as in Github.
     """
     if not GITHUB_TOKEN:
-        raise Exception("Set GITHUB_TOKEN env variable to avoid rate limiting - Visit https://github.com/settings/tokens.")
+        raise Exception(
+            "Set GITHUB_TOKEN env variable to avoid rate limiting - Visit https://github.com/settings/tokens."
+        )
 
     logger.info("--> Converting Github commits to pushes")
     _repo = repo_meta(project)
@@ -309,7 +305,11 @@ def ingest_git_pushes(project, dry_run=False):
         # The 1st parent is the push from `master` from which we forked
         oldest_parent_revision = info["parents"][0]["sha"]
         push_to_date[oldest_parent_revision] = info["commit"]["committer"]["date"]
-        logger.info("Push: {} - Date: {}".format(oldest_parent_revision, push_to_date[oldest_parent_revision]))
+        logger.info(
+            "Push: {} - Date: {}".format(
+                oldest_parent_revision, push_to_date[oldest_parent_revision]
+            )
+        )
         push_revision.append(_commit["sha"])
 
     if not dry_run:
@@ -329,59 +329,46 @@ def ingest_git_pushes(project, dry_run=False):
 
 class Command(BaseCommand):
     """Management command to ingest data from a single push."""
+
     help = "Ingests a single push and tasks into Treeherder"
 
     def add_arguments(self, parser):
         parser.add_argument(
-            "ingestion_type",
-            nargs=1,
-            help="Type of ingestion to do: [task|hg-push|git-commit|pr]"
+            "ingestion_type", nargs=1, help="Type of ingestion to do: [task|hg-push|git-commit|pr]"
         )
-        parser.add_argument(
-            "-p", "--project",
-            help="Hg repository to query (e.g. autoland)"
-        )
-        parser.add_argument(
-            "-c", "--commit", "-r", "--revision",
-            help="Commit/revision to import"
-        )
+        parser.add_argument("-p", "--project", help="Hg repository to query (e.g. autoland)")
+        parser.add_argument("-c", "--commit", "-r", "--revision", help="Commit/revision to import")
         parser.add_argument(
             "--enable-eager-celery",
             action="store_true",
-            help="This will cause all Celery queues to execute (like log parsing). This will take way longer."
+            help="This will cause all Celery queues to execute (like log parsing). This will take way longer.",
         )
         parser.add_argument(
-            "-a", "--ingest-all-tasks",
+            "-a",
+            "--ingest-all-tasks",
             action="store_true",
-            help="This will cause all tasks associated to a commit to be ingested. This can take a long time."
+            help="This will cause all tasks associated to a commit to be ingested. This can take a long time.",
         )
         parser.add_argument(
             "--root-url",
             dest="root_url",
             default="https://firefox-ci-tc.services.mozilla.com",
-            help="Taskcluster root URL for non-Firefox tasks (e.g. https://community-tc.services.mozilla.com"
+            help="Taskcluster root URL for non-Firefox tasks (e.g. https://community-tc.services.mozilla.com",
         )
-        parser.add_argument(
-            "--task-id",
-            dest="taskId",
-            nargs="?",
-            help="taskId to ingest"
-        )
+        parser.add_argument("--task-id", dest="taskId", nargs="?", help="taskId to ingest")
         parser.add_argument(
             "--pr-url",
             dest="prUrl",
-            help="Ingest a PR: e.g. https://github.com/mozilla-mobile/android-components/pull/4821"
+            help="Ingest a PR: e.g. https://github.com/mozilla-mobile/android-components/pull/4821",
         )
         parser.add_argument(
             "--dry-run",
             dest="dryRun",
             action="store_true",
-            help="Do not make changes to the database"
+            help="Do not make changes to the database",
         )
         parser.add_argument(
-            "--last-n-pushes",
-            type=int,
-            help="fetch the last N pushes from the repository"
+            "--last-n-pushes", type=int, help="fetch the last N pushes from the repository"
         )
 
     def handle(self, *args, **options):
@@ -409,12 +396,14 @@ class Command(BaseCommand):
                         "event.base.repo.url": "https://github.com/{}/{}.git".format(org, repo),
                         "event.head.repo.url": "https://github.com/{}/{}.git".format(org, repo),
                     },
-                }
+                },
             }
             PushLoader().process(pulse["payload"], pulse["exchange"], root_url)
         elif typeOfIngestion.find("git") > -1:
             if not os.environ.get("GITHUB_TOKEN"):
-                logger.warning("If you don't set up GITHUB_TOKEN you might hit Github's rate limiting. See docs for info.")
+                logger.warning(
+                    "If you don't set up GITHUB_TOKEN you might hit Github's rate limiting. See docs for info."
+                )
 
             if typeOfIngestion == "git-push":
                 ingest_git_push(options["project"], options["commit"])
@@ -422,9 +411,7 @@ class Command(BaseCommand):
                 ingest_git_pushes(options["project"], options["dryRun"])
         elif typeOfIngestion == "push":
             if not options["enable_eager_celery"]:
-                logger.info(
-                    "If you want all logs to be parsed use --enable-eager-celery"
-                )
+                logger.info("If you want all logs to be parsed use --enable-eager-celery")
             else:
                 # Make sure all tasks are run synchronously / immediately
                 settings.CELERY_TASK_ALWAYS_EAGER = True
@@ -438,7 +425,9 @@ class Command(BaseCommand):
             elif options['last_n_pushes'] and options['ingest_all_tasks']:
                 raise CommandError('Can\'t specify last_n_pushes and ingest_all_tasks at same time')
             elif options['last_n_pushes'] and options['commit']:
-                raise CommandError('Can\'t specify last_n_pushes and commit/revision at the same time')
+                raise CommandError(
+                    'Can\'t specify last_n_pushes and commit/revision at the same time'
+                )
             # get reference to repo
             repo = Repository.objects.get(name=project, active_status="active")
             fetch_push_id = None
@@ -446,17 +435,18 @@ class Command(BaseCommand):
             if options['last_n_pushes']:
                 last_push_id = last_push_id_from_server(repo)
                 fetch_push_id = max(1, last_push_id - options['last_n_pushes'])
-                logger.info('last server push id: %d; fetching push %d and newer',
-                            last_push_id, fetch_push_id)
+                logger.info(
+                    'last server push id: %d; fetching push %d and newer',
+                    last_push_id,
+                    fetch_push_id,
+                )
             elif options["ingest_all_tasks"]:
                 gecko_decision_task = get_decision_task_id(project, commit, repo.tc_root_url)
                 logger.info("## START ##")
                 loop.run_until_complete(processTasks(gecko_decision_task, repo.tc_root_url))
                 logger.info("## END ##")
             else:
-                logger.info(
-                    "You can ingest all tasks for a push with -a/--ingest-all-tasks."
-                )
+                logger.info("You can ingest all tasks for a push with -a/--ingest-all-tasks.")
 
             # get hg pushlog
             pushlog_url = "%s/json-pushes/?full=1&version=2" % repo.url

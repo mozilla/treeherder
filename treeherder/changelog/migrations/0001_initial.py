@@ -8,8 +8,7 @@ class Migration(migrations.Migration):
 
     initial = True
 
-    dependencies = [
-    ]
+    dependencies = []
 
     operations = [
         migrations.CreateModel(
@@ -37,10 +36,15 @@ class Migration(migrations.Migration):
             fields=[
                 ('id', models.AutoField(primary_key=True, serialize=False)),
                 ('name', models.SlugField(max_length=255)),
-                ('changelog', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='files', to='changelog.Changelog')),
+                (
+                    'changelog',
+                    models.ForeignKey(
+                        on_delete=django.db.models.deletion.CASCADE,
+                        related_name='files',
+                        to='changelog.Changelog',
+                    ),
+                ),
             ],
-            options={
-                'db_table': 'changelog_file',
-            },
+            options={'db_table': 'changelog_file',},
         ),
     ]

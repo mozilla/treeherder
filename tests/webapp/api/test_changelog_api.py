@@ -3,8 +3,7 @@ from datetime import datetime
 from django.db import transaction
 from django.urls import reverse
 
-from treeherder.changelog.models import (Changelog,
-                                         ChangelogFile)
+from treeherder.changelog.models import Changelog, ChangelogFile
 
 
 def test_changelog_list(client, test_job_with_notes):

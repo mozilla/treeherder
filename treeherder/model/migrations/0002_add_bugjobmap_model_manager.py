@@ -12,9 +12,6 @@ class Migration(migrations.Migration):
 
     operations = [
         migrations.AlterModelManagers(
-            name='bugjobmap',
-            managers=[
-                ('failures', django.db.models.manager.Manager()),
-            ],
+            name='bugjobmap', managers=[('failures', django.db.models.manager.Manager()),],
         ),
     ]

@@ -4,13 +4,10 @@ import threading
 import environ
 import newrelic.agent
 from django.conf import settings
-from kombu import (Connection,
-                   Exchange,
-                   Queue)
+from kombu import Connection, Exchange, Queue
 from kombu.mixins import ConsumerMixin
 
-from treeherder.etl.tasks.pulse_tasks import (store_pulse_pushes,
-                                              store_pulse_tasks)
+from treeherder.etl.tasks.pulse_tasks import store_pulse_pushes, store_pulse_tasks
 from treeherder.utils.http import fetch_json
 
 from .exchange import get_exchange
@@ -56,9 +53,7 @@ class PulseConsumer(ConsumerMixin):
         self.build_routing_key = build_routing_key
 
     def get_consumers(self, Consumer, channel):
-        return [
-            Consumer(**c) for c in self.consumers
-        ]
+        return [Consumer(**c) for c in self.consumers]
 
     def bindings(self):
         """Get the bindings for this consumer, each of the form `<exchange>.<routing_keys>`,
@@ -95,8 +90,7 @@ class PulseConsumer(ConsumerMixin):
                 durable=True,
                 auto_delete=settings.PULSE_AUTO_DELETE_QUEUES,
             )
-            self.consumers.append(dict(queues=self.queue,
-                                       callbacks=[self.on_message]))
+            self.consumers.append(dict(queues=self.queue, callbacks=[self.on_message]))
             # just in case the queue does not already exist on Pulse
             self.queue.declare()
         else:
@@ -120,8 +114,11 @@ class PulseConsumer(ConsumerMixin):
         try:
             bindings = self.get_bindings(self.queue_name)["bindings"]
         except Exception:
-            logger.error("Unable to fetch existing bindings for %s. Data ingestion may proceed, "
-                         "but no bindings will be pruned", self.queue_name)
+            logger.error(
+                "Unable to fetch existing bindings for %s. Data ingestion may proceed, "
+                "but no bindings will be pruned",
+                self.queue_name,
+            )
 
         # Now prune any bindings from the queue that were not
         # established above.
@@ -129,12 +126,10 @@ class PulseConsumer(ConsumerMixin):
         # therefore be removed from the durable queue bindings list.
         for binding in bindings:
             if binding["source"]:
-                binding_str = self.get_binding_str(binding["source"],
-                                                   binding["routing_key"])
+                binding_str = self.get_binding_str(binding["source"], binding["routing_key"])
 
                 if binding_str not in new_bindings:
-                    self.unbind_from(Exchange(binding["source"]),
-                                     binding["routing_key"])
+                    self.unbind_from(Exchange(binding["source"]), binding["routing_key"])
                     logger.info("Unbound from: %s", binding_str)
 
     def get_binding_str(self, exchange, routing_key):
@@ -158,8 +153,7 @@ class TaskConsumer(PulseConsumer):
         routing_key = message.delivery_info['routing_key']
         logger.debug('received job message from %s#%s', exchange, routing_key)
         store_pulse_tasks.apply_async(
-            args=[body, exchange, routing_key, self.root_url],
-            queue='store_pulse_tasks'
+            args=[body, exchange, routing_key, self.root_url], queue='store_pulse_tasks'
         )
         message.ack()
 
@@ -181,8 +175,7 @@ class PushConsumer(PulseConsumer):
         routing_key = message.delivery_info['routing_key']
         logger.info('received push message from %s#%s', exchange, routing_key)
         store_pulse_pushes.apply_async(
-            args=[body, exchange, routing_key, self.root_url],
-            queue='store_pulse_pushes'
+            args=[body, exchange, routing_key, self.root_url], queue='store_pulse_pushes'
         )
         message.ack()
 
@@ -193,7 +186,9 @@ class JointConsumer(PulseConsumer):
     AMQP servers, and Kombu only supports communicating wiht one connection per
     thread, so we use multiple threads, one per consumer.
     """
+
     queue_suffix = env("PULSE_QUEUE_NAME", default="queue")
+
     def bindings(self):
 
         rv = []
@@ -212,13 +207,11 @@ class JointConsumer(PulseConsumer):
         logger.debug('received job message from %s#%s', exchange, routing_key)
         if exchange.startswith('exchange/taskcluster-queue/v1/'):
             store_pulse_tasks.apply_async(
-                args=[body, exchange, routing_key, self.root_url],
-                queue='store_pulse_tasks'
+                args=[body, exchange, routing_key, self.root_url], queue='store_pulse_tasks'
             )
         else:
             store_pulse_pushes.apply_async(
-                args=[body, exchange, routing_key, self.root_url],
-                queue='store_pulse_pushes'
+                args=[body, exchange, routing_key, self.root_url], queue='store_pulse_pushes'
             )
         message.ack()
 
@@ -231,6 +224,7 @@ class Consumers:
         def thd(consumer):
             consumer.prepare()
             consumer.run()
+
         threads = [threading.Thread(target=thd, args=(c,), daemon=True) for c in self.consumers]
         for t in threads:
             t.start()
@@ -243,6 +237,8 @@ def prepare_consumers(consumer_cls, sources, build_routing_key=None):
 
 
 def prepare_joint_consumers(listening_params):
-    def unpacker(x, y, z): return x, y, z
+    def unpacker(x, y, z):
+        return x, y, z
+
     consumer_class, sources, keys = unpacker(*listening_params)
     return Consumers([consumer_class(source, key) for source, key in zip(sources, keys)])

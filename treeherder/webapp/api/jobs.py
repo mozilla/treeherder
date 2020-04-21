@@ -10,22 +10,20 @@ from rest_framework.decorators import action
 from rest_framework.exceptions import ParseError
 from rest_framework.response import Response
 from rest_framework.reverse import reverse
-from rest_framework.status import (HTTP_400_BAD_REQUEST,
-                                   HTTP_404_NOT_FOUND)
+from rest_framework.status import HTTP_400_BAD_REQUEST, HTTP_404_NOT_FOUND
 
 from treeherder.model.error_summary import get_error_summary
-from treeherder.model.models import (Job,
-                                     JobDetail,
-                                     JobLog,
-                                     OptionCollection,
-                                     Repository,
-                                     TextLogError,
-                                     TextLogStep)
-from treeherder.webapp.api import (pagination,
-                                   serializers)
-from treeherder.webapp.api.utils import (CharInFilter,
-                                         NumberInFilter,
-                                         to_timestamp)
+from treeherder.model.models import (
+    Job,
+    JobDetail,
+    JobLog,
+    OptionCollection,
+    Repository,
+    TextLogError,
+    TextLogStep,
+)
+from treeherder.webapp.api import pagination, serializers
+from treeherder.webapp.api.utils import CharInFilter, NumberInFilter, to_timestamp
 
 logger = logging.getLogger(__name__)
 
@@ -35,42 +33,30 @@ class JobFilter(django_filters.FilterSet):
     We use this gigantic class to provide the same filtering interface
     as the previous jobs API
     """
+
     id = django_filters.NumberFilter(field_name='id')
     id__in = NumberInFilter(field_name='id', lookup_expr='in')
     tier__in = NumberInFilter(field_name='tier', lookup_expr='in')
     push_id__in = NumberInFilter(field_name='push_id', lookup_expr='in')
     job_guid = django_filters.CharFilter(field_name='guid')
     job_guid__in = CharInFilter(field_name='guid', lookup_expr='in')
-    build_architecture = django_filters.CharFilter(
-        field_name='build_platform__architecture')
-    build_os = django_filters.CharFilter(
-        field_name='build_platform__os_name')
-    build_platform = django_filters.CharFilter(
-        field_name='build_platform__platform')
-    build_system_type = django_filters.CharFilter(
-        field_name='signature__build_system_type')
-    job_group_id = django_filters.NumberFilter(
-        field_name='job_group_id')
-    job_group_name = django_filters.CharFilter(
-        field_name='job_group__name')
-    job_group_symbol = django_filters.CharFilter(
-        field_name='job_group__symbol')
-    job_type_name = django_filters.CharFilter(
-        field_name='job_type__name')
-    job_type_symbol = django_filters.CharFilter(
-        field_name='job_type__symbol')
-    machine_name = django_filters.CharFilter(
-        field_name='machine__name')
+    build_architecture = django_filters.CharFilter(field_name='build_platform__architecture')
+    build_os = django_filters.CharFilter(field_name='build_platform__os_name')
+    build_platform = django_filters.CharFilter(field_name='build_platform__platform')
+    build_system_type = django_filters.CharFilter(field_name='signature__build_system_type')
+    job_group_id = django_filters.NumberFilter(field_name='job_group_id')
+    job_group_name = django_filters.CharFilter(field_name='job_group__name')
+    job_group_symbol = django_filters.CharFilter(field_name='job_group__symbol')
+    job_type_name = django_filters.CharFilter(field_name='job_type__name')
+    job_type_symbol = django_filters.CharFilter(field_name='job_type__symbol')
+    machine_name = django_filters.CharFilter(field_name='machine__name')
     machine_platform_architecture = django_filters.CharFilter(
-        field_name='machine_platform__architecture')
-    machine_platform_os = django_filters.CharFilter(
-        field_name='machine_platform__os_name')
-    platform = django_filters.CharFilter(
-        field_name='machine_platform__platform')
-    ref_data_name = django_filters.CharFilter(
-        field_name='signature__name')
-    signature = django_filters.CharFilter(
-        field_name='signature__signature')
+        field_name='machine_platform__architecture'
+    )
+    machine_platform_os = django_filters.CharFilter(field_name='machine_platform__os_name')
+    platform = django_filters.CharFilter(field_name='machine_platform__platform')
+    ref_data_name = django_filters.CharFilter(field_name='signature__name')
+    signature = django_filters.CharFilter(field_name='signature__signature')
 
     class Meta:
         model = Job
@@ -90,12 +76,10 @@ class JobFilter(django_filters.FilterSet):
             'last_modified': ['lt', 'lte', 'exact', 'gt', 'gte'],
             'submit_time': ['lt', 'lte', 'exact', 'gt', 'gte'],
             'start_time': ['lt', 'lte', 'exact', 'gt', 'gte'],
-            'end_time': ['lt', 'lte', 'exact', 'gt', 'gte']
+            'end_time': ['lt', 'lte', 'exact', 'gt', 'gte'],
         }
         filter_overrides = {
-            django_models.DateTimeField: {
-                'filter_class': django_filters.IsoDateTimeFilter
-            }
+            django_models.DateTimeField: {'filter_class': django_filters.IsoDateTimeFilter}
         }
 
 
@@ -103,6 +87,7 @@ class JobsViewSet(viewsets.ReadOnlyModelViewSet):
     """
     This viewset is the jobs endpoint.
     """
+
     _default_select_related = [
         'job_type',
         'job_group',
@@ -131,7 +116,6 @@ class JobsViewSet(viewsets.ReadOnlyModelViewSet):
         'tier',
         'taskcluster_metadata__task_id',
         'taskcluster_metadata__retry_id',
-
     ]
     _output_field_names = [
         'failure_classification_id',
@@ -152,9 +136,12 @@ class JobsViewSet(viewsets.ReadOnlyModelViewSet):
         'duration',
         'platform_option',
     ]
-    queryset = Job.objects.all().order_by('id').select_related(
-        *_default_select_related
-    ).values(*_query_field_names)
+    queryset = (
+        Job.objects.all()
+        .order_by('id')
+        .select_related(*_default_select_related)
+        .values(*_query_field_names)
+    )
     serializer_class = serializers.JobSerializer
     filterset_class = JobFilter
     pagination_class = pagination.JobPagination
@@ -184,7 +171,7 @@ class JobsProjectViewSet(viewsets.ViewSet):
         'machine',
         'signature',
         'repository',
-        'taskcluster_metadata'
+        'taskcluster_metadata',
     ]
 
     _property_query_mapping = [
@@ -227,7 +214,8 @@ class JobsProjectViewSet(viewsets.ViewSet):
     ]
 
     _option_collection_hash_idx = [pq[0] for pq in _property_query_mapping].index(
-        'option_collection_hash')
+        'option_collection_hash'
+    )
 
     def _get_job_list_response(self, job_qs, offset, count, return_type):
         '''
@@ -239,11 +227,12 @@ class JobsProjectViewSet(viewsets.ViewSet):
         '''
         option_collection_map = OptionCollection.objects.get_option_collection_map()
         results = []
-        for values in job_qs[offset:(offset+count)].values_list(
-                *[pq[1] for pq in self._property_query_mapping]):
+        for values in job_qs[offset : (offset + count)].values_list(
+            *[pq[1] for pq in self._property_query_mapping]
+        ):
             platform_option = option_collection_map.get(
-                values[self._option_collection_hash_idx],
-                "")
+                values[self._option_collection_hash_idx], ""
+            )
             # some values need to be transformed
             values = list(values)
             for (i, _) in enumerate(values):
@@ -253,20 +242,25 @@ class JobsProjectViewSet(viewsets.ViewSet):
             # append results differently depending on if we are returning
             # a dictionary or a list
             if return_type == 'dict':
-                results.append(dict(zip(
-                    [pq[0] for pq in self._property_query_mapping] +
-                    ['platform_option'],
-                    values + [platform_option])))
+                results.append(
+                    dict(
+                        zip(
+                            [pq[0] for pq in self._property_query_mapping] + ['platform_option'],
+                            values + [platform_option],
+                        )
+                    )
+                )
             else:
                 results.append(values + [platform_option])
 
-        response_dict = {
-            'results': results
-        }
+        response_dict = {'results': results}
         if return_type == 'list':
-            response_dict.update({
-                'job_property_names': [pq[0] for pq in self._property_query_mapping] + ['platform_option']
-            })
+            response_dict.update(
+                {
+                    'job_property_names': [pq[0] for pq in self._property_query_mapping]
+                    + ['platform_option']
+                }
+            )
 
         return response_dict
 
@@ -279,18 +273,16 @@ class JobsProjectViewSet(viewsets.ViewSet):
         """
         try:
             job = Job.objects.select_related(
-                *self._default_select_related + ['taskcluster_metadata']).get(
-                    repository__name=project, id=pk)
+                *self._default_select_related + ['taskcluster_metadata']
+            ).get(repository__name=project, id=pk)
         except Job.DoesNotExist:
             return Response("No job with id: {0}".format(pk), status=HTTP_404_NOT_FOUND)
 
         resp = serializers.JobProjectSerializer(job, read_only=True).data
 
-        resp["resource_uri"] = reverse("jobs-detail",
-                                       kwargs={"project": project, "pk": pk})
+        resp["resource_uri"] = reverse("jobs-detail", kwargs={"project": project, "pk": pk})
         resp["logs"] = []
-        for (name, url) in JobLog.objects.filter(job=job).values_list(
-                'name', 'url'):
+        for (name, url) in JobLog.objects.filter(job=job).values_list('name', 'url'):
             resp["logs"].append({'name': name, 'url': url})
 
         platform_option = job.get_platform_option()
@@ -303,7 +295,7 @@ class JobsProjectViewSet(viewsets.ViewSet):
             # Keep for backwards compatability
             resp['taskcluster_metadata'] = {
                 'task_id': job.taskcluster_metadata.task_id,
-                'retry_id': job.taskcluster_metadata.retry_id
+                'retry_id': job.taskcluster_metadata.retry_id,
             }
         except ObjectDoesNotExist:
             pass
@@ -334,11 +326,11 @@ class JobsProjectViewSet(viewsets.ViewSet):
                 filter_params[new_param_key] = filter_params[param_key]
                 del filter_params[param_key]
             # convert legacy timestamp parameters to time ones
-            elif param_key in ['submit_timestamp', 'start_timestamp',
-                               'end_timestamp']:
+            elif param_key in ['submit_timestamp', 'start_timestamp', 'end_timestamp']:
                 new_param_key = param_key.replace('timestamp', 'time')
                 filter_params[new_param_key] = datetime.datetime.fromtimestamp(
-                    float(filter_params[param_key]))
+                    float(filter_params[param_key])
+                )
                 del filter_params[param_key]
             # sanity check 'last modified'
             elif param_key.startswith('last_modified'):
@@ -348,15 +340,14 @@ class JobsProjectViewSet(viewsets.ViewSet):
                 except ValueError:
                     return Response(
                         "Invalid date value for `last_modified`: {}".format(datestr),
-                        status=HTTP_400_BAD_REQUEST)
+                        status=HTTP_400_BAD_REQUEST,
+                    )
 
         try:
             offset = int(filter_params.get("offset", 0))
             count = int(filter_params.get("count", 10))
         except ValueError:
-            return Response(
-                "Invalid value for offset or count",
-                status=HTTP_400_BAD_REQUEST)
+            return Response("Invalid value for offset or count", status=HTTP_400_BAD_REQUEST)
         return_type = filter_params.get("return_type", "dict").lower()
 
         if count > MAX_JOBS_COUNT:
@@ -366,18 +357,18 @@ class JobsProjectViewSet(viewsets.ViewSet):
         try:
             repository = Repository.objects.get(name=project)
         except Repository.DoesNotExist:
-            return Response({
-                "detail": "No project with name {}".format(project)
-            }, status=HTTP_404_NOT_FOUND)
-        jobs = JobFilter({k: v for (k, v) in filter_params.items()},
-                         queryset=Job.objects.filter(
-                             repository=repository).select_related(
-                                 *self._default_select_related)).qs
+            return Response(
+                {"detail": "No project with name {}".format(project)}, status=HTTP_404_NOT_FOUND
+            )
+        jobs = JobFilter(
+            {k: v for (k, v) in filter_params.items()},
+            queryset=Job.objects.filter(repository=repository).select_related(
+                *self._default_select_related
+            ),
+        ).qs
 
-        response_body = self._get_job_list_response(jobs, offset, count,
-                                                    return_type)
-        response_body["meta"] = dict(repository=project, offset=offset,
-                                     count=count)
+        response_body = self._get_job_list_response(jobs, offset, count, return_type)
+        response_body["meta"] = dict(repository=project, offset=offset, count=count)
 
         return Response(response_body)
 
@@ -387,16 +378,18 @@ class JobsProjectViewSet(viewsets.ViewSet):
         Gets a list of steps associated with this job
         """
         try:
-            job = Job.objects.get(repository__name=project,
-                                  id=pk)
+            job = Job.objects.get(repository__name=project, id=pk)
         except ObjectDoesNotExist:
             return Response("No job with id: {0}".format(pk), status=HTTP_404_NOT_FOUND)
 
-        textlog_steps = TextLogStep.objects.filter(job=job).order_by(
-            'started_line_number').prefetch_related('errors')
-        return Response(serializers.TextLogStepSerializer(textlog_steps,
-                                                          many=True,
-                                                          read_only=True).data)
+        textlog_steps = (
+            TextLogStep.objects.filter(job=job)
+            .order_by('started_line_number')
+            .prefetch_related('errors')
+        )
+        return Response(
+            serializers.TextLogStepSerializer(textlog_steps, many=True, read_only=True).data
+        )
 
     @action(detail=True, methods=['get'])
     def text_log_errors(self, request, project, pk=None):
@@ -404,20 +397,18 @@ class JobsProjectViewSet(viewsets.ViewSet):
         Gets a list of steps associated with this job
         """
         try:
-            job = Job.objects.get(repository__name=project,
-                                  id=pk)
+            job = Job.objects.get(repository__name=project, id=pk)
         except Job.DoesNotExist:
-            return Response("No job with id: {0}".format(pk),
-                            status=HTTP_404_NOT_FOUND)
-        textlog_errors = (TextLogError.objects
-                          .filter(step__job=job)
-                          .select_related("_metadata",
-                                          "_metadata__failure_line")
-                          .prefetch_related("classified_failures", "matches")
-                          .order_by('id'))
-        return Response(serializers.TextLogErrorSerializer(textlog_errors,
-                                                           many=True,
-                                                           read_only=True).data)
+            return Response("No job with id: {0}".format(pk), status=HTTP_404_NOT_FOUND)
+        textlog_errors = (
+            TextLogError.objects.filter(step__job=job)
+            .select_related("_metadata", "_metadata__failure_line")
+            .prefetch_related("classified_failures", "matches")
+            .order_by('id')
+        )
+        return Response(
+            serializers.TextLogErrorSerializer(textlog_errors, many=True, read_only=True).data
+        )
 
     @action(detail=True, methods=['get'])
     def bug_suggestions(self, request, project, pk=None):
@@ -439,15 +430,14 @@ class JobsProjectViewSet(viewsets.ViewSet):
         try:
             repository = Repository.objects.get(name=project)
         except Repository.DoesNotExist:
-            return Response({
-                "detail": "No project with name {}".format(project)
-            }, status=HTTP_404_NOT_FOUND)
+            return Response(
+                {"detail": "No project with name {}".format(project)}, status=HTTP_404_NOT_FOUND
+            )
 
         try:
             job = Job.objects.get(repository=repository, id=pk)
         except ObjectDoesNotExist:
-            return Response("No job with id: {0}".format(pk),
-                            status=HTTP_404_NOT_FOUND)
+            return Response("No job with id: {0}".format(pk), status=HTTP_404_NOT_FOUND)
 
         filter_params = request.query_params.copy()
 
@@ -457,25 +447,22 @@ class JobsProjectViewSet(viewsets.ViewSet):
             # let's cap it to 50 elements
             count = int(filter_params.get("count", 50))
         except ValueError:
-            return Response("Invalid value for offset or count",
-                            status=HTTP_400_BAD_REQUEST)
+            return Response("Invalid value for offset or count", status=HTTP_400_BAD_REQUEST)
 
         return_type = filter_params.get("return_type", "dict").lower()
 
-        jobs = JobFilter({k: v for (k, v) in filter_params.items()},
-                         queryset=Job.objects.filter(
-                             job_type_id=job.job_type_id,
-                             repository=repository).exclude(
-                                 id=job.id).select_related(
-                                     *self._default_select_related)).qs
+        jobs = JobFilter(
+            {k: v for (k, v) in filter_params.items()},
+            queryset=Job.objects.filter(job_type_id=job.job_type_id, repository=repository)
+            .exclude(id=job.id)
+            .select_related(*self._default_select_related),
+        ).qs
 
         # similar jobs we want in descending order from most recent
         jobs = jobs.order_by('-push_id', '-start_time')
 
-        response_body = self._get_job_list_response(jobs, offset, count,
-                                                    return_type)
-        response_body["meta"] = dict(offset=offset, count=count,
-                                     repository=project)
+        response_body = self._get_job_list_response(jobs, offset, count, return_type)
+        response_body["meta"] = dict(offset=offset, count=count, repository=project)
 
         return Response(response_body)
 
@@ -485,6 +472,7 @@ class JobDetailViewSet(viewsets.ReadOnlyModelViewSet):
     Endpoint for retrieving metadata (e.g. links to artifacts, file sizes)
     associated with a particular job
     '''
+
     queryset = JobDetail.objects.all().select_related('job', 'job__repository')
     serializer_class = serializers.JobDetailSerializer
 
@@ -501,8 +489,16 @@ class JobDetailViewSet(viewsets.ReadOnlyModelViewSet):
 
         class Meta:
             model = JobDetail
-            fields = ['job_id', 'job_guid', 'job__guid', 'job_id__in', 'title',
-                      'value', 'push_id', 'repository']
+            fields = [
+                'job_id',
+                'job_guid',
+                'job__guid',
+                'job_id__in',
+                'title',
+                'value',
+                'push_id',
+                'repository',
+            ]
 
     filter_backends = [django_filters.rest_framework.DjangoFilterBackend]
     filterset_class = JobDetailFilter
@@ -524,7 +520,6 @@ class JobDetailViewSet(viewsets.ReadOnlyModelViewSet):
         # unfiltered requests can potentially create huge sql queries, so
         # make sure the user passes a job id or guid
         if set(self.required_filters).isdisjoint(set(query_param_keys)):
-            raise ParseError("Must filter on one of: {}".format(
-                ", ".join(self.required_filters)))
+            raise ParseError("Must filter on one of: {}".format(", ".join(self.required_filters)))
 
         return viewsets.ReadOnlyModelViewSet.list(self, request)

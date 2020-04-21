@@ -16,6 +16,7 @@ class ParserBase:
     Base class for all parsers.
 
     """
+
     def __init__(self, name):
         """Setup the artifact to hold the extracted data."""
         self.name = name
@@ -57,16 +58,21 @@ class StepParser(ParserBase):
         ...
     ]
     """
+
     # Matches the half-dozen 'key: value' header lines printed at the start of each
     # Buildbot job log. The list of keys are taken from:
     # https://hg.mozilla.org/build/buildbotcustom/file/644c3860300a/bin/log_uploader.py#l126
-    RE_HEADER_LINE = re.compile(r'(?:builder|slave|starttime|results|buildid|builduid|revision): .*')
+    RE_HEADER_LINE = re.compile(
+        r'(?:builder|slave|starttime|results|buildid|builduid|revision): .*'
+    )
     # Step marker lines, eg:
     # ========= Started foo (results: 0, elapsed: 0 secs) (at 2015-08-17 02:33:56.353866) =========
     # ========= Finished foo (results: 0, elapsed: 0 secs) (at 2015-08-17 02:33:56.354301) =========
-    RE_STEP_MARKER = re.compile(r'={9} (?P<marker_type>Started|Finished) (?P<name>.*?) '
-                                r'\(results: (?P<result_code>\d+), elapsed: .*?\) '
-                                r'\(at (?P<timestamp>.*?)\)')
+    RE_STEP_MARKER = re.compile(
+        r'={9} (?P<marker_type>Started|Finished) (?P<name>.*?) '
+        r'\(results: (?P<result_code>\d+), elapsed: .*?\) '
+        r'\(at (?P<timestamp>.*?)\)'
+    )
 
     # Legacy result code to name mapping inherited from buildbot (duplicated in TextLogStep)
     # TODO: Likely remove this and step handling entirely now that Taskcluster doesn't have steps.
@@ -96,10 +102,7 @@ class StepParser(ParserBase):
         """Setup the artifact to hold the header lines."""
         super().__init__("step_data")
         self.stepnum = -1
-        self.artifact = {
-            "steps": [],
-            "errors_truncated": False
-        }
+        self.artifact = {"steps": [], "errors_truncated": False}
         self.sub_parser = ErrorParser()
         self.state = self.STATES['awaiting_first_step']
 
@@ -185,9 +188,11 @@ class StepParser(ParserBase):
                 # in Taskcluster's logs when content falls between the step marker lines.
                 self.end_step(lineno)
             # Start a new step using the extracted step metadata.
-            self.start_step(lineno,
-                            name=step_marker_match.group('name'),
-                            timestamp=step_marker_match.group('timestamp'))
+            self.start_step(
+                lineno,
+                name=step_marker_match.group('name'),
+                timestamp=step_marker_match.group('timestamp'),
+            )
             return
 
         # This is a "step finished" marker line.
@@ -197,20 +202,19 @@ class StepParser(ParserBase):
             return
 
         # Close out the current step using the extracted step metadata.
-        self.end_step(lineno,
-                      timestamp=step_marker_match.group('timestamp'),
-                      result_code=int(step_marker_match.group('result_code')))
+        self.end_step(
+            lineno,
+            timestamp=step_marker_match.group('timestamp'),
+            result_code=int(step_marker_match.group('result_code')),
+        )
 
     def start_step(self, lineno, name="Unnamed step", timestamp=None):
         """Create a new step and update the state to reflect we're now in the middle of a step."""
         self.state = self.STATES['step_in_progress']
         self.stepnum += 1
-        self.steps.append({
-            "name": name,
-            "started": timestamp,
-            "started_linenumber": lineno,
-            "errors": [],
-        })
+        self.steps.append(
+            {"name": name, "started": timestamp, "started_linenumber": lineno, "errors": [],}
+        )
 
     def end_step(self, lineno, timestamp=None, result_code=None):
         """Fill in the current step's summary and update the state to show the current step has ended."""
@@ -218,18 +222,20 @@ class StepParser(ParserBase):
         step_errors = self.sub_parser.get_artifact()
         step_error_count = len(step_errors)
         if step_error_count > settings.PARSER_MAX_STEP_ERROR_LINES:
-            step_errors = step_errors[:settings.PARSER_MAX_STEP_ERROR_LINES]
+            step_errors = step_errors[: settings.PARSER_MAX_STEP_ERROR_LINES]
             self.artifact["errors_truncated"] = True
-        self.current_step.update({
-            "finished": timestamp,
-            "finished_linenumber": lineno,
-            # Whilst the result code is present on both the start and end buildbot-style step
-            # markers, for Taskcluster logs the start marker line lies about the result, since
-            # the log output is unbuffered, so Taskcluster does not know the real result at
-            # that point. As such, we only set the result when ending a step.
-            "result": self.RESULT_DICT.get(result_code, "unknown"),
-            "errors": step_errors
-        })
+        self.current_step.update(
+            {
+                "finished": timestamp,
+                "finished_linenumber": lineno,
+                # Whilst the result code is present on both the start and end buildbot-style step
+                # markers, for Taskcluster logs the start marker line lies about the result, since
+                # the log output is unbuffered, so Taskcluster does not know the real result at
+                # that point. As such, we only set the result when ending a step.
+                "result": self.RESULT_DICT.get(result_code, "unknown"),
+                "errors": step_errors,
+            }
+        )
         # reset the sub_parser for the next step
         self.sub_parser.clear()
 
@@ -263,36 +269,25 @@ class TinderboxPrintParser(ParserBase):
         r"<a href=['\"](?P<url>http(s)?://.*)['\"]>(?P<value>.+)</a>: uploaded"
     )
     RE_LINK_HTML = re.compile(
-        (r"((?P<title>[A-Za-z/\.0-9\-_ ]+): )?"
-         r"<a .*href=['\"](?P<url>http(s)?://.+)['\"].*>(?P<value>.+)</a>")
+        (
+            r"((?P<title>[A-Za-z/\.0-9\-_ ]+): )?"
+            r"<a .*href=['\"](?P<url>http(s)?://.+)['\"].*>(?P<value>.+)</a>"
+        )
     )
-    RE_LINK_TEXT = re.compile(
-        r"((?P<title>[A-Za-z/\.0-9\-_ ]+): )?(?P<url>http(s)?://.*)"
-    )
+    RE_LINK_TEXT = re.compile(r"((?P<title>[A-Za-z/\.0-9\-_ ]+): )?(?P<url>http(s)?://.*)")
 
     TINDERBOX_REGEXP_TUPLE = (
         {
             're': RE_UPLOADED_TO,
-            'base_dict': {
-                "content_type": "link",
-                "title": "artifact uploaded"
-            },
-            'duplicates_fields': {}
+            'base_dict': {"content_type": "link", "title": "artifact uploaded"},
+            'duplicates_fields': {},
         },
-        {
-            're': RE_LINK_HTML,
-            'base_dict': {
-                "content_type": "link"
-            },
-            'duplicates_fields': {}
-        },
+        {'re': RE_LINK_HTML, 'base_dict': {"content_type": "link"}, 'duplicates_fields': {}},
         {
             're': RE_LINK_TEXT,
-            'base_dict': {
-                "content_type": "link"
-            },
-            'duplicates_fields': {'value': 'url'}
-        }
+            'base_dict': {"content_type": "link"},
+            'duplicates_fields': {'value': 'url'},
+        },
     )
 
     def __init__(self):
@@ -320,16 +315,18 @@ class TinderboxPrintParser(ParserBase):
 
             # default case: consider it html content
             # try to detect title/value splitting on <br/>
-            artifact = {"content_type": "raw_html", }
+            artifact = {
+                "content_type": "raw_html",
+            }
             if "<br/>" in line:
                 title, value = line.split("<br/>", 1)
                 artifact["title"] = title
                 artifact["value"] = value
             # or similar long lines if they contain a url
             elif "href" in line and "title" in line:
+
                 def parse_url_line(line_data):
                     class TpLineParser(HTMLParser):
-
                         def handle_starttag(self, tag, attrs):
                             d = dict(attrs)
                             artifact["url"] = d['href']
@@ -376,29 +373,33 @@ class ErrorParser(ParserBase):
         "bash: fork: Resource temporarily unavailable",
     )
 
-    RE_ERR_MATCH = re.compile((
-        r"^error: TEST FAILED"
-        r"|^g?make(?:\[\d+\])?: \*\*\*"
-        r"|^Remote Device Error:"
-        r"|^[A-Za-z.]+Error: "
-        r"|^[A-Za-z.]*Exception: "
-        r"|^remoteFailed:"
-        r"|^rm: cannot "
-        r"|^abort:"
-        r"|^Output exceeded \d+ bytes"
-        r"|^The web-page 'stop build' button was pressed"
-        r"|.*\.js: line \d+, col \d+, Error -"
-        r"|^\[taskcluster\] Error:"
-        r"|^\[[\w._-]+:(?:error|exception)\]"
-    ))
+    RE_ERR_MATCH = re.compile(
+        (
+            r"^error: TEST FAILED"
+            r"|^g?make(?:\[\d+\])?: \*\*\*"
+            r"|^Remote Device Error:"
+            r"|^[A-Za-z.]+Error: "
+            r"|^[A-Za-z.]*Exception: "
+            r"|^remoteFailed:"
+            r"|^rm: cannot "
+            r"|^abort:"
+            r"|^Output exceeded \d+ bytes"
+            r"|^The web-page 'stop build' button was pressed"
+            r"|.*\.js: line \d+, col \d+, Error -"
+            r"|^\[taskcluster\] Error:"
+            r"|^\[[\w._-]+:(?:error|exception)\]"
+        )
+    )
 
-    RE_ERR_SEARCH = re.compile((
-        r" error\(\d*\):"
-        r"|:\d+: error:"
-        r"| error R?C\d*:"
-        r"|ERROR [45]\d\d:"
-        r"|mozmake\.(?:exe|EXE)(?:\[\d+\])?: \*\*\*"
-    ))
+    RE_ERR_SEARCH = re.compile(
+        (
+            r" error\(\d*\):"
+            r"|:\d+: error:"
+            r"| error R?C\d*:"
+            r"|ERROR [45]\d\d:"
+            r"|mozmake\.(?:exe|EXE)(?:\[\d+\])?: \*\*\*"
+        )
+    )
 
     RE_EXCLUDE_1_SEARCH = re.compile(r"TEST-(?:INFO|PASS) ")
 
@@ -406,7 +407,7 @@ class ErrorParser(ParserBase):
         r"I[ /](Gecko|Robocop|TestRunner).*TEST-UNEXPECTED-"
         r"|^TimeoutException: "
         r"|^ImportError: No module named pygtk$"
-        )
+    )
 
     RE_ERR_1_MATCH = re.compile(r"^\d+:\d+:\d+ +(?:ERROR|CRITICAL|FATAL) - ")
 
@@ -431,10 +432,7 @@ class ErrorParser(ParserBase):
         self.is_taskcluster = False
 
     def add(self, line, lineno):
-        self.artifact.append({
-            "linenumber": lineno,
-            "line": line.rstrip()
-        })
+        self.artifact.append({"linenumber": lineno, "line": line.rstrip()})
 
     def parse_line(self, line, lineno):
         """Check a single line for an error.  Keeps track of the linenumber"""
@@ -486,8 +484,11 @@ class ErrorParser(ParserBase):
         if self.RE_EXCLUDE_2_SEARCH.search(trimline):
             return False
 
-        return bool(any(term for term in self.IN_SEARCH_TERMS if term in trimline) or
-                    self.RE_ERR_MATCH.match(trimline) or self.RE_ERR_SEARCH.search(trimline))
+        return bool(
+            any(term for term in self.IN_SEARCH_TERMS if term in trimline)
+            or self.RE_ERR_MATCH.match(trimline)
+            or self.RE_ERR_SEARCH.search(trimline)
+        )
 
 
 class PerformanceParser(ParserBase):
@@ -511,11 +512,11 @@ class PerformanceParser(ParserBase):
                 validate_perf_data(data)
                 self.artifact.append(data)
             except ValueError:
-                logger.warning("Unable to parse Perfherder data from line: %s",
-                               line)
+                logger.warning("Unable to parse Perfherder data from line: %s", line)
             except jsonschema.ValidationError as e:
-                logger.warning("Perfherder line '%s' does not comply with "
-                               "json schema: %s", line, e)
+                logger.warning(
+                    "Perfherder line '%s' does not comply with " "json schema: %s", line, e
+                )
 
             # Don't mark the parser as complete, in case there are multiple performance artifacts.
 

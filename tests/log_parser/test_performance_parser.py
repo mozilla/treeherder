@@ -1,7 +1,6 @@
 import json
 
-from treeherder.log_parser.parsers import (EmptyPerformanceData,
-                                           PerformanceParser)
+from treeherder.log_parser.parsers import EmptyPerformanceData, PerformanceParser
 
 
 def test_performance_log_parsing_malformed_perfherder_data():
@@ -20,15 +19,14 @@ def test_performance_log_parsing_malformed_perfherder_data():
         pass
 
     valid_perfherder_data = {
-        "framework": {"name": "talos"}, "suites": [{
-            "name": "basic_compositor_video",
-            "subtests": [{
-                "name": "240p.120fps.mp4_scale_fullscreen_startup",
-                "value": 1234
-            }]
-        }]
+        "framework": {"name": "talos"},
+        "suites": [
+            {
+                "name": "basic_compositor_video",
+                "subtests": [{"name": "240p.120fps.mp4_scale_fullscreen_startup", "value": 1234}],
+            }
+        ],
     }
-    parser.parse_line('PERFHERDER_DATA: {}'.format(
-        json.dumps(valid_perfherder_data)), 3)
+    parser.parse_line('PERFHERDER_DATA: {}'.format(json.dumps(valid_perfherder_data)), 3)
 
     assert parser.get_artifact() == [valid_perfherder_data]

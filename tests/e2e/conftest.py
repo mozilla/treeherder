@@ -30,9 +30,7 @@ def completed_job():
 
 
 @pytest.fixture
-def pending_jobs_stored(
-        test_repository, failure_classifications, pending_job,
-        push_stored):
+def pending_jobs_stored(test_repository, failure_classifications, pending_job, push_stored):
     """
     stores a list of buildapi pending jobs into the jobs store
     """
@@ -42,9 +40,7 @@ def pending_jobs_stored(
 
 
 @pytest.fixture
-def running_jobs_stored(
-        test_repository, failure_classifications, running_job,
-        push_stored):
+def running_jobs_stored(test_repository, failure_classifications, running_job, push_stored):
     """
     stores a list of buildapi running jobs
     """
@@ -54,9 +50,7 @@ def running_jobs_stored(
 
 
 @pytest.fixture
-def completed_jobs_stored(
-        test_repository, failure_classifications, completed_job,
-        push_stored):
+def completed_jobs_stored(test_repository, failure_classifications, completed_job, push_stored):
     """
     stores a list of buildapi completed jobs
     """

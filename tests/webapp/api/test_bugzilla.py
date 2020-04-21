@@ -18,18 +18,22 @@ def test_create_bug(client, eleven_jobs_stored, activate_responses, test_user):
         assert requestheaders['x-bugzilla-api-key'] == "12345helloworld"
         assert requestdata['type'] == "defect"
         assert requestdata['product'] == "Bugzilla"
-        assert requestdata['description'] == u"**Filed by:** {}\nIntermittent Description".format(test_user.email.replace('@', " [at] "))
+        assert requestdata['description'] == u"**Filed by:** {}\nIntermittent Description".format(
+            test_user.email.replace('@', " [at] ")
+        )
         assert requestdata['component'] == "Administration"
         assert requestdata['summary'] == u"Intermittent summary"
         assert requestdata['comment_tags'] == "treeherder"
         assert requestdata['version'] == "4.0.17"
         assert requestdata['keywords'] == ["intermittent-failure"]
         resp_body = {"id": 323}
-        return(200, headers, json.dumps(resp_body))
+        return (200, headers, json.dumps(resp_body))
 
     responses.add_callback(
-        responses.POST, "https://thisisnotbugzilla.org/rest/bug",
-        callback=request_callback, match_querystring=False,
+        responses.POST,
+        "https://thisisnotbugzilla.org/rest/bug",
+        callback=request_callback,
+        match_querystring=False,
         content_type="application/json",
     )
 
@@ -46,7 +50,7 @@ def test_create_bug(client, eleven_jobs_stored, activate_responses, test_user):
             "comment": u"Intermittent Description",
             "comment_tags": "treeherder",
             "keywords": ["intermittent-failure"],
-        }
+        },
     )
     assert resp.status_code == 200
     assert resp.json()['success'] == 323
@@ -64,18 +68,24 @@ def test_create_bug_with_unicode(client, eleven_jobs_stored, activate_responses,
         assert requestheaders['x-bugzilla-api-key'] == "12345helloworld"
         assert requestdata['type'] == "defect"
         assert requestdata['product'] == "Bugzilla"
-        assert requestdata['description'] == u"**Filed by:** {}\nIntermittent “description” string".format(test_user.email.replace('@', " [at] "))
+        assert requestdata[
+            'description'
+        ] == u"**Filed by:** {}\nIntermittent “description” string".format(
+            test_user.email.replace('@', " [at] ")
+        )
         assert requestdata['component'] == "Administration"
         assert requestdata['summary'] == u"Intermittent “summary”"
         assert requestdata['comment_tags'] == "treeherder"
         assert requestdata['version'] == "4.0.17"
         assert requestdata['keywords'] == ["intermittent-failure"]
         resp_body = {"id": 323}
-        return(200, headers, json.dumps(resp_body))
+        return (200, headers, json.dumps(resp_body))
 
     responses.add_callback(
-        responses.POST, "https://thisisnotbugzilla.org/rest/bug",
-        callback=request_callback, match_querystring=False,
+        responses.POST,
+        "https://thisisnotbugzilla.org/rest/bug",
+        callback=request_callback,
+        match_querystring=False,
         content_type="application/json",
     )
 
@@ -92,7 +102,7 @@ def test_create_bug_with_unicode(client, eleven_jobs_stored, activate_responses,
             "comment": u"Intermittent “description” string",
             "comment_tags": "treeherder",
             "keywords": ["intermittent-failure"],
-        }
+        },
     )
     assert resp.status_code == 200
     assert resp.json()['success'] == 323
@@ -110,7 +120,9 @@ def test_create_crash_bug(client, eleven_jobs_stored, activate_responses, test_u
         assert requestheaders['x-bugzilla-api-key'] == "12345helloworld"
         assert requestdata['type'] == "defect"
         assert requestdata['product'] == "Bugzilla"
-        assert requestdata['description'] == u"**Filed by:** {}\nIntermittent Description".format(test_user.email.replace('@', " [at] "))
+        assert requestdata['description'] == u"**Filed by:** {}\nIntermittent Description".format(
+            test_user.email.replace('@', " [at] ")
+        )
         assert requestdata['component'] == "Administration"
         assert requestdata['summary'] == u"Intermittent summary"
         assert requestdata['comment_tags'] == "treeherder"
@@ -119,11 +131,13 @@ def test_create_crash_bug(client, eleven_jobs_stored, activate_responses, test_u
         assert requestdata['cf_crash_signature'] == "[@crashsig]"
         assert requestdata['priority'] == '--'
         resp_body = {"id": 323}
-        return(200, headers, json.dumps(resp_body))
+        return (200, headers, json.dumps(resp_body))
 
     responses.add_callback(
-        responses.POST, "https://thisisnotbugzilla.org/rest/bug",
-        callback=request_callback, match_querystring=False,
+        responses.POST,
+        "https://thisisnotbugzilla.org/rest/bug",
+        callback=request_callback,
+        match_querystring=False,
         content_type="application/json",
     )
 
@@ -142,7 +156,7 @@ def test_create_crash_bug(client, eleven_jobs_stored, activate_responses, test_u
             "crash_signature": "[@crashsig]",
             "priority": "--",
             "keywords": ["intermittent-failure", "crash"],
-        }
+        },
     )
     assert resp.status_code == 200
     assert resp.json()['success'] == 323
@@ -170,11 +184,13 @@ def test_create_unauthenticated_bug(client, eleven_jobs_stored, activate_respons
         assert requestdata['blocks'] == "1234"
         assert requestdata['see_also'] == "12345"
         resp_body = {"id": 323}
-        return(200, headers, json.dumps(resp_body))
+        return (200, headers, json.dumps(resp_body))
 
     responses.add_callback(
-        responses.POST, "https://thisisnotbugzilla.org/rest/bug",
-        callback=request_callback, match_querystring=False,
+        responses.POST,
+        "https://thisisnotbugzilla.org/rest/bug",
+        callback=request_callback,
+        match_querystring=False,
         content_type="application/json",
     )
 
@@ -192,13 +208,15 @@ def test_create_unauthenticated_bug(client, eleven_jobs_stored, activate_respons
             "depends_on": "123",
             "blocks": "1234",
             "see_also": "12345",
-        }
+        },
     )
     assert resp.status_code == 403
     assert resp.json()['detail'] == "Authentication credentials were not provided."
 
 
-def test_create_bug_with_long_crash_signature(client, eleven_jobs_stored, activate_responses, test_user):
+def test_create_bug_with_long_crash_signature(
+    client, eleven_jobs_stored, activate_responses, test_user
+):
     """
     test successfully creating a bug in bugzilla
     """
@@ -221,11 +239,13 @@ def test_create_bug_with_long_crash_signature(client, eleven_jobs_stored, activa
         assert requestdata['blocks'] == "1234"
         assert requestdata['see_also'] == "12345"
         resp_body = {"id": 323}
-        return(200, headers, json.dumps(resp_body))
+        return (200, headers, json.dumps(resp_body))
 
     responses.add_callback(
-        responses.POST, "https://thisisnotbugzilla.org/rest/bug",
-        callback=request_callback, match_querystring=False,
+        responses.POST,
+        "https://thisisnotbugzilla.org/rest/bug",
+        callback=request_callback,
+        match_querystring=False,
         content_type="application/json",
     )
 
@@ -247,7 +267,7 @@ def test_create_bug_with_long_crash_signature(client, eleven_jobs_stored, activa
             "depends_on": "123",
             "blocks": "1234",
             "see_also": "12345",
-        }
+        },
     )
     assert resp.status_code == 400
     assert resp.json()['failure'] == "Crash signature can't be more than 2048 characters."

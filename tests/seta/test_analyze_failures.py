@@ -4,7 +4,9 @@ from treeherder.seta.analyze_failures import get_failures_fixed_by_commit
 
 
 @pytest.mark.django_db()
-def test_analyze_failures(fifteen_jobs_with_notes, failures_fixed_by_commit, patched_seta_fixed_by_commit_repos):
+def test_analyze_failures(
+    fifteen_jobs_with_notes, failures_fixed_by_commit, patched_seta_fixed_by_commit_repos
+):
     ret = get_failures_fixed_by_commit()
     exp = failures_fixed_by_commit
 

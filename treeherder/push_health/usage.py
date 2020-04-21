@@ -25,16 +25,14 @@ def get_latest(facet):
     for item in reversed(facet['timeSeries']):
         if item['inspectedCount'] > 0:
             latest = item['results'][-1]
-            return {
-                NEED_INVESTIGATION: latest['max'],
-                'time': item['endTimeSeconds']
-            }
+            return {NEED_INVESTIGATION: latest['max'], 'time': item['endTimeSeconds']}
 
 
 def get_usage():
 
     nrql = "SELECT%20max(needInvestigation)%20FROM%20push_health_need_investigation%20FACET%20revision%20SINCE%201%20DAY%20AGO%20TIMESERIES%20where%20repo%3D'{}'%20AND%20appName%3D'{}'".format(
-        'try', 'treeherder-prod')
+        'try', 'treeherder-prod'
+    )
     new_relic_url = '{}?nrql={}'.format(settings.NEW_RELIC_INSIGHTS_API_URL, nrql)
     headers = {
         'Accept': 'application/json',
@@ -51,10 +49,13 @@ def get_usage():
     push_revisions = [facet['name'] for facet in data['facets']]
     pushes = Push.objects.filter(revision__in=push_revisions)
 
-    results = [{
-        'push': PushSerializer(pushes.get(revision=facet['name'])).data,
-        'peak': get_peak(facet),
-        'latest': get_latest(facet)
-    } for facet in data['facets']]
+    results = [
+        {
+            'push': PushSerializer(pushes.get(revision=facet['name'])).data,
+            'peak': get_peak(facet),
+            'latest': get_latest(facet),
+        }
+        for facet in data['facets']
+    ]
 
     return results

@@ -10,6 +10,7 @@ class MachinePlatformsViewSet(viewsets.ViewSet):
     """
         A ViewSet for listing all the machine platforms.
     """
+
     def list(self, request):
         platforms = MachinePlatform.objects.all()
         platforms_serializer = MachinePlatformSerializer(platforms, many=True)

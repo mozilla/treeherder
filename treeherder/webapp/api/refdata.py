@@ -13,9 +13,10 @@ from treeherder.webapp.api import serializers as th_serializers
 class RepositoryViewSet(viewsets.ReadOnlyModelViewSet):
 
     """ViewSet for the refdata Repository model"""
-    queryset = models.Repository.objects.filter(
-        active_status='active').select_related(
-            'repository_group')
+
+    queryset = models.Repository.objects.filter(active_status='active').select_related(
+        'repository_group'
+    )
     serializer_class = th_serializers.RepositorySerializer
 
 
@@ -28,14 +29,19 @@ class OptionCollectionHashViewSet(viewsets.ViewSet):
 
         ret = []
         for (option_hash, option_names) in option_collection_map.items():
-            ret.append({'option_collection_hash': option_hash,
-                        'options': [{'name': name} for name in option_names.split(' ')]})
+            ret.append(
+                {
+                    'option_collection_hash': option_hash,
+                    'options': [{'name': name} for name in option_names.split(' ')],
+                }
+            )
         return Response(ret)
 
 
 class FailureClassificationViewSet(viewsets.ReadOnlyModelViewSet):
 
     """ViewSet for the refdata FailureClassification model"""
+
     queryset = models.FailureClassification.objects.exclude(name="intermittent needs filing")
     serializer_class = th_serializers.FailureClassificationSerializer
 
@@ -43,6 +49,7 @@ class FailureClassificationViewSet(viewsets.ReadOnlyModelViewSet):
 class TaskclusterMetadataViewSet(viewsets.ReadOnlyModelViewSet):
 
     """ViewSet for the refdata TaskclusterMetadata model"""
+
     serializer_class = th_serializers.TaskclusterMetadataSerializer
 
     def get_queryset(self):
@@ -61,6 +68,7 @@ class UserViewSet(viewsets.ReadOnlyModelViewSet):
     Info about a logged-in user.
     Used by Treeherder's UI to inspect user properties
     """
+
     serializer_class = th_serializers.UserSerializer
 
     def get_queryset(self):

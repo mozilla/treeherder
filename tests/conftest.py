@@ -14,19 +14,23 @@ from rest_framework.test import APIClient
 from treeherder.autoclassify.autoclassify import mark_best_classification
 from treeherder.etl.jobs import store_job_data
 from treeherder.etl.push import store_push_data
-from treeherder.model.models import (Commit,
-                                     JobNote,
-                                     Option,
-                                     OptionCollection,
-                                     Push,
-                                     TextLogErrorMetadata,
-                                     User)
-from treeherder.perf.models import (IssueTracker,
-                                    PerformanceAlert,
-                                    PerformanceAlertSummary,
-                                    PerformanceDatum,
-                                    PerformanceFramework,
-                                    PerformanceSignature)
+from treeherder.model.models import (
+    Commit,
+    JobNote,
+    Option,
+    OptionCollection,
+    Push,
+    TextLogErrorMetadata,
+    User,
+)
+from treeherder.perf.models import (
+    IssueTracker,
+    PerformanceAlert,
+    PerformanceAlertSummary,
+    PerformanceDatum,
+    PerformanceFramework,
+    PerformanceSignature,
+)
 from treeherder.services.pulse.exchange import get_exchange
 
 IS_WINDOWS = "windows" in platform.system().lower()
@@ -34,9 +38,7 @@ IS_WINDOWS = "windows" in platform.system().lower()
 
 def pytest_addoption(parser):
     parser.addoption(
-        "--runslow",
-        action="store_true",
-        help="run slow tests",
+        "--runslow", action="store_true", help="run slow tests",
     )
 
 
@@ -51,6 +53,7 @@ def pytest_runtest_setup(item):
         pytest.skip("need --runslow option to run")
 
     from django.core.cache import cache
+
     cache.clear()
 
 
@@ -61,6 +64,7 @@ def block_unmocked_requests():
 
     Helps avoid inadvertent dependencies on external resources during the test run.
     """
+
     def mocked_send(*args, **kwargs):
         raise RuntimeError('Tests must mock all HTTP requests!')
 
@@ -78,6 +82,7 @@ def block_unmocked_requests():
 def sample_data():
     """Returns a SampleData() object"""
     from .sampledata import SampleData
+
     return SampleData()
 
 
@@ -94,26 +99,26 @@ def sample_push(sample_data):
 @pytest.fixture(name='create_push')
 def fixture_create_push():
     """Return a function to create a push"""
-    def create(repository,
-               revision='4c45a777949168d16c03a4cba167678b7ab65f76',
-               author='foo@bar.com'):
+
+    def create(
+        repository, revision='4c45a777949168d16c03a4cba167678b7ab65f76', author='foo@bar.com'
+    ):
         return Push.objects.create(
-            repository=repository,
-            revision=revision,
-            author=author,
-            time=datetime.datetime.now())
+            repository=repository, revision=revision, author=author, time=datetime.datetime.now()
+        )
+
     return create
 
 
 @pytest.fixture(name='create_commit')
 def fixture_create_commit():
     """Return a function to create a commit"""
+
     def create(push, comments='Bug 12345 - This is a message'):
         return Commit.objects.create(
-            push=push,
-            revision=push.revision,
-            author=push.author,
-            comments=comments)
+            push=push, revision=push.revision, author=push.author, comments=comments
+        )
+
     return create
 
 
@@ -121,10 +126,7 @@ def fixture_create_commit():
 def test_repository(transactional_db):
     from treeherder.model.models import Repository, RepositoryGroup
 
-    RepositoryGroup.objects.create(
-        name="development",
-        description=""
-    )
+    RepositoryGroup.objects.create(name="development", description="")
 
     r = Repository.objects.create(
         dvcs_type="hg",
@@ -143,8 +145,7 @@ def test_repository(transactional_db):
 @pytest.fixture
 def test_issue_tracker(transactional_db):
     return IssueTracker.objects.create(
-        name="Bugzilla",
-        task_base_url="https://bugzilla.mozilla.org/show_bug.cgi?id="
+        name="Bugzilla", task_base_url="https://bugzilla.mozilla.org/show_bug.cgi?id="
     )
 
 
@@ -157,7 +158,8 @@ def test_repository_2(test_repository):
         name=test_repository.name + '_2',
         dvcs_type=test_repository.dvcs_type,
         url=test_repository.url + '_2',
-        codebase=test_repository.codebase)
+        codebase=test_repository.codebase,
+    )
 
 
 @pytest.fixture
@@ -178,16 +180,16 @@ def fixture_create_jobs(test_repository, failure_classifications):
     def create(jobs):
         store_job_data(test_repository, jobs)
         return [Job.objects.get(id=i) for i in range(1, len(jobs) + 1)]
+
     return create
 
 
 @pytest.fixture
 def test_job(eleven_job_blobs, create_jobs):
     job = eleven_job_blobs[0]
-    job['job'].update({
-        'taskcluster_task_id': 'V3SVuxO8TFy37En_6HcXLs',
-        'taskcluster_retry_id': '0'
-    })
+    job['job'].update(
+        {'taskcluster_task_id': 'V3SVuxO8TFy37En_6HcXLs', 'taskcluster_retry_id': '0'}
+    )
     return create_jobs([job])[0]
 
 
@@ -263,10 +265,12 @@ def test_job_with_notes(test_job, test_user):
     """test job with job notes."""
 
     for failure_classification_id in [2, 3]:
-        JobNote.objects.create(job=test_job,
-                               failure_classification_id=failure_classification_id,
-                               user=test_user,
-                               text="you look like a man-o-lantern")
+        JobNote.objects.create(
+            job=test_job,
+            failure_classification_id=failure_classification_id,
+            user=test_user,
+            text="you look like a man-o-lantern",
+        )
 
     test_job.refresh_from_db()
 
@@ -300,6 +304,7 @@ def pulse_connection():
 def pulse_exchange(pulse_connection, request):
     def build_exchange(name, create_exchange):
         return get_exchange(pulse_connection, name, create=create_exchange)
+
     return build_exchange
 
 
@@ -307,26 +312,32 @@ def pulse_exchange(pulse_connection, request):
 def failure_lines(test_job):
     from tests.autoclassify.utils import test_line, create_failure_lines
 
-    return create_failure_lines(test_job,
-                                [(test_line, {}),
-                                 (test_line, {"subtest": "subtest2"})])
+    return create_failure_lines(test_job, [(test_line, {}), (test_line, {"subtest": "subtest2"})])
 
 
 @pytest.fixture
 def failure_line_logs(test_job):
     from tests.autoclassify.utils import test_line, create_failure_lines
 
-    return create_failure_lines(test_job,
-                                [(test_line, {'action': 'log', 'test': None}),
-                                 (test_line, {'subtest': 'subtest2'})])
+    return create_failure_lines(
+        test_job,
+        [(test_line, {'action': 'log', 'test': None}), (test_line, {'subtest': 'subtest2'})],
+    )
 
 
 @pytest.fixture
 def failure_classifications(transactional_db):
     from treeherder.model.models import FailureClassification
-    for name in ["not classified", "fixed by commit", "expected fail",
-                 "intermittent", "infra", "intermittent needs filing",
-                 "autoclassified intermittent"]:
+
+    for name in [
+        "not classified",
+        "fixed by commit",
+        "expected fail",
+        "intermittent",
+        "infra",
+        "intermittent needs filing",
+        "autoclassified intermittent",
+    ]:
         FailureClassification(name=name).save()
 
 
@@ -334,14 +345,12 @@ def failure_classifications(transactional_db):
 def text_log_errors_failure_lines(test_job, failure_lines):
     from tests.autoclassify.utils import test_line, create_text_log_errors
 
-    lines = [(test_line, {}),
-             (test_line, {"subtest": "subtest2"})]
+    lines = [(test_line, {}), (test_line, {"subtest": "subtest2"})]
 
     text_log_errors = create_text_log_errors(test_job, lines)
 
     for error_line, failure_line in zip(text_log_errors, failure_lines):
-        TextLogErrorMetadata.objects.create(text_log_error=error_line,
-                                            failure_line=failure_line)
+        TextLogErrorMetadata.objects.create(text_log_error=error_line, failure_line=failure_line)
 
     return text_log_errors, failure_lines
 
@@ -352,8 +361,9 @@ def test_matcher(request):
 
 
 @pytest.fixture
-def classified_failures(test_job, text_log_errors_failure_lines, test_matcher,
-                        failure_classifications):
+def classified_failures(
+    test_job, text_log_errors_failure_lines, test_matcher, failure_classifications
+):
     from treeherder.model.models import ClassifiedFailure
 
     _, failure_lines = text_log_errors_failure_lines
@@ -375,9 +385,7 @@ def classified_failures(test_job, text_log_errors_failure_lines, test_matcher,
 @pytest.fixture
 def test_user(db):
     # a user *without* sheriff/staff permissions
-    user = User.objects.create(username="testuser1",
-                               email='user@foo.com',
-                               is_staff=False)
+    user = User.objects.create(username="testuser1", email='user@foo.com', is_staff=False)
     return user
 
 
@@ -387,45 +395,37 @@ def test_ldap_user(db):
     A user whose username matches those generated for LDAP SSO logins,
     and who does not have `is_staff` permissions.
     """
-    user = User.objects.create(username="mozilla-ldap/user@foo.com",
-                               email='user@foo.com',
-                               is_staff=False)
+    user = User.objects.create(
+        username="mozilla-ldap/user@foo.com", email='user@foo.com', is_staff=False
+    )
     return user
 
 
 @pytest.fixture
 def test_sheriff(db):
     # a user *with* sheriff/staff permissions
-    user = User.objects.create(username="testsheriff1",
-                               email='sheriff@foo.com',
-                               is_staff=True)
+    user = User.objects.create(username="testsheriff1", email='sheriff@foo.com', is_staff=True)
     return user
 
 
 @pytest.fixture
 def test_perf_framework(transactional_db):
-    return PerformanceFramework.objects.create(
-        name='test_talos', enabled=True)
+    return PerformanceFramework.objects.create(name='test_talos', enabled=True)
 
 
 @pytest.fixture
 def test_perf_signature(test_repository, test_perf_framework):
-    from treeherder.model.models import (MachinePlatform,
-                                         Option,
-                                         OptionCollection)
+    from treeherder.model.models import MachinePlatform, Option, OptionCollection
 
     option = Option.objects.create(name='opt')
     option_collection = OptionCollection.objects.create(
-        option_collection_hash='my_option_hash',
-        option=option)
-    platform = MachinePlatform.objects.create(
-        os_name='win',
-        platform='win7',
-        architecture='x86')
+        option_collection_hash='my_option_hash', option=option
+    )
+    platform = MachinePlatform.objects.create(os_name='win', platform='win7', architecture='x86')
 
     signature = PerformanceSignature.objects.create(
         repository=test_repository,
-        signature_hash=(40*'t'),
+        signature_hash=(40 * 't'),
         framework=test_perf_framework,
         platform=platform,
         option_collection=option_collection,
@@ -436,7 +436,7 @@ def test_perf_signature(test_repository, test_perf_framework):
         tags='warm pageload',
         extra_options='e10s opt',
         measurement_unit='ms',
-        last_updated=datetime.datetime.now()
+        last_updated=datetime.datetime.now(),
     )
     return signature
 
@@ -445,7 +445,7 @@ def test_perf_signature(test_repository, test_perf_framework):
 def test_perf_signature_2(test_perf_signature):
     return PerformanceSignature.objects.create(
         repository=test_perf_signature.repository,
-        signature_hash=(20*'t2'),
+        signature_hash=(20 * 't2'),
         framework=test_perf_signature.framework,
         platform=test_perf_signature.platform,
         option_collection=test_perf_signature.option_collection,
@@ -453,7 +453,7 @@ def test_perf_signature_2(test_perf_signature):
         test='mytest2',
         has_subtests=test_perf_signature.has_subtests,
         extra_options=test_perf_signature.extra_options,
-        last_updated=datetime.datetime.now()
+        last_updated=datetime.datetime.now(),
     )
 
 
@@ -476,7 +476,7 @@ def test_perf_data(test_perf_signature, eleven_jobs_stored):
             job=job,
             push=job.push,
             repository=job.repository,
-            signature=test_perf_signature
+            signature=test_perf_signature,
         )
         perf_datum.push.time = job.push.time
         perf_datum.push.save()
@@ -496,17 +496,11 @@ def mock_bugzilla_api_request(monkeypatch):
 
     def _fetch_json(url, params=None):
         tests_folder = os.path.dirname(__file__)
-        bug_list_path = os.path.join(
-            tests_folder,
-            "sample_data",
-            "bug_list.json"
-        )
+        bug_list_path = os.path.join(tests_folder, "sample_data", "bug_list.json")
         with open(bug_list_path) as f:
             return json.load(f)
 
-    monkeypatch.setattr(treeherder.etl.bugzilla,
-                        'fetch_json',
-                        _fetch_json)
+    monkeypatch.setattr(treeherder.etl.bugzilla, 'fetch_json', _fetch_json)
 
 
 @pytest.fixture
@@ -555,7 +549,8 @@ def test_perf_alert_summary(test_repository, push_stored, test_perf_framework, t
         prev_push_id=1,
         push_id=2,
         manually_created=False,
-        created=datetime.datetime.now())
+        created=datetime.datetime.now(),
+    )
 
 
 @pytest.fixture
@@ -563,14 +558,17 @@ def test_perf_alert_summary_2(test_perf_alert_summary):
     return PerformanceAlertSummary.objects.create(
         repository=test_perf_alert_summary.repository,
         framework=test_perf_alert_summary.framework,
-        prev_push_id=test_perf_alert_summary.prev_push_id+1,
-        push_id=test_perf_alert_summary.push_id+1,
+        prev_push_id=test_perf_alert_summary.prev_push_id + 1,
+        push_id=test_perf_alert_summary.push_id + 1,
         manually_created=False,
-        created=datetime.datetime.now())
+        created=datetime.datetime.now(),
+    )
 
 
 @pytest.fixture
-def test_perf_alert_summary_with_bug(test_repository, push_stored, test_perf_framework, test_issue_tracker):
+def test_perf_alert_summary_with_bug(
+    test_repository, push_stored, test_perf_framework, test_issue_tracker
+):
     return PerformanceAlertSummary.objects.create(
         repository=test_repository,
         framework=test_perf_framework,
@@ -579,7 +577,8 @@ def test_perf_alert_summary_with_bug(test_repository, push_stored, test_perf_fra
         manually_created=False,
         created=datetime.datetime.now(),
         bug_number=123456,
-        bug_updated=datetime.datetime.now())
+        bug_updated=datetime.datetime.now(),
+    )
 
 
 @pytest.fixture
@@ -592,7 +591,8 @@ def test_perf_alert(test_perf_signature, test_perf_alert_summary):
         amount_abs=50.0,
         prev_value=100.0,
         new_value=150.0,
-        t_value=20.0)
+        t_value=20.0,
+    )
 
 
 @pytest.fixture
@@ -605,7 +605,8 @@ def test_conflicting_perf_alert(test_perf_signature, test_perf_alert_summary_2):
         amount_abs=50.0,
         prev_value=100.0,
         new_value=150.0,
-        t_value=20.0)
+        t_value=20.0,
+    )
 
 
 @pytest.fixture
@@ -618,7 +619,8 @@ def test_perf_alert_2(test_perf_alert, test_perf_signature_2, test_perf_alert_su
         amount_abs=50.0,
         prev_value=100.0,
         new_value=150.0,
-        t_value=20.0)
+        t_value=20.0,
+    )
 
 
 @pytest.fixture
@@ -626,33 +628,34 @@ def generic_reference_data(test_repository):
     '''
     Generic reference data (if you want to create a bunch of mock jobs)
     '''
-    from treeherder.model.models import (BuildPlatform,
-                                         JobGroup,
-                                         JobType,
-                                         Machine,
-                                         MachinePlatform,
-                                         Option,
-                                         OptionCollection,
-                                         Product,
-                                         ReferenceDataSignatures)
+    from treeherder.model.models import (
+        BuildPlatform,
+        JobGroup,
+        JobType,
+        Machine,
+        MachinePlatform,
+        Option,
+        OptionCollection,
+        Product,
+        ReferenceDataSignatures,
+    )
 
     class RefdataHolder:
         pass
+
     r = RefdataHolder()
 
     r.option = Option.objects.create(name='my_option')
     r.option_collection = OptionCollection.objects.create(
-        option_collection_hash='my_option_hash',
-        option=r.option)
+        option_collection_hash='my_option_hash', option=r.option
+    )
     r.option_collection_hash = r.option_collection.option_collection_hash
     r.machine_platform = MachinePlatform.objects.create(
-        os_name="my_os",
-        platform="my_platform",
-        architecture="x86")
+        os_name="my_os", platform="my_platform", architecture="x86"
+    )
     r.build_platform = BuildPlatform.objects.create(
-        os_name="my_os",
-        platform="my_platform",
-        architecture="x86")
+        os_name="my_os", platform="my_platform", architecture="x86"
+    )
     r.machine = Machine.objects.create(name='mymachine')
     r.job_group = JobGroup.objects.create(symbol='S', name='myjobgroup')
     r.job_type = JobType.objects.create(symbol='j', name='myjob')
@@ -673,22 +676,21 @@ def generic_reference_data(test_repository):
         option_collection_hash=r.option_collection_hash,
         build_system_type='buildbot',
         repository=test_repository.name,
-        first_submission_timestamp=0)
+        first_submission_timestamp=0,
+    )
 
     return r
 
 
 @pytest.fixture
 def bug_data(eleven_jobs_stored, test_repository, test_push, bugs):
-    from treeherder.model.models import (Job,
-                                         BugJobMap,
-                                         Option)
+    from treeherder.model.models import Job, BugJobMap, Option
+
     jobs = Job.objects.all()
     bug_id = bugs[0].id
     job_id = jobs[0].id
     BugJobMap.create(job_id=job_id, bug_id=bug_id)
-    query_string = '?startday=2012-05-09&endday=2018-05-10&tree={}'.format(
-        test_repository.name)
+    query_string = '?startday=2012-05-09&endday=2018-05-10&tree={}'.format(test_repository.name)
 
     return {
         'tree': test_repository.name,
@@ -696,7 +698,7 @@ def bug_data(eleven_jobs_stored, test_repository, test_push, bugs):
         'bug_id': bug_id,
         'job': jobs[0],
         'jobs': jobs,
-        'query_string': query_string
+        'query_string': query_string,
     }
 
 
@@ -709,10 +711,7 @@ def test_run_data(bug_data):
         if push.time.strftime('%Y-%m-%d') == time:
             test_runs += 1
 
-    return {
-        'test_runs': test_runs,
-        'push_time': time
-    }
+    return {'test_runs': test_runs, 'push_time': time}
 
 
 @pytest.fixture
@@ -724,67 +723,67 @@ def generate_enough_perf_datum(test_repository, test_perf_signature):
     for (push_id, value) in zip([1] * 30 + [2] * 30, [1] * 30 + [2] * 30):
         # push_id == result_set_id == timestamp for purposes of this test
         push = Push.objects.get(id=push_id)
-        PerformanceDatum.objects.create(repository=test_repository,
-                                        result_set_id=push_id,
-                                        push_id=push_id,
-                                        signature=test_perf_signature,
-                                        value=value,
-                                        push_timestamp=push.time)
+        PerformanceDatum.objects.create(
+            repository=test_repository,
+            result_set_id=push_id,
+            push_id=push_id,
+            signature=test_perf_signature,
+            value=value,
+            push_timestamp=push.time,
+        )
 
 
 @pytest.fixture
 def sample_option_collections(transactional_db):
     option1 = Option.objects.create(name='opt1')
     option2 = Option.objects.create(name='opt2')
-    OptionCollection.objects.create(
-        option_collection_hash='option_hash1',
-        option=option1)
-    OptionCollection.objects.create(
-        option_collection_hash='option_hash2',
-        option=option2)
+    OptionCollection.objects.create(option_collection_hash='option_hash1', option=option1)
+    OptionCollection.objects.create(option_collection_hash='option_hash2', option=option2)
 
 
 @pytest.fixture
 def backfill_record_context():
-    return {"data_points_to_retrigger": [
-        {
-            "perf_datum_id": 933219901,
-            "value": 0.8714208119774209,
-            "job_id": 269034923,
-            "push_id": 565159,
-            "push_timestamp": "2019-10-02 02:22:28",
-            "push__revision": "04e8766a29242d4deae31b5b04e6ac61ebf61ffd"
-        },
-        {
-            "perf_datum_id": 933219962,
-            "value": 0.9160434865973892,
-            "job_id": 269034920,
-            "push_id": 565160,
-            "push_timestamp": "2019-10-02 02:23:29",
-            "push__revision": "9b42bdc4889fe7782df9b2a0aa990ed5e62cb04c"
-        },
-        {
-            "perf_datum_id": 931772364,
-            "value": 0.9508247997807697,
-            "job_id": 268828343,
-            "push_id": 565161,
-            "push_timestamp": "2019-10-02 02:24:35",
-            "push__revision": "057b59fdadad75e888a739e85a683b2ff7bfc62e"
-        },
-        {
-            "perf_datum_id": 931924904,
-            "value": 0.9829230628232519,
-            "job_id": 268840223,
-            "push_id": 565188,
-            "push_timestamp": "2019-10-02 04:03:09",
-            "push__revision": "49ef9afb62bb909389b105a1751e9b46e6f1688d"
-        },
-        {
-            "perf_datum_id": 931927300,
-            "value": 0.9873498499464002,
-            "job_id": 268840309,
-            "push_id": 565193,
-            "push_timestamp": "2019-10-02 04:08:06",
-            "push__revision": "f5cce52461bac31945b083e51a085fb429a36f04"
-        }
-    ]}
+    return {
+        "data_points_to_retrigger": [
+            {
+                "perf_datum_id": 933219901,
+                "value": 0.8714208119774209,
+                "job_id": 269034923,
+                "push_id": 565159,
+                "push_timestamp": "2019-10-02 02:22:28",
+                "push__revision": "04e8766a29242d4deae31b5b04e6ac61ebf61ffd",
+            },
+            {
+                "perf_datum_id": 933219962,
+                "value": 0.9160434865973892,
+                "job_id": 269034920,
+                "push_id": 565160,
+                "push_timestamp": "2019-10-02 02:23:29",
+                "push__revision": "9b42bdc4889fe7782df9b2a0aa990ed5e62cb04c",
+            },
+            {
+                "perf_datum_id": 931772364,
+                "value": 0.9508247997807697,
+                "job_id": 268828343,
+                "push_id": 565161,
+                "push_timestamp": "2019-10-02 02:24:35",
+                "push__revision": "057b59fdadad75e888a739e85a683b2ff7bfc62e",
+            },
+            {
+                "perf_datum_id": 931924904,
+                "value": 0.9829230628232519,
+                "job_id": 268840223,
+                "push_id": 565188,
+                "push_timestamp": "2019-10-02 04:03:09",
+                "push__revision": "49ef9afb62bb909389b105a1751e9b46e6f1688d",
+            },
+            {
+                "perf_datum_id": 931927300,
+                "value": 0.9873498499464002,
+                "job_id": 268840309,
+                "push_id": 565193,
+                "push_timestamp": "2019-10-02 04:08:06",
+                "push__revision": "f5cce52461bac31945b083e51a085fb429a36f04",
+            },
+        ]
+    }

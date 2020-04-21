@@ -11,34 +11,30 @@ from treeherder.utils.http import make_request
 
 
 class BugzillaViewSet(viewsets.ViewSet):
-
     @action(detail=False, methods=['post'])
     def create_bug(self, request):
         """
         Create a bugzilla bug with passed params
         """
         if settings.BUGFILER_API_KEY is None:
-            return Response({"failure": "Bugzilla API key not set!"},
-                            status=HTTP_400_BAD_REQUEST)
+            return Response({"failure": "Bugzilla API key not set!"}, status=HTTP_400_BAD_REQUEST)
 
         params = request.data
 
         # Arbitrarily cap crash signatures at 2048 characters to prevent perf issues on bmo
         crash_signature = params.get("crash_signature")
         if crash_signature and len(crash_signature) > 2048:
-            return Response({"failure": "Crash signature can't be more than 2048 characters."},
-                            status=HTTP_400_BAD_REQUEST)
+            return Response(
+                {"failure": "Crash signature can't be more than 2048 characters."},
+                status=HTTP_400_BAD_REQUEST,
+            )
 
         description = u"**Filed by:** {}\n{}".format(
-            request.user.email.replace('@', " [at] "),
-            params.get("comment", "")
+            request.user.email.replace('@', " [at] "), params.get("comment", "")
         ).encode("utf-8")
         summary = params.get("summary").encode("utf-8").strip()
         url = settings.BUGFILER_API_URL + "/rest/bug"
-        headers = {
-            'x-bugzilla-api-key': settings.BUGFILER_API_KEY,
-            'Accept': 'application/json'
-        }
+        headers = {'x-bugzilla-api-key': settings.BUGFILER_API_KEY, 'Accept': 'application/json'}
         data = {
             'type': "defect",
             'product': params.get("product"),

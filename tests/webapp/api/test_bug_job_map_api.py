@@ -3,16 +3,15 @@ import json
 import pytest
 from django.urls import reverse
 
-from treeherder.model.models import (BugJobMap,
-                                     Job)
+from treeherder.model.models import BugJobMap, Job
 
 
-@pytest.mark.parametrize('test_no_auth,test_duplicate_handling', [
-    (True, False),
-    (False, False),
-    (False, True)])
-def test_create_bug_job_map(client, test_job, test_user, bugs,
-                            test_no_auth, test_duplicate_handling):
+@pytest.mark.parametrize(
+    'test_no_auth,test_duplicate_handling', [(True, False), (False, False), (False, True)]
+)
+def test_create_bug_job_map(
+    client, test_job, test_user, bugs, test_no_auth, test_duplicate_handling
+):
     """
     test creating a single note via endpoint
     """
@@ -20,11 +19,7 @@ def test_create_bug_job_map(client, test_job, test_user, bugs,
     if not test_no_auth:
         client.force_authenticate(user=test_user)
 
-    submit_obj = {
-        u"job_id": test_job.id,
-        u"bug_id": bug.id,
-        u"type": u"manual"
-    }
+    submit_obj = {u"job_id": test_job.id, u"bug_id": bug.id, u"type": u"manual"}
 
     # if testing duplicate handling, submit twice
     if test_duplicate_handling:
@@ -35,7 +30,7 @@ def test_create_bug_job_map(client, test_job, test_user, bugs,
     for _ in range(num_times):
         resp = client.post(
             reverse("bug-job-map-list", kwargs={"project": test_job.repository.name}),
-            data=submit_obj
+            data=submit_obj,
         )
 
     if test_no_auth:
@@ -59,31 +54,28 @@ def test_bug_job_map_list(client, test_repository, eleven_jobs_stored, test_user
     expected = list()
 
     for (i, job) in enumerate(jobs):
-        bjm = BugJobMap.create(
-            job_id=job.id,
-            bug_id=bugs[i].id,
-            user=test_user,
-        )
+        bjm = BugJobMap.create(job_id=job.id, bug_id=bugs[i].id, user=test_user,)
 
-        expected.append({
-            "job_id": job.id,
-            "bug_id": bugs[i].id,
-            "created": bjm.created.isoformat(),
-            "who": test_user.email
-        })
+        expected.append(
+            {
+                "job_id": job.id,
+                "bug_id": bugs[i].id,
+                "created": bjm.created.isoformat(),
+                "who": test_user.email,
+            }
+        )
 
     # verify that API works with different combinations of job_id= parameters
     for job_range in [(0, 1), (0, 2), (0, 9)]:
         resp = client.get(
             reverse("bug-job-map-list", kwargs={"project": test_repository.name}),
-            data={'job_id': [job.id for job in
-                             jobs[job_range[0]:job_range[1]]]})
+            data={'job_id': [job.id for job in jobs[job_range[0] : job_range[1]]]},
+        )
         assert resp.status_code == 200
-        assert resp.json() == expected[job_range[0]:job_range[1]]
+        assert resp.json() == expected[job_range[0] : job_range[1]]
 
 
-def test_bug_job_map_detail(client, eleven_jobs_stored, test_repository,
-                            test_user, bugs):
+def test_bug_job_map_detail(client, eleven_jobs_stored, test_repository, test_user, bugs):
     """
     test retrieving a list of bug_job_map
     """
@@ -91,19 +83,12 @@ def test_bug_job_map_detail(client, eleven_jobs_stored, test_repository,
     bug = bugs[0]
     expected = list()
 
-    bjm = BugJobMap.create(
-        job_id=job.id,
-        bug_id=bug.id,
-        user=test_user,
-    )
+    bjm = BugJobMap.create(job_id=job.id, bug_id=bug.id, user=test_user,)
 
     pk = "{0}-{1}".format(job.id, bug.id)
 
     resp = client.get(
-        reverse("bug-job-map-detail", kwargs={
-            "project": test_repository.name,
-            "pk": pk
-        })
+        reverse("bug-job-map-detail", kwargs={"project": test_repository.name, "pk": pk})
     )
     assert resp.status_code == 200
 
@@ -111,14 +96,15 @@ def test_bug_job_map_detail(client, eleven_jobs_stored, test_repository,
         "job_id": job.id,
         "bug_id": bug.id,
         "created": bjm.created.isoformat(),
-        "who": test_user.email
+        "who": test_user.email,
     }
     assert resp.json() == expected
 
 
 @pytest.mark.parametrize('test_no_auth', [True, False])
-def test_bug_job_map_delete(client, eleven_jobs_stored, test_repository,
-                            test_user, test_no_auth, bugs):
+def test_bug_job_map_delete(
+    client, eleven_jobs_stored, test_repository, test_user, test_no_auth, bugs
+):
     """
     test deleting a bug_job_map object
     """
@@ -126,9 +112,7 @@ def test_bug_job_map_delete(client, eleven_jobs_stored, test_repository,
     bug = bugs[0]
 
     BugJobMap.create(
-        job_id=job.id,
-        bug_id=bug.id,
-        user=test_user,
+        job_id=job.id, bug_id=bug.id, user=test_user,
     )
 
     if not test_no_auth:
@@ -137,10 +121,7 @@ def test_bug_job_map_delete(client, eleven_jobs_stored, test_repository,
     pk = "{0}-{1}".format(job.id, bug.id)
 
     resp = client.delete(
-        reverse("bug-job-map-detail", kwargs={
-            "project": test_repository.name,
-            "pk": pk
-        })
+        reverse("bug-job-map-detail", kwargs={"project": test_repository.name, "pk": pk})
     )
 
     if test_no_auth:
@@ -160,7 +141,7 @@ def test_bug_job_map_bad_job_id(client, test_repository):
 
     resp = client.get(
         reverse("bug-job-map-list", kwargs={"project": test_repository.name}),
-        data={'job_id': bad_job_id}
+        data={'job_id': bad_job_id},
     )
 
     assert resp.status_code == 400

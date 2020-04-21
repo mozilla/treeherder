@@ -1,7 +1,6 @@
 import json
 import os
-from datetime import (datetime,
-                      timedelta)
+from datetime import datetime, timedelta
 
 import pytest
 from django.db import connection
@@ -12,11 +11,7 @@ from treeherder.model.models import Bugscache
 
 @pytest.fixture
 def sample_bugs(test_base_dir):
-    filename = os.path.join(
-        test_base_dir,
-        'sample_data',
-        'bug_list.json'
-    )
+    filename = os.path.join(test_base_dir, 'sample_data', 'bug_list.json')
     with open(filename) as f:
         return json.load(f)
 
@@ -40,38 +35,23 @@ def _update_bugscache(bug_list):
 
 
 BUG_SEARCHES = (
-    (
-        "test_popup_preventdefault_chrome.xul",
-        [455091]
-    ),
-    (
-        "test_popup_preventdefault_chrome.xul foo bar",
-        []
-    ),
+    ("test_popup_preventdefault_chrome.xul", [455091]),
+    ("test_popup_preventdefault_chrome.xul foo bar", []),
     (
         "test_switch_frame.py TestSwitchFrame.test_should_be_able_to_carry_on_working_if_the_frame_is_deleted",
-        [1054669, 1078237]
+        [1054669, 1078237],
     ),
     (
         "command timed out: 3600 seconds without output running ['/tools/buildbot/bin/python', 'scripts/scrip",
-        [1054456]
+        [1054456],
     ),
     (
         "[taskcluster:error]  Command \" [./test-macosx.sh --no-read-buildbot-config --installer-url=https://q",
-        [100]
+        [100],
     ),
-    (
-        "should not be match_d",
-        []
-    ),
-    (
-        "should not be match%d",
-        []
-    ),
-    (
-        "should not be matche=d",
-        []
-    ),
+    ("should not be match_d", []),
+    ("should not be match%d", []),
+    ("should not be matche=d", []),
 )
 
 
@@ -138,8 +118,9 @@ def test_bug_properties(transactional_db, sample_bugs):
         bug['last_change_time'] = fifty_days_ago
     _update_bugscache(bug_list)
 
-    expected_keys = set(['crash_signature', 'resolution', 'summary', 'keywords', 'os', 'id',
-                         'status', 'whiteboard'])
+    expected_keys = set(
+        ['crash_signature', 'resolution', 'summary', 'keywords', 'os', 'id', 'status', 'whiteboard']
+    )
 
     suggestions = Bugscache.search(search_term)
     assert set(suggestions['open_recent'][0].keys()) == expected_keys

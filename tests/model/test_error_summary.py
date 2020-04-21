@@ -1,7 +1,6 @@
 import pytest
 
-from treeherder.model.error_summary import (get_crash_signature,
-                                            get_error_search_term)
+from treeherder.model.error_summary import get_crash_signature, get_error_search_term
 
 PIPE_DELIMITED_LINE_TEST_CASES = (
     (
@@ -10,7 +9,7 @@ PIPE_DELIMITED_LINE_TEST_CASES = (
             '| chrome://mochitests/content/browser/browser/components/loop/test/mochitest/browser_fxa_login.js '
             '| Check settings tab URL - Got http://mochi.test:8888/browser/browser/components/loop/test/mochitest/loop_fxa.sjs'
         ),
-        'browser_fxa_login.js'
+        'browser_fxa_login.js',
     ),
     (
         (
@@ -18,7 +17,7 @@ PIPE_DELIMITED_LINE_TEST_CASES = (
             '| file:///C:/slave/test/build/tests/reftest/tests/layout/reftests/layers/component-alpha-exit-1.html '
             '| image comparison (==), max difference: 255, number of differing pixels: 251'
         ),
-        'component-alpha-exit-1.html'
+        'component-alpha-exit-1.html',
     ),
     (
         (
@@ -26,7 +25,7 @@ PIPE_DELIMITED_LINE_TEST_CASES = (
             '| /tests/dom/media/tests/mochitest/test_dataChannel_basicAudio.html '
             '| undefined assertion name - Result logged after SimpleTest.finish()'
         ),
-        'test_dataChannel_basicAudio.html'
+        'test_dataChannel_basicAudio.html',
     ),
     (
         (
@@ -34,7 +33,7 @@ PIPE_DELIMITED_LINE_TEST_CASES = (
             r"| mainthreadio "
             r"| File 'c:\users\cltbld~1.t-w' was accessed and we were not expecting it: {'Count': 6, 'Duration': 0.112512, 'RunCount': 6}"
         ),
-        'mainthreadio'
+        'mainthreadio',
     ),
     (
         (
@@ -43,7 +42,7 @@ PIPE_DELIMITED_LINE_TEST_CASES = (
             "http://10.0.2.2:8854/tests/dom/canvas/test/reftest/wrapper.html?green.png "
             "| application crashed [@ jemalloc_crash]"
         ),
-        'webgl-resize-test.html'
+        'webgl-resize-test.html',
     ),
     (
         (
@@ -52,7 +51,7 @@ PIPE_DELIMITED_LINE_TEST_CASES = (
             "http://10.0.2.2:8854/tests/dom/canvas/test/reftest/wrapper.html?green.png "
             "| application crashed [@ jemalloc_crash]"
         ),
-        'webgl-resize-test.html'
+        'webgl-resize-test.html',
     ),
     (
         (
@@ -61,7 +60,7 @@ PIPE_DELIMITED_LINE_TEST_CASES = (
             "| /tests/dom/events/test/pointerevents/pointerevent_touch-action-table-test_touch-manual.html "
             "| touch-action attribute test on the cell: assert_true: scroll received while shouldn't expected true got false"
         ),
-        'pointerevent_touch-action-table-test_touch-manual.html'
+        'pointerevent_touch-action-table-test_touch-manual.html',
     ),
     (
         (
@@ -70,8 +69,8 @@ PIPE_DELIMITED_LINE_TEST_CASES = (
             "| /tests/dom/events/test/pointerevents/pointerevent_touch-action-table-test_touch-manual.html "
             "| touch-action attribute test on the cell: assert_true: scroll received while shouldn't expected true got false"
         ),
-        'pointerevent_touch-action-table-test_touch-manual.html'
-    )
+        'pointerevent_touch-action-table-test_touch-manual.html',
+    ),
 )
 
 
@@ -90,7 +89,7 @@ LEAK_LINE_TEST_CASES = (
             '(BackstagePass, CallbackObject, DOMEventTargetHelper, '
             'EventListenerManager, EventTokenBucket, ...)'
         ),
-        'BackstagePass, CallbackObject, DOMEventTargetHelper, EventListenerManager, EventTokenBucket, ...'
+        'BackstagePass, CallbackObject, DOMEventTargetHelper, EventListenerManager, EventTokenBucket, ...',
     ),
     (
         (
@@ -99,7 +98,7 @@ LEAK_LINE_TEST_CASES = (
             '(AsyncLatencyLogger, AsyncTransactionTrackersHolder, AudioOutputObserver, '
             'BufferRecycleBin, CipherSuiteChangeObserver, ...)'
         ),
-        'AsyncLatencyLogger, AsyncTransactionTrackersHolder, AudioOutputObserver, BufferRecycleBin, CipherSui'
+        'AsyncLatencyLogger, AsyncTransactionTrackersHolder, AudioOutputObserver, BufferRecycleBin, CipherSui',
     ),
     (
         (
@@ -107,7 +106,7 @@ LEAK_LINE_TEST_CASES = (
             '| LeakSanitizer | leak at '
             'MakeUnique, nsThread::nsChainedEventQueue::nsChainedEventQueue, nsThread, nsThreadManager::Init'
         ),
-        'MakeUnique, nsThread::nsChainedEventQueue::nsChainedEventQueue, nsThread, nsThreadManager::Init'
+        'MakeUnique, nsThread::nsChainedEventQueue::nsChainedEventQueue, nsThread, nsThreadManager::Init',
     ),
 )
 
@@ -122,11 +121,11 @@ def test_get_leak_search_term(line, exp_search_term):
 FULL_LINE_FALLBACK_TEST_CASES = (
     (
         'Automation Error: No crash directory (/mnt/sdcard/tests/profile/minidumps/) found on remote device',
-        'Automation Error: No crash directory (/mnt/sdcard/tests/profile/minidumps/) found on remote device'
+        'Automation Error: No crash directory (/mnt/sdcard/tests/profile/minidumps/) found on remote device',
     ),
     (
         'PROCESS-CRASH | Automation Error: Missing end of test marker (process crashed?)',
-        'PROCESS-CRASH | Automation Error: Missing end of test marker (process crashed?)'
+        'PROCESS-CRASH | Automation Error: Missing end of test marker (process crashed?)',
     ),
 )
 
@@ -153,7 +152,7 @@ LONG_LINE_TEST_CASES = (
         (
             'command timed out: 2400 seconds without output running '
             '[\'/tools/buildbot/bin/python\', \'scripts/scrip'
-        )
+        ),
     ),
     (
         (
@@ -161,7 +160,7 @@ LONG_LINE_TEST_CASES = (
             '| test_switch_frame.py TestSwitchFrame.test_should_be_able_to_carry_on_working_if_the_frame_is_deleted_from_under_us '
             '| AssertionError: 0 != 1'
         ),
-        'test_switch_frame.py TestSwitchFrame.test_should_be_able_to_carry_on_working_if_the_frame_is_deleted'
+        'test_switch_frame.py TestSwitchFrame.test_should_be_able_to_carry_on_working_if_the_frame_is_deleted',
     ),
 )
 
@@ -182,7 +181,7 @@ CRASH_LINE_TEST_CASES = (
             'jsreftest.html?test=test262/ch11/11.4/11.4.1/11.4.1-4.a-6.js | '
             'application crashed [@ nsInputStreamPump::OnStateStop()]'
         ),
-        'nsInputStreamPump::OnStateStop()'
+        'nsInputStreamPump::OnStateStop()',
     ),
 )
 
@@ -197,18 +196,15 @@ def test_get_crash_signature(line, exp_search_term):
 BLACKLIST_TEST_CASES = (
     (
         'TEST-UNEXPECTED-FAIL | remoteautomation.py | application timed out after 330 seconds with no output',
-        'TEST-UNEXPECTED-FAIL | remoteautomation.py | application timed out after 330 seconds with no output'
+        'TEST-UNEXPECTED-FAIL | remoteautomation.py | application timed out after 330 seconds with no output',
     ),
-    (
-        'Return code: 1',
-        None
-    ),
+    ('Return code: 1', None),
     (
         (
             'REFTEST PROCESS-CRASH | file:///home/worker/workspace/build/tests/reftest/tests/layout/reftests/font-inflation/video-1.html '
             '| application crashed [@ mozalloc_abort]'
         ),
-        'video-1.html'
+        'video-1.html',
     ),
 )
 

@@ -30,23 +30,20 @@ class PushLoader:
             newrelic.agent.add_custom_parameter("repository", repo.name)
         except ObjectDoesNotExist:
             repo_info = transformer.get_info()
-            repo_info.update({
-                "url": transformer.repo_url,
-                "branch": transformer.branch,
-            })
-            newrelic.agent.record_custom_event("skip_unknown_repository",
-                                               repo_info)
-            logger.warning("Skipping unsupported repo: %s %s",
-                           transformer.repo_url,
-                           transformer.branch)
+            repo_info.update(
+                {"url": transformer.repo_url, "branch": transformer.branch,}
+            )
+            newrelic.agent.record_custom_event("skip_unknown_repository", repo_info)
+            logger.warning(
+                "Skipping unsupported repo: %s %s", transformer.repo_url, transformer.branch
+            )
             return
 
         transformed_data = transformer.transform(repo.name)
 
-        logger.info("Storing push for %s %s %s",
-                    repo.name,
-                    transformer.repo_url,
-                    transformer.branch)
+        logger.info(
+            "Storing push for %s %s %s", repo.name, transformer.repo_url, transformer.branch
+        )
         store_push_data(repo, [transformed_data])
 
     def get_transformer_class(self, exchange):
@@ -57,8 +54,7 @@ class PushLoader:
                 return GithubPullRequestTransformer
         elif "/hgpushes/" in exchange:
             return HgPushTransformer
-        raise PulsePushError(
-            "Unsupported push exchange: {}".format(exchange))
+        raise PulsePushError("Unsupported push exchange: {}".format(exchange))
 
 
 class GithubTransformer:
@@ -79,10 +75,12 @@ class GithubTransformer:
     def get_info(self):
         # flatten the data a bit so it will show in new relic as fields
         info = self.message_body["details"].copy()
-        info.update({
-            "organization": self.message_body["organization"],
-            "repository": self.message_body["repository"]
-        })
+        info.update(
+            {
+                "organization": self.message_body["organization"],
+                "repository": self.message_body["repository"],
+            }
+        )
         return info
 
     def fetch_push(self, url, repository):
@@ -98,22 +96,22 @@ class GithubTransformer:
             # A push can be co-authored
             # The author's date is when the code was committed locally by the author
             # The committer's date is the info as to when the PR is merged (committed) into master
-            "push_timestamp": to_timestamp(
-                head_commit["commit"]["committer"]["date"]
-            ),
+            "push_timestamp": to_timestamp(head_commit["commit"]["committer"]["date"]),
             # We want the original author's email to show up in the UI
             "author": head_commit["commit"]["author"]["email"],
         }
 
         revisions = []
         for commit in commits:
-            revisions.append({
-                "comment": commit["commit"]["message"],
-                "author": u"{} <{}>".format(
-                    commit["commit"]["author"]["name"],
-                    commit["commit"]["author"]["email"]),
-                "revision": commit["sha"]
-            })
+            revisions.append(
+                {
+                    "comment": commit["commit"]["message"],
+                    "author": u"{} <{}>".format(
+                        commit["commit"]["author"]["name"], commit["commit"]["author"]["email"]
+                    ),
+                    "revision": commit["sha"],
+                }
+            )
 
         push["revisions"] = revisions
         return push
@@ -223,7 +221,7 @@ class GithubPullRequestTransformer(GithubTransformer):
         pr_url = self.URL_BASE.format(
             self.message_body["organization"],
             self.message_body["repository"],
-            self.message_body["details"]["event.pullNumber"]
+            self.message_body["details"]["event.pullNumber"],
         )
 
         return self.fetch_push(pr_url, repository)
@@ -280,11 +278,9 @@ class HgPushTransformer:
         # we only want to ingest the last 200 commits for each push,
         # to protect against the 5000+ commit merges on release day uplift.
         for commit in push['changesets'][-200:]:
-            commits.append({
-                "revision": commit["node"],
-                "author": commit["author"],
-                "comment": commit["desc"],
-            })
+            commits.append(
+                {"revision": commit["node"], "author": commit["author"], "comment": commit["desc"],}
+            )
 
         return {
             "revision": commits[-1]["revision"],
