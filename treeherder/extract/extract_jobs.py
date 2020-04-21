@@ -117,7 +117,8 @@ class ExtractJobs:
                 # SOME LIMITS PLACES ON STRING SIZE
                 for fl in jx.drill(acc, "job_log.failure_line"):
                     fl.message = strings.limit(fl.message, 10000)
-
+                for r in acc:
+                    r.etl.timestamp = Date.now()
                 destination.extend(acc)
 
                 # RECORD THE STATE

@@ -2,13 +2,10 @@ from jx_bigquery import bigquery
 from jx_mysql.mysql import MySQL
 from jx_mysql.mysql_snowflake_extractor import MySqlSnowflakeExtractor
 from mo_files import File
-from mo_json import (json2value,
-                     value2json)
-from mo_logs import (Log,
-                     constants,
-                     startup)
+from mo_json import json2value, value2json
+from mo_logs import Log, constants, startup
 from mo_sql import SQL
-from mo_times import Timer
+from mo_times import Timer, Date
 from redis import Redis
 
 from treeherder.config.settings import REDIS_URL
@@ -111,6 +108,7 @@ class ExtractPerf:
                 for a in acc:
                     if not a.job.submit_time:
                         a.job.submit_time = a.push_timestamp
+                    a.etl.timestamp = Date.now()
                 destination.extend(acc)
 
                 # RECORD THE STATE
