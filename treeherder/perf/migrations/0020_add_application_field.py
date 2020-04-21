@@ -14,10 +14,27 @@ class Migration(migrations.Migration):
         migrations.AddField(
             model_name='performancesignature',
             name='application',
-            field=models.CharField(help_text="Application that runs the signature's tests. Generally used to record browser's name, but not necessarily.", max_length=10, null=True),
+            field=models.CharField(
+                help_text="Application that runs the signature's tests. Generally used to record browser's name, but not necessarily.",
+                max_length=10,
+                null=True,
+            ),
         ),
         migrations.AlterUniqueTogether(
             name='performancesignature',
-            unique_together={('repository', 'framework', 'signature_hash'), ('repository', 'suite', 'test', 'framework', 'application', 'platform', 'option_collection', 'extra_options', 'last_updated')},
+            unique_together={
+                ('repository', 'framework', 'signature_hash'),
+                (
+                    'repository',
+                    'suite',
+                    'test',
+                    'framework',
+                    'application',
+                    'platform',
+                    'option_collection',
+                    'extra_options',
+                    'last_updated',
+                ),
+            },
         ),
     ]

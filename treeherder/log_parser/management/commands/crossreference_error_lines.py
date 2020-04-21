@@ -1,7 +1,6 @@
 import logging
 
-from django.core.management.base import (BaseCommand,
-                                         CommandError)
+from django.core.management.base import BaseCommand, CommandError
 
 from treeherder.log_parser.crossreference import crossreference_job
 from treeherder.model.models import Job

@@ -26,8 +26,7 @@ def test_unsupported_version():
 def test_correct_version():
     view = RequestVersionView.as_view()
     version = settings.REST_FRAMEWORK['ALLOWED_VERSIONS'][0]
-    request = factory.get('/endpoint/',
-                          HTTP_ACCEPT='application/json; version={0}'.format(version))
+    request = factory.get('/endpoint/', HTTP_ACCEPT='application/json; version={0}'.format(version))
     response = view(request)
     assert response.data == {'version': version}
 

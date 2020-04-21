@@ -1,9 +1,7 @@
 import logging
 
 import newrelic.agent
-from django.contrib.auth import (authenticate,
-                                 login,
-                                 logout)
+from django.contrib.auth import authenticate, login, logout
 from rest_framework import viewsets
 from rest_framework.decorators import action
 from rest_framework.exceptions import AuthenticationFailed
@@ -16,7 +14,6 @@ logger = logging.getLogger(__name__)
 
 
 class AuthViewSet(viewsets.ViewSet):
-
     @action(detail=False)
     def login(self, request):
         """

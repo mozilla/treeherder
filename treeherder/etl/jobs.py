@@ -9,23 +9,24 @@ import newrelic.agent
 from django.core.exceptions import ObjectDoesNotExist
 from django.db.utils import IntegrityError
 
-from treeherder.etl.artifact import (serialize_artifact_json_blobs,
-                                     store_job_artifacts)
+from treeherder.etl.artifact import serialize_artifact_json_blobs, store_job_artifacts
 from treeherder.etl.common import get_guid_root
-from treeherder.model.models import (BuildPlatform,
-                                     FailureClassification,
-                                     Job,
-                                     JobGroup,
-                                     JobLog,
-                                     JobType,
-                                     Machine,
-                                     MachinePlatform,
-                                     Option,
-                                     OptionCollection,
-                                     Product,
-                                     Push,
-                                     ReferenceDataSignatures,
-                                     TaskclusterMetadata)
+from treeherder.model.models import (
+    BuildPlatform,
+    FailureClassification,
+    Job,
+    JobGroup,
+    JobLog,
+    JobType,
+    Machine,
+    MachinePlatform,
+    Option,
+    OptionCollection,
+    Product,
+    Push,
+    ReferenceDataSignatures,
+    TaskclusterMetadata,
+)
 
 logger = logging.getLogger(__name__)
 
@@ -51,8 +52,8 @@ def _remove_existing_jobs(data):
 
     guids = [datum['job']['job_guid'] for datum in data]
     state_map = {
-        guid: state for (guid, state) in Job.objects.filter(
-            guid__in=guids).values_list('guid', 'state')
+        guid: state
+        for (guid, state) in Job.objects.filter(guid__in=guids).values_list('guid', 'state')
     }
 
     for datum in data:
@@ -64,8 +65,8 @@ def _remove_existing_jobs(data):
             # or completed to any other state
             current_state = state_map[job['job_guid']]
             if current_state == 'completed' or (
-                    job['state'] == 'pending' and
-                    current_state == 'running'):
+                job['state'] == 'pending' and current_state == 'running'
+            ):
                 continue
             new_data.append(datum)
 
@@ -86,20 +87,18 @@ def _load_job(repository, job_datum, push_id):
     build_platform, _ = BuildPlatform.objects.get_or_create(
         os_name=job_datum.get('build_platform', {}).get('os_name', 'unknown'),
         platform=job_datum.get('build_platform', {}).get('platform', 'unknown'),
-        architecture=job_datum.get('build_platform', {}).get('architecture',
-                                                             'unknown'))
+        architecture=job_datum.get('build_platform', {}).get('architecture', 'unknown'),
+    )
 
     machine_platform, _ = MachinePlatform.objects.get_or_create(
         os_name=job_datum.get('machine_platform', {}).get('os_name', 'unknown'),
         platform=job_datum.get('machine_platform', {}).get('platform', 'unknown'),
-        architecture=job_datum.get('machine_platform', {}).get('architecture',
-                                                               'unknown'))
+        architecture=job_datum.get('machine_platform', {}).get('architecture', 'unknown'),
+    )
 
     option_names = job_datum.get('option_collection', [])
-    option_collection_hash = OptionCollection.calculate_hash(
-        option_names)
-    if not OptionCollection.objects.filter(
-            option_collection_hash=option_collection_hash).exists():
+    option_collection_hash = OptionCollection.calculate_hash(option_names)
+    if not OptionCollection.objects.filter(option_collection_hash=option_collection_hash).exists():
         # in the unlikely event that we haven't seen this set of options
         # before, add the appropriate database rows
         options = []
@@ -108,19 +107,19 @@ def _load_job(repository, job_datum, push_id):
             options.append(option)
         for option in options:
             OptionCollection.objects.create(
-                option_collection_hash=option_collection_hash,
-                option=option)
+                option_collection_hash=option_collection_hash, option=option
+            )
 
-    machine, _ = Machine.objects.get_or_create(
-        name=job_datum.get('machine', 'unknown'))
+    machine, _ = Machine.objects.get_or_create(name=job_datum.get('machine', 'unknown'))
 
     job_type, _ = JobType.objects.get_or_create(
-        symbol=job_datum.get('job_symbol') or 'unknown',
-        name=job_datum.get('name') or 'unknown')
+        symbol=job_datum.get('job_symbol') or 'unknown', name=job_datum.get('name') or 'unknown'
+    )
 
     job_group, _ = JobGroup.objects.get_or_create(
         name=job_datum.get('group_name') or 'unknown',
-        symbol=job_datum.get('group_symbol') or 'unknown')
+        symbol=job_datum.get('group_symbol') or 'unknown',
+    )
 
     product_name = job_datum.get('product_name', 'unknown')
     if not product_name.strip():
@@ -143,19 +142,32 @@ def _load_job(repository, job_datum, push_id):
 
     reference_data_name = job_datum.get('reference_data_name', None)
 
-    default_failure_classification = FailureClassification.objects.get(
-        name='not classified')
+    default_failure_classification = FailureClassification.objects.get(name='not classified')
 
     sh = sha1()
-    sh.update(''.join(
-        map(str,
-            [build_system_type, repository.name, build_platform.os_name,
-             build_platform.platform, build_platform.architecture,
-             machine_platform.os_name, machine_platform.platform,
-             machine_platform.architecture,
-             job_group.name, job_group.symbol, job_type.name,
-             job_type.symbol, option_collection_hash,
-             reference_data_name])).encode('utf-8'))
+    sh.update(
+        ''.join(
+            map(
+                str,
+                [
+                    build_system_type,
+                    repository.name,
+                    build_platform.os_name,
+                    build_platform.platform,
+                    build_platform.architecture,
+                    machine_platform.os_name,
+                    machine_platform.platform,
+                    machine_platform.architecture,
+                    job_group.name,
+                    job_group.symbol,
+                    job_type.name,
+                    job_type.symbol,
+                    option_collection_hash,
+                    reference_data_name,
+                ],
+            )
+        ).encode('utf-8')
+    )
     signature_hash = sh.hexdigest()
 
     # Should be the buildername in the case of buildbot (if not provided
@@ -167,7 +179,8 @@ def _load_job(repository, job_datum, push_id):
         name=reference_data_name,
         signature=signature_hash,
         build_system_type=build_system_type,
-        repository=repository.name, defaults={
+        repository=repository.name,
+        defaults={
             'first_submission_timestamp': time.time(),
             'build_os_name': build_platform.os_name,
             'build_platform': build_platform.platform,
@@ -179,19 +192,17 @@ def _load_job(repository, job_datum, push_id):
             'job_group_symbol': job_group.symbol,
             'job_type_name': job_type.name,
             'job_type_symbol': job_type.symbol,
-            'option_collection_hash': option_collection_hash
-        })
+            'option_collection_hash': option_collection_hash,
+        },
+    )
 
     tier = job_datum.get('tier') or 1
 
     result = job_datum.get('result', 'unknown')
 
-    submit_time = datetime.fromtimestamp(
-        _get_number(job_datum.get('submit_timestamp')))
-    start_time = datetime.fromtimestamp(
-        _get_number(job_datum.get('start_timestamp')))
-    end_time = datetime.fromtimestamp(
-        _get_number(job_datum.get('end_timestamp')))
+    submit_time = datetime.fromtimestamp(_get_number(job_datum.get('submit_timestamp')))
+    start_time = datetime.fromtimestamp(_get_number(job_datum.get('start_timestamp')))
+    end_time = datetime.fromtimestamp(_get_number(job_datum.get('end_timestamp')))
 
     # first, try to create the job with the given guid (if it doesn't
     # exist yet)
@@ -224,8 +235,8 @@ def _load_job(repository, job_datum, push_id):
                 "start_time": start_time,
                 "end_time": end_time,
                 "last_modified": datetime.now(),
-                "push_id": push_id
-            }
+                "push_id": push_id,
+            },
         )
     # Can't just use the ``job`` we would get from the ``get_or_create``
     # because we need to try the job_guid_root instance first for update,
@@ -241,7 +252,8 @@ def _load_job(repository, job_datum, push_id):
             TaskclusterMetadata.objects.create(
                 job=job,
                 task_id=job_datum['taskcluster_task_id'],
-                retry_id=job_datum['taskcluster_retry_id'])
+                retry_id=job_datum['taskcluster_retry_id'],
+            )
         except IntegrityError:
             pass
 
@@ -263,12 +275,12 @@ def _load_job(repository, job_datum, push_id):
         start_time=start_time,
         end_time=end_time,
         last_modified=datetime.now(),
-        push_id=push_id)
+        push_id=push_id,
+    )
 
     artifacts = job_datum.get('artifacts', [])
 
-    has_text_log_summary = any(x for x in artifacts
-                               if x['name'] == 'text_log_summary')
+    has_text_log_summary = any(x for x in artifacts if x['name'] == 'text_log_summary')
     if artifacts:
         artifacts = serialize_artifact_json_blobs(artifacts)
 
@@ -276,8 +288,7 @@ def _load_job(repository, job_datum, push_id):
         # present in the beginning
         for artifact in artifacts:
             if not all(k in artifact for k in ("name", "type", "blob")):
-                raise ValueError(
-                    "Artifact missing properties: {}".format(artifact))
+                raise ValueError("Artifact missing properties: {}".format(artifact))
             # Ensure every artifact has a ``job_guid`` value.
             # It is legal to submit an artifact that doesn't have a
             # ``job_guid`` value.  But, if missing, it should inherit that
@@ -304,19 +315,16 @@ def _load_job(repository, job_datum, push_id):
             if has_text_log_summary and name == 'buildbot_text':
                 parse_status = JobLog.PARSED
             else:
-                parse_status_map = dict([(k, v) for (v, k) in
-                                         JobLog.STATUSES])
-                mapped_status = parse_status_map.get(
-                    log.get('parse_status'))
+                parse_status_map = dict([(k, v) for (v, k) in JobLog.STATUSES])
+                mapped_status = parse_status_map.get(log.get('parse_status'))
                 if mapped_status:
                     parse_status = mapped_status
                 else:
                     parse_status = JobLog.PENDING
 
             jl, _ = JobLog.objects.get_or_create(
-                job=job, name=name, url=url, defaults={
-                    'status': parse_status
-                })
+                job=job, name=name, url=url, defaults={'status': parse_status}
+            )
 
             job_logs.append(jl)
 
@@ -334,11 +342,7 @@ def _schedule_log_parsing(job, job_logs, result):
     # importing here to avoid an import loop
     from treeherder.log_parser.tasks import parse_logs
 
-    task_types = {
-        "errorsummary_json",
-        "buildbot_text",
-        "builds-4h"
-    }
+    task_types = {"errorsummary_json", "buildbot_text", "builds-4h"}
 
     job_log_ids = []
     for job_log in job_logs:
@@ -365,8 +369,7 @@ def _schedule_log_parsing(job, job_logs, result):
         queue = 'log_parser'
         priority = "normal"
 
-    parse_logs.apply_async(queue=queue,
-                           args=[job.id, job_log_ids, priority])
+    parse_logs.apply_async(queue=queue, args=[job.id, job_log_ids, priority])
 
 
 def store_job_data(repository, originalData):
@@ -484,5 +487,5 @@ def store_job_data(repository, originalData):
     if superseded_job_guid_placeholders:
         for (job_guid, superseded_by_guid) in superseded_job_guid_placeholders:
             Job.objects.filter(guid=superseded_by_guid).update(
-                result='superseded',
-                state='completed')
+                result='superseded', state='completed'
+            )

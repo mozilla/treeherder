@@ -34,7 +34,7 @@ NON_ERROR_TEST_CASES = (
     "[taskcluster:info] Starting task",
     "[taskcluster] Starting task",
     "01:22:41     INFO -  ImportError: No module named pygtk",
-    "01:22:41     INFO -  ImportError: No module named pygtk\r\n"
+    "01:22:41     INFO -  ImportError: No module named pygtk\r\n",
 )
 
 

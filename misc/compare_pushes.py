@@ -16,7 +16,7 @@ logger.setLevel(logging.INFO)
 HOSTS = {
     "localhost": "http://localhost:8000",
     "stage": "https://treeherder.allizom.org",
-    "production": "https://treeherder.mozilla.org"
+    "production": "https://treeherder.mozilla.org",
 }
 
 
@@ -46,24 +46,28 @@ def main(args):
             difference = DeepDiff(pushes[index], production_pushes[index])
             if difference:
                 logger.info(difference.to_json())
-                logger.info("{}/#/jobs?repo={}&revision={}".format(
-                            compare_to_client.server_url,
-                            _project,
-                            pushes[index]["revision"]))
-                logger.info("{}/#/jobs?repo={}&revision={}".format(
-                            production_client.server_url,
-                            _project,
-                            production_pushes[index]["revision"]))
+                logger.info(
+                    "{}/#/jobs?repo={}&revision={}".format(
+                        compare_to_client.server_url, _project, pushes[index]["revision"]
+                    )
+                )
+                logger.info(
+                    "{}/#/jobs?repo={}&revision={}".format(
+                        production_client.server_url, _project, production_pushes[index]["revision"]
+                    )
+                )
 
 
 def get_args():
-    parser = argparse.ArgumentParser("Compare a push from a Treeherder instance to the production instance.")
-    parser.add_argument("--host",
-                        default="stage",
-                        help="Host to compare. It defaults to stage")
-    parser.add_argument("--projects",
-                        default="android-components,fenix",
-                        help="Projects (comma separated) to compare. It defaults to android-components & fenix")
+    parser = argparse.ArgumentParser(
+        "Compare a push from a Treeherder instance to the production instance."
+    )
+    parser.add_argument("--host", default="stage", help="Host to compare. It defaults to stage")
+    parser.add_argument(
+        "--projects",
+        default="android-components,fenix",
+        help="Projects (comma separated) to compare. It defaults to android-components & fenix",
+    )
 
     args = parser.parse_args()
     return args

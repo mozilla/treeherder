@@ -14,15 +14,18 @@ class PerfSheriffBot:
     """
     Wrapper class used to aggregate the reporting of backfill reports.
     """
+
     def __init__(self, report_maintainer):
         self.report_maintainer = report_maintainer
 
-    def report(self, since: datetime,
-               frameworks: List[str],
-               repositories: List[str]) -> List[BackfillReport]:
+    def report(
+        self, since: datetime, frameworks: List[str], repositories: List[str]
+    ) -> List[BackfillReport]:
         return self.report_maintainer.provide_updated_reports(since, frameworks, repositories)
 
-    def _is_queue_overloaded(self, provisioner_id: str, worker_type: str, acceptable_limit=100) -> bool:
+    def _is_queue_overloaded(
+        self, provisioner_id: str, worker_type: str, acceptable_limit=100
+    ) -> bool:
         '''
         Helper method for PerfSheriffBot to check load on processing queue.
         Usage example: _queue_is_too_loaded('gecko-3', 'b-linux')

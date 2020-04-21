@@ -13,8 +13,10 @@ def satisfiesExpression(scopeset, expression):
             return any([patternMatch(s, expr) for s in scopeset])
 
         return (
-            "AllOf" in expr and all([isSatisfied(e) for e in expr["AllOf"]]) or
-            "AnyOf" in expr and any([isSatisfied(e) for e in expr["AnyOf"]])
+            "AllOf" in expr
+            and all([isSatisfied(e) for e in expr["AllOf"]])
+            or "AnyOf" in expr
+            and any([isSatisfied(e) for e in expr["AnyOf"]])
         )
 
     return isSatisfied(expression)

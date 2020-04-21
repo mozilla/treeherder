@@ -4,8 +4,7 @@ import logging
 from django.db import transaction
 
 from treeherder.changelog.collector import collect
-from treeherder.changelog.models import (Changelog,
-                                         ChangelogFile)
+from treeherder.changelog.models import Changelog, ChangelogFile
 
 logger = logging.getLogger(__name__)
 
@@ -33,10 +32,8 @@ def update_changelog(days=1):
                 existed += 1
                 continue
             created += 1
-            [
-                ChangelogFile.objects.create(name=name, changelog=changelog)
-                for name in files
-            ]
+            [ChangelogFile.objects.create(name=name, changelog=changelog) for name in files]
 
-    logger.info("Found %d items, %d existed and %d where created." % (
-                created + existed, existed, created))
+    logger.info(
+        "Found %d items, %d existed and %d where created." % (created + existed, existed, created)
+    )

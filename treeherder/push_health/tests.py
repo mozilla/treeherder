@@ -7,17 +7,11 @@ from collections import defaultdict
 from django.core.cache import cache
 from django.db.models import Q
 
-from treeherder.model.models import (FailureLine,
-                                     Job,
-                                     OptionCollection)
-from treeherder.push_health.classification import (get_grouped,
-                                                   set_classifications)
+from treeherder.model.models import FailureLine, Job, OptionCollection
+from treeherder.push_health.classification import get_grouped, set_classifications
 from treeherder.push_health.filter import filter_failure
-from treeherder.push_health.similar_jobs import (job_to_dict,
-                                                 set_matching_passed_jobs)
-from treeherder.push_health.utils import (clean_config,
-                                          clean_platform,
-                                          clean_test)
+from treeherder.push_health.similar_jobs import job_to_dict, set_matching_passed_jobs
+from treeherder.push_health.utils import clean_config, clean_platform, clean_test
 from treeherder.webapp.api.utils import REPO_GROUPS
 
 logger = logging.getLogger(__name__)
@@ -29,43 +23,45 @@ ignored_log_lines = [
     'Return code: 1',
     'exit status 1',
     'unexpected status',
-    'Force-terminating active process(es)'
+    'Force-terminating active process(es)',
 ]
 
 
-def get_history(failure_classification_id, push_date, num_days, option_map, repository_ids, force_update=False):
+def get_history(
+    failure_classification_id, push_date, num_days, option_map, repository_ids, force_update=False
+):
     start_date = push_date - datetime.timedelta(days=num_days)
     end_date = push_date - datetime.timedelta(days=2)
     cache_key = 'failure_history:{}:{}'.format(failure_classification_id, push_date)
     previous_failures_json = cache.get(cache_key)
 
     if not previous_failures_json or force_update:
-        failure_lines = FailureLine.objects.filter(
-            job_log__job__result='testfailed',
-            job_log__job__tier__lte=2,
-            job_log__job__failure_classification_id=failure_classification_id,
-            job_log__job__push__repository_id__in=repository_ids,
-            job_log__job__push__time__gt=start_date,
-            job_log__job__push__time__lt=end_date,
-        ).exclude(
-            test=None
-        ).select_related(
-            'job_log__job__machine_platform', 'job_log__job__push'
-        ).values(
-            'action',
-            'test',
-            'signature',
-            'message',
-            'job_log__job__machine_platform__platform',
-            'job_log__job__option_collection_hash'
-        ).distinct()
+        failure_lines = (
+            FailureLine.objects.filter(
+                job_log__job__result='testfailed',
+                job_log__job__tier__lte=2,
+                job_log__job__failure_classification_id=failure_classification_id,
+                job_log__job__push__repository_id__in=repository_ids,
+                job_log__job__push__time__gt=start_date,
+                job_log__job__push__time__lt=end_date,
+            )
+            .exclude(test=None)
+            .select_related('job_log__job__machine_platform', 'job_log__job__push')
+            .values(
+                'action',
+                'test',
+                'signature',
+                'message',
+                'job_log__job__machine_platform__platform',
+                'job_log__job__option_collection_hash',
+            )
+            .distinct()
+        )
         previous_failures = defaultdict(lambda: defaultdict(lambda: defaultdict(int)))
         for line in failure_lines:
             previous_failures[
                 clean_test(line['action'], line['test'], line['signature'], line['message'])
-            ][
-                clean_platform(line['job_log__job__machine_platform__platform'])
-            ][
+            ][clean_platform(line['job_log__job__machine_platform__platform'])][
                 clean_config(option_map[line['job_log__job__option_collection_hash']])
             ] += 1
 
@@ -89,13 +85,11 @@ def get_history(failure_classification_id, push_date, num_days, option_map, repo
 #    used for the pass/fail ratio on the test to help determine if it is intermittent.
 #
 def get_current_test_failures(push, option_map):
-    all_testfailed = Job.objects.filter(
-        push=push,
-        tier__lte=2,
-        result='testfailed',
-    ).exclude(
-        Q(machine_platform__platform='lint') | Q(job_type__symbol='mozlint'),
-    ).select_related('machine_platform', 'taskcluster_metadata')
+    all_testfailed = (
+        Job.objects.filter(push=push, tier__lte=2, result='testfailed',)
+        .exclude(Q(machine_platform__platform='lint') | Q(job_type__symbol='mozlint'),)
+        .select_related('machine_platform', 'taskcluster_metadata')
+    )
     # Using .distinct(<fields>) here would help by removing duplicate FailureLines
     # for the same job (with different sub-tests), but it's only supported by
     # postgres.  Just using .distinct() has no effect.
@@ -103,9 +97,12 @@ def get_current_test_failures(push, option_map):
         action__in=['test_result', 'log', 'crash'],
         job_log__job__push=push,
         job_log__job__result='testfailed',
-        job_log__job__tier__lte=2
+        job_log__job__tier__lte=2,
     ).select_related(
-        'job_log__job__job_type', 'job_log__job__job_group', 'job_log__job__machine_platform', 'job_log__job__taskcluster_metadata'
+        'job_log__job__job_type',
+        'job_log__job__job_group',
+        'job_log__job__machine_platform',
+        'job_log__job__taskcluster_metadata',
     )
     # using a dict here to avoid duplicates due to multiple failure_lines for
     # each job.
@@ -127,7 +124,9 @@ def get_current_test_failures(push, option_map):
         job.job_key = '{}{}{}{}'.format(config, platform, job_name, job_group)
         all_failed_jobs[job.id] = job
         # The 't' ensures the key starts with a character, as required for a query selector
-        test_key = re.sub(r'\W+', '', 't{}{}{}{}{}'.format(test_name, config, platform, job_name, job_group))
+        test_key = re.sub(
+            r'\W+', '', 't{}{}{}{}{}'.format(test_name, config, platform, job_name, job_group)
+        )
 
         if test_key not in tests:
             line = {
@@ -170,7 +169,9 @@ def get_current_test_failures(push, option_map):
 
     # filter out testfailed jobs that are supported by failureline to get unsupported jobs
     supported_job_ids = all_failed_jobs.keys()
-    unsupported_jobs = [job_to_dict(job) for job in all_testfailed if job.id not in supported_job_ids]
+    unsupported_jobs = [
+        job_to_dict(job) for job in all_testfailed if job.id not in supported_job_ids
+    ]
 
     # Each line of the sorted list that is returned here represents one test file per platform/
     # config.  Each line will have at least one failing job, but may have several
@@ -183,7 +184,10 @@ def has_job(job, job_list):
 
 
 def has_line(failure_line, log_line_list):
-    return next((find_line for find_line in log_line_list if find_line['line_number'] == failure_line.line), False)
+    return next(
+        (find_line for find_line in log_line_list if find_line['line_number'] == failure_line.line),
+        False,
+    )
 
 
 def get_test_failures(push, parent_push=None):
@@ -197,17 +201,11 @@ def get_test_failures(push, parent_push=None):
     option_map = OptionCollection.objects.get_option_collection_map()
     push_date = push.time.date()
     intermittent_history = get_history(
-        4,
-        push_date,
-        intermittent_history_days,
-        option_map,
-        repository_ids)
+        4, push_date, intermittent_history_days, option_map, repository_ids
+    )
     fixed_by_commit_history = get_history(
-        2,
-        push_date,
-        fixed_by_commit_history_days,
-        option_map,
-        repository_ids)
+        2, push_date, fixed_by_commit_history_days, option_map, repository_ids
+    )
 
     # ``push_failures`` are tests that have FailureLine records created by out Log Parser.
     #     These are tests we are able to show to examine to see if we can determine they are
@@ -219,16 +217,12 @@ def get_test_failures(push, parent_push=None):
     #     code here can be updated to interpret information we don't currently handle.
     # These are failures ONLY for the current push, not relative to history.
     push_failures, unsupported_jobs = get_current_test_failures(push, option_map)
-    filtered_push_failures = [
-        failure for failure in push_failures if filter_failure(failure)
-    ]
+    filtered_push_failures = [failure for failure in push_failures if filter_failure(failure)]
 
     # Based on the intermittent and FixedByCommit history, set the appropriate classification
     # where we think each test falls.
     set_classifications(
-        filtered_push_failures,
-        intermittent_history,
-        fixed_by_commit_history,
+        filtered_push_failures, intermittent_history, fixed_by_commit_history,
     )
     # If we have failed tests that have also passed, we gather them both.  This helps us determine
     # if a job is intermittent based on the current push results.

@@ -30,8 +30,9 @@ def _taskcluster_runnable_jobs(project):
         try:
             tc_graph = fetch_json(tc_graph_url)
         except requests.exceptions.HTTPError as e:
-            logger.info('HTTPError %s when getting taskgraph at %s',
-                        e.response.status_code, tc_graph_url)
+            logger.info(
+                'HTTPError %s when getting taskgraph at %s', e.response.status_code, tc_graph_url
+            )
             continue
 
         return [

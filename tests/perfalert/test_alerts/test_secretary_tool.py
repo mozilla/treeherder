@@ -1,39 +1,32 @@
-from datetime import (datetime,
-                      timedelta)
+from datetime import datetime, timedelta
 
 import pytest
 import simplejson as json
-from mock import (Mock,
-                  patch)
+from mock import Mock, patch
 
-from treeherder.perf.models import (BackfillRecord,
-                                    BackfillReport,
-                                    PerformanceSettings)
-from treeherder.perf.secretary_tool import (SecretaryTool,
-                                            default_serializer)
+from treeherder.perf.models import BackfillRecord, BackfillReport, PerformanceSettings
+from treeherder.perf.secretary_tool import SecretaryTool, default_serializer
 
 
 @pytest.fixture
 def performance_settings(db):
     settings = {
-            "limits": 500,
-            "last_reset_date": datetime.utcnow(),
-        }
+        "limits": 500,
+        "last_reset_date": datetime.utcnow(),
+    }
     return PerformanceSettings.objects.create(
-        name="perf_sheriff_bot",
-        settings=json.dumps(settings, default=default_serializer),
+        name="perf_sheriff_bot", settings=json.dumps(settings, default=default_serializer),
     )
 
 
 @pytest.fixture
 def expired_performance_settings(db):
     settings = {
-            "limits": 500,
-            "last_reset_date": datetime.utcnow() - timedelta(days=30),
-        }
+        "limits": 500,
+        "last_reset_date": datetime.utcnow() - timedelta(days=30),
+    }
     return PerformanceSettings.objects.create(
-        name="perf_sheriff_bot",
-        settings=json.dumps(settings, default=default_serializer),
+        name="perf_sheriff_bot", settings=json.dumps(settings, default=default_serializer),
     )
 
 
@@ -46,7 +39,9 @@ def create_record():
     return _create_record
 
 
-def test_secretary_tool_updates_only_matured_reports(test_perf_alert, test_perf_alert_2, create_record):
+def test_secretary_tool_updates_only_matured_reports(
+    test_perf_alert, test_perf_alert_2, create_record
+):
     # create new report with records
     create_record(test_perf_alert)
     # create mature report with records

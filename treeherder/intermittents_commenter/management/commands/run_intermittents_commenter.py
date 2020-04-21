@@ -11,8 +11,21 @@ class Command(BaseCommand):
        default is daily and non-test mode, use flags for weekly, auto and test mode."""
 
     def add_arguments(self, parser):
-        parser.add_argument('-m', '--mode', dest='mode', nargs='?', choices=['weekly', 'auto'], default=False, help='generate comment summaries based on auto or weekly mode; defaults to daily')
-        parser.add_argument('--dry-run', action='store_true', dest='dry_run', help='output comments to stdout rather than submitting to Bugzilla')
+        parser.add_argument(
+            '-m',
+            '--mode',
+            dest='mode',
+            nargs='?',
+            choices=['weekly', 'auto'],
+            default=False,
+            help='generate comment summaries based on auto or weekly mode; defaults to daily',
+        )
+        parser.add_argument(
+            '--dry-run',
+            action='store_true',
+            dest='dry_run',
+            help='output comments to stdout rather than submitting to Bugzilla',
+        )
 
     def handle(self, *args, **options):
         mode = options['mode']

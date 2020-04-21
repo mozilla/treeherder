@@ -7,23 +7,26 @@ import pytest
 
 from tests.test_utils import create_generic_job
 from treeherder.etl.perf import store_performance_artifact
-from treeherder.model.models import (Push,
-                                     Repository)
-from treeherder.perf.models import (PerformanceAlert,
-                                    PerformanceAlertSummary,
-                                    PerformanceDatum,
-                                    PerformanceFramework,
-                                    PerformanceSignature)
+from treeherder.model.models import Push, Repository
+from treeherder.perf.models import (
+    PerformanceAlert,
+    PerformanceAlertSummary,
+    PerformanceDatum,
+    PerformanceFramework,
+    PerformanceSignature,
+)
 
 
-def _generate_perf_data_range(test_repository,
-                              generic_reference_data,
-                              create_perf_framework=True,
-                              enable_framework=True,
-                              add_suite_value=False,
-                              extra_suite_metadata=None,
-                              extra_subtest_metadata=None,
-                              reverse_push_range=False):
+def _generate_perf_data_range(
+    test_repository,
+    generic_reference_data,
+    create_perf_framework=True,
+    enable_framework=True,
+    add_suite_value=False,
+    extra_suite_metadata=None,
+    extra_subtest_metadata=None,
+    reverse_push_range=False,
+):
     framework_name = "cheezburger"
     if create_perf_framework:
         PerformanceFramework.objects.create(name=framework_name, enabled=enable_framework)
@@ -34,15 +37,15 @@ def _generate_perf_data_range(test_repository,
     if reverse_push_range:
         push_range = reversed(push_range)
 
-    for (i, value) in zip(push_range, [1]*15 + [2]*15):
-        push_time = datetime.datetime.fromtimestamp(now+i)
+    for (i, value) in zip(push_range, [1] * 15 + [2] * 15):
+        push_time = datetime.datetime.fromtimestamp(now + i)
         push = Push.objects.create(
             repository=test_repository,
             revision='abcdefgh%s' % i,
             author='foo@bar.com',
-            time=push_time)
-        job = create_generic_job('myguid%s' % i, test_repository,
-                                 push.id, generic_reference_data)
+            time=push_time,
+        )
+        job = create_generic_job('myguid%s' % i, test_repository, push.id, generic_reference_data)
         datum = {
             'job_guid': 'fake_job_guid',
             'name': 'test',
@@ -53,48 +56,48 @@ def _generate_perf_data_range(test_repository,
                     {
                         'name': 'cheezburger metrics',
                         'unit': 'ms',
-                        'subtests': [
-                            {
-                                'name': 'test1',
-                                'value': value,
-                                'unit': 'ms'
-                            }
-                        ]
+                        'subtests': [{'name': 'test1', 'value': value, 'unit': 'ms'}],
                     }
-                ]
-            }
+                ],
+            },
         }
         if add_suite_value:
             datum['blob']['suites'][0]['value'] = value
         if extra_suite_metadata:
             datum['blob']['suites'][0].update(extra_suite_metadata)
         if extra_subtest_metadata:
-            datum['blob']['suites'][0]['subtests'][0].update(
-                extra_subtest_metadata)
+            datum['blob']['suites'][0]['subtests'][0].update(extra_subtest_metadata)
 
         # the perf data adapter expects unserialized performance data
         submit_datum = copy.copy(datum)
-        submit_datum['blob'] = json.dumps({
-            'performance_data': submit_datum['blob']
-        })
+        submit_datum['blob'] = json.dumps({'performance_data': submit_datum['blob']})
         store_performance_artifact(job, submit_datum)
 
 
-def _verify_signature(repo_name, framework_name, suitename,
-                      testname, option_collection_hash, platform,
-                      lower_is_better, extra_opts, measurement_unit,
-                      last_updated=None, alert_threshold=None,
-                      alert_change_type=None,
-                      min_back_window=None, max_back_window=None,
-                      fore_window=None):
+def _verify_signature(
+    repo_name,
+    framework_name,
+    suitename,
+    testname,
+    option_collection_hash,
+    platform,
+    lower_is_better,
+    extra_opts,
+    measurement_unit,
+    last_updated=None,
+    alert_threshold=None,
+    alert_change_type=None,
+    min_back_window=None,
+    max_back_window=None,
+    fore_window=None,
+):
     if not extra_opts:
         extra_options = ''
     else:
         extra_options = ' '.join(sorted(extra_opts))
 
     repository = Repository.objects.get(name=repo_name)
-    signature = PerformanceSignature.objects.get(suite=suitename,
-                                                 test=testname)
+    signature = PerformanceSignature.objects.get(suite=suitename, test=testname)
     assert str(signature.framework) == framework_name
     assert signature.option_collection.option_collection_hash == option_collection_hash
     assert signature.platform.platform == platform
@@ -116,20 +119,14 @@ def _verify_signature(repo_name, framework_name, suitename,
         assert signature.last_updated == last_updated
 
 
-def test_no_performance_framework(test_repository,
-                                  failure_classifications,
-                                  generic_reference_data):
-    _generate_perf_data_range(test_repository,
-                              generic_reference_data,
-                              create_perf_framework=False
-                              )
+def test_no_performance_framework(test_repository, failure_classifications, generic_reference_data):
+    _generate_perf_data_range(test_repository, generic_reference_data, create_perf_framework=False)
     # no errors, but no data either
     assert 0 == PerformanceSignature.objects.all().count()
     assert 0 == PerformanceDatum.objects.all().count()
 
 
-def test_same_signature_multiple_performance_frameworks(test_repository,
-                                                        perf_job):
+def test_same_signature_multiple_performance_frameworks(test_repository, perf_job):
     framework_names = ['cheezburger1', 'cheezburger2']
     for framework_name in framework_names:
         PerformanceFramework.objects.create(name=framework_name, enabled=True)
@@ -142,140 +139,149 @@ def test_same_signature_multiple_performance_frameworks(test_repository,
                 'suites': [
                     {
                         'name': 'cheezburger metrics',
-                        'subtests': [
-                            {
-                                'name': 'test1',
-                                'value': 20.0,
-                                'unit': 'ms'
-                            }
-                        ]
+                        'subtests': [{'name': 'test1', 'value': 20.0, 'unit': 'ms'}],
                     }
-                ]
-            }
+                ],
+            },
         }
         # the perf data adapter expects unserialized performance data
         submit_datum = copy.copy(datum)
-        submit_datum['blob'] = json.dumps({
-            'performance_data': submit_datum['blob']
-        })
+        submit_datum['blob'] = json.dumps({'performance_data': submit_datum['blob']})
 
         store_performance_artifact(perf_job, submit_datum)
 
     # we should have 2 performance signature objects, one for each framework
     # and one datum for each signature
     for framework_name in framework_names:
-        s = PerformanceSignature.objects.get(framework__name=framework_name,
-                                             repository=test_repository,
-                                             suite='cheezburger metrics',
-                                             test='test1')
+        s = PerformanceSignature.objects.get(
+            framework__name=framework_name,
+            repository=test_repository,
+            suite='cheezburger metrics',
+            test='test1',
+        )
         d = PerformanceDatum.objects.get(signature=s)
         assert d.value == 20.0
 
 
-@pytest.mark.parametrize(('alerts_enabled_repository',
-                          'add_suite_value',
-                          'extra_suite_metadata',
-                          'extra_subtest_metadata',
-                          'expected_subtest_alert',
-                          'expected_suite_alert'), [
-                              # just subtest, no metadata, default settings
-                              (True, False, None, {}, True, False),
-                              # just subtest, high alert threshold (so no alert)
-                              (True, False, None, {'alertThreshold': 500.0}, False,
-                               False),
-                              # just subtest, but larger min window size
-                              # (so no alerting)
-                              (True, False, {}, {'minBackWindow': 100,
-                                                 'maxBackWindow': 100}, False,
-                               False),
-                              # should still alert even if we optionally
-                              # use a large maximum back window
-                              (True, False, None, {'minBackWindow': 12,
-                                                   'maxBackWindow': 100}, True,
-                               False),
-                              # summary+subtest, no metadata, default settings
-                              (True, True, {}, {}, False, True),
-                              # summary+subtest, high alert threshold
-                              # (so no alert)
-                              (True, True, {'alertThreshold': 500.0}, {}, False,
-                               False),
-                              # summary+subtest, no metadata, no alerting on summary
-                              (True, True, {'shouldAlert': False}, {}, False,
-                               False),
-                              # summary+subtest, no metadata, no alerting on
-                              # summary, alerting on subtest
-                              (True, True, {'shouldAlert': False},
-                               {'shouldAlert': True}, True, False),
-                              # summary+subtest, no metadata on summary, alerting
-                              # override on subtest
-                              (True, True, {}, {'shouldAlert': True}, True, True),
-                              # summary+subtest, alerting override on subtest +
-                              # summary
-                              (True, True, {'shouldAlert': True},
-                               {'shouldAlert': True}, True, True),
-                              # summary+subtest, alerting override on subtest +
-                              # summary -- but alerts disabled
-                              (False, True, {'shouldAlert': True},
-                               {'shouldAlert': True}, False, False),
-                              # summary+subtest, alerting override on subtest +
-                              # summary, but using absolute change so shouldn't
-                              # alert
-                              (True, True,
-                               {'shouldAlert': True, 'alertChangeType': 'absolute'},
-                               {'shouldAlert': True, 'alertChangeType': 'absolute'},
-                               False, False),
-                              # summary + subtest, only subtest is absolute so
-                              # summary should alert
-                              (True, True,
-                               {'shouldAlert': True},
-                               {'shouldAlert': True, 'alertChangeType': 'absolute'},
-                               False, True),
-                        ])
-def test_alert_generation(test_repository, test_issue_tracker,
-                          failure_classifications, generic_reference_data,
-                          alerts_enabled_repository,
-                          add_suite_value, extra_suite_metadata,
-                          extra_subtest_metadata, expected_subtest_alert,
-                          expected_suite_alert):
+@pytest.mark.parametrize(
+    (
+        'alerts_enabled_repository',
+        'add_suite_value',
+        'extra_suite_metadata',
+        'extra_subtest_metadata',
+        'expected_subtest_alert',
+        'expected_suite_alert',
+    ),
+    [
+        # just subtest, no metadata, default settings
+        (True, False, None, {}, True, False),
+        # just subtest, high alert threshold (so no alert)
+        (True, False, None, {'alertThreshold': 500.0}, False, False),
+        # just subtest, but larger min window size
+        # (so no alerting)
+        (True, False, {}, {'minBackWindow': 100, 'maxBackWindow': 100}, False, False),
+        # should still alert even if we optionally
+        # use a large maximum back window
+        (True, False, None, {'minBackWindow': 12, 'maxBackWindow': 100}, True, False),
+        # summary+subtest, no metadata, default settings
+        (True, True, {}, {}, False, True),
+        # summary+subtest, high alert threshold
+        # (so no alert)
+        (True, True, {'alertThreshold': 500.0}, {}, False, False),
+        # summary+subtest, no metadata, no alerting on summary
+        (True, True, {'shouldAlert': False}, {}, False, False),
+        # summary+subtest, no metadata, no alerting on
+        # summary, alerting on subtest
+        (True, True, {'shouldAlert': False}, {'shouldAlert': True}, True, False),
+        # summary+subtest, no metadata on summary, alerting
+        # override on subtest
+        (True, True, {}, {'shouldAlert': True}, True, True),
+        # summary+subtest, alerting override on subtest +
+        # summary
+        (True, True, {'shouldAlert': True}, {'shouldAlert': True}, True, True),
+        # summary+subtest, alerting override on subtest +
+        # summary -- but alerts disabled
+        (False, True, {'shouldAlert': True}, {'shouldAlert': True}, False, False),
+        # summary+subtest, alerting override on subtest +
+        # summary, but using absolute change so shouldn't
+        # alert
+        (
+            True,
+            True,
+            {'shouldAlert': True, 'alertChangeType': 'absolute'},
+            {'shouldAlert': True, 'alertChangeType': 'absolute'},
+            False,
+            False,
+        ),
+        # summary + subtest, only subtest is absolute so
+        # summary should alert
+        (
+            True,
+            True,
+            {'shouldAlert': True},
+            {'shouldAlert': True, 'alertChangeType': 'absolute'},
+            False,
+            True,
+        ),
+    ],
+)
+def test_alert_generation(
+    test_repository,
+    test_issue_tracker,
+    failure_classifications,
+    generic_reference_data,
+    alerts_enabled_repository,
+    add_suite_value,
+    extra_suite_metadata,
+    extra_subtest_metadata,
+    expected_subtest_alert,
+    expected_suite_alert,
+):
     test_repository.performance_alerts_enabled = alerts_enabled_repository
     test_repository.save()
 
-    _generate_perf_data_range(test_repository,
-                              generic_reference_data,
-                              add_suite_value=add_suite_value,
-                              extra_suite_metadata=extra_suite_metadata,
-                              extra_subtest_metadata=extra_subtest_metadata)
+    _generate_perf_data_range(
+        test_repository,
+        generic_reference_data,
+        add_suite_value=add_suite_value,
+        extra_suite_metadata=extra_suite_metadata,
+        extra_subtest_metadata=extra_subtest_metadata,
+    )
 
     # validate that the signatures have the expected properties
-    _verify_signature(test_repository.name,
-                      'cheezburger',
-                      'cheezburger metrics',
-                      'test1',
-                      'my_option_hash',
-                      'my_platform',
-                      True,
-                      None,
-                      'ms',
-                      alert_threshold=extra_subtest_metadata.get('alertThreshold'),
-                      alert_change_type=extra_subtest_metadata.get('alertChangeType'),
-                      min_back_window=extra_subtest_metadata.get('minBackWindow'),
-                      max_back_window=extra_subtest_metadata.get('maxBackWindow'),
-                      fore_window=extra_subtest_metadata.get('foreWindow'))
+    _verify_signature(
+        test_repository.name,
+        'cheezburger',
+        'cheezburger metrics',
+        'test1',
+        'my_option_hash',
+        'my_platform',
+        True,
+        None,
+        'ms',
+        alert_threshold=extra_subtest_metadata.get('alertThreshold'),
+        alert_change_type=extra_subtest_metadata.get('alertChangeType'),
+        min_back_window=extra_subtest_metadata.get('minBackWindow'),
+        max_back_window=extra_subtest_metadata.get('maxBackWindow'),
+        fore_window=extra_subtest_metadata.get('foreWindow'),
+    )
     if add_suite_value:
-        _verify_signature(test_repository.name,
-                          'cheezburger',
-                          'cheezburger metrics',
-                          '',
-                          'my_option_hash',
-                          'my_platform',
-                          True,
-                          None,
-                          'ms',
-                          alert_threshold=extra_suite_metadata.get('alertThreshold'),
-                          alert_change_type=extra_suite_metadata.get('alertChangeType'),
-                          min_back_window=extra_suite_metadata.get('minBackWindow'),
-                          max_back_window=extra_suite_metadata.get('maxBackWindow'),
-                          fore_window=extra_suite_metadata.get('foreWindow'))
+        _verify_signature(
+            test_repository.name,
+            'cheezburger',
+            'cheezburger metrics',
+            '',
+            'my_option_hash',
+            'my_platform',
+            True,
+            None,
+            'ms',
+            alert_threshold=extra_suite_metadata.get('alertThreshold'),
+            alert_change_type=extra_suite_metadata.get('alertChangeType'),
+            min_back_window=extra_suite_metadata.get('minBackWindow'),
+            max_back_window=extra_suite_metadata.get('maxBackWindow'),
+            fore_window=extra_suite_metadata.get('foreWindow'),
+        )
 
     expected_num_alerts = sum([expected_suite_alert, expected_subtest_alert])
 
@@ -310,38 +316,33 @@ def test_alert_generation(test_repository, test_issue_tracker,
         assert alert.amount_pct == 100
 
 
-def test_alert_generation_repo_no_alerts(test_repository,
-                                         failure_classifications,
-                                         generic_reference_data):
+def test_alert_generation_repo_no_alerts(
+    test_repository, failure_classifications, generic_reference_data
+):
     # validates that no alerts generated on "try" repos
     test_repository.performance_alerts_enabled = False
     test_repository.save()
 
-    _generate_perf_data_range(test_repository,
-                              generic_reference_data)
+    _generate_perf_data_range(test_repository, generic_reference_data)
 
     assert 0 == PerformanceAlert.objects.all().count()
     assert 0 == PerformanceAlertSummary.objects.all().count()
 
 
-def test_framework_not_enabled(test_repository,
-                               failure_classifications,
-                               generic_reference_data):
+def test_framework_not_enabled(test_repository, failure_classifications, generic_reference_data):
     # The field enabled has been defaulted to 'False'
-    _generate_perf_data_range(test_repository,
-                              generic_reference_data,
-                              create_perf_framework=True,
-                              enable_framework=False)
+    _generate_perf_data_range(
+        test_repository, generic_reference_data, create_perf_framework=True, enable_framework=False
+    )
 
     assert 0 == PerformanceSignature.objects.all().count()
     assert 0 == PerformanceDatum.objects.all().count()
 
 
-def test_last_updated(test_repository, test_issue_tracker,
-                      failure_classifications, generic_reference_data):
-    _generate_perf_data_range(test_repository,
-                              generic_reference_data,
-                              reverse_push_range=True)
+def test_last_updated(
+    test_repository, test_issue_tracker, failure_classifications, generic_reference_data
+):
+    _generate_perf_data_range(test_repository, generic_reference_data, reverse_push_range=True)
     assert PerformanceSignature.objects.count() == 1
     signature = PerformanceSignature.objects.first()
     assert signature.last_updated == max(Push.objects.values_list('time', flat=True))

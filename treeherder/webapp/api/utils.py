@@ -1,10 +1,8 @@
 import time
-from datetime import (datetime,
-                      timedelta)
+from datetime import datetime, timedelta
 
 import django_filters
-from django.db.models import (Aggregate,
-                              CharField)
+from django.db.models import Aggregate, CharField
 
 # queries are faster when filtering a range by id rather than name
 # trunk: mozilla-central, mozilla-inbound, autoland
@@ -24,27 +22,21 @@ class GroupConcat(Aggregate):
 
     def __init__(self, expression, distinct=False, **extra):
         super().__init__(
-            expression,
-            distinct='DISTINCT ' if distinct else '',
-            output_field=CharField(),
-            **extra)
+            expression, distinct='DISTINCT ' if distinct else '', output_field=CharField(), **extra
+        )
 
 
-class NumberInFilter(django_filters.filters.BaseInFilter,
-                     django_filters.NumberFilter):
+class NumberInFilter(django_filters.filters.BaseInFilter, django_filters.NumberFilter):
     pass
 
 
-class CharInFilter(django_filters.filters.BaseInFilter,
-                   django_filters.CharFilter):
+class CharInFilter(django_filters.filters.BaseInFilter, django_filters.CharFilter):
     pass
 
 
 def to_datetime(datestr):
     """get a timestamp from a datestr like 2014-03-31"""
-    return datetime.strptime(
-        datestr,
-        "%Y-%m-%d")
+    return datetime.strptime(datestr, "%Y-%m-%d")
 
 
 def to_timestamp(datetime_obj):

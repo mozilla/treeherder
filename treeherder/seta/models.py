@@ -60,9 +60,7 @@ class JobPriority(models.Model):
             return True
 
     def unique_identifier(self):
-        return unique_key(testtype=self.testtype,
-                          buildtype=self.buildtype,
-                          platform=self.platform)
+        return unique_key(testtype=self.testtype, buildtype=self.buildtype, platform=self.platform)
 
     def __str__(self):
         return ','.join((self.buildsystem, self.testtype, self.buildtype, self.platform))

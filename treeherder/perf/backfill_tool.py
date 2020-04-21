@@ -10,7 +10,6 @@ logger = logging.getLogger(__name__)
 
 
 class BackfillTool:
-
     def __init__(self, taskcluster_model: TaskclusterModel):
         self.tc_model = taskcluster_model
 
@@ -30,7 +29,7 @@ class BackfillTool:
             task_id=task_id_to_backfill,
             decision_task_id=decision_task_id,
             input={},
-            root_url=job.repository.tc_root_url
+            root_url=job.repository.tc_root_url,
         )
         return task_id
 

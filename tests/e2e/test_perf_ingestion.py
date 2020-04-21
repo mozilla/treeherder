@@ -1,9 +1,7 @@
 import copy
 
 from treeherder.etl.jobs import store_job_data
-from treeherder.perf.models import (PerformanceDatum,
-                                    PerformanceFramework,
-                                    PerformanceSignature)
+from treeherder.perf.models import PerformanceDatum, PerformanceFramework, PerformanceSignature
 
 # TODO: Turn these into end to end taskcluster tests as part of removing buildbot
 # support in bug 1443251, or else delete them if they're duplicating coverage.
@@ -21,25 +19,29 @@ def test_store_perf_artifact(test_repository, failure_classifications, push_stor
             'state': 'completed',
             'project': test_repository.name,
             'option_collection': {'opt': True},
-            'artifacts': [{
-                'blob': {
-                    "performance_data": {
-                        "framework": {"name": "cheezburger"},
-                        "suites": [{
-                            "name": "cheezburger metrics",
-                            "value": 10.0,
-                            "subtests": [
-                                {"name": "test1", "value": 20.0},
-                                {"name": "test2", "value": 30.0}
-                            ]
-                        }]
-                    }
-                },
-                'type': 'json',
-                'name': 'performance_data',
-                'job_guid': job_guid
-            }]
-        }
+            'artifacts': [
+                {
+                    'blob': {
+                        "performance_data": {
+                            "framework": {"name": "cheezburger"},
+                            "suites": [
+                                {
+                                    "name": "cheezburger metrics",
+                                    "value": 10.0,
+                                    "subtests": [
+                                        {"name": "test1", "value": 20.0},
+                                        {"name": "test2", "value": 30.0},
+                                    ],
+                                }
+                            ],
+                        }
+                    },
+                    'type': 'json',
+                    'name': 'performance_data',
+                    'job_guid': job_guid,
+                }
+            ],
+        },
     }
 
     store_job_data(test_repository, [job_data])
@@ -54,14 +56,13 @@ def test_store_perf_artifact_multiple(test_repository, failure_classifications, 
     PerformanceFramework.objects.get_or_create(name='cheezburger', enabled=True)
     perfobj = {
         "framework": {"name": "cheezburger"},
-        "suites": [{
-            "name": "cheezburger metrics",
-            "value": 10.0,
-            "subtests": [
-                {"name": "test1", "value": 20.0},
-                {"name": "test2", "value": 30.0}
-            ]
-        }]
+        "suites": [
+            {
+                "name": "cheezburger metrics",
+                "value": 10.0,
+                "subtests": [{"name": "test1", "value": 20.0}, {"name": "test2", "value": 30.0}],
+            }
+        ],
     }
     perfobj2 = copy.deepcopy(perfobj)
     perfobj2['suites'][0]['name'] = "cheezburger metrics 2"
@@ -74,15 +75,15 @@ def test_store_perf_artifact_multiple(test_repository, failure_classifications, 
             'state': 'completed',
             'project': test_repository.name,
             'option_collection': {'opt': True},
-            'artifacts': [{
-                'blob': {
-                    "performance_data": [perfobj, perfobj2]
-                },
-                'type': 'json',
-                'name': 'performance_data',
-                'job_guid': job_guid
-            }]
-        }
+            'artifacts': [
+                {
+                    'blob': {"performance_data": [perfobj, perfobj2]},
+                    'type': 'json',
+                    'name': 'performance_data',
+                    'job_guid': job_guid,
+                }
+            ],
+        },
     }
 
     store_job_data(test_repository, [job_data])

@@ -37,11 +37,9 @@ class HgPushlogProcess:
         # we only want to ingest the last 200 commits for each push,
         # to protect against the 5000+ commit merges on release day uplift.
         for commit in push['changesets'][-200:]:
-            commits.append({
-                'revision': commit['node'],
-                'author': commit['author'],
-                'comment': commit['desc'],
-            })
+            commits.append(
+                {'revision': commit['node'], 'author': commit['author'], 'comment': commit['desc'],}
+            )
 
         return {
             'revision': commits[-1]["revision"],
@@ -59,9 +57,13 @@ class HgPushlogProcess:
 
         if not changeset and last_push_id:
             startid_url = "{}&startID={}".format(source_url, last_push_id)
-            logger.info("Extracted last push for '%s', '%s', from cache, "
-                        "attempting to get changes only from that point at: %s",
-                        repository_name, last_push_id, startid_url)
+            logger.info(
+                "Extracted last push for '%s', '%s', from cache, "
+                "attempting to get changes only from that point at: %s",
+                repository_name,
+                last_push_id,
+                startid_url,
+            )
             # Use the cached ``last_push_id`` value (saved from the last time
             # this API was called) for this repo.  Use that value as the
             # ``startID`` to get all new pushes from that point forward.
@@ -79,19 +81,23 @@ class HgPushlogProcess:
                     "due to Mercurial repo reset. Getting latest changes for '%s' instead",
                     extracted_content['lastpushid'],
                     last_push_id,
-                    repository_name
+                    repository_name,
                 )
                 cache.delete(cache_key)
                 extracted_content = self.extract(source_url)
         else:
             if changeset:
-                logger.info("Getting all pushes for '%s' corresponding to "
-                            "changeset '%s'", repository_name, changeset)
-                extracted_content = self.extract(source_url + "&changeset=" +
-                                                 changeset)
+                logger.info(
+                    "Getting all pushes for '%s' corresponding to " "changeset '%s'",
+                    repository_name,
+                    changeset,
+                )
+                extracted_content = self.extract(source_url + "&changeset=" + changeset)
             else:
-                logger.warning("Unable to get last push from cache for '%s', "
-                               "getting all pushes", repository_name)
+                logger.warning(
+                    "Unable to get last push from cache for '%s', " "getting all pushes",
+                    repository_name,
+                )
                 extracted_content = self.extract(source_url)
 
         pushes = extracted_content['pushes']
@@ -117,11 +123,13 @@ class HgPushlogProcess:
                 store_push(repository, self.transform_push(push))
             except Exception:
                 newrelic.agent.record_exception()
-                errors.append({
-                    "project": repository,
-                    "collection": "result_set",
-                    "message": traceback.format_exc()
-                })
+                errors.append(
+                    {
+                        "project": repository,
+                        "collection": "result_set",
+                        "message": traceback.format_exc(),
+                    }
+                )
 
         if errors:
             raise CollectionNotStoredException(errors)

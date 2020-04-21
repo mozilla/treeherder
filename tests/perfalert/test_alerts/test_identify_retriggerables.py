@@ -32,7 +32,8 @@ def gapped_performance_data(test_perf_signature, eleven_jobs_stored, test_perf_a
         push_ids_to_keep=[1, 2, 4, 7, 9],
         highlighted_push_id=4,
         perf_alert=test_perf_alert,
-        perf_signature=test_perf_signature)
+        perf_signature=test_perf_signature,
+    )
 
 
 @pytest.fixture
@@ -56,11 +57,14 @@ def single_performance_datum(test_perf_signature, eleven_jobs_stored, test_perf_
         push_ids_to_keep=[4],
         highlighted_push_id=4,
         perf_alert=test_perf_alert,
-        perf_signature=test_perf_signature)
+        perf_signature=test_perf_signature,
+    )
 
 
 @pytest.fixture
-def retriggerable_and_nonretriggerable_performance_data(test_perf_signature, eleven_jobs_stored, test_perf_alert):
+def retriggerable_and_nonretriggerable_performance_data(
+    test_perf_signature, eleven_jobs_stored, test_perf_alert
+):
     """
     Graph view looks like:
 
@@ -78,10 +82,14 @@ def retriggerable_and_nonretriggerable_performance_data(test_perf_signature, ele
     out_of_retrigger_range = datetime.datetime(year=2014, month=1, day=1)
 
     prepare_graph_data_scenario(
-        push_ids_to_keep=[4, NON_RETRIGGERABLE_JOB_ID],  # generally, fixture job ids == parent push id
+        push_ids_to_keep=[
+            4,
+            NON_RETRIGGERABLE_JOB_ID,
+        ],  # generally, fixture job ids == parent push id
         highlighted_push_id=4,
         perf_alert=test_perf_alert,
-        perf_signature=test_perf_signature)
+        perf_signature=test_perf_signature,
+    )
 
     # make 2nd data point recent enough so it
     # won't get selected for retriggering
@@ -117,7 +125,7 @@ def prepare_graph_data_scenario(push_ids_to_keep, highlighted_push_id, perf_aler
             job=job,
             push=job.push,
             repository=job.repository,
-            signature=perf_signature
+            signature=perf_signature,
         )
         perf_datum.push.time = job.push.time
         perf_datum.push.save()
@@ -166,7 +174,9 @@ def test_identify_retriggerables_as_unit():
 
 # Component tests
 def test_identify_retriggerables_selects_all_data_points(gapped_performance_data, test_perf_alert):
-    identify_retriggerables = IdentifyAlertRetriggerables(max_data_points=5, time_interval=ONE_DAY_INTERVAL)
+    identify_retriggerables = IdentifyAlertRetriggerables(
+        max_data_points=5, time_interval=ONE_DAY_INTERVAL
+    )
     data_points_to_retrigger = identify_retriggerables(test_perf_alert)
 
     assert len(data_points_to_retrigger) == 5
@@ -181,8 +191,12 @@ def test_identify_retriggerables_selects_all_data_points(gapped_performance_data
     assert max_push_timestamp <= datetime.datetime(year=2013, month=11, day=14)
 
 
-def test_identify_retriggerables_selects_even_single_data_point(single_performance_datum, test_perf_alert):
-    identify_retriggerables = IdentifyAlertRetriggerables(max_data_points=5, time_interval=ONE_DAY_INTERVAL)
+def test_identify_retriggerables_selects_even_single_data_point(
+    single_performance_datum, test_perf_alert
+):
+    identify_retriggerables = IdentifyAlertRetriggerables(
+        max_data_points=5, time_interval=ONE_DAY_INTERVAL
+    )
     data_points_to_retrigger = identify_retriggerables(test_perf_alert)
 
     assert len(data_points_to_retrigger) == 1
@@ -190,8 +204,11 @@ def test_identify_retriggerables_selects_even_single_data_point(single_performan
 
 
 def test_identify_retriggerables_doesnt_select_out_of_range_data_points(
-        retriggerable_and_nonretriggerable_performance_data, test_perf_alert):
-    identify_retriggerables = IdentifyAlertRetriggerables(max_data_points=5, time_interval=ONE_DAY_INTERVAL)
+    retriggerable_and_nonretriggerable_performance_data, test_perf_alert
+):
+    identify_retriggerables = IdentifyAlertRetriggerables(
+        max_data_points=5, time_interval=ONE_DAY_INTERVAL
+    )
     data_points_to_retrigger = identify_retriggerables(test_perf_alert)
 
     job_ids_to_retrigger = set(map(get_key("job_id"), data_points_to_retrigger))

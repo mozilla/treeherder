@@ -23,15 +23,18 @@ def analyze(revision_data, weight_fn=None):
     weighted_sum = 0
     sum_of_weights = 0
     for i in range(num_revisions):
-        weighted_sum += sum(value * weights[i] for value in
-                            revision_data[i].values)
+        weighted_sum += sum(value * weights[i] for value in revision_data[i].values)
         sum_of_weights += weights[i] * len(revision_data[i].values)
     weighted_avg = weighted_sum / sum_of_weights if num_revisions > 0 else 0.0
 
     # now that we have a weighted average, we can calculate the variance of the
     # whole series
     all_data = [v for datum in revision_data for v in datum.values]
-    variance = (sum(pow(d-weighted_avg, 2) for d in all_data) / (len(all_data)-1)) if len(all_data) > 1 else 0.0
+    variance = (
+        (sum(pow(d - weighted_avg, 2) for d in all_data) / (len(all_data) - 1))
+        if len(all_data) > 1
+        else 0.0
+    )
 
     return {"avg": weighted_avg, "n": len(all_data), "variance": variance}
 
@@ -78,6 +81,7 @@ class RevisionDatum:
     '''
     This class represents a specific revision and the set of values for it
     '''
+
     def __init__(self, push_timestamp, push_id, values):
 
         # Date code was pushed
@@ -103,15 +107,17 @@ class RevisionDatum:
         return self.push_timestamp < o.push_timestamp
 
     def __repr__(self):
-        values_str = '[ %s ]' % ', '.join(['%.3f' % value for value in
-                                           self.values])
-        return "<%s: %s, %s, %.3f, %s>" % (self.push_timestamp,
-                                           self.push_id, values_str,
-                                           self.t, self.change_detected)
+        values_str = '[ %s ]' % ', '.join(['%.3f' % value for value in self.values])
+        return "<%s: %s, %s, %.3f, %s>" % (
+            self.push_timestamp,
+            self.push_id,
+            values_str,
+            self.t,
+            self.change_detected,
+        )
 
 
-def detect_changes(data, min_back_window=12, max_back_window=24,
-                   fore_window=12, t_threshold=7):
+def detect_changes(data, min_back_window=12, max_back_window=24, fore_window=12, t_threshold=7):
     # Use T-Tests
     # Analyze test data using T-Tests, comparing data[i-j:i] to data[i:i+k]
     data = sorted(data)
@@ -125,10 +131,14 @@ def detect_changes(data, min_back_window=12, max_back_window=24,
         jw = []
         di.amount_prev_data = 0
         prev_indice = i - 1
-        while di.amount_prev_data < max_back_window and prev_indice >= 0 and (
-                (i - prev_indice) <= min(max(last_seen_regression,
-                                             min_back_window),
-                                         max_back_window)):
+        while (
+            di.amount_prev_data < max_back_window
+            and prev_indice >= 0
+            and (
+                (i - prev_indice)
+                <= min(max(last_seen_regression, min_back_window), max_back_window)
+            )
+        ):
             jw.append(data[prev_indice])
             di.amount_prev_data += len(jw[-1].values)
             prev_indice -= 1
@@ -167,12 +177,12 @@ def detect_changes(data, min_back_window=12, max_back_window=24,
             continue
 
         # Check the adjacent points
-        prev = data[i-1]
+        prev = data[i - 1]
         if prev.t > di.t:
             continue
         # next may or may not exist if it's the last in the series
-        if (i+1) < len(data):
-            next = data[i+1]
+        if (i + 1) < len(data):
+            next = data[i + 1]
             if next.t > di.t:
                 continue
 

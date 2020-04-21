@@ -10,31 +10,11 @@ class Migration(migrations.Migration):
     ]
 
     operations = [
-        migrations.AlterUniqueTogether(
-            name='runnablejob',
-            unique_together=set([]),
-        ),
-        migrations.RemoveField(
-            model_name='runnablejob',
-            name='build_platform',
-        ),
-        migrations.RemoveField(
-            model_name='runnablejob',
-            name='job_group',
-        ),
-        migrations.RemoveField(
-            model_name='runnablejob',
-            name='job_type',
-        ),
-        migrations.RemoveField(
-            model_name='runnablejob',
-            name='machine_platform',
-        ),
-        migrations.RemoveField(
-            model_name='runnablejob',
-            name='repository',
-        ),
-        migrations.DeleteModel(
-            name='RunnableJob',
-        ),
+        migrations.AlterUniqueTogether(name='runnablejob', unique_together=set([]),),
+        migrations.RemoveField(model_name='runnablejob', name='build_platform',),
+        migrations.RemoveField(model_name='runnablejob', name='job_group',),
+        migrations.RemoveField(model_name='runnablejob', name='job_type',),
+        migrations.RemoveField(model_name='runnablejob', name='machine_platform',),
+        migrations.RemoveField(model_name='runnablejob', name='repository',),
+        migrations.DeleteModel(name='RunnableJob',),
     ]

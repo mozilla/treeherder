@@ -13,6 +13,9 @@ class Migration(migrations.Migration):
         migrations.AlterField(
             model_name='joblog',
             name='status',
-            field=models.IntegerField(choices=[(0, 'pending'), (1, 'parsed'), (2, 'failed'), (3, 'skipped-size')], default=0),
+            field=models.IntegerField(
+                choices=[(0, 'pending'), (1, 'parsed'), (2, 'failed'), (3, 'skipped-size')],
+                default=0,
+            ),
         ),
     ]

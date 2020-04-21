@@ -1,17 +1,19 @@
 from django.core.management.base import BaseCommand
 
 from treeherder.client.thclient import TreeherderClient
-from treeherder.model.models import (BuildPlatform,
-                                     FailureClassification,
-                                     JobGroup,
-                                     JobType,
-                                     Machine,
-                                     MachinePlatform,
-                                     Option,
-                                     OptionCollection,
-                                     Product,
-                                     Repository,
-                                     RepositoryGroup)
+from treeherder.model.models import (
+    BuildPlatform,
+    FailureClassification,
+    JobGroup,
+    JobType,
+    Machine,
+    MachinePlatform,
+    Option,
+    OptionCollection,
+    Product,
+    Repository,
+    RepositoryGroup,
+)
 
 
 class Command(BaseCommand):
@@ -23,7 +25,7 @@ class Command(BaseCommand):
             action='store',
             dest='server',
             default='https://treeherder.mozilla.org',
-            help='Server to get data from, default https://treeherder.mozilla.org'
+            help='Server to get data from, default https://treeherder.mozilla.org',
         )
 
     def handle(self, *args, **options):
@@ -33,16 +35,15 @@ class Command(BaseCommand):
         for (uuid, props) in c.get_option_collection_hash().items():
             for prop in props:
                 option, _ = Option.objects.get_or_create(name=prop['name'])
-                OptionCollection.objects.get_or_create(
-                    option_collection_hash=uuid,
-                    option=option)
+                OptionCollection.objects.get_or_create(option_collection_hash=uuid, option=option)
 
         # machine platforms
         for machine_platform in c.get_machine_platforms():
             MachinePlatform.objects.get_or_create(
                 os_name=machine_platform['os_name'],
                 platform=machine_platform['platform'],
-                architecture=machine_platform['architecture'])
+                architecture=machine_platform['architecture'],
+            )
 
         # machine
         for machine in c.get_machines():
@@ -51,8 +52,9 @@ class Command(BaseCommand):
                 name=machine['name'],
                 defaults={
                     'first_timestamp': machine['first_timestamp'],
-                    'last_timestamp': machine['last_timestamp']
-                })
+                    'last_timestamp': machine['last_timestamp'],
+                },
+            )
 
         # job group
         for job_group in c.get_job_groups():
@@ -60,9 +62,8 @@ class Command(BaseCommand):
                 id=job_group['id'],
                 symbol=job_group['symbol'],
                 name=job_group['name'],
-                defaults={
-                    'description': job_group['description']
-                })
+                defaults={'description': job_group['description']},
+            )
 
         # job type
         for job_type in c.get_job_types():
@@ -70,27 +71,24 @@ class Command(BaseCommand):
                 id=job_type['id'],
                 symbol=job_type['symbol'],
                 name=job_type['name'],
-                defaults={
-                    'description': job_type['description']
-                })
+                defaults={'description': job_type['description']},
+            )
 
         # product
         for product in c.get_products():
             Product.objects.get_or_create(
                 id=product['id'],
                 name=product['name'],
-                defaults={
-                    'description': product['description']
-                })
+                defaults={'description': product['description']},
+            )
 
         # failure classification
         for failure_classification in c.get_failure_classifications():
             FailureClassification.objects.get_or_create(
                 id=failure_classification['id'],
                 name=failure_classification['name'],
-                defaults={
-                    'description': failure_classification['description']
-                })
+                defaults={'description': failure_classification['description']},
+            )
 
         # build platform
         for build_platform in c.get_build_platforms():
@@ -99,15 +97,16 @@ class Command(BaseCommand):
                 os_name=build_platform['os_name'],
                 defaults={
                     'platform': build_platform['platform'],
-                    'architecture': build_platform['architecture']
-                })
+                    'architecture': build_platform['architecture'],
+                },
+            )
 
         # repository and repository group
         for repository in c.get_repositories():
             rgroup, _ = RepositoryGroup.objects.get_or_create(
                 name=repository['repository_group']['name'],
-                description=repository['repository_group']['description']
-                )
+                description=repository['repository_group']['description'],
+            )
             Repository.objects.get_or_create(
                 id=repository['id'],
                 repository_group=rgroup,
@@ -117,5 +116,6 @@ class Command(BaseCommand):
                 defaults={
                     'codebase': repository['codebase'],
                     'description': repository['description'],
-                    'active_status': repository['active_status']
-                })
+                    'active_status': repository['active_status'],
+                },
+            )

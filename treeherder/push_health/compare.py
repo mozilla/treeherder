@@ -1,7 +1,6 @@
 import logging
 
-from treeherder.model.models import (Commit,
-                                     Push)
+from treeherder.model.models import Commit, Push
 from treeherder.utils.http import fetch_json
 from treeherder.webapp.api.serializers import RepositorySerializer
 
@@ -34,15 +33,17 @@ def get_response_object(parent_sha, revisions, revision_count, push, repository)
         'parentPush': None,
     }
     if push:
-        resp.update({
-            # This will be the revision of the Parent, as long as we could find a Push in
-            # Treeherder for it.
-            'parentPushRevision': push.revision,
-            'id': push.id,
-            'jobCounts': push.get_status(),
-            'exactMatch': parent_sha == push.revision,
-            'parentPush': push,
-        })
+        resp.update(
+            {
+                # This will be the revision of the Parent, as long as we could find a Push in
+                # Treeherder for it.
+                'parentPushRevision': push.revision,
+                'id': push.id,
+                'jobCounts': push.get_status(),
+                'exactMatch': parent_sha == push.revision,
+                'parentPush': push,
+            }
+        )
     return resp
 
 
@@ -60,7 +61,9 @@ def get_commits(repository, revision):
     try:
         autorel_resp = fetch_json(
             'https://hg.mozilla.org/{}/json-automationrelevance/{}'.format(
-                repository.name, revision))
+                repository.name, revision
+            )
+        )
 
         return list(autorel_resp["changesets"])
     except Exception:
@@ -68,8 +71,8 @@ def get_commits(repository, revision):
 
         try:
             json_pushes_resp = fetch_json(
-                '{}/json-pushes?version=2&full=1&changeset={}'.format(
-                    repository.url, revision))
+                '{}/json-pushes?version=2&full=1&changeset={}'.format(repository.url, revision)
+            )
             changesets = list(json_pushes_resp["pushes"].values())[0]['changesets']
             changesets.reverse()
 
@@ -115,6 +118,4 @@ def get_commit_history(repository, revision, push):
 
     # We can't find any mention of this commit, so return what we have.  Hope
     # for the best that it's in the same repository as the push in question.
-    return get_response_object(
-        parent_sha, revisions, revision_count, None, repository
-    )
+    return get_response_object(parent_sha, revisions, revision_count, None, repository)

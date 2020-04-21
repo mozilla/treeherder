@@ -3,18 +3,19 @@ import decimal
 from django.contrib.auth.models import User
 from django.core.exceptions import ObjectDoesNotExist
 from django.db import transaction
-from rest_framework import (exceptions,
-                            serializers)
+from rest_framework import exceptions, serializers
 
 from treeherder.model.models import Repository
-from treeherder.perf.models import (BackfillRecord,
-                                    IssueTracker,
-                                    PerformanceAlert,
-                                    PerformanceAlertSummary,
-                                    PerformanceBugTemplate,
-                                    PerformanceDatum,
-                                    PerformanceFramework,
-                                    PerformanceSignature)
+from treeherder.perf.models import (
+    BackfillRecord,
+    IssueTracker,
+    PerformanceAlert,
+    PerformanceAlertSummary,
+    PerformanceBugTemplate,
+    PerformanceDatum,
+    PerformanceFramework,
+    PerformanceSignature,
+)
 from treeherder.webapp.api.utils import to_timestamp
 
 
@@ -55,11 +56,11 @@ class PerformanceFrameworkSerializer(serializers.ModelSerializer):
 
 class PerformanceSignatureSerializer(serializers.ModelSerializer):
     option_collection_hash = serializers.SlugRelatedField(
-        read_only=True, slug_field="option_collection_hash",
-        source="option_collection")
-    machine_platform = serializers.SlugRelatedField(read_only=True,
-                                                    slug_field="platform",
-                                                    source="platform")
+        read_only=True, slug_field="option_collection_hash", source="option_collection"
+    )
+    machine_platform = serializers.SlugRelatedField(
+        read_only=True, slug_field="platform", source="platform"
+    )
     tags = WordsField(read_only=True, allow_blank=True)
     extra_options = WordsField(read_only=True, allow_blank=True)
     measurement_unit = serializers.CharField(read_only=True)
@@ -68,24 +69,42 @@ class PerformanceSignatureSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = PerformanceSignature
-        fields = ['id', 'framework_id', 'signature_hash', 'machine_platform',
-                  'suite', 'test', 'lower_is_better', 'has_subtests',
-                  'option_collection_hash', 'tags', 'extra_options', 'measurement_unit',
-                  'suite_public_name', 'test_public_name']
+        fields = [
+            'id',
+            'framework_id',
+            'signature_hash',
+            'machine_platform',
+            'suite',
+            'test',
+            'lower_is_better',
+            'has_subtests',
+            'option_collection_hash',
+            'tags',
+            'extra_options',
+            'measurement_unit',
+            'suite_public_name',
+            'test_public_name',
+        ]
 
 
 class PerformanceAlertSerializer(serializers.ModelSerializer):
     series_signature = PerformanceSignatureSerializer(read_only=True)
     summary_id = serializers.SlugRelatedField(
-        slug_field="id", source="summary", required=False,
-        queryset=PerformanceAlertSummary.objects.all())
+        slug_field="id",
+        source="summary",
+        required=False,
+        queryset=PerformanceAlertSummary.objects.all(),
+    )
     related_summary_id = serializers.SlugRelatedField(
-        slug_field="id", source="related_summary",
-        allow_null=True, required=False,
-        queryset=PerformanceAlertSummary.objects.all())
+        slug_field="id",
+        source="related_summary",
+        allow_null=True,
+        required=False,
+        queryset=PerformanceAlertSummary.objects.all(),
+    )
     classifier = serializers.SlugRelatedField(
-        slug_field="username", allow_null=True, required=False,
-        queryset=User.objects.all())
+        slug_field="username", allow_null=True, required=False, queryset=User.objects.all()
+    )
     classifier_email = serializers.SerializerMethodField()
     backfill_record = BackfillRecordSerializer(read_only=True, allow_null=True)
 
@@ -107,19 +126,23 @@ class PerformanceAlertSerializer(serializers.ModelSerializer):
         # framework as the original summary
         related_summary = validated_data.get('related_summary')
         if related_summary:
-            if (validated_data.get('status', instance.status) != PerformanceAlert.DOWNSTREAM and
-                    instance.summary.repository_id != related_summary.repository_id):
+            if (
+                validated_data.get('status', instance.status) != PerformanceAlert.DOWNSTREAM
+                and instance.summary.repository_id != related_summary.repository_id
+            ):
                 raise exceptions.ValidationError(
                     "New summary's repository ({}) does not match existing "
                     "summary's repository ({})".format(
-                        related_summary.repository,
-                        instance.summary.framework))
+                        related_summary.repository, instance.summary.framework
+                    )
+                )
             elif instance.summary.framework_id != related_summary.framework_id:
                 raise exceptions.ValidationError(
                     "New summary's framework ({}) does not match existing "
                     "summary's framework ({})".format(
-                        related_summary.framework,
-                        instance.summary.framework))
+                        related_summary.framework, instance.summary.framework
+                    )
+                )
 
             status = validated_data.get('status')
             if status and status in PerformanceAlert.RELATIONAL_STATUS_IDS:
@@ -135,30 +158,43 @@ class PerformanceAlertSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = PerformanceAlert
-        fields = ['id', 'status', 'series_signature', 'is_regression',
-                  'prev_value', 'new_value', 't_value', 'amount_abs',
-                  'amount_pct', 'summary_id', 'related_summary_id',
-                  'manually_created', 'classifier', 'starred',
-                  'classifier_email', 'backfill_record']
+        fields = [
+            'id',
+            'status',
+            'series_signature',
+            'is_regression',
+            'prev_value',
+            'new_value',
+            't_value',
+            'amount_abs',
+            'amount_pct',
+            'summary_id',
+            'related_summary_id',
+            'manually_created',
+            'classifier',
+            'starred',
+            'classifier_email',
+            'backfill_record',
+        ]
 
 
 class PerformanceAlertSummarySerializer(serializers.ModelSerializer):
     alerts = PerformanceAlertSerializer(many=True, read_only=True)
     related_alerts = PerformanceAlertSerializer(many=True, read_only=True)
-    repository = serializers.SlugRelatedField(read_only=True,
-                                              slug_field='name')
-    framework = serializers.SlugRelatedField(read_only=True,
-                                             slug_field='id')
-    revision = serializers.SlugRelatedField(read_only=True,
-                                            slug_field='revision',
-                                            source='push')
+    repository = serializers.SlugRelatedField(read_only=True, slug_field='name')
+    framework = serializers.SlugRelatedField(read_only=True, slug_field='id')
+    revision = serializers.SlugRelatedField(read_only=True, slug_field='revision', source='push')
     push_timestamp = TimestampField(source='push', read_only=True)
-    prev_push_revision = serializers.SlugRelatedField(read_only=True,
-                                                      slug_field='revision',
-                                                      source='prev_push')
-    assignee_username = serializers.SlugRelatedField(slug_field="username", source="assignee",
-                                                     allow_null=True, required=False,
-                                                     queryset=User.objects.all())
+    prev_push_revision = serializers.SlugRelatedField(
+        read_only=True, slug_field='revision', source='prev_push'
+    )
+    assignee_username = serializers.SlugRelatedField(
+        slug_field="username",
+        source="assignee",
+        allow_null=True,
+        required=False,
+        queryset=User.objects.all(),
+    )
     assignee_email = serializers.SerializerMethodField()
     # marking these fields as readonly, the user should not be modifying them
     # (after the item is first created, where we don't use this serializer
@@ -176,28 +212,47 @@ class PerformanceAlertSummarySerializer(serializers.ModelSerializer):
 
     class Meta:
         model = PerformanceAlertSummary
-        fields = ['id', 'push_id', 'prev_push_id',
-                  'created', 'repository', 'framework', 'alerts',
-                  'related_alerts', 'status', 'bug_number', 'bug_updated',
-                  'issue_tracker', 'notes', 'revision', 'push_timestamp',
-                  'prev_push_revision', 'assignee_username', 'assignee_email']
+        fields = [
+            'id',
+            'push_id',
+            'prev_push_id',
+            'created',
+            'repository',
+            'framework',
+            'alerts',
+            'related_alerts',
+            'status',
+            'bug_number',
+            'bug_updated',
+            'issue_tracker',
+            'notes',
+            'revision',
+            'push_timestamp',
+            'prev_push_revision',
+            'assignee_username',
+            'assignee_email',
+        ]
 
 
 class PerformanceBugTemplateSerializer(serializers.ModelSerializer):
-    framework = serializers.SlugRelatedField(read_only=True,
-                                             slug_field='id')
+    framework = serializers.SlugRelatedField(read_only=True, slug_field='id')
 
     class Meta:
         model = PerformanceBugTemplate
-        fields = ['framework', 'keywords', 'status_whiteboard',
-                  'default_component', 'default_product', 'cc_list', 'text']
+        fields = [
+            'framework',
+            'keywords',
+            'status_whiteboard',
+            'default_component',
+            'default_product',
+            'cc_list',
+            'text',
+        ]
 
 
 class IssueTrackerSerializer(serializers.ModelSerializer):
-    text = serializers.CharField(read_only=True,
-                                 source='name')
-    issueTrackerUrl = serializers.URLField(read_only=True,
-                                           source='task_base_url')
+    text = serializers.CharField(read_only=True, source='name')
+    issueTrackerUrl = serializers.URLField(read_only=True, source='task_base_url')
 
     class Meta:
         model = IssueTracker
@@ -217,9 +272,14 @@ class PerformanceQueryParamsSerializer(serializers.Serializer):
     all_data = serializers.BooleanField(required=False, default=False)
 
     def validate(self, data):
-        if data['revision'] is None and data['interval'] is None and (
-                data['startday'] is None or data['endday'] is None):
-            raise serializers.ValidationError('Required: revision, startday and endday or interval.')
+        if (
+            data['revision'] is None
+            and data['interval'] is None
+            and (data['startday'] is None or data['endday'] is None)
+        ):
+            raise serializers.ValidationError(
+                'Required: revision, startday and endday or interval.'
+            )
 
         return data
 
@@ -243,8 +303,15 @@ class PerformanceDatumSerializer(serializers.ModelSerializer):
 
 class PerformanceSummarySerializer(serializers.ModelSerializer):
     platform = serializers.CharField(source="platform__platform")
-    values = serializers.ListField(child=serializers.DecimalField(
-        rounding=decimal.ROUND_HALF_EVEN, decimal_places=2, max_digits=None, coerce_to_string=False), default=[])
+    values = serializers.ListField(
+        child=serializers.DecimalField(
+            rounding=decimal.ROUND_HALF_EVEN,
+            decimal_places=2,
+            max_digits=None,
+            coerce_to_string=False,
+        ),
+        default=[],
+    )
     name = serializers.SerializerMethodField()
     suite = serializers.CharField()
     parent_signature = serializers.IntegerField(source="parent_signature_id")
@@ -255,16 +322,32 @@ class PerformanceSummarySerializer(serializers.ModelSerializer):
 
     class Meta:
         model = PerformanceSignature
-        fields = ['signature_id', 'framework_id', 'signature_hash', 'platform', 'test', 'suite',
-                  'lower_is_better', 'has_subtests', 'tags', 'values', 'name', 'parent_signature', 'job_ids',
-                  'repository_name', 'repository_id', 'data', 'measurement_unit', 'application']
+        fields = [
+            'signature_id',
+            'framework_id',
+            'signature_hash',
+            'platform',
+            'test',
+            'suite',
+            'lower_is_better',
+            'has_subtests',
+            'tags',
+            'values',
+            'name',
+            'parent_signature',
+            'job_ids',
+            'repository_name',
+            'repository_id',
+            'data',
+            'measurement_unit',
+            'application',
+        ]
 
     def get_name(self, value):
         test = value['test']
         suite = value['suite']
         test_suite = suite if test == '' or test == suite else '{} {}'.format(suite, test)
-        return '{} {} {}'.format(test_suite, value['option_name'],
-                                 value['extra_options'])
+        return '{} {} {}'.format(test_suite, value['option_name'], value['extra_options'])
 
 
 class TestSuiteHealthParamsSerializer(serializers.Serializer):

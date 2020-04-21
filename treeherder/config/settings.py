@@ -2,17 +2,13 @@ import os
 import platform
 import re
 from datetime import timedelta
-from os.path import (abspath,
-                     dirname,
-                     join)
+from os.path import abspath, dirname, join
 
 import environ
 from furl import furl
-from kombu import (Exchange,
-                   Queue)
+from kombu import Exchange, Queue
 
-from treeherder.config.utils import (connection_should_use_tls,
-                                     get_tls_redis_url)
+from treeherder.config.utils import connection_should_use_tls, get_tls_redis_url
 
 # TODO: Switch to pathlib once using Python 3.
 SRC_DIR = dirname(dirname(dirname(abspath(__file__))))
@@ -30,7 +26,10 @@ NEW_RELIC_INSIGHTS_API_KEY = env("NEW_RELIC_INSIGHTS_API_KEY", default=None)
 NEW_RELIC_INSIGHTS_API_URL = 'https://insights-api.newrelic.com/v1/accounts/677903/query'
 
 # Make this unique, and don't share it with anybody.
-SECRET_KEY = env("TREEHERDER_DJANGO_SECRET_KEY", default='secret-key-of-at-least-50-characters-to-pass-check-deploy')
+SECRET_KEY = env(
+    "TREEHERDER_DJANGO_SECRET_KEY",
+    default='secret-key-of-at-least-50-characters-to-pass-check-deploy',
+)
 
 # Delete the Pulse automatically when no consumers left
 PULSE_AUTO_DELETE_QUEUES = env.bool("PULSE_AUTO_DELETE_QUEUES", default=False)
@@ -67,12 +66,10 @@ INSTALLED_APPS = [
     # greater consistency between gunicorn and `./manage.py runserver`.
     'whitenoise.runserver_nostatic',
     'django.contrib.staticfiles',
-
     # 3rd party apps
     'rest_framework',
     'corsheaders',
     'django_filters',
-
     # treeherder apps
     'treeherder.model',
     'treeherder.webapp',
@@ -104,29 +101,30 @@ if env("HEROKU_REVIEW_APP", default=False):
     ALLOWED_HOSTS = [SITE_URL]
 
 # Middleware
-MIDDLEWARE = [middleware for middleware in [
-    # Adds custom New Relic annotations. Must be first so all transactions are annotated.
-    'treeherder.middleware.NewRelicMiddleware',
-    # Redirect to HTTPS/set HSTS and other security headers.
-    'django.middleware.security.SecurityMiddleware',
-    'django.middleware.clickjacking.XFrameOptionsMiddleware',
-    'corsheaders.middleware.CorsMiddleware',
-    # Allows both Django static files and those specified via `WHITENOISE_ROOT`
-    # to be served by WhiteNoise, avoiding the need for Apache/nginx on Heroku.
-    'treeherder.middleware.CustomWhiteNoise',
-    'django.middleware.gzip.GZipMiddleware',
-    'debug_toolbar.middleware.DebugToolbarMiddleware' if DEBUG else False,
-    'django.contrib.sessions.middleware.SessionMiddleware',
-    'django.middleware.common.CommonMiddleware',
-    'django.middleware.csrf.CsrfViewMiddleware',
-    'django.contrib.auth.middleware.AuthenticationMiddleware',
-] if middleware]
+MIDDLEWARE = [
+    middleware
+    for middleware in [
+        # Adds custom New Relic annotations. Must be first so all transactions are annotated.
+        'treeherder.middleware.NewRelicMiddleware',
+        # Redirect to HTTPS/set HSTS and other security headers.
+        'django.middleware.security.SecurityMiddleware',
+        'django.middleware.clickjacking.XFrameOptionsMiddleware',
+        'corsheaders.middleware.CorsMiddleware',
+        # Allows both Django static files and those specified via `WHITENOISE_ROOT`
+        # to be served by WhiteNoise, avoiding the need for Apache/nginx on Heroku.
+        'treeherder.middleware.CustomWhiteNoise',
+        'django.middleware.gzip.GZipMiddleware',
+        'debug_toolbar.middleware.DebugToolbarMiddleware' if DEBUG else False,
+        'django.contrib.sessions.middleware.SessionMiddleware',
+        'django.middleware.common.CommonMiddleware',
+        'django.middleware.csrf.CsrfViewMiddleware',
+        'django.contrib.auth.middleware.AuthenticationMiddleware',
+    ]
+    if middleware
+]
 
 # Templating
-TEMPLATES = [{
-    'BACKEND': 'django.template.backends.django.DjangoTemplates',
-    'APP_DIRS': True,
-}]
+TEMPLATES = [{'BACKEND': 'django.template.backends.django.DjangoTemplates', 'APP_DIRS': True,}]
 
 # Database
 # The database config is defined using environment variables of form:
@@ -134,7 +132,9 @@ TEMPLATES = [{
 #   'mysql://username:password@host:optional_port/database_name'
 #
 # which django-environ converts into the Django DB settings dict format.
-LOCALHOST_MYSQL_HOST = 'mysql://root@{}:3306/treeherder'.format('localhost' if IS_WINDOWS else '127.0.0.1')
+LOCALHOST_MYSQL_HOST = 'mysql://root@{}:3306/treeherder'.format(
+    'localhost' if IS_WINDOWS else '127.0.0.1'
+)
 DATABASES = {
     'default': env.db_url('DATABASE_URL', default=LOCALHOST_MYSQL_HOST),
 }
@@ -158,7 +158,7 @@ for alias in DATABASES:
         # option contains STRICT_TRANS_TABLES. That option escalates warnings into errors when data are
         # truncated upon insertion, so Django highly recommends activating a strict mode for MySQL to
         # prevent data loss (either STRICT_TRANS_TABLES or STRICT_ALL_TABLES).
-        'init_command': "SET sql_mode='STRICT_TRANS_TABLES'"
+        'init_command': "SET sql_mode='STRICT_TRANS_TABLES'",
     }
     if connection_should_use_tls(DATABASES[alias]['HOST']):
         # Use TLS when connecting to RDS.
@@ -221,22 +221,11 @@ LOGOUT_REDIRECT_URL = '/'
 LOGGING = {
     'version': 1,
     'disable_existing_loggers': False,
-    'filters': {
-        'require_debug_true': {
-            '()': 'django.utils.log.RequireDebugTrue',
-        },
-    },
+    'filters': {'require_debug_true': {'()': 'django.utils.log.RequireDebugTrue',},},
     'formatters': {
-        'standard': {
-            'format': "[%(asctime)s] %(levelname)s [%(name)s:%(lineno)s] %(message)s",
-        },
+        'standard': {'format': "[%(asctime)s] %(levelname)s [%(name)s:%(lineno)s] %(message)s",},
     },
-    'handlers': {
-        'console': {
-            'class': 'logging.StreamHandler',
-            'formatter': 'standard'
-        },
-    },
+    'handlers': {'console': {'class': 'logging.StreamHandler', 'formatter': 'standard'},},
     'loggers': {
         'django': {
             'filters': ['require_debug_true'],
@@ -244,21 +233,14 @@ LOGGING = {
             'level': 'INFO',
             'propagate': True,
         },
-        'django.request': {
-            'handlers': ['console'],
-            'level': 'WARNING',
-            'propagate': True,
-        },
+        'django.request': {'handlers': ['console'], 'level': 'WARNING', 'propagate': True,},
         'treeherder': {
             'handlers': ['console'],
             'level': LOGGING_LEVEL,
             'propagate': LOGGING_LEVEL != 'WARNING',
         },
-        'kombu': {
-            'handlers': ['console'],
-            'level': 'WARNING',
-        },
-    }
+        'kombu': {'handlers': ['console'], 'level': 'WARNING',},
+    },
 }
 
 # SECURITY
@@ -283,7 +265,7 @@ SILENCED_SYSTEM_CHECKS = [
     # We can't set CSRF_COOKIE_HTTPONLY to True since the requests to the API
     # made using Angular's `httpProvider` require access to the cookie.
     'security.W017',
-    'security.W019'
+    'security.W019',
 ]
 
 # User Agents
@@ -368,17 +350,13 @@ CELERY_BEAT_SCHEDULE = {
         'task': 'fetch-push-logs',
         'schedule': timedelta(minutes=5),
         'relative': True,
-        'options': {
-            "queue": "pushlog"
-        }
+        'options': {"queue": "pushlog"},
     },
     'seta-analyze-failures': {
         'task': 'seta-analyze-failures',
         'schedule': timedelta(days=1),
         'relative': True,
-        'options': {
-            'queue': "seta_analyze_failures"
-        }
+        'options': {'queue': "seta_analyze_failures"},
     },
 }
 

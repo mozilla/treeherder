@@ -6,13 +6,15 @@ from treeherder.model.models import Push
 from treeherder.push_health.builds import get_build_failures
 
 
-def test_get_build_failures_with_parent(failure_classifications, test_push, test_repository, sample_data, mock_log_parser):
+def test_get_build_failures_with_parent(
+    failure_classifications, test_push, test_repository, sample_data, mock_log_parser
+):
     parent_revision = 'abcdef77949168d16c03a4cba167678b7ab65f76'
     parent_push = Push.objects.create(
         revision=parent_revision,
         repository=test_repository,
         author='foo@bar.baz',
-        time=datetime.datetime.now()
+        time=datetime.datetime.now(),
     )
 
     jobs = sample_data.job_data[20:25]

@@ -9,9 +9,9 @@ from treeherder.model.models import Job
 
 
 @pytest.mark.skip("Test needs fixing in bug: 1307289 (plus upgrade from jobs to tasks)")
-def test_retry_missing_revision_succeeds(sample_data, sample_push,
-                                         test_repository, mock_log_parser,
-                                         monkeypatch):
+def test_retry_missing_revision_succeeds(
+    sample_data, sample_push, test_repository, mock_log_parser, monkeypatch
+):
     """
     Ensure that when the missing push exists after a retry, that the job
     is then ingested.

@@ -14,7 +14,9 @@ class Migration(migrations.Migration):
         migrations.AddField(
             model_name='repository',
             name='tc_root_url',
-            field=models.CharField(db_index=True, default='https://taskcluster.net', max_length=255),
+            field=models.CharField(
+                db_index=True, default='https://taskcluster.net', max_length=255
+            ),
             # only apply this default when migrating; after this users must supply their
             # own rootUrl (and by the time you're reading this, `taskcluster.net` is likely
             # no longer operating)

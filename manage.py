@@ -21,7 +21,9 @@ warnings.filterwarnings('ignore', category=DeprecationWarning, module='markdown.
 # jinja2/runtime.py -> https://github.com/pallets/jinja/pull/867
 # orderedmultidict/orderedmultidict.py -> https://github.com/gruns/orderedmultidict/pull/20
 # promise/promise_list.py -> https://github.com/syrusakbary/promise/pull/67
-warnings.filterwarnings('ignore', category=DeprecationWarning, message=r'Using or importing the ABCs .*')
+warnings.filterwarnings(
+    'ignore', category=DeprecationWarning, message=r'Using or importing the ABCs .*'
+)
 
 # "the imp module is deprecated in favour of importlib; see the module's documentation for alternative uses"
 warnings.filterwarnings('ignore', category=DeprecationWarning, module='celery.utils.imports')

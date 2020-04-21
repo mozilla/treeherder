@@ -42,26 +42,23 @@ logger = logging.getLogger(__name__)
 logger.setLevel(logging.INFO)
 
 # These are environment variables that need to be set
-MUST_BE_SET = {
-    "treeherder-stage": [
-        "NEW_RELIC_INSIGHTS_API_KEY",
-        "THIS_ONE_WILL_FAIL"
-    ]
-}
+MUST_BE_SET = {"treeherder-stage": ["NEW_RELIC_INSIGHTS_API_KEY", "THIS_ONE_WILL_FAIL"]}
 
 # These are environment variables that need to be set to a specific value
 MUST_BE_SET_TO = {
     "treeherder-stage": {
         "BUGZILLA_API_URL": "https://bugzilla.mozilla.org",
-        "THIS_ONE_WILL_FAIL": "foo"
+        "THIS_ONE_WILL_FAIL": "foo",
     }
 }
 
 
 def request(path="", method="GET"):
-    return make_request("https://api.heroku.com/apps/{}".format(path), method=method, headers={
-        'Accept': 'application/vnd.heroku+json; version=3'
-    })
+    return make_request(
+        "https://api.heroku.com/apps/{}".format(path),
+        method=method,
+        headers={'Accept': 'application/vnd.heroku+json; version=3'},
+    )
 
 
 def authenticate():
@@ -69,7 +66,9 @@ def authenticate():
         request(method="POST")
     except requests.exceptions.HTTPError as error:
         if error.response.status_code == 401:
-            logger.critical("Run heroku auth:login to authenticate the terminal before calling this script.")
+            logger.critical(
+                "Run heroku auth:login to authenticate the terminal before calling this script."
+            )
             sys.exit(-1)
 
 
@@ -80,11 +79,9 @@ def get_config_vars(app_name):
 
 class Command(BaseCommand):
     """Management command to validate Heroku environment variables."""
+
     def add_arguments(self, parser):
-        parser.add_argument(
-            "--app",
-            help="Heroku app name"
-        )
+        parser.add_argument("--app", help="Heroku app name")
 
     def handle(self, *args, **options):
         app_name = options["app"]

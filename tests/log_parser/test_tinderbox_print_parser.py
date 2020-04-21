@@ -14,49 +14,52 @@ TINDERBOX_TEST_CASES = (
             'libxul_link:2918047744'
             '</a>'
         ),
-        [{
-            'content_type': 'link',
-            'title': None,
-            'url': 'http://graphs.mozilla.org/graph.html#tests=[[205,63,8]]',
-            'value': 'libxul_link:2918047744'
-        }]
+        [
+            {
+                'content_type': 'link',
+                'title': None,
+                'url': 'http://graphs.mozilla.org/graph.html#tests=[[205,63,8]]',
+                'value': 'libxul_link:2918047744',
+            }
+        ],
     ),
-
     (
         (
             'TinderboxPrint: sources.xml: http://stage.mozilla.org/pub/mozilla.org/'
             'b2g/manifests/depend/mozilla-central/hamachi-eng/20140718040333/'
             'sources-5d0aad07bd13e04de0cd7befc0e2b83a.xml'
         ),
-        [{
-            'content_type': 'link',
-            'title': 'sources.xml',
-            'url': (
-                'http://stage.mozilla.org/pub/mozilla.org/'
-                'b2g/manifests/depend/mozilla-central/hamachi-eng/20140718040333/'
-                'sources-5d0aad07bd13e04de0cd7befc0e2b83a.xml'
-            ),
-            'value': (
-                'http://stage.mozilla.org/pub/mozilla.org/'
-                'b2g/manifests/depend/mozilla-central/hamachi-eng/20140718040333/'
-                'sources-5d0aad07bd13e04de0cd7befc0e2b83a.xml'
-            )
-        }]
+        [
+            {
+                'content_type': 'link',
+                'title': 'sources.xml',
+                'url': (
+                    'http://stage.mozilla.org/pub/mozilla.org/'
+                    'b2g/manifests/depend/mozilla-central/hamachi-eng/20140718040333/'
+                    'sources-5d0aad07bd13e04de0cd7befc0e2b83a.xml'
+                ),
+                'value': (
+                    'http://stage.mozilla.org/pub/mozilla.org/'
+                    'b2g/manifests/depend/mozilla-central/hamachi-eng/20140718040333/'
+                    'sources-5d0aad07bd13e04de0cd7befc0e2b83a.xml'
+                ),
+            }
+        ],
     ),
-
     (
         (
             'TinderboxPrint: mozharness_revlink: '
             'https://hg.mozilla.org/build/mozharness/rev/16ba958057a8'
         ),
-        [{
-            'content_type': 'link',
-            'title': 'mozharness_revlink',
-            'url': 'https://hg.mozilla.org/build/mozharness/rev/16ba958057a8',
-            'value': 'https://hg.mozilla.org/build/mozharness/rev/16ba958057a8'
-        }]
+        [
+            {
+                'content_type': 'link',
+                'title': 'mozharness_revlink',
+                'url': 'https://hg.mozilla.org/build/mozharness/rev/16ba958057a8',
+                'value': 'https://hg.mozilla.org/build/mozharness/rev/16ba958057a8',
+            }
+        ],
     ),
-
     (
         (
             'TinderboxPrint: '
@@ -65,17 +68,18 @@ TINDERBOX_TEST_CASES = (
             'wpt_structured_full.log'
             '</a>: uploaded'
         ),
-        [{
-            'content_type': 'link',
-            'title': 'artifact uploaded',
-            'url': (
-                'http://mozilla-releng-blobs.s3.amazonaws.com'
-                '/blobs/cedar/sha512/9123cb277dbf1eb6d90'
-            ),
-            'value': 'wpt_structured_full.log'
-        }]
+        [
+            {
+                'content_type': 'link',
+                'title': 'artifact uploaded',
+                'url': (
+                    'http://mozilla-releng-blobs.s3.amazonaws.com'
+                    '/blobs/cedar/sha512/9123cb277dbf1eb6d90'
+                ),
+                'value': 'wpt_structured_full.log',
+            }
+        ],
     ),
-
     (
         (
             'TinderboxPrint: '
@@ -84,44 +88,47 @@ TINDERBOX_TEST_CASES = (
             'libxul_link:2918047744'
             '</a>'
         ),
-        [{
-            'content_type': 'link',
-            'title': None,
-            'url': 'http://graphs.mozilla.org/graph.html#tests=[[205,63,8]]',
-            'value': 'libxul_link:2918047744'
-        }]
+        [
+            {
+                'content_type': 'link',
+                'title': None,
+                'url': 'http://graphs.mozilla.org/graph.html#tests=[[205,63,8]]',
+                'value': 'libxul_link:2918047744',
+            }
+        ],
     ),
-
     (
         (
             'TinderboxPrint: '
             'xpcshell-xpcshell<br/>2153/<em class="testfail">1</em>&nbsp;'
             '<em class="testfail">CRASH</em>'
         ),
-        [{
-            'content_type': 'raw_html',
-            'title': 'xpcshell-xpcshell',
-            'value': (
-                '2153/<em class="testfail">1</em>&nbsp;'
-                '<em class="testfail">CRASH</em>'
-            )
-        }]
+        [
+            {
+                'content_type': 'raw_html',
+                'title': 'xpcshell-xpcshell',
+                'value': (
+                    '2153/<em class="testfail">1</em>&nbsp;' '<em class="testfail">CRASH</em>'
+                ),
+            }
+        ],
     ),
-
     (
         (
             'TinderboxPrint: hazard results: '
             'https://ftp-ssl.mozilla.org/pub/mozilla.org/firefox/tinderbox-builds/'
             'mozilla-central-linux64-br-haz/20150226025813'
         ),
-        [{
-            'content_type': 'link',
-            'title': 'hazard results',
-            'url': 'https://ftp-ssl.mozilla.org/pub/mozilla.org/firefox/tinderbox-builds/'
-                   'mozilla-central-linux64-br-haz/20150226025813',
-            'value': 'https://ftp-ssl.mozilla.org/pub/mozilla.org/firefox/tinderbox-builds/'
-                     'mozilla-central-linux64-br-haz/20150226025813'
-        }]
+        [
+            {
+                'content_type': 'link',
+                'title': 'hazard results',
+                'url': 'https://ftp-ssl.mozilla.org/pub/mozilla.org/firefox/tinderbox-builds/'
+                'mozilla-central-linux64-br-haz/20150226025813',
+                'value': 'https://ftp-ssl.mozilla.org/pub/mozilla.org/firefox/tinderbox-builds/'
+                'mozilla-central-linux64-br-haz/20150226025813',
+            }
+        ],
     ),
 )
 
