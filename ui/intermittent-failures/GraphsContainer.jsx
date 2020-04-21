@@ -92,21 +92,19 @@ export default class GraphsContainer extends React.Component {
 GraphsContainer.propTypes = {
   graphOneData: PropTypes.arrayOf(
     PropTypes.shape({
-      date: PropTypes.shape({ Date: PropTypes.string }),
-      value: PropTypes.number,
+      data: PropTypes.arrayOf(PropTypes.shape({})),
+      color: PropTypes.string,
     }),
   ),
   graphTwoData: PropTypes.arrayOf(
     PropTypes.shape({
-      date: PropTypes.shape({ Date: PropTypes.string }),
-      value: PropTypes.number,
+      data: PropTypes.arrayOf(PropTypes.shape({})),
+      color: PropTypes.string,
     }),
-    PropTypes.arrayOf(
-      PropTypes.shape({
-        date: PropTypes.shape({ Date: PropTypes.string }),
-        value: PropTypes.number,
-      }),
-    ),
+    PropTypes.shape({
+      data: PropTypes.arrayOf(PropTypes.shape({})),
+      color: PropTypes.string,
+    }),
   ),
   children: PropTypes.element.isRequired,
 };
