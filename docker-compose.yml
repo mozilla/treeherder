@@ -91,9 +91,9 @@ services:
     # https://hub.docker.com/r/library/rabbitmq/
     image: rabbitmq:3.8-alpine
     environment:
+      # Hide INFO and WARNING log levels to reduce log spam.
       - 'RABBITMQ_SERVER_ADDITIONAL_ERL_ARGS=-rabbit log [{console,[{level,error}]}]'
     ports:
-      # Hide INFO and WARNING log levels to reduce log spam.
       - '5672:5672'
 
   pulse-task-push:
