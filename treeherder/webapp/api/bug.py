@@ -3,14 +3,12 @@ from rest_framework import viewsets
 from rest_framework.response import Response
 from rest_framework.status import HTTP_404_NOT_FOUND
 
-from treeherder.model.models import (BugJobMap,
-                                     Job)
+from treeherder.model.models import BugJobMap, Job
 
 from .serializers import BugJobMapSerializer
 
 
 class BugJobMapViewSet(viewsets.ViewSet):
-
     def create(self, request, project):
         """Add a new relation between a job and a bug."""
         job_id = int(request.data['job_id'])
@@ -18,9 +16,7 @@ class BugJobMapViewSet(viewsets.ViewSet):
 
         try:
             BugJobMap.create(
-                job_id=job_id,
-                bug_id=bug_id,
-                user=request.user,
+                job_id=job_id, bug_id=bug_id, user=request.user,
             )
             message = "Bug job map saved"
         except IntegrityError:
@@ -60,15 +56,12 @@ class BugJobMapViewSet(viewsets.ViewSet):
             # which would hide any ValueError until used by the ORM below.
             job_ids = list(map(int, request.query_params.getlist('job_id')))
         except ValueError:
-            return Response({"message": "Valid job_id required"},
-                            status=400)
+            return Response({"message": "Valid job_id required"}, status=400)
         if not job_ids:
-            return Response({"message": "At least one job_id is required"},
-                            status=400)
+            return Response({"message": "At least one job_id is required"}, status=400)
 
         jobs = Job.objects.filter(repository__name=project, id__in=job_ids)
-        bug_job_maps = BugJobMap.objects.filter(job__in=jobs).select_related(
-            'user')
+        bug_job_maps = BugJobMap.objects.filter(job__in=jobs).select_related('user')
         serializer = BugJobMapSerializer(bug_job_maps, many=True)
 
         return Response(serializer.data)

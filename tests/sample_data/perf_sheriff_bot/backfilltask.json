@@ -1,0 +1,77 @@
+{
+  "context": [{}],
+  "description": "Take the label of the current task, and trigger the task with that label on previous pushes in the same project.",
+  "extra": {
+    "actionPerm": "generic"
+  },
+  "hookGroupId": "project-gecko",
+  "hookId": "in-tree-action-3-generic/9353e8f146",
+  "hookPayload": {
+    "decision": {
+      "action": {
+        "cb_name": "backfill",
+        "description": "Take the label of the current task, and trigger the task with that label on previous pushes in the same project.",
+        "name": "backfill",
+        "symbol": "Bk",
+        "taskGroupId": "f7Jj_h6MTEKr5Ln_7aFqbw",
+        "title": "Backfill"
+      },
+      "push": {
+        "owner": "mozilla-taskcluster-maintenance@mozilla.com",
+        "pushlog_id": "109591",
+        "revision": "c7766d0b4a121985a8b07e6721d66ccab57bbf76"
+      },
+      "repository": {
+        "level": "3",
+        "project": "autoland",
+        "url": "https://hg.mozilla.org/integration/autoland"
+      }
+    },
+    "user": {
+      "input": {
+        "$eval": "input"
+      },
+      "taskGroupId": {
+        "$eval": "taskGroupId"
+      },
+      "taskId": {
+        "$eval": "taskId"
+      }
+    }
+  },
+  "kind": "hook",
+  "name": "backfill",
+  "schema": {
+    "additionalProperties": false,
+    "properties": {
+      "depth": {
+        "default": 9,
+        "description": "The number of previous pushes before the current push to attempt to trigger this task on.",
+        "maximum": 25,
+        "minimum": 1,
+        "title": "Depth",
+        "type": "integer"
+      },
+      "inclusive": {
+        "default": false,
+        "description": "If true, the backfill will also retrigger the task on the selected push.",
+        "title": "Inclusive Range",
+        "type": "boolean"
+      },
+      "testPath": {
+        "title": "Test Path",
+        "type": "string"
+      },
+      "times": {
+        "default": 1,
+        "description": "The number of times to execute each job you are backfilling.",
+        "maximum": 10,
+        "minimum": 1,
+        "title": "Times",
+        "type": "integer"
+      }
+    },
+    "type": "object"
+  },
+  "title": "Backfill"
+}

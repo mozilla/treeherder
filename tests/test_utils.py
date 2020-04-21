@@ -9,8 +9,7 @@ from treeherder.etl.push import store_push_data
 from treeherder.model import models
 
 
-def do_job_ingestion(test_repository, job_data, sample_push,
-                     verify_data=True):
+def do_job_ingestion(test_repository, job_data, sample_push, verify_data=True):
     """
     Ingest ``job_data`` which will be JSON job blobs.
 
@@ -57,18 +56,24 @@ def do_job_ingestion(test_repository, job_data, sample_push,
             job = blob['job']
 
             build_platforms_ref.add(
-                "-".join([
-                    job.get('build_platform', {}).get('os_name', 'unknown'),
-                    job.get('build_platform', {}).get('platform', 'unknown'),
-                    job.get('build_platform', {}).get('architecture', 'unknown')
-                ]))
+                "-".join(
+                    [
+                        job.get('build_platform', {}).get('os_name', 'unknown'),
+                        job.get('build_platform', {}).get('platform', 'unknown'),
+                        job.get('build_platform', {}).get('architecture', 'unknown'),
+                    ]
+                )
+            )
 
             machine_platforms_ref.add(
-                "-".join([
-                    job.get('machine_platform', {}).get('os_name', 'unknown'),
-                    job.get('machine_platform', {}).get('platform', 'unknown'),
-                    job.get('machine_platform', {}).get('architecture', 'unknown')
-                ]))
+                "-".join(
+                    [
+                        job.get('machine_platform', {}).get('os_name', 'unknown'),
+                        job.get('machine_platform', {}).get('platform', 'unknown'),
+                        job.get('machine_platform', {}).get('architecture', 'unknown'),
+                    ]
+                )
+            )
 
             machines_ref.add(job.get('machine', 'unknown'))
 
@@ -110,11 +115,8 @@ def verify_build_platforms(build_platforms_ref):
     build_platforms_set = set()
     for build_platform in models.BuildPlatform.objects.all():
         build_platforms_set.add(
-            "-".join([
-                build_platform.os_name,
-                build_platform.platform,
-                build_platform.architecture
-            ]))
+            "-".join([build_platform.os_name, build_platform.platform, build_platform.architecture])
+        )
 
     assert build_platforms_ref.issubset(build_platforms_set)
 
@@ -124,11 +126,10 @@ def verify_machine_platforms(machine_platforms_ref):
     machine_platforms_set = set()
     for machine_platform in models.MachinePlatform.objects.all():
         machine_platforms_set.add(
-            "-".join([
-                machine_platform.os_name,
-                machine_platform.platform,
-                machine_platform.architecture
-            ]))
+            "-".join(
+                [machine_platform.os_name, machine_platform.platform, machine_platform.architecture]
+            )
+        )
 
     assert machine_platforms_ref.issubset(machine_platforms_set)
 
@@ -161,8 +162,7 @@ def verify_products(products_ref):
 
 def verify_pushes(test_repository, pushes_ref):
 
-    return pushes_ref.issubset(models.Push.objects.values_list(
-        'revision', flat=True))
+    return pushes_ref.issubset(models.Push.objects.values_list('revision', flat=True))
 
 
 def verify_log_urls(test_repository, log_urls_ref):
@@ -173,8 +173,9 @@ def verify_log_urls(test_repository, log_urls_ref):
 
 
 def verify_superseded(expected_superseded_job_guids):
-    superseeded_guids = models.Job.objects.filter(
-        result='superseded').values_list('guid', flat=True)
+    superseeded_guids = models.Job.objects.filter(result='superseded').values_list(
+        'guid', flat=True
+    )
     assert set(superseeded_guids) == expected_superseded_job_guids
 
 
@@ -209,7 +210,8 @@ def create_generic_job(guid, repository, push_id, generic_reference_data):
         submit_time=job_time,
         start_time=job_time,
         end_time=job_time,
-        tier=1)
+        tier=1,
+    )
 
 
 def add_log_response(filename):
@@ -225,9 +227,6 @@ def add_log_response(filename):
             responses.GET,
             log_url,
             body=content,
-            adding_headers={
-                'Content-Encoding': 'gzip',
-                'Content-Length': str(len(content)),
-            }
+            adding_headers={'Content-Encoding': 'gzip', 'Content-Length': str(len(content)),},
         )
     return log_url

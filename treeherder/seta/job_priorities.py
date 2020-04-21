@@ -1,13 +1,9 @@
 import datetime
 import logging
 
-from treeherder.etl.seta import (get_reference_data_names,
-                                 is_job_blacklisted,
-                                 valid_platform)
+from treeherder.etl.seta import get_reference_data_names, is_job_blacklisted, valid_platform
 from treeherder.seta.models import JobPriority
-from treeherder.seta.settings import (SETA_LOW_VALUE_PRIORITY,
-                                      SETA_PROJECTS,
-                                      THE_FUTURE)
+from treeherder.seta.settings import SETA_LOW_VALUE_PRIORITY, SETA_PROJECTS, THE_FUTURE
 
 logger = logging.getLogger(__name__)
 
@@ -20,6 +16,7 @@ class SETAJobPriorities:
     """
     SETA JobPriority Implementation
     """
+
     def _process(self, project, build_system, job_priorities):
         '''Return list of ref_data_name for job_priorities'''
         if not job_priorities:
@@ -42,7 +39,9 @@ class SETAJobPriorities:
                 # e.g. desktop-test-linux64-pgo/opt-reftest-13 or builder name
                 jobs.append(ref_data_names_map[key])
             else:
-                logger.warning('Job priority key %s for (%s) not found in accepted jobs list', key, jp)
+                logger.warning(
+                    'Job priority key %s for (%s) not found in accepted jobs list', key, jp
+                )
 
         return jobs
 
@@ -66,17 +65,20 @@ class SETAJobPriorities:
             if priority is None:
                 priority = SETA_LOW_VALUE_PRIORITY
             job_priorities = []
-            for jp in self._query_job_priorities(priority=priority,
-                                                 excluded_build_system_type='buildbot'):
+            for jp in self._query_job_priorities(
+                priority=priority, excluded_build_system_type='buildbot'
+            ):
                 if jp.has_expired() or jp.expiration_date == THE_FUTURE:
                     job_priorities.append(jp)
-            ref_data_names = self._process(project,
-                                           build_system='taskcluster',
-                                           job_priorities=job_priorities)
+            ref_data_names = self._process(
+                project, build_system='taskcluster', job_priorities=job_priorities
+            )
         else:
             excluded_build_system_type = None
             if build_system_type != '*':
-                excluded_build_system_type = 'taskcluster' if build_system_type == 'buildbot' else 'buildbot'
+                excluded_build_system_type = (
+                    'taskcluster' if build_system_type == 'buildbot' else 'buildbot'
+                )
             job_priorities = self._query_job_priorities(priority, excluded_build_system_type)
             ref_data_names = self._process(project, build_system_type, job_priorities)
 

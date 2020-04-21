@@ -13,8 +13,9 @@ def test_intermittents_commenter(bug_data):
 
     process = Commenter(weekly_mode=True, dry_run=True)
     params = {'include_fields': 'product%2C+component%2C+priority%2C+whiteboard%2C+id'}
-    url = '{}/rest/bug?id={}&include_fields={}'.format(settings.BZ_API_URL, bug_data['bug_id'],
-                                                       params['include_fields'])
+    url = '{}/rest/bug?id={}&include_fields={}'.format(
+        settings.BZ_API_URL, bug_data['bug_id'], params['include_fields']
+    )
 
     content = {
         "bugs": [
@@ -23,18 +24,15 @@ def test_intermittents_commenter(bug_data):
                 u"priority": u"P3",
                 u"product": u"Testing",
                 u"whiteboard": u"[stockwell infra] [see summary at comment 92]",
-                u"id": bug_data['bug_id']
+                u"id": bug_data['bug_id'],
             }
         ],
-        "faults": []
+        "faults": [],
     }
 
-    responses.add(responses.Response(
-                    method='GET',
-                    url=url,
-                    json=content,
-                    match_querystring=True,
-                    status=200))
+    responses.add(
+        responses.Response(method='GET', url=url, json=content, match_querystring=True, status=200)
+    )
 
     resp = process.fetch_bug_details(bug_data['bug_id'])
     assert resp == content['bugs']

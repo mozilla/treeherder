@@ -4,16 +4,14 @@ import pytest
 
 from tests import test_utils
 from tests.sample_data_generator import job_data
-from treeherder.etl.jobs import (_remove_existing_jobs,
-                                 store_job_data)
+from treeherder.etl.jobs import _remove_existing_jobs, store_job_data
 from treeherder.etl.push import store_push_data
-from treeherder.model.models import (Job,
-                                     JobLog)
+from treeherder.model.models import Job, JobLog
 
 
-def test_ingest_single_sample_job(test_repository, failure_classifications,
-                                  sample_data, sample_push,
-                                  mock_log_parser):
+def test_ingest_single_sample_job(
+    test_repository, failure_classifications, sample_data, sample_push, mock_log_parser
+):
     """Process a single job structure in the job_data.txt file"""
     job_data = sample_data.job_data[:1]
     test_utils.do_job_ingestion(test_repository, job_data, sample_push)
@@ -24,8 +22,9 @@ def test_ingest_single_sample_job(test_repository, failure_classifications,
     assert job.signature.signature == '4dabe44cc898e585228c43ea21337a9b00f5ddf7'
 
 
-def test_ingest_all_sample_jobs(test_repository, failure_classifications,
-                                sample_data, sample_push, mock_log_parser):
+def test_ingest_all_sample_jobs(
+    test_repository, failure_classifications, sample_data, sample_push, mock_log_parser
+):
     """
     Process each job structure in the job_data.txt file and verify.
     """
@@ -33,11 +32,9 @@ def test_ingest_all_sample_jobs(test_repository, failure_classifications,
     test_utils.do_job_ingestion(test_repository, job_data, sample_push)
 
 
-def test_ingest_twice_log_parsing_status_changed(test_repository,
-                                                 failure_classifications,
-                                                 sample_data,
-                                                 sample_push,
-                                                 mock_log_parser):
+def test_ingest_twice_log_parsing_status_changed(
+    test_repository, failure_classifications, sample_data, sample_push, mock_log_parser
+):
     """Process a single job twice, but change the log parsing status between,
     verify that nothing changes"""
     job_data = sample_data.job_data[:1]
@@ -56,12 +53,14 @@ def test_ingest_twice_log_parsing_status_changed(test_repository,
 
 
 @pytest.mark.parametrize("same_ingestion_cycle", [False, True])
-def test_ingest_running_to_retry_sample_job(test_repository,
-                                            failure_classifications,
-                                            sample_data,
-                                            sample_push,
-                                            mock_log_parser,
-                                            same_ingestion_cycle):
+def test_ingest_running_to_retry_sample_job(
+    test_repository,
+    failure_classifications,
+    sample_data,
+    sample_push,
+    mock_log_parser,
+    same_ingestion_cycle,
+):
     """Process a single job structure in the job_data.txt file"""
     store_push_data(test_repository, sample_push)
 
@@ -101,15 +100,17 @@ def test_ingest_running_to_retry_sample_job(test_repository,
     assert job.guid == job_data[-1]['job']['job_guid']
 
 
-@pytest.mark.parametrize("ingestion_cycles", [[(0, 1), (1, 2), (2, 3)],
-                                              [(0, 2), (2, 3)],
-                                              [(0, 3)], [(0, 1), (1, 3)]])
-def test_ingest_running_to_retry_to_success_sample_job(test_repository,
-                                                       failure_classifications,
-                                                       sample_data,
-                                                       sample_push,
-                                                       mock_log_parser,
-                                                       ingestion_cycles):
+@pytest.mark.parametrize(
+    "ingestion_cycles", [[(0, 1), (1, 2), (2, 3)], [(0, 2), (2, 3)], [(0, 3)], [(0, 1), (1, 3)]]
+)
+def test_ingest_running_to_retry_to_success_sample_job(
+    test_repository,
+    failure_classifications,
+    sample_data,
+    sample_push,
+    mock_log_parser,
+    ingestion_cycles,
+):
     # verifies that retries to success work, no matter how jobs are batched
     store_push_data(test_repository, sample_push)
 
@@ -121,10 +122,10 @@ def test_ingest_running_to_retry_to_success_sample_job(test_repository,
 
     job_data = []
     for (state, result, job_guid) in [
-            ('running', 'unknown', job_guid_root),
-            ('completed', 'retry',
-             job_guid_root + "_" + str(job['end_timestamp'])[-5:]),
-            ('completed', 'success', job_guid_root)]:
+        ('running', 'unknown', job_guid_root),
+        ('completed', 'retry', job_guid_root + "_" + str(job['end_timestamp'])[-5:]),
+        ('completed', 'success', job_guid_root),
+    ]:
         new_job_datum = copy.deepcopy(job_datum)
         new_job_datum['job']['state'] = state
         new_job_datum['job']['result'] = result
@@ -140,12 +141,17 @@ def test_ingest_running_to_retry_to_success_sample_job(test_repository,
     assert JobLog.objects.count() == 2
 
 
-@pytest.mark.parametrize("ingestion_cycles", [[(0, 1), (1, 3), (3, 4)],
-                                              [(0, 3), (3, 4)],
-                                              [(0, 2), (2, 4)]])
+@pytest.mark.parametrize(
+    "ingestion_cycles", [[(0, 1), (1, 3), (3, 4)], [(0, 3), (3, 4)], [(0, 2), (2, 4)]]
+)
 def test_ingest_running_to_retry_to_success_sample_job_multiple_retries(
-        test_repository, failure_classifications, sample_data, sample_push,
-        mock_log_parser, ingestion_cycles):
+    test_repository,
+    failure_classifications,
+    sample_data,
+    sample_push,
+    mock_log_parser,
+    ingestion_cycles,
+):
     # this verifies that if we ingest multiple retries:
     # (1) nothing errors out
     # (2) we end up with three jobs (the original + 2 retry jobs)
@@ -160,12 +166,11 @@ def test_ingest_running_to_retry_to_success_sample_job_multiple_retries(
 
     job_data = []
     for (state, result, job_guid) in [
-            ('running', 'unknown', job_guid_root),
-            ('completed', 'retry',
-             job_guid_root + "_" + str(job['end_timestamp'])[-5:]),
-            ('completed', 'retry',
-             job_guid_root + "_12345"),
-            ('completed', 'success', job_guid_root)]:
+        ('running', 'unknown', job_guid_root),
+        ('completed', 'retry', job_guid_root + "_" + str(job['end_timestamp'])[-5:]),
+        ('completed', 'retry', job_guid_root + "_12345"),
+        ('completed', 'success', job_guid_root),
+    ]:
         new_job_datum = copy.deepcopy(job_datum)
         new_job_datum['job']['state'] = state
         new_job_datum['job']['result'] = result
@@ -183,10 +188,9 @@ def test_ingest_running_to_retry_to_success_sample_job_multiple_retries(
     assert JobLog.objects.count() == 3
 
 
-def test_ingest_retry_sample_job_no_running(test_repository,
-                                            failure_classifications,
-                                            sample_data, sample_push,
-                                            mock_log_parser):
+def test_ingest_retry_sample_job_no_running(
+    test_repository, failure_classifications, sample_data, sample_push, mock_log_parser
+):
     """Process a single job structure in the job_data.txt file"""
     job_data = copy.deepcopy(sample_data.job_data[:1])
     job = job_data[0]['job']
@@ -209,23 +213,23 @@ def test_ingest_retry_sample_job_no_running(test_repository,
     assert job.guid == retry_guid
 
 
-def test_bad_date_value_ingestion(test_repository, failure_classifications,
-                                  sample_push, mock_log_parser):
+def test_bad_date_value_ingestion(
+    test_repository, failure_classifications, sample_push, mock_log_parser
+):
     """
     Test ingesting a job blob with bad date value
 
     """
-    blob = job_data(start_timestamp="foo",
-                    revision=sample_push[0]['revision'])
+    blob = job_data(start_timestamp="foo", revision=sample_push[0]['revision'])
 
     store_push_data(test_repository, sample_push[:1])
     store_job_data(test_repository, [blob])
     # if no exception, we are good.
 
 
-def test_remove_existing_jobs_single_existing(test_repository, failure_classifications,
-                                              sample_data, sample_push,
-                                              mock_log_parser):
+def test_remove_existing_jobs_single_existing(
+    test_repository, failure_classifications, sample_data, sample_push, mock_log_parser
+):
     """Remove single existing job prior to loading"""
 
     job_data = sample_data.job_data[:1]
@@ -236,10 +240,9 @@ def test_remove_existing_jobs_single_existing(test_repository, failure_classific
     assert data == []
 
 
-def test_remove_existing_jobs_one_existing_one_new(test_repository, failure_classifications,
-                                                   sample_data,
-                                                   sample_push,
-                                                   mock_log_parser):
+def test_remove_existing_jobs_one_existing_one_new(
+    test_repository, failure_classifications, sample_data, sample_push, mock_log_parser
+):
     """Remove single existing job prior to loading"""
 
     job_data = sample_data.job_data[:1]
@@ -251,8 +254,9 @@ def test_remove_existing_jobs_one_existing_one_new(test_repository, failure_clas
     assert Job.objects.count() == 1
 
 
-def test_ingest_job_default_tier(test_repository, sample_data, sample_push,
-                                 failure_classifications, mock_log_parser):
+def test_ingest_job_default_tier(
+    test_repository, sample_data, sample_push, failure_classifications, mock_log_parser
+):
     """Tier is set to 1 by default"""
     job_data = sample_data.job_data[:1]
     store_push_data(test_repository, sample_push)
@@ -261,8 +265,9 @@ def test_ingest_job_default_tier(test_repository, sample_data, sample_push,
     assert job.tier == 1
 
 
-def test_ingesting_skip_existing(test_repository, failure_classifications, sample_data,
-                                 sample_push, mock_log_parser):
+def test_ingesting_skip_existing(
+    test_repository, failure_classifications, sample_data, sample_push, mock_log_parser
+):
     """Remove single existing job prior to loading"""
     job_data = sample_data.job_data[:1]
     test_utils.do_job_ingestion(test_repository, job_data, sample_push)
@@ -272,9 +277,9 @@ def test_ingesting_skip_existing(test_repository, failure_classifications, sampl
     assert Job.objects.count() == 2
 
 
-def test_ingest_job_with_updated_job_group(test_repository, failure_classifications,
-                                           sample_data, mock_log_parser,
-                                           push_stored):
+def test_ingest_job_with_updated_job_group(
+    test_repository, failure_classifications, sample_data, mock_log_parser, push_stored
+):
     """
     The job_type and job_group for a job is independent of any other job_type
     and job_group combination.

@@ -13,7 +13,7 @@ class Command(BaseCommand):
         parser.add_argument(
             "--validate",
             action="store_true",
-            help="This will validate that all entries in preseed.json are valid"
+            help="This will validate that all entries in preseed.json are valid",
         )
 
     def handle(self, *args, **options):

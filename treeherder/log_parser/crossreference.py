@@ -1,15 +1,11 @@
 import logging
 from functools import partial
 
-from django.db import (IntegrityError,
-                       transaction)
+from django.db import IntegrityError, transaction
 from first import first
 from mozlog.formatters.tbplformatter import TbplFormatter
 
-from treeherder.model.models import (FailureLine,
-                                     Job,
-                                     TextLogError,
-                                     TextLogErrorMetadata)
+from treeherder.model.models import FailureLine, Job, TextLogError, TextLogErrorMetadata
 
 logger = logging.getLogger(__name__)
 
@@ -56,8 +52,9 @@ def _crossreference(job):
     for error in text_log_errors:
         if repr_str and error.line.strip().endswith(repr_str):
             logger.debug("Matched '%s'", error.line)
-            TextLogErrorMetadata.objects.get_or_create(text_log_error=error,
-                                                       failure_line=failure_line)
+            TextLogErrorMetadata.objects.get_or_create(
+                text_log_error=error, failure_line=failure_line
+            )
             failure_line, repr_str = next(match_iter)
         else:
             logger.debug("Failed to match '%s'", error.line)
@@ -67,8 +64,11 @@ def _crossreference(job):
         # We can have a line without a pattern at the end if the log is truncated
         if failure_line is None:
             break
-        logger.warning("Crossreference %s: Failed to match structured line '%s' to an unstructured line",
-                       job.id, repr_str)
+        logger.warning(
+            "Crossreference %s: Failed to match structured line '%s' to an unstructured line",
+            job.id,
+            repr_str,
+        )
 
     return True
 

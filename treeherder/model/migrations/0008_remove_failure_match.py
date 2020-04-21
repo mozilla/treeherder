@@ -10,19 +10,8 @@ class Migration(migrations.Migration):
     ]
 
     operations = [
-        migrations.AlterUniqueTogether(
-            name='failurematch',
-            unique_together=set([]),
-        ),
-        migrations.RemoveField(
-            model_name='failurematch',
-            name='classified_failure',
-        ),
-        migrations.RemoveField(
-            model_name='failurematch',
-            name='failure_line',
-        ),
-        migrations.DeleteModel(
-            name='FailureMatch',
-        ),
+        migrations.AlterUniqueTogether(name='failurematch', unique_together=set([]),),
+        migrations.RemoveField(model_name='failurematch', name='classified_failure',),
+        migrations.RemoveField(model_name='failurematch', name='failure_line',),
+        migrations.DeleteModel(name='FailureMatch',),
     ]

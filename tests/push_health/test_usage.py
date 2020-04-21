@@ -7,9 +7,7 @@ import responses
 
 from treeherder.config import settings
 from treeherder.model.models import Push
-from treeherder.push_health.usage import (get_latest,
-                                          get_peak,
-                                          get_usage)
+from treeherder.push_health.usage import get_latest, get_peak, get_usage
 
 
 @pytest.fixture
@@ -35,15 +33,18 @@ def test_latest(push_usage):
 @responses.activate
 def test_get_usage(push_usage, test_repository):
     nrql = "SELECT%20max(needInvestigation)%20FROM%20push_health_need_investigation%20FACET%20revision%20SINCE%201%20DAY%20AGO%20TIMESERIES%20where%20repo%3D'{}'%20AND%20appName%3D'{}'".format(
-        'try', 'treeherder-prod')
+        'try', 'treeherder-prod'
+    )
     new_relic_url = '{}?nrql={}'.format(settings.NEW_RELIC_INSIGHTS_API_URL, nrql)
 
     responses.add(
         responses.GET,
         new_relic_url,
         body=json.dumps(push_usage),
-        status=200, content_type='application/json',
-        match_querystring=True)
+        status=200,
+        content_type='application/json',
+        match_querystring=True,
+    )
 
     # create the Pushes that match the usage response
     for rev in [
@@ -56,7 +57,7 @@ def test_get_usage(push_usage, test_repository):
             revision=rev,
             repository=test_repository,
             author='phydeaux@dog.org',
-            time=datetime.datetime.now()
+            time=datetime.datetime.now(),
         )
 
     usage = get_usage()

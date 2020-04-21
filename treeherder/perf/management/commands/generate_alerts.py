@@ -1,5 +1,4 @@
-from django.core.management.base import (BaseCommand,
-                                         CommandError)
+from django.core.management.base import BaseCommand, CommandError
 
 from treeherder.model import models
 from treeherder.perf.alerts import generate_new_alerts_in_series
@@ -17,27 +16,24 @@ class Command(BaseCommand):
         parser.add_argument(
             '--project',
             action='append',
-            help='Project to get signatures from (specify multiple times to get multiple projects'
+            help='Project to get signatures from (specify multiple times to get multiple projects',
         )
         parser.add_argument(
             '--signature',
             action='append',
-            help='Signature hashes to process, defaults to all non-subtests'
+            help='Signature hashes to process, defaults to all non-subtests',
         )
 
     def handle(self, *args, **options):
         if not options['project']:
-            raise CommandError("Must specify at least one project with "
-                               "--project")
+            raise CommandError("Must specify at least one project with " "--project")
         for project in options['project']:
             repository = models.Repository.objects.get(name=project)
 
-            signatures = PerformanceSignature.objects.filter(
-                repository=repository)
+            signatures = PerformanceSignature.objects.filter(repository=repository)
 
             if options['signature']:
-                signatures_to_process = signatures.filter(
-                    signature_hash__in=options['signature'])
+                signatures_to_process = signatures.filter(signature_hash__in=options['signature'])
             else:
                 hashes_to_ignore = set()
                 # if doing everything, only handle series which are not a
@@ -46,11 +42,13 @@ class Command(BaseCommand):
                 for signature in signatures:
                     # Don't alert on subtests which have a summary
                     hashes_to_ignore.update(
-                        signature.extra_properties.get('subtest_signatures',
-                                                       []))
-                signatures_to_process = [signature for signature in signatures
-                                         if signature.signature_hash not in
-                                         hashes_to_ignore]
+                        signature.extra_properties.get('subtest_signatures', [])
+                    )
+                signatures_to_process = [
+                    signature
+                    for signature in signatures
+                    if signature.signature_hash not in hashes_to_ignore
+                ]
 
             for signature in signatures_to_process:
                 generate_new_alerts_in_series(signature)

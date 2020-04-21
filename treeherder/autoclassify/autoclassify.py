@@ -6,10 +6,7 @@ import newrelic.agent
 from django.db.utils import IntegrityError
 from first import first
 
-from treeherder.model.models import (Job,
-                                     JobNote,
-                                     TextLogError,
-                                     TextLogErrorMatch)
+from treeherder.model.models import Job, JobNote, TextLogError, TextLogErrorMatch
 
 logger = logging.getLogger(__name__)
 
@@ -52,8 +49,11 @@ def match_errors(job, matchers=None):
     if job.result not in ["testfailed", "busted", "exception"]:
         return
 
-    all_errors = set(TextLogError.objects.filter(step__job=job, classified_failures=None)
-                                         .prefetch_related('step', '_metadata', '_metadata__failure_line'))
+    all_errors = set(
+        TextLogError.objects.filter(step__job=job, classified_failures=None).prefetch_related(
+            'step', '_metadata', '_metadata__failure_line'
+        )
+    )
     errors = [t for t in all_errors if t.metadata and t.metadata.failure_line]
 
     if not errors:
@@ -73,7 +73,9 @@ def match_errors(job, matchers=None):
         mark_best_classifications(errors)
 
         # did we find matches for every error?
-        matches_over_threshold = {m.text_log_error_id for m in matches if m.score >= AUTOCLASSIFY_GOOD_ENOUGH_RATIO}
+        matches_over_threshold = {
+            m.text_log_error_id for m in matches if m.score >= AUTOCLASSIFY_GOOD_ENOUGH_RATIO
+        }
         all_matched = {tle.id for tle in all_errors} <= matches_over_threshold
 
         create_note(job, all_matched)
@@ -95,17 +97,22 @@ def find_best_matches(errors, matchers):
     We use the Good Enough™ ratio as a watershed level for match scores.
     """
     for text_log_error in errors:
-        matches = find_all_matches(text_log_error, matchers)  # TextLogErrorMatch instances, unsaved!
+        matches = find_all_matches(
+            text_log_error, matchers
+        )  # TextLogErrorMatch instances, unsaved!
 
         best_match = first(matches, key=lambda m: (-m.score, -m.classified_failure_id))
         if not best_match:
             continue
 
-        newrelic.agent.record_custom_event('highest_scored_matcher', {
-            'matcher': best_match.matcher_name,
-            'score': best_match.score,
-            'text_log_error': best_match.text_log_error_id,
-        })
+        newrelic.agent.record_custom_event(
+            'highest_scored_matcher',
+            {
+                'matcher': best_match.matcher_name,
+                'score': best_match.score,
+                'text_log_error': best_match.text_log_error_id,
+            },
+        )
 
         yield best_match
 
@@ -138,10 +145,12 @@ def get_best_match(text_log_error):
     Matches are further filtered by the score cut off.
     """
     score_cut_off = 0.7
-    return (text_log_error.matches.filter(score__gt=score_cut_off)
-                                  .order_by("-score", "-classified_failure_id")
-                                  .select_related('classified_failure')
-                                  .first())
+    return (
+        text_log_error.matches.filter(score__gt=score_cut_off)
+        .order_by("-score", "-classified_failure_id")
+        .select_related('classified_failure')
+        .first()
+    )
 
 
 def mark_best_classification(text_log_error, classified_failure):

@@ -34,14 +34,12 @@ class JobLogUrlViewSet(viewsets.ViewSet):
         """
         job_ids = request.query_params.getlist('job_id')
         if not job_ids:
-            raise ParseError(
-                detail="The job_id parameter is mandatory for this endpoint")
+            raise ParseError(detail="The job_id parameter is mandatory for this endpoint")
         try:
             job_ids = [int(job_id) for job_id in job_ids]
         except ValueError:
             raise ParseError(detail="The job_id parameter(s) must be integers")
 
-        logs = JobLog.objects.filter(job__repository__name=project,
-                                     job_id__in=job_ids)
+        logs = JobLog.objects.filter(job__repository__name=project, job_id__in=job_ids)
 
         return Response([self._log_as_dict(log) for log in logs])

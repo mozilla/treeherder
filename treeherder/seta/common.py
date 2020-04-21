@@ -35,14 +35,14 @@ def job_priority_index(job_priorities):
 # will be processed before the less specific ones. This must be kept up
 # to date with SETA_SUPPORTED_TC_JOBTYPES in settings.py.
 RE_JOB_TYPE_NAMES = [
-    {'name': 'test',         'pattern': re.compile('test-[^/]+/[^-]+-(.*)$')},
+    {'name': 'test', 'pattern': re.compile('test-[^/]+/[^-]+-(.*)$')},
     {'name': 'desktop-test', 'pattern': re.compile('desktop-test-[^/]+/[^-]+-(.*)$')},
     {'name': 'android-test', 'pattern': re.compile('android-test-[^/]+/[^-]+-(.*)$')},
-    {'name': 'source-test',  'pattern': re.compile('(source-test-[^/]+)(?:/.*)?$')},
-    {'name': 'build',        'pattern': re.compile('(build-[^/]+)/[^-]+$')},
+    {'name': 'source-test', 'pattern': re.compile('(source-test-[^/]+)(?:/.*)?$')},
+    {'name': 'build', 'pattern': re.compile('(build-[^/]+)/[^-]+$')},
     {'name': 'spidermonkey', 'pattern': re.compile('(spidermonkey-[^/]+)/[^-]+$')},
-    {'name': 'iris',         'pattern': re.compile('(iris-[^/]+)/[^-]+$')},
-    {'name': 'webrender',    'pattern': re.compile('(webrender-.*)-(?:opt|debug|pgo)$')},
+    {'name': 'iris', 'pattern': re.compile('(iris-[^/]+)/[^-]+$')},
+    {'name': 'webrender', 'pattern': re.compile('(webrender-.*)-(?:opt|debug|pgo)$')},
 ]
 
 
@@ -71,8 +71,9 @@ def convert_job_type_name_to_testtype(job_type_name):
                 testtype = m.group(1)
                 break
     if not testtype:
-        logger.warning('convert_job_type_name_to_testtype("{}") not matched. '
-                       'Using job_type_name as is.'.format(
-                           job_type_name, testtype))
+        logger.warning(
+            'convert_job_type_name_to_testtype("{}") not matched. '
+            'Using job_type_name as is.'.format(job_type_name, testtype)
+        )
         testtype = job_type_name
     return testtype

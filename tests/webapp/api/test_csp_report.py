@@ -11,13 +11,11 @@ def test_valid_report(client):
             'document-uri': 'http://localhost:8000/',
             'original-policy': '...',
             'referrer': '',
-            'violated-directive': 'connect-src'
+            'violated-directive': 'connect-src',
         }
     }
     response = client.post(
-        reverse('csp-report'),
-        data=json.dumps(valid_report),
-        content_type='application/csp-report',
+        reverse('csp-report'), data=json.dumps(valid_report), content_type='application/csp-report',
     )
     assert response.status_code == 200
 

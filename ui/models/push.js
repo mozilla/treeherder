@@ -1,4 +1,3 @@
-import { slugid } from 'taskcluster-client-web';
 import pick from 'lodash/pick';
 
 import { thMaxPushFetchSize } from '../helpers/constants';
@@ -72,8 +71,6 @@ export default class PushModel {
 
     return TaskclusterModel.load(decisionTaskId, null, currentRepo).then(
       results => {
-        const actionTaskId = slugid();
-
         try {
           const missingTestsTask = getAction(
             results.actions,
@@ -82,14 +79,13 @@ export default class PushModel {
 
           return TaskclusterModel.submit({
             action: missingTestsTask,
-            actionTaskId,
             decisionTaskId,
             taskId: null,
             task: null,
             input: {},
             staticActionVariables: results.staticActionVariables,
             currentRepo,
-          }).then(
+          }).then(actionTaskId =>
             notify(
               `Request sent to trigger missing jobs (${actionTaskId})`,
               'success',
@@ -107,12 +103,10 @@ export default class PushModel {
   static triggerNewJobs(jobs, decisionTaskId, currentRepo) {
     return TaskclusterModel.load(decisionTaskId, null, currentRepo).then(
       results => {
-        const actionTaskId = slugid();
         const addNewJobsTask = getAction(results.actions, 'add-new-jobs');
 
         return TaskclusterModel.submit({
           action: addNewJobsTask,
-          actionTaskId,
           decisionTaskId,
           taskId: null,
           task: null,
@@ -120,7 +114,7 @@ export default class PushModel {
           staticActionVariables: results.staticActionVariables,
           currentRepo,
         }).then(
-          () =>
+          actionTaskId =>
             `Request sent to trigger new jobs via actions.json (${actionTaskId})`,
         );
       },

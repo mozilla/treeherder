@@ -13,6 +13,10 @@ class Migration(migrations.Migration):
         migrations.AlterField(
             model_name='performancesignature',
             name='application',
-            field=models.CharField(default='', help_text="Application that runs the signature's tests. Generally used to record browser's name, but not necessarily.", max_length=10),
+            field=models.CharField(
+                default='',
+                help_text="Application that runs the signature's tests. Generally used to record browser's name, but not necessarily.",
+                max_length=10,
+            ),
         ),
     ]

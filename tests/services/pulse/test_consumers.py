@@ -2,15 +2,13 @@ import pytest
 from django.conf import settings
 
 from tests.conftest import IS_WINDOWS
-from treeherder.services.pulse.consumers import (Consumers,
-                                                 PulseConsumer)
+from treeherder.services.pulse.consumers import Consumers, PulseConsumer
 
 from .utils import create_and_destroy_exchange
 
 
 def test_Consumers():
     class TestConsumer:
-
         def prepare(self):
             self.prepared = True
 
@@ -41,5 +39,11 @@ def test_PulseConsumer(pulse_connection):
             pass
 
     with create_and_destroy_exchange(pulse_connection, "foobar"):
-        cons = TestConsumer({"root_url": "https://firefox-ci-tc.services.mozilla.com", "pulse_url": settings.CELERY_BROKER_URL}, None)
+        cons = TestConsumer(
+            {
+                "root_url": "https://firefox-ci-tc.services.mozilla.com",
+                "pulse_url": settings.CELERY_BROKER_URL,
+            },
+            None,
+        )
         cons.prepare()

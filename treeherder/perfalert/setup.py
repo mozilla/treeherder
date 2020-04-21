@@ -22,5 +22,5 @@ setup(
     license='MPL',
     packages=['perfalert'],
     zip_safe=False,
-    install_requires=[]
+    install_requires=[],
 )

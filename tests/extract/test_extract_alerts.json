@@ -1,0 +1,61 @@
+[
+  {
+    "created": 1587128638.995283,
+    "details": [
+      {
+        "amount_abs": 50,
+        "amount_pct": 0.5,
+        "created": 1587128639.005283,
+        "is_regression": 1,
+        "last_updated": 1587128639.005283,
+        "manually_created": 0,
+        "new_value": 150,
+        "prev_value": 100,
+        "series_signature": {
+          "application": "firefox",
+          "extra_options": "e10s opt",
+          "framework": "test_talos",
+          "has_subtests": 0,
+          "last_updated": 1587128639.001286,
+          "lower_is_better": 1,
+          "measurement_unit": "ms",
+          "option_collection": {
+            "option": "opt",
+            "option_collection_hash": "my_option_hash"
+          },
+          "platform": "win7",
+          "repository": "test_treeherder_jobs",
+          "signature_hash": "tttttttttttttttttttttttttttttttttttttttt",
+          "suite": "mysuite",
+          "tags": "warm pageload",
+          "test": "mytest"
+        },
+        "starred": 0,
+        "status": 0,
+        "t_value": 20
+      }
+    ],
+    "framework": "test_talos",
+    "id": 1,
+    "issue_tracker": {
+      "name": "Bugzilla",
+      "task_base_url": "https://bugzilla.mozilla.org/show_bug.cgi?id="
+    },
+    "last_updated": 1587128639.010283,
+    "manually_created": 0,
+    "prev_push": {
+      "author": "Eric Chou <echou@mozilla.com>",
+      "repository": "test_treeherder_jobs",
+      "revision": "45f8637cb9f78f19cb8463ff174e81756805d8cf",
+      "time": 1384347643
+    },
+    "push": {
+      "author": "Gaia Pushbot <release+gaiajson@mozilla.com>",
+      "repository": "test_treeherder_jobs",
+      "revision": "b11529c9865a4dee3a93d63d119ebb89fcbbdf69",
+      "time": 1384353511
+    },
+    "repository": "test_treeherder_jobs",
+    "status": 0
+  }
+]

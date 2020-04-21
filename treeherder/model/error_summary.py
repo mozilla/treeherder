@@ -3,8 +3,7 @@ import re
 
 from django.core.cache import cache
 
-from treeherder.model.models import (Bugscache,
-                                     TextLogError)
+from treeherder.model.models import Bugscache, TextLogError
 
 logger = logging.getLogger(__name__)
 
@@ -15,9 +14,7 @@ BUG_SUGGESTION_CACHE_TIMEOUT = 86400
 
 LEAK_RE = re.compile(r'\d+ bytes leaked \((.+)\)$|leak at (.+)$')
 CRASH_RE = re.compile(r'.+ application crashed \[@ (.+)\]$')
-MOZHARNESS_RE = re.compile(
-    r'^\d+:\d+:\d+[ ]+(?:DEBUG|INFO|WARNING|ERROR|CRITICAL|FATAL) - [ ]?'
-)
+MOZHARNESS_RE = re.compile(r'^\d+:\d+:\d+[ ]+(?:DEBUG|INFO|WARNING|ERROR|CRITICAL|FATAL) - [ ]?')
 REFTEST_RE = re.compile(r'\s+[=!]=\s+.*')
 OUTPUT_RE = re.compile(r'^\s*(?:GECKO\(\d+\)|PID \d+)\s*$')
 
@@ -75,8 +72,7 @@ def bug_suggestions_line(err, term_cache=None):
             term_cache[search_term] = Bugscache.search(search_term)
         bugs = term_cache[search_term]
 
-    if not bugs or not (bugs['open_recent'] or
-                        bugs['all_others']):
+    if not bugs or not (bugs['open_recent'] or bugs['all_others']):
         # no suggestions, try to use
         # the crash signature as search term
         crash_signature = get_crash_signature(clean_line)
@@ -204,7 +200,7 @@ def is_helpful_search_term(search_term):
         'TypeError: content is null',
         'leakcheck',
         'ImportError: No module named pygtk',
-        '# TBPL FAILURE #'
+        '# TBPL FAILURE #',
     ]
 
     return len(search_term) > 4 and search_term not in blacklist

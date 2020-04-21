@@ -10,7 +10,7 @@ import ErrorMessages from '../shared/ErrorMessages';
 import { endpoints } from './constants';
 import GraphsView from './graphs/GraphsView';
 import AlertsView from './alerts/AlertsView';
-import HealthView from './health/HealthView';
+import TestsView from './tests/TestsView';
 import CompareView from './compare/CompareView';
 import CompareSelectorView from './compare/CompareSelectorView';
 import CompareSubtestsView from './compare/CompareSubtestsView';
@@ -215,9 +215,9 @@ class App extends React.Component {
                 )}
               />
               <Route
-                path="/health"
+                path="/tests"
                 render={props => (
-                  <HealthView
+                  <TestsView
                     {...props}
                     projects={projects}
                     frameworks={frameworks}
@@ -227,9 +227,9 @@ class App extends React.Component {
                 )}
               />
               <Route
-                path="/health?framework=:framework"
+                path="/tests?framework=:framework"
                 render={props => (
-                  <HealthView
+                  <TestsView
                     {...props}
                     projects={projects}
                     frameworks={frameworks}

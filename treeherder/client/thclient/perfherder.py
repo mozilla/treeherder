@@ -5,6 +5,7 @@ class PerformanceTimeInterval:
     '''
     Valid time intervals for Perfherder series
     '''
+
     DAY = 86400
     WEEK = 604800
     TWO_WEEKS = 1209600
@@ -18,12 +19,14 @@ class PerformanceTimeInterval:
         Helper method to return all possible valid time intervals for data
         stored by Perfherder
         '''
-        return [PerformanceTimeInterval.DAY,
-                PerformanceTimeInterval.WEEK,
-                PerformanceTimeInterval.TWO_WEEKS,
-                PerformanceTimeInterval.SIXTY_DAYS,
-                PerformanceTimeInterval.NINETY_DAYS,
-                PerformanceTimeInterval.ONE_YEAR]
+        return [
+            PerformanceTimeInterval.DAY,
+            PerformanceTimeInterval.WEEK,
+            PerformanceTimeInterval.TWO_WEEKS,
+            PerformanceTimeInterval.SIXTY_DAYS,
+            PerformanceTimeInterval.NINETY_DAYS,
+            PerformanceTimeInterval.ONE_YEAR,
+        ]
 
 
 class PerformanceSignatureCollection(dict):

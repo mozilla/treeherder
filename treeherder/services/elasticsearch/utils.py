@@ -1,4 +1,3 @@
-
 def dict_to_op(d, index_name, doc_type, op_type='index'):
     """
     Create a bulk-indexing operation from the given dictionary.

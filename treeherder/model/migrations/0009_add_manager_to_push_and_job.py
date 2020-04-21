@@ -12,15 +12,9 @@ class Migration(migrations.Migration):
 
     operations = [
         migrations.AlterModelManagers(
-            name='push',
-            managers=[
-                ('failures', django.db.models.manager.Manager()),
-            ],
+            name='push', managers=[('failures', django.db.models.manager.Manager()),],
         ),
         migrations.AlterModelManagers(
-            name='job',
-            managers=[
-                ('failures', django.db.models.manager.Manager()),
-            ],
+            name='job', managers=[('failures', django.db.models.manager.Manager()),],
         ),
     ]

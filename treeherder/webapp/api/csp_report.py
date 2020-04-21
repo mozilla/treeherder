@@ -2,8 +2,7 @@ import json
 import logging
 
 import newrelic.agent
-from django.http import (HttpResponse,
-                         HttpResponseBadRequest)
+from django.http import HttpResponse, HttpResponseBadRequest
 from django.views.decorators.csrf import csrf_exempt
 from django.views.decorators.http import require_POST
 

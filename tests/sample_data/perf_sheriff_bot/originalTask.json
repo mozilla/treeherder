@@ -1,0 +1,127 @@
+{
+  "provisionerId": "releng-hardware",
+  "workerType": "gecko-t-linux-talos",
+  "schedulerId": "gecko-level-3",
+  "taskGroupId": "f7Jj_h6MTEKr5Ln_7aFqbw",
+  "dependencies": [
+    "UHhU74OiQ5mpwdWVqkFPPQ",
+    "e0LnTgZNQcSg9w2FctDyTw",
+    "eFUvia2tSZaEnveSffSN3w"
+  ],
+  "requires": "all-completed",
+  "routes": [
+    "tc-treeherder.v2.autoland.c7766d0b4a121985a8b07e6721d66ccab57bbf76.109591"
+  ],
+  "priority": "low",
+  "retries": 5,
+  "created": "2020-03-10T04:40:43.718Z",
+  "deadline": "2020-03-11T04:40:43.718Z",
+  "expires": "2021-03-10T04:40:43.718Z",
+  "scopes": [],
+  "payload": {
+    "onExitStatus": {
+      "retry": [4]
+    },
+    "maxRunTime": 2100,
+    "artifacts": [
+      {
+        "path": "logs",
+        "type": "directory",
+        "name": "public/logs"
+      },
+      {
+        "path": "build/blobber_upload_dir",
+        "type": "directory",
+        "name": "public/test_info"
+      }
+    ],
+    "command": [
+      ["chmod", "+x", "run-task"],
+      [
+        "./run-task",
+        "--",
+        "/usr/bin/python2.7",
+        "-u",
+        "mozharness/scripts/raptor_script.py",
+        "--cfg",
+        "mozharness/configs/raptor/linux_config.py",
+        "--test=raptor-assorted-dom",
+        "--enable-webrender",
+        "--download-symbols",
+        "ondemand"
+      ]
+    ],
+    "env": {
+      "SCCACHE_DISABLE": "1",
+      "GECKO_HEAD_REV": "c7766d0b4a121985a8b07e6721d66ccab57bbf76",
+      "MOZ_SCM_LEVEL": "3",
+      "GECKO_HEAD_REPOSITORY": "https://hg.mozilla.org/integration/autoland",
+      "EXTRA_MOZHARNESS_CONFIG": "{\"test_packages_url\": \"https://firefox-ci-tc.services.mozilla.com/api/queue/v1/task/eFUvia2tSZaEnveSffSN3w/artifacts/public/build/target.test_packages.json\", \"installer_url\": \"https://firefox-ci-tc.services.mozilla.com/api/queue/v1/task/eFUvia2tSZaEnveSffSN3w/artifacts/public/build/target.tar.bz2\"}",
+      "MOZ_FETCHES": "[{\"artifact\": \"public/build/minidump_stackwalk.tar.xz\", \"extract\": true, \"task\": \"UHhU74OiQ5mpwdWVqkFPPQ\"}, {\"artifact\": \"public/assorted-dom-4befd28725c6.zip\", \"extract\": true, \"task\": \"e0LnTgZNQcSg9w2FctDyTw\"}]",
+      "MOZ_FETCHES_DIR": "fetches",
+      "MOZ_AUTOMATION": "1"
+    },
+    "mounts": [
+      {
+        "directory": ".",
+        "content": {
+          "taskId": "eFUvia2tSZaEnveSffSN3w",
+          "artifact": "public/build/mozharness.zip"
+        },
+        "format": "zip"
+      },
+      {
+        "content": {
+          "url": "https://hg.mozilla.org/integration/autoland/raw-file/c7766d0b4a121985a8b07e6721d66ccab57bbf76/taskcluster/scripts/run-task"
+        },
+        "file": "./run-task"
+      },
+      {
+        "content": {
+          "url": "https://hg.mozilla.org/integration/autoland/raw-file/c7766d0b4a121985a8b07e6721d66ccab57bbf76/taskcluster/scripts/misc/fetch-content"
+        },
+        "file": "./fetch-content"
+      }
+    ]
+  },
+  "metadata": {
+    "owner": "sikeda.birchill@mozilla.com",
+    "source": "https://hg.mozilla.org/integration/autoland/file/c7766d0b4a121985a8b07e6721d66ccab57bbf76/taskcluster/ci/test",
+    "description": "Raptor Assorted-Dom on Firefox ([Treeherder push](https://treeherder.mozilla.org/#/jobs?repo=autoland&revision=c7766d0b4a121985a8b07e6721d66ccab57bbf76))",
+    "name": "test-linux64-shippable-qr/opt-raptor-assorted-dom-firefox-e10s"
+  },
+  "tags": {
+    "kind": "test",
+    "os": "linux",
+    "createdForUser": "sikeda.birchill@mozilla.com",
+    "retrigger": "true",
+    "label": "test-linux64-shippable-qr/opt-raptor-assorted-dom-firefox-e10s",
+    "test-type": "raptor",
+    "worker-implementation": "generic-worker"
+  },
+  "extra": {
+    "index": {
+      "rank": 1583815073
+    },
+    "parent": "f7Jj_h6MTEKr5Ln_7aFqbw",
+    "chunks": {
+      "current": 1,
+      "total": 1
+    },
+    "suite": "raptor",
+    "treeherder": {
+      "jobKind": "test",
+      "groupSymbol": "Rap",
+      "collection": {
+        "opt": true
+      },
+      "machine": {
+        "platform": "linux64-shippable-qr"
+      },
+      "groupName": "Raptor performance tests on Firefox",
+      "tier": 1,
+      "symbol": "dom"
+    },
+    "treeherder-platform": "linux64-shippable-qr/opt"
+  }
+}

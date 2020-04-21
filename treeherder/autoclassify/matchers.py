@@ -8,8 +8,7 @@ from django.db.models import Q
 from treeherder.model.models import TextLogErrorMatch
 from treeherder.utils.queryset import chunked_qs_reverse
 
-from .utils import (score_matches,
-                    time_boxed)
+from .utils import score_matches, time_boxed
 
 logger = logging.getLogger(__name__)
 
@@ -29,16 +28,17 @@ def precise_matcher(text_log_error):
         'text_log_error___metadata__failure_line__subtest': failure_line.subtest,
         'text_log_error___metadata__failure_line__status': failure_line.status,
         'text_log_error___metadata__failure_line__expected': failure_line.expected,
-        'text_log_error___metadata__failure_line__message': failure_line.message
+        'text_log_error___metadata__failure_line__message': failure_line.message,
     }
-    qwargs = (
-        Q(text_log_error___metadata__best_classification=None)
-        & (Q(text_log_error___metadata__best_is_verified=True)
-           | Q(text_log_error__step__job=text_log_error.step.job))
+    qwargs = Q(text_log_error___metadata__best_classification=None) & (
+        Q(text_log_error___metadata__best_is_verified=True)
+        | Q(text_log_error__step__job=text_log_error.step.job)
     )
-    qs = (TextLogErrorMatch.objects.filter(**f)
-                                   .exclude(qwargs)
-                                   .order_by('-score', '-classified_failure'))
+    qs = (
+        TextLogErrorMatch.objects.filter(**f)
+        .exclude(qwargs)
+        .order_by('-score', '-classified_failure')
+    )
 
     if not qs:
         return
@@ -61,24 +61,27 @@ def crash_signature_matcher(text_log_error):
     """
     failure_line = text_log_error.metadata.failure_line
 
-    if (failure_line.action != "crash" or
-        failure_line.signature is None or
-        failure_line.signature == "None"):
+    if (
+        failure_line.action != "crash"
+        or failure_line.signature is None
+        or failure_line.signature == "None"
+    ):
         return
 
     f = {
         'text_log_error___metadata__failure_line__action': 'crash',
         'text_log_error___metadata__failure_line__signature': failure_line.signature,
     }
-    qwargs = (
-        Q(text_log_error___metadata__best_classification=None)
-        & (Q(text_log_error___metadata__best_is_verified=True)
-           | Q(text_log_error__step__job=text_log_error.step.job))
+    qwargs = Q(text_log_error___metadata__best_classification=None) & (
+        Q(text_log_error___metadata__best_is_verified=True)
+        | Q(text_log_error__step__job=text_log_error.step.job)
     )
-    qs = (TextLogErrorMatch.objects.filter(**f)
-                                   .exclude(qwargs)
-                                   .select_related('text_log_error', 'text_log_error___metadata')
-                                   .order_by('-score', '-classified_failure'))
+    qs = (
+        TextLogErrorMatch.objects.filter(**f)
+        .exclude(qwargs)
+        .select_related('text_log_error', 'text_log_error___metadata')
+        .order_by('-score', '-classified_failure')
+    )
 
     size = 20000
     time_budget = 500
@@ -92,17 +95,15 @@ def crash_signature_matcher(text_log_error):
 
     # try again without filtering to the test but applying a .8 score multiplyer
     chunks = chunked_qs_reverse(qs, chunk_size=size)
-    scored_matches = chain.from_iterable(time_boxed(
-        score_matches,
-        chunks,
-        time_budget,
-        score_multiplier=(8, 10),
-    ))
+    scored_matches = chain.from_iterable(
+        time_boxed(score_matches, chunks, time_budget, score_multiplier=(8, 10),)
+    )
     return scored_matches
 
 
 class MatchScorer:
     """Simple scorer for similarity of strings based on python's difflib SequenceMatcher."""
+
     def __init__(self, target):
         """:param target: The string to which candidate strings will be compared."""
         self.matcher = SequenceMatcher(lambda x: x == " ")

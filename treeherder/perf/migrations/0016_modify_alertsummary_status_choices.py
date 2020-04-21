@@ -13,6 +13,20 @@ class Migration(migrations.Migration):
         migrations.AlterField(
             model_name='performancealertsummary',
             name='status',
-            field=models.IntegerField(choices=[(0, 'Untriaged'), (1, 'Downstream'), (2, 'Reassigned'), (3, 'Invalid'), (4, 'Improvement'), (5, 'Investigating'), (6, "Won't fix"), (7, 'Fixed'), (8, 'Backed out'), (9, 'Confirming')], default=0),
+            field=models.IntegerField(
+                choices=[
+                    (0, 'Untriaged'),
+                    (1, 'Downstream'),
+                    (2, 'Reassigned'),
+                    (3, 'Invalid'),
+                    (4, 'Improvement'),
+                    (5, 'Investigating'),
+                    (6, "Won't fix"),
+                    (7, 'Fixed'),
+                    (8, 'Backed out'),
+                    (9, 'Confirming'),
+                ],
+                default=0,
+            ),
         ),
     ]

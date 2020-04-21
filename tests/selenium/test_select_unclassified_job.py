@@ -8,7 +8,7 @@ RESULTS = ['testfailed', 'busted', 'exception']
 def test_jobs(eleven_job_blobs, create_jobs):
     for i, status in enumerate(RESULTS):
         eleven_job_blobs[i]['job']['result'] = status
-    return create_jobs(eleven_job_blobs[0:len(RESULTS)])
+    return create_jobs(eleven_job_blobs[0 : len(RESULTS)])
 
 
 def test_select_next_unclassified_job(base_url, selenium, test_jobs):

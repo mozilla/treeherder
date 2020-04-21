@@ -5,62 +5,55 @@ from collections import defaultdict
 import django_filters
 from django.conf import settings
 from django.db import transaction
-from django.db.models import (CharField,
-                              Count,
-                              Q,
-                              Subquery,
-                              Value)
+from django.db.models import CharField, Count, Q, Subquery, Value
 from django.db.models.functions import Concat
-from rest_framework import (exceptions,
-                            filters,
-                            generics,
-                            pagination,
-                            viewsets)
+from rest_framework import exceptions, filters, generics, pagination, viewsets
 from rest_framework.response import Response
 from rest_framework.status import HTTP_400_BAD_REQUEST
 
 from treeherder.model import models
 from treeherder.perf.alerts import get_alert_properties
-from treeherder.perf.models import (IssueTracker,
-                                    OptionCollection,
-                                    PerformanceAlert,
-                                    PerformanceAlertSummary,
-                                    PerformanceBugTemplate,
-                                    PerformanceDatum,
-                                    PerformanceFramework,
-                                    PerformanceSignature)
+from treeherder.perf.models import (
+    IssueTracker,
+    OptionCollection,
+    PerformanceAlert,
+    PerformanceAlertSummary,
+    PerformanceBugTemplate,
+    PerformanceDatum,
+    PerformanceFramework,
+    PerformanceSignature,
+)
 from treeherder.webapp.api.permissions import IsStaffOrReadOnly
 
 from .exceptions import InsufficientAlertCreationData
-from .performance_serializers import (IssueTrackerSerializer,
-                                      PerformanceAlertSerializer,
-                                      PerformanceAlertSummarySerializer,
-                                      PerformanceBugTemplateSerializer,
-                                      PerformanceFrameworkSerializer,
-                                      PerformanceQueryParamsSerializer,
-                                      PerformanceSummarySerializer,
-                                      TestSuiteHealthParamsSerializer,
-                                      TestSuiteHealthSerializer)
+from .performance_serializers import (
+    IssueTrackerSerializer,
+    PerformanceAlertSerializer,
+    PerformanceAlertSummarySerializer,
+    PerformanceBugTemplateSerializer,
+    PerformanceFrameworkSerializer,
+    PerformanceQueryParamsSerializer,
+    PerformanceSummarySerializer,
+    TestSuiteHealthParamsSerializer,
+    TestSuiteHealthSerializer,
+)
 from .utils import GroupConcat
 
 
 class PerformanceSignatureViewSet(viewsets.ViewSet):
-
     def list(self, request, project):
         repository = models.Repository.objects.get(name=project)
 
-        signature_data = PerformanceSignature.objects.filter(
-            repository=repository).select_related(
-            'parent_signature__signature_hash', 'option_collection',
-            'platform')
+        signature_data = PerformanceSignature.objects.filter(repository=repository).select_related(
+            'parent_signature__signature_hash', 'option_collection', 'platform'
+        )
 
         parent_signature_hashes = request.query_params.getlist('parent_signature')
         if parent_signature_hashes:
             parent_signatures = PerformanceSignature.objects.filter(
-                repository=repository,
-                signature_hash__in=parent_signature_hashes)
-            signature_data = signature_data.filter(
-                parent_signature__in=parent_signatures)
+                repository=repository, signature_hash__in=parent_signature_hashes
+            )
+            signature_data = signature_data.filter(parent_signature__in=parent_signatures)
 
         if not int(request.query_params.get('subtests', True)):
             signature_data = signature_data.filter(parent_signature__isnull=True)
@@ -68,33 +61,36 @@ class PerformanceSignatureViewSet(viewsets.ViewSet):
         signature_ids = request.query_params.getlist('id')
         if signature_ids:
             try:
-                signature_data = signature_data.filter(id__in=map(int,
-                                                                  signature_ids))
+                signature_data = signature_data.filter(id__in=map(int, signature_ids))
             except ValueError:
-                return Response({"message": "One or more id values invalid (must be integer)"
-                                 }, status=HTTP_400_BAD_REQUEST)
+                return Response(
+                    {"message": "One or more id values invalid (must be integer)"},
+                    status=HTTP_400_BAD_REQUEST,
+                )
 
         signature_hashes = request.query_params.getlist('signature')
         if signature_hashes:
-            signature_data = signature_data.filter(
-                signature_hash__in=signature_hashes)
+            signature_data = signature_data.filter(signature_hash__in=signature_hashes)
 
         frameworks = request.query_params.getlist('framework')
         if frameworks:
-            signature_data = signature_data.filter(
-                framework__in=frameworks)
+            signature_data = signature_data.filter(framework__in=frameworks)
 
         interval = request.query_params.get('interval')
         start_date = request.query_params.get('start_date')  # 'YYYY-MM-DDTHH:MM:SS
         end_date = request.query_params.get('end_date')  # 'YYYY-MM-DDTHH:MM:SS'
         if interval and (start_date or end_date):
-            return Response({"message": "Provide either interval only -or- start (and end) date"},
-                            status=HTTP_400_BAD_REQUEST)
+            return Response(
+                {"message": "Provide either interval only -or- start (and end) date"},
+                status=HTTP_400_BAD_REQUEST,
+            )
 
         if interval:
             signature_data = signature_data.filter(
                 last_updated__gte=datetime.datetime.utcfromtimestamp(
-                    int(time.time() - int(interval))))
+                    int(time.time() - int(interval))
+                )
+            )
 
         if start_date:
             signature_data = signature_data.filter(last_updated__gte=start_date)
@@ -103,28 +99,47 @@ class PerformanceSignatureViewSet(viewsets.ViewSet):
 
         platform = request.query_params.get('platform')
         if platform:
-            platforms = models.MachinePlatform.objects.filter(
-                platform=platform)
-            signature_data = signature_data.filter(
-                platform__in=platforms)
+            platforms = models.MachinePlatform.objects.filter(platform=platform)
+            signature_data = signature_data.filter(platform__in=platforms)
 
         ret = {}
-        for (id, signature_hash, option_collection_hash, platform, framework,
-             suite, test, application, lower_is_better, extra_options, measurement_unit,
-             has_subtests, tags, parent_signature_hash) in signature_data.values_list(
+        for (
+            id,
+            signature_hash,
+            option_collection_hash,
+            platform,
+            framework,
+            suite,
+            test,
+            application,
+            lower_is_better,
+            extra_options,
+            measurement_unit,
+            has_subtests,
+            tags,
+            parent_signature_hash,
+        ) in signature_data.values_list(
             'id',
             'signature_hash',
             'option_collection__option_collection_hash',
-            'platform__platform', 'framework', 'suite',
-            'test', 'application', 'lower_is_better',
-            'extra_options', 'measurement_unit', 'has_subtests', 'tags',
-            'parent_signature__signature_hash').distinct():
+            'platform__platform',
+            'framework',
+            'suite',
+            'test',
+            'application',
+            'lower_is_better',
+            'extra_options',
+            'measurement_unit',
+            'has_subtests',
+            'tags',
+            'parent_signature__signature_hash',
+        ).distinct():
             ret[signature_hash] = {
                 'id': id,
                 'framework_id': framework,
                 'option_collection_hash': option_collection_hash,
                 'machine_platform': platform,
-                'suite': suite
+                'suite': suite,
             }
             if not lower_is_better:
                 # almost always true, save some banwidth by assuming that by
@@ -161,21 +176,20 @@ class PerformancePlatformViewSet(viewsets.ViewSet):
     """
 
     def list(self, request, project):
-        signature_data = PerformanceSignature.objects.filter(
-            repository__name=project)
+        signature_data = PerformanceSignature.objects.filter(repository__name=project)
         interval = request.query_params.get('interval')
         if interval:
             signature_data = signature_data.filter(
                 last_updated__gte=datetime.datetime.utcfromtimestamp(
-                    int(time.time() - int(interval))))
+                    int(time.time() - int(interval))
+                )
+            )
 
         frameworks = request.query_params.getlist('framework')
         if frameworks:
-            signature_data = signature_data.filter(
-                framework__in=frameworks)
+            signature_data = signature_data.filter(framework__in=frameworks)
 
-        return Response(signature_data.values_list(
-            'platform__platform', flat=True).distinct())
+        return Response(signature_data.values_list('platform__platform', flat=True).distinct())
 
 
 class PerformanceFrameworkViewSet(viewsets.ReadOnlyModelViewSet):
@@ -197,28 +211,29 @@ class PerformanceDatumViewSet(viewsets.ViewSet):
         signature_ids = request.query_params.getlist("signature_id")
         push_ids = request.query_params.getlist("push_id")
         try:
-            job_ids = [int(job_id) for job_id in
-                       request.query_params.getlist("job_id")]
+            job_ids = [int(job_id) for job_id in request.query_params.getlist("job_id")]
         except ValueError:
-            return Response({"message": "Job id(s) must be specified as integers"},
-                            status=HTTP_400_BAD_REQUEST)
+            return Response(
+                {"message": "Job id(s) must be specified as integers"}, status=HTTP_400_BAD_REQUEST
+            )
 
         if not (signature_ids or signature_hashes or push_ids or job_ids):
-            raise exceptions.ValidationError('Need to specify either '
-                                             'signature_id, signatures, '
-                                             'push_id, or job_id')
+            raise exceptions.ValidationError(
+                'Need to specify either ' 'signature_id, signatures, ' 'push_id, or job_id'
+            )
         if signature_ids and signature_hashes:
-            raise exceptions.ValidationError('Can\'t specify both signature_id '
-                                             'and signatures in same query')
+            raise exceptions.ValidationError(
+                'Can\'t specify both signature_id ' 'and signatures in same query'
+            )
 
-        datums = PerformanceDatum.objects.filter(
-            repository=repository).select_related(
-            'signature', 'push')
+        datums = PerformanceDatum.objects.filter(repository=repository).select_related(
+            'signature', 'push'
+        )
 
         if signature_hashes:
             signature_ids = PerformanceSignature.objects.filter(
-                repository=repository,
-                signature_hash__in=signature_hashes).values_list('id', flat=True)
+                repository=repository, signature_hash__in=signature_hashes
+            ).values_list('id', flat=True)
 
             datums = datums.filter(signature__id__in=list(signature_ids))
         elif signature_ids:
@@ -230,20 +245,23 @@ class PerformanceDatumViewSet(viewsets.ViewSet):
 
         frameworks = request.query_params.getlist('framework')
         if frameworks:
-            datums = datums.filter(
-                signature__framework__in=frameworks)
+            datums = datums.filter(signature__framework__in=frameworks)
 
         interval = request.query_params.get('interval')
         start_date = request.query_params.get('start_date')  # 'YYYY-MM-DDTHH:MM:SS
         end_date = request.query_params.get('end_date')  # 'YYYY-MM-DDTHH:MM:SS'
         if interval and (start_date or end_date):
-            return Response({"message": "Provide either interval only -or- start (and end) date"},
-                            status=HTTP_400_BAD_REQUEST)
+            return Response(
+                {"message": "Provide either interval only -or- start (and end) date"},
+                status=HTTP_400_BAD_REQUEST,
+            )
 
         if interval:
             datums = datums.filter(
                 push_timestamp__gt=datetime.datetime.utcfromtimestamp(
-                    int(time.time() - int(interval))))
+                    int(time.time() - int(interval))
+                )
+            )
 
         if start_date:
             datums = datums.filter(push_timestamp__gt=start_date)
@@ -252,19 +270,36 @@ class PerformanceDatumViewSet(viewsets.ViewSet):
 
         ret = defaultdict(list)
         values_list = datums.values_list(
-            'id', 'signature_id', 'signature__signature_hash', 'job_id', 'push_id',
-            'push_timestamp', 'value', 'push__revision')
-        for (id, signature_id, signature_hash, job_id, push_id,
-             push_timestamp, value, push__revision) in values_list:
-            ret[signature_hash].append({
-                'id': id,
-                'signature_id': signature_id,
-                'job_id': job_id,
-                'push_id': push_id,
-                'revision': push__revision,
-                'push_timestamp': int(time.mktime(push_timestamp.timetuple())),
-                'value': round(value, 2)  # round to 2 decimal places
-            })
+            'id',
+            'signature_id',
+            'signature__signature_hash',
+            'job_id',
+            'push_id',
+            'push_timestamp',
+            'value',
+            'push__revision',
+        )
+        for (
+            id,
+            signature_id,
+            signature_hash,
+            job_id,
+            push_id,
+            push_timestamp,
+            value,
+            push__revision,
+        ) in values_list:
+            ret[signature_hash].append(
+                {
+                    'id': id,
+                    'signature_id': signature_id,
+                    'job_id': job_id,
+                    'push_id': push_id,
+                    'revision': push__revision,
+                    'push_timestamp': int(time.mktime(push_timestamp.timetuple())),
+                    'value': round(value, 2),  # round to 2 decimal places
+                }
+            )
 
         return Response(ret)
 
@@ -293,54 +328,77 @@ class PerformanceAlertSummaryFilter(django_filters.FilterSet):
 
         # Django's distinct(*fields) isn't supported for MySQL
         # https://code.djangoproject.com/ticket/17974
-        filtered_summaries = (queryset.annotate(
-            full_name=Concat(
-                'alerts__series_signature__suite', sep,
-                'alerts__series_signature__test', sep,
-                'alerts__series_signature__platform__platform', sep,
-                'alerts__series_signature__extra_options', sep,
-                'bug_number', sep,
-                'push__revision',
-                output_field=CharField()))
-                                      .filter(*contains_all_words)
-                                      .values('id')
-                                      .distinct())
+        filtered_summaries = (
+            queryset.annotate(
+                full_name=Concat(
+                    'alerts__series_signature__suite',
+                    sep,
+                    'alerts__series_signature__test',
+                    sep,
+                    'alerts__series_signature__platform__platform',
+                    sep,
+                    'alerts__series_signature__extra_options',
+                    sep,
+                    'bug_number',
+                    sep,
+                    'push__revision',
+                    output_field=CharField(),
+                )
+            )
+            .filter(*contains_all_words)
+            .values('id')
+            .distinct()
+        )
 
         return queryset.filter(id__in=Subquery(filtered_summaries))
 
     def _hide_improvements(self, queryset, name, value):
-        return (queryset
-                .annotate(total_regressions=Count('alerts__is_regression'))
-                .filter(alerts__is_regression=True, total_regressions__gte=1))
+        return queryset.annotate(total_regressions=Count('alerts__is_regression')).filter(
+            alerts__is_regression=True, total_regressions__gte=1
+        )
 
     def _hide_related_and_invalid(self, queryset, name, value):
-        return (queryset.exclude(
-            status__in=[PerformanceAlertSummary.DOWNSTREAM,
-                        PerformanceAlertSummary.REASSIGNED,
-                        PerformanceAlertSummary.INVALID]))
+        return queryset.exclude(
+            status__in=[
+                PerformanceAlertSummary.DOWNSTREAM,
+                PerformanceAlertSummary.REASSIGNED,
+                PerformanceAlertSummary.INVALID,
+            ]
+        )
 
     def _with_assignee(self, queryset, name, value):
         return queryset.filter(assignee__username=value)
 
     class Meta:
         model = PerformanceAlertSummary
-        fields = ['id', 'status', 'framework', 'repository',
-                  'alerts__series_signature',
-                  'filter_text', 'hide_improvements',
-                  'hide_related_and_invalid', 'with_assignee']
+        fields = [
+            'id',
+            'status',
+            'framework',
+            'repository',
+            'alerts__series_signature',
+            'filter_text',
+            'hide_improvements',
+            'hide_related_and_invalid',
+            'with_assignee',
+        ]
 
 
 class PerformanceAlertSummaryViewSet(viewsets.ModelViewSet):
     """ViewSet for the performance alert summary model"""
-    queryset = PerformanceAlertSummary.objects.filter(
-        repository__active_status='active').select_related(
-        'repository', 'push').prefetch_related(
-        'alerts',
-        'alerts__classifier',
-        'alerts__series_signature',
-        'alerts__series_signature__platform',
-        'alerts__series_signature__option_collection',
-        'alerts__series_signature__option_collection__option')
+
+    queryset = (
+        PerformanceAlertSummary.objects.filter(repository__active_status='active')
+        .select_related('repository', 'push')
+        .prefetch_related(
+            'alerts',
+            'alerts__classifier',
+            'alerts__series_signature',
+            'alerts__series_signature__platform',
+            'alerts__series_signature__option_collection',
+            'alerts__series_signature__option_collection__option',
+        )
+    )
     permission_classes = (IsStaffOrReadOnly,)
 
     serializer_class = PerformanceAlertSummarySerializer
@@ -358,10 +416,8 @@ class PerformanceAlertSummaryViewSet(viewsets.ModelViewSet):
             framework=PerformanceFramework.objects.get(id=data['framework_id']),
             push_id=data['push_id'],
             prev_push_id=data['prev_push_id'],
-            defaults={
-                'manually_created': True,
-                'created': datetime.datetime.now()
-            })
+            defaults={'manually_created': True, 'created': datetime.datetime.now()},
+        )
 
         return Response({"alert_summary_id": alert_summary.id})
 
@@ -373,10 +429,10 @@ class PerformanceAlertViewSet(viewsets.ModelViewSet):
     serializer_class = PerformanceAlertSerializer
     filter_backends = (django_filters.rest_framework.DjangoFilterBackend, filters.OrderingFilter)
     filterset_fields = ['id']
-    ordering = ('-id')
+    ordering = '-id'
 
     class AlertPagination(pagination.CursorPagination):
-        ordering = ('-id')
+        ordering = '-id'
         page_size = 10
 
     pagination_class = AlertPagination
@@ -393,19 +449,18 @@ class PerformanceAlertViewSet(viewsets.ModelViewSet):
             if all([new_push_id, new_prev_push_id]) and alert.summary.push.id != new_push_id:
                 return self.nudge(alert, new_push_id, new_prev_push_id)
 
-            return Response({"message": "Incorrect push was provided"},
-                            status=HTTP_400_BAD_REQUEST)
+            return Response({"message": "Incorrect push was provided"}, status=HTTP_400_BAD_REQUEST)
 
     def create(self, request, *args, **kwargs):
         data = request.data
         if 'summary_id' not in data or 'signature_id' not in data:
-            return Response({"message": "Summary and signature ids necessary "
-                                        "to create alert"}, status=HTTP_400_BAD_REQUEST)
+            return Response(
+                {"message": "Summary and signature ids necessary " "to create alert"},
+                status=HTTP_400_BAD_REQUEST,
+            )
 
-        summary = PerformanceAlertSummary.objects.get(
-            id=data['summary_id'])
-        signature = PerformanceSignature.objects.get(
-            id=data['signature_id'])
+        summary = PerformanceAlertSummary.objects.get(id=data['summary_id'])
+        signature = PerformanceSignature.objects.get(id=data['signature_id'])
 
         alert_properties = self.calculate_alert_properties(summary, signature)
 
@@ -419,8 +474,9 @@ class PerformanceAlertViewSet(viewsets.ModelViewSet):
                 'amount_abs': alert_properties.delta,
                 'prev_value': alert_properties.prev_value,
                 'new_value': alert_properties.new_value,
-                't_value': 1000
-            })
+                't_value': 1000,
+            },
+        )
         alert.timestamp_first_triage().save()
 
         return Response({"alert_id": alert.id})
@@ -434,15 +490,13 @@ class PerformanceAlertViewSet(viewsets.ModelViewSet):
             new_range = settings.PERFHERDER_ALERTS_FORE_WINDOW
 
         prev_data = PerformanceDatum.objects.filter(
-            signature=series_signature,
-            push_timestamp__lte=alert_summary.prev_push.time).order_by(
-            '-push_timestamp')
+            signature=series_signature, push_timestamp__lte=alert_summary.prev_push.time
+        ).order_by('-push_timestamp')
         prev_values = prev_data.values_list('value', flat=True)[:prev_range]
 
         new_data = PerformanceDatum.objects.filter(
-            signature=series_signature,
-            push_timestamp__gt=alert_summary.prev_push.time).order_by(
-            'push_timestamp')
+            signature=series_signature, push_timestamp__gt=alert_summary.prev_push.time
+        ).order_by('push_timestamp')
         new_values = new_data.values_list('value', flat=True)[:new_range]
 
         if not prev_data or not new_data:
@@ -451,8 +505,7 @@ class PerformanceAlertViewSet(viewsets.ModelViewSet):
         prev_value = sum(prev_values) / len(prev_values)
         new_value = sum(new_values) / len(new_values)
 
-        return get_alert_properties(prev_value, new_value,
-                                    series_signature.lower_is_better)
+        return get_alert_properties(prev_value, new_value, series_signature.lower_is_better)
 
     @transaction.atomic
     def nudge(self, alert, new_push_id, new_prev_push_id):
@@ -482,8 +535,7 @@ class PerformanceSummary(generics.ListAPIView):
     def list(self, request):
         query_params = PerformanceQueryParamsSerializer(data=request.query_params)
         if not query_params.is_valid():
-            return Response(data=query_params.errors,
-                            status=HTTP_400_BAD_REQUEST)
+            return Response(data=query_params.errors, status=HTTP_400_BAD_REQUEST)
 
         startday = query_params.validated_data['startday']
         endday = query_params.validated_data['endday']
@@ -496,9 +548,9 @@ class PerformanceSummary(generics.ListAPIView):
         no_subtests = query_params.validated_data['no_subtests']
         all_data = query_params.validated_data['all_data']
 
-        signature_data = (PerformanceSignature.objects
-                          .select_related('framework', 'repository', 'platform', 'push', 'job')
-                          .filter(repository__name=repository_name))
+        signature_data = PerformanceSignature.objects.select_related(
+            'framework', 'repository', 'platform', 'push', 'job'
+        ).filter(repository__name=repository_name)
 
         # TODO deprecate signature hash support
         if signature and len(signature) == 40:
@@ -517,36 +569,61 @@ class PerformanceSummary(generics.ListAPIView):
         # we do this so all relevant signature data is returned even if there isn't performance data
         # and it's also not needed since this param is used to filter directly on signature_id
         if interval and not all_data:
-            signature_data = signature_data.filter(last_updated__gte=datetime.datetime.utcfromtimestamp(
-                int(time.time() - int(interval))))
+            signature_data = signature_data.filter(
+                last_updated__gte=datetime.datetime.utcfromtimestamp(
+                    int(time.time() - int(interval))
+                )
+            )
 
         # TODO signature_hash is being returned for legacy support - should be removed at some point
-        self.queryset = (signature_data.values('framework_id', 'id', 'lower_is_better', 'has_subtests', 'extra_options',
-                                               'suite', 'signature_hash', 'platform__platform', 'test',
-                                               'option_collection_id', 'parent_signature_id', 'repository_id',
-                                               'tags', 'measurement_unit', 'application'))
+        self.queryset = signature_data.values(
+            'framework_id',
+            'id',
+            'lower_is_better',
+            'has_subtests',
+            'extra_options',
+            'suite',
+            'signature_hash',
+            'platform__platform',
+            'test',
+            'option_collection_id',
+            'parent_signature_id',
+            'repository_id',
+            'tags',
+            'measurement_unit',
+            'application',
+        )
 
         signature_ids = [item['id'] for item in list(self.queryset)]
 
-        data = (PerformanceDatum.objects.select_related('push', 'repository', 'id')
-                .filter(signature_id__in=signature_ids, repository__name=repository_name))
+        data = PerformanceDatum.objects.select_related('push', 'repository', 'id').filter(
+            signature_id__in=signature_ids, repository__name=repository_name
+        )
 
         if revision:
             data = data.filter(push__revision=revision)
         elif interval and not startday and not endday:
-            data = data.filter(push_timestamp__gt=datetime.datetime.utcfromtimestamp(
-                int(time.time() - int(interval))))
+            data = data.filter(
+                push_timestamp__gt=datetime.datetime.utcfromtimestamp(
+                    int(time.time() - int(interval))
+                )
+            )
         else:
             data = data.filter(push_timestamp__gt=startday, push_timestamp__lt=endday)
 
         # more efficient than creating a join on option_collection and option
-        option_collection = OptionCollection.objects.select_related('option').values('id', 'option__name')
-        option_collection_map = {item['id']: item['option__name'] for item in list(option_collection)}
+        option_collection = OptionCollection.objects.select_related('option').values(
+            'id', 'option__name'
+        )
+        option_collection_map = {
+            item['id']: item['option__name'] for item in list(option_collection)
+        }
 
         if signature and all_data:
             for item in self.queryset:
-                item['data'] = data.values('value', 'job_id', 'id', 'push_id', 'push_timestamp',
-                                           'push__revision').order_by('push_timestamp')
+                item['data'] = data.values(
+                    'value', 'job_id', 'id', 'push_id', 'push_timestamp', 'push__revision'
+                ).order_by('push_timestamp')
                 item['option_name'] = option_collection_map[item['option_collection_id']]
                 item['repository_name'] = repository_name
 
@@ -570,22 +647,21 @@ class PerformanceSummary(generics.ListAPIView):
 
 
 class TestSuiteHealthViewSet(viewsets.ViewSet):
-
     def list(self, request):
         query_params = TestSuiteHealthParamsSerializer(data=request.query_params)
         if not query_params.is_valid():
-            return Response(data=query_params.errors,
-                            status=HTTP_400_BAD_REQUEST)
+            return Response(data=query_params.errors, status=HTTP_400_BAD_REQUEST)
 
         framework_id = query_params.validated_data['framework']
-        query_set = (PerformanceSignature.objects
-                     .prefetch_related('performancealert')
-                     .filter(framework_id=framework_id, parent_signature_id=None)
-                     .values('suite', 'test')
-                     .annotate(repositories=GroupConcat('repository_id', distinct=True))
-                     .annotate(platforms=GroupConcat('platform_id', distinct=True))
-                     .annotate(total_alerts=Count('performancealert'))
-                     .order_by('suite', 'test'))
+        query_set = (
+            PerformanceSignature.objects.prefetch_related('performancealert')
+            .filter(framework_id=framework_id, parent_signature_id=None)
+            .values('suite', 'test')
+            .annotate(repositories=GroupConcat('repository_id', distinct=True))
+            .annotate(platforms=GroupConcat('platform_id', distinct=True))
+            .annotate(total_alerts=Count('performancealert'))
+            .order_by('suite', 'test')
+        )
 
         serializer = TestSuiteHealthSerializer(query_set, many=True)
         return Response(data=serializer.data)

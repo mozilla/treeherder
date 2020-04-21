@@ -14,6 +14,8 @@ class Migration(migrations.Migration):
         migrations.AlterField(
             model_name='performancealertsummary',
             name='issue_tracker',
-            field=models.ForeignKey(default=1, on_delete=django.db.models.deletion.PROTECT, to='perf.IssueTracker'),
+            field=models.ForeignKey(
+                default=1, on_delete=django.db.models.deletion.PROTECT, to='perf.IssueTracker'
+            ),
         ),
     ]

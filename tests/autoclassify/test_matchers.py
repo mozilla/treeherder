@@ -4,12 +4,9 @@ from first import first
 
 from treeherder.autoclassify.matchers import precise_matcher
 from treeherder.autoclassify.utils import score_matches
-from treeherder.model.models import (FailureLine,
-                                     TextLogErrorMatch,
-                                     TextLogErrorMetadata)
+from treeherder.model.models import FailureLine, TextLogErrorMatch, TextLogErrorMetadata
 
-from .utils import (create_failure_lines,
-                    create_text_log_errors)
+from .utils import create_failure_lines, create_text_log_errors
 
 
 def test_precise_matcher_with_matches(classified_failures):

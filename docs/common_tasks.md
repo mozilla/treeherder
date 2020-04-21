@@ -5,23 +5,17 @@
 The docs are built using MkDocs, which has a live-reloading development server,
 that makes working on the docs locally much easier.
 
-To use this within the Docker environment, run:
-
-```bash
-docker-compose run -p 8000:8000 backend mkdocs serve -a 0.0.0.0:8000
-```
-
-Or if you would rather not use Docker, instead use poetry,run:
-
 ```console
 % pip install poetry
 % poetry install
 % poetry run mkdocs serve
 ```
 
-**Note** - On Windows you might need to fallback ```python -m venv venv``` or ```virtualenv``` to manage your virtualenv if ```poetry``` does not work for you.
+<!-- prettier-ignore -->
+!!! note
+    On Windows you might need to fallback ```python -m venv venv``` or ```virtualenv``` to manage your virtualenv if ```poetry``` does not work for you.
 
-In either case, the docs will then be available at: <http://localhost:8000>
+The docs will then be available at: <http://localhost:8000>
 
 ## Updating package.json
 

@@ -124,6 +124,13 @@ Alternatively, you can `export` that value in your terminal prior to executing
 DATABASE_URL=mysql://user:password@hostname/treeherder docker-compose up
 ```
 
+<!-- prettier-ignore -->
+!!! note
+    If you are using a database on one of our instances (production, stage or prototype) then
+    you should also disable data ingestion via Pulse.  It will ONLY ingest to your local DB,
+    even if `DATABASE_URL` is set.  But it will use your system's resources unnecessarily.
+    To skip data ingestion, set the var `SKIP_INGESTION=True`
+
 ### Deleting the MySql database
 
 The MySql database is kept locally and is not destroyed when the Docker containers are destroyed.

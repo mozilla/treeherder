@@ -6,66 +6,32 @@ import simplejson as json
 from django.db.utils import DataError
 from jsonschema import ValidationError
 
-from treeherder.log_parser.utils import (MAX_LENGTH,
-                                         SECOND_MAX_LENGTH,
-                                         _lookup_extra_options_max,
-                                         validate_perf_data)
+from treeherder.log_parser.utils import (
+    MAX_LENGTH,
+    SECOND_MAX_LENGTH,
+    _lookup_extra_options_max,
+    validate_perf_data,
+)
 
 LENGTH_OK = {
-        'framework': {},
-        'suites': [
-            {
-                'extraOptions': [
-                    '.' * 45,
-                    '.' * 100,
-                ],
-                'name': 'testing',
-                'subtests': []
-            }
-        ] * 3
-    }
+    'framework': {},
+    'suites': [{'extraOptions': ['.' * 45, '.' * 100,], 'name': 'testing', 'subtests': []}] * 3,
+}
 
 LONGER_THAN_ALL_MAX = {
-        'framework': {},
-        'suites': [
-            {
-                'extraOptions': [
-                    '.' * 46,
-                    '.' * 101,
-                ],
-                'name': 'testing',
-                'subtests': []
-            }
-        ]
-    }
+    'framework': {},
+    'suites': [{'extraOptions': ['.' * 46, '.' * 101,], 'name': 'testing', 'subtests': []}],
+}
 
 LONGER_THAN_BIGGER_MAX = {
-        'framework': {},
-        'suites': [
-            {
-                'extraOptions': [
-                    '.' * 45,
-                    '.' * 101,
-                ],
-                'name': 'testing',
-                'subtests': []
-            }
-        ]
-    }
+    'framework': {},
+    'suites': [{'extraOptions': ['.' * 45, '.' * 101,], 'name': 'testing', 'subtests': []}],
+}
 
 LONGER_THAN_SMALLER_MAX = {
-        'framework': {},
-        'suites': [
-            {
-                'extraOptions': [
-                    '.' * 46,
-                    '.' * 100,
-                ],
-                'name': 'testing',
-                'subtests': []
-            }
-        ] * 3
-    }
+    'framework': {},
+    'suites': [{'extraOptions': ['.' * 46, '.' * 100,], 'name': 'testing', 'subtests': []}] * 3,
+}
 
 
 def test_smaller_than_bigger():
@@ -85,7 +51,9 @@ def test_validate_perf_schema_no_exception():
         pytest.fail(str(exc))
 
 
-@pytest.mark.parametrize('data', (LONGER_THAN_ALL_MAX, LONGER_THAN_BIGGER_MAX, LONGER_THAN_SMALLER_MAX))
+@pytest.mark.parametrize(
+    'data', (LONGER_THAN_ALL_MAX, LONGER_THAN_BIGGER_MAX, LONGER_THAN_SMALLER_MAX)
+)
 def test_validate_perf_schema(data):
     for datum in data:
         with pytest.raises(ValidationError):

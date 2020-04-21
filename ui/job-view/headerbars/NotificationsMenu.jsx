@@ -65,7 +65,6 @@ class NotificationsMenu extends React.Component {
           {storedNotifications.length ? (
             storedNotifications.map(notification => (
               <DropdownItem
-                tag="a"
                 className="pl-0 notification-dropdown-line"
                 key={`${notification.created}${notification.message}`}
               >

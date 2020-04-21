@@ -1,8 +1,6 @@
 def filter_failure(failure):
     # TODO: Add multiple filters, as needed
-    filters = [
-        filter_job_type_names
-    ]
+    filters = [filter_job_type_names]
 
     for test_filter in filters:
         if not test_filter(failure):

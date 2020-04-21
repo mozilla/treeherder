@@ -1,8 +1,6 @@
 import logging
 
-from .parsers import (PerformanceParser,
-                      StepParser,
-                      TinderboxPrintParser)
+from .parsers import PerformanceParser, StepParser, TinderboxPrintParser
 
 logger = logging.getLogger(__name__)
 
@@ -18,6 +16,7 @@ class ArtifactBuilderBase:
     the url to the log file to add to its own artifact.
 
     """
+
     MAX_LINE_LENGTH = 500
 
     def __init__(self, url=None):
@@ -27,9 +26,7 @@ class ArtifactBuilderBase:
         ``url`` - The url this log comes from.  It's optional, but it gets
                   added to the artifact.
         """
-        self.artifact = {
-            "logurl": url
-        }
+        self.artifact = {"logurl": url}
         self.lineno = 0
         self.parser = None
         self.name = "Generic Artifact"
@@ -46,7 +43,7 @@ class ArtifactBuilderBase:
         # if the MAX_LINE_LENGTH is applied the data structure could be
         # truncated, preventing it from being ingested.
         if 'PERFHERDER_DATA' not in line:
-            line = line[:self.MAX_LINE_LENGTH]
+            line = line[: self.MAX_LINE_LENGTH]
 
         self.parser.parse_line(line, self.lineno)
         self.lineno += 1

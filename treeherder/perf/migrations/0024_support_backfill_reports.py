@@ -14,24 +14,45 @@ class Migration(migrations.Migration):
         migrations.CreateModel(
             name='BackfillReport',
             fields=[
-                ('summary', models.OneToOneField(on_delete=django.db.models.deletion.CASCADE, primary_key=True, related_name='backfill_report', serialize=False, to='perf.PerformanceAlertSummary')),
+                (
+                    'summary',
+                    models.OneToOneField(
+                        on_delete=django.db.models.deletion.CASCADE,
+                        primary_key=True,
+                        related_name='backfill_report',
+                        serialize=False,
+                        to='perf.PerformanceAlertSummary',
+                    ),
+                ),
                 ('created', models.DateTimeField(auto_now_add=True)),
                 ('last_updated', models.DateTimeField(auto_now=True)),
             ],
-            options={
-                'db_table': 'backfill_report',
-            },
+            options={'db_table': 'backfill_report',},
         ),
         migrations.CreateModel(
             name='BackfillRecord',
             fields=[
-                ('alert', models.OneToOneField(on_delete=django.db.models.deletion.CASCADE, primary_key=True, related_name='backfill_record', serialize=False, to='perf.PerformanceAlert')),
+                (
+                    'alert',
+                    models.OneToOneField(
+                        on_delete=django.db.models.deletion.CASCADE,
+                        primary_key=True,
+                        related_name='backfill_record',
+                        serialize=False,
+                        to='perf.PerformanceAlert',
+                    ),
+                ),
                 ('context', models.TextField()),
                 ('created', models.DateTimeField(auto_now_add=True)),
-                ('report', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='records', to='perf.BackfillReport')),
+                (
+                    'report',
+                    models.ForeignKey(
+                        on_delete=django.db.models.deletion.CASCADE,
+                        related_name='records',
+                        to='perf.BackfillReport',
+                    ),
+                ),
             ],
-            options={
-                'db_table': 'backfill_record',
-            },
+            options={'db_table': 'backfill_record',},
         ),
     ]

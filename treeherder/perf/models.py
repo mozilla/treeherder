@@ -6,13 +6,8 @@ from django.core.validators import MinLengthValidator
 from django.db import models
 from django.utils.timezone import now as django_now
 
-from treeherder.model.models import (Job,
-                                     MachinePlatform,
-                                     OptionCollection,
-                                     Push,
-                                     Repository)
-from treeherder.perf.exceptions import (MaxRuntimeExceeded,
-                                        NoDataCyclingAtAll)
+from treeherder.model.models import Job, MachinePlatform, OptionCollection, Push, Repository
+from treeherder.perf.exceptions import MaxRuntimeExceeded, NoDataCyclingAtAll
 
 SIGNATURE_HASH_LENGTH = 40
 
@@ -29,10 +24,9 @@ class PerformanceFramework(models.Model):
 
 
 class PerformanceSignature(models.Model):
-    signature_hash = models.CharField(max_length=SIGNATURE_HASH_LENGTH,
-                                      validators=[
-                                          MinLengthValidator(SIGNATURE_HASH_LENGTH)
-                                      ])
+    signature_hash = models.CharField(
+        max_length=SIGNATURE_HASH_LENGTH, validators=[MinLengthValidator(SIGNATURE_HASH_LENGTH)]
+    )
 
     repository = models.ForeignKey(Repository, on_delete=models.CASCADE)
     framework = models.ForeignKey(PerformanceFramework, on_delete=models.CASCADE)
@@ -40,13 +34,17 @@ class PerformanceSignature(models.Model):
     option_collection = models.ForeignKey(OptionCollection, on_delete=models.CASCADE)
     suite = models.CharField(max_length=80)
     test = models.CharField(max_length=80, blank=True)
-    application = models.CharField(max_length=10, default='',
-                                   help_text="Application that runs the signature's tests. "
-                                             "Generally used to record browser's name, but not necessarily.")
+    application = models.CharField(
+        max_length=10,
+        default='',
+        help_text="Application that runs the signature's tests. "
+        "Generally used to record browser's name, but not necessarily.",
+    )
     lower_is_better = models.BooleanField(default=True)
     last_updated = models.DateTimeField(db_index=True)
-    parent_signature = models.ForeignKey('self', on_delete=models.CASCADE, related_name='subtests',
-                                         null=True, blank=True)
+    parent_signature = models.ForeignKey(
+        'self', on_delete=models.CASCADE, related_name='subtests', null=True, blank=True
+    )
     has_subtests = models.BooleanField()
 
     # we treat suite & test as human unreadable identifiers
@@ -73,12 +71,10 @@ class PerformanceSignature(models.Model):
     # generation works
     ALERT_PCT = 0
     ALERT_ABS = 1
-    ALERT_CHANGE_TYPES = ((ALERT_PCT, 'percentage'),
-                          (ALERT_ABS, 'absolute'))
+    ALERT_CHANGE_TYPES = ((ALERT_PCT, 'percentage'), (ALERT_ABS, 'absolute'))
 
     should_alert = models.NullBooleanField()
-    alert_change_type = models.IntegerField(choices=ALERT_CHANGE_TYPES,
-                                            null=True)
+    alert_change_type = models.IntegerField(choices=ALERT_CHANGE_TYPES, null=True)
     alert_threshold = models.FloatField(null=True)
     min_back_window = models.IntegerField(null=True)
     max_back_window = models.IntegerField(null=True)
@@ -101,12 +97,28 @@ class PerformanceSignature(models.Model):
         unique_together = (
             # ensure there is only one signature per repository with a
             # particular set of properties
-            ('repository', 'suite', 'test', 'framework',
-             'platform', 'option_collection', 'extra_options', 'last_updated', 'application'),
+            (
+                'repository',
+                'suite',
+                'test',
+                'framework',
+                'platform',
+                'option_collection',
+                'extra_options',
+                'last_updated',
+                'application',
+            ),
             # suite_public_name/test_public_name must be unique
             # and different than suite/test
-            ('repository', 'suite_public_name', 'test_public_name', 'framework',
-             'platform', 'option_collection', 'extra_options'),
+            (
+                'repository',
+                'suite_public_name',
+                'test_public_name',
+                'framework',
+                'platform',
+                'option_collection',
+                'extra_options',
+            ),
             # ensure there is only one signature of any hash per
             # repository (same hash in different repositories is allowed)
             ('repository', 'framework', 'signature_hash'),
@@ -119,8 +131,7 @@ class PerformanceSignature(models.Model):
         else:
             name += " summary"
 
-        return "{} {} {} {}".format(self.signature_hash, name, self.platform,
-                                    self.last_updated)
+        return "{} {} {} {}".format(self.signature_hash, name, self.platform, self.last_updated)
 
 
 class PerformanceDatumManager(models.Manager):
@@ -136,15 +147,15 @@ class PerformanceDatumManager(models.Manager):
         if max_overall_runtime < elapsed_runtime:
             raise MaxRuntimeExceeded('Max runtime for performance data cycling exceeded')
 
-    def cycle_data(self, cycle_interval, chunk_size,
-                   logger, started_at, max_overall_runtime):
+    def cycle_data(self, cycle_interval, chunk_size, logger, started_at, max_overall_runtime):
         """Delete data older than cycle_interval, splitting the target data
 into chunks of chunk_size size."""
         max_timestamp = datetime.datetime.now() - cycle_interval
 
         try:
-            self._delete_in_chunks(max_timestamp, chunk_size, logger,
-                                   started_at, max_overall_runtime)
+            self._delete_in_chunks(
+                max_timestamp, chunk_size, logger, started_at, max_overall_runtime
+            )
 
             # also remove any signatures which are (no longer) associated with
             # a job
@@ -153,17 +164,18 @@ into chunks of chunk_size size."""
                 self._maybe_quit(started_at, max_overall_runtime)
 
                 if not self.filter(
-                        repository_id=signature.repository_id,  # leverages (repository, signature) compound index
-                        signature_id=signature.id).exists():
+                    repository_id=signature.repository_id,  # leverages (repository, signature) compound index
+                    signature_id=signature.id,
+                ).exists():
                     signature.delete()
         except NoDataCyclingAtAll as ex:
             logger.warning('Exception: {}'.format(ex))
         except MaxRuntimeExceeded as ex:
             logger.warning(ex)
 
-    def _delete_in_chunks(self, max_timestamp, chunk_size, logger,
-                          started_at, max_overall_runtime):
+    def _delete_in_chunks(self, max_timestamp, chunk_size, logger, started_at, max_overall_runtime):
         from django.db import connection
+
         any_succesful_attempt = False
 
         with connection.cursor() as cursor:
@@ -172,14 +184,20 @@ into chunks of chunk_size size."""
 
                 try:
                     ideal_chunk_size = self._compute_ideal_chunk_size(max_timestamp, chunk_size)
-                    cursor.execute('''
+                    cursor.execute(
+                        '''
                         DELETE FROM `performance_datum`
                         WHERE push_timestamp < %s
                         LIMIT %s
-                    ''', [max_timestamp, ideal_chunk_size])
+                    ''',
+                        [max_timestamp, ideal_chunk_size],
+                    )
                 except Exception as ex:
-                    logger.warning('Failed to delete performance data chunk, while running "{}" query '
-                                   .format(cursor._last_executed))
+                    logger.warning(
+                        'Failed to delete performance data chunk, while running "{}" query '.format(
+                            cursor._last_executed
+                        )
+                    )
 
                     if any_succesful_attempt is False:
                         raise NoDataCyclingAtAll from ex
@@ -191,7 +209,9 @@ into chunks of chunk_size size."""
                         break  # finished removing all expired data
                     else:
                         any_succesful_attempt = True
-                        logger.warning('Successfully deleted {} performance datum rows'.format(deleted_rows))
+                        logger.warning(
+                            'Successfully deleted {} performance datum rows'.format(deleted_rows)
+                        )
 
     def _compute_ideal_chunk_size(self, max_timestamp, max_chunk_size):
         '''
@@ -199,10 +219,10 @@ into chunks of chunk_size size."""
         timeouts while attempting deletion;
         doing basic database query, maybe a lower value is better
         '''
-        max_id = self.filter(push_timestamp__gt=max_timestamp
-                             ).order_by('-id')[0].id
-        older_ids = self.filter(push_timestamp__lte=max_timestamp, id__lte=max_id
-                                ).order_by('id')[:max_chunk_size]
+        max_id = self.filter(push_timestamp__gt=max_timestamp).order_by('-id')[0].id
+        older_ids = self.filter(push_timestamp__lte=max_timestamp, id__lte=max_id).order_by('id')[
+            :max_chunk_size
+        ]
 
         return len(older_ids) or max_chunk_size
 
@@ -216,8 +236,7 @@ class PerformanceDatum(models.Model):
     push_timestamp = models.DateTimeField(db_index=True)
 
     # job information can expire before the performance datum
-    job = models.ForeignKey(Job, null=True, default=None,
-                            on_delete=models.SET_NULL)
+    job = models.ForeignKey(Job, null=True, default=None, on_delete=models.SET_NULL)
     push = models.ForeignKey(Push, on_delete=models.CASCADE)
 
     # the following properties are obsolete and should be removed at some
@@ -232,7 +251,8 @@ class PerformanceDatum(models.Model):
             ('repository', 'signature', 'push_timestamp'),
             # Speeds up the compare view in treeherder (we only index on
             # repository because we currently filter on it in the query)
-            ('repository', 'signature', 'push')]
+            ('repository', 'signature', 'push'),
+        ]
         unique_together = ('repository', 'job', 'push', 'signature')
 
     def save(self, *args, **kwargs):
@@ -266,6 +286,7 @@ class PerformanceAlertSummary(models.Model):
 
     See also the :ref:`PerformanceAlert` class below.
     '''
+
     id = models.AutoField(primary_key=True)
     repository = models.ForeignKey(Repository, on_delete=models.CASCADE)
     framework = models.ForeignKey(PerformanceFramework, on_delete=models.CASCADE)
@@ -276,8 +297,9 @@ class PerformanceAlertSummary(models.Model):
     manually_created = models.BooleanField(default=False)
 
     notes = models.TextField(null=True, blank=True)
-    assignee = models.ForeignKey(User, on_delete=models.SET_NULL, null=True,
-                                 related_name='assigned_alerts')
+    assignee = models.ForeignKey(
+        User, on_delete=models.SET_NULL, null=True, related_name='assigned_alerts'
+    )
 
     created = models.DateTimeField(auto_now_add=True, db_index=True)
     first_triaged = models.DateTimeField(null=True, default=None)
@@ -293,24 +315,24 @@ class PerformanceAlertSummary(models.Model):
     FIXED = 7
     BACKED_OUT = 8
 
-    STATUSES = ((UNTRIAGED, 'Untriaged'),
-                (DOWNSTREAM, 'Downstream'),
-                (REASSIGNED, 'Reassigned'),
-                (INVALID, 'Invalid'),
-                (IMPROVEMENT, 'Improvement'),
-                (INVESTIGATING, 'Investigating'),
-                (WONTFIX, 'Won\'t fix'),
-                (FIXED, 'Fixed'),
-                (BACKED_OUT, 'Backed out'))
+    STATUSES = (
+        (UNTRIAGED, 'Untriaged'),
+        (DOWNSTREAM, 'Downstream'),
+        (REASSIGNED, 'Reassigned'),
+        (INVALID, 'Invalid'),
+        (IMPROVEMENT, 'Improvement'),
+        (INVESTIGATING, 'Investigating'),
+        (WONTFIX, 'Won\'t fix'),
+        (FIXED, 'Fixed'),
+        (BACKED_OUT, 'Backed out'),
+    )
 
     status = models.IntegerField(choices=STATUSES, default=UNTRIAGED)
 
     bug_number = models.PositiveIntegerField(null=True)
     bug_updated = models.DateTimeField(null=True)
 
-    issue_tracker = models.ForeignKey(IssueTracker,
-                                      on_delete=models.PROTECT,
-                                      default=1)  # Bugzilla
+    issue_tracker = models.ForeignKey(IssueTracker, on_delete=models.PROTECT, default=1)  # Bugzilla
 
     def __init__(self, *args, **kwargs):
         super(PerformanceAlertSummary, self).__init__(*args, **kwargs)
@@ -319,8 +341,7 @@ class PerformanceAlertSummary(models.Model):
         self.__prev_bug_number = self.bug_number
 
     def save(self, *args, **kwargs):
-        if (self.bug_number is not None and
-                self.bug_number != self.__prev_bug_number):
+        if self.bug_number is not None and self.bug_number != self.__prev_bug_number:
             self.bug_updated = datetime.datetime.now()
         super(PerformanceAlertSummary, self).save(*args, **kwargs)
         self.__prev_bug_number = self.bug_number
@@ -330,7 +351,9 @@ class PerformanceAlertSummary(models.Model):
         self.save(using=using)
 
     def autodetermine_status(self):
-        alerts = (PerformanceAlert.objects.filter(summary=self) | PerformanceAlert.objects.filter(related_summary=self))
+        alerts = PerformanceAlert.objects.filter(summary=self) | PerformanceAlert.objects.filter(
+            related_summary=self
+        )
 
         # if no alerts yet, we'll say untriaged
         if not alerts:
@@ -351,14 +374,19 @@ class PerformanceAlertSummary(models.Model):
         # if not one of the resolved statuses and there are regressions,
         # otherwise we'll say it's an improvement
         if any(alert.status == PerformanceAlert.ACKNOWLEDGED for alert in alerts):
-            if all(not alert.is_regression for alert in
-                   alerts if alert.status == PerformanceAlert.ACKNOWLEDGED):
+            if all(
+                not alert.is_regression
+                for alert in alerts
+                if alert.status == PerformanceAlert.ACKNOWLEDGED
+            ):
                 return PerformanceAlertSummary.IMPROVEMENT
-            elif self.status not in (PerformanceAlertSummary.IMPROVEMENT,
-                                     PerformanceAlertSummary.INVESTIGATING,
-                                     PerformanceAlertSummary.WONTFIX,
-                                     PerformanceAlertSummary.FIXED,
-                                     PerformanceAlertSummary.BACKED_OUT):
+            elif self.status not in (
+                PerformanceAlertSummary.IMPROVEMENT,
+                PerformanceAlertSummary.INVESTIGATING,
+                PerformanceAlertSummary.WONTFIX,
+                PerformanceAlertSummary.FIXED,
+                PerformanceAlertSummary.BACKED_OUT,
+            ):
                 return PerformanceAlertSummary.INVESTIGATING
             # keep status if one of the investigating ones
             return self.status
@@ -383,9 +411,9 @@ class PerformanceAlertSummary(models.Model):
         unique_together = ('repository', 'framework', 'prev_push', 'push')
 
     def __str__(self):
-        return "{} {} {}-{}".format(self.framework, self.repository,
-                                    self.prev_push.revision,
-                                    self.push.revision)
+        return "{} {} {}-{}".format(
+            self.framework, self.repository, self.prev_push.revision, self.push.revision
+        )
 
 
 class PerformanceAlert(models.Model):
@@ -400,18 +428,20 @@ class PerformanceAlert(models.Model):
     Mozilla, the original alert summary is not correct, so we allow reassigning
     it to a different (revised) summary.
     '''
+
     id = models.AutoField(primary_key=True)
-    summary = models.ForeignKey(PerformanceAlertSummary,
-                                on_delete=models.CASCADE,
-                                related_name='alerts')
-    related_summary = models.ForeignKey(PerformanceAlertSummary,
-                                        on_delete=models.CASCADE,
-                                        related_name='related_alerts',
-                                        null=True)
+    summary = models.ForeignKey(
+        PerformanceAlertSummary, on_delete=models.CASCADE, related_name='alerts'
+    )
+    related_summary = models.ForeignKey(
+        PerformanceAlertSummary, on_delete=models.CASCADE, related_name='related_alerts', null=True
+    )
     series_signature = models.ForeignKey(PerformanceSignature, on_delete=models.CASCADE)
     is_regression = models.BooleanField()
     starred = models.BooleanField(default=False)
-    classifier = models.ForeignKey(User, on_delete=models.CASCADE, null=True)  # null if autoclassified
+    classifier = models.ForeignKey(
+        User, on_delete=models.CASCADE, null=True
+    )  # null if autoclassified
 
     created = models.DateTimeField(auto_now_add=True, null=True)
     # time when human user 1st interacted with alert
@@ -431,25 +461,24 @@ class PerformanceAlert(models.Model):
     # originally assigned to
     UNRELATIONAL_STATUS_IDS = (UNTRIAGED, INVALID, ACKNOWLEDGED)
 
-    STATUSES = ((UNTRIAGED, 'Untriaged'),
-                (DOWNSTREAM, 'Downstream'),
-                (REASSIGNED, 'Reassigned'),
-                (INVALID, 'Invalid'),
-                (ACKNOWLEDGED, 'Acknowledged'))
+    STATUSES = (
+        (UNTRIAGED, 'Untriaged'),
+        (DOWNSTREAM, 'Downstream'),
+        (REASSIGNED, 'Reassigned'),
+        (INVALID, 'Invalid'),
+        (ACKNOWLEDGED, 'Acknowledged'),
+    )
 
     status = models.IntegerField(choices=STATUSES, default=UNTRIAGED)
 
-    amount_pct = models.FloatField(
-        help_text="Amount in percentage that series has changed")
-    amount_abs = models.FloatField(
-        help_text="Absolute amount that series has changed")
-    prev_value = models.FloatField(
-        help_text="Previous value of series before change")
-    new_value = models.FloatField(
-        help_text="New value of series after change")
+    amount_pct = models.FloatField(help_text="Amount in percentage that series has changed")
+    amount_abs = models.FloatField(help_text="Absolute amount that series has changed")
+    prev_value = models.FloatField(help_text="Previous value of series before change")
+    new_value = models.FloatField(help_text="New value of series after change")
     t_value = models.FloatField(
-        help_text="t value out of analysis indicating confidence "
-        "that change is 'real'", null=True)
+        help_text="t value out of analysis indicating confidence " "that change is 'real'",
+        null=True,
+    )
 
     manually_created = models.BooleanField(default=False)
 
@@ -457,15 +486,31 @@ class PerformanceAlert(models.Model):
         # validate that we set a status that makes sense for presence
         # or absence of a related summary
         if self.related_summary and self.status not in self.RELATIONAL_STATUS_IDS:
-            raise ValidationError("Related summary set but status not in "
-                                  "'{}'!".format(", ".join(
-                                      [STATUS[1] for STATUS in self.STATUSES if
-                                       STATUS[0] in self.RELATIONAL_STATUS_IDS])))
+            raise ValidationError(
+                "Related summary set but status not in "
+                "'{}'!".format(
+                    ", ".join(
+                        [
+                            STATUS[1]
+                            for STATUS in self.STATUSES
+                            if STATUS[0] in self.RELATIONAL_STATUS_IDS
+                        ]
+                    )
+                )
+            )
         if not self.related_summary and self.status not in self.UNRELATIONAL_STATUS_IDS:
-            raise ValidationError("Related summary not set but status not in "
-                                  "'{}'!".format(", ".join(
-                                      [STATUS[1] for STATUS in self.STATUSES if
-                                       STATUS[0] in self.UNRELATIONAL_STATUS_IDS])))
+            raise ValidationError(
+                "Related summary not set but status not in "
+                "'{}'!".format(
+                    ", ".join(
+                        [
+                            STATUS[1]
+                            for STATUS in self.STATUSES
+                            if STATUS[0] in self.UNRELATIONAL_STATUS_IDS
+                        ]
+                    )
+                )
+            )
 
         super().save(*args, **kwargs)
 
@@ -491,14 +536,14 @@ class PerformanceAlert(models.Model):
         unique_together = ('summary', 'series_signature')
 
     def __str__(self):
-        return "{} {} {}%".format(self.summary, self.series_signature,
-                                  self.amount_pct)
+        return "{} {} {}%".format(self.summary, self.series_signature, self.amount_pct)
 
 
 class PerformanceBugTemplate(models.Model):
     '''
     Template for filing a bug or issue associated with a performance alert
     '''
+
     framework = models.OneToOneField(PerformanceFramework, on_delete=models.CASCADE)
 
     keywords = models.CharField(max_length=255)
@@ -521,10 +566,13 @@ class BackfillReport(models.Model):
     Groups & stores all context required to retrigger/backfill
     relevant alerts from a performance alert summary.
     """
-    summary = models.OneToOneField(PerformanceAlertSummary,
-                                   on_delete=models.CASCADE,
-                                   primary_key=True,
-                                   related_name='backfill_report')
+
+    summary = models.OneToOneField(
+        PerformanceAlertSummary,
+        on_delete=models.CASCADE,
+        primary_key=True,
+        related_name='backfill_report',
+    )
 
     created = models.DateTimeField(auto_now_add=True)
     last_updated = models.DateTimeField(auto_now=True)
@@ -543,18 +591,17 @@ class BackfillReport(models.Model):
         db_table = "backfill_report"
 
     def __str__(self):
-        return "BackfillReport(summary #{}, last update {})".format(self.summary.id, self.last_updated)
+        return "BackfillReport(summary #{}, last update {})".format(
+            self.summary.id, self.last_updated
+        )
 
 
 class BackfillRecord(models.Model):
-    alert = models.OneToOneField(PerformanceAlert,
-                                 on_delete=models.CASCADE,
-                                 primary_key=True,
-                                 related_name='backfill_record')
+    alert = models.OneToOneField(
+        PerformanceAlert, on_delete=models.CASCADE, primary_key=True, related_name='backfill_record'
+    )
 
-    report = models.ForeignKey(BackfillReport,
-                               on_delete=models.CASCADE,
-                               related_name='records')
+    report = models.ForeignKey(BackfillReport, on_delete=models.CASCADE, related_name='records')
 
     # all data required to retrigger/backfill
     # associated perf alert, as JSON dump
@@ -568,11 +615,13 @@ class BackfillRecord(models.Model):
     FINISHED = 3
     FAILED = 4
 
-    STATUSES = ((PRELIMINARY, 'Preliminary'),
-                (READY_FOR_PROCESSING, 'Ready for processing'),
-                (BACKFILLED, 'Backfilled'),
-                (FINISHED, 'Finished'),
-                (FAILED, 'Failed'))
+    STATUSES = (
+        (PRELIMINARY, 'Preliminary'),
+        (READY_FOR_PROCESSING, 'Ready for processing'),
+        (BACKFILLED, 'Backfilled'),
+        (FINISHED, 'Finished'),
+        (FAILED, 'Failed'),
+    )
 
     status = models.IntegerField(choices=STATUSES, default=PRELIMINARY)
     log_details = models.TextField()  # JSON expected, not supported by Django

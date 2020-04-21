@@ -5,9 +5,9 @@ import { Container } from 'reactstrap';
 import FilterControls from '../FilterControls';
 import { containsText } from '../helpers';
 
-import HealthTable from './HealthTable';
+import TestsTable from './TestsTable';
 
-export default class HealthTableControls extends React.Component {
+export default class TestsTableControls extends React.Component {
   constructor(props) {
     super(props);
     this.validated = this.props.validated;
@@ -22,8 +22,8 @@ export default class HealthTableControls extends React.Component {
   }
 
   componentDidUpdate(prevProps) {
-    const { healthResults } = this.props;
-    if (prevProps.healthResults !== healthResults) {
+    const { testsOverviewResults } = this.props;
+    if (prevProps.testsOverviewResults !== testsOverviewResults) {
       this.updateFilteredResults();
     }
   }
@@ -34,13 +34,13 @@ export default class HealthTableControls extends React.Component {
 
   updateFilteredResults = () => {
     const { filterText } = this.state;
-    const { healthResults } = this.props;
+    const { testsOverviewResults } = this.props;
 
     if (!filterText) {
-      return this.setState({ results: healthResults });
+      return this.setState({ results: testsOverviewResults });
     }
 
-    const filteredResults = healthResults.filter(result =>
+    const filteredResults = testsOverviewResults.filter(result =>
       this.filterResult(result),
     );
 
@@ -68,7 +68,7 @@ export default class HealthTableControls extends React.Component {
           dropdownCol
         />
 
-        <HealthTable
+        <TestsTable
           results={results}
           projectsMap={projectsMap}
           platformsMap={platformsMap}
@@ -78,8 +78,8 @@ export default class HealthTableControls extends React.Component {
   }
 }
 
-HealthTableControls.propTypes = {
-  healthResults: PropTypes.arrayOf(PropTypes.shape({})),
+TestsTableControls.propTypes = {
+  testsOverviewResults: PropTypes.arrayOf(PropTypes.shape({})),
   dropdownOptions: PropTypes.arrayOf(PropTypes.shape({})),
   projectsMap: PropTypes.oneOfType([PropTypes.bool, PropTypes.shape({})])
     .isRequired,
@@ -87,7 +87,7 @@ HealthTableControls.propTypes = {
     .isRequired,
 };
 
-HealthTableControls.defaultProps = {
-  healthResults: [],
+TestsTableControls.defaultProps = {
+  testsOverviewResults: [],
   dropdownOptions: [],
 };

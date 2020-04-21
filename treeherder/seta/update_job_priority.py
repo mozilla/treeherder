@@ -12,10 +12,8 @@ Known bug:
 import logging
 
 from treeherder.etl.runnable_jobs import list_runnable_jobs
-from treeherder.etl.seta import (parse_testtype,
-                                 valid_platform)
-from treeherder.seta.common import (job_priority_index,
-                                    unique_key)
+from treeherder.etl.seta import parse_testtype, valid_platform
+from treeherder.seta.common import job_priority_index, unique_key
 from treeherder.seta.models import JobPriority
 from treeherder.seta.settings import SETA_LOW_VALUE_PRIORITY
 
@@ -44,9 +42,9 @@ def _unique_key(job):
     testtype = str(job['testtype'])
     if not testtype:
         raise Exception('Bad job {}'.format(job))
-    return unique_key(testtype=testtype,
-                      buildtype=str(job['platform_option']),
-                      platform=str(job['platform']))
+    return unique_key(
+        testtype=testtype, buildtype=str(job['platform_option']), platform=str(job['platform'])
+    )
 
 
 def _sanitize_data(runnable_jobs_data):
@@ -72,7 +70,7 @@ def _sanitize_data(runnable_jobs_data):
             build_system_type=job['build_system_type'],
             job_type_name=job['job_type_name'],
             platform_option=job['platform_option'],
-            ref_data_name=job['ref_data_name']
+            ref_data_name=job['ref_data_name'],
         )
 
         if not testtype:
@@ -143,14 +141,21 @@ def _update_table(data):
             # We already know about this job, we might need to update the build system
             # We're seeing the job again with another build system (e.g. buildbot vs
             # taskcluster). We need to change it to '*'
-            if jp_index[key]['build_system_type'] != '*' and jp_index[key]['build_system_type'] != job["build_system_type"]:
+            if (
+                jp_index[key]['build_system_type'] != '*'
+                and jp_index[key]['build_system_type'] != job["build_system_type"]
+            ):
                 db_job = JobPriority.objects.get(pk=jp_index[key]['pk'])
                 db_job.buildsystem = '*'
                 db_job.save()
 
-                logger.info('Updated %s/%s from %s to %s',
-                            db_job.testtype, db_job.buildtype,
-                            job['build_system_type'], db_job.buildsystem)
+                logger.info(
+                    'Updated %s/%s from %s to %s',
+                    db_job.testtype,
+                    db_job.buildtype,
+                    job['build_system_type'],
+                    db_job.buildsystem,
+                )
                 updated_jobs += 1
 
         else:
@@ -162,22 +167,31 @@ def _update_table(data):
                     platform=str(job["platform"]),
                     priority=priority,
                     expiration_date=expiration_date,
-                    buildsystem=job["build_system_type"]
+                    buildsystem=job["build_system_type"],
                 )
                 jobpriority.save()
-                logger.debug('New job was found (%s,%s,%s,%s)',
-                             job['testtype'], job['platform_option'], job['platform'],
-                             job["build_system_type"])
+                logger.debug(
+                    'New job was found (%s,%s,%s,%s)',
+                    job['testtype'],
+                    job['platform_option'],
+                    job['platform'],
+                    job["build_system_type"],
+                )
                 new_jobs += 1
             except Exception as error:
                 logger.warning(str(error))
                 failed_changes += 1
 
-    logger.info('We have %s new jobs and %s updated jobs out of %s total jobs processed.',
-                new_jobs, updated_jobs, total_jobs)
+    logger.info(
+        'We have %s new jobs and %s updated jobs out of %s total jobs processed.',
+        new_jobs,
+        updated_jobs,
+        total_jobs,
+    )
 
     if failed_changes != 0:
-        logger.warning('We have failed %s changes out of %s total jobs processed.',
-                       failed_changes, total_jobs)
+        logger.warning(
+            'We have failed %s changes out of %s total jobs processed.', failed_changes, total_jobs
+        )
 
     return new_jobs, failed_changes, updated_jobs

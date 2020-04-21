@@ -63,7 +63,7 @@ class TreeherderClient:
                     return data
                 offset += count
                 if total is not None:
-                    count = min(total-offset, self.MAX_COUNT)
+                    count = min(total - offset, self.MAX_COUNT)
         else:
             return self._get_json(endpoint, project=project, **params)["results"]
 
@@ -74,8 +74,9 @@ class TreeherderClient:
         try:
             resp.raise_for_status()
         except HTTPError:
-            logger.error("HTTPError %s requesting %s: %s",
-                         resp.status_code, resp.request.url, resp.content)
+            logger.error(
+                "HTTPError %s requesting %s: %s", resp.status_code, resp.request.url, resp.content
+            )
             logger.debug("Request headers: %s", resp.request.headers)
             logger.debug("Response headers: %s", resp.headers)
             raise
@@ -158,8 +159,7 @@ class TreeherderClient:
 
         :param params: keyword arguments to filter results
         """
-        return self._get_json_list(self.JOB_DETAIL_ENDPOINT, None,
-                                   **params)
+        return self._get_json_list(self.JOB_DETAIL_ENDPOINT, None, **params)
 
     def get_job_log_url(self, project, **params):
         """
@@ -168,5 +168,4 @@ class TreeherderClient:
         :param project: project (repository name) to query data for
         :param params: keyword arguments to filter results
         """
-        return self._get_json(self.JOB_LOG_URL_ENDPOINT, project,
-                              **params)
+        return self._get_json(self.JOB_LOG_URL_ENDPOINT, project, **params)

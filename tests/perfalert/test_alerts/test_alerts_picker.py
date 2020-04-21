@@ -21,7 +21,7 @@ def test_many_various_alerts():
         'osx-10-10-shippable',
         'osx-10-10-shippable',
         'android-hw-pix-7-1-android-aarch64',
-        'android-hw-pix-7-1-android-aarch64'
+        'android-hw-pix-7-1-android-aarch64',
     )
 
     reversed_magnitudes = list(reversed(range(len(alerts))))
@@ -37,10 +37,7 @@ def test_many_various_alerts():
 @pytest.fixture
 def test_few_various_alerts():
     alerts = [Mock(spec=PerformanceAlert) for i in range(2)]
-    platforms = (
-        'windows7-32-shippable',
-        'linux64-shippable-qr'
-    )
+    platforms = ('windows7-32-shippable', 'linux64-shippable-qr')
     reversed_magnitudes = list(reversed(range(len(alerts))))
     toggle = True
     for idx, alert in enumerate(alerts):
@@ -59,7 +56,7 @@ def test_few_regressions():
         'windows7-32-shippable',
         'linux64-shippable-qr',
         'osx-10-10-shippable',
-        'android-hw-pix-7-1-android-aarch64'
+        'android-hw-pix-7-1-android-aarch64',
     )
     reversed_magnitudes = list(reversed(range(len(alerts))))
     for idx, alert in enumerate(alerts):
@@ -96,45 +93,42 @@ def test_init():
         AlertsPicker(
             max_alerts=0,
             max_improvements=2,
-            platforms_of_interest=('windows10', 'windows7', 'linux', 'osx', 'android')
+            platforms_of_interest=('windows10', 'windows7', 'linux', 'osx', 'android'),
         )
 
     with pytest.raises(ValueError):
         AlertsPicker(
             max_alerts=3,
             max_improvements=0,
-            platforms_of_interest=('windows10', 'windows7', 'linux', 'osx', 'android')
+            platforms_of_interest=('windows10', 'windows7', 'linux', 'osx', 'android'),
         )
 
     with pytest.raises(ValueError):
-        AlertsPicker(
-            max_alerts=3,
-            max_improvements=5,
-            platforms_of_interest=tuple()
-        )
+        AlertsPicker(max_alerts=3, max_improvements=5, platforms_of_interest=tuple())
 
     with pytest.raises(ValueError):
-        AlertsPicker(
-            max_alerts=0,
-            max_improvements=0,
-            platforms_of_interest=tuple()
-        )
+        AlertsPicker(max_alerts=0, max_improvements=0, platforms_of_interest=tuple())
 
 
-def test_extract_important_alerts(test_bad_platform_names, test_few_improvements, test_few_regressions):
+def test_extract_important_alerts(
+    test_bad_platform_names, test_few_improvements, test_few_regressions
+):
     def count_alert_types(alerts):
         return Counter([alert.is_regression for alert in alerts])
+
     picker = AlertsPicker(
         max_alerts=5,
         max_improvements=2,
-        platforms_of_interest=('windows10', 'windows7', 'linux', 'osx', 'android')
+        platforms_of_interest=('windows10', 'windows7', 'linux', 'osx', 'android'),
     )
 
-    expected_platforms_order = ('windows10-64-shippable',
-                                'windows7-32-shippable',
-                                'linux64-shippable-qr',
-                                'osx-10-10-shippable',
-                                'windows10-64-shippable')
+    expected_platforms_order = (
+        'windows10-64-shippable',
+        'windows7-32-shippable',
+        'linux64-shippable-qr',
+        'osx-10-10-shippable',
+        'windows10-64-shippable',
+    )
     expected_magnitudes_order = (4, 3, 2, 1, 4)
 
     with pytest.raises(ValueError):
@@ -152,14 +146,16 @@ def test_extract_important_alerts(test_bad_platform_names, test_few_improvements
         assert alert.amount_pct == expected_magnitudes_order[idx]
 
 
-def test_ensure_alerts_variety(test_few_regressions, test_few_improvements, test_many_various_alerts, test_few_various_alerts):
+def test_ensure_alerts_variety(
+    test_few_regressions, test_few_improvements, test_many_various_alerts, test_few_various_alerts
+):
     def count_alert_types(alerts):
         return Counter([alert.is_regression for alert in alerts])
 
     picker = AlertsPicker(
         max_alerts=5,
         max_improvements=2,
-        platforms_of_interest=('windows10', 'windows7', 'linux', 'osx', 'android')
+        platforms_of_interest=('windows10', 'windows7', 'linux', 'osx', 'android'),
     )
 
     selected_alerts = picker._ensure_alerts_variety(test_few_regressions)
@@ -187,7 +183,7 @@ def test_ensure_alerts_variety(test_few_regressions, test_few_improvements, test
     picker = AlertsPicker(
         max_alerts=1,
         max_improvements=2,
-        platforms_of_interest=('windows10', 'windows7', 'linux', 'osx', 'android')
+        platforms_of_interest=('windows10', 'windows7', 'linux', 'osx', 'android'),
     )
 
     selected_alerts = picker._ensure_alerts_variety(test_few_various_alerts)
@@ -197,29 +193,30 @@ def test_ensure_alerts_variety(test_few_regressions, test_few_improvements, test
     assert number_of[False] == 0
 
 
-@pytest.mark.parametrize(('max_alerts, expected_alerts_platforms'), [
-    (5, ('windows10', 'windows7', 'linux', 'osx', 'android')),
-    (8, ('windows10', 'windows7', 'linux', 'osx', 'android',
-         'windows10', 'windows7', 'linux'))
-])
+@pytest.mark.parametrize(
+    ('max_alerts, expected_alerts_platforms'),
+    [
+        (5, ('windows10', 'windows7', 'linux', 'osx', 'android')),
+        (8, ('windows10', 'windows7', 'linux', 'osx', 'android', 'windows10', 'windows7', 'linux')),
+    ],
+)
 def test_ensure_platform_variety(test_many_various_alerts, max_alerts, expected_alerts_platforms):
     picker = AlertsPicker(
         max_alerts=max_alerts,
         max_improvements=2,
-        platforms_of_interest=('windows10', 'windows7', 'linux', 'osx', 'android')
+        platforms_of_interest=('windows10', 'windows7', 'linux', 'osx', 'android'),
     )
 
     picked_alerts = picker._ensure_platform_variety(test_many_various_alerts)
     for idx, platform in enumerate(expected_alerts_platforms):
-        assert (picked_alerts[idx].series_signature.platform.platform
-                .startswith(platform))
+        assert picked_alerts[idx].series_signature.platform.platform.startswith(platform)
 
 
 def test_os_relevance():
     picker = AlertsPicker(
         max_alerts=5,
         max_improvements=2,
-        platforms_of_interest=('windows10', 'windows7', 'linux', 'osx', 'android')
+        platforms_of_interest=('windows10', 'windows7', 'linux', 'osx', 'android'),
     )
     assert 5 == picker._os_relevance('windows10')
     assert 4 == picker._os_relevance('windows7')
@@ -235,7 +232,7 @@ def test_has_relevant_platform(test_many_various_alerts, test_bad_platform_names
     picker = AlertsPicker(
         max_alerts=5,
         max_improvements=2,
-        platforms_of_interest=('windows10', 'windows7', 'linux', 'osx', 'android')
+        platforms_of_interest=('windows10', 'windows7', 'linux', 'osx', 'android'),
     )
 
     for alert in test_many_various_alerts:
@@ -248,7 +245,7 @@ def test_extract_by_relevant_platforms(test_many_various_alerts, test_bad_platfo
     picker = AlertsPicker(
         max_alerts=5,
         max_improvements=2,
-        platforms_of_interest=('windows10', 'windows7', 'linux', 'osx', 'android')
+        platforms_of_interest=('windows10', 'windows7', 'linux', 'osx', 'android'),
     )
     all_alerts = test_many_various_alerts + test_bad_platform_names
 
@@ -260,22 +257,25 @@ def test_extract_by_relevant_platforms(test_many_various_alerts, test_bad_platfo
 def test_multi_criterion_sort(test_many_various_alerts):
     def count_alert_types(alerts):
         return Counter([alert.is_regression for alert in alerts])
+
     picker = AlertsPicker(
         max_alerts=5,
         max_improvements=2,
-        platforms_of_interest=('windows10', 'windows7', 'linux', 'osx', 'android')
+        platforms_of_interest=('windows10', 'windows7', 'linux', 'osx', 'android'),
     )
 
-    expected_platforms_order = ('windows10-64-shippable',
-                                'windows7-32-shippable',
-                                'linux64-shippable-qr',
-                                'osx-10-10-shippable',
-                                'android-hw-pix-7-1-android-aarch64',
-                                'windows10-64-shippable',
-                                'windows7-32-shippable',
-                                'linux64-shippable-qr',
-                                'osx-10-10-shippable',
-                                'android-hw-pix-7-1-android-aarch64')
+    expected_platforms_order = (
+        'windows10-64-shippable',
+        'windows7-32-shippable',
+        'linux64-shippable-qr',
+        'osx-10-10-shippable',
+        'android-hw-pix-7-1-android-aarch64',
+        'windows10-64-shippable',
+        'windows7-32-shippable',
+        'linux64-shippable-qr',
+        'osx-10-10-shippable',
+        'android-hw-pix-7-1-android-aarch64',
+    )
     expected_magnitudes_order = (9, 7, 5, 3, 1, 8, 6, 4, 2, 0)
 
     ordered_alerts = picker._multi_criterion_sort(reversed(test_many_various_alerts))

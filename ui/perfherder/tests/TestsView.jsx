@@ -15,9 +15,9 @@ import { getData, processResponse } from '../../helpers/http';
 import { createApiUrl, platformsEndpoint } from '../../helpers/url';
 import ErrorMessages from '../../shared/ErrorMessages';
 
-import HealthTableControls from './HealthTableControls';
+import TestsTableControls from './TestsTableControls';
 
-class HeathView extends React.PureComponent {
+class TestsView extends React.PureComponent {
   constructor(props) {
     super(props);
     this.state = {
@@ -30,10 +30,10 @@ class HeathView extends React.PureComponent {
   }
 
   componentDidMount() {
-    this.getHealthData();
+    this.getTestsOverviewData();
   }
 
-  getHealthData = async () => {
+  getTestsOverviewData = async () => {
     const { projects } = this.props;
     const { framework } = this.state;
 
@@ -43,7 +43,7 @@ class HeathView extends React.PureComponent {
     // create projectsMap
     await this.createObjectsMap(projects, 'projectsMap', 'name');
 
-    const updates = await this.getTestSuiteHealthData({
+    const updates = await this.fetchTestSuiteData({
       framework: framework.id,
     });
     this.setState({ ...updates, loading: false });
@@ -71,7 +71,7 @@ class HeathView extends React.PureComponent {
     }
   };
 
-  getTestSuiteHealthData = async params => {
+  fetchTestSuiteData = async params => {
     const { errorMessages } = this.state;
 
     const response = await getData(
@@ -96,7 +96,7 @@ class HeathView extends React.PureComponent {
     const framework = frameworks.find(item => item.name === selection);
 
     updateParams({ framework: framework.id });
-    this.setState({ framework }, () => this.getHealthData());
+    this.setState({ framework }, () => this.getTestsOverviewData());
   };
 
   render() {
@@ -113,7 +113,7 @@ class HeathView extends React.PureComponent {
     const frameworkNames =
       frameworks && frameworks.length ? frameworks.map(item => item.name) : [];
 
-    const healthDropdowns = [
+    const dropdowns = [
       {
         options: frameworkNames,
         selectedItem: framework.name,
@@ -137,12 +137,12 @@ class HeathView extends React.PureComponent {
           </Row>
           <Row>
             <Col sm="12" className="text-center pb-1">
-              <h1>Perfherder Health</h1>
+              <h1>Perfherder Tests</h1>
             </Col>
           </Row>
-          <HealthTableControls
-            healthResults={results}
-            dropdownOptions={healthDropdowns}
+          <TestsTableControls
+            testsOverviewResults={results}
+            dropdownOptions={dropdowns}
             projectsMap={projectsMap}
             platformsMap={platformsMap}
           />
@@ -152,7 +152,7 @@ class HeathView extends React.PureComponent {
   }
 }
 
-HeathView.propTypes = {
+TestsView.propTypes = {
   location: PropTypes.shape({}),
   validated: PropTypes.shape({
     updateParams: PropTypes.func.isRequired,
@@ -164,11 +164,11 @@ HeathView.propTypes = {
   updateAppState: PropTypes.func.isRequired,
 };
 
-HeathView.defaultProps = {
+TestsView.defaultProps = {
   location: null,
 };
 
 export default withValidation(
   { requiredParams: new Set([]) },
   false,
-)(HeathView);
+)(TestsView);

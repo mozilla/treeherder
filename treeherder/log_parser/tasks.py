@@ -6,13 +6,13 @@ from celery.exceptions import SoftTimeLimitExceeded
 from requests.exceptions import HTTPError
 
 from treeherder.autoclassify.tasks import autoclassify
-from treeherder.etl.artifact import (serialize_artifact_json_blobs,
-                                     store_job_artifacts)
-from treeherder.log_parser.artifactbuildercollection import (ArtifactBuilderCollection,
-                                                             LogSizeException)
+from treeherder.etl.artifact import serialize_artifact_json_blobs, store_job_artifacts
+from treeherder.log_parser.artifactbuildercollection import (
+    ArtifactBuilderCollection,
+    LogSizeException,
+)
 from treeherder.log_parser.crossreference import crossreference_job
-from treeherder.model.models import (Job,
-                                     JobLog)
+from treeherder.model.models import Job, JobLog
 from treeherder.workers.task import retryable_task
 
 from . import failureline
@@ -25,8 +25,7 @@ def parse_logs(job_id, job_log_ids, priority):
     newrelic.agent.add_custom_parameter("job_id", str(job_id))
 
     job = Job.objects.get(id=job_id)
-    job_logs = JobLog.objects.filter(id__in=job_log_ids,
-                                     job=job)
+    job_logs = JobLog.objects.filter(id__in=job_log_ids, job=job)
 
     if len(job_log_ids) != len(job_logs):
         logger.warning("Failed to load all expected job ids: %s", ", ".join(job_log_ids))
@@ -34,7 +33,7 @@ def parse_logs(job_id, job_log_ids, priority):
     parser_tasks = {
         "errorsummary_json": store_failure_lines,
         "buildbot_text": parse_unstructured_log,
-        "builds-4h": parse_unstructured_log
+        "builds-4h": parse_unstructured_log,
     }
 
     # We don't want to stop parsing logs for most Exceptions however we still
@@ -76,9 +75,9 @@ def parse_logs(job_id, job_log_ids, priority):
     if first_exception:
         raise first_exception
 
-    if ("errorsummary_json" in completed_names and
-        ("buildbot_text" in completed_names or
-         "builds-4h" in completed_names)):
+    if "errorsummary_json" in completed_names and (
+        "buildbot_text" in completed_names or "builds-4h" in completed_names
+    ):
 
         success = crossreference_job(job)
 
@@ -139,8 +138,7 @@ def post_log_artifacts(job_log):
         serialized_artifacts = serialize_artifact_json_blobs(artifact_list)
         store_job_artifacts(serialized_artifacts)
         job_log.update_status(JobLog.PARSED)
-        logger.debug("Stored artifact for %s %s", job_log.job.repository.name,
-                     job_log.job.id)
+        logger.debug("Stored artifact for %s %s", job_log.job.repository.name, job_log.job.id)
     except Exception as e:
         logger.error("Failed to store parsed artifact for %s: %s", job_log.id, e)
         raise
@@ -155,11 +153,13 @@ def extract_text_log_artifacts(job_log):
 
     artifact_list = []
     for name, artifact in artifact_bc.artifacts.items():
-        artifact_list.append({
-            "job_guid": job_log.job.guid,
-            "name": name,
-            "type": 'json',
-            "blob": json.dumps(artifact)
-        })
+        artifact_list.append(
+            {
+                "job_guid": job_log.job.guid,
+                "name": name,
+                "type": 'json',
+                "blob": json.dumps(artifact),
+            }
+        )
 
     return artifact_list

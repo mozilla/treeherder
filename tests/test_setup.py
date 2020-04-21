@@ -40,7 +40,9 @@ def test_get_tls_redis_url():
     https://devcenter.heroku.com/articles/securing-heroku-redis#connecting-directly-to-stunnel
     """
     REDIS_URL = 'redis://h:abc8069@ec2-12-34-56-78.compute-1.amazonaws.com:8069'
-    TLS_REDIS_URL = 'rediss://h:abc8069@ec2-12-34-56-78.compute-1.amazonaws.com:8070?ssl_cert_reqs=none'
+    TLS_REDIS_URL = (
+        'rediss://h:abc8069@ec2-12-34-56-78.compute-1.amazonaws.com:8070?ssl_cert_reqs=none'
+    )
     assert get_tls_redis_url(REDIS_URL) == TLS_REDIS_URL
 
 

@@ -1,6 +1,6 @@
 import defaults from 'lodash/defaults';
 import jsone from 'json-e';
-import { Auth, Hooks } from 'taskcluster-client-web';
+import { Auth, Hooks, slugid } from 'taskcluster-client-web';
 import { satisfiesExpression } from 'taskcluster-lib-scopes';
 
 import taskcluster, { tcCredentialsMessage } from '../helpers/taskcluster';
@@ -17,7 +17,6 @@ export default class TaskclusterModel {
 
   static async submit({
     action,
-    actionTaskId,
     decisionTaskId,
     taskId,
     task,
@@ -39,6 +38,7 @@ export default class TaskclusterModel {
     const queue = taskcluster.getQueue(rootUrl, testMode);
 
     if (action.kind === 'task') {
+      const actionTaskId = slugid();
       context.task = task;
       context.ownTaskId = actionTaskId;
       const actionTask = jsone(action.task, context);

@@ -47,14 +47,18 @@ def test_post_no_auth():
 
 # Auth Login and Logout Tests
 
+
 @pytest.mark.django_db
-@pytest.mark.parametrize(('id_token_sub', 'id_token_email', 'expected_username'), [
-    ('ad|Mozilla-LDAP|biped', 'biped@mozilla.com', 'mozilla-ldap/biped@mozilla.com'),
-    ('email', 'biped@mozilla.com', 'email/biped@mozilla.com'),
-    ('oauth2|biped', 'biped@mozilla.com', 'oauth2/biped@mozilla.com'),
-    ('github|0000', 'biped@gmail.com', 'github/biped@gmail.com'),
-    ('google-oauth2|0000', 'biped@mozilla.com', 'google/biped@mozilla.com'),
-])
+@pytest.mark.parametrize(
+    ('id_token_sub', 'id_token_email', 'expected_username'),
+    [
+        ('ad|Mozilla-LDAP|biped', 'biped@mozilla.com', 'mozilla-ldap/biped@mozilla.com'),
+        ('email', 'biped@mozilla.com', 'email/biped@mozilla.com'),
+        ('oauth2|biped', 'biped@mozilla.com', 'oauth2/biped@mozilla.com'),
+        ('github|0000', 'biped@gmail.com', 'github/biped@gmail.com'),
+        ('google-oauth2|0000', 'biped@mozilla.com', 'google/biped@mozilla.com'),
+    ],
+)
 def test_login_logout_relogin(client, monkeypatch, id_token_sub, id_token_email, expected_username):
     """
     Test that a new user is able to log in via a variety of identity providers,
@@ -79,7 +83,7 @@ def test_login_logout_relogin(client, monkeypatch, id_token_sub, id_token_email,
         reverse('auth-login'),
         HTTP_AUTHORIZATION='Bearer meh',
         HTTP_ID_TOKEN='meh',
-        HTTP_ACCESS_TOKEN_EXPIRES_AT=str(access_token_expiration_timestamp)
+        HTTP_ACCESS_TOKEN_EXPIRES_AT=str(access_token_expiration_timestamp),
     )
     assert resp.status_code == 200
     assert resp.json() == {
@@ -110,7 +114,7 @@ def test_login_logout_relogin(client, monkeypatch, id_token_sub, id_token_email,
         reverse('auth-login'),
         HTTP_AUTHORIZATION='Bearer meh',
         HTTP_ID_TOKEN='meh',
-        HTTP_ACCESS_TOKEN_EXPIRES_AT=str(access_token_expiration_timestamp)
+        HTTP_ACCESS_TOKEN_EXPIRES_AT=str(access_token_expiration_timestamp),
     )
     assert resp.status_code == 200
     assert resp.json()['username'] == expected_username
@@ -138,7 +142,7 @@ def test_login_same_email_different_provider(test_ldap_user, client, monkeypatch
         reverse('auth-login'),
         HTTP_AUTHORIZATION='Bearer meh',
         HTTP_ID_TOKEN='meh',
-        HTTP_ACCESS_TOKEN_EXPIRES_AT=str(access_token_expiration_timestamp)
+        HTTP_ACCESS_TOKEN_EXPIRES_AT=str(access_token_expiration_timestamp),
     )
     assert resp.status_code == 200
     assert resp.json()['username'] == 'email/user@foo.com'
@@ -160,7 +164,7 @@ def test_login_unknown_identity_provider(client, monkeypatch):
         reverse("auth-login"),
         HTTP_AUTHORIZATION="Bearer meh",
         HTTP_ID_TOKEN="meh",
-        HTTP_ACCESS_TOKEN_EXPIRES_AT=str(access_token_expiration_timestamp)
+        HTTP_ACCESS_TOKEN_EXPIRES_AT=str(access_token_expiration_timestamp),
     )
     assert resp.status_code == 403
     assert resp.json()["detail"] == "Unrecognized identity"
@@ -174,7 +178,11 @@ def test_login_not_active(test_ldap_user, client, monkeypatch):
     access_token_expiration_timestamp = now_in_seconds + one_hour_in_seconds
 
     def userinfo_mock(*args, **kwargs):
-        return {'sub': 'Mozilla-LDAP', 'email': test_ldap_user.email, 'exp': id_token_expiration_timestamp}
+        return {
+            'sub': 'Mozilla-LDAP',
+            'email': test_ldap_user.email,
+            'exp': id_token_expiration_timestamp,
+        }
 
     monkeypatch.setattr(AuthBackend, '_get_user_info', userinfo_mock)
 
@@ -185,7 +193,7 @@ def test_login_not_active(test_ldap_user, client, monkeypatch):
         reverse("auth-login"),
         HTTP_AUTHORIZATION="Bearer meh",
         HTTP_ID_TOKEN="meh",
-        HTTP_ACCESS_TOKEN_EXPIRES_AT=str(access_token_expiration_timestamp)
+        HTTP_ACCESS_TOKEN_EXPIRES_AT=str(access_token_expiration_timestamp),
     )
     assert resp.status_code == 403
     assert resp.json()["detail"] == "This user has been disabled."
@@ -197,35 +205,21 @@ def test_login_authorization_header_missing(client):
     assert resp.json()["detail"] == "Authorization header is expected"
 
 
-@pytest.mark.parametrize('auth_header_value', [
-    'foo',
-    'Bearer ',
-    'Bearer foo bar',
-])
+@pytest.mark.parametrize('auth_header_value', ['foo', 'Bearer ', 'Bearer foo bar',])
 def test_login_authorization_header_malformed(client, auth_header_value):
-    resp = client.get(
-        reverse('auth-login'),
-        HTTP_AUTHORIZATION=auth_header_value,
-    )
+    resp = client.get(reverse('auth-login'), HTTP_AUTHORIZATION=auth_header_value,)
     assert resp.status_code == 403
     assert resp.json()['detail'] == "Authorization header must be of form 'Bearer {token}'"
 
 
 def test_login_id_token_header_missing(client):
-    resp = client.get(
-        reverse('auth-login'),
-        HTTP_AUTHORIZATION='Bearer abc',
-    )
+    resp = client.get(reverse('auth-login'), HTTP_AUTHORIZATION='Bearer abc',)
     assert resp.status_code == 403
     assert resp.json()['detail'] == 'Id-Token header is expected'
 
 
 def test_login_id_token_malformed(client):
-    resp = client.get(
-        reverse('auth-login'),
-        HTTP_AUTHORIZATION='Bearer abc',
-        HTTP_ID_TOKEN='aaa',
-    )
+    resp = client.get(reverse('auth-login'), HTTP_AUTHORIZATION='Bearer abc', HTTP_ID_TOKEN='aaa',)
     assert resp.status_code == 403
     assert resp.json()['detail'] == 'Unable to decode the Id token header'
 
@@ -243,9 +237,9 @@ def test_login_id_token_missing_rsa_key_id(client):
             #   "typ": "JWT"
             # }
             # (and default payload)
-            'eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9.' +
-            'eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiaWF0IjoxNTE2MjM5MDIyfQ.' +
-            'SflKxwRJSMeKKF2QT4fwpMeJf36POk6yJV_adQssw5c'
+            'eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9.'
+            + 'eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiaWF0IjoxNTE2MjM5MDIyfQ.'
+            + 'SflKxwRJSMeKKF2QT4fwpMeJf36POk6yJV_adQssw5c'
         ),
     )
     assert resp.status_code == 403
@@ -266,9 +260,9 @@ def test_login_id_token_unknown_rsa_key_id(client):
             #   "kid": "1234"
             # }
             # (and default payload)
-            'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCIsImtpZCI6IjEyMzQifQ.' +
-            'eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiaWF0IjoxNTE2MjM5MDIyfQ.' +
-            'Fghd96rsPbzEOGv0mMn4DDBf86PiW_ztPcAbDQoeA6s'
+            'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCIsImtpZCI6IjEyMzQifQ.'
+            + 'eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiaWF0IjoxNTE2MjM5MDIyfQ.'
+            + 'Fghd96rsPbzEOGv0mMn4DDBf86PiW_ztPcAbDQoeA6s'
         ),
     )
     assert resp.status_code == 403
@@ -289,10 +283,10 @@ def test_login_id_token_invalid_signature(client):
             #   "kid": "MkZDNDcyRkNGRTFDNjlBNjZFOEJBN0ZBNzJBQTNEMDhCMEEwNkFGOA"
             # }
             # (and default payload)
-            'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCIsImtpZCI6Ik1rWkRORGN5UmtOR1JURkROamxCTmp' +
-            'aRk9FSkJOMFpCTnpKQlFUTkVNRGhDTUVFd05rRkdPQSJ9.' +
-            'eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiaWF0IjoxNTE2MjM5MDIyfQ.' +
-            'this_signature_is_not_valid'
+            'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCIsImtpZCI6Ik1rWkRORGN5UmtOR1JURkROamxCTmp'
+            + 'aRk9FSkJOMFpCTnpKQlFUTkVNRGhDTUVFd05rRkdPQSJ9.'
+            + 'eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiaWF0IjoxNTE2MjM5MDIyfQ.'
+            + 'this_signature_is_not_valid'
         ),
     )
     assert resp.status_code == 403
@@ -308,11 +302,7 @@ def test_login_access_token_expiry_header_missing(client, monkeypatch):
 
     monkeypatch.setattr(AuthBackend, '_get_user_info', userinfo_mock)
 
-    resp = client.get(
-        reverse('auth-login'),
-        HTTP_AUTHORIZATION='Bearer foo',
-        HTTP_ID_TOKEN='bar',
-    )
+    resp = client.get(reverse('auth-login'), HTTP_AUTHORIZATION='Bearer foo', HTTP_ID_TOKEN='bar',)
     assert resp.status_code == 403
     assert resp.json()['detail'] == 'Access-Token-Expires-At header is expected'
 
@@ -374,7 +364,7 @@ def test_login_id_token_expires_before_access_token(test_ldap_user, client, monk
         reverse('auth-login'),
         HTTP_AUTHORIZATION='Bearer meh',
         HTTP_ID_TOKEN='meh',
-        HTTP_ACCESS_TOKEN_EXPIRES_AT=str(access_token_expiration_timestamp)
+        HTTP_ACCESS_TOKEN_EXPIRES_AT=str(access_token_expiration_timestamp),
     )
     assert resp.status_code == 200
     assert client.session.get_expiry_age() == pytest.approx(one_hour_in_seconds, abs=5)

@@ -8,8 +8,7 @@ def test_note_deletion(test_job_with_notes):
 
     # delete second failure classification, verify that we now have first one
     # (after reloading job)
-    JobNote.objects.get(job=test_job_with_notes,
-                        failure_classification_id=3).delete()
+    JobNote.objects.get(job=test_job_with_notes, failure_classification_id=3).delete()
     test_job_with_notes.refresh_from_db()
     assert test_job_with_notes.failure_classification_id == 2
 
