@@ -1,280 +1,229 @@
 [
-  {
-    "job": {
-      "taskcluster_task_id": "IYyscnNMTLuxzna7PNqUJQ",
-      "taskcluster_retry_id": 0,
-      "build_platform": {
-        "platform": "linux64",
-        "os_name": "linux",
-        "architecture": "x86_64"
-      },
-      "submit_timestamp": 1419035997.0,
-      "start_timestamp": 1419039597.0,
-      "name": "test-linux64/opt-mochitest-devtools-chrome-3",
-      "option_collection": {
-        "debug": true
-      },
-      "artifacts": [],
-      "machine_platform": {
-        "platform": "linux64",
-        "os_name": "linux",
-        "architecture": "x86_64"
-      },
-      "build_system_type": "taskcluster",
-      "who": "thedude@lebowski.com",
-      "group_symbol": "PI",
-      "reason": "scheduler",
-      "group_name": "PulseIngestion",
-      "machine": "bld-linux64-ec2-104",
-      "state": "completed",
-      "result": "success",
-      "log_references": [
-        {
-          "url": "http://ftp.mozilla.org/pub/mozilla.org/spidermonkey/tinderbox-builds/mozilla-inbound-linux64/mozilla-inbound_linux64_spidermonkey-warnaserr-bm57-build1-build352.txt.gz",
-          "parse_status": "pending",
-          "name": "builds-4h"
-        },
-        {
-          "url": "http://mozilla-releng-blobs.s3.amazonaws.com/blobs/Mozilla-Inbound-Non-PGO/sha512/05c7f57df6583c6351c6b49e439e2678e0f43c2e5b66695ea7d096a7519e1805f441448b5ffd4cc3b80b8b2c74b244288fda644f55ed0e226ef4e25ba02ca466",
-          "parse_status": "pending",
-          "name": "errorsummary_json"
-        }
-      ],
-      "tier": 1,
-      "job_symbol": "P",
-      "job_guid": "218cac72-734c-4cbb-b1ce-76bb3cda9425/0",
-      "product_name": "Oscillation Overthruster",
-      "end_timestamp": 1419043197.0
-    },
-    "revision": "45f8637cb9f78f19cb8463ff174e81756805d8cf",
-    "superseded": []
-  },
-  {
-    "job": {
-      "taskcluster_task_id": "XJCbbRQ6Sp-UL1lL-tw5ng",
-      "taskcluster_retry_id": 0,
-      "build_platform": {
-        "platform": "linux64",
-        "os_name": "linux",
-        "architecture": "x86_64"
-      },
-      "submit_timestamp": 1419035997.0,
-      "start_timestamp": 1419039597.0,
-      "name": "test-android-4.3-arm7-api-15/debug-mochitest-media-1",
-      "option_collection": {
-        "debug": true
-      },
-      "artifacts": [],
-      "machine_platform": {
-        "platform": "linux64",
-        "os_name": "linux",
-        "architecture": "x86_64"
-      },
-      "build_system_type": "taskcluster",
-      "who": "thedude@lebowski.com",
-      "group_symbol": "?",
-      "reason": "scheduler",
-      "group_name": "unknown",
-      "machine": "bld-linux64-ec2-104",
-      "state": "running",
-      "result": "unknown",
-      "log_references": [],
-      "tier": 1,
-      "job_symbol": "P2",
-      "job_guid": "5c909b6d-143a-4a9f-942f-594bfadc399e/0",
-      "product_name": "Oscillation Overthruster",
-      "end_timestamp": 1419043197.0
-    },
-    "revision": "45f8637cb9f78f19cb8463ff174e81756805d8cf",
-    "superseded": []
-  },
-  {
-    "job": {
-      "taskcluster_task_id": "XJCbbRQ6Sp-UL1lL-tw5ng",
-      "taskcluster_retry_id": 1,
-      "build_platform": {
-        "platform": "linux64",
-        "os_name": "linux",
-        "architecture": "x86_64"
-      },
-      "submit_timestamp": 1419035997.0,
-      "start_timestamp": 1419039597.0,
-      "name": "test-android-4.3-arm7-api-15/debug-mochitest-media-1",
-      "option_collection": {
-        "debug": true
-      },
-      "artifacts": [],
-      "machine_platform": {
-        "platform": "linux64",
-        "os_name": "linux",
-        "architecture": "x86_64"
-      },
-      "build_system_type": "taskcluster",
-      "who": "thedude@lebowski.com",
-      "group_symbol": "?",
-      "reason": "scheduler",
-      "group_name": "unknown",
-      "machine": "bld-linux64-ec2-104",
-      "state": "running",
-      "result": "unknown",
-      "log_references": [],
-      "tier": 1,
-      "job_symbol": "P2",
-      "job_guid": "5c909b6d-143a-4a9f-942f-594bfadc399e/1",
-      "product_name": "Oscillation Overthruster",
-      "end_timestamp": 1419043197.0
-    },
-    "revision": "45f8637cb9f78f19cb8463ff174e81756805d8cf",
-    "superseded": []
-  },
-  {
-    "job": {
-      "taskcluster_task_id": "ZsSzJQu3Q7q2MfehIBAzKQ",
-      "taskcluster_retry_id": 0,
-      "build_platform": {
-        "platform": "linux64",
-        "os_name": "linux",
-        "architecture": "x86_64"
-      },
-      "submit_timestamp": 1419035997.0,
-      "start_timestamp": 1419039597.0,
-      "name": "static-analysis-win32-st-an/debug",
-      "option_collection": {
-        "opt": true
-      },
-      "artifacts": [
-        {
-          "job_guid": "66c4b325-0bb7-43ba-b631-f7a120103329/0",
-          "type": "json",
-          "blob": {
-            "step_data": {
-              "steps": [
-                {
-                  "errors": [],
-                  "name": "downloading to oauth.txt",
-                  "started": "2016-02-02T14:20:05-08:00",
-                  "started_linenumber": 231,
-                  "finished_linenumber": 232,
-                  "finished": "2016-02-02T14:27:05-08:00",
-                  "order": 0,
-                  "result": "success"
-                },
-                {
-                  "errors": [
-                    {
-                      "line": "14:38:05     INFO -  PROCESS | 16672 | [Child 17361] ###!!! ABORT: Aborting on channel error.: file /builds/slave/m-in-l64-000000000000000000000/build/src/ipc/glue/MessageChannel.cpp, line 1823",
-                      "linenumber": 3211
-                    },
-                    {
-                      "line": "14:38:05     INFO -  TEST-UNEXPECTED-ERROR | tart | TIMEOUT: TART",
-                      "linenumber": 3212
-                    },
-                    {
-                      "line": "14:38:05    ERROR -  Traceback (most recent call last):",
-                      "linenumber": 3213
-                    }
-                  ],
-                  "name": "'/tools/buildbot/bin/python scripts/scripts/talos_script.py ...' failed",
-                  "started": "2016-02-02T14:27:05-08:00",
-                  "started_linenumber": 234,
-                  "finished_linenumber": 3269,
-                  "finished": "2016-02-02T14:38:09-08:00",
-                  "order": 1,
-                  "result": "testfailed"
-                }
-              ],
-              "errors_truncated": false
-            },
-            "logurl": "http://ftp.mozilla.org/pub/mozilla.org/spidermonkey/tinderbox-builds/mozilla-inbound-linux64/mozilla-inbound_linux64_spidermonkey-warnaserr-bm57-build1-build352.txt.gz"
-          },
-          "name": "text_log_summary"
-        },
-        {
-          "type": "json",
-          "blob": { "fee": "foo" },
-          "job_guid": "66c4b325-0bb7-43ba-b631-f7a120103329/0",
-          "name": "Bug suggestions"
-        }
-      ],
-      "machine_platform": {
-        "platform": "linux64",
-        "os_name": "linux",
-        "architecture": "x86_64"
-      },
-      "build_system_type": "taskcluster",
-      "who": "thedude@lebowski.com",
-      "group_symbol": "PI",
-      "reason": "scheduler",
-      "group_name": "PulseIngestion",
-      "machine": "bld-linux64-ec2-104",
-      "state": "completed",
-      "result": "retry",
-      "log_references": [
-        {
-          "url": "http://ftp.mozilla.org/pub/mozilla.org/spidermonkey/tinderbox-builds/mozilla-inbound-linux64/mozilla-inbound_linux64_spidermonkey-warnaserr-bm57-build1-build352.txt.gz",
-          "parse_status": "parsed",
-          "name": "builds-4h"
-        }
-      ],
-      "tier": 1,
-      "job_symbol": "3",
-      "job_guid": "66c4b325-0bb7-43ba-b631-f7a120103329/0",
-      "product_name": "unknown",
-      "end_timestamp": 1419043197.0
-    },
-    "revision": "45f8637cb9f78f19cb8463ff174e81756805d8cf",
-    "superseded": []
-  },
-  {
-    "job": {
-      "taskcluster_task_id": "bIzVZt9jQQKgvQYD3a2HQw",
-      "taskcluster_retry_id": 3,
-      "build_platform": {
-        "platform": "linux64",
-        "os_name": "linux",
-        "architecture": "x86_64"
-      },
-      "submit_timestamp": 1419035997.0,
-      "start_timestamp": 1419039597.0,
-      "name": "test-windows10-64-vm/opt-jsreftest",
-      "option_collection": {
-        "opt": true
-      },
-      "artifacts": [
-        {
-          "blob": { "fee": "foo" },
-          "job_guid": "6c8cd566-df63-4102-a0bd-0603ddad8743/3",
-          "name": "quagmire",
-          "type": "json"
-        }
-      ],
-      "machine_platform": {
-        "platform": "linux64",
-        "os_name": "linux",
-        "architecture": "x86_64"
-      },
-      "build_system_type": "taskcluster",
-      "who": "thedude@lebowski.com",
-      "group_symbol": "PI",
-      "reason": "scheduler",
-      "group_name": "PulseIngestion",
-      "machine": "bld-linux64-ec2-104",
-      "state": "completed",
-      "result": "testfailed",
-      "log_references": [
-        {
-          "url": "http://ftp.mozilla.org/pub/mozilla.org/spidermonkey/tinderbox-builds/mozilla-inbound-linux64/mozilla-inbound_linux64_spidermonkey-warnaserr-bm57-build1-build352.txt.gz",
-          "parse_status": "pending",
-          "name": "builds-4h"
-        }
-      ],
-      "tier": 1,
-      "job_symbol": "3",
-      "job_guid": "6c8cd566-df63-4102-a0bd-0603ddad8743/3",
-      "product_name": "unknown",
-      "end_timestamp": 1419043197.0
-    },
-    "revision": "45f8637cb9f78f19cb8463ff174e81756805d8cf",
-    "superseded": []
-  }
+	{
+		"job":{
+			"taskcluster_task_id":"IYyscnNMTLuxzna7PNqUJQ",
+			"taskcluster_retry_id":0,
+			"build_platform":{
+				"platform":"linux64",
+				"os_name":"linux",
+				"architecture":"x86_64"
+			},
+			"submit_timestamp":1419035997.0,
+			"start_timestamp":1419039597.0,
+			"name":"test-linux64/opt-mochitest-devtools-chrome-3",
+			"option_collection":{
+				"debug":true
+			},
+			"machine_platform":{
+				"platform":"linux64",
+				"os_name":"linux",
+				"architecture":"x86_64"
+			},
+			"build_system_type":"taskcluster",
+			"who":"thedude@lebowski.com",
+			"group_symbol":"PI",
+			"reason":"scheduler",
+			"group_name":"PulseIngestion",
+			"machine":"bld-linux64-ec2-104",
+			"state":"completed",
+			"result":"success",
+			"log_references":[
+				{
+					"url":"http://ftp.mozilla.org/pub/mozilla.org/spidermonkey/tinderbox-builds/mozilla-inbound-linux64/mozilla-inbound_linux64_spidermonkey-warnaserr-bm57-build1-build352.txt.gz",
+					"parse_status":"pending",
+					"name":"builds-4h"
+				},
+				{
+					"url":"http://mozilla-releng-blobs.s3.amazonaws.com/blobs/Mozilla-Inbound-Non-PGO/sha512/05c7f57df6583c6351c6b49e439e2678e0f43c2e5b66695ea7d096a7519e1805f441448b5ffd4cc3b80b8b2c74b244288fda644f55ed0e226ef4e25ba02ca466",
+					"parse_status":"pending",
+					"name":"errorsummary_json"
+				}
+			],
+			"tier":1,
+			"job_symbol":"P",
+			"job_guid":"218cac72-734c-4cbb-b1ce-76bb3cda9425/0",
+			"product_name":"Oscillation Overthruster",
+			"end_timestamp":1419043197.0
+		},
+		"revision":"45f8637cb9f78f19cb8463ff174e81756805d8cf",
+		"superseded":[
+
+		]
+	},
+	{
+		"job":{
+			"taskcluster_task_id":"XJCbbRQ6Sp-UL1lL-tw5ng",
+			"taskcluster_retry_id":0,
+			"build_platform":{
+				"platform":"linux64",
+				"os_name":"linux",
+				"architecture":"x86_64"
+			},
+			"submit_timestamp":1419035997.0,
+			"start_timestamp":1419039597.0,
+			"name":"test-android-4.3-arm7-api-15/debug-mochitest-media-1",
+			"option_collection":{
+				"debug":true
+			},
+			"machine_platform":{
+				"platform":"linux64",
+				"os_name":"linux",
+				"architecture":"x86_64"
+			},
+			"build_system_type":"taskcluster",
+			"who":"thedude@lebowski.com",
+			"group_symbol":"?",
+			"reason":"scheduler",
+			"group_name":"unknown",
+			"machine":"bld-linux64-ec2-104",
+			"state":"running",
+			"result":"unknown",
+			"log_references":[
+
+			],
+			"tier":1,
+			"job_symbol":"P2",
+			"job_guid":"5c909b6d-143a-4a9f-942f-594bfadc399e/0",
+			"product_name":"Oscillation Overthruster",
+			"end_timestamp":1419043197.0
+		},
+		"revision":"45f8637cb9f78f19cb8463ff174e81756805d8cf",
+		"superseded":[
+
+		]
+	},
+	{
+		"job":{
+			"taskcluster_task_id":"XJCbbRQ6Sp-UL1lL-tw5ng",
+			"taskcluster_retry_id":1,
+			"build_platform":{
+				"platform":"linux64",
+				"os_name":"linux",
+				"architecture":"x86_64"
+			},
+			"submit_timestamp":1419035997.0,
+			"start_timestamp":1419039597.0,
+			"name":"test-android-4.3-arm7-api-15/debug-mochitest-media-1",
+			"option_collection":{
+				"debug":true
+			},
+			"machine_platform":{
+				"platform":"linux64",
+				"os_name":"linux",
+				"architecture":"x86_64"
+			},
+			"build_system_type":"taskcluster",
+			"who":"thedude@lebowski.com",
+			"group_symbol":"?",
+			"reason":"scheduler",
+			"group_name":"unknown",
+			"machine":"bld-linux64-ec2-104",
+			"state":"running",
+			"result":"unknown",
+			"log_references":[
+
+			],
+			"tier":1,
+			"job_symbol":"P2",
+			"job_guid":"5c909b6d-143a-4a9f-942f-594bfadc399e/1",
+			"product_name":"Oscillation Overthruster",
+			"end_timestamp":1419043197.0
+		},
+		"revision":"45f8637cb9f78f19cb8463ff174e81756805d8cf",
+		"superseded":[
+
+		]
+	},
+	{
+		"job":{
+			"taskcluster_task_id":"ZsSzJQu3Q7q2MfehIBAzKQ",
+			"taskcluster_retry_id":0,
+			"build_platform":{
+				"platform":"linux64",
+				"os_name":"linux",
+				"architecture":"x86_64"
+			},
+			"submit_timestamp":1419035997.0,
+			"start_timestamp":1419039597.0,
+			"name":"static-analysis-win32-st-an/debug",
+			"option_collection":{
+				"opt":true
+			},
+			"machine_platform":{
+				"platform":"linux64",
+				"os_name":"linux",
+				"architecture":"x86_64"
+			},
+			"build_system_type":"taskcluster",
+			"who":"thedude@lebowski.com",
+			"group_symbol":"PI",
+			"reason":"scheduler",
+			"group_name":"PulseIngestion",
+			"machine":"bld-linux64-ec2-104",
+			"state":"completed",
+			"result":"retry",
+			"log_references":[
+				{
+					"url":"http://ftp.mozilla.org/pub/mozilla.org/spidermonkey/tinderbox-builds/mozilla-inbound-linux64/mozilla-inbound_linux64_spidermonkey-warnaserr-bm57-build1-build352.txt.gz",
+					"parse_status":"pending",
+					"name":"builds-4h"
+				}
+			],
+			"tier":1,
+			"job_symbol":"3",
+			"job_guid":"66c4b325-0bb7-43ba-b631-f7a120103329/0",
+			"product_name":"unknown",
+			"end_timestamp":1419043197.0
+		},
+		"revision":"45f8637cb9f78f19cb8463ff174e81756805d8cf",
+		"superseded":[
+
+		]
+	},
+	{
+		"job":{
+			"taskcluster_task_id":"bIzVZt9jQQKgvQYD3a2HQw",
+			"taskcluster_retry_id":3,
+			"build_platform":{
+				"platform":"linux64",
+				"os_name":"linux",
+				"architecture":"x86_64"
+			},
+			"submit_timestamp":1419035997.0,
+			"start_timestamp":1419039597.0,
+			"name":"test-windows10-64-vm/opt-jsreftest",
+			"option_collection":{
+				"opt":true
+			},
+			"machine_platform":{
+				"platform":"linux64",
+				"os_name":"linux",
+				"architecture":"x86_64"
+			},
+			"build_system_type":"taskcluster",
+			"who":"thedude@lebowski.com",
+			"group_symbol":"PI",
+			"reason":"scheduler",
+			"group_name":"PulseIngestion",
+			"machine":"bld-linux64-ec2-104",
+			"state":"completed",
+			"result":"testfailed",
+			"log_references":[
+				{
+					"url":"http://ftp.mozilla.org/pub/mozilla.org/spidermonkey/tinderbox-builds/mozilla-inbound-linux64/mozilla-inbound_linux64_spidermonkey-warnaserr-bm57-build1-build352.txt.gz",
+					"parse_status":"pending",
+					"name":"builds-4h"
+				}
+			],
+			"tier":1,
+			"job_symbol":"3",
+			"job_guid":"6c8cd566-df63-4102-a0bd-0603ddad8743/3",
+			"product_name":"unknown",
+			"end_timestamp":1419043197.0
+		},
+		"revision":"45f8637cb9f78f19cb8463ff174e81756805d8cf",
+		"superseded":[
+
+		]
+	}
 ]
