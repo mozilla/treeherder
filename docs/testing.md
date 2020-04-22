@@ -60,7 +60,8 @@ The tests will perform an initial run and then re-execute each time a project fi
 To run all Python tests, including linting, sorting, etc:
 
 ```shell
-docker-compose run backend sh -c "./runchecks.sh && pytest tests/"
+% pip install tox
+% tox
 ```
 
 NOTE: For instructions on how to run tests outside of Docker look at [tests/README.md](https://github.com/mozilla/treeherder/blob/master/tests/README.md).
