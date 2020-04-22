@@ -29,3 +29,6 @@ celerybeat-schedule
 coverage
 coverage.xml
 .coverage
+
+# Ignore tox installation
+.tox
