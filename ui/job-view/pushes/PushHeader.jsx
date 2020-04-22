@@ -20,11 +20,7 @@ import { getJobsUrl } from '../../helpers/url';
 import PushModel from '../../models/push';
 import JobModel from '../../models/job';
 import PushHealthStatus from '../../shared/PushHealthStatus';
-import {
-  getSelectedJobId,
-  getUrlParam,
-  setUrlParam,
-} from '../../helpers/location';
+import { getUrlParam, setUrlParam } from '../../helpers/location';
 import { notify } from '../redux/stores/notifications';
 import { setSelectedJob } from '../redux/stores/selectedJob';
 import { pinJobs } from '../redux/stores/pinnedJobs';
@@ -223,12 +219,12 @@ class PushHeader extends React.Component {
       pushId,
     } = this.props;
     const shownJobs = getAllShownJobs(pushId);
-    const selectedJobId = getSelectedJobId();
+    const selectedTaskRun = getUrlParam('selectedTaskRun');
 
     if (shownJobs.length) {
       expandAllPushGroups(() => {
         pinJobs(shownJobs);
-        if (!selectedJobId) {
+        if (!selectedTaskRun) {
           setSelectedJob(shownJobs[0]);
         }
       });

@@ -227,3 +227,17 @@ export const getJobSearchStrHref = function getJobSearchStrHref(jobSearchStr) {
 
   return `${uiJobsUrlBase}?${params.toString()}`;
 };
+
+export const getTaskRunStr = job => `${job.task_id}-${job.retry_id}`;
+
+export const getTaskRun = function getTaskRun(taskRunStr) {
+  if (!taskRunStr) {
+    return {};
+  }
+
+  const len = taskRunStr.length;
+  const runId = taskRunStr.substring(len - 1);
+  const taskId = taskRunStr.substring(0, len - 2);
+
+  return { taskId, runId };
+};

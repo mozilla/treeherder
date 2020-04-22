@@ -3,7 +3,7 @@ import PropTypes from 'prop-types';
 import countBy from 'lodash/countBy';
 
 import { thFailureResults } from '../../helpers/constants';
-import { getSelectedJobId, getUrlParam } from '../../helpers/location';
+import { getUrlParam } from '../../helpers/location';
 import { getBtnClass } from '../../helpers/job';
 
 import JobButton from './JobButton';
@@ -63,7 +63,7 @@ export class JobGroupComponent extends React.Component {
     const { duplicateJobsVisible, groupCountsExpanded } = this.props;
     let buttons = [];
     const counts = [];
-    const selectedJobId = getSelectedJobId();
+    const selectedTaskRun = getUrlParam('selectedTaskRun');
 
     if (expanded || groupCountsExpanded) {
       // All buttons should be shown when the group is expanded
@@ -88,7 +88,7 @@ export class JobGroupComponent extends React.Component {
           buttons.push(job);
         } else {
           countInfo = { ...countInfo, ...stateCounts[countInfo.btnClass] };
-          if (selectedJobId === job.id || countInfo.selectedClasses) {
+          if (selectedTaskRun === job.task_run || countInfo.selectedClasses) {
             countInfo.selectedClasses = ' selected-count btn-lg-xform';
           } else {
             countInfo.selectedClasses = '';

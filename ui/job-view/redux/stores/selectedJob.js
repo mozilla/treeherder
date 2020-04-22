@@ -3,18 +3,19 @@ import {
   findGroupInstance,
   findJobInstance,
   findSelectedInstance,
+  getTaskRun,
+  getTaskRunStr,
   scrollToElement,
 } from '../../../helpers/job';
 import { thJobNavSelectors } from '../../../helpers/constants';
 import { getUrlParam, setUrlParam } from '../../../helpers/location';
 import JobModel from '../../../models/job';
-import PushModel from '../../../models/push';
 import { getJobsUrl } from '../../../helpers/url';
 
-const SELECT_JOB = 'SELECT_JOB';
-const SELECT_JOB_FROM_QUERY_STRING = 'SELECT_JOB_FROM_QUERY_STRING';
-const CLEAR_JOB = 'CLEAR_JOB';
-const UPDATE_JOB_DETAILS = 'UPDATE_JOB_DETAILS';
+export const SELECT_JOB = 'SELECT_JOB';
+export const SELECT_JOB_FROM_QUERY_STRING = 'SELECT_JOB_FROM_QUERY_STRING';
+export const CLEAR_JOB = 'CLEAR_JOB';
+export const UPDATE_JOB_DETAILS = 'UPDATE_JOB_DETAILS';
 
 export const setSelectedJob = (job, updateDetails = true) => ({
   type: SELECT_JOB,
@@ -42,9 +43,9 @@ export const updateJobDetails = job => ({
 });
 
 const doUpdateJobDetails = job => {
-  const jobId = job ? job.id : null;
+  const taskRun = job ? getTaskRunStr(job) : null;
 
-  setUrlParam('selectedJob', jobId);
+  setUrlParam('selectedTaskRun', taskRun);
   return { selectedJob: job };
 };
 
@@ -80,10 +81,45 @@ export const doClearSelectedJob = countPinnedJobs => {
   if (!countPinnedJobs) {
     const selected = findSelectedInstance();
     if (selected) selected.setSelected(false);
+    setUrlParam('selectedTaskRun', null);
     setUrlParam('selectedJob', null);
     return { selectedJob: null };
   }
   return {};
+};
+
+const searchDatabaseForTaskRun = async (jobParams, notify) => {
+  const repoName = getUrlParam('repo');
+  const { failureStatus, data: taskList } = await JobModel.getList(jobParams);
+  const { id, task_id: taskId, retry_id: runId } = jobParams;
+
+  setUrlParam('selectedJob');
+  setUrlParam('selectedTaskRun');
+
+  if (taskList.length && !failureStatus) {
+    const task = taskList[0];
+    const newPushUrl = getJobsUrl({
+      repo: repoName,
+      revision: task.push_revision,
+      selectedTaskRun: getTaskRunStr(task),
+    });
+    const message = taskId ? `Selected task: ${taskId}` : `Selected job: ${id}`;
+    // The task exists, but isn't in any loaded push.
+    // provide a message and link to load the right push
+
+    notify(`${message} not within current push range.`, 'danger', {
+      sticky: true,
+      linkText: 'Load push',
+      url: newPushUrl,
+    });
+  } else {
+    // The task wasn't found in the db.  Either never existed,
+    // or was expired and deleted.
+    const message = taskId
+      ? `Task not found: ${taskId}, run ${runId}`
+      : `Job ID not found: ${id}`;
+    notify(message, 'danger', { sticky: true });
+  }
 };
 
 /**
@@ -94,52 +130,46 @@ export const doClearSelectedJob = countPinnedJobs => {
  * an error and provide a link to load it with the right push.
  */
 const doSetSelectedJobFromQueryString = (notify, jobMap) => {
-  const repoName = getUrlParam('repo');
-  const selectedJobIdStr = getUrlParam('selectedJob');
-  const selectedJobId = parseInt(selectedJobIdStr, 10);
+  const selectedJobId = parseInt(getUrlParam('selectedJob') || '0', 10);
+  const { taskId, runId } = getTaskRun(getUrlParam('selectedTaskRun'));
 
-  if (selectedJobIdStr) {
-    const selectedJob = jobMap[selectedJobIdStr];
+  // Try to find the Task by taskId and runID
+  if (taskId) {
+    const retryId = parseInt(runId, 10);
+    const task = Object.values(jobMap).find(
+      job => job.task_id === taskId && job.retry_id === retryId,
+    );
+
+    if (task) {
+      setUrlParam('selectedJob');
+      return doSelectJob(task);
+    }
+  }
+
+  // Try to find the Task by selectedJobId
+  if (selectedJobId) {
+    const task = jobMap[selectedJobId];
 
     // select the job in question
-    if (selectedJob) {
-      return doSelectJob(selectedJob);
-    }
-    setUrlParam('selectedJob');
-    // If the ``selectedJob`` was not mapped, then we need to notify
-    // the user it's not in the range of the current result set list.
-    JobModel.get(repoName, selectedJobId)
-      .then(job => {
-        PushModel.get(job.push_id).then(async resp => {
-          if (resp.ok) {
-            const push = await resp.json();
-            const newPushUrl = getJobsUrl({
-              repo: repoName,
-              revision: push.revision,
-              selectedJob: selectedJobId,
-            });
+    if (task) {
+      setUrlParam('selectedJob');
+      setUrlParam('selectedTaskRun', getTaskRunStr(task));
 
-            // the job exists, but isn't in any loaded push.
-            // provide a message and link to load the right push
-            notify(
-              `Selected job id: ${selectedJobId} not within current push range.`,
-              'danger',
-              { sticky: true, linkText: 'Load push', url: newPushUrl },
-            );
-          } else {
-            throw Error(
-              `Unable to find push with id ${job.push_id} for selected job`,
-            );
-          }
-        });
-      })
-      .catch(error => {
-        // the job wasn't found in the db.  Either never existed,
-        // or was expired and deleted.
-        this.doClearSelectedJob();
-        notify(`Selected Job - ${error}`, 'danger', { sticky: true });
-      });
+      return doSelectJob(task);
+    }
   }
+
+  // We are attempting to select a task, but that task is not in the current
+  // range of pushes.  So we search for it in the database to help the user
+  // locate it.
+  if (taskId || selectedJobId) {
+    const jobParams = taskId
+      ? { task_id: taskId, retry_id: runId }
+      : { id: selectedJobId };
+
+    searchDatabaseForTaskRun(jobParams, notify);
+  }
+
   return doClearSelectedJob({});
 };
 
@@ -203,7 +233,7 @@ export const changeJob = (
   return doClearSelectedJob(countPinnedJobs);
 };
 
-const initialState = {
+export const initialState = {
   selectedJob: null,
 };
 

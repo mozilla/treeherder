@@ -21,7 +21,8 @@
       "completed",
       1,
       "VaQoWKTbSdGSwBJn6UZV9g",
-      0
+      0,
+      "ff7eec7be698cd21d92755d709e08897100fa9c8"
     ],
     [
       18,
@@ -41,7 +42,8 @@
       "completed",
       1,
       "JFVlnwufR7G9tZu_pKM0dQ",
-      0
+      0,
+      "ff7eec7be698cd21d92755d709e08897100fa9c8"
     ],
     [
       2,
@@ -61,7 +63,8 @@
       "running",
       1,
       "QYxMB9-RR5qdI1xGjAmlIw",
-      0
+      0,
+      "ff7eec7be698cd21d92755d709e08897100fa9c8"
     ],
     [
       2,
@@ -81,7 +84,8 @@
       "completed",
       2,
       "Fe4GqwoZQSStNUbe4EeSPQ",
-      0
+      0,
+      "ff7eec7be698cd21d92755d709e08897100fa9c8"
     ]
   ],
   "job_property_names": [
@@ -102,6 +106,7 @@
     "state",
     "tier",
     "task_id",
-    "retry_id"
+    "retry_id",
+    "push_revision"
   ]
 }

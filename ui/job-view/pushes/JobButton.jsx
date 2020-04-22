@@ -5,17 +5,17 @@ import { faStar as faStarRegular } from '@fortawesome/free-regular-svg-icons';
 import { faStar as faStarSolid } from '@fortawesome/free-solid-svg-icons';
 
 import { getBtnClass, findJobInstance } from '../../helpers/job';
-import { getSelectedJobId, getUrlParam } from '../../helpers/location';
+import { getUrlParam } from '../../helpers/location';
 
 export default class JobButtonComponent extends React.Component {
   constructor(props) {
     super(props);
 
     const { job } = this.props;
-    const urlSelectedJob = getUrlParam('selectedJob');
+    const urlSelectedTaskRun = getUrlParam('selectedTaskRun');
 
     this.state = {
-      isSelected: parseInt(urlSelectedJob, 10) === job.id,
+      isSelected: urlSelectedTaskRun === job.task_run,
       isRunnableSelected: false,
     };
   }
@@ -64,7 +64,7 @@ export default class JobButtonComponent extends React.Component {
     this.setState({ isSelected });
     // filterPlatformCb will keep a job and platform visible if it contains
     // the selected job, so we must pass in if this job is selected or not.
-    filterPlatformCb(isSelected ? job.id : null);
+    filterPlatformCb(isSelected ? job.task_run : null);
   }
 
   toggleRunnableSelected() {
@@ -76,7 +76,7 @@ export default class JobButtonComponent extends React.Component {
   refilter() {
     const { filterPlatformCb } = this.props;
 
-    filterPlatformCb(getSelectedJobId());
+    filterPlatformCb(getUrlParam('selectedTaskRun'));
   }
 
   render() {

@@ -6,7 +6,7 @@ import { faSpinner } from '@fortawesome/free-solid-svg-icons';
 
 import { getPushTableId } from '../../helpers/aggregateId';
 import { findInstance, findSelectedInstance } from '../../helpers/job';
-import { getSelectedJobId } from '../../helpers/location';
+import { getUrlParam } from '../../helpers/location';
 import { didObjectsChange } from '../../helpers/object';
 import { getLogViewerUrl } from '../../helpers/url';
 import JobModel from '../../models/job';
@@ -38,7 +38,7 @@ class PushJobs extends React.Component {
   onMouseDown = ev => {
     const { togglePinJob } = this.props;
     const jobInstance = findInstance(ev.target);
-    const selectedJobId = getSelectedJobId();
+    const selectedTaskRun = getUrlParam('selectedTaskRun');
 
     if (jobInstance && jobInstance.props.job) {
       const { job } = jobInstance.props;
@@ -47,7 +47,7 @@ class PushJobs extends React.Component {
         this.handleLogViewerClick(job.id);
       } else if (ev.metaKey || ev.ctrlKey) {
         // Pin job
-        if (!selectedJobId) {
+        if (!selectedTaskRun) {
           this.selectJob(job, ev.target);
         }
         togglePinJob(job);
@@ -63,11 +63,14 @@ class PushJobs extends React.Component {
   selectJob = (job, el) => {
     const { setSelectedJob } = this.props;
 
-    if (getSelectedJobId()) {
+    if (getUrlParam('selectedTaskRun')) {
       const selected = findSelectedInstance();
+
       if (selected) selected.setSelected(false);
     }
+
     const jobInstance = findInstance(el);
+
     if (jobInstance) {
       jobInstance.setSelected(true);
     }
