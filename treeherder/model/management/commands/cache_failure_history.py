@@ -7,11 +7,13 @@ from treeherder.push_health.tests import (
     fixed_by_commit_history_days,
     get_history,
     intermittent_history_days,
+    CACHE_KEY_ROOT,
 )
 from treeherder.webapp.api.utils import REPO_GROUPS
 
 
 class Command(BaseCommand):
+    # TODO: This command will go away when we migrate to mozci for our backend (Bug 1626746).  But fixing for now.
     help = """Caches history of intermittent and fixed_by_commit failure lines"""
 
     def add_arguments(self, parser):
@@ -42,15 +44,15 @@ class Command(BaseCommand):
         for day in range(days):
             push_date = datetime.datetime.now().date() - datetime.timedelta(days=day)
 
-            int_hist, cache_key = get_history(
-                4, push_date, intermittent_history_days, option_map, repository_ids, True
-            )
-            self.debug('Cached failure history for {}'.format(cache_key))
+            get_history(4, push_date, intermittent_history_days, option_map, repository_ids, True)
 
-            fbc_hist, cache_key = get_history(
+            self.debug(f'Cached failure history for {CACHE_KEY_ROOT}:{4}:{push_date}')
+
+            get_history(
                 2, push_date, fixed_by_commit_history_days, option_map, repository_ids, True
             )
-            self.debug('Cached failure history for {}'.format(cache_key))
+
+            self.debug(f'Cached failure history for {CACHE_KEY_ROOT}:{2}:{push_date}')
 
     def debug(self, msg):
         if self.is_debug:
