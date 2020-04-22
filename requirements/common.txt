@@ -185,6 +185,9 @@ jinja2==2.11.2 \
     --hash=sha256:89aab215427ef59c34ad58735269eb58b1a5808103067f7bb9d5836c651b3bb0 \
     --hash=sha256:f0a4641d3cf955324a89c04f3d94663aa4d638abe8f733ecd3582848e1c37035 \
     # via coreschema
+json-e==4.0.1 \
+    --hash=sha256:7d84242c94c4a475b08e185a265bed810346daf8399a5b5d05b7b19eba774356 \
+    # via -r requirements/common.in
 jsonschema==3.0.1 \
     --hash=sha256:0c0a81564f181de3212efa2d17de1910f8732fa1b71c42266d983cd74304e20d \
     --hash=sha256:a5f6559964a3851f59040d3b961de5e68e70971afb88ba519d27e6a039efff1a \

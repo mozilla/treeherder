@@ -33,7 +33,7 @@ python-jose[pycryptodome]  # from jose import jwt
 
 furl==2.1.0  # Imported as furl
 first  # Imported as first
-
+json-e  # import jsone
 django-cache-memoize==0.1.6    # Imported as cache_memoize
 
 # Required for extraction to BigQuery
