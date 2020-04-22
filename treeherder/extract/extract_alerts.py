@@ -18,7 +18,7 @@ class ExtractAlerts:
     def run(self, force=False, restart=False, merge=False):
         try:
             # SETUP LOGGING
-            settings = startup.read_settings(filename=CONFIG_FILE)
+            settings = startup.read_settings(default_filename=CONFIG_FILE)
             constants.set(settings.constants)
             Log.start(settings.debug)
 
@@ -104,6 +104,8 @@ class ExtractAlerts:
                     extractor.construct_docs(cursor, acc.append, False)
                 if not acc:
                     break
+                for r in acc:
+                    r.etl.timestamp = Date.now()
                 destination.extend(acc)
 
                 # RECORD THE STATE

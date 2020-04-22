@@ -9,6 +9,7 @@ class Command(BaseCommand):
     help = "Extract recent alerts from Treeherder, and push them to BigQuery"
 
     def add_arguments(self, parser):
+        parser.add_argument("--config", dest="config", help="configuration file")
         parser.add_argument(
             "--force", action='store_true', dest="force", help="Ignore changed schema"
         )
