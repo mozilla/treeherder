@@ -9,10 +9,6 @@ import newrelic.agent
 from django.core.exceptions import ObjectDoesNotExist
 from django.db.utils import IntegrityError
 
-<<<<<<< HEAD
-from treeherder.etl.artifact import serialize_artifact_json_blobs, store_job_artifacts
-=======
->>>>>>> clean up store_job_data now that we no longer add artifacts in job_loader
 from treeherder.etl.common import get_guid_root
 from treeherder.model.models import (
     BuildPlatform,
@@ -291,10 +287,8 @@ def _load_job(repository, job_datum, push_id):
             url = log.get('url') or 'unknown'
             url = url[0:255]
 
-            parse_status_map = dict([(k, v) for (v, k) in
-                                    JobLog.STATUSES])
-            mapped_status = parse_status_map.get(
-                log.get('parse_status'))
+            parse_status_map = dict([(k, v) for (v, k) in JobLog.STATUSES])
+            mapped_status = parse_status_map.get(log.get('parse_status'))
             if mapped_status:
                 parse_status = mapped_status
             else:
@@ -320,7 +314,7 @@ def _schedule_log_parsing(job, job_logs, result):
     # importing here to avoid an import loop
     from treeherder.log_parser.tasks import parse_logs
 
-    task_types = {"errorsummary_json", "buildbot_text", "builds-4h"}
+    task_types = {"errorsummary_json", "builds-4h"}
 
     job_log_ids = []
     for job_log in job_logs:

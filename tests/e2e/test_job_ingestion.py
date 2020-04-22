@@ -1,5 +1,5 @@
-import datetime
 import json
+import datetime
 
 import pytest
 from django.forms import model_to_dict
@@ -9,10 +9,7 @@ from tests.test_utils import add_log_response
 from treeherder.etl.jobs import store_job_data
 from treeherder.log_parser.parsers import StepParser
 from treeherder.model.error_summary import get_error_summary
-from treeherder.model.models import (Job,
-                                     JobLog,
-                                     TextLogError,
-                                     TextLogStep)
+from treeherder.model.models import Job, JobLog, TextLogError, TextLogStep
 
 # TODO: Turn these into end to end taskcluster tests as part of removing buildbot
 # support in bug 1443251, or else delete them if they're duplicating coverage.
@@ -91,12 +88,8 @@ def test_store_job_with_unparsed_log(
         'job': {
             'job_guid': job_guid,
             'state': 'completed',
-            'log_references': [{
-                'url': log_url,
-                'name': 'builds-4h',
-                'parse_status': 'pending'
-            }]
-        }
+            'log_references': [{'url': log_url, 'name': 'builds-4h', 'parse_status': 'pending'}],
+        },
     }
     store_job_data(test_repository, [job_data])
 
@@ -134,12 +127,8 @@ def test_store_job_pending_to_completed_with_unparsed_log(
         'job': {
             'job_guid': job_guid,
             'state': 'completed',
-            'log_references': [{
-                'url': log_url,
-                'name': 'builds-4h',
-                'parse_status': 'pending'
-            }]
-        }
+            'log_references': [{'url': log_url, 'name': 'builds-4h', 'parse_status': 'pending'}],
+        },
     }
     store_job_data(test_repository, [job_data])
 
@@ -169,12 +158,14 @@ def test_store_job_with_parsed_log(
         'job': {
             'job_guid': job_guid,
             'state': 'completed',
-            'log_references': [{
-                'url': 'http://ftp.mozilla.org/pub/mozilla.org/spidermonkey/...',
-                'name': 'builds-4h',
-                'parse_status': 'parsed'
-            }]
-        }
+            'log_references': [
+                {
+                    'url': 'http://ftp.mozilla.org/pub/mozilla.org/spidermonkey/...',
+                    'name': 'builds-4h',
+                    'parse_status': 'parsed',
+                }
+            ],
+        },
     }
 
     store_job_data(test_repository, [job_data])
@@ -183,7 +174,6 @@ def test_store_job_with_parsed_log(
     assert mock_parse.called is False
 
 
-<<<<<<< HEAD
 def test_store_job_with_text_log_summary_artifact_parsed(
     test_repository, failure_classifications, push_stored, monkeypatch, text_log_summary_dict,
 ):
@@ -317,10 +307,6 @@ def test_store_job_artifacts_by_add_artifact(
         }
     )
 
-<<<<<<< HEAD
-    ji_blob = json.dumps({"job_details": [{"title": "mytitle", "value": "myvalue"}]})
-=======
->>>>>>> update test_job_ingestion
     pb_blob = json.dumps({"build_url": "feh", "chunk": 1, "config_file": "mah"})
 
     job_guid = 'd22c74d4aa6d2a1dcba96d95dccbd5fdca70cf33'
@@ -335,17 +321,7 @@ def test_store_job_artifacts_by_add_artifact(
                     'blob': tls_blob,
                     'job_guid': job_guid,
                 },
-<<<<<<< HEAD
-                {'name': 'Job Info', 'type': 'json', 'blob': ji_blob, 'job_guid': job_guid,},
                 {'name': 'privatebuild', 'type': 'json', 'blob': pb_blob, 'job_guid': job_guid,},
-=======
-                {
-                    'name': 'privatebuild',
-                    'type': 'json',
-                    'blob': pb_blob,
-                    'job_guid': job_guid,
-                },
->>>>>>> update test_job_ingestion
             ],
             "job_guid": job_guid,
             "log_references": [
@@ -361,18 +337,6 @@ def test_store_job_artifacts_by_add_artifact(
 
     store_job_data(test_repository, [job_data])
 
-<<<<<<< HEAD
-    assert JobDetail.objects.count() == 1
-    assert model_to_dict(JobDetail.objects.get(job__guid=job_guid)) == {
-        'id': 1,
-        'job': 1,
-        'title': 'mytitle',
-        'value': 'myvalue',
-        'url': None,
-    }
-
-=======
->>>>>>> update test_job_ingestion
     assert TextLogStep.objects.count() == 1
     assert model_to_dict(TextLogStep.objects.get(job__guid=job_guid)) == {
         'id': 1,
@@ -403,15 +367,13 @@ def test_store_job_artifacts_by_add_artifact(
     assert mock_parse.called is False
 
 
-=======
->>>>>>> update e2e test_job_ingestion to reflect change in error summary parsing
 def test_store_job_with_tier(test_repository, failure_classifications, push_stored):
     """test submitting a job with tier specified"""
     job_guid = 'd22c74d4aa6d2a1dcba96d95dccbd5fdca70cf33'
     job_data = {
         'project': test_repository.name,
         'revision': push_stored[0]['revision'],
-        'job': {'job_guid': job_guid, 'state': 'completed', 'tier': 3,},
+        'job': {'job_guid': job_guid, 'state': 'completed', 'tier': 3},
     }
 
     store_job_data(test_repository, [job_data])
@@ -426,7 +388,7 @@ def test_store_job_with_default_tier(test_repository, failure_classifications, p
     job_data = {
         'project': test_repository.name,
         'revision': push_stored[0]['revision'],
-        'job': {'job_guid': job_guid, 'state': 'completed',},
+        'job': {'job_guid': job_guid, 'state': 'completed'},
     }
 
     store_job_data(test_repository, [job_data])

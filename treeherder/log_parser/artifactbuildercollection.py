@@ -4,16 +4,7 @@ import newrelic.agent
 
 from treeherder.utils.http import make_request
 
-<<<<<<< HEAD
-from .artifactbuilders import (
-    BuildbotJobArtifactBuilder,
-    BuildbotLogViewArtifactBuilder,
-    BuildbotPerformanceDataArtifactBuilder,
-)
-=======
-from .artifactbuilders import (BuildbotLogViewArtifactBuilder,
-                               BuildbotPerformanceDataArtifactBuilder)
->>>>>>> remove BuildbotJobArtifactBuilder, TinderboxPrint parser and associated tests
+from .artifactbuilders import BuildbotLogViewArtifactBuilder, BuildbotPerformanceDataArtifactBuilder
 from .parsers import EmptyPerformanceData
 
 logger = logging.getLogger(__name__)
@@ -82,7 +73,7 @@ BuildbotPerformanceDataArtifactBuilder
             # use the defaults
             self.builders = [
                 BuildbotLogViewArtifactBuilder(url=self.url),
-                BuildbotPerformanceDataArtifactBuilder(url=self.url)
+                BuildbotPerformanceDataArtifactBuilder(url=self.url),
             ]
 
     def parse(self):

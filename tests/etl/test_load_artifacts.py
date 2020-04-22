@@ -1,8 +1,7 @@
 import json
 
 from treeherder.etl.artifact import store_job_artifacts
-from treeherder.model.models import (TextLogError,
-                                     TextLogStep)
+from treeherder.model.models import TextLogError, TextLogStep
 
 
 def test_load_textlog_summary_twice(test_repository, test_job):

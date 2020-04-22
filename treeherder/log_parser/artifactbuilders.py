@@ -1,7 +1,6 @@
 import logging
 
-from .parsers import (PerformanceParser,
-                      StepParser)
+from .parsers import PerformanceParser, StepParser
 
 logger = logging.getLogger(__name__)
 
