@@ -24,7 +24,7 @@ services:
       - SITE_URL=http://backend:8000/
       - TREEHERDER_DEBUG=True
       - NEW_RELIC_INSIGHTS_API_KEY=${NEW_RELIC_INSIGHTS_API_KEY:-}
-      - HOSTNAME=${HOSTNAME:-}
+      - HOSTNAME=${hostname}
     entrypoint: './docker/entrypoint.sh'
     # We *ONLY* initialize the data when we're running the backend
     command: './initialize_data.sh ./manage.py runserver 0.0.0.0:8000'

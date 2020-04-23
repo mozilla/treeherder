@@ -13,7 +13,7 @@ Note: The Selenium tests will be skipped unless `yarn build` has been manually r
 Or for more control, run each tool individually, by first running:
 
 ```bash
-docker-compose run backend bash -e HOSTNAME=your_hostname
+docker-compose run backend bash
 ```
 
 ...which saves having to wait for docker-compose to spin up for every test run.
