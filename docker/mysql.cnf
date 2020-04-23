@@ -7,6 +7,7 @@
 [mysqld]
 character_set_server="utf8"
 collation_server="utf8_bin"
+max_connections=300
 
 # Ensure operations involving astral characters fail loudly,
 # rather than mysql silently replacing each each byte of the
