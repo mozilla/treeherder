@@ -47,5 +47,7 @@ export default class RevisionLinkify extends React.Component {
 
 RevisionLinkify.propTypes = {
   children: PropTypes.string.isRequired,
-  repo: PropTypes.object.isRequired,
+  repo: PropTypes.shape({
+    url: PropTypes.string,
+  }).isRequired,
 };

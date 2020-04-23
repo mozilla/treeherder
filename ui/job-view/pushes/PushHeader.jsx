@@ -403,12 +403,14 @@ class PushHeader extends React.Component {
 }
 
 PushHeader.propTypes = {
-  push: PropTypes.object.isRequired,
+  push: PropTypes.shape({
+    id: PropTypes.number,
+  }).isRequired,
   pushId: PropTypes.number.isRequired,
   pushTimestamp: PropTypes.number.isRequired,
   author: PropTypes.string.isRequired,
   revision: PropTypes.string.isRequired,
-  filterModel: PropTypes.object.isRequired,
+  filterModel: PropTypes.shape({}).isRequired,
   runnableVisible: PropTypes.bool.isRequired,
   showRunnableJobs: PropTypes.func.isRequired,
   hideRunnableJobs: PropTypes.func.isRequired,
@@ -420,15 +422,15 @@ PushHeader.propTypes = {
   expandAllPushGroups: PropTypes.func.isRequired,
   notificationSupported: PropTypes.bool.isRequired,
   getAllShownJobs: PropTypes.func.isRequired,
-  selectedRunnableJobs: PropTypes.array.isRequired,
+  selectedRunnableJobs: PropTypes.arrayOf(PropTypes.object).isRequired,
   collapsed: PropTypes.bool.isRequired,
   notify: PropTypes.func.isRequired,
-  jobCounts: PropTypes.object.isRequired,
+  jobCounts: PropTypes.shape({}).isRequired,
   pushHealthVisibility: PropTypes.string.isRequired,
-  decisionTaskMap: PropTypes.object.isRequired,
+  decisionTaskMap: PropTypes.shape({}).isRequired,
   watchState: PropTypes.string,
-  currentRepo: PropTypes.object.isRequired,
   pushHealthStatusCallback: PropTypes.func,
+  currentRepo: PropTypes.shape({}).isRequired,
 };
 
 PushHeader.defaultProps = {

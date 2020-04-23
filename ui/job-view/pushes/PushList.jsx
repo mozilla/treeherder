@@ -207,9 +207,11 @@ class PushList extends React.Component {
 
 PushList.propTypes = {
   repoName: PropTypes.string.isRequired,
-  user: PropTypes.object.isRequired,
-  filterModel: PropTypes.object.isRequired,
-  pushList: PropTypes.array.isRequired,
+  user: PropTypes.shape({
+    isLoggedIn: PropTypes.bool,
+  }).isRequired,
+  filterModel: PropTypes.shape({}).isRequired,
+  pushList: PropTypes.arrayOf(PropTypes.object).isRequired,
   fetchNextPushes: PropTypes.func.isRequired,
   fetchPushes: PropTypes.func.isRequired,
   pollPushes: PropTypes.func.isRequired,
@@ -221,13 +223,13 @@ PushList.propTypes = {
   allUnclassifiedFailureCount: PropTypes.number.isRequired,
   pushHealthVisibility: PropTypes.string.isRequired,
   clearSelectedJob: PropTypes.func.isRequired,
-  pinnedJobs: PropTypes.object.isRequired,
+  pinnedJobs: PropTypes.shape({}).isRequired,
   setSelectedJobFromQueryString: PropTypes.func.isRequired,
   getAllShownJobs: PropTypes.func.isRequired,
-  jobMap: PropTypes.object.isRequired,
+  jobMap: PropTypes.shape({}).isRequired,
   notify: PropTypes.func.isRequired,
   revision: PropTypes.string,
-  currentRepo: PropTypes.object,
+  currentRepo: PropTypes.shape({}),
 };
 
 PushList.defaultProps = {

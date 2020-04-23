@@ -133,7 +133,7 @@ CommitHistory.propTypes = {
     id: PropTypes.number,
   }).isRequired,
   revision: PropTypes.string.isRequired,
-  currentRepo: PropTypes.object.isRequired,
+  currentRepo: PropTypes.shape({}).isRequired,
 };
 
 export default CommitHistory;

@@ -145,13 +145,16 @@ PushJobs.propTypes = {
   setSelectedJob: PropTypes.func.isRequired,
   toggleSelectedRunnableJob: PropTypes.func.isRequired,
   repoName: PropTypes.string.isRequired,
-  push: PropTypes.object.isRequired,
+  push: PropTypes.shape({
+    id: PropTypes.number,
+    revision: PropTypes.string,
+  }).isRequired,
   pushGroupState: PropTypes.string.isRequired,
   runnableVisible: PropTypes.bool.isRequired,
   duplicateJobsVisible: PropTypes.bool.isRequired,
   groupCountsExpanded: PropTypes.bool.isRequired,
-  platforms: PropTypes.array.isRequired,
-  filterModel: PropTypes.object.isRequired,
+  platforms: PropTypes.arrayOf(PropTypes.object).isRequired,
+  filterModel: PropTypes.shape({}).isRequired,
 };
 
 export default connect(null, { setSelectedJob, togglePinJob })(PushJobs);

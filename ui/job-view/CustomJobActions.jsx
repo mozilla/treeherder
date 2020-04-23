@@ -307,9 +307,9 @@ CustomJobActions.propTypes = {
   isLoggedIn: PropTypes.bool.isRequired,
   notify: PropTypes.func.isRequired,
   toggle: PropTypes.func.isRequired,
-  decisionTaskMap: PropTypes.object.isRequired,
-  job: PropTypes.object,
-  currentRepo: PropTypes.object.isRequired,
+  decisionTaskMap: PropTypes.shape({}).isRequired,
+  job: PropTypes.shape({}),
+  currentRepo: PropTypes.shape({}).isRequired,
 };
 
 CustomJobActions.defaultProps = {

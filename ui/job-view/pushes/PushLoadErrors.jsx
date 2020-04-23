@@ -96,7 +96,10 @@ function PushLoadErrors(props) {
 
 PushLoadErrors.propTypes = {
   loadingPushes: PropTypes.bool.isRequired,
-  currentRepo: PropTypes.object.isRequired,
+  currentRepo: PropTypes.shape({
+    url: PropTypes.string,
+    pushLogUrl: PropTypes.string,
+  }).isRequired,
   repoName: PropTypes.string.isRequired,
   revision: PropTypes.string,
 };

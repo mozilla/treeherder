@@ -77,7 +77,7 @@ export default class Metric extends React.PureComponent {
 Metric.propTypes = {
   result: PropTypes.string.isRequired,
   name: PropTypes.string.isRequired,
-  children: PropTypes.object.isRequired,
+  children: PropTypes.element.isRequired,
   setExpanded: PropTypes.func.isRequired,
   expanded: PropTypes.bool,
 };

@@ -252,10 +252,10 @@ class KeyboardShortcuts extends React.Component {
 }
 
 KeyboardShortcuts.propTypes = {
-  filterModel: PropTypes.object.isRequired,
+  filterModel: PropTypes.shape({}).isRequired,
   pinJob: PropTypes.func.isRequired,
   unPinAll: PropTypes.func.isRequired,
-  children: PropTypes.array.isRequired,
+  children: PropTypes.arrayOf(PropTypes.element).isRequired,
   clearSelectedJob: PropTypes.func.isRequired,
   updateJobDetails: PropTypes.func.isRequired,
   showOnScreenShortcuts: PropTypes.func.isRequired,
@@ -268,9 +268,9 @@ KeyboardShortcuts.propTypes = {
     }),
   ).isRequired,
   notify: PropTypes.func.isRequired,
-  pinnedJobs: PropTypes.object.isRequired,
+  pinnedJobs: PropTypes.shape({}).isRequired,
   clearAllOnScreenNotifications: PropTypes.func.isRequired,
-  selectedJob: PropTypes.object,
+  selectedJob: PropTypes.shape({}),
 };
 
 KeyboardShortcuts.defaultProps = {

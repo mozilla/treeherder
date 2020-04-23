@@ -112,5 +112,8 @@ Revision.propTypes = {
     author: PropTypes.string.isRequired,
     revision: PropTypes.string.isRequired,
   }).isRequired,
-  repo: PropTypes.object.isRequired,
+  repo: PropTypes.shape({
+    url: PropTypes.string,
+    revisionHrefPrefix: PropTypes.string,
+  }).isRequired,
 };

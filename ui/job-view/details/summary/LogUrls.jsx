@@ -46,7 +46,7 @@ export default function LogUrls(props) {
 }
 
 LogUrls.propTypes = {
-  logUrls: PropTypes.array.isRequired,
+  logUrls: PropTypes.arrayOf(PropTypes.object).isRequired,
   logViewerUrl: PropTypes.string,
   logViewerFullUrl: PropTypes.string,
 };

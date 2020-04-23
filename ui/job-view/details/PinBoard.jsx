@@ -647,13 +647,13 @@ class PinBoard extends React.Component {
 
 PinBoard.propTypes = {
   recalculateUnclassifiedCounts: PropTypes.func.isRequired,
-  decisionTaskMap: PropTypes.object.isRequired,
-  jobMap: PropTypes.object.isRequired,
-  classificationTypes: PropTypes.array.isRequired,
+  decisionTaskMap: PropTypes.shape({}).isRequired,
+  jobMap: PropTypes.shape({}).isRequired,
+  classificationTypes: PropTypes.arrayOf(PropTypes.object).isRequired,
   isLoggedIn: PropTypes.bool.isRequired,
   isPinBoardVisible: PropTypes.bool.isRequired,
-  pinnedJobs: PropTypes.object.isRequired,
-  pinnedJobBugs: PropTypes.object.isRequired,
+  pinnedJobs: PropTypes.shape({}).isRequired,
+  pinnedJobBugs: PropTypes.shape({}).isRequired,
   addBug: PropTypes.func.isRequired,
   removeBug: PropTypes.func.isRequired,
   unPinJob: PropTypes.func.isRequired,
@@ -662,12 +662,12 @@ PinBoard.propTypes = {
   setClassificationComment: PropTypes.func.isRequired,
   setSelectedJob: PropTypes.func.isRequired,
   notify: PropTypes.func.isRequired,
-  currentRepo: PropTypes.object.isRequired,
+  currentRepo: PropTypes.shape({}).isRequired,
   failureClassificationId: PropTypes.number.isRequired,
   failureClassificationComment: PropTypes.string.isRequired,
-  selectedJobFull: PropTypes.object,
+  selectedJobFull: PropTypes.shape({}),
   email: PropTypes.string,
-  revisionTips: PropTypes.array,
+  revisionTips: PropTypes.arrayOf(PropTypes.object),
 };
 
 PinBoard.defaultProps = {

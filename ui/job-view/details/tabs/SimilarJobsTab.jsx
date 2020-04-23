@@ -330,9 +330,9 @@ class SimilarJobsTab extends React.Component {
 
 SimilarJobsTab.propTypes = {
   repoName: PropTypes.string.isRequired,
-  classificationMap: PropTypes.object.isRequired,
+  classificationMap: PropTypes.shape({}).isRequired,
   notify: PropTypes.func.isRequired,
-  selectedJobFull: PropTypes.object.isRequired,
+  selectedJobFull: PropTypes.shape({}).isRequired,
 };
 
 export default connect(null, { notify })(SimilarJobsTab);

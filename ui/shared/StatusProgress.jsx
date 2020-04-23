@@ -22,7 +22,7 @@ const StatusProgress = props => {
 };
 
 StatusProgress.propTypes = {
-  counts: PropTypes.object.isRequired,
+  counts: PropTypes.objectOf(PropTypes.number).isRequired,
 };
 
 export default StatusProgress;

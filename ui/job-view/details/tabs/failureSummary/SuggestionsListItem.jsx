@@ -97,7 +97,7 @@ export default class SuggestionsListItem extends React.Component {
 }
 
 SuggestionsListItem.propTypes = {
-  selectedJobFull: PropTypes.object.isRequired,
-  suggestion: PropTypes.object.isRequired,
+  selectedJobFull: PropTypes.shape({}).isRequired,
+  suggestion: PropTypes.shape({}).isRequired,
   toggleBugFiler: PropTypes.func.isRequired,
 };

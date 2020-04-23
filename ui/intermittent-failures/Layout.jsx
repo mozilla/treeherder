@@ -85,14 +85,11 @@ Layout.propTypes = {
   location: PropTypes.shape({
     search: PropTypes.string,
   }).isRequired,
-  datePicker: PropTypes.oneOfType([PropTypes.shape({}), PropTypes.bool]),
+  datePicker: PropTypes.element.isRequired,
   header: PropTypes.oneOfType([PropTypes.shape({}), PropTypes.bool]),
   table: PropTypes.oneOfType([PropTypes.shape({}), PropTypes.bool]),
   graphOneData: PropTypes.arrayOf(PropTypes.shape({})),
-  graphTwoData: PropTypes.arrayOf(
-    PropTypes.arrayOf(PropTypes.shape({})),
-    PropTypes.arrayOf(PropTypes.shape({})),
-  ),
+  graphTwoData: PropTypes.arrayOf(PropTypes.shape({})),
   tableData: PropTypes.arrayOf(PropTypes.shape({})),
   graphData: PropTypes.oneOfType([
     PropTypes.arrayOf(PropTypes.shape({})),
@@ -119,7 +116,6 @@ Layout.defaultProps = {
   tree: null,
   table: null,
   header: null,
-  datePicker: null,
 };
 
 export default Layout;

@@ -47,7 +47,11 @@ export default class JobListMetric extends React.PureComponent {
 }
 
 JobListMetric.propTypes = {
-  data: PropTypes.object.isRequired,
+  data: PropTypes.shape({
+    name: PropTypes.string.isRequired,
+    result: PropTypes.string.isRequired,
+    details: PropTypes.array.isRequired,
+  }).isRequired,
   repo: PropTypes.string.isRequired,
   revision: PropTypes.string.isRequired,
   setExpanded: PropTypes.func.isRequired,

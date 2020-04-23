@@ -365,5 +365,5 @@ export default class Health extends React.PureComponent {
 }
 
 Health.propTypes = {
-  location: PropTypes.object.isRequired,
+  location: PropTypes.shape({}).isRequired,
 };

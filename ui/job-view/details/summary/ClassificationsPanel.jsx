@@ -59,9 +59,9 @@ export default function ClassificationsPanel(props) {
 }
 
 ClassificationsPanel.propTypes = {
-  currentRepo: PropTypes.object.isRequired,
-  classification: PropTypes.object.isRequired,
-  classificationMap: PropTypes.object.isRequired,
-  job: PropTypes.object.isRequired,
-  bugs: PropTypes.array.isRequired,
+  currentRepo: PropTypes.shape({}).isRequired,
+  classification: PropTypes.shape({}).isRequired,
+  classificationMap: PropTypes.shape({}).isRequired,
+  job: PropTypes.shape({}).isRequired,
+  bugs: PropTypes.arrayOf(PropTypes.object).isRequired,
 };

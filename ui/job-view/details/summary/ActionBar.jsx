@@ -612,13 +612,13 @@ class ActionBar extends React.PureComponent {
 
 ActionBar.propTypes = {
   pinJob: PropTypes.func.isRequired,
-  decisionTaskMap: PropTypes.object.isRequired,
-  user: PropTypes.object.isRequired,
-  selectedJobFull: PropTypes.object.isRequired,
+  decisionTaskMap: PropTypes.shape({}).isRequired,
+  user: PropTypes.shape({}).isRequired,
+  selectedJobFull: PropTypes.shape({}).isRequired,
   logParseStatus: PropTypes.string.isRequired,
   notify: PropTypes.func.isRequired,
-  jobLogUrls: PropTypes.array,
-  currentRepo: PropTypes.object.isRequired,
+  jobLogUrls: PropTypes.arrayOf(PropTypes.object),
+  currentRepo: PropTypes.shape({}).isRequired,
   isTryRepo: PropTypes.bool,
   logViewerUrl: PropTypes.string,
   logViewerFullUrl: PropTypes.string,

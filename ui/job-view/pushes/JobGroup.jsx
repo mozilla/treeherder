@@ -171,9 +171,9 @@ export class JobGroupComponent extends React.Component {
 }
 
 JobGroupComponent.propTypes = {
-  group: PropTypes.object.isRequired,
+  group: PropTypes.shape({}).isRequired,
   repoName: PropTypes.string.isRequired,
-  filterModel: PropTypes.object.isRequired,
+  filterModel: PropTypes.shape({}).isRequired,
   filterPlatformCb: PropTypes.func.isRequired,
   pushGroupState: PropTypes.string.isRequired,
   duplicateJobsVisible: PropTypes.bool.isRequired,

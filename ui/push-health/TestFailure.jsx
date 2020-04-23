@@ -248,8 +248,10 @@ TestFailure.propTypes = {
     key: PropTypes.string.isRequired,
   }).isRequired,
   repo: PropTypes.string.isRequired,
-  currentRepo: PropTypes.object.isRequired,
-  user: PropTypes.object.isRequired,
+  currentRepo: PropTypes.shape({}).isRequired,
+  user: PropTypes.shape({
+    isLoggedIn: PropTypes.bool,
+  }).isRequired,
   revision: PropTypes.string.isRequired,
   notify: PropTypes.func.isRequired,
   groupedBy: PropTypes.string.isRequired,

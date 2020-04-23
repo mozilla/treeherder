@@ -224,6 +224,10 @@ export default class WatchedRepo extends React.Component {
 WatchedRepo.propTypes = {
   repoName: PropTypes.string.isRequired,
   unwatchRepo: PropTypes.func.isRequired,
-  repo: PropTypes.object.isRequired,
+  repo: PropTypes.shape({
+    name: PropTypes.string,
+    dvcs_type: PropTypes.string,
+    pushLogUrl: PropTypes.string,
+  }).isRequired,
   setCurrentRepoTreeStatus: PropTypes.func.isRequired,
 };
