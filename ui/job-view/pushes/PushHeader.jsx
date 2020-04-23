@@ -106,7 +106,6 @@ class PushHeader extends React.Component {
     const {
       jobCounts: prevJobCounts,
       watchState: prevWatchState,
-      isLoggedIn: prevIsLoggedIn,
       selectedRunnableJobs: prevSelectedRunnableJobs,
       runnableVisible: prevRunnableVisible,
       collapsed: prevCollapsed,
@@ -117,7 +116,6 @@ class PushHeader extends React.Component {
     const {
       jobCounts,
       watchState,
-      isLoggedIn,
       selectedRunnableJobs,
       runnableVisible,
       collapsed,
@@ -129,7 +127,6 @@ class PushHeader extends React.Component {
     return (
       !isEqual(prevJobCounts, jobCounts) ||
       prevWatchState !== watchState ||
-      prevIsLoggedIn !== isLoggedIn ||
       prevSelectedRunnableJobs !== selectedRunnableJobs ||
       prevRunnableVisible !== runnableVisible ||
       prevCollapsed !== collapsed ||
@@ -151,7 +148,6 @@ class PushHeader extends React.Component {
 
   triggerNewJobs = async () => {
     const {
-      isLoggedIn,
       pushId,
       selectedRunnableJobs,
       hideRunnableJobs,
@@ -167,25 +163,17 @@ class PushHeader extends React.Component {
     ) {
       return;
     }
-    if (isLoggedIn) {
-      const { id: decisionTaskId } = decisionTaskMap[pushId];
+    const { id: decisionTaskId } = decisionTaskMap[pushId];
 
-      PushModel.triggerNewJobs(
-        selectedRunnableJobs,
-        decisionTaskId,
-        currentRepo,
-      )
-        .then(result => {
-          notify(result, 'success');
-          hideRunnableJobs(pushId);
-          this.props.hideRunnableJobs();
-        })
-        .catch(e => {
-          notify(formatTaskclusterError(e), 'danger', { sticky: true });
-        });
-    } else {
-      notify('Must be logged in to trigger a job', 'danger');
-    }
+    PushModel.triggerNewJobs(selectedRunnableJobs, decisionTaskId, currentRepo)
+      .then(result => {
+        notify(result, 'success');
+        hideRunnableJobs(pushId);
+        this.props.hideRunnableJobs();
+      })
+      .catch(e => {
+        notify(formatTaskclusterError(e), 'danger', { sticky: true });
+      });
   };
 
   cancelAllJobs = () => {
@@ -194,15 +182,7 @@ class PushHeader extends React.Component {
         'This will cancel all pending and running jobs for this push. It cannot be undone! Are you sure?',
       )
     ) {
-      const {
-        notify,
-        push,
-        isLoggedIn,
-        decisionTaskMap,
-        currentRepo,
-      } = this.props;
-
-      if (!isLoggedIn) return;
+      const { notify, push, decisionTaskMap, currentRepo } = this.props;
 
       JobModel.cancelAll(
         push.id,
@@ -258,7 +238,6 @@ class PushHeader extends React.Component {
 
   render() {
     const {
-      isLoggedIn,
       pushId,
       jobCounts,
       author,
@@ -276,9 +255,7 @@ class PushHeader extends React.Component {
       currentRepo,
       pushHealthStatusCallback,
     } = this.props;
-    const cancelJobsTitle = isLoggedIn
-      ? 'Cancel all jobs'
-      : 'Must be logged in to cancel jobs';
+    const cancelJobsTitle = 'Cancel all jobs';
     const linkParams = this.getLinkParams();
     const revisionPushFilterUrl = getJobsUrl({ ...linkParams, revision });
     const authorPushFilterUrl = getJobsUrl({ ...linkParams, author });
@@ -348,21 +325,19 @@ class PushHeader extends React.Component {
                 {watchStateLabel}
               </button>
             )}
-            {isLoggedIn && (
-              <button
-                type="button"
-                className="btn btn-sm btn-push cancel-all-jobs-btn"
-                title={cancelJobsTitle}
-                onClick={this.cancelAllJobs}
-                aria-label={cancelJobsTitle}
-              >
-                <FontAwesomeIcon
-                  icon={faTimesCircle}
-                  className="dim-quarter"
-                  title="Cancel jobs"
-                />
-              </button>
-            )}
+            <button
+              type="button"
+              className="btn btn-sm btn-push cancel-all-jobs-btn"
+              title={cancelJobsTitle}
+              onClick={this.cancelAllJobs}
+              aria-label={cancelJobsTitle}
+            >
+              <FontAwesomeIcon
+                icon={faTimesCircle}
+                className="dim-quarter"
+                title="Cancel jobs"
+              />
+            </button>
             <button
               type="button"
               className="btn btn-sm btn-push pin-all-jobs-btn"
@@ -386,7 +361,6 @@ class PushHeader extends React.Component {
               </Button>
             )}
             <PushActionMenu
-              isLoggedIn={isLoggedIn}
               runnableVisible={runnableVisible}
               revision={revision}
               currentRepo={currentRepo}
@@ -416,7 +390,6 @@ PushHeader.propTypes = {
   hideRunnableJobs: PropTypes.func.isRequired,
   showFuzzyJobs: PropTypes.func.isRequired,
   cycleWatchState: PropTypes.func.isRequired,
-  isLoggedIn: PropTypes.bool.isRequired,
   setSelectedJob: PropTypes.func.isRequired,
   pinJobs: PropTypes.func.isRequired,
   expandAllPushGroups: PropTypes.func.isRequired,
