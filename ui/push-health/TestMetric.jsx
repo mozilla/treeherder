@@ -12,7 +12,6 @@ export default class TestMetric extends React.PureComponent {
       data,
       repo,
       revision,
-      user,
       notify,
       currentRepo,
       expanded,
@@ -57,7 +56,6 @@ export default class TestMetric extends React.PureComponent {
               filteredNeedInvestigation.length ? 'danger' : 'darker-secondary'
             }
             unfilteredLength={needInvestigation.length}
-            user={user}
             hasRetriggerAll
             notify={notify}
           />
@@ -71,7 +69,6 @@ export default class TestMetric extends React.PureComponent {
             headerColor="darker-secondary"
             unfilteredLength={knownIssues.length}
             expanded={false}
-            user={user}
             hasRetriggerAll
             notify={notify}
           />
@@ -100,7 +97,6 @@ TestMetric.propTypes = {
       unsupported: PropTypes.array.isRequired,
     }).isRequired,
   }).isRequired,
-  user: PropTypes.shape({}).isRequired,
   repo: PropTypes.string.isRequired,
   currentRepo: PropTypes.shape({}).isRequired,
   revision: PropTypes.string.isRequired,

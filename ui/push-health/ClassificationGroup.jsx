@@ -86,7 +86,6 @@ class ClassificationGroup extends React.PureComponent {
       revision,
       className,
       headerColor,
-      user,
       hasRetriggerAll,
       notify,
       currentRepo,
@@ -230,7 +229,6 @@ class ClassificationGroup extends React.PureComponent {
               group={group}
               repo={repo}
               revision={revision}
-              user={user}
               groupedBy={groupedBy}
               orderedBy={orderedBy}
               currentRepo={currentRepo}
@@ -249,7 +247,6 @@ ClassificationGroup.propTypes = {
   repo: PropTypes.string.isRequired,
   currentRepo: PropTypes.shape({}).isRequired,
   revision: PropTypes.string.isRequired,
-  user: PropTypes.shape({}).isRequired,
   notify: PropTypes.func.isRequired,
   unfilteredLength: PropTypes.number.isRequired,
   hasRetriggerAll: PropTypes.bool,

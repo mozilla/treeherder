@@ -43,7 +43,6 @@ class GroupedTests extends PureComponent {
       group,
       repo,
       revision,
-      user,
       notify,
       currentRepo,
       orderedBy,
@@ -105,7 +104,6 @@ class GroupedTests extends PureComponent {
                     repo={repo}
                     currentRepo={currentRepo}
                     revision={revision}
-                    user={user}
                     notify={notify}
                     groupedBy={groupedBy}
                     className="ml-3"
@@ -126,7 +124,6 @@ GroupedTests.propTypes = {
   revision: PropTypes.string.isRequired,
   repo: PropTypes.string.isRequired,
   currentRepo: PropTypes.shape({}).isRequired,
-  user: PropTypes.shape({}).isRequired,
   notify: PropTypes.func.isRequired,
 };
 

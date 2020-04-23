@@ -339,7 +339,6 @@ export default class Health extends React.PureComponent {
                   repo={repo}
                   currentRepo={currentRepo}
                   revision={revision}
-                  user={user}
                   notify={this.notify}
                   expanded={testsExpanded}
                   setExpanded={this.setExpanded}
