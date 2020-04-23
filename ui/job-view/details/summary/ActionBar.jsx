@@ -601,7 +601,6 @@ class ActionBar extends React.PureComponent {
             job={selectedJobFull}
             pushId={selectedJobFull.push_id}
             currentRepo={currentRepo}
-            isLoggedIn={user.isLoggedIn}
             toggle={this.toggleCustomJobActions}
           />
         )}

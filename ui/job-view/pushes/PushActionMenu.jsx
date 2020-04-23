@@ -210,7 +210,6 @@ class PushActionMenu extends React.PureComponent {
           <CustomJobActions
             job={null}
             pushId={pushId}
-            isLoggedIn={isLoggedIn}
             currentRepo={currentRepo}
             toggle={this.toggleCustomJobActions}
           />
