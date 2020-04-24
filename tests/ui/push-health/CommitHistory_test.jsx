@@ -1,6 +1,6 @@
 import React from 'react';
 import fetchMock from 'fetch-mock';
-import { render, cleanup, waitForElement } from '@testing-library/react';
+import { render, cleanup, waitFor } from '@testing-library/react';
 
 import CommitHistory from '../../../ui/push-health/CommitHistory';
 import pushHealth from '../mock/push_health';
@@ -40,13 +40,11 @@ describe('CommitHistory', () => {
     expect(parentLink).toBeInTheDocument();
     expect(parentLink.text).toBe('eeb6fd68c0223a72d8714734a34d3e6da69995e1');
     expect(
-      await waitForElement(() =>
+      await waitFor(() =>
         queryByTestId('health-status-eeb6fd68c0223a72d8714734a34d3e6da69995e1'),
       ),
     ).toBeInTheDocument();
-    expect(
-      await waitForElement(() => getByText('87 items')),
-    ).toBeInTheDocument();
+    expect(await waitFor(() => getByText('87 items'))).toBeInTheDocument();
   });
 
   test('should show warning if not exact commit match', async () => {
@@ -91,7 +89,7 @@ describe('CommitHistory', () => {
       testCommitHistory(commitHistory),
     );
     expect(
-      await waitForElement(() =>
+      await waitFor(() =>
         getByText(
           'Warning: Could not find an exact match parent Push in Treeherder.',
         ),

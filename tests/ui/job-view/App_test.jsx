@@ -1,11 +1,6 @@
 import React from 'react';
 import fetchMock from 'fetch-mock';
-import {
-  render,
-  cleanup,
-  waitForElement,
-  fireEvent,
-} from '@testing-library/react';
+import { render, waitFor, fireEvent } from '@testing-library/react';
 
 import App from '../../../ui/job-view/App';
 import reposFixture from '../mock/repositories';
@@ -31,7 +26,7 @@ describe('App', () => {
     });
 
     fetchMock.get(
-      getProjectUrl('/push/?full=true&count=10', repoName),
+      `begin:${getProjectUrl('/push/?full=true&count=', repoName)}`,
       pushListFixture,
     );
     fetchMock.get(getProjectUrl('/push/?full=true&count=10', 'try'), {
@@ -84,19 +79,14 @@ describe('App', () => {
     });
   });
 
-  afterAll(() => cleanup);
-
   test('changing repo updates ``currentRepo``', async () => {
     setUrlParam('repo', repoName);
     const { getByText } = render(<App />);
-    const revisionDefault = await waitForElement(() =>
-      getByText('ba9c692786e9'),
-    );
 
-    expect(revisionDefault).toBeInTheDocument();
+    await waitFor(() => expect(getByText('fb66bad25e85')).toBeInTheDocument());
 
     setUrlParam('repo', 'try');
-    await waitForElement(() => getByText('333333333333'));
+    await waitFor(() => getByText('333333333333'));
 
     expect(document.querySelector('.revision a').getAttribute('href')).toBe(
       'https://hg.mozilla.org/try/rev/3333333333335143b8df3f4b3e9b504dfbc589a0',
@@ -105,15 +95,15 @@ describe('App', () => {
 
   test('should have links to Perfherder and Intermittent Failures View', async () => {
     const { getByText, getByAltText } = render(<App />);
-    const appMenu = await waitForElement(() => getByAltText('Treeherder'));
+    const appMenu = await waitFor(() => getByAltText('Treeherder'));
 
     expect(appMenu).toBeInTheDocument();
     fireEvent.click(appMenu);
 
-    const phMenu = await waitForElement(() => getByText('Perfherder'));
+    const phMenu = await waitFor(() => getByText('Perfherder'));
     expect(phMenu.getAttribute('href')).toBe('/perf.html');
 
-    const ifvMenu = await waitForElement(() =>
+    const ifvMenu = await waitFor(() =>
       getByText('Intermittent Failures View'),
     );
     expect(ifvMenu.getAttribute('href')).toBe('/intermittent-failures.html');

@@ -1,5 +1,5 @@
 import React from 'react';
-import { render, waitForElement } from '@testing-library/react';
+import { render, waitFor } from '@testing-library/react';
 
 import pushHealth from '../mock/push_health';
 import GroupedTests from '../../../ui/push-health/GroupedTests';
@@ -26,9 +26,9 @@ describe('GroupedTests', () => {
       testGroupedTests(tests, 'path', 'count', ''),
     );
 
-    expect(
-      await waitForElement(() => getAllByTestId('test-grouping')),
-    ).toHaveLength(2);
+    expect(await waitFor(() => getAllByTestId('test-grouping'))).toHaveLength(
+      2,
+    );
   });
 
   test('should group by platform', async () => {
@@ -36,8 +36,8 @@ describe('GroupedTests', () => {
       testGroupedTests(tests, 'platform', 'count', ''),
     );
 
-    expect(
-      await waitForElement(() => getAllByTestId('test-grouping')),
-    ).toHaveLength(12);
+    expect(await waitFor(() => getAllByTestId('test-grouping'))).toHaveLength(
+      12,
+    );
   });
 });

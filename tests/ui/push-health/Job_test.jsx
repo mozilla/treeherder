@@ -1,5 +1,5 @@
 import React from 'react';
-import { render, waitForElement } from '@testing-library/react';
+import { render, waitFor } from '@testing-library/react';
 
 import Job from '../../../ui/push-health/Job';
 import pushHealth from '../mock/push_health';
@@ -21,7 +21,7 @@ describe('Job', () => {
 
   test('should show a failed job in NeedsInvestigation', async () => {
     const { getByText } = render(testJob(failJob));
-    const job = await waitForElement(() => getByText('R1'));
+    const job = await waitFor(() => getByText('R1'));
 
     expect(job.getAttribute('href')).toBe(
       '/#/jobs?selectedJob=285852125&repo=try&revision=cd02b96bdce57d9ae53b632ca4740c871d3ecc32',
@@ -31,7 +31,7 @@ describe('Job', () => {
 
   test('should show a success job in Intermitten', async () => {
     const { getByText } = render(testJob(passJob));
-    const job = await waitForElement(() => getByText('bc6'));
+    const job = await waitFor(() => getByText('bc6'));
 
     expect(job.getAttribute('href')).toBe(
       '/#/jobs?selectedJob=285859045&repo=try&revision=cd02b96bdce57d9ae53b632ca4740c871d3ecc32',
@@ -41,7 +41,7 @@ describe('Job', () => {
 
   test('should show a success job in Builds', async () => {
     const { getByText } = render(testJob(failBuild));
-    const job = await waitForElement(() => getByText('arm64'));
+    const job = await waitFor(() => getByText('arm64'));
 
     expect(job.getAttribute('href')).toBe(
       '/#/jobs?selectedJob=294399307&repo=try&revision=cd02b96bdce57d9ae53b632ca4740c871d3ecc32',

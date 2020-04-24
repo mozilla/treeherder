@@ -1,6 +1,6 @@
 import React from 'react';
 import fetchMock from 'fetch-mock';
-import { render, cleanup, waitForElement } from '@testing-library/react';
+import { render, cleanup, waitFor } from '@testing-library/react';
 
 import Usage from '../../../ui/push-health/Usage';
 import healthUsage from '../mock/health_usage';
@@ -19,14 +19,14 @@ describe('Usage', () => {
 
   test('should show 10 facets', async () => {
     const { getAllByTestId } = render(<Usage />);
-    const facets = await waitForElement(() => getAllByTestId('facet-link'));
+    const facets = await waitFor(() => getAllByTestId('facet-link'));
 
     expect(facets).toHaveLength(10);
   });
 
   test('should show details about each revision', async () => {
     const { getByTestId } = render(<Usage />);
-    const facet = await waitForElement(() => getByTestId(`facet-${revision}`));
+    const facet = await waitFor(() => getByTestId(`facet-${revision}`));
     const { children } = facet;
 
     expect(children[0].children[0].text).toBe(revision);

@@ -1,6 +1,6 @@
 import React from 'react';
 import fetchMock from 'fetch-mock';
-import { render, cleanup, waitForElement } from '@testing-library/react';
+import { render, cleanup, waitFor } from '@testing-library/react';
 
 import { replaceLocation, setUrlParam } from '../../../ui/helpers/location';
 import UnsupportedJob from '../../../ui/push-health/UnsupportedJob';
@@ -112,27 +112,21 @@ describe('UnsupportedJob', () => {
   test('should show the job symbol', async () => {
     const { getByText } = render(testTestFailure(unclassifiedJob));
 
-    expect(await waitForElement(() => getByText('R7'))).toBeInTheDocument();
+    expect(await waitFor(() => getByText('R7'))).toBeInTheDocument();
   });
 
   test('A classified job should have a star', async () => {
     const { getByTitle } = render(testTestFailure(classifiedJob));
 
-    expect(
-      await waitForElement(() => getByTitle('Classified')),
-    ).toBeInTheDocument();
+    expect(await waitFor(() => getByTitle('Classified'))).toBeInTheDocument();
   });
 
   test('Jobs should have a log link and a bug create link', async () => {
     const { getByTitle } = render(testTestFailure(unclassifiedJob));
 
     expect(
-      await waitForElement(() =>
-        getByTitle('Open the Log Viewer for this job'),
-      ),
+      await waitFor(() => getByTitle('Open the Log Viewer for this job')),
     ).toBeInTheDocument();
-    expect(
-      await waitForElement(() => getByTitle('File bug')),
-    ).toBeInTheDocument();
+    expect(await waitFor(() => getByTitle('File bug'))).toBeInTheDocument();
   });
 });

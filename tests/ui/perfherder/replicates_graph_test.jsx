@@ -1,5 +1,5 @@
 import React from 'react';
-import { render, cleanup, waitForElement } from '@testing-library/react';
+import { render, cleanup, waitFor } from '@testing-library/react';
 
 import ReplicatesGraph from '../../../ui/perfherder/compare/ReplicatesGraph';
 import { noDataFoundMessage } from '../../../ui/perfherder/constants';
@@ -208,10 +208,10 @@ test('graph with available data displays properly', async () => {
     successfulGetReplicateData,
   );
 
-  const graphHeader = await waitForElement(() =>
+  const graphHeader = await waitFor(() =>
     getByText('Test replicates over 1 run'),
   );
-  const yAxisLegendUpperValue = await waitForElement(() => getByText('400'));
+  const yAxisLegendUpperValue = await waitFor(() => getByText('400'));
 
   expect(graphHeader).toBeInTheDocument();
   expect(yAxisLegendUpperValue).toBeInTheDocument();
@@ -219,7 +219,7 @@ test('graph with available data displays properly', async () => {
   const numRuns = mockedReplicateData.suites[0].subtests[0].replicates.length;
   const expectedIndexes = Array.from(Array(numRuns).keys());
 
-  const xAxisUpperValue = await waitForElement(() =>
+  const xAxisUpperValue = await waitFor(() =>
     // 0 isn't listed as an x axis index
     getByText(expectedIndexes.length.toString()),
   );
@@ -233,7 +233,7 @@ test('graph with no data displays a message', async () => {
     failingGetReplicateData,
   );
 
-  const noDataMsg = await waitForElement(() =>
+  const noDataMsg = await waitFor(() =>
     getByText(noDataFoundMessage('Test replicates')),
   );
   const legendNumbers = queryByText(/[0-9]+/);

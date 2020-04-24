@@ -1,10 +1,5 @@
 import React from 'react';
-import {
-  cleanup,
-  fireEvent,
-  render,
-  waitForElement,
-} from '@testing-library/react';
+import { cleanup, fireEvent, render, waitFor } from '@testing-library/react';
 
 import SelectorCard from '../../../ui/perfherder/compare/SelectorCard';
 import { selectorCardText } from '../../../ui/perfherder/constants';
@@ -53,7 +48,7 @@ test('correct hash for input value is valid', async () => {
 
   const { getByPlaceholderText, queryByText } = renderResult;
 
-  const inputRevision = await waitForElement(() =>
+  const inputRevision = await waitFor(() =>
     getByPlaceholderText(selectorCardText.revisionPlaceHolder),
   );
   expect(inputRevision).toBeInTheDocument();
@@ -73,7 +68,7 @@ test('hash with whitespaces for input value is valid', async () => {
 
   const { getByPlaceholderText, queryByText } = renderResult;
 
-  const inputRevision = await waitForElement(() =>
+  const inputRevision = await waitFor(() =>
     getByPlaceholderText(selectorCardText.revisionPlaceHolder),
   );
 
@@ -92,7 +87,7 @@ test('incorrect hash for input value is invalid', async () => {
   );
 
   const { getByPlaceholderText, queryByText } = renderResult;
-  const inputRevision = await waitForElement(() =>
+  const inputRevision = await waitFor(() =>
     getByPlaceholderText(selectorCardText.revisionPlaceHolder),
   );
   expect(inputRevision).toBeInTheDocument();

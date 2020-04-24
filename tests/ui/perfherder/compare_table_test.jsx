@@ -4,7 +4,7 @@ import {
   render,
   cleanup,
   fireEvent,
-  waitForElement,
+  waitFor,
   waitForElementToBeRemoved,
 } from '@testing-library/react';
 
@@ -145,8 +145,8 @@ const comparePageTitle = () =>
 test('toggle buttons should filter results by selected filter', async () => {
   const { getByText } = compareTableControls();
 
-  const result1 = await waitForElement(() => getByText(result[0].name));
-  const result2 = await waitForElement(() => getByText(result[1].name));
+  const result1 = await waitFor(() => getByText(result[0].name));
+  const result2 = await waitFor(() => getByText(result[1].name));
 
   // default - no filters selected
   expect(result1).toBeInTheDocument();
@@ -178,10 +178,10 @@ test('text input filter results should differ when filter button(s) are selected
     queryByText,
   } = compareTableControls();
 
-  const result1 = await waitForElement(() => getByText(result[0].name));
-  const result2 = await waitForElement(() => getByText(result[1].name));
+  const result1 = await waitFor(() => getByText(result[0].name));
+  const result2 = await waitFor(() => getByText(result[1].name));
 
-  const filterInput = await waitForElement(() =>
+  const filterInput = await waitFor(() =>
     getByPlaceholderText(filterText.inputPlaceholder),
   );
 
@@ -202,10 +202,8 @@ test('text input filter results should differ when filter button(s) are selected
 test('table header & rows all have hash-based ids', async () => {
   const { getByLabelText, getAllByLabelText } = compareTableControls();
 
-  const compareTable = await waitForElement(() =>
-    getByLabelText('Comparison table'),
-  );
-  const compareTableRows = await waitForElement(() =>
+  const compareTable = await waitFor(() => getByLabelText('Comparison table'));
+  const compareTableRows = await waitFor(() =>
     getAllByLabelText('Comparison table row'),
   );
 
@@ -234,10 +232,10 @@ test('table header & rows all have hash-based ids', async () => {
 test('clicking compare table permalinks callbacks with unique hash-based ids', async () => {
   const { getByTitle, getAllByTitle } = compareTableControls();
 
-  const compareTablePermalink = await waitForElement(() =>
+  const compareTablePermalink = await waitFor(() =>
     getByTitle('Permalink to this test table'),
   );
-  const compareTableRowPermalinks = await waitForElement(() =>
+  const compareTableRowPermalinks = await waitFor(() =>
     getAllByTitle('Permalink to this test'),
   );
 
@@ -279,9 +277,7 @@ test('retrigger should trigger jobs for base and new repositories', async () => 
   expect(retriggerButtons).toHaveLength(2);
   await fireEvent.click(retriggerButtons[0]);
 
-  const retriggerButtonModal = await waitForElement(() =>
-    getByText('Retrigger'),
-  );
+  const retriggerButtonModal = await waitFor(() => getByText('Retrigger'));
   expect(retriggerButtonModal).toBeInTheDocument();
   await fireEvent.click(retriggerButtonModal);
 
@@ -303,9 +299,7 @@ test('retrigger should only work on new repo when base is aggregate', async () =
 
   expect(retriggerButtons).toHaveLength(1);
   await fireEvent.click(retriggerButtons[0]);
-  const retriggerButtonModal = await waitForElement(() =>
-    getByText('Retrigger'),
-  );
+  const retriggerButtonModal = await waitFor(() => getByText('Retrigger'));
   expect(retriggerButtonModal).toBeInTheDocument();
   await fireEvent.click(retriggerButtonModal);
 
@@ -350,25 +344,25 @@ test('Button hides when clicking on it and a Input is displayed', async () => {
 test('clicking the title button does not change the title', async () => {
   const { getByText, getByDisplayValue } = comparePageTitle();
 
-  const pageTitleDefaultText = await waitForElement(() =>
+  const pageTitleDefaultText = await waitFor(() =>
     getByText('Perfherder Compare Revisions'),
   );
 
   fireEvent.click(pageTitleDefaultText);
-  await waitForElement(() => getByDisplayValue('Perfherder Compare Revisions'));
+  await waitFor(() => getByDisplayValue('Perfherder Compare Revisions'));
 
-  await waitForElement(() => getByDisplayValue('Perfherder Compare Revisions'));
+  await waitFor(() => getByDisplayValue('Perfherder Compare Revisions'));
 });
 
 test('setting a title on page updates the title accordingly', async () => {
   const { getByText, getByDisplayValue } = comparePageTitle();
 
-  const pageTitleDefaultText = await waitForElement(() =>
+  const pageTitleDefaultText = await waitFor(() =>
     getByText('Perfherder Compare Revisions'),
   );
 
   fireEvent.click(pageTitleDefaultText);
-  const inputField = await waitForElement(() =>
+  const inputField = await waitFor(() =>
     getByDisplayValue('Perfherder Compare Revisions'),
   );
   fireEvent.change(inputField, {
@@ -379,18 +373,18 @@ test('setting a title on page updates the title accordingly', async () => {
   fireEvent.keyPress(inputField, { key: 'Enter', keyCode: 13 });
 
   // ensure this updated the title
-  await waitForElement(() => getByDisplayValue('some new value'));
+  await waitFor(() => getByDisplayValue('some new value'));
 });
 
 test('re-editing the title is possible', async () => {
   const { getByText, getByDisplayValue } = comparePageTitle();
 
-  const pageTitleDefaultText = await waitForElement(() =>
+  const pageTitleDefaultText = await waitFor(() =>
     getByText('Perfherder Compare Revisions'),
   );
 
   fireEvent.click(pageTitleDefaultText);
-  const inputField = await waitForElement(() =>
+  const inputField = await waitFor(() =>
     getByDisplayValue('Perfherder Compare Revisions'),
   );
   fireEvent.change(inputField, {
@@ -398,24 +392,24 @@ test('re-editing the title is possible', async () => {
   });
   fireEvent.keyPress(inputField, { key: 'Enter', keyCode: 13 });
 
-  await waitForElement(() => getByDisplayValue('some new value'));
+  await waitFor(() => getByDisplayValue('some new value'));
   fireEvent.change(inputField, {
     target: { value: 'another new value' },
   });
   fireEvent.keyPress(inputField, { key: 'Enter', keyCode: 13 });
 
-  await waitForElement(() => getByDisplayValue('another new value'));
+  await waitFor(() => getByDisplayValue('another new value'));
 });
 
 test("'Escape' from partially edited title does not update original title", async () => {
   const { getByText, getByDisplayValue } = comparePageTitle();
 
-  const pageTitleDefaultText = await waitForElement(() =>
+  const pageTitleDefaultText = await waitFor(() =>
     getByText('Perfherder Compare Revisions'),
   );
 
   fireEvent.click(pageTitleDefaultText);
-  const inputField = await waitForElement(() =>
+  const inputField = await waitFor(() =>
     getByDisplayValue('Perfherder Compare Revisions'),
   );
   fireEvent.change(inputField, {
@@ -423,5 +417,5 @@ test("'Escape' from partially edited title does not update original title", asyn
   });
   fireEvent.keyDown(inputField, { key: 'Escape' });
 
-  await waitForElement(() => getByText('Perfherder Compare Revisions'));
+  await waitFor(() => getByText('Perfherder Compare Revisions'));
 });

@@ -1,12 +1,7 @@
 import React from 'react';
 import { Provider } from 'react-redux';
 import fetchMock from 'fetch-mock';
-import {
-  render,
-  cleanup,
-  waitForElement,
-  fireEvent,
-} from '@testing-library/react';
+import { render, cleanup, waitFor, fireEvent } from '@testing-library/react';
 
 import JobModel from '../../../../ui/models/job';
 import DetailsPanel from '../../../../ui/job-view/details/DetailsPanel';
@@ -106,12 +101,10 @@ describe('DetailsPanel', () => {
     const { getByTitle } = render(testDetailsPanel(store));
     store.dispatch(setSelectedJob(jobList.data[1], true));
 
-    fireEvent.click(await waitForElement(() => getByTitle('Pin job')));
+    fireEvent.click(await waitFor(() => getByTitle('Pin job')));
 
-    expect(
-      await waitForElement(() => getByTitle('Unpin job')),
-    ).toBeInTheDocument();
-    const pinnedJob = await waitForElement(() =>
+    expect(await waitFor(() => getByTitle('Unpin job'))).toBeInTheDocument();
+    const pinnedJob = await waitFor(() =>
       getByTitle('build-android-api-16/debug - busted - 18 mins'),
     );
     // Verify the pinned job is a descendent of the pinned-job-list
@@ -122,7 +115,7 @@ describe('DetailsPanel', () => {
     const { getByTitle, getByTestId } = render(testDetailsPanel(store));
     store.dispatch(setSelectedJob(jobList.data[1], true));
 
-    const hotkeys = await waitForElement(() => getByTestId('hot-keys-id'));
+    const hotkeys = await waitFor(() => getByTestId('hot-keys-id'));
     const keyDownEvent = new Event('keydown');
     keyDownEvent.keyCode = 32;
     keyDownEvent.key = 'Space';
@@ -130,7 +123,7 @@ describe('DetailsPanel', () => {
     hotkeys.focus();
     hotkeys.dispatchEvent(keyDownEvent);
 
-    const pinnedJob = await waitForElement(() =>
+    const pinnedJob = await waitFor(() =>
       getByTitle('build-android-api-16/debug - busted - 18 mins'),
     );
     // Verify the pinned job is a descendent of the pinned-job-list
@@ -141,11 +134,11 @@ describe('DetailsPanel', () => {
     const { getByTitle, getByText } = render(testDetailsPanel(store));
     store.dispatch(setSelectedJob(jobList.data[1], true));
 
-    fireEvent.click(await waitForElement(() => getByTitle('Pin job')));
+    fireEvent.click(await waitFor(() => getByTitle('Pin job')));
 
-    const unPinJobBtn = await waitForElement(() => getByTitle('Unpin job'));
+    const unPinJobBtn = await waitFor(() => getByTitle('Unpin job'));
     expect(unPinJobBtn).toBeInTheDocument();
-    const pinnedJob = await waitForElement(() =>
+    const pinnedJob = await waitFor(() =>
       getByTitle('build-android-api-16/debug - busted - 18 mins'),
     );
     fireEvent.click(getByTitle('Additional pinboard functions'));
@@ -158,9 +151,7 @@ describe('DetailsPanel', () => {
     const { queryAllByTitle } = render(testDetailsPanel(store));
     store.dispatch(pinJobs(jobList.data));
 
-    const unPinJobBtns = await waitForElement(() =>
-      queryAllByTitle('Unpin job'),
-    );
+    const unPinJobBtns = await waitFor(() => queryAllByTitle('Unpin job'));
     expect(unPinJobBtns).toHaveLength(4);
   });
 });

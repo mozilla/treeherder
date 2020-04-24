@@ -4,6 +4,7 @@ import {
   cleanup,
   fireEvent,
   waitForElement,
+  waitFor,
 } from '@testing-library/react';
 import fetchMock from 'fetch-mock';
 import queryString from 'query-string';
@@ -105,7 +106,7 @@ test('Changing the platform dropdown in the Test Data Model displays expected te
   const platform = getByTitle('Platform');
   fireEvent.click(platform);
 
-  const windowsPlatform = await waitForElement(() => getByText('windows7-32'));
+  const windowsPlatform = await waitFor(() => getByText('windows7-32'));
   fireEvent.click(windowsPlatform);
 
   // 'mozilla-central windows7-32 a11yr opt e10s stylo'
@@ -142,12 +143,12 @@ test('Selecting a test in the Test Data Modal adds it to Selected Tests section;
 
   const selectedTests = getByTestId('selectedTests');
 
-  const testToSelect = await waitForElement(() =>
+  const testToSelect = await waitFor(() =>
     getByText('about_preferences_basic opt e10s stylo'),
   );
   fireEvent.click(testToSelect);
 
-  const fullTestToSelect = await waitForElement(() =>
+  const fullTestToSelect = await waitFor(() =>
     getByText('mozilla-central linux64 about_preferences_basic opt e10s stylo'),
   );
   fireEvent.click(fullTestToSelect);
@@ -168,12 +169,12 @@ test('InputFilter from TestDataModal can filter by tags', async () => {
 
   fireEvent.click(getByText('Add test data'));
 
-  const textInput = await waitForElement(() =>
+  const textInput = await waitFor(() =>
     getByPlaceholderText(filterText.inputPlaceholder),
   );
   setFilterText(textInput, tag);
 
-  const fullTestToSelect = await waitForElement(() => getByTitle(name));
+  const fullTestToSelect = await waitFor(() => getByTitle(name));
 
   fireEvent.click(fullTestToSelect);
 
@@ -189,9 +190,7 @@ test("Selectable tests with different units than what's already plotted show war
   fireEvent.click(getByText('Add test data'));
 
   // dromaeo_dom's unit is "score", while other tests don't have any
-  const mismatchedTests = await waitForElement(() =>
-    getAllByTitle(/^Warning:.*/i),
-  );
+  const mismatchedTests = await waitFor(() => getAllByTitle(/^Warning:.*/i));
 
   expect(mismatchedTests).toHaveLength(1);
 });
@@ -201,15 +200,13 @@ test("Selecting a test with similar unit in the Test Data Modal doesn't give war
 
   fireEvent.click(getByText('Add test data'));
 
-  const matchingTest = await waitForElement(() =>
+  const matchingTest = await waitFor(() =>
     getByTestId(seriesData[1].id.toString()),
   );
 
   fireEvent.click(matchingTest);
 
-  const mismatchedTests = await waitForElement(() =>
-    queryAllByTitle(/^Warning:.*/i),
-  );
+  const mismatchedTests = await waitFor(() => queryAllByTitle(/^Warning:.*/i));
 
   // no extra warnings were added in selected tests' section
   expect(mismatchedTests).toHaveLength(1);
@@ -218,19 +215,17 @@ test("Selecting a test with similar unit in the Test Data Modal doesn't give war
 test('Using select query param displays tooltip for correct datapoint', async () => {
   const { getByTestId, getByText } = graphsViewControls(graphData, false);
 
-  const graphContainer = await waitForElement(() =>
-    getByTestId('graphContainer'),
-  );
+  const graphContainer = await waitFor(() => getByTestId('graphContainer'));
 
   expect(graphContainer).toBeInTheDocument();
 
-  const graphTooltip = await waitForElement(() => getByTestId('graphTooltip'));
+  const graphTooltip = await waitFor(() => getByTestId('graphTooltip'));
   const expectedRevision = '3afb892abb74c6d281f3e66431408cbb2e16b8c4';
-  const revision = await waitForElement(() =>
+  const revision = await waitFor(() =>
     getByText(expectedRevision.slice(0, 13)),
   );
-  const repoName = await waitForElement(() => getByTestId('repoName'));
-  const platform = await waitForElement(() => getByTestId('platform'));
+  const repoName = await waitFor(() => getByTestId('repoName'));
+  const platform = await waitFor(() => getByTestId('platform'));
   expect(graphTooltip).toBeInTheDocument();
   expect(revision).toBeInTheDocument();
   expect(repoName).toHaveTextContent(testData[0].repository_name);
@@ -250,12 +245,12 @@ test('InputFilter from TestDataModal can filter by application name', async () =
 
   fireEvent.click(getByText('Add test data'));
 
-  const textInput = await waitForElement(() =>
+  const textInput = await waitFor(() =>
     getByPlaceholderText(filterText.inputPlaceholder),
   );
   setFilterText(textInput, application);
 
-  const fullTestToSelect = await waitForElement(() => getByTitle(name));
+  const fullTestToSelect = await waitFor(() => getByTitle(name));
 
   fireEvent.click(fullTestToSelect);
 

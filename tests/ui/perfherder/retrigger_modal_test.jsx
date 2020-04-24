@@ -1,9 +1,4 @@
-import {
-  cleanup,
-  render,
-  fireEvent,
-  waitForElement,
-} from '@testing-library/react';
+import { cleanup, render, fireEvent, waitFor } from '@testing-library/react';
 import React from 'react';
 
 import RetriggerModal from '../../../ui/perfherder/compare/RetriggerModal';
@@ -36,7 +31,7 @@ test('clicking retrigger button sends correct values from inputs', async () => {
   const updateAndCloseMock = jest.fn();
   const { getByText } = retriggerModal(updateAndCloseMock);
 
-  const retriggerButton = await waitForElement(() => getByText('Retrigger'));
+  const retriggerButton = await waitFor(() => getByText('Retrigger'));
 
   fireEvent.click(retriggerButton);
 
@@ -51,7 +46,7 @@ test('If base revision is aggregate base input should be disabled', async () => 
   const updateAndCloseMock = jest.fn();
   const { getByText, getByTestId } = retriggerModal(updateAndCloseMock, true);
 
-  const retriggerButton = await waitForElement(() => getByText('Retrigger'));
+  const retriggerButton = await waitFor(() => getByText('Retrigger'));
   const baseInput = getByTestId('input baseRetriggerTimes');
 
   expect(baseInput).toBeDisabled();
@@ -67,7 +62,7 @@ test('If base revision is aggregate base input should be disabled', async () => 
 test('Invalid value disables retrigger button', async () => {
   const { getByText, getByTestId } = retriggerModal();
   const baseInput = getByTestId('input baseRetriggerTimes');
-  const retriggerButton = await waitForElement(() => getByText('Retrigger'));
+  const retriggerButton = await waitFor(() => getByText('Retrigger'));
   expect(retriggerButton).not.toBeDisabled();
 
   fireEvent.change(baseInput, { target: { value: 100 } });

@@ -1,11 +1,6 @@
 import React from 'react';
 import { Provider } from 'react-redux';
-import {
-  render,
-  cleanup,
-  fireEvent,
-  waitForElement,
-} from '@testing-library/react';
+import { render, cleanup, fireEvent, waitFor } from '@testing-library/react';
 
 import PushJobs from '../../../ui/job-view/pushes/PushJobs';
 import FilterModel from '../../../ui/models/filter';
@@ -81,7 +76,7 @@ test('select a job updates url', async () => {
 test('filter change keeps selected job visible', async () => {
   const filterModel = new FilterModel();
   const { getByText, rerender } = render(testPushJobs(filterModel));
-  const spell = await waitForElement(() => getByText('spell'));
+  const spell = await waitFor(() => getByText('spell'));
 
   expect(spell).toBeInTheDocument();
 

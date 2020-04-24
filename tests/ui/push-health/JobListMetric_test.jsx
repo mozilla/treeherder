@@ -1,5 +1,5 @@
 import React from 'react';
-import { render, waitForElement } from '@testing-library/react';
+import { render, waitFor } from '@testing-library/react';
 
 import pushHealth from '../mock/push_health';
 import JobListMetric from '../../../ui/push-health/JobListMetric';
@@ -22,7 +22,7 @@ describe('JobListMetric', () => {
   test('should show the build symbol', async () => {
     const { getByText } = render(testJobListMetric(builds, true));
 
-    expect(await waitForElement(() => getByText('arm64'))).toBeInTheDocument();
+    expect(await waitFor(() => getByText('arm64'))).toBeInTheDocument();
   });
 
   test('should not show the build symbol if hiding parent matches', async () => {

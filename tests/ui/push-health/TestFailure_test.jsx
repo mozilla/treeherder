@@ -1,11 +1,6 @@
 import React from 'react';
 import fetchMock from 'fetch-mock';
-import {
-  render,
-  cleanup,
-  waitForElement,
-  fireEvent,
-} from '@testing-library/react';
+import { render, cleanup, waitFor, fireEvent } from '@testing-library/react';
 
 import { replaceLocation, setUrlParam } from '../../../ui/helpers/location';
 import TestFailure from '../../../ui/push-health/TestFailure';
@@ -51,7 +46,7 @@ describe('TestFailure', () => {
     const { getByText } = render(testTestFailure(testFailure));
 
     expect(
-      await waitForElement(() =>
+      await waitFor(() =>
         getByText(
           'layout/reftests/high-contrast/backplate-bg-image-006.html == layout/reftests/high-contrast/backplate-bg-image-006-ref.html',
         ),
@@ -61,7 +56,7 @@ describe('TestFailure', () => {
 
   test('should not show details by default', async () => {
     const { getByText, getByTestId } = render(testTestFailure(testFailure));
-    const logLineToggle = await waitForElement(() => getByTestId('log-lines'));
+    const logLineToggle = await waitFor(() => getByTestId('log-lines'));
 
     // For collapsible components, you must check for 'collapse' (hidden) or 'collapse show' (visible)
     // or aria-expanded attribute because collapse just hides elements, doesn't remove them.
@@ -70,9 +65,7 @@ describe('TestFailure', () => {
       'aria-expanded',
       expect.stringMatching('false'),
     );
-    expect(
-      await waitForElement(() => getByText('more...')),
-    ).toBeInTheDocument();
+    expect(await waitFor(() => getByText('more...'))).toBeInTheDocument();
   });
 
   test('should show details when click more...', async () => {
@@ -82,16 +75,14 @@ describe('TestFailure', () => {
     fireEvent.click(moreLink);
 
     expect(
-      await waitForElement(() =>
+      await waitFor(() =>
         getByText(
           'image comparison, max difference: 15, number of differing pixels: 3200',
           { exact: false },
         ),
       ),
     ).toBeVisible();
-    expect(
-      await waitForElement(() => getByText('less...')),
-    ).toBeInTheDocument();
+    expect(await waitFor(() => getByText('less...'))).toBeInTheDocument();
   });
 
   test('should show crash stack and signature when click more...', async () => {
@@ -101,17 +92,13 @@ describe('TestFailure', () => {
     fireEvent.click(moreLink);
 
     expect(
-      await waitForElement(
-        () => getAllByText('@ __abort_with_payload + 0xa')[0],
-      ),
+      await waitFor(() => getAllByText('@ __abort_with_payload + 0xa')[0]),
     ).toBeVisible();
     expect(
-      await waitForElement(() =>
+      await waitFor(() =>
         getByText('Operating system: Mac OS X', { exact: false }),
       ),
     ).toBeVisible();
-    expect(
-      await waitForElement(() => getByText('less...')),
-    ).toBeInTheDocument();
+    expect(await waitFor(() => getByText('less...'))).toBeInTheDocument();
   });
 });
