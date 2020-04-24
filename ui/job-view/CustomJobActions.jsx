@@ -196,7 +196,7 @@ class CustomJobActions extends React.PureComponent {
   };
 
   render() {
-    const { isLoggedIn, toggle } = this.props;
+    const { toggle } = this.props;
     const { triggering, selectedAction, schema, actions, payload } = this.state;
     const isOpen = true;
 
@@ -276,23 +276,19 @@ class CustomJobActions extends React.PureComponent {
           )}
         </ModalBody>
         <ModalFooter>
-          {isLoggedIn ? (
-            <Button
-              color="darker-info"
-              className={triggering ? 'disabled' : ''}
-              onClick={this.triggerAction}
-              title={isLoggedIn ? 'Trigger this action' : 'Not logged in'}
-            >
-              <FontAwesomeIcon
-                icon={faCheckSquare}
-                className="mr-1"
-                title="Check"
-              />
-              <span>{triggering ? 'Triggering' : 'Trigger'}</span>
-            </Button>
-          ) : (
-            <p className="help-block"> Custom actions require login </p>
-          )}
+          <Button
+            color="darker-info"
+            className={triggering ? 'disabled' : ''}
+            onClick={this.triggerAction}
+            title="Trigger this action"
+          >
+            <FontAwesomeIcon
+              icon={faCheckSquare}
+              className="mr-1"
+              title="Check"
+            />
+            <span>{triggering ? 'Triggering' : 'Trigger'}</span>
+          </Button>
           <Button color="secondary" onClick={toggle}>
             Cancel
           </Button>
@@ -304,7 +300,6 @@ class CustomJobActions extends React.PureComponent {
 
 CustomJobActions.propTypes = {
   pushId: PropTypes.number.isRequired,
-  isLoggedIn: PropTypes.bool.isRequired,
   notify: PropTypes.func.isRequired,
   toggle: PropTypes.func.isRequired,
   decisionTaskMap: PropTypes.shape({}).isRequired,

@@ -117,7 +117,6 @@ class PushList extends React.Component {
 
   render() {
     const {
-      user,
       repoName,
       revision,
       currentRepo,
@@ -132,7 +131,6 @@ class PushList extends React.Component {
       pushHealthVisibility,
     } = this.props;
     const { notificationSupported } = this.state;
-    const { isLoggedIn } = user;
 
     if (!revision) {
       this.setWindowTitle();
@@ -156,7 +154,6 @@ class PushList extends React.Component {
               <Push
                 role="listitem"
                 push={push}
-                isLoggedIn={isLoggedIn || false}
                 currentRepo={currentRepo}
                 filterModel={filterModel}
                 notificationSupported={notificationSupported}
@@ -207,9 +204,6 @@ class PushList extends React.Component {
 
 PushList.propTypes = {
   repoName: PropTypes.string.isRequired,
-  user: PropTypes.shape({
-    isLoggedIn: PropTypes.bool,
-  }).isRequired,
   filterModel: PropTypes.shape({}).isRequired,
   pushList: PropTypes.arrayOf(PropTypes.object).isRequired,
   fetchNextPushes: PropTypes.func.isRequired,

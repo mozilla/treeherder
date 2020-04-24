@@ -546,7 +546,6 @@ class Push extends React.PureComponent {
   render() {
     const {
       push,
-      isLoggedIn,
       currentRepo,
       duplicateJobsVisible,
       filterModel,
@@ -613,7 +612,6 @@ class Push extends React.PureComponent {
           revision={revision}
           jobCounts={jobCounts}
           watchState={watched}
-          isLoggedIn={isLoggedIn}
           currentRepo={currentRepo}
           filterModel={filterModel}
           runnableVisible={runnableVisible}
@@ -688,7 +686,6 @@ Push.propTypes = {
     name: PropTypes.string,
   }).isRequired,
   filterModel: PropTypes.shape({}).isRequired,
-  isLoggedIn: PropTypes.bool.isRequired,
   notificationSupported: PropTypes.bool.isRequired,
   getAllShownJobs: PropTypes.func.isRequired,
   updateJobMap: PropTypes.func.isRequired,

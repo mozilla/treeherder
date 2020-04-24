@@ -94,7 +94,6 @@ class PushActionMenu extends React.PureComponent {
 
   render() {
     const {
-      isLoggedIn,
       revision,
       runnableVisible,
       hideRunnableJobs,
@@ -131,10 +130,7 @@ class PushActionMenu extends React.PureComponent {
             ) : (
               <DropdownItem
                 tag="a"
-                title={
-                  isLoggedIn ? 'Add new jobs to this push' : 'Must be logged in'
-                }
-                className={isLoggedIn ? '' : 'disabled'}
+                title="Add new jobs to this push"
                 onClick={showRunnableJobs}
               >
                 Add new jobs
@@ -142,12 +138,7 @@ class PushActionMenu extends React.PureComponent {
             )}
             <DropdownItem
               tag="a"
-              title={
-                isLoggedIn
-                  ? 'Add new jobs to this push via a fuzzy search'
-                  : 'Must be logged in'
-              }
-              className={isLoggedIn ? '' : 'disabled'}
+              title="Add new jobs to this push via a fuzzy search"
               onClick={showFuzzyJobs}
             >
               Add new jobs (Search)
@@ -155,12 +146,7 @@ class PushActionMenu extends React.PureComponent {
             {triggerMissingRepos.includes(currentRepo.name) && (
               <DropdownItem
                 tag="a"
-                title={
-                  isLoggedIn
-                    ? 'Trigger all jobs that were optimized away'
-                    : 'Must be logged in'
-                }
-                className={isLoggedIn ? '' : 'disabled'}
+                title="Trigger all jobs that were optimized away"
                 onClick={this.triggerMissingJobs}
               >
                 Trigger missing jobs
@@ -224,7 +210,6 @@ class PushActionMenu extends React.PureComponent {
           <CustomJobActions
             job={null}
             pushId={pushId}
-            isLoggedIn={isLoggedIn}
             currentRepo={currentRepo}
             toggle={this.toggleCustomJobActions}
           />
@@ -236,7 +221,6 @@ class PushActionMenu extends React.PureComponent {
 
 PushActionMenu.propTypes = {
   runnableVisible: PropTypes.bool.isRequired,
-  isLoggedIn: PropTypes.bool.isRequired,
   revision: PropTypes.string.isRequired,
   currentRepo: PropTypes.shape({
     name: PropTypes.string,

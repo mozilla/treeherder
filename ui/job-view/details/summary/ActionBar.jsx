@@ -91,15 +91,11 @@ class ActionBar extends React.PureComponent {
 
   createGeckoProfile = async () => {
     const {
-      user,
       selectedJobFull,
       notify,
       decisionTaskMap,
       currentRepo,
     } = this.props;
-    if (!user.isLoggedIn) {
-      return notify('Must be logged in to create a gecko profile', 'danger');
-    }
 
     const { id: decisionTaskId } = decisionTaskMap[selectedJobFull.push_id];
 
@@ -146,11 +142,7 @@ class ActionBar extends React.PureComponent {
   };
 
   retriggerJob = async jobs => {
-    const { user, notify, decisionTaskMap, currentRepo } = this.props;
-
-    if (!user.isLoggedIn) {
-      return notify('Must be logged in to retrigger a job', 'danger');
-    }
+    const { notify, decisionTaskMap, currentRepo } = this.props;
 
     // Spin the retrigger button when retriggers happen
     document
@@ -169,7 +161,6 @@ class ActionBar extends React.PureComponent {
 
   backfillJob = async () => {
     const {
-      user,
       selectedJobFull,
       notify,
       decisionTaskMap,
@@ -177,12 +168,6 @@ class ActionBar extends React.PureComponent {
     } = this.props;
 
     if (!this.canBackfill()) {
-      return;
-    }
-
-    if (!user.isLoggedIn) {
-      notify('Must be logged in to backfill a job', 'danger');
-
       return;
     }
 
@@ -228,7 +213,6 @@ class ActionBar extends React.PureComponent {
 
   isolateJob = async () => {
     const {
-      user,
       selectedJobFull,
       notify,
       decisionTaskMap,
@@ -237,12 +221,6 @@ class ActionBar extends React.PureComponent {
     const { id: decisionTaskId } = decisionTaskMap[selectedJobFull.push_id];
 
     if (!isTestIsolatable(selectedJobFull)) {
-      return;
-    }
-
-    if (!user.isLoggedIn) {
-      notify('Must be logged in to isolate a job', 'danger');
-
       return;
     }
 
@@ -322,18 +300,14 @@ class ActionBar extends React.PureComponent {
 
   // Can we backfill? At the moment, this only ensures we're not in a 'try' repo.
   canBackfill = () => {
-    const { user, isTryRepo } = this.props;
+    const { isTryRepo } = this.props;
 
-    return user.isLoggedIn && !isTryRepo;
+    return !isTryRepo;
   };
 
   backfillButtonTitle = () => {
-    const { user, isTryRepo } = this.props;
+    const { isTryRepo } = this.props;
     let title = '';
-
-    if (!user.isLoggedIn) {
-      title = title.concat('must be logged in to backfill a job / ');
-    }
 
     if (isTryRepo) {
       title = title.concat('backfill not available in this repository');
@@ -359,13 +333,6 @@ class ActionBar extends React.PureComponent {
       decisionTaskMap,
       currentRepo,
     } = this.props;
-
-    if (!user.isLoggedIn) {
-      return notify(
-        'Must be logged in to create an interactive task',
-        'danger',
-      );
-    }
 
     const { id: decisionTaskId } = decisionTaskMap[selectedJobFull.push_id];
     const results = await TaskclusterModel.load(
@@ -401,11 +368,8 @@ class ActionBar extends React.PureComponent {
   };
 
   cancelJobs = jobs => {
-    const { user, notify, decisionTaskMap, currentRepo } = this.props;
+    const { notify, decisionTaskMap, currentRepo } = this.props;
 
-    if (!user.isLoggedIn) {
-      return notify('Must be logged in to cancel a job', 'danger');
-    }
     JobModel.cancel(
       jobs.filter(({ state }) => state === 'pending' || state === 'running'),
       currentRepo,
@@ -430,7 +394,6 @@ class ActionBar extends React.PureComponent {
       logViewerUrl,
       logViewerFullUrl,
       jobLogUrls,
-      user,
       pinJob,
       currentRepo,
     } = this.props;
@@ -458,15 +421,8 @@ class ActionBar extends React.PureComponent {
             <li>
               <Button
                 id="retrigger-btn"
-                title={
-                  user.isLoggedIn
-                    ? 'Repeat the selected job'
-                    : 'Must be logged in to retrigger a job'
-                }
-                className={`actionbar-nav-btn bg-transparent border-0 ${
-                  user.isLoggedIn ? 'icon-green' : 'disabled'
-                }`}
-                disabled={!user.isLoggedIn}
+                title="Repeat the selected job"
+                className="actionbar-nav-btn bg-transparent border-0 icon-green"
                 onClick={() => this.retriggerJob([selectedJobFull])}
               >
                 <FontAwesomeIcon icon={faRedo} title="Retrigger job" />
@@ -507,14 +463,8 @@ class ActionBar extends React.PureComponent {
             {this.canCancel() && (
               <li>
                 <Button
-                  title={
-                    user.isLoggedIn
-                      ? 'Cancel this job'
-                      : 'Must be logged in to cancel a job'
-                  }
-                  className={`bg-transparent border-0 actionbar-nav-btn ${
-                    user.isLoggedIn ? 'hover-warning' : 'disabled'
-                  }`}
+                  title="Must be logged in to cancel a job"
+                  className="bg-transparent border-0 actionbar-nav-btn hover-warning"
                   onClick={() => this.cancelJob()}
                 >
                   <FontAwesomeIcon icon={faTimesCircle} title="Cancel job" />
@@ -534,9 +484,7 @@ class ActionBar extends React.PureComponent {
                   <DropdownItem
                     tag="a"
                     id="backfill-btn"
-                    className={`${
-                      !user.isLoggedIn || !this.canBackfill() ? 'disabled' : ''
-                    }`}
+                    className={`${!this.canBackfill() ? 'disabled' : ''}`}
                     title={this.backfillButtonTitle()}
                     onClick={() => !this.canBackfill() || this.backfillJob()}
                   >
@@ -601,7 +549,6 @@ class ActionBar extends React.PureComponent {
             job={selectedJobFull}
             pushId={selectedJobFull.push_id}
             currentRepo={currentRepo}
-            isLoggedIn={user.isLoggedIn}
             toggle={this.toggleCustomJobActions}
           />
         )}
