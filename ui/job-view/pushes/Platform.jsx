@@ -2,7 +2,7 @@ import PropTypes from 'prop-types';
 import React from 'react';
 
 import { thSimplePlatforms } from '../../helpers/constants';
-import { getSelectedJobId } from '../../helpers/location';
+import { getUrlParam } from '../../helpers/location';
 import { didObjectsChange } from '../../helpers/object';
 
 import JobsAndGroups from './JobsAndGroups';
@@ -30,9 +30,9 @@ export default class Platform extends React.PureComponent {
   }
 
   componentDidMount() {
-    const selectedJobId = getSelectedJobId();
+    const selectedTaskRun = getUrlParam('selectedTaskRun');
 
-    this.filter(selectedJobId);
+    this.filter(selectedTaskRun);
   }
 
   componentDidUpdate(nextProps) {
@@ -46,11 +46,11 @@ export default class Platform extends React.PureComponent {
         'runnableVisible',
       ])
     ) {
-      this.filter(getSelectedJobId());
+      this.filter(getUrlParam('selectedTaskRun'));
     }
   }
 
-  filter = selectedJobId => {
+  filter = selectedTaskRun => {
     const { platform, filterModel, runnableVisible } = this.props;
     const filteredPlatform = { ...platform };
 
@@ -58,11 +58,14 @@ export default class Platform extends React.PureComponent {
     filteredPlatform.groups.forEach(group => {
       group.visible = false;
       group.jobs.forEach(job => {
-        job.visible = filterModel.showJob(job) || job.id === selectedJobId;
+        job.visible =
+          filterModel.showJob(job) || job.task_run === selectedTaskRun;
         if (job.state === 'runnable') {
           job.visible = job.visible && runnableVisible;
         }
-        job.selected = selectedJobId ? job.id === selectedJobId : false;
+        job.selected = selectedTaskRun
+          ? job.task_run === selectedTaskRun
+          : false;
         if (job.visible) {
           filteredPlatform.visible = true;
           group.visible = true;
@@ -72,8 +75,8 @@ export default class Platform extends React.PureComponent {
     this.setState({ filteredPlatform });
   };
 
-  filterCb = selectedJobId => {
-    this.filter(selectedJobId);
+  filterCb = selectedTaskRun => {
+    this.filter(selectedTaskRun);
   };
 
   render() {

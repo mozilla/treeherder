@@ -685,7 +685,7 @@ class TaskclusterMetadata(models.Model):
         Job, on_delete=models.CASCADE, primary_key=True, related_name='taskcluster_metadata'
     )
 
-    task_id = models.CharField(max_length=22, validators=[MinLengthValidator(22)])
+    task_id = models.CharField(max_length=22, validators=[MinLengthValidator(22)], db_index=True)
     retry_id = models.PositiveIntegerField()
 
     class Meta:

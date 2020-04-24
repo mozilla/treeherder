@@ -44,7 +44,7 @@ beforeAll(() => {
 
 afterEach(() => {
   cleanup();
-  setUrlParam('selectedJob', null);
+  setUrlParam('selectedTaskRun', null);
 });
 
 const testPushJobs = filterModel => (
@@ -73,9 +73,9 @@ test('select a job updates url', async () => {
   fireEvent.mouseDown(spell);
   expect(spell).toHaveClass('selected-job');
 
-  const selJobId = getUrlParam('selectedJob');
+  const selTaskRun = getUrlParam('selectedTaskRun');
 
-  expect(selJobId).toBe('250970251');
+  expect(selTaskRun).toBe('OeYt2-iLQSaQb2ashZ_VIQ-0');
 });
 
 test('filter change keeps selected job visible', async () => {

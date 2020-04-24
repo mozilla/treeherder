@@ -57,6 +57,8 @@ class JobFilter(django_filters.FilterSet):
     platform = django_filters.CharFilter(field_name='machine_platform__platform')
     ref_data_name = django_filters.CharFilter(field_name='signature__name')
     signature = django_filters.CharFilter(field_name='signature__signature')
+    task_id = django_filters.CharFilter(field_name='taskcluster_metadata__task_id')
+    retry_id = django_filters.NumberFilter(field_name='taskcluster_metadata__retry_id')
 
     class Meta:
         model = Job
@@ -94,6 +96,7 @@ class JobsViewSet(viewsets.ReadOnlyModelViewSet):
         'machine_platform',
         'signature',
         'taskcluster_metadata',
+        'push',
     ]
     _query_field_names = [
         'submit_time',
@@ -110,6 +113,7 @@ class JobsViewSet(viewsets.ReadOnlyModelViewSet):
         'machine_platform__platform',
         'option_collection_hash',
         'push_id',
+        'push__revision',
         'result',
         'signature__signature',
         'state',
@@ -127,6 +131,7 @@ class JobsViewSet(viewsets.ReadOnlyModelViewSet):
         'last_modified',
         'platform',
         'push_id',
+        'push_revision',
         'result',
         'signature',
         'state',
@@ -272,9 +277,9 @@ class JobsProjectViewSet(viewsets.ViewSet):
         artifact names and links to the artifact blobs.
         """
         try:
-            job = Job.objects.select_related(
-                *self._default_select_related + ['taskcluster_metadata']
-            ).get(repository__name=project, id=pk)
+            job = Job.objects.select_related(*self._default_select_related).get(
+                repository__name=project, id=pk
+            )
         except Job.DoesNotExist:
             return Response("No job with id: {0}".format(pk), status=HTTP_404_NOT_FOUND)
 

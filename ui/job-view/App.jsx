@@ -34,7 +34,7 @@ const HIDDEN_URL_PARAMS = [
   'repo',
   'classifiedState',
   'resultStatus',
-  'selectedJob',
+  'selectedTaskRun',
   'searchStr',
   'collapsedPushes',
 ];
@@ -55,7 +55,8 @@ class App extends React.Component {
     // Set the URL to updated parameter styles, if needed.  Otherwise it's a no-op.
     filterModel.push();
     const urlParams = getAllUrlParams();
-    const hasSelectedJob = urlParams.has('selectedJob');
+    const hasSelectedJob =
+      urlParams.has('selectedJob') || urlParams.has('selectedTaskRun');
 
     this.state = {
       repoName: getRepo(),
@@ -228,7 +229,8 @@ class App extends React.Component {
     const newRepo = urlParams.get('repo');
     // We only want to set state if any of these or the filter values have changed
     const newState = {
-      hasSelectedJob: getAllUrlParams().has('selectedJob'),
+      hasSelectedJob:
+        urlParams.has('selectedJob') || urlParams.has('selectedTaskRun'),
       groupCountsExpanded: urlParams.get('group_state') === 'expanded',
       duplicateJobsVisible: urlParams.get('duplicate_jobs') === 'visible',
       currentRepo: repos.find(repo => repo.name === newRepo),

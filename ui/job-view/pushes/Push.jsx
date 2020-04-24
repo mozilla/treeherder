@@ -27,6 +27,7 @@ import {
 import { RevisionList } from '../../shared/RevisionList';
 import { Revision } from '../../shared/Revision';
 import PushHealthSummary from '../../shared/PushHealthSummary';
+import { getTaskRunStr } from '../../helpers/job';
 
 import FuzzyJobFinder from './FuzzyJobFinder';
 import PushHeader from './PushHeader';
@@ -276,9 +277,10 @@ class Push extends React.PureComponent {
       const newIds = jobs.map(job => job.id);
       // remove old versions of jobs we just fetched.
       const existingJobs = jobList.filter(job => !newIds.includes(job.id));
-      // Join both lists and add test_paths property
+      // Join both lists and add test_paths and task_run property
       const newJobList = [...existingJobs, ...jobs].map(job => {
         job.test_paths = taskNameToTestPaths[job.job_type_name] || [];
+        job.task_run = getTaskRunStr(job);
         return job;
       });
       const platforms = this.sortGroupedJobs(

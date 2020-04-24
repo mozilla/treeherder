@@ -10,7 +10,7 @@ import {
   replaceLocation,
 } from '../../../helpers/location';
 import PushModel from '../../../models/push';
-import { isUnclassifiedFailure } from '../../../helpers/job';
+import { getTaskRunStr, isUnclassifiedFailure } from '../../../helpers/job';
 import FilterModel from '../../../models/filter';
 import JobModel from '../../../models/job';
 import { thEvents } from '../../../helpers/constants';
@@ -146,9 +146,9 @@ const fetchNewJobs = () => {
       }, {});
       // If a job is selected, and one of the jobs we just fetched is the
       // updated version of that selected job, then send that with the event.
-      const selectedJobId = getUrlParam('selectedJob');
-      const updatedSelectedJob = selectedJobId
-        ? data.find(job => job.id === parseInt(selectedJobId, 10))
+      const selectedTaskRun = getUrlParam('selectedTaskRun');
+      const updatedSelectedJob = selectedTaskRun
+        ? data.find(job => getTaskRunStr(job) === selectedTaskRun)
         : null;
 
       window.dispatchEvent(
