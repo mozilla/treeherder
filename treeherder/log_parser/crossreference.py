@@ -94,7 +94,7 @@ def failure_line_summary(formatter, failure_line):
     """
     if failure_line.action == "test_result":
         action = "test_status" if failure_line.subtest is not None else "test_end"
-    elif failure_line.action == "truncated":
+    elif failure_line.action in ["test_groups", "truncated"]:
         return
     else:
         action = failure_line.action
