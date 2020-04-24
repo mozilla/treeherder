@@ -385,8 +385,7 @@ export class BugFilerClass extends React.Component {
       comment,
       isIntermittent,
       checkedLogLinks,
-      blocks,
-      dependsOn,
+      regressedBy,
       seeAlso,
       keywords,
       crashSignatures,
@@ -435,6 +434,11 @@ export class BugFilerClass extends React.Component {
       priority = '--';
     }
 
+    // Use of 'Regressed By' field shall add 'regression' to keywords.
+    if (regressedBy) {
+      keywords.push('regression');
+    }
+
     /* Intermittent bugs in the Core :: DOM: Security component need to have the
        whiteboard '[domsecurity-intermittent]' to support filtering by the
        triagers. Contact person is Christoph Kerschbaumer. */
@@ -477,8 +481,7 @@ export class BugFilerClass extends React.Component {
           keywords,
           whiteboard,
           version: version.name,
-          blocks,
-          depends_on: dependsOn,
+          regressed_by: regressedBy,
           see_also: seeAlso,
           crash_signature: crashSignature,
           severity: 'normal',
@@ -790,35 +793,19 @@ export class BugFilerClass extends React.Component {
                 </div>
                 <div className="d-inline-flex ml-2">
                   <Input
-                    id="blocksInput"
-                    type="text"
-                    onChange={evt =>
-                      this.setState({ blocks: evt.target.value })
-                    }
-                    placeholder="Blocks"
-                  />
-                  <Tooltip
-                    target="blocksInput"
-                    placement="bottom"
-                    isOpen={tooltipOpen.blocksInput}
-                    toggle={() => this.toggleTooltip('blocksInput')}
-                  >
-                    Comma-separated list of bugs
-                  </Tooltip>
-                  <Input
-                    id="dependsOn"
+                    id="regressedBy"
                     type="text"
                     className="ml-1"
                     onChange={evt =>
-                      this.setState({ dependsOn: evt.target.value })
+                      this.setState({ regressedBy: evt.target.value })
                     }
-                    placeholder="Depends on"
+                    placeholder="Regressed by"
                   />
                   <Tooltip
-                    target="dependsOn"
+                    target="regressedBy"
                     placement="bottom"
-                    isOpen={tooltipOpen.dependsOn}
-                    toggle={() => this.toggleTooltip('dependsOn')}
+                    isOpen={tooltipOpen.regressedBy}
+                    toggle={() => this.toggleTooltip('regressedBy')}
                   >
                     Comma-separated list of bugs
                   </Tooltip>
