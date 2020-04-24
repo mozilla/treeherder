@@ -59,6 +59,7 @@ class UnsupportedGroup extends React.PureComponent {
               icon={expandIcon}
               className="ml-1"
               title="expand"
+              alt=""
             />
           </Badge>
         </h4>
