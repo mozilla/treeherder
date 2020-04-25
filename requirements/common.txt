@@ -195,8 +195,8 @@ jsonschema==3.0.1 \
 jx-bigquery==3.62.20101 \
     --hash=sha256:3e1f469177f856b9540ed727993fa12ddf451f671d372e446b129dfe8890abf7 \
     # via -r requirements/common.in
-jx-mysql==3.67.20113 \
-    --hash=sha256:0caf42912167126e37f7f9311d1c892c4731d09aeda07eda906ca3d8ab75d813 \
+jx-mysql==3.68.20116 \
+    --hash=sha256:2a4ac006de466318fb3422db59767cd9f87c7d65b3c5c08dbc21f37e0613902f \
     # via -r requirements/common.in
 jx-python==3.67.20113 \
     --hash=sha256:52710d344ed10685f22adbbe7500a9b811dfab76627dd5b3717d979b4e411810 \
@@ -467,10 +467,10 @@ taskcluster-urls==12.1.0 \
     --hash=sha256:1dc740c32c7beb31e11ed7ccf9da2d47a504acdb3170c8900649433b0fd16fb2 \
     --hash=sha256:4a62c776aeba6d45044789a8845ec4d8521bc1bb6ebfc86d79ee759bcdd4f2f7 \
     # via taskcluster
-taskcluster==29.0.1 \
-    --hash=sha256:59955ebf085980d3ffbc8edac548ab479c9423af6c7f8ae502c312d16615e7ee \
-    --hash=sha256:8eaa33c600843272618f1998a38d4dcf9d374a5604882d9a53c3acd1e8af4fe5 \
-    --hash=sha256:ee37d56c3d8c83722e66ef6ca4a54ce1916ef2e452c05672f9935b65d969a433 \
+taskcluster==29.1.3 \
+    --hash=sha256:124b02679fb143bbdbdb8471c2c780761b1e83a690ac4880abc2540e0c93992c \
+    --hash=sha256:1ac2d3fc59bbc6a804153f04df35d205343c816593fbd3945697accfa65225c4 \
+    --hash=sha256:83777a374f6541f7aaf96fa6d512916a0b91dd2a154c9922ae435708add2eff7 \
     # via -r requirements/common.in
 typing==3.7.4.1 \
     --hash=sha256:91dfe6f3f706ee8cc32d38edbbf304e9b7583fb37108fef38229617f8b3eba23 \
