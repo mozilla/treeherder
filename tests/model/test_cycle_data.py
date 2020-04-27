@@ -21,7 +21,12 @@ from treeherder.model.models import (
     Push,
 )
 from treeherder.perf.exceptions import MaxRuntimeExceeded
-from treeherder.perf.models import PerformanceDatum, PerformanceDatumManager, PerformanceSignature
+from treeherder.perf.models import (
+    PerformanceDatum,
+    PerformanceDatumManager,
+    PerformanceSignature,
+    next_id,
+)
 
 
 def test_cycle_all_data(
@@ -173,6 +178,7 @@ def test_cycle_job_with_performance_data(
     test_job.save()
 
     p = PerformanceDatum.objects.create(
+        id=next_id(PerformanceDatum),
         repository=test_repository,
         result_set_id=1,
         push=test_job.push,

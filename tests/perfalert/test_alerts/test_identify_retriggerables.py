@@ -6,7 +6,7 @@ import pytest
 
 from treeherder.model.models import Job
 from treeherder.perf.alerts import IdentifyAlertRetriggerables
-from treeherder.perf.models import PerformanceDatum
+from treeherder.perf.models import PerformanceDatum, next_id
 
 NON_RETRIGGERABLE_JOB_ID = 9
 ONE_DAY_INTERVAL = datetime.timedelta(days=1)
@@ -120,6 +120,7 @@ def prepare_graph_data_scenario(push_ids_to_keep, highlighted_push_id, perf_aler
 
     for job in selectable_jobs:
         perf_datum = PerformanceDatum.objects.create(
+            id=next_id(PerformanceDatum),
             value=10,
             push_timestamp=job.push.time,
             job=job,

@@ -7,7 +7,12 @@ import simplejson as json
 
 from treeherder.log_parser.utils import validate_perf_data
 from treeherder.model.models import OptionCollection
-from treeherder.perf.models import PerformanceDatum, PerformanceFramework, PerformanceSignature
+from treeherder.perf.models import (
+    PerformanceDatum,
+    PerformanceFramework,
+    PerformanceSignature,
+    next_id,
+)
 from treeherder.perf.tasks import generate_alerts
 
 logger = logging.getLogger(__name__)
@@ -141,7 +146,7 @@ def _load_perf_datum(job, perf_datum):
                 push=job.push,
                 signature=signature,
                 push_timestamp=job.push.time,
-                defaults={'value': suite['value']},
+                defaults={'id': next_id(PerformanceDatum), 'value': suite['value']},
             )
             if (
                 signature.should_alert is not False
@@ -207,7 +212,7 @@ def _load_perf_datum(job, perf_datum):
                 push=job.push,
                 signature=signature,
                 push_timestamp=job.push.time,
-                defaults={'value': value[0]},
+                defaults={'id': next_id(PerformanceDatum), 'value': value[0]},
             )
 
             # by default if there is no summary, we should schedule a

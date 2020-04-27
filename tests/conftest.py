@@ -30,6 +30,7 @@ from treeherder.perf.models import (
     PerformanceDatum,
     PerformanceFramework,
     PerformanceSignature,
+    next_id,
 )
 from treeherder.services.pulse.exchange import get_exchange
 
@@ -471,6 +472,7 @@ def test_perf_data(test_perf_signature, eleven_jobs_stored):
         job.save()
 
         perf_datum = PerformanceDatum.objects.create(
+            id=next_id(PerformanceDatum),
             value=10,
             push_timestamp=job.push.time,
             job=job,
@@ -724,6 +726,7 @@ def generate_enough_perf_datum(test_repository, test_perf_signature):
         # push_id == result_set_id == timestamp for purposes of this test
         push = Push.objects.get(id=push_id)
         PerformanceDatum.objects.create(
+            id=next_id(PerformanceDatum),
             repository=test_repository,
             result_set_id=push_id,
             push_id=push_id,

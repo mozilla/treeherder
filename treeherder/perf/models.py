@@ -3,7 +3,7 @@ import datetime
 from django.contrib.auth.models import User
 from django.core.exceptions import ValidationError
 from django.core.validators import MinLengthValidator
-from django.db import models
+from django.db import models, transaction
 from django.utils.timezone import now as django_now
 
 from treeherder.model.models import Job, MachinePlatform, OptionCollection, Push, Repository
@@ -227,9 +227,39 @@ into chunks of chunk_size size."""
         return len(older_ids) or max_chunk_size
 
 
+class Counter(models.Model):
+    model = models.CharField(max_length=80, blank=False, null=False, primary_key=True)
+    chunk_size = models.IntegerField(null=False, default=100)
+    count = models.BigIntegerField(null=False)
+
+
+COUNTERS = {}
+
+
+@transaction.atomic
+def next_id(model):
+    """
+    :return:  A unique integer key for given model
+    """
+    model_name = model.__class__.__name__
+    count, maxx = COUNTERS.get(model_name, (0, 0))
+    if count >= maxx:
+        with transaction.atomic():
+            db_counter, _ = Counter.objects.get_or_create(
+                model=model_name, defaults={"chunk_size": 100, "count": 0}
+            )
+            count = db_counter.count
+            maxx = db_counter.count = count + db_counter.chunk_size
+
+    try:
+        return count
+    finally:
+        COUNTERS[model_name] = (count + 1, maxx)
+
+
 class PerformanceDatum(models.Model):
     objects = PerformanceDatumManager()
-
+    id = models.IntegerField(null=False, primary_key=True, serialize=False, verbose_name='ID')
     repository = models.ForeignKey(Repository, on_delete=models.CASCADE)
     signature = models.ForeignKey(PerformanceSignature, on_delete=models.CASCADE)
     value = models.FloatField()
