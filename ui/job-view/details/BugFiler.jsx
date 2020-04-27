@@ -126,16 +126,28 @@ export class BugFilerClass extends React.Component {
         ),
     );
     const thisFailure = allFailures.map(f => f.join(' | ')).join('\n');
-    const crash = suggestion.search.match(crashRegex);
-    const crashSignatures = crash
-      ? [crash[0].split('application crashed ')[1]]
-      : [];
-    const parsedSummary = parseSummary(suggestion);
 
+    const parsedSummary = parseSummary(suggestion);
     let summaryString = parsedSummary[0].join(' | ');
     if (jobGroupName.toLowerCase().includes('reftest')) {
       const re = /layout\/reftests\//gi;
       summaryString = summaryString.replace(re, '');
+    }
+
+    const crash = suggestion.search.match(crashRegex);
+    const crashSignatures = crash
+      ? [crash[0].split('application crashed ')[1]]
+      : [];
+
+    const keywords = [];
+    const isAssertion = [
+      /ASSERTION:/, // binary code
+      /assertion fail/i, // JavaScript
+      /assertion count \d+ is \w+ than expected \d+ assertion/, // layout
+      /AssertionError/, // Marionette
+    ].some(regexp => regexp.test(summaryString));
+    if (isAssertion) {
+      keywords.push('assertion');
     }
 
     const checkedLogLinks = new Map([
@@ -160,6 +172,7 @@ export class BugFilerClass extends React.Component {
       parsedSummary,
       checkedLogLinks,
       thisFailure,
+      keywords,
       crashSignatures,
     };
   }
@@ -375,6 +388,7 @@ export class BugFilerClass extends React.Component {
       blocks,
       dependsOn,
       seeAlso,
+      keywords,
       crashSignatures,
     } = this.state;
     const { toggle, successCallback, notify } = this.props;
@@ -409,7 +423,9 @@ export class BugFilerClass extends React.Component {
     // Join that with the comment separated with a hard rule.
     const descriptionStrings = `${logLinks}\n\n---\n\n${comment}`;
 
-    const keywords = isIntermittent ? ['intermittent-failure'] : [];
+    if (isIntermittent) {
+      keywords.push('intermittent-failure');
+    }
     let priority = 'P5';
     const crashSignature = crashSignatures.join('\n');
 
