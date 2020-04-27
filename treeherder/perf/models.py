@@ -1,9 +1,11 @@
 import datetime
+from threading import Lock
 
 from django.contrib.auth.models import User
 from django.core.exceptions import ValidationError
 from django.core.validators import MinLengthValidator
 from django.db import models, transaction
+from django.db.models import Max
 from django.utils.timezone import now as django_now
 
 from treeherder.model.models import Job, MachinePlatform, OptionCollection, Push, Repository
@@ -234,6 +236,7 @@ class Counter(models.Model):
 
 
 COUNTERS = {}
+COUNTERS_LOCK = Lock()
 
 
 def next_id(model):
@@ -242,18 +245,26 @@ def next_id(model):
     """
     start = 1
     model_name = model.__name__
-    count, maxx = COUNTERS.get(model_name, (start, 0))
-    if count >= maxx:
-        with transaction.atomic():
-            db_counter, _ = Counter.objects.get_or_create(
-                model=model_name, defaults={"chunk_size": 100, "count": start}
-            )
-            count = db_counter.count
-            maxx = db_counter.count = count + db_counter.chunk_size
-            db_counter.save()
+    with COUNTERS_LOCK:
+        count, maxx = COUNTERS.get(model_name, (start, 0))
+        if count >= maxx:
+            # we require a new block of ids
+            with transaction.atomic():
+                try:
+                    # hopefully the reocrd exists
+                    db_counter = Counter.objects.get(model=model_name)
+                except model.DoesNotExist:
+                    # only happens once after a migration
+                    start = Job.objects.aggregate(id=Max("id")) or 0
+                    db_counter = Counter.objects.create(
+                        model=model_name, chunk_size=100, count=start + 1
+                    )
+                count = db_counter.count
+                maxx = db_counter.count = count + db_counter.chunk_size
+                db_counter.save()
 
-    COUNTERS[model_name] = (count + 1, maxx)
-    return count
+        COUNTERS[model_name] = (count + 1, maxx)
+        return count
 
 
 class PerformanceDatum(models.Model):
