@@ -251,10 +251,8 @@ def next_id(model):
             count = db_counter.count
             maxx = db_counter.count = count + db_counter.chunk_size
 
-    try:
-        return count
-    finally:
-        COUNTERS[model_name] = (count + 1, maxx)
+    COUNTERS[model_name] = (count + 1, maxx)
+    return count
 
 
 class PerformanceDatum(models.Model):
