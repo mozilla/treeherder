@@ -139,7 +139,6 @@ class PinBoard extends React.Component {
       classification.job_id = job.id;
       const { data, failureStatus } = await classification.create();
       if (!failureStatus) {
-        notify(`Classification saved for ${job.title}`, 'success');
         // update the job to show that it's now classified
         const jobInstance = findJobInstance(job.id);
 
@@ -165,18 +164,10 @@ class PinBoard extends React.Component {
         type: 'annotation',
       });
 
-      bjm
-        .create()
-        .then(() => {
-          notify(
-            `Bug association saved for ${job.platform} ${job.job_type_name}`,
-            'success',
-          );
-        })
-        .catch(response => {
-          const message = `Error saving bug association for ${job.platform} ${job.job_type_name}`;
-          notify(formatModelError(response, message), 'danger');
-        });
+      bjm.create().catch(response => {
+        const message = `Error saving bug association for ${job.platform} ${job.job_type_name}`;
+        notify(formatModelError(response, message), 'danger');
+      });
     });
   };
 
