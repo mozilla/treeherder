@@ -131,15 +131,18 @@ class AlertsView extends React.Component {
           this.getParamsFromFilters(updatedFilters),
         );
       }
-      this.setState({ filters: currentFilters }, this.fetchAlertSummaries);
+      this.setState(
+        {
+          filters: currentFilters,
+          notSupportedAlertFilters: this.selectNotSupportedFilters(
+            currentFilters.filterText,
+          ),
+        },
+        (id, update, page) => this.fetchAlertSummaries(id, update, page, false),
+      );
     } else {
       this.setState({ filters: currentFilters });
     }
-    this.setState({
-      notSupportedAlertFilters: this.selectNotSupportedFilters(
-        currentFilters.filterText,
-      ),
-    });
   };
 
   isListMode = () => {
@@ -217,21 +220,39 @@ class AlertsView extends React.Component {
      * - `repository`, because it has never been enabled & the new dropdown items could falsely hint it is.
      */
     const { projects } = this.props;
-    const { optionCollectionMap } = this.state;
+    const { optionCollectionMap, errorMessages } = this.state;
     const userInputArray = userInput.split(' ');
 
     const repositories = projects.map(({ name }) => name);
-    const optionsCollection = optionCollectionMap
-      ? Object.values(optionCollectionMap)
-      : [];
+
+    let optionsCollection = [];
+
+    if (optionCollectionMap != null) {
+      optionsCollection = Object.values(optionCollectionMap);
+    } else {
+      this.setState({
+        errorMessages: [
+          ...errorMessages,
+          'Something went wrong, we cannot filter by option collections',
+        ],
+      });
+    }
 
     const allNotSupportedFilters = [...repositories, ...optionsCollection];
     return allNotSupportedFilters.filter(elem => userInputArray.includes(elem));
   };
 
-  async fetchAlertSummaries(id = this.state.id, update = false, page = 1) {
+  async fetchAlertSummaries(
+    id = this.state.id,
+    update = false,
+    page = 1,
+    resetErrors = true,
+  ) {
     // turn off loading when update is true (used to update alert statuses)
-    this.setState({ loading: !update, errorMessages: [] });
+    this.setState(prevState => ({
+      loading: !update,
+      errorMessages: resetErrors ? [] : prevState.errorMessages,
+    }));
     const { user } = this.props;
     const {
       filters,
