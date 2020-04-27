@@ -21,6 +21,6 @@ class Migration(migrations.Migration):
         migrations.AlterField(
             model_name='performancedatum',
             name='id',
-            field=models.IntegerField(primary_key=True, serialize=False),
+            field=models.IntegerField(primary_key=True, serialize=False, verbose_name='ID'),
         ),
     ]
