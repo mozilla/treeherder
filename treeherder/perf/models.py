@@ -258,7 +258,7 @@ def next_id(model):
 
 class PerformanceDatum(models.Model):
     objects = PerformanceDatumManager()
-    id = models.IntegerField(null=False, primary_key=True, serialize=False, verbose_name='ID')
+    id = models.AutoField(primary_key=True, serialize=False, verbose_name='ID')
     repository = models.ForeignKey(Repository, on_delete=models.CASCADE)
     signature = models.ForeignKey(PerformanceSignature, on_delete=models.CASCADE)
     value = models.FloatField()
