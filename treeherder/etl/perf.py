@@ -162,6 +162,7 @@ def _load_perf_datum(job, perf_datum):
                     repository=job.repository,
                     framework=framework,
                     signature_hash=summary_signature_hash,
+                    application=application,
                 )
             subtest_signature_hash = _get_signature_hash(subtest_properties)
             value = list(
