@@ -236,7 +236,6 @@ class Counter(models.Model):
 COUNTERS = {}
 
 
-@transaction.atomic
 def next_id(model):
     """
     :return:  A unique integer key for given model
