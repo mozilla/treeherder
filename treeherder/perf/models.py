@@ -251,9 +251,9 @@ def next_id(model):
             # we require a new block of ids
             with transaction.atomic():
                 try:
-                    # hopefully the reocrd exists
+                    # hopefully the record exists
                     db_counter = Counter.objects.get(model=model_name)
-                except model.DoesNotExist:
+                except Counter.DoesNotExist:
                     # only happens once after a migration
                     start = Job.objects.aggregate(id=Max("id")) or 0
                     db_counter = Counter.objects.create(
