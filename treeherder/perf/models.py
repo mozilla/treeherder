@@ -240,12 +240,13 @@ def next_id(model):
     """
     :return:  A unique integer key for given model
     """
+    start = 1
     model_name = model.__class__.__name__
-    count, maxx = COUNTERS.get(model_name, (1, 0))
+    count, maxx = COUNTERS.get(model_name, (start, 0))
     if count >= maxx:
         with transaction.atomic():
             db_counter, _ = Counter.objects.get_or_create(
-                model=model_name, defaults={"chunk_size": 100, "count": 0}
+                model=model_name, defaults={"chunk_size": 100, "count": start}
             )
             count = db_counter.count
             maxx = db_counter.count = count + db_counter.chunk_size
