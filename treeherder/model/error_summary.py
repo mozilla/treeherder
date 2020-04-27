@@ -188,18 +188,11 @@ def is_helpful_search_term(search_term):
         'Return code: 0',
         'Return code: 1',
         'Return code: 2',
-        'Return code: 9',
         'Return code: 10',
         'mozalloc_abort(char const*)',
         'mozalloc_abort',
-        'Exiting 1',
-        'Exiting 9',
         'CrashingThread(void *)',
-        'libSystem.B.dylib + 0xd7a',
-        'linux-gate.so + 0x424',
-        'TypeError: content is null',
         'leakcheck',
-        'ImportError: No module named pygtk',
         '# TBPL FAILURE #',
     ]
 
