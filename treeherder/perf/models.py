@@ -121,7 +121,7 @@ class PerformanceSignature(models.Model):
             ),
             # ensure there is only one signature of any hash per
             # repository (same hash in different repositories is allowed)
-            ('repository', 'framework', 'signature_hash'),
+            ('repository', 'framework', 'application', 'signature_hash'),
         )
 
     def __str__(self):
