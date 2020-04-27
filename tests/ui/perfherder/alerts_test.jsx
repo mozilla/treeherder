@@ -78,9 +78,16 @@ const mockModifyAlert = {
 const mockUpdateAlertSummary = (alertSummaryId, params) => ({
   failureStatus: null,
 });
-const alertsView = () =>
+const alertsView = (updateParams = () => {}) =>
   render(
     <AlertsView
+      validated={{
+        hideDwnToInv: undefined,
+        hideImprovements: undefined,
+        hideAssignedToOthers: undefined,
+        filter: undefined,
+        updateParams,
+      }}
       user={testUser}
       projects={repos}
       location={{
@@ -103,6 +110,7 @@ const alertsViewControls = ({
       validated={{
         hideDwnToInv: undefined,
         hideImprovements: undefined,
+        hideAssignedToOthers: undefined,
         filter: undefined,
         updateParams: () => {},
       }}
@@ -254,6 +262,89 @@ test('clicking the star icon for an alert updates that alert', async () => {
     failureStatus: null,
   });
   modifyAlertSpy.mockClear();
+});
+
+test('changing the checkbox filters updates the params', async () => {
+  const updateParamsMock = jest.fn();
+
+  const { getByText } = alertsView(updateParamsMock);
+  const hideImprovements = getByText('Hide improvements');
+  const hideDownstream = getByText('Hide downstream / reassigned to / invalid');
+  const hideAssignedToOthers = getByText('My alerts');
+
+  // activate Hide improvements
+  fireEvent.click(hideImprovements);
+  expect(hideImprovements).toHaveClass('active');
+  expect(updateParamsMock).toHaveBeenCalledTimes(1);
+  expect(updateParamsMock.mock.calls[0][0]).toEqual({
+    hideImprovements: 1,
+    page: 1,
+  });
+
+  // deactivate Hide improvements
+  fireEvent.click(hideImprovements);
+  expect(hideImprovements).not.toHaveClass('active');
+  expect(updateParamsMock).toHaveBeenCalledTimes(2);
+  expect(updateParamsMock.mock.calls[1][0]).toEqual({
+    hideImprovements: 0,
+    page: 1,
+  });
+
+  // activate Hide downstream
+  fireEvent.click(hideDownstream);
+  expect(hideDownstream).toHaveClass('active');
+  expect(updateParamsMock).toHaveBeenCalledTimes(3);
+  expect(updateParamsMock.mock.calls[2][0]).toEqual({
+    hideDwnToInv: 1,
+    page: 1,
+  });
+
+  // deactivate Hide downstream
+  fireEvent.click(hideDownstream);
+  expect(hideDownstream).not.toHaveClass('active');
+  expect(updateParamsMock).toHaveBeenCalledTimes(4);
+  expect(updateParamsMock.mock.calls[3][0]).toEqual({
+    hideDwnToInv: 0,
+    page: 1,
+  });
+
+  // activate My alerts
+  fireEvent.click(hideAssignedToOthers);
+  expect(hideAssignedToOthers).toHaveClass('active');
+  expect(updateParamsMock).toHaveBeenCalledTimes(5);
+  expect(updateParamsMock.mock.calls[4][0]).toEqual({
+    hideAssignedToOthers: 1,
+    page: 1,
+  });
+
+  // deactivate My alerts
+  fireEvent.click(hideAssignedToOthers);
+  expect(hideAssignedToOthers).not.toHaveClass('active');
+  expect(updateParamsMock).toHaveBeenCalledTimes(6);
+  expect(updateParamsMock.mock.calls[5][0]).toEqual({
+    hideAssignedToOthers: 0,
+    page: 1,
+  });
+});
+
+test('changing the dropdown filters updates the params', async () => {
+  const updateParamsMock = jest.fn();
+  const { queryAllByText } = alertsView(updateParamsMock);
+  const allFromDropdown = await waitForElement(() => queryAllByText(/all/));
+
+  fireEvent.click(allFromDropdown[0]);
+  expect(updateParamsMock).toHaveBeenCalledTimes(1);
+  expect(updateParamsMock.mock.calls[0][0]).toEqual({
+    status: -1,
+    page: 1,
+  });
+
+  fireEvent.click(allFromDropdown[1]);
+  expect(updateParamsMock).toHaveBeenCalledTimes(2);
+  expect(updateParamsMock.mock.calls[1][0]).toEqual({
+    framework: -1,
+    page: 1,
+  });
 });
 
 test('selecting all alerts and marking them as acknowledged updates all alerts', async () => {
