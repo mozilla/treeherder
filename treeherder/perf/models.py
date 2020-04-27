@@ -241,7 +241,7 @@ def next_id(model):
     :return:  A unique integer key for given model
     """
     start = 1
-    model_name = model.__class__.__name__
+    model_name = model.__name__
     count, maxx = COUNTERS.get(model_name, (start, 0))
     if count >= maxx:
         with transaction.atomic():
