@@ -1,6 +1,6 @@
 import datetime
 import logging
-from _thread import allocate_lock
+from threading import Lock
 
 from django.contrib.auth.models import User
 from django.core.exceptions import ValidationError
@@ -240,7 +240,7 @@ class Counter(models.Model):
 
 class AutoIncrementMixin:
     COUNTERS = {}
-    COUNTERS_LOCK = allocate_lock()
+    COUNTERS_LOCK = Lock()
 
     def next_id(self):
         """
