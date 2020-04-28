@@ -159,6 +159,9 @@ for alias in DATABASES:
         # truncated upon insertion, so Django highly recommends activating a strict mode for MySQL to
         # prevent data loss (either STRICT_TRANS_TABLES or STRICT_ALL_TABLES).
         'init_command': "SET sql_mode='STRICT_TRANS_TABLES'",
+        # Ensure we read the value inside the transaction, not some other volatile value
+        # https://docs.djangoproject.com/en/2.1/ref/databases/#mysql-isolation-level
+        'isolation_level': 'repeatable read',
     }
     if connection_should_use_tls(DATABASES[alias]['HOST']):
         # Use TLS when connecting to RDS.
