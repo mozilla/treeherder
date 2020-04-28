@@ -5,6 +5,7 @@ from django.contrib.auth.models import User
 from django.core.exceptions import ValidationError
 from django.core.validators import MinLengthValidator
 from django.db import models, transaction
+from django.db.models import Max
 from django.utils.timezone import now as django_now
 
 from treeherder.model.models import Job, MachinePlatform, OptionCollection, Push, Repository
@@ -252,9 +253,9 @@ def next_id(model):
                 db_counter = Counter.objects.filter(model=model_name).first()
                 if not db_counter:
                     # only happens once after a migration
-                    start = 1  # model.objects.aggregate(id=Max("id"))['id'] or 0
+                    start = model.objects.aggregate(id=Max("id"))['id'] or 0
                     db_counter = Counter.objects.create(
-                        model=model_name, chunk_size=100, count=start + 1
+                        model=model_name, chunk_size=100, count=start + 1000000
                     )
                 count = db_counter.count
                 maxx = db_counter.count = count + db_counter.chunk_size
