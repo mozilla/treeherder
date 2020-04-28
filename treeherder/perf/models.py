@@ -1,5 +1,4 @@
 import datetime
-import logging
 from threading import Lock
 
 from django.contrib.auth.models import User
@@ -11,8 +10,6 @@ from django.utils.timezone import now as django_now
 
 from treeherder.model.models import Job, MachinePlatform, OptionCollection, Push, Repository
 from treeherder.perf.exceptions import MaxRuntimeExceeded, NoDataCyclingAtAll
-
-logger = logging.getLogger(__name__)
 
 SIGNATURE_HASH_LENGTH = 40
 
@@ -233,6 +230,11 @@ into chunks of chunk_size size."""
 
 
 class Counter(models.Model):
+    """
+    Used for tracking the blocks of ids severed to processes
+    Supports dense, globally unique, ids
+    """
+
     model = models.CharField(max_length=80, primary_key=True)
     chunk_size = models.IntegerField(null=False, default=100)
     count = models.BigIntegerField(null=False)
