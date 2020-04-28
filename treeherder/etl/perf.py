@@ -11,7 +11,6 @@ from treeherder.perf.models import (
     PerformanceDatum,
     PerformanceFramework,
     PerformanceSignature,
-    next_id,
 )
 from treeherder.perf.tasks import generate_alerts
 
@@ -146,7 +145,7 @@ def _load_perf_datum(job, perf_datum):
                 push=job.push,
                 signature=signature,
                 push_timestamp=job.push.time,
-                defaults={'id': next_id(PerformanceDatum), 'value': suite['value']},
+                defaults={'value': suite['value']},
             )
             if (
                 signature.should_alert is not False
@@ -213,7 +212,7 @@ def _load_perf_datum(job, perf_datum):
                 push=job.push,
                 signature=signature,
                 push_timestamp=job.push.time,
-                defaults={'id': next_id(PerformanceDatum), 'value': value[0]},
+                defaults={'value': value[0]},
             )
 
             # by default if there is no summary, we should schedule a

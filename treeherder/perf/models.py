@@ -294,6 +294,8 @@ class PerformanceDatum(models.Model):
         unique_together = ('repository', 'job', 'push', 'signature')
 
     def save(self, *args, **kwargs):
+        if not self.id:
+            self.id = next_id(PerformanceDatum)
         super().save(*args, **kwargs)  # Call the "real" save() method.
         if self.signature.last_updated < self.push_timestamp:
             self.signature.last_updated = self.push_timestamp

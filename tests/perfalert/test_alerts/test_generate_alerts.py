@@ -10,7 +10,6 @@ from treeherder.perf.models import (
     PerformanceAlertSummary,
     PerformanceDatum,
     PerformanceSignature,
-    next_id,
 )
 
 
@@ -64,7 +63,6 @@ def _generate_performance_data(
             },
         )
         PerformanceDatum.objects.create(
-            id=next_id(PerformanceDatum),
             repository=test_repository,
             result_set_id=t,
             push=push,

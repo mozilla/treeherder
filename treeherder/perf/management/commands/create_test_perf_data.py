@@ -5,7 +5,7 @@ from django.core.management import call_command
 from django.core.management.base import BaseCommand
 
 from treeherder.model.models import Push
-from treeherder.perf.models import PerformanceDatum, PerformanceSignature, next_id
+from treeherder.perf.models import PerformanceDatum, PerformanceSignature
 
 
 class Command(BaseCommand):
@@ -45,7 +45,6 @@ Type 'yes' to continue, or 'no' to cancel: """
             ([0.5 for i in range(int(INTERVAL / 2))] + [1.0 for i in range(int(INTERVAL / 2))]),
         ):
             PerformanceDatum.objects.create(
-                id=next_id(PerformanceDatum),
                 repository=s.repository,
                 result_set_id=t,
                 ds_job_id=t,

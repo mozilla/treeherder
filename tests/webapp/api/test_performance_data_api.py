@@ -224,7 +224,6 @@ def test_filter_data_by_framework(
     push = Push.objects.get(id=1)
     for signature in [test_perf_signature, signature2]:
         PerformanceDatum.objects.create(
-            id=next_id(PerformanceDatum),
             repository=signature.repository,
             push=push,
             result_set_id=1,
@@ -323,7 +322,6 @@ def test_filter_data_by_interval(
             time=timestamp,
         )
         PerformanceDatum.objects.create(
-            id=next_id(PerformanceDatum),
             repository=test_perf_signature.repository,
             result_set_id=push.id,
             push=push,
@@ -363,7 +361,6 @@ def test_filter_data_by_range(
             time=timestamp,
         )
         PerformanceDatum.objects.create(
-            id=next_id(PerformanceDatum),
             repository=test_perf_signature.repository,
             result_set_id=push.id,
             push=push,
