@@ -1,4 +1,5 @@
 import datetime
+import logging
 from threading import Lock
 
 from django.contrib.auth.models import User
@@ -10,6 +11,8 @@ from django.utils.timezone import now as django_now
 
 from treeherder.model.models import Job, MachinePlatform, OptionCollection, Push, Repository
 from treeherder.perf.exceptions import MaxRuntimeExceeded, NoDataCyclingAtAll
+
+logger = logging.getLogger(__name__)
 
 SIGNATURE_HASH_LENGTH = 40
 
@@ -252,13 +255,14 @@ def next_id(model):
             with transaction.atomic():
                 db_counter = Counter.objects.filter(model=model_name).first()
                 if not db_counter:
-                    # only happens once after a migration
+                    # only happens once
                     start = model.objects.aggregate(id=Max("id"))['id'] or 0
                     db_counter = Counter.objects.create(
-                        model=model_name, chunk_size=100, count=start + 1000000
+                        model=model_name, chunk_size=100, count=start + 1
                     )
                 count = db_counter.count
                 maxx = db_counter.count = count + db_counter.chunk_size
+                logger.info("Issue block ending %i", maxx)
                 db_counter.save()
 
         COUNTERS[model_name] = (count + 1, maxx)
