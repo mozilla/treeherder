@@ -1,6 +1,36 @@
 import pytest
 
-from treeherder.model.error_summary import get_crash_signature, get_error_search_term
+from treeherder.model.error_summary import (
+    get_cleaned_line,
+    get_crash_signature,
+    get_error_search_term,
+)
+
+LINE_CLEANING_TEST_CASES = (
+    (
+        (
+            '00:54:20     INFO - GECKO(1943) | Assertion failure: rc != 0 '
+            '(destroyed timer off its target thread!), at '
+            '/builds/worker/checkouts/gecko/xpcom/threads/TimerThread.cpp:434'
+        ),
+        (
+            'Assertion failure: rc != 0 (destroyed timer off its target thread!),'
+            ' at '
+            '/builds/worker/checkouts/gecko/xpcom/threads/TimerThread.cpp:434'
+        ),
+    ),
+)
+
+
+@pytest.mark.parametrize(("line_raw", "exp_line_cleaned"), LINE_CLEANING_TEST_CASES)
+def test_get_cleaned_line(line_raw, exp_line_cleaned):
+    """
+    Test cleaning from of error line from unnecessary information, e.g.
+    mozharness timestamps and process ids
+    """
+    actual_line_cleaned = get_cleaned_line(line_raw)
+    assert actual_line_cleaned == exp_line_cleaned
+
 
 PIPE_DELIMITED_LINE_TEST_CASES = (
     (
@@ -55,8 +85,7 @@ PIPE_DELIMITED_LINE_TEST_CASES = (
     ),
     (
         (
-            "GECKO(1670) "
-            "| TEST-UNEXPECTED-FAIL "
+            "TEST-UNEXPECTED-FAIL "
             "| /tests/dom/events/test/pointerevents/pointerevent_touch-action-table-test_touch-manual.html "
             "| touch-action attribute test on the cell: assert_true: scroll received while shouldn't expected true got false"
         ),
@@ -64,8 +93,7 @@ PIPE_DELIMITED_LINE_TEST_CASES = (
     ),
     (
         (
-            "PID 1670 "
-            "| TEST-UNEXPECTED-FAIL "
+            "TEST-UNEXPECTED-FAIL "
             "| /tests/dom/events/test/pointerevents/pointerevent_touch-action-table-test_touch-manual.html "
             "| touch-action attribute test on the cell: assert_true: scroll received while shouldn't expected true got false"
         ),
