@@ -255,7 +255,7 @@ def next_id(model):
                     db_counter = Counter.objects.get(model=model_name)
                 except Counter.DoesNotExist:
                     # only happens once after a migration
-                    start = Job.objects.aggregate(id=Max("id")) or 0
+                    start = model.objects.aggregate(id=Max("id"))['id'] or 0
                     db_counter = Counter.objects.create(
                         model=model_name, chunk_size=100, count=start + 1
                     )
