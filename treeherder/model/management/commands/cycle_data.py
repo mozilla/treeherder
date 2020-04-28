@@ -6,6 +6,7 @@ from django.db.utils import OperationalError
 
 from treeherder.model.models import Job, JobGroup, JobType, Machine
 from treeherder.perf.models import PerformanceDatum
+from django.conf import settings
 
 logging.basicConfig(format='%(levelname)s:%(message)s')
 
@@ -77,7 +78,10 @@ class PerfherderCycler(DataCycler):
 
     def __init__(self, days, chunk_size, sleep_time, is_debug=None, logger=None, **kwargs):
         super().__init__(days, chunk_size, sleep_time, is_debug, logger)
-        if days < MINIMUM_PERFHERDER_EXPIRE_INTERVAL:
+        if (
+            days < MINIMUM_PERFHERDER_EXPIRE_INTERVAL
+            and settings.SITE_HOSTNAME != 'treeherder-prototype2.herokuapp.com'
+        ):
             raise ValueError(
                 'Cannot remove performance data that is more recent than {} days'.format(
                     MINIMUM_PERFHERDER_EXPIRE_INTERVAL
