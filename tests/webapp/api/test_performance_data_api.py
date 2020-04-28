@@ -8,7 +8,6 @@ from treeherder.perf.models import (
     PerformanceDatum,
     PerformanceFramework,
     PerformanceSignature,
-    next_id,
 )
 
 NOW = datetime.datetime.now()
@@ -403,7 +402,6 @@ def test_filter_data_by_signature(
     )
     for (i, signature) in enumerate([test_perf_signature, summary_perf_signature]):
         PerformanceDatum.objects.create(
-            id=next_id(PerformanceDatum),
             repository=signature.repository,
             result_set_id=push.id,
             push=push,

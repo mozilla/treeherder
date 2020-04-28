@@ -1,6 +1,6 @@
 import datetime
 import logging
-from threading import Lock
+from _thread import allocate_lock
 
 from django.contrib.auth.models import User
 from django.core.exceptions import ValidationError
@@ -239,7 +239,7 @@ class Counter(models.Model):
 
 
 COUNTERS = {}
-COUNTERS_LOCK = Lock()
+COUNTERS_LOCK = allocate_lock()
 
 
 def next_id(model):
