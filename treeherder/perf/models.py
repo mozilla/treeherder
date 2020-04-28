@@ -5,7 +5,6 @@ from django.contrib.auth.models import User
 from django.core.exceptions import ValidationError
 from django.core.validators import MinLengthValidator
 from django.db import models, transaction
-from django.db.models import Max
 from django.utils.timezone import now as django_now
 
 from treeherder.model.models import Job, MachinePlatform, OptionCollection, Push, Repository
@@ -230,7 +229,7 @@ into chunks of chunk_size size."""
 
 
 class Counter(models.Model):
-    model = models.CharField(max_length=80, blank=False, null=False, primary_key=True)
+    model = models.CharField(max_length=80, primary_key=True)
     chunk_size = models.IntegerField(null=False, default=100)
     count = models.BigIntegerField(null=False)
 
@@ -250,12 +249,10 @@ def next_id(model):
         if count >= maxx:
             # we require a new block of ids
             with transaction.atomic():
-                try:
-                    # hopefully the record exists
-                    db_counter = Counter.objects.get(model=model_name)
-                except Counter.DoesNotExist:
+                db_counter = Counter.objects.filter(model=model_name).first()
+                if not db_counter:
                     # only happens once after a migration
-                    start = model.objects.aggregate(id=Max("id"))['id'] or 0
+                    start = 1  # model.objects.aggregate(id=Max("id"))['id'] or 0
                     db_counter = Counter.objects.create(
                         model=model_name, chunk_size=100, count=start + 1
                     )
