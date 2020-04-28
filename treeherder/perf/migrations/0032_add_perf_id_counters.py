@@ -18,9 +18,4 @@ class Migration(migrations.Migration):
                 ('count', models.BigIntegerField()),
             ],
         ),
-        migrations.AlterField(
-            model_name='performancedatum',
-            name='id',
-            field=models.AutoField(primary_key=True, serialize=False, verbose_name='ID'),
-        ),
     ]

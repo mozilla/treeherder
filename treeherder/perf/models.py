@@ -238,40 +238,39 @@ class Counter(models.Model):
     count = models.BigIntegerField(null=False)
 
 
-COUNTERS = {}
-COUNTERS_LOCK = allocate_lock()
+class AutoIncrementMixin:
+    COUNTERS = {}
+    COUNTERS_LOCK = allocate_lock()
+
+    def next_id(self):
+        """
+        REQUIRES 'isolation_level': 'serializable',
+        :return:  A unique integer key for given model
+        """
+        model = type(self)
+        model_name = model.__name__
+        with AutoIncrementMixin.COUNTERS_LOCK:
+            count, maxx = AutoIncrementMixin.COUNTERS.get(model_name, (1, 0))
+            if count >= maxx:
+                # we require a new block of ids
+                with transaction.atomic():
+                    db_counter = Counter.objects.filter(model=model_name).first()
+                    if not db_counter:
+                        # only happens once
+                        start = model.objects.aggregate(id=Max("id"))['id'] or 0
+                        db_counter = Counter.objects.create(
+                            model=model_name, chunk_size=100, count=start + 1
+                        )
+                    count = db_counter.count
+                    maxx = db_counter.count = count + db_counter.chunk_size
+                    db_counter.save()
+
+            AutoIncrementMixin.COUNTERS[model_name] = (count + 1, maxx)
+            return count
 
 
-def next_id(model):
-    """
-    :return:  A unique integer key for given model
-    """
-    start = 1
-    model_name = model.__name__
-    with COUNTERS_LOCK:
-        count, maxx = COUNTERS.get(model_name, (start, 0))
-        if count >= maxx:
-            # we require a new block of ids
-            with transaction.atomic():
-                db_counter = Counter.objects.filter(model=model_name).first()
-                if not db_counter:
-                    # only happens once
-                    start = model.objects.aggregate(id=Max("id"))['id'] or 0
-                    db_counter = Counter.objects.create(
-                        model=model_name, chunk_size=100, count=start + 1
-                    )
-                count = db_counter.count
-                maxx = db_counter.count = count + db_counter.chunk_size
-                logger.info("Issue block ending %i", maxx)
-                db_counter.save()
-
-        COUNTERS[model_name] = (count + 1, maxx)
-        return count
-
-
-class PerformanceDatum(models.Model):
+class PerformanceDatum(AutoIncrementMixin, models.Model):
     objects = PerformanceDatumManager()
-    id = models.AutoField(primary_key=True, serialize=False, verbose_name='ID')
     repository = models.ForeignKey(Repository, on_delete=models.CASCADE)
     signature = models.ForeignKey(PerformanceSignature, on_delete=models.CASCADE)
     value = models.FloatField()
@@ -299,7 +298,7 @@ class PerformanceDatum(models.Model):
 
     def save(self, *args, **kwargs):
         if not self.id:
-            self.id = next_id(PerformanceDatum)
+            self.id = self.next_id()
         super().save(*args, **kwargs)  # Call the "real" save() method.
         if self.signature.last_updated < self.push_timestamp:
             self.signature.last_updated = self.push_timestamp
