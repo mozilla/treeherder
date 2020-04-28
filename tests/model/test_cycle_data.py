@@ -21,11 +21,7 @@ from treeherder.model.models import (
     Push,
 )
 from treeherder.perf.exceptions import MaxRuntimeExceeded
-from treeherder.perf.models import (
-    PerformanceDatum,
-    PerformanceDatumManager,
-    PerformanceSignature,
-)
+from treeherder.perf.models import PerformanceDatum, PerformanceDatumManager, PerformanceSignature
 
 
 def test_cycle_all_data(

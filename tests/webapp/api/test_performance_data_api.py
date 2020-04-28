@@ -4,11 +4,7 @@ import pytest
 from django.urls import reverse
 
 from treeherder.model.models import MachinePlatform, Push
-from treeherder.perf.models import (
-    PerformanceDatum,
-    PerformanceFramework,
-    PerformanceSignature,
-)
+from treeherder.perf.models import PerformanceDatum, PerformanceFramework, PerformanceSignature
 
 NOW = datetime.datetime.now()
 ONE_DAY_AGO = NOW - datetime.timedelta(days=1)
