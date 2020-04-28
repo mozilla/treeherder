@@ -161,7 +161,7 @@ for alias in DATABASES:
         'init_command': "SET sql_mode='STRICT_TRANS_TABLES'",
         # Ensure we read the value inside the transaction, not some other volatile value
         # https://docs.djangoproject.com/en/2.1/ref/databases/#mysql-isolation-level
-        'isolation_level': 'repeatable read',
+        'isolation_level': 'serializable',
     }
     if connection_should_use_tls(DATABASES[alias]['HOST']):
         # Use TLS when connecting to RDS.
