@@ -1,10 +1,15 @@
 # Visit https://help.github.com/en/github/creating-cloning-and-archiving-repositories/about-code-owners#codeowners-syntax
 # for learning about the syntax
 
-# Dot files
-.*                                      @armenzg
-docker/*                                @armenzg
-treeherder/etl/management/commands/*    @armenzg
-ui/push-health/*                        @camd
-ui/intermittent-failures/*              @sarah-clements
-ui/intermittents-commenter/*            @sarah-clements
+*                           @mozilla/treeherder-admins
+# Dot files at the root level
+/.*                         @armenzg
+/app.json                   @armenzg
+/docker-compose.yml         @armenzg
+/docker/*                   @armenzg
+management/commands/*       @armenzg
+extract/                    @klahnakoski
+push-health/*               @camd
+intermittent-failures/*     @sarah-clements
+intermittents-commenter/*   @sarah-clements
+perfherder/*                @ionutgoldan
