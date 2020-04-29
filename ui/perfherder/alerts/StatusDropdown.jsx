@@ -13,6 +13,7 @@ import template from 'lodash/template';
 import templateSettings from 'lodash/templateSettings';
 
 import {
+  getFrameworkName,
   getTextualSummary,
   getTitle,
   getStatus,
@@ -43,6 +44,7 @@ export default class StatusDropdown extends React.Component {
       bugTemplate,
       updateViewState,
       filteredAlerts,
+      frameworks,
     } = this.props;
     let result = bugTemplate;
 
@@ -63,7 +65,7 @@ export default class StatusDropdown extends React.Component {
     }
 
     const templateArgs = {
-      framework: alertSummary.framework,
+      framework: getFrameworkName(frameworks, alertSummary.framework),
       revision: alertSummary.revision,
       revisionHref: repoModel.getPushLogHref(alertSummary.revision),
       alertHref: `${window.location.origin}/perf.html#/alerts?id=${alertSummary.id}`,

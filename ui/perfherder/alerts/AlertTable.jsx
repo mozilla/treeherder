@@ -245,6 +245,7 @@ export default class AlertTable extends React.Component {
                         bugTemplate={bugTemplate}
                         user={user}
                         filteredAlerts={filteredAlerts}
+                        frameworks={frameworks}
                       />
                     </th>
                   </tr>
