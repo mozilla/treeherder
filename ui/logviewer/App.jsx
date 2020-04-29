@@ -101,17 +101,44 @@ class App extends React.PureComponent {
               run: job.retry_id,
               rootUrl: currentRepo.tc_root_url,
             };
-            const url = getArtifactsUrl(params);
-            const jobArtifactsPromise = getData(url);
+
+            const jobArtifactsPromise = getData(getArtifactsUrl(params));
+            let builtFromArtifactPromise;
+
+            if (
+              currentRepo.name === 'comm-central' ||
+              currentRepo.name === 'try-comm-central'
+            ) {
+              builtFromArtifactPromise = getData(
+                getArtifactsUrl({
+                  ...params,
+                  ...{ artifactPath: 'public/build/built_from.json' },
+                }),
+              );
+            }
             const pushPromise = PushModel.get(job.push_id);
 
-            Promise.all([jobArtifactsPromise, pushPromise]).then(
-              async ([artifactsResp, pushResp]) => {
+            Promise.all([
+              jobArtifactsPromise,
+              pushPromise,
+              builtFromArtifactPromise,
+            ]).then(
+              async ([artifactsResp, pushResp, builtFromArtifactResp]) => {
                 const { revision } = await pushResp.json();
-                const jobArtifacts =
+                let jobArtifacts =
                   !artifactsResp.failureStatus && artifactsResp.data.artifacts
                     ? formatArtifacts(artifactsResp.data.artifacts, params)
                     : [];
+
+                if (
+                  builtFromArtifactResp &&
+                  !builtFromArtifactResp.failureStatus
+                ) {
+                  jobArtifacts = [
+                    ...jobArtifacts,
+                    ...builtFromArtifactResp.data,
+                  ];
+                }
 
                 // remove duplicates since the jobdetails endpoint will still
                 // contain uploaded artifacts until 4 months after we stop storing them

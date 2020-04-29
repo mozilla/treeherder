@@ -202,6 +202,19 @@ class DetailsPanel extends React.Component {
         };
 
         const jobArtifactsPromise = getData(getArtifactsUrl(artifactsParams));
+        let builtFromArtifactPromise;
+
+        if (
+          currentRepo.name === 'comm-central' ||
+          currentRepo.name === 'try-comm-central'
+        ) {
+          builtFromArtifactPromise = getData(
+            getArtifactsUrl({
+              ...artifactsParams,
+              ...{ artifactPath: 'public/build/built_from.json' },
+            }),
+          );
+        }
 
         const jobLogUrlPromise = JobLogUrlModel.getList(
           { job_id: selectedJob.id },
@@ -221,6 +234,7 @@ class DetailsPanel extends React.Component {
           jobLogUrlPromise,
           phSeriesPromise,
           jobArtifactsPromise,
+          builtFromArtifactPromise,
         ])
           .then(
             async ([
@@ -229,6 +243,7 @@ class DetailsPanel extends React.Component {
               jobLogUrlResult,
               phSeriesResult,
               jobArtifactsResult,
+              builtFromArtifactResult,
             ]) => {
               // This version of the job has more information than what we get in the main job list.  This
               // is what we'll pass to the rest of the details panel.
@@ -241,12 +256,21 @@ class DetailsPanel extends React.Component {
 
               addAggregateFields(selectedJobFull);
 
-              const jobArtifacts = jobArtifactsResult.data.artifacts
+              let jobArtifacts = jobArtifactsResult.data.artifacts
                 ? formatArtifacts(jobArtifactsResult.data.artifacts, {
                     ...artifactsParams,
                   })
                 : [];
 
+              if (
+                builtFromArtifactResult &&
+                !builtFromArtifactResult.failureStatus
+              ) {
+                jobArtifacts = [
+                  ...jobArtifacts,
+                  ...builtFromArtifactResult.data,
+                ];
+              }
               jobDetails = uniqBy(
                 [...jobDetailResult, ...jobArtifacts],
                 'value',
