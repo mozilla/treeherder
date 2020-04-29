@@ -73,7 +73,7 @@ class App extends React.PureComponent {
         const currentRepo = repos.find(repo => repo.name === repoName);
 
         // set the title of  the browser window/tab
-        document.title = job.title;
+        document.title = job.searchStr;
         const rawLogUrl = job.logs && job.logs.length ? job.logs[0].url : null;
         // other properties, in order of appearance
         // Test to disable successful steps checkbox on taskcluster jobs

@@ -181,7 +181,6 @@ export const addAggregateFields = function addAggregateFields(job) {
     result,
     platform,
     platform_option: platformOption,
-    signature,
     submit_timestamp: submitTimestamp,
     start_timestamp: startTimestamp,
     end_timestamp: endTimestamp,
@@ -193,7 +192,7 @@ export const addAggregateFields = function addAggregateFields(job) {
   // we want to do a search on something like `fxup-esr(`)
   const symbolInfo = jobGroupSymbol === '?' ? '' : jobGroupSymbol;
 
-  job.title = [
+  job.searchStr = [
     thPlatformMap[platform] || platform,
     platformOption,
     jobGroupName === 'unknown' ? undefined : jobGroupName,
@@ -202,7 +201,6 @@ export const addAggregateFields = function addAggregateFields(job) {
   ]
     .filter(item => typeof item !== 'undefined')
     .join(' ');
-  job.searchStr = `${job.title} ${signature}`;
 
   if (!('duration' in job)) {
     // If start time is 0, then duration should be from requesttime to now
