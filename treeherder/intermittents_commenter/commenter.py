@@ -201,12 +201,7 @@ class Commenter:
         stockwell_text = re.search(r'\[stockwell (.+?)\]', whiteboard)
         if stockwell_text is not None:
             text = stockwell_text.group(1).split(':')[0]
-            if (
-                text == 'fixed'
-                or text == 'disable-recommended'
-                or text == 'infra'
-                or text == 'disabled'
-            ):
+            if text == 'fixed' or text == 'infra' or 'disable' in text:
                 return True
         return False
 
