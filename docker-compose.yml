@@ -101,7 +101,7 @@ services:
   pulse-task-push:
     build:
       context: .
-      dockerfile: docker/dev.Dockerfile
+      dockerfile: docker/backend/dev.Dockerfile
     environment:
       - PULSE_URL=${PULSE_URL:-amqp://docker-shared-user:8r5VFxpJHtJahTVV5bYutykgDsXhGF@pulse.mozilla.org:5671/?ssl=1}
       - LOGGING_LEVEL=INFO
@@ -120,7 +120,7 @@ services:
   celery:
     build:
       context: .
-      dockerfile: docker/dev.Dockerfile
+      dockerfile: docker/backend/dev.Dockerfile
     environment:
       - CELERY_BROKER_URL=amqp://guest:guest@rabbitmq:5672//
       - DATABASE_URL=mysql://root@mysql:3306/treeherder
