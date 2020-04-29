@@ -141,6 +141,12 @@ DATABASES = {
     'default': env.db_url('DATABASE_URL', default=LOCALHOST_MYSQL_HOST),
 }
 
+DATABASE_URL = "mysql://root@localhost:3306/treeherder"
+SKIP_INGESTION = False
+# Skip Data Ingestion when points to other than localhost
+if (DATABASE_URL != "mysql://root@localhost:3306/treeherder" or DATABASE_URL != "mysql://root@127.0.0.1:3306/treeherder"):
+    SKIP_INGESTION = True
+
 # Only used when syncing local database with production replicas
 UPSTREAM_DATABASE_URL = env('UPSTREAM_DATABASE_URL', default=None)
 if UPSTREAM_DATABASE_URL:

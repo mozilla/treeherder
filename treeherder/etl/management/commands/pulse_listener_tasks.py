@@ -1,6 +1,6 @@
 import environ
 from django.core.management.base import BaseCommand
-
+from treeherder.config.settings import SKIP_INGESTION
 from treeherder.services.pulse import TaskConsumer, prepare_consumers
 
 env = environ.Env()
@@ -17,7 +17,7 @@ class Command(BaseCommand):
     help = "Read jobs from a set of pulse exchanges and queue for ingestion"
 
     def handle(self, *args, **options):
-        if env.bool('SKIP_INGESTION', default=False):
+        if(SKIP_INGESTION):
             self.stdout.write("Skipping ingestion of Pulse Tasks")
             return
         # Specifies the Pulse services from which Treeherder will consume task

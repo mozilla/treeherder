@@ -1,6 +1,6 @@
 import environ
 from django.core.management.base import BaseCommand
-
+from treeherder.config.settings import SKIP_INGESTION
 from treeherder.services.pulse import PushConsumer, prepare_consumers
 
 env = environ.Env()
@@ -17,8 +17,8 @@ class Command(BaseCommand):
     help = "Read pushes from a set of pulse exchanges and queue for ingestion"
 
     def handle(self, *args, **options):
-        if env.bool('SKIP_INGESTION', default=False):
-            self.stdout.write("Skipping ingestion of Pulse Pushes")
+        if(SKIP_INGESTION):
+            self.stdout.write("Skipping ingestion of Pulse Tasks")
             return
         # Specifies the Pulse services from which Treeherder will ingest push
         # information.  Sources can include properties `hgmo`, `github`, or both, to
