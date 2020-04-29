@@ -1,12 +1,16 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import { Alert, Button, Col } from 'reactstrap';
+import { Alert, Button } from 'reactstrap';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faExternalLinkAlt } from '@fortawesome/free-solid-svg-icons';
 
+import Clipboard from '../shared/Clipboard';
 import PushHealthStatus from '../shared/PushHealthStatus';
+import PushAuthor from '../shared/PushAuthor';
 import { RevisionList } from '../shared/RevisionList';
 import { getJobsUrl } from '../helpers/url';
 import RepositoryModel from '../models/repository';
-import Clipboard from '../shared/Clipboard';
+import { toDateStr } from '../helpers/display';
 
 class CommitHistory extends React.PureComponent {
   constructor(props) {
@@ -33,6 +37,7 @@ class CommitHistory extends React.PureComponent {
         parentPushRevision,
         revisions,
         revisionCount,
+        currentPush,
       },
       revision,
       currentRepo,
@@ -45,50 +50,31 @@ class CommitHistory extends React.PureComponent {
           repo: parentRepository.name,
         })}`
       : parentRepoModel.getRevisionHref(parentSha);
+    const revisionPushFilterUrl = getJobsUrl({
+      revision,
+      repo: currentRepo.name,
+    });
+    const { author, push_timestamp: pushTimestamp } = currentPush;
+    const authorPushFilterUrl = getJobsUrl({ author, repo: currentRepo.name });
 
     return (
       <React.Fragment>
-        <h5>Parent Push</h5>
-        <div className="ml-4">
-          {!exactMatch && (
-            <div>
-              <Alert color="warning" className="m-3 font-italics">
-                Warning: Could not find an exact match parent Push in
-                Treeherder.
-              </Alert>
-              {id && <div>Closest match: </div>}
-            </div>
-          )}
-          <Col
-            className="mb-2 ml-2"
-            onMouseEnter={() => this.showClipboard(true)}
-            onMouseLeave={() => this.showClipboard(false)}
-          >
-            <Clipboard
-              description="full hash"
-              text={parentSha}
-              visible={clipboardVisible}
-            />
+        <div className="push-header border-bottom" data-testid="push-header">
+          <div className="push-bar">
             <a
-              href={parentLinkUrl}
-              target="_blank"
-              rel="noopener noreferrer"
-              title="Open this push"
-              data-testid="parent-commit-sha"
-              className="mr-1 text-monospace commit-sha"
+              href={revisionPushFilterUrl}
+              title="View this push in Treeherder"
             >
-              {parentPushRevision || parentSha}
-            </a>
-            {exactMatch && (
-              <PushHealthStatus
-                revision={parentPushRevision}
-                repoName={parentRepository.name}
-                jobCounts={jobCounts}
+              {toDateStr(pushTimestamp)}
+              <FontAwesomeIcon
+                icon={faExternalLinkAlt}
+                className="ml-1 icon-superscript"
               />
-            )}
-          </Col>
+            </a>
+            <span className="mx-1">-</span>
+            <PushAuthor author={author} url={authorPushFilterUrl} />
+          </div>
         </div>
-        <h5 className="mt-4">Commit revisions</h5>
         {revisions.length <= 5 || showAllRevisions ? (
           <RevisionList
             revision={revision}
@@ -115,6 +101,48 @@ class CommitHistory extends React.PureComponent {
             </Button>
           </span>
         )}
+        <div className="mt-4">
+          Parent Push:
+          <span className="ml-2">
+            {!exactMatch && (
+              <div>
+                <Alert color="warning" className="m-3 font-italics">
+                  Warning: Could not find an exact match parent Push in
+                  Treeherder.
+                </Alert>
+                {id && <div>Closest match: </div>}
+              </div>
+            )}
+            <span
+              className="mb-2"
+              onMouseEnter={() => this.showClipboard(true)}
+              onMouseLeave={() => this.showClipboard(false)}
+            >
+              <Clipboard
+                description="full hash"
+                text={parentSha}
+                visible={clipboardVisible}
+              />
+              <a
+                href={parentLinkUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+                title="Open this push"
+                data-testid="parent-commit-sha"
+                className="mr-1 text-monospace commit-sha"
+              >
+                {parentPushRevision || parentSha}
+              </a>
+              {exactMatch && (
+                <PushHealthStatus
+                  revision={parentPushRevision}
+                  repoName={parentRepository.name}
+                  jobCounts={jobCounts}
+                />
+              )}
+            </span>
+          </span>
+        </div>
       </React.Fragment>
     );
   }

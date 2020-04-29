@@ -2,12 +2,12 @@ import logging
 
 from treeherder.model.models import Commit, Push
 from treeherder.utils.http import fetch_json
-from treeherder.webapp.api.serializers import RepositorySerializer
+from treeherder.webapp.api.serializers import RepositorySerializer, PushSerializer
 
 logger = logging.getLogger(__name__)
 
 
-def get_response_object(parent_sha, revisions, revision_count, push, repository):
+def get_response_object(parent_sha, revisions, revision_count, push, repository, current_push):
     """Build a response object that shows the parent and commit history.
 
     parent_sha -- The SHA of the parent of the latest commit
@@ -31,6 +31,7 @@ def get_response_object(parent_sha, revisions, revision_count, push, repository)
         'revisions': revisions,
         'revisionCount': revision_count,
         'parentPush': None,
+        'currentPush': PushSerializer(current_push).data,
     }
     if push:
         resp.update(
@@ -92,7 +93,7 @@ def get_commit_history(repository, revision, push):
     if len_parents == 1:
         parent_push = parent_pushes[0]
         return get_response_object(
-            parent_sha, revisions, revision_count, parent_push, parent_push.repository
+            parent_sha, revisions, revision_count, parent_push, parent_push.repository, push
         )
 
     elif len_parents > 1:
@@ -102,7 +103,7 @@ def get_commit_history(repository, revision, push):
             # first one.  No way to know which one is more correct.
             mc_push = mc_pushes[0]
             return get_response_object(
-                parent_sha, revisions, revision_count, mc_push, mc_push.repository
+                parent_sha, revisions, revision_count, mc_push, mc_push.repository, push
             )
 
     # This parent doesn't have its own push, so look for it in the commits table
@@ -113,9 +114,9 @@ def get_commit_history(repository, revision, push):
     for commit in commits:
         if commit.push.revision != revision:
             return get_response_object(
-                parent_sha, commits, revision_count, commit.push, commit.push.repository
+                parent_sha, revisions, revision_count, None, commit.push.repository, push
             )
 
     # We can't find any mention of this commit, so return what we have.  Hope
     # for the best that it's in the same repository as the push in question.
-    return get_response_object(parent_sha, revisions, revision_count, None, repository)
+    return get_response_object(parent_sha, revisions, revision_count, None, repository, push)

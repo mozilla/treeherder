@@ -7,7 +7,14 @@ from treeherder.push_health.compare import get_commit_history, get_response_obje
 
 
 def test_get_response_object(test_push, test_repository):
-    resp = get_response_object('1234', [1, 2], 2, test_push, test_repository)
+    test_revision = 'abcdef77949168d16c03a4cba167678b7ab65f76'
+    current_push = Push.objects.create(
+        revision=test_revision,
+        repository=test_repository,
+        author='foo@bar.baz',
+        time=datetime.datetime.now(),
+    )
+    resp = get_response_object('1234', [1, 2], 2, test_push, test_repository, current_push)
     assert resp['parentSha'] == '1234'
     assert resp['id'] == 1
     assert resp['exactMatch'] is False

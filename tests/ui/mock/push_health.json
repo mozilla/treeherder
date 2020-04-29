@@ -42,7 +42,24 @@
             "revision": "cd02b96bdce57d9ae53b632ca4740c871d3ecc32"
           }
         ],
-        "revisionCount": 1
+        "revisionCount": 1,
+        "currentPush": {
+          "id": 701892,
+          "revision": "00e6c3477d8d0c4cd1526768f985b7b26b07b783",
+          "author": "hiro@mozilla.com",
+          "revisions": [
+            {
+              "result_set_id": 701892,
+              "repository_id": 77,
+              "revision": "00e6c3477d8d0c4cd1526768f985b7b26b07b783",
+              "author": "Hiro Protagonist<hiro@mozilla.com>",
+              "comments": "Bug 1234 - Fixed a thing"
+            }
+          ],
+          "revision_count": 1,
+          "push_timestamp": 1588785809,
+          "repository_id": 77
+        }
       }
     },
     "linting": {

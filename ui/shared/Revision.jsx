@@ -73,12 +73,12 @@ export class Revision extends React.PureComponent {
 
     return (
       <Row
-        className="revision ml-1 flex-nowrap"
+        className="revision flex-nowrap"
         onMouseEnter={() => this.showClipboard(true)}
         onMouseLeave={() => this.showClipboard(false)}
         data-testid="revision"
       >
-        <span className="pl-4 pr-1 text-nowrap">
+        <span className="pr-1 text-nowrap">
           <Clipboard
             description="full hash"
             text={commitRevision}
