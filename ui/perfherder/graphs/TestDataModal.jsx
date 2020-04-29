@@ -406,7 +406,7 @@ export default class TestDataModal extends React.Component {
         title: 'Framework',
       },
       {
-        options: projectOptions,
+        options: projectOptions.sort(),
         selectedItem: repositoryName.name || '',
         pinnedProjects: pinnedProjects.filter(item =>
           projectOptions.includes(item),
