@@ -180,8 +180,6 @@ def test_create_unauthenticated_bug(client, eleven_jobs_stored, activate_respons
         assert requestdata['comment_tags'] == "treeherder"
         assert requestdata['version'] == "4.0.17"
         assert requestdata['keywords'] == ["intermittent-failure"]
-        assert requestdata['depends_on'] == "123"
-        assert requestdata['blocks'] == "1234"
         assert requestdata['see_also'] == "12345"
         resp_body = {"id": 323}
         return (200, headers, json.dumps(resp_body))
@@ -205,8 +203,6 @@ def test_create_unauthenticated_bug(client, eleven_jobs_stored, activate_respons
             "comment": u"Intermittent Description",
             "comment_tags": "treeherder",
             "keywords": ["intermittent-failure"],
-            "depends_on": "123",
-            "blocks": "1234",
             "see_also": "12345",
         },
     )
@@ -233,10 +229,9 @@ def test_create_bug_with_long_crash_signature(
         assert requestdata['summary'] == u"Intermittent summary"
         assert requestdata['comment_tags'] == "treeherder"
         assert requestdata['version'] == "4.0.17"
-        assert requestdata['keywords'] == ["intermittent-failure"]
+        assert requestdata['keywords'] == ["intermittent-failure", "regression"]
         assert requestdata['cf_crash_signature'] == "[@crashsig]"
-        assert requestdata['depends_on'] == "123"
-        assert requestdata['blocks'] == "1234"
+        assert requestdata['regressed_by'] == "123"
         assert requestdata['see_also'] == "12345"
         resp_body = {"id": 323}
         return (200, headers, json.dumps(resp_body))
@@ -262,10 +257,9 @@ def test_create_bug_with_long_crash_signature(
             "version": "4.0.17",
             "comment": u"Intermittent Description",
             "comment_tags": "treeherder",
-            "keywords": ["intermittent-failure"],
+            "keywords": ["intermittent-failure", "regression"],
             "crash_signature": crashsig,
-            "depends_on": "123",
-            "blocks": "1234",
+            "regressed_by": "123",
             "see_also": "12345",
         },
     )
