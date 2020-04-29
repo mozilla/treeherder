@@ -94,7 +94,7 @@ class Push extends React.PureComponent {
       jobCounts: { pending: 0, running: 0, completed: 0, fixedByCommit: 0 },
       pushGroupState: 'collapsed',
       collapsed: collapsedPushes.includes(push.id),
-      singleTryPush: false,
+      filteredTryPush: false,
       pushHealthStatus: null,
     };
   }
@@ -111,7 +111,7 @@ class Push extends React.PureComponent {
       await this.fetchTestManifests();
     }
 
-    this.testForSingleTry();
+    this.testForFilteredTry();
 
     window.addEventListener(thEvents.applyNewJobs, this.handleApplyNewJobs);
     window.addEventListener('hashchange', this.handleUrlChanges);
@@ -119,7 +119,7 @@ class Push extends React.PureComponent {
 
   componentDidUpdate(prevProps, prevState) {
     this.showUpdateNotifications(prevState);
-    this.testForSingleTry();
+    this.testForFilteredTry();
   }
 
   componentWillUnmount() {
@@ -177,12 +177,14 @@ class Push extends React.PureComponent {
     )}`;
   }
 
-  testForSingleTry = () => {
+  testForFilteredTry = () => {
     const { currentRepo } = this.props;
-    const revision = getUrlParam('revision');
-    const singleTryPush = !!revision && currentRepo.name === 'try';
+    const filterParams = ['revision', 'author'];
+    const urlParams = getAllUrlParams();
+    const filteredTryPush =
+      filterParams.some(f => urlParams.has(f)) && currentRepo.name === 'try';
 
-    this.setState({ singleTryPush });
+    this.setState({ filteredTryPush });
   };
 
   handleUrlChanges = async () => {
@@ -567,7 +569,7 @@ class Push extends React.PureComponent {
       jobCounts,
       selectedRunnableJobs,
       collapsed,
-      singleTryPush,
+      filteredTryPush,
       pushHealthStatus,
     } = this.state;
     const {
@@ -639,7 +641,7 @@ class Push extends React.PureComponent {
                 repo={currentRepo}
                 widthClass="col-5"
               >
-                {singleTryPush && (
+                {filteredTryPush && (
                   <div className="ml-3 mt-4">
                     <PushHealthSummary
                       healthStatus={pushHealthStatus}
