@@ -230,15 +230,10 @@ describe('Filtering', () => {
     });
 
     test('click signature should have 10 jobs', async () => {
-      const { getByTitle, findAllByText, findByText } = render(<App />);
+      const { getByTitle, findAllByText } = render(<App />);
       const build = await findAllByText('B');
 
       fireEvent.mouseDown(build[0]);
-
-      const sigLink = await findByText('(sig)', { timeout: 4999 });
-      expect(sigLink.getAttribute('href')).toBe(
-        '/#/jobs?repo=autoland&selectedTaskRun=JFVlnwufR7G9tZu_pKM0dQ-0&searchStr=2aa083621bb989d6acf1151667288d5fe9616178',
-      );
 
       const keywordLink = await waitForElement(() =>
         getByTitle('Filter jobs containing these keywords'),

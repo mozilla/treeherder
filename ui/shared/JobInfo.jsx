@@ -41,8 +41,7 @@ export default class JobInfo extends React.PureComponent {
   render() {
     const { job, extraFields, showJobFilters, currentRepo } = this.props;
     const {
-      signature,
-      title,
+      searchStr,
       task_id: taskId,
       build_platform: buildPlatform,
       job_type_name: jobTypeName,
@@ -59,21 +58,14 @@ export default class JobInfo extends React.PureComponent {
           {showJobFilters ? (
             <React.Fragment>
               <a
-                title="Filter jobs with this unique SHA signature"
-                href={getJobSearchStrHref(signature)}
-              >
-                (sig)
-              </a>
-              :&nbsp;
-              <a
                 title="Filter jobs containing these keywords"
-                href={getJobSearchStrHref(title)}
+                href={getJobSearchStrHref(searchStr)}
               >
-                {title}
+                {searchStr}
               </a>
             </React.Fragment>
           ) : (
-            <span>{title}</span>
+            <span>{searchStr}</span>
           )}
         </li>
         {taskId && currentRepo && (
@@ -133,8 +125,7 @@ export default class JobInfo extends React.PureComponent {
 
 JobInfo.propTypes = {
   job: PropTypes.shape({
-    signature: PropTypes.string,
-    title: PropTypes.string,
+    searchStr: PropTypes.string,
     taskId: PropTypes.string,
     buildPlatform: PropTypes.string,
     jobTypeName: PropTypes.string,
