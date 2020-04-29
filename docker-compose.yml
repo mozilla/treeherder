@@ -4,7 +4,7 @@ services:
     container_name: backend
     build:
       context: .
-      dockerfile: docker/dev.Dockerfile
+      dockerfile: docker/backend/dev.Dockerfile
       # TODO: Try using cache_from pointed at a Docker Hub image built from master
       # Though may need to also use the workaround for local vs remote:
       # https://github.com/moby/moby/issues/32612#issuecomment-294055017
@@ -45,8 +45,9 @@ services:
 
   frontend:
     container_name: frontend
-    # https://hub.docker.com/_/node
-    image: node:12.13.1-alpine
+    build:
+      context: .
+      dockerfile: docker/frontend/dev.Dockerfile
     environment:
       # Allows `.neutrinorc.js` to adjust filesystem watching and browser opening behaviour.
       - IN_DOCKER=1
@@ -57,6 +58,7 @@ services:
     working_dir: /app
     command: sh -c "yarn && yarn start --env.BACKEND=http://backend:8000 --host 0.0.0.0"
     volumes:
+      - /app/node_modules
       - .:/app
     ports:
       - '5000:5000'
