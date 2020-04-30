@@ -13,5 +13,5 @@ COPY yarn.lock .
 RUN yarn install
 COPY . .
 
-#Running server
-RUN "yarn && yarn start --env.BACKEND=http://backend:8000 --host 0.0.0.0"
+#Whitelist commands
+CMD ["sh", "yarn", "start", "--env.BACKEND=http://backend:8000", "--host", "0.0.0.0"]

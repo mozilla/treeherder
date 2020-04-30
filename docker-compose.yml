@@ -56,6 +56,7 @@ services:
     # the host copy stays in sync (for people that switch back and forth between UI-only
     # and full stack Treeherder development).
     working_dir: /app
+    command: sh -c "yarn && yarn start --env.BACKEND=http://backend:8000 --host 0.0.0.0"
     volumes:
       - /app/node_modules
       - .:/app
