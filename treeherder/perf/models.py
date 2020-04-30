@@ -241,6 +241,21 @@ class Counter(models.Model):
 
 
 class AutoIncrementMixin:
+    """
+    Inherit from this class to to provide `next_id()`, which
+    provides a globally unique integer, across all clients that connect to the database.
+    Use this instead of a database AUTO INCREMENT column
+
+    REQUIRES 'isolation_level': 'serializable',
+
+    Example Usage:
+
+    def save(self, *args, **kwargs):
+        if not self.id:
+            self.id = self.next_id()
+
+    """
+
     COUNTERS = {}
     COUNTERS_LOCK = Lock()
 
