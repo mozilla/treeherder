@@ -13,8 +13,8 @@ export function AuthorInitials(props) {
   const str = props.author || '';
   const words = str.split(' ');
   const firstLetters = words
-    .map(word => word.replace(/[^A-Z]/gi, '')[0])
-    .filter(firstLetter => typeof firstLetter !== 'undefined');
+    .map((word) => word.replace(/[^A-Z]/gi, '')[0])
+    .filter((firstLetter) => typeof firstLetter !== 'undefined');
   let initials = '';
 
   if (firstLetters.length === 1) {
@@ -50,11 +50,11 @@ export class Revision extends React.PureComponent {
     };
   }
 
-  showClipboard = show => {
+  showClipboard = (show) => {
     this.setState({ clipboardVisible: show });
   };
 
-  isBackout = comment => {
+  isBackout = (comment) => {
     return comment.search('Backed out') >= 0 || comment.search('Back out') >= 0;
   };
 

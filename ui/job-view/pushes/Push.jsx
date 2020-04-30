@@ -43,11 +43,11 @@ export const joinArtifacts = (manifestsByTask, testsByManifest) => {
   // e.g. testPath: devtools/client/framework/browser-toolbox/test/browser_browser_toolbox_debugger.js
   const taskNameToTestPaths = {};
   Object.entries(manifestsByTask).forEach(([taskName, manifetsts]) => {
-    manifetsts.forEach(manifest => {
+    manifetsts.forEach((manifest) => {
       const splitPath = manifest.split('/');
       const basePath = splitPath.splice(0, splitPath.length - 1).join('/');
       taskNameToTestPaths[taskName] = taskNameToTestPaths[taskName] || [];
-      (testsByManifest[manifest] || []).forEach(test => {
+      (testsByManifest[manifest] || []).forEach((test) => {
         taskNameToTestPaths[taskName].push(`${basePath}/${test}`);
       });
       taskNameToTestPaths[taskName].push(manifest);
@@ -129,7 +129,7 @@ class Push extends React.PureComponent {
 
   getJobCount(jobList) {
     const filteredByCommit = jobList.filter(
-      job => job.failure_classification_id === 2,
+      (job) => job.failure_classification_id === 2,
     );
 
     return jobList.reduce(
@@ -182,7 +182,7 @@ class Push extends React.PureComponent {
     const filterParams = ['revision', 'author'];
     const urlParams = getAllUrlParams();
     const filteredTryPush =
-      filterParams.some(f => urlParams.has(f)) && currentRepo.name === 'try';
+      filterParams.some((f) => urlParams.has(f)) && currentRepo.name === 'try';
 
     this.setState({ filteredTryPush });
   };
@@ -200,7 +200,7 @@ class Push extends React.PureComponent {
     this.setState({ collapsed: collapsedPushes.includes(push.id) });
   };
 
-  handleApplyNewJobs = event => {
+  handleApplyNewJobs = (event) => {
     const { push } = this.props;
     const { jobs } = event.detail;
     const jobList = jobs[push.id];
@@ -210,7 +210,7 @@ class Push extends React.PureComponent {
     }
   };
 
-  toggleSelectedRunnableJob = signature => {
+  toggleSelectedRunnableJob = (signature) => {
     const { selectedRunnableJobs } = this.state;
     const jobIndex = selectedRunnableJobs.indexOf(signature);
 
@@ -276,11 +276,11 @@ class Push extends React.PureComponent {
     push.jobsLoaded = true;
     if (jobs.length > 0) {
       const { jobList } = this.state;
-      const newIds = jobs.map(job => job.id);
+      const newIds = jobs.map((job) => job.id);
       // remove old versions of jobs we just fetched.
-      const existingJobs = jobList.filter(job => !newIds.includes(job.id));
+      const existingJobs = jobList.filter((job) => !newIds.includes(job.id));
       // Join both lists and add test_paths and task_run property
-      const newJobList = [...existingJobs, ...jobs].map(job => {
+      const newJobList = [...existingJobs, ...jobs].map((job) => {
         job.test_paths = taskNameToTestPaths[job.job_type_name] || [];
         job.task_run = getTaskRunStr(job);
         return job;
@@ -305,17 +305,17 @@ class Push extends React.PureComponent {
   /*
    * Convert a flat list of jobs into a structure grouped by platform and job_group.
    */
-  groupJobByPlatform = jobList => {
+  groupJobByPlatform = (jobList) => {
     const platforms = [];
 
     if (jobList.length === 0) {
       return platforms;
     }
-    jobList.forEach(job => {
+    jobList.forEach((job) => {
       // search for the right platform
       const platformName = thPlatformMap[job.platform] || job.platform;
       let platform = platforms.find(
-        platform =>
+        (platform) =>
           platformName === platform.name &&
           job.platform_option === platform.option,
       );
@@ -331,7 +331,7 @@ class Push extends React.PureComponent {
       const groupInfo = this.getJobGroupInfo(job);
       // search for the right group
       let group = platform.groups.find(
-        group =>
+        (group) =>
           groupInfo.symbol === group.symbol && groupInfo.tier === group.tier,
       );
       if (group === undefined) {
@@ -343,10 +343,10 @@ class Push extends React.PureComponent {
     return platforms;
   };
 
-  sortGroupedJobs = platforms => {
-    platforms.forEach(platform => {
-      platform.groups.forEach(group => {
-        group.jobs = sortBy(group.jobs, job =>
+  sortGroupedJobs = (platforms) => {
+    platforms.forEach((platform) => {
+      platform.groups.forEach((group) => {
+        group.jobs = sortBy(group.jobs, (job) =>
           // Symbol could be something like 1, 2 or 3. Or A, B, C or R1, R2, R10.
           // So this will pad the numeric portion with 0s like R001, R010, etc.
           job.job_type_symbol.replace(/([\D]*)([\d]*)/g, (matcher, s1, s2) =>
@@ -367,7 +367,7 @@ class Push extends React.PureComponent {
     return platforms;
   };
 
-  expandAllPushGroups = callback => {
+  expandAllPushGroups = (callback) => {
     // This sets the group state once, then unsets it in the callback.  This
     // has the result of triggering an expand on all the groups, but then
     // gives control back to each group to decide to expand or not.
@@ -377,7 +377,7 @@ class Push extends React.PureComponent {
     });
   };
 
-  showUpdateNotifications = prevState => {
+  showUpdateNotifications = (prevState) => {
     const { watched, jobCounts } = this.state;
     const {
       currentRepo,
@@ -417,11 +417,11 @@ class Push extends React.PureComponent {
           tag: pushId,
         });
 
-        notification.onerror = event => {
+        notification.onerror = (event) => {
           notify(`${event.target.title}: ${event.target.body}`, 'danger');
         };
 
-        notification.onclick = event => {
+        notification.onclick = (event) => {
           if (this.container) {
             this.container.scrollIntoView();
             event.target.close();
@@ -455,7 +455,7 @@ class Push extends React.PureComponent {
 
   hideRunnableJobs = () => {
     const { jobList } = this.state;
-    const newJobList = jobList.filter(job => job.state !== 'runnable');
+    const newJobList = jobList.filter((job) => job.state !== 'runnable');
 
     this.setState(
       {
@@ -487,7 +487,7 @@ class Push extends React.PureComponent {
       });
       fuzzyJobList = [
         ...new Set(
-          fuzzyJobList.map(job => {
+          fuzzyJobList.map((job) => {
             const obj = {};
             obj.name = job.job_type_name;
             obj.symbol = job.job_type_symbol;
@@ -497,7 +497,7 @@ class Push extends React.PureComponent {
         ),
       ].sort((a, b) => (a.name > b.name ? 1 : -1));
       const filteredFuzzyList = fuzzyJobList.filter(
-        job => job.name.search(excludedJobNames) < 0,
+        (job) => job.name.search(excludedJobNames) < 0,
       );
       this.setState({
         fuzzyJobList,
@@ -535,13 +535,13 @@ class Push extends React.PureComponent {
   };
 
   toggleFuzzyModal = async () => {
-    this.setState(prevState => ({
+    this.setState((prevState) => ({
       fuzzyModal: !prevState.fuzzyModal,
       jobList: prevState.jobList,
     }));
   };
 
-  pushHealthStatusCallback = pushHealthStatus => {
+  pushHealthStatusCallback = (pushHealthStatus) => {
     this.setState({ pushHealthStatus });
   };
 
@@ -592,7 +592,7 @@ class Push extends React.PureComponent {
       <div
         className="push"
         data-testid={`push-${push.id}`}
-        ref={ref => {
+        ref={(ref) => {
           this.container = ref;
         }}
       >

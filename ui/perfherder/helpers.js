@@ -23,10 +23,10 @@ import {
   unknownFrameworkMessage,
 } from './constants';
 
-export const formatNumber = input =>
+export const formatNumber = (input) =>
   new Intl.NumberFormat('en-US', { maximumFractionDigits: 2 }).format(input);
 
-export const displayNumber = input =>
+export const displayNumber = (input) =>
   Number.isNaN(input) ? 'N/A' : Number(input).toFixed(2);
 
 export const calcPercentOf = function calcPercentOf(a, b) {
@@ -49,7 +49,7 @@ export const getStdDev = function getStandardDeviation(values, avg) {
   if (!avg) avg = calcAverage(values);
 
   return Math.sqrt(
-    values.map(v => (v - avg) ** 2).reduce((a, b) => a + b) /
+    values.map((v) => (v - avg) ** 2).reduce((a, b) => a + b) /
       (values.length - 1),
   );
 };
@@ -107,7 +107,7 @@ const analyzeSet = (values, testName) => {
   let stddev = 1;
 
   if (testName === noiseMetricTitle) {
-    average = Math.sqrt(values.map(x => x ** 2).reduce((a, b) => a + b, 0));
+    average = Math.sqrt(values.map((x) => x ** 2).reduce((a, b) => a + b, 0));
   } else {
     average = calcAverage(values);
     stddev = getStdDev(values, average);
@@ -287,23 +287,23 @@ export const getGraphsLink = function getGraphsLink(
   timeRange,
 ) {
   const params = {
-    series: seriesList.map(series => [
+    series: seriesList.map((series) => [
       series.projectName,
       series.signature,
       1,
       series.frameworkId,
     ]),
-    highlightedRevisions: resultSets.map(resultSet =>
+    highlightedRevisions: resultSets.map((resultSet) =>
       resultSet.revision.slice(0, 12),
     ),
   };
 
   if (resultSets && !timeRange) {
     params.timerange = Math.max(
-      ...resultSets.map(resultSet =>
+      ...resultSets.map((resultSet) =>
         phTimeRanges
-          .map(range => range.value)
-          .find(t => Date.now() / 1000.0 - resultSet.push_timestamp < t),
+          .map((range) => range.value)
+          .find((t) => Date.now() / 1000.0 - resultSet.push_timestamp < t),
       ),
     );
   }
@@ -347,7 +347,7 @@ export const createGraphsLinks = (
   } = validatedProps;
 
   const graphsParams = [...new Set([originalProject, newProject])].map(
-    projectName => ({
+    (projectName) => ({
       projectName,
       signature,
       frameworkId: framework.id,
@@ -394,7 +394,7 @@ export const getGraphsURL = (
     const branches = alertRepository === 'mozilla-beta' ? ['autoland'] : [];
     url += branches
       .map(
-        branch =>
+        (branch) =>
           `&series=${branch},${alert.series_signature.signature_hash},1,${alert.series_signature.framework_id}`,
       )
       .join('');
@@ -414,23 +414,23 @@ export const getInitializedAlerts = (alertSummary, optionCollectionMap) =>
   // big block -- we'll display in the UI depending on their content
   alertSummary.alerts
     .concat(alertSummary.related_alerts)
-    .map(alertData => Alert(alertData, optionCollectionMap));
+    .map((alertData) => Alert(alertData, optionCollectionMap));
 
 export const getTextualSummary = (alerts, alertSummary, copySummary = null) => {
   let resultStr = '';
   const improved = sortBy(
-    alerts.filter(alert => !alert.is_regression),
+    alerts.filter((alert) => !alert.is_regression),
     'amount_pct',
   ).reverse();
   const regressed = sortBy(
     alerts.filter(
-      alert => alert.is_regression && alert.status !== alertStatusMap.invalid,
+      (alert) => alert.is_regression && alert.status !== alertStatusMap.invalid,
     ),
     'amount_pct',
   ).reverse();
 
-  const getMaximumAlertLength = alertList =>
-    Math.max(...alertList.map(alert => alert.title.length));
+  const getMaximumAlertLength = (alertList) =>
+    Math.max(...alertList.map((alert) => alert.title.length));
 
   const formatAlert = (alert, alertList) => {
     const numFormat = '0,0.00';
@@ -449,8 +449,8 @@ export const getTextualSummary = (alerts, alertSummary, copySummary = null) => {
     return `${amountPct}%  ${title}${prevValue} -> ${newValue}`;
   };
 
-  const formatAlertBulk = alerts =>
-    alerts.map(alert => formatAlert(alert, alerts)).join('\n');
+  const formatAlertBulk = (alerts) =>
+    alerts.map((alert) => formatAlert(alert, alerts)).join('\n');
 
   // add summary header if getting text for clipboard only
   if (copySummary) {
@@ -483,12 +483,12 @@ export const getTextualSummary = (alerts, alertSummary, copySummary = null) => {
   return resultStr;
 };
 
-export const getTitle = alertSummary => {
+export const getTitle = (alertSummary) => {
   let title;
 
   // we should never include downstream alerts in the description
   let alertsInSummary = alertSummary.alerts.filter(
-    alert =>
+    (alert) =>
       alert.status !== alertStatusMap.downstream ||
       alert.summary_id === alertSummary.id,
   );
@@ -497,15 +497,15 @@ export const getTitle = alertSummary => {
   // the summary should only incorporate those. if there
   // aren't, then use all of them (that aren't downstream,
   // see above)
-  const regressions = alertsInSummary.filter(alert => alert.is_regression);
+  const regressions = alertsInSummary.filter((alert) => alert.is_regression);
   if (regressions.length > 0) {
     alertsInSummary = regressions;
   }
 
   if (alertsInSummary.length > 1) {
     title = `${Math.min(
-      ...alertsInSummary.map(alert => alert.amount_pct),
-    )} - ${Math.max(...alertsInSummary.map(alert => alert.amount_pct))}%`;
+      ...alertsInSummary.map((alert) => alert.amount_pct),
+    )} - ${Math.max(...alertsInSummary.map((alert) => alert.amount_pct))}%`;
   } else if (alertsInSummary.length === 1) {
     title = `${alertsInSummary[0].amount_pct}%`;
   } else {
@@ -514,14 +514,14 @@ export const getTitle = alertSummary => {
 
   // add test info
   const testInfo = [
-    ...new Set(alertsInSummary.map(a => getTestName(a.series_signature))),
+    ...new Set(alertsInSummary.map((a) => getTestName(a.series_signature))),
   ]
     .sort()
     .join(' / ');
   title += ` ${testInfo}`;
   // add platform info
   const platformInfo = [
-    ...new Set(alertsInSummary.map(a => a.series_signature.machine_platform)),
+    ...new Set(alertsInSummary.map((a) => a.series_signature.machine_platform)),
   ]
     .sort()
     .join(', ');
@@ -535,12 +535,12 @@ export const updateAlertSummary = async (alertSummaryId, params) =>
 export const convertParams = (params, value) =>
   Boolean(params[value] !== undefined && parseInt(params[value], 10));
 
-export const getFrameworkData = props => {
+export const getFrameworkData = (props) => {
   const { validated, frameworks } = props;
 
   if (validated.framework) {
     const frameworkObject = frameworks.find(
-      item => item.id === parseInt(validated.framework, 10),
+      (item) => item.id === parseInt(validated.framework, 10),
     );
     return frameworkObject;
   }
@@ -548,25 +548,27 @@ export const getFrameworkData = props => {
 };
 
 export const getFrameworkName = (frameworks, frameworkId) => {
-  const framework = frameworks.find(item => item.id === frameworkId);
+  const framework = frameworks.find((item) => item.id === frameworkId);
   return framework ? framework.name : unknownFrameworkMessage;
 };
 
 export const getStatus = (statusNum, statusMap = summaryStatusMap) => {
-  const status = Object.entries(statusMap).find(item => statusNum === item[1]);
+  const status = Object.entries(statusMap).find(
+    (item) => statusNum === item[1],
+  );
   return status[0];
 };
 
 export const containsText = (string, text) => {
   const words = text
     .split(' ')
-    .map(word => `(?=.*${word})`)
+    .map((word) => `(?=.*${word})`)
     .join('');
   const regex = RegExp(words, 'gi');
   return regex.test(string);
 };
 
-export const processSelectedParam = tooltipArray => ({
+export const processSelectedParam = (tooltipArray) => ({
   signature_id: parseInt(tooltipArray[0], 10),
   dataPointId: parseInt(tooltipArray[1], 10),
 });
@@ -591,7 +593,8 @@ export const getInitialData = async (
 
 export const updateSeriesData = (origSeriesData, testData) =>
   origSeriesData.filter(
-    item => testData.findIndex(test => item.id === test.signature_id) === -1,
+    (item) =>
+      testData.findIndex((test) => item.id === test.signature_id) === -1,
   );
 
 export const getSeriesData = async (
@@ -639,7 +642,7 @@ export const onPermalinkClick = (hashBasedValue, history, element) => {
 
 // human readable signature name
 const getSignatureName = (testName, platformName) =>
-  [testName, platformName].filter(item => item !== null).join(' ');
+  [testName, platformName].filter((item) => item !== null).join(' ');
 
 export const getHashBasedId = function getHashBasedId(
   testName,
@@ -699,7 +702,7 @@ export const retriggerMultipleJobs = async (
 };
 
 export const createGraphData = (seriesData, alertSummaries, colors, symbols) =>
-  seriesData.map(series => {
+  seriesData.map((series) => {
     const color = colors.pop();
     const symbol = symbols.pop();
     // signature_id, framework_id and repository_name are
@@ -718,14 +721,14 @@ export const createGraphData = (seriesData, alertSummaries, colors, symbols) =>
       repository_name: series.repository_name,
       projectId: series.repository_id,
       id: `${series.repository_name} ${series.name}`,
-      data: series.data.map(dataPoint => ({
+      data: series.data.map((dataPoint) => ({
         x: new Date(dataPoint.push_timestamp),
         y: dataPoint.value,
         z: color ? color[1] : '',
         _z: symbol || ['circle', 'outline'],
         revision: dataPoint.revision,
         alertSummary: alertSummaries.find(
-          item => item.push_id === dataPoint.push_id,
+          (item) => item.push_id === dataPoint.push_id,
         ),
         signature_id: series.signature_id,
         pushId: dataPoint.push_id,
@@ -736,7 +739,7 @@ export const createGraphData = (seriesData, alertSummaries, colors, symbols) =>
       application: series.application,
       measurementUnit: series.measurement_unit || '',
       lowerIsBetter: series.lower_is_better,
-      resultSetData: series.data.map(dataPoint => dataPoint.push_id),
+      resultSetData: series.data.map((dataPoint) => dataPoint.push_id),
       parentSignature: series.parent_signature,
     };
   });

@@ -16,7 +16,7 @@ import { setSelectedJob, clearSelectedJob } from '../redux/stores/selectedJob';
 import { pinJobs } from '../redux/stores/pinnedJobs';
 
 const resultStatusMenuItems = thAllResultStatuses.filter(
-  rs => rs !== 'runnable',
+  (rs) => rs !== 'runnable',
 );
 
 function FiltersMenu(props) {
@@ -52,7 +52,7 @@ function FiltersMenu(props) {
         Filters
       </DropdownToggle>
       <DropdownMenu>
-        {resultStatusMenuItems.map(filterName => (
+        {resultStatusMenuItems.map((filterName) => (
           <DropdownItem
             key={filterName}
             tag="a"

@@ -48,7 +48,7 @@ class App extends React.Component {
     this.setState(updates);
   }
 
-  updateAppState = state => {
+  updateAppState = (state) => {
     this.setState(state);
   };
 
@@ -66,8 +66,8 @@ class App extends React.Component {
       <HashRouter>
         <Navigation
           user={user}
-          setUser={user => this.setState({ user })}
-          notify={message => this.setState({ errorMessages: [message] })}
+          setUser={(user) => this.setState({ user })}
+          notify={(message) => this.setState({ errorMessages: [message] })}
         />
         {projects.length > 0 && frameworks.length > 0 && (
           <main className="pt-5">
@@ -80,7 +80,7 @@ class App extends React.Component {
               <Route
                 exact
                 path="/alerts"
-                render={props => (
+                render={(props) => (
                   <AlertsView
                     {...props}
                     user={user}
@@ -91,7 +91,7 @@ class App extends React.Component {
               />
               <Route
                 path="/alerts?id=:id&status=:status&framework=:framework&filter=:filter&hideImprovements=:hideImprovements&hideDwnToInv=:hideDwnToInv&hideAssignedToOthers=:hideAssignedToOthers&filterText=:filterText&page=:page"
-                render={props => (
+                render={(props) => (
                   <AlertsView
                     {...props}
                     user={user}
@@ -102,7 +102,7 @@ class App extends React.Component {
               />
               <Route
                 path="/graphs"
-                render={props => (
+                render={(props) => (
                   <GraphsView
                     {...props}
                     user={user}
@@ -113,7 +113,7 @@ class App extends React.Component {
               />
               <Route
                 path="/graphs?timerange=:timerange&series=:series&highlightedRevisions=:highlightedRevisions&highlightAlerts=:highlightAlerts&zoom=:zoom&selected=:selected"
-                render={props => (
+                render={(props) => (
                   <GraphsView
                     {...props}
                     user={user}
@@ -124,7 +124,7 @@ class App extends React.Component {
               />
               <Route
                 path="/comparechooser"
-                render={props => (
+                render={(props) => (
                   <CompareSelectorView
                     {...props}
                     user={user}
@@ -135,7 +135,7 @@ class App extends React.Component {
               />
               <Route
                 path="/comparechooser?originalProject=:originalProject&originalRevision=:originalRevision&newProject=:newProject&newRevision=:newRevision"
-                render={props => (
+                render={(props) => (
                   <CompareSelectorView
                     {...props}
                     user={user}
@@ -146,7 +146,7 @@ class App extends React.Component {
               />
               <Route
                 path="/compare"
-                render={props => (
+                render={(props) => (
                   <CompareView
                     {...props}
                     user={user}
@@ -159,7 +159,7 @@ class App extends React.Component {
               />
               <Route
                 path="/compare?originalProject=:originalProject&originalRevision=:originalRevison&newProject=:newProject&newRevision=:newRevision&framework=:framework&showOnlyComparable=:showOnlyComparable&showOnlyImportant=:showOnlyImportant&showOnlyConfident=:showOnlyConfident&selectedTimeRange=:selectedTimeRange&showOnlyNoise=:showOnlyNoise"
-                render={props => (
+                render={(props) => (
                   <CompareView
                     {...props}
                     user={user}
@@ -172,7 +172,7 @@ class App extends React.Component {
               />
               <Route
                 path="/comparesubtest"
-                render={props => (
+                render={(props) => (
                   <CompareSubtestsView
                     {...props}
                     user={user}
@@ -183,7 +183,7 @@ class App extends React.Component {
               />
               <Route
                 path="/comparesubtest?originalProject=:originalProject&originalRevision=:originalRevision&newProject=:newProject&newRevision=:newRevision&originalSignature=:originalSignature&newSignature=:newSignature&framework=:framework&showOnlyComparable=:showOnlyComparable&showOnlyImportant=:showOnlyImportant&showOnlyConfident=:showOnlyConfident&selectedTimeRange=:selectedTimeRange&showOnlyNoise=:showOnlyNoise"
-                render={props => (
+                render={(props) => (
                   <CompareSubtestsView
                     {...props}
                     user={user}
@@ -194,7 +194,7 @@ class App extends React.Component {
               />
               <Route
                 path="/comparesubtestdistribution"
-                render={props => (
+                render={(props) => (
                   <CompareSubtestDistributionView
                     {...props}
                     user={user}
@@ -205,7 +205,7 @@ class App extends React.Component {
               />
               <Route
                 path="/comparesubtestdistribution?originalProject=:originalProject&newProject=:newProject&originalRevision=:originalRevision&newRevision=:newRevision&originalSubtestSignature=:originalSubtestSignature&newSubtestSignature=:newSubtestSignature"
-                render={props => (
+                render={(props) => (
                   <CompareSubtestDistributionView
                     {...props}
                     user={user}
@@ -216,7 +216,7 @@ class App extends React.Component {
               />
               <Route
                 path="/tests"
-                render={props => (
+                render={(props) => (
                   <TestsView
                     {...props}
                     projects={projects}
@@ -228,7 +228,7 @@ class App extends React.Component {
               />
               <Route
                 path="/tests?framework=:framework"
-                render={props => (
+                render={(props) => (
                   <TestsView
                     {...props}
                     projects={projects}

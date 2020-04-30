@@ -19,7 +19,7 @@ export class RevisionList extends React.PureComponent {
 
     return (
       <Col className={`${widthClass} mb-3`}>
-        {revisions.map(revision => (
+        {revisions.map((revision) => (
           <Revision revision={revision} repo={repo} key={revision.revision} />
         ))}
         {revisionCount > revisions.length && (

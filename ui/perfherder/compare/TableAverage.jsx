@@ -10,7 +10,7 @@ const TableAverage = ({ value, stddev, stddevpct, replicates }) => {
   let tooltipText;
   if (replicates.length > 1) {
     tooltipText = `Runs: < ${replicates
-      .map(value => formatNumber(value))
+      .map((value) => formatNumber(value))
       .join(' ')} > ${formatNumber(displayNumber(stddev))} = ${formatNumber(
       displayNumber(stddevpct),
     )}% standard deviation)`;

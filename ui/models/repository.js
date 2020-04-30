@@ -19,12 +19,12 @@ export default class RepositoryModel {
 
   static getList() {
     return fetch(getApiUrl(repoEndpoint))
-      .then(resp => resp.json())
-      .then(repos => repos.map(datum => new RepositoryModel(datum)));
+      .then((resp) => resp.json())
+      .then((repos) => repos.map((datum) => new RepositoryModel(datum)));
   }
 
   static getRepo(name, repos) {
-    return repos.find(repo => repo.name === name);
+    return repos.find((repo) => repo.name === name);
   }
 
   getRevisionHref(revision) {

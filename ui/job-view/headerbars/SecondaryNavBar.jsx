@@ -66,7 +66,7 @@ class SecondaryNavBar extends React.PureComponent {
     this.setState({ searchQueryStr: ev.target.value });
   }
 
-  handleUrlChanges = evt => {
+  handleUrlChanges = (evt) => {
     const { oldURL, newURL } = evt;
     const { repoName } = this.state;
     const { recalculateUnclassifiedCounts } = this.props;
@@ -85,7 +85,7 @@ class SecondaryNavBar extends React.PureComponent {
     });
   };
 
-  search = ev => {
+  search = (ev) => {
     const { filterModel } = this.props;
     const { value } = ev.target;
 
@@ -99,12 +99,12 @@ class SecondaryNavBar extends React.PureComponent {
     }
   };
 
-  isFilterOn = filter => {
+  isFilterOn = (filter) => {
     const { filterModel } = this.props;
     const { resultStatus } = filterModel.urlParams;
 
     if (filter in thFilterGroups) {
-      return thFilterGroups[filter].some(val => resultStatus.includes(val));
+      return thFilterGroups[filter].some((val) => resultStatus.includes(val));
     }
     return resultStatus.includes(filter);
   };
@@ -113,7 +113,7 @@ class SecondaryNavBar extends React.PureComponent {
    * Handle toggling one of the individual result status filter chicklets
    * on the nav bar
    */
-  toggleResultStatusFilterChicklet = filter => {
+  toggleResultStatusFilterChicklet = (filter) => {
     const { filterModel } = this.props;
     const filterValues =
       filter in thFilterGroups
@@ -149,10 +149,10 @@ class SecondaryNavBar extends React.PureComponent {
     filterModel.removeFilter('searchStr');
   };
 
-  unwatchRepo = name => {
+  unwatchRepo = (name) => {
     const { watchedRepoNames } = this.state;
 
-    this.saveWatchedRepos(watchedRepoNames.filter(repo => repo !== name));
+    this.saveWatchedRepos(watchedRepoNames.filter((repo) => repo !== name));
   };
 
   loadWatchedRepos() {
@@ -164,7 +164,7 @@ class SecondaryNavBar extends React.PureComponent {
       // Ensure the current repo is first in the list
       const watchedRepoNames = [
         repoName,
-        ...storedWatched.filter(value => value !== repoName),
+        ...storedWatched.filter((value) => value !== repoName),
       ].slice(0, MAX_WATCHED_REPOS);
 
       // Re-save the list, in case it has now changed
@@ -205,8 +205,8 @@ class SecondaryNavBar extends React.PureComponent {
     const watchedRepos =
       (repos.length &&
         watchedRepoNames
-          .map(name => RepositoryModel.getRepo(name, repos))
-          .filter(name => name)) ||
+          .map((name) => RepositoryModel.getRepo(name, repos))
+          .filter((name) => name)) ||
       [];
 
     return (
@@ -217,7 +217,7 @@ class SecondaryNavBar extends React.PureComponent {
       >
         <span className="justify-content-between w-100 d-flex flex-wrap">
           <span className="d-flex push-left watched-repos">
-            {watchedRepos.map(watchedRepo => (
+            {watchedRepos.map((watchedRepo) => (
               <ErrorBoundary
                 errorClasses="pl-1 pr-1 btn-view-nav border-right"
                 message={`Error watching ${watchedRepo.name}: `}
@@ -315,7 +315,7 @@ class SecondaryNavBar extends React.PureComponent {
             {/* Result Status Filter Chicklets */}
             <span className="resultStatusChicklets">
               <span id="filter-chicklets">
-                {this.filterChicklets.map(filterName => {
+                {this.filterChicklets.map((filterName) => {
                   const isOn = this.isFilterOn(filterName);
                   return (
                     <span key={filterName}>
@@ -368,8 +368,8 @@ class SecondaryNavBar extends React.PureComponent {
                 required
                 value={searchQueryStr}
                 title="Click to enter filter values"
-                onChange={evt => this.setSearchStr(evt)}
-                onKeyDown={evt => this.search(evt)}
+                onChange={(evt) => this.setSearchStr(evt)}
+                onKeyDown={(evt) => this.search(evt)}
                 type="text"
                 placeholder="Filter platforms & jobs"
               />

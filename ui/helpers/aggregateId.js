@@ -1,4 +1,4 @@
-export const escapeId = id => id.replace(/(:|\[|\]|\?|,|\.|\s+)/g, '-');
+export const escapeId = (id) => id.replace(/(:|\[|\]|\?|,|\.|\s+)/g, '-');
 
 export const getPlatformRowId = (
   repoName,

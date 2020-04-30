@@ -72,7 +72,7 @@ export default class AlertTable extends React.Component {
     const downstreamIds = [
       ...new Set(
         alertSummary.alerts
-          .map(alert => {
+          .map((alert) => {
             if (
               alert.status === alertStatusMap.downstream &&
               alert.summary_id !== alertSummary.id
@@ -88,7 +88,7 @@ export default class AlertTable extends React.Component {
     this.setState({ downstreamIds });
   };
 
-  filterAlert = alert => {
+  filterAlert = (alert) => {
     const {
       hideImprovements,
       hideDownstream,
@@ -123,8 +123,9 @@ export default class AlertTable extends React.Component {
 
     if (!filterText) return matchesFilters;
 
-    const textToTest = `${alert.title} ${alertSummary.bug_number &&
-      alertSummary.bug_number.toString()} ${alertSummary.revision.toString()}`;
+    const textToTest = `${alert.title} ${
+      alertSummary.bug_number && alertSummary.bug_number.toString()
+    } ${alertSummary.revision.toString()}`;
 
     // searching with filter input and one or more metricFilter buttons on
     // will produce different results compared to when all filters are off
@@ -134,13 +135,13 @@ export default class AlertTable extends React.Component {
   updateFilteredAlerts = () => {
     const { alertSummary } = this.state;
 
-    const filteredAlerts = alertSummary.alerts.filter(alert =>
+    const filteredAlerts = alertSummary.alerts.filter((alert) =>
       this.filterAlert(alert),
     );
     this.setState({ filteredAlerts });
   };
 
-  updateAssignee = async newAssigneeUsername => {
+  updateAssignee = async (newAssigneeUsername) => {
     const {
       updateAlertSummary,
       updateViewState,
@@ -188,7 +189,7 @@ export default class AlertTable extends React.Component {
 
     const downstreamIdsLength = downstreamIds.length;
     const repo = alertSummary
-      ? projects.find(repo => repo.name === alertSummary.repository)
+      ? projects.find((repo) => repo.name === alertSummary.repository)
       : null;
     const repoModel = new RepositoryModel(repo);
 
@@ -238,7 +239,7 @@ export default class AlertTable extends React.Component {
                     <th className="table-width-sm align-top font-weight-normal">
                       <StatusDropdown
                         alertSummary={alertSummary}
-                        updateState={state => this.setState(state)}
+                        updateState={(state) => this.setState(state)}
                         repoModel={repoModel}
                         updateViewState={updateViewState}
                         issueTrackers={issueTrackers}
@@ -262,13 +263,13 @@ export default class AlertTable extends React.Component {
                     <th>Magnitude of Change</th>
                     <th>Confidence</th>
                   </tr>
-                  {filteredAlerts.map(alert => (
+                  {filteredAlerts.map((alert) => (
                     <AlertTableRow
                       key={alert.id}
                       alertSummary={alertSummary}
                       alert={alert}
                       user={user}
-                      updateSelectedAlerts={alerts => this.setState(alerts)}
+                      updateSelectedAlerts={(alerts) => this.setState(alerts)}
                       selectedAlerts={selectedAlerts}
                       updateViewState={updateViewState}
                       modifyAlert={modifyAlert}
@@ -324,7 +325,7 @@ export default class AlertTable extends React.Component {
                       alertSummaries={alertSummaries}
                       alertSummary={alertSummary}
                       fetchAlertSummaries={fetchAlertSummaries}
-                      updateState={state => this.setState(state)}
+                      updateState={(state) => this.setState(state)}
                       updateViewState={updateViewState}
                       modifyAlert={modifyAlert}
                     />

@@ -32,7 +32,7 @@ export default class JobListMetric extends React.PureComponent {
       >
         <div>
           {jobs.length ? (
-            jobs.map(job => (
+            jobs.map((job) => (
               <Row key={job.id} className="mt-2">
                 <Job job={job} repo={repo} revision={revision} />
               </Row>

@@ -35,7 +35,7 @@ afterEach(() => {
 });
 
 describe('TestFailure', () => {
-  const testTestFailure = failure => (
+  const testTestFailure = (failure) => (
     <TestFailure
       failure={failure}
       repo="autoland"

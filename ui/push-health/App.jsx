@@ -21,7 +21,7 @@ const App = () => {
             <Route
               exact
               path="/pushhealth.html"
-              render={props =>
+              render={(props) =>
                 hasProps(props.location.search) ? (
                   <Health {...props} />
                 ) : (

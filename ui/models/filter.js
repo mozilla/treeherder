@@ -96,7 +96,7 @@ export default class FilterModel {
 
       if (currentValue && currentValue.length) {
         this.urlParams[field] = currentValue.filter(
-          filterValue => filterValue !== value,
+          (filterValue) => filterValue !== value,
         );
       }
     } else {
@@ -139,19 +139,19 @@ export default class FilterModel {
    * If none or only some of the statuses here are on, then set them all to on.
    * If they ARE all on, then set them to off.
    */
-  toggleResultStatuses = resultStatuses => {
+  toggleResultStatuses = (resultStatuses) => {
     const currentResultStatuses = this.urlParams.resultStatus;
-    const allOn = resultStatuses.every(rs =>
+    const allOn = resultStatuses.every((rs) =>
       currentResultStatuses.includes(rs),
     );
     this.urlParams.resultStatus = allOn
-      ? currentResultStatuses.filter(rs => !resultStatuses.includes(rs))
+      ? currentResultStatuses.filter((rs) => !resultStatuses.includes(rs))
       : [...new Set([...resultStatuses, ...currentResultStatuses])];
 
     this.push();
   };
 
-  toggleClassifiedFilter = classifiedState => {
+  toggleClassifiedFilter = (classifiedState) => {
     this.toggleFilter('classifiedState', classifiedState);
   };
 
@@ -195,7 +195,7 @@ export default class FilterModel {
    *
    * @param job - the job we are checking against the filters
    */
-  showJob = job => {
+  showJob = (job) => {
     // when runnable jobs have been added to a resultset, they should be
     // shown regardless of settings for classified or result state
     const { resultStatus } = job;
@@ -214,7 +214,7 @@ export default class FilterModel {
     return this._checkFieldFilters(job);
   };
 
-  _checkClassifiedStateFilters = job => {
+  _checkClassifiedStateFilters = (job) => {
     const { classifiedState } = this.urlParams;
     const isJobClassified = isClassified(job);
 
@@ -226,7 +226,7 @@ export default class FilterModel {
     return !(!classifiedState.includes('classified') && isJobClassified);
   };
 
-  _checkFieldFilters = job =>
+  _checkFieldFilters = (job) =>
     Object.entries(this.urlParams).every(([field, values]) => {
       let jobFieldValue = this._getJobFieldValue(job, field);
 
@@ -239,14 +239,14 @@ export default class FilterModel {
         switch (thFieldChoices[field].matchType) {
           case thMatchType.substr:
             // at least ONE filter value must be a substring of this job's field.
-            if (!values.some(val => jobFieldValue.includes(val))) {
+            if (!values.some((val) => jobFieldValue.includes(val))) {
               return false;
             }
             break;
 
           case thMatchType.searchStr:
             // ALL of the values must be in the searchStr for this job
-            if (!values.every(val => jobFieldValue.includes(val))) {
+            if (!values.every((val) => jobFieldValue.includes(val))) {
               return false;
             }
             break;

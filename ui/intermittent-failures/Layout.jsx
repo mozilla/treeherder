@@ -10,7 +10,7 @@ import LoadingSpinner from '../shared/LoadingSpinner';
 import Navigation from './Navigation';
 import GraphsContainer from './GraphsContainer';
 
-const Layout = props => {
+const Layout = (props) => {
   const {
     graphData,
     tableData,

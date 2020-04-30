@@ -88,8 +88,8 @@ class PinBoard extends React.Component {
     }
     if (errorFree) {
       const jobs = Object.values(pinnedJobs);
-      const classifyPromises = jobs.map(job => this.saveClassification(job));
-      const bugPromises = jobs.map(job => this.saveBugs(job));
+      const classifyPromises = jobs.map((job) => this.saveClassification(job));
+      const bugPromises = jobs.map((job) => this.saveBugs(job));
       Promise.all([...classifyPromises, ...bugPromises]).then(() => {
         window.dispatchEvent(new CustomEvent(thEvents.classificationChanged));
         recalculateUnclassifiedCounts();
@@ -122,7 +122,7 @@ class PinBoard extends React.Component {
     });
   };
 
-  saveClassification = async pinnedJob => {
+  saveClassification = async (pinnedJob) => {
     const { recalculateUnclassifiedCounts, notify, jobMap } = this.props;
     const classification = this.createNewClassification();
     // Ensure the version of the job we have is the one that is displayed in
@@ -154,17 +154,17 @@ class PinBoard extends React.Component {
     }
   };
 
-  saveBugs = job => {
+  saveBugs = (job) => {
     const { pinnedJobBugs, notify } = this.props;
 
-    Object.values(pinnedJobBugs).forEach(bug => {
+    Object.values(pinnedJobBugs).forEach((bug) => {
       const bjm = new BugJobMapModel({
         bug_id: bug.id,
         job_id: job.id,
         type: 'annotation',
       });
 
-      bjm.create().catch(response => {
+      bjm.create().catch((response) => {
         const message = `Error saving bug association for ${job.platform} ${job.job_type_name}`;
         notify(formatModelError(response, message), 'danger');
       });
@@ -174,7 +174,7 @@ class PinBoard extends React.Component {
   // If the pasted data is (or looks like) a 12 or 40 char SHA,
   // or if the pasted data is an hg.m.o url, automatically select
   // the 'fixed by commit' classification type
-  pasteSHA = evt => {
+  pasteSHA = (evt) => {
     const pastedData = evt.clipboardData.getData('text');
 
     if (isSHAorCommit(pastedData)) {
@@ -196,7 +196,7 @@ class PinBoard extends React.Component {
 
   canCancelAllPinnedJobs = () => {
     const cancellableJobs = Object.values(this.props.pinnedJobs).filter(
-      job => job.state === 'pending' || job.state === 'running',
+      (job) => job.state === 'pending' || job.state === 'running',
     );
 
     return this.props.isLoggedIn && cancellableJobs.length > 0;
@@ -254,7 +254,7 @@ class PinBoard extends React.Component {
   };
 
   // Dynamic btn/anchor title for classification save
-  saveUITitle = category => {
+  saveUITitle = (category) => {
     let title = '';
 
     if (!this.props.isLoggedIn) {
@@ -280,7 +280,7 @@ class PinBoard extends React.Component {
     } else {
       // Cut off trailing '/ ' if one exists, capitalize first letter
       title = title.replace(/\/ $/, '');
-      title = title.replace(/^./, l => l.toUpperCase());
+      title = title.replace(/^./, (l) => l.toUpperCase());
     }
     return title;
   };
@@ -289,20 +289,20 @@ class PinBoard extends React.Component {
 
   hasPinnedJobBugs = () => !!Object.keys(this.props.pinnedJobBugs).length;
 
-  handleRelatedBugDocumentClick = event => {
+  handleRelatedBugDocumentClick = (event) => {
     if (!event.target.classList.contains('add-related-bugs-input')) {
       this.saveEnteredBugNumber();
       document.removeEventListener('click', this.handleRelatedBugDocumentClick);
     }
   };
 
-  handleRelatedBugEscape = event => {
+  handleRelatedBugEscape = (event) => {
     if (event.key === 'Escape') {
       this.toggleEnterBugNumber(false);
     }
   };
 
-  toggleEnterBugNumber = tf => {
+  toggleEnterBugNumber = (tf) => {
     this.setState(
       {
         enteringBugNumber: tf,
@@ -331,7 +331,7 @@ class PinBoard extends React.Component {
     );
   };
 
-  isNumber = text => !text || /^[0-9]*$/.test(text);
+  isNumber = (text) => !text || /^[0-9]*$/.test(text);
 
   saveEnteredBugNumber = () => {
     const { newBugNumber, enteringBugNumber } = this.state;
@@ -347,7 +347,7 @@ class PinBoard extends React.Component {
     }
   };
 
-  bugNumberKeyPress = ev => {
+  bugNumberKeyPress = (ev) => {
     if (ev.key === 'Enter') {
       this.saveEnteredBugNumber(ev.target.value);
       if (ev.ctrlKey) {
@@ -395,7 +395,7 @@ class PinBoard extends React.Component {
                   press spacebar to pin a selected job
                 </span>
               )}
-              {Object.values(pinnedJobs).map(job => (
+              {Object.values(pinnedJobs).map((job) => (
                 <span className="btn-group" key={job.id}>
                   <Button
                     className={`pinned-job mb-1 ${getBtnClass(
@@ -466,14 +466,14 @@ class PinBoard extends React.Component {
                     placeholder="enter bug number"
                     invalid={!this.isNumber(newBugNumber)}
                     onKeyPress={this.bugNumberKeyPress}
-                    onChange={ev =>
+                    onChange={(ev) =>
                       this.setState({ newBugNumber: ev.target.value })
                     }
                   />
                   <FormFeedback>Please enter only numbers</FormFeedback>
                 </span>
               )}
-              {Object.values(pinnedJobBugs).map(bug => (
+              {Object.values(pinnedJobBugs).map((bug) => (
                 <span key={bug.id}>
                   <span className="btn-group pinboard-related-bugs-btn">
                     <a
@@ -511,11 +511,11 @@ class PinBoard extends React.Component {
                   id="pinboard-classification-select"
                   className="classification-select"
                   value={failureClassificationId}
-                  onChange={evt =>
+                  onChange={(evt) =>
                     setClassificationId(parseInt(evt.target.value, 10))
                   }
                 >
-                  {classificationTypes.map(opt => (
+                  {classificationTypes.map((opt) => (
                     <option value={opt.id} key={opt.id}>
                       {opt.name}
                     </option>
@@ -528,7 +528,7 @@ class PinBoard extends React.Component {
                   id="classification-comment"
                   type="text"
                   className="form-control add-classification-input"
-                  onChange={evt => setClassificationComment(evt.target.value)}
+                  onChange={(evt) => setClassificationComment(evt.target.value)}
                   onPaste={this.pasteSHA}
                   placeholder="click to add comment"
                   value={failureClassificationComment}
@@ -541,14 +541,14 @@ class PinBoard extends React.Component {
                         className="classification-select"
                         type="select"
                         defaultValue={0}
-                        onChange={evt =>
+                        onChange={(evt) =>
                           setClassificationComment(evt.target.value)
                         }
                       >
                         <option value="0" disabled>
                           Choose a recent commit
                         </option>
-                        {revisionTips.slice(0, 20).map(tip => (
+                        {revisionTips.slice(0, 20).map((tip) => (
                           <option
                             title={tip.title}
                             value={tip.revision}

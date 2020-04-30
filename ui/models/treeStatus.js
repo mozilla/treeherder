@@ -3,7 +3,7 @@ const uri = 'https://treestatus.mozilla-releng.net/trees/';
 export default class TreeStatusModel {
   static get(repoName) {
     return fetch(`${uri}${repoName}`)
-      .then(async resp => {
+      .then(async (resp) => {
         if (resp.ok) {
           return resp.json();
         }
@@ -20,7 +20,7 @@ export default class TreeStatusModel {
         }
         throw new Error(await resp.text());
       })
-      .catch(reason =>
+      .catch((reason) =>
         Promise.resolve({
           result: {
             status: 'error',

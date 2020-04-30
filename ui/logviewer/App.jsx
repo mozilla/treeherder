@@ -25,7 +25,7 @@ const getUrlLineNumber = function getUrlLineNumber() {
   const lineNumberParam = getUrlParam('lineNumber');
 
   if (lineNumberParam) {
-    return lineNumberParam.split('-').map(line => parseInt(line, 10));
+    return lineNumberParam.split('-').map((line) => parseInt(line, 10));
   }
   return null;
 };
@@ -70,7 +70,7 @@ class App extends React.PureComponent {
 
     Promise.all([repoPromise, jobPromise])
       .then(async ([repos, job]) => {
-        const currentRepo = repos.find(repo => repo.name === repoName);
+        const currentRepo = repos.find((repo) => repo.name === repoName);
 
         // set the title of  the browser window/tab
         document.title = job.searchStr;
@@ -135,16 +135,16 @@ class App extends React.PureComponent {
           },
         );
       })
-      .catch(error => {
+      .catch((error) => {
         this.setState({
           jobExists: false,
           jobError: error.toString(),
         });
       });
 
-    TextLogStepModel.get(jobId).then(textLogSteps => {
+    TextLogStepModel.get(jobId).then((textLogSteps) => {
       const stepErrors = textLogSteps.length ? textLogSteps[0].errors : [];
-      const errors = stepErrors.map(error => ({
+      const errors = stepErrors.map((error) => ({
         line: error.line,
         lineNumber: error.line_number + 1,
       }));
@@ -160,7 +160,7 @@ class App extends React.PureComponent {
     });
   }
 
-  onHighlight = range => {
+  onHighlight = (range) => {
     const { highlight } = this.state;
     const { _start, _end, size } = range;
     // We can't use null to represent "no highlight", due to:
@@ -186,7 +186,7 @@ class App extends React.PureComponent {
     });
   };
 
-  scrollHighlightToTop = highlight => {
+  scrollHighlightToTop = (highlight) => {
     const lineAtTop = highlight && highlight[0] > 7 ? highlight[0] - 7 : 0;
 
     scrollToLine(`a[id="${lineAtTop}"]`, 100);

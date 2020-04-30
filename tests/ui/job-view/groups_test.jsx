@@ -17,8 +17,8 @@ describe('JobGroup component', () => {
   const pushGroupState = 'collapsed';
 
   beforeAll(() => {
-    mappedGroupFixture.jobs.forEach(job => addAggregateFields(job));
-    mappedGroupDupsFixture.jobs.forEach(job => addAggregateFields(job));
+    mappedGroupFixture.jobs.forEach((job) => addAggregateFields(job));
+    mappedGroupDupsFixture.jobs.forEach((job) => addAggregateFields(job));
   });
 
   beforeEach(() => {
@@ -43,12 +43,7 @@ describe('JobGroup component', () => {
       />,
     );
 
-    expect(
-      jobGroup
-        .find('.job-group-count')
-        .first()
-        .text(),
-    ).toEqual('2');
+    expect(jobGroup.find('.job-group-count').first().text()).toEqual('2');
   });
 
   test('should show a job and count of 2 when expanded, then re-collapsed', () => {
@@ -67,12 +62,7 @@ describe('JobGroup component', () => {
     jobGroup.setState({ expanded: true });
     jobGroup.setState({ expanded: false });
 
-    expect(
-      jobGroup
-        .find('.job-group-count')
-        .first()
-        .text(),
-    ).toEqual('2');
+    expect(jobGroup.find('.job-group-count').first().text()).toEqual('2');
   });
 
   test('should show jobs, not counts when expanded', () => {

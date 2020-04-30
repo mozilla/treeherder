@@ -31,7 +31,7 @@ export default class TaskclusterCallback extends React.PureComponent {
     }
   }
 
-  getCredentials = async code => {
+  getCredentials = async (code) => {
     const rootUrl = localStorage.getItem('tcRootUrl');
     if (!rootUrl) {
       this.setState({ errorMessage });

@@ -78,7 +78,7 @@ describe('JobModel', () => {
       // Must clear the cache, because we save each time we
       // call the API for a decision task id.
       Object.keys(decisionTaskIdCache).forEach(
-        prop => delete decisionTaskIdCache[prop],
+        (prop) => delete decisionTaskIdCache[prop],
       );
     });
 

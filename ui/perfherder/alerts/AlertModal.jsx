@@ -41,7 +41,7 @@ export default class AlertModal extends React.Component {
     this.setState(updates);
   }, 1000);
 
-  updateInput = event => {
+  updateInput = (event) => {
     this.setState(
       { inputValue: event.target.value, validated: false },
       this.validateInput,
@@ -92,7 +92,7 @@ export default class AlertModal extends React.Component {
           <ModalFooter>
             <Button
               color="secondary"
-              onClick={event => updateAndClose(event, inputValue)}
+              onClick={(event) => updateAndClose(event, inputValue)}
               disabled={invalidInput || !inputValue.length || !validated}
               type="submit"
             >

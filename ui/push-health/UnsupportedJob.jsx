@@ -40,7 +40,7 @@ class UnsupportedJob extends PureComponent {
     const { data, failureStatus } = await getData(jobArtifactsUrl);
 
     if (!failureStatus && data.artifacts) {
-      const errorSummaryLog = data.artifacts.filter(item =>
+      const errorSummaryLog = data.artifacts.filter((item) =>
         item.name.endsWith('_errorsummary.log'),
       );
 

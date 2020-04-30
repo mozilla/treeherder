@@ -11,7 +11,7 @@ export const webAuth = new WebAuth({
   scope: 'openid profile email',
 });
 
-export const userSessionFromAuthResult = authResult => {
+export const userSessionFromAuthResult = (authResult) => {
   // Example authResult:
   // {
   //   "accessToken": "<TOKEN>",
@@ -79,7 +79,7 @@ export const renew = () =>
   });
 
 // Wrapper around webAuth's parseHash
-export const parseHash = options =>
+export const parseHash = (options) =>
   new Promise((resolve, reject) => {
     webAuth.parseHash(options, (error, authResult) => {
       if (error) {

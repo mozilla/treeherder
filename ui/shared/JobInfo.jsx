@@ -88,14 +88,15 @@ export default class JobInfo extends React.PureComponent {
         )}
         <li className="small">
           <strong>Build: </strong>
-          <span>{`${buildArchitecture} ${buildPlatform} ${buildOs ||
-            ''}`}</span>
+          <span>{`${buildArchitecture} ${buildPlatform} ${
+            buildOs || ''
+          }`}</span>
         </li>
         <li className="small">
           <strong>Job name: </strong>
           <span>{jobTypeName}</span>
         </li>
-        {[...timeFields, ...extraFields].map(field => (
+        {[...timeFields, ...extraFields].map((field) => (
           <li className="small" key={`${field.title}${field.value}`}>
             <strong>{field.title}: </strong>
             {field.url ? (

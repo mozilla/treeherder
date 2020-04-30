@@ -31,7 +31,9 @@ class UnsupportedGroup extends React.PureComponent {
   }
 
   toggleDetails = () => {
-    this.setState(prevState => ({ detailsShowing: !prevState.detailsShowing }));
+    this.setState((prevState) => ({
+      detailsShowing: !prevState.detailsShowing,
+    }));
   };
 
   render() {
@@ -67,7 +69,7 @@ class UnsupportedGroup extends React.PureComponent {
           <Markdown source={description} />
           <div>
             {group &&
-              group.map(job => (
+              group.map((job) => (
                 <Card key={job.id}>
                   <CardBody>
                     <UnsupportedJob

@@ -71,7 +71,7 @@ class TestsView extends React.PureComponent {
     }
   };
 
-  fetchTestSuiteData = async params => {
+  fetchTestSuiteData = async (params) => {
     const { errorMessages } = this.state;
 
     const response = await getData(
@@ -90,10 +90,10 @@ class TestsView extends React.PureComponent {
     this.setState({ [state]: objectsMap });
   };
 
-  updateFramework = selection => {
+  updateFramework = (selection) => {
     const { updateParams } = this.props.validated;
     const { frameworks } = this.props;
-    const framework = frameworks.find(item => item.name === selection);
+    const framework = frameworks.find((item) => item.name === selection);
 
     updateParams({ framework: framework.id });
     this.setState({ framework }, () => this.getTestsOverviewData());
@@ -111,7 +111,9 @@ class TestsView extends React.PureComponent {
     } = this.state;
 
     const frameworkNames =
-      frameworks && frameworks.length ? frameworks.map(item => item.name) : [];
+      frameworks && frameworks.length
+        ? frameworks.map((item) => item.name)
+        : [];
 
     const dropdowns = [
       {

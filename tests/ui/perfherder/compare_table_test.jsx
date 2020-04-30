@@ -214,7 +214,7 @@ test('table header & rows all have hash-based ids', async () => {
     'id',
     expect.stringMatching(regexComptableHeaderId),
   );
-  compareTableRows.forEach(row => {
+  compareTableRows.forEach((row) => {
     expect(row).toHaveAttribute(
       'id',
       expect.stringMatching(regexComptableRowId),
@@ -224,7 +224,7 @@ test('table header & rows all have hash-based ids', async () => {
   // each hash suffix is unique
   const tableSections = [compareTable, ...compareTableRows];
   const allHashSuffixes = tableSections.map(
-    section => /table-\w+-(\d+)/g.exec(section.id)[1],
+    (section) => /table-\w+-(\d+)/g.exec(section.id)[1],
   );
   const uniqueHashSuffixes = [...new Set(allHashSuffixes)];
 

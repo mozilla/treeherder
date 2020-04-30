@@ -22,7 +22,7 @@ import Layout from './Layout';
 import withView from './View';
 import DateOptions from './DateOptions';
 
-const BugDetailsView = props => {
+const BugDetailsView = (props) => {
   const {
     graphData,
     tableData,
@@ -50,7 +50,7 @@ const BugDetailsView = props => {
     {
       Header: 'Revision',
       accessor: 'revision',
-      Cell: _props => (
+      Cell: (_props) => (
         <a
           href={getJobsUrl({
             repo: _props.original.tree,
@@ -89,7 +89,7 @@ const BugDetailsView = props => {
     {
       Header: 'Log',
       accessor: 'job_id',
-      Cell: _props => {
+      Cell: (_props) => {
         const { value, original } = _props;
         return (
           <SimpleTooltip

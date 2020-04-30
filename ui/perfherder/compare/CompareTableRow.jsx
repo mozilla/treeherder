@@ -48,7 +48,7 @@ export default class CompareTableRow extends React.PureComponent {
       <tr
         id={getHashBasedId(testName, hashFunction, rowLevelResults.name)}
         aria-label="Comparison table row"
-        ref={el => {
+        ref={(el) => {
           this.rowTitle = el;
         }}
       >
@@ -79,7 +79,7 @@ export default class CompareTableRow extends React.PureComponent {
               </span>
             )}
             {rowLevelResults.links &&
-              rowLevelResults.links.map(link => (
+              rowLevelResults.links.map((link) => (
                 <span key={link.title}>
                   <a href={link.href}>{` ${link.title}`}</a>
                 </span>

@@ -50,14 +50,14 @@ export default class Platform extends React.PureComponent {
     }
   }
 
-  filter = selectedTaskRun => {
+  filter = (selectedTaskRun) => {
     const { platform, filterModel, runnableVisible } = this.props;
     const filteredPlatform = { ...platform };
 
     filteredPlatform.visible = false;
-    filteredPlatform.groups.forEach(group => {
+    filteredPlatform.groups.forEach((group) => {
       group.visible = false;
-      group.jobs.forEach(job => {
+      group.jobs.forEach((job) => {
         job.visible =
           filterModel.showJob(job) || job.task_run === selectedTaskRun;
         if (job.state === 'runnable') {
@@ -75,7 +75,7 @@ export default class Platform extends React.PureComponent {
     this.setState({ filteredPlatform });
   };
 
-  filterCb = selectedTaskRun => {
+  filterCb = (selectedTaskRun) => {
     this.filter(selectedTaskRun);
   };
 

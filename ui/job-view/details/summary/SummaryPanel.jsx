@@ -30,7 +30,7 @@ class SummaryPanel extends React.PureComponent {
         title: 'Log parsing status',
         value: !jobLogUrls.length
           ? 'No logs'
-          : jobLogUrls.map(log => log.parse_status).join(', '),
+          : jobLogUrls.map((log) => log.parse_status).join(', '),
       },
     ];
 

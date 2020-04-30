@@ -12,7 +12,7 @@ export const getTestName = function getTestName(signatureProps) {
   // undefined test name
   return [
     ...new Set(
-      [signatureProps.suite, signatureProps.test].filter(item => item),
+      [signatureProps.suite, signatureProps.test].filter((item) => item),
     ),
   ].join(' ');
 };
@@ -124,7 +124,7 @@ export default class PerfSeriesModel {
         '/performance/data/',
         projectName,
       )}?${queryString.stringify(params)}`,
-    ).then(resp => {
+    ).then((resp) => {
       if (resp.ok) {
         return resp.json();
       }

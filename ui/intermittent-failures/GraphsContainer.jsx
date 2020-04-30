@@ -15,11 +15,11 @@ export default class GraphsContainer extends React.Component {
   }
 
   toggleGraph = () => {
-    this.setState(prevState => ({ showGraphTwo: !prevState.showGraphTwo }));
+    this.setState((prevState) => ({ showGraphTwo: !prevState.showGraphTwo }));
   };
 
   toggleAltViewGraph = () => {
-    this.setState(prevState => ({
+    this.setState((prevState) => ({
       showAlternateView: !prevState.showAlternateView,
     }));
   };

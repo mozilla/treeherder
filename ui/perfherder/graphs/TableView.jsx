@@ -38,7 +38,7 @@ const TableView = ({
       prevRevision = item.data[prevFlotDataPointIndex].revision;
       const repoModel = new RepositoryModel(
         projects.find(
-          repositoryName => repositoryName.name === item.repository_name,
+          (repositoryName) => repositoryName.name === item.repository_name,
         ),
       );
       pushUrl = repoModel.getPushLogRangeHref({
@@ -73,7 +73,7 @@ const TableView = ({
     };
   };
 
-  const setHighlightedRow = rowInfo => {
+  const setHighlightedRow = (rowInfo) => {
     let cellProps = {};
     if (rowInfo && rowInfo.original.highlighted) {
       cellProps = {
@@ -101,7 +101,7 @@ const TableView = ({
         </span>
       ),
       headerClassName: `text-wrap d-flex justify-content-center align-items-center table-header ${item.color[0]}`,
-      Cell: props => {
+      Cell: (props) => {
         let cellElem = null;
         if (props.original[dataKey]) {
           const {
@@ -163,7 +163,7 @@ const TableView = ({
       highlighted:
         highlightAlerts &&
         highlightedRevisions.some(
-          item => item && dataPoint.revision.includes(item),
+          (item) => item && dataPoint.revision.includes(item),
         ),
       revision: dataPoint.revision,
       pushUrl,
@@ -178,12 +178,12 @@ const TableView = ({
     };
   };
 
-  const getTableDataPoints = allDataPoints => {
+  const getTableDataPoints = (allDataPoints) => {
     const tableDataPoints = [];
     forIn(
       // group data points in arrays by date
-      groupBy(allDataPoints, arr => arr.date),
-      value => {
+      groupBy(allDataPoints, (arr) => arr.date),
+      (value) => {
         const dataRow = value.reduce((acc, curr) => {
           // group all items in the array into one object
           return {

@@ -18,7 +18,7 @@ class CompareView extends React.PureComponent {
     const now = new Date().getTime() / 1000;
     let timeRange = Math.min(oldTimestamp, newTimestamp);
     timeRange = Math.round(now - timeRange);
-    const newTimeRange = phTimeRanges.find(time => timeRange <= time.value);
+    const newTimeRange = phTimeRanges.find((time) => timeRange <= time.value);
     return newTimeRange.value;
   };
 
@@ -133,8 +133,8 @@ class CompareView extends React.PureComponent {
     const newStddevVariance = {};
     const testsWithNoise = [];
 
-    tableNames.forEach(testName => {
-      rowNames.forEach(value => {
+    tableNames.forEach((testName) => {
+      rowNames.forEach((value) => {
         if (!oldStddevVariance[value]) {
           oldStddevVariance[value] = {
             values: [],
@@ -150,10 +150,10 @@ class CompareView extends React.PureComponent {
         }
 
         const oldResults = origResultsMap.find(
-          sig => sig.name === testName && sig.platform === value,
+          (sig) => sig.name === testName && sig.platform === value,
         );
         const newResults = newResultsMap.find(
-          sig => sig.name === testName && sig.platform === value,
+          (sig) => sig.name === testName && sig.platform === value,
         );
 
         const cmap = getCounterMap(testName, oldResults, newResults);
@@ -198,7 +198,7 @@ class CompareView extends React.PureComponent {
       });
     });
 
-    rowNames.forEach(value => {
+    rowNames.forEach((value) => {
       const cmap = getCounterMap(
         noiseMetricTitle,
         oldStddevVariance[value],
@@ -215,9 +215,7 @@ class CompareView extends React.PureComponent {
     this.props.updateAppState({ compareData: compareResults });
 
     const resultsArr = Array.from(compareResults.keys());
-    const testsNoResults = difference(tableNames, resultsArr)
-      .sort()
-      .join(', ');
+    const testsNoResults = difference(tableNames, resultsArr).sort().join(', ');
 
     if (testsNoResults.length) {
       updates.testsNoResults = testsNoResults;

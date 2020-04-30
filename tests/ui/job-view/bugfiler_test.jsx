@@ -76,7 +76,7 @@ describe('BugFiler', () => {
     fetchMock.reset();
   });
 
-  const getBugFilerForSummary = summary => {
+  const getBugFilerForSummary = (summary) => {
     const suggestion = {
       summary,
       search_terms: [

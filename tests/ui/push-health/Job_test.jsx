@@ -11,7 +11,7 @@ const failBuild = pushHealth.metrics.builds.details[0];
 const passJob = pushHealth.metrics.tests.details.knownIssues[0].passJobs[0];
 
 describe('Job', () => {
-  const testJob = job => (
+  const testJob = (job) => (
     <Job
       job={job}
       repo={repoName}

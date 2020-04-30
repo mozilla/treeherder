@@ -3,7 +3,7 @@ import { Table, Alert } from 'reactstrap';
 import PropTypes from 'prop-types';
 
 const NoiseTable = ({ testsWithNoise, hasSubtests }) => {
-  const valueToString = value => {
+  const valueToString = (value) => {
     if (Number.isNaN(value)) {
       return value.toString();
     }
@@ -25,7 +25,7 @@ const NoiseTable = ({ testsWithNoise, hasSubtests }) => {
           </tr>
         </thead>
         <tbody>
-          {testsWithNoise.map(test => (
+          {testsWithNoise.map((test) => (
             <tr key={`${test.testname} ${test.platform || ''}`}>
               {test.platform && <td>{test.platform}</td>}
               <td>{test.testname}</td>

@@ -3,7 +3,7 @@ export const MAX_TRANSIENT_AGE = 4000;
 /*
  * Clear any expired transient notifications
  */
-export const clearExpiredTransientNotifications = notifications => {
+export const clearExpiredTransientNotifications = (notifications) => {
   const cleanedNotifications = notifications.reduce((acc, note) => {
     return note.sticky || Date.now() - note.created < MAX_TRANSIENT_AGE
       ? [...acc, note]

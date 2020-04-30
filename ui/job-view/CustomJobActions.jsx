@@ -51,7 +51,7 @@ class CustomJobActions extends React.PureComponent {
     const { pushId, job, notify, decisionTaskMap, currentRepo } = this.props;
     const { id: decisionTaskId } = decisionTaskMap[pushId];
 
-    TaskclusterModel.load(decisionTaskId, job, currentRepo).then(results => {
+    TaskclusterModel.load(decisionTaskId, job, currentRepo).then((results) => {
       const {
         originalTask,
         originalTaskId,
@@ -86,7 +86,7 @@ class CustomJobActions extends React.PureComponent {
     this.setState({ decisionTaskId });
   }
 
-  onChangeAction = actionName => {
+  onChangeAction = (actionName) => {
     const { actions } = this.state;
     const selectedAction = actions[actionName];
 
@@ -100,7 +100,7 @@ class CustomJobActions extends React.PureComponent {
     this.setState({ payload });
   }
 
-  updateSelectedAction = action => {
+  updateSelectedAction = (action) => {
     const { ajv } = this.state;
 
     if (action.schema) {
@@ -154,7 +154,7 @@ class CustomJobActions extends React.PureComponent {
       staticActionVariables,
       currentRepo,
     }).then(
-      taskId => {
+      (taskId) => {
         this.setState({ triggering: false });
         let message = 'Custom action request sent successfully:';
         let url = tcLibUrls.ui(
@@ -177,7 +177,7 @@ class CustomJobActions extends React.PureComponent {
         notify(message, 'success', { linkText: 'Open in Taskcluster', url });
         this.close();
       },
-      e => {
+      (e) => {
         notify(formatTaskclusterError(e), 'danger', { sticky: true });
         this.setState({ triggering: false });
         this.close();
@@ -253,7 +253,9 @@ class CustomJobActions extends React.PureComponent {
                         value={payload}
                         className="form-control pre"
                         rows="10"
-                        onChange={evt => this.onChangePayload(evt.target.value)}
+                        onChange={(evt) =>
+                          this.onChangePayload(evt.target.value)
+                        }
                         spellCheck="false"
                       />
                     </div>

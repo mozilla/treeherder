@@ -35,7 +35,7 @@ class PushJobs extends React.Component {
     ]);
   }
 
-  onMouseDown = ev => {
+  onMouseDown = (ev) => {
     const { togglePinJob } = this.props;
     const jobInstance = findInstance(ev.target);
     const selectedTaskRun = getUrlParam('selectedTaskRun');
@@ -77,10 +77,10 @@ class PushJobs extends React.Component {
     setSelectedJob(job);
   };
 
-  handleLogViewerClick = jobId => {
+  handleLogViewerClick = (jobId) => {
     // Open logviewer in a new window
     const { repoName } = this.props;
-    JobModel.get(repoName, jobId).then(data => {
+    JobModel.get(repoName, jobId).then((data) => {
       if (data.logs.length > 0) {
         window.open(
           `${window.location.origin}/${getLogViewerUrl(jobId, repoName)}`,
@@ -89,7 +89,7 @@ class PushJobs extends React.Component {
     });
   };
 
-  handleRunnableClick = jobInstance => {
+  handleRunnableClick = (jobInstance) => {
     const { toggleSelectedRunnableJob } = this.props;
 
     toggleSelectedRunnableJob(jobInstance.props.job.signature);
@@ -112,7 +112,7 @@ class PushJobs extends React.Component {
         <table id={this.aggregateId} className="table-hover">
           <tbody>
             {platforms ? (
-              platforms.map(platform => (
+              platforms.map((platform) => (
                 <Platform
                   platform={platform}
                   repoName={repoName}

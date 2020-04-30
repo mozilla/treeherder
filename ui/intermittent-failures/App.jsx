@@ -22,7 +22,7 @@ class App extends React.Component {
     };
   }
 
-  updateAppState = state => {
+  updateAppState = (state) => {
     this.setState(state);
   };
 
@@ -40,15 +40,15 @@ class App extends React.Component {
             <Route
               exact
               path="/main"
-              render={props => (
+              render={(props) => (
                 <MainView
                   {...props}
                   mainGraphData={graphData}
                   mainTableData={tableData}
                   updateAppState={this.updateAppState}
                   user={user}
-                  setUser={user => this.setState({ user })}
-                  notify={message =>
+                  setUser={(user) => this.setState({ user })}
+                  notify={(message) =>
                     this.setState({ errorMessages: [message] })
                   }
                 />
@@ -56,7 +56,7 @@ class App extends React.Component {
             />
             <Route
               path="/main?startday=:startday&endday=:endday&tree=:tree"
-              render={props => (
+              render={(props) => (
                 <MainView
                   {...props}
                   mainGraphData={graphData}

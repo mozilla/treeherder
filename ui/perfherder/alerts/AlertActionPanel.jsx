@@ -27,7 +27,9 @@ export default class AlertActionPanel extends React.Component {
 
   modifySelectedAlerts = (selectedAlerts, modification) =>
     Promise.all(
-      selectedAlerts.map(alert => this.props.modifyAlert(alert, modification)),
+      selectedAlerts.map((alert) =>
+        this.props.modifyAlert(alert, modification),
+      ),
     );
 
   updateAndFetch = async (newStatus, alertId = null) => {
@@ -53,16 +55,16 @@ export default class AlertActionPanel extends React.Component {
 
     if (alertId) {
       otherAlertSummaries = alertSummaries.filter(
-        summary => summary.id === alertId,
+        (summary) => summary.id === alertId,
       );
     } else {
       otherAlertSummaries = selectedAlerts
-        .map(alert =>
+        .map((alert) =>
           alertSummaries.find(
-            summary => summary.id === alert.related_summary_id,
+            (summary) => summary.id === alert.related_summary_id,
           ),
         )
-        .filter(summary => summary !== undefined);
+        .filter((summary) => summary !== undefined);
     }
 
     const summariesToUpdate = [...[alertSummary], ...otherAlertSummaries];
@@ -70,7 +72,7 @@ export default class AlertActionPanel extends React.Component {
     // when an alert status is updated via the API, the corresponding
     // alertSummary status and any related summaries are updated (in the backend)
     // so we need to fetch them in order to capture the changes in the UI
-    summariesToUpdate.forEach(summary => fetchAlertSummaries(summary.id));
+    summariesToUpdate.forEach((summary) => fetchAlertSummaries(summary.id));
     this.clearSelectedAlerts();
   };
 
@@ -84,7 +86,7 @@ export default class AlertActionPanel extends React.Component {
     updateState(updates);
   };
 
-  updateAlerts = async newStatus => {
+  updateAlerts = async (newStatus) => {
     const { selectedAlerts, fetchAlertSummaries, alertSummary } = this.props;
 
     await this.modifySelectedAlerts(selectedAlerts, {
@@ -97,7 +99,7 @@ export default class AlertActionPanel extends React.Component {
 
   hasTriagedAlerts = () =>
     this.props.selectedAlerts.some(
-      alert => alert.status !== alertStatusMap.untriaged,
+      (alert) => alert.status !== alertStatusMap.untriaged,
     );
 
   updateAndClose = async (event, alertId, newStatus, modal) => {
@@ -106,8 +108,8 @@ export default class AlertActionPanel extends React.Component {
     this.toggle(modal);
   };
 
-  toggle = state => {
-    this.setState(prevState => ({
+  toggle = (state) => {
+    this.setState((prevState) => ({
       [state]: !prevState[state],
     }));
   };

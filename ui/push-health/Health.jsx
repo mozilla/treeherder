@@ -76,7 +76,7 @@ export default class Health extends React.PureComponent {
       {},
     );
     const repos = await RepositoryModel.getList();
-    const currentRepo = repos.find(repoObj => repoObj.name === repo);
+    const currentRepo = repos.find((repoObj) => repoObj.name === repo);
 
     this.setState({ ...expandedStates, currentRepo });
 
@@ -93,7 +93,7 @@ export default class Health extends React.PureComponent {
     clearInterval(this.testTimerId);
   }
 
-  setUser = user => {
+  setUser = (user) => {
     this.setState({ user });
   };
 
@@ -121,7 +121,7 @@ export default class Health extends React.PureComponent {
     });
   };
 
-  clearNotification = index => {
+  clearNotification = (index) => {
     const { notifications } = this.state;
 
     this.setState(clearNotificationAtIndex(notifications, index));
@@ -144,7 +144,7 @@ export default class Health extends React.PureComponent {
     }
   };
 
-  filter = searchStr => {
+  filter = (searchStr) => {
     const { location, history } = this.props;
     const newParams = { ...parseQueryParams(location.search), searchStr };
 
@@ -212,7 +212,7 @@ export default class Health extends React.PureComponent {
               <Nav className="metric-buttons mb-2 pt-2 pl-3 justify-content-between w-100">
                 <span>
                   {[progress, commitHistory, linting, builds, tests].map(
-                    metric => (
+                    (metric) => (
                       <span key={metric.name}>
                         {!!metric && !!metric.details && (
                           <Button

@@ -19,7 +19,7 @@ export default class InputFilter extends React.Component {
     800,
   );
 
-  updateInput = event => {
+  updateInput = (event) => {
     const { updateFilterText, updateOnEnter } = this.props;
     const input = event.target.value;
 
@@ -34,7 +34,7 @@ export default class InputFilter extends React.Component {
     }
   };
 
-  userActionListener = async event => {
+  userActionListener = async (event) => {
     const { updateFilterText } = this.props;
     const { input } = this.state;
 

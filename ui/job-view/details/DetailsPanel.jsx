@@ -109,8 +109,8 @@ class DetailsPanel extends React.Component {
     if (!selectedJob) {
       return;
     }
-    BugSuggestionsModel.get(selectedJob.id).then(suggestions => {
-      suggestions.forEach(suggestion => {
+    BugSuggestionsModel.get(selectedJob.id).then((suggestions) => {
+      suggestions.forEach((suggestion) => {
         suggestion.bugs.too_many_open_recent =
           suggestion.bugs.open_recent.length > thBugSuggestionLimit;
         suggestion.bugs.too_many_all_others =
@@ -130,10 +130,10 @@ class DetailsPanel extends React.Component {
       // the log (we can do this asynchronously, it should normally be
       // fast)
       if (!suggestions.length) {
-        TextLogStepModel.get(selectedJob.id).then(textLogSteps => {
+        TextLogStepModel.get(selectedJob.id).then((textLogSteps) => {
           const errors = textLogSteps
-            .filter(step => step.result !== 'success')
-            .map(step => ({
+            .filter((step) => step.result !== 'success')
+            .map((step) => ({
               name: step.name,
               result: step.result,
               logViewerUrl: getLogViewerUrl(
@@ -160,10 +160,10 @@ class DetailsPanel extends React.Component {
     this.setState({ classifications, bugs });
   };
 
-  findPush = pushId => {
+  findPush = (pushId) => {
     const { pushList } = this.props;
 
-    return pushList.find(push => pushId === push.id);
+    return pushList.find((push) => pushId === push.id);
   };
 
   selectJob = () => {
@@ -255,7 +255,7 @@ class DetailsPanel extends React.Component {
               // the third result comes from the jobLogUrl promise
               // exclude the json log URLs
               const jobLogUrls = jobLogUrlResult.filter(
-                log => !log.name.endsWith('_json'),
+                (log) => !log.name.endsWith('_json'),
               );
 
               let logParseStatus = 'unavailable';
@@ -280,10 +280,10 @@ class DetailsPanel extends React.Component {
 
               if (performanceData.length) {
                 const signatureIds = [
-                  ...new Set(performanceData.map(perf => perf.signature_id)),
+                  ...new Set(performanceData.map((perf) => perf.signature_id)),
                 ];
                 const seriesListList = await Promise.all(
-                  chunk(signatureIds, 20).map(signatureIdChunk =>
+                  chunk(signatureIds, 20).map((signatureIdChunk) =>
                     PerfSeriesModel.getSeriesList(currentRepo.name, {
                       id: signatureIdChunk,
                     }),
@@ -291,16 +291,16 @@ class DetailsPanel extends React.Component {
                 );
 
                 const seriesList = seriesListList
-                  .map(item => item.data)
+                  .map((item) => item.data)
                   .reduce((a, b) => [...a, ...b], []);
 
                 perfJobDetail = performanceData
-                  .map(d => ({
-                    series: seriesList.find(s => d.signature_id === s.id),
+                  .map((d) => ({
+                    series: seriesList.find((s) => d.signature_id === s.id),
                     ...d,
                   }))
-                  .filter(d => !d.series.parentSignature)
-                  .map(d => ({
+                  .filter((d) => !d.series.parentSignature)
+                  .map((d) => ({
                     url: `/perf.html#/graphs?series=${[
                       currentRepo.name,
                       d.signature_id,

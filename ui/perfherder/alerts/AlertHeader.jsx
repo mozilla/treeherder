@@ -29,7 +29,7 @@ const AlertHeader = ({
 }) => {
   const getIssueTrackerUrl = () => {
     const { issueTrackerUrl } = issueTrackers.find(
-      tracker => tracker.id === alertSummary.issue_tracker,
+      (tracker) => tracker.id === alertSummary.issue_tracker,
     );
     return issueTrackerUrl + alertSummary.bug_number;
   };

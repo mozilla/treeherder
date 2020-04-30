@@ -41,13 +41,13 @@ export default class CompareTableControls extends React.Component {
     }
   }
 
-  updateFilterText = filterText => {
+  updateFilterText = (filterText) => {
     this.setState({ filterText }, () => this.updateFilteredResults());
   };
 
-  updateFilter = filter => {
+  updateFilter = (filter) => {
     this.setState(
-      prevState => ({ [filter]: !prevState[filter] }),
+      (prevState) => ({ [filter]: !prevState[filter] }),
       () => this.updateFilteredResults(),
     );
   };
@@ -100,7 +100,7 @@ export default class CompareTableControls extends React.Component {
     const filteredResults = new Map(compareResults);
 
     for (const [testName, values] of filteredResults) {
-      const filteredValues = values.filter(result =>
+      const filteredValues = values.filter((result) =>
         this.filterResult(testName, result),
       );
 
@@ -114,7 +114,7 @@ export default class CompareTableControls extends React.Component {
   };
 
   toggleRetriggerModal = () => {
-    this.setState(prevState => ({
+    this.setState((prevState) => ({
       showRetriggerModal: !prevState.showRetriggerModal,
     }));
   };
@@ -133,7 +133,7 @@ export default class CompareTableControls extends React.Component {
     this.toggleRetriggerModal();
   };
 
-  onModalOpen = rowResults => {
+  onModalOpen = (rowResults) => {
     this.setState({ currentRetriggerRow: rowResults });
     this.toggleRetriggerModal();
   };

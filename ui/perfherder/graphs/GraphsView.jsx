@@ -61,7 +61,7 @@ class GraphsView extends React.Component {
     const defaultValue = timerange
       ? parseInt(timerange, 10)
       : phDefaultTimeRangeValue;
-    return phTimeRanges.find(time => time.value === defaultValue);
+    return phTimeRanges.find((time) => time.value === defaultValue);
   };
 
   checkQueryParams = () => {
@@ -95,7 +95,7 @@ class GraphsView extends React.Component {
     if (zoom) {
       const zoomArray = zoom.replace(/[[{}\]"]+/g, '').split(',');
       const zoomObject = {
-        x: zoomArray.map(x => new Date(parseInt(x, 10))).slice(0, 2),
+        x: zoomArray.map((x) => new Date(parseInt(x, 10))).slice(0, 2),
         y: zoomArray.slice(2, 4),
       };
       updates.zoom = zoomObject;
@@ -110,7 +110,7 @@ class GraphsView extends React.Component {
     this.setState(updates);
   };
 
-  createSeriesParams = series => {
+  createSeriesParams = (series) => {
     const {
       repository_name: repositoryName,
       signature_id: signatureId,
@@ -133,7 +133,7 @@ class GraphsView extends React.Component {
     this.setState({ loading: true });
 
     const responses = await Promise.all(
-      tests.map(series =>
+      tests.map((series) =>
         getData(
           createApiUrl(endpoints.summary, this.createSeriesParams(series)),
         ),
@@ -147,8 +147,8 @@ class GraphsView extends React.Component {
       // If the server returns an empty array instead of signature data with data: [],
       // that test won't be shown in the graph or legend; this will prevent the UI from breaking
       const data = responses
-        .filter(response => response.data.length)
-        .map(reponse => reponse.data[0]);
+        .filter((response) => response.data.length)
+        .map((reponse) => reponse.data[0]);
       let newTestData = await this.createGraphObject(data);
 
       if (newDisplayedTests.length) {
@@ -166,10 +166,10 @@ class GraphsView extends React.Component {
     }
   };
 
-  createGraphObject = async seriesData => {
+  createGraphObject = async (seriesData) => {
     const { colors, symbols } = this.state;
     const alertSummaries = await Promise.all(
-      seriesData.map(series =>
+      seriesData.map((series) =>
         this.getAlertSummaries(series.signature_id, series.repository_id),
       ),
     );
@@ -214,14 +214,14 @@ class GraphsView extends React.Component {
     const { testData } = this.state;
 
     const updatedData = testData.find(
-      test => test.signature_id === signatureId,
+      (test) => test.signature_id === signatureId,
     );
     const alertSummaries = await this.getAlertSummaries(
       signatureId,
       repositoryName,
     );
     const alertSummary = alertSummaries.find(
-      result => result.id === alertSummaryId,
+      (result) => result.id === alertSummaryId,
     );
     updatedData.data[dataPointIndex].alertSummary = alertSummary;
     const newTestData = unionBy([updatedData], testData, 'signature_id');
@@ -229,8 +229,8 @@ class GraphsView extends React.Component {
     this.setState({ testData: newTestData });
   };
 
-  parseSeriesParam = series =>
-    series.map(encodedSeries => {
+  parseSeriesParam = (series) =>
+    series.map((encodedSeries) => {
       const partialSeriesArray = encodedSeries.split(',');
       const partialSeriesObject = {
         repository_name: partialSeriesArray[0],
@@ -248,13 +248,13 @@ class GraphsView extends React.Component {
       return partialSeriesObject;
     });
 
-  toggle = state => {
-    this.setState(prevState => ({
+  toggle = (state) => {
+    this.setState((prevState) => ({
       [state]: !prevState[state],
     }));
   };
 
-  updateParams = params => {
+  updateParams = (params) => {
     const { location, history } = this.props;
     let newQueryString = queryString.stringify(params);
     newQueryString = newQueryString.replace(/%2C/g, ',');
@@ -273,7 +273,7 @@ class GraphsView extends React.Component {
     } = this.state;
 
     const newSeries = testData.map(
-      series =>
+      (series) =>
         `${series.repository_name},${series.signature_id},1,${series.framework_id}`,
     );
     const params = {
@@ -284,7 +284,7 @@ class GraphsView extends React.Component {
     };
 
     const newHighlightedRevisions = highlightedRevisions.filter(
-      rev => rev.length,
+      (rev) => rev.length,
     );
 
     if (newHighlightedRevisions.length) {
@@ -302,7 +302,7 @@ class GraphsView extends React.Component {
     if (Object.keys(zoom).length === 0) {
       delete params.zoom;
     } else {
-      params.zoom = [...zoom.x.map(z => z.getTime()), ...zoom.y].toString();
+      params.zoom = [...zoom.x.map((z) => z.getTime()), ...zoom.y].toString();
     }
 
     this.updateParams(params);
@@ -358,7 +358,7 @@ class GraphsView extends React.Component {
                   className="graph-legend pl-0 pb-4"
                 >
                   {testData.length > 0 &&
-                    testData.map(series => (
+                    testData.map((series) => (
                       <div
                         key={`${series.name} ${series.repository_name} ${series.platform}`}
                       >
@@ -366,8 +366,8 @@ class GraphsView extends React.Component {
                           series={series}
                           testData={testData}
                           {...this.props}
-                          updateState={state => this.setState(state)}
-                          updateStateParams={state =>
+                          updateState={(state) => this.setState(state)}
+                          updateStateParams={(state) =>
                             this.setState(state, this.changeParams)
                           }
                           colors={colors}
@@ -400,14 +400,14 @@ class GraphsView extends React.Component {
                 highlightedRevisions={highlightedRevisions}
                 zoom={zoom}
                 selectedDataPoint={selectedDataPoint}
-                updateStateParams={state =>
+                updateStateParams={(state) =>
                   this.setState(state, this.changeParams)
                 }
                 visibilityChanged={visibilityChanged}
                 updateData={this.updateData}
                 toggle={() => this.setState({ showModal: !showModal })}
                 toggleTableView={() => this.setState({ showTable: !showTable })}
-                updateTimeRange={timeRange =>
+                updateTimeRange={(timeRange) =>
                   this.setState(
                     {
                       timeRange,

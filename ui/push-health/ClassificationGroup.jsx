@@ -40,16 +40,18 @@ class ClassificationGroup extends React.PureComponent {
   }
 
   toggleDetails = () => {
-    this.setState(prevState => ({ detailsShowing: !prevState.detailsShowing }));
+    this.setState((prevState) => ({
+      detailsShowing: !prevState.detailsShowing,
+    }));
   };
 
   toggleRetrigger = () => {
-    this.setState(prevState => ({
+    this.setState((prevState) => ({
       retriggerDropdownOpen: !prevState.retriggerDropdownOpen,
     }));
   };
 
-  retriggerAll = times => {
+  retriggerAll = (times) => {
     const { group, notify, currentRepo } = this.props;
     // Reduce down to the unique jobs
     const jobs = group.reduce(
@@ -64,11 +66,11 @@ class ClassificationGroup extends React.PureComponent {
     JobModel.retrigger(uniqueJobs, currentRepo, notify, times);
   };
 
-  setGroupedBy = groupedBy => {
+  setGroupedBy = (groupedBy) => {
     this.setState({ groupedBy });
   };
 
-  setOrderedBy = orderedBy => {
+  setOrderedBy = (orderedBy) => {
     this.setState({ orderedBy });
   };
 
@@ -147,7 +149,7 @@ class ClassificationGroup extends React.PureComponent {
                     >
                       <DropdownToggle caret />
                       <DropdownMenu>
-                        {[5, 10, 15].map(times => (
+                        {[5, 10, 15].map((times) => (
                           <DropdownItem
                             key={times}
                             title={`Retrigger all 'Need Investigation' jobs ${times} times`}

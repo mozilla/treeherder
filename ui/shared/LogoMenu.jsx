@@ -18,7 +18,7 @@ export default class LogoMenu extends React.PureComponent {
   render() {
     const { menuText, menuImage, colorClass } = this.props;
 
-    const menuChoices = choices.filter(choice => choice.text !== menuText);
+    const menuChoices = choices.filter((choice) => choice.text !== menuText);
     return (
       <UncontrolledDropdown>
         <DropdownToggle
@@ -34,7 +34,7 @@ export default class LogoMenu extends React.PureComponent {
           )}
         </DropdownToggle>
         <DropdownMenu>
-          {menuChoices.map(choice => (
+          {menuChoices.map((choice) => (
             <DropdownItem key={choice.text} tag="a" href={choice.url}>
               {choice.text}
             </DropdownItem>

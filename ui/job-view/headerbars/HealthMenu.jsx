@@ -16,7 +16,7 @@ class HealthMenu extends PureComponent {
   }
 
   toggle = () => {
-    this.setState(prevState => ({
+    this.setState((prevState) => ({
       dropdownOpen: !prevState.dropdownOpen,
     }));
   };

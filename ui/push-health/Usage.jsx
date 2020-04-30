@@ -54,7 +54,7 @@ class Usage extends Component {
             </tr>
           </thead>
           <tbody>
-            {usage.map(rev => {
+            {usage.map((rev) => {
               const {
                 push: { revision, push_timestamp: pushTimestamp, author },
                 peak: { needInvestigation: peakNI, time: peakTime },

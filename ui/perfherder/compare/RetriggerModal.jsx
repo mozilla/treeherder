@@ -80,7 +80,7 @@ export default class RetriggerModal extends React.Component {
       : `Disabled input because ${disableReason}`;
   };
 
-  isValueValid = value => {
+  isValueValid = (value) => {
     const { maxRetriggersValue } = this.props;
     const regex = /^\d+$/;
 
@@ -91,7 +91,7 @@ export default class RetriggerModal extends React.Component {
     return parsedValue >= 0 && parsedValue <= maxRetriggersValue;
   };
 
-  handleChange = event => {
+  handleChange = (event) => {
     const inputName = event.target.name;
     const updates = {
       [inputName]: 0,
@@ -107,7 +107,7 @@ export default class RetriggerModal extends React.Component {
     this.setState(updates);
   };
 
-  onRetriggerClick = event => {
+  onRetriggerClick = (event) => {
     const { updateAndClose } = this.props;
     const { baseRetriggerTimes, newRetriggerTimes } = this.state;
 

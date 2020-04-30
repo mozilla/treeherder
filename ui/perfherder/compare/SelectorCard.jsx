@@ -47,7 +47,7 @@ export default class SelectorCard extends React.Component {
 
   validateQueryParams = () => {
     const { projects, selectedRepo, revisionState } = this.props;
-    const validProject = projects.find(item => item.name === selectedRepo);
+    const validProject = projects.find((item) => item.name === selectedRepo);
 
     if (!validProject) {
       return this.setState({
@@ -64,7 +64,7 @@ export default class SelectorCard extends React.Component {
     }
   };
 
-  fetchRevisions = async selectedRepo => {
+  fetchRevisions = async (selectedRepo) => {
     const { selectedRevision, updateState, getRevisions } = this.props;
 
     // if a user selects a new project/repo, we don't want them to
@@ -89,13 +89,13 @@ export default class SelectorCard extends React.Component {
     }
   };
 
-  toggle = dropdown => {
-    this.setState(prevState => ({
+  toggle = (dropdown) => {
+    this.setState((prevState) => ({
       [dropdown]: !prevState[dropdown],
     }));
   };
 
-  updateRevisions = selectedRepo => {
+  updateRevisions = (selectedRepo) => {
     const { updateState, projectState } = this.props;
     // reset invalidProject from query param validation
     // in case user resets project via dropdown instead
@@ -114,7 +114,7 @@ export default class SelectorCard extends React.Component {
     }
   };
 
-  selectRevision = value => {
+  selectRevision = (value) => {
     const { updateState, revisionState } = this.props;
 
     this.setState({ invalidRevision: false });
@@ -125,7 +125,7 @@ export default class SelectorCard extends React.Component {
     });
   };
 
-  validateInput = async value => {
+  validateInput = async (value) => {
     const {
       updateState,
       revisionState,
@@ -151,7 +151,9 @@ export default class SelectorCard extends React.Component {
     }
     // if a revision has been entered, check whether it's already
     // been fetched for the revision dropdown menu (data)
-    const existingRevision = data.results.find(item => item.revision === value);
+    const existingRevision = data.results.find(
+      (item) => item.revision === value,
+    );
 
     if (!existingRevision) {
       this.setState({ validating: 'Validating...' });
@@ -215,11 +217,11 @@ export default class SelectorCard extends React.Component {
               </DropdownToggle>
               {projects.length > 0 && (
                 <DropdownMenu className="overflow-auto dropdown-menu-height">
-                  {projects.map(item => (
+                  {projects.map((item) => (
                     <DropdownItem
                       tag="a"
                       key={item.name}
-                      onClick={event =>
+                      onClick={(event) =>
                         this.updateRevisions(event.target.innerText)
                       }
                     >
@@ -265,7 +267,7 @@ export default class SelectorCard extends React.Component {
                     valid={!invalidRevision && !validating && validated}
                     placeholder={selectorCardText.revisionPlaceHolder}
                     value={selectedRevision}
-                    onChange={event => this.validateInput(event.target.value)}
+                    onChange={(event) => this.validateInput(event.target.value)}
                     onFocus={() =>
                       this.setState({
                         invalidRevision: false,
@@ -283,11 +285,11 @@ export default class SelectorCard extends React.Component {
                     </DropdownToggle>
                     {!!data.results && data.results.length > 0 && (
                       <DropdownMenu>
-                        {data.results.map(item => (
+                        {data.results.map((item) => (
                           <DropdownItem
                             tag="a"
                             key={item.id}
-                            onClick={event =>
+                            onClick={(event) =>
                               this.selectRevision(
                                 event.target.innerText.split(' ')[0],
                               )

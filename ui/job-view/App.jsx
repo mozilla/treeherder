@@ -89,13 +89,13 @@ class App extends React.Component {
   componentDidMount() {
     const { repoName } = this.state;
 
-    RepositoryModel.getList().then(repos => {
-      const newRepo = repos.find(repo => repo.name === repoName);
+    RepositoryModel.getList().then((repos) => {
+      const newRepo = repos.find((repo) => repo.name === repoName);
 
       this.setState({ currentRepo: newRepo, repos });
     });
 
-    ClassificationTypeModel.getList().then(classificationTypes => {
+    ClassificationTypeModel.getList().then((classificationTypes) => {
       this.setState({
         classificationTypes,
         classificationMap: ClassificationTypeModel.getMap(classificationTypes),
@@ -108,10 +108,10 @@ class App extends React.Component {
     window.addEventListener(thEvents.filtersUpdated, this.handleFiltersUpdated);
 
     // Get the current Treeherder revision and poll to notify on updates.
-    this.fetchDeployedRevision().then(revision => {
+    this.fetchDeployedRevision().then((revision) => {
       this.setState({ serverRev: revision });
       this.updateInterval = setInterval(() => {
-        this.fetchDeployedRevision().then(revision => {
+        this.fetchDeployedRevision().then((revision) => {
           const {
             serverChangedTimestamp,
             serverRev,
@@ -174,7 +174,7 @@ class App extends React.Component {
     };
   }
 
-  handleStorageEvent = e => {
+  handleStorageEvent = (e) => {
     if (e.key === PUSH_HEALTH_VISIBILITY) {
       this.setState({
         pushHealthVisibility: localStorage.getItem(PUSH_HEALTH_VISIBILITY),
@@ -182,16 +182,16 @@ class App extends React.Component {
     }
   };
 
-  setPushHealthVisibility = visibility => {
+  setPushHealthVisibility = (visibility) => {
     localStorage.setItem(PUSH_HEALTH_VISIBILITY, visibility);
     this.setState({ pushHealthVisibility: visibility });
   };
 
-  setUser = user => {
+  setUser = (user) => {
     this.setState({ user });
   };
 
-  setCurrentRepoTreeStatus = status => {
+  setCurrentRepoTreeStatus = (status) => {
     const link = document.head.querySelector('link[rel="shortcut icon"]');
 
     if (link) {
@@ -199,30 +199,30 @@ class App extends React.Component {
     }
   };
 
-  getAllShownJobs = pushId => {
+  getAllShownJobs = (pushId) => {
     const {
       pushes: { jobMap },
     } = store.getState();
     const jobList = Object.values(jobMap);
 
     return pushId
-      ? jobList.filter(job => job.push_id === pushId && job.visible)
-      : jobList.filter(job => job.visible);
+      ? jobList.filter((job) => job.push_id === pushId && job.visible)
+      : jobList.filter((job) => job.visible);
   };
 
   toggleFieldFilterVisible = () => {
-    this.setState(prevState => ({
+    this.setState((prevState) => ({
       isFieldFilterVisible: !prevState.isFieldFilterVisible,
     }));
   };
 
   updateDimensions = () => {
-    this.setState(prevState =>
+    this.setState((prevState) =>
       App.getSplitterDimensions(prevState.hasSelectedJob),
     );
   };
 
-  handleUrlChanges = ev => {
+  handleUrlChanges = (ev) => {
     const { repos } = this.state;
     const { newURL, oldURL } = ev;
     const urlParams = getAllUrlParams();
@@ -233,7 +233,7 @@ class App extends React.Component {
         urlParams.has('selectedJob') || urlParams.has('selectedTaskRun'),
       groupCountsExpanded: urlParams.get('group_state') === 'expanded',
       duplicateJobsVisible: urlParams.get('duplicate_jobs') === 'visible',
-      currentRepo: repos.find(repo => repo.name === newRepo),
+      currentRepo: repos.find((repo) => repo.name === newRepo),
     };
     const oldState = pick(this.state, Object.keys(newState));
 
@@ -251,7 +251,7 @@ class App extends React.Component {
   };
 
   // If ``show`` is a boolean, then set to that value.  If it's not, then toggle
-  showOnScreenShortcuts = show => {
+  showOnScreenShortcuts = (show) => {
     const { showShortCuts } = this.state;
     const newValue = typeof show === 'boolean' ? show : !showShortCuts;
 
@@ -259,7 +259,7 @@ class App extends React.Component {
   };
 
   fetchDeployedRevision() {
-    return fetch(deployedRevisionUrl).then(resp => resp.text());
+    return fetch(deployedRevisionUrl).then((resp) => resp.text());
   }
 
   updateButtonClick() {
@@ -341,7 +341,7 @@ class App extends React.Component {
             <SplitPane
               split="horizontal"
               size={`${pushListPct}%`}
-              onChange={size => this.handleSplitChange(size)}
+              onChange={(size) => this.handleSplitChange(size)}
             >
               <div className="d-flex flex-column w-100">
                 {(isFieldFilterVisible || !!filterBarFilters.length) && (

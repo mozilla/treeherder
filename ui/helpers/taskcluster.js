@@ -67,7 +67,7 @@ const taskcluster = (() => {
     trailing: false,
   });
 
-  const getCredentials = rootUrl => {
+  const getCredentials = (rootUrl) => {
     const userCredentials = JSON.parse(localStorage.getItem('userCredentials'));
     _rootUrl = checkRootUrl(rootUrl);
 
@@ -118,12 +118,12 @@ const taskcluster = (() => {
 })();
 
 export const getAction = (actionArray, actionName) => {
-  const action = actionArray.find(result => result.name === actionName);
+  const action = actionArray.find((result) => result.name === actionName);
 
   if (!action) {
     throw Error(
       `'${actionName}' action is not available for this task.  Available: ${actionArray
-        .map(act => act.name)
+        .map((act) => act.name)
         .join(', ')}`,
     );
   }

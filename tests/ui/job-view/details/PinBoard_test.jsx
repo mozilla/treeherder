@@ -80,7 +80,7 @@ describe('DetailsPanel', () => {
     replaceLocation({});
   });
 
-  const testDetailsPanel = store => (
+  const testDetailsPanel = (store) => (
     <div id="global-container" className="height-minus-navbars">
       <Provider store={store}>
         <KeyboardShortcuts

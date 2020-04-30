@@ -66,7 +66,7 @@ export default class TestDataModal extends React.Component {
     const { testData } = this.props;
 
     if (prevState.platforms !== platforms) {
-      const newPlatform = platforms.find(item => item === platform)
+      const newPlatform = platforms.find((item) => item === platform)
         ? platform
         : platforms[0];
       // eslint-disable-next-line react/no-did-update-set-state
@@ -101,10 +101,10 @@ export default class TestDataModal extends React.Component {
   }
 
   getDropdownOptions(options) {
-    return options.length ? options.map(item => item.name) : [];
+    return options.length ? options.map((item) => item.name) : [];
   }
 
-  addRelatedApplications = async params => {
+  addRelatedApplications = async (params) => {
     const { relatedSeries: relatedSignature } = this.props.options;
     const { errorMessages } = this.state;
     let relatedTests = [];
@@ -115,7 +115,7 @@ export default class TestDataModal extends React.Component {
     );
 
     if (!failureStatus) {
-      relatedTests = data.filter(signature => {
+      relatedTests = data.filter((signature) => {
         const differentApplications =
           signature.application !== relatedSignature.application;
         const similarTestNames =
@@ -147,7 +147,7 @@ export default class TestDataModal extends React.Component {
     });
   };
 
-  addRelatedConfigs = async params => {
+  addRelatedConfigs = async (params) => {
     const { relatedSeries } = this.props.options;
     const { errorMessages, repository_name: repositoryName } = this.state;
 
@@ -159,7 +159,7 @@ export default class TestDataModal extends React.Component {
 
     if (updates.relatedTests.length) {
       const tests = updates.relatedTests.filter(
-        series =>
+        (series) =>
           series.platform === relatedSeries.platform &&
           series.testName === relatedSeries.test &&
           series.name !== relatedSeries.name,
@@ -178,23 +178,23 @@ export default class TestDataModal extends React.Component {
     const { errorMessages } = this.state;
 
     const relatedProjects = thPerformanceBranches.filter(
-      repositoryName => repositoryName !== relatedSeries.repository_name,
+      (repositoryName) => repositoryName !== relatedSeries.repository_name,
     );
 
-    const requests = relatedProjects.map(projectName =>
+    const requests = relatedProjects.map((projectName) =>
       PerfSeriesModel.getSeriesList(projectName, params),
     );
 
     const responses = await Promise.all(requests);
     const relatedTests = responses
-      .flatMap(item => {
+      .flatMap((item) => {
         if (!item.failureStatus) {
           return item.data;
         }
         errorMessages.push(item.data);
       })
       .filter(
-        item =>
+        (item) =>
           item.name === relatedSeries.name &&
           (samePlatform
             ? item.platform === relatedSeries.platform
@@ -251,11 +251,11 @@ export default class TestDataModal extends React.Component {
     }
   };
 
-  findObject = (list, key, value) => list.find(item => item[key] === value);
+  findObject = (list, key, value) => list.find((item) => item[key] === value);
 
-  updateFilterText = filterText => {
+  updateFilterText = (filterText) => {
     const { seriesData } = this.state;
-    const filteredData = seriesData.filter(test => {
+    const filteredData = seriesData.filter((test) => {
       // spell out all searchable characteristics
       // into a single encompassing string
       const tags = test.tags.join(' ');
@@ -286,9 +286,10 @@ export default class TestDataModal extends React.Component {
     }
   };
 
-  getFullTestName = test => `${test.projectName} ${test.platform} ${test.name}`;
+  getFullTestName = (test) =>
+    `${test.projectName} ${test.platform} ${test.name}`;
 
-  getOriginalTestName = test =>
+  getOriginalTestName = (test) =>
     this.state.relatedTests.length > 0 ? this.getFullTestName(test) : test.name;
 
   closeModal = () => {
@@ -307,7 +308,7 @@ export default class TestDataModal extends React.Component {
     const { selectedTests } = this.state;
     const { getTestData } = this.props;
 
-    const displayedTestParams = selectedTests.map(series => ({
+    const displayedTestParams = selectedTests.map((series) => ({
       repository_name: series.projectName,
       signature_id: parseInt(series.id, 10),
       framework_id: parseInt(series.frameworkId, 10),
@@ -322,11 +323,11 @@ export default class TestDataModal extends React.Component {
     this.closeModal();
   };
 
-  selectableTestClassName = test => {
+  selectableTestClassName = (test) => {
     return this.hasDifferentUnit(test) ? 'bg-warning' : '';
   };
 
-  selectableTestTitle = test => {
+  selectableTestTitle = (test) => {
     if (this.hasDifferentUnit(test)) {
       return `Warning: ${this.getOriginalTestName(
         test,
@@ -335,7 +336,7 @@ export default class TestDataModal extends React.Component {
     return this.getOriginalTestName(test);
   };
 
-  hasDifferentUnit = test => {
+  hasDifferentUnit = (test) => {
     const { plottedUnits } = this.props;
     const { selectedUnits } = this.state;
     const unit = test.measurementUnit;
@@ -355,14 +356,11 @@ export default class TestDataModal extends React.Component {
 
   removeSubstring = (subString, fromString) =>
     fromString.includes(subString)
-      ? fromString
-          .split(subString)
-          .join('')
-          .trim()
+      ? fromString.split(subString).join('').trim()
       : fromString;
 
   extractUniqueUnits(tests) {
-    return new Set(tests.map(aTest => aTest.measurementUnit));
+    return new Set(tests.map((aTest) => aTest.measurementUnit));
   }
 
   render() {
@@ -385,9 +383,9 @@ export default class TestDataModal extends React.Component {
     const projectOptions = this.getDropdownOptions(projects);
     const modalOptions = [
       {
-        options: frameworks.length ? frameworks.map(item => item.name) : [],
+        options: frameworks.length ? frameworks.map((item) => item.name) : [],
         selectedItem: framework.name,
-        updateData: value =>
+        updateData: (value) =>
           this.setState(
             {
               framework: this.findObject(frameworks, 'name', value),
@@ -399,10 +397,10 @@ export default class TestDataModal extends React.Component {
       {
         options: projectOptions,
         selectedItem: repositoryName.name || '',
-        pinnedProjects: projectOptions.filter(item =>
+        pinnedProjects: projectOptions.filter((item) =>
           pinnedProjects.includes(item),
         ),
-        updateData: value =>
+        updateData: (value) =>
           this.setState(
             { repository_name: this.findObject(projects, 'name', value) },
             this.getPlatforms,
@@ -412,7 +410,7 @@ export default class TestDataModal extends React.Component {
       {
         options: platforms,
         selectedItem: platform,
-        updateData: platform =>
+        updateData: (platform) =>
           this.setState({ platform }, this.processOptions),
         title: 'Platform',
       },
@@ -472,7 +470,7 @@ export default class TestDataModal extends React.Component {
                   multiple
                 >
                   {tests.length > 0 &&
-                    tests.sort().map(test => (
+                    tests.sort().map((test) => (
                       <option
                         key={test.id}
                         className={this.selectableTestClassName(test)}
@@ -503,7 +501,7 @@ export default class TestDataModal extends React.Component {
                   multiple
                 >
                   {selectedTests.length > 0 &&
-                    selectedTests.map(test => (
+                    selectedTests.map((test) => (
                       <option
                         key={test.id}
                         className={this.selectableTestClassName(test)}
@@ -528,7 +526,7 @@ export default class TestDataModal extends React.Component {
                   color="darker-info"
                   disabled={!selectedTests.length}
                   onClick={this.submitData}
-                  onKeyPress={event => event.preventDefault()}
+                  onKeyPress={(event) => event.preventDefault()}
                 >
                   Plot graphs
                 </Button>

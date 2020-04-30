@@ -30,7 +30,7 @@ class Login extends React.Component {
     window.addEventListener('storage', this.handleStorageEvent);
 
     // Ask the back-end if a user is logged in on page load
-    UserModel.get().then(async currentUser => {
+    UserModel.get().then(async (currentUser) => {
       if (currentUser.email && localStorage.getItem('userSession')) {
         this.setLoggedIn(currentUser);
       } else {
@@ -43,7 +43,7 @@ class Login extends React.Component {
     window.removeEventListener('storage', this.handleStorageEvent);
   }
 
-  setLoggedIn = newUser => {
+  setLoggedIn = (newUser) => {
     const { setUser } = this.props;
     const userSession = JSON.parse(localStorage.getItem('userSession'));
     newUser.isLoggedIn = true;
@@ -63,7 +63,7 @@ class Login extends React.Component {
     setUser(loggedOutUser);
   };
 
-  handleStorageEvent = e => {
+  handleStorageEvent = (e) => {
     if (e.key === 'user') {
       const oldUser = JSON.parse(e.oldValue);
       const newUser = JSON.parse(e.newValue);
@@ -90,7 +90,7 @@ class Login extends React.Component {
   logout = () => {
     const { notify } = this.props;
 
-    fetch(getApiUrl('/auth/logout/')).then(async resp => {
+    fetch(getApiUrl('/auth/logout/')).then(async (resp) => {
       if (resp.ok) {
         this.setLoggedOut();
       } else {
@@ -149,7 +149,7 @@ Login.propTypes = {
 
 Login.defaultProps = {
   user: { isLoggedIn: false },
-  notify: msg => console.error(msg), // eslint-disable-line no-console
+  notify: (msg) => console.error(msg), // eslint-disable-line no-console
 };
 
 export default Login;

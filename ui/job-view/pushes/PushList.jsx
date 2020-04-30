@@ -68,7 +68,7 @@ class PushList extends React.Component {
     document.title = `[${allUnclassifiedFailureCount}] ${repoName}`;
   }
 
-  getUrlRangeValues = url => {
+  getUrlRangeValues = (url) => {
     const params = [...new URLSearchParams(url.split('?')[1]).entries()];
 
     return params.reduce((acc, [key, value]) => {
@@ -86,7 +86,7 @@ class PushList extends React.Component {
     }, PUSH_POLL_INTERVAL);
   };
 
-  handleUrlChanges = evt => {
+  handleUrlChanges = (evt) => {
     const { updateRange } = this.props;
     const { oldURL, newURL } = evt;
     const oldRange = this.getUrlRangeValues(oldURL);
@@ -141,11 +141,11 @@ class PushList extends React.Component {
       <div
         role="list"
         id="push-list"
-        onClick={evt => this.clearIfEligibleTarget(evt.target)}
+        onClick={(evt) => this.clearIfEligibleTarget(evt.target)}
       >
         {jobsLoaded && <span className="hidden ready" />}
         {repoName &&
-          pushList.map(push => (
+          pushList.map((push) => (
             <ErrorBoundary
               errorClasses="pl-2 border-top border-bottom border-dark d-block"
               message={`Error on push with revision ${push.revision}: `}
@@ -183,7 +183,7 @@ class PushList extends React.Component {
         <div className="card card-body get-next">
           <span>get next:</span>
           <div className="btn-group">
-            {[10, 20, 50].map(count => (
+            {[10, 20, 50].map((count) => (
               <Button
                 color="darker-secondary"
                 outline

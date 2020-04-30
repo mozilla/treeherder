@@ -28,9 +28,9 @@ export default class GraphsViewControls extends React.Component {
     updateStateParams({ highlightedRevisions: newRevisions });
   };
 
-  extractMeasurementUnitsSet = testData => {
+  extractMeasurementUnitsSet = (testData) => {
     const measurementUnits = testData.map(
-      testDetails => testDetails.measurementUnit,
+      (testDetails) => testDetails.measurementUnit,
     );
     return new Set(measurementUnits);
   };
@@ -81,11 +81,11 @@ export default class GraphsViewControls extends React.Component {
             >
               <DropdownToggle caret>{timeRange.text}</DropdownToggle>
               <DropdownMenuItems
-                options={phTimeRanges.map(item => item.text)}
+                options={phTimeRanges.map((item) => item.text)}
                 selectedItem={timeRange.text}
-                updateData={value =>
+                updateData={(value) =>
                   updateTimeRange(
-                    phTimeRanges.find(item => item.text === value),
+                    phTimeRanges.find((item) => item.text === value),
                   )
                 }
               />
@@ -123,7 +123,7 @@ export default class GraphsViewControls extends React.Component {
                       name={`revision ${revision}`}
                       placeholder="revision to highlight"
                       value={revision}
-                      onChange={event =>
+                      onChange={(event) =>
                         this.changeHighlightedRevision(
                           index,
                           event.target.value,

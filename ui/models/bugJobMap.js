@@ -13,8 +13,8 @@ export default class BugJobMapModel {
   static getList(options) {
     return fetch(
       `${getProjectUrl(uri)}${createQueryParams(options)}`,
-    ).then(resp =>
-      resp.json().then(data => data.map(elem => new BugJobMapModel(elem))),
+    ).then((resp) =>
+      resp.json().then((data) => data.map((elem) => new BugJobMapModel(elem))),
     );
   }
 

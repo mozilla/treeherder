@@ -9,25 +9,25 @@ import AlertTable from './AlertTable';
 import PaginationGroup from './Pagination';
 
 export default class AlertsViewControls extends React.Component {
-  updateFilterText = filterText => {
+  updateFilterText = (filterText) => {
     this.props.setFiltersState({ filterText });
   };
 
-  updateFilter = filter => {
+  updateFilter = (filter) => {
     const { setFiltersState, filters } = this.props;
     const prevValue = filters[filter];
     setFiltersState({ [filter]: !prevValue });
   };
 
-  updateStatus = status => {
+  updateStatus = (status) => {
     const { setFiltersState } = this.props;
     setFiltersState({ status });
   };
 
-  updateFramework = selectedFramework => {
+  updateFramework = (selectedFramework) => {
     const { frameworkOptions, updateViewState, setFiltersState } = this.props;
     const framework = frameworkOptions.find(
-      item => item.name === selectedFramework,
+      (item) => item.name === selectedFramework,
     );
     updateViewState({ bugTemplate: null });
     setFiltersState({ framework }, this.fetchAlertSummaries);
@@ -57,7 +57,7 @@ export default class AlertsViewControls extends React.Component {
 
     const frameworkNames =
       frameworkOptions && frameworkOptions.length
-        ? frameworkOptions.map(item => item.name)
+        ? frameworkOptions.map((item) => item.name)
         : [];
 
     const alertDropdowns = [
@@ -122,7 +122,7 @@ export default class AlertsViewControls extends React.Component {
             )
           : null}
         {alertSummaries.length > 0 &&
-          alertSummaries.map(alertSummary => (
+          alertSummaries.map((alertSummary) => (
             <AlertTable
               filters={{
                 filterText,

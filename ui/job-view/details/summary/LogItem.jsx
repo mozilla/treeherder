@@ -66,7 +66,7 @@ export default function LogItem(props) {
             {props.children}
           </DropdownToggle>
           <DropdownMenu>
-            {logUrls.map(logUrl => (
+            {logUrls.map((logUrl) => (
               <DropdownItem
                 tag="a"
                 {...getLogUrlProps(
