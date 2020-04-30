@@ -84,11 +84,11 @@ module.exports = {
               referer: `${BACKEND}/webpack-dev-server`,
             },
             target: BACKEND,
-            onProxyRes: proxyRes => {
+            onProxyRes: (proxyRes) => {
               // Strip the cookie `secure` attribute, otherwise production's cookies
               // will be rejected by the browser when using non-HTTPS localhost:
               // https://github.com/nodejitsu/node-http-proxy/pull/1166
-              const removeSecure = str => str.replace(/; secure/i, '');
+              const removeSecure = (str) => str.replace(/; secure/i, '');
               const cookieHeader = proxyRes.headers['set-cookie'];
               if (cookieHeader) {
                 proxyRes.headers['set-cookie'] = Array.isArray(cookieHeader)
@@ -143,7 +143,7 @@ module.exports = {
           '^hawk$': 'hawk/dist/browser.js',
         },
       }),
-    neutrino => {
+    (neutrino) => {
       neutrino.config
         .plugin('provide')
         .use(require.resolve('webpack/lib/ProvidePlugin'), [

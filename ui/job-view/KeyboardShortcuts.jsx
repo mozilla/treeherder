@@ -208,27 +208,27 @@ class KeyboardShortcuts extends React.Component {
   render() {
     const { filterModel, showOnScreenShortcuts } = this.props;
     const handlers = {
-      addRelatedBug: ev => this.doKey(ev, this.addRelatedBug),
-      pinEditComment: ev => this.doKey(ev, this.pinEditComment),
-      quickFilter: ev => this.doKey(ev, this.quickFilter),
-      clearFilter: ev => this.doKey(ev, this.clearFilter),
-      toggleInProgress: ev => this.doKey(ev, filterModel.toggleInProgress),
-      nextUnclassified: ev =>
+      addRelatedBug: (ev) => this.doKey(ev, this.addRelatedBug),
+      pinEditComment: (ev) => this.doKey(ev, this.pinEditComment),
+      quickFilter: (ev) => this.doKey(ev, this.quickFilter),
+      clearFilter: (ev) => this.doKey(ev, this.clearFilter),
+      toggleInProgress: (ev) => this.doKey(ev, filterModel.toggleInProgress),
+      nextUnclassified: (ev) =>
         this.doKey(ev, () => this.changeSelectedJob('next', true)),
-      previousUnclassified: ev =>
+      previousUnclassified: (ev) =>
         this.doKey(ev, () => this.changeSelectedJob('previous', true)),
-      openLogviewer: ev => this.doKey(ev, this.openLogviewer),
-      jobRetrigger: ev => this.doKey(ev, this.jobRetrigger),
-      selectNextTab: ev => this.doKey(ev, this.selectNextTab),
-      toggleUnclassifiedFailures: ev =>
+      openLogviewer: (ev) => this.doKey(ev, this.openLogviewer),
+      jobRetrigger: (ev) => this.doKey(ev, this.jobRetrigger),
+      selectNextTab: (ev) => this.doKey(ev, this.selectNextTab),
+      toggleUnclassifiedFailures: (ev) =>
         this.doKey(ev, filterModel.toggleUnclassifiedFailures),
-      clearPinboard: ev => this.doKey(ev, this.clearPinboard),
-      previousJob: ev =>
+      clearPinboard: (ev) => this.doKey(ev, this.clearPinboard),
+      previousJob: (ev) =>
         this.doKey(ev, () => this.changeSelectedJob('previous', false)),
-      nextJob: ev =>
+      nextJob: (ev) =>
         this.doKey(ev, () => this.changeSelectedJob('next', false)),
-      pinJob: ev => this.doKey(ev, this.pinJob),
-      toggleOnScreenShortcuts: ev => this.doKey(ev, showOnScreenShortcuts),
+      pinJob: (ev) => this.doKey(ev, this.pinJob),
+      toggleOnScreenShortcuts: (ev) => this.doKey(ev, showOnScreenShortcuts),
       /* these should happen regardless of being in an input field */
       clearScreen: this.clearScreen,
       saveClassification: this.saveClassification,

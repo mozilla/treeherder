@@ -20,9 +20,9 @@ export default class DownstreamSummary extends React.Component {
     this.setState({ tooltipText });
   }
 
-  getAlertSummaryTitle = async id => {
+  getAlertSummaryTitle = async (id) => {
     const { alertSummaries, updateViewState } = this.props;
-    let alertSummary = alertSummaries.find(item => item.id === id);
+    let alertSummary = alertSummaries.find((item) => item.id === id);
 
     if (!alertSummary) {
       const { data, failureStatus } = await getData(

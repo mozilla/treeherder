@@ -101,7 +101,7 @@ describe('SelectedJob Redux store', () => {
 
     const reduced = await reducer(
       { selectedJob: { initialState } },
-      setSelectedJobFromQueryString(msg => notifications.push(msg), jobMap),
+      setSelectedJobFromQueryString((msg) => notifications.push(msg), jobMap),
     );
 
     expect(reduced.selectedJob).toBeUndefined();
@@ -119,7 +119,7 @@ describe('SelectedJob Redux store', () => {
 
     const reduced = await reducer(
       { selectedJob: { initialState } },
-      setSelectedJobFromQueryString(msg => notifications.push(msg), jobMap),
+      setSelectedJobFromQueryString((msg) => notifications.push(msg), jobMap),
     );
 
     expect(reduced.selectedJob).toBeUndefined();

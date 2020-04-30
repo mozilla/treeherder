@@ -162,12 +162,12 @@ class PushHeader extends React.Component {
     const { id: decisionTaskId } = decisionTaskMap[pushId];
 
     PushModel.triggerNewJobs(selectedRunnableJobs, decisionTaskId, currentRepo)
-      .then(result => {
+      .then((result) => {
         notify(result, 'success');
         hideRunnableJobs(pushId);
         this.props.hideRunnableJobs();
       })
-      .catch(e => {
+      .catch((e) => {
         notify(formatTaskclusterError(e), 'danger', { sticky: true });
       });
   };

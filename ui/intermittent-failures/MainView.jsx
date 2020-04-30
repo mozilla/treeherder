@@ -17,7 +17,7 @@ import withView from './View';
 import Layout from './Layout';
 import DateRangePicker from './DateRangePicker';
 
-const MainView = props => {
+const MainView = (props) => {
   const {
     graphData,
     tableData,
@@ -46,7 +46,7 @@ const MainView = props => {
       className: 'bug-column text-left',
       maxWidth: 150,
       width: 115,
-      Cell: _props => (
+      Cell: (_props) => (
         <BugColumn
           data={_props.original}
           tree={tree}
@@ -204,11 +204,7 @@ MainView.defaultProps = {
 
 const defaultState = {
   tree: 'trunk',
-  startday: ISODate(
-    moment()
-      .utc()
-      .subtract(7, 'days'),
-  ),
+  startday: ISODate(moment().utc().subtract(7, 'days')),
   endday: ISODate(moment().utc()),
   endpoint: bugsEndpoint,
   route: '/main',

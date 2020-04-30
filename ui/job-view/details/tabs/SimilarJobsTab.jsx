@@ -50,7 +50,7 @@ class SimilarJobsTab extends React.Component {
       offset: (page - 1) * this.pageSize,
     };
 
-    ['filterBuildPlatformId', 'filterOptionCollectionHash'].forEach(key => {
+    ['filterBuildPlatformId', 'filterOptionCollectionHash'].forEach((key) => {
       if (this.state[key]) {
         const field = this.filterMap[key];
         options[field] = selectedJobFull[field];
@@ -66,7 +66,7 @@ class SimilarJobsTab extends React.Component {
       this.setState({ hasNextPage: newSimilarJobs.length > this.pageSize });
       newSimilarJobs.pop();
       // create an array of unique push ids
-      const pushIds = [...new Set(newSimilarJobs.map(job => job.push_id))];
+      const pushIds = [...new Set(newSimilarJobs.map((job) => job.push_id))];
       // get pushes and revisions for the given ids
       let pushList = { results: [] };
       const { data, failureStatus } = await PushModel.getList({
@@ -81,7 +81,7 @@ class SimilarJobsTab extends React.Component {
           (acc, push) => ({ ...acc, [push.id]: push }),
           {},
         );
-        newSimilarJobs.forEach(simJob => {
+        newSimilarJobs.forEach((simJob) => {
           simJob.result_set = pushes[simJob.push_id];
           simJob.revisionResultsetFilterUrl = getJobsUrl({
             repo: repoName,
@@ -116,16 +116,16 @@ class SimilarJobsTab extends React.Component {
     this.setState({ page: page + 1, isLoading: true }, this.getSimilarJobs);
   };
 
-  showJobInfo = job => {
+  showJobInfo = (job) => {
     const { repoName, classificationMap } = this.props;
 
-    JobModel.get(repoName, job.id).then(nextJob => {
+    JobModel.get(repoName, job.id).then((nextJob) => {
       addAggregateFields(nextJob);
       nextJob.failure_classification =
         classificationMap[nextJob.failure_classification_id];
 
       // retrieve the list of error lines
-      TextLogStepModel.get(nextJob.id).then(textLogSteps => {
+      TextLogStepModel.get(nextJob.id).then((textLogSteps) => {
         nextJob.error_lines = textLogSteps.reduce(
           (acc, step) => [...acc, ...step.errors],
           [],
@@ -135,9 +135,9 @@ class SimilarJobsTab extends React.Component {
     });
   };
 
-  toggleFilter = filterField => {
+  toggleFilter = (filterField) => {
     this.setState(
-      prevState => ({
+      (prevState) => ({
         [filterField]: !prevState[filterField],
         similarJobs: [],
         isLoading: true,
@@ -177,7 +177,7 @@ class SimilarJobsTab extends React.Component {
               </tr>
             </thead>
             <tbody>
-              {similarJobs.map(similarJob => (
+              {similarJobs.map((similarJob) => (
                 <tr
                   key={similarJob.id}
                   onClick={() => this.showJobInfo(similarJob)}
@@ -297,7 +297,7 @@ class SimilarJobsTab extends React.Component {
                     <tr>
                       <td colSpan={2}>
                         <ul className="list-unstyled error_list">
-                          {selectedSimilarJob.error_lines.map(error => (
+                          {selectedSimilarJob.error_lines.map((error) => (
                             <li key={error.id}>
                               <small title={error.line}>{error.line}</small>
                             </li>

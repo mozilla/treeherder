@@ -29,7 +29,7 @@ const renderReactNode = (getRevisions, updateState, parentState) => (
     revisionState="newRevision"
     selectedRevision={parentState.selectedRevision}
     selectedRepo="testProject"
-    updateState={data => {
+    updateState={(data) => {
       parentSetState(data, parentState);
     }}
     projectState="projectState"

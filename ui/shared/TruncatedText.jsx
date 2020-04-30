@@ -24,8 +24,9 @@ export default class TruncatedText extends React.Component {
           <Button
             color={color}
             outline={color !== 'link'}
-            className={`${color !== 'link' ||
-              'font-weight-bold text-reset'} d-block ml-auto`}
+            className={`${
+              color !== 'link' || 'font-weight-bold text-reset'
+            } d-block ml-auto`}
             onClick={() => this.setState({ showMoreResults: !showMoreResults })}
           >
             {`show ${showMoreResults ? 'less' : 'more'}`}

@@ -18,7 +18,7 @@ export const clearAllOnScreenNotifications = () => ({
   type: CLEAR_ALL_ON_SCREEN,
 });
 
-export const clearNotification = index => ({
+export const clearNotification = (index) => ({
   type: CLEAR,
   index,
 });

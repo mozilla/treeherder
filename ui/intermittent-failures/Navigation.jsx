@@ -22,7 +22,7 @@ export default class Navigation extends React.Component {
   }
 
   toggle = () => {
-    this.setState(prevState => ({ isOpen: !prevState.isOpen }));
+    this.setState((prevState) => ({ isOpen: !prevState.isOpen }));
   };
 
   render() {
@@ -41,7 +41,7 @@ export default class Navigation extends React.Component {
             </DropdownToggle>
             <DropdownMenuItems
               options={treeOptions}
-              updateData={tree => updateState({ tree })}
+              updateData={(tree) => updateState({ tree })}
               selectedItem={tree}
             />
           </UncontrolledDropdown>

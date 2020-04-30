@@ -105,8 +105,8 @@ export default class StatusDropdown extends React.Component {
     navigator.clipboard.writeText(summary).then(() => {});
   };
 
-  toggle = state => {
-    this.setState(prevState => ({
+  toggle = (state) => {
+    this.setState((prevState) => ({
       [state]: !prevState[state],
     }));
   };
@@ -117,7 +117,7 @@ export default class StatusDropdown extends React.Component {
     this.toggle(state);
   };
 
-  changeAlertSummary = async params => {
+  changeAlertSummary = async (params) => {
     const { alertSummary, updateState, updateViewState } = this.props;
 
     const { data, failureStatus } = await updateAlertSummary(
@@ -135,7 +135,7 @@ export default class StatusDropdown extends React.Component {
     updateState({ alertSummary: data });
   };
 
-  isResolved = alertStatus =>
+  isResolved = (alertStatus) =>
     alertStatus === 'backedout' ||
     alertStatus === 'fixed' ||
     alertStatus === 'wontfix';
@@ -162,7 +162,7 @@ export default class StatusDropdown extends React.Component {
                 {
                   bug_number: parseInt(inputValue, 10),
                   issue_tracker: issueTrackers.find(
-                    item => item.text === selectedValue,
+                    (item) => item.text === selectedValue,
                   ).id,
                 },
                 'showBugModal',
@@ -178,11 +178,11 @@ export default class StatusDropdown extends React.Component {
                     {selectedValue}
                   </DropdownToggle>
                   <DropdownMenuItems
-                    updateData={selectedValue =>
+                    updateData={(selectedValue) =>
                       this.setState({ selectedValue })
                     }
                     selectedItem={selectedValue}
-                    options={issueTrackers.map(item => item.text)}
+                    options={issueTrackers.map((item) => item.text)}
                   />
                 </UncontrolledDropdown>
               </Col>

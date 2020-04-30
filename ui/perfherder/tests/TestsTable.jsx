@@ -33,9 +33,9 @@ export default function TestsTable(props) {
       headerStyle,
       Header: 'Platforms',
       accessor: 'platforms',
-      Cell: props => {
+      Cell: (props) => {
         if (platformsMap) {
-          const platforms = props.value.map(id => platformsMap[id]);
+          const platforms = props.value.map((id) => platformsMap[id]);
           return <ItemList items={platforms} color="info" />;
         }
         return null;
@@ -48,9 +48,9 @@ export default function TestsTable(props) {
       headerStyle,
       Header: 'Projects',
       accessor: 'repositories',
-      Cell: props => {
+      Cell: (props) => {
         if (projectsMap) {
-          const repositories = props.value.map(id => projectsMap[id]);
+          const repositories = props.value.map((id) => projectsMap[id]);
           return <ItemList items={repositories} />;
         }
         return null;

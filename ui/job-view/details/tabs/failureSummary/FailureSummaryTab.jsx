@@ -23,7 +23,7 @@ class FailureSummaryTab extends React.Component {
     };
   }
 
-  fileBug = suggestion => {
+  fileBug = (suggestion) => {
     const { selectedJobFull, pinJob } = this.props;
 
     pinJob(selectedJobFull);
@@ -34,10 +34,12 @@ class FailureSummaryTab extends React.Component {
   };
 
   toggleBugFiler = () => {
-    this.setState(prevState => ({ isBugFilerOpen: !prevState.isBugFilerOpen }));
+    this.setState((prevState) => ({
+      isBugFilerOpen: !prevState.isBugFilerOpen,
+    }));
   };
 
-  bugFilerCallback = data => {
+  bugFilerCallback = (data) => {
     const { addBug } = this.props;
 
     addBug({ id: data.success });
@@ -59,7 +61,9 @@ class FailureSummaryTab extends React.Component {
     } = this.props;
     const { isBugFilerOpen, suggestion } = this.state;
     const logs = jobLogUrls;
-    const jobLogsAllParsed = logs.every(jlu => jlu.parse_status !== 'pending');
+    const jobLogsAllParsed = logs.every(
+      (jlu) => jlu.parse_status !== 'pending',
+    );
 
     return (
       <div className="w-100 h-100" role="region" aria-label="Failure Summary">
@@ -99,7 +103,7 @@ class FailureSummaryTab extends React.Component {
 
           {!bugSuggestionsLoading &&
             !jobLogsAllParsed &&
-            logs.map(jobLog => (
+            logs.map((jobLog) => (
               <li key={jobLog.id}>
                 <p className="failure-summary-line-empty mb-0">
                   Log parsing in progress.

@@ -26,7 +26,7 @@ export default class ActiveFilters extends React.Component {
     return { fieldChoices };
   }
 
-  setNewFilterField = field => {
+  setNewFilterField = (field) => {
     const { fieldChoices } = this.state;
     this.setState({
       newFilterField: field,
@@ -35,14 +35,14 @@ export default class ActiveFilters extends React.Component {
     });
   };
 
-  setNewFilterValue = value => {
+  setNewFilterValue = (value) => {
     this.setState({ newFilterValue: value });
   };
 
   getFilterValue(field, value) {
     const { fieldChoices } = this.state;
     const choice = fieldChoices[field];
-    const choiceValue = choice.choices.find(c => String(c.id) === value);
+    const choiceValue = choice.choices.find((c) => String(c.id) === value);
 
     return choice.matchType === 'choice' && choiceValue
       ? choiceValue.name
@@ -99,8 +99,8 @@ export default class ActiveFilters extends React.Component {
             <span className="active-filters-title">
               <b>Active Filters</b>
             </span>
-            {filterBarFilters.map(filter =>
-              filter.value.map(filterValue => (
+            {filterBarFilters.map((filter) =>
+              filter.value.map((filterValue) => (
                 <span
                   className="filtersbar-filter"
                   key={`${filter.field}${filterValue}`}
@@ -153,7 +153,7 @@ export default class ActiveFilters extends React.Component {
                   id="job-filter-field"
                   className="form-control"
                   value={newFilterField}
-                  onChange={evt => this.setNewFilterField(evt.target.value)}
+                  onChange={(evt) => this.setNewFilterField(evt.target.value)}
                   placeholder="filter field"
                   aria-label="Field"
                   required
@@ -174,7 +174,9 @@ export default class ActiveFilters extends React.Component {
                     <input
                       className="form-control"
                       value={newFilterValue}
-                      onChange={evt => this.setNewFilterValue(evt.target.value)}
+                      onChange={(evt) =>
+                        this.setNewFilterValue(evt.target.value)
+                      }
                       id="job-filter-value"
                       type="text"
                       required
@@ -187,7 +189,7 @@ export default class ActiveFilters extends React.Component {
                   <select
                     className="form-control"
                     value={newFilterValue}
-                    onChange={evt => this.setNewFilterValue(evt.target.value)}
+                    onChange={(evt) => this.setNewFilterValue(evt.target.value)}
                     id="job-filter-choice-value"
                     aria-label="Value"
                   >

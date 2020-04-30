@@ -43,7 +43,7 @@ export const isReftest = function isReftest(job) {
     job_type_symbol: jSymbol,
   } = job;
   return (
-    [gName, jName].some(name => name.toLowerCase().includes('reftest')) ||
+    [gName, jName].some((name) => name.toLowerCase().includes('reftest')) ||
     jSymbol.includes('wrench') ||
     jName.includes('test-verify')
   );
@@ -51,7 +51,7 @@ export const isReftest = function isReftest(job) {
 
 export const isPerfTest = function isPerfTest(job) {
   return [job.job_group_name, job.job_type_name].some(
-    name =>
+    (name) =>
       name.toLowerCase().includes('talos') ||
       name.toLowerCase().includes('raptor'),
   );
@@ -72,7 +72,7 @@ export const isTestIsolatable = function isTestIsolatable(job) {
     return false;
   }
   return [job.job_group_name, job.job_type_name].some(
-    name =>
+    (name) =>
       !name.toLowerCase().includes('source-test') &&
       (name.toLowerCase().includes('crashtest') ||
         name.toLowerCase().includes('mochitest') ||
@@ -93,7 +93,7 @@ export const isUnclassifiedFailure = function isUnclassifiedFailure(job) {
 // Fetch the React instance of an object from a DOM element.
 // Credit for this approach goes to SO: https://stackoverflow.com/a/48335220/333614
 export const findInstance = function findInstance(el) {
-  const key = Object.keys(el).find(key =>
+  const key = Object.keys(el).find((key) =>
     key.startsWith('__reactInternalInstance$'),
   );
   if (key) {
@@ -199,7 +199,7 @@ export const addAggregateFields = function addAggregateFields(job) {
     jobTypeName,
     `${symbolInfo}(${jobTypeSymbol})`,
   ]
-    .filter(item => typeof item !== 'undefined')
+    .filter((item) => typeof item !== 'undefined')
     .join(' ');
 
   if (!('duration' in job)) {
@@ -226,7 +226,7 @@ export const getJobSearchStrHref = function getJobSearchStrHref(jobSearchStr) {
   return `${uiJobsUrlBase}?${params.toString()}`;
 };
 
-export const getTaskRunStr = job => `${job.task_id}-${job.retry_id}`;
+export const getTaskRunStr = (job) => `${job.task_id}-${job.retry_id}`;
 
 export const getTaskRun = function getTaskRun(taskRunStr) {
   if (!taskRunStr) {

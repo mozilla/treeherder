@@ -9,6 +9,6 @@ export default class JobLogUrlModel {
   static getList(options, signal) {
     return fetch(`${getProjectUrl(uri)}${createQueryParams(options)}`, {
       signal,
-    }).then(resp => resp.json());
+    }).then((resp) => resp.json());
   }
 }

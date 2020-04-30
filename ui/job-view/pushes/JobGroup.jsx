@@ -56,7 +56,7 @@ export class JobGroupComponent extends React.Component {
   }
 
   toggleExpanded = () => {
-    this.setState(prevState => ({ expanded: !prevState.expanded }));
+    this.setState((prevState) => ({ expanded: !prevState.expanded }));
   };
 
   groupButtonsAndCounts(jobs, expanded) {
@@ -71,7 +71,7 @@ export class JobGroupComponent extends React.Component {
     } else {
       const stateCounts = {};
       const typeSymbolCounts = countBy(jobs, 'job_type_symbol');
-      jobs.forEach(job => {
+      jobs.forEach((job) => {
         const { resultStatus, visible } = job;
         const btnClass = getBtnClass(resultStatus);
         if (!visible) return;
@@ -139,7 +139,7 @@ export class JobGroupComponent extends React.Component {
           />
           <span className="group-content">
             <span className="group-job-list">
-              {buttons.map(job => (
+              {buttons.map((job) => (
                 <JobButton
                   job={job}
                   filterModel={filterModel}
@@ -153,7 +153,7 @@ export class JobGroupComponent extends React.Component {
               ))}
             </span>
             <span className="group-count-list">
-              {counts.map(countInfo => (
+              {counts.map((countInfo) => (
                 <JobCount
                   count={countInfo.count}
                   onClick={this.toggleExpanded}

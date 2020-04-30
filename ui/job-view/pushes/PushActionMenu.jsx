@@ -81,7 +81,7 @@ class PushActionMenu extends React.PureComponent {
       notify,
       decisionTask,
       currentRepo,
-    ).catch(e => {
+    ).catch((e) => {
       notify(formatTaskclusterError(e), 'danger', { sticky: true });
     });
   };

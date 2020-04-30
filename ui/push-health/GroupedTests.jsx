@@ -19,10 +19,10 @@ class GroupedTests extends PureComponent {
     };
   }
 
-  getGroupedTests = tests => {
+  getGroupedTests = (tests) => {
     const { groupedBy } = this.props;
 
-    return groupBy(tests, test => {
+    return groupBy(tests, (test) => {
       switch (groupedBy) {
         case 'none':
           return 'none';
@@ -34,7 +34,7 @@ class GroupedTests extends PureComponent {
     });
   };
 
-  setClipboardVisible = key => {
+  setClipboardVisible = (key) => {
     this.setState({ clipboardVisible: key });
   };
 
@@ -55,7 +55,7 @@ class GroupedTests extends PureComponent {
       key,
       id: key.replace(/[^a-z0-9-]+/gi, ''), // make this a valid selector
       tests,
-      failedInParent: tests.filter(item => item.failedInParent).length,
+      failedInParent: tests.filter((item) => item.failedInParent).length,
     }));
     const sortedGroups =
       orderedBy === 'count'
@@ -65,7 +65,7 @@ class GroupedTests extends PureComponent {
     return (
       <div>
         {groupedTests &&
-          sortedGroups.map(group => (
+          sortedGroups.map((group) => (
             <div key={group.id} data-testid="test-grouping">
               <span
                 className="d-flex border-top w-100 bg-light p-2 border-top-1 border-secondary justify-content-center rounded"
@@ -97,7 +97,7 @@ class GroupedTests extends PureComponent {
               </span>
 
               <UncontrolledCollapse toggler={`group-${group.id}`}>
-                {group.tests.map(failure => (
+                {group.tests.map((failure) => (
                   <TestFailure
                     key={failure.key}
                     failure={failure}

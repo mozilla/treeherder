@@ -55,7 +55,7 @@ function RelatedBug(props) {
     <span>
       <p className="annotations-bug-header font-weight-bold">Bugs</p>
       <ul className="annotations-bug-list">
-        {bugs.map(bug => (
+        {bugs.map((bug) => (
           <li key={bug.bug_id}>
             <RelatedBugSaved bug={bug} deleteBug={() => deleteBug(bug)} />
           </li>
@@ -130,7 +130,7 @@ function AnnotationsTable(props) {
         </tr>
       </thead>
       <tbody>
-        {classifications.map(classification => (
+        {classifications.map((classification) => (
           <TableRow
             key={classification.id}
             classification={classification}
@@ -170,7 +170,7 @@ class AnnotationsTab extends React.Component {
     if (classifications.length) {
       this.deleteClassification(classifications[0]);
       // Delete any number of bugs if they exist
-      bugs.forEach(bug => {
+      bugs.forEach((bug) => {
         this.deleteBug(bug);
       });
     } else {
@@ -178,7 +178,7 @@ class AnnotationsTab extends React.Component {
     }
   };
 
-  deleteClassification = classification => {
+  deleteClassification = (classification) => {
     const {
       selectedJobFull,
       recalculateUnclassifiedCounts,
@@ -201,7 +201,7 @@ class AnnotationsTab extends React.Component {
     );
   };
 
-  deleteBug = bug => {
+  deleteBug = (bug) => {
     const { notify } = this.props;
 
     bug.destroy().then(

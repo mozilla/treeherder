@@ -33,9 +33,9 @@ const DEFAULT_PUSH_COUNT = 10;
 const PUSH_POLLING_KEYS = ['tochange', 'enddate', 'revision', 'author'];
 const PUSH_FETCH_KEYS = [...PUSH_POLLING_KEYS, 'fromchange', 'startdate'];
 
-const getRevisionTips = pushList => {
+const getRevisionTips = (pushList) => {
   return {
-    revisionTips: pushList.map(push => ({
+    revisionTips: pushList.map((push) => ({
       revision: push.revision,
       author: push.author,
       title: push.revisions[0].comments.split('\n')[0],
@@ -43,10 +43,11 @@ const getRevisionTips = pushList => {
   };
 };
 
-const getLastModifiedJobTime = jobMap => {
+const getLastModifiedJobTime = (jobMap) => {
   const latest =
-    max(Object.values(jobMap).map(job => new Date(`${job.last_modified}Z`))) ||
-    new Date();
+    max(
+      Object.values(jobMap).map((job) => new Date(`${job.last_modified}Z`)),
+    ) || new Date();
 
   latest.setSeconds(latest.getSeconds() - 3);
   return latest;
@@ -58,13 +59,13 @@ const getLastModifiedJobTime = jobMap => {
  * gives us the difference in unclassified failures and, of those jobs, the
  * ones that have been filtered out
  */
-const doRecalculateUnclassifiedCounts = jobMap => {
+const doRecalculateUnclassifiedCounts = (jobMap) => {
   const filterModel = new FilterModel();
   const tiers = filterModel.urlParams.tier;
   let allUnclassifiedFailureCount = 0;
   let filteredUnclassifiedFailureCount = 0;
 
-  Object.values(jobMap).forEach(job => {
+  Object.values(jobMap).forEach((job) => {
     if (isUnclassifiedFailure(job) && tiers.includes(String(job.tier))) {
       if (filterModel.showJob(job)) {
         filteredUnclassifiedFailureCount++;
@@ -80,10 +81,10 @@ const doRecalculateUnclassifiedCounts = jobMap => {
 
 const addPushes = (data, pushList, jobMap, setFromchange) => {
   if (data.results.length > 0) {
-    const pushIds = pushList.map(push => push.id);
+    const pushIds = pushList.map((push) => push.id);
     const newPushList = [
       ...pushList,
-      ...data.results.filter(push => !pushIds.includes(push.id)),
+      ...data.results.filter((push) => !pushIds.includes(push.id)),
     ];
 
     newPushList.sort((a, b) => b.push_timestamp - a.push_timestamp);
@@ -125,7 +126,7 @@ const fetchNewJobs = () => {
       return;
     }
 
-    const pushIds = pushList.map(push => push.id);
+    const pushIds = pushList.map((push) => push.id);
     const lastModified = getLastModifiedJobTime(jobMap);
 
     const resp = await JobModel.getList(
@@ -148,7 +149,7 @@ const fetchNewJobs = () => {
       // updated version of that selected job, then send that with the event.
       const selectedTaskRun = getUrlParam('selectedTaskRun');
       const updatedSelectedJob = selectedTaskRun
-        ? data.find(job => getTaskRunStr(job) === selectedTaskRun)
+        ? data.find((job) => getTaskRunStr(job) === selectedTaskRun)
         : null;
 
       window.dispatchEvent(
@@ -177,12 +178,12 @@ const doUpdateJobMap = (jobList, jobMap, decisionTaskMap, pushList) => {
         ...keyBy(
           jobList
             .filter(
-              job =>
+              (job) =>
                 job.job_type_name.includes('Decision Task') &&
                 job.result === 'success' &&
                 job.job_type_symbol === 'D',
             )
-            .map(job => ({
+            .map((job) => ({
               push_id: job.push_id,
               id: job.task_id,
               run: job.retry_id,
@@ -190,7 +191,7 @@ const doUpdateJobMap = (jobList, jobMap, decisionTaskMap, pushList) => {
           'push_id',
         ),
       },
-      jobsLoaded: pushList.every(push => push.jobsLoaded),
+      jobsLoaded: pushList.every((push) => push.jobsLoaded),
     };
   }
   return {};
@@ -295,7 +296,7 @@ export const pollPushes = () => {
 /**
  * Get the next batch of pushes based on our current offset.
  */
-export const fetchNextPushes = count => {
+export const fetchNextPushes = (count) => {
   const params = getAllUrlParams();
 
   if (params.has('revision')) {
@@ -329,17 +330,17 @@ export const setPushes = (pushList, jobMap) => ({
   },
 });
 
-export const recalculateUnclassifiedCounts = filterModel => ({
+export const recalculateUnclassifiedCounts = (filterModel) => ({
   type: RECALCULATE_UNCLASSIFIED_COUNTS,
   filterModel,
 });
 
-export const updateJobMap = jobList => ({
+export const updateJobMap = (jobList) => ({
   type: UPDATE_JOB_MAP,
   jobList,
 });
 
-export const updateRange = range => {
+export const updateRange = (range) => {
   return (dispatch, getState) => {
     const {
       pushes: { pushList, jobMap },
@@ -347,7 +348,7 @@ export const updateRange = range => {
     const { revision } = range;
     // change the range of pushes.  might already have them.
     const revisionPushList = revision
-      ? pushList.filter(push => push.revision === revision)
+      ? pushList.filter((push) => push.revision === revision)
       : [];
 
     window.dispatchEvent(new CustomEvent(thEvents.clearPinboard));

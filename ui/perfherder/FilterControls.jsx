@@ -15,7 +15,7 @@ import InputFilter from '../shared/InputFilter';
 
 export const createDropdowns = (dropdownOptions, colClass, outline = false) => (
   <React.Fragment>
-    {dropdownOptions.map(dropdown => (
+    {dropdownOptions.map((dropdown) => (
       <Col
         sm="auto"
         className={colClass}
@@ -50,7 +50,7 @@ const FilterControls = ({
   updateOnEnter,
   dropdownCol,
 }) => {
-  const createButton = filter => (
+  const createButton = (filter) => (
     <Button
       color="darker-info"
       outline
@@ -81,7 +81,7 @@ const FilterControls = ({
         </Col>
 
         {filterOptions.length > 0 &&
-          filterOptions.map(filter => (
+          filterOptions.map((filter) => (
             <Col sm="auto" className="p-2" key={filter.stateName}>
               {filter.tooltipText ? (
                 <SimpleTooltip

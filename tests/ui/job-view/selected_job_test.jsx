@@ -35,9 +35,9 @@ const testPush = {
 };
 
 beforeAll(() => {
-  platforms.forEach(platform =>
-    platform.groups.forEach(group =>
-      group.jobs.forEach(job => addAggregateFields(job)),
+  platforms.forEach((platform) =>
+    platform.groups.forEach((group) =>
+      group.jobs.forEach((job) => addAggregateFields(job)),
     ),
   );
 });
@@ -47,7 +47,7 @@ afterEach(() => {
   setUrlParam('selectedTaskRun', null);
 });
 
-const testPushJobs = filterModel => (
+const testPushJobs = (filterModel) => (
   <Provider store={store}>
     <PushJobs
       push={testPush}

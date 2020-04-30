@@ -10,13 +10,13 @@ export default class OptionCollectionModel {
       );
     }
 
-    return fetch(uri).then(resp =>
-      resp.json().then(data => {
+    return fetch(uri).then((resp) =>
+      resp.json().then((data) => {
         OptionCollectionModel.prototype.optionCollectionMap = data.reduce(
           (hashAcc, optColl) => ({
             ...hashAcc,
             [optColl.option_collection_hash]: optColl.options
-              .map(opt => opt.name)
+              .map((opt) => opt.name)
               .sort()
               .join(),
           }),

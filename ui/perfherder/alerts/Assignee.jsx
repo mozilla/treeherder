@@ -38,11 +38,11 @@ export default class Assignee extends React.Component {
     }
   };
 
-  editUsername = newAssigneeUsername => {
+  editUsername = (newAssigneeUsername) => {
     this.setState({ newAssigneeUsername });
   };
 
-  pressedEnter = async event => {
+  pressedEnter = async (event) => {
     if (event.key === 'Enter') {
       const { updateAssignee } = this.props;
       const newAssigneeUsername = event.target.value;
@@ -67,13 +67,13 @@ export default class Assignee extends React.Component {
     });
   };
 
-  keydownListener = event => {
+  keydownListener = (event) => {
     if (event.key === 'Escape') {
       this.setState({ inEditMode: false });
     }
   };
 
-  extractNicknameAndPlaceholder = assigneeUsername => {
+  extractNicknameAndPlaceholder = (assigneeUsername) => {
     let nickname = 'Unassigned';
     const placeholder = 'nobody@mozilla.org';
 
@@ -126,8 +126,8 @@ export default class Assignee extends React.Component {
           placeholder={placeholder}
           value={newAssigneeUsername}
           aria-label="Set assignee"
-          onChange={event => this.editUsername(event.target.value)}
-          onKeyPress={event => this.pressedEnter(event)}
+          onChange={(event) => this.editUsername(event.target.value)}
+          onKeyPress={(event) => this.pressedEnter(event)}
           autoFocus
         />
       </InputGroup>

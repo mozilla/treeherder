@@ -46,7 +46,7 @@ export const getRunnableJobsURL = function getRunnableJobsURL(
   return url;
 };
 
-export const getArtifactsUrl = params => {
+export const getArtifactsUrl = (params) => {
   const { taskId, run, rootUrl, artifactPath } = params;
 
   const tcUrl = tcLibUrls.withRootUrl(rootUrl);

@@ -30,7 +30,7 @@ export default class CompareTable extends React.PureComponent {
         sz="small"
         className="compare-table mb-0 px-0"
         key={testName}
-        innerRef={el => {
+        innerRef={(el) => {
           this.header = el;
         }}
       >
@@ -76,7 +76,7 @@ export default class CompareTable extends React.PureComponent {
           </tr>
         </thead>
         <tbody>
-          {data.map(rowLevelResults => (
+          {data.map((rowLevelResults) => (
             <CompareTableRow
               key={rowLevelResults.name}
               rowLevelResults={rowLevelResults}

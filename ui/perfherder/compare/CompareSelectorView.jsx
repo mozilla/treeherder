@@ -39,9 +39,9 @@ export default class CompareSelectorView extends React.Component {
     };
   }
 
-  updateFramework = selection => {
+  updateFramework = (selection) => {
     const selectedFramework = this.props.frameworks.find(
-      framework => framework.name === selection,
+      (framework) => framework.name === selection,
     );
 
     this.setState({
@@ -86,7 +86,7 @@ export default class CompareSelectorView extends React.Component {
   };
 
   toggleFrameworkDropdown = () => {
-    this.setState(prevState => ({
+    this.setState((prevState) => ({
       frameworkDropdownIsOpen: !prevState.frameworkDropdownIsOpen,
     }));
   };
@@ -106,7 +106,7 @@ export default class CompareSelectorView extends React.Component {
 
     const { projects, frameworks } = this.props;
     const frameworkNames = frameworks.length
-      ? frameworks.map(item => item.name)
+      ? frameworks.map((item) => item.name)
       : [];
 
     return (
@@ -126,7 +126,7 @@ export default class CompareSelectorView extends React.Component {
             <Row className="justify-content-center">
               <SelectorCard
                 projects={projects}
-                updateState={updates => this.setState(updates)}
+                updateState={(updates) => this.setState(updates)}
                 selectedRepo={originalProject}
                 title="Base"
                 checkbox
@@ -139,7 +139,7 @@ export default class CompareSelectorView extends React.Component {
               />
               <SelectorCard
                 projects={projects}
-                updateState={updates => this.setState(updates)}
+                updateState={(updates) => this.setState(updates)}
                 selectedRepo={newProject}
                 title="New"
                 projectState="newProject"

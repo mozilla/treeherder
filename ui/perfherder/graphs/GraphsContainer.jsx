@@ -33,7 +33,7 @@ class GraphsContainer extends React.Component {
     this.rightChartPadding = 10;
     this.state = {
       highlights: [],
-      scatterPlotData: this.props.testData.flatMap(item =>
+      scatterPlotData: this.props.testData.flatMap((item) =>
         item.visible ? item.data : [],
       ),
       lockTooltip: false,
@@ -79,10 +79,10 @@ class GraphsContainer extends React.Component {
   verifySelectedDataPoint = () => {
     const { selectedDataPoint, testData, updateStateParams } = this.props;
 
-    const dataPointFound = testData.find(item => {
+    const dataPointFound = testData.find((item) => {
       if (item.signature_id === selectedDataPoint.signature_id) {
         return item.data.find(
-          datum => datum.dataPointId === selectedDataPoint.dataPointId,
+          (datum) => datum.dataPointId === selectedDataPoint.dataPointId,
         );
       }
       return false;
@@ -101,7 +101,7 @@ class GraphsContainer extends React.Component {
 
   updateGraphs = () => {
     const { testData, updateStateParams, visibilityChanged } = this.props;
-    const scatterPlotData = testData.flatMap(item =>
+    const scatterPlotData = testData.flatMap((item) =>
       item.visible ? item.data : [],
     );
     this.addHighlights();
@@ -124,7 +124,7 @@ class GraphsContainer extends React.Component {
       }
 
       if (highlightAlerts) {
-        const dataPoints = series.data.filter(item => item.alertSummary);
+        const dataPoints = series.data.filter((item) => item.alertSummary);
         highlights = [...highlights, ...dataPoints];
       }
 
@@ -134,7 +134,7 @@ class GraphsContainer extends React.Component {
         }
         // in case people are still using 12 character sha
         const dataPoint = series.data.find(
-          item => item.revision.indexOf(rev) !== -1,
+          (item) => item.revision.indexOf(rev) !== -1,
         );
 
         if (dataPoint) {
@@ -192,9 +192,9 @@ class GraphsContainer extends React.Component {
     return this.checkDate(tick);
   };
 
-  checkDate = x => {
+  checkDate = (x) => {
     const graphData = this.props.testData.filter(
-      item => item.visible === true && item.data.length > 0,
+      (item) => item.visible === true && item.data.length > 0,
     );
 
     return graphData.length > 0
@@ -214,14 +214,14 @@ class GraphsContainer extends React.Component {
   hideTooltip = () =>
     this.state.lockTooltip ? { active: true } : { active: undefined };
 
-  showTooltip = selectedDataPoint => {
+  showTooltip = (selectedDataPoint) => {
     this.setState({
       externalMutation: [
         {
           childName: 'scatter-plot',
           target: 'labels',
           eventKey: 'all',
-          mutation: props => {
+          mutation: (props) => {
             if (props.datum.dataPointId === selectedDataPoint.dataPointId) {
               return { active: true };
             }
@@ -256,7 +256,7 @@ class GraphsContainer extends React.Component {
     });
   };
 
-  updateZoom = zoom => {
+  updateZoom = (zoom) => {
     const { lockTooltip } = this.state;
     const { updateStateParams } = this.props;
 
@@ -282,8 +282,8 @@ class GraphsContainer extends React.Component {
 
     const highlightPoints = !!highlights.length;
 
-    const hasHighlightedRevision = point =>
-      highlightedRevisions.find(rev => point.revision.indexOf(rev) !== -1);
+    const hasHighlightedRevision = (point) =>
+      highlightedRevisions.find((rev) => point.revision.indexOf(rev) !== -1);
 
     const axisStyle = {
       grid: { stroke: 'lightgray', strokeWidth: 0.5 },
@@ -328,10 +328,10 @@ class GraphsContainer extends React.Component {
                   />
                   <VictoryAxis
                     tickCount={10}
-                    tickFormat={x => this.checkDate(x)}
+                    tickFormat={(x) => this.checkDate(x)}
                     style={axisStyle}
                   />
-                  {testData.map(item => (
+                  {testData.map((item) => (
                     <VictoryLine
                       key={item.name}
                       data={item.visible ? item.data : []}
@@ -376,7 +376,7 @@ class GraphsContainer extends React.Component {
                             },
                             {
                               target: 'labels',
-                              mutation: props => this.setTooltip(props, true),
+                              mutation: (props) => this.setTooltip(props, true),
                             },
                           ];
                         },
@@ -388,7 +388,7 @@ class GraphsContainer extends React.Component {
                             },
                             {
                               target: 'labels',
-                              mutation: props => this.setTooltip(props),
+                              mutation: (props) => this.setTooltip(props),
                             },
                           ];
                         },
@@ -401,13 +401,13 @@ class GraphsContainer extends React.Component {
                           ];
                         },
                         // work-around to allow onClick events with VictorySelection container
-                        onMouseDown: evt => evt.stopPropagation(),
+                        onMouseDown: (evt) => evt.stopPropagation(),
                       },
                     },
                   ]}
                 >
                   {highlights.length > 0 &&
-                    highlights.map(item => (
+                    highlights.map((item) => (
                       <VictoryLine
                         key={item}
                         style={{

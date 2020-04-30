@@ -3,7 +3,7 @@ import PropTypes from 'prop-types';
 import { Pagination, PaginationItem, PaginationLink } from 'reactstrap';
 
 class PaginationGroup extends React.Component {
-  navigatePage = page => {
+  navigatePage = (page) => {
     const { fetchData, updateParams } = this.props;
     fetchData(undefined, false, parseInt(page, 10));
     updateParams({ page });
@@ -25,7 +25,7 @@ class PaginationGroup extends React.Component {
             />
           </PaginationItem>
         )}
-        {pageNums.map(num => (
+        {pageNums.map((num) => (
           <PaginationItem
             key={num}
             active={num === page}

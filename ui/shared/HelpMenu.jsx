@@ -74,7 +74,7 @@ const HelpMenu = () => (
       />
     </DropdownToggle>
     <DropdownMenu right className="icon-menu">
-      {menuItems.map(item => (
+      {menuItems.map((item) => (
         <DropdownItem
           tag="a"
           target="_blank"

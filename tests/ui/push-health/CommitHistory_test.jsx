@@ -22,7 +22,7 @@ afterEach(() => {
 describe('CommitHistory', () => {
   const revision = 'b6affc2813062a8e5a227a3ecf679e13c0c7a853';
   const currentRepo = new RepositoryModel(repositories[1]);
-  const testCommitHistory = history => (
+  const testCommitHistory = (history) => (
     <CommitHistory
       history={history}
       revision={revision}

@@ -9,8 +9,10 @@ export default class UserModel {
   }
 
   static get() {
-    return fetch(`${uri}`).then(resp =>
-      resp.json().then(data => (data.length > 0 ? new UserModel(data[0]) : {})),
+    return fetch(`${uri}`).then((resp) =>
+      resp
+        .json()
+        .then((data) => (data.length > 0 ? new UserModel(data[0]) : {})),
     );
   }
 }

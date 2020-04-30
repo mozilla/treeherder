@@ -23,28 +23,28 @@ const pulsePinCount = () => {
   }
 };
 
-export const setClassificationId = id => ({
+export const setClassificationId = (id) => ({
   type: SET_CLASSIFICATION_ID,
   payload: {
     failureClassificationId: id,
   },
 });
 
-export const setClassificationComment = text => ({
+export const setClassificationComment = (text) => ({
   type: SET_CLASSIFICATION_COMMENT,
   payload: {
     failureClassificationComment: text,
   },
 });
 
-export const setPinBoardVisible = isPinBoardVisible => ({
+export const setPinBoardVisible = (isPinBoardVisible) => ({
   type: SET_PINBOARD_VISIBLE,
   payload: {
     isPinBoardVisible,
   },
 });
 
-export const pinJob = job => {
+export const pinJob = (job) => {
   return async (dispatch, getState) => {
     const {
       pinnedJobs: { pinnedJobs },
@@ -64,7 +64,7 @@ export const pinJob = job => {
   };
 };
 
-export const unPinJob = job => {
+export const unPinJob = (job) => {
   return async (dispatch, getState) => {
     const {
       pinnedJobs: { pinnedJobs },
@@ -79,7 +79,7 @@ export const unPinJob = job => {
   };
 };
 
-export const pinJobs = jobsToPin => {
+export const pinJobs = (jobsToPin) => {
   return async (dispatch, getState) => {
     const {
       pinnedJobs: { pinnedJobs },
@@ -135,7 +135,7 @@ export const addBug = (bug, job) => {
   };
 };
 
-export const removeBug = bugId => ({
+export const removeBug = (bugId) => ({
   type: REMOVE_JOB_BUG,
   bugId,
 });
@@ -150,7 +150,7 @@ export const unPinAll = () => ({
   },
 });
 
-export const togglePinJob = job => {
+export const togglePinJob = (job) => {
   return async (dispatch, getState) => {
     const {
       pinnedJobs: { pinnedJobs },

@@ -39,7 +39,7 @@ class FuzzyJobFinder extends React.Component {
    *  Only actually do the filtering when `enter` is pressed, as filtering 13K DOM elements is slow...
    *  If this input is empty when `enter` is pressed, reset back to the full list of runnable jobs.
    */
-  filterJobs = ev => {
+  filterJobs = (ev) => {
     // By default we show a trimmed down list of runnable jobs, but there's an option to show the full list
     let currentList;
     if (this.state.useFullList) {
@@ -62,7 +62,7 @@ class FuzzyJobFinder extends React.Component {
           // Always search from the full (or full filtered) list of jobs
           const fuse = new Fuse(currentList, options);
 
-          this.setState(prevState => ({
+          this.setState((prevState) => ({
             fuzzyList: prevState.fuzzySearch
               ? fuse.search(prevState.fuzzySearch)
               : currentList,
@@ -87,7 +87,7 @@ class FuzzyJobFinder extends React.Component {
   addAllJobs = () => {
     const selectedOptions = Array.from(
       this.state.fuzzyList,
-      option => option.name,
+      (option) => option.name,
     );
     let { selectedList } = this.state;
 
@@ -103,7 +103,7 @@ class FuzzyJobFinder extends React.Component {
     });
   };
 
-  addJobs = evt => {
+  addJobs = (evt) => {
     const { selectedList } = this.state;
     const { addJobsSelected } = this.state;
 
@@ -120,7 +120,7 @@ class FuzzyJobFinder extends React.Component {
     const { removeJobsSelected } = this.state;
 
     const newSelectedList = selectedList.filter(
-      value => !removeJobsSelected.includes(value),
+      (value) => !removeJobsSelected.includes(value),
     );
 
     this.setState({ selectedList: newSelectedList }, () => {
@@ -142,11 +142,11 @@ class FuzzyJobFinder extends React.Component {
         this.props.decisionTaskId,
         this.props.currentRepo,
       )
-        .then(result => {
+        .then((result) => {
           notify(result, 'success');
           this.props.toggle();
         })
-        .catch(e => {
+        .catch((e) => {
           notify(formatTaskclusterError(e), 'danger', { sticky: true });
           this.setState({
             submitDisabled: false,
@@ -157,7 +157,7 @@ class FuzzyJobFinder extends React.Component {
     }
   };
 
-  toggleFullList = evt => {
+  toggleFullList = (evt) => {
     this.setState(
       {
         useFullList: evt.target.checked,
@@ -173,10 +173,10 @@ class FuzzyJobFinder extends React.Component {
     );
   };
 
-  updateAddButton = evt => {
+  updateAddButton = (evt) => {
     const selectedOptions = Array.from(
       evt.target.selectedOptions,
-      option => option.textContent,
+      (option) => option.textContent,
     );
 
     this.setState({
@@ -185,10 +185,10 @@ class FuzzyJobFinder extends React.Component {
     });
   };
 
-  updateRemoveButton = evt => {
+  updateRemoveButton = (evt) => {
     const selectedOptions = Array.from(
       evt.target.selectedOptions,
-      option => option.textContent,
+      (option) => option.textContent,
     );
     this.setState({
       removeDisabled: selectedOptions.length === 0,
@@ -222,7 +222,7 @@ class FuzzyJobFinder extends React.Component {
               <Col sm={2}>
                 <Label
                   className="my-3"
-                  onChange={evt => this.toggleFullList(evt)}
+                  onChange={(evt) => this.toggleFullList(evt)}
                   title="The full list includes thousands of jobs that don't typically get run, and is much slower to render"
                 >
                   <Input type="checkbox" /> Use full job list
@@ -245,7 +245,7 @@ class FuzzyJobFinder extends React.Component {
             </div>
             <InputGroup id="addJobsGroup">
               <Input type="select" multiple onChange={this.updateAddButton}>
-                {this.state.fuzzyList.sort(sortAlphaNum).map(e => (
+                {this.state.fuzzyList.sort(sortAlphaNum).map((e) => (
                   <option
                     title={`${e.name} - ${e.groupsymbol}(${e.symbol})`}
                     key={e.name}
@@ -279,7 +279,7 @@ class FuzzyJobFinder extends React.Component {
             </div>
             <InputGroup id="removeJobsGroup">
               <Input type="select" multiple onChange={this.updateRemoveButton}>
-                {this.state.selectedList.sort(sortAlphaNum).map(e => (
+                {this.state.selectedList.sort(sortAlphaNum).map((e) => (
                   <option title={e} key={e}>
                     {e}
                   </option>

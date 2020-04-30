@@ -85,11 +85,11 @@ class TabsPanel extends React.Component {
 
   static getTabNames(showPerf) {
     return ['details', 'failure', 'annotations', 'similar', 'perf'].filter(
-      name => !(name === 'perf' && !showPerf),
+      (name) => !(name === 'perf' && !showPerf),
     );
   }
 
-  setTabIndex = tabIndex => {
+  setTabIndex = (tabIndex) => {
     this.setState({ tabIndex });
   };
 

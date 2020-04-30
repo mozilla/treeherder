@@ -71,7 +71,7 @@ export default class ReplicatesGraph extends React.Component {
     }
     const numRuns = perfDatum.values.length;
 
-    const replicatePromises = perfDatum.job_ids.map(jobId =>
+    const replicatePromises = perfDatum.job_ids.map((jobId) =>
       getReplicateData({ jobId, rootUrl: project.tc_root_url }),
     );
 
@@ -85,12 +85,12 @@ export default class ReplicatesGraph extends React.Component {
 
     let replicateValues = localReplicateData.concat.apply(
       [],
-      localReplicateData.map(response => {
+      localReplicateData.map((response) => {
         const testSuite = response.data.suites.find(
-          suite => suite.name === this.props.filters.testSuite,
+          (suite) => suite.name === this.props.filters.testSuite,
         );
         const subtest = testSuite.subtests.find(
-          subtest => subtest.name === this.props.filters.subtest,
+          (subtest) => subtest.name === this.props.filters.subtest,
         );
         return subtest.replicates;
       }),

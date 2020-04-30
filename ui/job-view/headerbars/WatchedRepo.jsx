@@ -102,7 +102,7 @@ export default class WatchedRepo extends React.Component {
       });
       clearInterval(this.treeStatusIntervalId);
     } else {
-      TreeStatusModel.get(watchedRepoName).then(data => {
+      TreeStatusModel.get(watchedRepoName).then((data) => {
         const treeStatus = data.result;
 
         if (watchedRepoName === repoName) {

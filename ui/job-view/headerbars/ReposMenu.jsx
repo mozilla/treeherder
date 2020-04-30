@@ -33,13 +33,13 @@ const DEV_GROUP_ORDER = {
 export default function ReposMenu(props) {
   const { repos } = props;
   const groups = repos.reduce(
-    (acc, repo, idx, arr, group = repo => repo.repository_group.name) => ({
+    (acc, repo, idx, arr, group = (repo) => repo.repository_group.name) => ({
       ...acc,
       [group(repo)]: [...(acc[group(repo)] || []), repo],
     }),
     {},
   );
-  const groupedRepos = GROUP_ORDER.map(name => ({
+  const groupedRepos = GROUP_ORDER.map((name) => ({
     name,
     repos: groups[name]
       ? groups[name].sort((a, b) =>
@@ -66,7 +66,7 @@ export default function ReposMenu(props) {
           aria-haspopup="true"
           aria-expanded="false"
         >
-          {groupedRepos.map(group => (
+          {groupedRepos.map((group) => (
             <DropdownItem
               className="repogroup dropdown-item col"
               key={group.name}
@@ -80,7 +80,7 @@ export default function ReposMenu(props) {
                 <FontAwesomeIcon icon={faInfoCircle} title={group.name} />
               </li>
               {!!group.repos &&
-                group.repos.map(repo => (
+                group.repos.map((repo) => (
                   <li key={repo.name}>
                     <a
                       title="Open repo"

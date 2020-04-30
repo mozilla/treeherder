@@ -10,7 +10,7 @@ export default function TierIndicator(props) {
 
   return (
     <ButtonGroup>
-      {TIERS.map(tier => {
+      {TIERS.map((tier) => {
         const isOnlyTier = shownTiers.length === 1 && tier === shownTiers[0];
         return (
           <Button

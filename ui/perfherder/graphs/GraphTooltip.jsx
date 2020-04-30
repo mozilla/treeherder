@@ -30,17 +30,17 @@ const GraphTooltip = ({
   windowWidth,
 }) => {
   const testDetails = testData.find(
-    item => item.signature_id === datum.signature_id,
+    (item) => item.signature_id === datum.signature_id,
   );
 
-  const flotIndex = testDetails.data.findIndex(item =>
+  const flotIndex = testDetails.data.findIndex((item) =>
     datum.dataPointId
       ? item.dataPointId === datum.dataPointId
       : item.pushId === datum.pushId,
   );
   const dataPointDetails = testDetails.data[flotIndex];
 
-  const retriggers = countBy(testDetails.resultSetData, resultSetId =>
+  const retriggers = countBy(testDetails.resultSetData, (resultSetId) =>
     resultSetId === datum.pushId ? 'retrigger' : 'original',
   );
   const retriggerNum = retriggers.retrigger - 1;
@@ -58,7 +58,7 @@ const GraphTooltip = ({
 
   if (dataPointDetails.alertSummary && dataPointDetails.alertSummary.alerts) {
     alert = dataPointDetails.alertSummary.alerts.find(
-      alert => alert.series_signature.id === testDetails.signature_id,
+      (alert) => alert.series_signature.id === testDetails.signature_id,
     );
   }
 
@@ -70,14 +70,14 @@ const GraphTooltip = ({
   }
 
   const repositoryName = projects.find(
-    repositoryName => repositoryName.name === testDetails.repository_name,
+    (repositoryName) => repositoryName.name === testDetails.repository_name,
   );
 
   let prevRevision;
   let prevPushId;
   let pushUrl;
   const firstTriggerIndex = testDetails.data.findIndex(
-    e => e.revision === dataPointDetails.revision,
+    (e) => e.revision === dataPointDetails.revision,
   );
   if (prevFlotDataPointIndex !== -1 && firstTriggerIndex > 0) {
     prevRevision = testDetails.data[firstTriggerIndex - 1].revision;

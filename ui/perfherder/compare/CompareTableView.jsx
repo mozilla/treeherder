@@ -74,7 +74,7 @@ export default class CompareTableView extends React.Component {
     let timeRange;
     if (selectedTimeRange) {
       timeRange = phTimeRanges.find(
-        timeRange => timeRange.value === parseInt(selectedTimeRange, 10),
+        (timeRange) => timeRange.value === parseInt(selectedTimeRange, 10),
       );
     }
 
@@ -130,10 +130,10 @@ export default class CompareTableView extends React.Component {
 
       title = `${data[0].platform}: ${subtestName}`;
       tableNames = [subtestName];
-      rowNames = [...new Set(data.map(item => item.test))].sort();
+      rowNames = [...new Set(data.map((item) => item.test))].sort();
     } else {
-      tableNames = [...new Set(data.map(item => item.name))].sort();
-      rowNames = [...new Set(data.map(item => item.platform))].sort();
+      tableNames = [...new Set(data.map((item) => item.name))].sort();
+      rowNames = [...new Set(data.map((item) => item.platform))].sort();
     }
 
     const text = originalRevision
@@ -153,19 +153,19 @@ export default class CompareTableView extends React.Component {
     return this.setState(updates);
   };
 
-  updateFramework = selection => {
+  updateFramework = (selection) => {
     const { updateParams } = this.props.validated;
     const { frameworks } = this.props;
 
-    const framework = frameworks.find(item => item.name === selection);
+    const framework = frameworks.find((item) => item.name === selection);
 
     updateParams({ framework: framework.id });
     this.setState({ framework }, () => this.getPerformanceData());
   };
 
-  updateTimeRange = selection => {
+  updateTimeRange = (selection) => {
     const { updateParams } = this.props.validated;
-    const timeRange = phTimeRanges.find(item => item.text === selection);
+    const timeRange = phTimeRanges.find((item) => item.text === selection);
 
     updateParams({ selectedTimeRange: timeRange.value });
     this.setState({ timeRange }, () => this.getPerformanceData());
@@ -205,7 +205,9 @@ export default class CompareTableView extends React.Component {
     } = this.state;
 
     const frameworkNames =
-      frameworks && frameworks.length ? frameworks.map(item => item.name) : [];
+      frameworks && frameworks.length
+        ? frameworks.map((item) => item.name)
+        : [];
 
     const compareDropdowns = [];
 
@@ -226,14 +228,14 @@ export default class CompareTableView extends React.Component {
       compareDropdowns.push({
         options: frameworkNames,
         selectedItem: framework.name,
-        updateData: framework => this.updateFramework(framework),
+        updateData: (framework) => this.updateFramework(framework),
       });
     }
     if (!originalRevision) {
       compareDropdowns.push({
-        options: phTimeRanges.map(option => option.text),
+        options: phTimeRanges.map((option) => option.text),
         selectedItem: timeRange.text,
-        updateData: timeRange => this.updateTimeRange(timeRange),
+        updateData: (timeRange) => this.updateTimeRange(timeRange),
       });
     }
 
@@ -308,7 +310,7 @@ export default class CompareTableView extends React.Component {
               <CompareTableControls
                 {...this.props}
                 dropdownOptions={compareDropdowns}
-                updateState={state => this.setState(state)}
+                updateState={(state) => this.setState(state)}
                 compareResults={compareResults}
                 isBaseAggregate={!originalRevision}
                 notify={this.notifyFailure}

@@ -40,7 +40,7 @@ const omittedLeads = [
 /*
  *  Find the first thing in the summary line that looks like a filename.
  */
-const findFilename = summary => {
+const findFilename = (summary) => {
   // Take left side of any reftest comparisons, as the right side is the reference file
   // eslint-disable-next-line prefer-destructuring
   summary = summary.split('==')[0];
@@ -59,7 +59,7 @@ const findFilename = summary => {
  *  Remove extraneous junk from the start of the summary line
  *  and try to find the failing test name from what's left
  */
-const parseSummary = suggestion => {
+const parseSummary = (suggestion) => {
   let summary = suggestion.search;
   const searchTerms = suggestion.search_terms;
   // Strip out some extra stuff at the start of some failure paths
@@ -84,7 +84,7 @@ const parseSummary = suggestion => {
   // for the full string match, so don't omit it in this case.
   // If it's not needed, go ahead and omit it.
   if (searchTerms.length && summaryParts.length > 1) {
-    omittedLeads.forEach(lead => {
+    omittedLeads.forEach((lead) => {
       if (!searchTerms[0].includes(lead) && summaryParts[0].includes(lead)) {
         summaryParts.shift();
       }
@@ -115,17 +115,17 @@ export class BugFilerClass extends React.Component {
       jobGroupName,
     } = props;
 
-    const allFailures = suggestions.map(sugg =>
+    const allFailures = suggestions.map((sugg) =>
       sugg.search
         .split(' | ')
-        .filter(part => !omittedLeads.includes(part))
-        .map(item =>
+        .filter((part) => !omittedLeads.includes(part))
+        .map((item) =>
           item === 'REFTEST TEST-UNEXPECTED-PASS'
             ? 'TEST-UNEXPECTED-PASS'
             : item,
         ),
     );
-    const thisFailure = allFailures.map(f => f.join(' | ')).join('\n');
+    const thisFailure = allFailures.map((f) => f.join(' | ')).join('\n');
 
     const parsedSummary = parseSummary(suggestion);
     let summaryString = parsedSummary[0].join(' | ');
@@ -145,7 +145,7 @@ export class BugFilerClass extends React.Component {
       /assertion fail/i, // JavaScript
       /assertion count \d+ is \w+ than expected \d+ assertion/, // layout
       /AssertionError/, // Marionette
-    ].some(regexp => regexp.test(summaryString));
+    ].some((regexp) => regexp.test(summaryString));
     if (isAssertion) {
       keywords.push('assertion');
     }
@@ -184,7 +184,7 @@ export class BugFilerClass extends React.Component {
     if (searchTerms.length === 0) {
       return 'Selected failure does not contain any searchable terms.';
     }
-    if (searchTerms.every(term => !summary.includes(term))) {
+    if (searchTerms.every((term) => !summary.includes(term))) {
       return "Summary does not include the full text of any of the selected failure's search terms:";
     }
     return '';
@@ -218,7 +218,7 @@ export class BugFilerClass extends React.Component {
   /**
    *  'enter' from the product search input should initiate the search
    */
-  productSearchEnter = ev => {
+  productSearchEnter = (ev) => {
     const { keyCode, target } = ev;
 
     this.setState({ productSearch: target.value }, () => {
@@ -246,12 +246,12 @@ export class BugFilerClass extends React.Component {
       );
       const data = await resp.json();
       const products = data.products.filter(
-        item => !!item.product && !!item.component,
+        (item) => !!item.product && !!item.component,
       );
       suggestedProductsSet = new Set([
         ...suggestedProductsSet,
         ...products.map(
-          prod =>
+          (prod) =>
             prod.product + (prod.component ? ` :: ${prod.component}` : ''),
         ),
       ]);
@@ -283,8 +283,8 @@ export class BugFilerClass extends React.Component {
       // Search mercurial's moz.build metadata to find products/components
       fetch(
         `${hgBaseUrl}mozilla-central/json-mozbuildinfo?p=${failurePath}`,
-      ).then(resp =>
-        resp.json().then(firstRequest => {
+      ).then((resp) =>
+        resp.json().then((firstRequest) => {
           if (firstRequest.error) {
             notify(
               'Unable to infer product/component via metadata. Please manually search for a product.',
@@ -309,7 +309,7 @@ export class BugFilerClass extends React.Component {
             const dxrlink = `${dxrBaseUrl}mozilla-central/search?q=file:${possibleFilename}&redirect=false&limit=5`;
             // Bug 1358328 - We need to override headers here until DXR returns JSON with the default Accept header
             fetch(dxrlink, { headers: { Accept: 'application/json' } }).then(
-              secondRequest => {
+              (secondRequest) => {
                 const { results } = secondRequest.data;
                 let resultsCount = results.length;
                 // If the search returns too many results, this probably isn't a good search term, so bail
@@ -319,10 +319,10 @@ export class BugFilerClass extends React.Component {
                     this.getSpecialProducts(failurePath),
                   ]);
                 }
-                results.forEach(result => {
+                results.forEach((result) => {
                   fetch(
                     `${hgBaseUrl}mozilla-central/json-mozbuildinfo?p=${result.path}`,
-                  ).then(thirdRequest => {
+                  ).then((thirdRequest) => {
                     if (
                       thirdRequest.data.aggregate &&
                       thirdRequest.data.aggregate.recommended_bug_component
@@ -413,7 +413,7 @@ export class BugFilerClass extends React.Component {
     //   **Parsed log:** http://...
     //   **Full log:** http://....
     const logLinks = [...checkedLogLinks]
-      .map(e => {
+      .map((e) => {
         const [name, url] = e;
         return `**${name}:** ${url}`;
       })
@@ -454,7 +454,8 @@ export class BugFilerClass extends React.Component {
     ];
     if (
       noPriorityProdComp.some(
-        object => object.product === product && object.component === component,
+        (object) =>
+          object.product === product && object.component === component,
       )
     ) {
       priority = '--';
@@ -472,7 +473,7 @@ export class BugFilerClass extends React.Component {
         const productObject = productData.products[0];
         // Find the newest version for the product that is_active
         const version = productObject.versions
-          .filter(prodVer => prodVer.is_active)
+          .filter((prodVer) => prodVer.is_active)
           .slice(-1)[0];
         const payload = {
           product,
@@ -528,7 +529,7 @@ export class BugFilerClass extends React.Component {
     notify(failureString, 'danger', { sticky: true });
   };
 
-  toggleTooltip = key => {
+  toggleTooltip = (key) => {
     const { tooltipOpen } = this.state;
     this.setState({
       tooltipOpen: { ...tooltipOpen, [key]: !tooltipOpen[key] },
@@ -574,7 +575,7 @@ export class BugFilerClass extends React.Component {
                   name="modalProductFinderSearch"
                   id="modalProductFinderSearch"
                   onKeyDown={this.productSearchEnter}
-                  onChange={evt =>
+                  onChange={(evt) =>
                     this.setState({ productSearch: evt.target.value })
                   }
                   type="text"
@@ -610,7 +611,7 @@ export class BugFilerClass extends React.Component {
                   </div>
                 )}
                 <FormGroup tag="fieldset" className="mt-1">
-                  {suggestedProducts.map(product => (
+                  {suggestedProducts.map((product) => (
                     <div
                       className="ml-4"
                       key={`modalProductSuggestion${product}`}
@@ -620,7 +621,7 @@ export class BugFilerClass extends React.Component {
                           type="radio"
                           value={product}
                           checked={product === selectedProduct}
-                          onChange={evt =>
+                          onChange={(evt) =>
                             this.setState({ selectedProduct: evt.target.value })
                           }
                           name="productGroup"
@@ -651,7 +652,7 @@ export class BugFilerClass extends React.Component {
                         This can cause poor bug suggestions to be generated
                       </Tooltip>
                     </div>
-                    {searchTerms.map(term => (
+                    {searchTerms.map((term) => (
                       <div className="text-monospace pl-3" key={term}>
                         {term}
                       </div>
@@ -664,7 +665,9 @@ export class BugFilerClass extends React.Component {
                   type="text"
                   placeholder="Intermittent..."
                   pattern=".{0,255}"
-                  onChange={evt => this.setState({ summary: evt.target.value })}
+                  onChange={(evt) =>
+                    this.setState({ summary: evt.target.value })
+                  }
                   value={summary}
                 />
                 <Tooltip
@@ -708,7 +711,7 @@ export class BugFilerClass extends React.Component {
                     type="textarea"
                     value={thisFailure}
                     readOnly
-                    onChange={evt =>
+                    onChange={(evt) =>
                       this.setState({ thisFailure: evt.target.value })
                     }
                   />
@@ -771,7 +774,9 @@ export class BugFilerClass extends React.Component {
               <div className="d-flex flex-column">
                 <Label for="summary-input">Comment:</Label>
                 <Input
-                  onChange={evt => this.setState({ comment: evt.target.value })}
+                  onChange={(evt) =>
+                    this.setState({ comment: evt.target.value })
+                  }
                   type="textarea"
                   id="summary-input"
                   className="flex-grow-1"
@@ -796,7 +801,7 @@ export class BugFilerClass extends React.Component {
                     id="regressedBy"
                     type="text"
                     className="ml-1"
-                    onChange={evt =>
+                    onChange={(evt) =>
                       this.setState({ regressedBy: evt.target.value })
                     }
                     placeholder="Regressed by"
@@ -813,7 +818,7 @@ export class BugFilerClass extends React.Component {
                     id="seeAlso"
                     className="ml-1"
                     type="text"
-                    onChange={evt =>
+                    onChange={(evt) =>
                       this.setState({ seeAlso: evt.target.value })
                     }
                     placeholder="See also"
@@ -834,7 +839,7 @@ export class BugFilerClass extends React.Component {
                   <Input
                     type="textarea"
                     id="signature-input"
-                    onChange={evt =>
+                    onChange={(evt) =>
                       this.setState({ crashSignatures: evt.target.value })
                     }
                     maxLength="2048"

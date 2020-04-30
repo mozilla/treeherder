@@ -18,10 +18,10 @@ export default class DateOptions extends React.Component {
   }
 
   toggle = () => {
-    this.setState(prevState => ({ dropdownOpen: !prevState.dropdownOpen }));
+    this.setState((prevState) => ({ dropdownOpen: !prevState.dropdownOpen }));
   };
 
-  updateDateRange = dateRange => {
+  updateDateRange = (dateRange) => {
     this.setState({ dateRange });
     if (dateRange === 'custom range') {
       return;
@@ -35,11 +35,7 @@ export default class DateOptions extends React.Component {
       // bug history is max 4 months
       from = 120;
     }
-    const startday = ISODate(
-      moment()
-        .utc()
-        .subtract(from, 'days'),
-    );
+    const startday = ISODate(moment().utc().subtract(from, 'days'));
     const endday = ISODate(moment().utc());
     this.props.updateState({ startday, endday });
   };

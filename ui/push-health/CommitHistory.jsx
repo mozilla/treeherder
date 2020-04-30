@@ -18,7 +18,7 @@ class CommitHistory extends React.PureComponent {
     };
   }
 
-  showClipboard = show => {
+  showClipboard = (show) => {
     this.setState({ clipboardVisible: show });
   };
 

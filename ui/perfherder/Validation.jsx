@@ -13,10 +13,9 @@ import LoadingSpinner from '../shared/LoadingSpinner';
 
 import { summaryStatusMap } from './constants';
 
-const withValidation = (
-  { requiredParams },
-  verifyRevisions = true,
-) => WrappedComponent => {
+const withValidation = ({ requiredParams }, verifyRevisions = true) => (
+  WrappedComponent,
+) => {
   class Validation extends React.Component {
     constructor(props) {
       super(props);
@@ -56,7 +55,7 @@ const withValidation = (
       }
     }
 
-    updateParams = params => {
+    updateParams = (params) => {
       const { location, history } = this.props;
       const newParams = { ...parseQueryParams(location.search), ...params };
       const queryString = createQueryParams(newParams);
@@ -67,7 +66,7 @@ const withValidation = (
     errorMessage = (param, value) => `${param} ${value} is not valid`;
 
     findParam = (param, value, list, errors) => {
-      const valid = list.find(item => item.name || item === value);
+      const valid = list.find((item) => item.name || item === value);
 
       if (valid === undefined) {
         errors.push(this.errorMessage(param, value));

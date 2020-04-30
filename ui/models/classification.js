@@ -13,10 +13,10 @@ export default class JobClassificationModel {
   static getList(params) {
     return fetch(
       `${getProjectUrl(uri)}${createQueryParams(params)}`,
-    ).then(resp =>
+    ).then((resp) =>
       resp
         .json()
-        .then(data => data.map(elem => new JobClassificationModel(elem))),
+        .then((data) => data.map((elem) => new JobClassificationModel(elem))),
     );
   }
 

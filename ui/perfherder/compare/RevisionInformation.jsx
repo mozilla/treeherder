@@ -7,7 +7,7 @@ import { getJobsUrl } from '../../helpers/url';
 function getRevisionComments(resultSet) {
   const [firstRevisionComment, ...restRevisionsComments] =
     resultSet && Array.isArray(resultSet.revisions)
-      ? resultSet.revisions.map(r => r.comments)
+      ? resultSet.revisions.map((r) => r.comments)
       : [];
   const revisionCommentsTitle = restRevisionsComments.join('\n');
 

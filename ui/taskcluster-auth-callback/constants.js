@@ -20,7 +20,7 @@ export const prodFirefoxRootUrl = 'https://firefox-ci-tc.services.mozilla.com';
 export const stagingFirefoxRootUrl =
   'https://stage.taskcluster.nonprod.cloudops.mozgcp.net';
 
-export const checkRootUrl = rootUrl => {
+export const checkRootUrl = (rootUrl) => {
   // we need this workaround for the treeherder-taskcluster-staging deployment since all repository fixtures
   // and the default login rootUrls are for https://firefox-ci-tc.services.mozilla.com
   if (

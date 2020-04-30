@@ -13,7 +13,7 @@ import { getData } from '../helpers/http';
 
 import { validateQueryParams, mergeData, formatBugs } from './helpers';
 
-const withView = defaultState => WrappedComponent => {
+const withView = (defaultState) => (WrappedComponent) => {
   class View extends React.Component {
     constructor(props) {
       super(props);
@@ -77,14 +77,14 @@ const withView = defaultState => WrappedComponent => {
       }
     };
 
-    getBugDetails = async url => {
+    getBugDetails = async (url) => {
       const { data, failureStatus } = await getData(url);
       if (!failureStatus && data.bugs.length === 1) {
         this.setState({ summary: data.bugs[0].summary });
       }
     };
 
-    getTableData = async url => {
+    getTableData = async (url) => {
       this.setState({ tableFailureStatus: null, isFetchingTable: true });
       const { data, failureStatus } = await getData(url);
       let mergedData = null;
@@ -102,7 +102,7 @@ const withView = defaultState => WrappedComponent => {
       });
     };
 
-    getGraphData = async url => {
+    getGraphData = async (url) => {
       this.setState({ graphFailureStatus: null, isFetchingGraphs: true });
       const { data, failureStatus } = await getData(url);
       this.setState({
@@ -112,7 +112,7 @@ const withView = defaultState => WrappedComponent => {
       });
     };
 
-    batchBugRequests = async bugIds => {
+    batchBugRequests = async (bugIds) => {
       const urlParams = {
         include_fields: 'id,product,component,status,summary,whiteboard',
       };
@@ -138,7 +138,7 @@ const withView = defaultState => WrappedComponent => {
       return bugsList;
     };
 
-    updateState = updatedObj => {
+    updateState = (updatedObj) => {
       this.setState(updatedObj, () => {
         const { startday, endday, tree, bug } = this.state;
         const params = { startday, endday, tree };

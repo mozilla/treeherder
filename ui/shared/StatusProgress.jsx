@@ -2,7 +2,7 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import { Progress } from 'reactstrap';
 
-const StatusProgress = props => {
+const StatusProgress = (props) => {
   const {
     counts: { success, testfailed, busted, running, pending },
   } = props;

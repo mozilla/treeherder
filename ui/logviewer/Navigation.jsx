@@ -7,7 +7,7 @@ import { faTree } from '@fortawesome/free-solid-svg-icons';
 import LogoMenu from '../shared/LogoMenu';
 
 // Get the css class for the result, step buttons and other general use
-const getShadingClass = result => `result-status-shading-${result}`;
+const getShadingClass = (result) => `result-status-shading-${result}`;
 
 export default class Navigation extends React.PureComponent {
   render() {

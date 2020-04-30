@@ -32,10 +32,12 @@ class TestFailure extends React.PureComponent {
   }
 
   toggleDetails = () => {
-    this.setState(prevState => ({ detailsShowing: !prevState.detailsShowing }));
+    this.setState((prevState) => ({
+      detailsShowing: !prevState.detailsShowing,
+    }));
   };
 
-  retriggerJob = async job => {
+  retriggerJob = async (job) => {
     const { notify, currentRepo } = this.props;
 
     JobModel.retrigger([job], currentRepo, notify);
@@ -97,7 +99,7 @@ class TestFailure extends React.PureComponent {
           >
             {action} :
           </span>
-          {failJobs.map(failJob => (
+          {failJobs.map((failJob) => (
             <Job
               job={failJob}
               repo={repo}
@@ -105,7 +107,7 @@ class TestFailure extends React.PureComponent {
               key={failJob.id}
             />
           ))}
-          {passJobs.map(passJob => (
+          {passJobs.map((passJob) => (
             <Job
               job={passJob}
               repo={repo}
@@ -121,7 +123,7 @@ class TestFailure extends React.PureComponent {
               Passed in:
             </span>
           )}
-          {passInFailedJobs.map(passedInAFailedJob => (
+          {passInFailedJobs.map((passedInAFailedJob) => (
             <Job
               job={passedInAFailedJob}
               repo={repo}
@@ -129,7 +131,7 @@ class TestFailure extends React.PureComponent {
               key={passedInAFailedJob.id}
             />
           ))}
-          {inProgressJobs.map(inProgressJob => (
+          {inProgressJobs.map((inProgressJob) => (
             <Job
               job={inProgressJob}
               repo={repo}
@@ -148,7 +150,7 @@ class TestFailure extends React.PureComponent {
                 {detailsShowing ? 'less...' : 'more...'}
               </Button>
               <UncontrolledCollapse toggler={key} data-testid="log-lines">
-                {logLines.map(logLine => (
+                {logLines.map((logLine) => (
                   <Row className="small mt-2" key={logLine.line_number}>
                     <Container className="pre-wrap text-break">
                       {logLine.subtest}

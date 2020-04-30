@@ -122,9 +122,9 @@ class CompareSubtestsView extends React.PureComponent {
       frameworkID: framework.id,
     };
 
-    rowNames.forEach(testName => {
-      const oldResults = origResultsMap.find(sig => sig.test === testName);
-      const newResults = newResultsMap.find(sig => sig.test === testName);
+    rowNames.forEach((testName) => {
+      const oldResults = origResultsMap.find((sig) => sig.test === testName);
+      const newResults = newResultsMap.find((sig) => sig.test === testName);
 
       const cmap = getCounterMap(testName, oldResults, newResults);
       if (cmap.isEmpty) {
@@ -193,10 +193,8 @@ class CompareSubtestsView extends React.PureComponent {
 
     const resultsArr = compareResults
       .get(parentTestName)
-      .map(value => value.name);
-    const testsNoResults = difference(rowNames, resultsArr)
-      .sort()
-      .join(', ');
+      .map((value) => value.name);
+    const testsNoResults = difference(rowNames, resultsArr).sort().join(', ');
 
     if (testsNoResults.length) {
       updates.testsNoResults = testsNoResults;

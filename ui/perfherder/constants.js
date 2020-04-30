@@ -35,8 +35,8 @@ export const compareTableText = {
 
 export const noResultsMessage = 'No results to show';
 export const unknownFrameworkMessage = 'unknown framework';
-export const noDataFoundMessage = title => `No Data Found for ${title}`;
-export const notSupportedAlertFiltersMessage = filters =>
+export const noDataFoundMessage = (title) => `No Data Found for ${title}`;
+export const notSupportedAlertFiltersMessage = (filters) =>
   `Some filter terms are not supported (${filters.join(
     ', ',
   )}). Expected results might not be displayed.`;

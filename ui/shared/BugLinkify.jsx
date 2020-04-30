@@ -16,7 +16,7 @@ export default class BugLinkify extends React.Component {
         }
         return 0;
       },
-      normalize: match => {
+      normalize: (match) => {
         const bugNumber = match.text.replace('bug:', '');
 
         match.url = `https://bugzilla.mozilla.org/show_bug.cgi?id=${bugNumber}`;

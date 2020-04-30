@@ -24,7 +24,7 @@ export default class ComparePageTitle extends React.Component {
     });
   };
 
-  resetToDefault = async event => {
+  resetToDefault = async (event) => {
     const { title, defaultPageTitle } = this.props;
     const { newPageTitle } = this.state || event.target.value;
     this.setState({
@@ -36,11 +36,11 @@ export default class ComparePageTitle extends React.Component {
     this.changeQueryParam(newPageTitle);
   };
 
-  editpageTitle = newPageTitle => {
+  editpageTitle = (newPageTitle) => {
     this.setState({ newPageTitle });
   };
 
-  changeTitle = async newTitle => {
+  changeTitle = async (newTitle) => {
     const { pageTitle } = this.state;
 
     this.setState({ inEditMode: false });
@@ -50,13 +50,13 @@ export default class ComparePageTitle extends React.Component {
     }
   };
 
-  changeQueryParam = newTitle => {
+  changeQueryParam = (newTitle) => {
     const params = getAllUrlParams();
     params.set('pageTitle', newTitle);
     replaceLocation(params, '/compare');
   };
 
-  userActionListener = async event => {
+  userActionListener = async (event) => {
     const { pageTitle } = this.state;
     const { newPageTitle } = this.state || event.target.value;
 
@@ -116,8 +116,8 @@ export default class ComparePageTitle extends React.Component {
                 fontSize: 'xx-large',
               }}
               value={newPageTitle}
-              onChange={event => this.editpageTitle(event.target.value)}
-              onKeyDown={event => this.userActionListener(event)}
+              onChange={(event) => this.editpageTitle(event.target.value)}
+              onKeyDown={(event) => this.userActionListener(event)}
               autoFocus
             />
             <Button

@@ -22,4 +22,4 @@ export const extendProperties = function extendProperties(dest, src) {
 };
 
 export const didObjectsChange = (firstObj, secondObj, fields) =>
-  fields.some(field => firstObj[field] !== secondObj[field]);
+  fields.some((field) => firstObj[field] !== secondObj[field]);

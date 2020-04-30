@@ -213,7 +213,7 @@ describe('alert filtering ignores repository and/or options', () => {
     [repos[0].name],
     [testAlertSummaries[0].alerts[0].series_signature.options[0]],
   ];
-  testCases.forEach(testCase => {
+  testCases.forEach((testCase) => {
     it(testCase.toString(), async () => {
       const { getByPlaceholderText, getByText } = alertsView();
       const alertsFilterInput = await waitForElement(() =>

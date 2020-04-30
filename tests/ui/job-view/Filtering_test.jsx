@@ -245,7 +245,7 @@ describe('Filtering', () => {
   });
 
   describe('by result status', () => {
-    const clickFilterChicklet = color => {
+    const clickFilterChicklet = (color) => {
       fireEvent.click(document.querySelector(`.btn-${color}-filter-chicklet`));
     };
 

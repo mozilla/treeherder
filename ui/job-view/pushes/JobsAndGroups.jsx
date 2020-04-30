@@ -18,7 +18,7 @@ export default class JobsAndGroups extends React.Component {
 
     return (
       <td className="job-row">
-        {groups.map(group => {
+        {groups.map((group) => {
           if (group.tier !== 1 || group.symbol !== '') {
             return (
               group.visible && (
@@ -35,7 +35,7 @@ export default class JobsAndGroups extends React.Component {
               )
             );
           }
-          return group.jobs.map(job => (
+          return group.jobs.map((job) => (
             <JobButton
               job={job}
               filterModel={filterModel}

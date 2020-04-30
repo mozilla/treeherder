@@ -96,7 +96,7 @@ afterEach(() => {
 });
 
 describe('UnsupportedJob', () => {
-  const testTestFailure = job => (
+  const testTestFailure = (job) => (
     <UnsupportedJob
       job={job}
       jobName={job.job_type_name}

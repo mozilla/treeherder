@@ -29,12 +29,12 @@ export const setSelectedJobFromQueryString = (notify, jobMap) => ({
   jobMap,
 });
 
-export const clearSelectedJob = countPinnedJobs => ({
+export const clearSelectedJob = (countPinnedJobs) => ({
   type: CLEAR_JOB,
   countPinnedJobs,
 });
 
-export const updateJobDetails = job => ({
+export const updateJobDetails = (job) => ({
   type: UPDATE_JOB_DETAILS,
   job,
   meta: {
@@ -42,7 +42,7 @@ export const updateJobDetails = job => ({
   },
 });
 
-const doUpdateJobDetails = job => {
+const doUpdateJobDetails = (job) => {
   const taskRun = job ? getTaskRunStr(job) : null;
 
   setUrlParam('selectedTaskRun', taskRun);
@@ -77,7 +77,7 @@ export const doSelectJob = (job, updateDetails) => {
   return { selectedJob: job };
 };
 
-export const doClearSelectedJob = countPinnedJobs => {
+export const doClearSelectedJob = (countPinnedJobs) => {
   if (!countPinnedJobs) {
     const selected = findSelectedInstance();
     if (selected) selected.setSelected(false);
@@ -137,7 +137,7 @@ const doSetSelectedJobFromQueryString = (notify, jobMap) => {
   if (taskId) {
     const retryId = parseInt(runId, 10);
     const task = Object.values(jobMap).find(
-      job => job.task_id === taskId && job.retry_id === retryId,
+      (job) => job.task_id === taskId && job.retry_id === retryId,
     );
 
     if (task) {

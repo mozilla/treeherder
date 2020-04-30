@@ -45,7 +45,7 @@ export const getPercentComplete = function getPercentComplete(counts) {
 };
 
 export const formatArtifacts = function formatArtifacts(data, artifactParams) {
-  return data.map(item => {
+  return data.map((item) => {
     const value = item.name.replace(/.*\//, '');
     artifactParams.artifactPath = item.name;
     // for backwards compatibility with JobDetail API

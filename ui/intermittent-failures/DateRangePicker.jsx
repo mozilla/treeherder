@@ -34,7 +34,7 @@ export default class DateRangePicker extends React.Component {
     this.to.getDayPicker().showMonth(startDate);
   };
 
-  fromChange = startDate => {
+  fromChange = (startDate) => {
     this.setState({ startDate }, () => {
       if (!this.state.endDate) {
         this.focusTo();
@@ -42,7 +42,7 @@ export default class DateRangePicker extends React.Component {
     });
   };
 
-  toChange = endDate => {
+  toChange = (endDate) => {
     this.setState({ endDate }, this.showFromMonth);
   };
 
@@ -56,7 +56,7 @@ export default class DateRangePicker extends React.Component {
     this.props.updateState({ startday, endday });
   };
 
-  onFocusChange = calendarFocused => {
+  onFocusChange = (calendarFocused) => {
     this.setState(() => ({ calendarFocused }));
   };
 
@@ -78,7 +78,7 @@ export default class DateRangePicker extends React.Component {
           showClearDates
           numberOfMonths={2}
           initialVisibleMonth={() => moment().subtract(1, 'month')}
-          isOutsideRange={day => moment().diff(day) < 0}
+          isOutsideRange={(day) => moment().diff(day) < 0}
         />
         <Button color="secondary" className="ml-3" onClick={this.updateData}>
           update

@@ -6,7 +6,7 @@ import NotificationList from '../shared/NotificationList';
 
 import { clearNotification } from './redux/stores/notifications';
 
-const Notifications = props => {
+const Notifications = (props) => {
   const { notifications, clearNotification } = props;
 
   return (

@@ -48,7 +48,7 @@ export default class JobModel {
       if (jobPropertyNames) {
         // the results came as list of fields
         // we need to convert them to objects
-        itemList = results.map(elem =>
+        itemList = results.map((elem) =>
           addAggregateFields(
             jobPropertyNames.reduce(
               (prev, prop, i) => ({ ...prev, [prop]: elem[i] }),
@@ -57,7 +57,7 @@ export default class JobModel {
           ),
         );
       } else {
-        itemList = results.map(jobObj => addAggregateFields(jobObj));
+        itemList = results.map((jobObj) => addAggregateFields(jobObj));
       }
       return { data: [...itemList, ...nextPagesJobs], failureStatus: null };
     }
@@ -67,7 +67,7 @@ export default class JobModel {
   static get(repoName, pk, signal) {
     // a static method to retrieve a single instance of JobModel
     return fetch(`${getProjectUrl(uri, repoName)}${pk}/`, { signal }).then(
-      async response => {
+      async (response) => {
         if (response.ok) {
           const job = await response.json();
           return addAggregateFields(job);
@@ -98,21 +98,21 @@ export default class JobModel {
     try {
       notify(`Attempting to retrigger/add ${jobTerm} via actions.json`, 'info');
 
-      const pushIds = [...new Set(jobs.map(job => job.push_id))];
+      const pushIds = [...new Set(jobs.map((job) => job.push_id))];
       const taskIdMap =
         decisionTaskIdMap ||
         (await PushModel.getDecisionTaskMap(pushIds, notify));
-      const uniquePerPushJobs = groupBy(jobs, job => job.push_id);
+      const uniquePerPushJobs = groupBy(jobs, (job) => job.push_id);
 
       for (const [key, value] of Object.entries(uniquePerPushJobs)) {
         const decisionTaskId = taskIdMap[key].id;
 
         TaskclusterModel.load(decisionTaskId, null, currentRepo, testMode)
-          .then(async results => {
-            const taskLabels = value.map(job => job.job_type_name);
+          .then(async (results) => {
+            const taskLabels = value.map((job) => job.job_type_name);
 
             let retriggerAction = results.actions.find(
-              action => action.name === 'retrigger-multiple',
+              (action) => action.name === 'retrigger-multiple',
             );
             let actionInput = {
               requests: [{ tasks: taskLabels, times }],
@@ -138,12 +138,12 @@ export default class JobModel {
               currentRepo,
               testMode,
             })
-              .then(actionTaskId =>
+              .then((actionTaskId) =>
                 notify(
                   `Request sent to retrigger/add new jobs via actions.json (${actionTaskId})`,
                 ),
               )
-              .catch(error => {
+              .catch((error) => {
                 notify(
                   `Retrigger failed with Decision task: ${decisionTaskId}: ${error}`,
                   'danger',
@@ -151,7 +151,7 @@ export default class JobModel {
                 );
               });
           })
-          .catch(error => notify(error.message, 'danger', { sticky: true }));
+          .catch((error) => notify(error.message, 'danger', { sticky: true }));
       }
     } catch (e) {
       notify(
@@ -214,7 +214,7 @@ export default class JobModel {
     const taskIdMap =
       decisionTaskIdMap ||
       (await PushModel.getDecisionTaskMap(
-        [...new Set(jobs.map(job => job.push_id))],
+        [...new Set(jobs.map((job) => job.push_id))],
         notify,
       ));
 

@@ -23,7 +23,7 @@ const LegendCard = ({
     const newSymbols = [...symbols];
     const errorMessages = [];
     let updates;
-    const newTestData = [...testData].map(item => {
+    const newTestData = [...testData].map((item) => {
       if (item.signature_id === series.signature_id) {
         const isVisible = !item.visible;
 
@@ -31,7 +31,7 @@ const LegendCard = ({
           item.color = newColors.pop();
           item.symbol = newSymbols.pop();
           item.visible = isVisible;
-          item.data = item.data.map(test => ({
+          item.data = item.data.map((test) => ({
             ...test,
             z: item.color[1],
             _z: item.symbol,
@@ -42,7 +42,7 @@ const LegendCard = ({
           item.color = ['border-secondary', ''];
           item.symbol = ['circle', 'outline'];
           item.visible = isVisible;
-          item.data = item.data.map(test => ({
+          item.data = item.data.map((test) => ({
             ...test,
             z: item.color[1],
             _z: item.symbol,
@@ -70,7 +70,7 @@ const LegendCard = ({
     updateStateParams(updates);
   };
 
-  const addTestData = option => {
+  const addTestData = (option) => {
     const options = { option, relatedSeries: series };
     updateState({ options, showModal: true });
   };
@@ -95,7 +95,7 @@ const LegendCard = ({
   };
 
   const removeTest = () => {
-    const index = testData.findIndex(test => test === series);
+    const index = testData.findIndex((test) => test === series);
     const newData = [...testData];
 
     if (index === -1) {
@@ -115,7 +115,7 @@ const LegendCard = ({
       newData[graphColors.length - 1].visible = true;
       newData[graphColors.length - 1].data = newData[
         graphColors.length - 1
-      ].data.map(item => ({
+      ].data.map((item) => ({
         ...item,
         z: series.color[1],
       }));

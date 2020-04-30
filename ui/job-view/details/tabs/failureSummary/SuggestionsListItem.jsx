@@ -17,7 +17,7 @@ export default class SuggestionsListItem extends React.Component {
   }
 
   clickShowMore = () => {
-    this.setState(prevState => ({
+    this.setState((prevState) => ({
       suggestionShowMore: !prevState.suggestionShowMore,
     }));
   };
@@ -44,7 +44,7 @@ export default class SuggestionsListItem extends React.Component {
         {/* <!--Open recent bugs--> */}
         {suggestion.valid_open_recent && (
           <ul className="list-unstyled failure-summary-bugs">
-            {suggestion.bugs.open_recent.map(bug => (
+            {suggestion.bugs.open_recent.map((bug) => (
               <BugListItem
                 key={bug.id}
                 bug={bug}
@@ -70,7 +70,7 @@ export default class SuggestionsListItem extends React.Component {
         {suggestion.valid_all_others &&
           (suggestionShowMore || !suggestion.valid_open_recent) && (
             <ul className="list-unstyled failure-summary-bugs">
-              {suggestion.bugs.all_others.map(bug => (
+              {suggestion.bugs.all_others.map((bug) => (
                 <BugListItem
                   key={bug.id}
                   bug={bug}

@@ -12,7 +12,7 @@ function PushLoadErrors(props) {
   const urlParams = getAllUrlParams();
   urlParams.delete('revision');
 
-  const isRevision = revision =>
+  const isRevision = (revision) =>
     revision && (revision.length === 12 || revision.length === 40);
 
   return (

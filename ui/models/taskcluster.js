@@ -8,9 +8,9 @@ import { checkRootUrl } from '../taskcluster-auth-callback/constants';
 
 export default class TaskclusterModel {
   static taskInContext(tagSetList, taskTags) {
-    return tagSetList.some(tagSet =>
+    return tagSetList.some((tagSet) =>
       Object.keys(tagSet).every(
-        tag => taskTags[tag] && taskTags[tag] === tagSet[tag],
+        (tag) => taskTags[tag] && taskTags[tag] === tagSet[tag],
       ),
     );
   }

@@ -212,9 +212,9 @@ describe('PushList', () => {
     const { getByTestId, getAllByTestId } = render(
       testPushList(store, new FilterModel()),
     );
-    const nextNUrl = count =>
+    const nextNUrl = (count) =>
       getProjectUrl(`/push/?full=true&count=${count + 1}&push_timestamp__lte=`);
-    const clickNext = count =>
+    const clickNext = (count) =>
       fireEvent.click(getByTestId(`get-next-${count}`));
 
     fetchMock.get(`begin:${nextNUrl(10)}`, {

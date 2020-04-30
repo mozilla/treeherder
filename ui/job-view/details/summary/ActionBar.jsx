@@ -56,7 +56,7 @@ class ActionBar extends React.PureComponent {
     window.removeEventListener(thEvents.jobRetrigger, this.onRetriggerJob);
   }
 
-  onRetriggerJob = event => {
+  onRetriggerJob = (event) => {
     this.retriggerJob([event.detail.job]);
   };
 
@@ -100,7 +100,7 @@ class ActionBar extends React.PureComponent {
     const { id: decisionTaskId } = decisionTaskMap[selectedJobFull.push_id];
 
     TaskclusterModel.load(decisionTaskId, selectedJobFull, currentRepo).then(
-      results => {
+      (results) => {
         try {
           const geckoprofile = getAction(results.actions, 'geckoprofile');
 
@@ -128,7 +128,7 @@ class ActionBar extends React.PureComponent {
                 'success',
               );
             },
-            e => {
+            (e) => {
               // The full message is too large to fit in a Treeherder
               // notification box.
               notify(formatTaskclusterError(e), 'danger', { sticky: true });
@@ -141,7 +141,7 @@ class ActionBar extends React.PureComponent {
     );
   };
 
-  retriggerJob = async jobs => {
+  retriggerJob = async (jobs) => {
     const { notify, decisionTaskMap, currentRepo } = this.props;
 
     // Spin the retrigger button when retriggers happen
@@ -180,7 +180,7 @@ class ActionBar extends React.PureComponent {
     const { id: decisionTaskId } = decisionTaskMap[selectedJobFull.push_id];
 
     TaskclusterModel.load(decisionTaskId, selectedJobFull, currentRepo).then(
-      results => {
+      (results) => {
         try {
           const backfilltask = getAction(results.actions, 'backfill');
 
@@ -198,7 +198,7 @@ class ActionBar extends React.PureComponent {
                 'success',
               );
             },
-            e => {
+            (e) => {
               // The full message is too large to fit in a Treeherder
               // notification box.
               notify(formatTaskclusterError(e), 'danger', { sticky: true });
@@ -237,7 +237,7 @@ class ActionBar extends React.PureComponent {
     }
 
     TaskclusterModel.load(decisionTaskId, selectedJobFull, currentRepo).then(
-      results => {
+      (results) => {
         try {
           const isolationtask = getAction(
             results.actions,
@@ -285,7 +285,7 @@ class ActionBar extends React.PureComponent {
                 'success',
               );
             },
-            e => {
+            (e) => {
               // The full message is too large to fit in a Treeherder
               // notification box.
               notify(formatTaskclusterError(e), 'danger', { sticky: true });
@@ -320,7 +320,7 @@ class ActionBar extends React.PureComponent {
     } else {
       // Cut off trailing '/ ' if one exists, capitalize first letter
       title = title.replace(/\/ $/, '');
-      title = title.replace(/^./, l => l.toUpperCase());
+      title = title.replace(/^./, (l) => l.toUpperCase());
     }
     return title;
   };
@@ -367,7 +367,7 @@ class ActionBar extends React.PureComponent {
     }
   };
 
-  cancelJobs = jobs => {
+  cancelJobs = (jobs) => {
     const { notify, decisionTaskMap, currentRepo } = this.props;
 
     JobModel.cancel(
@@ -429,7 +429,7 @@ class ActionBar extends React.PureComponent {
               </Button>
             </li>
             {isReftest(selectedJobFull) &&
-              jobLogUrls.map(jobLogUrl => (
+              jobLogUrls.map((jobLogUrl) => (
                 <li key={`reftest-${jobLogUrl.id}`}>
                   <a
                     title="Launch the Reftest Analyzer in a new window"

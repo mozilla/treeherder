@@ -48,7 +48,7 @@ export default class TooltipGraph extends React.Component {
 
   plotValues = () => {
     const { minValue, maxValue } = this.state;
-    this.props.replicates.forEach(value => {
+    this.props.replicates.forEach((value) => {
       this.context.beginPath();
       this.context.arc(
         (180 / (maxValue - minValue)) * (value - minValue) + 5,
@@ -62,7 +62,7 @@ export default class TooltipGraph extends React.Component {
     });
   };
 
-  abbreviatedNumber = num =>
+  abbreviatedNumber = (num) =>
     num.toString().length <= 5 ? num : numeral(num).format('0.0a');
 
   render() {

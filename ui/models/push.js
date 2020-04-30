@@ -70,7 +70,7 @@ export default class PushModel {
       : (await PushModel.getDecisionTaskId(pushId, notify)).id;
 
     return TaskclusterModel.load(decisionTaskId, null, currentRepo).then(
-      results => {
+      (results) => {
         try {
           const missingTestsTask = getAction(
             results.actions,
@@ -85,7 +85,7 @@ export default class PushModel {
             input: {},
             staticActionVariables: results.staticActionVariables,
             currentRepo,
-          }).then(actionTaskId =>
+          }).then((actionTaskId) =>
             notify(
               `Request sent to trigger missing jobs (${actionTaskId})`,
               'success',
@@ -102,7 +102,7 @@ export default class PushModel {
 
   static triggerNewJobs(jobs, decisionTaskId, currentRepo) {
     return TaskclusterModel.load(decisionTaskId, null, currentRepo).then(
-      results => {
+      (results) => {
         const addNewJobsTask = getAction(results.actions, 'add-new-jobs');
 
         return TaskclusterModel.submit({
@@ -114,7 +114,7 @@ export default class PushModel {
           staticActionVariables: results.staticActionVariables,
           currentRepo,
         }).then(
-          actionTaskId =>
+          (actionTaskId) =>
             `Request sent to trigger new jobs via actions.json (${actionTaskId})`,
         );
       },
@@ -154,7 +154,7 @@ export default class PushModel {
     // Otherwise just return the map since it has everything
     // that's needed.
     const cachedMap = pick(decisionTaskIdCache, pushIds);
-    const missedIds = pushIds.filter(id => !cachedMap[id]);
+    const missedIds = pushIds.filter((id) => !cachedMap[id]);
 
     if (!missedIds.length) {
       return cachedMap;

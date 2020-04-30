@@ -28,7 +28,7 @@ export default class TestsTableControls extends React.Component {
     }
   }
 
-  updateFilterText = filterText => {
+  updateFilterText = (filterText) => {
     this.setState({ filterText }, () => this.updateFilteredResults());
   };
 
@@ -40,14 +40,14 @@ export default class TestsTableControls extends React.Component {
       return this.setState({ results: testsOverviewResults });
     }
 
-    const filteredResults = testsOverviewResults.filter(result =>
+    const filteredResults = testsOverviewResults.filter((result) =>
       this.filterResult(result),
     );
 
     this.setState({ results: filteredResults });
   };
 
-  filterResult = result => {
+  filterResult = (result) => {
     const { filterText } = this.state;
 
     if (!filterText) return true;

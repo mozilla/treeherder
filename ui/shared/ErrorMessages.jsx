@@ -31,7 +31,7 @@ class ErrorMessages extends React.PureComponent {
     const messages = errorMessages.length ? errorMessages : [failureMessage];
     return (
       <div>
-        {messages.map(message => (
+        {messages.map((message) => (
           <Alert
             color="danger"
             isOpen={visible}

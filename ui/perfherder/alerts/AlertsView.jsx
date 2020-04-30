@@ -146,14 +146,14 @@ class AlertsView extends React.Component {
     return Boolean(!this.state.id);
   };
 
-  extendDropdownOptions = frameworks => {
+  extendDropdownOptions = (frameworks) => {
     const frameworkOptions = cloneDeep(frameworks);
     const ignoreFrameworks = { id: -1, name: 'all frameworks' };
     frameworkOptions.unshift(ignoreFrameworks);
     return frameworkOptions;
   };
 
-  getParamsFromFilters = filters => {
+  getParamsFromFilters = (filters) => {
     return {
       page: 1, // default value
       ...Object.fromEntries(
@@ -184,7 +184,7 @@ class AlertsView extends React.Component {
     return totalPages.slice(page - 1, page + 4);
   };
 
-  generatePages = count => {
+  generatePages = (count) => {
     const pages = [];
     for (let num = 1; num <= count; num++) {
       pages.push(num);
@@ -211,7 +211,7 @@ class AlertsView extends React.Component {
     return params;
   };
 
-  selectNotSupportedFilters = userInput => {
+  selectNotSupportedFilters = (userInput) => {
     /* Following filters are not supported (see bug 1616215 for more details):
      * - `option`, because of technical dept, as described in bug 1616212
      * - `repository`, because it has never been enabled & the new dropdown items could falsely hint it is.
@@ -224,7 +224,9 @@ class AlertsView extends React.Component {
     const optionsCollection = Object.values(optionCollectionMap);
 
     const allNotSupportedFilters = [...repositories, ...optionsCollection];
-    return allNotSupportedFilters.filter(elem => userInputArray.includes(elem));
+    return allNotSupportedFilters.filter((elem) =>
+      userInputArray.includes(elem),
+    );
   };
 
   async fetchAlertSummaries(id = this.state.id, update = false, page = 1) {
@@ -292,7 +294,7 @@ class AlertsView extends React.Component {
       // alert summaries that's been updated based on an action taken in the AlertActionPanel
       if (update) {
         const index = alertSummaries.findIndex(
-          item => item.id === summary.results[0].id,
+          (item) => item.id === summary.results[0].id,
         );
 
         alertSummaries.splice(index, 1, summary.results[0]);
@@ -369,7 +371,7 @@ class AlertsView extends React.Component {
             fetchAlertSummaries={(id, update = true, page) =>
               this.fetchAlertSummaries(id, update, page)
             }
-            updateViewState={state => this.setState(state)}
+            updateViewState={(state) => this.setState(state)}
             setFiltersState={this.setFiltersState}
             bugTemplate={bugTemplate}
             user={user}

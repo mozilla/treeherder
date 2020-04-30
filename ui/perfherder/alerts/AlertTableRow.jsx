@@ -41,7 +41,7 @@ export default class AlertTableRow extends React.Component {
       if (!selectedAlerts.length) {
         this.setState({ checkboxSelected: false });
       } else {
-        const index = selectedAlerts.findIndex(item => item.id === alert.id);
+        const index = selectedAlerts.findIndex((item) => item.id === alert.id);
         this.setState({ checkboxSelected: index !== -1 });
       }
     }
@@ -57,9 +57,9 @@ export default class AlertTableRow extends React.Component {
     const timeRange = Math.max(
       defaultTimeRange,
       phTimeRanges
-        .map(time => time.value)
+        .map((time) => time.value)
         .find(
-          value => Date.now() / 1000.0 - alertSummary.push_timestamp <= value,
+          (value) => Date.now() / 1000.0 - alertSummary.push_timestamp <= value,
         ),
     );
     // default value of one year, for one a push_timestamp exceeds the one year value slightly
@@ -86,7 +86,7 @@ export default class AlertTableRow extends React.Component {
     this.setState(updatedStar);
   };
 
-  getReassignment = alert => {
+  getReassignment = (alert) => {
     let text = 'to';
     let alertId = alert.related_summary_id;
 
@@ -110,7 +110,7 @@ export default class AlertTableRow extends React.Component {
     const { updateSelectedAlerts, selectedAlerts, alert } = this.props;
     const { checkboxSelected } = this.state;
 
-    const index = selectedAlerts.findIndex(item => item.id === alert.id);
+    const index = selectedAlerts.findIndex((item) => item.id === alert.id);
 
     if (checkboxSelected && index === -1) {
       return updateSelectedAlerts({
@@ -195,7 +195,7 @@ export default class AlertTableRow extends React.Component {
 
   // arbitrary scale from 0-20% multiplied by 5, capped
   // at 100 (so 20% regression === 100% bad)
-  getCappedMagnitude = percent => Math.min(Math.abs(percent) * 5, 100);
+  getCappedMagnitude = (percent) => Math.min(Math.abs(percent) * 5, 100);
 
   getSubtestsURL = () => {
     const { alert, alertSummary } = this.props;

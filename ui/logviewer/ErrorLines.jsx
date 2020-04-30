@@ -9,7 +9,7 @@ export default class ErrorLines extends React.PureComponent {
       <div className="error-lines">
         <table>
           <tbody>
-            {errors.map(error => (
+            {errors.map((error) => (
               <tr
                 key={error.lineNumber}
                 onClick={() => onClickLine([error.lineNumber], true)}
