@@ -12,4 +12,5 @@ export const treeOptions = [
   'comm-esr60',
   'comm-esr68',
   'comm-releases',
+  'fenix',
 ];
