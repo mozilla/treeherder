@@ -26,7 +26,7 @@ def clean_test(action, test, signature, message):
 
     if ' == ' in clean_name or ' != ' in clean_name:
         splitter = ' == ' if ' == ' in clean_name else ' != '
-        left, right = clean_name.split(splitter)
+        left, right, *rest = clean_name.split(splitter)
 
         if 'tests/layout/' in left and 'tests/layout/' in right:
             left = 'layout%s' % left.split('tests/layout')[1]
@@ -38,6 +38,9 @@ def clean_test(action, test, signature, message):
             left = '/tests/'.join(left.split('/tests/')[1:])
             right = '/tests/'.join(right.split('/tests/')[1:])
         clean_name = "%s%s%s" % (left, splitter, right)
+
+    if 'test_end for' in clean_name:
+        clean_name = clean_name.split()[2]
 
     if 'build/tests/reftest/tests/' in clean_name:
         clean_name = clean_name.split('build/tests/reftest/tests/')[1]
