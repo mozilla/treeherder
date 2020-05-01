@@ -11,7 +11,7 @@ services:
       # cache_from: TODO
     image: treeherder-backend
     privileged: true
-    hostname: { $HOSTNAME }
+    hostname: ${HOSTNAME}
     environment:
       # Development/CI-specific environment variables only.
       # Those that do not vary across environments should go in `Dockerfile`.
