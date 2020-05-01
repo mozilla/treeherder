@@ -676,6 +676,63 @@ class Job(models.Model):
         return max(round(seconds / 60), 1)
 
 
+"""
+NOTE: You can interchange the word task (from Taskcluster) for job (from Treeherder).
+
+Terminology:
+- Originating task is the one that we select in the UI and backfill.
+- In mozci, a manifest can be spoked of as a group
+- A manifest set is the list of manifests that were executed as part of a task
+
+This block explains the conceptual model to support filtering of tasks based on the
+set of manifests that they executed. The same task on a different push can run a
+different set of manifests than the previous push. Not necessarily because the number
+of chunks changes but because the scheduling algorithm determines what is most beneficial
+to execute.
+
+This means that in order to backfill a task we will need to determine which tasks on previous
+pushes executed those manifests for that platform configuration. We need to know what set
+of manifests a task executed. This means that a task will execute a unique set of manifests,
+thus, we need to determine what manifests a task executed and we need to match which tasks on a push
+executed that list of manifests so we can schedule them.
+
+The information on what manifests got executed for which task label can be found in the manifests-by-task.json
+artifact that the Gecko decision generates. This means that we can grab that artifact once we see the artifact being
+available for that push via Pulse listening. We should also support populating the data from the command line.
+
+At the same time we can move returning test_paths as a property in the jobs API instead of calculating
+it in the UI as we currently do. In order that we keep support
+
+I'm debating between these two relationships:
+* Job -1:1-> ManifestSet -1:N-> Manifest -1:1-> TestSet -1:N-> TestPath
+* Job -1:N-> Manifest -1:N-> TestPath
+
+TODO (try to see if each top point can be landed on its own):
+- Store transformed joint data of manifests-by-task.json and tests-by-manifest.json in the proposed models
+    - https://github.com/mozilla/treeherder/blob/master/ui/job-view/pushes/Push.jsx#L39-L57
+    - Create API to expose that data (project/<repo>/<revision>/task-to-test-paths)
+        - This would not be used by the UI since the jobs endpoint would include manifest/test paths, however,
+        it is cheap to add and can be of use for some other systems
+- Script to backfill past data?
+- Jobs API to return test_paths as a property and switch UI to use that
+    - This will improve the memory usage when test_paths is used
+- Add link to the UI that will filter out tasks that run the same platform config and the same set of manifests
+    - We can take advantage of concatenating &test_paths
+    - We need to determine if we need to show tasks showing the same manifest set OR tasks that match one of the manifests
+        - I'm leaning for the latter one
+        - The question is if we want to show past tasks that cover some of the manifests from the originating task OR only
+        show tasks that have been backfilled
+    - This important to get right on the first PR to land
+    - This link should show the tasks that a backfill should trigger
+- Change behaviour of backfills to trigger tasks with the same manifest set
+    - The backfilled tasks need to run the same manifest set as the originating task
+
+Questions:
+- What taskname should be given to backfilled tasks?
+- Should backfilled tasks be grouped in their own line?
+"""
+
+
 class TaskclusterMetadata(models.Model):
     '''
     Taskcluster-specific metadata associated with a taskcluster job
