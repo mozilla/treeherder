@@ -1,6 +1,7 @@
 import logging
 import threading
 import socket
+import os
 
 import environ
 import newrelic.agent
@@ -181,6 +182,10 @@ class PushConsumer(PulseConsumer):
         message.ack()
 
 
+hostname_val = os.environ.get('HOSTNAME')
+queue_name = hostname_val if hostname_val != '' else socket.gethostname()
+
+
 class JointConsumer(PulseConsumer):
     """
     Run a collection of consumers in parallel.  These may be connected to different
@@ -188,7 +193,7 @@ class JointConsumer(PulseConsumer):
     thread, so we use multiple threads, one per consumer.
     """
 
-    queue_suffix = env("PULSE_QUEUE_NAME", default="queue_{}".format(socket.gethostname()))
+    queue_suffix = env("PULSE_QUEUE_NAME", default="{}".format(queue_name))
 
     def bindings(self):
 

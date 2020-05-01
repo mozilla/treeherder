@@ -38,6 +38,13 @@ On your localhost set PULSE_URL as follows, subsituting the url above:
 export PULSE_URL=amqp://foo:bar@pulse.mozilla.org:5671/?ssl=1
 ```
 
+In order for your pulse to be uniquely identified on Pulse Guardian, make sure you run the backend with
+environment variable as follows
+
+```bash
+docker-compose run -e HOSTNAME='hostname' backend bash
+```
+
 See [Starting a local Treeherder instance] for more info.
 
 [starting a local treeherder instance]: installation.md#starting-a-local-treeherder-instance
