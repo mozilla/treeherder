@@ -11,6 +11,7 @@ services:
       # cache_from: TODO
     image: treeherder-backend
     privileged: true
+    hostname: { $HOSTNAME }
     environment:
       # Development/CI-specific environment variables only.
       # Those that do not vary across environments should go in `Dockerfile`.
@@ -36,6 +37,8 @@ services:
     shm_size: 2g
     volumes:
       - .:/app
+      - . C:\Windows\System32\Drivers\etc\hosts
+      - . ./etc/hosts
     ports:
       - '8000:8000'
     depends_on:

@@ -4,9 +4,6 @@ FROM python:3.7.2
 # Variables that are not specific to a particular environment.
 ENV NEW_RELIC_CONFIG_FILE newrelic.ini
 
-# Set hostname
-RUN docker exec info --format '{{json .}}' | python3 -c "import sys, json; print(json.load(sys.stdin)['Name'])" > name.txt
-
 # libmysqlclient-dev and gcc are required for the mysqlclient Python package.
 # netcat is used for the MySQL readiness check in entrypoint.sh.
 RUN apt-get update && apt-get install -y --no-install-recommends \
