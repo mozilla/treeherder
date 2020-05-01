@@ -14,4 +14,4 @@ RUN yarn install
 COPY . .
 
 #Whitelist commands
-CMD ["sh", "yarn", "start", "--env.BACKEND=http://backend:8000", "--host", "0.0.0.0"]
+CMD ["sh", "yarn", "build", "start", "--env.BACKEND=http://backend:8000", "--host", "0.0.0.0"]
