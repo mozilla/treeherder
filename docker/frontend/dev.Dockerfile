@@ -2,7 +2,7 @@
 FROM node:12.14.1-alpine
 
 #Exposing the port
-EXPOSE 8000
+EXPOSE 5000
 
 #Current working directory
 WORKDIR '/app'
