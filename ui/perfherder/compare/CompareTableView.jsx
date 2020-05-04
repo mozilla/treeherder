@@ -59,7 +59,14 @@ export default class CompareTableView extends React.Component {
   }
 
   componentDidUpdate(prevProps) {
-    if (this.props.location.search !== prevProps.location.search) {
+    const { validated } = this.props;
+
+    if (
+      validated.originalProject !== prevProps.validated.originalProject ||
+      validated.originalRevision !== prevProps.validated.originalRevision ||
+      validated.newProject !== prevProps.validated.newProject ||
+      validated.newRevision !== prevProps.validated.newRevision
+    ) {
       this.getPerformanceData();
     }
   }
