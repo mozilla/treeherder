@@ -28,6 +28,7 @@
     ],
     "exclude_path": [],
     "reference_only": [
+      "performance_alert",
       "performance_signature",
       "push",
       "classified_failure",
