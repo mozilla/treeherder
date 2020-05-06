@@ -112,9 +112,9 @@ export default class AlertsViewControls extends React.Component {
           ? hasMorePages() && (
               <Row className="justify-content-center">
                 <PaginationGroup
-                  pageNums={pageNums}
+                  viewablePageNums={pageNums}
                   updateParams={validated.updateParams}
-                  page={page}
+                  currentPage={page}
                   count={count}
                   fetchData={fetchAlertSummaries}
                 />
@@ -141,9 +141,9 @@ export default class AlertsViewControls extends React.Component {
           ? hasMorePages() && (
               <Row className="justify-content-center">
                 <PaginationGroup
-                  pageNums={pageNums}
+                  viewablePageNums={pageNums}
                   updateParams={validated.updateParams}
-                  page={page}
+                  currentPage={page}
                   count={count}
                   fetchData={fetchAlertSummaries}
                 />
