@@ -2,6 +2,7 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
 import sortBy from 'lodash/sortBy';
+import { Col } from 'reactstrap';
 
 import {
   thEvents,
@@ -634,23 +635,25 @@ class Push extends React.PureComponent {
         {!collapsed ? (
           <div className="row push clearfix">
             {currentRepo && (
-              <RevisionList
-                revision={revision}
-                revisions={revisions}
-                revisionCount={revisionCount}
-                repo={currentRepo}
-                widthClass="col-5"
-              >
-                {filteredTryPush && (
-                  <div className="ml-3 mt-4">
-                    <PushHealthSummary
-                      healthStatus={pushHealthStatus}
-                      revision={revision}
-                      repoName={currentRepo.name}
-                    />
-                  </div>
-                )}
-              </RevisionList>
+              <Col className="col-5">
+                <RevisionList
+                  revision={revision}
+                  revisions={revisions}
+                  revisionCount={revisionCount}
+                  repo={currentRepo}
+                  widthClass="ml-4"
+                >
+                  {filteredTryPush && (
+                    <div className="ml-3 mt-4">
+                      <PushHealthSummary
+                        healthStatus={pushHealthStatus}
+                        revision={revision}
+                        repoName={currentRepo.name}
+                      />
+                    </div>
+                  )}
+                </RevisionList>
+              </Col>
             )}
             <span className="job-list job-list-pad col-7">
               <PushJobs

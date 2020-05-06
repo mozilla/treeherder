@@ -14,3 +14,7 @@
 .table-fixed {
   table-layout: fixed;
 }
+
+.revision {
+  font-size: 12px;
+}

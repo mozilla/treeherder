@@ -20,6 +20,7 @@ import { getJobsUrl } from '../../helpers/url';
 import PushModel from '../../models/push';
 import JobModel from '../../models/job';
 import PushHealthStatus from '../../shared/PushHealthStatus';
+import PushAuthor from '../../shared/PushAuthor';
 import { getUrlParam, setUrlParam } from '../../helpers/location';
 import { notify } from '../redux/stores/notifications';
 import { setSelectedJob } from '../redux/stores/selectedJob';
@@ -38,22 +39,6 @@ const SKIPPED_LINK_PARAMS = [
   'enddate',
   'author',
 ];
-
-function Author(props) {
-  const authorMatch = props.author.match(/<(.*?)>+/);
-  const authorEmail = authorMatch ? authorMatch[1] : props.author;
-
-  return (
-    <span title="View pushes by this user" className="push-author">
-      <a href={props.url}>{authorEmail}</a>
-    </span>
-  );
-}
-
-Author.propTypes = {
-  author: PropTypes.string.isRequired,
-  url: PropTypes.string.isRequired,
-};
 
 function PushCounts(props) {
   const { pending, running, completed, fixedByCommit } = props;
@@ -286,7 +271,7 @@ class PushHeader extends React.Component {
                 </a>{' '}
                 -{' '}
               </span>
-              <Author author={author} url={authorPushFilterUrl} />
+              <PushAuthor author={author} url={authorPushFilterUrl} />
             </span>
           </span>
           {showPushHealthStatus && (
