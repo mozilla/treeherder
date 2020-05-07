@@ -4,8 +4,7 @@ import {
   render,
   cleanup,
   fireEvent,
-  wait,
-  waitForElement,
+  waitFor,
   waitForElementToBeRemoved,
 } from '@testing-library/react';
 import { createMemoryHistory } from 'history';
@@ -167,16 +166,16 @@ test('toggle buttons should filter alert summary and alerts by selected filter',
   const hideImprovements = getByText('Hide improvements');
   const hideDownstream = getByText('Hide downstream / reassigned to / invalid');
 
-  const alertSummary1 = await waitForElement(() =>
+  const alertSummary1 = await waitFor(() =>
     getByTestId(`alert summary ${testAlertSummaries[0].id.toString()} title`),
   );
-  const alertSummary2 = await waitForElement(() =>
+  const alertSummary2 = await waitFor(() =>
     getByTestId(`alert summary ${testAlertSummaries[1].id.toString()} title`),
   );
 
   // alertSummary2's alerts
-  const alert1 = await waitForElement(() => getByTestId('69526'));
-  const alert2 = await waitForElement(() => getByTestId('69530'));
+  const alert1 = await waitFor(() => getByTestId('69526'));
+  const alert2 = await waitFor(() => getByTestId('69530'));
 
   // no filters selected
   expect(alertSummary1).toBeInTheDocument();
@@ -216,7 +215,7 @@ describe('alert filtering ignores repository and/or options', () => {
   testCases.forEach((testCase) => {
     it(testCase.toString(), async () => {
       const { getByPlaceholderText, getByText } = alertsView();
-      const alertsFilterInput = await waitForElement(() =>
+      const alertsFilterInput = await waitFor(() =>
         getByPlaceholderText(filterText.inputPlaceholder),
       );
 
@@ -242,7 +241,7 @@ describe('alert filtering ignores repository and/or options', () => {
 test('clicking the star icon for an alert updates that alert', async () => {
   const { getByTestId } = alertsViewControls();
 
-  const starIcon = await waitForElement(() => getByTestId('alert 69345 star'));
+  const starIcon = await waitFor(() => getByTestId('alert 69345 star'));
   fireEvent.click(starIcon);
 
   expect(modifyAlertSpy).toHaveBeenCalled();
@@ -268,7 +267,7 @@ test('selecting all alerts and marking them as acknowledged updates all alerts',
   expect(summaryCheckbox).toHaveProperty('checked', true);
   expect(alertCheckbox1).toHaveProperty('checked', true);
   expect(alertCheckbox2).toHaveProperty('checked', true);
-  let acknowledgeButton = await waitForElement(() => getByText('Acknowledge'));
+  let acknowledgeButton = await waitFor(() => getByText('Acknowledge'));
 
   fireEvent.click(acknowledgeButton);
 
@@ -294,7 +293,7 @@ test('selecting all alerts and marking them as acknowledged updates all alerts',
   acknowledgeButton = await waitForElementToBeRemoved(() =>
     queryByText('Acknowledge'),
   );
-  await wait(() => {
+  await waitFor(() => {
     expect(summaryCheckbox).toHaveProperty('checked', false);
     expect(alertCheckbox1).toHaveProperty('checked', false);
     expect(alertCheckbox2).toHaveProperty('checked', false);
@@ -314,7 +313,7 @@ test('selecting an alert and marking it as invalid only updates that alert', asy
   expect(alertCheckbox1).toHaveProperty('checked', true);
   expect(alertCheckbox2).toHaveProperty('checked', false);
 
-  let invalidButton = await waitForElement(() => getByText('Mark invalid'));
+  let invalidButton = await waitFor(() => getByText('Mark invalid'));
 
   fireEvent.click(invalidButton);
   // alert has been updated
@@ -332,7 +331,7 @@ test('selecting an alert and marking it as invalid only updates that alert', asy
     queryByText('Mark invalid'),
   );
 
-  await wait(() => {
+  await waitFor(() => {
     expect(alertCheckbox1).toHaveProperty('checked', false);
   });
 
@@ -358,7 +357,7 @@ test('selecting the alert summary checkbox then deselecting one alert only updat
   expect(alertCheckbox1).toHaveProperty('checked', false);
   expect(alertCheckbox2).toHaveProperty('checked', true);
 
-  let acknowledgeButton = await waitForElement(() => getByText('Acknowledge'));
+  let acknowledgeButton = await waitFor(() => getByText('Acknowledge'));
   fireEvent.click(acknowledgeButton);
 
   // only the selected alert has been updated
@@ -377,7 +376,7 @@ test('selecting the alert summary checkbox then deselecting one alert only updat
   acknowledgeButton = await waitForElementToBeRemoved(() =>
     queryByText('Acknowledge'),
   );
-  await wait(() => {
+  await waitFor(() => {
     expect(summaryCheckbox).toHaveProperty('checked', false);
     expect(alertCheckbox1).toHaveProperty('checked', false);
     expect(alertCheckbox2).toHaveProperty('checked', false);
@@ -409,7 +408,7 @@ test("'Take' button hides when clicking on 'Unassigned' badge", async () => {
     queryByPlaceholderText,
   } = alertsViewControls();
 
-  const unassignedBadge = await waitForElement(() => getByText('Unassigned'));
+  const unassignedBadge = await waitFor(() => getByText('Unassigned'));
 
   await fireEvent.click(unassignedBadge);
   expect(queryByText('Take')).not.toBeInTheDocument();
@@ -420,10 +419,10 @@ test("'Take' button hides when clicking on 'Unassigned' badge", async () => {
 test('setting an assignee on unassigned alert summary updates the badge accordingly', async () => {
   const { getByText, getByPlaceholderText } = alertsViewControls();
 
-  const unassignedBadge = await waitForElement(() => getByText('Unassigned'));
+  const unassignedBadge = await waitFor(() => getByText('Unassigned'));
 
   fireEvent.click(unassignedBadge);
-  const inputField = await waitForElement(() =>
+  const inputField = await waitFor(() =>
     getByPlaceholderText('nobody@mozilla.org'),
   );
   fireEvent.change(inputField, {
@@ -434,16 +433,16 @@ test('setting an assignee on unassigned alert summary updates the badge accordin
   fireEvent.keyPress(inputField, { key: 'Enter', keyCode: 13 });
 
   // ensure this updated the assignee
-  await waitForElement(() => getByText('test_assignee'));
+  await waitFor(() => getByText('test_assignee'));
 });
 
 test('setting an assignee on an already assigned summary is possible', async () => {
   const { getByText, getByDisplayValue } = alertsViewControls();
 
-  const unassignedBadge = await waitForElement(() => getByText('test_user'));
+  const unassignedBadge = await waitFor(() => getByText('test_user'));
 
   fireEvent.click(unassignedBadge);
-  const inputField = await waitForElement(() =>
+  const inputField = await waitFor(() =>
     getByDisplayValue('mozilla-ldap/test_user@mozilla.com'),
   );
   fireEvent.change(inputField, {
@@ -454,16 +453,16 @@ test('setting an assignee on an already assigned summary is possible', async () 
   fireEvent.keyPress(inputField, { key: 'Enter', keyCode: 13 });
 
   // ensure this updated the assignee
-  await waitForElement(() => getByText('test_another_user'));
+  await waitFor(() => getByText('test_another_user'));
 });
 
 test("'Escape' from partially editted assignee does not update original assignee", async () => {
   const { getByText, getByDisplayValue } = alertsViewControls();
 
-  const unassignedBadge = await waitForElement(() => getByText('test_user'));
+  const unassignedBadge = await waitFor(() => getByText('test_user'));
 
   fireEvent.click(unassignedBadge);
-  const inputField = await waitForElement(() =>
+  const inputField = await waitFor(() =>
     getByDisplayValue('mozilla-ldap/test_user@mozilla.com'),
   );
   fireEvent.change(inputField, {
@@ -472,7 +471,7 @@ test("'Escape' from partially editted assignee does not update original assignee
   fireEvent.keyDown(inputField, { key: 'Escape' });
 
   // ensure assignee wasn't updated
-  await waitForElement(() => getByText('test_user'));
+  await waitFor(() => getByText('test_user'));
 });
 
 test("Clicking on 'Take' prefills with logged in user", async () => {
@@ -483,17 +482,13 @@ test("Clicking on 'Take' prefills with logged in user", async () => {
   fireEvent.click(takeButton);
 
   // ensure it preffiled input field
-  await waitForElement(() =>
-    getByDisplayValue('mozilla-ldap/test_user@mozilla.com'),
-  );
+  await waitFor(() => getByDisplayValue('mozilla-ldap/test_user@mozilla.com'));
 });
 
 test('Alerts retriggered by the backfill bot have a title', async () => {
   const { queryAllByTitle } = alertsViewControls();
 
-  const titles = await waitForElement(() =>
-    queryAllByTitle(backfillRetriggeredTitle),
-  );
+  const titles = await waitFor(() => queryAllByTitle(backfillRetriggeredTitle));
   expect(titles).toHaveLength(1);
 });
 
@@ -512,7 +507,7 @@ describe('"My alerts" checkbox\'s display behaviors', () => {
   test('Displayed in Alerts view (list mode)', async () => {
     const { getByText } = alertsViewControls({ isListMode: true }); // as Django detailed view mode
 
-    const myAlertsCheckbox = await waitForElement(() => getByText('My alerts'));
+    const myAlertsCheckbox = await waitFor(() => getByText('My alerts'));
     expect(myAlertsCheckbox).toBeInTheDocument();
   });
 
@@ -528,9 +523,7 @@ describe('"My alerts" checkbox\'s display behaviors', () => {
 test('Framework name is displayed near alert summary', async () => {
   const { queryAllByText } = alertsViewControls();
 
-  const frameworkName = await waitForElement(() =>
-    queryAllByText(dummyFrameworkName),
-  );
+  const frameworkName = await waitFor(() => queryAllByText(dummyFrameworkName));
   // one summary from testAlertSummaries have one bad framework id
   expect(frameworkName).toHaveLength(testAlertSummaries.length - 1);
 });
@@ -538,7 +531,7 @@ test('Framework name is displayed near alert summary', async () => {
 test('Correct message is displayed if the framework id is invalid', async () => {
   const { queryAllByText } = alertsViewControls();
 
-  const frameworkName = await waitForElement(() =>
+  const frameworkName = await waitFor(() =>
     queryAllByText(unknownFrameworkMessage),
   );
   expect(frameworkName).toHaveLength(1);
@@ -547,12 +540,12 @@ test('Correct message is displayed if the framework id is invalid', async () => 
 test('Selecting `all` from (frameworks|projects) dropdown shows all (frameworks|projects)', async () => {
   const { queryAllByText, getByTestId } = alertsView();
 
-  const allFromDropdown = await waitForElement(() => queryAllByText(/all/));
+  const allFromDropdown = await waitFor(() => queryAllByText(/all/));
   fireEvent.click(allFromDropdown[0]);
   fireEvent.click(allFromDropdown[1]);
 
-  const alert1 = await waitForElement(() => getByTestId('69526'));
-  const alert2 = await waitForElement(() => getByTestId('69530'));
+  const alert1 = await waitFor(() => getByTestId('69526'));
+  const alert2 = await waitFor(() => getByTestId('69530'));
 
   expect(alert1).toBeInTheDocument();
   expect(alert2).toBeInTheDocument();

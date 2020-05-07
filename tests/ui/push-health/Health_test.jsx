@@ -3,7 +3,7 @@ import fetchMock from 'fetch-mock';
 import {
   render,
   cleanup,
-  waitForElement,
+  waitFor,
   getAllByTestId,
   queryAllByTestId,
 } from '@testing-library/react';
@@ -124,7 +124,7 @@ describe('Health', () => {
     );
 
     const health = render(testHealth());
-    const classificationGroups = await waitForElement(() =>
+    const classificationGroups = await waitFor(() =>
       health.getAllByTestId('classification-group'),
     );
     const needInvestigationGroups = getAllByTestId(
@@ -147,7 +147,7 @@ describe('Health', () => {
       `${window.location.origin}?repo=${repo}&revision=${revision}&searchStr=browser/extensions/`,
     );
     const health = render(testHealth());
-    const classificationGroups = await waitForElement(() =>
+    const classificationGroups = await waitFor(() =>
       health.getAllByTestId('classification-group'),
     );
 

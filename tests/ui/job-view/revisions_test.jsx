@@ -1,5 +1,5 @@
 import React from 'react';
-import { render, waitForElement } from '@testing-library/react';
+import { render, waitFor } from '@testing-library/react';
 
 import RepositoryModel from '../../../ui/models/repository';
 import { Revision, AuthorInitials } from '../../../ui/shared/Revision';
@@ -103,7 +103,7 @@ describe('Revision item component', () => {
     const { getByTitle, getByText } = render(
       <Revision repo={repo} revision={revision} />,
     );
-    const revLink = await waitForElement(() => getByText('5a110ad242ea'));
+    const revLink = await waitFor(() => getByText('5a110ad242ea'));
 
     expect(revLink.getAttribute('href')).toEqual(
       repo.getRevisionHref(revision.revision),

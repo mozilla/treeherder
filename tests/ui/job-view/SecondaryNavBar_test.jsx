@@ -1,12 +1,7 @@
 import React from 'react';
 import fetchMock from 'fetch-mock';
 import { Provider } from 'react-redux';
-import {
-  render,
-  cleanup,
-  waitForElement,
-  fireEvent,
-} from '@testing-library/react';
+import { render, cleanup, waitFor, fireEvent } from '@testing-library/react';
 import thunk from 'redux-thunk';
 import configureMockStore from 'redux-mock-store';
 
@@ -64,8 +59,8 @@ describe('SecondaryNavBar', () => {
     });
     const { getByText } = render(testSecondaryNavBar(store, new FilterModel()));
 
-    expect(await waitForElement(() => getByText(repoName))).toBeInTheDocument();
-    expect(await waitForElement(() => getByText('52'))).toBeInTheDocument();
+    expect(await waitFor(() => getByText(repoName))).toBeInTheDocument();
+    expect(await waitFor(() => getByText('52'))).toBeInTheDocument();
   });
 
   test('should 22 unclassified and 10 filtered unclassified', async () => {
@@ -78,9 +73,9 @@ describe('SecondaryNavBar', () => {
     });
     const { getByText } = render(testSecondaryNavBar(store, new FilterModel()));
 
-    expect(await waitForElement(() => getByText(repoName))).toBeInTheDocument();
-    expect(await waitForElement(() => getByText('22'))).toBeInTheDocument();
-    expect(await waitForElement(() => getByText('10'))).toBeInTheDocument();
+    expect(await waitFor(() => getByText(repoName))).toBeInTheDocument();
+    expect(await waitFor(() => getByText('22'))).toBeInTheDocument();
+    expect(await waitFor(() => getByText('10'))).toBeInTheDocument();
   });
 
   test('should call updateButtonClick, on revision changed button click', async () => {

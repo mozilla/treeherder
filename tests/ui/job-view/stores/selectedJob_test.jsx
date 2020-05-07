@@ -2,7 +2,7 @@ import React from 'react';
 import fetchMock from 'fetch-mock';
 import { Provider } from 'react-redux';
 import thunk from 'redux-thunk';
-import { render, cleanup, wait } from '@testing-library/react';
+import { render, cleanup, waitFor } from '@testing-library/react';
 import configureMockStore from 'redux-mock-store';
 import keyBy from 'lodash/keyBy';
 
@@ -105,7 +105,7 @@ describe('SelectedJob Redux store', () => {
     );
 
     expect(reduced.selectedJob).toBeUndefined();
-    await wait(() =>
+    await waitFor(() =>
       expect(notifications[0]).toEqual(
         'Selected task: VaQoWKTbSdGSwBJn6UZV9g not within current push range.',
       ),
@@ -123,7 +123,7 @@ describe('SelectedJob Redux store', () => {
     );
 
     expect(reduced.selectedJob).toBeUndefined();
-    await wait(() =>
+    await waitFor(() =>
       expect(notifications[0]).toEqual(
         'Task not found: VaQoWKTbSdGSwBJn6UZV9P, run 0',
       ),

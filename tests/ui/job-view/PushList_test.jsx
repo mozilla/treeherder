@@ -4,7 +4,7 @@ import { Provider } from 'react-redux';
 import {
   render,
   cleanup,
-  waitForElement,
+  waitFor,
   waitForElementToBeRemoved,
   fireEvent,
   getAllByTestId,
@@ -75,7 +75,7 @@ describe('PushList', () => {
     </Provider>
   );
   const pushCount = () =>
-    waitForElement(() => getAllByTestId(document.body, 'push-header'));
+    waitFor(() => getAllByTestId(document.body, 'push-header'));
 
   beforeAll(() => {
     fetchMock.get(getProjectUrl('/push/?full=true&count=10', repoName), {
@@ -151,7 +151,7 @@ describe('PushList', () => {
     expect(await pushCount()).toHaveLength(1);
 
     setUrlParam('revision', null);
-    await waitForElement(() => getByTestId(push1Id));
+    await waitFor(() => getByTestId(push1Id));
     expect(await pushCount()).toHaveLength(2);
   });
 
@@ -168,7 +168,7 @@ describe('PushList', () => {
 
     fireEvent.click(actionMenuButton);
 
-    const setBottomLink = await waitForElement(() =>
+    const setBottomLink = await waitFor(() =>
       push2.querySelector('[data-testid="bottom-of-range-menu-item"]'),
     );
 
@@ -194,7 +194,7 @@ describe('PushList', () => {
 
     fireEvent.click(actionMenuButton);
 
-    const setTopLink = await waitForElement(() =>
+    const setTopLink = await waitFor(() =>
       push1.querySelector('[data-testid="top-of-range-menu-item"]'),
     );
 
@@ -237,7 +237,7 @@ describe('PushList', () => {
     expect(await pushCount()).toHaveLength(2);
 
     clickNext(10);
-    await waitForElement(() => getByTestId('push-511135'));
+    await waitFor(() => getByTestId('push-511135'));
     expect(fetchMock.called(`begin:${nextNUrl(10)}`)).toBe(true);
     // It matters less that an actual count of 10 was returned
     // than it does that the url for 10/20/50 was called and we added
@@ -246,12 +246,12 @@ describe('PushList', () => {
     expect(await pushCount()).toHaveLength(4);
 
     clickNext(20);
-    await waitForElement(() => getAllByTestId('push-511133'));
+    await waitFor(() => getAllByTestId('push-511133'));
     expect(fetchMock.called(`begin:${nextNUrl(20)}`)).toBe(true);
     expect(await pushCount()).toHaveLength(5);
 
     clickNext(50);
-    await waitForElement(() => getAllByTestId('push-511132'));
+    await waitFor(() => getAllByTestId('push-511132'));
     expect(fetchMock.called(`begin:${nextNUrl(50)}`)).toBe(true);
     expect(await pushCount()).toHaveLength(6);
   });
@@ -259,7 +259,7 @@ describe('PushList', () => {
   test('jobs should have fields required for retriggers', async () => {
     const { store } = configureStore();
     const { getByText } = render(testPushList(store, new FilterModel()));
-    const jobEl = await waitForElement(() => getByText('yaml'));
+    const jobEl = await waitFor(() => getByText('yaml'));
     const jobInstance = findJobInstance(jobEl.getAttribute('data-job-id'));
     const { job } = jobInstance.props;
 

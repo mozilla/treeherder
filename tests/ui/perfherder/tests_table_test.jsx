@@ -1,5 +1,5 @@
 import React from 'react';
-import { render, cleanup, waitForElement } from '@testing-library/react';
+import { render, cleanup, waitFor } from '@testing-library/react';
 
 import { noResultsMessage } from '../../../ui/perfherder/constants';
 import TestsTable from '../../../ui/perfherder/tests/TestsTable';
@@ -47,7 +47,7 @@ afterEach(cleanup);
 test('Tests table with no data displays appropriate message', async () => {
   const { getByText } = testsTable();
 
-  const message = await waitForElement(() => getByText(noResultsMessage));
+  const message = await waitFor(() => getByText(noResultsMessage));
 
   expect(message).toBeInTheDocument();
 });
@@ -55,8 +55,8 @@ test('Tests table with no data displays appropriate message', async () => {
 test('Tests table should show data', async () => {
   const { getByText } = testsTable(results, projectsMap, platformsMap);
 
-  const result1 = await waitForElement(() => getByText(results[0].test));
-  const result2 = await waitForElement(() => getByText(results[1].test));
+  const result1 = await waitFor(() => getByText(results[0].test));
+  const result2 = await waitFor(() => getByText(results[1].test));
 
   expect(result1).toBeInTheDocument();
   expect(result2).toBeInTheDocument();

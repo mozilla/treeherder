@@ -1,7 +1,7 @@
 import React from 'react';
 import fetchMock from 'fetch-mock';
 import { Provider } from 'react-redux';
-import { render, cleanup, waitForElement } from '@testing-library/react';
+import { render, cleanup, waitFor } from '@testing-library/react';
 import { gzip } from 'pako';
 
 import { getProjectUrl, replaceLocation } from '../../../ui/helpers/location';
@@ -108,7 +108,7 @@ describe('Push', () => {
     const { getByText } = render(testPush(store, new FilterModel()));
 
     const validateJob = async (name, testPaths) => {
-      const jobEl = await waitForElement(() => getByText(name));
+      const jobEl = await waitFor(() => getByText(name));
       // Fetch the React instance of an object from a DOM element.
       const { props } = findInstance(jobEl);
       const { job } = props;

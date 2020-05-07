@@ -2,9 +2,8 @@ import React from 'react';
 import fetchMock from 'fetch-mock';
 import {
   render,
-  cleanup,
   fireEvent,
-  waitForElement,
+  waitFor,
   waitForElementToBeRemoved,
 } from '@testing-library/react';
 
@@ -31,65 +30,61 @@ global.document.createRange = () => ({
   },
 });
 
-describe('Filtering', () => {
-  const repoName = 'autoland';
+const repoName = 'autoland';
+const treeStatusResponse = {
+  result: {
+    message_of_the_day: '',
+    reason: '',
+    status: 'open',
+    tree: repoName,
+  },
+};
+const emptyPushResponse = {
+  results: [],
+};
 
+describe('Filtering', () => {
   beforeAll(() => {
+    window.location.hash = `#/jobs?repo=${repoName}`;
+    fetchMock.reset();
     fetchMock.get('/revision.txt', []);
     fetchMock.get(getApiUrl('/repository/'), reposFixture);
     fetchMock.get(getApiUrl('/user/'), []);
     fetchMock.get(getApiUrl('/failureclassification/'), []);
-    // ``begin:`` here will match any fetch call to an API that begins with
-    // this string.
-    fetchMock.get('begin:https://treestatus.mozilla-releng.net/trees/', {
-      result: {
-        message_of_the_day: '',
-        reason: '',
-        status: 'open',
-        tree: repoName,
-      },
-    });
+    fetchMock.get(
+      'begin:https://treestatus.mozilla-releng.net/trees/',
+      treeStatusResponse,
+    );
     fetchMock.get(
       'begin:https://firefox-ci-tc.services.mozilla.com/api/index/v1/task/gecko.v2',
       404,
     );
-
+    fetchMock.get(`begin:${getApiUrl('/jobs/')}`, jobListFixtureOne);
+    fetchMock.get(
+      `begin:${getProjectUrl(
+        '/push/?full=true&count=11&push_timestamp__lte=',
+        'autoland',
+      )}`,
+      emptyPushResponse,
+    );
     fetchMock.get(
       getProjectUrl('/push/?full=true&count=10', repoName),
       pushListFixture,
     );
-    fetchMock.get(getProjectUrl('/push/?full=true&count=10', 'try'), {
-      results: [
-        {
-          id: 111111,
-          revision: '3333333333335143b8df3f4b3e9b504dfbc589a0',
-          author: 'whozat@gmail.com',
-          revision_count: 1,
-          push_timestamp: 1562867957,
-          repository_id: 4,
-          revisions: [
-            {
-              repository_id: 4,
-              revision: '3333333333335143b8df3f4b3e9b504dfbc589a0',
-              author: 'whozat <whozat@gmail.com>',
-              comments: 'didathing',
-            },
-          ],
-        },
-      ],
-    });
-    fetchMock.get(`begin:${getApiUrl('/jobs/')}`, jobListFixtureOne);
   });
 
   afterEach(() => {
-    cleanup();
-    replaceLocation({});
+    window.location.hash = `#/jobs?repo=${repoName}`;
+  });
+
+  afterAll(() => {
+    fetchMock.reset();
   });
 
   const jobCount = () => document.querySelectorAll('.job-btn').length;
 
   describe('by author', () => {
-    beforeEach(() => {
+    beforeAll(() => {
       fetchMock.get(
         getProjectUrl('/push/?full=true&count=10&author=reviewbot', 'autoland'),
         {
@@ -118,18 +113,16 @@ describe('Filtering', () => {
     test('should have 1 push', async () => {
       const { getAllByText, getAllByTestId, getByTestId } = render(<App />);
       // wait till the ``reviewbot`` authored push is shown before filtering.
-      await waitForElement(() => getAllByText('reviewbot'));
+      await waitFor(() => getAllByText('reviewbot'));
       setUrlParam('author', 'reviewbot');
       await waitForElementToBeRemoved(() => getByTestId('push-511138'));
 
-      const filteredPushes = await waitForElement(() =>
-        getAllByTestId('push-header'),
-      );
+      const filteredPushes = await waitFor(() => getAllByTestId('push-header'));
       expect(filteredPushes).toHaveLength(1);
 
       setUrlParam('author', null);
-      await waitForElement(() => getAllByText('jarilvalenciano@gmail.com'));
-      const unFilteredPushes = await waitForElement(() =>
+      await waitFor(() => getAllByText('jarilvalenciano@gmail.com'));
+      const unFilteredPushes = await waitFor(() =>
         getAllByTestId('push-header'),
       );
       expect(unFilteredPushes).toHaveLength(10);
@@ -137,19 +130,6 @@ describe('Filtering', () => {
   });
 
   describe('by failure result', () => {
-    beforeEach(() => {
-      // polling..  Return nothing...
-      fetchMock.get(
-        `begin:${getProjectUrl(
-          '/push/?full=true&count=11&push_timestamp__lte=',
-          'autoland',
-        )}`,
-        {
-          results: [],
-        },
-      );
-    });
-
     test('should have 10 failures', async () => {
       const { getAllByText, getByTitle, findAllByText } = render(<App />);
       await findAllByText('B');
@@ -169,7 +149,7 @@ describe('Filtering', () => {
 
       // undo the filtering and make sure we see all the jobs again
       fireEvent.click(unclassifiedOnlyButton);
-      await waitForElement(() => getAllByText('yaml'));
+      await waitFor(() => getAllByText('yaml'));
       expect(jobCount()).toBe(40);
     });
   });
@@ -208,11 +188,31 @@ describe('Filtering', () => {
       );
     });
 
+    afterEach(() => {
+      replaceLocation({});
+    });
+
     const setFilterText = (filterField, text) => {
       fireEvent.click(filterField);
       fireEvent.change(filterField, { target: { value: text } });
       fireEvent.keyDown(filterField, { key: 'Enter' });
     };
+
+    test('click signature should have 10 jobs', async () => {
+      const { getByTitle, findAllByText } = render(<App />);
+      const build = await findAllByText('B');
+
+      fireEvent.mouseDown(build[0]);
+      // const details = document.querySelector('#details-panel');
+      // debug();
+      const keywordLink = await waitFor(
+        () => getByTitle('Filter jobs containing these keywords'),
+        10000,
+      );
+      expect(keywordLink.getAttribute('href')).toBe(
+        '/#/jobs?repo=autoland&selectedTaskRun=JFVlnwufR7G9tZu_pKM0dQ-0&searchStr=Gecko%2CDecision%2CTask%2Copt%2CGecko%2CDecision%2CTask%2C%28D%29',
+      );
+    });
 
     test('string "yaml" should have 10 jobs', async () => {
       const { getAllByText, findAllByText } = render(<App />);
@@ -225,22 +225,8 @@ describe('Filtering', () => {
 
       // undo the filtering and make sure we see all the jobs again
       setFilterText(filterField, null);
-      await waitForElement(() => getAllByText('B'));
+      await waitFor(() => getAllByText('B'));
       expect(jobCount()).toBe(40);
-    });
-
-    test('click signature should have 10 jobs', async () => {
-      const { getByTitle, findAllByText } = render(<App />);
-      const build = await findAllByText('B');
-
-      fireEvent.mouseDown(build[0]);
-
-      const keywordLink = await waitForElement(() =>
-        getByTitle('Filter jobs containing these keywords'),
-      );
-      expect(keywordLink.getAttribute('href')).toBe(
-        '/#/jobs?repo=autoland&selectedTaskRun=JFVlnwufR7G9tZu_pKM0dQ-0&searchStr=Gecko%2CDecision%2CTask%2Copt%2CGecko%2CDecision%2CTask%2C%28D%29',
-      );
     });
   });
 
@@ -251,6 +237,7 @@ describe('Filtering', () => {
 
     test('uncheck success should leave 30 jobs', async () => {
       const { getAllByText, findAllByText } = render(<App />);
+
       await findAllByText('B');
       clickFilterChicklet('green');
 
@@ -259,13 +246,14 @@ describe('Filtering', () => {
 
       // undo the filtering and make sure we see all the jobs again
       clickFilterChicklet('green');
-      await waitForElement(() => getAllByText('D'));
+      await waitFor(() => getAllByText('D'));
       expect(jobCount()).toBe(40);
     });
 
     test('uncheck failures should leave 20 jobs', async () => {
       const { getAllByText, findAllByText } = render(<App />);
       const symbolToRemove = 'B';
+
       await findAllByText(symbolToRemove);
       clickFilterChicklet('red');
 
@@ -274,13 +262,14 @@ describe('Filtering', () => {
 
       // undo the filtering and make sure we see all the jobs again
       clickFilterChicklet('red');
-      await waitForElement(() => getAllByText(symbolToRemove));
+      await waitFor(() => getAllByText(symbolToRemove));
       expect(jobCount()).toBe(40);
     });
 
     test('uncheck in progress should leave 20 jobs', async () => {
       const { getAllByText, findAllByText } = render(<App />);
       const symbolToRemove = 'yaml';
+
       await findAllByText('B');
       clickFilterChicklet('dkgray');
 
@@ -289,13 +278,14 @@ describe('Filtering', () => {
 
       // undo the filtering and make sure we see all the jobs again
       clickFilterChicklet('dkgray');
-      await waitForElement(() => getAllByText(symbolToRemove));
+      await waitFor(() => getAllByText(symbolToRemove));
       expect(jobCount()).toBe(40);
     });
 
     test('Filters | Reset should get back to original set of jobs', async () => {
       const { getAllByText, findAllByText, findByText } = render(<App />);
       const symbolToRemove = 'yaml';
+
       await findAllByText('B');
       clickFilterChicklet('dkgray');
 
@@ -309,7 +299,7 @@ describe('Filtering', () => {
       const resetMenuItem = await findByText('Reset');
       fireEvent.click(resetMenuItem);
 
-      await waitForElement(() => getAllByText(symbolToRemove));
+      await waitFor(() => getAllByText(symbolToRemove));
       expect(jobCount()).toBe(40);
     });
   });

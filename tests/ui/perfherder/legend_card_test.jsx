@@ -1,10 +1,5 @@
 import React from 'react';
-import {
-  cleanup,
-  fireEvent,
-  render,
-  waitForElement,
-} from '@testing-library/react';
+import { cleanup, fireEvent, render, waitFor } from '@testing-library/react';
 
 import LegendCard from '../../../ui/perfherder/graphs/LegendCard';
 import { unknownFrameworkMessage } from '../../../ui/perfherder/constants';
@@ -67,14 +62,14 @@ afterEach(cleanup);
 test('legend card displays the framework badge', async () => {
   const { queryByText } = legendCard(testData[0], testData);
 
-  const frameworkBadge = await waitForElement(() => queryByText('talos'));
+  const frameworkBadge = await waitFor(() => queryByText('talos'));
   expect(frameworkBadge).toBeInTheDocument();
 });
 
 test('legend card with incorrect framework displays the unknown framework badge message', async () => {
   const { queryByText } = legendCard(testData[1], testData);
 
-  const frameworkBadge = await waitForElement(() =>
+  const frameworkBadge = await waitFor(() =>
     queryByText(unknownFrameworkMessage),
   );
   expect(frameworkBadge).toBeInTheDocument();
@@ -84,7 +79,7 @@ test('legend card displays the application badge', async () => {
   const updateStateMock = jest.fn();
   const { queryByText } = legendCard(testData[0], testData, updateStateMock);
 
-  const applicationBtn = await waitForElement(() => queryByText('firefox'));
+  const applicationBtn = await waitFor(() => queryByText('firefox'));
   expect(applicationBtn).toBeInTheDocument();
 });
 
@@ -92,7 +87,7 @@ test('click on legend card displays the Test Data Modal', async () => {
   const updateStateMock = jest.fn();
   const { queryByText } = legendCard(testData[0], testData, updateStateMock);
 
-  const applicationBtn = await waitForElement(() => queryByText('firefox'));
+  const applicationBtn = await waitFor(() => queryByText('firefox'));
   fireEvent.click(applicationBtn);
 
   expect(updateStateMock.mock.calls).toHaveLength(1);
