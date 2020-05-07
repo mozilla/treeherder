@@ -133,7 +133,6 @@ class JobLoader:
                 "machine": self._get_machine(pulse_job),
                 "option_collection": self._get_option_collection(pulse_job),
                 "log_references": self._get_log_references(pulse_job),
-                "artifacts": self._get_artifacts(pulse_job, job_guid),
             },
             "superseded": pulse_job.get("coalesced", []),
             "revision": pulse_job["origin"]["revision"],
@@ -165,99 +164,11 @@ class JobLoader:
     def _get_job_symbol(self, job):
         return "{}{}".format(job["display"].get("jobSymbol", ""), job["display"].get("chunkId", ""))
 
-    def _get_artifacts(self, job, job_guid):
-        artifact_funcs = [self._get_job_info_artifact, self._get_text_log_summary_artifact]
-        pulse_artifacts = []
-        for artifact_func in artifact_funcs:
-            artifact = artifact_func(job, job_guid)
-            if artifact:
-                pulse_artifacts.append(artifact)
-
-        # add in any arbitrary artifacts included in the "extra" section
-        pulse_artifacts.extend(self._get_extra_artifacts(job, job_guid))
-        return pulse_artifacts
-
-    def _get_job_info_artifact(self, job, job_guid):
-        if "jobInfo" in job:
-            ji = job["jobInfo"]
-            job_details = []
-            if "links" in ji:
-                for link in ji["links"]:
-                    job_details.append(
-                        {
-                            "url": link["url"],
-                            "content_type": "link",
-                            "value": link["linkText"],
-                            "title": link["label"],
-                        }
-                    )
-
-            artifact = {
-                "blob": {"job_details": job_details},
-                "type": "json",
-                "name": "Job Info",
-                "job_guid": job_guid,
-            }
-            return artifact
-
-    def _get_text_log_summary_artifact(self, job, job_guid):
-        # We can only have one text_log_summary artifact,
-        # so pick the first log with steps to create it.
-
-        if "logs" in job:
-            for log in job["logs"]:
-                if "steps" in log:
-                    old_steps = log["steps"]
-                    new_steps = []
-
-                    for idx, step in enumerate(old_steps):
-                        errors = step.get("errors", [])
-
-                        new_steps.append(
-                            {
-                                "name": step["name"],
-                                "result": self._get_step_result(job, step["result"]),
-                                "started": step["timeStarted"],
-                                "finished": step["timeFinished"],
-                                "started_linenumber": step["lineStarted"],
-                                "finished_linenumber": step["lineFinished"],
-                                "errors": errors,
-                                "order": idx,
-                            }
-                        )
-
-                    return {
-                        "blob": {
-                            "step_data": {
-                                "steps": new_steps,
-                                "errors_truncated": log.get("errorsTruncated"),
-                            },
-                            "logurl": log["url"],
-                        },
-                        "type": "json",
-                        "name": "text_log_summary",
-                        "job_guid": job_guid,
-                    }
-
-    def _get_extra_artifacts(self, job, job_guid):
-        artifacts = []
-        if "extra" in job and "artifacts" in job["extra"]:
-            for extra_artifact in job["extra"]["artifacts"]:
-                artifact = extra_artifact
-                artifact["job_guid"] = job_guid
-                artifacts.append(artifact)
-
-        return artifacts
-
     def _get_log_references(self, job):
         log_references = []
         for logref in job.get("logs", []):
             log_references.append(
-                {
-                    "name": logref["name"],
-                    "url": logref["url"],
-                    "parse_status": "parsed" if "steps" in logref else "pending",
-                }
+                {"name": logref["name"], "url": logref["url"], "parse_status": "pending"}
             )
         log_references.extend(self._get_errorsummary_log_references(job))
         return log_references

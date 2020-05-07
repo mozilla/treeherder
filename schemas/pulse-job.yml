@@ -307,75 +307,9 @@ properties:
           type: 'string'
           minLength: 1
           maxLength: 50
-        steps:
-          type: array
-          description: |
-            This object defines what is seen in the Treeherder Log Viewer.
-            These values can be submitted here, or they will be generated
-            by Treeherder's internal log parsing process from the
-            submitted log.  If this value is submitted, Treeherder will
-            consider the log already parsed and skip parsing.
-          items:
-            title: 'Step'
-            type: object
-            properties:
-              errors:
-                type: array
-                items:
-                  title: 'Error'
-                  type: object
-                  properties:
-                    line:
-                      type: string
-                      minLength: 1
-                      maxLength: 255
-                    linenumber:
-                      type: integer
-                      minimum: 0
-                  additionalProperties: false
-              name:
-                type: string
-                minLength: 1
-                maxLength: 255
-              timeStarted:
-                type: string
-                format: date-time
-              timeFinished:
-                type: string
-                format: date-time
-              lineStarted:
-                type: integer
-                minimum: 0
-              lineFinished:
-                type: integer
-                minimum: 0
-              result:
-                type: string
-                enum:
-                  - success
-                  - fail
-                  - exception
-                  - canceled
-                  - unknown
-            required:
-              - name
-              - timeStarted
-              - lineStarted
-              - lineFinished
-              - timeFinished
-              - result
-            additionalProperties: false
-        errorsTruncated:
-          type: boolean
-          description: |
-            If true, indicates that the number of errors in the log was too
-            large and not all of those lines are indicated here.
       additionalProperties: false
       required: [url, name]
 
-  extra:
-    type: 'object'
-    description: Extra information that Treeherder reads on a best-effort basis
   version:
     type: 'integer'
     description: Message version

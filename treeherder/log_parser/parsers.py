@@ -1,7 +1,6 @@
 import json
 import logging
 import re
-from html.parser import HTMLParser
 
 import jsonschema
 from django.conf import settings
@@ -259,92 +258,6 @@ class StepParser(ParserBase):
     def current_step(self):
         """Return the current step in the artifact"""
         return self.steps[self.stepnum]
-
-
-class TinderboxPrintParser(ParserBase):
-
-    RE_TINDERBOXPRINT = re.compile(r'.*TinderboxPrint: ?(?P<line>.*)$')
-
-    RE_UPLOADED_TO = re.compile(
-        r"<a href=['\"](?P<url>http(s)?://.*)['\"]>(?P<value>.+)</a>: uploaded"
-    )
-    RE_LINK_HTML = re.compile(
-        (
-            r"((?P<title>[A-Za-z/\.0-9\-_ ]+): )?"
-            r"<a .*href=['\"](?P<url>http(s)?://.+)['\"].*>(?P<value>.+)</a>"
-        )
-    )
-    RE_LINK_TEXT = re.compile(r"((?P<title>[A-Za-z/\.0-9\-_ ]+): )?(?P<url>http(s)?://.*)")
-
-    TINDERBOX_REGEXP_TUPLE = (
-        {
-            're': RE_UPLOADED_TO,
-            'base_dict': {"content_type": "link", "title": "artifact uploaded"},
-            'duplicates_fields': {},
-        },
-        {'re': RE_LINK_HTML, 'base_dict': {"content_type": "link"}, 'duplicates_fields': {}},
-        {
-            're': RE_LINK_TEXT,
-            'base_dict': {"content_type": "link"},
-            'duplicates_fields': {'value': 'url'},
-        },
-    )
-
-    def __init__(self):
-        """Setup the artifact to hold the job details."""
-        super().__init__("job_details")
-
-    def parse_line(self, line, lineno):
-        """Parse a single line of the log"""
-        match = self.RE_TINDERBOXPRINT.match(line) if line else None
-        if match:
-            line = match.group('line')
-
-            for regexp_item in self.TINDERBOX_REGEXP_TUPLE:
-                match = regexp_item['re'].match(line)
-                if match:
-                    artifact = match.groupdict()
-                    # handle duplicate fields
-                    for to_field, from_field in regexp_item['duplicates_fields'].items():
-                        # if to_field not present or None copy form from_field
-                        if to_field not in artifact or artifact[to_field] is None:
-                            artifact[to_field] = artifact[from_field]
-                    artifact.update(regexp_item['base_dict'])
-                    self.artifact.append(artifact)
-                    return
-
-            # default case: consider it html content
-            # try to detect title/value splitting on <br/>
-            artifact = {
-                "content_type": "raw_html",
-            }
-            if "<br/>" in line:
-                title, value = line.split("<br/>", 1)
-                artifact["title"] = title
-                artifact["value"] = value
-            # or similar long lines if they contain a url
-            elif "href" in line and "title" in line:
-
-                def parse_url_line(line_data):
-                    class TpLineParser(HTMLParser):
-                        def handle_starttag(self, tag, attrs):
-                            d = dict(attrs)
-                            artifact["url"] = d['href']
-                            artifact["title"] = d['title']
-
-                        def handle_data(self, data):
-                            artifact["value"] = data
-
-                    p = TpLineParser()
-                    p.feed(line_data)
-                    p.close()
-
-                # strip ^M returns on windows lines otherwise
-                # handle_data will yield no data 'value'
-                parse_url_line(line.replace('\r', ''))
-            else:
-                artifact["value"] = line
-            self.artifact.append(artifact)
 
 
 class ErrorParser(ParserBase):
