@@ -92,7 +92,8 @@
   "constants": {
     "mo_http.http.default_headers": {
       "Referer": "https://github.com/mozilla/treeherder"
-    }
+    },
+    "jx_mysql.mysql_snowflake_extractor.DEBUG": false
   },
   "debug": {
     "trace": true,
