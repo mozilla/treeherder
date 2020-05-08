@@ -269,36 +269,26 @@ class ErrorParser(ParserBase):
         "FATAL ERROR",
         "REFTEST ERROR",
         "PROCESS-CRASH",
-        "Assertion failure:",
-        "Assertion failed:",
+        "Assertion fail",
         "###!!! ABORT:",
-        "E/GeckoLinker",
         "SUMMARY: AddressSanitizer",
-        "SUMMARY: LeakSanitizer",
         "SUMMARY: ThreadSanitizer",
         "ThreadSanitizer: nested bug",
         "Automation Error:",
         "command timed out:",
         "wget: unable ",
-        "TEST-VALGRIND-ERROR",
-        "[  FAILED  ] ",
         "bash.exe: *** ",
-        "bash: fork: Resource temporarily unavailable",
     )
 
     RE_ERR_MATCH = re.compile(
         (
-            r"^error: TEST FAILED"
-            r"|^g?make(?:\[\d+\])?: \*\*\*"
-            r"|^Remote Device Error:"
+            r"^g?make(?:\[\d+\])?: \*\*\*"
             r"|^[A-Za-z.]+Error: "
             r"|^[A-Za-z.]*Exception: "
+            r"|^\[  FAILED  \] "
             r"|^remoteFailed:"
             r"|^rm: cannot "
             r"|^abort:"
-            r"|^Output exceeded \d+ bytes"
-            r"|^The web-page 'stop build' button was pressed"
-            r"|.*\.js: line \d+, col \d+, Error -"
             r"|^\[taskcluster\] Error:"
             r"|^\[[\w._-]+:(?:error|exception)\]"
         )
@@ -317,7 +307,7 @@ class ErrorParser(ParserBase):
     RE_EXCLUDE_1_SEARCH = re.compile(r"TEST-(?:INFO|PASS) ")
 
     RE_EXCLUDE_2_SEARCH = re.compile(
-        r"I[ /](Gecko|Robocop|TestRunner).*TEST-UNEXPECTED-"
+        r"I[ /](Gecko|TestRunner).*TEST-UNEXPECTED-"
         r"|^TimeoutException: "
         r"|^ImportError: No module named pygtk$"
     )
