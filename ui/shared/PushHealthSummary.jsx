@@ -23,36 +23,38 @@ class PushHealthSummary extends PureComponent {
 
     return (
       <div>
-        <a
-          href={getPushHealthUrl({ revision, repo: repoName })}
-          title="View Push Health details for this push"
-        >
-          <div>
-            {healthStatus !== null ? (
-              <img
-                src={needInvestigation ? broken : ok}
-                alt={needInvestigation ? 'Broken' : 'OK'}
-                width={heartSize}
-                height={heartSize}
-                className="mr-1"
-              />
-            ) : (
-              <span className="ml-1 text-darker-secondary">
-                <FontAwesomeIcon
-                  icon={faHeart}
-                  height={heartSize}
+        <span className="d-flex">
+          <a
+            href={getPushHealthUrl({ revision, repo: repoName })}
+            title="View Push Health details for this push"
+          >
+            <div>
+              {healthStatus !== null ? (
+                <img
+                  src={needInvestigation ? broken : ok}
+                  alt={needInvestigation ? 'Broken' : 'OK'}
                   width={heartSize}
-                  color="darker-secondary"
+                  height={heartSize}
+                  className="mr-1"
                 />
-              </span>
-            )}
-            Push Health Summary
-            <FontAwesomeIcon
-              icon={faExternalLinkAlt}
-              className="ml-1 icon-superscript"
-            />
-          </div>
-        </a>
+              ) : (
+                <span className="ml-1 text-darker-secondary">
+                  <FontAwesomeIcon
+                    icon={faHeart}
+                    height={heartSize}
+                    width={heartSize}
+                    color="darker-secondary"
+                  />
+                </span>
+              )}
+              Push Health Summary
+              <FontAwesomeIcon
+                icon={faExternalLinkAlt}
+                className="ml-1 icon-superscript"
+              />
+            </div>
+          </a>
+        </span>
         {healthStatus ? (
           <Table className="ml-3 w-100 small-text row-height-tight">
             <tbody>
