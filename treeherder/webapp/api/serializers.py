@@ -201,19 +201,6 @@ class TextLogStepSerializer(serializers.ModelSerializer):
         exclude = ['job']
 
 
-class JobDetailSerializer(serializers.ModelSerializer):
-
-    job_id = serializers.PrimaryKeyRelatedField(source="job", read_only=True)
-
-    job_guid = serializers.SlugRelatedField(
-        slug_field="guid", source="job", queryset=models.Job.objects.all()
-    )
-
-    class Meta:
-        model = models.JobDetail
-        fields = ['job_id', 'job_guid', 'title', 'value', 'url']
-
-
 class BugJobMapSerializer(serializers.ModelSerializer):
     job_id = serializers.PrimaryKeyRelatedField(source="job", read_only=True)
 

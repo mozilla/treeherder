@@ -13,7 +13,6 @@ from treeherder.model.management.commands.cycle_data import (
 from treeherder.model.models import (
     FailureLine,
     Job,
-    JobDetail,
     JobGroup,
     JobLog,
     JobType,
@@ -49,7 +48,6 @@ def test_cycle_all_data(
     # There should be no jobs or failure lines after cycling
     assert Job.objects.count() == 0
     assert FailureLine.objects.count() == 0
-    assert JobDetail.objects.count() == 0
     assert JobLog.objects.count() == 0
 
 
@@ -80,10 +78,6 @@ def test_cycle_all_but_one_job(
             create_failure_lines(
                 job_not_deleted, [(test_line, {}), (test_line, {"subtest": "subtest2"})]
             ),
-        ),
-        'job_details': (
-            JobDetail,
-            [JobDetail.objects.create(job=job_not_deleted, title='test', value='testvalue')],
         ),
     }
 
@@ -128,7 +122,6 @@ def test_cycle_all_data_in_chunks(
     # There should be no jobs after cycling
     assert Job.objects.count() == 0
     assert FailureLine.objects.count() == 0
-    assert JobDetail.objects.count() == 0
 
 
 def test_cycle_job_model_reference_data(
