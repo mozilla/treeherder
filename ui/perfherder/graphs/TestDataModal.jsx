@@ -187,6 +187,7 @@ export default class TestDataModal extends React.Component {
 
     const responses = await Promise.all(requests);
     const relatedTests = responses
+      // eslint-disable-next-line array-callback-return
       .flatMap((item) => {
         if (!item.failureStatus) {
           return item.data;
