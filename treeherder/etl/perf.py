@@ -77,6 +77,8 @@ def _load_perf_datum(job, perf_datum):
     try:
         framework = PerformanceFramework.objects.get(name=perf_datum['framework']['name'])
     except PerformanceFramework.DoesNotExist:
+        if perf_datum['framework']['name'] == "job_resource_usage":
+            return
         logger.warning(
             "Performance framework %s does not exist, skipping " "load of performance artifacts",
             perf_datum['framework']['name'],

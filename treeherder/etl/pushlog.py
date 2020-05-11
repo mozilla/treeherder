@@ -57,7 +57,7 @@ class HgPushlogProcess:
 
         if not changeset and last_push_id:
             startid_url = "{}&startID={}".format(source_url, last_push_id)
-            logger.info(
+            logger.debug(
                 "Extracted last push for '%s', '%s', from cache, "
                 "attempting to get changes only from that point at: %s",
                 repository_name,
