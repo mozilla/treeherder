@@ -151,13 +151,9 @@ def complex_job(
         }
     )
 
-    bcf = ClassifiedFailure.objects.create(
-        **{
-            "bug_number": 1234567,
-            "created": Date("2020-01-17 12:00:00").datetime,
-            "modified": Date("2020-01-17 12:00:00").datetime,
-        }
-    )
+    bcf = ClassifiedFailure.objects.create(**{"bug_number": 1234567,})
+    bcf.created = Date("2020-01-17 12:00:00").datetime
+    bcf.save()
 
     FailureLine.objects.create(
         job_log=job_logs1,

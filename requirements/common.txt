@@ -273,8 +273,8 @@ mo-math==3.57.20089 \
 mo-sql==3.55.20074 \
     --hash=sha256:de8b700d3b1a1b687fa0f7ae44ccd3141b8cb1df3d179ce692d3756b56cc1237 \
     # via jx-bigquery, jx-mysql
-mo-testing==3.58.20089 \
-    --hash=sha256:2cd407e5a2d7a31abea93dc0e5c08f9d12e5e96d93d4658db47303d5b1ebaad1 \
+mo-testing==3.69.20133 \
+    --hash=sha256:41013890db4e84660d8a13d8f43f01cf898f0120d3c097ceacb1dfe4ed10dfa8 \
     # via -r requirements/common.in
 mo-threads==3.57.20089 \
     --hash=sha256:e7993fad18fedee21e9152f0c4ae9ff92c346f7e34c3a409e184e962dba7f5dc \
