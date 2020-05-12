@@ -85,12 +85,16 @@ export const thPlatformMap = {
   'android-4-0-armv7-api16': 'Android 4.0 API16+',
   'android-4-0-armv7-api16-beta': 'Android 4.0 API16+ Beta',
   'android-4-0-armv7-api16-release': 'Android 4.0 API16+ Release',
+  'android-4-0-armv7-api16-shippable': 'Android 4.0 API16+ Shippable',
   'android-4-0-armv7-api16-ccov': 'Android 4.0 API16+ CCov',
   'android-4-0-geckoview-fat-aar':
     'Android 4.0 API16+ GeckoView multi-arch fat AAR',
+  'android-4-0-geckoview-fat-aar-shippable':
+    'Android 4.0 API16+ Shippable GeckoView multi-arch fat AAR',
   'android-4-2-x86': 'Android 4.2 x86',
   'android-4-2-x86-beta': 'Android 4.2 x86 Beta',
   'android-4-2-x86-release': 'Android 4.2 x86 Release',
+  'android-4-2-x86-shippable': 'Android 4.2 x86 Shippable',
   'android-em-4-2-x86': 'Android 4.2 x86',
   'android-em-4-2-x86-beta': 'Android 4.2 x86 Beta',
   'android-em-4-2-x86-release': 'Android 4.2 x86 Release',
@@ -101,6 +105,7 @@ export const thPlatformMap = {
   'android-5-0-aarch64': 'Android 5.0 AArch64',
   'android-5-0-aarch64-beta': 'Android 5.0 AArch64 Beta',
   'android-5-0-aarch64-release': 'Android 5.0 AArch64 Release',
+  'android-5-0-aarch64-shippable': 'Android 5.0 AArch64 Shippable',
   'android-5-0-x86_64': 'Android 5.0 x86-64',
   'android-5-0-x86_64-beta': 'Android 5.0 x86-64 Beta',
   'android-5-0-x86_64-release': 'Android 5.0 x86-64 Release',
@@ -115,6 +120,7 @@ export const thPlatformMap = {
   'android-hw-p2-8-0-arm7-api-16': 'Android 8.0 Pixel2',
   'android-hw-p2-8-0-arm7-api-16-qr': 'Android 8.0 Pixel2 QuantumRender',
   'android-hw-p2-8-0-arm7-api-16-nightly': 'Android 8.0 Pixel2 Nightly',
+  'android-hw-p2-8-0-arm7-api-16-shippable': 'Android 8.0 Pixel2 Shippable',
   'android-hw-p2-8-0-android-aarch64': 'Android 8.0 Pixel2 AArch64',
   'android-hw-p2-8-0-android-aarch64-qr':
     'Android 8.0 Pixel2 AArch64 QuantumRender',
