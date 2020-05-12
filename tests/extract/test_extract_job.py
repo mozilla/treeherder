@@ -99,6 +99,7 @@ def test_django_cannot_encode_datetime_strings(extract_job_settings):
             list(source.query(sql_query, stream=True, row_tuples=True))
 
 
+@pytest.mark.skip("Bug 1637366 - There is timezone intermittent issues on Travis")
 def test_extract_job(complex_job, extract_job_settings, now):
     source = MySQL(extract_job_settings.source.database)
     extractor = MySqlSnowflakeExtractor(extract_job_settings.source)

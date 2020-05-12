@@ -192,7 +192,7 @@ def has_line(failure_line, log_line_list):
 
 
 def get_test_failures(push, parent_push=None):
-    logger.info('Getting test failures for push: {}'.format(push.id))
+    logger.debug('Getting test failures for push: {}'.format(push.id))
     # query for jobs for the last two weeks excluding today
     # find tests that have failed in the last 14 days
     # this is very cache-able for reuse on other pushes.
