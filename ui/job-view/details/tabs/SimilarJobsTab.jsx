@@ -64,7 +64,12 @@ class SimilarJobsTab extends React.Component {
 
     if (!failureStatus) {
       this.setState({ hasNextPage: newSimilarJobs.length > this.pageSize });
-      newSimilarJobs.pop();
+      if (this.state.hasNextPage) {
+        /* The request fetches one task more than desired to check if there are
+           more similar tasks. This last similar task doesn't get rendered for
+           this result list but only if one requests more similar jobs. */
+        newSimilarJobs.pop();
+      }
       // create an array of unique push ids
       const pushIds = [...new Set(newSimilarJobs.map((job) => job.push_id))];
       // get pushes and revisions for the given ids
