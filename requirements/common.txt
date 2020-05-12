@@ -4,10 +4,10 @@
 #
 #    pip-compile --generate-hashes --output-file=requirements/common.txt requirements/common.in
 #
-adr==0.17.10 \
-    --hash=sha256:288f8ee777b6bc6ca9e1f9b0aa6c89a97094a17cc3c58457fc03613e7789de8a \
-    --hash=sha256:2f2198d4d10ddce5f747b48feec5e4a2c61caf293d4ab7402e0fe6bcbdb4e580 \
-    # via mozci
+adr==0.18.7 \
+    --hash=sha256:08eefcb5de1b988b46860233686f227d91f8acb3d2077353d1cd952ebb572b25 \
+    --hash=sha256:93dd4f459ca440a20e6f4070aec37c175008c530769b65f581cd317a458e644c \
+    # via -r requirements/common.in, mozci
 aiohttp==3.6.2 \
     --hash=sha256:1e984191d1ec186881ffaed4581092ba04f7c61582a177b187d3a2f07ed9719e \
     --hash=sha256:259ab809ff0727d0e834ac5e8a283dc5e3e0ecc30c4d80b3cd17a4139ce1f326 \
@@ -51,6 +51,14 @@ blessings==1.7 \
     --hash=sha256:b1fdd7e7a675295630f9ae71527a8ebc10bfefa236b3d6aa4932ee4462c17ba3 \
     --hash=sha256:caad5211e7ba5afe04367cdd4cfc68fa886e2e08f6f35e76b7387d2109ccea6e \
     # via mozlog
+boto3==1.13.10 \
+    --hash=sha256:2c00bad7d049e363111d67f9eb1bdde34df0bfe4083fd8602ce1249aca691093 \
+    --hash=sha256:6d8459706a17752a98f5c8e8258b8c207189960c60da74384de81b6f68732f26 \
+    # via adr
+botocore==1.16.10 \
+    --hash=sha256:655209bd6fc0687d224e2c7fb85fa96ccfb19b8711728d490576ca70678ae404 \
+    --hash=sha256:76c3ee2e2f2d37e69e697946b24806c6686e68380599d3e6509da1b39f6dec19 \
+    # via boto3, s3transfer
 brotli==1.0.7 \
     --hash=sha256:0538dc1744fd17c314d2adc409ea7d1b779783b89fd95bcfb0c2acc93a6ea5a7 \
     --hash=sha256:0970a47f471782912d7705160b2b0a9306e68e6fadf9cffcaeb42d8f0951e26c \
@@ -172,10 +180,11 @@ djangorestframework==3.11.0 \
     --hash=sha256:05809fc66e1c997fd9a32ea5730d9f4ba28b109b9da71fccfa5ff241201fd0a4 \
     --hash=sha256:e782087823c47a26826ee5b6fa0c542968219263fb3976ec3c31edab23a4001f \
     # via -r requirements/common.in
-docutils==0.16 \
-    --hash=sha256:0c5b78adfbf7762415433f5515cd5c9e762339e23369dbe8000d84a4bf4ab3af \
-    --hash=sha256:c2de3a60e9e7d07be26b7f2b00ca0309c207e06c100f9cc2a94931fc75a478fc \
-    # via adr
+docutils==0.15.2 \
+    --hash=sha256:6c4f696463b79f1fb8ba0c594b63840ebd41f059e92b31957c46b74a4599b6d0 \
+    --hash=sha256:9e4d7ecfc600058e07ba661411a2b7de2fd0fafa17d1a7f7361cd47b1175c827 \
+    --hash=sha256:a2aeea129088da402665e92e0b25b04b073c04b2dce4ab65caaa38b7ce2e1a99 \
+    # via adr, botocore
 ecdsa==0.15 \
     --hash=sha256:867ec9cf6df0b03addc8ef66b56359643cb5d0c1dc329df76ba7ecfe256c8061 \
     --hash=sha256:8f12ac317f8a1318efa75757ef0a651abe12e51fc1af8838fb91079445227277 \
@@ -231,6 +240,10 @@ jinja2==2.11.2 \
     --hash=sha256:89aab215427ef59c34ad58735269eb58b1a5808103067f7bb9d5836c651b3bb0 \
     --hash=sha256:f0a4641d3cf955324a89c04f3d94663aa4d638abe8f733ecd3582848e1c37035 \
     # via coreschema
+jmespath==0.10.0 \
+    --hash=sha256:b85d0567b8666149a93172712e68920734333c0ce7e89b78b3e987f71e5ed4f9 \
+    --hash=sha256:cdf6525904cc597730141d61b36f2e4b8ecc257c420fa2f4549bac2c2d0cb72f \
+    # via boto3, botocore
 json-e==3.0.2 \
     --hash=sha256:35dc96ce04f0caece560dc18266af7f0ffb780955273ffa20814be65447cad49 \
     # via -r requirements/common.in, adr
@@ -340,9 +353,9 @@ mohawk==1.1.0 \
     --hash=sha256:3ed296a30453d0b724679e0fd41e4e940497f8e461a9a9c3b7f36e43bab0fa09 \
     --hash=sha256:d2a0e3ab10a209cc79e95e28f2dd54bd4a73fd1998ffe27b7ba0f962b6be9723 \
     # via taskcluster
-mozci==1.4.5 \
-    --hash=sha256:5270124f3c5b9c2c0c85a29f4d08e3a6baa85f2e57476b6620cadb1ccd0e5b3d \
-    --hash=sha256:c342e31b92ed39e239eebe9d8181506f333999b9f232c2b62263ff1b2c997fef \
+mozci==1.4.7 \
+    --hash=sha256:5b61cef421f30e57e63e2224770f1df06d9bef28cbe925d8ee2635d542e610a0 \
+    --hash=sha256:7d490223c014b64f955f0891e6c56077759cb488eae0e7640a866f4eb6ec21c7 \
     # via -r requirements/common.in
 mozlog==6.0 \
     --hash=sha256:4eb8b781525a1433f05239583051dfe19927036b0c1f450ef0ad33882284a13b \
@@ -465,7 +478,7 @@ pyrsistent==0.16.0 \
 python-dateutil==2.8.1 \
     --hash=sha256:73ebfe9dbf22e832286dafa60473e4cd239f8592f699aa5adaf10050e6e1823c \
     --hash=sha256:75bb3f31ea686f1197762692a9ee6a7550b59fc6ca3a1f4b5d7e32fb98e2da2a \
-    # via -r requirements/common.in
+    # via -r requirements/common.in, botocore
 python-jose[pycryptodome]==3.1.0 \
     --hash=sha256:1ac4caf4bfebd5a70cf5bd82702ed850db69b0b6e1d0ae7368e5f99ac01c9571 \
     --hash=sha256:8484b7fdb6962e9d242cce7680469ecf92bda95d10bbcbbeb560cacdff3abfce \
@@ -502,6 +515,10 @@ rsa==4.0 \
     --hash=sha256:14ba45700ff1ec9eeb206a2ce76b32814958a98e372006c8fb76ba820211be66 \
     --hash=sha256:1a836406405730121ae9823e19c6e806c62bbad73f890574fff50efa4122c487 \
     # via google-auth, python-jose
+s3transfer==0.3.3 \
+    --hash=sha256:2482b4259524933a022d59da830f51bd746db62f047d6eb213f2f8855dcb8a13 \
+    --hash=sha256:921a37e2aefc64145e7b73d50c71bb4f26f46e4c9f414dc648c6245ff92cf7db \
+    # via boto3
 simplejson==3.17.0 \
     --hash=sha256:0fe3994207485efb63d8f10a833ff31236ed27e3b23dadd0bf51c9900313f8f2 \
     --hash=sha256:17163e643dbf125bb552de17c826b0161c68c970335d270e174363d19e7ea882 \
@@ -540,7 +557,7 @@ taskcluster==29.1.3 \
     --hash=sha256:124b02679fb143bbdbdb8471c2c780761b1e83a690ac4880abc2540e0c93992c \
     --hash=sha256:1ac2d3fc59bbc6a804153f04df35d205343c816593fbd3945697accfa65225c4 \
     --hash=sha256:83777a374f6541f7aaf96fa6d512916a0b91dd2a154c9922ae435708add2eff7 \
-    # via -r requirements/common.in
+    # via -r requirements/common.in, adr
 terminaltables==3.1.0 \
     --hash=sha256:f3eb0eb92e3833972ac36796293ca0906e998dc3be91fbe1f8615b331b853b81 \
     # via adr
@@ -560,7 +577,7 @@ uritemplate==3.0.1 \
 urllib3==1.25.9 \
     --hash=sha256:3018294ebefce6572a474f0604c2021e33b3fd8006ecd11d62107a5d2a963527 \
     --hash=sha256:88206b0eb87e6d677d424843ac5209e3fb9d0190d0ee169599165ec25e9d9115 \
-    # via requests
+    # via botocore, requests
 vine==1.3.0 \
     --hash=sha256:133ee6d7a9016f177ddeaf191c1f58421a1dcc6ee9a42c58b34bed40e1d2cd87 \
     --hash=sha256:ea4947cc56d1fd6f2095c8d543ee25dad966f78692528e68b4fada11ba3f98af \

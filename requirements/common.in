@@ -42,4 +42,5 @@ jx-mysql
 mo-testing
 
 # Required for Push Health
-mozci
+mozci==1.4.7
+adr==0.18.7
