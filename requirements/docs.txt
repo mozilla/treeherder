@@ -7,14 +7,25 @@
 click==7.1.1 \
     --hash=sha256:8a18b4ea89d8820c5d0c7da8a64b2c324b4dabb695804dbfea19b9be9d88c0cc \
     --hash=sha256:e345d143d80bf5ee7534056164e5e112ea5e22716bbb1ce727941f4c8b471b9a \
-    # via mkdocs
+    # via mkdocs, nltk
+future==0.18.2 \
+    --hash=sha256:b1bead90b70cf6ec3f0710ae53a525360fa360d306a86583adc6bf83a4db537d \
+    # via lunr
 jinja2==2.11.1 \
     --hash=sha256:93187ffbc7808079673ef52771baa950426fd664d3aad1d0fa3e95644360e250 \
     --hash=sha256:b0eaf100007721b5c16c1fc1eecb87409464edc10469ddc9a22a27a99123be49 \
     # via mkdocs
+joblib==0.14.1 \
+    --hash=sha256:0630eea4f5664c463f23fbf5dcfc54a2bc6168902719fa8e19daf033022786c8 \
+    --hash=sha256:bdb4fd9b72915ffb49fde2229ce482dd7ae79d842ed8c2b4c932441495af1403 \
+    # via nltk
 livereload==2.6.1 \
     --hash=sha256:78d55f2c268a8823ba499305dcac64e28ddeb9a92571e12d543cd304faf5817b \
     --hash=sha256:89254f78d7529d7ea0a3417d224c34287ebfe266b05e67e51facaf82c27f0f66 \
+    # via mkdocs
+lunr[languages]==0.5.8 \
+    --hash=sha256:aab3f489c4d4fab4c1294a257a30fec397db56f0a50273218ccc3efdbf01d6ca \
+    --hash=sha256:c4fb063b98eff775dd638b3df380008ae85e6cb1d1a24d1cd81a10ef6391c26e \
     # via mkdocs
 markdown==3.2.1 \
     --hash=sha256:90fee683eeabe1a92e149f7ba74e5ccdc81cd397bd6c516d93a8da0ef90b6902 \
@@ -58,15 +69,18 @@ markupsafe==1.1.1 \
 mdx_truly_sane_lists==1.2 \
     --hash=sha256:4600ade0fbd452db8233e25d644b62f59b2798e40595ea2e1923e29bc40c5b98 \
     --hash=sha256:cc8bfa00f331403504e12377a9c94e6b40fc7db031e283316baeeeeac68f1da9 \
-    # via -r requirements/docs.in
+    # via -r docs.in
 mkdocs-material==4.6.3 \
     --hash=sha256:1d486635b03f5a2ec87325842f7b10c7ae7daa0eef76b185572eece6a6ea212c \
     --hash=sha256:7f3afa0a09c07d0b89a6a9755fdb00513aee8f0cec3538bb903325c80f66f444 \
-    # via -r requirements/docs.in
-mkdocs==1.0.4 \
-    --hash=sha256:17d34329aad75d5de604b9ed4e31df3a4d235afefdc46ce7b1964fddb2e1e939 \
-    --hash=sha256:8cc8b38325456b9e942c981a209eaeb1e9f3f77b493ad755bfef889b9c8d356a \
-    # via -r requirements/docs.in, mkdocs-material
+    # via -r docs.in
+mkdocs==1.1.1 \
+    --hash=sha256:33d5843e17ce7f21c40a31e04550eac2826697d8417c5a3f3dd50b9c3953cd04 \
+    --hash=sha256:9fe57f2631ea39ebb50571af9998004a90f010cbc9cb9f24c4237ecad7211a96 \
+    # via -r docs.in, mkdocs-material
+nltk==3.5 \
+    --hash=sha256:845365449cd8c5f9731f7cb9f8bd6fd0767553b9d53af9eb1b3abf7700936b35 \
+    # via lunr
 pygments==2.6.1 \
     --hash=sha256:647344a061c249a3b74e230c739f434d7ea4d8b1d5f3721bc0f3558049b38f44 \
     --hash=sha256:ff7a40b4860b727ab48fad6360eb351cc1b33cbf9b15a0f689ca5353e9463324 \
@@ -88,10 +102,33 @@ pyyaml==5.3 \
     --hash=sha256:e3a057b7a64f1222b56e47bcff5e4b94c4f61faac04c7c4ecb1985e18caa3994 \
     --hash=sha256:e9f45bd5b92c7974e59bcd2dcc8631a6b6cc380a904725fce7bc08872e691615 \
     # via mkdocs
+regex==2020.5.7 \
+    --hash=sha256:021a0ae4d2baeeb60a3014805a2096cb329bd6d9f30669b7ad0da51a9cb73349 \
+    --hash=sha256:04d6e948ef34d3eac133bedc0098364a9e635a7914f050edb61272d2ddae3608 \
+    --hash=sha256:099568b372bda492be09c4f291b398475587d49937c659824f891182df728cdf \
+    --hash=sha256:0ff50843535593ee93acab662663cb2f52af8e31c3f525f630f1dc6156247938 \
+    --hash=sha256:1b17bf37c2aefc4cac8436971fe6ee52542ae4225cfc7762017f7e97a63ca998 \
+    --hash=sha256:1e2255ae938a36e9bd7db3b93618796d90c07e5f64dd6a6750c55f51f8b76918 \
+    --hash=sha256:2bc6a17a7fa8afd33c02d51b6f417fc271538990297167f68a98cae1c9e5c945 \
+    --hash=sha256:3ab5e41c4ed7cd4fa426c50add2892eb0f04ae4e73162155cd668257d02259dd \
+    --hash=sha256:3b059e2476b327b9794c792c855aa05531a3f3044737e455d283c7539bd7534d \
+    --hash=sha256:4df91094ced6f53e71f695c909d9bad1cca8761d96fd9f23db12245b5521136e \
+    --hash=sha256:5493a02c1882d2acaaf17be81a3b65408ff541c922bfd002535c5f148aa29f74 \
+    --hash=sha256:5b741ecc3ad3e463d2ba32dce512b412c319993c1bb3d999be49e6092a769fb2 \
+    --hash=sha256:652ab4836cd5531d64a34403c00ada4077bb91112e8bcdae933e2eae232cf4a8 \
+    --hash=sha256:669a8d46764a09f198f2e91fc0d5acdac8e6b620376757a04682846ae28879c4 \
+    --hash=sha256:73a10404867b835f1b8a64253e4621908f0d71150eb4e97ab2e7e441b53e9451 \
+    --hash=sha256:7ce4a213a96d6c25eeae2f7d60d4dad89ac2b8134ec3e69db9bc522e2c0f9388 \
+    --hash=sha256:8127ca2bf9539d6a64d03686fd9e789e8c194fc19af49b69b081f8c7e6ecb1bc \
+    --hash=sha256:b5b5b2e95f761a88d4c93691716ce01dc55f288a153face1654f868a8034f494 \
+    --hash=sha256:b7c9f65524ff06bf70c945cd8d8d1fd90853e27ccf86026af2afb4d9a63d06b1 \
+    --hash=sha256:f7f2f4226db6acd1da228adf433c5c3792858474e49d80668ea82ac87cf74a03 \
+    --hash=sha256:fa09da4af4e5b15c0e8b4986a083f3fd159302ea115a6cc0649cd163435538b8 \
+    # via nltk
 six==1.14.0 \
     --hash=sha256:236bdbdce46e6e6a3d61a337c0f8b763ca1e8717c03b369e87a7ec7ce1319c0a \
     --hash=sha256:8f3cd2e254d8f793e7f3d6d9df77b92252b52637291d0f0da013c76ea2724b6c \
-    # via livereload
+    # via livereload, lunr
 tornado==6.0.4 \
     --hash=sha256:0fe2d45ba43b00a41cd73f8be321a44936dc1aba233dee979f17a042b83eb6dc \
     --hash=sha256:22aed82c2ea340c3771e3babc5ef220272f6fd06b5108a53b4976d0d722bcd52 \
@@ -103,6 +140,10 @@ tornado==6.0.4 \
     --hash=sha256:c952975c8ba74f546ae6de2e226ab3cc3cc11ae47baf607459a6728585bb542a \
     --hash=sha256:c98232a3ac391f5faea6821b53db8db461157baa788f5d6222a193e9456e1740 \
     # via livereload, mkdocs
+tqdm==4.46.0 \
+    --hash=sha256:4733c4a10d0f2a4d098d801464bdaf5240c7dadd2a7fde4ee93b0a0efd9fb25e \
+    --hash=sha256:acdafb20f51637ca3954150d0405ff1a7edde0ff19e38fb99a80a66210d2a28f \
+    # via nltk
 
 # WARNING: The following packages were not pinned, but pip requires them to be
 # pinned when the requirements file includes hashes. Consider using the --allow-unsafe flag.
