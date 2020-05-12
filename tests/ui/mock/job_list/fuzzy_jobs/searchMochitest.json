@@ -1,0 +1,227 @@
+[
+  {
+    "name": "test-windows7-32/opt-mochitest-remote-e10s",
+    "symbol": "remote",
+    "groupsymbol": "M"
+  },
+  {
+    "name": "test-windows7-32/opt-mochitest-remote-fis-e10s",
+    "symbol": "remote",
+    "groupsymbol": "M-fis"
+  },
+  {
+    "name": "test-linux1804-64/opt-mochitest-remote-e10s",
+    "symbol": "remote",
+    "groupsymbol": "M"
+  },
+  {
+    "name": "test-linux1804-64/opt-mochitest-remote-fis-e10s",
+    "symbol": "remote",
+    "groupsymbol": "M-fis"
+  },
+  {
+    "name": "test-windows10-64/opt-mochitest-remote-e10s",
+    "symbol": "remote",
+    "groupsymbol": "M"
+  },
+  {
+    "name": "test-windows10-64/opt-mochitest-remote-fis-e10s",
+    "symbol": "remote",
+    "groupsymbol": "M-fis"
+  },
+  {
+    "name": "test-windows7-32/debug-mochitest-remote-e10s",
+    "symbol": "remote",
+    "groupsymbol": "M"
+  },
+  {
+    "name": "test-windows7-32/debug-mochitest-remote-fis-e10s",
+    "symbol": "remote",
+    "groupsymbol": "M-fis"
+  },
+  {
+    "name": "test-linux1804-64/debug-mochitest-remote-e10s",
+    "symbol": "remote",
+    "groupsymbol": "M"
+  },
+  {
+    "name": "test-linux1804-64/debug-mochitest-remote-fis-e10s",
+    "symbol": "remote",
+    "groupsymbol": "M-fis"
+  },
+  {
+    "name": "test-windows10-64/debug-mochitest-remote-e10s",
+    "symbol": "remote",
+    "groupsymbol": "M"
+  },
+  {
+    "name": "test-windows10-64/debug-mochitest-remote-fis-e10s",
+    "symbol": "remote",
+    "groupsymbol": "M-fis"
+  },
+  {
+    "name": "test-linux1804-64-qr/opt-mochitest-remote-e10s",
+    "symbol": "remote",
+    "groupsymbol": "M"
+  },
+  {
+    "name": "test-linux1804-64-qr/opt-mochitest-remote-fis-e10s",
+    "symbol": "remote",
+    "groupsymbol": "M-fis"
+  },
+  {
+    "name": "test-macosx1014-64/debug-mochitest-remote-e10s",
+    "symbol": "remote",
+    "groupsymbol": "M"
+  },
+  {
+    "name": "test-macosx1014-64/debug-mochitest-remote-fis-e10s",
+    "symbol": "remote",
+    "groupsymbol": "M-fis"
+  },
+  {
+    "name": "test-linux1804-64-asan/opt-mochitest-remote-e10s",
+    "symbol": "remote",
+    "groupsymbol": "M"
+  },
+  {
+    "name": "test-linux1804-64-asan/opt-mochitest-remote-fis-e10s",
+    "symbol": "remote",
+    "groupsymbol": "M-fis"
+  },
+  {
+    "name": "test-linux1804-64-ccov/opt-mochitest-remote-e10s",
+    "symbol": "remote",
+    "groupsymbol": "M"
+  },
+  {
+    "name": "test-linux1804-64-ccov/opt-mochitest-remote-fis-e10s",
+    "symbol": "remote",
+    "groupsymbol": "M-fis"
+  },
+  {
+    "name": "test-linux1804-64-qr/debug-mochitest-remote-e10s",
+    "symbol": "remote",
+    "groupsymbol": "M"
+  },
+  {
+    "name": "test-linux1804-64-qr/debug-mochitest-remote-fis-e10s",
+    "symbol": "remote",
+    "groupsymbol": "M-fis"
+  },
+  {
+    "name": "test-windows10-64-asan/opt-mochitest-remote-e10s",
+    "symbol": "remote",
+    "groupsymbol": "M"
+  },
+  {
+    "name": "test-windows10-64-asan/opt-mochitest-remote-fis-e10s",
+    "symbol": "remote",
+    "groupsymbol": "M-fis"
+  },
+  {
+    "name": "test-windows10-64-ccov/opt-mochitest-remote-e10s",
+    "symbol": "remote",
+    "groupsymbol": "M"
+  },
+  {
+    "name": "test-windows10-64-ccov/opt-mochitest-remote-fis-e10s",
+    "symbol": "remote",
+    "groupsymbol": "M-fis"
+  },
+  {
+    "name": "test-macosx1014-64-ccov/opt-mochitest-remote-e10s",
+    "symbol": "remote",
+    "groupsymbol": "M"
+  },
+  {
+    "name": "test-windows7-32-shippable/opt-mochitest-remote-e10s",
+    "symbol": "remote",
+    "groupsymbol": "M"
+  },
+  {
+    "name": "test-windows7-32-shippable/opt-mochitest-remote-fis-e10s",
+    "symbol": "remote",
+    "groupsymbol": "M-fis"
+  },
+  {
+    "name": "test-linux1804-64-shippable/opt-mochitest-remote-e10s",
+    "symbol": "remote",
+    "groupsymbol": "M"
+  },
+  {
+    "name": "test-linux1804-64-shippable/opt-mochitest-remote-fis-e10s",
+    "symbol": "remote",
+    "groupsymbol": "M-fis"
+  },
+  {
+    "name": "test-windows10-64-shippable/opt-mochitest-remote-e10s",
+    "symbol": "remote",
+    "groupsymbol": "M"
+  },
+  {
+    "name": "test-windows10-64-shippable/opt-mochitest-remote-fis-e10s",
+    "symbol": "remote",
+    "groupsymbol": "M-fis"
+  },
+  {
+    "name": "test-macosx1014-64-shippable/opt-mochitest-remote-e10s",
+    "symbol": "remote",
+    "groupsymbol": "M"
+  },
+  {
+    "name": "test-macosx1014-64-shippable/opt-mochitest-remote-fis-e10s",
+    "symbol": "remote",
+    "groupsymbol": "M-fis"
+  },
+  {
+    "name": "source-test-python-mochitest-harness-linux1804-64-asan/opt",
+    "symbol": "mch",
+    "groupsymbol": "py2"
+  },
+  {
+    "name": "source-test-python-mochitest-harness-linux1804-64/debug",
+    "symbol": "mch",
+    "groupsymbol": "py2"
+  },
+  {
+    "name": "source-test-python-mochitest-harness-linux1804-64/opt",
+    "symbol": "mch",
+    "groupsymbol": "py2"
+  },
+  {
+    "name": "test-linux1804-64-shippable-qr/opt-mochitest-remote-e10s",
+    "symbol": "remote",
+    "groupsymbol": "M"
+  },
+  {
+    "name": "test-linux1804-64-shippable-qr/opt-mochitest-remote-fis-e10s",
+    "symbol": "remote",
+    "groupsymbol": "M-fis"
+  },
+  {
+    "name": "test-windows7-32/opt-mochitest-a11y-1proc",
+    "symbol": "a11y",
+    "groupsymbol": "M-1proc"
+  },
+  {
+    "name": "test-windows7-32/opt-mochitest-browser-chrome-e10s-1",
+    "symbol": "bc1",
+    "groupsymbol": "M"
+  },
+  {
+    "name": "test-windows7-32/opt-mochitest-browser-chrome-e10s-2",
+    "symbol": "bc2",
+    "groupsymbol": "M"
+  },
+  {
+    "name": "test-windows7-32/opt-mochitest-browser-chrome-e10s-3",
+    "symbol": "bc3",
+    "groupsymbol": "M"
+  },
+  {
+    "name": "iris-content_scroll-windows10-64-shippable/opt",
+    "symbol": "cs",
+    "groupsymbol": "iris"
+  }
+]
