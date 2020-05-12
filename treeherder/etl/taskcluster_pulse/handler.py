@@ -132,7 +132,7 @@ async def handleMessage(message, taskDefinition=None):
         if envs["MOBILE_BASE_REPOSITORY"] == "https://github.com/mozilla-mobile/android-components":
             # Ignore tasks that are associated to a pull request
             if envs["MOBILE_BASE_REPOSITORY"] != envs["MOBILE_HEAD_REPOSITORY"]:
-                logger.info("Task: %s belong to a pull request which we ignore.", taskId)
+                logger.debug("Task: %s belong to a pull request which we ignore.", taskId)
                 return jobs
             # Bug 1587542 - Temporary change to ignore Github tasks not associated to 'master'
             if envs["MOBILE_HEAD_REF"] != "refs/heads/master":
