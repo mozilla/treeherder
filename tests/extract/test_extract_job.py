@@ -1,5 +1,7 @@
 import pytest
 from django.db.models import Q
+from mo_dots import listwrap
+
 from jx_base.expressions import NULL
 from jx_mysql.mysql import MySQL
 from jx_mysql.mysql_snowflake_extractor import MySqlSnowflakeExtractor
@@ -99,7 +101,6 @@ def test_django_cannot_encode_datetime_strings(extract_job_settings):
             list(source.query(sql_query, stream=True, row_tuples=True))
 
 
-@pytest.mark.skip("Bug 1637366 - There is timezone intermittent issues on Travis")
 def test_extract_job(complex_job, extract_job_settings, now):
     source = MySQL(extract_job_settings.source.database)
     extractor = MySqlSnowflakeExtractor(extract_job_settings.source)
@@ -112,14 +113,21 @@ def test_extract_job(complex_job, extract_job_settings, now):
 
     doc = acc[0]
     doc.guid = complex_job.guid
-    doc.last_modified = complex_job.last_modified
 
     assertAlmostEqual(
-        acc, JOB, places=3
-    )  # TH MIXES LOCAL TIMEZONE WITH GMT: https://bugzilla.mozilla.org/show_bug.cgi?id=1612603
+        acc,
+        JOB,
+        places=4,  # TH MIXES LOCAL TIMEZONE WITH GMT: https://bugzilla.mozilla.org/show_bug.cgi?id=1612603
+    )
 
 
 EXTRACT_JOB_SQL = (File(__file__).parent / "test_extract_job.sql").read()
 
 JOB = (File(__file__).parent / "test_extract_job.json").read_json()
 JOB.job_group.description = NULL  # EXPECTING NOTHING
+
+for j in JOB:
+    j.last_modified = Date.now()
+    for l in listwrap(j.job_log):
+        for f in listwrap(l.failure_line):
+            f.best_classification.modified = Date.now()

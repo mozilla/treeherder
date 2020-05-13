@@ -267,14 +267,14 @@ mo-kwargs==3.54.20059 \
 mo-logs==3.66.20113 \
     --hash=sha256:49d99312f35e84db47e48897b3d61e4abc1c6419868025eab827c3f57ff53480 \
     # via jx-bigquery, jx-mysql, jx-python, mo-collections, mo-files, mo-http, mo-json, mo-json-config, mo-kwargs, mo-math, mo-sql, mo-testing, mo-threads, mo-times
-mo-math==3.57.20089 \
-    --hash=sha256:e2880178fb9ebeb6bda5a2e62d36f2fa0c47a3cfcf73b4269e116954d26e75d5 \
+mo-math==3.69.20133 \
+    --hash=sha256:2d54ee7c8790166a45ce1400b2312b35ac1cd1ad2c16d4b88d84a6603ba291c3 \
     # via jx-mysql, jx-python, mo-testing, mo-times
 mo-sql==3.55.20074 \
     --hash=sha256:de8b700d3b1a1b687fa0f7ae44ccd3141b8cb1df3d179ce692d3756b56cc1237 \
     # via jx-bigquery, jx-mysql
-mo-testing==3.58.20089 \
-    --hash=sha256:2cd407e5a2d7a31abea93dc0e5c08f9d12e5e96d93d4658db47303d5b1ebaad1 \
+mo-testing==3.69.20133 \
+    --hash=sha256:41013890db4e84660d8a13d8f43f01cf898f0120d3c097ceacb1dfe4ed10dfa8 \
     # via -r requirements/common.in
 mo-threads==3.57.20089 \
     --hash=sha256:e7993fad18fedee21e9152f0c4ae9ff92c346f7e34c3a409e184e962dba7f5dc \

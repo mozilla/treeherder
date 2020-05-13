@@ -12,8 +12,7 @@
     "show_foreign_keys": false,
     "null_values": ["-", "unknown", ""],
     "add_relations": [
-      "job.option_collection_hash -> option_collection.option_collection_hash",
-      "text_log_error.step_id -> text_log_step.id"
+      "job.option_collection_hash -> option_collection.option_collection_hash"
     ],
     "name_relations": {
       "job\\.option_collection_hash -> option_collection\\.option_collection_hash": "options"
