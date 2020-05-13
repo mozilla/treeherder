@@ -3,7 +3,7 @@ import jsone from 'json-e';
 import { Auth, Hooks, slugid } from 'taskcluster-client-web';
 import { satisfiesExpression } from 'taskcluster-lib-scopes';
 
-import taskcluster, { tcCredentialsMessage } from '../helpers/taskcluster';
+import taskcluster from '../helpers/taskcluster';
 import { checkRootUrl } from '../taskcluster-auth-callback/constants';
 
 export default class TaskclusterModel {
@@ -35,7 +35,7 @@ export default class TaskclusterModel {
       staticActionVariables,
     );
     const rootUrl = checkRootUrl(currentRepo.tc_root_url);
-    const queue = taskcluster.getQueue(rootUrl, testMode);
+    const queue = await taskcluster.getQueue(rootUrl, testMode);
 
     if (action.kind === 'task') {
       const actionTaskId = slugid();
@@ -55,12 +55,10 @@ export default class TaskclusterModel {
       const { hookId, hookGroupId } = action;
       const auth = new Auth({ rootUrl });
 
-      const userCredentials = testMode
+      const userCredentials = await (testMode
         ? taskcluster.getMockCredentials()
-        : taskcluster.getCredentials(currentRepo.tc_root_url);
-      if (!userCredentials) {
-        throw new Error(tcCredentialsMessage);
-      }
+        : taskcluster.getCredentials(currentRepo.tc_root_url));
+
       const hooks = new Hooks({
         rootUrl,
         credentials: userCredentials.credentials,
@@ -88,7 +86,8 @@ export default class TaskclusterModel {
       throw Error("No decision task, can't find taskcluster actions");
     }
     const rootUrl = checkRootUrl(currentRepo.tc_root_url);
-    const queue = taskcluster.getQueue(rootUrl, testMode);
+    const queue = await taskcluster.getQueue(rootUrl, testMode);
+
     const actionsUrl = queue.buildUrl(
       queue.getLatestArtifact,
       decisionTaskID,
@@ -98,9 +97,10 @@ export default class TaskclusterModel {
 
     let originalTaskId;
     let originalTaskPromise = Promise.resolve(null);
+
     if (job) {
       originalTaskId = job.task_id;
-      const queue = taskcluster.getQueue(rootUrl, testMode);
+      const queue = await taskcluster.getQueue(rootUrl, testMode);
       originalTaskPromise = queue.task(originalTaskId);
     }
 
