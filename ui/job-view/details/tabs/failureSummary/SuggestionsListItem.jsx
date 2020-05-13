@@ -45,21 +45,23 @@ export default class SuggestionsListItem extends React.Component {
           ))}
         </ul>,
       );
-    }
 
-    // All other bugs
-    if (suggestion.valid_all_others && suggestion.valid_open_recent) {
-      suggestions.push(
-        <Button
-          key="show-hide-more"
-          color="link"
-          rel="noopener"
-          onClick={this.clickShowMore}
-          className="show-hide-more"
-        >
-          Show / Hide more
-        </Button>,
-      );
+      // All other bugs
+      if (suggestion.valid_all_others) {
+        suggestions.push(
+          <Button
+            key="show-hide-more"
+            color="link"
+            rel="noopener"
+            onClick={this.clickShowMore}
+            className="bg-light px-2 py-1 btn btn-outline-secondary btn-xs show-hide-more"
+          >
+            {suggestionShowMore
+              ? 'Hide bug suggestions'
+              : 'Show more bug suggestions'}
+          </Button>,
+        );
+      }
     }
 
     if (
@@ -94,7 +96,14 @@ export default class SuggestionsListItem extends React.Component {
       );
     }
 
-    return suggestions;
+    return suggestions.length > 0 ? (
+      <div className="failure-summary-bugs-container">
+        <h4 className="failure-summary-bugs-title">
+          These bugs may be related:
+        </h4>
+        {suggestions}
+      </div>
+    ) : null;
   }
 
   render() {
@@ -104,7 +113,7 @@ export default class SuggestionsListItem extends React.Component {
       <li>
         <div>
           <Button
-            className="bg-light py-1 px-2"
+            className="bg-light py-1 px-2 failure-btn-file-bug"
             outline
             size="xs"
             onClick={() => toggleBugFiler(suggestion)}
