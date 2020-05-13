@@ -14,7 +14,7 @@ import { faStar as faStarRegular } from '@fortawesome/free-regular-svg-icons';
 import { createQueryParams } from '../../helpers/url';
 import { getStatus, getGraphsURL, modifyAlert, formatNumber } from '../helpers';
 import SimpleTooltip from '../../shared/SimpleTooltip';
-import ProgressBar from '../ProgressBar';
+import ProgressBar from '../../shared/ProgressBar';
 import {
   alertStatusMap,
   backfillRetriggeredTitle,

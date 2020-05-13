@@ -10,7 +10,7 @@ import {
 
 import SimpleTooltip from '../../shared/SimpleTooltip';
 import { displayNumber, formatNumber, getHashBasedId } from '../helpers';
-import ProgressBar from '../ProgressBar';
+import ProgressBar from '../../shared/ProgressBar';
 import { hashFunction } from '../../helpers/utils';
 
 import TableAverage from './TableAverage';

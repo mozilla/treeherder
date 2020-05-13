@@ -7,8 +7,8 @@ import { getData } from '../../helpers/http';
 import { createApiUrl, parseQueryParams } from '../../helpers/url';
 import { endpoints } from '../constants';
 import LoadingSpinner from '../../shared/LoadingSpinner';
+import RevisionInformation from '../../shared/RevisionInformation';
 
-import RevisionInformation from './RevisionInformation';
 import ReplicatesGraph from './ReplicatesGraph';
 
 export default class CompareSubtestDistributionView extends React.Component {
