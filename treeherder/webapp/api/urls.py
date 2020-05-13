@@ -9,6 +9,7 @@ from treeherder.webapp.api import (
     bugzilla,
     changelog,
     csp_report,
+    infra_compare,
     intermittents_view,
     job_log_url,
     jobs,
@@ -143,6 +144,7 @@ urlpatterns = [
     url(r'^failures/$', intermittents_view.Failures.as_view(), name='failures'),
     url(r'^failuresbybug/$', intermittents_view.FailuresByBug.as_view(), name='failures-by-bug'),
     url(r'^failurecount/$', intermittents_view.FailureCount.as_view(), name='failure-count'),
+    url(r'^infracompare/$', infra_compare.InfraCompareView.as_view(), name='infra-compare'),
     url(
         r'^performance/summary/$',
         performance_data.PerformanceSummary.as_view(),
