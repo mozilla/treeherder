@@ -86,5 +86,13 @@
       "name": "mobile",
       "description": "Repositories for https://github.com/mozilla-mobile"
     }
+  },
+  {
+    "pk": 12,
+    "model": "model.repositorygroup",
+    "fields": {
+      "name": "kaios",
+      "description": "Repositories for KaiOS integration"
+    }
   }
 ]

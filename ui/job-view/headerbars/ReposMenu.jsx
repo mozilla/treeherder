@@ -20,6 +20,7 @@ const GROUP_ORDER = [
   'ci',
   'servo',
   'mobile',
+  'kaios',
   'other',
 ];
 
