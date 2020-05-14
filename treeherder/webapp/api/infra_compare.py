@@ -3,7 +3,7 @@ import logging
 import time
 
 from rest_framework import generics
-from django.db.models import F, CharField, Value
+from django.db.models import F
 from treeherder.model import models
 
 from .infra_serializers import InfraCompareSerializer, InfraCompareQuerySerializers
