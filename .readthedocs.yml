@@ -2,6 +2,6 @@
 version: 2
 python:
   install:
-    - requirements: requirements/docs.txt
+    - requirements: docs/requirement.txt
 mkdocs:
   configuration: mkdocs.yml

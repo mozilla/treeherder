@@ -63,6 +63,7 @@ jobs:
         - pip install tox
       script:
         - tox
+        - tox -e docs
 
     # Run Python tests inside of the Docker containers
     - language: shell

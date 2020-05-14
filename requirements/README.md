@@ -12,6 +12,5 @@ When you want to upgrade (be sure to run from main treeherder directory, than th
 
     pip-compile --upgrade --generate-hashes --output-file requirements/common.txt requirements/common.in
     pip-compile --upgrade --generate-hashes --output-file requirements/dev.txt requirements/dev.in
-    pip-compile --upgrade --generate-hashes --output-file requirements/docs.txt requirements/docs.in
 
 > [see pip-tools for more information](https://pypi.org/project/pip-tools/)
