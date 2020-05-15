@@ -1,7 +1,13 @@
 # https://docs.readthedocs.io/en/latest/config-file/index.html
 version: 2
+build:
+  image: latest
 python:
+  version: 3.7
   install:
-    - requirements: docs/requirement.txt
+    - method: pip
+      path: .
+      extra_requirements:
+        - docs
 mkdocs:
   configuration: mkdocs.yml

@@ -32,3 +32,6 @@ coverage.xml
 
 # Ignore tox installation
 .tox
+
+# Docs generation
+docs.egg-info
