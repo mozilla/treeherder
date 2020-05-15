@@ -86,13 +86,6 @@ services:
     ports:
       - '6379:6379'
 
-  rcli:
-    image: redis:latest
-    links:
-      - redis
-    command: >
-      sh -c 'redis-cli -h redis '
-
   rabbitmq:
     container_name: rabbitmq
     # https://hub.docker.com/r/library/rabbitmq/
