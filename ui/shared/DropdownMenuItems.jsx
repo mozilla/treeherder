@@ -31,15 +31,13 @@ const DropdownMenuItems = ({
   <DropdownMenu className="overflow-auto dropdown-menu-height">
     {/* Items pinned to top of dropdown */}
     {pinned.length > 0 &&
-      pinned.map(item =>
+      pinned.map((item) =>
         createDropdownItem(item, namespace, updateData, selectedItem),
       )}
     {pinned.length > 0 && <DropdownItem divider />}
-    {options
-      .filter(item => !pinned.includes(item))
-      .map(item =>
-        createDropdownItem(item, namespace, updateData, selectedItem),
-      )}
+    {options.map((item) =>
+      createDropdownItem(item, namespace, updateData, selectedItem),
+    )}
   </DropdownMenu>
 );
 
