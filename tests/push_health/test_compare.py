@@ -1,13 +1,9 @@
 import pytest
 import datetime
 import responses
-from mozci.push import Push as MozciPush
-
-from django.core.cache import cache
 
 from treeherder.model.models import Push, Repository
 from treeherder.push_health.compare import get_commit_history
-from tests.sampledata import SampleData
 
 test_revision = '4c45a777949168d16c03a4cba167678b7ab65f76'
 parent_revision = 'abcdef77949168d16c03a4cba167678b7ab65f76'
@@ -83,65 +79,3 @@ def test_get_commit_history(test_push, test_repository, mock_rev, mock_json_push
     assert history['parentSha'] == parent_revision
     assert history['parentPushRevision'] == parent_revision
     assert history['parentRepository']['name'] == autoland.name
-
-
-@responses.activate
-def test_cache():
-    responses.add(
-        responses.GET,
-        'https://hg.mozilla.org/integration/autoland/rev/45a2a78d3222606728b0c2317c063ecc497fdbae?style=json',
-        json=SampleData.get_push_health_data('hg_push_response.json'),
-        content_type='application/json',
-        status=200,
-    )
-    responses.add(
-        responses.GET,
-        'https://hg.mozilla.org/integration/autoland/json-automationrelevance/45a2a78d3222606728b0c2317c063ecc497fdbae',
-        json=SampleData.get_push_health_data('hg_json_automationrel_resp.json'),
-        content_type='application/json',
-        status=200,
-    )
-    responses.add(
-        responses.GET,
-        'https://hg.mozilla.org/integration/autoland/json-pushes?version=2&startID=115754&endID=115755',
-        json=SampleData.get_push_health_data('hg_json_pushes_resp.json'),
-        content_type='application/json',
-        status=200,
-    )
-    responses.add(
-        responses.GET,
-        'https://hg.mozilla.org/integration/autoland/json-automationrelevance/b441940d4c70defd161c56bdee00c41137157df8',
-        json=SampleData.get_push_health_data('hg_json_automationrel_2_resp.json'),
-        content_type='application/json',
-        status=200,
-    )
-    responses.add(
-        responses.GET,
-        'https://hg.mozilla.org/integration/autoland/json-pushes?version=2&startID=115755&endID=115756',
-        json=SampleData.get_push_health_data('hg_json_pushes_2_resp.json'),
-        content_type='application/json',
-        status=200,
-    )
-    responses.add(
-        responses.GET,
-        'https://hg.mozilla.org/integration/autoland/json-automationrelevance/044d633844c58d981cfdac102e0cbe0da79423fa',
-        json=SampleData.get_push_health_data('hg_json_automationrel_3_resp.json'),
-        content_type='application/json',
-        status=200,
-    )
-    responses.add(
-        responses.GET,
-        'https://hg.mozilla.org/integration/autoland/json-pushes?version=2&startID=115756&endID=115757',
-        json=SampleData.get_push_health_data('hg_json_pushes_3_resp.json'),
-        content_type='application/json',
-        status=200,
-    )
-    responses.add(
-        responses.GET,
-        'https://hg.mozilla.org/integration/autoland/json-automationrelevance/484a76158f166b437f66832d9b975235236b5e84',
-        json=SampleData.get_push_health_data('hg_json_pushes_3_resp.json'),
-        content_type='application/json',
-        status=200,
-    )
-    MozciPush('45a2a78d3222606728b0c2317c063ecc497fdbae').get_regressions('label')
-    assert cache.get('foo') == 'bar'
