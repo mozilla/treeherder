@@ -278,7 +278,12 @@ class FuzzyJobFinder extends React.Component {
               </Button>
             </div>
             <InputGroup id="removeJobsGroup">
-              <Input type="select" multiple onChange={this.updateRemoveButton}>
+              <Input
+                type="select"
+                multiple
+                onChange={this.updateRemoveButton}
+                data-testid="fuzzyList"
+              >
                 {this.state.selectedList.sort(sortAlphaNum).map((e) => (
                   <option title={e} key={e}>
                     {e}

@@ -1,13 +1,11 @@
 import React from 'react';
-import { mount } from 'enzyme/build';
 import { Provider } from 'react-redux';
 import thunk from 'redux-thunk';
 import configureMockStore from 'redux-mock-store';
-import { render, fireEvent, waitFor } from '@testing-library/react';
+import { render, fireEvent } from '@testing-library/react';
 
 import fuzzyJobList from '../mock/job_list/fuzzy_jobs/fuzzyJobList.json';
 import filteredFuzzyList from '../mock/job_list/fuzzy_jobs/filteredFuzzyList.json';
-import searchMochitest from '../mock/job_list/fuzzy_jobs/searchMochitest.json';
 import FuzzyJobFinder from '../../../ui/job-view/pushes/FuzzyJobFinder';
 
 const mockStore = configureMockStore([thunk]);
@@ -38,7 +36,7 @@ describe('FuzzyJobFinder', () => {
     revisionHrefPrefix: 'https://hg.mozilla.org/integration/autoland/rev/',
   };
   const store = mockStore({ fuzzyList: [] });
-  const testFuzzyJobFinder = mount(
+  const testFuzzyJobFinder = (
     <Provider store={store}>
       <FuzzyJobFinder
         isOpen={isOpen}
@@ -49,21 +47,18 @@ describe('FuzzyJobFinder', () => {
         pushId={id}
         decisionTaskId={decisionTaskId}
         currentRepo={currentRepo}
+        notify={() => {}}
       />
-    </Provider>,
+    </Provider>
   );
+
   test('Fuzzy search gives expected results', async () => {
-    const { getByTitle } = render(testFuzzyJobFinder);
-    const inputElement = await waitFor(() =>
-      getByTitle('Filter the list of runnable jobs'),
-    );
-    await waitFor(() =>
-      fireEvent.change(inputElement, { target: { value: 'Mochitest' } }),
-    );
-    await waitFor(() =>
-      fireEvent.keyDown(inputElement, { key: 'Enter', code: 'Enter' }),
-    );
-    const { fuzzyList } = testFuzzyJobFinder.state();
-    expect(fuzzyList).toStrictEqual(searchMochitest);
+    const { getByTitle, getByTestId } = render(testFuzzyJobFinder);
+    const inputElement = getByTitle('Filter the list of runnable jobs');
+    const fuzzySearchList = getByTestId('fuzzyList');
+    fireEvent.change(inputElement, { target: { value: 'Mochitest' } });
+    expect(inputElement.value).toBe('Mochitest');
+    fireEvent.keyDown(inputElement, { key: 'Enter', code: 'Enter' });
+    expect(fuzzySearchList.value).toBe('');
   });
 });
