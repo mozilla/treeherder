@@ -229,7 +229,10 @@ class FuzzyJobFinder extends React.Component {
                 </Label>
               </Col>
             </FormGroup>
-            <h4> Runnable Jobs [{this.state.fuzzyList.length}]</h4>
+            <h4 data-testid="number">
+              {' '}
+              Runnable Jobs [{this.state.fuzzyList.length}]
+            </h4>
             <div className="fuzzybuttons">
               <Button
                 onClick={this.addJobs}
@@ -244,7 +247,12 @@ class FuzzyJobFinder extends React.Component {
               </Button>
             </div>
             <InputGroup id="addJobsGroup">
-              <Input type="select" multiple onChange={this.updateAddButton}>
+              <Input
+                type="select"
+                multiple
+                onChange={this.updateAddButton}
+                data-testid="fuzzyList"
+              >
                 {this.state.fuzzyList.sort(sortAlphaNum).map((e) => (
                   <option
                     title={`${e.name} - ${e.groupsymbol}(${e.symbol})`}
@@ -278,12 +286,7 @@ class FuzzyJobFinder extends React.Component {
               </Button>
             </div>
             <InputGroup id="removeJobsGroup">
-              <Input
-                type="select"
-                multiple
-                onChange={this.updateRemoveButton}
-                data-testid="fuzzyList"
-              >
+              <Input type="select" multiple onChange={this.updateRemoveButton}>
                 {this.state.selectedList.sort(sortAlphaNum).map((e) => (
                   <option title={e} key={e}>
                     {e}

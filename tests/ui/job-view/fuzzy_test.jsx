@@ -2,7 +2,7 @@ import React from 'react';
 import { Provider } from 'react-redux';
 import thunk from 'redux-thunk';
 import configureMockStore from 'redux-mock-store';
-import { render, fireEvent } from '@testing-library/react';
+import { render, fireEvent, waitFor } from '@testing-library/react';
 
 import fuzzyJobList from '../mock/job_list/fuzzy_jobs/fuzzyJobList.json';
 import filteredFuzzyList from '../mock/job_list/fuzzy_jobs/filteredFuzzyList.json';
@@ -53,12 +53,24 @@ describe('FuzzyJobFinder', () => {
   );
 
   test('Fuzzy search gives expected results', async () => {
-    const { getByTitle, getByTestId } = render(testFuzzyJobFinder);
+    const { getByTitle, getByTestId } = await render(testFuzzyJobFinder);
     const inputElement = getByTitle('Filter the list of runnable jobs');
+    const number = getByTestId('number');
     const fuzzySearchList = getByTestId('fuzzyList');
+
+    expect(number).toHaveTextContent('Runnable Jobs [');
+    expect(fuzzyJobList).toHaveLength(60);
+    expect(fuzzySearchList.type).toBe('select-multiple');
+
     fireEvent.change(inputElement, { target: { value: 'Mochitest' } });
+
     expect(inputElement.value).toBe('Mochitest');
-    fireEvent.keyDown(inputElement, { key: 'Enter', code: 'Enter' });
+
+    await fireEvent.keyDown(inputElement, { key: 'Enter', code: 'Enter' });
+
+    expect(number).toHaveTextContent('Runnable Jobs [');
+
+    waitFor(() => expect(inputElement).toBeTruthy());
     expect(fuzzySearchList.value).toBe('');
   });
 });
