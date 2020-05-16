@@ -560,11 +560,7 @@ export const getStatus = (statusNum, statusMap = summaryStatusMap) => {
 };
 
 export const containsText = (string, text) => {
-  const words = text
-    .split(' ')
-    .map((word) => `(?=.*${word})`)
-    .join('');
-  const regex = RegExp(words, 'gi');
+  const regex = RegExp(text, 'gi');
   return regex.test(string);
 };
 
