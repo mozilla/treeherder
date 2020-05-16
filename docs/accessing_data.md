@@ -133,7 +133,8 @@ someone from the Treeherder team [grant access to the read-only replica].
 
 You should be given the credentials in [connection URL format].
 
-Once you have the connection URL pointing to the MySQL replica, please provide it in the `.env` local file.
+Once you have the connection URL pointing to the MySQL replica, please create a local
+`.env` in the root of the project and assign the URL to a variable there.
 It should look something like this:
 
 ```bash
