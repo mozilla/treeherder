@@ -229,10 +229,7 @@ class FuzzyJobFinder extends React.Component {
                 </Label>
               </Col>
             </FormGroup>
-            <h4 data-testid="number">
-              {' '}
-              Runnable Jobs [{this.state.fuzzyList.length}]
-            </h4>
+            <h4> Runnable Jobs [{this.state.fuzzyList.length}]</h4>
             <div className="fuzzybuttons">
               <Button
                 onClick={this.addJobs}
