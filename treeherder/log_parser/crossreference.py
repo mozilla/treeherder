@@ -28,7 +28,7 @@ def crossreference_job(job):
     except IntegrityError:
         job.autoclassify_status = Job.FAILED
         job.save(update_fields=['autoclassify_status'])
-        logger.warning("IntegrityError crossreferencing error lines for job %s", job.id)
+        logger.info("IntegrityError crossreferencing error lines for job %s", job.id)
         return False
 
     job.autoclassify_status = Job.CROSSREFERENCED
@@ -64,7 +64,7 @@ def _crossreference(job):
         # We can have a line without a pattern at the end if the log is truncated
         if failure_line is None:
             break
-        logger.warning(
+        logger.info(
             "Crossreference %s: Failed to match structured line '%s' to an unstructured line",
             job.id,
             repr_str,
@@ -102,7 +102,7 @@ def failure_line_summary(formatter, failure_line):
     try:
         mozlog_func = getattr(formatter, action)
     except AttributeError:
-        logger.warning('Unknown mozlog function "%s"', action)
+        logger.info('Unknown mozlog function "%s"', action)
         return
 
     formatted_log = mozlog_func(failure_line.to_mozlog_format())

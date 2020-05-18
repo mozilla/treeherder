@@ -39,11 +39,11 @@ def match_errors(job, matchers=None):
     # error lines even in jobs marked as passing.
 
     if job.autoclassify_status < Job.CROSSREFERENCED:
-        logger.error("Tried to autoclassify job %i without crossreferenced error lines", job.id)
+        logger.info("Tried to autoclassify job %i without crossreferenced error lines", job.id)
         return
 
     if job.autoclassify_status == Job.AUTOCLASSIFIED:
-        logger.error("Tried to autoclassify job %i which was already autoclassified", job.id)
+        logger.info("Tried to autoclassify job %i which was already autoclassified", job.id)
         return
 
     if job.result not in ["testfailed", "busted", "exception"]:
@@ -80,7 +80,7 @@ def match_errors(job, matchers=None):
 
         create_note(job, all_matched)
     except Exception:
-        logger.error("Autoclassification of job %s failed", job.id)
+        logger.info("Autoclassification of job %s failed", job.id)
         job.autoclassify_status = Job.FAILED
         raise
     else:
