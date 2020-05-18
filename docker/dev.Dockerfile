@@ -41,4 +41,3 @@ WORKDIR /app
 # (given that dev.txt is not installed on Heroku)
 RUN pip install --no-cache-dir --disable-pip-version-check --require-hashes -r requirements/common.txt
 RUN pip install --no-cache-dir --disable-pip-version-check --require-hashes -r requirements/dev.txt
-RUN pip install --no-cache-dir --disable-pip-version-check -r requirements/docs.txt

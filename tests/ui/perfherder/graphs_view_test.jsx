@@ -5,6 +5,7 @@ import {
   fireEvent,
   waitForElement,
   waitFor,
+  waitForElementToBeRemoved,
 } from '@testing-library/react';
 import fetchMock from 'fetch-mock';
 import queryString from 'query-string';
@@ -98,7 +99,7 @@ const graphsViewControls = (data = testData, hasNoData = true) =>
 
 afterEach(cleanup);
 
-test('Changing the platform dropdown in the Test Data Model displays expected tests', async () => {
+test('Changing the platform dropdown in the Test Data Modal displays expected tests', async () => {
   const { getByText, queryByTestId, getByTitle } = graphsViewControls();
 
   fireEvent.click(getByText('Add test data'));
@@ -258,6 +259,50 @@ test('InputFilter from TestDataModal can filter by application name', async () =
 
   expect(selectedTests.children).toHaveLength(1);
   expect(selectedTests.children[0].text).toBe(fullTestName);
+});
+
+test('Changing the platform dropdown while filtered by text in the Test Data Modal displays expected tests', async () => {
+  mockShowModal.mockClear();
+  const {
+    getByText,
+    getByPlaceholderText,
+    getByTitle,
+    getByTestId,
+  } = graphsViewControls();
+
+  fireEvent.click(getByText('Add test data'));
+
+  const textInput = await waitFor(() =>
+    getByPlaceholderText(filterText.inputPlaceholder),
+  );
+  setFilterText(textInput, 'a11yr opt e10s stylo');
+
+  // This text is narrowing down the results and we have to make sure at least one
+  // of the tests that don't fit are removed
+  await waitForElementToBeRemoved(
+    await waitFor(() => getByTitle('about_preferences_basic opt e10s stylo')),
+  );
+  let presentTests = await waitFor(() => getByTestId('tests'));
+  const linuxTest = await waitFor(() => getByTitle('a11yr opt e10s stylo'));
+
+  expect(presentTests.children).toHaveLength(1);
+  expect(linuxTest).toBeInTheDocument();
+
+  const platform = getByTitle('Platform');
+  fireEvent.click(platform);
+
+  const windowsPlatform = await waitFor(() => getByText('windows7-32'));
+  fireEvent.click(windowsPlatform);
+
+  // linux64 (default platform of the modal) and windows7-32 (the platform below)
+  // have this test so we need to make sure the test is first removed before being
+  // added back
+  await waitForElementToBeRemoved(linuxTest);
+  presentTests = await waitFor(() => getByTestId('tests'));
+  const windowsTest = await waitFor(() => getByTitle('a11yr opt e10s stylo'));
+
+  expect(presentTests.children).toHaveLength(1);
+  expect(windowsTest).toBeInTheDocument();
 });
 
 describe('Mocked API calls', () => {

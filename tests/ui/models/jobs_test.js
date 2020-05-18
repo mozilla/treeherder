@@ -44,7 +44,6 @@ describe('JobModel', () => {
   });
 
   describe('Taskcluster actions', () => {
-    // TODO change to firefox-ci
     const rootUrl = 'https://firefox-ci-tc.services.mozilla.com';
     const decisionTaskMap = {
       '526443': { id: 'LVTawdmFR2-uJiWWS2NxSw', run: '0' },
@@ -99,6 +98,7 @@ describe('JobModel', () => {
         decisionTaskMap,
         true,
       );
+      await fetchMock.flush();
 
       expect(fetchMock.called(decisionTaskMapUrl)).toBe(false);
       expect(fetchMock.called(tcTaskUrl)).toBe(false);
@@ -107,6 +107,7 @@ describe('JobModel', () => {
 
     test('retrigger calls for decision task when not passed-in', async () => {
       await JobModel.retrigger(testJobs, currentRepo, notify, 1, null, true);
+      await fetchMock.flush();
 
       expect(fetchMock.called(decisionTaskMapUrl)).toBe(true);
       expect(fetchMock.called(tcTaskUrl)).toBe(false);

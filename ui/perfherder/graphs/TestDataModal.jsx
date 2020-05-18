@@ -218,6 +218,7 @@ export default class TestDataModal extends React.Component {
       includeSubtests,
       errorMessages,
       repository_name: repositoryName,
+      filterText,
     } = this.state;
     const { timeRange, getSeriesData, testData } = this.props;
 
@@ -237,6 +238,9 @@ export default class TestDataModal extends React.Component {
         testData,
       );
       this.setState(updates);
+      if (filterText) {
+        await this.updateFilterText(filterText);
+      }
       return;
     }
 
@@ -249,6 +253,10 @@ export default class TestDataModal extends React.Component {
       this.addRelatedBranches(params);
     } else if (option === 'addRelatedApplications') {
       this.addRelatedApplications(params);
+    }
+
+    if (filterText) {
+      await this.updateFilterText(filterText);
     }
   };
 

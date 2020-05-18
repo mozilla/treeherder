@@ -1561,5 +1561,33 @@
       "description": "A collection of Android libraries to build browsers or browser-like applications.",
       "tc_root_url": "https://firefox-ci-tc.services.mozilla.com"
     }
+  },
+  {
+    "pk": 112,
+    "model": "model.repository",
+    "fields": {
+      "dvcs_type": "hg",
+      "name": "kaios",
+      "url": "https://hg.mozilla.org/projects/kaios",
+      "active_status": "active",
+      "codebase": "kaios",
+      "repository_group": 12,
+      "description": "",
+      "tc_root_url": "https://firefox-ci-tc.services.mozilla.com"
+    }
+  },
+  {
+    "pk": 113,
+    "model": "model.repository",
+    "fields": {
+      "dvcs_type": "hg",
+      "name": "kaios-try",
+      "url": "https://hg.mozilla.org/projects/kaios-try",
+      "active_status": "active",
+      "codebase": "kaios",
+      "repository_group": 12,
+      "description": "",
+      "tc_root_url": "https://firefox-ci-tc.services.mozilla.com"
+    }
   }
 ]
