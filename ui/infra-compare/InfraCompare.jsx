@@ -68,10 +68,13 @@ class InfraCompareView extends React.PureComponent {
         (job) => job.job_type__name.replace(/-\d+$/, '') === jobName,
       );
       const cmap = getCounterMap(jobName, oldResults, newResults);
-      if (cmap.isEmpty) {
-        return;
+      if (!cmap.isEmpty) {
+        if (compareResults.has(cmap.platform)) {
+          compareResults.get(cmap.platform).push(cmap);
+        } else {
+          compareResults.set(cmap.platform, [cmap]);
+        }
       }
-      compareResults.set(jobName, [cmap]);
     });
     compareResults = new Map([...compareResults.entries()].sort());
     const updates = { compareResults, loading: false };

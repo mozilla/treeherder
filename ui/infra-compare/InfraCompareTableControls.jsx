@@ -13,31 +13,20 @@ export default class InfraCompareTableControls extends React.Component {
   }
 
   render() {
-    const {
-      user,
-      isBaseAggregate,
-      notify,
-      onPermalinkClick,
-      projects,
-      history,
-      compareResults,
-    } = this.props;
+    const { user, history, compareResults } = this.props;
 
     return (
       <Container fluid className="my-3 px-0">
         {compareResults.size > 0 ? (
-          Array.from(compareResults).map(([testName, data]) => (
-            <InfraCompareTable
-              key={testName}
-              data={data}
-              testName={testName}
-              onPermalinkClick={onPermalinkClick}
-              user={user}
-              isBaseAggregate={isBaseAggregate}
-              notify={notify}
-              projects={projects}
-              history={history}
-            />
+          Array.from(compareResults).map(([platform, data]) => (
+            <React.Fragment>
+              <InfraCompareTable
+                key={platform}
+                data={data}
+                user={user}
+                history={history}
+              />
+            </React.Fragment>
           ))
         ) : (
           <p className="lead text-center">No results to show</p>
@@ -50,16 +39,12 @@ export default class InfraCompareTableControls extends React.Component {
 InfraCompareTableControls.propTypes = {
   compareResults: PropTypes.shape({}).isRequired,
   user: PropTypes.shape({}).isRequired,
-  isBaseAggregate: PropTypes.bool.isRequired,
-  notify: PropTypes.func.isRequired,
-  projects: PropTypes.arrayOf(PropTypes.shape({})).isRequired,
   validated: PropTypes.shape({
     showOnlyImportant: PropTypes.string,
     showOnlyComparable: PropTypes.string,
     showOnlyConfident: PropTypes.string,
     showOnlyNoise: PropTypes.string,
   }),
-  onPermalinkClick: PropTypes.func,
 };
 
 InfraCompareTableControls.defaultProps = {
@@ -69,5 +54,4 @@ InfraCompareTableControls.defaultProps = {
     showOnlyConfident: undefined,
     showOnlyNoise: undefined,
   },
-  onPermalinkClick,
 };

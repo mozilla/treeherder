@@ -14,12 +14,11 @@ export default class InfraCompareTableRow extends React.PureComponent {
   };
 
   render() {
-    const { testName, rowLevelResults } = this.props;
-
+    const { rowLevelResults } = this.props;
     return (
       <React.Fragment>
         <tr>
-          <th className="text-left">Average Run time</th>
+          <th className="text-left">{rowLevelResults.suite}</th>
           <td>{rowLevelResults.originalValue}</td>
           <td>
             {rowLevelResults.originalValue < rowLevelResults.newValue && (
@@ -30,23 +29,6 @@ export default class InfraCompareTableRow extends React.PureComponent {
             )}
           </td>
           <td>{rowLevelResults.newValue}</td>
-          <td>{rowLevelResults.delta}</td>
-          {rowLevelResults.delta ? (
-            <ProgressBar
-              magnitude={rowLevelResults.magnitude}
-              regression={!rowLevelResults.newIsBetter}
-              color={this.getColorClass(rowLevelResults, 'bar')}
-            />
-          ) : null}
-        </tr>
-        <tr
-          id={testName}
-          aria-label="Comparison table row"
-          ref={(el) => {
-            this.rowTitle = el;
-          }}
-        >
-          <th className="text-left">Failures</th>
           <td>{rowLevelResults.originalFailures}</td>
           <td>
             {rowLevelResults.originalFailures < rowLevelResults.newFailures && (
@@ -57,37 +39,6 @@ export default class InfraCompareTableRow extends React.PureComponent {
             )}
           </td>
           <td>{rowLevelResults.newFailures}</td>
-          <td>{rowLevelResults.failureDelta}</td>
-          {rowLevelResults.failureDelta ? (
-            <ProgressBar
-              magnitude={rowLevelResults.failureDelta}
-              color={this.getColorClass(rowLevelResults, 'bar')}
-            />
-          ) : null}
-        </tr>
-        <tr
-          id={testName}
-          aria-label="Comparison table row"
-          ref={(el) => {
-            this.rowTitle = el;
-          }}
-        >
-          <th className="text-left">Failures Average Duration</th>
-          <td>{rowLevelResults.originalFailureAvgRunTime}</td>
-          <td>
-            {rowLevelResults.originalFailureAvgRunTime <
-              rowLevelResults.newFailureAvgRunTime && <span>&lt;</span>}
-            {rowLevelResults.originalFailureAvgRunTime >
-              rowLevelResults.newFailureAvgRunTime && <span>&gt;</span>}
-          </td>
-          <td>{rowLevelResults.newFailureAvgRunTime}</td>
-          <td>{rowLevelResults.failureRunTimeDelta}</td>
-          {rowLevelResults.failureRunTimeDelta ? (
-            <ProgressBar
-              magnitude={rowLevelResults.failureRuntimeMagnitude}
-              color={this.getColorClass(rowLevelResults, 'bar')}
-            />
-          ) : null}
         </tr>
       </React.Fragment>
     );
