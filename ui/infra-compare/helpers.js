@@ -44,14 +44,16 @@ export const getCounterMap = function getCounterMap(
   }
   if (originalData) {
     const orig = analyzeSet(originalData);
-    cmap.originalValue = orig.totalDurationAvg;
+    cmap.originalValue = Math.round(orig.totalDurationAvg);
     cmap.originalFailures = orig.failures;
+    cmap.originalDataPoints = originalData.length;
   }
 
   if (newData) {
     const newd = analyzeSet(newData);
-    cmap.newValue = newd.totalDurationAvg;
+    cmap.newValue = Math.round(newd.totalDurationAvg);
     cmap.newFailures = newd.failures;
+    cmap.newDataPoints = newData.length;
   }
 
   return cmap;

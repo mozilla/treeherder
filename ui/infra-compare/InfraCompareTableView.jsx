@@ -11,7 +11,7 @@ import LoadingSpinner from '../shared/LoadingSpinner';
 import RevisionInformation from '../shared/RevisionInformation';
 import ComparePageTitle from '../shared/ComparePageTitle';
 
-import InfraCompareTableControls from './InfraCompareTableControls';
+import InfraCompareTable from './InfraCompareTable';
 import { compareDefaultTimeRange, endpoints, phTimeRanges } from './constants';
 
 export default class InfraCompareTableView extends React.Component {
@@ -142,7 +142,6 @@ export default class InfraCompareTableView extends React.Component {
       pageTitle,
     } = this.props.validated;
 
-    const { projects } = this.props;
     const {
       compareResults,
       loading,
@@ -212,14 +211,17 @@ export default class InfraCompareTableView extends React.Component {
                 </Row>
               )}
 
-              <InfraCompareTableControls
-                {...this.props}
-                dropdownOptions={compareDropdowns}
-                updateState={(state) => this.setState(state)}
-                compareResults={compareResults}
-                isBaseAggregate={!originalRevision}
-                projects={projects}
-              />
+              <Container fluid className="my-3 px-0">
+                {compareResults.size > 0 ? (
+                  Array.from(compareResults).map(([platform, data]) => (
+                    <React.Fragment>
+                      <InfraCompareTable key={platform} data={data} />
+                    </React.Fragment>
+                  ))
+                ) : (
+                  <p className="lead text-center">No results to show</p>
+                )}
+              </Container>
             </div>
           </React.Fragment>
         </ErrorBoundary>
@@ -240,15 +242,10 @@ InfraCompareTableView.propTypes = {
     updateParams: PropTypes.func.isRequired,
   }),
   user: PropTypes.shape({}).isRequired,
-  dateRangeOptions: PropTypes.oneOfType([PropTypes.shape({}), PropTypes.bool]),
   getDisplayResults: PropTypes.func.isRequired,
   getQueryParams: PropTypes.func.isRequired,
-  projects: PropTypes.arrayOf(PropTypes.shape({})).isRequired,
-  hasSubtests: PropTypes.bool,
 };
 
 InfraCompareTableView.defaultProps = {
-  dateRangeOptions: null,
   validated: PropTypes.shape({}),
-  hasSubtests: false,
 };

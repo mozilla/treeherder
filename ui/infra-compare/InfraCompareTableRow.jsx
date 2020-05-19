@@ -1,8 +1,6 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 
-import ProgressBar from '../shared/ProgressBar';
-
 export default class InfraCompareTableRow extends React.PureComponent {
   getColorClass = (data, type) => {
     const { className, isRegression, isImprovement } = data;
@@ -39,6 +37,14 @@ export default class InfraCompareTableRow extends React.PureComponent {
             )}
           </td>
           <td>{rowLevelResults.newFailures}</td>
+          <td>{rowLevelResults.originalDataPoints}</td>
+          <td>
+            {rowLevelResults.originalDataPoints <
+              rowLevelResults.newDataPoints && <span>&lt;</span>}
+            {rowLevelResults.originalDataPoints >
+              rowLevelResults.newDataPoints && <span>&gt;</span>}
+          </td>
+          <td>{rowLevelResults.newDataPoints}</td>
         </tr>
       </React.Fragment>
     );
@@ -46,5 +52,7 @@ export default class InfraCompareTableRow extends React.PureComponent {
 }
 
 InfraCompareTableRow.propTypes = {
-  testName: PropTypes.string.isRequired,
+  compareResults: PropTypes.shape({}).isRequired,
+  user: PropTypes.shape({}).isRequired,
+  rowLevelResults: PropTypes.shape({}).isRequired,
 };
