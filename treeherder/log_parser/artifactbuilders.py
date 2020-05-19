@@ -1,6 +1,6 @@
 import logging
 
-from .parsers import PerformanceParser, StepParser
+from .parsers import PerformanceParser, ErrorParser
 
 logger = logging.getLogger(__name__)
 
@@ -67,7 +67,7 @@ class BuildbotLogViewArtifactBuilder(ArtifactBuilderBase):
     def __init__(self, url=None):
         """Construct artifact builder for the log viewer"""
         super().__init__(url)
-        self.parser = StepParser()
+        self.parser = ErrorParser()
         self.name = "text_log_summary"
 
 
