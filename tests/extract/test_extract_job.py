@@ -46,6 +46,9 @@ def test_make_job(complex_job, extract_job_settings):
 def test_extract_job_sql(extract_job_settings, transactional_db):
     """
     VERIFY SQL OVER DATABASE
+
+    If you find this test failing, then replace the contents of test_extract_job.sql with the contents of the `sql`
+    variable below. You can then review the resulting diff.
     """
     extractor = MySqlSnowflakeExtractor(extract_job_settings.source)
     sql = extractor.get_sql(SQL("SELECT 0"))
@@ -102,6 +105,10 @@ def test_django_cannot_encode_datetime_strings(extract_job_settings):
 
 
 def test_extract_job(complex_job, extract_job_settings, now):
+    """
+    If you find this test failing, then copy the JSON in the test failure into the test_extract_job.json file,
+    then you may use the diff to review the changes.
+    """
     source = MySQL(extract_job_settings.source.database)
     extractor = MySqlSnowflakeExtractor(extract_job_settings.source)
     sql = extractor.get_sql(SQL("SELECT " + text(complex_job.id) + " as id"))

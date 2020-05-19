@@ -10,6 +10,11 @@ from treeherder.perf.models import PerformanceAlert, PerformanceAlertSummary
 
 
 def test_extract_alert_sql(extract_alert_settings, test_perf_alert_summary, test_perf_alert):
+    """
+    If you find this test failing, then replace the contents of test_extract_alerts.sql with the contents of the `sql`
+    variable below. You can then review the resulting diff.
+    """
+
     p = test_perf_alert
     s2 = PerformanceAlertSummary.objects.create(
         id=2,
@@ -33,6 +38,10 @@ def test_extract_alert_sql(extract_alert_settings, test_perf_alert_summary, test
 
 
 def test_extract_alert(extract_alert_settings, test_perf_alert_summary, test_perf_alert):
+    """
+    If you find this test failing, then copy the JSON in the test failure into the test_extract_alerts.json file,
+    then you may use the diff to review the changes.
+    """
     now = datetime.datetime.now()
     source = MySQL(extract_alert_settings.source.database)
     extractor = MySqlSnowflakeExtractor(extract_alert_settings.source)
