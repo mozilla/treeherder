@@ -36,7 +36,9 @@ def test_store_job_with_unparsed_log(
         'job': {
             'job_guid': job_guid,
             'state': 'completed',
-            'log_references': [{'url': log_url, 'name': 'builds-4h', 'parse_status': 'pending'}],
+            'log_references': [
+                {'url': log_url, 'name': 'live_backing_log', 'parse_status': 'pending'}
+            ],
         },
     }
     store_job_data(test_repository, [job_data])
@@ -75,7 +77,9 @@ def test_store_job_pending_to_completed_with_unparsed_log(
         'job': {
             'job_guid': job_guid,
             'state': 'completed',
-            'log_references': [{'url': log_url, 'name': 'builds-4h', 'parse_status': 'pending'}],
+            'log_references': [
+                {'url': log_url, 'name': 'live_backing_log', 'parse_status': 'pending'}
+            ],
         },
     }
     store_job_data(test_repository, [job_data])

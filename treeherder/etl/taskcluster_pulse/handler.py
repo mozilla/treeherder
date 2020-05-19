@@ -65,7 +65,7 @@ def createLogReference(root_url, taskId, runId):
     ).format(taskId=taskId, runId=runId)
     return {
         # XXX: This is a magical name see 1147958 which enables the log viewer.
-        "name": "builds-4h",
+        "name": "live_backing_log",
         "url": logUrl,
     }
 

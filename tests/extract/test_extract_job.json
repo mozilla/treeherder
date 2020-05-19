@@ -18,7 +18,7 @@
     },
     "job_log": [
       {
-        "name": "builds-4h",
+        "name": "live_backing_log",
         "status": 1,
         "url": "https://example.com/api/queue/v1/task/WWb9ExAvQUa78ku0DIxdSQ/runs/0/artifacts/public/logs/live_backing.log"
       },

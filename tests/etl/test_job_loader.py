@@ -134,7 +134,7 @@ def test_ingest_pulse_jobs(
     assert job_logs.count() == 2
     logs_expected = [
         {
-            "name": "builds-4h",
+            "name": "live_backing_log",
             "url": "http://ftp.mozilla.org/pub/mozilla.org/spidermonkey/tinderbox-builds/mozilla-inbound-linux64/mozilla-inbound_linux64_spidermonkey-warnaserr-bm57-build1-build352.txt.gz",
             "parse_status": 0,
         },

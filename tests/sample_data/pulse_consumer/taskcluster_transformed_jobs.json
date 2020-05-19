@@ -411,7 +411,7 @@
       "job_symbol": "tp6-7",
       "log_references": [
         {
-          "name": "builds-4h",
+          "name": "live_backing_log",
           "parse_status": "pending",
           "url": "https://queue.taskcluster.net/v1/task/B3EheQ-IQ5aPzw34KS_a6g/runs/0/artifacts/public/logs/live_backing.log"
         }
@@ -960,7 +960,7 @@
       "job_symbol": "mda1",
       "log_references": [
         {
-          "name": "builds-4h",
+          "name": "live_backing_log",
           "parse_status": "pending",
           "url": "https://queue.taskcluster.net/v1/task/ENXQRjSMRWyWK_zAEYEoXg/runs/0/artifacts/public/logs/live_backing.log"
         }
@@ -1257,7 +1257,7 @@
       "job_symbol": "1",
       "log_references": [
         {
-          "name": "builds-4h",
+          "name": "live_backing_log",
           "parse_status": "pending",
           "url": "https://queue.taskcluster.net/v1/task/GWxTc8p_RUa5_Xo4RtMiCA/runs/0/artifacts/public/logs/live_backing.log"
         }
@@ -1301,7 +1301,7 @@
       "job_symbol": "mda1",
       "log_references": [
         {
-          "name": "builds-4h",
+          "name": "live_backing_log",
           "parse_status": "pending",
           "url": "https://queue.taskcluster.net/v1/task/HsvD9YlDQKaoP4AQsuGeJw/runs/0/artifacts/public/logs/live_backing.log"
         }
@@ -1489,7 +1489,7 @@
       "job_symbol": "gl1c",
       "log_references": [
         {
-          "name": "builds-4h",
+          "name": "live_backing_log",
           "parse_status": "pending",
           "url": "https://queue.taskcluster.net/v1/task/KYZKwkbvRc-qPE22g286yQ/runs/0/artifacts/public/logs/live_backing.log"
         }
@@ -1570,7 +1570,7 @@
       "job_symbol": "bc8",
       "log_references": [
         {
-          "name": "builds-4h",
+          "name": "live_backing_log",
           "parse_status": "pending",
           "url": "https://queue.taskcluster.net/v1/task/LBJoI2wUTNCteg-5CnaYZQ/runs/0/artifacts/public/logs/live_backing.log"
         }
@@ -1651,7 +1651,7 @@
       "job_symbol": "gl2e4",
       "log_references": [
         {
-          "name": "builds-4h",
+          "name": "live_backing_log",
           "parse_status": "pending",
           "url": "https://queue.taskcluster.net/v1/task/MrYMxyDDSwWXJey-uo4T3g/runs/0/artifacts/public/logs/live_backing.log"
         }
@@ -1731,7 +1731,7 @@
       "job_symbol": "gv-junit2",
       "log_references": [
         {
-          "name": "builds-4h",
+          "name": "live_backing_log",
           "parse_status": "pending",
           "url": "https://queue.taskcluster.net/v1/task/OiZYxvi5RfKol0A4SBbvOw/runs/0/artifacts/public/logs/live_backing.log"
         }
@@ -1775,7 +1775,7 @@
       "job_symbol": "bc2",
       "log_references": [
         {
-          "name": "builds-4h",
+          "name": "live_backing_log",
           "parse_status": "pending",
           "url": "https://queue.taskcluster.net/v1/task/PCVDCxY9QM-lEgaGhrCPrw/runs/0/artifacts/public/logs/live_backing.log"
         }
@@ -1891,7 +1891,7 @@
       "job_symbol": "Wr4",
       "log_references": [
         {
-          "name": "builds-4h",
+          "name": "live_backing_log",
           "parse_status": "pending",
           "url": "https://queue.taskcluster.net/v1/task/QDGdgQTQRC2xZNR3Zs_IhA/runs/0/artifacts/public/logs/live_backing.log"
         }
@@ -2225,7 +2225,7 @@
       "job_symbol": "bc16",
       "log_references": [
         {
-          "name": "builds-4h",
+          "name": "live_backing_log",
           "parse_status": "pending",
           "url": "https://queue.taskcluster.net/v1/task/UZ37gpDqTRS1pBNnp0Spsg/runs/0/artifacts/public/logs/live_backing.log"
         }
@@ -2882,7 +2882,7 @@
       "job_symbol": "B",
       "log_references": [
         {
-          "name": "builds-4h",
+          "name": "live_backing_log",
           "parse_status": "pending",
           "url": "https://queue.taskcluster.net/v1/task/ZyNAZZR0SmOcgqC_k_wqsQ/runs/0/artifacts/public/logs/live_backing.log"
         }
@@ -3287,7 +3287,7 @@
       "job_symbol": "C",
       "log_references": [
         {
-          "name": "builds-4h",
+          "name": "live_backing_log",
           "parse_status": "pending",
           "url": "https://queue.taskcluster.net/v1/task/eokGh4-OSbOqAzVhJypYPg/runs/0/artifacts/public/logs/live_backing.log"
         }

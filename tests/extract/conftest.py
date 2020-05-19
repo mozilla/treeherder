@@ -115,7 +115,7 @@ def complex_job(
     JobLog.objects.create(
         **{
             "job_id": job.id,
-            "name": "builds-4h",
+            "name": "live_backing_log",
             "status": 1,
             "url": "https://example.com/api/queue/v1/task/WWb9ExAvQUa78ku0DIxdSQ/runs/0/artifacts/public/logs/live_backing.log",
         }
