@@ -2,7 +2,6 @@ import json
 from copy import copy, deepcopy
 from datetime import datetime, timedelta
 from json import JSONDecodeError
-from os.path import dirname, join
 
 import pytest
 
@@ -14,11 +13,9 @@ from treeherder.perf.models import BackfillRecord, BackfillReport, PerformanceSe
 from treeherder.perf.perf_sheriff_bot import PerfSheriffBot
 from treeherder.perf.secretary_tool import SecretaryTool
 
-from tests.conftest import JSONFixtureLoader
+from tests.conftest import SampleDataJSONLoader
 
-SAMPLE_DATA_PATH = join(dirname(dirname(__file__)), 'sample_data')
-
-load_json_fixture = JSONFixtureLoader(SAMPLE_DATA_PATH, 'perf_sheriff_bot')
+load_json_fixture = SampleDataJSONLoader('perf_sheriff_bot')
 
 EPOCH = datetime.utcfromtimestamp(0)
 

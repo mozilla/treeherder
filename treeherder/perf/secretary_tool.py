@@ -10,11 +10,13 @@ from treeherder.utils import default_serializer
 logger = logging.getLogger(__name__)
 
 
-# TODO: update the backfill status using data
-# TODO: consider making this a singleton
+# TODO: update the backfill status using data (bug 1626548)
+# TODO: consider making this a singleton (bug 1639112)
 class SecretaryTool:
     """
-    Tool used for doing the secretary work in the Performance Sheriff Bot.
+    * marks which records can be backfilled
+    * provides & maintains backfill limits
+    * notes outcome of backfills (successful/unsuccessful)
     """
 
     TIME_TO_MATURE = timedelta(hours=4)

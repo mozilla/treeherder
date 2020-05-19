@@ -3,7 +3,7 @@ import datetime
 import json
 import os
 import platform
-from os.path import join
+from os.path import join, dirname
 
 import kombu
 import pytest
@@ -35,6 +35,7 @@ from treeherder.perf.models import (
 from treeherder.services.pulse.exchange import get_exchange
 
 IS_WINDOWS = "windows" in platform.system().lower()
+SAMPLE_DATA_PATH = join(dirname(__file__), 'sample_data')
 
 
 def pytest_addoption(parser):
@@ -798,3 +799,13 @@ class JSONFixtureLoader:
         fixture_path = join(*self._prior_dirs, fixture_filename)
         with open(fixture_path, 'r') as f:
             return json.load(f)
+
+
+class SampleDataJSONLoader:
+    def __init__(self, *sub_dirs):
+        global SAMPLE_DATA_PATH
+
+        self.load_json = JSONFixtureLoader(SAMPLE_DATA_PATH, *sub_dirs)
+
+    def __call__(self, fixture_filename):
+        return self.load_json(fixture_filename)
