@@ -34,7 +34,7 @@ describe('FuzzyJobFinder', () => {
     pushLogUrl: 'https://hg.mozilla.org/integration/autoland/pushloghtml',
     revisionHrefPrefix: 'https://hg.mozilla.org/integration/autoland/rev/',
   };
-  const store = mockStore({ fuzzyList: [] });
+  const store = mockStore({});
   const testFuzzyJobFinder = (
     <Provider store={store}>
       <FuzzyJobFinder
