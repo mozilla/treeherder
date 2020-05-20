@@ -32,8 +32,9 @@ const DropdownMenuItems = ({
     {/* Items pinned to top of dropdown */}
     {pinned.length > 0 && (
       <span>
-        pinned.map((item) => createDropdownItem(item, namespace, updateData,
-        selectedItem), )
+        {pinned.map((item) =>
+          createDropdownItem(item, namespace, updateData, selectedItem),
+        )}
         <DropdownItem divider />
       </span>
     )}
