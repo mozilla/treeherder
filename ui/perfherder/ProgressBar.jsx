@@ -5,7 +5,7 @@ import { Progress } from 'reactstrap';
 import SimpleTooltip from '../shared/SimpleTooltip';
 
 const ProgressBar = ({ magnitude, regression, color }) => {
-  var truncMag = regression
+  const truncMag = regression
     ? (Math.floor((100 - magnitude) * 100) / 100).toFixed(2)
     : (Math.floor(magnitude * 100) / 100).toFixed(2);
   return (
