@@ -5,7 +5,7 @@ import { Progress } from 'reactstrap';
 import SimpleTooltip from '../shared/SimpleTooltip';
 
 const ProgressBar = ({ magnitude, regression, color }) => {
-  magnitude = regression
+  var truncMag = regression
     ? (Math.floor((100 - magnitude) * 100) / 100).toFixed(2)
     : (Math.floor(magnitude * 100) / 100).toFixed(2);
   return (
@@ -13,7 +13,7 @@ const ProgressBar = ({ magnitude, regression, color }) => {
       text={
         <Progress
           multi
-          aria-label={`Lower is better. Metric: ${magnitude} % regressed`}
+          aria-label={`Lower is better. Metric: ${truncMag} % regressed`}
         >
           {/* the % of the bars that are colored and transparent is based on the newIsBetter metric,
           which determines whether the colored bar for magnitude is displayed on the left or right */}
