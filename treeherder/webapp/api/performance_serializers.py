@@ -51,7 +51,7 @@ class BackfillRecordSerializer(serializers.Serializer):
 class PerformanceFrameworkSerializer(serializers.ModelSerializer):
     class Meta:
         model = PerformanceFramework
-        fields = ['id', 'name', 'enabled']
+        fields = ['id', 'name']
 
 
 class PerformanceSignatureSerializer(serializers.ModelSerializer):
