@@ -116,7 +116,7 @@ const searchDatabaseForTaskRun = async (jobParams, notify) => {
     // The task wasn't found in the db.  Either never existed,
     // or was expired and deleted.
     const message = taskId
-      ? `Task not found: ${taskId}, run ${runId}`
+      ? `Task not found: ${taskId}${runId ? `, run ${runId}` : ''}`
       : `Job ID not found: ${id}`;
     notify(message, 'danger', { sticky: true });
   }
@@ -135,13 +135,22 @@ const doSetSelectedJobFromQueryString = (notify, jobMap) => {
 
   // Try to find the Task by taskId and runID
   if (taskId) {
-    const retryId = parseInt(runId, 10);
-    const task = Object.values(jobMap).find(
-      (job) => job.task_id === taskId && job.retry_id === retryId,
-    );
+    let task;
+    if (runId) {
+      const retryId = parseInt(runId, 10);
+      task = Object.values(jobMap).find(
+        (job) => job.task_id === taskId && job.retry_id === retryId,
+      );
+    } else {
+      const runs = Object.values(jobMap)
+        .filter((job) => job.task_id === taskId)
+        .sort((left, right) => left.retry_id - right.retry_id);
+      task = runs[runs.length - 1];
+    }
 
     if (task) {
       setUrlParam('selectedJob');
+      setUrlParam('selectedTaskRun', getTaskRunStr(task));
       return doSelectJob(task);
     }
   }

@@ -226,16 +226,20 @@ export const getJobSearchStrHref = function getJobSearchStrHref(jobSearchStr) {
   return `${uiJobsUrlBase}?${params.toString()}`;
 };
 
-export const getTaskRunStr = (job) => `${job.task_id}-${job.retry_id}`;
+export const getTaskRunStr = (job) => `${job.task_id}.${job.retry_id}`;
+
+// This matches as taskId, optionally followed by `.` or`-` and a runId.
+// We support `-` for backwards compatability with the original format used.
+const taskRunPattern = /^([A-Za-z0-9_-]{8}[Q-T][A-Za-z0-9_-][CGKOSWaeimquy26-][A-Za-z0-9_-]{10}[AQgw])(?:[-.]([0-9]+))?$/;
 
 export const getTaskRun = function getTaskRun(taskRunStr) {
   if (!taskRunStr) {
     return {};
   }
 
-  const len = taskRunStr.length;
-  const runId = taskRunStr.substring(len - 1);
-  const taskId = taskRunStr.substring(0, len - 2);
-
-  return { taskId, runId };
+  const match = taskRunPattern.exec(taskRunStr);
+  if (!match) {
+    return {};
+  }
+  return { taskId: match[1], runId: match[2] };
 };
