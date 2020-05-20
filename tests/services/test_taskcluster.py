@@ -1,17 +1,9 @@
-import json
-from os.path import dirname, join
-
 import pytest
 
+from tests.conftest import SampleDataJSONLoader
 from treeherder.services.taskcluster import TaskclusterModel
 
-SAMPLE_DATA_PATH = join(dirname(dirname(__file__)), 'sample_data')
-
-
-def load_json_fixture(from_file):
-    fixture_path = join(SAMPLE_DATA_PATH, 'perf_sheriff_bot', from_file)
-    with open(fixture_path, 'r') as f:
-        return json.load(f)
+load_json_fixture = SampleDataJSONLoader('perf_sheriff_bot')
 
 
 @pytest.fixture(scope="module")

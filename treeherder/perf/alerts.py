@@ -21,6 +21,7 @@ from treeherder.perf.models import (
     PerformanceSignature,
 )
 from treeherder.perfalert.perfalert import RevisionDatum, detect_changes
+from treeherder.utils import default_serializer
 
 
 def get_alert_properties(prev_value, new_value, lower_is_better):
@@ -412,7 +413,7 @@ class BackfillReportMaintainer:
             BackfillRecord.objects.create(
                 alert=alert,
                 report=backfill_report,
-                context=json.dumps(retrigger_context, default=str),
+                context=json.dumps(retrigger_context, default=default_serializer),
             )
 
     def _summaries_requiring_reports(self, timestamp: datetime) -> QuerySet:

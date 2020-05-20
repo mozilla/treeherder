@@ -5,7 +5,8 @@ import simplejson as json
 from mock import Mock, patch
 
 from treeherder.perf.models import BackfillRecord, BackfillReport, PerformanceSettings
-from treeherder.perf.secretary_tool import SecretaryTool, default_serializer
+from treeherder.perf.secretary_tool import SecretaryTool
+from treeherder.utils import default_serializer
 
 
 @pytest.fixture

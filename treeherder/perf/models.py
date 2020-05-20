@@ -1,4 +1,7 @@
 import datetime
+import json
+
+from typing import List
 
 from django.contrib.auth.models import User
 from django.core.exceptions import ValidationError
@@ -8,6 +11,7 @@ from django.utils.timezone import now as django_now
 
 from treeherder.model.models import Job, MachinePlatform, OptionCollection, Push, Repository
 from treeherder.perf.exceptions import MaxRuntimeExceeded, NoDataCyclingAtAll
+from treeherder.utils import default_serializer
 
 SIGNATURE_HASH_LENGTH = 40
 
@@ -626,6 +630,19 @@ class BackfillRecord(models.Model):
     status = models.IntegerField(choices=STATUSES, default=PRELIMINARY)
     log_details = models.TextField()  # JSON expected, not supported by Django
 
+    @property
+    def id(self):
+        return self.alert
+
+    def get_context(self) -> List[dict]:
+        return json.loads(self.context)
+
+    def set_context(self, value: List[dict]):
+        self.context = json.dumps(value, default=str)
+
+    def set_log_details(self, value: dict):
+        self.log_details = json.dumps(value, default=str)
+
     def save(self, *args, **kwargs):
         # refresh parent's latest update time
         super().save(*args, **kwargs)
@@ -646,6 +663,9 @@ class PerformanceSettings(models.Model):
     id = models.AutoField(primary_key=True)
     name = models.CharField(max_length=255)
     settings = models.TextField()
+
+    def set_settings(self, value: str):
+        self.settings = json.dumps(value, default=default_serializer)
 
     class Meta:
         db_table = "performance_settings"
