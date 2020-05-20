@@ -11,26 +11,6 @@
     "end_time": 1578432680,
     "failure_classification": "not classified",
     "id": 1,
-    "job_detail": [
-      {
-        "title": "artifact uploaded",
-        "url": "https://example.com/api/queue/v1/task/WWb9ExAvQUa78ku0DIxdSQ/runs/0/artifacts/public/test_info/wpt_raw.log",
-        "value": "wpt_raw.log"
-      },
-      {
-        "title": "artifact uploaded",
-        "url": "https://example.com/api/queue/v1/task/WWb9ExAvQUa78ku0DIxdSQ/runs/0/artifacts/public/test_info/wptreport.json",
-        "value": "wptreport.json"
-      },
-      {
-        "title": "CPU usage",
-        "value": "26.8%"
-      },
-      {
-        "title": "I/O read bytes / time",
-        "value": "179,900,416 / 41"
-      }
-    ],
     "job_group": {
       "description": null,
       "name": "myjobgroup",

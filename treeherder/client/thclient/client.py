@@ -15,7 +15,7 @@ class TreeherderClient:
     Treeherder client class
     """
 
-    API_VERSION = '1.0'
+    API_VERSION = '1.1'
     REQUEST_HEADERS = {
         'Accept': 'application/json; version={}'.format(API_VERSION),
         'User-Agent': 'treeherder-pyclient/{}'.format(__version__),
@@ -23,7 +23,6 @@ class TreeherderClient:
 
     PUSH_ENDPOINT = 'push'
     JOBS_ENDPOINT = 'jobs'
-    JOB_DETAIL_ENDPOINT = 'jobdetail'
     JOB_LOG_URL_ENDPOINT = 'job-log-url'
     OPTION_COLLECTION_HASH_ENDPOINT = 'optioncollectionhash'
     REPOSITORY_ENDPOINT = 'repository'
@@ -148,18 +147,6 @@ class TreeherderClient:
         :param params: keyword arguments to filter results
         """
         return self._get_json_list(self.JOBS_ENDPOINT, project, **params)
-
-    def get_job_details(self, **params):
-        """
-        Gets jobs from project, filtered by parameters
-
-        Typically you would filter by `job_guid`. Example:
-
-        details = client.get_job_details(job_guid='22fb7e6b-d4e7-43cb-a268-c897c1112c0f/0')
-
-        :param params: keyword arguments to filter results
-        """
-        return self._get_json_list(self.JOB_DETAIL_ENDPOINT, None, **params)
 
     def get_job_log_url(self, project, **params):
         """

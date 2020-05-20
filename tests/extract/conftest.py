@@ -14,7 +14,6 @@ from treeherder.model.models import (
     FailureClassification,
     FailureLine,
     Job,
-    JobDetail,
     JobLog,
     Option,
     OptionCollection,
@@ -112,27 +111,6 @@ def complex_job(
     TextLogError.objects.create(step=text_log_step, line="ERROR! more line contents", line_number=6)
 
     TaskclusterMetadata.objects.create(job=job, retry_id=0, task_id="WWb9ExAvQUa78ku0DIxdSQ")
-
-    JobDetail.objects.create(
-        job_id=job.id,
-        **{
-            "title": "artifact uploaded",
-            "url": "https://example.com/api/queue/v1/task/WWb9ExAvQUa78ku0DIxdSQ/runs/0/artifacts/public/test_info/wpt_raw.log",
-            "value": "wpt_raw.log",
-        },
-    )
-    JobDetail.objects.create(
-        job_id=job.id,
-        **{
-            "title": "artifact uploaded",
-            "url": "https://example.com/api/queue/v1/task/WWb9ExAvQUa78ku0DIxdSQ/runs/0/artifacts/public/test_info/wptreport.json",
-            "value": "wptreport.json",
-        },
-    )
-    JobDetail.objects.create(job_id=job.id, **{"title": "CPU usage", "value": "26.8%"})
-    JobDetail.objects.create(
-        job_id=job.id, **{"title": "I/O read bytes / time", "value": "179,900,416 / 41"}
-    )
 
     JobLog.objects.create(
         **{

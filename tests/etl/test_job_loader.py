@@ -8,7 +8,7 @@ import slugid
 from treeherder.etl.exceptions import MissingPushException
 from treeherder.etl.job_loader import JobLoader
 from treeherder.etl.taskcluster_pulse.handler import handleMessage
-from treeherder.model.models import Job, JobDetail, JobLog, TaskclusterMetadata
+from treeherder.model.models import Job, JobLog, TaskclusterMetadata
 
 
 @pytest.fixture
@@ -147,8 +147,6 @@ def test_ingest_pulse_jobs(
     assert [
         {"name": item.name, "url": item.url, "parse_status": item.status} for item in job_logs.all()
     ] == logs_expected
-    # we're no longer storing artifacts in this table
-    assert JobDetail.objects.count() == 0
 
 
 def test_ingest_pending_pulse_job(
@@ -175,8 +173,6 @@ def test_ingest_pending_pulse_job(
 
     # should not have processed any log or details for pending jobs
     assert JobLog.objects.count() == 2
-    # we're no longer storing artifacts in this table
-    assert JobDetail.objects.count() == 0
 
 
 def test_ingest_pulse_jobs_bad_project(

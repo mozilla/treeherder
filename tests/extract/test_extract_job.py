@@ -38,9 +38,9 @@ def test_make_failure_class(failure_class, extract_job_settings):
 def test_make_job(complex_job, extract_job_settings):
     source = MySQL(extract_job_settings.source.database)
     with source.transaction():
-        result = source.query(SQL("SELECT count(1) as num from job_detail"))
+        result = source.query(SQL("SELECT count(1) as num from job"))
 
-    assert result[0].num == 4
+    assert result[0].num == 1
 
 
 def test_extract_job_sql(extract_job_settings, transactional_db):

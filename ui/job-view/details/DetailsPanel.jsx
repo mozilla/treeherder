@@ -2,7 +2,6 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import chunk from 'lodash/chunk';
 import { connect } from 'react-redux';
-import uniqBy from 'lodash/uniqBy';
 
 import { setPinBoardVisible } from '../redux/stores/pinnedJobs';
 import { thEvents, thBugSuggestionLimit } from '../../helpers/constants';
@@ -18,7 +17,6 @@ import BugJobMapModel from '../../models/bugJobMap';
 import BugSuggestionsModel from '../../models/bugSuggestions';
 import JobClassificationModel from '../../models/classification';
 import JobModel from '../../models/job';
-import JobDetailModel from '../../models/jobDetail';
 import JobLogUrlModel from '../../models/jobLogUrl';
 import TextLogStepModel from '../../models/textLogStep';
 import PerfSeriesModel from '../../models/perfSeries';
@@ -180,7 +178,6 @@ class DetailsPanel extends React.Component {
 
         this.selectJobController = new AbortController();
 
-        let jobDetails = [];
         const jobPromise =
           'logs' in selectedJob
             ? Promise.resolve(selectedJob)
@@ -190,10 +187,6 @@ class DetailsPanel extends React.Component {
                 this.selectJobController.signal,
               );
 
-        const jobDetailPromise = JobDetailModel.getJobDetails(
-          { job_id: selectedJob.id },
-          this.selectJobController.signal,
-        );
         const artifactsParams = {
           jobId: selectedJob.id,
           taskId: selectedJob.task_id,
@@ -201,7 +194,10 @@ class DetailsPanel extends React.Component {
           rootUrl: currentRepo.tc_root_url,
         };
 
-        const jobArtifactsPromise = getData(getArtifactsUrl(artifactsParams));
+        const jobArtifactsPromise = getData(
+          getArtifactsUrl(artifactsParams),
+          this.selectJobController.signal,
+        );
         let builtFromArtifactPromise;
 
         if (
@@ -230,7 +226,6 @@ class DetailsPanel extends React.Component {
 
         Promise.all([
           jobPromise,
-          jobDetailPromise,
           jobLogUrlPromise,
           phSeriesPromise,
           jobArtifactsPromise,
@@ -239,7 +234,6 @@ class DetailsPanel extends React.Component {
           .then(
             async ([
               jobResult,
-              jobDetailResult,
               jobLogUrlResult,
               phSeriesResult,
               jobArtifactsResult,
@@ -256,7 +250,7 @@ class DetailsPanel extends React.Component {
 
               addAggregateFields(selectedJobFull);
 
-              let jobArtifacts = jobArtifactsResult.data.artifacts
+              let jobDetails = jobArtifactsResult.data.artifacts
                 ? formatArtifacts(jobArtifactsResult.data.artifacts, {
                     ...artifactsParams,
                   })
@@ -266,15 +260,8 @@ class DetailsPanel extends React.Component {
                 builtFromArtifactResult &&
                 !builtFromArtifactResult.failureStatus
               ) {
-                jobArtifacts = [
-                  ...jobArtifacts,
-                  ...builtFromArtifactResult.data,
-                ];
+                jobDetails = [...jobDetails, ...builtFromArtifactResult.data];
               }
-              jobDetails = uniqBy(
-                [...jobDetailResult, ...jobArtifacts],
-                'value',
-              );
 
               // the third result comes from the jobLogUrl promise
               // exclude the json log URLs

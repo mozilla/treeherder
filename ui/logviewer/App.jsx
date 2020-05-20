@@ -2,14 +2,12 @@ import React from 'react';
 import { hot } from 'react-hot-loader/root';
 import { LazyLog } from 'react-lazylog';
 import isEqual from 'lodash/isEqual';
-import uniqBy from 'lodash/uniqBy';
 
 import { getAllUrlParams, getUrlParam, setUrlParam } from '../helpers/location';
 import { scrollToLine } from '../helpers/utils';
 import { isReftest } from '../helpers/job';
 import { getJobsUrl, getReftestUrl, getArtifactsUrl } from '../helpers/url';
 import { getData } from '../helpers/http';
-import JobDetailModel from '../models/jobDetail';
 import JobModel from '../models/job';
 import PushModel from '../models/push';
 import TextLogStepModel from '../models/textLogStep';
@@ -83,10 +81,6 @@ class App extends React.PureComponent {
             ? getReftestUrl(rawLogUrl)
             : null;
 
-        const jobDetails = await JobDetailModel.getJobDetails({
-          job_id: jobId,
-        });
-
         this.setState(
           {
             job,
@@ -125,7 +119,7 @@ class App extends React.PureComponent {
             ]).then(
               async ([artifactsResp, pushResp, builtFromArtifactResp]) => {
                 const { revision } = await pushResp.json();
-                let jobArtifacts =
+                let jobDetails =
                   !artifactsResp.failureStatus && artifactsResp.data.artifacts
                     ? formatArtifacts(artifactsResp.data.artifacts, params)
                     : [];
@@ -134,19 +128,8 @@ class App extends React.PureComponent {
                   builtFromArtifactResp &&
                   !builtFromArtifactResp.failureStatus
                 ) {
-                  jobArtifacts = [
-                    ...jobArtifacts,
-                    ...builtFromArtifactResp.data,
-                  ];
+                  jobDetails = [...jobDetails, ...builtFromArtifactResp.data];
                 }
-
-                // remove duplicates since the jobdetails endpoint will still
-                // contain uploaded artifacts until 4 months after we stop storing them
-                // see bug 1603249 for details; can be removed at some point
-                const mergedJobDetails = uniqBy(
-                  [...jobArtifacts, ...jobDetails],
-                  'value',
-                );
 
                 this.setState({
                   revision,
@@ -155,7 +138,7 @@ class App extends React.PureComponent {
                     revision,
                     selectedJob: jobId,
                   }),
-                  jobDetails: mergedJobDetails,
+                  jobDetails,
                 });
               },
             );

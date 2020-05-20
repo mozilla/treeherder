@@ -133,7 +133,6 @@ default_router.register(
     basename='validity-dashboard',
 )
 default_router.register(r'bugzilla', bugzilla.BugzillaViewSet, basename='bugzilla')
-default_router.register(r'jobdetail', jobs.JobDetailViewSet, basename='jobdetail')
 default_router.register(r'auth', auth.AuthViewSet, basename='auth')
 default_router.register(r'changelog', changelog.ChangelogViewSet, basename='changelog')
 

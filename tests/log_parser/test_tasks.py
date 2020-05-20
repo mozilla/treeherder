@@ -4,7 +4,7 @@ from tests.test_utils import add_log_response
 from treeherder.etl.jobs import store_job_data
 from treeherder.etl.push import store_push_data
 from treeherder.model.error_summary import get_error_summary
-from treeherder.model.models import Job, JobDetail, TextLogError
+from treeherder.model.models import Job, TextLogError
 
 from ..sampledata import SampleData
 
@@ -21,26 +21,6 @@ def jobs_with_local_log(activate_responses):
     # substitute the log url with a local url
     job['job']['log_references'][0]['url'] = url
     return [job]
-
-
-def test_parse_log(test_repository, failure_classifications, jobs_with_local_log, sample_push):
-    """
-    check that 2 job_artifacts get inserted when running a parse_log task for
-    a successful job and that JobDetail objects get created
-    """
-
-    store_push_data(test_repository, sample_push)
-
-    jobs = jobs_with_local_log
-    for job in jobs:
-        # make this a successful job, to check it's still parsed for errors
-        job['job']['result'] = "success"
-        job['revision'] = sample_push[0]['revision']
-
-    store_job_data(test_repository, jobs)
-
-    # this log generates 4 job detail objects at present
-    print(JobDetail.objects.count() == 4)
 
 
 def test_create_error_summary(

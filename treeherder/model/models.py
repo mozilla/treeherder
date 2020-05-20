@@ -692,30 +692,6 @@ class TaskclusterMetadata(models.Model):
         db_table = "taskcluster_metadata"
 
 
-class JobDetail(models.Model):
-    '''
-    Represents metadata associated with a job
-
-    There can be (and usually is) more than one of these associated with
-    each job
-    '''
-
-    id = models.BigAutoField(primary_key=True)
-    job = models.ForeignKey(Job, on_delete=models.CASCADE, related_name="job_details")
-    title = models.CharField(max_length=70, null=True)
-    value = models.CharField(max_length=125)
-    url = models.URLField(null=True, max_length=512)
-
-    class Meta:
-        db_table = "job_detail"
-        unique_together = ("title", "value", "job")
-
-    def __str__(self):
-        return "{0} {1} {2} {3} {4}".format(
-            self.id, self.job.guid, self.title, self.value, self.url
-        )
-
-
 class JobLog(models.Model):
     '''
     Represents a log associated with a job
