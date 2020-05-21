@@ -190,18 +190,18 @@ const GraphTooltip = ({
           </div>
 
           <div>
-            {prevRevision && (
-              <span>
-                <a href={pushUrl} target="_blank" rel="noopener noreferrer">
-                  {dataPointDetails.revision.slice(0, 13)}
-                </a>{' '}
-                (
-                {dataPointDetails.jobId && (
-                  <a href={jobsUrl} target="_blank" rel="noopener noreferrer">
-                    job
-                  </a>
-                )}
-                ,{' '}
+            <span>
+              <a href={pushUrl} target="_blank" rel="noopener noreferrer">
+                {dataPointDetails.revision.slice(0, 13)}
+              </a>{' '}
+              {(dataPointDetails.jobId || prevRevision) && '('}
+              {dataPointDetails.jobId && (
+                <a href={jobsUrl} target="_blank" rel="noopener noreferrer">
+                  job
+                </a>
+              )}
+              {dataPointDetails.jobId && prevRevision && ', '}
+              {prevRevision && (
                 <a
                   href={`#/comparesubtest${createQueryParams({
                     originalProject: testDetails.repository_name,
@@ -219,14 +219,14 @@ const GraphTooltip = ({
                 >
                   compare
                 </a>
-                ){' '}
-                <Clipboard
-                  text={dataPointDetails.revision}
-                  description="Revision"
-                  outline
-                />
-              </span>
-            )}
+              )}
+              {(dataPointDetails.jobId || prevRevision) && ') '}
+              <Clipboard
+                text={dataPointDetails.revision}
+                description="Revision"
+                outline
+              />
+            </span>
             {dataPointDetails.alertSummary && (
               <p>
                 <a
