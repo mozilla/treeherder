@@ -2,51 +2,41 @@ import React from 'react';
 import PropTypes from 'prop-types';
 
 export default class InfraCompareTableRow extends React.PureComponent {
-  getColorClass = (data, type) => {
-    const { className, isRegression, isImprovement } = data;
-    if (type === 'bar' && !isRegression && !isImprovement) return 'secondary';
-    if (type === 'background' && className === 'warning')
-      return `bg-${className}`;
-    if (type === 'text' && className) return `text-${className}`;
-    return className;
-  };
-
   render() {
-    const { rowLevelResults } = this.props;
+    const {
+      rowLevelResults: {
+        suite,
+        originalValue,
+        newValue,
+        originalFailures,
+        newFailures,
+        originalDataPoints,
+        newDataPoints,
+      },
+    } = this.props;
+
     return (
-      <React.Fragment>
-        <tr color="danger">
-          <th className="text-left">{rowLevelResults.suite}</th>
-          <td>{rowLevelResults.originalValue}</td>
-          <td>
-            {rowLevelResults.originalValue < rowLevelResults.newValue && (
-              <span>&lt;</span>
-            )}
-            {rowLevelResults.originalValue > rowLevelResults.newValue && (
-              <span>&gt;</span>
-            )}
-          </td>
-          <td>{rowLevelResults.newValue}</td>
-          <td>{rowLevelResults.originalFailures}</td>
-          <td>
-            {rowLevelResults.originalFailures < rowLevelResults.newFailures && (
-              <span>&lt;</span>
-            )}
-            {rowLevelResults.originalFailures > rowLevelResults.newFailures && (
-              <span>&gt;</span>
-            )}
-          </td>
-          <td>{rowLevelResults.newFailures}</td>
-          <td>{rowLevelResults.originalDataPoints}</td>
-          <td>
-            {rowLevelResults.originalDataPoints <
-              rowLevelResults.newDataPoints && <span>&lt;</span>}
-            {rowLevelResults.originalDataPoints >
-              rowLevelResults.newDataPoints && <span>&gt;</span>}
-          </td>
-          <td>{rowLevelResults.newDataPoints}</td>
-        </tr>
-      </React.Fragment>
+      <tr color="danger">
+        <th className="text-left">{suite}</th>
+        <td>{originalValue}</td>
+        <td>
+          {originalValue < newValue && <span>&lt;</span>}
+          {originalValue > newValue && <span>&gt;</span>}
+        </td>
+        <td>{newValue}</td>
+        <td>{originalFailures}</td>
+        <td>
+          {originalFailures < newFailures && <span>&lt;</span>}
+          {originalFailures > newFailures && <span>&gt;</span>}
+        </td>
+        <td>{newFailures}</td>
+        <td>{originalDataPoints}</td>
+        <td>
+          {originalDataPoints < newDataPoints && <span>&lt;</span>}
+          {originalDataPoints > newDataPoints && <span>&gt;</span>}
+        </td>
+        <td>{newDataPoints}</td>
+      </tr>
     );
   }
 }

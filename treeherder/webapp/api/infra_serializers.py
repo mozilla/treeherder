@@ -20,6 +20,7 @@ class InfraCompareQuerySerializers(serializers.Serializer):
     endday = serializers.DateTimeField(required=False, allow_null=True, default=None)
 
     def validate(self, data):
+        # Atleast revision or interval or startDay along with endDay need to be present
         if (
             data['revision'] is None
             and data['interval'] is None

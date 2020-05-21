@@ -37,9 +37,9 @@ class InfraCompareView extends React.PureComponent {
       newResultSet,
       originalResultSet,
     } = this.props.validated;
-
     let originalParams;
     let interval;
+
     if (originalRevision) {
       interval = this.getInterval(
         originalResultSet.push_timestamp,

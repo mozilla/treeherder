@@ -44,7 +44,6 @@ export default class CompareTableControls extends React.Component {
 
   filterResult = (platformName, result) => {
     const { filterText, showImportant, hideUncertain } = this.state;
-
     const matchesFilters =
       (!showImportant || result.isImporatant) &&
       (!hideUncertain || result.isCertain);
@@ -60,7 +59,6 @@ export default class CompareTableControls extends React.Component {
 
   updateFilteredResults = () => {
     const { filterText, showImportant, hideUncertain } = this.state;
-
     const { compareResults } = this.props;
 
     if (!filterText && !showImportant && !hideUncertain) {
@@ -85,7 +83,6 @@ export default class CompareTableControls extends React.Component {
 
   render() {
     const { hideUncertain, showImportant, results } = this.state;
-
     const compareFilters = [
       {
         tooltipText: 'Non-trivial changes (3%+)',
@@ -100,6 +97,7 @@ export default class CompareTableControls extends React.Component {
         stateName: 'hideUncertain',
       },
     ];
+
     return (
       <Container fluid className="my-3 px-0">
         <FilterControls

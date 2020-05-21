@@ -142,9 +142,7 @@ export default class InfraCompareTableView extends React.Component {
       newResultSet,
       pageTitle,
     } = this.props.validated;
-
     const { jobsNotDisplayed } = this.props;
-
     const {
       compareResults,
       loading,
@@ -152,9 +150,7 @@ export default class InfraCompareTableView extends React.Component {
       timeRange,
       tabTitle,
     } = this.state;
-
     const compareDropdowns = [];
-
     const params = {
       originalProject,
       newProject,
@@ -182,57 +178,55 @@ export default class InfraCompareTableView extends React.Component {
           errorClasses={errorMessageClass}
           message={genericErrorMessage}
         >
-          <React.Fragment>
-            <div className="mx-auto">
-              <Row className="justify-content-center">
-                <Col sm="8" className="text-center">
-                  {failureMessages.length !== 0 && (
-                    <ErrorMessages errorMessages={failureMessages} />
-                  )}
+          <div className="mx-auto">
+            <Row className="justify-content-center">
+              <Col sm="8" className="text-center">
+                {failureMessages.length !== 0 && (
+                  <ErrorMessages errorMessages={failureMessages} />
+                )}
+              </Col>
+            </Row>
+            {newRevision && newProject && (originalRevision || timeRange) && (
+              <Row>
+                <Col sm="12" className="text-center pb-1">
+                  <h1>
+                    <ComparePageTitle
+                      title="Infra Compare Revisions"
+                      pageTitleQueryParam={pageTitle}
+                      defaultPageTitle={tabTitle}
+                    />
+                  </h1>
+                  <RevisionInformation
+                    originalProject={originalProject}
+                    originalRevision={originalRevision}
+                    originalResultSet={originalResultSet}
+                    newProject={newProject}
+                    newRevision={newRevision}
+                    newResultSet={newResultSet}
+                    selectedTimeRange={timeRange}
+                  />
                 </Col>
               </Row>
-              {newRevision && newProject && (originalRevision || timeRange) && (
-                <Row>
-                  <Col sm="12" className="text-center pb-1">
-                    <h1>
-                      <ComparePageTitle
-                        title="Infra Compare Revisions"
-                        pageTitleQueryParam={pageTitle}
-                        defaultPageTitle={tabTitle}
-                      />
-                    </h1>
-                    <RevisionInformation
-                      originalProject={originalProject}
-                      originalRevision={originalRevision}
-                      originalResultSet={originalResultSet}
-                      newProject={newProject}
-                      newRevision={newRevision}
-                      newResultSet={newResultSet}
-                      selectedTimeRange={timeRange}
+            )}
+            {jobsNotDisplayed && jobsNotDisplayed.length > 0 && (
+              <Row className="pt-5 justify-content-center">
+                <Col small="12" className="px-0 max-width-default">
+                  <Alert color="warning">
+                    <TruncatedText
+                      title="Tests without results: "
+                      maxLength={174}
+                      text={jobsNotDisplayed.join(', ')}
                     />
-                  </Col>
-                </Row>
-              )}
-              {jobsNotDisplayed && jobsNotDisplayed.length > 0 && (
-                <Row className="pt-5 justify-content-center">
-                  <Col small="12" className="px-0 max-width-default">
-                    <Alert color="warning">
-                      <TruncatedText
-                        title="Tests without results: "
-                        maxLength={174}
-                        text={jobsNotDisplayed.join(', ')}
-                      />
-                    </Alert>
-                  </Col>
-                </Row>
-              )}
-              <InfraCompareTableControls
-                {...this.props}
-                updateState={(state) => this.setState(state)}
-                compareResults={compareResults}
-              />
-            </div>
-          </React.Fragment>
+                  </Alert>
+                </Col>
+              </Row>
+            )}
+            <InfraCompareTableControls
+              {...this.props}
+              updateState={(state) => this.setState(state)}
+              compareResults={compareResults}
+            />
+          </div>
         </ErrorBoundary>
       </Container>
     );
