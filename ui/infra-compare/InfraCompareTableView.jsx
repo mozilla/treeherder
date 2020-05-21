@@ -1,6 +1,6 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import { Col, Row, Container } from 'reactstrap';
+import { Col, Row, Container, Alert } from 'reactstrap';
 
 import ErrorMessages from '../shared/ErrorMessages';
 import { genericErrorMessage, errorMessageClass } from '../helpers/constants';
@@ -8,10 +8,11 @@ import ErrorBoundary from '../shared/ErrorBoundary';
 import { getData } from '../helpers/http';
 import { createApiUrl } from '../helpers/url';
 import LoadingSpinner from '../shared/LoadingSpinner';
+import TruncatedText from '../shared/TruncatedText';
 import RevisionInformation from '../shared/RevisionInformation';
 import ComparePageTitle from '../shared/ComparePageTitle';
 
-import InfraCompareTable from './InfraCompareTable';
+import InfraCompareTableControls from './InfraCompareTableControls';
 import { compareDefaultTimeRange, endpoints, phTimeRanges } from './constants';
 
 export default class InfraCompareTableView extends React.Component {
@@ -142,6 +143,8 @@ export default class InfraCompareTableView extends React.Component {
       pageTitle,
     } = this.props.validated;
 
+    const { jobsNotDisplayed } = this.props;
+
     const {
       compareResults,
       loading,
@@ -210,18 +213,24 @@ export default class InfraCompareTableView extends React.Component {
                   </Col>
                 </Row>
               )}
-
-              <Container fluid className="my-3 px-0">
-                {compareResults.size > 0 ? (
-                  Array.from(compareResults).map(([platform, data]) => (
-                    <React.Fragment>
-                      <InfraCompareTable key={platform} data={data} />
-                    </React.Fragment>
-                  ))
-                ) : (
-                  <p className="lead text-center">No results to show</p>
-                )}
-              </Container>
+              {jobsNotDisplayed && jobsNotDisplayed.length > 0 && (
+                <Row className="pt-5 justify-content-center">
+                  <Col small="12" className="px-0 max-width-default">
+                    <Alert color="warning">
+                      <TruncatedText
+                        title="Tests without results: "
+                        maxLength={174}
+                        text={jobsNotDisplayed.join(', ')}
+                      />
+                    </Alert>
+                  </Col>
+                </Row>
+              )}
+              <InfraCompareTableControls
+                {...this.props}
+                updateState={(state) => this.setState(state)}
+                compareResults={compareResults}
+              />
             </div>
           </React.Fragment>
         </ErrorBoundary>
@@ -241,7 +250,6 @@ InfraCompareTableView.propTypes = {
     selectedTimeRange: PropTypes.string,
     updateParams: PropTypes.func.isRequired,
   }),
-  user: PropTypes.shape({}).isRequired,
   getDisplayResults: PropTypes.func.isRequired,
   getQueryParams: PropTypes.func.isRequired,
 };

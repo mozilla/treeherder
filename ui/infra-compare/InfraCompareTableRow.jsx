@@ -15,7 +15,7 @@ export default class InfraCompareTableRow extends React.PureComponent {
     const { rowLevelResults } = this.props;
     return (
       <React.Fragment>
-        <tr>
+        <tr color="danger">
           <th className="text-left">{rowLevelResults.suite}</th>
           <td>{rowLevelResults.originalValue}</td>
           <td>
@@ -52,7 +52,6 @@ export default class InfraCompareTableRow extends React.PureComponent {
 }
 
 InfraCompareTableRow.propTypes = {
-  compareResults: PropTypes.shape({}).isRequired,
   user: PropTypes.shape({}).isRequired,
   rowLevelResults: PropTypes.shape({}).isRequired,
 };

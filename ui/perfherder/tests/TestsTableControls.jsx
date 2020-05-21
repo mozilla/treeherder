@@ -2,7 +2,7 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import { Container } from 'reactstrap';
 
-import FilterControls from '../FilterControls';
+import FilterControls from '../../shared/FilterControls';
 import { containsText } from '../helpers';
 
 import TestsTable from './TestsTable';

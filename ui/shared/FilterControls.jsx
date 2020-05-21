@@ -9,9 +9,9 @@ import {
   DropdownToggle,
 } from 'reactstrap';
 
-import SimpleTooltip from '../shared/SimpleTooltip';
-import DropdownMenuItems from '../shared/DropdownMenuItems';
-import InputFilter from '../shared/InputFilter';
+import SimpleTooltip from './SimpleTooltip';
+import DropdownMenuItems from './DropdownMenuItems';
+import InputFilter from './InputFilter';
 
 export const createDropdowns = (dropdownOptions, colClass, outline = false) => (
   <React.Fragment>

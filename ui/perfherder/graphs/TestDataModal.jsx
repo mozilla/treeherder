@@ -12,7 +12,7 @@ import {
   Row,
 } from 'reactstrap';
 
-import { createDropdowns } from '../FilterControls';
+import { createDropdowns } from '../../shared/FilterControls';
 import InputFilter from '../../shared/InputFilter';
 import { processResponse } from '../../helpers/http';
 import PerfSeriesModel from '../../models/perfSeries';

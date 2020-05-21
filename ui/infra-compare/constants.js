@@ -3,6 +3,12 @@ export const endpoints = {
   infra_compare: '/infracompare/',
 };
 
+export const filterText = {
+  hideUncertain: 'Hide uncertain results',
+  showImportant: 'Show important job results',
+  inputPlaceholder: 'filter text e.g. android',
+};
+
 export const phTimeRanges = [
   { value: 86400, text: 'Last day' },
   { value: 86400 * 2, text: 'Last 2 days' },
@@ -18,5 +24,5 @@ export const phDefaultTimeRangeValue = 1209600;
 
 export const compareDefaultTimeRange = {
   value: 86400,
-  text: 'Last 1 days',
+  text: 'Last 1 day',
 };

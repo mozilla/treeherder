@@ -8,6 +8,13 @@ import { phTimeRanges } from './constants';
 import InfraCompareTableView from './InfraCompareTableView';
 
 class InfraCompareView extends React.PureComponent {
+  constructor(props) {
+    super(props);
+    this.state = {
+      jobsNotDisplayed: [],
+    };
+  }
+
   getInterval = (oldTimestamp, newTimestamp) => {
     const now = new Date().getTime() / 1000;
     let timeRange = Math.min(oldTimestamp, newTimestamp);
@@ -74,6 +81,11 @@ class InfraCompareView extends React.PureComponent {
         } else {
           compareResults.set(cmap.platform, [cmap]);
         }
+      } else {
+        const { jobsNotDisplayed } = this.state;
+        this.setState({
+          jobsNotDisplayed: [...jobsNotDisplayed, jobName],
+        });
       }
     });
     compareResults = new Map([...compareResults.entries()].sort());
@@ -87,6 +99,7 @@ class InfraCompareView extends React.PureComponent {
     return (
       <InfraCompareTableView
         {...this.props}
+        jobsNotDisplayed={this.state.jobsNotDisplayed}
         getQueryParams={this.getQueryParams}
         getDisplayResults={this.getDisplayResults}
       />

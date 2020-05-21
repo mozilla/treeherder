@@ -2,6 +2,18 @@ export const calcPercentOf = function calcPercentOf(a, b) {
   return b ? (100 * a) / b : 0;
 };
 
+export const containsText = (string, text) => {
+  const words = text
+    .split(' ')
+    .map((word) => `(?=.*${word})`)
+    .join('');
+  const regex = RegExp(words, 'gi');
+  return regex.test(string);
+};
+
+export const convertParams = (params, value) =>
+  Boolean(params[value] !== undefined && parseInt(params[value], 10));
+
 const analyzeSet = (jobs) => {
   let totalDurationAvg = 0;
   let failures = 0;
@@ -55,6 +67,14 @@ export const getCounterMap = function getCounterMap(
     cmap.newFailures = newd.failures;
     cmap.newDataPoints = newData.length;
   }
+
+  if (!originalData || !newData) {
+    return cmap; // No comparison, just display for one side.
+  }
+  cmap.delta = Math.abs(cmap.newValue - cmap.originalValue);
+  cmap.deltaPercentage = calcPercentOf(cmap.delta, cmap.originalValue);
+  cmap.isImporatant = cmap.deltaPercentage > 3;
+  cmap.isCertain = cmap.originalDataPoints > 4 && cmap.newDataPoints > 4;
 
   return cmap;
 };

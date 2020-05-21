@@ -2,7 +2,7 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import { Row } from 'reactstrap';
 
-import FilterControls from '../FilterControls';
+import FilterControls from '../../shared/FilterControls';
 import { summaryStatusMap } from '../constants';
 
 import AlertTable from './AlertTable';
