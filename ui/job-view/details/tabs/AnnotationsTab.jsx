@@ -45,7 +45,9 @@ function RelatedBugSaved(props) {
 
 RelatedBugSaved.propTypes = {
   deleteBug: PropTypes.func.isRequired,
-  bug: PropTypes.shape({}).isRequired,
+  bug: PropTypes.shape({
+    bug_id: PropTypes.number,
+  }).isRequired,
 };
 
 function RelatedBug(props) {
@@ -112,7 +114,13 @@ function TableRow(props) {
 
 TableRow.propTypes = {
   deleteClassification: PropTypes.func.isRequired,
-  classification: PropTypes.shape({}).isRequired,
+  classification: PropTypes.shape({
+    created: PropTypes.string,
+    who: PropTypes.string,
+    name: PropTypes.string,
+    text: PropTypes.string,
+    failure_classification_id: PropTypes.number,
+  }).isRequired,
   classificationMap: PropTypes.shape({}).isRequired,
 };
 
@@ -255,7 +263,9 @@ AnnotationsTab.propTypes = {
   classifications: PropTypes.arrayOf(PropTypes.object).isRequired,
   recalculateUnclassifiedCounts: PropTypes.func.isRequired,
   notify: PropTypes.func.isRequired,
-  selectedJobFull: PropTypes.shape({}).isRequired,
+  selectedJobFull: PropTypes.shape({
+    failure_classification_id: PropTypes.number,
+  }).isRequired,
 };
 
 export default connect(null, { notify, recalculateUnclassifiedCounts })(

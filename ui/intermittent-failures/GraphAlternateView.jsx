@@ -81,6 +81,14 @@ export default GraphAlternateView;
 
 GraphAlternateView.propTypes = {
   colNum: PropTypes.number,
+  className: PropTypes.string.isRequired,
+  graphData: PropTypes.arrayOf(
+    PropTypes.shape({
+      data: PropTypes.arrayOf(PropTypes.shape({})),
+      color: PropTypes.string,
+    }),
+  ).isRequired,
+  title: PropTypes.string.isRequired,
 };
 
 GraphAlternateView.defaultProps = {

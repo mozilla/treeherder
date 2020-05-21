@@ -165,7 +165,9 @@ AlertsViewControls.propTypes = {
     hideImprovements: PropTypes.bool.isRequired,
     hideDownstream: PropTypes.bool.isRequired,
     hideAssignedToOthers: PropTypes.bool.isRequired,
-    framework: PropTypes.shape({}).isRequired,
+    framework: PropTypes.shape({
+      name: PropTypes.string,
+    }).isRequired,
     status: PropTypes.string.isRequired,
   }).isRequired,
   setFiltersState: PropTypes.func.isRequired,
@@ -174,8 +176,12 @@ AlertsViewControls.propTypes = {
   count: PropTypes.number,
   alertSummaries: PropTypes.arrayOf(PropTypes.shape({})),
   frameworkOptions: PropTypes.arrayOf(PropTypes.shape({})),
-  user: PropTypes.shape({}).isRequired,
   performanceTags: PropTypes.arrayOf(PropTypes.shape({})).isRequired,
+  user: PropTypes.shape({
+    isLoggedIn: PropTypes.bool,
+  }).isRequired,
+  pageNums: PropTypes.oneOfType([PropTypes.number, PropTypes.array]).isRequired,
+  updateViewState: PropTypes.func.isRequired,
 };
 
 AlertsViewControls.defaultProps = {

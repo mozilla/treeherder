@@ -365,7 +365,9 @@ PushHeader.propTypes = {
   pushTimestamp: PropTypes.number.isRequired,
   author: PropTypes.string.isRequired,
   revision: PropTypes.string.isRequired,
-  filterModel: PropTypes.shape({}).isRequired,
+  filterModel: PropTypes.shape({
+    getUrlParamsWithoutDefaults: PropTypes.func,
+  }).isRequired,
   runnableVisible: PropTypes.bool.isRequired,
   showRunnableJobs: PropTypes.func.isRequired,
   hideRunnableJobs: PropTypes.func.isRequired,
@@ -379,12 +381,20 @@ PushHeader.propTypes = {
   selectedRunnableJobs: PropTypes.arrayOf(PropTypes.object).isRequired,
   collapsed: PropTypes.bool.isRequired,
   notify: PropTypes.func.isRequired,
-  jobCounts: PropTypes.shape({}).isRequired,
+  jobCounts: PropTypes.shape({
+    pending: PropTypes.number,
+    running: PropTypes.number,
+    completed: PropTypes.number,
+    fixedByCommit: PropTypes.number,
+  }).isRequired,
   pushHealthVisibility: PropTypes.string.isRequired,
   decisionTaskMap: PropTypes.shape({}).isRequired,
   watchState: PropTypes.string,
   pushHealthStatusCallback: PropTypes.func,
-  currentRepo: PropTypes.shape({}).isRequired,
+  currentRepo: PropTypes.shape({
+    name: PropTypes.string,
+  }).isRequired,
+  groupCountsExpanded: PropTypes.bool.isRequired,
 };
 
 PushHeader.defaultProps = {

@@ -117,6 +117,9 @@ LogItem.propTypes = {
   logUrls: PropTypes.arrayOf(PropTypes.object).isRequired,
   logViewerUrl: PropTypes.string,
   logViewerFullUrl: PropTypes.string,
+  logKey: PropTypes.string.isRequired,
+  logDescription: PropTypes.string.isRequired,
+  children: PropTypes.element.isRequired,
 };
 
 LogItem.defaultProps = {

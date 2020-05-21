@@ -1,4 +1,5 @@
 import React from 'react';
+import PropTypes from 'prop-types';
 import { hot } from 'react-hot-loader/root';
 import { BrowserRouter, Route, Switch } from 'react-router-dom';
 
@@ -35,6 +36,12 @@ const App = () => {
       </div>
     </BrowserRouter>
   );
+};
+
+App.propTypes = {
+  location: PropTypes.shape({
+    search: PropTypes.string,
+  }).isRequired,
 };
 
 export default hot(App);

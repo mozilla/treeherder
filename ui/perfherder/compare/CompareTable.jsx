@@ -92,11 +92,21 @@ export default class CompareTable extends React.PureComponent {
 }
 
 CompareTable.propTypes = {
-  data: PropTypes.arrayOf(PropTypes.shape({})),
+  data: PropTypes.arrayOf(
+    PropTypes.shape({
+      newRetriggerableJobId: PropTypes.number,
+    }),
+  ),
   testName: PropTypes.string.isRequired,
   onModalOpen: PropTypes.func.isRequired,
   hashFunction: PropTypes.func,
   onPermalinkClick: PropTypes.func,
+  hasSubtests: PropTypes.bool.isRequired,
+  isBaseAggregate: PropTypes.bool.isRequired,
+  user: PropTypes.shape({
+    isLoggedIn: PropTypes.bool,
+  }).isRequired,
+  history: PropTypes.shape({}).isRequired,
 };
 
 CompareTable.defaultProps = {

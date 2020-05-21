@@ -1,4 +1,5 @@
 import React from 'react';
+import PropTypes from 'prop-types';
 import { Container, Row } from 'reactstrap';
 
 import RepositoryModel from '../../models/repository';
@@ -193,3 +194,10 @@ export default class CompareSubtestDistributionView extends React.Component {
     );
   }
 }
+
+CompareSubtestDistributionView.propTypes = {
+  projects: PropTypes.arrayOf(PropTypes.shape({})).isRequired,
+  location: PropTypes.shape({
+    search: PropTypes.string,
+  }).isRequired,
+};

@@ -134,6 +134,14 @@ JobInfo.propTypes = {
     buildArchitecture: PropTypes.string,
     buildOs: PropTypes.string,
     submitTimestamp: PropTypes.string,
+    signature: PropTypes.string,
+    title: PropTypes.string,
+    task_id: PropTypes.string,
+    build_platform: PropTypes.string,
+    job_type_name: PropTypes.string,
+    build_architecture: PropTypes.string,
+    build_os: PropTypes.string,
+    submit_timestamp: PropTypes.number,
   }).isRequired,
   extraFields: PropTypes.arrayOf(
     PropTypes.exact({
@@ -147,7 +155,9 @@ JobInfo.propTypes = {
     }),
   ),
   showJobFilters: PropTypes.bool,
-  currentRepo: PropTypes.shape({}),
+  currentRepo: PropTypes.shape({
+    tc_root_url: PropTypes.string,
+  }),
 };
 
 JobInfo.defaultProps = {

@@ -60,8 +60,15 @@ export default function ClassificationsPanel(props) {
 
 ClassificationsPanel.propTypes = {
   currentRepo: PropTypes.shape({}).isRequired,
-  classification: PropTypes.shape({}).isRequired,
+  classification: PropTypes.shape({
+    failure_classification_id: PropTypes.number,
+    text: PropTypes.string,
+    who: PropTypes.string,
+    created: PropTypes.string,
+  }).isRequired,
   classificationMap: PropTypes.shape({}).isRequired,
-  job: PropTypes.shape({}).isRequired,
+  job: PropTypes.shape({
+    result: PropTypes.string,
+  }).isRequired,
   bugs: PropTypes.arrayOf(PropTypes.object).isRequired,
 };

@@ -269,7 +269,16 @@ class FailureSummaryTab extends React.Component {
 }
 
 FailureSummaryTab.propTypes = {
-  selectedJob: PropTypes.shape({}).isRequired,
+  selectedJob: PropTypes.shape({
+    id: PropTypes.number,
+    job_group_name: PropTypes.string,
+  }).isRequired,
+  currentRepo: PropTypes.shape({
+    name: PropTypes.string,
+  }).isRequired,
+  selectedJobFull: PropTypes.shape({
+    job_group_name: PropTypes.string,
+  }).isRequired,
   jobLogUrls: PropTypes.arrayOf(PropTypes.object),
   logParseStatus: PropTypes.string,
   logViewerFullUrl: PropTypes.string,

@@ -117,7 +117,9 @@ export default class Platform extends React.PureComponent {
 Platform.propTypes = {
   platform: PropTypes.shape({}).isRequired,
   repoName: PropTypes.string.isRequired,
-  filterModel: PropTypes.shape({}).isRequired,
+  filterModel: PropTypes.shape({
+    showJob: PropTypes.func,
+  }).isRequired,
   pushGroupState: PropTypes.string.isRequired,
   duplicateJobsVisible: PropTypes.bool.isRequired,
   groupCountsExpanded: PropTypes.bool.isRequired,

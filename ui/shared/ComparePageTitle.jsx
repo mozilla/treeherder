@@ -141,6 +141,7 @@ export default class ComparePageTitle extends React.Component {
 
 ComparePageTitle.propTypes = {
   title: PropTypes.string.isRequired,
+  defaultPageTitle: PropTypes.string.isRequired,
   pageTitleQueryParam: PropTypes.string,
 };
 

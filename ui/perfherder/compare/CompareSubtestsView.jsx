@@ -219,7 +219,9 @@ CompareSubtestsView.propTypes = {
   projects: PropTypes.arrayOf(PropTypes.shape({})).isRequired,
   validated: PropTypes.shape({
     originalResultSet: PropTypes.shape({}),
-    newResultSet: PropTypes.shape({}),
+    newResultSet: PropTypes.shape({
+      push_timestamp: PropTypes.number,
+    }),
     newRevision: PropTypes.string,
     originalProject: PropTypes.string,
     newProject: PropTypes.string,

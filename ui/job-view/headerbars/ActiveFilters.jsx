@@ -230,7 +230,11 @@ export default class ActiveFilters extends React.Component {
 }
 
 ActiveFilters.propTypes = {
-  filterModel: PropTypes.shape({}).isRequired,
+  filterModel: PropTypes.shape({
+    removeFilter: PropTypes.func,
+    clearNonStatusFilters: PropTypes.func,
+    addFilter: PropTypes.func,
+  }).isRequired,
   filterBarFilters: PropTypes.arrayOf(PropTypes.object).isRequired,
   isFieldFilterVisible: PropTypes.bool.isRequired,
   toggleFieldFilterVisible: PropTypes.func.isRequired,

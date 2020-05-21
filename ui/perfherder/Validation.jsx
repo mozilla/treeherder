@@ -203,7 +203,13 @@ const withValidation = ({ requiredParams }, verifyRevisions = true) => (
   }
 
   Validation.propTypes = {
-    location: PropTypes.shape({}).isRequired,
+    frameworks: PropTypes.arrayOf(PropTypes.shape({})).isRequired,
+    projects: PropTypes.arrayOf(PropTypes.shape({})).isRequired,
+    location: PropTypes.shape({
+      search: PropTypes.string,
+      hash: PropTypes.string,
+    }).isRequired,
+    history: PropTypes.shape({}).isRequired,
   };
 
   return Validation;

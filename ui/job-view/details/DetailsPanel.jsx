@@ -376,15 +376,28 @@ class DetailsPanel extends React.Component {
 }
 
 DetailsPanel.propTypes = {
-  currentRepo: PropTypes.shape({}).isRequired,
-  user: PropTypes.shape({}).isRequired,
+  currentRepo: PropTypes.shape({
+    name: PropTypes.string,
+    tc_root_url: PropTypes.string,
+  }).isRequired,
+  user: PropTypes.shape({
+    isLoggedIn: PropTypes.bool,
+  }).isRequired,
   resizedHeight: PropTypes.number.isRequired,
   classificationTypes: PropTypes.arrayOf(PropTypes.object).isRequired,
   classificationMap: PropTypes.shape({}).isRequired,
   setPinBoardVisible: PropTypes.func.isRequired,
   isPinBoardVisible: PropTypes.bool.isRequired,
   pushList: PropTypes.arrayOf(PropTypes.object).isRequired,
-  selectedJob: PropTypes.shape({}),
+  selectedJob: PropTypes.shape({
+    id: PropTypes.number,
+    task_id: PropTypes.string,
+    retry_id: PropTypes.number,
+    state: PropTypes.string,
+    result: PropTypes.string,
+    failure_classification_id: PropTypes.number,
+    push_id: PropTypes.number,
+  }),
 };
 
 DetailsPanel.defaultProps = {

@@ -306,7 +306,9 @@ CustomJobActions.propTypes = {
   toggle: PropTypes.func.isRequired,
   decisionTaskMap: PropTypes.shape({}).isRequired,
   job: PropTypes.shape({}),
-  currentRepo: PropTypes.shape({}).isRequired,
+  currentRepo: PropTypes.shape({
+    tc_root_url: PropTypes.string,
+  }).isRequired,
 };
 
 CustomJobActions.defaultProps = {

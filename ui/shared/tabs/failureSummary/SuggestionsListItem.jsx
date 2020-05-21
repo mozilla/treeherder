@@ -183,7 +183,17 @@ export default class SuggestionsListItem extends React.Component {
 
 SuggestionsListItem.propTypes = {
   selectedJob: PropTypes.shape({}).isRequired,
-  suggestion: PropTypes.shape({}).isRequired,
+  suggestion: PropTypes.shape({
+    search: PropTypes.string,
+    valid_all_others: PropTypes.bool,
+    valid_open_recent: PropTypes.bool,
+    bugs: PropTypes.shape({
+      all_others: PropTypes.array,
+      open_recent: PropTypes.array,
+      too_many_open_recent: PropTypes.bool,
+      too_many_all_others: PropTypes.bool,
+    }),
+  }).isRequired,
   toggleBugFiler: PropTypes.func.isRequired,
   developerMode: PropTypes.bool.isRequired,
   addBug: PropTypes.func,

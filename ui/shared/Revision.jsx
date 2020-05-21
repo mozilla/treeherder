@@ -137,6 +137,7 @@ Revision.propTypes = {
   repo: PropTypes.shape({
     url: PropTypes.string,
     revisionHrefPrefix: PropTypes.string,
+    getRevisionHref: PropTypes.func,
   }).isRequired,
   commitShaClass: PropTypes.string,
   commentFont: PropTypes.string,

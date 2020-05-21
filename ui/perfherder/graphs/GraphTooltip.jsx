@@ -293,14 +293,30 @@ const GraphTooltip = ({
 GraphTooltip.propTypes = {
   dataPoint: PropTypes.shape({}),
   testData: PropTypes.arrayOf(PropTypes.shape({})).isRequired,
-  user: PropTypes.shape({}).isRequired,
+  user: PropTypes.shape({
+    isStaff: PropTypes.bool.isRequired,
+  }).isRequired,
   updateData: PropTypes.func.isRequired,
   projects: PropTypes.arrayOf(PropTypes.shape({})),
+  updateStateParams: PropTypes.func.isRequired,
+  lockTooltip: PropTypes.bool.isRequired,
+  closeTooltip: PropTypes.func.isRequired,
+  datum: PropTypes.shape({
+    dataPointId: PropTypes.number.isRequired,
+    signature_id: PropTypes.number.isRequired,
+    pushId: PropTypes.number.isRequired,
+  }),
+  x: PropTypes.number,
+  y: PropTypes.number,
+  windowWidth: PropTypes.number.isRequired,
 };
 
 GraphTooltip.defaultProps = {
   projects: [],
   dataPoint: undefined,
+  datum: undefined,
+  x: undefined,
+  y: undefined,
 };
 
 export default GraphTooltip;

@@ -20,7 +20,11 @@ function StatusPanel(props) {
 }
 
 StatusPanel.propTypes = {
-  selectedJobFull: PropTypes.shape({}).isRequired,
+  selectedJobFull: PropTypes.shape({
+    state: PropTypes.string,
+    result: PropTypes.string,
+    resultStatus: PropTypes.string,
+  }).isRequired,
 };
 
 export default StatusPanel;

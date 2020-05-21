@@ -346,8 +346,13 @@ export default class AlertTable extends React.Component {
 }
 
 AlertTable.propTypes = {
-  alertSummary: PropTypes.shape({}),
-  user: PropTypes.shape({}).isRequired,
+  alertSummary: PropTypes.shape({
+    alerts: PropTypes.arrayOf(PropTypes.shape({})),
+  }),
+  user: PropTypes.shape({
+    isStaff: PropTypes.bool,
+    username: PropTypes.string,
+  }).isRequired,
   alertSummaries: PropTypes.arrayOf(PropTypes.shape({})).isRequired,
   issueTrackers: PropTypes.arrayOf(PropTypes.shape({})),
   optionCollectionMap: PropTypes.shape({}).isRequired,
@@ -364,6 +369,7 @@ AlertTable.propTypes = {
   updateAlertSummary: PropTypes.func,
   projects: PropTypes.arrayOf(PropTypes.shape({})).isRequired,
   performanceTags: PropTypes.arrayOf(PropTypes.shape({})).isRequired,
+  frameworks: PropTypes.arrayOf(PropTypes.shape({})).isRequired,
 };
 
 AlertTable.defaultProps = {

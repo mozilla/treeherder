@@ -250,6 +250,7 @@ CompareTableControls.propTypes = {
     PropTypes.bool,
   ]),
   onPermalinkClick: PropTypes.func,
+  history: PropTypes.shape({}).isRequired,
 };
 
 CompareTableControls.defaultProps = {

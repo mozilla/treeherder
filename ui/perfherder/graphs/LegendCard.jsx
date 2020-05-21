@@ -209,12 +209,25 @@ const LegendCard = ({
 LegendCard.propTypes = {
   series: PropTypes.PropTypes.shape({
     visible: PropTypes.bool,
+    signature_id: PropTypes.number,
+    framework_id: PropTypes.number,
+    color: PropTypes.arrayOf(PropTypes.string),
+    symbol: PropTypes.arrayOf(PropTypes.string),
+    signatureHash: PropTypes.string.isRequired,
+    name: PropTypes.string.isRequired,
+    repository_name: PropTypes.string.isRequired,
+    application: PropTypes.string.isRequired,
+    platform: PropTypes.string.isRequired,
   }).isRequired,
   updateState: PropTypes.func.isRequired,
   testData: PropTypes.arrayOf(PropTypes.shape({})),
   updateStateParams: PropTypes.func.isRequired,
   colors: PropTypes.arrayOf(PropTypes.arrayOf(PropTypes.string)).isRequired,
-  selectedDataPoint: PropTypes.shape({}),
+  selectedDataPoint: PropTypes.shape({
+    signature_id: PropTypes.number,
+  }),
+  frameworks: PropTypes.arrayOf(PropTypes.shape({})).isRequired,
+  symbols: PropTypes.arrayOf(PropTypes.array).isRequired,
 };
 
 LegendCard.defaultProps = {

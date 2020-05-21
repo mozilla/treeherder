@@ -193,15 +193,24 @@ CommitHistory.propTypes = {
     parentRepository: PropTypes.object.isRequired,
     revisionCount: PropTypes.number.isRequired,
     parentPushRevision: PropTypes.string,
-    job_counts: PropTypes.shape({
+    jobCounts: PropTypes.shape({
       completed: PropTypes.number.isRequired,
       pending: PropTypes.number.isRequired,
       running: PropTypes.number.isRequired,
     }),
     id: PropTypes.number,
+    exactMatch: PropTypes.bool,
+    parentSha: PropTypes.string,
+    revisions: PropTypes.array,
+    currentPush: PropTypes.shape({
+      author: PropTypes.string,
+      push_timestamp: PropTypes.number,
+    }),
   }).isRequired,
   revision: PropTypes.string.isRequired,
-  currentRepo: PropTypes.shape({}).isRequired,
+  currentRepo: PropTypes.shape({
+    name: PropTypes.string,
+  }).isRequired,
 };
 
 export default CommitHistory;

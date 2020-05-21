@@ -653,11 +653,19 @@ export default class TestDataModal extends React.Component {
 TestDataModal.propTypes = {
   projects: PropTypes.arrayOf(PropTypes.shape({})).isRequired,
   plottedUnits: PropTypes.instanceOf(Set).isRequired,
-  timeRange: PropTypes.shape({}).isRequired,
+  timeRange: PropTypes.shape({
+    value: PropTypes.number,
+  }).isRequired,
   getTestData: PropTypes.func.isRequired,
   options: PropTypes.shape({
     option: PropTypes.string,
-    relatedSeries: PropTypes.shape({}),
+    relatedSeries: PropTypes.shape({
+      framework_id: PropTypes.number,
+      repository_name: PropTypes.string,
+      test: PropTypes.string,
+      name: PropTypes.string,
+      platform: PropTypes.string,
+    }),
   }),
   testData: PropTypes.arrayOf(PropTypes.shape({})),
   frameworks: PropTypes.arrayOf(PropTypes.shape({})),

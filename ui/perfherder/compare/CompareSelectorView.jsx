@@ -1,4 +1,5 @@
 import React from 'react';
+import PropTypes from 'prop-types';
 import {
   Container,
   Col,
@@ -190,3 +191,14 @@ export default class CompareSelectorView extends React.Component {
     );
   }
 }
+
+CompareSelectorView.propTypes = {
+  frameworks: PropTypes.arrayOf(PropTypes.shape({})).isRequired,
+  projects: PropTypes.arrayOf(PropTypes.shape({})).isRequired,
+  location: PropTypes.shape({
+    search: PropTypes.string,
+  }).isRequired,
+  history: PropTypes.shape({
+    push: PropTypes.func,
+  }).isRequired,
+};

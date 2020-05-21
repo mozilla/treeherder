@@ -284,7 +284,10 @@ TabsPanel.propTypes = {
   pinnedJobs: PropTypes.shape({}).isRequired,
   bugs: PropTypes.arrayOf(PropTypes.object).isRequired,
   clearSelectedJob: PropTypes.func.isRequired,
-  selectedJobFull: PropTypes.shape({}).isRequired,
+  selectedJobFull: PropTypes.shape({
+    id: PropTypes.number,
+    resultStatus: PropTypes.string,
+  }).isRequired,
   perfJobDetail: PropTypes.arrayOf(PropTypes.object),
   jobRevision: PropTypes.string,
   jobLogUrls: PropTypes.arrayOf(PropTypes.object),

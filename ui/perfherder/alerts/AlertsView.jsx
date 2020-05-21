@@ -389,11 +389,23 @@ class AlertsView extends React.Component {
 }
 
 AlertsView.propTypes = {
-  location: PropTypes.shape({}),
-  user: PropTypes.shape({}).isRequired,
+  location: PropTypes.shape({
+    search: PropTypes.string,
+  }),
+  user: PropTypes.shape({
+    isStaff: PropTypes.bool,
+    username: PropTypes.string,
+  }).isRequired,
   validated: PropTypes.shape({
     updateParams: PropTypes.func.isRequired,
     framework: PropTypes.string,
+    id: PropTypes.string,
+    hideDwnToInv: PropTypes.string,
+    page: PropTypes.string,
+    status: PropTypes.string,
+    hideAssignedToOthers: PropTypes.bool,
+    hideImprovements: PropTypes.bool,
+    filterText: PropTypes.string,
   }).isRequired,
   projects: PropTypes.arrayOf(PropTypes.shape({})).isRequired,
   frameworks: PropTypes.arrayOf(PropTypes.shape({})).isRequired,

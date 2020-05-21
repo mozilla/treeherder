@@ -328,5 +328,8 @@ export default class Health extends React.PureComponent {
 }
 
 Health.propTypes = {
-  location: PropTypes.shape({}).isRequired,
+  location: PropTypes.shape({
+    search: PropTypes.string,
+  }).isRequired,
+  history: PropTypes.shape({}).isRequired,
 };

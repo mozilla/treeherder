@@ -7,6 +7,18 @@ import { noResultsMessage } from '../constants';
 
 import ItemList from './ItemList';
 
+const Cell = ({
+  value,
+  columnProps: {
+    rest: { datamap, color },
+  },
+}) => {
+  if (datamap) {
+    const items = value.map((id) => datamap[id]);
+    return <ItemList items={items} color={color} />;
+  }
+  return null;
+};
 export default function TestsTable(props) {
   const { results, projectsMap, platformsMap, defaultPageSize } = props;
 
@@ -33,31 +45,21 @@ export default function TestsTable(props) {
       headerStyle,
       Header: 'Platforms',
       accessor: 'platforms',
-      Cell: (props) => {
-        if (platformsMap) {
-          const platforms = props.value.map((id) => platformsMap[id]);
-          return <ItemList items={platforms} color="info" />;
-        }
-        return null;
-      },
+      Cell,
       width: 300,
       style: { textAlign: 'center' },
       sortable: false,
+      getProps: () => ({ datamap: platformsMap, color: 'info' }),
     },
     {
       headerStyle,
       Header: 'Projects',
       accessor: 'repositories',
-      Cell: (props) => {
-        if (projectsMap) {
-          const repositories = props.value.map((id) => projectsMap[id]);
-          return <ItemList items={repositories} />;
-        }
-        return null;
-      },
+      Cell,
       width: 300,
       style: { textAlign: 'center' },
       sortable: false,
+      getProps: () => ({ datamap: projectsMap }),
     },
     {
       headerStyle,
@@ -95,4 +97,14 @@ TestsTable.propTypes = {
 TestsTable.defaultProps = {
   results: [],
   defaultPageSize: 20,
+};
+
+Cell.propTypes = {
+  value: PropTypes.arrayOf(PropTypes.string).isRequired,
+  columnProps: PropTypes.shape({
+    rest: PropTypes.shape({
+      datamap: PropTypes.oneOfType([PropTypes.bool, PropTypes.shape({})]),
+      color: PropTypes.string,
+    }),
+  }).isRequired,
 };

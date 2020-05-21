@@ -1,4 +1,5 @@
 import React from 'react';
+import PropTypes from 'prop-types';
 import ReactTable from 'react-table';
 import { Badge } from 'reactstrap';
 import moment from 'moment';
@@ -8,6 +9,65 @@ import numeral from 'numeral';
 import RepositoryModel from '../../models/repository';
 import { getJobsUrl, createQueryParams } from '../../helpers/url';
 import { getFrameworkName, displayNumber } from '../helpers';
+
+const TestCell = ({
+  original,
+  columnProps: {
+    rest: { dataKey: datakey },
+  },
+}) => {
+  let cellElem = null;
+  if (original[datakey]) {
+    const { value, jobsUrl, compareUrl, deltaValue, deltaPercent } = original[
+      datakey
+    ];
+    cellElem = (
+      <div tabIndex={-1}>
+        <span>
+          {value}{' '}
+          <span className="text-darker-secondary">
+            &Delta; {displayNumber(deltaValue.toFixed(1))} (
+            {(100 * deltaPercent).toFixed(1)}
+            %)
+          </span>
+        </span>
+        <br />
+        <div className="job-links">
+          {jobsUrl && (
+            <a href={jobsUrl} target="_blank" rel="noopener noreferrer">
+              job
+            </a>
+          )}
+          ,{' '}
+          <a href={compareUrl} target="_blank" rel="noopener noreferrer">
+            compare
+          </a>
+        </div>
+      </div>
+    );
+  }
+  return cellElem;
+};
+
+const DateCell = ({ original }) => {
+  const { date, pushUrl, revision } = original;
+  return (
+    <div>
+      <span>{moment(date).format('MMM DD, h:mm:ss a')}</span>
+      <br />{' '}
+      {pushUrl && (
+        <a
+          title="Revision Link"
+          href={pushUrl}
+          target="_blank"
+          rel="noopener noreferrer"
+        >
+          {revision.slice(0, 13)}
+        </a>
+      )}
+    </div>
+  );
+};
 
 const TableView = ({
   testData,
@@ -101,44 +161,11 @@ const TableView = ({
         </span>
       ),
       headerClassName: `text-wrap d-flex justify-content-center align-items-center table-header ${item.color[0]}`,
-      Cell: (props) => {
-        let cellElem = null;
-        if (props.original[dataKey]) {
-          const {
-            value,
-            jobsUrl,
-            compareUrl,
-            deltaValue,
-            deltaPercent,
-          } = props.original[dataKey];
-          cellElem = (
-            <div tabIndex={-1}>
-              <span>
-                {value}{' '}
-                <span className="text-darker-secondary">
-                  &Delta; {displayNumber(deltaValue.toFixed(1))} (
-                  {(100 * deltaPercent).toFixed(1)}
-                  %)
-                </span>
-              </span>
-              <br />
-              <div className="job-links">
-                {jobsUrl && (
-                  <a href={jobsUrl} target="_blank" rel="noopener noreferrer">
-                    job
-                  </a>
-                )}
-                ,{' '}
-                <a href={compareUrl} target="_blank" rel="noopener noreferrer">
-                  compare
-                </a>
-              </div>
-            </div>
-          );
-        }
-        return cellElem;
-      },
-      getProps: (state, rowInfo) => setHighlightedRow(rowInfo),
+      Cell: TestCell,
+      getProps: (state, rowInfo) => ({
+        ...setHighlightedRow(rowInfo),
+        dataKey,
+      }),
     };
   };
 
@@ -203,25 +230,7 @@ const TableView = ({
       {
         Header: 'Date',
         accessor: 'date',
-        Cell: ({ original }) => {
-          const { date, pushUrl, revision } = original;
-          return (
-            <div>
-              <span>{moment(date).format('MMM DD, h:mm:ss a')}</span>
-              <br />{' '}
-              {pushUrl && (
-                <a
-                  title="Revision Link"
-                  href={pushUrl}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                >
-                  {revision.slice(0, 13)}
-                </a>
-              )}
-            </div>
-          );
-        },
+        Cell: DateCell,
         headerClassName:
           'text-wrap d-flex justify-content-center align-items-center',
         getProps: (state, rowInfo) => setHighlightedRow(rowInfo),
@@ -267,6 +276,31 @@ const TableView = ({
       defaultPageSize={10}
     />
   );
+};
+
+TableView.propTypes = {
+  testData: PropTypes.arrayOf(PropTypes.shape({})).isRequired,
+  highlightAlerts: PropTypes.bool.isRequired,
+  highlightedRevisions: PropTypes.arrayOf(PropTypes.string).isRequired,
+  projects: PropTypes.arrayOf(PropTypes.shape({})).isRequired,
+  frameworks: PropTypes.arrayOf(PropTypes.shape({})).isRequired,
+};
+
+TestCell.propTypes = {
+  original: PropTypes.shape({}).isRequired,
+  columnProps: PropTypes.shape({
+    rest: PropTypes.shape({
+      dataKey: PropTypes.string,
+    }),
+  }).isRequired,
+};
+
+DateCell.propTypes = {
+  original: PropTypes.shape({
+    date: PropTypes.shape({}),
+    pushUrl: PropTypes.string,
+    revision: PropTypes.string,
+  }).isRequired,
 };
 
 export default TableView;

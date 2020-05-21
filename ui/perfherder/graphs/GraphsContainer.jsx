@@ -508,13 +508,18 @@ GraphsContainer.propTypes = {
   measurementUnits: PropTypes.instanceOf(Set).isRequired,
   updateStateParams: PropTypes.func.isRequired,
   zoom: PropTypes.shape({}),
-  selectedDataPoint: PropTypes.shape({}),
+  selectedDataPoint: PropTypes.shape({
+    signature_id: PropTypes.number,
+    dataPointId: PropTypes.number,
+  }),
   highlightAlerts: PropTypes.bool,
   highlightedRevisions: PropTypes.oneOfType([
     PropTypes.string,
     PropTypes.arrayOf(PropTypes.string),
   ]),
   timeRange: PropTypes.shape({}).isRequired,
+  showTable: PropTypes.bool.isRequired,
+  visibilityChanged: PropTypes.bool.isRequired,
 };
 
 GraphsContainer.defaultProps = {

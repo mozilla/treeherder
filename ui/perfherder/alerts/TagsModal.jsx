@@ -115,7 +115,9 @@ export default class TagsModal extends React.Component {
 }
 
 TagsModal.propTypes = {
-  alertSummary: PropTypes.shape({}).isRequired,
+  alertSummary: PropTypes.shape({
+    performance_tags: PropTypes.arrayOf(PropTypes.shape({})),
+  }).isRequired,
   performanceTags: PropTypes.arrayOf(PropTypes.shape({})).isRequired,
   showModal: PropTypes.bool.isRequired,
   toggle: PropTypes.func.isRequired,

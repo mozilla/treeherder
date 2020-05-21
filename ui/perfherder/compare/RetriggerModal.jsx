@@ -207,7 +207,10 @@ RetriggerModal.propTypes = {
   toggle: PropTypes.func.isRequired,
   updateAndClose: PropTypes.func.isRequired,
   isBaseAggregate: PropTypes.bool.isRequired,
-  currentRetriggerRow: PropTypes.shape({}),
+  currentRetriggerRow: PropTypes.shape({
+    originalRetriggerableJobId: PropTypes.number,
+    newRetriggerableJobId: PropTypes.number,
+  }),
   defaultRetriggersValue: PropTypes.number,
   maxRetriggersValue: PropTypes.number,
 };

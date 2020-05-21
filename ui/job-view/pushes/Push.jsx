@@ -692,7 +692,19 @@ class Push extends React.PureComponent {
 }
 
 Push.propTypes = {
-  push: PropTypes.shape({}).isRequired,
+  push: PropTypes.shape({
+    id: PropTypes.number,
+    revision: PropTypes.string,
+    revisions: PropTypes.arrayOf(
+      PropTypes.shape({
+        revision: PropTypes.string,
+      }),
+    ),
+    jobsLoaded: PropTypes.bool,
+    push_timestamp: PropTypes.number,
+    revision_count: PropTypes.number,
+    author: PropTypes.string,
+  }).isRequired,
   currentRepo: PropTypes.shape({
     name: PropTypes.string,
   }).isRequired,

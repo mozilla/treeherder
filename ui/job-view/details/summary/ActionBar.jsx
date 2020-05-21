@@ -560,12 +560,22 @@ class ActionBar extends React.PureComponent {
 ActionBar.propTypes = {
   pinJob: PropTypes.func.isRequired,
   decisionTaskMap: PropTypes.shape({}).isRequired,
-  user: PropTypes.shape({}).isRequired,
-  selectedJobFull: PropTypes.shape({}).isRequired,
+  user: PropTypes.shape({
+    email: PropTypes.string,
+  }).isRequired,
+  selectedJobFull: PropTypes.shape({
+    submit_timestamp: PropTypes.number,
+    state: PropTypes.string,
+    id: PropTypes.number,
+    push_id: PropTypes.number,
+    task_id: PropTypes.string,
+  }).isRequired,
   logParseStatus: PropTypes.string.isRequired,
   notify: PropTypes.func.isRequired,
   jobLogUrls: PropTypes.arrayOf(PropTypes.object),
-  currentRepo: PropTypes.shape({}).isRequired,
+  currentRepo: PropTypes.shape({
+    tc_root_url: PropTypes.string,
+  }).isRequired,
   isTryRepo: PropTypes.bool,
   logViewerUrl: PropTypes.string,
   logViewerFullUrl: PropTypes.string,

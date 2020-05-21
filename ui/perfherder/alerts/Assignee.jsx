@@ -137,7 +137,10 @@ export default class Assignee extends React.Component {
 
 Assignee.propTypes = {
   updateAssignee: PropTypes.func.isRequired,
-  user: PropTypes.shape({}).isRequired,
+  user: PropTypes.shape({
+    isStaff: PropTypes.bool,
+    username: PropTypes.string,
+  }).isRequired,
   assigneeUsername: PropTypes.string,
 };
 

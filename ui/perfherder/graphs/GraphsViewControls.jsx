@@ -156,7 +156,9 @@ export default class GraphsViewControls extends React.Component {
 
 GraphsViewControls.propTypes = {
   updateStateParams: PropTypes.func.isRequired,
-  timeRange: PropTypes.shape({}).isRequired,
+  timeRange: PropTypes.shape({
+    text: PropTypes.string,
+  }).isRequired,
   highlightAlerts: PropTypes.bool.isRequired,
   highlightedRevisions: PropTypes.oneOfType([
     PropTypes.string,
@@ -172,6 +174,8 @@ GraphsViewControls.propTypes = {
   testData: PropTypes.arrayOf(PropTypes.shape({})),
   showModal: PropTypes.bool,
   toggle: PropTypes.func.isRequired,
+  toggleTableView: PropTypes.func.isRequired,
+  showTable: PropTypes.bool.isRequired,
 };
 
 GraphsViewControls.defaultProps = {

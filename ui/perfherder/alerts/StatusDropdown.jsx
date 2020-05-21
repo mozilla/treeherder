@@ -317,19 +317,33 @@ export default class StatusDropdown extends React.Component {
 }
 
 StatusDropdown.propTypes = {
-  alertSummary: PropTypes.shape({}).isRequired,
-  user: PropTypes.shape({}).isRequired,
+  alertSummary: PropTypes.shape({
+    framework: PropTypes.number,
+    revision: PropTypes.string,
+    id: PropTypes.number,
+    push_timestamp: PropTypes.number,
+    status: PropTypes.number,
+    bug_number: PropTypes.number,
+    notes: PropTypes.string,
+    performance_tags: PropTypes.array,
+  }).isRequired,
+  user: PropTypes.shape({
+    isStaff: PropTypes.bool,
+  }).isRequired,
   updateState: PropTypes.func.isRequired,
   issueTrackers: PropTypes.arrayOf(
     PropTypes.shape({
       text: PropTypes.string,
     }),
   ),
-  repoModel: PropTypes.shape({}).isRequired,
+  repoModel: PropTypes.shape({
+    getPushLogHref: PropTypes.func,
+  }).isRequired,
   updateViewState: PropTypes.func.isRequired,
   bugTemplate: PropTypes.shape({}),
   filteredAlerts: PropTypes.arrayOf(PropTypes.shape({})),
   performanceTags: PropTypes.arrayOf(PropTypes.shape({})).isRequired,
+  frameworks: PropTypes.arrayOf(PropTypes.shape({})).isRequired,
 };
 
 StatusDropdown.defaultProps = {

@@ -241,7 +241,11 @@ class KeyboardShortcuts extends React.Component {
 }
 
 KeyboardShortcuts.propTypes = {
-  filterModel: PropTypes.shape({}).isRequired,
+  filterModel: PropTypes.shape({
+    toggleUnclassifiedFailures: PropTypes.func,
+    toggleInProgress: PropTypes.func,
+    removeFilter: PropTypes.func,
+  }).isRequired,
   pinJob: PropTypes.func.isRequired,
   unPinAll: PropTypes.func.isRequired,
   children: PropTypes.arrayOf(PropTypes.element).isRequired,

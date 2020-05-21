@@ -673,10 +673,17 @@ PinBoard.propTypes = {
   setClassificationComment: PropTypes.func.isRequired,
   setSelectedJob: PropTypes.func.isRequired,
   notify: PropTypes.func.isRequired,
-  currentRepo: PropTypes.shape({}).isRequired,
+  currentRepo: PropTypes.shape({
+    is_try_repo: PropTypes.bool,
+    repository_group: PropTypes.shape({
+      name: PropTypes.string,
+    }),
+  }).isRequired,
   failureClassificationId: PropTypes.number.isRequired,
   failureClassificationComment: PropTypes.string.isRequired,
-  selectedJobFull: PropTypes.shape({}),
+  selectedJobFull: PropTypes.shape({
+    id: PropTypes.number,
+  }),
   email: PropTypes.string,
   revisionTips: PropTypes.arrayOf(PropTypes.object),
 };

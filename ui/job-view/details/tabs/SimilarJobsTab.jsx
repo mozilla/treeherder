@@ -338,7 +338,9 @@ SimilarJobsTab.propTypes = {
   repoName: PropTypes.string.isRequired,
   classificationMap: PropTypes.shape({}).isRequired,
   notify: PropTypes.func.isRequired,
-  selectedJobFull: PropTypes.shape({}).isRequired,
+  selectedJobFull: PropTypes.shape({
+    id: PropTypes.number,
+  }).isRequired,
 };
 
 export default connect(null, { notify })(SimilarJobsTab);

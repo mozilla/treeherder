@@ -356,6 +356,7 @@ CompareTableView.propTypes = {
     originalSignature: PropTypes.string,
     newSignature: PropTypes.string,
     framework: PropTypes.string,
+    pageTitle: PropTypes.string,
   }),
   user: PropTypes.shape({}).isRequired,
   dateRangeOptions: PropTypes.oneOfType([PropTypes.shape({}), PropTypes.bool]),
@@ -365,6 +366,12 @@ CompareTableView.propTypes = {
   projects: PropTypes.arrayOf(PropTypes.shape({})).isRequired,
   hasSubtests: PropTypes.bool,
   frameworks: PropTypes.arrayOf(PropTypes.shape({})).isRequired,
+  compareData: PropTypes.instanceOf(Map),
+  location: PropTypes.shape({
+    search: PropTypes.string,
+    pathname: PropTypes.string,
+    hash: PropTypes.string,
+  }).isRequired,
 };
 
 CompareTableView.defaultProps = {
@@ -372,4 +379,5 @@ CompareTableView.defaultProps = {
   filterByFramework: null,
   validated: PropTypes.shape({}),
   hasSubtests: false,
+  compareData: null,
 };

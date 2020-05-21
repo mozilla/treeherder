@@ -168,7 +168,10 @@ export default class ReplicatesGraph extends React.Component {
 
 ReplicatesGraph.propTypes = {
   title: PropTypes.string.isRequired, // TODO: stands for targetId
-  project: PropTypes.shape({}).isRequired,
+  project: PropTypes.shape({
+    name: PropTypes.string,
+    tc_root_url: PropTypes.string,
+  }).isRequired,
   revision: PropTypes.string.isRequired,
   subtestSignature: PropTypes.string.isRequired,
   filters: PropTypes.shape({

@@ -136,10 +136,24 @@ const AlertHeader = ({
 };
 
 AlertHeader.propTypes = {
-  alertSummary: PropTypes.shape({}).isRequired,
-  repoModel: PropTypes.shape({}).isRequired,
+  alertSummary: PropTypes.shape({
+    repository: PropTypes.string,
+    framework: PropTypes.number,
+    id: PropTypes.number,
+    prev_push_revision: PropTypes.string,
+    revision: PropTypes.string,
+    push_timestamp: PropTypes.number,
+    assignee_username: PropTypes.string,
+    issue_tracker: PropTypes.number,
+    bug_number: PropTypes.number,
+  }).isRequired,
+  repoModel: PropTypes.shape({
+    getPushLogRangeHref: PropTypes.func,
+  }).isRequired,
   user: PropTypes.shape({}).isRequired,
   issueTrackers: PropTypes.arrayOf(PropTypes.shape({})),
+  frameworks: PropTypes.arrayOf(PropTypes.shape({})).isRequired,
+  updateAssignee: PropTypes.func.isRequired,
 };
 
 AlertHeader.defaultProps = {

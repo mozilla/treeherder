@@ -79,6 +79,7 @@ export default class TestsTableControls extends React.Component {
 }
 
 TestsTableControls.propTypes = {
+  validated: PropTypes.shape({}),
   testsOverviewResults: PropTypes.arrayOf(PropTypes.shape({})),
   dropdownOptions: PropTypes.arrayOf(PropTypes.shape({})),
   projectsMap: PropTypes.oneOfType([PropTypes.bool, PropTypes.shape({})])
@@ -90,4 +91,5 @@ TestsTableControls.propTypes = {
 TestsTableControls.defaultProps = {
   testsOverviewResults: [],
   dropdownOptions: [],
+  validated: null,
 };

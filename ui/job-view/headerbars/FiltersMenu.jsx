@@ -130,12 +130,27 @@ function FiltersMenu(props) {
 }
 
 FiltersMenu.propTypes = {
-  filterModel: PropTypes.shape({}).isRequired,
+  filterModel: PropTypes.shape({
+    urlParams: PropTypes.shape({
+      resultStatus: PropTypes.array,
+      classifiedState: PropTypes.array,
+    }),
+    replaceFilter: PropTypes.func,
+    removeFilter: PropTypes.func,
+    isUnclassifiedFailures: PropTypes.func,
+    toggleUnclassifiedFailures: PropTypes.func,
+    toggleResultStatuses: PropTypes.func,
+    toggleClassifiedFilter: PropTypes.func,
+    setOnlySuperseded: PropTypes.func,
+    resetNonFieldFilters: PropTypes.func,
+  }).isRequired,
   pinJobs: PropTypes.func.isRequired,
   setSelectedJob: PropTypes.func.isRequired,
   getAllShownJobs: PropTypes.func.isRequired,
   selectedJob: PropTypes.shape({}),
-  user: PropTypes.shape({}).isRequired,
+  user: PropTypes.shape({
+    email: PropTypes.string,
+  }).isRequired,
 };
 
 FiltersMenu.defaultProps = {

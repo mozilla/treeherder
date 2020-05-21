@@ -139,8 +139,19 @@ export default class JobButtonComponent extends React.Component {
 }
 
 JobButtonComponent.propTypes = {
-  job: PropTypes.shape({}).isRequired,
-  filterModel: PropTypes.shape({}).isRequired,
+  job: PropTypes.shape({
+    hoverText: PropTypes.string,
+    state: PropTypes.string,
+    failure_classification_id: PropTypes.number,
+    visible: PropTypes.bool,
+    id: PropTypes.number,
+    job_type_symbol: PropTypes.string,
+    resultStatus: PropTypes.string,
+    task_run: PropTypes.string,
+  }).isRequired,
+  filterModel: PropTypes.shape({
+    showJob: PropTypes.func,
+  }).isRequired,
   repoName: PropTypes.string.isRequired,
   visible: PropTypes.bool.isRequired,
   resultStatus: PropTypes.string.isRequired,

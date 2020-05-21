@@ -91,7 +91,9 @@ class SummaryPanel extends React.PureComponent {
 SummaryPanel.propTypes = {
   bugs: PropTypes.arrayOf(PropTypes.object).isRequired,
   user: PropTypes.shape({}).isRequired,
-  currentRepo: PropTypes.shape({}).isRequired,
+  currentRepo: PropTypes.shape({
+    is_try_repo: PropTypes.bool,
+  }).isRequired,
   classificationMap: PropTypes.shape({}).isRequired,
   selectedJobFull: PropTypes.shape({}).isRequired,
   latestClassification: PropTypes.shape({}),

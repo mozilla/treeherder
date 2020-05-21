@@ -171,7 +171,13 @@ export class JobGroupComponent extends React.Component {
 }
 
 JobGroupComponent.propTypes = {
-  group: PropTypes.shape({}).isRequired,
+  group: PropTypes.shape({
+    name: PropTypes.string,
+    symbol: PropTypes.string,
+    tier: PropTypes.number,
+    jobs: PropTypes.array,
+    mapKey: PropTypes.string,
+  }).isRequired,
   repoName: PropTypes.string.isRequired,
   filterModel: PropTypes.shape({}).isRequired,
   filterPlatformCb: PropTypes.func.isRequired,

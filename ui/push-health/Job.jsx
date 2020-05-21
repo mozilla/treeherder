@@ -92,6 +92,8 @@ Job.propTypes = {
     failure_classification_id: PropTypes.number.isRequired,
     job_type_name: PropTypes.string.isRequired,
     job_type_symbol: PropTypes.string.isRequired,
+    failedInParent: PropTypes.bool,
+    state: PropTypes.any,
   }).isRequired,
   repo: PropTypes.string.isRequired,
   revision: PropTypes.string.isRequired,

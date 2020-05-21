@@ -99,6 +99,7 @@ PushLoadErrors.propTypes = {
   currentRepo: PropTypes.shape({
     url: PropTypes.string,
     pushLogUrl: PropTypes.string,
+    getPushLogHref: PropTypes.func,
   }).isRequired,
   repoName: PropTypes.string.isRequired,
   revision: PropTypes.string,

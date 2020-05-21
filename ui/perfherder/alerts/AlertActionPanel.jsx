@@ -233,7 +233,9 @@ export default class AlertActionPanel extends React.Component {
 AlertActionPanel.propTypes = {
   selectedAlerts: PropTypes.arrayOf(PropTypes.shape({})).isRequired,
   fetchAlertSummaries: PropTypes.func.isRequired,
-  alertSummary: PropTypes.shape({}),
+  alertSummary: PropTypes.shape({
+    id: PropTypes.number,
+  }),
   updateState: PropTypes.func.isRequired,
   allSelected: PropTypes.bool.isRequired,
   alertSummaries: PropTypes.arrayOf(PropTypes.shape({})).isRequired,

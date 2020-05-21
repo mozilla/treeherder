@@ -47,16 +47,19 @@ RevisionList.propTypes = {
   revisionCount: PropTypes.number.isRequired,
   repo: PropTypes.shape({
     pushLogUrl: PropTypes.string,
+    getPushLogHref: PropTypes.func,
   }).isRequired,
   widthClass: PropTypes.string,
   commitShaClass: PropTypes.string,
   commentFont: PropTypes.string,
+  children: PropTypes.oneOfType([PropTypes.bool, PropTypes.object]),
 };
 
 RevisionList.defaultProps = {
   widthClass: '',
   commitShaClass: '',
   commentFont: '',
+  children: false,
 };
 
 export function MoreRevisionsLink(props) {

@@ -442,11 +442,17 @@ GraphsView.propTypes = {
       PropTypes.string,
       PropTypes.arrayOf(PropTypes.string),
     ]),
+    search: PropTypes.string,
   }),
+  user: PropTypes.shape({}).isRequired,
+  projects: PropTypes.arrayOf(PropTypes.shape({})).isRequired,
+  frameworks: PropTypes.arrayOf(PropTypes.shape({})),
+  history: PropTypes.shape({}).isRequired,
 };
 
 GraphsView.defaultProps = {
   location: undefined,
+  frameworks: [],
 };
 
 export default GraphsView;
