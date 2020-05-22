@@ -115,7 +115,7 @@ export const thPlatformMap = {
   'android-hw-p2-8-0-arm7-api-16-shippable': 'Android 8.0 Pixel2 Shippable',
   'android-hw-p2-8-0-android-aarch64': 'Android 8.0 Pixel2 AArch64',
   'android-hw-p2-8-0-android-aarch64-qr':
-   'Android 8.0 Pixel2 AArch64 WebRender',
+    'Android 8.0 Pixel2 AArch64 WebRender',
   Android: 'Android',
 
   'gecko-decision': 'Gecko Decision Task',
