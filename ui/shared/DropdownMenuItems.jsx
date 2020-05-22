@@ -30,20 +30,17 @@ const DropdownMenuItems = ({
 }) => (
   <DropdownMenu className="overflow-auto dropdown-menu-height">
     {/* Items pinned to top of dropdown */}
-    {pinned.length > 0 &&
-      options
-        .filter((item) => pinned.includes(item))
-        .sort((a, b) => a > b)
-        .map((item) =>
+    {pinned.length > 0 && (
+      <React.Fragment>
+        {pinned.map((item) =>
           createDropdownItem(item, namespace, updateData, selectedItem),
         )}
-    {pinned.length > 0 && <DropdownItem divider />}
-    {options
-      .filter((item) => !pinned.includes(item))
-      .sort((a, b) => a > b)
-      .map((item) =>
-        createDropdownItem(item, namespace, updateData, selectedItem),
-      )}
+        <DropdownItem divider />
+      </React.Fragment>
+    )}
+    {options.map((item) =>
+      createDropdownItem(item, namespace, updateData, selectedItem),
+    )}
   </DropdownMenu>
 );
 
