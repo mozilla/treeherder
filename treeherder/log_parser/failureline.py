@@ -138,7 +138,16 @@ def create_failure_line(job_log, failure_line):
 
 
 def create(job_log, log_list):
-    failure_lines = [create_failure_line(job_log, failure_line) for failure_line in log_list]
+    for failure_line in log_list:
+        action = failure_line['action']
+        if action not in FailureLine.ACTION_LIST:
+            newrelic.agent.record_custom_event("unsupported_failure_line_action", failure_line)
+            logger.exception(ValueError(f'Unsupported FailureLine ACTION: {action}'))
+    failure_lines = [
+        create_failure_line(job_log, failure_line)
+        for failure_line in log_list
+        if failure_line['action'] in FailureLine.ACTION_LIST
+    ]
     job_log.update_status(JobLog.PARSED)
     return failure_lines
 
