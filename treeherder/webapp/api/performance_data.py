@@ -193,7 +193,7 @@ class PerformancePlatformViewSet(viewsets.ViewSet):
 
 
 class PerformanceFrameworkViewSet(viewsets.ReadOnlyModelViewSet):
-    queryset = PerformanceFramework.objects.all()
+    queryset = PerformanceFramework.objects.filter(enabled=True)
     serializer_class = PerformanceFrameworkSerializer
     filter_backends = [filters.OrderingFilter]
     ordering = 'id'

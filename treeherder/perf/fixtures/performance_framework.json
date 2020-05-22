@@ -28,7 +28,7 @@
     "model": "perf.PerformanceFramework",
     "fields": {
       "name": "awfy",
-      "enabled": true
+      "enabled": false
     }
   },
   {
