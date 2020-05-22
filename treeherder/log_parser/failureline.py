@@ -39,6 +39,7 @@ def fetch_log(job_log):
 
 
 def write_failure_lines(job_log, log_iter):
+    failure_lines = []
     failure_lines_cutoff = settings.FAILURE_LINES_CUTOFF
     log_list = list(islice(log_iter, failure_lines_cutoff + 1))
 
