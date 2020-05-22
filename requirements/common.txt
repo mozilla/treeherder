@@ -353,9 +353,9 @@ mohawk==1.1.0 \
     --hash=sha256:3ed296a30453d0b724679e0fd41e4e940497f8e461a9a9c3b7f36e43bab0fa09 \
     --hash=sha256:d2a0e3ab10a209cc79e95e28f2dd54bd4a73fd1998ffe27b7ba0f962b6be9723 \
     # via taskcluster
-mozci==1.4.7 \
-    --hash=sha256:5b61cef421f30e57e63e2224770f1df06d9bef28cbe925d8ee2635d542e610a0 \
-    --hash=sha256:7d490223c014b64f955f0891e6c56077759cb488eae0e7640a866f4eb6ec21c7 \
+mozci==1.4.9 \
+    --hash=sha256:8546e3e01d1cfec769ddd87582f3957ce54456bf2d9e95dadb9d91797cdf5a2f \
+    --hash=sha256:ccca3c92395f90bf2cb6497b59c79f79c64c657a34a0e67c318881563ad42811 \
     # via -r requirements/common.in
 mozlog==6.0 \
     --hash=sha256:4eb8b781525a1433f05239583051dfe19927036b0c1f450ef0ad33882284a13b \
