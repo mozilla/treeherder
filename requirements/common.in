@@ -6,7 +6,7 @@ whitenoise[brotli]==5.0.1
 Django==3.0.5
 celery  # Needed for data ingestion
 simplejson==3.17.0
-newrelic==5.2.1.129
+newrelic==5.12.1.141
 
 # Required by Django
 mysqlclient==1.4.6   # Not imported directly
