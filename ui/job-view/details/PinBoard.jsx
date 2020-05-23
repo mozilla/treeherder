@@ -457,7 +457,7 @@ class PinBoard extends React.Component {
               )}
               {enteringBugNumber && (
                 <span className="add-related-bugs-form">
-                  <span className="add-related-bugs-ui">
+                  <div>
                     <Input
                       id="related-bug-input"
                       data-bug-input
@@ -471,27 +471,26 @@ class PinBoard extends React.Component {
                         this.setState({ newBugNumber: ev.target.value })
                       }
                     />
-                    <Button
-                      color="link"
-                      id="clear-related-bug-button"
-                      onClick={() =>
-                        this.setState({
-                          enteringBugNumber: false,
-                          newBugNumber: null,
-                        })
-                      }
-                      className="pointable p-0"
-                      title="Close a related bug"
-                    >
-                      <FontAwesomeIcon
-                        icon={faTimes}
-                        className="clear-related-bugs-icon"
-                        title="Close related bugs"
-                      />
-                    </Button>
-                  </span>
-
-                  <FormFeedback>Please enter only numbers</FormFeedback>
+                    <FormFeedback>Please enter only numbers</FormFeedback>
+                  </div>
+                  <Button
+                    color="link"
+                    id="clear-related-bug-button"
+                    onClick={() =>
+                      this.setState({
+                        enteringBugNumber: false,
+                        newBugNumber: null,
+                      })
+                    }
+                    className="pointable p-0"
+                    title="Close a related bug"
+                  >
+                    <FontAwesomeIcon
+                      icon={faTimes}
+                      className="clear-related-bugs-icon"
+                      title="Close related bugs"
+                    />
+                  </Button>
                 </span>
               )}
               {Object.values(pinnedJobBugs).map((bug) => (

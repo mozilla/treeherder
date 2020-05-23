@@ -136,12 +136,14 @@
 }
 
 .clear-related-bugs-icon {
-  margin-left: 2px;
+  margin-left: 8px;
   font-size: 17px;
   color: #ff0000;
 }
 
 .add-related-bugs-form {
+  display: flex;
+  align-items: flex-start;
   position: relative;
   top: -18px;
   left: 20px;
@@ -152,11 +154,6 @@
   margin: -3px 0 0 -3px;
   font-size: 12px;
   line-height: 12px;
-}
-
-.add-related-bugs-ui {
-  display: flex;
-  flex-direction: row;
 }
 
 input[type='number']::-webkit-inner-spin-button,
