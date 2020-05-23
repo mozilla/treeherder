@@ -457,19 +457,40 @@ class PinBoard extends React.Component {
               )}
               {enteringBugNumber && (
                 <span className="add-related-bugs-form">
-                  <Input
-                    id="related-bug-input"
-                    data-bug-input
-                    type="text"
-                    pattern="[0-9]*"
-                    className="add-related-bugs-input"
-                    placeholder="enter bug number"
-                    invalid={!this.isNumber(newBugNumber)}
-                    onKeyPress={this.bugNumberKeyPress}
-                    onChange={(ev) =>
-                      this.setState({ newBugNumber: ev.target.value })
-                    }
-                  />
+                  <span className="add-related-bugs-ui">
+                    <Input
+                      id="related-bug-input"
+                      data-bug-input
+                      type="text"
+                      pattern="[0-9]*"
+                      className="add-related-bugs-input"
+                      placeholder="enter bug number"
+                      invalid={!this.isNumber(newBugNumber)}
+                      onKeyPress={this.bugNumberKeyPress}
+                      onChange={(ev) =>
+                        this.setState({ newBugNumber: ev.target.value })
+                      }
+                    />
+                    <Button
+                      color="link"
+                      id="clear-related-bug-button"
+                      onClick={() =>
+                        this.setState({
+                          enteringBugNumber: false,
+                          newBugNumber: null,
+                        })
+                      }
+                      className="pointable p-0"
+                      title="Close a related bug"
+                    >
+                      <FontAwesomeIcon
+                        icon={faTimes}
+                        className="clear-related-bugs-icon"
+                        title="Close related bugs"
+                      />
+                    </Button>
+                  </span>
+
                   <FormFeedback>Please enter only numbers</FormFeedback>
                 </span>
               )}

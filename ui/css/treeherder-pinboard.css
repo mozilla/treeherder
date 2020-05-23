@@ -135,6 +135,12 @@
   color: #98c3da;
 }
 
+.clear-related-bugs-icon {
+  margin-left: 2px;
+  font-size: 17px;
+  color: #ff0000;
+}
+
 .add-related-bugs-form {
   position: relative;
   top: -18px;
@@ -146,6 +152,11 @@
   margin: -3px 0 0 -3px;
   font-size: 12px;
   line-height: 12px;
+}
+
+.add-related-bugs-ui {
+  display: flex;
+  flex-direction: row;
 }
 
 input[type='number']::-webkit-inner-spin-button,
