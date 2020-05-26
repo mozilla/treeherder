@@ -2,8 +2,9 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faUser } from '@fortawesome/free-regular-svg-icons';
-import { Row } from 'reactstrap';
-
+import { Row, Tooltip } from 'reactstrap';
+import { bugzillaBugsApi } from '../helpers/url';
+import { getData } from '../helpers/http';
 import { parseAuthor } from '../helpers/revision';
 
 import BugLinkify from './BugLinkify';
@@ -47,6 +48,8 @@ export class Revision extends React.PureComponent {
 
     this.state = {
       clipboardVisible: false,
+      tooltipOpen: false,
+      tooltipData: { data: {}, failureStatus: undefined },
     };
   }
 
@@ -58,13 +61,27 @@ export class Revision extends React.PureComponent {
     return comment.search('Backed out') >= 0 || comment.search('Back out') >= 0;
   };
 
+  toggle = async (comment) => {
+    const bugComment = comment.split('(', ')');
+    console.log(bugComment);
+    const { data, failureStatus } = await getData(
+      bugzillaBugsApi('bug', { id: 1447537 }),
+    );
+    this.setState({
+      tooltipOpen: !this.state.tooltipOpen,
+      tooltipData: { data, failureStatus },
+    });
+    console.log('comment??' + comment);
+    console.log(data);
+  };
+
   render() {
     const {
       revision: { comments, author, revision },
       repo,
     } = this.props;
     const comment = comments.split('\n')[0];
-    const { clipboardVisible } = this.state;
+    const { clipboardVisible, tooltipOpen, tooltipData } = this.state;
     const { name, email } = parseAuthor(author);
     const commitRevision = revision;
     const commentColor = this.isBackout(comment)
@@ -94,13 +111,21 @@ export class Revision extends React.PureComponent {
         </span>
         <AuthorInitials title={`${name}: ${email}`} author={name} />
         <span
-          title={comment}
           className={`ml-2 revision-comment overflow-hidden text-nowrap ${commentColor}`}
+          id="BugCommitMessage"
         >
           <em>
             <BugLinkify>{comment}</BugLinkify>
           </em>
         </span>
+        <Tooltip
+          placement="bottom"
+          target="BugCommitMessage"
+          isOpen={tooltipOpen}
+          toggle={this.toggle(comment)}
+        >
+          {tooltipData.data.summary}
+        </Tooltip>
       </Row>
     );
   }
