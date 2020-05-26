@@ -209,7 +209,7 @@ describe('Filtering', () => {
         10000,
       );
       expect(keywordLink.getAttribute('href')).toBe(
-        '/#/jobs?repo=autoland&selectedTaskRun=JFVlnwufR7G9tZu_pKM0dQ-0&searchStr=Gecko%2CDecision%2CTask%2Copt%2CGecko%2CDecision%2CTask%2C%28D%29',
+        '/#/jobs?repo=autoland&selectedTaskRun=JFVlnwufR7G9tZu_pKM0dQ.0&searchStr=Gecko%2CDecision%2CTask%2Copt%2CGecko%2CDecision%2CTask%2C%28D%29',
       );
     });
 

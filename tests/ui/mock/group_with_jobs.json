@@ -27,7 +27,7 @@
       "searchStr": "Linux x64 opt Spidermonkey builds spidermonkey-sm-asan-linux64/opt SM(asan) 0905b0d4685b08812642bd27d5a2ed912501d1dd",
       "hoverText": "spidermonkey-sm-asan-linux64/opt - running - 5 mins",
       "test_paths": [],
-      "task_run": "UCctvnxZR0--JcxyVGc8VA-0",
+      "task_run": "UCctvnxZR0--JcxyVGc8VA.0",
       "visible": true,
       "selected": false
     },
@@ -54,7 +54,7 @@
       "searchStr": "Linux x64 opt Spidermonkey builds spidermonkey-sm-fuzzing-linux64/opt SM(f) f79c340e7d436283581eb93bfa64b8dacdb0b45f",
       "hoverText": "spidermonkey-sm-fuzzing-linux64/opt - running - 5 mins",
       "test_paths": [],
-      "task_run": "LiK8uAtZTlmvDCDoTOCHyg-0",
+      "task_run": "LiK8uAtZTlmvDCDoTOCHyg.0",
       "visible": true,
       "selected": false
     },
@@ -81,7 +81,7 @@
       "searchStr": "Linux x64 opt Spidermonkey builds spidermonkey-sm-nojit-linux64/opt SM(nojit) 1c2070d7cd6ed3ab5334a14f1d501559b95a8761",
       "hoverText": "spidermonkey-sm-nojit-linux64/opt - running - 5 mins",
       "test_paths": [],
-      "task_run": "YbpDmuzJQhyMocr_OSiY1w-0",
+      "task_run": "YbpDmuzJQhyMocr_OSiY1w.0",
       "visible": true,
       "selected": false
     },
@@ -108,7 +108,7 @@
       "searchStr": "Linux x64 opt Spidermonkey builds spidermonkey-sm-plain-linux64/opt SM(p) 10b40eeb79c08fab8efa18bc60ef7fc7c4879066",
       "hoverText": "spidermonkey-sm-plain-linux64/opt - running - 6 mins",
       "test_paths": [],
-      "task_run": "cycTfe3nRF6Zp7DsDjA5jw-0",
+      "task_run": "cycTfe3nRF6Zp7DsDjA5jw.0",
       "visible": true,
       "selected": false
     },
@@ -135,7 +135,7 @@
       "searchStr": "Linux x64 opt Spidermonkey builds spidermonkey-sm-package-linux64/opt SM(pkg) 6ebfcbc860b471658b92783bf51ffe799c6e19b8",
       "hoverText": "spidermonkey-sm-package-linux64/opt - running - 5 mins",
       "test_paths": [],
-      "task_run": "RjOD7sFSSCiM-vUZ3pb9_w-0",
+      "task_run": "RjOD7sFSSCiM-vUZ3pb9_w.0",
       "visible": true,
       "selected": false
     },
@@ -162,7 +162,7 @@
       "searchStr": "Linux x64 opt Spidermonkey builds spidermonkey-sm-tsan-linux64/opt SM(tsan) d4ec908ec860bea8c15dfa9fe79ba1d8b4ccee17",
       "hoverText": "spidermonkey-sm-tsan-linux64/opt - running - 6 mins",
       "test_paths": [],
-      "task_run": "DtwlPXEnQQmj8R5PkrJXog-0",
+      "task_run": "DtwlPXEnQQmj8R5PkrJXog.0",
       "visible": true,
       "selected": false
     }

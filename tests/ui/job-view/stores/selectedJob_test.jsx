@@ -52,7 +52,7 @@ describe('SelectedJob Redux store', () => {
       jobListFixtureOne,
     );
     fetchMock.get(
-      getApiUrl('/jobs/?task_id=VaQoWKTbSdGSwBJn6UZV9P&retry_id=0'),
+      getApiUrl('/jobs/?task_id=a824gBVmRQSBuEexnVW_Qg&retry_id=0'),
       { results: [] },
     );
     setUrlParam('repo', repoName);
@@ -67,7 +67,7 @@ describe('SelectedJob Redux store', () => {
 
   test('setSelectedJob should select a job', async () => {
     const store = mockStore({ selectedJob: { initialState } });
-    const taskRun = 'UCctvnxZR0--JcxyVGc8VA-0';
+    const taskRun = 'UCctvnxZR0--JcxyVGc8VA.0';
 
     render(testJobGroup(store, group, new FilterModel()));
 
@@ -81,7 +81,7 @@ describe('SelectedJob Redux store', () => {
   });
 
   test('setSelectedJobFromQueryString found', async () => {
-    const taskRun = 'UCctvnxZR0--JcxyVGc8VA-0';
+    const taskRun = 'UCctvnxZR0--JcxyVGc8VA.0';
     const store = mockStore({ selectedJob: { initialState } });
     setUrlParam('selectedTaskRun', taskRun);
 
@@ -95,7 +95,7 @@ describe('SelectedJob Redux store', () => {
   });
 
   test('setSelectedJobFromQueryString not in jobMap', async () => {
-    const taskRun = 'VaQoWKTbSdGSwBJn6UZV9g-0';
+    const taskRun = 'VaQoWKTbSdGSwBJn6UZV9g.0';
 
     setUrlParam('selectedTaskRun', taskRun);
 
@@ -113,7 +113,7 @@ describe('SelectedJob Redux store', () => {
   });
 
   test('setSelectedJobFromQueryString not in DB', async () => {
-    const taskRun = 'VaQoWKTbSdGSwBJn6UZV9P-0';
+    const taskRun = 'a824gBVmRQSBuEexnVW_Qg.0';
 
     setUrlParam('selectedTaskRun', taskRun);
 
@@ -125,13 +125,13 @@ describe('SelectedJob Redux store', () => {
     expect(reduced.selectedJob).toBeUndefined();
     await waitFor(() =>
       expect(notifications[0]).toEqual(
-        'Task not found: VaQoWKTbSdGSwBJn6UZV9P, run 0',
+        'Task not found: a824gBVmRQSBuEexnVW_Qg, run 0',
       ),
     );
   });
 
   test('clearSelectedJob', () => {
-    const taskRun = 'UCctvnxZR0--JcxyVGc8VA-0';
+    const taskRun = 'UCctvnxZR0--JcxyVGc8VA.0';
 
     setUrlParam('selectedTaskRun', taskRun);
 
