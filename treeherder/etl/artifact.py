@@ -1,6 +1,5 @@
 import logging
 
-import dateutil.parser
 import simplejson as json
 from django.db import transaction
 from django.db.utils import IntegrityError
@@ -8,7 +7,7 @@ from django.db.utils import IntegrityError
 from treeherder.etl.perf import store_performance_artifact
 from treeherder.etl.text import astral_filter
 from treeherder.model import error_summary
-from treeherder.model.models import Job, TextLogError, TextLogStep
+from treeherder.model.models import Job, TextLogError
 
 logger = logging.getLogger(__name__)
 
@@ -17,38 +16,13 @@ def store_text_log_summary_artifact(job, text_log_summary_artifact):
     """
     Store the contents of the text log summary artifact
     """
-    step_data = json.loads(text_log_summary_artifact['blob'])['step_data']
-    result_map = {v: k for (k, v) in TextLogStep.RESULTS}
+    errors = json.loads(text_log_summary_artifact['blob'])['errors']
+
     with transaction.atomic():
-        for step in step_data['steps']:
-            name = step['name'][: TextLogStep._meta.get_field('name').max_length]
-            # process start/end times if we have them
-            # we currently don't support timezones in treeherder, so
-            # just ignore that when importing/updating the bug to avoid
-            # a ValueError (though by default the text log summaries
-            # we produce should have time expressed in UTC anyway)
-            time_kwargs = {}
-            for tkey in ('started', 'finished'):
-                if step.get(tkey):
-                    time_kwargs[tkey] = dateutil.parser.parse(step[tkey], ignoretz=True)
-
-            log_step = TextLogStep.objects.create(
-                job=job,
-                started_line_number=step['started_linenumber'],
-                finished_line_number=step['finished_linenumber'],
-                name=name,
-                result=result_map[step['result']],
-                **time_kwargs,
+        for error in errors:
+            TextLogError.objects.create(
+                job=job, line_number=error['linenumber'], line=astral_filter(error['line']),
             )
-
-            if step.get('errors'):
-                for error in step['errors']:
-                    TextLogError.objects.create(
-                        job=job,
-                        step=log_step,
-                        line_number=error['linenumber'],
-                        line=astral_filter(error['line']),
-                    )
 
     # get error summary immediately (to warm the cache)
     error_summary.get_error_summary(job)
