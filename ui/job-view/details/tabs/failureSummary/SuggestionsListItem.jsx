@@ -54,7 +54,7 @@ export default class SuggestionsListItem extends React.Component {
             color="link"
             rel="noopener"
             onClick={this.clickShowMore}
-            className="bg-light px-2 py-1 btn btn-outline-secondary btn-xs show-hide-more"
+            className="bg-light px-2 py-1 btn btn-outline-secondary btn-xs my-2 show-hide-more"
           >
             {suggestionShowMore
               ? 'Hide bug suggestions'
@@ -113,7 +113,7 @@ export default class SuggestionsListItem extends React.Component {
       <li>
         <div>
           <Button
-            className="bg-light py-1 px-2 failure-btn-file-bug"
+            className="bg-light py-1 px-2 mr-2"
             outline
             size="xs"
             onClick={() => toggleBugFiler(suggestion)}
