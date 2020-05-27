@@ -1,20 +1,12 @@
 import pytest
 from datetime import datetime, timedelta
-from requests import Session
 
-from betamax import Betamax
-from betamax_serializers import pretty_json
 from typing import List
 
 from treeherder.config.settings import BZ_DATETIME_FORMAT
-from treeherder.perf.sheriffing_criteria import (
-    EngineerTractionFormula,
-    NonBlockableSession,
-    ENGINEER_TRACTION_SPECIFICATION,
-)
+from treeherder.perf.sheriffing_criteria import EngineerTractionFormula
 from treeherder.perf.exceptions import NoFiledBugs
 
-CASSETTE_LIBRARY_DIR = 'tests/sample_data/betamax_cassettes/perf_sheriffing_criteria'
 VCR_RECORDING_DATE = 'June 2nd, 2020'
 
 
@@ -29,22 +21,6 @@ pytestmark = [pytest.mark.freeze_time(VCR_RECORDING_DATE, tick=True)]
 #  bugs that date back to last quantifying period
 #  bugs’ state by the end of the 2nd week
 #  bugs that are at least 2 weeks old
-
-
-@pytest.fixture
-def nonblock_session() -> Session:
-    return NonBlockableSession(referer=ENGINEER_TRACTION_SPECIFICATION)
-
-
-@pytest.fixture
-def unrecommended_session() -> Session:
-    return Session()
-
-
-@pytest.fixture
-def betamax_recorder(nonblock_session):
-    Betamax.register_serializer(pretty_json.PrettyJSONSerializer)
-    return Betamax(nonblock_session, cassette_library_dir=CASSETTE_LIBRARY_DIR)
 
 
 @pytest.fixture
@@ -82,17 +58,17 @@ def cooled_down_bugs(nonblock_session, quantified_bugs) -> List[dict]:
 def test_formula_initializes_with_non_blockable_sessions(nonblock_session):
     try:
         _ = EngineerTractionFormula(nonblock_session)
-    except ValueError:
+    except TypeError:
         pytest.fail()
 
     try:
         _ = EngineerTractionFormula()
-    except ValueError:
+    except TypeError:
         pytest.fail()
 
 
 def test_formula_cannot_be_initialized_with_a_regular_session(unrecommended_session):
-    with pytest.raises(ValueError):
+    with pytest.raises(TypeError):
         _ = EngineerTractionFormula(unrecommended_session)
 
 
@@ -261,7 +237,7 @@ def test_formula_counts_tracted_bugs(cooled_down_bugs, betamax_recorder):
     engineer_traction = EngineerTractionFormula(betamax_recorder.session)
 
     with betamax_recorder.use_cassette('cooled-down-bug-history', serialize_with='prettyjson'):
-        tracted_bugs = engineer_traction._filter_tracted_bugs(cooled_down_bugs)
+        tracted_bugs = engineer_traction._filter_numerator_bugs(cooled_down_bugs)
         assert len(tracted_bugs) == 2
 
 
