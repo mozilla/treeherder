@@ -130,11 +130,18 @@ const searchDatabaseForTaskRun = async (jobParams, notify) => {
  * an error and provide a link to load it with the right push.
  */
 const doSetSelectedJobFromQueryString = (notify, jobMap) => {
-  const selectedJobId = parseInt(getUrlParam('selectedJob') || '0', 10);
-  const { taskId, runId } = getTaskRun(getUrlParam('selectedTaskRun'));
+  const selectedTaskRun = getUrlParam('selectedTaskRun');
+  if (selectedTaskRun) {
+    const { taskId, runId } = getTaskRun(selectedTaskRun);
 
-  // Try to find the Task by taskId and runID
-  if (taskId) {
+    if (taskId === undefined) {
+      setUrlParam('selectedJob');
+      setUrlParam('selectedTaskRun');
+      // FIXME: Reducers may not dispatch actions.
+      // notify(`Error parsing selectedTaskRun "${selectedTaskRun}`, 'danger', { sticky: true });
+      return doClearSelectedJob({});
+    }
+
     let task;
     if (runId) {
       const retryId = parseInt(runId, 10);
@@ -153,10 +160,17 @@ const doSetSelectedJobFromQueryString = (notify, jobMap) => {
       setUrlParam('selectedTaskRun', getTaskRunStr(task));
       return doSelectJob(task);
     }
+    // We are attempting to select a task, but that task is not in the current
+    // range of pushes.  So we search for it in the database to help the user
+    // locate it.
+    searchDatabaseForTaskRun({ task_id: taskId, retry_id: runId }, notify);
+    return doClearSelectedJob({});
   }
 
   // Try to find the Task by selectedJobId
-  if (selectedJobId) {
+  const selectedJob = getUrlParam('selectedJob');
+  if (selectedJob) {
+    const selectedJobId = parseInt(selectedJob, 10);
     const task = jobMap[selectedJobId];
 
     // select the job in question
@@ -166,17 +180,11 @@ const doSetSelectedJobFromQueryString = (notify, jobMap) => {
 
       return doSelectJob(task);
     }
-  }
-
-  // We are attempting to select a task, but that task is not in the current
-  // range of pushes.  So we search for it in the database to help the user
-  // locate it.
-  if (taskId || selectedJobId) {
-    const jobParams = taskId
-      ? { task_id: taskId, retry_id: runId }
-      : { id: selectedJobId };
-
-    searchDatabaseForTaskRun(jobParams, notify);
+    // We are attempting to select a task, but that task is not in the current
+    // range of pushes.  So we search for it in the database to help the user
+    // locate it.
+    searchDatabaseForTaskRun({ id: selectedJobId }, notify);
+    return doClearSelectedJob({});
   }
 
   return doClearSelectedJob({});
