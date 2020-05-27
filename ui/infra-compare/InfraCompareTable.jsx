@@ -24,18 +24,18 @@ export default class InfraCompareTable extends React.PureComponent {
             <th className="3text-left, table-width-lg">
               <span>{data[0].platform}</span>
             </th>
-            <th className="table-width-sm">Base(sec)</th>
+            <th className="table-width-sm">sec(Base)</th>
             {/* empty for less than/greater than data  */}
             <th className="table-width-sm" aria-label="Comparison" />
-            <th className="table-width-sm">New(sec)</th>
-            <th className="table-width-sm">Base(fails)</th>
+            <th className="table-width-sm">sec(New)</th>
+            <th className="table-width-sm">fails(Base)</th>
             {/* empty for less than/greater than data  */}
             <th className="table-width-sm" aria-label="Comparison" />
-            <th className="table-width-sm">New(fails)</th>
-            <th className="table-width-sm">Base(Data Points)</th>
+            <th className="table-width-sm">fails(New)</th>
+            <th className="table-width-sm">Data Points(Base)</th>
             {/* empty for less than/greater than data  */}
             <th className="table-width-sm" aria-label="Comparison" />
-            <th className="table-width-sm">New(Data Points)</th>
+            <th className="table-width-sm">Data Points(New)</th>
           </tr>
         </thead>
         {data.map((suiteResults) => (
