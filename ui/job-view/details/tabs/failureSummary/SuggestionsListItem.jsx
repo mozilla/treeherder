@@ -22,8 +22,8 @@ export default class SuggestionsListItem extends React.Component {
     }));
   };
 
-  renderBugSuggestions() {
-    const { suggestion, selectedJobFull } = this.props;
+  render() {
+    const { suggestion, toggleBugFiler, selectedJobFull } = this.props;
     const { suggestionShowMore } = this.state;
 
     const suggestions = [];
@@ -96,19 +96,6 @@ export default class SuggestionsListItem extends React.Component {
       );
     }
 
-    return suggestions.length > 0 ? (
-      <div className="failure-summary-bugs-container">
-        <h4 className="failure-summary-bugs-title">
-          These bugs may be related:
-        </h4>
-        {suggestions}
-      </div>
-    ) : null;
-  }
-
-  render() {
-    const { suggestion, toggleBugFiler } = this.props;
-
     return (
       <li>
         <div>
@@ -123,7 +110,14 @@ export default class SuggestionsListItem extends React.Component {
           </Button>
           <span>{suggestion.search}</span>
         </div>
-        {this.renderBugSuggestions()}
+        {suggestions.length > 0 && (
+          <div className="failure-summary-bugs-container">
+            <h4 className="failure-summary-bugs-title">
+              These bugs may be related:
+            </h4>
+            {suggestions}
+          </div>
+        )}
       </li>
     );
   }
