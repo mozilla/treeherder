@@ -7,19 +7,19 @@ from treeherder.log_parser.artifactbuildercollection import (
     ArtifactBuilderCollection,
     LogSizeException,
 )
-from treeherder.log_parser.artifactbuilders import BuildbotLogViewArtifactBuilder
+from treeherder.log_parser.artifactbuilders import LogViewerArtifactBuilder
 
 
 def test_builders_as_list():
     """test that passing in a list of builders works"""
-    builder = BuildbotLogViewArtifactBuilder()
+    builder = LogViewerArtifactBuilder()
     lpc = ArtifactBuilderCollection("foo-url", builders=[builder])
     assert lpc.builders == [builder]
 
 
 def test_builders_as_single_still_list():
     """test that passing in a single builder becomes a list"""
-    builder = BuildbotLogViewArtifactBuilder()
+    builder = LogViewerArtifactBuilder()
     lpc = ArtifactBuilderCollection("foo-url", builders=builder)
     assert lpc.builders == [builder]
 
