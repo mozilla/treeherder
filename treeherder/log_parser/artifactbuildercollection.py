@@ -43,7 +43,6 @@ BuildbotLogViewArtifactBuilder
 -------------
 * Parses out content for use in a visual Log Parser
 * Parsers:
-* StepParser, which has its own ErrorParser
 
 BuildbotPerformanceDataArtifactBuilder
 -------------
