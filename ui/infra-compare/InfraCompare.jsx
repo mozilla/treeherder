@@ -23,11 +23,6 @@ class InfraCompareView extends React.PureComponent {
     return newTimeRange.value;
   };
 
-  queryParams = (project, interval) => ({
-    project,
-    interval,
-  });
-
   getQueryParams = (timeRange) => {
     const {
       originalProject,
@@ -45,22 +40,24 @@ class InfraCompareView extends React.PureComponent {
         originalResultSet.push_timestamp,
         newResultSet.push_timestamp,
       );
-      originalParams = this.queryParams(originalProject, interval);
-      originalParams.revision = originalRevision;
+      originalParams = {
+        project: originalProject,
+        interval,
+        revision: originalRevision,
+      };
     } else {
       interval = timeRange.value;
       const startDateMs = (newResultSet.push_timestamp - interval) * 1000;
       const endDateMs = newResultSet.push_timestamp * 1000;
 
-      originalParams = this.queryParams(originalProject, interval);
+      originalParams = { originalProject, interval };
       originalParams.startday = new Date(startDateMs)
         .toISOString()
         .slice(0, -5);
       originalParams.endday = new Date(endDateMs).toISOString().slice(0, -5);
     }
 
-    const newParams = this.queryParams(newProject, interval);
-    newParams.revision = newRevision;
+    const newParams = { project: newProject, interval, revision: newRevision };
     return [originalParams, newParams];
   };
 
