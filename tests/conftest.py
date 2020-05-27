@@ -31,6 +31,7 @@ from treeherder.perf.models import (
     PerformanceDatum,
     PerformanceFramework,
     PerformanceSignature,
+    PerformanceTag,
 )
 from treeherder.services.pulse.exchange import get_exchange
 
@@ -545,7 +546,9 @@ def text_log_error_lines(test_job, failure_lines):
 
 @pytest.fixture
 def test_perf_alert_summary(test_repository, push_stored, test_perf_framework, test_issue_tracker):
-    return PerformanceAlertSummary.objects.create(
+    test_perf_tag = PerformanceTag.objects.create(name='harness')
+
+    performance_alert_summary = PerformanceAlertSummary.objects.create(
         repository=test_repository,
         framework=test_perf_framework,
         prev_push_id=1,
@@ -553,6 +556,9 @@ def test_perf_alert_summary(test_repository, push_stored, test_perf_framework, t
         manually_created=False,
         created=datetime.datetime.now(),
     )
+    performance_alert_summary.performance_tags.add(test_perf_tag)
+
+    return performance_alert_summary
 
 
 @pytest.fixture
