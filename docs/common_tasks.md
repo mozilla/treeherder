@@ -26,17 +26,6 @@ The docs will then be available at: <http://localhost:8000>
 
 [yarn documentation]: https://yarnpkg.com/en/docs/usage
 
-## Add a new Mercurial repository
-
-To add a new repository, the following steps are needed:
-
-- Append new repository information to the fixtures file located at:
-  `treeherder/model/fixtures/repository.json`
-- Restart any running Django runserver/Celery processes.
-
-For more information on adding a new GitHub repository, see
-[Adding a GitHub repository](submitting_data.md#adding-a-github-repository).
-
 ## Debugging Tools
 
 You can use the Python Debugger ([pdb](https://docs.python.org/3.7/library/pdb.html)) in a Docker container.
