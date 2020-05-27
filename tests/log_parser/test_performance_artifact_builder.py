@@ -3,7 +3,7 @@ from jsonschema import validate
 
 from tests.test_utils import add_log_response
 from treeherder.log_parser.artifactbuildercollection import ArtifactBuilderCollection
-from treeherder.log_parser.artifactbuilders import BuildbotPerformanceDataArtifactBuilder
+from treeherder.log_parser.artifactbuilders import PerformanceDataArtifactBuilder
 from treeherder.log_parser.utils import PERFHERDER_SCHEMA
 
 
@@ -21,7 +21,7 @@ def test_performance_log_parsing():
     ]:
         url = add_log_response(logfile)
 
-        builder = BuildbotPerformanceDataArtifactBuilder(url=url)
+        builder = PerformanceDataArtifactBuilder(url=url)
         lpc = ArtifactBuilderCollection(url, builders=[builder])
         lpc.parse()
         act = lpc.artifacts[builder.name]
