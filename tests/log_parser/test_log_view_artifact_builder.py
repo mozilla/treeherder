@@ -4,7 +4,7 @@ import responses
 from tests import test_utils
 from tests.test_utils import add_log_response
 from treeherder.log_parser.artifactbuildercollection import ArtifactBuilderCollection
-from treeherder.log_parser.artifactbuilders import BuildbotLogViewArtifactBuilder
+from treeherder.log_parser.artifactbuilders import LogViewerArtifactBuilder
 
 slow = pytest.mark.slow
 
@@ -20,7 +20,7 @@ def do_test(log):
 
     url = add_log_response("{}.txt.gz".format(log))
 
-    builder = BuildbotLogViewArtifactBuilder(url)
+    builder = LogViewerArtifactBuilder(url)
     lpc = ArtifactBuilderCollection(url, builders=builder)
     lpc.parse()
     act = lpc.artifacts[builder.name]
