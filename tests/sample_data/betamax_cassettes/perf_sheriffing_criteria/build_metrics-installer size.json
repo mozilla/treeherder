@@ -1,0 +1,798 @@
+{
+  "http_interactions": [
+    {
+      "recorded_at": "2020-06-02T00:00:26",
+      "request": {
+        "body": {
+          "encoding": "utf-8",
+          "string": ""
+        },
+        "headers": {
+          "Accept": ["application/json"],
+          "User-Agent": ["treeherder/backend"]
+        },
+        "method": "GET",
+        "uri": "https://bugzilla.mozilla.org/rest/bug?longdesc=build_metrics%2Cinstaller+size&longdesc_type=allwordssubstr&longdesc_initial=1&keywords=perf%2Cperf-alert&keywords_type=anywords&creation_time=2019-12-17T00%3A00%3A00Z&query_format=advanced&include_fields=id%2Ctype%2Cresolution%2Clast_change_time%2Cis_open%2Ccreation_time%2Csummary%2Cwhiteboard%2Cstatus%2Ckeywords"
+      },
+      "response": {
+        "body": {
+          "encoding": "UTF-8",
+          "string": "{\"bugs\":[{\"creation_time\":\"2019-12-19T14:22:03Z\",\"whiteboard\":\"\",\"keywords\":[\"perf-alert\",\"regression\"],\"id\":1605110,\"is_open\":false,\"summary\":\"0.47% installer size (osx-shippable) regression on push 65cf656ecce94b8c8bc4933cf57eb760a3b8d10f (Wed December 18 2019)\",\"resolution\":\"FIXED\",\"status\":\"RESOLVED\",\"type\":\"defect\",\"last_change_time\":\"2019-12-24T09:16:22Z\"},{\"type\":\"defect\",\"status\":\"RESOLVED\",\"last_change_time\":\"2020-01-14T03:14:04Z\",\"id\":1608365,\"is_open\":false,\"keywords\":[\"perf-alert\",\"regression\"],\"creation_time\":\"2020-01-10T10:01:46Z\",\"whiteboard\":\"\",\"resolution\":\"WONTFIX\",\"summary\":\"0.13 - 0.19% installer size (macosx64-shippable, osx-shippable) regression on push e1b0906509efa6433978b9f980ec639b7eafbc6d (Thu January 9 2020)\"},{\"last_change_time\":\"2020-01-15T08:29:49Z\",\"type\":\"defect\",\"status\":\"RESOLVED\",\"resolution\":\"WONTFIX\",\"summary\":\"0.21 - 0.23% installer size (macosx64-shippable, osx-shippable) regression on push 03300b89f364aa1c7741d37ca741c6a7dca23bc3 (Fri January 10 2020)\",\"is_open\":false,\"id\":1608769,\"keywords\":[\"perf-alert\",\"regression\"],\"creation_time\":\"2020-01-13T09:37:54Z\",\"whiteboard\":\"\"},{\"is_open\":false,\"keywords\":[\"perf-alert\",\"regression\"],\"id\":1609949,\"creation_time\":\"2020-01-17T15:11:04Z\",\"whiteboard\":\"\",\"resolution\":\"FIXED\",\"summary\":\"0.38 - 7884700% build times / installer size / sccache cache_write_errors / sccache hit rate (android, linux, osx-shippable, windowsregression on push 540db822a1d4f2e4cbd491bb5afcba9aace67e78 (Wed January 15 2020)\",\"type\":\"defect\",\"status\":\"RESOLVED\",\"last_change_time\":\"2020-01-19T18:12:37Z\"},{\"status\":\"RESOLVED\",\"type\":\"defect\",\"last_change_time\":\"2020-01-28T08:02:42Z\",\"whiteboard\":\"\",\"creation_time\":\"2020-01-23T06:51:14Z\",\"id\":1611073,\"is_open\":false,\"keywords\":[\"perf-alert\",\"regression\"],\"summary\":\"0.2 - 0.32% installer size (macosx64-shippable, osx-shippable) regression on push bb908b9156834ac2f3b297ebac9bde2e0ed3fc2e (Wed January 22 2020)\",\"resolution\":\"WONTFIX\"},{\"last_change_time\":\"2020-02-04T02:46:29Z\",\"status\":\"RESOLVED\",\"type\":\"defect\",\"summary\":\"0.59 - 0.7% installer size (macosx64-shippable, osx-shippable) regression on push ec13019e304f00f62ec88b47214cae1583d12be4 (Fri January 24 2020)\",\"resolution\":\"DUPLICATE\",\"whiteboard\":\"\",\"creation_time\":\"2020-01-27T14:57:34Z\",\"is_open\":false,\"id\":1611804,\"keywords\":[\"perf-alert\",\"regression\"]},{\"id\":1615592,\"keywords\":[\"perf-alert\",\"regression\"],\"is_open\":false,\"creation_time\":\"2020-02-14T13:18:02Z\",\"whiteboard\":\"\",\"resolution\":\"WONTFIX\",\"summary\":\"0.21 - 0.27% installer size (osx-shippable) regression on push 69fb848f951448cce98bcb9446b10b9044e0c677 (Wed February 12 2020)\",\"type\":\"defect\",\"status\":\"RESOLVED\",\"last_change_time\":\"2020-02-14T17:49:51Z\"},{\"last_change_time\":\"2020-05-12T00:51:53Z\",\"type\":\"defect\",\"status\":\"NEW\",\"resolution\":\"\",\"summary\":\"0.88% installer size (osx-shippable) regression on push 96be905c6a7d25acc93b731253a1137d9a1deccc (Wed March 11 2020)\",\"keywords\":[\"perf-alert\",\"regression\"],\"is_open\":true,\"id\":1621917,\"creation_time\":\"2020-03-12T11:16:32Z\",\"whiteboard\":\"\"},{\"resolution\":\"FIXED\",\"summary\":\"0.24 - 128.86% build times / installer size / sccache hit rate / sccache requests_not_cacheable (android linux64,osx-cross,windows) regression on push 08e87bebb6062948732562a9f3e641563dd87390 (Fri March 13 2020)\",\"id\":1622668,\"keywords\":[\"perf-alert\",\"regression\"],\"is_open\":false,\"whiteboard\":\"\",\"creation_time\":\"2020-03-15T18:38:13Z\",\"last_change_time\":\"2020-03-16T18:24:28Z\",\"type\":\"defect\",\"status\":\"RESOLVED\"},{\"type\":\"defect\",\"status\":\"RESOLVED\",\"last_change_time\":\"2020-04-15T18:26:12Z\",\"id\":1624524,\"keywords\":[\"perf-alert\",\"regression\"],\"is_open\":false,\"whiteboard\":\"\",\"creation_time\":\"2020-03-24T06:07:25Z\",\"resolution\":\"FIXED\",\"summary\":\"0.14 - 0.15% installer size (osx-shippable) regression on push 16f2eded7e001e3286715b31bb93fc8fc430d046 (Mon March 23 2020)\"},{\"type\":\"defect\",\"status\":\"RESOLVED\",\"last_change_time\":\"2020-04-14T14:05:13Z\",\"is_open\":false,\"keywords\":[\"perf-alert\",\"regression\"],\"id\":1627156,\"creation_time\":\"2020-04-03T05:50:33Z\",\"whiteboard\":\"\",\"resolution\":\"WORKSFORME\",\"summary\":\"0.11% installer size (osx-shippable) regression on push 2e661ffb15f2d0c90deb73d497b4752a94b4168d (Thu April 2 2020)\"},{\"summary\":\"0.14 - 0.16% installer size (osx-shippable) regression on push a3426e213b24c1da02ec131ae2fff6f29d04b2a4 (Mon April 6 2020)\",\"resolution\":\"\",\"creation_time\":\"2020-04-08T06:00:08Z\",\"whiteboard\":\"\",\"id\":1628207,\"keywords\":[\"perf-alert\",\"regression\"],\"is_open\":true,\"last_change_time\":\"2020-05-12T00:55:08Z\",\"status\":\"NEW\",\"type\":\"defect\"},{\"last_change_time\":\"2020-05-18T12:17:14Z\",\"type\":\"defect\",\"status\":\"RESOLVED\",\"resolution\":\"FIXED\",\"summary\":\"0.26 - 40.13% build times / compiler_metrics num_static_constructors / installer size (android-4-0-armv7-api16, osx-shippable, windows2012-64-shippable) regression on push 82f9e4bad64592efb70ded65f86e566d3ca2c664 (Tue May 12 2020)\",\"is_open\":false,\"id\":1637503,\"keywords\":[\"perf-alert\",\"regression\"],\"creation_time\":\"2020-05-13T05:48:45Z\",\"whiteboard\":\"\"},{\"last_change_time\":\"2020-05-20T16:05:31Z\",\"status\":\"RESOLVED\",\"type\":\"defect\",\"summary\":\"0.36 - 0.48% installer size (osx-shippable) regression on push 9b8606a93c7591af9ebf57e6cbf2afb52f970ac5 (Fri May 15 2020)\",\"resolution\":\"WONTFIX\",\"creation_time\":\"2020-05-18T08:24:37Z\",\"whiteboard\":\"\",\"keywords\":[\"perf-alert\",\"regression\"],\"id\":1638763,\"is_open\":false},{\"summary\":\"0.76 - 1.03% installer size (osx-shippable) regression on push f816bb1d97cb89747d731078477c46ce581d4fb4 (Tue May 19 2020)\",\"resolution\":\"WONTFIX\",\"creation_time\":\"2020-05-20T05:39:44Z\",\"whiteboard\":\"\",\"id\":1639445,\"keywords\":[\"perf-alert\",\"regression\"],\"is_open\":false,\"last_change_time\":\"2020-05-20T06:50:32Z\",\"status\":\"RESOLVED\",\"type\":\"defect\"}]}"
+        },
+        "headers": {
+          "Access-Control-Allow-Origin": ["*"],
+          "Access-control-allow-headers": [
+            "accept, content-type, origin, user-agent, x-requested-with, x-bugzilla-token, x-phabricator-token, x-bugzilla-api-key, x-bugzilla-password, x-bugzilla-login"
+          ],
+          "Connection": ["keep-alive"],
+          "Content-Security-Policy-Report-Only": [
+            "default-src 'self'; worker-src 'none'; connect-src 'self' https://product-details.mozilla.org https://www.google-analytics.com https://treeherder.mozilla.org/api/failurecount/ https://crash-stats.mozilla.org/api/SuperSearch/; font-src 'self' https://fonts.gstatic.com; img-src 'self' data: blob: https://secure.gravatar.com; object-src 'none'; script-src 'self' 'nonce-7geIoAN6ONJvirjE2r9cnfHjirP8dcwTTYl41GH6FY3pVg54' 'unsafe-inline' https://www.google-analytics.com; style-src 'self' 'unsafe-inline'; frame-src https://crash-stop-addon.herokuapp.com; frame-ancestors 'self'; form-action 'self' https://www.google.com/search https://github.com/login/oauth/authorize https://github.com/login"
+          ],
+          "Content-Type": ["application/json; charset=UTF-8"],
+          "Date": ["Thu, 04 Jun 2020 09:25:02 GMT"],
+          "ETag": ["LMafq7wM1B1TJ+kftbKGlg"],
+          "Referrer-policy": ["same-origin"],
+          "Set-Cookie": [
+            "Bugzilla_login_request_cookie=gtJgkGlLew; path=/; secure; HttpOnly; SameSite=Lax",
+            "github_secret=dA5CNm5AoGQR0B7gLD36GhR7lgBJrrsPBQE2HCbcxF0UGQuXdpKCZJQGVGdeeapDCYu5JDaQ9r7FCpbCSmy4ODGNXOFmRFc8A2KA5TNE3Vw2VGTE1jGFWKwc0fEydgd004oDkNsdU1asFgNqHDs3SFVJaUQQykMCE07ByQ11HnyVkVGPxmUi4Hn9VFZH30xokuGkuNYo4qi1pFc97UfpDrxpnpzCa7c48eEAKj0t9fEKh2H5axY4hcUssZsVOTXM; path=/; secure; HttpOnly; SameSite=Lax"
+          ],
+          "Status": ["200"],
+          "Strict-Transport-Security": ["max-age=31536000; includeSubDomains"],
+          "Vary": ["Accept-Encoding"],
+          "X-content-type-options": ["nosniff"],
+          "X-frame-options": ["SAMEORIGIN"],
+          "X-xss-protection": ["1; mode=block"],
+          "transfer-encoding": ["chunked"]
+        },
+        "status": {
+          "code": 200,
+          "message": "OK"
+        },
+        "url": "https://bugzilla.mozilla.org/rest/bug?longdesc=build_metrics%2Cinstaller+size&longdesc_type=allwordssubstr&longdesc_initial=1&keywords=perf%2Cperf-alert&keywords_type=anywords&creation_time=2019-12-17T00%3A00%3A00Z&query_format=advanced&include_fields=id%2Ctype%2Cresolution%2Clast_change_time%2Cis_open%2Ccreation_time%2Csummary%2Cwhiteboard%2Cstatus%2Ckeywords"
+      }
+    },
+    {
+      "recorded_at": "2020-06-02T00:00:26",
+      "request": {
+        "body": {
+          "encoding": "utf-8",
+          "string": ""
+        },
+        "headers": {
+          "Accept": ["application/json"],
+          "Cookie": [
+            "Bugzilla_login_request_cookie=gtJgkGlLew; github_secret=dA5CNm5AoGQR0B7gLD36GhR7lgBJrrsPBQE2HCbcxF0UGQuXdpKCZJQGVGdeeapDCYu5JDaQ9r7FCpbCSmy4ODGNXOFmRFc8A2KA5TNE3Vw2VGTE1jGFWKwc0fEydgd004oDkNsdU1asFgNqHDs3SFVJaUQQykMCE07ByQ11HnyVkVGPxmUi4Hn9VFZH30xokuGkuNYo4qi1pFc97UfpDrxpnpzCa7c48eEAKj0t9fEKh2H5axY4hcUssZsVOTXM"
+          ],
+          "User-Agent": ["treeherder/backend"]
+        },
+        "method": "GET",
+        "uri": "https://bugzilla.mozilla.org/rest/bug/1605110/history"
+      },
+      "response": {
+        "body": {
+          "encoding": "UTF-8",
+          "string": "{\"bugs\":[{\"history\":[{\"who\":\"marian.raiciof@softvision.ro\",\"changes\":[{\"field_name\":\"cc\",\"added\":\"cmanchester@mozilla.com\",\"removed\":\"\"},{\"field_name\":\"component\",\"added\":\"General\",\"removed\":\"Performance\"},{\"removed\":\"Version 3\",\"field_name\":\"version\",\"added\":\"unspecified\"},{\"removed\":\"\",\"added\":\"1604578\",\"field_name\":\"regressed_by\"},{\"removed\":\"\",\"field_name\":\"blocks\",\"added\":\"1600879\"},{\"removed\":\"Testing\",\"field_name\":\"product\",\"added\":\"Firefox Build System\"},{\"field_name\":\"target_milestone\",\"added\":\"mozilla73\",\"removed\":\"---\"},{\"field_name\":\"flagtypes.name\",\"added\":\"needinfo?(cmanchester@mozilla.com)\",\"removed\":\"\"},{\"added\":\"unaffected\",\"field_name\":\"cf_status_firefox_esr68\",\"removed\":\"---\"},{\"removed\":\"---\",\"field_name\":\"cf_status_firefox71\",\"added\":\"unaffected\"},{\"field_name\":\"cf_status_firefox72\",\"added\":\"unaffected\",\"removed\":\"---\"},{\"removed\":\"---\",\"field_name\":\"cf_status_firefox73\",\"added\":\"affected\"}],\"when\":\"2019-12-19T14:37:03Z\"},{\"changes\":[{\"field_name\":\"cc\",\"added\":\"erahm@mozilla.com\",\"removed\":\"\"},{\"added\":\"needinfo?(erahm@mozilla.com)\",\"field_name\":\"flagtypes.name\",\"removed\":\"needinfo?(cmanchester@mozilla.com)\"}],\"who\":\"chmanchester@gmail.com\",\"when\":\"2019-12-19T18:15:13Z\"},{\"when\":\"2019-12-19T21:37:41Z\",\"who\":\"chmanchester@gmail.com\",\"changes\":[{\"field_name\":\"flagtypes.name\",\"added\":\"\",\"removed\":\"needinfo?(erahm@mozilla.com)\"}]},{\"when\":\"2019-12-20T00:15:49Z\",\"who\":\"chmanchester@gmail.com\",\"changes\":[{\"removed\":\"\",\"added\":\"mwoerister@mozilla.com\",\"field_name\":\"cc\"},{\"removed\":\"\",\"field_name\":\"flagtypes.name\",\"added\":\"needinfo?(mwoerister@mozilla.com)\"}]},{\"who\":\"mwoerister@mozilla.com\",\"changes\":[{\"removed\":\"needinfo?(mwoerister@mozilla.com)\",\"added\":\"\",\"field_name\":\"flagtypes.name\"}],\"when\":\"2019-12-20T08:32:24Z\"},{\"changes\":[{\"added\":\"ryanvm@gmail.com\",\"field_name\":\"cc\",\"removed\":\"\"}],\"who\":\"ryanvm@gmail.com\",\"when\":\"2019-12-20T14:55:40Z\"},{\"when\":\"2019-12-20T21:03:16Z\",\"changes\":[{\"removed\":\"NEW\",\"field_name\":\"status\",\"added\":\"ASSIGNED\"},{\"added\":\"cmanchester@mozilla.com\",\"field_name\":\"assigned_to\",\"removed\":\"nobody@mozilla.org\"}],\"who\":\"phab-bot@bmo.tld\"},{\"changes\":[{\"removed\":\"ASSIGNED\",\"added\":\"RESOLVED\",\"field_name\":\"status\"},{\"field_name\":\"resolution\",\"added\":\"FIXED\",\"removed\":\"\"},{\"added\":\"2019-12-21T09:53:02Z\",\"field_name\":\"cf_last_resolved\",\"removed\":\"\"},{\"removed\":\"affected\",\"field_name\":\"cf_status_firefox73\",\"added\":\"fixed\"},{\"comment_id\":14560004,\"comment_count\":11,\"field_name\":\"comment_tag\",\"added\":\"bugherder\",\"removed\":\"\"}],\"who\":\"btara@mozilla.com\",\"when\":\"2019-12-21T09:53:02Z\"},{\"changes\":[{\"added\":\"needinfo?(cmanchester@mozilla.com)\",\"field_name\":\"flagtypes.name\",\"removed\":\"\"}],\"who\":\"marian.raiciof@softvision.ro\",\"when\":\"2019-12-23T12:36:49Z\"},{\"when\":\"2019-12-23T16:50:17Z\",\"who\":\"chmanchester@gmail.com\",\"changes\":[{\"added\":\"\",\"field_name\":\"flagtypes.name\",\"removed\":\"needinfo?(cmanchester@mozilla.com)\"}]}],\"alias\":null,\"id\":1605110}]}"
+        },
+        "headers": {
+          "Access-Control-Allow-Origin": ["*"],
+          "Access-control-allow-headers": [
+            "accept, content-type, origin, user-agent, x-requested-with, x-bugzilla-token, x-phabricator-token, x-bugzilla-api-key, x-bugzilla-password, x-bugzilla-login"
+          ],
+          "Connection": ["keep-alive"],
+          "Content-Security-Policy-Report-Only": [
+            "default-src 'self'; worker-src 'none'; connect-src 'self' https://product-details.mozilla.org https://www.google-analytics.com https://treeherder.mozilla.org/api/failurecount/ https://crash-stats.mozilla.org/api/SuperSearch/; font-src 'self' https://fonts.gstatic.com; img-src 'self' data: blob: https://secure.gravatar.com; object-src 'none'; script-src 'self' 'nonce-CQSKsrXpCVvHQzdLCzRdxmm35LQLPefexUEyzK0TeeCWHzd7' 'unsafe-inline' https://www.google-analytics.com; style-src 'self' 'unsafe-inline'; frame-src https://crash-stop-addon.herokuapp.com; frame-ancestors 'self'; form-action 'self' https://www.google.com/search https://github.com/login/oauth/authorize https://github.com/login"
+          ],
+          "Content-Type": ["application/json; charset=UTF-8"],
+          "Date": ["Thu, 04 Jun 2020 09:25:03 GMT"],
+          "ETag": ["/IRmW6cQ1K7jDeJoYmJ05w"],
+          "Referrer-policy": ["same-origin"],
+          "Set-Cookie": [
+            "github_secret=dA5CNm5AoGQR0B7gLD36GhR7lgBJrrsPBQE2HCbcxF0UGQuXdpKCZJQGVGdeeapDCYu5JDaQ9r7FCpbCSmy4ODGNXOFmRFc8A2KA5TNE3Vw2VGTE1jGFWKwc0fEydgd004oDkNsdU1asFgNqHDs3SFVJaUQQykMCE07ByQ11HnyVkVGPxmUi4Hn9VFZH30xokuGkuNYo4qi1pFc97UfpDrxpnpzCa7c48eEAKj0t9fEKh2H5axY4hcUssZsVOTXM; path=/; secure; HttpOnly; SameSite=Lax"
+          ],
+          "Status": ["200"],
+          "Strict-Transport-Security": ["max-age=31536000; includeSubDomains"],
+          "Vary": ["Accept-Encoding"],
+          "X-content-type-options": ["nosniff"],
+          "X-frame-options": ["SAMEORIGIN"],
+          "X-xss-protection": ["1; mode=block"],
+          "transfer-encoding": ["chunked"]
+        },
+        "status": {
+          "code": 200,
+          "message": "OK"
+        },
+        "url": "https://bugzilla.mozilla.org/rest/bug/1605110/history"
+      }
+    },
+    {
+      "recorded_at": "2020-06-02T00:00:26",
+      "request": {
+        "body": {
+          "encoding": "utf-8",
+          "string": ""
+        },
+        "headers": {
+          "Accept": ["application/json"],
+          "Cookie": [
+            "Bugzilla_login_request_cookie=gtJgkGlLew; github_secret=dA5CNm5AoGQR0B7gLD36GhR7lgBJrrsPBQE2HCbcxF0UGQuXdpKCZJQGVGdeeapDCYu5JDaQ9r7FCpbCSmy4ODGNXOFmRFc8A2KA5TNE3Vw2VGTE1jGFWKwc0fEydgd004oDkNsdU1asFgNqHDs3SFVJaUQQykMCE07ByQ11HnyVkVGPxmUi4Hn9VFZH30xokuGkuNYo4qi1pFc97UfpDrxpnpzCa7c48eEAKj0t9fEKh2H5axY4hcUssZsVOTXM"
+          ],
+          "User-Agent": ["treeherder/backend"]
+        },
+        "method": "GET",
+        "uri": "https://bugzilla.mozilla.org/rest/bug/1608365/history"
+      },
+      "response": {
+        "body": {
+          "encoding": "UTF-8",
+          "string": "{\"bugs\":[{\"id\":1608365,\"alias\":null,\"history\":[{\"changes\":[{\"field_name\":\"cc\",\"added\":\"jgilbert@mozilla.com\",\"removed\":\"\"},{\"added\":\"Canvas: WebGL\",\"field_name\":\"component\",\"removed\":\"Performance\"},{\"added\":\"unspecified\",\"field_name\":\"version\",\"removed\":\"Version 3\"},{\"added\":\"1477756\",\"field_name\":\"regressed_by\",\"removed\":\"\"},{\"field_name\":\"blocks\",\"added\":\"1607747\",\"removed\":\"\"},{\"removed\":\"Testing\",\"added\":\"Core\",\"field_name\":\"product\"},{\"added\":\"needinfo?(jgilbert@mozilla.com)\",\"field_name\":\"flagtypes.name\",\"removed\":\"\"},{\"removed\":\"---\",\"field_name\":\"cf_status_firefox_esr68\",\"added\":\"unaffected\"},{\"field_name\":\"cf_status_firefox72\",\"added\":\"unaffected\",\"removed\":\"---\"},{\"removed\":\"---\",\"added\":\"unaffected\",\"field_name\":\"cf_status_firefox73\"},{\"removed\":\"---\",\"field_name\":\"cf_status_firefox74\",\"added\":\"affected\"}],\"who\":\"marian.raiciof@softvision.ro\",\"when\":\"2020-01-10T10:06:28Z\"},{\"changes\":[{\"field_name\":\"flagtypes.name\",\"added\":\"\",\"removed\":\"needinfo?(jgilbert@mozilla.com)\"}],\"who\":\"jgilbert@mozilla.com\",\"when\":\"2020-01-10T22:46:49Z\"},{\"changes\":[{\"field_name\":\"status\",\"added\":\"RESOLVED\",\"removed\":\"NEW\"},{\"added\":\"WONTFIX\",\"field_name\":\"resolution\",\"removed\":\"\"},{\"removed\":\"\",\"added\":\"2020-01-10T22:47:17Z\",\"field_name\":\"cf_last_resolved\"}],\"who\":\"jgilbert@mozilla.com\",\"when\":\"2020-01-10T22:47:17Z\"},{\"when\":\"2020-01-14T03:14:04Z\",\"who\":\"ryanvm@gmail.com\",\"changes\":[{\"field_name\":\"cf_status_firefox74\",\"added\":\"wontfix\",\"removed\":\"affected\"}]}]}]}"
+        },
+        "headers": {
+          "Access-Control-Allow-Origin": ["*"],
+          "Access-control-allow-headers": [
+            "accept, content-type, origin, user-agent, x-requested-with, x-bugzilla-password, x-bugzilla-token, x-phabricator-token, x-bugzilla-api-key, x-bugzilla-login"
+          ],
+          "Connection": ["keep-alive"],
+          "Content-Security-Policy-Report-Only": [
+            "default-src 'self'; worker-src 'none'; connect-src 'self' https://product-details.mozilla.org https://www.google-analytics.com https://treeherder.mozilla.org/api/failurecount/ https://crash-stats.mozilla.org/api/SuperSearch/; font-src 'self' https://fonts.gstatic.com; img-src 'self' data: blob: https://secure.gravatar.com; object-src 'none'; script-src 'self' 'nonce-6c3tOBdFBPUSoN2SShAbtCIyTs6E2eD2tlBaAvuPEToOsghz' 'unsafe-inline' https://www.google-analytics.com; style-src 'self' 'unsafe-inline'; frame-src https://crash-stop-addon.herokuapp.com; frame-ancestors 'self'; form-action 'self' https://www.google.com/search https://github.com/login/oauth/authorize https://github.com/login"
+          ],
+          "Content-Type": ["application/json; charset=UTF-8"],
+          "Date": ["Thu, 04 Jun 2020 09:25:03 GMT"],
+          "ETag": ["Q7UwFCuq8XI2m2FDaSZUBw"],
+          "Referrer-policy": ["same-origin"],
+          "Set-Cookie": [
+            "github_secret=dA5CNm5AoGQR0B7gLD36GhR7lgBJrrsPBQE2HCbcxF0UGQuXdpKCZJQGVGdeeapDCYu5JDaQ9r7FCpbCSmy4ODGNXOFmRFc8A2KA5TNE3Vw2VGTE1jGFWKwc0fEydgd004oDkNsdU1asFgNqHDs3SFVJaUQQykMCE07ByQ11HnyVkVGPxmUi4Hn9VFZH30xokuGkuNYo4qi1pFc97UfpDrxpnpzCa7c48eEAKj0t9fEKh2H5axY4hcUssZsVOTXM; path=/; secure; HttpOnly; SameSite=Lax"
+          ],
+          "Status": ["200"],
+          "Strict-Transport-Security": ["max-age=31536000; includeSubDomains"],
+          "Vary": ["Accept-Encoding"],
+          "X-content-type-options": ["nosniff"],
+          "X-frame-options": ["SAMEORIGIN"],
+          "X-xss-protection": ["1; mode=block"],
+          "transfer-encoding": ["chunked"]
+        },
+        "status": {
+          "code": 200,
+          "message": "OK"
+        },
+        "url": "https://bugzilla.mozilla.org/rest/bug/1608365/history"
+      }
+    },
+    {
+      "recorded_at": "2020-06-02T00:00:27",
+      "request": {
+        "body": {
+          "encoding": "utf-8",
+          "string": ""
+        },
+        "headers": {
+          "Accept": ["application/json"],
+          "Cookie": [
+            "Bugzilla_login_request_cookie=gtJgkGlLew; github_secret=dA5CNm5AoGQR0B7gLD36GhR7lgBJrrsPBQE2HCbcxF0UGQuXdpKCZJQGVGdeeapDCYu5JDaQ9r7FCpbCSmy4ODGNXOFmRFc8A2KA5TNE3Vw2VGTE1jGFWKwc0fEydgd004oDkNsdU1asFgNqHDs3SFVJaUQQykMCE07ByQ11HnyVkVGPxmUi4Hn9VFZH30xokuGkuNYo4qi1pFc97UfpDrxpnpzCa7c48eEAKj0t9fEKh2H5axY4hcUssZsVOTXM"
+          ],
+          "User-Agent": ["treeherder/backend"]
+        },
+        "method": "GET",
+        "uri": "https://bugzilla.mozilla.org/rest/bug/1608769/history"
+      },
+      "response": {
+        "body": {
+          "encoding": "UTF-8",
+          "string": "{\"bugs\":[{\"history\":[{\"changes\":[{\"removed\":\"\",\"added\":\"chutten@mozilla.com\",\"field_name\":\"cc\"},{\"added\":\"Telemetry\",\"field_name\":\"component\",\"removed\":\"Performance\"},{\"removed\":\"Version 3\",\"added\":\"unspecified\",\"field_name\":\"version\"},{\"field_name\":\"product\",\"added\":\"Toolkit\",\"removed\":\"Testing\"},{\"removed\":\"\",\"field_name\":\"flagtypes.name\",\"added\":\"needinfo?(chutten@mozilla.com)\"}],\"who\":\"fstrugariu@mozilla.com\",\"when\":\"2020-01-13T09:38:43Z\"},{\"when\":\"2020-01-13T14:04:45Z\",\"who\":\"chutten@mozilla.com\",\"changes\":[{\"removed\":\"\",\"field_name\":\"cc\",\"added\":\"jrediger@mozilla.com\"},{\"removed\":\"needinfo?(chutten@mozilla.com)\",\"added\":\"needinfo?(jrediger@mozilla.com)\",\"field_name\":\"flagtypes.name\"}]},{\"changes\":[{\"field_name\":\"flagtypes.name\",\"added\":\"needinfo?(fstrugariu@mozilla.com)\",\"removed\":\"needinfo?(jrediger@mozilla.com)\"}],\"who\":\"jrediger@mozilla.com\",\"when\":\"2020-01-13T16:43:07Z\"},{\"who\":\"fstrugariu@mozilla.com\",\"when\":\"2020-01-14T08:43:00Z\",\"changes\":[{\"removed\":\"needinfo?(fstrugariu@mozilla.com)\",\"added\":\"\",\"field_name\":\"flagtypes.name\"}]},{\"who\":\"fstrugariu@mozilla.com\",\"when\":\"2020-01-15T08:29:49Z\",\"changes\":[{\"removed\":\"NEW\",\"field_name\":\"status\",\"added\":\"RESOLVED\"},{\"field_name\":\"resolution\",\"added\":\"WONTFIX\",\"removed\":\"\"},{\"added\":\"2020-01-15T08:29:49Z\",\"field_name\":\"cf_last_resolved\",\"removed\":\"\"}]}],\"alias\":null,\"id\":1608769}]}"
+        },
+        "headers": {
+          "Access-Control-Allow-Origin": ["*"],
+          "Access-control-allow-headers": [
+            "accept, content-type, origin, user-agent, x-requested-with, x-bugzilla-token, x-bugzilla-login, x-phabricator-token, x-bugzilla-api-key, x-bugzilla-password"
+          ],
+          "Connection": ["keep-alive"],
+          "Content-Security-Policy-Report-Only": [
+            "default-src 'self'; worker-src 'none'; connect-src 'self' https://product-details.mozilla.org https://www.google-analytics.com https://treeherder.mozilla.org/api/failurecount/ https://crash-stats.mozilla.org/api/SuperSearch/; font-src 'self' https://fonts.gstatic.com; img-src 'self' data: blob: https://secure.gravatar.com; object-src 'none'; script-src 'self' 'nonce-qxlj1XFzpI40G6yhG3IuJWBu7gSUGuXnhSoV2aLV5OhDShqw' 'unsafe-inline' https://www.google-analytics.com; style-src 'self' 'unsafe-inline'; frame-src https://crash-stop-addon.herokuapp.com; frame-ancestors 'self'; form-action 'self' https://www.google.com/search https://github.com/login/oauth/authorize https://github.com/login"
+          ],
+          "Content-Type": ["application/json; charset=UTF-8"],
+          "Date": ["Thu, 04 Jun 2020 09:25:03 GMT"],
+          "ETag": ["YF1BkbMbA9ji/IKJ2rxfjA"],
+          "Referrer-policy": ["same-origin"],
+          "Set-Cookie": [
+            "github_secret=dA5CNm5AoGQR0B7gLD36GhR7lgBJrrsPBQE2HCbcxF0UGQuXdpKCZJQGVGdeeapDCYu5JDaQ9r7FCpbCSmy4ODGNXOFmRFc8A2KA5TNE3Vw2VGTE1jGFWKwc0fEydgd004oDkNsdU1asFgNqHDs3SFVJaUQQykMCE07ByQ11HnyVkVGPxmUi4Hn9VFZH30xokuGkuNYo4qi1pFc97UfpDrxpnpzCa7c48eEAKj0t9fEKh2H5axY4hcUssZsVOTXM; path=/; secure; HttpOnly; SameSite=Lax"
+          ],
+          "Status": ["200"],
+          "Strict-Transport-Security": ["max-age=31536000; includeSubDomains"],
+          "Vary": ["Accept-Encoding"],
+          "X-content-type-options": ["nosniff"],
+          "X-frame-options": ["SAMEORIGIN"],
+          "X-xss-protection": ["1; mode=block"],
+          "transfer-encoding": ["chunked"]
+        },
+        "status": {
+          "code": 200,
+          "message": "OK"
+        },
+        "url": "https://bugzilla.mozilla.org/rest/bug/1608769/history"
+      }
+    },
+    {
+      "recorded_at": "2020-06-02T00:00:27",
+      "request": {
+        "body": {
+          "encoding": "utf-8",
+          "string": ""
+        },
+        "headers": {
+          "Accept": ["application/json"],
+          "Cookie": [
+            "Bugzilla_login_request_cookie=gtJgkGlLew; github_secret=dA5CNm5AoGQR0B7gLD36GhR7lgBJrrsPBQE2HCbcxF0UGQuXdpKCZJQGVGdeeapDCYu5JDaQ9r7FCpbCSmy4ODGNXOFmRFc8A2KA5TNE3Vw2VGTE1jGFWKwc0fEydgd004oDkNsdU1asFgNqHDs3SFVJaUQQykMCE07ByQ11HnyVkVGPxmUi4Hn9VFZH30xokuGkuNYo4qi1pFc97UfpDrxpnpzCa7c48eEAKj0t9fEKh2H5axY4hcUssZsVOTXM"
+          ],
+          "User-Agent": ["treeherder/backend"]
+        },
+        "method": "GET",
+        "uri": "https://bugzilla.mozilla.org/rest/bug/1609949/history"
+      },
+      "response": {
+        "body": {
+          "encoding": "UTF-8",
+          "string": "{\"bugs\":[{\"history\":[{\"changes\":[{\"removed\":\"\",\"added\":\"kmoir@mozilla.com\",\"field_name\":\"cc\"},{\"removed\":\"\",\"added\":\"needinfo?(kmoir@mozilla.com), needinfo?(nfroyd@mozilla.com)\",\"field_name\":\"flagtypes.name\"}],\"who\":\"fstrugariu@mozilla.com\",\"when\":\"2020-01-17T15:12:44Z\"},{\"changes\":[{\"added\":\"mozilla@hocat.ca\",\"field_name\":\"cc\",\"removed\":\"\"},{\"removed\":\"needinfo?(nfroyd@mozilla.com)\",\"field_name\":\"flagtypes.name\",\"added\":\"needinfo?(mozilla@hocat.ca)\"}],\"who\":\"nfroyd@mozilla.com\",\"when\":\"2020-01-17T15:17:01Z\"},{\"when\":\"2020-01-17T17:52:07Z\",\"who\":\"mozilla@hocat.ca\",\"changes\":[{\"field_name\":\"status\",\"added\":\"RESOLVED\",\"removed\":\"NEW\"},{\"added\":\"1547111\",\"field_name\":\"regressed_by\",\"removed\":\"\"},{\"removed\":\"\",\"added\":\"FIXED\",\"field_name\":\"resolution\"},{\"added\":\"\",\"field_name\":\"flagtypes.name\",\"removed\":\"needinfo?(mozilla@hocat.ca)\"},{\"removed\":\"\",\"added\":\"2020-01-17T17:52:07Z\",\"field_name\":\"cf_last_resolved\"}]},{\"when\":\"2020-01-17T17:56:04Z\",\"who\":\"nfroyd@mozilla.com\",\"changes\":[{\"added\":\"\",\"field_name\":\"flagtypes.name\",\"removed\":\"needinfo?(kmoir@mozilla.com)\"}]},{\"changes\":[{\"field_name\":\"assigned_to\",\"added\":\"mozilla@hocat.ca\",\"removed\":\"nobody@mozilla.org\"},{\"field_name\":\"target_milestone\",\"added\":\"mozilla74\",\"removed\":\"---\"},{\"removed\":\"---\",\"added\":\"unaffected\",\"field_name\":\"cf_status_firefox_esr68\"},{\"added\":\"unaffected\",\"field_name\":\"cf_status_firefox72\",\"removed\":\"---\"},{\"added\":\"unaffected\",\"field_name\":\"cf_status_firefox73\",\"removed\":\"---\"},{\"added\":\"fixed\",\"field_name\":\"cf_status_firefox74\",\"removed\":\"---\"}],\"who\":\"ryanvm@gmail.com\",\"when\":\"2020-01-19T18:12:37Z\"}],\"id\":1609949,\"alias\":null}]}"
+        },
+        "headers": {
+          "Access-Control-Allow-Origin": ["*"],
+          "Access-control-allow-headers": [
+            "accept, content-type, origin, user-agent, x-requested-with, x-bugzilla-token, x-bugzilla-login, x-phabricator-token, x-bugzilla-api-key, x-bugzilla-password"
+          ],
+          "Connection": ["keep-alive"],
+          "Content-Security-Policy-Report-Only": [
+            "default-src 'self'; worker-src 'none'; connect-src 'self' https://product-details.mozilla.org https://www.google-analytics.com https://treeherder.mozilla.org/api/failurecount/ https://crash-stats.mozilla.org/api/SuperSearch/; font-src 'self' https://fonts.gstatic.com; img-src 'self' data: blob: https://secure.gravatar.com; object-src 'none'; script-src 'self' 'nonce-kA86MdJbd5xSQxZwXD0lEDz0bpOrbcV5zD1qqo5W0txhVMDh' 'unsafe-inline' https://www.google-analytics.com; style-src 'self' 'unsafe-inline'; frame-src https://crash-stop-addon.herokuapp.com; frame-ancestors 'self'; form-action 'self' https://www.google.com/search https://github.com/login/oauth/authorize https://github.com/login"
+          ],
+          "Content-Type": ["application/json; charset=UTF-8"],
+          "Date": ["Thu, 04 Jun 2020 09:25:04 GMT"],
+          "ETag": ["G20VRKru6e2+4gs5nrQisQ"],
+          "Referrer-policy": ["same-origin"],
+          "Set-Cookie": [
+            "github_secret=dA5CNm5AoGQR0B7gLD36GhR7lgBJrrsPBQE2HCbcxF0UGQuXdpKCZJQGVGdeeapDCYu5JDaQ9r7FCpbCSmy4ODGNXOFmRFc8A2KA5TNE3Vw2VGTE1jGFWKwc0fEydgd004oDkNsdU1asFgNqHDs3SFVJaUQQykMCE07ByQ11HnyVkVGPxmUi4Hn9VFZH30xokuGkuNYo4qi1pFc97UfpDrxpnpzCa7c48eEAKj0t9fEKh2H5axY4hcUssZsVOTXM; path=/; secure; HttpOnly; SameSite=Lax"
+          ],
+          "Status": ["200"],
+          "Strict-Transport-Security": ["max-age=31536000; includeSubDomains"],
+          "Vary": ["Accept-Encoding"],
+          "X-content-type-options": ["nosniff"],
+          "X-frame-options": ["SAMEORIGIN"],
+          "X-xss-protection": ["1; mode=block"],
+          "transfer-encoding": ["chunked"]
+        },
+        "status": {
+          "code": 200,
+          "message": "OK"
+        },
+        "url": "https://bugzilla.mozilla.org/rest/bug/1609949/history"
+      }
+    },
+    {
+      "recorded_at": "2020-06-02T00:00:27",
+      "request": {
+        "body": {
+          "encoding": "utf-8",
+          "string": ""
+        },
+        "headers": {
+          "Accept": ["application/json"],
+          "Cookie": [
+            "Bugzilla_login_request_cookie=gtJgkGlLew; github_secret=dA5CNm5AoGQR0B7gLD36GhR7lgBJrrsPBQE2HCbcxF0UGQuXdpKCZJQGVGdeeapDCYu5JDaQ9r7FCpbCSmy4ODGNXOFmRFc8A2KA5TNE3Vw2VGTE1jGFWKwc0fEydgd004oDkNsdU1asFgNqHDs3SFVJaUQQykMCE07ByQ11HnyVkVGPxmUi4Hn9VFZH30xokuGkuNYo4qi1pFc97UfpDrxpnpzCa7c48eEAKj0t9fEKh2H5axY4hcUssZsVOTXM"
+          ],
+          "User-Agent": ["treeherder/backend"]
+        },
+        "method": "GET",
+        "uri": "https://bugzilla.mozilla.org/rest/bug/1611073/history"
+      },
+      "response": {
+        "body": {
+          "encoding": "UTF-8",
+          "string": "{\"bugs\":[{\"alias\":null,\"history\":[{\"when\":\"2020-01-23T06:51:14Z\",\"who\":\"aionescu@mozilla.com\",\"changes\":[{\"removed\":\"\",\"field_name\":\"flagtypes.name\",\"added\":\"needinfo?(dmalyshau@mozilla.com)\"}]},{\"when\":\"2020-01-23T06:51:45Z\",\"who\":\"aionescu@mozilla.com\",\"changes\":[{\"added\":\"Graphics: WebGPU\",\"removed\":\"Performance\",\"field_name\":\"component\"},{\"removed\":\"Version 3\",\"field_name\":\"version\",\"added\":\"unspecified\"},{\"added\":\"Core\",\"field_name\":\"product\",\"removed\":\"Testing\"},{\"removed\":\"---\",\"field_name\":\"target_milestone\",\"added\":\"mozilla74\"},{\"field_name\":\"cf_status_firefox_esr68\",\"removed\":\"---\",\"added\":\"unaffected\"},{\"field_name\":\"cf_status_firefox72\",\"removed\":\"---\",\"added\":\"unaffected\"},{\"added\":\"unaffected\",\"field_name\":\"cf_status_firefox73\",\"removed\":\"---\"}]},{\"who\":\"dmalyshau@mozilla.com\",\"changes\":[{\"field_name\":\"flagtypes.name\",\"removed\":\"needinfo?(dmalyshau@mozilla.com)\",\"added\":\"\"}],\"when\":\"2020-01-23T13:26:18Z\"},{\"when\":\"2020-01-27T13:28:43Z\",\"changes\":[{\"added\":\"RESOLVED\",\"field_name\":\"status\",\"removed\":\"NEW\"},{\"added\":\"WONTFIX\",\"field_name\":\"resolution\",\"removed\":\"\"},{\"field_name\":\"cf_last_resolved\",\"removed\":\"\",\"added\":\"2020-01-27T13:28:43Z\"}],\"who\":\"aionescu@mozilla.com\"},{\"changes\":[{\"removed\":\"\",\"field_name\":\"cc\",\"added\":\"marian.raiciof@softvision.ro\"}],\"who\":\"marian.raiciof@softvision.ro\",\"when\":\"2020-01-28T08:02:42Z\"}],\"id\":1611073}]}"
+        },
+        "headers": {
+          "Access-Control-Allow-Origin": ["*"],
+          "Access-control-allow-headers": [
+            "accept, content-type, origin, user-agent, x-requested-with, x-bugzilla-api-key, x-phabricator-token, x-bugzilla-token, x-bugzilla-password, x-bugzilla-login"
+          ],
+          "Connection": ["keep-alive"],
+          "Content-Length": ["1371"],
+          "Content-Security-Policy-Report-Only": [
+            "default-src 'self'; worker-src 'none'; connect-src 'self' https://product-details.mozilla.org https://www.google-analytics.com https://treeherder.mozilla.org/api/failurecount/ https://crash-stats.mozilla.org/api/SuperSearch/; font-src 'self' https://fonts.gstatic.com; img-src 'self' data: blob: https://secure.gravatar.com; object-src 'none'; script-src 'self' 'nonce-wSJ3XaAb1n9b6DJiTUg4rhsmWHphkKdhqvxc919X2tMYG4Kq' 'unsafe-inline' https://www.google-analytics.com; style-src 'self' 'unsafe-inline'; frame-src https://crash-stop-addon.herokuapp.com; frame-ancestors 'self'; form-action 'self' https://www.google.com/search https://github.com/login/oauth/authorize https://github.com/login"
+          ],
+          "Content-Type": ["application/json; charset=UTF-8"],
+          "Date": ["Thu, 04 Jun 2020 09:25:04 GMT"],
+          "ETag": ["HEOhZj252K8NTdYoL7sFTw"],
+          "Referrer-policy": ["same-origin"],
+          "Set-Cookie": [
+            "github_secret=dA5CNm5AoGQR0B7gLD36GhR7lgBJrrsPBQE2HCbcxF0UGQuXdpKCZJQGVGdeeapDCYu5JDaQ9r7FCpbCSmy4ODGNXOFmRFc8A2KA5TNE3Vw2VGTE1jGFWKwc0fEydgd004oDkNsdU1asFgNqHDs3SFVJaUQQykMCE07ByQ11HnyVkVGPxmUi4Hn9VFZH30xokuGkuNYo4qi1pFc97UfpDrxpnpzCa7c48eEAKj0t9fEKh2H5axY4hcUssZsVOTXM; path=/; secure; HttpOnly; SameSite=Lax"
+          ],
+          "Status": ["200"],
+          "Strict-Transport-Security": ["max-age=31536000; includeSubDomains"],
+          "Vary": ["Accept-Encoding"],
+          "X-content-type-options": ["nosniff"],
+          "X-frame-options": ["SAMEORIGIN"],
+          "X-xss-protection": ["1; mode=block"]
+        },
+        "status": {
+          "code": 200,
+          "message": "OK"
+        },
+        "url": "https://bugzilla.mozilla.org/rest/bug/1611073/history"
+      }
+    },
+    {
+      "recorded_at": "2020-06-02T00:00:28",
+      "request": {
+        "body": {
+          "encoding": "utf-8",
+          "string": ""
+        },
+        "headers": {
+          "Accept": ["application/json"],
+          "Cookie": [
+            "Bugzilla_login_request_cookie=gtJgkGlLew; github_secret=dA5CNm5AoGQR0B7gLD36GhR7lgBJrrsPBQE2HCbcxF0UGQuXdpKCZJQGVGdeeapDCYu5JDaQ9r7FCpbCSmy4ODGNXOFmRFc8A2KA5TNE3Vw2VGTE1jGFWKwc0fEydgd004oDkNsdU1asFgNqHDs3SFVJaUQQykMCE07ByQ11HnyVkVGPxmUi4Hn9VFZH30xokuGkuNYo4qi1pFc97UfpDrxpnpzCa7c48eEAKj0t9fEKh2H5axY4hcUssZsVOTXM"
+          ],
+          "User-Agent": ["treeherder/backend"]
+        },
+        "method": "GET",
+        "uri": "https://bugzilla.mozilla.org/rest/bug/1611804/history"
+      },
+      "response": {
+        "body": {
+          "encoding": "UTF-8",
+          "string": "{\"bugs\":[{\"alias\":null,\"id\":1611804,\"history\":[{\"who\":\"marian.raiciof@softvision.ro\",\"when\":\"2020-01-27T15:01:34Z\",\"changes\":[{\"removed\":\"\",\"field_name\":\"blocks\",\"added\":\"1607747\"},{\"added\":\"needinfo?(dmalyshau@mozilla.com)\",\"field_name\":\"flagtypes.name\",\"removed\":\"\"},{\"added\":\"1609175\",\"field_name\":\"regressed_by\",\"removed\":\"\"},{\"field_name\":\"product\",\"added\":\"Core\",\"removed\":\"Testing\"},{\"removed\":\"---\",\"field_name\":\"target_milestone\",\"added\":\"mozilla74\"},{\"field_name\":\"cc\",\"added\":\"dmalyshau@mozilla.com\",\"removed\":\"\"},{\"field_name\":\"component\",\"added\":\"Graphics: WebGPU\",\"removed\":\"Performance\"},{\"removed\":\"Version 3\",\"field_name\":\"version\",\"added\":\"unspecified\"},{\"removed\":\"---\",\"added\":\"unaffected\",\"field_name\":\"cf_status_firefox_esr68\"},{\"removed\":\"---\",\"added\":\"unaffected\",\"field_name\":\"cf_status_firefox72\"},{\"removed\":\"---\",\"field_name\":\"cf_status_firefox73\",\"added\":\"unaffected\"},{\"removed\":\"---\",\"field_name\":\"cf_status_firefox74\",\"added\":\"affected\"}]},{\"when\":\"2020-01-27T22:12:42Z\",\"who\":\"dmalyshau@mozilla.com\",\"changes\":[{\"added\":\"needinfo?(marian.raiciof@softvision.ro)\",\"field_name\":\"flagtypes.name\",\"removed\":\"needinfo?(dmalyshau@mozilla.com)\"}]},{\"who\":\"marian.raiciof@softvision.ro\",\"when\":\"2020-01-28T08:02:41Z\",\"changes\":[{\"removed\":\"\",\"added\":\"DUPLICATE\",\"field_name\":\"resolution\"},{\"field_name\":\"flagtypes.name\",\"added\":\"\",\"removed\":\"needinfo?(marian.raiciof@softvision.ro)\"},{\"removed\":\"NEW\",\"added\":\"RESOLVED\",\"field_name\":\"status\"},{\"added\":\"2020-01-28T08:02:41Z\",\"field_name\":\"cf_last_resolved\",\"removed\":\"\"}]},{\"changes\":[{\"removed\":\"affected\",\"added\":\"wontfix\",\"field_name\":\"cf_status_firefox74\"}],\"who\":\"ryanvm@gmail.com\",\"when\":\"2020-02-04T02:46:29Z\"}]}]}"
+        },
+        "headers": {
+          "Access-Control-Allow-Origin": ["*"],
+          "Access-control-allow-headers": [
+            "accept, content-type, origin, user-agent, x-requested-with, x-bugzilla-token, x-bugzilla-login, x-phabricator-token, x-bugzilla-api-key, x-bugzilla-password"
+          ],
+          "Connection": ["keep-alive"],
+          "Content-Security-Policy-Report-Only": [
+            "default-src 'self'; worker-src 'none'; connect-src 'self' https://product-details.mozilla.org https://www.google-analytics.com https://treeherder.mozilla.org/api/failurecount/ https://crash-stats.mozilla.org/api/SuperSearch/; font-src 'self' https://fonts.gstatic.com; img-src 'self' data: blob: https://secure.gravatar.com; object-src 'none'; script-src 'self' 'nonce-ITBErRF2HXlP6fpqnFjcAWNYH1rMUCc6pP39bwLWyHXAGNdh' 'unsafe-inline' https://www.google-analytics.com; style-src 'self' 'unsafe-inline'; frame-src https://crash-stop-addon.herokuapp.com; frame-ancestors 'self'; form-action 'self' https://www.google.com/search https://github.com/login/oauth/authorize https://github.com/login"
+          ],
+          "Content-Type": ["application/json; charset=UTF-8"],
+          "Date": ["Thu, 04 Jun 2020 09:25:04 GMT"],
+          "ETag": ["xE+PgPvpVUriJ2qXiEOHcw"],
+          "Referrer-policy": ["same-origin"],
+          "Set-Cookie": [
+            "github_secret=dA5CNm5AoGQR0B7gLD36GhR7lgBJrrsPBQE2HCbcxF0UGQuXdpKCZJQGVGdeeapDCYu5JDaQ9r7FCpbCSmy4ODGNXOFmRFc8A2KA5TNE3Vw2VGTE1jGFWKwc0fEydgd004oDkNsdU1asFgNqHDs3SFVJaUQQykMCE07ByQ11HnyVkVGPxmUi4Hn9VFZH30xokuGkuNYo4qi1pFc97UfpDrxpnpzCa7c48eEAKj0t9fEKh2H5axY4hcUssZsVOTXM; path=/; secure; HttpOnly; SameSite=Lax"
+          ],
+          "Status": ["200"],
+          "Strict-Transport-Security": ["max-age=31536000; includeSubDomains"],
+          "Vary": ["Accept-Encoding"],
+          "X-content-type-options": ["nosniff"],
+          "X-frame-options": ["SAMEORIGIN"],
+          "X-xss-protection": ["1; mode=block"],
+          "transfer-encoding": ["chunked"]
+        },
+        "status": {
+          "code": 200,
+          "message": "OK"
+        },
+        "url": "https://bugzilla.mozilla.org/rest/bug/1611804/history"
+      }
+    },
+    {
+      "recorded_at": "2020-06-02T00:00:28",
+      "request": {
+        "body": {
+          "encoding": "utf-8",
+          "string": ""
+        },
+        "headers": {
+          "Accept": ["application/json"],
+          "Cookie": [
+            "Bugzilla_login_request_cookie=gtJgkGlLew; github_secret=dA5CNm5AoGQR0B7gLD36GhR7lgBJrrsPBQE2HCbcxF0UGQuXdpKCZJQGVGdeeapDCYu5JDaQ9r7FCpbCSmy4ODGNXOFmRFc8A2KA5TNE3Vw2VGTE1jGFWKwc0fEydgd004oDkNsdU1asFgNqHDs3SFVJaUQQykMCE07ByQ11HnyVkVGPxmUi4Hn9VFZH30xokuGkuNYo4qi1pFc97UfpDrxpnpzCa7c48eEAKj0t9fEKh2H5axY4hcUssZsVOTXM"
+          ],
+          "User-Agent": ["treeherder/backend"]
+        },
+        "method": "GET",
+        "uri": "https://bugzilla.mozilla.org/rest/bug/1615592/history"
+      },
+      "response": {
+        "body": {
+          "encoding": "UTF-8",
+          "string": "{\"bugs\":[{\"history\":[{\"changes\":[{\"field_name\":\"flagtypes.name\",\"added\":\"needinfo?(dkeeler@mozilla.com)\",\"removed\":\"\"}],\"who\":\"aionescu@mozilla.com\",\"when\":\"2020-02-14T13:18:02Z\"},{\"when\":\"2020-02-14T13:18:20Z\",\"changes\":[{\"removed\":\"Version 3\",\"added\":\"unspecified\",\"field_name\":\"version\"},{\"removed\":\"Performance\",\"added\":\"Security: PSM\",\"field_name\":\"component\"},{\"removed\":\"Testing\",\"added\":\"Core\",\"field_name\":\"product\"}],\"who\":\"aionescu@mozilla.com\"},{\"who\":\"jjones@mozilla.com\",\"changes\":[{\"removed\":\"\",\"added\":\"jjones@mozilla.com\",\"field_name\":\"cc\"},{\"removed\":\"needinfo?(dkeeler@mozilla.com)\",\"added\":\"\",\"field_name\":\"flagtypes.name\"}],\"when\":\"2020-02-14T14:53:17Z\"},{\"when\":\"2020-02-14T17:49:51Z\",\"changes\":[{\"field_name\":\"status\",\"added\":\"RESOLVED\",\"removed\":\"NEW\"},{\"field_name\":\"resolution\",\"added\":\"WONTFIX\",\"removed\":\"\"},{\"field_name\":\"cf_last_resolved\",\"added\":\"2020-02-14T17:49:51Z\",\"removed\":\"\"}],\"who\":\"dkeeler@mozilla.com\"},{\"who\":\"jjones@mozilla.com\",\"changes\":[{\"added\":\"We added a new PKCS11 module to the Mac build; it's about 200kB. This is the Mac implementation of Bug 1591269 which enables Firefox on OSX to be used in enterprise environments where it's currently banned. It's not going to get any bigger.\",\"field_name\":\"comment_revision\",\"comment_count\":1,\"comment_id\":14641599,\"removed\":\"We added a new PKCS11 module to the Mac build; it's about 200kB. This is a the Mac implementation of Bug 1591269 which enables Firefox on OSX to be used in enterprise environments where it's currently banned. It's not going to get any bigger.\"}],\"when\":\"2020-02-14T17:50:27Z\"}],\"alias\":null,\"id\":1615592}]}"
+        },
+        "headers": {
+          "Access-Control-Allow-Origin": ["*"],
+          "Access-control-allow-headers": [
+            "accept, content-type, origin, user-agent, x-requested-with, x-bugzilla-token, x-phabricator-token, x-bugzilla-api-key, x-bugzilla-password, x-bugzilla-login"
+          ],
+          "Connection": ["keep-alive"],
+          "Content-Security-Policy-Report-Only": [
+            "default-src 'self'; worker-src 'none'; connect-src 'self' https://product-details.mozilla.org https://www.google-analytics.com https://treeherder.mozilla.org/api/failurecount/ https://crash-stats.mozilla.org/api/SuperSearch/; font-src 'self' https://fonts.gstatic.com; img-src 'self' data: blob: https://secure.gravatar.com; object-src 'none'; script-src 'self' 'nonce-cpHRiUkHt4snsDDZSWlkZzNHnp4yzR8pmwJxqgv6VU1Q6RuJ' 'unsafe-inline' https://www.google-analytics.com; style-src 'self' 'unsafe-inline'; frame-src https://crash-stop-addon.herokuapp.com; frame-ancestors 'self'; form-action 'self' https://www.google.com/search https://github.com/login/oauth/authorize https://github.com/login"
+          ],
+          "Content-Type": ["application/json; charset=UTF-8"],
+          "Date": ["Thu, 04 Jun 2020 09:25:05 GMT"],
+          "ETag": ["ryVapcnS+WfVPHILVsYSbg"],
+          "Referrer-policy": ["same-origin"],
+          "Set-Cookie": [
+            "github_secret=dA5CNm5AoGQR0B7gLD36GhR7lgBJrrsPBQE2HCbcxF0UGQuXdpKCZJQGVGdeeapDCYu5JDaQ9r7FCpbCSmy4ODGNXOFmRFc8A2KA5TNE3Vw2VGTE1jGFWKwc0fEydgd004oDkNsdU1asFgNqHDs3SFVJaUQQykMCE07ByQ11HnyVkVGPxmUi4Hn9VFZH30xokuGkuNYo4qi1pFc97UfpDrxpnpzCa7c48eEAKj0t9fEKh2H5axY4hcUssZsVOTXM; path=/; secure; HttpOnly; SameSite=Lax"
+          ],
+          "Status": ["200"],
+          "Strict-Transport-Security": ["max-age=31536000; includeSubDomains"],
+          "Vary": ["Accept-Encoding"],
+          "X-content-type-options": ["nosniff"],
+          "X-frame-options": ["SAMEORIGIN"],
+          "X-xss-protection": ["1; mode=block"],
+          "transfer-encoding": ["chunked"]
+        },
+        "status": {
+          "code": 200,
+          "message": "OK"
+        },
+        "url": "https://bugzilla.mozilla.org/rest/bug/1615592/history"
+      }
+    },
+    {
+      "recorded_at": "2020-06-02T00:00:28",
+      "request": {
+        "body": {
+          "encoding": "utf-8",
+          "string": ""
+        },
+        "headers": {
+          "Accept": ["application/json"],
+          "Cookie": [
+            "Bugzilla_login_request_cookie=gtJgkGlLew; github_secret=dA5CNm5AoGQR0B7gLD36GhR7lgBJrrsPBQE2HCbcxF0UGQuXdpKCZJQGVGdeeapDCYu5JDaQ9r7FCpbCSmy4ODGNXOFmRFc8A2KA5TNE3Vw2VGTE1jGFWKwc0fEydgd004oDkNsdU1asFgNqHDs3SFVJaUQQykMCE07ByQ11HnyVkVGPxmUi4Hn9VFZH30xokuGkuNYo4qi1pFc97UfpDrxpnpzCa7c48eEAKj0t9fEKh2H5axY4hcUssZsVOTXM"
+          ],
+          "User-Agent": ["treeherder/backend"]
+        },
+        "method": "GET",
+        "uri": "https://bugzilla.mozilla.org/rest/bug/1621917/history"
+      },
+      "response": {
+        "body": {
+          "encoding": "UTF-8",
+          "string": "{\"bugs\":[{\"history\":[{\"who\":\"fstrugariu@mozilla.com\",\"when\":\"2020-03-12T11:17:24Z\",\"changes\":[{\"removed\":\"\",\"field_name\":\"regressed_by\",\"added\":\"1614561\"},{\"added\":\"1619461\",\"field_name\":\"blocks\",\"removed\":\"\"},{\"removed\":\"Version 3\",\"field_name\":\"version\",\"added\":\"unspecified\"},{\"removed\":\"Performance\",\"added\":\"Toolchains\",\"field_name\":\"component\"},{\"field_name\":\"product\",\"added\":\"Firefox Build System\",\"removed\":\"Testing\"},{\"removed\":\"---\",\"added\":\"unaffected\",\"field_name\":\"cf_status_firefox75\"}]},{\"who\":\"fstrugariu@mozilla.com\",\"when\":\"2020-03-12T11:17:43Z\",\"changes\":[{\"removed\":\"\",\"field_name\":\"cc\",\"added\":\"dmajor@mozilla.com\"},{\"added\":\"needinfo?(dmajor@mozilla.com)\",\"field_name\":\"flagtypes.name\",\"removed\":\"\"}]},{\"changes\":[{\"field_name\":\"regressed_by\",\"added\":\"1619461\",\"removed\":\"1614561\"},{\"field_name\":\"blocks\",\"added\":\"1614561\",\"removed\":\"1619461\"}],\"when\":\"2020-03-12T11:24:01Z\",\"who\":\"fstrugariu@mozilla.com\"},{\"who\":\"dmajor@mozilla.com\",\"when\":\"2020-03-13T16:40:48Z\",\"changes\":[{\"removed\":\"needinfo?(dmajor@mozilla.com)\",\"field_name\":\"flagtypes.name\",\"added\":\"\"}]},{\"when\":\"2020-03-17T12:15:07Z\",\"who\":\"jcristau@mozilla.com\",\"changes\":[{\"added\":\"jcristau@mozilla.com\",\"field_name\":\"cc\",\"removed\":\"\"},{\"added\":\"affected\",\"field_name\":\"cf_status_firefox76\",\"removed\":\"---\"}]},{\"changes\":[{\"added\":\"rstewart@mozilla.com\",\"field_name\":\"cc\",\"removed\":\"\"},{\"field_name\":\"assigned_to\",\"added\":\"dmajor@mozilla.com\",\"removed\":\"nobody@mozilla.org\"},{\"field_name\":\"priority\",\"added\":\"P3\",\"removed\":\"--\"}],\"who\":\"rstewart@mozilla.com\",\"when\":\"2020-03-17T19:00:18Z\"},{\"when\":\"2020-03-25T20:03:22Z\",\"who\":\"ryanvm@gmail.com\",\"changes\":[{\"removed\":\"\",\"field_name\":\"cc\",\"added\":\"ryanvm@gmail.com\"},{\"removed\":\"---\",\"field_name\":\"cf_status_firefox_esr68\",\"added\":\"unaffected\"},{\"removed\":\"---\",\"added\":\"unaffected\",\"field_name\":\"cf_status_firefox74\"}]},{\"changes\":[{\"removed\":\"\",\"field_name\":\"cc\",\"added\":\"tspurway@mozilla.com\"},{\"added\":\"fix-optional\",\"field_name\":\"cf_status_firefox76\",\"removed\":\"affected\"}],\"when\":\"2020-04-06T13:12:30Z\",\"who\":\"tspurway@mozilla.com\"},{\"when\":\"2020-04-14T04:02:26Z\",\"who\":\"mayankleoboy1@gmail.com\",\"changes\":[{\"added\":\"mayankleoboy1@gmail.com\",\"field_name\":\"cc\",\"removed\":\"\"}]},{\"changes\":[{\"added\":\"wontfix\",\"field_name\":\"cf_status_firefox76\",\"removed\":\"fix-optional\"},{\"added\":\"fix-optional\",\"field_name\":\"cf_status_firefox77\",\"removed\":\"---\"}],\"when\":\"2020-04-22T02:35:22Z\",\"who\":\"ryanvm@gmail.com\"},{\"changes\":[{\"removed\":\"normal\",\"field_name\":\"severity\",\"added\":\"S3\"},{\"removed\":\"dmajor@mozilla.com\",\"added\":\"nobody@mozilla.org\",\"field_name\":\"assigned_to\"}],\"when\":\"2020-05-12T00:51:53Z\",\"who\":\"bug-husbandry-bot@mozilla.bugs\"}],\"alias\":null,\"id\":1621917}]}"
+        },
+        "headers": {
+          "Access-Control-Allow-Origin": ["*"],
+          "Access-control-allow-headers": [
+            "accept, content-type, origin, user-agent, x-requested-with, x-bugzilla-token, x-bugzilla-login, x-phabricator-token, x-bugzilla-api-key, x-bugzilla-password"
+          ],
+          "Connection": ["keep-alive"],
+          "Content-Security-Policy-Report-Only": [
+            "default-src 'self'; worker-src 'none'; connect-src 'self' https://product-details.mozilla.org https://www.google-analytics.com https://treeherder.mozilla.org/api/failurecount/ https://crash-stats.mozilla.org/api/SuperSearch/; font-src 'self' https://fonts.gstatic.com; img-src 'self' data: blob: https://secure.gravatar.com; object-src 'none'; script-src 'self' 'nonce-FZ677VdxSyy4xmwazcYdIYA7QDc1xXrJCp2m36NcUdw1p0A7' 'unsafe-inline' https://www.google-analytics.com; style-src 'self' 'unsafe-inline'; frame-src https://crash-stop-addon.herokuapp.com; frame-ancestors 'self'; form-action 'self' https://www.google.com/search https://github.com/login/oauth/authorize https://github.com/login"
+          ],
+          "Content-Type": ["application/json; charset=UTF-8"],
+          "Date": ["Thu, 04 Jun 2020 09:25:05 GMT"],
+          "ETag": ["b70MvEiDWCS+oVE9mJCSWQ"],
+          "Referrer-policy": ["same-origin"],
+          "Set-Cookie": [
+            "github_secret=dA5CNm5AoGQR0B7gLD36GhR7lgBJrrsPBQE2HCbcxF0UGQuXdpKCZJQGVGdeeapDCYu5JDaQ9r7FCpbCSmy4ODGNXOFmRFc8A2KA5TNE3Vw2VGTE1jGFWKwc0fEydgd004oDkNsdU1asFgNqHDs3SFVJaUQQykMCE07ByQ11HnyVkVGPxmUi4Hn9VFZH30xokuGkuNYo4qi1pFc97UfpDrxpnpzCa7c48eEAKj0t9fEKh2H5axY4hcUssZsVOTXM; path=/; secure; HttpOnly; SameSite=Lax"
+          ],
+          "Status": ["200"],
+          "Strict-Transport-Security": ["max-age=31536000; includeSubDomains"],
+          "Vary": ["Accept-Encoding"],
+          "X-content-type-options": ["nosniff"],
+          "X-frame-options": ["SAMEORIGIN"],
+          "X-xss-protection": ["1; mode=block"],
+          "transfer-encoding": ["chunked"]
+        },
+        "status": {
+          "code": 200,
+          "message": "OK"
+        },
+        "url": "https://bugzilla.mozilla.org/rest/bug/1621917/history"
+      }
+    },
+    {
+      "recorded_at": "2020-06-02T00:00:29",
+      "request": {
+        "body": {
+          "encoding": "utf-8",
+          "string": ""
+        },
+        "headers": {
+          "Accept": ["application/json"],
+          "Cookie": [
+            "Bugzilla_login_request_cookie=gtJgkGlLew; github_secret=dA5CNm5AoGQR0B7gLD36GhR7lgBJrrsPBQE2HCbcxF0UGQuXdpKCZJQGVGdeeapDCYu5JDaQ9r7FCpbCSmy4ODGNXOFmRFc8A2KA5TNE3Vw2VGTE1jGFWKwc0fEydgd004oDkNsdU1asFgNqHDs3SFVJaUQQykMCE07ByQ11HnyVkVGPxmUi4Hn9VFZH30xokuGkuNYo4qi1pFc97UfpDrxpnpzCa7c48eEAKj0t9fEKh2H5axY4hcUssZsVOTXM"
+          ],
+          "User-Agent": ["treeherder/backend"]
+        },
+        "method": "GET",
+        "uri": "https://bugzilla.mozilla.org/rest/bug/1622668/history"
+      },
+      "response": {
+        "body": {
+          "encoding": "UTF-8",
+          "string": "{\"bugs\":[{\"id\":1622668,\"alias\":null,\"history\":[{\"changes\":[{\"added\":\"Core\",\"field_name\":\"product\",\"removed\":\"Testing\"},{\"removed\":\"Performance\",\"field_name\":\"component\",\"added\":\"Graphics: WebRender\"},{\"removed\":\"Version 3\",\"field_name\":\"version\",\"added\":\"unspecified\"},{\"added\":\"needinfo?(lsalzman@mozilla.com)\",\"field_name\":\"flagtypes.name\",\"removed\":\"\"},{\"removed\":\"\",\"field_name\":\"cc\",\"added\":\"lsalzman@mozilla.com\"}],\"when\":\"2020-03-15T18:38:55Z\",\"who\":\"fstrugariu@mozilla.com\"},{\"who\":\"fstrugariu@mozilla.com\",\"when\":\"2020-03-15T18:39:06Z\",\"changes\":[{\"added\":\"affected\",\"field_name\":\"cf_status_firefox75\",\"removed\":\"---\"}]},{\"when\":\"2020-03-15T18:40:10Z\",\"who\":\"tnikkel@gmail.com\",\"changes\":[{\"field_name\":\"cc\",\"added\":\"tnikkel@gmail.com\",\"removed\":\"\"}]},{\"changes\":[{\"field_name\":\"cc\",\"added\":\"jan@ikenmeyer.eu\",\"removed\":\"\"}],\"who\":\"jan@ikenmeyer.eu\",\"when\":\"2020-03-15T18:48:11Z\"},{\"when\":\"2020-03-15T23:23:16Z\",\"who\":\"phab-bot@bmo.tld\",\"changes\":[{\"removed\":\"NEW\",\"added\":\"ASSIGNED\",\"field_name\":\"status\"},{\"removed\":\"nobody@mozilla.org\",\"added\":\"lsalzman@mozilla.com\",\"field_name\":\"assigned_to\"}]},{\"who\":\"lsalzman@mozilla.com\",\"when\":\"2020-03-15T23:27:14Z\",\"changes\":[{\"removed\":\"needinfo?(lsalzman@mozilla.com)\",\"field_name\":\"flagtypes.name\",\"added\":\"\"},{\"field_name\":\"keywords\",\"added\":\"leave-open\",\"removed\":\"\"}]},{\"who\":\"lsalzman@mozilla.com\",\"when\":\"2020-03-16T00:57:34Z\",\"changes\":[{\"removed\":\"leave-open\",\"added\":\"\",\"field_name\":\"keywords\"}]},{\"when\":\"2020-03-16T01:31:14Z\",\"who\":\"lsalzman@mozilla.com\",\"changes\":[{\"added\":\"I did some further investigation. The build times regression is not actually mine, since looking at the graph in https://treeherder.mozilla.org/perf.html#/graphs?highlightAlerts=1&series=autoland,1917226,1,2&timerange=1209600 shows that during the days where my patches were fully backed out the regression actually remained. It was only on March 13 14:39 that my patches actually landed, so between the alert and then you would have seen a drop in the metric back to normal.\\n\\nSome other patch seems to have snuck in from another bug at the same time that is causing this in with the patch set https://hg.mozilla.org/integration/autoland/pushloghtml?fromchange=2aadc604b542e70f7aeac259f11d1c6cea5a4a0a&tochange=c8f0e8127ec02fbab8c29c0cacbce7de871666d6 but it is not bug 1612941 that is causing that.\",\"field_name\":\"comment_revision\",\"removed\":\"I did some further investigation. The build times regression is not actually mine, since looking at the graph in https://treeherder.mozilla.org/perf.html#/graphs?highlightAlerts=1&series=autoland,1917226,1,2&timerange=1209600 shows that during the days where my patches were fully backed out the regression actually remained.\\n\\nSome other patch seems to have snuck in from another bug at the same time that is causing this in with the patch set https://hg.mozilla.org/integration/autoland/pushloghtml?fromchange=2aadc604b542e70f7aeac259f11d1c6cea5a4a0a&tochange=c8f0e8127ec02fbab8c29c0cacbce7de871666d6 but it is not bug 1612941 that is causing that.\",\"comment_count\":4,\"comment_id\":14695935}]},{\"who\":\"lsalzman@mozilla.com\",\"when\":\"2020-03-16T02:00:10Z\",\"changes\":[{\"removed\":\"\",\"added\":\"dmajor@mozilla.com\",\"field_name\":\"cc\"},{\"removed\":\"\",\"field_name\":\"see_also\",\"added\":\"https://bugzilla.mozilla.org/show_bug.cgi?id=1619461\"},{\"added\":\"needinfo?(dmajor@mozilla.com)\",\"field_name\":\"flagtypes.name\",\"removed\":\"\"}]},{\"changes\":[{\"field_name\":\"comment_revision\",\"added\":\"I was trying to look through the perfherder graphs, and osx-cross build times debug vanilla metric seems to be run more frequently by the automation than the fuzzing metric. I noticed that both osx-cross build times debug metrics spiked at about the same time, but due to the better history for the vanilla metrics, it was easier to find a potential culprit.\\n\\nBoiling this down to where the spike actually occurred, it pinpointed me to this range which is actually from before my change: https://hg.mozilla.org/integration/autoland/pushloghtml?fromchange=ce48cc49397b1ec8f3a206d498fa68ee738ba169&tochange=7a1bf4c17b2574a9ce5dfe1adb02c10f73c3093c\\n\\nIn that range, the first time where it seems to spike is actually at https://hg.mozilla.org/integration/autoland/rev/2f5aba2e2c099a1df26e3444ccec2be0b4ff4613 which is bug 1619461.  dmajor?\",\"comment_id\":14695949,\"comment_count\":5,\"removed\":\"I was trying to look through the perfherder graphs, and osx-cross build times debug vanilla metric seems to be run more frequently by the automation than the fuzzing metric. I noticed that both osx-cross build times debug metrics spiked at about the same time, but due to the better history for the vanilla metrics, it was easier to find a potential culprit.\\n\\nBoiling this down to where the spike actually occurred, it pinpointed me to this range which is actually from before my change: https://hg.mozilla.org/integration/autoland/pushloghtml?fromchange=ce48cc49397b1ec8f3a206d498fa68ee738ba169&tochange=7a1bf4c17b2574a9ce5dfe1adb02c10f73c3093c\\n\\nIn that range, the first time where it seems to spike is actually at https://hg.mozilla.org/integration/autoland/pushloghtml?fromchange=ce48cc49397b1ec8f3a206d498fa68ee738ba169&tochange=7a1bf4c17b2574a9ce5dfe1adb02c10f73c3093c which is bug 1619461.  dmajor?\"}],\"when\":\"2020-03-16T02:01:17Z\",\"who\":\"lsalzman@mozilla.com\"},{\"who\":\"mayankleoboy1@gmail.com\",\"when\":\"2020-03-16T09:16:44Z\",\"changes\":[{\"removed\":\"\",\"added\":\"mayankleoboy1@gmail.com\",\"field_name\":\"cc\"}]},{\"who\":\"rmaries@mozilla.com\",\"when\":\"2020-03-16T09:29:25Z\",\"changes\":[{\"added\":\"FIXED\",\"field_name\":\"resolution\",\"removed\":\"\"},{\"added\":\"mozilla76\",\"field_name\":\"target_milestone\",\"removed\":\"---\"},{\"removed\":\"ASSIGNED\",\"field_name\":\"status\",\"added\":\"RESOLVED\"},{\"field_name\":\"cf_last_resolved\",\"added\":\"2020-03-16T09:29:25Z\",\"removed\":\"\"},{\"added\":\"fixed\",\"field_name\":\"cf_status_firefox76\",\"removed\":\"---\"},{\"removed\":\"\",\"comment_count\":6,\"comment_id\":14697818,\"added\":\"bugherder\",\"field_name\":\"comment_tag\"}]},{\"changes\":[{\"field_name\":\"flagtypes.name\",\"added\":\"\",\"removed\":\"needinfo?(dmajor@mozilla.com)\"}],\"when\":\"2020-03-16T13:54:47Z\",\"who\":\"dmajor@mozilla.com\"},{\"when\":\"2020-03-16T14:31:20Z\",\"who\":\"sledru@mozilla.com\",\"changes\":[{\"field_name\":\"cc\",\"added\":\"sledru@mozilla.com\",\"removed\":\"\"}]},{\"changes\":[{\"field_name\":\"cf_status_firefox_esr68\",\"added\":\"unaffected\",\"removed\":\"---\"},{\"removed\":\"---\",\"field_name\":\"cf_status_firefox73\",\"added\":\"unaffected\"},{\"removed\":\"---\",\"added\":\"unaffected\",\"field_name\":\"cf_status_firefox74\"},{\"field_name\":\"cf_status_firefox75\",\"added\":\"unaffected\",\"removed\":\"affected\"}],\"when\":\"2020-03-16T18:24:28Z\",\"who\":\"ryanvm@gmail.com\"}]}]}"
+        },
+        "headers": {
+          "Access-Control-Allow-Origin": ["*"],
+          "Access-control-allow-headers": [
+            "accept, content-type, origin, user-agent, x-requested-with, x-bugzilla-token, x-bugzilla-login, x-phabricator-token, x-bugzilla-api-key, x-bugzilla-password"
+          ],
+          "Connection": ["keep-alive"],
+          "Content-Security-Policy-Report-Only": [
+            "default-src 'self'; worker-src 'none'; connect-src 'self' https://product-details.mozilla.org https://www.google-analytics.com https://treeherder.mozilla.org/api/failurecount/ https://crash-stats.mozilla.org/api/SuperSearch/; font-src 'self' https://fonts.gstatic.com; img-src 'self' data: blob: https://secure.gravatar.com; object-src 'none'; script-src 'self' 'nonce-joWB9baw8Em0vkY74VQ69fB9sL5FJh8OzGAxGgZTLtCPijbB' 'unsafe-inline' https://www.google-analytics.com; style-src 'self' 'unsafe-inline'; frame-src https://crash-stop-addon.herokuapp.com; frame-ancestors 'self'; form-action 'self' https://www.google.com/search https://github.com/login/oauth/authorize https://github.com/login"
+          ],
+          "Content-Type": ["application/json; charset=UTF-8"],
+          "Date": ["Thu, 04 Jun 2020 09:25:06 GMT"],
+          "ETag": ["sOo40SD2vrXtzC3cfnRb5A"],
+          "Referrer-policy": ["same-origin"],
+          "Set-Cookie": [
+            "github_secret=dA5CNm5AoGQR0B7gLD36GhR7lgBJrrsPBQE2HCbcxF0UGQuXdpKCZJQGVGdeeapDCYu5JDaQ9r7FCpbCSmy4ODGNXOFmRFc8A2KA5TNE3Vw2VGTE1jGFWKwc0fEydgd004oDkNsdU1asFgNqHDs3SFVJaUQQykMCE07ByQ11HnyVkVGPxmUi4Hn9VFZH30xokuGkuNYo4qi1pFc97UfpDrxpnpzCa7c48eEAKj0t9fEKh2H5axY4hcUssZsVOTXM; path=/; secure; HttpOnly; SameSite=Lax"
+          ],
+          "Status": ["200"],
+          "Strict-Transport-Security": ["max-age=31536000; includeSubDomains"],
+          "Vary": ["Accept-Encoding"],
+          "X-content-type-options": ["nosniff"],
+          "X-frame-options": ["SAMEORIGIN"],
+          "X-xss-protection": ["1; mode=block"],
+          "transfer-encoding": ["chunked"]
+        },
+        "status": {
+          "code": 200,
+          "message": "OK"
+        },
+        "url": "https://bugzilla.mozilla.org/rest/bug/1622668/history"
+      }
+    },
+    {
+      "recorded_at": "2020-06-02T00:00:29",
+      "request": {
+        "body": {
+          "encoding": "utf-8",
+          "string": ""
+        },
+        "headers": {
+          "Accept": ["application/json"],
+          "Cookie": [
+            "Bugzilla_login_request_cookie=gtJgkGlLew; github_secret=dA5CNm5AoGQR0B7gLD36GhR7lgBJrrsPBQE2HCbcxF0UGQuXdpKCZJQGVGdeeapDCYu5JDaQ9r7FCpbCSmy4ODGNXOFmRFc8A2KA5TNE3Vw2VGTE1jGFWKwc0fEydgd004oDkNsdU1asFgNqHDs3SFVJaUQQykMCE07ByQ11HnyVkVGPxmUi4Hn9VFZH30xokuGkuNYo4qi1pFc97UfpDrxpnpzCa7c48eEAKj0t9fEKh2H5axY4hcUssZsVOTXM"
+          ],
+          "User-Agent": ["treeherder/backend"]
+        },
+        "method": "GET",
+        "uri": "https://bugzilla.mozilla.org/rest/bug/1624524/history"
+      },
+      "response": {
+        "body": {
+          "encoding": "UTF-8",
+          "string": "{\"bugs\":[{\"history\":[{\"who\":\"aionescu@mozilla.com\",\"when\":\"2020-03-24T06:07:25Z\",\"changes\":[{\"removed\":\"\",\"added\":\"needinfo?(rhunt@eqrion.net)\",\"field_name\":\"flagtypes.name\"}]},{\"changes\":[{\"field_name\":\"product\",\"added\":\"Core\",\"removed\":\"Testing\"},{\"field_name\":\"version\",\"added\":\"unspecified\",\"removed\":\"Version 3\"},{\"removed\":\"Performance\",\"added\":\"Javascript: WebAssembly\",\"field_name\":\"component\"}],\"when\":\"2020-03-24T06:07:57Z\",\"who\":\"aionescu@mozilla.com\"},{\"changes\":[{\"field_name\":\"cc\",\"added\":\"bbouvier@mozilla.com, choller@mozilla.com\",\"removed\":\"\"},{\"removed\":\"\",\"added\":\"needinfo?(bbouvier@mozilla.com), needinfo?(nfroyd@mozilla.com), needinfo?(choller@mozilla.com)\",\"field_name\":\"flagtypes.name\"}],\"when\":\"2020-03-24T07:50:24Z\",\"who\":\"lhansen@mozilla.com\"},{\"when\":\"2020-03-24T09:12:53Z\",\"who\":\"bbouvier@mozilla.com\",\"changes\":[{\"removed\":\"needinfo?(bbouvier@mozilla.com), needinfo?(nfroyd@mozilla.com)\",\"field_name\":\"flagtypes.name\",\"added\":\"\"}]},{\"changes\":[{\"removed\":\"needinfo?(choller@mozilla.com)\",\"field_name\":\"flagtypes.name\",\"added\":\"\"}],\"who\":\"choller@mozilla.com\",\"when\":\"2020-03-24T09:17:25Z\"},{\"changes\":[{\"added\":\"\",\"field_name\":\"flagtypes.name\",\"removed\":\"needinfo?(rhunt@eqrion.net)\"}],\"when\":\"2020-03-25T00:07:57Z\",\"who\":\"rhunt@eqrion.net\"},{\"changes\":[{\"removed\":\"nobody@mozilla.org\",\"added\":\"rhunt@eqrion.net\",\"field_name\":\"assigned_to\"}],\"who\":\"rhunt@eqrion.net\",\"when\":\"2020-03-25T00:08:19Z\"},{\"who\":\"ryanvm@gmail.com\",\"when\":\"2020-03-25T20:17:43Z\",\"changes\":[{\"added\":\"ryanvm@gmail.com\",\"field_name\":\"cc\",\"removed\":\"\"},{\"added\":\"unaffected\",\"field_name\":\"cf_status_firefox_esr68\",\"removed\":\"---\"},{\"removed\":\"---\",\"added\":\"unaffected\",\"field_name\":\"cf_status_firefox74\"},{\"added\":\"unaffected\",\"field_name\":\"cf_status_firefox75\",\"removed\":\"---\"}]},{\"who\":\"jstutte@mozilla.com\",\"when\":\"2020-04-06T12:19:41Z\",\"changes\":[{\"removed\":\"\",\"field_name\":\"flagtypes.name\",\"added\":\"needinfo?(lhansen@mozilla.com)\"},{\"field_name\":\"cc\",\"added\":\"jstutte@mozilla.com\",\"removed\":\"\"}]},{\"when\":\"2020-04-06T14:37:26Z\",\"who\":\"lhansen@mozilla.com\",\"changes\":[{\"removed\":\"--\",\"added\":\"P2\",\"field_name\":\"priority\"},{\"removed\":\"needinfo?(lhansen@mozilla.com)\",\"added\":\"needinfo?(rhunt@eqrion.net)\",\"field_name\":\"flagtypes.name\"}]},{\"when\":\"2020-04-08T14:41:59Z\",\"who\":\"tspurway@mozilla.com\",\"changes\":[{\"removed\":\"\",\"field_name\":\"cc\",\"added\":\"tspurway@mozilla.com\"},{\"removed\":\"---\",\"field_name\":\"cf_status_firefox77\",\"added\":\"affected\"}]},{\"when\":\"2020-04-08T14:44:04Z\",\"who\":\"jcristau@mozilla.com\",\"changes\":[{\"added\":\"needinfo?(erahm@mozilla.com)\",\"field_name\":\"flagtypes.name\",\"removed\":\"\"},{\"removed\":\"\",\"field_name\":\"cc\",\"added\":\"erahm@mozilla.com, jcristau@mozilla.com\"}]},{\"changes\":[{\"removed\":\"needinfo?(erahm@mozilla.com)\",\"field_name\":\"flagtypes.name\",\"added\":\"\"}],\"when\":\"2020-04-08T17:03:58Z\",\"who\":\"erahm@mozilla.com\"},{\"changes\":[{\"field_name\":\"flagtypes.name\",\"added\":\"\",\"removed\":\"needinfo?(rhunt@eqrion.net)\"}],\"when\":\"2020-04-08T20:54:29Z\",\"who\":\"rhunt@eqrion.net\"},{\"changes\":[{\"added\":\"RESOLVED\",\"field_name\":\"status\",\"removed\":\"NEW\"},{\"removed\":\"\",\"added\":\"FIXED\",\"field_name\":\"resolution\"},{\"removed\":\"\",\"added\":\"2020-04-11T09:37:18Z\",\"field_name\":\"cf_last_resolved\"},{\"field_name\":\"cf_status_firefox77\",\"added\":\"fixed\",\"removed\":\"affected\"},{\"field_name\":\"comment_tag\",\"added\":\"bugherder\",\"comment_id\":14748420,\"comment_count\":14,\"removed\":\"\"}],\"when\":\"2020-04-11T09:37:18Z\",\"who\":\"cbrindusan@mozilla.com\"},{\"changes\":[{\"field_name\":\"flagtypes.name\",\"added\":\"needinfo?(rhunt@eqrion.net)\",\"removed\":\"\"}],\"who\":\"release-mgmt-account-bot@mozilla.tld\",\"when\":\"2020-04-13T12:00:48Z\"},{\"when\":\"2020-04-15T15:37:02Z\",\"who\":\"rhunt@eqrion.net\",\"changes\":[{\"removed\":\"needinfo?(rhunt@eqrion.net)\",\"added\":\"\",\"field_name\":\"flagtypes.name\"},{\"field_name\":\"flagtypes.name\",\"attachment_id\":9136479,\"added\":\"approval-mozilla-beta?\",\"removed\":\"\"}]},{\"changes\":[{\"added\":\"approval-mozilla-beta?\",\"field_name\":\"flagtypes.name\",\"attachment_id\":9136478,\"removed\":\"\"}],\"when\":\"2020-04-15T15:37:05Z\",\"who\":\"rhunt@eqrion.net\"},{\"when\":\"2020-04-15T18:23:27Z\",\"who\":\"ryanvm@gmail.com\",\"changes\":[{\"added\":\"approval-mozilla-beta+\",\"attachment_id\":9136478,\"field_name\":\"flagtypes.name\",\"removed\":\"approval-mozilla-beta?\"}]},{\"changes\":[{\"removed\":\"approval-mozilla-beta?\",\"attachment_id\":9136479,\"field_name\":\"flagtypes.name\",\"added\":\"approval-mozilla-beta+\"}],\"who\":\"ryanvm@gmail.com\",\"when\":\"2020-04-15T18:23:29Z\"},{\"changes\":[{\"removed\":\"affected\",\"field_name\":\"cf_status_firefox76\",\"added\":\"fixed\"},{\"comment_count\":18,\"removed\":\"\",\"comment_id\":14757414,\"added\":\"bugherder\",\"field_name\":\"comment_tag\"},{\"comment_id\":14757414,\"comment_count\":18,\"removed\":\"\",\"field_name\":\"comment_tag\",\"added\":\"uplift\"}],\"when\":\"2020-04-15T18:26:12Z\",\"who\":\"ryanvm@gmail.com\"}],\"alias\":null,\"id\":1624524}]}"
+        },
+        "headers": {
+          "Access-Control-Allow-Origin": ["*"],
+          "Access-control-allow-headers": [
+            "accept, content-type, origin, user-agent, x-requested-with, x-bugzilla-password, x-bugzilla-api-key, x-bugzilla-login, x-phabricator-token, x-bugzilla-token"
+          ],
+          "Connection": ["keep-alive"],
+          "Content-Security-Policy-Report-Only": [
+            "default-src 'self'; worker-src 'none'; connect-src 'self' https://product-details.mozilla.org https://www.google-analytics.com https://treeherder.mozilla.org/api/failurecount/ https://crash-stats.mozilla.org/api/SuperSearch/; font-src 'self' https://fonts.gstatic.com; img-src 'self' data: blob: https://secure.gravatar.com; object-src 'none'; script-src 'self' 'nonce-Qavj9mM4mAPXfU0beZjeUklfBdexoqdCPoqJa6ITp8rQJIBM' 'unsafe-inline' https://www.google-analytics.com; style-src 'self' 'unsafe-inline'; frame-src https://crash-stop-addon.herokuapp.com; frame-ancestors 'self'; form-action 'self' https://www.google.com/search https://github.com/login/oauth/authorize https://github.com/login"
+          ],
+          "Content-Type": ["application/json; charset=UTF-8"],
+          "Date": ["Thu, 04 Jun 2020 09:25:06 GMT"],
+          "ETag": ["dQxp2IppcgpFV/IZccmK9g"],
+          "Referrer-policy": ["same-origin"],
+          "Set-Cookie": [
+            "github_secret=dA5CNm5AoGQR0B7gLD36GhR7lgBJrrsPBQE2HCbcxF0UGQuXdpKCZJQGVGdeeapDCYu5JDaQ9r7FCpbCSmy4ODGNXOFmRFc8A2KA5TNE3Vw2VGTE1jGFWKwc0fEydgd004oDkNsdU1asFgNqHDs3SFVJaUQQykMCE07ByQ11HnyVkVGPxmUi4Hn9VFZH30xokuGkuNYo4qi1pFc97UfpDrxpnpzCa7c48eEAKj0t9fEKh2H5axY4hcUssZsVOTXM; path=/; secure; HttpOnly; SameSite=Lax"
+          ],
+          "Status": ["200"],
+          "Strict-Transport-Security": ["max-age=31536000; includeSubDomains"],
+          "Vary": ["Accept-Encoding"],
+          "X-content-type-options": ["nosniff"],
+          "X-frame-options": ["SAMEORIGIN"],
+          "X-xss-protection": ["1; mode=block"],
+          "transfer-encoding": ["chunked"]
+        },
+        "status": {
+          "code": 200,
+          "message": "OK"
+        },
+        "url": "https://bugzilla.mozilla.org/rest/bug/1624524/history"
+      }
+    },
+    {
+      "recorded_at": "2020-06-02T00:00:29",
+      "request": {
+        "body": {
+          "encoding": "utf-8",
+          "string": ""
+        },
+        "headers": {
+          "Accept": ["application/json"],
+          "Cookie": [
+            "Bugzilla_login_request_cookie=gtJgkGlLew; github_secret=dA5CNm5AoGQR0B7gLD36GhR7lgBJrrsPBQE2HCbcxF0UGQuXdpKCZJQGVGdeeapDCYu5JDaQ9r7FCpbCSmy4ODGNXOFmRFc8A2KA5TNE3Vw2VGTE1jGFWKwc0fEydgd004oDkNsdU1asFgNqHDs3SFVJaUQQykMCE07ByQ11HnyVkVGPxmUi4Hn9VFZH30xokuGkuNYo4qi1pFc97UfpDrxpnpzCa7c48eEAKj0t9fEKh2H5axY4hcUssZsVOTXM"
+          ],
+          "User-Agent": ["treeherder/backend"]
+        },
+        "method": "GET",
+        "uri": "https://bugzilla.mozilla.org/rest/bug/1627156/history"
+      },
+      "response": {
+        "body": {
+          "encoding": "UTF-8",
+          "string": "{\"bugs\":[{\"alias\":null,\"history\":[{\"changes\":[{\"field_name\":\"flagtypes.name\",\"removed\":\"\",\"added\":\"needinfo?(jrediger@mozilla.com)\"}],\"who\":\"aionescu@mozilla.com\",\"when\":\"2020-04-03T05:50:33Z\"},{\"who\":\"aionescu@mozilla.com\",\"changes\":[{\"field_name\":\"version\",\"removed\":\"Version 3\",\"added\":\"unspecified\"},{\"removed\":\"Performance\",\"field_name\":\"component\",\"added\":\"Telemetry\"},{\"added\":\"Toolkit\",\"field_name\":\"product\",\"removed\":\"Testing\"}],\"when\":\"2020-04-03T05:51:33Z\"},{\"who\":\"jrediger@mozilla.com\",\"changes\":[{\"added\":\"\",\"field_name\":\"flagtypes.name\",\"removed\":\"needinfo?(jrediger@mozilla.com)\"}],\"when\":\"2020-04-03T07:36:55Z\"},{\"changes\":[{\"added\":\"ettseng@mozilla.com\",\"removed\":\"\",\"field_name\":\"cc\"},{\"removed\":\"affected\",\"field_name\":\"cf_status_firefox76\",\"added\":\"disabled\"}],\"who\":\"ettseng@mozilla.com\",\"when\":\"2020-04-06T12:27:35Z\"},{\"when\":\"2020-04-14T14:05:13Z\",\"who\":\"chutten@mozilla.com\",\"changes\":[{\"removed\":\"\",\"field_name\":\"resolution\",\"added\":\"WORKSFORME\"},{\"added\":\"RESOLVED\",\"removed\":\"NEW\",\"field_name\":\"status\"},{\"field_name\":\"cf_last_resolved\",\"removed\":\"\",\"added\":\"2020-04-14T14:05:13Z\"}]}],\"id\":1627156}]}"
+        },
+        "headers": {
+          "Access-Control-Allow-Origin": ["*"],
+          "Access-control-allow-headers": [
+            "accept, content-type, origin, user-agent, x-requested-with, x-bugzilla-token, x-bugzilla-api-key, x-bugzilla-password, x-phabricator-token, x-bugzilla-login"
+          ],
+          "Connection": ["keep-alive"],
+          "Content-Security-Policy-Report-Only": [
+            "default-src 'self'; worker-src 'none'; connect-src 'self' https://product-details.mozilla.org https://www.google-analytics.com https://treeherder.mozilla.org/api/failurecount/ https://crash-stats.mozilla.org/api/SuperSearch/; font-src 'self' https://fonts.gstatic.com; img-src 'self' data: blob: https://secure.gravatar.com; object-src 'none'; script-src 'self' 'nonce-95Xf54kK8XIPBCxL5dxD10hyaBCdkUiujkHU1UnZ9wtVr85B' 'unsafe-inline' https://www.google-analytics.com; style-src 'self' 'unsafe-inline'; frame-src https://crash-stop-addon.herokuapp.com; frame-ancestors 'self'; form-action 'self' https://www.google.com/search https://github.com/login/oauth/authorize https://github.com/login"
+          ],
+          "Content-Type": ["application/json; charset=UTF-8"],
+          "Date": ["Thu, 04 Jun 2020 09:25:06 GMT"],
+          "ETag": ["yMarsozrMrr24H5L7siieA"],
+          "Referrer-policy": ["same-origin"],
+          "Set-Cookie": [
+            "github_secret=dA5CNm5AoGQR0B7gLD36GhR7lgBJrrsPBQE2HCbcxF0UGQuXdpKCZJQGVGdeeapDCYu5JDaQ9r7FCpbCSmy4ODGNXOFmRFc8A2KA5TNE3Vw2VGTE1jGFWKwc0fEydgd004oDkNsdU1asFgNqHDs3SFVJaUQQykMCE07ByQ11HnyVkVGPxmUi4Hn9VFZH30xokuGkuNYo4qi1pFc97UfpDrxpnpzCa7c48eEAKj0t9fEKh2H5axY4hcUssZsVOTXM; path=/; secure; HttpOnly; SameSite=Lax"
+          ],
+          "Status": ["200"],
+          "Strict-Transport-Security": ["max-age=31536000; includeSubDomains"],
+          "Vary": ["Accept-Encoding"],
+          "X-content-type-options": ["nosniff"],
+          "X-frame-options": ["SAMEORIGIN"],
+          "X-xss-protection": ["1; mode=block"],
+          "transfer-encoding": ["chunked"]
+        },
+        "status": {
+          "code": 200,
+          "message": "OK"
+        },
+        "url": "https://bugzilla.mozilla.org/rest/bug/1627156/history"
+      }
+    },
+    {
+      "recorded_at": "2020-06-02T00:00:30",
+      "request": {
+        "body": {
+          "encoding": "utf-8",
+          "string": ""
+        },
+        "headers": {
+          "Accept": ["application/json"],
+          "Cookie": [
+            "Bugzilla_login_request_cookie=gtJgkGlLew; github_secret=dA5CNm5AoGQR0B7gLD36GhR7lgBJrrsPBQE2HCbcxF0UGQuXdpKCZJQGVGdeeapDCYu5JDaQ9r7FCpbCSmy4ODGNXOFmRFc8A2KA5TNE3Vw2VGTE1jGFWKwc0fEydgd004oDkNsdU1asFgNqHDs3SFVJaUQQykMCE07ByQ11HnyVkVGPxmUi4Hn9VFZH30xokuGkuNYo4qi1pFc97UfpDrxpnpzCa7c48eEAKj0t9fEKh2H5axY4hcUssZsVOTXM"
+          ],
+          "User-Agent": ["treeherder/backend"]
+        },
+        "method": "GET",
+        "uri": "https://bugzilla.mozilla.org/rest/bug/1628207/history"
+      },
+      "response": {
+        "body": {
+          "encoding": "UTF-8",
+          "string": "{\"bugs\":[{\"id\":1628207,\"alias\":null,\"history\":[{\"who\":\"aionescu@mozilla.com\",\"changes\":[{\"added\":\"needinfo?(kgilbert@mozilla.com)\",\"removed\":\"\",\"field_name\":\"flagtypes.name\"}],\"when\":\"2020-04-08T06:00:08Z\"},{\"when\":\"2020-04-08T06:00:26Z\",\"changes\":[{\"field_name\":\"product\",\"removed\":\"Testing\",\"added\":\"Core\"},{\"added\":\"unspecified\",\"field_name\":\"version\",\"removed\":\"Version 3\"},{\"added\":\"WebVR\",\"field_name\":\"component\",\"removed\":\"Performance\"}],\"who\":\"aionescu@mozilla.com\"},{\"changes\":[{\"added\":\"\",\"removed\":\"needinfo?(kgilbert@mozilla.com)\",\"field_name\":\"flagtypes.name\"},{\"removed\":\"nobody@mozilla.org\",\"field_name\":\"assigned_to\",\"added\":\"kgilbert@mozilla.com\"}],\"who\":\"kgilbert@mozilla.com\",\"when\":\"2020-04-08T18:52:11Z\"},{\"who\":\"kgilbert@mozilla.com\",\"changes\":[{\"removed\":\"\",\"field_name\":\"flagtypes.name\",\"added\":\"needinfo?(aionescu@mozilla.com)\"}],\"when\":\"2020-04-08T19:01:55Z\"},{\"changes\":[{\"field_name\":\"comment_revision\",\"removed\":\"The `mozilla::gfx::VRShMem::PullSystemState` and `mozilla::gfx::VRShMem::PushSystemState` methods implement a lock-free, queue-free IPC used for hard-realtime communication of VR hardware sensor inputs.  They include dual generation-id checks for dirty copies, which are then discarded in the case of a data race.\\n\\nFor non-x86 platforms (eg, aarch64 for Android), a mutex is used in place of the lock-free data structure due to the non-guarantee of memory write order and cache coherent operation.\\n\\nWould it be appropriate to flag this as an exception?\",\"added\":\"[Deleted comment posted to incorrect bug]\",\"comment_id\":14743675,\"comment_count\":2}],\"who\":\"kgilbert@mozilla.com\",\"when\":\"2020-04-08T19:03:38Z\"},{\"changes\":[{\"added\":\"\",\"removed\":\"needinfo?(aionescu@mozilla.com)\",\"field_name\":\"flagtypes.name\"}],\"who\":\"kgilbert@mozilla.com\",\"when\":\"2020-04-08T19:03:50Z\"},{\"changes\":[{\"removed\":\"\",\"field_name\":\"flagtypes.name\",\"added\":\"needinfo?(kgilbert@mozilla.com)\"}],\"who\":\"release-mgmt-account-bot@mozilla.tld\",\"when\":\"2020-04-22T12:12:18Z\"},{\"who\":\"jcristau@mozilla.com\",\"changes\":[{\"added\":\"jcristau@mozilla.com\",\"removed\":\"\",\"field_name\":\"cc\"},{\"removed\":\"---\",\"field_name\":\"cf_status_firefox_esr68\",\"added\":\"unaffected\"},{\"field_name\":\"cf_status_firefox75\",\"removed\":\"---\",\"added\":\"unaffected\"},{\"added\":\"unaffected\",\"removed\":\"---\",\"field_name\":\"cf_status_firefox76\"}],\"when\":\"2020-04-22T14:49:07Z\"},{\"when\":\"2020-04-23T21:51:30Z\",\"changes\":[{\"added\":\"\",\"field_name\":\"flagtypes.name\",\"removed\":\"needinfo?(kgilbert@mozilla.com)\"},{\"field_name\":\"priority\",\"removed\":\"--\",\"added\":\"P3\"}],\"who\":\"kgilbert@mozilla.com\"},{\"when\":\"2020-04-29T14:12:34Z\",\"changes\":[{\"added\":\"rtublitz@mozilla.com\",\"removed\":\"\",\"field_name\":\"cc\"},{\"added\":\"fix-optional\",\"field_name\":\"cf_status_firefox77\",\"removed\":\"affected\"}],\"who\":\"rtublitz@mozilla.com\"},{\"when\":\"2020-05-07T22:56:26Z\",\"changes\":[{\"removed\":\"\",\"field_name\":\"depends_on\",\"added\":\"1636311\"}],\"who\":\"kgilbert@mozilla.com\"},{\"changes\":[{\"added\":\"S3\",\"removed\":\"normal\",\"field_name\":\"severity\"}],\"who\":\"bug-husbandry-bot@mozilla.bugs\",\"when\":\"2020-05-12T00:55:08Z\"}]}]}"
+        },
+        "headers": {
+          "Access-Control-Allow-Origin": ["*"],
+          "Access-control-allow-headers": [
+            "accept, content-type, origin, user-agent, x-requested-with, x-phabricator-token, x-bugzilla-login, x-bugzilla-token, x-bugzilla-api-key, x-bugzilla-password"
+          ],
+          "Connection": ["keep-alive"],
+          "Content-Length": ["3062"],
+          "Content-Security-Policy-Report-Only": [
+            "default-src 'self'; worker-src 'none'; connect-src 'self' https://product-details.mozilla.org https://www.google-analytics.com https://treeherder.mozilla.org/api/failurecount/ https://crash-stats.mozilla.org/api/SuperSearch/; font-src 'self' https://fonts.gstatic.com; img-src 'self' data: blob: https://secure.gravatar.com; object-src 'none'; script-src 'self' 'nonce-obU2EVlxdzsZhWtIN7Ja6iarhsLPPvM3xXWB68ArCSY5lPVt' 'unsafe-inline' https://www.google-analytics.com; style-src 'self' 'unsafe-inline'; frame-src https://crash-stop-addon.herokuapp.com; frame-ancestors 'self'; form-action 'self' https://www.google.com/search https://github.com/login/oauth/authorize https://github.com/login"
+          ],
+          "Content-Type": ["application/json; charset=UTF-8"],
+          "Date": ["Thu, 04 Jun 2020 09:25:06 GMT"],
+          "ETag": ["jV6jH3Hzsjq7S11nSAluuQ"],
+          "Referrer-policy": ["same-origin"],
+          "Set-Cookie": [
+            "github_secret=dA5CNm5AoGQR0B7gLD36GhR7lgBJrrsPBQE2HCbcxF0UGQuXdpKCZJQGVGdeeapDCYu5JDaQ9r7FCpbCSmy4ODGNXOFmRFc8A2KA5TNE3Vw2VGTE1jGFWKwc0fEydgd004oDkNsdU1asFgNqHDs3SFVJaUQQykMCE07ByQ11HnyVkVGPxmUi4Hn9VFZH30xokuGkuNYo4qi1pFc97UfpDrxpnpzCa7c48eEAKj0t9fEKh2H5axY4hcUssZsVOTXM; path=/; secure; HttpOnly; SameSite=Lax"
+          ],
+          "Status": ["200"],
+          "Strict-Transport-Security": ["max-age=31536000; includeSubDomains"],
+          "Vary": ["Accept-Encoding"],
+          "X-content-type-options": ["nosniff"],
+          "X-frame-options": ["SAMEORIGIN"],
+          "X-xss-protection": ["1; mode=block"]
+        },
+        "status": {
+          "code": 200,
+          "message": "OK"
+        },
+        "url": "https://bugzilla.mozilla.org/rest/bug/1628207/history"
+      }
+    },
+    {
+      "recorded_at": "2020-06-02T00:00:30",
+      "request": {
+        "body": {
+          "encoding": "utf-8",
+          "string": ""
+        },
+        "headers": {
+          "Accept": ["application/json"],
+          "Cookie": [
+            "Bugzilla_login_request_cookie=gtJgkGlLew; github_secret=dA5CNm5AoGQR0B7gLD36GhR7lgBJrrsPBQE2HCbcxF0UGQuXdpKCZJQGVGdeeapDCYu5JDaQ9r7FCpbCSmy4ODGNXOFmRFc8A2KA5TNE3Vw2VGTE1jGFWKwc0fEydgd004oDkNsdU1asFgNqHDs3SFVJaUQQykMCE07ByQ11HnyVkVGPxmUi4Hn9VFZH30xokuGkuNYo4qi1pFc97UfpDrxpnpzCa7c48eEAKj0t9fEKh2H5axY4hcUssZsVOTXM"
+          ],
+          "User-Agent": ["treeherder/backend"]
+        },
+        "method": "GET",
+        "uri": "https://bugzilla.mozilla.org/rest/bug/1637503/history"
+      },
+      "response": {
+        "body": {
+          "encoding": "UTF-8",
+          "string": "{\"bugs\":[{\"alias\":null,\"history\":[{\"who\":\"marian.raiciof@softvision.ro\",\"changes\":[{\"added\":\"Firefox Build System\",\"field_name\":\"product\",\"removed\":\"Testing\"},{\"added\":\"1635744\",\"removed\":\"\",\"field_name\":\"blocks\"},{\"added\":\"needinfo?(dmajor@mozilla.com)\",\"removed\":\"\",\"field_name\":\"flagtypes.name\"},{\"added\":\"dmajor@mozilla.com\",\"field_name\":\"cc\",\"removed\":\"\"},{\"field_name\":\"regressed_by\",\"removed\":\"\",\"added\":\"1616692\"},{\"added\":\"Toolchains\",\"field_name\":\"component\",\"removed\":\"Performance\"},{\"removed\":\"Version 3\",\"field_name\":\"version\",\"added\":\"unspecified\"},{\"added\":\"unaffected\",\"removed\":\"---\",\"field_name\":\"cf_status_firefox_esr68\"},{\"added\":\"unaffected\",\"removed\":\"---\",\"field_name\":\"cf_status_firefox76\"},{\"removed\":\"---\",\"field_name\":\"cf_status_firefox77\",\"added\":\"unaffected\"},{\"added\":\"affected\",\"removed\":\"---\",\"field_name\":\"cf_status_firefox78\"}],\"when\":\"2020-05-13T06:12:16Z\"},{\"when\":\"2020-05-13T08:14:15Z\",\"who\":\"mayankleoboy1@gmail.com\",\"changes\":[{\"removed\":\"\",\"field_name\":\"cc\",\"added\":\"mayankleoboy1@gmail.com\"}]},{\"changes\":[{\"removed\":\"needinfo?(dmajor@mozilla.com)\",\"field_name\":\"flagtypes.name\",\"added\":\"\"}],\"who\":\"dmajor@mozilla.com\",\"when\":\"2020-05-13T15:13:20Z\"},{\"who\":\"jcristau@mozilla.com\",\"changes\":[{\"removed\":\"\",\"field_name\":\"cc\",\"added\":\"jcristau@mozilla.com\"},{\"removed\":\"regression\",\"field_name\":\"keywords\",\"added\":\"\"},{\"removed\":\"\",\"field_name\":\"resolution\",\"added\":\"FIXED\"},{\"field_name\":\"target_milestone\",\"removed\":\"---\",\"added\":\"mozilla78\"},{\"added\":\"RESOLVED\",\"field_name\":\"status\",\"removed\":\"NEW\"},{\"added\":\"2020-05-15T15:03:57Z\",\"removed\":\"\",\"field_name\":\"cf_last_resolved\"},{\"added\":\"fixed\",\"field_name\":\"cf_status_firefox78\",\"removed\":\"affected\"}],\"when\":\"2020-05-15T15:03:57Z\"},{\"when\":\"2020-05-18T12:17:14Z\",\"changes\":[{\"removed\":\"\",\"field_name\":\"keywords\",\"added\":\"regression\"}],\"who\":\"release-mgmt-account-bot@mozilla.tld\"}],\"id\":1637503}]}"
+        },
+        "headers": {
+          "Access-Control-Allow-Origin": ["*"],
+          "Access-control-allow-headers": [
+            "accept, content-type, origin, user-agent, x-requested-with, x-bugzilla-api-key, x-phabricator-token, x-bugzilla-token, x-bugzilla-password, x-bugzilla-login"
+          ],
+          "Connection": ["keep-alive"],
+          "Content-Length": ["1892"],
+          "Content-Security-Policy-Report-Only": [
+            "default-src 'self'; worker-src 'none'; connect-src 'self' https://product-details.mozilla.org https://www.google-analytics.com https://treeherder.mozilla.org/api/failurecount/ https://crash-stats.mozilla.org/api/SuperSearch/; font-src 'self' https://fonts.gstatic.com; img-src 'self' data: blob: https://secure.gravatar.com; object-src 'none'; script-src 'self' 'nonce-iHeIH7MG33aZH1jgcdbIBzTMjZpSFd6eSsPVryE2aOs6u2vp' 'unsafe-inline' https://www.google-analytics.com; style-src 'self' 'unsafe-inline'; frame-src https://crash-stop-addon.herokuapp.com; frame-ancestors 'self'; form-action 'self' https://www.google.com/search https://github.com/login/oauth/authorize https://github.com/login"
+          ],
+          "Content-Type": ["application/json; charset=UTF-8"],
+          "Date": ["Thu, 04 Jun 2020 09:25:07 GMT"],
+          "ETag": ["Mwvdyt3j+C8q0drq+o4wJA"],
+          "Referrer-policy": ["same-origin"],
+          "Set-Cookie": [
+            "github_secret=dA5CNm5AoGQR0B7gLD36GhR7lgBJrrsPBQE2HCbcxF0UGQuXdpKCZJQGVGdeeapDCYu5JDaQ9r7FCpbCSmy4ODGNXOFmRFc8A2KA5TNE3Vw2VGTE1jGFWKwc0fEydgd004oDkNsdU1asFgNqHDs3SFVJaUQQykMCE07ByQ11HnyVkVGPxmUi4Hn9VFZH30xokuGkuNYo4qi1pFc97UfpDrxpnpzCa7c48eEAKj0t9fEKh2H5axY4hcUssZsVOTXM; path=/; secure; HttpOnly; SameSite=Lax"
+          ],
+          "Status": ["200"],
+          "Strict-Transport-Security": ["max-age=31536000; includeSubDomains"],
+          "Vary": ["Accept-Encoding"],
+          "X-content-type-options": ["nosniff"],
+          "X-frame-options": ["SAMEORIGIN"],
+          "X-xss-protection": ["1; mode=block"]
+        },
+        "status": {
+          "code": 200,
+          "message": "OK"
+        },
+        "url": "https://bugzilla.mozilla.org/rest/bug/1637503/history"
+      }
+    },
+    {
+      "recorded_at": "2020-06-02T00:00:30",
+      "request": {
+        "body": {
+          "encoding": "utf-8",
+          "string": ""
+        },
+        "headers": {
+          "Accept": ["application/json"],
+          "Cookie": [
+            "Bugzilla_login_request_cookie=gtJgkGlLew; github_secret=dA5CNm5AoGQR0B7gLD36GhR7lgBJrrsPBQE2HCbcxF0UGQuXdpKCZJQGVGdeeapDCYu5JDaQ9r7FCpbCSmy4ODGNXOFmRFc8A2KA5TNE3Vw2VGTE1jGFWKwc0fEydgd004oDkNsdU1asFgNqHDs3SFVJaUQQykMCE07ByQ11HnyVkVGPxmUi4Hn9VFZH30xokuGkuNYo4qi1pFc97UfpDrxpnpzCa7c48eEAKj0t9fEKh2H5axY4hcUssZsVOTXM"
+          ],
+          "User-Agent": ["treeherder/backend"]
+        },
+        "method": "GET",
+        "uri": "https://bugzilla.mozilla.org/rest/bug/1638763/history"
+      },
+      "response": {
+        "body": {
+          "encoding": "UTF-8",
+          "string": "{\"bugs\":[{\"id\":1638763,\"history\":[{\"changes\":[{\"added\":\"needinfo?(eoger@mozilla.com)\",\"removed\":\"\",\"field_name\":\"flagtypes.name\"}],\"who\":\"aionescu@mozilla.com\",\"when\":\"2020-05-18T08:24:37Z\"},{\"when\":\"2020-05-18T08:25:06Z\",\"who\":\"aionescu@mozilla.com\",\"changes\":[{\"removed\":\"Testing\",\"field_name\":\"product\",\"added\":\"Firefox\"},{\"field_name\":\"component\",\"removed\":\"Performance\",\"added\":\"Sync\"},{\"added\":\"Firefox 78\",\"field_name\":\"target_milestone\",\"removed\":\"mozilla78\"}]},{\"who\":\"release-mgmt-account-bot@mozilla.tld\",\"changes\":[{\"added\":\"unaffected\",\"field_name\":\"cf_status_firefox76\",\"removed\":\"---\"},{\"field_name\":\"cf_status_firefox77\",\"removed\":\"---\",\"added\":\"unaffected\"}],\"when\":\"2020-05-18T12:19:32Z\"},{\"when\":\"2020-05-18T13:41:51Z\",\"who\":\"eoger@mozilla.com\",\"changes\":[{\"added\":\"WONTFIX\",\"removed\":\"\",\"field_name\":\"resolution\"},{\"field_name\":\"status\",\"removed\":\"NEW\",\"added\":\"RESOLVED\"},{\"field_name\":\"flagtypes.name\",\"removed\":\"needinfo?(eoger@mozilla.com)\",\"added\":\"\"},{\"added\":\"2020-05-18T13:41:51Z\",\"removed\":\"\",\"field_name\":\"cf_last_resolved\"}]},{\"when\":\"2020-05-18T13:52:59Z\",\"changes\":[{\"added\":\"needinfo?(eoger@mozilla.com)\",\"removed\":\"\",\"field_name\":\"flagtypes.name\"}],\"who\":\"nfroyd@mozilla.com\"},{\"when\":\"2020-05-19T02:46:42Z\",\"who\":\"rfkelly@mozilla.com\",\"changes\":[{\"added\":\"rfkelly@mozilla.com\",\"removed\":\"\",\"field_name\":\"cc\"}]},{\"who\":\"eoger@mozilla.com\",\"changes\":[{\"removed\":\"needinfo?(eoger@mozilla.com)\",\"field_name\":\"flagtypes.name\",\"added\":\"\"}],\"when\":\"2020-05-20T16:05:31Z\"}],\"alias\":null}]}"
+        },
+        "headers": {
+          "Access-Control-Allow-Origin": ["*"],
+          "Access-control-allow-headers": [
+            "accept, content-type, origin, user-agent, x-requested-with, x-bugzilla-token, x-bugzilla-api-key, x-bugzilla-password, x-phabricator-token, x-bugzilla-login"
+          ],
+          "Connection": ["keep-alive"],
+          "Content-Security-Policy-Report-Only": [
+            "default-src 'self'; worker-src 'none'; connect-src 'self' https://product-details.mozilla.org https://www.google-analytics.com https://treeherder.mozilla.org/api/failurecount/ https://crash-stats.mozilla.org/api/SuperSearch/; font-src 'self' https://fonts.gstatic.com; img-src 'self' data: blob: https://secure.gravatar.com; object-src 'none'; script-src 'self' 'nonce-fBV6wU2YwAj8rWSvym37lkhWY32dskeyWgTyaZp569fJbex7' 'unsafe-inline' https://www.google-analytics.com; style-src 'self' 'unsafe-inline'; frame-src https://crash-stop-addon.herokuapp.com; frame-ancestors 'self'; form-action 'self' https://www.google.com/search https://github.com/login/oauth/authorize https://github.com/login"
+          ],
+          "Content-Type": ["application/json; charset=UTF-8"],
+          "Date": ["Thu, 04 Jun 2020 09:25:07 GMT"],
+          "ETag": ["A4ybi+4ZecVFodtF62jBXA"],
+          "Referrer-policy": ["same-origin"],
+          "Set-Cookie": [
+            "github_secret=dA5CNm5AoGQR0B7gLD36GhR7lgBJrrsPBQE2HCbcxF0UGQuXdpKCZJQGVGdeeapDCYu5JDaQ9r7FCpbCSmy4ODGNXOFmRFc8A2KA5TNE3Vw2VGTE1jGFWKwc0fEydgd004oDkNsdU1asFgNqHDs3SFVJaUQQykMCE07ByQ11HnyVkVGPxmUi4Hn9VFZH30xokuGkuNYo4qi1pFc97UfpDrxpnpzCa7c48eEAKj0t9fEKh2H5axY4hcUssZsVOTXM; path=/; secure; HttpOnly; SameSite=Lax"
+          ],
+          "Status": ["200"],
+          "Strict-Transport-Security": ["max-age=31536000; includeSubDomains"],
+          "Vary": ["Accept-Encoding"],
+          "X-content-type-options": ["nosniff"],
+          "X-frame-options": ["SAMEORIGIN"],
+          "X-xss-protection": ["1; mode=block"],
+          "transfer-encoding": ["chunked"]
+        },
+        "status": {
+          "code": 200,
+          "message": "OK"
+        },
+        "url": "https://bugzilla.mozilla.org/rest/bug/1638763/history"
+      }
+    }
+  ],
+  "recorded_with": "betamax/0.8.1"
+}

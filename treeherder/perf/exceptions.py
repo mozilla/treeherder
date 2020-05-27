@@ -12,3 +12,11 @@ class MissingRecords(Exception):
 
 class CannotBackfill(Exception):
     pass
+
+
+class NoFiledBugs(Exception):
+    pass
+
+
+class BugzillaEndpointError(RuntimeError):
+    pass

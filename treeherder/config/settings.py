@@ -416,6 +416,7 @@ WHITENOISE_KEEP_ONLY_HASHED_FILES = True
 BZ_API_URL = "https://bugzilla.mozilla.org"
 BUGFILER_API_URL = env("BUGZILLA_API_URL", default=BZ_API_URL)
 BUGFILER_API_KEY = env("BUG_FILER_API_KEY", default=None)
+BZ_DATETIME_FORMAT = '%Y-%m-%dT%H:%M:%SZ'
 
 # For intermittents commenter
 COMMENTER_API_KEY = env("BUG_COMMENTER_API_KEY", default=None)
@@ -433,6 +434,9 @@ PERFHERDER_REGRESSION_THRESHOLD = 2
 PERFHERDER_ALERTS_MIN_BACK_WINDOW = 12
 PERFHERDER_ALERTS_MAX_BACK_WINDOW = 24
 PERFHERDER_ALERTS_FORE_WINDOW = 12
+# Assess if tests should be (non)sheriffed
+QUANTIFYING_PERIOD = timedelta(weeks=24)  # how far back to look over Bugzilla data
+BUG_COOLDOWN_TIME = timedelta(weeks=2)  # time after bug is ready for assessment
 
 # Only generate alerts for data newer than this time in seconds in perfherder
 PERFHERDER_ALERTS_MAX_AGE = timedelta(weeks=2)

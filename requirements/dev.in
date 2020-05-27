@@ -10,6 +10,10 @@ PyPOM
 # for git commit hooks
 pre-commit
 
+# for test driven development
+pytest-testmon
+pytest-watch
+
 # Required by django-extension's runserver_plus command.
 flake8
 pytest-django
@@ -17,6 +21,14 @@ black
 
 # To test async code
 pytest-asyncio
+
+# To test code that's making system time calls
+pytest-freezegun
+
+# To test code that's doing advanced communication
+# with web services via `requests` library
+betamax
+betamax-serializers
 
 # make pinning versions easier
 pip-tools

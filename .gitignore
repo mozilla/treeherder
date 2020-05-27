@@ -30,6 +30,9 @@ coverage
 coverage.xml
 .coverage
 
+# pytest-testmon cached structure
+.testmondata
+
 # Ignore tox installation
 .tox
 
