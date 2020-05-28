@@ -102,9 +102,15 @@ BuildbotPerformanceDataArtifactBuilder
             # characters such as `\u0085` (which can appear in test output) are treated the same
             # as `\n` or `\r`, and so split into unwanted additional lines by `iter_lines()`.
             for line in response.iter_lines():
-                if len(line) > 1000:
+                if len(line) > 1000 or len(line.decode('utf-8', 'replace')):
                     newrelic.agent.record_custom_event(
                         'parse_log_line_larger_than_1000_chars', line
+                    )
+
+                if len(line.decode('utf-8', 'replace')) > 1000:
+                    newrelic.agent.record_custom_event(
+                        'parse_log_line_larger_than_1000_chars_decoded',
+                        line.decode('utf-8', 'replace'),
                     )
 
                 for builder in self.builders:
