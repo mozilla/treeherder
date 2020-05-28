@@ -1,0 +1,16 @@
+- model: perf.PerformanceTag
+  pk: 1
+  fields:
+    name: harness
+- model: perf.PerformanceTag
+  pk: 2
+  fields:
+    name: regression-backedout
+- model: perf.PerformanceTag
+  pk: 3
+  fields:
+    name: infra
+- model: perf.PerformanceTag
+  pk: 4
+  fields:
+    name: regression-fix

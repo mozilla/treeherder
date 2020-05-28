@@ -543,6 +543,17 @@ class PerformanceAlert(models.Model):
         return "{} {} {}%".format(self.summary, self.series_signature, self.amount_pct)
 
 
+class PerformanceTag(models.Model):
+    id = models.AutoField(primary_key=True)
+    name = models.CharField(max_length=30, unique=True)
+    alert_summaries = models.ManyToManyField(
+        PerformanceAlertSummary, related_name='performance_tags'
+    )
+
+    class Meta:
+        db_table = "performance_tag"
+
+
 class PerformanceBugTemplate(models.Model):
     '''
     Template for filing a bug or issue associated with a performance alert
