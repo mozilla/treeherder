@@ -46,7 +46,7 @@ worker_store_pulse_data: REMAP_SIGTERM=SIGQUIT newrelic-admin run-program celery
 
 # Handles the log parsing tasks scheduled by `worker_store_pulse_data` as part of job ingestion.
 worker_log_parser: REMAP_SIGTERM=SIGQUIT newrelic-admin run-program celery worker -A treeherder --without-gossip --without-mingle --without-heartbeat -Q log_parser --concurrency=7
-worker_log_parser_fail: REMAP_SIGTERM=SIGQUIT newrelic-admin run-program celery worker -A treeherder --without-gossip --without-mingle --without-heartbeat -Q log_parser_fail --concurrency=7
+worker_log_parser_fail: REMAP_SIGTERM=SIGQUIT newrelic-admin run-program celery worker -A treeherder --without-gossip --without-mingle --without-heartbeat -Q log_parser_fail --concurrency=1
 worker_log_parser_autoclassify: REMAP_SIGTERM=SIGQUIT newrelic-admin run-program celery worker -A treeherder --without-gossip --without-mingle --without-heartbeat -Q log_autoclassify --concurrency=7
 worker_log_parser_autoclassify_fail: REMAP_SIGTERM=SIGQUIT newrelic-admin run-program celery worker -A treeherder --without-gossip --without-mingle --without-heartbeat -Q log_autoclassify_fail --concurrency=7
 
