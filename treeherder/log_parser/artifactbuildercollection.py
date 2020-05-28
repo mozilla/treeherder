@@ -83,6 +83,7 @@ BuildbotPerformanceDataArtifactBuilder
         Stream lines from the gzip file and run each parser against it,
         building the ``artifact`` as we go.
         """
+        logger.warning(f'About to parse log: {self.url}')
         with make_request(self.url, stream=True) as response:
             download_size_in_bytes = int(response.headers.get('Content-Length', -1))
 
