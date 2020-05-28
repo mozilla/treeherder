@@ -123,6 +123,7 @@ BuildbotPerformanceDataArtifactBuilder
                     except EmptyPerformanceData:
                         logger.warning("We have parsed an empty PERFHERDER_DATA for %s", self.url)
 
+        logger.error(f'<><><> Done parsing log {self.url}, gathering the artifacts')
         # gather the artifacts from all builders
         for builder in self.builders:
             # Run end-of-parsing actions for this parser,
