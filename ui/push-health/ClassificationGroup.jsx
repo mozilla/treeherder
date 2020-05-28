@@ -21,11 +21,13 @@ import {
   NavItem,
   UncontrolledButtonDropdown,
 } from 'reactstrap';
+import groupBy from 'lodash/groupBy';
+import orderBy from 'lodash/orderBy';
 
 import JobModel from '../models/job';
 
 import './pushhealth.css';
-import GroupedTests from './GroupedTests';
+import TestGroup from './TestGroup';
 
 class ClassificationGroup extends React.PureComponent {
   constructor(props) {
@@ -74,6 +76,21 @@ class ClassificationGroup extends React.PureComponent {
     this.setState({ orderedBy });
   };
 
+  getGroupedTests = (tests) => {
+    const { groupedBy } = this.state;
+
+    return groupBy(tests, (test) => {
+      switch (groupedBy) {
+        case 'none':
+          return 'none';
+        case 'path':
+          return test.testName;
+        case 'platform':
+          return `${test.platform} ${test.config}`;
+      }
+    });
+  };
+
   render() {
     const {
       detailsShowing,
@@ -98,6 +115,18 @@ class ClassificationGroup extends React.PureComponent {
       ? 'Click to collapse'
       : 'Click to expand';
     const groupLength = Object.keys(group).length;
+    const groupedTests = this.getGroupedTests(group);
+    const groupedArray = Object.entries(groupedTests).map(([key, tests]) => ({
+      key,
+      id: key.replace(/[^a-z0-9-]+/gi, ''), // make this a valid selector
+      tests,
+      failedInParent: tests.filter((item) => item.failedInParent).length,
+    }));
+    const sortedGroups =
+      orderedBy === 'count'
+        ? orderBy(groupedArray, ['tests.length'], ['desc'])
+        : orderBy(groupedArray, ['key'], ['asc']);
+
     return (
       <Row
         className={`justify-content-between ${className}`}
@@ -169,6 +198,7 @@ class ClassificationGroup extends React.PureComponent {
                     <DropdownToggle
                       className="btn-sm ml-1 text-capitalize"
                       id="groupTestsDropdown"
+                      data-testid="groupTestsDropdown"
                       caret
                     >
                       Group By: {groupedBy}
@@ -229,15 +259,19 @@ class ClassificationGroup extends React.PureComponent {
             </Navbar>
           )}
           <div>
-            <GroupedTests
-              group={group}
-              repo={repo}
-              revision={revision}
-              groupedBy={groupedBy}
-              orderedBy={orderedBy}
-              currentRepo={currentRepo}
-              notify={notify}
-            />
+            {groupedTests &&
+              sortedGroups.map((group) => (
+                <TestGroup
+                  group={group}
+                  repo={repo}
+                  revision={revision}
+                  groupedBy={groupedBy}
+                  orderedBy={orderedBy}
+                  currentRepo={currentRepo}
+                  notify={notify}
+                  key={group.id}
+                />
+              ))}
           </div>
         </Collapse>
       </Row>

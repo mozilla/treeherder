@@ -7,10 +7,13 @@ import {
   Row,
   Col,
   UncontrolledTooltip,
-  UncontrolledCollapse,
 } from 'reactstrap';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faRedo } from '@fortawesome/free-solid-svg-icons';
+import {
+  faRedo,
+  faCaretRight,
+  faCaretDown,
+} from '@fortawesome/free-solid-svg-icons';
 
 import JobModel from '../models/job';
 
@@ -47,7 +50,6 @@ class TestFailure extends React.PureComponent {
     const { failure, repo, revision, groupedBy } = this.props;
     const {
       testName,
-      action,
       jobGroup,
       jobGroupSymbol,
       inProgressJobs,
@@ -65,11 +67,33 @@ class TestFailure extends React.PureComponent {
       failedInParent,
     } = failure;
     const { detailsShowing } = this.state;
+    const jobList = [
+      ...failJobs,
+      ...passJobs,
+      ...passInFailedJobs,
+      ...inProgressJobs,
+    ];
 
     return (
       <Row className="border-top m-3" key={key}>
         <Col>
-          <Row>{groupedBy !== 'path' && <span>{testName}</span>}</Row>
+          <Button
+            id={key}
+            className="border-0 text-darker-info btn-sm w-5 px-2 mx-2"
+            outline
+            data-testid={`toggleDetails-${key}`}
+            onClick={this.toggleDetails}
+          >
+            <FontAwesomeIcon
+              icon={detailsShowing ? faCaretDown : faCaretRight}
+              style={{ minWidth: '1em' }}
+              className="mr-1"
+            />
+            <span>
+              {groupedBy !== 'path' && `${testName} `}
+              {groupedBy !== 'platform' && `${platform} ${config}`}
+            </span>
+          </Button>
           <Button
             onClick={() => this.retriggerJob(failJobs[0])}
             outline
@@ -79,118 +103,65 @@ class TestFailure extends React.PureComponent {
           >
             <FontAwesomeIcon icon={faRedo} title="Retrigger" />
           </Button>
-          {groupedBy !== 'platform' && (
-            <span>
-              {platform} {config}:
-            </span>
-          )}
-          <span
-            className="mx-1 px-1 border border-secondary rounded"
-            title={jobGroup}
-          >
+          <span className="ml-2" title={jobGroup}>
             {jobGroupSymbol}
           </span>
           {tier > 1 && (
             <span className="ml-1 small text-muted">[tier-{tier}]</span>
           )}
-          <span
-            color="text-darker-secondary"
-            className="text-uppercase ml-1 mr-1"
-          >
-            {action} :
-          </span>
-          {failJobs.map((failJob) => (
-            <Job
-              job={failJob}
-              repo={repo}
-              revision={revision}
-              key={failJob.id}
-            />
-          ))}
-          {passJobs.map((passJob) => (
-            <Job
-              job={passJob}
-              repo={repo}
-              revision={revision}
-              key={passJob.id}
-            />
-          ))}
-          {!!passInFailedJobs.length && (
-            <span
-              className="text-success mr-1"
-              title="The following jobs failed overall, but this test did not fail in them"
-            >
-              Passed in:
+          (
+          {jobList.map((job) => (
+            <span key={job.id} className="mr-1">
+              <Job job={job} revision={revision} repo={repo} />
             </span>
-          )}
-          {passInFailedJobs.map((passedInAFailedJob) => (
-            <Job
-              job={passedInAFailedJob}
-              repo={repo}
-              revision={revision}
-              key={passedInAFailedJob.id}
-            />
           ))}
-          {inProgressJobs.map((inProgressJob) => (
-            <Job
-              job={inProgressJob}
-              repo={repo}
-              revision={revision}
-              key={inProgressJob.id}
-            />
-          ))}
-          {!!logLines.length && (
-            <span>
-              <Button
-                id={key}
-                className="border-0 text-darker-info btn-sm p-1"
-                outline
-                onClick={this.toggleDetails}
-              >
-                {detailsShowing ? 'less...' : 'more...'}
-              </Button>
-              <UncontrolledCollapse toggler={key} data-testid="log-lines">
-                {logLines.map((logLine) => (
-                  <Row className="small mt-2" key={logLine.line_number}>
-                    <Container className="pre-wrap text-break">
-                      {logLine.subtest}
-                      <Col>
-                        {logLine.message && (
-                          <Row className="mb-3">
-                            <Col xs="1" className="font-weight-bold">
-                              Message:
-                            </Col>
-                            <Col className="text-monospace">
-                              {logLine.message}
-                            </Col>
-                          </Row>
-                        )}
-                        {logLine.signature && (
-                          <Row className="mb-3">
-                            <Col xs="1" className="font-weight-bold">
-                              Signature:
-                            </Col>
-                            <Col className="text-monospace">
-                              {logLine.signature}
-                            </Col>
-                          </Row>
-                        )}
-                        {logLine.stackwalk_stdout && (
-                          <Row className="mb-3">
-                            <Col xs="1" className="font-weight-bold">
-                              Stack
-                            </Col>
-                            <Col className="text-monospace">
-                              {logLine.stackwalk_stdout}
-                            </Col>
-                          </Row>
-                        )}
-                      </Col>
-                    </Container>
-                  </Row>
-                ))}
-              </UncontrolledCollapse>
-            </span>
+          )
+          {detailsShowing && (
+            <React.Fragment>
+              {jobList.map((job) => (
+                <span key={job.id} data-testid="log-lines">
+                  {logLines.map((logLine) => (
+                    <Row className="small mt-2" key={logLine.line_number}>
+                      <Container className="pre-wrap text-break">
+                        {logLine.subtest}
+                        <Col>
+                          {logLine.message && (
+                            <Row className="mb-3">
+                              <Col xs="1" className="font-weight-bold">
+                                Message:
+                              </Col>
+                              <Col className="text-monospace">
+                                {logLine.message}
+                              </Col>
+                            </Row>
+                          )}
+                          {logLine.signature && (
+                            <Row className="mb-3">
+                              <Col xs="1" className="font-weight-bold">
+                                Signature:
+                              </Col>
+                              <Col className="text-monospace">
+                                {logLine.signature}
+                              </Col>
+                            </Row>
+                          )}
+                          {logLine.stackwalk_stdout && (
+                            <Row className="mb-3">
+                              <Col xs="1" className="font-weight-bold">
+                                Stack
+                              </Col>
+                              <Col className="text-monospace">
+                                {logLine.stackwalk_stdout}
+                              </Col>
+                            </Row>
+                          )}
+                        </Col>
+                      </Container>
+                    </Row>
+                  ))}
+                </span>
+              ))}
+            </React.Fragment>
           )}
         </Col>
         <span className="ml-1">
