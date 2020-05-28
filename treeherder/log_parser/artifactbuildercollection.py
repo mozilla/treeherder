@@ -83,7 +83,7 @@ BuildbotPerformanceDataArtifactBuilder
         Stream lines from the gzip file and run each parser against it,
         building the ``artifact`` as we go.
         """
-        logger.warning(f'About to parse log: {self.url}')
+        logger.error(f'<><><> About to parse log: {self.url}')
         with make_request(self.url, stream=True) as response:
             download_size_in_bytes = int(response.headers.get('Content-Length', -1))
 
@@ -102,7 +102,7 @@ BuildbotPerformanceDataArtifactBuilder
             # and we cannot use its `decode_unicode=True` mode, since otherwise Unicode newline
             # characters such as `\u0085` (which can appear in test output) are treated the same
             # as `\n` or `\r`, and so split into unwanted additional lines by `iter_lines()`.
-            logger.warning(f'Parsing log: {self.url}')
+            logger.error(f'<><><> Parsing log: {self.url}')
             for line in response.iter_lines():
                 if len(line) > 1000:
                     newrelic.agent.record_custom_event(
