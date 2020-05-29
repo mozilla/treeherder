@@ -322,7 +322,7 @@ def _schedule_log_parsing(job, job_logs, result):
         # a parsing task if it's ``pending``
         # the submitter is then responsible for submitting the
         # text_log_summary artifact
-        if not job_log.status != JobLog.PENDING:
+        if job_log.status != JobLog.PENDING:
             continue
 
         # if this is not a known type of log, abort parse
