@@ -43,7 +43,10 @@ def parse_logs(job_id, job_log_ids, priority):
 
         # Only parse logs which haven't yet been processed or else failed on the last attempt.
         if job_log.status not in (JobLog.PENDING, JobLog.FAILED):
-            logger.info('Skipping parsing for job %s since log already processed', job_log.id)
+            logger.info(
+                f'Skipping parsing for job %s since log already processed.  Log Status: {job_log.status}',
+                job_log.id,
+            )
             continue
 
         parser = parser_tasks.get(job_log.name)
