@@ -135,12 +135,6 @@
   color: #98c3da;
 }
 
-.clear-related-bugs-icon {
-  margin-left: 8px;
-  font-size: 17px;
-  color: #ff0000;
-}
-
 .add-related-bugs-form {
   display: flex;
   align-items: flex-start;
