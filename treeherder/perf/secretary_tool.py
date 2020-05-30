@@ -73,25 +73,25 @@ class SecretaryTool:
         if on_platform != 'linux':
             raise ValueError(f"Unsupported platform: {on_platform}.")
 
-        perf_seriff_settings = PerformanceSettings.objects.get(name="perf_sheriff_bot")
-        settings = json.loads(perf_seriff_settings.settings)
+        perf_sheriff_settings = PerformanceSettings.objects.get(name="perf_sheriff_bot")
+        settings = json.loads(perf_sheriff_settings.settings)
         return settings['limits'][on_platform]
 
     def consume_backfills(self, on_platform: str, amount: int) -> int:
         if on_platform != 'linux':
             raise ValueError(f"Unsupported platform: {on_platform}.")
 
-        perf_seriff_settings = PerformanceSettings.objects.get(name="perf_sheriff_bot")
+        perf_sheriff_settings = PerformanceSettings.objects.get(name="perf_sheriff_bot")
 
-        settings = json.loads(perf_seriff_settings.settings)
+        settings = json.loads(perf_sheriff_settings.settings)
 
         _backfills_left = left = settings['limits'][on_platform] - amount
         _backfills_left = left if left > 0 else 0
 
         settings['limits'][on_platform] = _backfills_left
 
-        perf_seriff_settings.set_settings(settings)
-        perf_seriff_settings.save()
+        perf_sheriff_settings.set_settings(settings)
+        perf_sheriff_settings.save()
         return _backfills_left
 
     @classmethod
