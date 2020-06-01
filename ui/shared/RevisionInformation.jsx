@@ -2,7 +2,7 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import { ListGroup, ListGroupItem } from 'reactstrap';
 
-import { getJobsUrl } from '../../helpers/url';
+import { getJobsUrl } from '../helpers/url';
 
 function getRevisionComments(resultSet) {
   const [firstRevisionComment, ...restRevisionsComments] =

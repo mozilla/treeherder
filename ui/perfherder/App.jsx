@@ -5,6 +5,7 @@ import { Container } from 'reactstrap';
 
 import { getData, processResponse } from '../helpers/http';
 import { getApiUrl, repoEndpoint } from '../helpers/url';
+import InfraCompareView from '../infra-compare/InfraCompare';
 import ErrorMessages from '../shared/ErrorMessages';
 
 import { endpoints } from './constants';
@@ -161,6 +162,19 @@ class App extends React.Component {
                 path="/compare?originalProject=:originalProject&originalRevision=:originalRevison&newProject=:newProject&newRevision=:newRevision&framework=:framework&showOnlyComparable=:showOnlyComparable&showOnlyImportant=:showOnlyImportant&showOnlyConfident=:showOnlyConfident&selectedTimeRange=:selectedTimeRange&showOnlyNoise=:showOnlyNoise"
                 render={(props) => (
                   <CompareView
+                    {...props}
+                    user={user}
+                    projects={projects}
+                    frameworks={frameworks}
+                    compareData={compareData}
+                    updateAppState={this.updateAppState}
+                  />
+                )}
+              />
+              <Route
+                path="/infracompare"
+                render={(props) => (
+                  <InfraCompareView
                     {...props}
                     user={user}
                     projects={projects}

@@ -5,7 +5,7 @@ import { Button, Input, InputGroup } from 'reactstrap';
 import { faEdit } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 
-import { replaceLocation, getAllUrlParams } from '../../helpers/location';
+import { replaceLocation, getAllUrlParams } from '../helpers/location';
 
 export default class ComparePageTitle extends React.Component {
   constructor(props) {

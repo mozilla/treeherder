@@ -2,7 +2,7 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import { Progress } from 'reactstrap';
 
-import SimpleTooltip from '../shared/SimpleTooltip';
+import SimpleTooltip from './SimpleTooltip';
 
 const ProgressBar = ({ magnitude, regression, color }) => (
   <SimpleTooltip

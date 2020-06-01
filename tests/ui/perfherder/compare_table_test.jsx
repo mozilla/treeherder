@@ -11,7 +11,7 @@ import {
 import projects from '../mock/repositories';
 import CompareTableControls from '../../../ui/perfherder/compare/CompareTableControls';
 import CompareTable from '../../../ui/perfherder/compare/CompareTable';
-import ComparePageTitle from '../../../ui/perfherder/compare/ComparePageTitle';
+import ComparePageTitle from '../../../ui/shared/ComparePageTitle';
 import { compareTableText, filterText } from '../../../ui/perfherder/constants';
 import JobModel from '../../../ui/models/job';
 

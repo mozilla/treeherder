@@ -15,9 +15,9 @@ import { createApiUrl, createQueryParams } from '../../helpers/url';
 import { getFrameworkData, scrollWithOffset } from '../helpers';
 import TruncatedText from '../../shared/TruncatedText';
 import LoadingSpinner from '../../shared/LoadingSpinner';
+import ComparePageTitle from '../../shared/ComparePageTitle';
+import RevisionInformation from '../../shared/RevisionInformation';
 
-import RevisionInformation from './RevisionInformation';
-import ComparePageTitle from './ComparePageTitle';
 import CompareTableControls from './CompareTableControls';
 import NoiseTable from './NoiseTable';
 

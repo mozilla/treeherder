@@ -36,11 +36,13 @@ export default class CompareSelectorView extends React.Component {
       framework: 1,
       frameworkName: 'talos',
       frameworkDropdownIsOpen: false,
+      frameworks: [...this.props.frameworks, { id: 0, name: 'infra' }],
     };
   }
 
   updateFramework = (selection) => {
-    const selectedFramework = this.props.frameworks.find(
+    const { frameworks } = this.state;
+    const selectedFramework = frameworks.find(
       (framework) => framework.name === selection,
     );
 
@@ -82,7 +84,11 @@ export default class CompareSelectorView extends React.Component {
         selectedTimeRange: compareDefaultTimeRange.value,
       };
     }
-    history.push(`/compare${createQueryParams(params)}`);
+    if (framework === 0) {
+      history.push(`/infracompare${createQueryParams(params)}`);
+    } else {
+      history.push(`/compare${createQueryParams(params)}`);
+    }
   };
 
   toggleFrameworkDropdown = () => {
@@ -102,9 +108,10 @@ export default class CompareSelectorView extends React.Component {
       disableButton,
       missingRevision,
       frameworkDropdownIsOpen,
+      frameworks,
     } = this.state;
 
-    const { projects, frameworks } = this.props;
+    const { projects } = this.props;
     const frameworkNames = frameworks.length
       ? frameworks.map((item) => item.name)
       : [];

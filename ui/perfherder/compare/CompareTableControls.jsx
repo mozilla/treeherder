@@ -9,7 +9,7 @@ import {
   onPermalinkClick,
   retriggerMultipleJobs,
 } from '../helpers';
-import FilterControls from '../FilterControls';
+import FilterControls from '../../shared/FilterControls';
 
 import CompareTable from './CompareTable';
 import RetriggerModal from './RetriggerModal';
