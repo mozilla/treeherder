@@ -6,9 +6,15 @@ import { connect } from 'react-redux';
 import { setPinBoardVisible } from '../redux/stores/pinnedJobs';
 import { thEvents } from '../../helpers/constants';
 import { addAggregateFields } from '../../helpers/job';
-import { getLogViewerUrl, getArtifactsUrl } from '../../helpers/url';
+import {
+  getLogViewerUrl,
+  getReftestUrl,
+  getArtifactsUrl,
+  textLogErrorsEndpoint,
+} from '../../helpers/url';
 import { formatArtifacts } from '../../helpers/display';
 import { getData } from '../../helpers/http';
+import { getProjectJobUrl } from '../../helpers/location';
 import BugJobMapModel from '../../models/bugJobMap';
 import JobClassificationModel from '../../models/classification';
 import JobModel from '../../models/job';
@@ -89,6 +95,71 @@ class DetailsPanel extends React.Component {
     const { setPinBoardVisible, isPinBoardVisible } = this.props;
 
     setPinBoardVisible(!isPinBoardVisible);
+  };
+
+  loadBugSuggestions = () => {
+    const { currentRepo, selectedJob } = this.props;
+
+    if (!selectedJob) {
+      return;
+    }
+    BugSuggestionsModel.get(selectedJob.id).then(async (suggestions) => {
+      suggestions.forEach((suggestion) => {
+        suggestion.bugs.too_many_open_recent =
+          suggestion.bugs.open_recent.length > thBugSuggestionLimit;
+        suggestion.bugs.too_many_all_others =
+          suggestion.bugs.all_others.length > thBugSuggestionLimit;
+        suggestion.valid_open_recent =
+          suggestion.bugs.open_recent.length > 0 &&
+          !suggestion.bugs.too_many_open_recent;
+        suggestion.valid_all_others =
+          suggestion.bugs.all_others.length > 0 &&
+          !suggestion.bugs.too_many_all_others &&
+          // If we have too many open_recent bugs, we're unlikely to have
+          // relevant all_others bugs, so don't show them either.
+          !suggestion.bugs.too_many_open_recent;
+      });
+
+      // if we have no bug suggestions, populate with the raw errors from
+      // the log (we can do this asynchronously, it should normally be
+      // fast)
+      if (!suggestions.length) {
+        const { data, failureStatus } = await getData(
+          getProjectJobUrl(textLogErrorsEndpoint, selectedJob.id),
+        );
+
+        if (!failureStatus && data.length) {
+          const errors = data.map((error) => ({
+            line: error.line,
+            line_number: error.line_number,
+            logViewerUrl: getLogViewerUrl(
+              selectedJob.id,
+              currentRepo.name,
+              error.line_number,
+            ),
+          }));
+
+          this.setState({ errors });
+        }
+        // TextLogStepModel.get(selectedJob.id).then((textLogSteps) => {
+        //   console.log(textLogSteps)
+        //   const errors = textLogSteps
+        //     .filter((step) => step.result !== 'success')
+        //     .map((step) => ({
+        //       name: step.name,
+        //       result: step.result,
+        //       logViewerUrl: getLogViewerUrl(
+        //         selectedJob.id,
+        //         currentRepo.name,
+        //         step.finished_line_number,
+        //       ),
+        //     }));
+
+        // });
+      }
+
+      this.setState({ bugSuggestionsLoading: false, suggestions });
+    });
   };
 
   updateClassifications = async () => {
