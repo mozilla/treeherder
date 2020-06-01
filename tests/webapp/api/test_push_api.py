@@ -286,6 +286,15 @@ def test_push_author(client, test_repository):
     assert len(results) == 1  # would have 3 if filter not applied
     assert results[0]['id'] == 3
 
+    resp = client.get(
+        reverse("push-list", kwargs={"project": test_repository.name}) + '?author=-foo2@bar.com'
+    )
+    assert resp.status_code == 200
+
+    results = resp.json()['results']
+    assert len(results) == 2  # would have 3 if filter not applied
+    assert set([result['id'] for result in results]) == set([1, 2])
+
 
 def test_push_list_without_jobs(client, test_repository, sample_push):
     """

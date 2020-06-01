@@ -143,7 +143,11 @@ class PushViewSet(viewsets.ViewSet):
 
         author = filter_params.get("author")
         if author:
-            pushes = pushes.filter(author=author)
+            if author.startswith("-"):
+                author = author[1::]
+                pushes = pushes.exclude(author=author)
+            else:
+                pushes = pushes.filter(author=author)
 
         try:
             count = int(filter_params.get("count", 10))
