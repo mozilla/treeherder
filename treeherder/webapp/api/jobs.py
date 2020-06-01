@@ -397,14 +397,14 @@ class JobsProjectViewSet(viewsets.ViewSet):
     @action(detail=True, methods=['get'])
     def text_log_errors(self, request, project, pk=None):
         """
-        Gets a list of steps associated with this job
+        Gets a list of error lines associated with this job
         """
         try:
             job = Job.objects.get(repository__name=project, id=pk)
         except Job.DoesNotExist:
             return Response("No job with id: {0}".format(pk), status=HTTP_404_NOT_FOUND)
         textlog_errors = (
-            TextLogError.objects.filter(step__job=job)
+            TextLogError.objects.filter(job=job)
             .select_related("_metadata", "_metadata__failure_line")
             .prefetch_related("classified_failures", "matches")
             .order_by('id')
