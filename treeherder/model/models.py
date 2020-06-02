@@ -566,7 +566,7 @@ class Job(models.Model):
             return False
 
         classified_error_count = TextLogError.objects.filter(
-            _metadata__best_classification__isnull=False, step__job=self
+            _metadata__best_classification__isnull=False, job=self
         ).count()
 
         if classified_error_count == 0:
@@ -586,7 +586,7 @@ class Job(models.Model):
         instances are set to True.
         """
         unverified_errors = TextLogError.objects.filter(
-            _metadata__best_is_verified=False, step__job=self
+            _metadata__best_is_verified=False, job=self
         ).count()
 
         if unverified_errors:
@@ -621,7 +621,7 @@ class Job(models.Model):
         """
         If this Job has a single TextLogError line, return that TextLogError.
 
-        Some Jobs only have one related [via TextLogStep] TextLogError.  This
+        Some Jobs only have one related TextLogError.  This
         method checks if this Job is one of those (returning None if not) by:
         * checking the number of related TextLogErrors
         * counting the number of search results for the single TextLogError
@@ -631,7 +631,7 @@ class Job(models.Model):
         If all these checks pass the TextLogError is returned, any failure returns None.
         """
         try:
-            text_log_error = TextLogError.objects.get(step__job=self)
+            text_log_error = TextLogError.objects.get(job=self)
         except (TextLogError.DoesNotExist, TextLogError.MultipleObjectsReturned):
             return None
 
