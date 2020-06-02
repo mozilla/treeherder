@@ -14,5 +14,6 @@ class Command(BaseCommand):
             'issue_tracker',
             'performance_framework',
             'performance_bug_templates',
+            'performance_tag',
         )
         call_command('load_preseed')

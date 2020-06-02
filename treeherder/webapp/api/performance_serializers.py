@@ -15,6 +15,7 @@ from treeherder.perf.models import (
     PerformanceDatum,
     PerformanceFramework,
     PerformanceSignature,
+    PerformanceTag,
 )
 from treeherder.webapp.api.utils import to_timestamp
 
@@ -178,9 +179,20 @@ class PerformanceAlertSerializer(serializers.ModelSerializer):
         ]
 
 
+class PerformanceTagSerializer(serializers.ModelSerializer):
+    name = serializers.CharField(read_only=True)
+
+    class Meta:
+        model = PerformanceTag
+        fields = ['id', 'name']
+
+
 class PerformanceAlertSummarySerializer(serializers.ModelSerializer):
     alerts = PerformanceAlertSerializer(many=True, read_only=True)
     related_alerts = PerformanceAlertSerializer(many=True, read_only=True)
+    performance_tags = serializers.SlugRelatedField(
+        many=True, required=False, slug_field='name', queryset=PerformanceTag.objects.all()
+    )
     repository = serializers.SlugRelatedField(read_only=True, slug_field='name')
     framework = serializers.SlugRelatedField(read_only=True, slug_field='id')
     revision = serializers.SlugRelatedField(read_only=True, slug_field='revision', source='push')
@@ -231,6 +243,7 @@ class PerformanceAlertSummarySerializer(serializers.ModelSerializer):
             'prev_push_revision',
             'assignee_username',
             'assignee_email',
+            'performance_tags',
         ]
 
 
