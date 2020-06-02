@@ -291,25 +291,21 @@ class SecondaryNavBar extends React.PureComponent {
                 !groupCountsExpanded && this.toggleShowDuplicateJobs()
               }
             />
-            <Button className="btn-group p-0 bg-transparent border border-0">
-              {/* Toggle Group State Button */}
-              <span
-                className="btn btn-view-nav btn-sm btn-toggle-group-state"
-                tabIndex="-1"
-                role="button"
-                title={
-                  groupCountsExpanded
-                    ? 'Collapse job groups'
-                    : 'Expand job groups'
-                }
-                onClick={() => this.toggleGroupState()}
-              >
-                ({' '}
-                <span className="group-state-nav-icon">
-                  {groupCountsExpanded ? '-' : '+'}
-                </span>{' '}
-                )
+            {/* Toggle Group State Button */}
+            <Button
+              className="py-0 px-1 btn-view-nav mr-1"
+              title={
+                groupCountsExpanded
+                  ? 'Collapse job groups'
+                  : 'Expand job groups'
+              }
+              onClick={() => this.toggleGroupState()}
+            >
+              (
+              <span className="group-state-nav-icon mx-1">
+                {groupCountsExpanded ? '-' : '+'}
               </span>
+              )
             </Button>
 
             {/* Result Status Filter Chicklets */}
