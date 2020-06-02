@@ -134,16 +134,12 @@ TEMPLATES = [{'BACKEND': 'django.template.backends.django.DjangoTemplates', 'APP
 #   'mysql://username:password@host:optional_port/database_name'
 #
 # which django-environ converts into the Django DB settings dict format.
-MYSQL_LOCALHOST = 'localhost' if IS_WINDOWS else '127.0.0.1'
-MYSQL_TEMPLATE = 'mysql://root@{}:3306/treeherder'
+LOCALHOST_MYSQL_HOST = 'mysql://root@{}:3306/treeherder'.format(
+    'localhost' if IS_WINDOWS else '127.0.0.1'
+)
 DATABASES = {
-    'default': env.db_url('DATABASE_URL', default=MYSQL_TEMPLATE.format(MYSQL_LOCALHOST)),
+    'default': env.db_url('DATABASE_URL', default=LOCALHOST_MYSQL_HOST),
 }
-
-SKIP_INGESTION = env('SKIP_INGESTION', default=False)
-# Skip data ingestion if points to a remote host
-if DATABASES['default']['HOST'] not in ['mysql', '127.0.0.1', 'localhost']:
-    SKIP_INGESTION = True
 
 # Only used when syncing local database with production replicas
 UPSTREAM_DATABASE_URL = env('UPSTREAM_DATABASE_URL', default=None)
