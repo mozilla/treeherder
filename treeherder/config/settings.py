@@ -150,11 +150,6 @@ UPSTREAM_DATABASE_URL = env('UPSTREAM_DATABASE_URL', default=None)
 if UPSTREAM_DATABASE_URL:
     DATABASES['upstream'] = env.db_url_config(UPSTREAM_DATABASE_URL)
 
-# Only used when syncing local database with production replicas
-UPSTREAM_DATABASE_URL = env('UPSTREAM_DATABASE_URL', default=None)
-if UPSTREAM_DATABASE_URL:
-    DATABASES['upstream'] = env.db_url_config(UPSTREAM_DATABASE_URL)
-
 # We're intentionally not using django-environ's query string options feature,
 # since it hides configuration outside of the repository, plus could lead to
 # drift between environments.
