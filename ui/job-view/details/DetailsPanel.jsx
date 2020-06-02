@@ -123,6 +123,10 @@ class DetailsPanel extends React.Component {
       // if we have no bug suggestions, populate with the raw errors from
       // the log (we can do this asynchronously, it should normally be
       // fast)
+
+      // TODO there might be a bug here, since querying bug_suggestions
+      // also sometimes returns only failure lines and no bugs, so why
+      // would we need to query this just to see the failure lines?
       if (!suggestions.length) {
         const { data, failureStatus } = await getData(
           getProjectJobUrl(textLogErrorsEndpoint, selectedJob.id),
@@ -141,24 +145,9 @@ class DetailsPanel extends React.Component {
 
           this.setState({ errors });
         }
-        // TextLogStepModel.get(selectedJob.id).then((textLogSteps) => {
-        //   console.log(textLogSteps)
-        //   const errors = textLogSteps
-        //     .filter((step) => step.result !== 'success')
-        //     .map((step) => ({
-        //       name: step.name,
-        //       result: step.result,
-        //       logViewerUrl: getLogViewerUrl(
-        //         selectedJob.id,
-        //         currentRepo.name,
-        //         step.finished_line_number,
-        //       ),
-        //     }));
-
-        // });
       }
 
-      this.setState({ bugSuggestionsLoading: false, suggestions });
+      this.setState({ bugSuggestionsLoading: false, suggestions, errors: [] });
     });
   };
 
