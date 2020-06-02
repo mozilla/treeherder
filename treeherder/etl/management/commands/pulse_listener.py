@@ -1,9 +1,11 @@
 import environ
+import logging
 from django.core.management.base import BaseCommand
-
+from treeherder.config.settings import SKIP_INGESTION
 from treeherder.services.pulse import JointConsumer, prepare_joint_consumers
 
 env = environ.Env()
+logger = logging.getLogger(__name__)
 
 
 class Command(BaseCommand):
@@ -17,6 +19,9 @@ class Command(BaseCommand):
     help = "Read tasks and pushes from a set of pulse exchanges and queue for ingestion"
 
     def handle(self, *args, **options):
+        if SKIP_INGESTION:
+            logger.debug("Skipping ingestion of Pulse Tasks")
+            return
         # Specifies the Pulse services from which Treeherder will ingest push
         # information.  Sources can include properties `hgmo`, `github`, or both, to
         # listen to events from those sources.  The value is a JSON array of the form
