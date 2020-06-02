@@ -186,7 +186,7 @@ describe('Filtering', () => {
         [],
       );
       fetchMock.get(
-        getProjectUrl('/jobs/259537372/text_log_steps/', 'autoland'),
+        getProjectUrl('/jobs/259537372/text_log_errors/', 'autoland'),
         [],
       );
     });

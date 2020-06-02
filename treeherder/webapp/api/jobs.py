@@ -375,6 +375,7 @@ class JobsProjectViewSet(viewsets.ViewSet):
 
         return Response(response_body)
 
+    # TODO remove
     @action(detail=True, methods=['get'])
     def text_log_steps(self, request, project, pk=None):
         """
