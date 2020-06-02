@@ -456,7 +456,7 @@ class PinBoard extends React.Component {
                 </Button>
               )}
               {enteringBugNumber && (
-                <span className="add-related-bugs-form">
+                <span className="add-related-bugs-form d-flex align-items-start">
                   <div>
                     <Input
                       id="related-bug-input"

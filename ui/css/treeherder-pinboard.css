@@ -136,8 +136,6 @@
 }
 
 .add-related-bugs-form {
-  display: flex;
-  align-items: flex-start;
   position: relative;
   top: -18px;
   left: 20px;
