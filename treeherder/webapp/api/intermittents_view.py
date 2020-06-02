@@ -81,7 +81,7 @@ class FailuresByBug(generics.ListAPIView):
         )
 
         lines = TextLogError.objects.filter(
-            step__job_id__in=self.queryset.values_list('job_id', flat=True),
+            job_id__in=self.queryset.values_list('job_id', flat=True),
             line__contains='TEST-UNEXPECTED-FAIL',
         ).values_list('step__job_id', 'line')
 

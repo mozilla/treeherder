@@ -32,7 +32,7 @@ def get_error_summary(job):
 
     # don't cache or do anything if we have no text log errors to get
     # results for
-    errors = TextLogError.objects.filter(step__job=job)
+    errors = TextLogError.objects.filter(job=job)
     if not errors:
         return []
 
