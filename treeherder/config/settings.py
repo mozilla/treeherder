@@ -17,6 +17,7 @@ SRC_DIR = dirname(dirname(dirname(abspath(__file__))))
 
 env = environ.Env()
 
+PRODUCTION = env("VIRTUAL_ENV", default=False) or env("IN_DOCKER", default=False)
 # Checking for OS type
 IS_WINDOWS = "windows" in platform.system().lower()
 
@@ -141,6 +142,14 @@ LOCALHOST_MYSQL_HOST = 'mysql://root@{}:3306/treeherder'.format(
 DATABASES = {
     'default': env.db_url('DATABASE_URL', default=LOCALHOST_MYSQL_HOST),
 }
+
+SKIP_INGESTION = env('SKIP_INGESTION', default=False)
+
+# Block for changes within the context of local development (venv & Docker)
+if not PRODUCTION:
+    # Do not permit ingesting if DATABASE_URL points to a database different than localhost
+    if DATABASES['default']['HOST'] not in ['mysql', '127.0.0.1', 'localhost']:
+        SKIP_INGESTION = True
 
 # Only used when syncing local database with production replicas
 UPSTREAM_DATABASE_URL = env('UPSTREAM_DATABASE_URL', default=None)

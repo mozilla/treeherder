@@ -101,6 +101,7 @@ services:
       context: .
       dockerfile: docker/dev.Dockerfile
     environment:
+      - IN_DOCKER=1
       - PULSE_URL=${PULSE_URL:-amqp://docker-shared-user:8r5VFxpJHtJahTVV5bYutykgDsXhGF@pulse.mozilla.org:5671/?ssl=1}
       - LOGGING_LEVEL=INFO
       - PULSE_AUTO_DELETE_QUEUES=True
