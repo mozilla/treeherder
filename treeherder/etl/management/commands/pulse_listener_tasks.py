@@ -7,6 +7,7 @@ from treeherder.services.pulse import TaskConsumer, prepare_consumers
 env = environ.Env()
 logger = logging.getLogger(__name__)
 
+
 class Command(BaseCommand):
     """
     Management command to read jobs from a set of pulse exchanges

@@ -7,6 +7,7 @@ from treeherder.services.pulse import PushConsumer, prepare_consumers
 env = environ.Env()
 logger = logging.getLogger(__name__)
 
+
 class Command(BaseCommand):
     """
     Management command to read pushes from a set of pulse exchanges
