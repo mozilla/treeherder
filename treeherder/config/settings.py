@@ -134,18 +134,21 @@ TEMPLATES = [{'BACKEND': 'django.template.backends.django.DjangoTemplates', 'APP
 #   'mysql://username:password@host:optional_port/database_name'
 #
 # which django-environ converts into the Django DB settings dict format.
-MYSQL_LOCALHOST = 'mysql://root@{}:3306/treeherder'.format(
-    'localhost' if IS_WINDOWS else '127.0.0.1'
-)
-DATABASE_URL = env.db_url('DATABASE_URL', default=MYSQL_LOCALHOST)
+MYSQL_LOCALHOST = 'localhost' if IS_WINDOWS else '127.0.0.1'
+MYSQL_TEMPLATE = 'mysql://root@{}:3306/treeherder'
 DATABASES = {
-    'default': DATABASE_URL,
+    'default': env.db_url('DATABASE_URL', default=MYSQL_TEMPLATE.format(MYSQL_LOCALHOST)),
 }
 
-SKIP_INGESTION = False
-# Skip data ingestion if it uses something different than localhost
-if DATABASE_URL != MYSQL_LOCALHOST:
+SKIP_INGESTION = env('SKIP_INGESTION', default=False)
+# Skip data ingestion if points to a remote host
+if DATABASES['default']['HOST'] not in ['mysql', '127.0.0.1', 'localhost']:
     SKIP_INGESTION = True
+
+# Only used when syncing local database with production replicas
+UPSTREAM_DATABASE_URL = env('UPSTREAM_DATABASE_URL', default=None)
+if UPSTREAM_DATABASE_URL:
+    DATABASES['upstream'] = env.db_url_config(UPSTREAM_DATABASE_URL)
 
 # Only used when syncing local database with production replicas
 UPSTREAM_DATABASE_URL = env('UPSTREAM_DATABASE_URL', default=None)
