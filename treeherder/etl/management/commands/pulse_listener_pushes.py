@@ -19,7 +19,7 @@ class Command(BaseCommand):
     help = "Read pushes from a set of pulse exchanges and queue for ingestion"
 
     def handle(self, *args, **options):
-        if(SKIP_INGESTION):
+        if SKIP_INGESTION:
             logger.debug("Skipping ingestion of Pulse Tasks")
             return
         # Specifies the Pulse services from which Treeherder will ingest push
