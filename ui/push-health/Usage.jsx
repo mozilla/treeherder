@@ -51,6 +51,7 @@ class Usage extends Component {
               <th>Latest</th>
               <th>Latest Time</th>
               <th>Delta</th>
+              <th>Retrigger</th>
             </tr>
           </thead>
           <tbody>
@@ -59,6 +60,7 @@ class Usage extends Component {
                 push: { revision, push_timestamp: pushTimestamp, author },
                 peak: { needInvestigation: peakNI, time: peakTime },
                 latest: { needInvestigation: latestNI, time: latestTime },
+                retriggers,
               } = rev;
 
               return (
@@ -82,6 +84,7 @@ class Usage extends Component {
                       {peakNI - latestNI > 0 && peakNI - latestNI}
                     </Badge>
                   </td>
+                  <td>{retriggers}</td>
                 </tr>
               );
             })}
