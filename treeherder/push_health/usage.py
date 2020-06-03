@@ -28,7 +28,7 @@ def get_latest(facet):
             return {NEED_INVESTIGATION: latest['max'], 'time': item['endTimeSeconds']}
 
 
-def jobs_retriggers(push):
+def jobs_retriggered(push):
     retrigger_jobs = Job.objects.filter(push=push, job_type__name='Action: Retrigger')
     return len(retrigger_jobs)
 
@@ -59,7 +59,7 @@ def get_usage():
             'push': PushSerializer(pushes.get(revision=facet['name'])).data,
             'peak': get_peak(facet),
             'latest': get_latest(facet),
-            'retriggers': jobs_retriggers(pushes.get(revision=facet['name'])),
+            'retriggers': jobs_retriggered(pushes.get(revision=facet['name'])),
         }
         for facet in data['facets']
     ]

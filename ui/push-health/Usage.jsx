@@ -51,7 +51,7 @@ class Usage extends Component {
               <th>Latest</th>
               <th>Latest Time</th>
               <th>Delta</th>
-              <th>Retrigger</th>
+              <th>Retriggers</th>
             </tr>
           </thead>
           <tbody>
