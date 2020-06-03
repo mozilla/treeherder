@@ -298,9 +298,21 @@ One of the ways in which we allow users to [access Treeherder data](../accessing
 is via direct access to our read-only RDS MySQL replica. Both ActiveData and Mozilla's
 ReDash instance use this approach.
 
-NOTE: Don't forget to try running `./manage.py runserver` with the user created before sending credentials to the user.
+Generate the password like this:
 
-NOTE2: Certain symbols (e.g. '%') in a password would work via MySql, however, fail via Django
+```shell
+python -c "import string; import secrets; print(secrets.token_hex(30))"
+```
+
+After you run the SQL commands below you can test the user like this:
+
+```shell
+export DATABASE_URL='mysql://NEW_USER:PASSWORD@HOSTNAME/treeherder'
+./manage.py check
+```
+
+You can send the URL above to the user in a text file via [send.firefox.com](https://send.firefox.com),
+set to 1 download and with a password. Pass the password to download it via Slack or Riot.
 
 Each user should be given a unique MySQL username, created by [connecting](#connecting-to-rds-instances)
 to the master production RDS instance (not the replica) and running these SQL statements:
@@ -330,7 +342,6 @@ GRANT SELECT ON treeherder.group to 'myuser';
 GRANT SELECT ON treeherder.group_failure_lines to 'myuser';
 GRANT SELECT ON treeherder.issue_tracker to 'myuser';
 GRANT SELECT ON treeherder.job to 'myuser';
-GRANT SELECT ON treeherder.job_detail to 'myuser';
 GRANT SELECT ON treeherder.job_group to 'myuser';
 GRANT SELECT ON treeherder.job_log to 'myuser';
 GRANT SELECT ON treeherder.job_note to 'myuser';
