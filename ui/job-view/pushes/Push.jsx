@@ -584,6 +584,10 @@ class Push extends React.PureComponent {
     const tipRevision = push.revisions[0];
     const decisionTask = decisionTaskMap[push.id];
     const decisionTaskId = decisionTask ? decisionTask.id : null;
+    const showPushHealthSummary =
+      filteredTryPush &&
+      (pushHealthVisibility === 'All' ||
+        currentRepo.name === pushHealthVisibility.toLowerCase());
 
     if (isOnlyRevision) {
       this.setSingleRevisionWindowTitle();
@@ -643,7 +647,7 @@ class Push extends React.PureComponent {
                   repo={currentRepo}
                   widthClass="ml-4"
                 >
-                  {filteredTryPush && (
+                  {showPushHealthSummary && (
                     <div className="ml-3 mt-4">
                       <PushHealthSummary
                         healthStatus={pushHealthStatus}
