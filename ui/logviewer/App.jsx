@@ -2,6 +2,8 @@ import React from 'react';
 import { hot } from 'react-hot-loader/root';
 import { LazyLog } from 'react-lazylog';
 import isEqual from 'lodash/isEqual';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faCaretUp, faCaretDown } from '@fortawesome/free-solid-svg-icons';
 
 import { getAllUrlParams, getUrlParam, setUrlParam } from '../helpers/location';
 import { scrollToLine } from '../helpers/utils';
@@ -52,6 +54,7 @@ class App extends React.PureComponent {
       jobError: '',
       revision: null,
       errors: [],
+      collapseDetails: true,
       highlight: getUrlLineNumber(),
       repoName: queryString.get('repo'),
       jobId: queryString.get('job_id'),
@@ -187,6 +190,13 @@ class App extends React.PureComponent {
     }
   };
 
+  collapseJobDetails = () => {
+    const { collapseDetails } = this.state;
+    this.setState({
+      collapseDetails: !collapseDetails,
+    });
+  };
+
   setSelectedLine = (highlight, scrollToTop) => {
     this.setState({ highlight }, () => {
       this.updateQuery({ highlight });
@@ -224,6 +234,7 @@ class App extends React.PureComponent {
       jobExists,
       revision,
       errors,
+      collapseDetails,
       highlight,
       jobUrl,
       currentRepo,
@@ -252,20 +263,32 @@ class App extends React.PureComponent {
         />
         {job && (
           <div className="d-flex flex-column flex-fill">
-            <div className="run-data d-flex flex-row border-bottom border-secondary mx-1 mb-2">
-              <div className="d-flex flex-column job-data-panel">
-                <JobInfo
-                  job={job}
-                  extraFields={extraFields}
-                  revision={revision}
-                  className="list-unstyled"
-                  showJobFilters={false}
-                  currentRepo={currentRepo}
+            <FontAwesomeIcon
+              icon={collapseDetails ? faCaretUp : faCaretDown}
+              title={
+                collapseDetails ? 'expand job details' : 'collapse job details'
+              }
+              onClick={this.collapseJobDetails}
+            />
+            {!collapseDetails && (
+              <div className="run-data d-flex flex-row border-bottom border-secondary mx-1 mb-2">
+                <div className="d-flex flex-column job-data-panel">
+                  <JobInfo
+                    job={job}
+                    extraFields={extraFields}
+                    revision={revision}
+                    className="list-unstyled"
+                    showJobFilters={false}
+                    currentRepo={currentRepo}
+                  />
+                  <JobDetails jobDetails={jobDetails} />
+                </div>
+                <ErrorLines
+                  errors={errors}
+                  onClickLine={this.setSelectedLine}
                 />
-                <JobDetails jobDetails={jobDetails} />
               </div>
-              <ErrorLines errors={errors} onClickLine={this.setSelectedLine} />
-            </div>
+            )}
             <div className="log-contents flex-fill">
               <LazyLog
                 url={rawLogUrl}
