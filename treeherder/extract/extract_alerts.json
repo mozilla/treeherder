@@ -92,9 +92,6 @@
     "trace": true,
     "logs": [
       {
-        "log_type": "console"
-      },
-      {
         "log_type": "logger",
         "name": "extract_alerts"
       }
