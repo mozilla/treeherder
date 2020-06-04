@@ -60,31 +60,39 @@
       "size": "Standard-1X"
     },
     "pulse_listener_pushes": {
-      "quantity": 0,
+      "quantity": 1,
       "size": "Standard-1X"
     },
     "pulse_listener_tasks": {
-      "quantity": 0,
+      "quantity": 1,
       "size": "Standard-1X"
     },
     "pulse_listener": {
-      "quantity": 1,
+      "quantity": 0,
       "size": "Standard-1X"
     },
     "web": {
       "quantity": 1,
       "size": "Standard-1X"
     },
+    "worker_autoclassify": {
+      "quantity": 1,
+      "size": "Standard-1X"
+    },
     "worker_log_parser": {
-      "quantity": 0,
+      "quantity": 1,
+      "size": "Standard-1X"
+    },
+    "worker_log_parser_fail": {
+      "quantity": 1,
       "size": "Standard-1X"
     },
     "worker_misc": {
-      "quantity": 0,
+      "quantity": 1,
       "size": "Standard-1X"
     },
     "worker_store_pulse_data": {
-      "quantity": 5,
+      "quantity": 4,
       "size": "Standard-1X"
     }
   },
