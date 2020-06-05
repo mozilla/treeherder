@@ -26,9 +26,9 @@ import {
   dxrBaseUrl,
   getApiUrl,
   hgBaseUrl,
-} from '../../helpers/url';
-import { create } from '../../helpers/http';
-import { notify } from '../redux/stores/notifications';
+} from '../helpers/url';
+import { create } from '../helpers/http';
+import { notify } from '../job-view/redux/stores/notifications';
 
 const crashRegex = /application crashed \[@ (.+)\]$/g;
 const omittedLeads = [

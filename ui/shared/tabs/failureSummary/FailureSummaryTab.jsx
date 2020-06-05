@@ -2,13 +2,13 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faSpinner } from '@fortawesome/free-solid-svg-icons';
-import { connect } from 'react-redux';
 
-import { thEvents } from '../../../../helpers/constants';
-import { isReftest } from '../../../../helpers/job';
-import { getBugUrl } from '../../../../helpers/url';
-import { pinJob, addBug } from '../../../redux/stores/pinnedJobs';
+import { thBugSuggestionLimit, thEvents } from '../../../helpers/constants';
+import { isReftest } from '../../../helpers/job';
+import { getBugUrl, getLogViewerUrl } from '../../../helpers/url';
 import BugFiler from '../../BugFiler';
+import BugSuggestionsModel from '../../../models/bugSuggestions';
+import TextLogStepModel from '../../../models/textLogStep';
 
 import ErrorsList from './ErrorsList';
 import ListItem from './ListItem';
@@ -20,13 +20,32 @@ class FailureSummaryTab extends React.Component {
 
     this.state = {
       isBugFilerOpen: false,
+      suggestions: [],
+      errors: [],
+      bugSuggestionsLoading: false,
     };
   }
 
-  fileBug = (suggestion) => {
-    const { selectedJobFull, pinJob } = this.props;
+  componentDidMount() {
+    this.loadBugSuggestions();
+  }
 
-    pinJob(selectedJobFull);
+  componentDidUpdate(prevProps) {
+    const { selectedJob } = this.props;
+
+    if (
+      !!selectedJob &&
+      !!prevProps.selectedJob &&
+      selectedJob.id !== prevProps.selectedJob.id
+    ) {
+      this.loadBugSuggestions();
+    }
+  }
+
+  fileBug = (suggestion) => {
+    const { selectedJob, pinJob } = this.props;
+
+    pinJob(selectedJob);
     this.setState({
       isBugFilerOpen: true,
       suggestion,
@@ -48,18 +67,69 @@ class FailureSummaryTab extends React.Component {
     window.open(getBugUrl(data.success));
   };
 
+  loadBugSuggestions = () => {
+    const { currentRepo, selectedJob } = this.props;
+
+    if (!selectedJob) {
+      return;
+    }
+    BugSuggestionsModel.get(selectedJob.id).then((suggestions) => {
+      suggestions.forEach((suggestion) => {
+        suggestion.bugs.too_many_open_recent =
+          suggestion.bugs.open_recent.length > thBugSuggestionLimit;
+        suggestion.bugs.too_many_all_others =
+          suggestion.bugs.all_others.length > thBugSuggestionLimit;
+        suggestion.valid_open_recent =
+          suggestion.bugs.open_recent.length > 0 &&
+          !suggestion.bugs.too_many_open_recent;
+        suggestion.valid_all_others =
+          suggestion.bugs.all_others.length > 0 &&
+          !suggestion.bugs.too_many_all_others &&
+          // If we have too many open_recent bugs, we're unlikely to have
+          // relevant all_others bugs, so don't show them either.
+          !suggestion.bugs.too_many_open_recent;
+      });
+
+      // if we have no bug suggestions, populate with the raw errors from
+      // the log (we can do this asynchronously, it should normally be
+      // fast)
+      if (!suggestions.length) {
+        TextLogStepModel.get(selectedJob.id).then((textLogSteps) => {
+          const errors = textLogSteps
+            .filter((step) => step.result !== 'success')
+            .map((step) => ({
+              name: step.name,
+              result: step.result,
+              logViewerUrl: getLogViewerUrl(
+                selectedJob.id,
+                currentRepo.name,
+                step.finished_line_number,
+              ),
+            }));
+          this.setState({ errors });
+        });
+      }
+
+      this.setState({ bugSuggestionsLoading: false, suggestions });
+    });
+  };
+
   render() {
     const {
       jobLogUrls,
       logParseStatus,
+      logViewerFullUrl,
+      selectedJob,
+      reftestUrl,
+      addBug,
+    } = this.props;
+    const {
+      isBugFilerOpen,
+      suggestion,
+      bugSuggestionsLoading,
       suggestions,
       errors,
-      logViewerFullUrl,
-      bugSuggestionsLoading,
-      selectedJobFull,
-      reftestUrl,
-    } = this.props;
-    const { isBugFilerOpen, suggestion } = this.state;
+    } = this.state;
     const logs = jobLogUrls;
     const jobLogsAllParsed = logs.every(
       (jlu) => jlu.parse_status !== 'pending',
@@ -74,7 +144,8 @@ class FailureSummaryTab extends React.Component {
               index={index}
               suggestion={suggestion}
               toggleBugFiler={() => this.fileBug(suggestion)}
-              selectedJobFull={selectedJobFull}
+              selectedJob={selectedJob}
+              addBug={addBug}
             />
           ))}
 
@@ -155,9 +226,9 @@ class FailureSummaryTab extends React.Component {
             suggestions={suggestions}
             fullLog={jobLogUrls[0].url}
             parsedLog={logViewerFullUrl}
-            reftestUrl={isReftest(selectedJobFull) ? reftestUrl : ''}
+            reftestUrl={isReftest(selectedJob) ? reftestUrl : ''}
             successCallback={this.bugFilerCallback}
-            jobGroupName={selectedJobFull.job_group_name}
+            jobGroupName={selectedJob.job_group_name}
           />
         )}
       </div>
@@ -166,26 +237,22 @@ class FailureSummaryTab extends React.Component {
 }
 
 FailureSummaryTab.propTypes = {
-  addBug: PropTypes.func.isRequired,
-  pinJob: PropTypes.func.isRequired,
-  selectedJobFull: PropTypes.shape({}).isRequired,
-  suggestions: PropTypes.arrayOf(PropTypes.object),
-  errors: PropTypes.arrayOf(PropTypes.object),
-  bugSuggestionsLoading: PropTypes.bool,
+  selectedJob: PropTypes.shape({}).isRequired,
   jobLogUrls: PropTypes.arrayOf(PropTypes.object),
   logParseStatus: PropTypes.string,
   reftestUrl: PropTypes.string,
   logViewerFullUrl: PropTypes.string,
+  addBug: PropTypes.func,
+  pinJob: PropTypes.func,
 };
 
 FailureSummaryTab.defaultProps = {
-  suggestions: [],
   reftestUrl: null,
-  errors: [],
-  bugSuggestionsLoading: false,
   jobLogUrls: [],
   logParseStatus: 'pending',
   logViewerFullUrl: null,
+  addBug: null,
+  pinJob: null,
 };
 
-export default connect(null, { addBug, pinJob })(FailureSummaryTab);
+export default FailureSummaryTab;

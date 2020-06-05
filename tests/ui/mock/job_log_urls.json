@@ -1,0 +1,16 @@
+[
+  {
+    "id": 492067871,
+    "job_id": 303550427,
+    "name": "builds-4h",
+    "url": "https://firefox-ci-tc.services.mozilla.com/api/queue/v1/task/dTWdF-vbQ_2RBJ-5y5TBqQ/runs/0/artifacts/public/logs/live_backing.log",
+    "parse_status": "parsed"
+  },
+  {
+    "id": 492067872,
+    "job_id": 303550427,
+    "name": "errorsummary_json",
+    "url": "https://firefox-ci-tc.services.mozilla.com/api/queue/v1/task/dTWdF-vbQ_2RBJ-5y5TBqQ/runs/0/artifacts/public/test_info//mochitest-devtools-chrome_errorsummary.log",
+    "parse_status": "parsed"
+  }
+]

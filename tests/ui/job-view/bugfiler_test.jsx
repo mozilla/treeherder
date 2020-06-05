@@ -4,7 +4,7 @@ import fetchMock from 'fetch-mock';
 
 import { hgBaseUrl, bzBaseUrl } from '../../../ui/helpers/url';
 import { isReftest } from '../../../ui/helpers/job';
-import { BugFilerClass } from '../../../ui/job-view/details/BugFiler';
+import { BugFilerClass } from '../../../ui/shared/BugFiler';
 
 describe('BugFiler', () => {
   const fullLog =

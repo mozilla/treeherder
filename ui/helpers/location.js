@@ -7,7 +7,7 @@ import {
 } from './url';
 
 export const getQueryString = function getQueryString() {
-  return extractSearchString(window.location.hash);
+  return extractSearchString(window.location.href);
 };
 
 export const getAllUrlParams = function getAllUrlParams() {
