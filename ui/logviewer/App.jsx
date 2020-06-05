@@ -268,6 +268,7 @@ class App extends React.PureComponent {
               title={
                 collapseDetails ? 'expand job details' : 'collapse job details'
               }
+              className="pointable border-secondary mx-1 mb-2"
               onClick={this.collapseJobDetails}
             />
             {!collapseDetails && (
