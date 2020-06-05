@@ -277,6 +277,7 @@ class App extends React.PureComponent {
                 highlightLineClassName="yellow-highlight"
                 rowHeight={13}
                 extraLines={3}
+                enableSearch
               />
             </div>
           </div>
