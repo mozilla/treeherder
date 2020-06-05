@@ -3,12 +3,13 @@ import PropTypes from 'prop-types';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faUser } from '@fortawesome/free-regular-svg-icons';
 import { Row, Tooltip } from 'reactstrap';
-import { bugzillaBugsApi } from '../helpers/url';
-import { getData } from '../helpers/http';
 import { parseAuthor } from '../helpers/revision';
 
 import BugLinkify from './BugLinkify';
 import Clipboard from './Clipboard';
+
+import { getData } from '../helpers/http';
+import { bugzillaBugsApi } from '../helpers/url';
 
 export function AuthorInitials(props) {
   const str = props.author || '';
@@ -48,10 +49,51 @@ export class Revision extends React.PureComponent {
 
     this.state = {
       clipboardVisible: false,
+      ready: false,
       tooltipOpen: false,
-      tooltipData: { data: {}, failureStatus: undefined },
+      tooltipData: false,
     };
+    this.spanRef = React.createRef();
   }
+
+  componentDidMount() {
+    this.setReady();
+  }
+
+  componentDidUpdate() {
+    this.setReady();
+  }
+
+  setReady() {
+    if (this.spanRef.current) {
+      this.setState({
+        ready: true,
+      });
+    }
+  }
+
+  // toggle = (comment) => {
+  //   this.setState({
+  //     tooltipOpen: !this.state.tooltipOpen,
+  //   });
+  // };
+
+  toggle = async (comment) => {
+    const bugMatches = comment.match(/-- ([0-9]+)|bug.([0-9]+)/gi);
+    const bugNumber = bugMatches[0].split(' ')[1];
+    const { data, failureStatus } = await getData(
+      bugzillaBugsApi('bug', { id: bugNumber }),
+    );
+    const bugSummary = data.bugs[0].summary;
+    this.setState((prevState) => {
+      return {
+        tooltipOpen: !prevState.tooltipOpen,
+        tooltipData: prevState.tooltipData
+          ? !prevState.tooltipData
+          : bugSummary,
+      };
+    });
+  };
 
   showClipboard = (show) => {
     this.setState({ clipboardVisible: show });
@@ -61,27 +103,13 @@ export class Revision extends React.PureComponent {
     return comment.search('Backed out') >= 0 || comment.search('Back out') >= 0;
   };
 
-  toggle = async (comment) => {
-    const bugComment = comment.split('(', ')');
-    console.log(bugComment);
-    const { data, failureStatus } = await getData(
-      bugzillaBugsApi('bug', { id: 1447537 }),
-    );
-    this.setState({
-      tooltipOpen: !this.state.tooltipOpen,
-      tooltipData: { data, failureStatus },
-    });
-    console.log('comment??' + comment);
-    console.log(data);
-  };
-
   render() {
     const {
       revision: { comments, author, revision },
       repo,
     } = this.props;
     const comment = comments.split('\n')[0];
-    const { clipboardVisible, tooltipOpen, tooltipData } = this.state;
+    const { clipboardVisible, ready, tooltipOpen } = this.state;
     const { name, email } = parseAuthor(author);
     const commitRevision = revision;
     const commentColor = this.isBackout(comment)
@@ -111,21 +139,24 @@ export class Revision extends React.PureComponent {
         </span>
         <AuthorInitials title={`${name}: ${email}`} author={name} />
         <span
+          ref={this.spanRef}
+          // title={comment}
           className={`ml-2 revision-comment overflow-hidden text-nowrap ${commentColor}`}
-          id="BugCommitMessage"
+          id={'revision' + revision}
         >
           <em>
-            <BugLinkify>{comment}</BugLinkify>
+            <BugLinkify id={revision}>{comment}</BugLinkify>
           </em>
         </span>
-        <Tooltip
-          placement="bottom"
-          target="BugCommitMessage"
-          isOpen={tooltipOpen}
-          toggle={this.toggle(comment)}
-        >
-          {tooltipData.data.summary}
-        </Tooltip>
+        {ready && (
+          <Tooltip
+            isOpen={tooltipOpen}
+            toggle={() => this.toggle(comment)}
+            target={'revision' + revision}
+          >
+            {this.state.tooltipData}
+          </Tooltip>
+        )}
       </Row>
     );
   }
