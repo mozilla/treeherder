@@ -307,8 +307,17 @@ ul.failure-summary-list li .btn-xs {
   background: #ffffff;
 }
 
-.failure-summary-bugs {
-  padding: 0 0 0 18px;
+.failure-summary-bugs-title {
+  font-size: 12px;
+}
+
+.failure-summary-bugs-container {
+  /* These styles don't use the bootstrap system as they are creating a vertical
+   * line underneath the bug icon. When only using bootstrap classes, this vertical line
+   * is not aligned with the bug icon. */
+  margin: 0 11px;
+  padding: 10px 15px;
+  border-left: 2px solid #0004;
 }
 
 /* We override global anchor color to replicate TBPL here */
@@ -320,12 +329,9 @@ ul.failure-summary-list li .btn-xs {
   color: purple;
 }
 
-/* We override global anchor color to replicate TBPL here */
 .show-hide-more {
-  font-size: 11px;
-  padding: 0 0 0 37px;
-  color: #0000ee;
-  cursor: pointer;
+  /* Override the selector complexity of: "ul.failure-summary-list li .btn-xs" */
+  font-size: 11px !important;
 }
 
 /*
