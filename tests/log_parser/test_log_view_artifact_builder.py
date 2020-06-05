@@ -36,22 +36,6 @@ def do_test(log):
     assert act == exp
 
 
-def test_crashtest_passing():
-    """Process a job with a single log reference."""
-
-    do_test("mozilla-central_fedora-b2g_test-crashtest-1-bm54-tests1-linux-build50")
-
-
-def test_mochitest_pass():
-    """Process a job with a single log reference."""
-
-    do_test("mozilla-central_mountainlion_test-mochitest-2-bm77-tests1-macosx-build141")
-
-
-def test_duration_gt_1hr():
-    do_test("mozilla-central-win32-pgo-bm85-build1-build111")
-
-
 @slow
 def test_mochitest_fail():
     """Process a job with a single log reference."""
