@@ -43,7 +43,7 @@ def test_all_builders_complete():
 
     lpc.parse()
     exp = {
-        "text_log_summary": {"step_data": {"steps": [], "errors_truncated": False}, "logurl": url,},
+        "text_log_summary": {"errors": [], "logurl": url,},
     }
 
     assert exp == lpc.artifacts
