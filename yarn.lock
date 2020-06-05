@@ -4807,10 +4807,10 @@ functions-have-names@^1.2.0:
   resolved "https://registry.yarnpkg.com/functions-have-names/-/functions-have-names-1.2.1.tgz#a981ac397fa0c9964551402cdc5533d7a4d52f91"
   integrity sha512-j48B/ZI7VKs3sgeI2cZp7WXWmZXu7Iq5pl5/vptV5N2mq+DGFuS/ulaDjtaoLpYzuD6u8UgrUKHfgo7fDTSiBA==
 
-fuse.js@3.4.6:
-  version "3.4.6"
-  resolved "https://registry.yarnpkg.com/fuse.js/-/fuse.js-3.4.6.tgz#545c3411fed88bf2e27c457cab6e73e7af697a45"
-  integrity sha512-H6aJY4UpLFwxj1+5nAvufom5b2BT2v45P1MkPvdGIK8fWjQx/7o6tTT1+ALV0yawQvbmvCF0ufl2et8eJ7v7Cg==
+fuse.js@6.0.0:
+  version "6.0.0"
+  resolved "https://registry.yarnpkg.com/fuse.js/-/fuse.js-6.0.0.tgz#6fc16cd7555648deda392892402d4188553552b2"
+  integrity sha512-e5Ap6mhF/WQ9bKqsMFTTR5/DS9qbYab4VXHtMdxCanH+VZkdUV2LqcgMO31etSQv53NXsguQF1bdqkrrPAM2HQ==
 
 gensync@^1.0.0-beta.1:
   version "1.0.0-beta.1"

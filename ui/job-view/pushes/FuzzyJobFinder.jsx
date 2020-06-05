@@ -64,7 +64,7 @@ class FuzzyJobFinder extends React.Component {
 
           this.setState((prevState) => ({
             fuzzyList: prevState.fuzzySearch
-              ? fuse.search(prevState.fuzzySearch)
+              ? fuse.search(prevState.fuzzySearch).map((job) => job.item)
               : currentList,
           }));
         });

@@ -23,7 +23,7 @@
     "@types/react-dom": "*",
     "ajv": "6.10.2",
     "auth0-js": "9.13.2",
-    "fuse.js": "3.4.6",
+    "fuse.js": "6.0.0",
     "history": "4.10.1",
     "js-cookie": "2.2.1",
     "js-yaml": "3.13.1",
