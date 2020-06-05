@@ -2,6 +2,7 @@ import React from 'react';
 import { hot } from 'react-hot-loader/root';
 import { LazyLog } from 'react-lazylog';
 import isEqual from 'lodash/isEqual';
+import { Collapse, Button } from 'reactstrap';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faCaretUp, faCaretDown } from '@fortawesome/free-solid-svg-icons';
 
@@ -263,15 +264,7 @@ class App extends React.PureComponent {
         />
         {job && (
           <div className="d-flex flex-column flex-fill">
-            <FontAwesomeIcon
-              icon={collapseDetails ? faCaretUp : faCaretDown}
-              title={
-                collapseDetails ? 'expand job details' : 'collapse job details'
-              }
-              className="pointable border-secondary mx-1 mb-2"
-              onClick={this.collapseJobDetails}
-            />
-            {!collapseDetails && (
+            <Collapse isOpen={!collapseDetails}>
               <div className="run-data d-flex flex-row border-bottom border-secondary mx-1 mb-2">
                 <div className="d-flex flex-column job-data-panel">
                   <JobInfo
@@ -289,7 +282,22 @@ class App extends React.PureComponent {
                   onClickLine={this.setSelectedLine}
                 />
               </div>
-            )}
+            </Collapse>
+            <Button
+              title={
+                collapseDetails ? 'expand job details' : 'collapse job details'
+              }
+              onClick={this.collapseJobDetails}
+              color="secondary"
+              className="mx1 mb-2"
+            >
+              {collapseDetails ? 'Expand' : 'Collapse'}
+              <FontAwesomeIcon
+                icon={collapseDetails ? faCaretDown : faCaretUp}
+                className="pointable border-secondary mx-1 mb-2 align-bottom"
+              />
+            </Button>
+
             <div className="log-contents flex-fill">
               <LazyLog
                 url={rawLogUrl}
