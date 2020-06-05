@@ -10,6 +10,7 @@ import {
 } from 'reactstrap';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import {
+  faCheck,
   faRedo,
   faCaretRight,
   faCaretDown,
@@ -57,10 +58,8 @@ class TestFailure extends React.PureComponent {
       passJobs,
       passInFailedJobs,
       logLines,
-      confidence,
       platform,
       config,
-      suggestedClassification,
       key,
       tier,
       passFailRatio,
@@ -75,116 +74,64 @@ class TestFailure extends React.PureComponent {
     ];
 
     return (
-      <Row className="border-top m-3" key={key}>
-        <Col>
-          <Button
-            id={key}
-            className="border-0 text-darker-info btn-sm w-5 px-2 mx-2"
-            outline
-            data-testid={`toggleDetails-${key}`}
-            onClick={this.toggleDetails}
-          >
-            <FontAwesomeIcon
-              icon={detailsShowing ? faCaretDown : faCaretRight}
-              style={{ minWidth: '1em' }}
-              className="mr-1"
-            />
-            <span>
-              {groupedBy !== 'path' && `${testName} `}
-              {groupedBy !== 'platform' && `${platform} ${config}`}
-            </span>
-          </Button>
-          <Button
-            onClick={() => this.retriggerJob(failJobs[0])}
-            outline
-            className="btn btn-sm mr-2"
-            title="Retrigger job"
-            style={{ lineHeight: '10px' }}
-          >
-            <FontAwesomeIcon icon={faRedo} title="Retrigger" />
-          </Button>
-          <span className="ml-2" title={jobGroup}>
-            {jobGroupSymbol}
-          </span>
-          {tier > 1 && (
-            <span className="ml-1 small text-muted">[tier-{tier}]</span>
-          )}
-          (
-          {jobList.map((job) => (
-            <span key={job.id} className="mr-1">
-              <Job job={job} revision={revision} repo={repo} />
-            </span>
-          ))}
-          )
-          {detailsShowing && (
-            <React.Fragment>
-              {jobList.map((job) => (
-                <span key={job.id} data-testid="log-lines">
-                  {logLines.map((logLine) => (
-                    <Row className="small mt-2" key={logLine.line_number}>
-                      <Container className="pre-wrap text-break">
-                        {logLine.subtest}
-                        <Col>
-                          {logLine.message && (
-                            <Row className="mb-3">
-                              <Col xs="1" className="font-weight-bold">
-                                Message:
-                              </Col>
-                              <Col className="text-monospace">
-                                {logLine.message}
-                              </Col>
-                            </Row>
-                          )}
-                          {logLine.signature && (
-                            <Row className="mb-3">
-                              <Col xs="1" className="font-weight-bold">
-                                Signature:
-                              </Col>
-                              <Col className="text-monospace">
-                                {logLine.signature}
-                              </Col>
-                            </Row>
-                          )}
-                          {logLine.stackwalk_stdout && (
-                            <Row className="mb-3">
-                              <Col xs="1" className="font-weight-bold">
-                                Stack
-                              </Col>
-                              <Col className="text-monospace">
-                                {logLine.stackwalk_stdout}
-                              </Col>
-                            </Row>
-                          )}
-                        </Col>
-                      </Container>
-                    </Row>
-                  ))}
-                </span>
-              ))}
-            </React.Fragment>
-          )}
-        </Col>
-        <span className="ml-1">
-          <Row className="justify-content-between mr-2">
-            {!!confidence && (
-              <span title="Best guess at a classification" className="ml-auto">
-                {classificationMap[suggestedClassification]}
-                <Badge
-                  color="darker-secondary"
-                  className="ml-2 mr-3"
-                  title="Confidence in this classification guess"
-                >
-                  {confidence}
-                </Badge>
-              </span>
-            )}
-          </Row>
-          {!!failedInParent && (
+      <Row className="border-top pt-2" key={key}>
+        <Row className="ml-5 w-100 mb-2 justify-content-between">
+          <Col>
             <Row>
-              <Badge color="info">Failed In Parent</Badge>
+              <Button
+                id={key}
+                className="border-0 text-darker-info btn-sm w-5 px-2 mx-2"
+                outline
+                data-testid={`toggleDetails-${key}`}
+                onClick={this.toggleDetails}
+              >
+                <FontAwesomeIcon
+                  icon={detailsShowing ? faCaretDown : faCaretRight}
+                  style={{ minWidth: '1em' }}
+                  className="mr-1"
+                />
+                <span>
+                  {groupedBy !== 'path' && `${testName} `}
+                  {groupedBy !== 'platform' && `${platform} ${config}`}
+                </span>
+              </Button>
             </Row>
-          )}
-          <Row>
+          </Col>
+          <Col className="ml-2">
+            <span className="ml-2" title={jobGroup}>
+              {jobGroupSymbol}
+            </span>
+            {tier > 1 && (
+              <span className="ml-1 small text-muted">[tier-{tier}]</span>
+            )}
+            (
+            {jobList.map((job) => (
+              <span key={job.id} className="mr-1">
+                <Job job={job} revision={revision} repo={repo} />
+              </span>
+            ))}
+            ){!!failedInParent && <Badge color="info">Failed In Parent</Badge>}
+          </Col>
+          <Col xs="auto">
+            <Button
+              onClick={() => this.retriggerJob(failJobs[0])}
+              outline
+              className="mr-2 border-0"
+              title="Retrigger job"
+              style={{ lineHeight: '10px' }}
+            >
+              <FontAwesomeIcon icon={faRedo} />
+            </Button>
+            <Button
+              outline
+              className="mr-2 border-0"
+              title="Mark resolved"
+              style={{ lineHeight: '10px' }}
+            >
+              <FontAwesomeIcon icon={faCheck} />
+            </Button>
+          </Col>
+          <Col xs="auto">
             <span id={`${key}-ratio`} className="mr-3">
               <strong>Pass/Fail Ratio:</strong>{' '}
               {Math.round(passFailRatio * 100)}%
@@ -193,8 +140,55 @@ class TestFailure extends React.PureComponent {
               Greater than 50% (and/or classification history) will make this an
               intermittent
             </UncontrolledTooltip>
+          </Col>
+        </Row>
+        {detailsShowing && (
+          <Row className="ml-2">
+            {jobList.map((job) => (
+              <span key={job.id} data-testid="log-lines">
+                {logLines.map((logLine) => (
+                  <Row className="small mt-2" key={logLine.line_number}>
+                    <Container className="pre-wrap text-break">
+                      {logLine.subtest}
+                      <Col>
+                        {logLine.message && (
+                          <Row className="mb-3">
+                            <Col xs="1" className="font-weight-bold">
+                              Message:
+                            </Col>
+                            <Col className="text-monospace">
+                              {logLine.message}
+                            </Col>
+                          </Row>
+                        )}
+                        {logLine.signature && (
+                          <Row className="mb-3">
+                            <Col xs="1" className="font-weight-bold">
+                              Signature:
+                            </Col>
+                            <Col className="text-monospace">
+                              {logLine.signature}
+                            </Col>
+                          </Row>
+                        )}
+                        {logLine.stackwalk_stdout && (
+                          <Row className="mb-3">
+                            <Col xs="1" className="font-weight-bold">
+                              Stack
+                            </Col>
+                            <Col className="text-monospace">
+                              {logLine.stackwalk_stdout}
+                            </Col>
+                          </Row>
+                        )}
+                      </Col>
+                    </Container>
+                  </Row>
+                ))}
+              </span>
+            ))}
           </Row>
-        </span>
+        )}
       </Row>
     );
   }
