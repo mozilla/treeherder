@@ -301,6 +301,7 @@ class App extends React.PureComponent {
                 rowHeight={13}
                 extraLines={3}
                 enableSearch
+                caseInsensitive
               />
             </div>
           </div>
