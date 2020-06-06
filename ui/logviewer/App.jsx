@@ -21,6 +21,7 @@ import { formatArtifacts } from '../helpers/display';
 
 import Navigation from './Navigation';
 import ErrorLines from './ErrorLines';
+import logFormatter from './helpers';
 
 const getUrlLineNumber = function getUrlLineNumber() {
   const lineNumberParam = getUrlParam('lineNumber');
@@ -301,6 +302,7 @@ class App extends React.PureComponent {
             <div className="log-contents flex-fill">
               <LazyLog
                 url={rawLogUrl}
+                formatPart={(log) => logFormatter(log)}
                 scrollToLine={highlight ? highlight[0] : 0}
                 highlight={highlight}
                 selectableLines
