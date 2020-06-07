@@ -102,6 +102,8 @@ export class Revision extends React.PureComponent {
     const commentColor = this.isBackout(comment)
       ? 'text-danger'
       : 'text-secondary';
+    // console.log(revisionComments);
+
     return (
       <Row
         className="revision flex-nowrap"
@@ -139,7 +141,8 @@ export class Revision extends React.PureComponent {
             toggle={() => this.handleTooltip(comment)}
             target={`revision${revision}`}
           >
-            {revisionComments}
+            {/* {revisionComments} */}
+            asdf
           </Tooltip>
         )}
       </Row>

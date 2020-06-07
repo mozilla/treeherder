@@ -29,18 +29,17 @@ export class RevisionList extends React.PureComponent {
   getRevisionComment = async (comments, i) => {
     const comment = comments.split('\n')[0];
     const bugMatches = comment.match(/-- ([0-9]+)|bug.([0-9]+)/gi);
-    console.log(bugMatches);
-    const bugNumber = bugMatches[0].split(' ')[1];
-    const { data } = await getData(bugzillaBugsApi('bug', { id: bugNumber }));
-
-    this.setState((prevState) => {
-      return {
-        revisionComments: {
-          ...prevState.revisionComments,
-          [i]: data.bugs[0].summary,
-        },
-      };
+    var bugNumbers = '';
+    var bugData = {};
+    bugMatches.forEach((bugMatch) => {
+      bugNumbers += `${bugMatch.split(' ')[1]},`;
     });
+    const { data } = await getData(bugzillaBugsApi('bug', { id: bugNumbers }));
+    data.bugs.forEach((curBug) => {
+      bugData[curBug.id] = curBug.summary;
+    });
+    // console.log(bugData);
+    this.setState({ revisionComments: bugData });
   };
 
   render() {
@@ -55,13 +54,12 @@ export class RevisionList extends React.PureComponent {
 
     return (
       <Col className={`${widthClass} mb-3`}>
-        {revisions.map((revision, i) => (
+        {revisions.map((revision) => (
           <Revision
             revision={revision}
             repo={repo}
             key={revision.revision}
-            // revisionComments={this.state.revisionComments[i]}
-            revisionComments={'asdf'}
+            revisionComments={this.state.revisionComments}
           />
         ))}
         {revisionCount > revisions.length && (
