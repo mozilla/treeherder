@@ -3,13 +3,11 @@ import PropTypes from 'prop-types';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faUser } from '@fortawesome/free-regular-svg-icons';
 import { Row, Tooltip } from 'reactstrap';
+
 import { parseAuthor } from '../helpers/revision';
 
 import BugLinkify from './BugLinkify';
 import Clipboard from './Clipboard';
-
-import { getData } from '../helpers/http';
-import { bugzillaBugsApi } from '../helpers/url';
 
 export function AuthorInitials(props) {
   const str = props.author || '';
@@ -51,7 +49,6 @@ export class Revision extends React.PureComponent {
       clipboardVisible: false,
       ready: false,
       tooltipOpen: false,
-      tooltipData: false,
     };
     this.spanRef = React.createRef();
   }
@@ -72,25 +69,14 @@ export class Revision extends React.PureComponent {
     }
   }
 
-  // toggle = (comment) => {
-  //   this.setState({
-  //     tooltipOpen: !this.state.tooltipOpen,
-  //   });
-  // };
+  handleTooltip = async () => {
+    this.handleTooltipOpen();
+  };
 
-  toggle = async (comment) => {
-    const bugMatches = comment.match(/-- ([0-9]+)|bug.([0-9]+)/gi);
-    const bugNumber = bugMatches[0].split(' ')[1];
-    const { data, failureStatus } = await getData(
-      bugzillaBugsApi('bug', { id: bugNumber }),
-    );
-    const bugSummary = data.bugs[0].summary;
+  handleTooltipOpen = () => {
     this.setState((prevState) => {
       return {
         tooltipOpen: !prevState.tooltipOpen,
-        tooltipData: prevState.tooltipData
-          ? !prevState.tooltipData
-          : bugSummary,
       };
     });
   };
@@ -107,6 +93,7 @@ export class Revision extends React.PureComponent {
     const {
       revision: { comments, author, revision },
       repo,
+      revisionComments,
     } = this.props;
     const comment = comments.split('\n')[0];
     const { clipboardVisible, ready, tooltipOpen } = this.state;
@@ -115,7 +102,6 @@ export class Revision extends React.PureComponent {
     const commentColor = this.isBackout(comment)
       ? 'text-danger'
       : 'text-secondary';
-
     return (
       <Row
         className="revision flex-nowrap"
@@ -140,9 +126,8 @@ export class Revision extends React.PureComponent {
         <AuthorInitials title={`${name}: ${email}`} author={name} />
         <span
           ref={this.spanRef}
-          // title={comment}
           className={`ml-2 revision-comment overflow-hidden text-nowrap ${commentColor}`}
-          id={'revision' + revision}
+          id={`revision${revision}`}
         >
           <em>
             <BugLinkify id={revision}>{comment}</BugLinkify>
@@ -151,10 +136,10 @@ export class Revision extends React.PureComponent {
         {ready && (
           <Tooltip
             isOpen={tooltipOpen}
-            toggle={() => this.toggle(comment)}
-            target={'revision' + revision}
+            toggle={() => this.handleTooltip(comment)}
+            target={`revision${revision}`}
           >
-            {this.state.tooltipData}
+            {revisionComments}
           </Tooltip>
         )}
       </Row>

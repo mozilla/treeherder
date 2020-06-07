@@ -4,9 +4,45 @@ import { Col, Row } from 'reactstrap';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faExternalLinkSquareAlt } from '@fortawesome/free-solid-svg-icons';
 
+import { getData } from '../helpers/http';
+import { bugzillaBugsApi } from '../helpers/url';
+
 import { Revision } from './Revision';
 
 export class RevisionList extends React.PureComponent {
+  constructor(props) {
+    super(props);
+
+    this.state = {
+      revisionComments: {},
+    };
+  }
+
+  componentDidMount() {
+    const { revisions } = this.props;
+
+    revisions.forEach((revision, i) => {
+      this.getRevisionComment(revision.comments, i);
+    });
+  }
+
+  getRevisionComment = async (comments, i) => {
+    const comment = comments.split('\n')[0];
+    const bugMatches = comment.match(/-- ([0-9]+)|bug.([0-9]+)/gi);
+    console.log(bugMatches);
+    const bugNumber = bugMatches[0].split(' ')[1];
+    const { data } = await getData(bugzillaBugsApi('bug', { id: bugNumber }));
+
+    this.setState((prevState) => {
+      return {
+        revisionComments: {
+          ...prevState.revisionComments,
+          [i]: data.bugs[0].summary,
+        },
+      };
+    });
+  };
+
   render() {
     const {
       revision,
@@ -19,8 +55,14 @@ export class RevisionList extends React.PureComponent {
 
     return (
       <Col className={`${widthClass} mb-3`}>
-        {revisions.map((revision) => (
-          <Revision revision={revision} repo={repo} key={revision.revision} />
+        {revisions.map((revision, i) => (
+          <Revision
+            revision={revision}
+            repo={repo}
+            key={revision.revision}
+            // revisionComments={this.state.revisionComments[i]}
+            revisionComments={'asdf'}
+          />
         ))}
         {revisionCount > revisions.length && (
           <MoreRevisionsLink key="more" href={repo.getPushLogHref(revision)} />
