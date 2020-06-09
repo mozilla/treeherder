@@ -4,7 +4,7 @@ import { Button } from 'reactstrap';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faBug } from '@fortawesome/free-solid-svg-icons';
 
-import { thBugSuggestionLimit } from '../../../../helpers/constants';
+import { thBugSuggestionLimit } from '../../../helpers/constants';
 
 import BugListItem from './BugListItem';
 
@@ -23,7 +23,7 @@ export default class SuggestionsListItem extends React.Component {
   };
 
   render() {
-    const { suggestion, toggleBugFiler, selectedJobFull } = this.props;
+    const { suggestion, toggleBugFiler, selectedJob, addBug } = this.props;
     const { suggestionShowMore } = this.state;
 
     const suggestions = [];
@@ -40,7 +40,8 @@ export default class SuggestionsListItem extends React.Component {
               key={bug.id}
               bug={bug}
               suggestion={suggestion}
-              selectedJobFull={selectedJobFull}
+              selectedJob={selectedJob}
+              addBug={addBug}
             />
           ))}
         </ul>,
@@ -77,7 +78,8 @@ export default class SuggestionsListItem extends React.Component {
               suggestion={suggestion}
               bugClassName={bug.resolution !== '' ? 'strike-through' : ''}
               title={bug.resolution !== '' ? bug.resolution : ''}
-              selectedJobFull={selectedJobFull}
+              selectedJob={selectedJob}
+              addBug={addBug}
             />
           ))}
         </ul>,
@@ -124,7 +126,12 @@ export default class SuggestionsListItem extends React.Component {
 }
 
 SuggestionsListItem.propTypes = {
-  selectedJobFull: PropTypes.shape({}).isRequired,
+  selectedJob: PropTypes.shape({}).isRequired,
   suggestion: PropTypes.shape({}).isRequired,
   toggleBugFiler: PropTypes.func.isRequired,
+  addBug: PropTypes.func,
+};
+
+SuggestionsListItem.defaultProps = {
+  addBug: null,
 };

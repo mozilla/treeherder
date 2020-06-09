@@ -4,7 +4,7 @@ import chunk from 'lodash/chunk';
 import { connect } from 'react-redux';
 
 import { setPinBoardVisible } from '../redux/stores/pinnedJobs';
-import { thEvents, thBugSuggestionLimit } from '../../helpers/constants';
+import { thEvents } from '../../helpers/constants';
 import { addAggregateFields } from '../../helpers/job';
 import {
   getLogViewerUrl,
@@ -14,11 +14,9 @@ import {
 import { formatArtifacts } from '../../helpers/display';
 import { getData } from '../../helpers/http';
 import BugJobMapModel from '../../models/bugJobMap';
-import BugSuggestionsModel from '../../models/bugSuggestions';
 import JobClassificationModel from '../../models/classification';
 import JobModel from '../../models/job';
 import JobLogUrlModel from '../../models/jobLogUrl';
-import TextLogStepModel from '../../models/textLogStep';
 import PerfSeriesModel from '../../models/perfSeries';
 
 import PinBoard from './PinBoard';
@@ -47,9 +45,6 @@ class DetailsPanel extends React.Component {
       logParseStatus: 'unavailable',
       classifications: [],
       bugs: [],
-      suggestions: [],
-      errors: [],
-      bugSuggestionsLoading: false,
     };
   }
 
@@ -99,53 +94,6 @@ class DetailsPanel extends React.Component {
     const { setPinBoardVisible, isPinBoardVisible } = this.props;
 
     setPinBoardVisible(!isPinBoardVisible);
-  };
-
-  loadBugSuggestions = () => {
-    const { currentRepo, selectedJob } = this.props;
-
-    if (!selectedJob) {
-      return;
-    }
-    BugSuggestionsModel.get(selectedJob.id).then((suggestions) => {
-      suggestions.forEach((suggestion) => {
-        suggestion.bugs.too_many_open_recent =
-          suggestion.bugs.open_recent.length > thBugSuggestionLimit;
-        suggestion.bugs.too_many_all_others =
-          suggestion.bugs.all_others.length > thBugSuggestionLimit;
-        suggestion.valid_open_recent =
-          suggestion.bugs.open_recent.length > 0 &&
-          !suggestion.bugs.too_many_open_recent;
-        suggestion.valid_all_others =
-          suggestion.bugs.all_others.length > 0 &&
-          !suggestion.bugs.too_many_all_others &&
-          // If we have too many open_recent bugs, we're unlikely to have
-          // relevant all_others bugs, so don't show them either.
-          !suggestion.bugs.too_many_open_recent;
-      });
-
-      // if we have no bug suggestions, populate with the raw errors from
-      // the log (we can do this asynchronously, it should normally be
-      // fast)
-      if (!suggestions.length) {
-        TextLogStepModel.get(selectedJob.id).then((textLogSteps) => {
-          const errors = textLogSteps
-            .filter((step) => step.result !== 'success')
-            .map((step) => ({
-              name: step.name,
-              result: step.result,
-              logViewerUrl: getLogViewerUrl(
-                selectedJob.id,
-                currentRepo.name,
-                step.finished_line_number,
-              ),
-            }));
-          this.setState({ errors });
-        });
-      }
-
-      this.setState({ bugSuggestionsLoading: false, suggestions });
-    });
   };
 
   updateClassifications = async () => {
@@ -337,7 +285,6 @@ class DetailsPanel extends React.Component {
                 },
                 async () => {
                   await this.updateClassifications();
-                  await this.loadBugSuggestions();
                   this.setState({ jobDetailLoading: false });
                 },
               );

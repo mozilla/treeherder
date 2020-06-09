@@ -13,8 +13,9 @@ import {
 import { thEvents } from '../../../helpers/constants';
 import JobDetails from '../../../shared/JobDetails';
 import { clearSelectedJob } from '../../redux/stores/selectedJob';
+import { pinJob, addBug } from '../../redux/stores/pinnedJobs';
+import FailureSummaryTab from '../../../shared/tabs/failureSummary/FailureSummaryTab';
 
-import FailureSummaryTab from './failureSummary/FailureSummaryTab';
 import PerformanceTab from './PerformanceTab';
 import AnnotationsTab from './AnnotationsTab';
 import SimilarJobsTab from './SimilarJobsTab';
@@ -98,10 +99,7 @@ class TabsPanel extends React.Component {
       jobDetails,
       jobLogUrls,
       logParseStatus,
-      suggestions,
-      errors,
       bugs,
-      bugSuggestionsLoading,
       perfJobDetail,
       repoName,
       jobRevision,
@@ -114,6 +112,8 @@ class TabsPanel extends React.Component {
       reftestUrl,
       clearSelectedJob,
       selectedJobFull,
+      pinJob,
+      addBug,
     } = this.props;
     const { tabIndex } = this.state;
     const countPinnedJobs = Object.keys(pinnedJobs).length;
@@ -185,14 +185,13 @@ class TabsPanel extends React.Component {
           </TabPanel>
           <TabPanel>
             <FailureSummaryTab
-              suggestions={suggestions}
-              errors={errors}
-              bugSuggestionsLoading={bugSuggestionsLoading}
+              selectedJob={selectedJobFull}
               jobLogUrls={jobLogUrls}
               logParseStatus={logParseStatus}
-              logViewerFullUrl={logViewerFullUrl}
               reftestUrl={reftestUrl}
-              selectedJobFull={selectedJobFull}
+              logViewerFullUrl={logViewerFullUrl}
+              addBug={addBug}
+              pinJob={pinJob}
             />
           </TabPanel>
           <TabPanel>
@@ -237,10 +236,7 @@ TabsPanel.propTypes = {
   clearSelectedJob: PropTypes.func.isRequired,
   selectedJobFull: PropTypes.shape({}).isRequired,
   perfJobDetail: PropTypes.arrayOf(PropTypes.object),
-  suggestions: PropTypes.arrayOf(PropTypes.object),
   jobRevision: PropTypes.string,
-  errors: PropTypes.arrayOf(PropTypes.object),
-  bugSuggestionsLoading: PropTypes.bool,
   jobLogUrls: PropTypes.arrayOf(PropTypes.object),
   logParseStatus: PropTypes.string,
   logViewerFullUrl: PropTypes.string,
@@ -248,9 +244,6 @@ TabsPanel.propTypes = {
 };
 
 TabsPanel.defaultProps = {
-  suggestions: [],
-  errors: [],
-  bugSuggestionsLoading: false,
   jobLogUrls: [],
   logParseStatus: 'pending',
   perfJobDetail: [],
@@ -263,4 +256,6 @@ const mapStateToProps = ({
   pinnedJobs: { pinnedJobs, isPinBoardVisible },
 }) => ({ pinnedJobs, isPinBoardVisible });
 
-export default connect(mapStateToProps, { clearSelectedJob })(TabsPanel);
+export default connect(mapStateToProps, { clearSelectedJob, pinJob, addBug })(
+  TabsPanel,
+);
