@@ -419,7 +419,7 @@ export default class TestDataModal extends React.Component {
         title: 'Project',
       },
       {
-        options: platforms,
+        options: platforms.sort(),
         selectedItem: platform,
         updateData: (platform) =>
           this.setState({ platform }, this.processOptions),
