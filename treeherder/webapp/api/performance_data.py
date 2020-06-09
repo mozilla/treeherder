@@ -22,6 +22,7 @@ from treeherder.perf.models import (
     PerformanceDatum,
     PerformanceFramework,
     PerformanceSignature,
+    PerformanceTag,
 )
 from treeherder.webapp.api.permissions import IsStaffOrReadOnly
 
@@ -34,6 +35,7 @@ from .performance_serializers import (
     PerformanceFrameworkSerializer,
     PerformanceQueryParamsSerializer,
     PerformanceSummarySerializer,
+    PerformanceTagSerializer,
     TestSuiteHealthParamsSerializer,
     TestSuiteHealthSerializer,
 )
@@ -382,6 +384,13 @@ class PerformanceAlertSummaryFilter(django_filters.FilterSet):
             'hide_related_and_invalid',
             'with_assignee',
         ]
+
+
+class PerformanceTagViewSet(viewsets.ReadOnlyModelViewSet):
+    queryset = PerformanceTag.objects.all()
+    serializer_class = PerformanceTagSerializer
+    filter_backends = [filters.OrderingFilter]
+    ordering = 'id'
 
 
 class PerformanceAlertSummaryViewSet(viewsets.ModelViewSet):
