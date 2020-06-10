@@ -70,7 +70,7 @@ test('select a job updates url', async () => {
 
   const selTaskRun = getUrlParam('selectedTaskRun');
 
-  expect(selTaskRun).toBe('OeYt2-iLQSaQb2ashZ_VIQ-0');
+  expect(selTaskRun).toBe('OeYt2-iLQSaQb2ashZ_VIQ.0');
 });
 
 test('filter change keeps selected job visible', async () => {
