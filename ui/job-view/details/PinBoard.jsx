@@ -456,21 +456,41 @@ class PinBoard extends React.Component {
                 </Button>
               )}
               {enteringBugNumber && (
-                <span className="add-related-bugs-form">
-                  <Input
-                    id="related-bug-input"
-                    data-bug-input
-                    type="text"
-                    pattern="[0-9]*"
-                    className="add-related-bugs-input"
-                    placeholder="enter bug number"
-                    invalid={!this.isNumber(newBugNumber)}
-                    onKeyPress={this.bugNumberKeyPress}
-                    onChange={(ev) =>
-                      this.setState({ newBugNumber: ev.target.value })
+                <span className="add-related-bugs-form d-flex align-items-start">
+                  <div>
+                    <Input
+                      id="related-bug-input"
+                      data-bug-input
+                      type="text"
+                      pattern="[0-9]*"
+                      className="add-related-bugs-input"
+                      placeholder="enter bug number"
+                      invalid={!this.isNumber(newBugNumber)}
+                      onKeyPress={this.bugNumberKeyPress}
+                      onChange={(ev) =>
+                        this.setState({ newBugNumber: ev.target.value })
+                      }
+                    />
+                    <FormFeedback>Please enter only numbers</FormFeedback>
+                  </div>
+                  <Button
+                    color="link"
+                    id="clear-related-bug-button"
+                    onClick={() =>
+                      this.setState({
+                        enteringBugNumber: false,
+                        newBugNumber: null,
+                      })
                     }
-                  />
-                  <FormFeedback>Please enter only numbers</FormFeedback>
+                    className="pointable p-0"
+                    title="Close a related bug"
+                  >
+                    <FontAwesomeIcon
+                      icon={faTimes}
+                      className="text-danger ml-2"
+                      title="Close related bugs"
+                    />
+                  </Button>
                 </span>
               )}
               {Object.values(pinnedJobBugs).map((bug) => (
