@@ -230,22 +230,20 @@ class App extends React.PureComponent {
       // Do nothing
     } else if (/INFO - TEST-(OK)|(PASS)/.test(log))
       return <span style={{ color: 'green' }}>{log}</span>;
-    else if (/INFO - TEST-UNEXPECTED-FAIL/.test(log))
-      return <span style={{ color: 'red' }}>{log}</span>;
     else if (/INFO - TEST-START/.test(log))
       return <span style={{ color: 'blue' }}>{log}</span>;
     else if (/INFO - TEST-/.test(log))
       return <span style={{ color: 'yellow' }}>{log}</span>;
     else if (/!!!/.test(log))
-      return <span style={{ color: [255, 0, 255] }}>{log}</span>;
+      return <span style={{ color: 'fuchsia' }}>{log}</span>;
     else if (/Browser Chrome Test Summary$/.test(log))
-      return <span style={{ color: [255, 255, 255] }}>{log}</span>;
+      return <span style={{ color: 'white' }}>{log}</span>;
     else if (/((INFO -)|([\s]+))(Passed|Failed|Todo):/.test(log))
-      return <span style={{ color: [255, 255, 255] }}>{log}</span>;
+      return <span style={{ color: 'white' }}>{log}</span>;
     else if (/INFO/.test(log)) {
-      return <span style={{ color: [91, 127, 127] }}>{log}</span>;
+      return <span style={{ color: '#5b7f7f' }}>{log}</span>;
     } else {
-      return <span style={{ color: [91, 127, 127] }}>{log}</span>;
+      return <span style={{ color: '#5b7f7f' }}>{log}</span>;
     }
   };
 
