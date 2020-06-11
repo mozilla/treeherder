@@ -397,6 +397,7 @@ class PerformanceAlertSummaryViewSet(viewsets.ModelViewSet):
             'alerts__series_signature__platform',
             'alerts__series_signature__option_collection',
             'alerts__series_signature__option_collection__option',
+            'performance_tags',
         )
     )
     permission_classes = (IsStaffOrReadOnly,)

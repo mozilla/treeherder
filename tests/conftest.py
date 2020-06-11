@@ -545,6 +545,16 @@ def text_log_error_lines(test_job, failure_lines):
 
 
 @pytest.fixture
+def test_perf_tag():
+    return PerformanceTag.objects.create(name='first_tag')
+
+
+@pytest.fixture
+def test_perf_tag_2():
+    return PerformanceTag.objects.create(name='second_tag')
+
+
+@pytest.fixture
 def test_perf_alert_summary(test_repository, push_stored, test_perf_framework, test_issue_tracker):
     test_perf_tag = PerformanceTag.objects.create(name='harness')
 
