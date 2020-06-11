@@ -21,7 +21,6 @@ import { formatArtifacts } from '../helpers/display';
 
 import Navigation from './Navigation';
 import ErrorLines from './ErrorLines';
-import logFormatter from './helpers';
 
 const getUrlLineNumber = function getUrlLineNumber() {
   const lineNumberParam = getUrlParam('lineNumber');
@@ -226,6 +225,30 @@ class App extends React.PureComponent {
     }
   };
 
+  logFormatter = (log) => {
+    if (/INFO - GECKO\(\d+\)/.test(log)) {
+      // Do nothing
+    } else if (/INFO - TEST-(OK)|(PASS)/.test(log))
+      return <span style={{ color: 'green' }}>{log}</span>;
+    else if (/INFO - TEST-UNEXPECTED-FAIL/.test(log))
+      return <span style={{ color: 'red' }}>{log}</span>;
+    else if (/INFO - TEST-START/.test(log))
+      return <span style={{ color: 'blue' }}>{log}</span>;
+    else if (/INFO - TEST-/.test(log))
+      return <span style={{ color: 'yellow' }}>{log}</span>;
+    else if (/!!!/.test(log))
+      return <span style={{ color: [255, 0, 255] }}>{log}</span>;
+    else if (/Browser Chrome Test Summary$/.test(log))
+      return <span style={{ color: [255, 255, 255] }}>{log}</span>;
+    else if (/((INFO -)|([\s]+))(Passed|Failed|Todo):/.test(log))
+      return <span style={{ color: [255, 255, 255] }}>{log}</span>;
+    else if (/INFO/.test(log)) {
+      return <span style={{ color: [91, 127, 127] }}>{log}</span>;
+    } else {
+      return <span style={{ color: [91, 127, 127] }}>{log}</span>;
+    }
+  };
+
   render() {
     const {
       job,
@@ -284,25 +307,28 @@ class App extends React.PureComponent {
                 />
               </div>
             </Collapse>
-            <Button
-              title={
-                collapseDetails ? 'expand job details' : 'collapse job details'
-              }
-              onClick={this.collapseJobDetails}
-              color="secondary"
-              className="mx1 mb-2"
-            >
-              {collapseDetails ? 'Expand' : 'Collapse'}
-              <FontAwesomeIcon
-                icon={collapseDetails ? faCaretDown : faCaretUp}
-                className="pointable border-secondary mx-1 mb-2 align-bottom"
-              />
-            </Button>
+            <div className="container-lg list-unstyled ml-0 px-1">
+              <Button
+                title={
+                  collapseDetails
+                    ? 'expand job details'
+                    : 'collapse job details'
+                }
+                onClick={this.collapseJobDetails}
+                color="secondary"
+              >
+                {collapseDetails ? 'Expand' : 'Collapse'}
+                <FontAwesomeIcon
+                  icon={collapseDetails ? faCaretDown : faCaretUp}
+                  className="pointable border-secondary mx-1 mb-2 align-bottom"
+                />
+              </Button>
+            </div>
 
             <div className="log-contents flex-fill">
               <LazyLog
                 url={rawLogUrl}
-                formatPart={(log) => logFormatter(log)}
+                formatPart={this.logFormatter}
                 scrollToLine={highlight ? highlight[0] : 0}
                 highlight={highlight}
                 selectableLines
