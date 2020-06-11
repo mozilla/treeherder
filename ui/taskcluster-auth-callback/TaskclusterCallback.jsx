@@ -19,12 +19,15 @@ export default class TaskclusterCallback extends React.PureComponent {
     // We're not using react router's location prop because we can't provide
     // taskcluster with a redirect URI that contains a fragment (hash) per
     // oath2 protocol (which is used by the hash router for parsing query params)
-    const { code, state } = parseQueryParams(window.location.search);
+    const { code, state, error } = parseQueryParams(window.location.search);
     const requestState = localStorage.getItem('requestState');
 
     if (code && requestState && requestState === state) {
       this.getCredentials(code);
     } else {
+      if (error)
+        errorMessage += `We received error: ${error} from Taskcluster.`;
+
       this.setState({
         errorMessage,
       });
@@ -40,13 +43,13 @@ export default class TaskclusterCallback extends React.PureComponent {
     let response = await this.fetchToken(code, rootUrl);
 
     if (response.failureStatus) {
-      this.setState({ errorMessage });
+      this.setState({ errorMessage: `errorMessage ${response.data}` });
       return;
     }
     response = await this.fetchCredentials(response.data.access_token, rootUrl);
 
     if (response.failureStatus) {
-      this.setState({ errorMessage });
+      this.setState({ errorMessage: `errorMessage ${response.data}` });
       return;
     }
     localStorage.setItem(
