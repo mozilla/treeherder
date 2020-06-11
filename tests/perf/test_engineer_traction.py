@@ -7,9 +7,12 @@ from betamax_serializers import pretty_json
 from typing import List
 
 from treeherder.config.settings import BZ_DATETIME_FORMAT
-from treeherder.perf.sheriffing_criteria import EngineerTractionFormula
+from treeherder.perf.sheriffing_criteria import (
+    EngineerTractionFormula,
+    NonBlockableSession,
+    ENGINEER_TRACTION_SPECIFICATION,
+)
 from treeherder.perf.exceptions import NoFiledBugs
-from treeherder.utils.http import create_bugzilla_session
 
 CASSETTE_LIBRARY_DIR = 'tests/sample_data/betamax_cassettes/perf_sheriffing_criteria'
 VCR_RECORDING_DATE = 'June 2nd, 2020'
@@ -29,14 +32,19 @@ pytestmark = [pytest.mark.freeze_time(VCR_RECORDING_DATE, tick=True)]
 
 
 @pytest.fixture
-def session() -> Session:
-    return create_bugzilla_session()
+def nonblock_session() -> Session:
+    return NonBlockableSession(referer=ENGINEER_TRACTION_SPECIFICATION)
 
 
 @pytest.fixture
-def betamax_recorder(session):
+def unrecommended_session() -> Session:
+    return Session()
+
+
+@pytest.fixture
+def betamax_recorder(nonblock_session):
     Betamax.register_serializer(pretty_json.PrettyJSONSerializer)
-    return Betamax(session, cassette_library_dir=CASSETTE_LIBRARY_DIR)
+    return Betamax(nonblock_session, cassette_library_dir=CASSETTE_LIBRARY_DIR)
 
 
 @pytest.fixture
@@ -62,13 +70,30 @@ def quantified_bugs(betamax_recorder) -> list:
 
 
 @pytest.fixture
-def cooled_down_bugs(session, quantified_bugs) -> List[dict]:
+def cooled_down_bugs(nonblock_session, quantified_bugs) -> List[dict]:
     bugs = []
     for bug in quantified_bugs:
         created_at = datetime.strptime(bug['creation_time'], BZ_DATETIME_FORMAT)
         if created_at <= datetime.now() - timedelta(weeks=2):
             bugs.append(bug)
     return bugs
+
+
+def test_formula_initializes_with_non_blockable_sessions(nonblock_session):
+    try:
+        _ = EngineerTractionFormula(nonblock_session)
+    except ValueError:
+        pytest.fail()
+
+    try:
+        _ = EngineerTractionFormula()
+    except ValueError:
+        pytest.fail()
+
+
+def test_formula_cannot_be_initialized_with_a_regular_session(unrecommended_session):
+    with pytest.raises(ValueError):
+        _ = EngineerTractionFormula(unrecommended_session)
 
 
 def test_formula_demands_at_least_framework_and_suite(betamax_recorder):
@@ -87,8 +112,8 @@ def test_formula_demands_at_least_framework_and_suite(betamax_recorder):
             pytest.fail()
 
 
-def test_formula_exposes_oldest_timestamp(session):
-    engineer_traction = EngineerTractionFormula(session)
+def test_formula_exposes_oldest_timestamp(nonblock_session):
+    engineer_traction = EngineerTractionFormula(nonblock_session)
     no_older_than = datetime.now() - timedelta(weeks=24, seconds=5)
 
     assert engineer_traction.oldest_timestamp >= no_older_than
@@ -102,8 +127,8 @@ def test_formula_exposes_oldest_timestamp(session):
         {"creation_time": "2019-12-16T08:10:37Z"},  # older than 6 months
     ],
 )
-def test_formula_correctly_detects_cooled_down_bugs(cooled_down_bug, session):
-    engineer_traction = EngineerTractionFormula(session)
+def test_formula_correctly_detects_cooled_down_bugs(cooled_down_bug, nonblock_session):
+    engineer_traction = EngineerTractionFormula(nonblock_session)
 
     assert engineer_traction.has_cooled_down(cooled_down_bug)
 
@@ -116,22 +141,22 @@ def test_formula_correctly_detects_cooled_down_bugs(cooled_down_bug, session):
         {'creation_time': '2020-05-19T23:00:00Z'},  # ~2 weeks old, except for 1 hour
     ],
 )
-def test_formula_detects_bugs_that_didnt_cool_down_yet(not_cooled_down_bug, session):
-    engineer_traction = EngineerTractionFormula(session)
+def test_formula_detects_bugs_that_didnt_cool_down_yet(not_cooled_down_bug, nonblock_session):
+    engineer_traction = EngineerTractionFormula(nonblock_session)
 
     assert not engineer_traction.has_cooled_down(not_cooled_down_bug)
 
 
 @pytest.mark.parametrize('bad_structured_bug', [{}, {'creation_time': 'jiberish-date'}])
-def test_formula_throws_adequate_error_for_bug(bad_structured_bug, session):
-    engineer_traction = EngineerTractionFormula(session)
+def test_formula_throws_adequate_error_for_bug(bad_structured_bug, nonblock_session):
+    engineer_traction = EngineerTractionFormula(nonblock_session)
 
     with pytest.raises(ValueError):
         engineer_traction.has_cooled_down(bad_structured_bug)
 
 
-def test_accessing_breakdown_without_prior_calculus_errors_out(session):
-    engineer_traction = EngineerTractionFormula(session)
+def test_accessing_breakdown_without_prior_calculus_errors_out(nonblock_session):
+    engineer_traction = EngineerTractionFormula(nonblock_session)
 
     with pytest.raises(RuntimeError):
         _ = engineer_traction.breakdown()

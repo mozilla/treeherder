@@ -5,6 +5,7 @@ import time
 from collections import Counter
 from datetime import date, datetime, timedelta
 
+import requests
 from django.conf import settings
 from django.db.models import Count
 from jinja2 import Template
@@ -12,7 +13,6 @@ from requests.exceptions import RequestException
 
 from treeherder.intermittents_commenter.constants import COMPONENTS, WHITEBOARD_NEEDSWORK_OWNER
 from treeherder.model.models import BugJobMap, Push
-from treeherder.utils.http import create_bugzilla_session
 
 logger = logging.getLogger(__name__)
 
@@ -210,7 +210,15 @@ class Commenter:
         return whiteboard + new
 
     def new_request(self):
-        return create_bugzilla_session(settings.COMMENTER_API_KEY)
+        session = requests.Session()
+        # Use a custom HTTP adapter, so we can set a non-zero max_retries value.
+        session.mount("https://", requests.adapters.HTTPAdapter(max_retries=3))
+        session.headers = {
+            'User-Agent': 'treeherder/{}'.format(settings.SITE_HOSTNAME),
+            'x-bugzilla-api-key': settings.COMMENTER_API_KEY,
+            'Accept': 'application/json',
+        }
+        return session
 
     def fetch_bug_details(self, bug_ids):
         """Fetches bug metadata from bugzilla and returns an encoded

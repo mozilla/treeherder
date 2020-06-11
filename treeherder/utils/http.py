@@ -3,21 +3,6 @@ import requests
 from django.conf import settings
 
 
-def create_bugzilla_session(bugzilla_api_key=None):
-    session = requests.Session()
-    headers = {
-        'User-Agent': 'treeherder/{}'.format(settings.SITE_HOSTNAME),
-        'Accept': 'application/json',
-    }
-    if bugzilla_api_key is not None:
-        headers['x-bugzilla-api-key'] = bugzilla_api_key
-
-    # Use a custom HTTP adapter, so we can set a non-zero max_retries value.
-    session.mount("https://", requests.adapters.HTTPAdapter(max_retries=3))
-    session.headers = headers
-    return session
-
-
 def make_request(url, method='GET', headers=None, timeout=30, **kwargs):
     """A wrapper around requests to set defaults & call raise_for_status()."""
     headers = headers or {}

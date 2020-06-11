@@ -1,5 +1,7 @@
 from copy import deepcopy
 from typing import List, Tuple
+
+import requests
 from django.conf import settings
 from requests import Session
 
@@ -8,15 +10,46 @@ from datetime import datetime, timedelta
 from treeherder.config.settings import BZ_DATETIME_FORMAT
 from treeherder.perf.exceptions import NoFiledBugs, BugzillaEndpointError
 
+PERF_SHERIFFING_CRITERIA = (
+    'https://docs.google.com/document/d/11WPIPFeq-i1IAVOQhBR-SzIMOPSqBVjLepgOWCrz_S4'
+)
+ENGINEER_TRACTION_SPECIFICATION = f'{PERF_SHERIFFING_CRITERIA}#heading=h.8th4thm4twvx'
+
+
+class NonBlockableSession(Session):
+    def __init__(self, referer=None):
+        super().__init__()
+        referer = referer or PERF_SHERIFFING_CRITERIA
+
+        # Use a custom HTTP adapter, so we can set a non-zero max_retries value.
+        self.mount("https://", requests.adapters.HTTPAdapter(max_retries=3))
+
+        # Add `Referer` & `User-Agent` header, so Bugzilla OPS
+        # will be more likely to contact us before blocking our
+        # IP when making many queries with this
+        self.headers = {
+            'Referer': f'{referer}',
+            'User-Agent': 'treeherder/{}'.format(settings.SITE_HOSTNAME),
+            'Accept': 'application/json',
+        }
+
 
 class EngineerTractionFormula:
     def __init__(
-        self, session: Session, quantifying_period: timedelta = None, bug_cooldown: timedelta = None
+        self,
+        session: NonBlockableSession = None,
+        quantifying_period: timedelta = None,
+        bug_cooldown: timedelta = None,
     ):
-        self._session = session
+        self._session = session or NonBlockableSession(referer=f'{ENGINEER_TRACTION_SPECIFICATION}')
         self._quant_period = quantifying_period or settings.QUANTIFYING_PERIOD
         self._bug_cooldown = bug_cooldown or settings.BUG_COOLDOWN_TIME
         self._bugzilla_url = settings.BZ_API_URL
+
+        if not isinstance(self._session, NonBlockableSession):
+            raise ValueError(
+                'Engineer traction formula should only query using an non blockable HTTP session'
+            )  # otherwise Bugzilla OPS will block us by IP
 
         # for breakdown
         self.__all_filed_bugs = None
