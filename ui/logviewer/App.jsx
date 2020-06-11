@@ -240,11 +240,6 @@ class App extends React.PureComponent {
       return <span style={{ color: 'white' }}>{log}</span>;
     else if (/((INFO -)|([\s]+))(Passed|Failed|Todo):/.test(log))
       return <span style={{ color: 'white' }}>{log}</span>;
-    else if (/INFO/.test(log)) {
-      return <span style={{ color: '#5b7f7f' }}>{log}</span>;
-    } else {
-      return <span style={{ color: '#5b7f7f' }}>{log}</span>;
-    }
   };
 
   render() {
