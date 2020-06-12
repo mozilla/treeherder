@@ -9,10 +9,12 @@ import {
   getBugUrl,
   getLogViewerUrl,
   getReftestUrl,
+  textLogErrorsEndpoint,
 } from '../../../helpers/url';
 import BugFiler from '../../BugFiler';
 import BugSuggestionsModel from '../../../models/bugSuggestions';
-import TextLogStepModel from '../../../models/textLogStep';
+import { getData } from '../../../helpers/http';
+import { getProjectJobUrl } from '../../../helpers/location';
 
 import ErrorsList from './ErrorsList';
 import ListItem from './ListItem';
@@ -77,7 +79,7 @@ class FailureSummaryTab extends React.Component {
     if (!selectedJob) {
       return;
     }
-    BugSuggestionsModel.get(selectedJob.id).then((suggestions) => {
+    BugSuggestionsModel.get(selectedJob.id).then(async (suggestions) => {
       suggestions.forEach((suggestion) => {
         suggestion.bugs.too_many_open_recent =
           suggestion.bugs.open_recent.length > thBugSuggestionLimit;
@@ -98,22 +100,22 @@ class FailureSummaryTab extends React.Component {
       // the log (we can do this asynchronously, it should normally be
       // fast)
       if (!suggestions.length) {
-        TextLogStepModel.get(selectedJob.id).then((textLogSteps) => {
-          const errors = textLogSteps
-            .filter((step) => step.result !== 'success')
-            .map((step) => ({
-              name: step.name,
-              result: step.result,
-              logViewerUrl: getLogViewerUrl(
-                selectedJob.id,
-                repoName,
-                step.finished_line_number,
-              ),
-            }));
+        const { data, failureStatus } = await getData(
+          getProjectJobUrl(textLogErrorsEndpoint, selectedJob.id),
+        );
+        if (!failureStatus && data.length) {
+          const errors = data.map((error) => ({
+            line: error.line,
+            line_number: error.line_number,
+            logViewerUrl: getLogViewerUrl(
+              selectedJob.id,
+              currentRepo.name,
+              error.line_number,
+            ),
+          }));
           this.setState({ errors });
-        });
+        }
       }
-
       this.setState({ bugSuggestionsLoading: false, suggestions });
     });
   };
