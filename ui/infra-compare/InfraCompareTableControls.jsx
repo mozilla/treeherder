@@ -43,11 +43,7 @@ export default class CompareTableControls extends React.Component {
     );
   };
 
-  filterResult = (
-    platformName,
-    result,
-    filterPercent = this.state.filterPercent,
-  ) => {
+  filterResult = (platformName, result, filterPercent) => {
     const { filterText, showImportant, hideUncertain } = this.state;
     const matchesFilters =
       (!showImportant || result.deltaPercentage > filterPercent) &&
