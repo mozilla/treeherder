@@ -114,16 +114,14 @@ export default class CompareTableControls extends React.Component {
           updateFilter={this.updateFilter}
           updateFilterText={this.updateFilterText}
         />
-        <Label for="filterPercent">
-          Filter percentage: {this.state.filterPercent}%
-        </Label>
+        <Label for="filterPercent">Filter percentage: {filterPercent}%</Label>
         <CustomInput
           type="range"
           id="filterPercent"
           name="customSelect"
           min={0}
           max={20}
-          value={this.state.filterPercent}
+          value={filterPercent}
           onChange={(e) => {
             this.setState({
               filterPercent: e.target.value,
