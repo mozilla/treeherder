@@ -4,7 +4,7 @@ import chunk from 'lodash/chunk';
 import { connect } from 'react-redux';
 
 import { setPinBoardVisible } from '../redux/stores/pinnedJobs';
-import { thEvents } from '../../helpers/constants';
+import { thEvents, thBugSuggestionLimit } from '../../helpers/constants';
 import { addAggregateFields } from '../../helpers/job';
 import {
   getLogViewerUrl,
@@ -20,6 +20,7 @@ import JobClassificationModel from '../../models/classification';
 import JobModel from '../../models/job';
 import JobLogUrlModel from '../../models/jobLogUrl';
 import PerfSeriesModel from '../../models/perfSeries';
+import BugSuggestionsModel from '../../models/bugSuggestions';
 
 import PinBoard from './PinBoard';
 import SummaryPanel from './summary/SummaryPanel';
