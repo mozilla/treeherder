@@ -74,7 +74,16 @@ class InfraCompareView extends React.PureComponent {
       const cmap = getCounterMap(jobName, oldResults, newResults);
       if (!cmap.isEmpty) {
         if (compareResults.has(cmap.platform)) {
-          compareResults.get(cmap.platform).push(cmap);
+          let found = false;
+          const compareResult = compareResults.get(cmap.platform);
+          compareResult.forEach((result) => {
+            if (result.suite === cmap.suite) {
+              found = true;
+            }
+          });
+          if (!found) {
+            compareResults.get(cmap.platform).push(cmap);
+          }
         } else {
           compareResults.set(cmap.platform, [cmap]);
         }
