@@ -106,6 +106,9 @@ default_router.register(
     r'machineplatforms', machine_platforms.MachinePlatformsViewSet, basename='machineplatforms'
 )
 default_router.register(
+    r'performance/tag', performance_data.PerformanceTagViewSet, basename='performance-tags'
+)
+default_router.register(
     r'performance/alertsummary',
     performance_data.PerformanceAlertSummaryViewSet,
     basename='performance-alert-summaries',
