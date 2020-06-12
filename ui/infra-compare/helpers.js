@@ -73,7 +73,6 @@ export const getCounterMap = function getCounterMap(
   }
   cmap.delta = Math.abs(cmap.newValue - cmap.originalValue);
   cmap.deltaPercentage = calcPercentOf(cmap.delta, cmap.originalValue);
-  cmap.isImporatant = cmap.deltaPercentage > 3;
   cmap.isCertain = cmap.originalDataPoints > 4 && cmap.newDataPoints > 4;
 
   return cmap;

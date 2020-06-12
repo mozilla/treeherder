@@ -1,6 +1,6 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import { Container } from 'reactstrap';
+import { Container, CustomInput, Label } from 'reactstrap';
 
 import FilterControls from '../shared/FilterControls';
 
@@ -16,6 +16,7 @@ export default class CompareTableControls extends React.Component {
       showImportant: convertParams(this.validated, 'showOnlyImportant'),
       hideUncertain: convertParams(this.validated, 'showOnlyImportant'),
       results: new Map(),
+      filterPercent: 5,
       filterText: '',
     };
   }
@@ -42,10 +43,10 @@ export default class CompareTableControls extends React.Component {
     );
   };
 
-  filterResult = (platformName, result) => {
+  filterResult = (platformName, result, filterPercent) => {
     const { filterText, showImportant, hideUncertain } = this.state;
     const matchesFilters =
-      (!showImportant || result.isImporatant) &&
+      (!showImportant || result.deltaPercentage > filterPercent) &&
       (!hideUncertain || result.isCertain);
 
     if (!filterText) return matchesFilters;
@@ -57,19 +58,22 @@ export default class CompareTableControls extends React.Component {
     return containsText(textToSearch, filterText) && matchesFilters;
   };
 
-  updateFilteredResults = () => {
+  updateFilteredResults = (filterPercent = this.state.filterPercent) => {
     const { filterText, showImportant, hideUncertain } = this.state;
     const { compareResults } = this.props;
-
-    if (!filterText && !showImportant && !hideUncertain) {
+    if (
+      filterPercent === 0 &&
+      !filterText &&
+      !showImportant &&
+      !hideUncertain
+    ) {
       return this.setState({ results: compareResults });
     }
-
     const filteredResults = new Map(compareResults);
 
     for (const [platformName, values] of filteredResults) {
       const filteredValues = values.filter((result) =>
-        this.filterResult(platformName, result),
+        this.filterResult(platformName, result, filterPercent),
       );
 
       if (filteredValues.length) {
@@ -82,10 +86,10 @@ export default class CompareTableControls extends React.Component {
   };
 
   render() {
-    const { hideUncertain, showImportant, results } = this.state;
+    const { hideUncertain, showImportant, results, filterPercent } = this.state;
     const compareFilters = [
       {
-        tooltipText: 'Non-trivial changes (3%+)',
+        tooltipText: `Non-trivial changes (${filterPercent}%+)`,
         text: filterText.showImportant,
         state: showImportant,
         stateName: 'showImportant',
@@ -105,6 +109,21 @@ export default class CompareTableControls extends React.Component {
           filterOptions={compareFilters}
           updateFilter={this.updateFilter}
           updateFilterText={this.updateFilterText}
+        />
+        <Label for="filterPercent">Filter percentage: {filterPercent}%</Label>
+        <CustomInput
+          type="range"
+          id="filterPercent"
+          name="customSelect"
+          min={0}
+          max={20}
+          value={filterPercent}
+          onChange={(e) => {
+            this.setState({
+              filterPercent: e.target.value,
+            });
+            this.updateFilteredResults(e.target.value);
+          }}
         />
 
         {results.size > 0 ? (
