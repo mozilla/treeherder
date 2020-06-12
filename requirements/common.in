@@ -3,7 +3,7 @@ gunicorn==20.0.4
 whitenoise[brotli]==5.0.1
 
 # Used by Whitenoise to provide Brotli-compressed versions of static files.
-Django==3.0.5
+Django==3.0.7
 celery  # Needed for data ingestion
 simplejson==3.17.0
 newrelic==5.2.1.129
