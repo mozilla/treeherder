@@ -1319,7 +1319,7 @@
       "dvcs_type": "hg",
       "name": "mozilla-esr60",
       "url": "https://hg.mozilla.org/releases/mozilla-esr60",
-      "active_status": "active",
+      "active_status": "onhold",
       "codebase": "gecko",
       "repository_group": 2,
       "description": "",
@@ -1333,7 +1333,7 @@
       "dvcs_type": "hg",
       "name": "comm-esr60",
       "url": "https://hg.mozilla.org/releases/comm-esr60",
-      "active_status": "active",
+      "active_status": "onhold",
       "codebase": "comm",
       "repository_group": 8,
       "description": "",
@@ -1586,6 +1586,34 @@
       "active_status": "active",
       "codebase": "kaios",
       "repository_group": 12,
+      "description": "",
+      "tc_root_url": "https://firefox-ci-tc.services.mozilla.com"
+    }
+  },
+  {
+    "pk": 114,
+    "model": "model.repository",
+    "fields": {
+      "dvcs_type": "hg",
+      "name": "mozilla-esr78",
+      "url": "https://hg.mozilla.org/releases/mozilla-esr78",
+      "active_status": "active",
+      "codebase": "gecko",
+      "repository_group": 2,
+      "description": "",
+      "tc_root_url": "https://firefox-ci-tc.services.mozilla.com"
+    }
+  },
+  {
+    "pk": 115,
+    "model": "model.repository",
+    "fields": {
+      "dvcs_type": "hg",
+      "name": "comm-esr78",
+      "url": "https://hg.mozilla.org/releases/comm-esr78",
+      "active_status": "onhold",
+      "codebase": "comm",
+      "repository_group": 8,
       "description": "",
       "tc_root_url": "https://firefox-ci-tc.services.mozilla.com"
     }
