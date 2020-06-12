@@ -13,7 +13,7 @@ export const clientId = `treeherder-${tcClientIdMap[window.location.origin]}`;
 
 export const redirectURI = `${window.location.origin}${tcAuthCallbackUrl}`;
 
-export const errorMessage = `There was a problem verifying your Taskcluster credentials. Please try again later.`;
+export const errorMessage = 'Unable to retrieve your Taskcluster credentials.';
 
 export const prodFirefoxRootUrl = 'https://firefox-ci-tc.services.mozilla.com';
 
