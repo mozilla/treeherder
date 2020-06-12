@@ -2,9 +2,7 @@ import React from 'react';
 import { hot } from 'react-hot-loader/root';
 import { LazyLog } from 'react-lazylog';
 import isEqual from 'lodash/isEqual';
-import { Collapse, Button } from 'reactstrap';
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faCaretUp, faCaretDown } from '@fortawesome/free-solid-svg-icons';
+import { Collapse } from 'reactstrap';
 
 import { getAllUrlParams, getUrlParam, setUrlParam } from '../helpers/location';
 import { scrollToLine } from '../helpers/utils';
@@ -226,20 +224,20 @@ class App extends React.PureComponent {
   };
 
   logFormatter = (log) => {
-    if (/INFO - GECKO\(\d+\)/.test(log)) {
-      // Do nothing
-    } else if (/INFO - TEST-(OK)|(PASS)/.test(log))
+    if (/INFO - TEST-(OK)|(PASS)/.test(log))
       return <span style={{ color: 'green' }}>{log}</span>;
-    else if (/INFO - TEST-START/.test(log))
+    if (/INFO - TEST-START/.test(log))
       return <span style={{ color: 'blue' }}>{log}</span>;
-    else if (/INFO - TEST-/.test(log))
+    if (/INFO - TEST-/.test(log))
       return <span style={{ color: 'yellow' }}>{log}</span>;
-    else if (/!!!/.test(log))
-      return <span style={{ color: 'fuchsia' }}>{log}</span>;
-    else if (/Browser Chrome Test Summary$/.test(log))
+    if (/!!!/.test(log)) return <span style={{ color: 'fuchsia' }}>{log}</span>;
+    if (/Browser Chrome Test Summary$/.test(log))
       return <span style={{ color: 'white' }}>{log}</span>;
-    else if (/((INFO -)|([\s]+))(Passed|Failed|Todo):/.test(log))
+    if (/((INFO -)|([\s]+))(Passed|Failed|Todo):/.test(log))
       return <span style={{ color: 'white' }}>{log}</span>;
+    if (/INFO/.test(log))
+      return <span style={{ color: '#5b7f7f' }}>{log}</span>;
+    return <span>{log}</span>;
   };
 
   render() {
@@ -278,6 +276,9 @@ class App extends React.PureComponent {
           rawLogUrl={rawLogUrl}
           reftestUrl={reftestUrl}
           jobUrl={jobUrl}
+          collapseDetails={collapseDetails}
+          collapseJobDetails={this.collapseJobDetails}
+          errors={errors.length}
         />
         {job && (
           <div className="d-flex flex-column flex-fill">
@@ -300,23 +301,6 @@ class App extends React.PureComponent {
                 />
               </div>
             </Collapse>
-            <div className="container-lg list-unstyled ml-0 px-1">
-              <Button
-                title={
-                  collapseDetails
-                    ? 'expand job details'
-                    : 'collapse job details'
-                }
-                onClick={this.collapseJobDetails}
-                color="secondary"
-              >
-                {collapseDetails ? 'Expand' : 'Collapse'}
-                <FontAwesomeIcon
-                  icon={collapseDetails ? faCaretDown : faCaretUp}
-                  className="pointable border-secondary mx-1 mb-2 align-bottom"
-                />
-              </Button>
-            </div>
 
             <div className="log-contents flex-fill">
               <LazyLog

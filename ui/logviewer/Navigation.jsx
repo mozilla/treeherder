@@ -2,7 +2,12 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faChartBar, faFileAlt } from '@fortawesome/free-regular-svg-icons';
-import { faTree } from '@fortawesome/free-solid-svg-icons';
+import {
+  faTree,
+  faCaretUp,
+  faCaretDown,
+} from '@fortawesome/free-solid-svg-icons';
+import { Button } from 'reactstrap';
 
 import LogoMenu from '../shared/LogoMenu';
 
@@ -18,6 +23,9 @@ export default class Navigation extends React.PureComponent {
       jobUrl,
       rawLogUrl,
       reftestUrl,
+      collapseDetails,
+      collapseJobDetails,
+      errors,
     } = this.props;
     const resultStatusShading = getShadingClass(result);
 
@@ -88,6 +96,15 @@ export default class Navigation extends React.PureComponent {
               </a>
             </span>
           )}
+          <span>
+            <Button onClick={collapseJobDetails}>
+              {collapseDetails ? `Show: ${errors}` : `Hide: ${errors}`}
+              <FontAwesomeIcon
+                icon={collapseDetails ? faCaretDown : faCaretUp}
+                className="pointable border-secondary mx-1 mb-2 align-bottom"
+              />
+            </Button>
+          </span>
         </div>
       </nav>
     );
