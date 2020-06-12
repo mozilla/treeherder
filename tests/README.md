@@ -56,12 +56,26 @@ Django can perform a number of checks to ensure you are configured correctly
 
     ./manage.py check
 
-## Run the tests
+## Running tests
 
 Be sure docker-compose is up, you are in the `treeherder` main directory, your virtual environment is activated, and your environment variables are set:
 
     source .venv/bin/activate
+
+Followed by either one of the two commands below.
+
+### All tests
+
     pytest tests
+
+### Start TDD-enhanced test runner in the background
+
+Whenever code changes are detected within the project, command below will run only the associated tests.
+Test runs will be triggered for either application or tests code changes.
+
+This workflow ensures a considerably faster feedback loop for those wanting to do test driven development.
+
+    ptw --runner "pytest --testmon" --clear
 
 ## Pre commit checks
 

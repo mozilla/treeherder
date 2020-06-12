@@ -1,0 +1,58 @@
+{
+  "http_interactions": [
+    {
+      "recorded_at": "2020-06-02T00:00:09",
+      "request": {
+        "body": {
+          "encoding": "utf-8",
+          "string": ""
+        },
+        "headers": {
+          "Accept": ["application/json"],
+          "Cookie": [
+            "Bugzilla_login_request_cookie=bCrLir7EuL; github_secret=7qhPkhsgKCnyBAiTJxNvUtAWbVj9uVPJvMrUhJBX9osIZ9U9PVNB2CLw4aAk07kmnglov4VOZbv2nwsx9YCrPV8ruRZSYIqh1JlOKnEMFb5pcf3eZRyGVmjbWZYceYjZVUfqaDW0MJbv5KHdu9AUWp91yAFWT85pKsnPeEGpFbuAVlUW8Ib9zMGoGRI1d0jjzuU9DB4VyRljRKt9pRIgtzEXaJyNcst1cToVZhLtDtm9HacV0eZHQUuYunCho52i"
+          ],
+          "User-Agent": ["treeherder/backend"]
+        },
+        "method": "GET",
+        "uri": "https://bugzilla.mozilla.org/rest/bug?longdesc=nonexistent_framework%2Cnonexistent_suite&longdesc_type=allwordssubstr&longdesc_initial=1&keywords=perf%2Cperf-alert&keywords_type=anywords&creation_time=2019-12-17T00%3A00%3A00Z&query_format=advanced&include_fields=id%2Ctype%2Cresolution%2Clast_change_time%2Cis_open%2Ccreation_time%2Csummary%2Cwhiteboard%2Cstatus%2Ckeywords"
+      },
+      "response": {
+        "body": {
+          "encoding": "UTF-8",
+          "string": "{\"bugs\":[]}"
+        },
+        "headers": {
+          "Access-Control-Allow-Origin": ["*"],
+          "Access-control-allow-headers": [
+            "accept, content-type, origin, user-agent, x-requested-with, x-bugzilla-api-key, x-phabricator-token, x-bugzilla-token, x-bugzilla-login, x-bugzilla-password"
+          ],
+          "Connection": ["keep-alive"],
+          "Content-Security-Policy-Report-Only": [
+            "default-src 'self'; worker-src 'none'; connect-src 'self' https://product-details.mozilla.org https://www.google-analytics.com https://treeherder.mozilla.org/api/failurecount/ https://crash-stats.mozilla.org/api/SuperSearch/; font-src 'self' https://fonts.gstatic.com; img-src 'self' data: blob: https://secure.gravatar.com; object-src 'none'; script-src 'self' 'nonce-veqDacAKzd2T8viNBWCdDbJ61ciZt9Rpgj8WDgtyuuigMcJH' 'unsafe-inline' https://www.google-analytics.com; style-src 'self' 'unsafe-inline'; frame-src https://crash-stop-addon.herokuapp.com; frame-ancestors 'self'; form-action 'self' https://www.google.com/search https://github.com/login/oauth/authorize https://github.com/login"
+          ],
+          "Content-Type": ["application/json; charset=UTF-8"],
+          "Date": ["Thu, 04 Jun 2020 09:20:59 GMT"],
+          "ETag": ["MiQPxvkqecldlG5tcvevvw"],
+          "Referrer-policy": ["same-origin"],
+          "Set-Cookie": [
+            "github_secret=7qhPkhsgKCnyBAiTJxNvUtAWbVj9uVPJvMrUhJBX9osIZ9U9PVNB2CLw4aAk07kmnglov4VOZbv2nwsx9YCrPV8ruRZSYIqh1JlOKnEMFb5pcf3eZRyGVmjbWZYceYjZVUfqaDW0MJbv5KHdu9AUWp91yAFWT85pKsnPeEGpFbuAVlUW8Ib9zMGoGRI1d0jjzuU9DB4VyRljRKt9pRIgtzEXaJyNcst1cToVZhLtDtm9HacV0eZHQUuYunCho52i; path=/; secure; HttpOnly; SameSite=Lax"
+          ],
+          "Status": ["200"],
+          "Strict-Transport-Security": ["max-age=31536000; includeSubDomains"],
+          "Vary": ["Accept-Encoding"],
+          "X-content-type-options": ["nosniff"],
+          "X-frame-options": ["SAMEORIGIN"],
+          "X-xss-protection": ["1; mode=block"],
+          "transfer-encoding": ["chunked"]
+        },
+        "status": {
+          "code": 200,
+          "message": "OK"
+        },
+        "url": "https://bugzilla.mozilla.org/rest/bug?longdesc=nonexistent_framework%2Cnonexistent_suite&longdesc_type=allwordssubstr&longdesc_initial=1&keywords=perf%2Cperf-alert&keywords_type=anywords&creation_time=2019-12-17T00%3A00%3A00Z&query_format=advanced&include_fields=id%2Ctype%2Cresolution%2Clast_change_time%2Cis_open%2Ccreation_time%2Csummary%2Cwhiteboard%2Cstatus%2Ckeywords"
+      }
+    }
+  ],
+  "recorded_with": "betamax/0.8.1"
+}
