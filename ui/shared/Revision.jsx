@@ -96,14 +96,13 @@ export class Revision extends React.PureComponent {
       revisionComments,
     } = this.props;
     const comment = comments.split('\n')[0];
+    const bugMatches = comment.match(/-- ([0-9]+)|bug.([0-9]+)/gi);
     const { clipboardVisible, ready, tooltipOpen } = this.state;
     const { name, email } = parseAuthor(author);
     const commitRevision = revision;
     const commentColor = this.isBackout(comment)
       ? 'text-danger'
       : 'text-secondary';
-    // console.log(revisionComments);
-
     return (
       <Row
         className="revision flex-nowrap"
@@ -140,9 +139,17 @@ export class Revision extends React.PureComponent {
             isOpen={tooltipOpen}
             toggle={() => this.handleTooltip(comment)}
             target={`revision${revision}`}
+            innerClassName="tooltip-content"
           >
-            {/* {revisionComments} */}
-            asdf
+            {bugMatches.map((bug) => {
+              const bugId = bug.split(' ')[1];
+              return (
+                <div key={bugId}>
+                  Bug {bugId} - {revisionComments[bugId]}
+                </div>
+              );
+            })}
+            <br />
           </Tooltip>
         )}
       </Row>

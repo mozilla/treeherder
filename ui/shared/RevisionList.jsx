@@ -20,26 +20,23 @@ export class RevisionList extends React.PureComponent {
 
   componentDidMount() {
     const { revisions } = this.props;
-
     revisions.forEach((revision, i) => {
       this.getRevisionComment(revision.comments, i);
     });
   }
 
-  getRevisionComment = async (comments, i) => {
+  getRevisionComment = async (comments) => {
     const comment = comments.split('\n')[0];
     const bugMatches = comment.match(/-- ([0-9]+)|bug.([0-9]+)/gi);
-    var bugNumbers = '';
-    var bugData = {};
-    bugMatches.forEach((bugMatch) => {
-      bugNumbers += `${bugMatch.split(' ')[1]},`;
-    });
+    const bugNumbers = bugMatches.map((bugMatch) => bugMatch.split(' ')[1]);
     const { data } = await getData(bugzillaBugsApi('bug', { id: bugNumbers }));
-    data.bugs.forEach((curBug) => {
-      bugData[curBug.id] = curBug.summary;
-    });
-    // console.log(bugData);
-    this.setState({ revisionComments: bugData });
+    const bugData = data.bugs.reduce((accumulator, curBug) => {
+      accumulator[curBug.id] = curBug.summary;
+      return accumulator;
+    }, {});
+    this.setState((prev) => ({
+      revisionComments: { ...prev.revisionComments, ...bugData },
+    }));
   };
 
   render() {
