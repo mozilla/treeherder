@@ -15,7 +15,7 @@ pytest-testmon
 pytest-watch
 
 # Required by django-extension's runserver_plus command.
-flake8==3.7.9
+flake8
 pytest-django
 black
 
