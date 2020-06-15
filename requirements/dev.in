@@ -1,6 +1,6 @@
 # Dependencies needed only for development/testing.
 pytest-cov
-django-debug-toolbar==2.2
+django-debug-toolbar
 mock
 responses
 django-extensions
