@@ -8,14 +8,14 @@ pytest-selenium
 PyPOM
 
 # for git commit hooks
-pre-commit
+pre-commit==2.2.0
 
 # for test driven development
 pytest-testmon
 pytest-watch
 
 # Required by django-extension's runserver_plus command.
-flake8
+flake8==3.7.9
 pytest-django
 black
 
