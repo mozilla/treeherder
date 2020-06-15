@@ -51,13 +51,13 @@ blessings==1.7 \
     --hash=sha256:b1fdd7e7a675295630f9ae71527a8ebc10bfefa236b3d6aa4932ee4462c17ba3 \
     --hash=sha256:caad5211e7ba5afe04367cdd4cfc68fa886e2e08f6f35e76b7387d2109ccea6e \
     # via mozlog
-boto3==1.14.2 \
-    --hash=sha256:a33e465831fb95af2e57576927f33746be620ba236252f8e1291c1c31cf63625 \
-    --hash=sha256:caa4fbb9de8d8c229a183a551cb314fe208ec264545d4d825022d863d33e9b7b \
+boto3==1.14.3 \
+    --hash=sha256:1ba870c6be35ac31758af95e0666d6311242774c7528e64f3721c8b5e09057e1 \
+    --hash=sha256:522f7db49c77e7be41ce2517bc762c19b25ba4fb2ef970e03a1927c73ccd449e \
     # via adr
-botocore==1.17.2 \
-    --hash=sha256:01788bfa280397ba96991cd74e706628620310c7d8b8b43b0818df3bad3daaeb \
-    --hash=sha256:4e347b77e17c5a619afd59a5209b251107c3d7d5f842ec169694492f3820f75b \
+botocore==1.17.3 \
+    --hash=sha256:0ad4fb7b731e924490305584f7dcfd3e9fe955b307392b054a3d132a902a2528 \
+    --hash=sha256:13f4d92589ae9bd8c2c5ce8ea2f59d01a0ac4c14e9f99772ee4d1eb6cf9a3357 \
     # via boto3, s3transfer
 brotli==1.0.7 \
     --hash=sha256:0538dc1744fd17c314d2adc409ea7d1b779783b89fd95bcfb0c2acc93a6ea5a7 \
