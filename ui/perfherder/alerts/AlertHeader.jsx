@@ -18,6 +18,7 @@ import { getTitle, getFrameworkName } from '../helpers';
 import { getJobsUrl } from '../../helpers/url';
 
 import Assignee from './Assignee';
+import TagsList from './TagsList';
 
 const AlertHeader = ({
   frameworks,
@@ -36,6 +37,8 @@ const AlertHeader = ({
   const bugNumber = alertSummary.bug_number
     ? `Bug ${alertSummary.bug_number}`
     : '';
+
+  const performanceTags = alertSummary.performance_tags || [];
 
   return (
     <Container>
@@ -120,6 +123,13 @@ const AlertHeader = ({
             user={user}
           />
         </Col>
+      </Row>
+      <Row>
+        {performanceTags.length > 0 && (
+          <Col className="p-0" xs="auto">
+            <TagsList tags={alertSummary.performance_tags} />
+          </Col>
+        )}
       </Row>
     </Container>
   );

@@ -26,6 +26,7 @@ import DropdownMenuItems from '../../shared/DropdownMenuItems';
 
 import AlertModal from './AlertModal';
 import NotesModal from './NotesModal';
+import TagsModal from './TagsModal';
 
 export default class StatusDropdown extends React.Component {
   constructor(props) {
@@ -33,6 +34,7 @@ export default class StatusDropdown extends React.Component {
     this.state = {
       showBugModal: false,
       showNotesModal: false,
+      showTagsModal: false,
       selectedValue: this.props.issueTrackers[0].text,
     };
   }
@@ -145,10 +147,16 @@ export default class StatusDropdown extends React.Component {
     (alertStatus !== status && this.isResolved(alertStatus));
 
   render() {
-    const { alertSummary, user, issueTrackers } = this.props;
-    const { showBugModal, showNotesModal, selectedValue } = this.state;
+    const { alertSummary, user, issueTrackers, performanceTags } = this.props;
+    const {
+      showBugModal,
+      showNotesModal,
+      showTagsModal,
+      selectedValue,
+    } = this.state;
 
     const alertStatus = getStatus(alertSummary.status);
+    const alertSummaryActiveTags = alertSummary.performance_tags || [];
 
     return (
       <React.Fragment>
@@ -193,6 +201,13 @@ export default class StatusDropdown extends React.Component {
           showModal={showNotesModal}
           toggle={() => this.toggle('showNotesModal')}
           alertSummary={alertSummary}
+          updateAndClose={this.updateAndClose}
+        />
+        <TagsModal
+          showModal={showTagsModal}
+          toggle={() => this.toggle('showTagsModal')}
+          alertSummary={alertSummary}
+          performanceTags={performanceTags}
           updateAndClose={this.updateAndClose}
         />
         <UncontrolledDropdown tag="span">
@@ -274,6 +289,10 @@ export default class StatusDropdown extends React.Component {
                     Mark as fixed
                   </DropdownItem>
                 )}
+
+                <DropdownItem onClick={() => this.toggle('showTagsModal')}>
+                  {!alertSummaryActiveTags.length ? 'Add tags' : 'Edit tags'}
+                </DropdownItem>
               </React.Fragment>
             )}
           </DropdownMenu>
@@ -296,6 +315,7 @@ StatusDropdown.propTypes = {
   updateViewState: PropTypes.func.isRequired,
   bugTemplate: PropTypes.shape({}),
   filteredAlerts: PropTypes.arrayOf(PropTypes.shape({})),
+  performanceTags: PropTypes.arrayOf(PropTypes.shape({})).isRequired,
 };
 
 StatusDropdown.defaultProps = {
