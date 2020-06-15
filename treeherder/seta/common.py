@@ -73,7 +73,7 @@ def convert_job_type_name_to_testtype(job_type_name):
     if not testtype:
         logger.warning(
             'convert_job_type_name_to_testtype("{}") not matched. '
-            'Using job_type_name as is.'.format(job_type_name, testtype)
+            'Using job_type_name as is.'.format(job_type_name)
         )
         testtype = job_type_name
     return testtype
