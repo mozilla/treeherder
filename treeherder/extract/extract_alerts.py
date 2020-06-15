@@ -21,7 +21,6 @@ class ExtractAlerts:
             settings = startup.read_settings(default_filename=CONFIG_FILE)
             constants.set(settings.constants)
             Log.start(settings.debug)
-
             self.extract(settings, force, restart, merge)
         except Exception as e:
             Log.error("could not extract alerts", cause=e)
