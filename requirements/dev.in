@@ -32,3 +32,6 @@ betamax-serializers
 
 # make pinning versions easier
 pip-tools
+
+# Force updating to secure version
+Django>=3.0.7
