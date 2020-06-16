@@ -89,7 +89,6 @@ def test_job_transformation(pulse_jobs, transformed_pulse_jobs):
         assert transformed_pulse_jobs[idx] == json.loads(json.dumps(jl.transform(pulse_job)))
 
 
-@pytest.mark.skip("TODO: please fix me")
 @responses.activate
 def test_new_job_transformation(new_pulse_jobs, new_transformed_jobs, failure_classifications):
     jl = JobLoader()

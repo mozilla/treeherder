@@ -1,6 +1,5 @@
 from functools import wraps
 from threading import local
-from time import sleep
 
 import pytest
 from django.db.utils import OperationalError
@@ -53,7 +52,6 @@ def throwing_task_should_retry():
     raise OperationalError
 
 
-@pytest.mark.skip("TODO: please fix me")
 def test_retryable_task_throws_retry():
     "Test celery executes a task properly"
 
