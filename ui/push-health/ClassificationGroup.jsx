@@ -170,6 +170,7 @@ class ClassificationGroup extends React.PureComponent {
                       className="btn-sm ml-1 text-capitalize"
                       id="groupTestsDropdown"
                       caret
+                      data-testid="groupTestsDropdown"
                     >
                       Group By: {groupedBy}
                     </DropdownToggle>

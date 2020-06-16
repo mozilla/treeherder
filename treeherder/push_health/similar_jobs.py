@@ -14,6 +14,7 @@ job_fields = [
     'state',
     'failure_classification_id',
     'push_id',
+    'start_time',
 ]
 
 

@@ -29,7 +29,7 @@ describe('Job', () => {
     expect(job).toHaveClass('btn-orange-classified');
   });
 
-  test('should show a success job in Intermitten', async () => {
+  test('should show a success job in Intermittent', async () => {
     const { getByText } = render(testJob(passJob));
     const job = await waitFor(() => getByText('bc6'));
 

@@ -1,0 +1,55 @@
+{
+  "build_architecture": "-",
+  "build_os": "-",
+  "build_platform": "linux1804-64",
+  "build_platform_id": 665,
+  "build_system_type": "taskcluster",
+  "end_timestamp": 1590619891,
+  "failure_classification_id": 1,
+  "id": 303550431,
+  "job_group_description": "",
+  "job_group_id": 448,
+  "job_group_name": "Mochitests",
+  "job_group_symbol": "M",
+  "job_guid": "3b960101-6c31-45fb-99fd-4951252e51aa/0",
+  "job_type_description": "",
+  "job_type_id": 214778,
+  "job_type_name": "test-linux1804-64/debug-mochitest-devtools-chrome-e10s-12",
+  "job_type_symbol": "dt12",
+  "last_modified": "2020-05-27T22:51:34.806175",
+  "machine_name": "i-0e040b25b59698068",
+  "machine_platform_architecture": "-",
+  "machine_platform_os": "-",
+  "option_collection_hash": "32faaecac742100f7753f0c1d0aa0add01b4046b",
+  "platform": "linux1804-64",
+  "push_id": 717491,
+  "reason": "scheduled",
+  "ref_data_name": "6fa22307f1f7d626d29a1adc4b49ea470569702c",
+  "result": "testfailed",
+  "result_set_id": 717491,
+  "signature": "6fa22307f1f7d626d29a1adc4b49ea470569702c",
+  "start_timestamp": 1590617373,
+  "state": "completed",
+  "submit_timestamp": 1590616770,
+  "tier": 1,
+  "who": "jlaster@mozilla.com",
+  "resource_uri": "/api/project/try/jobs/303550431/",
+  "logs": [
+    {
+      "name": "builds-4h",
+      "url": "https://firefox-ci-tc.services.mozilla.com/api/queue/v1/task/O5YBAWwxRfuZ_UlRJS5Rqg/runs/0/artifacts/public/logs/live_backing.log"
+    },
+    {
+      "name": "errorsummary_json",
+      "url": "https://firefox-ci-tc.services.mozilla.com/api/queue/v1/task/O5YBAWwxRfuZ_UlRJS5Rqg/runs/0/artifacts/public/test_info//mochitest-devtools-chrome_errorsummary.log"
+    }
+  ],
+  "platform_option": "debug",
+  "task_id": "O5YBAWwxRfuZ_UlRJS5Rqg",
+  "retry_id": 0,
+  "taskcluster_metadata": {
+    "task_id": "O5YBAWwxRfuZ_UlRJS5Rqg",
+    "retry_id": 0
+  },
+  "autoclassify_status": "crossreferenced"
+}

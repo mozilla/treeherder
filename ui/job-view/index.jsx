@@ -9,6 +9,7 @@ import '../css/treeherder-navbar.css';
 import '../css/treeherder-navbar-panels.css';
 import '../css/treeherder-notifications.css';
 import '../css/treeherder-details-panel.css';
+import '../css/failure-summary.css';
 import '../css/treeherder-job-buttons.css';
 import '../css/treeherder-pushes.css';
 import '../css/treeherder-pinboard.css';

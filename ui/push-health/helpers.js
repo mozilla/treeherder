@@ -7,6 +7,13 @@ export const resultColorMap = {
   none: 'darker-info',
 };
 
+export const taskResultColorMap = {
+  success: 'success',
+  testfailed: 'danger',
+  busted: 'danger',
+  unknown: 'darker-secondary',
+};
+
 export const filterTests = (tests, searchStr, showParentMatches) => {
   const filters = searchStr.split(' ').map((filter) => new RegExp(filter, 'i'));
   const testsFilteredForParentMatches = tests.filter(

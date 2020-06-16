@@ -18,3 +18,42 @@
 .revision {
   font-size: 12px;
 }
+
+/* Details Tab Panel */
+
+.tab-content {
+  height: 250px;
+  border-bottom: 20px;
+}
+
+/*
+  Need this instead of the Bootstrap h-100 class because the `!important` in that class
+  throws off the layout when tabs are switched.
+*/
+.react-tabs__tab-panel {
+  height: 100%;
+}
+
+.selected-detail-tab {
+  color: #53595f !important; /* darker-secondary but needs the `!important` */
+  border-bottom: solid; /* Thicker than the bootstrap border */
+}
+
+/* Log Viewer Tab */
+
+.react-lazylog-searchbar {
+  background: lightgrey !important;
+}
+
+.react-lazylog-searchbar-input {
+  background: lightgrey !important;
+  border: 1px;
+  border-radius: 5px;
+  color: #53595f !important;
+}
+
+.log-viewer-top-bar-buttons {
+  position: absolute;
+  top: 8px;
+  left: 5px;
+}

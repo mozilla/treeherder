@@ -6,11 +6,7 @@ import { connect } from 'react-redux';
 import { setPinBoardVisible } from '../redux/stores/pinnedJobs';
 import { thEvents } from '../../helpers/constants';
 import { addAggregateFields } from '../../helpers/job';
-import {
-  getLogViewerUrl,
-  getReftestUrl,
-  getArtifactsUrl,
-} from '../../helpers/url';
+import { getLogViewerUrl, getArtifactsUrl } from '../../helpers/url';
 import { formatArtifacts } from '../../helpers/display';
 import { getData } from '../../helpers/http';
 import BugJobMapModel from '../../models/bugJobMap';
@@ -39,7 +35,6 @@ class DetailsPanel extends React.Component {
       jobDetailLoading: false,
       logViewerUrl: null,
       logViewerFullUrl: null,
-      reftestUrl: null,
       perfJobDetail: [],
       jobRevision: null,
       logParseStatus: 'unavailable',
@@ -228,9 +223,6 @@ class DetailsPanel extends React.Component {
                 currentRepo.name,
               );
               const logViewerFullUrl = `${window.location.origin}/${logViewerUrl}`;
-              const reftestUrl = jobLogUrls.length
-                ? getReftestUrl(jobLogUrls[0].url)
-                : '';
               const performanceData = Object.values(phSeriesResult).reduce(
                 (a, b) => [...a, ...b],
                 [],
@@ -278,7 +270,6 @@ class DetailsPanel extends React.Component {
                   logParseStatus,
                   logViewerUrl,
                   logViewerFullUrl,
-                  reftestUrl,
                   perfJobDetail,
                   jobRevision,
                 },
@@ -320,7 +311,6 @@ class DetailsPanel extends React.Component {
       logViewerUrl,
       logViewerFullUrl,
       bugs,
-      reftestUrl,
     } = this.state;
     const detailsPanelHeight = isPinBoardVisible
       ? resizedHeight - pinboardHeight
@@ -372,7 +362,6 @@ class DetailsPanel extends React.Component {
               bugs={bugs}
               togglePinBoardVisibility={() => this.togglePinBoardVisibility()}
               logViewerFullUrl={logViewerFullUrl}
-              reftestUrl={reftestUrl}
             />
           </div>
         )}
