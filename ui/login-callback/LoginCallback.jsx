@@ -3,7 +3,8 @@ import { hot } from 'react-hot-loader/root';
 import moment from 'moment';
 
 import AuthService from '../shared/auth/AuthService';
-import { webAuth, parseHash } from '../helpers/auth';
+import { parseHash } from '../helpers/auth';
+import { loginCallbackUrl } from '../helpers/url';
 import CallbackMessage from '../shared/CallbackMessage';
 import taskcluster from '../helpers/taskcluster';
 import {
@@ -12,6 +13,14 @@ import {
 } from '../taskcluster-auth-callback/constants';
 
 class LoginCallback extends React.PureComponent {
+  config = {
+    clientID: 'q8fZZFfGEmSB2c5uSI8hOkKdDGXnlo5z',
+    domain: 'auth.mozilla.auth0.com',
+    responseType: 'id_token token',
+    redirectUri: `${window.location.protocol}//${window.location.host}${loginCallbackUrl}`,
+    scope: 'openid profile email',
+  };
+
   constructor(props) {
     super(props);
 
@@ -25,7 +34,7 @@ class LoginCallback extends React.PureComponent {
   async componentDidMount() {
     // make the user login if there is no access token
     if (!window.location.hash) {
-      return webAuth.authorize();
+      return this.initializeAuth0();
     }
 
     // for silent renewal, auth0-js opens this page in an iframe, and expects
@@ -37,7 +46,6 @@ class LoginCallback extends React.PureComponent {
 
     try {
       const authResult = await parseHash({ hash: window.location.hash });
-
       if (authResult.accessToken) {
         await this.authService.saveCredentialsFromAuthResult(authResult);
         this.checkTaskclusterCredentials();
@@ -69,6 +77,12 @@ class LoginCallback extends React.PureComponent {
       // handle case where the user navigates directly to the login route
       window.location.href = window.origin;
     }
+  };
+
+  initializeAuth0 = async () => {
+    const url =
+      'https://auth.mozilla.auth0.com/authorize?response_type=code&client_id=q8fZZFfGEmSB2c5uSI8hOkKdDGXnlo5z&redirect_uri=https://treeherder.mozilla.org/login.html&scope=openid%20profile%20email';
+    window.location.href = url;
   };
 
   render() {
