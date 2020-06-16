@@ -297,6 +297,8 @@ class GraphsContainer extends React.Component {
       bottom: 50,
     };
 
+    const today = moment.utc().toDate();
+
     return (
       <span data-testid="graphContainer">
         {!showTable && (
@@ -310,6 +312,7 @@ class GraphsContainer extends React.Component {
                   style={{ parent: { maxHeight: '150px', maxWidth: '1350px' } }}
                   scale={{ x: 'time', y: 'linear' }}
                   domainPadding={{ y: 30 }}
+                  maxDomain={{ x: today }}
                   containerComponent={
                     <VictoryBrushContainer
                       brushDomain={zoom}
@@ -353,6 +356,7 @@ class GraphsContainer extends React.Component {
                   style={{ parent: { maxHeight: '400px', maxWidth: '1350px' } }}
                   scale={{ x: 'time', y: 'linear' }}
                   domainPadding={{ y: 40, x: [10, 10] }}
+                  maxDomain={{ x: today }}
                   externalEventMutations={externalMutation}
                   containerComponent={
                     <VictoryZoomSelectionContainer
