@@ -189,9 +189,8 @@ pypom==2.2.0 \
     --hash=sha256:4bdd57fceb72d7e6a3645cf6c9322f490d9cfb5d777eac2c851a3b658b813939 \
     --hash=sha256:6772ec99f0a21a5bdc8c092007a8c813ed18359e67ed70258bbb233df5e28829 \
     # via -r requirements/dev.in
-pytest-asyncio==0.10.0 \
-    --hash=sha256:9fac5100fd716cbecf6ef89233e8590a4ad61d729d1732e0a96b84182df1daaf \
-    --hash=sha256:d734718e25cfc32d2bf78d346e99d33724deeba774cc4afdf491530c6184b63b \
+pytest-asyncio==0.12.0 \
+    --hash=sha256:475bd2f3dc0bc11d2463656b3cbaafdbec5a47b47508ea0b329ee693040eebd2 \
     # via -r requirements/dev.in
 pytest-base-url==1.4.1 \
     --hash=sha256:31e42366a5fc22f450b398837dc819bb7569f5e6bd5d74e494b2b9ec239876d1 \
@@ -213,9 +212,9 @@ pytest-html==2.1.1 \
     --hash=sha256:6a4ac391e105e391208e3eb9bd294a60dd336447fd8e1acddff3a6de7f4e57c5 \
     --hash=sha256:9e4817e8be8ddde62e8653c8934d0f296b605da3d2277a052f762c56a8b32df2 \
     # via pytest-selenium
-pytest-metadata==1.9.0 \
-    --hash=sha256:168d203abba8cabb65cf1b5fa675b0ba60dccbf1825d147960876a7e6f7c219c \
-    --hash=sha256:91d09c0e367e93c63c98461e9960833f465bff53d00ed2f8ccf680205e5053a4 \
+pytest-metadata==1.8.0 \
+    --hash=sha256:2071a59285de40d7541fde1eb9f1ddea1c9db165882df82781367471238b66ba \
+    --hash=sha256:c29a1fb470424926c63154c1b632c02585f2ba4282932058a71d35295ff8c96d \
     # via pytest-html
 pytest-selenium==1.17.0 \
     --hash=sha256:caf049839d12297e01f0521a968e44ae854f4eca1afd80b28f6a2510df02c883 \
