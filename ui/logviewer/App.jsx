@@ -223,21 +223,17 @@ class App extends React.PureComponent {
     }
   };
 
-  logFormatter = (log) => {
-    if (/INFO - TEST-(OK)|(PASS)/.test(log))
-      return <span style={{ color: 'green' }}>{log}</span>;
-    if (/INFO - TEST-START/.test(log))
-      return <span style={{ color: 'blue' }}>{log}</span>;
-    if (/INFO - TEST-/.test(log))
-      return <span style={{ color: 'yellow' }}>{log}</span>;
-    if (/!!!/.test(log)) return <span style={{ color: 'fuchsia' }}>{log}</span>;
-    if (/Browser Chrome Test Summary$/.test(log))
-      return <span style={{ color: 'white' }}>{log}</span>;
-    if (/((INFO -)|([\s]+))(Passed|Failed|Todo):/.test(log))
-      return <span style={{ color: 'white' }}>{log}</span>;
-    if (/INFO/.test(log))
-      return <span style={{ color: '#5b7f7f' }}>{log}</span>;
-    return <span>{log}</span>;
+  logFormatter = (line) => {
+    let color = 'black';
+    if (/INFO - TEST-(OK)|(PASS)/.test(line)) color = 'green';
+    else if (/INFO - TEST-START/.test(line)) color = 'blue';
+    else if (/INFO - TEST-/.test(line)) color = '#778899';
+    else if (/!!!/.test(line)) color = 'fuchsia';
+    else if (/Browser Chrome Test Summary$/.test(line)) color = 'white';
+    else if (/((INFO -)|([\s]+))(Passed|Failed|Todo):/.test(line))
+      color = 'white';
+    else if (/INFO/.test(line)) color = '#5b7f7f';
+    return <span style={{ color }}>{line}</span>;
   };
 
   render() {
@@ -278,7 +274,6 @@ class App extends React.PureComponent {
           jobUrl={jobUrl}
           collapseDetails={collapseDetails}
           collapseJobDetails={this.collapseJobDetails}
-          errors={errors.length}
         />
         {job && (
           <div className="d-flex flex-column flex-fill">

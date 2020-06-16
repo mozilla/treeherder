@@ -25,12 +25,11 @@ export default class Navigation extends React.PureComponent {
       reftestUrl,
       collapseDetails,
       collapseJobDetails,
-      errors,
     } = this.props;
     const resultStatusShading = getShadingClass(result);
 
     return (
-      <nav className="navbar navbar-dark bg-dark mb-2 p-0" role="navigation">
+      <nav className="navbar navbar-dark bg-dark p-0" role="navigation">
         <div className="nav mr-auto flex-row">
           <span id="lv-logo">
             <LogoMenu menuText="Logviewer" />
@@ -98,7 +97,7 @@ export default class Navigation extends React.PureComponent {
           )}
           <span>
             <Button onClick={collapseJobDetails}>
-              {collapseDetails ? `Show: ${errors}` : `Hide: ${errors}`}
+              {collapseDetails ? `Show Job Info` : `Hide Job Info`}
               <FontAwesomeIcon
                 icon={collapseDetails ? faCaretDown : faCaretUp}
                 className="pointable border-secondary mx-1 mb-2 align-bottom"
