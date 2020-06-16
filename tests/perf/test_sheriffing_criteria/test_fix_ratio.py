@@ -1,14 +1,9 @@
-from datetime import datetime
-
 import pytest
-from django.conf import settings
 
+from tests.perf.test_sheriffing_criteria.conftest import CASSETTES_RECORDING_DATE
 from treeherder.perf.sheriffing_criteria import FixRatioFormula
 
-VCR_RECORDING_DATE = 'June 2nd, 2020'
-
-
-pytestmark = [pytest.mark.freeze_time(VCR_RECORDING_DATE, tick=True)]
+pytestmark = [pytest.mark.freeze_time(CASSETTES_RECORDING_DATE, tick=True)]
 
 
 # Fix ratio formula - specification
@@ -17,19 +12,6 @@ pytestmark = [pytest.mark.freeze_time(VCR_RECORDING_DATE, tick=True)]
 # Considers only
 #  resolved bugs that are at least 2 weeks old
 #  bugs that date back to last quantifying period
-
-
-def test_formula_exposes_quantifying_period(nonblock_session):
-    fix_ratio = FixRatioFormula(nonblock_session)
-
-    assert fix_ratio.quantifying_period == settings.QUANTIFYING_PERIOD
-
-
-def test_formula_exposes_oldest_timestamp(nonblock_session):
-    fix_ratio = FixRatioFormula(nonblock_session)
-
-    assert fix_ratio.oldest_timestamp is not None
-    assert isinstance(fix_ratio.oldest_timestamp, datetime)
 
 
 @pytest.mark.parametrize(
