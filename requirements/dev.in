@@ -13,7 +13,6 @@ pre-commit==2.2.0
 # for test driven development
 pytest-testmon
 pytest-watch
-responses==0.10.12
 
 # Required by django-extension's runserver_plus command.
 flake8
