@@ -3,7 +3,6 @@ from threading import local
 
 import pytest
 from django.db.utils import OperationalError
-from pytest import skip
 
 from treeherder.workers.task import retryable_task
 
