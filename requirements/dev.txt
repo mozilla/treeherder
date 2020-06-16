@@ -169,9 +169,9 @@ pre-commit==2.2.0 \
     --hash=sha256:487c675916e6f99d355ec5595ad77b325689d423ef4839db1ed2f02f639c9522 \
     --hash=sha256:c0aa11bce04a7b46c5544723aedf4e81a4d5f64ad1205a30a9ea12d5e81969e1 \
     # via -r requirements/dev.in
-py==1.8.1 \
-    --hash=sha256:5e27081401262157467ad6e7f851b7aa402c5852dbcb3dae06768434de5752aa \
-    --hash=sha256:c20fdd83a5dbc0af9efd622bee9a5564e278f6380fffcacc43ba6f43db2813b0 \
+py==1.8.2 \
+    --hash=sha256:a673fa23d7000440cc885c17dbd34fafcb7d7a6e230b29f6766400de36a33c44 \
+    --hash=sha256:f3b3a4c36512a4c4f024041ab51866f11761cc169670204b235f6b20523d4e6b \
     # via pytest
 pycodestyle==2.5.0 \
     --hash=sha256:95a2219d12372f05704562a14ec30bc76b05a5b297b21a5dfe3f6fac3491ae56 \
@@ -240,9 +240,9 @@ python-dateutil==2.8.1 \
     --hash=sha256:73ebfe9dbf22e832286dafa60473e4cd239f8592f699aa5adaf10050e6e1823c \
     --hash=sha256:75bb3f31ea686f1197762692a9ee6a7550b59fc6ca3a1f4b5d7e32fb98e2da2a \
     # via freezegun
-pytz==2019.3 \
-    --hash=sha256:1c557d7d0e871de1f5ccd5833f60fb2550652da6be2693c1e02300743d21500d \
-    --hash=sha256:b02c06db6cf09c12dd25137e563b31700d3b80fcc4ad23abb7a315f2789819be \
+pytz==2020.1 \
+    --hash=sha256:a494d53b6d39c3c6e44c3bec237336e14305e4f29bbf800b599253057fbb79ed \
+    --hash=sha256:c35965d010ce31b23eeb663ed3cc8c906275d6be1a34393a1d73a41febf4a048 \
     # via django
 pyyaml==5.3.1 \
     --hash=sha256:06a0d7ba600ce0b2d2fe2e78453a470b5a6e000a985dd4a4e54e436cc36b0e97 \
