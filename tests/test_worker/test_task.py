@@ -1,5 +1,6 @@
 from functools import wraps
 from threading import local
+from time import sleep
 
 import pytest
 from django.db.utils import OperationalError

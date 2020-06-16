@@ -4,6 +4,7 @@ import pytest
 import simplejson as json
 from mock import Mock, patch
 
+from treeherder.config.settings import IS_WINDOWS
 from treeherder.perf.models import BackfillRecord, BackfillReport, PerformanceSettings
 from treeherder.perf.secretary_tool import SecretaryTool
 from treeherder.utils import default_serializer
@@ -40,6 +41,7 @@ def create_record():
     return _create_record
 
 
+@pytest.mark.skipif(IS_WINDOWS, reason="datetime logic does not work when OS not on GMT")
 def test_secretary_tool_updates_only_matured_reports(
     test_perf_alert, test_perf_alert_2, create_record
 ):
