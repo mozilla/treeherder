@@ -53,7 +53,7 @@ def throwing_task_should_retry():
     raise OperationalError
 
 
-@skip("please fix me")
+@pytest.mark.skip("TODO: please fix me")
 def test_retryable_task_throws_retry():
     "Test celery executes a task properly"
 

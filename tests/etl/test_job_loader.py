@@ -4,7 +4,6 @@ import uuid
 import pytest
 import responses
 import slugid
-from pytest import skip
 
 from treeherder.etl.exceptions import MissingPushException
 from treeherder.etl.job_loader import JobLoader
@@ -90,7 +89,7 @@ def test_job_transformation(pulse_jobs, transformed_pulse_jobs):
         assert transformed_pulse_jobs[idx] == json.loads(json.dumps(jl.transform(pulse_job)))
 
 
-@skip("no longer passes")
+@pytest.mark.skip("TODO: please fix me")
 @responses.activate
 def test_new_job_transformation(new_pulse_jobs, new_transformed_jobs, failure_classifications):
     jl = JobLoader()
