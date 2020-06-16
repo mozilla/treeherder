@@ -189,16 +189,17 @@ pypom==2.2.0 \
     --hash=sha256:4bdd57fceb72d7e6a3645cf6c9322f490d9cfb5d777eac2c851a3b658b813939 \
     --hash=sha256:6772ec99f0a21a5bdc8c092007a8c813ed18359e67ed70258bbb233df5e28829 \
     # via -r requirements/dev.in
-pytest-asyncio==0.12.0 \
-    --hash=sha256:475bd2f3dc0bc11d2463656b3cbaafdbec5a47b47508ea0b329ee693040eebd2 \
+pytest-asyncio==0.10.0 \
+    --hash=sha256:9fac5100fd716cbecf6ef89233e8590a4ad61d729d1732e0a96b84182df1daaf \
+    --hash=sha256:d734718e25cfc32d2bf78d346e99d33724deeba774cc4afdf491530c6184b63b \
     # via -r requirements/dev.in
 pytest-base-url==1.4.1 \
     --hash=sha256:31e42366a5fc22f450b398837dc819bb7569f5e6bd5d74e494b2b9ec239876d1 \
     --hash=sha256:7425e8163345494ac7f544e99c6f3e5a08f4228bee5e26013b98c462a4d31f6e \
     # via pytest-selenium
-pytest-cov==2.8.1 \
-    --hash=sha256:cc6742d8bac45070217169f5f72ceee1e0e55b0221f54bcf24845972d3a47f2b \
-    --hash=sha256:cdbdef4f870408ebdbfeb44e63e07eb18bb4619fae852f6e760645fa36172626 \
+pytest-cov==2.10.0 \
+    --hash=sha256:1a629dc9f48e53512fcbfda6b07de490c374b0c83c55ff7a1720b3fccff0ac87 \
+    --hash=sha256:6e6d18092dce6fad667cd7020deed816f858ad3b49d5b5e2b1cc1c97a4dba65c \
     # via -r requirements/dev.in
 pytest-django==3.9.0 \
     --hash=sha256:64f99d565dd9497af412fcab2989fe40982c1282d4118ff422b407f3f7275ca5 \
@@ -212,9 +213,9 @@ pytest-html==2.1.1 \
     --hash=sha256:6a4ac391e105e391208e3eb9bd294a60dd336447fd8e1acddff3a6de7f4e57c5 \
     --hash=sha256:9e4817e8be8ddde62e8653c8934d0f296b605da3d2277a052f762c56a8b32df2 \
     # via pytest-selenium
-pytest-metadata==1.8.0 \
-    --hash=sha256:2071a59285de40d7541fde1eb9f1ddea1c9db165882df82781367471238b66ba \
-    --hash=sha256:c29a1fb470424926c63154c1b632c02585f2ba4282932058a71d35295ff8c96d \
+pytest-metadata==1.9.0 \
+    --hash=sha256:168d203abba8cabb65cf1b5fa675b0ba60dccbf1825d147960876a7e6f7c219c \
+    --hash=sha256:91d09c0e367e93c63c98461e9960833f465bff53d00ed2f8ccf680205e5053a4 \
     # via pytest-html
 pytest-selenium==1.17.0 \
     --hash=sha256:caf049839d12297e01f0521a968e44ae854f4eca1afd80b28f6a2510df02c883 \
