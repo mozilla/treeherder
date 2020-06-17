@@ -153,17 +153,17 @@ pathspec==0.8.0 \
 pathtools==0.1.2 \
     --hash=sha256:7c35c5421a39bb82e58018febd90e3b6e5db34c5443aaaf742b3f33d4655f1c0 \
     # via watchdog
-pip-tools==4.5.1 \
-    --hash=sha256:693f30e451875796b1b25203247f0b4cf48a4c4a5ab7341f4f33ffd498cdcc98 \
-    --hash=sha256:be9c796aa88b2eec5cabf1323ba1cb60a08212b84bfb75b8b4037a8ef8cb8cb6 \
+pip-tools==5.2.1 \
+    --hash=sha256:1690bef5f0f714160c3aedacb03520e2359a78f7f9fa17e574cf8659cf2ef614 \
+    --hash=sha256:5b4b6e7b6e66357685c73e856296b4792b2d159ff6074729e250e291834bfd9d \
     # via -r requirements/dev.in
 pluggy==0.13.1 \
     --hash=sha256:15b2acde666561e1298d71b523007ed7364de07029219b604cf808bfa1c765b0 \
     --hash=sha256:966c145cd83c96502c3c3868f50408687b38434af77734af1e9ca461a4081d2d \
     # via pypom, pytest
-pre-commit==2.5.1 \
-    --hash=sha256:c5c8fd4d0e1c363723aaf0a8f9cba0f434c160b48c4028f4bae6d219177945b3 \
-    --hash=sha256:da463cf8f0e257f9af49047ba514f6b90dbd9b4f92f4c8847a3ccd36834874c7 \
+pre-commit==2.2.0 \
+    --hash=sha256:487c675916e6f99d355ec5595ad77b325689d423ef4839db1ed2f02f639c9522 \
+    --hash=sha256:c0aa11bce04a7b46c5544723aedf4e81a4d5f64ad1205a30a9ea12d5e81969e1 \
     # via -r requirements/dev.in
 py==1.8.2 \
     --hash=sha256:a673fa23d7000440cc885c17dbd34fafcb7d7a6e230b29f6766400de36a33c44 \
@@ -487,4 +487,5 @@ zope.proxy==4.3.5 \
 
 # WARNING: The following packages were not pinned, but pip requires them to be
 # pinned when the requirements file includes hashes. Consider using the --allow-unsafe flag.
+# pip
 # setuptools

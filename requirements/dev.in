@@ -8,7 +8,7 @@ pytest-selenium
 PyPOM
 
 # for git commit hooks
-pre-commit
+pre-commit==2.2.0
 
 # for test driven development
 pytest-testmon
@@ -31,4 +31,4 @@ betamax
 betamax-serializers
 
 # pip-compile for pinning versions
-pip-tools==4.5.1
+pip-tools
