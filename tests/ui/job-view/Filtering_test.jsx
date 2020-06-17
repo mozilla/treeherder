@@ -19,6 +19,17 @@ import {
 import jobListFixtureOne from '../mock/job_list/job_1';
 import jobMap from '../mock/job_map';
 
+// solution to createRange is not a function error for popper (used by reactstrap)
+// https://github.com/mui-org/material-ui/issues/15726#issuecomment-493124813
+global.document.createRange = () => ({
+  setStart: () => {},
+  setEnd: () => {},
+  commonAncestorContainer: {
+    nodeName: 'BODY',
+    ownerDocument: document,
+  },
+});
+
 const repoName = 'autoland';
 const treeStatusResponse = {
   result: {
@@ -141,17 +152,6 @@ describe('Filtering', () => {
       await waitFor(() => getAllByText('yaml'));
       expect(jobCount()).toBe(40);
     });
-
-    test('KeyboardShortcut u: toggle unclassified jobs', async () => {
-      const { getAllByText } = render(<App />);
-      const symbolToRemove = 'yaml';
-
-      await waitFor(() => getAllByText(symbolToRemove));
-      fireEvent.keyDown(document.body, { key: 'u', keyCode: 85 });
-
-      await waitForElementToBeRemoved(() => getAllByText(symbolToRemove));
-      expect(jobCount()).toBe(10);
-    });
   });
 
   describe('by keywords', () => {
@@ -202,7 +202,8 @@ describe('Filtering', () => {
       const build = await findAllByText('B');
 
       fireEvent.mouseDown(build[0]);
-
+      // const details = document.querySelector('#details-panel');
+      // debug();
       const keywordLink = await waitFor(
         () => getByTitle('Filter jobs containing these keywords'),
         10000,
@@ -225,40 +226,6 @@ describe('Filtering', () => {
       setFilterText(filterField, null);
       await waitFor(() => getAllByText('B'));
       expect(jobCount()).toBe(40);
-    });
-
-    test('KeyboardShortcut f: focus the quick filter input', async () => {
-      const { findAllByText } = render(<App />);
-      await findAllByText('B');
-
-      const filterField = document.querySelector('#quick-filter');
-
-      fireEvent.keyDown(document, { key: 'f', keyCode: 70 });
-
-      expect(filterField).toBe(document.activeElement);
-    });
-
-    test('KeyboardShortcut ctrl+shift+f: clear the quick filter input', async () => {
-      const { findAllByText, getAllByText, getByPlaceholderText } = render(
-        <App />,
-      );
-      await findAllByText('B');
-      const filterField = getByPlaceholderText('Filter platforms & jobs');
-      setFilterText(filterField, 'yaml');
-
-      await waitForElementToBeRemoved(() => getAllByText('B'));
-
-      expect(filterField.value).toEqual('yaml');
-      fireEvent.keyDown(document, {
-        key: 'f',
-        keyCode: 70,
-        ctrlKey: true,
-        shiftKey: true,
-      });
-
-      await waitFor(() => getAllByText('B'));
-
-      expect(filterField.value).toEqual('');
     });
   });
 
@@ -312,41 +279,6 @@ describe('Filtering', () => {
       clickFilterChicklet('dkgray');
       await waitFor(() => getAllByText(symbolToRemove));
       expect(jobCount()).toBe(40);
-    });
-
-    test('KeyboardShortcut i: toggle off in-progress tasks', async () => {
-      const { getAllByText } = render(<App />);
-      const symbolToRemove = 'yaml';
-
-      await waitFor(() => getAllByText(symbolToRemove));
-
-      fireEvent.keyDown(document.body, { key: 'i', keyCode: 73 });
-
-      await waitForElementToBeRemoved(() => getAllByText(symbolToRemove));
-      expect(jobCount()).toBe(30);
-      expect(window.location.hash).toEqual(
-        '#/jobs?repo=autoland&resultStatus=testfailed%2Cbusted%2Cexception%2Csuccess%2Cretry%2Cusercancel%2Crunnable',
-      );
-    });
-
-    test('KeyboardShortcut i: toggle on in-progress tasks', async () => {
-      const { getAllByText, findAllByText } = render(<App />);
-      const symbolToRemove = 'yaml';
-
-      await waitFor(() => getAllByText(symbolToRemove));
-      clickFilterChicklet('dkgray');
-
-      await waitForElementToBeRemoved(() => getAllByText(symbolToRemove));
-      expect(jobCount()).toBe(30);
-
-      await findAllByText('B');
-      // undo the filtering and make sure we see all the jobs again
-
-      fireEvent.keyDown(document.body, { key: 'i', keyCode: 73 });
-      await findAllByText('B');
-      await waitFor(() => getAllByText(symbolToRemove), 5000);
-      expect(jobCount()).toBe(40);
-      expect(window.location.hash).toEqual('#/jobs?repo=autoland');
     });
 
     test('Filters | Reset should get back to original set of jobs', async () => {

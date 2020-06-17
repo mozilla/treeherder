@@ -1,6 +1,6 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import Hotkeys from 'react-hot-keys';
+import { HotKeys } from 'react-hotkeys';
 import { connect } from 'react-redux';
 
 import { thEvents } from '../helpers/constants';
@@ -16,63 +16,35 @@ import {
 } from './redux/stores/selectedJob';
 import { pinJob, unPinAll } from './redux/stores/pinnedJobs';
 
-const handledKeys =
-  'b,c,f,ctrl+shift+f,f,i,j,k,l,n,p,r,t,u,v,ctrl+shift+u,left,right,space,shift+/,escape,ctrl+enter,ctrl+backspace';
+const keyMap = {
+  addRelatedBug: 'b',
+  pinEditComment: 'c',
+  quickFilter: 'f',
+  clearFilter: 'ctrl+shift+f',
+  toggleInProgress: 'i',
+  nextUnclassified: ['j', 'n'],
+  previousUnclassified: ['k', 'p'],
+  openLogviewer: 'l',
+  jobRetrigger: 'r',
+  selectNextTab: 't',
+  toggleUnclassifiedFailures: 'u',
+  clearPinboard: 'ctrl+shift+u',
+  previousJob: 'left',
+  nextJob: 'right',
+  pinJob: 'space',
+  toggleOnScreenShortcuts: '?',
+  /* these should happen regardless of being in an input field */
+  clearScreen: 'escape',
+  saveClassification: 'ctrl+enter',
+  deleteClassification: 'ctrl+backspace',
+};
 
 class KeyboardShortcuts extends React.Component {
-  onKeyDown = (key, e) => {
-    const { showOnScreenShortcuts, filterModel } = this.props;
-
-    e.preventDefault();
-
-    switch (key) {
-      case 'b':
-        return this.addRelatedBug();
-      case 'c':
-        return this.pinEditComment();
-      case 'f':
-        return this.quickFilter();
-      case 'ctrl+shift+f':
-        return this.clearFilter();
-      case 'i':
-        return filterModel.toggleInProgress();
-      case 'j':
-        return this.changeSelectedJob('next', true);
-      case 'k':
-        return this.changeSelectedJob('previous', true);
-      case 'l':
-        return this.openLogviewer();
-      case 'n':
-        return this.changeSelectedJob('next', true);
-      case 'p':
-        return this.changeSelectedJob('previous', true);
-      case 'r':
-        return this.jobRetrigger();
-      case 't':
-        return this.selectNextTab();
-      case 'u':
-        return filterModel.toggleUnclassifiedFailures();
-      case 'ctrl+shift+u':
-        return this.clearPinboard();
-      case 'left':
-        return this.changeSelectedJob('previous', false);
-      case 'right':
-        return this.changeSelectedJob('next', false);
-      case 'space':
-        return this.pinJob();
-      case 'shift+/':
-        return showOnScreenShortcuts();
-
-      // These should happen regardless of being in an input field.
-      // Handled by the `filter` function.
-      case 'escape':
-        return this.clearScreen();
-      case 'ctrl+enter':
-        return this.saveClassification();
-      case 'ctrl+backspace':
-        return this.deleteClassification();
-    }
-  };
+  componentDidMount() {
+    // HotKeys requires focus be a component inside itself to work
+    // TODO: We may not need this if we wrap <body> with HotKeys.
+    document.getElementById('keyboard-shortcuts').focus();
+  }
 
   /**
    * Job Navigation Shortcuts
@@ -117,6 +89,7 @@ class KeyboardShortcuts extends React.Component {
     if (selectedJob) {
       pinJob(selectedJob);
       document.getElementById('add-related-bug-button').click();
+      document.getElementById('related-bug-input').focus();
     }
   };
 
@@ -207,31 +180,73 @@ class KeyboardShortcuts extends React.Component {
     }
   };
 
-  /*
-   * If we are in an input or select field, then only handle the keys of
-   * escape, ctrl+enter, ctrl+backspace.
-   * Otherwise, handle as normal.
-   */
-  filter = (e) => {
-    if (['INPUT', 'SELECT'].some((n) => n === e.target.nodeName)) {
-      return (
-        (e.ctrlKey && ['Enter', 'Backspace'].some((key) => key === e.key)) ||
-        e.key === 'Escape'
-      );
+  doKey(ev, callback) {
+    const element = ev.target;
+
+    // If the bug filer is opened, don't let these shortcuts work
+    if (document.body.classList.contains('filer-open')) {
+      return;
     }
-    return true;
-  };
+
+    if (
+      (element.tagName === 'INPUT' &&
+        element.type !== 'radio' &&
+        element.type !== 'checkbox') ||
+      element.tagName === 'SELECT' ||
+      element.tagName === 'TEXTAREA' ||
+      element.isContentEditable ||
+      ev.key === 'shift'
+    ) {
+      return;
+    }
+
+    // If we get here, then execute the HotKey.
+    ev.preventDefault();
+    callback(ev);
+  }
 
   render() {
+    const { filterModel, showOnScreenShortcuts } = this.props;
+    const handlers = {
+      addRelatedBug: (ev) => this.doKey(ev, this.addRelatedBug),
+      pinEditComment: (ev) => this.doKey(ev, this.pinEditComment),
+      quickFilter: (ev) => this.doKey(ev, this.quickFilter),
+      clearFilter: (ev) => this.doKey(ev, this.clearFilter),
+      toggleInProgress: (ev) => this.doKey(ev, filterModel.toggleInProgress),
+      nextUnclassified: (ev) =>
+        this.doKey(ev, () => this.changeSelectedJob('next', true)),
+      previousUnclassified: (ev) =>
+        this.doKey(ev, () => this.changeSelectedJob('previous', true)),
+      openLogviewer: (ev) => this.doKey(ev, this.openLogviewer),
+      jobRetrigger: (ev) => this.doKey(ev, this.jobRetrigger),
+      selectNextTab: (ev) => this.doKey(ev, this.selectNextTab),
+      toggleUnclassifiedFailures: (ev) =>
+        this.doKey(ev, filterModel.toggleUnclassifiedFailures),
+      clearPinboard: (ev) => this.doKey(ev, this.clearPinboard),
+      previousJob: (ev) =>
+        this.doKey(ev, () => this.changeSelectedJob('previous', false)),
+      nextJob: (ev) =>
+        this.doKey(ev, () => this.changeSelectedJob('next', false)),
+      pinJob: (ev) => this.doKey(ev, this.pinJob),
+      toggleOnScreenShortcuts: (ev) => this.doKey(ev, showOnScreenShortcuts),
+      /* these should happen regardless of being in an input field */
+      clearScreen: this.clearScreen,
+      saveClassification: this.saveClassification,
+      deleteClassification: this.deleteClassification,
+    };
+
     return (
-      <Hotkeys
-        keyName={handledKeys}
-        onKeyDown={this.onKeyDown}
-        onKeyUp={this.onKeyUp}
-        filter={this.filter}
+      <HotKeys
+        id="keyboard-shortcuts"
+        className="d-flex flex-column h-100"
+        handlers={handlers}
+        keyMap={keyMap}
+        focused
+        tabIndex={-1}
+        data-testid="hot-keys-id"
       >
         {this.props.children}
-      </Hotkeys>
+      </HotKeys>
     );
   }
 }
