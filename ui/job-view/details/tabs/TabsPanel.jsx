@@ -192,6 +192,7 @@ class TabsPanel extends React.Component {
               logViewerFullUrl={logViewerFullUrl}
               addBug={addBug}
               pinJob={pinJob}
+              repoName={repoName}
             />
           </TabPanel>
           <TabPanel>
