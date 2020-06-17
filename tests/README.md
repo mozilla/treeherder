@@ -37,7 +37,7 @@ Be sure you are in the `treeherder` main directory
     .venv\Scripts\activate
     pip install -r requirements\dev.txt
     pip install -r requirements\common.txt
-    
+
 ... or MacOS
 
     python -m venv .venv             # IMPORTANT: Notice the dot in the name
@@ -45,8 +45,6 @@ Be sure you are in the `treeherder` main directory
     export LDFLAGS=-L/usr/local/opt/openssl/lib   # https://github.com/PyMySQL/mysqlclient-python/issues/131#issuecomment-503644579
     pip install -r requirements/dev.txt
     pip install -r requirements/common.txt
-
-
 
 > The pip install order is important:  We want the `common` requirements to overwrite the `dev` requirements (in the event there are conflicts)
 
