@@ -8,7 +8,7 @@ pytest-selenium
 PyPOM
 
 # for git commit hooks
-pre-commit==2.2.0
+pre-commit
 
 # for test driven development
 pytest-testmon
