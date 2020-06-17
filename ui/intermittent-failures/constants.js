@@ -10,6 +10,7 @@ export const treeOptions = [
   'firefox-releases',
   'comm-central',
   'comm-esr68',
+  'comm-esr78',
   'comm-releases',
   'fenix',
 ];
