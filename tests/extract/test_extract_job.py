@@ -135,6 +135,6 @@ JOB.job_group.description = NULL  # EXPECTING NOTHING
 
 for j in JOB:
     j.last_modified = Date.now()
-    for l in listwrap(j.job_log):
-        for f in listwrap(l.failure_line):
+    for log in listwrap(j.job_log):
+        for f in listwrap(log.failure_line):
             f.best_classification.modified = Date.now()

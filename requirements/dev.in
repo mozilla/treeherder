@@ -1,6 +1,6 @@
 # Dependencies needed only for development/testing.
 pytest-cov
-django-debug-toolbar==2.2
+django-debug-toolbar
 mock
 responses
 django-extensions
@@ -8,7 +8,7 @@ pytest-selenium
 PyPOM
 
 # for git commit hooks
-pre-commit
+pre-commit==2.2.0  # prettier requires at least version 10.13.0 of Node, please upgrade
 
 # for test driven development
 pytest-testmon
@@ -20,7 +20,7 @@ pytest-django
 black
 
 # To test async code
-pytest-asyncio
+pytest-asyncio==0.10.0  # required to pass test_new_job_transformation
 
 # To test code that's making system time calls
 pytest-freezegun
@@ -30,8 +30,5 @@ pytest-freezegun
 betamax
 betamax-serializers
 
-# make pinning versions easier
+# pip-compile for pinning versions
 pip-tools
-
-# Force updating to secure version
-Django>=3.0.7

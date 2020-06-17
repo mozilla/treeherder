@@ -11,6 +11,6 @@ This is a directory of requirements files. They are maintained using `pip-tools`
 When you want to upgrade (be sure to run from main treeherder directory, than this directory)
 
     pip-compile --upgrade --generate-hashes --output-file requirements/common.txt requirements/common.in
-    pip-compile --upgrade --generate-hashes --output-file requirements/dev.txt requirements/dev.in
+    pip-compile --upgrade --generate-hashes --allow-unsafe --output-file requirements/dev.txt requirements/dev.in
 
 > [see pip-tools for more information](https://pypi.org/project/pip-tools/)
