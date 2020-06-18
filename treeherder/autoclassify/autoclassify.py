@@ -50,8 +50,8 @@ def match_errors(job, matchers=None):
         return
 
     all_errors = set(
-        TextLogError.objects.filter(step__job=job, classified_failures=None).prefetch_related(
-            'step', '_metadata', '_metadata__failure_line'
+        TextLogError.objects.filter(job=job, classified_failures=None).prefetch_related(
+            '_metadata', '_metadata__failure_line'
         )
     )
     errors = [t for t in all_errors if t.metadata and t.metadata.failure_line]
