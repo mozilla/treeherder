@@ -213,6 +213,10 @@ class KeyboardShortcuts extends React.Component {
    * Otherwise, handle as normal.
    */
   filter = (e) => {
+    // If a modal dialog is opened, don't let these shortcuts work
+    if (document.getElementsByClassName('modal show').length) {
+      return false;
+    }
     if (['INPUT', 'SELECT'].some((n) => n === e.target.nodeName)) {
       return (
         (e.ctrlKey && ['Enter', 'Backspace'].some((key) => key === e.key)) ||
