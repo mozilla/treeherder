@@ -137,6 +137,9 @@ export default class Health extends React.PureComponent {
         [key]: expanded,
       });
     } else if (expanded) {
+      this.setState({
+        [key]: !expanded,
+      });
       scrollToLine(`#${root}Metric`, 0, 0, {
         behavior: 'smooth',
         block: 'center',
