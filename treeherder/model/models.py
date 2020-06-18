@@ -365,7 +365,7 @@ class OptionCollection(models.Model):
 class JobType(models.Model):
     id = models.AutoField(primary_key=True)
     symbol = models.CharField(max_length=25, default='?', db_index=True)
-    name = models.CharField(max_length=100)
+    name = models.CharField(max_length=140)
     description = models.TextField(blank=True)
 
     class Meta:
@@ -401,7 +401,7 @@ class ReferenceDataSignatures(models.Model):
     machine_architecture = models.CharField(max_length=25, db_index=True)
     job_group_name = models.CharField(max_length=100, blank=True, db_index=True)
     job_group_symbol = models.CharField(max_length=25, blank=True, db_index=True)
-    job_type_name = models.CharField(max_length=100, db_index=True)
+    job_type_name = models.CharField(max_length=140, db_index=True)
     job_type_symbol = models.CharField(max_length=25, blank=True, db_index=True)
     option_collection_hash = models.CharField(max_length=64, blank=True, db_index=True)
     build_system_type = models.CharField(max_length=25, blank=True, db_index=True)

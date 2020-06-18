@@ -192,8 +192,8 @@ def buildMessage(pushInfo, task, runId, payload):
             # for treeherder
             "jobSymbol": str(treeherderConfig["symbol"]),
             "groupSymbol": treeherderConfig.get("groupSymbol", "?"),
-            # Maximum job name length is 100 chars...
-            "jobName": task["metadata"]["name"][0:99],
+            # Maximum job name length is 140 chars...
+            "jobName": task["metadata"]["name"][0:139],
         },
         "state": stateFromRun(jobRun),
         "result": resultFromRun(jobRun),
