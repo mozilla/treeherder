@@ -104,9 +104,7 @@ def test_autoclassify_no_update_job_classification(
     lines = [(test_line, {})]
     test_error_lines, test_failure_lines = create_lines(test_job_2, lines)
     TextLogError.objects.create(
-        step=test_error_lines[0].step,
-        line="Some error that isn't in the structured logs",
-        line_number=2,
+        job=test_job_2, line="Some error that isn't in the structured logs", line_number=2,
     )
 
     do_autoclassify(test_job_2, test_failure_lines, [precise_matcher])
