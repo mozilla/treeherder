@@ -32,7 +32,7 @@ def precise_matcher(text_log_error):
     }
     qwargs = Q(text_log_error___metadata__best_classification=None) & (
         Q(text_log_error___metadata__best_is_verified=True)
-        | Q(text_log_error__step__job=text_log_error.step.job)
+        | Q(text_log_error__job=text_log_error.job)
     )
     qs = (
         TextLogErrorMatch.objects.filter(**f)
@@ -74,7 +74,7 @@ def crash_signature_matcher(text_log_error):
     }
     qwargs = Q(text_log_error___metadata__best_classification=None) & (
         Q(text_log_error___metadata__best_is_verified=True)
-        | Q(text_log_error__step__job=text_log_error.step.job)
+        | Q(text_log_error__job=text_log_error.job)
     )
     qs = (
         TextLogErrorMatch.objects.filter(**f)
