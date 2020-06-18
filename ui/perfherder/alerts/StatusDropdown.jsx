@@ -226,11 +226,15 @@ export default class StatusDropdown extends React.Component {
             {user.isStaff && (
               <React.Fragment>
                 {!alertSummary.bug_number ? (
-                  <DropdownItem onClick={() => this.toggle('showBugModal')}>
+                  <DropdownItem
+                    tag="a"
+                    onClick={() => this.toggle('showBugModal')}
+                  >
                     Link to bug
                   </DropdownItem>
                 ) : (
                   <DropdownItem
+                    tag="a"
                     onClick={() =>
                       this.changeAlertSummary({
                         bug_number: null,
@@ -240,11 +244,15 @@ export default class StatusDropdown extends React.Component {
                     Unlink from bug
                   </DropdownItem>
                 )}
-                <DropdownItem onClick={() => this.toggle('showNotesModal')}>
+                <DropdownItem
+                  tag="a"
+                  onClick={() => this.toggle('showNotesModal')}
+                >
                   {!alertSummary.notes ? 'Add notes' : 'Edit notes'}
                 </DropdownItem>
                 {this.isResolved(alertStatus) && (
                   <DropdownItem
+                    tag="a"
                     onClick={() =>
                       this.changeAlertSummary({
                         status: summaryStatusMap.investigating,
@@ -256,6 +264,7 @@ export default class StatusDropdown extends React.Component {
                 )}
                 {this.isValidStatus(alertStatus, 'wontfix') && (
                   <DropdownItem
+                    tag="a"
                     onClick={() =>
                       this.changeAlertSummary({
                         status: summaryStatusMap.wontfix,
@@ -268,6 +277,7 @@ export default class StatusDropdown extends React.Component {
 
                 {this.isValidStatus(alertStatus, 'backedout') && (
                   <DropdownItem
+                    tag="a"
                     onClick={() =>
                       this.changeAlertSummary({
                         status: summaryStatusMap.backedout,
@@ -280,6 +290,7 @@ export default class StatusDropdown extends React.Component {
 
                 {this.isValidStatus(alertStatus, 'fixed') && (
                   <DropdownItem
+                    tag="a"
                     onClick={() =>
                       this.changeAlertSummary({
                         status: summaryStatusMap.fixed,
@@ -290,7 +301,10 @@ export default class StatusDropdown extends React.Component {
                   </DropdownItem>
                 )}
 
-                <DropdownItem onClick={() => this.toggle('showTagsModal')}>
+                <DropdownItem
+                  tag="a"
+                  onClick={() => this.toggle('showTagsModal')}
+                >
                   {!alertSummaryActiveTags.length ? 'Add tags' : 'Edit tags'}
                 </DropdownItem>
               </React.Fragment>

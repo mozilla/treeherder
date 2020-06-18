@@ -92,7 +92,7 @@ export default class TagsModal extends React.Component {
           </ModalBody>
           <ModalFooter>
             <Button
-              color="secondary"
+              color="darker-secondary"
               onClick={(event) => {
                 updateAndClose(
                   event,
