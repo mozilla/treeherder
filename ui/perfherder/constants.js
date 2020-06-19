@@ -108,7 +108,7 @@ export const compareDefaultTimeRange = {
   text: 'Last 2 days',
 };
 
-export const toolTipMessages = {
+export const tooltipMessages = {
   harness: 'patch that updated harness and caused improvements/regressions',
   infra:
     'improvements/regressions caused by infra changes (changes not related to repository code)',
