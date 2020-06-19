@@ -123,6 +123,8 @@ export default class SuggestionsListItem extends React.Component {
               repoName,
               suggestion.line_number + 1,
             )}
+            target="_blank"
+            rel="noopener noreferrer"
           >
             {suggestion.search}
           </a>
