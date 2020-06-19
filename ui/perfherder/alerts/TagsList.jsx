@@ -2,7 +2,7 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import { Badge, UncontrolledTooltip } from 'reactstrap';
 
-import { performanceTagsTips } from '../constants';
+import { toolTipMessages } from '../constants';
 
 const TagsList = ({ tags }) => {
   if (tags.length > 0) {
@@ -12,7 +12,7 @@ const TagsList = ({ tags }) => {
           {tag}
         </span>
         <UncontrolledTooltip placement="top" target={tag}>
-          {performanceTagsTips[tag]}
+          {toolTipMessages[tag]}
         </UncontrolledTooltip>
       </Badge>
     ));
