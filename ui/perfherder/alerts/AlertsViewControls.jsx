@@ -175,6 +175,7 @@ AlertsViewControls.propTypes = {
   alertSummaries: PropTypes.arrayOf(PropTypes.shape({})),
   frameworkOptions: PropTypes.arrayOf(PropTypes.shape({})),
   user: PropTypes.shape({}).isRequired,
+  performanceTags: PropTypes.arrayOf(PropTypes.shape({})).isRequired,
 };
 
 AlertsViewControls.defaultProps = {

@@ -397,6 +397,7 @@ AlertsView.propTypes = {
   }).isRequired,
   projects: PropTypes.arrayOf(PropTypes.shape({})).isRequired,
   frameworks: PropTypes.arrayOf(PropTypes.shape({})).isRequired,
+  performanceTags: PropTypes.arrayOf(PropTypes.shape({})).isRequired,
 };
 
 AlertsView.defaultProps = {

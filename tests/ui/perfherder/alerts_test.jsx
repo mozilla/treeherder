@@ -23,6 +23,8 @@ import AlertsView from '../../../ui/perfherder/alerts/AlertsView';
 import AlertsViewControls from '../../../ui/perfherder/alerts/AlertsViewControls';
 import optionCollectionMap from '../mock/optionCollectionMap';
 import testAlertSummaries from '../mock/alert_summaries';
+import testPerformanceTags from '../mock/performance_tags';
+import TagsList from '../../../ui/perfherder/alerts/TagsList';
 
 const testUser = {
   username: 'mozilla-ldap/test_user@mozilla.com',
@@ -59,6 +61,8 @@ const testIssueTrackers = [
   },
 ];
 
+const testActiveTags = ['first-tag', 'second-tag'];
+
 afterEach(cleanup);
 
 const mockModifyAlert = {
@@ -88,6 +92,7 @@ const alertsView = () =>
       }}
       history={createMemoryHistory('/alerts')}
       frameworks={frameworks}
+      performanceTags={testPerformanceTags}
     />,
   );
 
@@ -133,8 +138,13 @@ const alertsViewControls = ({
       history={createMemoryHistory('/alerts')}
       frameworkOptions={[ignoreFrameworkOption, ...frameworks]}
       setFiltersState={() => {}}
+      performanceTags={testPerformanceTags}
     />,
   );
+};
+
+const tagsList = (tags = []) => {
+  return render(<TagsList tags={tags} />);
 };
 
 const modifyAlertSpy = jest.spyOn(mockModifyAlert, 'update');
@@ -159,6 +169,8 @@ beforeAll(() => {
       ],
     },
   ]);
+
+  fetchMock.mock(getApiUrl(endpoints.performanceTags), testPerformanceTags);
 });
 
 test('toggle buttons should filter alert summary and alerts by selected filter', async () => {
@@ -549,6 +561,22 @@ test('Selecting `all` from (frameworks|projects) dropdown shows all (frameworks|
 
   expect(alert1).toBeInTheDocument();
   expect(alert2).toBeInTheDocument();
+});
+
+test('A list of two tags is displayed when there are two active tags', async () => {
+  const { queryAllByTestId } = tagsList(testActiveTags);
+
+  const tags = await waitFor(() => queryAllByTestId(/performance-tag/));
+
+  expect(tags).toHaveLength(2);
+});
+
+test('No tags are displayed if there is no active tag', async () => {
+  const { queryAllByTestId } = tagsList([]);
+
+  const tags = await waitFor(() => queryAllByTestId(/performance-tag/));
+
+  expect(tags).toHaveLength(0);
 });
 
 // TODO should write tests for alert summary dropdown menu actions performed in StatusDropdown

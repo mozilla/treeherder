@@ -178,6 +178,7 @@ export default class AlertTable extends React.Component {
       updateViewState,
       bugTemplate,
       modifyAlert,
+      performanceTags,
     } = this.props;
     const {
       alertSummary,
@@ -247,6 +248,7 @@ export default class AlertTable extends React.Component {
                         user={user}
                         filteredAlerts={filteredAlerts}
                         frameworks={frameworks}
+                        performanceTags={performanceTags}
                       />
                     </th>
                   </tr>
@@ -360,6 +362,7 @@ AlertTable.propTypes = {
   modifyAlert: PropTypes.func,
   updateAlertSummary: PropTypes.func,
   projects: PropTypes.arrayOf(PropTypes.shape({})).isRequired,
+  performanceTags: PropTypes.arrayOf(PropTypes.shape({})).isRequired,
 };
 
 AlertTable.defaultProps = {

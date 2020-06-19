@@ -9,6 +9,7 @@ export const endpoints = {
   issueTrackers: '/performance/issue-tracker/',
   summary: '/performance/summary/',
   validityDashboard: '/performance/validity-dashboard/',
+  performanceTags: '/performance/tag/',
 };
 
 export const noiseMetricTitle = 'noise metric';
@@ -105,4 +106,12 @@ export const phDefaultTimeRangeValue = 1209600;
 export const compareDefaultTimeRange = {
   value: 86400 * 2,
   text: 'Last 2 days',
+};
+
+export const tooltipMessages = {
+  harness: 'patch that updated harness and caused improvements/regressions',
+  infra:
+    'improvements/regressions caused by infra changes (changes not related to repository code)',
+  'regression-backedout': 'patch backed out due to causing regressions',
+  'regression-fix': 'patch fixing a reported regression bug',
 };

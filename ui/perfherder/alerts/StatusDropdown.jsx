@@ -26,6 +26,7 @@ import DropdownMenuItems from '../../shared/DropdownMenuItems';
 
 import AlertModal from './AlertModal';
 import NotesModal from './NotesModal';
+import TagsModal from './TagsModal';
 
 export default class StatusDropdown extends React.Component {
   constructor(props) {
@@ -33,6 +34,7 @@ export default class StatusDropdown extends React.Component {
     this.state = {
       showBugModal: false,
       showNotesModal: false,
+      showTagsModal: false,
       selectedValue: this.props.issueTrackers[0].text,
     };
   }
@@ -145,10 +147,16 @@ export default class StatusDropdown extends React.Component {
     (alertStatus !== status && this.isResolved(alertStatus));
 
   render() {
-    const { alertSummary, user, issueTrackers } = this.props;
-    const { showBugModal, showNotesModal, selectedValue } = this.state;
+    const { alertSummary, user, issueTrackers, performanceTags } = this.props;
+    const {
+      showBugModal,
+      showNotesModal,
+      showTagsModal,
+      selectedValue,
+    } = this.state;
 
     const alertStatus = getStatus(alertSummary.status);
+    const alertSummaryActiveTags = alertSummary.performance_tags || [];
 
     return (
       <React.Fragment>
@@ -195,6 +203,13 @@ export default class StatusDropdown extends React.Component {
           alertSummary={alertSummary}
           updateAndClose={this.updateAndClose}
         />
+        <TagsModal
+          showModal={showTagsModal}
+          toggle={() => this.toggle('showTagsModal')}
+          alertSummary={alertSummary}
+          performanceTags={performanceTags}
+          updateAndClose={this.updateAndClose}
+        />
         <UncontrolledDropdown tag="span">
           <DropdownToggle className="btn-xs" color="darker-secondary" caret>
             {getStatus(alertSummary.status)}
@@ -211,11 +226,15 @@ export default class StatusDropdown extends React.Component {
             {user.isStaff && (
               <React.Fragment>
                 {!alertSummary.bug_number ? (
-                  <DropdownItem onClick={() => this.toggle('showBugModal')}>
+                  <DropdownItem
+                    tag="a"
+                    onClick={() => this.toggle('showBugModal')}
+                  >
                     Link to bug
                   </DropdownItem>
                 ) : (
                   <DropdownItem
+                    tag="a"
                     onClick={() =>
                       this.changeAlertSummary({
                         bug_number: null,
@@ -225,11 +244,15 @@ export default class StatusDropdown extends React.Component {
                     Unlink from bug
                   </DropdownItem>
                 )}
-                <DropdownItem onClick={() => this.toggle('showNotesModal')}>
+                <DropdownItem
+                  tag="a"
+                  onClick={() => this.toggle('showNotesModal')}
+                >
                   {!alertSummary.notes ? 'Add notes' : 'Edit notes'}
                 </DropdownItem>
                 {this.isResolved(alertStatus) && (
                   <DropdownItem
+                    tag="a"
                     onClick={() =>
                       this.changeAlertSummary({
                         status: summaryStatusMap.investigating,
@@ -241,6 +264,7 @@ export default class StatusDropdown extends React.Component {
                 )}
                 {this.isValidStatus(alertStatus, 'wontfix') && (
                   <DropdownItem
+                    tag="a"
                     onClick={() =>
                       this.changeAlertSummary({
                         status: summaryStatusMap.wontfix,
@@ -253,6 +277,7 @@ export default class StatusDropdown extends React.Component {
 
                 {this.isValidStatus(alertStatus, 'backedout') && (
                   <DropdownItem
+                    tag="a"
                     onClick={() =>
                       this.changeAlertSummary({
                         status: summaryStatusMap.backedout,
@@ -265,6 +290,7 @@ export default class StatusDropdown extends React.Component {
 
                 {this.isValidStatus(alertStatus, 'fixed') && (
                   <DropdownItem
+                    tag="a"
                     onClick={() =>
                       this.changeAlertSummary({
                         status: summaryStatusMap.fixed,
@@ -274,6 +300,13 @@ export default class StatusDropdown extends React.Component {
                     Mark as fixed
                   </DropdownItem>
                 )}
+
+                <DropdownItem
+                  tag="a"
+                  onClick={() => this.toggle('showTagsModal')}
+                >
+                  {!alertSummaryActiveTags.length ? 'Add tags' : 'Edit tags'}
+                </DropdownItem>
               </React.Fragment>
             )}
           </DropdownMenu>
@@ -296,6 +329,7 @@ StatusDropdown.propTypes = {
   updateViewState: PropTypes.func.isRequired,
   bugTemplate: PropTypes.shape({}),
   filteredAlerts: PropTypes.arrayOf(PropTypes.shape({})),
+  performanceTags: PropTypes.arrayOf(PropTypes.shape({})).isRequired,
 };
 
 StatusDropdown.defaultProps = {
