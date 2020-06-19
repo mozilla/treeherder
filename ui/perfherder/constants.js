@@ -107,3 +107,12 @@ export const compareDefaultTimeRange = {
   value: 86400 * 2,
   text: 'Last 2 days',
 };
+
+export const performanceTagsTips = {
+  harness:
+    'patches that updated that harness and caused improvements/regressions',
+  infra:
+    'improvements/regressions caused by infra changes (changes not related to repository code)',
+  'regression-backedout': 'patches backed out due to causing regressions',
+  'regression-fix': 'patches fixing a reported regression bug',
+};
