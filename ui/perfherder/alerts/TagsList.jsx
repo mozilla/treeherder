@@ -8,10 +8,10 @@ const TagsList = ({ tags }) => {
   if (tags.length > 0) {
     return tags.map((tag) => (
       <Badge key={tag} className="mr-2" pill>
-        <span data-testid={`performance-tag ${tag}`} id={tag}>
+        <span data-testid={`performance-tag ${tag}`} id={`${tag}-perf-tag`}>
           {tag}
         </span>
-        <UncontrolledTooltip placement="top" target={tag}>
+        <UncontrolledTooltip placement="top" target={`${tag}-perf-tag`}>
           {tooltipMessages[tag]}
         </UncontrolledTooltip>
       </Badge>
