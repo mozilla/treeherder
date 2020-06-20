@@ -295,6 +295,8 @@ TabsPanel.propTypes = {
   logViewerFullUrl: PropTypes.string,
   taskId: PropTypes.string.isRequired,
   rootUrl: PropTypes.string.isRequired,
+  addBug: PropTypes.func,
+  pinJob: PropTypes.func,
 };
 
 TabsPanel.defaultProps = {
@@ -303,6 +305,8 @@ TabsPanel.defaultProps = {
   perfJobDetail: [],
   jobRevision: null,
   logViewerFullUrl: null,
+  addBug: null,
+  pinJob: null,
 };
 
 const mapStateToProps = ({

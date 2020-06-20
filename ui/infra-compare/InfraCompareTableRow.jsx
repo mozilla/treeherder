@@ -117,6 +117,14 @@ export default class InfraCompareTableRow extends React.PureComponent {
 
 InfraCompareTableRow.propTypes = {
   user: PropTypes.shape({}).isRequired,
-  rowLevelResults: PropTypes.shape({}).isRequired,
   validated: PropTypes.shape({}).isRequired,
+  rowLevelResults: PropTypes.shape({
+    suite: PropTypes.string,
+    originalValue: PropTypes.number,
+    newValue: PropTypes.number,
+    originalFailures: PropTypes.number,
+    newFailures: PropTypes.number,
+    originalDataPoints: PropTypes.number,
+    newDataPoints: PropTypes.number,
+  }).isRequired,
 };

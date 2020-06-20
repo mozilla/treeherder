@@ -118,17 +118,23 @@ class InfraCompareView extends React.PureComponent {
 InfraCompareView.propTypes = {
   projects: PropTypes.arrayOf(PropTypes.shape({})).isRequired,
   validated: PropTypes.shape({
-    originalResultSet: PropTypes.shape({}),
-    newResultSet: PropTypes.shape({}),
+    originalResultSet: PropTypes.shape({
+      push_timestamp: PropTypes.number,
+    }),
+    newResultSet: PropTypes.shape({
+      push_timestamp: PropTypes.number,
+    }),
     newRevision: PropTypes.string,
     originalProject: PropTypes.string,
     newProject: PropTypes.string,
     originalRevision: PropTypes.string,
   }),
+  updateAppState: PropTypes.func,
 };
 
 InfraCompareView.defaultProps = {
   validated: PropTypes.shape({}),
+  updateAppState: null,
 };
 
 const requiredParams = new Set([

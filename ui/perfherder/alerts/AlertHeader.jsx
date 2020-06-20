@@ -146,6 +146,7 @@ AlertHeader.propTypes = {
     assignee_username: PropTypes.string,
     issue_tracker: PropTypes.number,
     bug_number: PropTypes.number,
+    performance_tags: PropTypes.array,
   }).isRequired,
   repoModel: PropTypes.shape({
     getPushLogRangeHref: PropTypes.func,

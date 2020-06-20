@@ -243,11 +243,23 @@ InfraCompareTableView.propTypes = {
     originalRevision: PropTypes.string,
     selectedTimeRange: PropTypes.string,
     updateParams: PropTypes.func.isRequired,
+    pageTitle: PropTypes.string,
   }),
   getDisplayResults: PropTypes.func.isRequired,
   getQueryParams: PropTypes.func.isRequired,
+  compareData: PropTypes.shape({
+    size: PropTypes.number,
+  }),
+  location: PropTypes.shape({
+    search: PropTypes.string,
+    pathname: PropTypes.string,
+    hash: PropTypes.string,
+  }).isRequired,
+  jobsNotDisplayed: PropTypes.arrayOf(PropTypes.string),
 };
 
 InfraCompareTableView.defaultProps = {
   validated: PropTypes.shape({}),
+  compareData: null,
+  jobsNotDisplayed: [],
 };
