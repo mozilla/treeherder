@@ -137,18 +137,20 @@ export class Revision extends React.PureComponent {
         {ready && (
           <Tooltip
             isOpen={tooltipOpen}
-            toggle={() => this.handleTooltip(comment)}
+            toggle={() => this.handleTooltip()}
             target={`revision${revision}`}
             innerClassName="tooltip-content"
           >
-            {bugMatches.map((bug) => {
-              const bugId = bug.split(' ')[1];
-              return (
-                <div key={bugId}>
-                  Bug {bugId} - {revisionComments[bugId]}
-                </div>
-              );
-            })}
+            {!!bugMatches &&
+              bugMatches.map((bug) => {
+                const bugId = bug.split(' ')[1];
+                return (
+                  <div key={bugId}>
+                    Bug {bugId} - {revisionComments[bugId]}
+                  </div>
+                );
+              })}
+            {!bugMatches && comment}
             <br />
           </Tooltip>
         )}
