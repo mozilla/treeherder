@@ -115,7 +115,7 @@ export const getJobsUrl = function getJobsUrl(params) {
 };
 
 // This takes a plain object, rather than a URLSearchParams object.
-export const getPushHealthUrl = function getJobsUrl(params) {
+export const getPushHealthUrl = function getPushHealthUrl(params) {
   return `${uiPushHealthBase}${createQueryParams(params)}`;
 };
 

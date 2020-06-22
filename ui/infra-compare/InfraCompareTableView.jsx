@@ -103,7 +103,7 @@ export default class InfraCompareTableView extends React.Component {
     }
 
     const tableNames = [
-      ...new Set(data.map((item) => item.job_type__name)),
+      ...new Set(data.map((item) => item.job_type__name.replace(/-\d+$/, ''))),
     ].sort();
 
     const text = originalRevision

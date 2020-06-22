@@ -128,7 +128,11 @@ export default class CompareTableControls extends React.Component {
 
         {results.size > 0 ? (
           Array.from(results).map(([platform, data]) => (
-            <InfraCompareTable key={platform} data={data} />
+            <InfraCompareTable
+              platform={platform}
+              data={data}
+              {...this.props}
+            />
           ))
         ) : (
           <p className="lead text-center">No results to show</p>
