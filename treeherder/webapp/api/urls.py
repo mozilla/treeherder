@@ -1,5 +1,3 @@
-import copy
-
 from django.conf.urls import include, url
 from rest_framework import routers
 
@@ -19,7 +17,6 @@ from treeherder.webapp.api import (
     push,
     refdata,
     seta,
-    text_log_error,
 )
 
 # router for views that are bound to a project
@@ -68,25 +65,6 @@ project_bound_router.register(
     r'performance/platforms',
     performance_data.PerformancePlatformViewSet,
     basename='performance-signatures-platforms',
-)
-
-
-class TextLogErrorRouter(routers.DefaultRouter):
-    """
-    TextLogError specific router
-
-    The TLE endpoints accept PUT to a non-detail endpoint (no PK/ID in the
-    URL).  This router tells DRF to route those calls to a ViewSet's
-    `update_many` method.
-    """
-
-    routes = copy.deepcopy(routers.DefaultRouter.routes)
-    routes[0].mapping[u"put"] = u"update_many"
-
-
-tle_router = TextLogErrorRouter()
-tle_router.register(
-    r'text-log-error', text_log_error.TextLogErrorViewSet, basename='text-log-error'
 )
 
 
@@ -143,7 +121,6 @@ default_router.register(r'changelog', changelog.ChangelogViewSet, basename='chan
 urlpatterns = [
     url(r'^project/(?P<project>[\w-]{0,50})/', include(project_bound_router.urls)),
     url(r'^', include(default_router.urls)),
-    url(r'^', include(tle_router.urls)),
     url(r'^failures/$', intermittents_view.Failures.as_view(), name='failures'),
     url(r'^failuresbybug/$', intermittents_view.FailuresByBug.as_view(), name='failures-by-bug'),
     url(r'^failurecount/$', intermittents_view.FailureCount.as_view(), name='failure-count'),
