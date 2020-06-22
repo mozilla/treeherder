@@ -225,14 +225,14 @@ class App extends React.PureComponent {
 
   logFormatter = (line) => {
     let color = 'black';
-    if (/INFO - TEST-(OK)|(PASS)/.test(line)) color = 'green';
+    if (/INFO - TEST-(OK)|(PASS)/.test(line)) color = '#3B7A3B';
     else if (/INFO - TEST-START/.test(line)) color = 'blue';
-    else if (/INFO - TEST-/.test(line)) color = '#bcbc0f';
-    else if (/!!!/.test(line)) color = 'fuchsia';
-    else if (/Browser Chrome Test Summary$/.test(line)) color = '#778899';
+    else if (/INFO - TEST-/.test(line)) color = '#7A7A24';
+    else if (/!!!/.test(line)) color = '#985E98';
+    else if (/Browser Chrome Test Summary$/.test(line)) color = '#55677A';
     else if (/((INFO -)|([\s]+))(Passed|Failed|Todo):/.test(line))
-      color = '#778899';
-    else if (/INFO/.test(line)) color = '#5b7f7f';
+      color = '#55677A';
+    else if (/INFO/.test(line)) color = '#566262';
     return <span style={{ color }}>{line}</span>;
   };
 
