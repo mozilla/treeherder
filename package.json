@@ -61,7 +61,7 @@
     "taskcluster-lib-urls": "13.0.0",
     "victory": "34.0.1",
     "webpack": "4.41.6",
-    "webpack-cli": "3.3.11"
+    "webpack-cli": "3.3.12"
   },
   "devDependencies": {
     "@neutrinojs/eslint": "9.1.0",
