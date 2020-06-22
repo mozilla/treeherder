@@ -247,9 +247,10 @@ InfraCompareTableView.propTypes = {
   }),
   getDisplayResults: PropTypes.func.isRequired,
   getQueryParams: PropTypes.func.isRequired,
-  compareData: PropTypes.shape({
-    size: PropTypes.number,
-  }),
+  compareData: PropTypes.oneOfType([
+    PropTypes.instanceOf(Map),
+    PropTypes.array,
+  ]),
   location: PropTypes.shape({
     search: PropTypes.string,
     pathname: PropTypes.string,

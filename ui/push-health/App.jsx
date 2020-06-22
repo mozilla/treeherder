@@ -41,7 +41,11 @@ const App = () => {
 App.propTypes = {
   location: PropTypes.shape({
     search: PropTypes.string,
-  }).isRequired,
+  }),
+};
+
+App.defaultProps = {
+  location: null,
 };
 
 export default hot(App);

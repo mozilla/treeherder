@@ -275,10 +275,10 @@ FailureSummaryTab.propTypes = {
   }).isRequired,
   currentRepo: PropTypes.shape({
     name: PropTypes.string,
-  }).isRequired,
+  }),
   selectedJobFull: PropTypes.shape({
     job_group_name: PropTypes.string,
-  }).isRequired,
+  }),
   jobLogUrls: PropTypes.arrayOf(PropTypes.object),
   logParseStatus: PropTypes.string,
   logViewerFullUrl: PropTypes.string,
@@ -295,6 +295,8 @@ FailureSummaryTab.defaultProps = {
   addBug: null,
   pinJob: null,
   developerMode: false,
+  currentRepo: null,
+  selectedJobFull: null,
 };
 
 export default FailureSummaryTab;
