@@ -269,6 +269,7 @@ ClassificationGroup.propTypes = {
   expanded: PropTypes.bool,
   className: PropTypes.string,
   iconColor: PropTypes.string,
+  icon: PropTypes.shape({}),
 };
 
 ClassificationGroup.defaultProps = {
@@ -276,6 +277,7 @@ ClassificationGroup.defaultProps = {
   className: '',
   iconColor: 'darker-info',
   hasRetriggerAll: false,
+  icon: null,
 };
 
 export default ClassificationGroup;

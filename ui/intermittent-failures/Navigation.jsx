@@ -62,11 +62,14 @@ Nav.propTypes = {
 Navigation.propTypes = {
   tree: PropTypes.string,
   updateState: PropTypes.func.isRequired,
-  user: PropTypes.shape({}).isRequired,
-  setUser: PropTypes.func.isRequired,
-  notify: PropTypes.func.isRequired,
+  user: PropTypes.shape({}),
+  setUser: PropTypes.func,
+  notify: PropTypes.func,
 };
 
 Navigation.defaultProps = {
   tree: null,
+  user: null,
+  setUser: null,
+  notify: null,
 };

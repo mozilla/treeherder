@@ -87,7 +87,14 @@ class LogviewerTab extends React.PureComponent {
 }
 
 LogviewerTab.propTypes = {
-  selectedTaskFull: PropTypes.shape({}).isRequired,
+  selectedTaskFull: PropTypes.shape({
+    id: PropTypes.number,
+    logs: PropTypes.arrayOf(
+      PropTypes.shape({
+        url: PropTypes.string,
+      }),
+    ),
+  }).isRequired,
   repoName: PropTypes.string.isRequired,
 };
 

@@ -225,18 +225,18 @@ const BugDetailsView = (props) => {
 
 BugDetailsView.propTypes = {
   location: PropTypes.shape({}).isRequired,
-  tree: PropTypes.string.isRequired,
+  tree: PropTypes.string,
   updateAppState: PropTypes.func,
   updateState: PropTypes.func.isRequired,
-  startday: PropTypes.string.isRequired,
-  endday: PropTypes.string.isRequired,
+  startday: PropTypes.string,
+  endday: PropTypes.string,
   tableData: PropTypes.arrayOf(PropTypes.shape({})),
   graphData: PropTypes.arrayOf(PropTypes.shape({})),
   initialParamsSet: PropTypes.bool.isRequired,
-  bug: PropTypes.number.isRequired,
-  summary: PropTypes.string.isRequired,
+  bug: PropTypes.string,
+  summary: PropTypes.string,
   errorMessages: PropTypes.arrayOf(PropTypes.string),
-  lastLocation: PropTypes.shape({}).isRequired,
+  lastLocation: PropTypes.shape({}),
   tableFailureStatus: PropTypes.string,
   graphFailureStatus: PropTypes.string,
 };
@@ -248,6 +248,12 @@ BugDetailsView.defaultProps = {
   tableFailureStatus: null,
   graphFailureStatus: null,
   updateAppState: null,
+  tree: null,
+  startday: null,
+  endday: null,
+  bug: null,
+  lastLocation: null,
+  summary: null,
 };
 
 const defaultState = {

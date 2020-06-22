@@ -138,7 +138,7 @@ class Login extends React.Component {
 }
 
 Login.propTypes = {
-  setUser: PropTypes.func.isRequired,
+  setUser: PropTypes.func,
   user: PropTypes.shape({
     email: PropTypes.string,
     isLoggedIn: PropTypes.bool,
@@ -149,6 +149,7 @@ Login.propTypes = {
 
 Login.defaultProps = {
   user: { isLoggedIn: false },
+  setUser: null,
   notify: (msg) => console.error(msg), // eslint-disable-line no-console
 };
 

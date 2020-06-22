@@ -89,15 +89,20 @@ export default class InfraCompareTable extends React.PureComponent {
 }
 
 InfraCompareTable.propTypes = {
-  data: PropTypes.arrayOf(
-    PropTypes.shape({
-      platform: PropTypes.string,
-    }),
-  ),
+  data: PropTypes.arrayOf(PropTypes.shape({})),
   key: PropTypes.string,
+  platform: PropTypes.string,
+  validated: PropTypes.shape({
+    originalProject: PropTypes.string,
+    newProject: PropTypes.string,
+    originalRevision: PropTypes.string,
+    newRevision: PropTypes.string,
+  }),
 };
 
 InfraCompareTable.defaultProps = {
   data: null,
   key: null,
+  platform: null,
+  validated: null,
 };

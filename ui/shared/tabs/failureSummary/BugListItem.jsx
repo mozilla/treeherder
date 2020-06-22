@@ -55,7 +55,6 @@ BugListItem.propTypes = {
   suggestion: PropTypes.shape({
     search: PropTypes.string,
   }).isRequired,
-  selectedJobFull: PropTypes.shape({}).isRequired,
   bugClassName: PropTypes.string,
   title: PropTypes.string,
   addBug: PropTypes.func,

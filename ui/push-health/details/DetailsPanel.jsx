@@ -230,9 +230,19 @@ class DetailsPanel extends React.Component {
 }
 
 DetailsPanel.propTypes = {
-  currentRepo: PropTypes.shape({}).isRequired,
+  currentRepo: PropTypes.shape({
+    tc_root_url: PropTypes.string,
+    name: PropTypes.string,
+  }).isRequired,
   closeDetails: PropTypes.func.isRequired,
-  selectedTask: PropTypes.shape({}),
+  selectedTask: PropTypes.shape({
+    id: PropTypes.number,
+    state: PropTypes.string,
+    result: PropTypes.string,
+    failure_classification_id: PropTypes.number,
+    task_id: PropTypes.string,
+    run_id: PropTypes.number,
+  }),
 };
 
 DetailsPanel.defaultProps = {

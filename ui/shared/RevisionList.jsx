@@ -53,6 +53,7 @@ RevisionList.propTypes = {
   commitShaClass: PropTypes.string,
   commentFont: PropTypes.string,
   children: PropTypes.oneOfType([PropTypes.bool, PropTypes.object]),
+  bugSummaryMap: PropTypes.shape({}),
 };
 
 RevisionList.defaultProps = {
@@ -60,6 +61,7 @@ RevisionList.defaultProps = {
   commitShaClass: '',
   commentFont: '',
   children: false,
+  bugSummaryMap: null,
 };
 
 export function MoreRevisionsLink(props) {

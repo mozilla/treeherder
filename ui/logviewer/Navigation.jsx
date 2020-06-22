@@ -116,6 +116,8 @@ Navigation.propTypes = {
   rawLogUrl: PropTypes.string.isRequired,
   jobUrl: PropTypes.string,
   reftestUrl: PropTypes.string,
+  collapseDetails: PropTypes.bool.isRequired,
+  collapseJobDetails: PropTypes.func.isRequired,
 };
 
 Navigation.defaultProps = {
