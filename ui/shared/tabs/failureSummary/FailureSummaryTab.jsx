@@ -109,7 +109,7 @@ class FailureSummaryTab extends React.Component {
             line_number: error.line_number,
             logViewerUrl: getLogViewerUrl(
               selectedJob.id,
-              currentRepo.name,
+              repoName,
               error.line_number,
             ),
           }));

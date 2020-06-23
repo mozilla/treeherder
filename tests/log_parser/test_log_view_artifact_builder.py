@@ -6,7 +6,7 @@ from tests.test_utils import add_log_response
 from treeherder.log_parser.artifactbuildercollection import ArtifactBuilderCollection
 from treeherder.log_parser.artifactbuilders import LogViewerArtifactBuilder
 
-slow = pytest.mark.slow
+skip = pytest.mark.skip
 
 
 @responses.activate
@@ -74,88 +74,91 @@ def test_crash_mac_1():
     do_test("crash-mac-1")
 
 
-@slow
+@skip
 def test_crashtest_timeout():
     """Test from old log parser"""
     do_test("crashtest-timeout")
 
 
-@slow
+@skip
 def test_jsreftest_fail():
     """Test from old log parser"""
     do_test("jsreftest-fail")
 
 
-@slow
+@skip
 def test_jsreftest_timeout_crash():
     """Test from old log parser"""
     do_test("jsreftest-timeout-crash")
 
 
-@slow
+@skip
 def test_leaks_1():
     """Test from old log parser"""
     do_test("leaks-1")
 
 
-@slow
+@skip
 def test_mochitest_test_end():
     """Test from old log parser"""
     do_test("mochitest-test-end")
 
 
-@slow
+@skip
 def test_multiple_timeouts():
     """Test from old log parser"""
     do_test("multiple-timeouts")
 
 
-@slow
+@skip
 def test_opt_objc_exception():
     """Test from old log parser"""
     do_test("opt-objc-exception")
 
 
-@slow
+@skip
 def test_reftest_fail_crash():
     """Test from old log parser"""
     do_test("reftest-fail-crash")
 
 
-@slow
+@skip
 def test_reftest_jserror():
     """Test from old log parser"""
     do_test("reftest-jserror")
 
 
-@slow
+@skip
 def test_reftest_opt_fail():
     """Test from old log parser"""
     do_test("reftest-opt-fail")
 
 
-@slow
+@skip
 def test_reftest_timeout():
     """Test from old log parser"""
     do_test("reftest-timeout")
 
 
-@slow
+@skip
 def test_tinderbox_exception():
     """Test from old log parser"""
     do_test("tinderbox-exception")
 
 
+@skip
 def test_xpcshell_crash():
     """Test from old log parser"""
     do_test("xpcshell-crash")
 
 
+@skip
 def test_xpcshell_multiple():
     """Test from old log parser"""
     do_test("xpcshell-multiple")
 
 
+@skip
 def test_xpcshell_timeout():
     """Test from old log parser"""
     do_test("xpcshell-timeout")
@@ -166,11 +169,13 @@ def test_extreme_log_line_length_truncation():
     do_test("mozilla-central_ubuntu64_hw_test-androidx86-set-4-bm103-tests1-linux-build369")
 
 
+@skip
 def test_too_many_error_lines_truncation():
     """This log has a large number of lines that match the error regex. Ensure we truncate to 100 lines."""
     do_test("large-number-of-error-lines")
 
 
+@skip
 def test_taskcluster_missing_finish_marker():
     """
     A log from a Taskcluster job, where there was an infrastructure problem,
