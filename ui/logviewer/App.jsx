@@ -223,9 +223,15 @@ class App extends React.PureComponent {
     }
   };
 
+  // This script has been borrowed from https://github.com/gregtatum/scripts/blob/master/mochitest-formatter/from-talos-log.js
   logFormatter = (line) => {
-    let color = 'black';
-    if (/INFO - TEST-(OK)|(PASS)/.test(line)) color = '#3B7A3B';
+    let color = null;
+    if (
+      /INFO - GECKO\(\d+\)/.test(line) ||
+      /INFO - TEST-UNEXPECTED-FAIL/.test(line)
+    ) {
+      // Do nothing
+    } else if (/INFO - TEST-(OK)|(PASS)/.test(line)) color = '#3B7A3B';
     else if (/INFO - TEST-START/.test(line)) color = 'blue';
     else if (/INFO - TEST-/.test(line)) color = '#7A7A24';
     else if (/!!!/.test(line)) color = '#985E98';
