@@ -4,23 +4,20 @@ import chunk from 'lodash/chunk';
 import { connect } from 'react-redux';
 
 import { setPinBoardVisible } from '../redux/stores/pinnedJobs';
-import { thEvents, thBugSuggestionLimit } from '../../helpers/constants';
+import { thEvents } from '../../helpers/constants';
 import { addAggregateFields } from '../../helpers/job';
 import {
   getLogViewerUrl,
   getReftestUrl,
   getArtifactsUrl,
-  textLogErrorsEndpoint,
 } from '../../helpers/url';
 import { formatArtifacts } from '../../helpers/display';
 import { getData } from '../../helpers/http';
-import { getProjectJobUrl } from '../../helpers/location';
 import BugJobMapModel from '../../models/bugJobMap';
 import JobClassificationModel from '../../models/classification';
 import JobModel from '../../models/job';
 import JobLogUrlModel from '../../models/jobLogUrl';
 import PerfSeriesModel from '../../models/perfSeries';
-import BugSuggestionsModel from '../../models/bugSuggestions';
 
 import PinBoard from './PinBoard';
 import SummaryPanel from './summary/SummaryPanel';
@@ -96,60 +93,6 @@ class DetailsPanel extends React.Component {
     const { setPinBoardVisible, isPinBoardVisible } = this.props;
 
     setPinBoardVisible(!isPinBoardVisible);
-  };
-
-  loadBugSuggestions = () => {
-    const { currentRepo, selectedJob } = this.props;
-
-    if (!selectedJob) {
-      return;
-    }
-    BugSuggestionsModel.get(selectedJob.id).then(async (suggestions) => {
-      suggestions.forEach((suggestion) => {
-        suggestion.bugs.too_many_open_recent =
-          suggestion.bugs.open_recent.length > thBugSuggestionLimit;
-        suggestion.bugs.too_many_all_others =
-          suggestion.bugs.all_others.length > thBugSuggestionLimit;
-        suggestion.valid_open_recent =
-          suggestion.bugs.open_recent.length > 0 &&
-          !suggestion.bugs.too_many_open_recent;
-        suggestion.valid_all_others =
-          suggestion.bugs.all_others.length > 0 &&
-          !suggestion.bugs.too_many_all_others &&
-          // If we have too many open_recent bugs, we're unlikely to have
-          // relevant all_others bugs, so don't show them either.
-          !suggestion.bugs.too_many_open_recent;
-      });
-
-      // if we have no bug suggestions, populate with the raw errors from
-      // the log (we can do this asynchronously, it should normally be
-      // fast)
-
-      // TODO there might be a bug here, since querying bug_suggestions
-      // also sometimes returns only failure lines and no bugs, so why
-      // would we need to query this just to see the failure lines?
-      if (!suggestions.length) {
-        const { data, failureStatus } = await getData(
-          getProjectJobUrl(textLogErrorsEndpoint, selectedJob.id),
-        );
-
-        if (!failureStatus && data.length) {
-          const errors = data.map((error) => ({
-            line: error.line,
-            line_number: error.line_number,
-            logViewerUrl: getLogViewerUrl(
-              selectedJob.id,
-              currentRepo.name,
-              error.line_number,
-            ),
-          }));
-
-          this.setState({ errors });
-        }
-      }
-
-      this.setState({ bugSuggestionsLoading: false, suggestions, errors: [] });
-    });
   };
 
   updateClassifications = async () => {
