@@ -4,6 +4,3 @@ coverage:
     project:
       default:
         threshold: 2
-      ui:
-        target: 40%
-        paths: ui/
