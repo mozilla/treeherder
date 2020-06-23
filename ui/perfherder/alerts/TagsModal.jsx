@@ -46,6 +46,7 @@ export default class TagsModal extends React.Component {
       return (
         <CustomInput
           key={tag.name}
+          data-testid={`modal-perf-tag ${tag.name}`}
           type="checkbox"
           id={tag.name}
           name={tag.name}
@@ -83,7 +84,7 @@ export default class TagsModal extends React.Component {
     const { showModal, updateAndClose } = this.props;
 
     return (
-      <Modal isOpen={showModal}>
+      <Modal isOpen={showModal} data-testid="tags-modal">
         <ModalHeader toggle={this.toggleModal}>Alert Tags</ModalHeader>
         <Form>
           <ModalBody>

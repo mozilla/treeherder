@@ -16,15 +16,15 @@ import {
   endpoints,
   filterText,
   notSupportedAlertFiltersMessage,
-} from '../../../ui/perfherder/constants';
-import repos from '../mock/repositories';
-import { getApiUrl } from '../../../ui/helpers/url';
-import AlertsView from '../../../ui/perfherder/alerts/AlertsView';
-import AlertsViewControls from '../../../ui/perfherder/alerts/AlertsViewControls';
-import optionCollectionMap from '../mock/optionCollectionMap';
-import testAlertSummaries from '../mock/alert_summaries';
-import testPerformanceTags from '../mock/performance_tags';
-import TagsList from '../../../ui/perfherder/alerts/TagsList';
+} from '../../../../ui/perfherder/constants';
+import repos from '../../mock/repositories';
+import { getApiUrl } from '../../../../ui/helpers/url';
+import AlertsView from '../../../../ui/perfherder/alerts/AlertsView';
+import AlertsViewControls from '../../../../ui/perfherder/alerts/AlertsViewControls';
+import optionCollectionMap from '../../mock/optionCollectionMap';
+import testAlertSummaries from '../../mock/alert_summaries';
+import testPerformanceTags from '../../mock/performance_tags';
+import TagsList from '../../../../ui/perfherder/alerts/TagsList';
 
 const testUser = {
   username: 'mozilla-ldap/test_user@mozilla.com',
