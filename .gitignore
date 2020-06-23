@@ -14,6 +14,8 @@ __pycache__
 .eslintcache
 # PyCharm
 *.iml
+# Perf sheriffing criteria
+perf-sheriffing-criteria.csv
 
 # emacs
 *~

@@ -1,16 +1,16 @@
-from abc import abstractmethod, ABC
+from abc import ABC, abstractmethod
 from copy import deepcopy
-from typing import List, Tuple
+from datetime import timedelta, datetime
+from typing import Tuple, List
 
 import requests
 from django.conf import settings
 from requests import Session
 
-from datetime import datetime, timedelta
-
 from treeherder.config.settings import BZ_DATETIME_FORMAT
 from treeherder.perf.exceptions import NoFiledBugs, BugzillaEndpointError
 
+# Google Doc specification
 PERF_SHERIFFING_CRITERIA = (
     'https://docs.google.com/document/d/11WPIPFeq-i1IAVOQhBR-SzIMOPSqBVjLepgOWCrz_S4'
 )
