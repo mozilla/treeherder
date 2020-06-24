@@ -5,6 +5,7 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faBug } from '@fortawesome/free-solid-svg-icons';
 
 import { thBugSuggestionLimit } from '../../../helpers/constants';
+import { getLogViewerUrl } from '../../../helpers/url';
 
 import BugListItem from './BugListItem';
 
@@ -23,7 +24,13 @@ export default class SuggestionsListItem extends React.Component {
   };
 
   render() {
-    const { suggestion, toggleBugFiler, selectedJob, addBug } = this.props;
+    const {
+      suggestion,
+      toggleBugFiler,
+      selectedJob,
+      addBug,
+      repoName,
+    } = this.props;
     const { suggestionShowMore } = this.state;
 
     const suggestions = [];
@@ -110,7 +117,17 @@ export default class SuggestionsListItem extends React.Component {
           >
             <FontAwesomeIcon icon={faBug} title="File bug" />
           </Button>
-          <span>{suggestion.search}</span>
+          <a
+            href={getLogViewerUrl(
+              selectedJob.id,
+              repoName,
+              suggestion.line_number + 1,
+            )}
+            target="_blank"
+            rel="noopener noreferrer"
+          >
+            {suggestion.search}
+          </a>
         </div>
         {suggestions.length > 0 && (
           <div className="failure-summary-bugs-container">

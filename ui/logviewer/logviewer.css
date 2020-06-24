@@ -58,3 +58,17 @@
   background: #f8eec7 !important;
   color: #000 !important;
 }
+
+.react-lazylog-searchbar {
+  background: #354048 !important;
+}
+
+.react-lazylog-searchbar-input {
+  background: white !important;
+  color: black !important;
+}
+
+.react-lazylog-searchbar-input::placeholder {
+  color: black !important;
+  opacity: 1 !important;
+}
