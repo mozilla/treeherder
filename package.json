@@ -10,6 +10,9 @@
     "node": "12.14.1",
     "yarn": "1.22.4"
   },
+  "resolutions": {
+    "elliptic": "^6.5.3"
+  },
   "dependencies": {
     "@fortawesome/fontawesome-svg-core": "1.2.29",
     "@fortawesome/free-brands-svg-icons": "5.12.1",
