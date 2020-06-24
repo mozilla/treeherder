@@ -83,7 +83,7 @@
     "jest": "26.0.1",
     "node-fetch": "2.6.0",
     "prettier": "2.0.5",
-    "webpack-dev-server": "3.9.0"
+    "webpack-dev-server": "3.11.0"
   },
   "scripts": {
     "build": "node ./node_modules/webpack/bin/webpack.js --mode production",
