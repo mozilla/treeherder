@@ -1,165 +1,53 @@
 {
-  "step_data": {
-    "steps": [
-      {
-        "errors": [],
-        "name": "set props: master",
-        "started": "2013-06-05 12:44:58.842738",
-        "started_linenumber": 8,
-        "finished_linenumber": 10,
-        "finished": "2013-06-05 12:44:58.843804",
-        "result": "success"
-      },
-      {
-        "errors": [],
-        "name": "set props: basedir",
-        "started": "2013-06-05 12:44:58.844579",
-        "started_linenumber": 12,
-        "finished_linenumber": 52,
-        "finished": "2013-06-05 12:44:58.975106",
-        "result": "success"
-      },
-      {
-        "errors": [],
-        "name": "downloading to buildprops.json",
-        "started": "2013-06-05 12:44:58.975618",
-        "started_linenumber": 54,
-        "finished_linenumber": 55,
-        "finished": "2013-06-05 12:44:59.037644",
-        "result": "success"
-      },
-      {
-        "errors": [],
-        "name": "'rm -rf ...'",
-        "started": "2013-06-05 12:44:59.038141",
-        "started_linenumber": 57,
-        "finished_linenumber": 95,
-        "finished": "2013-06-05 12:44:59.112857",
-        "result": "success"
-      },
-      {
-        "errors": [],
-        "name": "'rm -rf ...'",
-        "started": "2013-06-05 12:44:59.113592",
-        "started_linenumber": 97,
-        "finished_linenumber": 135,
-        "finished": "2013-06-05 12:44:59.201908",
-        "result": "success"
-      },
-      {
-        "errors": [],
-        "name": "'hg clone ...'",
-        "started": "2013-06-05 12:44:59.202642",
-        "started_linenumber": 137,
-        "finished_linenumber": 182,
-        "finished": "2013-06-05 12:45:02.180652",
-        "result": "success"
-      },
-      {
-        "errors": [],
-        "name": "'hg update ...'",
-        "started": "2013-06-05 12:45:02.181421",
-        "started_linenumber": 184,
-        "finished_linenumber": 223,
-        "finished": "2013-06-05 12:45:02.421021",
-        "result": "success"
-      },
-      {
-        "errors": [],
-        "name": "set props: script_repo_revision",
-        "started": "2013-06-05 12:45:02.421566",
-        "started_linenumber": 225,
-        "finished_linenumber": 265,
-        "finished": "2013-06-05 12:45:02.558016",
-        "result": "success"
-      },
-      {
-        "errors": [],
-        "name": "tinderboxprint_script_revlink",
-        "started": "2013-06-05 12:45:02.558553",
-        "started_linenumber": 267,
-        "finished_linenumber": 269,
-        "finished": "2013-06-05 12:45:02.559173",
-        "result": "success"
-      },
-      {
-        "errors": [
-          {
-            "line": "12:46:31     INFO -  Assertion failure: pNew->iVersion == pSub->iVersion, at ../../../storage/src/TelemetryVFS.cpp:357",
-            "linenumber": 825
-          },
-          {
-            "line": "12:46:31  WARNING -  TEST-UNEXPECTED-FAIL | automation.py | Exited with code 11 during test run",
-            "linenumber": 826
-          },
-          {
-            "line": "12:46:37  WARNING -  PROCESS-CRASH | automation.py | application crashed [@ xOpen]",
-            "linenumber": 829
-          },
-          {
-            "line": "12:46:38    ERROR - Return code: 1",
-            "linenumber": 1600
-          },
-          {
-            "line": "12:46:40     INFO -  Assertion failure: pNew->iVersion == pSub->iVersion, at ../../../storage/src/TelemetryVFS.cpp:357",
-            "linenumber": 1632
-          },
-          {
-            "line": "12:46:40  WARNING -  TEST-UNEXPECTED-FAIL | automation.py | Exited with code 11 during test run",
-            "linenumber": 1633
-          },
-          {
-            "line": "12:46:46  WARNING -  PROCESS-CRASH | automation.py | application crashed [@ xOpen]",
-            "linenumber": 1636
-          },
-          {
-            "line": "12:46:46    ERROR - Return code: 1",
-            "linenumber": 2283
-          },
-          {
-            "line": "12:46:48     INFO -  Assertion failure: pNew->iVersion == pSub->iVersion, at ../../../storage/src/TelemetryVFS.cpp:357",
-            "linenumber": 2315
-          },
-          {
-            "line": "12:46:48  WARNING -  TEST-UNEXPECTED-FAIL | automation.py | Exited with code 11 during test run",
-            "linenumber": 2316
-          },
-          {
-            "line": "12:46:55  WARNING -  PROCESS-CRASH | automation.py | application crashed [@ xOpen]",
-            "linenumber": 2319
-          },
-          {
-            "line": "12:46:55    ERROR - Return code: 1",
-            "linenumber": 3062
-          }
-        ],
-        "name": "'/tools/buildbot/bin/python scripts/scripts/desktop_unittest.py ...' warnings",
-        "started": "2013-06-05 12:45:02.559674",
-        "started_linenumber": 271,
-        "finished_linenumber": 3070,
-        "finished": "2013-06-05 12:46:55.430095",
-        "result": "testfailed"
-      },
-      {
-        "errors": [],
-        "name": "set props: build_url symbols_url",
-        "started": "2013-06-05 12:46:55.431212",
-        "started_linenumber": 3072,
-        "finished_linenumber": 3114,
-        "finished": "2013-06-05 12:46:55.479840",
-        "result": "success"
-      },
-      {
-        "errors": [],
-        "name": "reboot slave lost",
-        "started": "2013-06-05 12:46:55.480585",
-        "started_linenumber": 3116,
-        "finished_linenumber": 3118,
-        "finished": "2013-06-05 12:46:57.867188",
-        "result": "success"
-      }
-    ],
-    "errors_truncated": false
-  },
+  "errors": [
+    {
+      "line": "12:46:31     INFO -  Assertion failure: pNew->iVersion == pSub->iVersion, at ../../../storage/src/TelemetryVFS.cpp:357",
+      "linenumber": 825
+    },
+    {
+      "line": "12:46:31  WARNING -  TEST-UNEXPECTED-FAIL | automation.py | Exited with code 11 during test run",
+      "linenumber": 826
+    },
+    {
+      "line": "12:46:37  WARNING -  PROCESS-CRASH | automation.py | application crashed [@ xOpen]",
+      "linenumber": 829
+    },
+    {
+      "line": "12:46:38    ERROR - Return code: 1",
+      "linenumber": 1600
+    },
+    {
+      "line": "12:46:40     INFO -  Assertion failure: pNew->iVersion == pSub->iVersion, at ../../../storage/src/TelemetryVFS.cpp:357",
+      "linenumber": 1632
+    },
+    {
+      "line": "12:46:40  WARNING -  TEST-UNEXPECTED-FAIL | automation.py | Exited with code 11 during test run",
+      "linenumber": 1633
+    },
+    {
+      "line": "12:46:46  WARNING -  PROCESS-CRASH | automation.py | application crashed [@ xOpen]",
+      "linenumber": 1636
+    },
+    {
+      "line": "12:46:46    ERROR - Return code: 1",
+      "linenumber": 2283
+    },
+    {
+      "line": "12:46:48     INFO -  Assertion failure: pNew->iVersion == pSub->iVersion, at ../../../storage/src/TelemetryVFS.cpp:357",
+      "linenumber": 2315
+    },
+    {
+      "line": "12:46:48  WARNING -  TEST-UNEXPECTED-FAIL | automation.py | Exited with code 11 during test run",
+      "linenumber": 2316
+    },
+    {
+      "line": "12:46:55  WARNING -  PROCESS-CRASH | automation.py | application crashed [@ xOpen]",
+      "linenumber": 2319
+    },
+    {
+      "line": "12:46:55    ERROR - Return code: 1",
+      "linenumber": 3062
+    }
+  ],
   "logurl": "http://my-log.mozilla.org/mozilla-inbound_ubuntu64_vm-debug_test-mochitest-other-bm53-tests1-linux-build122.txt.gz"
 }

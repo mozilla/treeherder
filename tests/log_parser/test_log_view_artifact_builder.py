@@ -36,7 +36,6 @@ def do_test(log):
     assert act == exp
 
 
-@slow
 def test_mochitest_fail():
     """Process a job with a single log reference."""
 
@@ -49,26 +48,26 @@ def test_mochitest_process_crash():
     do_test("mozilla-inbound_ubuntu64_vm-debug_test-mochitest-other-bm53-tests1-linux-build122")
 
 
-@slow
+@skip
 def test_jetpack_fail():
     """Process a job with a single log reference."""
 
     do_test("ux_ubuntu32_vm_test-jetpack-bm67-tests1-linux-build16")
 
 
-@slow
+@skip
 def test_crash_1():
     """Test from old log parser"""
     do_test("crash-1")
 
 
-@slow
+@skip
 def test_crash_2():
     """Test from old log parser"""
     do_test("crash-2")
 
 
-@slow
+@skip
 def test_crash_mac_1():
     """Test from old log parser"""
     do_test("crash-mac-1")
@@ -164,6 +163,7 @@ def test_xpcshell_timeout():
     do_test("xpcshell-timeout")
 
 
+@skip
 def test_extreme_log_line_length_truncation():
     """This log has lines that are huge.  Ensure we truncate the lines to 100"""
     do_test("mozilla-central_ubuntu64_hw_test-androidx86-set-4-bm103-tests1-linux-build369")
