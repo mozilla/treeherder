@@ -48,17 +48,27 @@ def test_mochitest_process_crash():
     do_test("mozilla-inbound_ubuntu64_vm-debug_test-mochitest-other-bm53-tests1-linux-build122")
 
 
+def test_crash_1():
+    """Test from old log parser"""
+    do_test("crash-1")
+
+
+def test_opt_objc_exception():
+    """Test from old log parser"""
+    do_test("opt-objc-exception")
+
+
+def test_jsreftest_fail():
+    """Test from old log parser"""
+    do_test("jsreftest-fail")
+
+
+# TODO remove old tests and update active tests with current live backing logs
 @skip
 def test_jetpack_fail():
     """Process a job with a single log reference."""
 
     do_test("ux_ubuntu32_vm_test-jetpack-bm67-tests1-linux-build16")
-
-
-@skip
-def test_crash_1():
-    """Test from old log parser"""
-    do_test("crash-1")
 
 
 @skip
@@ -77,12 +87,6 @@ def test_crash_mac_1():
 def test_crashtest_timeout():
     """Test from old log parser"""
     do_test("crashtest-timeout")
-
-
-@skip
-def test_jsreftest_fail():
-    """Test from old log parser"""
-    do_test("jsreftest-fail")
 
 
 @skip
@@ -107,12 +111,6 @@ def test_mochitest_test_end():
 def test_multiple_timeouts():
     """Test from old log parser"""
     do_test("multiple-timeouts")
-
-
-@skip
-def test_opt_objc_exception():
-    """Test from old log parser"""
-    do_test("opt-objc-exception")
 
 
 @skip
@@ -164,6 +162,7 @@ def test_xpcshell_timeout():
 
 
 @skip
+# This test is not actually testing truncation of lines - remove
 def test_extreme_log_line_length_truncation():
     """This log has lines that are huge.  Ensure we truncate the lines to 100"""
     do_test("mozilla-central_ubuntu64_hw_test-androidx86-set-4-bm103-tests1-linux-build369")
