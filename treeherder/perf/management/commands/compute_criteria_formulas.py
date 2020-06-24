@@ -1,3 +1,4 @@
+import time
 from datetime import timedelta
 
 from typing import List
@@ -9,8 +10,8 @@ from django.core.management.base import BaseCommand
 
 
 def pretty_enumerated(formulas: List[str]) -> str:
-    nice_comma = ', '
-    return ' & '.join(nice_comma.join(formulas).rsplit(nice_comma, maxsplit=1))
+    comma = ', '
+    return ' & '.join(comma.join(formulas).rsplit(comma, maxsplit=1))
 
 
 class Command(BaseCommand):
@@ -22,6 +23,9 @@ class Command(BaseCommand):
     Compute the {pretty_enumerated(FORMULAS)} for a particular framework/suite/test combo,
      according to the Perf Sheriffing Criteria specification
     '''
+
+    INITIAL_PROMPT_MSG = 'Computing Perf Sheriffing Criteria... (may take some time)'
+    PRECISION = '.1f'
 
     def add_arguments(self, parser):
         parser.add_argument('framework', action='store')
@@ -67,18 +71,24 @@ class Command(BaseCommand):
         engineer_traction = EngineerTractionFormula(*init_params)
         fix_ratio = FixRatioFormula(*init_params)
 
-        print('Computing Perf Sheriffing Criteria... (may take some time)')
+        print(f'\r{self.INITIAL_PROMPT_MSG}', end='')
 
+        compute_start = time.time()
         eng_traction_result = engineer_traction(*targetted_test)
         fix_ratio_result = fix_ratio(*targetted_test)
+        compute_duration = time.time() - compute_start
 
         # turn into regular percentages
         eng_traction_result *= 100
         fix_ratio_result *= 100
 
-        self._display_results(eng_traction_result, fix_ratio_result, framework, suite, test)
+        self._display_results(
+            eng_traction_result, fix_ratio_result, framework, suite, test, compute_duration
+        )
 
-    def _display_results(self, eng_traction_result, fix_ratio_result, framework, suite, test):
+    def _display_results(
+        self, eng_traction_result, fix_ratio_result, framework, suite, test, duration
+    ):
         """
         to console
         """
@@ -92,14 +102,18 @@ class Command(BaseCommand):
         fix_ratio_head = self.FIX_RATIO.capitalize()
         justify_head = self.__get_head_justification(eng_traction_head, fix_ratio_head)
 
+        # let's update 1st prompt line
+        print(f"\r{' ' * len(self.INITIAL_PROMPT_MSG)}", end='')
+        print(f"\rComputing Perf Sheriffing Criteria... (took {duration:{self.PRECISION}} seconds)")
+
         # display title
         print(big_underline)
         print(title)
         print(big_underline)
 
         # & actual results
-        print(f'{eng_traction_head:<{justify_head}}: {eng_traction_result:.1f}%')
-        print(f'{fix_ratio_head:<{justify_head}}: {fix_ratio_result:.1f}%')
+        print(f'{eng_traction_head:<{justify_head}}: {eng_traction_result:{self.PRECISION}}%')
+        print(f'{fix_ratio_head:<{justify_head}}: {fix_ratio_result:{self.PRECISION}}%')
         print(big_underline)
 
     def __get_head_justification(self, *result_heads):
