@@ -37,7 +37,7 @@ describe('FailureSummaryTab', () => {
       logViewerFullUrl="ber/baz"
       addBug={() => {}}
       pinJob={() => {}}
-      repoName="autoland"
+      repoName={repoName}
     />
   );
 
