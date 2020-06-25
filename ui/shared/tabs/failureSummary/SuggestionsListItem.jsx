@@ -2,8 +2,10 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import { Button } from 'reactstrap';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faBug, faExternalLinkAlt } from '@fortawesome/free-solid-svg-icons';
+import { faBug } from '@fortawesome/free-solid-svg-icons';
 
+import Clipboard from '../../Clipboard';
+import logviewerIcon from '../../../img/logviewerIcon.png';
 import { thBugSuggestionLimit } from '../../../helpers/constants';
 import { getLogViewerUrl } from '../../../helpers/url';
 
@@ -118,6 +120,7 @@ export default class SuggestionsListItem extends React.Component {
             <FontAwesomeIcon icon={faBug} title="File bug" />
           </Button>
           <span>{suggestion.search} </span>
+          <Clipboard description="error" text={suggestion.search} />
           <a
             href={getLogViewerUrl(
               selectedJob.id,
@@ -128,7 +131,12 @@ export default class SuggestionsListItem extends React.Component {
             rel="noopener noreferrer"
             title="Go to log viewer"
           >
-            <FontAwesomeIcon icon={faExternalLinkAlt} />
+            <img
+              alt="Logviewer"
+              src={logviewerIcon}
+              className="logviewer-icon ml-2"
+              color="black"
+            />
           </a>
         </div>
         {suggestions.length > 0 && (
