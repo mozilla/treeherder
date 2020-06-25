@@ -2,7 +2,6 @@ import React from 'react';
 import { hot } from 'react-hot-loader/root';
 import { LazyLog } from 'react-lazylog';
 import isEqual from 'lodash/isEqual';
-import { Collapse } from 'reactstrap';
 
 import { getAllUrlParams, getUrlParam, setUrlParam } from '../helpers/location';
 import { scrollToLine } from '../helpers/utils';
@@ -53,7 +52,6 @@ class App extends React.PureComponent {
       jobError: '',
       revision: null,
       errors: [],
-      collapseDetails: true,
       highlight: getUrlLineNumber(),
       repoName: queryString.get('repo'),
       jobId: queryString.get('job_id'),
@@ -189,13 +187,6 @@ class App extends React.PureComponent {
     }
   };
 
-  collapseJobDetails = () => {
-    const { collapseDetails } = this.state;
-    this.setState({
-      collapseDetails: !collapseDetails,
-    });
-  };
-
   setSelectedLine = (highlight, scrollToTop) => {
     this.setState({ highlight }, () => {
       this.updateQuery({ highlight });
@@ -223,25 +214,6 @@ class App extends React.PureComponent {
     }
   };
 
-  // This script has been borrowed from https://github.com/gregtatum/scripts/blob/master/mochitest-formatter/from-talos-log.js
-  logFormatter = (line) => {
-    let color = null;
-    if (
-      /INFO - GECKO\(\d+\)/.test(line) ||
-      /INFO - TEST-UNEXPECTED-FAIL/.test(line)
-    ) {
-      // Do nothing
-    } else if (/INFO - TEST-(OK)|(PASS)/.test(line)) color = '#3B7A3B';
-    else if (/INFO - TEST-START/.test(line)) color = 'blue';
-    else if (/INFO - TEST-/.test(line)) color = '#7A7A24';
-    else if (/!!!/.test(line)) color = '#985E98';
-    else if (/Browser Chrome Test Summary$/.test(line)) color = '#55677A';
-    else if (/((INFO -)|([\s]+))(Passed|Failed|Todo):/.test(line))
-      color = '#55677A';
-    else if (/INFO/.test(line)) color = '#566262';
-    return <span style={{ color }}>{line}</span>;
-  };
-
   render() {
     const {
       job,
@@ -252,7 +224,6 @@ class App extends React.PureComponent {
       jobExists,
       revision,
       errors,
-      collapseDetails,
       highlight,
       jobUrl,
       currentRepo,
@@ -278,35 +249,26 @@ class App extends React.PureComponent {
           rawLogUrl={rawLogUrl}
           reftestUrl={reftestUrl}
           jobUrl={jobUrl}
-          collapseDetails={collapseDetails}
-          collapseJobDetails={this.collapseJobDetails}
         />
         {job && (
           <div className="d-flex flex-column flex-fill">
-            <Collapse isOpen={!collapseDetails}>
-              <div className="run-data d-flex flex-row mx-1 mb-2">
-                <div className="d-flex flex-column job-data-panel">
-                  <JobInfo
-                    job={job}
-                    extraFields={extraFields}
-                    revision={revision}
-                    className="list-unstyled"
-                    showJobFilters={false}
-                    currentRepo={currentRepo}
-                  />
-                  <JobDetails jobDetails={jobDetails} />
-                </div>
-                <ErrorLines
-                  errors={errors}
-                  onClickLine={this.setSelectedLine}
+            <div className="run-data d-flex flex-row border-bottom border-secondary mx-1 mb-2">
+              <div className="d-flex flex-column job-data-panel">
+                <JobInfo
+                  job={job}
+                  extraFields={extraFields}
+                  revision={revision}
+                  className="list-unstyled"
+                  showJobFilters={false}
+                  currentRepo={currentRepo}
                 />
+                <JobDetails jobDetails={jobDetails} />
               </div>
-            </Collapse>
-
+              <ErrorLines errors={errors} onClickLine={this.setSelectedLine} />
+            </div>
             <div className="log-contents flex-fill">
               <LazyLog
                 url={rawLogUrl}
-                formatPart={this.logFormatter}
                 scrollToLine={highlight ? highlight[0] : 0}
                 highlight={highlight}
                 selectableLines
@@ -316,7 +278,6 @@ class App extends React.PureComponent {
                 rowHeight={13}
                 extraLines={3}
                 enableSearch
-                caseInsensitive
               />
             </div>
           </div>

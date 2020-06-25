@@ -68,7 +68,7 @@ class FailureSummaryTab extends React.Component {
   };
 
   loadBugSuggestions = () => {
-    const { repoName, selectedJob } = this.props;
+    const { currentRepo, selectedJob } = this.props;
 
     if (!selectedJob) {
       return;
@@ -102,7 +102,7 @@ class FailureSummaryTab extends React.Component {
               result: step.result,
               logViewerUrl: getLogViewerUrl(
                 selectedJob.id,
-                repoName,
+                currentRepo.name,
                 step.finished_line_number,
               ),
             }));
@@ -122,7 +122,6 @@ class FailureSummaryTab extends React.Component {
       selectedJob,
       reftestUrl,
       addBug,
-      repoName,
     } = this.props;
     const {
       isBugFilerOpen,
@@ -147,7 +146,6 @@ class FailureSummaryTab extends React.Component {
               toggleBugFiler={() => this.fileBug(suggestion)}
               selectedJob={selectedJob}
               addBug={addBug}
-              repoName={repoName}
             />
           ))}
 
@@ -244,7 +242,6 @@ FailureSummaryTab.propTypes = {
   logParseStatus: PropTypes.string,
   reftestUrl: PropTypes.string,
   logViewerFullUrl: PropTypes.string,
-  repoName: PropTypes.string.isRequired,
   addBug: PropTypes.func,
   pinJob: PropTypes.func,
 };

@@ -3,7 +3,6 @@ import PropTypes from 'prop-types';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faChartBar, faFileAlt } from '@fortawesome/free-regular-svg-icons';
 import { faTree } from '@fortawesome/free-solid-svg-icons';
-import { Button } from 'reactstrap';
 
 import LogoMenu from '../shared/LogoMenu';
 
@@ -19,90 +18,76 @@ export default class Navigation extends React.PureComponent {
       jobUrl,
       rawLogUrl,
       reftestUrl,
-      collapseDetails,
-      collapseJobDetails,
     } = this.props;
     const resultStatusShading = getShadingClass(result);
 
     return (
-      <nav className="navbar navbar-dark bg-dark p-0" role="navigation">
-        <div id="th-global-navbar-top">
-          <div className="nav mr-auto flex-row">
-            <span id="lv-logo">
-              <LogoMenu menuText="Logviewer" />
+      <nav className="navbar navbar-dark bg-dark mb-2 p-0" role="navigation">
+        <div className="nav mr-auto flex-row">
+          <span id="lv-logo">
+            <LogoMenu menuText="Logviewer" />
+          </span>
+          {jobExists ? (
+            <span className={`lightgray ${resultStatusShading} pt-2 pl-2 pr-2`}>
+              <strong>Result: </strong>
+              {result}
             </span>
-            {jobExists ? (
-              <span
-                className={`lightgray ${resultStatusShading} pt-2 pl-2 pr-2`}
-              >
-                <strong>Result: </strong>
-                {result}
+          ) : (
+            <span className="alert-danger">
+              <span title="The job does not exist or has expired">
+                {`Unavailable: ${jobError}`}
               </span>
-            ) : (
-              <span className="alert-danger">
-                <span title="The job does not exist or has expired">
-                  {`Unavailable: ${jobError}`}
-                </span>
-              </span>
-            )}
-            {!!jobUrl && (
-              <span>
-                <a
-                  title="Open the Job in Treeherder"
-                  className="nav-link btn-view-nav"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  href={jobUrl}
-                >
-                  <FontAwesomeIcon
-                    icon={faTree}
-                    className="actionbtn-icon mr-1"
-                  />
-                  <span>open Job</span>
-                </a>
-              </span>
-            )}
+            </span>
+          )}
+          {!!jobUrl && (
             <span>
               <a
-                title="Open the raw log in a new window"
+                title="Open the Job in Treeherder"
                 className="nav-link btn-view-nav"
                 target="_blank"
                 rel="noopener noreferrer"
-                href={rawLogUrl}
+                href={jobUrl}
               >
                 <FontAwesomeIcon
-                  icon={faFileAlt}
+                  icon={faTree}
                   className="actionbtn-icon mr-1"
                 />
-                <span>open raw log</span>
+                <span>open Job</span>
               </a>
             </span>
-            {!!reftestUrl && (
-              <span>
-                <a
-                  title="Open the Reftest Analyser in a new window"
-                  className="nav-link btn-view-nav"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  href={reftestUrl}
-                >
-                  <FontAwesomeIcon
-                    icon={faChartBar}
-                    className="actionbtn-icon mr-1"
-                  />
-                  <span>open analyser</span>
-                </a>
-              </span>
-            )}
+          )}
+          <span>
+            <a
+              title="Open the raw log in a new window"
+              className="nav-link btn-view-nav"
+              target="_blank"
+              rel="noopener noreferrer"
+              href={rawLogUrl}
+            >
+              <FontAwesomeIcon
+                icon={faFileAlt}
+                className="actionbtn-icon mr-1"
+              />
+              <span>open raw log</span>
+            </a>
+          </span>
+          {!!reftestUrl && (
             <span>
-              <Button
+              <a
+                title="Open the Reftest Analyser in a new window"
                 className="nav-link btn-view-nav"
-                onClick={collapseJobDetails}
+                target="_blank"
+                rel="noopener noreferrer"
+                href={reftestUrl}
               >
-                {collapseDetails ? `Show Job Info` : `Hide Job Info`}
-              </Button>
+                <FontAwesomeIcon
+                  icon={faChartBar}
+                  className="actionbtn-icon mr-1"
+                />
+                <span>open analyser</span>
+              </a>
             </span>
-          </div>
+          )}
         </div>
       </nav>
     );

@@ -88,7 +88,6 @@ def bug_suggestions_line(err, term_cache=None):
         "search": clean_line,
         "search_terms": search_terms,
         "bugs": bugs,
-        "line_number": err.line_number,
     }
 
 
