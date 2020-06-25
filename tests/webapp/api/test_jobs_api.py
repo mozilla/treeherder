@@ -258,7 +258,7 @@ def test_text_log_steps_and_errors(client, test_job):
                         'search': 'failure 1',
                         'search_terms': ['failure 1'],
                         'bugs': {'open_recent': [], 'all_others': []},
-                        'line_number': 102,
+                        'line_number': 101,
                     },
                     'metadata': None,
                     'matches': [],
