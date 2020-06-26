@@ -258,7 +258,6 @@ class DetailsPanel extends React.Component {
                     series: seriesList.find((s) => d.signature_id === s.id),
                     ...d,
                   }))
-                  .filter((d) => !d.series.parentSignature)
                   .map((d) => ({
                     url: `/perf.html#/graphs?series=${[
                       currentRepo.name,
