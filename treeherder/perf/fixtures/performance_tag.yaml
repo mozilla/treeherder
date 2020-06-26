@@ -14,3 +14,7 @@
   pk: 4
   fields:
     name: regression-fix
+- model: perf.PerformanceTag
+  pk: 5
+  fields:
+    name: improvement
