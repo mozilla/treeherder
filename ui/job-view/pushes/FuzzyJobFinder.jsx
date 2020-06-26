@@ -53,8 +53,9 @@ class FuzzyJobFinder extends React.Component {
         this.setState({ fuzzySearch: ev.target.value }, () => {
           const options = {
             // http://fusejs.io/ describes the options available
+            useExtendedSearch: true,
             keys: ['name', 'symbol'],
-            threshold: 0.6, // This seems like a good threshold to remove most false matches, lower is stricter
+            threshold: 0.4, // This seems like a good threshold to remove most false matches, lower is stricter
             matchAllTokens: true,
             tokenize: true,
           };

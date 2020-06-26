@@ -1,0 +1,18 @@
+[
+  "build-android-aarch64-gcp/debug",
+  "build-android-aarch64/debug",
+  "build-android-api-16-gcp/debug",
+  "build-android-api-16/debug",
+  "build-android-x86-fuzzing/debug",
+  "build-android-x86_64-gcp/debug",
+  "build-android-x86_64/debug",
+  "build-linux-gcp/debug",
+  "build-linux-rusttests/debug",
+  "build-linux/debug",
+  "build-linux64-asan/debug",
+  "build-linux64-fuzzing/debug",
+  "build-linux64-gcp/debug",
+  "build-linux64-noopt/debug",
+  "build-linux64-plain/debug",
+  "build-linux64-rusttests/debug"
+]
