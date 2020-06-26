@@ -44,6 +44,7 @@ def store_text_log_summary_artifact(job, text_log_summary_artifact):
             if step.get('errors'):
                 for error in step['errors']:
                     TextLogError.objects.create(
+                        job=job,
                         step=log_step,
                         line_number=error['linenumber'],
                         line=astral_filter(error['line']),
