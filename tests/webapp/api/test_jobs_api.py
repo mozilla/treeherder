@@ -229,8 +229,8 @@ def test_text_log_steps_and_errors(client, test_job):
         finished_line_number=200,
         result=TextLogStep.TEST_FAILED,
     )
-    TextLogError.objects.create(step=step2, line='failure 1', line_number=101)
-    TextLogError.objects.create(step=step2, line='failure 2', line_number=102)
+    TextLogError.objects.create(job=test_job, step=step2, line='failure 1', line_number=101)
+    TextLogError.objects.create(job=test_job, step=step2, line='failure 2', line_number=102)
     resp = client.get(
         reverse(
             "jobs-text-log-steps", kwargs={"project": test_job.repository.name, "pk": test_job.id}
@@ -252,6 +252,7 @@ def test_text_log_steps_and_errors(client, test_job):
             'errors': [
                 {
                     'id': 1,
+                    'job': 1,
                     'line': 'failure 1',
                     'line_number': 101,
                     'bug_suggestions': {
@@ -265,6 +266,7 @@ def test_text_log_steps_and_errors(client, test_job):
                 },
                 {
                     'id': 2,
+                    'job': 1,
                     'line': 'failure 2',
                     'line_number': 102,
                     'bug_suggestions': {
@@ -308,8 +310,8 @@ def test_text_log_errors(client, test_job):
         finished_line_number=200,
         result=TextLogStep.TEST_FAILED,
     )
-    TextLogError.objects.create(step=step2, line='failure 1', line_number=101)
-    TextLogError.objects.create(step=step2, line='failure 2', line_number=102)
+    TextLogError.objects.create(job=test_job, step=step2, line='failure 1', line_number=101)
+    TextLogError.objects.create(job=test_job, step=step2, line='failure 2', line_number=102)
     resp = client.get(
         reverse(
             "jobs-text-log-errors", kwargs={"project": test_job.repository.name, "pk": test_job.id}
@@ -319,6 +321,7 @@ def test_text_log_errors(client, test_job):
     assert resp.json() == [
         {
             'id': 1,
+            'job': 1,
             'line': 'failure 1',
             'line_number': 101,
             'bug_suggestions': {
@@ -332,6 +335,7 @@ def test_text_log_errors(client, test_job):
         },
         {
             'id': 2,
+            'job': 1,
             'line': 'failure 2',
             'line_number': 102,
             'bug_suggestions': {
