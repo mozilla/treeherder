@@ -4,48 +4,9 @@ import { Col, Row } from 'reactstrap';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faExternalLinkSquareAlt } from '@fortawesome/free-solid-svg-icons';
 
-import { getData } from '../helpers/http';
-import { bugzillaBugsApi } from '../helpers/url';
-
 import { Revision } from './Revision';
 
 export class RevisionList extends React.PureComponent {
-  constructor(props) {
-    super(props);
-
-    this.state = {
-      revisionComments: {},
-    };
-  }
-
-  componentDidMount() {
-    const { revisions } = this.props;
-    const bugNumbers = revisions.map((revision) =>
-      this.getBugNumbers(revision.comments),
-    );
-    this.getRevisionComments(bugNumbers);
-  }
-
-  getBugNumbers = (comments) => {
-    const comment = comments.split('\n')[0];
-    const bugMatches = comment.match(/-- ([0-9]+)|bug.([0-9]+)/gi);
-    const bugNumbers = bugMatches
-      ? bugMatches.map((bugMatch) => bugMatch.split(' ')[1])
-      : [''];
-    return bugNumbers;
-  };
-
-  getRevisionComments = async (bugNumbers) => {
-    const { data } = await getData(bugzillaBugsApi('bug', { id: bugNumbers }));
-    const bugData = data.bugs.reduce((accumulator, curBug) => {
-      accumulator[curBug.id] = curBug.summary;
-      return accumulator;
-    }, {});
-    this.setState((prev) => ({
-      revisionComments: { ...prev.revisionComments, ...bugData },
-    }));
-  };
-
   render() {
     const {
       revision,
@@ -54,9 +15,8 @@ export class RevisionList extends React.PureComponent {
       repo,
       widthClass,
       children,
+      bugSummaryMap,
     } = this.props;
-
-    const { revisionComments } = this.state;
 
     return (
       <Col className={`${widthClass} mb-3`}>
@@ -65,7 +25,7 @@ export class RevisionList extends React.PureComponent {
             revision={revision}
             repo={repo}
             key={revision.revision}
-            revisionComments={revisionComments}
+            bugSummaryMap={bugSummaryMap}
           />
         ))}
         {revisionCount > revisions.length && (

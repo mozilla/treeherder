@@ -93,7 +93,7 @@ export class Revision extends React.PureComponent {
     const {
       revision: { comments, author, revision },
       repo,
-      revisionComments,
+      bugSummaryMap,
     } = this.props;
     const comment = comments.split('\n')[0];
     const bugMatches = comment.match(/-- ([0-9]+)|bug.([0-9]+)/gi);
@@ -146,7 +146,7 @@ export class Revision extends React.PureComponent {
                 const bugId = bug.split(' ')[1];
                 return (
                   <div key={bugId}>
-                    Bug {bugId} - {revisionComments[bugId]}
+                    Bug {bugId} - {bugSummaryMap[bugId]}
                   </div>
                 );
               })}

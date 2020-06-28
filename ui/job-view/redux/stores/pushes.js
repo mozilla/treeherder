@@ -2,7 +2,8 @@ import pick from 'lodash/pick';
 import keyBy from 'lodash/keyBy';
 import max from 'lodash/max';
 
-import { parseQueryParams } from '../../../helpers/url';
+import { parseQueryParams, bugzillaBugsApi } from '../../../helpers/url';
+import { getData } from '../../../helpers/http';
 import {
   getAllUrlParams,
   getQueryString,
@@ -41,6 +42,32 @@ const getRevisionTips = (pushList) => {
       title: push.revisions[0].comments.split('\n')[0],
     })),
   };
+};
+
+const getBugIds = (results) => {
+  const bugIds = new Set();
+  results.forEach((result) => {
+    const revisions = result.revisions;
+    revisions.forEach((revision) => {
+      const comment = revision.comments.split('\n')[0];
+      const bugMatches = comment.match(/-- ([0-9]+)|bug.([0-9]+)/gi);
+      if (bugMatches)
+        bugMatches.forEach((bugMatch) => bugIds.add(bugMatch.split(' ')[1]));
+    });
+  });
+  return bugIds;
+};
+
+const getBugSummaryMap = async (bugIds, newStuff) => {
+  const bugNumbers = [...bugIds];
+  const { data } = await getData(bugzillaBugsApi('bug', { id: bugNumbers }));
+  const bugData = data.bugs.reduce((accumulator, curBug) => {
+    accumulator[curBug.id] = curBug.summary;
+    return accumulator;
+  }, {});
+
+  newStuff.bugSummaryMap = bugData;
+  // console.log(newStuff);
 };
 
 const getLastModifiedJobTime = (jobMap) => {
@@ -91,12 +118,17 @@ const addPushes = (data, pushList, jobMap, setFromchange) => {
     const oldestPushTimestamp =
       newPushList[newPushList.length - 1].push_timestamp;
 
+    const bugIds = getBugIds(data.results);
+
     const newStuff = {
       pushList: newPushList,
       oldestPushTimestamp,
       ...doRecalculateUnclassifiedCounts(jobMap),
       ...getRevisionTips(newPushList),
     };
+
+    getBugSummaryMap(bugIds, newStuff);
+    // console.log(newStuff);
 
     // since we fetched more pushes, we need to persist the push state in the URL.
     const updatedLastRevision = newPushList[newPushList.length - 1].revision;
@@ -374,6 +406,7 @@ export const updateRange = (range) => {
 
 export const initialState = {
   pushList: [],
+  bugSummaryMap: {},
   jobMap: {},
   decisionTaskMap: {},
   revisionTips: [],
