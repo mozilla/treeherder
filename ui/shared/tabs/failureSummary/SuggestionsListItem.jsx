@@ -120,7 +120,10 @@ export default class SuggestionsListItem extends React.Component {
             <FontAwesomeIcon icon={faBug} title="File bug" />
           </Button>
           <span>{suggestion.search} </span>
-          <Clipboard description="error" text={suggestion.search} />
+          <Clipboard
+            description=" text of error line"
+            text={suggestion.search}
+          />
           <a
             href={getLogViewerUrl(
               selectedJob.id,
@@ -129,13 +132,12 @@ export default class SuggestionsListItem extends React.Component {
             )}
             target="_blank"
             rel="noopener noreferrer"
-            title="Go to log viewer"
+            title="Go to this line log viewer"
           >
             <img
               alt="Logviewer"
               src={logviewerIcon}
-              className="logviewer-icon ml-2"
-              color="black"
+              className="logviewer-icon pb-1 ml-1"
             />
           </a>
         </div>
