@@ -23,7 +23,9 @@ def get_commit_history(repository, revision, push):
         'parentRepository': RepositorySerializer(parent_repo).data,
         'id': None,
         'jobCounts': None,
-        'revisions': [CommitSerializer(commit).data for commit in push.commits.all()],
+        'revisions': [
+            CommitSerializer(commit).data for commit in push.commits.all().order_by('-id')
+        ],
         'revisionCount': push.commits.count(),
         'parentPush': None,
         'currentPush': PushSerializer(push).data,
