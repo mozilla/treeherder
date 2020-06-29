@@ -132,7 +132,7 @@ export default class SuggestionsListItem extends React.Component {
             )}
             target="_blank"
             rel="noopener noreferrer"
-            title="Go to this line log viewer"
+            title="Go to this line in the log viewer"
           >
             <img
               alt="Logviewer"
