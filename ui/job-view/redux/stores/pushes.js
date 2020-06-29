@@ -58,7 +58,7 @@ const getBugIds = (results) => {
   return bugIds;
 };
 
-const getBugSummaryMap = async (bugIds, newStuff, dispatch) => {
+const getBugSummaryMap = async (bugIds, dispatch) => {
   const bugNumbers = [...bugIds];
   const { data } = await getData(bugzillaBugsApi('bug', { id: bugNumbers }));
   const bugData = data.bugs.reduce((accumulator, curBug) => {
@@ -66,11 +66,9 @@ const getBugSummaryMap = async (bugIds, newStuff, dispatch) => {
     return accumulator;
   }, {});
 
-  newStuff.bugSummaryMap = bugData;
-
   dispatch({
     type: ADD_PUSHES,
-    pushResults: newStuff,
+    pushResults: { bugSummaryMap: bugData },
   });
 };
 
@@ -131,7 +129,7 @@ const addPushes = (data, pushList, jobMap, setFromchange, dispatch) => {
       ...getRevisionTips(newPushList),
     };
 
-    if (dispatch) getBugSummaryMap(bugIds, newStuff, dispatch);
+    if (dispatch) getBugSummaryMap(bugIds, dispatch);
 
     // since we fetched more pushes, we need to persist the push state in the URL.
     const updatedLastRevision = newPushList[newPushList.length - 1].revision;
