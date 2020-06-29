@@ -119,7 +119,7 @@ export default class SuggestionsListItem extends React.Component {
           >
             <FontAwesomeIcon icon={faBug} title="File bug" />
           </Button>
-          <span>{suggestion.search} </span>
+          <span className="align-middle">{suggestion.search} </span>
           <Clipboard
             description=" text of error line"
             text={suggestion.search}
@@ -137,7 +137,7 @@ export default class SuggestionsListItem extends React.Component {
             <img
               alt="Logviewer"
               src={logviewerIcon}
-              className="logviewer-icon pb-1 ml-1"
+              className="logviewer-icon ml-1"
             />
           </a>
         </div>
