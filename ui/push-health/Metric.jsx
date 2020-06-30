@@ -33,7 +33,6 @@ export default class Metric extends React.PureComponent {
     return (
       <Collapse isOpen={expanded} className="w-100 mt-2">
         <Row className="flex-nowrap">
-          <Col className={`bg-${resultColor} pr-2 mr-2 flex-grow-0`} />
           <Col>
             <Row className="justify-content-between">
               <Button

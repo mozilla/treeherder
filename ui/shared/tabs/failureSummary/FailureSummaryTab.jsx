@@ -126,6 +126,7 @@ class FailureSummaryTab extends React.Component {
       selectedJob,
       addBug,
       repoName,
+      developerMode,
     } = this.props;
     const {
       isBugFilerOpen,
@@ -142,7 +143,9 @@ class FailureSummaryTab extends React.Component {
     return (
       <div className="w-100 h-100" role="region" aria-label="Failure Summary">
         <ul
-          className="list-unstyled failure-summary-list overflow-auto"
+          className={`${
+            !developerMode && 'smaller-text'
+          } list-unstyled w-100 h-100 mb-0 overflow-auto text-small`}
           ref={this.fsMount}
         >
           {suggestions.map((suggestion, index) => (
@@ -154,6 +157,7 @@ class FailureSummaryTab extends React.Component {
               selectedJob={selectedJob}
               addBug={addBug}
               repoName={repoName}
+              developerMode={developerMode}
             />
           ))}
 
@@ -254,6 +258,7 @@ FailureSummaryTab.propTypes = {
   repoName: PropTypes.string.isRequired,
   addBug: PropTypes.func,
   pinJob: PropTypes.func,
+  developerMode: PropTypes.bool,
 };
 
 FailureSummaryTab.defaultProps = {
@@ -262,6 +267,7 @@ FailureSummaryTab.defaultProps = {
   logViewerFullUrl: null,
   addBug: null,
   pinJob: null,
+  developerMode: false,
 };
 
 export default FailureSummaryTab;

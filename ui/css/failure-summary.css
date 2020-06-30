@@ -2,29 +2,10 @@
  * Failure summary
  */
 
-ul.failure-summary-list {
-  width: 100%;
-  margin-bottom: 0;
-  height: 100%;
-}
-
-ul.failure-summary-list li {
-  font-size: 11px;
-  padding: 1px 0 0 2px;
-}
-
-ul.failure-summary-list li .btn-xs {
-  font-size: 8px;
-}
-
 .failure-summary-line-empty {
   padding: 2px 4px 0;
   font-size: 12px;
   background: #ffffff;
-}
-
-.failure-summary-bugs-title {
-  font-size: 12px;
 }
 
 .failure-summary-bugs-container {
@@ -34,15 +15,6 @@ ul.failure-summary-list li .btn-xs {
   margin: 0 11px;
   padding: 10px 15px;
   border-left: 2px solid #0004;
-}
-
-/* We override global anchor color to replicate TBPL here */
-.failure-summary-bugs a {
-  color: #0000ee;
-}
-
-.failure-summary-bugs a:visited {
-  color: purple;
 }
 
 .show-hide-more {

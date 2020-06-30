@@ -32,6 +32,7 @@ export default class SuggestionsListItem extends React.Component {
       selectedJob,
       addBug,
       repoName,
+      developerMode,
     } = this.props;
     const { suggestionShowMore } = this.state;
 
@@ -110,42 +111,61 @@ export default class SuggestionsListItem extends React.Component {
     return (
       <li>
         <div>
-          <Button
-            className="bg-light py-1 px-2 mr-2"
-            outline
-            size="xs"
-            onClick={() => toggleBugFiler(suggestion)}
-            title="file a bug for this failure"
-          >
-            <FontAwesomeIcon icon={faBug} title="File bug" />
-          </Button>
-          <span className="align-middle">{suggestion.search} </span>
-          <Clipboard
-            description=" text of error line"
-            text={suggestion.search}
-          />
-          <a
-            href={getLogViewerUrl(
-              selectedJob.id,
-              repoName,
-              suggestion.line_number + 1,
-            )}
-            target="_blank"
-            rel="noopener noreferrer"
-            title="Go to this line in the log viewer"
-          >
-            <img
-              alt="Logviewer"
-              src={logviewerIcon}
-              className="logviewer-icon ml-1"
-            />
-          </a>
+          {developerMode ? (
+            <a
+              href={getLogViewerUrl(
+                selectedJob.id,
+                repoName,
+                suggestion.line_number + 1,
+              )}
+              target="_blank"
+              rel="noopener noreferrer"
+              title="Go to this line in the log viewer"
+            >
+              <span className="align-middle">{suggestion.search} </span>
+            </a>
+          ) : (
+            <span>
+              <Button
+                className="bg-light py-1 px-2 mr-2"
+                outline
+                style={{ fontSize: '8px' }}
+                onClick={() => toggleBugFiler(suggestion)}
+                title="file a bug for this failure"
+              >
+                <FontAwesomeIcon icon={faBug} title="File bug" />
+              </Button>
+              <span className="align-middle">{suggestion.search} </span>
+              <Clipboard
+                description=" text of error line"
+                text={suggestion.search}
+              />
+              <a
+                href={getLogViewerUrl(
+                  selectedJob.id,
+                  repoName,
+                  suggestion.line_number + 1,
+                )}
+                target="_blank"
+                rel="noopener noreferrer"
+                title="Go to this line in the log viewer"
+              >
+                <img
+                  alt="Logviewer"
+                  src={logviewerIcon}
+                  className="logviewer-icon ml-1"
+                />
+              </a>
+            </span>
+          )}
         </div>
         {suggestions.length > 0 && (
           <div className="failure-summary-bugs-container">
-            <h4 className="failure-summary-bugs-title">
-              These bugs may be related:
-            </h4>
+            {developerMode && (
+              <strong>
+                <div className="mb-1">These bugs may be related:</div>
+              </strong>
+            )}
             {suggestions}
           </div>
         )}
@@ -158,6 +178,7 @@ SuggestionsListItem.propTypes = {
   selectedJob: PropTypes.shape({}).isRequired,
   suggestion: PropTypes.shape({}).isRequired,
   toggleBugFiler: PropTypes.func.isRequired,
+  developerMode: PropTypes.bool.isRequired,
   addBug: PropTypes.func,
 };
 

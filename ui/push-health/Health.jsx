@@ -276,7 +276,7 @@ export default class Health extends React.PureComponent {
             )}
           </Navbar>
         </Navigation>
-        <Container fluid className="mt-2 mb-5">
+        <Container fluid className="mt-2 mb-5 max-width-default">
           <NotificationList
             notifications={notifications}
             clearNotification={this.clearNotification}

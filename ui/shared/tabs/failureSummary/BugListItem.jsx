@@ -18,7 +18,7 @@ function BugListItem(props) {
         <Button
           className="bg-light px-2 py-1"
           outline
-          size="xs"
+          style={{ fontSize: '8px' }}
           type="button"
           onClick={() => addBug(bug, selectedJob)}
           title="add to list of bugs to associate with all pinned jobs"

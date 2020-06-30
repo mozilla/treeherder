@@ -200,6 +200,7 @@ class DetailsPanel extends React.Component {
                       currentRepo.name,
                     )}
                     repoName={currentRepo.name}
+                    developerMode
                   />
                 </TabPanel>
                 <TabPanel>
