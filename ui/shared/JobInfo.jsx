@@ -95,6 +95,7 @@ export default class JobInfo extends React.PureComponent {
         <li className="small">
           <strong>Job name: </strong>
           <span>{jobTypeName}</span>
+          <Clipboard description="job Name" text={jobTypeName} />
         </li>
         {[...timeFields, ...extraFields].map((field) => (
           <li className="small" key={`${field.title}${field.value}`}>
