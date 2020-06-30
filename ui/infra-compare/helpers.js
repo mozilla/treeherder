@@ -2,6 +2,17 @@ export const calcPercentOf = function calcPercentOf(a, b) {
   return b ? (100 * a) / b : 0;
 };
 
+export const getHashBasedId = function getHashBasedId(
+  suiteName,
+  hashFunction,
+  platformName,
+) {
+  const tableSection = platformName === null ? 'header' : 'row';
+  const hashValue = hashFunction(`${suiteName}${platformName}`);
+
+  return `table-${tableSection}-${hashValue}`;
+};
+
 export const containsText = (string, text) => {
   const words = text
     .split(' ')

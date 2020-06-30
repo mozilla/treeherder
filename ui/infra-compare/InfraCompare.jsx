@@ -64,26 +64,28 @@ class InfraCompareView extends React.PureComponent {
   getDisplayResults = (origResultsMap, newResultsMap, tableNames) => {
     let compareResults = new Map();
     tableNames.forEach((jobName) => {
-      jobName = jobName.replace(/-\d+$/, '');
-      const oldResults = origResultsMap.filter(
+      const originalResults = origResultsMap.filter(
         (job) => job.job_type__name.replace(/-\d+$/, '') === jobName,
       );
       const newResults = newResultsMap.filter(
         (job) => job.job_type__name.replace(/-\d+$/, '') === jobName,
       );
-      const cmap = getCounterMap(jobName, oldResults, newResults);
+      const cmap = getCounterMap(jobName, originalResults, newResults);
+      cmap.originalJobs = new Map();
+      cmap.newJobs = new Map();
+      originalResults.forEach((job) => {
+        if (cmap.originalJobs.has(job.job_type__name))
+          cmap.originalJobs.get(job.job_type__name).push(job.duration);
+        else cmap.originalJobs.set(job.job_type__name, [job.duration]);
+      });
+      newResults.forEach((job) => {
+        if (cmap.newJobs.has(job.job_type__name))
+          cmap.newJobs.get(job.job_type__name).push(job.duration);
+        else cmap.newJobs.set(job.job_type__name, [job.duration]);
+      });
       if (!cmap.isEmpty) {
         if (compareResults.has(cmap.platform)) {
-          let found = false;
-          const compareResult = compareResults.get(cmap.platform);
-          compareResult.forEach((result) => {
-            if (result.suite === cmap.suite) {
-              found = true;
-            }
-          });
-          if (!found) {
-            compareResults.get(cmap.platform).push(cmap);
-          }
+          compareResults.get(cmap.platform).push(cmap);
         } else {
           compareResults.set(cmap.platform, [cmap]);
         }
