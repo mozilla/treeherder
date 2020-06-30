@@ -88,6 +88,7 @@ class TestFailure extends React.PureComponent {
                   <Button
                     color={taskResultColorMap[result]}
                     outline={!isSelected}
+                    size="sm"
                     onClick={() => this.setSelectedTask(task)}
                     title={`${
                       state === 'completed' ? result : state
