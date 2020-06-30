@@ -1,7 +1,11 @@
+import logging
 from django.core.management.base import BaseCommand
 
 from treeherder.model.models import TextLogError
 from treeherder.utils.queryset import chunked_qs
+
+
+logger = logging.getLogger(__name__)
 
 
 class Command(BaseCommand):
@@ -19,11 +23,24 @@ class Command(BaseCommand):
         )
 
     def handle(self, *args, **options):
-        queryset = TextLogError.objects.filter(job__isnull=True)
+        queryset = TextLogError.objects.select_related('step').filter(job__isnull=True)
+        chunk_size = options['chunk_size']
 
-        for queryset in chunked_qs(
-            queryset, chunk_size=options['chunk_size'], fields=['id', 'step', 'job']
+        for chunked_queryset in chunked_qs(
+            queryset, chunk_size=chunk_size, fields=['id', 'step', 'job']
         ):
-            for row in queryset:
+            if not chunked_queryset:
+                return
+
+            for row in chunked_queryset:
                 row.job_id = row.step.job_id
-                row.save()
+
+            TextLogError.objects.bulk_update(chunked_queryset, ['job'])
+
+            logger.info(
+                'successfully added job_id in TextLogError table to rows {} to {}'.format(
+                    chunked_queryset[0].id, chunked_queryset[-1].id
+                )
+            )
+
+        logger.info('successfully finished backfilling job_ids in the TextLogError table')
