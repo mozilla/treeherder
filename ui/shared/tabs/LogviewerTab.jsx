@@ -6,20 +6,9 @@ import { faExpand, faFileAlt } from '@fortawesome/free-solid-svg-icons';
 
 import TextLogStepModel from '../../models/textLogStep';
 import { getLogViewerUrl } from '../../helpers/url';
+import { errorLinesCss } from '../../helpers/display';
 
-const errorLinesCss = function errorLinesCss(logErrors) {
-  const style = document.createElement('style');
-  const rule = logErrors
-    .map(({ lineNumber }) => `a[id="${lineNumber}"]+span`)
-    .join(',')
-    .concat('{background:#fbe3e3;color:#a94442}');
-
-  style.type = 'text/css';
-  document.getElementsByTagName('head')[0].appendChild(style);
-  style.sheet.insertRule(rule);
-};
-
-class LogTab extends React.PureComponent {
+class LogviewerTab extends React.PureComponent {
   constructor(props) {
     super(props);
 
@@ -91,9 +80,9 @@ class LogTab extends React.PureComponent {
   }
 }
 
-LogTab.propTypes = {
+LogviewerTab.propTypes = {
   selectedTaskFull: PropTypes.shape({}).isRequired,
   repoName: PropTypes.string.isRequired,
 };
 
-export default LogTab;
+export default LogviewerTab;

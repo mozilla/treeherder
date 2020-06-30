@@ -10,7 +10,7 @@ import { formatArtifacts } from '../../helpers/display';
 import { addAggregateFields } from '../../helpers/job';
 import { getData } from '../../helpers/http';
 import JobModel from '../../models/job';
-import LogTab from '../../shared/tabs/LogTab';
+import LogviewerTab from '../../shared/tabs/LogviewerTab';
 import FailureSummaryTab from '../../shared/tabs/failureSummary/FailureSummaryTab';
 
 class DetailsPanel extends React.Component {
@@ -203,7 +203,7 @@ class DetailsPanel extends React.Component {
                   />
                 </TabPanel>
                 <TabPanel>
-                  <LogTab
+                  <LogviewerTab
                     selectedTaskFull={selectedTaskFull}
                     repoName={currentRepo.name}
                   />
