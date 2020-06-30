@@ -53,3 +53,15 @@ export const formatArtifacts = function formatArtifacts(data, artifactParams) {
     return { url: getArtifactsUrl(artifactParams), value, title };
   });
 };
+
+export const errorLinesCss = function errorLinesCss(errors) {
+  const style = document.createElement('style');
+  const rule = errors
+    .map(({ lineNumber }) => `a[id="${lineNumber}"]+span`)
+    .join(',')
+    .concat('{background:#fbe3e3;color:#a94442}');
+
+  style.type = 'text/css';
+  document.getElementsByTagName('head')[0].appendChild(style);
+  style.sheet.insertRule(rule);
+};

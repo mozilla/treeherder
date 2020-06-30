@@ -15,7 +15,7 @@ import TextLogStepModel from '../models/textLogStep';
 import JobDetails from '../shared/JobDetails';
 import JobInfo from '../shared/JobInfo';
 import RepositoryModel from '../models/repository';
-import { formatArtifacts } from '../helpers/display';
+import { formatArtifacts, errorLinesCss } from '../helpers/display';
 
 import Navigation from './Navigation';
 import ErrorLines from './ErrorLines';
@@ -27,18 +27,6 @@ const getUrlLineNumber = function getUrlLineNumber() {
     return lineNumberParam.split('-').map((line) => parseInt(line, 10));
   }
   return null;
-};
-
-const errorLinesCss = function errorLinesCss(errors) {
-  const style = document.createElement('style');
-  const rule = errors
-    .map(({ lineNumber }) => `a[id="${lineNumber}"]+span`)
-    .join(',')
-    .concat('{background:#fbe3e3;color:#a94442}');
-
-  style.type = 'text/css';
-  document.getElementsByTagName('head')[0].appendChild(style);
-  style.sheet.insertRule(rule);
 };
 
 class App extends React.PureComponent {

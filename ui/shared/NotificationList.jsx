@@ -18,6 +18,8 @@ class NotificationList extends React.Component {
         return faExclamationTriangle;
       case 'info':
         return faCircle;
+      case 'darker-info':
+        return faCircle;
       case 'success':
         return faCheck;
     }

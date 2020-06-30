@@ -143,7 +143,6 @@ div#details-panel-content .actionbar-nav > li > button:focus {
 }
 
 #details-panel-content #job-details-list,
-#details-panel-content .failure-summary-list,
 #details-panel-content .similar-jobs > .similar-job-list tbody {
   overflow-y: auto;
   height: 100%;
@@ -279,58 +278,6 @@ div#details-panel-content .actionbar-nav > li > button:focus {
 
 #job-details-list label {
   margin-left: 2px;
-}
-
-/*
- * Failure summary
- */
-
-ul.failure-summary-list {
-  width: 100%;
-  margin-bottom: 0;
-  height: 100%;
-}
-
-ul.failure-summary-list li {
-  font-size: 11px;
-  padding: 1px 0 0 2px;
-}
-
-ul.failure-summary-list li .btn-xs {
-  font-size: 8px;
-}
-
-.failure-summary-line-empty {
-  padding: 2px 4px 0;
-  font-size: 12px;
-  background: #ffffff;
-}
-
-.failure-summary-bugs-title {
-  font-size: 12px;
-}
-
-.failure-summary-bugs-container {
-  /* These styles don't use the bootstrap system as they are creating a vertical
-   * line underneath the bug icon. When only using bootstrap classes, this vertical line
-   * is not aligned with the bug icon. */
-  margin: 0 11px;
-  padding: 10px 15px;
-  border-left: 2px solid #0004;
-}
-
-/* We override global anchor color to replicate TBPL here */
-.failure-summary-bugs a {
-  color: #0000ee;
-}
-
-.failure-summary-bugs a:visited {
-  color: purple;
-}
-
-.show-hide-more {
-  /* Override the selector complexity of: "ul.failure-summary-list li .btn-xs" */
-  font-size: 11px !important;
 }
 
 /*
