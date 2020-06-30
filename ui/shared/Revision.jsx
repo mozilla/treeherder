@@ -96,7 +96,6 @@ export class Revision extends React.PureComponent {
         </span>
         <AuthorInitials title={`${name}: ${email}`} author={name} />
         <span
-          ref={this.spanRef}
           className={`ml-2 revision-comment overflow-hidden text-nowrap ${commentColor}`}
           id={`revision${revision}`}
         >
