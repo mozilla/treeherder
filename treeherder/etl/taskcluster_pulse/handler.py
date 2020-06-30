@@ -64,7 +64,6 @@ def createLogReference(root_url, taskId, runId):
         root_url, "queue", "v1", "task/{taskId}/runs/{runId}/artifacts/public/logs/live_backing.log"
     ).format(taskId=taskId, runId=runId)
     return {
-        # XXX: This is a magical name see 1147958 which enables the log viewer.
         "name": "live_backing_log",
         "url": logUrl,
     }

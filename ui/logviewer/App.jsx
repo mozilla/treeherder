@@ -72,7 +72,10 @@ class App extends React.PureComponent {
 
         // set the title of  the browser window/tab
         document.title = job.searchStr;
-        const rawLogUrl = job.logs && job.logs.length ? job.logs[0].url : null;
+        const rawLogUrl =
+          job.logs && job.logs.length
+            ? job.logs.find((log) => log.name === 'live_backing_log').url
+            : null;
         // other properties, in order of appearance
         // Test to disable successful steps checkbox on taskcluster jobs
         // Test to expose the reftest button in the logviewer actionbar
