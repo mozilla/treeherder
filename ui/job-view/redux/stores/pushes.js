@@ -3,7 +3,6 @@ import keyBy from 'lodash/keyBy';
 import max from 'lodash/max';
 
 import { parseQueryParams, bugzillaBugsApi } from '../../../helpers/url';
-import { getData } from '../../../helpers/http';
 import {
   getAllUrlParams,
   getQueryString,
@@ -15,7 +14,7 @@ import { getTaskRunStr, isUnclassifiedFailure } from '../../../helpers/job';
 import FilterModel from '../../../models/filter';
 import JobModel from '../../../models/job';
 import { thEvents } from '../../../helpers/constants';
-import { processErrors } from '../../../helpers/http';
+import { processErrors, getData } from '../../../helpers/http';
 
 import { notify } from './notifications';
 import { setSelectedJob, clearSelectedJob } from './selectedJob';
@@ -46,8 +45,10 @@ const getRevisionTips = (pushList) => {
 
 const getBugIds = (results) => {
   const bugIds = new Set();
+
   results.forEach((result) => {
-    const revisions = result.revisions;
+    const { revisions } = result;
+
     revisions.forEach((revision) => {
       const comment = revision.comments.split('\n')[0];
       const bugMatches = comment.match(/-- ([0-9]+)|bug.([0-9]+)/gi);

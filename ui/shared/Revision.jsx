@@ -2,7 +2,7 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faUser } from '@fortawesome/free-regular-svg-icons';
-import { Row, Tooltip } from 'reactstrap';
+import { Row, UncontrolledTooltip } from 'reactstrap';
 
 import { parseAuthor } from '../helpers/revision';
 
@@ -47,39 +47,8 @@ export class Revision extends React.PureComponent {
 
     this.state = {
       clipboardVisible: false,
-      ready: false,
-      tooltipOpen: false,
     };
-    this.spanRef = React.createRef();
   }
-
-  componentDidMount() {
-    this.setReady();
-  }
-
-  componentDidUpdate() {
-    this.setReady();
-  }
-
-  setReady() {
-    if (this.spanRef.current) {
-      this.setState({
-        ready: true,
-      });
-    }
-  }
-
-  handleTooltip = async () => {
-    this.handleTooltipOpen();
-  };
-
-  handleTooltipOpen = () => {
-    this.setState((prevState) => {
-      return {
-        tooltipOpen: !prevState.tooltipOpen,
-      };
-    });
-  };
 
   showClipboard = (show) => {
     this.setState({ clipboardVisible: show });
@@ -97,12 +66,13 @@ export class Revision extends React.PureComponent {
     } = this.props;
     const comment = comments.split('\n')[0];
     const bugMatches = comment.match(/-- ([0-9]+)|bug.([0-9]+)/gi);
-    const { clipboardVisible, ready, tooltipOpen } = this.state;
+    const { clipboardVisible } = this.state;
     const { name, email } = parseAuthor(author);
     const commitRevision = revision;
     const commentColor = this.isBackout(comment)
       ? 'text-danger'
       : 'text-secondary';
+
     return (
       <Row
         className="revision flex-nowrap"
@@ -134,26 +104,22 @@ export class Revision extends React.PureComponent {
             <BugLinkify id={revision}>{comment}</BugLinkify>
           </em>
         </span>
-        {ready && (
-          <Tooltip
-            isOpen={tooltipOpen}
-            toggle={() => this.handleTooltip()}
-            target={`revision${revision}`}
-            innerClassName="tooltip-content"
-          >
-            {!!bugMatches &&
-              bugMatches.map((bug) => {
-                const bugId = bug.split(' ')[1];
-                return (
-                  <div key={bugId}>
-                    Bug {bugId} - {bugSummaryMap[bugId]}
-                  </div>
-                );
-              })}
-            {!bugMatches && comment}
-            <br />
-          </Tooltip>
-        )}
+        <UncontrolledTooltip
+          placement="top-start"
+          innerClassName="tooltip-content"
+          target={`revision${revision}`}
+        >
+          {!!bugMatches &&
+            bugMatches.map((bug) => {
+              const bugId = bug.split(' ')[1];
+              return (
+                <div key={bugId}>
+                  Bug {bugId} - {bugSummaryMap[bugId]}
+                </div>
+              );
+            })}
+          {!bugMatches && comment}
+        </UncontrolledTooltip>
       </Row>
     );
   }
