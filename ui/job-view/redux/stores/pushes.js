@@ -21,6 +21,7 @@ import { setSelectedJob, clearSelectedJob } from './selectedJob';
 
 export const LOADING = 'LOADING';
 export const ADD_PUSHES = 'ADD_PUSHES';
+export const ADD_BUG_SUMMARIES = 'ADD_BUG_SUMMARIES';
 export const CLEAR_PUSHES = 'CLEAR_PUSHES';
 export const SET_PUSHES = 'SET_PUSHES';
 export const RECALCULATE_UNCLASSIFIED_COUNTS =
@@ -59,17 +60,18 @@ const getBugIds = (results) => {
   return bugIds;
 };
 
-const getBugSummaryMap = async (bugIds, dispatch) => {
+const getBugSummaryMap = async (bugIds, dispatch, oldBugSummaryMap) => {
   const bugNumbers = [...bugIds];
   const { data } = await getData(bugzillaBugsApi('bug', { id: bugNumbers }));
   const bugData = data.bugs.reduce((accumulator, curBug) => {
     accumulator[curBug.id] = curBug.summary;
     return accumulator;
   }, {});
+  const result = { ...bugData, ...oldBugSummaryMap };
 
   dispatch({
-    type: ADD_PUSHES,
-    pushResults: { bugSummaryMap: bugData },
+    type: ADD_BUG_SUMMARIES,
+    pushResults: { bugSummaryMap: result },
   });
 };
 
@@ -109,7 +111,14 @@ const doRecalculateUnclassifiedCounts = (jobMap) => {
   };
 };
 
-const addPushes = (data, pushList, jobMap, setFromchange, dispatch) => {
+const addPushes = (
+  data,
+  pushList,
+  jobMap,
+  setFromchange,
+  dispatch,
+  oldBugSummaryMap,
+) => {
   if (data.results.length > 0) {
     const pushIds = pushList.map((push) => push.id);
     const newPushList = [
@@ -130,7 +139,7 @@ const addPushes = (data, pushList, jobMap, setFromchange, dispatch) => {
       ...getRevisionTips(newPushList),
     };
 
-    if (dispatch) getBugSummaryMap(bugIds, dispatch);
+    if (dispatch) getBugSummaryMap(bugIds, dispatch, oldBugSummaryMap);
 
     // since we fetched more pushes, we need to persist the push state in the URL.
     const updatedLastRevision = newPushList[newPushList.length - 1].revision;
@@ -428,6 +437,8 @@ export const reducer = (state = initialState, action) => {
       return { ...state, loadingPushes: true };
     case ADD_PUSHES:
       return { ...state, loadingPushes: false, ...pushResults, setFromchange };
+    case ADD_BUG_SUMMARIES:
+      return { ...state, ...pushResults };
     case CLEAR_PUSHES:
       return { ...initialState };
     case SET_PUSHES:
