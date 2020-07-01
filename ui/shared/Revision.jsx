@@ -74,13 +74,12 @@ export class Revision extends React.PureComponent {
       : 'text-secondary';
 
     return (
-      <Row
-        className="revision flex-nowrap"
-        onMouseEnter={() => this.showClipboard(true)}
-        onMouseLeave={() => this.showClipboard(false)}
-        data-testid="revision"
-      >
-        <span className="pr-1 text-nowrap">
+      <Row className="revision flex-nowrap" data-testid="revision">
+        <span
+          onMouseEnter={() => this.showClipboard(true)}
+          onMouseLeave={() => this.showClipboard(false)}
+          className="pr-1 text-nowrap"
+        >
           <Clipboard
             description="full hash"
             text={commitRevision}
