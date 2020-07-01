@@ -112,6 +112,7 @@ export const tooltipMessages = {
   harness: 'patch that updated harness and caused improvements/regressions',
   infra:
     'improvements/regressions caused by infra changes (changes not related to repository code)',
+  improvement: 'patch that generated an actual improvement',
   'regression-backedout': 'patch backed out due to causing regressions',
   'regression-fix': 'patch fixing a reported regression bug',
 };
