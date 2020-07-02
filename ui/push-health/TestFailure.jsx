@@ -1,6 +1,6 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import { Badge, Button, Row, Col } from 'reactstrap';
+import { Badge, Button, Row, Col, Input } from 'reactstrap';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faRedo } from '@fortawesome/free-solid-svg-icons';
 import sortBy from 'lodash/sortBy';
@@ -67,6 +67,14 @@ class TestFailure extends React.PureComponent {
         style={{ background: '#f2f2f2' }}
       >
         <Row className="ml-2 w-100 mb-2 justify-content-between">
+          <Col xs="auto">
+            <Input
+              type="checkbox"
+              defaultChecked
+              onChange={this.handleChange}
+              title="mark as investigated"
+            />
+          </Col>
           <Col>
             <Row>
               <span
