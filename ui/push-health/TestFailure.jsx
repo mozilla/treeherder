@@ -47,8 +47,6 @@ class TestFailure extends React.PureComponent {
       failJobs,
       passJobs,
       passInFailedJobs,
-      platform,
-      config,
       key,
       tier,
       failedInParent,
@@ -63,17 +61,22 @@ class TestFailure extends React.PureComponent {
     taskList.forEach((task) => addAggregateFields(task));
 
     return (
-      <Row className="pt-2" key={key}>
-        <Row className="mx-5 w-100 mb-2 justify-content-between">
+      <Row
+        className="ml-5 pt-2 mr-1"
+        key={key}
+        style={{ background: '#f2f2f2' }}
+      >
+        <Row className="ml-2 w-100 mb-2 justify-content-between">
           <Col>
             <Row>
-              <strong id={key} className="w-5 px-2 mx-2 text-darker-secondary">
-                <span>
-                  {groupedBy !== 'path' && `${testName} `}
-                  {groupedBy !== 'platform' && `${platform} ${config}`}
-                </span>
-                <span className="ml-3">{jobName}</span>
-              </strong>
+              <span
+                id={key}
+                className="px-2 text-darker-secondary"
+                style={{ fontWeight: 500 }}
+              >
+                <span>{groupedBy !== 'path' && `${testName} `}</span>
+                <span>{jobName}</span>
+              </span>
             </Row>
           </Col>
           <Col className="ml-2">
@@ -84,9 +87,12 @@ class TestFailure extends React.PureComponent {
               const { id, result, state, start_time: startTime } = task;
               const isSelected = selectedTask && selectedTask.id === id;
               return (
-                <span key={id} className="mr-1">
+                <span key={id} className="mr-3">
                   <Button
-                    color={taskResultColorMap[result]}
+                    className="py-0"
+                    color={`${taskResultColorMap[result]} ${
+                      !isSelected && 'bg-white'
+                    }`}
                     outline={!isSelected}
                     size="sm"
                     onClick={() => this.setSelectedTask(task)}
@@ -96,7 +102,7 @@ class TestFailure extends React.PureComponent {
                       startTime,
                     ).toLocaleString('en-US', shortDateFormat)}`}
                   >
-                    Task {idx + 1}
+                    task {idx > 0 ? idx + 1 : ''}
                   </Button>
                 </span>
               );

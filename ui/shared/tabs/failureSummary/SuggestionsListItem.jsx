@@ -52,6 +52,9 @@ export default class SuggestionsListItem extends React.Component {
               suggestion={suggestion}
               selectedJob={selectedJob}
               addBug={addBug}
+              bugClassName={
+                developerMode ? 'text-darker-secondary small-text' : ''
+              }
             />
           ))}
         </ul>,
@@ -65,7 +68,9 @@ export default class SuggestionsListItem extends React.Component {
             color="link"
             rel="noopener"
             onClick={this.clickShowMore}
-            className="bg-light px-2 py-1 btn btn-outline-secondary btn-xs my-2 show-hide-more"
+            className={`bg-light px-2 py-1 btn btn-outline-secondary btn-xs my-2 show-hide-more ${
+              developerMode && 'text-darker-secondary small-text'
+            }`}
           >
             {suggestionShowMore
               ? 'Hide bug suggestions'
@@ -86,7 +91,9 @@ export default class SuggestionsListItem extends React.Component {
               key={bug.id}
               bug={bug}
               suggestion={suggestion}
-              bugClassName={bug.resolution !== '' ? 'strike-through' : ''}
+              bugClassName={`${bug.resolution !== '' ? 'strike-through' : ''} ${
+                developerMode ? 'text-darker-secondary small-text' : ''
+              }`}
               title={bug.resolution !== '' ? bug.resolution : ''}
               selectedJob={selectedJob}
               addBug={addBug}
@@ -122,7 +129,12 @@ export default class SuggestionsListItem extends React.Component {
               rel="noopener noreferrer"
               title="Go to this line in the log viewer"
             >
-              <span className="align-middle">{suggestion.search} </span>
+              <span
+                className="align-middle link-style"
+                style={{ fontWeight: '500' }}
+              >
+                {suggestion.search}{' '}
+              </span>
             </a>
           ) : (
             <span>
@@ -160,14 +172,12 @@ export default class SuggestionsListItem extends React.Component {
           )}
         </div>
         {suggestions.length > 0 && (
-          <div className="failure-summary-bugs-container">
+          <React.Fragment>
             {developerMode && (
-              <strong>
-                <div className="mb-1">These bugs may be related:</div>
-              </strong>
+              <div className="mt-2 mb-1">These bugs may be related:</div>
             )}
-            {suggestions}
-          </div>
+            <div className="failure-summary-bugs-container">{suggestions}</div>
+          </React.Fragment>
         )}
       </li>
     );

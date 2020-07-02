@@ -163,7 +163,7 @@ class DetailsPanel extends React.Component {
             <Tabs
               selectedIndex={tabIndex}
               onSelect={this.setTabIndex}
-              className="w-100 h-100 ml-1 mr-5 mb-2 border p-3"
+              className="w-100 h-100 ml-1 mr-5 mb-2 border p-3 bg-white"
               selectedTabClassName="selected-detail-tab"
             >
               <TabList className="pl-0 w-100 list-inline">
