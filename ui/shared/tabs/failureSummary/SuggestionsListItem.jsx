@@ -129,11 +129,8 @@ export default class SuggestionsListItem extends React.Component {
               rel="noopener noreferrer"
               title="Go to this line in the log viewer"
             >
-              <span
-                className="align-middle link-style"
-                style={{ fontWeight: '500' }}
-              >
-                {suggestion.search}{' '}
+              <span className="align-middle link-style half-bold">
+                {suggestion.search}
               </span>
             </a>
           ) : (

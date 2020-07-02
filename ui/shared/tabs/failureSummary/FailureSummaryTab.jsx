@@ -4,7 +4,7 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faSpinner } from '@fortawesome/free-solid-svg-icons';
 
 import { thBugSuggestionLimit, thEvents } from '../../../helpers/constants';
-import { isReftest } from '../../../helpers/job';
+import { getResultState, isReftest } from '../../../helpers/job';
 import {
   getBugUrl,
   getLogViewerUrl,
@@ -136,9 +136,8 @@ class FailureSummaryTab extends React.Component {
       errors,
     } = this.state;
     const logs = jobLogUrls;
-    const jobLogsAllParsed = logs.every(
-      (jlu) => jlu.parse_status !== 'pending',
-    );
+    const jobLogsAllParsed =
+      logs.length > 0 && logs.every((jlu) => jlu.parse_status !== 'pending');
 
     return (
       <div className="w-100 h-100" role="region" aria-label="Failure Summary">
@@ -162,6 +161,8 @@ class FailureSummaryTab extends React.Component {
           ))}
 
           {!!errors.length && <ErrorsList errors={errors} />}
+
+          {!jobLogsAllParsed && <ListItem text="Log parsing not complete" />}
 
           {!bugSuggestionsLoading &&
             jobLogsAllParsed &&
@@ -214,7 +215,11 @@ class FailureSummaryTab extends React.Component {
           )}
 
           {!bugSuggestionsLoading && !logs.length && (
-            <ListItem text="No logs available for this job." />
+            <ListItem
+              text={`No logs yet available for this ${getResultState(
+                selectedJob,
+              )} job.`}
+            />
           )}
 
           {bugSuggestionsLoading && (

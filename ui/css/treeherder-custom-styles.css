@@ -35,6 +35,10 @@
   font-size: 11px;
 }
 
+.half-bold {
+  font-weight: 500;
+}
+
 /* this is better for drop down menu items because
   display: none will change text alignment */
 .hide {

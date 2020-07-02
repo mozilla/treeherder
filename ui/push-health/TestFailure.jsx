@@ -69,11 +69,7 @@ class TestFailure extends React.PureComponent {
         <Row className="ml-2 w-100 mb-2 justify-content-between">
           <Col>
             <Row>
-              <span
-                id={key}
-                className="px-2 text-darker-secondary"
-                style={{ fontWeight: 500 }}
-              >
+              <span id={key} className="px-2 text-darker-secondary half-bold">
                 <span>{groupedBy !== 'path' && `${testName} `}</span>
                 <span>{jobName}</span>
               </span>
@@ -91,7 +87,7 @@ class TestFailure extends React.PureComponent {
                   <Button
                     className="py-0"
                     color={`${taskResultColorMap[result]} ${
-                      !isSelected && 'bg-white'
+                      !isSelected && 'bg-white bg-hover-grey'
                     }`}
                     outline={!isSelected}
                     size="sm"
