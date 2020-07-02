@@ -76,7 +76,7 @@ test('Modal does not keep unsaved changes', async () => {
   testAlertSummary.performance_tags = ['harness'];
 
   const handleClose = jest.fn();
-  const { getByText, getByTestId, rerender } = render(
+  const { getByText, getByTestId } = render(
     <TagsModal
       alertSummary={testAlertSummary}
       performanceTags={testPerformanceTags}
@@ -97,15 +97,6 @@ test('Modal does not keep unsaved changes', async () => {
 
   expect(handleClose).toHaveBeenCalledTimes(1);
 
-  rerender(
-    <TagsModal
-      alertSummary={testAlertSummary}
-      performanceTags={testPerformanceTags}
-      showModal
-      toggle={handleClose}
-      updateAndClose={() => {}}
-    />,
-  );
   activeTag = await waitFor(() => getByTestId('modal-perf-tag harness'));
 
   expect(activeTag.checked).toBeTruthy();
