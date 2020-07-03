@@ -1,12 +1,25 @@
 import React, { PureComponent } from 'react';
 import PropTypes from 'prop-types';
-import { Badge, Button, UncontrolledCollapse } from 'reactstrap';
+import {
+  Badge,
+  Button,
+  UncontrolledCollapse,
+  Navbar,
+  Nav,
+  NavItem,
+  ButtonGroup,
+  UncontrolledButtonDropdown,
+  DropdownMenu,
+  DropdownToggle,
+  DropdownItem,
+} from 'reactstrap';
 import groupBy from 'lodash/groupBy';
 import orderBy from 'lodash/orderBy';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faCaretDown } from '@fortawesome/free-solid-svg-icons';
+import { faCaretDown, faRedo } from '@fortawesome/free-solid-svg-icons';
 
 import Clipboard from '../shared/Clipboard';
+import JobModel from '../models/job';
 
 import TestFailure from './TestFailure';
 
@@ -32,6 +45,21 @@ class GroupedTests extends PureComponent {
           return `${test.platform} ${test.config}`;
       }
     });
+  };
+
+  retriggerAll = (times, group) => {
+    const { notify, currentRepo } = this.props;
+    // Reduce down to the unique jobs
+    const jobs = group.reduce(
+      (acc, test) => ({
+        ...acc,
+        ...test.failJobs.reduce((fjAcc, fJob) => ({ [fJob.id]: fJob }), {}),
+      }),
+      {},
+    );
+    const uniqueJobs = Object.values(jobs);
+
+    JobModel.retrigger(uniqueJobs, currentRepo, notify, times);
   };
 
   setClipboardVisible = (key) => {
@@ -125,6 +153,52 @@ class GroupedTests extends PureComponent {
               </span>
 
               <UncontrolledCollapse toggler={`group-${group.id}`}>
+                <Navbar className="mb-4">
+                  <Nav>
+                    <NavItem>
+                      <ButtonGroup size="sm" className="ml-5">
+                        <Button
+                          title="Retrigger selected jobs once"
+                          onClick={() => this.retriggerAll(1, group)}
+                          size="sm"
+                        >
+                          <FontAwesomeIcon
+                            icon={faRedo}
+                            title="Retrigger"
+                            className="mr-2"
+                            alt=""
+                          />
+                          Retrigger Selected
+                        </Button>
+                        <UncontrolledButtonDropdown size="sm">
+                          <DropdownToggle caret />
+                          <DropdownMenu>
+                            {[5, 10, 15].map((times) => (
+                              <DropdownItem
+                                key={times}
+                                title={`Retrigger all jobs ${times} times`}
+                                onClick={() => this.retriggerAll(times, group)}
+                                className="pointable"
+                                tag="a"
+                              >
+                                Retrigger All {times} times
+                              </DropdownItem>
+                            ))}
+                          </DropdownMenu>
+                        </UncontrolledButtonDropdown>
+                      </ButtonGroup>
+                      <Button
+                        size="sm"
+                        outline
+                        color="primary"
+                        className="mx-3"
+                        title="Mark selected jobs as investigated"
+                      >
+                        Mark as investigated
+                      </Button>
+                    </NavItem>
+                  </Nav>
+                </Navbar>
                 {group.tests.map((failure) => (
                   <TestFailure
                     key={failure.key}

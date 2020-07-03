@@ -19,7 +19,18 @@ class TestFailure extends React.PureComponent {
     this.state = {
       detailsShowing: false,
       selectedTask: null,
+      markAsInvestigated: false,
     };
+  }
+
+  componentWillMount() {
+    const test = `${this.props.failure.key}${this.props.revision}`;
+    if (localStorage.getItem(test)) {
+      const data = JSON.parse(localStorage.getItem(test));
+      this.setState({
+        markAsInvestigated: data,
+      });
+    }
   }
 
   setSelectedTask = (task) => {
@@ -38,8 +49,18 @@ class TestFailure extends React.PureComponent {
     JobModel.retrigger([task], currentRepo, notify);
   };
 
+  handleChange = (e) => {
+    localStorage.setItem(
+      e.target.name,
+      JSON.stringify(!this.state.markAsInvestigated),
+    );
+    this.setState((prevState) => ({
+      markAsInvestigated: !prevState.markAsInvestigated,
+    }));
+  };
+
   render() {
-    const { failure, groupedBy, currentRepo } = this.props;
+    const { failure, groupedBy, currentRepo, revision } = this.props;
     const {
       testName,
       jobName,
@@ -53,7 +74,7 @@ class TestFailure extends React.PureComponent {
       jobGroupSymbol,
       jobSymbol,
     } = failure;
-    const { detailsShowing, selectedTask } = this.state;
+    const { detailsShowing, selectedTask, markAsInvestigated } = this.state;
     const taskList = sortBy(
       [...failJobs, ...passJobs, ...passInFailedJobs, ...inProgressJobs],
       ['start_time'],
@@ -70,7 +91,8 @@ class TestFailure extends React.PureComponent {
           <Col xs="auto">
             <Input
               type="checkbox"
-              defaultChecked
+              name={`${key}${revision}`}
+              defaultChecked={markAsInvestigated}
               onChange={this.handleChange}
               title="mark as investigated"
             />
