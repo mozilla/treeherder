@@ -7,6 +7,7 @@
 /docker/**                  @armenzg
 management/commands/**      @armenzg
 ui/helpers/constants.js     @mozilla/treeherder-admins
+repository.json             @mozilla/treeherder-admins
 extract/**                  @klahnakoski
 push-health/**              @camd
 intermittent-failures/**    @sarah-clements
