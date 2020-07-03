@@ -14,5 +14,9 @@
   {
     "id": 4,
     "name": "regression-fix"
+  },
+  {
+    "id": 5,
+    "name": "improvement"
   }
 ]
