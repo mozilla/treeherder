@@ -31,6 +31,11 @@ const push = {
   author: 'ryanvm@gmail.com',
   push_timestamp: 1481326280,
   repository_id: 2,
+  bugSummaryMap: {
+    1319926: 'foo',
+    1322743: 'foo',
+    1506219: 'foo',
+  },
   revisions: [
     {
       result_set_id: 151371,
@@ -77,6 +82,7 @@ describe('Revision list component', () => {
         revision={push.revision}
         revisions={push.revisions}
         revisionCount={push.revision_count}
+        bugSummaryMap={push.bugSummaryMap}
       />,
     );
 
@@ -92,6 +98,7 @@ describe('Revision list component', () => {
         revision={push.revision}
         revisions={push.revisions}
         revisionCount={push.revision_count}
+        bugSummaryMap={push.bugSummaryMap}
       />,
     );
     expect(getByText('\u2026and more')).toBeInTheDocument();
