@@ -7,13 +7,15 @@ import testAlertSummaries from '../../mock/alert_summaries';
 
 const testAlertSummary = testAlertSummaries[0];
 
-const testTagsModal = () => {
+const testTagsModal = (handleClose) => {
+  const toggle = () => {};
+
   return render(
     <TagsModal
       alertSummary={testAlertSummary}
       performanceTags={testPerformanceTags}
       showModal
-      toggle={() => {}}
+      toggle={handleClose || toggle}
       updateAndClose={() => {}}
     />,
   );
@@ -52,16 +54,7 @@ test('An active/checked tag can be unchecked', async () => {
 
 test('Modal closes on X', async () => {
   const handleClose = jest.fn();
-
-  const { getByText } = render(
-    <TagsModal
-      alertSummary={testAlertSummary}
-      performanceTags={testPerformanceTags}
-      showModal
-      toggle={handleClose}
-      updateAndClose={() => {}}
-    />,
-  );
+  const { getByText } = testTagsModal(handleClose);
 
   const closeButton = await waitFor(() => getByText('×'));
 
@@ -76,15 +69,8 @@ test('Modal does not keep unsaved changes', async () => {
   testAlertSummary.performance_tags = ['harness'];
 
   const handleClose = jest.fn();
-  const { getByText, getByTestId } = render(
-    <TagsModal
-      alertSummary={testAlertSummary}
-      performanceTags={testPerformanceTags}
-      showModal
-      toggle={handleClose}
-      updateAndClose={() => {}}
-    />,
-  );
+  const { getByText, getByTestId } = testTagsModal(handleClose);
+
   let activeTag = await waitFor(() => getByTestId('modal-perf-tag harness'));
 
   expect(activeTag.checked).toBeTruthy();
