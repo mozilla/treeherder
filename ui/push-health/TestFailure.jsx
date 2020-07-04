@@ -26,9 +26,9 @@ class TestFailure extends React.PureComponent {
   componentWillMount() {
     const test = `${this.props.failure.key}${this.props.revision}`;
     if (localStorage.getItem(test)) {
-      const data = JSON.parse(localStorage.getItem(test));
+      const isChecked = JSON.parse(localStorage.getItem(test));
       this.setState({
-        markAsInvestigated: data,
+        markAsInvestigated: isChecked,
       });
     }
   }

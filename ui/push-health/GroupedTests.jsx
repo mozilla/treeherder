@@ -48,18 +48,20 @@ class GroupedTests extends PureComponent {
   };
 
   retriggerAll = (times, group) => {
-    const { notify, currentRepo } = this.props;
+    const { notify, currentRepo, revision } = this.props;
     // Reduce down to the unique jobs
-    const jobs = group.reduce(
-      (acc, test) => ({
-        ...acc,
-        ...test.failJobs.reduce((fjAcc, fJob) => ({ [fJob.id]: fJob }), {}),
-      }),
-      {},
-    );
+    const jobs = group.tests.reduce((acc, test) => {
+      if (JSON.parse(localStorage.getItem(`${test.key}${revision}`)))
+        return {
+          ...acc,
+          ...test.failJobs.reduce((fjAcc, fJob) => ({ [fJob.id]: fJob }), {}),
+        };
+      return acc;
+    }, {});
     const uniqueJobs = Object.values(jobs);
-
-    JobModel.retrigger(uniqueJobs, currentRepo, notify, times);
+    if (uniqueJobs.length > 0)
+      JobModel.retrigger(uniqueJobs, currentRepo, notify, times);
+    else notify(`Select atleast one job to retriiger`, 'warning');
   };
 
   setClipboardVisible = (key) => {
