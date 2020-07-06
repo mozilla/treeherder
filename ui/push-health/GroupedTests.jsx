@@ -49,7 +49,7 @@ class GroupedTests extends PureComponent {
         <span>
           {parts.join(splitter)}
           {splitter}
-          <strong>{bolded}</strong>
+          <strong data-testid="group-slash-bolded">{bolded}</strong>
         </span>
       );
     }
@@ -58,7 +58,7 @@ class GroupedTests extends PureComponent {
 
     return (
       <span>
-        <strong>{bolded}</strong>
+        <strong data-testid="group-colon-bolded">{bolded}</strong>
         {splitter}
         {parts.join(splitter)}
       </span>

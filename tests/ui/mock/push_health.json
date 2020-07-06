@@ -839,6 +839,54 @@
             "tier": 1,
             "failedInParent": false,
             "passFailRatio": 0
+          },
+          {
+            "testName": "Crash: had a bad day",
+            "action": "test",
+            "jobName": "test-linux1804-64-shippable/opt-reftest-no-accel-e10s-1",
+            "jobSymbol": "Ru1",
+            "jobGroup": "Reftests",
+            "jobGroupSymbol": "R",
+            "platform": "linux1804-64-shippable",
+            "config": "opt",
+            "key": "tlayoutreftestshighcontrastbackplatebgimage009htmllayoutreftestshighcontrastbackplatebgimage009refhtmloptlinux180464shippabletestlinux180464shippableoptreftestnoaccele10s1Reftests",
+            "jobKey": "optlinux1804-64-shippabletest-linux1804-64-shippable/opt-reftest-no-accel-e10s-1Reftests",
+            "inProgressJobs": [],
+            "failJobs": [
+              {
+                "id": 285871252,
+                "machine_platform_id": 716,
+                "option_collection_hash": "102210fe594ee9b33d82058545b1ed14f4c8206e",
+                "job_type_id": 213425,
+                "job_group_id": 450,
+                "result": "testfailed",
+                "state": "completed",
+                "failure_classification_id": 2,
+                "push_id": 630337,
+                "job_type_name": "test-linux1804-64-shippable/opt-reftest-no-accel-e10s-1",
+                "job_type_symbol": "Ru1",
+                "platform": "linux1804-64-shippable",
+                "task_id": "cdBQUnuyT92m-48d6GTLEw",
+                "run_id": 0
+              }
+            ],
+            "passJobs": [],
+            "passInFailedJobs": [],
+            "logLines": [
+              {
+                "action": "test_result",
+                "line_number": 21176,
+                "test": "layout/reftests/high-contrast/backplate-bg-image-009.html == layout/reftests/high-contrast/backplate-bg-image-009-ref.html",
+                "subtest": "image comparison, max difference: 0, number of differing pixels: 0",
+                "status": "PASS",
+                "expected": "FAIL"
+              }
+            ],
+            "suggestedClassification": "New Failure",
+            "confidence": 0,
+            "tier": 1,
+            "failedInParent": false,
+            "passFailRatio": 0
           }
         ],
         "knownIssues": [
