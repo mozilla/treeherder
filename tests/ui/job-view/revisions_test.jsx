@@ -134,17 +134,21 @@ describe('Revision item component', () => {
     expect(getByText('AB')).toBeInTheDocument();
   });
 
-  // test('linkifies bug IDs in the comments', () => {
-  //   const { getByTestId } = render(
-  //     <Revision
-  //       repo={repo}
-  //       revision={revision}
-  //       bugSummaryMap={push.bugSummaryMap}
-  //     />,
-  //   );
+  test('linkifies bug IDs in the comments', () => {
+    const { getByTestId } = render(
+      <Revision
+        repo={repo}
+        revision={revision}
+        bugSummaryMap={push.bugSummaryMap}
+      />,
+    );
 
-  //   expect(getByTestId('revision1319926')).toBeInTheDocument();
-  // });
+    expect(
+      getByTestId(
+        'Bug 1319926 - Part 2: Collect telemetry about deprecated String generics methods. r=jandem',
+      ),
+    ).toBeInTheDocument();
+  });
 
   test('marks the revision as backed out if the words "Back out" appear in the comments', () => {
     revision.comments =

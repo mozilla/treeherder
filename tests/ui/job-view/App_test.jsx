@@ -66,6 +66,12 @@ describe('App', () => {
       'begin:https://firefox-ci-tc.services.mozilla.com/api/index/v1/task/gecko.v2',
       404,
     );
+    fetchMock.get(
+      'https://bugzilla.mozilla.org/rest/bug?id=1556854%2C1555861%2C1559418%2C1563766%2C1561537%2C1563692',
+      {
+        bugs: [],
+      },
+    );
 
     // Need to mock this function for the app switching tests.
     // Source: https://github.com/mui-org/material-ui/issues/15726#issuecomment-493124813
