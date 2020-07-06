@@ -12,7 +12,7 @@
   },
   "resolutions": {
     "elliptic": "6.5.3",
-    "serialize-javascript": "3.1.0"
+    "serialize-javascript": "4.0.0"
   },
   "dependencies": {
     "@fortawesome/fontawesome-svg-core": "1.2.29",
