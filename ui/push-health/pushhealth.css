@@ -26,6 +26,11 @@
   border-bottom: 20px;
 }
 
+.bg-hover-grey:hover {
+  background-color: grey !important;
+  color: white !important;
+}
+
 /*
   Need this instead of the Bootstrap h-100 class because the `!important` in that class
   throws off the layout when tabs are switched.

@@ -81,7 +81,7 @@ describe('TestFailure', () => {
 
   test('should show bug suggestions when expander clicked', async () => {
     const { getByText } = render(testTestFailure(testFailure));
-    const detailsButton = getByText('Task 1');
+    const detailsButton = getByText('task');
 
     fireEvent.click(detailsButton);
 
@@ -94,7 +94,7 @@ describe('TestFailure', () => {
 
   test('should show artifacts when tab clicked', async () => {
     const { getByText } = render(testTestFailure(testFailure));
-    const detailsButton = getByText('Task 1');
+    const detailsButton = getByText('task');
 
     fireEvent.click(detailsButton);
 

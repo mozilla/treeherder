@@ -25,7 +25,7 @@ describe('GroupedTests', () => {
     const { getAllByTestId } = render(testClassificationGroup(tests));
 
     expect(await waitFor(() => getAllByTestId('test-grouping'))).toHaveLength(
-      2,
+      3,
     );
   });
 

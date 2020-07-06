@@ -163,7 +163,7 @@ class DetailsPanel extends React.Component {
             <Tabs
               selectedIndex={tabIndex}
               onSelect={this.setTabIndex}
-              className="w-100 h-100 ml-1 mr-5 mb-2 border p-3"
+              className="w-100 h-100 ml-1 mr-5 mb-2 border p-3 bg-white"
               selectedTabClassName="selected-detail-tab"
             >
               <TabList className="pl-0 w-100 list-inline">
@@ -200,6 +200,7 @@ class DetailsPanel extends React.Component {
                       currentRepo.name,
                     )}
                     repoName={currentRepo.name}
+                    developerMode
                   />
                 </TabPanel>
                 <TabPanel>
@@ -211,7 +212,7 @@ class DetailsPanel extends React.Component {
                 <TabPanel>
                   <Col className="ml-2">
                     {taskDetails.map((artifact) => (
-                      <Row key={artifact.value}>
+                      <Row key={artifact.value} data-testid="task-artifact">
                         <a href={artifact.url} className="link-style">
                           {artifact.value}
                         </a>
@@ -230,8 +231,8 @@ class DetailsPanel extends React.Component {
 
 DetailsPanel.propTypes = {
   currentRepo: PropTypes.shape({}).isRequired,
-  selectedTask: PropTypes.shape({}),
   closeDetails: PropTypes.func.isRequired,
+  selectedTask: PropTypes.shape({}),
 };
 
 DetailsPanel.defaultProps = {

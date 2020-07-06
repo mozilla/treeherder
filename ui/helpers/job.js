@@ -171,14 +171,18 @@ export const findJobInstance = function findJobInstance(jobId, scrollTo) {
   }
 };
 
+export const getResultState = function getResultState(job) {
+  const { result, state } = job;
+
+  return state === 'completed' ? result : state;
+};
+
 export const addAggregateFields = function addAggregateFields(job) {
   const {
     job_group_name: jobGroupName,
     job_group_symbol: jobGroupSymbol,
     job_type_name: jobTypeName,
     job_type_symbol: jobTypeSymbol,
-    state,
-    result,
     platform,
     platform_option: platformOption,
     submit_timestamp: submitTimestamp,
@@ -186,7 +190,7 @@ export const addAggregateFields = function addAggregateFields(job) {
     end_timestamp: endTimestamp,
   } = job;
 
-  job.resultStatus = state === 'completed' ? result : state;
+  job.resultStatus = getResultState(job);
   // we want to join the group and type information together
   // so we can search for it as one token (useful when
   // we want to do a search on something like `fxup-esr(`)
