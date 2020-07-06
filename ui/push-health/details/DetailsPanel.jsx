@@ -212,7 +212,7 @@ class DetailsPanel extends React.Component {
                 <TabPanel>
                   <Col className="ml-2">
                     {taskDetails.map((artifact) => (
-                      <Row key={artifact.value}>
+                      <Row key={artifact.value} data-testid="task-artifact">
                         <a href={artifact.url} className="link-style">
                           {artifact.value}
                         </a>
@@ -231,8 +231,8 @@ class DetailsPanel extends React.Component {
 
 DetailsPanel.propTypes = {
   currentRepo: PropTypes.shape({}).isRequired,
-  selectedTask: PropTypes.shape({}),
   closeDetails: PropTypes.func.isRequired,
+  selectedTask: PropTypes.shape({}),
 };
 
 DetailsPanel.defaultProps = {

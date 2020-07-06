@@ -136,7 +136,7 @@ describe('Health', () => {
       'test-grouping',
     );
 
-    expect(needInvestigationGroups).toHaveLength(2);
+    expect(needInvestigationGroups).toHaveLength(3);
     expect(intermittentGroups).toHaveLength(39);
   });
 

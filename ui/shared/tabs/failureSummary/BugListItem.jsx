@@ -13,7 +13,7 @@ function BugListItem(props) {
   const bugUrl = getBugUrl(bug.id);
 
   return (
-    <li>
+    <li data-testid="bug-list-item">
       {!!addBug && (
         <Button
           className="bg-light px-2 py-1"
