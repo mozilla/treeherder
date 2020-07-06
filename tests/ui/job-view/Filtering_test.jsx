@@ -32,7 +32,7 @@ const emptyPushResponse = {
   results: [],
 };
 const emptyBzResponse = {
-  bugs: [{ id: '', summary: '' }],
+  bugs: [],
 };
 
 describe('Filtering', () => {

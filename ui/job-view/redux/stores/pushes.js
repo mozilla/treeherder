@@ -62,11 +62,16 @@ const getBugIds = (results) => {
 
 const getBugSummaryMap = async (bugIds, dispatch, oldBugSummaryMap) => {
   const bugNumbers = [...bugIds];
-  const { data } = await getData(bugzillaBugsApi('bug', { id: bugNumbers }));
-  const bugData = data.bugs.reduce((accumulator, curBug) => {
-    accumulator[curBug.id] = curBug.summary;
-    return accumulator;
-  }, {});
+  const { data } =
+    bugNumbers.length > 0
+      ? await getData(bugzillaBugsApi('bug', { id: bugNumbers }))
+      : {};
+  const bugData = data
+    ? data.bugs.reduce((accumulator, curBug) => {
+        accumulator[curBug.id] = curBug.summary;
+        return accumulator;
+      }, {})
+    : {};
   const result = { ...bugData, ...oldBugSummaryMap };
 
   dispatch({

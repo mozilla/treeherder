@@ -107,7 +107,8 @@ export class Revision extends React.PureComponent {
           innerClassName="tooltip-content"
           target={`revision${revision}`}
         >
-          {!!bugMatches &&
+          {bugSummaryMap &&
+            !!bugMatches &&
             bugMatches.map((bug) => {
               const bugId = bug.split(' ')[1];
               return (
@@ -116,7 +117,7 @@ export class Revision extends React.PureComponent {
                 </div>
               );
             })}
-          {!bugMatches && comment}
+          {!bugSummaryMap && !bugMatches && comment}
         </UncontrolledTooltip>
       </Row>
     );
