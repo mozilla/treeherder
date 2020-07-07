@@ -118,7 +118,7 @@ export class Revision extends React.PureComponent {
                 </div>
               );
             })}
-          {!bugSummaryMap && !bugMatches && comment}
+          {comment}
         </UncontrolledTooltip>
       </Row>
     );
