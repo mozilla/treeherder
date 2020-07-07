@@ -29,6 +29,7 @@ class GroupedTests extends PureComponent {
 
     this.state = {
       clipboardVisible: null,
+      checkedJobs: [],
     };
   }
 
@@ -47,11 +48,30 @@ class GroupedTests extends PureComponent {
     });
   };
 
-  retriggerAll = (times, group) => {
+  addToCheckJob = (job) => {
+    this.setState((prevState) => ({
+      checkedJobs: [...prevState.checkedJobs, job],
+    }));
+  };
+
+  removeFromCheckedJobs = (uncheckedJob) => {
+    const index = this.state.checkedJobs.findIndex((job) => {
+      return uncheckedJob === job;
+    });
+    const { checkedJobs } = this.state;
+    checkedJobs.splice(index, 1);
+    this.setState(checkedJobs);
+  };
+
+  retriggerSelected = (times, group) => {
     const { notify, currentRepo, revision } = this.props;
     // Reduce down to the unique jobs
     const jobs = group.tests.reduce((acc, test) => {
-      if (JSON.parse(localStorage.getItem(`${test.key}${revision}`)))
+      if (
+        this.state.checkedJobs.findIndex((job) => {
+          return `${test.key}${revision}` === job;
+        }) >= 0
+      )
         return {
           ...acc,
           ...test.failJobs.reduce((fjAcc, fJob) => ({ [fJob.id]: fJob }), {}),
@@ -61,7 +81,21 @@ class GroupedTests extends PureComponent {
     const uniqueJobs = Object.values(jobs);
     if (uniqueJobs.length > 0)
       JobModel.retrigger(uniqueJobs, currentRepo, notify, times);
-    else notify(`Select atleast one job to retriiger`, 'warning');
+    else notify('Select atleast one job to retrigger', 'warning');
+  };
+
+  markAsInvestigated = (group) => {
+    const { notify, revision } = this.props;
+    group.tests.forEach((test) => {
+      if (
+        this.state.checkedJobs.findIndex((job) => {
+          return `${test.key}${revision}` === job;
+        }) >= 0
+      ) {
+        localStorage.setItem(`${test.key}${revision}`, JSON.stringify(true));
+      }
+    });
+    notify('Marked selected jobs as investigated', 'success');
   };
 
   setClipboardVisible = (key) => {
@@ -161,7 +195,7 @@ class GroupedTests extends PureComponent {
                       <ButtonGroup size="sm" className="ml-5">
                         <Button
                           title="Retrigger selected jobs once"
-                          onClick={() => this.retriggerAll(1, group)}
+                          onClick={() => this.retriggerSelected(1, group)}
                           size="sm"
                         >
                           <FontAwesomeIcon
@@ -178,12 +212,14 @@ class GroupedTests extends PureComponent {
                             {[5, 10, 15].map((times) => (
                               <DropdownItem
                                 key={times}
-                                title={`Retrigger all jobs ${times} times`}
-                                onClick={() => this.retriggerAll(times, group)}
+                                title={`Retrigger selected jobs ${times} times`}
+                                onClick={() =>
+                                  this.retriggerSelected(times, group)
+                                }
                                 className="pointable"
                                 tag="a"
                               >
-                                Retrigger All {times} times
+                                Retrigger selected {times} times
                               </DropdownItem>
                             ))}
                           </DropdownMenu>
@@ -195,6 +231,7 @@ class GroupedTests extends PureComponent {
                         color="primary"
                         className="mx-3"
                         title="Mark selected jobs as investigated"
+                        onClick={() => this.markAsInvestigated(group)}
                       >
                         Mark as investigated
                       </Button>
@@ -206,6 +243,8 @@ class GroupedTests extends PureComponent {
                     key={failure.key}
                     failure={failure}
                     repo={repo}
+                    addToCheckJob={this.addToCheckJob}
+                    removeFromCheckedJobs={this.removeFromCheckedJobs}
                     currentRepo={currentRepo}
                     revision={revision}
                     notify={notify}

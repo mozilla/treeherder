@@ -23,16 +23,6 @@ class TestFailure extends React.PureComponent {
     };
   }
 
-  componentWillMount() {
-    const test = `${this.props.failure.key}${this.props.revision}`;
-    if (localStorage.getItem(test)) {
-      const isChecked = JSON.parse(localStorage.getItem(test));
-      this.setState({
-        markAsInvestigated: isChecked,
-      });
-    }
-  }
-
   setSelectedTask = (task) => {
     const { selectedTask } = this.state;
 
@@ -50,10 +40,8 @@ class TestFailure extends React.PureComponent {
   };
 
   handleChange = (e) => {
-    localStorage.setItem(
-      e.target.name,
-      JSON.stringify(!this.state.markAsInvestigated),
-    );
+    if (!this.state.markAsInvestigated) this.props.addToCheckJob(e.target.name);
+    else this.props.removeFromCheckedJobs(e.target.name);
     this.setState((prevState) => ({
       markAsInvestigated: !prevState.markAsInvestigated,
     }));
@@ -94,7 +82,6 @@ class TestFailure extends React.PureComponent {
               name={`${key}${revision}`}
               defaultChecked={markAsInvestigated}
               onChange={this.handleChange}
-              title="mark as investigated"
             />
           </Col>
           <Col>
@@ -179,6 +166,8 @@ TestFailure.propTypes = {
   currentRepo: PropTypes.shape({}).isRequired,
   notify: PropTypes.func.isRequired,
   groupedBy: PropTypes.string.isRequired,
+  addToCheckJob: PropTypes.func.isRequired,
+  removeFromCheckedJobs: PropTypes.func.isRequired,
 };
 
 export default TestFailure;
