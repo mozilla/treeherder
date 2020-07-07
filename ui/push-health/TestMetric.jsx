@@ -62,6 +62,7 @@ export default class TestMetric extends React.PureComponent {
             filteredIntermittent.length ? 'warning' : 'darker-secondary'
           }
           expanded={false}
+          hasRetriggerAll
           notify={notify}
         />
       </div>

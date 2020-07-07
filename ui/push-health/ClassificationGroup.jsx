@@ -107,6 +107,7 @@ class ClassificationGroup extends React.PureComponent {
             icon={expandIcon}
             className="mr-1"
             title={expandTitle}
+            style={{ minWidth: '15px' }}
             aria-label={expandTitle}
             alt=""
           />
@@ -121,7 +122,7 @@ class ClassificationGroup extends React.PureComponent {
             {name} ({groupLength})
           </Button>
         </span>
-        {hasRetriggerAll && groupLength > 0 && (
+        {hasRetriggerAll && groupLength > 0 && detailsShowing && (
           <Navbar className="mb-4">
             <Nav>
               <NavItem>
