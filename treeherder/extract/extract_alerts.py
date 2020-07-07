@@ -81,20 +81,20 @@ class ExtractAlerts:
 
                 get_ids = SQL(
                     f"""
-                    SELECT 
-                        s.id 
-                    FROM 
+                    SELECT
+                        s.id
+                    FROM
                         treeherder.performance_alert_summary s
-                    LEFT JOIN 
+                    LEFT JOIN
                         treeherder.performance_alert a ON s.id=a.summary_id
-                    WHERE 
-                        s.created>{quote_value(last_year)} AND 
+                    WHERE
+                        s.created>{quote_value(last_year)} AND
                         (s.last_updated > {quote_value(last_modified)} OR a.last_updated > {quote_value(last_modified)})
-                    GROUP BY 
+                    GROUP BY
                         s.id
-                    ORDER BY 
+                    ORDER BY
                         s.id
-                    LIMIT 
+                    LIMIT
                         {quote_value(settings.extractor.chunk_size)}
                 """
                 )
