@@ -10,7 +10,7 @@ import {
 import App from '../../../ui/job-view/App';
 import reposFixture from '../mock/repositories';
 import pushListFixture from '../mock/push_list';
-import { getApiUrl } from '../../../ui/helpers/url';
+import { getApiUrl, bzBaseUrl } from '../../../ui/helpers/url';
 import {
   getProjectUrl,
   replaceLocation,
@@ -31,6 +31,9 @@ const treeStatusResponse = {
 const emptyPushResponse = {
   results: [],
 };
+const emptyBzResponse = {
+  bugs: [],
+};
 
 describe('Filtering', () => {
   beforeAll(() => {
@@ -40,6 +43,7 @@ describe('Filtering', () => {
     fetchMock.get(getApiUrl('/repository/'), reposFixture);
     fetchMock.get(getApiUrl('/user/'), []);
     fetchMock.get(getApiUrl('/failureclassification/'), []);
+    fetchMock.get(`begin:${bzBaseUrl}rest/bug`, emptyBzResponse);
     fetchMock.get(
       'begin:https://treestatus.mozilla-releng.net/trees/',
       treeStatusResponse,

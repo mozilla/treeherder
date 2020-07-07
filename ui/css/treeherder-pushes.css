@@ -135,6 +135,16 @@ fieldset[disabled] .btn-push:hover {
 }
 
 /*
+ * Revision
+ */
+
+.tooltip-content {
+  text-align: left;
+  min-width: 100%;
+  max-width: 100%;
+}
+
+/*
  * Job table
  */
 

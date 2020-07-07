@@ -15,12 +15,18 @@ export class RevisionList extends React.PureComponent {
       repo,
       widthClass,
       children,
+      bugSummaryMap,
     } = this.props;
 
     return (
       <Col className={`${widthClass} mb-3`}>
         {revisions.map((revision) => (
-          <Revision revision={revision} repo={repo} key={revision.revision} />
+          <Revision
+            revision={revision}
+            repo={repo}
+            key={revision.revision}
+            bugSummaryMap={bugSummaryMap}
+          />
         ))}
         {revisionCount > revisions.length && (
           <MoreRevisionsLink key="more" href={repo.getPushLogHref(revision)} />

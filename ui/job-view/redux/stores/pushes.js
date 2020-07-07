@@ -2,7 +2,7 @@ import pick from 'lodash/pick';
 import keyBy from 'lodash/keyBy';
 import max from 'lodash/max';
 
-import { parseQueryParams } from '../../../helpers/url';
+import { parseQueryParams, bugzillaBugsApi } from '../../../helpers/url';
 import {
   getAllUrlParams,
   getQueryString,
@@ -14,13 +14,14 @@ import { getTaskRunStr, isUnclassifiedFailure } from '../../../helpers/job';
 import FilterModel from '../../../models/filter';
 import JobModel from '../../../models/job';
 import { thEvents } from '../../../helpers/constants';
-import { processErrors } from '../../../helpers/http';
+import { processErrors, getData } from '../../../helpers/http';
 
 import { notify } from './notifications';
 import { setSelectedJob, clearSelectedJob } from './selectedJob';
 
 export const LOADING = 'LOADING';
 export const ADD_PUSHES = 'ADD_PUSHES';
+export const ADD_BUG_SUMMARIES = 'ADD_BUG_SUMMARIES';
 export const CLEAR_PUSHES = 'CLEAR_PUSHES';
 export const SET_PUSHES = 'SET_PUSHES';
 export const RECALCULATE_UNCLASSIFIED_COUNTS =
@@ -41,6 +42,42 @@ const getRevisionTips = (pushList) => {
       title: push.revisions[0].comments.split('\n')[0],
     })),
   };
+};
+
+const getBugIds = (results) => {
+  const bugIds = new Set();
+
+  results.forEach((result) => {
+    const { revisions } = result;
+
+    revisions.forEach((revision) => {
+      const comment = revision.comments.split('\n')[0];
+      const bugMatches = comment.match(/-- ([0-9]+)|bug.([0-9]+)/gi);
+      if (bugMatches)
+        bugMatches.forEach((bugMatch) => bugIds.add(bugMatch.split(' ')[1]));
+    });
+  });
+  return bugIds;
+};
+
+const getBugSummaryMap = async (bugIds, dispatch, oldBugSummaryMap) => {
+  const bugNumbers = [...bugIds];
+  const { data } =
+    bugNumbers.length > 0
+      ? await getData(bugzillaBugsApi('bug', { id: bugNumbers }))
+      : {};
+  const bugData = data
+    ? data.bugs.reduce((accumulator, curBug) => {
+        accumulator[curBug.id] = curBug.summary;
+        return accumulator;
+      }, {})
+    : {};
+  const result = { ...bugData, ...oldBugSummaryMap };
+
+  dispatch({
+    type: ADD_BUG_SUMMARIES,
+    pushResults: { bugSummaryMap: result },
+  });
 };
 
 const getLastModifiedJobTime = (jobMap) => {
@@ -79,7 +116,14 @@ const doRecalculateUnclassifiedCounts = (jobMap) => {
   };
 };
 
-const addPushes = (data, pushList, jobMap, setFromchange) => {
+const addPushes = (
+  data,
+  pushList,
+  jobMap,
+  setFromchange,
+  dispatch,
+  oldBugSummaryMap,
+) => {
   if (data.results.length > 0) {
     const pushIds = pushList.map((push) => push.id);
     const newPushList = [
@@ -91,12 +135,16 @@ const addPushes = (data, pushList, jobMap, setFromchange) => {
     const oldestPushTimestamp =
       newPushList[newPushList.length - 1].push_timestamp;
 
+    const bugIds = getBugIds(data.results);
+
     const newStuff = {
       pushList: newPushList,
       oldestPushTimestamp,
       ...doRecalculateUnclassifiedCounts(jobMap),
       ...getRevisionTips(newPushList),
     };
+
+    if (dispatch) getBugSummaryMap(bugIds, dispatch, oldBugSummaryMap);
 
     // since we fetched more pushes, we need to persist the push state in the URL.
     const updatedLastRevision = newPushList[newPushList.length - 1].revision;
@@ -235,6 +283,7 @@ export const fetchPushes = (
           pushList,
           jobMap,
           setFromchange,
+          dispatch,
         ),
       });
     }
@@ -374,6 +423,7 @@ export const updateRange = (range) => {
 
 export const initialState = {
   pushList: [],
+  bugSummaryMap: {},
   jobMap: {},
   decisionTaskMap: {},
   revisionTips: [],
@@ -392,6 +442,8 @@ export const reducer = (state = initialState, action) => {
       return { ...state, loadingPushes: true };
     case ADD_PUSHES:
       return { ...state, loadingPushes: false, ...pushResults, setFromchange };
+    case ADD_BUG_SUMMARIES:
+      return { ...state, ...pushResults };
     case CLEAR_PUSHES:
       return { ...initialState };
     case SET_PUSHES:

@@ -233,6 +233,9 @@ describe('PushList', () => {
       `begin:${getApiUrl('/jobs/?push_id=', repoName)}`,
       jobListFixtureOne,
     );
+    fetchMock.get(`begin:https://bugzilla.mozilla.org/rest/bug`, {
+      bugs: [],
+    });
 
     expect(await pushCount()).toHaveLength(2);
 
@@ -262,6 +265,14 @@ describe('PushList', () => {
     const jobEl = await waitFor(() => getByText('yaml'));
     const jobInstance = findJobInstance(jobEl.getAttribute('data-job-id'));
     const { job } = jobInstance.props;
+
+    fetchMock.get(
+      `begin:https://bugzilla.mozilla.org/rest/bug`,
+      {
+        bugs: [],
+      },
+      { overwriteRoutes: false },
+    );
 
     expect(job.signature).toBe('306fd1e8d922922cd171fa31f0d914300ff52228');
     expect(job.job_type_name).toBe('source-test-mozlint-yaml');

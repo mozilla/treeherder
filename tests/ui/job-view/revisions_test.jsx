@@ -31,6 +31,10 @@ const push = {
   author: 'ryanvm@gmail.com',
   push_timestamp: 1481326280,
   repository_id: 2,
+  bugSummaryMap: {
+    1322565: 'foo',
+    1319926: 'foo',
+  },
   revisions: [
     {
       result_set_id: 151371,
@@ -77,6 +81,7 @@ describe('Revision list component', () => {
         revision={push.revision}
         revisions={push.revisions}
         revisionCount={push.revision_count}
+        bugSummaryMap={push.bugSummaryMap}
       />,
     );
 
@@ -92,6 +97,7 @@ describe('Revision list component', () => {
         revision={push.revision}
         revisions={push.revisions}
         revisionCount={push.revision_count}
+        bugSummaryMap={push.bugSummaryMap}
       />,
     );
     expect(getByText('\u2026and more')).toBeInTheDocument();
@@ -101,7 +107,11 @@ describe('Revision list component', () => {
 describe('Revision item component', () => {
   test('renders a linked revision', async () => {
     const { getByTitle, getByText } = render(
-      <Revision repo={repo} revision={revision} />,
+      <Revision
+        repo={repo}
+        revision={revision}
+        bugSummaryMap={push.bugSummaryMap}
+      />,
     );
     const revLink = await waitFor(() => getByText('5a110ad242ea'));
 
@@ -114,15 +124,27 @@ describe('Revision item component', () => {
   });
 
   test("renders the contributors' initials", () => {
-    const { getByText } = render(<Revision repo={repo} revision={revision} />);
+    const { getByText } = render(
+      <Revision
+        repo={repo}
+        revision={revision}
+        bugSummaryMap={push.bugSummaryMap}
+      />,
+    );
     expect(getByText('AB')).toBeInTheDocument();
   });
 
   test('linkifies bug IDs in the comments', () => {
-    const { getByTitle } = render(<Revision repo={repo} revision={revision} />);
+    const { getByTestId } = render(
+      <Revision
+        repo={repo}
+        revision={revision}
+        bugSummaryMap={push.bugSummaryMap}
+      />,
+    );
 
     expect(
-      getByTitle(
+      getByTestId(
         'Bug 1319926 - Part 2: Collect telemetry about deprecated String generics methods. r=jandem',
       ),
     ).toBeInTheDocument();
@@ -131,7 +153,13 @@ describe('Revision item component', () => {
   test('marks the revision as backed out if the words "Back out" appear in the comments', () => {
     revision.comments =
       'Back out changeset a6e2d96c1274 (bug 1322565) for eslint failure';
-    render(<Revision repo={repo} revision={revision} />);
+    render(
+      <Revision
+        repo={repo}
+        revision={revision}
+        bugSummaryMap={push.bugSummaryMap}
+      />,
+    );
 
     expect(document.querySelectorAll('.text-danger')).toHaveLength(1);
   });
@@ -139,7 +167,13 @@ describe('Revision item component', () => {
   test('marks the revision as backed out if the words "Backed out" appear in the comments', () => {
     revision.comments =
       'Backed out changeset a6e2d96c1274 (bug 1322565) for eslint failure';
-    render(<Revision repo={repo} revision={revision} />);
+    render(
+      <Revision
+        repo={repo}
+        revision={revision}
+        bugSummaryMap={push.bugSummaryMap}
+      />,
+    );
 
     expect(document.querySelectorAll('.text-danger')).toHaveLength(1);
   });

@@ -33,6 +33,9 @@ import { getApiUrl } from '../../../../ui/helpers/url';
 import JobModel from '../../../../ui/models/job';
 
 const mockStore = configureMockStore([thunk]);
+const emptyBugzillaResponse = {
+  bugs: [],
+};
 
 describe('Pushes Redux store', () => {
   const repoName = 'autoland';
@@ -52,6 +55,10 @@ describe('Pushes Redux store', () => {
     fetchMock.get(
       getProjectUrl('/push/?full=true&count=10', repoName),
       pushListFixture,
+    );
+    fetchMock.get(
+      `https://bugzilla.mozilla.org/rest/bug?id=1556854%2C1555861%2C1559418%2C1563766%2C1561537%2C1563692`,
+      emptyBugzillaResponse,
     );
     const store = mockStore({ pushes: initialState });
 
@@ -135,6 +142,11 @@ describe('Pushes Redux store', () => {
       pollPushListFixture,
     );
 
+    fetchMock.get(
+      `https://bugzilla.mozilla.org/rest/bug?id=1506219`,
+      emptyBugzillaResponse,
+    );
+
     const push = pushListFixture.results[0];
     const store = mockStore({
       pushes: {
@@ -184,6 +196,11 @@ describe('Pushes Redux store', () => {
         repoName,
       ),
       pushListFromChangeFixture,
+    );
+
+    fetchMock.get(
+      `https://bugzilla.mozilla.org/rest/bug?id=1556854`,
+      emptyBugzillaResponse,
     );
 
     const store = mockStore({

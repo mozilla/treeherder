@@ -2,7 +2,7 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faUser } from '@fortawesome/free-regular-svg-icons';
-import { Row } from 'reactstrap';
+import { Row, UncontrolledTooltip } from 'reactstrap';
 
 import { parseAuthor } from '../helpers/revision';
 
@@ -62,8 +62,10 @@ export class Revision extends React.PureComponent {
     const {
       revision: { comments, author, revision },
       repo,
+      bugSummaryMap,
     } = this.props;
     const comment = comments.split('\n')[0];
+    const bugMatches = comment.match(/-- ([0-9]+)|bug.([0-9]+)/gi);
     const { clipboardVisible } = this.state;
     const { name, email } = parseAuthor(author);
     const commitRevision = revision;
@@ -72,13 +74,12 @@ export class Revision extends React.PureComponent {
       : 'text-secondary';
 
     return (
-      <Row
-        className="revision flex-nowrap"
-        onMouseEnter={() => this.showClipboard(true)}
-        onMouseLeave={() => this.showClipboard(false)}
-        data-testid="revision"
-      >
-        <span className="pr-1 text-nowrap">
+      <Row className="revision flex-nowrap" data-testid="revision">
+        <span
+          onMouseEnter={() => this.showClipboard(true)}
+          onMouseLeave={() => this.showClipboard(false)}
+          className="pr-1 text-nowrap"
+        >
           <Clipboard
             description="full hash"
             text={commitRevision}
@@ -94,13 +95,31 @@ export class Revision extends React.PureComponent {
         </span>
         <AuthorInitials title={`${name}: ${email}`} author={name} />
         <span
-          title={comment}
+          data-testid={comment}
           className={`ml-2 revision-comment overflow-hidden text-nowrap ${commentColor}`}
+          id={`revision${revision}`}
         >
           <em>
-            <BugLinkify>{comment}</BugLinkify>
+            <BugLinkify id={revision}>{comment}</BugLinkify>
           </em>
         </span>
+        <UncontrolledTooltip
+          placement="top-start"
+          innerClassName="tooltip-content"
+          target={`revision${revision}`}
+        >
+          {bugSummaryMap &&
+            !!bugMatches &&
+            bugMatches.map((bug) => {
+              const bugId = bug.split(' ')[1];
+              return (
+                <div key={bugId}>
+                  Bug {bugId} - {bugSummaryMap[bugId]}
+                </div>
+              );
+            })}
+          {comment}
+        </UncontrolledTooltip>
       </Row>
     );
   }

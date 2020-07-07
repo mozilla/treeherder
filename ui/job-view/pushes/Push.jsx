@@ -558,6 +558,7 @@ class Push extends React.PureComponent {
       isOnlyRevision,
       pushHealthVisibility,
       decisionTaskMap,
+      bugSummaryMap,
     } = this.props;
     const {
       fuzzyJobList,
@@ -645,6 +646,7 @@ class Push extends React.PureComponent {
                   revisions={revisions}
                   revisionCount={revisionCount}
                   repo={currentRepo}
+                  bugSummaryMap={bugSummaryMap}
                   widthClass="ml-4"
                 >
                   {showPushHealthSummary && (
@@ -706,13 +708,15 @@ Push.propTypes = {
   isOnlyRevision: PropTypes.bool.isRequired,
   pushHealthVisibility: PropTypes.string.isRequired,
   decisionTaskMap: PropTypes.shape({}).isRequired,
+  bugSummaryMap: PropTypes.shape({}).isRequired,
 };
 
 const mapStateToProps = ({
-  pushes: { allUnclassifiedFailureCount, decisionTaskMap },
+  pushes: { allUnclassifiedFailureCount, decisionTaskMap, bugSummaryMap },
 }) => ({
   allUnclassifiedFailureCount,
   decisionTaskMap,
+  bugSummaryMap,
 });
 
 export default connect(mapStateToProps, {
