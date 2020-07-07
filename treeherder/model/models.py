@@ -1201,6 +1201,7 @@ class ClassifiedFailure(models.Model):
         db_table = 'classified_failure'
 
 
+# TODO delete table once backfill of jobs in TextLogError table has been completed
 class TextLogStep(models.Model):
     """
     An individual step in the textual (unstructured) log
@@ -1252,10 +1253,14 @@ class TextLogError(models.Model):
     """
 
     id = models.BigAutoField(primary_key=True)
-
-    step = models.ForeignKey(TextLogStep, on_delete=models.CASCADE, related_name='errors')
+    job = models.ForeignKey(Job, on_delete=models.CASCADE, related_name='text_log_error', null=True)
     line = models.TextField()
     line_number = models.PositiveIntegerField()
+
+    # TODO delete this field and unique_together once backfill of jobs in TextLogError table has been completed
+    step = models.ForeignKey(
+        TextLogStep, on_delete=models.CASCADE, related_name='errors', null=True
+    )
 
     class Meta:
         db_table = "text_log_error"

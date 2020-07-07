@@ -30,7 +30,10 @@ def parse_logs(job_id, job_log_ids, priority):
     if len(job_log_ids) != len(job_logs):
         logger.warning("Failed to load all expected job ids: %s", ", ".join(job_log_ids))
 
-    parser_tasks = {"errorsummary_json": store_failure_lines, "builds-4h": parse_unstructured_log}
+    parser_tasks = {
+        "errorsummary_json": store_failure_lines,
+        "live_backing_log": parse_unstructured_log,
+    }
 
     # We don't want to stop parsing logs for most Exceptions however we still
     # need to know one occurred so we can skip further steps and reraise to
@@ -74,7 +77,7 @@ def parse_logs(job_id, job_log_ids, priority):
     if first_exception:
         raise first_exception
 
-    if "errorsummary_json" in completed_names and "builds-4h" in completed_names:
+    if "errorsummary_json" in completed_names and "live_backing_log" in completed_names:
 
         success = crossreference_job(job)
 

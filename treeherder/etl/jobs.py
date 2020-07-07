@@ -314,7 +314,7 @@ def _schedule_log_parsing(job, job_logs, result):
     # importing here to avoid an import loop
     from treeherder.log_parser.tasks import parse_logs
 
-    task_types = {"errorsummary_json", "builds-4h"}
+    task_types = {"errorsummary_json", "live_backing_log"}
 
     job_log_ids = []
     for job_log in job_logs:
