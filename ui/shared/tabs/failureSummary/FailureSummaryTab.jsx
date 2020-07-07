@@ -143,7 +143,7 @@ class FailureSummaryTab extends React.Component {
       <div className="w-100 h-100" role="region" aria-label="Failure Summary">
         <ul
           className={`${
-            !developerMode && 'smaller-text'
+            !developerMode && 'font-size-11'
           } list-unstyled w-100 h-100 mb-0 overflow-auto text-small`}
           ref={this.fsMount}
         >

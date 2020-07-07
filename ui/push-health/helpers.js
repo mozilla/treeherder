@@ -1,7 +1,7 @@
 export const resultColorMap = {
   pass: 'success',
   fail: 'danger',
-  indeterminate: 'warning',
+  indeterminate: 'darker-secondary',
   done: 'darker-info',
   'in progress': 'darker-secondary',
   none: 'darker-info',

@@ -69,7 +69,10 @@ class TestFailure extends React.PureComponent {
         <Row className="ml-2 w-100 mb-2 justify-content-between">
           <Col>
             <Row>
-              <span id={key} className="px-2 text-darker-secondary half-bold">
+              <span
+                id={key}
+                className="px-2 text-darker-secondary font-weight-500"
+              >
                 <span>{groupedBy !== 'path' && `${testName} `}</span>
                 <span>{jobName}</span>
               </span>

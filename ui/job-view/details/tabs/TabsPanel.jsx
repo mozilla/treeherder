@@ -191,7 +191,7 @@ class TabsPanel extends React.Component {
               addBug={addBug}
               pinJob={pinJob}
               repoName={repoName}
-              fontSize="smaller-text"
+              fontSize="font-size-11"
             />
           </TabPanel>
           <TabPanel>
