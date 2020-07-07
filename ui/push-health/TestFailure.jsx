@@ -23,6 +23,16 @@ class TestFailure extends React.PureComponent {
     };
   }
 
+  componentWillMount() {
+    const test = `${this.props.failure.key}${this.props.revision}`;
+    if (localStorage.getItem(test)) {
+      const data = JSON.parse(localStorage.getItem(test));
+      this.setState({
+        markAsInvestigated: data,
+      });
+    }
+  }
+
   setSelectedTask = (task) => {
     const { selectedTask } = this.state;
 
@@ -71,7 +81,7 @@ class TestFailure extends React.PureComponent {
 
     return (
       <Row
-        className="ml-5 pt-2 mr-1"
+        className={`ml-5 pt-2 mr-1 ${markAsInvestigated && 'investigated'}`}
         key={key}
         style={{ background: '#f2f2f2' }}
       >
@@ -80,7 +90,6 @@ class TestFailure extends React.PureComponent {
             <Input
               type="checkbox"
               name={`${key}${revision}`}
-              defaultChecked={markAsInvestigated}
               onChange={this.handleChange}
             />
           </Col>

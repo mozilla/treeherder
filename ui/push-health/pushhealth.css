@@ -6,6 +6,10 @@
   cursor: pointer;
 }
 
+.investigated {
+  text-decoration: line-through;
+}
+
 .pre-wrap {
   white-space: pre-wrap;
   max-width: 95%;
