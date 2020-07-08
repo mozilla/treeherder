@@ -206,7 +206,7 @@ export default class AlertTable extends React.Component {
                 <thead>
                   <tr className="bg-lightgray border">
                     <th
-                      colSpan="8"
+                      colSpan="9"
                       className="text-left alert-summary-header-element"
                     >
                       <FormGroup check>
@@ -258,6 +258,7 @@ export default class AlertTable extends React.Component {
                     <th> </th>
                     <th> </th>
                     <th>Test and platform</th>
+                    <th>Tags</th>
                     <th>Previous Value</th>
                     <th> </th>
                     <th>New Value</th>

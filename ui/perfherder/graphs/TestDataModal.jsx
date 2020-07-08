@@ -11,6 +11,7 @@ import {
   ModalBody,
   Row,
 } from 'reactstrap';
+import flatMap from 'lodash/flatMap';
 
 import { createDropdowns } from '../../shared/FilterControls';
 import InputFilter from '../../shared/InputFilter';
@@ -20,6 +21,8 @@ import { thPerformanceBranches } from '../../helpers/constants';
 import { containsText, getInitialData, getSeriesData } from '../helpers';
 
 export default class TestDataModal extends React.Component {
+  defaultTag = 'all tags';
+
   constructor(props) {
     super(props);
     this.state = {
@@ -42,6 +45,8 @@ export default class TestDataModal extends React.Component {
       filterText: '',
       loading: true,
       selectedUnits: new Set(),
+      tag: this.defaultTag,
+      tags: [this.defaultTag],
     };
   }
 
@@ -62,16 +67,26 @@ export default class TestDataModal extends React.Component {
   }
 
   componentDidUpdate(prevProps, prevState) {
-    const { platforms, platform } = this.state;
+    const { platforms, platform, tags, tag } = this.state;
     const { testData } = this.props;
 
     if (prevState.platforms !== platforms) {
       const newPlatform = platforms.find((item) => item === platform)
         ? platform
         : platforms[0];
+
       // eslint-disable-next-line react/no-did-update-set-state
       this.setState({ platform: newPlatform });
     }
+
+    if (prevState.tags !== tags) {
+      const activeTag = tags.find((item) => item === tag)
+        ? tag
+        : this.defaultTag;
+      // eslint-disable-next-line react/no-did-update-set-state
+      this.setState({ tag: activeTag });
+    }
+
     if (this.props.options !== prevProps.options) {
       this.processOptions(true);
     }
@@ -98,6 +113,11 @@ export default class TestDataModal extends React.Component {
     const updates = processResponse(response, 'platforms', errorMessages);
     this.setState(updates);
     this.processOptions();
+  }
+
+  getTagOptions(seriesData) {
+    const newTags = flatMap(seriesData, (test) => test.tags);
+    return [...new Set(newTags), this.defaultTag];
   }
 
   getDropdownOptions(options) {
@@ -237,7 +257,9 @@ export default class TestDataModal extends React.Component {
         repositoryName,
         testData,
       );
-      this.setState(updates);
+      const { seriesData } = updates;
+      const tags = this.getTagOptions(seriesData);
+      this.setState({ ...updates, tags });
       if (filterText) {
         await this.updateFilterText(filterText);
       }
@@ -267,8 +289,7 @@ export default class TestDataModal extends React.Component {
     const filteredData = seriesData.filter((test) => {
       // spell out all searchable characteristics
       // into a single encompassing string
-      const tags = test.tags.join(' ');
-      const textToSearch = `${test.name} ${tags} ${test.application}`;
+      const textToSearch = `${test.name} ${test.application}`;
 
       return containsText(textToSearch, filterText);
     });
@@ -387,10 +408,12 @@ export default class TestDataModal extends React.Component {
       filterText,
       loading,
       pinnedProjects,
+      tag,
+      tags,
     } = this.state;
     const { projects, frameworks, showModal } = this.props;
     const projectOptions = this.getDropdownOptions(projects);
-    const modalOptions = [
+    let modalOptions = [
       {
         options: frameworks.length ? frameworks.map((item) => item.name) : [],
         selectedItem: framework.name,
@@ -426,6 +449,18 @@ export default class TestDataModal extends React.Component {
         title: 'Platform',
       },
     ];
+
+    if (tags.length > 1) {
+      modalOptions = [
+        ...modalOptions,
+        {
+          options: tags.sort(),
+          selectedItem: tag,
+          updateData: (tag) => this.setState({ tag }, this.processOptions),
+          title: 'Tag',
+        },
+      ];
+    }
 
     let tests = [];
     if (filterText) {
