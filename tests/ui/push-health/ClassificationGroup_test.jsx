@@ -7,10 +7,10 @@ import ClassificationGroup from '../../../ui/push-health/ClassificationGroup';
 const tests = pushHealth.metrics.tests.details.needInvestigation;
 const repoName = 'autoland';
 
-describe('GroupedTests', () => {
+describe('ClassificationGroup', () => {
   const testClassificationGroup = (group) => (
     <ClassificationGroup
-      group={group}
+      tests={group}
       name="Need Investigation"
       repo={repoName}
       revision={pushHealth.revision}

@@ -12,7 +12,7 @@ import { shortDateFormat } from '../helpers/display';
 import { taskResultColorMap } from './helpers';
 import DetailsPanel from './details/DetailsPanel';
 
-class TestFailure extends React.PureComponent {
+class PlatformConfig extends React.PureComponent {
   constructor(props) {
     super(props);
 
@@ -75,13 +75,13 @@ class TestFailure extends React.PureComponent {
               >
                 <span>{groupedBy !== 'path' && `${testName} `}</span>
                 <span>{jobName}</span>
+                {tier > 1 && (
+                  <span className="ml-1 small text-muted">[tier-{tier}]</span>
+                )}
               </span>
             </Row>
           </Col>
           <Col className="ml-2">
-            {tier > 1 && (
-              <span className="ml-1 small text-muted">[tier-{tier}]</span>
-            )}
             {taskList.map((task, idx) => {
               const { id, result, state, start_time: startTime } = task;
               const isSelected = selectedTask && selectedTask.id === id;
@@ -132,7 +132,7 @@ class TestFailure extends React.PureComponent {
   }
 }
 
-TestFailure.propTypes = {
+PlatformConfig.propTypes = {
   failure: PropTypes.shape({
     testName: PropTypes.string.isRequired,
     jobName: PropTypes.string.isRequired,
@@ -151,4 +151,4 @@ TestFailure.propTypes = {
   groupedBy: PropTypes.string.isRequired,
 };
 
-export default TestFailure;
+export default PlatformConfig;
