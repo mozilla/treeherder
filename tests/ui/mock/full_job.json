@@ -36,7 +36,7 @@
   "resource_uri": "/api/project/try/jobs/303550431/",
   "logs": [
     {
-      "name": "builds-4h",
+      "name": "live_backing_log",
       "url": "https://firefox-ci-tc.services.mozilla.com/api/queue/v1/task/O5YBAWwxRfuZ_UlRJS5Rqg/runs/0/artifacts/public/logs/live_backing.log"
     },
     {

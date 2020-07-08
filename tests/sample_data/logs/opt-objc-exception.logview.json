@@ -1,66 +1,17 @@
 {
-  "logurl": "http://my-log.mozilla.org/opt-objc-exception.txt.gz",
-  "step_data": {
-    "steps": [
-      {
-        "name": "set props: revision",
-        "started": "2013-06-05 12:51:48.767751",
-        "started_linenumber": 8,
-        "errors": [],
-        "finished": "2013-06-05 12:51:48.768393",
-        "finished_linenumber": 10,
-        "result": "success"
-      },
-      {
-        "name": "set props: who",
-        "started": "2013-06-05 12:51:48.768881",
-        "started_linenumber": 12,
-        "errors": [],
-        "finished": "2013-06-05 12:51:48.769473",
-        "finished_linenumber": 14,
-        "result": "success"
-      },
-      {
-        "name": "'python mochitest/runtests.py ...' warnings",
-        "started": "2013-06-05 12:54:55.232364",
-        "started_linenumber": 16,
-        "errors": [
-          {
-            "linenumber": 24056,
-            "line": "        SimpleTest._logResult(test, \"TEST-PASS\", \"TEST-UNEXPECTED-FAIL\");"
-          },
-          {
-            "linenumber": 24084,
-            "line": "      SimpleTest._logResult(test, \"TEST-UNEXPECTED-PASS\", \"TEST-KNOWN-FAIL\");"
-          },
-          {
-            "linenumber": 48743,
-            "line": "2010-09-23 14:48:01.299 firefox-bin[319:10b] *** Assertion failure in -[NSNextStepFrame lockFocus], /SourceCache/AppKit/AppKit-949.54/AppKit.subproj/NSView.m:4755"
-          }
-        ],
-        "finished": "2013-06-05 13:15:39.235146",
-        "finished_linenumber": 48792,
-        "result": "testfailed"
-      },
-      {
-        "name": "'rm -rf ...'",
-        "started": "2013-06-05 13:15:39.244545",
-        "started_linenumber": 48794,
-        "errors": [],
-        "finished": "2013-06-05 13:16:04.014823",
-        "finished_linenumber": 48838,
-        "result": "success"
-      },
-      {
-        "name": "maybe rebooting slave lost",
-        "started": "2013-06-05 13:16:04.015405",
-        "started_linenumber": 48840,
-        "errors": [],
-        "finished": "2013-06-05 13:16:04.963614",
-        "finished_linenumber": 48842,
-        "result": "success"
-      }
-    ],
-    "errors_truncated": false
-  }
+  "errors": [
+    {
+      "linenumber": 24056,
+      "line": "        SimpleTest._logResult(test, \"TEST-PASS\", \"TEST-UNEXPECTED-FAIL\");"
+    },
+    {
+      "linenumber": 24084,
+      "line": "      SimpleTest._logResult(test, \"TEST-UNEXPECTED-PASS\", \"TEST-KNOWN-FAIL\");"
+    },
+    {
+      "linenumber": 48743,
+      "line": "2010-09-23 14:48:01.299 firefox-bin[319:10b] *** Assertion failure in -[NSNextStepFrame lockFocus], /SourceCache/AppKit/AppKit-949.54/AppKit.subproj/NSView.m:4755"
+    }
+  ],
+  "logurl": "http://my-log.mozilla.org/opt-objc-exception.txt.gz"
 }

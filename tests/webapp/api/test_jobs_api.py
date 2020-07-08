@@ -5,7 +5,7 @@ from dateutil import parser
 from django.urls import reverse
 from rest_framework.status import HTTP_400_BAD_REQUEST
 
-from treeherder.model.models import Job, TextLogError, TextLogStep
+from treeherder.model.models import Job, TextLogError
 
 
 @pytest.mark.parametrize(
@@ -209,111 +209,10 @@ def test_job_detail_not_found(client, test_repository):
     assert resp.status_code == 404
 
 
-def test_text_log_steps_and_errors(client, test_job):
-
-    TextLogStep.objects.create(
-        job=test_job,
-        name='step1',
-        started=datetime.datetime.utcfromtimestamp(0),
-        finished=datetime.datetime.utcfromtimestamp(100),
-        started_line_number=1,
-        finished_line_number=100,
-        result=TextLogStep.SUCCESS,
-    )
-    step2 = TextLogStep.objects.create(
-        job=test_job,
-        name='step2',
-        started=datetime.datetime.utcfromtimestamp(101),
-        finished=datetime.datetime.utcfromtimestamp(200),
-        started_line_number=101,
-        finished_line_number=200,
-        result=TextLogStep.TEST_FAILED,
-    )
-    TextLogError.objects.create(job=test_job, step=step2, line='failure 1', line_number=101)
-    TextLogError.objects.create(job=test_job, step=step2, line='failure 2', line_number=102)
-    resp = client.get(
-        reverse(
-            "jobs-text-log-steps", kwargs={"project": test_job.repository.name, "pk": test_job.id}
-        )
-    )
-    assert resp.status_code == 200
-    assert resp.json() == [
-        {
-            'errors': [],
-            'finished': '1970-01-01T00:01:40',
-            'finished_line_number': 100,
-            'id': 1,
-            'name': 'step1',
-            'result': 'success',
-            'started': '1970-01-01T00:00:00',
-            'started_line_number': 1,
-        },
-        {
-            'errors': [
-                {
-                    'id': 1,
-                    'job': 1,
-                    'line': 'failure 1',
-                    'line_number': 101,
-                    'bug_suggestions': {
-                        'search': 'failure 1',
-                        'search_terms': ['failure 1'],
-                        'bugs': {'open_recent': [], 'all_others': []},
-                        'line_number': 101,
-                    },
-                    'metadata': None,
-                    'matches': [],
-                    'classified_failures': [],
-                },
-                {
-                    'id': 2,
-                    'job': 1,
-                    'line': 'failure 2',
-                    'line_number': 102,
-                    'bug_suggestions': {
-                        'search': 'failure 2',
-                        'search_terms': ['failure 2'],
-                        'bugs': {'open_recent': [], 'all_others': []},
-                        'line_number': 102,
-                    },
-                    'metadata': None,
-                    'matches': [],
-                    'classified_failures': [],
-                },
-            ],
-            'finished': '1970-01-01T00:03:20',
-            'finished_line_number': 200,
-            'id': 2,
-            'name': 'step2',
-            'result': 'testfailed',
-            'started': '1970-01-01T00:01:41',
-            'started_line_number': 101,
-        },
-    ]
-
-
 def test_text_log_errors(client, test_job):
 
-    TextLogStep.objects.create(
-        job=test_job,
-        name='step1',
-        started=datetime.datetime.utcfromtimestamp(0),
-        finished=datetime.datetime.utcfromtimestamp(100),
-        started_line_number=1,
-        finished_line_number=100,
-        result=TextLogStep.SUCCESS,
-    )
-    step2 = TextLogStep.objects.create(
-        job=test_job,
-        name='step2',
-        started=datetime.datetime.utcfromtimestamp(101),
-        finished=datetime.datetime.utcfromtimestamp(200),
-        started_line_number=101,
-        finished_line_number=200,
-        result=TextLogStep.TEST_FAILED,
-    )
-    TextLogError.objects.create(job=test_job, step=step2, line='failure 1', line_number=101)
-    TextLogError.objects.create(job=test_job, step=step2, line='failure 2', line_number=102)
+    TextLogError.objects.create(job=test_job, line='failure 1', line_number=101)
+    TextLogError.objects.create(job=test_job, line='failure 2', line_number=102)
     resp = client.get(
         reverse(
             "jobs-text-log-errors", kwargs={"project": test_job.repository.name, "pk": test_job.id}
