@@ -209,7 +209,7 @@ class DetailsPanel extends React.Component {
                     repoName={currentRepo.name}
                   />
                 </TabPanel>
-                <TabPanel>
+                <TabPanel className="overflow-auto h-100">
                   <Col className="ml-2">
                     {taskDetails.map((artifact) => (
                       <Row key={artifact.value} data-testid="task-artifact">
