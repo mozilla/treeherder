@@ -8,6 +8,7 @@ newrelic==5.2.1.129
 
 mysqlclient   # Required by Django
 
+jsonschema  # Imported as jsonschema
 djangorestframework==3.11.0  # Imported as rest_framework
 django-cors-headers==3.2.1  # Listed as 3rd party app on settings.py
 mozlog
