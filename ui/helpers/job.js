@@ -180,28 +180,33 @@ export const getResultState = function getResultState(job) {
 export const addAggregateFields = function addAggregateFields(job) {
   const {
     job_group_name: jobGroupName,
-    job_group_symbol: jobGroupSymbol,
-    job_type_name: jobTypeName,
-    job_type_symbol: jobTypeSymbol,
     platform,
     platform_option: platformOption,
     submit_timestamp: submitTimestamp,
     start_timestamp: startTimestamp,
     end_timestamp: endTimestamp,
   } = job;
+  let { job_type_name: jobTypeName, job_type_symbol: jobTypeSymbol } = job;
 
   job.resultStatus = getResultState(job);
-  // we want to join the group and type information together
-  // so we can search for it as one token (useful when
-  // we want to do a search on something like `fxup-esr(`)
-  const symbolInfo = jobGroupSymbol === '?' ? '' : jobGroupSymbol;
 
+  // The current modification is to support backfilling of manifest based scheduling.
+  // A backfilled task (e.g. bc2) ends up being named bc2-<revision>-bk
+  // The label can also be different than the original task selected to be backfilled
+  // For instance 'test-linux1804-64/debug-mochitest-browser-chrome-e10s-4' can be
+  // 'test-linux1804-64/debug-mochitest-browser-chrome-e10s-1' yet the symbol be bc4
+  const parts = jobTypeName.split('-');
+  const chunk = Number(parts.pop());
+  if (Number.isInteger(chunk)) {
+    jobTypeName = parts.join('-');
+    jobTypeSymbol = jobTypeSymbol.split('-').shift();
+  }
   job.searchStr = [
     thPlatformMap[platform] || platform,
     platformOption,
     jobGroupName === 'unknown' ? undefined : jobGroupName,
     jobTypeName,
-    `${symbolInfo}(${jobTypeSymbol})`,
+    jobTypeSymbol,
   ]
     .filter((item) => typeof item !== 'undefined')
     .join(' ');
