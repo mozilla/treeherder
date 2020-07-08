@@ -1,4 +1,4 @@
-Framework,Suite,EngineerTraction,FixRatio,LastUpdatedOn,ShouldSync
+Framework,Suite,EngineerTraction,FixRatio,LastUpdatedOn,AllowSync
 awsy,JS,,,,
 build_metrics,build times,,,,
 build_metrics,installer size,,,,

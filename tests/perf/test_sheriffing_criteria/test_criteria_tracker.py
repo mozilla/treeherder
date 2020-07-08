@@ -1,6 +1,9 @@
+import copy
 import time
 from contextlib import contextmanager
+from dataclasses import replace
 from datetime import timedelta
+from itertools import chain
 from unittest.mock import MagicMock
 from dateutil.parser import parse as dateutil_parse
 from multiprocessing.pool import AsyncResult
@@ -53,7 +56,7 @@ RECORDS_WITH_NO_DATA = [
         EngineerTraction='',
         FixRatio='',
         LastUpdatedOn='',
-        ShouldSync='',
+        AllowSync='',
     )
     for test in TESTS_WITH_NO_DATA
 ]
@@ -64,7 +67,7 @@ RECORDS_WITH_EXPIRED_DATA = [
         EngineerTraction=0.5,
         FixRatio=0.3,
         LastUpdatedOn='2020-05-02T00:00:00.000000',
-        ShouldSync='',
+        AllowSync='',
     )
     for test in TESTS_WITH_EXPIRED_DATA
 ]
@@ -75,10 +78,18 @@ RECORDS_WITH_UPDATED_DATA = [
         EngineerTraction=0.5,
         FixRatio=0.3,
         LastUpdatedOn='2020-06-02T00:00:00.000000',
-        ShouldSync='',
+        AllowSync='',
     )
     for test in TESTS_WITH_UPDATED_DATA
 ]
+RECORDS_UNALLOWED_TO_SYNC = list(
+    map(
+        copy.deepcopy,
+        chain(*zip(RECORDS_WITH_NO_DATA, RECORDS_WITH_EXPIRED_DATA, RECORDS_WITH_UPDATED_DATA)),
+    )
+)[:10]
+RECORDS_UNALLOWED_TO_SYNC = [replace(rec, AllowSync=False) for rec in RECORDS_UNALLOWED_TO_SYNC]
+
 NEVER_READY_RESULTS = [MagicMock(spec=AsyncResult) for _ in range(10)]
 PARTIALLY_READY_RESULTS = [MagicMock(spec=AsyncResult) for _ in range(10)]
 READY_RESULTS = [MagicMock(spec=AsyncResult) for _ in range(10)]
@@ -197,6 +208,13 @@ def test_record_computer_can_tell_updated_data(criteria_record):
     assert not computer.should_update(criteria_record)
 
 
+@pytest.mark.parametrize('criteria_record', RECORDS_UNALLOWED_TO_SYNC)
+def test_record_computer_can_tell_unallowed_data(criteria_record):
+    computer = RecordComputer({}, timedelta(days=3), timedelta(seconds=0))
+
+    assert not computer.should_update(criteria_record)
+
+
 @pytest.mark.freeze_time(CASSETTES_RECORDING_DATE)  # disable tick
 @pytest.mark.parametrize('exception', [NoFiledBugs(), Exception()])
 def test_record_computer_still_updates_if_one_of_the_formulas_fails(exception):
@@ -210,7 +228,7 @@ def test_record_computer_still_updates_if_one_of_the_formulas_fails(exception):
         EngineerTraction='',
         FixRatio='',
         LastUpdatedOn='',
-        ShouldSync='',
+        AllowSync='',
     )
 
     computer = RecordComputer(formula_map, timedelta(days=3), timedelta(seconds=0))
@@ -221,7 +239,7 @@ def test_record_computer_still_updates_if_one_of_the_formulas_fails(exception):
     assert record.EngineerTraction == EXPECTED_VALUE
     assert record.FixRatio == 'N/A'
     assert record.LastUpdatedOn == EXPECTED_LAST_UPDATE
-    assert record.ShouldSync is True
+    assert record.AllowSync is True
 
 
 def test_tracker_lets_web_service_rest(mock_formula_map, updatable_criteria_csv):
@@ -251,7 +269,7 @@ def test_tracker_updates_records_with_missing_data(mock_formula_map, updatable_c
         assert criteria_rec.EngineerTraction == ''
         assert criteria_rec.FixRatio == ''
         assert criteria_rec.LastUpdatedOn == ''
-        assert criteria_rec.ShouldSync is True
+        assert criteria_rec.AllowSync is True
 
     tracker.update_records()
     del tracker
@@ -265,7 +283,7 @@ def test_tracker_updates_records_with_missing_data(mock_formula_map, updatable_c
         assert criteria_rec.EngineerTraction == EXPECTED_VALUE
         assert criteria_rec.FixRatio == EXPECTED_VALUE
         assert criteria_rec.LastUpdatedOn == EXPECTED_LAST_UPDATE
-        assert criteria_rec.ShouldSync is True
+        assert criteria_rec.AllowSync is True
 
 
 @pytest.mark.freeze_time(CASSETTES_RECORDING_DATE, auto_tick_seconds=30)

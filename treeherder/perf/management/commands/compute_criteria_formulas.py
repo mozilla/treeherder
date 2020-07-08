@@ -9,6 +9,7 @@ from treeherder.perf.sheriffing_criteria import (
     FixRatioFormula,
     CriteriaTracker,
 )
+from treeherder.perf.sheriffing_criteria import criteria_tracking
 from mo_times import Duration
 from django.core.management.base import BaseCommand
 
@@ -24,8 +25,8 @@ class Command(BaseCommand):
     FORMULAS = [ENGINEER_TRACTION, FIX_RATIO]  # register new formulas here
 
     help = f'''
-    Compute the {pretty_enumerated(FORMULAS)} for a particular framework/suite/test combo,
-     according to the Perf Sheriffing Criteria specification
+    Compute the {pretty_enumerated(FORMULAS)} for multiple framework/suite combinations,
+     according to the Perf Sheriffing Criteria specification.\nRequires "{criteria_tracking.CRITERIA_FILENAME}" to be provided for both program input & output.
     '''
 
     INITIAL_PROMPT_MSG = 'Computing Perf Sheriffing Criteria... (may take some time)'
@@ -65,7 +66,7 @@ class Command(BaseCommand):
         subparser = parser.add_subparsers(dest='individually')
         individual_parser = subparser.add_parser(
             'individually',
-            help='Compute perf sheriffing criteria for individual framework/suite combo',
+            help='Compute perf sheriffing criteria for individual framework/suite combo (no CSV file required)',
         )
         individual_parser.add_argument('framework', action='store')
         individual_parser.add_argument('suite', action='store')
@@ -100,7 +101,7 @@ class Command(BaseCommand):
     def _handle_individually(self, options):
         framework = options['framework']
         suite = options['suite']
-        test = options['suite']
+        test = options['test']
         quant_period = options['quantifying_period']
         bug_cooldown = options['bug_cooldown']
 

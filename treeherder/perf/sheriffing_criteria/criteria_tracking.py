@@ -24,7 +24,7 @@ class CriteriaRecord:
     EngineerTraction: Union[float, str]
     FixRatio: Union[float, str]
     LastUpdatedOn: datetime
-    ShouldSync: bool
+    AllowSync: bool
 
     def __post_init__(self):
         if self.EngineerTraction not in ('', 'N/A'):
@@ -36,10 +36,10 @@ class CriteriaRecord:
             if isinstance(self.LastUpdatedOn, str):
                 self.LastUpdatedOn = datetime.fromisoformat(self.LastUpdatedOn)
 
-        if self.ShouldSync in ('', 'True'):
-            self.ShouldSync = True
-        elif self.ShouldSync == 'False':
-            self.ShouldSync = False
+        if self.AllowSync in ('', 'True'):
+            self.AllowSync = True
+        elif self.AllowSync == 'False':
+            self.AllowSync = False
 
 
 class RecordComputer:
@@ -61,7 +61,7 @@ class RecordComputer:
         last_updated_on = record.LastUpdatedOn
 
         # consider explicit request above all else
-        if not record.ShouldSync:
+        if not record.AllowSync:
             return False
 
         # missing data
