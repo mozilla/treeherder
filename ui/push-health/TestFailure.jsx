@@ -34,7 +34,6 @@ class TestFailure extends React.PureComponent {
     if (localStorage.getItem(test)) {
       this.setState({
         markAsInvestigated: JSON.parse(localStorage.getItem(test)),
-        checked: false,
       });
     }
   }
@@ -55,12 +54,13 @@ class TestFailure extends React.PureComponent {
     JobModel.retrigger([task], currentRepo, notify);
   };
 
-  handleChange = (e) => {
-    if (!this.state.checked) this.props.addToCheckJob(e.target.name);
+  handleChange = async (e) => {
+    const { checked } = this.state;
+    if (!checked) await this.props.addToCheckJob(e.target.name);
     else this.props.removeFromCheckedJobs(e.target.name);
-    this.setState((prevState) => ({
-      checked: !prevState.checked,
-    }));
+    this.setState({
+      checked: !checked,
+    });
   };
 
   render() {
@@ -78,7 +78,12 @@ class TestFailure extends React.PureComponent {
       jobGroupSymbol,
       jobSymbol,
     } = failure;
-    const { detailsShowing, selectedTask, markAsInvestigated } = this.state;
+    const {
+      detailsShowing,
+      selectedTask,
+      markAsInvestigated,
+      checked,
+    } = this.state;
     const taskList = sortBy(
       [...failJobs, ...passJobs, ...passInFailedJobs, ...inProgressJobs],
       ['start_time'],
@@ -97,6 +102,7 @@ class TestFailure extends React.PureComponent {
               type="checkbox"
               name={`${key}${revision}`}
               onChange={this.handleChange}
+              checked={checked}
             />
           </Col>
           <Col>
