@@ -8,16 +8,13 @@ celery==4.4.2   # 4.4.2 required to pass test_retryable_task_throws_retry, celer
 simplejson==3.17.0
 newrelic==5.2.1.129
 
-# Required by Django
-mysqlclient==1.4.6   # Not imported directly
+mysqlclient   # Required by Django
 
 # Required by mozlog
 jsonschema==3.0.1
 djangorestframework==3.11.0  # Imported as rest_framework
 django-cors-headers==3.2.1  # Listed as 3rd party app on settings.py
 mozlog
-
-coreapi==2.3.3  # Probably not needed anymore
 
 # Used directly and also by Django's YAML serializer.
 PyYAML  # Imported as yaml
