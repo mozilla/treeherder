@@ -6,11 +6,7 @@ import { connect } from 'react-redux';
 import { setPinBoardVisible } from '../redux/stores/pinnedJobs';
 import { thEvents } from '../../helpers/constants';
 import { addAggregateFields } from '../../helpers/job';
-import {
-  getLogViewerUrl,
-  getReftestUrl,
-  getArtifactsUrl,
-} from '../../helpers/url';
+import { getLogViewerUrl, getArtifactsUrl } from '../../helpers/url';
 import { formatArtifacts } from '../../helpers/display';
 import { getData } from '../../helpers/http';
 import BugJobMapModel from '../../models/bugJobMap';
