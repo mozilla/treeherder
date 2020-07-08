@@ -19,16 +19,22 @@ class TestFailure extends React.PureComponent {
     this.state = {
       detailsShowing: false,
       selectedTask: null,
-      markAsInvestigated: false,
+      markAsInvestigated:
+        JSON.parse(
+          localStorage.getItem(
+            `${this.props.failure.key}${this.props.revision}`,
+          ),
+        ) || false,
+      checked: false,
     };
   }
 
-  componentWillMount() {
+  componentWillReceiveProps() {
     const test = `${this.props.failure.key}${this.props.revision}`;
     if (localStorage.getItem(test)) {
-      const data = JSON.parse(localStorage.getItem(test));
       this.setState({
-        markAsInvestigated: data,
+        markAsInvestigated: JSON.parse(localStorage.getItem(test)),
+        checked: false,
       });
     }
   }
@@ -50,10 +56,10 @@ class TestFailure extends React.PureComponent {
   };
 
   handleChange = (e) => {
-    if (!this.state.markAsInvestigated) this.props.addToCheckJob(e.target.name);
+    if (!this.state.checked) this.props.addToCheckJob(e.target.name);
     else this.props.removeFromCheckedJobs(e.target.name);
     this.setState((prevState) => ({
-      markAsInvestigated: !prevState.markAsInvestigated,
+      checked: !prevState.checked,
     }));
   };
 

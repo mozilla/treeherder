@@ -30,6 +30,7 @@ class GroupedTests extends PureComponent {
     this.state = {
       clipboardVisible: null,
       checkedJobs: [],
+      refresh: false, // for refreshing test failure lines
     };
   }
 
@@ -55,23 +56,19 @@ class GroupedTests extends PureComponent {
   };
 
   removeFromCheckedJobs = (uncheckedJob) => {
-    const index = this.state.checkedJobs.findIndex((job) => {
-      return uncheckedJob === job;
+    let { checkedJobs } = this.state;
+    checkedJobs = checkedJobs.filter((job) => {
+      return uncheckedJob !== job;
     });
-    const { checkedJobs } = this.state;
-    checkedJobs.splice(index, 1);
-    this.setState(checkedJobs);
+    this.setState({ checkedJobs });
   };
 
   retriggerSelected = (times, group) => {
     const { notify, currentRepo, revision } = this.props;
+    const { checkedJobs } = this.state;
     // Reduce down to the unique jobs
     const jobs = group.tests.reduce((acc, test) => {
-      if (
-        this.state.checkedJobs.findIndex((job) => {
-          return `${test.key}${revision}` === job;
-        }) >= 0
-      )
+      if (checkedJobs.includes(`${test.key}${revision}`))
         return {
           ...acc,
           ...test.failJobs.reduce((fjAcc, fJob) => ({ [fJob.id]: fJob }), {}),
@@ -86,15 +83,16 @@ class GroupedTests extends PureComponent {
 
   markAsInvestigated = (group) => {
     const { notify, revision } = this.props;
+    const { checkedJobs } = this.state;
+    notify('Marking selected jobs as investigated', 'info');
     group.tests.forEach((test) => {
-      if (
-        this.state.checkedJobs.findIndex((job) => {
-          return `${test.key}${revision}` === job;
-        }) >= 0
-      ) {
+      if (checkedJobs.includes(`${test.key}${revision}`)) {
         localStorage.setItem(`${test.key}${revision}`, JSON.stringify(true));
       }
     });
+    this.setState((prevState) => ({
+      refresh: !prevState.refresh,
+    }));
     notify('Marked selected jobs as investigated', 'success');
   };
 
@@ -139,7 +137,7 @@ class GroupedTests extends PureComponent {
       orderedBy,
       groupedBy,
     } = this.props;
-    const { clipboardVisible } = this.state;
+    const { clipboardVisible, refresh } = this.state;
 
     const groupedTests = this.getGroupedTests(group);
     const groupedArray = Object.entries(groupedTests).map(([key, tests]) => ({
@@ -250,6 +248,7 @@ class GroupedTests extends PureComponent {
                     notify={notify}
                     groupedBy={groupedBy}
                     className="ml-3"
+                    refresh={refresh}
                   />
                 ))}
               </UncontrolledCollapse>
