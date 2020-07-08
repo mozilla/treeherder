@@ -49,7 +49,7 @@ describe('DetailsPanel', () => {
       '[taskcluster 2020-05-27 22:09:41.219Z] Task ID: WhN846qNQPin_jnGyF3w-g\n' +
         '[taskcluster 2020-05-27 22:09:41.219Z] Worker ID: i-04f0e9fbffe5a9186\n',
     );
-    fetchMock.get(getProjectUrl('/jobs/285852125/text_log_steps/', 'try'), [
+    fetchMock.get(getProjectUrl('/jobs/285852125/text_log_errors/', 'try'), [
       {
         id: 639432541,
         errors: [
