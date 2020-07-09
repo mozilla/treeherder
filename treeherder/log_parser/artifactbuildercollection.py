@@ -4,7 +4,7 @@ import newrelic.agent
 
 from treeherder.utils.http import make_request
 
-from .artifactbuilders import LogViewerArtifactBuilder, PerformanceDataArtifactBuilder
+from .artifactbuilders import BuildbotLogViewArtifactBuilder, BuildbotPerformanceDataArtifactBuilder
 from .parsers import EmptyPerformanceData
 
 logger = logging.getLogger(__name__)
@@ -39,13 +39,13 @@ ArtifactBuilderBase
 * parser
 * Passes lines the ``Parser``
 
-LogViewerArtifactBuilder
+BuildbotLogViewArtifactBuilder
 -------------
 * Parses out content for use in a visual Log Parser
 * Parsers:
-* ErrorParser
+* StepParser, which has its own ErrorParser
 
-PerformanceDataArtifactBuilder
+BuildbotPerformanceDataArtifactBuilder
 -------------
 * Builds an artifact from performance data
 * Parsers:
@@ -72,8 +72,8 @@ PerformanceDataArtifactBuilder
         else:
             # use the defaults
             self.builders = [
-                LogViewerArtifactBuilder(url=self.url),
-                PerformanceDataArtifactBuilder(url=self.url),
+                BuildbotLogViewArtifactBuilder(url=self.url),
+                BuildbotPerformanceDataArtifactBuilder(url=self.url),
             ]
 
     def parse(self):

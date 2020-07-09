@@ -1,3 +1,5 @@
+import datetime
+
 from mozlog.formatters.tbplformatter import TbplFormatter
 
 from treeherder.model.models import (
@@ -6,6 +8,7 @@ from treeherder.model.models import (
     JobLog,
     TextLogError,
     TextLogErrorMetadata,
+    TextLogStep,
 )
 
 test_line = {
@@ -76,6 +79,16 @@ def get_data(base_data, updates):
 
 
 def create_text_log_errors(job, failure_line_list):
+    step = TextLogStep.objects.create(
+        job=job,
+        name='everything',
+        started_line_number=1,
+        finished_line_number=10,
+        started=datetime.datetime.now(),
+        finished=datetime.datetime.now(),
+        result=TextLogStep.TEST_FAILED,
+    )
+
     formatter = TbplFormatter()
     errors = []
     for i, (base_data, updates) in enumerate(failure_line_list):
@@ -83,7 +96,7 @@ def create_text_log_errors(job, failure_line_list):
         if not data:
             continue
         error = TextLogError.objects.create(
-            job=job, line=formatter(data).split("\n")[0], line_number=i
+            step=step, line=formatter(data).split("\n")[0], line_number=i
         )
         errors.append(error)
 
