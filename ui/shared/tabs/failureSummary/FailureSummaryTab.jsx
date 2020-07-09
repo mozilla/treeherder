@@ -114,7 +114,16 @@ class FailureSummaryTab extends React.Component {
         });
       }
 
-      this.setState({ bugSuggestionsLoading: false, suggestions });
+      this.setState({ bugSuggestionsLoading: false, suggestions }, () => {
+        const scrollArea = document.querySelector(
+          '#failure-summary-scroll-area',
+        );
+
+        if (scrollArea.scrollTo) {
+          scrollArea.scrollTo(0, 0);
+          window.getSelection().removeAllRanges();
+        }
+      });
     });
   };
 
@@ -146,6 +155,7 @@ class FailureSummaryTab extends React.Component {
             !developerMode && 'font-size-11'
           } list-unstyled w-100 h-100 mb-0 overflow-auto text-small`}
           ref={this.fsMount}
+          id="failure-summary-scroll-area"
         >
           {suggestions.map((suggestion, index) => (
             <SuggestionsListItem
