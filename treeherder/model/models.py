@@ -912,8 +912,7 @@ class JobNote(models.Model):
         # TODO: Decide whether this should change now that we're no longer mirroring.
         bug_numbers = set(
             ClassifiedFailure.objects.filter(
-                best_for_errors__text_log_error__step__job=job,
-                best_for_errors__best_is_verified=True,
+                best_for_errors__text_log_error__job=job, best_for_errors__best_is_verified=True,
             )
             .exclude(bug_number=None)
             .exclude(bug_number=0)
@@ -1267,7 +1266,7 @@ class TextLogError(models.Model):
         unique_together = ('step', 'line_number')
 
     def __str__(self):
-        return "{0} {1}".format(self.id, self.step.job.id)
+        return "{0} {1}".format(self.id, self.job.id)
 
     @property
     def metadata(self):

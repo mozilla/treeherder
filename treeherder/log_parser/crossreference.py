@@ -39,7 +39,7 @@ def crossreference_job(job):
 @transaction.atomic
 def _crossreference(job):
     failure_lines = FailureLine.objects.filter(job_guid=job.guid)
-    text_log_errors = TextLogError.objects.filter(step__job=job).order_by('line_number')
+    text_log_errors = TextLogError.objects.filter(job=job).order_by('line_number')
 
     if not failure_lines and text_log_errors:
         return False
