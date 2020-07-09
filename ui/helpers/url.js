@@ -31,8 +31,6 @@ export const repoEndpoint = '/repository/';
 
 export const tcAuthCallbackUrl = '/taskcluster-auth.html';
 
-export const textLogErrorsEndpoint = '/text_log_errors/';
-
 export const getRunnableJobsURL = function getRunnableJobsURL(
   decisionTask,
   rootUrl,

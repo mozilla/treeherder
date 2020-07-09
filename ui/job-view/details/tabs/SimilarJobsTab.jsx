@@ -8,12 +8,11 @@ import { Button } from 'reactstrap';
 import { thMaxPushFetchSize } from '../../../helpers/constants';
 import { toDateStr, toShortDateStr } from '../../../helpers/display';
 import { addAggregateFields, getBtnClass } from '../../../helpers/job';
-import { getJobsUrl, textLogErrorsEndpoint } from '../../../helpers/url';
+import { getJobsUrl } from '../../../helpers/url';
 import JobModel from '../../../models/job';
 import PushModel from '../../../models/push';
+import TextLogStepModel from '../../../models/textLogStep';
 import { notify } from '../../redux/stores/notifications';
-import { getProjectJobUrl } from '../../../helpers/location';
-import { getData } from '../../../helpers/http';
 
 class SimilarJobsTab extends React.Component {
   constructor(props) {
@@ -125,22 +124,19 @@ class SimilarJobsTab extends React.Component {
   showJobInfo = (job) => {
     const { repoName, classificationMap } = this.props;
 
-    JobModel.get(repoName, job.id).then(async (nextJob) => {
+    JobModel.get(repoName, job.id).then((nextJob) => {
       addAggregateFields(nextJob);
       nextJob.failure_classification =
         classificationMap[nextJob.failure_classification_id];
 
       // retrieve the list of error lines
-      const { data, failureStatus } = await getData(
-        getProjectJobUrl(textLogErrorsEndpoint, nextJob.id),
-      );
-      if (!failureStatus && data.length) {
-        nextJob.error_lines = data.reduce(
+      TextLogStepModel.get(nextJob.id).then((textLogSteps) => {
+        nextJob.error_lines = textLogSteps.reduce(
           (acc, step) => [...acc, ...step.errors],
           [],
         );
-      }
-      this.setState({ selectedSimilarJob: nextJob });
+        this.setState({ selectedSimilarJob: nextJob });
+      });
     });
   };
 
