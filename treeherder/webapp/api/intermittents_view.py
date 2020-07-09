@@ -83,7 +83,7 @@ class FailuresByBug(generics.ListAPIView):
         lines = TextLogError.objects.filter(
             job_id__in=self.queryset.values_list('job_id', flat=True),
             line__contains='TEST-UNEXPECTED-FAIL',
-        ).values_list('step__job_id', 'line')
+        ).values_list('job_id', 'line')
 
         grouped_lines = defaultdict(list)
         for job_id, line in lines:
