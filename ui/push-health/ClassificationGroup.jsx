@@ -20,11 +20,11 @@ import {
   NavItem,
   UncontrolledButtonDropdown,
 } from 'reactstrap';
+import groupBy from 'lodash/groupBy';
 
 import JobModel from '../models/job';
 
-import './pushhealth.css';
-import GroupedTests from './GroupedTests';
+import Action from './Action';
 
 class ClassificationGroup extends React.PureComponent {
   constructor(props) {
@@ -73,6 +73,15 @@ class ClassificationGroup extends React.PureComponent {
     this.setState({ orderedBy });
   };
 
+  getTestsByAction = (tests) => {
+    const { log, crash, test } = groupBy(tests, 'action');
+
+    return {
+      'Test Failures': test || [],
+      'Crashes (unknown path)': [...(log || []), ...(crash || [])],
+    };
+  };
+
   render() {
     const {
       detailsShowing,
@@ -81,9 +90,8 @@ class ClassificationGroup extends React.PureComponent {
       orderedBy,
     } = this.state;
     const {
-      group,
+      tests,
       name,
-      repo,
       revision,
       className,
       hasRetriggerAll,
@@ -96,7 +104,9 @@ class ClassificationGroup extends React.PureComponent {
     const expandTitle = detailsShowing
       ? 'Click to collapse'
       : 'Click to expand';
-    const groupLength = Object.keys(group).length;
+    const groupLength = Object.keys(tests).length;
+    const testsByAction = this.getTestsByAction(tests);
+
     return (
       <Row
         className={`justify-content-between ${className}`}
@@ -105,9 +115,8 @@ class ClassificationGroup extends React.PureComponent {
         <span className="font-size-24">
           <FontAwesomeIcon
             icon={expandIcon}
-            className="mr-1"
+            className="mr-1 min-width-1"
             title={expandTitle}
-            style={{ minWidth: '15px' }}
             aria-label={expandTitle}
             alt=""
           />
@@ -230,17 +239,18 @@ class ClassificationGroup extends React.PureComponent {
           </Navbar>
         )}
         <Collapse isOpen={detailsShowing} className="w-100">
-          <div>
-            <GroupedTests
-              group={group}
-              repo={repo}
-              revision={revision}
+          {Object.entries(testsByAction).map(([key, value]) => (
+            <Action
+              name={key}
+              tests={value}
               groupedBy={groupedBy}
               orderedBy={orderedBy}
+              revision={revision}
               currentRepo={currentRepo}
               notify={notify}
+              key={key}
             />
-          </div>
+          ))}
         </Collapse>
       </Row>
     );
@@ -248,9 +258,8 @@ class ClassificationGroup extends React.PureComponent {
 }
 
 ClassificationGroup.propTypes = {
-  group: PropTypes.arrayOf(PropTypes.object).isRequired,
+  tests: PropTypes.arrayOf(PropTypes.object).isRequired,
   name: PropTypes.string.isRequired,
-  repo: PropTypes.string.isRequired,
   currentRepo: PropTypes.shape({}).isRequired,
   revision: PropTypes.string.isRequired,
   notify: PropTypes.func.isRequired,

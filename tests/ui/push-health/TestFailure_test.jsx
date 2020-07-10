@@ -7,7 +7,7 @@ import {
   replaceLocation,
   setUrlParam,
 } from '../../../ui/helpers/location';
-import TestFailure from '../../../ui/push-health/TestFailure';
+import PlatformConfig from '../../../ui/push-health/PlatformConfig';
 import pushHealth from '../mock/push_health';
 import fullJob from '../mock/full_job.json';
 import bugSuggestions from '../mock/bug_suggestions.json';
@@ -50,7 +50,7 @@ afterEach(() => {
 
 describe('TestFailure', () => {
   const testTestFailure = (failure) => (
-    <TestFailure
+    <PlatformConfig
       failure={failure}
       repo="autoland"
       user={{ email: 'foo' }}

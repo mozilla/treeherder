@@ -19,7 +19,7 @@ export default class TestMetric extends React.PureComponent {
     const { details } = data;
     const { needInvestigation, knownIssues } = details;
     let filteredNeedInvestigation = needInvestigation;
-    let filteredIntermittent = knownIssues;
+    let filteredKnownIssues = knownIssues;
 
     if (searchStr.length || !showParentMatches) {
       filteredNeedInvestigation = filterTests(
@@ -27,7 +27,7 @@ export default class TestMetric extends React.PureComponent {
         searchStr,
         showParentMatches,
       );
-      filteredIntermittent = filterTests(
+      filteredKnownIssues = filterTests(
         knownIssues,
         searchStr,
         showParentMatches,
@@ -37,7 +37,7 @@ export default class TestMetric extends React.PureComponent {
     return (
       <div className="border-bottom border-secondary">
         <ClassificationGroup
-          group={filteredNeedInvestigation}
+          tests={filteredNeedInvestigation}
           name="Possible Regressions"
           repo={repo}
           currentRepo={currentRepo}
@@ -51,7 +51,7 @@ export default class TestMetric extends React.PureComponent {
           notify={notify}
         />
         <ClassificationGroup
-          group={filteredIntermittent}
+          tests={filteredKnownIssues}
           name="Known Issues"
           repo={repo}
           currentRepo={currentRepo}
@@ -59,7 +59,7 @@ export default class TestMetric extends React.PureComponent {
           className="mb-5"
           icon={faExclamationTriangle}
           iconColor={
-            filteredIntermittent.length ? 'warning' : 'darker-secondary'
+            filteredKnownIssues.length ? 'warning' : 'darker-secondary'
           }
           expanded={false}
           hasRetriggerAll

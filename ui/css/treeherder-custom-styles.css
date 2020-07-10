@@ -39,6 +39,10 @@
   font-size: 18px;
 }
 
+.font-size-20 {
+  font-size: 20px;
+}
+
 .font-size-24 {
   font-size: 24px;
 }
@@ -49,6 +53,10 @@
 
 .font-weight-700 {
   font-weight: 700;
+}
+
+.min-width-1 {
+  min-width: 1rem;
 }
 
 /* this is better for drop down menu items because

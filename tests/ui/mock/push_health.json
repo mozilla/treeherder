@@ -849,7 +849,7 @@
             "jobGroupSymbol": "R",
             "platform": "linux1804-64-shippable",
             "config": "opt",
-            "key": "tlayoutreftestshighcontrastbackplatebgimage009htmllayoutreftestshighcontrastbackplatebgimage009refhtmloptlinux180464shippabletestlinux180464shippableoptreftestnoaccele10s1Reftests",
+            "key": "tlayoutreftestshighcontrastbackplatebgimage009htmllayoutreftestshighcontrastbackplatebgimage009refhtmloptlinux180464shippabletestlinux180464shippableoptreftestnoaccele10s12Reftests",
             "jobKey": "optlinux1804-64-shippabletest-linux1804-64-shippable/opt-reftest-no-accel-e10s-1Reftests",
             "inProgressJobs": [],
             "failJobs": [
