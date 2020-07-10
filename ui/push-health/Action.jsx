@@ -43,9 +43,9 @@ class Action extends PureComponent {
 
     return (
       <div className="ml-4 mt-2">
-        <h4>{name}</h4>
+        <h5>{name}</h5>
         {groupedTests.map((test) => (
-          <div className="ml-3" key={test.key}>
+          <div key={test.key}>
             <Test
               test={test}
               groupedBy={groupedBy}
