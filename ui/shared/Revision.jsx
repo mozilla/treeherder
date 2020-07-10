@@ -110,8 +110,6 @@ export class Revision extends React.PureComponent {
           innerClassName="tooltip-content"
           target={`revision${revision}`}
         >
-          {`Commit: ${comment}`}
-          {<div style={{ visibility: 'hidden' }}>invisible space</div>}
           {bugSummaryMap &&
             !!bugMatches &&
             bugMatches.map((bug) => {
@@ -122,6 +120,8 @@ export class Revision extends React.PureComponent {
                 </div>
               );
             })}
+          {<div style={{ visibility: 'hidden' }}>invisible space</div>}
+          {`Commit: ${comment}`}
         </UncontrolledTooltip>
       </Row>
     );
