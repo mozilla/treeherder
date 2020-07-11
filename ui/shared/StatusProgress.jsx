@@ -1,6 +1,6 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import { Progress } from 'reactstrap';
+import { VictoryPie } from 'victory';
 
 const StatusProgress = (props) => {
   const {
@@ -9,15 +9,24 @@ const StatusProgress = (props) => {
   const failed = testfailed || 0 + busted || 0;
 
   return (
-    <Progress
-      multi
-      title={`${failed} failed, ${success} success, ${running} running, ${pending} pending`}
-    >
-      <Progress bar color="danger" value={failed} />
-      <Progress bar color="success" value={success} />
-      <Progress bar color="info" value={running} striped />
-      <Progress bar color="secondary" value={pending} />
-    </Progress>
+    <VictoryPie
+      data={[
+        { x: 'success', y: success },
+        { x: 'running', y: running },
+        { x: 'pending', y: pending },
+        { x: 'failed', y: failed },
+      ]}
+      colorScale={['#28a745', '#17a2b8', '#6c757d', '#dc3545']}
+      labels={({ datum }) => (datum.y > 0 ? `${datum.x}: ${datum.y}` : '')}
+      height={200}
+      padding={{ top: 20, bottom: 15 }}
+      style={{
+        labels: {
+          fontSize: 12,
+        },
+        parent: { width: '25%' },
+      }}
+    />
   );
 };
 

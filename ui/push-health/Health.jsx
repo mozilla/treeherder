@@ -230,16 +230,20 @@ export default class Health extends React.PureComponent {
           {!!tests && !!currentRepo && (
             <React.Fragment>
               <div>{percentComplete}% Complete</div>
-              <StatusProgress counts={status} />
+              <div className="column-flex mb-5">
+                <StatusProgress counts={status} />
+                <div>
+                  {commitHistory.details && (
+                    <CommitHistory
+                      history={commitHistory.details}
+                      revision={revision}
+                      currentRepo={currentRepo}
+                      compareWithParent={this.compareWithParent}
+                    />
+                  )}
+                </div>
+              </div>
               <div className="mb-3" />
-              {commitHistory.details && (
-                <CommitHistory
-                  history={commitHistory.details}
-                  revision={revision}
-                  currentRepo={currentRepo}
-                  compareWithParent={this.compareWithParent}
-                />
-              )}
               <Tabs
                 className="w-100 h-100 mr-5 mt-2"
                 selectedTabClassName="selected-detail-tab"

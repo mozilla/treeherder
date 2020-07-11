@@ -15,6 +15,10 @@
   table-layout: fixed;
 }
 
+.column-flex {
+  display: flex;
+}
+
 .revision {
   font-size: 12px;
 }
