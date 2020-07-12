@@ -80,20 +80,23 @@ class ExtractAlerts:
                 last_year = Date.today() - YEAR + DAY  # ONLY YOUNG RECORDS CAN GO INTO BIGQUERY
 
                 get_ids = SQL(
-                    "SELECT s.id "
-                    + "\nFROM treeherder.performance_alert_summary s"
-                    + "\nLEFT JOIN treeherder.performance_alert a ON s.id=a.summary_id"
-                    + "\nWHERE s.created>"
-                    + quote_value(last_year).sql
-                    + " AND (s.last_updated > "
-                    + quote_value(last_modified).sql
-                    + "\nOR a.last_updated > "
-                    + quote_value(last_modified).sql
-                    + ")"
-                    + "\nGROUP BY s.id"
-                    + "\nORDER BY s.id"
-                    + "\nLIMIT "
-                    + quote_value(settings.extractor.chunk_size).sql
+                    f"""
+                    SELECT
+                        s.id
+                    FROM
+                        treeherder.performance_alert_summary s
+                    LEFT JOIN
+                        treeherder.performance_alert a ON s.id=a.summary_id
+                    WHERE
+                        s.created>{quote_value(last_year)} AND
+                        (s.last_updated > {quote_value(last_modified)} OR a.last_updated > {quote_value(last_modified)})
+                    GROUP BY
+                        s.id
+                    ORDER BY
+                        s.id
+                    LIMIT
+                        {quote_value(settings.extractor.chunk_size)}
+                """
                 )
                 sql = extractor.get_sql(get_ids)
 

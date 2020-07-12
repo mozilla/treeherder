@@ -7,6 +7,9 @@ django-extensions
 pytest-selenium
 PyPOM
 
+
+Django==3.0.8  # match common.in for faster install
+
 # for git commit hooks
 pre-commit==2.2.0  # prettier requires at least version 10.13.0 of Node, please upgrade
 
