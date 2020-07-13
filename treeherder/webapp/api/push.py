@@ -363,7 +363,7 @@ class PushViewSet(viewsets.ViewSet):
                 {'error': 'Revision <40 chars', 'param': param, 'revision': revision},
             )
 
-    @cache_memoize(60 * 60)
+    # @cache_memoize(60 * 60)
     def fetch_gecko_decision_artifact(self, project, revision, file_path):
         repo = Repository.objects.get(name=project)
         url = f'{repo.tc_root_url}/api/index/v1/task/gecko.v2.{project}.revision.{revision}.taskgraph.decision/artifacts/public/{file_path}'
@@ -378,13 +378,16 @@ class PushViewSet(viewsets.ViewSet):
 
     @action(detail=False)
     def test_paths(self, request, project):
+        print(f'starting: {datetime.datetime.now()}')
+
         def get_tests(manifests, tests_by_manifest):
             all_tests = []
             for man in manifests:
                 path = man.rsplit('/', 1)[0]
-                print(path)
+                # print(path)
                 tests = tests_by_manifest[man] if man in tests_by_manifest else []
                 all_tests.extend([f'{path}/{test}' for test in tests])
+            # print(f'done with tests: {len(manifests)}')
             return all_tests
 
         revision = request.query_params.get('revision')
@@ -393,14 +396,17 @@ class PushViewSet(viewsets.ViewSet):
         manifests_by_task = self.fetch_gecko_decision_artifact(
             project, revision, 'manifests-by-task.json.gz'
         )
+        print('got manifests_by_task')
         tests_by_manifest = self.fetch_gecko_decision_artifact(
             project, revision, 'tests-by-manifest.json.gz'
         )
+        print('got tests_by_manifest')
 
         task_name_to_test_paths = {
             task: get_tests(manifests, tests_by_manifest)
             for task, manifests in manifests_by_task.items()
         }
+        print(f'done: {datetime.datetime.now()}')
 
         # resp = {}
         # for key, val in manifests_by_task.items():
