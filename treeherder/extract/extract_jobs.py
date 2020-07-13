@@ -12,7 +12,6 @@ from redis import Redis
 
 from treeherder.config.settings import REDIS_URL
 
-
 CONFIG_FILE = (File.new_instance(__file__).parent / "extract_jobs.json").abspath
 
 
@@ -20,7 +19,7 @@ class ExtractJobs:
     def run(self, force=False, restart=False, start=None, merge=False):
         try:
             # SETUP LOGGING
-            settings = startup.read_settings(filename=CONFIG_FILE)
+            settings = startup.read_settings(filename=CONFIG_FILE, complain=False)
             constants.set(settings.constants)
             Log.start(settings.debug)
 
