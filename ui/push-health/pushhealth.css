@@ -1,3 +1,14 @@
+.absolute {
+  position: absolute;
+  width: 100%;
+  top: 35%;
+  text-align: center;
+}
+
+.relative {
+  position: relative;
+}
+
 .metric-name {
   font-size: 24px;
 }
@@ -13,10 +24,6 @@
 
 .table-fixed {
   table-layout: fixed;
-}
-
-.column-flex {
-  display: flex;
 }
 
 .revision {

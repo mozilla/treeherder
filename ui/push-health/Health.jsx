@@ -22,7 +22,6 @@ import {
 import PushModel from '../models/push';
 import RepositoryModel from '../models/repository';
 import StatusProgress from '../shared/StatusProgress';
-import { getPercentComplete } from '../helpers/display';
 import { scrollToLine } from '../helpers/utils';
 import {
   createQueryParams,
@@ -176,7 +175,6 @@ export default class Health extends React.PureComponent {
       defaultTabIndex,
     } = this.state;
     const { tests, commitHistory, linting, builds } = metrics;
-    const percentComplete = status ? getPercentComplete(status) : 0;
     const needInvestigationCount = tests
       ? tests.details.needInvestigation.length
       : 0;
@@ -229,8 +227,7 @@ export default class Health extends React.PureComponent {
           />
           {!!tests && !!currentRepo && (
             <React.Fragment>
-              <div>{percentComplete}% Complete</div>
-              <div className="column-flex mb-5">
+              <div className="d-flex mb-5">
                 <StatusProgress counts={status} />
                 <div>
                   {commitHistory.details && (
