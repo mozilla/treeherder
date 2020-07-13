@@ -378,46 +378,33 @@ class PushViewSet(viewsets.ViewSet):
 
     @action(detail=False)
     def test_paths(self, request, project):
-        print(f'starting: {datetime.datetime.now()}')
+        logger.error(f'starting: {datetime.datetime.now()}')
 
         def get_tests(manifests, tests_by_manifest):
             all_tests = []
             for man in manifests:
                 path = man.rsplit('/', 1)[0]
-                # print(path)
                 tests = tests_by_manifest[man] if man in tests_by_manifest else []
                 all_tests.extend([f'{path}/{test}' for test in tests])
-            # print(f'done with tests: {len(manifests)}')
+
             return all_tests
 
         revision = request.query_params.get('revision')
 
-        # paths = self.get_test_paths(revision, project)
         manifests_by_task = self.fetch_gecko_decision_artifact(
             project, revision, 'manifests-by-task.json.gz'
         )
-        print('got manifests_by_task')
+        logger.error('got manifests_by_task')
+
         tests_by_manifest = self.fetch_gecko_decision_artifact(
             project, revision, 'tests-by-manifest.json.gz'
         )
-        print('got tests_by_manifest')
+        logger.error('got tests_by_manifest')
 
         task_name_to_test_paths = {
             task: get_tests(manifests, tests_by_manifest)
             for task, manifests in manifests_by_task.items()
         }
-        print(f'done: {datetime.datetime.now()}')
-
-        # resp = {}
-        # for key, val in manifests_by_task.items():
-        #     print(f'mbt keys: {key}')
-        #     for x in val:
-        #         print(x)
-        #         print(tests_by_manifest[x])
-        # break
-        # break
-
-        # for key, val in testsByManifest.items():
-        #     print(f'tbm keys: {key}')
+        logger.error(f'done: {datetime.datetime.now()}')
 
         return Response(task_name_to_test_paths)
