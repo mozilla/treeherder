@@ -1,5 +1,8 @@
 import datetime
 import logging
+import gzip
+from io import BytesIO
+import json
 
 import newrelic.agent
 from cache_memoize import cache_memoize
@@ -16,6 +19,7 @@ from treeherder.push_health.tests import get_test_failures
 from treeherder.push_health.usage import get_usage
 from treeherder.webapp.api.serializers import PushSerializer
 from treeherder.webapp.api.utils import to_datetime, to_timestamp
+from treeherder.utils.http import make_request
 
 logger = logging.getLogger(__name__)
 
@@ -358,3 +362,56 @@ class PushViewSet(viewsets.ViewSet):
                 'short_revision_push_api',
                 {'error': 'Revision <40 chars', 'param': param, 'revision': revision},
             )
+
+    @cache_memoize(60 * 60)
+    def fetch_gecko_decision_artifact(self, project, revision, file_path):
+        repo = Repository.objects.get(name=project)
+        url = f'{repo.tc_root_url}/api/index/v1/task/gecko.v2.{project}.revision.{revision}.taskgraph.decision/artifacts/public/{file_path}'
+        response = make_request(url)
+
+        if response.headers['Content-Type'] == 'application/gzip':
+            buffer = BytesIO(response.content)
+            deflatedContent = gzip.GzipFile(fileobj=buffer)
+            return json.loads(deflatedContent.read())
+
+        return response.content
+
+    @action(detail=False)
+    def test_paths(self, request, project):
+        def get_tests(manifests, tests_by_manifest):
+            all_tests = []
+            for man in manifests:
+                path = man.rsplit('/', 1)[0]
+                print(path)
+                tests = tests_by_manifest[man] if man in tests_by_manifest else []
+                all_tests.extend([f'{path}/{test}' for test in tests])
+            return all_tests
+
+        revision = request.query_params.get('revision')
+
+        # paths = self.get_test_paths(revision, project)
+        manifests_by_task = self.fetch_gecko_decision_artifact(
+            project, revision, 'manifests-by-task.json.gz'
+        )
+        tests_by_manifest = self.fetch_gecko_decision_artifact(
+            project, revision, 'tests-by-manifest.json.gz'
+        )
+
+        task_name_to_test_paths = {
+            task: get_tests(manifests, tests_by_manifest)
+            for task, manifests in manifests_by_task.items()
+        }
+
+        # resp = {}
+        # for key, val in manifests_by_task.items():
+        #     print(f'mbt keys: {key}')
+        #     for x in val:
+        #         print(x)
+        #         print(tests_by_manifest[x])
+        # break
+        # break
+
+        # for key, val in testsByManifest.items():
+        #     print(f'tbm keys: {key}')
+
+        return Response(task_name_to_test_paths)
