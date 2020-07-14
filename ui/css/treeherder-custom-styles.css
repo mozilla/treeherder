@@ -293,6 +293,7 @@
   color: #0d7d8f;
 }
 
+.alert-darker-info,
 .badge-darker-info {
   background: #0d7d8f;
   color: white;
@@ -341,6 +342,7 @@
   color: #53595f;
 }
 
+.alert-darker-secondary,
 .badge-darker-secondary {
   background-color: #6c757d;
   color: white;

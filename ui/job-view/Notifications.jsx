@@ -22,7 +22,12 @@ Notifications.propTypes = {
     PropTypes.shape({
       created: PropTypes.number.isRequired,
       message: PropTypes.string.isRequired,
-      severity: PropTypes.oneOf(['danger', 'warning', 'info', 'success']),
+      severity: PropTypes.oneOf([
+        'danger',
+        'warning',
+        'darker-info',
+        'success',
+      ]),
       sticky: PropTypes.bool,
     }),
   ).isRequired,
