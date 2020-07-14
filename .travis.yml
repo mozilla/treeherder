@@ -52,6 +52,7 @@ jobs:
         - pip install -r requirements.txt
         - yarn install
       script:
+        - newrelic-admin validate-config
         - yarn heroku-postbuild
         - ./manage.py collectstatic --noinput
         # This generates the revision and does the Brotly/Gzip compression
