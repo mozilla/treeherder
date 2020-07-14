@@ -155,6 +155,7 @@ class ExtractJobs:
                     break
 
         except Exception as e:
+            print(str(e))
             Log.warning("problem with extraction", cause=e)
 
         Log.note("done job extraction")
