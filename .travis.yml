@@ -19,6 +19,8 @@ jobs:
         - yarn lint
         # `yarn lint` only checks the formatting of JS/JSX, this will also check CSS/HTML/JSON/Markdown/YAML.
         - yarn format:check
+        - yarn prettier
+        - yarn markdownlint
         - yarn test:coverage
         - yarn codecov
 
@@ -50,8 +52,6 @@ jobs:
         - pip install -r requirements.txt
         - yarn install
       script:
-        - yarn prettier
-        - yarn markdownlint
         - yarn heroku-postbuild
         - ./manage.py collectstatic --noinput
         # This generates the revision and does the Brotly/Gzip compression
