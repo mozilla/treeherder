@@ -66,7 +66,7 @@ class ActionBar extends React.PureComponent {
 
     switch (logParseStatus) {
       case 'pending':
-        notify('Log parsing in progress, log viewer not yet available', 'info');
+        notify('Log parsing in progress, log viewer not yet available');
         break;
       case 'failed':
         notify('Log parsing has failed, log viewer is unavailable', 'warning');
@@ -75,7 +75,7 @@ class ActionBar extends React.PureComponent {
         notify('Log parsing was skipped, log viewer is unavailable', 'warning');
         break;
       case 'unavailable':
-        notify('No logs available for this job', 'info');
+        notify('No logs available for this job');
         break;
       case 'parsed':
         document.querySelector('.logviewer-btn').click();

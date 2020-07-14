@@ -96,7 +96,7 @@ export default class JobModel {
   ) {
     const jobTerm = jobs.length > 1 ? 'jobs' : 'job';
     try {
-      notify(`Attempting to retrigger/add ${jobTerm} via actions.json`, 'info');
+      notify(`Attempting to retrigger/add ${jobTerm} via actions.json`);
 
       const pushIds = [...new Set(jobs.map((job) => job.push_id))];
       const taskIdMap =
@@ -219,10 +219,7 @@ export default class JobModel {
       ));
 
     try {
-      notify(
-        `Attempting to cancel selected ${jobTerm} via actions.json`,
-        'info',
-      );
+      notify(`Attempting to cancel selected ${jobTerm} via actions.json`);
 
       /* eslint-disable no-await-in-loop */
       for (const job of jobs) {

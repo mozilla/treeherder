@@ -38,7 +38,7 @@ export const notify = (message, severity, options) => ({
 const doNotify = (
   { notifications, storedNotifications },
   message,
-  severity = 'info',
+  severity = 'darker-info',
   options = {},
 ) => {
   const notification = {
