@@ -20,7 +20,7 @@ const StatusProgress = (props) => {
           { x: 'failed', y: failed },
         ]}
         colorScale={['#28a745', '#17a2b8', '#6c757d', '#dc3545']}
-        labels={({ datum }) => (datum.y > 0 ? `${datum.x}: ${datum.y}` : '')}
+        labels={() => ''}
         height={200}
         padding={{ top: 20, bottom: 15 }}
         innerRadius={70}
