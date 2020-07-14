@@ -165,9 +165,9 @@ pluggy==0.13.1 \
     --hash=sha256:15b2acde666561e1298d71b523007ed7364de07029219b604cf808bfa1c765b0 \
     --hash=sha256:966c145cd83c96502c3c3868f50408687b38434af77734af1e9ca461a4081d2d \
     # via pypom, pytest
-pre-commit==2.2.0 \
-    --hash=sha256:487c675916e6f99d355ec5595ad77b325689d423ef4839db1ed2f02f639c9522 \
-    --hash=sha256:c0aa11bce04a7b46c5544723aedf4e81a4d5f64ad1205a30a9ea12d5e81969e1 \
+pre-commit==2.6.0 \
+    --hash=sha256:1657663fdd63a321a4a739915d7d03baedd555b25054449090f97bb0cb30a915 \
+    --hash=sha256:e8b1315c585052e729ab7e99dcca5698266bedce9067d21dc909c23e3ceed626 \
     # via -r requirements/dev.in
 py==1.9.0 \
     --hash=sha256:366389d1db726cd2fcfc79732e75410e5fe4d31db13692115529d34069a043c2 \
@@ -292,6 +292,12 @@ selenium==3.141.0 \
     --hash=sha256:2d7131d7bc5a5b99a2d9b04aaf2612c411b03b8ca1b1ee8d3de5845a9be2cb3c \
     --hash=sha256:deaf32b60ad91a4611b98d8002757f29e6f2c2d5fcaf202e1c9ad06d6772300d \
     # via pypom, pytest-selenium
+shellcheck-py==0.7.1.1 \
+    --hash=sha256:044fb62e44d549c49a712c6ac0a60d6f4ae2d1afebbc167d65ec62dc689b8f2b \
+    --hash=sha256:0fca77ece2ba232ca2fdbe4f15dc4b0a30f3e38e896345b2dbf4dbe20e4bb8a9 \
+    --hash=sha256:59c623567a1a7bd0a919b5009790b199b5457a78053b775de1886f01693533af \
+    --hash=sha256:9f537613212aad5221a020dde3b86884cf4778688788ac26ddeb21fecf3ec2e0 \
+    # via -r requirements/dev.in
 six==1.15.0 \
     --hash=sha256:30639c035cdb23534cd4aa2dd52c3bf48f06e5f4a941509c8bafd8ce11080259 \
     --hash=sha256:8b74bedcbbbaca38ff6d7491d76f2b06b3592611af620f8426e82dddb04a5ced \

@@ -11,7 +11,7 @@ PyPOM
 Django==3.0.8  # match common.in for faster install
 
 # for git commit hooks
-pre-commit==2.2.0  # prettier requires at least version 10.13.0 of Node, please upgrade
+pre-commit
 
 # for test driven development
 pytest-testmon
@@ -21,6 +21,7 @@ pytest-watch
 flake8
 pytest-django
 black
+shellcheck-py
 
 # To test async code
 pytest-asyncio==0.10.0  # required to pass test_new_job_transformation
