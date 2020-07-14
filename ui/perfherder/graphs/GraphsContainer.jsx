@@ -32,11 +32,14 @@ class GraphsContainer extends React.Component {
     this.tooltip = React.createRef();
     this.leftChartPadding = 25;
     this.rightChartPadding = 10;
+    const scatterPlotData = flatMap(this.props.testData, (item) =>
+      item.visible ? item.data : [],
+    );
+    const zoomDomain = this.initZoomDomain(scatterPlotData);
     this.state = {
       highlights: [],
-      scatterPlotData: flatMap(this.props.testData, (item) =>
-        item.visible ? item.data : [],
-      ),
+      scatterPlotData,
+      zoomDomain,
       lockTooltip: false,
       externalMutation: undefined,
       width: window.innerWidth,
@@ -45,11 +48,15 @@ class GraphsContainer extends React.Component {
 
   componentDidMount() {
     const { zoom, selectedDataPoint } = this.props;
-
+    const { scatterPlotData } = this.state;
+    const zoomDomain = this.initZoomDomain(scatterPlotData);
     this.addHighlights();
     if (selectedDataPoint) this.verifySelectedDataPoint();
     window.addEventListener('resize', () =>
-      this.setState({ width: window.innerWidth }),
+      this.setState({
+        width: window.innerWidth,
+        zoomDomain,
+      }),
     );
   }
 
@@ -60,6 +67,9 @@ class GraphsContainer extends React.Component {
       testData,
       timeRange,
     } = this.props;
+    const scatterPlotData = flatMap(testData, (item) =>
+      item.visible ? item.data : [],
+    );
 
     if (
       prevProps.highlightAlerts !== highlightAlerts ||
@@ -76,6 +86,35 @@ class GraphsContainer extends React.Component {
       this.closeTooltip();
     }
   }
+
+  getToday = () => {
+    return moment.utc().toDate();
+  };
+
+  // limits for the zoomDomain of VictoryChart
+  initZoomDomain = (plotData) => {
+    const minDomainY = this.getMinY(plotData);
+    const maxDomainY = this.getMaxY(plotData);
+    // zoom domain padding is the space between the lowest/highest datapoint
+    // and the top/bottom limits of the zoom domain. The minimum value is 100
+    // as this is the top victory graph behavior
+    let zoomDomPadd;
+    if (minDomainY !== maxDomainY) {
+      zoomDomPadd = (maxDomainY - minDomainY) / 1.8;
+    } else {
+      zoomDomPadd = 100;
+    }
+    const minX = this.getMinX(plotData);
+    const maxX = this.getToday();
+    const minY = minDomainY - zoomDomPadd < 0 ? 0 : minDomainY - zoomDomPadd;
+    const maxY = maxDomainY + zoomDomPadd;
+
+    return { minX, maxX, minY, maxY };
+  };
+
+  updateZoomDomain = (plotData) => {
+    return this.initZoomDomain(plotData);
+  };
 
   verifySelectedDataPoint = () => {
     const { selectedDataPoint, testData, updateStateParams } = this.props;
@@ -106,8 +145,10 @@ class GraphsContainer extends React.Component {
       item.visible ? item.data : [],
     );
     this.addHighlights();
+    const zoomDomain = this.updateZoomDomain(scatterPlotData);
     this.setState({
       scatterPlotData,
+      zoomDomain,
     });
 
     if (!visibilityChanged) {
@@ -267,11 +308,25 @@ class GraphsContainer extends React.Component {
     updateStateParams({ zoom });
   };
 
+  // helper functions that allow the zoom domain to be tuned correctly
+  getMinX = (data) => {
+    return data.reduce((min, p) => (p.x < min ? p.x : min), data[0].x);
+  };
+
+  getMinY = (data) => {
+    return data.reduce((min, p) => (p.y < min ? p.y : min), data[0].y);
+  };
+
+  getMaxY = (data) => {
+    return data.reduce((max, p) => (p.y > max ? p.y : max), data[0].y);
+  };
+
   render() {
     const { testData, showTable, zoom, highlightedRevisions } = this.props;
     const {
       highlights,
       scatterPlotData,
+      zoomDomain,
       lockTooltip,
       externalMutation,
       width,
@@ -357,7 +412,8 @@ class GraphsContainer extends React.Component {
                   style={{ parent: { maxHeight: '400px', maxWidth: '1350px' } }}
                   scale={{ x: 'time', y: 'linear' }}
                   domainPadding={{ y: 40, x: [10, 10] }}
-                  maxDomain={{ x: today }}
+                  minDomain={{ x: zoomDomain.minX, y: zoomDomain.minY }}
+                  maxDomain={{ x: today, y: zoomDomain.maxY }}
                   externalEventMutations={externalMutation}
                   containerComponent={
                     <VictoryZoomSelectionContainer
