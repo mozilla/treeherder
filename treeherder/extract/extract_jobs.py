@@ -47,8 +47,8 @@ class ExtractJobs:
             Log.start(settings.debug)
             print("started")
 
-            print("main log type=" + Log.main_log.__type__.__name__)
-            print("sub  log type=" + Log.main_log.logger.__type__.__name__)
+            print("main log type=" + Log.main_log.__class__.__name__)
+            print("sub  log type=" + Log.main_log.logger.__class__.__name__)
             Log.note("test logging")
             self.extract(settings, force, restart, start, merge)
         except Exception as e:
