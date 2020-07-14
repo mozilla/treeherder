@@ -7,6 +7,7 @@ import {
   faCircle,
   faExclamationTriangle,
 } from '@fortawesome/free-solid-svg-icons';
+import { Alert, Button } from 'reactstrap';
 
 class NotificationList extends React.Component {
   static getIcon(severity) {
@@ -16,8 +17,6 @@ class NotificationList extends React.Component {
         return faBan;
       case 'warning':
         return faExclamationTriangle;
-      case 'info':
-        return faCircle;
       case 'darker-info':
         return faCircle;
       case 'success':
@@ -32,7 +31,7 @@ class NotificationList extends React.Component {
       <ul id="notification-box" className="list-unstyled">
         {notifications.map((notification, idx) => (
           <li key={notification.created}>
-            <div className={`alert alert-${notification.severity}`}>
+            <Alert color={notification.severity}>
               <FontAwesomeIcon
                 icon={NotificationList.getIcon(notification.severity)}
                 title={notification.severity}
@@ -44,15 +43,14 @@ class NotificationList extends React.Component {
                 </span>
               )}
               {notification.sticky && (
-                <button
-                  type="button"
+                <Button
                   onClick={() => clearNotification(idx)}
-                  className="close"
+                  className="close pt-1"
                 >
                   x
-                </button>
+                </Button>
               )}
-            </div>
+            </Alert>
           </li>
         ))}
       </ul>
@@ -65,7 +63,12 @@ NotificationList.propTypes = {
     PropTypes.shape({
       created: PropTypes.number.isRequired,
       message: PropTypes.string.isRequired,
-      severity: PropTypes.oneOf(['danger', 'warning', 'info', 'success']),
+      severity: PropTypes.oneOf([
+        'danger',
+        'warning',
+        'darker-info',
+        'success',
+      ]),
       sticky: PropTypes.bool,
     }),
   ).isRequired,

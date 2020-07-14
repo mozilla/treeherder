@@ -51,9 +51,9 @@ class ClassificationGroup extends React.PureComponent {
   };
 
   retriggerAll = (times) => {
-    const { group, notify, currentRepo } = this.props;
+    const { tests, notify, currentRepo } = this.props;
     // Reduce down to the unique jobs
-    const jobs = group.reduce(
+    const jobs = tests.reduce(
       (acc, test) => ({
         ...acc,
         ...test.failJobs.reduce((fjAcc, fJob) => ({ [fJob.id]: fJob }), {}),

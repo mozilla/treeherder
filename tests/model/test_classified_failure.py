@@ -81,7 +81,7 @@ def test_update_autoclassification_bug(test_job, test_job_2, classified_failures
     mark_best_classification(text_log_errors[0], classified_failure)
     assert classified_failure.bug_number is None
 
-    metadata = TextLogErrorMetadata.objects.get(text_log_error__step__job=test_job_2)
+    metadata = TextLogErrorMetadata.objects.get(text_log_error__job=test_job_2)
     metadata.failure_line = FailureLine.objects.get(pk=3)
     metadata.save()
 
