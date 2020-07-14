@@ -21,6 +21,7 @@ pytest-watch
 flake8
 pytest-django
 black
+shellcheck-py
 
 # To test async code
 pytest-asyncio==0.10.0  # required to pass test_new_job_transformation
