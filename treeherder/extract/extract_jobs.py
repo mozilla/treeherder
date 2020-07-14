@@ -1,3 +1,6 @@
+from mo_logs.strings import expand_template
+
+from jx_base.expressions import extend
 from jx_bigquery import bigquery
 from jx_mysql.mysql import MySQL, sql_query
 from jx_mysql.mysql_snowflake_extractor import MySqlSnowflakeExtractor
@@ -5,6 +8,7 @@ from jx_python import jx
 from mo_files import File
 from mo_json import json2value, value2json
 from mo_logs import Log, constants, startup, strings
+from mo_logs.log_usingLogger import StructuredLogger_usingLogger, MAP
 from mo_sql import SQL
 from mo_times import Timer
 from mo_times.dates import Date
@@ -17,6 +21,14 @@ CONFIG_FILE = (File.new_instance(__file__).parent / "extract_jobs.json").abspath
 
 class ExtractJobs:
     def run(self, force=False, restart=False, start=None, merge=False):
+
+        @extend(StructuredLogger_usingLogger)
+        def write(self, template, params):
+            log_line = expand_template(template, params)
+            level = max(self.min_level, MAP[params.context])
+            self.logger.log(level, log_line)
+            print(log_line)
+
         try:
             # SETUP LOGGING
             settings = startup.read_settings(filename=CONFIG_FILE, complain=False)
