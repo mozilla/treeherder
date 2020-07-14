@@ -151,6 +151,8 @@ class ExtractJobs:
                     r.etl.timestamp = Date.now()
                 destination.extend(acc)
 
+                print("done load bq")
+
                 # RECORD THE STATE
                 last_doc = acc[-1]
                 last_modified, job_id = last_doc.last_modified, last_doc.id
@@ -162,9 +164,10 @@ class ExtractJobs:
                     break
 
         except Exception as e:
-            print(str(e))
+            print("exception")
             Log.warning("problem with extraction", cause=e)
 
+        print("done extract")
         Log.note("done job extraction")
 
         try:
@@ -172,5 +175,5 @@ class ExtractJobs:
                 destination.merge_shards()
         except Exception as e:
             Log.warning("problem with merge", cause=e)
-
+        print("done")
         Log.note("done job merge")
