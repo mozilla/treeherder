@@ -45,6 +45,7 @@ class ExtractJobs:
             Log.start(settings.debug)
             print("started")
 
+            Log.note("test logging")
             self.extract(settings, force, restart, start, merge)
         except Exception as e:
             Log.error("could not extract jobs", cause=e)
@@ -79,6 +80,8 @@ class ExtractJobs:
                 state = json2value(state.decode("utf8"))
 
             last_modified, job_id = state
+
+            print("scan schema")
 
             # SCAN SCHEMA, GENERATE EXTRACTION SQL
             extractor = MySqlSnowflakeExtractor(settings.source)
@@ -129,6 +132,8 @@ class ExtractJobs:
                 )
                 sql = extractor.get_sql(get_ids)
 
+                print("got sql")
+
                 # PULL FROM source, AND PUSH TO destination
                 acc = []
                 with source.transaction():
@@ -136,6 +141,8 @@ class ExtractJobs:
                     extractor.construct_docs(cursor, acc.append, False)
                 if not acc:
                     break
+
+                print("load bq")
 
                 # SOME LIMITS PLACES ON STRING SIZE
                 for fl in jx.drill(acc, "job_log.failure_line"):
