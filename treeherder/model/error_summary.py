@@ -1,5 +1,6 @@
 import logging
 import re
+import newrelic.agent
 
 from django.core.cache import cache
 
@@ -32,7 +33,7 @@ def get_error_summary(job):
 
     # don't cache or do anything if we have no text log errors to get
     # results for
-    errors = TextLogError.objects.filter(step__job=job)
+    errors = TextLogError.objects.filter(job=job)
     if not errors:
         return []
 
@@ -40,7 +41,12 @@ def get_error_summary(job):
     term_cache = {}
 
     error_summary = [bug_suggestions_line(err, term_cache) for err in errors]
-    cache.set(cache_key, error_summary, BUG_SUGGESTION_CACHE_TIMEOUT)
+
+    try:
+        cache.set(cache_key, error_summary, BUG_SUGGESTION_CACHE_TIMEOUT)
+    except Exception as e:
+        newrelic.agent.record_custom_event('error caching error_summary for job', job.id)
+        logger.error('error caching error_summary for job %s: %s', job.id, e)
 
     return error_summary
 
