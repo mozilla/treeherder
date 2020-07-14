@@ -90,6 +90,7 @@ class ExtractJobs:
             source = MySQL(settings.source.database)
 
             while True:
+                print("extracting jobs")
                 Log.note(
                     "Extracting jobs for last_modified={{last_modified|datetime|quote}}, job.id={{job_id}}",
                     last_modified=last_modified,
