@@ -32,8 +32,11 @@ class ExtractJobs:
         try:
             # SETUP LOGGING
             settings = startup.read_settings(filename=CONFIG_FILE, complain=False)
+            print("got settings")
             constants.set(settings.constants)
+            print("set constants")
             Log.start(settings.debug)
+            print("started")
 
             self.extract(settings, force, restart, start, merge)
         except Exception as e:
@@ -42,6 +45,7 @@ class ExtractJobs:
             Log.stop()
 
     def extract(self, settings, force, restart, start, merge):
+        print("extracting")
         if not settings.extractor.app_name:
             Log.error("Expecting an extractor.app_name in config file")
 
