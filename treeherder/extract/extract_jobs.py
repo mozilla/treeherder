@@ -1,3 +1,5 @@
+from mo_logs.log_usingStream import StructuredLogger_usingStream
+
 from mo_logs.strings import expand_template
 
 from jx_base.expressions import extend
@@ -21,6 +23,11 @@ CONFIG_FILE = (File.new_instance(__file__).parent / "extract_jobs.json").abspath
 
 class ExtractJobs:
     def run(self, force=False, restart=False, start=None, merge=False):
+
+        @extend(StructuredLogger_usingStream)
+        def write(self, template, params):
+            log_line = expand_template(template, params)
+            print(log_line)
 
         @extend(StructuredLogger_usingLogger)
         def write(self, template, params):
