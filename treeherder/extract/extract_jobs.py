@@ -149,9 +149,11 @@ class ExtractJobs:
                     fl.message = strings.limit(fl.message, 10000)
                 for r in acc:
                     r.etl.timestamp = Date.now()
+
+                print("extend")
                 destination.extend(acc)
 
-                print("done load bq")
+                print("done extend")
 
                 # RECORD THE STATE
                 last_doc = acc[-1]
