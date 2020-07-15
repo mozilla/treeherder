@@ -24,7 +24,6 @@
       "performance_signature",
       "runnable_job",
       "text_log_error_metadata",
-//      "failure_line.stack",
       "failure_line.stackwalk_stdout",
       "failure_line.stackwalk_stderr"
     ],
