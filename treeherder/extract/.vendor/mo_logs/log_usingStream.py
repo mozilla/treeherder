@@ -9,6 +9,7 @@
 #
 from __future__ import absolute_import, division, unicode_literals
 
+
 from mo_future import PY3, allocate_lock, STDERR, STDOUT
 from mo_logs.log_usingNothing import StructuredLogger
 from mo_logs.strings import CR, expand_template
@@ -23,10 +24,11 @@ class StructuredLogger_usingStream(StructuredLogger):
                 if PY3:
                     stream = stream.buffer
             self.writer = _UTF8Encoder(stream).write
-        except Exception as _:
-            import sys
+        except Exception as e:
+            import logging
 
-            sys.stderr.write("can not handle")
+            logging.getLogger().error("can not handle")
+            raise e
 
     def write(self, template, params):
         value = expand_template(template, params)
@@ -46,6 +48,6 @@ class _UTF8Encoder(object):
             self.stream.write(v.encode('utf8'))
             self.stream.flush()
         except Exception:
-            import sys
+            import logging
 
-            sys.stderr.write("can not handle")
+            logging.getLogger().error("can not handle")
