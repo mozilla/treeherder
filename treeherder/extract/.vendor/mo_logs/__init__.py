@@ -94,12 +94,15 @@ class Log(object):
 
         logs = coalesce(settings.log, settings.logs)
         if logs:
+            print("setup logs")
             cls.logging_multi = StructuredLogger_usingMulti()
             for log in listwrap(logs):
                 Log._add_log(Log.new_instance(log))
 
+            print("start threaded logger")
             from mo_logs.log_usingThread import StructuredLogger_usingThread
             old_log, cls.main_log = cls.main_log, StructuredLogger_usingThread(cls.logging_multi)
+            print("stop old logger")
             old_log.stop()
 
     @classmethod

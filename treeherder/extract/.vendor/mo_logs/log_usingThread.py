@@ -29,6 +29,7 @@ class StructuredLogger_usingThread(StructuredLogger):
         self.logger = logger
 
         def worker(logger, please_stop):
+            print("threaded worker started")
             try:
                 while True:
                     print("get logs")
