@@ -7,13 +7,20 @@ from jx_python import jx
 from mo_files import File
 from mo_json import json2value, value2json
 from mo_logs import Log, constants, startup, strings
-from mo_logs.log_usingWarn import StructuredLogger_usingWarn
+from mo_logs.log_usingNothing import StructuredLogger
+from mo_logs.strings import expand_template
 from mo_sql import SQL
 from mo_times import Timer
 from mo_times.dates import Date
 from treeherder.config.settings import REDIS_URL
 
 CONFIG_FILE = (File.new_instance(__file__).parent / "extract_jobs.json").abspath
+
+
+class StructuredLogger_usingPrint(StructuredLogger):
+    def write(self, template, params):
+        value = expand_template(template, params)
+        print(value + "\n")
 
 
 class ExtractJobs:
@@ -23,7 +30,7 @@ class ExtractJobs:
             settings = startup.read_settings(filename=CONFIG_FILE, complain=False)
             constants.set(settings.constants)
             Log.start(settings.debug)
-            Log.main_log = StructuredLogger_usingWarn()
+            Log.main_log = StructuredLogger_usingPrint()
 
             self.extract(settings, force, restart, start, merge)
         except Exception as e:
