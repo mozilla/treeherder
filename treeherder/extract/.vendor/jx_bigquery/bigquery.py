@@ -63,7 +63,7 @@ from mo_threads import Till, Lock, Queue
 from mo_times import MINUTE, Timer
 from mo_times.dates import Date
 
-DEBUG = False
+DEBUG = True
 EXTEND_LIMIT = 2 * MINUTE  # EMIT ERROR IF ADDING RECORDS TO TABLE TOO OFTEN
 MAX_MERGE = 10  # MAXIMUM NUMBER OF TABLES TO MERGE AT ONCE
 SUFFIX_PATTERN = re.compile(r"__\w{20}")
@@ -433,16 +433,16 @@ class Table(BaseFacts):
             update = {}
             with Timer("encoding"):
                 while True:
-                    output = []
+                    typed_rows = []
                     for rownum, row in enumerate(rows):
-                        typed, more, add_nested = typed_encode(row, self.flake)
+                        typed_row, more, add_nested = typed_encode(row, self.flake)
                         set_default(update, more)
                         if add_nested:
                             # row HAS NEW NESTED COLUMN!
                             # GO OVER THE rows AGAIN SO "RECORD" GET MAPPED TO "REPEATED"
                             DEBUG and Log.note("New nested documnet found, retrying")
                             break
-                        output.append(typed)
+                        typed_rows.append(typed_row)
                     else:
                         break
 
@@ -456,8 +456,8 @@ class Table(BaseFacts):
             with Timer("insert {{num}} rows to bq", param={"num": len(rows)}):
                 failures = self.container.client.insert_rows_json(
                     self.shard,
-                    json_rows=output,
-                    row_ids=[None] * len(output),
+                    json_rows=typed_rows,
+                    row_ids=[None] * len(typed_rows),
                     skip_invalid_rows=False,
                     ignore_unknown_values=False,
                 )
@@ -475,16 +475,16 @@ class Table(BaseFacts):
                 )
             else:
                 self.last_extend = Date.now()
-                Log.note("{{num}} rows added", num=len(output))
+                Log.note("{{num}} rows added", num=len(typed_rows))
         except Exception as cause:
             cause = Except.wrap(cause)
             if (
-                len(output) < 2
+                len(typed_rows) < 2
                 and "Your client has issued a malformed or illegal request." in cause
             ):
                 Log.error(
                     "big query complains about:\n{{data|json}}",
-                    data=output,
+                    data=typed_rows,
                     cause=cause
                 )
             elif len(rows) > 1 and (
