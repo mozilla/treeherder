@@ -21,6 +21,7 @@ DEBUG = False
 class StructuredLogger_usingThread(StructuredLogger):
 
     def __init__(self, logger):
+        print("init threaded")
         if not isinstance(logger, StructuredLogger):
             Log.error("Expecting a StructuredLogger")
 
