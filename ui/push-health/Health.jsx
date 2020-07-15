@@ -229,7 +229,7 @@ export default class Health extends React.PureComponent {
             <React.Fragment>
               <div className="d-flex mb-5">
                 <StatusProgress counts={status} />
-                <div>
+                <div className="mt-4 ml-2">
                   {commitHistory.details && (
                     <CommitHistory
                       history={commitHistory.details}

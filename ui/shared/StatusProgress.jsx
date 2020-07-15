@@ -10,6 +10,7 @@ const StatusProgress = (props) => {
   } = props;
   const failed = testfailed || 0 + busted || 0;
   const percentComplete = props.counts ? getPercentComplete(props.counts) : 0;
+
   return (
     <div className="relative">
       <VictoryPie
@@ -22,6 +23,7 @@ const StatusProgress = (props) => {
         colorScale={['#28a745', '#17a2b8', '#6c757d', '#dc3545']}
         labels={() => ''}
         height={200}
+        width={200}
         padding={{ top: 20, bottom: 15 }}
         innerRadius={70}
         radius={85}
@@ -32,7 +34,7 @@ const StatusProgress = (props) => {
         }}
       />
       <div className="absolute">
-        <div style={{ font: '30px' }}>{percentComplete}%</div>
+        <div style={{ fontSize: '30px' }}>{percentComplete}%</div>
         <div>Complete</div>
       </div>
     </div>
