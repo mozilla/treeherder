@@ -64,7 +64,7 @@ from mo_threads import Till, Lock, Queue
 from mo_times import MINUTE, Timer
 from mo_times.dates import Date
 
-DEBUG = True
+DEBUG = False
 EXTEND_LIMIT = 2 * MINUTE  # EMIT ERROR IF ADDING RECORDS TO TABLE TOO OFTEN
 MAX_MERGE = 10  # MAXIMUM NUMBER OF TABLES TO MERGE AT ONCE
 SUFFIX_PATTERN = re.compile(r"__\w{20}")
