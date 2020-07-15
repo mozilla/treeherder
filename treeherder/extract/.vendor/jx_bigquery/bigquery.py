@@ -499,8 +499,8 @@ class Table(BaseFacts):
                     DEBUG and Log.note("attempt smaller batch")
                     # TRY A SMALLER BATCH
                     cut = len(rows) // 2
-                    self.extend(rows[:cut])
-                    self.extend(rows[cut:])
+                    self._extend(rows[:cut])
+                    self._extend(rows[cut:])
                     return
                 except Exception as cause2:
                     Log.error("smaller batch did not work", cause=cause2)
