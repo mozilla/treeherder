@@ -92,7 +92,9 @@
     "trace": true,
     "logs": [
       {
-        "log_type": "print"
+        "log_type": "logger",
+        "name": "extract_alerts",
+        "min_level": "warning"
       }
     ]
   }
