@@ -1,4 +1,14 @@
-.*/
+.svn
+.build-docs
+.git
+.dependabot
+.pem
+.pytest_cache
+.tox
+.venv
+.idea
+
+
 node_modules/
 .DS_store
 *.pyc
