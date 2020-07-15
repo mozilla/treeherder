@@ -27,16 +27,16 @@ class ExtractJobs:
         try:
             # SETUP LOGGING
             settings = startup.read_settings(filename=CONFIG_FILE, complain=False)
-            print("got settings")
+            logging.getLogger().warning("got settings")
             constants.set(settings.constants)
-            print("set constants")
+            logging.getLogger().warning("set constants")
             Log.start(settings.debug)
-            print("started")
+            logging.getLogger().warning("started")
 
-            print("main log type=" + Log.main_log.__class__.__name__)
-            print("sub  log type=" + Log.main_log.logger.__class__.__name__)
-            print("sub sub  log count=" + str(len(Log.main_log.logger.many)))
-            print("sub sub  log type=" + Log.main_log.logger.many[0].__class__.__name__)
+            logging.getLogger().warning("main log type=" + Log.main_log.__class__.__name__)
+            logging.getLogger().warning("sub  log type=" + Log.main_log.logger.__class__.__name__)
+            logging.getLogger().warning("sub sub  log count=" + str(len(Log.main_log.logger.many)))
+            logging.getLogger().warning("sub sub  log type=" + Log.main_log.logger.many[0].__class__.__name__)
             Log.note("test logging")
             self.extract(settings, force, restart, start, merge)
         except Exception as e:
@@ -45,7 +45,7 @@ class ExtractJobs:
             Log.stop()
 
     def extract(self, settings, force, restart, start, merge):
-        print("extracting")
+        logging.getLogger().warning("extracting")
         if not settings.extractor.app_name:
             Log.error("Expecting an extractor.app_name in config file")
 
@@ -73,7 +73,7 @@ class ExtractJobs:
 
             last_modified, job_id = state
 
-            print("scan schema")
+            logging.getLogger().warning("scan schema")
 
             # SCAN SCHEMA, GENERATE EXTRACTION SQL
             extractor = MySqlSnowflakeExtractor(settings.source)
@@ -92,7 +92,7 @@ class ExtractJobs:
             source = MySQL(settings.source.database)
 
             while True:
-                print("extracting jobs")
+                logging.getLogger().warning("extracting jobs")
                 Log.note(
                     "Extracting jobs for last_modified={{last_modified|datetime|quote}}, job.id={{job_id}}",
                     last_modified=last_modified,
@@ -124,7 +124,7 @@ class ExtractJobs:
                 )
                 sql = extractor.get_sql(get_ids)
 
-                print("got sql")
+                logging.getLogger().warning("got sql")
 
                 # PULL FROM source, AND PUSH TO destination
                 acc = []
@@ -134,7 +134,7 @@ class ExtractJobs:
                 if not acc:
                     break
 
-                print("load bq")
+                logging.getLogger().warning("load bq")
 
                 # SOME LIMITS PLACES ON STRING SIZE
                 for fl in jx.drill(acc, "job_log.failure_line"):
@@ -142,10 +142,10 @@ class ExtractJobs:
                 for r in acc:
                     r.etl.timestamp = Date.now()
 
-                print("extend")
+                logging.getLogger().warning("extend")
                 destination.extend(acc)
 
-                print("done extend")
+                logging.getLogger().warning("done extend")
 
                 # RECORD THE STATE
                 last_doc = acc[-1]
@@ -158,10 +158,10 @@ class ExtractJobs:
                     break
 
         except Exception as e:
-            print("exception")
+            logging.getLogger().warning("exception")
             Log.warning("problem with extraction", cause=e)
 
-        print("done extract")
+        logging.getLogger().warning("done extract")
         Log.note("done job extraction")
 
         try:
@@ -169,5 +169,5 @@ class ExtractJobs:
                 destination.merge_shards()
         except Exception as e:
             Log.warning("problem with merge", cause=e)
-        print("done")
+        logging.getLogger().warning("done")
         Log.note("done job merge")

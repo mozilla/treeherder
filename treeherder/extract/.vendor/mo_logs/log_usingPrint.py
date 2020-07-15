@@ -9,6 +9,8 @@
 #
 from __future__ import absolute_import, division, unicode_literals
 
+import logging
+
 from mo_logs.log_usingNothing import StructuredLogger
 from mo_logs.strings import expand_template
 
@@ -17,4 +19,4 @@ class StructuredLogger_usingPrint(StructuredLogger):
 
     def write(self, template, params):
         value = expand_template(template, params)
-        print(value)
+        logging.getLogger().warning(value)

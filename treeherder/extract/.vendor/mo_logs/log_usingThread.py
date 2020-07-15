@@ -11,6 +11,8 @@
 
 from __future__ import absolute_import, division, unicode_literals
 
+import logging
+
 from mo_logs import Except, Log, suppress_exception
 from mo_logs.log_usingNothing import StructuredLogger
 from mo_threads import Queue, THREAD_STOP, Thread, Till
@@ -21,7 +23,7 @@ DEBUG = False
 class StructuredLogger_usingThread(StructuredLogger):
 
     def __init__(self, logger):
-        print("init threaded")
+        logging.getLogger().warning("init threaded")
         if not isinstance(logger, StructuredLogger):
             Log.error("Expecting a StructuredLogger")
 
@@ -29,26 +31,26 @@ class StructuredLogger_usingThread(StructuredLogger):
         self.logger = logger
 
         def worker(logger, please_stop):
-            print("threaded worker started")
+            logging.getLogger().warning("threaded worker started")
             try:
                 while True:
-                    print("get logs")
+                    logging.getLogger().warning("get logs")
                     logs = self.queue.pop_all()
                     if not logs:
                         if please_stop:
                             break
                         (Till(seconds=1) | please_stop).wait()
                         continue
-                    print("put logs")
+                    logging.getLogger().warning("put logs")
                     for log in logs:
                         if log is THREAD_STOP:
                             please_stop.go()
                         else:
                             logger.write(**log)
             except Exception as e:
-                print("problem in " + StructuredLogger_usingThread.__name__ + ": " + str(e))
+                logging.getLogger().warning("problem in " + StructuredLogger_usingThread.__name__ + ": " + str(e))
             finally:
-                print("stop logs")
+                logging.getLogger().warning("stop logs")
 
                 Log.note("stop the child")
                 logger.stop()

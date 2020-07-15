@@ -9,6 +9,7 @@
 #
 from __future__ import absolute_import, division, unicode_literals
 
+import logging
 import os
 import platform
 import sys
@@ -94,15 +95,15 @@ class Log(object):
 
         logs = coalesce(settings.log, settings.logs)
         if logs:
-            print("setup logs")
+            logging.getLogger().warning("setup logs")
             cls.logging_multi = StructuredLogger_usingMulti()
             for log in listwrap(logs):
                 Log._add_log(Log.new_instance(log))
 
-            print("start threaded logger")
+            logging.getLogger().warning("start threaded logger")
             from mo_logs.log_usingThread import StructuredLogger_usingThread
             old_log, cls.main_log = cls.main_log, StructuredLogger_usingThread(cls.logging_multi)
-            print("stop old logger")
+            logging.getLogger().warning("stop old logger")
             old_log.stop()
 
     @classmethod

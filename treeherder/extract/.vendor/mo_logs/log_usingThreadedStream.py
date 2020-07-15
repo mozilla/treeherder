@@ -11,6 +11,7 @@
 
 from __future__ import absolute_import, division, unicode_literals
 
+import logging
 import sys
 from time import time
 
@@ -29,7 +30,7 @@ class StructuredLogger_usingThreadedStream(StructuredLogger):
     # WHICH WILL eval() TO ONE
     def __init__(self, stream):
         assert stream
-        print("create threaded stream")
+        logging.getLogger().warning("create threaded stream")
 
         if is_text(stream):
             name = stream
@@ -97,7 +98,7 @@ def time_delta_pusher(please_stop, appender, queue, interval):
     """
 
     next_run = time() + interval
-    print("begin threaded stream")
+    logging.getLogger().warning("begin threaded stream")
 
     while not please_stop:
         profiler = Thread.current().cprofiler
@@ -110,7 +111,7 @@ def time_delta_pusher(please_stop, appender, queue, interval):
         if not logs:
             continue
 
-        print("more logs")
+        logging.getLogger().warning("more logs")
         lines = []
         for log in logs:
             try:
@@ -120,7 +121,7 @@ def time_delta_pusher(please_stop, appender, queue, interval):
                 else:
                     expanded = expand_template(log.get("template"), log.get("params"))
                     lines.append(expanded)
-                    print(expanded)
+                    logging.getLogger().warning(expanded)
             except Exception as e:
                 location = log.get('params', {}).get('location', {})
                 Log.warning("Trouble formatting log from {{location}}", location=location, cause=e)
