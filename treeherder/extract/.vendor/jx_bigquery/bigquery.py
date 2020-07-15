@@ -494,7 +494,7 @@ class Table(BaseFacts):
                 or "BrokenPipeError(32, 'Broken pipe')" in cause
                 or "ConnectionResetError(104, 'Connection reset by peer')" in cause
             ):
-                Log.warning("problem with batch", cause=cause)
+                Log.warning("problem with batch of size {{size}}", size=len(rows), cause=cause)
                 try:
                     DEBUG and Log.note("attempt smaller batches")
                     for _, chunk in jx.chunk(rows, ceiling(len(rows) / 10)):
