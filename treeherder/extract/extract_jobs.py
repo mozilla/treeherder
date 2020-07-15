@@ -1,5 +1,3 @@
-from redis import Redis
-
 from jx_bigquery import bigquery
 from jx_mysql.mysql import MySQL, sql_query
 from jx_mysql.mysql_snowflake_extractor import MySqlSnowflakeExtractor
@@ -7,20 +5,14 @@ from jx_python import jx
 from mo_files import File
 from mo_json import json2value, value2json
 from mo_logs import Log, constants, startup, strings
-from mo_logs.log_usingNothing import StructuredLogger
-from mo_logs.strings import expand_template
 from mo_sql import SQL
 from mo_times import Timer
 from mo_times.dates import Date
+from redis import Redis
+
 from treeherder.config.settings import REDIS_URL
 
 CONFIG_FILE = (File.new_instance(__file__).parent / "extract_jobs.json").abspath
-
-
-class StructuredLogger_usingPrint(StructuredLogger):
-    def write(self, template, params):
-        value = expand_template(template, params)
-        print(value + "\n---")
 
 
 class ExtractJobs:
@@ -30,7 +22,6 @@ class ExtractJobs:
             settings = startup.read_settings(filename=CONFIG_FILE, complain=False)
             constants.set(settings.constants)
             Log.start(settings.debug)
-            Log.main_log = StructuredLogger_usingPrint()
 
             self.extract(settings, force, restart, start, merge)
         except Exception as e:
@@ -65,9 +56,6 @@ class ExtractJobs:
                 state = json2value(state.decode("utf8"))
 
             last_modified, job_id = state
-            Log.note(
-                "Start at {{last_modified}}, {{job_id}}", last_modified=last_modified, job_id=job_id
-            )
 
             # SCAN SCHEMA, GENERATE EXTRACTION SQL
             extractor = MySqlSnowflakeExtractor(settings.source)
@@ -124,8 +112,6 @@ class ExtractJobs:
                     extractor.construct_docs(cursor, acc.append, False)
                 if not acc:
                     break
-
-                Log.note("got docs, adding to bq")
 
                 # SOME LIMITS PLACES ON STRING SIZE
                 for fl in jx.drill(acc, "job_log.failure_line"):
