@@ -136,14 +136,14 @@ class Log(object):
         if settings.log_type == "file" or settings.filename:
             return StructuredLogger_usingFile(settings.filename)
         if settings.log_type == "console":
-            from mo_logs.log_usingThreadedStream import StructuredLogger_usingThreadedStream
-            return StructuredLogger_usingThreadedStream(STDOUT)
+            from mo_logs.log_usingThread import StructuredLogger_usingThread
+            return StructuredLogger_usingThread(StructuredLogger_usingStream(STDOUT))
         if settings.log_type == "mozlog":
             from mo_logs.log_usingMozLog import StructuredLogger_usingMozLog
             return StructuredLogger_usingMozLog(STDOUT, coalesce(settings.app_name, settings.appname))
         if settings.log_type == "stream" or settings.stream:
-            from mo_logs.log_usingThreadedStream import StructuredLogger_usingThreadedStream
-            return StructuredLogger_usingThreadedStream(settings.stream)
+            from mo_logs.log_usingThread import StructuredLogger_usingThread
+            return StructuredLogger_usingThread(StructuredLogger_usingStream(settings.stream))
         if settings.log_type == "elasticsearch" or settings.stream:
             from mo_logs.log_usingElasticSearch import StructuredLogger_usingElasticSearch
             return StructuredLogger_usingElasticSearch(settings)
