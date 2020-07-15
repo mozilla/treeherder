@@ -31,7 +31,7 @@ class StructuredLogger_usingLogger(StructuredLogger):
         else:
             self.min_level = min_level
 
-        self.logger = logging.getLogger(name)
+        self.logger = logging.getLogger(name if name else None)
         self.logger.setLevel(logging.NOTSET)
 
     def write(self, template, params):

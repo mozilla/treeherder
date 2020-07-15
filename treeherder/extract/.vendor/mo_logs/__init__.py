@@ -16,7 +16,7 @@ from datetime import datetime
 
 from mo_dots import Data, FlatList, coalesce, is_data, is_list, listwrap, unwraplist, to_data, dict_to_data
 from mo_future import PY3, is_text, text
-from mo_logs import constants, exceptions, strings, startup
+from mo_logs import constants as _constants, exceptions, strings, startup
 from mo_logs.exceptions import Except, LogItem, suppress_exception
 from mo_logs.strings import CR, indent
 
@@ -38,61 +38,47 @@ class Log(object):
     error_mode = False  # prevent error loops
 
     @classmethod
-    def start(cls, settings=None, app_name=None):
+    @override("settings")
+    def start(cls, trace=False, cprofile=False, constants=None, logs=None, app_name=None, settings=None):
         """
         RUN ME FIRST TO SETUP THE THREADED LOGGING
         https://fangpenlin.com/posts/2012/08/26/good-logging-practice-in-python/
 
-        log       - LIST OF PARAMETERS FOR LOGGER(S)
-        trace     - SHOW MORE DETAILS IN EVERY LOG LINE (default False)
-        cprofile  - True==ENABLE THE C-PROFILER THAT COMES WITH PYTHON (default False)
-                    USE THE LONG FORM TO SET THE FILENAME {"enabled": True, "filename": "cprofile.tab"}
-        profile   - True==ENABLE pyLibrary SIMPLE PROFILING (default False) (eg with Profiler("some description"):)
-                    USE THE LONG FORM TO SET FILENAME {"enabled": True, "filename": "profile.tab"}
-        constants - UPDATE MODULE CONSTANTS AT STARTUP (PRIMARILY INTENDED TO CHANGE DEBUG STATE)
+        :param trace: SHOW MORE DETAILS IN EVERY LOG LINE (default False)
+        :param cprofile: True==ENABLE THE C-PROFILER THAT COMES WITH PYTHON (default False)
+                         USE THE LONG FORM TO SET THE FILENAME {"enabled": True, "filename": "cprofile.tab"}
+        :param constants: UPDATE MODULE CONSTANTS AT STARTUP (PRIMARILY INTENDED TO CHANGE DEBUG STATE)
+        :param logs: LIST OF PARAMETERS FOR LOGGER(S)
+        :param app_name: GIVE THIS APP A NAME, AND RETURN A CONTEXT MANAGER
+        :param settings: ALL THE ABOVE PARAMTERS
+        :return:
         """
         global _Thread
-        if not settings:
-            if app_name:
-                return LoggingContext(app_name)
-            else:
-                return None
-
-        settings = to_data(settings)
+        if app_name:
+            return LoggingContext(app_name)
 
         Log.stop()
 
         cls.settings = settings
-        cls.trace = coalesce(settings.trace, False)
-        if cls.trace:
+        cls.trace = trace
+        if trace:
             from mo_threads import Thread as _Thread
             _ = _Thread
 
         # ENABLE CPROFILE
-        if settings.cprofile is False:
+        if cprofile is False:
             settings.cprofile = {"enabled": False}
-        elif settings.cprofile is True:
-            if isinstance(settings.cprofile, bool):
+        elif cprofile is True:
+            if isinstance(cprofile, bool):
                 settings.cprofile = {"enabled": True, "filename": "cprofile.tab"}
-        if settings.cprofile.enabled:
+        if cprofile.enabled:
             from mo_threads import profiles
             profiles.enable_profilers(settings.cprofile.filename)
 
-        if settings.profile is True or (is_data(settings.profile) and settings.profile.enabled):
-            Log.error("REMOVED 2018-09-02, Activedata revision 3f30ff46f5971776f8ba18")
-            # from mo_logs import profiles
-            #
-            # if isinstance(settings.profile, bool):
-            #     profiles.ON = True
-            #     settings.profile = {"enabled": True, "filename": "profile.tab"}
-            #
-            # if settings.profile.enabled:
-            #     profiles.ON = True
+        if constants:
+            _constants.set(constants)
 
-        if settings.constants:
-            constants.set(settings.constants)
-
-        logs = coalesce(settings.log, settings.logs)
+        logs = coalesce(settings.log, logs)
         if logs:
             cls.logging_multi = StructuredLogger_usingMulti()
             for log in listwrap(logs):
