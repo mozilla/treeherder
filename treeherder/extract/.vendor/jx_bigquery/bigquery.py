@@ -419,7 +419,7 @@ class Table(BaseFacts):
     def extend(self, docs):
         self.extend_queue.extend(docs)
         with self.extend_locker:
-			docs = self.extend_queue.pop_all()
+            docs = self.extend_queue.pop_all()
             self._extend(docs)
 
     def _extend(self, rows):

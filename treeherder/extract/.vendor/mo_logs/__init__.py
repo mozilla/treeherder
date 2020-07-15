@@ -14,7 +14,7 @@ import platform
 import sys
 from datetime import datetime
 
-from mo_dots import Data, FlatList, coalesce, is_data, is_list, listwrap, unwraplist, to_data, dict_to_data
+from mo_dots import Data, FlatList, coalesce, is_list, listwrap, unwraplist, to_data, dict_to_data
 from mo_future import PY3, is_text, text
 from mo_logs import constants as _constants, exceptions, strings, startup
 from mo_logs.exceptions import Except, LogItem, suppress_exception
@@ -53,7 +53,7 @@ class Log(object):
         :param settings: ALL THE ABOVE PARAMTERS
         :return:
         """
-        global _Thread
+        global _Thread  # REQUIRED FOR trace
         if app_name:
             return LoggingContext(app_name)
 
@@ -69,8 +69,7 @@ class Log(object):
         if cprofile is False:
             settings.cprofile = {"enabled": False}
         elif cprofile is True:
-            if isinstance(cprofile, bool):
-                settings.cprofile = {"enabled": True, "filename": "cprofile.tab"}
+            settings.cprofile = {"enabled": True, "filename": "cprofile.tab"}
         if cprofile.enabled:
             from mo_threads import profiles
             profiles.enable_profilers(settings.cprofile.filename)
