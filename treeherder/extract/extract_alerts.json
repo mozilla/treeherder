@@ -93,8 +93,7 @@
     "logs": [
       {
         "log_type": "logger",
-        "name": "extract_alerts",
-        "min_level": "warning"
+        "min_level": "info"
       }
     ]
   }

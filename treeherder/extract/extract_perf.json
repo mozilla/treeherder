@@ -89,8 +89,7 @@
     "logs": [
       {
         "log_type": "logger",
-        "name": "extract_perf",
-        "min_level": "warning"
+        "min_level": "info"
       }
     ]
   }
