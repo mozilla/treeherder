@@ -689,7 +689,6 @@ class Table(BaseFacts):
             ],
         )
         # WRAP WITH etl.timestamp BEST SELECTION
-
         self.container.query_and_wait(
             ConcatSQL(
                 SQL(  # SOME KEYWORDS: ROWNUM RANK
