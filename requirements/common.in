@@ -33,10 +33,9 @@ json-e  # import jsone
 django-cache-memoize   # Imported as cache_memoize
 
 # Required for extraction to BigQuery
-google-cloud-bigquery
-hjson
-pymysql
-
+jx-bigquery
+jx-mysql
+mo-testing
 
 # Required for Push Health
 mozci
