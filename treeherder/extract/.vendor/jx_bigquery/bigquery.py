@@ -14,6 +14,7 @@ from copy import copy
 
 from google.cloud import bigquery
 from google.oauth2 import service_account
+from mo_math import ceiling
 
 from jx_base import Container as BaseContainer, Facts as BaseFacts
 from jx_bigquery import snowflakes
@@ -495,11 +496,9 @@ class Table(BaseFacts):
             ):
                 Log.warning("problem with batch", cause=cause)
                 try:
-                    DEBUG and Log.note("attempt smaller batch")
-                    # TRY A SMALLER BATCH
-                    cut = len(rows) // 2
-                    self._extend(rows[:cut])
-                    self._extend(rows[cut:])
+                    DEBUG and Log.note("attempt smaller batchs")
+                    for _, chunk in jx.chunk(rows, ceiling(len(rows) / 10)):
+                        self._extend(chunk)
                     return
                 except Exception as cause2:
                     Log.error("smaller batch did not work", cause=cause2)
