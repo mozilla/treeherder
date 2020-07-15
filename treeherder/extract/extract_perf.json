@@ -88,8 +88,7 @@
     "trace": true,
     "logs": [
       {
-        "log_type": "logger",
-        "min_level": "info"
+        "log_type": "print"
       }
     ]
   }

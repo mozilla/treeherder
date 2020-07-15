@@ -123,6 +123,10 @@ class Log(object):
         if log_type == "console":
             from mo_logs.log_usingThread import StructuredLogger_usingThread
             return StructuredLogger_usingThread(StructuredLogger_usingStream(STDOUT))
+        if log_type == "print":
+            from mo_logs.log_usingThread import StructuredLogger_usingThread
+            from mo_logs.log_usingPrint import StructuredLogger_usingPrint
+            return StructuredLogger_usingThread(StructuredLogger_usingPrint())
         if log_type == "mozlog":
             from mo_logs.log_usingMozLog import StructuredLogger_usingMozLog
             return StructuredLogger_usingMozLog(STDOUT, coalesce(settings.app_name, settings.appname))

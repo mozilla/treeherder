@@ -11,6 +11,7 @@ import logging
 
 from mo_future import is_text, text
 from mo_kwargs import override
+
 from mo_logs import exceptions
 from mo_logs.log_usingNothing import StructuredLogger
 from mo_logs.strings import expand_template
@@ -30,22 +31,18 @@ class StructuredLogger_usingLogger(StructuredLogger):
             self.min_level = getattr(logging, min_level.upper())
         else:
             self.min_level = min_level
-
+        self.count = 0
         self.logger = logging.getLogger(name if name else None)
         self.logger.setLevel(logging.NOTSET)
 
     def write(self, template, params):
-        from mo_json import value2json
-        print(template)
         try:
-            print("length of template: "+str(len(template)))
-            print(value2json(params))
             log_line = expand_template(template, params)
-            print("length of expanded: "+str(len(log_line)))
-            print(str(log_line))
             level = max(self.min_level, MAP[params.context])
             self.logger.log(level, log_line)
+            self.count += 1
         except Exception as cause:
+            cause = exceptions.Except.wrap(cause)
             import sys
             sys.stderr.write("can not write to logger: "+text(cause))
 

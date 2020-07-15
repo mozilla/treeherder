@@ -24,6 +24,7 @@ class StructuredLogger_usingThread(StructuredLogger):
         if not isinstance(logger, StructuredLogger):
             Log.error("Expecting a StructuredLogger")
 
+        self.logger = logger
         self.queue = Queue(
             "Queue for " + self.__class__.__name__,
             max=10000,
