@@ -420,7 +420,7 @@ export class BugFilerClass extends React.Component {
       .join('\n');
 
     // Join that with the comment separated with a hard rule.
-    const descriptionStrings = `${logLinks}\n\n---\n\n${comment}`;
+    const descriptionStrings = `${logLinks}\n\n---\n\`\`\`\n${comment}\`\`\``;
 
     if (isIntermittent) {
       keywords.push('intermittent-failure');
