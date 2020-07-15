@@ -18,8 +18,6 @@ jobs:
         # `yarn build` is tested as part of the Heroku build job
         - yarn lint
         # `yarn lint` only checks the formatting of JS/JSX, this will also check CSS/HTML/JSON/Markdown/YAML.
-        - yarn format:check
-        - yarn prettier
         - yarn markdownlint
         - yarn test:coverage
         - yarn codecov
