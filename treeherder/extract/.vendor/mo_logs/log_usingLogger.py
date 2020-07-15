@@ -34,8 +34,11 @@ class StructuredLogger_usingLogger(StructuredLogger):
         print(template)
         try:
             log_line = expand_template(template, params)
+            print(log_line)
             level = max(self.min_level, MAP[params.context])
+            print(str(level))
             self.logger.log(level, log_line)
+            print("done")
         except Exception as cause:
             import sys
             sys.stderr.write("can not write to logger: "+text(cause))
