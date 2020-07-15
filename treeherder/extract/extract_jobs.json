@@ -11,9 +11,7 @@
     "fact_table": "job",
     "show_foreign_keys": false,
     "null_values": ["-", "unknown", ""],
-    "add_relations": [
-      "job.option_collection_hash -> option_collection.option_collection_hash"
-    ],
+    "add_relations": [],
     "name_relations": {
       "job\\.option_collection_hash -> option_collection\\.option_collection_hash": "options"
     },
@@ -38,7 +36,8 @@
       "option.name",
       "repository.name",
       "user.email",
-      "commit.revision"
+      "commit.revision",
+      "text_log_step"
     ],
     "database": {
       "debug": false,

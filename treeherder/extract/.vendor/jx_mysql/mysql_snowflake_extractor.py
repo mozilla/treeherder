@@ -61,7 +61,7 @@ from mo_sql import (
 )
 from jx_mysql.mysql import MySQL, quote_column, sql_alias
 
-DEBUG = False
+DEBUG = True
 
 
 class MySqlSnowflakeExtractor(object):

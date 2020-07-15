@@ -495,13 +495,14 @@ class Table(BaseFacts):
                 or "ConnectionResetError(104, 'Connection reset by peer')" in cause
             ):
                 Log.warning("problem with batch of size {{size}}", size=len(rows), cause=cause)
+                batch_size = ceiling(len(rows) / 10)
                 try:
-                    DEBUG and Log.note("attempt smaller batches")
-                    for _, chunk in jx.chunk(rows, ceiling(len(rows) / 10)):
+                    DEBUG and Log.note("attempt smaller batches of size {{batch_size}}", batch_size=batch_size)
+                    for _, chunk in jx.chunk(rows, batch_size):
                         self._extend(chunk)
                     return
                 except Exception as cause2:
-                    Log.error("smaller batches did not work", cause=cause2)
+                    Log.error("smaller batches of size {{batch_size}} did not work", batch_size=batch_size, cause=cause2)
             elif len(rows) == 1:
                 Log.error("Could not insert document\n{{doc|json|indent}}", doc=rows[0], cause=cause)
             else:
