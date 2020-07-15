@@ -222,7 +222,7 @@ class Dataset(BaseContainer):
                 l.es_column for f in listwrap(cluster) for l in flake.leaves(f)
             ] or None
             self.client.create_table(_table)
-            Log.note("created table {{table}}", table=_table.table_id)
+            DEBUG and Log.note("created table {{table}}", table=_table.table_id)
 
         return Table(
             table=table,
@@ -431,7 +431,7 @@ class Table(BaseFacts):
 
         try:
             update = {}
-            with Timer("encoding"):
+            with Timer("encoding", verbose=DEBUG):
                 while True:
                     typed_rows = []
                     for rownum, row in enumerate(rows):
@@ -450,7 +450,7 @@ class Table(BaseFacts):
                 # BATCH HAS ADDITIONAL COLUMNS!!
                 # WE CAN NOT USE THE EXISTING SHARD, MAKE A NEW ONE:
                 self._create_new_shard()
-                Log.note(
+                DEBUG and Log.note(
                     "added new shard with name: {{shard}}", shard=self.shard.table_id
                 )
             with Timer("insert {{num}} rows to bq", param={"num": len(rows)}):
@@ -464,7 +464,7 @@ class Table(BaseFacts):
             if failures:
                 if all(r == "stopped" for r in wrap(failures).errors.reason):
                     self._create_new_shard()
-                    Log.note(
+                    DEBUG and Log.note(
                         "STOPPED encountered: Added new shard with name: {{shard}}",
                         shard=self.shard.table_id,
                     )
@@ -475,7 +475,7 @@ class Table(BaseFacts):
                 )
             else:
                 self.last_extend = Date.now()
-                Log.note("{{num}} rows added", num=len(typed_rows))
+                DEBUG and Log.note("{{num}} rows added", num=len(typed_rows))
         except Exception as cause:
             cause = Except.wrap(cause)
             if (
@@ -494,12 +494,15 @@ class Table(BaseFacts):
                 or "BrokenPipeError(32, 'Broken pipe')" in cause
                 or "ConnectionResetError(104, 'Connection reset by peer')" in cause
             ):
-                DEBUG and Log.note("attempt smaller batch")
-                # TRY A SMALLER BATCH
-                cut = len(rows) // 2
-                self.extend(rows[:cut])
-                self.extend(rows[cut:])
-                return
+                try:
+                    DEBUG and Log.note("attempt smaller batch")
+                    # TRY A SMALLER BATCH
+                    cut = len(rows) // 2
+                    self.extend(rows[:cut])
+                    self.extend(rows[cut:])
+                    return
+                except Exception as cause2:
+                    Log.error("smaller batch did not work", cause=[cause, cause2])
             elif len(rows) == 1:
                 Log.error("Could not insert document\n{{doc:json|indent}}", doc=rows[0], cause=cause)
             else:
@@ -585,7 +588,7 @@ class Table(BaseFacts):
             )
             selects.append(q)
 
-        Log.note("inserting into table {{table}}", table=text(primary_shard_name))
+        DEBUG and Log.note("inserting into table {{table}}", table=text(primary_shard_name))
         matched = []
         unmatched = []
         for sel, shard, flake in zip(selects, shards, shard_flakes):
@@ -615,7 +618,7 @@ class Table(BaseFacts):
                 )
                 DEBUG and Log.note("{{sql}}", sql=text(command))
                 job = self.container.query_and_wait(command)
-                Log.note("job {{id}} state = {{state}}", id=job.job_id, state=job.state)
+                DEBUG and Log.note("job {{id}} state = {{state}}", id=job.job_id, state=job.state)
 
                 if job.errors:
                     Log.error(
@@ -632,7 +635,7 @@ class Table(BaseFacts):
                 command = ConcatSQL(SQL_INSERT, quote_column(primary_full_name), s)
                 DEBUG and Log.note("{{sql}}", sql=text(command))
                 job = self.container.query_and_wait(command)
-                Log.note(
+                DEBUG and Log.note(
                     "from {{shard}}, job {{id}}, state {{state}}",
                     id=job.job_id,
                     shard=shard.table_id,
