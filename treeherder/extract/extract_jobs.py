@@ -1,3 +1,5 @@
+import logging
+
 from mo_logs.log_usingStream import StructuredLogger_usingStream
 
 from mo_logs.strings import expand_template
