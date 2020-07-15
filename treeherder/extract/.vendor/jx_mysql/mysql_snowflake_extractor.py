@@ -892,7 +892,7 @@ class MySqlSnowflakeExtractor(object):
             row_count = 0
             if DEBUG:
                 cursor = list(cursor)
-                Log.note("{{data|json}}", data=cursor)
+                Log.note("{{data|json|limit(1000)}}", data=cursor)
             for row in cursor:
                 row_count += 1
                 if please_stop:
