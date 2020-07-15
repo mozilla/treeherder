@@ -35,8 +35,11 @@ class StructuredLogger_usingLogger(StructuredLogger):
         self.logger.setLevel(logging.NOTSET)
 
     def write(self, template, params):
+        from mo_json import value2json
         print(template)
         try:
+            print("length of template: "+str(len(template)))
+            print(value2json(params))
             log_line = expand_template(template, params)
             print("length of expanded: "+str(len(log_line)))
             print(str(log_line))
