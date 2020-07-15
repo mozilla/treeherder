@@ -20,9 +20,12 @@ class StructuredLogger_usingStream(StructuredLogger):
         try:
             self.locker = allocate_lock()
             self.flush = stream.flush
-            if stream in (STDOUT, STDERR):
-                if PY3:
+            if stream in (STDOUT, STDERR) and PY3:
+                try:
                     stream = stream.buffer
+                except Exception:
+                    # SOMETIMES STDOUT IS REPLACED BY SOMETHING ELSE
+                    pass
             self.writer = _UTF8Encoder(stream).write
         except Exception as e:
             import logging

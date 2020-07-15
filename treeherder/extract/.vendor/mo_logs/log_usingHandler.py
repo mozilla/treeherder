@@ -12,16 +12,15 @@
 from __future__ import absolute_import, division, unicode_literals
 
 import logging
+from importlib import import_module
 
-from mo_dots import unwrap
+from mo_dots import unwrap, Null
 from mo_logs import Log
 from mo_logs.exceptions import suppress_exception
 from mo_logs.log_usingNothing import StructuredLogger
 from mo_logs.log_usingThreadedStream import StructuredLogger_usingThreadedStream, time_delta_pusher
 
-_THREAD_STOP = None
-_Queue = None
-_Thread = None
+_THREAD_STOP, _Queue, _Thread = [Null] * 3  # IMPORTS
 
 
 def _late_import():
@@ -50,13 +49,15 @@ class StructuredLogger_usingHandler(StructuredLogger):
         # TURNS OUT LOGGERS ARE REALLY SLOW TOO
         self.queue = _Queue("queue for classic logger", max=10000, silent=True)
         self.thread = _Thread(
-            "pushing to classic logger",
+            "pushing to python logging",
             time_delta_pusher,
             appender=self.logger.info,
             queue=self.queue,
-            interval=0.3
+            interval=0.3,
         )
-        self.thread.parent.remove_child(self.thread)  # LOGGING WILL BE RESPONSIBLE FOR THREAD stop()
+        self.thread.parent.remove_child(
+            self.thread
+        )  # LOGGING WILL BE RESPONSIBLE FOR THREAD stop()
         self.thread.start()
 
     def write(self, template, params):
@@ -83,14 +84,14 @@ def make_log_from_settings(settings):
     path = ".".join(path[:-1])
     constructor = None
     try:
-        temp = __import__(path, globals(), locals(), [class_name], 0)
-        constructor = object.__getattribute__(temp, class_name)
+        temp = import_module(path)
+        constructor = getattr(temp, class_name)
     except Exception as e:
         if settings.stream and not constructor:
             # PROVIDE A DEFAULT STREAM HANLDER
             constructor = StructuredLogger_usingThreadedStream
         else:
-            Log.error("Can not find class {{class}}",  {"class": path}, cause=e)
+            Log.error("Can not find class {{class}}", {"class": path}, cause=e)
 
     # IF WE NEED A FILE, MAKE SURE DIRECTORY EXISTS
     if settings.filename != None:
@@ -104,4 +105,3 @@ def make_log_from_settings(settings):
     params = unwrap(settings)
     log_instance = constructor(**params)
     return log_instance
-
