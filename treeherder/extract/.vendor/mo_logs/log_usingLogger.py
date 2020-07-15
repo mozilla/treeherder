@@ -24,7 +24,6 @@ class StructuredLogger_usingLogger(StructuredLogger):
         :param name: to find-or-create logger (may break
         :param min_level: increase all logging to this level to get through filters
         """
-        print("setup logger")
         if min_level == None:
             self.min_level = logging.INFO
         elif is_text(min_level):

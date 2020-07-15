@@ -419,9 +419,8 @@ class Table(BaseFacts):
     def extend(self, docs):
         self.extend_queue.extend(docs)
         with self.extend_locker:
-            docs = self.extend_queue.pop_all()
-            if docs:
-                self._extend(docs)
+			docs = self.extend_queue.pop_all()
+            self._extend(docs)
 
     def _extend(self, rows):
         if self.read_only:
@@ -453,7 +452,7 @@ class Table(BaseFacts):
                 DEBUG and Log.note(
                     "added new shard with name: {{shard}}", shard=self.shard.table_id
                 )
-            with Timer("insert {{num}} rows to bq", param={"num": len(rows)}):
+            with Timer("insert {{num}} rows to bq", param={"num": len(rows)}, verbose=DEBUG):
                 failures = self.container.client.insert_rows_json(
                     self.shard,
                     json_rows=typed_rows,
