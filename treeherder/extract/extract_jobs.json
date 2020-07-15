@@ -98,7 +98,9 @@
     "trace": true,
     "logs": [
       {
-        "log_type": "print"
+        "log_type": "logger",
+        "name": "django",
+        "min_level": "info"
       }
     ]
   }

@@ -76,7 +76,8 @@ def worker(logger, queue, period, please_stop):
                     logger.write(**log)
             (Till(seconds=period) | please_stop).wait()
     except Exception as e:
-        print("problem in " + StructuredLogger_usingThread.__name__ + ": " + str(e))
+        import sys
+        sys.stderr.write("problem in " + StructuredLogger_usingThread.__name__ + ": " + str(e))
     finally:
         Log.note("stop the child")
         logger.stop()
