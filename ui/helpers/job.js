@@ -196,6 +196,10 @@ export const addAggregateFields = function addAggregateFields(job) {
   // For instance 'test-linux1804-64/debug-mochitest-browser-chrome-e10s-4' can be
   // 'test-linux1804-64/debug-mochitest-browser-chrome-e10s-1' yet the symbol be bc4
   const parts = jobTypeName.split('-');
+  // This makes backfilled tasks have the same symbol as the original task
+  if (jobTypeSymbol.endsWith('-bk')) {
+    [jobTypeSymbol] = jobTypeSymbol.split('-');
+  }
   const chunk = Number(parts.pop());
   if (Number.isInteger(chunk)) {
     jobTypeName = parts.join('-');
