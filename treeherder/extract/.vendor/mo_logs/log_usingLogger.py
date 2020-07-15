@@ -9,7 +9,7 @@ from __future__ import absolute_import, division, unicode_literals
 
 import logging
 
-from mo_future import is_text
+from mo_future import is_text, text
 from mo_logs import exceptions
 from mo_logs.log_usingNothing import StructuredLogger
 from mo_logs.strings import expand_template
@@ -28,19 +28,24 @@ class StructuredLogger_usingLogger(StructuredLogger):
             self.min_level = min_level
 
         self.logger = logging.getLogger(settings.name)
-        self.logger.setLevel(logging.INFO)
+        self.logger.setLevel(logging.NOTSET)
 
     def write(self, template, params):
         print(template)
-        log_line = expand_template(template, params)
-        level = max(self.min_level, MAP[params.context])
-        self.logger.log(level, log_line)
+        try:
+            log_line = expand_template(template, params)
+            level = max(self.min_level, MAP[params.context])
+            self.logger.log(level, log_line)
+        except Exception as cause:
+            import sys
+            sys.stderr.write("can not write to logger: "+text(cause))
 
     def stop(self):
         try:
             self.logger.shutdown()
         except Exception:
-            self.logger.info("Failure in the logger shutdown")
+            import sys
+            sys.stderr.write("Failure in the logger shutdown")
 
 
 MAP = {
