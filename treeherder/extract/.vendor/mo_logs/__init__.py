@@ -53,6 +53,7 @@ class Log(object):
         constants - UPDATE MODULE CONSTANTS AT STARTUP (PRIMARILY INTENDED TO CHANGE DEBUG STATE)
         """
         global _Thread
+        logging.getLogger().warning("setup logging1")
         if not settings:
             if app_name:
                 return LoggingContext(app_name)
@@ -60,7 +61,7 @@ class Log(object):
                 return None
 
         settings = to_data(settings)
-
+        logging.getLogger().warning("setup logging")
         Log.stop()
 
         cls.settings = settings
@@ -93,6 +94,7 @@ class Log(object):
         if settings.constants:
             constants.set(settings.constants)
 
+        logging.getLogger().warning("we got logs?")
         logs = coalesce(settings.log, settings.logs)
         if logs:
             logging.getLogger().warning("setup logs")
