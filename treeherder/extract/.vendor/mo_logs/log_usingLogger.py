@@ -33,6 +33,7 @@ class StructuredLogger_usingLogger(StructuredLogger):
     def write(self, template, params):
         log_line = expand_template(template, params)
         level = max(self.min_level, MAP[params.context])
+        self.logger.warning(log_line)
         self.logger.log(level, log_line)
         print(log_line)
 
