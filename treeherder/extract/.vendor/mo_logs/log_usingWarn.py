@@ -19,4 +19,4 @@ class StructuredLogger_usingWarn(StructuredLogger):
 
     def write(self, template, params):
         value = expand_template(template, params)
-        warn_explicit(message=value, category=Warning, filename="", lineno=0)
+        warn_explicit(message="\n"+value, category=Warning, filename="", lineno=0)
