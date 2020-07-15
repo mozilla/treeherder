@@ -503,7 +503,7 @@ class Table(BaseFacts):
                 except Exception as cause2:
                     Log.error("smaller batches did not work", cause=cause2)
             elif len(rows) == 1:
-                Log.error("Could not insert document\n{{doc:json|indent}}", doc=rows[0], cause=cause)
+                Log.error("Could not insert document\n{{doc|json|indent}}", doc=rows[0], cause=cause)
             else:
                 Log.error("Do not know how to handle", cause=cause)
 
