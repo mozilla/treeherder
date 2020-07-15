@@ -123,10 +123,11 @@ class ExtractJobs:
                 for job in acc:
                     if len(job.text_log_error) > 100:
                         shorter = []
-                        known = {}
+                        known = set()
                         for e in job.text_log_error:
                             if e.line in known:
                                 continue
+                            known.add(e.line)
                             shorter.append(e)
                         job.text_log_error = shorter[:100]
                 # ASSIGN TIMESTAMP
