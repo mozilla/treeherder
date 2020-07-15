@@ -10,6 +10,7 @@ from __future__ import absolute_import, division, unicode_literals
 import logging
 
 from mo_future import is_text, text
+from mo_kwargs import override
 from mo_logs import exceptions
 from mo_logs.log_usingNothing import StructuredLogger
 from mo_logs.strings import expand_template
@@ -17,9 +18,13 @@ from mo_logs.strings import expand_template
 
 # WRAP PYTHON logger OBJECTS
 class StructuredLogger_usingLogger(StructuredLogger):
-    def __init__(self, settings):
+    @override
+    def __init__(self, name=None, min_level=logging.INFO):
+        """
+        :param name: to find-or-create logger (may break
+        :param min_level: increase all logging to this level to get through filters
+        """
         print("setup logger")
-        min_level = settings.min_level
         if min_level == None:
             self.min_level = logging.INFO
         elif is_text(min_level):
@@ -27,7 +32,7 @@ class StructuredLogger_usingLogger(StructuredLogger):
         else:
             self.min_level = min_level
 
-        self.logger = logging.getLogger(settings.name)
+        self.logger = logging.getLogger(name)
         self.logger.setLevel(logging.NOTSET)
 
     def write(self, template, params):
@@ -35,7 +40,7 @@ class StructuredLogger_usingLogger(StructuredLogger):
         try:
             log_line = expand_template(template, params)
             print("length of expanded: "+str(len(log_line)))
-            print(log_line)
+            print(str(log_line))
             level = max(self.min_level, MAP[params.context])
             self.logger.log(level, log_line)
         except Exception as cause:
