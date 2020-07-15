@@ -14,8 +14,9 @@ import platform
 import sys
 from datetime import datetime
 
-from mo_dots import Data, FlatList, coalesce, is_list, listwrap, unwraplist, to_data, dict_to_data
+from mo_dots import Data, FlatList, coalesce, is_list, listwrap, unwraplist, to_data, dict_to_data, is_data
 from mo_future import PY3, is_text, text
+from mo_kwargs import override
 from mo_logs import constants as _constants, exceptions, strings, startup
 from mo_logs.exceptions import Except, LogItem, suppress_exception
 from mo_logs.strings import CR, indent
@@ -67,10 +68,10 @@ class Log(object):
 
         # ENABLE CPROFILE
         if cprofile is False:
-            settings.cprofile = {"enabled": False}
+            cprofile = settings.cprofile = {"enabled": False}
         elif cprofile is True:
-            settings.cprofile = {"enabled": True, "filename": "cprofile.tab"}
-        if cprofile.enabled:
+            cprofile = settings.cprofile = {"enabled": True, "filename": "cprofile.tab"}
+        if is_data(cprofile) and cprofile.enabled:
             from mo_threads import profiles
             profiles.enable_profilers(settings.cprofile.filename)
 
@@ -98,7 +99,7 @@ class Log(object):
         old_log.stop()
 
     @classmethod
-    @overide("settings")
+    @override("settings")
     def new_instance(cls, log_type=None, settings=None):
         if settings["class"]:
             if settings["class"].startswith("logging.handlers."):
