@@ -98,9 +98,8 @@ class Log(object):
         old_log.stop()
 
     @classmethod
-    def new_instance(cls, settings):
-        settings = to_data(settings)
-
+    @overide("settings")
+    def new_instance(cls, log_type=None, settings=None):
         if settings["class"]:
             if settings["class"].startswith("logging.handlers."):
                 from mo_logs.log_usingHandler import StructuredLogger_usingHandler
@@ -113,32 +112,32 @@ class Log(object):
                     return make_log_from_settings(settings)
                 # OH WELL :(
 
-        if settings.log_type == "logger":
+        if log_type == "logger":
             from mo_logs.log_usingLogger import StructuredLogger_usingLogger
             return StructuredLogger_usingLogger(settings)
-        if settings.log_type == "file" or settings.file:
+        if log_type == "file" or settings.file:
             return StructuredLogger_usingFile(settings.file)
-        if settings.log_type == "file" or settings.filename:
+        if log_type == "file" or settings.filename:
             return StructuredLogger_usingFile(settings.filename)
-        if settings.log_type == "console":
+        if log_type == "console":
             from mo_logs.log_usingThread import StructuredLogger_usingThread
             return StructuredLogger_usingThread(StructuredLogger_usingStream(STDOUT))
-        if settings.log_type == "mozlog":
+        if log_type == "mozlog":
             from mo_logs.log_usingMozLog import StructuredLogger_usingMozLog
             return StructuredLogger_usingMozLog(STDOUT, coalesce(settings.app_name, settings.appname))
-        if settings.log_type == "stream" or settings.stream:
+        if log_type == "stream" or settings.stream:
             from mo_logs.log_usingThread import StructuredLogger_usingThread
             return StructuredLogger_usingThread(StructuredLogger_usingStream(settings.stream))
-        if settings.log_type == "elasticsearch" or settings.stream:
+        if log_type == "elasticsearch" or settings.stream:
             from mo_logs.log_usingElasticSearch import StructuredLogger_usingElasticSearch
             return StructuredLogger_usingElasticSearch(settings)
-        if settings.log_type == "email":
+        if log_type == "email":
             from mo_logs.log_usingEmail import StructuredLogger_usingEmail
             return StructuredLogger_usingEmail(settings)
-        if settings.log_type == "ses":
+        if log_type == "ses":
             from mo_logs.log_usingSES import StructuredLogger_usingSES
             return StructuredLogger_usingSES(settings)
-        if settings.log_type.lower() in ["nothing", "none", "null"]:
+        if log_type.lower() in ["nothing", "none", "null"]:
             from mo_logs.log_usingNothing import StructuredLogger
             return StructuredLogger()
 
