@@ -11,12 +11,11 @@
 
 from __future__ import absolute_import, division, unicode_literals
 
-from mo_future import is_text, is_binary
 import sys
 from time import time
 
 from mo_dots import Data
-from mo_future import PY3, text
+from mo_future import PY3, is_text
 from mo_logs import Log
 from mo_logs.log_usingNothing import StructuredLogger
 from mo_logs.strings import CR, expand_template
@@ -51,9 +50,20 @@ class StructuredLogger_usingThreadedStream(StructuredLogger):
 
         appender = utf8_appender
 
-        self.queue = Queue("queue for " + self.__class__.__name__ + "(" + name + ")", max=10000, silent=True)
-        self.thread = Thread("log to " + self.__class__.__name__ + "(" + name + ")", time_delta_pusher, appender=appender, queue=self.queue, interval=0.3)
-        self.thread.parent.remove_child(self.thread)  # LOGGING WILL BE RESPONSIBLE FOR THREAD stop()
+        self.queue = Queue(
+            "queue for " + self.__class__.__name__ + "(" + name + ")",
+            max=10000,
+            silent=True
+        )
+        self.thread = Thread(
+            "log to " + self.__class__.__name__ + "(" + name + ")",
+            time_delta_pusher,
+            appender=appender,
+            queue=self.queue,
+            interval=0.3,
+        )
+        # LOGGING WILL BE RESPONSIBLE FOR THREAD stop()
+        self.thread.parent.remove_child(self.thread)
         self.thread.start()
 
     def write(self, template, params):
@@ -120,5 +130,3 @@ def time_delta_pusher(please_stop, appender, queue, interval):
         except Exception as e:
             sys.stderr.write(str("Trouble with appender: ") + str(e.__class__.__name__) + str(CR))
             # SWALLOW ERROR, MUST KEEP RUNNING
-
-
