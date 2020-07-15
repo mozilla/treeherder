@@ -30,12 +30,14 @@ class StructuredLogger_usingThread(StructuredLogger):
         def worker(logger, please_stop):
             try:
                 while True:
+                    print("get logs")
                     logs = self.queue.pop_all()
                     if not logs:
                         if please_stop:
                             break
                         (Till(seconds=1) | please_stop).wait()
                         continue
+                    print("put logs")
                     for log in logs:
                         if log is THREAD_STOP:
                             please_stop.go()
@@ -44,6 +46,8 @@ class StructuredLogger_usingThread(StructuredLogger):
             except Exception as e:
                 print("problem in " + StructuredLogger_usingThread.__name__ + ": " + str(e))
             finally:
+                print("stop logs")
+
                 Log.note("stop the child")
                 logger.stop()
 
