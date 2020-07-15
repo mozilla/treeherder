@@ -30,6 +30,7 @@ class StructuredLogger_usingThreadedStream(StructuredLogger):
     # WHICH WILL eval() TO ONE
     def __init__(self, stream):
         assert stream
+        print("create threaded stream")
 
         if is_text(stream):
             name = stream
@@ -86,6 +87,7 @@ def time_delta_pusher(please_stop, appender, queue, interval):
     """
 
     next_run = time() + interval
+    print("begin threaded stream")
 
     while not please_stop:
         profiler = Thread.current().cprofiler
@@ -98,6 +100,7 @@ def time_delta_pusher(please_stop, appender, queue, interval):
         if not logs:
             continue
 
+        print("more logs")
         lines = []
         for log in logs:
             try:
@@ -107,6 +110,7 @@ def time_delta_pusher(please_stop, appender, queue, interval):
                 else:
                     expanded = expand_template(log.get("template"), log.get("params"))
                     lines.append(expanded)
+                    print(expanded)
             except Exception as e:
                 location = log.get('params', {}).get('location', {})
                 Log.warning("Trouble formatting log from {{location}}", location=location, cause=e)
@@ -114,7 +118,6 @@ def time_delta_pusher(please_stop, appender, queue, interval):
         try:
             appender(CR.join(lines) + CR)
         except Exception as e:
-
             sys.stderr.write(str("Trouble with appender: ") + str(e.__class__.__name__) + str(CR))
             # SWALLOW ERROR, MUST KEEP RUNNING
 

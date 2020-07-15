@@ -21,20 +21,6 @@ from treeherder.config.settings import REDIS_URL
 CONFIG_FILE = (File.new_instance(__file__).parent / "extract_jobs.json").abspath
 
 
-@extend(StructuredLogger_usingStream)
-def write(self, template, params):
-    log_line = expand_template(template, params)
-    print(log_line)
-
-
-@extend(StructuredLogger_usingLogger)
-def write(self, template, params):
-    log_line = expand_template(template, params)
-    level = max(self.min_level, MAP[params.context])
-    self.logger.log(level, log_line)
-    print(log_line)
-
-
 class ExtractJobs:
     def run(self, force=False, restart=False, start=None, merge=False):
 
