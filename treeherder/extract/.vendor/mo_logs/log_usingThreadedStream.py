@@ -11,12 +11,12 @@
 
 from __future__ import absolute_import, division, unicode_literals
 
-import logging
+from mo_future import is_text, is_binary
 import sys
 from time import time
 
 from mo_dots import Data
-from mo_future import PY3, is_text
+from mo_future import PY3, text
 from mo_logs import Log
 from mo_logs.log_usingNothing import StructuredLogger
 from mo_logs.strings import CR, expand_template
@@ -30,7 +30,6 @@ class StructuredLogger_usingThreadedStream(StructuredLogger):
     # WHICH WILL eval() TO ONE
     def __init__(self, stream):
         assert stream
-        logging.getLogger().warning("create threaded stream")
 
         if is_text(stream):
             name = stream
@@ -98,7 +97,6 @@ def time_delta_pusher(please_stop, appender, queue, interval):
     """
 
     next_run = time() + interval
-    logging.getLogger().warning("begin threaded stream")
 
     while not please_stop:
         profiler = Thread.current().cprofiler
@@ -111,7 +109,6 @@ def time_delta_pusher(please_stop, appender, queue, interval):
         if not logs:
             continue
 
-        logging.getLogger().warning("more logs")
         lines = []
         for log in logs:
             try:
@@ -121,7 +118,6 @@ def time_delta_pusher(please_stop, appender, queue, interval):
                 else:
                     expanded = expand_template(log.get("template"), log.get("params"))
                     lines.append(expanded)
-                    logging.getLogger().warning(expanded)
             except Exception as e:
                 location = log.get('params', {}).get('location', {})
                 Log.warning("Trouble formatting log from {{location}}", location=location, cause=e)
@@ -129,5 +125,8 @@ def time_delta_pusher(please_stop, appender, queue, interval):
         try:
             appender(CR.join(lines) + CR)
         except Exception as e:
+
             sys.stderr.write(str("Trouble with appender: ") + str(e.__class__.__name__) + str(CR))
             # SWALLOW ERROR, MUST KEEP RUNNING
+
+

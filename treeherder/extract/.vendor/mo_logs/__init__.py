@@ -9,7 +9,6 @@
 #
 from __future__ import absolute_import, division, unicode_literals
 
-import logging
 import os
 import platform
 import sys
@@ -53,7 +52,6 @@ class Log(object):
         constants - UPDATE MODULE CONSTANTS AT STARTUP (PRIMARILY INTENDED TO CHANGE DEBUG STATE)
         """
         global _Thread
-        logging.getLogger().warning("setup logging1")
         if not settings:
             if app_name:
                 return LoggingContext(app_name)
@@ -61,7 +59,7 @@ class Log(object):
                 return None
 
         settings = to_data(settings)
-        logging.getLogger().warning("setup logging")
+
         Log.stop()
 
         cls.settings = settings
@@ -94,18 +92,14 @@ class Log(object):
         if settings.constants:
             constants.set(settings.constants)
 
-        logging.getLogger().warning("we got logs?")
         logs = coalesce(settings.log, settings.logs)
         if logs:
-            logging.getLogger().warning("setup logs")
             cls.logging_multi = StructuredLogger_usingMulti()
             for log in listwrap(logs):
                 Log._add_log(Log.new_instance(log))
 
-            logging.getLogger().warning("start threaded logger")
             from mo_logs.log_usingThread import StructuredLogger_usingThread
             old_log, cls.main_log = cls.main_log, StructuredLogger_usingThread(cls.logging_multi)
-            logging.getLogger().warning("stop old logger")
             old_log.stop()
 
     @classmethod

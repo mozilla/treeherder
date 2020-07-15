@@ -18,7 +18,6 @@ from mo_logs.strings import expand_template
 # WRAP PYTHON CLASSIC logger OBJECTS
 class StructuredLogger_usingLogger(StructuredLogger):
     def __init__(self, settings):
-        logging.getLogger().warning("init logger")
         min_level = settings.min_level
         if min_level == None:
             self.min_level = logging.INFO
@@ -33,9 +32,8 @@ class StructuredLogger_usingLogger(StructuredLogger):
     def write(self, template, params):
         log_line = expand_template(template, params)
         level = max(self.min_level, MAP[params.context])
-        self.logger.warning(log_line)
         self.logger.log(level, log_line)
-        logging.getLogger().warning(log_line)
+        print(log_line)
 
     def stop(self):
         try:
