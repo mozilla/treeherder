@@ -37,6 +37,7 @@ class StructuredLogger_usingLogger(StructuredLogger):
             print(log_line)
             level = max(self.min_level, MAP[params.context])
             print(str(level))
+            print("is enabled: "+str(self.logger.isEnabledFor(level)))
             self.logger.log(level, log_line)
             print("done")
         except Exception as cause:
