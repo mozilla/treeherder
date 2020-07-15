@@ -113,6 +113,8 @@ class ExtractJobs:
                 if not acc:
                     break
 
+                Log.note("got docs, adding to bq")
+
                 # SOME LIMITS PLACES ON STRING SIZE
                 for fl in jx.drill(acc, "job_log.failure_line"):
                     fl.message = strings.limit(fl.message, 10000)
