@@ -476,31 +476,34 @@ class Table(BaseFacts):
             else:
                 self.last_extend = Date.now()
                 Log.note("{{num}} rows added", num=len(output))
-        except Exception as e:
-            e = Except.wrap(e)
+        except Exception as cause:
+            cause = Except.wrap(cause)
             if (
                 len(output) < 2
-                and "Your client has issued a malformed or illegal request." in e
+                and "Your client has issued a malformed or illegal request." in cause
             ):
                 Log.error(
                     "big query complains about:\n{{data|json}}",
                     data=output,
-                    cause=e
+                    cause=cause
                 )
             elif len(rows) > 1 and (
-                "Request payload size exceeds the limit" in e
-                or "An existing connection was forcibly closed by the remote host" in e
-                or "Your client has issued a malformed or illegal request." in e
-                or "BrokenPipeError(32, 'Broken pipe')" in e
-                or "ConnectionResetError(104, 'Connection reset by peer')" in e
+                "Request payload size exceeds the limit" in cause
+                or "An existing connection was forcibly closed by the remote host" in cause
+                or "Your client has issued a malformed or illegal request." in cause
+                or "BrokenPipeError(32, 'Broken pipe')" in cause
+                or "ConnectionResetError(104, 'Connection reset by peer')" in cause
             ):
+                DEBUG and Log.note("attempt smaller batch")
                 # TRY A SMALLER BATCH
                 cut = len(rows) // 2
                 self.extend(rows[:cut])
                 self.extend(rows[cut:])
                 return
+            elif len(rows) == 1:
+                Log.error("Could not insert document\n{{doc:json|indent}}", doc=rows[0], cause=cause)
             else:
-                Log.error("Do not know how to handle", cause=e)
+                Log.error("Do not know how to handle", cause=cause)
 
     def add(self, row):
         self.extend([row])
