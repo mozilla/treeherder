@@ -5,6 +5,7 @@ from jx_python import jx
 from mo_files import File
 from mo_json import json2value, value2json
 from mo_logs import Log, constants, startup, strings
+from mo_logs.log_usingPrint import StructuredLogger_usingPrint
 from mo_sql import SQL
 from mo_times import Timer
 from mo_times.dates import Date
@@ -22,6 +23,7 @@ class ExtractJobs:
             settings = startup.read_settings(filename=CONFIG_FILE, complain=False)
             constants.set(settings.constants)
             Log.start(settings.debug)
+            Log.main_log = StructuredLogger_usingPrint()
 
             self.extract(settings, force, restart, start, merge)
         except Exception as e:
