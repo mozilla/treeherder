@@ -11,12 +11,11 @@ from __future__ import absolute_import, division, unicode_literals
 
 import math
 import re
-from collections import deque
 from datetime import date, datetime, timedelta
 from decimal import Decimal
-from test.test_deque import Deque
 
 from hjson import loads as hjson2value
+from mo_logs.exceptions import get_stacktrace
 
 from mo_dots import Data, FlatList, Null, NullType, SLOT, is_data, to_data, leaves_to_data
 from mo_dots.objects import DataObject
@@ -140,6 +139,14 @@ def trim_whitespace(value):
         return None
 
 
+def is_number(s):
+    try:
+        s = float(s)
+        return not math.isnan(s)
+    except Exception:
+        return False
+
+
 def scrub(value, scrub_text=_keep_whitespace, scrub_number=_scrub_number):
     """
     REMOVE/REPLACE VALUES THAT CAN NOT BE JSON-IZED
@@ -150,7 +157,7 @@ def scrub(value, scrub_text=_keep_whitespace, scrub_number=_scrub_number):
 def _scrub(value, is_done, stack, scrub_text, scrub_number):
     if FIND_LOOPS:
         _id = id(value)
-        if _id in stack:
+        if _id in stack and type(_id).__name__ not in ["int"]:
             Log.error("loop in JSON")
         stack = stack + [_id]
     type_ = value.__class__
@@ -194,8 +201,6 @@ def _scrub(value, is_done, stack, scrub_text, scrub_number):
                 pass
             elif is_binary(k):
                 k = k.decode('utf8')
-            # elif hasattr(k, "__unicode__"):
-            #     k = text(k)
             else:
                 Log.error("keys must be strings")
             v = _scrub(v, is_done, stack, scrub_text, scrub_number)
@@ -234,6 +239,9 @@ def _scrub(value, is_done, stack, scrub_text, scrub_number):
         return output
     elif hasattr(value, '__call__'):
         return text(repr(value))
+    elif is_number(value):
+        # for numpy values
+        return scrub_number(value)
     else:
         return _scrub(DataObject(value), is_done, stack, scrub_text, scrub_number)
 
@@ -247,7 +255,7 @@ def value2json(obj, pretty=False, sort_keys=False, keep_whitespace=True):
     :return:
     """
     if FIND_LOOPS:
-        obj = scrub(obj, scrub_text=_keep_whitespace if keep_whitespace else trim_whitespace())
+        obj = scrub(obj, scrub_text=_keep_whitespace if keep_whitespace else trim_whitespace)
     try:
         json = json_encoder(obj, pretty=pretty)
         if json == None:
