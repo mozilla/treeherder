@@ -49,6 +49,8 @@ class ExtractJobs:
 
             print("main log type=" + Log.main_log.__class__.__name__)
             print("sub  log type=" + Log.main_log.logger.__class__.__name__)
+            print("sub sub  log count=" + str(len(Log.main_log.logger.many)))
+            print("sub sub  log type=" + Log.main_log.logger.many[0].__class__.__name__)
             Log.note("test logging")
             self.extract(settings, force, restart, start, merge)
         except Exception as e:
