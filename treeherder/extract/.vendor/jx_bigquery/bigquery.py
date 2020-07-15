@@ -492,6 +492,7 @@ class Table(BaseFacts):
                 or "An existing connection was forcibly closed by the remote host" in e
                 or "Your client has issued a malformed or illegal request." in e
                 or "BrokenPipeError(32, 'Broken pipe')" in e
+                or "ConnectionResetError(104, 'Connection reset by peer')" in e
             ):
                 # TRY A SMALLER BATCH
                 cut = len(rows) // 2
