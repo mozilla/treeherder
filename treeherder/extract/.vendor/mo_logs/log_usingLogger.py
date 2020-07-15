@@ -39,7 +39,6 @@ class StructuredLogger_usingLogger(StructuredLogger):
             print(str(level))
             print("is enabled: "+str(self.logger.isEnabledFor(level)))
             self.logger.log(level, log_line)
-            print("done")
         except Exception as cause:
             import sys
             sys.stderr.write("can not write to logger: "+text(cause))

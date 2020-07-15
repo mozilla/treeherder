@@ -99,8 +99,7 @@
     "logs": [
       {
         "log_type": "logger",
-        "name": "extract_jobs",
-        "min_level": "warning"
+        "min_level": "info"
       }
     ]
   }
