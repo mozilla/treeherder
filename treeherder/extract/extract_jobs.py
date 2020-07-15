@@ -20,7 +20,7 @@ CONFIG_FILE = (File.new_instance(__file__).parent / "extract_jobs.json").abspath
 class StructuredLogger_usingPrint(StructuredLogger):
     def write(self, template, params):
         value = expand_template(template, params)
-        print(value + "\n")
+        print(value + "\n---")
 
 
 class ExtractJobs:
