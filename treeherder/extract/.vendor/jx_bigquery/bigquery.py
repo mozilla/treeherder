@@ -496,12 +496,12 @@ class Table(BaseFacts):
             ):
                 Log.warning("problem with batch", cause=cause)
                 try:
-                    DEBUG and Log.note("attempt smaller batchs")
+                    DEBUG and Log.note("attempt smaller batches")
                     for _, chunk in jx.chunk(rows, ceiling(len(rows) / 10)):
                         self._extend(chunk)
                     return
                 except Exception as cause2:
-                    Log.error("smaller batch did not work", cause=cause2)
+                    Log.error("smaller batches did not work", cause=cause2)
             elif len(rows) == 1:
                 Log.error("Could not insert document\n{{doc:json|indent}}", doc=rows[0], cause=cause)
             else:

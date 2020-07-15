@@ -56,6 +56,7 @@ class ExtractJobs:
                 state = json2value(state.decode("utf8"))
 
             last_modified, job_id = state
+            Log.note("Start at {{last_modified}}, {{job_id}}", last_modified=last_modified, job_id=job_id)
 
             # SCAN SCHEMA, GENERATE EXTRACTION SQL
             extractor = MySqlSnowflakeExtractor(settings.source)
