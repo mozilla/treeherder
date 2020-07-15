@@ -95,13 +95,6 @@
     "jx_mysql.mysql_snowflake_extractor.DEBUG": false
   },
   "debug": {
-    "trace": true,
-    "logs": [
-      {
-        "log_type": "logger",
-        "name": "django",
-        "min_level": "info"
-      }
-    ]
+    "trace": true
   }
 }
