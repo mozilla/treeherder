@@ -1,7 +1,3 @@
-import logging
-
-from redis import Redis
-
 from jx_bigquery import bigquery
 from jx_mysql.mysql import MySQL, sql_query
 from jx_mysql.mysql_snowflake_extractor import MySqlSnowflakeExtractor
@@ -12,6 +8,8 @@ from mo_logs import Log, constants, startup, strings
 from mo_sql import SQL
 from mo_times import Timer
 from mo_times.dates import Date
+from redis import Redis
+
 from treeherder.config.settings import REDIS_URL
 
 CONFIG_FILE = (File.new_instance(__file__).parent / "extract_jobs.json").abspath
@@ -19,21 +17,12 @@ CONFIG_FILE = (File.new_instance(__file__).parent / "extract_jobs.json").abspath
 
 class ExtractJobs:
     def run(self, force=False, restart=False, start=None, merge=False):
-
         try:
             # SETUP LOGGING
             settings = startup.read_settings(filename=CONFIG_FILE, complain=False)
-            logging.getLogger().warning("got settings")
             constants.set(settings.constants)
-            logging.getLogger().warning("set constants")
             Log.start(settings.debug)
-            logging.getLogger().warning("started")
 
-            logging.getLogger().warning("main log type=" + Log.main_log.__class__.__name__)
-            logging.getLogger().warning("sub  log type=" + Log.main_log.logger.__class__.__name__)
-            logging.getLogger().warning("sub sub  log count=" + str(len(Log.main_log.logger.many)))
-            logging.getLogger().warning("sub sub  log type=" + Log.main_log.logger.many[0].__class__.__name__)
-            Log.note("test logging")
             self.extract(settings, force, restart, start, merge)
         except Exception as e:
             Log.error("could not extract jobs", cause=e)
@@ -41,7 +30,6 @@ class ExtractJobs:
             Log.stop()
 
     def extract(self, settings, force, restart, start, merge):
-        logging.getLogger().warning("extracting")
         if not settings.extractor.app_name:
             Log.error("Expecting an extractor.app_name in config file")
 
@@ -69,8 +57,6 @@ class ExtractJobs:
 
             last_modified, job_id = state
 
-            logging.getLogger().warning("scan schema")
-
             # SCAN SCHEMA, GENERATE EXTRACTION SQL
             extractor = MySqlSnowflakeExtractor(settings.source)
             canonical_sql = extractor.get_sql(SQL("SELECT 0"))
@@ -88,7 +74,6 @@ class ExtractJobs:
             source = MySQL(settings.source.database)
 
             while True:
-                logging.getLogger().warning("extracting jobs")
                 Log.note(
                     "Extracting jobs for last_modified={{last_modified|datetime|quote}}, job.id={{job_id}}",
                     last_modified=last_modified,
@@ -120,8 +105,6 @@ class ExtractJobs:
                 )
                 sql = extractor.get_sql(get_ids)
 
-                logging.getLogger().warning("got sql")
-
                 # PULL FROM source, AND PUSH TO destination
                 acc = []
                 with source.transaction():
@@ -130,18 +113,12 @@ class ExtractJobs:
                 if not acc:
                     break
 
-                logging.getLogger().warning("load bq")
-
                 # SOME LIMITS PLACES ON STRING SIZE
                 for fl in jx.drill(acc, "job_log.failure_line"):
                     fl.message = strings.limit(fl.message, 10000)
                 for r in acc:
                     r.etl.timestamp = Date.now()
-
-                logging.getLogger().warning("extend")
                 destination.extend(acc)
-
-                logging.getLogger().warning("done extend")
 
                 # RECORD THE STATE
                 last_doc = acc[-1]
@@ -154,10 +131,8 @@ class ExtractJobs:
                     break
 
         except Exception as e:
-            logging.getLogger().warning("exception")
             Log.warning("problem with extraction", cause=e)
 
-        logging.getLogger().warning("done extract")
         Log.note("done job extraction")
 
         try:
@@ -165,5 +140,5 @@ class ExtractJobs:
                 destination.merge_shards()
         except Exception as e:
             Log.warning("problem with merge", cause=e)
-        logging.getLogger().warning("done")
+
         Log.note("done job merge")
