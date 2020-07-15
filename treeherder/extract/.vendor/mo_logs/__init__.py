@@ -68,9 +68,9 @@ class Log(object):
 
         # ENABLE CPROFILE
         if cprofile is False:
-            cprofile = settings.cprofile = {"enabled": False}
+            cprofile = settings.cprofile = Data(enabled=False)
         elif cprofile is True:
-            cprofile = settings.cprofile = {"enabled": True, "filename": "cprofile.tab"}
+            cprofile = settings.cprofile = Data(enabled=True, filename="cprofile.tab")
         if is_data(cprofile) and cprofile.enabled:
             from mo_threads import profiles
             profiles.enable_profilers(settings.cprofile.filename)

@@ -18,8 +18,8 @@ from mo_logs.strings import expand_template
 
 # WRAP PYTHON logger OBJECTS
 class StructuredLogger_usingLogger(StructuredLogger):
-    @override
-    def __init__(self, name=None, min_level=logging.INFO):
+    @override("settings")
+    def __init__(self, name=None, min_level=logging.INFO, settings=None):
         """
         :param name: to find-or-create logger (may break
         :param min_level: increase all logging to this level to get through filters
