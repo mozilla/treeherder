@@ -9,7 +9,7 @@
 #
 from __future__ import absolute_import, division, unicode_literals
 
-from warnings import warn
+from warnings import warn_explicit
 
 from mo_logs.log_usingNothing import StructuredLogger
 from mo_logs.strings import expand_template
@@ -19,4 +19,4 @@ class StructuredLogger_usingWarn(StructuredLogger):
 
     def write(self, template, params):
         value = expand_template(template, params)
-        warn(value)
+        warn_explicit(message=value, category=Warning, filename="", lineno=0)
