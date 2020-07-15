@@ -1,4 +1,12 @@
+import os
+import sys
+
 from django.core.management.base import BaseCommand
+
+
+extract_path = __file__.split(os.sep)[:-3]
+sys.path.append(os.sep.join(extract_path+[".vendor"]))
+
 
 from treeherder.extract.extract_jobs import ExtractJobs
 
