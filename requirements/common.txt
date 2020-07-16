@@ -205,9 +205,9 @@ google-api-core==1.21.0 \
     --hash=sha256:7b65e8e5ee59bd7517eab2bf9b3008e7b50fd9fb591d4efd780ead6859cd904b \
     --hash=sha256:fea9a434068406ddabe2704988d24d6c5bde3ecfc40823a34f43892d017b14f6 \
     # via google-cloud-bigquery, google-cloud-core
-google-auth==1.19.0 \
-    --hash=sha256:b0e4ecc40ed18b8d12141df6af772efa4aba65e7eda470c258581443418ee753 \
-    --hash=sha256:eefbb977d026d617e5d33b82b6c266d3be3bb7b44d370b692dded7319121f842 \
+google-auth==1.19.1 \
+    --hash=sha256:167b1bcc51da05d32a1a843815967b4fa81a556e4c9c3377e766f136a2a30f65 \
+    --hash=sha256:2b6bb2a6578233bb78f755fc7eb54e0b71f8eb1314d25baeef93b88ad10524fa \
     # via google-api-core, google-cloud-bigquery
 google-cloud-bigquery==1.25.0 \
     --hash=sha256:7466163fa6bd9c923944c566dcafa5191214db8896657ee5feb1859a63e0ba2a \
@@ -318,8 +318,8 @@ markupsafe==1.1.1 \
 mo-collections==3.77.20190 \
     --hash=sha256:536fbf049d1e349f25193e0334bbda147b9886dca9027d7672875474ee0bdac4 \
     # via jx-mysql, jx-python, mo-testing
-mo-dots==3.78.20194 \
-    --hash=sha256:7413b47c3105af64ab14bf7bfdd87b922dae7b9c4f3db10b5a234173e6b4298c \
+mo-dots==3.84.20198 \
+    --hash=sha256:021d4b9790109b5d85430441366bedccfa66a1295e2b6ef3b4b9de50a2a0461d \
     # via jx-bigquery, jx-mysql, jx-python, mo-collections, mo-files, mo-http, mo-json, mo-json-config, mo-kwargs, mo-logs, mo-math, mo-sql, mo-testing, mo-threads, mo-times
 mo-files==3.80.20196 \
     --hash=sha256:0a59a44392c9e35db97d7dc451867eda403bc9b43104626d05ab1914c87ec879 \
@@ -339,8 +339,8 @@ mo-json==3.80.20196 \
 mo-kwargs==3.82.20197 \
     --hash=sha256:9b3972a3ea95637c4e52de7e7897900622e30277c035506b9bedb9670aa26e41 \
     # via jx-bigquery, jx-mysql, jx-python, mo-collections, mo-http, mo-logs
-mo-logs==3.83.20197 \
-    --hash=sha256:eafe9787e716cc2adf5e10316f7e35605ce12ccb2e8679e133531a437634e0bb \
+mo-logs==3.84.20198 \
+    --hash=sha256:82f9fbe70e7a929b23da170ae7d51638bc0981ea593581eded002bc92960e770 \
     # via jx-bigquery, jx-mysql, jx-python, mo-collections, mo-files, mo-http, mo-json, mo-json-config, mo-math, mo-sql, mo-testing, mo-threads, mo-times
 mo-math==3.77.20190 \
     --hash=sha256:474f80b97d0ae90434c5fc7fb49806341933ae0db930ad09a2f020fe58092a47 \
