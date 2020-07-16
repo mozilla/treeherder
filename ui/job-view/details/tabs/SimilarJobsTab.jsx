@@ -134,9 +134,11 @@ class SimilarJobsTab extends React.Component {
       const { data, failureStatus } = await getData(
         getProjectJobUrl(textLogErrorsEndpoint, nextJob.id),
       );
-
       if (!failureStatus && data.length) {
-        nextJob.error_lines = data;
+        nextJob.error_lines = data.reduce(
+          (acc, step) => [...acc, ...step.errors],
+          [],
+        );
       }
       this.setState({ selectedSimilarJob: nextJob });
     });
