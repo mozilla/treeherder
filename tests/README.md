@@ -68,11 +68,11 @@ Django can perform a number of checks to ensure you are configured correctly
 
 Be sure docker-compose is up, you are in the `treeherder` main directory, your virtual environment is activated, and your environment variables are set:
 
-**Linux/MacOS**
+Linux/MacOS
 
     source .venv/bin/activate
 
-**Windows**
+Windows
 
     .venv\Script\activate
 
