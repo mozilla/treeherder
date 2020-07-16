@@ -1,16 +1,15 @@
 import pytest
 from django.db.models import Q
-from mo_dots import listwrap
 
 from jx_base.expressions import NULL
 from jx_mysql.mysql import MySQL
 from jx_mysql.mysql_snowflake_extractor import MySqlSnowflakeExtractor
+from jx_python import jx
 from mo_files import File
-from mo_future import text
+from mo_future import text, first
 from mo_sql import SQL
 from mo_testing.fuzzytestcase import assertAlmostEqual
 from mo_times import Date
-
 from treeherder.model.models import Job
 
 
@@ -104,7 +103,8 @@ def test_django_cannot_encode_datetime_strings(extract_job_settings):
             list(source.query(sql_query, stream=True, row_tuples=True))
 
 
-def test_extract_job(complex_job, extract_job_settings, now):
+@pytest.mark.freeze_time('2020-07-01')
+def test_extract_job(complex_job, extract_job_settings):
     """
     If you find this test failing, then copy the JSON in the test failure into the test_extract_job.json file,
     then you may use the diff to review the changes.
@@ -118,8 +118,12 @@ def test_extract_job(complex_job, extract_job_settings, now):
         cursor = list(source.query(sql, stream=True, row_tuples=True))
         extractor.construct_docs(cursor, acc.append, False)
 
-    doc = acc[0]
-    doc.guid = complex_job.guid
+    doc = first(acc)
+    doc.guid = first(JOB).guid  # NEW EACH TIME
+
+    job_guid = first(jx.drill(JOB, "job_log.failure_line.job_guid"))
+    for fl in jx.drill(doc, "job_log.failure_line"):
+        fl.job_guid = job_guid
 
     assertAlmostEqual(
         acc,
@@ -133,8 +137,3 @@ EXTRACT_JOB_SQL = (File(__file__).parent / "test_extract_job.sql").read()
 JOB = (File(__file__).parent / "test_extract_job.json").read_json()
 JOB.job_group.description = NULL  # EXPECTING NOTHING
 
-for j in JOB:
-    j.last_modified = Date.now()
-    for log in listwrap(j.job_log):
-        for f in listwrap(log.failure_line):
-            f.best_classification.modified = Date.now()

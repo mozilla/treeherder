@@ -33,13 +33,8 @@ def failure_class(transactional_db):
 
 
 @pytest.fixture
-def now():
-    return Date.now().datetime
-
-
-@pytest.fixture
 def complex_job(
-    transactional_db, generic_reference_data, test_repository, extract_job_settings, now
+    transactional_db, generic_reference_data, test_repository, extract_job_settings
 ):
     fc = FailureClassification.objects.create(id=1, name="not classified")
     repository_group = RepositoryGroup.objects.create(name="common")

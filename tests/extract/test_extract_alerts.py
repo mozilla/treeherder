@@ -1,5 +1,7 @@
 import datetime
 
+import pytest
+
 from jx_mysql.mysql import MySQL
 from jx_mysql.mysql_snowflake_extractor import MySqlSnowflakeExtractor
 from mo_files import File
@@ -37,12 +39,12 @@ def test_extract_alert_sql(extract_alert_settings, test_perf_alert_summary, test
     assert "".join(sql.sql.split()) == "".join(EXTRACT_ALERT_SQL.split())
 
 
+@pytest.mark.freeze_time('2020-07-01')
 def test_extract_alert(extract_alert_settings, test_perf_alert_summary, test_perf_alert):
     """
     If you find this test failing, then copy the JSON in the test failure into the test_extract_alerts.json file,
     then you may use the diff to review the changes.
     """
-    now = datetime.datetime.now()
     source = MySQL(extract_alert_settings.source.database)
     extractor = MySqlSnowflakeExtractor(extract_alert_settings.source)
     sql = extractor.get_sql(SQL("SELECT " + text(test_perf_alert_summary.id) + " as id"))
@@ -51,15 +53,6 @@ def test_extract_alert(extract_alert_settings, test_perf_alert_summary, test_per
     with source.transaction():
         cursor = list(source.query(sql, stream=True, row_tuples=True))
         extractor.construct_docs(cursor, acc.append, False)
-
-    doc = acc[0]
-    # TEST ARE RUN WITH CURRENT TIMESTAMPS
-    doc.created = now
-    doc.last_updated = now
-    for d in doc.details:
-        d.created = now
-        d.last_updated = now
-        d.series_signature.last_updated = now
 
     assertAlmostEqual(
         acc, ALERT, places=3

@@ -1,61 +1,133 @@
 [
   {
-    "created": 1587128638.995283,
-    "details": [
+    "autoclassify_status": 1,
+    "build_platform": {
+      "architecture": "x86",
+      "os_name": "my_os",
+      "platform": "my_platform"
+    },
+    "end_time": 1578450680,
+    "failure_classification": "not classified",
+    "guid": "allcj2KcgktIpEdH9IVT",
+    "id": 1,
+    "job_group": {
+      "name": "myjobgroup",
+      "symbol": "S"
+    },
+    "job_log": [
       {
-        "amount_abs": 50,
-        "amount_pct": 0.5,
-        "created": 1587128639.005283,
-        "is_regression": 1,
-        "last_updated": 1587128639.005283,
-        "manually_created": 0,
-        "new_value": 150,
-        "prev_value": 100,
-        "series_signature": {
-          "application": "firefox",
-          "extra_options": "e10s opt",
-          "framework": "test_talos",
-          "has_subtests": 0,
-          "last_updated": 1587128639.001286,
-          "lower_is_better": 1,
-          "measurement_unit": "ms",
-          "option_collection": {
-            "option": "opt",
-            "option_collection_hash": "my_option_hash"
+        "name": "live_backing_log",
+        "status": 1,
+        "url": "https://example.com/api/queue/v1/task/WWb9ExAvQUa78ku0DIxdSQ/runs/0/artifacts/public/logs/live_backing.log"
+      },
+      {
+        "failure_line": [
+          {
+            "action": "test_groups",
+            "best_classification": {
+              "bug_number": 1234567,
+              "created": 1579280400,
+              "modified": 1593576000
+            },
+            "best_is_verified": 1,
+            "created": 1577854800,
+            "job_guid": "4mG1ePbgqRFtLiPkoRjW",
+            "line": 15,
+            "modified": 1577854800,
+            "repository": "autoland"
           },
-          "platform": "win7",
-          "repository": "test_treeherder_jobs",
-          "signature_hash": "tttttttttttttttttttttttttttttttttttttttt",
-          "suite": "mysuite",
-          "tags": "warm pageload",
-          "test": "mytest"
-        },
-        "starred": 0,
-        "status": 0,
-        "t_value": 20
+          {
+            "action": "crash",
+            "best_classification": {
+              "bug_number": 1234567,
+              "created": 1579280400,
+              "modified": 1593576000
+            },
+            "best_is_verified": 0,
+            "created": 1577854800,
+            "job_guid": "4mG1ePbgqRFtLiPkoRjW",
+            "line": 24031,
+            "modified": 1593561600,
+            "repository": "autoland",
+            "signature": "@ mozilla::dom::CustomElementData::SetCustomElementDefinition(mozilla::dom::CustomElementDefinition*)",
+            "test": "/custom-elements/upgrading.html"
+          }
+        ],
+        "name": "errorsummary_json",
+        "status": 1,
+        "url": "https://example.com/api/queue/v1/task/WWb9ExAvQUa78ku0DIxdSQ/runs/0/artifacts/public/test_info/wpt_errorsummary.log"
       }
     ],
-    "framework": "test_talos",
-    "id": 1,
-    "issue_tracker": {
-      "name": "Bugzilla",
-      "task_base_url": "https://bugzilla.mozilla.org/show_bug.cgi?id="
+    "job_type": {
+      "name": "myjob",
+      "symbol": "j"
     },
-    "last_updated": 1587128639.010283,
-    "manually_created": 0,
-    "prev_push": {
-      "author": "Eric Chou <echou@mozilla.com>",
-      "repository": "test_treeherder_jobs",
-      "revision": "45f8637cb9f78f19cb8463ff174e81756805d8cf",
-      "time": 1384347643
+    "last_modified": 1594862113.81626,
+    "machine": {
+      "name": "mymachine"
+    },
+    "machine_platform": {
+      "architecture": "x86",
+      "os_name": "my_os",
+      "platform": "my_platform"
+    },
+    "option_collection_hash": "vJhSB",
+    "product": {
+      "name": "myproduct"
     },
     "push": {
-      "author": "Gaia Pushbot <release+gaiajson@mozilla.com>",
-      "repository": "test_treeherder_jobs",
-      "revision": "b11529c9865a4dee3a93d63d119ebb89fcbbdf69",
-      "time": 1384353511
+      "author": "testing@mozilla.com",
+      "commit": [
+        {
+          "revision": "ae6bb3a1066959a8c43d003a3caab0af769455bf"
+        },
+        {
+          "revision": "0123456789012345678901234567890123456789"
+        }
+      ],
+      "repository": "autoland",
+      "revision": "ae6bb3a1066959a8c43d003a3caab0af769455bf",
+      "time": 1578445105
     },
+    "reason": "scheduled",
     "repository": "test_treeherder_jobs",
-    "status": 0
+    "result": "success",
+    "signature": {
+      "build_architecture": "x86",
+      "build_os_name": "my_os",
+      "build_platform": "my_platform",
+      "build_system_type": "buildbot",
+      "first_submission_timestamp": 0,
+      "job_group_name": "myjobgroup",
+      "job_group_symbol": "S",
+      "job_type_name": "myjob",
+      "job_type_symbol": "j",
+      "machine_architecture": "x86",
+      "machine_os_name": "my_os",
+      "machine_platform": "my_platform",
+      "name": "myreferencedatasignaeture",
+      "option_collection_hash": "my_option_hash",
+      "repository": "test_treeherder_jobs",
+      "signature": "1234"
+    },
+    "start_time": 1578448841,
+    "state": "completed",
+    "submit_time": 1578445253,
+    "taskcluster_metadata": [
+      {
+        "retry_id": 0,
+        "task_id": "WWb9ExAvQUa78ku0DIxdSQ"
+      }
+    ],
+    "text_log_step": [
+      {
+        "finished_line_number": 88739,
+        "name": "Unnamed step",
+        "result": 7,
+        "started_line_number": 0
+      }
+    ],
+    "tier": 1,
+    "who": "example@mozilla.com"
   }
 ]

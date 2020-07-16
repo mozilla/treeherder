@@ -11,8 +11,11 @@
     "fact_table": "performance_alert_summary",
     "show_foreign_keys": false,
     "null_values": ["-", "unknown", ""],
-    "add_relations": [],
+    "add_relations": [
+      "job.option_collection_hash -> option_collection.option_collection_hash"
+    ],
     "name_relations": {
+      "job\\.option_collection_hash -> option_collection\\.option_collection_hash": "options",
       "performance_alert_summary\\.id <- performance_alert\\.summary_id": "details",
       "performance_alert_summary\\.id <- performance_alert\\.related_summary_id": "see_also"
     },
