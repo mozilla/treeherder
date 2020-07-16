@@ -45,20 +45,22 @@ export const getSeriesName = function getSeriesName(
 
 export const getSeriesSummary = function getSeriesSummary(
   projectName,
-  signature,
+  signatureId,
   signatureProps,
   optionCollectionMap,
 ) {
   const platform = signatureProps.machine_platform;
   const options = getSeriesOptions(signatureProps, optionCollectionMap);
+  const signatureIntId =
+    typeof signatureId === 'string' ? parseInt(signatureId, 10) : signatureId;
 
   return {
-    id: signatureProps.id,
+    id: signatureIntId,
     name: getSeriesName(signatureProps, optionCollectionMap),
     testName: getTestName(signatureProps), // unadorned with platform/option info
     suite: signatureProps.suite,
     test: signatureProps.test || null,
-    signature,
+    signature: signatureProps.signature_hash,
     hasSubtests: signatureProps.has_subtests || false,
     tags: signatureProps.tags || [],
     parentSignature: signatureProps.parent_signature || null,
@@ -98,10 +100,10 @@ export default class PerfSeriesModel {
     }
     const data = Object.entries(
       response.data,
-    ).map(([signature, signatureProps]) =>
+    ).map(([signatureId, signatureProps]) =>
       getSeriesSummary(
         projectName,
-        signature,
+        signatureId,
         signatureProps,
         this.optionCollectionMap,
       ),

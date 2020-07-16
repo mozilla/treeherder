@@ -368,8 +368,9 @@ describe('Mocked API calls', () => {
         subtests: 0,
       })}`,
       {
-        fcefb979eac44d057f9c05434580ce7845f4c2d6: {
+        '1647494': {
           id: 1647494,
+          signature_hash: 'fcefb979eac44d057f9c05434580ce7845f4c2d6',
           framework_id: 1,
           option_collection_hash: 'fcefb979eac44d057f9c05434580ce7845f4c2d6',
           machine_platform: 'linux64',

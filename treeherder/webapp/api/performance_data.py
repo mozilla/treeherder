@@ -104,7 +104,7 @@ class PerformanceSignatureViewSet(viewsets.ViewSet):
             platforms = models.MachinePlatform.objects.filter(platform=platform)
             signature_data = signature_data.filter(platform__in=platforms)
 
-        ret = {}
+        signature_map = {}
         for (
             id,
             signature_hash,
@@ -136,40 +136,41 @@ class PerformanceSignatureViewSet(viewsets.ViewSet):
             'tags',
             'parent_signature__signature_hash',
         ).distinct():
-            ret[signature_hash] = {
+            signature_map[id] = signature_props = {
                 'id': id,
+                'signature_hash': signature_hash,
                 'framework_id': framework,
                 'option_collection_hash': option_collection_hash,
                 'machine_platform': platform,
                 'suite': suite,
             }
             if not lower_is_better:
-                # almost always true, save some banwidth by assuming that by
+                # almost always true, save some bandwidth by assuming that by
                 # default
-                ret[signature_hash]['lower_is_better'] = False
+                signature_props['lower_is_better'] = False
             if test:
                 # test may be empty in case of a summary test, leave it empty
                 # then
-                ret[signature_hash]['test'] = test
+                signature_props['test'] = test
             if application:
-                ret[signature_hash]['application'] = application
+                signature_props['application'] = application
             if has_subtests:
-                ret[signature_hash]['has_subtests'] = True
+                signature_props['has_subtests'] = True
             if tags:
                 # tags stored as charField but api returns as list
-                ret[signature_hash]['tags'] = tags.split(' ')
+                signature_props['tags'] = tags.split(' ')
             if parent_signature_hash:
                 # this value is often null, save some bandwidth by excluding
                 # it if not present
-                ret[signature_hash]['parent_signature'] = parent_signature_hash
+                signature_props['parent_signature'] = parent_signature_hash
 
             if extra_options:
                 # extra_options stored as charField but api returns as list
-                ret[signature_hash]['extra_options'] = extra_options.split(' ')
+                signature_props['extra_options'] = extra_options.split(' ')
             if measurement_unit:
-                ret[signature_hash]['measurement_unit'] = measurement_unit
+                signature_props['measurement_unit'] = measurement_unit
 
-        return Response(ret)
+        return Response(signature_map)
 
 
 class PerformancePlatformViewSet(viewsets.ViewSet):

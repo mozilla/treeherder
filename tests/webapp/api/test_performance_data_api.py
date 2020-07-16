@@ -58,8 +58,9 @@ def test_no_summary_performance_data(client, test_perf_signature, test_repositor
     )
     assert resp.status_code == 200
     assert resp.json() == {
-        test_perf_signature.signature_hash: {
+        str(test_perf_signature.id): {
             'id': test_perf_signature.id,
+            'signature_hash': test_perf_signature.signature_hash,
             'test': test_perf_signature.test,
             'application': test_perf_signature.application,
             'suite': test_perf_signature.suite,
@@ -140,7 +141,7 @@ def test_performance_platforms_framework_filtering(client, test_perf_signature):
 def test_summary_performance_data(
     client, test_repository, summary_perf_signature, test_perf_signature
 ):
-    summary_signature_hash = summary_perf_signature.signature_hash
+    summary_signature_id = summary_perf_signature.id
     resp = client.get(
         reverse('performance-signatures-list', kwargs={"project": test_repository.name})
     )
@@ -152,11 +153,12 @@ def test_summary_performance_data(
     assert resp.status_code == 200
 
     assert len(resp.data.keys()) == 2
-    assert set(resp.data.keys()) == {test_perf_signature.signature_hash, summary_signature_hash}
+    assert set(resp.data.keys()) == {test_perf_signature.id, summary_signature_id}
 
     for signature in [summary_perf_signature, test_perf_signature]:
         expected = {
             'id': signature.id,
+            'signature_hash': signature.signature_hash,
             'suite': signature.suite,
             'option_collection_hash': signature.option_collection.option_collection_hash,
             'framework_id': signature.framework_id,
@@ -178,7 +180,7 @@ def test_summary_performance_data(
             expected['measurement_unit'] = signature.measurement_unit
         if signature.application:
             expected['application'] = signature.application
-        assert resp.data[signature.signature_hash] == expected
+        assert resp.data[signature.id] == expected
 
 
 def test_filter_signatures_by_framework(
@@ -193,10 +195,7 @@ def test_filter_signatures_by_framework(
     )
     assert resp.status_code == 200
     assert len(resp.data.keys()) == 1
-    assert (
-        resp.data[test_perf_signature.signature_hash]['framework_id']
-        == test_perf_signature.framework.id
-    )
+    assert resp.data[test_perf_signature.id]['framework_id'] == test_perf_signature.framework.id
 
     # Filter by new framework
     resp = client.get(
@@ -205,7 +204,7 @@ def test_filter_signatures_by_framework(
     )
     assert resp.status_code == 200
     assert len(resp.data.keys()) == 1
-    assert resp.data[signature2.signature_hash]['framework_id'] == signature2.framework.id
+    assert resp.data[signature2.id]['framework_id'] == signature2.framework.id
 
 
 def test_filter_data_by_framework(
@@ -274,7 +273,7 @@ def test_filter_signatures_by_interval(client, test_perf_signature):
     )
     assert resp.status_code == 200
     assert len(resp.json().keys()) == 1
-    assert resp.json()[test_perf_signature.signature_hash]['id'] == 1
+    assert resp.json()[str(test_perf_signature.id)]['id'] == 1
 
 
 @pytest.mark.parametrize(
@@ -297,7 +296,7 @@ def test_filter_signatures_by_range(
     assert resp.status_code == 200
     assert len(resp.json().keys()) == exp_count
     if exp_count != 0:
-        assert resp.json()[test_perf_signature.signature_hash]['id'] == exp_id
+        assert resp.json()[str(test_perf_signature.id)]['id'] == exp_id
 
 
 @pytest.mark.parametrize(
