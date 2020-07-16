@@ -4,23 +4,14 @@ import { LazyLog } from 'react-lazylog';
 import isEqual from 'lodash/isEqual';
 import { Collapse } from 'reactstrap';
 
-import {
-  getAllUrlParams,
-  getUrlParam,
-  setUrlParam,
-  getProjectJobUrl,
-} from '../helpers/location';
+import { getAllUrlParams, getUrlParam, setUrlParam } from '../helpers/location';
 import { scrollToLine } from '../helpers/utils';
 import { isReftest } from '../helpers/job';
-import {
-  getJobsUrl,
-  getReftestUrl,
-  getArtifactsUrl,
-  textLogErrorsEndpoint,
-} from '../helpers/url';
+import { getJobsUrl, getReftestUrl, getArtifactsUrl } from '../helpers/url';
 import { getData } from '../helpers/http';
 import JobModel from '../models/job';
 import PushModel from '../models/push';
+import TextLogStepModel from '../models/textLogStep';
 import JobDetails from '../shared/JobDetails';
 import JobInfo from '../shared/JobInfo';
 import RepositoryModel from '../models/repository';
@@ -59,7 +50,7 @@ class App extends React.PureComponent {
     };
   }
 
-  async componentDidMount() {
+  componentDidMount() {
     const { repoName, jobId } = this.state;
 
     const repoPromise = RepositoryModel.getList();
@@ -157,12 +148,9 @@ class App extends React.PureComponent {
         });
       });
 
-    const { data, failureStatus } = await getData(
-      getProjectJobUrl(textLogErrorsEndpoint, jobId),
-    );
-
-    if (!failureStatus && data.length) {
-      const errors = data.map((error) => ({
+    TextLogStepModel.get(jobId).then((textLogSteps) => {
+      const stepErrors = textLogSteps.length ? textLogSteps[0].errors : [];
+      const errors = stepErrors.map((error) => ({
         line: error.line,
         lineNumber: error.line_number + 1,
       }));
@@ -175,7 +163,7 @@ class App extends React.PureComponent {
       errorLinesCss(errors);
       this.setState({ errors });
       this.setSelectedLine(highlight, true);
-    }
+    });
   }
 
   onHighlight = (range) => {

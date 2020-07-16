@@ -1,13 +1,13 @@
 import logging
 
-from .parsers import PerformanceParser, ErrorParser
+from .parsers import PerformanceParser, StepParser
 
 logger = logging.getLogger(__name__)
 
 
 class ArtifactBuilderBase:
     """
-    Base class for all log parsers.
+    Base class for all Buildbot log parsers.
 
     The child class will be designed to create a particular type of artifact.
 
@@ -61,17 +61,17 @@ class ArtifactBuilderBase:
         return self.artifact
 
 
-class LogViewerArtifactBuilder(ArtifactBuilderBase):
+class BuildbotLogViewArtifactBuilder(ArtifactBuilderBase):
     """Makes the artifact for the structured log viewer."""
 
     def __init__(self, url=None):
         """Construct artifact builder for the log viewer"""
         super().__init__(url)
-        self.parser = ErrorParser()
+        self.parser = StepParser()
         self.name = "text_log_summary"
 
 
-class PerformanceDataArtifactBuilder(ArtifactBuilderBase):
+class BuildbotPerformanceDataArtifactBuilder(ArtifactBuilderBase):
     """Makes the artifact for performance data."""
 
     def __init__(self, url=None):

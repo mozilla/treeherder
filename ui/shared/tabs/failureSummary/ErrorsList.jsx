@@ -2,9 +2,11 @@ import React from 'react';
 import PropTypes from 'prop-types';
 
 export default function ErrorsList(props) {
-  const errorListItem = props.errors.map((error) => (
-    <li key={error.line_number}>
-      {error.line}
+  const errorListItem = props.errors.map((error, key) => (
+    <li
+      key={key} // eslint-disable-line react/no-array-index-key
+    >
+      {error.name} : {error.result}.
       <a
         title="Open in Log Viewer"
         target="_blank"
@@ -20,7 +22,7 @@ export default function ErrorsList(props) {
     <li>
       No Bug Suggestions Available.
       <br />
-      <span className="font-weight-bold">Failure Lines</span>
+      <span className="font-weight-bold">Unsuccessful Execution Steps</span>
       <ul>{errorListItem}</ul>
     </li>
   );

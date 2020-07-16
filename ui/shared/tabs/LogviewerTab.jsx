@@ -4,10 +4,9 @@ import { LazyLog } from 'react-lazylog';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faExpand, faFileAlt } from '@fortawesome/free-solid-svg-icons';
 
-import { getLogViewerUrl, textLogErrorsEndpoint } from '../../helpers/url';
+import TextLogStepModel from '../../models/textLogStep';
+import { getLogViewerUrl } from '../../helpers/url';
 import { errorLinesCss } from '../../helpers/display';
-import { getData } from '../../helpers/http';
-import { getProjectJobUrl } from '../../helpers/location';
 
 class LogviewerTab extends React.PureComponent {
   constructor(props) {
@@ -18,35 +17,30 @@ class LogviewerTab extends React.PureComponent {
     };
   }
 
-  async componentDidMount() {
+  componentDidMount() {
     const {
-      selectedTaskFull: { id: jobId },
+      selectedTaskFull: { id: taskId },
     } = this.props;
 
-    const { data, failureStatus } = await getData(
-      getProjectJobUrl(textLogErrorsEndpoint, jobId),
-    );
-    if (!failureStatus && data.length) {
-      const logErrors = data.map((error) => ({
+    TextLogStepModel.get(taskId).then((textLogSteps) => {
+      const stepErrors = textLogSteps.length ? textLogSteps[0].errors : [];
+      const logErrors = stepErrors.map((error) => ({
         line: error.line,
         lineNumber: error.line_number + 1,
       }));
-
       const firstErrorLineNumber = logErrors.length
         ? [logErrors[0].lineNumber]
         : null;
 
       errorLinesCss(logErrors);
       this.setState({ highlight: firstErrorLineNumber });
-    }
+    });
   }
 
   render() {
     const { selectedTaskFull, repoName } = this.props;
     const { highlight } = this.state;
-    const { url } = selectedTaskFull.logs.find(
-      (log) => log.name === 'live_backing_log',
-    );
+    const { url } = selectedTaskFull.logs[0];
 
     return (
       <div className="h-100 w-100" aria-label="Log">
