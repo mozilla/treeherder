@@ -3,6 +3,7 @@ import logging
 import re
 
 import jsonschema
+from django.conf import settings
 
 from treeherder.log_parser.utils import validate_perf_data
 
@@ -117,6 +118,9 @@ class ErrorParser(ParserBase):
 
     def parse_line(self, line, lineno):
         """Check a single line for an error.  Keeps track of the linenumber"""
+
+        if len(self.artifact) >= settings.MAX_ERROR_LINES:
+            return
         # TaskCluster logs are a bit wonky.
         #
         # TaskCluster logs begin with output coming from TaskCluster itself,
