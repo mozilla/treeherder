@@ -136,4 +136,3 @@ EXTRACT_JOB_SQL = (File(__file__).parent / "test_extract_job.sql").read()
 
 JOB = (File(__file__).parent / "test_extract_job.json").read_json()
 JOB.job_group.description = NULL  # EXPECTING NOTHING
-
