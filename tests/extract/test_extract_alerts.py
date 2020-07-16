@@ -34,8 +34,9 @@ def test_extract_alert_sql(extract_alert_settings, test_perf_alert_summary, test
     p.related_summary = s2
     p.save()
 
-    extractor = MySqlSnowflakeExtractor(extract_alert_settings.source)
-    sql = extractor.get_sql(SQL("SELECT 0"))
+    with MySqlSnowflakeExtractor(extract_alert_settings.source) as extractor:
+        sql = extractor.get_sql(SQL("SELECT 0"))
+
     assert "".join(sql.sql.split()) == "".join(EXTRACT_ALERT_SQL.split())
 
 
@@ -45,14 +46,14 @@ def test_extract_alert(extract_alert_settings, test_perf_alert_summary, test_per
     If you find this test failing, then copy the JSON in the test failure into the test_extract_alerts.json file,
     then you may use the diff to review the changes.
     """
-    source = MySQL(extract_alert_settings.source.database)
-    extractor = MySqlSnowflakeExtractor(extract_alert_settings.source)
-    sql = extractor.get_sql(SQL("SELECT " + text(test_perf_alert_summary.id) + " as id"))
+    with MySQL(extract_alert_settings.source.database) as source:
+        with MySqlSnowflakeExtractor(extract_alert_settings.source) as extractor:
+            sql = extractor.get_sql(SQL("SELECT " + text(test_perf_alert_summary.id) + " as id"))
 
-    acc = []
-    with source.transaction():
-        cursor = list(source.query(sql, stream=True, row_tuples=True))
-        extractor.construct_docs(cursor, acc.append, False)
+            acc = []
+            with source.transaction():
+                cursor = list(source.query(sql, stream=True, row_tuples=True))
+                extractor.construct_docs(cursor, acc.append, False)
 
     assertAlmostEqual(
         acc, ALERT, places=3

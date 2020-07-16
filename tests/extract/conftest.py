@@ -174,10 +174,12 @@ def env_setup():
     ]
     for a in attempt:
         try:
-            MySQL(host=a)
-            os.environ["DATABASE_URL"] = a
+            with MySQL(host=a):
+                os.environ["DATABASE_URL"] = a
         except Exception:
             pass
+
+    assert os.environ["DATABASE_URL"]
 
 
 @pytest.fixture
