@@ -103,7 +103,7 @@ def test_django_cannot_encode_datetime_strings(extract_job_settings):
             list(source.query(sql_query, stream=True, row_tuples=True))
 
 
-@pytest.mark.freeze_time('2020-07-01')
+@pytest.mark.freeze_time('2020-07-01', ignore=['mo_threads'])
 def test_extract_job(complex_job, extract_job_settings):
     """
     If you find this test failing, then copy the JSON in the test failure into the test_extract_job.json file,

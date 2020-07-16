@@ -40,7 +40,7 @@ def test_extract_alert_sql(extract_alert_settings, test_perf_alert_summary, test
     assert "".join(sql.sql.split()) == "".join(EXTRACT_ALERT_SQL.split())
 
 
-@pytest.mark.freeze_time('2020-07-01')
+@pytest.mark.freeze_time('2020-07-01', ignore=['mo_threads'])
 def test_extract_alert(extract_alert_settings, test_perf_alert_summary, test_perf_alert):
     """
     If you find this test failing, then copy the JSON in the test failure into the test_extract_alerts.json file,

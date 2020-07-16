@@ -26,6 +26,7 @@
       "commit",
       "runnable_job",
       "text_log_error_metadata",
+      "text_log_step",
       "failure_line.stackwalk_stdout",
       "failure_line.stackwalk_stderr"
     ],
@@ -89,7 +90,7 @@
     "mo_http.http.default_headers": {
       "Referer": "https://github.com/mozilla/treeherder"
     },
-    "jx_mysql.mysql_snowflake_extractor.DEBUG": false
+    "jx_mysql.mysql_snowflake_extractor.DEBUG": true
   },
   "debug": {
     "trace": true,
