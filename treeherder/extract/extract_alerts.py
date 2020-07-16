@@ -121,6 +121,9 @@ class ExtractAlerts:
                 if len(acc) < settings.extractor.chunk_size:
                     break
 
+            source.close()
+            extractor.close()
+
         except Exception as e:
             Log.warning("problem with extraction", cause=e)
 

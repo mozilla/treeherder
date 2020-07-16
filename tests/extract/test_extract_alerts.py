@@ -32,8 +32,9 @@ def test_extract_alert_sql(extract_alert_settings, test_perf_alert_summary, test
     p.related_summary = s2
     p.save()
 
-    extractor = MySqlSnowflakeExtractor(extract_alert_settings.source)
-    sql = extractor.get_sql(SQL("SELECT 0"))
+    with MySqlSnowflakeExtractor(extract_alert_settings.source) as extractor:
+        sql = extractor.get_sql(SQL("SELECT 0"))
+
     assert "".join(sql.sql.split()) == "".join(EXTRACT_ALERT_SQL.split())
 
 
@@ -43,14 +44,14 @@ def test_extract_alert(extract_alert_settings, test_perf_alert_summary, test_per
     then you may use the diff to review the changes.
     """
     now = datetime.datetime.now()
-    source = MySQL(extract_alert_settings.source.database)
-    extractor = MySqlSnowflakeExtractor(extract_alert_settings.source)
-    sql = extractor.get_sql(SQL("SELECT " + text(test_perf_alert_summary.id) + " as id"))
+    with MySQL(extract_alert_settings.source.database) as source:
+        with MySqlSnowflakeExtractor(extract_alert_settings.source) as extractor:
+            sql = extractor.get_sql(SQL("SELECT " + text(test_perf_alert_summary.id) + " as id"))
 
-    acc = []
-    with source.transaction():
-        cursor = list(source.query(sql, stream=True, row_tuples=True))
-        extractor.construct_docs(cursor, acc.append, False)
+            acc = []
+            with source.transaction():
+                cursor = list(source.query(sql, stream=True, row_tuples=True))
+                extractor.construct_docs(cursor, acc.append, False)
 
     doc = acc[0]
     # TEST ARE RUN WITH CURRENT TIMESTAMPS
