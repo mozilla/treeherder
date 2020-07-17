@@ -4,7 +4,12 @@ from datetime import timedelta
 from typing import List
 
 from treeherder.config import settings
-from treeherder.perf.sheriffing_criteria import EngineerTractionFormula, FixRatioFormula
+from treeherder.perf.sheriffing_criteria import (
+    EngineerTractionFormula,
+    FixRatioFormula,
+    CriteriaTracker,
+)
+from treeherder.perf.sheriffing_criteria import criteria_tracking
 from mo_times import Duration
 from django.core.management.base import BaseCommand
 
@@ -20,20 +25,14 @@ class Command(BaseCommand):
     FORMULAS = [ENGINEER_TRACTION, FIX_RATIO]  # register new formulas here
 
     help = f'''
-    Compute the {pretty_enumerated(FORMULAS)} for a particular framework/suite/test combo,
-     according to the Perf Sheriffing Criteria specification
+    Compute the {pretty_enumerated(FORMULAS)} for multiple framework/suite combinations,
+     according to the Perf Sheriffing Criteria specification.\nRequires "{criteria_tracking.CRITERIA_FILENAME}" to be provided for both program input & output.
     '''
 
     INITIAL_PROMPT_MSG = 'Computing Perf Sheriffing Criteria... (may take some time)'
     PRECISION = '.1f'
 
     def add_arguments(self, parser):
-        parser.add_argument('framework', action='store')
-
-        parser.add_argument('suite', action='store')
-
-        parser.add_argument('--test', default=None)
-
         parser.add_argument(
             '--quantifying-period',
             '-qp',
@@ -58,7 +57,48 @@ class Command(BaseCommand):
             metavar='BUG_COOLDOWN',
         )
 
+        parser.add_argument(
+            '--multiprocessing',
+            '-mp',
+            action='store_true',
+            help='''Experimental! Whether to use a process pool instead of a thread pool''',
+        )
+        subparser = parser.add_subparsers(dest='individually')
+        individual_parser = subparser.add_parser(
+            'individually',
+            help='Compute perf sheriffing criteria for individual framework/suite combo (no CSV file required)',
+        )
+        individual_parser.add_argument('framework', action='store')
+        individual_parser.add_argument('suite', action='store')
+        parser.add_argument('--test', default=None)
+
     def handle(self, *args, **options):
+        if options.get('individually'):
+            return self._handle_individually(options)
+
+        quant_period = options['quantifying_period']
+        bug_cooldown = options['bug_cooldown']
+        multiprocessed = options['multiprocessing']
+
+        init_params = (None, quant_period, bug_cooldown)
+        formula_map = {
+            'EngineerTraction': EngineerTractionFormula(*init_params),
+            'FixRatio': FixRatioFormula(*init_params),
+        }
+
+        tracker = CriteriaTracker(formula_map, multiprocessed=multiprocessed)
+        tracker.load_records()
+        start = time.time()
+        tracker.update_records()
+        duration = time.time() - start
+
+        print(f'{self.INITIAL_PROMPT_MSG}', end='')
+
+        for record in tracker:
+            print(record)
+        print(f"Took {duration:.1f} seconds")
+
+    def _handle_individually(self, options):
         framework = options['framework']
         suite = options['suite']
         test = options['test']
@@ -82,17 +122,7 @@ class Command(BaseCommand):
         eng_traction_result *= 100
         fix_ratio_result *= 100
 
-        self._display_results(
-            eng_traction_result, fix_ratio_result, framework, suite, test, compute_duration
-        )
-
-    def _display_results(
-        self, eng_traction_result, fix_ratio_result, framework, suite, test, duration
-    ):
-        """
-        to console
-        """
-        # prepare some title
+        # display results (inline)
         test_moniker = ' '.join(filter(None, (suite, test)))
         title = f'Perf Sheriffing Criteria for {framework} - {test_moniker}'
         big_underline = '-' * len(title)
@@ -104,7 +134,9 @@ class Command(BaseCommand):
 
         # let's update 1st prompt line
         print(f"\r{' ' * len(self.INITIAL_PROMPT_MSG)}", end='')
-        print(f"\rComputing Perf Sheriffing Criteria... (took {duration:{self.PRECISION}} seconds)")
+        print(
+            f"\rComputing Perf Sheriffing Criteria... (took {compute_duration:{self.PRECISION}} seconds)"
+        )
 
         # display title
         print(big_underline)

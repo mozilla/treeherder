@@ -1,0 +1,6 @@
+Framework,Suite,EngineerTraction,FixRatio,LastUpdatedOn,AllowSync
+awsy,JS,,,,
+build_metrics,build times,,,,
+build_metrics,installer size,,,,
+raptor,raptor-speedometer-firefox,,,,
+raptor,raptor-webaudio-firefox,,,,
