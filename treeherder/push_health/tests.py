@@ -5,6 +5,7 @@ import re
 from collections import defaultdict
 
 from django.core.cache import cache
+from django.db.models import Q
 
 from treeherder.model.models import FailureLine, Job, OptionCollection
 from treeherder.push_health.classification import get_grouped, set_classifications
@@ -194,6 +195,31 @@ def get_test_failures(push, parent_push=None):
         filtered_push_failures, intermittent_history, fixed_by_commit_history,
     )
     failures = get_grouped(filtered_push_failures)
+
+    # Add all the jobs in one place
+    testfailed_jobs = (
+        Job.objects.filter(push=push, tier__lte=2, result='testfailed',)
+        .exclude(Q(machine_platform__platform='lint') | Q(job_type__symbol='mozlint'),)
+        .select_related('machine_platform', 'taskcluster_metadata')
+    )
+    failed_job_types = [job.job_type.name for job in testfailed_jobs]
+    passing_jobs = Job.objects.filter(
+        push=push, job_type__name__in=failed_job_types, result__in=['success', 'unknown']
+    ).select_related('machine_platform', 'taskcluster_metadata')
+
+    jobs = {}
+
+    def add_jobs(job_list):
+        for job in job_list:
+            if job.job_type.name in jobs:
+                jobs[job.job_type.name].append(job_to_dict(job))
+            else:
+                jobs[job.job_type.name] = [job_to_dict(job)]
+
+    add_jobs(testfailed_jobs)
+    add_jobs(passing_jobs)
+
+    failures['jobs'] = jobs
 
     if parent_push:
         # Since there is a parent_push, we want to mark all failures with whether or not they also
