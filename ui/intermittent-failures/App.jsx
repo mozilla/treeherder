@@ -1,5 +1,11 @@
 import React from 'react';
-import { HashRouter, Route, Switch, Redirect } from 'react-router-dom';
+import {
+  useRouteMatch,
+  Route,
+  Switch,
+  Redirect,
+  BrowserRouter,
+} from 'react-router-dom';
 import { Container } from 'reactstrap';
 import { hot } from 'react-hot-loader/root';
 
@@ -8,7 +14,7 @@ import ErrorMessages from '../shared/ErrorMessages';
 import MainView from './MainView';
 import BugDetailsView from './BugDetailsView';
 
-class App extends React.Component {
+class IntermittentFailuresApp extends React.Component {
   constructor(props) {
     super(props);
 
@@ -28,54 +34,52 @@ class App extends React.Component {
 
   render() {
     const { user, graphData, tableData, errorMessages } = this.state;
+    const { path } = useRouteMatch();
+    console.log(path);
     return (
-      <HashRouter>
-        <main>
-          {errorMessages.length > 0 && (
-            <Container className="pt-5 max-width-default">
-              <ErrorMessages errorMessages={errorMessages} />
-            </Container>
+      // <main>
+      //   {errorMessages.length > 0 && (
+      //     <Container className="pt-5 max-width-default">
+      //       <ErrorMessages errorMessages={errorMessages} />
+      //     </Container>
+      //   )}
+      <Switch>
+        <Route
+          exact
+          path={`${path}/main`}
+          render={(props) => (
+            <MainView
+              {...props}
+              mainGraphData={graphData}
+              mainTableData={tableData}
+              updateAppState={this.updateAppState}
+              user={user}
+              setUser={(user) => this.setState({ user })}
+              notify={(message) => this.setState({ errorMessages: [message] })}
+            />
           )}
-          <Switch>
-            <Route
-              exact
-              path="/main"
-              render={(props) => (
-                <MainView
-                  {...props}
-                  mainGraphData={graphData}
-                  mainTableData={tableData}
-                  updateAppState={this.updateAppState}
-                  user={user}
-                  setUser={(user) => this.setState({ user })}
-                  notify={(message) =>
-                    this.setState({ errorMessages: [message] })
-                  }
-                />
-              )}
+        />
+        <Route
+          path={`${path}/main?startday=:startday&endday=:endday&tree=:tree`}
+          render={(props) => (
+            <MainView
+              {...props}
+              mainGraphData={graphData}
+              mainTableData={tableData}
+              updateAppState={this.updateAppState}
             />
-            <Route
-              path="/main?startday=:startday&endday=:endday&tree=:tree"
-              render={(props) => (
-                <MainView
-                  {...props}
-                  mainGraphData={graphData}
-                  mainTableData={tableData}
-                  updateAppState={this.updateAppState}
-                />
-              )}
-            />
-            <Route path="/bugdetails" component={BugDetailsView} />
+          )}
+        />
+        {/* <Route path="/bugdetails" component={BugDetailsView} />
             <Route
               path="/bugdetails?startday=:startday&endday=:endday&tree=:tree&bug=bug"
               component={BugDetailsView}
-            />
-            <Redirect from="/" to="/main" />
-          </Switch>
-        </main>
-      </HashRouter>
+            /> */}
+        <Redirect from={`${path}/`} to={`${path}/main`} />
+      </Switch>
+      // </main>
     );
   }
 }
 
-export default hot(App);
+export default hot(IntermittentFailuresApp);
