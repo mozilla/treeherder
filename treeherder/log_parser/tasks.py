@@ -32,7 +32,7 @@ def parse_logs(job_id, job_log_ids, priority):
 
     parser_tasks = {
         "errorsummary_json": store_failure_lines,
-        "live_backing_log": parse_unstructured_log,
+        "live_backing_log": post_log_artifacts,
     }
 
     # We don't want to stop parsing logs for most Exceptions however we still
@@ -93,14 +93,6 @@ def parse_logs(job_id, job_log_ids, priority):
     else:
         job.autoclassify_status = Job.SKIPPED
     job.save()
-
-
-def parse_unstructured_log(job_log):
-    """
-    Call ArtifactBuilderCollection on the given job.
-    """
-    logger.debug('Running parse_unstructured_log for job %s', job_log.job.id)
-    post_log_artifacts(job_log)
 
 
 def store_failure_lines(job_log):

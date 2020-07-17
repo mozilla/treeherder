@@ -41,7 +41,7 @@ describe('DetailsPanel', () => {
     fetchMock.get(getProjectUrl('/jobs/259537372/', repoName), jobList.data[1]);
     fetchMock.get(getProjectUrl('/note/?job_id=259537372', repoName), []);
     fetchMock.get(
-      getProjectUrl('/jobs/259537372/text_log_steps/', repoName),
+      getProjectUrl('/jobs/259537372/text_log_errors/', repoName),
       [],
     );
     fetchMock.get(
