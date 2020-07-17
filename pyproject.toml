@@ -20,6 +20,18 @@ mdx_truly_sane_lists = { version = "1.2", optional = true }
 [tool.poetry.extras]
 docs = ["mkdocs", "mkdocs-material", "mdx_truly_sane_lists"]
 
+
+[tool.poetry.dev-dependencies]
+betamax = "^0.8.1"
+betamax-serializers = "^0.2.1"
+flake8 = "^3.8.3"
+pytest = "^5.4.3"
+pytest-django = "^3.9.0"
+pytest-freezegun = "^0.4.1"
+pytest-testmon = "^1.0.2"
+pytest-watch = "^4.2.0"
+shellcheck-py = "^0.7.1"
+
 [tool.black]
 line-length = 100
 target-version = ['py37']

@@ -13,7 +13,7 @@ We need all but the main `backend` service running.  Since multiple `backend` in
     docker rm "/redis"
     docker rm "/backend"
     docker-compose down
-    docker volume rm treeherder_mysql_data 
+    docker volume rm treeherder_mysql_data
     
     # SETUP ALL IMAGES
     docker-compose up --build
@@ -26,7 +26,8 @@ Be sure you are in the `treeherder` main directory
 
     python -m venv .venv             # IMPORTANT: Notice the dot in the name
     source .venv/bin/activate
-    pip install -r requirements/dev.txt
+    pip install poetry
+    poetry install
     pip install -r requirements/common.txt
 
 ...or Windows...
@@ -35,7 +36,8 @@ Be sure you are in the `treeherder` main directory
     REM IMPORTANT: Notice the dot in `.venv`
     python -m virtualenv .venv             
     .venv\Scripts\activate
-    pip install -r requirements\dev.txt
+    pip install poetry
+    poetry install
     pip install -r requirements\common.txt
 
 ... or MacOS
@@ -43,7 +45,8 @@ Be sure you are in the `treeherder` main directory
     python -m venv .venv             # IMPORTANT: Notice the dot in the name
     source .venv/bin/activate
     export LDFLAGS=-L/usr/local/opt/openssl/lib   # https://github.com/PyMySQL/mysqlclient-python/issues/131#issuecomment-503644579
-    pip install -r requirements/dev.txt
+    pip install poetry
+    poetry install
     pip install -r requirements/common.txt
 
 > The pip install order is important:  We want the `common` requirements to overwrite the `dev` requirements (in the event there are conflicts)
