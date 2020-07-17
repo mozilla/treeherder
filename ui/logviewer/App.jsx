@@ -21,7 +21,7 @@ import {
 import { getData } from '../helpers/http';
 import JobModel from '../models/job';
 import PushModel from '../models/push';
-import JobDetails from '../shared/JobDetails';
+import JobArtifacts from '../shared/JobArtifacts';
 import JobInfo from '../shared/JobInfo';
 import RepositoryModel from '../models/repository';
 import { formatArtifacts, errorLinesCss } from '../helpers/display';
@@ -300,7 +300,7 @@ class App extends React.PureComponent {
                     showJobFilters={false}
                     currentRepo={currentRepo}
                   />
-                  <JobDetails jobDetails={jobDetails} />
+                  <JobArtifacts jobDetails={jobDetails} />
                 </div>
                 <ErrorLines
                   errors={errors}

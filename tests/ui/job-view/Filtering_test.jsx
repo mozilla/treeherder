@@ -8,8 +8,9 @@ import {
 } from '@testing-library/react';
 
 import App from '../../../ui/job-view/App';
-import reposFixture from '../mock/repositories';
+import taskDefinition from '../mock/task_definition.json';
 import pushListFixture from '../mock/push_list';
+import reposFixture from '../mock/repositories';
 import { getApiUrl, bzBaseUrl } from '../../../ui/helpers/url';
 import {
   getProjectUrl,
@@ -63,6 +64,10 @@ describe('Filtering', () => {
     fetchMock.get(
       getProjectUrl('/push/?full=true&count=10', repoName),
       pushListFixture,
+    );
+    fetchMock.get(
+      'https://firefox-ci-tc.services.mozilla.com/api/queue/v1/task/JFVlnwufR7G9tZu_pKM0dQ',
+      taskDefinition,
     );
   });
 

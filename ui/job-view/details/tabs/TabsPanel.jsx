@@ -11,7 +11,8 @@ import {
 } from '@fortawesome/free-solid-svg-icons';
 
 import { thEvents } from '../../../helpers/constants';
-import JobDetails from '../../../shared/JobDetails';
+import JobArtifacts from '../../../shared/JobArtifacts';
+import JobTestGroups from '../JobTestGroups';
 import { clearSelectedJob } from '../../redux/stores/selectedJob';
 import { pinJob, addBug } from '../../redux/stores/pinnedJobs';
 import FailureSummaryTab from '../../../shared/tabs/failureSummary/FailureSummaryTab';
@@ -19,6 +20,14 @@ import FailureSummaryTab from '../../../shared/tabs/failureSummary/FailureSummar
 import PerformanceTab from './PerformanceTab';
 import AnnotationsTab from './AnnotationsTab';
 import SimilarJobsTab from './SimilarJobsTab';
+
+const showTabsFromProps = (props) => {
+  const { perfJobDetail, taskDefinition } = props;
+  return {
+    showPerf: !!perfJobDetail.length,
+    showTestGroups: !!taskDefinition.payload.env.MOZHARNESS_TEST_PATHS,
+  };
+};
 
 class TabsPanel extends React.Component {
   constructor(props) {
@@ -41,7 +50,7 @@ class TabsPanel extends React.Component {
     ) {
       const tabIndex = TabsPanel.getDefaultTabIndex(
         selectedJobFull.resultStatus,
-        !!perfJobDetail.length,
+        props,
       );
 
       return {
@@ -63,31 +72,40 @@ class TabsPanel extends React.Component {
 
   onSelectNextTab = () => {
     const { tabIndex } = this.state;
-    const { perfJobDetail } = this.props;
     const nextIndex = tabIndex + 1;
-    const tabCount = TabsPanel.getTabNames(!!perfJobDetail.length).length;
+    const tabCount = TabsPanel.getTabNames(showTabsFromProps(this.props))
+      .length;
     this.setState({ tabIndex: nextIndex < tabCount ? nextIndex : 0 });
   };
 
-  static getDefaultTabIndex(status, showPerf) {
+  static getDefaultTabIndex(status, props) {
+    const { showPerf, showTestGroups } = showTabsFromProps(props);
     let idx = 0;
-    const tabNames = TabsPanel.getTabNames(showPerf);
+    const tabNames = TabsPanel.getTabNames({ showPerf, showTestGroups });
     const tabIndexes = tabNames.reduce(
       (acc, name) => ({ ...acc, [name]: idx++ }),
       {},
     );
 
-    let tabIndex = showPerf ? tabIndexes.perf : tabIndexes.details;
+    let tabIndex = showPerf ? tabIndexes.perf : tabIndexes.artifacts;
     if (['busted', 'testfailed', 'exception'].includes(status)) {
       tabIndex = tabIndexes.failure;
     }
     return tabIndex;
   }
 
-  static getTabNames(showPerf) {
-    return ['details', 'failure', 'annotations', 'similar', 'perf'].filter(
-      (name) => !(name === 'perf' && !showPerf),
-    );
+  static getTabNames({ showPerf, showTestGroups }) {
+    // The order in here has to match the order within the render method
+    return [
+      'artifacts',
+      'failure',
+      'annotations',
+      'similar',
+      'perf',
+      'test-groups',
+    ]
+      .filter((name) => !(name === 'perf' && !showPerf))
+      .filter((name) => !(name === 'test-groups' && !showTestGroups));
   }
 
   setTabIndex = (tabIndex) => {
@@ -113,9 +131,11 @@ class TabsPanel extends React.Component {
       selectedJobFull,
       pinJob,
       addBug,
+      taskDefinition,
     } = this.props;
     const { tabIndex } = this.state;
     const countPinnedJobs = Object.keys(pinnedJobs).length;
+    const { showPerf, showTestGroups } = showTabsFromProps(this.props);
 
     return (
       <div id="tabs-panel" role="region" aria-label="Job">
@@ -126,11 +146,12 @@ class TabsPanel extends React.Component {
         >
           <TabList className="tab-headers">
             <span className="tab-header-tabs">
-              <Tab>Job Details</Tab>
+              <Tab>Artifacts</Tab>
               <Tab>Failure Summary</Tab>
               <Tab>Annotations</Tab>
               <Tab>Similar Jobs</Tab>
-              {!!perfJobDetail.length && <Tab>Performance</Tab>}
+              {showPerf && <Tab>Performance</Tab>}
+              {showTestGroups && <Tab>Test Groups</Tab>}
             </span>
             <span
               id="tab-header-buttons"
@@ -180,7 +201,7 @@ class TabsPanel extends React.Component {
             </span>
           </TabList>
           <TabPanel>
-            <JobDetails jobDetails={jobDetails} />
+            <JobArtifacts jobDetails={jobDetails} />
           </TabPanel>
           <TabPanel>
             <FailureSummaryTab
@@ -209,13 +230,18 @@ class TabsPanel extends React.Component {
               selectedJobFull={selectedJobFull}
             />
           </TabPanel>
-          {!!perfJobDetail.length && (
+          {showPerf && (
             <TabPanel>
               <PerformanceTab
                 repoName={repoName}
                 perfJobDetail={perfJobDetail}
                 revision={jobRevision}
               />
+            </TabPanel>
+          )}
+          {showTestGroups && (
+            <TabPanel>
+              <JobTestGroups taskDefinition={taskDefinition} />
             </TabPanel>
           )}
         </Tabs>
