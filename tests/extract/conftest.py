@@ -33,14 +33,7 @@ def failure_class(transactional_db):
 
 
 @pytest.fixture
-def now():
-    return Date.now().datetime
-
-
-@pytest.fixture
-def complex_job(
-    transactional_db, generic_reference_data, test_repository, extract_job_settings, now
-):
+def complex_job(transactional_db, generic_reference_data, test_repository, extract_job_settings):
     fc = FailureClassification.objects.create(id=1, name="not classified")
     repository_group = RepositoryGroup.objects.create(name="common")
     repo = Repository.objects.create(name="autoland", repository_group=repository_group)
@@ -181,10 +174,12 @@ def env_setup():
     ]
     for a in attempt:
         try:
-            MySQL(host=a)
-            os.environ["DATABASE_URL"] = a
+            with MySQL(host=a):
+                os.environ["DATABASE_URL"] = a
         except Exception:
             pass
+
+    assert os.environ["DATABASE_URL"]
 
 
 @pytest.fixture

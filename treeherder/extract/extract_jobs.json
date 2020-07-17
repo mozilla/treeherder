@@ -38,7 +38,8 @@
       "option.name",
       "repository.name",
       "user.email",
-      "commit.revision"
+      "commit.revision",
+      "text_log_step"
     ],
     "database": {
       "debug": false,

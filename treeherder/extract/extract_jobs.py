@@ -116,8 +116,20 @@ class ExtractJobs:
                 # SOME LIMITS PLACES ON STRING SIZE
                 for fl in jx.drill(acc, "job_log.failure_line"):
                     fl.message = strings.limit(fl.message, 10000)
-                for r in acc:
-                    r.etl.timestamp = Date.now()
+                # LIMIT NUMBER OF text_log_error
+                for job in acc:
+                    if len(job.text_log_error) > 100:
+                        shorter = []
+                        known = set()
+                        for e in job.text_log_error:
+                            if e.line in known:
+                                continue
+                            known.add(e.line)
+                            shorter.append(e)
+                        job.text_log_error = shorter[:100]
+                # ASSIGN TIMESTAMP
+                for job in acc:
+                    job.etl.timestamp = Date.now()
                 destination.extend(acc)
 
                 # RECORD THE STATE
@@ -129,6 +141,9 @@ class ExtractJobs:
 
                 if len(acc) < settings.extractor.chunk_size:
                     break
+
+            source.close()
+            extractor.close()
 
         except Exception as e:
             Log.warning("problem with extraction", cause=e)
