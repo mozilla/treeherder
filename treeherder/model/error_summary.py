@@ -46,7 +46,7 @@ def get_error_summary(job):
         cache.set(cache_key, error_summary, BUG_SUGGESTION_CACHE_TIMEOUT)
     except Exception as e:
         newrelic.agent.record_custom_event('error caching error_summary for job', job.id)
-        logger.error('error caching error_summary for job %s: %s', job.id, e)
+        logger.error('error caching error_summary for job %s: %s', job.id, e, exc_info=True)
 
     return error_summary
 
