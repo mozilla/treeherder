@@ -91,6 +91,7 @@ class PrimaryNavBar extends React.Component {
               duplicateJobsVisible={duplicateJobsVisible}
               groupCountsExpanded={groupCountsExpanded}
               toggleFieldFilterVisible={toggleFieldFilterVisible}
+              {...this.props}
             />
           </nav>
         </div>

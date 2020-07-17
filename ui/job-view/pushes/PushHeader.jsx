@@ -13,6 +13,7 @@ import {
   faTimesCircle,
 } from '@fortawesome/free-solid-svg-icons';
 import { Badge, Button } from 'reactstrap';
+import { Link } from 'react-router-dom';
 
 import { getPercentComplete, toDateStr } from '../../helpers/display';
 import { formatTaskclusterError } from '../../helpers/errorMessage';
@@ -21,7 +22,7 @@ import PushModel from '../../models/push';
 import JobModel from '../../models/job';
 import PushHealthStatus from '../../shared/PushHealthStatus';
 import PushAuthor from '../../shared/PushAuthor';
-import { getUrlParam, setUrlParam } from '../../helpers/location';
+import { getUrlParam } from '../../helpers/location';
 import { notify } from '../redux/stores/notifications';
 import { setSelectedJob } from '../redux/stores/selectedJob';
 import { pinJobs } from '../redux/stores/pinnedJobs';
@@ -198,25 +199,6 @@ class PushHeader extends React.Component {
     }
   };
 
-  togglePushCollapsed = () => {
-    const { push, collapsed } = this.props;
-    const pushId = `${push.id}`;
-    const collapsedPushesParam = getUrlParam('collapsedPushes');
-    const collapsedPushes = collapsedPushesParam
-      ? new Set(collapsedPushesParam.split(','))
-      : new Set();
-
-    if (collapsed) {
-      collapsedPushes.delete(pushId);
-    } else {
-      collapsedPushes.add(pushId);
-    }
-    setUrlParam(
-      'collapsedPushes',
-      collapsedPushes.size ? Array.from(collapsedPushes) : null,
-    );
-  };
-
   render() {
     const {
       pushId,
@@ -235,6 +217,7 @@ class PushHeader extends React.Component {
       pushHealthVisibility,
       currentRepo,
       pushHealthStatusCallback,
+      togglePushCollapsed,
     } = this.props;
     const cancelJobsTitle = 'Cancel all jobs';
     const linkParams = this.getLinkParams();
@@ -256,19 +239,19 @@ class PushHeader extends React.Component {
           <span className="push-left">
             <span className="push-title-left">
               <FontAwesomeIcon
-                onClick={this.togglePushCollapsed}
+                onClick={togglePushCollapsed}
                 icon={collapsed ? faPlusSquare : faMinusSquare}
                 className="mr-2 mt-2 text-muted pointable"
                 title={`${collapsed ? 'Expand' : 'Collapse'} push data`}
               />
               <span>
-                <a href={revisionPushFilterUrl} title="View only this push">
+                <Link to={revisionPushFilterUrl} title="View only this push">
                   {this.pushDateStr}{' '}
                   <FontAwesomeIcon
                     icon={faExternalLinkAlt}
                     className="icon-superscript"
                   />
-                </a>{' '}
+                </Link>{' '}
                 -{' '}
               </span>
               <PushAuthor author={author} url={authorPushFilterUrl} />
@@ -364,7 +347,7 @@ PushHeader.propTypes = {
   pushId: PropTypes.number.isRequired,
   pushTimestamp: PropTypes.number.isRequired,
   author: PropTypes.string.isRequired,
-  revision: PropTypes.string.isRequired,
+  revision: PropTypes.string,
   filterModel: PropTypes.shape({}).isRequired,
   runnableVisible: PropTypes.bool.isRequired,
   showRunnableJobs: PropTypes.func.isRequired,
@@ -390,6 +373,7 @@ PushHeader.propTypes = {
 PushHeader.defaultProps = {
   watchState: 'none',
   pushHealthStatusCallback: null,
+  revision: null,
 };
 
 const mapStateToProps = ({ pushes: { decisionTaskMap } }) => ({

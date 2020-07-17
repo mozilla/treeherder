@@ -127,7 +127,7 @@ const MainView = (props) => {
               <Col xs="12" className="text-left">
                 <Breadcrumb listClassName="bg-white">
                   <BreadcrumbItem>
-                    <a title="Treeherder home page" href="/#/">
+                    <a title="Treeherder home page" href="/">
                       Treeherder
                     </a>
                   </BreadcrumbItem>

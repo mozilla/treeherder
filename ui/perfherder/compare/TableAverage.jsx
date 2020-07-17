@@ -46,7 +46,7 @@ const TableAverage = ({ value, stddev, stddevpct, replicates }) => {
               tooltipText
             )
           }
-          tooltipClass={replicates.length > 1 ? 'compare-table-tooltip' : ''}
+          innerClassName={replicates.length > 1 ? 'compare-table-tooltip' : ''}
         />
       ) : (
         <span className="text-muted">No results</span>

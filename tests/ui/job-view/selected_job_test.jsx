@@ -1,14 +1,17 @@
 import React from 'react';
-import { Provider } from 'react-redux';
+import { Provider, ReactReduxContext } from 'react-redux';
 import { render, cleanup, fireEvent, waitFor } from '@testing-library/react';
+import { createBrowserHistory } from 'history';
+import { ConnectedRouter } from 'connected-react-router';
 
 import PushJobs from '../../../ui/job-view/pushes/PushJobs';
 import FilterModel from '../../../ui/models/filter';
-import { store } from '../../../ui/job-view/redux/store';
+import { configureStore } from '../../../ui/job-view/redux/configureStore';
 import { getUrlParam, setUrlParam } from '../../../ui/helpers/location';
 import platforms from '../mock/platforms';
 import { addAggregateFields } from '../../../ui/helpers/job';
 
+const history = createBrowserHistory();
 const testPush = {
   id: 494796,
   revision: '1252c6014d122d48c6782310d5c3f4ae742751cb',
@@ -42,25 +45,34 @@ afterEach(() => {
   setUrlParam('selectedTaskRun', null);
 });
 
-const testPushJobs = (filterModel) => (
-  <Provider store={store}>
-    <PushJobs
-      push={testPush}
-      platforms={platforms}
-      repoName="try"
-      filterModel={filterModel}
-      pushGroupState=""
-      toggleSelectedRunnableJob={() => {}}
-      runnableVisible={false}
-      duplicateJobsVisible={false}
-      groupCountsExpanded={false}
-    />
-    ,
-  </Provider>
-);
+const testPushJobs = (filtermodel = null) => {
+  const store = configureStore(history);
+  return (
+    <Provider store={store} context={ReactReduxContext}>
+      <ConnectedRouter history={history} context={ReactReduxContext}>
+        <PushJobs
+          push={testPush}
+          platforms={platforms}
+          repoName="try"
+          filterModel={
+            filtermodel ||
+            new FilterModel({
+              router: { location: history.location, push: history.push },
+            })
+          }
+          pushGroupState=""
+          toggleSelectedRunnableJob={() => {}}
+          runnableVisible={false}
+          duplicateJobsVisible={false}
+          groupCountsExpanded={false}
+        />
+      </ConnectedRouter>
+    </Provider>
+  );
+};
 
 test('select a job updates url', async () => {
-  const { getByText } = render(testPushJobs(new FilterModel()));
+  const { getByText } = render(testPushJobs());
   const spell = getByText('spell');
 
   expect(spell).toBeInTheDocument();
@@ -74,9 +86,12 @@ test('select a job updates url', async () => {
 });
 
 test('filter change keeps selected job visible', async () => {
-  const filterModel = new FilterModel();
-  const { getByText, rerender } = render(testPushJobs(filterModel));
+  const { getByText, rerender } = render(testPushJobs());
   const spell = await waitFor(() => getByText('spell'));
+  const filterModel = new FilterModel({
+    router: { location: history.location },
+    push: history.push,
+  });
 
   expect(spell).toBeInTheDocument();
 
@@ -84,7 +99,7 @@ test('filter change keeps selected job visible', async () => {
   expect(spell).toHaveClass('selected-job');
 
   filterModel.addFilter('searchStr', 'linux');
-  rerender(testPushJobs(new FilterModel()));
+  rerender(testPushJobs(filterModel));
 
   const spell2 = getByText('spell');
 

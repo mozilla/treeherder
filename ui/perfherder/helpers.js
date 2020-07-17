@@ -312,7 +312,7 @@ export const getGraphsLink = function getGraphsLink(
     params.timerange = timeRange;
   }
 
-  return `perf.html#/graphs?${queryString.stringify(params)}`;
+  return `./graphs?${queryString.stringify(params)}`;
 };
 
 export const createNoiseMetric = function createNoiseMetric(
@@ -363,7 +363,7 @@ export const createGraphsLinks = (
 
   links.push({
     title: 'graph',
-    href: graphsLink,
+    to: graphsLink,
   });
 
   return links;
@@ -385,7 +385,7 @@ export const getGraphsURL = (
   alertRepository,
   performanceFrameworkId,
 ) => {
-  let url = `#/graphs?timerange=${timeRange}&series=${alertRepository},${alert.series_signature.id},1,${alert.series_signature.framework_id}`;
+  let url = `./graphs?timerange=${timeRange}&series=${alertRepository},${alert.series_signature.id},1,${alert.series_signature.framework_id}`;
 
   // automatically add related branches (we take advantage of
   // the otherwise rather useless signature hash to avoid having to fetch this
@@ -477,7 +477,7 @@ export const getTextualSummary = (alerts, alertSummary, copySummary = null) => {
   }
   // include link to alert if getting text for clipboard only
   if (copySummary) {
-    const alertLink = `${window.location.origin}/perf.html#/alerts?id=${alertSummary.id}`;
+    const alertLink = `${window.location.origin}/perfherder/alerts?id=${alertSummary.id}`;
     resultStr += `\nFor up to date results, see: ${alertLink}`;
   }
   return resultStr;

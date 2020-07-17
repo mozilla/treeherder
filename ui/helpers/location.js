@@ -1,17 +1,10 @@
 import { thDefaultRepo } from './constants';
-import {
-  createQueryParams,
-  extractSearchString,
-  getApiUrl,
-  uiJobsUrlBase,
-} from './url';
+import { createQueryParams, getApiUrl } from './url';
 
-export const getQueryString = function getQueryString() {
-  return extractSearchString(window.location.href);
-};
-
-export const getAllUrlParams = function getAllUrlParams() {
-  return new URLSearchParams(getQueryString());
+export const getAllUrlParams = function getAllUrlParams(
+  location = window.location,
+) {
+  return new URLSearchParams(location.search);
 };
 
 export const getUrlParam = function getUrlParam(name) {
@@ -22,27 +15,12 @@ export const getRepo = function getRepo() {
   return getUrlParam('repo') || thDefaultRepo;
 };
 
-export const setLocation = function setLocation(params, hashPrefix = '/jobs') {
-  window.location.hash = `#${hashPrefix}${createQueryParams(params)}`;
+// This won't update the react router history object
+export const replaceLocation = function replaceLocation(params) {
+  window.history.pushState(null, null, createQueryParams(params));
 };
 
-// change the url hash without firing a ``hashchange`` event.
-export const replaceLocation = function replaceLocation(
-  params,
-  hashPrefix = '/jobs',
-) {
-  window.history.replaceState(
-    null,
-    null,
-    `${window.location.pathname}#${hashPrefix}${createQueryParams(params)}`,
-  );
-};
-
-export const setUrlParam = function setUrlParam(
-  field,
-  value,
-  hashPrefix = '/jobs',
-) {
+export const setUrlParam = function setUrlParam(field, value) {
   const params = getAllUrlParams();
 
   if (value) {
@@ -50,10 +28,25 @@ export const setUrlParam = function setUrlParam(
   } else {
     params.delete(field);
   }
-  setLocation(params, hashPrefix);
+
+  replaceLocation(params);
 };
 
-export const getRepoUrl = function getRepoUrl(newRepoName) {
+export const setUrlParams = function setUrlParams(newParams) {
+  const params = getAllUrlParams();
+
+  for (const [key, value] of newParams) {
+    if (value) {
+      params.set(key, value);
+    } else {
+      params.delete(key);
+    }
+  }
+
+  return createQueryParams(params);
+};
+
+export const updateRepoParams = function updateRepoParams(newRepoName) {
   const params = getAllUrlParams();
 
   params.delete('selectedJob');
@@ -62,7 +55,7 @@ export const getRepoUrl = function getRepoUrl(newRepoName) {
   params.delete('revision');
   params.delete('author');
   params.set('repo', newRepoName);
-  return `${uiJobsUrlBase}?${params.toString()}`;
+  return `?${params.toString()}`;
 };
 
 // Take the repoName, if passed in.  If not, then try to find it on the
@@ -76,4 +69,24 @@ export const getProjectUrl = function getProjectUrl(uri, repoName) {
 
 export const getProjectJobUrl = function getProjectJobUrl(url, jobId) {
   return getProjectUrl(`/jobs/${jobId}${url}`);
+};
+
+export const updatePushParams = (location) => {
+  const params = new URLSearchParams(location.search);
+
+  if (params.has('revision')) {
+    // We are viewing a single revision, but the user has asked for more.
+    // So we must replace the ``revision`` param with ``tochange``, which
+    // will make it just the top of the range.  We will also then get a new
+    // ``fromchange`` param after the fetch.
+    const revision = params.get('revision');
+    params.delete('revision');
+    params.set('tochange', revision);
+  } else if (params.has('startdate')) {
+    // We are fetching more pushes, so we don't want to limit ourselves by
+    // ``startdate``.  And after the fetch, ``startdate`` will be invalid,
+    // and will be replaced on the location bar by ``fromchange``.
+    params.delete('startdate');
+  }
+  return `?${params.toString()}`;
 };

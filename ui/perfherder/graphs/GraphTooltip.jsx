@@ -8,6 +8,7 @@ import {
   faExclamationCircle,
   faTimes,
 } from '@fortawesome/free-solid-svg-icons';
+import { Link } from 'react-router-dom';
 
 import { alertStatusMap, endpoints } from '../constants';
 import { getJobsUrl, createQueryParams, getApiUrl } from '../../helpers/url';
@@ -203,7 +204,7 @@ const GraphTooltip = ({
               {dataPointDetails.jobId && prevRevision && ', '}
               {prevRevision && (
                 <a
-                  href={`#/comparesubtest${createQueryParams({
+                  href={`./comparesubtest${createQueryParams({
                     originalProject: testDetails.repository_name,
                     newProject: testDetails.repository_name,
                     originalRevision: prevRevision,
@@ -229,16 +230,14 @@ const GraphTooltip = ({
             </span>
             {dataPointDetails.alertSummary && (
               <p>
-                <a
-                  href={`perf.html#/alerts?id=${dataPointDetails.alertSummary.id}`}
-                >
+                <Link to={`./alerts?id=${dataPointDetails.alertSummary.id}`}>
                   <FontAwesomeIcon
                     className="text-warning"
                     icon={faExclamationCircle}
                     size="sm"
                   />
                   {` Alert # ${dataPointDetails.alertSummary.id}`}
-                </a>
+                </Link>
                 <span className="text-muted">
                   {` - ${alertStatus} `}
                   {alert && alert.related_summary_id && (
@@ -247,11 +246,11 @@ const GraphTooltip = ({
                       dataPointDetails.alertSummary.id
                         ? 'to'
                         : 'from'}
-                      <a
-                        href={`#/alerts?id=${alert.related_summary_id}`}
+                      <Link
+                        to={`./alerts?id=${alert.related_summary_id}`}
                         target="_blank"
                         rel="noopener noreferrer"
-                      >{` alert # ${alert.related_summary_id}`}</a>
+                      >{` alert # ${alert.related_summary_id}`}</Link>
                     </span>
                   )}
                 </span>

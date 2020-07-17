@@ -1,14 +1,10 @@
 import pick from 'lodash/pick';
 import keyBy from 'lodash/keyBy';
 import max from 'lodash/max';
+import { push } from 'connected-react-router';
 
 import { parseQueryParams, bugzillaBugsApi } from '../../../helpers/url';
-import {
-  getAllUrlParams,
-  getQueryString,
-  getUrlParam,
-  replaceLocation,
-} from '../../../helpers/location';
+import { getUrlParam } from '../../../helpers/location';
 import PushModel from '../../../models/push';
 import { getTaskRunStr, isUnclassifiedFailure } from '../../../helpers/job';
 import FilterModel from '../../../models/filter';
@@ -96,8 +92,8 @@ const getLastModifiedJobTime = (jobMap) => {
  * gives us the difference in unclassified failures and, of those jobs, the
  * ones that have been filtered out
  */
-const doRecalculateUnclassifiedCounts = (jobMap) => {
-  const filterModel = new FilterModel();
+const doRecalculateUnclassifiedCounts = (jobMap, router) => {
+  const filterModel = new FilterModel({ push, router });
   const tiers = filterModel.urlParams.tier;
   let allUnclassifiedFailureCount = 0;
   let filteredUnclassifiedFailureCount = 0;
@@ -122,6 +118,7 @@ const addPushes = (
   jobMap,
   setFromchange,
   dispatch,
+  router,
   oldBugSummaryMap,
 ) => {
   if (data.results.length > 0) {
@@ -140,7 +137,7 @@ const addPushes = (
     const newStuff = {
       pushList: newPushList,
       oldestPushTimestamp,
-      ...doRecalculateUnclassifiedCounts(jobMap),
+      ...doRecalculateUnclassifiedCounts(jobMap, router),
       ...getRevisionTips(newPushList),
     };
 
@@ -150,12 +147,9 @@ const addPushes = (
     const updatedLastRevision = newPushList[newPushList.length - 1].revision;
 
     if (setFromchange && getUrlParam('fromchange') !== updatedLastRevision) {
-      const params = getAllUrlParams();
+      const params = new URLSearchParams(router.location.search);
       params.set('fromchange', updatedLastRevision);
-      replaceLocation(params);
-      // We are silently updating the url params, but we still want to
-      // update the ActiveFilters bar to this new change.
-      window.dispatchEvent(new CustomEvent(thEvents.filtersUpdated));
+      dispatch(push({ search: `?${params.toString()}` }));
     }
 
     return newStuff;
@@ -252,13 +246,14 @@ export const fetchPushes = (
   return async (dispatch, getState) => {
     const {
       pushes: { pushList, jobMap, oldestPushTimestamp },
+      router,
     } = getState();
 
     dispatch({ type: LOADING });
 
     // Only pass supported query string params to this endpoint.
     const options = {
-      ...pick(parseQueryParams(getQueryString()), PUSH_FETCH_KEYS),
+      ...pick(parseQueryParams(window.location.search), PUSH_FETCH_KEYS),
     };
 
     if (oldestPushTimestamp) {
@@ -284,6 +279,7 @@ export const fetchPushes = (
           jobMap,
           setFromchange,
           dispatch,
+          router,
         ),
       });
     }
@@ -296,10 +292,11 @@ export const pollPushes = () => {
   return async (dispatch, getState) => {
     const {
       pushes: { pushList, jobMap },
+      router,
     } = getState();
     // these params will be passed in each time we poll to remain
     // within the constraints of the URL params
-    const locationSearch = parseQueryParams(getQueryString());
+    const locationSearch = parseQueryParams(window.location.search);
     const pushPollingParams = PUSH_POLLING_KEYS.reduce(
       (acc, prop) =>
         locationSearch[prop] ? { ...acc, [prop]: locationSearch[prop] } : acc,
@@ -330,6 +327,8 @@ export const pollPushes = () => {
             pushList,
             jobMap,
             false,
+            dispatch,
+            router,
           ),
         });
         dispatch(fetchNewJobs());
@@ -342,47 +341,29 @@ export const pollPushes = () => {
   };
 };
 
-/**
- * Get the next batch of pushes based on our current offset.
- */
-export const fetchNextPushes = (count) => {
-  const params = getAllUrlParams();
-
-  if (params.has('revision')) {
-    // We are viewing a single revision, but the user has asked for more.
-    // So we must replace the ``revision`` param with ``tochange``, which
-    // will make it just the top of the range.  We will also then get a new
-    // ``fromchange`` param after the fetch.
-    const revision = params.get('revision');
-    params.delete('revision');
-    params.set('tochange', revision);
-  } else if (params.has('startdate')) {
-    // We are fetching more pushes, so we don't want to limit ourselves by
-    // ``startdate``.  And after the fetch, ``startdate`` will be invalid,
-    // and will be replaced on the location bar by ``fromchange``.
-    params.delete('startdate');
-  }
-  replaceLocation(params);
-  return fetchPushes(count, true);
-};
-
 export const clearPushes = () => ({ type: CLEAR_PUSHES });
 
-export const setPushes = (pushList, jobMap) => ({
+export const setPushes = (pushList, jobMap, router) => ({
   type: SET_PUSHES,
   pushResults: {
     pushList,
     jobMap,
     ...getRevisionTips(pushList),
-    ...doRecalculateUnclassifiedCounts(jobMap),
+    ...doRecalculateUnclassifiedCounts(jobMap, router),
     oldestPushTimestamp: pushList[pushList.length - 1].push_timestamp,
   },
 });
 
-export const recalculateUnclassifiedCounts = (filterModel) => ({
-  type: RECALCULATE_UNCLASSIFIED_COUNTS,
-  filterModel,
-});
+export const recalculateUnclassifiedCounts = (filterModel) => {
+  return (dispatch, getState) => {
+    const { router } = getState();
+    return dispatch({
+      type: RECALCULATE_UNCLASSIFIED_COUNTS,
+      filterModel,
+      router,
+    });
+  };
+};
 
 export const updateJobMap = (jobList) => ({
   type: UPDATE_JOB_MAP,
@@ -393,6 +374,7 @@ export const updateRange = (range) => {
   return (dispatch, getState) => {
     const {
       pushes: { pushList, jobMap },
+      router,
     } = getState();
     const { revision } = range;
     // change the range of pushes.  might already have them.
@@ -411,7 +393,7 @@ export const updateRange = (range) => {
       dispatch(clearSelectedJob(0));
       // We already have the one revision they're looking for,
       // so we can just erase everything else.
-      dispatch(setPushes(revisionPushList, revisionJobMap));
+      dispatch(setPushes(revisionPushList, revisionJobMap, router));
     } else {
       // Clear and refetch everything.  We can't be sure if what we
       // already have is partially correct and just needs fill-in.
@@ -435,8 +417,9 @@ export const initialState = {
 };
 
 export const reducer = (state = initialState, action) => {
-  const { jobList, pushResults, setFromchange } = action;
+  const { jobList, pushResults, setFromchange, router } = action;
   const { pushList, jobMap, decisionTaskMap } = state;
+
   switch (action.type) {
     case LOADING:
       return { ...state, loadingPushes: true };
@@ -449,7 +432,7 @@ export const reducer = (state = initialState, action) => {
     case SET_PUSHES:
       return { ...state, loadingPushes: false, ...pushResults };
     case RECALCULATE_UNCLASSIFIED_COUNTS:
-      return { ...state, ...doRecalculateUnclassifiedCounts(jobMap) };
+      return { ...state, ...doRecalculateUnclassifiedCounts(jobMap, router) };
     case UPDATE_JOB_MAP:
       return {
         ...state,

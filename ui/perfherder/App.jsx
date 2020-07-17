@@ -1,5 +1,5 @@
 import React from 'react';
-import { HashRouter, Route, Switch, Redirect } from 'react-router-dom';
+import { Route, Switch, Redirect } from 'react-router-dom';
 import { hot } from 'react-hot-loader/root';
 import { Container } from 'reactstrap';
 
@@ -17,6 +17,9 @@ import CompareSelectorView from './compare/CompareSelectorView';
 import CompareSubtestsView from './compare/CompareSubtestsView';
 import CompareSubtestDistributionView from './compare/CompareSubtestDistributionView';
 import Navigation from './Navigation';
+
+import 'react-table/react-table.css';
+import '../css/perf.css';
 
 class App extends React.Component {
   constructor(props) {
@@ -66,9 +69,10 @@ class App extends React.Component {
       errorMessages,
       compareData,
     } = this.state;
+    const { path } = this.props.match;
 
     return (
-      <HashRouter>
+      <React.Fragment>
         <Navigation
           user={user}
           setUser={(user) => this.setState({ user })}
@@ -86,7 +90,7 @@ class App extends React.Component {
               <Switch>
                 <Route
                   exact
-                  path="/alerts"
+                  path={`${path}/alerts`}
                   render={(props) => (
                     <AlertsView
                       {...props}
@@ -98,7 +102,7 @@ class App extends React.Component {
                   )}
                 />
                 <Route
-                  path="/alerts?id=:id&status=:status&framework=:framework&filter=:filter&hideImprovements=:hideImprovements&hideDwnToInv=:hideDwnToInv&hideAssignedToOthers=:hideAssignedToOthers&filterText=:filterText&page=:page"
+                  path={`${path}/alerts?id=:id&status=:status&framework=:framework&filter=:filter&hideImprovements=:hideImprovements&hideDwnToInv=:hideDwnToInv&hideAssignedToOthers=:hideAssignedToOthers&filterText=:filterText&page=:page`}
                   render={(props) => (
                     <AlertsView
                       {...props}
@@ -110,7 +114,7 @@ class App extends React.Component {
                   )}
                 />
                 <Route
-                  path="/graphs"
+                  path={`${path}/graphs`}
                   render={(props) => (
                     <GraphsView
                       {...props}
@@ -121,7 +125,7 @@ class App extends React.Component {
                   )}
                 />
                 <Route
-                  path="/graphs?timerange=:timerange&series=:series&highlightedRevisions=:highlightedRevisions&highlightAlerts=:highlightAlerts&zoom=:zoom&selected=:selected"
+                  path={`${path}/graphs?timerange=:timerange&series=:series&highlightedRevisions=:highlightedRevisions&highlightAlerts=:highlightAlerts&zoom=:zoom&selected=:selected`}
                   render={(props) => (
                     <GraphsView
                       {...props}
@@ -132,7 +136,7 @@ class App extends React.Component {
                   )}
                 />
                 <Route
-                  path="/comparechooser"
+                  path={`${path}/comparechooser`}
                   render={(props) => (
                     <CompareSelectorView
                       {...props}
@@ -143,7 +147,7 @@ class App extends React.Component {
                   )}
                 />
                 <Route
-                  path="/comparechooser?originalProject=:originalProject&originalRevision=:originalRevision&newProject=:newProject&newRevision=:newRevision"
+                  path={`${path}/comparechooser?originalProject=:originalProject&originalRevision=:originalRevision&newProject=:newProject&newRevision=:newRevision`}
                   render={(props) => (
                     <CompareSelectorView
                       {...props}
@@ -154,7 +158,7 @@ class App extends React.Component {
                   )}
                 />
                 <Route
-                  path="/compare"
+                  path={`${path}/compare`}
                   render={(props) => (
                     <CompareView
                       {...props}
@@ -167,7 +171,7 @@ class App extends React.Component {
                   )}
                 />
                 <Route
-                  path="/compare?originalProject=:originalProject&originalRevision=:originalRevison&newProject=:newProject&newRevision=:newRevision&framework=:framework&showOnlyComparable=:showOnlyComparable&showOnlyImportant=:showOnlyImportant&showOnlyConfident=:showOnlyConfident&selectedTimeRange=:selectedTimeRange&showOnlyNoise=:showOnlyNoise"
+                  path={`${path}/compare?originalProject=:originalProject&originalRevision=:originalRevison&newProject=:newProject&newRevision=:newRevision&framework=:framework&showOnlyComparable=:showOnlyComparable&showOnlyImportant=:showOnlyImportant&showOnlyConfident=:showOnlyConfident&selectedTimeRange=:selectedTimeRange&showOnlyNoise=:showOnlyNoise`}
                   render={(props) => (
                     <CompareView
                       {...props}
@@ -180,7 +184,7 @@ class App extends React.Component {
                   )}
                 />
                 <Route
-                  path="/infracompare"
+                  path={`${path}/infracompare`}
                   render={(props) => (
                     <InfraCompareView
                       {...props}
@@ -193,7 +197,7 @@ class App extends React.Component {
                   )}
                 />
                 <Route
-                  path="/comparesubtest"
+                  path={`${path}/comparesubtest`}
                   render={(props) => (
                     <CompareSubtestsView
                       {...props}
@@ -204,7 +208,7 @@ class App extends React.Component {
                   )}
                 />
                 <Route
-                  path="/comparesubtest?originalProject=:originalProject&originalRevision=:originalRevision&newProject=:newProject&newRevision=:newRevision&originalSignature=:originalSignature&newSignature=:newSignature&framework=:framework&showOnlyComparable=:showOnlyComparable&showOnlyImportant=:showOnlyImportant&showOnlyConfident=:showOnlyConfident&selectedTimeRange=:selectedTimeRange&showOnlyNoise=:showOnlyNoise"
+                  path={`${path}/comparesubtest?originalProject=:originalProject&originalRevision=:originalRevision&newProject=:newProject&newRevision=:newRevision&originalSignature=:originalSignature&newSignature=:newSignature&framework=:framework&showOnlyComparable=:showOnlyComparable&showOnlyImportant=:showOnlyImportant&showOnlyConfident=:showOnlyConfident&selectedTimeRange=:selectedTimeRange&showOnlyNoise=:showOnlyNoise`}
                   render={(props) => (
                     <CompareSubtestsView
                       {...props}
@@ -215,7 +219,7 @@ class App extends React.Component {
                   )}
                 />
                 <Route
-                  path="/comparesubtestdistribution"
+                  path={`${path}/comparesubtestdistribution`}
                   render={(props) => (
                     <CompareSubtestDistributionView
                       {...props}
@@ -226,7 +230,7 @@ class App extends React.Component {
                   )}
                 />
                 <Route
-                  path="/comparesubtestdistribution?originalProject=:originalProject&newProject=:newProject&originalRevision=:originalRevision&newRevision=:newRevision&originalSubtestSignature=:originalSubtestSignature&newSubtestSignature=:newSubtestSignature"
+                  path={`${path}/comparesubtestdistribution?originalProject=:originalProject&newProject=:newProject&originalRevision=:originalRevision&newRevision=:newRevision&originalSubtestSignature=:originalSubtestSignature&newSubtestSignature=:newSubtestSignature`}
                   render={(props) => (
                     <CompareSubtestDistributionView
                       {...props}
@@ -237,7 +241,7 @@ class App extends React.Component {
                   )}
                 />
                 <Route
-                  path="/tests"
+                  path={`${path}/tests`}
                   render={(props) => (
                     <TestsView
                       {...props}
@@ -249,7 +253,7 @@ class App extends React.Component {
                   )}
                 />
                 <Route
-                  path="/tests?framework=:framework"
+                  path={`${path}/tests?framework=:framework"`}
                   render={(props) => (
                     <TestsView
                       {...props}
@@ -260,11 +264,14 @@ class App extends React.Component {
                     />
                   )}
                 />
-                <Redirect from="/" to="/alerts?hideDwnToInv=1" />
+                <Redirect
+                  from={`${path}/`}
+                  to={`${path}/alerts?hideDwnToInv=1`}
+                />
               </Switch>
             </main>
           )}
-      </HashRouter>
+      </React.Fragment>
     );
   }
 }

@@ -1,14 +1,20 @@
 import React from 'react';
 import fetchMock from 'fetch-mock';
 import { render, waitFor, fireEvent } from '@testing-library/react';
+import { Provider, ReactReduxContext } from 'react-redux';
+import { ConnectedRouter } from 'connected-react-router';
 
 import App from '../../../ui/job-view/App';
 import reposFixture from '../mock/repositories';
 import pushListFixture from '../mock/push_list';
 import { getApiUrl } from '../../../ui/helpers/url';
-import { getProjectUrl, setUrlParam } from '../../../ui/helpers/location';
+import { getProjectUrl } from '../../../ui/helpers/location';
 import jobListFixtureOne from '../mock/job_list/job_1.json';
 import fullJob from '../mock/full_job.json';
+import {
+  configureStore,
+  history,
+} from '../../../ui/job-view/redux/configureStore';
 
 describe('App', () => {
   const repoName = 'autoland';
@@ -161,41 +167,38 @@ describe('App', () => {
   });
 
   afterEach(() => {
-    window.location.hash = `#/jobs?repo=${repoName}`;
+    history.push('/');
   });
 
   afterAll(() => {
     fetchMock.reset();
   });
 
-  test('changing repo updates ``currentRepo``', async () => {
-    setUrlParam('repo', repoName);
-    const { getByText } = render(<App />);
-
-    await waitFor(() => expect(getByText('ba9c692786e9')).toBeInTheDocument());
-
-    setUrlParam('repo', 'try');
-    await waitFor(() => getByText('333333333333'));
-
-    expect(document.querySelector('.revision a').getAttribute('href')).toBe(
-      'https://hg.mozilla.org/try/rev/3333333333335143b8df3f4b3e9b504dfbc589a0',
+  const testApp = () => {
+    const store = configureStore();
+    return (
+      <Provider store={store} context={ReactReduxContext}>
+        <ConnectedRouter history={history} context={ReactReduxContext}>
+          <App />
+        </ConnectedRouter>
+      </Provider>
     );
-  });
+  };
 
   test('should have links to Perfherder and Intermittent Failures View', async () => {
-    const { getByText, getByAltText } = render(<App />);
+    const { getByText, getByAltText } = render(testApp());
     const appMenu = await waitFor(() => getByAltText('Treeherder'));
 
     expect(appMenu).toBeInTheDocument();
     fireEvent.click(appMenu);
 
     const phMenu = await waitFor(() => getByText('Perfherder'));
-    expect(phMenu.getAttribute('href')).toBe('/perf.html');
+    expect(phMenu.getAttribute('href')).toBe('/perfherder');
 
     const ifvMenu = await waitFor(() =>
       getByText('Intermittent Failures View'),
     );
-    expect(ifvMenu.getAttribute('href')).toBe('/intermittent-failures.html');
+    expect(ifvMenu.getAttribute('href')).toBe('/intermittent-failures');
   });
 
   const testChangingSelectedJob = async (
@@ -205,7 +208,7 @@ describe('App', () => {
     secondJobSymbol,
     secondJobTaskId,
   ) => {
-    const { getByText, findByText, findByTestId } = render(<App />);
+    const { getByText, findByText, findByTestId } = render(testApp());
     const firstJob = await findByText(firstJobSymbol);
 
     fireEvent.mouseDown(firstJob);
@@ -270,5 +273,25 @@ describe('App', () => {
         'MirsMc8UQPeSBC3yKMSlPw',
       ),
     ).toBe(true);
+  });
+
+  test('changing repo updates ``currentRepo``', async () => {
+    const { getByText, getByTitle } = render(testApp());
+
+    const autolandRevision = await waitFor(() => getByText('ba9c692786e9'));
+    expect(autolandRevision).toBeInTheDocument();
+
+    const reposButton = await waitFor(() => getByTitle('Watch a repo'));
+    fireEvent.click(reposButton);
+
+    const tryRepo = await waitFor(() => getByText('try'));
+    fireEvent.click(tryRepo);
+
+    await waitFor(() => getByText('333333333333'));
+
+    expect(autolandRevision).not.toBeInTheDocument();
+    expect(document.querySelector('.revision a').getAttribute('href')).toBe(
+      'https://hg.mozilla.org/try/rev/3333333333335143b8df3f4b3e9b504dfbc589a0',
+    );
   });
 });

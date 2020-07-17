@@ -2,12 +2,12 @@ import fetchMock from 'fetch-mock';
 import thunk from 'redux-thunk';
 import { cleanup } from '@testing-library/react';
 import configureMockStore from 'redux-mock-store';
+import { createBrowserHistory } from 'history';
 
 import {
   getProjectUrl,
-  getQueryString,
-  replaceLocation,
   setUrlParam,
+  updatePushParams,
 } from '../../../../ui/helpers/location';
 import pushListFixture from '../../mock/push_list';
 import pushListFromChangeFixture from '../../mock/pushListFromchange';
@@ -26,12 +26,12 @@ import {
   reducer,
   fetchPushes,
   pollPushes,
-  fetchNextPushes,
   updateRange,
 } from '../../../../ui/job-view/redux/stores/pushes';
 import { getApiUrl } from '../../../../ui/helpers/url';
 import JobModel from '../../../../ui/models/job';
 
+const history = createBrowserHistory();
 const mockStore = configureMockStore([thunk]);
 const emptyBugzillaResponse = {
   bugs: [],
@@ -48,7 +48,7 @@ describe('Pushes Redux store', () => {
   afterEach(() => {
     cleanup();
     fetchMock.reset();
-    replaceLocation({});
+    history.push('/');
   });
 
   test('should get pushes with fetchPushes', async () => {
@@ -60,7 +60,10 @@ describe('Pushes Redux store', () => {
       `https://bugzilla.mozilla.org/rest/bug?id=1556854%2C1555861%2C1559418%2C1563766%2C1561537%2C1563692`,
       emptyBugzillaResponse,
     );
-    const store = mockStore({ pushes: initialState });
+    const store = mockStore({
+      pushes: initialState,
+      router: { location: history.location },
+    });
 
     await store.dispatch(fetchPushes());
     const actions = store.getActions();
@@ -94,9 +97,15 @@ describe('Pushes Redux store', () => {
       jobListFixtureTwo,
     );
 
+    fetchMock.get(
+      `https://bugzilla.mozilla.org/rest/bug?id=1506219`,
+      emptyBugzillaResponse,
+    );
+
     const initialPush = pushListFixture.results[0];
     const store = mockStore({
       pushes: { ...initialState, pushList: [initialPush] },
+      router: { location: history.location },
     });
 
     await store.dispatch(pollPushes());
@@ -133,7 +142,7 @@ describe('Pushes Redux store', () => {
     ]);
   });
 
-  test('fetchNextPushes should update revision param on url', async () => {
+  test('fetchPushes should update revision param on url', async () => {
     fetchMock.get(
       getProjectUrl(
         '/push/?full=true&count=11&push_timestamp__lte=1562867957',
@@ -148,24 +157,35 @@ describe('Pushes Redux store', () => {
     );
 
     const push = pushListFixture.results[0];
+
+    history.push({ search: `?repo=${repoName}&revision=${push.revision}` });
+    const params = updatePushParams(history.location);
+    history.push({ search: params });
     const store = mockStore({
       pushes: {
         ...initialState,
         pushList: [push],
         oldestPushTimestamp: push.push_timestamp,
       },
+      router: { location: history.location },
     });
-    setUrlParam('revision', push.revision);
-    await store.dispatch(fetchNextPushes(10));
+    await store.dispatch(fetchPushes(10, true));
+    const actions = store.getActions();
 
-    expect(getQueryString()).toEqual(
-      'tochange=ba9c692786e95143b8df3f4b3e9b504dfbc589a0&fromchange=90da061f588d1315ee4087225d041d7474d9dfd8',
-    );
+    expect(actions[1].payload).toEqual({
+      method: 'push',
+      args: [
+        {
+          search: `?repo=${repoName}&tochange=ba9c692786e95143b8df3f4b3e9b504dfbc589a0&fromchange=90da061f588d1315ee4087225d041d7474d9dfd8`,
+        },
+      ],
+    });
   });
 
   test('should pare down to single revision updateRange', async () => {
     const store = mockStore({
       pushes: { ...initialState, pushList: pushListFixture.results },
+      router: { location: history.location },
     });
 
     await store.dispatch(
@@ -175,6 +195,10 @@ describe('Pushes Redux store', () => {
 
     expect(actions).toEqual([
       { countPinnedJobs: 0, type: 'CLEAR_JOB' },
+      {
+        type: '@@router/CALL_HISTORY_METHOD',
+        payload: { method: 'push', args: [{ search: '?' }] },
+      },
       {
         type: SET_PUSHES,
         pushResults: {
@@ -205,6 +229,7 @@ describe('Pushes Redux store', () => {
 
     const store = mockStore({
       pushes: initialState,
+      router: { location: history.location },
     });
 
     setUrlParam('fromchange', '9692347caff487cdcd889489b8e89a825fe6bbd1');
@@ -267,7 +292,7 @@ describe('Pushes Redux store', () => {
   });
 
   test('should get new unclassified counts with recalculateUnclassifiedCounts', async () => {
-    setUrlParam('job_type_symbol', 'B');
+    history.push('/?job_type_symbol=B');
     const { data: jobList } = await JobModel.getList({ push_id: 1 });
 
     const state = reducer(
@@ -275,7 +300,10 @@ describe('Pushes Redux store', () => {
       { type: UPDATE_JOB_MAP, jobList },
     );
 
-    const reduced = reducer(state, { type: RECALCULATE_UNCLASSIFIED_COUNTS });
+    const reduced = reducer(state, {
+      type: RECALCULATE_UNCLASSIFIED_COUNTS,
+      router: { location: history.location },
+    });
 
     expect(Object.keys(reduced.jobMap)).toHaveLength(5);
     expect(reduced.allUnclassifiedFailureCount).toEqual(2);

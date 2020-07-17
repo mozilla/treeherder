@@ -3,10 +3,15 @@ import PropTypes from 'prop-types';
 import { Button } from 'reactstrap';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faTimesCircle } from '@fortawesome/free-solid-svg-icons';
+import { connect } from 'react-redux';
 
-import { getFieldChoices } from '../../helpers/filter';
+import { updateRange } from '../redux/stores/pushes';
+import {
+  getFieldChoices,
+  reloadOnChangeParameters,
+} from '../../helpers/filter';
 
-export default class ActiveFilters extends React.Component {
+class ActiveFilters extends React.Component {
   constructor(props) {
     super(props);
 
@@ -70,8 +75,25 @@ export default class ActiveFilters extends React.Component {
     this.props.toggleFieldFilterVisible();
   };
 
+  clearAndUpdateRange = (specificFilter = null) => {
+    const { updateRange, filterModel } = this.props;
+
+    if (!specificFilter) {
+      filterModel.clearNonStatusFilters();
+      updateRange(filterModel.getUrlParamsWithoutDefaults());
+      return;
+    }
+
+    const { filterField, filterValue } = specificFilter;
+    filterModel.removeFilter(filterField, filterValue);
+
+    if (reloadOnChangeParameters.includes(filterField)) {
+      updateRange(filterModel.getUrlParamsWithoutDefaults());
+    }
+  };
+
   render() {
-    const { isFieldFilterVisible, filterModel, filterBarFilters } = this.props;
+    const { isFieldFilterVisible, filterBarFilters } = this.props;
     const {
       newFilterField,
       newFilterMatchType,
@@ -89,7 +111,7 @@ export default class ActiveFilters extends React.Component {
               outline
               className="pointable bg-transparent border-0 pt-0 pr-1 pb-1"
               title="Clear all of these filters"
-              onClick={filterModel.clearNonStatusFilters}
+              onClick={() => this.clearAndUpdateRange()}
             >
               <FontAwesomeIcon
                 icon={faTimesCircle}
@@ -111,13 +133,13 @@ export default class ActiveFilters extends React.Component {
                     className="pointable bg-transparent border-0 py-0 pr-1"
                     title={`Clear filter: ${filter.field}`}
                     onClick={() =>
-                      filterModel.removeFilter(filter.field, filterValue)
+                      this.clearAndUpdateRange({
+                        filterField: filter.field,
+                        filterValue,
+                      })
                     }
                   >
-                    <FontAwesomeIcon
-                      icon={faTimesCircle}
-                      title={`Clear filter: ${filter.field}`}
-                    />
+                    <FontAwesomeIcon icon={faTimesCircle} />
                     &nbsp;
                   </Button>
                   <span title={`Filter by ${filter.field}: ${filterValue}`}>
@@ -236,3 +258,7 @@ ActiveFilters.propTypes = {
   toggleFieldFilterVisible: PropTypes.func.isRequired,
   classificationTypes: PropTypes.arrayOf(PropTypes.object).isRequired,
 };
+
+export default connect(null, {
+  updateRange,
+})(ActiveFilters);
