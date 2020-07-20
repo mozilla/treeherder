@@ -25,16 +25,12 @@ const StatusProgress = (props) => {
         labelComponent={
           <VictoryTooltip pointerLength={0} flyoutComponent={<div />} />
         }
+        labelRadius={({ innerRadius }) => innerRadius + 1}
         height={200}
         width={200}
-        padding={{ top: 35, bottom: 15 }}
+        padding={{ top: 15, bottom: 15 }}
         innerRadius={70}
         radius={85}
-        style={{
-          labels: {
-            fontSize: 12,
-          },
-        }}
       />
       <div className="absolute">
         <div style={{ fontSize: '30px' }}>{percentComplete}%</div>
