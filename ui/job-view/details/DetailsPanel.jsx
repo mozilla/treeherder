@@ -2,7 +2,6 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import chunk from 'lodash/chunk';
 import { connect } from 'react-redux';
-import { Queue } from 'taskcluster-client-web';
 
 import { setPinBoardVisible } from '../redux/stores/pinnedJobs';
 import { thEvents } from '../../helpers/constants';
@@ -156,12 +155,6 @@ class DetailsPanel extends React.Component {
           );
         }
 
-        let taskDefinitionPromise;
-        if (selectedJob.task_id) {
-          const queue = new Queue({ rootUrl: currentRepo.tc_root_url });
-          taskDefinitionPromise = queue.task(selectedJob.task_id);
-        }
-
         const jobLogUrlPromise = JobLogUrlModel.getList(
           { job_id: selectedJob.id },
           this.selectJobController.signal,
@@ -180,7 +173,6 @@ class DetailsPanel extends React.Component {
           phSeriesPromise,
           jobArtifactsPromise,
           builtFromArtifactPromise,
-          taskDefinitionPromise,
         ])
           .then(
             async ([
@@ -189,7 +181,6 @@ class DetailsPanel extends React.Component {
               phSeriesResult,
               jobArtifactsResult,
               builtFromArtifactResult,
-              taskDefinition,
             ]) => {
               // This version of the job has more information than what we get in the main job list.  This
               // is what we'll pass to the rest of the details panel.
@@ -281,7 +272,6 @@ class DetailsPanel extends React.Component {
                   logViewerFullUrl,
                   perfJobDetail,
                   jobRevision,
-                  taskDefinition,
                 },
                 async () => {
                   await this.updateClassifications();
@@ -321,7 +311,6 @@ class DetailsPanel extends React.Component {
       logViewerUrl,
       logViewerFullUrl,
       bugs,
-      taskDefinition,
     } = this.state;
     const detailsPanelHeight = isPinBoardVisible
       ? resizedHeight - pinboardHeight
@@ -373,7 +362,8 @@ class DetailsPanel extends React.Component {
               bugs={bugs}
               togglePinBoardVisibility={() => this.togglePinBoardVisibility()}
               logViewerFullUrl={logViewerFullUrl}
-              taskDefinition={taskDefinition}
+              taskId={selectedJobFull.task_id}
+              rootUrl={currentRepo.tc_root_url}
             />
           </div>
         )}
