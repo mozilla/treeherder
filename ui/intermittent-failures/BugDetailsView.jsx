@@ -152,14 +152,14 @@ const BugDetailsView = (props) => {
             <Col xs="12" className="text-left">
               <Breadcrumb listClassName="bg-white">
                 <BreadcrumbItem>
-                  <a title="Treeherder home page" href="/#/">
+                  <a title="Treeherder home page" href="/">
                     Treeherder
                   </a>
                 </BreadcrumbItem>
                 <BreadcrumbItem>
                   <Link
                     title="Intermittent Failures View main page"
-                    to={lastLocation || '/'}
+                    to={lastLocation || '/intermittent-failures/'}
                   >
                     Main view
                   </Link>

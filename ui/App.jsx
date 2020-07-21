@@ -2,7 +2,10 @@ import React from 'react';
 import { Route, Switch, BrowserRouter } from 'react-router-dom';
 import { hot } from 'react-hot-loader/root';
 
-// import IntermittentFailuresApp from './intermittent-failures/App';
+import IntermittentFailuresApp from './intermittent-failures/App';
+
+// TODO
+// Move user state to here and pass to all other apps
 
 const App = () => (
   <BrowserRouter>
@@ -11,9 +14,10 @@ const App = () => (
         <Route exact path="/">
           <Home />
         </Route>
-        <Route exact path="/test">
-          <div>hello!</div>
-        </Route>
+        <Route
+          path="/intermittent-failures"
+          render={(props) => <IntermittentFailuresApp {...props} />}
+        />
       </Switch>
     </div>
   </BrowserRouter>
