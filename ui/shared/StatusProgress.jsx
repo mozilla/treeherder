@@ -16,11 +16,10 @@ const StatusProgress = (props) => {
       <VictoryPie
         data={[
           { x: 'success', y: success },
-          { x: 'running', y: running },
-          { x: 'pending', y: pending },
+          { x: 'running', y: running + pending },
           { x: 'failed', y: failed },
         ]}
-        colorScale={['#28a745', '#17a2b8', '#6c757d', '#dc3545']}
+        colorScale={['#28a745', '#6c757d', '#dc3545']}
         labels={({ datum }) => (datum.y > 0 ? `${datum.x}: ${datum.y}` : '')}
         labelComponent={
           <VictoryTooltip pointerLength={0} flyoutComponent={<div />} />

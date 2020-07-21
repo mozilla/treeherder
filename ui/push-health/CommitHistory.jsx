@@ -7,6 +7,7 @@ import { faCaretDown, faCaretRight } from '@fortawesome/free-solid-svg-icons';
 import Clipboard from '../shared/Clipboard';
 import PushHealthStatus from '../shared/PushHealthStatus';
 import { RevisionList } from '../shared/RevisionList';
+import { Revision } from '../shared/Revision';
 import { getJobsUrl } from '../helpers/url';
 import RepositoryModel from '../models/repository';
 import { toDateStr } from '../helpers/display';
@@ -17,7 +18,6 @@ class CommitHistory extends React.PureComponent {
 
     this.state = {
       clipboardVisible: false,
-      showAllRevisions: false,
       isExpanded: false,
     };
   }
@@ -48,7 +48,7 @@ class CommitHistory extends React.PureComponent {
       revision,
       currentRepo,
     } = this.props;
-    const { clipboardVisible, showAllRevisions, isExpanded } = this.state;
+    const { clipboardVisible, isExpanded } = this.state;
     const parentRepoModel = new RepositoryModel(parentRepository);
     const parentLinkUrl = exactMatch
       ? `${getJobsUrl({
@@ -66,7 +66,7 @@ class CommitHistory extends React.PureComponent {
     const authorEmail = authorMatch ? authorMatch[1] : author;
     const expandIcon = isExpanded ? faCaretDown : faCaretRight;
     const expandTitle = isExpanded ? 'Click to collapse' : 'Click to expand';
-    const expandText = isExpanded ? 'Hide all commits' : 'Show all commits';
+    const expandText = isExpanded ? 'Hide all commits' : 'Show more commits';
 
     return (
       <React.Fragment>
@@ -98,53 +98,47 @@ class CommitHistory extends React.PureComponent {
             </span>
           </div>
         </div>
-        <div className="commit-area mt-2 pl-2 text-secondary">
-          <span className="font-weight-bold">
-            <Button
-              onClick={this.toggleDetails}
-              outline
-              color="darker-secondary"
-              className="border-0 pl-0 shadow-none"
-              role="button"
-              aria-expanded={isExpanded}
-            >
-              <FontAwesomeIcon
-                icon={expandIcon}
-                title={expandTitle}
-                aria-label={expandTitle}
-                alt=""
-              />
-              <span className="ml-1 font-weight-bold">{expandText}</span>
-            </Button>
-          </span>
-          {isExpanded &&
-            (revisions.length <= 5 || showAllRevisions ? (
-              <RevisionList
-                revision={revision}
-                revisions={revisions.slice(0, 20)}
-                revisionCount={revisionCount}
+        <div className="commit-area mt-2 pl-3 text-secondary">
+          {revisions.length > 1 && (
+            <div>
+              <Revision
+                revision={revisions[1]}
                 repo={currentRepo}
+                key={revision.revision}
               />
-            ) : (
-              <span>
-                <RevisionList
-                  revision={revision}
-                  revisions={revisions.slice(0, 5)}
-                  revisionCount={revisionCount}
-                  repo={currentRepo}
-                />
+            </div>
+          )}
+          {revisions.length > 2 && (
+            <React.Fragment>
+              <span className="font-weight-bold">
                 <Button
+                  onClick={this.toggleDetails}
                   outline
                   color="darker-secondary"
-                  onClick={() =>
-                    this.setState({ showAllRevisions: !showAllRevisions })
-                  }
+                  className="border-0 pl-0 ml-2 shadow-none"
+                  role="button"
+                  aria-expanded={isExpanded}
                 >
-                  Show more...
+                  <FontAwesomeIcon
+                    icon={expandIcon}
+                    title={expandTitle}
+                    aria-label={expandTitle}
+                    alt=""
+                  />
+                  <span className="ml-1">{expandText}</span>
                 </Button>
               </span>
-            ))}
-          <div>
+              {isExpanded && (
+                <RevisionList
+                  revision={revision}
+                  revisions={revisions.slice(2, 20)}
+                  revisionCount={revisionCount - 2}
+                  repo={currentRepo}
+                />
+              )}
+            </React.Fragment>
+          )}
+          <div className="ml-1">
             Base commit:
             <span>
               {!exactMatch && (
@@ -161,18 +155,13 @@ class CommitHistory extends React.PureComponent {
                 onMouseEnter={() => this.showClipboard(true)}
                 onMouseLeave={() => this.showClipboard(false)}
               >
-                <Clipboard
-                  description="full hash"
-                  text={parentSha}
-                  visible={clipboardVisible}
-                />
                 <a
                   href={parentLinkUrl}
                   target="_blank"
                   rel="noopener noreferrer"
                   title="Open this push"
                   data-testid="parent-commit-sha"
-                  className="mr-1 text-monospace commit-sha font-weight-bold"
+                  className="mr-1 ml-1 text-monospace commit-sha font-weight-bold text-secondary"
                 >
                   {parentPushRevision || parentSha}
                 </a>
@@ -183,6 +172,11 @@ class CommitHistory extends React.PureComponent {
                     jobCounts={jobCounts}
                   />
                 )}
+                <Clipboard
+                  description="full hash"
+                  text={parentSha}
+                  visible={clipboardVisible}
+                />
               </span>
             </span>
           </div>
