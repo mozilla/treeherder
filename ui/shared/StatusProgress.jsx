@@ -25,7 +25,7 @@ const StatusProgress = (props) => {
         labelComponent={
           <VictoryTooltip pointerLength={0} flyoutComponent={<div />} />
         }
-        labelRadius={({ innerRadius }) => innerRadius + 1}
+        labelRadius={({ innerRadius }) => innerRadius}
         height={200}
         width={200}
         padding={{ top: 15, bottom: 15 }}
