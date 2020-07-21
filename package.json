@@ -24,7 +24,7 @@
     "@types/prop-types": "*",
     "@types/react": "*",
     "@types/react-dom": "*",
-    "ajv": "6.10.2",
+    "ajv": "6.12.3",
     "auth0-js": "9.13.4",
     "fuse.js": "6.0.4",
     "history": "5.0.0",
