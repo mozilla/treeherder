@@ -35,7 +35,12 @@ class SummaryPanel extends React.PureComponent {
     ];
 
     return (
-      <div id="summary-panel" role="region" aria-label="Summary">
+      <div
+        id="summary-panel"
+        role="region"
+        aria-label="Summary"
+        data-testid="summary-panel"
+      >
         <ActionBar
           selectedJobFull={selectedJobFull}
           logParseStatus={logParseStatus}

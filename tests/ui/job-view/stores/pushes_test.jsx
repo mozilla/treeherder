@@ -277,8 +277,8 @@ describe('Pushes Redux store', () => {
 
     const reduced = reducer(state, { type: RECALCULATE_UNCLASSIFIED_COUNTS });
 
-    expect(Object.keys(reduced.jobMap)).toHaveLength(4);
-    expect(reduced.allUnclassifiedFailureCount).toEqual(1);
+    expect(Object.keys(reduced.jobMap)).toHaveLength(5);
+    expect(reduced.allUnclassifiedFailureCount).toEqual(2);
     expect(reduced.filteredUnclassifiedFailureCount).toEqual(1);
   });
 
