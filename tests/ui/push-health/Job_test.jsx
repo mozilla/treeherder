@@ -5,10 +5,13 @@ import Job from '../../../ui/push-health/Job';
 import pushHealth from '../mock/push_health';
 
 const repoName = 'try';
-const failJob =
-  pushHealth.metrics.tests.details.needInvestigation[0].failJobs[0];
+const failJob = pushHealth.metrics.tests.details.needInvestigation[0].jobs.find(
+  (job) => job.result === 'testfailed',
+);
 const failBuild = pushHealth.metrics.builds.details[0];
-const passJob = pushHealth.metrics.tests.details.knownIssues[0].passJobs[0];
+const passJob = pushHealth.metrics.tests.details.knownIssues[0].jobs.find(
+  (job) => job.result === 'success',
+);
 
 describe('Job', () => {
   const testJob = (job) => (

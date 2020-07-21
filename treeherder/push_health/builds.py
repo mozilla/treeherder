@@ -1,6 +1,5 @@
 from treeherder.model.models import Job
-from treeherder.push_health.similar_jobs import job_to_dict
-from treeherder.push_health.utils import mark_failed_in_parent
+from treeherder.push_health.utils import mark_failed_in_parent, job_to_dict
 
 
 def get_build_failures(push, parent_push=None):

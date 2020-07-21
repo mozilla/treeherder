@@ -9,7 +9,7 @@ import bugSuggestions from '../../mock/bug_suggestions.json';
 import DetailsPanel from '../../../../ui/push-health/details/DetailsPanel';
 import { getProjectUrl, setUrlParam } from '../../../../ui/helpers/location';
 
-const task = pushHealth.metrics.tests.details.needInvestigation[0].failJobs[0];
+const task = pushHealth.metrics.tests.details.needInvestigation[0].jobs[0];
 const selectedTaskFull = {
   ...fullJob,
   task_id: 'CwGewDH7RjOIZV-b77hGUQ',

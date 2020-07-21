@@ -48,8 +48,8 @@ afterEach(() => {
   replaceLocation({});
 });
 
-describe('TestFailure', () => {
-  const testTestFailure = (failure) => (
+describe('PlatformConfig', () => {
+  const testPlatformConfig = (failure) => (
     <PlatformConfig
       failure={failure}
       repo="autoland"
@@ -62,7 +62,7 @@ describe('TestFailure', () => {
   );
 
   test('should show the test name', async () => {
-    const { getByText } = render(testTestFailure(testFailure));
+    const { getByText } = render(testPlatformConfig(testFailure));
 
     expect(
       await waitFor(() =>
@@ -74,13 +74,13 @@ describe('TestFailure', () => {
   });
 
   test('should not show details by default', async () => {
-    const { queryByTestId } = render(testTestFailure(testFailure));
+    const { queryByTestId } = render(testPlatformConfig(testFailure));
 
     expect(queryByTestId('log-lines')).toBeNull();
   });
 
   test('should show bug suggestions when expander clicked', async () => {
-    const { getByText } = render(testTestFailure(testFailure));
+    const { getByText } = render(testPlatformConfig(testFailure));
     const detailsButton = getByText('task');
 
     fireEvent.click(detailsButton);
@@ -93,7 +93,7 @@ describe('TestFailure', () => {
   });
 
   test('should show artifacts when tab clicked', async () => {
-    const { getByText } = render(testTestFailure(testFailure));
+    const { getByText } = render(testPlatformConfig(testFailure));
     const detailsButton = getByText('task');
 
     fireEvent.click(detailsButton);

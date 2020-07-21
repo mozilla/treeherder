@@ -5,13 +5,11 @@ import re
 from collections import defaultdict
 
 from django.core.cache import cache
-from django.db.models import Q
 
 from treeherder.model.models import FailureLine, Job, OptionCollection
 from treeherder.push_health.classification import get_grouped, set_classifications
 from treeherder.push_health.filter import filter_failure
-from treeherder.push_health.similar_jobs import job_to_dict, set_matching_passed_jobs
-from treeherder.push_health.utils import clean_config, clean_platform, clean_test
+from treeherder.push_health.utils import clean_config, clean_platform, clean_test, job_to_dict
 from treeherder.webapp.api.utils import REPO_GROUPS
 
 logger = logging.getLogger(__name__)
@@ -73,24 +71,10 @@ def get_history(
     return previous_failures
 
 
-# For each failure item in ``tests``, we have 3 categories of jobs that are associated with it in order
-# to help determine if the test is a known issue or not:
-#
-# 1. failJobs: These are jobs where this test has specifically failed in the job
-#    (it has a FailureLine record with the tests name).
-# 2. passJobs: These are jobs where this test was run and all tests, including this one, passed.
-#    (The job is green.)
-# 3. passInFailedJobs: These are jobs that overall came back as 'testfailed', however, the
-#    test in question did NOT fail (we have no FailureLine record matching this test).  So, even
-#    though the job failed, we count it as a 'pass' for the test in question.  This 'pass' is
-#    used for the pass/fail ratio on the test to help determine if it is intermittent.
+# For each failure item in ``tests``, we group all jobs of the exact same type into
+# a field called `jobs`.  So it has passed and failed jobs in there.
 #
 def get_current_test_failures(push, option_map):
-    all_testfailed = (
-        Job.objects.filter(push=push, tier__lte=2, result='testfailed',)
-        .exclude(Q(machine_platform__platform='lint') | Q(job_type__symbol='mozlint'),)
-        .select_related('machine_platform', 'taskcluster_metadata')
-    )
     # Using .distinct(<fields>) here would help by removing duplicate FailureLines
     # for the same job (with different sub-tests), but it's only supported by
     # postgres.  Just using .distinct() has no effect.
@@ -128,6 +112,19 @@ def get_current_test_failures(push, option_map):
         test_key = re.sub(
             r'\W+', '', 't{}{}{}{}{}'.format(test_name, config, platform, job_name, job_group)
         )
+        jobs = [
+            job_to_dict(job)
+            for job in Job.objects.filter(job_type=job.job_type, push=push).select_related(
+                'job_type', 'machine_platform', 'taskcluster_metadata',
+            )
+        ]
+        countPassed = len(list(filter(lambda x: x['result'] == 'success', jobs)))
+        passFailRatio = (
+            countPassed / countPassed
+            + len(list(filter(lambda x: x['result'] == 'testfailed', jobs)))
+            if countPassed
+            else 0
+        )
 
         if test_key not in tests:
             line = {
@@ -141,43 +138,19 @@ def get_current_test_failures(push, option_map):
                 'config': config,
                 'key': test_key,
                 'jobKey': job.job_key,
-                'inProgressJobs': [],
-                'failJobs': [],
-                'passJobs': [],
-                'passInFailedJobs': [],  # This test passed in a job that failed for another test
-                'logLines': [],
+                'jobs': jobs,
                 'suggestedClassification': 'New Failure',
                 'confidence': 0,
                 'tier': job.tier,
                 'failedInParent': False,
+                'passFailRatio': passFailRatio,
             }
             tests[test_key] = line
-
-        # This ``test`` was either just added above, or already existed in the ``tests``
-        # list in a previous iteration through ``failure_lines``
-        test = tests[test_key]
-        if not has_line(failure_line, test['logLines']):
-            test['logLines'].append(failure_line.to_mozlog_format())
-
-        if not has_job(job, test['failJobs']):
-            test['failJobs'].append(job_to_dict(job))
-
-    # Check each test to find jobs where it passed, even if the job itself failed due to another test
-    for test in tests.values():
-        for failed_job in all_failed_jobs.values():
-            if not has_job(failed_job, test['failJobs']) and test['jobKey'] == failed_job.job_key:
-                test['passInFailedJobs'].append(job_to_dict(failed_job))
-
-    # filter out testfailed jobs that are supported by failureline to get unsupported jobs
-    supported_job_ids = all_failed_jobs.keys()
-    unsupported_jobs = [
-        job_to_dict(job) for job in all_testfailed if job.id not in supported_job_ids
-    ]
 
     # Each line of the sorted list that is returned here represents one test file per platform/
     # config.  Each line will have at least one failing job, but may have several
     # passing/failing jobs associated with it.
-    return (sorted(tests.values(), key=lambda k: k['testName']), unsupported_jobs)
+    return sorted(tests.values(), key=lambda k: k['testName'])
 
 
 def has_job(job, job_list):
@@ -211,13 +184,8 @@ def get_test_failures(push, parent_push=None):
     # ``push_failures`` are tests that have FailureLine records created by out Log Parser.
     #     These are tests we are able to show to examine to see if we can determine they are
     #     intermittent.  If they are not, we tell the user they need investigation.
-    # ``unsupported_jobs`` are jobs that either don't have an ``*_errorsummary.log`` file,
-    #     or have one that does not have enough information for us to interpret.  So we place
-    #     these jobs into the "Unsupported" category.  The jobs either need to change either at
-    #     the test-level or harness level so we can interpret them.  In some cases, the Treeherder
-    #     code here can be updated to interpret information we don't currently handle.
     # These are failures ONLY for the current push, not relative to history.
-    push_failures, unsupported_jobs = get_current_test_failures(push, option_map)
+    push_failures = get_current_test_failures(push, option_map)
     filtered_push_failures = [failure for failure in push_failures if filter_failure(failure)]
 
     # Based on the intermittent and FixedByCommit history, set the appropriate classification
@@ -225,9 +193,6 @@ def get_test_failures(push, parent_push=None):
     set_classifications(
         filtered_push_failures, intermittent_history, fixed_by_commit_history,
     )
-    # If we have failed tests that have also passed, we gather them both.  This helps us determine
-    # if a job is intermittent based on the current push results.
-    set_matching_passed_jobs(filtered_push_failures, push)
     failures = get_grouped(filtered_push_failures)
 
     if parent_push:
@@ -242,7 +207,5 @@ def get_test_failures(push, parent_push=None):
 
             for failure in failure_group:
                 failure['failedInParent'] = failure['key'] in both
-
-    failures['unsupported'] = unsupported_jobs
 
     return failures

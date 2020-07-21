@@ -17,7 +17,6 @@ class PushHealthStatus extends Component {
     super(props);
 
     this.state = {
-      unsupported: null,
       needInvestigation: null,
     };
   }
@@ -60,21 +59,13 @@ class PushHealthStatus extends Component {
       revision,
       jobCounts: { pending, running, completed },
     } = this.props;
-    const { needInvestigation, unsupported } = this.state;
+    const { needInvestigation } = this.state;
     let healthStatus = 'In progress';
     let badgeColor = 'darker-secondary';
     let extraTitle = 'No errors so far';
     let icon = faClock;
 
     if (completed) {
-      if (unsupported) {
-        healthStatus = `${unsupported} unsupported ${
-          unsupported > 1 ? 'items' : 'item'
-        }`;
-        badgeColor = 'warning';
-        extraTitle = 'Indeterminate';
-        icon = faExclamationTriangle;
-      }
       if (needInvestigation) {
         healthStatus = `${needInvestigation} ${
           needInvestigation > 1 ? 'items' : 'item'
@@ -84,7 +75,7 @@ class PushHealthStatus extends Component {
         icon = faExclamationTriangle;
       }
       const inProgress = pending + running;
-      if (!inProgress && !unsupported && !needInvestigation) {
+      if (!inProgress && !needInvestigation) {
         healthStatus = `OK`;
         badgeColor = 'success';
         extraTitle = 'Looks good';
