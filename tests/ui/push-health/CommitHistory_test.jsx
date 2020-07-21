@@ -42,7 +42,7 @@ describe('CommitHistory', () => {
     );
     expect(authorTime).toBeInTheDocument();
     expect(authorTime).toHaveTextContent(
-      'Wed, May 6, 22:53:29-hiro@mozilla.com',
+      'Wed, May 6, 17:23:29-hiro@mozilla.com',
     );
   });
 
