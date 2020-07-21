@@ -124,6 +124,7 @@ const BugDetailsView = (props) => {
                 </ul>
               )
             }
+            innerClassName="custom-tooltip"
           />
         );
       },

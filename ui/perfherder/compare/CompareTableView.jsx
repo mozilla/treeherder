@@ -257,7 +257,7 @@ export default class CompareTableView extends React.Component {
             {hasSubtests && (
               <Link
                 to={{
-                  pathname: '/compare',
+                  pathname: './compare',
                   search: createQueryParams(params),
                 }}
               >

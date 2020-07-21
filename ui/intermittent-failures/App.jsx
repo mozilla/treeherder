@@ -8,6 +8,9 @@ import ErrorMessages from '../shared/ErrorMessages';
 import MainView from './MainView';
 import BugDetailsView from './BugDetailsView';
 
+import 'react-table/react-table.css';
+import '../css/intermittent-failures.css';
+
 class IntermittentFailuresApp extends React.Component {
   constructor(props) {
     super(props);
