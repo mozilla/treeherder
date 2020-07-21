@@ -72,16 +72,18 @@ class CommitHistory extends React.PureComponent {
       <React.Fragment>
         <div className="push-header" data-testid="push-header">
           <div className="push-bar">
-            <div className="h3 text-capitalize">{headerText}</div>
-            <div className="text-secondary">
+            <div className="h3 text-capitalize" data-testid="headerText">
+              {headerText}
+            </div>
+            <div className="text-secondary" data-testid="authorTime">
               {toDateStr(pushTimestamp)}
               <span className="mx-1">-</span>
               <span>{authorEmail}</span>
             </div>
           </div>
           <div className="text-secondary">
-            Push{' '}
-            <span className="font-weight-bold">
+            Push
+            <span className="font-weight-bold mr-1 ml-1">
               <a
                 href={revisionPushFilterUrl}
                 target="_blank"
@@ -89,23 +91,31 @@ class CommitHistory extends React.PureComponent {
               >
                 {revision.substring(0, 17)}...
               </a>
-            </span>{' '}
-            on{' '}
-            <span className="text-capitalize font-weight-bold">
+            </span>
+            on
+            <span className="d-inline-block text-capitalize font-weight-bold ml-1">
               {currentRepo.name}
             </span>
           </div>
         </div>
         <div className="commit-area mt-2 pl-2 text-secondary">
           <span className="font-weight-bold">
-            <FontAwesomeIcon
+            <Button
               onClick={this.toggleDetails}
-              icon={expandIcon}
-              title={expandTitle}
-              aria-label={expandTitle}
-              alt=""
-            />{' '}
-            {expandText}
+              outline
+              color="darker-secondary"
+              className="border-0 pl-0 shadow-none"
+              role="button"
+              aria-expanded={isExpanded}
+            >
+              <FontAwesomeIcon
+                icon={expandIcon}
+                title={expandTitle}
+                aria-label={expandTitle}
+                alt=""
+              />
+              <span className="ml-1 font-weight-bold">{expandText}</span>
+            </Button>
           </span>
           {isExpanded &&
             (revisions.length <= 5 || showAllRevisions ? (
