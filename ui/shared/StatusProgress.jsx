@@ -1,6 +1,6 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import { VictoryPie } from 'victory';
+import { VictoryPie, VictoryTooltip } from 'victory';
 
 import { getPercentComplete } from '../helpers/display';
 
@@ -21,17 +21,16 @@ const StatusProgress = (props) => {
           { x: 'failed', y: failed },
         ]}
         colorScale={['#28a745', '#17a2b8', '#6c757d', '#dc3545']}
-        labels={() => ''}
+        labels={({ datum }) => (datum.y > 0 ? `${datum.x}: ${datum.y}` : '')}
+        labelComponent={
+          <VictoryTooltip pointerLength={0} flyoutComponent={<div />} />
+        }
+        labelRadius={({ innerRadius }) => innerRadius}
         height={200}
         width={200}
-        padding={{ top: 20, bottom: 15 }}
+        padding={{ top: 15, bottom: 15 }}
         innerRadius={70}
         radius={85}
-        style={{
-          labels: {
-            fontSize: 12,
-          },
-        }}
       />
       <div className="absolute">
         <div style={{ fontSize: '30px' }}>{percentComplete}%</div>
