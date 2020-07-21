@@ -7,6 +7,7 @@ import JobModel from '../../../../ui/models/job';
 import DetailsPanel from '../../../../ui/job-view/details/DetailsPanel';
 import jobListFixtureOne from '../../mock/job_list/job_1';
 import pushFixture from '../../mock/push_list.json';
+import taskDefinition from '../../mock/task_definition.json';
 import { getApiUrl } from '../../../../ui/helpers/url';
 import FilterModel from '../../../../ui/models/filter';
 import {
@@ -63,6 +64,10 @@ describe('DetailsPanel', () => {
     fetchMock.get(
       'https://firefox-ci-tc.services.mozilla.com/api/queue/v1/task/JFVlnwufR7G9tZu_pKM0dQ/runs/0/artifacts',
       { artifacts: [] },
+    );
+    fetchMock.get(
+      'https://firefox-ci-tc.services.mozilla.com/api/queue/v1/task/JFVlnwufR7G9tZu_pKM0dQ',
+      taskDefinition,
     );
     store = configureStore().store;
     store.dispatch(setPushes(pushFixture.results, {}));

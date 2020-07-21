@@ -400,7 +400,7 @@ class ActionBar extends React.PureComponent {
     const { customJobActionsShowing } = this.state;
 
     return (
-      <div id="job-details-actionbar">
+      <div id="actionbar">
         <nav className="navbar navbar-dark details-panel-navbar">
           <ul className="nav actionbar-nav">
             <LogUrls

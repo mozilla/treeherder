@@ -362,6 +362,8 @@ class DetailsPanel extends React.Component {
               bugs={bugs}
               togglePinBoardVisibility={() => this.togglePinBoardVisibility()}
               logViewerFullUrl={logViewerFullUrl}
+              taskId={selectedJobFull.task_id}
+              rootUrl={currentRepo.tc_root_url}
             />
           </div>
         )}

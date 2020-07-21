@@ -17,7 +17,7 @@ export default class JobDetails extends React.PureComponent {
     });
 
     return (
-      <div id="job-details-list" role="region" aria-label="Job Details">
+      <div id="job-artifacts-list" role="region" aria-label="Artifacts">
         <ul className="list-unstyled">
           {sortedDetails.map((line, idx) => (
             <li

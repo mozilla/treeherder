@@ -11,7 +11,8 @@ import {
 } from '@fortawesome/free-solid-svg-icons';
 
 import { thEvents } from '../../../helpers/constants';
-import JobDetails from '../../../shared/JobDetails';
+import JobArtifacts from '../../../shared/JobArtifacts';
+import JobTestGroups from '../JobTestGroups';
 import { clearSelectedJob } from '../../redux/stores/selectedJob';
 import { pinJob, addBug } from '../../redux/stores/pinnedJobs';
 import FailureSummaryTab from '../../../shared/tabs/failureSummary/FailureSummaryTab';
@@ -20,13 +21,23 @@ import PerformanceTab from './PerformanceTab';
 import AnnotationsTab from './AnnotationsTab';
 import SimilarJobsTab from './SimilarJobsTab';
 
+const showTabsFromProps = (props) => {
+  const { perfJobDetail } = props;
+  return {
+    showPerf: !!perfJobDetail.length,
+  };
+};
+
 class TabsPanel extends React.Component {
   constructor(props) {
     super(props);
 
     this.state = {
       tabIndex: 0,
+      enableTestGroupsTab: false,
     };
+
+    this.handleEnableTestGroupsTab = this.handleEnableTestGroupsTab.bind(this);
   }
 
   static getDerivedStateFromProps(props, state) {
@@ -41,11 +52,14 @@ class TabsPanel extends React.Component {
     ) {
       const tabIndex = TabsPanel.getDefaultTabIndex(
         selectedJobFull.resultStatus,
-        !!perfJobDetail.length,
+        props,
       );
 
       return {
         tabIndex,
+        // Every time we select a different job we need to let the component
+        // let us know if we should enable the tab
+        enableTestGroupsTab: false,
         jobId: selectedJobFull.id,
         perfJobDetailSize: perfJobDetail.length,
       };
@@ -63,32 +77,43 @@ class TabsPanel extends React.Component {
 
   onSelectNextTab = () => {
     const { tabIndex } = this.state;
-    const { perfJobDetail } = this.props;
     const nextIndex = tabIndex + 1;
-    const tabCount = TabsPanel.getTabNames(!!perfJobDetail.length).length;
+    const tabCount = TabsPanel.getTabNames(showTabsFromProps(this.props))
+      .length;
     this.setState({ tabIndex: nextIndex < tabCount ? nextIndex : 0 });
   };
 
-  static getDefaultTabIndex(status, showPerf) {
+  static getDefaultTabIndex(status, props) {
+    const { showPerf } = showTabsFromProps(props);
     let idx = 0;
-    const tabNames = TabsPanel.getTabNames(showPerf);
+    const tabNames = TabsPanel.getTabNames({ showPerf });
     const tabIndexes = tabNames.reduce(
       (acc, name) => ({ ...acc, [name]: idx++ }),
       {},
     );
 
-    let tabIndex = showPerf ? tabIndexes.perf : tabIndexes.details;
+    let tabIndex = showPerf ? tabIndexes.perf : tabIndexes.artifacts;
     if (['busted', 'testfailed', 'exception'].includes(status)) {
       tabIndex = tabIndexes.failure;
     }
     return tabIndex;
   }
 
-  static getTabNames(showPerf) {
-    return ['details', 'failure', 'annotations', 'similar', 'perf'].filter(
-      (name) => !(name === 'perf' && !showPerf),
-    );
+  static getTabNames({ showPerf }) {
+    // The order in here has to match the order within the render method
+    return [
+      'artifacts',
+      'failure',
+      'annotations',
+      'similar',
+      'perf',
+      'test-groups',
+    ].filter((name) => !(name === 'perf' && !showPerf));
   }
+
+  handleEnableTestGroupsTab = (stateOfTab) => {
+    this.setState({ enableTestGroupsTab: stateOfTab });
+  };
 
   setTabIndex = (tabIndex) => {
     this.setState({ tabIndex });
@@ -113,9 +138,12 @@ class TabsPanel extends React.Component {
       selectedJobFull,
       pinJob,
       addBug,
+      taskId,
+      rootUrl,
     } = this.props;
-    const { tabIndex } = this.state;
+    const { enableTestGroupsTab, tabIndex } = this.state;
     const countPinnedJobs = Object.keys(pinnedJobs).length;
+    const { showPerf } = showTabsFromProps(this.props);
 
     return (
       <div id="tabs-panel" role="region" aria-label="Job">
@@ -126,11 +154,16 @@ class TabsPanel extends React.Component {
         >
           <TabList className="tab-headers">
             <span className="tab-header-tabs">
-              <Tab>Job Details</Tab>
+              <Tab>Artifacts</Tab>
               <Tab>Failure Summary</Tab>
               <Tab>Annotations</Tab>
               <Tab>Similar Jobs</Tab>
-              {!!perfJobDetail.length && <Tab>Performance</Tab>}
+              {showPerf && <Tab>Performance</Tab>}
+              {enableTestGroupsTab ? (
+                <Tab>Test Groups</Tab>
+              ) : (
+                <Tab disabled>Test Groups</Tab>
+              )}
             </span>
             <span
               id="tab-header-buttons"
@@ -180,7 +213,7 @@ class TabsPanel extends React.Component {
             </span>
           </TabList>
           <TabPanel>
-            <JobDetails jobDetails={jobDetails} />
+            <JobArtifacts jobDetails={jobDetails} />
           </TabPanel>
           <TabPanel>
             <FailureSummaryTab
@@ -209,12 +242,29 @@ class TabsPanel extends React.Component {
               selectedJobFull={selectedJobFull}
             />
           </TabPanel>
-          {!!perfJobDetail.length && (
+          {showPerf && (
             <TabPanel>
               <PerformanceTab
                 repoName={repoName}
                 perfJobDetail={perfJobDetail}
                 revision={jobRevision}
+              />
+            </TabPanel>
+          )}
+          {enableTestGroupsTab ? (
+            <TabPanel>
+              <JobTestGroups
+                taskId={taskId}
+                rootUrl={rootUrl}
+                notifyTestGroupsAvailable={this.handleEnableTestGroupsTab}
+              />
+            </TabPanel>
+          ) : (
+            <TabPanel disabled forceRender>
+              <JobTestGroups
+                taskId={taskId}
+                rootUrl={rootUrl}
+                notifyTestGroupsAvailable={this.handleEnableTestGroupsTab}
               />
             </TabPanel>
           )}
@@ -240,6 +290,8 @@ TabsPanel.propTypes = {
   jobLogUrls: PropTypes.arrayOf(PropTypes.object),
   logParseStatus: PropTypes.string,
   logViewerFullUrl: PropTypes.string,
+  taskId: PropTypes.string.isRequired,
+  rootUrl: PropTypes.string.isRequired,
 };
 
 TabsPanel.defaultProps = {
