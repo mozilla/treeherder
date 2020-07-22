@@ -8,7 +8,7 @@ from django.views.generic.base import TemplateView
 urlpatterns = [
     url(r'^api/', include(api_urls)),
     url(r'^docs/', include_docs_urls(title='REST API Docs')),
-    re_path(r'|(.*\.html)$', TemplateView.as_view(template_name='index.html')),
+    re_path(r'', TemplateView.as_view(template_name='index.html')),
 ]
 
 if settings.DEBUG:

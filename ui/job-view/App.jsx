@@ -27,6 +27,17 @@ import KeyboardShortcuts from './KeyboardShortcuts';
 import { store } from './redux/store';
 import { CLEAR_EXPIRED_TRANSIENTS } from './redux/stores/notifications';
 
+import '../css/treeherder-navbar-panels.css';
+import '../css/treeherder-notifications.css';
+import '../css/treeherder-details-panel.css';
+import '../css/failure-summary.css';
+import '../css/treeherder-job-buttons.css';
+import '../css/treeherder-pushes.css';
+import '../css/treeherder-pinboard.css';
+import '../css/treeherder-bugfiler.css';
+import '../css/treeherder-fuzzyfinder.css';
+import '../css/treeherder-loading-overlay.css';
+
 const DEFAULT_DETAILS_PCT = 40;
 const REVISION_POLL_INTERVAL = 1000 * 60 * 5;
 const REVISION_POLL_DELAYED_INTERVAL = 1000 * 60 * 60;

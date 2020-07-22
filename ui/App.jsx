@@ -1,18 +1,27 @@
 import React from 'react';
-import { Route, Switch, BrowserRouter } from 'react-router-dom';
+import { Route, Switch, Redirect, useHistory } from 'react-router-dom';
 import { hot } from 'react-hot-loader/root';
 
 import IntermittentFailuresApp from './intermittent-failures/App';
 import PerfherderApp from './perfherder/App';
 import LoginCallback from './login-callback/LoginCallback';
 import TaskclusterCallback from './taskcluster-auth-callback/TaskclusterCallback';
+import JobsViewApp from './job-view/App';
+
 // TODO
 // Move user state to here and pass to all other apps
 // Create one universal navbar with flexibility (render props)
 // update any hrefs used for navigation to react router Links
+// react-helmet to update titles and favicons dynamically
 
-const App = () => (
-  <BrowserRouter>
+const App = () => {
+  const history = useHistory();
+  console.log(history);
+  // if (location.hash.startsWith('#/')) {
+  //   history.push(location.hash.replace('#', '')) // or history.replace
+  // }
+
+  return (
     <div>
       <Switch>
         <Route exact path="/">
@@ -28,6 +37,12 @@ const App = () => (
           path="/taskcluster-auth"
           render={(props) => <TaskclusterCallback {...props} />}
         />
+        <Route
+          exact
+          path="/jobs"
+          render={(props) => <JobsViewApp {...props} />}
+        />
+
         {/* entry: 'job-view/index.jsx',
         entry: 'index',
         favicon: 'ui/img/tree_open.png',
@@ -60,11 +75,16 @@ const App = () => (
           path="/perfherder"
           render={(props) => <PerfherderApp {...props} />}
         />
+        <Redirect from="/perf.html" to="/perfherder" />
+        <Redirect
+          from="/intermittent-failures.html"
+          to="/intermittent-failures"
+        />
+        <Redirect from="/logviewer.html" to="/logviewer" />
       </Switch>
     </div>
-  </BrowserRouter>
-);
-
+  );
+};
 function Home() {
   return (
     <div>
