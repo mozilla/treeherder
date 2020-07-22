@@ -3,7 +3,7 @@ import json
 
 from typing import List
 
-from django.contrib.auth.models import User
+# from django.contrib.auth.models import User
 from django.core.exceptions import ValidationError
 from django.core.validators import MinLengthValidator
 from django.db import models
@@ -301,9 +301,9 @@ class PerformanceAlertSummary(models.Model):
     manually_created = models.BooleanField(default=False)
 
     notes = models.TextField(null=True, blank=True)
-    assignee = models.ForeignKey(
-        User, on_delete=models.SET_NULL, null=True, related_name='assigned_alerts'
-    )
+    # assignee = models.ForeignKey(
+    #     User, on_delete=models.SET_NULL, null=True, related_name='assigned_alerts'
+    # )
 
     created = models.DateTimeField(auto_now_add=True, db_index=True)
     first_triaged = models.DateTimeField(null=True, default=None)
@@ -443,9 +443,9 @@ class PerformanceAlert(models.Model):
     series_signature = models.ForeignKey(PerformanceSignature, on_delete=models.CASCADE)
     is_regression = models.BooleanField()
     starred = models.BooleanField(default=False)
-    classifier = models.ForeignKey(
-        User, on_delete=models.CASCADE, null=True
-    )  # null if autoclassified
+    # classifier = models.ForeignKey(
+    #     User, on_delete=models.CASCADE, null=True
+    # )  # null if autoclassified
 
     created = models.DateTimeField(auto_now_add=True, null=True)
     # time when human user 1st interacted with alert

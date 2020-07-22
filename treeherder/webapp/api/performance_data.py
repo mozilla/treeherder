@@ -321,7 +321,7 @@ class PerformanceAlertSummaryFilter(django_filters.FilterSet):
     filter_text = django_filters.CharFilter(method='_filter_text')
     hide_improvements = django_filters.BooleanFilter(method='_hide_improvements')
     hide_related_and_invalid = django_filters.BooleanFilter(method='_hide_related_and_invalid')
-    with_assignee = django_filters.CharFilter(method='_with_assignee')
+    # with_assignee = django_filters.CharFilter(method='_with_assignee')
 
     def _filter_text(self, queryset, name, value):
         sep = Value(' ')
@@ -385,8 +385,8 @@ class PerformanceAlertSummaryFilter(django_filters.FilterSet):
             ]
         )
 
-    def _with_assignee(self, queryset, name, value):
-        return queryset.filter(assignee__username=value)
+    # def _with_assignee(self, queryset, name, value):
+    #     return queryset.filter(assignee__username=value)
 
     class Meta:
         model = PerformanceAlertSummary
@@ -399,7 +399,7 @@ class PerformanceAlertSummaryFilter(django_filters.FilterSet):
             'filter_text',
             'hide_improvements',
             'hide_related_and_invalid',
-            'with_assignee',
+            # 'with_assignee',
         ]
 
 
@@ -418,13 +418,13 @@ class PerformanceAlertSummaryViewSet(viewsets.ModelViewSet):
         .select_related('repository', 'push')
         .prefetch_related(
             'alerts',
-            'alerts__classifier',
+            # 'alerts__classifier',
             'alerts__series_signature',
             'alerts__series_signature__platform',
             'alerts__series_signature__option_collection',
             'alerts__series_signature__option_collection__option',
             'related_alerts',
-            'related_alerts__classifier',
+            # 'related_alerts__classifier',
             'related_alerts__series_signature',
             'related_alerts__series_signature__platform',
             'related_alerts__series_signature__option_collection',
@@ -432,7 +432,7 @@ class PerformanceAlertSummaryViewSet(viewsets.ModelViewSet):
             'performance_tags',
         )
     )
-    permission_classes = (IsStaffOrReadOnly,)
+    # permission_classes = (IsStaffOrReadOnly,)
 
     serializer_class = PerformanceAlertSummarySerializer
     filter_backends = (django_filters.rest_framework.DjangoFilterBackend, filters.OrderingFilter)
@@ -440,6 +440,18 @@ class PerformanceAlertSummaryViewSet(viewsets.ModelViewSet):
 
     ordering = ('-created', '-id')
     pagination_class = AlertSummaryPagination
+
+    def list(self, request, *args, **kwargs):
+        queryset = self.filter_queryset(self.get_queryset())
+        print(f"QUERY_SET: {queryset.query}")
+
+        page = self.paginate_queryset(queryset)
+        if page is not None:
+            serializer = self.get_serializer(page, many=True)
+            return self.get_paginated_response(serializer.data)
+
+        serializer = self.get_serializer(queryset, many=True)
+        return Response(serializer.data)
 
     def create(self, request, *args, **kwargs):
         data = request.data

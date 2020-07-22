@@ -1,6 +1,6 @@
 import decimal
 
-from django.contrib.auth.models import User
+# from django.contrib.auth.models import User
 from django.core.exceptions import ObjectDoesNotExist
 from django.db import transaction
 from rest_framework import exceptions, serializers
@@ -103,10 +103,10 @@ class PerformanceAlertSerializer(serializers.ModelSerializer):
         required=False,
         queryset=PerformanceAlertSummary.objects.all(),
     )
-    classifier = serializers.SlugRelatedField(
-        slug_field="username", allow_null=True, required=False, queryset=User.objects.all()
-    )
-    classifier_email = serializers.SerializerMethodField()
+    # classifier = serializers.SlugRelatedField(
+    #     slug_field="username", allow_null=True, required=False, queryset=User.objects.all()
+    # )
+    # classifier_email = serializers.SerializerMethodField()
     backfill_record = BackfillRecordSerializer(read_only=True, allow_null=True)
 
     # Force `is_regression` to be an optional field, even when using PUT, since in
@@ -154,8 +154,8 @@ class PerformanceAlertSerializer(serializers.ModelSerializer):
 
         return super().update(instance, validated_data)
 
-    def get_classifier_email(self, performance_alert):
-        return getattr(performance_alert.classifier, 'email', None)
+    # def get_classifier_email(self, performance_alert):
+    #     return getattr(performance_alert.classifier, 'email', None)
 
     class Meta:
         model = PerformanceAlert
@@ -172,9 +172,9 @@ class PerformanceAlertSerializer(serializers.ModelSerializer):
             'summary_id',
             'related_summary_id',
             'manually_created',
-            'classifier',
+            # 'classifier',
             'starred',
-            'classifier_email',
+            # 'classifier_email',
             'backfill_record',
         ]
 
@@ -200,14 +200,14 @@ class PerformanceAlertSummarySerializer(serializers.ModelSerializer):
     prev_push_revision = serializers.SlugRelatedField(
         read_only=True, slug_field='revision', source='prev_push'
     )
-    assignee_username = serializers.SlugRelatedField(
-        slug_field="username",
-        source="assignee",
-        allow_null=True,
-        required=False,
-        queryset=User.objects.all(),
-    )
-    assignee_email = serializers.SerializerMethodField()
+    # assignee_username = serializers.SlugRelatedField(
+    #     slug_field="username",
+    #     source="assignee",
+    #     allow_null=True,
+    #     required=False,
+    #     queryset=User.objects.all(),
+    # )
+    # assignee_email = serializers.SerializerMethodField()
     # marking these fields as readonly, the user should not be modifying them
     # (after the item is first created, where we don't use this serializer
     # class)
@@ -219,8 +219,8 @@ class PerformanceAlertSummarySerializer(serializers.ModelSerializer):
         instance.timestamp_first_triage()
         return super().update(instance, validated_data)
 
-    def get_assignee_email(self, performance_alert_summary):
-        return getattr(performance_alert_summary.assignee, 'email', None)
+    # def get_assignee_email(self, performance_alert_summary):
+    #     return getattr(performance_alert_summary.assignee, 'email', None)
 
     class Meta:
         model = PerformanceAlertSummary
@@ -241,8 +241,8 @@ class PerformanceAlertSummarySerializer(serializers.ModelSerializer):
             'revision',
             'push_timestamp',
             'prev_push_revision',
-            'assignee_username',
-            'assignee_email',
+            # 'assignee_username',
+            # 'assignee_email',
             'performance_tags',
         ]
 
