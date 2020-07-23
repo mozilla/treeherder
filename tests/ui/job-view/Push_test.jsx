@@ -9,7 +9,10 @@ import FilterModel from '../../../ui/models/filter';
 import pushListFixture from '../mock/push_list';
 import jobListFixture from '../mock/job_list/job_2';
 import configureStore from '../../../ui/job-view/redux/configureStore';
-import Push, { joinArtifacts } from '../../../ui/job-view/pushes/Push';
+import Push, {
+  transformTestPath,
+  joinArtifacts,
+} from '../../../ui/job-view/pushes/Push';
 import { getApiUrl } from '../../../ui/helpers/url';
 import { findInstance } from '../../../ui/helpers/job';
 
@@ -37,6 +40,40 @@ const manifestsByTask = {
     'devtools/client/webconsole/test/node/fixtures/stubs/stubs.ini',
   ],
 };
+
+describe('Transform WPT test paths', () => {
+  test('Test path transformations', () => {
+    const tests = [
+      {
+        manifest: 'devtools/client/framework/browser-toolbox/test/browser.ini',
+        test: 'browser_browser_toolbox.js',
+        expected:
+          'devtools/client/framework/browser-toolbox/test/browser_browser_toolbox.js',
+      },
+      {
+        manifest: '/IndexedDB',
+        test: '/IndexedDB/abort-in-initial-upgradeneeded.html',
+        expected:
+          'testing/web-platform/tests/IndexedDB/abort-in-initial-upgradeneeded.html',
+      },
+      {
+        manifest: '/_mozilla/xml',
+        test: '/_mozilla/xml/parsedepth.html',
+        expected: 'testing/web-platform/mozilla/tests/xml/parsedepth.html',
+      },
+      {
+        manifest: '/IndexedDB/key-generators',
+        test:
+          '/IndexedDB/key-generators/reading-autoincrement-indexes-cursors.any.worker.html',
+        expected:
+          'testing/web-platform/tests/IndexedDB/key-generators/reading-autoincrement-indexes-cursors.any.worker.html',
+      },
+    ];
+    tests.forEach(({ manifest, test, expected }) => {
+      expect(transformTestPath(manifest, test)).toEqual(expected);
+    });
+  });
+});
 
 describe('Push', () => {
   const repoName = 'autoland';

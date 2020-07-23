@@ -37,6 +37,27 @@ import PushJobs from './PushJobs';
 const watchCycleStates = ['none', 'push', 'job', 'none'];
 const platformArray = Object.values(thPlatformMap);
 
+// Bug 1638424 - Transform WPT test paths to look like paths
+// from a local checkout
+export const transformTestPath = (manifest, testPath) => {
+  let newTestPath = testPath;
+  let basePath;
+  // WPT path transformations
+  if (testPath.startsWith('/_mozilla')) {
+    // /_mozilla/<path> => testing/web-platform/mozilla/tests/<path>
+    basePath = 'testing/web-platform/mozilla/tests';
+    newTestPath = testPath.replace('/_mozilla', '');
+  } else if (testPath.startsWith('/')) {
+    // /<path> => testing/web-platform/tests/<path>
+    basePath = 'testing/web-platform/tests';
+  } else {
+    const splitPath = manifest.split('/');
+    basePath = splitPath.splice(0, splitPath.length - 1).join('/');
+    newTestPath = `/${newTestPath}`;
+  }
+  return `${basePath}${newTestPath}`;
+};
+
 export const joinArtifacts = (manifestsByTask, testsByManifest) => {
   // We need to create a map from taskName to testPaths:
   // e.g. taskName: test-linux1804-64-shippable/opt-mochitest-devtools-chrome-e10s-1
@@ -45,11 +66,9 @@ export const joinArtifacts = (manifestsByTask, testsByManifest) => {
   const taskNameToTestPaths = {};
   Object.entries(manifestsByTask).forEach(([taskName, manifetsts]) => {
     manifetsts.forEach((manifest) => {
-      const splitPath = manifest.split('/');
-      const basePath = splitPath.splice(0, splitPath.length - 1).join('/');
       taskNameToTestPaths[taskName] = taskNameToTestPaths[taskName] || [];
       (testsByManifest[manifest] || []).forEach((test) => {
-        taskNameToTestPaths[taskName].push(`${basePath}/${test}`);
+        taskNameToTestPaths[taskName].push(transformTestPath(manifest, test));
       });
       taskNameToTestPaths[taskName].push(manifest);
     });
@@ -282,7 +301,9 @@ class Push extends React.PureComponent {
       const existingJobs = jobList.filter((job) => !newIds.includes(job.id));
       // Join both lists and add test_paths and task_run property
       const newJobList = [...existingJobs, ...jobs].map((job) => {
-        job.test_paths = taskNameToTestPaths[job.job_type_name] || [];
+        if (Object.keys(taskNameToTestPaths).length > 0) {
+          job.test_paths = taskNameToTestPaths[job.job_type_name] || [];
+        }
         job.task_run = getTaskRunStr(job);
         return job;
       });
