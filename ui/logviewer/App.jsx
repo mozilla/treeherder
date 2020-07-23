@@ -29,6 +29,8 @@ import { formatArtifacts, errorLinesCss } from '../helpers/display';
 import Navigation from './Navigation';
 import ErrorLines from './ErrorLines';
 
+const JOB_DETAILS_COLLAPSED = 'jobDetailsCollapsed';
+
 const getUrlLineNumber = function getUrlLineNumber() {
   const lineNumberParam = getUrlParam('lineNumber');
 
@@ -42,6 +44,7 @@ class App extends React.PureComponent {
   constructor(props) {
     super(props);
     const queryString = getAllUrlParams();
+    const collapseDetails = localStorage.getItem(JOB_DETAILS_COLLAPSED);
 
     this.state = {
       rawLogUrl: '',
@@ -50,7 +53,8 @@ class App extends React.PureComponent {
       jobError: '',
       revision: null,
       errors: [],
-      collapseDetails: true,
+      collapseDetails:
+        collapseDetails !== null ? JSON.parse(collapseDetails) : true,
       highlight: getUrlLineNumber(),
       repoName: queryString.get('repo'),
       jobId: queryString.get('job_id'),
@@ -197,9 +201,15 @@ class App extends React.PureComponent {
 
   collapseJobDetails = () => {
     const { collapseDetails } = this.state;
-    this.setState({
-      collapseDetails: !collapseDetails,
-    });
+
+    this.setState(
+      {
+        collapseDetails: !collapseDetails,
+      },
+      () => {
+        localStorage.setItem(JOB_DETAILS_COLLAPSED, !collapseDetails);
+      },
+    );
   };
 
   setSelectedLine = (highlight, scrollToTop) => {
