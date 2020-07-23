@@ -66,7 +66,7 @@ class CommitHistory extends React.PureComponent {
     const authorEmail = authorMatch ? authorMatch[1] : author;
     const expandIcon = isExpanded ? faCaretUp : faCaretRight;
     const expandTitle = isExpanded ? 'Click to collapse' : 'Click to expand';
-    const expandText = isExpanded ? 'Hide all commits' : 'Show more commits';
+    const expandText = isExpanded ? 'Hide commits' : 'Show more commits';
 
     return (
       <React.Fragment>
