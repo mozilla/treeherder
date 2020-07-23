@@ -105,6 +105,7 @@ class CommitHistory extends React.PureComponent {
                 revision={revisions[1]}
                 repo={currentRepo}
                 key={revision.revision}
+                commitShaClass="font-weight-bold text-secondary"
               />
             </div>
           )}
@@ -114,6 +115,7 @@ class CommitHistory extends React.PureComponent {
               revisions={revisions.slice(2, 20)}
               revisionCount={revisionCount - 2}
               repo={currentRepo}
+              commitShaClass="font-weight-bold text-secondary"
             />
           )}
           <div className="ml-3">

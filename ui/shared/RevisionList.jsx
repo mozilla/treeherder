@@ -16,6 +16,7 @@ export class RevisionList extends React.PureComponent {
       widthClass,
       children,
       bugSummaryMap,
+      commitShaClass,
     } = this.props;
 
     return (
@@ -26,6 +27,7 @@ export class RevisionList extends React.PureComponent {
             repo={repo}
             key={revision.revision}
             bugSummaryMap={bugSummaryMap}
+            commitShaClass={commitShaClass}
           />
         ))}
         {revisionCount > revisions.length && (
@@ -45,10 +47,12 @@ RevisionList.propTypes = {
     pushLogUrl: PropTypes.string,
   }).isRequired,
   widthClass: PropTypes.string,
+  commitShaClass: PropTypes.string,
 };
 
 RevisionList.defaultProps = {
   widthClass: '',
+  commitShaClass: '',
 };
 
 export function MoreRevisionsLink(props) {
