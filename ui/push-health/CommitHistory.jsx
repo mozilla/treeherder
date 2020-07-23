@@ -177,7 +177,7 @@ class CommitHistory extends React.PureComponent {
                 aria-label={expandTitle}
                 alt=""
               />
-              <span className="ml-1">{expandText}</span>
+              <span className="ml-1 font-weight-bold">{expandText}</span>
             </Button>
           </span>
         )}
