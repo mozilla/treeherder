@@ -2,7 +2,7 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import { Alert, Button } from 'reactstrap';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faCaretDown, faCaretRight } from '@fortawesome/free-solid-svg-icons';
+import { faCaretUp, faCaretRight } from '@fortawesome/free-solid-svg-icons';
 
 import Clipboard from '../shared/Clipboard';
 import PushHealthStatus from '../shared/PushHealthStatus';
@@ -64,7 +64,7 @@ class CommitHistory extends React.PureComponent {
     const headerText = revisions[0].comments.split('\n')[0];
     const authorMatch = author.match(/<(.*?)>+/);
     const authorEmail = authorMatch ? authorMatch[1] : author;
-    const expandIcon = isExpanded ? faCaretDown : faCaretRight;
+    const expandIcon = isExpanded ? faCaretUp : faCaretRight;
     const expandTitle = isExpanded ? 'Click to collapse' : 'Click to expand';
     const expandText = isExpanded ? 'Hide all commits' : 'Show more commits';
 
@@ -98,9 +98,9 @@ class CommitHistory extends React.PureComponent {
             </span>
           </div>
         </div>
-        <div className="commit-area mt-2 pl-3 text-secondary">
+        <div className="commit-area mt-2 text-secondary">
           {revisions.length > 1 && (
-            <div>
+            <div className="ml-3">
               <Revision
                 revision={revisions[1]}
                 repo={currentRepo}
@@ -108,37 +108,15 @@ class CommitHistory extends React.PureComponent {
               />
             </div>
           )}
-          {revisions.length > 2 && (
-            <React.Fragment>
-              <span className="font-weight-bold">
-                <Button
-                  onClick={this.toggleDetails}
-                  outline
-                  color="darker-secondary"
-                  className="border-0 pl-0 ml-2 shadow-none"
-                  role="button"
-                  aria-expanded={isExpanded}
-                >
-                  <FontAwesomeIcon
-                    icon={expandIcon}
-                    title={expandTitle}
-                    aria-label={expandTitle}
-                    alt=""
-                  />
-                  <span className="ml-1">{expandText}</span>
-                </Button>
-              </span>
-              {isExpanded && (
-                <RevisionList
-                  revision={revision}
-                  revisions={revisions.slice(2, 20)}
-                  revisionCount={revisionCount - 2}
-                  repo={currentRepo}
-                />
-              )}
-            </React.Fragment>
+          {revisions.length > 2 && isExpanded && (
+            <RevisionList
+              revision={revision}
+              revisions={revisions.slice(2, 20)}
+              revisionCount={revisionCount - 2}
+              repo={currentRepo}
+            />
           )}
-          <div className="ml-1">
+          <div className="ml-3">
             Base commit:
             <span>
               {!exactMatch && (
@@ -181,6 +159,26 @@ class CommitHistory extends React.PureComponent {
             </span>
           </div>
         </div>
+        {revisions.length > 2 && (
+          <span className="font-weight-bold">
+            <Button
+              onClick={this.toggleDetails}
+              outline
+              color="darker-secondary"
+              className="border-0 pl-0 shadow-none"
+              role="button"
+              aria-expanded={isExpanded}
+            >
+              <FontAwesomeIcon
+                icon={expandIcon}
+                title={expandTitle}
+                aria-label={expandTitle}
+                alt=""
+              />
+              <span className="ml-1">{expandText}</span>
+            </Button>
+          </span>
+        )}
       </React.Fragment>
     );
   }
