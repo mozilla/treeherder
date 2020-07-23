@@ -22,27 +22,24 @@ export const getRepo = function getRepo() {
   return getUrlParam('repo') || thDefaultRepo;
 };
 
-export const setLocation = function setLocation(params, hashPrefix = '/jobs') {
-  window.location.hash = `#${hashPrefix}${createQueryParams(params)}`;
+// TODO these all were used to update the hash - are they needed?
+export const setLocation = function setLocation(params, route = '/jobs') {
+  window.location = `${route}${createQueryParams(params)}`;
 };
 
 // change the url hash without firing a ``hashchange`` event.
 export const replaceLocation = function replaceLocation(
   params,
-  hashPrefix = '/jobs',
+  route = '/jobs',
 ) {
   window.history.replaceState(
     null,
     null,
-    `${window.location.pathname}#${hashPrefix}${createQueryParams(params)}`,
+    `${window.location.pathname}${route}${createQueryParams(params)}`,
   );
 };
 
-export const setUrlParam = function setUrlParam(
-  field,
-  value,
-  hashPrefix = '/jobs',
-) {
+export const setUrlParam = function setUrlParam(field, value, route = '/jobs') {
   const params = getAllUrlParams();
 
   if (value) {
@@ -50,7 +47,7 @@ export const setUrlParam = function setUrlParam(
   } else {
     params.delete(field);
   }
-  setLocation(params, hashPrefix);
+  setLocation(params, route);
 };
 
 export const getRepoUrl = function getRepoUrl(newRepoName) {

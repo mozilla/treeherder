@@ -16,28 +16,6 @@ module.exports = {
         entry: 'index',
         template: 'ui/index.html',
       },
-      logviewer: {
-        entry: 'index',
-        template: 'ui/index.html',
-      },
-      userguide: {
-        entry: 'index',
-        template: 'ui/index.html',
-      },
-      pushhealth: {
-        entry: 'push-health/index.jsx',
-        title: 'Push Health',
-        favicon: 'ui/img/push-health-ok.png',
-        template: 'ui/index.html',
-      },
-      perf: {
-        entry: 'index',
-        template: 'ui/index.html',
-      },
-      'intermittent-failures': {
-        entry: 'index',
-        template: 'ui/index.html',
-      },
     },
     output: '.build/',
     tests: 'tests/ui/',

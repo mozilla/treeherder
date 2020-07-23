@@ -1,12 +1,16 @@
-import React from 'react';
-import { Route, Switch, Redirect, useHistory } from 'react-router-dom';
+import React, { Suspense, lazy } from 'react';
+import { Route, Switch, Redirect } from 'react-router-dom';
 import { hot } from 'react-hot-loader/root';
 
-import IntermittentFailuresApp from './intermittent-failures/App';
-import PerfherderApp from './perfherder/App';
-import LoginCallback from './login-callback/LoginCallback';
-import TaskclusterCallback from './taskcluster-auth-callback/TaskclusterCallback';
+import LoadingSpinner from './shared/LoadingSpinner';
 import JobsViewApp from './job-view/App';
+// import LoginCallback from './login-callback/LoginCallback';
+// import TaskclusterCallback from './taskcluster-auth-callback/TaskclusterCallback';
+
+const IntermittentFailuresApp = lazy(() =>
+  import('./intermittent-failures/App'),
+);
+const PerfherderApp = lazy(() => import('./perfherder/App'));
 
 // TODO
 // Move user state to here and pass to all other apps
@@ -15,19 +19,11 @@ import JobsViewApp from './job-view/App';
 // react-helmet to update titles and favicons dynamically
 
 const App = () => {
-  const history = useHistory();
-  console.log(history);
-  // if (location.hash.startsWith('#/')) {
-  //   history.push(location.hash.replace('#', '')) // or history.replace
-  // }
-
   return (
     <div>
-      <Switch>
-        <Route exact path="/">
-          <Home />
-        </Route>
-        <Route
+      <Suspense fallback={<LoadingSpinner />}>
+        <Switch>
+          {/* <Route
           exact
           path="/login"
           render={(props) => <LoginCallback {...props} />}
@@ -36,14 +32,10 @@ const App = () => {
           exact
           path="/taskcluster-auth"
           render={(props) => <TaskclusterCallback {...props} />}
-        />
-        <Route
-          exact
-          path="/jobs"
-          render={(props) => <JobsViewApp {...props} />}
-        />
+        /> */}
+          <Route path="/jobs" render={(props) => <JobsViewApp {...props} />} />
 
-        {/* entry: 'job-view/index.jsx',
+          {/* entry: 'job-view/index.jsx',
         entry: 'index',
         favicon: 'ui/img/tree_open.png',
         title: 'Treeherder',
@@ -67,30 +59,24 @@ const App = () => {
         title: 'Push Health',
         favicon: 'ui/img/push-health-ok.png',
         template: 'ui/index.html', */}
-        <Route
-          path="/intermittent-failures"
-          render={(props) => <IntermittentFailuresApp {...props} />}
-        />
-        <Route
-          path="/perfherder"
-          render={(props) => <PerfherderApp {...props} />}
-        />
-        <Redirect from="/perf.html" to="/perfherder" />
-        <Redirect
-          from="/intermittent-failures.html"
-          to="/intermittent-failures"
-        />
-        <Redirect from="/logviewer.html" to="/logviewer" />
-      </Switch>
+          <Route
+            path="/intermittent-failures"
+            render={(props) => <IntermittentFailuresApp {...props} />}
+          />
+          <Route
+            path="/perfherder"
+            render={(props) => <PerfherderApp {...props} />}
+          />
+          <Redirect from="/perf.html" to="/perfherder" />
+          <Redirect
+            from="/intermittent-failures.html"
+            to="/intermittent-failures"
+          />
+          <Redirect from="/" to="/jobs" />
+        </Switch>
+      </Suspense>
     </div>
   );
 };
-function Home() {
-  return (
-    <div>
-      <h2>Home</h2>
-    </div>
-  );
-}
 
 export default hot(App);

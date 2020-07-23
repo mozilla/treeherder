@@ -115,7 +115,7 @@ export default class FilterModel {
   push = () => {
     const { origin } = window.location;
 
-    window.location.href = `${origin}/#/jobs?${this.getFilterQueryString()}`;
+    window.location.href = `${origin}/jobs?${this.getFilterQueryString()}`;
   };
 
   setOnlySuperseded = () => {
