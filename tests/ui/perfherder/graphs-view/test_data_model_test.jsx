@@ -105,8 +105,45 @@ test("Tags dropdown has the default tag set to 'all tags'", async () => {
   const { getByTitle } = testDataModel();
 
   const dropdown = await waitFor(() => getByTitle('Tag'));
-
   const tag = dropdown.querySelector('button');
 
   expect(tag.innerHTML).toBe('all tags');
+});
+
+test('Selecting a tag from tags dropdown shows the tests that have that tag', async () => {
+  const { getByTitle, queryByTestId, getByText } = testDataModel();
+
+  const dropdown = await waitFor(() => getByTitle('Tag'));
+
+  fireEvent.click(dropdown);
+
+  const tag = await waitFor(() => getByText(seriesData[0].tags[0]));
+
+  fireEvent.click(tag);
+
+  const tests = await waitFor(() => queryByTestId('tests'));
+  const test = await waitFor(() => queryByTestId(seriesData[0].id.toString()));
+
+  expect(tests).toContain(test);
+});
+
+test("Selecting 'all tags' from tags dropdown shows all the tests", async () => {
+  const { getByTitle, getByTestId, getByText } = testDataModel();
+
+  const dropdown = await waitFor(() => getByTitle('Tag'));
+
+  fireEvent.click(dropdown);
+
+  let tag = await waitFor(() => getByText(seriesData[0].tags[0]));
+
+  fireEvent.click(tag);
+  fireEvent.click(dropdown);
+
+  tag = await waitFor(() => getByText('all tags'));
+
+  fireEvent.click(tag);
+
+  const tests = await waitFor(() => getByTestId('tests'));
+
+  expect(tests).toHaveLength(seriesData.length);
 });

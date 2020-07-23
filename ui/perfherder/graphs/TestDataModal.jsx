@@ -45,8 +45,8 @@ export default class TestDataModal extends React.Component {
       filterText: '',
       loading: true,
       selectedUnits: new Set(),
-      tag: this.defaultTag,
-      tags: [this.defaultTag],
+      activeTag: this.defaultTag,
+      availableTags: [this.defaultTag],
     };
   }
 
@@ -67,7 +67,7 @@ export default class TestDataModal extends React.Component {
   }
 
   componentDidUpdate(prevProps, prevState) {
-    const { platforms, platform, tags, tag } = this.state;
+    const { platforms, platform, availableTags, activeTag } = this.state;
     const { testData } = this.props;
 
     if (prevState.platforms !== platforms) {
@@ -79,12 +79,13 @@ export default class TestDataModal extends React.Component {
       this.setState({ platform: newPlatform });
     }
 
-    if (prevState.tags !== tags) {
-      const activeTag = tags.find((item) => item === tag)
-        ? tag
+    if (prevState.availableTags !== availableTags) {
+      const newActiveTag = availableTags.find((item) => item === activeTag)
+        ? activeTag
         : this.defaultTag;
+
       // eslint-disable-next-line react/no-did-update-set-state
-      this.setState({ tag: activeTag });
+      this.setState({ activeTag: newActiveTag }, this.applyFilters);
     }
 
     if (this.props.options !== prevProps.options) {
@@ -116,8 +117,8 @@ export default class TestDataModal extends React.Component {
   }
 
   getTagOptions(seriesData) {
-    const newTags = flatMap(seriesData, (test) => test.tags);
-    return [...new Set(newTags), this.defaultTag];
+    const newAvailableTags = flatMap(seriesData, (test) => test.tags);
+    return [...new Set(newAvailableTags), this.defaultTag];
   }
 
   getDropdownOptions(options) {
@@ -258,41 +259,49 @@ export default class TestDataModal extends React.Component {
         testData,
       );
       const { seriesData } = updates;
-      const tags = this.getTagOptions(seriesData);
-      this.setState({ ...updates, tags });
-      if (filterText) {
-        await this.updateFilterText(filterText);
+      const availableTags = this.getTagOptions(seriesData);
+
+      this.setState({ ...updates, availableTags });
+      this.applyFilters(filterText);
+    } else {
+      params.framework = relatedSeries.framework_id;
+      if (option === 'addRelatedPlatform') {
+        this.addRelatedBranches(params, false);
+      } else if (option === 'addRelatedConfigs') {
+        this.addRelatedConfigs(params);
+      } else if (option === 'addRelatedBranches') {
+        this.addRelatedBranches(params);
+      } else if (option === 'addRelatedApplications') {
+        this.addRelatedApplications(params);
       }
-      return;
-    }
-
-    params.framework = relatedSeries.framework_id;
-    if (option === 'addRelatedPlatform') {
-      this.addRelatedBranches(params, false);
-    } else if (option === 'addRelatedConfigs') {
-      this.addRelatedConfigs(params);
-    } else if (option === 'addRelatedBranches') {
-      this.addRelatedBranches(params);
-    } else if (option === 'addRelatedApplications') {
-      this.addRelatedApplications(params);
-    }
-
-    if (filterText) {
-      await this.updateFilterText(filterText);
+      this.applyFilters(filterText);
     }
   };
 
   findObject = (list, key, value) => list.find((item) => item[key] === value);
 
-  updateFilterText = (filterText) => {
-    const { seriesData } = this.state;
-    const filteredData = seriesData.filter((test) => {
+  filterTestsByText = (tests, filterText) => {
+    return tests.filter((test) => {
       // spell out all searchable characteristics
       // into a single encompassing string
       const textToSearch = `${test.name} ${test.application}`;
 
       return containsText(textToSearch, filterText);
     });
+  };
+
+  applyFilters = (filterText) => {
+    const { seriesData, activeTag } = this.state;
+    let filteredData = [];
+
+    filteredData = seriesData.filter(
+      (test) => activeTag === this.defaultTag || test.tags.includes(activeTag),
+    );
+
+    if (filterText) {
+      filteredData = this.filterTestsByText(filteredData, filterText);
+    }
+
     this.setState({ filteredData, filterText });
   };
 
@@ -408,8 +417,8 @@ export default class TestDataModal extends React.Component {
       filterText,
       loading,
       pinnedProjects,
-      tag,
-      tags,
+      activeTag,
+      availableTags,
     } = this.state;
     const { projects, frameworks, showModal } = this.props;
     const projectOptions = this.getDropdownOptions(projects);
@@ -450,20 +459,21 @@ export default class TestDataModal extends React.Component {
       },
     ];
 
-    if (tags.length > 1) {
+    if (availableTags.length > 1) {
       modalOptions = [
         ...modalOptions,
         {
-          options: tags.sort(),
-          selectedItem: tag,
-          updateData: (tag) => this.setState({ tag }, this.processOptions),
+          options: availableTags.sort(),
+          selectedItem: activeTag,
+          updateData: (activeTag) =>
+            this.setState({ activeTag }, this.processOptions),
           title: 'Tag',
         },
       ];
     }
 
     let tests = [];
-    if (filterText) {
+    if (filterText || activeTag !== this.defaultTag) {
       tests = filteredData;
     } else if (relatedTests.length || showNoRelatedTests) {
       tests = relatedTests;
@@ -498,7 +508,7 @@ export default class TestDataModal extends React.Component {
               <Col className="p-2 col-4">
                 <InputFilter
                   disabled={relatedTests.length > 0}
-                  updateFilterText={this.updateFilterText}
+                  updateFilterText={this.applyFilters}
                 />
               </Col>
             </Row>
