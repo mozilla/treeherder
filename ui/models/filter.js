@@ -16,6 +16,7 @@ import {
   allFilterParams,
 } from '../helpers/filter';
 import { getAllUrlParams } from '../helpers/location';
+import { updateQueryParams } from '../helpers/url';
 
 export const getNonFilterUrlParams = () =>
   [...getAllUrlParams().entries()].reduce(
@@ -51,7 +52,9 @@ export const getFilterUrlParamsWithDefaults = () => {
 };
 
 export default class FilterModel {
-  constructor() {
+  constructor(history, location) {
+    this.history = history;
+    this.location = location;
     this.urlParams = getFilterUrlParamsWithDefaults();
   }
 
@@ -108,15 +111,8 @@ export default class FilterModel {
   getFilterQueryString = () =>
     new URLSearchParams(this.getUrlParamsWithoutDefaults()).toString();
 
-  /**
-   * Push all the url params to the url.  Components listening for hashchange
-   * will get updates.
-   */
-  push = () => {
-    const { origin } = window.location;
-
-    window.location.href = `${origin}/jobs?${this.getFilterQueryString()}`;
-  };
+  push = () =>
+    updateQueryParams(this.getFilterQueryString(), this.history, this.location);
 
   setOnlySuperseded = () => {
     this.urlParams.resultStatus = 'superseded';

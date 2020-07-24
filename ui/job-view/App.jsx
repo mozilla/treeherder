@@ -2,13 +2,11 @@ import React from 'react';
 import { Modal } from 'reactstrap';
 import { hot } from 'react-hot-loader/root';
 import SplitPane from 'react-split-pane';
-import pick from 'lodash/pick';
-import isEqual from 'lodash/isEqual';
 import { Provider } from 'react-redux';
 
 import { thFavicons, thEvents } from '../helpers/constants';
 import ShortcutTable from '../shared/ShortcutTable';
-import { hasUrlFilterChanges, matchesDefaults } from '../helpers/filter';
+import { matchesDefaults } from '../helpers/filter';
 import { getAllUrlParams, getRepo } from '../helpers/location';
 import { MAX_TRANSIENT_AGE } from '../helpers/notifications';
 import { deployedRevisionUrl } from '../helpers/url';
@@ -62,7 +60,10 @@ class App extends React.Component {
   constructor(props) {
     super(props);
 
-    const filterModel = new FilterModel();
+    const filterModel = new FilterModel(
+      this.props.history,
+      this.props.location,
+    );
     // Set the URL to updated parameter styles, if needed.  Otherwise it's a no-op.
     filterModel.push();
     const urlParams = getAllUrlParams();
@@ -114,7 +115,6 @@ class App extends React.Component {
     });
 
     window.addEventListener('resize', this.updateDimensions, false);
-    window.addEventListener('hashchange', this.handleUrlChanges, false);
     window.addEventListener('storage', this.handleStorageEvent);
     window.addEventListener(thEvents.filtersUpdated, this.handleFiltersUpdated);
 
@@ -160,9 +160,14 @@ class App extends React.Component {
     }, MAX_TRANSIENT_AGE);
   }
 
+  componentDidUpdate(prevProps) {
+    if (prevProps.location.search !== this.props.location.search) {
+      this.handleUrlChanges();
+    }
+  }
+
   componentWillUnmount() {
     window.removeEventListener('resize', this.updateDimensions, false);
-    window.removeEventListener('hashchange', this.handleUrlChanges, false);
     window.removeEventListener('storage', this.handleUrlChanges, false);
 
     if (this.updateInterval) {
@@ -233,12 +238,13 @@ class App extends React.Component {
     );
   };
 
-  handleUrlChanges = (ev) => {
+  handleUrlChanges = () => {
     const { repos } = this.state;
-    const { newURL, oldURL } = ev;
+    const { location, history } = this.props;
+
     const urlParams = getAllUrlParams();
     const newRepo = urlParams.get('repo');
-    // We only want to set state if any of these or the filter values have changed
+
     const newState = {
       hasSelectedJob:
         urlParams.has('selectedJob') || urlParams.has('selectedTaskRun'),
@@ -246,15 +252,11 @@ class App extends React.Component {
       duplicateJobsVisible: urlParams.get('duplicate_jobs') === 'visible',
       currentRepo: repos.find((repo) => repo.name === newRepo),
     };
-    const oldState = pick(this.state, Object.keys(newState));
 
-    // Only re-create the FilterModel if url params that affect it have changed.
-    if (hasUrlFilterChanges(oldURL, newURL)) {
-      this.setState({ filterModel: new FilterModel() });
-    }
-    if (!isEqual(newState, oldState)) {
-      this.setState(newState);
-    }
+    this.setState({
+      filterModel: new FilterModel(history, location),
+      [newState]: newState,
+    });
   };
 
   handleFiltersUpdated = () => {

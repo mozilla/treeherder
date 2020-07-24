@@ -33,6 +33,7 @@ const App = () => {
           path="/taskcluster-auth"
           render={(props) => <TaskclusterCallback {...props} />}
         /> */}
+          {/* TODO add redirect from / and add query param support */}
           <Route path="/jobs" render={(props) => <JobsViewApp {...props} />} />
 
           {/* entry: 'job-view/index.jsx',

@@ -8,6 +8,7 @@ import {
   DropdownToggle,
   UncontrolledDropdown,
 } from 'reactstrap';
+import { Link } from 'react-router-dom';
 
 import { getRepoUrl } from '../../helpers/location';
 
@@ -83,13 +84,9 @@ export default function ReposMenu(props) {
               {!!group.repos &&
                 group.repos.map((repo) => (
                   <li key={repo.name}>
-                    <a
-                      title="Open repo"
-                      className="dropdown-link"
-                      href={getRepoUrl(repo.name)}
-                    >
+                    <Link className="dropdown-link" to={getRepoUrl(repo.name)}>
                       {repo.name}
-                    </a>
+                    </Link>
                   </li>
                 ))}
             </DropdownItem>
