@@ -669,6 +669,7 @@ class Push extends React.PureComponent {
                   repo={currentRepo}
                   bugSummaryMap={bugSummaryMap}
                   widthClass="ml-4"
+                  commitShaClass="text-monospace"
                 >
                   {showPushHealthSummary && (
                     <div className="ml-3 mt-4">
@@ -703,6 +704,7 @@ class Push extends React.PureComponent {
                 revision={tipRevision}
                 repo={currentRepo}
                 key={tipRevision.revision}
+                commitShaClass="text-monospace"
               />
             </ul>
           </span>

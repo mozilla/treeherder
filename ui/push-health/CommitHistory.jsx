@@ -143,7 +143,7 @@ class CommitHistory extends React.PureComponent {
                   rel="noopener noreferrer"
                   title="Open this push"
                   data-testid="parent-commit-sha"
-                  className="mr-1 ml-1 text-monospace commit-sha font-weight-bold text-secondary"
+                  className="mr-1 ml-1 font-weight-bold text-secondary"
                 >
                   {parentPushRevision || parentSha}
                 </a>

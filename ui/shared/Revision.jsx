@@ -90,7 +90,7 @@ export class Revision extends React.PureComponent {
           <a
             title={`Open revision ${commitRevision} on ${repo.url}`}
             href={repo.getRevisionHref(commitRevision)}
-            className={`text-monospace commit-sha ${commitShaClass}`}
+            className={`commit-sha ${commitShaClass}`}
           >
             {commitRevision.substring(0, 12)}
           </a>
