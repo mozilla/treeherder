@@ -143,12 +143,12 @@ describe('Filtering', () => {
 
       // The api returns the same joblist for each push.
       // 10 pushes with 2 failures each, but only 1 unclassified.
-      expect(jobCount()).toBe(10);
+      expect(jobCount()).toBe(20);
 
       // undo the filtering and make sure we see all the jobs again
       fireEvent.click(unclassifiedOnlyButton);
       await waitFor(() => getAllByText('yaml'));
-      expect(jobCount()).toBe(40);
+      expect(jobCount()).toBe(50);
     });
 
     test('KeyboardShortcut u: toggle unclassified jobs', async () => {
@@ -159,7 +159,7 @@ describe('Filtering', () => {
       fireEvent.keyDown(document.body, { key: 'u', keyCode: 85 });
 
       await waitForElementToBeRemoved(() => getAllByText(symbolToRemove));
-      expect(jobCount()).toBe(10);
+      expect(jobCount()).toBe(20);
     });
   });
 
@@ -233,7 +233,7 @@ describe('Filtering', () => {
       // undo the filtering and make sure we see all the jobs again
       setFilterText(filterField, null);
       await waitFor(() => getAllByText('B'));
-      expect(jobCount()).toBe(40);
+      expect(jobCount()).toBe(50);
     });
 
     test('KeyboardShortcut f: focus the quick filter input', async () => {
@@ -283,12 +283,12 @@ describe('Filtering', () => {
       clickFilterChicklet('green');
 
       await waitForElementToBeRemoved(() => getAllByText('D'));
-      expect(jobCount()).toBe(30);
+      expect(jobCount()).toBe(40);
 
       // undo the filtering and make sure we see all the jobs again
       clickFilterChicklet('green');
       await waitFor(() => getAllByText('D'));
-      expect(jobCount()).toBe(40);
+      expect(jobCount()).toBe(50);
     });
 
     test('uncheck failures should leave 20 jobs', async () => {
@@ -304,7 +304,7 @@ describe('Filtering', () => {
       // undo the filtering and make sure we see all the jobs again
       clickFilterChicklet('red');
       await waitFor(() => getAllByText(symbolToRemove));
-      expect(jobCount()).toBe(40);
+      expect(jobCount()).toBe(50);
     });
 
     test('uncheck in progress should leave 20 jobs', async () => {
@@ -315,12 +315,12 @@ describe('Filtering', () => {
       clickFilterChicklet('dkgray');
 
       await waitForElementToBeRemoved(() => getAllByText(symbolToRemove));
-      expect(jobCount()).toBe(30);
+      expect(jobCount()).toBe(40);
 
       // undo the filtering and make sure we see all the jobs again
       clickFilterChicklet('dkgray');
       await waitFor(() => getAllByText(symbolToRemove));
-      expect(jobCount()).toBe(40);
+      expect(jobCount()).toBe(50);
     });
 
     test('KeyboardShortcut i: toggle off in-progress tasks', async () => {
@@ -332,7 +332,7 @@ describe('Filtering', () => {
       fireEvent.keyDown(document.body, { key: 'i', keyCode: 73 });
 
       await waitForElementToBeRemoved(() => getAllByText(symbolToRemove));
-      expect(jobCount()).toBe(30);
+      expect(jobCount()).toBe(40);
       expect(window.location.hash).toEqual(
         '#/jobs?repo=autoland&resultStatus=testfailed%2Cbusted%2Cexception%2Csuccess%2Cretry%2Cusercancel%2Crunnable',
       );
@@ -346,7 +346,7 @@ describe('Filtering', () => {
       clickFilterChicklet('dkgray');
 
       await waitForElementToBeRemoved(() => getAllByText(symbolToRemove));
-      expect(jobCount()).toBe(30);
+      expect(jobCount()).toBe(40);
 
       await findAllByText('B');
       // undo the filtering and make sure we see all the jobs again
@@ -354,7 +354,7 @@ describe('Filtering', () => {
       fireEvent.keyDown(document.body, { key: 'i', keyCode: 73 });
       await findAllByText('B');
       await waitFor(() => getAllByText(symbolToRemove), 5000);
-      expect(jobCount()).toBe(40);
+      expect(jobCount()).toBe(50);
       expect(window.location.hash).toEqual('#/jobs?repo=autoland');
     });
 
@@ -366,7 +366,7 @@ describe('Filtering', () => {
       clickFilterChicklet('dkgray');
 
       await waitForElementToBeRemoved(() => getAllByText(symbolToRemove));
-      expect(jobCount()).toBe(30);
+      expect(jobCount()).toBe(40);
 
       // undo the filtering with the "Filters | Reset" menu item
       const filtersMenu = await findByText('Filters');
@@ -376,7 +376,7 @@ describe('Filtering', () => {
       fireEvent.click(resetMenuItem);
 
       await waitFor(() => getAllByText(symbolToRemove));
-      expect(jobCount()).toBe(40);
+      expect(jobCount()).toBe(50);
     });
   });
 });

@@ -7,6 +7,8 @@ import reposFixture from '../mock/repositories';
 import pushListFixture from '../mock/push_list';
 import { getApiUrl } from '../../../ui/helpers/url';
 import { getProjectUrl, setUrlParam } from '../../../ui/helpers/location';
+import jobListFixtureOne from '../mock/job_list/job_1.json';
+import fullJob from '../mock/full_job.json';
 
 describe('App', () => {
   const repoName = 'autoland';
@@ -24,15 +26,24 @@ describe('App', () => {
         tree: repoName,
       },
     });
-
+    fetchMock.get(
+      getProjectUrl(
+        '/push/health_summary/?revision=3333333333335143b8df3f4b3e9b504dfbc589a0',
+        'try',
+      ),
+      [],
+    );
     fetchMock.get(
       `begin:${getProjectUrl('/push/?full=true&count=', repoName)}`,
-      pushListFixture,
+      {
+        ...pushListFixture,
+        results: [pushListFixture.results[0]],
+      },
     );
     fetchMock.get(getProjectUrl('/push/?full=true&count=10', 'try'), {
       results: [
         {
-          id: 111111,
+          id: 511138,
           revision: '3333333333335143b8df3f4b3e9b504dfbc589a0',
           author: 'whozat@gmail.com',
           revision_count: 1,
@@ -52,19 +63,83 @@ describe('App', () => {
     fetchMock.get(
       `begin:${getProjectUrl(
         '/push/?full=true&count=11&push_timestamp',
-        'try',
+        repoName,
       )}`,
       {
         results: [],
       },
     );
-    fetchMock.get(`begin:${getApiUrl('/jobs/')}`, {
-      results: [],
-      meta: { repository: repoName, offset: 0, count: 2000 },
+    fetchMock.get(getProjectUrl('/jobs/259537375/', repoName), fullJob);
+    fetchMock.get(getProjectUrl('/jobs/259537372/', repoName), {
+      ...fullJob,
+      task_id: 'secondTaskId',
     });
+    fetchMock.get(getProjectUrl('/jobs/259539665/', repoName), {
+      ...fullJob,
+      task_id: 'MirsMc8UQPeSBC3yKMSlPw',
+    });
+    fetchMock.get(getProjectUrl('/jobs/259539664/', repoName), {
+      ...fullJob,
+      task_id: 'Fe4GqwoZQSStNUbe4EeSPQ',
+    });
+    fetchMock.get(
+      `begin:${getProjectUrl('/performance/data/?job_id=', repoName)}`,
+      [],
+    );
+    fetchMock.get(
+      getProjectUrl('/jobs/303550431/bug_suggestions/', repoName),
+      [],
+    );
+    fetchMock.get(
+      `begin:${getProjectUrl(`/bug-job-map/?job_id=`, repoName)}`,
+      [],
+    );
+    fetchMock.get(
+      getProjectUrl('/jobs/303550431/text_log_errors/', repoName),
+      [],
+    );
+    fetchMock.get(`begin:${getProjectUrl('/note/?job_id=', repoName)}`, []);
+    fetchMock.get(
+      `begin:${getProjectUrl('/job-log-url/?job_id=', repoName)}`,
+      [],
+    );
+    fetchMock.get(`begin:${getApiUrl('/jobs/')}`, jobListFixtureOne);
+
     fetchMock.get(
       'begin:https://firefox-ci-tc.services.mozilla.com/api/index/v1/task/gecko.v2',
       404,
+    );
+    fetchMock.get(
+      'https://firefox-ci-tc.services.mozilla.com/api/queue/v1/task/secondTaskId',
+      404,
+    );
+    fetchMock.get(
+      'https://firefox-ci-tc.services.mozilla.com/api/queue/v1/task/O5YBAWwxRfuZ_UlRJS5Rqg',
+      404,
+    );
+    fetchMock.get(
+      'https://firefox-ci-tc.services.mozilla.com/api/queue/v1/task/MirsMc8UQPeSBC3yKMSlPw',
+      404,
+    );
+    fetchMock.get(
+      'https://firefox-ci-tc.services.mozilla.com/api/queue/v1/task/Fe4GqwoZQSStNUbe4EeSPQ',
+      404,
+    );
+    fetchMock.get(
+      'https://firefox-ci-tc.services.mozilla.com/api/queue/v1/task/QYxMB9-RR5qdI1xGjAmlIw/runs/0/artifacts',
+      [],
+    );
+    fetchMock.get(
+      'https://firefox-ci-tc.services.mozilla.com/api/queue/v1/task/Fe4GqwoZQSStNUbe4EeSPQ/runs/0/artifacts',
+      [],
+    );
+    fetchMock.get(
+      'https://firefox-ci-tc.services.mozilla.com/api/queue/v1/task/JFVlnwufR7G9tZu_pKM0dQ/runs/0/artifacts',
+      [],
+    );
+    fetchMock.get(
+      'https://firefox-ci-tc.services.mozilla.com/api/queue/v1/task/MirsMc8UQPeSBC3yKMSlPw/runs/0/artifacts',
+      [],
     );
     fetchMock.get(
       'https://bugzilla.mozilla.org/rest/bug?id=1556854%2C1555861%2C1559418%2C1563766%2C1561537%2C1563692',
@@ -85,11 +160,19 @@ describe('App', () => {
     });
   });
 
+  afterEach(() => {
+    window.location.hash = `#/jobs?repo=${repoName}`;
+  });
+
+  afterAll(() => {
+    fetchMock.reset();
+  });
+
   test('changing repo updates ``currentRepo``', async () => {
     setUrlParam('repo', repoName);
     const { getByText } = render(<App />);
 
-    await waitFor(() => expect(getByText('fb66bad25e85')).toBeInTheDocument());
+    await waitFor(() => expect(getByText('ba9c692786e9')).toBeInTheDocument());
 
     setUrlParam('repo', 'try');
     await waitFor(() => getByText('333333333333'));
@@ -113,5 +196,79 @@ describe('App', () => {
       getByText('Intermittent Failures View'),
     );
     expect(ifvMenu.getAttribute('href')).toBe('/intermittent-failures.html');
+  });
+
+  const testChangingSelectedJob = async (
+    keyDown,
+    firstJobSymbol,
+    firstJobTaskId,
+    secondJobSymbol,
+    secondJobTaskId,
+  ) => {
+    const { getByText, findByText, findByTestId } = render(<App />);
+    const firstJob = await findByText(firstJobSymbol);
+
+    fireEvent.mouseDown(firstJob);
+
+    expect(await findByTestId('summary-panel')).toBeInTheDocument();
+    await findByText(firstJobTaskId);
+    expect(firstJob).toHaveClass('selected-job');
+
+    fireEvent.keyDown(document.body, keyDown);
+
+    const secondJob = getByText(secondJobSymbol);
+    const secondTaskId = await findByText(secondJobTaskId);
+    expect(secondJob).toHaveClass('selected-job');
+    expect(secondTaskId).toBeInTheDocument();
+
+    return true;
+  };
+
+  test('right arrow key should select next job', async () => {
+    expect(
+      await testChangingSelectedJob(
+        { key: 'ArrowRight', keyCode: 39 },
+        'yaml',
+        'O5YBAWwxRfuZ_UlRJS5Rqg',
+        'B',
+        'secondTaskId',
+      ),
+    ).toBe(true);
+  });
+
+  test('left arrow key should select previous job', async () => {
+    expect(
+      await testChangingSelectedJob(
+        { key: 'ArrowLeft', keyCode: 37 },
+        'Meh',
+        'MirsMc8UQPeSBC3yKMSlPw',
+        'Cpp',
+        'Fe4GqwoZQSStNUbe4EeSPQ',
+      ),
+    ).toBe(true);
+  });
+
+  test('n key should select next unclassified job', async () => {
+    expect(
+      await testChangingSelectedJob(
+        { key: 'n', keyCode: 78 },
+        'yaml',
+        'O5YBAWwxRfuZ_UlRJS5Rqg',
+        'B',
+        'secondTaskId',
+      ),
+    ).toBe(true);
+  });
+
+  test('p key should select previous unclassified job', async () => {
+    expect(
+      await testChangingSelectedJob(
+        { key: 'p', keyCode: 80 },
+        'yaml',
+        'O5YBAWwxRfuZ_UlRJS5Rqg',
+        'Meh',
+        'MirsMc8UQPeSBC3yKMSlPw',
+      ),
+    ).toBe(true);
   });
 });

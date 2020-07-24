@@ -209,6 +209,6 @@ describe('DetailsPanel', () => {
     store.dispatch(pinJobs(jobList.data));
 
     const unPinJobBtns = await waitFor(() => queryAllByTitle('Unpin job'));
-    expect(unPinJobBtns).toHaveLength(4);
+    expect(unPinJobBtns).toHaveLength(5);
   });
 });
