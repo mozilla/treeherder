@@ -16,6 +16,14 @@ export default class TestMetric extends React.PureComponent {
       searchStr,
       jobs,
       showParentMatches,
+      regressionsOrderBy,
+      regressionsGroupBy,
+      knownIssuesOrderBy,
+      knownIssuesGroupBy,
+      setRegressionsOrderBy,
+      setRegressionsGroupBy,
+      setKnownIssuesOrderBy,
+      setKnownIssuesGroupBy,
     } = this.props;
     const { details } = data;
     const { needInvestigation, knownIssues } = details;
@@ -51,6 +59,10 @@ export default class TestMetric extends React.PureComponent {
           }
           hasRetriggerAll
           notify={notify}
+          orderedBy={regressionsOrderBy}
+          groupedBy={regressionsGroupBy}
+          setOrderedBy={setRegressionsOrderBy}
+          setGroupedBy={setRegressionsGroupBy}
         />
         <ClassificationGroup
           jobs={jobs}
@@ -67,6 +79,10 @@ export default class TestMetric extends React.PureComponent {
           expanded={false}
           hasRetriggerAll
           notify={notify}
+          orderBy={knownIssuesOrderBy}
+          groupBy={knownIssuesGroupBy}
+          setOrderedBy={setKnownIssuesOrderBy}
+          setGroupedBy={setKnownIssuesGroupBy}
         />
       </div>
     );
@@ -88,4 +104,23 @@ TestMetric.propTypes = {
   notify: PropTypes.func.isRequired,
   searchStr: PropTypes.string.isRequired,
   showParentMatches: PropTypes.bool.isRequired,
+  regressionsOrderBy: PropTypes.string,
+  regressionsGroupBy: PropTypes.string,
+  knownIssuesOrderBy: PropTypes.string,
+  knownIssuesGroupBy: PropTypes.string,
+  setRegressionsOrderBy: PropTypes.func,
+  setRegressionsGroupBy: PropTypes.func,
+  setKnownIssuesOrderBy: PropTypes.func,
+  setKnownIssuesGroupBy: PropTypes.func,
+};
+
+TestMetric.defaultProps = {
+  regressionsOrderBy: '',
+  regressionsGroupBy: '',
+  knownIssuesOrderBy: '',
+  knownIssuesGroupBy: '',
+  setRegressionsOrderBy: () => {},
+  setRegressionsGroupBy: () => {},
+  setKnownIssuesOrderBy: () => {},
+  setKnownIssuesGroupBy: () => {},
 };

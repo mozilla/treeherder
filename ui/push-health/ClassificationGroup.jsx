@@ -33,8 +33,6 @@ class ClassificationGroup extends React.PureComponent {
     this.state = {
       detailsShowing: props.expanded,
       retriggerDropdownOpen: false,
-      groupedBy: 'path',
-      orderedBy: 'count',
     };
   }
 
@@ -65,14 +63,6 @@ class ClassificationGroup extends React.PureComponent {
     JobModel.retrigger(uniqueJobs, currentRepo, notify, times);
   };
 
-  setGroupedBy = (groupedBy) => {
-    this.setState({ groupedBy });
-  };
-
-  setOrderedBy = (orderedBy) => {
-    this.setState({ orderedBy });
-  };
-
   getTestsByAction = (tests) => {
     const { log, crash, test } = groupBy(tests, 'action');
 
@@ -83,12 +73,7 @@ class ClassificationGroup extends React.PureComponent {
   };
 
   render() {
-    const {
-      detailsShowing,
-      retriggerDropdownOpen,
-      groupedBy,
-      orderedBy,
-    } = this.state;
+    const { detailsShowing, retriggerDropdownOpen } = this.state;
     const {
       jobs,
       tests,
@@ -100,6 +85,10 @@ class ClassificationGroup extends React.PureComponent {
       currentRepo,
       icon,
       iconColor,
+      groupedBy,
+      orderedBy,
+      setGroupedBy,
+      setOrderedBy,
     } = this.props;
     const expandIcon = detailsShowing ? faCaretDown : faCaretRight;
     const expandTitle = detailsShowing
@@ -187,21 +176,23 @@ class ClassificationGroup extends React.PureComponent {
                     <DropdownItem
                       className="pointable"
                       tag="a"
-                      onClick={() => this.setGroupedBy('none')}
+                      onClick={() => setGroupedBy('none')}
                     >
                       None
                     </DropdownItem>
                     <DropdownItem
                       className="pointable"
                       tag="a"
-                      onClick={() => this.setGroupedBy('path')}
+                      onClick={() => {
+                        setGroupedBy('path');
+                      }}
                     >
                       Path
                     </DropdownItem>
                     <DropdownItem
                       className="pointable"
                       tag="a"
-                      onClick={() => this.setGroupedBy('platform')}
+                      onClick={() => setGroupedBy('platform')}
                     >
                       Platform
                     </DropdownItem>
@@ -222,14 +213,18 @@ class ClassificationGroup extends React.PureComponent {
                     <DropdownItem
                       className="pointable"
                       tag="a"
-                      onClick={() => this.setOrderedBy('count')}
+                      onClick={() => {
+                        setOrderedBy('count');
+                      }}
                     >
                       Count
                     </DropdownItem>
                     <DropdownItem
                       className="pointable"
                       tag="a"
-                      onClick={() => this.setOrderedBy('text')}
+                      onClick={() => {
+                        setOrderedBy('text');
+                      }}
                     >
                       Text
                     </DropdownItem>
@@ -269,6 +264,10 @@ ClassificationGroup.propTypes = {
   expanded: PropTypes.bool,
   className: PropTypes.string,
   iconColor: PropTypes.string,
+  orderedBy: PropTypes.string,
+  groupedBy: PropTypes.string,
+  setOrderedBy: PropTypes.func,
+  setGroupedBy: PropTypes.func,
 };
 
 ClassificationGroup.defaultProps = {
@@ -276,6 +275,10 @@ ClassificationGroup.defaultProps = {
   className: '',
   iconColor: 'darker-info',
   hasRetriggerAll: false,
+  orderedBy: '',
+  groupedBy: '',
+  setOrderedBy: () => {},
+  setGroupedBy: () => {},
 };
 
 export default ClassificationGroup;

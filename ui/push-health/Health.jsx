@@ -44,6 +44,7 @@ export default class Health extends React.PureComponent {
 
     this.state = {
       user: { isLoggedIn: false },
+      params,
       revision: params.get('revision'),
       repo: params.get('repo'),
       currentRepo: null,
@@ -55,6 +56,10 @@ export default class Health extends React.PureComponent {
       defaultTabIndex: 0,
       showParentMatches: false,
       searchStr: params.get('searchStr') || '',
+      regressionsOrderBy: params.get('regressionsOrderBy') || 'count',
+      regressionsGroupBy: params.get('regressionsGroupBy') || 'path',
+      knownIssuesOrderBy: params.get('knownIssuesOrderBy') || 'count',
+      knownIssuesGroupBy: params.get('knownIssuesGroupBy') || 'path',
     };
   }
 
@@ -86,6 +91,41 @@ export default class Health extends React.PureComponent {
 
   setUser = (user) => {
     this.setState({ user });
+  };
+
+  push = (params) => {
+    const paramsString = new URLSearchParams(params).toString();
+    const { origin } = window.location;
+
+    window.location.href = `${origin}/pushhealth.html?${paramsString}`;
+  };
+
+  setRegressionsOrderBy = (regressionsOrderBy) => {
+    const { params } = this.state;
+    params.set('regressionsOrderBy', regressionsOrderBy);
+    this.push(params.toString());
+    this.setState({ regressionsOrderBy, params });
+  };
+
+  setRegressionsGroupBy = (regressionsGroupBy) => {
+    const { params } = this.state;
+    params.set('regressionsGroupBy', regressionsGroupBy);
+    this.push(params.toString());
+    this.setState({ regressionsGroupBy });
+  };
+
+  setKnownIssuesOrderBy = (knownIssuesOrderBy) => {
+    const { params } = this.state;
+    params.set('knownIssuesOrderBy', knownIssuesOrderBy);
+    this.push(params.toString());
+    this.setState({ knownIssuesOrderBy });
+  };
+
+  setKnownIssuesGroupBy = (knownIssuesGroupBy) => {
+    const { params } = this.state;
+    params.set('knownIssuesGroupBy', knownIssuesGroupBy);
+    this.push(params.toString());
+    this.setState({ knownIssuesGroupBy });
   };
 
   updatePushHealth = async () => {
@@ -175,6 +215,10 @@ export default class Health extends React.PureComponent {
       currentRepo,
       showParentMatches,
       defaultTabIndex,
+      regressionsOrderBy,
+      regressionsGroupBy,
+      knownIssuesOrderBy,
+      knownIssuesGroupBy,
     } = this.state;
     const { tests, commitHistory, linting, builds } = metrics;
     const needInvestigationCount = tests
@@ -306,6 +350,14 @@ export default class Health extends React.PureComponent {
                       setExpanded={this.setExpanded}
                       searchStr={searchStr}
                       showParentMatches={showParentMatches}
+                      regressionsOrderBy={regressionsOrderBy}
+                      regressionsGroupBy={regressionsGroupBy}
+                      knownIssuesOrderBy={knownIssuesOrderBy}
+                      knownIssuesGroupBy={knownIssuesGroupBy}
+                      setRegressionsOrderBy={this.setRegressionsOrderBy}
+                      setRegressionsGroupBy={this.setRegressionsGroupBy}
+                      setKnownIssuesOrderBy={this.setKnownIssuesOrderBy}
+                      setKnownIssuesGroupBy={this.setKnownIssuesGroupBy}
                     />
                   </TabPanel>
                 </div>
