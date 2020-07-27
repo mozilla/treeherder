@@ -30,25 +30,25 @@ jobs:
     # both the JS and Python builds
     - env:
         - NODE_ENV=production YARN_PRODUCTION=true
-      # Since we're using Python/pip and Node/yarn use the generic image
-      language: generic
+      language: python
+      python: '3.8'
       cache:
         directories:
           - $HOME/.cache/yarn
           - $HOME/.cache/pip
           - node_modules
-      before_install:
-        # XXX: I have not been able to install 3.7.2 to match runtime.txt
-        - pyenv version --list
-        - pyenv install 3.8.5
-        - pyenv global 3.7.1
-        - nvm install 12.14.1
-        - nvm use 12.14.1
-        # Steps to validate versions in use
-        - python --version
-        - pip --version
-        - node --version
-        - yarn --version
+      # before_install:
+      #   # XXX: I have not been able to install 3.7.2 to match runtime.txt
+      #   - pyenv version --list
+      #   - pyenv install 3.8.5
+      #   - pyenv global 3.7.1
+      #   - nvm install 12.14.1
+      #   - nvm use 12.14.1
+      #   # Steps to validate versions in use
+      #   - python --version
+      #   - pip --version
+      #   - node --version
+      #   - yarn --version
       install:
         - pip install poetry==1.0.10
         - poetry install
@@ -61,7 +61,7 @@ jobs:
 
     # Run Python tests & linters outside of the Docker containers
     - language: python
-      python: '3.7'
+      python: '3.8'
       cache: pip
       install:
         - pip install tox
@@ -74,8 +74,8 @@ jobs:
       services:
         - docker
       install:
-        - pip install tox --user
-        - pip install codecov --user
+        - pip install tox
+        - pip install codecov
       script:
         - tox -e docker
         - codecov -f coverage.xml
@@ -88,8 +88,8 @@ jobs:
       node_js: '12.13.0'
       cache: yarn
       install:
-        - pip install tox --user
-        - pip install codecov --user
+        - pip install tox
+        - pip install codecov
       script:
         - tox -e selenium
         - codecov -f coverage.xml
