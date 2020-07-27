@@ -36,7 +36,6 @@ class PushList extends React.Component {
   componentDidMount() {
     const { fetchPushes } = this.props;
 
-    window.addEventListener('hashchange', this.handleUrlChanges, false);
     fetchPushes();
     this.poll();
   }
@@ -52,6 +51,7 @@ class PushList extends React.Component {
     if (jobsLoaded && jobsLoaded !== prevProps.jobsLoaded) {
       setSelectedJobFromQueryString(notify, jobMap);
     }
+    this.handleUrlChanges(prevProps);
   }
 
   componentWillUnmount() {
@@ -59,7 +59,6 @@ class PushList extends React.Component {
       clearInterval(this.pushIntervalId);
       this.pushIntervalId = null;
     }
-    window.addEventListener('hashchange', this.handleUrlChanges, false);
   }
 
   setWindowTitle() {
@@ -68,8 +67,8 @@ class PushList extends React.Component {
     document.title = `[${allUnclassifiedFailureCount}] ${repoName}`;
   }
 
-  getUrlRangeValues = (url) => {
-    const params = [...new URLSearchParams(url.split('?')[1]).entries()];
+  getUrlRangeValues = (search) => {
+    const params = [...new URLSearchParams(search)];
 
     return params.reduce((acc, [key, value]) => {
       return reloadOnChangeParameters.includes(key)
@@ -86,11 +85,10 @@ class PushList extends React.Component {
     }, PUSH_POLL_INTERVAL);
   };
 
-  handleUrlChanges = (evt) => {
-    const { updateRange } = this.props;
-    const { oldURL, newURL } = evt;
-    const oldRange = this.getUrlRangeValues(oldURL);
-    const newRange = this.getUrlRangeValues(newURL);
+  handleUrlChanges = (prevProps) => {
+    const { updateRange, location } = this.props;
+    const oldRange = this.getUrlRangeValues(prevProps.location.search);
+    const newRange = this.getUrlRangeValues(location.search);
 
     if (!isEqual(oldRange, newRange)) {
       updateRange(newRange);
@@ -162,6 +160,7 @@ class PushList extends React.Component {
                 isOnlyRevision={push.revision === revision}
                 pushHealthVisibility={pushHealthVisibility}
                 getAllShownJobs={getAllShownJobs}
+                {...this.props}
               />
             </ErrorBoundary>
           ))}

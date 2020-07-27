@@ -4,8 +4,8 @@ import { hot } from 'react-hot-loader/root';
 
 import LoadingSpinner from './shared/LoadingSpinner';
 import JobsViewApp from './job-view/App';
-// import LoginCallback from './login-callback/LoginCallback';
-// import TaskclusterCallback from './taskcluster-auth-callback/TaskclusterCallback';
+import LoginCallback from './login-callback/LoginCallback';
+import TaskclusterCallback from './taskcluster-auth-callback/TaskclusterCallback';
 
 const IntermittentFailuresApp = lazy(() =>
   import('./intermittent-failures/App'),
@@ -23,17 +23,16 @@ const App = () => {
     <div>
       <Suspense fallback={<LoadingSpinner />}>
         <Switch>
-          {/* <Route
-          exact
-          path="/login"
-          render={(props) => <LoginCallback {...props} />}
-        />
-        <Route
-          exact
-          path="/taskcluster-auth"
-          render={(props) => <TaskclusterCallback {...props} />}
-        /> */}
-          {/* TODO add redirect from / and add query param support */}
+          <Route
+            exact
+            path="/login"
+            render={(props) => <LoginCallback {...props} />}
+          />
+          <Route
+            exact
+            path="/taskcluster-auth"
+            render={(props) => <TaskclusterCallback {...props} />}
+          />
           <Route path="/jobs" render={(props) => <JobsViewApp {...props} />} />
 
           {/* entry: 'job-view/index.jsx',
@@ -73,7 +72,7 @@ const App = () => {
             from="/intermittent-failures.html"
             to="/intermittent-failures"
           />
-          <Redirect from="/" to="/jobs" />
+          <Redirect from="/" to="/jobs?repo=autoland" />
         </Switch>
       </Suspense>
     </div>

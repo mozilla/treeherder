@@ -2,6 +2,8 @@ import React from 'react';
 import { Modal } from 'reactstrap';
 import { hot } from 'react-hot-loader/root';
 import SplitPane from 'react-split-pane';
+import pick from 'lodash/pick';
+import isEqual from 'lodash/isEqual';
 import { Provider } from 'react-redux';
 
 import { thFavicons, thEvents } from '../helpers/constants';
@@ -9,7 +11,7 @@ import ShortcutTable from '../shared/ShortcutTable';
 import { matchesDefaults } from '../helpers/filter';
 import { getAllUrlParams, getRepo } from '../helpers/location';
 import { MAX_TRANSIENT_AGE } from '../helpers/notifications';
-import { deployedRevisionUrl } from '../helpers/url';
+import { deployedRevisionUrl, parseQueryParams } from '../helpers/url';
 import ClassificationTypeModel from '../models/classificationType';
 import FilterModel from '../models/filter';
 import RepositoryModel from '../models/repository';
@@ -65,7 +67,7 @@ class App extends React.Component {
       this.props.location,
     );
     // Set the URL to updated parameter styles, if needed.  Otherwise it's a no-op.
-    filterModel.push();
+    // filterModel.push();
     const urlParams = getAllUrlParams();
     const hasSelectedJob =
       urlParams.has('selectedJob') || urlParams.has('selectedTaskRun');
@@ -168,7 +170,11 @@ class App extends React.Component {
 
   componentWillUnmount() {
     window.removeEventListener('resize', this.updateDimensions, false);
-    window.removeEventListener('storage', this.handleUrlChanges, false);
+    window.removeEventListener('storage', this.handleStorageEvent);
+    window.removeEventListener(
+      thEvents.filtersUpdated,
+      this.handleFiltersUpdated,
+    );
 
     if (this.updateInterval) {
       clearInterval(this.updateInterval);
@@ -242,25 +248,34 @@ class App extends React.Component {
     const { repos } = this.state;
     const { location, history } = this.props;
 
-    const urlParams = getAllUrlParams();
-    const newRepo = urlParams.get('repo');
+    const {
+      selectedJob,
+      selectedTaskRun,
+      group_state: groupState,
+      duplicate_jobs: duplicateJobs,
+      repo: newRepo,
+    } = parseQueryParams(location.search);
 
     const newState = {
-      hasSelectedJob:
-        urlParams.has('selectedJob') || urlParams.has('selectedTaskRun'),
-      groupCountsExpanded: urlParams.get('group_state') === 'expanded',
-      duplicateJobsVisible: urlParams.get('duplicate_jobs') === 'visible',
+      hasSelectedJob: selectedJob || selectedTaskRun,
+      groupCountsExpanded: groupState === 'expanded',
+      duplicateJobsVisible: duplicateJobs === 'visible',
       currentRepo: repos.find((repo) => repo.name === newRepo),
     };
 
-    this.setState({
-      filterModel: new FilterModel(history, location),
-      [newState]: newState,
-    });
+    const oldState = pick(this.state, Object.keys(newState));
+    let stateChanges = { filterModel: new FilterModel(history, location) };
+
+    if (!isEqual(newState, oldState)) {
+      stateChanges = { ...stateChanges, ...newState };
+    }
+
+    this.setState(stateChanges);
   };
 
   handleFiltersUpdated = () => {
-    this.setState({ filterModel: new FilterModel() });
+    const { history, location } = this.props;
+    this.setState({ filterModel: new FilterModel(history, location) });
   };
 
   // If ``show`` is a boolean, then set to that value.  If it's not, then toggle
@@ -350,6 +365,7 @@ class App extends React.Component {
               toggleFieldFilterVisible={this.toggleFieldFilterVisible}
               pushHealthVisibility={pushHealthVisibility}
               setPushHealthVisibility={this.setPushHealthVisibility}
+              {...this.props}
             />
             <SplitPane
               split="horizontal"
@@ -382,6 +398,7 @@ class App extends React.Component {
                         groupCountsExpanded={groupCountsExpanded}
                         pushHealthVisibility={pushHealthVisibility}
                         getAllShownJobs={this.getAllShownJobs}
+                        {...this.props}
                       />
                     </span>
                   </div>
