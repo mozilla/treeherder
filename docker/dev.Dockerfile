@@ -1,5 +1,5 @@
 # Use the same Python version as in Heroku (see runtime.txt)
-FROM python:3.7.2
+FROM python:3.8.5
 
 # Variables that are not specific to a particular environment.
 ENV NEW_RELIC_CONFIG_FILE newrelic.ini
@@ -31,7 +31,7 @@ ENV PATH="/usr/local/bin/firefox:${PATH}"
 # /app will be mounted via a volume defined in docker-compose
 ADD . /app
 WORKDIR /app
+RUN ls -la
 
-RUN pip install --no-cache-dir --disable-pip-version-check --require-hashes -r requirements/common.txt
-RUN pip install poetry==1.0.9
+RUN pip install poetry==1.0.10
 RUN poetry install

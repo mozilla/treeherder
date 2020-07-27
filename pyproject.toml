@@ -16,6 +16,44 @@ python = "^3.7"
 mkdocs = { version = "1.0.4", optional = true }
 mkdocs-material = { version = "4.6.3", optional = true }
 mdx_truly_sane_lists = { version = "1.2", optional = true }
+gunicorn = "20.0.4"
+# Used by Whitenoise to provide Brotli-compressed versions of static files.
+whitenoise = {version = "5.1.0", extras = ["brotli"]}
+Django = "3.0.8"
+# 4.4.2 required to pass test_retryable_task_throws_retry, celery needed for data ingestion
+celery = "4.4.2"
+simplejson = "3.17.0"
+newrelic = "5.2.1.129"
+mysqlclient = "2.0.1"
+jsonschema = "3.2.0"
+# Imported as rest_framework
+djangorestframework = "3.11.0"
+# Listed as 3rd party app on settings.py
+django-cors-headers = "3.4.0"
+mozlog = "6.0"
+# `coreapi` must be installed for schema support.
+coreapi = "2.3.3"
+# Imported as yaml
+pyyaml = "5.3.1"
+# Imported as environ
+django-environ = "0.4.5"
+django-filter = "^2.3.0"
+django-redis = "^4.12.1"
+taskcluster = "30.1.1"
+# from typing import ...
+typing = "3.7.4.3"
+python-jose = {version = "3.1.0", extras = ["pycryptodome"]}
+furl = "2.1.0"
+first = "2.0.2"
+json-e = "3.0.2"
+# Imported as cache_memoize
+django-cache-memoize = "0.1.7"
+# The following three are required for extraction to BigQuery
+jx-bigquery = "^3.85.20198"
+jx-mysql = "^3.85.20198"
+mo-testing = "^3.78.20194"
+# Required for Push Health
+mozci = "^1.6.5"
 
 [tool.poetry.extras]
 docs = ["mkdocs", "mkdocs-material", "mdx_truly_sane_lists"]

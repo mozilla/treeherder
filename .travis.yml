@@ -39,6 +39,8 @@ jobs:
           - node_modules
       before_install:
         # XXX: I have not been able to install 3.7.2 to match runtime.txt
+        - pyenv version --list
+        - pyenv install 3.8.5
         - pyenv global 3.7.1
         - nvm install 12.14.1
         - nvm use 12.14.1
@@ -48,7 +50,8 @@ jobs:
         - node --version
         - yarn --version
       install:
-        - pip install -r requirements.txt
+        - pip install poetry==1.0.10
+        - poetry install
         - yarn install
       script:
         - yarn heroku-postbuild
