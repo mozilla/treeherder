@@ -73,6 +73,7 @@ pytest-watch = "^4.2.0"
 shellcheck-py = "^0.7.1"
 poetry = "^1.0.10"
 black = "^19.10b0"
+responses = "^0.10.15"
 
 [tool.black]
 line-length = 100

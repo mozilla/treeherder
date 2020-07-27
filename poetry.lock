@@ -1746,6 +1746,21 @@ version = "0.8.0"
 requests = ">=2.0.1,<3.0.0"
 
 [[package]]
+category = "dev"
+description = "A utility library for mocking out the `requests` Python library."
+name = "responses"
+optional = false
+python-versions = ">=2.7, !=3.0.*, !=3.1.*, !=3.2.*, !=3.3.*"
+version = "0.10.15"
+
+[package.dependencies]
+requests = ">=2.0"
+six = "*"
+
+[package.extras]
+tests = ["coverage (>=3.7.1,<5.0.0)", "pytest-cov", "pytest-localserver", "flake8", "pytest (>=4.6,<5.0)", "pytest"]
+
+[[package]]
 category = "main"
 description = "Pure-Python RSA implementation"
 name = "rsa"
@@ -2022,7 +2037,7 @@ version = "0.14.0"
 docs = ["mkdocs", "mkdocs-material", "mdx_truly_sane_lists"]
 
 [metadata]
-content-hash = "1c188cfad2b5f6c6ffe0b09e989662a19b37896a92a74a71e3df285a162594a7"
+content-hash = "5877fcb0b3021b5e91565f154774509b8b706e946b8417df89a7bc134b01ca47"
 python-versions = "^3.8"
 
 [metadata.files]
@@ -2826,6 +2841,10 @@ requests = [
 requests-toolbelt = [
     {file = "requests-toolbelt-0.8.0.tar.gz", hash = "sha256:f6a531936c6fa4c6cfce1b9c10d5c4f498d16528d2a54a22ca00011205a187b5"},
     {file = "requests_toolbelt-0.8.0-py2.py3-none-any.whl", hash = "sha256:42c9c170abc2cacb78b8ab23ac957945c7716249206f90874651971a4acff237"},
+]
+responses = [
+    {file = "responses-0.10.15-py2.py3-none-any.whl", hash = "sha256:af94d28cdfb48ded0ad82a5216616631543650f440334a693479b8991a6594a2"},
+    {file = "responses-0.10.15.tar.gz", hash = "sha256:7bb697a5fedeb41d81e8b87f152d453d5cab42dcd1691b6a7d6097e94d33f373"},
 ]
 rsa = [
     {file = "rsa-4.6-py3-none-any.whl", hash = "sha256:6166864e23d6b5195a5cfed6cd9fed0fe774e226d8f854fcb23b7bbef0350233"},
