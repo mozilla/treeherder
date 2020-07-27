@@ -1209,6 +1209,19 @@ mo-logs = ">=3.75.20189"
 mo-math = ">=3.69.20133"
 
 [[package]]
+category = "dev"
+description = "Rolling backport of unittest.mock for all Pythons"
+name = "mock"
+optional = false
+python-versions = ">=3.6"
+version = "4.0.2"
+
+[package.extras]
+build = ["twine", "wheel", "blurb"]
+docs = ["sphinx"]
+test = ["pytest", "pytest-cov"]
+
+[[package]]
 category = "main"
 description = "Library for Hawk HTTP authorization"
 name = "mohawk"
@@ -2037,7 +2050,7 @@ version = "0.14.0"
 docs = ["mkdocs", "mkdocs-material", "mdx_truly_sane_lists"]
 
 [metadata]
-content-hash = "5877fcb0b3021b5e91565f154774509b8b706e946b8417df89a7bc134b01ca47"
+content-hash = "bfbf2512c12f6e40a588d0e942047d739ea1353bd89dfce6b9f535a5b53ad1e9"
 python-versions = "^3.8"
 
 [metadata.files]
@@ -2524,6 +2537,10 @@ mo-threads = [
 ]
 mo-times = [
     {file = "mo-times-3.76.20190.tar.gz", hash = "sha256:0381cc369c8f695c55748a5720d2dbda8c86f4ae45f7e06cdd4eb7be7177f4e6"},
+]
+mock = [
+    {file = "mock-4.0.2-py3-none-any.whl", hash = "sha256:3f9b2c0196c60d21838f307f5825a7b86b678cedc58ab9e50a8988187b4d81e0"},
+    {file = "mock-4.0.2.tar.gz", hash = "sha256:dd33eb70232b6118298d516bbcecd26704689c386594f0f3c4f13867b2c56f72"},
 ]
 mohawk = [
     {file = "mohawk-1.1.0-py3-none-any.whl", hash = "sha256:3ed296a30453d0b724679e0fd41e4e940497f8e461a9a9c3b7f36e43bab0fa09"},
