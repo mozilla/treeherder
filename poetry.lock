@@ -177,6 +177,7 @@ docs = ["mkdocs", "mkdocs-material", "mdx_truly_sane_lists"]
 
 [metadata]
 content-hash = "0d31449e94a2939219e2dff4db2fefc4d798cd0f7ddb744a30db4af40e15c228"
+lock-version = "1.0"
 python-versions = "^3.7"
 
 [metadata.files]
