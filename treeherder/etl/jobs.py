@@ -25,7 +25,10 @@ from treeherder.model.models import (
     Push,
     ReferenceDataSignatures,
     TaskclusterMetadata,
+    TestPath,
 )
+from treeherder.utils.tasks import get_test_paths
+from treeherder.utils.taskcluster import get_task_definition
 
 logger = logging.getLogger(__name__)
 
@@ -70,6 +73,19 @@ def _remove_existing_jobs(data):
             new_data.append(datum)
 
     return new_data
+
+
+def _store_test_paths(root_url, task_id):
+    task = get_task_definition(root_url, task_id)
+    test_paths = []
+    # XXX: For performance, I believe option A is better
+    # A) Do an initial select & only do few inserts for new first do a select
+    # B) Or try inserting all of them
+    for test_path in get_test_paths(task):
+        path = TestPath.objects.get_or_create(path=test_path)
+        test_paths.append(path)
+
+    return test_paths
 
 
 def _load_job(repository, job_datum, push_id):
@@ -205,6 +221,7 @@ def _load_job(repository, job_datum, push_id):
 
     # first, try to create the job with the given guid (if it doesn't
     # exist yet)
+    first_time_creation = False
     job_guid_root = get_guid_root(job_guid)
     if not Job.objects.filter(guid__in=[job_guid, job_guid_root]).exists():
         # This could theoretically already have been created by another process
@@ -237,6 +254,8 @@ def _load_job(repository, job_datum, push_id):
                 "push_id": push_id,
             },
         )
+        first_time_creation = True
+
     # Can't just use the ``job`` we would get from the ``get_or_create``
     # because we need to try the job_guid_root instance first for update,
     # rather than a possible retry job instance.
@@ -255,6 +274,26 @@ def _load_job(repository, job_datum, push_id):
             )
         except IntegrityError:
             pass
+
+        # Only test tasks could use test paths; only check on first creation
+        # We want to reduce this code path because we will be hitting the network to
+        # fetch the task definition and inspect the value of MOZHARNESS_TEST_PATHS
+        if (
+            first_time_creation
+            and job.job_type.name.find('test') > -1
+            and not job.test_paths.exists()
+        ):
+            test_paths = _store_test_paths(repository.tc_root_url, job_datum['taskcluster_task_id'])
+            if test_paths:
+                logger.debug(
+                    'We are going to add test paths for {}.'.format(
+                        job_datum['taskcluster_task_id']
+                    )
+                )
+                for test_path in test_paths:
+                    # test_path -> (<TestPath: 115 /FileAPI/blob>, False)
+                    job.test_paths.add(test_path[0])
+                job.save()
 
     # Update job with any data that would have changed
     Job.objects.filter(id=job.id).update(

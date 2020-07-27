@@ -466,6 +466,24 @@ class JobManager(models.Manager):
                 time.sleep(sleep_time)
 
 
+class TestPath(models.Model):
+    """
+    These are either manifests or web-platform-tests directory paths.
+
+    This is similar to the table Groups, however, it is not created from parsing logs
+    but from information based on MOZHARNESS_TEST_PATHS.
+    """
+
+    id = models.AutoField(primary_key=True)
+    path = models.CharField(max_length=255, unique=True)
+
+    def __str__(self):
+        return '{} {}'.format(self.id, self.path)
+
+    class Meta:
+        db_table = 'test_path'
+
+
 class Job(models.Model):
     """
     This class represents a build or test job in Treeherder
@@ -473,6 +491,8 @@ class Job(models.Model):
 
     failures = FailuresQuerySet.as_manager()
     objects = JobManager()
+    # This will create an intermediary job_test_paths table
+    test_paths = models.ManyToManyField(TestPath)
 
     id = models.BigAutoField(primary_key=True)
 
