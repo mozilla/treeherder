@@ -37,6 +37,7 @@ jobs:
           - $HOME/.cache/yarn
           - $HOME/.cache/pip
           - node_modules
+          - .tox/py38
       # before_install:
       #   # XXX: I have not been able to install 3.7.2 to match runtime.txt
       #   - pyenv install --list
@@ -62,7 +63,10 @@ jobs:
     # Run Python tests & linters outside of the Docker containers
     - language: python
       python: '3.8'
-      cache: pip
+      cache:
+        directories:
+          - $HOME/.cache/pip
+          - .tox/py38
       install:
         - pip install tox
       script:
@@ -73,6 +77,10 @@ jobs:
     - language: shell
       services:
         - docker
+      cache:
+        directories:
+          - $HOME/.cache/pip
+          - .tox/py38
       install:
         - pip install tox
         - pip install codecov
@@ -86,7 +94,11 @@ jobs:
         - docker
       # The Node version here must be kept in sync with that in `package.json`.
       node_js: '12.13.0'
-      cache: yarn
+      cache:
+        directories:
+          - $HOME/.cache/pip
+          - $HOME/.cache/yarn
+          - .tox/py38
       install:
         - pip install tox
         - pip install codecov

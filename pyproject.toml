@@ -97,7 +97,6 @@ xfail_strict = true
 sensitive_url = mozilla\.org
 
 [tool.flake8]
-[flake8]
 exclude = */.*/,.*/,__pycache__,node_modules
 # E129: visually indented line with same indent as next logical line
 # E203 whitespace before ':'
