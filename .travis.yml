@@ -39,7 +39,7 @@ jobs:
           - node_modules
       # before_install:
       #   # XXX: I have not been able to install 3.7.2 to match runtime.txt
-      #   - pyenv version --list
+      #   - pyenv install --list
       #   - pyenv install 3.8.5
       #   - pyenv global 3.7.1
       #   - nvm install 12.14.1
