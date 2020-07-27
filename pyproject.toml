@@ -71,6 +71,7 @@ pytest-freezegun = "^0.4.1"
 pytest-testmon = "^1.0.2"
 pytest-watch = "^4.2.0"
 shellcheck-py = "^0.7.1"
+poetry = "^1.0.10"
 
 [tool.black]
 line-length = 100
