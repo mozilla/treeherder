@@ -9,7 +9,7 @@ description = "This is the package installer for docs"
 authors = ["Mozilla"]
 
 [tool.poetry.dependencies]
-python = "^3.7"
+python = "^3.8"
 
 # A list of all of the optional dependencies, some of which are included in the
 # below `extras`. They can be opted into by apps.
@@ -40,6 +40,8 @@ django-environ = "0.4.5"
 django-filter = "^2.3.0"
 django-redis = "^4.12.1"
 taskcluster = "30.1.1"
+aiohttp = "^3.6.2"  # Peer dependency of taskcluster
+async-timeout = "^3.0.1"  # Peer dependency of taskcluster
 # from typing import ...
 typing = "3.7.4.3"
 python-jose = {version = "3.1.0", extras = ["pycryptodome"]}
