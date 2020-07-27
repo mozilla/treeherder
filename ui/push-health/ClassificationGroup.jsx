@@ -275,8 +275,8 @@ ClassificationGroup.defaultProps = {
   className: '',
   iconColor: 'darker-info',
   hasRetriggerAll: false,
-  orderedBy: '',
-  groupedBy: '',
+  orderedBy: 'count',
+  groupedBy: 'path',
   setOrderedBy: () => {},
   setGroupedBy: () => {},
 };

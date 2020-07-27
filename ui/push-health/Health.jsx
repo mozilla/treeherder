@@ -44,7 +44,6 @@ export default class Health extends React.PureComponent {
 
     this.state = {
       user: { isLoggedIn: false },
-      params,
       revision: params.get('revision'),
       repo: params.get('repo'),
       currentRepo: null,
@@ -93,38 +92,47 @@ export default class Health extends React.PureComponent {
     this.setState({ user });
   };
 
-  push = (params) => {
-    const paramsString = new URLSearchParams(params).toString();
-    const { origin } = window.location;
-
-    window.location.href = `${origin}/pushhealth.html?${paramsString}`;
-  };
-
   setRegressionsOrderBy = (regressionsOrderBy) => {
-    const { params } = this.state;
-    params.set('regressionsOrderBy', regressionsOrderBy);
-    this.push(params.toString());
-    this.setState({ regressionsOrderBy, params });
+    const { location, history } = this.props;
+    const newParams = {
+      ...parseQueryParams(location.search),
+      regressionsOrderBy,
+    };
+    const queryString = createQueryParams(newParams);
+    updateQueryParams(queryString, history, location);
+    this.setState({ regressionsOrderBy });
   };
 
   setRegressionsGroupBy = (regressionsGroupBy) => {
-    const { params } = this.state;
-    params.set('regressionsGroupBy', regressionsGroupBy);
-    this.push(params.toString());
+    const { location, history } = this.props;
+    const newParams = {
+      ...parseQueryParams(location.search),
+      regressionsGroupBy,
+    };
+    const queryString = createQueryParams(newParams);
+    updateQueryParams(queryString, history, location);
     this.setState({ regressionsGroupBy });
   };
 
   setKnownIssuesOrderBy = (knownIssuesOrderBy) => {
-    const { params } = this.state;
-    params.set('knownIssuesOrderBy', knownIssuesOrderBy);
-    this.push(params.toString());
+    const { location, history } = this.props;
+    const newParams = {
+      ...parseQueryParams(location.search),
+      knownIssuesOrderBy,
+    };
+    const queryString = createQueryParams(newParams);
+    updateQueryParams(queryString, history, location);
     this.setState({ knownIssuesOrderBy });
   };
 
   setKnownIssuesGroupBy = (knownIssuesGroupBy) => {
-    const { params } = this.state;
-    params.set('knownIssuesGroupBy', knownIssuesGroupBy);
-    this.push(params.toString());
+    const { location, history } = this.props;
+    const newParams = {
+      ...parseQueryParams(location.search),
+      knownIssuesGroupBy,
+    };
+    const queryString = createQueryParams(newParams);
+    updateQueryParams(queryString, history, location);
     this.setState({ knownIssuesGroupBy });
   };
 

@@ -79,8 +79,8 @@ export default class TestMetric extends React.PureComponent {
           expanded={false}
           hasRetriggerAll
           notify={notify}
-          orderBy={knownIssuesOrderBy}
-          groupBy={knownIssuesGroupBy}
+          orderedBy={knownIssuesOrderBy}
+          groupedBy={knownIssuesGroupBy}
           setOrderedBy={setKnownIssuesOrderBy}
           setGroupedBy={setKnownIssuesGroupBy}
         />
