@@ -668,7 +668,7 @@ class Push extends React.PureComponent {
                   revisionCount={revisionCount}
                   repo={currentRepo}
                   bugSummaryMap={bugSummaryMap}
-                  widthClass="ml-4"
+                  widthClass="ml-4 mb-3"
                   commitShaClass="text-monospace"
                 >
                   {showPushHealthSummary && (

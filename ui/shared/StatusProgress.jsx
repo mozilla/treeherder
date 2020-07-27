@@ -19,7 +19,7 @@ const StatusProgress = (props) => {
           { x: 'running', y: running + pending },
           { x: 'failed', y: failed },
         ]}
-        colorScale={['#28a745', '#6c757d', '#dc3545']}
+        colorScale={['#28a745', 'lightgrey', '#dc3545']}
         labels={({ datum }) => (datum.y > 0 ? `${datum.x}: ${datum.y}` : '')}
         labelComponent={
           <VictoryTooltip pointerLength={0} flyoutComponent={<div />} />

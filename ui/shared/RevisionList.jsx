@@ -21,7 +21,7 @@ export class RevisionList extends React.PureComponent {
     } = this.props;
 
     return (
-      <Col className={`${widthClass}`}>
+      <Col className={widthClass}>
         {revisions.map((revision) => (
           <Revision
             revision={revision}
