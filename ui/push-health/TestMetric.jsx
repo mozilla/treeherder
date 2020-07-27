@@ -115,10 +115,10 @@ TestMetric.propTypes = {
 };
 
 TestMetric.defaultProps = {
-  regressionsOrderBy: '',
-  regressionsGroupBy: '',
-  knownIssuesOrderBy: '',
-  knownIssuesGroupBy: '',
+  regressionsOrderBy: 'count',
+  regressionsGroupBy: 'path',
+  knownIssuesOrderBy: 'count',
+  knownIssuesGroupBy: 'path',
   setRegressionsOrderBy: () => {},
   setRegressionsGroupBy: () => {},
   setKnownIssuesOrderBy: () => {},
