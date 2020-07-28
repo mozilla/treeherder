@@ -83,7 +83,7 @@
     "pk": 15,
     "model": "perf.PerformanceFramework",
     "fields": {
-      "name": "xpcshell",
+      "name": "mozperftest",
       "enabled": true
     }
   }
