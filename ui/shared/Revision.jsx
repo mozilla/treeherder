@@ -63,6 +63,8 @@ export class Revision extends React.PureComponent {
       revision: { comments, author, revision },
       repo,
       bugSummaryMap,
+      commitShaClass,
+      commentFont,
     } = this.props;
     const comment = comments.split('\n')[0];
     const bugMatches = comment.match(/-- ([0-9]+)|bug.([0-9]+)/gi);
@@ -88,7 +90,7 @@ export class Revision extends React.PureComponent {
           <a
             title={`Open revision ${commitRevision} on ${repo.url}`}
             href={repo.getRevisionHref(commitRevision)}
-            className="text-monospace commit-sha"
+            className={`commit-sha ${commitShaClass}`}
           >
             {commitRevision.substring(0, 12)}
           </a>
@@ -96,7 +98,7 @@ export class Revision extends React.PureComponent {
         <AuthorInitials title={`${name}: ${email}`} author={name} />
         <span
           data-testid={comment}
-          className={`ml-2 revision-comment overflow-hidden text-nowrap ${commentColor}`}
+          className={`ml-2 revision-comment overflow-hidden text-nowrap ${commentColor} ${commentFont}`}
           id={`revision${revision}`}
         >
           <em>
@@ -135,4 +137,11 @@ Revision.propTypes = {
     url: PropTypes.string,
     revisionHrefPrefix: PropTypes.string,
   }).isRequired,
+  commitShaClass: PropTypes.string,
+  commentFont: PropTypes.string,
+};
+
+Revision.defaultProps = {
+  commitShaClass: '',
+  commentFont: '',
 };

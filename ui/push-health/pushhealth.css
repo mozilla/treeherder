@@ -12,6 +12,10 @@
   min-width: 200px;
 }
 
+.commit-area {
+  border-left: 3px solid #6c757d;
+}
+
 .metric-name {
   font-size: 24px;
 }

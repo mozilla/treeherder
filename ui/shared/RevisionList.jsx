@@ -16,16 +16,20 @@ export class RevisionList extends React.PureComponent {
       widthClass,
       children,
       bugSummaryMap,
+      commitShaClass,
+      commentFont,
     } = this.props;
 
     return (
-      <Col className={`${widthClass} mb-3`}>
+      <Col className={widthClass}>
         {revisions.map((revision) => (
           <Revision
             revision={revision}
             repo={repo}
             key={revision.revision}
             bugSummaryMap={bugSummaryMap}
+            commitShaClass={commitShaClass}
+            commentFont={commentFont}
           />
         ))}
         {revisionCount > revisions.length && (
@@ -45,10 +49,14 @@ RevisionList.propTypes = {
     pushLogUrl: PropTypes.string,
   }).isRequired,
   widthClass: PropTypes.string,
+  commitShaClass: PropTypes.string,
+  commentFont: PropTypes.string,
 };
 
 RevisionList.defaultProps = {
   widthClass: '',
+  commitShaClass: '',
+  commentFont: '',
 };
 
 export function MoreRevisionsLink(props) {
