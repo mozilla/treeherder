@@ -101,6 +101,42 @@ def validateTask(task):
     return True
 
 
+# Bug 1590512 - A more general solution is needed to avoid using env variables that
+# are only available for mobile related tasks
+def ignore_mobile_change(task, taskId, rootUrl):
+    ignore = False
+    envs = task["payload"].get("env", {})
+    if envs.get("MOBILE_BASE_REPOSITORY"):
+        try:
+            base_repo = envs["MOBILE_BASE_REPOSITORY"].rsplit("/", 1)[1]
+            if base_repo in ("android-components", "fenix"):
+                # Ignore tasks that are associated to a pull request
+                if envs["MOBILE_BASE_REPOSITORY"] != envs["MOBILE_HEAD_REPOSITORY"]:
+                    logger.debug(
+                        "Task: %s belong to a pull request OR branch which we ignore.", taskId
+                    )
+                    ignore = True
+                # Bug 1587542 - Temporary change to ignore Github tasks not associated to 'master'
+                if envs["MOBILE_HEAD_REF"] not in ("refs/heads/master", "master"):
+                    logger.info("Task: %s is not for the `master` branch.", taskId)
+                    ignore = True
+        except KeyError:
+            pass
+    else:
+        # The decision task is the ultimate source for determining this information
+        asyncQueue = taskcluster.aio.Queue({"rootUrl": rootUrl}, session=session)
+        decision_task = asyncQueue.task(task["taskGroupId"])
+        scopes = decision_task["metadata"].get("source")
+        ignore = True
+        for scope in scopes:
+            # e.g. assume:repo:github.com/mozilla-mobile/fenix:branch:master
+            if scope.find('branch:master') != -1:
+                ignore = False
+                break
+
+    return ignore
+
+
 # Listens for Task event messages and invokes the appropriate handler
 # for the type of message received.
 # Only messages that contain the properly formatted routing key and contains
@@ -124,21 +160,10 @@ async def handleMessage(message, taskDefinition=None):
         logger.debug("Ignoring tasks not matching PROJECTS_TO_INGEST (Task id: %s)", taskId)
         return jobs
 
-    # Bug 1590512 - A more general solution is needed to avoid using env variables that
-    # are only available for mobile related tasks (this does not work for fenix)
-    try:
-        envs = task["payload"]["env"]
-        if envs["MOBILE_BASE_REPOSITORY"] == "https://github.com/mozilla-mobile/android-components":
-            # Ignore tasks that are associated to a pull request
-            if envs["MOBILE_BASE_REPOSITORY"] != envs["MOBILE_HEAD_REPOSITORY"]:
-                logger.debug("Task: %s belong to a pull request which we ignore.", taskId)
-                return jobs
-            # Bug 1587542 - Temporary change to ignore Github tasks not associated to 'master'
-            if envs["MOBILE_HEAD_REF"] != "refs/heads/master":
-                logger.info("Task: %s is not for the `master` branch.", taskId)
-                return jobs
-    except KeyError:
-        pass
+    if parsedRoute["project"] in ('android-components', 'fenix') and ignore_mobile_change(
+        task, taskId, message["root_url"]
+    ):
+        return jobs
 
     logger.debug("Message received for task %s", taskId)
 

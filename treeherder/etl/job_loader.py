@@ -4,12 +4,15 @@ import uuid
 import jsonschema
 import newrelic.agent
 import slugid
+import taskcluster_urls
 
+from treeherder.etl.taskcluster_pulse.handler import ignore_mobile_change
 from treeherder.etl.common import to_timestamp
 from treeherder.etl.exceptions import MissingPushException
 from treeherder.etl.jobs import store_job_data
 from treeherder.etl.schema import get_json_schema
 from treeherder.model.models import Push, Repository
+from treeherder.utils.http import fetch_json
 
 logger = logging.getLogger(__name__)
 
@@ -99,11 +102,18 @@ class JobLoader:
 
         if not Push.objects.filter(**filter_kwargs).exists():
             (real_task_id, _) = task_and_retry_ids(pulse_job["taskId"])
-            raise MissingPushException(
-                "No push found in {} for revision {} for task {}".format(
-                    pulse_job["origin"]["project"], revision, real_task_id
-                )
+            repository = Repository.objects.get(name=pulse_job["origin"]["project"])
+            task_url = taskcluster_urls.api(
+                repository.tc_root_url, 'queue', 'v1', 'task/{}'.format(real_task_id)
             )
+            task = fetch_json(task_url)
+            # We do this to prevent raising an exception for a task that will never be ingested
+            if not ignore_mobile_change(task, real_task_id):
+                raise MissingPushException(
+                    "No push found in {} for revision {} for task {}".format(
+                        pulse_job["origin"]["project"], revision, real_task_id
+                    )
+                )
 
     def transform(self, pulse_job):
         """
