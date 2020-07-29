@@ -51,7 +51,7 @@ you would like to process.
 Open a new terminal window. To run all the queues do:
 
 ```bash
-docker-compose run backend celery -A treeherder worker -B --concurrency 5
+docker-compose run backend celery -A treeherder worker -B --concurrency 1
 ```
 
 You will see a list of activated queues.  If you wanted to narrow that down, then note
@@ -59,7 +59,7 @@ which queues you'd like to run and add them to a comma-separated list.  For inst
 only do Log Parsing:
 
 ```bash
-celery -A treeherder worker -B -Q log_parser,log_parser_fail --concurrency 5
+celery -A treeherder worker -B -Q log_parser,log_parser_fail --concurrency 1
 ```
 
 ## Posting Data
