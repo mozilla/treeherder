@@ -3,6 +3,8 @@ from pages.treeherder import Treeherder
 
 from treeherder.model.models import JobLog
 
+skip = pytest.mark.skip
+
 
 @pytest.fixture
 def test_job(eleven_job_blobs, create_jobs):
@@ -18,6 +20,7 @@ def fixture_log(test_job):
     )
 
 
+@skip
 def test_open_log_viewer(base_url, selenium, log):
     page = Treeherder(selenium, base_url).open()
     page.wait.until(lambda _: page.all_jobs)
