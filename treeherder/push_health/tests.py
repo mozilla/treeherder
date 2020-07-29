@@ -5,6 +5,7 @@ import re
 from collections import defaultdict
 
 from django.core.cache import cache
+from django.db.models import Q
 
 from treeherder.model.models import FailureLine, Job, OptionCollection
 from treeherder.push_health.classification import get_grouped, set_classifications
@@ -162,6 +163,32 @@ def has_line(failure_line, log_line_list):
         (find_line for find_line in log_line_list if find_line['line_number'] == failure_line.line),
         False,
     )
+
+
+def get_test_failure_jobs(push):
+    testfailed_jobs = (
+        Job.objects.filter(push=push, tier__lte=2, result='testfailed',)
+        .exclude(Q(machine_platform__platform='lint') | Q(job_type__symbol='mozlint'),)
+        .select_related('machine_platform', 'taskcluster_metadata')
+    )
+    failed_job_types = [job.job_type.name for job in testfailed_jobs]
+    passing_jobs = Job.objects.filter(
+        push=push, job_type__name__in=failed_job_types, result__in=['success', 'unknown']
+    ).select_related('machine_platform', 'taskcluster_metadata')
+
+    jobs = {}
+
+    def add_jobs(job_list):
+        for job in job_list:
+            if job.job_type.name in jobs:
+                jobs[job.job_type.name].append(job_to_dict(job))
+            else:
+                jobs[job.job_type.name] = [job_to_dict(job)]
+
+    add_jobs(testfailed_jobs)
+    add_jobs(passing_jobs)
+
+    return jobs
 
 
 def get_test_failures(push, parent_push=None):
