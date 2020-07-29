@@ -148,11 +148,8 @@ Ingestion tasks populate the database with version control push logs, queued/run
 - Start up a celery worker to process async tasks:
 
   ```bash
-  docker-compose run backend celery -A treeherder worker -B --concurrency 1
+  docker-compose run backend celery -A treeherder worker --concurrency 1
   ```
-
-  The "-B" option tells the celery worker to startup a beat service, so that periodic tasks can be executed.
-  You only need one worker with the beat service enabled. Multiple beat services will result in periodic tasks being executed multiple times.
 
 - Then in a new terminal window, run `docker-compose run backend bash`, and follow the steps from the [loading pulse data](pulseload.md) page.
 
