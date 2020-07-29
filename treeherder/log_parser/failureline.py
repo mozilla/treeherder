@@ -142,7 +142,9 @@ def create(job_log, log_list):
         action = failure_line['action']
         if action not in FailureLine.ACTION_LIST:
             newrelic.agent.record_custom_event("unsupported_failure_line_action", failure_line)
-            logger.exception(ValueError(f'Unsupported FailureLine ACTION: {action}'))
+            # Unfortunately, these two errors flod the logs
+            if action not in ['group_result', 'test_groups']:
+                logger.exception(ValueError(f'Unsupported FailureLine ACTION: {action}'))
     failure_lines = [
         create_failure_line(job_log, failure_line)
         for failure_line in log_list
