@@ -120,7 +120,6 @@ export class Revision extends React.PureComponent {
                 </div>
               );
             })}
-          {/* {<div style={{ visibility: 'hidden' }}>invisible space</div>} */}
           {<span className="mt-3">{`Commit: ${comment}`}</span>}
         </UncontrolledTooltip>
       </Row>
