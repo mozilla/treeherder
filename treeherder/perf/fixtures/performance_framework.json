@@ -78,5 +78,13 @@
       "name": "vcs",
       "enabled": true
     }
+  },
+  {
+    "pk": 15,
+    "model": "perf.PerformanceFramework",
+    "fields": {
+      "name": "mozperftest",
+      "enabled": true
+    }
   }
 ]

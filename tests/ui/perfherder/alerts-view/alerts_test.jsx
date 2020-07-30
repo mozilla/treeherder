@@ -45,6 +45,7 @@ const frameworks = [
   { id: 12, name: 'devtools' },
   { id: 13, name: 'browsertime' },
   { id: 14, name: 'vcs' },
+  { id: 15, name: 'mozperftest' },
 ];
 
 const dummyFrameworkName = 'someTestFramework';
