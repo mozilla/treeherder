@@ -1,5 +1,5 @@
 import React, { Suspense, lazy } from 'react';
-import { Route, Switch, Redirect } from 'react-router-dom';
+import { Route, Switch, useHistory, useLocation } from 'react-router-dom';
 import { hot } from 'react-hot-loader/root';
 
 import LoadingSpinner from './shared/LoadingSpinner';
@@ -18,7 +18,39 @@ const PerfherderApp = lazy(() => import('./perfherder/App'));
 // update any hrefs used for navigation to react router Links
 // react-helmet to update titles and favicons dynamically
 
+// backwards compatibility for routes like this: treeherder.mozilla.org/perf.html#/alerts?id=26622&hideDwnToInv=0
+const updateOldUrls = () => {
+  const history = useHistory();
+  const location = useLocation();
+  const { pathname, hash } = location;
+
+  const urlMatch = {
+    '/perf.html': '/perfherder',
+    '/pushhealth.html': '/push-health',
+  };
+  const updates = {};
+
+  if (pathname.endsWith('.html') || (pathname === '/' && hash.length)) {
+    updates.pathname = urlMatch[pathname] || pathname.replace(/.html|\//g, '');
+  }
+
+  if (hash.length) {
+    const index = hash.indexOf('?');
+    updates.search = hash.substring(index);
+
+    if (index >= 2) {
+      updates.pathname += hash.substring(1, index);
+    }
+  }
+
+  if (Object.keys(updates).length === 0) {
+    return;
+  }
+  history.push(updates);
+};
+
 const App = () => {
+  updateOldUrls();
   return (
     <div>
       <Suspense fallback={<LoadingSpinner />}>
@@ -33,32 +65,32 @@ const App = () => {
             path="/taskcluster-auth"
             render={(props) => <TaskclusterCallback {...props} />}
           />
+          <Route
+            exact
+            path="/"
+            render={(props) => <JobsViewApp {...props} />}
+          />
           <Route path="/jobs" render={(props) => <JobsViewApp {...props} />} />
 
-          {/* entry: 'job-view/index.jsx',
-        entry: 'index',
-        favicon: 'ui/img/tree_open.png',
-        title: 'Treeherder',
-        template: 'ui/index.html',
-      },
-      logviewer: {
-        entry: 'logviewer/index.jsx',
-        favicon: 'ui/img/logviewerIcon.png',
-        title: 'Treeherder Logviewer',
-        template: 'ui/index.html',
-      },
-      userguide: {
-        entry: 'userguide/index.jsx',
-        favicon: 'ui/img/tree_open.png',
-        title: 'Treeherder User Guide',
-        template: 'ui/index.html',
-      },
+          {/* 
+            logviewer: {
+              entry: 'logviewer/index.jsx',
+              favicon: 'ui/img/logviewerIcon.png',
+              title: 'Treeherder Logviewer',
+              template: 'ui/index.html',
+            },
+            userguide: {
+              entry: 'userguide/index.jsx',
+              favicon: 'ui/img/tree_open.png',
+              title: 'Treeherder User Guide',
+              template: 'ui/index.html',
+            },
 
-      pushhealth: {
-        entry: 'push-health/index.jsx',
-        title: 'Push Health',
-        favicon: 'ui/img/push-health-ok.png',
-        template: 'ui/index.html', */}
+            pushhealth: {
+              entry: 'push-health/index.jsx',
+              title: 'Push Health',
+              favicon: 'ui/img/push-health-ok.png',
+              template: 'ui/index.html', */}
           <Route
             path="/intermittent-failures"
             render={(props) => <IntermittentFailuresApp {...props} />}
@@ -67,12 +99,6 @@ const App = () => {
             path="/perfherder"
             render={(props) => <PerfherderApp {...props} />}
           />
-          <Redirect from="/perf.html" to="/perfherder" />
-          <Redirect
-            from="/intermittent-failures.html"
-            to="/intermittent-failures"
-          />
-          <Redirect from="/" to="/jobs?repo=autoland" />
         </Switch>
       </Suspense>
     </div>
