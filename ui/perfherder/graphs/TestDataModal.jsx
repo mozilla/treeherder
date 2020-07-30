@@ -11,6 +11,7 @@ import {
   ModalBody,
   Row,
 } from 'reactstrap';
+import flatMap from 'lodash/flatMap';
 
 import { createDropdowns } from '../../shared/FilterControls';
 import InputFilter from '../../shared/InputFilter';
@@ -20,6 +21,8 @@ import { thPerformanceBranches } from '../../helpers/constants';
 import { containsText, getInitialData, getSeriesData } from '../helpers';
 
 export default class TestDataModal extends React.Component {
+  defaultTag = 'all tags';
+
   constructor(props) {
     super(props);
     this.state = {
@@ -42,6 +45,8 @@ export default class TestDataModal extends React.Component {
       filterText: '',
       loading: true,
       selectedUnits: new Set(),
+      activeTag: this.defaultTag,
+      availableTags: [this.defaultTag],
     };
   }
 
@@ -62,16 +67,27 @@ export default class TestDataModal extends React.Component {
   }
 
   componentDidUpdate(prevProps, prevState) {
-    const { platforms, platform } = this.state;
+    const { platforms, platform, availableTags, activeTag } = this.state;
     const { testData } = this.props;
 
     if (prevState.platforms !== platforms) {
       const newPlatform = platforms.find((item) => item === platform)
         ? platform
         : platforms[0];
+
       // eslint-disable-next-line react/no-did-update-set-state
       this.setState({ platform: newPlatform });
     }
+
+    if (prevState.availableTags !== availableTags) {
+      const newActiveTag = availableTags.find((item) => item === activeTag)
+        ? activeTag
+        : this.defaultTag;
+
+      // eslint-disable-next-line react/no-did-update-set-state
+      this.setState({ activeTag: newActiveTag }, this.applyFilters);
+    }
+
     if (this.props.options !== prevProps.options) {
       this.processOptions(true);
     }
@@ -98,6 +114,11 @@ export default class TestDataModal extends React.Component {
     const updates = processResponse(response, 'platforms', errorMessages);
     this.setState(updates);
     this.processOptions();
+  }
+
+  getTagOptions(seriesData) {
+    const newAvailableTags = flatMap(seriesData, (test) => test.tags);
+    return [...new Set(newAvailableTags), this.defaultTag];
   }
 
   getDropdownOptions(options) {
@@ -237,41 +258,50 @@ export default class TestDataModal extends React.Component {
         repositoryName,
         testData,
       );
-      this.setState(updates);
-      if (filterText) {
-        await this.updateFilterText(filterText);
+      const { seriesData } = updates;
+      const availableTags = this.getTagOptions(seriesData);
+
+      this.setState({ ...updates, availableTags });
+      this.applyFilters(filterText);
+    } else {
+      params.framework = relatedSeries.framework_id;
+      if (option === 'addRelatedPlatform') {
+        this.addRelatedBranches(params, false);
+      } else if (option === 'addRelatedConfigs') {
+        this.addRelatedConfigs(params);
+      } else if (option === 'addRelatedBranches') {
+        this.addRelatedBranches(params);
+      } else if (option === 'addRelatedApplications') {
+        this.addRelatedApplications(params);
       }
-      return;
-    }
-
-    params.framework = relatedSeries.framework_id;
-    if (option === 'addRelatedPlatform') {
-      this.addRelatedBranches(params, false);
-    } else if (option === 'addRelatedConfigs') {
-      this.addRelatedConfigs(params);
-    } else if (option === 'addRelatedBranches') {
-      this.addRelatedBranches(params);
-    } else if (option === 'addRelatedApplications') {
-      this.addRelatedApplications(params);
-    }
-
-    if (filterText) {
-      await this.updateFilterText(filterText);
+      this.applyFilters(filterText);
     }
   };
 
   findObject = (list, key, value) => list.find((item) => item[key] === value);
 
-  updateFilterText = (filterText) => {
-    const { seriesData } = this.state;
-    const filteredData = seriesData.filter((test) => {
+  filterTestsByText = (tests, filterText) => {
+    return tests.filter((test) => {
       // spell out all searchable characteristics
       // into a single encompassing string
-      const tags = test.tags.join(' ');
-      const textToSearch = `${test.name} ${tags} ${test.application}`;
+      const textToSearch = `${test.name} ${test.application}`;
 
       return containsText(textToSearch, filterText);
     });
+  };
+
+  applyFilters = (filterText) => {
+    const { seriesData, activeTag } = this.state;
+    let filteredData = [];
+
+    filteredData = seriesData.filter(
+      (test) => activeTag === this.defaultTag || test.tags.includes(activeTag),
+    );
+
+    if (filterText) {
+      filteredData = this.filterTestsByText(filteredData, filterText);
+    }
+
     this.setState({ filteredData, filterText });
   };
 
@@ -387,10 +417,12 @@ export default class TestDataModal extends React.Component {
       filterText,
       loading,
       pinnedProjects,
+      activeTag,
+      availableTags,
     } = this.state;
     const { projects, frameworks, showModal } = this.props;
     const projectOptions = this.getDropdownOptions(projects);
-    const modalOptions = [
+    let modalOptions = [
       {
         options: frameworks.length ? frameworks.map((item) => item.name) : [],
         selectedItem: framework.name,
@@ -427,8 +459,21 @@ export default class TestDataModal extends React.Component {
       },
     ];
 
+    if (availableTags.length > 1) {
+      modalOptions = [
+        ...modalOptions,
+        {
+          options: availableTags.sort(),
+          selectedItem: activeTag,
+          updateData: (activeTag) =>
+            this.setState({ activeTag }, this.processOptions),
+          title: 'Tag',
+        },
+      ];
+    }
+
     let tests = [];
-    if (filterText) {
+    if (filterText || activeTag !== this.defaultTag) {
       tests = filteredData;
     } else if (relatedTests.length || showNoRelatedTests) {
       tests = relatedTests;
@@ -463,7 +508,7 @@ export default class TestDataModal extends React.Component {
               <Col className="p-2 col-4">
                 <InputFilter
                   disabled={relatedTests.length > 0}
-                  updateFilterText={this.updateFilterText}
+                  updateFilterText={this.applyFilters}
                 />
               </Col>
             </Row>

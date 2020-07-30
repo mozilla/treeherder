@@ -3,7 +3,6 @@ import {
   render,
   cleanup,
   fireEvent,
-  waitForElement,
   waitFor,
   waitForElementToBeRemoved,
 } from '@testing-library/react';
@@ -15,19 +14,19 @@ import {
   filterText,
   graphColors,
   graphSymbols,
-} from '../../../ui/perfherder/constants';
-import GraphsViewControls from '../../../ui/perfherder/graphs/GraphsViewControls';
-import repos from '../mock/repositories';
-import testData from '../mock/performance_summary.json';
-import seriesData from '../mock/performance_signature_formatted.json';
-import seriesData2 from '../mock/performance_signature_formatted2.json';
-import { getProjectUrl } from '../../../ui/helpers/location';
-import { createGraphData } from '../../../ui/perfherder/helpers';
+} from '../../../../ui/perfherder/constants';
+import GraphsViewControls from '../../../../ui/perfherder/graphs/GraphsViewControls';
+import repos from '../../mock/repositories';
+import testData from '../../mock/performance_summary.json';
+import seriesData from '../../mock/performance_signature_formatted.json';
+import seriesData2 from '../../mock/performance_signature_formatted2.json';
+import { getProjectUrl } from '../../../../ui/helpers/location';
+import { createGraphData } from '../../../../ui/perfherder/helpers';
 import {
   createApiUrl,
   createQueryParams,
   getApiUrl,
-} from '../../../ui/helpers/url';
+} from '../../../../ui/helpers/url';
 
 const graphData = createGraphData(
   testData,
@@ -100,7 +99,7 @@ const graphsViewControls = (data = testData, hasNoData = true) =>
 afterEach(cleanup);
 
 test('Changing the platform dropdown in the Test Data Modal displays expected tests', async () => {
-  const { getByText, queryByTestId, getByTitle } = graphsViewControls();
+  const { getByText, getByTitle, getByTestId } = graphsViewControls();
 
   fireEvent.click(getByText('Add test data'));
 
@@ -111,8 +110,8 @@ test('Changing the platform dropdown in the Test Data Modal displays expected te
   fireEvent.click(windowsPlatform);
 
   // 'mozilla-central windows7-32 a11yr opt e10s stylo'
-  const existingTest = await waitForElement(() =>
-    queryByTestId(seriesData2[0].id.toString()),
+  const existingTest = await waitFor(() =>
+    getByTestId(seriesData2[0].id.toString()),
   );
   expect(existingTest).toBeInTheDocument();
   expect(mockShowModal.mock.calls).toHaveLength(1);

@@ -17,6 +17,7 @@ import {
 import moment from 'moment';
 import debounce from 'lodash/debounce';
 import last from 'lodash/last';
+import flatMap from 'lodash/flatMap';
 
 import { formatNumber } from '../helpers';
 
@@ -33,7 +34,7 @@ class GraphsContainer extends React.Component {
     this.rightChartPadding = 10;
     this.state = {
       highlights: [],
-      scatterPlotData: this.props.testData.flatMap((item) =>
+      scatterPlotData: flatMap(this.props.testData, (item) =>
         item.visible ? item.data : [],
       ),
       lockTooltip: false,
