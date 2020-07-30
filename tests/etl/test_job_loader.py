@@ -214,6 +214,7 @@ def test_ingest_pulse_jobs_bad_project(
     assert Job.objects.count() == 4
 
 
+@responses.activate
 def test_ingest_pulse_jobs_with_missing_push(pulse_jobs):
     """
     Ingest jobs with missing pushes, so they should throw an exception
@@ -222,6 +223,13 @@ def test_ingest_pulse_jobs_with_missing_push(pulse_jobs):
     jl = JobLoader()
     job = pulse_jobs[0]
     job["origin"]["revision"] = "1234567890123456789012345678901234567890"
+    responses.add(
+        responses.GET,
+        "https://firefox-ci-tc.services.mozilla.com/api/queue/v1/task/IYyscnNMTLuxzna7PNqUJQ",
+        json={},
+        content_type='application/json',
+        status=200,
+    )
 
     with pytest.raises(MissingPushException):
         for pulse_job in pulse_jobs:
