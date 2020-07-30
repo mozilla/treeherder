@@ -109,12 +109,13 @@ def ignore_task(task, taskId, rootUrl, project):
         logger.debug("Ignoring tasks not matching PROJECTS_TO_INGEST (Task id: %s)", taskId)
         return True
 
-    if project in ('android-components', 'fenix'):
+    mobile_repos = ('android-components', 'fenix', 'reference-browser')
+    if project in mobile_repos:
         envs = task["payload"].get("env", {})
         if envs.get("MOBILE_BASE_REPOSITORY"):
             try:
                 base_repo = envs["MOBILE_BASE_REPOSITORY"].rsplit("/", 1)[1]
-                if base_repo in ("android-components", "fenix"):
+                if base_repo in mobile_repos:
                     # Ignore tasks that are associated to a pull request
                     if envs["MOBILE_BASE_REPOSITORY"] != envs["MOBILE_HEAD_REPOSITORY"]:
                         logger.debug(
