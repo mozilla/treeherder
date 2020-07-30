@@ -161,7 +161,7 @@ async def handleMessage(message, taskDefinition=None):
         return jobs
 
     if parsedRoute["project"] in ('android-components', 'fenix') and ignore_mobile_change(
-        task, taskId, message["root_url"]
+        task, taskId, message["root_url"], parsedRoute['project']
     ):
         return jobs
 

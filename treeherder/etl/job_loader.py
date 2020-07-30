@@ -102,13 +102,14 @@ class JobLoader:
 
         if not Push.objects.filter(**filter_kwargs).exists():
             (real_task_id, _) = task_and_retry_ids(pulse_job["taskId"])
-            repository = Repository.objects.get(name=pulse_job["origin"]["project"])
+            project = pulse_job["origin"]["project"]
+            repository = Repository.objects.get(name=project)
             task_url = taskcluster_urls.api(
                 repository.tc_root_url, 'queue', 'v1', 'task/{}'.format(real_task_id)
             )
             task = fetch_json(task_url)
             # We do this to prevent raising an exception for a task that will never be ingested
-            if not ignore_mobile_change(task, real_task_id):
+            if not ignore_mobile_change(task, real_task_id, repository.tc_root_url, project):
                 raise MissingPushException(
                     "No push found in {} for revision {} for task {}".format(
                         pulse_job["origin"]["project"], revision, real_task_id
