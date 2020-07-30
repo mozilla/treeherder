@@ -20,6 +20,7 @@ describe('TestMetric', () => {
       currentRepo={{ name: repoName, tc_root_url: 'http://foo.com' }}
       notify={() => {}}
       searchStr=""
+      updateParamsAndState={() => {}}
       showParentMatches={false}
     />
   );

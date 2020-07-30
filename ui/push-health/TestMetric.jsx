@@ -20,10 +20,7 @@ export default class TestMetric extends React.PureComponent {
       regressionsGroupBy,
       knownIssuesOrderBy,
       knownIssuesGroupBy,
-      setRegressionsOrderBy,
-      setRegressionsGroupBy,
-      setKnownIssuesOrderBy,
-      setKnownIssuesGroupBy,
+      updateParamsAndState,
     } = this.props;
     const { details } = data;
     const { needInvestigation, knownIssues } = details;
@@ -61,8 +58,12 @@ export default class TestMetric extends React.PureComponent {
           notify={notify}
           orderedBy={regressionsOrderBy}
           groupedBy={regressionsGroupBy}
-          setOrderedBy={setRegressionsOrderBy}
-          setGroupedBy={setRegressionsGroupBy}
+          setOrderedBy={(regressionsOrderBy) =>
+            updateParamsAndState({ regressionsOrderBy })
+          }
+          setGroupedBy={(setRegressionsGroupBy) =>
+            updateParamsAndState({ setRegressionsGroupBy })
+          }
         />
         <ClassificationGroup
           jobs={jobs}
@@ -81,8 +82,12 @@ export default class TestMetric extends React.PureComponent {
           notify={notify}
           orderedBy={knownIssuesOrderBy}
           groupedBy={knownIssuesGroupBy}
-          setOrderedBy={setKnownIssuesOrderBy}
-          setGroupedBy={setKnownIssuesGroupBy}
+          setOrderedBy={(knownIssuesOrderBy) =>
+            updateParamsAndState({ knownIssuesOrderBy })
+          }
+          setGroupedBy={(knownIssuesGroupBy) =>
+            updateParamsAndState({ knownIssuesGroupBy })
+          }
         />
       </div>
     );
@@ -108,10 +113,7 @@ TestMetric.propTypes = {
   regressionsGroupBy: PropTypes.string,
   knownIssuesOrderBy: PropTypes.string,
   knownIssuesGroupBy: PropTypes.string,
-  setRegressionsOrderBy: PropTypes.func,
-  setRegressionsGroupBy: PropTypes.func,
-  setKnownIssuesOrderBy: PropTypes.func,
-  setKnownIssuesGroupBy: PropTypes.func,
+  updateParamsAndState: PropTypes.func.isRequired,
 };
 
 TestMetric.defaultProps = {
@@ -119,8 +121,4 @@ TestMetric.defaultProps = {
   regressionsGroupBy: 'path',
   knownIssuesOrderBy: 'count',
   knownIssuesGroupBy: 'path',
-  setRegressionsOrderBy: () => {},
-  setRegressionsGroupBy: () => {},
-  setKnownIssuesOrderBy: () => {},
-  setKnownIssuesGroupBy: () => {},
 };

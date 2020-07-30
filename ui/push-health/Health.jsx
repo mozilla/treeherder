@@ -92,48 +92,15 @@ export default class Health extends React.PureComponent {
     this.setState({ user });
   };
 
-  setRegressionsOrderBy = (regressionsOrderBy) => {
+  updateParamsAndState = (stateObj) => {
     const { location, history } = this.props;
     const newParams = {
       ...parseQueryParams(location.search),
-      regressionsOrderBy,
     };
+    Object.assign(newParams, stateObj);
     const queryString = createQueryParams(newParams);
     updateQueryParams(queryString, history, location);
-    this.setState({ regressionsOrderBy });
-  };
-
-  setRegressionsGroupBy = (regressionsGroupBy) => {
-    const { location, history } = this.props;
-    const newParams = {
-      ...parseQueryParams(location.search),
-      regressionsGroupBy,
-    };
-    const queryString = createQueryParams(newParams);
-    updateQueryParams(queryString, history, location);
-    this.setState({ regressionsGroupBy });
-  };
-
-  setKnownIssuesOrderBy = (knownIssuesOrderBy) => {
-    const { location, history } = this.props;
-    const newParams = {
-      ...parseQueryParams(location.search),
-      knownIssuesOrderBy,
-    };
-    const queryString = createQueryParams(newParams);
-    updateQueryParams(queryString, history, location);
-    this.setState({ knownIssuesOrderBy });
-  };
-
-  setKnownIssuesGroupBy = (knownIssuesGroupBy) => {
-    const { location, history } = this.props;
-    const newParams = {
-      ...parseQueryParams(location.search),
-      knownIssuesGroupBy,
-    };
-    const queryString = createQueryParams(newParams);
-    updateQueryParams(queryString, history, location);
-    this.setState({ knownIssuesGroupBy });
+    this.setState(stateObj);
   };
 
   updatePushHealth = async () => {
@@ -362,6 +329,7 @@ export default class Health extends React.PureComponent {
                       regressionsGroupBy={regressionsGroupBy}
                       knownIssuesOrderBy={knownIssuesOrderBy}
                       knownIssuesGroupBy={knownIssuesGroupBy}
+                      updateParamsAndState={this.updateParamsAndState}
                       setRegressionsOrderBy={this.setRegressionsOrderBy}
                       setRegressionsGroupBy={this.setRegressionsGroupBy}
                       setKnownIssuesOrderBy={this.setKnownIssuesOrderBy}
