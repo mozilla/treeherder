@@ -1,9 +1,14 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import { faExclamationTriangle } from '@fortawesome/free-solid-svg-icons';
+import {
+  faExclamationTriangle,
+  faCheck,
+} from '@fortawesome/free-solid-svg-icons';
 
 import ClassificationGroup from './ClassificationGroup';
 import { filterTests } from './helpers';
+import PassingPaths from './PassingPaths';
+import MainHeading from './MainHeading';
 
 export default class TestMetric extends React.PureComponent {
   render() {
@@ -45,71 +50,97 @@ export default class TestMetric extends React.PureComponent {
     }
 
     return (
-      <div className="border-bottom border-secondary">
-        <ClassificationGroup
-          jobs={jobs}
-          tests={filteredNeedInvestigation}
+      <div>
+        <MainHeading
           name="Possible Regressions"
-          repo={repo}
-          currentRepo={currentRepo}
-          revision={revision}
-          className="mb-5"
-          icon={faExclamationTriangle}
+          stateIcon={faExclamationTriangle}
           iconColor={
             filteredNeedInvestigation.length ? 'danger' : 'darker-secondary'
           }
-          expanded={testGroup === 'pr'}
-          testGroup={testGroup}
-          selectedTest={selectedTest}
-          hasRetriggerAll
-          notify={notify}
-          orderedBy={regressionsOrderBy}
-          groupedBy={regressionsGroupBy}
-          selectedJobName={selectedJobName}
-          selectedTaskId={selectedTaskId}
-          setOrderedBy={(regressionsOrderBy) =>
-            updateParamsAndState({ regressionsOrderBy, testGroup: 'pr' })
-          }
-          setGroupedBy={(regressionsGroupBy) =>
-            updateParamsAndState({ regressionsGroupBy, testGroup: 'pr' })
-          }
-          updateParamsAndState={(stateObj) => {
-            stateObj.testGroup = 'pr';
-            updateParamsAndState(stateObj);
-          }}
-        />
-        <ClassificationGroup
-          jobs={jobs}
-          tests={filteredKnownIssues}
-          name="Known Issues"
-          repo={repo}
-          currentRepo={currentRepo}
-          revision={revision}
           className="mb-5"
-          icon={faExclamationTriangle}
+          expanded={testGroup === 'pr'}
+          updateParamsAndState={updateParamsAndState}
+          groupLength={filteredNeedInvestigation.length}
+        >
+          <ClassificationGroup
+            jobs={jobs}
+            tests={filteredNeedInvestigation}
+            repo={repo}
+            currentRepo={currentRepo}
+            revision={revision}
+            testGroup={testGroup}
+            selectedTest={selectedTest}
+            hasRetriggerAll
+            notify={notify}
+            orderedBy={regressionsOrderBy}
+            groupedBy={regressionsGroupBy}
+            selectedJobName={selectedJobName}
+            selectedTaskId={selectedTaskId}
+            setOrderedBy={(regressionsOrderBy) =>
+              updateParamsAndState({ regressionsOrderBy, testGroup: 'pr' })
+            }
+            setGroupedBy={(regressionsGroupBy) =>
+              updateParamsAndState({ regressionsGroupBy, testGroup: 'pr' })
+            }
+            updateParamsAndState={(stateObj) => {
+              stateObj.testGroup = 'pr';
+              updateParamsAndState(stateObj);
+            }}
+          />
+        </MainHeading>
+        <MainHeading
+          name="Known Issues"
+          stateIcon={faExclamationTriangle}
           iconColor={
             filteredKnownIssues.length ? 'warning' : 'darker-secondary'
           }
           expanded={testGroup === 'ki'}
-          testGroup={testGroup}
-          selectedTest={selectedTest}
-          hasRetriggerAll
-          notify={notify}
-          selectedTaskId={selectedTaskId}
-          orderedBy={knownIssuesOrderBy}
-          groupedBy={knownIssuesGroupBy}
-          selectedJobName={selectedJobName}
-          setOrderedBy={(knownIssuesOrderBy) =>
-            updateParamsAndState({ knownIssuesOrderBy, testGroup: 'ki' })
-          }
-          setGroupedBy={(knownIssuesGroupBy) =>
-            updateParamsAndState({ knownIssuesGroupBy, testGroup: 'ki' })
-          }
+          updateParamsAndState={updateParamsAndState}
+          className="mb-5"
+          groupLength={filteredKnownIssues.length}
+        >
+          <ClassificationGroup
+            jobs={jobs}
+            tests={filteredKnownIssues}
+            repo={repo}
+            currentRepo={currentRepo}
+            revision={revision}
+            testGroup={testGroup}
+            selectedTest={selectedTest}
+            hasRetriggerAll
+            notify={notify}
+            selectedTaskId={selectedTaskId}
+            orderedBy={knownIssuesOrderBy}
+            groupedBy={knownIssuesGroupBy}
+            selectedJobName={selectedJobName}
+            setOrderedBy={(knownIssuesOrderBy) =>
+              updateParamsAndState({ knownIssuesOrderBy, testGroup: 'ki' })
+            }
+            setGroupedBy={(knownIssuesGroupBy) =>
+              updateParamsAndState({ knownIssuesGroupBy, testGroup: 'ki' })
+            }
+            updateParamsAndState={(stateObj) => {
+              stateObj.testGroup = 'ki';
+              updateParamsAndState(stateObj);
+            }}
+          />
+        </MainHeading>
+        <MainHeading
+          name="Passing Paths"
+          stateIcon={faCheck}
+          iconColor="success"
+          expanded={testGroup === 'pp'}
           updateParamsAndState={(stateObj) => {
-            stateObj.testGroup = 'ki';
+            stateObj.testGroup = 'pp';
             updateParamsAndState(stateObj);
           }}
-        />
+        >
+          <PassingPaths
+            revision={revision}
+            currentRepo={currentRepo}
+            searchStr={searchStr}
+          />
+        </MainHeading>
       </div>
     );
   }

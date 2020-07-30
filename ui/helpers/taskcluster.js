@@ -10,6 +10,7 @@ import {
 } from '../taskcluster-auth-callback/constants';
 
 import { createQueryParams } from './url';
+import decompress from './gzip';
 
 export const tcCredentialsMessage =
   'Need to retrieve or renew Taskcluster credentials before action can be performed.';
@@ -134,6 +135,58 @@ export const getAction = (actionArray, actionName) => {
   }
 
   return action;
+};
+
+// Bug 1638424 - Transform WPT test paths to look like paths
+// from a local checkout
+export const transformTestPath = (path) => {
+  let newPath = path;
+  // WPT path transformations
+  if (path.startsWith('/_mozilla')) {
+    // /_mozilla/<path> => testing/web-platform/mozilla/tests/<path>
+    const modifiedPath = path.replace('/_mozilla', '');
+    newPath = `testing/web-platform/mozilla/tests${modifiedPath}`;
+  } else if (path.startsWith('/')) {
+    // /<path> => testing/web-platform/tests/<path>
+    newPath = `testing/web-platform/tests${path}`;
+  }
+
+  return newPath;
+};
+
+export const transformedPaths = (manifestsByTask) => {
+  const newManifestsByTask = {};
+  Object.keys(manifestsByTask).forEach((taskName) => {
+    newManifestsByTask[taskName] = manifestsByTask[taskName].map((testPath) =>
+      transformTestPath(testPath),
+    );
+  });
+  return newManifestsByTask;
+};
+
+export const fetchGeckoDecisionArtifact = async (
+  project,
+  revision,
+  filePath,
+) => {
+  let artifactContents = {};
+  const rootUrl = prodFirefoxRootUrl;
+  const url = `${checkRootUrl(
+    rootUrl,
+  )}/api/index/v1/task/gecko.v2.${project}.revision.${revision}.taskgraph.decision/artifacts/public/${filePath}`;
+  const response = await fetch(url);
+  if (url.endsWith('.gz')) {
+    if ([200, 303, 304].includes(response.status)) {
+      const blob = await response.blob();
+      const binData = await blob.arrayBuffer();
+      artifactContents = await decompress(binData);
+    }
+  } else if (url.endsWith('.json')) {
+    if ([200, 303, 304].includes(response.status)) {
+      artifactContents = await response.json();
+    }
+  }
+  return artifactContents;
 };
 
 export default taskcluster;

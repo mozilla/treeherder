@@ -1,14 +1,8 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faRedo } from '@fortawesome/free-solid-svg-icons';
 import {
-  faCaretDown,
-  faCaretRight,
-  faRedo,
-} from '@fortawesome/free-solid-svg-icons';
-import {
-  Row,
-  Collapse,
   ButtonGroup,
   ButtonDropdown,
   Button,
@@ -31,21 +25,9 @@ class ClassificationGroup extends React.PureComponent {
     super(props);
 
     this.state = {
-      detailsShowing: props.expanded,
       retriggerDropdownOpen: false,
     };
   }
-
-  toggleDetails = () => {
-    const { updateParamsAndState, name } = this.props;
-
-    updateParamsAndState({
-      testGroup: name === 'Possible Regressions' ? 'pr' : 'ki',
-    });
-    this.setState((prevState) => ({
-      detailsShowing: !prevState.detailsShowing,
-    }));
-  };
 
   toggleRetrigger = () => {
     this.setState((prevState) => ({
@@ -69,27 +51,28 @@ class ClassificationGroup extends React.PureComponent {
   };
 
   getTestsByAction = (tests) => {
-    const { log, crash, test } = groupBy(tests, 'action');
+    const { log = [], crash = [], test = [] } = groupBy(tests, 'action');
+    const byAction = {};
 
-    return {
-      'Test Failures': test || [],
-      'Crashes (unknown path)': [...(log || []), ...(crash || [])],
-    };
+    if (log.length || crash.length) {
+      byAction['Crashes (unknown path)'] = [...log, ...crash];
+    }
+    if (test.length) {
+      byAction['Test Failures'] = test;
+    }
+
+    return byAction;
   };
 
   render() {
-    const { detailsShowing, retriggerDropdownOpen } = this.state;
+    const { retriggerDropdownOpen } = this.state;
     const {
       jobs,
       tests,
-      name,
       revision,
-      className,
       hasRetriggerAll,
       notify,
       currentRepo,
-      icon,
-      iconColor,
       groupedBy,
       orderedBy,
       testGroup,
@@ -100,39 +83,13 @@ class ClassificationGroup extends React.PureComponent {
       setOrderedBy,
       updateParamsAndState,
     } = this.props;
-    const expandIcon = detailsShowing ? faCaretDown : faCaretRight;
-    const expandTitle = detailsShowing
-      ? 'Click to collapse'
-      : 'Click to expand';
     const groupLength = Object.keys(tests).length;
     const testsByAction = this.getTestsByAction(tests);
 
     return (
-      <Row
-        className={`justify-content-between ${className}`}
-        data-testid="classification-group"
-      >
-        <span className="font-size-24">
-          <FontAwesomeIcon
-            icon={expandIcon}
-            className="mr-1 min-width-1"
-            title={expandTitle}
-            aria-label={expandTitle}
-            alt=""
-          />
-          <Button
-            onClick={this.toggleDetails}
-            outline
-            className="font-size-24 border-0"
-            role="button"
-            aria-expanded={detailsShowing}
-          >
-            <FontAwesomeIcon icon={icon} className={`mr-2 text-${iconColor}`} />
-            {name} ({groupLength})
-          </Button>
-        </span>
-        {hasRetriggerAll && groupLength > 0 && detailsShowing && (
-          <Navbar className="mb-4">
+      <React.Fragment>
+        {hasRetriggerAll && groupLength > 0 && (
+          <Navbar className="m-4">
             <Nav>
               <NavItem>
                 <ButtonGroup size="sm">
@@ -244,41 +201,35 @@ class ClassificationGroup extends React.PureComponent {
             </Nav>
           </Navbar>
         )}
-        <Collapse isOpen={detailsShowing} className="w-100">
-          {Object.entries(testsByAction).map(([key, value]) => (
-            <Action
-              name={key}
-              tests={value}
-              groupedBy={groupedBy}
-              orderedBy={orderedBy}
-              revision={revision}
-              currentRepo={currentRepo}
-              notify={notify}
-              key={key}
-              jobs={jobs}
-              testGroup={testGroup}
-              selectedTest={selectedTest}
-              selectedJobName={selectedJobName}
-              selectedTaskId={selectedTaskId}
-              updateParamsAndState={updateParamsAndState}
-            />
-          ))}
-        </Collapse>
-      </Row>
+        {Object.entries(testsByAction).map(([key, value]) => (
+          <Action
+            name={key}
+            tests={value}
+            groupedBy={groupedBy}
+            orderedBy={orderedBy}
+            revision={revision}
+            currentRepo={currentRepo}
+            notify={notify}
+            key={key}
+            jobs={jobs}
+            testGroup={testGroup}
+            selectedTest={selectedTest}
+            selectedJobName={selectedJobName}
+            selectedTaskId={selectedTaskId}
+            updateParamsAndState={updateParamsAndState}
+          />
+        ))}
+      </React.Fragment>
     );
   }
 }
 
 ClassificationGroup.propTypes = {
   tests: PropTypes.arrayOf(PropTypes.object).isRequired,
-  name: PropTypes.string.isRequired,
   currentRepo: PropTypes.shape({}).isRequired,
   revision: PropTypes.string.isRequired,
   notify: PropTypes.func.isRequired,
   hasRetriggerAll: PropTypes.bool,
-  expanded: PropTypes.bool,
-  className: PropTypes.string,
-  iconColor: PropTypes.string,
   orderedBy: PropTypes.string,
   groupedBy: PropTypes.string,
   setOrderedBy: PropTypes.func,
@@ -286,9 +237,6 @@ ClassificationGroup.propTypes = {
 };
 
 ClassificationGroup.defaultProps = {
-  expanded: true,
-  className: '',
-  iconColor: 'darker-info',
   hasRetriggerAll: false,
   orderedBy: 'count',
   groupedBy: 'path',

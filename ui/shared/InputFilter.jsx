@@ -19,6 +19,12 @@ export default class InputFilter extends React.Component {
     800,
   );
 
+  componentDidMount() {
+    const { initialValue } = this.props;
+
+    this.setState({ input: initialValue });
+  }
+
   updateInput = (event) => {
     const { updateFilterText, updateOnEnter } = this.props;
     const input = event.target.value;
@@ -67,10 +73,12 @@ InputFilter.propTypes = {
   disabled: PropTypes.bool,
   placeholder: PropTypes.string,
   updateOnEnter: PropTypes.bool,
+  initialValue: PropTypes.string,
 };
 
 InputFilter.defaultProps = {
   disabled: false,
   placeholder: filterText.inputPlaceholder,
   updateOnEnter: false,
+  initialValue: '',
 };

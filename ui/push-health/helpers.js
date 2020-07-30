@@ -28,6 +28,12 @@ export const filterTests = (tests, searchStr, showParentMatches) => {
   );
 };
 
+export const filterPaths = (paths, searchStr) => {
+  const filters = searchStr.split(' ').map((filter) => new RegExp(filter, 'i'));
+
+  return paths.filter((path) => filters.every((f) => f.test(path)));
+};
+
 export const filterJobs = (jobs, showParentMatches) => {
   return jobs.filter((job) => job.failedInParent === showParentMatches);
 };

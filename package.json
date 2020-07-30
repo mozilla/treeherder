@@ -54,6 +54,7 @@
     "react-split-pane": "0.1.92",
     "react-table": "6.10.3",
     "react-tabs": "3.0.0",
+    "react-window": "1.8.5",
     "reactstrap": "8.3.2",
     "redux": "4.0.5",
     "redux-debounce": "1.0.1",

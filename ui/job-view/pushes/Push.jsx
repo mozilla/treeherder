@@ -9,22 +9,21 @@ import {
   thOptionOrder,
   thPlatformMap,
 } from '../../helpers/constants';
-import decompress from '../../helpers/gzip';
 import { getGroupMapKey } from '../../helpers/aggregateId';
 import { getAllUrlParams, getUrlParam } from '../../helpers/location';
-import JobModel from '../../models/job';
-import RunnableJobModel from '../../models/runnableJob';
 import { getRevisionTitle } from '../../helpers/revision';
 import { getPercentComplete } from '../../helpers/display';
+import {
+  fetchGeckoDecisionArtifact,
+  transformedPaths,
+} from '../../helpers/taskcluster';
+import JobModel from '../../models/job';
+import RunnableJobModel from '../../models/runnableJob';
 import { notify } from '../redux/stores/notifications';
 import {
   updateJobMap,
   recalculateUnclassifiedCounts,
 } from '../redux/stores/pushes';
-import {
-  checkRootUrl,
-  prodFirefoxRootUrl,
-} from '../../taskcluster-auth-callback/constants';
 import { RevisionList } from '../../shared/RevisionList';
 import { Revision } from '../../shared/Revision';
 import PushHealthSummary from '../../shared/PushHealthSummary';
@@ -36,54 +35,6 @@ import PushJobs from './PushJobs';
 
 const watchCycleStates = ['none', 'push', 'job', 'none'];
 const platformArray = Object.values(thPlatformMap);
-
-// Bug 1638424 - Transform WPT test paths to look like paths
-// from a local checkout
-export const transformTestPath = (path) => {
-  let newPath = path;
-  // WPT path transformations
-  if (path.startsWith('/_mozilla')) {
-    // /_mozilla/<path> => testing/web-platform/mozilla/tests/<path>
-    const modifiedPath = path.replace('/_mozilla', '');
-    newPath = `testing/web-platform/mozilla/tests${modifiedPath}`;
-  } else if (path.startsWith('/')) {
-    // /<path> => testing/web-platform/tests/<path>
-    newPath = `testing/web-platform/tests${path}`;
-  }
-
-  return newPath;
-};
-
-export const transformedPaths = (manifestsByTask) => {
-  const newManifestsByTask = {};
-  Object.keys(manifestsByTask).forEach((taskName) => {
-    newManifestsByTask[taskName] = manifestsByTask[taskName].map((testPath) =>
-      transformTestPath(testPath),
-    );
-  });
-  return newManifestsByTask;
-};
-
-const fetchGeckoDecisionArtifact = async (project, revision, filePath) => {
-  let artifactContents = {};
-  const rootUrl = prodFirefoxRootUrl;
-  const url = `${checkRootUrl(
-    rootUrl,
-  )}/api/index/v1/task/gecko.v2.${project}.revision.${revision}.taskgraph.decision/artifacts/public/${filePath}`;
-  const response = await fetch(url);
-  if (url.endsWith('.gz')) {
-    if ([200, 303, 304].includes(response.status)) {
-      const blob = await response.blob();
-      const binData = await blob.arrayBuffer();
-      artifactContents = await decompress(binData);
-    }
-  } else if (url.endsWith('.json')) {
-    if ([200, 303, 304].includes(response.status)) {
-      artifactContents = await response.json();
-    }
-  }
-  return artifactContents;
-};
 
 class Push extends React.PureComponent {
   constructor(props) {

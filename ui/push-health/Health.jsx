@@ -211,6 +211,7 @@ export default class Health extends React.PureComponent {
     const needInvestigationCount = tests
       ? tests.details.needInvestigation.length
       : 0;
+    console.log('searchStr', searchStr);
 
     return (
       <React.Fragment>
@@ -247,6 +248,7 @@ export default class Health extends React.PureComponent {
                   <InputFilter
                     updateFilterText={this.filter}
                     placeholder="filter path or platform"
+                    initialValue={searchStr}
                   />
                 </span>
               </Nav>
