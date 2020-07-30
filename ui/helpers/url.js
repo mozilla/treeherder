@@ -163,7 +163,5 @@ export const updateQueryParams = function updateHistoryWithQueryParams(
   history,
   location,
 ) {
-  history.replace({ pathname: location.pathname, search: queryParams });
-  // we do this so the api's won't be called twice (location/history updates will trigger a lifecycle hook)
-  location.search = queryParams;
+  history.push({ pathname: location.pathname, search: queryParams });
 };

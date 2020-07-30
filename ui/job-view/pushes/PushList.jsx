@@ -17,7 +17,6 @@ import {
   updateRange,
   pollPushes,
 } from '../redux/stores/pushes';
-import { reloadOnChangeParameters } from '../../helpers/filter';
 
 import Push from './Push';
 import PushLoadErrors from './PushLoadErrors';
@@ -71,7 +70,14 @@ class PushList extends React.Component {
     const params = [...new URLSearchParams(search)];
 
     return params.reduce((acc, [key, value]) => {
-      return reloadOnChangeParameters.includes(key)
+      return [
+        'repo',
+        'revision',
+        'author',
+        'startdate',
+        'enddate',
+        'nojobs',
+      ].includes(key)
         ? { ...acc, [key]: value }
         : acc;
     }, {});
@@ -121,18 +127,20 @@ class PushList extends React.Component {
       filterModel,
       pushList,
       loadingPushes,
-      fetchNextPushes,
       getAllShownJobs,
       jobsLoaded,
       duplicateJobsVisible,
       groupCountsExpanded,
       pushHealthVisibility,
+      history,
+      fetchNextPushes,
     } = this.props;
     const { notificationSupported } = this.state;
 
     if (!revision) {
       this.setWindowTitle();
     }
+
     return (
       // Bug 1619873 - role="list" works better here than an interactive role
       /* eslint-disable jsx-a11y/no-noninteractive-element-interactions */
@@ -187,7 +195,7 @@ class PushList extends React.Component {
                 color="darker-secondary"
                 outline
                 className="btn-light-bordered"
-                onClick={() => fetchNextPushes(count)}
+                onClick={() => fetchNextPushes(count, history, pushList)}
                 key={count}
                 data-testid={`get-next-${count}`}
               >

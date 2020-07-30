@@ -52,9 +52,9 @@ export const getFilterUrlParamsWithDefaults = () => {
 };
 
 export default class FilterModel {
-  constructor(history, location) {
-    this.history = history;
-    this.location = location;
+  constructor(props) {
+    // utilize react-router history and location props
+    Object.assign(this, props);
     this.urlParams = getFilterUrlParamsWithDefaults();
   }
 
@@ -102,9 +102,14 @@ export default class FilterModel {
           (filterValue) => filterValue !== value,
         );
       }
+
+      if (!this.urlParams[field].length) {
+        delete this.urlParams[field];
+      }
     } else {
       delete this.urlParams[field];
     }
+
     this.push();
   };
 

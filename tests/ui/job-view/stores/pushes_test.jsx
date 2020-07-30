@@ -5,7 +5,6 @@ import configureMockStore from 'redux-mock-store';
 
 import {
   getProjectUrl,
-  getQueryString,
   replaceLocation,
   setUrlParam,
 } from '../../../../ui/helpers/location';
@@ -158,8 +157,8 @@ describe('Pushes Redux store', () => {
     setUrlParam('revision', push.revision);
     await store.dispatch(fetchNextPushes(10));
 
-    expect(getQueryString()).toEqual(
-      'tochange=ba9c692786e95143b8df3f4b3e9b504dfbc589a0&fromchange=90da061f588d1315ee4087225d041d7474d9dfd8',
+    expect(window.location.search).toEqual(
+      '?tochange=ba9c692786e95143b8df3f4b3e9b504dfbc589a0&fromchange=90da061f588d1315ee4087225d041d7474d9dfd8',
     );
   });
 

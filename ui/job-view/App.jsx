@@ -9,7 +9,7 @@ import { Provider } from 'react-redux';
 import { thFavicons, thEvents } from '../helpers/constants';
 import ShortcutTable from '../shared/ShortcutTable';
 import { matchesDefaults } from '../helpers/filter';
-import { getAllUrlParams, getRepo } from '../helpers/location';
+import { getAllUrlParams, getOrSetRepo } from '../helpers/location';
 import { MAX_TRANSIENT_AGE } from '../helpers/notifications';
 import { deployedRevisionUrl, parseQueryParams } from '../helpers/url';
 import ClassificationTypeModel from '../models/classificationType';
@@ -62,10 +62,7 @@ class App extends React.Component {
   constructor(props) {
     super(props);
 
-    const filterModel = new FilterModel(
-      this.props.history,
-      this.props.location,
-    );
+    const filterModel = new FilterModel(this.props);
     // Set the URL to updated parameter styles, if needed.  Otherwise it's a no-op.
     // filterModel.push();
     const urlParams = getAllUrlParams();
@@ -73,7 +70,7 @@ class App extends React.Component {
       urlParams.has('selectedJob') || urlParams.has('selectedTaskRun');
 
     this.state = {
-      repoName: getRepo(),
+      repoName: getOrSetRepo(this.props.history),
       revision: urlParams.get('revision'),
       user: { isLoggedIn: false, isStaff: false },
       filterModel,
@@ -96,7 +93,6 @@ class App extends React.Component {
   static getDerivedStateFromProps(props, state) {
     return {
       ...App.getSplitterDimensions(state.hasSelectedJob),
-      repoName: getRepo(),
     };
   }
 
@@ -246,7 +242,7 @@ class App extends React.Component {
 
   handleUrlChanges = () => {
     const { repos } = this.state;
-    const { location, history } = this.props;
+    const { location } = this.props;
 
     const {
       selectedJob,
@@ -264,7 +260,7 @@ class App extends React.Component {
     };
 
     const oldState = pick(this.state, Object.keys(newState));
-    let stateChanges = { filterModel: new FilterModel(history, location) };
+    let stateChanges = { filterModel: new FilterModel(this.props) };
 
     if (!isEqual(newState, oldState)) {
       stateChanges = { ...stateChanges, ...newState };
@@ -274,8 +270,7 @@ class App extends React.Component {
   };
 
   handleFiltersUpdated = () => {
-    const { history, location } = this.props;
-    this.setState({ filterModel: new FilterModel(history, location) });
+    this.setState({ filterModel: new FilterModel(this.props) });
   };
 
   // If ``show`` is a boolean, then set to that value.  If it's not, then toggle

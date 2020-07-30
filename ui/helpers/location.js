@@ -1,17 +1,8 @@
 import { thDefaultRepo } from './constants';
-import {
-  createQueryParams,
-  extractSearchString,
-  getApiUrl,
-  uiJobsUrlBase,
-} from './url';
-
-export const getQueryString = function getQueryString() {
-  return extractSearchString(window.location.href);
-};
+import { createQueryParams, getApiUrl, uiJobsUrlBase } from './url';
 
 export const getAllUrlParams = function getAllUrlParams() {
-  return new URLSearchParams(getQueryString());
+  return new URLSearchParams(window.location.search);
 };
 
 export const getUrlParam = function getUrlParam(name) {
@@ -22,18 +13,27 @@ export const getRepo = function getRepo() {
   return getUrlParam('repo') || thDefaultRepo;
 };
 
-export const replaceLocation = function replaceLocation(
-  params,
-  route = '/jobs',
-) {
-  window.history.replaceState(
-    null,
-    null,
-    `${route}${createQueryParams(params)}`,
-  );
+export const getOrSetRepo = function getOrSetRepo(history) {
+  const params = getAllUrlParams();
+  let repo = params.get('repo');
+
+  if (!repo) {
+    repo = thDefaultRepo;
+    params.set('repo', repo);
+    history.push({
+      search: createQueryParams(params),
+    });
+  }
+
+  return repo;
 };
 
-export const setUrlParam = function setUrlParam(field, value, route = '/jobs') {
+// This won't update the react router history object
+export const replaceLocation = function replaceLocation(params) {
+  window.history.pushState(null, null, createQueryParams(params));
+};
+
+export const setUrlParam = function setUrlParam(field, value) {
   const params = getAllUrlParams();
 
   if (value) {
@@ -42,7 +42,7 @@ export const setUrlParam = function setUrlParam(field, value, route = '/jobs') {
     params.delete(field);
   }
 
-  replaceLocation(params, route);
+  replaceLocation(params);
 };
 
 export const getRepoUrl = function getRepoUrl(newRepoName) {

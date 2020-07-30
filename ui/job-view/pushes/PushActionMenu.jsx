@@ -37,6 +37,12 @@ class PushActionMenu extends React.PureComponent {
     window.addEventListener(thEvents.filtersUpdated, this.handleUrlChanges);
   }
 
+  componentDidUpdate(prevProps) {
+    if (prevProps.location.search !== this.props.location.search) {
+      this.handleUrlChanges();
+    }
+  }
+
   componentWillUnmount() {
     window.removeEventListener('hashchange', this.handleUrlChanges, false);
     window.removeEventListener(thEvents.filtersUpdated, this.handleUrlChanges);
@@ -221,7 +227,7 @@ class PushActionMenu extends React.PureComponent {
 
 PushActionMenu.propTypes = {
   runnableVisible: PropTypes.bool.isRequired,
-  revision: PropTypes.string.isRequired,
+  revision: PropTypes.string,
   currentRepo: PropTypes.shape({
     name: PropTypes.string,
   }).isRequired,
@@ -231,6 +237,10 @@ PushActionMenu.propTypes = {
   showRunnableJobs: PropTypes.func.isRequired,
   showFuzzyJobs: PropTypes.func.isRequired,
   notify: PropTypes.func.isRequired,
+};
+
+PushActionMenu.defaultProps = {
+  revision: null,
 };
 
 const mapStateToProps = ({ pushes: { decisionTaskMap } }) => ({

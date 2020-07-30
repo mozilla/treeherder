@@ -5,7 +5,6 @@ import max from 'lodash/max';
 import { parseQueryParams, bugzillaBugsApi } from '../../../helpers/url';
 import {
   getAllUrlParams,
-  getQueryString,
   getUrlParam,
   replaceLocation,
 } from '../../../helpers/location';
@@ -258,7 +257,7 @@ export const fetchPushes = (
 
     // Only pass supported query string params to this endpoint.
     const options = {
-      ...pick(parseQueryParams(getQueryString()), PUSH_FETCH_KEYS),
+      ...pick(parseQueryParams(window.location.search), PUSH_FETCH_KEYS),
     };
 
     if (oldestPushTimestamp) {
@@ -299,7 +298,7 @@ export const pollPushes = () => {
     } = getState();
     // these params will be passed in each time we poll to remain
     // within the constraints of the URL params
-    const locationSearch = parseQueryParams(getQueryString());
+    const locationSearch = parseQueryParams(window.location.search);
     const pushPollingParams = PUSH_POLLING_KEYS.reduce(
       (acc, prop) =>
         locationSearch[prop] ? { ...acc, [prop]: locationSearch[prop] } : acc,
@@ -362,7 +361,9 @@ export const fetchNextPushes = (count) => {
     // and will be replaced on the location bar by ``fromchange``.
     params.delete('startdate');
   }
+
   replaceLocation(params);
+
   return fetchPushes(count, true);
 };
 
