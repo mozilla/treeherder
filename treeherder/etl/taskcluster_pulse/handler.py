@@ -101,38 +101,46 @@ def validateTask(task):
     return True
 
 
-# Bug 1590512 - A more general solution is needed to avoid using env variables that
-# are only available for mobile related tasks
-def ignore_mobile_change(task, taskId, rootUrl):
+def ignore_task(task, taskId, rootUrl, project):
     ignore = False
-    envs = task["payload"].get("env", {})
-    if envs.get("MOBILE_BASE_REPOSITORY"):
-        try:
-            base_repo = envs["MOBILE_BASE_REPOSITORY"].rsplit("/", 1)[1]
-            if base_repo in ("android-components", "fenix"):
-                # Ignore tasks that are associated to a pull request
-                if envs["MOBILE_BASE_REPOSITORY"] != envs["MOBILE_HEAD_REPOSITORY"]:
-                    logger.debug(
-                        "Task: %s belong to a pull request OR branch which we ignore.", taskId
-                    )
-                    ignore = True
-                # Bug 1587542 - Temporary change to ignore Github tasks not associated to 'master'
-                if envs["MOBILE_HEAD_REF"] not in ("refs/heads/master", "master"):
-                    logger.info("Task: %s is not for the `master` branch.", taskId)
-                    ignore = True
-        except KeyError:
-            pass
-    else:
-        # The decision task is the ultimate source for determining this information
-        asyncQueue = taskcluster.aio.Queue({"rootUrl": rootUrl}, session=session)
-        decision_task = asyncQueue.task(task["taskGroupId"])
-        scopes = decision_task["metadata"].get("source")
-        ignore = True
-        for scope in scopes:
-            # e.g. assume:repo:github.com/mozilla-mobile/fenix:branch:master
-            if scope.find('branch:master') != -1:
-                ignore = False
-                break
+    # This logic is useful to reduce the number of tasks we ingest and requirying
+    # less dynos and less database writes. You can adjust PROJECTS_TO_INGEST on the app to meet your needs
+    if projectsToIngest and project not in projectsToIngest.split(','):
+        logger.debug("Ignoring tasks not matching PROJECTS_TO_INGEST (Task id: %s)", taskId)
+        return True
+
+    if project in ('android-components', 'fenix'):
+        envs = task["payload"].get("env", {})
+        if envs.get("MOBILE_BASE_REPOSITORY"):
+            try:
+                base_repo = envs["MOBILE_BASE_REPOSITORY"].rsplit("/", 1)[1]
+                if base_repo in ("android-components", "fenix"):
+                    # Ignore tasks that are associated to a pull request
+                    if envs["MOBILE_BASE_REPOSITORY"] != envs["MOBILE_HEAD_REPOSITORY"]:
+                        logger.debug(
+                            "Task: %s belong to a pull request OR branch which we ignore.", taskId
+                        )
+                        ignore = True
+                    # Bug 1587542 - Temporary change to ignore Github tasks not associated to 'master'
+                    if envs["MOBILE_HEAD_REF"] not in ("refs/heads/master", "master"):
+                        logger.info("Task: %s is not for the `master` branch.", taskId)
+                        ignore = True
+            except KeyError:
+                pass
+        else:
+            # The decision task is the ultimate source for determining this information
+            queue = taskcluster.Queue({"rootUrl": rootUrl}, session=session)
+            decision_task = queue.task(task["taskGroupId"])
+            scopes = decision_task["metadata"].get("source")
+            ignore = True
+            for scope in scopes:
+                # e.g. assume:repo:github.com/mozilla-mobile/fenix:branch:master
+                if scope.find('branch:master') != -1:
+                    ignore = False
+                    break
+
+    if ignore:
+        logger.debug('Task to be ignored ({})'.format(taskId))
 
     return ignore
 
@@ -154,15 +162,7 @@ async def handleMessage(message, taskDefinition=None):
         logger.debug("%s", str(e))
         return jobs
 
-    # This logic is useful to reduce the number of tasks we ingest and requirying
-    # less dynos and less database writes. You can adjust PROJECTS_TO_INGEST on the app to meet your needs
-    if projectsToIngest and not parsedRoute["project"] in projectsToIngest.split(','):
-        logger.debug("Ignoring tasks not matching PROJECTS_TO_INGEST (Task id: %s)", taskId)
-        return jobs
-
-    if parsedRoute["project"] in ('android-components', 'fenix') and ignore_mobile_change(
-        task, taskId, message["root_url"]
-    ):
+    if ignore_task(task, taskId, message["root_url"], parsedRoute['project']):
         return jobs
 
     logger.debug("Message received for task %s", taskId)
