@@ -188,6 +188,9 @@ def get_test_failure_jobs(push):
     add_jobs(testfailed_jobs)
     add_jobs(passing_jobs)
 
+    for job in jobs:
+        (jobs[job]).sort(key=lambda x: x['start_time'])
+
     return jobs
 
 
