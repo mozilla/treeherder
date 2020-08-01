@@ -62,6 +62,7 @@ class Test extends PureComponent {
       notify,
       currentRepo,
       groupedBy,
+      jobs,
     } = this.props;
     const { clipboardVisible, detailsShowing } = this.state;
 
@@ -105,6 +106,7 @@ class Test extends PureComponent {
               <PlatformConfig
                 key={failure.key}
                 failure={failure}
+                jobs={jobs}
                 currentRepo={currentRepo}
                 revision={revision}
                 notify={notify}

@@ -75,7 +75,7 @@ def get_history(
 # For each failure item in ``tests``, we group all jobs of the exact same type into
 # a field called `jobs`.  So it has passed and failed jobs in there.
 #
-def get_current_test_failures(push, option_map):
+def get_current_test_failures(push, option_map, jobs):
     # Using .distinct(<fields>) here would help by removing duplicate FailureLines
     # for the same job (with different sub-tests), but it's only supported by
     # postgres.  Just using .distinct() has no effect.
@@ -113,18 +113,21 @@ def get_current_test_failures(push, option_map):
         test_key = re.sub(
             r'\W+', '', 't{}{}{}{}{}'.format(test_name, config, platform, job_name, job_group)
         )
-        jobs = [
-            job_to_dict(job)
-            for job in Job.objects.filter(job_type=job.job_type, push=push).select_related(
-                'job_type', 'machine_platform', 'taskcluster_metadata',
-            )
-        ]
-        countPassed = len(list(filter(lambda x: x['result'] == 'success', jobs)))
+        countPassed = len(list(filter(lambda x: x['result'] == 'success', jobs[job_name])))
         passFailRatio = (
             countPassed / countPassed
-            + len(list(filter(lambda x: x['result'] == 'testfailed', jobs)))
+            + len(list(filter(lambda x: x['result'] == 'testfailed', jobs[job_name])))
             if countPassed
             else 0
+        )
+        passFailRatio = (
+            countPassed / countPassed
+            + len(list(filter(lambda x: x['result'] == 'testfailed', jobs[job_name])))
+            if countPassed
+            else 0
+        )
+        isClassifiedIntermittent = any(
+            job['failure_classification_id'] == 4 for job in jobs[job_name]
         )
 
         if test_key not in tests:
@@ -139,12 +142,12 @@ def get_current_test_failures(push, option_map):
                 'config': config,
                 'key': test_key,
                 'jobKey': job.job_key,
-                'jobs': jobs,
                 'suggestedClassification': 'New Failure',
                 'confidence': 0,
                 'tier': job.tier,
                 'failedInParent': False,
                 'passFailRatio': passFailRatio,
+                'isClassifiedIntermittent': isClassifiedIntermittent,
             }
             tests[test_key] = line
 
@@ -194,7 +197,9 @@ def get_test_failure_jobs(push):
     return jobs
 
 
-def get_test_failures(push, parent_push=None):
+def get_test_failures(
+    push, jobs, parent_push=None,
+):
     logger.debug('Getting test failures for push: {}'.format(push.id))
     # query for jobs for the last two weeks excluding today
     # find tests that have failed in the last 14 days
@@ -215,7 +220,7 @@ def get_test_failures(push, parent_push=None):
     #     These are tests we are able to show to examine to see if we can determine they are
     #     intermittent.  If they are not, we tell the user they need investigation.
     # These are failures ONLY for the current push, not relative to history.
-    push_failures = get_current_test_failures(push, option_map)
+    push_failures = get_current_test_failures(push, option_map, jobs)
     filtered_push_failures = [failure for failure in push_failures if filter_failure(failure)]
 
     # Based on the intermittent and FixedByCommit history, set the appropriate classification

@@ -46,7 +46,7 @@ def set_intermittent(failure, previous_failures):
     ):
         confidence = 50
 
-    if is_classified_intermittent(failure):
+    if failure['isClassifiedIntermittent']:
         confidence = 100
 
     if confidence:

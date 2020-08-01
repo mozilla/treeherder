@@ -8,7 +8,6 @@ def test_intermittent_win7_reftest():
     failures = [
         {
             'testName': 'foo',
-            'jobs': [],
             'jobName': 'Foodebug-reftest',
             'platform': 'windows7-32',
             'suggestedClassification': 'New Failure',
@@ -36,7 +35,6 @@ def test_intermittent_confidence(history, confidence, classification, fcid):
     failures = [
         {
             'testName': 'foo',
-            'jobs': [{'failure_classification_id': fcid}],
             'jobName': 'bar',
             'platform': 'bing',
             'suggestedClassification': 'New Failure',

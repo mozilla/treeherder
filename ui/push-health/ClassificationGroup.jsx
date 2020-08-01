@@ -51,16 +51,16 @@ class ClassificationGroup extends React.PureComponent {
   };
 
   retriggerAll = (times) => {
-    const { tests, notify, currentRepo } = this.props;
+    const { tests, notify, currentRepo, jobs } = this.props;
     // Reduce down to the unique jobs
-    const jobs = tests.reduce(
+    const testJobs = tests.reduce(
       (acc, test) => ({
         ...acc,
-        ...test.jobs.reduce((fjAcc, job) => ({ [job.id]: job }), {}),
+        ...jobs[test.jobName].reduce((fjAcc, job) => ({ [job.id]: job }), {}),
       }),
       {},
     );
-    const uniqueJobs = Object.values(jobs);
+    const uniqueJobs = Object.values(testJobs);
 
     JobModel.retrigger(uniqueJobs, currentRepo, notify, times);
   };
@@ -90,6 +90,7 @@ class ClassificationGroup extends React.PureComponent {
       orderedBy,
     } = this.state;
     const {
+      jobs,
       tests,
       name,
       revision,
@@ -249,6 +250,7 @@ class ClassificationGroup extends React.PureComponent {
               currentRepo={currentRepo}
               notify={notify}
               key={key}
+              jobs={jobs}
             />
           ))}
         </Collapse>
