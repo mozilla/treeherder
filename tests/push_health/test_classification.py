@@ -12,6 +12,7 @@ def test_intermittent_win7_reftest():
             'platform': 'windows7-32',
             'suggestedClassification': 'New Failure',
             'config': 'foo',
+            'isClassifiedIntermittent': True,
         }
     ]
     set_classifications(failures, {}, {})
@@ -22,7 +23,7 @@ def test_intermittent_win7_reftest():
 @pytest.mark.parametrize(
     ('history', 'confidence', 'classification', 'fcid'),
     [
-        ({'foo': {'bing': {'baz': 2}}}, 100, 'intermittent', 1),
+        ({'foo': {'bing': {'baz': 2}}}, 100, 'intermittent', 1,),
         ({'foo': {'bing': {'bee': 2}}}, 75, 'intermittent', 1),
         ({'foo': {'bee': {'bee': 2}}}, 50, 'intermittent', 1),
         ({'fee': {'bee': {'bee': 2}}}, 0, 'New Failure', 1),
@@ -40,6 +41,7 @@ def test_intermittent_confidence(history, confidence, classification, fcid):
             'suggestedClassification': 'New Failure',
             'config': 'baz',
             'confidence': 0,
+            'isClassifiedIntermittent': fcid == 4,
         }
     ]
 

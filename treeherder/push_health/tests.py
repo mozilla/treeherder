@@ -120,12 +120,6 @@ def get_current_test_failures(push, option_map, jobs):
             if countPassed
             else 0
         )
-        passFailRatio = (
-            countPassed / countPassed
-            + len(list(filter(lambda x: x['result'] == 'testfailed', jobs[job_name])))
-            if countPassed
-            else 0
-        )
         isClassifiedIntermittent = any(
             job['failure_classification_id'] == 4 for job in jobs[job_name]
         )
@@ -233,7 +227,7 @@ def get_test_failures(
     if parent_push:
         # Since there is a parent_push, we want to mark all failures with whether or not they also
         # exist in the parent.
-        parent_test_failures = get_test_failures(parent_push)
+        parent_test_failures = get_test_failures(parent_push, jobs)
         for classification, failure_group in failures.items():
             parent_failure_group = parent_test_failures[classification]
             failure_keys = {fail['key'] for fail in failure_group}
