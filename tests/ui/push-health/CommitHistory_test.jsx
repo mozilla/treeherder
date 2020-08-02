@@ -30,21 +30,21 @@ describe('CommitHistory', () => {
     />
   );
 
-  // test('should show the push header and the author', () => {
-  //   const { details: commitHistory } = pushHealth.metrics.commitHistory;
-  //   const { getByTestId } = render(testCommitHistory(commitHistory));
-  //   const headerText = getByTestId('headerText');
-  //   const authorTime = getByTestId('authorTime');
+  test('should show the push header and the author', () => {
+    const { details: commitHistory } = pushHealth.metrics.commitHistory;
+    const { getByTestId } = render(testCommitHistory(commitHistory));
+    const headerText = getByTestId('headerText');
+    const authorTime = getByTestId('authorTime');
 
-  //   expect(headerText).toBeInTheDocument();
-  //   expect(headerText).toHaveTextContent(
-  //     'Backed out changeset f6ccc4ba38d9 (bug 1609356) for failures on browser_toolbox_dynamic_registration.js. CLOSED TREE',
-  //   );
-  //   expect(authorTime).toBeInTheDocument();
-  //   expect(authorTime).toHaveTextContent(
-  //     'Wed, May 6, 17:23:29-hiro@mozilla.com',
-  //   );
-  // });
+    expect(headerText).toBeInTheDocument();
+    expect(headerText).toHaveTextContent(
+      'Backed out changeset f6ccc4ba38d9 (bug 1609356) for failures on browser_toolbox_dynamic_registration.js. CLOSED TREE',
+    );
+    expect(authorTime).toBeInTheDocument();
+    expect(authorTime).toHaveTextContent(
+      'Wed, May 6, 17:23:29-hiro@mozilla.com',
+    );
+  });
 
   test('should show a parent commit and health icon for that parent', async () => {
     const { details: commitHistory } = pushHealth.metrics.commitHistory;
