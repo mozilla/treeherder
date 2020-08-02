@@ -115,12 +115,13 @@ export class Revision extends React.PureComponent {
             bugMatches.map((bug) => {
               const bugId = bug.split(' ')[1];
               return (
-                <div key={bugId}>
+                <div key={bugId} className="mb-3">
                   Bug {bugId} - {bugSummaryMap[bugId]}
                 </div>
               );
             })}
-          {<span className="mt-3">{`Commit: ${comment}`}</span>}
+          <div>Commit:</div>
+          {<span>{comment}</span>}
         </UncontrolledTooltip>
       </Row>
     );
