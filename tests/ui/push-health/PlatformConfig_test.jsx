@@ -13,6 +13,7 @@ import fullJob from '../mock/full_job.json';
 import bugSuggestions from '../mock/bug_suggestions.json';
 
 const repoName = 'autoland';
+const { jobs } = pushHealth;
 const testFailure = pushHealth.metrics.tests.details.needInvestigation[2];
 
 beforeEach(() => {
@@ -49,9 +50,10 @@ afterEach(() => {
 });
 
 describe('PlatformConfig', () => {
-  const testPlatformConfig = (failure) => (
+  const testPlatformConfig = (failure, jobs) => (
     <PlatformConfig
       failure={failure}
+      jobs={jobs}
       repo="autoland"
       user={{ email: 'foo' }}
       revision="abc"
@@ -62,7 +64,7 @@ describe('PlatformConfig', () => {
   );
 
   test('should show the test name', async () => {
-    const { getByText } = render(testPlatformConfig(testFailure));
+    const { getByText } = render(testPlatformConfig(testFailure, jobs));
 
     expect(
       await waitFor(() =>
@@ -74,13 +76,13 @@ describe('PlatformConfig', () => {
   });
 
   test('should not show details by default', async () => {
-    const { queryByTestId } = render(testPlatformConfig(testFailure));
+    const { queryByTestId } = render(testPlatformConfig(testFailure, jobs));
 
     expect(queryByTestId('log-lines')).toBeNull();
   });
 
   test('should show bug suggestions when expander clicked', async () => {
-    const { getByText } = render(testPlatformConfig(testFailure));
+    const { getByText } = render(testPlatformConfig(testFailure, jobs));
     const detailsButton = getByText('task');
 
     fireEvent.click(detailsButton);
@@ -93,7 +95,7 @@ describe('PlatformConfig', () => {
   });
 
   test('should show artifacts when tab clicked', async () => {
-    const { getByText } = render(testPlatformConfig(testFailure));
+    const { getByText } = render(testPlatformConfig(testFailure, jobs));
     const detailsButton = getByText('task');
 
     fireEvent.click(detailsButton);
