@@ -121,7 +121,7 @@ export class Revision extends React.PureComponent {
               );
             })}
           <div>Commit:</div>
-          {<span>{comment}</span>}
+          <span>{comment}</span>
         </UncontrolledTooltip>
       </Row>
     );
