@@ -23,7 +23,7 @@ def test_intermittent_win7_reftest():
 @pytest.mark.parametrize(
     ('history', 'confidence', 'classification', 'fcid'),
     [
-        ({'foo': {'bing': {'baz': 2}}}, 100, 'intermittent', 1,),
+        ({'foo': {'bing': {'baz': 2}}}, 100, 'intermittent', 1),
         ({'foo': {'bing': {'bee': 2}}}, 75, 'intermittent', 1),
         ({'foo': {'bee': {'bee': 2}}}, 50, 'intermittent', 1),
         ({'fee': {'bee': {'bee': 2}}}, 0, 'New Failure', 1),
