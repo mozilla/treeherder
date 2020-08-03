@@ -40,6 +40,7 @@ class Action extends PureComponent {
       notify,
       jobs,
       defaultExpandedTab,
+      defaultExpandedTest,
       expandedDefaultMetric,
       updateParamsAndState,
     } = this.props;
@@ -57,6 +58,7 @@ class Action extends PureComponent {
               currentRepo={currentRepo}
               notify={notify}
               jobs={jobs}
+              defaultExpandedTest={defaultExpandedTest}
               defaultExpandedTab={defaultExpandedTab}
               expandedDefaultMetric={expandedDefaultMetric}
               updateParamsAndState={updateParamsAndState}

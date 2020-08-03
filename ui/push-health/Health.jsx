@@ -55,6 +55,7 @@ export default class Health extends React.PureComponent {
       defaultTabIndex: 0,
       showParentMatches: false,
       defaultExpandedTab: params.get('defaultExpandedTab') || '',
+      defaultExpandedTest: params.get('defaultExpandedTest') || '',
       expandedDefaultMetric: params.get('expandedDefaultMetric') || '',
       searchStr: params.get('searchStr') || '',
       regressionsOrderBy: params.get('regressionsOrderBy') || 'count',
@@ -195,6 +196,7 @@ export default class Health extends React.PureComponent {
       currentRepo,
       showParentMatches,
       defaultExpandedTab,
+      defaultExpandedTest,
       defaultTabIndex,
       expandedDefaultMetric,
       regressionsOrderBy,
@@ -332,6 +334,7 @@ export default class Health extends React.PureComponent {
                       setExpanded={this.setExpanded}
                       searchStr={searchStr}
                       defaultExpandedTab={defaultExpandedTab}
+                      defaultExpandedTest={defaultExpandedTest}
                       showParentMatches={showParentMatches}
                       regressionsOrderBy={regressionsOrderBy}
                       regressionsGroupBy={regressionsGroupBy}

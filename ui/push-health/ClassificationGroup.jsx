@@ -95,6 +95,7 @@ class ClassificationGroup extends React.PureComponent {
       groupedBy,
       orderedBy,
       defaultExpandedTab,
+      defaultExpandedTest,
       expandedDefaultMetric,
       setGroupedBy,
       setOrderedBy,
@@ -257,6 +258,7 @@ class ClassificationGroup extends React.PureComponent {
               key={key}
               jobs={jobs}
               defaultExpandedTab={defaultExpandedTab}
+              defaultExpandedTest={defaultExpandedTest}
               expandedDefaultMetric={expandedDefaultMetric}
               updateParamsAndState={updateParamsAndState}
             />

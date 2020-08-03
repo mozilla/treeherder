@@ -19,19 +19,9 @@ class Test extends PureComponent {
   }
 
   componentDidMount() {
-    const {
-      defaultExpandedTab,
-      expandedDefaultMetric,
-      test: { tests },
-    } = this.props;
-    if (defaultExpandedTab) {
-      tests.forEach((failure) => {
-        failure.jobs.forEach((job) => {
-          if (job.id === parseInt(expandedDefaultMetric, 10)) {
-            this.setState({ detailsShowing: true });
-          }
-        });
-      });
+    const { defaultExpandedTest, defaultExpandedTab, test } = this.props;
+    if (defaultExpandedTab && defaultExpandedTest === test.id) {
+      this.setState({ detailsShowing: true });
     }
   }
 
@@ -131,7 +121,10 @@ class Test extends PureComponent {
                 notify={notify}
                 groupedBy={groupedBy}
                 expandedDefaultMetric={expandedDefaultMetric}
-                updateParamsAndState={updateParamsAndState}
+                updateParamsAndState={(stateObj) => {
+                  stateObj.defaultExpandedTest = id;
+                  updateParamsAndState(stateObj);
+                }}
                 className="ml-3"
               />
             ))}

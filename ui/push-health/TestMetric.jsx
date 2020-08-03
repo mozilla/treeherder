@@ -22,6 +22,7 @@ export default class TestMetric extends React.PureComponent {
       knownIssuesGroupBy,
       updateParamsAndState,
       expandedDefaultMetric,
+      defaultExpandedTest,
       defaultExpandedTab,
     } = this.props;
     const { details } = data;
@@ -57,6 +58,7 @@ export default class TestMetric extends React.PureComponent {
             filteredNeedInvestigation.length ? 'danger' : 'darker-secondary'
           }
           defaultExpandedTab={defaultExpandedTab}
+          defaultExpandedTest={defaultExpandedTest}
           hasRetriggerAll
           notify={notify}
           orderedBy={regressionsOrderBy}
@@ -87,6 +89,7 @@ export default class TestMetric extends React.PureComponent {
           }
           expanded={false}
           defaultExpandedTab={defaultExpandedTab}
+          defaultExpandedTest={defaultExpandedTest}
           hasRetriggerAll
           notify={notify}
           expandedDefaultMetric={expandedDefaultMetric}
