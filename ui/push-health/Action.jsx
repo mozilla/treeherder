@@ -39,6 +39,9 @@ class Action extends PureComponent {
       currentRepo,
       notify,
       jobs,
+      defaultExpandedTab,
+      expandedDefaultMetric,
+      updateParamsAndState,
     } = this.props;
     const groupedTests = this.getTestGroups(tests);
 
@@ -54,6 +57,9 @@ class Action extends PureComponent {
               currentRepo={currentRepo}
               notify={notify}
               jobs={jobs}
+              defaultExpandedTab={defaultExpandedTab}
+              expandedDefaultMetric={expandedDefaultMetric}
+              updateParamsAndState={updateParamsAndState}
             />
           </div>
         ))}

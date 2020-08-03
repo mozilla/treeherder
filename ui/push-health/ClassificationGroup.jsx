@@ -36,6 +36,13 @@ class ClassificationGroup extends React.PureComponent {
     };
   }
 
+  componentDidMount() {
+    const { defaultExpandedTab, name } = this.props;
+    if (defaultExpandedTab === name) {
+      this.setState({ detailsShowing: true });
+    }
+  }
+
   toggleDetails = () => {
     this.setState((prevState) => ({
       detailsShowing: !prevState.detailsShowing,
@@ -87,8 +94,11 @@ class ClassificationGroup extends React.PureComponent {
       iconColor,
       groupedBy,
       orderedBy,
+      defaultExpandedTab,
+      expandedDefaultMetric,
       setGroupedBy,
       setOrderedBy,
+      updateParamsAndState,
     } = this.props;
     const expandIcon = detailsShowing ? faCaretDown : faCaretRight;
     const expandTitle = detailsShowing
@@ -246,6 +256,9 @@ class ClassificationGroup extends React.PureComponent {
               notify={notify}
               key={key}
               jobs={jobs}
+              defaultExpandedTab={defaultExpandedTab}
+              expandedDefaultMetric={expandedDefaultMetric}
+              updateParamsAndState={updateParamsAndState}
             />
           ))}
         </Collapse>

@@ -18,6 +18,23 @@ class Test extends PureComponent {
     };
   }
 
+  componentDidMount() {
+    const {
+      defaultExpandedTab,
+      expandedDefaultMetric,
+      test: { tests },
+    } = this.props;
+    if (defaultExpandedTab) {
+      tests.forEach((failure) => {
+        failure.jobs.forEach((job) => {
+          if (job.id === parseInt(expandedDefaultMetric, 10)) {
+            this.setState({ detailsShowing: true });
+          }
+        });
+      });
+    }
+  }
+
   setClipboardVisible = (key) => {
     this.setState({ clipboardVisible: key });
   };
@@ -63,6 +80,8 @@ class Test extends PureComponent {
       currentRepo,
       groupedBy,
       jobs,
+      expandedDefaultMetric,
+      updateParamsAndState,
     } = this.props;
     const { clipboardVisible, detailsShowing } = this.state;
 
@@ -111,6 +130,8 @@ class Test extends PureComponent {
                 revision={revision}
                 notify={notify}
                 groupedBy={groupedBy}
+                expandedDefaultMetric={expandedDefaultMetric}
+                updateParamsAndState={updateParamsAndState}
                 className="ml-3"
               />
             ))}

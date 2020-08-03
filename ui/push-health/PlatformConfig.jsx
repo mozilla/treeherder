@@ -22,12 +22,28 @@ class PlatformConfig extends React.PureComponent {
     };
   }
 
+  componentDidMount() {
+    const {
+      expandedDefaultMetric,
+      failure: { jobs },
+    } = this.props;
+    if (expandedDefaultMetric) {
+      const filteredJobs = jobs.filter(
+        (job) => job.id === parseInt(expandedDefaultMetric, 10),
+      );
+      if (filteredJobs.length > 0) {
+        this.setState({ selectedTask: filteredJobs[0], detailsShowing: true });
+      }
+    }
+  }
+
   setSelectedTask = (task) => {
     const { selectedTask } = this.state;
 
     if (selectedTask === task || !task) {
       this.setState({ selectedTask: null, detailsShowing: false });
     } else {
+      this.props.updateParamsAndState({ expandedDefaultMetric: task.id });
       this.setState({ selectedTask: task, detailsShowing: true });
     }
   };

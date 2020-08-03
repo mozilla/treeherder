@@ -21,6 +21,8 @@ export default class TestMetric extends React.PureComponent {
       knownIssuesOrderBy,
       knownIssuesGroupBy,
       updateParamsAndState,
+      expandedDefaultMetric,
+      defaultExpandedTab,
     } = this.props;
     const { details } = data;
     const { needInvestigation, knownIssues } = details;
@@ -54,16 +56,22 @@ export default class TestMetric extends React.PureComponent {
           iconColor={
             filteredNeedInvestigation.length ? 'danger' : 'darker-secondary'
           }
+          defaultExpandedTab={defaultExpandedTab}
           hasRetriggerAll
           notify={notify}
           orderedBy={regressionsOrderBy}
           groupedBy={regressionsGroupBy}
+          expandedDefaultMetric={expandedDefaultMetric}
           setOrderedBy={(regressionsOrderBy) =>
             updateParamsAndState({ regressionsOrderBy })
           }
           setGroupedBy={(setRegressionsGroupBy) =>
             updateParamsAndState({ setRegressionsGroupBy })
           }
+          updateParamsAndState={(stateObj) => {
+            stateObj.defaultExpandedTab = 'Possible Regressions';
+            updateParamsAndState(stateObj);
+          }}
         />
         <ClassificationGroup
           jobs={jobs}
@@ -78,8 +86,10 @@ export default class TestMetric extends React.PureComponent {
             filteredKnownIssues.length ? 'warning' : 'darker-secondary'
           }
           expanded={false}
+          defaultExpandedTab={defaultExpandedTab}
           hasRetriggerAll
           notify={notify}
+          expandedDefaultMetric={expandedDefaultMetric}
           orderedBy={knownIssuesOrderBy}
           groupedBy={knownIssuesGroupBy}
           setOrderedBy={(knownIssuesOrderBy) =>
@@ -88,6 +98,10 @@ export default class TestMetric extends React.PureComponent {
           setGroupedBy={(knownIssuesGroupBy) =>
             updateParamsAndState({ knownIssuesGroupBy })
           }
+          updateParamsAndState={(stateObj) => {
+            stateObj.defaultExpandedTab = 'Known Issues';
+            updateParamsAndState(stateObj);
+          }}
         />
       </div>
     );
