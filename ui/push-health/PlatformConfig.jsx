@@ -156,6 +156,7 @@ PlatformConfig.propTypes = {
   currentRepo: PropTypes.shape({}).isRequired,
   notify: PropTypes.func.isRequired,
   groupedBy: PropTypes.string.isRequired,
+  updateParamsAndState: PropTypes.func.isRequired,
 };
 
 export default PlatformConfig;
