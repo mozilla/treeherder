@@ -211,7 +211,9 @@ class PushViewSet(viewsets.ViewSet):
                 "No push with revision: {0}".format(revision), status=HTTP_404_NOT_FOUND
             )
 
-        push_health_test_failures = get_test_failures(push)
+        jobs = get_test_failure_jobs(push)
+
+        push_health_test_failures = get_test_failures(push, jobs)
         push_health_lint_failures = get_lint_failures(push)
         push_health_build_failures = get_build_failures(push)
         test_failure_count = len(push_health_test_failures['needInvestigation'])
