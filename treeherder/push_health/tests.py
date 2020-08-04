@@ -227,7 +227,8 @@ def get_test_failures(
     if parent_push:
         # Since there is a parent_push, we want to mark all failures with whether or not they also
         # exist in the parent.
-        parent_test_failures = get_test_failures(parent_push, jobs)
+        parent_push_jobs = get_test_failure_jobs(parent_push)
+        parent_test_failures = get_test_failures(parent_push, parent_push_jobs)
         for classification, failure_group in failures.items():
             parent_failure_group = parent_test_failures[classification]
             failure_keys = {fail['key'] for fail in failure_group}
