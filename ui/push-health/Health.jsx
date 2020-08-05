@@ -54,9 +54,9 @@ export default class Health extends React.PureComponent {
       notifications: [],
       defaultTabIndex: 0,
       showParentMatches: false,
-      defaultExpandedTab: params.get('defaultExpandedTab') || '',
-      defaultExpandedTest: params.get('defaultExpandedTest') || '',
-      expandedDefaultMetric: params.get('expandedDefaultMetric') || '',
+      testGroup: params.get('testGroup') || '',
+      selectedTest: params.get('selectedTest') || '',
+      selectedTaskId: params.get('selectedTaskId') || '',
       searchStr: params.get('searchStr') || '',
       regressionsOrderBy: params.get('regressionsOrderBy') || 'count',
       regressionsGroupBy: params.get('regressionsGroupBy') || 'path',
@@ -66,14 +66,14 @@ export default class Health extends React.PureComponent {
   }
 
   async componentDidMount() {
-    const { repo, defaultExpandedTab } = this.state;
+    const { repo, testGroup } = this.state;
     const {
       metrics: { linting, builds, tests },
     } = await this.updatePushHealth();
     let defaultTabIndex = [linting, builds, tests].findIndex(
       (metric) => metric.result === 'fail',
     );
-    if (defaultExpandedTab) {
+    if (testGroup) {
       defaultTabIndex = 2;
     }
     const repos = await RepositoryModel.getList();
@@ -195,10 +195,10 @@ export default class Health extends React.PureComponent {
       searchStr,
       currentRepo,
       showParentMatches,
-      defaultExpandedTab,
-      defaultExpandedTest,
+      testGroup,
+      selectedTest,
       defaultTabIndex,
-      expandedDefaultMetric,
+      selectedTaskId,
       regressionsOrderBy,
       regressionsGroupBy,
       knownIssuesOrderBy,
@@ -333,14 +333,14 @@ export default class Health extends React.PureComponent {
                       notify={this.notify}
                       setExpanded={this.setExpanded}
                       searchStr={searchStr}
-                      defaultExpandedTab={defaultExpandedTab}
-                      defaultExpandedTest={defaultExpandedTest}
+                      testGroup={testGroup}
+                      selectedTest={selectedTest}
                       showParentMatches={showParentMatches}
                       regressionsOrderBy={regressionsOrderBy}
                       regressionsGroupBy={regressionsGroupBy}
                       knownIssuesOrderBy={knownIssuesOrderBy}
                       knownIssuesGroupBy={knownIssuesGroupBy}
-                      expandedDefaultMetric={expandedDefaultMetric}
+                      selectedTaskId={selectedTaskId}
                       updateParamsAndState={this.updateParamsAndState}
                     />
                   </TabPanel>

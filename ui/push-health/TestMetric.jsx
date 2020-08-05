@@ -21,9 +21,9 @@ export default class TestMetric extends React.PureComponent {
       knownIssuesOrderBy,
       knownIssuesGroupBy,
       updateParamsAndState,
-      expandedDefaultMetric,
-      defaultExpandedTest,
-      defaultExpandedTab,
+      selectedTaskId,
+      selectedTest,
+      testGroup,
     } = this.props;
     const { details } = data;
     const { needInvestigation, knownIssues } = details;
@@ -57,21 +57,22 @@ export default class TestMetric extends React.PureComponent {
           iconColor={
             filteredNeedInvestigation.length ? 'danger' : 'darker-secondary'
           }
-          defaultExpandedTab={defaultExpandedTab}
-          defaultExpandedTest={defaultExpandedTest}
+          expanded={testGroup === 'pr'}
+          testGroup={testGroup}
+          selectedTest={selectedTest}
           hasRetriggerAll
           notify={notify}
           orderedBy={regressionsOrderBy}
           groupedBy={regressionsGroupBy}
-          expandedDefaultMetric={expandedDefaultMetric}
+          selectedTaskId={selectedTaskId}
           setOrderedBy={(regressionsOrderBy) =>
-            updateParamsAndState({ regressionsOrderBy })
+            updateParamsAndState({ regressionsOrderBy, testGroup: 'pr' })
           }
-          setGroupedBy={(setRegressionsGroupBy) =>
-            updateParamsAndState({ setRegressionsGroupBy })
+          setGroupedBy={(regressionsGroupBy) =>
+            updateParamsAndState({ regressionsGroupBy, testGroup: 'pr' })
           }
           updateParamsAndState={(stateObj) => {
-            stateObj.defaultExpandedTab = 'Possible Regressions';
+            stateObj.testGroup = 'pr';
             updateParamsAndState(stateObj);
           }}
         />
@@ -87,22 +88,22 @@ export default class TestMetric extends React.PureComponent {
           iconColor={
             filteredKnownIssues.length ? 'warning' : 'darker-secondary'
           }
-          expanded={false}
-          defaultExpandedTab={defaultExpandedTab}
-          defaultExpandedTest={defaultExpandedTest}
+          expanded={testGroup === 'ki'}
+          testGroup={testGroup}
+          selectedTest={selectedTest}
           hasRetriggerAll
           notify={notify}
-          expandedDefaultMetric={expandedDefaultMetric}
+          selectedTaskId={selectedTaskId}
           orderedBy={knownIssuesOrderBy}
           groupedBy={knownIssuesGroupBy}
           setOrderedBy={(knownIssuesOrderBy) =>
-            updateParamsAndState({ knownIssuesOrderBy })
+            updateParamsAndState({ knownIssuesOrderBy, testGroup: 'ki' })
           }
           setGroupedBy={(knownIssuesGroupBy) =>
-            updateParamsAndState({ knownIssuesGroupBy })
+            updateParamsAndState({ knownIssuesGroupBy, testGroup: 'ki' })
           }
           updateParamsAndState={(stateObj) => {
-            stateObj.defaultExpandedTab = 'Known Issues';
+            stateObj.testGroup = 'ki';
             updateParamsAndState(stateObj);
           }}
         />
@@ -126,6 +127,7 @@ TestMetric.propTypes = {
   notify: PropTypes.func.isRequired,
   searchStr: PropTypes.string.isRequired,
   showParentMatches: PropTypes.bool.isRequired,
+  testGroup: PropTypes.string,
   regressionsOrderBy: PropTypes.string,
   regressionsGroupBy: PropTypes.string,
   knownIssuesOrderBy: PropTypes.string,
@@ -138,4 +140,5 @@ TestMetric.defaultProps = {
   regressionsGroupBy: 'path',
   knownIssuesOrderBy: 'count',
   knownIssuesGroupBy: 'path',
+  testGroup: '',
 };

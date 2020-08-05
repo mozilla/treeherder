@@ -19,8 +19,8 @@ class Test extends PureComponent {
   }
 
   componentDidMount() {
-    const { defaultExpandedTest, defaultExpandedTab, test } = this.props;
-    if (defaultExpandedTab && defaultExpandedTest === test.id) {
+    const { selectedTest, testGroup, test } = this.props;
+    if (testGroup && selectedTest === test.id) {
       this.setState({ detailsShowing: true });
     }
   }
@@ -70,7 +70,7 @@ class Test extends PureComponent {
       currentRepo,
       groupedBy,
       jobs,
-      expandedDefaultMetric,
+      selectedTaskId,
       updateParamsAndState,
     } = this.props;
     const { clipboardVisible, detailsShowing } = this.state;
@@ -120,9 +120,9 @@ class Test extends PureComponent {
                 revision={revision}
                 notify={notify}
                 groupedBy={groupedBy}
-                expandedDefaultMetric={expandedDefaultMetric}
+                selectedTaskId={selectedTaskId}
                 updateParamsAndState={(stateObj) => {
-                  stateObj.defaultExpandedTest = id;
+                  stateObj.selectedTest = id;
                   updateParamsAndState(stateObj);
                 }}
                 className="ml-3"
