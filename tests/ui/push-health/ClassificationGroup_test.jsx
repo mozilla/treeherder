@@ -4,12 +4,14 @@ import { render, waitFor, fireEvent } from '@testing-library/react';
 import pushHealth from '../mock/push_health';
 import ClassificationGroup from '../../../ui/push-health/ClassificationGroup';
 
-const tests = pushHealth.metrics.tests.details.needInvestigation;
+const { jobs, metrics } = pushHealth;
+const tests = metrics.tests.details.needInvestigation;
 const repoName = 'autoland';
 
 describe('ClassificationGroup', () => {
   const testClassificationGroup = (group) => (
     <ClassificationGroup
+      jobs={jobs}
       tests={group}
       name="Need Investigation"
       repo={repoName}

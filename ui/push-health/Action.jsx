@@ -38,6 +38,7 @@ class Action extends PureComponent {
       revision,
       currentRepo,
       notify,
+      jobs,
     } = this.props;
     const groupedTests = this.getTestGroups(tests);
 
@@ -52,6 +53,7 @@ class Action extends PureComponent {
               revision={revision}
               currentRepo={currentRepo}
               notify={notify}
+              jobs={jobs}
             />
           </div>
         ))}

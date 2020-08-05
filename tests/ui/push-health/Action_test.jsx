@@ -4,14 +4,16 @@ import { render, waitFor } from '@testing-library/react';
 import pushHealth from '../mock/push_health';
 import Action from '../../../ui/push-health/Action';
 
-const tests = pushHealth.metrics.tests.details.needInvestigation;
+const { jobs, metrics } = pushHealth;
+const tests = metrics.tests.details.needInvestigation;
 const repoName = 'autoland';
 
 describe('Action', () => {
-  const testAction = (tests, groupedBy, orderedBy) => (
+  const testAction = (tests, jobs, groupedBy, orderedBy) => (
     <Action
       name="Hiro Protagonist"
       tests={tests}
+      jobs={jobs}
       revision={pushHealth.revision}
       groupedBy={groupedBy}
       orderedBy={orderedBy}
@@ -21,7 +23,7 @@ describe('Action', () => {
   );
 
   test('should group by test path', async () => {
-    const { getAllByTestId } = render(testAction(tests, 'path', 'count'));
+    const { getAllByTestId } = render(testAction(tests, jobs, 'path', 'count'));
 
     expect(await waitFor(() => getAllByTestId('test-grouping'))).toHaveLength(
       3,
@@ -29,7 +31,9 @@ describe('Action', () => {
   });
 
   test('should group by platform', async () => {
-    const { getAllByTestId } = render(testAction(tests, 'platform', 'count'));
+    const { getAllByTestId } = render(
+      testAction(tests, jobs, 'platform', 'count'),
+    );
 
     expect(await waitFor(() => getAllByTestId('test-grouping'))).toHaveLength(
       12,
@@ -37,7 +41,7 @@ describe('Action', () => {
   });
 
   test('should bold the test file', async () => {
-    const { getAllByTestId } = render(testAction(tests, 'path', 'count'));
+    const { getAllByTestId } = render(testAction(tests, jobs, 'path', 'count'));
 
     expect(
       await waitFor(() => getAllByTestId('group-slash-bolded')),

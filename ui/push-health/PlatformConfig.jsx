@@ -39,19 +39,19 @@ class PlatformConfig extends React.PureComponent {
   };
 
   render() {
-    const { failure, groupedBy, currentRepo } = this.props;
+    const { failure, groupedBy, currentRepo, jobs } = this.props;
     const {
       testName,
       jobName,
-      jobs,
       key,
       tier,
       failedInParent,
       jobGroupSymbol,
       jobSymbol,
     } = failure;
+    const testJobs = jobs[jobName];
     const { detailsShowing, selectedTask } = this.state;
-    const taskList = sortBy(jobs, ['start_time']);
+    const taskList = sortBy(testJobs, ['start_time']);
     taskList.forEach((task) => addAggregateFields(task));
 
     return (
@@ -131,7 +131,6 @@ PlatformConfig.propTypes = {
     testName: PropTypes.string.isRequired,
     jobName: PropTypes.string.isRequired,
     jobSymbol: PropTypes.string.isRequired,
-    jobs: PropTypes.arrayOf(PropTypes.shape({})),
     confidence: PropTypes.number.isRequired,
     platform: PropTypes.string.isRequired,
     config: PropTypes.string.isRequired,

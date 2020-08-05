@@ -14,6 +14,7 @@ export default class TestMetric extends React.PureComponent {
       notify,
       currentRepo,
       searchStr,
+      jobs,
       showParentMatches,
     } = this.props;
     const { details } = data;
@@ -37,6 +38,7 @@ export default class TestMetric extends React.PureComponent {
     return (
       <div className="border-bottom border-secondary">
         <ClassificationGroup
+          jobs={jobs}
           tests={filteredNeedInvestigation}
           name="Possible Regressions"
           repo={repo}
@@ -51,6 +53,7 @@ export default class TestMetric extends React.PureComponent {
           notify={notify}
         />
         <ClassificationGroup
+          jobs={jobs}
           tests={filteredKnownIssues}
           name="Known Issues"
           repo={repo}

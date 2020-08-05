@@ -48,6 +48,7 @@ export default class Health extends React.PureComponent {
       repo: params.get('repo'),
       currentRepo: null,
       metrics: {},
+      jobs: null,
       result: null,
       failureMessage: null,
       notifications: [],
@@ -166,6 +167,7 @@ export default class Health extends React.PureComponent {
       user,
       repo,
       revision,
+      jobs,
       failureMessage,
       notifications,
       status,
@@ -295,6 +297,7 @@ export default class Health extends React.PureComponent {
                   </TabPanel>
                   <TabPanel>
                     <TestMetric
+                      jobs={jobs}
                       data={tests}
                       repo={repo}
                       currentRepo={currentRepo}

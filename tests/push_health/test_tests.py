@@ -4,7 +4,7 @@ import pytest
 
 from tests.autoclassify.utils import create_lines, test_line
 from treeherder.model.models import FailureLine, Job, Push, Repository, TaskclusterMetadata
-from treeherder.push_health.tests import get_test_failures, has_job, has_line
+from treeherder.push_health.tests import get_test_failures, get_test_failure_jobs, has_job, has_line
 
 
 @pytest.mark.parametrize(('find_it',), [(True,), (False,)])
@@ -42,13 +42,13 @@ def test_get_test_failures_no_parent(
 ):
     test_job.result = 'testfailed'
     test_job.save()
-    print(test_job.taskcluster_metadata.task_id)
 
-    build_failures = get_test_failures(test_job.push)
+    jobs = get_test_failure_jobs(test_job.push)
+    build_failures = get_test_failures(test_job.push, jobs)
     need_investigation = build_failures['needInvestigation']
 
     assert len(need_investigation) == 1
-    assert len(need_investigation[0]['jobs']) == 1
+    assert len(jobs[need_investigation[0]['jobName']]) == 1
     assert not need_investigation[0]['failedInParent']
 
 
@@ -73,9 +73,10 @@ def test_get_test_failures_with_parent(
 
     create_lines(parent_job, [(test_line, {})])
 
-    build_failures = get_test_failures(test_job.push, parent_push)
+    jobs = get_test_failure_jobs(test_job.push)
+    build_failures = get_test_failures(test_job.push, jobs, parent_push)
     need_investigation = build_failures['needInvestigation']
 
     assert len(need_investigation) == 1
-    assert len(need_investigation[0]['jobs']) == 1
+    assert len(jobs[need_investigation[0]['jobName']]) == 1
     assert need_investigation[0]['failedInParent']

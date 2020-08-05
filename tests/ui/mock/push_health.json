@@ -2,6 +2,674 @@
   "revision": "cd02b96bdce57d9ae53b632ca4740c871d3ecc32",
   "id": 630337,
   "result": "fail",
+  "jobs": {
+    "test-windows10-64-mingwclang/debug-reftest-e10s-1": [
+      {
+        "id": 285852125,
+        "machine_platform_id": 501,
+        "option_collection_hash": "32faaecac742100f7753f0c1d0aa0add01b4046b",
+        "job_type_id": 196801,
+        "job_group_id": 450,
+        "result": "testfailed",
+        "state": "completed",
+        "failure_classification_id": 2,
+        "push_id": 630337,
+        "job_type_name": "test-windows10-64-mingwclang/debug-reftest-e10s-1",
+        "job_type_symbol": "R1",
+        "platform": "windows10-64-mingwclang",
+        "task_id": "CwGewDH7RjOIZV-b77hGUQ",
+        "run_id": 0
+      }
+    ],
+    "test-windows10-64-asan/opt-reftest-e10s-3": [
+      {
+        "id": 285857638,
+        "machine_platform_id": 207,
+        "option_collection_hash": "03abd064e50ec12b8c7309950268531d78c63f60",
+        "job_type_id": 207157,
+        "job_group_id": 450,
+        "result": "testfailed",
+        "state": "completed",
+        "failure_classification_id": 2,
+        "push_id": 630337,
+        "job_type_name": "test-windows10-64-asan/opt-reftest-e10s-3",
+        "job_type_symbol": "R3",
+        "platform": "windows10-64",
+        "task_id": "XaHVNGnWSWuGPYnW6ByMdQ",
+        "run_id": 0
+      }
+    ],
+    "test-windows10-64-qr/debug-reftest-e10s-1": [
+      {
+        "id": 285857770,
+        "machine_platform_id": 420,
+        "option_collection_hash": "32faaecac742100f7753f0c1d0aa0add01b4046b",
+        "job_type_id": 116126,
+        "job_group_id": 450,
+        "result": "testfailed",
+        "state": "completed",
+        "failure_classification_id": 2,
+        "push_id": 630337,
+        "job_type_name": "test-windows10-64-qr/debug-reftest-e10s-1",
+        "job_type_symbol": "R1",
+        "platform": "windows10-64-qr",
+        "task_id": "fmIhWrXlQVmXCZ4aUQRYvw",
+        "run_id": 0
+      }
+    ],
+    "test-windows10-64/debug-reftest-e10s-1": [
+      {
+        "id": 285857771,
+        "machine_platform_id": 207,
+        "option_collection_hash": "32faaecac742100f7753f0c1d0aa0add01b4046b",
+        "job_type_id": 40437,
+        "job_group_id": 450,
+        "result": "testfailed",
+        "state": "completed",
+        "failure_classification_id": 2,
+        "push_id": 630337,
+        "job_type_name": "test-windows10-64/debug-reftest-e10s-1",
+        "job_type_symbol": "R1",
+        "platform": "windows10-64",
+        "task_id": "M9b3KMI2RnatpZts4xX5cw",
+        "run_id": 0
+      }
+    ],
+    "test-windows10-64-shippable-qr/opt-reftest-e10s-2": [
+      {
+        "id": 285869969,
+        "machine_platform_id": 571,
+        "option_collection_hash": "102210fe594ee9b33d82058545b1ed14f4c8206e",
+        "job_type_id": 182452,
+        "job_group_id": 450,
+        "result": "testfailed",
+        "state": "completed",
+        "failure_classification_id": 2,
+        "push_id": 630337,
+        "job_type_name": "test-windows10-64-shippable-qr/opt-reftest-e10s-2",
+        "job_type_symbol": "R2",
+        "platform": "windows10-64-shippable-qr",
+        "task_id": "PENOvwjPS4C0nPN7olHPYw",
+        "run_id": 0
+      }
+    ],
+    "test-windows10-64-shippable/opt-reftest-e10s-2": [
+      {
+        "id": 285869990,
+        "machine_platform_id": 567,
+        "option_collection_hash": "102210fe594ee9b33d82058545b1ed14f4c8206e",
+        "job_type_id": 182128,
+        "job_group_id": 450,
+        "result": "testfailed",
+        "state": "completed",
+        "failure_classification_id": 2,
+        "push_id": 630337,
+        "job_type_name": "test-windows10-64-shippable/opt-reftest-e10s-2",
+        "job_type_symbol": "R2",
+        "platform": "windows10-64-shippable",
+        "task_id": "S8iic8RmSEKO_rjOvWf1Xg",
+        "run_id": 0
+      }
+    ],
+    "test-linux1804-64-asan/opt-reftest-no-accel-e10s-4": [
+      {
+        "id": 285851009,
+        "machine_platform_id": 721,
+        "option_collection_hash": "102210fe594ee9b33d82058545b1ed14f4c8206e",
+        "job_type_id": 213405,
+        "job_group_id": 450,
+        "result": "testfailed",
+        "state": "completed",
+        "failure_classification_id": 2,
+        "push_id": 630337,
+        "job_type_name": "test-linux1804-64-asan/opt-reftest-no-accel-e10s-4",
+        "job_type_symbol": "Ru4",
+        "platform": "linux1804-64-asan",
+        "task_id": "MxksPeioRG2bAJWQgVoPHA",
+        "run_id": 0
+      }
+    ],
+    "test-linux1804-64-asan/opt-reftest-e10s-4": [
+      {
+        "id": 285851071,
+        "machine_platform_id": 721,
+        "option_collection_hash": "102210fe594ee9b33d82058545b1ed14f4c8206e",
+        "job_type_id": 213396,
+        "job_group_id": 450,
+        "result": "testfailed",
+        "state": "completed",
+        "failure_classification_id": 2,
+        "push_id": 630337,
+        "job_type_name": "test-linux1804-64-asan/opt-reftest-e10s-4",
+        "job_type_symbol": "R4",
+        "platform": "linux1804-64-asan",
+        "task_id": "OuoJfYjFRF-73D3BdF0H_g",
+        "run_id": 0
+      }
+    ],
+    "test-linux1804-64-asan-qr/opt-reftest-e10s-4": [
+      {
+        "id": 285851081,
+        "machine_platform_id": 723,
+        "option_collection_hash": "102210fe594ee9b33d82058545b1ed14f4c8206e",
+        "job_type_id": 214011,
+        "job_group_id": 450,
+        "result": "testfailed",
+        "state": "completed",
+        "failure_classification_id": 2,
+        "push_id": 630337,
+        "job_type_name": "test-linux1804-64-asan-qr/opt-reftest-e10s-4",
+        "job_type_symbol": "R4",
+        "platform": "linux1804-64-asan-qr",
+        "task_id": "B26L1Mz-TfSzArN6opYjIQ",
+        "run_id": 0
+      }
+    ],
+    "test-linux1804-64-qr/debug-reftest-fis-e10s-4": [
+      {
+        "id": 285851731,
+        "machine_platform_id": 718,
+        "option_collection_hash": "32faaecac742100f7753f0c1d0aa0add01b4046b",
+        "job_type_id": 215167,
+        "job_group_id": 1029,
+        "result": "testfailed",
+        "state": "completed",
+        "failure_classification_id": 2,
+        "push_id": 630337,
+        "job_type_name": "test-linux1804-64-qr/debug-reftest-fis-e10s-4",
+        "job_type_symbol": "R4",
+        "platform": "linux1804-64-qr",
+        "task_id": "DO_Z7Y-aQcG3ciGsupsEFA",
+        "run_id": 0
+      }
+    ],
+    "test-linux1804-64/debug-reftest-e10s-4": [
+      {
+        "id": 285851862,
+        "machine_platform_id": 714,
+        "option_collection_hash": "32faaecac742100f7753f0c1d0aa0add01b4046b",
+        "job_type_id": 213366,
+        "job_group_id": 450,
+        "result": "testfailed",
+        "state": "completed",
+        "failure_classification_id": 2,
+        "push_id": 630337,
+        "job_type_name": "test-linux1804-64/debug-reftest-e10s-4",
+        "job_type_symbol": "R4",
+        "platform": "linux1804-64",
+        "task_id": "RgQYlLITQi6hq3ZpFllPWg",
+        "run_id": 0
+      }
+    ],
+    "test-linux1804-64/debug-reftest-no-accel-e10s-4": [
+      {
+        "id": 285851892,
+        "machine_platform_id": 714,
+        "option_collection_hash": "32faaecac742100f7753f0c1d0aa0add01b4046b",
+        "job_type_id": 213381,
+        "job_group_id": 450,
+        "result": "testfailed",
+        "state": "completed",
+        "failure_classification_id": 2,
+        "push_id": 630337,
+        "job_type_name": "test-linux1804-64/debug-reftest-no-accel-e10s-4",
+        "job_type_symbol": "Ru4",
+        "platform": "linux1804-64",
+        "task_id": "PTbyxNhLR0u7_Ld9rpOBPw",
+        "run_id": 0
+      }
+    ],
+    "test-linux1804-64-qr/debug-reftest-e10s-4": [
+      {
+        "id": 285851936,
+        "machine_platform_id": 718,
+        "option_collection_hash": "32faaecac742100f7753f0c1d0aa0add01b4046b",
+        "job_type_id": 213385,
+        "job_group_id": 450,
+        "result": "testfailed",
+        "state": "completed",
+        "failure_classification_id": 2,
+        "push_id": 630337,
+        "job_type_name": "test-linux1804-64-qr/debug-reftest-e10s-4",
+        "job_type_symbol": "R4",
+        "platform": "linux1804-64-qr",
+        "task_id": "UNKF7EcHSE6Rf1MVkiPsTQ",
+        "run_id": 0
+      }
+    ],
+    "test-linux1804-64-shippable-qr/opt-reftest-e10s-4": [
+      {
+        "id": 285871219,
+        "machine_platform_id": 719,
+        "option_collection_hash": "102210fe594ee9b33d82058545b1ed14f4c8206e",
+        "job_type_id": 213426,
+        "job_group_id": 450,
+        "result": "testfailed",
+        "state": "completed",
+        "failure_classification_id": 2,
+        "push_id": 630337,
+        "job_type_name": "test-linux1804-64-shippable-qr/opt-reftest-e10s-4",
+        "job_type_symbol": "R4",
+        "platform": "linux1804-64-shippable-qr",
+        "task_id": "Fn08GM39RgqceNqktY6P-Q",
+        "run_id": 0
+      }
+    ],
+    "test-linux1804-64-shippable/opt-reftest-e10s-2": [
+      {
+        "id": 285871245,
+        "machine_platform_id": 716,
+        "option_collection_hash": "102210fe594ee9b33d82058545b1ed14f4c8206e",
+        "job_type_id": 213418,
+        "job_group_id": 450,
+        "result": "testfailed",
+        "state": "completed",
+        "failure_classification_id": 2,
+        "push_id": 630337,
+        "job_type_name": "test-linux1804-64-shippable/opt-reftest-e10s-2",
+        "job_type_symbol": "R2",
+        "platform": "linux1804-64-shippable",
+        "task_id": "ESS1ny3CQU-zregfMEN8pA",
+        "run_id": 0
+      }
+    ],
+    "test-linux1804-64-shippable/opt-reftest-no-accel-e10s-1": [
+      {
+        "id": 285871252,
+        "machine_platform_id": 716,
+        "option_collection_hash": "102210fe594ee9b33d82058545b1ed14f4c8206e",
+        "job_type_id": 213425,
+        "job_group_id": 450,
+        "result": "testfailed",
+        "state": "completed",
+        "failure_classification_id": 2,
+        "push_id": 630337,
+        "job_type_name": "test-linux1804-64-shippable/opt-reftest-no-accel-e10s-1",
+        "job_type_symbol": "Ru1",
+        "platform": "linux1804-64-shippable",
+        "task_id": "cdBQUnuyT92m-48d6GTLEw",
+        "run_id": 0
+      }
+    ],
+    "test-macosx1014-64/debug-mochitest-browser-chrome-e10s-6": [
+      {
+        "id": 285852303,
+        "machine_platform_id": 644,
+        "option_collection_hash": "32faaecac742100f7753f0c1d0aa0add01b4046b",
+        "job_type_id": 198413,
+        "job_group_id": 448,
+        "result": "testfailed",
+        "state": "completed",
+        "failure_classification_id": 4,
+        "push_id": 630337,
+        "job_type_name": "test-macosx1014-64/debug-mochitest-browser-chrome-e10s-6",
+        "job_type_symbol": "bc6",
+        "platform": "macosx1014-64",
+        "task_id": "DNRiluCjQOeFdxyubn1kbA",
+        "run_id": 0
+      },
+      {
+        "id": 285859045,
+        "machine_platform_id": 644,
+        "option_collection_hash": "32faaecac742100f7753f0c1d0aa0add01b4046b",
+        "job_type_id": 198413,
+        "job_group_id": 448,
+        "result": "success",
+        "state": "completed",
+        "failure_classification_id": 1,
+        "push_id": 630337,
+        "job_type_name": "test-macosx1014-64/debug-mochitest-browser-chrome-e10s-6",
+        "job_type_symbol": "bc6",
+        "platform": "macosx1014-64",
+        "task_id": "YI0BCb_fRnyG6R9kDFlGCg",
+        "run_id": 0
+      },
+      {
+        "id": 285859048,
+        "machine_platform_id": 644,
+        "option_collection_hash": "32faaecac742100f7753f0c1d0aa0add01b4046b",
+        "job_type_id": 198413,
+        "job_group_id": 448,
+        "result": "success",
+        "state": "completed",
+        "failure_classification_id": 1,
+        "push_id": 630337,
+        "job_type_name": "test-macosx1014-64/debug-mochitest-browser-chrome-e10s-6",
+        "job_type_symbol": "bc6",
+        "platform": "macosx1014-64",
+        "task_id": "DgPukfaxRF2k-LiXXkkhRQ",
+        "run_id": 0
+      },
+      {
+        "id": 285859061,
+        "machine_platform_id": 644,
+        "option_collection_hash": "32faaecac742100f7753f0c1d0aa0add01b4046b",
+        "job_type_id": 198413,
+        "job_group_id": 448,
+        "result": "success",
+        "state": "completed",
+        "failure_classification_id": 1,
+        "push_id": 630337,
+        "job_type_name": "test-macosx1014-64/debug-mochitest-browser-chrome-e10s-6",
+        "job_type_symbol": "bc6",
+        "platform": "macosx1014-64",
+        "task_id": "COUa09o5Q-KElZEdsFgzSQ",
+        "run_id": 0
+      }
+    ],
+    "test-macosx1014-64-shippable/opt-mochitest-devtools-chrome-e10s-3": [
+      {
+        "id": 285867294,
+        "machine_platform_id": 639,
+        "option_collection_hash": "102210fe594ee9b33d82058545b1ed14f4c8206e",
+        "job_type_id": 198490,
+        "job_group_id": 448,
+        "result": "testfailed",
+        "state": "completed",
+        "failure_classification_id": 4,
+        "push_id": 630337,
+        "job_type_name": "test-macosx1014-64-shippable/opt-mochitest-devtools-chrome-e10s-3",
+        "job_type_symbol": "dt3",
+        "platform": "macosx1014-64-shippable",
+        "task_id": "JNtsPDDuQtOSiCRseqFDcQ",
+        "run_id": 0
+      }
+    ],
+    "test-linux1804-64-asan/opt-mochitest-e10s-3": [
+      {
+        "id": 285851100,
+        "machine_platform_id": 721,
+        "option_collection_hash": "102210fe594ee9b33d82058545b1ed14f4c8206e",
+        "job_type_id": 213117,
+        "job_group_id": 448,
+        "result": "testfailed",
+        "state": "completed",
+        "failure_classification_id": 4,
+        "push_id": 630337,
+        "job_type_name": "test-linux1804-64-asan/opt-mochitest-e10s-3",
+        "job_type_symbol": "3",
+        "platform": "linux1804-64-asan",
+        "task_id": "T7xpebFFR0215LhTTyZ0Kg",
+        "run_id": 0
+      }
+    ],
+    "test-windows7-32-shippable/opt-web-platform-tests-e10s-12": [
+      {
+        "id": 285872486,
+        "machine_platform_id": 568,
+        "option_collection_hash": "102210fe594ee9b33d82058545b1ed14f4c8206e",
+        "job_type_id": 182303,
+        "job_group_id": 461,
+        "result": "testfailed",
+        "state": "completed",
+        "failure_classification_id": 4,
+        "push_id": 630337,
+        "job_type_name": "test-windows7-32-shippable/opt-web-platform-tests-e10s-12",
+        "job_type_symbol": "wpt12",
+        "platform": "windows7-32-shippable",
+        "task_id": "WUFbfrLPR6i9BUrZtSykGg",
+        "run_id": 0
+      }
+    ],
+    "test-windows10-64-mingwclang/debug-reftest-e10s-2": [
+      {
+        "id": 285852128,
+        "machine_platform_id": 501,
+        "option_collection_hash": "32faaecac742100f7753f0c1d0aa0add01b4046b",
+        "job_type_id": 196837,
+        "job_group_id": 450,
+        "result": "testfailed",
+        "state": "completed",
+        "failure_classification_id": 4,
+        "push_id": 630337,
+        "job_type_name": "test-windows10-64-mingwclang/debug-reftest-e10s-2",
+        "job_type_symbol": "R2",
+        "platform": "windows10-64-mingwclang",
+        "task_id": "MrWF7k5cRSS2CsBZMkErBA",
+        "run_id": 0
+      }
+    ],
+    "test-linux64/debug-mochitest-browser-chrome-e10s-15": [
+      {
+        "id": 285851767,
+        "machine_platform_id": 104,
+        "option_collection_hash": "32faaecac742100f7753f0c1d0aa0add01b4046b",
+        "job_type_id": 50896,
+        "job_group_id": 448,
+        "result": "testfailed",
+        "state": "completed",
+        "failure_classification_id": 4,
+        "push_id": 630337,
+        "job_type_name": "test-linux64/debug-mochitest-browser-chrome-e10s-15",
+        "job_type_symbol": "bc15",
+        "platform": "linux64",
+        "task_id": "RFNo6TZkTOqkK6vypssrrw",
+        "run_id": 0
+      },
+      {
+        "id": 285857088,
+        "machine_platform_id": 104,
+        "option_collection_hash": "32faaecac742100f7753f0c1d0aa0add01b4046b",
+        "job_type_id": 50896,
+        "job_group_id": 448,
+        "result": "success",
+        "state": "completed",
+        "failure_classification_id": 1,
+        "push_id": 630337,
+        "job_type_name": "test-linux64/debug-mochitest-browser-chrome-e10s-15",
+        "job_type_symbol": "bc15",
+        "platform": "linux64",
+        "task_id": "U22eCBrfRw2MlBcayuPimA",
+        "run_id": 0
+      }
+    ],
+    "test-windows7-32-shippable/opt-mochitest-browser-chrome-e10s-6": [
+      {
+        "id": 285872470,
+        "machine_platform_id": 568,
+        "option_collection_hash": "102210fe594ee9b33d82058545b1ed14f4c8206e",
+        "job_type_id": 182404,
+        "job_group_id": 448,
+        "result": "testfailed",
+        "state": "completed",
+        "failure_classification_id": 4,
+        "push_id": 630337,
+        "job_type_name": "test-windows7-32-shippable/opt-mochitest-browser-chrome-e10s-6",
+        "job_type_symbol": "bc6",
+        "platform": "windows7-32-shippable",
+        "task_id": "cieGt8IbQTGj5PRdfqH6mg",
+        "run_id": 0
+      }
+    ],
+    "test-windows7-32-shippable/opt-mochitest-devtools-chrome-e10s-3": [
+      {
+        "id": 285872425,
+        "machine_platform_id": 568,
+        "option_collection_hash": "102210fe594ee9b33d82058545b1ed14f4c8206e",
+        "job_type_id": 182322,
+        "job_group_id": 448,
+        "result": "testfailed",
+        "state": "completed",
+        "failure_classification_id": 4,
+        "push_id": 630337,
+        "job_type_name": "test-windows7-32-shippable/opt-mochitest-devtools-chrome-e10s-3",
+        "job_type_symbol": "dt3",
+        "platform": "windows7-32-shippable",
+        "task_id": "H68bVqcLQxOqxhQ9BsnI3Q",
+        "run_id": 0
+      }
+    ],
+    "test-windows7-32-shippable/opt-mochitest-devtools-chrome-e10s-4": [
+      {
+        "id": 285872498,
+        "machine_platform_id": 568,
+        "option_collection_hash": "102210fe594ee9b33d82058545b1ed14f4c8206e",
+        "job_type_id": 182365,
+        "job_group_id": 448,
+        "result": "testfailed",
+        "state": "completed",
+        "failure_classification_id": 4,
+        "push_id": 630337,
+        "job_type_name": "test-windows7-32-shippable/opt-mochitest-devtools-chrome-e10s-4",
+        "job_type_symbol": "dt4",
+        "platform": "windows7-32-shippable",
+        "task_id": "d-NFdfQhRDuuyvHAjwZLjg",
+        "run_id": 0
+      }
+    ],
+    "test-macosx1014-64-shippable/opt-mochitest-devtools-webreplay-e10s": [
+      {
+        "id": 285867333,
+        "machine_platform_id": 639,
+        "option_collection_hash": "102210fe594ee9b33d82058545b1ed14f4c8206e",
+        "job_type_id": 198448,
+        "job_group_id": 448,
+        "result": "testfailed",
+        "state": "completed",
+        "failure_classification_id": 4,
+        "push_id": 630337,
+        "job_type_name": "test-macosx1014-64-shippable/opt-mochitest-devtools-webreplay-e10s",
+        "job_type_symbol": "dt-wr",
+        "platform": "macosx1014-64-shippable",
+        "task_id": "DC2-Rf6gSKeRDJGB14Em6Q",
+        "run_id": 0
+      }
+    ],
+    "test-linux1804-64-qr/debug-mochitest-fis-e10s-3": [
+      {
+        "id": 285851785,
+        "machine_platform_id": 718,
+        "option_collection_hash": "32faaecac742100f7753f0c1d0aa0add01b4046b",
+        "job_type_id": 215322,
+        "job_group_id": 1032,
+        "result": "testfailed",
+        "state": "completed",
+        "failure_classification_id": 4,
+        "push_id": 630337,
+        "job_type_name": "test-linux1804-64-qr/debug-mochitest-fis-e10s-3",
+        "job_type_symbol": "3",
+        "platform": "linux1804-64-qr",
+        "task_id": "DhXa1SZkT9aEdk8QFha_uw",
+        "run_id": 0
+      }
+    ],
+    "test-linux1804-64-qr/debug-web-platform-tests-fis-e10s-1": [
+      {
+        "id": 285851777,
+        "machine_platform_id": 718,
+        "option_collection_hash": "32faaecac742100f7753f0c1d0aa0add01b4046b",
+        "job_type_id": 214473,
+        "job_group_id": 1030,
+        "result": "testfailed",
+        "state": "completed",
+        "failure_classification_id": 4,
+        "push_id": 630337,
+        "job_type_name": "test-linux1804-64-qr/debug-web-platform-tests-fis-e10s-1",
+        "job_type_symbol": "wpt1",
+        "platform": "linux1804-64-qr",
+        "task_id": "JBbywbNzSkacD8Xa5yjplQ",
+        "run_id": 0
+      }
+    ],
+    "test-macosx1014-64/debug-web-platform-tests-e10s-5": [
+      {
+        "id": 285852197,
+        "machine_platform_id": 644,
+        "option_collection_hash": "32faaecac742100f7753f0c1d0aa0add01b4046b",
+        "job_type_id": 198481,
+        "job_group_id": 461,
+        "result": "testfailed",
+        "state": "completed",
+        "failure_classification_id": 4,
+        "push_id": 630337,
+        "job_type_name": "test-macosx1014-64/debug-web-platform-tests-e10s-5",
+        "job_type_symbol": "wpt5",
+        "platform": "macosx1014-64",
+        "task_id": "cy49HZSSQceII60tt-qRTg",
+        "run_id": 0
+      },
+      {
+        "id": 285871957,
+        "machine_platform_id": 644,
+        "option_collection_hash": "32faaecac742100f7753f0c1d0aa0add01b4046b",
+        "job_type_id": 198481,
+        "job_group_id": 461,
+        "result": "success",
+        "state": "completed",
+        "failure_classification_id": 1,
+        "push_id": 630337,
+        "job_type_name": "test-macosx1014-64/debug-web-platform-tests-e10s-5",
+        "job_type_symbol": "wpt5",
+        "platform": "macosx1014-64",
+        "task_id": "WODEa4BTTb6RP3wj-Mx_-A",
+        "run_id": 0
+      },
+      {
+        "id": 285871959,
+        "machine_platform_id": 644,
+        "option_collection_hash": "32faaecac742100f7753f0c1d0aa0add01b4046b",
+        "job_type_id": 198481,
+        "job_group_id": 461,
+        "result": "success",
+        "state": "completed",
+        "failure_classification_id": 1,
+        "push_id": 630337,
+        "job_type_name": "test-macosx1014-64/debug-web-platform-tests-e10s-5",
+        "job_type_symbol": "wpt5",
+        "platform": "macosx1014-64",
+        "task_id": "dCsNmt1CRPu4Yf0zwXmNNA",
+        "run_id": 0
+      },
+      {
+        "id": 285872022,
+        "machine_platform_id": 644,
+        "option_collection_hash": "32faaecac742100f7753f0c1d0aa0add01b4046b",
+        "job_type_id": 198481,
+        "job_group_id": 461,
+        "result": "success",
+        "state": "completed",
+        "failure_classification_id": 1,
+        "push_id": 630337,
+        "job_type_name": "test-macosx1014-64/debug-web-platform-tests-e10s-5",
+        "job_type_symbol": "wpt5",
+        "platform": "macosx1014-64",
+        "task_id": "eKvac_ERRRuUDnj3O1HODQ",
+        "run_id": 0
+      },
+      {
+        "id": 285872028,
+        "machine_platform_id": 644,
+        "option_collection_hash": "32faaecac742100f7753f0c1d0aa0add01b4046b",
+        "job_type_id": 198481,
+        "job_group_id": 461,
+        "result": "success",
+        "state": "completed",
+        "failure_classification_id": 1,
+        "push_id": 630337,
+        "job_type_name": "test-macosx1014-64/debug-web-platform-tests-e10s-5",
+        "job_type_symbol": "wpt5",
+        "platform": "macosx1014-64",
+        "task_id": "daqf46PdQzKHz66fXX4lzw",
+        "run_id": 0
+      },
+      {
+        "id": 285872031,
+        "machine_platform_id": 644,
+        "option_collection_hash": "32faaecac742100f7753f0c1d0aa0add01b4046b",
+        "job_type_id": 198481,
+        "job_group_id": 461,
+        "result": "success",
+        "state": "completed",
+        "failure_classification_id": 1,
+        "push_id": 630337,
+        "job_type_name": "test-macosx1014-64/debug-web-platform-tests-e10s-5",
+        "job_type_symbol": "wpt5",
+        "platform": "macosx1014-64",
+        "task_id": "U-EWzTZ2TyemzMBKUWKdBA",
+        "run_id": 0
+      }
+    ]
+  },
   "metrics": {
     "commitHistory": {
       "name": "Commit History",
@@ -88,24 +756,7 @@
             "tier": 2,
             "failedInParent": false,
             "passFailRatio": 0,
-            "jobs": [
-              {
-                "id": 285852125,
-                "machine_platform_id": 501,
-                "option_collection_hash": "32faaecac742100f7753f0c1d0aa0add01b4046b",
-                "job_type_id": 196801,
-                "job_group_id": 450,
-                "result": "testfailed",
-                "state": "completed",
-                "failure_classification_id": 2,
-                "push_id": 630337,
-                "job_type_name": "test-windows10-64-mingwclang/debug-reftest-e10s-1",
-                "job_type_symbol": "R1",
-                "platform": "windows10-64-mingwclang",
-                "task_id": "CwGewDH7RjOIZV-b77hGUQ",
-                "run_id": 0
-              }
-            ]
+            "isClassifiedIntermittent": false
           },
           {
             "testName": "layout/reftests/high-contrast/backplate-bg-image-006.html == layout/reftests/high-contrast/backplate-bg-image-006-ref.html",
@@ -123,24 +774,7 @@
             "tier": 1,
             "failedInParent": false,
             "passFailRatio": 0,
-            "jobs": [
-              {
-                "id": 285857638,
-                "machine_platform_id": 207,
-                "option_collection_hash": "03abd064e50ec12b8c7309950268531d78c63f60",
-                "job_type_id": 207157,
-                "job_group_id": 450,
-                "result": "testfailed",
-                "state": "completed",
-                "failure_classification_id": 2,
-                "push_id": 630337,
-                "job_type_name": "test-windows10-64-asan/opt-reftest-e10s-3",
-                "job_type_symbol": "R3",
-                "platform": "windows10-64",
-                "task_id": "XaHVNGnWSWuGPYnW6ByMdQ",
-                "run_id": 0
-              }
-            ]
+            "isClassifiedIntermittent": false
           },
           {
             "testName": "layout/reftests/high-contrast/backplate-bg-image-006.html == layout/reftests/high-contrast/backplate-bg-image-006-ref.html",
@@ -158,24 +792,7 @@
             "tier": 1,
             "failedInParent": false,
             "passFailRatio": 0,
-            "jobs": [
-              {
-                "id": 285857770,
-                "machine_platform_id": 420,
-                "option_collection_hash": "32faaecac742100f7753f0c1d0aa0add01b4046b",
-                "job_type_id": 116126,
-                "job_group_id": 450,
-                "result": "testfailed",
-                "state": "completed",
-                "failure_classification_id": 2,
-                "push_id": 630337,
-                "job_type_name": "test-windows10-64-qr/debug-reftest-e10s-1",
-                "job_type_symbol": "R1",
-                "platform": "windows10-64-qr",
-                "task_id": "fmIhWrXlQVmXCZ4aUQRYvw",
-                "run_id": 0
-              }
-            ]
+            "isClassifiedIntermittent": false
           },
           {
             "testName": "layout/reftests/high-contrast/backplate-bg-image-006.html == layout/reftests/high-contrast/backplate-bg-image-006-ref.html",
@@ -193,24 +810,7 @@
             "tier": 1,
             "failedInParent": false,
             "passFailRatio": 0,
-            "jobs": [
-              {
-                "id": 285857771,
-                "machine_platform_id": 207,
-                "option_collection_hash": "32faaecac742100f7753f0c1d0aa0add01b4046b",
-                "job_type_id": 40437,
-                "job_group_id": 450,
-                "result": "testfailed",
-                "state": "completed",
-                "failure_classification_id": 2,
-                "push_id": 630337,
-                "job_type_name": "test-windows10-64/debug-reftest-e10s-1",
-                "job_type_symbol": "R1",
-                "platform": "windows10-64",
-                "task_id": "M9b3KMI2RnatpZts4xX5cw",
-                "run_id": 0
-              }
-            ]
+            "isClassifiedIntermittent": false
           },
           {
             "testName": "layout/reftests/high-contrast/backplate-bg-image-006.html == layout/reftests/high-contrast/backplate-bg-image-006-ref.html",
@@ -228,24 +828,7 @@
             "tier": 1,
             "failedInParent": false,
             "passFailRatio": 0,
-            "jobs": [
-              {
-                "id": 285869969,
-                "machine_platform_id": 571,
-                "option_collection_hash": "102210fe594ee9b33d82058545b1ed14f4c8206e",
-                "job_type_id": 182452,
-                "job_group_id": 450,
-                "result": "testfailed",
-                "state": "completed",
-                "failure_classification_id": 2,
-                "push_id": 630337,
-                "job_type_name": "test-windows10-64-shippable-qr/opt-reftest-e10s-2",
-                "job_type_symbol": "R2",
-                "platform": "windows10-64-shippable-qr",
-                "task_id": "PENOvwjPS4C0nPN7olHPYw",
-                "run_id": 0
-              }
-            ]
+            "isClassifiedIntermittent": false
           },
           {
             "testName": "layout/reftests/high-contrast/backplate-bg-image-006.html == layout/reftests/high-contrast/backplate-bg-image-006-ref.html",
@@ -263,24 +846,7 @@
             "tier": 1,
             "failedInParent": false,
             "passFailRatio": 0,
-            "jobs": [
-              {
-                "id": 285869990,
-                "machine_platform_id": 567,
-                "option_collection_hash": "102210fe594ee9b33d82058545b1ed14f4c8206e",
-                "job_type_id": 182128,
-                "job_group_id": 450,
-                "result": "testfailed",
-                "state": "completed",
-                "failure_classification_id": 2,
-                "push_id": 630337,
-                "job_type_name": "test-windows10-64-shippable/opt-reftest-e10s-2",
-                "job_type_symbol": "R2",
-                "platform": "windows10-64-shippable",
-                "task_id": "S8iic8RmSEKO_rjOvWf1Xg",
-                "run_id": 0
-              }
-            ]
+            "isClassifiedIntermittent": false
           },
           {
             "testName": "layout/reftests/high-contrast/backplate-bg-image-009.html == layout/reftests/high-contrast/backplate-bg-image-009-ref.html",
@@ -298,24 +864,7 @@
             "tier": 1,
             "failedInParent": false,
             "passFailRatio": 0,
-            "jobs": [
-              {
-                "id": 285851009,
-                "machine_platform_id": 721,
-                "option_collection_hash": "102210fe594ee9b33d82058545b1ed14f4c8206e",
-                "job_type_id": 213405,
-                "job_group_id": 450,
-                "result": "testfailed",
-                "state": "completed",
-                "failure_classification_id": 2,
-                "push_id": 630337,
-                "job_type_name": "test-linux1804-64-asan/opt-reftest-no-accel-e10s-4",
-                "job_type_symbol": "Ru4",
-                "platform": "linux1804-64-asan",
-                "task_id": "MxksPeioRG2bAJWQgVoPHA",
-                "run_id": 0
-              }
-            ]
+            "isClassifiedIntermittent": false
           },
           {
             "testName": "layout/reftests/high-contrast/backplate-bg-image-009.html == layout/reftests/high-contrast/backplate-bg-image-009-ref.html",
@@ -333,24 +882,7 @@
             "tier": 1,
             "failedInParent": false,
             "passFailRatio": 0,
-            "jobs": [
-              {
-                "id": 285851071,
-                "machine_platform_id": 721,
-                "option_collection_hash": "102210fe594ee9b33d82058545b1ed14f4c8206e",
-                "job_type_id": 213396,
-                "job_group_id": 450,
-                "result": "testfailed",
-                "state": "completed",
-                "failure_classification_id": 2,
-                "push_id": 630337,
-                "job_type_name": "test-linux1804-64-asan/opt-reftest-e10s-4",
-                "job_type_symbol": "R4",
-                "platform": "linux1804-64-asan",
-                "task_id": "OuoJfYjFRF-73D3BdF0H_g",
-                "run_id": 0
-              }
-            ]
+            "isClassifiedIntermittent": false
           },
           {
             "testName": "layout/reftests/high-contrast/backplate-bg-image-009.html == layout/reftests/high-contrast/backplate-bg-image-009-ref.html",
@@ -368,24 +900,7 @@
             "tier": 2,
             "failedInParent": false,
             "passFailRatio": 0,
-            "jobs": [
-              {
-                "id": 285851081,
-                "machine_platform_id": 723,
-                "option_collection_hash": "102210fe594ee9b33d82058545b1ed14f4c8206e",
-                "job_type_id": 214011,
-                "job_group_id": 450,
-                "result": "testfailed",
-                "state": "completed",
-                "failure_classification_id": 2,
-                "push_id": 630337,
-                "job_type_name": "test-linux1804-64-asan-qr/opt-reftest-e10s-4",
-                "job_type_symbol": "R4",
-                "platform": "linux1804-64-asan-qr",
-                "task_id": "B26L1Mz-TfSzArN6opYjIQ",
-                "run_id": 0
-              }
-            ]
+            "isClassifiedIntermittent": false
           },
           {
             "testName": "layout/reftests/high-contrast/backplate-bg-image-009.html == layout/reftests/high-contrast/backplate-bg-image-009-ref.html",
@@ -403,24 +918,7 @@
             "tier": 1,
             "failedInParent": false,
             "passFailRatio": 0,
-            "jobs": [
-              {
-                "id": 285851731,
-                "machine_platform_id": 718,
-                "option_collection_hash": "32faaecac742100f7753f0c1d0aa0add01b4046b",
-                "job_type_id": 215167,
-                "job_group_id": 1029,
-                "result": "testfailed",
-                "state": "completed",
-                "failure_classification_id": 2,
-                "push_id": 630337,
-                "job_type_name": "test-linux1804-64-qr/debug-reftest-fis-e10s-4",
-                "job_type_symbol": "R4",
-                "platform": "linux1804-64-qr",
-                "task_id": "DO_Z7Y-aQcG3ciGsupsEFA",
-                "run_id": 0
-              }
-            ]
+            "isClassifiedIntermittent": false
           },
           {
             "testName": "layout/reftests/high-contrast/backplate-bg-image-009.html == layout/reftests/high-contrast/backplate-bg-image-009-ref.html",
@@ -438,24 +936,7 @@
             "tier": 1,
             "failedInParent": false,
             "passFailRatio": 0,
-            "jobs": [
-              {
-                "id": 285851862,
-                "machine_platform_id": 714,
-                "option_collection_hash": "32faaecac742100f7753f0c1d0aa0add01b4046b",
-                "job_type_id": 213366,
-                "job_group_id": 450,
-                "result": "testfailed",
-                "state": "completed",
-                "failure_classification_id": 2,
-                "push_id": 630337,
-                "job_type_name": "test-linux1804-64/debug-reftest-e10s-4",
-                "job_type_symbol": "R4",
-                "platform": "linux1804-64",
-                "task_id": "RgQYlLITQi6hq3ZpFllPWg",
-                "run_id": 0
-              }
-            ]
+            "isClassifiedIntermittent": false
           },
           {
             "testName": "layout/reftests/high-contrast/backplate-bg-image-009.html == layout/reftests/high-contrast/backplate-bg-image-009-ref.html",
@@ -473,24 +954,7 @@
             "tier": 1,
             "failedInParent": false,
             "passFailRatio": 0,
-            "jobs": [
-              {
-                "id": 285851892,
-                "machine_platform_id": 714,
-                "option_collection_hash": "32faaecac742100f7753f0c1d0aa0add01b4046b",
-                "job_type_id": 213381,
-                "job_group_id": 450,
-                "result": "testfailed",
-                "state": "completed",
-                "failure_classification_id": 2,
-                "push_id": 630337,
-                "job_type_name": "test-linux1804-64/debug-reftest-no-accel-e10s-4",
-                "job_type_symbol": "Ru4",
-                "platform": "linux1804-64",
-                "task_id": "PTbyxNhLR0u7_Ld9rpOBPw",
-                "run_id": 0
-              }
-            ]
+            "isClassifiedIntermittent": false
           },
           {
             "testName": "layout/reftests/high-contrast/backplate-bg-image-009.html == layout/reftests/high-contrast/backplate-bg-image-009-ref.html",
@@ -508,24 +972,7 @@
             "tier": 1,
             "failedInParent": false,
             "passFailRatio": 0,
-            "jobs": [
-              {
-                "id": 285851936,
-                "machine_platform_id": 718,
-                "option_collection_hash": "32faaecac742100f7753f0c1d0aa0add01b4046b",
-                "job_type_id": 213385,
-                "job_group_id": 450,
-                "result": "testfailed",
-                "state": "completed",
-                "failure_classification_id": 2,
-                "push_id": 630337,
-                "job_type_name": "test-linux1804-64-qr/debug-reftest-e10s-4",
-                "job_type_symbol": "R4",
-                "platform": "linux1804-64-qr",
-                "task_id": "UNKF7EcHSE6Rf1MVkiPsTQ",
-                "run_id": 0
-              }
-            ]
+            "isClassifiedIntermittent": false
           },
           {
             "testName": "layout/reftests/high-contrast/backplate-bg-image-009.html == layout/reftests/high-contrast/backplate-bg-image-009-ref.html",
@@ -543,24 +990,7 @@
             "tier": 1,
             "failedInParent": false,
             "passFailRatio": 0,
-            "jobs": [
-              {
-                "id": 285871219,
-                "machine_platform_id": 719,
-                "option_collection_hash": "102210fe594ee9b33d82058545b1ed14f4c8206e",
-                "job_type_id": 213426,
-                "job_group_id": 450,
-                "result": "testfailed",
-                "state": "completed",
-                "failure_classification_id": 2,
-                "push_id": 630337,
-                "job_type_name": "test-linux1804-64-shippable-qr/opt-reftest-e10s-4",
-                "job_type_symbol": "R4",
-                "platform": "linux1804-64-shippable-qr",
-                "task_id": "Fn08GM39RgqceNqktY6P-Q",
-                "run_id": 0
-              }
-            ]
+            "isClassifiedIntermittent": false
           },
           {
             "testName": "layout/reftests/high-contrast/backplate-bg-image-009.html == layout/reftests/high-contrast/backplate-bg-image-009-ref.html",
@@ -578,24 +1008,7 @@
             "tier": 1,
             "failedInParent": false,
             "passFailRatio": 0,
-            "jobs": [
-              {
-                "id": 285871245,
-                "machine_platform_id": 716,
-                "option_collection_hash": "102210fe594ee9b33d82058545b1ed14f4c8206e",
-                "job_type_id": 213418,
-                "job_group_id": 450,
-                "result": "testfailed",
-                "state": "completed",
-                "failure_classification_id": 2,
-                "push_id": 630337,
-                "job_type_name": "test-linux1804-64-shippable/opt-reftest-e10s-2",
-                "job_type_symbol": "R2",
-                "platform": "linux1804-64-shippable",
-                "task_id": "ESS1ny3CQU-zregfMEN8pA",
-                "run_id": 0
-              }
-            ]
+            "isClassifiedIntermittent": false
           },
           {
             "testName": "layout/reftests/high-contrast/backplate-bg-image-009.html == layout/reftests/high-contrast/backplate-bg-image-009-ref.html",
@@ -613,24 +1026,7 @@
             "tier": 1,
             "failedInParent": false,
             "passFailRatio": 0,
-            "jobs": [
-              {
-                "id": 285871252,
-                "machine_platform_id": 716,
-                "option_collection_hash": "102210fe594ee9b33d82058545b1ed14f4c8206e",
-                "job_type_id": 213425,
-                "job_group_id": 450,
-                "result": "testfailed",
-                "state": "completed",
-                "failure_classification_id": 2,
-                "push_id": 630337,
-                "job_type_name": "test-linux1804-64-shippable/opt-reftest-no-accel-e10s-1",
-                "job_type_symbol": "Ru1",
-                "platform": "linux1804-64-shippable",
-                "task_id": "cdBQUnuyT92m-48d6GTLEw",
-                "run_id": 0
-              }
-            ]
+            "isClassifiedIntermittent": false
           },
           {
             "testName": "Crash: had a bad day",
@@ -648,24 +1044,7 @@
             "tier": 1,
             "failedInParent": false,
             "passFailRatio": 0,
-            "jobs": [
-              {
-                "id": 285871252,
-                "machine_platform_id": 716,
-                "option_collection_hash": "102210fe594ee9b33d82058545b1ed14f4c8206e",
-                "job_type_id": 213425,
-                "job_group_id": 450,
-                "result": "testfailed",
-                "state": "completed",
-                "failure_classification_id": 2,
-                "push_id": 630337,
-                "job_type_name": "test-linux1804-64-shippable/opt-reftest-no-accel-e10s-1",
-                "job_type_symbol": "Ru1",
-                "platform": "linux1804-64-shippable",
-                "task_id": "cdBQUnuyT92m-48d6GTLEw",
-                "run_id": 0
-              }
-            ]
+            "isClassifiedIntermittent": false
           }
         ],
         "knownIssues": [
@@ -685,72 +1064,7 @@
             "tier": 1,
             "failedInParent": false,
             "passFailRatio": 0.75,
-            "jobs": [
-              {
-                "id": 285852303,
-                "machine_platform_id": 644,
-                "option_collection_hash": "32faaecac742100f7753f0c1d0aa0add01b4046b",
-                "job_type_id": 198413,
-                "job_group_id": 448,
-                "result": "testfailed",
-                "state": "completed",
-                "failure_classification_id": 4,
-                "push_id": 630337,
-                "job_type_name": "test-macosx1014-64/debug-mochitest-browser-chrome-e10s-6",
-                "job_type_symbol": "bc6",
-                "platform": "macosx1014-64",
-                "task_id": "DNRiluCjQOeFdxyubn1kbA",
-                "run_id": 0
-              },
-              {
-                "id": 285859045,
-                "machine_platform_id": 644,
-                "option_collection_hash": "32faaecac742100f7753f0c1d0aa0add01b4046b",
-                "job_type_id": 198413,
-                "job_group_id": 448,
-                "result": "success",
-                "state": "completed",
-                "failure_classification_id": 1,
-                "push_id": 630337,
-                "job_type_name": "test-macosx1014-64/debug-mochitest-browser-chrome-e10s-6",
-                "job_type_symbol": "bc6",
-                "platform": "macosx1014-64",
-                "task_id": "YI0BCb_fRnyG6R9kDFlGCg",
-                "run_id": 0
-              },
-              {
-                "id": 285859048,
-                "machine_platform_id": 644,
-                "option_collection_hash": "32faaecac742100f7753f0c1d0aa0add01b4046b",
-                "job_type_id": 198413,
-                "job_group_id": 448,
-                "result": "success",
-                "state": "completed",
-                "failure_classification_id": 1,
-                "push_id": 630337,
-                "job_type_name": "test-macosx1014-64/debug-mochitest-browser-chrome-e10s-6",
-                "job_type_symbol": "bc6",
-                "platform": "macosx1014-64",
-                "task_id": "DgPukfaxRF2k-LiXXkkhRQ",
-                "run_id": 0
-              },
-              {
-                "id": 285859061,
-                "machine_platform_id": 644,
-                "option_collection_hash": "32faaecac742100f7753f0c1d0aa0add01b4046b",
-                "job_type_id": 198413,
-                "job_group_id": 448,
-                "result": "success",
-                "state": "completed",
-                "failure_classification_id": 1,
-                "push_id": 630337,
-                "job_type_name": "test-macosx1014-64/debug-mochitest-browser-chrome-e10s-6",
-                "job_type_symbol": "bc6",
-                "platform": "macosx1014-64",
-                "task_id": "COUa09o5Q-KElZEdsFgzSQ",
-                "run_id": 0
-              }
-            ]
+            "isClassifiedIntermittent": true
           },
           {
             "testName": "@ nsDebugImpl::Abort(char const*, int)",
@@ -768,24 +1082,7 @@
             "tier": 1,
             "failedInParent": false,
             "passFailRatio": 0,
-            "jobs": [
-              {
-                "id": 285867294,
-                "machine_platform_id": 639,
-                "option_collection_hash": "102210fe594ee9b33d82058545b1ed14f4c8206e",
-                "job_type_id": 198490,
-                "job_group_id": 448,
-                "result": "testfailed",
-                "state": "completed",
-                "failure_classification_id": 4,
-                "push_id": 630337,
-                "job_type_name": "test-macosx1014-64-shippable/opt-mochitest-devtools-chrome-e10s-3",
-                "job_type_symbol": "dt3",
-                "platform": "macosx1014-64-shippable",
-                "task_id": "JNtsPDDuQtOSiCRseqFDcQ",
-                "run_id": 0
-              }
-            ]
+            "isClassifiedIntermittent": true
           },
           {
             "testName": "Force-terminating active process(es).",
@@ -803,24 +1100,7 @@
             "tier": 1,
             "failedInParent": false,
             "passFailRatio": 0,
-            "jobs": [
-              {
-                "id": 285851100,
-                "machine_platform_id": 721,
-                "option_collection_hash": "102210fe594ee9b33d82058545b1ed14f4c8206e",
-                "job_type_id": 213117,
-                "job_group_id": 448,
-                "result": "testfailed",
-                "state": "completed",
-                "failure_classification_id": 4,
-                "push_id": 630337,
-                "job_type_name": "test-linux1804-64-asan/opt-mochitest-e10s-3",
-                "job_type_symbol": "3",
-                "platform": "linux1804-64-asan",
-                "task_id": "T7xpebFFR0215LhTTyZ0Kg",
-                "run_id": 0
-              }
-            ]
+            "isClassifiedIntermittent": true
           },
           {
             "testName": "IndexedDB/idb-explicit-commit.any.worker.html",
@@ -838,24 +1118,7 @@
             "tier": 1,
             "failedInParent": false,
             "passFailRatio": 0,
-            "jobs": [
-              {
-                "id": 285872486,
-                "machine_platform_id": 568,
-                "option_collection_hash": "102210fe594ee9b33d82058545b1ed14f4c8206e",
-                "job_type_id": 182303,
-                "job_group_id": 461,
-                "result": "testfailed",
-                "state": "completed",
-                "failure_classification_id": 4,
-                "push_id": 630337,
-                "job_type_name": "test-windows7-32-shippable/opt-web-platform-tests-e10s-12",
-                "job_type_symbol": "wpt12",
-                "platform": "windows7-32-shippable",
-                "task_id": "WUFbfrLPR6i9BUrZtSykGg",
-                "run_id": 0
-              }
-            ]
+            "isClassifiedIntermittent": true
           },
           {
             "testName": "None",
@@ -873,24 +1136,7 @@
             "tier": 2,
             "failedInParent": false,
             "passFailRatio": 0,
-            "jobs": [
-              {
-                "id": 285852128,
-                "machine_platform_id": 501,
-                "option_collection_hash": "32faaecac742100f7753f0c1d0aa0add01b4046b",
-                "job_type_id": 196837,
-                "job_group_id": 450,
-                "result": "testfailed",
-                "state": "completed",
-                "failure_classification_id": 4,
-                "push_id": 630337,
-                "job_type_name": "test-windows10-64-mingwclang/debug-reftest-e10s-2",
-                "job_type_symbol": "R2",
-                "platform": "windows10-64-mingwclang",
-                "task_id": "MrWF7k5cRSS2CsBZMkErBA",
-                "run_id": 0
-              }
-            ]
+            "isClassifiedIntermittent": true
           },
           {
             "testName": "TEST-UNEXPECTED-FAIL | Last test finished | application terminated with exit code 1",
@@ -908,24 +1154,7 @@
             "tier": 1,
             "failedInParent": false,
             "passFailRatio": 0,
-            "jobs": [
-              {
-                "id": 285867294,
-                "machine_platform_id": 639,
-                "option_collection_hash": "102210fe594ee9b33d82058545b1ed14f4c8206e",
-                "job_type_id": 198490,
-                "job_group_id": 448,
-                "result": "testfailed",
-                "state": "completed",
-                "failure_classification_id": 4,
-                "push_id": 630337,
-                "job_type_name": "test-macosx1014-64-shippable/opt-mochitest-devtools-chrome-e10s-3",
-                "job_type_symbol": "dt3",
-                "platform": "macosx1014-64-shippable",
-                "task_id": "JNtsPDDuQtOSiCRseqFDcQ",
-                "run_id": 0
-              }
-            ]
+            "isClassifiedIntermittent": true
           },
           {
             "testName": "TEST-UNEXPECTED-FAIL | ShutdownLeaks | process() called before end of test suite",
@@ -943,72 +1172,7 @@
             "tier": 1,
             "failedInParent": false,
             "passFailRatio": 0.75,
-            "jobs": [
-              {
-                "id": 285852303,
-                "machine_platform_id": 644,
-                "option_collection_hash": "32faaecac742100f7753f0c1d0aa0add01b4046b",
-                "job_type_id": 198413,
-                "job_group_id": 448,
-                "result": "testfailed",
-                "state": "completed",
-                "failure_classification_id": 4,
-                "push_id": 630337,
-                "job_type_name": "test-macosx1014-64/debug-mochitest-browser-chrome-e10s-6",
-                "job_type_symbol": "bc6",
-                "platform": "macosx1014-64",
-                "task_id": "DNRiluCjQOeFdxyubn1kbA",
-                "run_id": 0
-              },
-              {
-                "id": 285859045,
-                "machine_platform_id": 644,
-                "option_collection_hash": "32faaecac742100f7753f0c1d0aa0add01b4046b",
-                "job_type_id": 198413,
-                "job_group_id": 448,
-                "result": "success",
-                "state": "completed",
-                "failure_classification_id": 1,
-                "push_id": 630337,
-                "job_type_name": "test-macosx1014-64/debug-mochitest-browser-chrome-e10s-6",
-                "job_type_symbol": "bc6",
-                "platform": "macosx1014-64",
-                "task_id": "YI0BCb_fRnyG6R9kDFlGCg",
-                "run_id": 0
-              },
-              {
-                "id": 285859048,
-                "machine_platform_id": 644,
-                "option_collection_hash": "32faaecac742100f7753f0c1d0aa0add01b4046b",
-                "job_type_id": 198413,
-                "job_group_id": 448,
-                "result": "success",
-                "state": "completed",
-                "failure_classification_id": 1,
-                "push_id": 630337,
-                "job_type_name": "test-macosx1014-64/debug-mochitest-browser-chrome-e10s-6",
-                "job_type_symbol": "bc6",
-                "platform": "macosx1014-64",
-                "task_id": "DgPukfaxRF2k-LiXXkkhRQ",
-                "run_id": 0
-              },
-              {
-                "id": 285859061,
-                "machine_platform_id": 644,
-                "option_collection_hash": "32faaecac742100f7753f0c1d0aa0add01b4046b",
-                "job_type_id": 198413,
-                "job_group_id": 448,
-                "result": "success",
-                "state": "completed",
-                "failure_classification_id": 1,
-                "push_id": 630337,
-                "job_type_name": "test-macosx1014-64/debug-mochitest-browser-chrome-e10s-6",
-                "job_type_symbol": "bc6",
-                "platform": "macosx1014-64",
-                "task_id": "COUa09o5Q-KElZEdsFgzSQ",
-                "run_id": 0
-              }
-            ]
+            "isClassifiedIntermittent": true
           },
           {
             "testName": "TEST-UNEXPECTED-FAIL | browser/components/customizableui/test/browser_923857_customize_mode_event_wrapping_during_reset.js | application terminated with exit code 5",
@@ -1026,72 +1190,7 @@
             "tier": 1,
             "failedInParent": false,
             "passFailRatio": 0.75,
-            "jobs": [
-              {
-                "id": 285852303,
-                "machine_platform_id": 644,
-                "option_collection_hash": "32faaecac742100f7753f0c1d0aa0add01b4046b",
-                "job_type_id": 198413,
-                "job_group_id": 448,
-                "result": "testfailed",
-                "state": "completed",
-                "failure_classification_id": 4,
-                "push_id": 630337,
-                "job_type_name": "test-macosx1014-64/debug-mochitest-browser-chrome-e10s-6",
-                "job_type_symbol": "bc6",
-                "platform": "macosx1014-64",
-                "task_id": "DNRiluCjQOeFdxyubn1kbA",
-                "run_id": 0
-              },
-              {
-                "id": 285859045,
-                "machine_platform_id": 644,
-                "option_collection_hash": "32faaecac742100f7753f0c1d0aa0add01b4046b",
-                "job_type_id": 198413,
-                "job_group_id": 448,
-                "result": "success",
-                "state": "completed",
-                "failure_classification_id": 1,
-                "push_id": 630337,
-                "job_type_name": "test-macosx1014-64/debug-mochitest-browser-chrome-e10s-6",
-                "job_type_symbol": "bc6",
-                "platform": "macosx1014-64",
-                "task_id": "YI0BCb_fRnyG6R9kDFlGCg",
-                "run_id": 0
-              },
-              {
-                "id": 285859048,
-                "machine_platform_id": 644,
-                "option_collection_hash": "32faaecac742100f7753f0c1d0aa0add01b4046b",
-                "job_type_id": 198413,
-                "job_group_id": 448,
-                "result": "success",
-                "state": "completed",
-                "failure_classification_id": 1,
-                "push_id": 630337,
-                "job_type_name": "test-macosx1014-64/debug-mochitest-browser-chrome-e10s-6",
-                "job_type_symbol": "bc6",
-                "platform": "macosx1014-64",
-                "task_id": "DgPukfaxRF2k-LiXXkkhRQ",
-                "run_id": 0
-              },
-              {
-                "id": 285859061,
-                "machine_platform_id": 644,
-                "option_collection_hash": "32faaecac742100f7753f0c1d0aa0add01b4046b",
-                "job_type_id": 198413,
-                "job_group_id": 448,
-                "result": "success",
-                "state": "completed",
-                "failure_classification_id": 1,
-                "push_id": 630337,
-                "job_type_name": "test-macosx1014-64/debug-mochitest-browser-chrome-e10s-6",
-                "job_type_symbol": "bc6",
-                "platform": "macosx1014-64",
-                "task_id": "COUa09o5Q-KElZEdsFgzSQ",
-                "run_id": 0
-              }
-            ]
+            "isClassifiedIntermittent": true
           },
           {
             "testName": "browser/components/extensions/test/browser/browser_ext_tabs_zoom.js",
@@ -1109,40 +1208,7 @@
             "tier": 1,
             "failedInParent": false,
             "passFailRatio": 0.5,
-            "jobs": [
-              {
-                "id": 285851767,
-                "machine_platform_id": 104,
-                "option_collection_hash": "32faaecac742100f7753f0c1d0aa0add01b4046b",
-                "job_type_id": 50896,
-                "job_group_id": 448,
-                "result": "testfailed",
-                "state": "completed",
-                "failure_classification_id": 4,
-                "push_id": 630337,
-                "job_type_name": "test-linux64/debug-mochitest-browser-chrome-e10s-15",
-                "job_type_symbol": "bc15",
-                "platform": "linux64",
-                "task_id": "RFNo6TZkTOqkK6vypssrrw",
-                "run_id": 0
-              },
-              {
-                "id": 285857088,
-                "machine_platform_id": 104,
-                "option_collection_hash": "32faaecac742100f7753f0c1d0aa0add01b4046b",
-                "job_type_id": 50896,
-                "job_group_id": 448,
-                "result": "success",
-                "state": "completed",
-                "failure_classification_id": 1,
-                "push_id": 630337,
-                "job_type_name": "test-linux64/debug-mochitest-browser-chrome-e10s-15",
-                "job_type_symbol": "bc15",
-                "platform": "linux64",
-                "task_id": "U22eCBrfRw2MlBcayuPimA",
-                "run_id": 0
-              }
-            ]
+            "isClassifiedIntermittent": true
           },
           {
             "testName": "browser/extensions/doh-rollout/test/browser/browser_policyOverride.js",
@@ -1160,24 +1226,7 @@
             "tier": 1,
             "failedInParent": false,
             "passFailRatio": 0,
-            "jobs": [
-              {
-                "id": 285872470,
-                "machine_platform_id": 568,
-                "option_collection_hash": "102210fe594ee9b33d82058545b1ed14f4c8206e",
-                "job_type_id": 182404,
-                "job_group_id": 448,
-                "result": "testfailed",
-                "state": "completed",
-                "failure_classification_id": 4,
-                "push_id": 630337,
-                "job_type_name": "test-windows7-32-shippable/opt-mochitest-browser-chrome-e10s-6",
-                "job_type_symbol": "bc6",
-                "platform": "windows7-32-shippable",
-                "task_id": "cieGt8IbQTGj5PRdfqH6mg",
-                "run_id": 0
-              }
-            ]
+            "isClassifiedIntermittent": true
           },
           {
             "testName": "browser/extensions/doh-rollout/test/browser/browser_userInterference.js",
@@ -1195,24 +1244,7 @@
             "tier": 1,
             "failedInParent": false,
             "passFailRatio": 0,
-            "jobs": [
-              {
-                "id": 285872470,
-                "machine_platform_id": 568,
-                "option_collection_hash": "102210fe594ee9b33d82058545b1ed14f4c8206e",
-                "job_type_id": 182404,
-                "job_group_id": 448,
-                "result": "testfailed",
-                "state": "completed",
-                "failure_classification_id": 4,
-                "push_id": 630337,
-                "job_type_name": "test-windows7-32-shippable/opt-mochitest-browser-chrome-e10s-6",
-                "job_type_symbol": "bc6",
-                "platform": "windows7-32-shippable",
-                "task_id": "cieGt8IbQTGj5PRdfqH6mg",
-                "run_id": 0
-              }
-            ]
+            "isClassifiedIntermittent": true
           },
           {
             "testName": "devtools/client/framework/test/browser_about-devtools-toolbox_reload.js",
@@ -1230,24 +1262,7 @@
             "tier": 1,
             "failedInParent": false,
             "passFailRatio": 0,
-            "jobs": [
-              {
-                "id": 285867294,
-                "machine_platform_id": 639,
-                "option_collection_hash": "102210fe594ee9b33d82058545b1ed14f4c8206e",
-                "job_type_id": 198490,
-                "job_group_id": 448,
-                "result": "testfailed",
-                "state": "completed",
-                "failure_classification_id": 4,
-                "push_id": 630337,
-                "job_type_name": "test-macosx1014-64-shippable/opt-mochitest-devtools-chrome-e10s-3",
-                "job_type_symbol": "dt3",
-                "platform": "macosx1014-64-shippable",
-                "task_id": "JNtsPDDuQtOSiCRseqFDcQ",
-                "run_id": 0
-              }
-            ]
+            "isClassifiedIntermittent": true
           },
           {
             "testName": "devtools/client/inspector/markup/test/browser_markup_links_02.js",
@@ -1265,24 +1280,7 @@
             "tier": 1,
             "failedInParent": false,
             "passFailRatio": 0,
-            "jobs": [
-              {
-                "id": 285872425,
-                "machine_platform_id": 568,
-                "option_collection_hash": "102210fe594ee9b33d82058545b1ed14f4c8206e",
-                "job_type_id": 182322,
-                "job_group_id": 448,
-                "result": "testfailed",
-                "state": "completed",
-                "failure_classification_id": 4,
-                "push_id": 630337,
-                "job_type_name": "test-windows7-32-shippable/opt-mochitest-devtools-chrome-e10s-3",
-                "job_type_symbol": "dt3",
-                "platform": "windows7-32-shippable",
-                "task_id": "H68bVqcLQxOqxhQ9BsnI3Q",
-                "run_id": 0
-              }
-            ]
+            "isClassifiedIntermittent": true
           },
           {
             "testName": "devtools/client/netmonitor/test/browser_net_req-resp-bodies.js",
@@ -1300,24 +1298,7 @@
             "tier": 1,
             "failedInParent": false,
             "passFailRatio": 0,
-            "jobs": [
-              {
-                "id": 285872498,
-                "machine_platform_id": 568,
-                "option_collection_hash": "102210fe594ee9b33d82058545b1ed14f4c8206e",
-                "job_type_id": 182365,
-                "job_group_id": 448,
-                "result": "testfailed",
-                "state": "completed",
-                "failure_classification_id": 4,
-                "push_id": 630337,
-                "job_type_name": "test-windows7-32-shippable/opt-mochitest-devtools-chrome-e10s-4",
-                "job_type_symbol": "dt4",
-                "platform": "windows7-32-shippable",
-                "task_id": "d-NFdfQhRDuuyvHAjwZLjg",
-                "run_id": 0
-              }
-            ]
+            "isClassifiedIntermittent": true
           },
           {
             "testName": "devtools/client/webreplay/mochitest/browser_dbg_rr_breakpoints-01.js",
@@ -1335,24 +1316,7 @@
             "tier": 2,
             "failedInParent": false,
             "passFailRatio": 0,
-            "jobs": [
-              {
-                "id": 285867333,
-                "machine_platform_id": 639,
-                "option_collection_hash": "102210fe594ee9b33d82058545b1ed14f4c8206e",
-                "job_type_id": 198448,
-                "job_group_id": 448,
-                "result": "testfailed",
-                "state": "completed",
-                "failure_classification_id": 4,
-                "push_id": 630337,
-                "job_type_name": "test-macosx1014-64-shippable/opt-mochitest-devtools-webreplay-e10s",
-                "job_type_symbol": "dt-wr",
-                "platform": "macosx1014-64-shippable",
-                "task_id": "DC2-Rf6gSKeRDJGB14Em6Q",
-                "run_id": 0
-              }
-            ]
+            "isClassifiedIntermittent": true
           },
           {
             "testName": "devtools/client/webreplay/mochitest/browser_dbg_rr_breakpoints-02.js",
@@ -1370,24 +1334,7 @@
             "tier": 2,
             "failedInParent": false,
             "passFailRatio": 0,
-            "jobs": [
-              {
-                "id": 285867333,
-                "machine_platform_id": 639,
-                "option_collection_hash": "102210fe594ee9b33d82058545b1ed14f4c8206e",
-                "job_type_id": 198448,
-                "job_group_id": 448,
-                "result": "testfailed",
-                "state": "completed",
-                "failure_classification_id": 4,
-                "push_id": 630337,
-                "job_type_name": "test-macosx1014-64-shippable/opt-mochitest-devtools-webreplay-e10s",
-                "job_type_symbol": "dt-wr",
-                "platform": "macosx1014-64-shippable",
-                "task_id": "DC2-Rf6gSKeRDJGB14Em6Q",
-                "run_id": 0
-              }
-            ]
+            "isClassifiedIntermittent": true
           },
           {
             "testName": "devtools/client/webreplay/mochitest/browser_dbg_rr_breakpoints-03.js",
@@ -1405,24 +1352,7 @@
             "tier": 2,
             "failedInParent": false,
             "passFailRatio": 0,
-            "jobs": [
-              {
-                "id": 285867333,
-                "machine_platform_id": 639,
-                "option_collection_hash": "102210fe594ee9b33d82058545b1ed14f4c8206e",
-                "job_type_id": 198448,
-                "job_group_id": 448,
-                "result": "testfailed",
-                "state": "completed",
-                "failure_classification_id": 4,
-                "push_id": 630337,
-                "job_type_name": "test-macosx1014-64-shippable/opt-mochitest-devtools-webreplay-e10s",
-                "job_type_symbol": "dt-wr",
-                "platform": "macosx1014-64-shippable",
-                "task_id": "DC2-Rf6gSKeRDJGB14Em6Q",
-                "run_id": 0
-              }
-            ]
+            "isClassifiedIntermittent": true
           },
           {
             "testName": "devtools/client/webreplay/mochitest/browser_dbg_rr_breakpoints-04.js",
@@ -1440,24 +1370,7 @@
             "tier": 2,
             "failedInParent": false,
             "passFailRatio": 0,
-            "jobs": [
-              {
-                "id": 285867333,
-                "machine_platform_id": 639,
-                "option_collection_hash": "102210fe594ee9b33d82058545b1ed14f4c8206e",
-                "job_type_id": 198448,
-                "job_group_id": 448,
-                "result": "testfailed",
-                "state": "completed",
-                "failure_classification_id": 4,
-                "push_id": 630337,
-                "job_type_name": "test-macosx1014-64-shippable/opt-mochitest-devtools-webreplay-e10s",
-                "job_type_symbol": "dt-wr",
-                "platform": "macosx1014-64-shippable",
-                "task_id": "DC2-Rf6gSKeRDJGB14Em6Q",
-                "run_id": 0
-              }
-            ]
+            "isClassifiedIntermittent": true
           },
           {
             "testName": "devtools/client/webreplay/mochitest/browser_dbg_rr_breakpoints-05.js",
@@ -1475,24 +1388,7 @@
             "tier": 2,
             "failedInParent": false,
             "passFailRatio": 0,
-            "jobs": [
-              {
-                "id": 285867333,
-                "machine_platform_id": 639,
-                "option_collection_hash": "102210fe594ee9b33d82058545b1ed14f4c8206e",
-                "job_type_id": 198448,
-                "job_group_id": 448,
-                "result": "testfailed",
-                "state": "completed",
-                "failure_classification_id": 4,
-                "push_id": 630337,
-                "job_type_name": "test-macosx1014-64-shippable/opt-mochitest-devtools-webreplay-e10s",
-                "job_type_symbol": "dt-wr",
-                "platform": "macosx1014-64-shippable",
-                "task_id": "DC2-Rf6gSKeRDJGB14Em6Q",
-                "run_id": 0
-              }
-            ]
+            "isClassifiedIntermittent": true
           },
           {
             "testName": "devtools/client/webreplay/mochitest/browser_dbg_rr_breakpoints-06.js",
@@ -1510,24 +1406,7 @@
             "tier": 2,
             "failedInParent": false,
             "passFailRatio": 0,
-            "jobs": [
-              {
-                "id": 285867333,
-                "machine_platform_id": 639,
-                "option_collection_hash": "102210fe594ee9b33d82058545b1ed14f4c8206e",
-                "job_type_id": 198448,
-                "job_group_id": 448,
-                "result": "testfailed",
-                "state": "completed",
-                "failure_classification_id": 4,
-                "push_id": 630337,
-                "job_type_name": "test-macosx1014-64-shippable/opt-mochitest-devtools-webreplay-e10s",
-                "job_type_symbol": "dt-wr",
-                "platform": "macosx1014-64-shippable",
-                "task_id": "DC2-Rf6gSKeRDJGB14Em6Q",
-                "run_id": 0
-              }
-            ]
+            "isClassifiedIntermittent": true
           },
           {
             "testName": "devtools/client/webreplay/mochitest/browser_dbg_rr_breakpoints-07.js",
@@ -1545,24 +1424,7 @@
             "tier": 2,
             "failedInParent": false,
             "passFailRatio": 0,
-            "jobs": [
-              {
-                "id": 285867333,
-                "machine_platform_id": 639,
-                "option_collection_hash": "102210fe594ee9b33d82058545b1ed14f4c8206e",
-                "job_type_id": 198448,
-                "job_group_id": 448,
-                "result": "testfailed",
-                "state": "completed",
-                "failure_classification_id": 4,
-                "push_id": 630337,
-                "job_type_name": "test-macosx1014-64-shippable/opt-mochitest-devtools-webreplay-e10s",
-                "job_type_symbol": "dt-wr",
-                "platform": "macosx1014-64-shippable",
-                "task_id": "DC2-Rf6gSKeRDJGB14Em6Q",
-                "run_id": 0
-              }
-            ]
+            "isClassifiedIntermittent": true
           },
           {
             "testName": "devtools/client/webreplay/mochitest/browser_dbg_rr_console_warp-01.js",
@@ -1580,24 +1442,7 @@
             "tier": 2,
             "failedInParent": false,
             "passFailRatio": 0,
-            "jobs": [
-              {
-                "id": 285867333,
-                "machine_platform_id": 639,
-                "option_collection_hash": "102210fe594ee9b33d82058545b1ed14f4c8206e",
-                "job_type_id": 198448,
-                "job_group_id": 448,
-                "result": "testfailed",
-                "state": "completed",
-                "failure_classification_id": 4,
-                "push_id": 630337,
-                "job_type_name": "test-macosx1014-64-shippable/opt-mochitest-devtools-webreplay-e10s",
-                "job_type_symbol": "dt-wr",
-                "platform": "macosx1014-64-shippable",
-                "task_id": "DC2-Rf6gSKeRDJGB14Em6Q",
-                "run_id": 0
-              }
-            ]
+            "isClassifiedIntermittent": true
           },
           {
             "testName": "devtools/client/webreplay/mochitest/browser_dbg_rr_console_warp-02.js",
@@ -1615,24 +1460,7 @@
             "tier": 2,
             "failedInParent": false,
             "passFailRatio": 0,
-            "jobs": [
-              {
-                "id": 285867333,
-                "machine_platform_id": 639,
-                "option_collection_hash": "102210fe594ee9b33d82058545b1ed14f4c8206e",
-                "job_type_id": 198448,
-                "job_group_id": 448,
-                "result": "testfailed",
-                "state": "completed",
-                "failure_classification_id": 4,
-                "push_id": 630337,
-                "job_type_name": "test-macosx1014-64-shippable/opt-mochitest-devtools-webreplay-e10s",
-                "job_type_symbol": "dt-wr",
-                "platform": "macosx1014-64-shippable",
-                "task_id": "DC2-Rf6gSKeRDJGB14Em6Q",
-                "run_id": 0
-              }
-            ]
+            "isClassifiedIntermittent": true
           },
           {
             "testName": "dom/broadcastchannel/tests/test_broadcastchannel_any.html",
@@ -1650,24 +1478,7 @@
             "tier": 1,
             "failedInParent": false,
             "passFailRatio": 0,
-            "jobs": [
-              {
-                "id": 285851785,
-                "machine_platform_id": 718,
-                "option_collection_hash": "32faaecac742100f7753f0c1d0aa0add01b4046b",
-                "job_type_id": 215322,
-                "job_group_id": 1032,
-                "result": "testfailed",
-                "state": "completed",
-                "failure_classification_id": 4,
-                "push_id": 630337,
-                "job_type_name": "test-linux1804-64-qr/debug-mochitest-fis-e10s-3",
-                "job_type_symbol": "3",
-                "platform": "linux1804-64-qr",
-                "task_id": "DhXa1SZkT9aEdk8QFha_uw",
-                "run_id": 0
-              }
-            ]
+            "isClassifiedIntermittent": true
           },
           {
             "testName": "dom/events/webkit-animation-iteration-event.html",
@@ -1685,24 +1496,7 @@
             "tier": 2,
             "failedInParent": false,
             "passFailRatio": 0,
-            "jobs": [
-              {
-                "id": 285851777,
-                "machine_platform_id": 718,
-                "option_collection_hash": "32faaecac742100f7753f0c1d0aa0add01b4046b",
-                "job_type_id": 214473,
-                "job_group_id": 1030,
-                "result": "testfailed",
-                "state": "completed",
-                "failure_classification_id": 4,
-                "push_id": 630337,
-                "job_type_name": "test-linux1804-64-qr/debug-web-platform-tests-fis-e10s-1",
-                "job_type_symbol": "wpt1",
-                "platform": "linux1804-64-qr",
-                "task_id": "JBbywbNzSkacD8Xa5yjplQ",
-                "run_id": 0
-              }
-            ]
+            "isClassifiedIntermittent": true
           },
           {
             "testName": "dom/events/webkit-animation-iteration-event.html",
@@ -1720,104 +1514,7 @@
             "tier": 1,
             "failedInParent": false,
             "passFailRatio": 0.8333333333333334,
-            "jobs": [
-              {
-                "id": 285852197,
-                "machine_platform_id": 644,
-                "option_collection_hash": "32faaecac742100f7753f0c1d0aa0add01b4046b",
-                "job_type_id": 198481,
-                "job_group_id": 461,
-                "result": "testfailed",
-                "state": "completed",
-                "failure_classification_id": 4,
-                "push_id": 630337,
-                "job_type_name": "test-macosx1014-64/debug-web-platform-tests-e10s-5",
-                "job_type_symbol": "wpt5",
-                "platform": "macosx1014-64",
-                "task_id": "cy49HZSSQceII60tt-qRTg",
-                "run_id": 0
-              },
-              {
-                "id": 285871957,
-                "machine_platform_id": 644,
-                "option_collection_hash": "32faaecac742100f7753f0c1d0aa0add01b4046b",
-                "job_type_id": 198481,
-                "job_group_id": 461,
-                "result": "success",
-                "state": "completed",
-                "failure_classification_id": 1,
-                "push_id": 630337,
-                "job_type_name": "test-macosx1014-64/debug-web-platform-tests-e10s-5",
-                "job_type_symbol": "wpt5",
-                "platform": "macosx1014-64",
-                "task_id": "WODEa4BTTb6RP3wj-Mx_-A",
-                "run_id": 0
-              },
-              {
-                "id": 285871959,
-                "machine_platform_id": 644,
-                "option_collection_hash": "32faaecac742100f7753f0c1d0aa0add01b4046b",
-                "job_type_id": 198481,
-                "job_group_id": 461,
-                "result": "success",
-                "state": "completed",
-                "failure_classification_id": 1,
-                "push_id": 630337,
-                "job_type_name": "test-macosx1014-64/debug-web-platform-tests-e10s-5",
-                "job_type_symbol": "wpt5",
-                "platform": "macosx1014-64",
-                "task_id": "dCsNmt1CRPu4Yf0zwXmNNA",
-                "run_id": 0
-              },
-              {
-                "id": 285872022,
-                "machine_platform_id": 644,
-                "option_collection_hash": "32faaecac742100f7753f0c1d0aa0add01b4046b",
-                "job_type_id": 198481,
-                "job_group_id": 461,
-                "result": "success",
-                "state": "completed",
-                "failure_classification_id": 1,
-                "push_id": 630337,
-                "job_type_name": "test-macosx1014-64/debug-web-platform-tests-e10s-5",
-                "job_type_symbol": "wpt5",
-                "platform": "macosx1014-64",
-                "task_id": "eKvac_ERRRuUDnj3O1HODQ",
-                "run_id": 0
-              },
-              {
-                "id": 285872028,
-                "machine_platform_id": 644,
-                "option_collection_hash": "32faaecac742100f7753f0c1d0aa0add01b4046b",
-                "job_type_id": 198481,
-                "job_group_id": 461,
-                "result": "success",
-                "state": "completed",
-                "failure_classification_id": 1,
-                "push_id": 630337,
-                "job_type_name": "test-macosx1014-64/debug-web-platform-tests-e10s-5",
-                "job_type_symbol": "wpt5",
-                "platform": "macosx1014-64",
-                "task_id": "daqf46PdQzKHz66fXX4lzw",
-                "run_id": 0
-              },
-              {
-                "id": 285872031,
-                "machine_platform_id": 644,
-                "option_collection_hash": "32faaecac742100f7753f0c1d0aa0add01b4046b",
-                "job_type_id": 198481,
-                "job_group_id": 461,
-                "result": "success",
-                "state": "completed",
-                "failure_classification_id": 1,
-                "push_id": 630337,
-                "job_type_name": "test-macosx1014-64/debug-web-platform-tests-e10s-5",
-                "job_type_symbol": "wpt5",
-                "platform": "macosx1014-64",
-                "task_id": "U-EWzTZ2TyemzMBKUWKdBA",
-                "run_id": 0
-              }
-            ]
+            "isClassifiedIntermittent": true
           },
           {
             "testName": "dom/indexedDB/test/test_rename_index.html",
@@ -1835,24 +1532,7 @@
             "tier": 1,
             "failedInParent": false,
             "passFailRatio": 0,
-            "jobs": [
-              {
-                "id": 285851100,
-                "machine_platform_id": 721,
-                "option_collection_hash": "102210fe594ee9b33d82058545b1ed14f4c8206e",
-                "job_type_id": 213117,
-                "job_group_id": 448,
-                "result": "testfailed",
-                "state": "completed",
-                "failure_classification_id": 4,
-                "push_id": 630337,
-                "job_type_name": "test-linux1804-64-asan/opt-mochitest-e10s-3",
-                "job_type_symbol": "3",
-                "platform": "linux1804-64-asan",
-                "task_id": "T7xpebFFR0215LhTTyZ0Kg",
-                "run_id": 0
-              }
-            ]
+            "isClassifiedIntermittent": true
           },
           {
             "testName": "dom/indexedDB/test/test_rename_index_errors.html",
@@ -1870,24 +1550,7 @@
             "tier": 1,
             "failedInParent": false,
             "passFailRatio": 0,
-            "jobs": [
-              {
-                "id": 285851100,
-                "machine_platform_id": 721,
-                "option_collection_hash": "102210fe594ee9b33d82058545b1ed14f4c8206e",
-                "job_type_id": 213117,
-                "job_group_id": 448,
-                "result": "testfailed",
-                "state": "completed",
-                "failure_classification_id": 4,
-                "push_id": 630337,
-                "job_type_name": "test-linux1804-64-asan/opt-mochitest-e10s-3",
-                "job_type_symbol": "3",
-                "platform": "linux1804-64-asan",
-                "task_id": "T7xpebFFR0215LhTTyZ0Kg",
-                "run_id": 0
-              }
-            ]
+            "isClassifiedIntermittent": true
           },
           {
             "testName": "dom/indexedDB/test/test_rename_objectStore.html",
@@ -1905,24 +1568,7 @@
             "tier": 1,
             "failedInParent": false,
             "passFailRatio": 0,
-            "jobs": [
-              {
-                "id": 285851100,
-                "machine_platform_id": 721,
-                "option_collection_hash": "102210fe594ee9b33d82058545b1ed14f4c8206e",
-                "job_type_id": 213117,
-                "job_group_id": 448,
-                "result": "testfailed",
-                "state": "completed",
-                "failure_classification_id": 4,
-                "push_id": 630337,
-                "job_type_name": "test-linux1804-64-asan/opt-mochitest-e10s-3",
-                "job_type_symbol": "3",
-                "platform": "linux1804-64-asan",
-                "task_id": "T7xpebFFR0215LhTTyZ0Kg",
-                "run_id": 0
-              }
-            ]
+            "isClassifiedIntermittent": true
           },
           {
             "testName": "dom/indexedDB/test/test_rename_objectStore_errors.html",
@@ -1940,24 +1586,7 @@
             "tier": 1,
             "failedInParent": false,
             "passFailRatio": 0,
-            "jobs": [
-              {
-                "id": 285851100,
-                "machine_platform_id": 721,
-                "option_collection_hash": "102210fe594ee9b33d82058545b1ed14f4c8206e",
-                "job_type_id": 213117,
-                "job_group_id": 448,
-                "result": "testfailed",
-                "state": "completed",
-                "failure_classification_id": 4,
-                "push_id": 630337,
-                "job_type_name": "test-linux1804-64-asan/opt-mochitest-e10s-3",
-                "job_type_symbol": "3",
-                "platform": "linux1804-64-asan",
-                "task_id": "T7xpebFFR0215LhTTyZ0Kg",
-                "run_id": 0
-              }
-            ]
+            "isClassifiedIntermittent": true
           },
           {
             "testName": "dom/media/test/test_cloneElementVisually_ended_video.html",
@@ -1975,24 +1604,7 @@
             "tier": 1,
             "failedInParent": false,
             "passFailRatio": 0,
-            "jobs": [
-              {
-                "id": 285857664,
-                "machine_platform_id": 207,
-                "option_collection_hash": "03abd064e50ec12b8c7309950268531d78c63f60",
-                "job_type_id": 180041,
-                "job_group_id": 938,
-                "result": "testfailed",
-                "state": "completed",
-                "failure_classification_id": 4,
-                "push_id": 630337,
-                "job_type_name": "test-windows10-64-asan/opt-mochitest-media-spi-e10s",
-                "job_type_symbol": "mda",
-                "platform": "windows10-64",
-                "task_id": "MjRXYKoUQZGCPtes0V18cQ",
-                "run_id": 0
-              }
-            ]
+            "isClassifiedIntermittent": true
           },
           {
             "testName": "dom/media/test/test_cloneElementVisually_no_suspend.html",
@@ -2010,24 +1622,7 @@
             "tier": 1,
             "failedInParent": false,
             "passFailRatio": 0,
-            "jobs": [
-              {
-                "id": 285857664,
-                "machine_platform_id": 207,
-                "option_collection_hash": "03abd064e50ec12b8c7309950268531d78c63f60",
-                "job_type_id": 180041,
-                "job_group_id": 938,
-                "result": "testfailed",
-                "state": "completed",
-                "failure_classification_id": 4,
-                "push_id": 630337,
-                "job_type_name": "test-windows10-64-asan/opt-mochitest-media-spi-e10s",
-                "job_type_symbol": "mda",
-                "platform": "windows10-64",
-                "task_id": "MjRXYKoUQZGCPtes0V18cQ",
-                "run_id": 0
-              }
-            ]
+            "isClassifiedIntermittent": true
           },
           {
             "testName": "dom/media/test/test_cloneElementVisually_poster.html",
@@ -2045,24 +1640,7 @@
             "tier": 1,
             "failedInParent": false,
             "passFailRatio": 0,
-            "jobs": [
-              {
-                "id": 285857664,
-                "machine_platform_id": 207,
-                "option_collection_hash": "03abd064e50ec12b8c7309950268531d78c63f60",
-                "job_type_id": 180041,
-                "job_group_id": 938,
-                "result": "testfailed",
-                "state": "completed",
-                "failure_classification_id": 4,
-                "push_id": 630337,
-                "job_type_name": "test-windows10-64-asan/opt-mochitest-media-spi-e10s",
-                "job_type_symbol": "mda",
-                "platform": "windows10-64",
-                "task_id": "MjRXYKoUQZGCPtes0V18cQ",
-                "run_id": 0
-              }
-            ]
+            "isClassifiedIntermittent": true
           },
           {
             "testName": "dom/media/test/test_cloneElementVisually_resource_change.html",
@@ -2080,24 +1658,7 @@
             "tier": 1,
             "failedInParent": false,
             "passFailRatio": 0,
-            "jobs": [
-              {
-                "id": 285857664,
-                "machine_platform_id": 207,
-                "option_collection_hash": "03abd064e50ec12b8c7309950268531d78c63f60",
-                "job_type_id": 180041,
-                "job_group_id": 938,
-                "result": "testfailed",
-                "state": "completed",
-                "failure_classification_id": 4,
-                "push_id": 630337,
-                "job_type_name": "test-windows10-64-asan/opt-mochitest-media-spi-e10s",
-                "job_type_symbol": "mda",
-                "platform": "windows10-64",
-                "task_id": "MjRXYKoUQZGCPtes0V18cQ",
-                "run_id": 0
-              }
-            ]
+            "isClassifiedIntermittent": true
           },
           {
             "testName": "dom/tests/mochitest/general/test_resizeby.html",
@@ -2115,24 +1676,7 @@
             "tier": 1,
             "failedInParent": false,
             "passFailRatio": 0,
-            "jobs": [
-              {
-                "id": 285851954,
-                "machine_platform_id": 718,
-                "option_collection_hash": "32faaecac742100f7753f0c1d0aa0add01b4046b",
-                "job_type_id": 213095,
-                "job_group_id": 448,
-                "result": "testfailed",
-                "state": "completed",
-                "failure_classification_id": 4,
-                "push_id": 630337,
-                "job_type_name": "test-linux1804-64-qr/debug-mochitest-e10s-9",
-                "job_type_symbol": "9",
-                "platform": "linux1804-64-qr",
-                "task_id": "ezB0tRVWTvuOjeQnshlfaA",
-                "run_id": 0
-              }
-            ]
+            "isClassifiedIntermittent": true
           },
           {
             "testName": "pointerevents/pointerlock/pointerevent_pointermove_on_chorded_mouse_button_when_locked.html",
@@ -2150,72 +1694,7 @@
             "tier": 1,
             "failedInParent": false,
             "passFailRatio": 0.75,
-            "jobs": [
-              {
-                "id": 285852298,
-                "machine_platform_id": 644,
-                "option_collection_hash": "32faaecac742100f7753f0c1d0aa0add01b4046b",
-                "job_type_id": 198485,
-                "job_group_id": 461,
-                "result": "testfailed",
-                "state": "completed",
-                "failure_classification_id": 4,
-                "push_id": 630337,
-                "job_type_name": "test-macosx1014-64/debug-web-platform-tests-e10s-1",
-                "job_type_symbol": "wpt1",
-                "platform": "macosx1014-64",
-                "task_id": "ftRSXEizSwCNLnrMs-3rng",
-                "run_id": 0
-              },
-              {
-                "id": 285871876,
-                "machine_platform_id": 644,
-                "option_collection_hash": "32faaecac742100f7753f0c1d0aa0add01b4046b",
-                "job_type_id": 198485,
-                "job_group_id": 461,
-                "result": "success",
-                "state": "completed",
-                "failure_classification_id": 1,
-                "push_id": 630337,
-                "job_type_name": "test-macosx1014-64/debug-web-platform-tests-e10s-1",
-                "job_type_symbol": "wpt1",
-                "platform": "macosx1014-64",
-                "task_id": "O3W58vzKQ1CnSe0AVbGTwg",
-                "run_id": 0
-              },
-              {
-                "id": 285871879,
-                "machine_platform_id": 644,
-                "option_collection_hash": "32faaecac742100f7753f0c1d0aa0add01b4046b",
-                "job_type_id": 198485,
-                "job_group_id": 461,
-                "result": "success",
-                "state": "completed",
-                "failure_classification_id": 1,
-                "push_id": 630337,
-                "job_type_name": "test-macosx1014-64/debug-web-platform-tests-e10s-1",
-                "job_type_symbol": "wpt1",
-                "platform": "macosx1014-64",
-                "task_id": "Bxv5i0oZQQe55cAE5koC8Q",
-                "run_id": 0
-              },
-              {
-                "id": 285871945,
-                "machine_platform_id": 644,
-                "option_collection_hash": "32faaecac742100f7753f0c1d0aa0add01b4046b",
-                "job_type_id": 198485,
-                "job_group_id": 461,
-                "result": "success",
-                "state": "completed",
-                "failure_classification_id": 1,
-                "push_id": 630337,
-                "job_type_name": "test-macosx1014-64/debug-web-platform-tests-e10s-1",
-                "job_type_symbol": "wpt1",
-                "platform": "macosx1014-64",
-                "task_id": "QtVAU3xiRLKP9OdacdAAJQ",
-                "run_id": 0
-              }
-            ]
+            "isClassifiedIntermittent": true
           },
           {
             "testName": "pointerlock/movementX_Y_basic.html",
@@ -2233,24 +1712,7 @@
             "tier": 2,
             "failedInParent": false,
             "passFailRatio": 0,
-            "jobs": [
-              {
-                "id": 285851777,
-                "machine_platform_id": 718,
-                "option_collection_hash": "32faaecac742100f7753f0c1d0aa0add01b4046b",
-                "job_type_id": 214473,
-                "job_group_id": 1030,
-                "result": "testfailed",
-                "state": "completed",
-                "failure_classification_id": 4,
-                "push_id": 630337,
-                "job_type_name": "test-linux1804-64-qr/debug-web-platform-tests-fis-e10s-1",
-                "job_type_symbol": "wpt1",
-                "platform": "linux1804-64-qr",
-                "task_id": "JBbywbNzSkacD8Xa5yjplQ",
-                "run_id": 0
-              }
-            ]
+            "isClassifiedIntermittent": true
           },
           {
             "testName": "toolkit/components/pictureinpicture/tests/browser_togglePolicies.js",
@@ -2268,56 +1730,7 @@
             "tier": 1,
             "failedInParent": false,
             "passFailRatio": 0.6666666666666666,
-            "jobs": [
-              {
-                "id": 285851033,
-                "machine_platform_id": 104,
-                "option_collection_hash": "03abd064e50ec12b8c7309950268531d78c63f60",
-                "job_type_id": 32702,
-                "job_group_id": 448,
-                "result": "testfailed",
-                "state": "completed",
-                "failure_classification_id": 4,
-                "push_id": 630337,
-                "job_type_name": "test-linux64-asan/opt-mochitest-browser-chrome-e10s-3",
-                "job_type_symbol": "bc3",
-                "platform": "linux64",
-                "task_id": "ISMLcBElQCaobiELzucncw",
-                "run_id": 0
-              },
-              {
-                "id": 285855176,
-                "machine_platform_id": 104,
-                "option_collection_hash": "03abd064e50ec12b8c7309950268531d78c63f60",
-                "job_type_id": 32702,
-                "job_group_id": 448,
-                "result": "success",
-                "state": "completed",
-                "failure_classification_id": 1,
-                "push_id": 630337,
-                "job_type_name": "test-linux64-asan/opt-mochitest-browser-chrome-e10s-3",
-                "job_type_symbol": "bc3",
-                "platform": "linux64",
-                "task_id": "F6zo4wPSRRqbMkZzfW9NYA",
-                "run_id": 0
-              },
-              {
-                "id": 285855202,
-                "machine_platform_id": 104,
-                "option_collection_hash": "03abd064e50ec12b8c7309950268531d78c63f60",
-                "job_type_id": 32702,
-                "job_group_id": 448,
-                "result": "success",
-                "state": "completed",
-                "failure_classification_id": 1,
-                "push_id": 630337,
-                "job_type_name": "test-linux64-asan/opt-mochitest-browser-chrome-e10s-3",
-                "job_type_symbol": "bc3",
-                "platform": "linux64",
-                "task_id": "INoQ-QiHQIWDEor5KAXc8g",
-                "run_id": 0
-              }
-            ]
+            "isClassifiedIntermittent": true
           },
           {
             "testName": "toolkit/components/pictureinpicture/tests/browser_toggleTransparentOverlay-1.js",
@@ -2335,56 +1748,7 @@
             "tier": 1,
             "failedInParent": false,
             "passFailRatio": 0.6666666666666666,
-            "jobs": [
-              {
-                "id": 285851033,
-                "machine_platform_id": 104,
-                "option_collection_hash": "03abd064e50ec12b8c7309950268531d78c63f60",
-                "job_type_id": 32702,
-                "job_group_id": 448,
-                "result": "testfailed",
-                "state": "completed",
-                "failure_classification_id": 4,
-                "push_id": 630337,
-                "job_type_name": "test-linux64-asan/opt-mochitest-browser-chrome-e10s-3",
-                "job_type_symbol": "bc3",
-                "platform": "linux64",
-                "task_id": "ISMLcBElQCaobiELzucncw",
-                "run_id": 0
-              },
-              {
-                "id": 285855176,
-                "machine_platform_id": 104,
-                "option_collection_hash": "03abd064e50ec12b8c7309950268531d78c63f60",
-                "job_type_id": 32702,
-                "job_group_id": 448,
-                "result": "success",
-                "state": "completed",
-                "failure_classification_id": 1,
-                "push_id": 630337,
-                "job_type_name": "test-linux64-asan/opt-mochitest-browser-chrome-e10s-3",
-                "job_type_symbol": "bc3",
-                "platform": "linux64",
-                "task_id": "F6zo4wPSRRqbMkZzfW9NYA",
-                "run_id": 0
-              },
-              {
-                "id": 285855202,
-                "machine_platform_id": 104,
-                "option_collection_hash": "03abd064e50ec12b8c7309950268531d78c63f60",
-                "job_type_id": 32702,
-                "job_group_id": 448,
-                "result": "success",
-                "state": "completed",
-                "failure_classification_id": 1,
-                "push_id": 630337,
-                "job_type_name": "test-linux64-asan/opt-mochitest-browser-chrome-e10s-3",
-                "job_type_symbol": "bc3",
-                "platform": "linux64",
-                "task_id": "INoQ-QiHQIWDEor5KAXc8g",
-                "run_id": 0
-              }
-            ]
+            "isClassifiedIntermittent": true
           },
           {
             "testName": "webrtc/RTCPeerConnection-ondatachannel.html",
@@ -2402,24 +1766,7 @@
             "tier": 1,
             "failedInParent": false,
             "passFailRatio": 0,
-            "jobs": [
-              {
-                "id": 285872494,
-                "machine_platform_id": 568,
-                "option_collection_hash": "102210fe594ee9b33d82058545b1ed14f4c8206e",
-                "job_type_id": 182351,
-                "job_group_id": 461,
-                "result": "testfailed",
-                "state": "completed",
-                "failure_classification_id": 4,
-                "push_id": 630337,
-                "job_type_name": "test-windows7-32-shippable/opt-web-platform-tests-e10s-10",
-                "job_type_symbol": "wpt10",
-                "platform": "windows7-32-shippable",
-                "task_id": "UinpBKcpTMyUivMaeVzPbA",
-                "run_id": 0
-              }
-            ]
+            "isClassifiedIntermittent": true
           }
         ]
       }
