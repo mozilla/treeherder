@@ -39,7 +39,7 @@ const getRevisionTips = (pushList) => {
     revisionTips: pushList.map((push) => ({
       revision: push.revision,
       author: push.author,
-      title: push.revisions[0].comments.split('\n')[0],
+      title: push.revisions[0] ? push.revisions[0].comments.split('\n')[0] : '',
     })),
   };
 };
