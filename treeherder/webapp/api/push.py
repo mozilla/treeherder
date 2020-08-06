@@ -16,6 +16,7 @@ from treeherder.push_health.tests import get_test_failures, get_test_failure_job
 from treeherder.push_health.usage import get_usage
 from treeherder.webapp.api.serializers import PushSerializer
 from treeherder.webapp.api.utils import to_datetime, to_timestamp
+from treeherder.utils.taskcluster import get_gecko_decision_artifact
 
 logger = logging.getLogger(__name__)
 
@@ -349,6 +350,30 @@ class PushViewSet(viewsets.ViewSet):
         return Response(
             "No decision tasks found for pushes: {}".format(push_ids), status=HTTP_404_NOT_FOUND
         )
+
+    @action(detail=False)
+    def test_paths(self, request):
+        revision = request.query_params.get('revision')
+        if not revision:
+            return Response("You need to specify the revision", status=HTTP_400_BAD_REQUEST,)
+        include_test_files = request.query_params.get('include_test_files', False)
+        push = Push.objects.filter(revision=revision)[0]
+        jobs = Job.objects.filter(push_id=push.id)
+        response = {}
+        if include_test_files:
+            manifests_to_test_files = get_gecko_decision_artifact(
+                push.repository.name, push.revision, 'tests-by-manifest.json.gz'
+            )
+
+        for j in jobs:
+            job_test_paths = []
+            for test_path in j.test_paths.all():
+                job_test_paths.append(test_path.path)
+                if include_test_files:
+                    job_test_paths = job_test_paths + manifests_to_test_files[test_path.path]
+            job_test_paths.sort()
+            response[j.taskcluster_metadata.task_id] = job_test_paths
+        return Response(response)
 
     # TODO: Remove when we no longer support short revisions: Bug 1306707
     def report_if_short_revision(self, param, revision):

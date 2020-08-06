@@ -9,6 +9,7 @@ import {
   thOptionOrder,
   thPlatformMap,
 } from '../../helpers/constants';
+import { getApiUrl } from '../../helpers/url';
 import decompress from '../../helpers/gzip';
 import { getGroupMapKey } from '../../helpers/aggregateId';
 import { getAllUrlParams, getUrlParam } from '../../helpers/location';
@@ -215,7 +216,7 @@ class Push extends React.PureComponent {
     if (allParams.has('test_paths')) {
       await this.fetchTestManifests();
     } else {
-      this.setState({ taskNameToTestPaths: {} });
+      this.setState({ tasksToTestPaths: {} });
     }
     this.setState({ collapsed: collapsedPushes.includes(push.id) });
   };
@@ -246,26 +247,24 @@ class Push extends React.PureComponent {
   fetchTestManifests = async () => {
     const { currentRepo, push } = this.props;
 
-    const [manifestsByTask, testsByManifest] = await Promise.all([
-      fetchGeckoDecisionArtifact(
-        currentRepo.name,
-        push.revision,
-        'manifests-by-task.json.gz',
-      ),
+    const [manifestsByTaskIDs, testsByManifest] = await Promise.all([
+      (
+        await fetch(getApiUrl(`/push/test_paths/?revision=${push.revision}`))
+      ).json(),
       fetchGeckoDecisionArtifact(
         currentRepo.name,
         push.revision,
         'tests-by-manifest.json.gz',
       ),
     ]);
-    const taskNameToTestPaths = joinArtifacts(manifestsByTask, testsByManifest);
+    const tasksToTestPaths = joinArtifacts(manifestsByTaskIDs, testsByManifest);
     // Call setState with callback to guarantee the state of taskNameToTestPaths
     // to be set since it is read within mapPushJobs and we might have a race
     // condition. We are also reading jobList now rather than before fetching
     // the artifact because it gives us an empty list
     this.setState(
       {
-        taskNameToTestPaths,
+        tasksToTestPaths,
       },
       () => this.mapPushJobs(this.state.jobList),
     );
@@ -289,7 +288,7 @@ class Push extends React.PureComponent {
 
   mapPushJobs = (jobs, skipJobMap) => {
     const { updateJobMap, recalculateUnclassifiedCounts, push } = this.props;
-    const { taskNameToTestPaths = {} } = this.state;
+    const { tasksToTestPaths = {} } = this.state;
 
     // whether or not we got any jobs for this push, the operation to fetch
     // them has completed.
@@ -301,8 +300,8 @@ class Push extends React.PureComponent {
       const existingJobs = jobList.filter((job) => !newIds.includes(job.id));
       // Join both lists and add test_paths and task_run property
       const newJobList = [...existingJobs, ...jobs].map((job) => {
-        if (Object.keys(taskNameToTestPaths).length > 0) {
-          job.test_paths = taskNameToTestPaths[job.job_type_name] || [];
+        if (Object.keys(tasksToTestPaths).length > 0) {
+          job.test_paths = tasksToTestPaths[job.task_id] || [];
         }
         job.task_run = getTaskRunStr(job);
         return job;

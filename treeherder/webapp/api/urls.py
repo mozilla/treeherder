@@ -117,6 +117,7 @@ default_router.register(
 default_router.register(r'bugzilla', bugzilla.BugzillaViewSet, basename='bugzilla')
 default_router.register(r'auth', auth.AuthViewSet, basename='auth')
 default_router.register(r'changelog', changelog.ChangelogViewSet, basename='changelog')
+default_router.register(r'push', push.PushViewSet, basename='push')
 
 urlpatterns = [
     url(r'^project/(?P<project>[\w-]{0,50})/', include(project_bound_router.urls)),
