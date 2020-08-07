@@ -73,7 +73,7 @@ def ingest_pr(pr_url, root_url):
     PushLoader().process(pulse["payload"], pulse["exchange"], root_url)
 
 
-def ingest_push(options):
+def ingest_hg_push(options):
     if not options["enable_eager_celery"]:
         logger.info("If you want all logs to be parsed use --enable-eager-celery")
     else:
@@ -107,10 +107,10 @@ def ingest_push(options):
     else:
         logger.info("You can ingest all tasks for a push with -a/--ingest-all-tasks.")
 
-    _ingest_push(project, commit)
+    _ingest_hg_push(project, commit)
 
 
-def _ingest_push(project, revision, fetch_push_id=None):
+def _ingest_hg_push(project, revision, fetch_push_id=None):
     # get reference to repo
     repo = Repository.objects.get(name=project, active_status="active")
     # get hg pushlog
@@ -216,7 +216,7 @@ def process_job_with_threads(pulse_job, root_url):
             JobLoader().process_job(pulse_job, root_url)
         except MissingPushException:
             logger.warning('The push was not in the DB. We are going to try that first')
-            _ingest_push(pulse_job["origin"]["project"], pulse_job["origin"]["revision"])
+            ingest_push(pulse_job["origin"]["project"], pulse_job["origin"]["revision"])
             JobLoader().process_job(pulse_job, root_url)
 
 
@@ -327,10 +327,13 @@ def github_push_to_pulse(repo_meta, commit):
     }
 
 
-def ingest_git_push(project, commit):
+def ingest_push(project, revision, fetch_push_id=None):
     _repo = repo_meta(project)
-    pulse = github_push_to_pulse(_repo, commit)
-    PushLoader().process(pulse["payload"], pulse["exchange"], _repo["tc_root_url"])
+    if _repo['url'].startswith('https://github.com'):
+        pulse = github_push_to_pulse(_repo, revision)
+        PushLoader().process(pulse["payload"], pulse["exchange"], _repo["tc_root_url"])
+    else:
+        _ingest_hg_push(project, revision)
 
 
 def ingest_git_pushes(project, dry_run=False):
@@ -380,7 +383,7 @@ def ingest_git_pushes(project, dry_run=False):
     if not dry_run:
         logger.info("--> Ingest Github pushes")
         for revision in push_revision:
-            ingest_git_push(project, revision)
+            ingest_push(project, revision)
 
     # Test that the *order* of the pushes is correct
     logger.info("--> Validating that the ingested pushes are in the right order")
@@ -452,7 +455,7 @@ class Command(BaseCommand):
                     "If you don't set up GITHUB_TOKEN you might hit Github's rate limiting. See docs for info."
                 )
             if typeOfIngestion == "git-push":
-                ingest_git_push(options["project"], options["commit"])
+                ingest_push(options["project"], options["commit"])
             elif typeOfIngestion == "git-pushes":
                 ingest_git_pushes(options["project"], options["dryRun"])
         elif typeOfIngestion == "push":
