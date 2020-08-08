@@ -140,6 +140,13 @@ def ignore_task(task, taskId, rootUrl, project):
                     ignore = False
                     break
 
+            # This handles nightly tasks
+            # e.g. index.mobile.v2.fenix.branch.master.latest.taskgraph.decision-nightly
+            for route in decision_task["routes"]:
+                if route.find('master') != -1:
+                    ignore = False
+                    break
+
     if ignore:
         logger.debug('Task to be ignored ({})'.format(taskId))
 
