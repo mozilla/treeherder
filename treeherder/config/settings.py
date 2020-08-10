@@ -103,6 +103,7 @@ ALLOWED_HOSTS = [SITE_HOSTNAME]
 # This is only used for removing the rate limiting. You can create your own here:
 # https://github.com/settings/tokens
 GITHUB_TOKEN = env("GITHUB_TOKEN", default=None)
+NEW_RELIC_INSIGHTS_API_KEY = env("NEW_RELIC_INSIGHTS_API_KEY")
 NEW_RELIC_INSIGHTS_API_URL = 'https://insights-api.newrelic.com/v1/accounts/677903/query'
 # For intermittents commenter
 COMMENTER_API_KEY = env("BUG_COMMENTER_API_KEY", default=None)
@@ -120,7 +121,6 @@ BUGFILER_API_KEY = env("BUG_FILER_API_KEY", default=None)
 BZ_DATETIME_FORMAT = '%Y-%m-%dT%H:%M:%SZ'
 
 if PRODUCTION:
-    NEW_RELIC_INSIGHTS_API_KEY = env("NEW_RELIC_INSIGHTS_API_KEY")
     DATABASES = {'default': env.db_url('DATABASE_URL')}
     # Heroku-review-app (defined in app.json)
     if env("HEROKU_REVIEW_APP", default=False):
