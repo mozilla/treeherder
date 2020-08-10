@@ -150,6 +150,8 @@ elif not PRODUCTION:
     if UPSTREAM_DATABASE_URL:
         DATABASES['upstream'] = env.db_url_config(UPSTREAM_DATABASE_URL)
 
+travis = env("TRAVIS")
+print(travis)
 if not PRODUCTION or env("TRAVIS", default=False):
     # This controls whether the Django debug toolbar should be shown or not
     # https://django-debug-toolbar.readthedocs.io/en/latest/configuration.html#show-toolbar-callback
