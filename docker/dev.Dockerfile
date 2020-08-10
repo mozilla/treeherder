@@ -28,11 +28,6 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
 ENV MOZ_HEADLESS=1
 ENV PATH="/usr/local/bin/firefox:${PATH}"
 
-#### Required for running shellcheck tests ####
-ENV SHELLCHECK_VERSION="0.4.6"
-RUN curl -sSfL --retry 5 "https://storage.googleapis.com/shellcheck/shellcheck-v${SHELLCHECK_VERSION}.linux.x86_64.tar.xz" \
-    | tar -Jx --strip-components=1 -C /usr/local/bin
-
 # /app will be mounted via a volume defined in docker-compose
 ADD . /app
 WORKDIR /app
