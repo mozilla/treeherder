@@ -51,18 +51,15 @@ export const transformTestPath = (path) => {
     newPath = `testing/web-platform/tests${path}`;
   }
 
-  if (newPath.includes('.')) {
-    // If we have a test file in the path we can drop it since
-    const splitPath = newPath.split('/');
-    newPath = splitPath.splice(0, splitPath.length - 1).join('/');
-  }
   return newPath;
 };
 
-const transformedPaths = (manifestsByTask) => {
+export const transformedPaths = (manifestsByTask) => {
   const newManifestsByTask = {};
   Object.keys(manifestsByTask).forEach((taskName) => {
-    newManifestsByTask[taskName] = transformTestPath(manifestsByTask[taskName]);
+    newManifestsByTask[taskName] = manifestsByTask[taskName].map((testPath) =>
+      transformTestPath(testPath),
+    );
   });
   return newManifestsByTask;
 };
