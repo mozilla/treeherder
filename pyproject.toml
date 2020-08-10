@@ -1,11 +1,11 @@
 [build-system]
-requires = ["poetry>=1.0.5"]
+requires = ["poetry>=1.0.10"]
 build-backend = "poetry.masonry.api"
 
 [tool.poetry]
-name = "docs"
+name = "Treeherder"
 version = "1.0.0"
-description = "This is the package installer for docs"
+description = "This is the package installer for Treeherder"
 authors = ["Mozilla"]
 
 [tool.poetry.dependencies]
