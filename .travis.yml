@@ -31,17 +31,17 @@ jobs:
     - env:
         - NODE_ENV=production YARN_PRODUCTION=true
       language: python
-      python: '3.8'
+      python: '3.7'
       cache:
         directories:
           - $HOME/.cache/yarn
           - $HOME/.cache/pip
           - node_modules
-          - .tox/py38
+          - .tox/py37
       # before_install:
       #   # XXX: I have not been able to install 3.7.2 to match runtime.txt
       #   - pyenv install --list
-      #   - pyenv install 3.8.5
+      #   - pyenv install 3.7.5
       #   - pyenv global 3.7.1
       #   - nvm install 12.14.1
       #   - nvm use 12.14.1
@@ -62,11 +62,11 @@ jobs:
 
     # Run Python tests & linters outside of the Docker containers
     - language: python
-      python: '3.8'
+      python: '3.7'
       cache:
         directories:
           - $HOME/.cache/pip
-          - .tox/py38
+          - .tox/py37
       install:
         - pip install tox
       script:
@@ -80,7 +80,7 @@ jobs:
       cache:
         directories:
           - $HOME/.cache/pip
-          - .tox/py38
+          - .tox/py37
       install:
         - pip install tox
         - pip install codecov
@@ -98,7 +98,7 @@ jobs:
         directories:
           - $HOME/.cache/pip
           - $HOME/.cache/yarn
-          - .tox/py38
+          - .tox/py37
       install:
         - pip install tox
         - pip install codecov
