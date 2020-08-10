@@ -92,7 +92,7 @@
   "scripts": {
     "build": "node ./node_modules/webpack/bin/webpack.js --mode production",
     "build:dev": "node ./node_modules/webpack/bin/webpack.js --mode development",
-    "codecov": "node ./node_modules/codecov/bin/codecov && rm -rf coverage",
+    "codecov": "rm -rf coverage && node ./node_modules/codecov/bin/codecov",
     "format": "node ./node_modules/prettier/bin-prettier.js --write \"**/*.{css,html,js,jsx,json,md,yaml,yml}\"",
     "format:check": "node ./node_modules/prettier/bin-prettier.js --check \"**/*.{css,html,js,jsx,json,md,yaml,yml}\"",
     "heroku-postbuild": "yarn build",
