@@ -1,4 +1,3 @@
-import os
 import platform
 import re
 from datetime import timedelta
@@ -17,36 +16,11 @@ SRC_DIR = dirname(dirname(dirname(abspath(__file__))))
 
 env = environ.Env()
 
-PRODUCTION = env("VIRTUAL_ENV", default=False) or env("IN_DOCKER", default=False)
-# Checking for OS type
-IS_WINDOWS = "windows" in platform.system().lower()
-
-# Top Level configuration
-DEBUG = env.bool("TREEHERDER_DEBUG", default=False)
-LOGGING_LEVEL = env("LOGGING_LEVEL", default="INFO")
-
-NEW_RELIC_INSIGHTS_API_KEY = env("NEW_RELIC_INSIGHTS_API_KEY", default=None)
-NEW_RELIC_INSIGHTS_API_URL = 'https://insights-api.newrelic.com/v1/accounts/677903/query'
-
 # Make this unique, and don't share it with anybody.
 SECRET_KEY = env(
     "TREEHERDER_DJANGO_SECRET_KEY",
     default='secret-key-of-at-least-50-characters-to-pass-check-deploy',
 )
-
-# Delete the Pulse automatically when no consumers left
-PULSE_AUTO_DELETE_QUEUES = env.bool("PULSE_AUTO_DELETE_QUEUES", default=False)
-
-# Changing PULSE_AUTO_DELETE_QUEUES to True when Treeherder is running inside of virtual environment
-if os.environ.get("VIRTUAL_ENV"):
-    PULSE_AUTO_DELETE_QUEUES = True
-
-# Hosts
-SITE_URL = env("SITE_URL", default='http://localhost:8000')
-
-SITE_HOSTNAME = furl(SITE_URL).host
-# Including localhost allows using the backend locally
-ALLOWED_HOSTS = [SITE_HOSTNAME, 'localhost']
 
 # URL handling
 APPEND_SLASH = False
@@ -86,75 +60,115 @@ INSTALLED_APPS = [
     'treeherder.changelog',
 ]
 
-# Docker/outside-of-Docker/Travis vs Heroku/Review-app
-if DEBUG:
-    NEW_RELIC_DEVELOPER_MODE = True
-    # This controls whether the Django debug toolbar should be shown or not
-    # https://django-debug-toolbar.readthedocs.io/en/latest/configuration.html#show-toolbar-callback
-    # "You can provide your own function callback(request) which returns True or False."
-    DEBUG_TOOLBAR_CONFIG = {
-        'SHOW_TOOLBAR_CALLBACK': lambda request: DEBUG,
-    }
-    INSTALLED_APPS.append('debug_toolbar')
-    INSTALLED_APPS.append('django_extensions')
-
-# Heroku-review-app (defined in app.json)
-if env("HEROKU_REVIEW_APP", default=False):
-    SITE_URL = "https://{}.herokuapp.com".format(env("HEROKU_APP_NAME"))
-    SITE_HOSTNAME = furl(SITE_URL).host
-    ALLOWED_HOSTS = [SITE_HOSTNAME]
-
 # Middleware
 MIDDLEWARE = [
-    middleware
-    for middleware in [
-        # Adds custom New Relic annotations. Must be first so all transactions are annotated.
-        'treeherder.middleware.NewRelicMiddleware',
-        # Redirect to HTTPS/set HSTS and other security headers.
-        'django.middleware.security.SecurityMiddleware',
-        'django.middleware.clickjacking.XFrameOptionsMiddleware',
-        'corsheaders.middleware.CorsMiddleware',
-        # Allows both Django static files and those specified via `WHITENOISE_ROOT`
-        # to be served by WhiteNoise, avoiding the need for Apache/nginx on Heroku.
-        'treeherder.middleware.CustomWhiteNoise',
-        'django.middleware.gzip.GZipMiddleware',
-        'debug_toolbar.middleware.DebugToolbarMiddleware' if DEBUG else False,
-        'django.contrib.sessions.middleware.SessionMiddleware',
-        'django.middleware.common.CommonMiddleware',
-        'django.middleware.csrf.CsrfViewMiddleware',
-        'django.contrib.auth.middleware.AuthenticationMiddleware',
-    ]
-    if middleware
+    # Adds custom New Relic annotations. Must be first so all transactions are annotated.
+    'treeherder.middleware.NewRelicMiddleware',
+    # Redirect to HTTPS/set HSTS and other security headers.
+    'django.middleware.security.SecurityMiddleware',
+    'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    'corsheaders.middleware.CorsMiddleware',
+    # Allows both Django static files and those specified via `WHITENOISE_ROOT`
+    # to be served by WhiteNoise, avoiding the need for Apache/nginx on Heroku.
+    'treeherder.middleware.CustomWhiteNoise',
+    'django.middleware.gzip.GZipMiddleware',
+    'django.contrib.sessions.middleware.SessionMiddleware',
+    'django.middleware.common.CommonMiddleware',
+    'django.middleware.csrf.CsrfViewMiddleware',
+    'django.contrib.auth.middleware.AuthenticationMiddleware',
 ]
 
 # Templating
 TEMPLATES = [{'BACKEND': 'django.template.backends.django.DjangoTemplates', 'APP_DIRS': True,}]
 
-# Database
-# The database config is defined using environment variables of form:
-#
-#   'mysql://username:password@host:optional_port/database_name'
-#
-# which django-environ converts into the Django DB settings dict format.
-LOCALHOST_MYSQL_HOST = 'mysql://root@{}:3306/treeherder'.format(
-    'localhost' if IS_WINDOWS else '127.0.0.1'
-)
-DATABASES = {
-    'default': env.db_url('DATABASE_URL', default=LOCALHOST_MYSQL_HOST),
-}
 
-SKIP_INGESTION = env('SKIP_INGESTION', default=False)
+# ------------
+# Common logic
+#
+# Most of the settings vary between running within a production environment versus a
+# local development set up
+# ------------
+PRODUCTION = env("VIRTUAL_ENV", default=False) or env("IN_DOCKER", default=False)
+# Auth0 setup
+AUTH0_DOMAIN = env('AUTH0_DOMAIN', default="auth.mozilla.auth0.com")
+AUTH0_CLIENTID = env('AUTH0_CLIENTID', default="q8fZZFfGEmSB2c5uSI8hOkKdDGXnlo5z")
+LOGGING_LEVEL = env("LOGGING_LEVEL", default="INFO")
+IS_WINDOWS = "windows" in platform.system().lower()
+CELERY_BROKER_URL = env('BROKER_URL', default='amqp://guest:guest@localhost:5672//')
+REDIS_URL = env('REDIS_URL', default='redis://localhost:6379')
+# Hosts
+SITE_URL = env("SITE_URL", default='http://localhost:8000')
+SITE_HOSTNAME = furl(SITE_URL).host
+ALLOWED_HOSTS = [SITE_HOSTNAME]
+# This is only used for removing the rate limiting. You can create your own here:
+# https://github.com/settings/tokens
+GITHUB_TOKEN = env("GITHUB_TOKEN", default=None)
+NEW_RELIC_INSIGHTS_API_URL = 'https://insights-api.newrelic.com/v1/accounts/677903/query'
+# For intermittents commenter
+COMMENTER_API_KEY = env("BUG_COMMENTER_API_KEY", default=None)
+# Log Parsing
+MAX_ERROR_LINES = 100
+FAILURE_LINES_CUTOFF = 35
+# Bugzilla
+# BZ_API_URL is used to fetch bug suggestions from bugzilla
+# BUGFILER_API_URL is used when filing bugs
+# these are no longer necessarily the same so stage treeherder can submit
+# to stage bmo, while suggestions can still be fetched from prod bmo
+BZ_API_URL = "https://bugzilla.mozilla.org"
+BUGFILER_API_URL = env("BUGZILLA_API_URL", default=BZ_API_URL)
+BUGFILER_API_KEY = env("BUG_FILER_API_KEY", default=None)
+BZ_DATETIME_FORMAT = '%Y-%m-%dT%H:%M:%SZ'
 
+if PRODUCTION:
+    NEW_RELIC_INSIGHTS_API_KEY = env("NEW_RELIC_INSIGHTS_API_KEY")
+    DATABASES = {'default': env.db_url('DATABASE_URL')}
+    # Heroku-review-app (defined in app.json)
+    if env("HEROKU_REVIEW_APP", default=False):
+        SITE_URL = "https://{}.herokuapp.com".format(env("HEROKU_APP_NAME"))
+        SITE_HOSTNAME = furl(SITE_URL).host
+        ALLOWED_HOSTS = [SITE_HOSTNAME]
 # Block for changes within the context of local development (venv & Docker)
-if not PRODUCTION:
+elif not PRODUCTION:
+    # Include localhost to allows using the backend locally
+    ALLOWED_HOSTS.append('localhost')
+    DATABASES = {
+        'default': env.db_url(
+            'DATABASE_URL',
+            default='mysql://root@{}:3306/treeherder'.format(
+                'localhost' if IS_WINDOWS else '127.0.0.1'
+            ),
+        ),
+    }
+    SKIP_INGESTION = env('SKIP_INGESTION', default=False)
     # Do not permit ingesting if DATABASE_URL points to a database different than localhost
     if DATABASES['default']['HOST'] not in ['mysql', '127.0.0.1', 'localhost']:
         SKIP_INGESTION = True
+    # Delete Pulse queues automatically when no consumers left
+    PULSE_AUTO_DELETE_QUEUES = env.bool("PULSE_AUTO_DELETE_QUEUES", default=True)
+    # Only used when syncing local database with production replicas
+    UPSTREAM_DATABASE_URL = env('UPSTREAM_DATABASE_URL', default=None)
+    if UPSTREAM_DATABASE_URL:
+        DATABASES['upstream'] = env.db_url_config(UPSTREAM_DATABASE_URL)
 
-# Only used when syncing local database with production replicas
-UPSTREAM_DATABASE_URL = env('UPSTREAM_DATABASE_URL', default=None)
-if UPSTREAM_DATABASE_URL:
-    DATABASES['upstream'] = env.db_url_config(UPSTREAM_DATABASE_URL)
+if not PRODUCTION or env("TRAVIS", default=False):
+    # This controls whether the Django debug toolbar should be shown or not
+    # https://django-debug-toolbar.readthedocs.io/en/latest/configuration.html#show-toolbar-callback
+    # "You can provide your own function callback(request) which returns True or False."
+    DEBUG_TOOLBAR_CONFIG = {
+        'SHOW_TOOLBAR_CALLBACK': lambda request: True,
+    }
+    INSTALLED_APPS.append('debug_toolbar')
+    INSTALLED_APPS.append('django_extensions')
+    MIDDLEWARE.append('debug_toolbar.middleware.DebugToolbarMiddleware')
+
+if SITE_URL.startswith('https://'):
+    SECURE_SSL_REDIRECT = True
+    SECURE_HSTS_INCLUDE_SUBDOMAINS = True
+    SECURE_HSTS_PRELOAD = True
+    SECURE_HSTS_SECONDS = int(timedelta(days=365).total_seconds())
+    # Mark session and CSRF cookies as being HTTPS-only.
+    CSRF_COOKIE_SECURE = True
+    SESSION_COOKIE_SECURE = True
 
 # We're intentionally not using django-environ's query string options feature,
 # since it hides configuration outside of the repository, plus could lead to
@@ -181,7 +195,6 @@ for alias in DATABASES:
         }
 
 # Caches
-REDIS_URL = env('REDIS_URL', default='redis://localhost:6379')
 if connection_should_use_tls(REDIS_URL):
     # Connect using TLS on Heroku.
     REDIS_URL = get_tls_redis_url(REDIS_URL)
@@ -272,15 +285,6 @@ USE_X_FORWARDED_HOST = True
 USE_X_FORWARDED_PORT = True
 SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
 
-if SITE_URL.startswith('https://'):
-    SECURE_SSL_REDIRECT = True
-    SECURE_HSTS_INCLUDE_SUBDOMAINS = True
-    SECURE_HSTS_PRELOAD = True
-    SECURE_HSTS_SECONDS = int(timedelta(days=365).total_seconds())
-    # Mark session and CSRF cookies as being HTTPS-only.
-    CSRF_COOKIE_SECURE = True
-    SESSION_COOKIE_SECURE = True
-
 SECURE_CONTENT_TYPE_NOSNIFF = True  # Set the `X-Content-Type-Options` header to `nosniff`.
 SECURE_BROWSER_XSS_FILTER = True  # Sets the `X-XSS-Protection` header.
 
@@ -309,10 +313,6 @@ DISALLOWED_USER_AGENTS = (
 
 # THIRD PARTY APPS
 
-# Auth0 setup
-AUTH0_DOMAIN = env('AUTH0_DOMAIN', default="auth.mozilla.auth0.com")
-AUTH0_CLIENTID = env('AUTH0_CLIENTID', default="q8fZZFfGEmSB2c5uSI8hOkKdDGXnlo5z")
-
 # Celery
 
 # TODO: Replace the use of different log parser queues for failures vs not with the
@@ -338,7 +338,6 @@ CELERY_TASK_QUEUES = [
 CELERY_TASK_CREATE_MISSING_QUEUES = False
 
 # Celery broker setup
-CELERY_BROKER_URL = env('BROKER_URL', default='amqp://guest:guest@localhost:5672//')
 
 # Force Celery to use TLS when appropriate (ie if not localhost),
 # rather than relying on `CELERY_BROKER_URL` having `amqps://` or `?ssl=` set.
@@ -415,27 +414,10 @@ WHITENOISE_INDEX_FILE = True
 # Halves the time spent performing Brotli/gzip compression during deploys.
 WHITENOISE_KEEP_ONLY_HASHED_FILES = True
 
+# -------------------
+# Perfherder settings
+# -------------------
 
-# TREEHERDER
-
-# Bugzilla
-# BZ_API_URL is used to fetch bug suggestions from bugzilla
-# BUGFILER_API_URL is used when filing bugs
-# these are no longer necessarily the same so stage treeherder can submit
-# to stage bmo, while suggestions can still be fetched from prod bmo
-BZ_API_URL = "https://bugzilla.mozilla.org"
-BUGFILER_API_URL = env("BUGZILLA_API_URL", default=BZ_API_URL)
-BUGFILER_API_KEY = env("BUG_FILER_API_KEY", default=None)
-BZ_DATETIME_FORMAT = '%Y-%m-%dT%H:%M:%SZ'
-
-# For intermittents commenter
-COMMENTER_API_KEY = env("BUG_COMMENTER_API_KEY", default=None)
-
-# Log Parsing
-MAX_ERROR_LINES = 100
-FAILURE_LINES_CUTOFF = 35
-
-# Perfherder
 # Default minimum regression threshold for perfherder is 2% (otherwise
 # e.g. the build size tests will alert on every commit)
 PERFHERDER_REGRESSION_THRESHOLD = 2
@@ -460,7 +442,3 @@ RESET_BACKFILL_LIMITS = timedelta(hours=24)
 # Taskcluster credentials for PerfSheriffBot
 PERF_SHERIFF_BOT_CLIENT_ID = env('PERF_SHERIFF_BOT_CLIENT_ID', default=None)
 PERF_SHERIFF_BOT_ACCESS_TOKEN = env('PERF_SHERIFF_BOT_ACCESS_TOKEN', default=None)
-
-# This is only used for removing the rate limiting. You can create your own here:
-# https://github.com/settings/tokens
-GITHUB_TOKEN = env("GITHUB_TOKEN", default=None)
