@@ -39,41 +39,29 @@ const platformArray = Object.values(thPlatformMap);
 
 // Bug 1638424 - Transform WPT test paths to look like paths
 // from a local checkout
-export const transformTestPath = (manifest, testPath) => {
-  let newTestPath = testPath;
-  let basePath;
+export const transformTestPath = (path) => {
+  let newPath = path;
   // WPT path transformations
-  if (testPath.startsWith('/_mozilla')) {
+  if (path.startsWith('/_mozilla')) {
     // /_mozilla/<path> => testing/web-platform/mozilla/tests/<path>
-    basePath = 'testing/web-platform/mozilla/tests';
-    newTestPath = testPath.replace('/_mozilla', '');
-  } else if (testPath.startsWith('/')) {
+    const modifiedPath = path.replace('/_mozilla', '');
+    newPath = `testing/web-platform/mozilla/tests${modifiedPath}`;
+  } else if (path.startsWith('/')) {
     // /<path> => testing/web-platform/tests/<path>
-    basePath = 'testing/web-platform/tests';
-  } else {
-    const splitPath = manifest.split('/');
-    basePath = splitPath.splice(0, splitPath.length - 1).join('/');
-    newTestPath = `/${newTestPath}`;
+    newPath = `testing/web-platform/tests${path}`;
   }
-  return `${basePath}${newTestPath}`;
+
+  return newPath;
 };
 
-export const joinArtifacts = (manifestsByTask, testsByManifest) => {
-  // We need to create a map from taskName to testPaths:
-  // e.g. taskName: test-linux1804-64-shippable/opt-mochitest-devtools-chrome-e10s-1
-  // e.g. manifest: devtools/client/framework/browser-toolbox/test/browser.ini
-  // e.g. testPath: devtools/client/framework/browser-toolbox/test/browser_browser_toolbox_debugger.js
-  const taskNameToTestPaths = {};
-  Object.entries(manifestsByTask).forEach(([taskName, manifetsts]) => {
-    manifetsts.forEach((manifest) => {
-      taskNameToTestPaths[taskName] = taskNameToTestPaths[taskName] || [];
-      (testsByManifest[manifest] || []).forEach((test) => {
-        taskNameToTestPaths[taskName].push(transformTestPath(manifest, test));
-      });
-      taskNameToTestPaths[taskName].push(manifest);
-    });
+export const transformedPaths = (manifestsByTask) => {
+  const newManifestsByTask = {};
+  Object.keys(manifestsByTask).forEach((taskName) => {
+    newManifestsByTask[taskName] = manifestsByTask[taskName].map((testPath) =>
+      transformTestPath(testPath),
+    );
   });
-  return taskNameToTestPaths;
+  return newManifestsByTask;
 };
 
 const fetchGeckoDecisionArtifact = async (project, revision, filePath) => {
@@ -215,7 +203,7 @@ class Push extends React.PureComponent {
     if (allParams.has('test_paths')) {
       await this.fetchTestManifests();
     } else {
-      this.setState({ taskNameToTestPaths: {} });
+      this.setState({ manifestsByTask: {} });
     }
     this.setState({ collapsed: collapsedPushes.includes(push.id) });
   };
@@ -246,28 +234,17 @@ class Push extends React.PureComponent {
   fetchTestManifests = async () => {
     const { currentRepo, push } = this.props;
 
-    const [manifestsByTask, testsByManifest] = await Promise.all([
-      fetchGeckoDecisionArtifact(
-        currentRepo.name,
-        push.revision,
-        'manifests-by-task.json.gz',
-      ),
-      fetchGeckoDecisionArtifact(
-        currentRepo.name,
-        push.revision,
-        'tests-by-manifest.json.gz',
-      ),
-    ]);
-    const taskNameToTestPaths = joinArtifacts(manifestsByTask, testsByManifest);
-    // Call setState with callback to guarantee the state of taskNameToTestPaths
+    const manifestsByTask = await fetchGeckoDecisionArtifact(
+      currentRepo.name,
+      push.revision,
+      'manifests-by-task.json.gz',
+    );
+    // Call setState with callback to guarantee the state of manifestsByTask
     // to be set since it is read within mapPushJobs and we might have a race
     // condition. We are also reading jobList now rather than before fetching
     // the artifact because it gives us an empty list
-    this.setState(
-      {
-        taskNameToTestPaths,
-      },
-      () => this.mapPushJobs(this.state.jobList),
+    this.setState({ manifestsByTask: transformedPaths(manifestsByTask) }, () =>
+      this.mapPushJobs(this.state.jobList),
     );
   };
 
@@ -289,7 +266,7 @@ class Push extends React.PureComponent {
 
   mapPushJobs = (jobs, skipJobMap) => {
     const { updateJobMap, recalculateUnclassifiedCounts, push } = this.props;
-    const { taskNameToTestPaths = {} } = this.state;
+    const { manifestsByTask = {} } = this.state;
 
     // whether or not we got any jobs for this push, the operation to fetch
     // them has completed.
@@ -301,8 +278,8 @@ class Push extends React.PureComponent {
       const existingJobs = jobList.filter((job) => !newIds.includes(job.id));
       // Join both lists and add test_paths and task_run property
       const newJobList = [...existingJobs, ...jobs].map((job) => {
-        if (Object.keys(taskNameToTestPaths).length > 0) {
-          job.test_paths = taskNameToTestPaths[job.job_type_name] || [];
+        if (Object.keys(manifestsByTask).length > 0) {
+          job.test_paths = manifestsByTask[job.job_type_name] || [];
         }
         job.task_run = getTaskRunStr(job);
         return job;
