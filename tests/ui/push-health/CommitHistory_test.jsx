@@ -6,6 +6,7 @@ import CommitHistory from '../../../ui/push-health/CommitHistory';
 import pushHealth from '../mock/push_health';
 import repositories from '../mock/repositories';
 import RepositoryModel from '../../../ui/models/repository';
+import { toDateStr } from '../../../ui/helpers/display';
 
 beforeEach(() => {
   fetchMock.get(
@@ -38,11 +39,11 @@ describe('CommitHistory', () => {
 
     expect(headerText).toBeInTheDocument();
     expect(headerText).toHaveTextContent(
-      'Backed out changeset f6ccc4ba38d9 (bug 1609356) for failures on browser_toolbox_dynamic_registration.js. CLOSED TREE',
+      commitHistory.revisions[0].comments.split('\n')[0],
     );
     expect(authorTime).toBeInTheDocument();
     expect(authorTime).toHaveTextContent(
-      'Wed, May 6, 17:23:29-hiro@mozilla.com',
+      toDateStr(commitHistory.currentPush.push_timestamp),
     );
   });
 
