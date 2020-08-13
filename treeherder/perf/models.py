@@ -257,7 +257,7 @@ class PerformanceDatum(models.Model):
             # repository because we currently filter on it in the query)
             ('repository', 'signature', 'push'),
         ]
-        unique_together = ('repository', 'job', 'push', 'signature')
+        unique_together = ('repository', 'job', 'push', 'push_timestamp', 'signature')
 
     def save(self, *args, **kwargs):
         super().save(*args, **kwargs)  # Call the "real" save() method.

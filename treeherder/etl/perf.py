@@ -1,5 +1,6 @@
 import copy
 import logging
+from datetime import datetime
 from hashlib import sha1
 from typing import List
 
@@ -61,6 +62,12 @@ def _create_or_update_signature(repository, signature_hash, framework, applicati
     return signature
 
 
+def _get_push_timestamp(perf_datum: dict) -> datetime:
+    timestamp = perf_datum.get('pushTimestamp', None)
+    if timestamp:
+        return datetime.fromisoformat(timestamp)
+
+
 def _load_perf_datum(job, perf_datum):
     validate_perf_data(perf_datum)
 
@@ -93,6 +100,7 @@ def _load_perf_datum(job, perf_datum):
     for suite in perf_datum['suites']:
         suite_extra_properties = copy.copy(extra_properties)
         ordered_tags = _order_and_concat(suite.get('tags', []))
+        push_timestamp = _get_push_timestamp(perf_datum) or job.push.time
         suite_extra_options = ''
 
         if suite.get('extraOptions'):
@@ -137,12 +145,13 @@ def _load_perf_datum(job, perf_datum):
                     'last_updated': job.push.time,
                 },
             )
+
             (_, datum_created) = PerformanceDatum.objects.get_or_create(
                 repository=job.repository,
                 job=job,
                 push=job.push,
                 signature=signature,
-                push_timestamp=job.push.time,
+                push_timestamp=push_timestamp,
                 defaults={'value': suite['value']},
             )
             if (
@@ -209,7 +218,7 @@ def _load_perf_datum(job, perf_datum):
                 job=job,
                 push=job.push,
                 signature=signature,
-                push_timestamp=job.push.time,
+                push_timestamp=push_timestamp,
                 defaults={'value': value[0]},
             )
 
