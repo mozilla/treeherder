@@ -4,7 +4,7 @@ import pytest
 from django.urls import reverse
 
 from treeherder.model.models import Push
-from treeherder.perf.models import PerformanceAlertSummary
+from treeherder.perf.models import PerformanceAlertSummary, PerformanceAlert
 
 
 @pytest.fixture
@@ -377,3 +377,46 @@ def test_cannot_add_unregistred_tag_to_a_summary(
     test_perf_alert_summary.refresh_from_db()
 
     assert test_perf_alert_summary.performance_tags.count() == 1
+
+
+@pytest.fixture
+def related_alert(test_perf_alert_summary, test_perf_alert_summary_2, test_perf_signature_2):
+    return PerformanceAlert.objects.create(
+        summary=test_perf_alert_summary_2,
+        related_summary=test_perf_alert_summary,
+        series_signature=test_perf_signature_2,
+        status=PerformanceAlert.REASSIGNED,
+        is_regression=True,
+        amount_pct=0.5,
+        amount_abs=50.0,
+        prev_value=100.0,
+        new_value=150.0,
+        t_value=20.0,
+    )
+
+
+@pytest.mark.parametrize(
+    'text_to_filter',
+    ['mysuite2', 'mysuite2 mytest2', 'mytest2 win7', 'mysuite2 mytest2 win7 e10s opt'],
+)
+def test_filter_text_accounts_for_related_alerts_also(
+    text_to_filter, client, test_perf_alert_summary, test_perf_alert, related_alert
+):
+    summary_id = test_perf_alert_summary.id
+
+    resp = client.get(
+        reverse('performance-alert-summaries-list'),
+        data={
+            'framework': 1,
+            'page': 1,
+            'filter_text': text_to_filter,
+        },  # excluded 'status' field to emulate 'all statuses'
+    )
+    assert resp.status_code == 200
+
+    retrieved_summaries = resp.json()['results']
+    summary_ids = [summary['id'] for summary in retrieved_summaries]
+
+    assert summary_id in summary_ids
+    # also ensure original & related summary are both fetched
+    assert len(summary_ids) == 2

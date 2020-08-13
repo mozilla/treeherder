@@ -327,7 +327,9 @@ class PerformanceAlertSummaryFilter(django_filters.FilterSet):
         sep = Value(' ')
         words = value.split(' ')
 
-        contains_all_words = [Q(full_name__contains=word) for word in words]
+        contains_all_words = [
+            Q(full_name__contains=word) | Q(related_full_name__contains=word) for word in words
+        ]
 
         # Django's distinct(*fields) isn't supported for MySQL
         # https://code.djangoproject.com/ticket/17974
@@ -346,7 +348,21 @@ class PerformanceAlertSummaryFilter(django_filters.FilterSet):
                     sep,
                     'push__revision',
                     output_field=CharField(),
-                )
+                ),
+                related_full_name=Concat(
+                    'related_alerts__series_signature__suite',
+                    sep,
+                    'related_alerts__series_signature__test',
+                    sep,
+                    'related_alerts__series_signature__platform__platform',
+                    sep,
+                    'related_alerts__series_signature__extra_options',
+                    sep,
+                    'bug_number',
+                    sep,
+                    'push__revision',
+                    output_field=CharField(),
+                ),
             )
             .filter(*contains_all_words)
             .values('id')
@@ -407,6 +423,12 @@ class PerformanceAlertSummaryViewSet(viewsets.ModelViewSet):
             'alerts__series_signature__platform',
             'alerts__series_signature__option_collection',
             'alerts__series_signature__option_collection__option',
+            'related_alerts',
+            'related_alerts__classifier',
+            'related_alerts__series_signature',
+            'related_alerts__series_signature__platform',
+            'related_alerts__series_signature__option_collection',
+            'related_alerts__series_signature__option_collection__option',
             'performance_tags',
         )
     )
