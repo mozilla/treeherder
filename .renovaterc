@@ -14,7 +14,7 @@
     "@uirouter/angularjs"
   ],
   "labels": ["dependencies", "javascript"],
-  "reviewers": ["armenzg"],
+  "reviewers": ["sarah-clements"],
   "semanticCommits": false,
   "minor": {
     "enabled": false
