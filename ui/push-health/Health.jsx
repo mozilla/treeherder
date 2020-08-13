@@ -57,6 +57,7 @@ export default class Health extends React.PureComponent {
       testGroup: params.get('testGroup') || '',
       selectedTest: params.get('selectedTest') || '',
       selectedTaskId: params.get('selectedTaskId') || '',
+      selectedJobName: params.get('selectedJobName') || '',
       searchStr: params.get('searchStr') || '',
       regressionsOrderBy: params.get('regressionsOrderBy') || 'count',
       regressionsGroupBy: params.get('regressionsGroupBy') || 'path',
@@ -199,6 +200,7 @@ export default class Health extends React.PureComponent {
       selectedTest,
       defaultTabIndex,
       selectedTaskId,
+      selectedJobName,
       regressionsOrderBy,
       regressionsGroupBy,
       knownIssuesOrderBy,
@@ -341,6 +343,7 @@ export default class Health extends React.PureComponent {
                       knownIssuesOrderBy={knownIssuesOrderBy}
                       knownIssuesGroupBy={knownIssuesGroupBy}
                       selectedTaskId={selectedTaskId}
+                      selectedJobName={selectedJobName}
                       updateParamsAndState={this.updateParamsAndState}
                     />
                   </TabPanel>

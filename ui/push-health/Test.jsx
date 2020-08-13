@@ -30,9 +30,18 @@ class Test extends PureComponent {
   };
 
   toggleDetails = () => {
-    this.setState((prevState) => ({
-      detailsShowing: !prevState.detailsShowing,
-    }));
+    let { detailsShowing } = this.state;
+    const { updateParamsAndState, test } = this.props;
+    detailsShowing = !detailsShowing;
+    if (detailsShowing) {
+      updateParamsAndState({
+        selectedTest: test.id,
+        selectedTaskId: '',
+      });
+    }
+    this.setState({
+      detailsShowing,
+    });
   };
 
   getGroupHtml = (text) => {
@@ -70,6 +79,7 @@ class Test extends PureComponent {
       currentRepo,
       groupedBy,
       jobs,
+      selectedJobName,
       selectedTaskId,
       updateParamsAndState,
     } = this.props;
@@ -120,6 +130,7 @@ class Test extends PureComponent {
                 revision={revision}
                 notify={notify}
                 groupedBy={groupedBy}
+                selectedJobName={selectedJobName}
                 selectedTaskId={selectedTaskId}
                 updateParamsAndState={(stateObj) => {
                   stateObj.selectedTest = id;

@@ -21,6 +21,7 @@ export default class TestMetric extends React.PureComponent {
       knownIssuesOrderBy,
       knownIssuesGroupBy,
       updateParamsAndState,
+      selectedJobName,
       selectedTaskId,
       selectedTest,
       testGroup,
@@ -64,6 +65,7 @@ export default class TestMetric extends React.PureComponent {
           notify={notify}
           orderedBy={regressionsOrderBy}
           groupedBy={regressionsGroupBy}
+          selectedJobName={selectedJobName}
           selectedTaskId={selectedTaskId}
           setOrderedBy={(regressionsOrderBy) =>
             updateParamsAndState({ regressionsOrderBy, testGroup: 'pr' })
@@ -96,6 +98,7 @@ export default class TestMetric extends React.PureComponent {
           selectedTaskId={selectedTaskId}
           orderedBy={knownIssuesOrderBy}
           groupedBy={knownIssuesGroupBy}
+          selectedJobName={selectedJobName}
           setOrderedBy={(knownIssuesOrderBy) =>
             updateParamsAndState({ knownIssuesOrderBy, testGroup: 'ki' })
           }

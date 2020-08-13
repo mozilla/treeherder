@@ -37,6 +37,11 @@ class ClassificationGroup extends React.PureComponent {
   }
 
   toggleDetails = () => {
+    const { updateParamsAndState, name } = this.props;
+
+    updateParamsAndState({
+      testGroup: name === 'Possible Regressions' ? 'pr' : 'ki',
+    });
     this.setState((prevState) => ({
       detailsShowing: !prevState.detailsShowing,
     }));
@@ -89,6 +94,7 @@ class ClassificationGroup extends React.PureComponent {
       orderedBy,
       testGroup,
       selectedTest,
+      selectedJobName,
       selectedTaskId,
       setGroupedBy,
       setOrderedBy,
@@ -252,6 +258,7 @@ class ClassificationGroup extends React.PureComponent {
               jobs={jobs}
               testGroup={testGroup}
               selectedTest={selectedTest}
+              selectedJobName={selectedJobName}
               selectedTaskId={selectedTaskId}
               updateParamsAndState={updateParamsAndState}
             />

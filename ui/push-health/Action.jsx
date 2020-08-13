@@ -40,6 +40,7 @@ class Action extends PureComponent {
       notify,
       jobs,
       testGroup,
+      selectedJobName,
       selectedTest,
       selectedTaskId,
       updateParamsAndState,
@@ -58,6 +59,7 @@ class Action extends PureComponent {
               currentRepo={currentRepo}
               notify={notify}
               jobs={jobs}
+              selectedJobName={selectedJobName}
               selectedTest={selectedTest}
               testGroup={testGroup}
               selectedTaskId={selectedTaskId}
