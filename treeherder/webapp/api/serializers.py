@@ -369,3 +369,15 @@ class ChangelogSerializer(serializers.ModelSerializer):
             'url',
             'files',
         )
+
+
+class InvestigatedTestsSerializers(serializers.ModelSerializer):
+
+    jobName = serializers.CharField(source='job_type.name')
+
+    def create(self, validated_data):
+        return models.InvestigatedTests(**validated_data)
+
+    class Meta:
+        model = models.InvestigatedTests
+        fields = ('id', 'test', 'jobName')

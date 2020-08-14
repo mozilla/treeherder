@@ -1,10 +1,31 @@
 import React, { PureComponent } from 'react';
 import PropTypes from 'prop-types';
-import { Badge, Button, Collapse } from 'reactstrap';
+import {
+  Badge,
+  Button,
+  Collapse,
+  Nav,
+  Navbar,
+  NavItem,
+  UncontrolledButtonDropdown,
+  ButtonGroup,
+  DropdownMenu,
+  DropdownToggle,
+  DropdownItem,
+} from 'reactstrap';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faCaretDown, faCaretRight } from '@fortawesome/free-solid-svg-icons';
+import {
+  faCaretDown,
+  faCaretRight,
+  faRedo,
+} from '@fortawesome/free-solid-svg-icons';
 
+import { create, destroy } from '../helpers/http';
+import { getProjectUrl } from '../helpers/location';
+import { investigatedTestsEndPoint } from '../helpers/url';
+import JobModel from '../models/job';
 import Clipboard from '../shared/Clipboard';
+import { notify } from '../job-view/redux/stores/notifications';
 
 import PlatformConfig from './PlatformConfig';
 
@@ -15,6 +36,7 @@ class Test extends PureComponent {
     this.state = {
       clipboardVisible: null,
       detailsShowing: false,
+      selectedTests: new Set(),
     };
   }
 
@@ -25,6 +47,97 @@ class Test extends PureComponent {
       this.setState({ detailsShowing: true });
     }
   }
+
+  addSelectedTest = (test) => {
+    const { selectedTests } = this.state;
+    selectedTests.add(test);
+    this.setState({
+      selectedTests,
+    });
+  };
+
+  removeSelectedTest = (test) => {
+    const { selectedTests } = this.state;
+    selectedTests.delete(test);
+    this.setState({
+      selectedTests,
+    });
+  };
+
+  retriggerSelected = (times) => {
+    const { notify, currentRepo, jobs } = this.props;
+    const { selectedTests } = this.state;
+
+    // Reduce down to the unique jobs
+    const testJobs = selectedTests.reduce(
+      (acc, test) => ({
+        ...acc,
+        ...jobs[test.jobName].reduce((fjAcc, job) => ({ [job.id]: job }), {}),
+      }),
+      {},
+    );
+    const uniqueJobs = Object.values(testJobs);
+
+    JobModel.retrigger(uniqueJobs, currentRepo, notify, times);
+  };
+
+  markAsInvestigated = () => {
+    const { selectedTests } = this.state;
+    const { currentRepo, revision } = this.props;
+
+    let data;
+    let failureStatus;
+    selectedTests.forEach(async (test) => {
+      ({ data, failureStatus } = await create(
+        `${getProjectUrl(
+          investigatedTestsEndPoint,
+          currentRepo.name,
+        )}?revision=${revision}`,
+        {
+          test: test.testName,
+          jobName: test.jobName,
+          jobSymbol: test.jobSymbol,
+        },
+      ));
+      if (failureStatus) {
+        notify(
+          `Test ${test.testName} could not be marked as investigated`,
+          'failure',
+        );
+      } else {
+        selectedTests.delete(test);
+        this.setState({ selectedTests });
+        notify(`Test ${data}  marked as investigated`, 'success');
+      }
+    });
+  };
+
+  markAsUninvestigated = () => {
+    const { selectedTests } = this.state;
+    const { currentRepo, revision } = this.props;
+
+    let data;
+    let failureStatus;
+    selectedTests.forEach(async (test) => {
+      ({ data, failureStatus } = await destroy(
+        `${getProjectUrl(
+          `${investigatedTestsEndPoint}${test.investigatedTestId}/`,
+          currentRepo.name,
+        )}?revision=${revision}`,
+      ));
+
+      if (failureStatus) {
+        notify(
+          `Test ${test.testName} could not be marked as investigated`,
+          'failure',
+        );
+      } else {
+        selectedTests.delete(test);
+        this.setState({ selectedTests });
+        notify(`Test ${data}  marked as investigated`, 'failure');
+      }
+    });
+  };
 
   setClipboardVisible = (key) => {
     this.setState({ clipboardVisible: key });
@@ -85,7 +198,7 @@ class Test extends PureComponent {
       selectedTaskId,
       updateParamsAndState,
     } = this.props;
-    const { clipboardVisible, detailsShowing } = this.state;
+    const { clipboardVisible, detailsShowing, selectedTests } = this.state;
 
     return (
       <div>
@@ -123,6 +236,63 @@ class Test extends PureComponent {
           </span>
 
           <Collapse isOpen={detailsShowing}>
+            <Navbar className="mb-4">
+              <Nav>
+                <NavItem>
+                  <ButtonGroup size="sm" className="ml-5">
+                    <Button
+                      title="Retrigger selected jobs once"
+                      onClick={() => this.retriggerSelected(1)}
+                      size="sm"
+                    >
+                      <FontAwesomeIcon
+                        icon={faRedo}
+                        title="Retrigger"
+                        className="mr-2"
+                        alt=""
+                      />
+                      Retrigger Selected
+                    </Button>
+                    <UncontrolledButtonDropdown size="sm">
+                      <DropdownToggle caret />
+                      <DropdownMenu>
+                        {[5, 10, 15].map((times) => (
+                          <DropdownItem
+                            key={times}
+                            title={`Retrigger selected jobs ${times} times`}
+                            onClick={() => this.retriggerSelected(times)}
+                            className="pointable"
+                            tag="a"
+                          >
+                            Retrigger selected {times} times
+                          </DropdownItem>
+                        ))}
+                      </DropdownMenu>
+                    </UncontrolledButtonDropdown>
+                  </ButtonGroup>
+                  <Button
+                    size="sm"
+                    outline
+                    color="primary"
+                    className="mx-3"
+                    title="Mark selected jobs as investigated"
+                    onClick={() => this.markAsInvestigated()}
+                  >
+                    Mark as investigated
+                  </Button>
+                  <Button
+                    size="sm"
+                    outline
+                    color="primary"
+                    className="mx-3"
+                    title="Mark selected jobs as Uninvestigated"
+                    onClick={() => this.markAsUninvestigated()}
+                  >
+                    Mark as Uninvestigated
+                  </Button>
+                </NavItem>
+              </Nav>
+            </Navbar>
             {tests.map((failure) => (
               <PlatformConfig
                 key={failure.key}
@@ -139,6 +309,9 @@ class Test extends PureComponent {
                   updateParamsAndState(stateObj);
                 }}
                 className="ml-3"
+                isTestSelected={selectedTests.has(failure)}
+                addSelectedTest={this.addSelectedTest}
+                removeSelectedTest={this.removeSelectedTest}
               />
             ))}
           </Collapse>

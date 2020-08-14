@@ -1,6 +1,6 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import { Badge, Button, Row, Col } from 'reactstrap';
+import { Badge, Button, Row, Col, Input } from 'reactstrap';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faRedo } from '@fortawesome/free-solid-svg-icons';
 import sortBy from 'lodash/sortBy';
@@ -59,6 +59,13 @@ class PlatformConfig extends React.PureComponent {
     }
   };
 
+  selectTest = (e) => {
+    const { addSelectedTest, removeSelectedTest, failure } = this.props;
+
+    if (e.target.checked) addSelectedTest(failure);
+    else removeSelectedTest(failure);
+  };
+
   retriggerTask = async (task) => {
     const { notify, currentRepo } = this.props;
 
@@ -66,7 +73,13 @@ class PlatformConfig extends React.PureComponent {
   };
 
   render() {
-    const { failure, groupedBy, currentRepo, jobs } = this.props;
+    const {
+      failure,
+      groupedBy,
+      currentRepo,
+      jobs,
+      isTestSelected,
+    } = this.props;
     const {
       testName,
       jobName,
@@ -75,6 +88,7 @@ class PlatformConfig extends React.PureComponent {
       failedInParent,
       jobGroupSymbol,
       jobSymbol,
+      isInvestigated,
     } = failure;
     const testJobs = jobs[jobName];
     const { detailsShowing, selectedTask } = this.state;
@@ -83,11 +97,19 @@ class PlatformConfig extends React.PureComponent {
 
     return (
       <Row
-        className="ml-5 pt-2 mr-1"
+        className={`ml-5 pt-2 mr-1 ${isInvestigated && 'investigated'}`}
         key={key}
         style={{ background: '#f2f2f2' }}
       >
         <Row className="ml-2 w-100 mb-2 justify-content-between">
+          <Col xs="auto">
+            <Input
+              type="checkbox"
+              checked={isTestSelected}
+              onChange={this.selectTest}
+              title="Select Test"
+            />
+          </Col>
           <Col>
             <Row>
               <span
