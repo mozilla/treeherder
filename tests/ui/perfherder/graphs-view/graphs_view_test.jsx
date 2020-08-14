@@ -142,7 +142,6 @@ test('Selecting a test in the Test Data Modal adds it to Selected Tests section;
   fireEvent.click(getByText('Add test data'));
 
   const selectedTests = getByTestId('selectedTests');
-
   const testToSelect = await waitFor(() =>
     getByText('about_preferences_basic opt e10s stylo'),
   );
@@ -154,34 +153,6 @@ test('Selecting a test in the Test Data Modal adds it to Selected Tests section;
   fireEvent.click(fullTestToSelect);
   expect(mockShowModal.mock.calls).toHaveLength(1);
   expect(selectedTests).not.toContain(fullTestToSelect);
-});
-
-test('InputFilter from TestDataModal can filter by tags', async () => {
-  const {
-    getByText,
-    getByTestId,
-    getByPlaceholderText,
-    getByTitle,
-  } = graphsViewControls();
-
-  const { name, tag, projectName, platform } = seriesData[0];
-  const fullTestName = projectName.concat(' ', platform, ' ', name);
-
-  fireEvent.click(getByText('Add test data'));
-
-  const textInput = await waitFor(() =>
-    getByPlaceholderText(filterText.inputPlaceholder),
-  );
-  setFilterText(textInput, tag);
-
-  const fullTestToSelect = await waitFor(() => getByTitle(name));
-
-  fireEvent.click(fullTestToSelect);
-
-  const selectedTests = getByTestId('selectedTests');
-
-  expect(selectedTests.children).toHaveLength(1);
-  expect(selectedTests.children[0].text).toBe(fullTestName);
 });
 
 test("Selectable tests with different units than what's already plotted show warning in the Test Data Modal", async () => {
@@ -241,7 +212,14 @@ test('InputFilter from TestDataModal can filter by application name', async () =
   } = graphsViewControls();
 
   const { name, application, projectName, platform } = seriesData[0];
-  const fullTestName = projectName.concat(' ', platform, ' ', name);
+  const fullTestName = projectName.concat(
+    ' ',
+    platform,
+    ' ',
+    name,
+    ' ',
+    application,
+  );
 
   fireEvent.click(getByText('Add test data'));
 
@@ -249,8 +227,9 @@ test('InputFilter from TestDataModal can filter by application name', async () =
     getByPlaceholderText(filterText.inputPlaceholder),
   );
   setFilterText(textInput, application);
-
-  const fullTestToSelect = await waitFor(() => getByTitle(name));
+  const fullTestToSelect = await waitFor(() =>
+    getByTitle(`${name} ${application}`),
+  );
 
   fireEvent.click(fullTestToSelect);
 
@@ -282,7 +261,10 @@ test('Changing the platform dropdown while filtered by text in the Test Data Mod
     await waitFor(() => getByTitle('about_preferences_basic opt e10s stylo')),
   );
   let presentTests = await waitFor(() => getByTestId('tests'));
-  const linuxTest = await waitFor(() => getByTitle('a11yr opt e10s stylo'));
+
+  const linuxTest = await waitFor(() =>
+    getByTitle('a11yr opt e10s stylo firefox'),
+  );
 
   expect(presentTests.children).toHaveLength(1);
   expect(linuxTest).toBeInTheDocument();
@@ -298,7 +280,9 @@ test('Changing the platform dropdown while filtered by text in the Test Data Mod
   // added back
   await waitForElementToBeRemoved(linuxTest);
   presentTests = await waitFor(() => getByTestId('tests'));
-  const windowsTest = await waitFor(() => getByTitle('a11yr opt e10s stylo'));
+  const windowsTest = await waitFor(() =>
+    getByTitle('a11yr opt e10s stylo firefox'),
+  );
 
   expect(presentTests.children).toHaveLength(1);
   expect(windowsTest).toBeInTheDocument();
