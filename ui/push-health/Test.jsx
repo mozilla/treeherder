@@ -25,7 +25,6 @@ import { getProjectUrl } from '../helpers/location';
 import { investigatedTestsEndPoint } from '../helpers/url';
 import JobModel from '../models/job';
 import Clipboard from '../shared/Clipboard';
-import { notify } from '../job-view/redux/stores/notifications';
 
 import PlatformConfig from './PlatformConfig';
 
@@ -69,7 +68,7 @@ class Test extends PureComponent {
     const { selectedTests } = this.state;
 
     // Reduce down to the unique jobs
-    const testJobs = selectedTests.reduce(
+    const testJobs = Array.from(selectedTests).reduce(
       (acc, test) => ({
         ...acc,
         ...jobs[test.jobName].reduce((fjAcc, job) => ({ [job.id]: job }), {}),
@@ -83,7 +82,7 @@ class Test extends PureComponent {
 
   markAsInvestigated = () => {
     const { selectedTests } = this.state;
-    const { currentRepo, revision } = this.props;
+    const { notify, currentRepo, revision } = this.props;
 
     let data;
     let failureStatus;
@@ -114,18 +113,16 @@ class Test extends PureComponent {
 
   markAsUninvestigated = () => {
     const { selectedTests } = this.state;
-    const { currentRepo, revision } = this.props;
+    const { notify, currentRepo, revision } = this.props;
 
-    let data;
     let failureStatus;
     selectedTests.forEach(async (test) => {
-      ({ data, failureStatus } = await destroy(
+      ({ failureStatus } = await destroy(
         `${getProjectUrl(
           `${investigatedTestsEndPoint}${test.investigatedTestId}/`,
           currentRepo.name,
         )}?revision=${revision}`,
       ));
-
       if (failureStatus) {
         notify(
           `Test ${test.testName} could not be marked as investigated`,
@@ -134,7 +131,7 @@ class Test extends PureComponent {
       } else {
         selectedTests.delete(test);
         this.setState({ selectedTests });
-        notify(`Test ${data}  marked as investigated`, 'failure');
+        notify(`${test.testName} marked as investigated`, 'danger');
       }
     });
   };

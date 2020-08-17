@@ -75,7 +75,7 @@ def get_history(
 # For each failure item in ``tests``, we group all jobs of the exact same type into
 # a field called `jobs`.  So it has passed and failed jobs in there.
 #
-def get_current_test_failures(push, option_map, jobs, investigated_tests=None):
+def get_current_test_failures(push, option_map, jobs, investigatedTests=None):
     # Using .distinct(<fields>) here would help by removing duplicate FailureLines
     # for the same job (with different sub-tests), but it's only supported by
     # postgres.  Just using .distinct() has no effect.
@@ -123,15 +123,13 @@ def get_current_test_failures(push, option_map, jobs, investigated_tests=None):
         isClassifiedIntermittent = any(
             job['failure_classification_id'] == 4 for job in jobs[job_name]
         )
-        is_investigated = any(
-            investigated_test.test == test_name for investigated_test in investigated_tests
-        )
-        is_investigated = False
-        investigated_test_id = None
-        for investigated_test in investigated_tests:
-            if investigated_test.test == test_name:
-                is_investigated = True
-                investigated_test_id = investigated_test.id
+
+        isInvestigated = False
+        investigatedTestId = None
+        for investigatedTest in investigatedTests:
+            if investigatedTest.test == test_name:
+                isInvestigated = True
+                investigatedTestId = investigatedTest.id
                 break
 
         if test_key not in tests:
@@ -152,8 +150,8 @@ def get_current_test_failures(push, option_map, jobs, investigated_tests=None):
                 'failedInParent': False,
                 'passFailRatio': passFailRatio,
                 'isClassifiedIntermittent': isClassifiedIntermittent,
-                'isInvestigated': is_investigated,
-                'investigatedTestId': investigated_test_id,
+                'isInvestigated': isInvestigated,
+                'investigatedTestId': investigatedTestId,
             }
             tests[test_key] = line
 
@@ -229,13 +227,13 @@ def get_test_failures(
     fixed_by_commit_history = get_history(
         2, push_date, fixed_by_commit_history_days, option_map, repository_ids
     )
-    investigated_tests = InvestigatedTests.objects.filter(push=push)
+    investigatedTests = InvestigatedTests.objects.filter(push=push)
 
     # ``push_failures`` are tests that have FailureLine records created by out Log Parser.
     #     These are tests we are able to show to examine to see if we can determine they are
     #     intermittent.  If they are not, we tell the user they need investigation.
     # These are failures ONLY for the current push, not relative to history.
-    push_failures = get_current_test_failures(push, option_map, jobs, investigated_tests)
+    push_failures = get_current_test_failures(push, option_map, jobs, investigatedTests)
     filtered_push_failures = [failure for failure in push_failures if filter_failure(failure)]
 
     # Based on the intermittent and FixedByCommit history, set the appropriate classification

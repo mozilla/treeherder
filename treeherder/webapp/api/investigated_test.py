@@ -47,7 +47,7 @@ class InvestigatedViewSet(viewsets.ModelViewSet):
             push = Push.objects.get(revision=revision, repository=repository)
             job_type = JobType.objects.get(name=jobName, symbol=jobSymbol)
             InvestigatedTests.objects.create(push=push, job_type=job_type, test=test)
-            return Response('Investigated Test added', status=status.HTTP_201_CREATED)
+            return Response('{0} marked Investigated'.format(test), status=status.HTTP_201_CREATED)
 
         except Push.DoesNotExist:
             return Response(
@@ -62,4 +62,7 @@ class InvestigatedViewSet(viewsets.ModelViewSet):
     def destroy(self, request, project, pk=None):
         investigated_test = InvestigatedTests.objects.get(pk=pk)
         investigated_test.delete()
-        return Response(status=status.HTTP_204_NO_CONTENT)
+        return Response(
+            '{0} marked Uninvestigated'.format(investigated_test.test),
+            status=status.HTTP_204_NO_CONTENT,
+        )
