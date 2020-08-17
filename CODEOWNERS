@@ -1,14 +1,11 @@
 # Visit https://help.github.com/en/github/creating-cloning-and-archiving-repositories/about-code-owners#codeowners-syntax
 # for learning about the syntax
 
-/.travis.yml                @armenzg
-/app.json                   @armenzg
-/docker-compose.yml         @armenzg
-/docker/**                  @armenzg
-management/commands/**      @armenzg
+/.travis.yml                @mozilla/treeherder-admins
+/app.json                   @mozilla/treeherder-admins
+/docker-compose.yml         @mozilla/treeherder-admins
 ui/helpers/constants.js     @mozilla/treeherder-admins
 repository.json             @mozilla/treeherder-admins
-extract/**                  @klahnakoski
 push-health/**              @camd
 intermittent-failures/**    @sarah-clements
 intermittents-commenter/**  @sarah-clements
