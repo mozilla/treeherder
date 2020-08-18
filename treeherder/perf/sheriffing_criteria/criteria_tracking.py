@@ -21,6 +21,7 @@ LOGGER = logging.getLogger(__name__)
 class CriteriaRecord:
     Framework: str
     Suite: str
+    Subtest: str
     EngineerTraction: Union[float, str]
     FixRatio: Union[float, str]
     LastUpdatedOn: datetime
@@ -78,7 +79,7 @@ class RecordComputer:
     def apply_formulas(self, record):
         for form_name, formula in self._formula_map.items():
             try:
-                result = formula(record.Framework, record.Suite)
+                result = formula(record.Framework, record.Suite, record.Subtest)
             except (NoFiledBugs, Exception) as ex:
                 result = 'N/A'
                 self.__log_unexpected(ex, form_name, record)
@@ -233,8 +234,8 @@ class CriteriaTracker:
                     f'Must provide formulas of type {BugzillaFormula.__class__.__name__}'
                 )
 
-    def get_test_moniker(self, record: CriteriaRecord) -> Tuple[str, str]:
-        return record.Framework, record.Suite
+    def get_test_moniker(self, record: CriteriaRecord) -> Tuple[str, str, str]:
+        return record.Framework, record.Suite, record.Subtest
 
     def __iter__(self):
         # through criteria records
@@ -247,7 +248,7 @@ class CriteriaTracker:
         with open(self._record_path, 'r') as csv_file:
             reader = csv.DictReader(csv_file)
             for row in reader:
-                test_moniker = row.get('Framework'), row.get('Suite')
+                test_moniker = row.get('Framework'), row.get('Suite'), row.get('Subtest')
                 self._records_map[test_moniker] = CriteriaRecord(**row)
         self.log.debug(f'Loaded {len(self._records_map)} records')
 

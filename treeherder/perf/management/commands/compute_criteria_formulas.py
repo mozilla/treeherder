@@ -70,7 +70,7 @@ class Command(BaseCommand):
         )
         individual_parser.add_argument('framework', action='store')
         individual_parser.add_argument('suite', action='store')
-        parser.add_argument('--test', default=None)
+        individual_parser.add_argument('--test', default=None)
 
     def handle(self, *args, **options):
         if options.get('individually'):
