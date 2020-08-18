@@ -326,10 +326,14 @@ export default class TestDataModal extends React.Component {
   };
 
   getFullTestName = (test) =>
-    `${test.projectName} ${test.platform} ${test.name}`;
+    `${test.projectName} ${test.platform} ${test.name} ${
+      test.application || ''
+    }`;
 
   getOriginalTestName = (test) =>
-    this.state.relatedTests.length > 0 ? this.getFullTestName(test) : test.name;
+    this.state.relatedTests.length > 0
+      ? this.getFullTestName(test)
+      : `${test.name} ${test.application || ''}`;
 
   closeModal = () => {
     this.setState(
