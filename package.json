@@ -62,7 +62,7 @@
     "taskcluster-client-web": "36.0.0",
     "taskcluster-lib-scopes": "10.0.2",
     "taskcluster-lib-urls": "13.0.1",
-    "victory": "34.0.1",
+    "victory": "35.0.8",
     "webpack": "4.41.6",
     "webpack-cli": "3.3.12"
   },
