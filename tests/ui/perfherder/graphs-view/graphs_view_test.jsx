@@ -11,7 +11,6 @@ import queryString from 'query-string';
 
 import {
   endpoints,
-  filterText,
   graphColors,
   graphSymbols,
 } from '../../../../ui/perfherder/constants';
@@ -34,7 +33,7 @@ const graphData = createGraphData(
   [...graphColors],
   [...graphSymbols],
 );
-
+const inputPlaceholder = 'filter tests e.g. linux tp5o';
 const frameworks = [
   { id: 1, name: 'talos' },
   { id: 2, name: 'build_metrics' },
@@ -223,9 +222,7 @@ test('InputFilter from TestDataModal can filter by application name', async () =
 
   fireEvent.click(getByText('Add test data'));
 
-  const textInput = await waitFor(() =>
-    getByPlaceholderText(filterText.inputPlaceholder),
-  );
+  const textInput = await waitFor(() => getByPlaceholderText(inputPlaceholder));
   setFilterText(textInput, application);
   const fullTestToSelect = await waitFor(() =>
     getByTitle(`${name} ${application}`),
@@ -250,9 +247,7 @@ test('Changing the platform dropdown while filtered by text in the Test Data Mod
 
   fireEvent.click(getByText('Add test data'));
 
-  const textInput = await waitFor(() =>
-    getByPlaceholderText(filterText.inputPlaceholder),
-  );
+  const textInput = await waitFor(() => getByPlaceholderText(inputPlaceholder));
   setFilterText(textInput, 'a11yr opt e10s stylo');
 
   // This text is narrowing down the results and we have to make sure at least one

@@ -10,6 +10,8 @@ import {
   ModalHeader,
   ModalBody,
   Row,
+  FormGroup,
+  Badge,
 } from 'reactstrap';
 import flatMap from 'lodash/flatMap';
 
@@ -21,8 +23,6 @@ import { thPerformanceBranches } from '../../helpers/constants';
 import { containsText, getInitialData, getSeriesData } from '../helpers';
 
 export default class TestDataModal extends React.Component {
-  defaultTag = 'all tags';
-
   constructor(props) {
     super(props);
     this.state = {
@@ -45,8 +45,8 @@ export default class TestDataModal extends React.Component {
       filterText: '',
       loading: true,
       selectedUnits: new Set(),
-      activeTag: this.defaultTag,
-      availableTags: [this.defaultTag],
+      activeTags: [],
+      availableTags: [],
     };
   }
 
@@ -67,7 +67,7 @@ export default class TestDataModal extends React.Component {
   }
 
   componentDidUpdate(prevProps, prevState) {
-    const { platforms, platform, availableTags, activeTag } = this.state;
+    const { platforms, platform, availableTags, activeTags } = this.state;
     const { testData } = this.props;
 
     if (prevState.platforms !== platforms) {
@@ -80,12 +80,11 @@ export default class TestDataModal extends React.Component {
     }
 
     if (prevState.availableTags !== availableTags) {
-      const newActiveTag = availableTags.find((item) => item === activeTag)
-        ? activeTag
-        : this.defaultTag;
-
+      const newActiveTags = activeTags.filter((tag) =>
+        availableTags.includes(tag),
+      );
       // eslint-disable-next-line react/no-did-update-set-state
-      this.setState({ activeTag: newActiveTag }, this.applyFilters);
+      this.setState({ activeTags: newActiveTags }, this.applyFilters);
     }
 
     if (this.props.options !== prevProps.options) {
@@ -118,7 +117,7 @@ export default class TestDataModal extends React.Component {
 
   getTagOptions(seriesData) {
     const newAvailableTags = flatMap(seriesData, (test) => test.tags);
-    return [...new Set(newAvailableTags), this.defaultTag];
+    return [...new Set(newAvailableTags)];
   }
 
   getDropdownOptions(options) {
@@ -291,18 +290,35 @@ export default class TestDataModal extends React.Component {
   };
 
   applyFilters = (filterText) => {
-    const { seriesData, activeTag } = this.state;
-    let filteredData = [];
+    const { seriesData, activeTags } = this.state;
+    let filteredData = activeTags.length ? [] : [...seriesData];
 
-    filteredData = seriesData.filter(
-      (test) => activeTag === this.defaultTag || test.tags.includes(activeTag),
-    );
+    if (activeTags.length) {
+      filteredData = seriesData.filter((test) =>
+        activeTags.every((activeTag) => test.tags.includes(activeTag)),
+      );
+    }
 
     if (filterText) {
       filteredData = this.filterTestsByText(filteredData, filterText);
     }
 
     this.setState({ filteredData, filterText });
+  };
+
+  toggleTag = (tag) => {
+    const { filterText, activeTags } = this.state;
+    let newActiveTags = [...activeTags];
+
+    if (activeTags.includes(tag)) {
+      newActiveTags = activeTags.filter((activeTag) => activeTag !== tag);
+    } else {
+      newActiveTags = activeTags.concat(tag);
+    }
+
+    this.setState({ activeTags: newActiveTags }, () => {
+      this.applyFilters(filterText);
+    });
   };
 
   updateSelectedTests = (test, removeTest = false) => {
@@ -421,12 +437,12 @@ export default class TestDataModal extends React.Component {
       filterText,
       loading,
       pinnedProjects,
-      activeTag,
+      activeTags,
       availableTags,
     } = this.state;
     const { projects, frameworks, showModal } = this.props;
     const projectOptions = this.getDropdownOptions(projects);
-    let modalOptions = [
+    const modalOptions = [
       {
         options: frameworks.length ? frameworks.map((item) => item.name) : [],
         selectedItem: framework.name,
@@ -463,21 +479,8 @@ export default class TestDataModal extends React.Component {
       },
     ];
 
-    if (availableTags.length > 1) {
-      modalOptions = [
-        ...modalOptions,
-        {
-          options: availableTags.sort(),
-          selectedItem: activeTag,
-          updateData: (activeTag) =>
-            this.setState({ activeTag }, this.processOptions),
-          title: 'Tag',
-        },
-      ];
-    }
-
     let tests = [];
-    if (filterText || activeTag !== this.defaultTag) {
+    if (filterText || activeTags.length) {
       tests = filteredData;
     } else if (relatedTests.length || showNoRelatedTests) {
       tests = relatedTests;
@@ -512,10 +515,58 @@ export default class TestDataModal extends React.Component {
               <Col className="p-2 col-4">
                 <InputFilter
                   disabled={relatedTests.length > 0}
+                  placeholder="filter tests e.g. linux tp5o"
                   updateFilterText={this.applyFilters}
                 />
               </Col>
             </Row>
+            {availableTags.length > 1 && (
+              <>
+                <Row className="justify-content-start">
+                  <Col className="p-2">
+                    <FormGroup>
+                      <Label for="selectMultiTags">Tags</Label>
+                      <Input
+                        className="fa"
+                        type="select"
+                        name="selectMultiTags"
+                        id="selectMultiTags"
+                        multiple
+                      >
+                        {availableTags.sort().map((tag) => (
+                          <option
+                            key={`available-tag-${tag}`}
+                            data-testid={`available-tag ${tag}`}
+                            onClick={() => this.toggleTag(tag)}
+                          >
+                            {tag}
+                          </option>
+                        ))}
+                      </Input>
+                    </FormGroup>
+                  </Col>
+                </Row>
+                <Row className="pb-2 justify-content-start">
+                  <Col className="p-2" sm="auto">
+                    {activeTags.sort().map((tag, index) => (
+                      <React.Fragment key={`active-tag-${tag}`}>
+                        <Badge
+                          id={`active-tag-${index}`}
+                          data-testid={`active-tag ${tag}`}
+                          className="mr-2 btn btn-darker-secondary"
+                          role="button"
+                          title="Click to remove tag"
+                          pill
+                          onClick={() => this.toggleTag(tag)}
+                        >
+                          {tag} ×
+                        </Badge>
+                      </React.Fragment>
+                    ))}
+                  </Col>
+                </Row>
+              </>
+            )}
             <Row className="p-2 justify-content-start">
               <Col className="p-0">
                 <Label for="exampleSelect">
