@@ -42,7 +42,5 @@ def test_formula_confirms_sheriffed_tests(framework, suite, betamax_recorder):
 def test_formula_confirms_non_sheriffed_tests(framework, suite, test, betamax_recorder):
     fix_ratio = FixRatioFormula(betamax_recorder.session)
 
-    cassette = '-'.join(filter(None, [framework, suite, test]))
-
-    with betamax_recorder.use_cassette(f'{cassette}', serialize_with='prettyjson'):
+    with betamax_recorder.use_cassette(f'{framework}-{suite}', serialize_with='prettyjson'):
         assert fix_ratio(framework, suite, test) < 0.3

@@ -65,15 +65,16 @@ def test_formula_counts_tracted_bugs(cooled_down_bugs, betamax_recorder):
 
 
 @pytest.mark.parametrize(
-    'framework, suite',
+    'framework, suite, test',
     [
         # Sheriffed tests
-        ('build_metrics', 'build times'),  # 92%
-        ('build_metrics', 'installer size'),  # 78%
-        ('awsy', 'JS'),  # 55%
+        ('build_metrics', 'build times', None),  # 92%
+        ('build_metrics', 'installer size', None),  # 78%
+        ('awsy', 'JS', None),  # 55%
+        ('talos', 'tp5n', 'main_startup_fileio'),  # 50%
     ],
 )
-def test_final_formula_confirms_sheriffed_tests(framework, suite, betamax_recorder):
+def test_final_formula_confirms_sheriffed_tests(framework, suite, test, betamax_recorder):
     engineer_traction = EngineerTractionFormula(betamax_recorder.session)
 
     with betamax_recorder.use_cassette(f'{framework}-{suite}', serialize_with='prettyjson'):
@@ -81,15 +82,16 @@ def test_final_formula_confirms_sheriffed_tests(framework, suite, betamax_record
 
 
 @pytest.mark.parametrize(
-    'framework, suite',
+    'framework, suite, test',
     [
         # Non-sheriffed tests
-        ('raptor', 'raptor-speedometer-firefox'),  # 33%
-        ('raptor', 'raptor-webaudio-firefox'),  # 0%
+        ('raptor', 'raptor-speedometer-firefox', None),  # 33%
+        ('raptor', 'raptor-webaudio-firefox', None),  # 0%
+        ('raptor', 'raptor-tp6-google-mail-firefox-cold', 'replayed'),  # 0%
     ],
 )
-def test_final_formula_confirms_non_sheriffed_tests(framework, suite, betamax_recorder):
+def test_final_formula_confirms_non_sheriffed_tests(framework, suite, test, betamax_recorder):
     engineer_traction = EngineerTractionFormula(betamax_recorder.session)
 
     with betamax_recorder.use_cassette(f'{framework}-{suite}', serialize_with='prettyjson'):
-        assert engineer_traction(framework, suite) < 0.35
+        assert engineer_traction(framework, suite, test) < 0.35
