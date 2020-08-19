@@ -19,6 +19,7 @@ class PlatformConfig extends React.PureComponent {
     this.state = {
       detailsShowing: false,
       selectedTask: null,
+      isTestSelected: false,
     };
   }
 
@@ -64,6 +65,9 @@ class PlatformConfig extends React.PureComponent {
 
     if (e.target.checked) addSelectedTest(failure);
     else removeSelectedTest(failure);
+    this.setState((prevState) => ({
+      isTestSelected: !prevState.isTestSelected,
+    }));
   };
 
   retriggerTask = async (task) => {
@@ -73,13 +77,7 @@ class PlatformConfig extends React.PureComponent {
   };
 
   render() {
-    const {
-      failure,
-      groupedBy,
-      currentRepo,
-      jobs,
-      isTestSelected,
-    } = this.props;
+    const { failure, groupedBy, currentRepo, jobs } = this.props;
     const {
       testName,
       jobName,
@@ -91,13 +89,13 @@ class PlatformConfig extends React.PureComponent {
       isInvestigated,
     } = failure;
     const testJobs = jobs[jobName];
-    const { detailsShowing, selectedTask } = this.state;
+    const { detailsShowing, selectedTask, isTestSelected } = this.state;
     const taskList = sortBy(testJobs, ['start_time']);
     taskList.forEach((task) => addAggregateFields(task));
 
     return (
       <Row
-        className={`ml-5 pt-2 mr-1 ${isInvestigated && 'investigated'}`}
+        className="ml-5 pt-2 mr-1"
         key={key}
         style={{ background: '#f2f2f2' }}
       >
@@ -114,7 +112,9 @@ class PlatformConfig extends React.PureComponent {
             <Row>
               <span
                 id={key}
-                className="px-2 text-darker-secondary font-weight-500"
+                className={`px-2 text-darker-secondary font-weight-500 ${
+                  isInvestigated && 'investigated'
+                }`}
               >
                 <span>{groupedBy !== 'path' && `${testName} `}</span>
                 <span>{jobName}</span>

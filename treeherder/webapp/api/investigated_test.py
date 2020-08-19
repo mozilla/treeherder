@@ -1,6 +1,7 @@
+from django.db import IntegrityError
 from rest_framework import viewsets, status
 from rest_framework.response import Response
-from rest_framework.status import HTTP_404_NOT_FOUND
+from rest_framework.status import HTTP_404_NOT_FOUND, HTTP_400_BAD_REQUEST
 
 from treeherder.model.models import JobType, Push, Repository, InvestigatedTests
 from treeherder.webapp.api.serializers import InvestigatedTestsSerializers
@@ -48,6 +49,11 @@ class InvestigatedViewSet(viewsets.ModelViewSet):
             job_type = JobType.objects.get(name=jobName, symbol=jobSymbol)
             InvestigatedTests.objects.create(push=push, job_type=job_type, test=test)
             return Response('{0} marked Investigated'.format(test), status=status.HTTP_201_CREATED)
+
+        except IntegrityError:
+            return Response(
+                "{0} already marked investigated".format(test), status=HTTP_400_BAD_REQUEST
+            )
 
         except Push.DoesNotExist:
             return Response(

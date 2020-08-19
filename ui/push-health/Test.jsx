@@ -21,6 +21,7 @@ import {
 } from '@fortawesome/free-solid-svg-icons';
 
 import { create, destroy } from '../helpers/http';
+import { processErrorMessage } from '../helpers/errorMessage';
 import { getProjectUrl } from '../helpers/location';
 import { investigatedTestsEndPoint } from '../helpers/url';
 import JobModel from '../models/job';
@@ -48,11 +49,9 @@ class Test extends PureComponent {
   }
 
   addSelectedTest = (test) => {
-    const { selectedTests } = this.state;
-    selectedTests.add(test);
-    this.setState({
-      selectedTests,
-    });
+    this.setState((prevState) => ({
+      selectedTests: prevState.selectedTests.add(test),
+    }));
   };
 
   removeSelectedTest = (test) => {
@@ -99,13 +98,8 @@ class Test extends PureComponent {
         },
       ));
       if (failureStatus) {
-        notify(
-          `Test ${test.testName} could not be marked as investigated`,
-          'failure',
-        );
+        notify(data, 'warning');
       } else {
-        selectedTests.delete(test);
-        this.setState({ selectedTests });
         notify(`Test ${data}  marked as investigated`, 'success');
       }
     });
@@ -115,23 +109,23 @@ class Test extends PureComponent {
     const { selectedTests } = this.state;
     const { notify, currentRepo, revision } = this.props;
 
-    let failureStatus;
     selectedTests.forEach(async (test) => {
-      ({ failureStatus } = await destroy(
-        `${getProjectUrl(
-          `${investigatedTestsEndPoint}${test.investigatedTestId}/`,
-          currentRepo.name,
-        )}?revision=${revision}`,
-      ));
-      if (failureStatus) {
-        notify(
-          `Test ${test.testName} could not be marked as investigated`,
-          'failure',
+      if (test.investigatedTestId) {
+        const response = await destroy(
+          `${getProjectUrl(
+            `${investigatedTestsEndPoint}${test.investigatedTestId}/`,
+            currentRepo.name,
+          )}?revision=${revision}`,
         );
+        let data = await response.json();
+        if (!response.ok) {
+          data = processErrorMessage(data, response.status);
+          notify(data, 'warning');
+        } else {
+          notify(`${test.testName} marked as Uninvestigated`, 'success');
+        }
       } else {
-        selectedTests.delete(test);
-        this.setState({ selectedTests });
-        notify(`${test.testName} marked as investigated`, 'danger');
+        notify(`${test.testName} is not investigated now`, 'warning');
       }
     });
   };
@@ -306,6 +300,7 @@ class Test extends PureComponent {
                   updateParamsAndState(stateObj);
                 }}
                 className="ml-3"
+                selectedTests={selectedTests}
                 isTestSelected={selectedTests.has(failure)}
                 addSelectedTest={this.addSelectedTest}
                 removeSelectedTest={this.removeSelectedTest}
