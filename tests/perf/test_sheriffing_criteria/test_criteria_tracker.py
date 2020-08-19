@@ -53,7 +53,7 @@ RECORDS_WITH_NO_DATA = [
     CriteriaRecord(
         Framework=test[0],
         Suite=test[1],
-        Subtest=test[2],
+        Test=test[2],
         EngineerTraction='',
         FixRatio='',
         LastUpdatedOn='',
@@ -65,7 +65,7 @@ RECORDS_WITH_EXPIRED_DATA = [
     CriteriaRecord(
         Framework=test[0],
         Suite=test[1],
-        Subtest=test[2],
+        Test=test[2],
         EngineerTraction=0.5,
         FixRatio=0.3,
         LastUpdatedOn='2020-05-02T00:00:00.000000',
@@ -77,7 +77,7 @@ RECORDS_WITH_UPDATED_DATA = [
     CriteriaRecord(
         Framework=test[0],
         Suite=test[1],
-        Subtest=test[2],
+        Test=test[2],
         EngineerTraction=0.5,
         FixRatio=0.3,
         LastUpdatedOn='2020-06-02T00:00:00.000000',
@@ -228,7 +228,7 @@ def test_record_computer_still_updates_if_one_of_the_formulas_fails(exception):
     record = CriteriaRecord(
         Framework='talos',
         Suite='tp5n',
-        Subtest='',
+        Test='',
         EngineerTraction='',
         FixRatio='',
         LastUpdatedOn='',
