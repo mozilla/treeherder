@@ -138,18 +138,6 @@ test('Selecting a tag from tags multi select shows the tests that have the speci
   expect(tests).toContain(test);
 });
 
-test("Selecting 'all tags' from tags multi select makes all the available tags active", async () => {
-  const { getAllByTestId, getByText } = testDataModel();
-  const availableTags = await waitFor(() => getAllByTestId(/available-tag/));
-  const allTags = await waitFor(() => getByText('all tags'));
-
-  fireEvent.click(allTags);
-
-  const activeTags = await waitFor(() => getAllByTestId(/active-tag/));
-
-  expect(activeTags).toHaveLength(availableTags.length - 1);
-});
-
 test('Active tag can be deactivated by clicking on it from available tags list', async () => {
   const { queryByTestId, getByTestId } = testDataModel();
   const availableTag = await waitFor(() =>

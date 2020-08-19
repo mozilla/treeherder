@@ -23,8 +23,6 @@ import { thPerformanceBranches } from '../../helpers/constants';
 import { containsText, getInitialData, getSeriesData } from '../helpers';
 
 export default class TestDataModal extends React.Component {
-  defaultTag = 'all tags';
-
   constructor(props) {
     super(props);
     this.state = {
@@ -48,7 +46,7 @@ export default class TestDataModal extends React.Component {
       loading: true,
       selectedUnits: new Set(),
       activeTags: [],
-      availableTags: [this.defaultTag],
+      availableTags: [],
     };
   }
 
@@ -119,7 +117,7 @@ export default class TestDataModal extends React.Component {
 
   getTagOptions(seriesData) {
     const newAvailableTags = flatMap(seriesData, (test) => test.tags);
-    return [...new Set(newAvailableTags), this.defaultTag];
+    return [...new Set(newAvailableTags)];
   }
 
   getDropdownOptions(options) {
@@ -309,15 +307,11 @@ export default class TestDataModal extends React.Component {
   };
 
   toggleTag = (tag) => {
-    const { filterText, activeTags, availableTags } = this.state;
+    const { filterText, activeTags } = this.state;
     let newActiveTags = [...activeTags];
 
     if (activeTags.includes(tag)) {
       newActiveTags = activeTags.filter((activeTag) => activeTag !== tag);
-    } else if (tag === this.defaultTag) {
-      newActiveTags = availableTags.filter(
-        (availableTag) => availableTag !== this.defaultTag,
-      );
     } else {
       newActiveTags = activeTags.concat(tag);
     }
