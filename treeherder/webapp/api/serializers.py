@@ -374,10 +374,8 @@ class ChangelogSerializer(serializers.ModelSerializer):
 class InvestigatedTestsSerializers(serializers.ModelSerializer):
 
     jobName = serializers.CharField(source='job_type.name')
-
-    def create(self, validated_data):
-        return models.InvestigatedTests(**validated_data)
+    jobSymbol = serializers.CharField(source='job_type.symbol')
 
     class Meta:
         model = models.InvestigatedTests
-        fields = ('id', 'test', 'jobName')
+        fields = ('id', 'test', 'jobName', 'jobSymbol')

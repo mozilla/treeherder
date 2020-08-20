@@ -81,7 +81,7 @@ class Test extends PureComponent {
 
   markAsInvestigated = () => {
     const { selectedTests } = this.state;
-    const { notify, currentRepo, revision } = this.props;
+    const { notify, currentRepo, revision, investigateTest } = this.props;
 
     let data;
     let failureStatus;
@@ -100,32 +100,34 @@ class Test extends PureComponent {
       if (failureStatus) {
         notify(data, 'warning');
       } else {
-        notify(`Test ${data}  marked as investigated`, 'success');
+        investigateTest(data);
+        notify(`Test ${data.test}  marked as investigated`, 'success');
       }
     });
   };
 
   markAsUninvestigated = () => {
     const { selectedTests } = this.state;
-    const { notify, currentRepo, revision } = this.props;
+    const { notify, currentRepo, revision, unInvestigateTest } = this.props;
 
     selectedTests.forEach(async (test) => {
-      if (test.investigatedTestId) {
+      if (test.isInvestigated) {
         const response = await destroy(
           `${getProjectUrl(
             `${investigatedTestsEndPoint}${test.investigatedTestId}/`,
             currentRepo.name,
           )}?revision=${revision}`,
         );
-        let data = await response.json();
         if (!response.ok) {
+          let data = await response.json();
           data = processErrorMessage(data, response.status);
           notify(data, 'warning');
         } else {
+          unInvestigateTest(test);
           notify(`${test.testName} marked as Uninvestigated`, 'success');
         }
       } else {
-        notify(`${test.testName} is not investigated now`, 'warning');
+        notify(`${test.testName} already uninvestigated`, 'warning');
       }
     });
   };

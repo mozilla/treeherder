@@ -47,8 +47,10 @@ class InvestigatedViewSet(viewsets.ModelViewSet):
             repository = Repository.objects.get(name=project)
             push = Push.objects.get(revision=revision, repository=repository)
             job_type = JobType.objects.get(name=jobName, symbol=jobSymbol)
-            InvestigatedTests.objects.create(push=push, job_type=job_type, test=test)
-            return Response('{0} marked Investigated'.format(test), status=status.HTTP_201_CREATED)
+            serializer = self.get_serializer(data=request.data)
+            serializer.is_valid(raise_exception=True)
+            serializer.save(push=push, job_type=job_type, test=test)
+            return Response(serializer.data, status=status.HTTP_201_CREATED)
 
         except IntegrityError:
             return Response(
@@ -66,9 +68,11 @@ class InvestigatedViewSet(viewsets.ModelViewSet):
             )
 
     def destroy(self, request, project, pk=None):
-        investigated_test = InvestigatedTests.objects.get(pk=pk)
-        investigated_test.delete()
-        return Response(
-            '{0} marked Uninvestigated'.format(investigated_test.test),
-            status=status.HTTP_204_NO_CONTENT,
-        )
+
+        try:
+            investigated_test = InvestigatedTests.objects.get(pk=pk)
+            investigated_test.delete()
+            return Response(status=status.HTTP_204_NO_CONTENT,)
+
+        except InvestigatedTests.DoesNotExist:
+            return Response("Test already uninvestigated", status=HTTP_404_NOT_FOUND)

@@ -25,6 +25,8 @@ export default class TestMetric extends React.PureComponent {
       selectedTaskId,
       selectedTest,
       testGroup,
+      investigateTest,
+      unInvestigateTest,
     } = this.props;
     const { details } = data;
     const { needInvestigation, knownIssues } = details;
@@ -77,6 +79,10 @@ export default class TestMetric extends React.PureComponent {
             stateObj.testGroup = 'pr';
             updateParamsAndState(stateObj);
           }}
+          investigateTest={(test) => investigateTest(test, 'needInvestigation')}
+          unInvestigateTest={(test) =>
+            unInvestigateTest(test, 'needInvestigation')
+          }
         />
         <ClassificationGroup
           jobs={jobs}
@@ -109,6 +115,8 @@ export default class TestMetric extends React.PureComponent {
             stateObj.testGroup = 'ki';
             updateParamsAndState(stateObj);
           }}
+          investigateTest={(test) => investigateTest(test, 'knownIssues')}
+          unInvestigateTest={(test) => unInvestigateTest(test, 'knownIssues')}
         />
       </div>
     );

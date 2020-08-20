@@ -44,6 +44,8 @@ class Action extends PureComponent {
       selectedTest,
       selectedTaskId,
       updateParamsAndState,
+      investigateTest,
+      unInvestigateTest,
     } = this.props;
     const groupedTests = this.getTestGroups(tests);
 
@@ -64,6 +66,8 @@ class Action extends PureComponent {
               testGroup={testGroup}
               selectedTaskId={selectedTaskId}
               updateParamsAndState={updateParamsAndState}
+              investigateTest={investigateTest}
+              unInvestigateTest={unInvestigateTest}
             />
           </div>
         ))}
