@@ -57,6 +57,7 @@ class ErrorParser(ParserBase):
         "command timed out:",
         "wget: unable ",
         "bash.exe: *** ",
+        "Unsuccessful task run",
     )
 
     RE_ERR_MATCH = re.compile(
