@@ -46,7 +46,6 @@ class SecondaryNavBar extends React.PureComponent {
   }
 
   componentDidMount() {
-    // window.addEventListener('hashchange', this.handleUrlChanges, false);
     this.loadWatchedRepos();
   }
 
@@ -56,18 +55,20 @@ class SecondaryNavBar extends React.PureComponent {
     if (repoName !== prevState.repoName) {
       this.loadWatchedRepos();
     }
-  }
 
-  componentWillUnmount() {
-    window.removeEventListener('hashchange', this.handleUrlChanges, false);
+    if (prevProps.location.search !== this.props.location.search) {
+      this.handleUrlChanges(
+        prevProps.location.search,
+        this.props.location.search,
+      );
+    }
   }
 
   setSearchStr(ev) {
     this.setState({ searchQueryStr: ev.target.value });
   }
 
-  handleUrlChanges = (evt) => {
-    const { oldURL, newURL } = evt;
+  handleUrlChanges = (prevParams, currentParams) => {
     const { repoName } = this.state;
     const { recalculateUnclassifiedCounts } = this.props;
     const newState = {
@@ -77,7 +78,7 @@ class SecondaryNavBar extends React.PureComponent {
 
     this.setState(newState, () => {
       if (
-        hasUrlFilterChanges(oldURL, newURL) ||
+        hasUrlFilterChanges(prevParams, currentParams) ||
         newState.repoName !== repoName
       ) {
         recalculateUnclassifiedCounts();

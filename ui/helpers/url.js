@@ -136,12 +136,6 @@ export const parseQueryParams = function parseQueryParams(search) {
   );
 };
 
-export const extractSearchString = function getQueryString(url) {
-  const parts = url.split('?');
-
-  return parts[parts.length - 1];
-};
-
 // `api` requires a preceding forward slash
 export const createApiUrl = function createApiUrl(api, params) {
   const apiUrl = getApiUrl(api);
