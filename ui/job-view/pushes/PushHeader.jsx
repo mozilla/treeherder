@@ -219,6 +219,7 @@ class PushHeader extends React.Component {
       pushHealthStatusCallback,
       togglePushCollapsed,
       location,
+      history,
     } = this.props;
     const cancelJobsTitle = 'Cancel all jobs';
     const linkParams = this.getLinkParams();
@@ -334,6 +335,7 @@ class PushHeader extends React.Component {
               hideRunnableJobs={hideRunnableJobs}
               showFuzzyJobs={showFuzzyJobs}
               location={location}
+              history={history}
             />
           </span>
         </div>

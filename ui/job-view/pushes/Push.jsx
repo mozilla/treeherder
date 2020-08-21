@@ -588,6 +588,7 @@ class Push extends React.PureComponent {
       decisionTaskMap,
       bugSummaryMap,
       location,
+      history,
     } = this.props;
     const {
       fuzzyJobList,
@@ -666,6 +667,7 @@ class Push extends React.PureComponent {
           pushHealthStatusCallback={this.pushHealthStatusCallback}
           togglePushCollapsed={this.togglePushCollapsed}
           location={location}
+          history={history}
         />
         <div className="push-body-divider" />
         {!collapsed ? (

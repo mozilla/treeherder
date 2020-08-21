@@ -133,6 +133,7 @@ class PushList extends React.Component {
       groupCountsExpanded,
       pushHealthVisibility,
       history,
+      location,
       fetchNextPushes,
     } = this.props;
     const { notificationSupported } = this.state;
@@ -168,7 +169,8 @@ class PushList extends React.Component {
                 isOnlyRevision={push.revision === revision}
                 pushHealthVisibility={pushHealthVisibility}
                 getAllShownJobs={getAllShownJobs}
-                {...this.props}
+                location={location}
+                history={history}
               />
             </ErrorBoundary>
           ))}
