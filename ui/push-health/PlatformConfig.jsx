@@ -43,6 +43,13 @@ class PlatformConfig extends React.PureComponent {
     });
   }
 
+  componentWillReceiveProps() {
+    const { selectedTests, failure } = this.props;
+    this.setState({
+      isTestSelected: selectedTests.has(failure),
+    });
+  }
+
   setSelectedTask = (task) => {
     const { selectedTask } = this.state;
     const {

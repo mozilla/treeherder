@@ -46,6 +46,7 @@ class Action extends PureComponent {
       updateParamsAndState,
       investigateTest,
       unInvestigateTest,
+      updatePushHealth,
     } = this.props;
     const groupedTests = this.getTestGroups(tests);
 
@@ -68,6 +69,7 @@ class Action extends PureComponent {
               updateParamsAndState={updateParamsAndState}
               investigateTest={investigateTest}
               unInvestigateTest={unInvestigateTest}
+              updatePushHealth={updatePushHealth}
             />
           </div>
         ))}

@@ -101,6 +101,7 @@ class ClassificationGroup extends React.PureComponent {
       updateParamsAndState,
       investigateTest,
       unInvestigateTest,
+      updatePushHealth,
     } = this.props;
     const expandIcon = detailsShowing ? faCaretDown : faCaretRight;
     const expandTitle = detailsShowing
@@ -265,6 +266,7 @@ class ClassificationGroup extends React.PureComponent {
               updateParamsAndState={updateParamsAndState}
               investigateTest={investigateTest}
               unInvestigateTest={unInvestigateTest}
+              updatePushHealth={updatePushHealth}
             />
           ))}
         </Collapse>

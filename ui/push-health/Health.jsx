@@ -158,40 +158,6 @@ export default class Health extends React.PureComponent {
     }
   };
 
-  investigateTest = (test, classification) => {
-    const { metrics } = this.state;
-    const index = metrics.tests.details[classification].findIndex(
-      (obj) =>
-        obj.testName === test.test &&
-        obj.jobName === test.jobName &&
-        obj.jobSymbol === test.jobSymbol,
-    );
-    if (index >= 0) {
-      metrics.tests.details[classification][index].isInvestigated = true;
-      metrics.tests.details[classification][index].investigatedTestId = test.id;
-    }
-    this.setState({
-      metrics,
-    });
-  };
-
-  unInvestigateTest = (test, classification) => {
-    const { metrics } = this.state;
-    const index = metrics.tests.details[classification].findIndex(
-      (obj) =>
-        obj.testName === test.testName &&
-        obj.jobName === test.jobName &&
-        obj.jobSymbol === test.jobSymbol,
-    );
-    if (index >= 0) {
-      metrics.tests.details[classification][index].isInvestigated = false;
-      metrics.tests.details[classification][index].investigatedTestId = null;
-    }
-    this.setState({
-      metrics,
-    });
-  };
-
   filter = (searchStr) => {
     const { location, history } = this.props;
     const newParams = { ...parseQueryParams(location.search), searchStr };
@@ -382,6 +348,7 @@ export default class Health extends React.PureComponent {
                       updateParamsAndState={this.updateParamsAndState}
                       investigateTest={this.investigateTest}
                       unInvestigateTest={this.unInvestigateTest}
+                      updatePushHealth={this.updatePushHealth}
                     />
                   </TabPanel>
                 </div>
