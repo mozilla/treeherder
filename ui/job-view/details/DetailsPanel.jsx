@@ -251,7 +251,7 @@ class DetailsPanel extends React.Component {
                     ...d,
                   }))
                   .map((d) => ({
-                    url: `/perf.html#/graphs?series=${[
+                    url: `/perfherder/graphs?series=${[
                       currentRepo.name,
                       d.signature_id,
                       1,

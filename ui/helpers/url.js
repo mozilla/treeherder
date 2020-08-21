@@ -5,7 +5,7 @@ import tcLibUrls from 'taskcluster-lib-urls';
 
 export const uiJobsUrlBase = '/jobs';
 
-export const uiPushHealthBase = '/pushhealth.html';
+export const uiPushHealthBase = '/push-health';
 
 export const bzBaseUrl = 'https://bugzilla.mozilla.org/';
 
@@ -124,7 +124,7 @@ export const getPushHealthUrl = function getPushHealthUrl(params) {
 };
 
 export const getCompareChooserUrl = function getCompareChooserUrl(params) {
-  return `perf.html#/comparechooser${createQueryParams(params)}`;
+  return `/perfherder/comparechooser${createQueryParams(params)}`;
 };
 
 export const parseQueryParams = function parseQueryParams(search) {
