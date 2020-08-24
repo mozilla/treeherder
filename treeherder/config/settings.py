@@ -1,4 +1,3 @@
-import os
 import platform
 import re
 from datetime import timedelta
@@ -17,6 +16,8 @@ SRC_DIR = dirname(dirname(dirname(abspath(__file__))))
 
 env = environ.Env()
 
+# Heroku apps & review apps have this env variable set
+PRODUCTION = env("HEROKU_APP_NAME", default=False)
 # Checking for OS type
 IS_WINDOWS = "windows" in platform.system().lower()
 
@@ -35,10 +36,6 @@ SECRET_KEY = env(
 
 # Delete the Pulse automatically when no consumers left
 PULSE_AUTO_DELETE_QUEUES = env.bool("PULSE_AUTO_DELETE_QUEUES", default=False)
-
-# Changing PULSE_AUTO_DELETE_QUEUES to True when Treeherder is running inside of virtual environment
-if os.environ.get("VIRTUAL_ENV"):
-    PULSE_AUTO_DELETE_QUEUES = True
 
 # Hosts
 SITE_URL = env("SITE_URL", default='http://localhost:8000')
@@ -141,6 +138,17 @@ LOCALHOST_MYSQL_HOST = 'mysql://root@{}:3306/treeherder'.format(
 DATABASES = {
     'default': env.db_url('DATABASE_URL', default=LOCALHOST_MYSQL_HOST),
 }
+
+SKIP_INGESTION = env('SKIP_INGESTION', default=False)
+
+# Block for changes within the context of local development (venv & Docker)
+if not PRODUCTION:
+    # Changing PULSE_AUTO_DELETE_QUEUES to True when Treeherder is not running in production
+    PULSE_AUTO_DELETE_QUEUES = True
+
+    # Do not permit ingesting if DATABASE_URL points to a database different than localhost
+    if DATABASES['default']['HOST'] not in ['mysql', '127.0.0.1', 'localhost']:
+        SKIP_INGESTION = True
 
 # Only used when syncing local database with production replicas
 UPSTREAM_DATABASE_URL = env('UPSTREAM_DATABASE_URL', default=None)
