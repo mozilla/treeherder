@@ -1,23 +1,34 @@
 import copy
 import datetime
 import json
+import operator
 import time
 
 import pytest
+from typing import List
+
+from django.core.management import call_command
+from django.db import IntegrityError
 
 from tests.etl.test_perf_data_adapters import _verify_signature
 from tests.test_utils import create_generic_job
 from treeherder.etl.perf import store_performance_artifact
 from treeherder.model.models import Push
-from treeherder.perf.models import PerformanceDatum, PerformanceFramework, PerformanceSignature
+from treeherder.perf.models import (
+    MultiCommitDatum,
+    PerformanceDatum,
+    PerformanceFramework,
+    PerformanceSignature,
+)
 
 FRAMEWORK_NAME = 'cheezburger'
 MEASUREMENT_UNIT = 'ms'
 UPDATED_MEASUREMENT_UNIT = 'seconds'
+DATA_PER_ARTIFACT = 8  # related to sample_perf_artifact fixture
 
 
 @pytest.fixture
-def sample_perf_artifact():
+def sample_perf_artifact() -> dict:
     return {
         'job_guid': 'fake_job_guid',
         'name': 'test',
@@ -73,6 +84,25 @@ def sample_perf_artifact():
             ],
         },
     }
+
+
+@pytest.fixture
+def sibling_perf_artifacts(sample_perf_artifact: dict) -> List[dict]:
+    """intended to belong to the same job"""
+    artifacts = [copy.deepcopy(sample_perf_artifact) for _ in range(3)]
+
+    for idx, artifact in enumerate(artifacts):
+        mocked_push_timestamp = datetime.datetime.now() + datetime.timedelta(hours=idx)
+        artifact['blob']['pushTimestamp'] = mocked_push_timestamp.isoformat()
+
+        # having distinct values for suites & subtests
+        # will make it easier to write tests
+        for suite in artifact['blob']['suites']:
+            suite['value'] = suite['value'] + idx
+            for subtest in suite['subtests']:
+                subtest['value'] = subtest['value'] + idx
+
+    return artifacts
 
 
 @pytest.fixture
@@ -143,7 +173,18 @@ def _prepare_test_data(datum):
     return perf_datum, submit_datum
 
 
-def test_ingest_workflow(
+def _assert_hash_remains_unchanged():
+    summary_signature = PerformanceSignature.objects.get(suite='cheezburger metrics', test='')
+    # Ensure we don't inadvertently change the way we generate signature hashes.
+    assert summary_signature.signature_hash == 'f451f0c9000a7f99e5dc2f05792bfdb0e11d0cac'
+    subtest_signatures = PerformanceSignature.objects.filter(
+        parent_signature=summary_signature
+    ).values_list('signature_hash', flat=True)
+    assert len(subtest_signatures) == 3
+
+
+# Default (the tried & old) ingestion workflow
+def test_default_ingest_workflow(
     test_repository,
     perf_push,
     later_perf_push,
@@ -151,11 +192,14 @@ def test_ingest_workflow(
     generic_reference_data,
     sample_perf_artifact,
 ):
+    """
+    Assumes the job has a single PERFHERDER_DATA record in the log
+    """
     perf_datum, submit_datum = _prepare_test_data(sample_perf_artifact)
 
     store_performance_artifact(perf_job, submit_datum)
 
-    assert 8 == PerformanceSignature.objects.all().count()
+    assert DATA_PER_ARTIFACT == PerformanceSignature.objects.all().count()
     assert 1 == PerformanceFramework.objects.all().count()
     framework = PerformanceFramework.objects.first()
     assert FRAMEWORK_NAME == framework.name
@@ -190,20 +234,16 @@ def test_ingest_workflow(
             _verify_datum(suite['name'], subtest['name'], subtest['value'], perf_push.time)
 
 
-def test_hash_remains_unchanged(test_repository, perf_job, sample_perf_artifact):
+def test_hash_remains_unchanged_for_default_ingestion_workflow(
+    test_repository, perf_job, sample_perf_artifact
+):
     _, submit_datum = _prepare_test_data(sample_perf_artifact)
     store_performance_artifact(perf_job, submit_datum)
 
-    summary_signature = PerformanceSignature.objects.get(suite='cheezburger metrics', test='')
-    # Ensure we don't inadvertently change the way we generate signature hashes.
-    assert summary_signature.signature_hash == 'f451f0c9000a7f99e5dc2f05792bfdb0e11d0cac'
-    subtest_signatures = PerformanceSignature.objects.filter(
-        parent_signature=summary_signature
-    ).values_list('signature_hash', flat=True)
-    assert len(subtest_signatures) == 3
+    _assert_hash_remains_unchanged()
 
 
-def test_timestamp_can_be_updated(
+def test_timestamp_can_be_updated_for_default_ingestion_workflow(
     test_repository, perf_job, later_perf_push, generic_reference_data, sample_perf_artifact
 ):
     _, submit_datum = _prepare_test_data(sample_perf_artifact)
@@ -269,3 +309,167 @@ def test_changing_extra_options_decouples_perf_signatures(
     # Perfherder treats perf data with new properties as entirely new data.
     # Thus, it creates new & separate signatures for them.
     assert initial_signature_amount < PerformanceSignature.objects.all().count()
+
+
+# Multi perf data (for the same job) ingestion workflow
+@pytest.mark.parametrize('PERFHERDER_ENABLE_MULTIDATA_INGESTION', [True, False])
+def test_multi_data_can_be_ingested_for_same_job_and_push(
+    PERFHERDER_ENABLE_MULTIDATA_INGESTION,
+    test_repository,
+    perf_job,
+    sibling_perf_artifacts,
+    settings,
+):
+    settings.PERFHERDER_ENABLE_MULTIDATA_INGESTION = PERFHERDER_ENABLE_MULTIDATA_INGESTION
+
+    try:
+        for artifact in sibling_perf_artifacts:
+            _, submit_datum = _prepare_test_data(artifact)
+            store_performance_artifact(perf_job, submit_datum)
+    except IntegrityError:
+        pytest.fail()
+
+
+@pytest.mark.parametrize(
+    'PERFHERDER_ENABLE_MULTIDATA_INGESTION, based_on_multidata_toggle',
+    [(True, operator.truth), (False, operator.not_)],
+)
+def test_multi_data_ingest_workflow(
+    PERFHERDER_ENABLE_MULTIDATA_INGESTION,
+    based_on_multidata_toggle,
+    test_repository,
+    perf_push,
+    later_perf_push,
+    perf_job,
+    generic_reference_data,
+    sibling_perf_artifacts,
+    settings,
+):
+    """
+    Assumes the job has multiple PERFHERDER_DATA record in the same log
+    """
+    settings.PERFHERDER_ENABLE_MULTIDATA_INGESTION = PERFHERDER_ENABLE_MULTIDATA_INGESTION
+
+    def performance_datum_exists(**with_these_properties) -> bool:
+        return based_on_multidata_toggle(
+            PerformanceDatum.objects.filter(**with_these_properties).exists()
+        )
+
+    # ingest all perf_data
+    for perf_artifact in sibling_perf_artifacts:
+        _, submit_datum = _prepare_test_data(perf_artifact)
+        store_performance_artifact(perf_job, submit_datum)
+
+    # check if all of them were ingested (or not)
+    assert based_on_multidata_toggle(
+        PerformanceDatum.objects.all().count() == len(sibling_perf_artifacts) * DATA_PER_ARTIFACT
+    )  # data per artifact
+    # and all were registered (or not)
+    assert based_on_multidata_toggle(
+        PerformanceDatum.objects.all().count() == MultiCommitDatum.objects.all().count()
+    )
+
+    assert DATA_PER_ARTIFACT == PerformanceSignature.objects.all().count()
+    assert 1 == PerformanceFramework.objects.all().count()
+    framework = PerformanceFramework.objects.first()
+    assert FRAMEWORK_NAME == framework.name
+
+    # and their essential properties were correctly stored (or not)
+    for artifact in sibling_perf_artifacts:
+        artifact_blob = artifact['blob']
+        common_properties = dict(  # to both suites & subtests
+            repository=perf_job.repository,
+            job=perf_job,
+            push=perf_job.push,
+            push_timestamp=artifact_blob['pushTimestamp'],
+        )
+        # check suites
+        for suite in artifact_blob['suites']:
+            assert performance_datum_exists(
+                **common_properties,
+                value=suite['value'],
+            )
+
+            # and subtests
+            for subtest in suite['subtests']:
+                assert performance_datum_exists(
+                    **common_properties,
+                    value=subtest['value'],
+                )
+
+
+@pytest.mark.parametrize('PERFHERDER_ENABLE_MULTIDATA_INGESTION', [True, False])
+def test_hash_remains_unchanged_for_multi_data_ingestion_workflow(
+    PERFHERDER_ENABLE_MULTIDATA_INGESTION,
+    test_repository,
+    perf_job,
+    sibling_perf_artifacts,
+    settings,
+):
+    settings.PERFHERDER_ENABLE_MULTIDATA_INGESTION = PERFHERDER_ENABLE_MULTIDATA_INGESTION
+
+    for artifact in sibling_perf_artifacts:
+        _, submit_datum = _prepare_test_data(artifact)
+        store_performance_artifact(perf_job, submit_datum)
+
+    _assert_hash_remains_unchanged()
+
+
+@pytest.mark.parametrize(
+    'PERFHERDER_ENABLE_MULTIDATA_INGESTION, operator_', [(True, operator.eq), (False, operator.ne)]
+)
+def test_timestamp_can_be_updated_for_multi_data_ingestion_workflow(
+    PERFHERDER_ENABLE_MULTIDATA_INGESTION,
+    operator_,
+    test_repository,
+    perf_job,
+    later_perf_push,
+    generic_reference_data,
+    sibling_perf_artifacts,
+    settings,
+):
+    settings.PERFHERDER_ENABLE_MULTIDATA_INGESTION = PERFHERDER_ENABLE_MULTIDATA_INGESTION
+
+    for artifact in sibling_perf_artifacts:
+        _, submit_datum = _prepare_test_data(artifact)
+        store_performance_artifact(perf_job, submit_datum)
+
+    signature = PerformanceSignature.objects.get(suite='cheezburger metrics', test='test1')
+    last_artifact = sibling_perf_artifacts[-1]
+    last_push_timestamp = datetime.datetime.fromisoformat(last_artifact['blob']['pushTimestamp'])
+
+    assert operator_(signature.last_updated, last_push_timestamp)
+
+
+def test_multi_commit_data_is_removed_by_dedicated_management_script(
+    test_repository,
+    perf_push,
+    later_perf_push,
+    perf_job,
+    generic_reference_data,
+    sibling_perf_artifacts,
+    settings,
+):
+    settings.PERFHERDER_ENABLE_MULTIDATA_INGESTION = True
+    sibling_perf_artifacts[0]['blob'].pop(
+        'pushTimestamp'
+    )  # assume 1st PERFORMANCE_DATA is ingested in the old way
+
+    # ingest all perf_data
+    for perf_artifact in sibling_perf_artifacts:
+        _, submit_datum = _prepare_test_data(perf_artifact)
+        store_performance_artifact(perf_job, submit_datum)
+
+    # check if all of them were ingested (or not)
+    assert PerformanceDatum.objects.all().count() == len(sibling_perf_artifacts) * DATA_PER_ARTIFACT
+    # and all were registered (or not)
+    assert (
+        MultiCommitDatum.objects.all().count()
+        == (len(sibling_perf_artifacts) - 1) * DATA_PER_ARTIFACT
+    )
+
+    call_command('remove_multi_commit_data')
+    assert MultiCommitDatum.objects.all().count() == 0
+    assert (
+        PerformanceDatum.objects.all().count() == DATA_PER_ARTIFACT
+    )  # data ingested in the old way remains intact
