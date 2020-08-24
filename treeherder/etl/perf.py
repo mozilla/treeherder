@@ -6,8 +6,9 @@ from typing import List
 
 import simplejson as json
 
+from django.conf import settings
 from treeherder.log_parser.utils import validate_perf_data
-from treeherder.model.models import OptionCollection
+from treeherder.model.models import Job, OptionCollection
 from treeherder.perf.models import PerformanceDatum, PerformanceFramework, PerformanceSignature
 from treeherder.perf.tasks import generate_alerts
 
@@ -62,13 +63,19 @@ def _create_or_update_signature(repository, signature_hash, framework, applicati
     return signature
 
 
-def _get_push_timestamp(perf_datum: dict) -> datetime:
-    timestamp = perf_datum.get('pushTimestamp', None)
-    if timestamp:
-        return datetime.fromisoformat(timestamp)
+def _get_push_timestamp(perf_datum: dict, job_push_time: datetime) -> datetime:
+    if not settings.PERFHERDER_ENABLE_MULTIDATA_INGESTION:
+        # the old way of ingestion
+        return job_push_time
+
+    multidata_timestamp = perf_datum.get('pushTimestamp', None)
+    if multidata_timestamp:
+        multidata_timestamp = datetime.fromisoformat(multidata_timestamp)
+
+    return multidata_timestamp or job_push_time
 
 
-def _load_perf_datum(job, perf_datum):
+def _load_perf_datum(job: Job, perf_datum: dict):
     validate_perf_data(perf_datum)
 
     extra_properties = {}
@@ -100,7 +107,7 @@ def _load_perf_datum(job, perf_datum):
     for suite in perf_datum['suites']:
         suite_extra_properties = copy.copy(extra_properties)
         ordered_tags = _order_and_concat(suite.get('tags', []))
-        push_timestamp = _get_push_timestamp(perf_datum) or job.push.time
+        push_timestamp = _get_push_timestamp(perf_datum, job.push.time)
         suite_extra_options = ''
 
         if suite.get('extraOptions'):
