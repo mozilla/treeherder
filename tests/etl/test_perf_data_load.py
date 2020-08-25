@@ -291,8 +291,10 @@ def test_changing_extra_options_decouples_perf_signatures(
 
 # Multi perf data (for the same job) ingestion workflow
 def test_multi_data_can_be_ingested_for_same_job_and_push(
-    test_repository, perf_job, sibling_perf_artifacts
+    test_repository, perf_job, sibling_perf_artifacts, settings,
 ):
+    settings.PERFHERDER_ENABLE_MULTIDATA_INGESTION = True
+
     try:
         for artifact in sibling_perf_artifacts:
             _, submit_datum = _prepare_test_data(artifact)
@@ -308,10 +310,12 @@ def test_multi_data_ingest_workflow(
     perf_job,
     generic_reference_data,
     sibling_perf_artifacts,
+    settings,
 ):
     """
     Assumes the job has multiple PERFHERDER_DATA record in the same log
     """
+    settings.PERFHERDER_ENABLE_MULTIDATA_INGESTION = True
 
     def performance_datum_exists(**with_these_properties) -> bool:
         return PerformanceDatum.objects.filter(**with_these_properties).exists()
@@ -350,8 +354,10 @@ def test_multi_data_ingest_workflow(
 
 
 def test_hash_remains_unchanged_for_multi_data_ingestion_workflow(
-    test_repository, perf_job, sibling_perf_artifacts
+    test_repository, perf_job, sibling_perf_artifacts, settings,
 ):
+    settings.PERFHERDER_ENABLE_MULTIDATA_INGESTION = True
+
     for artifact in sibling_perf_artifacts:
         _, submit_datum = _prepare_test_data(artifact)
         store_performance_artifact(perf_job, submit_datum)
@@ -360,8 +366,15 @@ def test_hash_remains_unchanged_for_multi_data_ingestion_workflow(
 
 
 def test_timestamp_can_be_updated_for_multi_data_ingestion_workflow(
-    test_repository, perf_job, later_perf_push, generic_reference_data, sibling_perf_artifacts
+    test_repository,
+    perf_job,
+    later_perf_push,
+    generic_reference_data,
+    sibling_perf_artifacts,
+    settings,
 ):
+    settings.PERFHERDER_ENABLE_MULTIDATA_INGESTION = True
+
     for artifact in sibling_perf_artifacts:
         _, submit_datum = _prepare_test_data(artifact)
         store_performance_artifact(perf_job, submit_datum)
