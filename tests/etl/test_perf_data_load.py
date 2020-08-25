@@ -1,6 +1,7 @@
 import copy
 import datetime
 import json
+import operator
 import time
 
 import pytest
@@ -290,10 +291,15 @@ def test_changing_extra_options_decouples_perf_signatures(
 
 
 # Multi perf data (for the same job) ingestion workflow
+@pytest.mark.parametrize('PERFHERDER_ENABLE_MULTIDATA_INGESTION', [True, False])
 def test_multi_data_can_be_ingested_for_same_job_and_push(
-    test_repository, perf_job, sibling_perf_artifacts, settings,
+    PERFHERDER_ENABLE_MULTIDATA_INGESTION,
+    test_repository,
+    perf_job,
+    sibling_perf_artifacts,
+    settings,
 ):
-    settings.PERFHERDER_ENABLE_MULTIDATA_INGESTION = True
+    settings.PERFHERDER_ENABLE_MULTIDATA_INGESTION = PERFHERDER_ENABLE_MULTIDATA_INGESTION
 
     try:
         for artifact in sibling_perf_artifacts:
@@ -303,7 +309,13 @@ def test_multi_data_can_be_ingested_for_same_job_and_push(
         pytest.fail()
 
 
+@pytest.mark.parametrize(
+    'PERFHERDER_ENABLE_MULTIDATA_INGESTION, based_on_multidata_toggle',
+    [(True, operator.truth), (False, operator.not_)],
+)
 def test_multi_data_ingest_workflow(
+    PERFHERDER_ENABLE_MULTIDATA_INGESTION,
+    based_on_multidata_toggle,
     test_repository,
     perf_push,
     later_perf_push,
@@ -315,18 +327,20 @@ def test_multi_data_ingest_workflow(
     """
     Assumes the job has multiple PERFHERDER_DATA record in the same log
     """
-    settings.PERFHERDER_ENABLE_MULTIDATA_INGESTION = True
+    settings.PERFHERDER_ENABLE_MULTIDATA_INGESTION = PERFHERDER_ENABLE_MULTIDATA_INGESTION
 
     def performance_datum_exists(**with_these_properties) -> bool:
-        return PerformanceDatum.objects.filter(**with_these_properties).exists()
+        return based_on_multidata_toggle(
+            PerformanceDatum.objects.filter(**with_these_properties).exists()
+        )
 
     # ingest all perf_data
     for perf_artifact in sibling_perf_artifacts:
         _, submit_datum = _prepare_test_data(perf_artifact)
         store_performance_artifact(perf_job, submit_datum)
 
-    # check that all of them were ingested
-    assert (
+    # check if all of them were ingested (or not)
+    assert based_on_multidata_toggle(
         PerformanceDatum.objects.all().count() == len(sibling_perf_artifacts) * 8
     )  # data per artifact
 
@@ -335,7 +349,7 @@ def test_multi_data_ingest_workflow(
     framework = PerformanceFramework.objects.first()
     assert FRAMEWORK_NAME == framework.name
 
-    # and their essential properties were correctly stored
+    # and their essential properties were correctly stored (or not)
     for artifact in sibling_perf_artifacts:
         artifact_blob = artifact['blob']
         common_properties = dict(  # to both suites & subtests
@@ -353,10 +367,15 @@ def test_multi_data_ingest_workflow(
                 assert performance_datum_exists(**common_properties, value=subtest['value'],)
 
 
+@pytest.mark.parametrize('PERFHERDER_ENABLE_MULTIDATA_INGESTION', [True, False])
 def test_hash_remains_unchanged_for_multi_data_ingestion_workflow(
-    test_repository, perf_job, sibling_perf_artifacts, settings,
+    PERFHERDER_ENABLE_MULTIDATA_INGESTION,
+    test_repository,
+    perf_job,
+    sibling_perf_artifacts,
+    settings,
 ):
-    settings.PERFHERDER_ENABLE_MULTIDATA_INGESTION = True
+    settings.PERFHERDER_ENABLE_MULTIDATA_INGESTION = PERFHERDER_ENABLE_MULTIDATA_INGESTION
 
     for artifact in sibling_perf_artifacts:
         _, submit_datum = _prepare_test_data(artifact)
@@ -365,7 +384,12 @@ def test_hash_remains_unchanged_for_multi_data_ingestion_workflow(
     _assert_hash_remains_unchanged()
 
 
+@pytest.mark.parametrize(
+    'PERFHERDER_ENABLE_MULTIDATA_INGESTION, operator_', [(True, operator.eq), (False, operator.ne)]
+)
 def test_timestamp_can_be_updated_for_multi_data_ingestion_workflow(
+    PERFHERDER_ENABLE_MULTIDATA_INGESTION,
+    operator_,
     test_repository,
     perf_job,
     later_perf_push,
@@ -373,7 +397,7 @@ def test_timestamp_can_be_updated_for_multi_data_ingestion_workflow(
     sibling_perf_artifacts,
     settings,
 ):
-    settings.PERFHERDER_ENABLE_MULTIDATA_INGESTION = True
+    settings.PERFHERDER_ENABLE_MULTIDATA_INGESTION = PERFHERDER_ENABLE_MULTIDATA_INGESTION
 
     for artifact in sibling_perf_artifacts:
         _, submit_datum = _prepare_test_data(artifact)
@@ -383,4 +407,4 @@ def test_timestamp_can_be_updated_for_multi_data_ingestion_workflow(
     last_artifact = sibling_perf_artifacts[-1]
     last_push_timestamp = datetime.datetime.fromisoformat(last_artifact['blob']['pushTimestamp'])
 
-    assert signature.last_updated == last_push_timestamp
+    assert operator_(signature.last_updated, last_push_timestamp)
