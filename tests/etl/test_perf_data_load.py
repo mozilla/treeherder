@@ -7,6 +7,7 @@ import time
 import pytest
 from typing import List
 
+from django.core.management import call_command
 from django.db import IntegrityError
 
 from tests.etl.test_perf_data_adapters import _verify_signature
@@ -23,6 +24,7 @@ from treeherder.perf.models import (
 FRAMEWORK_NAME = 'cheezburger'
 MEASUREMENT_UNIT = 'ms'
 UPDATED_MEASUREMENT_UNIT = 'seconds'
+DATA_PER_ARTIFACT = 8  # related to sample_perf_artifact fixture
 
 
 @pytest.fixture
@@ -183,7 +185,7 @@ def test_default_ingest_workflow(
 
     store_performance_artifact(perf_job, submit_datum)
 
-    assert 8 == PerformanceSignature.objects.all().count()
+    assert DATA_PER_ARTIFACT == PerformanceSignature.objects.all().count()
     assert 1 == PerformanceFramework.objects.all().count()
     framework = PerformanceFramework.objects.first()
     assert FRAMEWORK_NAME == framework.name
@@ -346,14 +348,14 @@ def test_multi_data_ingest_workflow(
 
     # check if all of them were ingested (or not)
     assert based_on_multidata_toggle(
-        PerformanceDatum.objects.all().count() == len(sibling_perf_artifacts) * 8
+        PerformanceDatum.objects.all().count() == len(sibling_perf_artifacts) * DATA_PER_ARTIFACT
     )  # data per artifact
     # and all were registered (or not)
     assert based_on_multidata_toggle(
         PerformanceDatum.objects.all().count() == MultiCommitDatum.objects.all().count()
     )
 
-    assert 8 == PerformanceSignature.objects.all().count()
+    assert DATA_PER_ARTIFACT == PerformanceSignature.objects.all().count()
     assert 1 == PerformanceFramework.objects.all().count()
     framework = PerformanceFramework.objects.first()
     assert FRAMEWORK_NAME == framework.name
@@ -417,3 +419,37 @@ def test_timestamp_can_be_updated_for_multi_data_ingestion_workflow(
     last_push_timestamp = datetime.datetime.fromisoformat(last_artifact['blob']['pushTimestamp'])
 
     assert operator_(signature.last_updated, last_push_timestamp)
+
+
+def test_multi_commit_data_is_removed_by_dedicated_management_script(
+    test_repository,
+    perf_push,
+    later_perf_push,
+    perf_job,
+    generic_reference_data,
+    sibling_perf_artifacts,
+    settings,
+):
+    settings.PERFHERDER_ENABLE_MULTIDATA_INGESTION = True
+    sibling_perf_artifacts[0]['blob'].pop(
+        'pushTimestamp'
+    )  # assume 1st PERFORMANCE_DATA is ingested in the old way
+
+    # ingest all perf_data
+    for perf_artifact in sibling_perf_artifacts:
+        _, submit_datum = _prepare_test_data(perf_artifact)
+        store_performance_artifact(perf_job, submit_datum)
+
+    # check if all of them were ingested (or not)
+    assert PerformanceDatum.objects.all().count() == len(sibling_perf_artifacts) * DATA_PER_ARTIFACT
+    # and all were registered (or not)
+    assert (
+        MultiCommitDatum.objects.all().count()
+        == (len(sibling_perf_artifacts) - 1) * DATA_PER_ARTIFACT
+    )
+
+    call_command('remove_multi_commit_data')
+    assert MultiCommitDatum.objects.all().count() == 0
+    assert (
+        PerformanceDatum.objects.all().count() == DATA_PER_ARTIFACT
+    )  # data ingested in the old way remains intact
