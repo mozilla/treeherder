@@ -1,0 +1,115 @@
+{
+  "http_interactions": [
+    {
+      "recorded_at": "2020-06-02T00:00:05",
+      "request": {
+        "body": {
+          "encoding": "utf-8",
+          "string": ""
+        },
+        "headers": {
+          "Accept": ["application/json"],
+          "Referer": [
+            "https://docs.google.com/document/d/11WPIPFeq-i1IAVOQhBR-SzIMOPSqBVjLepgOWCrz_S4"
+          ],
+          "User-Agent": ["treeherder/backend"]
+        },
+        "method": "GET",
+        "uri": "https://bugzilla.mozilla.org/rest/bug?longdesc=raptor%2Craptor-tp6-google-mail-firefox-cold+replayed&longdesc_type=allwordssubstr&longdesc_initial=1&keywords=perf%2Cperf-alert&keywords_type=anywords&creation_time=2019-12-17T00%3A00%3A00Z&query_format=advanced&include_fields=id%2Ctype%2Cresolution%2Clast_change_time%2Cis_open%2Ccreation_time%2Csummary%2Cwhiteboard%2Cstatus%2Ckeywords"
+      },
+      "response": {
+        "body": {
+          "encoding": "UTF-8",
+          "string": "{\"bugs\":[{\"is_open\":true,\"summary\":\"2.04 - 6.81% raptor-motionmark-htmlsuite-firefox / raptor-speedometer-firefox / raptor-tp6 raptor-webaudio-firefox (linux64-shippable, linux64-shippable-qr) regression on push 80ba3f3cfaf9b31341bca28e2e6aea383cec8acc (Thu May 14 2020)\",\"type\":\"defect\",\"id\":1638265,\"whiteboard\":\"\",\"creation_time\":\"2020-05-15T09:22:11Z\",\"last_change_time\":\"2020-05-22T13:30:26Z\",\"resolution\":\"\",\"status\":\"NEW\",\"keywords\":[\"perf\",\"perf-alert\",\"regression\"]},{\"keywords\":[\"perf\",\"perf-alert\",\"regression\"],\"resolution\":\"FIXED\",\"status\":\"RESOLVED\",\"last_change_time\":\"2020-07-07T12:24:04Z\",\"creation_time\":\"2020-05-28T11:54:59Z\",\"type\":\"defect\",\"id\":1641532,\"summary\":\"2.9 - 17.82% raptor-tp6- (linux64, macosx1014-64-shippable, windows10) regression on push 2bccc3e80006f2ad27060453135b19fac2d43460 (Tue May 26 2020)\",\"whiteboard\":\"[necko-triaged]\",\"is_open\":false},{\"creation_time\":\"2020-06-03T13:36:29Z\",\"last_change_time\":\"2020-06-24T14:25:25Z\",\"status\":\"NEW\",\"resolution\":\"\",\"keywords\":[\"perf\",\"perf-alert\",\"regression\"],\"is_open\":true,\"whiteboard\":\"\",\"summary\":\"2.38 - 3.65% raptor-tp6(linux64-shippable-qr, windows7-32-shippable) regression on push 9bcd0799e4eaa69966cc8c138bd1640ad915f140 (Tue June 2 2020)\",\"id\":1642998,\"type\":\"defect\"},{\"is_open\":false,\"id\":1647646,\"type\":\"defect\",\"summary\":\"Performance regression when we unset EARLY_BETA_OR_EARLIER\",\"whiteboard\":\"\",\"resolution\":\"WONTFIX\",\"status\":\"RESOLVED\",\"last_change_time\":\"2020-07-20T18:53:16Z\",\"creation_time\":\"2020-06-23T09:07:12Z\",\"keywords\":[\"perf\",\"perf-alert\",\"regression\"]}]}"
+        },
+        "headers": {
+          "Access-Control-Allow-Origin": ["*"],
+          "Access-control-allow-headers": [
+            "accept, content-type, origin, user-agent, x-requested-with, x-bugzilla-password, x-bugzilla-login, x-bugzilla-token, x-bugzilla-api-key, x-phabricator-token"
+          ],
+          "Connection": ["keep-alive"],
+          "Content-Length": ["1567"],
+          "Content-Security-Policy-Report-Only": [
+            "default-src 'self'; worker-src 'none'; connect-src 'self' https://product-details.mozilla.org https://www.google-analytics.com https://treeherder.mozilla.org/api/failurecount/ https://crash-stats.mozilla.org/api/SuperSearch/; font-src 'self' https://fonts.gstatic.com; img-src 'self' data: blob: https://secure.gravatar.com; object-src 'none'; script-src 'self' 'nonce-iFEcOeoFk9xqquFGmCEQCDoH30jU22DpKFM7V20X1CxteDKi' 'unsafe-inline' https://www.google-analytics.com; style-src 'self' 'unsafe-inline'; frame-src https://crash-stop-addon.herokuapp.com; frame-ancestors 'self'; form-action 'self' https://www.google.com/search https://github.com/login/oauth/authorize https://github.com/login https://phabricator.services.mozilla.com/"
+          ],
+          "Content-Type": ["application/json; charset=UTF-8"],
+          "Date": ["Wed, 19 Aug 2020 12:24:53 GMT"],
+          "ETag": ["OxE7sCvzvEOJWLR6iUhL7A"],
+          "Referrer-policy": ["same-origin"],
+          "Set-Cookie": [
+            "Bugzilla_login_request_cookie=1dFdJ2SH7M; path=/; secure; HttpOnly; SameSite=Lax",
+            "github_secret=PG56UppfLdxDJY6hjEmcY4vjT8J34yJhy3bmivYj2GcyUFzAyKmC0FWXCEhWLm7f5L3rANtVKL52VUPZrXoBRerDUL4rbVhs5Yz3l2w3IEd0M8K2gcIEFphYwf5BYbMWTwsc1p9UXCKuNtBCOajZR9EHBouwmDtCCVvuA0JgZEZkYtpQk1lRJnU32qQRdsZZuoejPKzUAhlcDvtpJXINZu0bIQpK0cpyT1G0QKJGXZYaUN7oKtnt0dhQr2huVXRY; path=/; secure; HttpOnly; SameSite=Lax"
+          ],
+          "Status": ["200"],
+          "Strict-Transport-Security": ["max-age=31536000; includeSubDomains"],
+          "Vary": ["Accept-Encoding"],
+          "X-content-type-options": ["nosniff"],
+          "X-frame-options": ["SAMEORIGIN"],
+          "X-xss-protection": ["1; mode=block"]
+        },
+        "status": {
+          "code": 200,
+          "message": "OK"
+        },
+        "url": "https://bugzilla.mozilla.org/rest/bug?longdesc=raptor%2Craptor-tp6-google-mail-firefox-cold+replayed&longdesc_type=allwordssubstr&longdesc_initial=1&keywords=perf%2Cperf-alert&keywords_type=anywords&creation_time=2019-12-17T00%3A00%3A00Z&query_format=advanced&include_fields=id%2Ctype%2Cresolution%2Clast_change_time%2Cis_open%2Ccreation_time%2Csummary%2Cwhiteboard%2Cstatus%2Ckeywords"
+      }
+    },
+    {
+      "recorded_at": "2020-06-02T00:00:06",
+      "request": {
+        "body": {
+          "encoding": "utf-8",
+          "string": ""
+        },
+        "headers": {
+          "Accept": ["application/json"],
+          "Cookie": [
+            "Bugzilla_login_request_cookie=1dFdJ2SH7M; github_secret=PG56UppfLdxDJY6hjEmcY4vjT8J34yJhy3bmivYj2GcyUFzAyKmC0FWXCEhWLm7f5L3rANtVKL52VUPZrXoBRerDUL4rbVhs5Yz3l2w3IEd0M8K2gcIEFphYwf5BYbMWTwsc1p9UXCKuNtBCOajZR9EHBouwmDtCCVvuA0JgZEZkYtpQk1lRJnU32qQRdsZZuoejPKzUAhlcDvtpJXINZu0bIQpK0cpyT1G0QKJGXZYaUN7oKtnt0dhQr2huVXRY"
+          ],
+          "Referer": [
+            "https://docs.google.com/document/d/11WPIPFeq-i1IAVOQhBR-SzIMOPSqBVjLepgOWCrz_S4"
+          ],
+          "User-Agent": ["treeherder/backend"]
+        },
+        "method": "GET",
+        "uri": "https://bugzilla.mozilla.org/rest/bug/1638265/history"
+      },
+      "response": {
+        "body": {
+          "encoding": "UTF-8",
+          "string": "{\"bugs\":[{\"alias\":null,\"id\":1638265,\"history\":[{\"when\":\"2020-05-15T09:22:49Z\",\"who\":\"fstrugariu@mozilla.com\",\"changes\":[{\"added\":\"unspecified\",\"removed\":\"Version 3\",\"field_name\":\"version\"},{\"field_name\":\"component\",\"added\":\"Toolchains\",\"removed\":\"Performance\"},{\"removed\":\"\",\"added\":\"dmajor@mozilla.com\",\"field_name\":\"cc\"},{\"field_name\":\"flagtypes.name\",\"removed\":\"\",\"added\":\"needinfo?(dmajor@mozilla.com)\"},{\"field_name\":\"product\",\"added\":\"Firefox Build System\",\"removed\":\"Testing\"}]},{\"when\":\"2020-05-15T11:12:14Z\",\"who\":\"dmajor@mozilla.com\",\"changes\":[{\"added\":\"needinfo?(fstrugariu@mozilla.com)\",\"removed\":\"needinfo?(dmajor@mozilla.com)\",\"field_name\":\"flagtypes.name\"}]},{\"when\":\"2020-05-15T12:20:58Z\",\"who\":\"release-mgmt-account-bot@mozilla.tld\",\"changes\":[{\"field_name\":\"cf_status_firefox76\",\"removed\":\"---\",\"added\":\"unaffected\"},{\"field_name\":\"cf_status_firefox77\",\"removed\":\"---\",\"added\":\"unaffected\"}]},{\"changes\":[{\"field_name\":\"see_also\",\"removed\":\"\",\"added\":\"https://bugzilla.mozilla.org/show_bug.cgi?id=1638303\"}],\"who\":\"jcristau@mozilla.com\",\"when\":\"2020-05-15T15:05:36Z\"},{\"changes\":[{\"field_name\":\"cc\",\"added\":\"mayankleoboy1@gmail.com\",\"removed\":\"\"}],\"who\":\"mayankleoboy1@gmail.com\",\"when\":\"2020-05-16T15:17:14Z\"},{\"when\":\"2020-05-18T08:39:34Z\",\"who\":\"fstrugariu@mozilla.com\",\"changes\":[{\"field_name\":\"flagtypes.name\",\"added\":\"\",\"removed\":\"needinfo?(fstrugariu@mozilla.com)\"}]},{\"who\":\"jcristau@mozilla.com\",\"changes\":[{\"removed\":\"\",\"added\":\"jcristau@mozilla.com\",\"field_name\":\"cc\"},{\"removed\":\"affected\",\"added\":\"disabled\",\"field_name\":\"cf_status_firefox78\"}],\"when\":\"2020-05-20T11:33:04Z\"}]}]}"
+        },
+        "headers": {
+          "Access-Control-Allow-Origin": ["*"],
+          "Access-control-allow-headers": [
+            "accept, content-type, origin, user-agent, x-requested-with, x-bugzilla-api-key, x-bugzilla-login, x-bugzilla-token, x-phabricator-token, x-bugzilla-password"
+          ],
+          "Connection": ["keep-alive"],
+          "Content-Length": ["1611"],
+          "Content-Security-Policy-Report-Only": [
+            "default-src 'self'; worker-src 'none'; connect-src 'self' https://product-details.mozilla.org https://www.google-analytics.com https://treeherder.mozilla.org/api/failurecount/ https://crash-stats.mozilla.org/api/SuperSearch/; font-src 'self' https://fonts.gstatic.com; img-src 'self' data: blob: https://secure.gravatar.com; object-src 'none'; script-src 'self' 'nonce-oDyIP1KdrvcmOUfEzSxsAOBXcQlNRoxMuh3PwvTgL7KIUqYV' 'unsafe-inline' https://www.google-analytics.com; style-src 'self' 'unsafe-inline'; frame-src https://crash-stop-addon.herokuapp.com; frame-ancestors 'self'; form-action 'self' https://www.google.com/search https://github.com/login/oauth/authorize https://github.com/login https://phabricator.services.mozilla.com/"
+          ],
+          "Content-Type": ["application/json; charset=UTF-8"],
+          "Date": ["Wed, 19 Aug 2020 12:24:53 GMT"],
+          "ETag": ["RK8Xzxwo6JXL5H3il8zR1g"],
+          "Referrer-policy": ["same-origin"],
+          "Set-Cookie": [
+            "github_secret=PG56UppfLdxDJY6hjEmcY4vjT8J34yJhy3bmivYj2GcyUFzAyKmC0FWXCEhWLm7f5L3rANtVKL52VUPZrXoBRerDUL4rbVhs5Yz3l2w3IEd0M8K2gcIEFphYwf5BYbMWTwsc1p9UXCKuNtBCOajZR9EHBouwmDtCCVvuA0JgZEZkYtpQk1lRJnU32qQRdsZZuoejPKzUAhlcDvtpJXINZu0bIQpK0cpyT1G0QKJGXZYaUN7oKtnt0dhQr2huVXRY; path=/; secure; HttpOnly; SameSite=Lax"
+          ],
+          "Status": ["200"],
+          "Strict-Transport-Security": ["max-age=31536000; includeSubDomains"],
+          "Vary": ["Accept-Encoding"],
+          "X-content-type-options": ["nosniff"],
+          "X-frame-options": ["SAMEORIGIN"],
+          "X-xss-protection": ["1; mode=block"]
+        },
+        "status": {
+          "code": 200,
+          "message": "OK"
+        },
+        "url": "https://bugzilla.mozilla.org/rest/bug/1638265/history"
+      }
+    }
+  ],
+  "recorded_with": "betamax/0.8.1"
+}

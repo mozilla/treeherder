@@ -29,30 +29,31 @@ RECORD_TEST_PATH = (PROJECT_ROOT / 'tests/sample_data/criteria-records.csv').res
 EXPECTED_LAST_UPDATE = dateutil_parse(CASSETTES_RECORDING_DATE)
 EXPECTED_VALUE = 0.5
 TESTS_WITH_NO_DATA = [
-    ('awsy', 'Base Content Explicit'),
-    ('browsertime', 'allrecipes-cold'),
-    ('raptor', 'os-baseline-power'),
-    ('talos', 'a11yr'),
+    ('awsy', 'Base Content Explicit', ''),
+    ('browsertime', 'allrecipes-cold', ''),
+    ('raptor', 'os-baseline-power', ''),
+    ('talos', 'a11yr', ''),
 ]
 TESTS_WITH_EXPIRED_DATA = [
-    ('awsy', 'Base Content Heap Unclassified'),
-    ('browsertime', 'amazon'),
-    ('build_metrics', 'compiler warnings'),
-    ('raptor', 'raptor-ares6-firefox'),
-    ('talos', 'about_newtab_with_snippets'),
+    ('awsy', 'Base Content Heap Unclassified', ''),
+    ('browsertime', 'amazon', ''),
+    ('build_metrics', 'compiler warnings', ''),
+    ('raptor', 'raptor-ares6-firefox', ''),
+    ('talos', 'about_newtab_with_snippets', ''),
 ]
 TESTS_WITH_UPDATED_DATA = [
-    ('awsy', 'Base Content JS'),
-    ('browsertime', 'amazon-cold'),
-    ('build_metrics', 'installer size'),
-    ('raptor', 'raptor-assorted-dom-firefox'),
-    ('talos', 'about_preferences_basic'),
+    ('awsy', 'Base Content JS', ''),
+    ('browsertime', 'amazon-cold', ''),
+    ('build_metrics', 'installer size', ''),
+    ('raptor', 'raptor-assorted-dom-firefox', ''),
+    ('talos', 'about_preferences_basic', ''),
 ]
 recording_date = dateutil_parse(CASSETTES_RECORDING_DATE).isoformat()
 RECORDS_WITH_NO_DATA = [
     CriteriaRecord(
         Framework=test[0],
         Suite=test[1],
+        Test=test[2],
         EngineerTraction='',
         FixRatio='',
         LastUpdatedOn='',
@@ -64,6 +65,7 @@ RECORDS_WITH_EXPIRED_DATA = [
     CriteriaRecord(
         Framework=test[0],
         Suite=test[1],
+        Test=test[2],
         EngineerTraction=0.5,
         FixRatio=0.3,
         LastUpdatedOn='2020-05-02T00:00:00.000000',
@@ -75,6 +77,7 @@ RECORDS_WITH_UPDATED_DATA = [
     CriteriaRecord(
         Framework=test[0],
         Suite=test[1],
+        Test=test[2],
         EngineerTraction=0.5,
         FixRatio=0.3,
         LastUpdatedOn='2020-06-02T00:00:00.000000',
@@ -225,6 +228,7 @@ def test_record_computer_still_updates_if_one_of_the_formulas_fails(exception):
     record = CriteriaRecord(
         Framework='talos',
         Suite='tp5n',
+        Test='',
         EngineerTraction='',
         FixRatio='',
         LastUpdatedOn='',

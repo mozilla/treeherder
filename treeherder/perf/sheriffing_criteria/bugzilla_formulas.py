@@ -73,6 +73,7 @@ class BugzillaFormula(ABC):
         self.__reset_breakdown()
         if None in (framework, suite):
             raise TypeError
+        test = test or None  # '' and None are the same thing
 
         all_filed_bugs = self.__fetch_cooled_down_bugs(framework, suite, test)
         if len(all_filed_bugs) == 0:
@@ -118,7 +119,7 @@ class BugzillaFormula(ABC):
         """
         return NonBlockableSession()
 
-    def __fetch_cooled_down_bugs(self, framework, suite, test):
+    def __fetch_cooled_down_bugs(self, framework: str, suite: str, test: str = None) -> List[dict]:
         quantified_bugs = self.__fetch_quantified_bugs(framework, suite, test)
         cooled_bugs = self.__filter_cooled_down_bugs(quantified_bugs)
         return cooled_bugs
@@ -151,7 +152,7 @@ class BugzillaFormula(ABC):
         else:
             return bugs_resp.json()['bugs']
 
-    def __filter_cooled_down_bugs(self, bugs: list) -> List[dict]:
+    def __filter_cooled_down_bugs(self, bugs: List[dict]) -> List[dict]:
         return [bug for bug in bugs if self.has_cooled_down(bug)]
 
     def __reset_breakdown(self):
