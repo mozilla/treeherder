@@ -175,6 +175,10 @@ describe('Pushes Redux store', () => {
     expect(actions).toEqual([
       { countPinnedJobs: 0, type: 'CLEAR_JOB' },
       {
+        type: '@@router/CALL_HISTORY_METHOD',
+        payload: { method: 'push', args: [{ search: '?' }] },
+      },
+      {
         type: SET_PUSHES,
         pushResults: {
           pushList: [pushListFixture.results[2]],

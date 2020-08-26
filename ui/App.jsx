@@ -1,13 +1,10 @@
 import React, { Suspense, lazy } from 'react';
-import {
-  Route,
-  Switch,
-  useHistory,
-  useLocation,
-  Redirect,
-} from 'react-router-dom';
+import { Route, Switch, useLocation, Redirect } from 'react-router-dom';
 import { hot } from 'react-hot-loader/root';
+import { ConnectedRouter } from 'connected-react-router';
+import { Provider } from 'react-redux';
 
+import { configureStore, history } from './job-view/redux/configureStore';
 import LoadingSpinner from './shared/LoadingSpinner';
 import JobsViewApp from './job-view/App';
 import LoginCallback from './login-callback/LoginCallback';
@@ -26,7 +23,6 @@ const PerfherderApp = lazy(() => import('./perfherder/App'));
 
 // backwards compatibility for routes like this: treeherder.mozilla.org/perf.html#/alerts?id=26622&hideDwnToInv=0
 const updateOldUrls = () => {
-  const history = useHistory();
   const location = useLocation();
   const { pathname, hash } = location;
 
@@ -58,24 +54,29 @@ const updateOldUrls = () => {
 const App = () => {
   updateOldUrls();
   return (
-    <Suspense fallback={<LoadingSpinner />}>
-      <Switch>
-        <Route
-          exact
-          path="/login"
-          render={(props) => <LoginCallback {...props} />}
-        />
-        <Route
-          exact
-          path="/taskcluster-auth"
-          render={(props) => <TaskclusterCallback {...props} />}
-        />
-        <Route exact path="/">
-          <Redirect to="/jobs" />
-        </Route>
-        <Route path="/jobs" render={(props) => <JobsViewApp {...props} />} />
+    <Provider store={configureStore()}>
+      <ConnectedRouter history={history}>
+        <Suspense fallback={<LoadingSpinner />}>
+          <Switch>
+            <Route
+              exact
+              path="/login"
+              render={(props) => <LoginCallback {...props} />}
+            />
+            <Route
+              exact
+              path="/taskcluster-auth"
+              render={(props) => <TaskclusterCallback {...props} />}
+            />
+            <Route exact path="/">
+              <Redirect to="/jobs" />
+            </Route>
+            <Route
+              path="/jobs"
+              render={(props) => <JobsViewApp {...props} />}
+            />
 
-        {/* 
+            {/* 
             logviewer: {
               entry: 'logviewer/index.jsx',
               favicon: 'ui/img/logviewerIcon.png',
@@ -94,16 +95,18 @@ const App = () => {
               title: 'Push Health',
               favicon: 'ui/img/push-health-ok.png',
               template: 'ui/index.html', */}
-        <Route
-          path="/intermittent-failures"
-          render={(props) => <IntermittentFailuresApp {...props} />}
-        />
-        <Route
-          path="/perfherder"
-          render={(props) => <PerfherderApp {...props} />}
-        />
-      </Switch>
-    </Suspense>
+            <Route
+              path="/intermittent-failures"
+              render={(props) => <IntermittentFailuresApp {...props} />}
+            />
+            <Route
+              path="/perfherder"
+              render={(props) => <PerfherderApp {...props} />}
+            />
+          </Switch>
+        </Suspense>
+      </ConnectedRouter>
+    </Provider>
   );
 };
 

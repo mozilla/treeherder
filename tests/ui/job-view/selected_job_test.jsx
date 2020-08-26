@@ -4,7 +4,7 @@ import { render, cleanup, fireEvent, waitFor } from '@testing-library/react';
 
 import PushJobs from '../../../ui/job-view/pushes/PushJobs';
 import FilterModel from '../../../ui/models/filter';
-import { store } from '../../../ui/job-view/redux/store';
+import { configureStore } from '../../../ui/job-view/redux/configureStore';
 import { getUrlParam, setUrlParam } from '../../../ui/helpers/location';
 import platforms from '../mock/platforms';
 import { addAggregateFields } from '../../../ui/helpers/job';
@@ -43,7 +43,7 @@ afterEach(() => {
 });
 
 const testPushJobs = (filterModel) => (
-  <Provider store={store}>
+  <Provider store={configureStore()}>
     <PushJobs
       push={testPush}
       platforms={platforms}

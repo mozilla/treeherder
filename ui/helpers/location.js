@@ -45,6 +45,20 @@ export const setUrlParam = function setUrlParam(field, value) {
   replaceLocation(params);
 };
 
+export const setUrlParams = function setUrlParams(newParams) {
+  const params = getAllUrlParams();
+
+  for (const [key, value] of newParams) {
+    if (value) {
+      params.set(key, value);
+    } else {
+      params.delete(key);
+    }
+  }
+
+  return createQueryParams(params);
+};
+
 export const getRepoUrl = function getRepoUrl(newRepoName) {
   const params = getAllUrlParams();
 

@@ -4,7 +4,8 @@ import { hot } from 'react-hot-loader/root';
 import SplitPane from 'react-split-pane';
 import pick from 'lodash/pick';
 import isEqual from 'lodash/isEqual';
-import { Provider } from 'react-redux';
+import { connect } from 'react-redux';
+import PropTypes from 'prop-types';
 
 import { thFavicons, thEvents } from '../helpers/constants';
 import ShortcutTable from '../shared/ShortcutTable';
@@ -24,7 +25,7 @@ import { PUSH_HEALTH_VISIBILITY } from './headerbars/HealthMenu';
 import DetailsPanel from './details/DetailsPanel';
 import PushList from './pushes/PushList';
 import KeyboardShortcuts from './KeyboardShortcuts';
-import { store } from './redux/store';
+import { configureStore } from './redux/configureStore';
 import { CLEAR_EXPIRED_TRANSIENTS } from './redux/stores/notifications';
 
 import '../css/treeherder-navbar-panels.css';
@@ -57,6 +58,8 @@ const getWindowHeight = function getWindowHeight() {
 
   return windowHeight - navBarHeight;
 };
+
+const store = configureStore();
 
 class App extends React.Component {
   constructor(props) {
@@ -218,9 +221,7 @@ class App extends React.Component {
   };
 
   getAllShownJobs = (pushId) => {
-    const {
-      pushes: { jobMap },
-    } = store.getState();
+    const { jobMap } = this.props;
     const jobList = Object.values(jobMap);
 
     return pushId
@@ -341,89 +342,95 @@ class App extends React.Component {
 
     return (
       <div id="global-container" className="height-minus-navbars">
-        <Provider store={store}>
-          <KeyboardShortcuts
+        <KeyboardShortcuts
+          filterModel={filterModel}
+          showOnScreenShortcuts={this.showOnScreenShortcuts}
+        >
+          <PrimaryNavBar
+            repos={repos}
+            updateButtonClick={this.updateButtonClick}
+            serverChanged={serverChanged}
             filterModel={filterModel}
-            showOnScreenShortcuts={this.showOnScreenShortcuts}
+            setUser={this.setUser}
+            user={user}
+            setCurrentRepoTreeStatus={this.setCurrentRepoTreeStatus}
+            getAllShownJobs={this.getAllShownJobs}
+            duplicateJobsVisible={duplicateJobsVisible}
+            groupCountsExpanded={groupCountsExpanded}
+            toggleFieldFilterVisible={this.toggleFieldFilterVisible}
+            pushHealthVisibility={pushHealthVisibility}
+            setPushHealthVisibility={this.setPushHealthVisibility}
+            {...this.props}
+          />
+          <SplitPane
+            split="horizontal"
+            size={`${pushListPct}%`}
+            onChange={(size) => this.handleSplitChange(size)}
           >
-            <PrimaryNavBar
-              repos={repos}
-              updateButtonClick={this.updateButtonClick}
-              serverChanged={serverChanged}
-              filterModel={filterModel}
-              setUser={this.setUser}
-              user={user}
-              setCurrentRepoTreeStatus={this.setCurrentRepoTreeStatus}
-              getAllShownJobs={this.getAllShownJobs}
-              duplicateJobsVisible={duplicateJobsVisible}
-              groupCountsExpanded={groupCountsExpanded}
-              toggleFieldFilterVisible={this.toggleFieldFilterVisible}
-              pushHealthVisibility={pushHealthVisibility}
-              setPushHealthVisibility={this.setPushHealthVisibility}
-              {...this.props}
-            />
-            <SplitPane
-              split="horizontal"
-              size={`${pushListPct}%`}
-              onChange={(size) => this.handleSplitChange(size)}
-            >
-              <div className="d-flex flex-column w-100">
-                {(isFieldFilterVisible || !!filterBarFilters.length) && (
-                  <ActiveFilters
-                    classificationTypes={classificationTypes}
-                    filterModel={filterModel}
-                    filterBarFilters={filterBarFilters}
-                    isFieldFilterVisible={isFieldFilterVisible}
-                    toggleFieldFilterVisible={this.toggleFieldFilterVisible}
-                  />
-                )}
-                {serverChangedDelayed && (
-                  <UpdateAvailable updateButtonClick={this.updateButtonClick} />
-                )}
-                {currentRepo && (
-                  <div id="th-global-content" className="th-global-content">
-                    <span className="th-view-content" tabIndex={-1}>
-                      <PushList
-                        user={user}
-                        repoName={repoName}
-                        revision={revision}
-                        currentRepo={currentRepo}
-                        filterModel={filterModel}
-                        duplicateJobsVisible={duplicateJobsVisible}
-                        groupCountsExpanded={groupCountsExpanded}
-                        pushHealthVisibility={pushHealthVisibility}
-                        getAllShownJobs={this.getAllShownJobs}
-                        {...this.props}
-                      />
-                    </span>
-                  </div>
-                )}
-              </div>
-              <>
-                {currentRepo && (
-                  <DetailsPanel
-                    resizedHeight={detailsHeight}
-                    currentRepo={currentRepo}
-                    user={user}
-                    classificationTypes={classificationTypes}
-                    classificationMap={classificationMap}
-                  />
-                )}
-              </>
-            </SplitPane>
-            <Notifications />
-            <Modal
-              isOpen={showShortCuts}
-              toggle={() => this.showOnScreenShortcuts(false)}
-              id="onscreen-shortcuts"
-            >
-              <ShortcutTable />
-            </Modal>
-          </KeyboardShortcuts>
-        </Provider>
+            <div className="d-flex flex-column w-100">
+              {(isFieldFilterVisible || !!filterBarFilters.length) && (
+                <ActiveFilters
+                  classificationTypes={classificationTypes}
+                  filterModel={filterModel}
+                  filterBarFilters={filterBarFilters}
+                  isFieldFilterVisible={isFieldFilterVisible}
+                  toggleFieldFilterVisible={this.toggleFieldFilterVisible}
+                />
+              )}
+              {serverChangedDelayed && (
+                <UpdateAvailable updateButtonClick={this.updateButtonClick} />
+              )}
+              {currentRepo && (
+                <div id="th-global-content" className="th-global-content">
+                  <span className="th-view-content" tabIndex={-1}>
+                    <PushList
+                      user={user}
+                      repoName={repoName}
+                      revision={revision}
+                      currentRepo={currentRepo}
+                      filterModel={filterModel}
+                      duplicateJobsVisible={duplicateJobsVisible}
+                      groupCountsExpanded={groupCountsExpanded}
+                      pushHealthVisibility={pushHealthVisibility}
+                      getAllShownJobs={this.getAllShownJobs}
+                      {...this.props}
+                    />
+                  </span>
+                </div>
+              )}
+            </div>
+            <>
+              {currentRepo && (
+                <DetailsPanel
+                  resizedHeight={detailsHeight}
+                  currentRepo={currentRepo}
+                  user={user}
+                  classificationTypes={classificationTypes}
+                  classificationMap={classificationMap}
+                />
+              )}
+            </>
+          </SplitPane>
+          <Notifications />
+          <Modal
+            isOpen={showShortCuts}
+            toggle={() => this.showOnScreenShortcuts(false)}
+            id="onscreen-shortcuts"
+          >
+            <ShortcutTable />
+          </Modal>
+        </KeyboardShortcuts>
       </div>
     );
   }
 }
 
-export default hot(App);
+App.propTypes = {
+  jobMap: PropTypes.shape({}).isRequired,
+};
+
+const mapStateToProps = ({ pushes: { jobMap } }) => ({
+  jobMap,
+});
+
+export default connect(mapStateToProps, {})(hot(App));
