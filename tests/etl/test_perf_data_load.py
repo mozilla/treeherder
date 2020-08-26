@@ -13,7 +13,12 @@ from tests.etl.test_perf_data_adapters import _verify_signature
 from tests.test_utils import create_generic_job
 from treeherder.etl.perf import store_performance_artifact
 from treeherder.model.models import Push
-from treeherder.perf.models import PerformanceDatum, PerformanceFramework, PerformanceSignature
+from treeherder.perf.models import (
+    MultiCommitDatum,
+    PerformanceDatum,
+    PerformanceFramework,
+    PerformanceSignature,
+)
 
 FRAMEWORK_NAME = 'cheezburger'
 MEASUREMENT_UNIT = 'ms'
@@ -343,6 +348,10 @@ def test_multi_data_ingest_workflow(
     assert based_on_multidata_toggle(
         PerformanceDatum.objects.all().count() == len(sibling_perf_artifacts) * 8
     )  # data per artifact
+    # and all were registered (or not)
+    assert based_on_multidata_toggle(
+        PerformanceDatum.objects.all().count() == MultiCommitDatum.objects.all().count()
+    )
 
     assert 8 == PerformanceSignature.objects.all().count()
     assert 1 == PerformanceFramework.objects.all().count()
