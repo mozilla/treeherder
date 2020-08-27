@@ -13,6 +13,7 @@ import {
   InputGroup,
   Input,
 } from 'reactstrap';
+import { List } from 'react-virtualized';
 import Fuse from 'fuse.js';
 
 import PushModel from '../../models/push';
@@ -197,6 +198,23 @@ class FuzzyJobFinder extends React.Component {
     });
   };
 
+  renderJob = ({ index, key, style }) => {
+    const { fuzzyList } = this.state;
+    const e = fuzzyList[index];
+
+    return (
+      <div
+        data-testid="fuzzyList"
+        title={`${e.name} - ${e.groupsymbol}(${e.symbol})`}
+        key={key}
+        style={style}
+        className={this.state.selectedList.includes(e.name) ? 'selected' : ''}
+      >
+        {e.name}
+      </div>
+    );
+  };
+
   render() {
     return (
       <div>
@@ -244,8 +262,23 @@ class FuzzyJobFinder extends React.Component {
                 Add all
               </Button>
             </div>
-            <InputGroup id="addJobsGroup">
+            <List
+              width={500}
+              height={220}
+              rowHeight={20}
+              rowRenderer={this.renderJob}
+              rowCount={this.state.fuzzyList.length}
+            />
+
+            {/* <InputGroup id="addJobsGroup">
               <Input type="select" multiple onChange={this.updateAddButton}>
+                <List
+                  width={500}
+                  height={220}
+                  rowHeight={20}
+                  rowRenderer={this.renderJob}
+                  rowCount={this.state.fuzzyList.length}
+                />
                 {this.state.fuzzyList.sort(sortAlphaNum).map((e) => (
                   <option
                     data-testid="fuzzyList"
@@ -259,7 +292,7 @@ class FuzzyJobFinder extends React.Component {
                   </option>
                 ))}
               </Input>
-            </InputGroup>
+            </InputGroup> */}
             <hr />
             <h4> Selected Jobs [{this.state.selectedList.length}]</h4>
             <div className="fuzzybuttons">
