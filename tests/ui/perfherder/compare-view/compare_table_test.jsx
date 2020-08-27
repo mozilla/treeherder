@@ -8,12 +8,15 @@ import {
   waitForElementToBeRemoved,
 } from '@testing-library/react';
 
-import projects from '../mock/repositories';
-import CompareTableControls from '../../../ui/perfherder/compare/CompareTableControls';
-import CompareTable from '../../../ui/perfherder/compare/CompareTable';
-import ComparePageTitle from '../../../ui/shared/ComparePageTitle';
-import { compareTableText, filterText } from '../../../ui/perfherder/constants';
-import JobModel from '../../../ui/models/job';
+import projects from '../../mock/repositories';
+import CompareTableControls from '../../../../ui/perfherder/compare/CompareTableControls';
+import CompareTable from '../../../../ui/perfherder/compare/CompareTable';
+import ComparePageTitle from '../../../../ui/shared/ComparePageTitle';
+import {
+  compareTableText,
+  filterText,
+} from '../../../../ui/perfherder/constants';
+import JobModel from '../../../../ui/models/job';
 
 // TODO addtional tests:
 // 1) that the table is receiving the correct data structure after data
@@ -82,7 +85,7 @@ const result = [
 
 const results = new Map([['a11yr pgo e10s stylo', result]]);
 
-jest.mock('../../../ui/models/job');
+jest.mock('../../../../ui/models/job');
 
 const mockHandlePermalinkClick = jest.fn();
 const regexComptableHeaderId = /table-header-\d+/;

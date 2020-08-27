@@ -18,6 +18,20 @@ export default class ComparePageTitle extends React.Component {
     };
   }
 
+  componentDidUpdate(prevProps) {
+    const { pageTitleQueryParam, title } = this.props;
+    if (
+      prevProps.pageTitleQueryParam !== pageTitleQueryParam ||
+      prevProps.title !== title
+    ) {
+      // eslint-disable-next-line react/no-did-update-set-state
+      this.setState({
+        pageTitle: pageTitleQueryParam || title,
+        newPageTitle: pageTitleQueryParam || title,
+      });
+    }
+  }
+
   goToEditMode = () => {
     this.setState({
       inEditMode: true,
@@ -97,7 +111,7 @@ export default class ComparePageTitle extends React.Component {
             onClick={this.goToEditMode}
             title="Click to change the page title"
           >
-            <h1 className="page-title-text">
+            <h1 className="page-title-text" data-testid="compare-page-title">
               {pageTitle}
               <FontAwesomeIcon
                 icon={faEdit}
