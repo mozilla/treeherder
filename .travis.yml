@@ -1,4 +1,4 @@
-dist: xenial
+dist: bionic
 # Use the latest Travis images since they are more up to date than the stable release.
 group: edge
 jobs:
@@ -24,42 +24,32 @@ jobs:
         - yarn codecov
 
     # Run Heroku build & release related code
-    # This build is configured to catch issues on PRs that would only be detected as part of Heroku's
-    # build step when the code has already been merged to master
-    # The step ./bin/post_compile requires the output of `yarn build`, thus, we need to build
-    # both the JS and Python builds
     - env:
         - NODE_ENV=production YARN_PRODUCTION=true
-      # Since we're using Python/pip and Node/yarn use the generic image
-      language: generic
+      language: python
+      python: '3.7'
       cache:
         directories:
           - $HOME/.cache/yarn
           - $HOME/.cache/pip
           - node_modules
-      before_install:
-        # XXX: I have not been able to install 3.7.2 to match runtime.txt
-        - pyenv global 3.7.1
-        - nvm install 12.14.1
-        - nvm use 12.14.1
-        # Steps to validate versions in use
-        - python --version
-        - pip --version
-        - node --version
-        - yarn --version
+          - .tox/py37
       install:
-        - pip install -r requirements.txt
-        - yarn install
+        - pip install tox
       script:
-        - yarn heroku-postbuild
-        - ./manage.py collectstatic --noinput
-        # This generates the revision and does the Brotly/Gzip compression
-        - ./bin/post_compile
+        - tox -e heroku
 
     # Run Python tests & linters outside of the Docker containers
     - language: python
+      services:
+        - docker
       python: '3.7'
-      cache: pip
+      cache:
+        directories:
+          - $HOME/.cache/yarn
+          - $HOME/.cache/pip
+          - node_modules
+          - .tox/py37
       install:
         - pip install tox
       script:
@@ -70,23 +60,32 @@ jobs:
     - language: shell
       services:
         - docker
+      cache:
+        directories:
+          - $HOME/.cache/pip
+          - .tox/py37
       install:
-        - pip install tox --user
-        - pip install codecov --user
+        - pip install tox
+        - pip install codecov
       script:
         - tox -e docker
-        - codecov -f coverage.xml
+        # It will fail if there's no coverage data
+        - codecov --required -f coverage.xml
 
     # Run Python Selenium tests
     - language: node_js
       services:
         - docker
       # The Node version here must be kept in sync with that in `package.json`.
-      node_js: '12.13.0'
-      cache: yarn
+      node_js: '12.14.1'
+      cache:
+        directories:
+          - $HOME/.cache/pip
+          - $HOME/.cache/yarn
+          - .tox/py37
       install:
-        - pip install tox --user
-        - pip install codecov --user
+        - pip install tox
+        - pip install codecov
       script:
         - tox -e selenium
         - codecov -f coverage.xml
