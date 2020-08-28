@@ -8,7 +8,7 @@ from .serializers import MachinePlatformSerializer
 
 class MachinePlatformsViewSet(viewsets.ViewSet):
     """
-        A ViewSet for listing all the machine platforms.
+    A ViewSet for listing all the machine platforms.
     """
 
     def list(self, request):

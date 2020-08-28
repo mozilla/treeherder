@@ -8,7 +8,7 @@ from treeherder.intermittents_commenter.commenter import Commenter
 
 class Command(BaseCommand):
     """Management command to manually initiate intermittent failures commenter
-       default is daily and non-test mode, use flags for weekly, auto and test mode."""
+    default is daily and non-test mode, use flags for weekly, auto and test mode."""
 
     def add_arguments(self, parser):
         parser.add_argument(

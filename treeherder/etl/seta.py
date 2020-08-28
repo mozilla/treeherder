@@ -22,14 +22,14 @@ def is_job_blacklisted(testtype):
 
 
 def parse_testtype(build_system_type, job_type_name, platform_option, ref_data_name):
-    '''
+    """
                        Buildbot       Taskcluster
                        -----------    -----------
     build_system_type  buildbot       taskcluster
     job_type_name      Mochitest      task label
     platform_option    debug,opt,pgo  debug,opt,pgo
     ref_data_name      buildername    task label OR signature hash
-    '''
+    """
     # XXX: Figure out how to ignore build, lint, etc. jobs
     # https://bugzilla.mozilla.org/show_bug.cgi?id=1318659
     testtype = None
@@ -62,11 +62,11 @@ def job_priorities_to_jobtypes():
 # The only difference between projects is that their list will be based
 # on their own specific runnable_jobs.json artifact
 def get_reference_data_names(project="autoland", build_system="taskcluster"):
-    '''
+    """
     We want all reference data names for every task that runs on a specific project.
 
     For example: "test-linux64/opt-mochitest-webgl-e10s-1"
-    '''
+    """
     # we cache the reference data names in order to reduce API calls
     cache_key = '{}-{}-ref_data_names_cache'.format(project, build_system)
     ref_data_names_map = cache.get(cache_key)

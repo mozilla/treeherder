@@ -19,9 +19,9 @@ logger = logging.getLogger(__name__)
 
 class Commenter:
     """Handles fetching, composing and submitting bug comments based on
-       daily or weekly thresholds and date range, and updating whiteboard
-       and priority status as need; if in dry_run, comments will be output
-       to stdout rather than submitting to bugzilla."""
+    daily or weekly thresholds and date range, and updating whiteboard
+    and priority status as need; if in dry_run, comments will be output
+    to stdout rather than submitting to bugzilla."""
 
     def __init__(self, weekly_mode, dry_run=False):
         self.weekly_mode = weekly_mode
@@ -36,9 +36,9 @@ class Commenter:
 
     def generate_bug_changes(self, startday, endday, alt_startday, alt_endday):
         """Returns a list of dicts containing a bug id, a bug comment (only
-           for bugs whose total number of daily or weekly occurrences meet
-           the appropriate threshold) and potentially an updated whiteboard
-           or priority status."""
+        for bugs whose total number of daily or weekly occurrences meet
+        the appropriate threshold) and potentially an updated whiteboard
+        or priority status."""
 
         bug_stats, bug_ids = self.get_bug_stats(startday, endday)
         alt_date_bug_totals = self.get_alt_date_bug_totals(alt_startday, alt_endday, bug_ids)
@@ -181,7 +181,7 @@ class Commenter:
 
     def calculate_date_strings(self, mode, numDays):
         """Returns a tuple of start (in YYYY-MM-DD format) and end date
-           strings (in YYYY-MM-DD HH:MM:SS format for an inclusive day)."""
+        strings (in YYYY-MM-DD HH:MM:SS format for an inclusive day)."""
 
         yesterday = date.today() - timedelta(days=1)
         endday = datetime(yesterday.year, yesterday.month, yesterday.day, 23, 59, 59, 999)
@@ -195,8 +195,8 @@ class Commenter:
 
     def check_whiteboard_status(self, whiteboard):
         """Extracts stockwell text from a bug's whiteboard status to
-           determine whether it matches specified stockwell text;
-           returns a boolean."""
+        determine whether it matches specified stockwell text;
+        returns a boolean."""
 
         stockwell_text = re.search(r'\[stockwell (.+?)\]', whiteboard)
         if stockwell_text is not None:
@@ -222,7 +222,7 @@ class Commenter:
 
     def fetch_bug_details(self, bug_ids):
         """Fetches bug metadata from bugzilla and returns an encoded
-           dict if successful, otherwise returns None."""
+        dict if successful, otherwise returns None."""
 
         params = {'include_fields': 'product, component, priority, whiteboard, id'}
         params['id'] = bug_ids
@@ -257,7 +257,7 @@ class Commenter:
 
     def get_test_runs(self, startday, endday):
         """Returns an aggregate of pushes for specified date range and
-           repository."""
+        repository."""
 
         test_runs = Push.objects.filter(time__range=(startday, endday)).aggregate(Count('author'))
         return test_runs['author__count']
@@ -317,7 +317,7 @@ class Commenter:
 
     def get_alt_date_bug_totals(self, startday, endday, bug_ids):
         """use previously fetched bug_ids to check for total failures
-           exceeding 150 in 21 days"""
+        exceeding 150 in 21 days"""
         bugs = (
             BugJobMap.failures.by_date(startday, endday)
             .filter(bug_id__in=bug_ids)
@@ -330,7 +330,7 @@ class Commenter:
 
     def fetch_all_bug_details(self, bug_ids):
         """batch requests for bugzilla data in groups of 1200 (which is the safe
-           limit for not hitting the max url length)"""
+        limit for not hitting the max url length)"""
         min = 0
         max = 600
         bugs_list = []

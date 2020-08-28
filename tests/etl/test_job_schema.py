@@ -22,7 +22,7 @@ def test_group_symbols(sample_data, group_symbol):
 @pytest.mark.parametrize("job_symbol", ['1.1g', '1g', '20', 'A', 'GBI10', 'en-US-1'])
 def test_job_symbols(sample_data, job_symbol):
     """
-        Validate jobs against the schema with different job_symbol values
+    Validate jobs against the schema with different job_symbol values
     """
     job = sample_data.pulse_jobs[0]
     job["origin"]["project"] = "proj"

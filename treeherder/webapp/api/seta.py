@@ -6,7 +6,7 @@ from treeherder.seta.job_priorities import SetaError, seta_job_scheduling
 
 class SetaJobPriorityViewSet(viewsets.ViewSet):
     def list(self, request, project):
-        ''' Routing to /api/project/{project}/seta/job-priorities/
+        """Routing to /api/project/{project}/seta/job-priorities/
 
         This API can potentially have these consumers:
             * Buildbot
@@ -16,7 +16,7 @@ class SetaJobPriorityViewSet(viewsets.ViewSet):
             * TaskCluster (Gecko decision task)
               * build_system_type=taskcluster
               * format=json
-        '''
+        """
         build_system_type = request.query_params.get('build_system_type', '*')
         priority = request.query_params.get('priority')
         try:

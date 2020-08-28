@@ -125,7 +125,9 @@ def _ingest_hg_push(project, revision, fetch_push_id=None):
 async def ingest_task(taskId, root_url):
     asyncQueue = taskcluster.aio.Queue({"rootUrl": root_url}, session=session)
     results = await asyncio.gather(asyncQueue.status(taskId), asyncQueue.task(taskId))
-    await handleTask({"status": results[0]["status"], "task": results[1],}, root_url)
+    await handleTask(
+        {"status": results[0]["status"], "task": results[1],}, root_url,
+    )
 
 
 async def handleTask(task, root_url):
@@ -248,7 +250,7 @@ def repo_meta(project):
 
 
 def query_data(repo_meta, commit):
-    """ Find the right event base sha to get the right list of commits
+    """Find the right event base sha to get the right list of commits
 
     This is not an issue in GithubPushTransformer because the PushEvent from Taskcluster
     already contains the data

@@ -205,7 +205,9 @@ def test_login_authorization_header_missing(client):
     assert resp.json()["detail"] == "Authorization header is expected"
 
 
-@pytest.mark.parametrize('auth_header_value', ['foo', 'Bearer ', 'Bearer foo bar',])
+@pytest.mark.parametrize(
+    'auth_header_value', ['foo', 'Bearer ', 'Bearer foo bar',],
+)
 def test_login_authorization_header_malformed(client, auth_header_value):
     resp = client.get(reverse('auth-login'), HTTP_AUTHORIZATION=auth_header_value,)
     assert resp.status_code == 403

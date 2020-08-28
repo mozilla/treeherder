@@ -39,18 +39,18 @@ def gapped_performance_data(test_perf_signature, eleven_jobs_stored, test_perf_a
 @pytest.fixture
 def single_performance_datum(test_perf_signature, eleven_jobs_stored, test_perf_alert):
     """
-    Graph view looks like:
+       Graph view looks like:
 
- (score/ms)
-    ^
-    | | | | | | | | | |
-    | | | | | | | | | |
-    | | | | | | | | | |
-    | | | | | | | | | |
-    | | | |0| | | | | | <- highlighted (has alert)
-    | | | | | | | | | |
-    +----------------->(time)
-    |1|2|3|4|5|6|7|8|9 push & job ids (our fixture job.id == job.push.id)
+    (score/ms)
+       ^
+       | | | | | | | | | |
+       | | | | | | | | | |
+       | | | | | | | | | |
+       | | | | | | | | | |
+       | | | |0| | | | | | <- highlighted (has alert)
+       | | | | | | | | | |
+       +----------------->(time)
+       |1|2|3|4|5|6|7|8|9 push & job ids (our fixture job.id == job.push.id)
     """
 
     return prepare_graph_data_scenario(
@@ -66,18 +66,18 @@ def retriggerable_and_nonretriggerable_performance_data(
     test_perf_signature, eleven_jobs_stored, test_perf_alert
 ):
     """
-    Graph view looks like:
+       Graph view looks like:
 
- (score/ms)
-    ^
-    | | | | | | | | | |
-    | | | | | | | | | |
-    | | | | | | | | | |
-    | | | | | | | | |o| <- shouldn't retrigger this
-    | | | |0| | | | | | <- highlighted (has alert)
-    | | | | | | | | | |
-    +----------------->(time)
-    |1|2|3|4|5|6|7|8|9 push & job ids (our fixture job.id == job.push.id)
+    (score/ms)
+       ^
+       | | | | | | | | | |
+       | | | | | | | | | |
+       | | | | | | | | | |
+       | | | | | | | | |o| <- shouldn't retrigger this
+       | | | |0| | | | | | <- highlighted (has alert)
+       | | | | | | | | | |
+       +----------------->(time)
+       |1|2|3|4|5|6|7|8|9 push & job ids (our fixture job.id == job.push.id)
     """
     out_of_retrigger_range = datetime.datetime(year=2014, month=1, day=1)
 
