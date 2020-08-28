@@ -69,7 +69,9 @@ def test_note_detail_bad_project(client, test_repository):
     test retrieving a HTTP 404 from the note-detail
     endpoint.
     """
-    resp = client.get(reverse("note-detail", kwargs={"project": "foo", "pk": -32767}),)
+    resp = client.get(
+        reverse("note-detail", kwargs={"project": "foo", "pk": -32767}),
+    )
     assert resp.status_code == 404
 
 

@@ -41,7 +41,9 @@ SAMPLE_DATA_PATH = join(dirname(__file__), 'sample_data')
 
 def pytest_addoption(parser):
     parser.addoption(
-        "--runslow", action="store_true", help="run slow tests",
+        "--runslow",
+        action="store_true",
+        help="run slow tests",
     )
 
 

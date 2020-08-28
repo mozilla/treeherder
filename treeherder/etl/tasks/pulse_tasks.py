@@ -26,7 +26,13 @@ def store_pulse_tasks(
     newrelic.agent.add_custom_parameter("routing_key", routing_key)
     # handleMessage expects messages in this format
     runs = loop.run_until_complete(
-        handleMessage({"exchange": exchange, "payload": pulse_job, "root_url": root_url,})
+        handleMessage(
+            {
+                "exchange": exchange,
+                "payload": pulse_job,
+                "root_url": root_url,
+            }
+        )
     )
     for run in runs:
         if run:

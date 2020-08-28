@@ -196,7 +196,13 @@ def test_ingest_github_push_merge_commit(github_push, test_repository, mock_gith
 
 @pytest.mark.django_db
 @pytest.mark.parametrize(
-    "branch, expected_pushes", [("master", 1), ("bar", 1), ("baz", 0), ("foo", 1),],
+    "branch, expected_pushes",
+    [
+        ("master", 1),
+        ("bar", 1),
+        ("baz", 0),
+        ("foo", 1),
+    ],
 )
 def test_ingest_github_push_comma_separated_branches(
     branch, expected_pushes, github_push, test_repository, mock_github_push_compare

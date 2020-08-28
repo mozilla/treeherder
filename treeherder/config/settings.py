@@ -127,7 +127,12 @@ MIDDLEWARE = [
 ]
 
 # Templating
-TEMPLATES = [{'BACKEND': 'django.template.backends.django.DjangoTemplates', 'APP_DIRS': True,}]
+TEMPLATES = [
+    {
+        'BACKEND': 'django.template.backends.django.DjangoTemplates',
+        'APP_DIRS': True,
+    }
+]
 
 # Database
 # The database config is defined using environment variables of form:
@@ -236,11 +241,19 @@ LOGOUT_REDIRECT_URL = '/'
 LOGGING = {
     'version': 1,
     'disable_existing_loggers': False,
-    'filters': {'require_debug_true': {'()': 'django.utils.log.RequireDebugTrue',},},
-    'formatters': {
-        'standard': {'format': "[%(asctime)s] %(levelname)s [%(name)s:%(lineno)s] %(message)s",},
+    'filters': {
+        'require_debug_true': {
+            '()': 'django.utils.log.RequireDebugTrue',
+        },
     },
-    'handlers': {'console': {'class': 'logging.StreamHandler', 'formatter': 'standard'},},
+    'formatters': {
+        'standard': {
+            'format': "[%(asctime)s] %(levelname)s [%(name)s:%(lineno)s] %(message)s",
+        },
+    },
+    'handlers': {
+        'console': {'class': 'logging.StreamHandler', 'formatter': 'standard'},
+    },
     'loggers': {
         'django': {
             'filters': ['require_debug_true'],
@@ -248,13 +261,20 @@ LOGGING = {
             'level': 'INFO',
             'propagate': True,
         },
-        'django.request': {'handlers': ['console'], 'level': 'WARNING', 'propagate': True,},
+        'django.request': {
+            'handlers': ['console'],
+            'level': 'WARNING',
+            'propagate': True,
+        },
         'treeherder': {
             'handlers': ['console'],
             'level': LOGGING_LEVEL,
             'propagate': LOGGING_LEVEL != 'WARNING',
         },
-        'kombu': {'handlers': ['console'], 'level': 'WARNING',},
+        'kombu': {
+            'handlers': ['console'],
+            'level': 'WARNING',
+        },
     },
 }
 

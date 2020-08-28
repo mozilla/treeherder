@@ -62,7 +62,13 @@ def test_expression_is_not_satisfied(scopeset, expression):
 
 
 @pytest.mark.parametrize(
-    'scopeset', [None, 'scopeset_argument', ('scopeset', 'argument'), {'scopeset', 'argument'},],
+    'scopeset',
+    [
+        None,
+        'scopeset_argument',
+        ('scopeset', 'argument'),
+        {'scopeset', 'argument'},
+    ],
 )
 def test_wrong_scopeset_type_raises_exception(scopeset):
     with pytest.raises(TypeError):

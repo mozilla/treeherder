@@ -26,7 +26,9 @@ def test_builders_as_single_still_list():
 
 def test_default_builders():
     """test no builders"""
-    lpc = ArtifactBuilderCollection("foo-url",)
+    lpc = ArtifactBuilderCollection(
+        "foo-url",
+    )
     assert isinstance(lpc.builders, list)
     assert len(lpc.builders) == 2
 
@@ -43,7 +45,10 @@ def test_all_builders_complete():
 
     lpc.parse()
     exp = {
-        "text_log_summary": {"errors": [], "logurl": url,},
+        "text_log_summary": {
+            "errors": [],
+            "logurl": url,
+        },
     }
 
     assert exp == lpc.artifacts

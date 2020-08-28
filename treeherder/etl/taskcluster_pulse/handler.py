@@ -233,7 +233,10 @@ def buildMessage(pushInfo, task, runId, payload):
         "timeScheduled": task["created"],
         "jobKind": treeherderConfig.get("jobKind", "other"),
         "reason": treeherderConfig.get("reason", "scheduled"),
-        "jobInfo": {"links": [], "summary": task["metadata"]["description"],},
+        "jobInfo": {
+            "links": [],
+            "summary": task["metadata"]["description"],
+        },
         "version": 1,
     }
 

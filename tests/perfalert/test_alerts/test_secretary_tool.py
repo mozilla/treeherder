@@ -17,7 +17,8 @@ def performance_settings(db):
         "last_reset_date": datetime.utcnow(),
     }
     return PerformanceSettings.objects.create(
-        name="perf_sheriff_bot", settings=json.dumps(settings, default=default_serializer),
+        name="perf_sheriff_bot",
+        settings=json.dumps(settings, default=default_serializer),
     )
 
 
@@ -28,7 +29,8 @@ def expired_performance_settings(db):
         "last_reset_date": datetime.utcnow() - timedelta(days=30),
     }
     return PerformanceSettings.objects.create(
-        name="perf_sheriff_bot", settings=json.dumps(settings, default=default_serializer),
+        name="perf_sheriff_bot",
+        settings=json.dumps(settings, default=default_serializer),
     )
 
 

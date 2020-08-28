@@ -115,7 +115,8 @@ class ExtractAlerts:
                 last_doc = acc[-1]
                 last_modified, alert_id = last_doc.created, last_doc.id
                 redis.set(
-                    settings.extractor.key, value2json((last_modified, alert_id)).encode("utf8"),
+                    settings.extractor.key,
+                    value2json((last_modified, alert_id)).encode("utf8"),
                 )
 
                 if len(acc) < settings.extractor.chunk_size:

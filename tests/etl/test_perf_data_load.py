@@ -44,7 +44,11 @@ def sample_perf_artifact():
                             'unit': MEASUREMENT_UNIT,
                             'lowerIsBetter': False,
                         },
-                        {'name': 'test3', 'value': 40.0, 'unit': MEASUREMENT_UNIT,},
+                        {
+                            'name': 'test3',
+                            'value': 40.0,
+                            'unit': MEASUREMENT_UNIT,
+                        },
                     ],
                 },
                 {
@@ -52,7 +56,13 @@ def sample_perf_artifact():
                     'lowerIsBetter': False,
                     'value': 10.0,
                     'unit': MEASUREMENT_UNIT,
-                    'subtests': [{'name': 'test1', 'value': 20.0, 'unit': MEASUREMENT_UNIT,}],
+                    'subtests': [
+                        {
+                            'name': 'test1',
+                            'value': 20.0,
+                            'unit': MEASUREMENT_UNIT,
+                        }
+                    ],
                 },
                 {
                     'name': 'cheezburger metrics 3',
@@ -93,7 +103,11 @@ def sample_perf_artifact_with_new_unit():
                             'unit': MEASUREMENT_UNIT,
                             'lowerIsBetter': False,
                         },
-                        {'name': 'test3', 'value': 40.0, 'unit': MEASUREMENT_UNIT,},
+                        {
+                            'name': 'test3',
+                            'value': 40.0,
+                            'unit': MEASUREMENT_UNIT,
+                        },
                     ],
                 }
             ],

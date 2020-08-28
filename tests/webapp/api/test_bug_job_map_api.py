@@ -54,7 +54,11 @@ def test_bug_job_map_list(client, test_repository, eleven_jobs_stored, test_user
     expected = list()
 
     for (i, job) in enumerate(jobs):
-        bjm = BugJobMap.create(job_id=job.id, bug_id=bugs[i].id, user=test_user,)
+        bjm = BugJobMap.create(
+            job_id=job.id,
+            bug_id=bugs[i].id,
+            user=test_user,
+        )
 
         expected.append(
             {
@@ -83,7 +87,11 @@ def test_bug_job_map_detail(client, eleven_jobs_stored, test_repository, test_us
     bug = bugs[0]
     expected = list()
 
-    bjm = BugJobMap.create(job_id=job.id, bug_id=bug.id, user=test_user,)
+    bjm = BugJobMap.create(
+        job_id=job.id,
+        bug_id=bug.id,
+        user=test_user,
+    )
 
     pk = "{0}-{1}".format(job.id, bug.id)
 
@@ -112,7 +120,9 @@ def test_bug_job_map_delete(
     bug = bugs[0]
 
     BugJobMap.create(
-        job_id=job.id, bug_id=bug.id, user=test_user,
+        job_id=job.id,
+        bug_id=bug.id,
+        user=test_user,
     )
 
     if not test_no_auth:

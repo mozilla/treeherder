@@ -122,7 +122,11 @@ def complex_job(transactional_db, generic_reference_data, test_repository, extra
         }
     )
 
-    bcf = ClassifiedFailure.objects.create(**{"bug_number": 1234567,})
+    bcf = ClassifiedFailure.objects.create(
+        **{
+            "bug_number": 1234567,
+        }
+    )
     bcf.created = Date("2020-01-17 12:00:00").datetime
     bcf.save()
 

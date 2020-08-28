@@ -259,7 +259,11 @@ class PushViewSet(viewsets.ViewSet):
             if commit_history_details['exactMatch']:
                 parent_push = commit_history_details.pop('parentPush')
 
-        push_health_test_failures = get_test_failures(push, jobs, parent_push,)
+        push_health_test_failures = get_test_failures(
+            push,
+            jobs,
+            parent_push,
+        )
         test_result = 'pass'
         if len(push_health_test_failures['needInvestigation']):
             test_result = 'fail'
@@ -323,7 +327,9 @@ class PushViewSet(viewsets.ViewSet):
     def get_decision_jobs(self, push_ids):
         job_types = JobType.objects.filter(name__endswith='Decision Task', symbol='D')
         return Job.objects.filter(
-            push_id__in=push_ids, job_type__in=job_types, result='success',
+            push_id__in=push_ids,
+            job_type__in=job_types,
+            result='success',
         ).select_related('taskcluster_metadata')
 
     @action(detail=False)

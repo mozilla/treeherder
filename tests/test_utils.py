@@ -227,6 +227,9 @@ def add_log_response(filename):
             responses.GET,
             log_url,
             body=content,
-            adding_headers={'Content-Encoding': 'gzip', 'Content-Length': str(len(content)),},
+            adding_headers={
+                'Content-Encoding': 'gzip',
+                'Content-Length': str(len(content)),
+            },
         )
     return log_url

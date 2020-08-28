@@ -75,7 +75,9 @@ def preliminary_record(test_perf_alert):
 def record_ready_for_processing(test_perf_alert, record_context_sample):
     report = BackfillReport.objects.create(summary=test_perf_alert.summary)
     record = BackfillRecord.objects.create(
-        alert=test_perf_alert, report=report, status=BackfillRecord.READY_FOR_PROCESSING,
+        alert=test_perf_alert,
+        report=report,
+        status=BackfillRecord.READY_FOR_PROCESSING,
     )
     record.set_context(record_context_sample)
     record.save()

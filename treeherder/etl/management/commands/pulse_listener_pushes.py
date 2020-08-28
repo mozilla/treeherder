@@ -36,7 +36,10 @@ class Command(BaseCommand):
             ],
         )
 
-        consumers = prepare_consumers(PushConsumer, push_sources,)
+        consumers = prepare_consumers(
+            PushConsumer,
+            push_sources,
+        )
 
         try:
             consumers.run()
