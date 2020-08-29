@@ -29,21 +29,17 @@ class PlatformConfig extends React.PureComponent {
       jobs,
       failure: { jobName, testName },
     } = this.props;
-    if (selectedJobName === `${testName} ${jobName}`) {
-      this.setState({
-        detailsShowing: true,
-      });
-      if (selectedTaskId) {
-        const filteredJobs = jobs[jobName].filter(
-          (job) => job.id === parseInt(selectedTaskId, 10),
-        );
-        if (filteredJobs.length > 0) {
-          this.setState({
-            selectedTask: filteredJobs[0],
-          });
-        }
-      }
-    }
+
+    this.setState({
+      detailsShowing: selectedJobName === `${testName} ${jobName}`,
+      selectedTask: selectedTaskId
+        ? jobs[jobName].filter((job) => job.id === parseInt(selectedTaskId, 10))
+            .length > 0 &&
+          jobs[jobName].filter(
+            (job) => job.id === parseInt(selectedTaskId, 10),
+          )[0]
+        : null,
+    });
   }
 
   setSelectedTask = (task) => {

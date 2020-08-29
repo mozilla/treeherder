@@ -103,9 +103,10 @@ export default class Health extends React.PureComponent {
     const { location, history } = this.props;
     const newParams = {
       ...parseQueryParams(location.search),
+      ...stateObj,
     };
-    Object.assign(newParams, stateObj);
     const queryString = createQueryParams(newParams);
+
     updateQueryParams(queryString, history, location);
     this.setState(stateObj);
   };

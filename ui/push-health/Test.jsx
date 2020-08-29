@@ -20,6 +20,7 @@ class Test extends PureComponent {
 
   componentDidMount() {
     const { selectedTest, testGroup, test } = this.props;
+
     if (testGroup && selectedTest === test.id) {
       this.setState({ detailsShowing: true });
     }
@@ -32,6 +33,7 @@ class Test extends PureComponent {
   toggleDetails = () => {
     let { detailsShowing } = this.state;
     const { updateParamsAndState, test } = this.props;
+
     detailsShowing = !detailsShowing;
     if (detailsShowing) {
       updateParamsAndState({
