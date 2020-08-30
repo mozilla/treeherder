@@ -126,11 +126,13 @@ Test.propTypes = {
     failedInParent: PropTypes.number.isRequired,
     key: PropTypes.string.isRequired,
     tests: PropTypes.arrayOf(PropTypes.object).isRequired,
+    id: PropTypes.string,
   }).isRequired,
   groupedBy: PropTypes.string.isRequired,
   revision: PropTypes.string.isRequired,
   currentRepo: PropTypes.shape({}).isRequired,
   notify: PropTypes.func.isRequired,
+  jobs: PropTypes.shape({}).isRequired,
 };
 
 export default Test;

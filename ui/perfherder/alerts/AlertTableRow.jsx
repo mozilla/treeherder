@@ -398,6 +398,7 @@ AlertTableRow.propTypes = {
     manually_created: PropTypes.bool,
     series_signature: PropTypes.shape({
       id: PropTypes.number,
+      tags: PropTypes.array,
     }),
     status: PropTypes.number,
     classifier_email: PropTypes.string,

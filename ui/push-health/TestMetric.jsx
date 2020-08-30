@@ -88,4 +88,5 @@ TestMetric.propTypes = {
   notify: PropTypes.func.isRequired,
   searchStr: PropTypes.string.isRequired,
   showParentMatches: PropTypes.bool.isRequired,
+  jobs: PropTypes.shape({}).isRequired,
 };

@@ -70,6 +70,7 @@ Action.propTypes = {
   revision: PropTypes.string.isRequired,
   currentRepo: PropTypes.shape({}).isRequired,
   notify: PropTypes.func.isRequired,
+  jobs: PropTypes.shape({}).isRequired,
 };
 
 export default Action;

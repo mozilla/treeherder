@@ -270,6 +270,7 @@ ClassificationGroup.propTypes = {
   className: PropTypes.string,
   iconColor: PropTypes.string,
   icon: PropTypes.shape({}),
+  jobs: PropTypes.shape({}).isRequired,
 };
 
 ClassificationGroup.defaultProps = {

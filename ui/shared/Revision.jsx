@@ -141,14 +141,11 @@ Revision.propTypes = {
   }).isRequired,
   commitShaClass: PropTypes.string,
   commentFont: PropTypes.string,
+  bugSummaryMap: PropTypes.shape({}),
 };
 
 Revision.defaultProps = {
   commitShaClass: '',
   commentFont: '',
-  bugSummaryMap: PropTypes.shape({}),
-};
-
-Revision.defaultProps = {
   bugSummaryMap: null,
 };
