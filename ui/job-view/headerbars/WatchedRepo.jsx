@@ -21,7 +21,7 @@ import {
 
 import TreeStatusModel from '../../models/treeStatus';
 import BugLinkify from '../../shared/BugLinkify';
-import { updateQueryParams } from '../../helpers/url';
+import { updateRepoParams } from '../../helpers/location';
 
 const statusInfoMap = {
   open: {
@@ -124,7 +124,7 @@ export default class WatchedRepo extends React.Component {
   };
 
   render() {
-    const { repoName, unwatchRepo, repo, history, location } = this.props;
+    const { repoName, unwatchRepo, repo, history } = this.props;
     const { status, messageOfTheDay, reason, statusInfo } = this.state;
     const watchedRepo = repo.name;
     const activeClass = watchedRepo === repoName ? 'active' : '';
@@ -134,7 +134,9 @@ export default class WatchedRepo extends React.Component {
     return (
       <ButtonGroup>
         <Button
-          onClick={() => updateQueryParams(history, location, watchedRepo)}
+          onClick={() =>
+            history.push({ search: updateRepoParams(watchedRepo) })
+          }
           className={`btn-view-nav ${btnClass} ${activeClass}`}
           title={status}
           size="sm"

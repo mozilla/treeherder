@@ -1,5 +1,5 @@
 import { thDefaultRepo } from './constants';
-import { createQueryParams, getApiUrl, uiJobsUrlBase } from './url';
+import { createQueryParams, getApiUrl } from './url';
 
 export const getAllUrlParams = function getAllUrlParams() {
   return new URLSearchParams(window.location.search);
@@ -59,7 +59,7 @@ export const setUrlParams = function setUrlParams(newParams) {
   return createQueryParams(params);
 };
 
-export const getRepoUrl = function getRepoUrl(newRepoName) {
+export const updateRepoParams = function updateRepoParams(newRepoName) {
   const params = getAllUrlParams();
 
   params.delete('selectedJob');
@@ -68,7 +68,7 @@ export const getRepoUrl = function getRepoUrl(newRepoName) {
   params.delete('revision');
   params.delete('author');
   params.set('repo', newRepoName);
-  return `${uiJobsUrlBase}?${params.toString()}`;
+  return `?${params.toString()}`;
 };
 
 // Take the repoName, if passed in.  If not, then try to find it on the
