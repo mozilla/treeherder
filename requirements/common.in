@@ -2,7 +2,7 @@
 gunicorn==20.0.4
 whitenoise[brotli]  # Used by Whitenoise to provide Brotli-compressed versions of static files.
 Django==3.0.8
-celery==4.4.2   # 4.4.2 required to pass test_retryable_task_throws_retry, celery needed for data ingestion
+celery==4.4.7   # 4.4.2 required to pass test_retryable_task_throws_retry, celery needed for data ingestion
 simplejson  # import simplejson
 newrelic==5.2.1.129
 
