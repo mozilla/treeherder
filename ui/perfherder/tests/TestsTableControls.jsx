@@ -10,7 +10,6 @@ import TestsTable from './TestsTable';
 export default class TestsTableControls extends React.Component {
   constructor(props) {
     super(props);
-    this.validated = this.props.validated;
     this.state = {
       results: [],
       filterText: '',
@@ -79,7 +78,6 @@ export default class TestsTableControls extends React.Component {
 }
 
 TestsTableControls.propTypes = {
-  validated: PropTypes.shape({}),
   testsOverviewResults: PropTypes.arrayOf(PropTypes.shape({})),
   dropdownOptions: PropTypes.arrayOf(PropTypes.shape({})),
   projectsMap: PropTypes.oneOfType([PropTypes.bool, PropTypes.shape({})])
@@ -91,5 +89,4 @@ TestsTableControls.propTypes = {
 TestsTableControls.defaultProps = {
   testsOverviewResults: [],
   dropdownOptions: [],
-  validated: null,
 };
