@@ -31,7 +31,10 @@ class PushLoader:
         except ObjectDoesNotExist:
             repo_info = transformer.get_info()
             repo_info.update(
-                {"url": transformer.repo_url, "branch": transformer.branch,}
+                {
+                    "url": transformer.repo_url,
+                    "branch": transformer.branch,
+                }
             )
             newrelic.agent.record_custom_event("skip_unknown_repository", repo_info)
             logger.warning(
@@ -279,7 +282,11 @@ class HgPushTransformer:
         # to protect against the 5000+ commit merges on release day uplift.
         for commit in push['changesets'][-200:]:
             commits.append(
-                {"revision": commit["node"], "author": commit["author"], "comment": commit["desc"],}
+                {
+                    "revision": commit["node"],
+                    "author": commit["author"],
+                    "comment": commit["desc"],
+                }
             )
 
         return {

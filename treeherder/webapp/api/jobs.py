@@ -221,13 +221,13 @@ class JobsProjectViewSet(viewsets.ViewSet):
     )
 
     def _get_job_list_response(self, job_qs, offset, count, return_type):
-        '''
+        """
         custom method to serialize + format jobs information
 
         It's worth doing this big ugly thing (as opposed to using
         the django rest framework serializer or whatever) as
         this function is often in the critical path
-        '''
+        """
         option_collection_map = OptionCollection.objects.get_option_collection_map()
         results = []
         for values in job_qs[offset : (offset + count)].values_list(

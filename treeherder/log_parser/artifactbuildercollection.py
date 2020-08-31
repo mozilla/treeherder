@@ -14,43 +14,42 @@ MAX_DOWNLOAD_SIZE_IN_BYTES = 5 * 1024 * 1024
 
 class ArtifactBuilderCollection:
     """
-Run a log through a collection of Artifact Builders to generate artifacts.
+    Run a log through a collection of Artifact Builders to generate artifacts.
 
 
-Architecture
-============
+    Architecture
+    ============
 
-ArtifactBuilderCollection
-------------------
-* Holds one or more instances of ``ArtifactBuilderBase``
-* If ``builders`` passed in, uses those as the artifact
-builders, otherwise creates the default artifact builders.
-* Reads the log from the log handle/url and walks each line
-calling into each artifact builder with each line for handling
-* Maintains no state
+    ArtifactBuilderCollection
+    ------------------
+    * Holds one or more instances of ``ArtifactBuilderBase``
+    * If ``builders`` passed in, uses those as the artifact
+    builders, otherwise creates the default artifact builders.
+    * Reads the log from the log handle/url and walks each line
+    calling into each artifact builder with each line for handling
+    * Maintains no state
 
 
-ArtifactBuilderBase
--------------
-* Base class for all artifact builders`.
-* Manages:
-* artifact
-* line number
-* parser
-* Passes lines the ``Parser``
+    ArtifactBuilderBase
+    -------------
+    * Base class for all artifact builders`.
+    * Manages:
+    * artifact
+    * line number
+    * parser
+    * Passes lines the ``Parser``
 
-LogViewerArtifactBuilder
--------------
-* Parses out content for use in a visual Log Parser
-* Parsers:
-* ErrorParser
+    LogViewerArtifactBuilder
+    -------------
+    * Parses out content for use in a visual Log Parser
+    * Parsers:
+    * ErrorParser
 
-PerformanceDataArtifactBuilder
--------------
-* Builds an artifact from performance data
-* Parsers:
-* PerformanceParser
-"""
+    PerformanceDataArtifactBuilder
+    -------------
+    * Builds an artifact from performance data
+    * Parsers:
+    * PerformanceParser"""
 
     def __init__(self, url, builders=None):
         """

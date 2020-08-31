@@ -101,17 +101,17 @@ def _sanitize_data(runnable_jobs_data):
 def query_sanitized_data(repo_name='autoland'):
     """Return sanitized jobs data based on runnable api. None if failed to obtain or no new data.
 
-     We need to find the latest gecko decision task ID (by querying the index [1][2]).
+    We need to find the latest gecko decision task ID (by querying the index [1][2]).
 
-     [1] firefox-ci-tc.services.mozilla.com/api/index/v1/task/gecko.v2.%s.latest.taskgraph.decision/
-     [2] Index's data structure:
-      {
-        "namespace": "gecko.v2.autoland.latest.taskgraph.decision",
-        "taskId": "Dh9ZvFk5QCSprJ877cgUmw",
-        "rank": 0,
-        "data": {},
-        "expires": "2017-10-06T18:30:18.428Z"
-      }
+    [1] firefox-ci-tc.services.mozilla.com/api/index/v1/task/gecko.v2.%s.latest.taskgraph.decision/
+    [2] Index's data structure:
+     {
+       "namespace": "gecko.v2.autoland.latest.taskgraph.decision",
+       "taskId": "Dh9ZvFk5QCSprJ877cgUmw",
+       "rank": 0,
+       "data": {},
+       "expires": "2017-10-06T18:30:18.428Z"
+     }
     """
     runnable_jobs = list_runnable_jobs(repo_name)
     return _sanitize_data(runnable_jobs)

@@ -27,7 +27,8 @@ class SecretaryTool:
     @classmethod
     def validate_settings(cls):
         perf_sheriff_settings, created = PerformanceSettings.objects.get_or_create(
-            name="perf_sheriff_bot", defaults={"settings": cls._get_default_settings()},
+            name="perf_sheriff_bot",
+            defaults={"settings": cls._get_default_settings()},
         )
 
         if created:

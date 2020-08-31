@@ -150,11 +150,11 @@ class PerfSheriffBot:
     def _is_queue_overloaded(
         self, provisioner_id: str, worker_type: str, acceptable_limit=100
     ) -> bool:
-        '''
+        """
         Helper method for PerfSheriffBot to check load on processing queue.
         Usage example: _queue_is_too_loaded('gecko-3', 'b-linux')
         :return: True/False
-        '''
+        """
         tc = TaskclusterConfig('https://firefox-ci-tc.services.mozilla.com')
         tc.auth(client_id=CLIENT_ID, access_token=ACCESS_TOKEN)
         queue = tc.get_service('queue')

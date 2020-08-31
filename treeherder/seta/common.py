@@ -47,7 +47,7 @@ RE_JOB_TYPE_NAMES = [
 
 
 def convert_job_type_name_to_testtype(job_type_name):
-    '''job_type_names are essentially free form though there are
+    """job_type_names are essentially free form though there are
     several patterns used in job_type_names.
 
     test-<platform>/<buildtype>-<testtype> test-linux1804-64-shippable-qr/opt-reftest-e10s-5
@@ -62,7 +62,7 @@ def convert_job_type_name_to_testtype(job_type_name):
     tasks did not match the expected job_type_name pattern. This
     function ensures that job_type_names are converted to seta
     testtypes in a consistent fashion.
-    '''
+    """
     testtype = None
     if not job_type_name.startswith('[funsize'):
         for re_job_type_name in RE_JOB_TYPE_NAMES:

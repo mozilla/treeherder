@@ -86,10 +86,10 @@ class PerformanceSignature(models.Model):
 
     @staticmethod
     def _get_alert_change_type(alert_change_type_input):
-        '''
+        """
         Maps a schema-specified alert change type to the internal index
         value
-        '''
+        """
         for (idx, enum_val) in PerformanceSignature.ALERT_CHANGE_TYPES:
             if enum_val == alert_change_type_input:
                 return idx
@@ -153,7 +153,7 @@ class PerformanceDatumManager(models.Manager):
 
     def cycle_data(self, cycle_interval, chunk_size, logger, started_at, max_overall_runtime):
         """Delete data older than cycle_interval, splitting the target data
-into chunks of chunk_size size."""
+        into chunks of chunk_size size."""
         max_timestamp = datetime.datetime.now() - cycle_interval
 
         try:
@@ -218,11 +218,11 @@ into chunks of chunk_size size."""
                         )
 
     def _compute_ideal_chunk_size(self, max_timestamp, max_chunk_size):
-        '''
+        """
         max_chunk_size may be too big, causing
         timeouts while attempting deletion;
         doing basic database query, maybe a lower value is better
-        '''
+        """
         max_id = self.filter(push_timestamp__gt=max_timestamp).order_by('-id')[0].id
         older_ids = self.filter(push_timestamp__lte=max_timestamp, id__lte=max_id).order_by('id')[
             :max_chunk_size
@@ -282,14 +282,14 @@ class IssueTracker(models.Model):
 
 
 class PerformanceAlertSummary(models.Model):
-    '''
+    """
     A summarization of performance alerts
 
     A summary of "alerts" that the performance numbers for a specific
     repository have changed at a particular time.
 
     See also the :ref:`PerformanceAlert` class below.
-    '''
+    """
 
     id = models.AutoField(primary_key=True)
     repository = models.ForeignKey(Repository, on_delete=models.CASCADE)
@@ -421,7 +421,7 @@ class PerformanceAlertSummary(models.Model):
 
 
 class PerformanceAlert(models.Model):
-    '''
+    """
     A single performance alert
 
     An individual "alert" that the numbers in a specific performance
@@ -431,7 +431,7 @@ class PerformanceAlert(models.Model):
     the alerts associated with a particular push together. In many cases at
     Mozilla, the original alert summary is not correct, so we allow reassigning
     it to a different (revised) summary.
-    '''
+    """
 
     id = models.AutoField(primary_key=True)
     summary = models.ForeignKey(
@@ -555,9 +555,9 @@ class PerformanceTag(models.Model):
 
 
 class PerformanceBugTemplate(models.Model):
-    '''
+    """
     Template for filing a bug or issue associated with a performance alert
-    '''
+    """
 
     framework = models.OneToOneField(PerformanceFramework, on_delete=models.CASCADE)
 

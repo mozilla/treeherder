@@ -76,7 +76,9 @@ def test_update_autoclassification_bug(test_job, test_job_2, classified_failures
 
     # Create a BugJobMap
     BugJobMap.create(
-        job_id=test_job.id, bug_id=1234, user=user,
+        job_id=test_job.id,
+        bug_id=1234,
+        user=user,
     )
     mark_best_classification(text_log_errors[0], classified_failure)
     assert classified_failure.bug_number is None
@@ -86,7 +88,9 @@ def test_update_autoclassification_bug(test_job, test_job_2, classified_failures
     metadata.save()
 
     BugJobMap.create(
-        job_id=test_job_2.id, bug_id=1234, user=user,
+        job_id=test_job_2.id,
+        bug_id=1234,
+        user=user,
     )
     classified_failure.refresh_from_db()
     assert classified_failure.bug_number == 1234

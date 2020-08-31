@@ -15,22 +15,60 @@ from treeherder.log_parser.utils import (
 
 LENGTH_OK = {
     'framework': {},
-    'suites': [{'extraOptions': ['.' * 45, '.' * 100,], 'name': 'testing', 'subtests': []}] * 3,
+    'suites': [
+        {
+            'extraOptions': [
+                '.' * 45,
+                '.' * 100,
+            ],
+            'name': 'testing',
+            'subtests': [],
+        }
+    ]
+    * 3,
 }
 
 LONGER_THAN_ALL_MAX = {
     'framework': {},
-    'suites': [{'extraOptions': ['.' * 46, '.' * 101,], 'name': 'testing', 'subtests': []}],
+    'suites': [
+        {
+            'extraOptions': [
+                '.' * 46,
+                '.' * 101,
+            ],
+            'name': 'testing',
+            'subtests': [],
+        }
+    ],
 }
 
 LONGER_THAN_BIGGER_MAX = {
     'framework': {},
-    'suites': [{'extraOptions': ['.' * 45, '.' * 101,], 'name': 'testing', 'subtests': []}],
+    'suites': [
+        {
+            'extraOptions': [
+                '.' * 45,
+                '.' * 101,
+            ],
+            'name': 'testing',
+            'subtests': [],
+        }
+    ],
 }
 
 LONGER_THAN_SMALLER_MAX = {
     'framework': {},
-    'suites': [{'extraOptions': ['.' * 46, '.' * 100,], 'name': 'testing', 'subtests': []}] * 3,
+    'suites': [
+        {
+            'extraOptions': [
+                '.' * 46,
+                '.' * 100,
+            ],
+            'name': 'testing',
+            'subtests': [],
+        }
+    ]
+    * 3,
 }
 
 

@@ -38,7 +38,11 @@ class HgPushlogProcess:
         # to protect against the 5000+ commit merges on release day uplift.
         for commit in push['changesets'][-200:]:
             commits.append(
-                {'revision': commit['node'], 'author': commit['author'], 'comment': commit['desc'],}
+                {
+                    'revision': commit['node'],
+                    'author': commit['author'],
+                    'comment': commit['desc'],
+                }
             )
 
         return {

@@ -44,7 +44,10 @@ def occasional_log(message, seconds=LOG_EVERY):
 
 
 def progress_notifier(
-    item_processor, iterable: list, item_name: str, tabs_no=0,
+    item_processor,
+    iterable: list,
+    item_name: str,
+    tabs_no=0,
 ):
     total_items = len(iterable)
     print('{0}Fetching {1} {2} item(s)...'.format('\t' * tabs_no, total_items, item_name))

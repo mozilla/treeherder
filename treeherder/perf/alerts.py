@@ -139,15 +139,15 @@ def generate_new_alerts_in_series(signature):
 
 
 class AlertsPicker:
-    '''
+    """
     Class encapsulating the algorithm used for selecting the most relevant alerts from a tuple of alerts.
     For this algorithm, regressions are considered the most important, followed by improvements.
-    '''
+    """
 
     def __init__(
         self, max_alerts: int, max_improvements: int, platforms_of_interest: Tuple[str, ...]
     ):
-        '''
+        """
         :param max_alerts: the maximum number of selected alerts
         :param max_improvements: max when handling only improvements
         :param platforms_of_interest: platforms in decreasing order of importance
@@ -160,7 +160,7 @@ class AlertsPicker:
             Note:
                 too specific names can trigger a mismatch with database data; the effect will be the alert skipping
                 too less specific will alter the correct order of alerts
-        '''
+        """
         if max_alerts <= 0 or max_improvements <= 0:
             raise ValueError('Use positive values.')
         if len(platforms_of_interest) == 0:
@@ -178,10 +178,10 @@ class AlertsPicker:
         return self._ensure_alerts_variety(sorted_alerts)
 
     def _ensure_alerts_variety(self, sorted_alerts: List[PerformanceAlert]):
-        '''
+        """
         The alerts container must be sorted before being passed to this function.
         The returned list must contain regressions and (if present) improvements.
-        '''
+        """
         regressions_only = all(alert.is_regression for alert in sorted_alerts)
         improvements_only = all(not alert.is_regression for alert in sorted_alerts)
 
@@ -202,12 +202,12 @@ class AlertsPicker:
         ]
 
     def _ensure_platform_variety(self, sorted_all_alerts: List[PerformanceAlert]):
-        '''
+        """
         Note: Ensure that the sorted_all_alerts container has only
         platforms of interest (example: 'windows10', 'windows7', 'linux', 'osx', 'android').
         Please filter sorted_all_alerts list with filter_alerts(alerts) before calling this function.
         :param sorted_all_alerts: alerts sorted by platform name
-        '''
+        """
         platform_grouped_alerts = []
         for platform in self.ordered_platforms_of_interest:
             specific_platform_alerts = [
@@ -225,11 +225,11 @@ class AlertsPicker:
         return platform_picked
 
     def _os_relevance(self, alert_platform: str):
-        '''
+        """
         One of the sorting criteria.
         :param alert_platform: the name of the current alert's platform
         :return: int value of platform's relevance
-        '''
+        """
         for platform_of_interest in self.ordered_platforms_of_interest:
             if alert_platform.startswith(platform_of_interest):
                 return len(
@@ -238,9 +238,9 @@ class AlertsPicker:
         raise ValueError('Unknown platform.')
 
     def _has_relevant_platform(self, alert: PerformanceAlert):
-        '''
+        """
         Filter criteria based on platform name.
-        '''
+        """
         alert_platform_name = alert.series_signature.platform.platform
         return any(
             alert_platform_name.startswith(platform_of_interest)
@@ -364,9 +364,9 @@ class BackfillReportMaintainer:
         backfill_context_fetcher: IdentifyAlertRetriggerables,
         logger=None,
     ):
-        '''
+        """
         Acquire/instantiate data used for finding alerts.
-        '''
+        """
         self.alerts_picker = alerts_picker
         self.fetch_backfill_context = backfill_context_fetcher
         self.log = logger or logging.getLogger(self.__class__.__name__)

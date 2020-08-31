@@ -41,7 +41,9 @@ SAMPLE_DATA_PATH = join(dirname(__file__), 'sample_data')
 
 def pytest_addoption(parser):
     parser.addoption(
-        "--runslow", action="store_true", help="run slow tests",
+        "--runslow",
+        action="store_true",
+        help="run slow tests",
     )
 
 
@@ -643,9 +645,9 @@ def test_perf_alert_2(test_perf_alert, test_perf_signature_2, test_perf_alert_su
 
 @pytest.fixture
 def generic_reference_data(test_repository):
-    '''
+    """
     Generic reference data (if you want to create a bunch of mock jobs)
-    '''
+    """
     from treeherder.model.models import (
         BuildPlatform,
         JobGroup,

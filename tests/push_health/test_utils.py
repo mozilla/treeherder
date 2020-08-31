@@ -60,7 +60,13 @@ def test_clean_test(action, test, signature, message, expected):
 
 @pytest.mark.parametrize(
     ('config', 'expected'),
-    [('opt', 'opt'), ('debug', 'debug'), ('asan', 'asan'), ('pgo', 'opt'), ('shippable', 'opt'),],
+    [
+        ('opt', 'opt'),
+        ('debug', 'debug'),
+        ('asan', 'asan'),
+        ('pgo', 'opt'),
+        ('shippable', 'opt'),
+    ],
 )
 def test_clean_config(config, expected):
     assert expected == clean_config(config)

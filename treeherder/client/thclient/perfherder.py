@@ -2,9 +2,9 @@ from .client import TreeherderClient
 
 
 class PerformanceTimeInterval:
-    '''
+    """
     Valid time intervals for Perfherder series
-    '''
+    """
 
     DAY = 86400
     WEEK = 604800
@@ -15,10 +15,10 @@ class PerformanceTimeInterval:
 
     @staticmethod
     def all_valid_time_intervals():
-        '''
+        """
         Helper method to return all possible valid time intervals for data
         stored by Perfherder
-        '''
+        """
         return [
             PerformanceTimeInterval.DAY,
             PerformanceTimeInterval.WEEK,
@@ -30,12 +30,12 @@ class PerformanceTimeInterval:
 
 
 class PerformanceSignatureCollection(dict):
-    '''
+    """
     Represents a collection of performance signatures in Perfherder
-    '''
+    """
 
     def filter(self, *args):
-        '''
+        """
         Returns a filtered subset of this collection of signatures, based on
         a set of key/value tuples
 
@@ -47,7 +47,7 @@ class PerformanceSignatureCollection(dict):
             pc = PerfherderClient()
             signatures = pc.get_signatures('mozilla-central')
             signatures = signatures.filter(('suite', 'tp5o'), ('machine_platform', 'windowsxp'))
-        '''
+        """
         filtered_signatures = {}
         for (signature, signature_value) in self.items():
             skip = False
@@ -61,15 +61,15 @@ class PerformanceSignatureCollection(dict):
         return PerformanceSignatureCollection(filtered_signatures)
 
     def get_signature_hashes(self):
-        '''
+        """
         Return all signature hashes in this collection
-        '''
+        """
         return list(self.keys())
 
     def get_property_names(self):
-        '''
+        """
         Returns all property names in this collection of signatures
-        '''
+        """
         property_names = set()
         for signature_value in self.values():
             for property_name in signature_value.keys():
@@ -77,9 +77,9 @@ class PerformanceSignatureCollection(dict):
         return property_names
 
     def get_property_values(self, property_name):
-        '''
+        """
         Returns all property values for a particular property name in this collection
-        '''
+        """
         property_values = set()
         for signature_value in self.values():
             if signature_value.get(property_name):
@@ -88,7 +88,7 @@ class PerformanceSignatureCollection(dict):
 
 
 class PerformanceSeries(list):
-    '''
+    """
     Represents a series of performance observations
 
     You can access the individual elements of the series by using the []
@@ -100,7 +100,7 @@ class PerformanceSeries(list):
         signature = '9cfc271dab9b7fc2c1229736fecfbbc6e7c5fac9'
         series = pc.get_performance_data('mozilla-central', signature=signature)[signature]
         (result_set_ids, geomeans) = (series['result_set_id'], series['geomean'])
-    '''
+    """
 
     def __getitem__(self, key):
         # Casting to list since Python 3's `map` produces an iterator rather than a list.
@@ -113,18 +113,18 @@ class PerfherderClient(TreeherderClient):
     PERFORMANCE_DATA_ENDPOINT = 'performance/data'
 
     def get_performance_signatures(self, project, **params):
-        '''
+        """
         Gets a set of performance signatures associated with a project and time range
-        '''
+        """
         results = self._get_json(self.PERFORMANCE_SIGNATURES_ENDPOINT, project, **params)
         return PerformanceSignatureCollection(results)
 
     def get_performance_data(self, project, **params):
-        '''
+        """
         Gets a dictionary of PerformanceSeries objects
 
         You can specify which signatures to get by passing signature to this function
-        '''
+        """
         results = self._get_json(self.PERFORMANCE_DATA_ENDPOINT, project, **params)
 
         return {k: PerformanceSeries(v) for k, v in results.items()}

@@ -71,11 +71,11 @@ def sanitized_data(runnable_jobs_data):
 
 @pytest.fixture
 def all_job_priorities_stored(job_priority_list):
-    '''Stores sample job priorities
+    """Stores sample job priorities
 
     If you include this fixture in your tests it will guarantee
     to insert job priority data into the temporary database.
-    '''
+    """
     for jp in job_priority_list:
         jp.save()
 

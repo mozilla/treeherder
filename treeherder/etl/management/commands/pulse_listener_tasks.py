@@ -33,7 +33,11 @@ class Command(BaseCommand):
             ],
         )
 
-        consumers = prepare_consumers(TaskConsumer, task_sources, lambda key: "#.{}".format(key),)
+        consumers = prepare_consumers(
+            TaskConsumer,
+            task_sources,
+            lambda key: "#.{}".format(key),
+        )
 
         try:
             consumers.run()

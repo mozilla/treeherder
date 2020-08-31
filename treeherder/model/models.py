@@ -117,12 +117,12 @@ class Repository(models.Model):
 
 
 class Push(models.Model):
-    '''
+    """
     A push to a repository
 
     A push should contain one or more commit objects, representing
     the changesets that were part of the push
-    '''
+    """
 
     repository = models.ForeignKey(Repository, on_delete=models.CASCADE)
     revision = models.CharField(max_length=40, db_index=True)
@@ -140,9 +140,9 @@ class Push(models.Model):
         return "{0} {1}".format(self.repository.name, self.revision)
 
     def get_status(self):
-        '''
+        """
         Gets a summary of what passed/failed for the push
-        '''
+        """
         jobs = (
             Job.objects.filter(push=self)
             .filter(
@@ -169,9 +169,9 @@ class Push(models.Model):
 
 
 class Commit(models.Model):
-    '''
+    """
     A single commit in a push
-    '''
+    """
 
     push = models.ForeignKey(Push, on_delete=models.CASCADE, related_name='commits')
     revision = models.CharField(max_length=40, db_index=True)
@@ -677,9 +677,9 @@ class Job(models.Model):
 
 
 class TaskclusterMetadata(models.Model):
-    '''
+    """
     Taskcluster-specific metadata associated with a taskcluster job
-    '''
+    """
 
     job = models.OneToOneField(
         Job, on_delete=models.CASCADE, primary_key=True, related_name='taskcluster_metadata'
@@ -693,11 +693,11 @@ class TaskclusterMetadata(models.Model):
 
 
 class JobLog(models.Model):
-    '''
+    """
     Represents a log associated with a job
 
     There can be more than one of these associated with each job
-    '''
+    """
 
     PENDING = 0
     PARSED = 1
@@ -729,12 +729,12 @@ class JobLog(models.Model):
 
 
 class BugJobMap(models.Model):
-    '''
+    """
     Maps job_ids to related bug_ids
 
     Mappings can be made manually through a UI or from doing lookups in the
     BugsCache
-    '''
+    """
 
     id = models.BigAutoField(primary_key=True)
 
@@ -759,7 +759,11 @@ class BugJobMap(models.Model):
 
     @classmethod
     def create(cls, job_id, bug_id, user=None):
-        bug_map = BugJobMap.objects.create(job_id=job_id, bug_id=bug_id, user=user,)
+        bug_map = BugJobMap.objects.create(
+            job_id=job_id,
+            bug_id=bug_id,
+            user=user,
+        )
 
         if not user:
             return bug_map
@@ -912,7 +916,8 @@ class JobNote(models.Model):
         # TODO: Decide whether this should change now that we're no longer mirroring.
         bug_numbers = set(
             ClassifiedFailure.objects.filter(
-                best_for_errors__text_log_error__job=job, best_for_errors__best_is_verified=True,
+                best_for_errors__text_log_error__job=job,
+                best_for_errors__best_is_verified=True,
             )
             .exclude(bug_number=None)
             .exclude(bug_number=0)
@@ -1182,7 +1187,8 @@ class ClassifiedFailure(models.Model):
         """
         for match in self.error_matches.all():
             other_matches = TextLogErrorMatch.objects.filter(
-                classified_failure=other, text_log_error=match.text_log_error,
+                classified_failure=other,
+                text_log_error=match.text_log_error,
             )
 
             if not other_matches:
@@ -1325,7 +1331,11 @@ class TextLogError(models.Model):
             return
 
         newrelic.agent.record_custom_event(
-            'user_verified_classification', {'matcher': match.matcher_name, 'job_id': self.id,}
+            'user_verified_classification',
+            {
+                'matcher': match.matcher_name,
+                'job_id': self.id,
+            },
         )
 
     def get_failure_line(self):

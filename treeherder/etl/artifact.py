@@ -21,7 +21,9 @@ def store_text_log_summary_artifact(job, text_log_summary_artifact):
     with transaction.atomic():
         for error in errors:
             obj, created = TextLogError.objects.get_or_create(
-                job=job, line_number=error['linenumber'], line=astral_filter(error['line']),
+                job=job,
+                line_number=error['linenumber'],
+                line=astral_filter(error['line']),
             )
             if not created:
                 logger.warning('duplicate error lines processed for job %s', job.id)

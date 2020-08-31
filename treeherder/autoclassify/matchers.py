@@ -96,7 +96,12 @@ def crash_signature_matcher(text_log_error):
     # try again without filtering to the test but applying a .8 score multiplyer
     chunks = chunked_qs_reverse(qs, chunk_size=size)
     scored_matches = chain.from_iterable(
-        time_boxed(score_matches, chunks, time_budget, score_multiplier=(8, 10),)
+        time_boxed(
+            score_matches,
+            chunks,
+            time_budget,
+            score_multiplier=(8, 10),
+        )
     )
     return scored_matches
 

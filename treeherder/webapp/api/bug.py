@@ -16,7 +16,9 @@ class BugJobMapViewSet(viewsets.ViewSet):
 
         try:
             BugJobMap.create(
-                job_id=job_id, bug_id=bug_id, user=request.user,
+                job_id=job_id,
+                bug_id=bug_id,
+                user=request.user,
             )
             message = "Bug job map saved"
         except IntegrityError:

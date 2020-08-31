@@ -44,7 +44,9 @@ def test_push_list_bad_project(client, transactional_db):
     """
     test that we have a sane error when the repository does not exist
     """
-    resp = client.get(reverse("push-list", kwargs={"project": "foo"}),)
+    resp = client.get(
+        reverse("push-list", kwargs={"project": "foo"}),
+    )
     assert resp.status_code == 404
     assert resp.json() == {"detail": "No project with name foo"}
 
@@ -56,7 +58,9 @@ def test_push_list_empty_push_still_show(client, sample_push, test_repository):
     """
     store_push_data(test_repository, sample_push)
 
-    resp = client.get(reverse("push-list", kwargs={"project": test_repository.name}),)
+    resp = client.get(
+        reverse("push-list", kwargs={"project": test_repository.name}),
+    )
     assert resp.status_code == 200
     data = resp.json()
     assert len(data['results']) == 10
@@ -349,7 +353,9 @@ def test_push_detail_bad_project(client, test_repository):
     endpoint.
     """
     bad_pk = -32767
-    resp = client.get(reverse("push-detail", kwargs={"project": "foo", "pk": bad_pk}),)
+    resp = client.get(
+        reverse("push-detail", kwargs={"project": "foo", "pk": bad_pk}),
+    )
     assert resp.status_code == 404
 
 

@@ -97,7 +97,9 @@ def ingest_hg_push(options):
         last_push_id = last_push_id_from_server(repo)
         fetch_push_id = max(1, last_push_id - options['last_n_pushes'])
         logger.info(
-            'last server push id: %d; fetching push %d and newer', last_push_id, fetch_push_id,
+            'last server push id: %d; fetching push %d and newer',
+            last_push_id,
+            fetch_push_id,
         )
     elif options["ingest_all_tasks"]:
         gecko_decision_task = get_decision_task_id(project, commit, repo.tc_root_url)
@@ -125,7 +127,13 @@ def _ingest_hg_push(project, revision, fetch_push_id=None):
 async def ingest_task(taskId, root_url):
     asyncQueue = taskcluster.aio.Queue({"rootUrl": root_url}, session=session)
     results = await asyncio.gather(asyncQueue.status(taskId), asyncQueue.task(taskId))
-    await handleTask({"status": results[0]["status"], "task": results[1],}, root_url)
+    await handleTask(
+        {
+            "status": results[0]["status"],
+            "task": results[1],
+        },
+        root_url,
+    )
 
 
 async def handleTask(task, root_url):
@@ -136,7 +144,13 @@ async def handleTask(task, root_url):
     for run in reversed(runs):
         message = {
             "exchange": stateToExchange[run["state"]],
-            "payload": {"status": {"taskId": taskId, "runs": runs,}, "runId": run["runId"],},
+            "payload": {
+                "status": {
+                    "taskId": taskId,
+                    "runs": runs,
+                },
+                "runId": run["runId"],
+            },
             "root_url": root_url,
         }
 
@@ -248,7 +262,7 @@ def repo_meta(project):
 
 
 def query_data(repo_meta, commit):
-    """ Find the right event base sha to get the right list of commits
+    """Find the right event base sha to get the right list of commits
 
     This is not an issue in GithubPushTransformer because the PushEvent from Taskcluster
     already contains the data
@@ -321,7 +335,9 @@ def github_push_to_pulse(repo_meta, commit):
                 "event.base.sha": event_base_sha,
                 "event.head.sha": commit,
             },
-            "body": {"commits": commits,},
+            "body": {
+                "commits": commits,
+            },
             "repository": repo_meta["repo"],
         },
     }

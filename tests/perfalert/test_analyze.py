@@ -89,10 +89,10 @@ def test_detect_changes():
 
 
 def test_detect_changes_few_revisions_many_values():
-    '''
+    """
     Tests that we correctly detect a regression with
     a small number of revisions but a large number of values
-    '''
+    """
     data = [
         RevisionDatum(0, 0, [0] * 50 + [1] * 30),
         RevisionDatum(1, 1, [0] * 10 + [1] * 30),

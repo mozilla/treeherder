@@ -51,9 +51,9 @@ def test_initialize_values_no_data():
 @patch.object(JobPriority, 'save')
 @patch('treeherder.seta.update_job_priority._initialize_values')
 def test_update_table_empty_table(initial_values, jp_save, sanitized_data):
-    '''
+    """
     We test that starting from an empty table
-    '''
+    """
     # This set of values is when we're bootstrapping the service (aka empty table)
     initial_values.return_value = {}, 5, None
     jp_save.return_value = None  # Since we don't want to write to the DB

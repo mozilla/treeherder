@@ -205,21 +205,38 @@ def test_login_authorization_header_missing(client):
     assert resp.json()["detail"] == "Authorization header is expected"
 
 
-@pytest.mark.parametrize('auth_header_value', ['foo', 'Bearer ', 'Bearer foo bar',])
+@pytest.mark.parametrize(
+    'auth_header_value',
+    [
+        'foo',
+        'Bearer ',
+        'Bearer foo bar',
+    ],
+)
 def test_login_authorization_header_malformed(client, auth_header_value):
-    resp = client.get(reverse('auth-login'), HTTP_AUTHORIZATION=auth_header_value,)
+    resp = client.get(
+        reverse('auth-login'),
+        HTTP_AUTHORIZATION=auth_header_value,
+    )
     assert resp.status_code == 403
     assert resp.json()['detail'] == "Authorization header must be of form 'Bearer {token}'"
 
 
 def test_login_id_token_header_missing(client):
-    resp = client.get(reverse('auth-login'), HTTP_AUTHORIZATION='Bearer abc',)
+    resp = client.get(
+        reverse('auth-login'),
+        HTTP_AUTHORIZATION='Bearer abc',
+    )
     assert resp.status_code == 403
     assert resp.json()['detail'] == 'Id-Token header is expected'
 
 
 def test_login_id_token_malformed(client):
-    resp = client.get(reverse('auth-login'), HTTP_AUTHORIZATION='Bearer abc', HTTP_ID_TOKEN='aaa',)
+    resp = client.get(
+        reverse('auth-login'),
+        HTTP_AUTHORIZATION='Bearer abc',
+        HTTP_ID_TOKEN='aaa',
+    )
     assert resp.status_code == 403
     assert resp.json()['detail'] == 'Unable to decode the Id token header'
 
@@ -302,7 +319,11 @@ def test_login_access_token_expiry_header_missing(client, monkeypatch):
 
     monkeypatch.setattr(AuthBackend, '_get_user_info', userinfo_mock)
 
-    resp = client.get(reverse('auth-login'), HTTP_AUTHORIZATION='Bearer foo', HTTP_ID_TOKEN='bar',)
+    resp = client.get(
+        reverse('auth-login'),
+        HTTP_AUTHORIZATION='Bearer foo',
+        HTTP_ID_TOKEN='bar',
+    )
     assert resp.status_code == 403
     assert resp.json()['detail'] == 'Access-Token-Expires-At header is expected'
 
