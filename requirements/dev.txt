@@ -92,9 +92,9 @@ django-debug-toolbar==2.2 \
     --hash=sha256:eabbefe89881bbe4ca7c980ff102e3c35c8e8ad6eb725041f538988f2f39a943 \
     --hash=sha256:ff94725e7aae74b133d0599b9bf89bd4eb8f5d2c964106e61d11750228c8774c \
     # via -r requirements/dev.in
-django-extensions==3.0.5 \
-    --hash=sha256:40d4b7aec7bbe66dda8704fbfaf2e1b7e04ec4aea6b10dcbd78d8af7c37bfddb \
-    --hash=sha256:6306175ae8c78c18ea7aff794f5fa3a47de7d128666e6668bd40596895da7f84 \
+django-extensions==3.0.6 \
+    --hash=sha256:59df0c4dfe93bffdbdeeb474633ef7654589c9ccc6dcd1f34605198f5e2ede05 \
+    --hash=sha256:ec7f3aa9d51bb00f84099c3a71e5090984b7bcdcad247407106250642c23d722 \
     # via -r requirements/dev.in
 django==3.0.8 \
     --hash=sha256:31a5fbbea5fc71c99e288ec0b2f00302a0a92c44b13ede80b73a6a4d6d205582 \
@@ -288,9 +288,9 @@ requests==2.24.0 \
     --hash=sha256:b3559a131db72c33ee969480840fff4bb6dd111de7dd27c8ee1f820f4f00231b \
     --hash=sha256:fe75cc94a9443b9246fc7049224f75604b113c36acb93f87b80ed42c44cbb898 \
     # via betamax, pytest-base-url, pytest-selenium, responses
-responses==0.11.0 \
-    --hash=sha256:17dcd2facb12182ec353b05b424b2e3f52783f0bf3ad6586e098a11ba75fa666 \
-    --hash=sha256:789e79e8d04b6338b5018d49663e7c8554492ea1469012572aff064cc7bcf4da \
+responses==0.12.0 \
+    --hash=sha256:0de50fbf600adf5ef9f0821b85cc537acca98d66bc7776755924476775c1989c \
+    --hash=sha256:e80d5276011a4b79ecb62c5f82ba07aa23fb31ecbc95ee7cad6de250a3c97444 \
     # via -r requirements/dev.in
 selenium==3.141.0 \
     --hash=sha256:2d7131d7bc5a5b99a2d9b04aaf2612c411b03b8ca1b1ee8d3de5845a9be2cb3c \
