@@ -105,7 +105,7 @@ export const getLogViewerUrl = function getLogViewerUrl(
   repoName,
   lineNumber,
 ) {
-  const rv = `logviewer.html#?job_id=${jobId}&repo=${repoName}`;
+  const rv = `/logviewer?job_id=${jobId}&repo=${repoName}`;
   return lineNumber ? `${rv}&lineNumber=${lineNumber}` : rv;
 };
 

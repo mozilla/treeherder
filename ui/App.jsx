@@ -9,6 +9,7 @@ import LoadingSpinner from './shared/LoadingSpinner';
 import JobsViewApp from './job-view/App';
 import LoginCallback from './login-callback/LoginCallback';
 import TaskclusterCallback from './taskcluster-auth-callback/TaskclusterCallback';
+import LogviewerApp from './logviewer/App';
 
 const IntermittentFailuresApp = lazy(() =>
   import('./intermittent-failures/App'),
@@ -75,14 +76,12 @@ const App = () => {
               path="/jobs"
               render={(props) => <JobsViewApp {...props} />}
             />
+            <Route
+              path="/logviewer"
+              render={(props) => <LogviewerApp {...props} />}
+            />
 
             {/* 
-            logviewer: {
-              entry: 'logviewer/index.jsx',
-              favicon: 'ui/img/logviewerIcon.png',
-              title: 'Treeherder Logviewer',
-              template: 'ui/index.html',
-            },
             userguide: {
               entry: 'userguide/index.jsx',
               favicon: 'ui/img/tree_open.png',
