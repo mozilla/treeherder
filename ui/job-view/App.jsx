@@ -28,6 +28,7 @@ import KeyboardShortcuts from './KeyboardShortcuts';
 import { configureStore } from './redux/configureStore';
 import { CLEAR_EXPIRED_TRANSIENTS } from './redux/stores/notifications';
 
+import '../css/treeherder-base.css';
 import '../css/treeherder-navbar-panels.css';
 import '../css/treeherder-notifications.css';
 import '../css/treeherder-details-panel.css';

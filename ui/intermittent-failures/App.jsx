@@ -10,6 +10,7 @@ import BugDetailsView from './BugDetailsView';
 
 import 'react-table/react-table.css';
 import '../css/intermittent-failures.css';
+import '../css/treeherder-base.css';
 
 class IntermittentFailuresApp extends React.Component {
   constructor(props) {

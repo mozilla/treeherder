@@ -12,7 +12,7 @@ const choices = [
   { url: '/jobs', text: 'Treeherder' },
   { url: '/perfherder', text: 'Perfherder' },
   { url: '/intermittent-failures', text: 'Intermittent Failures View' },
-  { url: '/pushhealth', text: 'Push Health Usage' },
+  { url: '/push-health', text: 'Push Health Usage' },
 ];
 
 export default class LogoMenu extends React.PureComponent {

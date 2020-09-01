@@ -6,16 +6,20 @@ import { Provider } from 'react-redux';
 
 import { configureStore, history } from './job-view/redux/configureStore';
 import LoadingSpinner from './shared/LoadingSpinner';
-import JobsViewApp from './job-view/App';
 import LoginCallback from './login-callback/LoginCallback';
 import TaskclusterCallback from './taskcluster-auth-callback/TaskclusterCallback';
-import LogviewerApp from './logviewer/App';
 import UserGuideApp from './userguide/App';
 
 const IntermittentFailuresApp = lazy(() =>
   import('./intermittent-failures/App'),
 );
 const PerfherderApp = lazy(() => import('./perfherder/App'));
+
+const PushHealthApp = lazy(() => import('./push-health/App'));
+
+const JobsViewApp = lazy(() => import('./job-view/App'));
+
+const LogviewerApp = lazy(() => import('./logviewer/App'));
 
 // TODO
 // Move user state to here and pass to all other apps
@@ -85,13 +89,10 @@ const App = () => {
               path="/userguide"
               render={(props) => <UserGuideApp {...props} />}
             />
-
-            {/* pushhealth: {
-              entry: 'push-health/index.jsx',
-              title: 'Push Health',
-              favicon: 'ui/img/push-health-ok.png',
-              template: 'ui/index.html',
-            } */}
+            <Route
+              path="/push-health"
+              render={(props) => <PushHealthApp {...props} />}
+            />
             <Route
               path="/intermittent-failures"
               render={(props) => <IntermittentFailuresApp {...props} />}
