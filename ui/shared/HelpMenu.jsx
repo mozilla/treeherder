@@ -21,7 +21,7 @@ import {
 
 const menuItems = [
   {
-    href: '/userguide.html',
+    href: '/userguide',
     icon: faQuestionCircle,
     text: 'User Guide',
   },

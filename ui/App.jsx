@@ -10,6 +10,7 @@ import JobsViewApp from './job-view/App';
 import LoginCallback from './login-callback/LoginCallback';
 import TaskclusterCallback from './taskcluster-auth-callback/TaskclusterCallback';
 import LogviewerApp from './logviewer/App';
+import UserGuideApp from './userguide/App';
 
 const IntermittentFailuresApp = lazy(() =>
   import('./intermittent-failures/App'),
@@ -80,20 +81,17 @@ const App = () => {
               path="/logviewer"
               render={(props) => <LogviewerApp {...props} />}
             />
+            <Route
+              path="/userguide"
+              render={(props) => <UserGuideApp {...props} />}
+            />
 
-            {/* 
-            userguide: {
-              entry: 'userguide/index.jsx',
-              favicon: 'ui/img/tree_open.png',
-              title: 'Treeherder User Guide',
-              template: 'ui/index.html',
-            },
-
-            pushhealth: {
+            {/* pushhealth: {
               entry: 'push-health/index.jsx',
               title: 'Push Health',
               favicon: 'ui/img/push-health-ok.png',
-              template: 'ui/index.html', */}
+              template: 'ui/index.html',
+            } */}
             <Route
               path="/intermittent-failures"
               render={(props) => <IntermittentFailuresApp {...props} />}
