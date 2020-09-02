@@ -18,14 +18,32 @@ class Test extends PureComponent {
     };
   }
 
+  componentDidMount() {
+    const { selectedTest, testGroup, test } = this.props;
+
+    if (testGroup && selectedTest === test.id) {
+      this.setState({ detailsShowing: true });
+    }
+  }
+
   setClipboardVisible = (key) => {
     this.setState({ clipboardVisible: key });
   };
 
   toggleDetails = () => {
-    this.setState((prevState) => ({
-      detailsShowing: !prevState.detailsShowing,
-    }));
+    let { detailsShowing } = this.state;
+    const { updateParamsAndState, test } = this.props;
+
+    detailsShowing = !detailsShowing;
+    if (detailsShowing) {
+      updateParamsAndState({
+        selectedTest: test.id,
+        selectedTaskId: '',
+      });
+    }
+    this.setState({
+      detailsShowing,
+    });
   };
 
   getGroupHtml = (text) => {
@@ -63,6 +81,9 @@ class Test extends PureComponent {
       currentRepo,
       groupedBy,
       jobs,
+      selectedJobName,
+      selectedTaskId,
+      updateParamsAndState,
     } = this.props;
     const { clipboardVisible, detailsShowing } = this.state;
 
@@ -111,6 +132,12 @@ class Test extends PureComponent {
                 revision={revision}
                 notify={notify}
                 groupedBy={groupedBy}
+                selectedJobName={selectedJobName}
+                selectedTaskId={selectedTaskId}
+                updateParamsAndState={(stateObj) => {
+                  stateObj.selectedTest = id;
+                  updateParamsAndState(stateObj);
+                }}
                 className="ml-3"
               />
             ))}

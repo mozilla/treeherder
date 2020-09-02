@@ -22,12 +22,39 @@ class PlatformConfig extends React.PureComponent {
     };
   }
 
+  componentDidMount() {
+    const {
+      selectedJobName,
+      selectedTaskId,
+      jobs,
+      failure: { jobName, testName },
+    } = this.props;
+
+    this.setState({
+      detailsShowing: selectedJobName === `${testName} ${jobName}`,
+      selectedTask: selectedTaskId
+        ? jobs[jobName].filter((job) => job.id === parseInt(selectedTaskId, 10))
+            .length > 0 &&
+          jobs[jobName].filter(
+            (job) => job.id === parseInt(selectedTaskId, 10),
+          )[0]
+        : null,
+    });
+  }
+
   setSelectedTask = (task) => {
     const { selectedTask } = this.state;
+    const {
+      failure: { jobName, testName },
+    } = this.props;
 
     if (selectedTask === task || !task) {
       this.setState({ selectedTask: null, detailsShowing: false });
     } else {
+      this.props.updateParamsAndState({
+        selectedTaskId: task.id,
+        selectedJobName: `${testName} ${jobName}`,
+      });
       this.setState({ selectedTask: task, detailsShowing: true });
     }
   };
@@ -140,6 +167,7 @@ PlatformConfig.propTypes = {
   currentRepo: PropTypes.shape({}).isRequired,
   notify: PropTypes.func.isRequired,
   groupedBy: PropTypes.string.isRequired,
+  updateParamsAndState: PropTypes.func.isRequired,
 };
 
 export default PlatformConfig;

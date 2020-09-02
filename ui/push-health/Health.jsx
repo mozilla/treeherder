@@ -54,18 +54,29 @@ export default class Health extends React.PureComponent {
       notifications: [],
       defaultTabIndex: 0,
       showParentMatches: false,
+      testGroup: params.get('testGroup') || '',
+      selectedTest: params.get('selectedTest') || '',
+      selectedTaskId: params.get('selectedTaskId') || '',
+      selectedJobName: params.get('selectedJobName') || '',
       searchStr: params.get('searchStr') || '',
+      regressionsOrderBy: params.get('regressionsOrderBy') || 'count',
+      regressionsGroupBy: params.get('regressionsGroupBy') || 'path',
+      knownIssuesOrderBy: params.get('knownIssuesOrderBy') || 'count',
+      knownIssuesGroupBy: params.get('knownIssuesGroupBy') || 'path',
     };
   }
 
   async componentDidMount() {
-    const { repo } = this.state;
+    const { repo, testGroup } = this.state;
     const {
       metrics: { linting, builds, tests },
     } = await this.updatePushHealth();
-    const defaultTabIndex = [linting, builds, tests].findIndex(
+    let defaultTabIndex = [linting, builds, tests].findIndex(
       (metric) => metric.result === 'fail',
     );
+    if (testGroup) {
+      defaultTabIndex = 2;
+    }
     const repos = await RepositoryModel.getList();
     const currentRepo = repos.find((repoObj) => repoObj.name === repo);
 
@@ -86,6 +97,18 @@ export default class Health extends React.PureComponent {
 
   setUser = (user) => {
     this.setState({ user });
+  };
+
+  updateParamsAndState = (stateObj) => {
+    const { location, history } = this.props;
+    const newParams = {
+      ...parseQueryParams(location.search),
+      ...stateObj,
+    };
+    const queryString = createQueryParams(newParams);
+
+    updateQueryParams(queryString, history, location);
+    this.setState(stateObj);
   };
 
   updatePushHealth = async () => {
@@ -174,7 +197,15 @@ export default class Health extends React.PureComponent {
       searchStr,
       currentRepo,
       showParentMatches,
+      testGroup,
+      selectedTest,
       defaultTabIndex,
+      selectedTaskId,
+      selectedJobName,
+      regressionsOrderBy,
+      regressionsGroupBy,
+      knownIssuesOrderBy,
+      knownIssuesGroupBy,
     } = this.state;
     const { tests, commitHistory, linting, builds } = metrics;
     const needInvestigationCount = tests
@@ -305,7 +336,16 @@ export default class Health extends React.PureComponent {
                       notify={this.notify}
                       setExpanded={this.setExpanded}
                       searchStr={searchStr}
+                      testGroup={testGroup}
+                      selectedTest={selectedTest}
                       showParentMatches={showParentMatches}
+                      regressionsOrderBy={regressionsOrderBy}
+                      regressionsGroupBy={regressionsGroupBy}
+                      knownIssuesOrderBy={knownIssuesOrderBy}
+                      knownIssuesGroupBy={knownIssuesGroupBy}
+                      selectedTaskId={selectedTaskId}
+                      selectedJobName={selectedJobName}
+                      updateParamsAndState={this.updateParamsAndState}
                     />
                   </TabPanel>
                 </div>

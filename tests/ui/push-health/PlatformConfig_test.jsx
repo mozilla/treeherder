@@ -60,6 +60,7 @@ describe('PlatformConfig', () => {
       currentRepo={{ name: repoName, tc_root_url: 'http://foo.com' }}
       groupedBy="platform"
       notify={() => {}}
+      updateParamsAndState={() => {}}
     />
   );
 
