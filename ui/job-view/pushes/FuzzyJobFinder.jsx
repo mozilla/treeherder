@@ -10,6 +10,8 @@ import {
   ModalHeader,
   ModalBody,
   ModalFooter,
+  InputGroupAddon,
+  InputGroupText,
   InputGroup,
   Input,
 } from 'reactstrap';
@@ -198,19 +200,47 @@ class FuzzyJobFinder extends React.Component {
     });
   };
 
+  addToSelectedList = (evt) => {
+    const jobName = evt.target.textContent;
+    const { selectedList } = this.state;
+    const newSelectedList = [...new Set([].concat(selectedList, jobName))];
+    this.setState({ selectedList: newSelectedList });
+  };
+
+  removeFromSelectedList = (evt) => {
+    const jobName = evt.target.textContent;
+    const { selectedList } = this.state;
+    const newSelectedList = selectedList.filter((value) => value != jobName);
+    this.setState({ selectedList: newSelectedList }, () => {
+      this.setState({
+        removeDisabled: true,
+      });
+    });
+  };
+
   renderJob = ({ index, key, style }) => {
     const { fuzzyList } = this.state;
     const e = fuzzyList[index];
 
     return (
-      <div
-        data-testid="fuzzyList"
-        title={`${e.name} - ${e.groupsymbol}(${e.symbol})`}
-        key={key}
-        style={style}
-        className={this.state.selectedList.includes(e.name) ? 'selected' : ''}
-      >
-        {e.name}
+      <div>
+        <Button outline onClick={this.addToSelectedList}>
+          {e.name}
+        </Button>
+      </div>
+    );
+  };
+
+  renderSelectedJob = ({ index, key, style }) => {
+    const { selectedList } = this.state;
+    const e = selectedList[index];
+
+    console.log(selectedList);
+    return (
+      <div>
+        <Button outline onClick={this.removeFromSelectedList}>
+          {e.name}
+        </Button>
       </div>
     );
   };
@@ -262,16 +292,10 @@ class FuzzyJobFinder extends React.Component {
                 Add all
               </Button>
             </div>
-            {/* <List
-              width={500}
-              height={220}
-              rowHeight={20}
-              rowRenderer={this.renderJob}
-              rowCount={this.state.fuzzyList.length}
-            /> */}
 
-            <InputGroup id="addJobsGroup">
-              <Input type="select" multiple onChange={this.updateAddButton}>
+            {/* <InputGroup id="addJobsGroup"> */}
+            {/* Outer Input Group Might End Up as a div */}
+            {/* <Input type="select" multiple onChange={this.updateAddButton}>
                 <List
                   width={500}
                   height={220}
@@ -279,7 +303,7 @@ class FuzzyJobFinder extends React.Component {
                   rowRenderer={this.renderJob}
                   rowCount={this.state.fuzzyList.length}
                 />
-                {/* {this.state.fuzzyList.sort(sortAlphaNum).map((e) => (
+                {this.state.fuzzyList.sort(sortAlphaNum).map((e) => (
                   <option
                     data-testid="fuzzyList"
                     title={`${e.name} - ${e.groupsymbol}(${e.symbol})`}
@@ -290,9 +314,16 @@ class FuzzyJobFinder extends React.Component {
                   >
                     {e.name}
                   </option>
-                ))} */}
-              </Input>
-            </InputGroup>
+                ))}
+              </Input> */}
+            <List
+              width={500}
+              height={400}
+              rowHeight={20}
+              rowRenderer={this.renderJob}
+              rowCount={this.state.fuzzyList.length}
+            />
+            {/* </InputGroup> */}
             <hr />
             <h4> Selected Jobs [{this.state.selectedList.length}]</h4>
             <div className="fuzzybuttons">
@@ -312,7 +343,7 @@ class FuzzyJobFinder extends React.Component {
                 Remove all
               </Button>
             </div>
-            <InputGroup id="removeJobsGroup">
+            {/* <InputGroup id="removeJobsGroup">
               <Input type="select" multiple onChange={this.updateRemoveButton}>
                 {this.state.selectedList.sort(sortAlphaNum).map((e) => (
                   <option title={e} key={e}>
@@ -320,7 +351,14 @@ class FuzzyJobFinder extends React.Component {
                   </option>
                 ))}
               </Input>
-            </InputGroup>
+            </InputGroup> */}
+            <List
+              width={500}
+              height={400}
+              rowHeight={20}
+              rowRenderer={this.renderSelectedJob}
+              rowCount={this.state.selectedList.length}
+            />
           </ModalBody>
           <ModalFooter>
             <Button
