@@ -21,7 +21,7 @@ from treeherder.perf.models import (
     PerformanceSignature,
 )
 
-FRAMEWORK_NAME = 'cheezburger'
+FRAMEWORK_NAME = 'browsertime'
 MEASUREMENT_UNIT = 'ms'
 UPDATED_MEASUREMENT_UNIT = 'seconds'
 DATA_PER_ARTIFACT = 8  # related to sample_perf_artifact fixture
@@ -37,49 +37,49 @@ def sample_perf_artifact() -> dict:
             'framework': {'name': FRAMEWORK_NAME},
             'suites': [
                 {
-                    'name': 'cheezburger metrics',
+                    'name': 'youtube-watch',
                     'extraOptions': ['shell', 'e10s'],
                     'lowerIsBetter': True,
                     'value': 10.0,
                     'unit': MEASUREMENT_UNIT,
                     'subtests': [
                         {
-                            'name': 'test1',
+                            'name': 'fcp',
                             'value': 20.0,
                             'unit': MEASUREMENT_UNIT,
                             'lowerIsBetter': True,
                         },
                         {
-                            'name': 'test2',
+                            'name': 'loadtime',
                             'value': 30.0,
                             'unit': MEASUREMENT_UNIT,
                             'lowerIsBetter': False,
                         },
                         {
-                            'name': 'test3',
+                            'name': 'fnbpaint',
                             'value': 40.0,
                             'unit': MEASUREMENT_UNIT,
                         },
                     ],
                 },
                 {
-                    'name': 'cheezburger metrics 2',
+                    'name': 'youtube-watch 2',
                     'lowerIsBetter': False,
                     'value': 10.0,
                     'unit': MEASUREMENT_UNIT,
                     'subtests': [
                         {
-                            'name': 'test1',
+                            'name': 'fcp',
                             'value': 20.0,
                             'unit': MEASUREMENT_UNIT,
                         }
                     ],
                 },
                 {
-                    'name': 'cheezburger metrics 3',
+                    'name': 'youtube-watch 3',
                     'value': 10.0,
                     'unit': MEASUREMENT_UNIT,
-                    'subtests': [{'name': 'test1', 'value': 20.0, 'unit': MEASUREMENT_UNIT}],
+                    'subtests': [{'name': 'fcp', 'value': 20.0, 'unit': MEASUREMENT_UNIT}],
                 },
             ],
         },
@@ -115,26 +115,26 @@ def sample_perf_artifact_with_new_unit():
             'framework': {'name': FRAMEWORK_NAME},
             'suites': [
                 {
-                    'name': 'cheezburger metrics',
+                    'name': 'youtube-watch',
                     'extraOptions': ['shell', 'e10s'],
                     'lowerIsBetter': True,
                     'value': 10.0,
                     'unit': UPDATED_MEASUREMENT_UNIT,
                     'subtests': [
                         {
-                            'name': 'test1',
+                            'name': 'fcp',
                             'value': 20.0,
                             'unit': UPDATED_MEASUREMENT_UNIT,
                             'lowerIsBetter': True,
                         },
                         {
-                            'name': 'test2',
+                            'name': 'loadtime',
                             'value': 30.0,
                             'unit': MEASUREMENT_UNIT,
                             'lowerIsBetter': False,
                         },
                         {
-                            'name': 'test3',
+                            'name': 'fnbpaint',
                             'value': 40.0,
                             'unit': MEASUREMENT_UNIT,
                         },
@@ -174,9 +174,9 @@ def _prepare_test_data(datum):
 
 
 def _assert_hash_remains_unchanged():
-    summary_signature = PerformanceSignature.objects.get(suite='cheezburger metrics', test='')
+    summary_signature = PerformanceSignature.objects.get(suite='youtube-watch', test='')
     # Ensure we don't inadvertently change the way we generate signature hashes.
-    assert summary_signature.signature_hash == 'f451f0c9000a7f99e5dc2f05792bfdb0e11d0cac'
+    assert summary_signature.signature_hash == '78aaeaf7d3a0170f8a1fb0c4dc34ca276da47e1c'
     subtest_signatures = PerformanceSignature.objects.filter(
         parent_signature=summary_signature
     ).values_list('signature_hash', flat=True)
@@ -255,7 +255,7 @@ def test_timestamp_can_be_updated_for_default_ingestion_workflow(
     )
     store_performance_artifact(later_job, submit_datum)
 
-    signature = PerformanceSignature.objects.get(suite='cheezburger metrics', test='test1')
+    signature = PerformanceSignature.objects.get(suite='youtube-watch', test='fcp')
     assert signature.last_updated == later_perf_push.time
 
 
@@ -276,17 +276,15 @@ def test_measurement_unit_can_be_updated(
     )
     store_performance_artifact(later_job, updated_submit_datum)
 
-    summary_signature = PerformanceSignature.objects.get(suite='cheezburger metrics', test='')
-    updated_subtest_signature = PerformanceSignature.objects.get(
-        suite='cheezburger metrics', test='test1'
-    )
+    summary_signature = PerformanceSignature.objects.get(suite='youtube-watch', test='')
+    updated_subtest_signature = PerformanceSignature.objects.get(suite='youtube-watch', test='fcp')
     assert summary_signature.measurement_unit == UPDATED_MEASUREMENT_UNIT
     assert updated_subtest_signature.measurement_unit == UPDATED_MEASUREMENT_UNIT
 
     # no side effects when parent/sibling signatures
     # change measurement units
     not_changed_subtest_signature = PerformanceSignature.objects.get(
-        suite='cheezburger metrics', test='test2'
+        suite='youtube-watch', test='loadtime'
     )
     assert not_changed_subtest_signature.measurement_unit == MEASUREMENT_UNIT
 
@@ -434,7 +432,7 @@ def test_timestamp_can_be_updated_for_multi_data_ingestion_workflow(
         _, submit_datum = _prepare_test_data(artifact)
         store_performance_artifact(perf_job, submit_datum)
 
-    signature = PerformanceSignature.objects.get(suite='cheezburger metrics', test='test1')
+    signature = PerformanceSignature.objects.get(suite='youtube-watch', test='fcp')
     last_artifact = sibling_perf_artifacts[-1]
     last_push_timestamp = datetime.datetime.fromisoformat(last_artifact['blob']['pushTimestamp'])
 
