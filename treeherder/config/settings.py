@@ -461,6 +461,11 @@ BUG_COOLDOWN_TIME = timedelta(weeks=2)  # time after bug is ready for assessment
 
 # Only generate alerts for data newer than this time in seconds in perfherder
 PERFHERDER_ALERTS_MAX_AGE = timedelta(weeks=2)
+# From the same job's log, ingest (or not) multiple PERFHERDER_DATA dumps
+# pertaining to the same performance signature
+PERFHERDER_ENABLE_MULTIDATA_INGESTION = env.bool(
+    'PERFHERDER_ENABLE_MULTIDATA_INGESTION', default=True
+)
 
 # Performance sheriff bot settings
 MAX_BACKFILLS_PER_PLATFORM = {
