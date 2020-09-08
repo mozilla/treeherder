@@ -24,6 +24,7 @@ class CriteriaRecord:
     Test: str
     EngineerTraction: Union[float, str]
     FixRatio: Union[float, str]
+    TotalAlerts: int
     LastUpdatedOn: datetime
     AllowSync: bool
 
@@ -85,8 +86,7 @@ class RecordComputer:
                 self.__log_unexpected(ex, form_name, record)
 
             record = replace(
-                record,
-                **{form_name: result, 'LastUpdatedOn': datetime.utcnow().isoformat()},
+                record, **{form_name: result, 'LastUpdatedOn': datetime.utcnow().isoformat()},
             )
             self.__let_web_service_rest_a_bit()
         return record

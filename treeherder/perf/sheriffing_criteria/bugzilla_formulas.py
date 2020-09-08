@@ -9,6 +9,7 @@ from requests import Session
 
 from treeherder.config.settings import BZ_DATETIME_FORMAT
 from treeherder.perf.exceptions import NoFiledBugs, BugzillaEndpointError
+from treeherder.perf.models import PerformanceAlert
 
 # Google Doc specification
 PERF_SHERIFFING_CRITERIA = (
@@ -226,3 +227,15 @@ class FixRatioFormula(BugzillaFormula):
 
     def _create_default_session(self) -> NonBlockableSession:
         return NonBlockableSession(referer=f'{FIX_RATIO_SPECIFICATION}')
+
+
+def TotalAlertsFormula(framework: str, suite: str, test: str = None) -> int:
+    filters = {'series_signature__framework__name': framework, 'series_signature__suite': suite}
+    if test is not None:
+        filters['series_signature__test'] = test
+
+    return (
+        PerformanceAlert.objects.select_related('series_signature', 'series_signature__framework')
+        .filter(**filters)
+        .count()
+    )
