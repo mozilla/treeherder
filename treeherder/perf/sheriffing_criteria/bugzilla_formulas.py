@@ -229,13 +229,29 @@ class FixRatioFormula(BugzillaFormula):
         return NonBlockableSession(referer=f'{FIX_RATIO_SPECIFICATION}')
 
 
-def TotalAlertsFormula(framework: str, suite: str, test: str = None) -> int:
-    filters = {'series_signature__framework__name': framework, 'series_signature__suite': suite}
-    if test is not None:
-        filters['series_signature__test'] = test
+class TotalAlertsFormula:
+    MAX_INVESTIGATION_TIME = timedelta(
+        weeks=2
+    )  # until perf sheriffs should figure out a particular culprit
 
-    return (
-        PerformanceAlert.objects.select_related('series_signature', 'series_signature__framework')
-        .filter(**filters)
-        .count()
-    )
+    def __init__(
+        self, quantifying_period: timedelta = None,
+    ):
+        self._quant_period = quantifying_period or settings.QUANTIFYING_PERIOD
+
+    @property
+    def oldest_timestamp(self):
+        return datetime.now() - (self._quant_period + self.MAX_INVESTIGATION_TIME)
+
+    def __call__(self, framework: str, suite: str, test: str = None) -> int:
+        filters = {'series_signature__framework__name': framework, 'series_signature__suite': suite}
+        if test is not None:
+            filters['series_signature__test'] = test
+
+        return (
+            PerformanceAlert.objects.select_related(
+                'series_signature', 'series_signature__framework'
+            )
+            .filter(**filters, last_updated__gte=self.oldest_timestamp)
+            .count()
+        )

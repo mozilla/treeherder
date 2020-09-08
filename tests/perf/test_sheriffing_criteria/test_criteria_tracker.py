@@ -56,6 +56,7 @@ RECORDS_WITH_NO_DATA = [
         Test=test[2],
         EngineerTraction='',
         FixRatio='',
+        TotalAlerts='',
         LastUpdatedOn='',
         AllowSync='',
     )
@@ -68,6 +69,7 @@ RECORDS_WITH_EXPIRED_DATA = [
         Test=test[2],
         EngineerTraction=0.5,
         FixRatio=0.3,
+        TotalAlerts=21,
         LastUpdatedOn='2020-05-02T00:00:00.000000',
         AllowSync='',
     )
@@ -80,6 +82,7 @@ RECORDS_WITH_UPDATED_DATA = [
         Test=test[2],
         EngineerTraction=0.5,
         FixRatio=0.3,
+        TotalAlerts=21,
         LastUpdatedOn='2020-06-02T00:00:00.000000',
         AllowSync='',
     )
@@ -166,7 +169,6 @@ def mock_formula_map():
     [
         {'EngineerTraction': InvalidFormula(), 'FixRatio': InvalidFormula()},
         {'EngineerTraction': None, 'FixRatio': None},
-        {'EngineerTraction': lambda f, s: None, 'FixRatio': lambda f, s: None},
     ],
 )
 def test_tracker_throws_error_for_invalid_formulas(invalid_formulas):
@@ -231,6 +233,7 @@ def test_record_computer_still_updates_if_one_of_the_formulas_fails(exception):
         Test='',
         EngineerTraction='',
         FixRatio='',
+        TotalAlerts='',
         LastUpdatedOn='',
         AllowSync='',
     )

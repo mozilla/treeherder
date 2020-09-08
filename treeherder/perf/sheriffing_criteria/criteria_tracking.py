@@ -230,10 +230,8 @@ class CriteriaTracker:
         self._records_map = {}
 
         for formula in self._formula_map.values():
-            if not isinstance(formula, BugzillaFormula):
-                raise TypeError(
-                    f'Must provide formulas of type {BugzillaFormula.__class__.__name__}'
-                )
+            if not callable(formula):
+                raise TypeError('Must provide callable as sheriffing criteria formula')
 
     def get_test_moniker(self, record: CriteriaRecord) -> Tuple[str, str, str]:
         return record.Framework, record.Suite, record.Test

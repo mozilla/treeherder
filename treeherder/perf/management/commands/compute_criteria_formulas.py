@@ -85,7 +85,7 @@ class Command(BaseCommand):
         formula_map = {
             'EngineerTraction': EngineerTractionFormula(*init_params),
             'FixRatio': FixRatioFormula(*init_params),
-            'TotalAlerts': TotalAlertsFormula,
+            'TotalAlerts': TotalAlertsFormula(quant_period),
         }
 
         tracker = CriteriaTracker(formula_map, multiprocessed=multiprocessed)
