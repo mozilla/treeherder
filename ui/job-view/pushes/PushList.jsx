@@ -92,9 +92,9 @@ class PushList extends React.Component {
   };
 
   handleUrlChanges = (prevProps) => {
-    const { updateRange, location } = this.props;
-    const oldRange = this.getUrlRangeValues(prevProps.location.search);
-    const newRange = this.getUrlRangeValues(location.search);
+    const { updateRange, router } = this.props;
+    const oldRange = this.getUrlRangeValues(prevProps.router.location.search);
+    const newRange = this.getUrlRangeValues(router.location.search);
 
     if (!isEqual(oldRange, newRange)) {
       updateRange(newRange);
@@ -249,6 +249,7 @@ const mapStateToProps = ({
     allUnclassifiedFailureCount,
   },
   pinnedJobs: { pinnedJobs },
+  router,
 }) => ({
   loadingPushes,
   jobsLoaded,
@@ -256,6 +257,7 @@ const mapStateToProps = ({
   pushList,
   allUnclassifiedFailureCount,
   pinnedJobs,
+  router,
 });
 
 export default connect(mapStateToProps, {

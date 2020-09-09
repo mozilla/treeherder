@@ -132,7 +132,9 @@ class Push extends React.PureComponent {
     this.showUpdateNotifications(prevState);
     this.testForFilteredTry();
 
-    if (prevProps.location.search !== this.props.location.search) {
+    if (
+      prevProps.router.location.search !== this.props.router.location.search
+    ) {
       this.handleUrlChanges();
     }
   }
@@ -748,10 +750,12 @@ Push.propTypes = {
 
 const mapStateToProps = ({
   pushes: { allUnclassifiedFailureCount, decisionTaskMap, bugSummaryMap },
+  router,
 }) => ({
   allUnclassifiedFailureCount,
   decisionTaskMap,
   bugSummaryMap,
+  router,
 });
 
 export default connect(mapStateToProps, {

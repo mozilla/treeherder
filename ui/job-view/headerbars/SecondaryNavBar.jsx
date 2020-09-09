@@ -56,10 +56,12 @@ class SecondaryNavBar extends React.PureComponent {
       this.loadWatchedRepos();
     }
 
-    if (prevProps.location.search !== this.props.location.search) {
+    if (
+      prevProps.router.location.search !== this.props.router.location.search
+    ) {
       this.handleUrlChanges(
-        prevProps.location.search,
-        this.props.location.search,
+        prevProps.router.location.search,
+        this.props.router.location.search,
       );
     }
   }
@@ -401,7 +403,12 @@ SecondaryNavBar.propTypes = {
 
 const mapStateToProps = ({
   pushes: { allUnclassifiedFailureCount, filteredUnclassifiedFailureCount },
-}) => ({ allUnclassifiedFailureCount, filteredUnclassifiedFailureCount });
+  router,
+}) => ({
+  allUnclassifiedFailureCount,
+  filteredUnclassifiedFailureCount,
+  router,
+});
 
 export default connect(mapStateToProps, { recalculateUnclassifiedCounts })(
   SecondaryNavBar,

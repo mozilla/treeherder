@@ -163,7 +163,9 @@ class App extends React.Component {
   }
 
   componentDidUpdate(prevProps) {
-    if (prevProps.location.search !== this.props.location.search) {
+    if (
+      prevProps.router.location.search !== this.props.router.location.search
+    ) {
       this.handleUrlChanges();
     }
   }
@@ -244,7 +246,7 @@ class App extends React.Component {
 
   handleUrlChanges = () => {
     const { repos } = this.state;
-    const { location } = this.props;
+    const { router } = this.props;
 
     const {
       selectedJob,
@@ -252,7 +254,7 @@ class App extends React.Component {
       group_state: groupState,
       duplicate_jobs: duplicateJobs,
       repo: newRepo,
-    } = parseQueryParams(location.search);
+    } = parseQueryParams(router.location.search);
 
     const newState = {
       hasSelectedJob: selectedJob || selectedTaskRun,
@@ -430,8 +432,9 @@ App.propTypes = {
   jobMap: PropTypes.shape({}).isRequired,
 };
 
-const mapStateToProps = ({ pushes: { jobMap } }) => ({
+const mapStateToProps = ({ pushes: { jobMap }, router }) => ({
   jobMap,
+  router,
 });
 
 export default connect(mapStateToProps, {})(hot(App));
