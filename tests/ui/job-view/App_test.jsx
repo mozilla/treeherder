@@ -3,7 +3,7 @@ import fetchMock from 'fetch-mock';
 import { render, waitFor, fireEvent } from '@testing-library/react';
 import { Provider, ReactReduxContext } from 'react-redux';
 import { ConnectedRouter } from 'connected-react-router';
-import { Prompt } from 'react-router-dom';
+import { Route } from 'react-router-dom';
 
 import App from '../../../ui/job-view/App';
 import reposFixture from '../mock/repositories';
@@ -178,7 +178,7 @@ describe('App', () => {
   const testApp = (store) => (
     <Provider store={store} context={ReactReduxContext}>
       <ConnectedRouter history={history} context={ReactReduxContext}>
-        <App history={history} />
+        <Route path="/" render={(props) => <App {...props} />} />
       </ConnectedRouter>
     </Provider>
   );

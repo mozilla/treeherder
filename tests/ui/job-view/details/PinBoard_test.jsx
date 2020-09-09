@@ -1,7 +1,8 @@
 import React from 'react';
-import { Provider } from 'react-redux';
+import { Provider, ReactReduxContext } from 'react-redux';
 import fetchMock from 'fetch-mock';
 import { render, cleanup, waitFor, fireEvent } from '@testing-library/react';
+import { ConnectedRouter } from 'connected-react-router';
 
 import JobModel from '../../../../ui/models/job';
 import DetailsPanel from '../../../../ui/job-view/details/DetailsPanel';
@@ -14,7 +15,10 @@ import {
   replaceLocation,
   getProjectUrl,
 } from '../../../../ui/helpers/location';
-import configureStore from '../../../../ui/job-view/redux/configureStore';
+import {
+  history,
+  configureStore,
+} from '../../../../ui/job-view/redux/configureStore';
 import { setSelectedJob } from '../../../../ui/job-view/redux/stores/selectedJob';
 import { setPushes } from '../../../../ui/job-view/redux/stores/pushes';
 import reposFixture from '../../mock/repositories';
@@ -69,7 +73,7 @@ describe('DetailsPanel', () => {
       'https://firefox-ci-tc.services.mozilla.com/api/queue/v1/task/JFVlnwufR7G9tZu_pKM0dQ',
       taskDefinition,
     );
-    store = configureStore().store;
+    store = configureStore();
     store.dispatch(setPushes(pushFixture.results, {}));
   });
 
@@ -81,22 +85,24 @@ describe('DetailsPanel', () => {
 
   const testDetailsPanel = (store) => (
     <div id="global-container" className="height-minus-navbars">
-      <Provider store={store}>
-        <KeyboardShortcuts
-          filterModel={filterModel}
-          showOnScreenShortcuts={() => {}}
-        >
-          <div />
-          <div id="th-global-content" data-testid="global-content">
-            <DetailsPanel
-              currentRepo={currentRepo}
-              user={{ isLoggedIn: false }}
-              resizedHeight={100}
-              classificationTypes={classificationTypes}
-              classificationMap={classificationMap}
-            />
-          </div>
-        </KeyboardShortcuts>
+      <Provider store={store} context={ReactReduxContext}>
+        <ConnectedRouter history={history} context={ReactReduxContext}>
+          <KeyboardShortcuts
+            filterModel={filterModel}
+            showOnScreenShortcuts={() => {}}
+          >
+            <div />
+            <div id="th-global-content" data-testid="global-content">
+              <DetailsPanel
+                currentRepo={currentRepo}
+                user={{ isLoggedIn: false }}
+                resizedHeight={100}
+                classificationTypes={classificationTypes}
+                classificationMap={classificationMap}
+              />
+            </div>
+          </KeyboardShortcuts>
+        </ConnectedRouter>
       </Provider>
     </div>
   );
