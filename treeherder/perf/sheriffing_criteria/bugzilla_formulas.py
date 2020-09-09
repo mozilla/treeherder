@@ -235,7 +235,8 @@ class TotalAlertsFormula:
     )  # until perf sheriffs should figure out a particular culprit
 
     def __init__(
-        self, quantifying_period: timedelta = None,
+        self,
+        quantifying_period: timedelta = None,
     ):
         self._quant_period = quantifying_period or settings.QUANTIFYING_PERIOD
 

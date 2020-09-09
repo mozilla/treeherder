@@ -1,6 +1,6 @@
 repos:
   - repo: https://gitlab.com/pycqa/flake8
-    rev: 3.7.9
+    rev: 3.8.3
     hooks:
       - id: flake8
   - repo: https://github.com/shellcheck-py/shellcheck-py
@@ -8,16 +8,16 @@ repos:
     hooks:
       - id: shellcheck
   - repo: https://github.com/prettier/prettier
-    rev: 2.0.5
+    rev: 2.1.1
     hooks:
       - id: prettier
   - repo: https://github.com/igorshubovych/markdownlint-cli
-    rev: v0.22.0
+    rev: v0.23.2
     hooks:
       - id: markdownlint
         args: [--fix]
   - repo: https://github.com/psf/black
-    rev: stable
+    rev: 20.8b1
     hooks:
       - id: black
         language_version: python3.7
