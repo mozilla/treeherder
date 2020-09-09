@@ -33,6 +33,8 @@ class CriteriaRecord:
             self.EngineerTraction = float(self.EngineerTraction)
         if self.FixRatio not in ('', 'N/A'):
             self.FixRatio = float(self.FixRatio)
+        if self.TotalAlerts not in ('', 'N/A'):
+            self.TotalAlerts = int(self.TotalAlerts)
 
         if self.LastUpdatedOn != '':
             if isinstance(self.LastUpdatedOn, str):

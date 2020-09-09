@@ -241,6 +241,10 @@ class TotalAlertsFormula:
         self._quant_period = quantifying_period or settings.QUANTIFYING_PERIOD
 
     @property
+    def quantifying_period(self):
+        return self._quant_period
+
+    @property
     def oldest_timestamp(self):
         return datetime.now() - (self._quant_period + self.MAX_INVESTIGATION_TIME)
 
