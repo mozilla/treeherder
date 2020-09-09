@@ -16,7 +16,6 @@ import {
   allFilterParams,
 } from '../helpers/filter';
 import { getAllUrlParams } from '../helpers/location';
-import { updateQueryParams } from '../helpers/url';
 
 export const getNonFilterUrlParams = () =>
   [...getAllUrlParams().entries()].reduce(
@@ -53,7 +52,7 @@ export const getFilterUrlParamsWithDefaults = () => {
 
 export default class FilterModel {
   constructor(props) {
-    // utilize react-router history and location props
+    // utilize react-router router.history props
     Object.assign(this, props);
     this.urlParams = getFilterUrlParamsWithDefaults();
   }
@@ -110,19 +109,16 @@ export default class FilterModel {
       delete this.urlParams[field];
     }
 
-    this.push();
+    this.push({ search: this.getFilterQueryString() });
   };
 
   getFilterQueryString = () =>
     new URLSearchParams(this.getUrlParamsWithoutDefaults()).toString();
 
-  push = () =>
-    updateQueryParams(this.getFilterQueryString(), this.history, this.location);
-
   setOnlySuperseded = () => {
     this.urlParams.resultStatus = 'superseded';
     this.urlParams.classifiedState = [...thFilterDefaults.classifiedState];
-    this.push();
+    this.push({ search: this.getFilterQueryString() });
   };
 
   toggleFilter = (field, value) => {
@@ -149,7 +145,7 @@ export default class FilterModel {
       ? currentResultStatuses.filter((rs) => !resultStatuses.includes(rs))
       : [...new Set([...resultStatuses, ...currentResultStatuses])];
 
-    this.push();
+    this.push({ search: this.getFilterQueryString() });
   };
 
   toggleClassifiedFilter = (classifiedState) => {
@@ -162,20 +158,20 @@ export default class FilterModel {
     } else {
       this.urlParams.resultStatus = [...thFailureResults];
       this.urlParams.classifiedState = ['unclassified'];
-      this.push();
+      this.push({ search: this.getFilterQueryString() });
     }
   };
 
   replaceFilter = (field, value) => {
     this.urlParams[field] = !Array.isArray(value) ? [value] : value;
-    this.push();
+    this.push({ search: this.getFilterQueryString() });
   };
 
   clearNonStatusFilters = () => {
     const { repo, resultStatus, classifiedState } = this.urlParams;
 
     this.urlParams = { repo, resultStatus, classifiedState };
-    this.push();
+    this.push({ search: this.getFilterQueryString() });
   };
 
   /**
@@ -188,7 +184,7 @@ export default class FilterModel {
 
     this.urlParams.resultStatus = [...resultStatus];
     this.urlParams.classifiedState = [...classifiedState];
-    this.push();
+    this.push({ search: this.getFilterQueryString() });
   };
 
   /**

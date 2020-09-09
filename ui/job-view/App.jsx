@@ -6,6 +6,7 @@ import pick from 'lodash/pick';
 import isEqual from 'lodash/isEqual';
 import { connect } from 'react-redux';
 import PropTypes from 'prop-types';
+import { push } from 'connected-react-router';
 
 import { thFavicons, thEvents } from '../helpers/constants';
 import ShortcutTable from '../shared/ShortcutTable';
@@ -437,4 +438,4 @@ const mapStateToProps = ({ pushes: { jobMap }, router }) => ({
   router,
 });
 
-export default connect(mapStateToProps, {})(hot(App));
+export default connect(mapStateToProps, { push })(hot(App));

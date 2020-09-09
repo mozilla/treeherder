@@ -139,41 +139,49 @@ describe('Filtering', () => {
     });
   });
 
-  // describe('by failure result', () => {
-  //   test('should have 10 failures', async () => {
-  //     const { getAllByText, getByTitle, findAllByText } = render(<App />);
-  //     await findAllByText('B');
-  //     const unclassifiedOnlyButton = getByTitle(
-  //       'Loaded failures / toggle filtering for unclassified failures',
-  //     );
-  //     fireEvent.click(unclassifiedOnlyButton);
+  describe('by failure result', () => {
+    test('should have 10 failures', async () => {
+      const store = configureStore();
+      const appHistory = cloneDeep(history);
 
-  //     // Since yaml is not an unclassified failure, making this call will
-  //     // ensure that the filtering has completed. Then we can get an accurate
-  //     // count of what's left.
-  //     await waitForElementToBeRemoved(() => getAllByText('yaml'));
+      const { getAllByText, getByTitle, findAllByText } = render(
+        testApp(store, appHistory),
+      );
+      await findAllByText('B');
+      const unclassifiedOnlyButton = getByTitle(
+        'Loaded failures / toggle filtering for unclassified failures',
+      );
+      fireEvent.click(unclassifiedOnlyButton);
 
-  //     // The api returns the same joblist for each push.
-  //     // 10 pushes with 2 failures each, but only 1 unclassified.
-  //     expect(jobCount()).toBe(20);
+      // Since yaml is not an unclassified failure, making this call will
+      // ensure that the filtering has completed. Then we can get an accurate
+      // count of what's left.
+      await waitForElementToBeRemoved(() => getAllByText('yaml'));
 
-  //     // undo the filtering and make sure we see all the jobs again
-  //     fireEvent.click(unclassifiedOnlyButton);
-  //     await waitFor(() => getAllByText('yaml'));
-  //     expect(jobCount()).toBe(50);
-  //   });
+      // The api returns the same joblist for each push.
+      // 10 pushes with 2 failures each, but only 1 unclassified.
+      expect(jobCount()).toBe(20);
 
-  //   test('KeyboardShortcut u: toggle unclassified jobs', async () => {
-  //     const { getAllByText } = render(<App />);
-  //     const symbolToRemove = 'yaml';
+      // undo the filtering and make sure we see all the jobs again
+      fireEvent.click(unclassifiedOnlyButton);
+      await waitFor(() => getAllByText('yaml'));
+      expect(jobCount()).toBe(50);
+    });
 
-  //     await waitFor(() => getAllByText(symbolToRemove));
-  //     fireEvent.keyDown(document.body, { key: 'u', keyCode: 85 });
+    test('KeyboardShortcut u: toggle unclassified jobs', async () => {
+      const store = configureStore();
+      const appHistory = cloneDeep(history);
 
-  //     await waitForElementToBeRemoved(() => getAllByText(symbolToRemove));
-  //     expect(jobCount()).toBe(20);
-  //   });
-  // });
+      const { getAllByText } = render(testApp(store, appHistory));
+      const symbolToRemove = 'yaml';
+
+      await waitFor(() => getAllByText(symbolToRemove));
+      fireEvent.keyDown(document.body, { key: 'u', keyCode: 85 });
+
+      await waitForElementToBeRemoved(() => getAllByText(symbolToRemove));
+      expect(jobCount()).toBe(20);
+    });
+  });
 
   // describe('by keywords', () => {
   //   beforeAll(() => {
