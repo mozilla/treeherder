@@ -132,8 +132,6 @@ class PushList extends React.Component {
       duplicateJobsVisible,
       groupCountsExpanded,
       pushHealthVisibility,
-      history,
-      location,
       fetchNextPushes,
     } = this.props;
     const { notificationSupported } = this.state;
@@ -169,8 +167,6 @@ class PushList extends React.Component {
                 isOnlyRevision={push.revision === revision}
                 pushHealthVisibility={pushHealthVisibility}
                 getAllShownJobs={getAllShownJobs}
-                location={location}
-                history={history}
               />
             </ErrorBoundary>
           ))}
@@ -197,7 +193,7 @@ class PushList extends React.Component {
                 color="darker-secondary"
                 outline
                 className="btn-light-bordered"
-                onClick={() => fetchNextPushes(count, history, pushList)}
+                onClick={() => fetchNextPushes(count)}
                 key={count}
                 data-testid={`get-next-${count}`}
               >
