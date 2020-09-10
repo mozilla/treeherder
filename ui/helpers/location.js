@@ -1,8 +1,10 @@
 import { thDefaultRepo } from './constants';
 import { createQueryParams, getApiUrl } from './url';
 
-export const getAllUrlParams = function getAllUrlParams() {
-  return new URLSearchParams(window.location.search);
+export const getAllUrlParams = function getAllUrlParams(
+  location = window.location,
+) {
+  return new URLSearchParams(location.search);
 };
 
 export const getUrlParam = function getUrlParam(name) {

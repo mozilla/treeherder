@@ -17,8 +17,8 @@ import {
 } from '../helpers/filter';
 import { getAllUrlParams } from '../helpers/location';
 
-export const getNonFilterUrlParams = () =>
-  [...getAllUrlParams().entries()].reduce(
+export const getNonFilterUrlParams = (location) =>
+  [...getAllUrlParams(location).entries()].reduce(
     (acc, [urlField, urlValue]) =>
       allFilterParams.includes(urlField.replace(deprecatedThFilterPrefix, ''))
         ? acc
@@ -26,12 +26,12 @@ export const getNonFilterUrlParams = () =>
     {},
   );
 
-export const getFilterUrlParamsWithDefaults = () => {
+export const getFilterUrlParamsWithDefaults = (location) => {
   // Group multiple values for the same field into an array of values.
   // This handles the transition from our old url params to this newer, more
   // terse version.
   // Also remove usage of the 'filter-' prefix.
-  const groupedValues = [...getAllUrlParams().entries()].reduce(
+  const groupedValues = [...getAllUrlParams(location).entries()].reduce(
     (acc, [urlField, urlValue]) => {
       const field = urlField.replace(deprecatedThFilterPrefix, '');
       if (!allFilterParams.includes(field)) {
@@ -52,9 +52,10 @@ export const getFilterUrlParamsWithDefaults = () => {
 
 export default class FilterModel {
   constructor(props) {
-    // utilize react-router router.history props
-    Object.assign(this, props);
-    this.urlParams = getFilterUrlParamsWithDefaults();
+    // utilize connected-react-router push prop (this.push is equivalent to history.push)
+    this.push = props.push;
+    this.location = props.router.location;
+    this.urlParams = getFilterUrlParamsWithDefaults(this.location);
   }
 
   // If a param matches the defaults, then don't include it.
@@ -62,7 +63,7 @@ export default class FilterModel {
     // ensure the repo param is always set
     const params = {
       repo: thDefaultRepo,
-      ...getNonFilterUrlParams(),
+      ...getNonFilterUrlParams(this.location),
       ...this.urlParams,
     };
 
@@ -88,7 +89,7 @@ export default class FilterModel {
     } else {
       this.urlParams[field] = [value];
     }
-    this.push();
+    this.push({ search: this.getFilterQueryString() });
   };
 
   // Also used for non-filter params
