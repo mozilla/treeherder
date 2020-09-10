@@ -178,7 +178,7 @@ describe('App', () => {
   const testApp = (store) => (
     <Provider store={store} context={ReactReduxContext}>
       <ConnectedRouter history={history} context={ReactReduxContext}>
-        <Route path="/" render={(props) => <App {...props} />} />
+        <App />
       </ConnectedRouter>
     </Provider>
   );

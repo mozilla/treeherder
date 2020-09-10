@@ -13,21 +13,6 @@ export const getRepo = function getRepo() {
   return getUrlParam('repo') || thDefaultRepo;
 };
 
-export const getOrSetRepo = function getOrSetRepo(history) {
-  const params = getAllUrlParams();
-  let repo = params.get('repo');
-
-  if (!repo) {
-    repo = thDefaultRepo;
-    params.set('repo', repo);
-    history.push({
-      search: createQueryParams(params),
-    });
-  }
-
-  return repo;
-};
-
 // This won't update the react router history object
 export const replaceLocation = function replaceLocation(params) {
   window.history.pushState(null, null, createQueryParams(params));

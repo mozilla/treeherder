@@ -18,6 +18,8 @@ import {
   DropdownToggle,
   UncontrolledDropdown,
 } from 'reactstrap';
+import { push } from 'connected-react-router';
+import { connect } from 'react-redux';
 
 import TreeStatusModel from '../../models/treeStatus';
 import BugLinkify from '../../shared/BugLinkify';
@@ -57,7 +59,7 @@ const statusInfoMap = {
   },
 };
 
-export default class WatchedRepo extends React.Component {
+class WatchedRepo extends React.Component {
   constructor(props) {
     super(props);
 
@@ -124,7 +126,7 @@ export default class WatchedRepo extends React.Component {
   };
 
   render() {
-    const { repoName, unwatchRepo, repo, history } = this.props;
+    const { repoName, unwatchRepo, repo, push } = this.props;
     const { status, messageOfTheDay, reason, statusInfo } = this.state;
     const watchedRepo = repo.name;
     const activeClass = watchedRepo === repoName ? 'active' : '';
@@ -134,9 +136,7 @@ export default class WatchedRepo extends React.Component {
     return (
       <ButtonGroup>
         <Button
-          onClick={() =>
-            history.push({ search: updateRepoParams(watchedRepo) })
-          }
+          onClick={() => push({ search: updateRepoParams(watchedRepo) })}
           className={`btn-view-nav ${btnClass} ${activeClass}`}
           title={status}
           size="sm"
@@ -232,3 +232,5 @@ WatchedRepo.propTypes = {
   }).isRequired,
   setCurrentRepoTreeStatus: PropTypes.func.isRequired,
 };
+
+export default connect(null, { push })(WatchedRepo);

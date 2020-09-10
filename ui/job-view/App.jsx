@@ -8,12 +8,16 @@ import { connect } from 'react-redux';
 import PropTypes from 'prop-types';
 import { push } from 'connected-react-router';
 
-import { thFavicons, thEvents } from '../helpers/constants';
+import { thFavicons, thEvents, thDefaultRepo } from '../helpers/constants';
 import ShortcutTable from '../shared/ShortcutTable';
 import { matchesDefaults } from '../helpers/filter';
-import { getAllUrlParams, getOrSetRepo } from '../helpers/location';
+import { getAllUrlParams } from '../helpers/location';
 import { MAX_TRANSIENT_AGE } from '../helpers/notifications';
-import { deployedRevisionUrl, parseQueryParams } from '../helpers/url';
+import {
+  deployedRevisionUrl,
+  parseQueryParams,
+  createQueryParams,
+} from '../helpers/url';
 import ClassificationTypeModel from '../models/classificationType';
 import FilterModel from '../models/filter';
 import RepositoryModel from '../models/repository';
@@ -75,7 +79,7 @@ class App extends React.Component {
       urlParams.has('selectedJob') || urlParams.has('selectedTaskRun');
 
     this.state = {
-      repoName: getOrSetRepo(this.props.history),
+      repoName: this.getOrSetRepo(),
       revision: urlParams.get('revision'),
       user: { isLoggedIn: false, isStaff: false },
       filterModel,
@@ -197,6 +201,21 @@ class App extends React.Component {
       defaultPushListPct,
       defaultDetailsHeight,
     };
+  }
+
+  getOrSetRepo() {
+    const params = getAllUrlParams();
+    let repo = params.get('repo');
+
+    if (!repo) {
+      repo = thDefaultRepo;
+      params.set('repo', repo);
+      this.props.push({
+        search: createQueryParams(params),
+      });
+    }
+
+    return repo;
   }
 
   handleStorageEvent = (e) => {

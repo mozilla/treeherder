@@ -7,6 +7,7 @@ import {
   DropdownToggle,
   UncontrolledDropdown,
 } from 'reactstrap';
+import { push } from 'connected-react-router';
 
 import {
   createQueryParams,
@@ -30,11 +31,11 @@ class PushActionMenu extends React.PureComponent {
   }
 
   updateParamsAndRange = (param) => {
-    const { location, history, revision, updateRange } = this.props;
+    const { location, revision, updateRange, push } = this.props;
     let queryParams = parseQueryParams(location.search);
     queryParams = { ...queryParams, ...{ [param]: revision } };
 
-    history.push({
+    push({
       pathname: location.pathname,
       search: createQueryParams(queryParams),
     });
@@ -219,6 +220,6 @@ const mapStateToProps = ({ pushes: { decisionTaskMap } }) => ({
   decisionTaskMap,
 });
 
-export default connect(mapStateToProps, { notify, updateRange })(
+export default connect(mapStateToProps, { notify, updateRange, push })(
   PushActionMenu,
 );
