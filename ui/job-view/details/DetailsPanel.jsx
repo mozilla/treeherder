@@ -189,7 +189,7 @@ class DetailsPanel extends React.Component {
               // one selects job after job, over the course of a day, it can add up.  Therefore, we keep
               // selectedJobFull data as transient only when the job is selected.
               const selectedJobFull = jobResult;
-              const jobRevision = push.revision;
+              const jobRevision = push ? push.revision : null;
 
               addAggregateFields(selectedJobFull);
 

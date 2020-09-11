@@ -139,10 +139,7 @@ class ActiveFilters extends React.Component {
                       })
                     }
                   >
-                    <FontAwesomeIcon
-                      icon={faTimesCircle}
-                      title={`Clear filter: ${filter.field}`}
-                    />
+                    <FontAwesomeIcon icon={faTimesCircle} />
                     &nbsp;
                   </Button>
                   <span title={`Filter by ${filter.field}: ${filterValue}`}>

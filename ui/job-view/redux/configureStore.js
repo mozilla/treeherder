@@ -11,9 +11,9 @@ import * as pinnedJobsStore from './stores/pinnedJobs';
 
 const debouncer = createDebounce({ nextJob: 200 });
 
-const reducers = (history) =>
+const reducers = (routerHistory) =>
   combineReducers({
-    router: connectRouter(history),
+    router: connectRouter(routerHistory),
     notifications: notificationStore.reducer,
     selectedJob: selectedJobStore.reducer,
     pushes: pushesStore.reducer,
@@ -22,10 +22,10 @@ const reducers = (history) =>
 
 export const history = createBrowserHistory();
 
-export function configureStore() {
+export function configureStore(routerHistory = history) {
   const store = createStore(
-    reducers(history),
-    applyMiddleware(routerMiddleware(history), thunk, debouncer),
+    reducers(routerHistory),
+    applyMiddleware(routerMiddleware(routerHistory), thunk, debouncer),
   );
 
   return store;
