@@ -10742,10 +10742,10 @@ victory-zoom-container@^35.0.8:
     prop-types "^15.5.8"
     victory-core "^35.0.8"
 
-victory@35.0.8:
-  version "35.0.8"
-  resolved "https://registry.yarnpkg.com/victory/-/victory-35.0.8.tgz#df1ce7b78a7563a406914bd78ef5f50c6b293234"
-  integrity sha512-kx2lUxriyHFPJotov5AN1xIspF+l0+vB0IJeHxU1sVxJbLynWdcwn80Fpsexwnt5SYoO5o6bFTz/EbcMo3VWHA==
+victory@35.0.9:
+  version "35.0.9"
+  resolved "https://registry.yarnpkg.com/victory/-/victory-35.0.9.tgz#47c96f8cd50405399cda78f9be03456769103851"
+  integrity sha512-9XnJojPffd1/MHN1SDLheZwnqMePPEnisTb0ZUVZqAb+QvI/kNrgiC7YzFaLt33ZU0cXdULK64fmB2CDuPMzsg==
   dependencies:
     victory-area "^35.0.8"
     victory-axis "^35.0.8"
