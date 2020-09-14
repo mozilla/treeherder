@@ -29,9 +29,7 @@ project_bound_router = routers.SimpleRouter()
 # DEPRECATED (in process): The UI is transitioning to the /jobs/ endpoint
 # from the default_router.
 project_bound_router.register(
-    r'jobs',
-    jobs.JobsProjectViewSet,
-    basename='jobs',
+    r'jobs', jobs.JobsProjectViewSet, basename='jobs',
 )
 
 project_bound_router.register(
@@ -39,9 +37,7 @@ project_bound_router.register(
 )
 
 project_bound_router.register(
-    r'push',
-    push.PushViewSet,
-    basename='push',
+    r'push', push.PushViewSet, basename='push',
 )
 
 
@@ -50,21 +46,15 @@ project_bound_router.register(
 )
 
 project_bound_router.register(
-    r'note',
-    note.NoteViewSet,
-    basename='note',
+    r'note', note.NoteViewSet, basename='note',
 )
 
 project_bound_router.register(
-    r'bug-job-map',
-    bug.BugJobMapViewSet,
-    basename='bug-job-map',
+    r'bug-job-map', bug.BugJobMapViewSet, basename='bug-job-map',
 )
 
 project_bound_router.register(
-    r'job-log-url',
-    job_log_url.JobLogUrlViewSet,
-    basename='job-log-url',
+    r'job-log-url', job_log_url.JobLogUrlViewSet, basename='job-log-url',
 )
 
 project_bound_router.register(
