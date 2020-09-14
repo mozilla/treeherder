@@ -175,15 +175,18 @@ export const fetchGeckoDecisionArtifact = async (
     rootUrl,
   )}/api/index/v1/task/gecko.v2.${project}.revision.${revision}.taskgraph.decision/artifacts/public/${filePath}`;
   const response = await fetch(url);
-  if (url.endsWith('.gz')) {
+  console.log(response.headers.get('Content-Type'));
+
+  if (response.headers.get('Content-Type') === 'application/json') {
+    if ([200, 303, 304].includes(response.status)) {
+      artifactContents = await response.json();
+      console.log('its json', artifactContents);
+    }
+  } else if (url.endsWith('.gz')) {
     if ([200, 303, 304].includes(response.status)) {
       const blob = await response.blob();
       const binData = await blob.arrayBuffer();
       artifactContents = await decompress(binData);
-    }
-  } else if (url.endsWith('.json')) {
-    if ([200, 303, 304].includes(response.status)) {
-      artifactContents = await response.json();
     }
   }
   return artifactContents;

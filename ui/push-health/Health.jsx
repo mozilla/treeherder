@@ -211,7 +211,6 @@ export default class Health extends React.PureComponent {
     const needInvestigationCount = tests
       ? tests.details.needInvestigation.length
       : 0;
-    console.log('searchStr', searchStr);
 
     return (
       <React.Fragment>

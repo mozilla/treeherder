@@ -1,0 +1,21 @@
+{
+  "test-linux1804-64/debug-mochitest-devtools-chrome-e10s-1": [
+    "devtools/client/framework/browser-toolbox/test/browser.ini",
+    "devtools/client/framework/test/browser.ini",
+    "devtools/client/framework/test/metrics/browser_metrics_inspector.ini",
+    "devtools/client/inspector/changes/test/browser.ini",
+    "devtools/client/inspector/extensions/test/browser.ini",
+    "devtools/client/inspector/markup/test/browser.ini",
+    "devtools/client/jsonview/test/browser.ini",
+    "devtools/client/shared/test/browser.ini",
+    "devtools/client/styleeditor/test/browser.ini",
+    "devtools/client/webconsole/test/node/fixtures/stubs/stubs.ini"
+  ],
+  "test-linux1804-64-shippable-qr/opt-web-platform-tests-e10s-5": [
+    "/IndexedDB",
+    "/WebCryptoAPI/wrapKey_unwrapKey",
+    "/_mozilla/fetch/api/redirect",
+    "/mixed-content/gen/sharedworker-classic.http-rp",
+    "/upgrade-insecure-requests/gen/sharedworker-module-data.meta"
+  ]
+}

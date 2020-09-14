@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
-import Spinner from 'reactstrap/es/Spinner';
+import { Spinner } from 'reactstrap';
 import { FixedSizeList as List } from 'react-window';
 import { faCheck } from '@fortawesome/free-solid-svg-icons';
 import trimStart from 'lodash/trimStart';
@@ -21,24 +21,30 @@ class PassingPaths extends Component {
 
   async componentDidMount() {
     const { revision, currentRepo, searchStr } = this.props;
-    const manifestByTask = await fetchGeckoDecisionArtifact(
-      currentRepo.name,
-      revision,
-      'manifests-by-task.json.gz',
-    );
-    const uniquePaths = [
-      ...new Set(
-        Object.values(manifestByTask).reduce(
-          (manArr, acc) => [...acc, ...manArr],
-          [],
+    try {
+      const manifestByTask = await fetchGeckoDecisionArtifact(
+        currentRepo.name,
+        revision,
+        'manifests-by-task.json.gz',
+      );
+      const uniquePaths = [
+        ...new Set(
+          Object.values(manifestByTask).reduce(
+            (manArr, acc) => [...acc, ...manArr],
+            [],
+          ),
         ),
-      ),
-    ];
-    const paths = uniquePaths.map((path) => trimStart(path, '/'));
-    const filteredPaths = searchStr ? filterPaths(paths, searchStr) : paths;
+      ];
+      console.log(uniquePaths);
+      const paths = uniquePaths.map((path) => trimStart(path, '/'));
+      const filteredPaths = searchStr ? filterPaths(paths, searchStr) : paths;
 
-    filteredPaths.sort();
-    this.setState({ paths, filteredPaths });
+      filteredPaths.sort();
+      this.setState({ paths, filteredPaths });
+    } catch (e) {
+      console.log('error getting manifests');
+      console.log(e);
+    }
   }
 
   shouldComponentUpdate(nextProps, nextState) {

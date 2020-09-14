@@ -7,18 +7,21 @@ import {
   getAllByTestId,
   queryAllByTestId,
 } from '@testing-library/react';
+import { gzip, deflate, inflate } from 'pako';
 
 import Health from '../../../ui/push-health/Health';
 import pushHealth from '../mock/push_health';
 import reposFixture from '../mock/repositories';
+import manifestsByTask from '../mock/manifests-by-task';
 import { getApiUrl } from '../../../ui/helpers/url';
 import { getProjectUrl } from '../../../ui/helpers/location';
+import unGzip from '../../../ui/helpers/gzip';
 
 const revision = 'cd02b96bdce57d9ae53b632ca4740c871d3ecc32';
 const repo = 'autoland';
 
 describe('Health', () => {
-  beforeAll(() => {
+  beforeAll(async () => {
     fetchMock.get(getApiUrl('/repository/'), reposFixture);
     fetchMock.get(getApiUrl('/user/'), []);
     fetchMock.get(
@@ -107,6 +110,13 @@ describe('Health', () => {
       ),
       [],
     );
+    const manifestsByTaskJson = JSON.stringify(manifestsByTask);
+    const manifestsByTaskZipped = gzip(manifestsByTaskJson);
+
+    fetchMock.get(
+      'https://firefox-ci-tc.services.mozilla.com/api/index/v1/task/gecko.v2.autoland.revision.cd02b96bdce57d9ae53b632ca4740c871d3ecc32.taskgraph.decision/artifacts/public/manifests-by-task.json.gz',
+      manifestsByTaskZipped,
+    );
   });
 
   afterAll(() => {
@@ -116,7 +126,16 @@ describe('Health', () => {
 
   const testHealth = () => <Health location={window.location} />;
 
-  test('should show some grouped tests', async () => {
+  test('zipping', async () => {
+    const manifestsByTaskJson = JSON.stringify(manifestsByTask);
+    const data = unescape(encodeURIComponent(manifestsByTaskJson));
+    const zipped = gzip(data);
+
+    const decompressed = await unGzip(zipped);
+    expect(decompressed).toEqual(manifestsByTask);
+  });
+
+  test.only('should show some grouped tests', async () => {
     window.history.replaceState(
       {},
       'Push Health Test',

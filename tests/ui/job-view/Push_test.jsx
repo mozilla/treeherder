@@ -12,7 +12,7 @@ import configureStore from '../../../ui/job-view/redux/configureStore';
 import Push, {
   transformTestPath,
   transformedPaths,
-} from '../../../ui/job-view/pushes/Push';
+} from '../../../ui/helpers/taskcluster';
 import { getApiUrl } from '../../../ui/helpers/url';
 import { findInstance } from '../../../ui/helpers/job';
 
