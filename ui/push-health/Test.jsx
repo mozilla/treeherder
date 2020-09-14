@@ -85,55 +85,63 @@ class Test extends PureComponent {
 
     let data;
     let failureStatus;
-    selectedTests.forEach(async (test) => {
-      ({ data, failureStatus } = await create(
-        `${getProjectUrl(
-          investigatedTestsEndPoint,
-          currentRepo.name,
-        )}?revision=${revision}`,
-        {
-          test: test.testName,
-          jobName: test.jobName,
-          jobSymbol: test.jobSymbol,
-        },
-      ));
-      if (failureStatus) {
-        notify(data, 'warning');
-      } else {
-        selectedTests.delete(test);
-        this.setState({ selectedTests });
-        updatePushHealth();
-        notify(`Test ${data.test}  marked as investigated`, 'success');
-      }
-    });
+    if (selectedTests.size === 0) {
+      notify(`Select atleast one test`, 'warning');
+    } else {
+      selectedTests.forEach(async (test) => {
+        ({ data, failureStatus } = await create(
+          `${getProjectUrl(
+            investigatedTestsEndPoint,
+            currentRepo.name,
+          )}?revision=${revision}`,
+          {
+            test: test.testName,
+            jobName: test.jobName,
+            jobSymbol: test.jobSymbol,
+          },
+        ));
+        if (failureStatus) {
+          notify(data, 'warning');
+        } else {
+          selectedTests.delete(test);
+          this.setState({ selectedTests });
+          updatePushHealth();
+          notify(`Test ${data.test}  marked as investigated`, 'success');
+        }
+      });
+    }
   };
 
   markAsUninvestigated = () => {
     const { selectedTests } = this.state;
     const { notify, currentRepo, revision, updatePushHealth } = this.props;
 
-    selectedTests.forEach(async (test) => {
-      if (test.isInvestigated) {
-        const response = await destroy(
-          `${getProjectUrl(
-            `${investigatedTestsEndPoint}${test.investigatedTestId}/`,
-            currentRepo.name,
-          )}?revision=${revision}`,
-        );
-        if (!response.ok) {
-          let data = await response.json();
-          data = processErrorMessage(data, response.status);
-          notify(data, 'warning');
+    if (selectedTests.size === 0) {
+      notify(`Select atleast one test`, 'warning');
+    } else {
+      selectedTests.forEach(async (test) => {
+        if (test.isInvestigated) {
+          const response = await destroy(
+            `${getProjectUrl(
+              `${investigatedTestsEndPoint}${test.investigatedTestId}/`,
+              currentRepo.name,
+            )}?revision=${revision}`,
+          );
+          if (!response.ok) {
+            let data = await response.json();
+            data = processErrorMessage(data, response.status);
+            notify(data, 'warning');
+          } else {
+            selectedTests.delete(test);
+            this.setState({ selectedTests });
+            updatePushHealth();
+            notify(`${test.testName} marked as Uninvestigated`, 'success');
+          }
         } else {
-          selectedTests.delete(test);
-          this.setState({ selectedTests });
-          updatePushHealth();
-          notify(`${test.testName} marked as Uninvestigated`, 'success');
+          notify(`${test.testName} already uninvestigated`, 'warning');
         }
-      } else {
-        notify(`${test.testName} already uninvestigated`, 'warning');
-      }
-    });
+      });
+    }
   };
 
   setClipboardVisible = (key) => {
