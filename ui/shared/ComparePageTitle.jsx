@@ -111,7 +111,7 @@ export default class ComparePageTitle extends React.Component {
             onClick={this.goToEditMode}
             title="Click to change the page title"
           >
-            <h1 className="page-title-text" data-testid="compare-page-title">
+            <h1 className="page-title-text">
               {pageTitle}
               <FontAwesomeIcon
                 icon={faEdit}

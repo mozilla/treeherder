@@ -4,9 +4,9 @@ import { render, cleanup, waitFor } from '@testing-library/react';
 import ComparePageTitle from '../../../../ui/shared/ComparePageTitle';
 
 const title =
-  'macosx1014-64-shippable: raptor-tp6-binast-instagram-firefox opt ';
+  'macosx1014-64-shippable: raptor-tp6-binast-instagram-firefox opt';
 const defaultPageTitle =
-  'macosx1014-64-shippable: raptor-tp6-binast-instagram-firefox opt ';
+  'macosx1014-64-shippable: raptor-tp6-binast-instagram-firefox opt';
 
 const comparePageTitle = (hasSubtests) => {
   return (
@@ -24,16 +24,16 @@ const comparePageTitle = (hasSubtests) => {
 
 afterEach(cleanup);
 
-test('Compare page title updates with subtests name if there are subtests', async () => {
-  const { getByTestId, rerender } = render(comparePageTitle(false));
+test('Compare page title includes the platform name with subtest summary when there are subtests', async () => {
+  const { getByText } = render(comparePageTitle(true));
 
-  let pageTitle = await waitFor(() => getByTestId('compare-page-title'));
+  const pageTitle = await waitFor(() => getByText(`${title} subtest summary`));
 
-  expect(pageTitle.textContent).toBe('Perfherder Compare Revisions');
+  expect(pageTitle).toBeInTheDocument();
+});
 
-  rerender(comparePageTitle(true));
+test('Compare page tab title includes platform name', async () => {
+  render(comparePageTitle(true));
 
-  pageTitle = await waitFor(() => getByTestId('compare-page-title'));
-
-  expect(pageTitle.textContent).toBe(`${title} subtest summary`);
+  await waitFor(() => expect(document.title).toBe(defaultPageTitle));
 });
