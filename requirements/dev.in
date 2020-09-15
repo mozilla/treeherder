@@ -24,7 +24,7 @@ black
 shellcheck-py
 
 # To test async code
-pytest-asyncio==0.10.0  # required to pass test_new_job_transformation
+pytest-asyncio==0.14.0  # required to pass test_new_job_transformation
 
 # To test code that's making system time calls
 pytest-freezegun
