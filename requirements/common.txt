@@ -199,8 +199,9 @@ gunicorn==20.0.4 \
     --hash=sha256:1904bb2b8a43658807108d59c3f3d56c2b6121a701161de0ddf9ad140073c626 \
     --hash=sha256:cd4a810dd51bf497552cf3f863b575dabd73d6ad6a91075b65936b151cbf4f9c \
     # via -r requirements/common.in
-hjson==3.0.1 \
-    --hash=sha256:1d1727faa6aaef2973921877125a3ab7c5f6d34b93233179d01770f41fab51f9 \
+hjson==3.0.2 \
+    --hash=sha256:2838fd7200e5839ea4516ece953f3a19892c41089f0d933ba3f68e596aacfcd5 \
+    --hash=sha256:5546438bf4e1b52bc964c6a47c4ed10fa5fba8a1b264e22efa893e333baad2db \
     # via mo-json, mo-json-config
 idna==2.10 \
     --hash=sha256:b307872f855b18632ce0c21c5e45be78c0ea7ae4c15c828c20788b26921eb3f6 \
