@@ -373,8 +373,18 @@ mysqlclient==2.0.1 \
     --hash=sha256:edd42ccaa444b00702d5374b2f5f7585c9d0ce201917f15339f1c3cf91c1b1ed \
     --hash=sha256:fb2f75aea14722390d2d8ddf384ad99da708c707a96656210a7be8af20a2c5e5 \
     # via -r requirements/common.in
-newrelic==5.2.1.129 \
-    --hash=sha256:da9adab674d9fe7aa8fbabb6691b33fb7be94a32b6a80548ec7018be9df8ef65 \
+newrelic==5.18.0.148 \
+    --hash=sha256:0d546d7a615beb6a507525a765688ed2e34033cd663c40c1678de84ee0f33e4e \
+    --hash=sha256:6b16531d45744b16efed37c04d11ab7c5d7fe0f802a41e41f1566c37f7a12280 \
+    --hash=sha256:ac95cbba75fcc6866f1d78c3da36415bd3b8f6452577a7018175f8cf1fdb00e1 \
+    --hash=sha256:acf8b23433d50154607d3c33091f0672c2f3852dab3f53ee3e09353ac910aa9e \
+    --hash=sha256:b8f73073f390ccd643115241b0ca30012096d50a235ea9904a4d3549a29359db \
+    --hash=sha256:c1e8f42b7e14f798ca3137aa1191c73d90b2c21cc4ce48af2bcde32d0bba6fab \
+    --hash=sha256:c9ec5f14a0ba6c341ddf6b028835e81a5d960c9cb60e567d6539a93b66cae7c9 \
+    --hash=sha256:cbe27ba5f9a28000441eaee8770a03c9e887b92725d7d6c0bcd55e4c67a140dd \
+    --hash=sha256:f585a2fdb0a85fde83d214b6093af886d5e8ed777367bddedd404b7f7f3583d5 \
+    --hash=sha256:f694136ba75671121596c935aa47fb2d244d6641f1272d8c30a51a0abf646677 \
+    --hash=sha256:fc22a26c5e04fc27b661e36a28141347d29b61b5cc2337435371a280bcf78fc4 \
     # via -r requirements/common.in
 orderedmultidict==1.0.1 \
     --hash=sha256:04070bbb5e87291cc9bfa51df413677faf2141c73c61d2a5f7b26bea3cd882ad \
