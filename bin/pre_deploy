@@ -59,12 +59,11 @@ if [[ -v NEW_RELIC_CONFIG_FILE ]]; then
     # Report the deploy to New Relic using their Python agent. In addition to
     # the passed arguments, record-deploy references the environment variables
     # `NEW_RELIC_APP_NAME` and `NEW_RELIC_API_KEY`.
-    newrelic-admin record-deploy "$NEW_RELIC_APP_ID" \
-                                 "$NEW_RELIC_CONFIG_FILE" \
+    newrelic-admin record-deploy "$NEW_RELIC_CONFIG_FILE" \
                                  "$HEROKU_SLUG_COMMIT" \
                                  "$DESCRIPTION" \
                                  "$CHANGELOG" \
                                  "$USER"
 fi
 
-echo "-----> PRE-DEPLOY: Complete!"
+echo "-----> PRE-DEPLOY: Done and Complete!"
