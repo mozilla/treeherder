@@ -66,4 +66,4 @@ if [[ -v NEW_RELIC_CONFIG_FILE ]]; then
                                  "$USER"
 fi
 
-echo "-----> PRE-DEPLOY: again Complete!"
+echo "-----> PRE-DEPLOY: going Complete!"
