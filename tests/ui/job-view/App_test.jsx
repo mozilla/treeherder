@@ -3,13 +3,12 @@ import fetchMock from 'fetch-mock';
 import { render, waitFor, fireEvent } from '@testing-library/react';
 import { Provider, ReactReduxContext } from 'react-redux';
 import { ConnectedRouter } from 'connected-react-router';
-import { Route } from 'react-router-dom';
 
 import App from '../../../ui/job-view/App';
 import reposFixture from '../mock/repositories';
 import pushListFixture from '../mock/push_list';
 import { getApiUrl } from '../../../ui/helpers/url';
-import { getProjectUrl, setUrlParam } from '../../../ui/helpers/location';
+import { getProjectUrl } from '../../../ui/helpers/location';
 import jobListFixtureOne from '../mock/job_list/job_1.json';
 import fullJob from '../mock/full_job.json';
 import {

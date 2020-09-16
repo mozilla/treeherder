@@ -4,27 +4,20 @@ import { Provider, ReactReduxContext } from 'react-redux';
 import { ConnectedRouter } from 'connected-react-router';
 import {
   render,
-  cleanup,
   waitFor,
   waitForElementToBeRemoved,
   fireEvent,
   getAllByTestId,
-  prettyDOM,
+  screen,
 } from '@testing-library/react';
+import { createBrowserHistory } from 'history';
 
-import {
-  getProjectUrl,
-  replaceLocation,
-  setUrlParam,
-} from '../../../ui/helpers/location';
+import { getProjectUrl, setUrlParam } from '../../../ui/helpers/location';
 import FilterModel from '../../../ui/models/filter';
 import pushListFixture from '../mock/push_list';
 import jobListFixtureOne from '../mock/job_list/job_1';
 import jobListFixtureTwo from '../mock/job_list/job_2';
-import {
-  configureStore,
-  history,
-} from '../../../ui/job-view/redux/configureStore';
+import { configureStore } from '../../../ui/job-view/redux/configureStore';
 import PushList from '../../../ui/job-view/pushes/PushList';
 import { getApiUrl } from '../../../ui/helpers/url';
 import { findJobInstance } from '../../../ui/helpers/job';
@@ -42,6 +35,8 @@ global.document.createRange = () => ({
 
 describe('PushList', () => {
   const repoName = 'autoland';
+  const history = createBrowserHistory();
+
   const currentRepo = {
     id: 4,
     repository_group: {
@@ -63,25 +58,7 @@ describe('PushList', () => {
     getRevisionHref: () => 'foo',
     getPushLogHref: () => 'foo',
   };
-  const testPushList = (store, filterModel) => (
-    <Provider store={store} context={ReactReduxContext}>
-      <ConnectedRouter history={history} context={ReactReduxContext}>
-        <div id="th-global-content">
-          <PushList
-            user={{ isLoggedIn: false }}
-            repoName={repoName}
-            currentRepo={currentRepo}
-            filterModel={filterModel}
-            duplicateJobsVisible={false}
-            groupCountsExpanded={false}
-            pushHealthVisibility="None"
-            getAllShownJobs={() => {}}
-            location={{ search: '' }}
-          />
-        </div>
-      </ConnectedRouter>
-    </Provider>
-  );
+
   const pushCount = () =>
     waitFor(() => getAllByTestId(document.body, 'push-header'));
 
@@ -98,6 +75,26 @@ describe('PushList', () => {
       {
         ...pushListFixture,
         results: pushListFixture.results.slice(0, 1),
+      },
+    );
+    fetchMock.get(
+      getProjectUrl(
+        '/push/?full=true&count=10&tochange=ba9c692786e95143b8df3f4b3e9b504dfbc589a0',
+        repoName,
+      ),
+      {
+        ...pushListFixture,
+        results: pushListFixture.results.slice(0, 1),
+      },
+    );
+    fetchMock.get(
+      getProjectUrl(
+        '/push/?full=true&count=100&fromchange=d5b037941b0ebabcc9b843f24d926e9d65961087',
+        repoName,
+      ),
+      {
+        ...pushListFixture,
+        results: pushListFixture.results.slice(1, 2),
       },
     );
     fetchMock.get(
@@ -125,73 +122,87 @@ describe('PushList', () => {
     );
   });
 
+  afterEach(() => history.push('/'));
+
   afterAll(() => {
     fetchMock.reset();
   });
 
-  afterEach(() => {
-    cleanup();
-    replaceLocation({});
-  });
-
+  const testPushList = () => {
+    const store = configureStore(history);
+    return (
+      <Provider store={store} context={ReactReduxContext}>
+        <ConnectedRouter history={history} context={ReactReduxContext}>
+          <div id="th-global-content">
+            <PushList
+              user={{ isLoggedIn: false }}
+              repoName={repoName}
+              currentRepo={currentRepo}
+              filterModel={
+                new FilterModel({
+                  push: history.push,
+                  router: { location: history.location },
+                })
+              }
+              duplicateJobsVisible={false}
+              groupCountsExpanded={false}
+              pushHealthVisibility="None"
+              getAllShownJobs={() => {}}
+            />
+          </div>
+        </ConnectedRouter>
+      </Provider>
+    );
+  };
   const push1Id = 'push-511138';
   const push2Id = 'push-511137';
   const push1Revision = 'ba9c692786e95143b8df3f4b3e9b504dfbc589a0';
   const push2Revision = 'd5b037941b0ebabcc9b843f24d926e9d65961087';
 
   test('should have 2 pushes', async () => {
-    const store = configureStore();
-    render(testPushList(store, new FilterModel()));
+    render(testPushList());
 
     expect(await pushCount()).toHaveLength(2);
   });
 
-  test('should switch to single loaded revision and back to 2', async () => {
-    const store = configureStore();
-    const { getByTestId } = render(testPushList(store, new FilterModel()));
+  test('should switch to single loaded revision', async () => {
+    const { getAllByTitle } = render(testPushList());
 
     expect(await pushCount()).toHaveLength(2);
+    const pushLinks = await getAllByTitle('View only this push');
 
-    // fireEvent.click(push) not clicking the link, so must set the url param
-    setUrlParam('revision', push2Revision); // click push 2
-    // await waitForElementToBeRemoved(() => getByTestId('push-511138'));
-
-    // expect(await pushCount()).toHaveLength(1);
-
-    // setUrlParam('revision', null);
-    // await waitFor(() => getByTestId(push1Id));
-    // expect(await pushCount()).toHaveLength(2);
+    fireEvent.click(pushLinks[1]);
+    expect(pushLinks[0]).not.toBeInTheDocument();
+    expect(await pushCount()).toHaveLength(1);
   });
 
   test('should reload pushes when setting fromchange', async () => {
-    const store = configureStore();
-    const { getByTestId } = render(testPushList(store, new FilterModel()));
+    const { queryAllByTestId, queryByTestId } = render(testPushList());
 
     expect(await pushCount()).toHaveLength(2);
 
-    const push2 = getByTestId(push2Id);
+    await waitFor(() => queryAllByTestId('push-header'));
+
+    const push2 = await waitFor(() => queryByTestId(push2Id));
     const actionMenuButton = push2.querySelector(
       '[data-testid="push-action-menu-button"]',
     );
 
     fireEvent.click(actionMenuButton);
 
-    const setBottomLink = await waitFor(() =>
+    const setFromRange = await waitFor(() =>
       push2.querySelector('[data-testid="bottom-of-range-menu-item"]'),
     );
 
-    expect(setBottomLink.getAttribute('href')).toContain(
-      '/#/jobs?&fromchange=d5b037941b0ebabcc9b843f24d926e9d65961087',
-    );
+    fireEvent.click(setFromRange);
 
-    setUrlParam('fromchange', push1Revision);
-    await waitForElementToBeRemoved(() => getByTestId(push2Id));
-    expect(await pushCount()).toHaveLength(1);
+    expect(history.location.search).toContain(
+      '?fromchange=d5b037941b0ebabcc9b843f24d926e9d65961087',
+    );
   });
 
   test('should reload pushes when setting tochange', async () => {
-    const store = configureStore();
-    const { getByTestId } = render(testPushList(store, new FilterModel()));
+    const { getByTestId } = render(testPushList());
 
     expect(await pushCount()).toHaveLength(2);
 
@@ -202,24 +213,19 @@ describe('PushList', () => {
 
     fireEvent.click(actionMenuButton);
 
-    const setTopLink = await waitFor(() =>
+    const setTopRange = await waitFor(() =>
       push1.querySelector('[data-testid="top-of-range-menu-item"]'),
     );
 
-    expect(setTopLink.getAttribute('href')).toContain(
-      '/#/jobs?&tochange=ba9c692786e95143b8df3f4b3e9b504dfbc589a0',
-    );
+    fireEvent.click(setTopRange);
 
-    setUrlParam('tochange', push2Revision);
-    await waitForElementToBeRemoved(() => getByTestId(push1Id));
-    expect(await pushCount()).toHaveLength(1);
+    expect(history.location.search).toContain(
+      '?tochange=ba9c692786e95143b8df3f4b3e9b504dfbc589a0',
+    );
   });
 
   test('should load N more pushes when click next N', async () => {
-    const store = configureStore();
-    const { getByTestId, getAllByTestId } = render(
-      testPushList(store, new FilterModel()),
-    );
+    const { getByTestId, getAllByTestId } = render(testPushList());
     const nextNUrl = (count) =>
       getProjectUrl(`/push/?full=true&count=${count + 1}&push_timestamp__lte=`);
     const clickNext = (count) =>
@@ -268,8 +274,7 @@ describe('PushList', () => {
   });
 
   test('jobs should have fields required for retriggers', async () => {
-    const store = configureStore();
-    const { getByText } = render(testPushList(store, new FilterModel()));
+    const { getByText } = render(testPushList());
     const jobEl = await waitFor(() => getByText('yaml'));
     const jobInstance = findJobInstance(jobEl.getAttribute('data-job-id'));
     const { job } = jobInstance.props;

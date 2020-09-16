@@ -299,6 +299,7 @@ export const pollPushes = () => {
   return async (dispatch, getState) => {
     const {
       pushes: { pushList, jobMap },
+      router,
     } = getState();
     // these params will be passed in each time we poll to remain
     // within the constraints of the URL params
@@ -333,6 +334,8 @@ export const pollPushes = () => {
             pushList,
             jobMap,
             false,
+            dispatch,
+            router,
           ),
         });
         dispatch(fetchNewJobs());

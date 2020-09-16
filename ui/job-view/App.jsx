@@ -450,6 +450,7 @@ class App extends React.Component {
 
 App.propTypes = {
   jobMap: PropTypes.shape({}).isRequired,
+  router: PropTypes.shape({}).isRequired,
 };
 
 const mapStateToProps = ({ pushes: { jobMap }, router }) => ({

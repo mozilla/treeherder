@@ -31,12 +31,11 @@ class PushActionMenu extends React.PureComponent {
   }
 
   updateParamsAndRange = (param) => {
-    const { location, revision, updateRange, push } = this.props;
-    let queryParams = parseQueryParams(location.search);
+    const { router, revision, updateRange, push } = this.props;
+    let queryParams = parseQueryParams(router.location.search);
     queryParams = { ...queryParams, ...{ [param]: revision } };
 
     push({
-      pathname: location.pathname,
       search: createQueryParams(queryParams),
     });
     updateRange(queryParams);
@@ -210,14 +209,16 @@ PushActionMenu.propTypes = {
   showRunnableJobs: PropTypes.func.isRequired,
   showFuzzyJobs: PropTypes.func.isRequired,
   notify: PropTypes.func.isRequired,
+  router: PropTypes.shape({}).isRequired,
 };
 
 PushActionMenu.defaultProps = {
   revision: null,
 };
 
-const mapStateToProps = ({ pushes: { decisionTaskMap } }) => ({
+const mapStateToProps = ({ pushes: { decisionTaskMap }, router }) => ({
   decisionTaskMap,
+  router,
 });
 
 export default connect(mapStateToProps, { notify, updateRange, push })(
