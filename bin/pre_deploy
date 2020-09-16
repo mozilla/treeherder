@@ -64,6 +64,7 @@ if [[ -v NEW_RELIC_CONFIG_FILE ]]; then
                                  "$HEROKU_SLUG_COMMIT" \
                                  "$CHANGELOG" \
                                  "$USER"
+    echo "Deployed to: " + $NEW_RELIC_APP_NAME
 fi
 
 echo "-----> PRE-DEPLOY: going Complete!"
