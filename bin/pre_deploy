@@ -60,8 +60,8 @@ if [[ -v NEW_RELIC_CONFIG_FILE ]]; then
     # the passed arguments, record-deploy references the environment variables
     # `NEW_RELIC_APP_NAME` and `NEW_RELIC_API_KEY`.
     newrelic-admin record-deploy "$NEW_RELIC_CONFIG_FILE" \
-                                 "$HEROKU_SLUG_COMMIT" \
                                  "$DESCRIPTION" \
+                                 "$HEROKU_SLUG_COMMIT" \
                                  "$CHANGELOG" \
                                  "$USER"
 fi
