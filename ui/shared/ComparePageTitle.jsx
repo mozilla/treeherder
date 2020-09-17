@@ -24,13 +24,18 @@ export default class ComparePageTitle extends React.Component {
       prevProps.pageTitleQueryParam !== pageTitleQueryParam ||
       prevProps.title !== title
     ) {
-      // eslint-disable-next-line react/no-did-update-set-state
-      this.setState({
-        pageTitle: pageTitleQueryParam || title,
-        newPageTitle: pageTitleQueryParam || title,
-      });
+      this.setPageTitle();
     }
   }
+
+  setPageTitle = () => {
+    const { pageTitleQueryParam, title } = this.props;
+
+    this.setState({
+      pageTitle: pageTitleQueryParam || title,
+      newPageTitle: pageTitleQueryParam || title,
+    });
+  };
 
   goToEditMode = () => {
     this.setState({
