@@ -5,14 +5,12 @@ import { ConnectedRouter } from 'connected-react-router';
 import {
   render,
   waitFor,
-  waitForElementToBeRemoved,
   fireEvent,
   getAllByTestId,
-  screen,
 } from '@testing-library/react';
 import { createBrowserHistory } from 'history';
 
-import { getProjectUrl, setUrlParam } from '../../../ui/helpers/location';
+import { getProjectUrl } from '../../../ui/helpers/location';
 import FilterModel from '../../../ui/models/filter';
 import pushListFixture from '../mock/push_list';
 import jobListFixtureOne from '../mock/job_list/job_1';
@@ -154,10 +152,10 @@ describe('PushList', () => {
       </Provider>
     );
   };
+  // push1Revision is'ba9c692786e95143b8df3f4b3e9b504dfbc589a0';
   const push1Id = 'push-511138';
+  // push2Revision is 'd5b037941b0ebabcc9b843f24d926e9d65961087';
   const push2Id = 'push-511137';
-  const push1Revision = 'ba9c692786e95143b8df3f4b3e9b504dfbc589a0';
-  const push2Revision = 'd5b037941b0ebabcc9b843f24d926e9d65961087';
 
   test('should have 2 pushes', async () => {
     render(testPushList());
