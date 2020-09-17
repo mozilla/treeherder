@@ -475,6 +475,6 @@ class Command(BaseCommand):
             elif typeOfIngestion == "git-pushes":
                 ingest_git_pushes(options["project"], options["dryRun"])
         elif typeOfIngestion == "push":
-            ingest_push(options)
+            ingest_hg_push(options)
         else:
             raise Exception('Please check the code for valid ingestion types.')
