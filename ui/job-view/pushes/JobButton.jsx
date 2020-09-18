@@ -124,7 +124,7 @@ export default class JobButtonComponent extends React.Component {
 
     attributes.className = classes.join(' ');
     return (
-      <button type="button" {...attributes}>
+      <button type="button" {...attributes} data-testid="job-btn">
         {jobTypeSymbol}
         {classifiedIcon && (
           <FontAwesomeIcon
