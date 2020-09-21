@@ -118,6 +118,7 @@ export default class JobButtonComponent extends React.Component {
 
     if (isSelected) {
       classes.push('selected-job btn-lg-xform');
+      attributes['data-testid'] = 'selected-job';
     } else {
       classes.push('btn-xs');
     }
