@@ -24,6 +24,7 @@ class CriteriaRecord:
     Test: str
     EngineerTraction: Union[float, str]
     FixRatio: Union[float, str]
+    TotalAlerts: int
     LastUpdatedOn: datetime
     AllowSync: bool
 
@@ -32,6 +33,8 @@ class CriteriaRecord:
             self.EngineerTraction = float(self.EngineerTraction)
         if self.FixRatio not in ('', 'N/A'):
             self.FixRatio = float(self.FixRatio)
+        if self.TotalAlerts not in ('', 'N/A'):
+            self.TotalAlerts = int(self.TotalAlerts)
 
         if self.LastUpdatedOn != '':
             if isinstance(self.LastUpdatedOn, str):
@@ -230,10 +233,8 @@ class CriteriaTracker:
         self._records_map = {}
 
         for formula in self._formula_map.values():
-            if not isinstance(formula, BugzillaFormula):
-                raise TypeError(
-                    f'Must provide formulas of type {BugzillaFormula.__class__.__name__}'
-                )
+            if not callable(formula):
+                raise TypeError('Must provide callable as sheriffing criteria formula')
 
     def get_test_moniker(self, record: CriteriaRecord) -> Tuple[str, str, str]:
         return record.Framework, record.Suite, record.Test

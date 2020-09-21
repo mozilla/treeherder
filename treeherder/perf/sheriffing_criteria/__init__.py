@@ -3,5 +3,6 @@ from .bugzilla_formulas import (  # noqa
     BugzillaFormula,
     EngineerTractionFormula,
     FixRatioFormula,
+    TotalAlertsFormula,
 )
 from .criteria_tracking import CriteriaTracker, RecordComputer, CriteriaRecord  # noqa

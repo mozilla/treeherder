@@ -1,6 +1,6 @@
-Framework,Suite,Test,EngineerTraction,FixRatio,LastUpdatedOn,AllowSync
-awsy,JS,,,,,
-build_metrics,build times,,,,,
-build_metrics,installer size,,,,,
-raptor,raptor-speedometer-firefox,,,,,
-raptor,raptor-webaudio-firefox,,,,,
+Framework,Suite,Test,EngineerTraction,FixRatio,TotalAlerts,LastUpdatedOn,AllowSync
+awsy,JS,,,,,,
+build_metrics,build times,,,,,,
+build_metrics,installer size,,,,,,
+raptor,raptor-speedometer-firefox,,,,,,
+raptor,raptor-webaudio-firefox,,,,,,

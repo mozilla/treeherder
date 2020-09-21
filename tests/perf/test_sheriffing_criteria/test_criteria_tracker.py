@@ -19,6 +19,7 @@ from treeherder.perf.sheriffing_criteria import (
     FixRatioFormula,
     RecordComputer,
     CriteriaRecord,
+    TotalAlertsFormula,
 )
 from treeherder.perf.sheriffing_criteria.criteria_tracking import ResultsChecker
 from treeherder.utils import PROJECT_ROOT
@@ -56,6 +57,7 @@ RECORDS_WITH_NO_DATA = [
         Test=test[2],
         EngineerTraction='',
         FixRatio='',
+        TotalAlerts='',
         LastUpdatedOn='',
         AllowSync='',
     )
@@ -68,6 +70,7 @@ RECORDS_WITH_EXPIRED_DATA = [
         Test=test[2],
         EngineerTraction=0.5,
         FixRatio=0.3,
+        TotalAlerts=21,
         LastUpdatedOn='2020-05-02T00:00:00.000000',
         AllowSync='',
     )
@@ -80,6 +83,7 @@ RECORDS_WITH_UPDATED_DATA = [
         Test=test[2],
         EngineerTraction=0.5,
         FixRatio=0.3,
+        TotalAlerts=21,
         LastUpdatedOn='2020-06-02T00:00:00.000000',
         AllowSync='',
     )
@@ -158,6 +162,7 @@ def mock_formula_map():
     return {
         'EngineerTraction': MagicMock(spec=EngineerTractionFormula, return_value=EXPECTED_VALUE),
         'FixRatio': MagicMock(spec=FixRatioFormula, return_value=EXPECTED_VALUE),
+        'TotalAlerts': MagicMock(spec=FixRatioFormula, return_value=0),
     }
 
 
@@ -166,7 +171,6 @@ def mock_formula_map():
     [
         {'EngineerTraction': InvalidFormula(), 'FixRatio': InvalidFormula()},
         {'EngineerTraction': None, 'FixRatio': None},
-        {'EngineerTraction': lambda f, s: None, 'FixRatio': lambda f, s: None},
     ],
 )
 def test_tracker_throws_error_for_invalid_formulas(invalid_formulas):
@@ -220,10 +224,11 @@ def test_record_computer_can_tell_unallowed_data(criteria_record):
 
 @pytest.mark.freeze_time(CASSETTES_RECORDING_DATE)  # disable tick
 @pytest.mark.parametrize('exception', [NoFiledBugs(), Exception()])
-def test_record_computer_still_updates_if_one_of_the_formulas_fails(exception):
+def test_record_computer_still_updates_if_one_of_the_formulas_fails(exception, db):
     formula_map = {
         'EngineerTraction': MagicMock(spec=EngineerTractionFormula, return_value=EXPECTED_VALUE),
         'FixRatio': MagicMock(spec=FixRatioFormula, side_effect=exception),
+        'TotalAlerts': TotalAlertsFormula(),
     }
     record = CriteriaRecord(
         Framework='talos',
@@ -231,6 +236,7 @@ def test_record_computer_still_updates_if_one_of_the_formulas_fails(exception):
         Test='',
         EngineerTraction='',
         FixRatio='',
+        TotalAlerts='',
         LastUpdatedOn='',
         AllowSync='',
     )
@@ -242,6 +248,7 @@ def test_record_computer_still_updates_if_one_of_the_formulas_fails(exception):
     assert record.Suite == 'tp5n'
     assert record.EngineerTraction == EXPECTED_VALUE
     assert record.FixRatio == 'N/A'
+    assert record.TotalAlerts == 0  # as the test database is empty
     assert record.LastUpdatedOn == EXPECTED_LAST_UPDATE
     assert record.AllowSync is True
 
@@ -272,6 +279,7 @@ def test_tracker_updates_records_with_missing_data(mock_formula_map, updatable_c
     for criteria_rec in tracker:
         assert criteria_rec.EngineerTraction == ''
         assert criteria_rec.FixRatio == ''
+        assert criteria_rec.TotalAlerts == ''
         assert criteria_rec.LastUpdatedOn == ''
         assert criteria_rec.AllowSync is True
 
@@ -286,6 +294,7 @@ def test_tracker_updates_records_with_missing_data(mock_formula_map, updatable_c
     for criteria_rec in separate_tracker:
         assert criteria_rec.EngineerTraction == EXPECTED_VALUE
         assert criteria_rec.FixRatio == EXPECTED_VALUE
+        assert criteria_rec.TotalAlerts == 0
         assert criteria_rec.LastUpdatedOn == EXPECTED_LAST_UPDATE
         assert criteria_rec.AllowSync is True
 

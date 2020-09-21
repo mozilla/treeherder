@@ -2,7 +2,7 @@ from datetime import datetime, timedelta
 
 import pytest
 from django.conf import settings
-from typing import List, Type
+from typing import List, Type, Callable
 
 from tests.perf.test_sheriffing_criteria.conftest import CASSETTES_RECORDING_DATE
 from treeherder.config.settings import BZ_DATETIME_FORMAT
@@ -11,14 +11,19 @@ from treeherder.perf.sheriffing_criteria import (
     EngineerTractionFormula,
     FixRatioFormula,
     BugzillaFormula,
+    TotalAlertsFormula,
 )
 
 
 pytestmark = [pytest.mark.freeze_time(CASSETTES_RECORDING_DATE, tick=True)]
 
 
-def formula_instances() -> List[BugzillaFormula]:
+def bugzilla_formula_instances() -> List[BugzillaFormula]:
     return [EngineerTractionFormula(), FixRatioFormula()]
+
+
+def formula_instances() -> List[Callable]:
+    return bugzilla_formula_instances() + [TotalAlertsFormula()]
 
 
 def concrete_formula_classes() -> List[Type[BugzillaFormula]]:
@@ -30,14 +35,20 @@ def test_formula_exposes_quantifying_period(formula, nonblock_session):
     assert formula.quantifying_period == settings.QUANTIFYING_PERIOD
 
 
-@pytest.mark.parametrize('formula', formula_instances())
+@pytest.mark.parametrize('formula', bugzilla_formula_instances())
 def test_formula_exposes_oldest_timestamp(formula, nonblock_session):
     no_older_than = datetime.now() - timedelta(weeks=24, seconds=5)
 
     assert formula.oldest_timestamp >= no_older_than
 
 
-@pytest.mark.parametrize('formula', formula_instances())
+def test_total_alerts_formula_exposes_oldest_timestamp():
+    no_older_than = datetime.now() - (timedelta(weeks=24, seconds=5) + timedelta(weeks=2))
+
+    assert TotalAlertsFormula().oldest_timestamp >= no_older_than
+
+
+@pytest.mark.parametrize('formula', bugzilla_formula_instances())
 @pytest.mark.parametrize(
     'cooled_down_bug',
     [
@@ -50,7 +61,7 @@ def test_formula_correctly_detects_cooled_down_bugs(cooled_down_bug, formula, no
     assert formula.has_cooled_down(cooled_down_bug)
 
 
-@pytest.mark.parametrize('formula', formula_instances())
+@pytest.mark.parametrize('formula', bugzilla_formula_instances())
 @pytest.mark.parametrize(
     'not_cooled_down_bug',
     [
@@ -65,7 +76,7 @@ def test_formula_detects_bugs_that_didnt_cool_down_yet(
     assert not formula.has_cooled_down(not_cooled_down_bug)
 
 
-@pytest.mark.parametrize('formula', formula_instances())
+@pytest.mark.parametrize('formula', bugzilla_formula_instances())
 @pytest.mark.parametrize('bad_structured_bug', [{}, {'creation_time': 'jiberish-date'}])
 def test_formula_throws_adequate_error_for_bug(bad_structured_bug, formula, nonblock_session):
     with pytest.raises(ValueError):
@@ -91,7 +102,7 @@ def test_formula_cannot_be_initialized_with_a_regular_session(FormulaClass, unre
         _ = FormulaClass(unrecommended_session)
 
 
-@pytest.mark.parametrize('formula', formula_instances())
+@pytest.mark.parametrize('formula', bugzilla_formula_instances())
 def test_accessing_breakdown_without_prior_calculus_errors_out(formula, nonblock_session):
     with pytest.raises(RuntimeError):
         _ = formula.breakdown()

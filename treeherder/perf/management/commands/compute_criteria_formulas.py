@@ -8,6 +8,7 @@ from treeherder.perf.sheriffing_criteria import (
     EngineerTractionFormula,
     FixRatioFormula,
     CriteriaTracker,
+    TotalAlertsFormula,
 )
 from treeherder.perf.sheriffing_criteria import criteria_tracking
 from mo_times import Duration
@@ -84,6 +85,7 @@ class Command(BaseCommand):
         formula_map = {
             'EngineerTraction': EngineerTractionFormula(*init_params),
             'FixRatio': FixRatioFormula(*init_params),
+            'TotalAlerts': TotalAlertsFormula(quant_period),
         }
 
         tracker = CriteriaTracker(formula_map, multiprocessed=multiprocessed)
