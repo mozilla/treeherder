@@ -1338,7 +1338,7 @@
   dependencies:
     "@sinonjs/commons" "^1.7.0"
 
-"@testing-library/dom@^7.24.2", "@testing-library/dom@^7.9.0":
+"@testing-library/dom@^7.24.2":
   version "7.24.2"
   resolved "https://registry.yarnpkg.com/@testing-library/dom/-/dom-7.24.2.tgz#6d2b7dd21efbd5358b98c2777fc47c252f3ae55e"
   integrity sha512-ERxcZSoHx0EcN4HfshySEWmEf5Kkmgi+J7O79yCJ3xggzVlBJ2w/QjJUC+EBkJJ2OeSw48i3IoePN4w8JlVUIA==
@@ -1367,22 +1367,13 @@
     pretty-format "^24.0.0"
     redent "^3.0.0"
 
-"@testing-library/react@*":
+"@testing-library/react@11.0.4":
   version "11.0.4"
   resolved "https://registry.yarnpkg.com/@testing-library/react/-/react-11.0.4.tgz#c84082bfe1593d8fcd475d46baee024452f31dee"
   integrity sha512-U0fZO2zxm7M0CB5h1+lh31lbAwMSmDMEMGpMT3BUPJwIjDEKYWOV4dx7lb3x2Ue0Pyt77gmz/VropuJnSz/Iew==
   dependencies:
     "@babel/runtime" "^7.11.2"
     "@testing-library/dom" "^7.24.2"
-
-"@testing-library/react@10.0.6":
-  version "10.0.6"
-  resolved "https://registry.yarnpkg.com/@testing-library/react/-/react-10.0.6.tgz#e1e569135badb7367cc6ac9823e376eccb0280e0"
-  integrity sha512-7cZ2sHN6zTW1b/pNKzA0icZozshOOuiEQq/zCcf4LUCNGKAOnGCxZDQI7qjpO6lMITmi4Qs0VU1j9Cd4Z36e+w==
-  dependencies:
-    "@babel/runtime" "^7.10.2"
-    "@testing-library/dom" "^7.9.0"
-    "@types/testing-library__react" "^10.0.1"
 
 "@tootallnate/once@1":
   version "1.1.2"
@@ -1558,13 +1549,6 @@
   integrity sha512-K7nUSpH/5i8i0NagTJ+uFUDRueDlnMNhJtMjMwTGPPSqyImbWC/hgKPDCKt6Phu2iMJg2kWqlax+Ucj2DKMwpA==
   dependencies:
     "@types/jest" "*"
-
-"@types/testing-library__react@^10.0.1":
-  version "10.2.0"
-  resolved "https://registry.yarnpkg.com/@types/testing-library__react/-/testing-library__react-10.2.0.tgz#8234be1248ce6728b33922507cfe1224886ede8e"
-  integrity sha512-KbU7qVfEwml8G5KFxM+xEfentAAVj/SOQSjW0+HqzjPE0cXpt0IpSamfX4jGYCImznDHgQcfXBPajS7HjLZduw==
-  dependencies:
-    "@testing-library/react" "*"
 
 "@types/uglify-js@*":
   version "3.9.3"
