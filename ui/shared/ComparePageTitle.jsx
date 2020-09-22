@@ -18,6 +18,25 @@ export default class ComparePageTitle extends React.Component {
     };
   }
 
+  componentDidUpdate(prevProps) {
+    const { pageTitleQueryParam, title } = this.props;
+    if (
+      prevProps.pageTitleQueryParam !== pageTitleQueryParam ||
+      prevProps.title !== title
+    ) {
+      this.setPageTitle();
+    }
+  }
+
+  setPageTitle = () => {
+    const { pageTitleQueryParam, title } = this.props;
+
+    this.setState({
+      pageTitle: pageTitleQueryParam || title,
+      newPageTitle: pageTitleQueryParam || title,
+    });
+  };
+
   goToEditMode = () => {
     this.setState({
       inEditMode: true,
