@@ -1,27 +1,21 @@
-import React from 'react';
 import fetchMock from 'fetch-mock';
-import { Provider, ReactReduxContext } from 'react-redux';
 import thunk from 'redux-thunk';
-import { render, waitFor, screen } from '@testing-library/react';
+import { waitFor } from '@testing-library/react';
 import configureMockStore from 'redux-mock-store';
 import keyBy from 'lodash/keyBy';
 import { createBrowserHistory } from 'history';
-import { ConnectedRouter } from 'connected-react-router';
 
-import { getUrlParam, setUrlParam } from '../../../../ui/helpers/location';
-import FilterModel from '../../../../ui/models/filter';
 import {
   setSelectedJob,
   setSelectedJobFromQueryString,
   clearSelectedJob,
   initialState,
   reducer,
+  SELECT_JOB,
 } from '../../../../ui/job-view/redux/stores/selectedJob';
-import JobGroup from '../../../../ui/job-view/pushes/JobGroup';
 import group from '../../mock/group_with_jobs';
 import { getApiUrl } from '../../../../ui/helpers/url';
 import jobListFixtureOne from '../../mock/job_list/job_1';
-import { configureStore } from '../../../../ui/job-view/redux/configureStore';
 
 const jobMap = keyBy(group.jobs, 'id');
 let notifications = [];
@@ -31,35 +25,6 @@ describe('SelectedJob Redux store', () => {
   const mockStore = configureMockStore([thunk]);
   const repoName = 'autoland';
   const router = { location: history.location };
-
-  const testJobGroup = () => {
-    // const store = mockStore({
-    //   selectedJob: { initialState },
-    // });
-    const store = configureStore(history);
-
-    return (
-      <Provider store={store} context={ReactReduxContext}>
-        <ConnectedRouter history={history} context={ReactReduxContext}>
-          <JobGroup
-            group={group}
-            repoName={repoName}
-            filterModel={
-              new FilterModel({
-                push: history.push,
-                router,
-              })
-            }
-            filterPlatformCb={() => {}}
-            pushGroupState="expanded"
-            duplicateJobsVisible={false}
-            groupCountsExpanded
-            router={router}
-          />
-        </ConnectedRouter>
-      </Provider>
-    );
-  };
 
   beforeEach(() => {
     fetchMock.get(
@@ -78,21 +43,30 @@ describe('SelectedJob Redux store', () => {
     history.push('/');
   });
 
-  // test('setSelectedJob should select a job', async () => {
-  //   const taskRun = 'UCctvnxZR0--JcxyVGc8VA.0';
-  //   // history.push(`/jobs?repo=${repoName}&selectedJob=${group.jobs[0].id}`)
-  //   const { getByText } = render(testJobGroup());
+  test('setSelectedJob should select a job', async () => {
+    const taskRun = 'UCctvnxZR0--JcxyVGc8VA.0';
+    const store = mockStore({
+      selectedJob: { initialState },
+      router,
+    });
 
-  //   const reduced = reducer(
-  //     { selectedJob: { initialState } },
-  //     setSelectedJob(group.jobs[0], true),
-  //   );
-  //   // const selectedJob = await waitFor(() => getByText('asan'));
-  //   // screen.debug(selectedJob);
-  //   // await waitFor(() => expect(selectedJob).toHaveClass('selected-job'));
-  //   await waitFor(() => expect(reduced.selectedJob).toEqual(group.jobs[0]));
-  //   // expect(getUrlParam('selectedTaskRun')).toEqual(taskRun);
-  // });
+    store.dispatch(setSelectedJob(group.jobs[0], true));
+    const actions = store.getActions();
+    expect(actions).toEqual([
+      {
+        job: group.jobs[0],
+        type: SELECT_JOB,
+        updateDetails: true,
+      },
+      {
+        payload: {
+          args: [{ search: `?selectedTaskRun=${taskRun}` }],
+          method: 'push',
+        },
+        type: '@@router/CALL_HISTORY_METHOD',
+      },
+    ]);
+  });
 
   test('setSelectedJobFromQueryString found', async () => {
     const taskRun = 'UCctvnxZR0--JcxyVGc8VA.0';
@@ -143,17 +117,30 @@ describe('SelectedJob Redux store', () => {
     );
   });
 
-  // test('clearSelectedJob', async () => {
-  //   const taskRun = 'UCctvnxZR0--JcxyVGc8VA.0';
+  test('clearSelectedJob', async () => {
+    const store = mockStore({
+      selectedJob: { selectedJob: group.jobs[0] },
+      router,
+    });
 
-  //   // setUrlParam('selectedTaskRun', taskRun);
-  //   history.push(`/jobs?repo=${repoName}&selectedTaskRun=${taskRun}`);
-
-  //   const reduced = reducer(
-  //     { selectedJob: { selectedJob: group.jobs[0] } },
-  //     clearSelectedJob(0),
-  //   );
-
-  //   await waitFor(() => expect(reduced.selectedJob).toBeNull());
-  // });
+    store.dispatch(clearSelectedJob(0));
+    const actions = store.getActions();
+    expect(actions).toEqual([
+      {
+        countPinnedJobs: 0,
+        type: 'CLEAR_JOB',
+      },
+      {
+        payload: {
+          args: [
+            {
+              search: '?',
+            },
+          ],
+          method: 'push',
+        },
+        type: '@@router/CALL_HISTORY_METHOD',
+      },
+    ]);
+  });
 });
