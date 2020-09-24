@@ -30,7 +30,7 @@ describe('Job', () => {
     const job = await waitFor(() => getByText('R1'));
 
     expect(job.getAttribute('href')).toBe(
-      '/#/jobs?selectedJob=285852125&repo=try&revision=cd02b96bdce57d9ae53b632ca4740c871d3ecc32',
+      '/jobs?selectedJob=285852125&repo=try&revision=cd02b96bdce57d9ae53b632ca4740c871d3ecc32',
     );
     expect(job).toHaveClass('btn-orange-classified');
   });
@@ -40,7 +40,7 @@ describe('Job', () => {
     const job = await waitFor(() => getByText('bc6'));
 
     expect(job.getAttribute('href')).toBe(
-      '/#/jobs?selectedJob=285859045&repo=try&revision=cd02b96bdce57d9ae53b632ca4740c871d3ecc32',
+      '/jobs?selectedJob=285859045&repo=try&revision=cd02b96bdce57d9ae53b632ca4740c871d3ecc32',
     );
     expect(job).toHaveClass('btn-green');
   });
@@ -50,7 +50,7 @@ describe('Job', () => {
     const job = await waitFor(() => getByText('arm64'));
 
     expect(job.getAttribute('href')).toBe(
-      '/#/jobs?selectedJob=294399307&repo=try&revision=cd02b96bdce57d9ae53b632ca4740c871d3ecc32',
+      '/jobs?selectedJob=294399307&repo=try&revision=cd02b96bdce57d9ae53b632ca4740c871d3ecc32',
     );
     expect(job).toHaveClass('btn-red');
     expect(getByText('Failed in parent')).toBeInTheDocument();
