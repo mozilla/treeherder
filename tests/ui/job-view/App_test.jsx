@@ -167,24 +167,26 @@ describe('App', () => {
   });
 
   afterEach(() => {
-    history.location.search = `?repo=${repoName}`;
+    history.push('/');
   });
 
   afterAll(() => {
     fetchMock.reset();
   });
 
-  const testApp = (store) => (
-    <Provider store={store} context={ReactReduxContext}>
-      <ConnectedRouter history={history} context={ReactReduxContext}>
-        <App />
-      </ConnectedRouter>
-    </Provider>
-  );
+  const testApp = () => {
+    const store = configureStore();
+    return (
+      <Provider store={store} context={ReactReduxContext}>
+        <ConnectedRouter history={history} context={ReactReduxContext}>
+          <App />
+        </ConnectedRouter>
+      </Provider>
+    );
+  };
 
   test('should have links to Perfherder and Intermittent Failures View', async () => {
-    const store = configureStore();
-    const { getByText, getByAltText } = render(testApp(store));
+    const { getByText, getByAltText } = render(testApp());
     const appMenu = await waitFor(() => getByAltText('Treeherder'));
 
     expect(appMenu).toBeInTheDocument();
@@ -206,8 +208,7 @@ describe('App', () => {
     secondJobSymbol,
     secondJobTaskId,
   ) => {
-    const store = configureStore();
-    const { getByText, findByText, findByTestId } = render(testApp(store));
+    const { getByText, findByText, findByTestId } = render(testApp());
     const firstJob = await findByText(firstJobSymbol);
 
     fireEvent.mouseDown(firstJob);
@@ -275,8 +276,7 @@ describe('App', () => {
   });
 
   test('changing repo updates ``currentRepo``', async () => {
-    const store = configureStore();
-    const { getByText, getByTitle } = render(testApp(store));
+    const { getByText, getByTitle } = render(testApp());
 
     const autolandRevision = await waitFor(() => getByText('ba9c692786e9'));
     expect(autolandRevision).toBeInTheDocument();
