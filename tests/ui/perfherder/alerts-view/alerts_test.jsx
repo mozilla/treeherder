@@ -2,14 +2,16 @@
 import React from 'react';
 import {
   render,
-  cleanup,
   fireEvent,
   waitFor,
   waitForElementToBeRemoved,
 } from '@testing-library/react';
-import { createMemoryHistory } from 'history';
+import { createBrowserHistory } from 'history';
 import fetchMock from 'fetch-mock';
+import { ConnectedRouter } from 'connected-react-router';
+import { Provider, ReactReduxContext } from 'react-redux';
 
+import { configureStore } from '../../../../ui/job-view/redux/configureStore';
 import {
   backfillRetriggeredTitle,
   unknownFrameworkMessage,
@@ -25,6 +27,8 @@ import optionCollectionMap from '../../mock/optionCollectionMap';
 import testAlertSummaries from '../../mock/alert_summaries';
 import testPerformanceTags from '../../mock/performance_tags';
 import TagsList from '../../../../ui/perfherder/alerts/TagsList';
+
+const history = createBrowserHistory();
 
 const testUser = {
   username: 'mozilla-ldap/test_user@mozilla.com',
@@ -64,7 +68,7 @@ const testIssueTrackers = [
 
 const testActiveTags = ['first-tag', 'second-tag'];
 
-afterEach(cleanup);
+afterEach(() => history.push('/alerts'));
 
 const mockModifyAlert = {
   update(alert, params) {
@@ -78,69 +82,74 @@ const mockModifyAlert = {
   },
 };
 
-// eslint-disable-next-line no-unused-vars
-const mockUpdateAlertSummary = (alertSummaryId, params) => ({
-  failureStatus: null,
-});
-const alertsView = () =>
-  render(
-    <AlertsView
-      user={testUser}
-      projects={repos}
-      location={{
-        pathname: '/alerts',
-        search: '',
-      }}
-      history={createMemoryHistory('/alerts')}
-      frameworks={frameworks}
-      performanceTags={testPerformanceTags}
-    />,
+const alertsView = () => {
+  const store = configureStore(history);
+
+  return render(
+    <Provider store={store} context={ReactReduxContext}>
+      <ConnectedRouter history={history} context={ReactReduxContext}>
+        <AlertsView
+          user={testUser}
+          projects={repos}
+          location={history.location}
+          frameworks={frameworks}
+          performanceTags={testPerformanceTags}
+          history={history}
+        />
+      </ConnectedRouter>
+    </Provider>,
   );
+};
 
 const alertsViewControls = ({
   isListMode = true,
   user: userMock = null,
 } = {}) => {
   const user = userMock !== null ? userMock : testUser;
+  const store = configureStore(history);
 
   return render(
-    <AlertsViewControls
-      validated={{
-        hideDwnToInv: undefined,
-        hideImprovements: undefined,
-        filter: undefined,
-        updateParams: () => {},
-      }}
-      isListMode={isListMode}
-      alertSummaries={testAlertSummaries}
-      issueTrackers={testIssueTrackers}
-      optionCollectionMap={optionCollectionMap}
-      fetchAlertSummaries={() => {}}
-      updateViewState={() => {}}
-      user={user}
-      modifyAlert={(alert, params) => mockModifyAlert.update(alert, params)}
-      updateAlertSummary={() =>
-        Promise.resolve({ failureStatus: false, data: 'alert summary data' })
-      }
-      projects={repos}
-      location={{
-        pathname: '/alerts',
-        search: '',
-      }}
-      filters={{
-        filterText: '',
-        hideImprovements: false,
-        hideDownstream: false,
-        hideAssignedToOthers: false,
-        framework: { name: 'talos', id: 1 },
-        status: 'untriaged',
-      }}
-      frameworks={[{ id: 1, name: dummyFrameworkName }]}
-      history={createMemoryHistory('/alerts')}
-      frameworkOptions={[ignoreFrameworkOption, ...frameworks]}
-      setFiltersState={() => {}}
-      performanceTags={testPerformanceTags}
-    />,
+    <Provider store={store} context={ReactReduxContext}>
+      <ConnectedRouter history={history} context={ReactReduxContext}>
+        <AlertsViewControls
+          validated={{
+            hideDwnToInv: undefined,
+            hideImprovements: undefined,
+            filter: undefined,
+            updateParams: () => {},
+          }}
+          isListMode={isListMode}
+          alertSummaries={testAlertSummaries}
+          issueTrackers={testIssueTrackers}
+          optionCollectionMap={optionCollectionMap}
+          fetchAlertSummaries={() => {}}
+          updateViewState={() => {}}
+          user={user}
+          modifyAlert={(alert, params) => mockModifyAlert.update(alert, params)}
+          updateAlertSummary={() =>
+            Promise.resolve({
+              failureStatus: false,
+              data: 'alert summary data',
+            })
+          }
+          projects={repos}
+          location={history.location}
+          filters={{
+            filterText: '',
+            hideImprovements: false,
+            hideDownstream: false,
+            hideAssignedToOthers: false,
+            framework: { name: 'talos', id: 1 },
+            status: 'untriaged',
+          }}
+          frameworks={[{ id: 1, name: dummyFrameworkName }]}
+          frameworkOptions={[ignoreFrameworkOption, ...frameworks]}
+          setFiltersState={() => {}}
+          performanceTags={testPerformanceTags}
+          history={history}
+        />
+      </ConnectedRouter>
+    </Provider>,
   );
 };
 
