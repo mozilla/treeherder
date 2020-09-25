@@ -131,7 +131,7 @@ def fixture_create_commit():
 def test_repository(transactional_db):
     from treeherder.model.models import Repository, RepositoryGroup
 
-    RepositoryGroup.objects.create(name="development", description="")
+    RepositoryGroup.objects.get_or_create(name="development", description="")
 
     r = Repository.objects.create(
         dvcs_type="hg",
@@ -142,6 +142,27 @@ def test_repository(transactional_db):
         repository_group_id=1,
         description="",
         performance_alerts_enabled=True,
+        tc_root_url="https://firefox-ci-tc.services.mozilla.com",
+    )
+    return r
+
+
+@pytest.fixture
+def try_repository(transactional_db):
+    from treeherder.model.models import Repository, RepositoryGroup
+
+    repo_group, _ = RepositoryGroup.objects.get_or_create(name="development", description="")
+
+    r = Repository.objects.create(
+        id=4,
+        dvcs_type="hg",
+        name="try",
+        url="https://hg.mozilla.org/try",
+        active_status="active",
+        codebase="gecko",
+        repository_group_id=repo_group.id,
+        description="",
+        is_try_repo=True,
         tc_root_url="https://firefox-ci-tc.services.mozilla.com",
     )
     return r
@@ -218,6 +239,13 @@ def mock_log_parser(monkeypatch):
 @pytest.fixture
 def push_stored(test_repository, sample_push):
     store_push_data(test_repository, sample_push)
+
+    return sample_push
+
+
+@pytest.fixture
+def try_push_stored(try_repository, sample_push):
+    store_push_data(try_repository, sample_push)
 
     return sample_push
 
