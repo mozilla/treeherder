@@ -8,7 +8,6 @@ import { faStar as faStarSolid } from '@fortawesome/free-solid-svg-icons';
 
 import ShortcutTable from '../shared/ShortcutTable';
 import logviewerIconHelp from '../img/logviewerIconHelp.svg';
-import AdditionalInformationTable from '../shared/AdditionalInformationTable';
 
 const notations = [
   {
@@ -250,12 +249,6 @@ const UserGuideBody = function UserGuideBody() {
               </table>
             </div>
           </div>
-        </div>
-      </div>
-
-      <div className="row">
-        <div className="col-12">
-          <AdditionalInformationTable />
         </div>
       </div>
     </div>

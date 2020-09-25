@@ -1,106 +1,144 @@
 import React from 'react';
 
 import individualAlert from '../img/individual-alert.png';
-import individualAlertHovered from '../img/individual-alert-hovered.png';
-import individualAlertDetails from '../img/individual-alert-details.png';
+import hoveredIndividualAlert from '../img/individual-alert-hovered.png';
 import absoluteDifference from '../img/individual-alert-absolute-difference.png';
+import absoluteDifferenceBefore from '../img/individual-alert-absolute-difference-before.png';
 import magnitudeOfChange from '../img/individual-alert-magnitude-of-change.png';
+import magnitudeOfChangeBefore from '../img/individual-alert-magnitude-of-change-before.png';
 import confidence from '../img/individual-alert-confidence.png';
-import compareViewFilters from '../img/compare-view-filters.png';
+import confidenceBefore from '../img/individual-alert-confidence-before.png';
 import hideUncomparableResults from '../img/compare-view-hide-uncomparable-results.png';
+import hideUncomparableResultsBefore from '../img/compare-view-hide-uncomparable-results-before.png';
 import showOnlyImportantChanges from '../img/compare-view-show-only-important-changes.png';
+import showOnlyImportantChangesBefore from '../img/compare-view-show-only-important-changes-before.png';
 import hideUncertainResults from '../img/compare-view-hide-uncertain-results.png';
+import hideUncertainResultsBefore from '../img/compare-view-hide-uncertain-results-before.png';
 import showOnlyNoise from '../img/compare-view-show-only-noise.png';
+import showOnlyNoiseBefore from '../img/compare-view-show-only-noise-before.png';
 
 const alertViewHoverableItems = [
   {
     name: 'Individual alert',
     imageBeforeHover: (
-      <img src={individualAlert} alt="Individual alert before hover." />
+      <img
+        src={individualAlert}
+        alt="Individual alert in Alerts View- before hover"
+      />
     ),
     imageAfterHover: (
-      <img src={individualAlertHovered} alt="Individual alert after hover." />
+      <img
+        src={hoveredIndividualAlert}
+        alt="Individual alert in Alerts View - after hover"
+      />
     ),
   },
   {
     name: 'Individual alert - absolute difference',
     imageBeforeHover: (
-      <img src={individualAlertDetails} alt="Individual alert details." />
+      <img
+        src={absoluteDifferenceBefore}
+        alt="Individual alert absolute difference in Alerts View - before hover"
+      />
     ),
     imageAfterHover: (
       <img
         src={absoluteDifference}
-        alt="Individual alert details - absolute difference."
+        alt="Individual alert absolute difference in Alerts View - after hover"
       />
     ),
   },
   {
     name: 'Individual alert - magnitude of change',
     imageBeforeHover: (
-      <img src={individualAlertDetails} alt="Individual alert details." />
+      <img
+        src={magnitudeOfChangeBefore}
+        alt="Individual alert magnitude of change in Alerts View - before hover"
+      />
     ),
     imageAfterHover: (
       <img
         src={magnitudeOfChange}
-        alt="Absolute difference details - magnitude of change."
+        alt="Individual alert magnitude of change in Alerts View - after hover"
       />
     ),
   },
   {
     name: 'Individual alert - confidence',
     imageBeforeHover: (
-      <img src={individualAlertDetails} alt="Individual alert details." />
+      <img
+        src={confidenceBefore}
+        alt="Individual alert confidence in Alerts View - before hover"
+      />
     ),
     imageAfterHover: (
-      <img src={confidence} alt="Absolute difference details - confidence." />
+      <img
+        src={confidence}
+        alt="Individual alert confidence in Alerts View - after hover"
+      />
     ),
   },
 ];
 
 const compareViewHoverableItems = [
   {
-    name: 'Filter buttons - Hide uncomparable Results',
+    name: 'Filter buttons - Hide uncomparable results',
     imageBeforeHover: (
-      <img src={compareViewFilters} alt="Filter buttons in Compare View." />
+      <img
+        src={hideUncomparableResultsBefore}
+        alt="Hide uncomparable results filter in Compare View - before hover"
+      />
     ),
     imageAfterHover: (
       <img
         src={hideUncomparableResults}
-        alt="Hide uncomparable results filter in Compare View."
+        alt="Hide uncomparable results filter in Compare View - after hover"
       />
     ),
   },
   {
     name: 'Filter buttons - Show only important changes',
     imageBeforeHover: (
-      <img src={compareViewFilters} alt="Filter buttons in Compare View" />
+      <img
+        src={showOnlyImportantChangesBefore}
+        alt="Show only important changes filter in Compare View - before hover"
+      />
     ),
     imageAfterHover: (
       <img
         src={showOnlyImportantChanges}
-        alt="Show only important changes filter in Compare View"
+        alt="Show only important changes filter in Compare View - after hover"
       />
     ),
   },
   {
     name: 'Filter buttons - Hide uncertain results',
     imageBeforeHover: (
-      <img src={compareViewFilters} alt="Filter buttons in Compare View" />
+      <img
+        src={hideUncertainResultsBefore}
+        alt="Hide uncertain results filter in Compare View - before hover"
+      />
     ),
     imageAfterHover: (
       <img
         src={hideUncertainResults}
-        alt="Hide uncertain results filter in Compare View"
+        alt="Hide uncertain results filter in Compare View - after hover"
       />
     ),
   },
   {
     name: 'Filter buttons - Show only noise',
     imageBeforeHover: (
-      <img src={compareViewFilters} alt="Filter buttons in Compare View" />
+      <img
+        src={showOnlyNoiseBefore}
+        alt="Show only noise filter in Compare View - before hover"
+      />
     ),
     imageAfterHover: (
-      <img src={showOnlyNoise} alt="Show only noise filter in Compare View" />
+      <img
+        src={showOnlyNoise}
+        alt="Show only noise filter in Compare View - after hover"
+      />
     ),
   },
 ];
