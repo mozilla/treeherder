@@ -197,6 +197,7 @@ def test_cycle_job_with_performance_data(
 )
 def test_cycle_performance_data(
     test_repository,
+    try_repository,
     repository_name,
     push_stored,
     test_perf_signature,
@@ -265,6 +266,55 @@ def test_cycle_performance_data(
     else:
         assert PerformanceDatum.objects.count() == 2
         assert PerformanceSignature.objects.count() == 2
+
+
+def test_try_data_removal(
+    try_repository, test_repository, try_push_stored, test_perf_signature, test_perf_signature_2
+):
+    total_removals = 3
+    test_perf_signature.repository = try_repository
+    test_perf_signature.save()
+
+    try_pushes = list(Push.objects.filter(repository=try_repository).order_by('id').all())
+
+    for idx, push in enumerate(try_pushes[:-2]):
+        push_timestamp = datetime.datetime.now()
+        if idx < total_removals:
+            push_timestamp -= datetime.timedelta(weeks=10)
+
+        PerformanceDatum.objects.create(
+            repository=try_repository,
+            push=push,
+            job=None,
+            signature=test_perf_signature,
+            push_timestamp=push_timestamp,
+            value=1.0,
+        )
+
+    for push in try_pushes[-2:]:
+        push_timestamp = datetime.datetime.now() - datetime.timedelta(weeks=10)
+
+        # try data removal shouldn't delete these non-try data
+        PerformanceDatum.objects.create(
+            repository=test_repository,
+            push=push,
+            job=None,
+            signature=test_perf_signature_2,
+            push_timestamp=push_timestamp,
+            value=1.0,
+        )
+
+    total_initial_data = PerformanceDatum.objects.count()
+
+    call_command('cycle_data', '--days=365', 'from:perfherder')
+    assert PerformanceDatum.objects.count() == total_initial_data - total_removals
+    assert not PerformanceDatum.objects.filter(
+        push_timestamp__lt=datetime.datetime.now() - datetime.timedelta(weeks=6),
+        repository=try_repository,
+    ).exists()
+    assert (
+        PerformanceDatum.objects.exclude(repository=try_repository).count() == 2
+    )  # non-try data remained intact
 
 
 def test_performance_cycler_quit_indicator():

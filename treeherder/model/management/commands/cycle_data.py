@@ -4,7 +4,7 @@ import logging
 from django.core.management.base import BaseCommand
 from django.db.utils import OperationalError
 
-from treeherder.model.models import Job, JobGroup, JobType, Machine
+from treeherder.model.models import Job, JobGroup, JobType, Machine, Repository
 from treeherder.perf.models import PerformanceDatum
 from django.conf import settings
 
@@ -91,9 +91,101 @@ class PerfherderCycler(DataCycler):
     def cycle(self):
         started_at = datetime.datetime.now()
 
+        removal_strategies = [
+            MainRemovalStrategy(self.cycle_interval, self.chunk_size),
+            TryDataRemoval(self.chunk_size),
+        ]
+
         PerformanceDatum.objects.cycle_data(
-            self.cycle_interval, self.chunk_size, self.logger, started_at, self.max_runtime
+            removal_strategies, self.logger, started_at, self.max_runtime
         )
+
+
+class MainRemovalStrategy:
+    """
+    Removes `performance_datum` rows
+    that are at least 1 year old.
+    """
+
+    def __init__(self, cycle_interval, chunk_size):
+        self._cycle_interval = cycle_interval
+        self._chunk_size = chunk_size
+        self._max_timestamp = datetime.datetime.now() - cycle_interval
+        self._manager = PerformanceDatum.objects
+
+    def remove(self, using):
+        """
+        @type using: database connection cursor
+        """
+        chunk_size = self._find_ideal_chunk_size()
+        using.execute(
+            '''
+            DELETE FROM `performance_datum`
+            WHERE push_timestamp < %s
+            LIMIT %s
+        ''',
+            [self._max_timestamp, chunk_size],
+        )
+
+    def _find_ideal_chunk_size(self) -> int:
+        max_id = self._manager.filter(push_timestamp__gt=self._max_timestamp).order_by('-id')[0].id
+        older_ids = self._manager.filter(
+            push_timestamp__lte=self._max_timestamp, id__lte=max_id
+        ).order_by('id')[: self._chunk_size]
+
+        return len(older_ids) or self._chunk_size
+
+
+class TryDataRemoval:
+    """
+    Removes `performance_datum` rows
+    that originate from `try` repository and
+    that are more than 6 weeks old.
+    """
+
+    def __init__(self, chunk_size):
+        self._cycle_interval = datetime.timedelta(weeks=4)
+        self._chunk_size = chunk_size
+        self._max_timestamp = datetime.datetime.now() - self._cycle_interval
+        self._manager = PerformanceDatum.objects
+
+        self.__try_repo_id = None
+
+    @property
+    def try_repo(self):
+        if self.__try_repo_id is not None:
+            return self.__try_repo_id
+
+        self.__try_repo_id = Repository.objects.get(name='try').id
+        return self.__try_repo_id
+
+    def remove(self, using):
+        """
+        @type using: database connection cursor
+        """
+        chunk_size = self._find_ideal_chunk_size()
+        using.execute(
+            '''
+            DELETE FROM `performance_datum`
+            WHERE repository_id = %s AND push_timestamp < %s
+            LIMIT %s
+        ''',
+            [self.try_repo, self._max_timestamp, chunk_size],
+        )
+
+    def _find_ideal_chunk_size(self) -> int:
+        max_id = (
+            self._manager.filter(
+                push_timestamp__gt=self._max_timestamp, repository_id=self.try_repo
+            )
+            .order_by('-id')[0]
+            .id
+        )
+        older_ids = self._manager.filter(
+            push_timestamp__lte=self._max_timestamp, id__lte=max_id, repository_id=self.try_repo
+        ).order_by('id')[: self._chunk_size]
+
+        return len(older_ids) or self._chunk_size
 
 
 class Command(BaseCommand):
