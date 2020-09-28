@@ -22,12 +22,6 @@ const JobsViewApp = lazy(() => import('./job-view/App'));
 
 const LogviewerApp = lazy(() => import('./logviewer/App'));
 
-// TODO
-// Move user state to here and pass to all other apps
-// Create one universal navbar with flexibility (render props)
-// update any hrefs used for navigation to react router Links
-// react-helmet to update titles and favicons dynamically
-
 // backwards compatibility for routes like this: treeherder.mozilla.org/perf.html#/alerts?id=26622&hideDwnToInv=0
 const updateOldUrls = () => {
   const location = useLocation();
