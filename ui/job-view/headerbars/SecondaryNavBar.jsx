@@ -12,7 +12,12 @@ import {
 
 import { getBtnClass } from '../../helpers/job';
 import { hasUrlFilterChanges, thFilterGroups } from '../../helpers/filter';
-import { getRepo, getUrlParam, setUrlParam } from '../../helpers/location';
+import {
+  getRepo,
+  getUrlParam,
+  setUrlParams,
+  setUrlParam,
+} from '../../helpers/location';
 import RepositoryModel from '../../models/repository';
 import ErrorBoundary from '../../shared/ErrorBoundary';
 import { recalculateUnclassifiedCounts } from '../redux/stores/pushes';
@@ -134,10 +139,14 @@ class SecondaryNavBar extends React.PureComponent {
   };
 
   toggleGroupState = () => {
-    const { groupCountsExpanded } = this.props;
+    const { groupCountsExpanded, push } = this.props;
     const groupState = groupCountsExpanded ? null : 'expanded';
 
-    setUrlParam('group_state', groupState);
+    const queryParams = setUrlParams([['group_state', groupState]]);
+
+    push({
+      search: queryParams,
+    });
   };
 
   toggleUnclassifiedFailures = () => {
@@ -303,7 +312,7 @@ class SecondaryNavBar extends React.PureComponent {
                   ? 'Collapse job groups'
                   : 'Expand job groups'
               }
-              onClick={() => this.toggleGroupState()}
+              onClick={this.toggleGroupState}
             >
               (
               <span className="group-state-nav-icon mx-1">
