@@ -12,12 +12,7 @@ import {
 
 import { getBtnClass } from '../../helpers/job';
 import { hasUrlFilterChanges, thFilterGroups } from '../../helpers/filter';
-import {
-  getRepo,
-  getUrlParam,
-  setUrlParams,
-  setUrlParam,
-} from '../../helpers/location';
+import { getRepo, getUrlParam, setUrlParams } from '../../helpers/location';
 import RepositoryModel from '../../models/repository';
 import ErrorBoundary from '../../shared/ErrorBoundary';
 import { recalculateUnclassifiedCounts } from '../redux/stores/pushes';
@@ -132,10 +127,14 @@ class SecondaryNavBar extends React.PureComponent {
   };
 
   toggleShowDuplicateJobs = () => {
-    const { duplicateJobsVisible } = this.props;
+    const { duplicateJobsVisible, push } = this.props;
     const duplicateJobs = duplicateJobsVisible ? null : 'visible';
 
-    setUrlParam('duplicate_jobs', duplicateJobs);
+    const queryParams = setUrlParams([['duplicate_jobs', duplicateJobs]]);
+
+    push({
+      search: queryParams,
+    });
   };
 
   toggleGroupState = () => {

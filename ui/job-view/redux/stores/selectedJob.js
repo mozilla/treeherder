@@ -104,8 +104,6 @@ export const doClearSelectedJob = (countPinnedJobs) => {
     const selected = findSelectedInstance();
     if (selected) selected.setSelected(false);
 
-    // setUrlParam('selectedTaskRun', null);
-    // setUrlParam('selectedJob', null);
     return { selectedJob: null };
   }
   return {};
