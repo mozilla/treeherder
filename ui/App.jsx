@@ -3,6 +3,7 @@ import { Route, Switch, useLocation, Redirect } from 'react-router-dom';
 import { hot } from 'react-hot-loader/root';
 import { ConnectedRouter } from 'connected-react-router';
 import { Provider } from 'react-redux';
+import { Helmet } from 'react-helmet';
 
 import { configureStore, history } from './job-view/redux/configureStore';
 import LoadingSpinner from './shared/LoadingSpinner';
@@ -57,6 +58,39 @@ const updateOldUrls = () => {
   history.push(updates);
 };
 
+const faviconPaths = {
+  '/jobs': { title: 'Treeherder Jobs View', favicon: 'ui/img/tree_open.png' },
+  '/logviewer': {
+    title: 'Treeherder Logviewer',
+    favicon: 'ui/img/logviewerIcon.png',
+  },
+  '/perfherder': { title: 'Perfherder', favicon: 'ui/img/line_chart.png' },
+  '/userguide': {
+    title: 'Treeherder User Guide',
+    favicon: 'ui/img/tree_open.png',
+  },
+  '/intermittent-failures': {
+    title: 'Intermittent Failures View',
+    favicon: 'ui/img/tree_open.png',
+  },
+  '/push-health': {
+    title: 'Push Health',
+    favicon: 'ui/img/push-health-ok.png',
+  },
+};
+
+const withFavicon = (element, route) => {
+  const { title, favicon } = faviconPaths[route];
+  return (
+    <React.Fragment>
+      <Helmet defaultTitle={title}>
+        <link rel={`${title} icon`} href={favicon} />
+      </Helmet>
+      {element}
+    </React.Fragment>
+  );
+};
+
 const App = () => {
   updateOldUrls();
   return (
@@ -79,27 +113,51 @@ const App = () => {
             </Route>
             <Route
               path="/jobs"
-              render={(props) => <JobsViewApp {...props} />}
+              render={(props) =>
+                withFavicon(<JobsViewApp {...props} />, props.location.pathname)
+              }
             />
             <Route
               path="/logviewer"
-              render={(props) => <LogviewerApp {...props} />}
+              render={(props) =>
+                withFavicon(
+                  <LogviewerApp {...props} />,
+                  props.location.pathname,
+                )
+              }
             />
             <Route
               path="/userguide"
-              render={(props) => <UserGuideApp {...props} />}
+              render={(props) =>
+                withFavicon(
+                  <UserGuideApp {...props} />,
+                  props.location.pathname,
+                )
+              }
             />
             <Route
               path="/push-health"
-              render={(props) => <PushHealthApp {...props} />}
+              render={(props) =>
+                withFavicon(
+                  <PushHealthApp {...props} />,
+                  props.location.pathname,
+                )
+              }
             />
             <Route
               path="/intermittent-failures"
-              render={(props) => <IntermittentFailuresApp {...props} />}
+              render={(props) =>
+                withFavicon(
+                  <IntermittentFailuresApp {...props} />,
+                  '/intermittent-failures',
+                )
+              }
             />
             <Route
               path="/perfherder"
-              render={(props) => <PerfherderApp {...props} />}
+              render={(props) =>
+                withFavicon(<PerfherderApp {...props} />, '/perfherder')
+              }
             />
           </Switch>
         </Suspense>
