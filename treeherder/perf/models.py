@@ -158,22 +158,20 @@ class PerformanceDatumManager(models.Manager):
         for rem_strategy in removal_strategies:
             try:
                 self._delete_in_chunks(rem_strategy, logger, started_at, max_overall_runtime)
-
-                # also remove any signatures which are (no longer) associated with
-                # a job
-                logger.warning('Removing performance signatures with missing jobs...')
-                for signature in PerformanceSignature.objects.all():
-                    self._maybe_quit(started_at, max_overall_runtime)
-
-                    if not self.filter(
-                        repository_id=signature.repository_id,  # leverages (repository, signature) compound index
-                        signature_id=signature.id,
-                    ).exists():
-                        signature.delete()
             except NoDataCyclingAtAll as ex:
                 logger.warning('Exception: {}'.format(ex))
-            except MaxRuntimeExceeded as ex:
-                logger.warning(ex)
+
+        # also remove any signatures which are (no longer) associated with
+        # a job
+        logger.warning('Removing performance signatures with missing jobs...')
+        for signature in PerformanceSignature.objects.all():
+            self._maybe_quit(started_at, max_overall_runtime)
+
+            if not self.filter(
+                repository_id=signature.repository_id,  # leverages (repository, signature) compound index
+                signature_id=signature.id,
+            ).exists():
+                signature.delete()
 
     def _delete_in_chunks(self, removal_strategy, logger, started_at, max_overall_runtime):
         any_succesful_attempt = False
