@@ -12,11 +12,11 @@ const App = () => (
     <div className="card">
       <UserGuideHeader />
       <UserGuideBody />
-      <UserGuideFooter />
     </div>
-    <div className="card">
+    <div className="card my-3">
       <PerfherderUserGuide />
     </div>
+    <UserGuideFooter />
   </div>
 );
 
