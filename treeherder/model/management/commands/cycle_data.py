@@ -5,6 +5,7 @@ from django.core.management.base import BaseCommand
 from django.db.utils import OperationalError
 
 from treeherder.model.models import Job, JobGroup, JobType, Machine, Repository
+from treeherder.perf.exceptions import MaxRuntimeExceeded
 from treeherder.perf.models import PerformanceDatum
 from django.conf import settings
 
@@ -96,9 +97,12 @@ class PerfherderCycler(DataCycler):
             TryDataRemoval(self.chunk_size),
         ]
 
-        PerformanceDatum.objects.cycle_data(
-            removal_strategies, self.logger, started_at, self.max_runtime
-        )
+        try:
+            PerformanceDatum.objects.cycle_data(
+                removal_strategies, self.logger, started_at, self.max_runtime
+            )
+        except MaxRuntimeExceeded as ex:
+            logger.warning(ex)
 
 
 class MainRemovalStrategy:
