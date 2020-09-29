@@ -4,11 +4,12 @@ import logging
 from abc import ABC, abstractmethod
 
 from django.core.management.base import BaseCommand
+from django.db import connection
 from django.db.utils import OperationalError
 
 from treeherder.model.models import Job, JobGroup, JobType, Machine, Repository
-from treeherder.perf.exceptions import MaxRuntimeExceeded
-from treeherder.perf.models import PerformanceDatum
+from treeherder.perf.exceptions import MaxRuntimeExceeded, NoDataCyclingAtAll
+from treeherder.perf.models import PerformanceDatum, PerformanceSignature
 
 logging.basicConfig(format='%(levelname)s:%(message)s')
 
@@ -82,30 +83,16 @@ class TreeherderCycler(DataCycler):
         prune('machine_id', Machine)
 
 
-class PerfherderCycler(DataCycler):
-    max_runtime = datetime.timedelta(hours=23)
-
-    def __init__(self, chunk_size, sleep_time, is_debug=None, logger=None, **kwargs):
-        super().__init__(chunk_size, sleep_time, is_debug, logger)
-
-    def cycle(self):
-        self.logger.warning(f"Cycling {PERFHERDER.title()} data...")
-        started_at = datetime.datetime.now()
-
-        removal_strategies = [
-            MainRemovalStrategy(self.chunk_size),
-            TryDataRemoval(self.chunk_size),
-        ]
-
-        try:
-            PerformanceDatum.objects.cycle_data(
-                removal_strategies, self.logger, started_at, self.max_runtime
-            )
-        except MaxRuntimeExceeded as ex:
-            logger.warning(ex)
+class RemovalStrategy(ABC):
+    @abstractmethod
+    def remove(self, using):
+        """
+        @type using: database connection cursor
+        """
+        pass
 
 
-class MainRemovalStrategy:
+class MainRemovalStrategy(RemovalStrategy):
     """
     Removes `performance_datum` rows
     that are at least 1 year old.
@@ -122,9 +109,6 @@ class MainRemovalStrategy:
         self._manager = PerformanceDatum.objects
 
     def remove(self, using):
-        """
-        @type using: database connection cursor
-        """
         chunk_size = self._find_ideal_chunk_size()
         using.execute(
             '''
@@ -144,7 +128,7 @@ class MainRemovalStrategy:
         return len(older_ids) or self._chunk_size
 
 
-class TryDataRemoval:
+class TryDataRemoval(RemovalStrategy):
     """
     Removes `performance_datum` rows
     that originate from `try` repository and
@@ -192,6 +176,86 @@ class TryDataRemoval:
         ).order_by('id')[: self._chunk_size]
 
         return len(older_ids) or self._chunk_size
+
+
+class PerfherderCycler(DataCycler):
+    max_runtime = datetime.timedelta(hours=23)
+
+    def __init__(self, chunk_size, sleep_time, is_debug=None, logger=None, **kwargs):
+        super().__init__(chunk_size, sleep_time, is_debug, logger)
+
+    def cycle(self):
+        """
+        Delete data older than cycle_interval, splitting the target data
+        into chunks of chunk_size size.
+        """
+        self.logger.warning(f"Cycling {PERFHERDER.title()} data...")
+        self.started_at = datetime.datetime.now()
+
+        removal_strategies = [
+            MainRemovalStrategy(self.chunk_size),
+            TryDataRemoval(self.chunk_size),
+        ]
+
+        try:
+            for strategy in removal_strategies:
+                try:
+                    self._delete_in_chunks(strategy)
+                except NoDataCyclingAtAll as ex:
+                    logger.warning('Exception: {}'.format(ex))
+
+            # also remove any signatures which are (no longer) associated with
+            # a job
+            logger.warning('Removing performance signatures with missing jobs...')
+            for signature in PerformanceSignature.objects.all():
+                self._maybe_quit()
+
+                if not PerformanceDatum.objects.filter(
+                    repository_id=signature.repository_id,  # leverages (repository, signature) compound index
+                    signature_id=signature.id,
+                ).exists():
+                    signature.delete()
+        except MaxRuntimeExceeded as ex:
+            logger.warning(ex)
+
+    def _maybe_quit(self):
+        now = datetime.datetime.now()
+        elapsed_runtime = now - self.started_at
+
+        if self.max_runtime < elapsed_runtime:
+            raise MaxRuntimeExceeded('Max runtime for performance data cycling exceeded')
+
+    def _delete_in_chunks(self, strategy: RemovalStrategy):
+        any_successful_attempt = False
+
+        with connection.cursor() as cursor:
+            while True:
+                self._maybe_quit()
+
+                try:
+                    strategy.remove(using=cursor)
+                except Exception as ex:
+                    self.__handle_chunk_removal_exception(ex, cursor, any_successful_attempt)
+                    break
+                else:
+                    deleted_rows = cursor.rowcount
+
+                    if deleted_rows == 0 or deleted_rows == -1:
+                        break  # either finished removing all expired data or failed
+                    else:
+                        any_successful_attempt = True
+                        self.logger.warning(
+                            'Successfully deleted {} performance datum rows'.format(deleted_rows)
+                        )
+
+    def __handle_chunk_removal_exception(self, exception, cursor, any_succesful_attempt):
+        msg = 'Failed to delete performance data chunk'
+        if hasattr(cursor, '_last_executed'):
+            msg = f'{msg}, while running "{cursor._last_executed}" query'
+        self.logger.warning(msg)
+
+        if any_succesful_attempt is False:
+            raise NoDataCyclingAtAll from exception
 
 
 class Command(BaseCommand):

@@ -6,11 +6,10 @@ from typing import List
 from django.contrib.auth.models import User
 from django.core.exceptions import ValidationError
 from django.core.validators import MinLengthValidator
-from django.db import connection, models
+from django.db import models
 from django.utils.timezone import now as django_now
 
 from treeherder.model.models import Job, MachinePlatform, OptionCollection, Push, Repository
-from treeherder.perf.exceptions import MaxRuntimeExceeded, NoDataCyclingAtAll
 from treeherder.utils import default_serializer
 
 SIGNATURE_HASH_LENGTH = 40
@@ -138,77 +137,7 @@ class PerformanceSignature(models.Model):
         return "{} {} {} {}".format(self.signature_hash, name, self.platform, self.last_updated)
 
 
-class PerformanceDatumManager(models.Manager):
-    """
-    Convenience functions for operations on groups of performance datums
-    """
-
-    @classmethod
-    def _maybe_quit(cls, started_at, max_overall_runtime):
-        now = datetime.datetime.now()
-        elapsed_runtime = now - started_at
-
-        if max_overall_runtime < elapsed_runtime:
-            raise MaxRuntimeExceeded('Max runtime for performance data cycling exceeded')
-
-    def cycle_data(self, removal_strategies: list, logger, started_at, max_overall_runtime):
-        """Delete data older than cycle_interval, splitting the target data
-        into chunks of chunk_size size."""
-
-        for rem_strategy in removal_strategies:
-            try:
-                self._delete_in_chunks(rem_strategy, logger, started_at, max_overall_runtime)
-            except NoDataCyclingAtAll as ex:
-                logger.warning('Exception: {}'.format(ex))
-
-        # also remove any signatures which are (no longer) associated with
-        # a job
-        logger.warning('Removing performance signatures with missing jobs...')
-        for signature in PerformanceSignature.objects.all():
-            self._maybe_quit(started_at, max_overall_runtime)
-
-            if not self.filter(
-                repository_id=signature.repository_id,  # leverages (repository, signature) compound index
-                signature_id=signature.id,
-            ).exists():
-                signature.delete()
-
-    def _delete_in_chunks(self, removal_strategy, logger, started_at, max_overall_runtime):
-        any_succesful_attempt = False
-
-        def handle_chunk_removal_exception(exception, any_succesful_attempt):
-            msg = 'Failed to delete performance data chunk'
-            if hasattr(cursor, '_last_executed'):
-                msg = f'{msg}, while running "{cursor._last_executed}" query'
-            logger.warning(msg)
-
-            if any_succesful_attempt is False:
-                raise NoDataCyclingAtAll from exception
-
-        with connection.cursor() as cursor:
-            while True:
-                self._maybe_quit(started_at, max_overall_runtime)
-
-                try:
-                    removal_strategy.remove(using=cursor)
-                except Exception as ex:
-                    handle_chunk_removal_exception(ex, any_succesful_attempt)
-                    break
-                else:
-                    deleted_rows = cursor.rowcount
-
-                    if deleted_rows == 0 or deleted_rows == -1:
-                        break  # either finished removing all expired data or failed
-                    else:
-                        any_succesful_attempt = True
-                        logger.warning(
-                            'Successfully deleted {} performance datum rows'.format(deleted_rows)
-                        )
-
-
 class PerformanceDatum(models.Model):
-    objects = PerformanceDatumManager()
-
     repository = models.ForeignKey(Repository, on_delete=models.CASCADE)
     signature = models.ForeignKey(PerformanceSignature, on_delete=models.CASCADE)
     value = models.FloatField()
