@@ -2,7 +2,7 @@ import React from 'react';
 
 const UserGuideFooter = function UserGuideFooter() {
   return (
-    <div className="card-footer ug-footer">
+    <div className="ug-footer">
       <div>
         <div>
           Some icons by
