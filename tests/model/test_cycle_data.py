@@ -6,10 +6,6 @@ from django.db.models import Max
 
 from tests import test_utils
 from tests.autoclassify.utils import create_failure_lines, test_line
-from treeherder.model.management.commands.cycle_data import (
-    MINIMUM_PERFHERDER_EXPIRE_INTERVAL,
-    PerfherderCycler,
-)
 from treeherder.model.models import (
     FailureLine,
     Job,
@@ -186,13 +182,12 @@ def test_cycle_job_with_performance_data(
 
 
 @pytest.mark.parametrize(
-    'repository_name, command_options, subcommand_options, should_expire',
+    'repository_name',
     [
-        ('autoland', '--days=365', None, True),
-        ('mozilla-inbound', '--days=365', None, True),
-        ('mozilla-beta', '--days=365', None, True),
-        ('mozilla-central', '--days=365', None, True),
-        ('autoland', '--days=401', None, False),
+        'autoland',
+        'mozilla-inbound',
+        'mozilla-beta',
+        'mozilla-central',
     ],
 )
 def test_cycle_performance_data(
@@ -201,9 +196,6 @@ def test_cycle_performance_data(
     repository_name,
     push_stored,
     test_perf_signature,
-    command_options,
-    subcommand_options,
-    should_expire,
 ):
     test_repository.name = repository_name
     test_repository.save()
@@ -254,18 +246,14 @@ def test_cycle_performance_data(
 
     command = filter(
         lambda arg: arg is not None,
-        ['cycle_data', command_options, 'from:perfherder', subcommand_options],
+        ['cycle_data', 'from:perfherder'],
     )
     call_command(*list(command))  # test repository isn't a main one
 
-    if should_expire:
-        assert list(PerformanceDatum.objects.values_list('id', flat=True)) == [1]
-        assert list(PerformanceSignature.objects.values_list('id', flat=True)) == [
-            test_perf_signature.id
-        ]
-    else:
-        assert PerformanceDatum.objects.count() == 2
-        assert PerformanceSignature.objects.count() == 2
+    assert list(PerformanceDatum.objects.values_list('id', flat=True)) == [1]
+    assert list(PerformanceSignature.objects.values_list('id', flat=True)) == [
+        test_perf_signature.id
+    ]
 
 
 def test_try_data_removal(
@@ -306,7 +294,7 @@ def test_try_data_removal(
 
     total_initial_data = PerformanceDatum.objects.count()
 
-    call_command('cycle_data', '--days=365', 'from:perfherder')
+    call_command('cycle_data', 'from:perfherder')
     assert PerformanceDatum.objects.count() == total_initial_data - total_removals
     assert not PerformanceDatum.objects.filter(
         push_timestamp__lt=datetime.datetime.now() - datetime.timedelta(weeks=6),
@@ -335,16 +323,3 @@ def test_performance_cycler_quit_indicator():
         )
     except MaxRuntimeExceeded:
         pytest.fail('Performance cycling shouldn\'t have quit')
-
-
-def test_performance_cycler_doesnt_delete_too_recent_data():
-    down_to_last_year = MINIMUM_PERFHERDER_EXPIRE_INTERVAL
-    dangerously_recent = 40
-
-    with pytest.raises(ValueError):
-        PerfherderCycler(days=dangerously_recent, chunk_size=1000, sleep_time=0)
-
-    try:
-        PerfherderCycler(days=down_to_last_year, chunk_size=1000, sleep_time=0)
-    except ValueError:
-        pytest.fail('Should be able to expire data older than one year')

@@ -1,13 +1,14 @@
 import datetime
 import logging
 
+from abc import ABC, abstractmethod
+
 from django.core.management.base import BaseCommand
 from django.db.utils import OperationalError
 
 from treeherder.model.models import Job, JobGroup, JobType, Machine, Repository
 from treeherder.perf.exceptions import MaxRuntimeExceeded
 from treeherder.perf.models import PerformanceDatum
-from django.conf import settings
 
 logging.basicConfig(format='%(levelname)s:%(message)s')
 
@@ -20,25 +21,33 @@ MINIMUM_PERFHERDER_EXPIRE_INTERVAL = 365
 logger = logging.getLogger(__name__)
 
 
-class DataCycler:
+class DataCycler(ABC):
     source = ''
 
-    def __init__(self, days, chunk_size, sleep_time, is_debug=None, logger=None, **kwargs):
-        self.cycle_interval = datetime.timedelta(days=days)
+    def __init__(self, chunk_size, sleep_time, is_debug=None, logger=None, **kwargs):
         self.chunk_size = chunk_size
         self.sleep_time = sleep_time
         self.is_debug = is_debug or False
         self.logger = logger
 
+    @abstractmethod
     def cycle(self):
         pass
 
 
 class TreeherderCycler(DataCycler):
-    source = TREEHERDER.title()
+    DEFAULT_CYCLE_INTERVAL = 120  # in days
+
+    def __init__(self, days, chunk_size, sleep_time, is_debug=None, logger=None, **kwargs):
+        super().__init__(chunk_size, sleep_time, is_debug, logger, **kwargs)
+        self.days = days or self.DEFAULT_CYCLE_INTERVAL
+        self.cycle_interval = datetime.timedelta(days=self.days)
 
     def cycle(self):
-        self.logger.warning("Cycling jobs across all repositories")
+        self.logger.warning(
+            f"Cycling {TREEHERDER.title()} data older than {self.days} days...\n"
+            f"Cycling jobs across all repositories"
+        )
 
         try:
             rs_deleted = Job.objects.cycle_data(
@@ -74,26 +83,17 @@ class TreeherderCycler(DataCycler):
 
 
 class PerfherderCycler(DataCycler):
-    source = PERFHERDER.title()
     max_runtime = datetime.timedelta(hours=23)
 
-    def __init__(self, days, chunk_size, sleep_time, is_debug=None, logger=None, **kwargs):
-        super().__init__(days, chunk_size, sleep_time, is_debug, logger)
-        if (
-            days < MINIMUM_PERFHERDER_EXPIRE_INTERVAL
-            and settings.SITE_HOSTNAME != 'treeherder-prototype2.herokuapp.com'
-        ):
-            raise ValueError(
-                'Cannot remove performance data that is more recent than {} days'.format(
-                    MINIMUM_PERFHERDER_EXPIRE_INTERVAL
-                )
-            )
+    def __init__(self, chunk_size, sleep_time, is_debug=None, logger=None, **kwargs):
+        super().__init__(chunk_size, sleep_time, is_debug, logger)
 
     def cycle(self):
+        self.logger.warning(f"Cycling {PERFHERDER.title()} data...")
         started_at = datetime.datetime.now()
 
         removal_strategies = [
-            MainRemovalStrategy(self.cycle_interval, self.chunk_size),
+            MainRemovalStrategy(self.chunk_size),
             TryDataRemoval(self.chunk_size),
         ]
 
@@ -111,10 +111,14 @@ class MainRemovalStrategy:
     that are at least 1 year old.
     """
 
-    def __init__(self, cycle_interval, chunk_size):
-        self._cycle_interval = cycle_interval
+    # WARNING!! Don't override this without proper approval!
+    CYCLE_INTERVAL = 365  # in days                        #
+    ########################################################
+
+    def __init__(self, chunk_size: int):
+        self._cycle_interval = datetime.timedelta(days=self.CYCLE_INTERVAL)
         self._chunk_size = chunk_size
-        self._max_timestamp = datetime.datetime.now() - cycle_interval
+        self._max_timestamp = datetime.datetime.now() - self._cycle_interval
         self._manager = PerformanceDatum.objects
 
     def remove(self, using):
@@ -147,7 +151,7 @@ class TryDataRemoval:
     that are more than 6 weeks old.
     """
 
-    def __init__(self, chunk_size):
+    def __init__(self, chunk_size: int):
         self._cycle_interval = datetime.timedelta(weeks=4)
         self._chunk_size = chunk_size
         self._max_timestamp = datetime.datetime.now() - self._cycle_interval
@@ -157,10 +161,8 @@ class TryDataRemoval:
 
     @property
     def try_repo(self):
-        if self.__try_repo_id is not None:
-            return self.__try_repo_id
-
-        self.__try_repo_id = Repository.objects.get(name='try').id
+        if self.__try_repo_id is None:
+            self.__try_repo_id = Repository.objects.get(name='try').id
         return self.__try_repo_id
 
     def remove(self, using):
@@ -208,17 +210,6 @@ class Command(BaseCommand):
             help='Write debug messages to stdout',
         )
         parser.add_argument(
-            '--days',
-            action='store',
-            dest='days',
-            default=120,
-            type=int,
-            help='Data cycle interval expressed in days. '
-            'Minimum {} days when expiring performance data.'.format(
-                MINIMUM_PERFHERDER_EXPIRE_INTERVAL
-            ),
-        )
-        parser.add_argument(
             '--chunk-size',
             action='store',
             dest='chunk_size',
@@ -239,16 +230,23 @@ class Command(BaseCommand):
         subparsers = parser.add_subparsers(
             description='Data producers from which to expire data', dest='data_source'
         )
-        subparsers.add_parser(TREEHERDER_SUBCOMMAND)  # default subcommand even if not provided
+        treeherder_subcommand = subparsers.add_parser(
+            TREEHERDER_SUBCOMMAND
+        )  # default subcommand even if not provided
+        treeherder_subcommand.add_argument(
+            '--days',
+            action='store',
+            dest='days',
+            type=int,
+            help='Data cycle interval expressed in days. '
+            'Only relevant for Treeherder specific data.',
+        )
 
         # Perfherder will have its own specifics
         subparsers.add_parser(PERFHERDER_SUBCOMMAND)
 
     def handle(self, *args, **options):
-        logger.warning("Cycle interval... {} days".format(options['days']))
-
         data_cycler = self.fabricate_data_cycler(options, logger)
-        logger.warning('Cycling {0} data...'.format(data_cycler.source))
         data_cycler.cycle()
 
     def fabricate_data_cycler(self, options, logger):
