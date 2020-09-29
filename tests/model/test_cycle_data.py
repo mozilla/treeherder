@@ -6,6 +6,7 @@ from django.db.models import Max
 
 from tests import test_utils
 from tests.autoclassify.utils import create_failure_lines, test_line
+from treeherder.model.management.commands.cycle_data import PerfherderCycler
 from treeherder.model.models import (
     FailureLine,
     Job,
@@ -16,7 +17,7 @@ from treeherder.model.models import (
     Push,
 )
 from treeherder.perf.exceptions import MaxRuntimeExceeded
-from treeherder.perf.models import PerformanceDatum, PerformanceDatumManager, PerformanceSignature
+from treeherder.perf.models import PerformanceDatum, PerformanceSignature
 
 
 def test_cycle_all_data(
@@ -313,13 +314,16 @@ def test_performance_cycler_quit_indicator():
     max_five_minutes = datetime.timedelta(minutes=5)
 
     with pytest.raises(MaxRuntimeExceeded):
-        PerformanceDatumManager._maybe_quit(
-            started_at=ten_minutes_ago, max_overall_runtime=max_one_second
-        )
+        cycler = PerfherderCycler(100, 0)
+        cycler.started_at = ten_minutes_ago
+        cycler.max_runtime = max_one_second
+
+        cycler._maybe_quit()
 
     try:
-        PerformanceDatumManager._maybe_quit(
-            started_at=two_seconds_ago, max_overall_runtime=max_five_minutes
-        )
+        cycler.started_at = two_seconds_ago
+        cycler.max_runtime = max_five_minutes
+
+        cycler._maybe_quit()
     except MaxRuntimeExceeded:
         pytest.fail('Performance cycling shouldn\'t have quit')
