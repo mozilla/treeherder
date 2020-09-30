@@ -8,7 +8,7 @@ import { connect } from 'react-redux';
 import PropTypes from 'prop-types';
 import { push } from 'connected-react-router';
 
-import { thFavicons, thEvents, thDefaultRepo } from '../helpers/constants';
+import { thFavicons, thDefaultRepo } from '../helpers/constants';
 import ShortcutTable from '../shared/ShortcutTable';
 import { matchesDefaults } from '../helpers/filter';
 import { getAllUrlParams } from '../helpers/location';
@@ -123,7 +123,6 @@ class App extends React.Component {
 
     window.addEventListener('resize', this.updateDimensions, false);
     window.addEventListener('storage', this.handleStorageEvent);
-    window.addEventListener(thEvents.filtersUpdated, this.handleFiltersUpdated);
 
     // Get the current Treeherder revision and poll to notify on updates.
     this.fetchDeployedRevision().then((revision) => {
@@ -178,10 +177,6 @@ class App extends React.Component {
   componentWillUnmount() {
     window.removeEventListener('resize', this.updateDimensions, false);
     window.removeEventListener('storage', this.handleStorageEvent);
-    window.removeEventListener(
-      thEvents.filtersUpdated,
-      this.handleFiltersUpdated,
-    );
 
     if (this.updateInterval) {
       clearInterval(this.updateInterval);
@@ -289,12 +284,7 @@ class App extends React.Component {
     if (!isEqual(newState, oldState)) {
       stateChanges = { ...stateChanges, ...newState };
     }
-
     this.setState(stateChanges);
-  };
-
-  handleFiltersUpdated = () => {
-    this.setState({ filterModel: new FilterModel(this.props) });
   };
 
   // If ``show`` is a boolean, then set to that value.  If it's not, then toggle

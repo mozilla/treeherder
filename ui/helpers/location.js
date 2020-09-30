@@ -70,3 +70,23 @@ export const getProjectUrl = function getProjectUrl(uri, repoName) {
 export const getProjectJobUrl = function getProjectJobUrl(url, jobId) {
   return getProjectUrl(`/jobs/${jobId}${url}`);
 };
+
+export const updatePushParams = (location) => {
+  const params = new URLSearchParams(location.search);
+
+  if (params.has('revision')) {
+    // We are viewing a single revision, but the user has asked for more.
+    // So we must replace the ``revision`` param with ``tochange``, which
+    // will make it just the top of the range.  We will also then get a new
+    // ``fromchange`` param after the fetch.
+    const revision = params.get('revision');
+    params.delete('revision');
+    params.set('tochange', revision);
+  } else if (params.has('startdate')) {
+    // We are fetching more pushes, so we don't want to limit ourselves by
+    // ``startdate``.  And after the fetch, ``startdate`` will be invalid,
+    // and will be replaced on the location bar by ``fromchange``.
+    params.delete('startdate');
+  }
+  return `?${params.toString()}`;
+};

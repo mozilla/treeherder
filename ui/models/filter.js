@@ -55,7 +55,7 @@ export default class FilterModel {
     // utilize connected-react-router push prop (this.push is equivalent to history.push)
     this.push = props.push;
     this.location = props.router.location;
-    this.urlParams = getFilterUrlParamsWithDefaults(this.location);
+    this.urlParams = getFilterUrlParamsWithDefaults(props.router.location);
   }
 
   // If a param matches the defaults, then don't include it.

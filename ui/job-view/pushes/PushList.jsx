@@ -4,6 +4,7 @@ import { Button } from 'reactstrap';
 import { connect } from 'react-redux';
 import intersection from 'lodash/intersection';
 import isEqual from 'lodash/isEqual';
+import { push } from 'connected-react-router';
 
 import ErrorBoundary from '../../shared/ErrorBoundary';
 import { notify } from '../redux/stores/notifications';
@@ -11,12 +12,8 @@ import {
   clearSelectedJob,
   setSelectedJobFromQueryString,
 } from '../redux/stores/selectedJob';
-import {
-  fetchPushes,
-  fetchNextPushes,
-  updateRange,
-  pollPushes,
-} from '../redux/stores/pushes';
+import { fetchPushes, updateRange, pollPushes } from '../redux/stores/pushes';
+import { updatePushParams } from '../../helpers/location';
 
 import Push from './Push';
 import PushLoadErrors from './PushLoadErrors';
@@ -119,6 +116,13 @@ class PushList extends React.Component {
     }
   }
 
+  fetchNextPushes(count) {
+    const { push, fetchPushes, router } = this.props;
+    const params = updatePushParams(router.location);
+    push({ search: params });
+    fetchPushes(count, true);
+  }
+
   render() {
     const {
       repoName,
@@ -132,7 +136,6 @@ class PushList extends React.Component {
       duplicateJobsVisible,
       groupCountsExpanded,
       pushHealthVisibility,
-      fetchNextPushes,
     } = this.props;
     const { notificationSupported } = this.state;
 
@@ -193,7 +196,7 @@ class PushList extends React.Component {
                 color="darker-secondary"
                 outline
                 className="btn-light-bordered"
-                onClick={() => fetchNextPushes(count)}
+                onClick={() => this.fetchNextPushes(count)}
                 key={count}
                 data-testid={`get-next-${count}`}
               >
@@ -211,7 +214,6 @@ PushList.propTypes = {
   repoName: PropTypes.string.isRequired,
   filterModel: PropTypes.shape({}).isRequired,
   pushList: PropTypes.arrayOf(PropTypes.object).isRequired,
-  fetchNextPushes: PropTypes.func.isRequired,
   fetchPushes: PropTypes.func.isRequired,
   pollPushes: PropTypes.func.isRequired,
   updateRange: PropTypes.func.isRequired,
@@ -229,6 +231,8 @@ PushList.propTypes = {
   notify: PropTypes.func.isRequired,
   revision: PropTypes.string,
   currentRepo: PropTypes.shape({}),
+  push: PropTypes.func.isRequired,
+  router: PropTypes.shape({}).isRequired,
 };
 
 PushList.defaultProps = {
@@ -260,8 +264,8 @@ export default connect(mapStateToProps, {
   notify,
   clearSelectedJob,
   setSelectedJobFromQueryString,
-  fetchNextPushes,
   fetchPushes,
   updateRange,
   pollPushes,
+  push,
 })(PushList);
