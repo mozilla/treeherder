@@ -214,11 +214,12 @@ class RemovalStrategy(ABC):
         pass
 
     @staticmethod
-    def fabricate_all_strategies(*args, **kwargs):
+    def fabricate_all_strategies(*args, **kwargs) -> List[RemovalStrategy]:
         return [
             MainRemovalStrategy(*args, **kwargs),
             TryDataRemoval(*args, **kwargs),
             IrrelevantDataRemoval(*args, **kwargs),
+            StalledDataRemoval(*args, **kwargs),
             # append here any new strategies
             # ...
         ]
@@ -433,6 +434,32 @@ class IrrelevantDataRemoval(RemovalStrategy):
             .order_by('id')[: self._chunk_size]
         )
         return len(older_perf_data_rows) or self._chunk_size
+
+
+class StalledDataRemoval(RemovalStrategy):
+    """
+    Removes `performance_signature` rows that haven't
+    been updated in the last 4 months.
+
+    Also removes all their associated `performance_datum`
+    & `performance_alert` rows.
+    """
+
+    def __init__(self, chunk_size: int):
+        self._cycle_interval = timedelta(days=120)
+        self._chunk_size = chunk_size
+        self._max_timestamp = datetime.now() - self._cycle_interval
+
+    def remove(self, using: CursorWrapper):
+        PerformanceSignature.objects.filter(last_updated__lt=self._max_timestamp).delete()
+
+    @property
+    def max_timestamp(self) -> datetime:
+        return self._max_timestamp
+
+    @property
+    def name(self) -> str:
+        return 'stalled data removal strategy'
 
 
 class Command(BaseCommand):
