@@ -317,12 +317,12 @@ def test_performance_cycler_quit_indicator():
         cycler = PerfherderCycler(chunk_size=100, sleep_time=0, max_runtime=one_second)
         cycler.started_at = ten_minutes_ago
 
-        cycler._maybe_quit()
+        cycler._quit_on_timeout()
 
     try:
         cycler = PerfherderCycler(chunk_size=100, sleep_time=0, max_runtime=five_minutes)
         cycler.started_at = two_seconds_ago
 
-        cycler._maybe_quit()
+        cycler._quit_on_timeout()
     except MaxRuntimeExceeded:
         pytest.fail('Performance cycling shouldn\'t have timed out')
