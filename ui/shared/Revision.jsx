@@ -90,7 +90,7 @@ export class Revision extends React.PureComponent {
           <a
             title={`Open revision ${commitRevision} on ${repo.url}`}
             href={repo.getRevisionHref(commitRevision)}
-            className={`commit-sha ${commitShaClass}`}
+            className={commitShaClass}
           >
             {commitRevision.substring(0, 12)}
           </a>
@@ -98,7 +98,7 @@ export class Revision extends React.PureComponent {
         <AuthorInitials title={`${name}: ${email}`} author={name} />
         <span
           data-testid={comment}
-          className={`ml-2 revision-comment overflow-hidden text-nowrap ${commentColor} ${commentFont}`}
+          className={`ml-2 revision-comment overflow-hidden text-truncate ${commentColor} ${commentFont}`}
           id={`revision${revision}`}
         >
           <em>
@@ -143,6 +143,6 @@ Revision.propTypes = {
 };
 
 Revision.defaultProps = {
-  commitShaClass: '',
+  commitShaClass: 'commit-sha',
   commentFont: '',
 };

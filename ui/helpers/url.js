@@ -120,7 +120,7 @@ export const getJobsUrl = function getJobsUrl(params) {
 
 // This takes a plain object, rather than a URLSearchParams object.
 export const getPushHealthUrl = function getPushHealthUrl(params) {
-  return `${uiPushHealthBase}${createQueryParams(params)}`;
+  return `${uiPushHealthBase}/push${createQueryParams(params)}`;
 };
 
 export const getCompareChooserUrl = function getCompareChooserUrl(params) {

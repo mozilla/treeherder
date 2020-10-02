@@ -3,18 +3,12 @@ body {
   overflow-y: auto;
 }
 
-.absolute {
+.absolute-progress {
   position: absolute;
   width: 100%;
-  top: 35%;
+  top: 60px;
+  left: 0px;
   text-align: center;
-}
-
-.relative {
-  position: relative;
-  height: 200px;
-  max-height: 200px;
-  min-width: 200px;
 }
 
 input[type='checkbox'] {
@@ -27,6 +21,10 @@ input[type='checkbox'] {
 
 .metric-name {
   font-size: 24px;
+}
+
+.menu-items {
+  font-size: 13px;
 }
 
 .pointable {
@@ -46,6 +44,9 @@ input[type='checkbox'] {
   font-size: 12px;
 }
 
+.status-link {
+  font-size: 17.5px;
+}
 /* Details Tab Panel */
 
 .tab-content {
@@ -58,6 +59,9 @@ input[type='checkbox'] {
   color: white !important;
 }
 
+.commit-header {
+  font-size: 1.5rem;
+}
 /*
   Need this instead of the Bootstrap h-100 class because the `!important` in that class
   throws off the layout when tabs are switched.

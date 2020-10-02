@@ -143,10 +143,7 @@ const App = () => {
             <Route
               path="/push-health"
               render={(props) =>
-                withFavicon(
-                  <PushHealthApp {...props} />,
-                  props.location.pathname,
-                )
+                withFavicon(<PushHealthApp {...props} />, '/push-health')
               }
             />
             <Route

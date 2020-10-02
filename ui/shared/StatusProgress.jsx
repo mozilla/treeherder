@@ -12,7 +12,7 @@ const StatusProgress = (props) => {
   const percentComplete = props.counts ? getPercentComplete(props.counts) : 0;
 
   return (
-    <div className="relative">
+    <React.Fragment>
       <VictoryPie
         data={[
           { x: 'success', y: success },
@@ -25,17 +25,17 @@ const StatusProgress = (props) => {
           <VictoryTooltip pointerLength={0} flyoutComponent={<div />} />
         }
         labelRadius={({ innerRadius }) => innerRadius}
-        height={200}
-        width={200}
-        padding={{ top: 15, bottom: 15 }}
+        height={250}
+        width={250}
+        // padding={{ top: 15, bottom: 15 }}
         innerRadius={70}
         radius={85}
       />
-      <div className="absolute">
-        <div style={{ fontSize: '30px' }}>{percentComplete}%</div>
+      <div className="absolute-progress">
+        <div className="metric-name">{percentComplete}%</div>
         <div>Complete</div>
       </div>
-    </div>
+    </React.Fragment>
   );
 };
 

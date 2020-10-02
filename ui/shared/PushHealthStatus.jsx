@@ -47,9 +47,9 @@ class PushHealthStatus extends Component {
       revision,
     );
 
-    if (!failureStatus) {
-      statusCallback(data);
-      this.setState({ ...data });
+    if (!failureStatus && data.length) {
+      statusCallback(data[0]);
+      this.setState({ ...data[0] });
     }
   }
 

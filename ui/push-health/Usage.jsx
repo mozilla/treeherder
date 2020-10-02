@@ -1,5 +1,6 @@
 import React, { Component } from 'react';
 import { Alert, Table, Jumbotron, Badge } from 'reactstrap';
+import { Link } from 'react-router-dom';
 
 import { getData } from '../helpers/http';
 import { getProjectUrl } from '../helpers/location';
@@ -66,12 +67,12 @@ class Usage extends Component {
               return (
                 <tr key={revision} data-testid={`facet-${revision}`}>
                   <td data-testid="facet-link">
-                    <a
-                      href={`/push-health?repo=try&revision=${revision}`}
+                    <Link
+                      to={`./push?repo=try&revision=${revision}`}
                       title="See Push Health"
                     >
                       {revision}
-                    </a>
+                    </Link>
                   </td>
                   <td>{author}</td>
                   <td>{toShortDateStr(pushTimestamp)}</td>

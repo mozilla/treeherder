@@ -380,6 +380,17 @@
   border-color: #6c757d;
 }
 
+.link-darker-secondary {
+  color: #6c757d;
+}
+
+.link-darker-secondary:visited {
+  color: #6c757d;
+}
+
+.link-darker-secondary:hover {
+  color: #5a6268;
+}
 /*
  * Tables and panels
  */

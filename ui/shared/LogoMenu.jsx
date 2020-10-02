@@ -12,7 +12,7 @@ const choices = [
   { url: '/jobs', text: 'Treeherder' },
   { url: '/perfherder', text: 'Perfherder' },
   { url: '/intermittent-failures', text: 'Intermittent Failures View' },
-  { url: '/push-health', text: 'Push Health Usage' },
+  { url: '/push-health', text: 'Push Health' },
 ];
 
 export default class LogoMenu extends React.PureComponent {
@@ -23,7 +23,7 @@ export default class LogoMenu extends React.PureComponent {
     return (
       <UncontrolledDropdown>
         <DropdownToggle
-          className="btn-view-nav"
+          className="btn-view-nav menu-items"
           id="th-logo"
           caret
           title="Treeherder services"

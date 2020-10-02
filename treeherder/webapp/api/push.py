@@ -53,14 +53,19 @@ class PushViewSet(viewsets.ViewSet):
                 del filter_params[param]
                 meta[param] = v
 
-        try:
-            repository = Repository.objects.get(name=project)
-        except Repository.DoesNotExist:
-            return Response(
-                {"detail": "No project with name {}".format(project)}, status=HTTP_404_NOT_FOUND
-            )
+        all_repos = request.query_params.get('all_repos')
 
-        pushes = Push.objects.filter(repository=repository).order_by('-time')
+        pushes = Push.objects.order_by('-time')
+
+        if not all_repos:
+            try:
+                repository = Repository.objects.get(name=project)
+            except Repository.DoesNotExist:
+                return Response(
+                    {"detail": "No project with name {}".format(project)}, status=HTTP_404_NOT_FOUND
+                )
+
+            pushes = pushes.filter(repository=repository)
 
         for (param, value) in meta.items():
             if param == 'fromchange':
@@ -168,7 +173,7 @@ class PushViewSet(viewsets.ViewSet):
         serializer = PushSerializer(pushes, many=True)
 
         meta['count'] = len(pushes)
-        meta['repository'] = project
+        meta['repository'] = 'all' if all_repos else project
         meta['filter_params'] = filter_params
 
         resp = {'meta': meta, 'results': serializer.data}
@@ -204,31 +209,93 @@ class PushViewSet(viewsets.ViewSet):
         Return a calculated summary of the health of this push.
         """
         revision = request.query_params.get('revision')
+        author = request.query_params.get('author')
+        count = request.query_params.get('count')
+        all_repos = request.query_params.get('all_repos')
+        with_history = request.query_params.get('with_history')
 
-        try:
-            push = Push.objects.get(revision=revision, repository__name=project)
-        except Push.DoesNotExist:
-            return Response(
-                "No push with revision: {0}".format(revision), status=HTTP_404_NOT_FOUND
+        if revision:
+            try:
+                pushes = Push.objects.filter(
+                    revision__in=revision.split(','), repository__name=project
+                )
+            except Push.DoesNotExist:
+                return Response(
+                    "No push with revision: {0}".format(revision), status=HTTP_404_NOT_FOUND
+                )
+        else:
+            try:
+                pushes = (
+                    Push.objects.filter(author=author)
+                    .select_related('repository')
+                    .prefetch_related('commits')
+                    .order_by('-time')
+                )
+
+                if not all_repos:
+                    pushes = pushes.filter(repository__name=project)
+
+                pushes = pushes[: int(count)]
+
+            except Push.DoesNotExist:
+                return Response(
+                    "No pushes found for author: {0}".format(author), status=HTTP_404_NOT_FOUND
+                )
+
+        data = []
+        commit_history = None
+
+        for push in list(pushes):
+            result_status, jobs = get_test_failure_jobs(push)
+
+            test_result, push_health_test_failures = get_test_failures(
+                push,
+                jobs,
+                result_status,
             )
 
-        jobs = get_test_failure_jobs(push)
+            build_result, push_health_build_failures = get_build_failures(push)
 
-        push_health_test_failures = get_test_failures(push, jobs)
-        push_health_lint_failures = get_lint_failures(push)
-        push_health_build_failures = get_build_failures(push)
-        test_failure_count = len(push_health_test_failures['needInvestigation'])
-        build_failure_count = len(push_health_build_failures)
-        lint_failure_count = len(push_health_lint_failures)
+            lint_result, push_health_lint_failures = get_lint_failures(push)
 
-        return Response(
-            {
-                'testFailureCount': test_failure_count,
-                'buildFailureCount': build_failure_count,
-                'lintFailureCount': lint_failure_count,
-                'needInvestigation': test_failure_count + build_failure_count + lint_failure_count,
-            }
-        )
+            test_failure_count = len(push_health_test_failures['needInvestigation'])
+            build_failure_count = len(push_health_build_failures)
+            lint_failure_count = len(push_health_lint_failures)
+
+            if with_history:
+                serializer = PushSerializer([push], many=True)
+                commit_history = serializer.data
+
+            data.append(
+                {
+                    'revision': push.revision,
+                    'repository': push.repository.name,
+                    'testFailureCount': test_failure_count,
+                    'buildFailureCount': build_failure_count,
+                    'lintFailureCount': lint_failure_count,
+                    'needInvestigation': test_failure_count
+                    + build_failure_count
+                    + lint_failure_count,
+                    'status': push.get_status(),
+                    'history': commit_history,
+                    'metrics': {
+                        'linting': {
+                            'name': 'Linting',
+                            'result': lint_result,
+                        },
+                        'tests': {
+                            'name': 'Tests',
+                            'result': test_result,
+                        },
+                        'builds': {
+                            'name': 'Builds',
+                            'result': build_result,
+                        },
+                    },
+                }
+            )
+
+        return Response(data)
 
     @action(detail=False)
     def health_usage(self, request, project):
@@ -252,7 +319,7 @@ class PushViewSet(viewsets.ViewSet):
 
         commit_history_details = None
         parent_push = None
-        jobs = get_test_failure_jobs(push)
+        result_status, jobs = get_test_failure_jobs(push)
         # Parent compare only supported for Hg at this time.
         # Bug https://bugzilla.mozilla.org/show_bug.cgi?id=1612645
         if repository.dvcs_type == 'hg':
@@ -260,24 +327,24 @@ class PushViewSet(viewsets.ViewSet):
             if commit_history_details['exactMatch']:
                 parent_push = commit_history_details.pop('parentPush')
 
-        push_health_test_failures = get_test_failures(
+        test_result, push_health_test_failures = get_test_failures(
             push,
             jobs,
+            result_status,
             parent_push,
         )
-        test_result = 'pass'
-        if len(push_health_test_failures['needInvestigation']):
-            test_result = 'fail'
 
-        build_failures = get_build_failures(push, parent_push)
-        build_result = 'fail' if len(build_failures) else 'pass'
+        build_result, build_failures = get_build_failures(push, parent_push)
 
-        lint_failures = get_lint_failures(push)
-        lint_result = 'fail' if len(lint_failures) else 'pass'
+        lint_result, lint_failures = get_lint_failures(push)
 
         push_result = 'pass'
         for metric_result in [test_result, lint_result, build_result]:
-            if metric_result == 'indeterminate' and push_result != 'fail':
+            if (
+                metric_result == 'indeterminate'
+                or metric_result == 'unknown'
+                and push_result != 'fail'
+            ):
                 push_result = metric_result
             elif metric_result == 'fail':
                 push_result = metric_result

@@ -8,12 +8,17 @@ import { filterJobs } from './helpers';
 export default class JobListMetric extends React.PureComponent {
   render() {
     const { data, repo, revision, showParentMatches } = this.props;
-    const { name, details } = data;
+    const { name, details, result } = data;
+
     const jobs = filterJobs(details, showParentMatches);
-    const msgForZeroJobs =
-      details.length && !jobs.length
-        ? `All failed ${name} also failed in Parent Push`
-        : `All ${name} passed`;
+    let msgForZeroJobs = `All ${name} passed`;
+    const correctGrammer = name.slice(-1) === 's' ? 'are' : 'is';
+
+    if (result === 'unknown') {
+      msgForZeroJobs = `${name} ${correctGrammer} in progress. No failures detected.`;
+    } else if (details.length && !jobs.length) {
+      msgForZeroJobs = `All failed ${name} also failed in Parent Push`;
+    }
 
     return (
       <div>
