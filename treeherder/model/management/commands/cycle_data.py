@@ -232,7 +232,7 @@ class TryDataRemoval(RemovalStrategy):
     """
 
     def __init__(self, chunk_size: int):
-        self._cycle_interval = timedelta(weeks=4)
+        self._cycle_interval = timedelta(weeks=6)
         self._chunk_size = chunk_size
         self._max_timestamp = datetime.now() - self._cycle_interval
         self._manager = PerformanceDatum.objects
