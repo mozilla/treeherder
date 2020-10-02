@@ -119,7 +119,7 @@ class PerfherderCycler(DataCycler):
             # a job
             logger.warning('Removing performance signatures with missing jobs...')
             for signature in PerformanceSignature.objects.all():
-                self._maybe_quit()
+                self._quit_on_timeout()
 
                 if not PerformanceDatum.objects.filter(
                     repository_id=signature.repository_id,  # leverages (repository, signature) compound index
@@ -129,7 +129,7 @@ class PerfherderCycler(DataCycler):
         except MaxRuntimeExceeded as ex:
             logger.warning(ex)
 
-    def _maybe_quit(self):
+    def _quit_on_timeout(self):
         elapsed_runtime = datetime.now() - self.started_at
 
         if self.max_runtime < elapsed_runtime:
@@ -140,7 +140,7 @@ class PerfherderCycler(DataCycler):
 
         with connection.cursor() as cursor:
             while True:
-                self._maybe_quit()
+                self._quit_on_timeout()
 
                 try:
                     strategy.remove(using=cursor)
@@ -206,7 +206,7 @@ class MainRemovalStrategy(RemovalStrategy):
         using.execute(
             '''
             DELETE FROM `performance_datum`
-            WHERE push_timestamp < %s
+            WHERE push_timestamp <= %s
             LIMIT %s
         ''',
             [self._max_timestamp, chunk_size],
@@ -229,7 +229,7 @@ class TryDataRemoval(RemovalStrategy):
     """
 
     def __init__(self, chunk_size: int):
-        self._cycle_interval = timedelta(weeks=4)
+        self._cycle_interval = timedelta(weeks=6)
         self._chunk_size = chunk_size
         self._max_timestamp = datetime.now() - self._cycle_interval
         self._manager = PerformanceDatum.objects
@@ -250,7 +250,7 @@ class TryDataRemoval(RemovalStrategy):
         using.execute(
             '''
             DELETE FROM `performance_datum`
-            WHERE repository_id = %s AND push_timestamp < %s
+            WHERE repository_id = %s AND push_timestamp <= %s
             LIMIT %s
         ''',
             [self.try_repo, self._max_timestamp, chunk_size],
