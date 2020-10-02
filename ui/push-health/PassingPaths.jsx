@@ -20,13 +20,26 @@ class PassingPaths extends Component {
   }
 
   async componentDidMount() {
-    const { revision, currentRepo, searchStr } = this.props;
+    const { revision, currentRepo, searchStr, failingTaskLabels } = this.props;
     try {
       const manifestByTask = await fetchGeckoDecisionArtifact(
         currentRepo.name,
         revision,
         'manifests-by-task.json.gz',
       );
+
+      console.log('failingLabels', failingTaskLabels);
+      const taskLabels = Object.keys(manifestByTask);
+
+      failingTaskLabels.forEach((label) => {
+        if (manifestByTask[label]) {
+          console.log('found this one', label);
+        }
+        delete manifestByTask[label];
+        console.log('checking for', label, manifestByTask[label]);
+      });
+      // failingTaskLabels.forEach((label) => delete manifestByTask[label]);
+
       const uniquePaths = [
         ...new Set(
           Object.values(manifestByTask).reduce(
@@ -35,15 +48,15 @@ class PassingPaths extends Component {
           ),
         ),
       ];
-      console.log(uniquePaths);
+      // console.log(uniquePaths);
       const paths = uniquePaths.map((path) => trimStart(path, '/'));
       const filteredPaths = searchStr ? filterPaths(paths, searchStr) : paths;
 
       filteredPaths.sort();
       this.setState({ paths, filteredPaths });
     } catch (e) {
-      console.log('error getting manifests');
-      console.log(e);
+      // console.log('error getting manifests');
+      // console.log(e);
     }
   }
 
@@ -100,10 +113,12 @@ PassingPaths.propTypes = {
   revision: PropTypes.string.isRequired,
   currentRepo: PropTypes.shape({}).isRequired,
   searchStr: PropTypes.string,
+  failingTaskLabels: PropTypes.arrayOf(PropTypes.string),
 };
 
 PassingPaths.defaultProps = {
   searchStr: '',
+  failingTaskLabels: [],
 };
 
 export default PassingPaths;

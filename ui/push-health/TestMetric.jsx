@@ -49,6 +49,9 @@ export default class TestMetric extends React.PureComponent {
       );
     }
 
+    console.log('ni', filteredNeedInvestigation);
+    console.log('jobs', jobs);
+
     return (
       <div>
         <MainHeading
@@ -139,6 +142,7 @@ export default class TestMetric extends React.PureComponent {
             revision={revision}
             currentRepo={currentRepo}
             searchStr={searchStr}
+            failingTaskLabels={Object.keys(jobs)}
           />
         </MainHeading>
       </div>
