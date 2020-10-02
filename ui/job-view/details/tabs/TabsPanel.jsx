@@ -126,7 +126,6 @@ class TabsPanel extends React.Component {
       logParseStatus,
       bugs,
       perfJobDetail,
-      repoName,
       jobRevision,
       classifications,
       togglePinBoardVisibility,
@@ -136,6 +135,7 @@ class TabsPanel extends React.Component {
       logViewerFullUrl,
       clearSelectedJob,
       selectedJobFull,
+      currentRepo,
       pinJob,
       addBug,
       taskId,
@@ -223,7 +223,7 @@ class TabsPanel extends React.Component {
               logViewerFullUrl={logViewerFullUrl}
               addBug={addBug}
               pinJob={pinJob}
-              repoName={repoName}
+              repoName={currentRepo.name}
               fontSize="font-size-11"
             />
           </TabPanel>
@@ -237,7 +237,7 @@ class TabsPanel extends React.Component {
           </TabPanel>
           <TabPanel>
             <SimilarJobsTab
-              repoName={repoName}
+              repoName={currentRepo.name}
               classificationMap={classificationMap}
               selectedJobFull={selectedJobFull}
             />
@@ -245,6 +245,10 @@ class TabsPanel extends React.Component {
           {showPerf && (
             <TabPanel>
               <PerformanceTab
+                key={selectedJobFull.id}
+                selectedJobFull={selectedJobFull}
+                currentRepo={currentRepo}
+                repoName={currentRepo.name}
                 jobDetails={jobDetails}
                 perfJobDetail={perfJobDetail}
                 revision={jobRevision}
@@ -277,7 +281,6 @@ class TabsPanel extends React.Component {
 TabsPanel.propTypes = {
   classificationMap: PropTypes.shape({}).isRequired,
   jobDetails: PropTypes.arrayOf(PropTypes.object).isRequired,
-  repoName: PropTypes.string.isRequired,
   classifications: PropTypes.arrayOf(PropTypes.object).isRequired,
   togglePinBoardVisibility: PropTypes.func.isRequired,
   isPinBoardVisible: PropTypes.bool.isRequired,
@@ -285,6 +288,7 @@ TabsPanel.propTypes = {
   bugs: PropTypes.arrayOf(PropTypes.object).isRequired,
   clearSelectedJob: PropTypes.func.isRequired,
   selectedJobFull: PropTypes.shape({}).isRequired,
+  currentRepo: PropTypes.shape({}).isRequired,
   perfJobDetail: PropTypes.arrayOf(PropTypes.object),
   jobRevision: PropTypes.string,
   jobLogUrls: PropTypes.arrayOf(PropTypes.object),
