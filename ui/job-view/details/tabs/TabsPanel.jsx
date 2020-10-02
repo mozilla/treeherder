@@ -245,7 +245,7 @@ class TabsPanel extends React.Component {
           {showPerf && (
             <TabPanel>
               <PerformanceTab
-                repoName={repoName}
+                jobDetails={jobDetails}
                 perfJobDetail={perfJobDetail}
                 revision={jobRevision}
               />
