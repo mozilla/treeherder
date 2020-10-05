@@ -9835,10 +9835,10 @@ tapable@^1.0.0, tapable@^1.1.3:
   resolved "https://registry.yarnpkg.com/tapable/-/tapable-1.1.3.tgz#a1fccc06b58db61fd7a45da2da44f5f3a3e67ba2"
   integrity sha512-4WK/bYZmj8xLr+HUCODHGF1ZFzsYffasLUgEiMBY4fgtltdO6B4WJtlSbPaDTLpYTcGVwM2qLnFTICEcNxs3kA==
 
-taskcluster-client-web@36.0.0:
-  version "36.0.0"
-  resolved "https://registry.yarnpkg.com/taskcluster-client-web/-/taskcluster-client-web-36.0.0.tgz#3ccc530426b5938605109ec5c8aad4bd56a76773"
-  integrity sha512-wc3Nw260y0e4HjVFGTSoX51sv5CkfeT8xN7tUpTJIxThAV+xaHb5uIdhmNnsmbsMW5PrzcOExFMatMVmOwindQ==
+taskcluster-client-web@37.3.0:
+  version "37.3.0"
+  resolved "https://registry.yarnpkg.com/taskcluster-client-web/-/taskcluster-client-web-37.3.0.tgz#b4a0ed4e81b1d74c76c876647e979f48b408efe2"
+  integrity sha512-CtwAFrVx/btRKsoakNfJMXdkMzt+ItjxgFznaW4OTNmWBDzpUt0etEyqfvv4GtnM7ey+4Aad+4+RSq1bYj8geQ==
   dependencies:
     crypto-js "^3.1.9-1"
     hawk "^7.0.7"
