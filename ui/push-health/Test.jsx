@@ -83,23 +83,21 @@ class Test extends PureComponent {
     const { selectedTests } = this.state;
     const { notify, currentRepo, revision, updatePushHealth } = this.props;
 
+    const projectUrl = `${getProjectUrl(
+      investigatedTestsEndPoint,
+      currentRepo.name,
+    )}?revision=${revision}`;
     let data;
     let failureStatus;
     if (selectedTests.size === 0) {
       notify(`Select atleast one test`, 'warning');
     } else {
       selectedTests.forEach(async (test) => {
-        ({ data, failureStatus } = await create(
-          `${getProjectUrl(
-            investigatedTestsEndPoint,
-            currentRepo.name,
-          )}?revision=${revision}`,
-          {
-            test: test.testName,
-            jobName: test.jobName,
-            jobSymbol: test.jobSymbol,
-          },
-        ));
+        ({ data, failureStatus } = await create(projectUrl, {
+          test: test.testName,
+          jobName: test.jobName,
+          jobSymbol: test.jobSymbol,
+        }));
         if (failureStatus) {
           notify(data, 'warning');
         } else {

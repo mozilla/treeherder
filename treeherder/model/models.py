@@ -759,11 +759,7 @@ class BugJobMap(models.Model):
 
     @classmethod
     def create(cls, job_id, bug_id, user=None):
-        bug_map = BugJobMap.objects.create(
-            job_id=job_id,
-            bug_id=bug_id,
-            user=user,
-        )
+        bug_map = BugJobMap.objects.create(job_id=job_id, bug_id=bug_id, user=user,)
 
         if not user:
             return bug_map
@@ -916,8 +912,7 @@ class JobNote(models.Model):
         # TODO: Decide whether this should change now that we're no longer mirroring.
         bug_numbers = set(
             ClassifiedFailure.objects.filter(
-                best_for_errors__text_log_error__job=job,
-                best_for_errors__best_is_verified=True,
+                best_for_errors__text_log_error__job=job, best_for_errors__best_is_verified=True,
             )
             .exclude(bug_number=None)
             .exclude(bug_number=0)
@@ -1187,8 +1182,7 @@ class ClassifiedFailure(models.Model):
         """
         for match in self.error_matches.all():
             other_matches = TextLogErrorMatch.objects.filter(
-                classified_failure=other,
-                text_log_error=match.text_log_error,
+                classified_failure=other, text_log_error=match.text_log_error,
             )
 
             if not other_matches:
@@ -1331,11 +1325,7 @@ class TextLogError(models.Model):
             return
 
         newrelic.agent.record_custom_event(
-            'user_verified_classification',
-            {
-                'matcher': match.matcher_name,
-                'job_id': self.id,
-            },
+            'user_verified_classification', {'matcher': match.matcher_name, 'job_id': self.id,},
         )
 
     def get_failure_line(self):
@@ -1410,8 +1400,9 @@ class InvestigatedTests(models.Model):
 
     id = models.BigAutoField(primary_key=True)
     job_type = models.ForeignKey(JobType, related_name="investigated", on_delete=models.CASCADE)
-    test = models.CharField(max_length=255)
+    test = models.CharField(max_length=350)
     push = models.ForeignKey(Push, on_delete=models.CASCADE)
 
     class Meta:
         unique_together = ["job_type", "test", "push"]
+        db_table = 'investigated_tests'

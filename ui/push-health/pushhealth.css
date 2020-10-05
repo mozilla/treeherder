@@ -12,6 +12,10 @@
   min-width: 200px;
 }
 
+input[type=checkbox] {
+  transform: scale(1.2);
+}
+
 .commit-area {
   border-left: 3px solid #6c757d;
 }

@@ -127,7 +127,7 @@ def get_current_test_failures(push, option_map, jobs, investigatedTests=None):
         isInvestigated = False
         investigatedTestId = None
         for investigatedTest in investigatedTests:
-            if investigatedTest.test == test_name:
+            if investigatedTest.test == test_name and job.job_type.id == investigatedTest.job_type.id:
                 isInvestigated = True
                 investigatedTestId = investigatedTest.id
                 break
