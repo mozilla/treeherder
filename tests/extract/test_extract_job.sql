@@ -132,7 +132,7 @@ FROM
                 LEFT JOIN
             `test_treeherder`.`reference_data_signatures` AS `t12` ON `t12`.`id` = `t1`.`signature_id`
                 JOIN
-            `test_treeherder`.`model_investigatedtests` AS `t13` ON `t13`.`job_type_id` = `t5`.`id`
+            `test_treeherder`.`investigated_tests` AS `t13` ON `t13`.`job_type_id` = `t5`.`id`
                 LEFT JOIN
             `test_treeherder`.`push` AS `t14` ON `t14`.`id` = `t13`.`push_id`
                 LEFT JOIN
@@ -204,7 +204,7 @@ FROM
                 LEFT JOIN
             `test_treeherder`.`option` AS `t13` ON `t13`.`id` = `t8`.`option_id`
                 JOIN
-            `test_treeherder`.`model_investigatedtests` AS `t14` ON `t14`.`push_id` = `t10`.`id`
+            `test_treeherder`.`investigated_tests` AS `t14` ON `t14`.`push_id` = `t10`.`id`
                 LEFT JOIN
             `test_treeherder`.`job_type` AS `t15` ON `t15`.`id` = `t14`.`job_type_id`
         UNION ALL
@@ -268,7 +268,7 @@ FROM
                 LEFT JOIN
             `test_treeherder`.`reference_data_signatures` AS `t12` ON `t12`.`id` = `t1`.`signature_id`
                 JOIN
-            `test_treeherder`.`model_investigatedtests` AS `t13` ON `t13`.`job_type_id` = `t5`.`id`
+            `test_treeherder`.`investigated_tests` AS `t13` ON `t13`.`job_type_id` = `t5`.`id`
                 LEFT JOIN
             `test_treeherder`.`push` AS `t14` ON `t14`.`id` = `t13`.`push_id`
                 JOIN
@@ -304,7 +304,7 @@ FROM
                 LEFT JOIN
             `test_treeherder`.`reference_data_signatures` AS `t12` ON `t12`.`id` = `t1`.`signature_id`
                 JOIN
-            `test_treeherder`.`model_investigatedtests` AS `t13` ON `t13`.`job_type_id` = `t5`.`id`
+            `test_treeherder`.`investigated_tests` AS `t13` ON `t13`.`job_type_id` = `t5`.`id`
                 LEFT JOIN
             `test_treeherder`.`push` AS `t14` ON `t14`.`id` = `t13`.`push_id`
                 JOIN
@@ -354,7 +354,7 @@ FROM
                 LEFT JOIN
             `test_treeherder`.`reference_data_signatures` AS `t12` ON `t12`.`id` = `t1`.`signature_id`
                 JOIN
-            `test_treeherder`.`model_investigatedtests` AS `t13` ON `t13`.`job_type_id` = `t5`.`id`
+            `test_treeherder`.`investigated_tests` AS `t13` ON `t13`.`job_type_id` = `t5`.`id`
                 LEFT JOIN
             `test_treeherder`.`push` AS `t14` ON `t14`.`id` = `t13`.`push_id`
                 JOIN
@@ -392,7 +392,7 @@ FROM
                 LEFT JOIN
             `test_treeherder`.`reference_data_signatures` AS `t12` ON `t12`.`id` = `t1`.`signature_id`
                 JOIN
-            `test_treeherder`.`model_investigatedtests` AS `t13` ON `t13`.`job_type_id` = `t5`.`id`
+            `test_treeherder`.`investigated_tests` AS `t13` ON `t13`.`job_type_id` = `t5`.`id`
                 LEFT JOIN
             `test_treeherder`.`push` AS `t14` ON `t14`.`id` = `t13`.`push_id`
                 JOIN
@@ -430,7 +430,7 @@ FROM
                 LEFT JOIN
             `test_treeherder`.`reference_data_signatures` AS `t12` ON `t12`.`id` = `t1`.`signature_id`
                 JOIN
-            `test_treeherder`.`model_investigatedtests` AS `t13` ON `t13`.`job_type_id` = `t5`.`id`
+            `test_treeherder`.`investigated_tests` AS `t13` ON `t13`.`job_type_id` = `t5`.`id`
                 LEFT JOIN
             `test_treeherder`.`push` AS `t14` ON `t14`.`id` = `t13`.`push_id`
                 JOIN
@@ -470,7 +470,7 @@ FROM
                 LEFT JOIN
             `test_treeherder`.`reference_data_signatures` AS `t12` ON `t12`.`id` = `t1`.`signature_id`
                 JOIN
-            `test_treeherder`.`model_investigatedtests` AS `t13` ON `t13`.`job_type_id` = `t5`.`id`
+            `test_treeherder`.`investigated_tests` AS `t13` ON `t13`.`job_type_id` = `t5`.`id`
                 LEFT JOIN
             `test_treeherder`.`push` AS `t14` ON `t14`.`id` = `t13`.`push_id`
                 JOIN
@@ -508,7 +508,7 @@ FROM
                 LEFT JOIN
             `test_treeherder`.`reference_data_signatures` AS `t12` ON `t12`.`id` = `t1`.`signature_id`
                 JOIN
-            `test_treeherder`.`model_investigatedtests` AS `t13` ON `t13`.`job_type_id` = `t5`.`id`
+            `test_treeherder`.`investigated_tests` AS `t13` ON `t13`.`job_type_id` = `t5`.`id`
                 LEFT JOIN
             `test_treeherder`.`push` AS `t14` ON `t14`.`id` = `t13`.`push_id`
                 JOIN
@@ -550,7 +550,7 @@ FROM
                 LEFT JOIN
             `test_treeherder`.`reference_data_signatures` AS `t12` ON `t12`.`id` = `t1`.`signature_id`
                 JOIN
-            `test_treeherder`.`model_investigatedtests` AS `t13` ON `t13`.`job_type_id` = `t5`.`id`
+            `test_treeherder`.`investigated_tests` AS `t13` ON `t13`.`job_type_id` = `t5`.`id`
                 LEFT JOIN
             `test_treeherder`.`push` AS `t14` ON `t14`.`id` = `t13`.`push_id`
                 JOIN
@@ -588,7 +588,7 @@ FROM
                 LEFT JOIN
             `test_treeherder`.`reference_data_signatures` AS `t12` ON `t12`.`id` = `t1`.`signature_id`
                 JOIN
-            `test_treeherder`.`model_investigatedtests` AS `t13` ON `t13`.`job_type_id` = `t5`.`id`
+            `test_treeherder`.`investigated_tests` AS `t13` ON `t13`.`job_type_id` = `t5`.`id`
                 LEFT JOIN
             `test_treeherder`.`push` AS `t14` ON `t14`.`id` = `t13`.`push_id`
                 JOIN
@@ -632,7 +632,7 @@ FROM
                 LEFT JOIN
             `test_treeherder`.`reference_data_signatures` AS `t12` ON `t12`.`id` = `t1`.`signature_id`
                 JOIN
-            `test_treeherder`.`model_investigatedtests` AS `t13` ON `t13`.`job_type_id` = `t5`.`id`
+            `test_treeherder`.`investigated_tests` AS `t13` ON `t13`.`job_type_id` = `t5`.`id`
                 LEFT JOIN
             `test_treeherder`.`push` AS `t14` ON `t14`.`id` = `t13`.`push_id`
                 JOIN
