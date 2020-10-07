@@ -760,8 +760,8 @@ class BugJobMap(models.Model):
     @classmethod
     def create(cls, job_id, bug_id, user=None):
         bug_map = BugJobMap.objects.create(
-            job_id=job_id, 
-            bug_id=bug_id, 
+            job_id=job_id,
+            bug_id=bug_id,
             user=user,
         )
 
@@ -916,7 +916,7 @@ class JobNote(models.Model):
         # TODO: Decide whether this should change now that we're no longer mirroring.
         bug_numbers = set(
             ClassifiedFailure.objects.filter(
-                best_for_errors__text_log_error__job=job, 
+                best_for_errors__text_log_error__job=job,
                 best_for_errors__best_is_verified=True,
             )
             .exclude(bug_number=None)
@@ -1187,7 +1187,7 @@ class ClassifiedFailure(models.Model):
         """
         for match in self.error_matches.all():
             other_matches = TextLogErrorMatch.objects.filter(
-                classified_failure=other, 
+                classified_failure=other,
                 text_log_error=match.text_log_error,
             )
 
@@ -1331,9 +1331,9 @@ class TextLogError(models.Model):
             return
 
         newrelic.agent.record_custom_event(
-            'user_verified_classification', 
+            'user_verified_classification',
             {
-                'matcher': match.matcher_name, 
+                'matcher': match.matcher_name,
                 'job_id': self.id,
             },
         )
