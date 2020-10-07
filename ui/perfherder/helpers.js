@@ -443,14 +443,10 @@ export const getTextualSummary = (alerts, alertSummary, copySummary = null) => {
     const prevValue = numeral(alert.prev_value).format(numFormat);
     const newValue = numeral(alert.new_value).format(numFormat);
 
-    const {
-      suite: test,
-      test: subtest,
-      machine_platform: platform,
-    } = alert.series_signature;
+    const { suite, test, machine_platform: platform } = alert.series_signature;
     const extraOptions = alert.series_signature.extra_options.join(' ');
 
-    return `| ${amountPct}% | ${test} | ${subtest} | ${platform} | ${extraOptions} | ${prevValue} -> ${newValue} |`;
+    return `| ${amountPct}% | ${suite} | ${test} | ${platform} | ${extraOptions} | ${prevValue} -> ${newValue} |`;
   };
 
   const formatAlertBulk = (alerts) =>
@@ -469,7 +465,7 @@ export const getTextualSummary = (alerts, alertSummary, copySummary = null) => {
       resultStr += '\n';
     }
     const formattedRegressions = formatAlertBulk(regressed);
-    resultStr += `Regressions:\n\n|  | test | subtest | platform |  |  |\n|--|--|--|--|--|--| \n${formattedRegressions}\n`;
+    resultStr += `Regressions:\n\n| **Ratio** | **Suite** | **Test** | **Platform** | **Options** | **Absolute values (old vs new)**| \n|--|--|--|--|--|--| \n${formattedRegressions}\n`;
   }
   if (improved.length > 0) {
     // Add a newline if we displayed some regressions
@@ -477,7 +473,7 @@ export const getTextualSummary = (alerts, alertSummary, copySummary = null) => {
       resultStr += '\n';
     }
     const formattedImprovements = formatAlertBulk(improved);
-    resultStr += `Improvements:\n\n|  | test | subtest | platform |  |  |\n|--|--|--|--|--|--|\n${formattedImprovements}\n`;
+    resultStr += `\\\nImprovements:\n\n| **Ratio** | **Suite** | **Test** | **Platform** | **Options** | **Absolute values (old vs new)**| \n|--|--|--|--|--|--| \n${formattedImprovements}\n`;
   }
   // include link to alert if getting text for clipboard only
   if (copySummary) {
