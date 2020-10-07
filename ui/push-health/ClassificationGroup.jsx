@@ -99,6 +99,9 @@ class ClassificationGroup extends React.PureComponent {
       setGroupedBy,
       setOrderedBy,
       updateParamsAndState,
+      investigateTest,
+      unInvestigateTest,
+      updatePushHealth,
     } = this.props;
     const expandIcon = detailsShowing ? faCaretDown : faCaretRight;
     const expandTitle = detailsShowing
@@ -261,6 +264,9 @@ class ClassificationGroup extends React.PureComponent {
               selectedJobName={selectedJobName}
               selectedTaskId={selectedTaskId}
               updateParamsAndState={updateParamsAndState}
+              investigateTest={investigateTest}
+              unInvestigateTest={unInvestigateTest}
+              updatePushHealth={updatePushHealth}
             />
           ))}
         </Collapse>

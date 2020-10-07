@@ -9,6 +9,7 @@ from treeherder.webapp.api import (
     csp_report,
     infra_compare,
     intermittents_view,
+    investigated_test,
     job_log_url,
     jobs,
     machine_platforms,
@@ -41,6 +42,13 @@ project_bound_router.register(
     r'push',
     push.PushViewSet,
     basename='push',
+)
+
+
+project_bound_router.register(
+    r'investigated-tests',
+    investigated_test.InvestigatedViewSet,
+    basename='investigated-tests',
 )
 
 project_bound_router.register(

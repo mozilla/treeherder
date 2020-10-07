@@ -1402,3 +1402,17 @@ class TextLogErrorMatch(models.Model):
 
     def __str__(self):
         return "{0} {1}".format(self.text_log_error.id, self.classified_failure.id)
+
+
+class InvestigatedTests(models.Model):
+    """Tests that have been marked as investigated in the Push health UI.  These act like
+    completed To Do List items."""
+
+    id = models.BigAutoField(primary_key=True)
+    job_type = models.ForeignKey(JobType, related_name="investigated", on_delete=models.CASCADE)
+    test = models.CharField(max_length=350)
+    push = models.ForeignKey(Push, on_delete=models.CASCADE)
+
+    class Meta:
+        unique_together = ["job_type", "test", "push"]
+        db_table = 'investigated_tests'

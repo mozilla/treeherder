@@ -27,6 +27,8 @@ export const platformsEndpoint = '/machineplatforms/';
 
 export const pushEndpoint = '/push/';
 
+export const investigatedTestsEndPoint = '/investigated-tests/';
+
 export const repoEndpoint = '/repository/';
 
 export const tcAuthCallbackUrl = '/taskcluster-auth.html';

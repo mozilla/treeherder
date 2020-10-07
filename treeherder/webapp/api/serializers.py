@@ -369,3 +369,13 @@ class ChangelogSerializer(serializers.ModelSerializer):
             'url',
             'files',
         )
+
+
+class InvestigatedTestsSerializers(serializers.ModelSerializer):
+
+    jobName = serializers.CharField(source='job_type.name')
+    jobSymbol = serializers.CharField(source='job_type.symbol')
+
+    class Meta:
+        model = models.InvestigatedTests
+        fields = ('id', 'test', 'jobName', 'jobSymbol')

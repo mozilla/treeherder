@@ -346,6 +346,9 @@ export default class Health extends React.PureComponent {
                       selectedTaskId={selectedTaskId}
                       selectedJobName={selectedJobName}
                       updateParamsAndState={this.updateParamsAndState}
+                      investigateTest={this.investigateTest}
+                      unInvestigateTest={this.unInvestigateTest}
+                      updatePushHealth={this.updatePushHealth}
                     />
                   </TabPanel>
                 </div>
