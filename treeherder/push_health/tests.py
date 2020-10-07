@@ -177,8 +177,14 @@ def has_line(failure_line, log_line_list):
 
 def get_test_failure_jobs(push):
     testfailed_jobs = (
-        Job.objects.filter(push=push, tier__lte=2, result='testfailed',)
-        .exclude(Q(machine_platform__platform='lint') | Q(job_type__symbol='mozlint'),)
+        Job.objects.filter(
+            push=push,
+            tier__lte=2,
+            result='testfailed',
+        )
+        .exclude(
+            Q(machine_platform__platform='lint') | Q(job_type__symbol='mozlint'),
+        )
         .select_related('job_type', 'machine_platform', 'taskcluster_metadata')
     )
     failed_job_types = [job.job_type.name for job in testfailed_jobs]
@@ -205,7 +211,9 @@ def get_test_failure_jobs(push):
 
 
 def get_test_failures(
-    push, jobs, parent_push=None,
+    push, 
+    jobs, 
+    parent_push=None,
 ):
     logger.debug('Getting test failures for push: {}'.format(push.id))
     # query for jobs for the last two weeks excluding today
@@ -234,7 +242,9 @@ def get_test_failures(
     # Based on the intermittent and FixedByCommit history, set the appropriate classification
     # where we think each test falls.
     set_classifications(
-        filtered_push_failures, intermittent_history, fixed_by_commit_history,
+        filtered_push_failures, 
+        intermittent_history, 
+        fixed_by_commit_history,
     )
     failures = get_grouped(filtered_push_failures)
 
