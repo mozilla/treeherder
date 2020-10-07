@@ -211,8 +211,8 @@ def get_test_failure_jobs(push):
 
 
 def get_test_failures(
-    push, 
-    jobs, 
+    push,
+    jobs,
     parent_push=None,
 ):
     logger.debug('Getting test failures for push: {}'.format(push.id))
@@ -242,8 +242,8 @@ def get_test_failures(
     # Based on the intermittent and FixedByCommit history, set the appropriate classification
     # where we think each test falls.
     set_classifications(
-        filtered_push_failures, 
-        intermittent_history, 
+        filtered_push_failures,
+        intermittent_history,
         fixed_by_commit_history,
     )
     failures = get_grouped(filtered_push_failures)
