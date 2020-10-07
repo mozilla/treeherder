@@ -72,7 +72,9 @@ class InvestigatedViewSet(viewsets.ModelViewSet):
         try:
             investigated_test = InvestigatedTests.objects.get(pk=pk)
             investigated_test.delete()
-            return Response(status=status.HTTP_204_NO_CONTENT,)
+            return Response(
+                status=status.HTTP_204_NO_CONTENT,
+            )
 
         except InvestigatedTests.DoesNotExist:
             return Response("Test already uninvestigated", status=HTTP_404_NOT_FOUND)
