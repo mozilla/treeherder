@@ -182,7 +182,6 @@ def relevant_repository(transactional_db):
         codebase="gecko",
         repository_group_id=repo_group.id,
         description="",
-        is_try_repo=True,
         tc_root_url="https://firefox-ci-tc.services.mozilla.com",
     )
     return r

@@ -325,13 +325,10 @@ def test_irrelevant_repos_data_removal(
     test_repository.name = "test"
     test_repository.save()
 
-    six_months_ago_timestamp = datetime.now() - timedelta(days=(6 * 30))
+    six_months_ago_timestamp = datetime.now() - timedelta(days=(7 * 30))
 
     push1 = Push.objects.get(id=1)
-    push1.save()
-
     push2 = Push.objects.get(id=2)
-    push2.save()
 
     test_perf_signature.repository = test_repository
     test_perf_signature.save()

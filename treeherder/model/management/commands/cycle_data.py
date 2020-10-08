@@ -308,10 +308,12 @@ class IrrelevantDataRemoval(RemovalStrategy):
         @type using: database connection cursor
         """
         chunk_size = self._find_ideal_chunk_size()
+        print("Here")
+        print(chunk_size)
         using.execute(
             '''
             DELETE FROM `performance_datum`
-            WHERE repository_id NOT IN (%s) AND push_timestamp <= %s
+            WHERE repository_id NOT IN (%s, %s, %s, %s, %s) AND push_timestamp <= %s
             LIMIT %s
         ''',
             [
