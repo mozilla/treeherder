@@ -465,7 +465,7 @@ export const getTextualSummary = (alerts, alertSummary, copySummary = null) => {
       resultStr += '\n';
     }
     const formattedRegressions = formatAlertBulk(regressed);
-    resultStr += `Regressions:\n\n| **Ratio** | **Suite** | **Test** | **Platform** | **Options** | **Absolute values (old vs new)**| \n|--|--|--|--|--|--| \n${formattedRegressions}\n`;
+    resultStr += `### Regressions:\n\n| **Ratio** | **Suite** | **Test** | **Platform** | **Options** | **Absolute values (old vs new)**| \n|--|--|--|--|--|--| \n${formattedRegressions}\n`;
   }
   if (improved.length > 0) {
     // Add a newline if we displayed some regressions
@@ -473,7 +473,7 @@ export const getTextualSummary = (alerts, alertSummary, copySummary = null) => {
       resultStr += '\n';
     }
     const formattedImprovements = formatAlertBulk(improved);
-    resultStr += `\\\nImprovements:\n\n| **Ratio** | **Suite** | **Test** | **Platform** | **Options** | **Absolute values (old vs new)**| \n|--|--|--|--|--|--| \n${formattedImprovements}\n`;
+    resultStr += `### Improvements:\n\n| **Ratio** | **Suite** | **Test** | **Platform** | **Options** | **Absolute values (old vs new)**| \n|--|--|--|--|--|--| \n${formattedImprovements}\n`;
   }
   // include link to alert if getting text for clipboard only
   if (copySummary) {
