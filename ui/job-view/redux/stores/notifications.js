@@ -34,6 +34,10 @@ export const notify = (message, severity, options) => ({
   options,
 });
 
+export const clearExpiredNotifications = () => ({
+  type: CLEAR_EXPIRED_TRANSIENTS,
+});
+
 // *** Implementation ***
 const doNotify = (
   { notifications, storedNotifications },

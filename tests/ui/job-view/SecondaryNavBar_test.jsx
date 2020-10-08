@@ -41,7 +41,7 @@ describe('SecondaryNavBar', () => {
           serverChanged={false}
           filterModel={
             new FilterModel({
-              push: history.push,
+              pushRoute: history.push,
               router,
             })
           }

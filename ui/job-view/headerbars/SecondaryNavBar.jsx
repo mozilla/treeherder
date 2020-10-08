@@ -9,6 +9,7 @@ import {
   faFilter,
   faTimesCircle,
 } from '@fortawesome/free-solid-svg-icons';
+import { push as pushRoute } from 'connected-react-router';
 
 import { getBtnClass } from '../../helpers/job';
 import { hasUrlFilterChanges, thFilterGroups } from '../../helpers/filter';
@@ -127,23 +128,23 @@ class SecondaryNavBar extends React.PureComponent {
   };
 
   toggleShowDuplicateJobs = () => {
-    const { duplicateJobsVisible, push } = this.props;
+    const { duplicateJobsVisible, pushRoute } = this.props;
     const duplicateJobs = duplicateJobsVisible ? null : 'visible';
 
     const queryParams = setUrlParams([['duplicate_jobs', duplicateJobs]]);
 
-    push({
+    pushRoute({
       search: queryParams,
     });
   };
 
   toggleGroupState = () => {
-    const { groupCountsExpanded, push } = this.props;
+    const { groupCountsExpanded, pushRoute } = this.props;
     const groupState = groupCountsExpanded ? null : 'expanded';
 
     const queryParams = setUrlParams([['group_state', groupState]]);
 
-    push({
+    pushRoute({
       search: queryParams,
     });
   };
@@ -407,6 +408,7 @@ SecondaryNavBar.propTypes = {
   duplicateJobsVisible: PropTypes.bool.isRequired,
   groupCountsExpanded: PropTypes.bool.isRequired,
   toggleFieldFilterVisible: PropTypes.func.isRequired,
+  pushRoute: PropTypes.func.isRequired,
 };
 
 const mapStateToProps = ({
@@ -418,6 +420,7 @@ const mapStateToProps = ({
   router,
 });
 
-export default connect(mapStateToProps, { recalculateUnclassifiedCounts })(
-  SecondaryNavBar,
-);
+export default connect(mapStateToProps, {
+  recalculateUnclassifiedCounts,
+  pushRoute,
+})(SecondaryNavBar);

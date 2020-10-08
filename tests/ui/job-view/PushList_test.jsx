@@ -120,7 +120,7 @@ describe('PushList', () => {
     );
   });
 
-  afterEach(() => history.push('/'));
+  afterEach(() => history.push(`/jobs?repo=${repoName}`));
 
   afterAll(() => {
     fetchMock.reset();
@@ -138,7 +138,7 @@ describe('PushList', () => {
               currentRepo={currentRepo}
               filterModel={
                 new FilterModel({
-                  push: history.push,
+                  pushRoute: history.push,
                   router: { location: history.location },
                 })
               }
@@ -195,7 +195,7 @@ describe('PushList', () => {
     fireEvent.click(setFromRange);
 
     expect(history.location.search).toContain(
-      '?fromchange=d5b037941b0ebabcc9b843f24d926e9d65961087',
+      '?repo=autoland&fromchange=d5b037941b0ebabcc9b843f24d926e9d65961087',
     );
   });
 
@@ -218,7 +218,7 @@ describe('PushList', () => {
     fireEvent.click(setTopRange);
 
     expect(history.location.search).toContain(
-      '?tochange=ba9c692786e95143b8df3f4b3e9b504dfbc589a0',
+      '?repo=autoland&tochange=ba9c692786e95143b8df3f4b3e9b504dfbc589a0',
     );
   });
 

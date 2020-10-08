@@ -21,7 +21,6 @@ import { getJobsUrl } from '../../helpers/url';
 import PushModel from '../../models/push';
 import JobModel from '../../models/job';
 import PushHealthStatus from '../../shared/PushHealthStatus';
-import PushAuthor from '../../shared/PushAuthor';
 import { getUrlParam } from '../../helpers/location';
 import { notify } from '../redux/stores/notifications';
 import { setSelectedJob } from '../redux/stores/selectedJob';
@@ -254,7 +253,7 @@ class PushHeader extends React.Component {
                 </Link>{' '}
                 -{' '}
               </span>
-              <PushAuthor author={author} url={authorPushFilterUrl} />
+              <Link to={authorPushFilterUrl}>{author}</Link>
             </span>
           </span>
           {showPushHealthStatus && (

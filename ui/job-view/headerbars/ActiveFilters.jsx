@@ -6,10 +6,8 @@ import { faTimesCircle } from '@fortawesome/free-solid-svg-icons';
 import { connect } from 'react-redux';
 
 import { updateRange } from '../redux/stores/pushes';
-import {
-  getFieldChoices,
-  reloadOnChangeParameters,
-} from '../../helpers/filter';
+import { clearSelectedJob } from '../redux/stores/selectedJob';
+import { getFieldChoices } from '../../helpers/filter';
 
 class ActiveFilters extends React.Component {
   constructor(props) {
@@ -76,19 +74,26 @@ class ActiveFilters extends React.Component {
   };
 
   clearAndUpdateRange = (specificFilter = null) => {
-    const { updateRange, filterModel } = this.props;
+    const { updateRange, filterModel, router, clearSelectedJob } = this.props;
+
+    const params = new URLSearchParams(router.location.search);
 
     if (!specificFilter) {
       filterModel.clearNonStatusFilters();
-      updateRange(filterModel.getUrlParamsWithoutDefaults());
-      return;
+    } else {
+      const { filterField, filterValue } = specificFilter;
+      filterModel.removeFilter(filterField, filterValue);
     }
 
-    const { filterField, filterValue } = specificFilter;
-    filterModel.removeFilter(filterField, filterValue);
-
-    if (reloadOnChangeParameters.includes(filterField)) {
+    // we do this because anytime the 'revision' or 'author' param is changed,
+    // updateRange will be triggered in PushList's componentDidUpdate lifecycle.
+    // This also helps in the scenario where we are only changing the global window location query params
+    // (to also prevent an unnecessary componentDidUpdate change) such as when a user clicks to view
+    // a revision, then selects "next x pushes" to set a range.
+    if (!params.has('revision') && !params.has('author')) {
       updateRange(filterModel.getUrlParamsWithoutDefaults());
+    } else if (params.has('selectedTaskRun')) {
+      clearSelectedJob(0);
     }
   };
 
@@ -257,8 +262,15 @@ ActiveFilters.propTypes = {
   isFieldFilterVisible: PropTypes.bool.isRequired,
   toggleFieldFilterVisible: PropTypes.func.isRequired,
   classificationTypes: PropTypes.arrayOf(PropTypes.object).isRequired,
+  router: PropTypes.shape({}).isRequired,
+  clearSelectedJob: PropTypes.func.isRequired,
 };
 
-export default connect(null, {
+const mapStateToProps = ({ router }) => ({
+  router,
+});
+
+export default connect(mapStateToProps, {
   updateRange,
+  clearSelectedJob,
 })(ActiveFilters);

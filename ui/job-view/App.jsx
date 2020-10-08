@@ -6,9 +6,9 @@ import pick from 'lodash/pick';
 import isEqual from 'lodash/isEqual';
 import { connect } from 'react-redux';
 import PropTypes from 'prop-types';
-import { push } from 'connected-react-router';
+import { push as pushRoute } from 'connected-react-router';
 
-import { thFavicons, thDefaultRepo } from '../helpers/constants';
+import { thFavicons, thDefaultRepo, thEvents } from '../helpers/constants';
 import ShortcutTable from '../shared/ShortcutTable';
 import { matchesDefaults } from '../helpers/filter';
 import { getAllUrlParams } from '../helpers/location';
@@ -30,8 +30,7 @@ import { PUSH_HEALTH_VISIBILITY } from './headerbars/HealthMenu';
 import DetailsPanel from './details/DetailsPanel';
 import PushList from './pushes/PushList';
 import KeyboardShortcuts from './KeyboardShortcuts';
-import { configureStore } from './redux/configureStore';
-import { CLEAR_EXPIRED_TRANSIENTS } from './redux/stores/notifications';
+import { clearExpiredNotifications } from './redux/stores/notifications';
 
 import '../css/treeherder-base.css';
 import '../css/treeherder-navbar-panels.css';
@@ -65,15 +64,11 @@ const getWindowHeight = function getWindowHeight() {
   return windowHeight - navBarHeight;
 };
 
-const store = configureStore();
-
 class App extends React.Component {
   constructor(props) {
     super(props);
 
     const filterModel = new FilterModel(this.props);
-    // Set the URL to updated parameter styles, if needed.  Otherwise it's a no-op.
-    // filterModel.push();
     const urlParams = getAllUrlParams();
     const hasSelectedJob =
       urlParams.has('selectedJob') || urlParams.has('selectedTaskRun');
@@ -123,6 +118,7 @@ class App extends React.Component {
 
     window.addEventListener('resize', this.updateDimensions, false);
     window.addEventListener('storage', this.handleStorageEvent);
+    window.addEventListener(thEvents.filtersUpdated, this.handleFiltersUpdated);
 
     // Get the current Treeherder revision and poll to notify on updates.
     this.fetchDeployedRevision().then((revision) => {
@@ -162,7 +158,7 @@ class App extends React.Component {
 
     // clear expired notifications
     this.notificationInterval = setInterval(() => {
-      store.dispatch({ type: CLEAR_EXPIRED_TRANSIENTS });
+      this.props.clearExpiredNotifications();
     }, MAX_TRANSIENT_AGE);
   }
 
@@ -177,6 +173,10 @@ class App extends React.Component {
   componentWillUnmount() {
     window.removeEventListener('resize', this.updateDimensions, false);
     window.removeEventListener('storage', this.handleStorageEvent);
+    window.removeEventListener(
+      thEvents.filtersUpdated,
+      this.handleFiltersUpdated,
+    );
 
     if (this.updateInterval) {
       clearInterval(this.updateInterval);
@@ -199,19 +199,31 @@ class App extends React.Component {
   }
 
   getOrSetRepo() {
+    const { pushRoute } = this.props;
     const params = getAllUrlParams();
     let repo = params.get('repo');
 
     if (!repo) {
       repo = thDefaultRepo;
       params.set('repo', repo);
-      this.props.push({
+      pushRoute({
         search: createQueryParams(params),
       });
     }
 
     return repo;
   }
+
+  handleFiltersUpdated = () => {
+    // we're only using window.location here because of how we're setting param changes for fetchNextPushes
+    // in PushList and addPushes.
+    this.setState({
+      filterModel: new FilterModel({
+        router: window,
+        pushRoute: this.props.pushRoute,
+      }),
+    });
+  };
 
   handleStorageEvent = (e) => {
     if (e.key === PUSH_HEALTH_VISIBILITY) {
@@ -441,6 +453,7 @@ class App extends React.Component {
 App.propTypes = {
   jobMap: PropTypes.shape({}).isRequired,
   router: PropTypes.shape({}).isRequired,
+  pushRoute: PropTypes.func.isRequired,
 };
 
 const mapStateToProps = ({ pushes: { jobMap }, router }) => ({
@@ -448,4 +461,7 @@ const mapStateToProps = ({ pushes: { jobMap }, router }) => ({
   router,
 });
 
-export default connect(mapStateToProps, { push })(hot(App));
+export default connect(mapStateToProps, {
+  pushRoute,
+  clearExpiredNotifications,
+})(hot(App));

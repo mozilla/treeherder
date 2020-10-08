@@ -4,7 +4,7 @@ import { render, waitFor, fireEvent } from '@testing-library/react';
 import { Provider, ReactReduxContext } from 'react-redux';
 import { ConnectedRouter } from 'connected-react-router';
 
-import App from '../../../ui/job-view/App';
+import App from '../../../ui/App';
 import reposFixture from '../mock/repositories';
 import pushListFixture from '../mock/push_list';
 import { getApiUrl } from '../../../ui/helpers/url';
@@ -15,6 +15,17 @@ import {
   configureStore,
   history,
 } from '../../../ui/job-view/redux/configureStore';
+
+const testApp = () => {
+  const store = configureStore();
+  return (
+    <Provider store={store} context={ReactReduxContext}>
+      <ConnectedRouter history={history} context={ReactReduxContext}>
+        <App />
+      </ConnectedRouter>
+    </Provider>
+  );
+};
 
 describe('App', () => {
   const repoName = 'autoland';
@@ -174,17 +185,6 @@ describe('App', () => {
     fetchMock.reset();
   });
 
-  const testApp = () => {
-    const store = configureStore();
-    return (
-      <Provider store={store} context={ReactReduxContext}>
-        <ConnectedRouter history={history} context={ReactReduxContext}>
-          <App />
-        </ConnectedRouter>
-      </Provider>
-    );
-  };
-
   test('should have links to Perfherder and Intermittent Failures View', async () => {
     const { getByText, getByAltText } = render(testApp());
     const appMenu = await waitFor(() => getByAltText('Treeherder'));
@@ -292,6 +292,72 @@ describe('App', () => {
     expect(autolandRevision).not.toBeInTheDocument();
     expect(document.querySelector('.revision a').getAttribute('href')).toBe(
       'https://hg.mozilla.org/try/rev/3333333333335143b8df3f4b3e9b504dfbc589a0',
+    );
+  });
+
+  test('old job-view url should redirect to correct url', async () => {
+    history.push(
+      '/#/jobs?repo=try&revision=07615c30668c70692d01a58a00e7e271e69ff6f1',
+    );
+    render(testApp());
+
+    expect(history.location).toEqual(
+      expect.objectContaining({
+        pathname: '/jobs',
+        search: '?repo=try&revision=07615c30668c70692d01a58a00e7e271e69ff6f1',
+        hash: '',
+      }),
+    );
+  });
+
+  test('lack of a specified route should redirect to jobs view with a default repo', () => {
+    render(testApp());
+
+    expect(history.location).toEqual(
+      expect.objectContaining({
+        pathname: '/jobs',
+        search: '?repo=autoland',
+        hash: '',
+      }),
+    );
+  });
+});
+
+describe('Test for backwards-compatible routes for other apps', () => {
+  test('old push health url should redirect to correct url', () => {
+    fetchMock.get(
+      '/api/project/autoland/push/health/?revision=3c8e093335315c42a87eebf0531effe9cd6fdb95',
+      [],
+    );
+
+    history.push(
+      '/pushhealth.html?repo=autoland&revision=3c8e093335315c42a87eebf0531effe9cd6fdb95',
+    );
+    render(testApp());
+
+    expect(history.location).toEqual(
+      expect.objectContaining({
+        pathname: '/push-health',
+        search:
+          '?repo=autoland&revision=3c8e093335315c42a87eebf0531effe9cd6fdb95',
+        hash: '',
+      }),
+    );
+  });
+
+  test('old perfherder route should redirect to correct url', () => {
+    fetchMock.get('/api/performance/framework/', []);
+    fetchMock.get('/api/performance/tag/', []);
+
+    history.push('/perf.html#/alerts?id=27285&hideDwnToInv=0');
+    render(testApp());
+
+    expect(history.location).toEqual(
+      expect.objectContaining({
+        pathname: '/perfherder/alerts',
+        search: '?id=27285&hideDwnToInv=0',
+        hash: '',
+      }),
     );
   });
 });

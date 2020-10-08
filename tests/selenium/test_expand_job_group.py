@@ -3,6 +3,8 @@ import copy
 import pytest
 from pages.treeherder import Treeherder
 
+skip = pytest.mark.skip
+
 
 @pytest.fixture
 def test_jobs(eleven_job_blobs, create_jobs):
@@ -14,6 +16,7 @@ def test_jobs(eleven_job_blobs, create_jobs):
     return create_jobs(job_blobs)
 
 
+@skip
 def test_expand_job_group(base_url, selenium, test_jobs):
     page = Treeherder(selenium, base_url).open()
     page.wait.until(lambda _: len(page.all_job_groups) == 1)

@@ -1,9 +1,9 @@
 import React, { Suspense, lazy } from 'react';
-import { Route, Switch, useLocation, Redirect } from 'react-router-dom';
+import { Route, Switch } from 'react-router-dom';
 import { hot } from 'react-hot-loader/root';
+import { Helmet } from 'react-helmet';
 import { ConnectedRouter } from 'connected-react-router';
 import { Provider } from 'react-redux';
-import { Helmet } from 'react-helmet';
 
 import { configureStore, history } from './job-view/redux/configureStore';
 import LoadingSpinner from './shared/LoadingSpinner';
@@ -24,31 +24,39 @@ const LogviewerApp = lazy(() => import('./logviewer/App'));
 
 // backwards compatibility for routes like this: treeherder.mozilla.org/perf.html#/alerts?id=26622&hideDwnToInv=0
 const updateOldUrls = () => {
-  const location = useLocation();
-  const { pathname, hash } = location;
+  const { pathname, hash, search } = history.location;
+  const updates = {};
 
   const urlMatch = {
     '/perf.html': '/perfherder',
     '/pushhealth.html': '/push-health',
+    '/': '/jobs',
   };
-  const updates = {};
 
-  if (pathname.endsWith('.html') || (pathname === '/' && hash.length)) {
+  if (
+    pathname.endsWith('.html') ||
+    (pathname === '/' && hash.length) ||
+    urlMatch[pathname]
+  ) {
     updates.pathname = urlMatch[pathname] || pathname.replace(/.html|\//g, '');
   }
 
   if (hash.length) {
     const index = hash.indexOf('?');
     updates.search = hash.substring(index);
+    const subRoute = hash.substring(1, index);
 
-    if (index >= 2) {
-      updates.pathname += hash.substring(1, index);
+    if (index >= 2 && updates.pathname !== subRoute) {
+      updates.pathname += subRoute;
     }
+  } else if (search.length) {
+    updates.search = search;
   }
 
   if (Object.keys(updates).length === 0) {
     return;
   }
+
   history.push(updates);
 };
 
@@ -102,9 +110,6 @@ const App = () => {
               path="/taskcluster-auth"
               render={(props) => <TaskclusterCallback {...props} />}
             />
-            <Route exact path="/">
-              <Redirect to="/jobs" />
-            </Route>
             <Route
               path="/jobs"
               render={(props) =>

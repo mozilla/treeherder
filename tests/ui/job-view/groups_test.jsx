@@ -16,7 +16,7 @@ describe('JobGroup component', () => {
   let dupGroup;
   const repoName = 'mozilla-inbound';
   const filterModel = new FilterModel({
-    push: history.push,
+    pushRoute: history.push,
     router: { location: history.location },
   });
   const pushGroupState = 'collapsed';
