@@ -1,3 +1,4 @@
+from collections import defaultdict
 import json
 import logging
 from itertools import islice
@@ -9,7 +10,7 @@ from django.db.utils import IntegrityError, OperationalError, DataError
 from requests.exceptions import HTTPError
 
 from treeherder.etl.text import astral_filter
-from treeherder.model.models import FailureLine, Group, JobLog
+from treeherder.model.models import FailureLine, Group, JobLog, GroupStatus
 from treeherder.utils.http import fetch_text
 
 logger = logging.getLogger(__name__)
@@ -104,54 +105,66 @@ def get_kwargs(failure_line):
 
 
 def create_failure_line(job_log, failure_line):
-    fl = FailureLine.objects.create(
+    return FailureLine.objects.create(
         repository=job_log.job.repository,
         job_guid=job_log.job.guid,
         job_log=job_log,
         **get_kwargs(failure_line),
     )
-    if "group" in failure_line:
-        # Omit the filename before storing.
-        group_path = failure_line["group"].rsplit("/", 1)[0]
 
-        # Log to New Relic if it's not in a form we like.  We can enter
-        # Bugs to upstream to remedy them.
-        if "\\" in group_path or ":" in group_path or len(group_path) > 255:
-            newrelic.agent.record_custom_event(
-                "malformed_test_group",
-                {
-                    "message": "Group paths must be relative, with no backslashes and <255 chars",
-                    "group": failure_line["group"],
-                    "group_path": group_path,
-                    "length": len(group_path),
-                    "repository": fl.repository,
-                    "job_guid": fl.job_guid,
-                    "failure_line_id": fl.id,
-                },
-            )
 
-        # Save the value regardless
+def create_group_result(job_log, line):
+    # Omit the filename before storing.
+    group_path = line["group"].rsplit("/", 1)[0]
+
+    # Log to New Relic if it's not in a form we like.  We can enter
+    # Bugs to upstream to remedy them.
+    if "\\" in group_path or ":" in group_path or len(group_path) > 255:
+        newrelic.agent.record_custom_event(
+            "malformed_test_group",
+            {
+                "message": "Group paths must be relative, with no backslashes and <255 chars",
+                "group": line["group"],
+                "group_path": group_path,
+                "length": len(group_path),
+                "repository": job_log.job.repository,
+                "job_guid": job_log.job.guid,
+            },
+        )
+    else:
         group, _ = Group.objects.get_or_create(name=group_path[:255])
-        group.failure_lines.add(fl)
-
-    return fl
+        GroupStatus.objects.create(
+            job_log=job_log, group=group, status=GroupStatus.get_status(line['status'])
+        )
 
 
 def create(job_log, log_list):
-    for failure_line in log_list:
-        action = failure_line['action']
+    # Split the lines of this log between group_results and failure_lines because we
+    # store them in separate tables.
+    group_results = []
+    failure_lines = []
+    for line in log_list:
+        action = line['action']
         if action not in FailureLine.ACTION_LIST:
-            newrelic.agent.record_custom_event("unsupported_failure_line_action", failure_line)
-            # Unfortunately, these two errors flod the logs
-            if action not in ['group_result', 'test_groups']:
+            newrelic.agent.record_custom_event("unsupported_failure_line_action", line)
+            # Unfortunately, these errors flood the logs, but we want to report any
+            # others that we didn't expect.  We know about the following action we choose
+            # to ignore.
+            if action != 'test_groups':
                 logger.exception(ValueError(f'Unsupported FailureLine ACTION: {action}'))
-    failure_lines = [
-        create_failure_line(job_log, failure_line)
-        for failure_line in log_list
-        if failure_line['action'] in FailureLine.ACTION_LIST
+        elif action == 'group_result':
+            group_results.append(line)
+        else:
+            failure_lines.append(line)
+
+    for group in group_results:
+        create_group_result(job_log, group)
+
+    failure_line_results = [
+        create_failure_line(job_log, failure_line) for failure_line in failure_lines
     ]
     job_log.update_status(JobLog.PARSED)
-    return failure_lines
+    return failure_line_results
 
 
 def replace_astral(log_list):
@@ -160,3 +173,26 @@ def replace_astral(log_list):
             if key in item:
                 item[key] = astral_filter(item[key])
         yield item
+
+
+def get_group_results(push):
+    groups = Group.objects.filter(
+        job_logs__job__push=push, group_result__status__in=[GroupStatus.OK, GroupStatus.ERROR]
+    ).values(
+        'group_result__status',
+        'name',
+        'job_logs__job__taskcluster_metadata__task_id',
+        'job_logs__job__job_type__name',
+    )
+
+    by_task_id = defaultdict(list)
+    for group in groups:
+        by_task_id[group['job_logs__job__taskcluster_metadata__task_id']].append(
+            {
+                'group': group['name'],
+                'status': GroupStatus.STATUS_LOOKUP[group['group_result__status']],
+                'label': group['job_logs__job__job_type__name'],
+            }
+        ),
+
+    return by_task_id
