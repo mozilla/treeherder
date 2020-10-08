@@ -7,13 +7,9 @@ import {
   faMinusSquare,
   faPlusSquare,
 } from '@fortawesome/free-regular-svg-icons';
-import {
-  faExternalLinkAlt,
-  faThumbtack,
-  faTimesCircle,
-} from '@fortawesome/free-solid-svg-icons';
+import { faThumbtack, faTimesCircle } from '@fortawesome/free-solid-svg-icons';
 import { Badge, Button } from 'reactstrap';
-import { Link } from 'react-router-dom';
+import { push } from 'connected-react-router';
 
 import { getPercentComplete, toDateStr } from '../../helpers/display';
 import { formatTaskclusterError } from '../../helpers/errorMessage';
@@ -22,10 +18,11 @@ import PushModel from '../../models/push';
 import JobModel from '../../models/job';
 import PushHealthStatus from '../../shared/PushHealthStatus';
 import PushAuthor from '../../shared/PushAuthor';
-import { getUrlParam } from '../../helpers/location';
+import { getUrlParam, setUrlParams } from '../../helpers/location';
 import { notify } from '../redux/stores/notifications';
 import { setSelectedJob } from '../redux/stores/selectedJob';
 import { pinJobs } from '../redux/stores/pinnedJobs';
+import { updateRange } from '../redux/stores/pushes';
 
 import PushActionMenu from './PushActionMenu';
 
@@ -175,6 +172,14 @@ class PushHeader extends React.Component {
     }
   };
 
+  updateView = () => {
+    const { updateRange, push, revision } = this.props;
+    const params = setUrlParams([['revision', revision]]);
+
+    push({ search: params });
+    updateRange({ revision });
+  };
+
   pinAllShownJobs = () => {
     const {
       setSelectedJob,
@@ -221,7 +226,6 @@ class PushHeader extends React.Component {
     } = this.props;
     const cancelJobsTitle = 'Cancel all jobs';
     const linkParams = this.getLinkParams();
-    const revisionPushFilterUrl = getJobsUrl({ ...linkParams, revision });
     const authorPushFilterUrl = getJobsUrl({ ...linkParams, author });
     const showPushHealthStatus =
       pushHealthVisibility === 'All' ||
@@ -244,16 +248,16 @@ class PushHeader extends React.Component {
                 className="mr-2 mt-2 text-muted pointable"
                 title={`${collapsed ? 'Expand' : 'Collapse'} push data`}
               />
-              <span>
-                <Link to={revisionPushFilterUrl} title="View only this push">
-                  {this.pushDateStr}{' '}
-                  <FontAwesomeIcon
-                    icon={faExternalLinkAlt}
-                    className="icon-superscript"
-                  />
-                </Link>{' '}
-                -{' '}
-              </span>
+              <span className="text-darker-secondary">{this.pushDateStr}</span>
+              <Button
+                size="sm"
+                outline
+                color="darker-secondary"
+                className="mx-2"
+                onClick={this.updateView}
+              >
+                View this push
+              </Button>
               <PushAuthor author={author} url={authorPushFilterUrl} />
             </span>
           </span>
@@ -380,6 +384,10 @@ const mapStateToProps = ({ pushes: { decisionTaskMap } }) => ({
   decisionTaskMap,
 });
 
-export default connect(mapStateToProps, { notify, setSelectedJob, pinJobs })(
-  PushHeader,
-);
+export default connect(mapStateToProps, {
+  notify,
+  setSelectedJob,
+  pinJobs,
+  updateRange,
+  push,
+})(PushHeader);
