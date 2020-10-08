@@ -8,7 +8,6 @@ from django.core.management.base import BaseCommand
 from django.db import connection
 from django.db.backends.utils import CursorWrapper
 from django.db.utils import OperationalError
-from django.db.models import Q
 from typing import List
 
 from treeherder.model.models import Job, JobGroup, JobType, Machine, Repository
@@ -272,14 +271,14 @@ class TryDataRemoval(RemovalStrategy):
         return len(older_ids) or self._chunk_size
 
 
-class IrrelevantReposDataRemovalStrategy(RemovalStrategy):
+class IrrelevantDataRemoval(RemovalStrategy):
     """
     Removes `performance_datum` rows
     that originate from repositories other than
-    `autoland`, `mozilla-central` and `mozilla-beta`
-    that are more than 6 months old.
+    `autoland`, `mozilla-central`, `fenix`, `reference-browser` and
+    `mozilla-beta` that are more than 6 months old.
 
-    TODO: check if `fenix`, `refbrow`, `gve` repositories should be included
+    TODO: check if `refbrow`, `gve` repositories should be included
     """
 
     def __init__(self, chunk_size: int):
@@ -288,13 +287,21 @@ class IrrelevantReposDataRemovalStrategy(RemovalStrategy):
         self._max_timestamp = datetime.now() - self._cycle_interval
         self._manager = PerformanceDatum.objects
 
+        self._repository_names = [
+            'autoland',
+            'mozilla-central',
+            'mozilla-beta',
+            'fenix',
+            'reference-browser',
+        ]
         self.__relevant_repositories = None
 
     @property
     def relevant_repositories(self):
         if self.__relevant_repositories is None:
             self.__relevant_repositories = Repository.objects.filter(
-                Q(name='autoland') | Q(name='mozilla-central') | Q(name='mozilla-beta')).values('id')
+                name__in=self._repository_names
+            ).values('id')
         return self.__relevant_repositories
 
     def remove(self, using: CursorWrapper):
@@ -305,14 +312,18 @@ class IrrelevantReposDataRemovalStrategy(RemovalStrategy):
         using.execute(
             '''
             DELETE FROM `performance_datum`
-            WHERE repository_id NOT IN (%s, %s, %s) AND push_timestamp <= %s
+            WHERE repository_id NOT IN (%s, %s, %s, %s, %s) AND push_timestamp <= %s
             LIMIT %s
         ''',
-            [self.relevant_repositories[0]['id'],
-             self.relevant_repositories[1]['id'],
-             self.relevant_repositories[2]['id'],
-             self._max_timestamp,
-             chunk_size],
+            [
+                self.relevant_repositories[0]['id'],
+                self.relevant_repositories[1]['id'],
+                self.relevant_repositories[2]['id'],
+                self.relevant_repositories[3]['id'],
+                self.relevant_repositories[4]['id'],
+                self._max_timestamp,
+                chunk_size,
+            ],
         )
 
     def _find_ideal_chunk_size(self) -> int:
@@ -322,11 +333,13 @@ class IrrelevantReposDataRemovalStrategy(RemovalStrategy):
             .order_by('-id')[0]
             .id
         )
-        older_ids = self._manager.filter(
-            push_timestamp__lte=self._max_timestamp,
-            id__lte=max_id_of_non_expired_row
-        ).exclude(repository_id__in=self.relevant_repositories) \
-         .order_by('id')[: self._chunk_size]
+        older_ids = (
+            self._manager.filter(
+                push_timestamp__lte=self._max_timestamp, id__lte=max_id_of_non_expired_row
+            )
+            .exclude(repository_id__in=self.relevant_repositories)
+            .order_by('id')[: self._chunk_size]
+        )
 
         return len(older_ids) or self._chunk_size
 
