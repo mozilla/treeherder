@@ -180,6 +180,7 @@ class RemovalStrategy(ABC):
         return [
             MainRemovalStrategy(*args, **kwargs),
             TryDataRemoval(*args, **kwargs),
+            IrrelevantDataRemoval(*args, **kwargs)
             # append here any new strategies
             # ...
         ]
@@ -277,8 +278,6 @@ class IrrelevantDataRemoval(RemovalStrategy):
     that originate from repositories other than
     `autoland`, `mozilla-central`, `fenix`, `reference-browser` and
     `mozilla-beta` that are more than 6 months old.
-
-    TODO: check if `refbrow`, `gve` repositories should be included
     """
 
     def __init__(self, chunk_size: int):
@@ -312,7 +311,7 @@ class IrrelevantDataRemoval(RemovalStrategy):
         using.execute(
             '''
             DELETE FROM `performance_datum`
-            WHERE repository_id NOT IN (%s, %s, %s, %s, %s) AND push_timestamp <= %s
+            WHERE repository_id NOT IN (%s) AND push_timestamp <= %s
             LIMIT %s
         ''',
             [

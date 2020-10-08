@@ -169,6 +169,26 @@ def try_repository(transactional_db):
 
 
 @pytest.fixture
+def relevant_repository(transactional_db):
+    from treeherder.model.models import Repository, RepositoryGroup
+
+    repo_group, _ = RepositoryGroup.objects.get_or_create(name="development", description="")
+
+    r = Repository.objects.create(
+        dvcs_type="hg",
+        name="relevant_repository",
+        url="https://hg.mozilla.org/try",
+        active_status="active",
+        codebase="gecko",
+        repository_group_id=repo_group.id,
+        description="",
+        is_try_repo=True,
+        tc_root_url="https://firefox-ci-tc.services.mozilla.com",
+    )
+    return r
+
+
+@pytest.fixture
 def test_issue_tracker(transactional_db):
     return IssueTracker.objects.create(
         name="Bugzilla", task_base_url="https://bugzilla.mozilla.org/show_bug.cgi?id="
