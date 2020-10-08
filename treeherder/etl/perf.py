@@ -1,13 +1,20 @@
 import copy
 import logging
+from datetime import datetime
 from hashlib import sha1
-from typing import List
+from typing import List, Tuple
 
 import simplejson as json
 
+from django.conf import settings
 from treeherder.log_parser.utils import validate_perf_data
-from treeherder.model.models import OptionCollection
-from treeherder.perf.models import PerformanceDatum, PerformanceFramework, PerformanceSignature
+from treeherder.model.models import Job, OptionCollection
+from treeherder.perf.models import (
+    MultiCommitDatum,
+    PerformanceDatum,
+    PerformanceFramework,
+    PerformanceSignature,
+)
 from treeherder.perf.tasks import generate_alerts
 
 logger = logging.getLogger(__name__)
@@ -61,7 +68,21 @@ def _create_or_update_signature(repository, signature_hash, framework, applicati
     return signature
 
 
-def _load_perf_datum(job, perf_datum):
+def _deduce_push_timestamp(perf_datum: dict, job_push_time: datetime) -> Tuple[datetime, bool]:
+    is_multi_commit = False
+    if not settings.PERFHERDER_ENABLE_MULTIDATA_INGESTION:
+        # the old way of ingestion
+        return job_push_time, is_multi_commit
+
+    multidata_timestamp = perf_datum.get('pushTimestamp', None)
+    if multidata_timestamp:
+        multidata_timestamp = datetime.fromisoformat(multidata_timestamp)
+        is_multi_commit = True
+
+    return (multidata_timestamp or job_push_time), is_multi_commit
+
+
+def _load_perf_datum(job: Job, perf_datum: dict):
     validate_perf_data(perf_datum)
 
     extra_properties = {}
@@ -93,6 +114,7 @@ def _load_perf_datum(job, perf_datum):
     for suite in perf_datum['suites']:
         suite_extra_properties = copy.copy(extra_properties)
         ordered_tags = _order_and_concat(suite.get('tags', []))
+        deduced_timestamp, is_multi_commit = _deduce_push_timestamp(perf_datum, job.push.time)
         suite_extra_options = ''
 
         if suite.get('extraOptions'):
@@ -137,14 +159,18 @@ def _load_perf_datum(job, perf_datum):
                     'last_updated': job.push.time,
                 },
             )
-            (_, datum_created) = PerformanceDatum.objects.get_or_create(
+
+            (suite_datum, datum_created) = PerformanceDatum.objects.get_or_create(
                 repository=job.repository,
                 job=job,
                 push=job.push,
                 signature=signature,
-                push_timestamp=job.push.time,
+                push_timestamp=deduced_timestamp,
                 defaults={'value': suite['value']},
             )
+            if suite_datum.should_mark_as_multi_commit(is_multi_commit, datum_created):
+                # keep a register with all multi commit perf data
+                MultiCommitDatum.objects.create(perf_datum=suite_datum)
             if (
                 signature.should_alert is not False
                 and datum_created
@@ -204,14 +230,17 @@ def _load_perf_datum(job, perf_datum):
                     'last_updated': job.push.time,
                 },
             )
-            (_, datum_created) = PerformanceDatum.objects.get_or_create(
+            (subtest_datum, datum_created) = PerformanceDatum.objects.get_or_create(
                 repository=job.repository,
                 job=job,
                 push=job.push,
                 signature=signature,
-                push_timestamp=job.push.time,
+                push_timestamp=deduced_timestamp,
                 defaults={'value': value[0]},
             )
+            if subtest_datum.should_mark_as_multi_commit(is_multi_commit, datum_created):
+                # keep a register with all multi commit perf data
+                MultiCommitDatum.objects.create(perf_datum=subtest_datum)
 
             # by default if there is no summary, we should schedule a
             # generate alerts task for the subtest, since we have new data
