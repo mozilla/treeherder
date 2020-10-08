@@ -257,7 +257,11 @@ class PerformanceDatum(models.Model):
             # repository because we currently filter on it in the query)
             ('repository', 'signature', 'push'),
         ]
-        unique_together = ('repository', 'job', 'push', 'signature')
+        unique_together = ('repository', 'job', 'push', 'push_timestamp', 'signature')
+
+    @staticmethod
+    def should_mark_as_multi_commit(is_multi_commit: bool, was_created: bool) -> bool:
+        return is_multi_commit and was_created
 
     def save(self, *args, **kwargs):
         super().save(*args, **kwargs)  # Call the "real" save() method.
@@ -267,6 +271,15 @@ class PerformanceDatum(models.Model):
 
     def __str__(self):
         return "{} {}".format(self.value, self.push_timestamp)
+
+
+class MultiCommitDatum(models.Model):
+    perf_datum = models.OneToOneField(
+        PerformanceDatum,
+        on_delete=models.CASCADE,
+        primary_key=True,
+        related_name='multi_commit_datum',
+    )
 
 
 class IssueTracker(models.Model):
