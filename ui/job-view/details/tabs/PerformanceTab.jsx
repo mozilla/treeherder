@@ -2,6 +2,7 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { Alert, Button } from 'reactstrap';
 import {
   faInfoCircle,
   faExternalLinkAlt,
@@ -59,7 +60,7 @@ class PerformanceTab extends React.PureComponent {
         <a
           title={jobDetail.value}
           href={getPerfAnalysisUrl(jobDetail.url)}
-          className="btn btn-primary btn-sm"
+          className="btn btn-darker-secondary btn-sm"
           target="_blank"
           rel="noopener noreferrer"
         >
@@ -86,7 +87,7 @@ class PerformanceTab extends React.PureComponent {
         role="region"
         aria-label="Performance"
       >
-        <div className="performance-panel-actions">
+        <div className="performance-panel-actions d-flex">
           {
             // If there is a profiler link, show this first. This is most likely
             // the primary action of the user here.
@@ -96,11 +97,12 @@ class PerformanceTab extends React.PureComponent {
             // Just to be safe, use the same isPerfTest check the other
             // "Create Gecko Profile" button uses in the action menu.
             isPerfTest(selectedJobFull) ? (
-              <button
-                type="button"
-                className={`btn btn-${
+              <Button
+                className={`btn ${
                   // Only make this primary if there is no profiler link.
-                  profilerLink ? 'secondary' : 'primary'
+                  profilerLink
+                    ? 'btn-outline-darker-secondary'
+                    : 'btn-darker-secondary'
                 } btn-sm`}
                 onClick={this.createGeckoProfile}
                 title={
@@ -112,7 +114,7 @@ class PerformanceTab extends React.PureComponent {
                 {profilerLink
                   ? 'Re-trigger performance profile'
                   : 'Generate performance profile'}
-              </button>
+              </Button>
             ) : null
           }
           <a
@@ -122,7 +124,7 @@ class PerformanceTab extends React.PureComponent {
             })}
             target="_blank"
             rel="noopener noreferrer"
-            className="btn btn-secondary btn-sm"
+            className="btn btn-outline-darker-secondary btn-sm"
           >
             <FontAwesomeIcon icon={faTable} className="mr-2" />
             Compare against another revision
@@ -133,14 +135,14 @@ class PerformanceTab extends React.PureComponent {
           // job list only gets populated later. This notification will help the
           // user know the next action.
           triggeredGeckoProfiles > 0 ? (
-            <div className="alert alert-info m-1" role="alert">
+            <Alert color="info" className="m-1">
               <FontAwesomeIcon icon={faInfoCircle} className="mr-1" />
               {triggeredGeckoProfiles === 1
                 ? `Triggered ${triggeredGeckoProfiles} profiler run. It will show up ` +
                   `as a new entry in the job list once the task has been scheduled.`
                 : `Triggered ${triggeredGeckoProfiles} profiler runs. They will show up ` +
                   `as new entries in the job list once the task has been scheduled.`}
-            </div>
+            </Alert>
           ) : null
         }
         {!!sortedDetails.length && (

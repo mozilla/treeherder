@@ -418,17 +418,7 @@ div.performance-panel {
   display: block !important;
 }
 
-.performance-panel-actions {
-  display: flex;
-  flex-direction: row;
-}
-
 .performance-panel-actions > * {
   /* This is the same value as m-1 */
-  margin: .25rem;
-}
-
-.performance-panel-actions > a {
-  /* Override the base "a" styles. */
-  color: #fff;
+  margin: 0.25rem;
 }
