@@ -7,7 +7,6 @@ import {
   waitFor,
   fireEvent,
   getAllByTestId,
-  screen,
 } from '@testing-library/react';
 import { createBrowserHistory } from 'history';
 
