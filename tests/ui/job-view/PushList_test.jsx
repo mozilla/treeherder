@@ -7,6 +7,7 @@ import {
   waitFor,
   fireEvent,
   getAllByTestId,
+  screen,
 } from '@testing-library/react';
 import { createBrowserHistory } from 'history';
 
@@ -120,7 +121,7 @@ describe('PushList', () => {
     );
   });
 
-  afterEach(() => history.push('/'));
+  afterEach(() => history.push(`/jobs?repo=${repoName}`));
 
   afterAll(() => {
     fetchMock.reset();
@@ -138,7 +139,7 @@ describe('PushList', () => {
               currentRepo={currentRepo}
               filterModel={
                 new FilterModel({
-                  push: history.push,
+                  pushRoute: history.push,
                   router: { location: history.location },
                 })
               }
@@ -164,10 +165,10 @@ describe('PushList', () => {
   });
 
   test('should switch to single loaded revision', async () => {
-    const { getAllByTitle } = render(testPushList());
+    const { getAllByText } = render(testPushList());
 
     expect(await pushCount()).toHaveLength(2);
-    const pushLinks = await getAllByTitle('View only this push');
+    const pushLinks = await getAllByText('View this push');
 
     fireEvent.click(pushLinks[1]);
     expect(pushLinks[0]).not.toBeInTheDocument();
@@ -195,7 +196,7 @@ describe('PushList', () => {
     fireEvent.click(setFromRange);
 
     expect(history.location.search).toContain(
-      '?fromchange=d5b037941b0ebabcc9b843f24d926e9d65961087',
+      '?repo=autoland&fromchange=d5b037941b0ebabcc9b843f24d926e9d65961087',
     );
   });
 
@@ -218,7 +219,7 @@ describe('PushList', () => {
     fireEvent.click(setTopRange);
 
     expect(history.location.search).toContain(
-      '?tochange=ba9c692786e95143b8df3f4b3e9b504dfbc589a0',
+      '?repo=autoland&tochange=ba9c692786e95143b8df3f4b3e9b504dfbc589a0',
     );
   });
 

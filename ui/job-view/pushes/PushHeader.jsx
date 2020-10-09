@@ -152,7 +152,7 @@ class PushHeader extends React.Component {
     const { updateRange, pushRoute, currentRepo } = this.props;
 
     pushRoute({ search: `?repo=${currentRepo.name}&${param}=${value}` });
-    updateRange({ param: value });
+    updateRange({ [param]: value });
   };
 
   pinAllShownJobs = () => {
