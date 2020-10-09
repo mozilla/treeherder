@@ -13,30 +13,16 @@ import { push } from 'connected-react-router';
 
 import { getPercentComplete, toDateStr } from '../../helpers/display';
 import { formatTaskclusterError } from '../../helpers/errorMessage';
-import { getJobsUrl } from '../../helpers/url';
 import PushModel from '../../models/push';
 import JobModel from '../../models/job';
 import PushHealthStatus from '../../shared/PushHealthStatus';
-import PushAuthor from '../../shared/PushAuthor';
-import { getUrlParam, setUrlParams } from '../../helpers/location';
+import { getUrlParam } from '../../helpers/location';
 import { notify } from '../redux/stores/notifications';
 import { setSelectedJob } from '../redux/stores/selectedJob';
 import { pinJobs } from '../redux/stores/pinnedJobs';
 import { updateRange } from '../redux/stores/pushes';
 
 import PushActionMenu from './PushActionMenu';
-
-// url params we don't want added from the current querystring to the revision
-// and author links.
-const SKIPPED_LINK_PARAMS = [
-  'revision',
-  'fromchange',
-  'tochange',
-  'nojobs',
-  'startdate',
-  'enddate',
-  'author',
-];
 
 function PushCounts(props) {
   const { pending, running, completed, fixedByCommit } = props;
@@ -115,16 +101,6 @@ class PushHeader extends React.Component {
     );
   }
 
-  getLinkParams() {
-    const { filterModel } = this.props;
-
-    return Object.entries(filterModel.getUrlParamsWithoutDefaults()).reduce(
-      (acc, [field, values]) =>
-        SKIPPED_LINK_PARAMS.includes(field) ? acc : { ...acc, [field]: values },
-      {},
-    );
-  }
-
   triggerNewJobs = async () => {
     const {
       pushId,
@@ -172,12 +148,11 @@ class PushHeader extends React.Component {
     }
   };
 
-  updateView = () => {
-    const { updateRange, push, revision } = this.props;
-    const params = setUrlParams([['revision', revision]]);
+  updateView = (param, value) => {
+    const { updateRange, push, currentRepo } = this.props;
 
-    push({ search: params });
-    updateRange({ revision });
+    push({ search: `?repo=${currentRepo.name}&${param}=${value}` });
+    updateRange({ param: value });
   };
 
   pinAllShownJobs = () => {
@@ -225,8 +200,7 @@ class PushHeader extends React.Component {
       togglePushCollapsed,
     } = this.props;
     const cancelJobsTitle = 'Cancel all jobs';
-    const linkParams = this.getLinkParams();
-    const authorPushFilterUrl = getJobsUrl({ ...linkParams, author });
+
     const showPushHealthStatus =
       pushHealthVisibility === 'All' ||
       currentRepo.name === pushHealthVisibility.toLowerCase();
@@ -253,12 +227,20 @@ class PushHeader extends React.Component {
                 size="sm"
                 outline
                 color="darker-secondary"
-                className="mx-2"
-                onClick={this.updateView}
+                className="mx-1"
+                onClick={() => this.updateView('revision', revision)}
               >
                 View this push
               </Button>
-              <PushAuthor author={author} url={authorPushFilterUrl} />
+              <Button
+                size="sm"
+                outline
+                color="darker-secondary"
+                className="mx-1"
+                onClick={() => this.updateView('author', author)}
+              >
+                {`Filter by ${author}`}
+              </Button>
             </span>
           </span>
           {showPushHealthStatus && (
