@@ -90,7 +90,7 @@ test('filter change keeps selected job visible', async () => {
   const spell = await waitFor(() => getByText('spell'));
   const filterModel = new FilterModel({
     router: { location: history.location },
-    push: history.push,
+    pushRoute: history.push,
   });
 
   expect(spell).toBeInTheDocument();

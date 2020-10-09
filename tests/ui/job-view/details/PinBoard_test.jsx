@@ -87,7 +87,7 @@ describe('DetailsPanel', () => {
           <KeyboardShortcuts
             filterModel={
               new FilterModel({
-                push: history.push,
+                pushRoute: history.push,
                 router,
               })
             }
