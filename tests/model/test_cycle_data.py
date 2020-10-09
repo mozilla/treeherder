@@ -316,30 +316,21 @@ def test_irrelevant_repos_data_removal(
     repository_name,
     push_stored,
     test_perf_signature,
-    test_perf_signature_2,
 ):
     # test_repository is considered irrelevant repositories
 
     relevant_repository.name = repository_name
     relevant_repository.save()
-    test_repository.name = "test"
-    test_repository.save()
 
-    six_months_ago_timestamp = datetime.now() - timedelta(days=(7 * 30))
+    six_months_ago_timestamp = datetime.now() - timedelta(days=(6 * 30))
 
-    push1 = Push.objects.get(id=1)
-    push2 = Push.objects.get(id=2)
+    push = Push.objects.first()
 
-    test_perf_signature.repository = test_repository
-    test_perf_signature.save()
-    test_perf_signature_2.repository = relevant_repository
-    test_perf_signature_2.save()
-
-    # performance datum for irrelevant repository which has an expired push_timestamp ( a date older than 6 months )
-    # this one should be deleted because it's expired
+    # performance datum for irrelevant repository which has an expired push_timestamp ( older than 6 months )
+    # this one should be deleted, because it's expired
     PerformanceDatum.objects.create(
         repository=test_repository,
-        push=push1,
+        push=push,
         job=None,
         signature=test_perf_signature,
         push_timestamp=six_months_ago_timestamp,
@@ -347,23 +338,38 @@ def test_irrelevant_repos_data_removal(
     )
 
     # performance datum for relevant repository which has a push_timestamp older than 6 months
-    # this one should still be in db
+    # this one should still be kept in db
     PerformanceDatum.objects.create(
         repository=relevant_repository,
-        push=push2,
+        push=push,
         job=None,
-        signature=test_perf_signature_2,
+        signature=test_perf_signature,
         push_timestamp=six_months_ago_timestamp,
+        value=1.0,
+    )
+
+    # performance datum for irrelevant repository which has a one week old push_timestamp
+    # this one should still be kept in db
+    PerformanceDatum.objects.create(
+        repository=test_repository,
+        push=push,
+        job=None,
+        signature=test_perf_signature,
+        push_timestamp=datetime.now() - timedelta(weeks=1),
         value=1.0,
     )
 
     total_initial_data = PerformanceDatum.objects.count()
 
     call_command('cycle_data', 'from:perfherder')
-
     assert PerformanceDatum.objects.count() == total_initial_data - 1
+    assert PerformanceDatum.objects.filter(repository=relevant_repository).exists()
+    assert PerformanceDatum.objects.filter(
+        push_timestamp__gt=datetime.now() - timedelta(days=(6 * 30)),
+        repository=test_repository,
+    ).exists()
     assert not PerformanceDatum.objects.filter(
-        push_timestamp__lt=datetime.now() - timedelta(days=(6 * 30)),
+        push_timestamp__lte=datetime.now() - timedelta(days=(6 * 30)),
         repository=test_repository,
     ).exists()
 

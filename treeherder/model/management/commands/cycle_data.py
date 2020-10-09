@@ -280,6 +280,8 @@ class IrrelevantDataRemoval(RemovalStrategy):
     `mozilla-beta` that are more than 6 months old.
     """
 
+    repositories = None
+
     def __init__(self, chunk_size: int):
         self._cycle_interval = timedelta(days=(6 * 30))
         self._chunk_size = chunk_size
@@ -297,31 +299,30 @@ class IrrelevantDataRemoval(RemovalStrategy):
 
     @property
     def relevant_repositories(self):
-        if self.__relevant_repositories is None:
-            self.__relevant_repositories = Repository.objects.filter(
-                name__in=self._repository_names
-            ).values('id')
-        return self.__relevant_repositories
+        if self.repositories is None:
+            self.repositories = Repository.objects.filter(name__in=self._repository_names).values(
+                'id'
+            )
+        return self.repositories
 
     def remove(self, using: CursorWrapper):
         """
         @type using: database connection cursor
         """
         chunk_size = self._find_ideal_chunk_size()
-        print("Here")
-        print(chunk_size)
+
+        repositories_ids = []
+        for repo in self.relevant_repositories:
+            repositories_ids.append(repo['id'])
+
         using.execute(
             '''
-            DELETE FROM `performance_datum`
-            WHERE repository_id NOT IN (%s, %s, %s, %s, %s) AND push_timestamp <= %s
-            LIMIT %s
-        ''',
+                        DELETE FROM `performance_datum`
+                        WHERE repository_id NOT IN %s AND push_timestamp <= %s
+                        LIMIT %s
+                    ''',
             [
-                self.relevant_repositories[0]['id'],
-                self.relevant_repositories[1]['id'],
-                self.relevant_repositories[2]['id'],
-                self.relevant_repositories[3]['id'],
-                self.relevant_repositories[4]['id'],
+                tuple(repositories_ids),
                 self._max_timestamp,
                 chunk_size,
             ],
