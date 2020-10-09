@@ -281,6 +281,14 @@ class IrrelevantDataRemoval(RemovalStrategy):
     """
 
     repositories = None
+    repositories_ids = []
+    repository_names = [
+        'autoland',
+        'mozilla-central',
+        'mozilla-beta',
+        'fenix',
+        'reference-browser',
+    ]
 
     def __init__(self, chunk_size: int):
         self._cycle_interval = timedelta(days=(6 * 30))
@@ -288,19 +296,10 @@ class IrrelevantDataRemoval(RemovalStrategy):
         self._max_timestamp = datetime.now() - self._cycle_interval
         self._manager = PerformanceDatum.objects
 
-        self._repository_names = [
-            'autoland',
-            'mozilla-central',
-            'mozilla-beta',
-            'fenix',
-            'reference-browser',
-        ]
-        self.__relevant_repositories = None
-
     @property
     def relevant_repositories(self):
         if self.repositories is None:
-            self.repositories = Repository.objects.filter(name__in=self._repository_names).values(
+            self.repositories = Repository.objects.filter(name__in=self.repository_names).values(
                 'id'
             )
         return self.repositories
@@ -311,18 +310,17 @@ class IrrelevantDataRemoval(RemovalStrategy):
         """
         chunk_size = self._find_ideal_chunk_size()
 
-        repositories_ids = []
-        for repo in self.relevant_repositories:
-            repositories_ids.append(repo['id'])
+        for repository in self.relevant_repositories:
+            self.repositories_ids.append(repository['id'])
 
         using.execute(
             '''
-                        DELETE FROM `performance_datum`
-                        WHERE repository_id NOT IN %s AND push_timestamp <= %s
-                        LIMIT %s
-                    ''',
+                DELETE FROM `performance_datum`
+                WHERE repository_id NOT IN %s AND push_timestamp <= %s
+                LIMIT %s
+            ''',
             [
-                tuple(repositories_ids),
+                tuple(self.repositories_ids),
                 self._max_timestamp,
                 chunk_size,
             ],
@@ -342,7 +340,6 @@ class IrrelevantDataRemoval(RemovalStrategy):
             .exclude(repository_id__in=self.relevant_repositories)
             .order_by('id')[: self._chunk_size]
         )
-
         return len(older_ids) or self._chunk_size
 
 
