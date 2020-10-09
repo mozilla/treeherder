@@ -6,7 +6,7 @@ import pick from 'lodash/pick';
 import isEqual from 'lodash/isEqual';
 import { connect } from 'react-redux';
 import PropTypes from 'prop-types';
-import { push } from 'connected-react-router';
+import { push as pushRoute } from 'connected-react-router';
 
 import { thFavicons, thDefaultRepo } from '../helpers/constants';
 import ShortcutTable from '../shared/ShortcutTable';
@@ -72,8 +72,6 @@ class App extends React.Component {
     super(props);
 
     const filterModel = new FilterModel(this.props);
-    // Set the URL to updated parameter styles, if needed.  Otherwise it's a no-op.
-    // filterModel.push();
     const urlParams = getAllUrlParams();
     const hasSelectedJob =
       urlParams.has('selectedJob') || urlParams.has('selectedTaskRun');
@@ -199,13 +197,14 @@ class App extends React.Component {
   }
 
   getOrSetRepo() {
+    const { pushRoute } = this.props;
     const params = getAllUrlParams();
     let repo = params.get('repo');
 
     if (!repo) {
       repo = thDefaultRepo;
       params.set('repo', repo);
-      this.props.push({
+      pushRoute({
         search: createQueryParams(params),
       });
     }
@@ -441,6 +440,7 @@ class App extends React.Component {
 App.propTypes = {
   jobMap: PropTypes.shape({}).isRequired,
   router: PropTypes.shape({}).isRequired,
+  pushRoute: PropTypes.func.isRequired,
 };
 
 const mapStateToProps = ({ pushes: { jobMap }, router }) => ({
@@ -448,4 +448,4 @@ const mapStateToProps = ({ pushes: { jobMap }, router }) => ({
   router,
 });
 
-export default connect(mapStateToProps, { push })(hot(App));
+export default connect(mapStateToProps, { pushRoute })(hot(App));

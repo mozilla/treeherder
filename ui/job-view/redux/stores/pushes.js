@@ -1,7 +1,7 @@
 import pick from 'lodash/pick';
 import keyBy from 'lodash/keyBy';
 import max from 'lodash/max';
-import { push } from 'connected-react-router';
+import { push as pushRoute } from 'connected-react-router';
 
 import { parseQueryParams, bugzillaBugsApi } from '../../../helpers/url';
 import { getUrlParam } from '../../../helpers/location';
@@ -93,7 +93,7 @@ const getLastModifiedJobTime = (jobMap) => {
  * ones that have been filtered out
  */
 const doRecalculateUnclassifiedCounts = (jobMap, router) => {
-  const filterModel = new FilterModel({ push, router });
+  const filterModel = new FilterModel({ pushRoute, router });
   const tiers = filterModel.urlParams.tier;
   let allUnclassifiedFailureCount = 0;
   let filteredUnclassifiedFailureCount = 0;
@@ -149,7 +149,7 @@ const addPushes = (
     if (setFromchange && getUrlParam('fromchange') !== updatedLastRevision) {
       const params = new URLSearchParams(router.location.search);
       params.set('fromchange', updatedLastRevision);
-      dispatch(push({ search: `?${params.toString()}` }));
+      dispatch(pushRoute({ search: `?${params.toString()}` }));
     }
 
     return newStuff;

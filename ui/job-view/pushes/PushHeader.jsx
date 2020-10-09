@@ -9,7 +9,7 @@ import {
 } from '@fortawesome/free-regular-svg-icons';
 import { faThumbtack, faTimesCircle } from '@fortawesome/free-solid-svg-icons';
 import { Badge, Button } from 'reactstrap';
-import { push } from 'connected-react-router';
+import { push as pushRoute } from 'connected-react-router';
 
 import { getPercentComplete, toDateStr } from '../../helpers/display';
 import { formatTaskclusterError } from '../../helpers/errorMessage';
@@ -149,9 +149,9 @@ class PushHeader extends React.Component {
   };
 
   updateView = (param, value) => {
-    const { updateRange, push, currentRepo } = this.props;
+    const { updateRange, pushRoute, currentRepo } = this.props;
 
-    push({ search: `?repo=${currentRepo.name}&${param}=${value}` });
+    pushRoute({ search: `?repo=${currentRepo.name}&${param}=${value}` });
     updateRange({ param: value });
   };
 
@@ -354,6 +354,7 @@ PushHeader.propTypes = {
   watchState: PropTypes.string,
   pushHealthStatusCallback: PropTypes.func,
   currentRepo: PropTypes.shape({}).isRequired,
+  pushRoute: PropTypes.func.isRequired,
 };
 
 PushHeader.defaultProps = {
@@ -371,5 +372,5 @@ export default connect(mapStateToProps, {
   setSelectedJob,
   pinJobs,
   updateRange,
-  push,
+  pushRoute,
 })(PushHeader);

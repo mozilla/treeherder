@@ -1,4 +1,4 @@
-import { push } from 'connected-react-router';
+import { push as pushRoute } from 'connected-react-router';
 
 import {
   findGroupElement,
@@ -33,7 +33,7 @@ export const setSelectedJob = (job, updateDetails = true) => {
     if (updateDetails) {
       const taskRun = job ? getTaskRunStr(job) : null;
       const params = setUrlParams([['selectedTaskRun', taskRun]]);
-      dispatch(push({ search: params }));
+      dispatch(pushRoute({ search: params }));
     }
   };
 };
@@ -54,7 +54,7 @@ export const clearSelectedJob = (countPinnedJobs) => {
       ['selectedTaskRun', null],
       ['selectedJob', null],
     ]);
-    dispatch(push({ search: params }));
+    dispatch(pushRoute({ search: params }));
   };
 };
 
@@ -69,7 +69,7 @@ export const updateJobDetails = (job) => {
     });
     const taskRun = job ? getTaskRunStr(job) : null;
     const params = setUrlParams([['selectedTaskRun', taskRun]]);
-    dispatch(push({ search: params }));
+    dispatch(pushRoute({ search: params }));
   };
 };
 

@@ -7,7 +7,7 @@ import {
   DropdownToggle,
   UncontrolledDropdown,
 } from 'reactstrap';
-import { push } from 'connected-react-router';
+import { push as pushRoute } from 'connected-react-router';
 
 import {
   createQueryParams,
@@ -31,11 +31,11 @@ class PushActionMenu extends React.PureComponent {
   }
 
   updateParamsAndRange = (param) => {
-    const { router, revision, updateRange, push } = this.props;
+    const { router, revision, updateRange, pushRoute } = this.props;
     let queryParams = parseQueryParams(router.location.search);
     queryParams = { ...queryParams, ...{ [param]: revision } };
 
-    push({
+    pushRoute({
       search: createQueryParams(queryParams),
     });
     updateRange(queryParams);
@@ -129,7 +129,6 @@ class PushActionMenu extends React.PureComponent {
             >
               Trigger missing jobs
             </DropdownItem>
-            )
             <DropdownItem
               tag="a"
               target="_blank"
@@ -221,6 +220,6 @@ const mapStateToProps = ({ pushes: { decisionTaskMap }, router }) => ({
   router,
 });
 
-export default connect(mapStateToProps, { notify, updateRange, push })(
+export default connect(mapStateToProps, { notify, updateRange, pushRoute })(
   PushActionMenu,
 );

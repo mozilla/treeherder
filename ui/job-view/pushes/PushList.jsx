@@ -4,7 +4,7 @@ import { Button } from 'reactstrap';
 import { connect } from 'react-redux';
 import intersection from 'lodash/intersection';
 import isEqual from 'lodash/isEqual';
-import { push } from 'connected-react-router';
+import { push as pushRoute } from 'connected-react-router';
 
 import ErrorBoundary from '../../shared/ErrorBoundary';
 import { notify } from '../redux/stores/notifications';
@@ -110,9 +110,9 @@ class PushList extends React.Component {
   }
 
   fetchNextPushes(count) {
-    const { push, fetchPushes, router } = this.props;
+    const { pushRoute, fetchPushes, router } = this.props;
     const params = updatePushParams(router.location);
-    push({ search: params });
+    pushRoute({ search: params });
     fetchPushes(count, true);
   }
 
@@ -224,7 +224,7 @@ PushList.propTypes = {
   notify: PropTypes.func.isRequired,
   revision: PropTypes.string,
   currentRepo: PropTypes.shape({}),
-  push: PropTypes.func.isRequired,
+  pushRoute: PropTypes.func.isRequired,
   router: PropTypes.shape({}).isRequired,
 };
 
@@ -260,5 +260,5 @@ export default connect(mapStateToProps, {
   fetchPushes,
   updateRange,
   pollPushes,
-  push,
+  pushRoute,
 })(PushList);
