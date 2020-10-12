@@ -111,9 +111,10 @@ class PerfherderCycler(DataCycler):
         try:
             for strategy in self.strategies:
                 try:
+                    logger.warning(f'Cycling data using {strategy.name}...')
                     self._delete_in_chunks(strategy)
                 except NoDataCyclingAtAll as ex:
-                    logger.warning('Exception: {}'.format(ex))
+                    logger.warning(str(ex))
 
             # also remove any signatures which are (no longer) associated with
             # a job
@@ -164,15 +165,23 @@ class PerfherderCycler(DataCycler):
         msg = 'Failed to delete performance data chunk'
         if hasattr(cursor, '_last_executed'):
             msg = f'{msg}, while running "{cursor._last_executed}" query'
-        logger.warning(msg)
 
-        if any_successful_attempt is False:
-            raise NoDataCyclingAtAll from exception
+        if any_successful_attempt:
+            # an intermittent error may have occurred
+            logger.warning(f'{msg}: (Exception: {exception})')
+        else:
+            logger.warning(msg)
+            raise NoDataCyclingAtAll() from exception
 
 
 class RemovalStrategy(ABC):
     @abstractmethod
     def remove(self, using: CursorWrapper):
+        pass
+
+    @property
+    @abstractmethod
+    def name(self) -> str:
         pass
 
     @staticmethod
@@ -212,6 +221,10 @@ class MainRemovalStrategy(RemovalStrategy):
             [self._max_timestamp, chunk_size],
         )
 
+    @property
+    def name(self) -> str:
+        return 'main removal strategy'
+
     def _find_ideal_chunk_size(self) -> int:
         max_id = self._manager.filter(push_timestamp__gt=self._max_timestamp).order_by('-id')[0].id
         older_ids = self._manager.filter(
@@ -228,6 +241,8 @@ class TryDataRemoval(RemovalStrategy):
     that are more than 6 weeks old.
     """
 
+    SIGNATURE_BULK_SIZE = 10
+
     def __init__(self, chunk_size: int):
         self._cycle_interval = timedelta(weeks=6)
         self._chunk_size = chunk_size
@@ -235,6 +250,8 @@ class TryDataRemoval(RemovalStrategy):
         self._manager = PerformanceDatum.objects
 
         self.__try_repo_id = None
+        self.__target_signatures = None
+        self.__try_signatures = None
 
     @property
     def try_repo(self):
@@ -242,33 +259,65 @@ class TryDataRemoval(RemovalStrategy):
             self.__try_repo_id = Repository.objects.get(name='try').id
         return self.__try_repo_id
 
+    @property
+    def target_signatures(self):
+        if self.__target_signatures is None:
+            self.__target_signatures = self.try_signatures[: self.SIGNATURE_BULK_SIZE]
+        return self.__target_signatures
+
+    @property
+    def try_signatures(self):
+        if self.__try_signatures is None:
+            self.__try_signatures = list(
+                PerformanceSignature.objects.filter(repository=self.try_repo)
+                .order_by('-id')
+                .values_list('id', flat=True)
+            )
+        return self.__try_signatures
+
     def remove(self, using: CursorWrapper):
         """
         @type using: database connection cursor
         """
-        chunk_size = self._find_ideal_chunk_size()
-        using.execute(
-            '''
+
+        while True:
+            self.__attempt_remove(using)
+
+            deleted_rows = using.rowcount
+            if deleted_rows > 0:
+                break  # deletion was successful
+
+            try:
+                self.__lookup_new_signature()  # to remove data from
+            except LookupError as ex:
+                logger.debug(f'Could not target any new signature to delete data from. {ex}')
+                break
+
+    @property
+    def name(self) -> str:
+        return 'try data removal strategy'
+
+    def __attempt_remove(self, using):
+        total_signatures = len(self.target_signatures)
+        from_target_signatures = ' OR '.join(['signature_id =  %s'] * total_signatures)
+
+        delete_try_data = f'''
             DELETE FROM `performance_datum`
-            WHERE repository_id = %s AND push_timestamp <= %s
+            WHERE repository_id = %s AND push_timestamp <= %s AND ({from_target_signatures})
             LIMIT %s
-        ''',
-            [self.try_repo, self._max_timestamp, chunk_size],
+        '''
+
+        using.execute(
+            delete_try_data,
+            [self.try_repo, self._max_timestamp, *self.target_signatures, self._chunk_size],
         )
 
-    def _find_ideal_chunk_size(self) -> int:
-        max_id = (
-            self._manager.filter(
-                push_timestamp__gt=self._max_timestamp, repository_id=self.try_repo
-            )
-            .order_by('-id')[0]
-            .id
-        )
-        older_ids = self._manager.filter(
-            push_timestamp__lte=self._max_timestamp, id__lte=max_id, repository_id=self.try_repo
-        ).order_by('id')[: self._chunk_size]
+    def __lookup_new_signature(self):
+        self.__target_signatures = self.__try_signatures[: self.SIGNATURE_BULK_SIZE]
+        del self.__try_signatures[: self.SIGNATURE_BULK_SIZE]
 
-        return len(older_ids) or self._chunk_size
+        if len(self.__target_signatures) == 0:
+            raise LookupError('Exhausted all signatures originating from try repository.')
 
 
 class Command(BaseCommand):
