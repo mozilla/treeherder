@@ -164,9 +164,12 @@ class PerfherderCycler(DataCycler):
         msg = 'Failed to delete performance data chunk'
         if hasattr(cursor, '_last_executed'):
             msg = f'{msg}, while running "{cursor._last_executed}" query'
-        logger.warning(msg)
 
-        if any_successful_attempt is False:
+        if any_successful_attempt:
+            # an intermittent error may have occurred
+            logger.warning(f'{msg}: (Exception: {exception})')
+        else:
+            logger.warning(msg)
             raise NoDataCyclingAtAll from exception
 
 
