@@ -306,6 +306,74 @@ def test_try_data_removal(
     )  # non-try data remained intact
 
 
+@pytest.mark.parametrize(
+    'repository_name',
+    ['autoland', 'mozilla-beta', 'mozilla-central', 'fenix', 'reference-browser'],
+)
+def test_irrelevant_repos_data_removal(
+    test_repository,
+    relevant_repository,
+    repository_name,
+    push_stored,
+    test_perf_signature,
+):
+    # test_repository is considered irrelevant repositories
+
+    relevant_repository.name = repository_name
+    relevant_repository.save()
+
+    six_months_ago_timestamp = datetime.now() - timedelta(days=(6 * 30))
+
+    push = Push.objects.first()
+
+    # performance datum for irrelevant repository which has an expired push_timestamp ( older than 6 months )
+    # this one should be deleted, because it's expired
+    PerformanceDatum.objects.create(
+        repository=test_repository,
+        push=push,
+        job=None,
+        signature=test_perf_signature,
+        push_timestamp=six_months_ago_timestamp,
+        value=1.0,
+    )
+
+    # performance datum for relevant repository which has a push_timestamp older than 6 months
+    # this one should still be kept in db
+    PerformanceDatum.objects.create(
+        repository=relevant_repository,
+        push=push,
+        job=None,
+        signature=test_perf_signature,
+        push_timestamp=six_months_ago_timestamp,
+        value=1.0,
+    )
+
+    # performance datum for irrelevant repository which has a one week old push_timestamp
+    # this one should still be kept in db
+    PerformanceDatum.objects.create(
+        repository=test_repository,
+        push=push,
+        job=None,
+        signature=test_perf_signature,
+        push_timestamp=datetime.now() - timedelta(weeks=1),
+        value=1.0,
+    )
+
+    total_initial_data = PerformanceDatum.objects.count()
+
+    call_command('cycle_data', 'from:perfherder')
+    assert PerformanceDatum.objects.count() == total_initial_data - 1
+    assert PerformanceDatum.objects.filter(repository=relevant_repository).exists()
+    assert PerformanceDatum.objects.filter(
+        push_timestamp__gt=six_months_ago_timestamp,
+        repository=test_repository,
+    ).exists()
+    assert not PerformanceDatum.objects.filter(
+        push_timestamp__lte=six_months_ago_timestamp,
+        repository=test_repository,
+    ).exists()
+
+
 def test_performance_cycler_quit_indicator():
     ten_minutes_ago = datetime.now() - timedelta(minutes=10)
     one_second = timedelta(seconds=1)
