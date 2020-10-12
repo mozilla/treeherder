@@ -429,10 +429,7 @@ export const getTextualSummary = (alerts, alertSummary, copySummary = null) => {
     'amount_pct',
   ).reverse();
 
-  const getMaximumAlertLength = (alertList) =>
-    Math.max(...alertList.map((alert) => alert.title.length));
-
-  const formatAlert = (alert, alertList) => {
+  const formatAlert = (alert) => {
     const numFormat = '0,0.00';
     let amountPct;
 
@@ -440,13 +437,16 @@ export const getTextualSummary = (alerts, alertSummary, copySummary = null) => {
       // have extra fraction digits when rounding ends up with 0%
       amountPct = alert.amount_pct.toFixed(2);
     } else {
-      amountPct = alert.amount_pct.toFixed(0).padStart(4);
+      amountPct = alert.amount_pct.toFixed(0);
     }
-    const title = alert.title.padEnd(getMaximumAlertLength(alertList) + 5);
+
     const prevValue = numeral(alert.prev_value).format(numFormat);
     const newValue = numeral(alert.new_value).format(numFormat);
 
-    return `${amountPct}%  ${title}${prevValue} -> ${newValue}`;
+    const { suite, test, machine_platform: platform } = alert.series_signature;
+    const extraOptions = alert.series_signature.extra_options.join(' ');
+
+    return `| ${amountPct}% | ${suite} | ${test} | ${platform} | ${extraOptions} | ${prevValue} -> ${newValue} |`;
   };
 
   const formatAlertBulk = (alerts) =>
@@ -465,7 +465,7 @@ export const getTextualSummary = (alerts, alertSummary, copySummary = null) => {
       resultStr += '\n';
     }
     const formattedRegressions = formatAlertBulk(regressed);
-    resultStr += `Regressions:\n\n${formattedRegressions}\n`;
+    resultStr += `### Regressions:\n\n| **Ratio** | **Suite** | **Test** | **Platform** | **Options** | **Absolute values (old vs new)**| \n|--|--|--|--|--|--| \n${formattedRegressions}\n`;
   }
   if (improved.length > 0) {
     // Add a newline if we displayed some regressions
@@ -473,7 +473,7 @@ export const getTextualSummary = (alerts, alertSummary, copySummary = null) => {
       resultStr += '\n';
     }
     const formattedImprovements = formatAlertBulk(improved);
-    resultStr += `Improvements:\n\n${formattedImprovements}\n`;
+    resultStr += `### Improvements:\n\n| **Ratio** | **Suite** | **Test** | **Platform** | **Options** | **Absolute values (old vs new)**| \n|--|--|--|--|--|--| \n${formattedImprovements}\n`;
   }
   // include link to alert if getting text for clipboard only
   if (copySummary) {
