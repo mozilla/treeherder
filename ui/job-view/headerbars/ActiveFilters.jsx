@@ -76,11 +76,21 @@ class ActiveFilters extends React.Component {
   };
 
   clearAndUpdateRange = (specificFilter = null) => {
-    const { updateRange, filterModel } = this.props;
+    const { updateRange, filterModel, router } = this.props;
+
+    const params = new URLSearchParams(router.location.search);
 
     if (!specificFilter) {
       filterModel.clearNonStatusFilters();
-      updateRange(filterModel.getUrlParamsWithoutDefaults());
+
+      // we do this because anytime the 'revision' or 'author' param is changed,
+      // updateRange will be triggered in PushList's componentDidUpdate lifecycle.
+      // This also helps in the scenario where we are only changing the global window location query params
+      // (to also prevent an unnecessary componentDidUpdate change) such as when a user clicks to view
+      // a revision, then selects "next x pushes" to set a range.
+      if (!params.has('revision') && !params.has('author')) {
+        updateRange(filterModel.getUrlParamsWithoutDefaults());
+      }
       return;
     }
 
@@ -257,8 +267,13 @@ ActiveFilters.propTypes = {
   isFieldFilterVisible: PropTypes.bool.isRequired,
   toggleFieldFilterVisible: PropTypes.func.isRequired,
   classificationTypes: PropTypes.arrayOf(PropTypes.object).isRequired,
+  router: PropTypes.shape({}).isRequired,
 };
 
-export default connect(null, {
+const mapStateToProps = ({ router }) => ({
+  router,
+});
+
+export default connect(mapStateToProps, {
   updateRange,
 })(ActiveFilters);

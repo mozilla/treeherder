@@ -1,11 +1,14 @@
 import React, { Suspense, lazy } from 'react';
-import { Route, Switch, useLocation, Redirect } from 'react-router-dom';
+import {
+  Route,
+  Switch,
+  useLocation,
+  useHistory,
+  Redirect,
+} from 'react-router-dom';
 import { hot } from 'react-hot-loader/root';
-import { ConnectedRouter } from 'connected-react-router';
-import { Provider } from 'react-redux';
 import { Helmet } from 'react-helmet';
 
-import { configureStore, history } from './job-view/redux/configureStore';
 import LoadingSpinner from './shared/LoadingSpinner';
 import LoginCallback from './login-callback/LoginCallback';
 import TaskclusterCallback from './taskcluster-auth-callback/TaskclusterCallback';
@@ -25,6 +28,7 @@ const LogviewerApp = lazy(() => import('./logviewer/App'));
 // backwards compatibility for routes like this: treeherder.mozilla.org/perf.html#/alerts?id=26622&hideDwnToInv=0
 const updateOldUrls = () => {
   const location = useLocation();
+  const history = useHistory();
   const { pathname, hash } = location;
 
   const urlMatch = {
@@ -88,75 +92,62 @@ const withFavicon = (element, route) => {
 const App = () => {
   updateOldUrls();
   return (
-    <Provider store={configureStore()}>
-      <ConnectedRouter history={history}>
-        <Suspense fallback={<LoadingSpinner />}>
-          <Switch>
-            <Route
-              exact
-              path="/login"
-              render={(props) => <LoginCallback {...props} />}
-            />
-            <Route
-              exact
-              path="/taskcluster-auth"
-              render={(props) => <TaskclusterCallback {...props} />}
-            />
-            <Route exact path="/">
-              <Redirect to="/jobs" />
-            </Route>
-            <Route
-              path="/jobs"
-              render={(props) =>
-                withFavicon(<JobsViewApp {...props} />, props.location.pathname)
-              }
-            />
-            <Route
-              path="/logviewer"
-              render={(props) =>
-                withFavicon(
-                  <LogviewerApp {...props} />,
-                  props.location.pathname,
-                )
-              }
-            />
-            <Route
-              path="/userguide"
-              render={(props) =>
-                withFavicon(
-                  <UserGuideApp {...props} />,
-                  props.location.pathname,
-                )
-              }
-            />
-            <Route
-              path="/push-health"
-              render={(props) =>
-                withFavicon(
-                  <PushHealthApp {...props} />,
-                  props.location.pathname,
-                )
-              }
-            />
-            <Route
-              path="/intermittent-failures"
-              render={(props) =>
-                withFavicon(
-                  <IntermittentFailuresApp {...props} />,
-                  '/intermittent-failures',
-                )
-              }
-            />
-            <Route
-              path="/perfherder"
-              render={(props) =>
-                withFavicon(<PerfherderApp {...props} />, '/perfherder')
-              }
-            />
-          </Switch>
-        </Suspense>
-      </ConnectedRouter>
-    </Provider>
+    <Suspense fallback={<LoadingSpinner />}>
+      <Switch>
+        <Route
+          exact
+          path="/login"
+          render={(props) => <LoginCallback {...props} />}
+        />
+        <Route
+          exact
+          path="/taskcluster-auth"
+          render={(props) => <TaskclusterCallback {...props} />}
+        />
+        <Route exact path="/">
+          <Redirect to="/jobs" />
+        </Route>
+        <Route
+          path="/jobs"
+          render={(props) =>
+            withFavicon(<JobsViewApp {...props} />, props.location.pathname)
+          }
+        />
+        <Route
+          path="/logviewer"
+          render={(props) =>
+            withFavicon(<LogviewerApp {...props} />, props.location.pathname)
+          }
+        />
+        <Route
+          path="/userguide"
+          render={(props) =>
+            withFavicon(<UserGuideApp {...props} />, props.location.pathname)
+          }
+        />
+        <Route
+          path="/push-health"
+          render={(props) =>
+            withFavicon(<PushHealthApp {...props} />, props.location.pathname)
+          }
+        />
+        <Route
+          path="/intermittent-failures"
+          render={(props) =>
+            withFavicon(
+              <IntermittentFailuresApp {...props} />,
+              '/intermittent-failures',
+            )
+          }
+        />
+        <Route
+          path="/perfherder"
+          render={(props) =>
+            withFavicon(<PerfherderApp {...props} />, '/perfherder')
+          }
+        />
+      </Switch>
+    </Suspense>
   );
 };
 

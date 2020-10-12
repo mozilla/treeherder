@@ -4,7 +4,7 @@ import max from 'lodash/max';
 import { push as pushRoute } from 'connected-react-router';
 
 import { parseQueryParams, bugzillaBugsApi } from '../../../helpers/url';
-import { getUrlParam } from '../../../helpers/location';
+import { getUrlParam, replaceLocation } from '../../../helpers/location';
 import PushModel from '../../../models/push';
 import { getTaskRunStr, isUnclassifiedFailure } from '../../../helpers/job';
 import FilterModel from '../../../models/filter';
@@ -147,9 +147,13 @@ const addPushes = (
     const updatedLastRevision = newPushList[newPushList.length - 1].revision;
 
     if (setFromchange && getUrlParam('fromchange') !== updatedLastRevision) {
-      const params = new URLSearchParams(router.location.search);
+      const params = new URLSearchParams(window.location.search);
       params.set('fromchange', updatedLastRevision);
-      dispatch(pushRoute({ search: `?${params.toString()}` }));
+      // dispatch(pushRoute({ search: `?${params.toString()}` }));
+      replaceLocation(params);
+      // We are silently updating the url params so we don't trigger an unnecessary update
+      // in componentDidUpdate, but we still want to update the ActiveFilters bar to this new change.
+      window.dispatchEvent(new CustomEvent(thEvents.filtersUpdated));
     }
 
     return newStuff;
@@ -390,7 +394,9 @@ export const updateRange = (range) => {
           job.push_id === pushId ? { ...acc, [id]: job } : acc,
         {},
       );
-      dispatch(clearSelectedJob(0));
+      if (getUrlParam('selectedJob') || getUrlParam('selectedTaskRun')) {
+        dispatch(clearSelectedJob(0));
+      }
       // We already have the one revision they're looking for,
       // so we can just erase everything else.
       dispatch(setPushes(revisionPushList, revisionJobMap, router));

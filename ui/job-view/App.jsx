@@ -8,7 +8,7 @@ import { connect } from 'react-redux';
 import PropTypes from 'prop-types';
 import { push as pushRoute } from 'connected-react-router';
 
-import { thFavicons, thDefaultRepo } from '../helpers/constants';
+import { thFavicons, thDefaultRepo, thEvents } from '../helpers/constants';
 import ShortcutTable from '../shared/ShortcutTable';
 import { matchesDefaults } from '../helpers/filter';
 import { getAllUrlParams } from '../helpers/location';
@@ -121,6 +121,7 @@ class App extends React.Component {
 
     window.addEventListener('resize', this.updateDimensions, false);
     window.addEventListener('storage', this.handleStorageEvent);
+    window.addEventListener(thEvents.filtersUpdated, this.handleFiltersUpdated);
 
     // Get the current Treeherder revision and poll to notify on updates.
     this.fetchDeployedRevision().then((revision) => {
@@ -175,6 +176,10 @@ class App extends React.Component {
   componentWillUnmount() {
     window.removeEventListener('resize', this.updateDimensions, false);
     window.removeEventListener('storage', this.handleStorageEvent);
+    window.removeEventListener(
+      thEvents.filtersUpdated,
+      this.handleFiltersUpdated,
+    );
 
     if (this.updateInterval) {
       clearInterval(this.updateInterval);
@@ -211,6 +216,17 @@ class App extends React.Component {
 
     return repo;
   }
+
+  handleFiltersUpdated = () => {
+    // we're only using window.location here because of how we're setting param changes for fetchNextPushes
+    // in PushList and addPushes.
+    this.setState({
+      filterModel: new FilterModel({
+        router: window,
+        pushRoute: this.props.pushRoute,
+      }),
+    });
+  };
 
   handleStorageEvent = (e) => {
     if (e.key === PUSH_HEALTH_VISIBILITY) {
