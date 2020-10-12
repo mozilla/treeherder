@@ -304,6 +304,8 @@ class IrrelevantDataRemoval(RemovalStrategy):
             self.repositories = Repository.objects.filter(name__in=self.repository_names).values(
                 'id'
             )
+            if self.repositories.count() != len(self.repository_names):
+                logger.warning("Failed to find all relevant repositories in the database")
         return self.repositories
 
     def remove(self, using: CursorWrapper):
