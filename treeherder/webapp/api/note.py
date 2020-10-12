@@ -1,11 +1,12 @@
 from rest_framework import viewsets
+from rest_framework.decorators import action
 from rest_framework.exceptions import ParseError
 from rest_framework.response import Response
 from rest_framework.status import HTTP_404_NOT_FOUND
 
-from treeherder.model.models import Job, JobNote
+from treeherder.model.models import Job, JobNote, Push
 
-from .serializers import JobNoteSerializer
+from .serializers import JobNoteSerializer, JobNoteDetailSerializer
 
 
 class NoteViewSet(viewsets.ViewSet):
@@ -40,6 +41,26 @@ class NoteViewSet(viewsets.ViewSet):
 
         job = Job.objects.get(repository__name=project, id=job_id)
         serializer = JobNoteSerializer(JobNote.objects.filter(job=job), many=True)
+        return Response(serializer.data)
+
+    @action(detail=False, methods=['get'])
+    def push_notes(self, request, project):
+        """
+        GET method to get all classifications for a push revision with some
+        job details
+        :param request: Require `revision` as a SHA
+        :param project: Repository of the revision
+        :return:
+        """
+        revision = request.query_params.get('revision')
+        if not revision:
+            raise ParseError(detail="The revision parameter is mandatory for this endpoint")
+
+        push = Push.objects.get(repository__name=project, revision=revision)
+        notes = JobNote.objects.filter(job__push=push).select_related(
+            'job', 'job__push', 'job__job_type', 'job__taskcluster_metadata'
+        )
+        serializer = JobNoteDetailSerializer(notes, many=True)
         return Response(serializer.data)
 
     def create(self, request, project):

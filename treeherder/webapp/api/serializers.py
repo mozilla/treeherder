@@ -223,6 +223,44 @@ class JobNoteSerializer(serializers.ModelSerializer):
         fields = ['id', 'job_id', 'failure_classification_id', 'created', 'who', 'text']
 
 
+class JobNoteJobSerializer(serializers.ModelSerializer):
+    def to_representation(self, job):
+        submit = job.submit_time
+        start = job.start_time
+        end = job.end_time
+        duration = models.Job.get_duration(submit, start, end)
+
+        return {
+            'task_id': job.taskcluster_metadata.task_id,
+            'job_type_name': job.job_type.name,
+            'result': job.result,
+            'duration': duration,
+        }
+
+    class Meta:
+        model = models.Job
+        fields = ['duration', 'label', 'result', 'task_id']
+
+
+class JobNoteDetailSerializer(serializers.ModelSerializer):
+
+    job = JobNoteJobSerializer()
+    failure_classification_name = serializers.SlugRelatedField(
+        slug_field="name", source="failure_classification", read_only=True
+    )
+
+    class Meta:
+        model = models.JobNote
+        fields = [
+            'id',
+            'job',
+            'failure_classification_name',
+            'created',
+            'who',
+            'text',
+        ]
+
+
 class CommitSerializer(serializers.ModelSerializer):
 
     result_set_id = serializers.PrimaryKeyRelatedField(source="push", read_only=True)

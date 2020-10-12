@@ -139,3 +139,46 @@ def test_delete_note(client, test_job_with_notes, test_repository, test_sheriff,
     else:
         assert resp.status_code == 200, resp
         assert new_notes_count == notes_count - 1
+
+
+def test_push_notes(client, test_job_with_notes):
+    """
+    test retrieving all notes for a given push revision
+    """
+    notes = JobNote.objects.all()
+
+    resp = client.get(
+        reverse("note-push-notes", kwargs={"project": test_job_with_notes.repository.name}),
+        data={"revision": notes[1].job.push.revision},
+    )
+
+    assert resp.status_code == 200
+    assert isinstance(resp.json(), list)
+    assert resp.json() == [
+        {
+            "id": 1,
+            "job": {
+                "task_id": notes[0].job.taskcluster_metadata.task_id,
+                "job_type_name": "B2G Emulator Image Build",
+                "result": "success",
+                "duration": 191,
+            },
+            "failure_classification_name": "fixed by commit",
+            "who": notes[0].user.email,
+            "created": notes[0].created.isoformat(),
+            "text": "you look like a man-o-lantern",
+        },
+        {
+            'failure_classification_name': 'expected fail',
+            'id': 2,
+            'job': {
+                'duration': 191,
+                'job_type_name': 'B2G Emulator Image Build',
+                'result': 'success',
+                "task_id": notes[1].job.taskcluster_metadata.task_id,
+            },
+            "who": notes[1].user.email,
+            "created": notes[1].created.isoformat(),
+            'text': 'you look like a man-o-lantern',
+        },
+    ]
