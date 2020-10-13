@@ -1,11 +1,82 @@
 import React from 'react';
 import PropTypes from 'prop-types';
+import { connect } from 'react-redux';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { Alert, Button } from 'reactstrap';
+import {
+  faInfoCircle,
+  faExternalLinkAlt,
+  faRedo,
+  faTable,
+} from '@fortawesome/free-solid-svg-icons';
 
-import { getCompareChooserUrl } from '../../../helpers/url';
+import { getCompareChooserUrl, getPerfAnalysisUrl } from '../../../helpers/url';
+import { triggerGeckoProfileTask } from '../../../helpers/performance';
+import { notify } from '../../redux/stores/notifications';
+import { isPerfTest } from '../../../helpers/job';
 
-export default class PerformanceTab extends React.PureComponent {
+/**
+ * The performance tab shows performance-oriented information about a test run.
+ * It helps users interact with the Firefox Profiler, and summarizes test
+ * timing information.
+ */
+class PerformanceTab extends React.PureComponent {
+  constructor(props) {
+    super(props);
+    this.state = {
+      triggeredGeckoProfiles: 0,
+    };
+  }
+
+  createGeckoProfile = async () => {
+    const {
+      selectedJobFull,
+      notify,
+      decisionTaskMap,
+      currentRepo,
+    } = this.props;
+    await triggerGeckoProfileTask(
+      selectedJobFull,
+      notify,
+      decisionTaskMap,
+      currentRepo,
+    );
+    this.setState((state) => ({
+      triggeredGeckoProfiles: state.triggeredGeckoProfiles + 1,
+    }));
+  };
+
+  maybeGetFirefoxProfilerLink() {
+    // Look for a profiler artifact.
+    const jobDetail = this.props.jobDetails.find(
+      ({ url, value }) =>
+        url &&
+        value.startsWith('profile_') &&
+        (value.endsWith('.zip') || value.endsWith('.json')),
+    );
+
+    if (jobDetail) {
+      return (
+        <a
+          title={jobDetail.value}
+          href={getPerfAnalysisUrl(jobDetail.url)}
+          className="btn btn-darker-secondary btn-sm"
+          target="_blank"
+          rel="noopener noreferrer"
+        >
+          <FontAwesomeIcon icon={faExternalLinkAlt} className="mr-2" />
+          Open in Firefox Profiler
+        </a>
+      );
+    }
+
+    return null;
+  }
+
   render() {
-    const { repoName, revision, perfJobDetail } = this.props;
+    const { repoName, revision, perfJobDetail, selectedJobFull } = this.props;
+    const { triggeredGeckoProfiles } = this.state;
+    const profilerLink = this.maybeGetFirefoxProfilerLink();
     const sortedDetails = perfJobDetail ? perfJobDetail.slice() : [];
 
     sortedDetails.sort((a, b) => a.title.localeCompare(b.title));
@@ -16,6 +87,64 @@ export default class PerformanceTab extends React.PureComponent {
         role="region"
         aria-label="Performance"
       >
+        <div className="performance-panel-actions d-flex">
+          {
+            // If there is a profiler link, show this first. This is most likely
+            // the primary action of the user here.
+            profilerLink
+          }
+          {
+            // Just to be safe, use the same isPerfTest check the other
+            // "Create Gecko Profile" button uses in the action menu.
+            isPerfTest(selectedJobFull) ? (
+              <Button
+                className={`btn ${
+                  // Only make this primary if there is no profiler link.
+                  profilerLink
+                    ? 'btn-outline-darker-secondary'
+                    : 'btn-darker-secondary'
+                } btn-sm`}
+                onClick={this.createGeckoProfile}
+                title={
+                  'Trigger another run of this test with the profiler enabled. The ' +
+                  'profile can then be viewed in the Firefox Profiler.'
+                }
+              >
+                <FontAwesomeIcon icon={faRedo} className="mr-2" />
+                {profilerLink
+                  ? 'Re-trigger performance profile'
+                  : 'Generate performance profile'}
+              </Button>
+            ) : null
+          }
+          <a
+            href={getCompareChooserUrl({
+              newProject: repoName,
+              newRevision: revision,
+            })}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="btn btn-outline-darker-secondary btn-sm"
+          >
+            <FontAwesomeIcon icon={faTable} className="mr-2" />
+            Compare against another revision
+          </a>
+        </div>
+        {
+          // It can be confusing after triggering a profile what happens next. The
+          // job list only gets populated later. This notification will help the
+          // user know the next action.
+          triggeredGeckoProfiles > 0 ? (
+            <Alert color="info" className="m-1">
+              <FontAwesomeIcon icon={faInfoCircle} className="mr-1" />
+              {triggeredGeckoProfiles === 1
+                ? `Triggered ${triggeredGeckoProfiles} profiler run. It will show up ` +
+                  `as a new entry in the job list once the task has been scheduled.`
+                : `Triggered ${triggeredGeckoProfiles} profiler runs. They will show up ` +
+                  `as new entries in the job list once the task has been scheduled.`}
+            </Alert>
+          ) : null
+        }
         {!!sortedDetails.length && (
           <ul>
             <li>
@@ -32,20 +161,6 @@ export default class PerformanceTab extends React.PureComponent {
             </li>
           </ul>
         )}
-        <ul>
-          <li>
-            <a
-              href={getCompareChooserUrl({
-                newProject: repoName,
-                newRevision: revision,
-              })}
-              target="_blank"
-              rel="noopener noreferrer"
-            >
-              Compare result against another revision
-            </a>
-          </li>
-        </ul>
       </div>
     );
   }
@@ -53,11 +168,21 @@ export default class PerformanceTab extends React.PureComponent {
 
 PerformanceTab.propTypes = {
   repoName: PropTypes.string.isRequired,
+  jobDetails: PropTypes.arrayOf(PropTypes.object),
   perfJobDetail: PropTypes.arrayOf(PropTypes.object),
   revision: PropTypes.string,
+  decisionTaskMap: PropTypes.shape({}).isRequired,
 };
 
 PerformanceTab.defaultProps = {
+  jobDetails: [],
   perfJobDetail: [],
   revision: '',
 };
+
+const mapStateToProps = (state) => ({
+  decisionTaskMap: state.pushes.decisionTaskMap,
+});
+const mapDispatchToProps = { notify };
+
+export default connect(mapStateToProps, mapDispatchToProps)(PerformanceTab);
