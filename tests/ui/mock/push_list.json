@@ -11,14 +11,12 @@
       "author": "jarilvalenciano@gmail.com",
       "revisions": [
         {
-          "result_set_id": 511138,
           "repository_id": 4,
           "revision": "ba9c692786e95143b8df3f4b3e9b504dfbc589a0",
           "author": "jaril <jarilvalenciano@gmail.com>",
           "comments": "Fuzzy query='debugger | 'node-devtools&query='mozlint-eslint&query='mochitest-devtools"
         },
         {
-          "result_set_id": 511138,
           "repository_id": 4,
           "revision": "e7d76c5305da04ecc804394b016fc99f1b23fa15",
           "author": "jaril <jarilvalenciano@gmail.com>",
@@ -35,14 +33,12 @@
       "author": "bhackett@mozilla.com",
       "revisions": [
         {
-          "result_set_id": 511137,
           "repository_id": 4,
           "revision": "d5b037941b0ebabcc9b843f24d926e9d65961087",
           "author": "Brian Hackett <bhackett1024@gmail.com>",
           "comments": "FUZZY"
         },
         {
-          "result_set_id": 511137,
           "repository_id": 4,
           "revision": "543107d8404e34a3efca7397a35660c3e619009c",
           "author": "Brian Hackett <bhackett1024@gmail.com>",
@@ -59,14 +55,12 @@
       "author": "reviewbot",
       "revisions": [
         {
-          "result_set_id": 511136,
           "repository_id": 4,
           "revision": "9692347caff487cdcd889489b8e89a825fe6bbd1",
           "author": "pulselistener",
           "comments": "try_task_config for code-review\nDifferential Diff: PHID-DIFF-5k5lfg4h2file7lxc73j"
         },
         {
-          "result_set_id": 511136,
           "repository_id": 4,
           "revision": "9e9b39fa7ca9a40ac7ec9361f2b87c5de1680453",
           "author": "pulselistener",
@@ -83,14 +77,12 @@
       "author": "reviewbot",
       "revisions": [
         {
-          "result_set_id": 511135,
           "repository_id": 4,
           "revision": "fb941355d1f073f3e9c82773af102fad8fb8cb1d",
           "author": "pulselistener",
           "comments": "try_task_config for code-review\nDifferential Diff: PHID-DIFF-m3q6etamztukb6x5uisj"
         },
         {
-          "result_set_id": 511135,
           "repository_id": 4,
           "revision": "57886e8e358c94d10b251779a00a869c9d175e84",
           "author": "pulselistener",
@@ -107,14 +99,12 @@
       "author": "dmalyshau@mozilla.com",
       "revisions": [
         {
-          "result_set_id": 511134,
           "repository_id": 4,
           "revision": "97844f48bb922932e530dfe1cf56de258df9fcf6",
           "author": "Dzmitry Malyshau <dmalyshau@mozilla.com>",
           "comments": "Fuzzy query='-qr&query=^webrender-\n\nPushed via `mach try fuzzy`\n"
         },
         {
-          "result_set_id": 511134,
           "repository_id": 4,
           "revision": "558569b7be512b153bf46b05cbc4167d5e2aaafd",
           "author": "Dzmitry Malyshau <dmalyshau@mozilla.com>",
@@ -131,14 +121,12 @@
       "author": "mtigley@mozilla.com",
       "revisions": [
         {
-          "result_set_id": 511133,
           "repository_id": 4,
           "revision": "ed1d0ed9b5754ec5cdd119d9555ad5e3f7fc26ba",
           "author": "Micah Tigley <mtigley@mozilla.com>",
           "comments": "Try Chooser Enhanced (139 tasks selected)\n\nPushed via `mach try chooser`\n"
         },
         {
-          "result_set_id": 511133,
           "repository_id": 4,
           "revision": "3dcab12ca955f0c170c9f188a20ec7cd28483498",
           "author": "Micah Tigley <mtigley@mozilla.com>",
@@ -155,14 +143,12 @@
       "author": "reviewbot",
       "revisions": [
         {
-          "result_set_id": 511132,
           "repository_id": 4,
           "revision": "ec7bb2bba29ff6b9865bcf7942d50245019642c6",
           "author": "pulselistener",
           "comments": "try_task_config for code-review\nDifferential Diff: PHID-DIFF-apavn5kkofkmv4cc7s5v"
         },
         {
-          "result_set_id": 511132,
           "repository_id": 4,
           "revision": "12020b041a908cb009ebaea653dfa9ffdb0eb958",
           "author": "pulselistener",
@@ -179,14 +165,12 @@
       "author": "mjzffr@gmail.com",
       "revisions": [
         {
-          "result_set_id": 511131,
           "repository_id": 4,
           "revision": "ebdd6cf6caba154bc523aa85d311c804b5115231",
           "author": "Maja Frydrychowicz <mjzffr@gmail.com>",
           "comments": "Fuzzy query=android web-platform\n\nPushed via `mach try fuzzy`"
         },
         {
-          "result_set_id": 511131,
           "repository_id": 4,
           "revision": "81adb3b8c972102208937422e449ad7eed8b99a3",
           "author": "Maja Frydrychowicz <mjzffr@gmail.com>",
@@ -203,14 +187,12 @@
       "author": "reviewbot",
       "revisions": [
         {
-          "result_set_id": 511130,
           "repository_id": 4,
           "revision": "6babddb082091c1e0d4e1b70aab053e3c73a2e6d",
           "author": "pulselistener",
           "comments": "try_task_config for code-review\nDifferential Diff: PHID-DIFF-5lhsufjebvqccviuujkr"
         },
         {
-          "result_set_id": 511130,
           "repository_id": 4,
           "revision": "7992854a66f6a8348a1b7b6552197588824fc2ce",
           "author": "pulselistener",
@@ -227,14 +209,12 @@
       "author": "reviewbot",
       "revisions": [
         {
-          "result_set_id": 511129,
           "repository_id": 4,
           "revision": "fb66bad25e85e350c03352f143bc7319afc32548",
           "author": "pulselistener",
           "comments": "try_task_config for code-review\nDifferential Diff: PHID-DIFF-gmhgohxmkcqnzkppqipo"
         },
         {
-          "result_set_id": 511129,
           "repository_id": 4,
           "revision": "6227d7f05cf3130374cd4b19a2f411b50993d2c4",
           "author": "pulselistener",

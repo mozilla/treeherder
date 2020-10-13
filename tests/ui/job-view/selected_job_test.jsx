@@ -15,7 +15,6 @@ const testPush = {
   author: 'reviewbot',
   revisions: [
     {
-      result_set_id: 494796,
       repository_id: 4,
       revision: '1252c6014d122d48c6782310d5c3f4ae742751cb',
       author: 'pulselistener',

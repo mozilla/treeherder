@@ -37,7 +37,6 @@ const push = {
   },
   revisions: [
     {
-      result_set_id: 151371,
       repository_id: 2,
       revision: '5a110ad242ead60e71d2186bae78b1fb766ad5ff',
       author: 'André Bargull <andre.bargull@gmail.com>',
@@ -45,7 +44,6 @@ const push = {
         'Bug 1319926 - Part 2: Collect telemetry about deprecated String generics methods. r=jandem',
     },
     {
-      result_set_id: 151371,
       repository_id: 2,
       revision: '07d6bf74b7a2552da91b5e2fce0fa0bc3b457394',
       author: 'André Bargull <andre.bargull@gmail.com>',
@@ -53,7 +51,6 @@ const push = {
         'Bug 1319926 - Part 1: Warn when deprecated String generics methods are used. r=jandem',
     },
     {
-      result_set_id: 151371,
       repository_id: 2,
       revision: 'e83eaf2380c65400dc03c6f3615d4b2cef669af3',
       author: 'Frédéric Wang <fred.wang@free.fr>',
@@ -63,7 +60,6 @@ const push = {
   ],
 };
 const revision = {
-  result_set_id: 151371,
   repository_id: 2,
   revision: '5a110ad242ead60e71d2186bae78b1fb766ad5ff',
   author: 'André Bargull <andre.bargull@gmail.com>',

@@ -11,14 +11,12 @@
       "author": "jarilvalenciano@gmail.com",
       "revisions": [
         {
-          "result_set_id": 511138,
           "repository_id": 4,
           "revision": "ba9c692786e95143b8df3f4b3e9b504dfbc589a0",
           "author": "jaril <jarilvalenciano@gmail.com>",
           "comments": "Fuzzy query='debugger | 'node-devtools&query='mozlint-eslint&query='mochitest-devtools"
         },
         {
-          "result_set_id": 511138,
           "repository_id": 4,
           "revision": "e7d76c5305da04ecc804394b016fc99f1b23fa15",
           "author": "jaril <jarilvalenciano@gmail.com>",
@@ -35,14 +33,12 @@
       "author": "bhackett@mozilla.com",
       "revisions": [
         {
-          "result_set_id": 511137,
           "repository_id": 4,
           "revision": "d5b037941b0ebabcc9b843f24d926e9d65961087",
           "author": "Brian Hackett <bhackett1024@gmail.com>",
           "comments": "FUZZY"
         },
         {
-          "result_set_id": 511137,
           "repository_id": 4,
           "revision": "543107d8404e34a3efca7397a35660c3e619009c",
           "author": "Brian Hackett <bhackett1024@gmail.com>",
@@ -59,14 +55,12 @@
       "author": "reviewbot",
       "revisions": [
         {
-          "result_set_id": 511136,
           "repository_id": 4,
           "revision": "9692347caff487cdcd889489b8e89a825fe6bbd1",
           "author": "pulselistener",
           "comments": "try_task_config for code-review\nDifferential Diff: PHID-DIFF-5k5lfg4h2file7lxc73j"
         },
         {
-          "result_set_id": 511136,
           "repository_id": 4,
           "revision": "9e9b39fa7ca9a40ac7ec9361f2b87c5de1680453",
           "author": "pulselistener",

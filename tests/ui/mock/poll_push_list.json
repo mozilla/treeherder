@@ -16,21 +16,18 @@
       "author": "reviewbot",
       "revisions": [
         {
-          "result_set_id": 509406,
           "repository_id": 4,
           "revision": "750b802afc594b92aba99de82a51772c75526c44",
           "author": "pulselistener",
           "comments": "try_task_config for code-review\nDifferential Diff: PHID-DIFF-nchtqrjy3xppmpi24bqm"
         },
         {
-          "result_set_id": 509406,
           "repository_id": 4,
           "revision": "066e705cb98c4c29f0f38cfc26b52fd55e896041",
           "author": "pulselistener",
           "comments": "Bug 1506219 - Use a known remote for applications loaded from file:// URIs\n\nFall back to using Google's DNS server to determine the associated local\naddresses for web applications that are not loaded over the network.  This\nincludes the loopback address, which is frequently used in the unit tests.\n\nProvide a separate function for setting the target for the default local\naddress lookup.\n\nDifferential Revision: https://phabricator.services.mozilla.com/D37331\nDifferential Diff: PHID-DIFF-nchtqrjy3xppmpi24bqm"
         },
         {
-          "result_set_id": 509406,
           "repository_id": 4,
           "revision": "c709e7badbd42e10d370eec7e4af8ed9c082683d",
           "author": "pulselistener",
@@ -47,14 +44,12 @@
       "author": "reviewbot",
       "revisions": [
         {
-          "result_set_id": 509405,
           "repository_id": 4,
           "revision": "90da061f588d1315ee4087225d041d7474d9dfd8",
           "author": "pulselistener",
           "comments": "try_task_config for code-review\nDifferential Diff: PHID-DIFF-cvcrzv4vjod6ftfgdfun"
         },
         {
-          "result_set_id": 509405,
           "repository_id": 4,
           "revision": "328a6b4d0468706ce044a381956e4bba50da23cb",
           "author": "pulselistener",
