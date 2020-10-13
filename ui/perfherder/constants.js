@@ -34,6 +34,12 @@ export const compareTableText = {
   retriggerButtonTitle: 'Retrigger jobs',
 };
 
+export const compareTableSort = {
+  ascending: 'ascending',
+  descending: 'descending',
+  default: 'default',
+};
+
 export const noResultsMessage = 'No results to show';
 export const unknownFrameworkMessage = 'unknown framework';
 export const noDataFoundMessage = (title) => `No Data Found for ${title}`;
