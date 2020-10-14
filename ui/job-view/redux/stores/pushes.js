@@ -149,7 +149,6 @@ const addPushes = (
     if (setFromchange && getUrlParam('fromchange') !== updatedLastRevision) {
       const params = new URLSearchParams(window.location.search);
       params.set('fromchange', updatedLastRevision);
-      // dispatch(pushRoute({ search: `?${params.toString()}` }));
       replaceLocation(params);
       // We are silently updating the url params so we don't trigger an unnecessary update
       // in componentDidUpdate, but we still want to update the ActiveFilters bar to this new change.

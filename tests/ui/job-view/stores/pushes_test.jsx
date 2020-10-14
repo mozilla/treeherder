@@ -170,16 +170,10 @@ describe('Pushes Redux store', () => {
       router: { location: history.location },
     });
     await store.dispatch(fetchPushes(10, true));
-    const actions = store.getActions();
 
-    expect(actions[1].payload).toEqual({
-      method: 'push',
-      args: [
-        {
-          search: `?repo=${repoName}&tochange=ba9c692786e95143b8df3f4b3e9b504dfbc589a0&fromchange=90da061f588d1315ee4087225d041d7474d9dfd8`,
-        },
-      ],
-    });
+    expect(window.location.search).toEqual(
+      `?repo=${repoName}&tochange=ba9c692786e95143b8df3f4b3e9b504dfbc589a0&fromchange=90da061f588d1315ee4087225d041d7474d9dfd8`,
+    );
   });
 
   test('should pare down to single revision updateRange', async () => {
@@ -194,11 +188,6 @@ describe('Pushes Redux store', () => {
     const actions = store.getActions();
 
     expect(actions).toEqual([
-      { countPinnedJobs: 0, type: 'CLEAR_JOB' },
-      {
-        type: '@@router/CALL_HISTORY_METHOD',
-        payload: { method: 'push', args: [{ search: '?' }] },
-      },
       {
         type: SET_PUSHES,
         pushResults: {
