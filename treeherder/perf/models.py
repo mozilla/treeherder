@@ -147,11 +147,6 @@ class PerformanceDatum(models.Model):
     job = models.ForeignKey(Job, null=True, default=None, on_delete=models.SET_NULL)
     push = models.ForeignKey(Push, on_delete=models.CASCADE)
 
-    # the following properties are obsolete and should be removed at some
-    # point
-    ds_job_id = models.PositiveIntegerField(db_column="ds_job_id", null=True)
-    result_set_id = models.PositiveIntegerField(null=True)
-
     class Meta:
         db_table = 'performance_datum'
         index_together = [
