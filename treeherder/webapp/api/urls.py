@@ -1,4 +1,4 @@
-from django.conf.urls import include, url
+from django.urls import include, re_path
 from rest_framework import routers
 
 from treeherder.webapp.api import (
@@ -137,16 +137,16 @@ default_router.register(r'auth', auth.AuthViewSet, basename='auth')
 default_router.register(r'changelog', changelog.ChangelogViewSet, basename='changelog')
 
 urlpatterns = [
-    url(r'^project/(?P<project>[\w-]{0,50})/', include(project_bound_router.urls)),
-    url(r'^', include(default_router.urls)),
-    url(r'^failures/$', intermittents_view.Failures.as_view(), name='failures'),
-    url(r'^failuresbybug/$', intermittents_view.FailuresByBug.as_view(), name='failures-by-bug'),
-    url(r'^failurecount/$', intermittents_view.FailureCount.as_view(), name='failure-count'),
-    url(r'^infracompare/$', infra_compare.InfraCompareView.as_view(), name='infra-compare'),
-    url(
+    re_path(r'^project/(?P<project>[\w-]{0,50})/', include(project_bound_router.urls)),
+    re_path(r'^', include(default_router.urls)),
+    re_path(r'^failures/$', intermittents_view.Failures.as_view(), name='failures'),
+    re_path(r'^failuresbybug/$', intermittents_view.FailuresByBug.as_view(), name='failures-by-bug'),
+    re_path(r'^failurecount/$', intermittents_view.FailureCount.as_view(), name='failure-count'),
+    re_path(r'^infracompare/$', infra_compare.InfraCompareView.as_view(), name='infra-compare'),
+    re_path(
         r'^performance/summary/$',
         performance_data.PerformanceSummary.as_view(),
         name='performance-summary',
     ),
-    url(r'^csp-report/$', csp_report.csp_report_collector, name='csp-report'),
+    re_path(r'^csp-report/$', csp_report.csp_report_collector, name='csp-report'),
 ]
