@@ -364,6 +364,10 @@
   border-color: #545b62;
 }
 
+.btn-darker-secondary:visited {
+  color: #ffffff;
+}
+
 .btn-darker-secondary.disabled {
   color: #242424;
   background-color: white;

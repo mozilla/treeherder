@@ -19,6 +19,7 @@ import {
 } from '@fortawesome/free-solid-svg-icons';
 
 import { thEvents } from '../../../helpers/constants';
+import { triggerGeckoProfileTask } from '../../../helpers/performance';
 import { formatTaskclusterError } from '../../../helpers/errorMessage';
 import {
   isReftest,
@@ -96,48 +97,11 @@ class ActionBar extends React.PureComponent {
       decisionTaskMap,
       currentRepo,
     } = this.props;
-
-    const { id: decisionTaskId } = decisionTaskMap[selectedJobFull.push_id];
-
-    TaskclusterModel.load(decisionTaskId, selectedJobFull, currentRepo).then(
-      (results) => {
-        try {
-          const geckoprofile = getAction(results.actions, 'geckoprofile');
-
-          if (
-            geckoprofile === undefined ||
-            !Object.prototype.hasOwnProperty.call(geckoprofile, 'kind')
-          ) {
-            return notify(
-              'Job was scheduled without taskcluster support for GeckoProfiles',
-            );
-          }
-
-          TaskclusterModel.submit({
-            action: geckoprofile,
-            decisionTaskId,
-            taskId: results.originalTaskId,
-            task: results.originalTask,
-            input: {},
-            staticActionVariables: results.staticActionVariables,
-            currentRepo,
-          }).then(
-            () => {
-              notify(
-                'Request sent to collect gecko profile job via actions.json',
-                'success',
-              );
-            },
-            (e) => {
-              // The full message is too large to fit in a Treeherder
-              // notification box.
-              notify(formatTaskclusterError(e), 'danger', { sticky: true });
-            },
-          );
-        } catch (e) {
-          notify(formatTaskclusterError(e), 'danger', { sticky: true });
-        }
-      },
+    return triggerGeckoProfileTask(
+      selectedJobFull,
+      notify,
+      decisionTaskMap,
+      currentRepo,
     );
   };
 

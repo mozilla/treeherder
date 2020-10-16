@@ -348,6 +348,7 @@ class DetailsPanel extends React.Component {
             <span className="job-tabs-divider" />
             <TabsPanel
               selectedJobFull={selectedJobFull}
+              currentRepo={currentRepo}
               jobDetails={jobDetails}
               perfJobDetail={perfJobDetail}
               repoName={currentRepo.name}
