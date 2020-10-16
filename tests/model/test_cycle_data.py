@@ -1,6 +1,7 @@
 from datetime import datetime, timedelta
 
 import pytest
+from unittest.mock import MagicMock
 from django.core.management import call_command
 from django.db.models import Max
 
@@ -18,6 +19,7 @@ from treeherder.model.models import (
 )
 from treeherder.perf.exceptions import MaxRuntimeExceeded
 from treeherder.perf.models import PerformanceDatum, PerformanceSignature
+from treeherder.services.max_runtime import MaxRuntime
 
 
 def test_cycle_all_data(
@@ -192,12 +194,12 @@ def test_cycle_job_with_performance_data(
     ],
 )
 def test_cycle_performance_data(
-    test_repository,
-    try_repository,
-    repository_name,
-    push_stored,
-    test_perf_signature,
+    test_repository, try_repository, repository_name, push_stored, test_perf_signature, monkeypatch
 ):
+    import taskcluster
+
+    monkeypatch.setattr(taskcluster, 'Notify', MagicMock())
+
     test_repository.name = repository_name
     test_repository.save()
 
@@ -258,8 +260,17 @@ def test_cycle_performance_data(
 
 
 def test_try_data_removal(
-    try_repository, test_repository, try_push_stored, test_perf_signature, test_perf_signature_2
+    try_repository,
+    test_repository,
+    try_push_stored,
+    test_perf_signature,
+    test_perf_signature_2,
+    monkeypatch,
 ):
+    import taskcluster
+
+    monkeypatch.setattr(taskcluster, 'Notify', MagicMock())
+
     total_removals = 3
     test_perf_signature.repository = try_repository
     test_perf_signature.save()
@@ -314,15 +325,18 @@ def test_performance_cycler_quit_indicator():
     five_minutes = timedelta(minutes=5)
 
     with pytest.raises(MaxRuntimeExceeded):
-        cycler = PerfherderCycler(chunk_size=100, sleep_time=0, max_runtime=one_second)
-        cycler.started_at = ten_minutes_ago
+        PerfherderCycler(chunk_size=100, sleep_time=0)
 
-        cycler._quit_on_timeout()
+        max_runtime = MaxRuntime(max_runtime=one_second)
+        max_runtime.started_at = ten_minutes_ago
+        max_runtime.quit_on_timeout()
 
     try:
-        cycler = PerfherderCycler(chunk_size=100, sleep_time=0, max_runtime=five_minutes)
-        cycler.started_at = two_seconds_ago
+        PerfherderCycler(chunk_size=100, sleep_time=0)
 
-        cycler._quit_on_timeout()
+        max_runtime = MaxRuntime(max_runtime=five_minutes)
+        max_runtime.started_at = two_seconds_ago
+        max_runtime.quit_on_timeout()
+
     except MaxRuntimeExceeded:
         pytest.fail('Performance cycling shouldn\'t have timed out')
