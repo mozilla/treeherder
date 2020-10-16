@@ -10,7 +10,6 @@ from django.db import models
 from django.utils.timezone import now as django_now
 
 from treeherder.model.models import Job, MachinePlatform, OptionCollection, Push, Repository
-from treeherder.perf.exceptions import MaxRuntimeExceeded, NoDataCyclingAtAll
 from treeherder.utils import default_serializer
 
 SIGNATURE_HASH_LENGTH = 40
@@ -138,102 +137,7 @@ class PerformanceSignature(models.Model):
         return "{} {} {} {}".format(self.signature_hash, name, self.platform, self.last_updated)
 
 
-class PerformanceDatumManager(models.Manager):
-    """
-    Convenience functions for operations on groups of performance datums
-    """
-
-    @classmethod
-    def _maybe_quit(cls, started_at, max_overall_runtime):
-        now = datetime.datetime.now()
-        elapsed_runtime = now - started_at
-
-        if max_overall_runtime < elapsed_runtime:
-            raise MaxRuntimeExceeded('Max runtime for performance data cycling exceeded')
-
-    def cycle_data(self, cycle_interval, chunk_size, logger, started_at, max_overall_runtime):
-        """Delete data older than cycle_interval, splitting the target data
-        into chunks of chunk_size size."""
-        max_timestamp = datetime.datetime.now() - cycle_interval
-
-        try:
-            self._delete_in_chunks(
-                max_timestamp, chunk_size, logger, started_at, max_overall_runtime
-            )
-
-            # also remove any signatures which are (no longer) associated with
-            # a job
-            logger.warning('Removing performance signatures with missing jobs...')
-            for signature in PerformanceSignature.objects.all():
-                self._maybe_quit(started_at, max_overall_runtime)
-
-                if not self.filter(
-                    repository_id=signature.repository_id,  # leverages (repository, signature) compound index
-                    signature_id=signature.id,
-                ).exists():
-                    signature.delete()
-        except NoDataCyclingAtAll as ex:
-            logger.warning('Exception: {}'.format(ex))
-        except MaxRuntimeExceeded as ex:
-            logger.warning(ex)
-
-    def _delete_in_chunks(self, max_timestamp, chunk_size, logger, started_at, max_overall_runtime):
-        from django.db import connection
-
-        any_succesful_attempt = False
-
-        with connection.cursor() as cursor:
-            while True:
-                self._maybe_quit(started_at, max_overall_runtime)
-
-                try:
-                    ideal_chunk_size = self._compute_ideal_chunk_size(max_timestamp, chunk_size)
-                    cursor.execute(
-                        '''
-                        DELETE FROM `performance_datum`
-                        WHERE push_timestamp < %s
-                        LIMIT %s
-                    ''',
-                        [max_timestamp, ideal_chunk_size],
-                    )
-                except Exception as ex:
-                    logger.warning(
-                        'Failed to delete performance data chunk, while running "{}" query '.format(
-                            cursor._last_executed
-                        )
-                    )
-
-                    if any_succesful_attempt is False:
-                        raise NoDataCyclingAtAll from ex
-                    break
-                else:
-                    deleted_rows = cursor.rowcount
-
-                    if deleted_rows == 0:
-                        break  # finished removing all expired data
-                    else:
-                        any_succesful_attempt = True
-                        logger.warning(
-                            'Successfully deleted {} performance datum rows'.format(deleted_rows)
-                        )
-
-    def _compute_ideal_chunk_size(self, max_timestamp, max_chunk_size):
-        """
-        max_chunk_size may be too big, causing
-        timeouts while attempting deletion;
-        doing basic database query, maybe a lower value is better
-        """
-        max_id = self.filter(push_timestamp__gt=max_timestamp).order_by('-id')[0].id
-        older_ids = self.filter(push_timestamp__lte=max_timestamp, id__lte=max_id).order_by('id')[
-            :max_chunk_size
-        ]
-
-        return len(older_ids) or max_chunk_size
-
-
 class PerformanceDatum(models.Model):
-    objects = PerformanceDatumManager()
-
     repository = models.ForeignKey(Repository, on_delete=models.CASCADE)
     signature = models.ForeignKey(PerformanceSignature, on_delete=models.CASCADE)
     value = models.FloatField()

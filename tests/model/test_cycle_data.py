@@ -1,4 +1,4 @@
-import datetime
+from datetime import datetime, timedelta
 
 import pytest
 from django.core.management import call_command
@@ -6,10 +6,7 @@ from django.db.models import Max
 
 from tests import test_utils
 from tests.autoclassify.utils import create_failure_lines, test_line
-from treeherder.model.management.commands.cycle_data import (
-    MINIMUM_PERFHERDER_EXPIRE_INTERVAL,
-    PerfherderCycler,
-)
+from treeherder.model.management.commands.cycle_data import PerfherderCycler
 from treeherder.model.models import (
     FailureLine,
     Job,
@@ -20,7 +17,7 @@ from treeherder.model.models import (
     Push,
 )
 from treeherder.perf.exceptions import MaxRuntimeExceeded
-from treeherder.perf.models import PerformanceDatum, PerformanceDatumManager, PerformanceSignature
+from treeherder.perf.models import PerformanceDatum, PerformanceSignature
 
 
 def test_cycle_all_data(
@@ -38,7 +35,7 @@ def test_cycle_all_data(
     test_utils.do_job_ingestion(test_repository, job_data, sample_push, False)
 
     # set the submit time to be a week before today
-    cycle_date_ts = datetime.datetime.now() - datetime.timedelta(weeks=1)
+    cycle_date_ts = datetime.now() - timedelta(weeks=1)
     for job in Job.objects.all():
         job.submit_time = cycle_date_ts
         job.save()
@@ -69,7 +66,7 @@ def test_cycle_all_but_one_job(
 
     # one job should not be deleted, set its submit time to now
     job_not_deleted = Job.objects.get(id=Job.objects.aggregate(Max("id"))["id__max"])
-    job_not_deleted.submit_time = datetime.datetime.now()
+    job_not_deleted.submit_time = datetime.now()
     job_not_deleted.save()
 
     extra_objects = {
@@ -82,7 +79,7 @@ def test_cycle_all_but_one_job(
     }
 
     # set other job's submit time to be a week ago from now
-    cycle_date_ts = datetime.datetime.now() - datetime.timedelta(weeks=1)
+    cycle_date_ts = datetime.now() - timedelta(weeks=1)
     for job in Job.objects.all().exclude(id=job_not_deleted.id):
         job.submit_time = cycle_date_ts
         job.save()
@@ -110,7 +107,7 @@ def test_cycle_all_data_in_chunks(
     test_utils.do_job_ingestion(test_repository, job_data, sample_push, False)
 
     # build a date that will cause the data to be cycled
-    cycle_date_ts = datetime.datetime.now() - datetime.timedelta(weeks=1)
+    cycle_date_ts = datetime.now() - timedelta(weeks=1)
     for job in Job.objects.all():
         job.submit_time = cycle_date_ts
         job.save()
@@ -162,10 +159,10 @@ def test_cycle_job_with_performance_data(
     test_repository, failure_classifications, test_job, mock_log_parser, test_perf_signature
 ):
     # build a date that will cause the data to be cycled
-    test_job.submit_time = datetime.datetime.now() - datetime.timedelta(weeks=1)
+    test_job.submit_time = datetime.now() - timedelta(weeks=1)
     test_job.save()
 
-    p = PerformanceDatum.objects.create(
+    PerformanceDatum.objects.create(
         repository=test_repository,
         result_set_id=1,
         push=test_job.push,
@@ -186,28 +183,25 @@ def test_cycle_job_with_performance_data(
 
 
 @pytest.mark.parametrize(
-    'repository_name, command_options, subcommand_options, should_expire',
+    'repository_name',
     [
-        ('autoland', '--days=365', None, True),
-        ('mozilla-inbound', '--days=365', None, True),
-        ('mozilla-beta', '--days=365', None, True),
-        ('mozilla-central', '--days=365', None, True),
-        ('autoland', '--days=401', None, False),
+        'autoland',
+        'mozilla-inbound',
+        'mozilla-beta',
+        'mozilla-central',
     ],
 )
 def test_cycle_performance_data(
     test_repository,
+    try_repository,
     repository_name,
     push_stored,
     test_perf_signature,
-    command_options,
-    subcommand_options,
-    should_expire,
 ):
     test_repository.name = repository_name
     test_repository.save()
 
-    expired_timestamp = datetime.datetime.now() - datetime.timedelta(days=400)
+    expired_timestamp = datetime.now() - timedelta(days=400)
 
     test_perf_signature_2 = PerformanceSignature.objects.create(
         signature_hash='b' * 40,
@@ -222,7 +216,7 @@ def test_cycle_performance_data(
     )
 
     push1 = Push.objects.get(id=1)
-    push1.time = datetime.datetime.now()
+    push1.time = datetime.now()
     push1.save()
 
     push2 = Push.objects.get(id=2)
@@ -253,48 +247,82 @@ def test_cycle_performance_data(
 
     command = filter(
         lambda arg: arg is not None,
-        ['cycle_data', command_options, 'from:perfherder', subcommand_options],
+        ['cycle_data', 'from:perfherder'],
     )
     call_command(*list(command))  # test repository isn't a main one
 
-    if should_expire:
-        assert list(PerformanceDatum.objects.values_list('id', flat=True)) == [1]
-        assert list(PerformanceSignature.objects.values_list('id', flat=True)) == [
-            test_perf_signature.id
-        ]
-    else:
-        assert PerformanceDatum.objects.count() == 2
-        assert PerformanceSignature.objects.count() == 2
+    assert list(PerformanceDatum.objects.values_list('id', flat=True)) == [1]
+    assert list(PerformanceSignature.objects.values_list('id', flat=True)) == [
+        test_perf_signature.id
+    ]
+
+
+def test_try_data_removal(
+    try_repository, test_repository, try_push_stored, test_perf_signature, test_perf_signature_2
+):
+    total_removals = 3
+    test_perf_signature.repository = try_repository
+    test_perf_signature.save()
+
+    try_pushes = list(Push.objects.filter(repository=try_repository).order_by('id').all())
+
+    for idx, push in enumerate(try_pushes[:-2]):
+        push_timestamp = datetime.now()
+        if idx < total_removals:
+            push_timestamp -= timedelta(weeks=10)
+
+        PerformanceDatum.objects.create(
+            repository=try_repository,
+            push=push,
+            job=None,
+            signature=test_perf_signature,
+            push_timestamp=push_timestamp,
+            value=1.0,
+        )
+
+    for push in try_pushes[-2:]:
+        push_timestamp = datetime.now() - timedelta(weeks=10)
+
+        # try data removal shouldn't delete these non-try data
+        PerformanceDatum.objects.create(
+            repository=test_repository,
+            push=push,
+            job=None,
+            signature=test_perf_signature_2,
+            push_timestamp=push_timestamp,
+            value=1.0,
+        )
+
+    total_initial_data = PerformanceDatum.objects.count()
+
+    call_command('cycle_data', 'from:perfherder')
+    assert PerformanceDatum.objects.count() == total_initial_data - total_removals
+    assert not PerformanceDatum.objects.filter(
+        push_timestamp__lt=datetime.now() - timedelta(weeks=6),
+        repository=try_repository,
+    ).exists()
+    assert (
+        PerformanceDatum.objects.exclude(repository=try_repository).count() == 2
+    )  # non-try data remained intact
 
 
 def test_performance_cycler_quit_indicator():
-    ten_minutes_ago = datetime.datetime.now() - datetime.timedelta(minutes=10)
-    max_one_second = datetime.timedelta(seconds=1)
+    ten_minutes_ago = datetime.now() - timedelta(minutes=10)
+    one_second = timedelta(seconds=1)
 
-    two_seconds_ago = datetime.datetime.now() - datetime.timedelta(seconds=2)
-    max_five_minutes = datetime.timedelta(minutes=5)
+    two_seconds_ago = datetime.now() - timedelta(seconds=2)
+    five_minutes = timedelta(minutes=5)
 
     with pytest.raises(MaxRuntimeExceeded):
-        PerformanceDatumManager._maybe_quit(
-            started_at=ten_minutes_ago, max_overall_runtime=max_one_second
-        )
+        cycler = PerfherderCycler(chunk_size=100, sleep_time=0, max_runtime=one_second)
+        cycler.started_at = ten_minutes_ago
+
+        cycler._quit_on_timeout()
 
     try:
-        PerformanceDatumManager._maybe_quit(
-            started_at=two_seconds_ago, max_overall_runtime=max_five_minutes
-        )
+        cycler = PerfherderCycler(chunk_size=100, sleep_time=0, max_runtime=five_minutes)
+        cycler.started_at = two_seconds_ago
+
+        cycler._quit_on_timeout()
     except MaxRuntimeExceeded:
-        pytest.fail('Performance cycling shouldn\'t have quit')
-
-
-def test_performance_cycler_doesnt_delete_too_recent_data():
-    down_to_last_year = MINIMUM_PERFHERDER_EXPIRE_INTERVAL
-    dangerously_recent = 40
-
-    with pytest.raises(ValueError):
-        PerfherderCycler(days=dangerously_recent, chunk_size=1000, sleep_time=0)
-
-    try:
-        PerfherderCycler(days=down_to_last_year, chunk_size=1000, sleep_time=0)
-    except ValueError:
-        pytest.fail('Should be able to expire data older than one year')
+        pytest.fail('Performance cycling shouldn\'t have timed out')

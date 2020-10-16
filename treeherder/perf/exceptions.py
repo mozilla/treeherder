@@ -1,5 +1,9 @@
 class NoDataCyclingAtAll(Exception):
-    pass
+    def __str__(self):
+        msg = 'No data cycling could be performed.'
+        if self.__cause__:
+            msg = f'{msg} (Reason: {self.__cause__})'
+        return msg
 
 
 class MaxRuntimeExceeded(Exception):
