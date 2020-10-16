@@ -7,38 +7,22 @@ import {
   faMinusSquare,
   faPlusSquare,
 } from '@fortawesome/free-regular-svg-icons';
-import {
-  faExternalLinkAlt,
-  faThumbtack,
-  faTimesCircle,
-} from '@fortawesome/free-solid-svg-icons';
+import { faThumbtack, faTimesCircle } from '@fortawesome/free-solid-svg-icons';
 import { Badge, Button } from 'reactstrap';
+import { push as pushRoute } from 'connected-react-router';
 
 import { getPercentComplete, toDateStr } from '../../helpers/display';
 import { formatTaskclusterError } from '../../helpers/errorMessage';
-import { getJobsUrl } from '../../helpers/url';
 import PushModel from '../../models/push';
 import JobModel from '../../models/job';
 import PushHealthStatus from '../../shared/PushHealthStatus';
-import PushAuthor from '../../shared/PushAuthor';
-import { getUrlParam, setUrlParam } from '../../helpers/location';
+import { getUrlParam } from '../../helpers/location';
 import { notify } from '../redux/stores/notifications';
 import { setSelectedJob } from '../redux/stores/selectedJob';
 import { pinJobs } from '../redux/stores/pinnedJobs';
+import { updateRange } from '../redux/stores/pushes';
 
 import PushActionMenu from './PushActionMenu';
-
-// url params we don't want added from the current querystring to the revision
-// and author links.
-const SKIPPED_LINK_PARAMS = [
-  'revision',
-  'fromchange',
-  'tochange',
-  'nojobs',
-  'startdate',
-  'enddate',
-  'author',
-];
 
 function PushCounts(props) {
   const { pending, running, completed, fixedByCommit } = props;
@@ -117,16 +101,6 @@ class PushHeader extends React.Component {
     );
   }
 
-  getLinkParams() {
-    const { filterModel } = this.props;
-
-    return Object.entries(filterModel.getUrlParamsWithoutDefaults()).reduce(
-      (acc, [field, values]) =>
-        SKIPPED_LINK_PARAMS.includes(field) ? acc : { ...acc, [field]: values },
-      {},
-    );
-  }
-
   triggerNewJobs = async () => {
     const {
       pushId,
@@ -174,6 +148,12 @@ class PushHeader extends React.Component {
     }
   };
 
+  updateView = (param, value) => {
+    const { pushRoute, currentRepo } = this.props;
+
+    pushRoute({ search: `?repo=${currentRepo.name}&${param}=${value}` });
+  };
+
   pinAllShownJobs = () => {
     const {
       setSelectedJob,
@@ -198,25 +178,6 @@ class PushHeader extends React.Component {
     }
   };
 
-  togglePushCollapsed = () => {
-    const { push, collapsed } = this.props;
-    const pushId = `${push.id}`;
-    const collapsedPushesParam = getUrlParam('collapsedPushes');
-    const collapsedPushes = collapsedPushesParam
-      ? new Set(collapsedPushesParam.split(','))
-      : new Set();
-
-    if (collapsed) {
-      collapsedPushes.delete(pushId);
-    } else {
-      collapsedPushes.add(pushId);
-    }
-    setUrlParam(
-      'collapsedPushes',
-      collapsedPushes.size ? Array.from(collapsedPushes) : null,
-    );
-  };
-
   render() {
     const {
       pushId,
@@ -235,11 +196,10 @@ class PushHeader extends React.Component {
       pushHealthVisibility,
       currentRepo,
       pushHealthStatusCallback,
+      togglePushCollapsed,
     } = this.props;
     const cancelJobsTitle = 'Cancel all jobs';
-    const linkParams = this.getLinkParams();
-    const revisionPushFilterUrl = getJobsUrl({ ...linkParams, revision });
-    const authorPushFilterUrl = getJobsUrl({ ...linkParams, author });
+
     const showPushHealthStatus =
       pushHealthVisibility === 'All' ||
       currentRepo.name === pushHealthVisibility.toLowerCase();
@@ -256,22 +216,30 @@ class PushHeader extends React.Component {
           <span className="push-left">
             <span className="push-title-left">
               <FontAwesomeIcon
-                onClick={this.togglePushCollapsed}
+                onClick={togglePushCollapsed}
                 icon={collapsed ? faPlusSquare : faMinusSquare}
                 className="mr-2 mt-2 text-muted pointable"
                 title={`${collapsed ? 'Expand' : 'Collapse'} push data`}
               />
-              <span>
-                <a href={revisionPushFilterUrl} title="View only this push">
-                  {this.pushDateStr}{' '}
-                  <FontAwesomeIcon
-                    icon={faExternalLinkAlt}
-                    className="icon-superscript"
-                  />
-                </a>{' '}
-                -{' '}
-              </span>
-              <PushAuthor author={author} url={authorPushFilterUrl} />
+              <span className="text-darker-secondary">{this.pushDateStr}</span>
+              <Button
+                size="sm"
+                outline
+                color="darker-secondary"
+                className="mx-1"
+                onClick={() => this.updateView('revision', revision)}
+              >
+                View this push
+              </Button>
+              <Button
+                size="sm"
+                outline
+                color="darker-secondary"
+                className="mx-1"
+                onClick={() => this.updateView('author', author)}
+              >
+                {`Filter by ${author}`}
+              </Button>
             </span>
           </span>
           {showPushHealthStatus && (
@@ -364,7 +332,7 @@ PushHeader.propTypes = {
   pushId: PropTypes.number.isRequired,
   pushTimestamp: PropTypes.number.isRequired,
   author: PropTypes.string.isRequired,
-  revision: PropTypes.string.isRequired,
+  revision: PropTypes.string,
   filterModel: PropTypes.shape({}).isRequired,
   runnableVisible: PropTypes.bool.isRequired,
   showRunnableJobs: PropTypes.func.isRequired,
@@ -385,17 +353,23 @@ PushHeader.propTypes = {
   watchState: PropTypes.string,
   pushHealthStatusCallback: PropTypes.func,
   currentRepo: PropTypes.shape({}).isRequired,
+  pushRoute: PropTypes.func.isRequired,
 };
 
 PushHeader.defaultProps = {
   watchState: 'none',
   pushHealthStatusCallback: null,
+  revision: null,
 };
 
 const mapStateToProps = ({ pushes: { decisionTaskMap } }) => ({
   decisionTaskMap,
 });
 
-export default connect(mapStateToProps, { notify, setSelectedJob, pinJobs })(
-  PushHeader,
-);
+export default connect(mapStateToProps, {
+  notify,
+  setSelectedJob,
+  pinJobs,
+  updateRange,
+  pushRoute,
+})(PushHeader);

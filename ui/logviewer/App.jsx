@@ -29,6 +29,9 @@ import { formatArtifacts, errorLinesCss } from '../helpers/display';
 import Navigation from './Navigation';
 import ErrorLines from './ErrorLines';
 
+import '../css/lazylog-custom-styles.css';
+import './logviewer.css';
+
 const JOB_DETAILS_COLLAPSED = 'jobDetailsCollapsed';
 
 const getUrlLineNumber = function getUrlLineNumber() {

@@ -1,19 +1,23 @@
+import { createBrowserHistory } from 'history';
+
 import {
   getFilterUrlParamsWithDefaults,
   getNonFilterUrlParams,
 } from '../../../ui/models/filter';
 
+const history = createBrowserHistory();
+
 describe('FilterModel', () => {
-  const oldHash = window.location.hash;
+  const prevParams = history.location.search;
 
   afterEach(() => {
-    window.location.hash = oldHash;
+    history.location.search = prevParams;
   });
 
   describe('parsing an old url', () => {
     it('should parse the repo with defaults', () => {
-      window.location.hash = '?repo=mozilla-inbound';
-      const urlParams = getFilterUrlParamsWithDefaults();
+      history.location.search = '?repo=mozilla-inbound';
+      const urlParams = getFilterUrlParamsWithDefaults(history.location);
 
       expect(urlParams).toEqual({
         repo: ['mozilla-inbound'],
@@ -34,12 +38,12 @@ describe('FilterModel', () => {
     });
 
     it('should parse resultStatus params', () => {
-      window.location.hash =
+      history.location.search =
         '?repo=mozilla-inbound&filter-resultStatus=testfailed&' +
         'filter-resultStatus=busted&filter-resultStatus=exception&' +
         'filter-resultStatus=success&filter-resultStatus=retry' +
         '&filter-resultStatus=runnable';
-      const urlParams = getFilterUrlParamsWithDefaults();
+      const urlParams = getFilterUrlParamsWithDefaults(history.location);
 
       expect(urlParams).toEqual({
         repo: ['mozilla-inbound'],
@@ -57,11 +61,11 @@ describe('FilterModel', () => {
     });
 
     it('should parse searchStr params with tier and groupState intact', () => {
-      window.location.hash =
+      history.location.search =
         '?repo=mozilla-inbound&filter-searchStr=Linux%20x64%20debug%20build-linux64-base-toolchains%2Fdebug%20(Bb)&filter-tier=1&group_state=expanded';
       const urlParams = {
-        ...getNonFilterUrlParams(),
-        ...getFilterUrlParamsWithDefaults(),
+        ...getNonFilterUrlParams(history.location),
+        ...getFilterUrlParamsWithDefaults(history.location),
       };
 
       expect(urlParams).toEqual({
@@ -91,8 +95,9 @@ describe('FilterModel', () => {
     });
 
     it('should parse job field filters', () => {
-      window.location.hash = '?repo=mozilla-inbound&filter-job_type_name=mochi';
-      const urlParams = getFilterUrlParamsWithDefaults();
+      history.location.search =
+        '?repo=mozilla-inbound&filter-job_type_name=mochi';
+      const urlParams = getFilterUrlParamsWithDefaults(history.location);
 
       expect(urlParams).toEqual({
         repo: ['mozilla-inbound'],
@@ -116,10 +121,10 @@ describe('FilterModel', () => {
 
   describe('parsing a new url', () => {
     it('should parse resultStatus and searchStr', () => {
-      window.location.hash =
+      history.location.search =
         '?repo=mozilla-inbound&resultStatus=testfailed,busted,exception,success,retry,runnable&' +
         'searchStr=linux,x64,debug,build-linux64-base-toolchains%2Fdebug,(bb)';
-      const urlParams = getFilterUrlParamsWithDefaults();
+      const urlParams = getFilterUrlParamsWithDefaults(history.location);
 
       expect(urlParams).toEqual({
         repo: ['mozilla-inbound'],
@@ -144,9 +149,9 @@ describe('FilterModel', () => {
     });
 
     it('should preserve the case in email addresses', () => {
-      window.location.hash =
+      history.location.search =
         '?repo=mozilla-inbound&author=VYV03354@nifty.ne.jp';
-      const urlParams = getFilterUrlParamsWithDefaults();
+      const urlParams = getFilterUrlParamsWithDefaults(history.location);
 
       expect(urlParams).toEqual({
         repo: ['mozilla-inbound'],

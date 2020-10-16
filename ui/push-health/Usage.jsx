@@ -67,7 +67,7 @@ class Usage extends Component {
                 <tr key={revision} data-testid={`facet-${revision}`}>
                   <td data-testid="facet-link">
                     <a
-                      href={`/pushhealth.html?repo=try&revision=${revision}`}
+                      href={`/push-health?repo=try&revision=${revision}`}
                       title="See Push Health"
                     >
                       {revision}

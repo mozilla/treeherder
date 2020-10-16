@@ -11,7 +11,11 @@ import {
 } from '../../helpers/constants';
 import decompress from '../../helpers/gzip';
 import { getGroupMapKey } from '../../helpers/aggregateId';
-import { getAllUrlParams, getUrlParam } from '../../helpers/location';
+import {
+  getAllUrlParams,
+  getUrlParam,
+  setUrlParam,
+} from '../../helpers/location';
 import JobModel from '../../models/job';
 import RunnableJobModel from '../../models/runnableJob';
 import { getRevisionTitle } from '../../helpers/revision';
@@ -122,17 +126,21 @@ class Push extends React.PureComponent {
     this.testForFilteredTry();
 
     window.addEventListener(thEvents.applyNewJobs, this.handleApplyNewJobs);
-    window.addEventListener('hashchange', this.handleUrlChanges);
   }
 
   componentDidUpdate(prevProps, prevState) {
     this.showUpdateNotifications(prevState);
     this.testForFilteredTry();
+
+    if (
+      prevProps.router.location.search !== this.props.router.location.search
+    ) {
+      this.handleUrlChanges();
+    }
   }
 
   componentWillUnmount() {
     window.removeEventListener(thEvents.applyNewJobs, this.handleApplyNewJobs);
-    window.removeEventListener('hashchange', this.handleUrlChanges);
   }
 
   getJobCount(jobList) {
@@ -184,6 +192,30 @@ class Push extends React.PureComponent {
       push.revisions,
     )}`;
   }
+
+  togglePushCollapsed = () => {
+    const { push } = this.props;
+    const pushId = `${push.id}`;
+    const collapsedPushesParam = getUrlParam('collapsedPushes');
+    const collapsedPushes = collapsedPushesParam
+      ? new Set(collapsedPushesParam.split(','))
+      : new Set();
+
+    this.setState(
+      (prevState) => ({ collapsed: !prevState.collapsed }),
+      () => {
+        if (!this.state.collapsed) {
+          collapsedPushes.delete(pushId);
+        } else {
+          collapsedPushes.add(pushId);
+        }
+        setUrlParam(
+          'collapsedPushes',
+          collapsedPushes.size ? Array.from(collapsedPushes) : null,
+        );
+      },
+    );
+  };
 
   testForFilteredTry = () => {
     const { currentRepo } = this.props;
@@ -633,6 +665,7 @@ class Push extends React.PureComponent {
           pushHealthVisibility={pushHealthVisibility}
           groupCountsExpanded={groupCountsExpanded}
           pushHealthStatusCallback={this.pushHealthStatusCallback}
+          togglePushCollapsed={this.togglePushCollapsed}
         />
         <div className="push-body-divider" />
         {!collapsed ? (
@@ -713,10 +746,12 @@ Push.propTypes = {
 
 const mapStateToProps = ({
   pushes: { allUnclassifiedFailureCount, decisionTaskMap, bugSummaryMap },
+  router,
 }) => ({
   allUnclassifiedFailureCount,
   decisionTaskMap,
   bugSummaryMap,
+  router,
 });
 
 export default connect(mapStateToProps, {

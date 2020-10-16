@@ -54,6 +54,7 @@ export default class PushModel {
       // fetch the maximum number of pushes
       params.count = thMaxPushFetchSize;
     }
+
     return getData(
       `${getProjectUrl(pushEndpoint, repoName)}${createQueryParams(params)}`,
     );

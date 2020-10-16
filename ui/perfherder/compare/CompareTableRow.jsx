@@ -7,6 +7,7 @@ import {
   faThumbsUp,
   faHashtag,
 } from '@fortawesome/free-solid-svg-icons';
+import { Link } from 'react-router-dom';
 
 import SimpleTooltip from '../../shared/SimpleTooltip';
 import { displayNumber, formatNumber, getHashBasedId } from '../helpers';
@@ -81,7 +82,7 @@ export default class CompareTableRow extends React.PureComponent {
             {rowLevelResults.links &&
               rowLevelResults.links.map((link) => (
                 <span key={link.title}>
-                  <a href={link.href}>{` ${link.title}`}</a>
+                  <Link to={link.to}>{` ${link.title}`}</Link>
                 </span>
               ))}
           </span>

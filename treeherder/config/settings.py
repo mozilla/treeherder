@@ -126,14 +126,6 @@ MIDDLEWARE = [
     if middleware
 ]
 
-# Templating
-TEMPLATES = [
-    {
-        'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'APP_DIRS': True,
-    }
-]
-
 # Database
 # The database config is defined using environment variables of form:
 #
@@ -426,6 +418,14 @@ WHITENOISE_INDEX_FILE = True
 # Halves the time spent performing Brotli/gzip compression during deploys.
 WHITENOISE_KEEP_ONLY_HASHED_FILES = True
 
+# Templating
+TEMPLATES = [
+    {
+        'BACKEND': 'django.template.backends.django.DjangoTemplates',
+        'APP_DIRS': True,
+        'DIRS': [WHITENOISE_ROOT],
+    }
+]
 
 # TREEHERDER
 

@@ -7,55 +7,39 @@ import {
   DropdownToggle,
   UncontrolledDropdown,
 } from 'reactstrap';
+import { push as pushRoute } from 'connected-react-router';
 
-import { getUrlParam } from '../../helpers/location';
+import {
+  createQueryParams,
+  getPushHealthUrl,
+  getCompareChooserUrl,
+  parseQueryParams,
+} from '../../helpers/url';
 import { formatTaskclusterError } from '../../helpers/errorMessage';
 import CustomJobActions from '../CustomJobActions';
 import PushModel from '../../models/push';
-import { getPushHealthUrl, getCompareChooserUrl } from '../../helpers/url';
 import { notify } from '../redux/stores/notifications';
-import { thEvents } from '../../helpers/constants';
-
-// Trigger missing jobs is dangerous on repos other than these (see bug 1335506)
-const triggerMissingRepos = ['mozilla-inbound', 'autoland'];
+import { updateRange } from '../redux/stores/pushes';
 
 class PushActionMenu extends React.PureComponent {
   constructor(props) {
     super(props);
 
-    const { revision } = this.props;
-
     this.state = {
-      topOfRangeUrl: this.getRangeChangeUrl('tochange', revision),
-      bottomOfRangeUrl: this.getRangeChangeUrl('fromchange', revision),
       customJobActionsShowing: false,
     };
   }
 
-  componentDidMount() {
-    window.addEventListener('hashchange', this.handleUrlChanges, false);
-    window.addEventListener(thEvents.filtersUpdated, this.handleUrlChanges);
-  }
+  updateParamsAndRange = (param) => {
+    const { revision, updateRange, pushRoute } = this.props;
 
-  componentWillUnmount() {
-    window.removeEventListener('hashchange', this.handleUrlChanges, false);
-    window.removeEventListener(thEvents.filtersUpdated, this.handleUrlChanges);
-  }
+    let queryParams = parseQueryParams(window.location.search);
+    queryParams = { ...queryParams, ...{ [param]: revision } };
 
-  getRangeChangeUrl(param, revision) {
-    let url = window.location.href;
-    url = url.replace(`&${param}=${getUrlParam(param)}`, '');
-    url = url.replace(`&${'selectedJob'}=${getUrlParam('selectedJob')}`, '');
-    return `${url}&${param}=${revision}`;
-  }
-
-  handleUrlChanges = () => {
-    const { revision } = this.props;
-
-    this.setState({
-      topOfRangeUrl: this.getRangeChangeUrl('tochange', revision),
-      bottomOfRangeUrl: this.getRangeChangeUrl('fromchange', revision),
+    pushRoute({
+      search: createQueryParams(queryParams),
     });
+    updateRange(queryParams);
   };
 
   triggerMissingJobs = () => {
@@ -102,11 +86,7 @@ class PushActionMenu extends React.PureComponent {
       pushId,
       currentRepo,
     } = this.props;
-    const {
-      topOfRangeUrl,
-      bottomOfRangeUrl,
-      customJobActionsShowing,
-    } = this.state;
+    const { customJobActionsShowing } = this.state;
 
     return (
       <React.Fragment>
@@ -143,15 +123,13 @@ class PushActionMenu extends React.PureComponent {
             >
               Add new jobs (Search)
             </DropdownItem>
-            {triggerMissingRepos.includes(currentRepo.name) && (
-              <DropdownItem
-                tag="a"
-                title="Trigger all jobs that were optimized away"
-                onClick={this.triggerMissingJobs}
-              >
-                Trigger missing jobs
-              </DropdownItem>
-            )}
+            <DropdownItem
+              tag="a"
+              title="Trigger all jobs that were optimized away"
+              onClick={this.triggerMissingJobs}
+            >
+              Trigger missing jobs
+            </DropdownItem>
             <DropdownItem
               tag="a"
               target="_blank"
@@ -170,14 +148,14 @@ class PushActionMenu extends React.PureComponent {
             </DropdownItem>
             <DropdownItem
               tag="a"
-              href={topOfRangeUrl}
+              onClick={() => this.updateParamsAndRange('tochange')}
               data-testid="top-of-range-menu-item"
             >
               Set as top of range
             </DropdownItem>
             <DropdownItem
               tag="a"
-              href={bottomOfRangeUrl}
+              onClick={() => this.updateParamsAndRange('fromchange')}
               data-testid="bottom-of-range-menu-item"
             >
               Set as bottom of range
@@ -221,7 +199,7 @@ class PushActionMenu extends React.PureComponent {
 
 PushActionMenu.propTypes = {
   runnableVisible: PropTypes.bool.isRequired,
-  revision: PropTypes.string.isRequired,
+  revision: PropTypes.string,
   currentRepo: PropTypes.shape({
     name: PropTypes.string,
   }).isRequired,
@@ -233,8 +211,14 @@ PushActionMenu.propTypes = {
   notify: PropTypes.func.isRequired,
 };
 
+PushActionMenu.defaultProps = {
+  revision: null,
+};
+
 const mapStateToProps = ({ pushes: { decisionTaskMap } }) => ({
   decisionTaskMap,
 });
 
-export default connect(mapStateToProps, { notify })(PushActionMenu);
+export default connect(mapStateToProps, { notify, updateRange, pushRoute })(
+  PushActionMenu,
+);

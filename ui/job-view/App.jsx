@@ -4,14 +4,20 @@ import { hot } from 'react-hot-loader/root';
 import SplitPane from 'react-split-pane';
 import pick from 'lodash/pick';
 import isEqual from 'lodash/isEqual';
-import { Provider } from 'react-redux';
+import { connect } from 'react-redux';
+import PropTypes from 'prop-types';
+import { push as pushRoute } from 'connected-react-router';
 
-import { thFavicons, thEvents } from '../helpers/constants';
+import { thFavicons, thDefaultRepo, thEvents } from '../helpers/constants';
 import ShortcutTable from '../shared/ShortcutTable';
-import { hasUrlFilterChanges, matchesDefaults } from '../helpers/filter';
-import { getAllUrlParams, getRepo } from '../helpers/location';
+import { matchesDefaults } from '../helpers/filter';
+import { getAllUrlParams } from '../helpers/location';
 import { MAX_TRANSIENT_AGE } from '../helpers/notifications';
-import { deployedRevisionUrl } from '../helpers/url';
+import {
+  deployedRevisionUrl,
+  parseQueryParams,
+  createQueryParams,
+} from '../helpers/url';
 import ClassificationTypeModel from '../models/classificationType';
 import FilterModel from '../models/filter';
 import RepositoryModel from '../models/repository';
@@ -24,8 +30,20 @@ import { PUSH_HEALTH_VISIBILITY } from './headerbars/HealthMenu';
 import DetailsPanel from './details/DetailsPanel';
 import PushList from './pushes/PushList';
 import KeyboardShortcuts from './KeyboardShortcuts';
-import { store } from './redux/store';
+import { configureStore } from './redux/configureStore';
 import { CLEAR_EXPIRED_TRANSIENTS } from './redux/stores/notifications';
+
+import '../css/treeherder-base.css';
+import '../css/treeherder-navbar-panels.css';
+import '../css/treeherder-notifications.css';
+import '../css/treeherder-details-panel.css';
+import '../css/failure-summary.css';
+import '../css/treeherder-job-buttons.css';
+import '../css/treeherder-pushes.css';
+import '../css/treeherder-pinboard.css';
+import '../css/treeherder-bugfiler.css';
+import '../css/treeherder-fuzzyfinder.css';
+import '../css/treeherder-loading-overlay.css';
 
 const DEFAULT_DETAILS_PCT = 40;
 const REVISION_POLL_INTERVAL = 1000 * 60 * 5;
@@ -47,19 +65,19 @@ const getWindowHeight = function getWindowHeight() {
   return windowHeight - navBarHeight;
 };
 
+const store = configureStore();
+
 class App extends React.Component {
   constructor(props) {
     super(props);
 
-    const filterModel = new FilterModel();
-    // Set the URL to updated parameter styles, if needed.  Otherwise it's a no-op.
-    filterModel.push();
+    const filterModel = new FilterModel(this.props);
     const urlParams = getAllUrlParams();
     const hasSelectedJob =
       urlParams.has('selectedJob') || urlParams.has('selectedTaskRun');
 
     this.state = {
-      repoName: getRepo(),
+      repoName: this.getOrSetRepo(),
       revision: urlParams.get('revision'),
       user: { isLoggedIn: false, isStaff: false },
       filterModel,
@@ -82,7 +100,6 @@ class App extends React.Component {
   static getDerivedStateFromProps(props, state) {
     return {
       ...App.getSplitterDimensions(state.hasSelectedJob),
-      repoName: getRepo(),
     };
   }
 
@@ -103,7 +120,6 @@ class App extends React.Component {
     });
 
     window.addEventListener('resize', this.updateDimensions, false);
-    window.addEventListener('hashchange', this.handleUrlChanges, false);
     window.addEventListener('storage', this.handleStorageEvent);
     window.addEventListener(thEvents.filtersUpdated, this.handleFiltersUpdated);
 
@@ -149,10 +165,21 @@ class App extends React.Component {
     }, MAX_TRANSIENT_AGE);
   }
 
+  componentDidUpdate(prevProps) {
+    if (
+      prevProps.router.location.search !== this.props.router.location.search
+    ) {
+      this.handleUrlChanges();
+    }
+  }
+
   componentWillUnmount() {
     window.removeEventListener('resize', this.updateDimensions, false);
-    window.removeEventListener('hashchange', this.handleUrlChanges, false);
-    window.removeEventListener('storage', this.handleUrlChanges, false);
+    window.removeEventListener('storage', this.handleStorageEvent);
+    window.removeEventListener(
+      thEvents.filtersUpdated,
+      this.handleFiltersUpdated,
+    );
 
     if (this.updateInterval) {
       clearInterval(this.updateInterval);
@@ -173,6 +200,33 @@ class App extends React.Component {
       defaultDetailsHeight,
     };
   }
+
+  getOrSetRepo() {
+    const { pushRoute } = this.props;
+    const params = getAllUrlParams();
+    let repo = params.get('repo');
+
+    if (!repo) {
+      repo = thDefaultRepo;
+      params.set('repo', repo);
+      pushRoute({
+        search: createQueryParams(params),
+      });
+    }
+
+    return repo;
+  }
+
+  handleFiltersUpdated = () => {
+    // we're only using window.location here because of how we're setting param changes for fetchNextPushes
+    // in PushList and addPushes.
+    this.setState({
+      filterModel: new FilterModel({
+        router: window,
+        pushRoute: this.props.pushRoute,
+      }),
+    });
+  };
 
   handleStorageEvent = (e) => {
     if (e.key === PUSH_HEALTH_VISIBILITY) {
@@ -200,9 +254,7 @@ class App extends React.Component {
   };
 
   getAllShownJobs = (pushId) => {
-    const {
-      pushes: { jobMap },
-    } = store.getState();
+    const { jobMap } = this.props;
     const jobList = Object.values(jobMap);
 
     return pushId
@@ -222,32 +274,32 @@ class App extends React.Component {
     );
   };
 
-  handleUrlChanges = (ev) => {
+  handleUrlChanges = () => {
     const { repos } = this.state;
-    const { newURL, oldURL } = ev;
-    const urlParams = getAllUrlParams();
-    const newRepo = urlParams.get('repo');
-    // We only want to set state if any of these or the filter values have changed
+    const { router } = this.props;
+
+    const {
+      selectedJob,
+      selectedTaskRun,
+      group_state: groupState,
+      duplicate_jobs: duplicateJobs,
+      repo: newRepo,
+    } = parseQueryParams(router.location.search);
+
     const newState = {
-      hasSelectedJob:
-        urlParams.has('selectedJob') || urlParams.has('selectedTaskRun'),
-      groupCountsExpanded: urlParams.get('group_state') === 'expanded',
-      duplicateJobsVisible: urlParams.get('duplicate_jobs') === 'visible',
+      hasSelectedJob: selectedJob || selectedTaskRun,
+      groupCountsExpanded: groupState === 'expanded',
+      duplicateJobsVisible: duplicateJobs === 'visible',
       currentRepo: repos.find((repo) => repo.name === newRepo),
     };
+
     const oldState = pick(this.state, Object.keys(newState));
+    let stateChanges = { filterModel: new FilterModel(this.props) };
 
-    // Only re-create the FilterModel if url params that affect it have changed.
-    if (hasUrlFilterChanges(oldURL, newURL)) {
-      this.setState({ filterModel: new FilterModel() });
-    }
     if (!isEqual(newState, oldState)) {
-      this.setState(newState);
+      stateChanges = { ...stateChanges, ...newState };
     }
-  };
-
-  handleFiltersUpdated = () => {
-    this.setState({ filterModel: new FilterModel() });
+    this.setState(stateChanges);
   };
 
   // If ``show`` is a boolean, then set to that value.  If it's not, then toggle
@@ -318,87 +370,98 @@ class App extends React.Component {
 
     return (
       <div id="global-container" className="height-minus-navbars">
-        <Provider store={store}>
-          <KeyboardShortcuts
+        <KeyboardShortcuts
+          filterModel={filterModel}
+          showOnScreenShortcuts={this.showOnScreenShortcuts}
+        >
+          <PrimaryNavBar
+            repos={repos}
+            updateButtonClick={this.updateButtonClick}
+            serverChanged={serverChanged}
             filterModel={filterModel}
-            showOnScreenShortcuts={this.showOnScreenShortcuts}
+            setUser={this.setUser}
+            user={user}
+            setCurrentRepoTreeStatus={this.setCurrentRepoTreeStatus}
+            getAllShownJobs={this.getAllShownJobs}
+            duplicateJobsVisible={duplicateJobsVisible}
+            groupCountsExpanded={groupCountsExpanded}
+            toggleFieldFilterVisible={this.toggleFieldFilterVisible}
+            pushHealthVisibility={pushHealthVisibility}
+            setPushHealthVisibility={this.setPushHealthVisibility}
+            {...this.props}
+          />
+          <SplitPane
+            split="horizontal"
+            size={`${pushListPct}%`}
+            onChange={(size) => this.handleSplitChange(size)}
           >
-            <PrimaryNavBar
-              repos={repos}
-              updateButtonClick={this.updateButtonClick}
-              serverChanged={serverChanged}
-              filterModel={filterModel}
-              setUser={this.setUser}
-              user={user}
-              setCurrentRepoTreeStatus={this.setCurrentRepoTreeStatus}
-              getAllShownJobs={this.getAllShownJobs}
-              duplicateJobsVisible={duplicateJobsVisible}
-              groupCountsExpanded={groupCountsExpanded}
-              toggleFieldFilterVisible={this.toggleFieldFilterVisible}
-              pushHealthVisibility={pushHealthVisibility}
-              setPushHealthVisibility={this.setPushHealthVisibility}
-            />
-            <SplitPane
-              split="horizontal"
-              size={`${pushListPct}%`}
-              onChange={(size) => this.handleSplitChange(size)}
-            >
-              <div className="d-flex flex-column w-100">
-                {(isFieldFilterVisible || !!filterBarFilters.length) && (
-                  <ActiveFilters
-                    classificationTypes={classificationTypes}
-                    filterModel={filterModel}
-                    filterBarFilters={filterBarFilters}
-                    isFieldFilterVisible={isFieldFilterVisible}
-                    toggleFieldFilterVisible={this.toggleFieldFilterVisible}
-                  />
-                )}
-                {serverChangedDelayed && (
-                  <UpdateAvailable updateButtonClick={this.updateButtonClick} />
-                )}
-                {currentRepo && (
-                  <div id="th-global-content" className="th-global-content">
-                    <span className="th-view-content" tabIndex={-1}>
-                      <PushList
-                        user={user}
-                        repoName={repoName}
-                        revision={revision}
-                        currentRepo={currentRepo}
-                        filterModel={filterModel}
-                        duplicateJobsVisible={duplicateJobsVisible}
-                        groupCountsExpanded={groupCountsExpanded}
-                        pushHealthVisibility={pushHealthVisibility}
-                        getAllShownJobs={this.getAllShownJobs}
-                      />
-                    </span>
-                  </div>
-                )}
-              </div>
-              <>
-                {currentRepo && (
-                  <DetailsPanel
-                    resizedHeight={detailsHeight}
-                    currentRepo={currentRepo}
-                    user={user}
-                    classificationTypes={classificationTypes}
-                    classificationMap={classificationMap}
-                  />
-                )}
-              </>
-            </SplitPane>
-            <Notifications />
-            <Modal
-              isOpen={showShortCuts}
-              toggle={() => this.showOnScreenShortcuts(false)}
-              id="onscreen-shortcuts"
-            >
-              <ShortcutTable />
-            </Modal>
-          </KeyboardShortcuts>
-        </Provider>
+            <div className="d-flex flex-column w-100">
+              {(isFieldFilterVisible || !!filterBarFilters.length) && (
+                <ActiveFilters
+                  classificationTypes={classificationTypes}
+                  filterModel={filterModel}
+                  filterBarFilters={filterBarFilters}
+                  isFieldFilterVisible={isFieldFilterVisible}
+                  toggleFieldFilterVisible={this.toggleFieldFilterVisible}
+                />
+              )}
+              {serverChangedDelayed && (
+                <UpdateAvailable updateButtonClick={this.updateButtonClick} />
+              )}
+              {currentRepo && (
+                <div id="th-global-content" className="th-global-content">
+                  <span className="th-view-content" tabIndex={-1}>
+                    <PushList
+                      user={user}
+                      repoName={repoName}
+                      revision={revision}
+                      currentRepo={currentRepo}
+                      filterModel={filterModel}
+                      duplicateJobsVisible={duplicateJobsVisible}
+                      groupCountsExpanded={groupCountsExpanded}
+                      pushHealthVisibility={pushHealthVisibility}
+                      getAllShownJobs={this.getAllShownJobs}
+                      {...this.props}
+                    />
+                  </span>
+                </div>
+              )}
+            </div>
+            <>
+              {currentRepo && (
+                <DetailsPanel
+                  resizedHeight={detailsHeight}
+                  currentRepo={currentRepo}
+                  user={user}
+                  classificationTypes={classificationTypes}
+                  classificationMap={classificationMap}
+                />
+              )}
+            </>
+          </SplitPane>
+          <Notifications />
+          <Modal
+            isOpen={showShortCuts}
+            toggle={() => this.showOnScreenShortcuts(false)}
+            id="onscreen-shortcuts"
+          >
+            <ShortcutTable />
+          </Modal>
+        </KeyboardShortcuts>
       </div>
     );
   }
 }
 
-export default hot(App);
+App.propTypes = {
+  jobMap: PropTypes.shape({}).isRequired,
+  router: PropTypes.shape({}).isRequired,
+  pushRoute: PropTypes.func.isRequired,
+};
+
+const mapStateToProps = ({ pushes: { jobMap }, router }) => ({
+  jobMap,
+  router,
+});
+
+export default connect(mapStateToProps, { pushRoute })(hot(App));
