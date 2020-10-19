@@ -8,9 +8,8 @@ import {
   DropdownToggle,
   UncontrolledDropdown,
 } from 'reactstrap';
-import { Link } from 'react-router-dom';
 
-import { updateRepoParams } from '../../helpers/location';
+import { getRepoUrl } from '../../helpers/location';
 
 const GROUP_ORDER = [
   'development',
@@ -84,12 +83,13 @@ export default function ReposMenu(props) {
               {!!group.repos &&
                 group.repos.map((repo) => (
                   <li key={repo.name}>
-                    <Link
+                    <a
+                      title="Open repo"
                       className="dropdown-link"
-                      to={{ search: updateRepoParams(repo.name) }}
+                      href={getRepoUrl(repo.name)}
                     >
                       {repo.name}
-                    </Link>
+                    </a>
                   </li>
                 ))}
             </DropdownItem>

@@ -7,20 +7,15 @@ import {
   getAllByTestId,
   queryAllByTestId,
 } from '@testing-library/react';
-import { createBrowserHistory } from 'history';
-import { ConnectedRouter } from 'connected-react-router';
-import { Provider } from 'react-redux';
 
 import Health from '../../../ui/push-health/Health';
 import pushHealth from '../mock/push_health';
 import reposFixture from '../mock/repositories';
 import { getApiUrl } from '../../../ui/helpers/url';
 import { getProjectUrl } from '../../../ui/helpers/location';
-import { configureStore } from '../../../ui/job-view/redux/configureStore';
 
 const revision = 'cd02b96bdce57d9ae53b632ca4740c871d3ecc32';
 const repo = 'autoland';
-const history = createBrowserHistory();
 
 describe('Health', () => {
   beforeAll(() => {
@@ -119,19 +114,14 @@ describe('Health', () => {
     cleanup();
   });
 
-  const testHealth = () => {
-    const store = configureStore(history);
-    return (
-      <Provider store={store}>
-        <ConnectedRouter history={history}>
-          <Health location={history.location} />
-        </ConnectedRouter>
-      </Provider>
-    );
-  };
+  const testHealth = () => <Health location={window.location} />;
 
   test('should show some grouped tests', async () => {
-    history.push(`/push-health?repo=${repo}&revision=${revision}`);
+    window.history.replaceState(
+      {},
+      'Push Health Test',
+      `${window.location.origin}?repo=${repo}&revision=${revision}`,
+    );
 
     const health = render(testHealth());
     const classificationGroups = await waitFor(() =>
@@ -151,8 +141,10 @@ describe('Health', () => {
   });
 
   test('should filter groups by test path string', async () => {
-    history.push(
-      `/push-health?repo=${repo}&revision=${revision}&searchStr=browser/extensions/`,
+    window.history.replaceState(
+      {},
+      'Push Health Test',
+      `${window.location.origin}?repo=${repo}&revision=${revision}&searchStr=browser/extensions/`,
     );
     const health = render(testHealth());
     const classificationGroups = await waitFor(() =>

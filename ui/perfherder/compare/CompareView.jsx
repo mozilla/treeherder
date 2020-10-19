@@ -103,11 +103,13 @@ class CompareView extends React.PureComponent {
         params.selectedTimeRange = timeRange.value;
       }
 
-      const detailsLink = `./comparesubtest${createQueryParams(params)}`;
+      const detailsLink = `perf.html#/comparesubtest${createQueryParams(
+        params,
+      )}`;
 
       links.push({
         title: 'subtests',
-        to: detailsLink,
+        href: detailsLink,
       });
     }
     const signatureHash = !oldResults

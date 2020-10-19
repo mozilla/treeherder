@@ -6,13 +6,12 @@ import {
   DropdownMenu,
   DropdownItem,
 } from 'reactstrap';
-import { Link } from 'react-router-dom';
 
 const choices = [
-  { url: '/jobs', text: 'Treeherder' },
-  { url: '/perfherder', text: 'Perfherder' },
-  { url: '/intermittent-failures', text: 'Intermittent Failures View' },
-  { url: '/push-health', text: 'Push Health Usage' },
+  { url: '/', text: 'Treeherder' },
+  { url: '/perf.html', text: 'Perfherder' },
+  { url: '/intermittent-failures.html', text: 'Intermittent Failures View' },
+  { url: '/pushhealth.html', text: 'Push Health Usage' },
 ];
 
 export default class LogoMenu extends React.PureComponent {
@@ -36,8 +35,8 @@ export default class LogoMenu extends React.PureComponent {
         </DropdownToggle>
         <DropdownMenu>
           {menuChoices.map((choice) => (
-            <DropdownItem key={choice.text}>
-              <Link to={choice.url}>{choice.text}</Link>
+            <DropdownItem key={choice.text} tag="a" href={choice.url}>
+              {choice.text}
             </DropdownItem>
           ))}
         </DropdownMenu>

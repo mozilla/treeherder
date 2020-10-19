@@ -1,5 +1,3 @@
-import { push as pushRoute } from 'connected-react-router';
-
 import {
   findGroupElement,
   findGroupInstance,
@@ -10,11 +8,7 @@ import {
   scrollToElement,
 } from '../../../helpers/job';
 import { thJobNavSelectors } from '../../../helpers/constants';
-import {
-  getUrlParam,
-  setUrlParam,
-  setUrlParams,
-} from '../../../helpers/location';
+import { getUrlParam, setUrlParam } from '../../../helpers/location';
 import JobModel from '../../../models/job';
 import { getJobsUrl } from '../../../helpers/url';
 
@@ -23,20 +17,11 @@ export const SELECT_JOB_FROM_QUERY_STRING = 'SELECT_JOB_FROM_QUERY_STRING';
 export const CLEAR_JOB = 'CLEAR_JOB';
 export const UPDATE_JOB_DETAILS = 'UPDATE_JOB_DETAILS';
 
-export const setSelectedJob = (job, updateDetails = true) => {
-  return async (dispatch) => {
-    dispatch({
-      type: SELECT_JOB,
-      job,
-      updateDetails,
-    });
-    if (updateDetails) {
-      const taskRun = job ? getTaskRunStr(job) : null;
-      const params = setUrlParams([['selectedTaskRun', taskRun]]);
-      dispatch(pushRoute({ search: params }));
-    }
-  };
-};
+export const setSelectedJob = (job, updateDetails = true) => ({
+  type: SELECT_JOB,
+  job,
+  updateDetails,
+});
 
 export const setSelectedJobFromQueryString = (notify, jobMap) => ({
   type: SELECT_JOB_FROM_QUERY_STRING,
@@ -44,36 +29,27 @@ export const setSelectedJobFromQueryString = (notify, jobMap) => ({
   jobMap,
 });
 
-export const clearSelectedJob = (countPinnedJobs) => {
-  return async (dispatch) => {
-    dispatch({
-      type: CLEAR_JOB,
-      countPinnedJobs,
-    });
-    const params = setUrlParams([
-      ['selectedTaskRun', null],
-      ['selectedJob', null],
-    ]);
-    dispatch(pushRoute({ search: params }));
-  };
+export const clearSelectedJob = (countPinnedJobs) => ({
+  type: CLEAR_JOB,
+  countPinnedJobs,
+});
+
+export const updateJobDetails = (job) => ({
+  type: UPDATE_JOB_DETAILS,
+  job,
+  meta: {
+    debounce: 'nextJob',
+  },
+});
+
+const doUpdateJobDetails = (job) => {
+  const taskRun = job ? getTaskRunStr(job) : null;
+
+  setUrlParam('selectedTaskRun', taskRun);
+  return { selectedJob: job };
 };
 
-export const updateJobDetails = (job) => {
-  return async (dispatch) => {
-    dispatch({
-      type: UPDATE_JOB_DETAILS,
-      job,
-      meta: {
-        debounce: 'nextJob',
-      },
-    });
-    const taskRun = job ? getTaskRunStr(job) : null;
-    const params = setUrlParams([['selectedTaskRun', taskRun]]);
-    dispatch(pushRoute({ search: params }));
-  };
-};
-
-export const doSelectJob = (job) => {
+export const doSelectJob = (job, updateDetails) => {
   const selected = findSelectedInstance();
 
   if (selected) selected.setSelected(false);
@@ -95,7 +71,9 @@ export const doSelectJob = (job) => {
       scrollToElement(groupEl);
     }
   }
-
+  if (updateDetails) {
+    return doUpdateJobDetails(job);
+  }
   return { selectedJob: job };
 };
 
@@ -103,7 +81,8 @@ export const doClearSelectedJob = (countPinnedJobs) => {
   if (!countPinnedJobs) {
     const selected = findSelectedInstance();
     if (selected) selected.setSelected(false);
-
+    setUrlParam('selectedTaskRun', null);
+    setUrlParam('selectedJob', null);
     return { selectedJob: null };
   }
   return {};
@@ -261,7 +240,7 @@ export const changeJob = (
       if (jobInstance) {
         // Delay updating details for the new job right away,
         // in case the user is switching rapidly between jobs
-        return doSelectJob(jobInstance.props.job);
+        return doSelectJob(jobInstance.props.job, false);
       }
     }
   }
@@ -276,15 +255,15 @@ export const initialState = {
 };
 
 export const reducer = (state = initialState, action) => {
-  const { job, jobMap, countPinnedJobs, notify } = action;
+  const { job, jobMap, countPinnedJobs, updateDetails, notify } = action;
 
   switch (action.type) {
     case SELECT_JOB:
-      return doSelectJob(job);
+      return doSelectJob(job, updateDetails);
     case SELECT_JOB_FROM_QUERY_STRING:
       return doSetSelectedJobFromQueryString(notify, jobMap);
     case UPDATE_JOB_DETAILS:
-      return { selectedJob: job };
+      return doUpdateJobDetails(job);
     case CLEAR_JOB:
       return { ...state, ...doClearSelectedJob(countPinnedJobs) };
     default:

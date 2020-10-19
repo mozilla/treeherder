@@ -34,7 +34,7 @@ function BugColumn({
         className="ml-1 small-text bug-details"
         onClick={() => updateAppState({ graphData, tableData })}
         to={{
-          pathname: '/intermittent-failures/bugdetails',
+          pathname: '/bugdetails',
           search: `?startday=${startday}&endday=${endday}&tree=${tree}&bug=${id}`,
           state: { startday, endday, tree, id, summary, location },
         }}

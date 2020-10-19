@@ -12,7 +12,7 @@ import {
 
 import { getBtnClass } from '../../helpers/job';
 import { hasUrlFilterChanges, thFilterGroups } from '../../helpers/filter';
-import { getRepo, getUrlParam, setUrlParams } from '../../helpers/location';
+import { getRepo, getUrlParam, setUrlParam } from '../../helpers/location';
 import RepositoryModel from '../../models/repository';
 import ErrorBoundary from '../../shared/ErrorBoundary';
 import { recalculateUnclassifiedCounts } from '../redux/stores/pushes';
@@ -46,6 +46,7 @@ class SecondaryNavBar extends React.PureComponent {
   }
 
   componentDidMount() {
+    window.addEventListener('hashchange', this.handleUrlChanges, false);
     this.loadWatchedRepos();
   }
 
@@ -55,22 +56,18 @@ class SecondaryNavBar extends React.PureComponent {
     if (repoName !== prevState.repoName) {
       this.loadWatchedRepos();
     }
+  }
 
-    if (
-      prevProps.router.location.search !== this.props.router.location.search
-    ) {
-      this.handleUrlChanges(
-        prevProps.router.location.search,
-        this.props.router.location.search,
-      );
-    }
+  componentWillUnmount() {
+    window.removeEventListener('hashchange', this.handleUrlChanges, false);
   }
 
   setSearchStr(ev) {
     this.setState({ searchQueryStr: ev.target.value });
   }
 
-  handleUrlChanges = (prevParams, currentParams) => {
+  handleUrlChanges = (evt) => {
+    const { oldURL, newURL } = evt;
     const { repoName } = this.state;
     const { recalculateUnclassifiedCounts } = this.props;
     const newState = {
@@ -80,7 +77,7 @@ class SecondaryNavBar extends React.PureComponent {
 
     this.setState(newState, () => {
       if (
-        hasUrlFilterChanges(prevParams, currentParams) ||
+        hasUrlFilterChanges(oldURL, newURL) ||
         newState.repoName !== repoName
       ) {
         recalculateUnclassifiedCounts();
@@ -127,25 +124,17 @@ class SecondaryNavBar extends React.PureComponent {
   };
 
   toggleShowDuplicateJobs = () => {
-    const { duplicateJobsVisible, push } = this.props;
+    const { duplicateJobsVisible } = this.props;
     const duplicateJobs = duplicateJobsVisible ? null : 'visible';
 
-    const queryParams = setUrlParams([['duplicate_jobs', duplicateJobs]]);
-
-    push({
-      search: queryParams,
-    });
+    setUrlParam('duplicate_jobs', duplicateJobs);
   };
 
   toggleGroupState = () => {
-    const { groupCountsExpanded, push } = this.props;
+    const { groupCountsExpanded } = this.props;
     const groupState = groupCountsExpanded ? null : 'expanded';
 
-    const queryParams = setUrlParams([['group_state', groupState]]);
-
-    push({
-      search: queryParams,
-    });
+    setUrlParam('group_state', groupState);
   };
 
   toggleUnclassifiedFailures = () => {
@@ -239,7 +228,6 @@ class SecondaryNavBar extends React.PureComponent {
                   repoName={repoName}
                   unwatchRepo={this.unwatchRepo}
                   setCurrentRepoTreeStatus={setCurrentRepoTreeStatus}
-                  {...this.props}
                 />
               </ErrorBoundary>
             ))}
@@ -311,7 +299,7 @@ class SecondaryNavBar extends React.PureComponent {
                   ? 'Collapse job groups'
                   : 'Expand job groups'
               }
-              onClick={this.toggleGroupState}
+              onClick={() => this.toggleGroupState()}
             >
               (
               <span className="group-state-nav-icon mx-1">
@@ -411,12 +399,7 @@ SecondaryNavBar.propTypes = {
 
 const mapStateToProps = ({
   pushes: { allUnclassifiedFailureCount, filteredUnclassifiedFailureCount },
-  router,
-}) => ({
-  allUnclassifiedFailureCount,
-  filteredUnclassifiedFailureCount,
-  router,
-});
+}) => ({ allUnclassifiedFailureCount, filteredUnclassifiedFailureCount });
 
 export default connect(mapStateToProps, { recalculateUnclassifiedCounts })(
   SecondaryNavBar,

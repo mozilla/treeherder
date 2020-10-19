@@ -13,7 +13,6 @@ import {
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faExternalLinkAlt } from '@fortawesome/free-solid-svg-icons';
 import moment from 'moment';
-import { Link } from 'react-router-dom';
 
 import { getTitle, getFrameworkName } from '../helpers';
 import { getJobsUrl } from '../../helpers/url';
@@ -44,9 +43,9 @@ const AlertHeader = ({
   return (
     <Container>
       <Row>
-        <Link
+        <a
           className="text-dark"
-          to={`./alerts?id=${alertSummary.id}`}
+          href={`#/alerts?id=${alertSummary.id}`}
           id={`alert summary ${alertSummary.id.toString()} title`}
           data-testid={`alert summary ${alertSummary.id.toString()} title`}
         >
@@ -61,7 +60,7 @@ const AlertHeader = ({
               className="icon-superscript"
             />
           </h3>
-        </Link>
+        </a>
       </Row>
       <Row className="font-weight-normal">
         <Col className="p-0" xs="auto">{`${moment(

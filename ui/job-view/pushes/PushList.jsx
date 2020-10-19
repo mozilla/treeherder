@@ -11,8 +11,13 @@ import {
   clearSelectedJob,
   setSelectedJobFromQueryString,
 } from '../redux/stores/selectedJob';
-import { fetchPushes, updateRange, pollPushes } from '../redux/stores/pushes';
-import { updatePushParams } from '../../helpers/location';
+import {
+  fetchPushes,
+  fetchNextPushes,
+  updateRange,
+  pollPushes,
+} from '../redux/stores/pushes';
+import { reloadOnChangeParameters } from '../../helpers/filter';
 
 import Push from './Push';
 import PushLoadErrors from './PushLoadErrors';
@@ -31,6 +36,7 @@ class PushList extends React.Component {
   componentDidMount() {
     const { fetchPushes } = this.props;
 
+    window.addEventListener('hashchange', this.handleUrlChanges, false);
     fetchPushes();
     this.poll();
   }
@@ -46,7 +52,6 @@ class PushList extends React.Component {
     if (jobsLoaded && jobsLoaded !== prevProps.jobsLoaded) {
       setSelectedJobFromQueryString(notify, jobMap);
     }
-    this.handleUrlChanges(prevProps);
   }
 
   componentWillUnmount() {
@@ -54,6 +59,7 @@ class PushList extends React.Component {
       clearInterval(this.pushIntervalId);
       this.pushIntervalId = null;
     }
+    window.addEventListener('hashchange', this.handleUrlChanges, false);
   }
 
   setWindowTitle() {
@@ -62,18 +68,11 @@ class PushList extends React.Component {
     document.title = `[${allUnclassifiedFailureCount}] ${repoName}`;
   }
 
-  getUrlRangeValues = (search) => {
-    const params = [...new URLSearchParams(search)];
+  getUrlRangeValues = (url) => {
+    const params = [...new URLSearchParams(url.split('?')[1]).entries()];
 
     return params.reduce((acc, [key, value]) => {
-      return [
-        'repo',
-        'startdate',
-        'enddate',
-        'nojobs',
-        'revision',
-        'author',
-      ].includes(key)
+      return reloadOnChangeParameters.includes(key)
         ? { ...acc, [key]: value }
         : acc;
     }, {});
@@ -87,10 +86,11 @@ class PushList extends React.Component {
     }, PUSH_POLL_INTERVAL);
   };
 
-  handleUrlChanges = (prevProps) => {
-    const { updateRange, router } = this.props;
-    const oldRange = this.getUrlRangeValues(prevProps.router.location.search);
-    const newRange = this.getUrlRangeValues(router.location.search);
+  handleUrlChanges = (evt) => {
+    const { updateRange } = this.props;
+    const { oldURL, newURL } = evt;
+    const oldRange = this.getUrlRangeValues(oldURL);
+    const newRange = this.getUrlRangeValues(newURL);
 
     if (!isEqual(oldRange, newRange)) {
       updateRange(newRange);
@@ -115,13 +115,6 @@ class PushList extends React.Component {
     }
   }
 
-  fetchNextPushes(count) {
-    const { fetchPushes, router } = this.props;
-    const params = updatePushParams(router.location);
-    window.history.pushState(null, null, params);
-    fetchPushes(count, true);
-  }
-
   render() {
     const {
       repoName,
@@ -130,6 +123,7 @@ class PushList extends React.Component {
       filterModel,
       pushList,
       loadingPushes,
+      fetchNextPushes,
       getAllShownJobs,
       jobsLoaded,
       duplicateJobsVisible,
@@ -141,7 +135,6 @@ class PushList extends React.Component {
     if (!revision) {
       this.setWindowTitle();
     }
-
     return (
       // Bug 1619873 - role="list" works better here than an interactive role
       /* eslint-disable jsx-a11y/no-noninteractive-element-interactions */
@@ -195,7 +188,7 @@ class PushList extends React.Component {
                 color="darker-secondary"
                 outline
                 className="btn-light-bordered"
-                onClick={() => this.fetchNextPushes(count)}
+                onClick={() => fetchNextPushes(count)}
                 key={count}
                 data-testid={`get-next-${count}`}
               >
@@ -213,6 +206,7 @@ PushList.propTypes = {
   repoName: PropTypes.string.isRequired,
   filterModel: PropTypes.shape({}).isRequired,
   pushList: PropTypes.arrayOf(PropTypes.object).isRequired,
+  fetchNextPushes: PropTypes.func.isRequired,
   fetchPushes: PropTypes.func.isRequired,
   pollPushes: PropTypes.func.isRequired,
   updateRange: PropTypes.func.isRequired,
@@ -230,7 +224,6 @@ PushList.propTypes = {
   notify: PropTypes.func.isRequired,
   revision: PropTypes.string,
   currentRepo: PropTypes.shape({}),
-  router: PropTypes.shape({}).isRequired,
 };
 
 PushList.defaultProps = {
@@ -247,7 +240,6 @@ const mapStateToProps = ({
     allUnclassifiedFailureCount,
   },
   pinnedJobs: { pinnedJobs },
-  router,
 }) => ({
   loadingPushes,
   jobsLoaded,
@@ -255,13 +247,13 @@ const mapStateToProps = ({
   pushList,
   allUnclassifiedFailureCount,
   pinnedJobs,
-  router,
 });
 
 export default connect(mapStateToProps, {
   notify,
   clearSelectedJob,
   setSelectedJobFromQueryString,
+  fetchNextPushes,
   fetchPushes,
   updateRange,
   pollPushes,

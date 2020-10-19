@@ -17,8 +17,8 @@ import {
 } from '../helpers/filter';
 import { getAllUrlParams } from '../helpers/location';
 
-export const getNonFilterUrlParams = (location) =>
-  [...getAllUrlParams(location).entries()].reduce(
+export const getNonFilterUrlParams = () =>
+  [...getAllUrlParams().entries()].reduce(
     (acc, [urlField, urlValue]) =>
       allFilterParams.includes(urlField.replace(deprecatedThFilterPrefix, ''))
         ? acc
@@ -26,12 +26,12 @@ export const getNonFilterUrlParams = (location) =>
     {},
   );
 
-export const getFilterUrlParamsWithDefaults = (location) => {
+export const getFilterUrlParamsWithDefaults = () => {
   // Group multiple values for the same field into an array of values.
   // This handles the transition from our old url params to this newer, more
   // terse version.
   // Also remove usage of the 'filter-' prefix.
-  const groupedValues = [...getAllUrlParams(location).entries()].reduce(
+  const groupedValues = [...getAllUrlParams().entries()].reduce(
     (acc, [urlField, urlValue]) => {
       const field = urlField.replace(deprecatedThFilterPrefix, '');
       if (!allFilterParams.includes(field)) {
@@ -51,11 +51,8 @@ export const getFilterUrlParamsWithDefaults = (location) => {
 };
 
 export default class FilterModel {
-  constructor(props) {
-    // utilize connected-react-router push prop (this.push is equivalent to history.push)
-    this.push = props.pushRoute;
-    this.location = props.router.location;
-    this.urlParams = getFilterUrlParamsWithDefaults(props.router.location);
+  constructor() {
+    this.urlParams = getFilterUrlParamsWithDefaults();
   }
 
   // If a param matches the defaults, then don't include it.
@@ -63,7 +60,7 @@ export default class FilterModel {
     // ensure the repo param is always set
     const params = {
       repo: thDefaultRepo,
-      ...getNonFilterUrlParams(this.location),
+      ...getNonFilterUrlParams(),
       ...this.urlParams,
     };
 
@@ -89,7 +86,7 @@ export default class FilterModel {
     } else {
       this.urlParams[field] = [value];
     }
-    this.push({ search: this.getFilterQueryString() });
+    this.push();
   };
 
   // Also used for non-filter params
@@ -102,24 +99,29 @@ export default class FilterModel {
           (filterValue) => filterValue !== value,
         );
       }
-
-      if (!this.urlParams[field].length) {
-        delete this.urlParams[field];
-      }
     } else {
       delete this.urlParams[field];
     }
-
-    this.push({ search: this.getFilterQueryString() });
+    this.push();
   };
 
   getFilterQueryString = () =>
     new URLSearchParams(this.getUrlParamsWithoutDefaults()).toString();
 
+  /**
+   * Push all the url params to the url.  Components listening for hashchange
+   * will get updates.
+   */
+  push = () => {
+    const { origin } = window.location;
+
+    window.location.href = `${origin}/#/jobs?${this.getFilterQueryString()}`;
+  };
+
   setOnlySuperseded = () => {
     this.urlParams.resultStatus = 'superseded';
     this.urlParams.classifiedState = [...thFilterDefaults.classifiedState];
-    this.push({ search: this.getFilterQueryString() });
+    this.push();
   };
 
   toggleFilter = (field, value) => {
@@ -146,7 +148,7 @@ export default class FilterModel {
       ? currentResultStatuses.filter((rs) => !resultStatuses.includes(rs))
       : [...new Set([...resultStatuses, ...currentResultStatuses])];
 
-    this.push({ search: this.getFilterQueryString() });
+    this.push();
   };
 
   toggleClassifiedFilter = (classifiedState) => {
@@ -159,20 +161,20 @@ export default class FilterModel {
     } else {
       this.urlParams.resultStatus = [...thFailureResults];
       this.urlParams.classifiedState = ['unclassified'];
-      this.push({ search: this.getFilterQueryString() });
+      this.push();
     }
   };
 
   replaceFilter = (field, value) => {
     this.urlParams[field] = !Array.isArray(value) ? [value] : value;
-    this.push({ search: this.getFilterQueryString() });
+    this.push();
   };
 
   clearNonStatusFilters = () => {
     const { repo, resultStatus, classifiedState } = this.urlParams;
 
     this.urlParams = { repo, resultStatus, classifiedState };
-    this.push({ search: this.getFilterQueryString() });
+    this.push();
   };
 
   /**
@@ -185,7 +187,7 @@ export default class FilterModel {
 
     this.urlParams.resultStatus = [...resultStatus];
     this.urlParams.classifiedState = [...classifiedState];
-    this.push({ search: this.getFilterQueryString() });
+    this.push();
   };
 
   /**

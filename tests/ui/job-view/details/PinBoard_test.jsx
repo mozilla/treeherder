@@ -1,8 +1,7 @@
 import React from 'react';
-import { Provider, ReactReduxContext } from 'react-redux';
+import { Provider } from 'react-redux';
 import fetchMock from 'fetch-mock';
 import { render, cleanup, waitFor, fireEvent } from '@testing-library/react';
-import { ConnectedRouter } from 'connected-react-router';
 
 import JobModel from '../../../../ui/models/job';
 import DetailsPanel from '../../../../ui/job-view/details/DetailsPanel';
@@ -11,11 +10,11 @@ import pushFixture from '../../mock/push_list.json';
 import taskDefinition from '../../mock/task_definition.json';
 import { getApiUrl } from '../../../../ui/helpers/url';
 import FilterModel from '../../../../ui/models/filter';
-import { getProjectUrl } from '../../../../ui/helpers/location';
 import {
-  history,
-  configureStore,
-} from '../../../../ui/job-view/redux/configureStore';
+  replaceLocation,
+  getProjectUrl,
+} from '../../../../ui/helpers/location';
+import configureStore from '../../../../ui/job-view/redux/configureStore';
 import { setSelectedJob } from '../../../../ui/job-view/redux/stores/selectedJob';
 import { setPushes } from '../../../../ui/job-view/redux/stores/pushes';
 import reposFixture from '../../mock/repositories';
@@ -26,12 +25,12 @@ describe('DetailsPanel', () => {
   const repoName = 'autoland';
   const classificationTypes = [{ id: 1, name: 'intermittent' }];
   const classificationMap = { 1: 'intermittent' };
+  const filterModel = new FilterModel();
   let jobList = null;
   let store = null;
   const currentRepo = reposFixture[2];
   currentRepo.getRevisionHref = () => 'foo';
   currentRepo.getPushLogHref = () => 'foo';
-  const router = { location: history.location };
 
   beforeEach(async () => {
     fetchMock.get(
@@ -70,48 +69,40 @@ describe('DetailsPanel', () => {
       'https://firefox-ci-tc.services.mozilla.com/api/queue/v1/task/JFVlnwufR7G9tZu_pKM0dQ',
       taskDefinition,
     );
-    store = configureStore();
-    store.dispatch(setPushes(pushFixture.results, {}, router));
+    store = configureStore().store;
+    store.dispatch(setPushes(pushFixture.results, {}));
   });
 
   afterEach(() => {
     cleanup();
     fetchMock.reset();
-    history.push('/');
+    replaceLocation({});
   });
 
-  const testDetailsPanel = () => (
+  const testDetailsPanel = (store) => (
     <div id="global-container" className="height-minus-navbars">
-      <Provider store={store} context={ReactReduxContext}>
-        <ConnectedRouter history={history} context={ReactReduxContext}>
-          <KeyboardShortcuts
-            filterModel={
-              new FilterModel({
-                pushRoute: history.push,
-                router,
-              })
-            }
-            showOnScreenShortcuts={() => {}}
-          >
-            <div />
-            <div id="th-global-content" data-testid="global-content">
-              <DetailsPanel
-                currentRepo={currentRepo}
-                user={{ isLoggedIn: false }}
-                resizedHeight={100}
-                classificationTypes={classificationTypes}
-                classificationMap={classificationMap}
-                router={router}
-              />
-            </div>
-          </KeyboardShortcuts>
-        </ConnectedRouter>
+      <Provider store={store}>
+        <KeyboardShortcuts
+          filterModel={filterModel}
+          showOnScreenShortcuts={() => {}}
+        >
+          <div />
+          <div id="th-global-content" data-testid="global-content">
+            <DetailsPanel
+              currentRepo={currentRepo}
+              user={{ isLoggedIn: false }}
+              resizedHeight={100}
+              classificationTypes={classificationTypes}
+              classificationMap={classificationMap}
+            />
+          </div>
+        </KeyboardShortcuts>
       </Provider>
     </div>
   );
 
   test('pin selected job with button', async () => {
-    const { getByTitle } = render(testDetailsPanel());
+    const { getByTitle } = render(testDetailsPanel(store));
     store.dispatch(setSelectedJob(jobList.data[1], true));
 
     fireEvent.click(await waitFor(() => getByTitle('Pin job')));
@@ -125,7 +116,7 @@ describe('DetailsPanel', () => {
   });
 
   test('KeyboardShortcut space: pin selected job', async () => {
-    const { getByTitle } = render(testDetailsPanel());
+    const { getByTitle } = render(testDetailsPanel(store));
     store.dispatch(setSelectedJob(jobList.data[1], true));
 
     const content = await waitFor(() =>
@@ -141,7 +132,7 @@ describe('DetailsPanel', () => {
   });
 
   test('KeyboardShortcut b: pin selected task and edit bug', async () => {
-    const { getByPlaceholderText } = render(testDetailsPanel());
+    const { getByPlaceholderText } = render(testDetailsPanel(store));
     store.dispatch(setSelectedJob(jobList.data[1], true));
 
     const content = await waitFor(() =>
@@ -160,7 +151,7 @@ describe('DetailsPanel', () => {
   });
 
   test('KeyboardShortcut c: pin selected task and edit comment', async () => {
-    const { getByPlaceholderText } = render(testDetailsPanel());
+    const { getByPlaceholderText } = render(testDetailsPanel(store));
     store.dispatch(setSelectedJob(jobList.data[1], true));
 
     const content = await waitFor(() =>
@@ -177,7 +168,7 @@ describe('DetailsPanel', () => {
   });
 
   test('KeyboardShortcut ctrl+shift+u: clear PinBoard', async () => {
-    const { getByTitle } = render(testDetailsPanel());
+    const { getByTitle } = render(testDetailsPanel(store));
     store.dispatch(setSelectedJob(jobList.data[1], true));
 
     fireEvent.click(await waitFor(() => getByTitle('Pin job')));
@@ -197,7 +188,7 @@ describe('DetailsPanel', () => {
   });
 
   test('clear PinBoard', async () => {
-    const { getByTitle, getByText } = render(testDetailsPanel());
+    const { getByTitle, getByText } = render(testDetailsPanel(store));
     store.dispatch(setSelectedJob(jobList.data[1], true));
 
     fireEvent.click(await waitFor(() => getByTitle('Pin job')));
@@ -214,7 +205,7 @@ describe('DetailsPanel', () => {
   });
 
   test('pin all jobs', async () => {
-    const { queryAllByTitle } = render(testDetailsPanel());
+    const { queryAllByTitle } = render(testDetailsPanel(store));
     store.dispatch(pinJobs(jobList.data));
 
     const unPinJobBtns = await waitFor(() => queryAllByTitle('Unpin job'));

@@ -1,11 +1,11 @@
 import React from 'react';
 import fetchMock from 'fetch-mock';
 import { Provider } from 'react-redux';
-import { render, waitFor, fireEvent } from '@testing-library/react';
+import { render, cleanup, waitFor, fireEvent } from '@testing-library/react';
 import thunk from 'redux-thunk';
 import configureMockStore from 'redux-mock-store';
-import { createBrowserHistory } from 'history';
 
+import { replaceLocation, setUrlParam } from '../../../ui/helpers/location';
 import FilterModel from '../../../ui/models/filter';
 import SecondaryNavBar from '../../../ui/job-view/headerbars/SecondaryNavBar';
 import { initialState } from '../../../ui/job-view/redux/stores/pushes';
@@ -13,8 +13,6 @@ import repos from '../mock/repositories';
 
 const mockStore = configureMockStore([thunk]);
 const repoName = 'autoland';
-const history = createBrowserHistory();
-const router = { location: history.location };
 
 beforeEach(() => {
   fetchMock.get('https://treestatus.mozilla-releng.net/trees/autoland', {
@@ -25,36 +23,31 @@ beforeEach(() => {
       tree: 'autoland',
     },
   });
+  setUrlParam('repo', repoName);
 });
 
 afterEach(() => {
+  cleanup();
   fetchMock.reset();
-  history.push('/');
+  replaceLocation({});
 });
 
 describe('SecondaryNavBar', () => {
-  const testSecondaryNavBar = (store, props) => {
-    return (
-      <Provider store={store}>
-        <SecondaryNavBar
-          updateButtonClick={() => {}}
-          serverChanged={false}
-          filterModel={
-            new FilterModel({
-              pushRoute: history.push,
-              router,
-            })
-          }
-          repos={repos}
-          setCurrentRepoTreeStatus={() => {}}
-          duplicateJobsVisible={false}
-          groupCountsExpanded={false}
-          toggleFieldFilterVisible={() => {}}
-          {...props}
-        />
-      </Provider>
-    );
-  };
+  const testSecondaryNavBar = (store, filterModel, props) => (
+    <Provider store={store}>
+      <SecondaryNavBar
+        updateButtonClick={() => {}}
+        serverChanged={false}
+        filterModel={filterModel}
+        repos={repos}
+        setCurrentRepoTreeStatus={() => {}}
+        duplicateJobsVisible={false}
+        groupCountsExpanded={false}
+        toggleFieldFilterVisible={() => {}}
+        {...props}
+      />
+    </Provider>
+  );
 
   test('should 52 unclassified', async () => {
     const store = mockStore({
@@ -63,9 +56,8 @@ describe('SecondaryNavBar', () => {
         allUnclassifiedFailureCount: 52,
         filteredUnclassifiedFailureCount: 0,
       },
-      router,
     });
-    const { getByText } = render(testSecondaryNavBar(store));
+    const { getByText } = render(testSecondaryNavBar(store, new FilterModel()));
 
     expect(await waitFor(() => getByText(repoName))).toBeInTheDocument();
     expect(await waitFor(() => getByText('52'))).toBeInTheDocument();
@@ -78,9 +70,8 @@ describe('SecondaryNavBar', () => {
         allUnclassifiedFailureCount: 22,
         filteredUnclassifiedFailureCount: 10,
       },
-      router,
     });
-    const { getByText } = render(testSecondaryNavBar(store));
+    const { getByText } = render(testSecondaryNavBar(store, new FilterModel()));
 
     expect(await waitFor(() => getByText(repoName))).toBeInTheDocument();
     expect(await waitFor(() => getByText('22'))).toBeInTheDocument();
@@ -92,7 +83,6 @@ describe('SecondaryNavBar', () => {
       pushes: {
         ...initialState,
       },
-      router,
     });
 
     const props = {
@@ -100,7 +90,9 @@ describe('SecondaryNavBar', () => {
       updateButtonClick: jest.fn(),
     };
 
-    const { container } = render(testSecondaryNavBar(store, props));
+    const { container } = render(
+      testSecondaryNavBar(store, new FilterModel(), props),
+    );
     const el = container.querySelector('#revisionChangedLabel');
     fireEvent.click(el);
     expect(props.updateButtonClick).toHaveBeenCalled();

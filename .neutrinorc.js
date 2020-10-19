@@ -13,7 +13,49 @@ module.exports = {
     source: 'ui/',
     mains: {
       index: {
-        entry: 'index',
+        entry: 'job-view/index.jsx',
+        favicon: 'ui/img/tree_open.png',
+        title: 'Treeherder',
+        template: 'ui/index.html',
+      },
+      logviewer: {
+        entry: 'logviewer/index.jsx',
+        favicon: 'ui/img/logviewerIcon.png',
+        title: 'Treeherder Logviewer',
+        template: 'ui/index.html',
+      },
+      userguide: {
+        entry: 'userguide/index.jsx',
+        favicon: 'ui/img/tree_open.png',
+        title: 'Treeherder User Guide',
+        template: 'ui/index.html',
+      },
+      login: {
+        entry: 'login-callback/index.jsx',
+        title: 'Treeherder Login',
+        template: 'ui/index.html',
+      },
+      pushhealth: {
+        entry: 'push-health/index.jsx',
+        title: 'Push Health',
+        favicon: 'ui/img/push-health-ok.png',
+        template: 'ui/index.html',
+      },
+      perf: {
+        entry: 'perfherder/index.jsx',
+        favicon: 'ui/img/line_chart.png',
+        title: 'Perfherder',
+        template: 'ui/index.html',
+      },
+      'intermittent-failures': {
+        entry: 'intermittent-failures/index.jsx',
+        favicon: 'ui/img/tree_open.png',
+        title: 'Intermittent Failures View',
+        template: 'ui/index.html',
+      },
+      'taskcluster-auth': {
+        entry: 'taskcluster-auth-callback/index.jsx',
+        title: 'Taskcluster Authentication',
         template: 'ui/index.html',
       },
     },
@@ -30,12 +72,11 @@ module.exports = {
       }),
     require('@neutrinojs/react')({
       devServer: {
-        historyApiFallback: true,
-        hot: true,
+        historyApiFallback: false,
         open: !process.env.IN_DOCKER,
         proxy: {
           // Proxy any paths not recognised by webpack to the specified backend.
-          '/api': {
+          '*': {
             changeOrigin: true,
             headers: {
               // Prevent Django CSRF errors, whilst still making it clear
