@@ -14,7 +14,7 @@ export default class SimpleTooltip extends React.Component {
       tooltipText,
       placement,
       textClass,
-      innerClassName,
+      tooltipClass,
       autohide,
     } = this.props;
 
@@ -26,7 +26,7 @@ export default class SimpleTooltip extends React.Component {
         <UncontrolledTooltip
           placement={placement}
           target={this.tooltipRef}
-          innerClassName={innerClassName}
+          innerClassName={tooltipClass}
           autohide={autohide}
         >
           {tooltipText}
@@ -41,13 +41,13 @@ SimpleTooltip.propTypes = {
     .isRequired,
   textClass: PropTypes.string,
   placement: PropTypes.string,
-  innerClassName: PropTypes.string,
+  tooltipClass: PropTypes.string,
   autohide: PropTypes.bool,
 };
 
 SimpleTooltip.defaultProps = {
   textClass: '',
   placement: 'top',
-  innerClassName: '',
+  tooltipClass: '',
   autohide: true,
 };

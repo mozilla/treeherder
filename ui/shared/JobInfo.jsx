@@ -1,6 +1,5 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import { Link } from 'react-router-dom';
 
 import { getInspectTaskUrl } from '../helpers/url';
 import { getJobSearchStrHref } from '../helpers/job';
@@ -58,12 +57,12 @@ export default class JobInfo extends React.PureComponent {
           <strong>Job: </strong>
           {showJobFilters ? (
             <React.Fragment>
-              <Link
+              <a
                 title="Filter jobs containing these keywords"
-                to={{ search: getJobSearchStrHref(searchStr) }}
+                href={getJobSearchStrHref(searchStr)}
               >
                 {searchStr}
-              </Link>
+              </a>
             </React.Fragment>
           ) : (
             <span>{searchStr}</span>

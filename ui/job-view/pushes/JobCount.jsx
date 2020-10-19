@@ -14,7 +14,6 @@ export default function JobCount(props) {
       className={classes.join(' ')}
       title={title}
       onClick={onClick}
-      data-testid="job-group-count"
     >
       {count}
     </button>

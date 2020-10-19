@@ -3,15 +3,10 @@ import PropTypes from 'prop-types';
 import { Button } from 'reactstrap';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faTimesCircle } from '@fortawesome/free-solid-svg-icons';
-import { connect } from 'react-redux';
 
-import { updateRange } from '../redux/stores/pushes';
-import {
-  getFieldChoices,
-  reloadOnChangeParameters,
-} from '../../helpers/filter';
+import { getFieldChoices } from '../../helpers/filter';
 
-class ActiveFilters extends React.Component {
+export default class ActiveFilters extends React.Component {
   constructor(props) {
     super(props);
 
@@ -75,35 +70,8 @@ class ActiveFilters extends React.Component {
     this.props.toggleFieldFilterVisible();
   };
 
-  clearAndUpdateRange = (specificFilter = null) => {
-    const { updateRange, filterModel, router } = this.props;
-
-    const params = new URLSearchParams(router.location.search);
-
-    if (!specificFilter) {
-      filterModel.clearNonStatusFilters();
-
-      // we do this because anytime the 'revision' or 'author' param is changed,
-      // updateRange will be triggered in PushList's componentDidUpdate lifecycle.
-      // This also helps in the scenario where we are only changing the global window location query params
-      // (to also prevent an unnecessary componentDidUpdate change) such as when a user clicks to view
-      // a revision, then selects "next x pushes" to set a range.
-      if (!params.has('revision') && !params.has('author')) {
-        updateRange(filterModel.getUrlParamsWithoutDefaults());
-      }
-      return;
-    }
-
-    const { filterField, filterValue } = specificFilter;
-    filterModel.removeFilter(filterField, filterValue);
-
-    if (reloadOnChangeParameters.includes(filterField)) {
-      updateRange(filterModel.getUrlParamsWithoutDefaults());
-    }
-  };
-
   render() {
-    const { isFieldFilterVisible, filterBarFilters } = this.props;
+    const { isFieldFilterVisible, filterModel, filterBarFilters } = this.props;
     const {
       newFilterField,
       newFilterMatchType,
@@ -121,7 +89,7 @@ class ActiveFilters extends React.Component {
               outline
               className="pointable bg-transparent border-0 pt-0 pr-1 pb-1"
               title="Clear all of these filters"
-              onClick={() => this.clearAndUpdateRange()}
+              onClick={filterModel.clearNonStatusFilters}
             >
               <FontAwesomeIcon
                 icon={faTimesCircle}
@@ -143,13 +111,13 @@ class ActiveFilters extends React.Component {
                     className="pointable bg-transparent border-0 py-0 pr-1"
                     title={`Clear filter: ${filter.field}`}
                     onClick={() =>
-                      this.clearAndUpdateRange({
-                        filterField: filter.field,
-                        filterValue,
-                      })
+                      filterModel.removeFilter(filter.field, filterValue)
                     }
                   >
-                    <FontAwesomeIcon icon={faTimesCircle} />
+                    <FontAwesomeIcon
+                      icon={faTimesCircle}
+                      title={`Clear filter: ${filter.field}`}
+                    />
                     &nbsp;
                   </Button>
                   <span title={`Filter by ${filter.field}: ${filterValue}`}>
@@ -267,13 +235,4 @@ ActiveFilters.propTypes = {
   isFieldFilterVisible: PropTypes.bool.isRequired,
   toggleFieldFilterVisible: PropTypes.func.isRequired,
   classificationTypes: PropTypes.arrayOf(PropTypes.object).isRequired,
-  router: PropTypes.shape({}).isRequired,
 };
-
-const mapStateToProps = ({ router }) => ({
-  router,
-});
-
-export default connect(mapStateToProps, {
-  updateRange,
-})(ActiveFilters);

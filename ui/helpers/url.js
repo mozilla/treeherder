@@ -3,9 +3,9 @@
 // https://github.com/mozilla/treeherder/blob/master/treeherder/middleware.py
 import tcLibUrls from 'taskcluster-lib-urls';
 
-export const uiJobsUrlBase = '/jobs';
+export const uiJobsUrlBase = '/#/jobs';
 
-export const uiPushHealthBase = '/push-health';
+export const uiPushHealthBase = '/pushhealth.html';
 
 export const bzBaseUrl = 'https://bugzilla.mozilla.org/';
 
@@ -21,7 +21,7 @@ export const graphsEndpoint = '/failurecount/';
 
 export const deployedRevisionUrl = '/revision.txt';
 
-export const loginCallbackUrl = '/login';
+export const loginCallbackUrl = '/login.html';
 
 export const platformsEndpoint = '/machineplatforms/';
 
@@ -31,7 +31,7 @@ export const investigatedTestsEndPoint = '/investigated-tests/';
 
 export const repoEndpoint = '/repository/';
 
-export const tcAuthCallbackUrl = '/taskcluster-auth';
+export const tcAuthCallbackUrl = '/taskcluster-auth.html';
 
 export const textLogErrorsEndpoint = '/text_log_errors/';
 
@@ -105,7 +105,7 @@ export const getLogViewerUrl = function getLogViewerUrl(
   repoName,
   lineNumber,
 ) {
-  const rv = `/logviewer?job_id=${jobId}&repo=${repoName}`;
+  const rv = `logviewer.html#?job_id=${jobId}&repo=${repoName}`;
   return lineNumber ? `${rv}&lineNumber=${lineNumber}` : rv;
 };
 
@@ -124,7 +124,7 @@ export const getPushHealthUrl = function getPushHealthUrl(params) {
 };
 
 export const getCompareChooserUrl = function getCompareChooserUrl(params) {
-  return `/perfherder/comparechooser${createQueryParams(params)}`;
+  return `perf.html#/comparechooser${createQueryParams(params)}`;
 };
 
 export const parseQueryParams = function parseQueryParams(search) {
@@ -134,6 +134,12 @@ export const parseQueryParams = function parseQueryParams(search) {
     (acc, [key, value]) => ({ ...acc, [key]: value }),
     {},
   );
+};
+
+export const extractSearchString = function getQueryString(url) {
+  const parts = url.split('?');
+
+  return parts[parts.length - 1];
 };
 
 // `api` requires a preceding forward slash
@@ -157,5 +163,7 @@ export const updateQueryParams = function updateHistoryWithQueryParams(
   history,
   location,
 ) {
-  history.push({ pathname: location.pathname, search: queryParams });
+  history.replace({ pathname: location.pathname, search: queryParams });
+  // we do this so the api's won't be called twice (location/history updates will trigger a lifecycle hook)
+  location.search = queryParams;
 };

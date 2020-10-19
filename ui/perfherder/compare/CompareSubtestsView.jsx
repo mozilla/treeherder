@@ -84,7 +84,9 @@ class CompareSubtestsView extends React.PureComponent {
 
       links.push({
         title: 'replicates',
-        to: `./comparesubtestdistribution${createQueryParams(params)}`,
+        href: `perf.html#/comparesubtestdistribution${createQueryParams(
+          params,
+        )}`,
       });
     }
     const signatureHash = !oldResults
