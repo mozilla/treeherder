@@ -76,7 +76,7 @@ def _deduce_push_timestamp(perf_datum: dict, job_push_time: datetime) -> Tuple[d
 
     multidata_timestamp = perf_datum.get('pushTimestamp', None)
     if multidata_timestamp:
-        multidata_timestamp = datetime.fromisoformat(multidata_timestamp)
+        multidata_timestamp = datetime.fromtimestamp(multidata_timestamp)
         is_multi_commit = True
 
     return (multidata_timestamp or job_push_time), is_multi_commit
