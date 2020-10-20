@@ -304,10 +304,13 @@ th {
 }
 
 .compare-table .result-links span,
-.compare-table .result-links a,
 .compare-table .result-links button {
   color: transparent;
   transition: color 150ms ease-in-out;
+}
+
+.compare-table .result-links a {
+  color: #23527c;
 }
 
 .retrigger-btn {
@@ -318,7 +321,6 @@ th {
   transition: visibility 150ms ease-in-out;
 }
 
-.compare-table tr:hover .result-links a,
 .compare-table tr:hover .result-links button,
 .compare-table tr:focus-within .result-links a,
 .compare-table tr:focus-within .result-links button {
