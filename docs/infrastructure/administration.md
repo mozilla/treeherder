@@ -351,6 +351,7 @@ GRANT SELECT ON treeherder.machine_platform to 'myuser';
 GRANT SELECT ON treeherder.option to 'myuser';
 GRANT SELECT ON treeherder.option_collection to 'myuser';
 GRANT SELECT ON treeherder.performance_alert to 'myuser';
+GRANT SELECT ON treeherder.perf_multicommitdatum to 'myuser';
 GRANT SELECT ON treeherder.performance_alert_summary to 'myuser';
 GRANT SELECT ON treeherder.performance_bug_template to 'myuser';
 GRANT SELECT ON treeherder.performance_datum to 'myuser';
