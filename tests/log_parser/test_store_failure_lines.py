@@ -196,8 +196,4 @@ def test_get_group_results(activate_responses, test_repository, test_job):
     groups = get_group_results(test_job.push)
     task_groups = groups['V3SVuxO8TFy37En_6HcXLs']
 
-    assert task_groups[0] == {
-        'group': 'dom/base/test',
-        'status': 'OK',
-        'label': 'B2G Emulator Image Build',
-    }
+    assert task_groups['dom/base/test'] == True
