@@ -5,8 +5,12 @@ import responses
 from django.conf import settings
 from requests.exceptions import HTTPError
 
-from treeherder.log_parser.failureline import store_failure_lines, write_failure_lines
-from treeherder.model.models import FailureLine, Group, JobLog
+from treeherder.log_parser.failureline import (
+    store_failure_lines,
+    write_failure_lines,
+    get_group_results,
+)
+from treeherder.model.models import FailureLine, Group, JobLog, GroupStatus
 
 from ..sampledata import SampleData
 
@@ -23,10 +27,8 @@ def test_store_error_summary(activate_responses, test_repository, test_job):
     store_failure_lines(log_obj)
 
     assert FailureLine.objects.count() == 1
-    assert Group.objects.count() == 1
 
     failure = FailureLine.objects.get(pk=1)
-    assert failure.group.all().first().name == "devtools/client/debugger/new/test/mochitest"
 
     assert failure.job_guid == test_job.guid
 
@@ -48,10 +50,6 @@ def test_store_error_summary_default_group(activate_responses, test_repository, 
     store_failure_lines(log_obj)
 
     assert FailureLine.objects.count() == 1
-    assert Group.objects.count() == 1
-
-    failure = FailureLine.objects.get(pk=1)
-    assert failure.group.all().first().name == "default"
 
 
 def test_store_error_summary_truncated(activate_responses, test_repository, test_job, monkeypatch):
@@ -68,11 +66,6 @@ def test_store_error_summary_truncated(activate_responses, test_repository, test
     store_failure_lines(log_obj)
 
     assert FailureLine.objects.count() == 5 + 1
-
-    assert Group.objects.count() == 1
-
-    failure = FailureLine.objects.get(pk=1)
-    assert failure.group.all().first().name == "devtools/client/debugger/new/test/mochitest"
 
     failure = FailureLine.objects.get(action='truncated')
 
@@ -99,8 +92,6 @@ def test_store_error_summary_astral(activate_responses, test_repository, test_jo
     store_failure_lines(log_obj)
 
     assert FailureLine.objects.count() == 1
-
-    assert Group.objects.count() == 1
 
     failure = FailureLine.objects.get(pk=1)
 
@@ -166,3 +157,47 @@ def test_store_error_summary_duplicate(activate_responses, test_repository, test
     )
 
     assert FailureLine.objects.count() == 2
+
+
+def test_store_error_summary_group_status(activate_responses, test_repository, test_job):
+    log_path = SampleData().get_log_path("mochitest-browser-chrome_errorsummary.log")
+    log_url = 'http://my-log.mozilla.org'
+
+    with open(log_path) as log_handler:
+        responses.add(responses.GET, log_url, body=log_handler.read(), status=200)
+
+    log_obj = JobLog.objects.create(job=test_job, name="errorsummary_json", url=log_url)
+    store_failure_lines(log_obj)
+
+    assert FailureLine.objects.count() == 5
+
+    ok_groups = Group.objects.filter(group_result__status=GroupStatus.OK)
+    error_groups = Group.objects.filter(group_result__status=GroupStatus.ERROR)
+
+    assert ok_groups.count() == 28
+    assert error_groups.count() == 1
+    assert log_obj.groups.count() == 29
+
+    assert log_obj.groups.all().first().name == "dom/base/test"
+    assert ok_groups.first().name == "dom/base/test"
+    assert error_groups.first().name == "toolkit/components/pictureinpicture/tests"
+
+
+def test_get_group_results(activate_responses, test_repository, test_job):
+    log_path = SampleData().get_log_path("mochitest-browser-chrome_errorsummary.log")
+    log_url = 'http://my-log.mozilla.org'
+
+    with open(log_path) as log_handler:
+        responses.add(responses.GET, log_url, body=log_handler.read(), status=200)
+
+    log_obj = JobLog.objects.create(job=test_job, name="errorsummary_json", url=log_url)
+    store_failure_lines(log_obj)
+
+    groups = get_group_results(test_job.push)
+    task_groups = groups['V3SVuxO8TFy37En_6HcXLs']
+
+    assert task_groups[0] == {
+        'group': 'dom/base/test',
+        'status': 'OK',
+        'label': 'B2G Emulator Image Build',
+    }

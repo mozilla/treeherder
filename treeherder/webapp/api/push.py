@@ -8,6 +8,7 @@ from rest_framework.decorators import action
 from rest_framework.response import Response
 from rest_framework.status import HTTP_400_BAD_REQUEST, HTTP_404_NOT_FOUND
 
+from treeherder.log_parser.failureline import get_group_results
 from treeherder.model.models import Job, JobType, Push, Repository
 from treeherder.push_health.builds import get_build_failures
 from treeherder.push_health.compare import get_commit_history
@@ -363,3 +364,21 @@ class PushViewSet(viewsets.ViewSet):
                 'short_revision_push_api',
                 {'error': 'Revision <40 chars', 'param': param, 'revision': revision},
             )
+
+    @action(detail=False)
+    def group_results(self, request, project):
+        """
+        Return the results of all the test groups for this push.
+        """
+        revision = request.query_params.get('revision')
+
+        try:
+            repository = Repository.objects.get(name=project)
+            push = Push.objects.get(revision=revision, repository=repository)
+        except Push.DoesNotExist:
+            return Response(
+                "No push with revision: {0}".format(revision), status=HTTP_404_NOT_FOUND
+            )
+        groups = get_group_results(push)
+
+        return Response(groups)
