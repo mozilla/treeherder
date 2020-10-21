@@ -182,17 +182,12 @@ def get_group_results(push):
         'group_result__status',
         'name',
         'job_logs__job__taskcluster_metadata__task_id',
-        'job_logs__job__job_type__name',
     )
 
-    by_task_id = defaultdict(list)
+    by_task_id = defaultdict(dict)
     for group in groups:
-        by_task_id[group['job_logs__job__taskcluster_metadata__task_id']].append(
-            {
-                'group': group['name'],
-                'status': GroupStatus.STATUS_LOOKUP[group['group_result__status']],
-                'label': group['job_logs__job__job_type__name'],
-            }
-        ),
+        by_task_id[group['job_logs__job__taskcluster_metadata__task_id']][
+            group['name']
+        ] = bool(GroupStatus.STATUS_LOOKUP[group['group_result__status']] == "OK")
 
     return by_task_id
