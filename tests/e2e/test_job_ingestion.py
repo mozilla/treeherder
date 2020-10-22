@@ -28,6 +28,7 @@ def test_store_job_with_unparsed_log(
 
     monkeypatch.setattr(treeherder.model.error_summary, 'get_error_summary', mock_get_error_summary)
     log_url = add_log_response("mozilla-central-macosx64-debug-bm65-build1-build15.txt.gz")
+    errorsummary = add_log_response("mochitest-browser-chrome_errorsummary.log")
 
     job_guid = 'd22c74d4aa6d2a1dcba96d95dccbd5fdca70cf33'
     job_data = {
@@ -37,7 +38,8 @@ def test_store_job_with_unparsed_log(
             'job_guid': job_guid,
             'state': 'completed',
             'log_references': [
-                {'url': log_url, 'name': 'live_backing_log', 'parse_status': 'pending'}
+                {'url': log_url, 'name': 'live_backing_log', 'parse_status': 'pending'},
+                {'url': errorsummary, 'name': 'mochi_errorsummary.log', 'parse_status': 'pending'},
             ],
         },
     }

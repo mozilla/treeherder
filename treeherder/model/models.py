@@ -945,7 +945,7 @@ class FailureLine(models.Model):
     STATUS_LIST = ('PASS', 'FAIL', 'OK', 'ERROR', 'TIMEOUT', 'CRASH', 'ASSERT', 'SKIP', 'NOTRUN')
     # Truncated is a special action that we use to indicate that the list of failure lines
     # was truncated according to settings.FAILURE_LINES_CUTOFF.
-    ACTION_LIST = ("test_result", "log", "crash", "truncated")
+    ACTION_LIST = ("test_result", "log", "crash", "truncated", "group_result")
     LEVEL_LIST = ("critical", "error", "warning", "info", "debug")
 
     # Python 3's zip produces an iterable rather than a list, which Django's `choices` can't handle.
@@ -959,7 +959,7 @@ class FailureLine(models.Model):
     job_log = models.ForeignKey(
         JobLog, on_delete=models.CASCADE, null=True, related_name="failure_line"
     )
-    action = models.CharField(max_length=11, choices=ACTION_CHOICES)
+    action = models.CharField(max_length=15, choices=ACTION_CHOICES)
     line = models.PositiveIntegerField()
     test = models.TextField(blank=True, null=True)
     subtest = models.TextField(blank=True, null=True)
@@ -1105,13 +1105,37 @@ class Group(models.Model):
 
     id = models.BigAutoField(primary_key=True)
     name = models.CharField(max_length=255, unique=True)
-    failure_lines = models.ManyToManyField(FailureLine, related_name='group')
+    job_logs = models.ManyToManyField("JobLog", through='GroupStatus', related_name='groups')
 
     def __str__(self):
         return self.name
 
     class Meta:
         db_table = 'group'
+
+
+class GroupStatus(models.Model):
+    OK = 1
+    ERROR = 2
+    SKIP = 3
+    UNSUPPORTED = 10
+    STATUS_MAP = {"OK": OK, "ERROR": ERROR, "SKIP": SKIP}
+    STATUS_LOOKUP = {OK: "OK", ERROR: "ERROR", SKIP: "SKIP"}
+
+    status = models.SmallIntegerField()
+    job_log = models.ForeignKey(JobLog, on_delete=models.CASCADE, related_name="group_result")
+    group = models.ForeignKey(Group, on_delete=models.CASCADE, related_name="group_result")
+
+    @staticmethod
+    def get_status(status_str):
+        return (
+            GroupStatus.STATUS_MAP[status_str]
+            if status_str in GroupStatus.STATUS_MAP
+            else GroupStatus.UNSUPPORTED
+        )
+
+    class Meta:
+        db_table = 'group_status'
 
 
 class ClassifiedFailure(models.Model):

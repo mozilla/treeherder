@@ -102,7 +102,7 @@ def failure_line_summary(formatter, failure_line):
     try:
         mozlog_func = getattr(formatter, action)
     except AttributeError:
-        logger.warning('Unknown mozlog function "%s"', action)
+        logger.info('Unknown mozlog function "%s"', action)
         return
 
     formatted_log = mozlog_func(failure_line.to_mozlog_format())

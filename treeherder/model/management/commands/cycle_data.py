@@ -7,17 +7,17 @@ from abc import ABC, abstractmethod
 from django.core.management.base import BaseCommand
 from django.db import connection
 from django.db.backends.utils import CursorWrapper
+from django.db.models import Count
 from django.db.utils import OperationalError
 from django.conf import settings
 from typing import List
 
 from treeherder.model.models import Job, JobGroup, JobType, Machine, Repository
 from treeherder.perf.exceptions import MaxRuntimeExceeded, NoDataCyclingAtAll
-from treeherder.perf.models import PerformanceDatum, PerformanceSignature
+from treeherder.perf.models import PerformanceDatum, PerformanceSignature, PerformanceAlertSummary
 from treeherder.services.taskcluster import TaskclusterModel, DEFAULT_ROOT_URL as root_url
 from treeherder.services.signatures_remover import PublicSignaturesRemover
 from treeherder.services.max_runtime import MaxRuntime
-
 
 logging.basicConfig(format='%(levelname)s:%(message)s')
 
@@ -68,9 +68,9 @@ class TreeherderCycler(DataCycler):
         except OperationalError as e:
             logger.error("Error running cycle_data: {}".format(e))
 
-        self.remove_leftovers()
+        self._remove_leftovers()
 
-    def remove_leftovers(self):
+    def _remove_leftovers(self):
         logger.warning('Pruning ancillary data: job types, groups and machines')
 
         def prune(id_name, model):
@@ -113,9 +113,6 @@ class PerfherderCycler(DataCycler):
         logger.warning(f"Cycling {PERFHERDER.title()} data...")
         self.timer.start_timer()
 
-        tc_model = TaskclusterModel(root_url, client_id, access_token)
-        signatures_remover = PublicSignaturesRemover(timer=self.timer, taskcluster_model=tc_model)
-
         try:
             for strategy in self.strategies:
                 try:
@@ -124,13 +121,38 @@ class PerfherderCycler(DataCycler):
                 except NoDataCyclingAtAll as ex:
                     logger.warning(str(ex))
 
-            # also remove any signatures which are (no longer) associated with
-            # a job
-            logger.warning('Removing performance signatures with missing jobs...')
-            signatures_remover.remove()
-
+            self._remove_leftovers()
         except MaxRuntimeExceeded as ex:
             logger.warning(ex)
+
+    def _remove_leftovers(self):
+        # remove any signatures which are
+        # no longer associated with a job
+        tc_model = TaskclusterModel(root_url, client_id, access_token)
+        signatures_remover = PublicSignaturesRemover(timer=self.timer, taskcluster_model=tc_model)
+
+        logger.warning('Removing performance signatures with missing jobs...')
+        signatures_remover.remove()
+
+        # remove empty alert summaries
+        logger.warning('Removing alert summaries which no longer have any alerts...')
+        one_hour_ago = datetime.now() - timedelta(hours=1)
+        (
+            PerformanceAlertSummary.objects.prefetch_related('alerts', 'related_alerts')
+            .annotate(
+                total_alerts=Count('alerts'),
+                total_related_alerts=Count('related_alerts'),
+            )
+            .filter(
+                total_alerts=0,
+                total_related_alerts=0,
+                # mitigates race condition when the alert summary
+                # is manually created & for a moment doesn't yet have
+                # any alerts associated
+                created__lt=one_hour_ago,
+            )
+            .delete()
+        )
 
     def _delete_in_chunks(self, strategy: RemovalStrategy):
         any_successful_attempt = False
