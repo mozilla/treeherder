@@ -7,13 +7,12 @@ from abc import ABC, abstractmethod
 from django.core.management.base import BaseCommand
 from django.db import connection
 from django.db.backends.utils import CursorWrapper
-from django.db.models import Count
 from django.db.utils import OperationalError
 from typing import List
 
 from treeherder.model.models import Job, JobGroup, JobType, Machine, Repository
 from treeherder.perf.exceptions import MaxRuntimeExceeded, NoDataCyclingAtAll
-from treeherder.perf.models import PerformanceDatum, PerformanceSignature, PerformanceAlertSummary
+from treeherder.perf.models import PerformanceDatum, PerformanceSignature
 
 logging.basicConfig(format='%(levelname)s:%(message)s')
 
@@ -61,9 +60,9 @@ class TreeherderCycler(DataCycler):
         except OperationalError as e:
             logger.error("Error running cycle_data: {}".format(e))
 
-        self._remove_leftovers()
+        self.remove_leftovers()
 
-    def _remove_leftovers(self):
+    def remove_leftovers(self):
         logger.warning('Pruning ancillary data: job types, groups and machines')
 
         def prune(id_name, model):
@@ -117,42 +116,19 @@ class PerfherderCycler(DataCycler):
                 except NoDataCyclingAtAll as ex:
                     logger.warning(str(ex))
 
-            self._remove_leftovers()
+            # also remove any signatures which are (no longer) associated with
+            # a job
+            logger.warning('Removing performance signatures with missing jobs...')
+            for signature in PerformanceSignature.objects.all():
+                self._quit_on_timeout()
+
+                if not PerformanceDatum.objects.filter(
+                    repository_id=signature.repository_id,  # leverages (repository, signature) compound index
+                    signature_id=signature.id,
+                ).exists():
+                    signature.delete()
         except MaxRuntimeExceeded as ex:
             logger.warning(ex)
-
-    def _remove_leftovers(self):
-        # remove any signatures which are
-        # no longer associated with a job
-        logger.warning('Removing performance signatures with missing jobs...')
-        for signature in PerformanceSignature.objects.all():
-            self._quit_on_timeout()
-
-            if not PerformanceDatum.objects.filter(
-                repository_id=signature.repository_id,  # leverages (repository, signature) compound index
-                signature_id=signature.id,
-            ).exists():
-                signature.delete()
-
-        # remove empty alert summaries
-        logger.warning('Removing alert summaries which no longer have any alerts...')
-        one_hour_ago = datetime.now() - timedelta(hours=1)
-        (
-            PerformanceAlertSummary.objects.prefetch_related('alerts', 'related_alerts')
-            .annotate(
-                total_alerts=Count('alerts'),
-                total_related_alerts=Count('related_alerts'),
-            )
-            .filter(
-                total_alerts=0,
-                total_related_alerts=0,
-                # mitigates race condition when the alert summary
-                # is manually created & for a moment doesn't yet have
-                # any alerts associated
-                created__lt=one_hour_ago,
-            )
-            .delete()
-        )
 
     def _quit_on_timeout(self):
         elapsed_runtime = datetime.now() - self.started_at
