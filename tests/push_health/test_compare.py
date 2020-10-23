@@ -2,7 +2,7 @@ import pytest
 import datetime
 import responses
 
-from treeherder.model.models import Push, Repository
+from treeherder.model.models import Push
 from treeherder.push_health.compare import get_commit_history
 
 test_revision = '4c45a777949168d16c03a4cba167678b7ab65f76'
