@@ -349,9 +349,9 @@ def empty_alert_summary(
 @pytest.mark.parametrize(
     'expired_time',
     [
-        datetime.now() - timedelta(days=1),
-        datetime.now() - timedelta(hours=2),
-        datetime.now() - timedelta(hours=1, seconds=1),
+        datetime.now() - timedelta(days=365),
+        datetime.now() - timedelta(days=181),
+        datetime.now() - timedelta(days=180, hours=1),
     ],
 )
 def test_summary_without_any_kind_of_alerts_is_deleted(expired_time, empty_alert_summary):
@@ -371,7 +371,8 @@ def test_summary_without_any_kind_of_alerts_is_deleted(expired_time, empty_alert
     [
         datetime.now(),
         datetime.now() - timedelta(minutes=30),
-        datetime.now() - timedelta(minutes=50),
+        datetime.now() - timedelta(weeks=4),
+        datetime.now() - timedelta(days=179, hours=23),
     ],
 )
 def test_summary_without_any_kind_of_alerts_isnt_deleted(recently, empty_alert_summary):
@@ -390,13 +391,14 @@ def test_summary_without_any_kind_of_alerts_isnt_deleted(recently, empty_alert_s
     'creation_time',
     [
         # expired
-        datetime.now() - timedelta(days=1),
-        datetime.now() - timedelta(hours=2),
-        datetime.now() - timedelta(hours=1, seconds=1),
+        datetime.now() - timedelta(days=365),
+        datetime.now() - timedelta(days=181),
+        datetime.now() - timedelta(days=180, hours=1),
         # not expired
         datetime.now(),
         datetime.now() - timedelta(minutes=30),
-        datetime.now() - timedelta(minutes=50),
+        datetime.now() - timedelta(weeks=4),
+        datetime.now() - timedelta(days=179, hours=23),
     ],
 )
 def test_summary_with_alerts_isnt_deleted(

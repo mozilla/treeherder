@@ -136,7 +136,6 @@ class PerfherderCycler(DataCycler):
 
         # remove empty alert summaries
         logger.warning('Removing alert summaries which no longer have any alerts...')
-        one_hour_ago = datetime.now() - timedelta(hours=1)
         (
             PerformanceAlertSummary.objects.prefetch_related('alerts', 'related_alerts')
             .annotate(
@@ -146,10 +145,11 @@ class PerfherderCycler(DataCycler):
             .filter(
                 total_alerts=0,
                 total_related_alerts=0,
-                # mitigates race condition when the alert summary
-                # is manually created & for a moment doesn't yet have
-                # any alerts associated
-                created__lt=one_hour_ago,
+                # WARNING! Don't change this without proper approval!           #
+                # Otherwise we risk deleting data that's actively investigated  #
+                # and cripple the perf sheriffing process!                      #
+                created__lt=(datetime.now() - timedelta(days=180)),
+                #################################################################
             )
             .delete()
         )
