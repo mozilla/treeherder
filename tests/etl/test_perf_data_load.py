@@ -92,8 +92,10 @@ def sibling_perf_artifacts(sample_perf_artifact: dict) -> List[dict]:
     artifacts = [copy.deepcopy(sample_perf_artifact) for _ in range(3)]
 
     for idx, artifact in enumerate(artifacts):
-        mocked_push_timestamp = datetime.datetime.now() + datetime.timedelta(hours=idx)
-        artifact['blob']['pushTimestamp'] = mocked_push_timestamp.isoformat()
+        mocked_push_timestamp = (
+            datetime.datetime.utcnow() + datetime.timedelta(hours=idx)
+        ).timestamp()
+        artifact['blob']['pushTimestamp'] = int(mocked_push_timestamp)
 
         # having distinct values for suites & subtests
         # will make it easier to write tests
@@ -375,11 +377,12 @@ def test_multi_data_ingest_workflow(
     # and their essential properties were correctly stored (or not)
     for artifact in sibling_perf_artifacts:
         artifact_blob = artifact['blob']
+        push_timestamp = datetime.datetime.fromtimestamp(artifact_blob['pushTimestamp'])
         common_properties = dict(  # to both suites & subtests
             repository=perf_job.repository,
             job=perf_job,
             push=perf_job.push,
-            push_timestamp=artifact_blob['pushTimestamp'],
+            push_timestamp=push_timestamp,
         )
         # check suites
         for suite in artifact_blob['suites']:
@@ -434,7 +437,7 @@ def test_timestamp_can_be_updated_for_multi_data_ingestion_workflow(
 
     signature = PerformanceSignature.objects.get(suite='youtube-watch', test='fcp')
     last_artifact = sibling_perf_artifacts[-1]
-    last_push_timestamp = datetime.datetime.fromisoformat(last_artifact['blob']['pushTimestamp'])
+    last_push_timestamp = datetime.datetime.fromtimestamp(last_artifact['blob']['pushTimestamp'])
 
     assert operator_(signature.last_updated, last_push_timestamp)
 

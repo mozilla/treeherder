@@ -364,10 +364,6 @@ def test_irrelevant_repos_data_removal(
     call_command('cycle_data', 'from:perfherder')
     assert PerformanceDatum.objects.count() == total_initial_data - 1
     assert PerformanceDatum.objects.filter(repository=relevant_repository).exists()
-    assert PerformanceDatum.objects.filter(
-        push_timestamp__gt=six_months_ago_timestamp,
-        repository=test_repository,
-    ).exists()
     assert not PerformanceDatum.objects.filter(
         push_timestamp__lte=six_months_ago_timestamp,
         repository=test_repository,
