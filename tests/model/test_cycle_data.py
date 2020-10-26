@@ -17,7 +17,12 @@ from treeherder.model.models import (
     Push,
 )
 from treeherder.perf.exceptions import MaxRuntimeExceeded
-from treeherder.perf.models import PerformanceDatum, PerformanceSignature
+from treeherder.perf.models import (
+    PerformanceDatum,
+    PerformanceSignature,
+    PerformanceAlertSummary,
+    PerformanceAlert,
+)
 
 
 def test_cycle_all_data(
@@ -326,3 +331,116 @@ def test_performance_cycler_quit_indicator():
         cycler._quit_on_timeout()
     except MaxRuntimeExceeded:
         pytest.fail('Performance cycling shouldn\'t have timed out')
+
+
+@pytest.fixture
+def empty_alert_summary(
+    test_repository, push_stored, test_perf_framework, test_issue_tracker
+) -> PerformanceAlertSummary:
+    return PerformanceAlertSummary.objects.create(
+        repository=test_repository,
+        framework=test_perf_framework,
+        prev_push_id=1,
+        push_id=3,
+        manually_created=True,
+    )
+
+
+@pytest.mark.parametrize(
+    'expired_time',
+    [
+        datetime.now() - timedelta(days=365),
+        datetime.now() - timedelta(days=181),
+        datetime.now() - timedelta(days=180, hours=1),
+    ],
+)
+def test_summary_without_any_kind_of_alerts_is_deleted(expired_time, empty_alert_summary):
+    empty_alert_summary.created = expired_time
+    empty_alert_summary.save()
+
+    assert PerformanceAlertSummary.objects.count() == 1
+    assert empty_alert_summary.alerts.count() == 0
+    assert empty_alert_summary.related_alerts.count() == 0
+
+    call_command('cycle_data', 'from:perfherder')
+    assert not PerformanceAlertSummary.objects.exists()
+
+
+@pytest.mark.parametrize(
+    'recently',
+    [
+        datetime.now(),
+        datetime.now() - timedelta(minutes=30),
+        datetime.now() - timedelta(weeks=4),
+        datetime.now() - timedelta(days=179, hours=23),
+    ],
+)
+def test_summary_without_any_kind_of_alerts_isnt_deleted(recently, empty_alert_summary):
+    empty_alert_summary.created = recently
+    empty_alert_summary.save()
+
+    assert PerformanceAlertSummary.objects.count() == 1
+    assert empty_alert_summary.alerts.count() == 0
+    assert empty_alert_summary.related_alerts.count() == 0
+
+    call_command('cycle_data', 'from:perfherder')
+    assert PerformanceAlertSummary.objects.count() == 1
+
+
+@pytest.mark.parametrize(
+    'creation_time',
+    [
+        # expired
+        datetime.now() - timedelta(days=365),
+        datetime.now() - timedelta(days=181),
+        datetime.now() - timedelta(days=180, hours=1),
+        # not expired
+        datetime.now(),
+        datetime.now() - timedelta(minutes=30),
+        datetime.now() - timedelta(weeks=4),
+        datetime.now() - timedelta(days=179, hours=23),
+    ],
+)
+def test_summary_with_alerts_isnt_deleted(
+    creation_time, empty_alert_summary, test_perf_alert, test_perf_alert_2, test_perf_data
+):
+    empty_alert_summary.created = creation_time
+    empty_alert_summary.save()
+
+    test_perf_data = list(test_perf_data)
+    for datum in test_perf_data[2:]:
+        datum.signature = test_perf_alert_2.series_signature
+        datum.repository = test_perf_alert_2.series_signature.repository
+        datum.save()
+
+    # with alerts only
+    test_perf_alert.summary = empty_alert_summary
+    test_perf_alert.save()
+
+    assert PerformanceAlertSummary.objects.filter(id=empty_alert_summary.id).exists()
+    assert empty_alert_summary.alerts.count() == 1
+    assert empty_alert_summary.related_alerts.count() == 0
+
+    call_command('cycle_data', 'from:perfherder')
+    assert PerformanceAlertSummary.objects.filter(id=empty_alert_summary.id).exists()
+
+    # with both
+    test_perf_alert_2.status = PerformanceAlert.REASSIGNED
+    empty_alert_summary.related_alerts.add(test_perf_alert_2, bulk=False)
+
+    assert PerformanceAlertSummary.objects.filter(id=empty_alert_summary.id).exists()
+    assert empty_alert_summary.alerts.count() == 1
+    assert empty_alert_summary.related_alerts.count() == 1
+
+    call_command('cycle_data', 'from:perfherder')
+    assert PerformanceAlertSummary.objects.filter(id=empty_alert_summary.id).exists()
+
+    # with related_alerts only
+    test_perf_alert.delete()
+
+    assert PerformanceAlertSummary.objects.filter(id=empty_alert_summary.id).exists()
+    assert empty_alert_summary.alerts.count() == 0
+    assert empty_alert_summary.related_alerts.count() == 1
+
+    call_command('cycle_data', 'from:perfherder')
+    assert PerformanceAlertSummary.objects.filter(id=empty_alert_summary.id).exists()
