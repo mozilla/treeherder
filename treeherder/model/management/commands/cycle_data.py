@@ -213,6 +213,7 @@ class RemovalStrategy(ABC):
         return [
             MainRemovalStrategy(*args, **kwargs),
             TryDataRemoval(*args, **kwargs),
+            IrrelevantDataRemoval(*args, **kwargs),
             # append here any new strategies
             # ...
         ]
@@ -342,6 +343,78 @@ class TryDataRemoval(RemovalStrategy):
 
         if len(self.__target_signatures) == 0:
             raise LookupError('Exhausted all signatures originating from try repository.')
+
+
+class IrrelevantDataRemoval(RemovalStrategy):
+    """
+    Removes `performance_datum` rows that originate
+    from repositories, other than the ones mentioned
+    in `RELEVANT_REPO_NAMES`, that are more than 6 months old.
+    """
+
+    RELEVANT_REPO_NAMES = [
+        'autoland',
+        'mozilla-central',
+        'mozilla-beta',
+        'fenix',
+        'reference-browser',
+    ]
+
+    def __init__(self, chunk_size: int):
+        self._cycle_interval = timedelta(days=(6 * 30))
+        self._chunk_size = chunk_size
+        self._max_timestamp = datetime.now() - self._cycle_interval
+        self._manager = PerformanceDatum.objects
+        self.__relevant_repos = None
+
+    @property
+    def relevant_repositories(self):
+        if self.__relevant_repos is None:
+            self.__relevant_repos = list(
+                Repository.objects.filter(name__in=self.RELEVANT_REPO_NAMES).values_list(
+                    'id', flat=True
+                )
+            )
+            if len(self.__relevant_repos) != len(self.RELEVANT_REPO_NAMES):
+                logger.warning("Failed to find all relevant repositories in the database")
+
+        return self.__relevant_repos
+
+    @property
+    def name(self) -> str:
+        return 'irrelevant data removal strategy'
+
+    def remove(self, using: CursorWrapper):
+        chunk_size = self._find_ideal_chunk_size()
+
+        using.execute(
+            '''
+                DELETE FROM `performance_datum`
+                WHERE (repository_id NOT IN %s) AND push_timestamp <= %s
+                LIMIT %s
+            ''',
+            [
+                tuple(self.relevant_repositories),
+                self._max_timestamp,
+                chunk_size,
+            ],
+        )
+
+    def _find_ideal_chunk_size(self) -> int:
+        max_id_of_non_expired_row = (
+            self._manager.filter(push_timestamp__gt=self._max_timestamp)
+            .exclude(repository_id__in=self.relevant_repositories)
+            .order_by('-id')[0]
+            .id
+        )
+        older_perf_data_rows = (
+            self._manager.filter(
+                push_timestamp__lte=self._max_timestamp, id__lte=max_id_of_non_expired_row
+            )
+            .exclude(repository_id__in=self.relevant_repositories)
+            .order_by('id')[: self._chunk_size]
+        )
+        return len(older_perf_data_rows) or self._chunk_size
 
 
 class Command(BaseCommand):
