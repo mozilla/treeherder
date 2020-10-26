@@ -67,11 +67,7 @@ const menuItems = [
 const HelpMenu = () => (
   <UncontrolledDropdown>
     <DropdownToggle className="btn-view-nav nav-menu-btn" caret>
-      <FontAwesomeIcon
-        icon={faQuestionCircle}
-        className="lightgray mr-1"
-        title="Treeherder help"
-      />
+      Help
     </DropdownToggle>
     <DropdownMenu right className="icon-menu">
       {menuItems.map((item) => (
