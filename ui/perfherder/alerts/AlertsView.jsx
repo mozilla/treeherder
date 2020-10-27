@@ -32,10 +32,10 @@ class AlertsView extends React.Component {
   constructor(props) {
     super(props);
     const { frameworks, validated } = this.props;
-    const extendedOptions = this.extendDropdownOptions(frameworks);
+    this.extendedOptions = this.extendDropdownOptions(frameworks);
     this.state = {
-      filters: this.getFiltersFromParams(validated, extendedOptions),
-      frameworkOptions: extendedOptions,
+      filters: this.getFiltersFromParams(validated),
+      frameworkOptions: this.extendedOptions,
       page: validated.page ? parseInt(validated.page, 10) : 1,
       errorMessages: [],
       alertSummaries: [],
@@ -55,43 +55,30 @@ class AlertsView extends React.Component {
   }
 
   componentDidUpdate(prevProps, prevState) {
-    const { count, frameworkOptions } = this.state;
-    const { validated } = this.props;
-    const prevValitated = prevProps.validated;
+    const { count } = this.state;
 
     if (prevState.count !== count) {
       this.setState({ totalPages: this.generatePages(count) });
     }
 
-    // filters updated directly in the url
-    if (
-      validated.hideAssignedToOthers !== prevValitated.hideAssignedToOthers ||
-      validated.hideImprovements !== prevValitated.hideImprovements ||
-      validated.hideDwnToInv !== prevValitated.hideDwnToInv ||
-      validated.filterText !== prevValitated.filterText ||
-      validated.status !== prevValitated.status ||
-      validated.framework !== prevValitated.framework
-    ) {
-      this.setFiltersState(
-        this.getFiltersFromParams(validated, frameworkOptions),
-        false,
-      );
-    }
-
     const params = parseQueryParams(this.props.location.search);
+    const prevParams = parseQueryParams(prevProps.location.search);
     // we're using local state for id instead of validated.id because once
     // the user navigates from the id=<alert> view back to the main alerts view
     // the Validation component won't reset the id (since the query param doesn't exist
     // unless there is a value)
-    if (this.props.location.search !== prevProps.location.search) {
-      this.setState({ id: params.id || null }, this.fetchAlertSummaries);
-      if (params.id) {
-        validated.updateParams({ hideDwnToInv: 0 });
-      }
+    if (params.id !== prevParams.id) {
+      this.setState(
+        { id: params.id || null, filters: this.getFiltersFromParams(params) },
+        this.fetchAlertSummaries,
+      );
     }
   }
 
-  getFiltersFromParams = (validated, frameworkOptions) => {
+  getFiltersFromParams = (
+    validated,
+    frameworkOptions = this.extendedOptions,
+  ) => {
     return {
       status: this.getDefaultStatus(),
       framework: getFrameworkData({
@@ -229,7 +216,11 @@ class AlertsView extends React.Component {
     );
   };
 
-  async fetchAlertSummaries(id = this.state.id, update = false, page = 1) {
+  async fetchAlertSummaries(
+    id = this.state.id,
+    update = false,
+    page = this.state.page,
+  ) {
     // turn off loading when update is true (used to update alert statuses)
     this.setState({ loading: !update, errorMessages: [] });
     const { user } = this.props;

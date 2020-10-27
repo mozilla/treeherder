@@ -46,7 +46,7 @@ const AlertHeader = ({
       <Row>
         <Link
           className="text-dark"
-          to={`./alerts?id=${alertSummary.id}`}
+          to={`./alerts?id=${alertSummary.id}&hideDwnToInv=0`}
           id={`alert summary ${alertSummary.id.toString()} title`}
           data-testid={`alert summary ${alertSummary.id.toString()} title`}
         >

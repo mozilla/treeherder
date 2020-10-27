@@ -14,14 +14,16 @@ export default class AlertsViewControls extends React.Component {
   };
 
   updateFilter = (filter) => {
-    const { setFiltersState, filters } = this.props;
+    const { setFiltersState, filters, updateViewState } = this.props;
     const prevValue = filters[filter];
     setFiltersState({ [filter]: !prevValue });
+    updateViewState({ page: 1 });
   };
 
   updateStatus = (status) => {
-    const { setFiltersState } = this.props;
+    const { setFiltersState, updateViewState } = this.props;
     setFiltersState({ status });
+    updateViewState({ page: 1 });
   };
 
   updateFramework = (selectedFramework) => {
@@ -29,7 +31,7 @@ export default class AlertsViewControls extends React.Component {
     const framework = frameworkOptions.find(
       (item) => item.name === selectedFramework,
     );
-    updateViewState({ bugTemplate: null });
+    updateViewState({ bugTemplate: null, page: 1 });
     setFiltersState({ framework }, this.fetchAlertSummaries);
   };
 
