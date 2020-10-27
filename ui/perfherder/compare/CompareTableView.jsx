@@ -131,9 +131,7 @@ export default class CompareTableView extends React.Component {
     }
 
     if (hasSubtests) {
-      let subtestName = data[0].name.split(' ');
-      subtestName.splice(1, 1);
-      subtestName = subtestName.join(' ');
+      const subtestName = data[0].name;
 
       title = `${data[0].platform}: ${subtestName}`;
       tableNames = [subtestName];
