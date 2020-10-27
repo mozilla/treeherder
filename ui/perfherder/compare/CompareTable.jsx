@@ -6,14 +6,132 @@ import { faHashtag } from '@fortawesome/free-solid-svg-icons';
 
 import { getHashBasedId } from '../helpers';
 import { hashFunction } from '../../helpers/utils';
+import { compareTableSort } from '../constants';
 
 import RetriggerButton from './RetriggerButton';
 import CompareTableRow from './CompareTableRow';
+import CompareSortButton from './CompareSortButton';
 
-export default class CompareTable extends React.PureComponent {
+export default class CompareTable extends React.Component {
+  sortTypes = {
+    [compareTableSort.ascending]: {
+      sortByString: (value) => (a, b) => a[value].localeCompare(b[value]),
+      sortByValue: (value) => (a, b) => a[value] - b[value],
+    },
+    [compareTableSort.descending]: {
+      sortByString: (value) => (a, b) => b[value].localeCompare(a[value]),
+      sortByValue: (value) => (a, b) => b[value] - a[value],
+    },
+  };
+
+  constructor(props) {
+    super(props);
+    const { data } = this.props;
+
+    this.state = {
+      data,
+      tableConfig: {
+        TestName: {
+          name: 'Test name',
+          sortValue: 'name',
+          currentSort: compareTableSort.default,
+        },
+        Base: {
+          name: 'Base',
+          sortValue: 'originalValue',
+          currentSort: compareTableSort.default,
+        },
+        Comparison: { name: 'Comparison' },
+        New: {
+          name: 'New',
+          sortValue: 'newValue',
+          currentSort: compareTableSort.default,
+        },
+        Delta: {
+          name: 'Delta',
+          sortValue: 'deltaPercentage',
+          currentSort: compareTableSort.default,
+        },
+        Magnitude: {
+          name: 'Magnitude of Difference',
+          sortValue: 'magnitude',
+          currentSort: compareTableSort.default,
+        },
+        Confidence: {
+          name: 'Confidence',
+          sortValue: 'confidence',
+          currentSort: compareTableSort.default,
+        },
+      },
+    };
+  }
+
+  componentDidUpdate = (prevProps) => {
+    const { data } = this.props;
+    const { tableConfig } = this.state;
+
+    if (data !== prevProps.data) {
+      Object.keys(tableConfig).forEach((key) => {
+        tableConfig[key].currentSort = compareTableSort.default;
+      });
+      // eslint-disable-next-line react/no-did-update-set-state
+      this.setState({ data, tableConfig });
+    }
+  };
+
+  getNextSort = (currentSort) => {
+    const { ascending, descending, default: defaultSort } = compareTableSort;
+    const nextSort = {
+      ascending: descending,
+      descending: defaultSort,
+      default: ascending,
+    };
+
+    return nextSort[currentSort];
+  };
+
+  sort = (sortValue, sortType, data) => {
+    const validData = [];
+    const nullData = [];
+    data.forEach((item) => {
+      if (item[sortValue] || item[sortValue] === 0) {
+        validData.push(item);
+      } else {
+        nullData.push(item);
+      }
+    });
+    const { sortByString, sortByValue } = this.sortTypes[sortType];
+    const doSort = sortValue === 'name' ? sortByString : sortByValue;
+
+    if (validData.length) {
+      data = validData.sort(doSort(sortValue));
+      data = data.concat(nullData);
+    }
+
+    return data;
+  };
+
+  onChangeSort = (currentColumn) => {
+    let { data } = this.props;
+    const { tableConfig } = this.state;
+    const { default: defaultSort } = compareTableSort;
+    const { currentSort, sortValue } = currentColumn;
+    const nextSort = this.getNextSort(currentSort);
+
+    Object.keys(tableConfig).forEach((key) => {
+      tableConfig[key].currentSort = defaultSort;
+    });
+    currentColumn.currentSort = nextSort;
+
+    if (nextSort !== defaultSort) {
+      data = this.sort(sortValue, nextSort, data);
+    }
+
+    this.setState({ data, tableConfig });
+  };
+
   render() {
     const {
-      data,
       testName,
       user,
       hasSubtests,
@@ -22,6 +140,8 @@ export default class CompareTable extends React.PureComponent {
       history,
       onModalOpen,
     } = this.props;
+
+    const { data, tableConfig } = this.state;
 
     return (
       <Table
@@ -55,14 +175,43 @@ export default class CompareTable extends React.PureComponent {
                   <FontAwesomeIcon icon={faHashtag} />
                 </Button>
               )}
+              <CompareSortButton
+                column={tableConfig.TestName}
+                onChangeSort={this.onChangeSort}
+              />
             </th>
-            <th className="table-width-lg">Base</th>
+            <th className="table-width-lg">
+              <CompareSortButton
+                column={tableConfig.Base}
+                onChangeSort={this.onChangeSort}
+              />
+            </th>
             {/* empty for less than/greater than data */}
             <th className="table-width-sm" aria-label="Comparison" />
-            <th className="table-width-lg">New</th>
-            <th className="table-width-lg">Delta</th>
-            <th className="table-width-lg">Magnitude of Difference</th>
-            <th className="table-width-lg">Confidence</th>
+            <th className="table-width-lg">
+              <CompareSortButton
+                column={tableConfig.New}
+                onChangeSort={this.onChangeSort}
+              />
+            </th>
+            <th className="table-width-lg">
+              <CompareSortButton
+                column={tableConfig.Delta}
+                onChangeSort={this.onChangeSort}
+              />
+            </th>
+            <th className="table-width-lg">
+              <CompareSortButton
+                column={tableConfig.Magnitude}
+                onChangeSort={this.onChangeSort}
+              />
+            </th>
+            <th className="table-width-lg">
+              <CompareSortButton
+                column={tableConfig.Confidence}
+                onChangeSort={this.onChangeSort}
+              />
+            </th>
             <th className="text-right table-width-md">
               {hasSubtests &&
                 data &&

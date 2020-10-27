@@ -29,12 +29,12 @@ import JobModel from '../../../../ui/models/job';
 const result = [
   {
     className: 'danger',
-    confidence: 5.057234137528269,
+    confidence: 6.057234137528269,
     confidenceText: 'high',
     confidenceTextLong:
       "Result of running t-test on base versus new result distribution: A value of 'high' indicates more confidence that there is a significant change, however you should check the historical record for the test by looking at the graph to be more sure (some noisy tests can provide inconsistent results).",
-    delta: 3.9191666666666265,
-    deltaPercentage: 2.23249676019764,
+    delta: 4.9191666666666265,
+    deltaPercentage: 3.23249676019764,
     frameworkId: 1,
     isComplete: 1,
     isConfident: false,
@@ -44,7 +44,7 @@ const result = [
     isNoiseMetric: false,
     isRegression: true,
     links: [],
-    magnitude: 11.162483800988202,
+    magnitude: 12.162483800988202,
     name: 'linux64',
     needsMoreRuns: false,
     newIsBetter: false,
@@ -79,6 +79,33 @@ const result = [
     originalRetriggerableJobId: null,
     originalRepoName: 'try',
     newRetriggerableJobId: null,
+    newRepoName: 'mozilla-central',
+  },
+  {
+    className: 'danger',
+    confidence: NaN,
+    confidenceText: 'high',
+    confidenceTextLong:
+      "Result of running t-test on base versus new result distribution: A value of 'high' indicates more confidence that there is a significant change, however you should check the historical record for the test by looking at the graph to be more sure (some noisy tests can provide inconsistent results).",
+    delta: NaN,
+    deltaPercentage: NaN,
+    frameworkId: 1,
+    isComplete: 1,
+    isConfident: false,
+    isEmpty: false,
+    isImprovement: false,
+    isMeaningful: true,
+    isNoiseMetric: false,
+    isRegression: true,
+    links: [],
+    magnitude: NaN,
+    name: 'linux64-shippable',
+    needsMoreRuns: false,
+    newIsBetter: false,
+    newRuns: [],
+    originalRetriggerableJobId: 111,
+    originalRepoName: 'try',
+    newRetriggerableJobId: 121,
     newRepoName: 'mozilla-central',
   },
 ];
@@ -268,7 +295,7 @@ test('retrigger buttons should appear only when the user is logged in', async ()
   rerender(compareTableControlsNode(true));
 
   retriggerButtons = queryAllByTitle(compareTableText.retriggerButtonTitle);
-  expect(retriggerButtons).toHaveLength(2);
+  expect(retriggerButtons).toHaveLength(3);
 });
 
 test('retrigger should trigger jobs for base and new repositories', async () => {
@@ -277,7 +304,7 @@ test('retrigger should trigger jobs for base and new repositories', async () => 
     compareTableText.retriggerButtonTitle,
   );
 
-  expect(retriggerButtons).toHaveLength(2);
+  expect(retriggerButtons).toHaveLength(3);
   await fireEvent.click(retriggerButtons[0]);
 
   const retriggerButtonModal = await waitFor(() => getByText('Retrigger'));
@@ -300,7 +327,7 @@ test('retrigger should only work on new repo when base is aggregate', async () =
     compareTableText.retriggerButtonTitle,
   );
 
-  expect(retriggerButtons).toHaveLength(1);
+  expect(retriggerButtons).toHaveLength(2);
   await fireEvent.click(retriggerButtons[0]);
   const retriggerButtonModal = await waitFor(() => getByText('Retrigger'));
   expect(retriggerButtonModal).toBeInTheDocument();
@@ -320,7 +347,7 @@ test('retrigger button should not appear for test with no jobs', async () => {
     compareTableText.retriggerButtonTitle,
   );
 
-  expect(retriggerButtons).toHaveLength(2);
+  expect(retriggerButtons).toHaveLength(3);
   await fireEvent.click(retriggerButtons[1]);
 
   expect(JobModel.retrigger).toHaveBeenCalledTimes(0);
@@ -421,4 +448,239 @@ test("'Escape' from partially edited title does not update original title", asyn
   fireEvent.keyDown(inputField, { key: 'Escape' });
 
   await waitFor(() => getByText('Perfherder Compare Revisions'));
+});
+
+test('table data can be sorted in descending order by name', async () => {
+  const { getAllByLabelText, getByText, getByTitle } = compareTableControls();
+
+  let compareTableRows = await waitFor(() =>
+    getAllByLabelText('Comparison table row'),
+  );
+
+  const result1 = await waitFor(() => getByText(result[0].name));
+  const result2 = await waitFor(() => getByText(result[1].name));
+  const result3 = await waitFor(() => getByText(result[2].name));
+
+  expect(compareTableRows[0]).toContainElement(result1);
+  expect(compareTableRows[1]).toContainElement(result2);
+  expect(compareTableRows[2]).toContainElement(result3);
+
+  const sortByName = await waitFor(() =>
+    getByTitle('Sorted in default order by test name'),
+  );
+
+  fireEvent.click(sortByName);
+  fireEvent.click(sortByName);
+
+  compareTableRows = await waitFor(() =>
+    getAllByLabelText('Comparison table row'),
+  );
+
+  expect(compareTableRows[0]).toContainElement(result2);
+  expect(compareTableRows[1]).toContainElement(result3);
+  expect(compareTableRows[2]).toContainElement(result1);
+});
+
+test(`table data can be sorted in ascending order by 'Confidence'`, async () => {
+  const { getAllByLabelText, getByText, getByTitle } = compareTableControls();
+
+  let compareTableRows = await waitFor(() =>
+    getAllByLabelText('Comparison table row'),
+  );
+
+  const result1 = await waitFor(() => getByText(result[0].name));
+  const result2 = await waitFor(() => getByText(result[1].name));
+  const result3 = await waitFor(() => getByText(result[2].name));
+
+  expect(compareTableRows[0]).toContainElement(result1);
+  expect(compareTableRows[1]).toContainElement(result2);
+  expect(compareTableRows[2]).toContainElement(result3);
+
+  const sortByConfidence = await waitFor(() =>
+    getByTitle('Sorted in default order by confidence'),
+  );
+
+  fireEvent.click(sortByConfidence);
+
+  compareTableRows = await waitFor(() =>
+    getAllByLabelText('Comparison table row'),
+  );
+
+  expect(compareTableRows[0]).toContainElement(result2);
+  expect(compareTableRows[1]).toContainElement(result1);
+  expect(compareTableRows[2]).toContainElement(result3);
+});
+
+test('test data can be sorted only by one column', async () => {
+  const { getAllByLabelText, getByText, getByTitle } = compareTableControls();
+
+  let compareTableRows = await waitFor(() =>
+    getAllByLabelText('Comparison table row'),
+  );
+
+  const result1 = await waitFor(() => getByText(result[0].name));
+  const result2 = await waitFor(() => getByText(result[1].name));
+  const result3 = await waitFor(() => getByText(result[2].name));
+
+  const sortByConfidence = await waitFor(() =>
+    getByTitle('Sorted in default order by confidence'),
+  );
+
+  fireEvent.click(sortByConfidence);
+
+  expect(sortByConfidence.title).toBe(
+    'Sorted in ascending order by confidence',
+  );
+
+  const sortByName = await waitFor(() =>
+    getByTitle('Sorted in default order by test name'),
+  );
+
+  fireEvent.click(sortByName);
+
+  expect(sortByName.title).toBe('Sorted in ascending order by test name');
+  expect(sortByConfidence.title).toBe('Sorted in default order by confidence');
+
+  compareTableRows = await waitFor(() =>
+    getAllByLabelText('Comparison table row'),
+  );
+
+  expect(compareTableRows[0]).toContainElement(result1);
+  expect(compareTableRows[1]).toContainElement(result3);
+  expect(compareTableRows[2]).toContainElement(result2);
+});
+
+test(`table data sorted by 'Magnitude of Difference' has data with invalid magnitude at the end`, async () => {
+  const { getAllByLabelText, getByText, getByTitle } = compareTableControls();
+
+  let compareTableRows = await waitFor(() =>
+    getAllByLabelText('Comparison table row'),
+  );
+  const result1 = await waitFor(() => getByText(result[0].name));
+  const result2 = await waitFor(() => getByText(result[1].name));
+  const result3 = await waitFor(() => getByText(result[2].name));
+
+  expect(result[2].magnitude).toBe(NaN);
+  expect(compareTableRows[0]).toContainElement(result1);
+  expect(compareTableRows[1]).toContainElement(result2);
+  expect(compareTableRows[2]).toContainElement(result3);
+
+  const sortByMagnitude = await waitFor(() =>
+    getByTitle('Sorted in default order by magnitude of difference'),
+  );
+
+  fireEvent.click(sortByMagnitude);
+  expect(sortByMagnitude.title).toBe(
+    'Sorted in ascending order by magnitude of difference',
+  );
+
+  compareTableRows = await waitFor(() =>
+    getAllByLabelText('Comparison table row'),
+  );
+
+  expect(compareTableRows[0]).toContainElement(result2);
+  expect(compareTableRows[1]).toContainElement(result1);
+  expect(compareTableRows[2]).toContainElement(result3);
+
+  fireEvent.click(sortByMagnitude);
+  expect(sortByMagnitude.title).toBe(
+    'Sorted in descending order by magnitude of difference',
+  );
+
+  compareTableRows = await waitFor(() =>
+    getAllByLabelText('Comparison table row'),
+  );
+
+  expect(compareTableRows[0]).toContainElement(result1);
+  expect(compareTableRows[1]).toContainElement(result2);
+  expect(compareTableRows[2]).toContainElement(result3);
+});
+
+test(`table data sorted by 'Delta' has data with invalid delta at the end`, async () => {
+  const { getAllByLabelText, getByText, getByTitle } = compareTableControls();
+
+  let compareTableRows = await waitFor(() =>
+    getAllByLabelText('Comparison table row'),
+  );
+  const result1 = await waitFor(() => getByText(result[0].name));
+  const result2 = await waitFor(() => getByText(result[1].name));
+  const result3 = await waitFor(() => getByText(result[2].name));
+
+  expect(result[2].delta).toBe(NaN);
+  expect(result[2].deltaPercentage).toBe(NaN);
+  expect(compareTableRows[0]).toContainElement(result1);
+  expect(compareTableRows[1]).toContainElement(result2);
+  expect(compareTableRows[2]).toContainElement(result3);
+
+  const sortByDelta = await waitFor(() =>
+    getByTitle('Sorted in default order by delta'),
+  );
+
+  fireEvent.click(sortByDelta);
+  expect(sortByDelta.title).toBe('Sorted in ascending order by delta');
+
+  compareTableRows = await waitFor(() =>
+    getAllByLabelText('Comparison table row'),
+  );
+
+  expect(compareTableRows[0]).toContainElement(result2);
+  expect(compareTableRows[1]).toContainElement(result1);
+  expect(compareTableRows[2]).toContainElement(result3);
+
+  fireEvent.click(sortByDelta);
+  expect(sortByDelta.title).toBe('Sorted in descending order by delta');
+
+  compareTableRows = await waitFor(() =>
+    getAllByLabelText('Comparison table row'),
+  );
+
+  expect(compareTableRows[0]).toContainElement(result1);
+  expect(compareTableRows[1]).toContainElement(result2);
+  expect(compareTableRows[2]).toContainElement(result3);
+});
+
+test(`table data sorted by 'Confidence' has data with invalid confidence at the end`, async () => {
+  const { getAllByLabelText, getByText, getByTitle } = compareTableControls();
+
+  let compareTableRows = await waitFor(() =>
+    getAllByLabelText('Comparison table row'),
+  );
+  const result1 = await waitFor(() => getByText(result[0].name));
+  const result2 = await waitFor(() => getByText(result[1].name));
+  const result3 = await waitFor(() => getByText(result[2].name));
+
+  expect(result[2].confidence).toBe(NaN);
+  expect(compareTableRows[0]).toContainElement(result1);
+  expect(compareTableRows[1]).toContainElement(result2);
+  expect(compareTableRows[2]).toContainElement(result3);
+
+  const sortByConfidence = await waitFor(() =>
+    getByTitle('Sorted in default order by confidence'),
+  );
+
+  fireEvent.click(sortByConfidence);
+  expect(sortByConfidence.title).toBe(
+    'Sorted in ascending order by confidence',
+  );
+
+  compareTableRows = await waitFor(() =>
+    getAllByLabelText('Comparison table row'),
+  );
+
+  expect(compareTableRows[0]).toContainElement(result2);
+  expect(compareTableRows[1]).toContainElement(result1);
+  expect(compareTableRows[2]).toContainElement(result3);
+
+  fireEvent.click(sortByConfidence);
+  expect(sortByConfidence.title).toBe(
+    'Sorted in descending order by confidence',
+  );
+
+  compareTableRows = await waitFor(() =>
+    getAllByLabelText('Comparison table row'),
+  );
+
+  expect(compareTableRows[0]).toContainElement(result1);
+  expect(compareTableRows[1]).toContainElement(result2);
+  expect(compareTableRows[2]).toContainElement(result3);
 });
