@@ -254,6 +254,9 @@ export const fetchPushes = (
 
     dispatch({ type: LOADING });
 
+    if (getUrlParam('selectedJob') || getUrlParam('selectedTaskRun')) {
+      dispatch(clearSelectedJob(0));
+    }
     // Only pass supported query string params to this endpoint.
     const options = {
       ...pick(parseQueryParams(window.location.search), PUSH_FETCH_KEYS),
