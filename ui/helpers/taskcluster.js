@@ -38,7 +38,7 @@ const taskcluster = (() => {
 
   const getAuthCode = (useExistingWindow = false) => {
     const nonce = generateNonce();
-    // we're storing these for use in the TaskclusterCallback component (taskcluster-auth.html)
+    // we're storing these for use in the TaskclusterCallback component (taskcluster-auth)
     // since that's the only way for it to get access to them
     localStorage.setItem('requestState', nonce);
     localStorage.setItem('tcRootUrl', _rootUrl);

@@ -9,9 +9,9 @@ import {
 } from 'reactstrap';
 import { faCheck } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { Link } from 'react-router-dom';
 
 import { thAllResultStatuses } from '../../helpers/constants';
-import { getJobsUrl } from '../../helpers/url';
 import { setSelectedJob, clearSelectedJob } from '../redux/stores/selectedJob';
 import { pinJobs } from '../redux/stores/pinnedJobs';
 
@@ -41,6 +41,12 @@ function FiltersMenu(props) {
     }
   };
   const { email } = user;
+
+  const updateParams = (param, value) => {
+    const params = new URLSearchParams(window.location.search);
+    params.set(param, value);
+    return `?${params.toString()}`;
+  };
 
   return (
     <UncontrolledDropdown>
@@ -110,12 +116,13 @@ function FiltersMenu(props) {
         >
           Superseded only
         </DropdownItem>
-        <DropdownItem
-          tag="a"
-          title={`Show only pushes for ${email}`}
-          href={getJobsUrl({ author: email })}
-        >
-          My pushes only
+        <DropdownItem title={`Show only pushes for ${email}`}>
+          <Link
+            className="dropdown-link"
+            to={{ search: updateParams('author', email) }}
+          >
+            My pushes only
+          </Link>
         </DropdownItem>
         <DropdownItem
           tag="a"

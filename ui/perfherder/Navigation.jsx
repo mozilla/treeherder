@@ -1,6 +1,7 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import { Navbar, Nav, NavItem, NavLink } from 'reactstrap';
+import { Navbar, Nav, NavItem } from 'reactstrap';
+import { Link } from 'react-router-dom';
 
 import LogoMenu from '../shared/LogoMenu';
 import Login from '../shared/auth/Login';
@@ -11,24 +12,24 @@ const Navigation = ({ user, setUser, notify }) => (
     <LogoMenu menuText="Perfherder" colorClass="text-info" />
     <Nav className="navbar navbar-inverse">
       <NavItem>
-        <NavLink href="#/graphs" className="btn-view-nav">
+        <Link to="./graphs" className="nav-link btn-view-nav">
           Graphs
-        </NavLink>
+        </Link>
       </NavItem>
       <NavItem>
-        <NavLink href="#/comparechooser" className="btn-view-nav">
+        <Link to="./comparechooser" className="nav-link btn-view-nav">
           Compare
-        </NavLink>
+        </Link>
       </NavItem>
       <NavItem>
-        <NavLink href="#/alerts?hideDwnToInv=1" className="btn-view-nav">
+        <Link to="./alerts?hideDwnToInv=1" className="nav-link btn-view-nav">
           Alerts
-        </NavLink>
+        </Link>
       </NavItem>
       <NavItem>
-        <NavLink href="#/tests" className="btn-view-nav">
+        <Link to="./tests" className="nav-link btn-view-nav">
           Tests
-        </NavLink>
+        </Link>
       </NavItem>
     </Nav>
     <Navbar className="ml-auto">

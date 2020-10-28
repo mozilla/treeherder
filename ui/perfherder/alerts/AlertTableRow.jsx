@@ -17,6 +17,7 @@ import {
   faCheck,
 } from '@fortawesome/free-solid-svg-icons';
 import { faStar as faStarRegular } from '@fortawesome/free-regular-svg-icons';
+import { Link } from 'react-router-dom';
 
 import { createQueryParams } from '../../helpers/url';
 import { getStatus, getGraphsURL, modifyAlert, formatNumber } from '../helpers';
@@ -107,11 +108,10 @@ export default class AlertTableRow extends React.Component {
     return (
       <span>
         {` ${text} `}
-        <a
-          href={`#/alerts?id=${alertId}`}
-          rel="noopener noreferrer"
+        <Link
+          to={`./alerts?id=${alertId}`}
           className="text-darker-info"
-        >{`alert #${alertId}`}</a>
+        >{`alert #${alertId}`}</Link>
       </span>
     );
   };
@@ -263,7 +263,7 @@ export default class AlertTableRow extends React.Component {
       newRevision: alertSummary.revision,
     };
 
-    return `#/comparesubtest${createQueryParams(urlParameters)}`;
+    return `./comparesubtest${createQueryParams(urlParameters)}`;
   };
 
   render() {
@@ -345,6 +345,7 @@ export default class AlertTableRow extends React.Component {
             textClass="detail-hint"
             text={`${alert.amount_pct}%`}
             tooltipText={`Absolute difference: ${alert.amount_abs}`}
+            autohide={false}
           />
         </td>
         <td className="table-width-lg">

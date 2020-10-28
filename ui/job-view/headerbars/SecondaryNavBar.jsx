@@ -9,10 +9,11 @@ import {
   faFilter,
   faTimesCircle,
 } from '@fortawesome/free-solid-svg-icons';
+import { push as pushRoute } from 'connected-react-router';
 
 import { getBtnClass } from '../../helpers/job';
 import { hasUrlFilterChanges, thFilterGroups } from '../../helpers/filter';
-import { getRepo, getUrlParam, setUrlParam } from '../../helpers/location';
+import { getRepo, getUrlParam, setUrlParams } from '../../helpers/location';
 import RepositoryModel from '../../models/repository';
 import ErrorBoundary from '../../shared/ErrorBoundary';
 import { recalculateUnclassifiedCounts } from '../redux/stores/pushes';
@@ -46,7 +47,6 @@ class SecondaryNavBar extends React.PureComponent {
   }
 
   componentDidMount() {
-    window.addEventListener('hashchange', this.handleUrlChanges, false);
     this.loadWatchedRepos();
   }
 
@@ -56,18 +56,22 @@ class SecondaryNavBar extends React.PureComponent {
     if (repoName !== prevState.repoName) {
       this.loadWatchedRepos();
     }
-  }
 
-  componentWillUnmount() {
-    window.removeEventListener('hashchange', this.handleUrlChanges, false);
+    if (
+      prevProps.router.location.search !== this.props.router.location.search
+    ) {
+      this.handleUrlChanges(
+        prevProps.router.location.search,
+        this.props.router.location.search,
+      );
+    }
   }
 
   setSearchStr(ev) {
     this.setState({ searchQueryStr: ev.target.value });
   }
 
-  handleUrlChanges = (evt) => {
-    const { oldURL, newURL } = evt;
+  handleUrlChanges = (prevParams, currentParams) => {
     const { repoName } = this.state;
     const { recalculateUnclassifiedCounts } = this.props;
     const newState = {
@@ -77,7 +81,7 @@ class SecondaryNavBar extends React.PureComponent {
 
     this.setState(newState, () => {
       if (
-        hasUrlFilterChanges(oldURL, newURL) ||
+        hasUrlFilterChanges(prevParams, currentParams) ||
         newState.repoName !== repoName
       ) {
         recalculateUnclassifiedCounts();
@@ -124,17 +128,25 @@ class SecondaryNavBar extends React.PureComponent {
   };
 
   toggleShowDuplicateJobs = () => {
-    const { duplicateJobsVisible } = this.props;
+    const { duplicateJobsVisible, pushRoute } = this.props;
     const duplicateJobs = duplicateJobsVisible ? null : 'visible';
 
-    setUrlParam('duplicate_jobs', duplicateJobs);
+    const queryParams = setUrlParams([['duplicate_jobs', duplicateJobs]]);
+
+    pushRoute({
+      search: queryParams,
+    });
   };
 
   toggleGroupState = () => {
-    const { groupCountsExpanded } = this.props;
+    const { groupCountsExpanded, pushRoute } = this.props;
     const groupState = groupCountsExpanded ? null : 'expanded';
 
-    setUrlParam('group_state', groupState);
+    const queryParams = setUrlParams([['group_state', groupState]]);
+
+    pushRoute({
+      search: queryParams,
+    });
   };
 
   toggleUnclassifiedFailures = () => {
@@ -228,6 +240,7 @@ class SecondaryNavBar extends React.PureComponent {
                   repoName={repoName}
                   unwatchRepo={this.unwatchRepo}
                   setCurrentRepoTreeStatus={setCurrentRepoTreeStatus}
+                  {...this.props}
                 />
               </ErrorBoundary>
             ))}
@@ -299,7 +312,7 @@ class SecondaryNavBar extends React.PureComponent {
                   ? 'Collapse job groups'
                   : 'Expand job groups'
               }
-              onClick={() => this.toggleGroupState()}
+              onClick={this.toggleGroupState}
             >
               (
               <span className="group-state-nav-icon mx-1">
@@ -395,12 +408,19 @@ SecondaryNavBar.propTypes = {
   duplicateJobsVisible: PropTypes.bool.isRequired,
   groupCountsExpanded: PropTypes.bool.isRequired,
   toggleFieldFilterVisible: PropTypes.func.isRequired,
+  pushRoute: PropTypes.func.isRequired,
 };
 
 const mapStateToProps = ({
   pushes: { allUnclassifiedFailureCount, filteredUnclassifiedFailureCount },
-}) => ({ allUnclassifiedFailureCount, filteredUnclassifiedFailureCount });
+  router,
+}) => ({
+  allUnclassifiedFailureCount,
+  filteredUnclassifiedFailureCount,
+  router,
+});
 
-export default connect(mapStateToProps, { recalculateUnclassifiedCounts })(
-  SecondaryNavBar,
-);
+export default connect(mapStateToProps, {
+  recalculateUnclassifiedCounts,
+  pushRoute,
+})(SecondaryNavBar);

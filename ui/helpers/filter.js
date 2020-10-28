@@ -2,7 +2,7 @@ import pick from 'lodash/pick';
 import isEqual from 'lodash/isEqual';
 
 import { thFailureResults } from './constants';
-import { extractSearchString, parseQueryParams } from './url';
+import { parseQueryParams } from './url';
 
 // used with field-filters to determine how to match the value against the
 // job field.
@@ -99,14 +99,8 @@ export const hasUrlFilterChanges = function hasUrlFilterChanges(
   oldURL,
   newURL,
 ) {
-  const oldFilters = pick(
-    parseQueryParams(extractSearchString(oldURL)),
-    allFilterParams,
-  );
-  const newFilters = pick(
-    parseQueryParams(extractSearchString(newURL)),
-    allFilterParams,
-  );
+  const oldFilters = pick(parseQueryParams(oldURL), allFilterParams);
+  const newFilters = pick(parseQueryParams(newURL), allFilterParams);
 
   return !isEqual(oldFilters, newFilters);
 };

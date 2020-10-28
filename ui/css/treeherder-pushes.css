@@ -21,8 +21,6 @@
 
 .push-title-left {
   flex: 0 0 24.2em;
-  overflow: hidden;
-  text-overflow: ellipsis;
   padding-right: 10px;
 }
 

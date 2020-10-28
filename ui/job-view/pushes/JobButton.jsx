@@ -118,13 +118,14 @@ export default class JobButtonComponent extends React.Component {
 
     if (isSelected) {
       classes.push('selected-job btn-lg-xform');
+      attributes['data-testid'] = 'selected-job';
     } else {
       classes.push('btn-xs');
     }
 
     attributes.className = classes.join(' ');
     return (
-      <button type="button" {...attributes}>
+      <button type="button" {...attributes} data-testid="job-btn">
         {jobTypeSymbol}
         {classifiedIcon && (
           <FontAwesomeIcon

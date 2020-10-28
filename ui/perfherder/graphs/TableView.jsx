@@ -54,7 +54,7 @@ const TableView = ({
       group_state: 'expanded',
     });
 
-    const compareUrl = `#/comparesubtest${createQueryParams({
+    const compareUrl = `./comparesubtest${createQueryParams({
       originalProject: item.repository_name,
       newProject: item.repository_name,
       originalRevision: prevRevision,

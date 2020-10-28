@@ -70,7 +70,7 @@ export default class StatusDropdown extends React.Component {
       framework: getFrameworkName(frameworks, alertSummary.framework),
       revision: alertSummary.revision,
       revisionHref: repoModel.getPushLogHref(alertSummary.revision),
-      alertHref: `${window.location.origin}/perf.html#/alerts?id=${alertSummary.id}`,
+      alertHref: `${window.location.origin}/perfherder/alerts?id=${alertSummary.id}`,
       alertSummary: getTextualSummary(filteredAlerts, alertSummary),
     };
 

@@ -85,9 +85,9 @@ export default class CompareSelectorView extends React.Component {
       };
     }
     if (framework === 0) {
-      history.push(`/infracompare${createQueryParams(params)}`);
+      history.push(`./infracompare${createQueryParams(params)}`);
     } else {
-      history.push(`/compare${createQueryParams(params)}`);
+      history.push(`./compare${createQueryParams(params)}`);
     }
   };
 

@@ -58,7 +58,7 @@ input {
   font-size: 14px;
 }
 
-.tooltip > .tooltip-inner {
+.custom-tooltip {
   background-color: lightgray;
   color: black;
   font-size: 14px;

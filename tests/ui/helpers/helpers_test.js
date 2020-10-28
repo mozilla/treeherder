@@ -4,7 +4,7 @@ import { getRevisionUrl } from '../../../ui/helpers/url';
 describe('getRevisionUrl helper', () => {
   test('escapes some html symbols', () => {
     expect(getRevisionUrl('1234567890ab', 'mozilla-inbound')).toEqual(
-      '/#/jobs?repo=mozilla-inbound&revision=1234567890ab',
+      '/jobs?repo=mozilla-inbound&revision=1234567890ab',
     );
   });
 });

@@ -2,11 +2,7 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import { Container } from 'reactstrap';
 
-import {
-  parseQueryParams,
-  createQueryParams,
-  updateQueryParams,
-} from '../helpers/url';
+import { parseQueryParams, createQueryParams } from '../helpers/url';
 import PushModel from '../models/push';
 import ErrorMessages from '../shared/ErrorMessages';
 import LoadingSpinner from '../shared/LoadingSpinner';
@@ -37,30 +33,29 @@ const withValidation = ({ requiredParams }, verifyRevisions = true) => (
     }
 
     async componentDidMount() {
-      this.validateParams(parseQueryParams(this.props.location.search));
-    }
-
-    shouldComponentUpdate(prevProps) {
-      const { location } = this.props;
-
-      return location.hash === prevProps.location.hash;
+      this.validateParams(parseQueryParams(this.props.history.location.search));
     }
 
     componentDidUpdate(prevProps) {
-      const { location } = this.props;
+      const { history } = this.props;
 
-      if (location.search !== prevProps.location.search) {
+      // Using location instead of history requires an extra click when
+      // using the back button to go back to previous location
+      if (history.location.search !== prevProps.history.location.search) {
         // delete from state params the ones
-        this.validateParams(parseQueryParams(location.search));
+        this.validateParams(parseQueryParams(history.location.search));
       }
     }
 
     updateParams = (params) => {
-      const { location, history } = this.props;
-      const newParams = { ...parseQueryParams(location.search), ...params };
-      const queryString = createQueryParams(newParams);
+      const { history, location } = this.props;
 
-      updateQueryParams(queryString, history, location);
+      const newParams = {
+        ...parseQueryParams(location.search),
+        ...params,
+      };
+      const queryString = createQueryParams(newParams);
+      history.push({ search: queryString });
     };
 
     errorMessage = (param, value) => `${param} ${value} is not valid`;
@@ -204,6 +199,7 @@ const withValidation = ({ requiredParams }, verifyRevisions = true) => (
 
   Validation.propTypes = {
     location: PropTypes.shape({}).isRequired,
+    history: PropTypes.shape({}).isRequired,
   };
 
   return Validation;
