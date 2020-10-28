@@ -9,9 +9,9 @@ from django.db import connection
 from django.db.backends.utils import CursorWrapper
 from django.db.models import Count
 from django.db.utils import OperationalError
-from django.conf import settings
 from typing import List
 
+from treeherder.config import settings
 from treeherder.model.models import Job, JobGroup, JobType, Machine, Repository
 from treeherder.perf.exceptions import MaxRuntimeExceeded, NoDataCyclingAtAll
 from treeherder.perf.models import PerformanceDatum, PerformanceSignature, PerformanceAlertSummary
@@ -30,8 +30,22 @@ MINIMUM_PERFHERDER_EXPIRE_INTERVAL = 365
 logger = logging.getLogger(__name__)
 
 
+def has_valid_explicit_days(func):
+    def wrapper(*args, **kwargs):
+        days = kwargs.get('days')
+        if (days is not None) and settings.SITE_HOSTNAME != 'treeherder-prototype2.herokuapp.com':
+            raise ValueError(
+                'Cannot override perf data retention parameters on projects other than treeherder-prototype2'
+            )
+        func(*args, **kwargs)
+
+    return wrapper
+
+
 class DataCycler(ABC):
-    def __init__(self, chunk_size: int, sleep_time: int, is_debug: bool = None, **kwargs):
+    def __init__(
+        self, chunk_size: int, sleep_time: int, is_debug: bool = None, days: int = None, **kwargs
+    ):
         self.chunk_size = chunk_size
         self.sleep_time = sleep_time
         self.is_debug = is_debug or False
@@ -89,16 +103,24 @@ class TreeherderCycler(DataCycler):
 
 
 class PerfherderCycler(DataCycler):
+    DEFAULT_MAX_RUNTIME = timedelta(hours=23)
+
+    @has_valid_explicit_days
     def __init__(
         self,
         chunk_size: int,
         sleep_time: int,
         is_debug: bool = None,
+        days: int = None,
+        max_runtime: timedelta = None,
         strategies: List[RemovalStrategy] = None,
         **kwargs,
     ):
         super().__init__(chunk_size, sleep_time, is_debug)
-        self.strategies = strategies or RemovalStrategy.fabricate_all_strategies(chunk_size)
+        self.max_runtime = max_runtime or PerfherderCycler.DEFAULT_MAX_RUNTIME
+        self.strategies = strategies or RemovalStrategy.fabricate_all_strategies(
+            chunk_size, days=days
+        )
 
         self.timer = MaxRuntime()
 
@@ -199,6 +221,22 @@ class PerfherderCycler(DataCycler):
 
 
 class RemovalStrategy(ABC):
+    @property
+    @abstractmethod
+    def CYCLE_INTERVAL(self) -> int:
+        """
+        expressed in days
+        """
+        pass
+
+    @has_valid_explicit_days
+    def __init__(self, chunk_size: int, days: int = None):
+        days = days or self.CYCLE_INTERVAL
+
+        self._cycle_interval = timedelta(days=days)
+        self._chunk_size = chunk_size
+        self._max_timestamp = datetime.now() - self._cycle_interval
+
     @abstractmethod
     def remove(self, using: CursorWrapper):
         pass
@@ -231,15 +269,14 @@ class MainRemovalStrategy(RemovalStrategy):
     that are at least 1 year old.
     """
 
-    # WARNING!! Don't override this without proper approval!
-    CYCLE_INTERVAL = 365  # in days                        #
+    @property
+    def CYCLE_INTERVAL(self) -> int:
+        # WARNING!! Don't override this without proper approval!
+        return 365  # days                                     #
+        ########################################################
 
-    ########################################################
-
-    def __init__(self, chunk_size: int):
-        self._cycle_interval = timedelta(days=self.CYCLE_INTERVAL)
-        self._chunk_size = chunk_size
-        self._max_timestamp = datetime.now() - self._cycle_interval
+    def __init__(self, chunk_size: int, days: int = None):
+        super().__init__(chunk_size, days=days)
         self._manager = PerformanceDatum.objects
 
     @property
@@ -279,11 +316,14 @@ class TryDataRemoval(RemovalStrategy):
 
     SIGNATURE_BULK_SIZE = 10
 
-    def __init__(self, chunk_size: int):
-        self._cycle_interval = timedelta(weeks=6)
-        self._chunk_size = chunk_size
-        self._max_timestamp = datetime.now() - self._cycle_interval
-        self._manager = PerformanceDatum.objects
+    @property
+    def CYCLE_INTERVAL(self) -> int:
+        # WARNING!! Don't override this without proper approval!
+        return 42  # days                                      #
+        ########################################################
+
+    def __init__(self, chunk_size: int, days: int = None):
+        super().__init__(chunk_size, days=days)
 
         self.__try_repo_id = None
         self.__target_signatures = None
@@ -375,10 +415,15 @@ class IrrelevantDataRemoval(RemovalStrategy):
         'reference-browser',
     ]
 
-    def __init__(self, chunk_size: int):
-        self._cycle_interval = timedelta(days=(6 * 30))
-        self._chunk_size = chunk_size
-        self._max_timestamp = datetime.now() - self._cycle_interval
+    @property
+    def CYCLE_INTERVAL(self) -> int:
+        # WARNING!! Don't override this without proper approval!
+        return 180  # days                                     #
+        ########################################################
+
+    def __init__(self, chunk_size: int, days: int = None):
+        super().__init__(chunk_size, days=days)
+
         self._manager = PerformanceDatum.objects
         self.__relevant_repos = None
 
@@ -442,10 +487,15 @@ class StalledDataRemoval(RemovalStrategy):
     that haven't been updated in the last 4 months.
     """
 
-    def __init__(self, chunk_size: int):
-        self._cycle_interval = timedelta(days=120)
-        self._chunk_size = chunk_size
-        self._max_timestamp = datetime.now() - self._cycle_interval
+    @property
+    def CYCLE_INTERVAL(self) -> int:
+        # WARNING!! Don't override this without proper approval!
+        return 120  # days                                     #
+        ########################################################
+
+    def __init__(self, chunk_size: int, days: int = None):
+        super().__init__(chunk_size, days=days)
+
         self._target_signature = None
         self._removable_signatures = None
 
@@ -532,6 +582,17 @@ class Command(BaseCommand):
             help='Write debug messages to stdout',
         )
         parser.add_argument(
+            '--days',
+            action='store',
+            dest='days',
+            type=int,
+            help=(
+                f'Data cycle interval expressed in days. '
+                f'Minimum {MINIMUM_PERFHERDER_EXPIRE_INTERVAL} days '
+                f'when expiring performance data.'  # unless on prototype environment
+            ),
+        )
+        parser.add_argument(
             '--chunk-size',
             action='store',
             dest='chunk_size',
@@ -552,17 +613,7 @@ class Command(BaseCommand):
         subparsers = parser.add_subparsers(
             description='Data producers from which to expire data', dest='data_source'
         )
-        treeherder_subcommand = subparsers.add_parser(
-            TREEHERDER_SUBCOMMAND
-        )  # default subcommand even if not provided
-        treeherder_subcommand.add_argument(
-            '--days',
-            action='store',
-            dest='days',
-            type=int,
-            help='Data cycle interval expressed in days. '
-            'Only relevant for Treeherder specific data.',
-        )
+        subparsers.add_parser(TREEHERDER_SUBCOMMAND)  # default subcommand even if not provided
 
         # Perfherder will have its own specifics
         subparsers.add_parser(PERFHERDER_SUBCOMMAND)
