@@ -118,7 +118,6 @@ export default class AlertsViewControls extends React.Component {
                   updateParams={validated.updateParams}
                   currentPage={page}
                   count={count}
-                  fetchData={fetchAlertSummaries}
                 />
               </Row>
             )
@@ -147,7 +146,6 @@ export default class AlertsViewControls extends React.Component {
                   updateParams={validated.updateParams}
                   currentPage={page}
                   count={count}
-                  fetchData={fetchAlertSummaries}
                 />
               </Row>
             )

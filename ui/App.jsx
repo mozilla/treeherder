@@ -10,7 +10,6 @@ import LoadingSpinner from './shared/LoadingSpinner';
 import LoginCallback from './login-callback/LoginCallback';
 import TaskclusterCallback from './taskcluster-auth-callback/TaskclusterCallback';
 import UserGuideApp from './userguide/App';
-
 import treeFavicon from './img/tree_open.png';
 import logFavicon from './img/logviewerIcon.png';
 import perfFavicon from './img/line_chart.png';

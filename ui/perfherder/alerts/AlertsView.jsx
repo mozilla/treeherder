@@ -72,6 +72,10 @@ class AlertsView extends React.Component {
         { id: params.id || null, filters: this.getFiltersFromParams(params) },
         this.fetchAlertSummaries,
       );
+      // all data updates due to page changes happens here so as
+      // to support back button navigation
+    } else if (params.page && params.page !== prevParams.page) {
+      this.fetchAlertSummaries(undefined, false, parseInt(params.page, 10));
     }
   }
 
@@ -80,21 +84,19 @@ class AlertsView extends React.Component {
     frameworkOptions = this.extendedOptions,
   ) => {
     return {
-      status: this.getDefaultStatus(),
+      status: this.getDefaultStatus(validated),
       framework: getFrameworkData({
         validated,
         frameworks: frameworkOptions,
       }),
-      filterText: this.getDefaultFilterText(),
+      filterText: this.getDefaultFilterText(validated),
       hideImprovements: convertParams(validated, 'hideImprovements'),
       hideDownstream: convertParams(validated, 'hideDwnToInv'),
       hideAssignedToOthers: convertParams(validated, 'hideAssignedToOthers'),
     };
   };
 
-  getDefaultStatus = () => {
-    const { validated } = this.props;
-
+  getDefaultStatus = (validated) => {
     const statusParam = convertParams(validated, 'status');
     if (!statusParam) {
       return Object.keys(summaryStatusMap)[1];
@@ -102,8 +104,8 @@ class AlertsView extends React.Component {
     return getStatus(parseInt(validated.status, 10));
   };
 
-  getDefaultFilterText = () => {
-    const { filterText } = this.props.validated;
+  getDefaultFilterText = (validated) => {
+    const { filterText } = validated;
     return filterText === undefined || filterText === null ? '' : filterText;
   };
 
