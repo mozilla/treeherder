@@ -101,6 +101,14 @@ class PerfherderCycler(DataCycler):
         self.max_runtime = max_runtime or PerfherderCycler.DEFAULT_MAX_RUNTIME
         self.strategies = strategies or RemovalStrategy.fabricate_all_strategies(chunk_size)
 
+    @property
+    def max_timestamp(self):
+        """
+        Returns the most recent timestamp from all strategies.
+        """
+        strategy = max(self.strategies, key=lambda s: s.max_timestamp)
+        return strategy.max_timestamp
+
     def cycle(self):
         """
         Delete data older than cycle_interval, splitting the target data
@@ -125,7 +133,7 @@ class PerfherderCycler(DataCycler):
         # remove any signatures which are
         # no longer associated with a job
         logger.warning('Removing performance signatures with missing jobs...')
-        for signature in PerformanceSignature.objects.all():
+        for signature in PerformanceSignature.objects.filter(last_updated__lte=self.max_timestamp):
             self._quit_on_timeout()
 
             if not PerformanceDatum.objects.filter(
@@ -205,6 +213,11 @@ class RemovalStrategy(ABC):
 
     @property
     @abstractmethod
+    def max_timestamp(self) -> datetime:
+        pass
+
+    @property
+    @abstractmethod
     def name(self) -> str:
         pass
 
@@ -234,6 +247,10 @@ class MainRemovalStrategy(RemovalStrategy):
         self._chunk_size = chunk_size
         self._max_timestamp = datetime.now() - self._cycle_interval
         self._manager = PerformanceDatum.objects
+
+    @property
+    def max_timestamp(self):
+        return self._max_timestamp
 
     def remove(self, using: CursorWrapper):
         chunk_size = self._find_ideal_chunk_size()
@@ -277,6 +294,10 @@ class TryDataRemoval(RemovalStrategy):
         self.__try_repo_id = None
         self.__target_signatures = None
         self.__try_signatures = None
+
+    @property
+    def max_timestamp(self):
+        return self._max_timestamp
 
     @property
     def try_repo(self):
@@ -366,6 +387,10 @@ class IrrelevantDataRemoval(RemovalStrategy):
         self._max_timestamp = datetime.now() - self._cycle_interval
         self._manager = PerformanceDatum.objects
         self.__relevant_repos = None
+
+    @property
+    def max_timestamp(self):
+        return self._max_timestamp
 
     @property
     def relevant_repositories(self):
