@@ -11,6 +11,11 @@ import LoginCallback from './login-callback/LoginCallback';
 import TaskclusterCallback from './taskcluster-auth-callback/TaskclusterCallback';
 import UserGuideApp from './userguide/App';
 
+import treeFavicon from './img/tree_open.png';
+import logFavicon from './img/logviewerIcon.png';
+import perfFavicon from './img/line_chart.png';
+import healthFavicon from './img/push-health-ok.png';
+
 const IntermittentFailuresApp = lazy(() =>
   import('./intermittent-failures/App'),
 );
@@ -61,23 +66,23 @@ const updateOldUrls = () => {
 };
 
 const faviconPaths = {
-  '/jobs': { title: 'Treeherder Jobs View', favicon: './ui/img/tree_open.png' },
+  '/jobs': { title: 'Treeherder Jobs View', favicon: treeFavicon },
   '/logviewer': {
     title: 'Treeherder Logviewer',
-    favicon: './ui/img/logviewerIcon.png',
+    favicon: logFavicon,
   },
-  '/perfherder': { title: 'Perfherder', favicon: './ui/img/line_chart.png' },
+  '/perfherder': { title: 'Perfherder', favicon: perfFavicon },
   '/userguide': {
     title: 'Treeherder User Guide',
-    favicon: './ui/img/tree_open.png',
+    favicon: treeFavicon,
   },
   '/intermittent-failures': {
     title: 'Intermittent Failures View',
-    favicon: './ui/img/tree_open.png',
+    favicon: treeFavicon,
   },
   '/push-health': {
     title: 'Push Health',
-    favicon: './ui/img/push-health-ok.png',
+    favicon: healthFavicon,
   },
 };
 
