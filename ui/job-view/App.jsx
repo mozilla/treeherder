@@ -283,11 +283,13 @@ class App extends React.Component {
       repo: newRepo,
     } = parseQueryParams(router.location.search);
 
+    const currentRepo = repos.find((repo) => repo.name === newRepo);
     const newState = {
       hasSelectedJob: selectedJob || selectedTaskRun,
       groupCountsExpanded: groupState === 'expanded',
       duplicateJobsVisible: duplicateJobs === 'visible',
-      currentRepo: repos.find((repo) => repo.name === newRepo),
+      currentRepo,
+      repoName: currentRepo ? currentRepo.name : thDefaultRepo,
     };
 
     const oldState = pick(this.state, Object.keys(newState));
@@ -296,6 +298,7 @@ class App extends React.Component {
     if (!isEqual(newState, oldState)) {
       stateChanges = { ...stateChanges, ...newState };
     }
+
     this.setState(stateChanges);
   };
 

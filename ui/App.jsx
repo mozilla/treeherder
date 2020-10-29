@@ -61,23 +61,23 @@ const updateOldUrls = () => {
 };
 
 const faviconPaths = {
-  '/jobs': { title: 'Treeherder Jobs View', favicon: 'ui/img/tree_open.png' },
+  '/jobs': { title: 'Treeherder Jobs View', favicon: './ui/img/tree_open.png' },
   '/logviewer': {
     title: 'Treeherder Logviewer',
-    favicon: 'ui/img/logviewerIcon.png',
+    favicon: './ui/img/logviewerIcon.png',
   },
-  '/perfherder': { title: 'Perfherder', favicon: 'ui/img/line_chart.png' },
+  '/perfherder': { title: 'Perfherder', favicon: './ui/img/line_chart.png' },
   '/userguide': {
     title: 'Treeherder User Guide',
-    favicon: 'ui/img/tree_open.png',
+    favicon: './ui/img/tree_open.png',
   },
   '/intermittent-failures': {
     title: 'Intermittent Failures View',
-    favicon: 'ui/img/tree_open.png',
+    favicon: './ui/img/tree_open.png',
   },
   '/push-health': {
     title: 'Push Health',
-    favicon: 'ui/img/push-health-ok.png',
+    favicon: './ui/img/push-health-ok.png',
   },
 };
 
