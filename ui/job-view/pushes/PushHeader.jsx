@@ -221,7 +221,13 @@ class PushHeader extends React.Component {
     const cancelJobsTitle = 'Cancel all jobs';
     const linkParams = this.getLinkParams();
     const revisionPushFilterUrl = getJobsUrl({ ...linkParams, revision });
-    const authorPushFilterUrl = getJobsUrl({ ...linkParams, author });
+
+    // we don't do this for revision because it is handled differently via updateRange.
+    const authorParams = this.getLinkParams();
+    if (authorParams.selectedTaskRun) {
+      delete authorParams.selectedTaskRun;
+    }
+    const authorPushFilterUrl = getJobsUrl({ ...authorParams, author });
     const showPushHealthStatus =
       pushHealthVisibility === 'All' ||
       currentRepo.name === pushHealthVisibility.toLowerCase();
