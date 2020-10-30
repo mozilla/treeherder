@@ -394,7 +394,6 @@ export const updateRange = (range) => {
         {},
       );
       if (getUrlParam('selectedJob') || getUrlParam('selectedTaskRun')) {
-        console.log('clearSelectedJob');
         dispatch(clearSelectedJob(0));
       }
       // We already have the one revision they're looking for,
