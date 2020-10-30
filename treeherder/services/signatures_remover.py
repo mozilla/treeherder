@@ -1,4 +1,3 @@
-import math
 from typing import List
 
 from treeherder.perf.models import PerformanceDatum, PerformanceSignature
@@ -45,50 +44,56 @@ class PublicSignaturesRemover:
         self.tc_model = taskcluster_model
         self._subject = "Summary of deleted Performance Signatures"
         self._content = None
-        self._nr_rows_allowed = 10  # TO BE DEFINED
-        self._nr_emails_allowed = 4  # TO BE DEFINED
+        self._nr_of_rows_allowed_in_email = 10  # TO BE DEFINED
+        self._nr_of_emails_allowed = 4  # TO BE DEFINED
 
         self.timer = timer
 
     def remove(self):
-        deleted_signatures = []
-        nr_signatures_to_remove = self.__nr_signatures_to_remove
-        for signature in PerformanceSignature.objects.all():
+        nr_of_emails_sent_so_far = 0
+
+        nr_of_rows_left_to_complete_email = self._nr_of_rows_allowed_in_email
+        chunk_of_signatures = []
+
+        for performance_signature in PerformanceSignature.objects.all():
             self.timer.quit_on_timeout()
 
-            if (
+            if nr_of_emails_sent_so_far != self._nr_of_emails_allowed and (
                 not PerformanceDatum.objects.filter(
-                    repository_id=signature.repository_id,  # leverages (repository, signature) compound index
-                    signature_id=signature.id,
+                    repository_id=performance_signature.repository_id,  # leverages (repository, signature) compound index
+                    signature_id=performance_signature.id,
                 ).exists()
-                and nr_signatures_to_remove != 0
             ):
-                nr_signatures_to_remove -= 1
-                signature_properties = self.__extract_properties(signature)
-                deleted_signatures.append(signature_properties)
-                signature.delete()
-            elif nr_signatures_to_remove == 0:
+                nr_of_rows_left_to_complete_email -= 1
+                chunk_of_signatures.append(performance_signature)
+
+            elif nr_of_emails_sent_so_far == self._nr_of_emails_allowed:
                 break
 
-        self._ping_email_service()
-        self._send_emails(RECEIVER_TEAM_EMAIL, deleted_signatures)
+            if nr_of_rows_left_to_complete_email == 0:
+                # check if Taskcluster Notify Service is up
+                self._ping_email_service()
+                # extract the proprieties of interest from signatures in a list of dictionaries
+                email_content = self.__extract_properties_from_signatures(chunk_of_signatures)
+                # delete signatures
+                for signature in chunk_of_signatures:
+                    signature.delete()
+                # send email to the team with summary of signatures just deleted
+                self._send_email(RECEIVER_TEAM_EMAIL, email_content)
 
-    @property
-    def __nr_signatures_to_remove(self):
-        return self._nr_rows_allowed * self._nr_emails_allowed
+                nr_of_emails_sent_so_far += 1
+                chunk_of_signatures = []
+                nr_of_rows_left_to_complete_email = self._nr_of_rows_allowed_in_email
 
-    def __number_of_emails_to_send(self, nr_of_deleted_signatures: int):
-        return math.ceil(nr_of_deleted_signatures / self._nr_rows_allowed)
+        if nr_of_emails_sent_so_far != self._nr_of_emails_allowed and chunk_of_signatures != []:
+            self._ping_email_service()
+            email_content = self.__extract_properties_from_signatures(chunk_of_signatures)
+            for signature in chunk_of_signatures:
+                signature.delete()
+            self._send_email(RECEIVER_TEAM_EMAIL, email_content)
 
     def _ping_email_service(self):
         self.tc_model.notify.ping()
-
-    def _send_emails(self, address: str, signatures: List[dict]):
-        number_of_emails = self.__number_of_emails_to_send(len(signatures))
-        for idx in range(0, number_of_emails):
-            self._send_email(
-                address, signatures[idx * self._nr_rows_allowed : (idx + 1) * self._nr_rows_allowed]
-            )
 
     def _send_email(self, address: str, signatures: List[dict]):
         self.__set_html_content(signatures)
@@ -127,11 +132,15 @@ class PublicSignaturesRemover:
         return signature_row
 
     @staticmethod
-    def __extract_properties(signature):
-        return {
-            "repository": signature.repository,
-            "framework": signature.framework,
-            "platform": signature.platform,
-            "suite": signature.suite,
-            "application": signature.application,
-        }
+    def __extract_properties_from_signatures(signatures):
+        proprieties = []
+        for signature in signatures:
+            signature_proprieties = {
+                "repository": signature.repository,
+                "framework": signature.framework,
+                "platform": signature.platform,
+                "suite": signature.suite,
+                "application": signature.application,
+            }
+            proprieties.append(signature_proprieties)
+        return proprieties
