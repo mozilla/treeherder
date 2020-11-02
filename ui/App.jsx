@@ -50,7 +50,9 @@ const updateOldUrls = () => {
     updates.search = hash.substring(index);
     const subRoute = hash.substring(1, index);
 
-    if (index >= 2 && updates.pathname !== subRoute) {
+    // there are old subroutes such as with the logviewer we want to ignore, i.e.:
+    // https://treeherder.mozilla.org/logviewer.html#/jobs?job_id=319893964&repo=autoland&lineNumber=2728
+    if (index >= 2 && updates.pathname !== subRoute && subRoute !== '/jobs') {
       updates.pathname += subRoute;
     }
   } else if (search.length) {
