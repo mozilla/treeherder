@@ -4,8 +4,7 @@ import { Pagination, PaginationItem, PaginationLink } from 'reactstrap';
 
 class PaginationGroup extends React.Component {
   navigatePage = (page) => {
-    const { fetchData, updateParams } = this.props;
-    fetchData(undefined, false, parseInt(page, 10));
+    const { updateParams } = this.props;
     updateParams({ page });
   };
 
@@ -80,7 +79,6 @@ PaginationGroup.propTypes = {
   viewablePageNums: PropTypes.arrayOf(PropTypes.number).isRequired,
   currentPage: PropTypes.number,
   count: PropTypes.number,
-  fetchData: PropTypes.func.isRequired,
   updateParams: PropTypes.func.isRequired,
 };
 
