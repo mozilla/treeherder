@@ -134,7 +134,7 @@ div#details-panel-content .actionbar-nav > li > button:focus {
 
 .react-tabs__tab-panel--selected {
   height: 100%;
-  margin: 0.5em 1em;
+  padding: 0.5em 1em;
   overflow-y: auto;
 }
 
