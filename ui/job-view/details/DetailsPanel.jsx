@@ -258,6 +258,8 @@ class DetailsPanel extends React.Component {
                       d.series.frameworkId,
                     ]}&selected=${[d.signature_id, d.id]}`,
                     value: d.value,
+                    measurementUnit: d.series.measurementUnit,
+                    lowerIsBetter: d.series.lowerIsBetter,
                     title: d.series.name,
                   }));
               }

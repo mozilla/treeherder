@@ -422,3 +422,32 @@ div.performance-panel {
   /* This is the same value as m-1 */
   margin: 0.25rem;
 }
+
+.performance-panel-data td, th {
+  white-space: nowrap;
+  /* The graph needs a little bit more padding compared to the defaults to be easily
+     readable.*/
+  padding-left: 0.6rem;
+  padding-right: 0.6rem;
+}
+
+.performance-panel-title {
+  font-size: 16px;
+  margin-top: 0.5rem;
+  line-height: 1.5;
+}
+
+/**
+ * This rule is a bit ugly, but the button doesn't fit in the table row without
+ * resizing the vertical contents. In addition, there isn't a button size that
+ * matches the font size of the row.
+ */
+.performance-panel-view-button {
+  padding: 0px 6px;
+  margin: -3px 0;
+  display: inline-block;
+  font-size: 12px;
+  position: relative;
+  top: -1px;
+  line-height: 17px;
+}
