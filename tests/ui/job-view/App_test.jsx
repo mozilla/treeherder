@@ -360,4 +360,19 @@ describe('Test for backwards-compatible routes for other apps', () => {
       }),
     );
   });
+
+  test('old logviewer route should redirect to correct url', () => {
+    history.push(
+      '/logviewer.html#/jobs?job_id=319893964&repo=autoland&lineNumber=2728',
+    );
+    render(testApp());
+
+    expect(history.location).toEqual(
+      expect.objectContaining({
+        pathname: '/logviewer',
+        search: '?job_id=319893964&repo=autoland&lineNumber=2728',
+        hash: '',
+      }),
+    );
+  });
 });
