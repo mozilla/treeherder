@@ -20,11 +20,17 @@ import {
   updateAlertSummary,
 } from '../helpers';
 import { getData } from '../../helpers/http';
-import { getApiUrl, bzBaseUrl, createQueryParams } from '../../helpers/url';
+import {
+  getApiUrl,
+  bzBaseUrl,
+  createQueryParams,
+  bugzillaBugsApi,
+} from '../../helpers/url';
 import { summaryStatusMap } from '../constants';
 import DropdownMenuItems from '../../shared/DropdownMenuItems';
 
 import AlertModal from './AlertModal';
+import FileBugModal from './FileBugModal';
 import NotesModal from './NotesModal';
 import TagsModal from './TagsModal';
 
@@ -33,13 +39,37 @@ export default class StatusDropdown extends React.Component {
     super(props);
     this.state = {
       showBugModal: false,
+      showFileBugModal: false,
+      fileRegression: false,
       showNotesModal: false,
       showTagsModal: false,
       selectedValue: this.props.issueTrackers[0].text,
     };
   }
 
-  fileBug = async () => {
+  getCulpritDetails = async (culpritId) => {
+    const bugDetails = await getData(bugzillaBugsApi(`bug/${culpritId}`));
+    if (bugDetails.failureStatus) {
+      return bugDetails;
+    }
+    const bugData = bugDetails.data.bugs[0];
+
+    const bugVersion = 'Default';
+    const needinfoFrom = bugData.assigned_to;
+    // Using set because it doesn't keep duplicates by default
+    const ccList = new Set();
+    ccList.add(bugData.creator);
+
+    return {
+      bug_version: bugVersion,
+      needinfoFrom,
+      ccList,
+      component: bugData.component,
+      product: bugData.product,
+    };
+  };
+
+  fileBug = async (culpritId) => {
     const {
       alertSummary,
       repoModel,
@@ -67,6 +97,7 @@ export default class StatusDropdown extends React.Component {
     }
 
     const templateArgs = {
+      bugType: 'defect',
       framework: getFrameworkName(frameworks, alertSummary.framework),
       revision: alertSummary.revision,
       revisionHref: repoModel.getPushLogHref(alertSummary.revision),
@@ -86,17 +117,39 @@ export default class StatusDropdown extends React.Component {
       alertSummary.revision
     } (${pushDate})`;
 
-    window.open(
-      `${bzBaseUrl}/enter_bug.cgi${createQueryParams({
-        cc: result.cc_list,
-        comment: commentText,
-        component: result.default_component,
-        product: result.default_product,
-        keywords: result.keywords,
-        short_desc: bugTitle,
-        status_whiteboard: result.status_whiteboard,
-      })}`,
-    );
+    const culpritDetails = await this.getCulpritDetails(culpritId);
+    const defaultParams = {
+      bug_type: templateArgs.bugType,
+      bug_severity: 'S3',
+      version: 'unspecified',
+      // result.cc_list is a string, not array
+      cc: result.cc_list,
+      comment: commentText,
+      component: result.default_component,
+      product: result.default_product,
+      keywords: result.keywords,
+      short_desc: bugTitle,
+      status_whiteboard: result.status_whiteboard,
+    };
+
+    if (culpritDetails.failureStatus) {
+      window.open(
+        `${bzBaseUrl}enter_bug.cgi${createQueryParams(defaultParams)}`,
+      );
+    } else {
+      let cc = culpritDetails.ccList.add(result.cc_list);
+      cc = Array.from(cc);
+      window.open(
+        `${bzBaseUrl}enter_bug.cgi${createQueryParams({
+          ...defaultParams,
+          cc,
+          needinfo_from: culpritDetails.needinfoFrom,
+          component: culpritDetails.component,
+          product: culpritDetails.product,
+          regressed_by: culpritId,
+        })}`,
+      );
+    }
   };
 
   copySummary = () => {
@@ -116,6 +169,13 @@ export default class StatusDropdown extends React.Component {
   updateAndClose = async (event, params, state) => {
     event.preventDefault();
     this.changeAlertSummary(params);
+    this.toggle(state);
+  };
+
+  fileBugAndClose = async (event, params, state) => {
+    event.preventDefault();
+    const culpritId = params.bug_number;
+    await this.fileBug(culpritId);
     this.toggle(state);
   };
 
@@ -150,6 +210,7 @@ export default class StatusDropdown extends React.Component {
     const { alertSummary, user, issueTrackers, performanceTags } = this.props;
     const {
       showBugModal,
+      showFileBugModal,
       showNotesModal,
       showTagsModal,
       selectedValue,
@@ -178,6 +239,7 @@ export default class StatusDropdown extends React.Component {
             }
             header="Link to Bug"
             title="Bug Number"
+            submitButtonText="Assign"
             dropdownOption={
               <Col>
                 <Label for="issueTrackerSelector">Select Bug Tracker</Label>
@@ -197,6 +259,25 @@ export default class StatusDropdown extends React.Component {
             }
           />
         )}
+        <FileBugModal
+          showModal={showFileBugModal}
+          toggle={() => this.toggle('showFileBugModal')}
+          updateAndClose={(event, inputValue) =>
+            this.fileBugAndClose(
+              event,
+              {
+                bug_number: parseInt(inputValue, 10),
+                issue_tracker: issueTrackers.find(
+                  (item) => item.text === selectedValue,
+                ).id,
+              },
+              'showFileBugModal',
+            )
+          }
+          header="File Regression Bug for"
+          title="Enter Bug Number"
+          submitButtonText="File Bug"
+        />
         <NotesModal
           showModal={showNotesModal}
           toggle={() => this.toggle('showNotesModal')}
@@ -219,7 +300,10 @@ export default class StatusDropdown extends React.Component {
               Copy Summary
             </DropdownItem>
             {!alertSummary.bug_number && (
-              <DropdownItem tag="a" onClick={this.fileBug}>
+              <DropdownItem
+                tag="a"
+                onClick={() => this.toggle('showFileBugModal')}
+              >
                 File bug
               </DropdownItem>
             )}
