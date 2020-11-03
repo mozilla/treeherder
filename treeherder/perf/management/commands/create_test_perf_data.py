@@ -46,8 +46,6 @@ Type 'yes' to continue, or 'no' to cancel: """
         ):
             PerformanceDatum.objects.create(
                 repository=s.repository,
-                result_set_id=t,
-                ds_job_id=t,
                 signature=s,
                 push_timestamp=datetime.datetime.utcfromtimestamp(now + (t * 60 * 60)),
                 push_id=1,

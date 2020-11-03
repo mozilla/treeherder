@@ -788,11 +788,9 @@ def generate_enough_perf_datum(test_repository, test_perf_signature):
     # to generate the actual alert)
 
     for (push_id, value) in zip([1] * 30 + [2] * 30, [1] * 30 + [2] * 30):
-        # push_id == result_set_id == timestamp for purposes of this test
         push = Push.objects.get(id=push_id)
         PerformanceDatum.objects.create(
             repository=test_repository,
-            result_set_id=push_id,
             push_id=push_id,
             signature=test_perf_signature,
             value=value,

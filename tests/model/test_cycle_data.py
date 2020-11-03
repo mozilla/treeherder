@@ -169,7 +169,6 @@ def test_cycle_job_with_performance_data(
 
     PerformanceDatum.objects.create(
         repository=test_repository,
-        result_set_id=1,
         push=test_job.push,
         job=test_job,
         signature=test_perf_signature,

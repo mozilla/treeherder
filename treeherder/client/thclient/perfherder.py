@@ -92,14 +92,13 @@ class PerformanceSeries(list):
     Represents a series of performance observations
 
     You can access the individual elements of the series by using the []
-    syntax. For example, to get the result set ids and geometric means
-    in a summary series:
+    syntax. For example, to get the geometric means in a summary series:
 
     ::
         pc = PerfherderClient()
         signature = '9cfc271dab9b7fc2c1229736fecfbbc6e7c5fac9'
         series = pc.get_performance_data('mozilla-central', signature=signature)[signature]
-        (result_set_ids, geomeans) = (series['result_set_id'], series['geomean'])
+        geomeans = series['geomean']
     """
 
     def __getitem__(self, key):

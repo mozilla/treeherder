@@ -103,10 +103,8 @@ class Command(BaseCommand):
 
                 data = []
 
-                for (push_id, timestamp, value) in zip(
-                    series['result_set_id'], series['push_timestamp'], series['value']
-                ):
-                    data.append(RevisionDatum(timestamp, value, testrun_id=push_id))
+                for (timestamp, value) in zip(series['push_timestamp'], series['value']):
+                    data.append(RevisionDatum(timestamp, value))
 
                 for r in detect_changes(data):
                     if r.state == 'regression':

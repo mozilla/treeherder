@@ -64,7 +64,6 @@ def _generate_performance_data(
         )
         PerformanceDatum.objects.create(
             repository=test_repository,
-            result_set_id=t,
             push=push,
             signature=test_perf_signature,
             push_timestamp=datetime.datetime.utcfromtimestamp(base_timestamp + t),
