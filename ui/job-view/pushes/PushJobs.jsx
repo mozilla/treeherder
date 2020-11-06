@@ -108,7 +108,7 @@ class PushJobs extends React.Component {
     } = this.props;
 
     return (
-      <div onMouseDown={this.onMouseDown}>
+      <div>
         <table id={this.aggregateId} className="table-hover">
           <tbody>
             {platforms ? (
