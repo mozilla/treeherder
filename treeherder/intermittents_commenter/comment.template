@@ -29,4 +29,4 @@ Platform breakdown:
 * {{platform}}: {{count}}
 {% endfor %}
 For more details, see:
-https://treeherder.mozilla.org/intermittent-failures.html#/bugdetails?bug={{bug_id}}&startday={{startday}}&endday={{endday}}&tree=all
+https://treeherder.mozilla.org/intermittent-failures/bugdetails?bug={{bug_id}}&startday={{startday}}&endday={{endday}}&tree=all
