@@ -43,6 +43,7 @@ export default class Assignee extends React.Component {
   };
 
   pressedEnter = async (event) => {
+    event.preventDefault();
     if (event.key === 'Enter') {
       const { updateAssignee } = this.props;
       const newAssigneeUsername = event.target.value;
