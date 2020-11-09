@@ -22,7 +22,10 @@ const Navigation = ({ user, setUser, notify }) => (
         </Link>
       </NavItem>
       <NavItem>
-        <Link to="./alerts?hideDwnToInv=1" className="nav-link btn-view-nav">
+        <Link
+          to="./alerts?hideDwnToInv=1&page=1"
+          className="nav-link btn-view-nav"
+        >
           Alerts
         </Link>
       </NavItem>

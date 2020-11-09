@@ -89,20 +89,7 @@ class App extends React.Component {
               )}
               <Switch>
                 <Route
-                  exact
                   path={`${path}/alerts`}
-                  render={(props) => (
-                    <AlertsView
-                      {...props}
-                      user={user}
-                      projects={projects}
-                      frameworks={frameworks}
-                      performanceTags={performanceTags}
-                    />
-                  )}
-                />
-                <Route
-                  path={`${path}/alerts?id=:id&status=:status&framework=:framework&filter=:filter&hideImprovements=:hideImprovements&hideDwnToInv=:hideDwnToInv&hideAssignedToOthers=:hideAssignedToOthers&filterText=:filterText&page=:page`}
                   render={(props) => (
                     <AlertsView
                       {...props}
@@ -125,17 +112,6 @@ class App extends React.Component {
                   )}
                 />
                 <Route
-                  path={`${path}/graphs?timerange=:timerange&series=:series&highlightedRevisions=:highlightedRevisions&highlightAlerts=:highlightAlerts&zoom=:zoom&selected=:selected`}
-                  render={(props) => (
-                    <GraphsView
-                      {...props}
-                      user={user}
-                      projects={projects}
-                      frameworks={frameworks}
-                    />
-                  )}
-                />
-                <Route
                   path={`${path}/comparechooser`}
                   render={(props) => (
                     <CompareSelectorView
@@ -147,31 +123,7 @@ class App extends React.Component {
                   )}
                 />
                 <Route
-                  path={`${path}/comparechooser?originalProject=:originalProject&originalRevision=:originalRevision&newProject=:newProject&newRevision=:newRevision`}
-                  render={(props) => (
-                    <CompareSelectorView
-                      {...props}
-                      user={user}
-                      projects={projects}
-                      frameworks={frameworks}
-                    />
-                  )}
-                />
-                <Route
                   path={`${path}/compare`}
-                  render={(props) => (
-                    <CompareView
-                      {...props}
-                      user={user}
-                      projects={projects}
-                      frameworks={frameworks}
-                      compareData={compareData}
-                      updateAppState={this.updateAppState}
-                    />
-                  )}
-                />
-                <Route
-                  path={`${path}/compare?originalProject=:originalProject&originalRevision=:originalRevison&newProject=:newProject&newRevision=:newRevision&framework=:framework&showOnlyComparable=:showOnlyComparable&showOnlyImportant=:showOnlyImportant&showOnlyConfident=:showOnlyConfident&selectedTimeRange=:selectedTimeRange&showOnlyNoise=:showOnlyNoise`}
                   render={(props) => (
                     <CompareView
                       {...props}
@@ -208,29 +160,7 @@ class App extends React.Component {
                   )}
                 />
                 <Route
-                  path={`${path}/comparesubtest?originalProject=:originalProject&originalRevision=:originalRevision&newProject=:newProject&newRevision=:newRevision&originalSignature=:originalSignature&newSignature=:newSignature&framework=:framework&showOnlyComparable=:showOnlyComparable&showOnlyImportant=:showOnlyImportant&showOnlyConfident=:showOnlyConfident&selectedTimeRange=:selectedTimeRange&showOnlyNoise=:showOnlyNoise`}
-                  render={(props) => (
-                    <CompareSubtestsView
-                      {...props}
-                      user={user}
-                      projects={projects}
-                      frameworks={frameworks}
-                    />
-                  )}
-                />
-                <Route
                   path={`${path}/comparesubtestdistribution`}
-                  render={(props) => (
-                    <CompareSubtestDistributionView
-                      {...props}
-                      user={user}
-                      projects={projects}
-                      frameworks={frameworks}
-                    />
-                  )}
-                />
-                <Route
-                  path={`${path}/comparesubtestdistribution?originalProject=:originalProject&newProject=:newProject&originalRevision=:originalRevision&newRevision=:newRevision&originalSubtestSignature=:originalSubtestSignature&newSubtestSignature=:newSubtestSignature`}
                   render={(props) => (
                     <CompareSubtestDistributionView
                       {...props}
@@ -252,21 +182,9 @@ class App extends React.Component {
                     />
                   )}
                 />
-                <Route
-                  path={`${path}/tests?framework=:framework"`}
-                  render={(props) => (
-                    <TestsView
-                      {...props}
-                      projects={projects}
-                      frameworks={frameworks}
-                      platforms={platforms}
-                      updateAppState={this.updateAppState}
-                    />
-                  )}
-                />
                 <Redirect
                   from={`${path}/`}
-                  to={`${path}/alerts?hideDwnToInv=1`}
+                  to={`${path}/alerts?hideDwnToInv=1&page=1`}
                 />
               </Switch>
             </main>
