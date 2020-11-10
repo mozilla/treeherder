@@ -202,57 +202,58 @@ export default class AlertTable extends React.Component {
         >
           {filteredAlerts.length > 0 && alertSummary && (
             <Form>
+              <Container fluid className="bg-lightgray border">
+                <Row className="px-0 max-width-default">
+                  <Col
+                    xs={10}
+                    className="text-left alert-summary-header-element"
+                  >
+                    <FormGroup check>
+                      <Label check className="pl-1">
+                        <Input
+                          data-testid={`alert summary ${alertSummary.id.toString()} checkbox`}
+                          aria-labelledby={`alert summary ${alertSummary.id.toString()} title`}
+                          type="checkbox"
+                          checked={allSelected}
+                          disabled={!user.isStaff}
+                          onChange={() =>
+                            this.setState({
+                              allSelected: !allSelected,
+                              selectedAlerts: !allSelected
+                                ? [...alertSummary.alerts]
+                                : [],
+                            })
+                          }
+                        />
+                        <AlertHeader
+                          frameworks={frameworks}
+                          alertSummary={alertSummary}
+                          repoModel={repoModel}
+                          issueTrackers={issueTrackers}
+                          user={user}
+                          updateAssignee={this.updateAssignee}
+                        />
+                      </Label>
+                    </FormGroup>
+                  </Col>
+                  <Col className="alert-summary-dropdown-element">
+                    <StatusDropdown
+                      alertSummary={alertSummary}
+                      updateState={(state) => this.setState(state)}
+                      repoModel={repoModel}
+                      updateViewState={updateViewState}
+                      issueTrackers={issueTrackers}
+                      bugTemplate={bugTemplate}
+                      user={user}
+                      filteredAlerts={filteredAlerts}
+                      frameworks={frameworks}
+                      performanceTags={performanceTags}
+                    />
+                  </Col>
+                </Row>
+              </Container>
+
               <Table className="compare-table mb-0">
-                <thead>
-                  <tr className="bg-lightgray border">
-                    <th
-                      colSpan="9"
-                      className="text-left alert-summary-header-element"
-                    >
-                      <FormGroup check>
-                        <Label check className="pl-1">
-                          <Input
-                            data-testid={`alert summary ${alertSummary.id.toString()} checkbox`}
-                            aria-labelledby={`alert summary ${alertSummary.id.toString()} title`}
-                            type="checkbox"
-                            checked={allSelected}
-                            disabled={!user.isStaff}
-                            onChange={() =>
-                              this.setState({
-                                allSelected: !allSelected,
-                                selectedAlerts: !allSelected
-                                  ? [...alertSummary.alerts]
-                                  : [],
-                              })
-                            }
-                          />
-                          <AlertHeader
-                            frameworks={frameworks}
-                            alertSummary={alertSummary}
-                            repoModel={repoModel}
-                            issueTrackers={issueTrackers}
-                            user={user}
-                            updateAssignee={this.updateAssignee}
-                          />
-                        </Label>
-                      </FormGroup>
-                    </th>
-                    <th className="table-width-sm align-top font-weight-normal">
-                      <StatusDropdown
-                        alertSummary={alertSummary}
-                        updateState={(state) => this.setState(state)}
-                        repoModel={repoModel}
-                        updateViewState={updateViewState}
-                        issueTrackers={issueTrackers}
-                        bugTemplate={bugTemplate}
-                        user={user}
-                        filteredAlerts={filteredAlerts}
-                        frameworks={frameworks}
-                        performanceTags={performanceTags}
-                      />
-                    </th>
-                  </tr>
-                </thead>
                 <tbody>
                   <tr className="border">
                     <th> </th>
