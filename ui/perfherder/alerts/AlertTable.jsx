@@ -1,6 +1,15 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import { Container, Form, FormGroup, Label, Input, Table } from 'reactstrap';
+import {
+  Container,
+  Form,
+  FormGroup,
+  Label,
+  Input,
+  Table,
+  Row,
+  Col,
+} from 'reactstrap';
 import orderBy from 'lodash/orderBy';
 
 import { alertStatusMap } from '../constants';
