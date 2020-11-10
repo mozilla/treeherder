@@ -485,7 +485,7 @@ export class BugFilerClass extends React.Component {
           regressed_by: regressedBy,
           see_also: seeAlso,
           crash_signature: crashSignature,
-          severity: 'normal',
+          severity: 'S4',
           priority,
           comment: descriptionStrings,
           comment_tags: 'treeherder',
