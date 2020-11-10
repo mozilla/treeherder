@@ -11,14 +11,6 @@
  * rather than here.
  */
 
-html,
-body {
-  height: 100%;
-  font-size: 14px;
-  line-height: 1.42;
-  overflow: hidden;
-}
-
 body {
   line-height: inherit;
   font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
