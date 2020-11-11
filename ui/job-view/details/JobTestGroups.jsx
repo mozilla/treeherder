@@ -28,11 +28,14 @@ export default class JobTestGroups extends React.PureComponent {
       const queue = new Queue({ rootUrl });
       const taskDefinition = await queue.task(taskId);
       if (taskDefinition && taskDefinition.payload.env.MOZHARNESS_TEST_PATHS) {
-        this.setState({
-          testGroups: Object.values(
-            JSON.parse(taskDefinition.payload.env.MOZHARNESS_TEST_PATHS),
-          )[0],
-        });
+        const testGroups = Object.values(
+          JSON.parse(taskDefinition.payload.env.MOZHARNESS_TEST_PATHS),
+        );
+        if (testGroups.length) {
+          this.setState({
+            testGroups: testGroups[0],
+          });
+        }
         notifyTestGroupsAvailable(true);
       } else {
         notifyTestGroupsAvailable(false);
