@@ -1,11 +1,3 @@
-html,
-body {
-  height: 100%;
-  font-size: 14px;
-  line-height: 1.42;
-  overflow: hidden;
-}
-
 #root {
   display: flex;
   flex-direction: column;
