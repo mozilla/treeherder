@@ -32,7 +32,7 @@ import PushList from './pushes/PushList';
 import KeyboardShortcuts from './KeyboardShortcuts';
 import { clearExpiredNotifications } from './redux/stores/notifications';
 
-import '../css/treeherder-base.css';
+import '../css/treeherder.css';
 import '../css/treeherder-navbar-panels.css';
 import '../css/treeherder-notifications.css';
 import '../css/treeherder-details-panel.css';
