@@ -476,14 +476,6 @@ li.pagination-active.active > button {
   border-left-color: #4c3146;
 }
 
-@media only screen and (min-width: 1700px) {
-  .custom-col-xxl-auto {
-    flex: 0 0 auto;
-    width: auto;
-    max-width: 100%;
-  }
-}
-
 .edit-icon {
   visibility: hidden;
   font-size: 14px;
