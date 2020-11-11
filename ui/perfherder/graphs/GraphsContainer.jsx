@@ -42,7 +42,6 @@ class GraphsContainer extends React.Component {
       zoomDomain,
       lockTooltip: false,
       externalMutation: undefined,
-      windowWidth: window.innerWidth,
     };
   }
 
@@ -54,7 +53,6 @@ class GraphsContainer extends React.Component {
     if (selectedDataPoint) this.verifySelectedDataPoint();
     window.addEventListener('resize', () =>
       this.setState({
-        windowWidth: window.innerWidth,
         zoomDomain,
       }),
     );
@@ -335,7 +333,6 @@ class GraphsContainer extends React.Component {
       zoomDomain,
       lockTooltip,
       externalMutation,
-      windowWidth,
     } = this.state;
 
     const yAxisLabel = this.computeYAxisLabel();
@@ -525,13 +522,10 @@ class GraphsContainer extends React.Component {
                         renderInPortal={false}
                         flyoutComponent={
                           <VictoryPortal>
-                            {/* Note that the WithSize component will always trigger a
-                                re-render on a resize, so the window.innerWidth should
-                                incidentally be updated when a resize event occurs. */}
                             <GraphTooltip
                               lockTooltip={lockTooltip}
                               closeTooltip={this.closeTooltip}
-                              windowWidth={windowWidth}
+                              graphWidth={width}
                               {...this.props}
                             />
                           </VictoryPortal>

@@ -80,10 +80,20 @@ h1 {
   width: 120px;
 }
 
+.graph-tooltip-foreign-object {
+  overflow: visible;
+}
+
+.graph-tooltip-positioner {
+  position: absolute;
+}
+
 .graph-tooltip {
   pointer-events: none;
   width: 280px;
   text-align: left;
+  position: absolute;
+  bottom: 16px;
 }
 .graph-tooltip.locked {
   pointer-events: auto;
@@ -121,8 +131,12 @@ h1 {
   color: #17a2b8;
 }
 .graph-tooltip .tip {
+  position: absolute;
   display: block;
+  width: 20px;
   height: 10px;
+  bottom: -10px;
+  margin-left: -10px;
   background: url('../img/tip.png') no-repeat center top;
 }
 .graph-tooltip.locked .tip {
