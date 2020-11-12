@@ -88,6 +88,7 @@ class CommitHistory extends React.PureComponent {
                 href={revisionPushFilterUrl}
                 target="_blank"
                 rel="noopener noreferrer"
+                title="Push it"
               >
                 {revision.substring(0, 17)}...
               </a>
