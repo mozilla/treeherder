@@ -82,21 +82,32 @@ class PerformanceTab extends React.PureComponent {
     const sortedDetails = perfJobDetail.slice();
     sortedDetails.sort((a, b) => a.title.localeCompare(b.title));
 
+    // These styles are shared across all of the table cells.
+    const cellClassName = 'nowrap pl-2 pr-2';
+
     return (
       <>
-        <h3 className="performance-panel-title">
+        <h3 className="font-size-16 mt-3 mb-2">
           Results for: {selectedJobFull.job_type_name}
         </h3>
         <table className="table table-sm performance-panel-data">
           <thead>
             <tr>
-              <th scope="col" className="text-right">
+              <th scope="col" className={`text-right ${cellClassName}`}>
                 Value
               </th>
-              <th scope="col">Unit</th>
-              <th scope="col">Better</th>
-              <th scope="col">History</th>
-              <th scope="col">Name</th>
+              <th scope="col" className={cellClassName}>
+                Unit
+              </th>
+              <th scope="col" className={cellClassName}>
+                Better
+              </th>
+              <th scope="col" className={cellClassName}>
+                History
+              </th>
+              <th scope="col" className={cellClassName}>
+                Name
+              </th>
             </tr>
           </thead>
           <tbody>
@@ -106,10 +117,12 @@ class PerformanceTab extends React.PureComponent {
                 <tr key={idx}>
                   {/* Ensure the value and measurement are visually next to each
                   other in the chart, by aligning the value to the right. */}
-                  <td className="text-right">{value}</td>
-                  <td>{measurementUnit || '–'}</td>
-                  <td>{lowerIsBetter ? 'Lower' : 'Higher'}</td>
-                  <td>
+                  <td className={`text-right ${cellClassName}`}>{value}</td>
+                  <td className={cellClassName}>{measurementUnit || '–'}</td>
+                  <td className={cellClassName}>
+                    {lowerIsBetter ? 'Lower' : 'Higher'}
+                  </td>
+                  <td className={cellClassName}>
                     <a
                       href={url}
                       className="btn btn-outline-darker-secondary btn-sm performance-panel-view-button"
