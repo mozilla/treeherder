@@ -97,7 +97,10 @@ class CommitHistory extends React.PureComponent {
               </a>
             </span>
             on
-            <span className="d-inline-block text-capitalize font-weight-bold ml-1">
+            <span
+              data-testid="header-repo"
+              className="d-inline-block text-capitalize font-weight-bold ml-1"
+            >
               {currentRepo.name}
             </span>
           </div>

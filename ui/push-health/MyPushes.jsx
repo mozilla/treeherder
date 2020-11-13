@@ -40,11 +40,11 @@ class MyPushes extends React.Component {
 
   async componentDidMount() {
     this.fetchRepos();
-    // if (this.props.user.isLoggedIn) {
-    this.fetchMetrics(true);
-    // Update the tests every two minutes.
-    this.testTimerId = setInterval(() => this.fetchMetrics(), 120000);
-    // }
+    if (this.props.user.isLoggedIn) {
+      this.fetchMetrics(true);
+      // Update the tests every two minutes.
+      this.testTimerId = setInterval(() => this.fetchMetrics(), 120000);
+    }
   }
 
   componentDidUpdate(prevProps) {
@@ -74,7 +74,7 @@ class MyPushes extends React.Component {
     this.setState({ loading });
 
     const options = {
-      author: 'ccoroiu@mozilla.com',
+      author: user.email,
       count: 3,
       with_history: true,
     };
@@ -156,11 +156,11 @@ class MyPushes extends React.Component {
           <title>{`[${totalNeedInvestigation} failures] Push Health`}</title>
         </Helmet>
         <Container className="mt-2 mb-5 max-width-default">
-          {/* {!user.isLoggedIn && (
-          <h2 className="pt-5 text-center">
-            Please log in to see your pushes
-          </h2>
-        )} */}
+          {!user.isLoggedIn && (
+            <h2 className="pt-5 text-center">
+              Please log in to see your pushes
+            </h2>
+          )}
 
           {failureMessage && <ErrorMessages failureMessage={failureMessage} />}
           {loading && <LoadingSpinner />}
