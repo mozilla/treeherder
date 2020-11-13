@@ -261,6 +261,44 @@ def test_cycle_performance_data(
     ]
 
 
+def test_performance_signatures_are_deleted(test_perf_signature):
+    cycler = PerfherderCycler(chunk_size=100, sleep_time=0)
+    expired_timestamp = cycler.max_timestamp
+
+    perf_signature_to_delete = PerformanceSignature.objects.create(
+        signature_hash='b' * 40,
+        repository=test_perf_signature.repository,
+        framework=test_perf_signature.framework,
+        platform=test_perf_signature.platform,
+        option_collection=test_perf_signature.option_collection,
+        suite=test_perf_signature.suite,
+        test='test_perf_signature_to_delete',
+        last_updated=expired_timestamp,
+        has_subtests=False,
+    )
+
+    perf_signature_to_keep = PerformanceSignature.objects.create(
+        signature_hash='h' * 40,
+        repository=test_perf_signature.repository,
+        framework=test_perf_signature.framework,
+        platform=test_perf_signature.platform,
+        option_collection=test_perf_signature.option_collection,
+        suite=test_perf_signature.suite,
+        test='test_perf_signature_to_keep',
+        last_updated=datetime.now(),
+        has_subtests=False,
+    )
+
+    call_command('cycle_data', 'from:perfherder')
+
+    assert perf_signature_to_keep.id in list(
+        PerformanceSignature.objects.values_list('id', flat=True)
+    )
+    assert perf_signature_to_delete.id not in list(
+        PerformanceSignature.objects.values_list('id', flat=True)
+    )
+
+
 def test_try_data_removal(
     try_repository, test_repository, try_push_stored, test_perf_signature, test_perf_signature_2
 ):
