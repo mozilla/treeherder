@@ -5,6 +5,6 @@ import App from './App';
 
 import './css/treeherder-custom-styles.css';
 import './css/treeherder-navbar.css';
-import './css/treeherder.css';
+import './css/treeherder-base.css';
 
 render(<App />, document.getElementById('root'));
