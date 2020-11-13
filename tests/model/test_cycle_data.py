@@ -1,6 +1,9 @@
+import math
+import taskcluster
 from datetime import datetime, timedelta
 
 import pytest
+from unittest.mock import MagicMock
 from django.core.management import call_command
 from django.db.models import Max
 
@@ -23,6 +26,8 @@ from treeherder.perf.models import (
     PerformanceAlertSummary,
     PerformanceAlert,
 )
+from treeherder.services.max_runtime import MaxRuntime
+from treeherder.services.signatures_remover import PublicSignaturesRemover
 
 
 def test_cycle_all_data(
@@ -196,12 +201,10 @@ def test_cycle_job_with_performance_data(
     ],
 )
 def test_cycle_performance_data(
-    test_repository,
-    try_repository,
-    repository_name,
-    push_stored,
-    test_perf_signature,
+    test_repository, try_repository, repository_name, push_stored, test_perf_signature, monkeypatch
 ):
+    monkeypatch.setattr(taskcluster, 'Notify', MagicMock())
+
     test_repository.name = repository_name
     test_repository.save()
 
@@ -261,7 +264,8 @@ def test_cycle_performance_data(
     ]
 
 
-def test_performance_signatures_are_deleted(test_perf_signature):
+def test_performance_signatures_are_deleted(test_perf_signature, monkeypatch):
+    monkeypatch.setattr(taskcluster, 'Notify', MagicMock())
     cycler = PerfherderCycler(chunk_size=100, sleep_time=0)
     expired_timestamp = cycler.max_timestamp
 
@@ -300,8 +304,15 @@ def test_performance_signatures_are_deleted(test_perf_signature):
 
 
 def test_try_data_removal(
-    try_repository, test_repository, try_push_stored, test_perf_signature, test_perf_signature_2
+    try_repository,
+    test_repository,
+    try_push_stored,
+    test_perf_signature,
+    test_perf_signature_2,
+    monkeypatch,
 ):
+    monkeypatch.setattr(taskcluster, 'Notify', MagicMock())
+
     total_removals = 3
     test_perf_signature.repository = try_repository
     test_perf_signature.save()
@@ -412,6 +423,78 @@ def test_irrelevant_repos_data_removal(
     ).exists()
 
 
+def test_signature_remover(test_perf_signature, test_perf_signature_2, test_perf_data, monkeypatch):
+    monkeypatch.setattr(taskcluster, 'Notify', MagicMock())
+    cycler = PerfherderCycler(chunk_size=100, sleep_time=0)
+    expired_timestamp = cycler.max_timestamp
+    test_perf_signature_2.last_updated = expired_timestamp
+    test_perf_signature_2.save()
+
+    assert len(PerformanceSignature.objects.all()) == 2
+
+    call_command('cycle_data', 'from:perfherder')
+
+    assert taskcluster.Notify().ping.called_once
+    assert taskcluster.Notify().email.call_count == 2
+    assert len(PerformanceSignature.objects.all()) == 1
+    assert PerformanceSignature.objects.first() == test_perf_signature
+
+
+def test_signature_remover_when_notify_service_is_down(
+    test_perf_signature, test_perf_signature_2, test_perf_data, monkeypatch
+):
+    monkeypatch.setattr(taskcluster, 'Notify', MagicMock())
+    taskcluster.Notify().ping.side_effect = Exception('Email Service is down.')
+
+    call_command('cycle_data', 'from:perfherder')
+
+    assert taskcluster.Notify().ping.called_once
+    assert not taskcluster.Notify().email.called
+    assert len(PerformanceSignature.objects.all()) == 2
+
+
+@pytest.mark.parametrize('signatures_nr', [3, 4, 8, 10])
+def test_nr_emails_sent(test_perf_signature, signatures_nr):
+    tc_model = MagicMock()
+    timer = MaxRuntime()
+    timer.started_at = datetime.now()
+    nr_of_rows = 2
+    nr_of_emails = 4
+    signatures_remover = PublicSignaturesRemover(
+        timer=timer,
+        taskcluster_model=tc_model,
+        nr_of_rows_allowed=nr_of_rows,
+        nr_of_emails_allowed=nr_of_emails,
+    )
+
+    for nr in range(0, signatures_nr):
+        PerformanceSignature.objects.create(
+            repository=test_perf_signature.repository,
+            signature_hash=(20 * ('t%s' % nr)),
+            framework=test_perf_signature.framework,
+            platform=test_perf_signature.platform,
+            option_collection=test_perf_signature.option_collection,
+            suite='mysuite%s' % nr,
+            test='mytest%s' % nr,
+            application='firefox',
+            has_subtests=test_perf_signature.has_subtests,
+            extra_options=test_perf_signature.extra_options,
+            last_updated=datetime.now(),
+        )
+
+    signatures_nr += 1  # is incremented because of test_perf_signature
+    nr_of_possible_emails = math.ceil(signatures_nr / nr_of_rows)
+    expected_call_count = (
+        nr_of_possible_emails if nr_of_possible_emails <= nr_of_emails else nr_of_emails
+    )
+
+    signatures_remover.remove_in_chunks(datetime.now())
+    assert tc_model.notify.ping.call_count == expected_call_count
+    assert (
+        tc_model.notify.email.call_count == expected_call_count * 2
+    )  # the email is sent to two email scopes
+
+
 def test_performance_cycler_quit_indicator():
     ten_minutes_ago = datetime.now() - timedelta(minutes=10)
     one_second = timedelta(seconds=1)
@@ -420,16 +503,17 @@ def test_performance_cycler_quit_indicator():
     five_minutes = timedelta(minutes=5)
 
     with pytest.raises(MaxRuntimeExceeded):
-        cycler = PerfherderCycler(chunk_size=100, sleep_time=0, max_runtime=one_second)
-        cycler.started_at = ten_minutes_ago
+        PerfherderCycler(chunk_size=100, sleep_time=0)
 
-        cycler._quit_on_timeout()
-
+        max_runtime = MaxRuntime(max_runtime=one_second)
+        max_runtime.started_at = ten_minutes_ago
+        max_runtime.quit_on_timeout()
     try:
-        cycler = PerfherderCycler(chunk_size=100, sleep_time=0, max_runtime=five_minutes)
-        cycler.started_at = two_seconds_ago
+        PerfherderCycler(chunk_size=100, sleep_time=0)
 
-        cycler._quit_on_timeout()
+        max_runtime = MaxRuntime(max_runtime=five_minutes)
+        max_runtime.started_at = two_seconds_ago
+        max_runtime.quit_on_timeout()
     except MaxRuntimeExceeded:
         pytest.fail('Performance cycling shouldn\'t have timed out')
 
@@ -455,7 +539,11 @@ def empty_alert_summary(
         datetime.now() - timedelta(days=180, hours=1),
     ],
 )
-def test_summary_without_any_kind_of_alerts_is_deleted(expired_time, empty_alert_summary):
+def test_summary_without_any_kind_of_alerts_is_deleted(
+    expired_time, empty_alert_summary, monkeypatch
+):
+    monkeypatch.setattr(taskcluster, 'Notify', MagicMock())
+
     empty_alert_summary.created = expired_time
     empty_alert_summary.save()
 
@@ -476,7 +564,11 @@ def test_summary_without_any_kind_of_alerts_is_deleted(expired_time, empty_alert
         datetime.now() - timedelta(days=179, hours=23),
     ],
 )
-def test_summary_without_any_kind_of_alerts_isnt_deleted(recently, empty_alert_summary):
+def test_summary_without_any_kind_of_alerts_isnt_deleted(
+    recently, empty_alert_summary, monkeypatch
+):
+    monkeypatch.setattr(taskcluster, 'Notify', MagicMock())
+
     empty_alert_summary.created = recently
     empty_alert_summary.save()
 
@@ -503,8 +595,15 @@ def test_summary_without_any_kind_of_alerts_isnt_deleted(recently, empty_alert_s
     ],
 )
 def test_summary_with_alerts_isnt_deleted(
-    creation_time, empty_alert_summary, test_perf_alert, test_perf_alert_2, test_perf_data
+    creation_time,
+    empty_alert_summary,
+    test_perf_alert,
+    test_perf_alert_2,
+    test_perf_data,
+    monkeypatch,
 ):
+    monkeypatch.setattr(taskcluster, 'Notify', MagicMock())
+
     empty_alert_summary.created = creation_time
     empty_alert_summary.save()
 

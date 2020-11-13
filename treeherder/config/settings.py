@@ -477,6 +477,10 @@ RESET_BACKFILL_LIMITS = timedelta(hours=24)
 PERF_SHERIFF_BOT_CLIENT_ID = env('PERF_SHERIFF_BOT_CLIENT_ID', default=None)
 PERF_SHERIFF_BOT_ACCESS_TOKEN = env('PERF_SHERIFF_BOT_ACCESS_TOKEN', default=None)
 
+# Taskcluster credentials for Notification Service
+NOTIFY_CLIENT_ID = env('NOTIFY_CLIENT_ID', default=None)
+NOTIFY_ACCESS_TOKEN = env('NOTIFY_ACCESS_TOKEN', default=None)
+
 # This is only used for removing the rate limiting. You can create your own here:
 # https://github.com/settings/tokens
 GITHUB_TOKEN = env("GITHUB_TOKEN", default=None)

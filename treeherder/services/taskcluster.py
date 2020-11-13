@@ -25,6 +25,7 @@ class TaskclusterModel:
 
         # Taskcluster APIs
         self.hooks = taskcluster.Hooks({**options, 'credentials': credentials})
+        self.notify = taskcluster.Notify({**options, 'credentials': credentials})
 
         # Following least-privilege principle, as services
         # bellow don't really need authorization credentials.
