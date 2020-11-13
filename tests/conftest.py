@@ -8,9 +8,11 @@ from os.path import join, dirname
 import kombu
 import pytest
 import responses
+import taskcluster
 from _pytest.monkeypatch import MonkeyPatch
 from django.conf import settings
 from rest_framework.test import APIClient
+from unittest.mock import MagicMock
 
 from treeherder.autoclassify.autoclassify import mark_best_classification
 from treeherder.etl.jobs import store_job_data
@@ -253,6 +255,11 @@ def mock_log_parser(monkeypatch):
         pass
 
     monkeypatch.setattr(tasks, 'parse_logs', task_mock)
+
+
+@pytest.fixture(autouse=True)
+def mock_taskcluster_notify(monkeypatch):
+    monkeypatch.setattr(taskcluster, 'Notify', MagicMock())
 
 
 @pytest.fixture

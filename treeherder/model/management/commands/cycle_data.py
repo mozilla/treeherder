@@ -9,11 +9,15 @@ from django.db import connection
 from django.db.backends.utils import CursorWrapper
 from django.db.models import Count
 from django.db.utils import OperationalError
+from django.conf import settings
 from typing import List
 
 from treeherder.model.models import Job, JobGroup, JobType, Machine, Repository
 from treeherder.perf.exceptions import MaxRuntimeExceeded, NoDataCyclingAtAll
 from treeherder.perf.models import PerformanceDatum, PerformanceSignature, PerformanceAlertSummary
+from treeherder.services.taskcluster import TaskclusterModel, DEFAULT_ROOT_URL as root_url
+from treeherder.perf.data_cycling.signature_remover import PublicSignatureRemover
+from treeherder.perf.data_cycling.max_runtime import MaxRuntime
 
 logging.basicConfig(format='%(levelname)s:%(message)s')
 
@@ -85,21 +89,18 @@ class TreeherderCycler(DataCycler):
 
 
 class PerfherderCycler(DataCycler):
-    DEFAULT_MAX_RUNTIME = timedelta(hours=23)
-
     def __init__(
         self,
         chunk_size: int,
         sleep_time: int,
         is_debug: bool = None,
-        max_runtime: timedelta = None,
         strategies: List[RemovalStrategy] = None,
         **kwargs,
     ):
         super().__init__(chunk_size, sleep_time, is_debug)
-        self.started_at = None
-        self.max_runtime = max_runtime or PerfherderCycler.DEFAULT_MAX_RUNTIME
         self.strategies = strategies or RemovalStrategy.fabricate_all_strategies(chunk_size)
+
+        self.timer = MaxRuntime()
 
     @property
     def max_timestamp(self):
@@ -115,7 +116,7 @@ class PerfherderCycler(DataCycler):
         into chunks of chunk_size size.
         """
         logger.warning(f"Cycling {PERFHERDER.title()} data...")
-        self.started_at = datetime.now()
+        self.timer.start_timer()
 
         try:
             for strategy in self.strategies:
@@ -132,15 +133,12 @@ class PerfherderCycler(DataCycler):
     def _remove_leftovers(self):
         # remove any signatures which are
         # no longer associated with a job
-        logger.warning('Removing performance signatures with missing jobs...')
-        for signature in PerformanceSignature.objects.filter(last_updated__lte=self.max_timestamp):
-            self._quit_on_timeout()
-
-            if not PerformanceDatum.objects.filter(
-                repository_id=signature.repository_id,  # leverages (repository, signature) compound index
-                signature_id=signature.id,
-            ).exists():
-                signature.delete()
+        signatures = PerformanceSignature.objects.filter(last_updated__lte=self.max_timestamp)
+        tc_model = TaskclusterModel(
+            root_url, client_id=settings.NOTIFY_CLIENT_ID, access_token=settings.NOTIFY_ACCESS_TOKEN
+        )
+        signatures_remover = PublicSignatureRemover(timer=self.timer, taskcluster_model=tc_model)
+        signatures_remover.remove_in_chunks(signatures)
 
         # remove empty alert summaries
         logger.warning('Removing alert summaries which no longer have any alerts...')
@@ -162,18 +160,12 @@ class PerfherderCycler(DataCycler):
             .delete()
         )
 
-    def _quit_on_timeout(self):
-        elapsed_runtime = datetime.now() - self.started_at
-
-        if self.max_runtime < elapsed_runtime:
-            raise MaxRuntimeExceeded('Max runtime for performance data cycling exceeded')
-
     def _delete_in_chunks(self, strategy: RemovalStrategy):
         any_successful_attempt = False
 
         with connection.cursor() as cursor:
             while True:
-                self._quit_on_timeout()
+                self.timer.quit_on_timeout()
 
                 try:
                     strategy.remove(using=cursor)
