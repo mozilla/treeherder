@@ -207,6 +207,61 @@ def test_filter_signatures_by_framework(
     assert resp.data[signature2.id]['framework_id'] == signature2.framework.id
 
 
+def test_filter_data_by_no_retriggers(
+    client,
+    test_repository,
+    test_perf_signature,
+    test_perf_signature_2,
+    push_stored,
+    test_perf_signature_same_hash_different_framework,
+):
+    push = Push.objects.get(id=1)
+    push2 = Push.objects.get(id=2)
+
+    signature_for_retrigger_data = test_perf_signature_same_hash_different_framework
+
+    PerformanceDatum.objects.create(
+        repository=test_perf_signature.repository,
+        push=push,
+        signature=test_perf_signature,
+        value=0.0,
+        push_timestamp=push.time,
+    )
+
+    PerformanceDatum.objects.create(
+        repository=signature_for_retrigger_data.repository,
+        push=push,
+        signature=signature_for_retrigger_data,
+        value=0.0,
+        push_timestamp=push.time,
+    )
+
+    # new perf data where the signature has the same hash as the one's above,
+    # but the perf data contains different push id
+    test_perf_signature_2.signature_hash = test_perf_signature.signature_hash
+    test_perf_signature_2.save()
+    PerformanceDatum.objects.create(
+        repository=test_perf_signature_2.repository,
+        push=push2,
+        signature=test_perf_signature_2,
+        value=0.0,
+        push_timestamp=push2.time,
+    )
+
+    resp = client.get(
+        reverse('performance-data-list', kwargs={"project": test_repository.name})
+        + '?signatures={}&no_retriggers=true'.format(test_perf_signature.signature_hash)
+    )
+    assert resp.status_code == 200
+    datums = resp.data[test_perf_signature.signature_hash]
+    assert len(datums) == 2
+    assert set(datum['signature_id'] for datum in datums) == {
+        test_perf_signature.id,
+        test_perf_signature_2.id,
+    }
+    assert signature_for_retrigger_data.id not in set(datum['signature_id'] for datum in datums)
+
+
 def test_filter_data_by_framework(
     client,
     test_repository,
@@ -468,3 +523,41 @@ def test_perf_summary(client, test_perf_signature, test_perf_data):
     resp2 = client.get(reverse('performance-summary') + query_params2)
     assert resp2.status_code == 200
     assert resp2.json() == expected
+
+
+def test_no_retriggers_perf_summary(
+    client, push_stored, test_perf_signature, test_perf_signature_2, test_perf_data
+):
+    push = Push.objects.get(id=1)
+    query_params = '?repository={}&framework={}&no_subtests=true&revision={}&all_data=true&signature={}'.format(
+        test_perf_signature.repository.name,
+        test_perf_signature.framework_id,
+        push.revision,
+        test_perf_signature.id,
+    )
+
+    PerformanceDatum.objects.create(
+        repository=test_perf_signature.repository,
+        push=push,
+        signature=test_perf_signature,
+        value=0.0,
+        push_timestamp=push.time,
+    )
+
+    PerformanceDatum.objects.create(
+        repository=test_perf_signature_2.repository,
+        push=push,
+        signature=test_perf_signature_2,
+        value=0.0,
+        push_timestamp=push.time,
+    )
+
+    response = client.get(reverse('performance-summary') + query_params)
+    content = response.json()
+    assert response.status_code == 200
+    assert len(content[0]['data']) == 2
+
+    response = client.get(reverse('performance-summary') + query_params + "&no_retriggers=true")
+    content = response.json()
+    assert response.status_code == 200
+    assert len(content[0]['data']) == 1

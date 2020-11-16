@@ -711,7 +711,7 @@ class PerformanceSummary(generics.ListAPIView):
                     seen_push_id = datum['push_id']
 
             start, end = delectable_idxes[0], delectable_idxes[-1]
-            del data_points['data'][start:end]
+            del data_points['data'][start : end + 1]
 
         return serialized_data
 
