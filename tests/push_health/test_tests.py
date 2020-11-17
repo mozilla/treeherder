@@ -43,10 +43,11 @@ def test_get_test_failures_no_parent(
     test_job.result = 'testfailed'
     test_job.save()
 
-    jobs = get_test_failure_jobs(test_job.push)
-    build_failures = get_test_failures(test_job.push, jobs)
+    result_status, jobs = get_test_failure_jobs(test_job.push)
+    result, build_failures = get_test_failures(test_job.push, jobs, result_status)
     need_investigation = build_failures['needInvestigation']
 
+    assert result == 'fail'
     assert len(need_investigation) == 1
     assert len(jobs[need_investigation[0]['jobName']]) == 1
     assert not need_investigation[0]['failedInParent']
@@ -73,10 +74,11 @@ def test_get_test_failures_with_parent(
 
     create_lines(parent_job, [(test_line, {})])
 
-    jobs = get_test_failure_jobs(test_job.push)
-    build_failures = get_test_failures(test_job.push, jobs, parent_push)
+    result_status, jobs = get_test_failure_jobs(test_job.push)
+    result, build_failures = get_test_failures(test_job.push, jobs, result_status, parent_push)
     need_investigation = build_failures['needInvestigation']
 
+    assert result == 'fail'
     assert len(need_investigation) == 1
     assert len(jobs[need_investigation[0]['jobName']]) == 1
     assert need_investigation[0]['failedInParent']
