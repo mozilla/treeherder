@@ -51,6 +51,7 @@ export const thPlatformMap = {
   'windows7-32-mingwclang': 'Windows 7 MinGW',
   'windows10-64': 'Windows 10 x64',
   'windows10-64-ccov': 'Windows 10 x64 CCov',
+  'windows10-64-ccov-qr': 'Windows 10 x64 CCov WebRender',
   'windows10-64-devedition': 'Windows 10 x64 DevEdition',
   'windows10-64-pgo-qr': 'Windows 10 x64 WebRender pgo',
   'windows10-64-shippable': 'Windows 10 x64 Shippable',
