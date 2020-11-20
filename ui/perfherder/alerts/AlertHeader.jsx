@@ -50,7 +50,7 @@ const AlertHeader = ({
           id={`alert summary ${alertSummary.id.toString()} title`}
           data-testid={`alert summary ${alertSummary.id.toString()} title`}
         >
-          <h3 className="font-weight-bold align-middle">
+          <h6 className="font-weight-bold align-middle">
             <Badge className="mr-2">
               {getFrameworkName(frameworks, alertSummary.framework)}
             </Badge>
@@ -60,7 +60,7 @@ const AlertHeader = ({
               icon={faExternalLinkAlt}
               className="icon-superscript"
             />
-          </h3>
+          </h6>
         </Link>
       </Row>
       <Row className="font-weight-normal">
