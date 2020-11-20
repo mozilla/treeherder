@@ -42,6 +42,8 @@ const BugDetailsView = (props) => {
     {
       Header: 'Push Time',
       accessor: 'push_time',
+      minWidth: 105,
+      className: 'text-left',
     },
     {
       Header: 'Tree',
