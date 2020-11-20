@@ -43,54 +43,39 @@ class PublicSignaturesRemover:
         self.timer = timer
 
     def remove_in_chunks(self, max_timestamp):
-        emails_sent = 0
-        rows_left = self._nr_of_rows_allowed
         chunk_of_signatures = []
+        max_nr_signatures = self._nr_of_rows_allowed * self._nr_of_emails_allowed
 
         for performance_signature in PerformanceSignature.objects.filter(
             last_updated__lte=max_timestamp
         ):
             self.timer.quit_on_timeout()
 
-            if emails_sent < self._nr_of_emails_allowed and (
-                not PerformanceDatum.objects.filter(
+            if len(chunk_of_signatures) < max_nr_signatures:
+                if not PerformanceDatum.objects.filter(
                     repository_id=performance_signature.repository_id,  # leverages (repository, signature) compound index
                     signature_id=performance_signature.id,
-                ).exists()
-            ):
-                rows_left -= 1
-                chunk_of_signatures.append(performance_signature)
-
-                if rows_left == 0:
-                    # extract the proprieties of interest from signatures in a list of dictionaries
-                    email_content = self.__extract_properties(chunk_of_signatures)
-                    # check if Taskcluster Notify Service is up
-                    try:
-                        self.tc_model.notify.ping()
-                    except Exception:
-                        logger.warning("Taskcluster Notify Service is not available")
-                        logger.warning("Failed to delete performance signatures")
-                        break
-                    else:
-                        self._delete(chunk_of_signatures)
-                        self._send_notification(email_content)
-
-                    emails_sent += 1
-                    chunk_of_signatures = []
-                    rows_left = self._nr_of_rows_allowed
-
-        if emails_sent < self._nr_of_emails_allowed and chunk_of_signatures != []:
-            # extract the proprieties of interest from signatures in a list of dictionaries
-            email_content = self.__extract_properties(chunk_of_signatures)
-            # check if Taskcluster Notify Service is up
-            try:
-                self.tc_model.notify.ping()
-            except Exception:
-                logger.warning("Taskcluster Notify Service is not available")
-                logger.warning("Failed to delete performance signatures")
+                ).exists():
+                    chunk_of_signatures.append(performance_signature)
             else:
-                self._delete(chunk_of_signatures)
-                self._send_notification(email_content)
+                break
+
+        for i in range(0, self._nr_of_emails_allowed):
+            chunk = chunk_of_signatures[
+                i * self._nr_of_rows_allowed : (i + 1) * self._nr_of_rows_allowed
+            ]
+            if chunk:
+                # extract the proprieties of interest from signatures in a list of dictionaries
+                email_content = self.__extract_properties(chunk)
+                # check if Taskcluster Notify Service is up
+                try:
+                    self.tc_model.notify.ping()
+                except Exception:
+                    logger.warning("Taskcluster Notify Service is not available")
+                    logger.warning("Failed to delete performance signatures")
+                else:
+                    self._delete(chunk)
+                    self._send_notification(email_content)
 
     def _send_notification(self, email_content):
         logger.warning("Sending email with summary of deleted perf signatures to team...")
