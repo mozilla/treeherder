@@ -227,6 +227,7 @@ class RemovalStrategy(ABC):
             MainRemovalStrategy(*args, **kwargs),
             TryDataRemoval(*args, **kwargs),
             IrrelevantDataRemoval(*args, **kwargs),
+            UnupdatedDataRemoval(*args, **kwargs)
             # append here any new strategies
             # ...
         ]
@@ -440,6 +441,32 @@ class IrrelevantDataRemoval(RemovalStrategy):
             .order_by('id')[: self._chunk_size]
         )
         return len(older_perf_data_rows) or self._chunk_size
+
+
+class UnupdatedDataRemoval(RemovalStrategy):
+    """
+    Removes `performance_signature` that haven't
+    been updated in the last 4 months.
+
+    Also removes all their associated `performance_datum`
+    & `performance_alert` rows.
+    """
+
+    def __init__(self, chunk_size: int):
+        self._cycle_interval = timedelta(days=120)
+        self._max_timestamp = datetime.now() - self._cycle_interval
+
+    @property
+    def max_timestamp(self):
+        return self._max_timestamp
+
+    @property
+    def name(self) -> str:
+        return 'unupdated data removal strategy'
+
+    def remove(self, using: CursorWrapper):
+        # `PerformanceDatum` and `PerformanceAlert` objects will also be removed due to `on_delete=models.CASCADE`
+        PerformanceSignature.objects.filter(last_updated__lt=self.max_timestamp).delete()
 
 
 class Command(BaseCommand):

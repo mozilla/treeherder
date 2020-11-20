@@ -412,6 +412,38 @@ def test_irrelevant_repos_data_removal(
     ).exists()
 
 
+def test_unupdated_data_removal(
+    test_perf_signature, test_perf_signature_2, test_perf_data, test_perf_alert
+):
+    max_timestamp = datetime.now() - timedelta(days=120)
+    test_perf_signature.last_updated = max_timestamp - timedelta(days=1)
+    test_perf_signature.save()
+    test_perf_signature_2.last_updated = max_timestamp
+    test_perf_signature_2.save()
+
+    push = Push.objects.first()
+    seg2_data = PerformanceDatum.objects.create(
+        repository=test_perf_signature_2.repository,
+        push=push,
+        job=None,
+        signature=test_perf_signature_2,
+        push_timestamp=datetime.now(),
+        value=1.0,
+    )
+
+    assert test_perf_signature in PerformanceSignature.objects.filter(
+        last_updated__lt=max_timestamp
+    )
+
+    call_command('cycle_data', 'from:perfherder')
+
+    assert test_perf_signature not in PerformanceSignature.objects.all()
+    assert test_perf_data not in PerformanceDatum.objects.all()
+    assert test_perf_alert not in PerformanceAlert.objects.all()
+    assert test_perf_signature_2 in PerformanceSignature.objects.all()
+    assert seg2_data in PerformanceDatum.objects.all()
+
+
 def test_performance_cycler_quit_indicator():
     ten_minutes_ago = datetime.now() - timedelta(minutes=10)
     one_second = timedelta(seconds=1)
