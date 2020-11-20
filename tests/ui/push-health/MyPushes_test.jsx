@@ -15,7 +15,7 @@ import { configureStore } from '../../../ui/job-view/redux/configureStore';
 
 const repo = 'try';
 const history = createBrowserHistory();
-const params = 'author=ccoroiu%40mozilla.com&count=3&with_history=true';
+const params = 'author=ccoroiu%40mozilla.com&count=5&with_history=true';
 const testUser = { email: 'ccoroiu@mozilla.com', isLoggedIn: true };
 
 describe('My Pushes', () => {
