@@ -73,10 +73,7 @@ class CommitHistory extends React.PureComponent {
       <React.Fragment>
         <div className="push-header" data-testid="push-header">
           <div>
-            <div
-              className="commit-header text-capitalize"
-              data-testid="headerText"
-            >
+            <div className="commit-header" data-testid="headerText">
               {headerText}
             </div>
             <div className="text-secondary" data-testid="authorTime">

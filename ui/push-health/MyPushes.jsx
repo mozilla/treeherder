@@ -75,7 +75,7 @@ class MyPushes extends React.Component {
 
     const options = {
       author: user.email,
-      count: 3,
+      count: 5,
       with_history: true,
     };
     const stateChanges = { loading: false };

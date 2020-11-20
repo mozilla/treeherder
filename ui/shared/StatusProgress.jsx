@@ -27,7 +27,6 @@ const StatusProgress = (props) => {
         labelRadius={({ innerRadius }) => innerRadius}
         height={250}
         width={250}
-        // padding={{ top: 15, bottom: 15 }}
         innerRadius={70}
         radius={85}
       />
