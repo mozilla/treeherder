@@ -284,7 +284,8 @@ def test_filter_data_by_framework(
     # but it's "by design" for now, see bug 1265709)
     resp = client.get(
         reverse('performance-data-list', kwargs={"project": test_repository.name})
-        + '?signatures={}&no_retriggers=false'.format(test_perf_signature.signature_hash)
+        + '?signatures='
+        + test_perf_signature.signature_hash
     )
     assert resp.status_code == 200
     datums = resp.data[test_perf_signature.signature_hash]
@@ -294,7 +295,7 @@ def test_filter_data_by_framework(
     # Filtering by first framework
     resp = client.get(
         reverse('performance-data-list', kwargs={"project": test_repository.name})
-        + '?signatures={}&framework={}&no_retriggers=false'.format(
+        + '?signatures={}&framework={}'.format(
             test_perf_signature.signature_hash, test_perf_signature.framework.id
         )
     )
@@ -306,7 +307,7 @@ def test_filter_data_by_framework(
     # Filtering by second framework
     resp = client.get(
         reverse('performance-data-list', kwargs={"project": test_repository.name})
-        + '?signatures={}&framework={}&no_retriggers=false'.format(
+        + '?signatures={}&framework={}'.format(
             test_perf_signature.signature_hash, signature2.framework.id
         )
     )
@@ -379,9 +380,7 @@ def test_filter_data_by_interval(
     # going back interval of 1 day, should find 1 item
     resp = client.get(
         reverse('performance-data-list', kwargs={"project": test_repository.name})
-        + '?signature_id={}&interval={}&no_retriggers=false'.format(
-            test_perf_signature.id, interval
-        )
+        + '?signature_id={}&interval={}'.format(test_perf_signature.id, interval)
     )
 
     assert resp.status_code == 200
@@ -418,7 +417,7 @@ def test_filter_data_by_range(
 
     resp = client.get(
         reverse('performance-data-list', kwargs={"project": test_repository.name})
-        + '?signature_id={}&start_date={}&end_date={}&no_retriggers=false'.format(
+        + '?signature_id={}&start_date={}&end_date={}'.format(
             test_perf_signature.id, start_date, end_date
         )
     )
@@ -432,14 +431,12 @@ def test_filter_data_by_range(
 
 def test_job_ids_validity(client, test_repository):
     resp = client.get(
-        reverse('performance-data-list', kwargs={"project": test_repository.name})
-        + '?job_id=1&no_retriggers=false'
+        reverse('performance-data-list', kwargs={"project": test_repository.name}) + '?job_id=1'
     )
     assert resp.status_code == 200
 
     resp = client.get(
-        reverse('performance-data-list', kwargs={"project": test_repository.name})
-        + '?job_id=foo&no_retriggers=false'
+        reverse('performance-data-list', kwargs={"project": test_repository.name}) + '?job_id=foo'
     )
     assert resp.status_code == 400
 
@@ -468,7 +465,7 @@ def test_filter_data_by_signature(
         ]:
             resp = client.get(
                 reverse('performance-data-list', kwargs={"project": test_repository.name})
-                + '?{}={}&no_retriggers=false'.format(param, value)
+                + '?{}={}'.format(param, value)
             )
             assert resp.status_code == 200
             assert len(resp.data.keys()) == 1

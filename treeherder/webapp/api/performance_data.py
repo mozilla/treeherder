@@ -215,7 +215,7 @@ class PerformanceDatumViewSet(viewsets.ViewSet):
         signature_hashes = request.query_params.getlist("signatures")  # deprecated
         signature_ids = request.query_params.getlist("signature_id")
         push_ids = request.query_params.getlist("push_id")
-        no_retriggers = request.query_params.get("no_retriggers")
+        no_retriggers = request.query_params.get("no_retriggers", False)
         no_retriggers = OptionalBooleanField().to_internal_value(no_retriggers)
 
         try:
@@ -702,16 +702,17 @@ class PerformanceSummary(generics.ListAPIView):
         """
         Removes data points resulted from retriggers
         """
-        for data_points in serialized_data:
-            delectable_idxes, seen_push_id = [], None
-            for _idx, datum in enumerate(data_points['data']):
+        for perf_summary in serialized_data:
+            deletable_idxs, seen_push_id = [], None
+            for idx, datum in enumerate(perf_summary['data']):
                 if seen_push_id == datum['push_id']:
-                    delectable_idxes.append(_idx)
+                    deletable_idxs.append(idx)
                 else:
                     seen_push_id = datum['push_id']
 
-            start, end = delectable_idxes[0], delectable_idxes[-1]
-            del data_points['data'][start : end + 1]
+            if deletable_idxs:
+                start, end = deletable_idxs[0], deletable_idxs[-1]
+                del perf_summary['data'][start : end + 1]
 
         return serialized_data
 

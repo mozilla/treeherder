@@ -22,7 +22,6 @@ from treeherder.webapp.api.utils import to_timestamp
 
 class OptionalBooleanField(serializers.BooleanField):
     def __init__(self, *args, **kwargs):
-        kwargs['required'] = False
         kwargs['default'] = False
         super().__init__(*args, **kwargs)
 
