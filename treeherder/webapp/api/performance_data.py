@@ -670,7 +670,7 @@ class PerformanceSummary(generics.ListAPIView):
             for item in self.queryset:
                 item['data'] = data.values(
                     'value', 'job_id', 'id', 'push_id', 'push_timestamp', 'push__revision'
-                ).order_by('push_timestamp')
+                ).order_by('push_timestamp', 'push_id', 'job_id')
                 item['option_name'] = option_collection_map[item['option_collection_id']]
                 item['repository_name'] = repository_name
 
@@ -693,26 +693,30 @@ class PerformanceSummary(generics.ListAPIView):
         serialized_data = serializer.data
 
         if no_retriggers:
-            serialized_data = self.__filter_out_retriggers(serialized_data)
+            serialized_data = self._filter_out_retriggers(serialized_data)
 
         return Response(data=serialized_data)
 
     @staticmethod
-    def __filter_out_retriggers(serialized_data: List[dict]) -> List[dict]:
+    def _filter_out_retriggers(serialized_data: List[dict]) -> List[dict]:
         """
         Removes data points resulted from retriggers
         """
+
         for perf_summary in serialized_data:
-            deletable_idxs, seen_push_id = [], None
+            retrigger_idxs, seen_push_id = set(), None
             for idx, datum in enumerate(perf_summary['data']):
                 if seen_push_id == datum['push_id']:
-                    deletable_idxs.append(idx)
+                    retrigger_idxs.add(idx)
                 else:
                     seen_push_id = datum['push_id']
 
-            if deletable_idxs:
-                start, end = deletable_idxs[0], deletable_idxs[-1]
-                del perf_summary['data'][start : end + 1]
+            if retrigger_idxs:
+                perf_summary['data'] = [
+                    datum
+                    for idx, datum in enumerate(perf_summary['data'])
+                    if idx not in retrigger_idxs
+                ]
 
         return serialized_data
 

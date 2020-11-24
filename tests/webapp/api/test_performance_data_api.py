@@ -1,10 +1,13 @@
-import datetime
-
+import copy
 import pytest
+import datetime
 from django.urls import reverse
+from collections import defaultdict
 
 from treeherder.model.models import MachinePlatform, Push
+from treeherder.webapp.api.performance_data import PerformanceSummary
 from treeherder.perf.models import PerformanceDatum, PerformanceFramework, PerformanceSignature
+
 
 NOW = datetime.datetime.now()
 ONE_DAY_AGO = NOW - datetime.timedelta(days=1)
@@ -558,3 +561,126 @@ def test_no_retriggers_perf_summary(
     content = response.json()
     assert response.status_code == 200
     assert len(content[0]['data']) == 1
+
+
+def test_filter_out_retriggers():
+    input_data = [
+        {
+            "signature_id": 2247031,
+            "framework_id": 1,
+            "signature_hash": "d8a5c7f306f2f4e5f726adebeb075d560fd7a4af",
+            "platform": "windows7-32-shippable",
+            "test": "",
+            "suite": "about_newtab_with_snippets",
+            "lower_is_better": True,
+            "has_subtests": True,
+            "tags": "",
+            "values": [],
+            "name": "about_newtab_with_snippets opt e10s stylo",
+            "parent_signature": None,
+            "job_ids": [],
+            "repository_name": "autoland",
+            "repository_id": 77,
+            "data": [
+                {
+                    "job_id": None,
+                    "id": 1023332776,
+                    "value": 90.49863386958299,
+                    "push_timestamp": "2020-01-19T00:27:51",
+                    "push_id": 629514,
+                    "revision": "e9a3c8df0fc53e02d6fdd72f0a30e2fa88583077",
+                },
+                {
+                    "job_id": None,
+                    "id": 1023470518,
+                    "value": 91.74966307216434,
+                    "push_timestamp": "2020-01-19T16:00:58",
+                    "push_id": 629559,
+                    "revision": "045f16984963e58acb06bd7abf3af4f251feb898",
+                },
+                {
+                    "job_id": None,
+                    "id": 1023510351,
+                    "value": 91.99462350050132,
+                    "push_timestamp": "2020-01-19T18:23:40",
+                    "push_id": 629559,
+                    "revision": "1c9b97bed37830e39642bfa7e73dbc2ea860662a",
+                },
+                {
+                    "job_id": None,
+                    "id": 1023598611,
+                    "value": 93.74967018412258,
+                    "push_timestamp": "2020-01-19T22:19:05",
+                    "push_id": 629559,
+                    "revision": "bf297c03f0b7605ea3ea64320a3a4ce2b29f591f",
+                },
+                {
+                    "job_id": None,
+                    "id": 1023634055,
+                    "value": 99.99504938362082,
+                    "push_timestamp": "2020-01-20T01:42:32",
+                    "push_id": 629630,
+                    "revision": "f42dd5b1ffd6651e3ad2a2f218eb48c8a3a6825e",
+                },
+                {
+                    "job_id": None,
+                    "id": 1023692975,
+                    "value": 89.99999999999997,
+                    "push_timestamp": "2020-01-20T06:39:01",
+                    "push_id": 629630,
+                    "revision": "206cec28723abd20274126812c861e16f9f683d5",
+                },
+            ],
+        }
+    ]
+
+    filtered_data = PerformanceSummary._filter_out_retriggers(copy.deepcopy(input_data))
+    for perf_summary in filtered_data:
+        push_id_count = defaultdict(int)
+        for idx, datum in enumerate(perf_summary['data']):
+            push_id_count[datum['push_id']] += 1
+        for push_id in push_id_count:
+            assert push_id_count[push_id] == 1
+
+    assert len(filtered_data[0]['data']) == 3
+
+    no_retriggers_data = [
+        {
+            "signature_id": 2247031,
+            "framework_id": 1,
+            "signature_hash": "d8a5c7f306f2f4e5f726adebeb075d560fd7a4af",
+            "platform": "windows7-32-shippable",
+            "test": "",
+            "suite": "about_newtab_with_snippets",
+            "lower_is_better": True,
+            "has_subtests": True,
+            "tags": "",
+            "values": [],
+            "name": "about_newtab_with_snippets opt e10s stylo",
+            "parent_signature": None,
+            "job_ids": [],
+            "repository_name": "autoland",
+            "repository_id": 77,
+            "data": [
+                {
+                    "job_id": None,
+                    "id": 1023332776,
+                    "value": 90.49863386958299,
+                    "push_timestamp": "2020-01-19T00:27:51",
+                    "push_id": 629514,
+                    "revision": "e9a3c8df0fc53e02d6fdd72f0a30e2fa88583077",
+                },
+                {
+                    "job_id": None,
+                    "id": 1023692975,
+                    "value": 89.99999999999997,
+                    "push_timestamp": "2020-01-20T06:39:01",
+                    "push_id": 629630,
+                    "revision": "206cec28723abd20274126812c861e16f9f683d5",
+                },
+            ],
+        }
+    ]
+
+    filtered_data = PerformanceSummary._filter_out_retriggers(copy.deepcopy(no_retriggers_data))
+    assert filtered_data == no_retriggers_data
