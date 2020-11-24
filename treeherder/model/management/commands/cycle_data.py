@@ -41,7 +41,7 @@ class TreeherderCycler(DataCycler):
     DEFAULT_CYCLE_INTERVAL = 120  # in days
 
     def __init__(
-        self, days: int, chunk_size: int, sleep_time: int, is_debug: bool = None, **kwargs
+        self, chunk_size: int, sleep_time: int, is_debug: bool = None, days: int = None, **kwargs
     ):
         super().__init__(chunk_size, sleep_time, is_debug, **kwargs)
         self.days = days or self.DEFAULT_CYCLE_INTERVAL
@@ -187,7 +187,7 @@ class PerfherderCycler(DataCycler):
                         break  # either finished removing all expired data or failed
                     else:
                         any_successful_attempt = True
-                        logger.warning(
+                        logger.debug(
                             'Successfully deleted {} performance datum rows'.format(deleted_rows)
                         )
 
@@ -240,6 +240,7 @@ class MainRemovalStrategy(RemovalStrategy):
 
     # WARNING!! Don't override this without proper approval!
     CYCLE_INTERVAL = 365  # in days                        #
+
     ########################################################
 
     def __init__(self, chunk_size: int):
