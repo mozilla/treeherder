@@ -11,6 +11,10 @@ import { faCheck } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { Link } from 'react-router-dom';
 
+import {
+  thDefaultFilterResultStatuses,
+  arraysEqual,
+} from '../../helpers/filter';
 import { thAllResultStatuses } from '../../helpers/constants';
 import { setSelectedJob, clearSelectedJob } from '../redux/stores/selectedJob';
 import { pinJobs } from '../redux/stores/pinnedJobs';
@@ -77,7 +81,30 @@ function FiltersMenu(props) {
         <DropdownItem divider />
         <DropdownItem
           tag="a"
-          onClick={() => filterModel.toggleClassifiedFilter('classified')}
+          onClick={() =>
+            arraysEqual(resultStatus, thDefaultFilterResultStatuses)
+              ? filterModel.toggleClassifiedFailures()
+              : filterModel.resetNonFieldFilters()
+          }
+        >
+          <FontAwesomeIcon
+            icon={faCheck}
+            className={`mr-1 ${
+              arraysEqual(resultStatus, thDefaultFilterResultStatuses)
+                ? ''
+                : 'hide'
+            }`}
+            title={
+              arraysEqual(resultStatus, thDefaultFilterResultStatuses)
+                ? 'Selected'
+                : ''
+            }
+          />
+          All jobs
+        </DropdownItem>
+        <DropdownItem
+          tag="a"
+          onClick={() => filterModel.toggleClassifiedFailures()}
         >
           <FontAwesomeIcon
             icon={faCheck}
@@ -86,11 +113,11 @@ function FiltersMenu(props) {
             }`}
             title={classifiedState.includes('classified') ? 'Selected' : ''}
           />
-          classified
+          All failures
         </DropdownItem>
         <DropdownItem
           tag="a"
-          onClick={() => filterModel.toggleClassifiedFilter('unclassified')}
+          onClick={() => filterModel.toggleUnclassifiedFailures()}
         >
           <FontAwesomeIcon
             icon={faCheck}
@@ -99,7 +126,7 @@ function FiltersMenu(props) {
             }`}
             title={classifiedState.includes('unclassified') ? 'Selected' : ''}
           />
-          unclassified
+          Unclassified failures
         </DropdownItem>
         <DropdownItem divider />
         <DropdownItem
