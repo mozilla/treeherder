@@ -438,11 +438,8 @@ class IrrelevantDataRemoval(RemovalStrategy):
 
 class StalledDataRemoval(RemovalStrategy):
     """
-    Removes `performance_signature` rows that haven't
-    been updated in the last 4 months.
-
-    Also removes all their associated `performance_datum`
-    & `performance_alert` rows.
+    Removes `performance_datum` rows from `performance_signature`s
+    that haven't been updated in the last 4 months.
     """
 
     def __init__(self, chunk_size: int):
