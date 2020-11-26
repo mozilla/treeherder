@@ -216,7 +216,12 @@ def test_cycle_job_with_performance_data(
     ],
 )
 def test_cycle_performance_data(
-    test_repository, try_repository, repository_name, push_stored, test_perf_signature
+    test_repository,
+    try_repository,
+    repository_name,
+    push_stored,
+    test_perf_signature,
+    mock_taskcluster_notify,
 ):
     test_repository.name = repository_name
     test_repository.save()
@@ -277,7 +282,7 @@ def test_cycle_performance_data(
     ]
 
 
-def test_performance_signatures_are_deleted(test_perf_signature):
+def test_performance_signatures_are_deleted(test_perf_signature, mock_taskcluster_notify):
     cycler = PerfherderCycler(chunk_size=100, sleep_time=0)
     expired_timestamp = cycler.max_timestamp
 
@@ -321,6 +326,7 @@ def test_try_data_removal(
     try_push_stored,
     test_perf_signature,
     test_perf_signature_2,
+    mock_taskcluster_notify,
 ):
     total_removals = 3
     test_perf_signature.repository = try_repository
@@ -378,6 +384,7 @@ def test_irrelevant_repos_data_removal(
     repository_name,
     push_stored,
     test_perf_signature,
+    mock_taskcluster_notify,
 ):
     # test_repository is considered irrelevant repositories
 
@@ -432,7 +439,9 @@ def test_irrelevant_repos_data_removal(
     ).exists()
 
 
-def test_signature_remover(test_perf_signature, test_perf_signature_2, test_perf_data):
+def test_signature_remover(
+    test_perf_signature, test_perf_signature_2, test_perf_data, mock_taskcluster_notify
+):
     cycler = PerfherderCycler(chunk_size=100, sleep_time=0)
     expired_timestamp = cycler.max_timestamp
     test_perf_signature_2.last_updated = expired_timestamp
@@ -449,7 +458,7 @@ def test_signature_remover(test_perf_signature, test_perf_signature_2, test_perf
 
 
 def test_signature_remover_when_notify_service_is_down(
-    test_perf_signature, test_perf_signature_2, test_perf_data
+    test_perf_signature, test_perf_signature_2, test_perf_data, mock_taskcluster_notify
 ):
     taskcluster.Notify().ping.side_effect = Exception('Email Service is down.')
 
@@ -461,28 +470,28 @@ def test_signature_remover_when_notify_service_is_down(
 
 
 @pytest.mark.parametrize('total_signatures', [3, 4, 8, 10])
-def test_nr_emails_sent(test_perf_signature, total_signatures):
+def test_total_emails_sent(test_perf_signature, total_signatures):
     tc_model = MagicMock()
     timer = MaxRuntime()
     timer.start_timer()
-    nr_of_rows = 2
-    nr_of_emails = 4
+    total_rows = 2
+    total_emails = 4
     signatures_remover = PublicSignatureRemover(
         timer=timer,
         taskcluster_model=tc_model,
-        max_rows_allowed=nr_of_rows,
-        max_emails_allowed=nr_of_emails,
+        max_rows_allowed=total_rows,
+        max_emails_allowed=total_emails,
     )
 
-    for nr in range(0, total_signatures):
+    for n in range(0, total_signatures):
         PerformanceSignature.objects.create(
             repository=test_perf_signature.repository,
-            signature_hash=(20 * ('t%s' % nr)),
+            signature_hash=(20 * ('t%s' % n)),
             framework=test_perf_signature.framework,
             platform=test_perf_signature.platform,
             option_collection=test_perf_signature.option_collection,
-            suite='mysuite%s' % nr,
-            test='mytest%s' % nr,
+            suite='mysuite%s' % n,
+            test='mytest%s' % n,
             application='firefox',
             has_subtests=test_perf_signature.has_subtests,
             extra_options=test_perf_signature.extra_options,
@@ -490,9 +499,9 @@ def test_nr_emails_sent(test_perf_signature, total_signatures):
         )
 
     total_signatures += 1  # is incremented because of test_perf_signature
-    nr_of_possible_emails = math.ceil(total_signatures / nr_of_rows)
+    total_of_possible_emails = math.ceil(total_signatures / total_rows)
     expected_call_count = (
-        nr_of_possible_emails if nr_of_possible_emails <= nr_of_emails else nr_of_emails
+        total_of_possible_emails if total_of_possible_emails <= total_emails else total_emails
     )
 
     signatures = PerformanceSignature.objects.filter(last_updated__lte=datetime.now())
@@ -503,7 +512,7 @@ def test_nr_emails_sent(test_perf_signature, total_signatures):
     )  # the email is sent to two email scopes
 
 
-def test_performance_cycler_quit_indicator():
+def test_performance_cycler_quit_indicator(mock_taskcluster_notify):
     ten_minutes_ago = datetime.now() - timedelta(minutes=10)
     one_second = timedelta(seconds=1)
 
@@ -547,7 +556,9 @@ def empty_alert_summary(
         datetime.now() - timedelta(days=180, hours=1),
     ],
 )
-def test_summary_without_any_kind_of_alerts_is_deleted(expired_time, empty_alert_summary):
+def test_summary_without_any_kind_of_alerts_is_deleted(
+    expired_time, empty_alert_summary, mock_taskcluster_notify
+):
     empty_alert_summary.created = expired_time
     empty_alert_summary.save()
 
@@ -568,7 +579,9 @@ def test_summary_without_any_kind_of_alerts_is_deleted(expired_time, empty_alert
         datetime.now() - timedelta(days=179, hours=23),
     ],
 )
-def test_summary_without_any_kind_of_alerts_isnt_deleted(recently, empty_alert_summary):
+def test_summary_without_any_kind_of_alerts_isnt_deleted(
+    recently, empty_alert_summary, mock_taskcluster_notify
+):
     empty_alert_summary.created = recently
     empty_alert_summary.save()
 
@@ -600,6 +613,7 @@ def test_summary_with_alerts_isnt_deleted(
     test_perf_alert,
     test_perf_alert_2,
     test_perf_data,
+    mock_taskcluster_notify,
 ):
     empty_alert_summary.created = creation_time
     empty_alert_summary.save()

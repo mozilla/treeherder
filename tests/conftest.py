@@ -257,7 +257,7 @@ def mock_log_parser(monkeypatch):
     monkeypatch.setattr(tasks, 'parse_logs', task_mock)
 
 
-@pytest.fixture(autouse=True)
+@pytest.fixture
 def mock_taskcluster_notify(monkeypatch):
     monkeypatch.setattr(taskcluster, 'Notify', MagicMock())
 
