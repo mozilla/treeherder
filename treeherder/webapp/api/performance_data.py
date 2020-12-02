@@ -10,6 +10,7 @@ from django.db.models.functions import Concat
 from rest_framework import exceptions, filters, generics, pagination, viewsets
 from rest_framework.response import Response
 from rest_framework.status import HTTP_400_BAD_REQUEST
+from typing import List
 
 from treeherder.model import models
 from treeherder.perf.alerts import get_alert_properties
@@ -25,6 +26,7 @@ from treeherder.perf.models import (
     PerformanceTag,
 )
 from treeherder.webapp.api.permissions import IsStaffOrReadOnly
+from treeherder.webapp.api.performance_serializers import OptionalBooleanField
 
 from .exceptions import InsufficientAlertCreationData
 from .performance_serializers import (
@@ -213,6 +215,9 @@ class PerformanceDatumViewSet(viewsets.ViewSet):
         signature_hashes = request.query_params.getlist("signatures")  # deprecated
         signature_ids = request.query_params.getlist("signature_id")
         push_ids = request.query_params.getlist("push_id")
+        no_retriggers = request.query_params.get("no_retriggers", False)
+        no_retriggers = OptionalBooleanField().to_internal_value(no_retriggers)
+
         try:
             job_ids = [int(job_id) for job_id in request.query_params.getlist("job_id")]
         except ValueError:
@@ -271,7 +276,7 @@ class PerformanceDatumViewSet(viewsets.ViewSet):
         if end_date:
             datums = datums.filter(push_timestamp__lt=end_date)
 
-        ret = defaultdict(list)
+        ret, seen_push_ids = defaultdict(list), defaultdict(set)
         values_list = datums.values_list(
             'id',
             'signature_id',
@@ -292,17 +297,25 @@ class PerformanceDatumViewSet(viewsets.ViewSet):
             value,
             push__revision,
         ) in values_list:
-            ret[signature_hash].append(
-                {
-                    'id': id,
-                    'signature_id': signature_id,
-                    'job_id': job_id,
-                    'push_id': push_id,
-                    'revision': push__revision,
-                    'push_timestamp': int(time.mktime(push_timestamp.timetuple())),
-                    'value': round(value, 2),  # round to 2 decimal places
-                }
-            )
+            should_include_datum = True
+            if no_retriggers:
+                if push_id in seen_push_ids[signature_hash]:
+                    should_include_datum = False
+                else:
+                    seen_push_ids[signature_hash].add(push_id)
+
+            if should_include_datum:
+                ret[signature_hash].append(
+                    {
+                        'id': id,
+                        'signature_id': signature_id,
+                        'job_id': job_id,
+                        'push_id': push_id,
+                        'revision': push__revision,
+                        'push_timestamp': int(time.mktime(push_timestamp.timetuple())),
+                        'value': round(value, 2),  # round to 2 decimal places
+                    }
+                )
 
         return Response(ret)
 
@@ -580,6 +593,7 @@ class PerformanceSummary(generics.ListAPIView):
         signature = query_params.validated_data['signature']
         no_subtests = query_params.validated_data['no_subtests']
         all_data = query_params.validated_data['all_data']
+        no_retriggers = query_params.validated_data['no_retriggers']
 
         signature_data = PerformanceSignature.objects.select_related(
             'framework', 'repository', 'platform', 'push', 'job'
@@ -656,7 +670,7 @@ class PerformanceSummary(generics.ListAPIView):
             for item in self.queryset:
                 item['data'] = data.values(
                     'value', 'job_id', 'id', 'push_id', 'push_timestamp', 'push__revision'
-                ).order_by('push_timestamp')
+                ).order_by('push_timestamp', 'push_id', 'job_id')
                 item['option_name'] = option_collection_map[item['option_collection_id']]
                 item['repository_name'] = repository_name
 
@@ -676,7 +690,35 @@ class PerformanceSummary(generics.ListAPIView):
                 item['repository_name'] = repository_name
 
         serializer = self.get_serializer(self.queryset, many=True)
-        return Response(data=serializer.data)
+        serialized_data = serializer.data
+
+        if no_retriggers:
+            serialized_data = self._filter_out_retriggers(serialized_data)
+
+        return Response(data=serialized_data)
+
+    @staticmethod
+    def _filter_out_retriggers(serialized_data: List[dict]) -> List[dict]:
+        """
+        Removes data points resulted from retriggers
+        """
+
+        for perf_summary in serialized_data:
+            retriggered_jobs, seen_push_id = set(), None
+            for idx, datum in enumerate(perf_summary['data']):
+                if seen_push_id == datum['push_id']:
+                    retriggered_jobs.add(idx)
+                else:
+                    seen_push_id = datum['push_id']
+
+            if retriggered_jobs:
+                perf_summary['data'] = [
+                    datum
+                    for idx, datum in enumerate(perf_summary['data'])
+                    if idx not in retriggered_jobs
+                ]
+
+        return serialized_data
 
 
 class TestSuiteHealthViewSet(viewsets.ViewSet):

@@ -1,10 +1,13 @@
-import datetime
-
+import copy
 import pytest
+import datetime
 from django.urls import reverse
+from collections import defaultdict
 
 from treeherder.model.models import MachinePlatform, Push
+from treeherder.webapp.api.performance_data import PerformanceSummary
 from treeherder.perf.models import PerformanceDatum, PerformanceFramework, PerformanceSignature
+
 
 NOW = datetime.datetime.now()
 ONE_DAY_AGO = NOW - datetime.timedelta(days=1)
@@ -205,6 +208,61 @@ def test_filter_signatures_by_framework(
     assert resp.status_code == 200
     assert len(resp.data.keys()) == 1
     assert resp.data[signature2.id]['framework_id'] == signature2.framework.id
+
+
+def test_filter_data_by_no_retriggers(
+    client,
+    test_repository,
+    test_perf_signature,
+    test_perf_signature_2,
+    push_stored,
+    test_perf_signature_same_hash_different_framework,
+):
+    push = Push.objects.get(id=1)
+    push2 = Push.objects.get(id=2)
+
+    signature_for_retrigger_data = test_perf_signature_same_hash_different_framework
+
+    PerformanceDatum.objects.create(
+        repository=test_perf_signature.repository,
+        push=push,
+        signature=test_perf_signature,
+        value=0.0,
+        push_timestamp=push.time,
+    )
+
+    PerformanceDatum.objects.create(
+        repository=signature_for_retrigger_data.repository,
+        push=push,
+        signature=signature_for_retrigger_data,
+        value=0.0,
+        push_timestamp=push.time,
+    )
+
+    # new perf data where the signature has the same hash as the one's above,
+    # but the perf data contains different push id
+    test_perf_signature_2.signature_hash = test_perf_signature.signature_hash
+    test_perf_signature_2.save()
+    PerformanceDatum.objects.create(
+        repository=test_perf_signature_2.repository,
+        push=push2,
+        signature=test_perf_signature_2,
+        value=0.0,
+        push_timestamp=push2.time,
+    )
+
+    resp = client.get(
+        reverse('performance-data-list', kwargs={"project": test_repository.name})
+        + '?signatures={}&no_retriggers=true'.format(test_perf_signature.signature_hash)
+    )
+    assert resp.status_code == 200
+    datums = resp.data[test_perf_signature.signature_hash]
+    assert len(datums) == 2
+    assert set(datum['signature_id'] for datum in datums) == {
+        test_perf_signature.id,
+        test_perf_signature_2.id,
+    }
+    assert signature_for_retrigger_data.id not in set(datum['signature_id'] for datum in datums)
 
 
 def test_filter_data_by_framework(
@@ -465,3 +523,164 @@ def test_perf_summary(client, test_perf_signature, test_perf_data):
     resp2 = client.get(reverse('performance-summary') + query_params2)
     assert resp2.status_code == 200
     assert resp2.json() == expected
+
+
+def test_no_retriggers_perf_summary(
+    client, push_stored, test_perf_signature, test_perf_signature_2, test_perf_data
+):
+    push = Push.objects.get(id=1)
+    query_params = '?repository={}&framework={}&no_subtests=true&revision={}&all_data=true&signature={}'.format(
+        test_perf_signature.repository.name,
+        test_perf_signature.framework_id,
+        push.revision,
+        test_perf_signature.id,
+    )
+
+    PerformanceDatum.objects.create(
+        repository=test_perf_signature.repository,
+        push=push,
+        signature=test_perf_signature,
+        value=0.0,
+        push_timestamp=push.time,
+    )
+
+    PerformanceDatum.objects.create(
+        repository=test_perf_signature_2.repository,
+        push=push,
+        signature=test_perf_signature_2,
+        value=0.0,
+        push_timestamp=push.time,
+    )
+
+    response = client.get(reverse('performance-summary') + query_params)
+    content = response.json()
+    assert response.status_code == 200
+    assert len(content[0]['data']) == 2
+
+    response = client.get(reverse('performance-summary') + query_params + "&no_retriggers=true")
+    content = response.json()
+    assert response.status_code == 200
+    assert len(content[0]['data']) == 1
+
+
+def test_filter_out_retriggers():
+    input_data = [
+        {
+            "signature_id": 2247031,
+            "framework_id": 1,
+            "signature_hash": "d8a5c7f306f2f4e5f726adebeb075d560fd7a4af",
+            "platform": "windows7-32-shippable",
+            "test": "",
+            "suite": "about_newtab_with_snippets",
+            "lower_is_better": True,
+            "has_subtests": True,
+            "tags": "",
+            "values": [],
+            "name": "about_newtab_with_snippets opt e10s stylo",
+            "parent_signature": None,
+            "job_ids": [],
+            "repository_name": "autoland",
+            "repository_id": 77,
+            "data": [
+                {
+                    "job_id": None,
+                    "id": 1023332776,
+                    "value": 90.49863386958299,
+                    "push_timestamp": "2020-01-19T00:27:51",
+                    "push_id": 629514,
+                    "revision": "e9a3c8df0fc53e02d6fdd72f0a30e2fa88583077",
+                },
+                {
+                    "job_id": None,
+                    "id": 1023470518,
+                    "value": 91.74966307216434,
+                    "push_timestamp": "2020-01-19T16:00:58",
+                    "push_id": 629559,
+                    "revision": "045f16984963e58acb06bd7abf3af4f251feb898",
+                },
+                {
+                    "job_id": None,
+                    "id": 1023510351,
+                    "value": 91.99462350050132,
+                    "push_timestamp": "2020-01-19T18:23:40",
+                    "push_id": 629559,
+                    "revision": "1c9b97bed37830e39642bfa7e73dbc2ea860662a",
+                },
+                {
+                    "job_id": None,
+                    "id": 1023598611,
+                    "value": 93.74967018412258,
+                    "push_timestamp": "2020-01-19T22:19:05",
+                    "push_id": 629559,
+                    "revision": "bf297c03f0b7605ea3ea64320a3a4ce2b29f591f",
+                },
+                {
+                    "job_id": None,
+                    "id": 1023634055,
+                    "value": 99.99504938362082,
+                    "push_timestamp": "2020-01-20T01:42:32",
+                    "push_id": 629630,
+                    "revision": "f42dd5b1ffd6651e3ad2a2f218eb48c8a3a6825e",
+                },
+                {
+                    "job_id": None,
+                    "id": 1023692975,
+                    "value": 89.99999999999997,
+                    "push_timestamp": "2020-01-20T06:39:01",
+                    "push_id": 629630,
+                    "revision": "206cec28723abd20274126812c861e16f9f683d5",
+                },
+            ],
+        }
+    ]
+
+    filtered_data = PerformanceSummary._filter_out_retriggers(copy.deepcopy(input_data))
+    for perf_summary in filtered_data:
+        push_id_count = defaultdict(int)
+        for idx, datum in enumerate(perf_summary['data']):
+            push_id_count[datum['push_id']] += 1
+        for push_id in push_id_count:
+            assert push_id_count[push_id] == 1
+
+    assert len(filtered_data[0]['data']) == 3
+
+    no_retriggers_data = [
+        {
+            "signature_id": 2247031,
+            "framework_id": 1,
+            "signature_hash": "d8a5c7f306f2f4e5f726adebeb075d560fd7a4af",
+            "platform": "windows7-32-shippable",
+            "test": "",
+            "suite": "about_newtab_with_snippets",
+            "lower_is_better": True,
+            "has_subtests": True,
+            "tags": "",
+            "values": [],
+            "name": "about_newtab_with_snippets opt e10s stylo",
+            "parent_signature": None,
+            "job_ids": [],
+            "repository_name": "autoland",
+            "repository_id": 77,
+            "data": [
+                {
+                    "job_id": None,
+                    "id": 1023332776,
+                    "value": 90.49863386958299,
+                    "push_timestamp": "2020-01-19T00:27:51",
+                    "push_id": 629514,
+                    "revision": "e9a3c8df0fc53e02d6fdd72f0a30e2fa88583077",
+                },
+                {
+                    "job_id": None,
+                    "id": 1023692975,
+                    "value": 89.99999999999997,
+                    "push_timestamp": "2020-01-20T06:39:01",
+                    "push_id": 629630,
+                    "revision": "206cec28723abd20274126812c861e16f9f683d5",
+                },
+            ],
+        }
+    ]
+
+    filtered_data = PerformanceSummary._filter_out_retriggers(copy.deepcopy(no_retriggers_data))
+    assert filtered_data == no_retriggers_data

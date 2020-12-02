@@ -20,6 +20,12 @@ from treeherder.perf.models import (
 from treeherder.webapp.api.utils import to_timestamp
 
 
+class OptionalBooleanField(serializers.BooleanField):
+    def __init__(self, *args, **kwargs):
+        kwargs['default'] = False
+        super().__init__(*args, **kwargs)
+
+
 class PerformanceDecimalField(serializers.DecimalField):
     def __init__(self, *args, **kwargs):
         kwargs['max_digits'] = 20
@@ -282,7 +288,8 @@ class PerformanceQueryParamsSerializer(serializers.Serializer):
     parent_signature = serializers.CharField(required=False, allow_null=True, default=None)
     signature = serializers.CharField(required=False, allow_null=True, default=None)
     no_subtests = serializers.BooleanField(required=False)
-    all_data = serializers.BooleanField(required=False, default=False)
+    all_data = OptionalBooleanField()
+    no_retriggers = OptionalBooleanField()
 
     def validate(self, data):
         if (
