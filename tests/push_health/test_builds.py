@@ -37,5 +37,5 @@ def test_get_build_failures_with_parent(
     first_build_failure = build_failures[0]
 
     assert result == 'fail'
-    assert len(build_failures) == 5
+    assert len(build_failures) == 2
     assert first_build_failure['failedInParent']
