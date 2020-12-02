@@ -7,6 +7,7 @@ import {
   ButtonGroup,
   ButtonDropdown,
   DropdownToggle,
+  Alert,
 } from 'reactstrap';
 
 import { parseQueryParams, createQueryParams } from '../../helpers/url';
@@ -115,6 +116,9 @@ export default class CompareSelectorView extends React.Component {
     const frameworkNames = frameworks.length
       ? frameworks.map((item) => item.name)
       : [];
+    const showWarning =
+      this.state.originalProject === 'mozilla-central' &&
+      this.state.newProject === 'try';
 
     return (
       <Container fluid className="my-5 pt-5 max-width-default">
@@ -129,6 +133,16 @@ export default class CompareSelectorView extends React.Component {
                   <ErrorMessages errorMessages={errorMessages} />
                 )}
               </Col>
+            </Row>
+            <Row className="justify-content-center">
+              {showWarning ? (
+                <Alert color="warning">
+                  It is not recommended to compare a try build against a
+                  mozilla-central build
+                </Alert>
+              ) : (
+                ''
+              )}
             </Row>
             <Row className="justify-content-center">
               <SelectorCard
