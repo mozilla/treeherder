@@ -7,12 +7,13 @@ import { getPercentComplete } from '../helpers/display';
 const StatusProgress = (props) => {
   const {
     counts: { success, testfailed, busted, running, pending },
+    customStyle,
   } = props;
   const failed = testfailed || 0 + busted || 0;
   const percentComplete = props.counts ? getPercentComplete(props.counts) : 0;
 
   return (
-    <React.Fragment>
+    <div className={customStyle}>
       <VictoryPie
         data={[
           { x: 'success', y: success },
@@ -34,12 +35,17 @@ const StatusProgress = (props) => {
         <div className="metric-name">{percentComplete}%</div>
         <div>Complete</div>
       </div>
-    </React.Fragment>
+    </div>
   );
 };
 
 StatusProgress.propTypes = {
   counts: PropTypes.objectOf(PropTypes.number).isRequired,
+  customStyle: PropTypes.string,
+};
+
+StatusProgress.defaultProps = {
+  customStyle: '',
 };
 
 export default StatusProgress;

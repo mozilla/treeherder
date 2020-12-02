@@ -1,6 +1,6 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import { Container, Spinner, Col, Row, Navbar, Button, Nav } from 'reactstrap';
+import { Container, Spinner, Navbar, Button, Nav } from 'reactstrap';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import camelCase from 'lodash/camelCase';
 import { Helmet } from 'react-helmet';
@@ -207,11 +207,12 @@ export default class Health extends React.PureComponent {
         <Container fluid className="mt-2 mb-5 max-width-default">
           {!!tests && !!currentRepo && (
             <React.Fragment>
-              <Row>
-                <Col xs="2">
-                  <StatusProgress counts={status} />
-                </Col>
-                <Col className="mt-4 ml-2">
+              <div className="d-flex my-5">
+                <StatusProgress
+                  counts={status}
+                  customStyle="progress-relative"
+                />
+                <div className="mt-4 ml-2">
                   {commitHistory.details && (
                     <CommitHistory
                       history={commitHistory.details}
@@ -220,8 +221,8 @@ export default class Health extends React.PureComponent {
                       compareWithParent={this.compareWithParent}
                     />
                   )}
-                </Col>
-              </Row>
+                </div>
+              </div>
               <div className="mb-3" />
               <Tabs
                 className="w-100 h-100 mr-5 mt-2"

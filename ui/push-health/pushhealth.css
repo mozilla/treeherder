@@ -11,6 +11,11 @@ body {
   text-align: center;
 }
 
+.progress-relative {
+  position: relative;
+  min-width: 180px;
+}
+
 input[type='checkbox'] {
   transform: scale(1.2);
 }
