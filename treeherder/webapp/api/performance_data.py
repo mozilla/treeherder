@@ -704,18 +704,18 @@ class PerformanceSummary(generics.ListAPIView):
         """
 
         for perf_summary in serialized_data:
-            retrigger_idxs, seen_push_id = set(), None
+            retriggered_jobs, seen_push_id = set(), None
             for idx, datum in enumerate(perf_summary['data']):
                 if seen_push_id == datum['push_id']:
-                    retrigger_idxs.add(idx)
+                    retriggered_jobs.add(idx)
                 else:
                     seen_push_id = datum['push_id']
 
-            if retrigger_idxs:
+            if retriggered_jobs:
                 perf_summary['data'] = [
                     datum
                     for idx, datum in enumerate(perf_summary['data'])
-                    if idx not in retrigger_idxs
+                    if idx not in retriggered_jobs
                 ]
 
         return serialized_data
