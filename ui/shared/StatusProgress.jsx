@@ -7,12 +7,13 @@ import { getPercentComplete } from '../helpers/display';
 const StatusProgress = (props) => {
   const {
     counts: { success, testfailed, busted, running, pending },
+    customStyle,
   } = props;
   const failed = testfailed || 0 + busted || 0;
   const percentComplete = props.counts ? getPercentComplete(props.counts) : 0;
 
   return (
-    <div className="relative">
+    <div className={customStyle}>
       <VictoryPie
         data={[
           { x: 'success', y: success },
@@ -25,14 +26,13 @@ const StatusProgress = (props) => {
           <VictoryTooltip pointerLength={0} flyoutComponent={<div />} />
         }
         labelRadius={({ innerRadius }) => innerRadius}
-        height={200}
-        width={200}
-        padding={{ top: 15, bottom: 15 }}
+        height={250}
+        width={250}
         innerRadius={70}
         radius={85}
       />
-      <div className="absolute">
-        <div style={{ fontSize: '30px' }}>{percentComplete}%</div>
+      <div className="absolute-progress">
+        <div className="metric-name">{percentComplete}%</div>
         <div>Complete</div>
       </div>
     </div>
@@ -41,6 +41,11 @@ const StatusProgress = (props) => {
 
 StatusProgress.propTypes = {
   counts: PropTypes.objectOf(PropTypes.number).isRequired,
+  customStyle: PropTypes.string,
+};
+
+StatusProgress.defaultProps = {
+  customStyle: '',
 };
 
 export default StatusProgress;

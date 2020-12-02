@@ -1,0 +1,336 @@
+[
+  {
+    "revision": "8f538bc9c23b1bce55abfa3fd21d4239eee80e61",
+    "repository": "try",
+    "testFailureCount": 109,
+    "buildFailureCount": 13,
+    "lintFailureCount": 0,
+    "needInvestigation": 122,
+    "status": {
+      "completed": 1371,
+      "pending": 0,
+      "running": 0,
+      "success": 1351,
+      "retry": 19,
+      "exception": 1
+    },
+    "history": [
+      {
+        "id": 812348,
+        "revision": "8f538bc9c23b1bce55abfa3fd21d4239eee80e61",
+        "author": "ccoroiu@mozilla.com",
+        "revisions": [
+          {
+            "result_set_id": 812348,
+            "repository_id": 4,
+            "revision": "8f538bc9c23b1bce55abfa3fd21d4239eee80e61",
+            "author": "Cristina Coroiu <ccoroiu@mozilla.com>",
+            "comments": "staging release: 84.0b1\n\nPushed via `mach try release`"
+          },
+          {
+            "result_set_id": 812348,
+            "repository_id": 4,
+            "revision": "030084e409466a63bbede17083bccfd6a5c42a4c",
+            "author": "Nicolas B. Pierron <nicolas.b.pierron@nbp.name>",
+            "comments": "Bug 1674436 - Share Prepare/Execute functions across JIT test cases.\n\nDifferential Revision: https://phabricator.services.mozilla.com/D95384"
+          },
+          {
+            "result_set_id": 812348,
+            "repository_id": 4,
+            "revision": "b1d72b69a8e6bbb434ca106f8ea9e28ad26ea9ea",
+            "author": "Butkovits Atila <abutkovits@mozilla.com>",
+            "comments": "Backed out 4 changesets (bug 1621454) for causing bustage src/swgl_ext.h. a=backout\n\nBacked out changeset d0d03d5a81a8 (bug 1621454)\nBacked out changeset 6675f76d6f11 (bug 1621454)\nBacked out changeset 29943d5348df (bug 1621454)\nBacked out changeset 80c0aaa81c2e (bug 1621454)"
+          }
+        ],
+        "revision_count": 3,
+        "push_timestamp": 1604143587,
+        "repository_id": 4
+      }
+    ],
+    "metrics": {
+      "linting": {
+        "name": "Linting",
+        "result": "pass"
+      },
+      "tests": {
+        "name": "Tests",
+        "result": "fail"
+      },
+      "builds": {
+        "name": "Builds",
+        "result": "fail"
+      }
+    }
+  },
+  {
+    "revision": "a140a5639e7b145066a3e6232217674294c9eeda",
+    "repository": "try",
+    "testFailureCount": 0,
+    "buildFailureCount": 4,
+    "lintFailureCount": 0,
+    "needInvestigation": 4,
+    "status": {
+      "completed": 1316,
+      "pending": 0,
+      "running": 0,
+      "success": 1276,
+      "retry": 40
+    },
+    "history": [
+      {
+        "id": 800224,
+        "revision": "a140a5639e7b145066a3e6232217674294c9eeda",
+        "author": "ccoroiu@mozilla.com",
+        "revisions": [
+          {
+            "result_set_id": 800224,
+            "repository_id": 4,
+            "revision": "a140a5639e7b145066a3e6232217674294c9eeda",
+            "author": "Cristina Coroiu <ccoroiu@mozilla.com>",
+            "comments": "staging release: 83.0b1\n\nPushed via `mach try release`"
+          },
+          {
+            "result_set_id": 800224,
+            "repository_id": 4,
+            "revision": "0a19938d6a2ab895075753ee2e9cbcb0d4d7ea18",
+            "author": "Nicolas Chevobbe <nchevobbe@mozilla.com>",
+            "comments": "Bug 1660609 - [devtool] Fix browser_console_devtools_loader_exception.js failure on Beta. r=ladybenko.\n\n\nThis test was failing on Beta because we are using the targetList to wait for\na given source to be available, in order to avoid pending connection to the\nserver (that were happening when the targetList was trying to attach the thread\nof the target), but on Beta, for the browser console, we don't listen for anything\nwith the targetList if the Browser Toolbox fission pref is disabled.\nTo fix the test, we check the pref and wait for the target only if it's enabled.\n\nDifferential Revision: https://phabricator.services.mozilla.com/D92877\n\nDepends on D92876"
+          },
+          {
+            "result_set_id": 800224,
+            "repository_id": 4,
+            "revision": "37fcabf03c8326631a587343fd4a067573128ac8",
+            "author": "Nicolas Chevobbe <nchevobbe@mozilla.com>",
+            "comments": "Bug 1660609 - [devtools] Fix browser_jsterm_hide_when_devtools_chrome_enabled_false.js failures on Beta. r=ladybenko.\n\n\nThis test was using the browser console targetList to wait for a specific worker\ntarget to be available. This was failing on Beta because for the Browser Console,\nwe only listen for workers if the browser toolbox fission pref is enabled, which\nis the case on Nightly, but not on Beta.\n\nTo fix the test, we check the pref and wait for the target only if it's enabled.\n\nDifferential Revision: https://phabricator.services.mozilla.com/D92876"
+          },
+          {
+            "result_set_id": 800224,
+            "repository_id": 4,
+            "revision": "725180017480c46f17faddc71ee35dcca39db109",
+            "author": "Timothy Nikkel <tnikkel@gmail.com>",
+            "comments": "Bug 1670343. Call SetVisualViewportOffset after nsHTMLScrollFrame::Reflow so we can add a weak frame check around it. r=kats\n\nDifferential Revision: https://phabricator.services.mozilla.com/D93147"
+          },
+          {
+            "result_set_id": 800224,
+            "repository_id": 4,
+            "revision": "844c3d925e9e1b97449abbcf9a8cda9f0b139c51",
+            "author": "Itiel <itiel_yn8@walla.com>",
+            "comments": "Bug 1669756 - Align the labels in Add Engine to the textboxes, and force LTR the engine URL input r=ntim,preferences-reviewers\n\nDifferential Revision: https://phabricator.services.mozilla.com/D92783"
+          },
+          {
+            "result_set_id": 800224,
+            "repository_id": 4,
+            "revision": "2468b16a890c3a8091daf116ed82cc07b5cd7597",
+            "author": "Tim Nguyen <ntim.bugs@gmail.com>",
+            "comments": "Bug 1632351 - Enable CSS conic-gradient by default and let it ride the trains. r=emilio\n\nDifferential Revision: https://phabricator.services.mozilla.com/D93024"
+          },
+          {
+            "result_set_id": 800224,
+            "repository_id": 4,
+            "revision": "4e4b334fecfdc052a3bbc891789764da298fb9d6",
+            "author": "Dão Gottwald <dao@mozilla.com>",
+            "comments": "Bug 1650580 - Fix menu-arrow.svg and stop misusing back-12.svg. r=Gijs\n\nDifferential Revision: https://phabricator.services.mozilla.com/D92933"
+          }
+        ],
+        "revision_count": 7,
+        "push_timestamp": 1602410703,
+        "repository_id": 4
+      }
+    ],
+    "metrics": {
+      "linting": {
+        "name": "Linting",
+        "result": "pass"
+      },
+      "tests": {
+        "name": "Tests",
+        "result": "pass"
+      },
+      "builds": {
+        "name": "Builds",
+        "result": "fail"
+      }
+    }
+  },
+  {
+    "revision": "35551ddfa195faf7818a9a92101523e588787449",
+    "repository": "try",
+    "testFailureCount": 27,
+    "buildFailureCount": 0,
+    "lintFailureCount": 0,
+    "needInvestigation": 27,
+    "status": {
+      "completed": 945,
+      "pending": 0,
+      "running": 0,
+      "success": 923,
+      "retry": 22
+    },
+    "history": [
+      {
+        "id": 780752,
+        "revision": "35551ddfa195faf7818a9a92101523e588787449",
+        "author": "ccoroiu@mozilla.com",
+        "revisions": [
+          {
+            "result_set_id": 780752,
+            "repository_id": 4,
+            "revision": "35551ddfa195faf7818a9a92101523e588787449",
+            "author": "Cristina Coroiu <ccoroiu@mozilla.com>",
+            "comments": "staging release: 81.0\n\nPushed via `mach try release`"
+          },
+          {
+            "result_set_id": 780752,
+            "repository_id": 4,
+            "revision": "ca39475784ddc1b65a068ef20a2ba50e166da0b4",
+            "author": "Mozilla Releng Treescript <release+treescript@mozilla.org>",
+            "comments": "no bug - Bumping Firefox l10n changesets r=release a=l10n-bump DONTBUILD\n\nca -> 25848f33c39ef70b0fb29ff0e13383fcbcd5c056"
+          },
+          {
+            "result_set_id": 780752,
+            "repository_id": 4,
+            "revision": "9784454a4bea2c4643731538489c90225c5efc19",
+            "author": "Mozilla Releng Treescript <release+treescript@mozilla.org>",
+            "comments": "no bug - Bumping Firefox l10n changesets r=release a=l10n-bump DONTBUILD\n\nkab -> cf1e4948f7349730307d8551a87b0ea87022201d"
+          },
+          {
+            "result_set_id": 780752,
+            "repository_id": 4,
+            "revision": "8bd444ea5d738470f0f1578ac3d4a44c24b88ae8",
+            "author": "Mozilla Releng Treescript <release+treescript@mozilla.org>",
+            "comments": "no bug - Bumping Firefox l10n changesets r=release a=l10n-bump DONTBUILD\n\nlt -> c80aa422bedfed3e1ea021796acfefb5e44e97cf"
+          },
+          {
+            "result_set_id": 780752,
+            "repository_id": 4,
+            "revision": "29229cad6ee6f2d6925069282fe839c8900a7aaf",
+            "author": "Mozilla Releng Treescript <release+treescript@mozilla.org>",
+            "comments": "no bug - Bumping Firefox l10n changesets r=release a=l10n-bump DONTBUILD\n\nlt -> 9d7d763200270b4c6dc25114c3731bd657dbc40e\npl -> 99bbe58139d1582ac477290c5233c7a14032e533"
+          },
+          {
+            "result_set_id": 780752,
+            "repository_id": 4,
+            "revision": "0d16e1e1559d022b0071881591fa1b4ec1a97989",
+            "author": "Mozilla Releng Treescript <release+treescript@mozilla.org>",
+            "comments": "no bug - Bumping Firefox l10n changesets r=release a=l10n-bump DONTBUILD\n\nlt -> 242a344eef5b2d23fb65e73eaac7b52a2fda41aa\nnn-NO -> 2359ba5f7faf038c94c6b515240879ed1dc1661b\nsv-SE -> 524729f65b087b71b202c8443b4b2c489cea8a3b"
+          },
+          {
+            "result_set_id": 780752,
+            "repository_id": 4,
+            "revision": "0ac379f3be3cf846d2e3d0d18b9116ed273f2359",
+            "author": "Sebastian Hengst <archaeopteryx@coole-files.de>",
+            "comments": "No bug - unset EARLY_BETA_OR_EARLIER. a=me"
+          },
+          {
+            "result_set_id": 780752,
+            "repository_id": 4,
+            "revision": "3c6c10667f526bc6446ef9702aa649212e60f3e4",
+            "author": "Mozilla Releng Treescript <release+treescript@mozilla.org>",
+            "comments": "no bug - Bumping Firefox l10n changesets r=release a=l10n-bump DONTBUILD\n\nfi -> 1539431f356673f15d4daea63e29a3a77b12d902\nte -> da18351f87d42c6e16a8b4e2c4abf20f7f9a4f48"
+          },
+          {
+            "result_set_id": 780752,
+            "repository_id": 4,
+            "revision": "0561830a37e417168189130b971100e071370d38",
+            "author": "Mozilla Releng Treescript <release+treescript@mozilla.org>",
+            "comments": "no bug - Bumping Firefox l10n changesets r=release a=l10n-bump DONTBUILD\n\nja -> 84f958ddb051c8b8b9f3e737f240d2a7f390fb1f\nja-JP-mac -> b389f4ab93faebfa1cf30be9febf5825c117479c"
+          },
+          {
+            "result_set_id": 780752,
+            "repository_id": 4,
+            "revision": "17d9c896fd2e671d8ea778abbbbf6a61e0c8d10b",
+            "author": "Mozilla Releng Treescript <release+treescript@mozilla.org>",
+            "comments": "no bug - Bumping Firefox l10n changesets r=release a=l10n-bump DONTBUILD\n\ncak -> fad0dc55d63285f52e624dd28311d8cf3f1bcd44"
+          },
+          {
+            "result_set_id": 780752,
+            "repository_id": 4,
+            "revision": "4463041f4d8f3b5ee34c4afff41dd11359997548",
+            "author": "Mozilla Releng Treescript <release+treescript@mozilla.org>",
+            "comments": "no bug - Bumping Firefox l10n changesets r=release a=l10n-bump DONTBUILD\n\ncak -> 6a72db0680dfad559a1096fa17639c26cdc1f094"
+          },
+          {
+            "result_set_id": 780752,
+            "repository_id": 4,
+            "revision": "0d2cb79119758248fd9caf6f9c9185ecafdcf4d2",
+            "author": "Mozilla Releng Treescript <release+treescript@mozilla.org>",
+            "comments": "no bug - Bumping Firefox l10n changesets r=release a=l10n-bump DONTBUILD\n\npt-PT -> 2c17252c21a5359504a268507e8bf40ed82fa1e6"
+          },
+          {
+            "result_set_id": 780752,
+            "repository_id": 4,
+            "revision": "09d70e0f21985b56aadf14d579750ccaa78b6370",
+            "author": "Mozilla Releng Treescript <release+treescript@mozilla.org>",
+            "comments": "no bug - Bumping Firefox l10n changesets r=release a=l10n-bump DONTBUILD\n\nast -> ea0aa635801d00d0acb195a36adda6100a455ce0\nrm -> ce68282481fa59ab68d55a7c43287287e3976a1f\nte -> e8076c3462eabbe902554e71bf0e6b9e5da5247c"
+          },
+          {
+            "result_set_id": 780752,
+            "repository_id": 4,
+            "revision": "f135ba9a315d01c1292e20ad59b54ac0e121ec85",
+            "author": "Mozilla Releng Treescript <release+treescript@mozilla.org>",
+            "comments": "no bug - Bumping Firefox l10n changesets r=release a=l10n-bump DONTBUILD\n\nes-CL -> 139f195e783bb9d428db742c905db0f9c0c04743\nru -> 9590744c862f334056687788289bcd435f201506"
+          },
+          {
+            "result_set_id": 780752,
+            "repository_id": 4,
+            "revision": "19657c6714ae8c409227fa7763505891a4a6df4f",
+            "author": "Mozilla Releng Treescript <release+treescript@mozilla.org>",
+            "comments": "no bug - Bumping Firefox l10n changesets r=release a=l10n-bump DONTBUILD\n\nja -> 9b2256c9c5752c4c735823cc8759e4b9daeb702e\nja-JP-mac -> eb5d58030f82c77ec5a44c017396dbf464cdd2b2"
+          },
+          {
+            "result_set_id": 780752,
+            "repository_id": 4,
+            "revision": "06f7e13ddbe120c096bfb24e10d93c3b992a6beb",
+            "author": "Mozilla Releng Treescript <release+treescript@mozilla.org>",
+            "comments": "no bug - Bumping Firefox l10n changesets r=release a=l10n-bump DONTBUILD\n\nhsb -> bee4c0e2d46ab1c59e4238905595598fc930a299"
+          },
+          {
+            "result_set_id": 780752,
+            "repository_id": 4,
+            "revision": "ccdda81e83316e12fe07499bc575ad48f52627d8",
+            "author": "Mozilla Releng Treescript <release+treescript@mozilla.org>",
+            "comments": "no bug - Bumping Firefox l10n changesets r=release a=l10n-bump DONTBUILD\n\nkk -> 5396faffb7db4fd304ba774f6ad897ccb3344e8e\nru -> f379323fa738077b8336a08564caea2903f07f0f"
+          },
+          {
+            "result_set_id": 780752,
+            "repository_id": 4,
+            "revision": "71a87ae46b480389a065a1a1f88852f73036579b",
+            "author": "Mozilla Releng Treescript <release+treescript@mozilla.org>",
+            "comments": "no bug - Bumping Firefox l10n changesets r=release a=l10n-bump DONTBUILD\n\nkk -> d51c7f964f84b6d0e18b42e823b2a95d4ed6bab1"
+          },
+          {
+            "result_set_id": 780752,
+            "repository_id": 4,
+            "revision": "5b9a6914f5b37236d347173ec88925727c3443ba",
+            "author": "Mozilla Releng Treescript <release+treescript@mozilla.org>",
+            "comments": "no bug - Bumping Firefox l10n changesets r=release a=l10n-bump DONTBUILD\n\nar -> 4b5ccc5861063f4aaa38f13361e5e9ee6f33cc32\nth -> 78e4ed87bedf340b03015a6b19b37692fb9d1934"
+          },
+          {
+            "result_set_id": 780752,
+            "repository_id": 4,
+            "revision": "6d83ff24fc2d02b55918527d2ec5be6f426193ca",
+            "author": "Mozilla Releng Treescript <release+treescript@mozilla.org>",
+            "comments": "no bug - Bumping Firefox l10n changesets r=release a=l10n-bump DONTBUILD\n\nar -> 44991e31ec99b12ba1cce8e9c7c1891d76bd2006"
+          }
+        ],
+        "revision_count": 58,
+        "push_timestamp": 1599403190,
+        "repository_id": 4
+      }
+    ],
+    "metrics": {
+      "linting": {
+        "name": "Linting",
+        "result": "pass"
+      },
+      "tests": {
+        "name": "Tests",
+        "result": "fail"
+      },
+      "builds": {
+        "name": "Builds",
+        "result": "pass"
+      }
+    }
+  }
+]

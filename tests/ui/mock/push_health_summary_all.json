@@ -1,0 +1,336 @@
+[
+  {
+    "revision": "159f99ccca1d35c586b937ca1ab93769e768dd9f",
+    "repository": "autoland",
+    "testFailureCount": 0,
+    "buildFailureCount": 6,
+    "lintFailureCount": 0,
+    "needInvestigation": 6,
+    "status": {
+      "completed": 34,
+      "pending": 0,
+      "running": 0,
+      "success": 33,
+      "retry": 1
+    },
+    "history": [
+      {
+        "id": 820930,
+        "revision": "159f99ccca1d35c586b937ca1ab93769e768dd9f",
+        "author": "ccoroiu@mozilla.com",
+        "revisions": [
+          {
+            "result_set_id": 820930,
+            "repository_id": 77,
+            "revision": "159f99ccca1d35c586b937ca1ab93769e768dd9f",
+            "author": "Cristina Coroiu <ccoroiu@mozilla.com>",
+            "comments": "Merge mozilla-central to autoland a=merge. CLOSED TREE"
+          },
+          {
+            "result_set_id": 820930,
+            "repository_id": 77,
+            "revision": "0d82c3f140ba2110d3d40512c9f04b4cadcb4883",
+            "author": "Cristina Coroiu <ccoroiu@mozilla.com>",
+            "comments": "Merge autoland to mozilla-central a=merge. CLOSED TREE"
+          },
+          {
+            "result_set_id": 820930,
+            "repository_id": 77,
+            "revision": "e22423381bcd757b7ab1e58b0f915cd2e9a6a729",
+            "author": "Mozilla Releng Treescript <release+treescript@mozilla.org>",
+            "comments": "Update configs. IGNORE BROKEN CHANGESETS CLOSED TREE NO BUG a=release ba=release"
+          },
+          {
+            "result_set_id": 820930,
+            "repository_id": 77,
+            "revision": "386f54d56647b17422d428dbc8cd9614d6dbcf35",
+            "author": "Mozilla Releng Treescript <release+treescript@mozilla.org>",
+            "comments": "No bug - tagging efceae9186cd456bb70240aa851855efb5afd316 with FIREFOX_NIGHTLY_84_END a=release DONTBUILD CLOSED TREE"
+          },
+          {
+            "result_set_id": 820930,
+            "repository_id": 77,
+            "revision": "efceae9186cd456bb70240aa851855efb5afd316",
+            "author": "Mozilla Releng Treescript <release+treescript@mozilla.org>",
+            "comments": "No bug - tagging b9dd8e54c8ae449638635758a6571285655a4d0c with FIREFOX_BETA_84_BASE a=release DONTBUILD CLOSED TREE"
+          }
+        ],
+        "revision_count": 5,
+        "push_timestamp": 1605544643,
+        "repository_id": 77
+      }
+    ],
+    "metrics": {
+      "linting": {
+        "name": "Linting",
+        "result": "pass"
+      },
+      "tests": {
+        "name": "Tests",
+        "result": "pass"
+      },
+      "builds": {
+        "name": "Builds",
+        "result": "fail"
+      }
+    }
+  },
+  {
+    "revision": "0d82c3f140ba2110d3d40512c9f04b4cadcb4883",
+    "repository": "mozilla-central",
+    "testFailureCount": 0,
+    "buildFailureCount": 2,
+    "lintFailureCount": 0,
+    "needInvestigation": 2,
+    "status": {
+      "completed": 3029,
+      "pending": 50,
+      "running": 76,
+      "success": 2974,
+      "retry": 52,
+      "testfailed": 3
+    },
+    "history": [
+      {
+        "id": 820926,
+        "revision": "0d82c3f140ba2110d3d40512c9f04b4cadcb4883",
+        "author": "ccoroiu@mozilla.com",
+        "revisions": [
+          {
+            "result_set_id": 820926,
+            "repository_id": 1,
+            "revision": "0d82c3f140ba2110d3d40512c9f04b4cadcb4883",
+            "author": "Cristina Coroiu <ccoroiu@mozilla.com>",
+            "comments": "Merge autoland to mozilla-central a=merge. CLOSED TREE"
+          },
+          {
+            "result_set_id": 820926,
+            "repository_id": 1,
+            "revision": "4b17d0a193f708806508d981ac8a61b730024c13",
+            "author": "Paul Adenot <paul@paul.cx>",
+            "comments": "Bug 1677435 - Update libcubeb to df5fe42. r=cubeb-reviewers,kinetik\n\nDifferential Revision: https://phabricator.services.mozilla.com/D97128"
+          },
+          {
+            "result_set_id": 820926,
+            "repository_id": 1,
+            "revision": "9b02eeca2a5f002b8faaac8684d6163ce2d62434",
+            "author": "Julian Descottes <jdescottes@mozilla.com>",
+            "comments": "Bug 1676646 - [devtools] Remove unused Connected localized string in aboutdebugging r=ladybenko,fluent-reviewers\n\nDifferential Revision: https://phabricator.services.mozilla.com/D96714"
+          },
+          {
+            "result_set_id": 820926,
+            "repository_id": 1,
+            "revision": "c1478fe4a2a75467bfdf73d80060d8ccf2eecffa",
+            "author": "Razvan Maries <rmaries@mozilla.com>",
+            "comments": "Backed out changeset 8531203d7207 (bug 1677092) for build bustages on TestAlgorithm.cpp. CLOSED TREE"
+          },
+          {
+            "result_set_id": 820926,
+            "repository_id": 1,
+            "revision": "8531203d720778399e4317445b2d5d42b929f430",
+            "author": "Mirko Brodesser <mbrodesser@mozilla.com>",
+            "comments": "Bug 1677092: add `constexpr` `AnyOf`. r=sg\n\nThe STL supports it only with C++20.\n\nDifferential Revision: https://phabricator.services.mozilla.com/D97123"
+          },
+          {
+            "result_set_id": 820926,
+            "repository_id": 1,
+            "revision": "6f9542c83bb8d433f26aa4b4d7cef667f1ae1fa6",
+            "author": "Frederik Braun <fbraun@mozilla.com>",
+            "comments": "Bug 1677047 - Testing to block ports 1720, 1723, 554- r=necko-reviewers,valentin\n\nDepends on D96979\n\nDifferential Revision: https://phabricator.services.mozilla.com/D96980"
+          },
+          {
+            "result_set_id": 820926,
+            "repository_id": 1,
+            "revision": "6d86c1f75c77c2fdc40b1288dbb0b7f89ab0bd8d",
+            "author": "Frederik Braun <fbraun@mozilla.com>",
+            "comments": "Bug 1677047 - Add the ports for the H323, PPTP, RTSP protocols (1720, 1723, 554) to the restricted ports list. - r=valentin,necko-reviewers\n\nDifferential Revision: https://phabricator.services.mozilla.com/D96979"
+          },
+          {
+            "result_set_id": 820926,
+            "repository_id": 1,
+            "revision": "2298e1a23c6e76d3240b0338b0c975f7c4877bb0",
+            "author": "Matt Woodrow <mwoodrow@mozilla.com>",
+            "comments": "Bug 1677211 - Add Read access flags to D3D11 staging textures to avoid slow accesses when reading our intermediate results. r=jrmuizel\n\nDifferential Revision: https://phabricator.services.mozilla.com/D97106"
+          },
+          {
+            "result_set_id": 820926,
+            "repository_id": 1,
+            "revision": "8712c4a5dae9cab95cdffd3995102755601c8dae",
+            "author": "Maja Frydrychowicz <mjzffr@gmail.com>",
+            "comments": "Bug 1534582 - [AWSY] Use spec-compliant Marionette actions r=perftest-reviewers,marionette-reviewers,AlexandruIonescu\n\nAWSY has been using Marionette's \"legacy\" actions implementation\nbecause spec-compliant actions didn't work yet in chrome scope.\n\nWith Marionette's new JSWindowActor-based architecture, which\nis now enabled on all builds, chrome scope is now supported by\nspec-compliant actions, so AWSY can now use them.\n\nDifferential Revision: https://phabricator.services.mozilla.com/D97019"
+          },
+          {
+            "result_set_id": 820926,
+            "repository_id": 1,
+            "revision": "fe39b455f8d9a85426df723b651c82bd8006fe81",
+            "author": "Rob Wu <rob@robwu.nl>",
+            "comments": "Bug 1652925 - Fix memory leak of extension Port via conduits r=zombie\n\nExtension ports should be eligible for garbage collection when\ndisconnected. This did not happen because there was a strong reference\nfrom the context to the conduit, whose subject was the Port. As a\nresult, the Port instances were not GCd until the context was unloaded.\n\nThis results in significant memory leaks over time, because it is not\nuncommon for extensions to have a long-lived background page that\nreceives messages via Ports. The issue is made even worse by the fact\nthat ports contain metadata that can potentially be very large.\n\nThere are other callers of openConduit, but these are not affected\nbecause their lifetimes are similar to the BaseContext.\n\nDifferential Revision: https://phabricator.services.mozilla.com/D96952"
+          },
+          {
+            "result_set_id": 820926,
+            "repository_id": 1,
+            "revision": "8636b9a39525a98d95b3eb95996c6fd2630a610a",
+            "author": "Daisuke Akatsuka <daisuke@birchill.co.jp>",
+            "comments": "Bug 1181081: Fix up typos for string that user would have intented as protocol. r=mak\n\nDifferential Revision: https://phabricator.services.mozilla.com/D95982"
+          },
+          {
+            "result_set_id": 820926,
+            "repository_id": 1,
+            "revision": "13e7ec11d44934dcf4dc26a0ae3776108460dc4b",
+            "author": "Karl Tomlinson <karlt+@karlt.net>",
+            "comments": "Bug 1213512 reject MediaDevices method promises with existing standard errors r=jib\n\nOverconstrainedError is not yet supported.\n\nDifferential Revision: https://phabricator.services.mozilla.com/D95971"
+          },
+          {
+            "result_set_id": 820926,
+            "repository_id": 1,
+            "revision": "c8dfeadab0960c480b78b26560c7a88d8b6ecd2e",
+            "author": "Karl Tomlinson <karlt+@karlt.net>",
+            "comments": "Bug 1213512 remove unused MediaMgrErr::Name::NotSupportedError r=jib\n\nDepends on D95969\n\nDifferential Revision: https://phabricator.services.mozilla.com/D95970"
+          },
+          {
+            "result_set_id": 820926,
+            "repository_id": 1,
+            "revision": "fedd5a65269a98c9e6742eecaff9e88824b826d3",
+            "author": "Karl Tomlinson <karlt+@karlt.net>",
+            "comments": "Bug 1213512 use a DOMException for MaybeRejectWithNotReadableError() r=baku\n\nThis is consistent with\nhttps://w3c.github.io/FileAPI/#dfn-error-codes\n\nDepends on D95968\n\nDifferential Revision: https://phabricator.services.mozilla.com/D95969"
+          },
+          {
+            "result_set_id": 820926,
+            "repository_id": 1,
+            "revision": "f10b1dba4d056573bfc7300b463e0459f9b8a077",
+            "author": "Karl Tomlinson <karlt+@karlt.net>",
+            "comments": "Bug 1213512 remove unused NS_ERROR_DOM_FILE_ABORT_ERR r=baku\n\nDepends on D95967\n\nDifferential Revision: https://phabricator.services.mozilla.com/D95968"
+          },
+          {
+            "result_set_id": 820926,
+            "repository_id": 1,
+            "revision": "992a979b72851ff311b722bf2e8f1c24f5cd93a2",
+            "author": "Karl Tomlinson <karlt+@karlt.net>",
+            "comments": "Bug 1213512 use UTF8 for MediaMgrError and SpeechRecognitionError message r=jib\n\nfor consistency with ErrorResult and dom::Promise, which will mean no reverse\nconversion is required for rejecting Promises.\n\nDifferential Revision: https://phabricator.services.mozilla.com/D95967"
+          },
+          {
+            "result_set_id": 820926,
+            "repository_id": 1,
+            "revision": "e20da67e6306d73b2a55815cf970b508f90a0156",
+            "author": "Karl Tomlinson <karlt+@karlt.net>",
+            "comments": "Bug 1213512 remove unused MediaStreamError constructor r=jib\n\nDepends on D95965\n\nDifferential Revision: https://phabricator.services.mozilla.com/D95966"
+          },
+          {
+            "result_set_id": 820926,
+            "repository_id": 1,
+            "revision": "f9b1c03019a6ffa7a6adcf7bb1bbaeb3741ee67d",
+            "author": "Karl Tomlinson <karlt+@karlt.net>",
+            "comments": "Bug 1213512 add a constraint so that mozGetUserMedia does not fail immediately r=jib\n\nhttps://bug802982.bmoattachments.org/attachment.cgi?id=672704 was a crash in\nEnumerateVideoDevices.  Presumably the constraint was not required at that\ntime, but the intent of the test was to exercise video capture code.\n\nDepends on D95964\n\nDifferential Revision: https://phabricator.services.mozilla.com/D95965"
+          },
+          {
+            "result_set_id": 820926,
+            "repository_id": 1,
+            "revision": "21aa4a24335f45101a774dd653a0399a909699d3",
+            "author": "Karl Tomlinson <karlt+@karlt.net>",
+            "comments": "Bug 1213512 improve checks on InvalidStateError and TypeError getDisplayMedia() rejections r=jib\n\nDepends on D95963\n\nDifferential Revision: https://phabricator.services.mozilla.com/D95964"
+          },
+          {
+            "result_set_id": 820926,
+            "repository_id": 1,
+            "revision": "38a5df003dcc850250527954e38b1d2581d4926a",
+            "author": "Karl Tomlinson <karlt+@karlt.net>",
+            "comments": "Bug 1213512 improve checks on NotAllowedError getUserMedia() rejection reason r=jib\n\nDifferential Revision: https://phabricator.services.mozilla.com/D95963"
+          }
+        ],
+        "revision_count": 28,
+        "push_timestamp": 1605544082,
+        "repository_id": 1
+      }
+    ],
+    "metrics": {
+      "linting": {
+        "name": "Linting",
+        "result": "pass"
+      },
+      "tests": {
+        "name": "Tests",
+        "result": "pass"
+      },
+      "builds": {
+        "name": "Builds",
+        "result": "fail"
+      }
+    }
+  },
+  {
+    "revision": "cc937e3d332f3862a1da2950f13aab3bada64eb7",
+    "repository": "autoland",
+    "testFailureCount": 1,
+    "buildFailureCount": 0,
+    "lintFailureCount": 0,
+    "needInvestigation": 1,
+    "status": {
+      "completed": 123,
+      "pending": 0,
+      "running": 0,
+      "success": 115,
+      "retry": 8
+    },
+    "history": [
+      {
+        "id": 820096,
+        "revision": "cc937e3d332f3862a1da2950f13aab3bada64eb7",
+        "author": "ccoroiu@mozilla.com",
+        "revisions": [
+          {
+            "result_set_id": 820096,
+            "repository_id": 77,
+            "revision": "cc937e3d332f3862a1da2950f13aab3bada64eb7",
+            "author": "Cristina Coroiu <ccoroiu@mozilla.com>",
+            "comments": "Merge mozilla-central to autoland a=merge. CLOSED TREE"
+          },
+          {
+            "result_set_id": 820096,
+            "repository_id": 77,
+            "revision": "7ddb9d55aa38a29e16431182057c329c4a0c90d0",
+            "author": "Cristina Coroiu <ccoroiu@mozilla.com>",
+            "comments": "Merge autoland to mozilla-central a=merge"
+          },
+          {
+            "result_set_id": 820096,
+            "repository_id": 77,
+            "revision": "7bc6104186054d5b1b5383d480446bd7fa4cdfc8",
+            "author": "Dorel Luca <dluca@mozilla.com>",
+            "comments": "Merge autoland to mozilla-central. a=merge"
+          },
+          {
+            "result_set_id": 820096,
+            "repository_id": 77,
+            "revision": "74442fd27dfa81129105fe2de0ebea5dbdd85c85",
+            "author": "Mike Hommey <mh+mozilla@glandium.org>",
+            "comments": "Bug 1675740 - Republish one more file to make beetmover happy. r=me,a=bustage\n"
+          },
+          {
+            "result_set_id": 820096,
+            "repository_id": 77,
+            "revision": "84480987c9a7f832986085c71b0fd0a71955c9f2",
+            "author": "Mike Hommey <mh+mozilla@glandium.org>",
+            "comments": "Bug 1675740 - Republish more files to make beetmover happy. r=me,a=bustage\n"
+          }
+        ],
+        "revision_count": 5,
+        "push_timestamp": 1605285998,
+        "repository_id": 77
+      }
+    ],
+    "metrics": {
+      "linting": {
+        "name": "Linting",
+        "result": "pass"
+      },
+      "tests": {
+        "name": "Tests",
+        "result": "fail"
+      },
+      "builds": {
+        "name": "Builds",
+        "result": "pass"
+      }
+    }
+  }
+]

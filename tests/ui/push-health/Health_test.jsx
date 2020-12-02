@@ -166,4 +166,12 @@ describe('Health', () => {
       queryAllByTestId(classificationGroups[1], 'test-grouping'),
     ).toHaveLength(2);
   });
+
+  test('should go to the correct tab if query param exists', async () => {
+    history.push(`/push-health?repo=${repo}&revision=${revision}&tab=builds`);
+    const { getByText } = render(testHealth());
+
+    const buildsTab = await waitFor(() => getByText('Builds'));
+    expect(buildsTab).toHaveAttribute('aria-selected', 'true');
+  });
 });

@@ -143,3 +143,21 @@ def job_to_dict(job):
         }
     )
     return job_dict
+
+
+def get_job_results(results, failure_type):
+    result_status = set()
+    result = 'pass'
+    failures = []
+
+    for job in results:
+        result_status.add(job.result)
+        if job.result == failure_type:
+            failures.append(job_to_dict(job))
+
+    if len(failures):
+        result = 'fail'
+    elif 'unknown' in result_status:
+        result = 'unknown'
+
+    return (result, failures)

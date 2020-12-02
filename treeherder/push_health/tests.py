@@ -183,19 +183,24 @@ def get_test_failure_jobs(push):
             result='testfailed',
         )
         .exclude(
-            Q(machine_platform__platform='lint') | Q(job_type__symbol='mozlint'),
+            Q(machine_platform__platform='lint')
+            | Q(job_type__symbol='mozlint')
+            | Q(job_type__name__contains='build'),
         )
         .select_related('job_type', 'machine_platform', 'taskcluster_metadata')
     )
     failed_job_types = [job.job_type.name for job in testfailed_jobs]
+
     passing_jobs = Job.objects.filter(
         push=push, job_type__name__in=failed_job_types, result__in=['success', 'unknown']
     ).select_related('job_type', 'machine_platform', 'taskcluster_metadata')
 
     jobs = {}
+    result_status = set()
 
     def add_jobs(job_list):
         for job in job_list:
+            result_status.add(job.result)
             if job.job_type.name in jobs:
                 jobs[job.job_type.name].append(job_to_dict(job))
             else:
@@ -207,12 +212,13 @@ def get_test_failure_jobs(push):
     for job in jobs:
         (jobs[job]).sort(key=lambda x: x['start_time'])
 
-    return jobs
+    return (result_status, jobs)
 
 
 def get_test_failures(
     push,
     jobs,
+    result_status=set(),
     parent_push=None,
 ):
     logger.debug('Getting test failures for push: {}'.format(push.id))
@@ -248,11 +254,18 @@ def get_test_failures(
     )
     failures = get_grouped(filtered_push_failures)
 
+    result = 'pass'
+
+    if len(failures['needInvestigation']):
+        result = 'fail'
+    elif 'unknown' in result_status:
+        result = 'unknown'
+
     if parent_push:
         # Since there is a parent_push, we want to mark all failures with whether or not they also
         # exist in the parent.
-        parent_push_jobs = get_test_failure_jobs(parent_push)
-        parent_test_failures = get_test_failures(parent_push, parent_push_jobs)
+        parent_push_jobs = get_test_failure_jobs(parent_push)[1]
+        parent_test_failures = get_test_failures(parent_push, parent_push_jobs)[1]
         for classification, failure_group in failures.items():
             parent_failure_group = parent_test_failures[classification]
             failure_keys = {fail['key'] for fail in failure_group}
@@ -262,4 +275,4 @@ def get_test_failures(
             for failure in failure_group:
                 failure['failedInParent'] = failure['key'] in both
 
-    return failures
+    return (result, failures)

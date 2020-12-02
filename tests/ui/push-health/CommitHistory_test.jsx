@@ -11,7 +11,7 @@ import { toDateStr } from '../../../ui/helpers/display';
 beforeEach(() => {
   fetchMock.get(
     '/api/project/autoland/push/health_summary/?revision=eeb6fd68c0223a72d8714734a34d3e6da69995e1',
-    { needInvestigation: 87, unsupported: 8 },
+    [{ needInvestigation: 87, unsupported: 8 }],
   );
 });
 
