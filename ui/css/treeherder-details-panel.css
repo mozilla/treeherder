@@ -134,7 +134,7 @@ div#details-panel-content .actionbar-nav > li > button:focus {
 
 .react-tabs__tab-panel--selected {
   height: 100%;
-  margin: 0.5em 1em;
+  padding: 0.5em 1em;
   overflow-y: auto;
 }
 
@@ -421,4 +421,19 @@ div.performance-panel {
 .performance-panel-actions > * {
   /* This is the same value as m-1 */
   margin: 0.25rem;
+}
+
+/**
+ * This rule is a bit ugly, but the button doesn't fit in the table row without
+ * resizing the vertical contents. In addition, there isn't a button size that
+ * matches the font size of the row.
+ */
+.performance-panel-view-button {
+  padding: 0px 6px;
+  margin: -3px 0;
+  display: inline-block;
+  font-size: 12px;
+  position: relative;
+  top: -1px;
+  line-height: 17px;
 }

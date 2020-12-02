@@ -73,13 +73,77 @@ class PerformanceTab extends React.PureComponent {
     return null;
   }
 
+  maybeRenderPerfData() {
+    const { perfJobDetail, selectedJobFull } = this.props;
+    if (perfJobDetail.length === 0) {
+      return null;
+    }
+
+    const sortedDetails = perfJobDetail.slice();
+    sortedDetails.sort((a, b) => a.title.localeCompare(b.title));
+
+    // These styles are shared across all of the table cells.
+    const cellClassName = 'nowrap pl-2 pr-2';
+
+    return (
+      <>
+        <h3 className="font-size-16 mt-3 mb-2">
+          Results for: {selectedJobFull.job_type_name}
+        </h3>
+        <table className="table table-sm performance-panel-data">
+          <thead>
+            <tr>
+              <th scope="col" className={`text-right ${cellClassName}`}>
+                Value
+              </th>
+              <th scope="col" className={cellClassName}>
+                Unit
+              </th>
+              <th scope="col" className={cellClassName}>
+                Better
+              </th>
+              <th scope="col" className={cellClassName}>
+                History
+              </th>
+              <th scope="col" className={cellClassName}>
+                Name
+              </th>
+            </tr>
+          </thead>
+          <tbody>
+            {sortedDetails.map(
+              ({ value, url, measurementUnit, lowerIsBetter, title }, idx) => (
+                // eslint-disable-next-line react/no-array-index-key
+                <tr key={idx}>
+                  {/* Ensure the value and measurement are visually next to each
+                  other in the chart, by aligning the value to the right. */}
+                  <td className={`text-right ${cellClassName}`}>{value}</td>
+                  <td className={cellClassName}>{measurementUnit || '–'}</td>
+                  <td className={cellClassName}>
+                    {lowerIsBetter ? 'Lower' : 'Higher'}
+                  </td>
+                  <td className={cellClassName}>
+                    <a
+                      href={url}
+                      className="btn btn-outline-darker-secondary btn-sm performance-panel-view-button"
+                    >
+                      View
+                    </a>
+                  </td>
+                  <td className="w-100">{title}</td>
+                </tr>
+              ),
+            )}
+          </tbody>
+        </table>
+      </>
+    );
+  }
+
   render() {
-    const { repoName, revision, perfJobDetail, selectedJobFull } = this.props;
+    const { repoName, revision, selectedJobFull } = this.props;
     const { triggeredGeckoProfiles } = this.state;
     const profilerLink = this.maybeGetFirefoxProfilerLink();
-    const sortedDetails = perfJobDetail ? perfJobDetail.slice() : [];
-
-    sortedDetails.sort((a, b) => a.title.localeCompare(b.title));
 
     return (
       <div
@@ -145,22 +209,7 @@ class PerformanceTab extends React.PureComponent {
             </Alert>
           ) : null
         }
-        {!!sortedDetails.length && (
-          <ul>
-            <li>
-              Perfherder:
-              {sortedDetails.map((detail, idx) => (
-                <ul
-                  key={idx} // eslint-disable-line react/no-array-index-key
-                >
-                  <li>
-                    {detail.title}:<a href={detail.url}> {detail.value}</a>
-                  </li>
-                </ul>
-              ))}
-            </li>
-          </ul>
-        )}
+        {this.maybeRenderPerfData()}
       </div>
     );
   }
