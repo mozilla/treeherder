@@ -1,6 +1,9 @@
 import React from 'react';
 import fetchMock from 'fetch-mock';
 import { render, cleanup } from '@testing-library/react';
+import { createBrowserHistory } from 'history';
+import { ConnectedRouter } from 'connected-react-router';
+import { Provider } from 'react-redux';
 
 import { getApiUrl } from '../../../ui/helpers/url';
 import { getProjectUrl } from '../../../ui/helpers/location';
@@ -8,8 +11,11 @@ import FailureSummaryTab from '../../../ui/shared/tabs/failureSummary/FailureSum
 import jobMap from '../mock/job_map';
 import bugSuggestions from '../mock/bug_suggestions.json';
 import jobLogUrls from '../mock/job_log_urls.json';
+import { configureStore } from '../../../ui/job-view/redux/configureStore';
 
 const selectedJob = Object.values(jobMap)[0];
+const history = createBrowserHistory();
+const store = configureStore(history);
 
 describe('FailureSummaryTab', () => {
   const repoName = 'autoland';
@@ -29,16 +35,20 @@ describe('FailureSummaryTab', () => {
   });
 
   const testFailureSummaryTab = () => (
-    <FailureSummaryTab
-      selectedJob={selectedJob}
-      jobLogUrls={jobLogUrls}
-      logParseStatus="parsed"
-      reftestUrl="boo"
-      logViewerFullUrl="ber/baz"
-      addBug={() => {}}
-      pinJob={() => {}}
-      repoName={repoName}
-    />
+    <Provider store={store}>
+      <ConnectedRouter history={history}>
+        <FailureSummaryTab
+          selectedJob={selectedJob}
+          jobLogUrls={jobLogUrls}
+          logParseStatus="parsed"
+          reftestUrl="boo"
+          logViewerFullUrl="ber/baz"
+          addBug={() => {}}
+          pinJob={() => {}}
+          repoName={repoName}
+        />
+      </ConnectedRouter>
+    </Provider>
   );
 
   test('failures should be visible', async () => {

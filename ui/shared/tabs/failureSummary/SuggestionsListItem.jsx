@@ -1,13 +1,18 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import { Button } from 'reactstrap';
+import { Link } from 'react-router-dom';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faBug } from '@fortawesome/free-solid-svg-icons';
+import { faBug, faFilter } from '@fortawesome/free-solid-svg-icons';
 
 import Clipboard from '../../Clipboard';
 import logviewerIcon from '../../../img/logviewerIcon.png';
 import { thBugSuggestionLimit } from '../../../helpers/constants';
-import { getLogViewerUrl } from '../../../helpers/url';
+import {
+  createQueryParams,
+  getLogViewerUrl,
+  parseQueryParams,
+} from '../../../helpers/url';
 
 import BugListItem from './BugListItem';
 
@@ -23,6 +28,16 @@ export default class SuggestionsListItem extends React.Component {
     this.setState((prevState) => ({
       suggestionShowMore: !prevState.suggestionShowMore,
     }));
+  };
+
+  getPathFilter = (filterTestPath) => {
+    const path = filterTestPath[0].replace(/\/$/, '');
+    const filterParams = {
+      ...parseQueryParams(window.location.search),
+      test_paths: path,
+    };
+
+    return `${window.location.pathname}${createQueryParams(filterParams)}`;
   };
 
   render() {
@@ -114,6 +129,9 @@ export default class SuggestionsListItem extends React.Component {
         </mark>,
       );
     }
+    const filterTestPath = suggestion.search.match(
+      RegExp('([a-z_\\-s0-9.]+[/])+', 'gi'),
+    );
 
     return (
       <li>
@@ -149,6 +167,15 @@ export default class SuggestionsListItem extends React.Component {
                 description=" text of error line"
                 text={suggestion.search}
               />
+              {filterTestPath && !developerMode && (
+                <Link
+                  to={this.getPathFilter(filterTestPath)}
+                  className="px-1 text-darker-secondary"
+                  title={`Filter by test path: ${filterTestPath[0]}`}
+                >
+                  <FontAwesomeIcon icon={faFilter} />
+                </Link>
+              )}
               <a
                 href={getLogViewerUrl(
                   selectedJob.id,

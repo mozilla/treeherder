@@ -343,7 +343,7 @@
 
 /* Darker Secondary */
 .text-darker-secondary {
-  color: #53595f;
+  color: #53595f !important;
 }
 
 .alert-darker-secondary,
