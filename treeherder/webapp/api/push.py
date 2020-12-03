@@ -10,10 +10,14 @@ from rest_framework.status import HTTP_400_BAD_REQUEST, HTTP_404_NOT_FOUND
 
 from treeherder.log_parser.failureline import get_group_results
 from treeherder.model.models import Job, JobType, Push, Repository
-from treeherder.push_health.builds import get_build_failures
+from treeherder.push_health.builds import get_build_failures, get_build_in_progress_count
 from treeherder.push_health.compare import get_commit_history
-from treeherder.push_health.linting import get_lint_failures
-from treeherder.push_health.tests import get_test_failures, get_test_failure_jobs
+from treeherder.push_health.linting import get_lint_failures, get_lint_in_progress_count
+from treeherder.push_health.tests import (
+    get_test_failures,
+    get_test_failure_jobs,
+    get_test_in_progress_count,
+)
 from treeherder.push_health.usage import get_usage
 from treeherder.webapp.api.serializers import PushSerializer
 from treeherder.webapp.api.utils import to_datetime, to_timestamp
@@ -271,8 +275,11 @@ class PushViewSet(viewsets.ViewSet):
                     'revision': push.revision,
                     'repository': push.repository.name,
                     'testFailureCount': test_failure_count,
+                    'testInProgressCount': get_test_in_progress_count(push),
                     'buildFailureCount': build_failure_count,
+                    'buildInProgressCount': get_build_in_progress_count(push),
                     'lintFailureCount': lint_failure_count,
+                    'lintingInProgressCount': get_lint_in_progress_count(push),
                     'needInvestigation': test_failure_count
                     + build_failure_count
                     + lint_failure_count,

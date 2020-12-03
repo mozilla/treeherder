@@ -19,3 +19,13 @@ def get_build_failures(push, parent_push=None):
         mark_failed_in_parent(failures, get_build_failures(parent_push)[1])
 
     return (result, failures)
+
+
+def get_build_in_progress_count(push):
+    build_types = JobType.objects.filter(name__contains="build")
+    return Job.objects.filter(
+        push=push,
+        tier__lte=2,
+        result='unknown',
+        job_type__in=build_types,
+    ).count()
