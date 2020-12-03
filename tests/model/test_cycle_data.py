@@ -25,6 +25,16 @@ from treeherder.perf.models import (
 )
 
 
+@pytest.mark.parametrize(
+    'days, expected_jobs, expected_failure_lines, expected_job_logs, cmd_args, cmd_kwargs',
+    [
+        (7, 0, 0, 0, ('cycle_data', 'from:treeherder'), {'sleep_time': 0, 'days': 1}),
+        # also check default '--days' param from treeherder
+        (119, 20, 2, 22, ('cycle_data',), {'sleep_time': 0}),
+        (120, 0, 0, 0, ('cycle_data',), {'sleep_time': 0}),
+        (150, 0, 0, 0, ('cycle_data',), {'sleep_time': 0}),
+    ],
+)
 def test_cycle_all_data(
     test_repository,
     failure_classifications,
@@ -32,6 +42,12 @@ def test_cycle_all_data(
     sample_push,
     mock_log_parser,
     failure_lines,
+    days,
+    expected_jobs,
+    expected_failure_lines,
+    expected_job_logs,
+    cmd_args,
+    cmd_kwargs,
 ):
     """
     Test cycling the sample data
@@ -39,18 +55,17 @@ def test_cycle_all_data(
     job_data = sample_data.job_data[:20]
     test_utils.do_job_ingestion(test_repository, job_data, sample_push, False)
 
-    # set the submit time to be a week before today
-    cycle_date_ts = datetime.now() - timedelta(weeks=1)
+    cycle_date_ts = datetime.now() - timedelta(days=days)
     for job in Job.objects.all():
         job.submit_time = cycle_date_ts
         job.save()
 
-    call_command('cycle_data', 'from:treeherder', sleep_time=0, days=1)
+    call_command(*cmd_args, **cmd_kwargs)
 
     # There should be no jobs or failure lines after cycling
-    assert Job.objects.count() == 0
-    assert FailureLine.objects.count() == 0
-    assert JobLog.objects.count() == 0
+    assert Job.objects.count() == expected_jobs
+    assert FailureLine.objects.count() == expected_failure_lines
+    assert JobLog.objects.count() == expected_job_logs
 
 
 def test_cycle_all_but_one_job(
