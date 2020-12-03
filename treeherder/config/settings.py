@@ -326,7 +326,14 @@ AUTH0_CLIENTID = env('AUTH0_CLIENTID', default="q8fZZFfGEmSB2c5uSI8hOkKdDGXnlo5z
 CELERY_TASK_QUEUES = [
     Queue('default', Exchange('default'), routing_key='default'),
     Queue('log_parser', Exchange('default'), routing_key='log_parser.normal'),
-    Queue('log_parser_fail', Exchange('default'), routing_key='log_parser.failures'),
+    Queue('log_parser_fail_raw_sheriffed', Exchange('default'), routing_key='log_parser.failures'),
+    Queue(
+        'log_parser_fail_raw_unsheriffed', Exchange('default'), routing_key='log_parser.failures'
+    ),
+    Queue('log_parser_fail_json_sheriffed', Exchange('default'), routing_key='log_parser.failures'),
+    Queue(
+        'log_parser_fail_json_unsheriffed', Exchange('default'), routing_key='log_parser.failures'
+    ),
     Queue('pushlog', Exchange('default'), routing_key='pushlog'),
     Queue('generate_perf_alerts', Exchange('default'), routing_key='generate_perf_alerts'),
     Queue('store_pulse_tasks', Exchange('default'), routing_key='store_pulse_tasks'),
