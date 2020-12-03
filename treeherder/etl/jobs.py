@@ -300,12 +300,12 @@ def _load_job(repository, job_datum, push_id):
 
             job_logs.append(jl)
 
-        _schedule_log_parsing(job, job_logs, result)
+        _schedule_log_parsing(job, job_logs, result, repository)
 
     return job_guid
 
 
-def _schedule_log_parsing(job, job_logs, result):
+def _schedule_log_parsing(job, job_logs, result, repository):
     """Kick off the initial task that parses the log data.
 
     log_data is a list of job log objects and the result for that job
@@ -315,6 +315,13 @@ def _schedule_log_parsing(job, job_logs, result):
     from treeherder.log_parser.tasks import parse_logs
 
     task_types = {"errorsummary_json", "live_backing_log"}
+    sheriffed_repos = {
+        "autoland",
+        "mozilla-central",
+        "mozilla-beta",
+        "mozilla-release",
+        "mozilla-esr78",
+    }
 
     job_log_ids = []
     for job_log in job_logs:
@@ -331,15 +338,23 @@ def _schedule_log_parsing(job, job_logs, result):
 
         job_log_ids.append(job_log.id)
 
-    # TODO: Replace the use of different queues for failures vs not with the
-    # RabbitMQ priority feature (since the idea behind separate queues was
-    # only to ensure failures are dealt with first if there is a backlog).
-    if result != 'success':
-        queue = 'log_parser_fail'
-        priority = 'failures'
-    else:
-        queue = 'log_parser'
-        priority = "normal"
+        # TODO: Replace the use of different queues for failures vs not with the
+        # RabbitMQ priority feature (since the idea behind separate queues was
+        # only to ensure failures are dealt with first if there is a backlog).
+        if result != 'success':
+            if job_log.name == "errorsummary_json":
+                queue = "log_parser_fail_json"
+                priority = "failures"
+            else:
+                queue = "log_parser_fail_raw"
+                priority = "failures"
+            if repository.name in sheriffed_repos:
+                queue += "_sheriffed"
+            else:
+                queue += "_unsheriffed"
+        else:
+            queue = 'log_parser'
+            priority = "normal"
 
     parse_logs.apply_async(queue=queue, args=[job.id, job_log_ids, priority])
 
