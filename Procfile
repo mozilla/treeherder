@@ -44,7 +44,10 @@ worker_store_pulse_data: REMAP_SIGTERM=SIGQUIT newrelic-admin run-program celery
 
 # Handles the log parsing tasks scheduled by `worker_store_pulse_data` as part of job ingestion.
 worker_log_parser: REMAP_SIGTERM=SIGQUIT newrelic-admin run-program celery worker -A treeherder --without-gossip --without-mingle --without-heartbeat -Q log_parser --concurrency=7
-worker_log_parser_fail: REMAP_SIGTERM=SIGQUIT newrelic-admin run-program celery worker -A treeherder --without-gossip --without-mingle --without-heartbeat -Q log_parser_fail --concurrency=1
+worker_log_parser_fail_raw_sheriffed: REMAP_SIGTERM=SIGQUIT newrelic-admin run-program celery worker -A treeherder --without-gossip --without-mingle --without-heartbeat -Q log_parser_fail_raw_sheriffed --concurrency=1
+worker_log_parser_fail_raw_unsheriffed: REMAP_SIGTERM=SIGQUIT newrelic-admin run-program celery worker -A treeherder --without-gossip --without-mingle --without-heartbeat -Q log_parser_fail_raw_unsheriffed --concurrency=1
+worker_log_parser_fail_json_sheriffed: REMAP_SIGTERM=SIGQUIT newrelic-admin run-program celery worker -A treeherder --without-gossip --without-mingle --without-heartbeat -Q log_parser_fail_json_sheriffed --concurrency=7
+worker_log_parser_fail_json_unsheriffed: REMAP_SIGTERM=SIGQUIT newrelic-admin run-program celery worker -A treeherder --without-gossip --without-mingle --without-heartbeat -Q log_parser_fail_json_unsheriffed --concurrency=7
 
 # Tasks that don't need a dedicated worker.
 worker_misc: REMAP_SIGTERM=SIGQUIT newrelic-admin run-program celery worker -A treeherder --without-gossip --without-mingle --without-heartbeat -Q default,generate_perf_alerts,pushlog,seta_analyze_failures --concurrency=3
