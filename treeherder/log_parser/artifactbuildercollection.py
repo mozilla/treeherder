@@ -6,10 +6,9 @@ from treeherder.utils.http import make_request
 
 from .artifactbuilders import LogViewerArtifactBuilder, PerformanceDataArtifactBuilder
 from .parsers import EmptyPerformanceData
+from . import MAX_DOWNLOAD_SIZE_IN_BYTES, LogSizeException
 
 logger = logging.getLogger(__name__)
-# Max log size in bytes we will download (prior to decompression).
-MAX_DOWNLOAD_SIZE_IN_BYTES = 5 * 1024 * 1024
 
 
 class ArtifactBuilderCollection:
@@ -119,7 +118,3 @@ class ArtifactBuilderCollection:
             if name == 'performance_data' and not artifact[name]:
                 continue
             self.artifacts[name] = artifact
-
-
-class LogSizeException(Exception):
-    pass

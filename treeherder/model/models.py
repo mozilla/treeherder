@@ -945,7 +945,10 @@ class FailureLine(models.Model):
     STATUS_LIST = ('PASS', 'FAIL', 'OK', 'ERROR', 'TIMEOUT', 'CRASH', 'ASSERT', 'SKIP', 'NOTRUN')
     # Truncated is a special action that we use to indicate that the list of failure lines
     # was truncated according to settings.FAILURE_LINES_CUTOFF.
-    ACTION_LIST = ("test_result", "log", "crash", "truncated", "group_result")
+    # XXX `line_too_long` is a special action that we use to indicate that the failure line
+    # itself was too long according to failureline.MAX_FAILURE_LINE_LENGTH.
+    # XXX what do we do with it?
+    ACTION_LIST = ("test_result", "log", "crash", "truncated", "group_result", "line_too_long")
     LEVEL_LIST = ("critical", "error", "warning", "info", "debug")
 
     # Python 3's zip produces an iterable rather than a list, which Django's `choices` can't handle.

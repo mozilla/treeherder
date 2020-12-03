@@ -7,10 +7,8 @@ from requests.exceptions import HTTPError
 
 from treeherder.autoclassify.tasks import autoclassify
 from treeherder.etl.artifact import serialize_artifact_json_blobs, store_job_artifacts
-from treeherder.log_parser.artifactbuildercollection import (
-    ArtifactBuilderCollection,
-    LogSizeException,
-)
+from treeherder.log_parser import LogSizeException
+from treeherder.log_parser.artifactbuildercollection import ArtifactBuilderCollection
 from treeherder.log_parser.crossreference import crossreference_job
 from treeherder.model.models import Job, JobLog
 from treeherder.workers.task import retryable_task

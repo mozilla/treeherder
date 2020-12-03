@@ -11,9 +11,12 @@ from requests.exceptions import HTTPError
 
 from treeherder.etl.text import astral_filter
 from treeherder.model.models import FailureLine, Group, JobLog, GroupStatus
-from treeherder.utils.http import fetch_text
+from treeherder.utils.http import fetch_text, make_request
+from treeherder.log_parser import MAX_DOWNLOAD_SIZE_IN_BYTES, LogSizeException
 
 logger = logging.getLogger(__name__)
+# Most likely way too low?
+MAX_FAILURE_LINE_LENGTH = 500
 
 
 def store_failure_lines(job_log):
@@ -24,6 +27,24 @@ def store_failure_lines(job_log):
 
 
 def fetch_log(job_log):
+    # First check filesize.
+    with make_request(job_log.url, stream=True) as response:
+        download_size_in_bytes = int(response.headers.get('Content-Length', -1))
+        # Temporary annotation of log size to help set thresholds in bug 1295997.
+        newrelic.agent.add_custom_parameter('unstructured_log_size', download_size_in_bytes)
+        newrelic.agent.add_custom_parameter(
+            'unstructured_log_encoding', response.headers.get('Content-Encoding', 'None')
+        )
+
+        if download_size_in_bytes > MAX_DOWNLOAD_SIZE_IN_BYTES:
+            raise LogSizeException(
+                'Download size of %i bytes exceeds limit' % download_size_in_bytes
+            )
+    # XXX I can stream the response into log_text, or make a 2nd request.
+    #     I can also change the above into a non-streaming request, but that
+    #     may be wasteful if we toss it?
+
+    # XXX also, FAILURE_LINES_CUTOFF below means we don't write too many failure lines.
     try:
         log_text = fetch_text(job_log.url)
     except HTTPError as e:
@@ -144,6 +165,10 @@ def create(job_log, log_list):
     group_results = []
     failure_lines = []
     for line in log_list:
+        # XXX check against MAX_LINE_LENGTH
+        if len(line) > MAX_FAILURE_LINE_LENGTH:
+            # XXX silently continue? warn? `line_too_long` action?
+            continue
         action = line['action']
         if action not in FailureLine.ACTION_LIST:
             newrelic.agent.record_custom_event("unsupported_failure_line_action", line)
