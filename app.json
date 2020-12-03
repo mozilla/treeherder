@@ -71,10 +71,6 @@
       "quantity": 1,
       "size": "Standard-1X"
     },
-    "worker_autoclassify": {
-      "quantity": 1,
-      "size": "Standard-1X"
-    },
     "worker_log_parser": {
       "quantity": 1,
       "size": "Standard-1X"

@@ -46,7 +46,5 @@ worker_store_pulse_data: REMAP_SIGTERM=SIGQUIT newrelic-admin run-program celery
 worker_log_parser: REMAP_SIGTERM=SIGQUIT newrelic-admin run-program celery worker -A treeherder --without-gossip --without-mingle --without-heartbeat -Q log_parser --concurrency=7
 worker_log_parser_fail: REMAP_SIGTERM=SIGQUIT newrelic-admin run-program celery worker -A treeherder --without-gossip --without-mingle --without-heartbeat -Q log_parser_fail --concurrency=1
 
-# Autoclassify workers
-worker_autoclassify: REMAP_SIGTERM=SIGQUIT newrelic-admin run-program celery worker -A treeherder --without-gossip --without-mingle --without-heartbeat -Q log_autoclassify,log_autoclassify_fail --concurrency=3
 # Tasks that don't need a dedicated worker.
 worker_misc: REMAP_SIGTERM=SIGQUIT newrelic-admin run-program celery worker -A treeherder --without-gossip --without-mingle --without-heartbeat -Q default,generate_perf_alerts,pushlog,seta_analyze_failures --concurrency=3

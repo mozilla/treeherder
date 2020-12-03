@@ -5,7 +5,6 @@ import simplejson as json
 from celery.exceptions import SoftTimeLimitExceeded
 from requests.exceptions import HTTPError
 
-from treeherder.autoclassify.tasks import autoclassify
 from treeherder.etl.artifact import serialize_artifact_json_blobs, store_job_artifacts
 from treeherder.log_parser.artifactbuildercollection import (
     ArtifactBuilderCollection,
