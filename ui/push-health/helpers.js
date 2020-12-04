@@ -1,19 +1,3 @@
-import {
-  faClock,
-  faExclamationTriangle,
-  faCheck,
-} from '@fortawesome/free-solid-svg-icons';
-
-export const resultColorMap = {
-  pass: 'success',
-  fail: 'danger',
-  indeterminate: 'secondary',
-  done: 'darker-info',
-  'in progress': 'secondary',
-  none: 'darker-info',
-  unknown: 'secondary',
-};
-
 export const taskResultColorMap = {
   success: 'success',
   testfailed: 'danger',
@@ -37,14 +21,4 @@ export const filterTests = (tests, searchStr, showParentMatches) => {
 
 export const filterJobs = (jobs, showParentMatches) => {
   return jobs.filter((job) => job.failedInParent === showParentMatches);
-};
-
-export const getIcon = (result) => {
-  switch (result) {
-    case 'pass':
-      return faCheck;
-    case 'fail':
-      return faExclamationTriangle;
-  }
-  return faClock;
 };

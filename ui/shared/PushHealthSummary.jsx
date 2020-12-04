@@ -1,34 +1,33 @@
 import React, { PureComponent } from 'react';
 import PropTypes from 'prop-types';
 import { Col, Row, Spinner } from 'reactstrap';
-import {
-  faHeart,
-  faCheck,
-  faExclamationTriangle,
-  faClock,
-  faChevronRight,
-} from '@fortawesome/free-solid-svg-icons';
+import { faHeart, faChevronRight } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 
 import broken from '../img/push-health-broken.png';
 import ok from '../img/push-health-ok.png';
 import { getPushHealthUrl } from '../helpers/url';
+import { getIcon, resultColorMap } from '../helpers/display';
 
 function MetricCount(props) {
   const { failure, inProgress } = props;
-  let color = 'success';
-  let icon = faCheck;
   let text = 'Passed';
+  let result = 'pass';
 
+  // This is a fall-through condition.  We get...
+  // fail: If we have passed or in progress as well as failures
+  // in progress: If we have passed, and in progress but no failures
+  // pass: Only if all tests are completed with no failures.
   if (failure) {
-    color = 'danger';
-    icon = faExclamationTriangle;
+    result = 'fail';
     text = `Failures (${failure})`;
   } else if (inProgress) {
-    color = 'secondary';
-    icon = faClock;
+    result = 'in progress';
     text = `In Progress (${inProgress})`;
   }
+
+  const icon = getIcon(result);
+  const color = resultColorMap[result];
 
   return (
     <div className={`text-${color}`}>

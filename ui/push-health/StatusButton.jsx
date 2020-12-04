@@ -4,7 +4,7 @@ import { Link } from 'react-router-dom';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faChevronRight } from '@fortawesome/free-solid-svg-icons';
 
-import { resultColorMap, getIcon } from './helpers';
+import { resultColorMap, getIcon } from '../helpers/display';
 
 const StatusButton = ({ title, result, count, repo, revision }) => {
   let resultText = 'Passed';

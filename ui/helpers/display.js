@@ -1,3 +1,9 @@
+import {
+  faCheck,
+  faClock,
+  faExclamationTriangle,
+} from '@fortawesome/free-solid-svg-icons';
+
 import { getArtifactsUrl } from './url';
 
 export const longDateFormat = {
@@ -64,4 +70,26 @@ export const errorLinesCss = function errorLinesCss(errors) {
   style.type = 'text/css';
   document.getElementsByTagName('head')[0].appendChild(style);
   style.sheet.insertRule(rule);
+};
+
+export const resultColorMap = {
+  pass: 'success',
+  fail: 'danger',
+  indeterminate: 'secondary',
+  done: 'darker-info',
+  'in progress': 'secondary',
+  none: 'darker-info',
+  unknown: 'secondary',
+};
+
+export const getIcon = (result) => {
+  switch (result) {
+    case 'pass':
+      return faCheck;
+    case 'fail':
+      return faExclamationTriangle;
+    case 'in progress':
+      return faClock;
+  }
+  return faClock;
 };
