@@ -10,7 +10,7 @@ logger = logging.getLogger(__name__)
 
 
 # the amount of time we cache bug suggestion lookups (to speed up loading the
-# bug suggestions or autoclassify panels for recently finished jobs)
+# bug suggestions panel for recently finished jobs)
 BUG_SUGGESTION_CACHE_TIMEOUT = 86400
 
 LEAK_RE = re.compile(r'\d+ bytes leaked \((.+)\)$|leak at (.+)$')
