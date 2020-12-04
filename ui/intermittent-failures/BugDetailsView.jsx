@@ -114,7 +114,7 @@ const BugDetailsView = (props) => {
                 </a>
               </React.Fragment>
             }
-            placement="left"
+            placement="top"
             tooltipText={
               original.lines.length && (
                 <ul>
