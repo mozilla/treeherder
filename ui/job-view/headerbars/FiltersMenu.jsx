@@ -109,9 +109,9 @@ function FiltersMenu(props) {
           <FontAwesomeIcon
             icon={faCheck}
             className={`mr-1 ${
-              classifiedState.includes('classified') ? '' : 'hide'
+              filterModel.isClassifiedFailures() ? '' : 'hide'
             }`}
-            title={classifiedState.includes('classified') ? 'Selected' : ''}
+            title={filterModel.isClassifiedFailures() ? 'Selected' : ''}
           />
           All failures
         </DropdownItem>
@@ -122,9 +122,9 @@ function FiltersMenu(props) {
           <FontAwesomeIcon
             icon={faCheck}
             className={`mr-1 ${
-              classifiedState.includes('unclassified') ? '' : 'hide'
+              filterModel.isUnclassifiedFailures() ? '' : 'hide'
             }`}
-            title={classifiedState.includes('unclassified') ? 'Selected' : ''}
+            title={filterModel.isUnclassifiedFailures() ? 'Selected' : ''}
           />
           Unclassified failures
         </DropdownItem>
