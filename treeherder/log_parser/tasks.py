@@ -5,13 +5,11 @@ import simplejson as json
 from celery.exceptions import SoftTimeLimitExceeded
 from requests.exceptions import HTTPError
 
-from treeherder.autoclassify.tasks import autoclassify
 from treeherder.etl.artifact import serialize_artifact_json_blobs, store_job_artifacts
 from treeherder.log_parser.artifactbuildercollection import (
     ArtifactBuilderCollection,
     LogSizeException,
 )
-from treeherder.log_parser.crossreference import crossreference_job
 from treeherder.model.models import Job, JobLog
 from treeherder.workers.task import retryable_task
 
@@ -76,23 +74,6 @@ def parse_logs(job_id, job_log_ids, priority):
     # Raise so we trigger the retry decorator.
     if first_exception:
         raise first_exception
-
-    if "errorsummary_json" in completed_names and "live_backing_log" in completed_names:
-
-        success = crossreference_job(job)
-
-        if success:
-            logger.debug("Scheduling autoclassify for job %i", job_id)
-            # TODO: Replace the use of different queues for failures vs not with the
-            # RabbitMQ priority feature (since the idea behind separate queues was
-            # only to ensure failures are dealt with first if there is a backlog).
-            queue = 'log_autoclassify_fail' if priority == 'failures' else 'log_autoclassify'
-            autoclassify.apply_async(args=[job_id], queue=queue)
-        else:
-            job.autoclassify_status = Job.SKIPPED
-    else:
-        job.autoclassify_status = Job.SKIPPED
-    job.save()
 
 
 def store_failure_lines(job_log):

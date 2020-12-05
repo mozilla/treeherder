@@ -71,15 +71,23 @@
       "quantity": 1,
       "size": "Standard-1X"
     },
-    "worker_autoclassify": {
-      "quantity": 1,
-      "size": "Standard-1X"
-    },
     "worker_log_parser": {
       "quantity": 1,
       "size": "Standard-1X"
     },
-    "worker_log_parser_fail": {
+    "worker_log_parser_fail_raw_sheriffed": {
+      "quantity": 1,
+      "size": "Standard-1X"
+    },
+    "worker_log_parser_fail_raw_unsheriffed": {
+      "quantity": 1,
+      "size": "Standard-1X"
+    },
+    "worker_log_parser_fail_json_sheriffed": {
+      "quantity": 1,
+      "size": "Standard-1X"
+    },
+    "worker_log_parser_fail_json_unsheriffed": {
       "quantity": 1,
       "size": "Standard-1X"
     },
