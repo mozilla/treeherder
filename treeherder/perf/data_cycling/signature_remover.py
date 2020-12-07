@@ -1,5 +1,6 @@
 import logging
 from typing import List
+from django.conf import settings
 
 from treeherder.services.taskcluster import TaskclusterModel
 from treeherder.perf.data_cycling.max_runtime import MaxRuntime
@@ -61,7 +62,7 @@ class PublicSignatureRemover:
                     email_data = self.__extract_properties(chunk_of_signatures)
                     # check if Taskcluster Notify Service is up
                     try:
-                        self.tc_model.notify.ping()
+                        self._ping_notify_service()
                     except Exception:
                         logger.warning(
                             "Failed to delete signatures because the Notify Service is not available"
@@ -80,7 +81,7 @@ class PublicSignatureRemover:
             email_data = self.__extract_properties(chunk_of_signatures)
             # check if Taskcluster Notify Service is up
             try:
-                self.tc_model.notify.ping()
+                self._ping_notify_service()
             except Exception:
                 logger.warning(
                     "Failed to delete signatures because the Notify Service is not available"
@@ -90,9 +91,20 @@ class PublicSignatureRemover:
                 self._send_notification(email_data)
 
     def _send_notification(self, email_data):
-        logger.warning("Sending email with summary of deleted perf signatures to team...")
-        self._send_email(RECEIVER_TEAM_EMAIL, email_data)
-        self._send_email(RECEIVER_EMAIL, email_data)
+        # should only run on one instance at a time
+        if settings.NOTIFY_CLIENT_ID and settings.NOTIFY_ACCESS_TOKEN:
+            logger.info("Sending email with summary of deleted perf signatures to team...")
+            self._send_email(RECEIVER_TEAM_EMAIL, email_data)
+            self._send_email(RECEIVER_EMAIL, email_data)
+        else:
+            logger.warning("Failed to send notification because deployment is NOT production")
+
+    def _ping_notify_service(self):
+        # should only run on one instance at a time
+        if settings.NOTIFY_CLIENT_ID and settings.NOTIFY_ACCESS_TOKEN:
+            self.tc_model.notify.ping()
+        else:
+            logger.warning("Failed to ping Notify service because deployment is NOT production")
 
     @staticmethod
     def _delete(chunk_of_signatures):

@@ -440,7 +440,11 @@ def test_irrelevant_repos_data_removal(
 
 
 def test_signature_remover(
-    test_perf_signature, test_perf_signature_2, test_perf_data, mock_taskcluster_notify
+    test_perf_signature,
+    test_perf_signature_2,
+    test_perf_data,
+    mock_taskcluster_notify,
+    mock_tc_prod_credentials,
 ):
     cycler = PerfherderCycler(chunk_size=100, sleep_time=0)
     expired_timestamp = cycler.max_timestamp
@@ -458,7 +462,11 @@ def test_signature_remover(
 
 
 def test_signature_remover_when_notify_service_is_down(
-    test_perf_signature, test_perf_signature_2, test_perf_data, mock_taskcluster_notify
+    test_perf_signature,
+    test_perf_signature_2,
+    test_perf_data,
+    mock_taskcluster_notify,
+    mock_tc_prod_credentials,
 ):
     taskcluster.Notify().ping.side_effect = Exception('Email Service is down.')
 
@@ -470,7 +478,7 @@ def test_signature_remover_when_notify_service_is_down(
 
 
 @pytest.mark.parametrize('total_signatures', [3, 4, 8, 10])
-def test_total_emails_sent(test_perf_signature, total_signatures):
+def test_total_emails_sent(test_perf_signature, total_signatures, mock_tc_prod_credentials):
     tc_model = MagicMock()
     timer = MaxRuntime()
     timer.start_timer()
