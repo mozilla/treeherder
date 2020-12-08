@@ -33,9 +33,10 @@ def test_get_build_failures_with_parent(
 
     store_job_data(test_repository, parent_jobs)
 
-    result, build_failures = get_build_failures(test_push, parent_push)
+    result, build_failures, in_progress = get_build_failures(test_push, parent_push)
     first_build_failure = build_failures[0]
 
+    assert in_progress == 0
     assert result == 'fail'
     assert len(build_failures) == 2
     assert first_build_failure['failedInParent']
