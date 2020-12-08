@@ -238,7 +238,7 @@ def get_test_failures(
     )
     investigatedTests = InvestigatedTests.objects.filter(push=push)
 
-    # ``push_failures`` are tests that have FailureLine records created by out Log Parser.
+    # ``push_failures`` are tests that have FailureLine records created by our Log Parser.
     #     These are tests we are able to show to examine to see if we can determine they are
     #     intermittent.  If they are not, we tell the user they need investigation.
     # These are failures ONLY for the current push, not relative to history.
@@ -252,6 +252,7 @@ def get_test_failures(
         intermittent_history,
         fixed_by_commit_history,
     )
+
     failures = get_grouped(filtered_push_failures)
 
     result = 'pass'

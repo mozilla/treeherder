@@ -11,18 +11,9 @@ def get_lint_failures(push, parent_push=None):
         tier__lte=2,
     ).select_related('machine_platform', 'taskcluster_metadata')
 
-    result, failures = get_job_results(lint_results, 'testfailed')
+    result, failures, in_progress_count = get_job_results(lint_results, 'testfailed')
 
     if parent_push:
         mark_failed_in_parent(failures, get_lint_failures(parent_push)[1])
 
-    return (result, failures)
-
-
-def get_lint_in_progress_count(push):
-    return Job.objects.filter(
-        Q(machine_platform__platform='lint') | Q(job_type__symbol='mozlint'),
-        push=push,
-        tier__lte=2,
-        result='unknown',
-    ).count()
+    return (result, failures, in_progress_count)

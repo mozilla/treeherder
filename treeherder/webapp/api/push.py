@@ -10,9 +10,9 @@ from rest_framework.status import HTTP_400_BAD_REQUEST, HTTP_404_NOT_FOUND
 
 from treeherder.log_parser.failureline import get_group_results
 from treeherder.model.models import Job, JobType, Push, Repository
-from treeherder.push_health.builds import get_build_failures, get_build_in_progress_count
+from treeherder.push_health.builds import get_build_failures
 from treeherder.push_health.compare import get_commit_history
-from treeherder.push_health.linting import get_lint_failures, get_lint_in_progress_count
+from treeherder.push_health.linting import get_lint_failures
 from treeherder.push_health.tests import (
     get_test_failures,
     get_test_failure_jobs,
@@ -258,9 +258,9 @@ class PushViewSet(viewsets.ViewSet):
                 result_status,
             )
 
-            build_result, push_health_build_failures = get_build_failures(push)
+            build_result, push_health_build_failures, builds_in_progress = get_build_failures(push)
 
-            lint_result, push_health_lint_failures = get_lint_failures(push)
+            lint_result, push_health_lint_failures, linting_in_progress = get_lint_failures(push)
 
             test_failure_count = len(push_health_test_failures['needInvestigation'])
             build_failure_count = len(push_health_build_failures)
@@ -277,9 +277,9 @@ class PushViewSet(viewsets.ViewSet):
                     'testFailureCount': test_failure_count,
                     'testInProgressCount': get_test_in_progress_count(push),
                     'buildFailureCount': build_failure_count,
-                    'buildInProgressCount': get_build_in_progress_count(push),
+                    'buildInProgressCount': builds_in_progress,
                     'lintFailureCount': lint_failure_count,
-                    'lintingInProgressCount': get_lint_in_progress_count(push),
+                    'lintingInProgressCount': linting_in_progress,
                     'needInvestigation': test_failure_count
                     + build_failure_count
                     + lint_failure_count,
@@ -341,9 +341,9 @@ class PushViewSet(viewsets.ViewSet):
             parent_push,
         )
 
-        build_result, build_failures = get_build_failures(push, parent_push)
+        build_result, build_failures, _unused = get_build_failures(push, parent_push)
 
-        lint_result, lint_failures = get_lint_failures(push)
+        lint_result, lint_failures, _unused = get_lint_failures(push)
 
         push_result = 'pass'
         for metric_result in [test_result, lint_result, build_result]:
