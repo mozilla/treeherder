@@ -217,6 +217,7 @@ class PushViewSet(viewsets.ViewSet):
         count = request.query_params.get('count')
         all_repos = request.query_params.get('all_repos')
         with_history = request.query_params.get('with_history')
+        with_in_progress_tests = request.query_params.get('with_in_progress_tests', False)
 
         if revision:
             try:
@@ -258,28 +259,35 @@ class PushViewSet(viewsets.ViewSet):
                 result_status,
             )
 
-            build_result, push_health_build_failures, builds_in_progress = get_build_failures(push)
+            build_result, push_health_build_failures, builds_in_progress_count = get_build_failures(
+                push
+            )
 
-            lint_result, push_health_lint_failures, linting_in_progress = get_lint_failures(push)
+            lint_result, push_health_lint_failures, linting_in_progress_count = get_lint_failures(
+                push
+            )
 
             test_failure_count = len(push_health_test_failures['needInvestigation'])
             build_failure_count = len(push_health_build_failures)
             lint_failure_count = len(push_health_lint_failures)
+            test_in_progress_count = None
 
             if with_history:
                 serializer = PushSerializer([push], many=True)
                 commit_history = serializer.data
+            if with_in_progress_tests:
+                test_in_progress_count = get_test_in_progress_count(push)
 
             data.append(
                 {
                     'revision': push.revision,
                     'repository': push.repository.name,
                     'testFailureCount': test_failure_count,
-                    'testInProgressCount': get_test_in_progress_count(push),
+                    'testInProgressCount': test_in_progress_count,
                     'buildFailureCount': build_failure_count,
-                    'buildInProgressCount': builds_in_progress,
+                    'buildInProgressCount': builds_in_progress_count,
                     'lintFailureCount': lint_failure_count,
-                    'lintingInProgressCount': linting_in_progress,
+                    'lintingInProgressCount': linting_in_progress_count,
                     'needInvestigation': test_failure_count
                     + build_failure_count
                     + lint_failure_count,

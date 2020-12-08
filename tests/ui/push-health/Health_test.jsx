@@ -107,7 +107,7 @@ describe('Health', () => {
     );
     fetchMock.get(
       getProjectUrl(
-        '/push/health_summary/?revision=eeb6fd68c0223a72d8714734a34d3e6da69995e1',
+        '/push/health_summary/?revision=eeb6fd68c0223a72d8714734a34d3e6da69995e1&with_in_progress_tests=true',
         repo,
       ),
       [],
