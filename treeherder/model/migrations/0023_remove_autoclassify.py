@@ -14,4 +14,12 @@ class Migration(migrations.Migration):
             model_name='job',
             name='autoclassify_status',
         ),
+        migrations.RemoveField(
+            model_name='job',
+            name='coalesced_to_guid',
+        ),
+        migrations.RemoveField(
+            model_name='job',
+            name='project_specific_id',
+        ),
     ]
