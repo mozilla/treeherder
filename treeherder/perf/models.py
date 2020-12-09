@@ -94,6 +94,12 @@ class PerformanceSignature(models.Model):
                 return idx
         return None
 
+    def has_performance_data(self):
+        return PerformanceDatum.objects.filter(
+            repository_id=self.repository_id,  # leverages (repository, signature) compound index
+            signature_id=self.id,
+        ).exists()
+
     class Meta:
         db_table = 'performance_signature'
 
