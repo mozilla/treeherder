@@ -9,8 +9,6 @@ import {
   DropdownItem,
   Input,
   CardSubtitle,
-  Label,
-  FormGroup,
   ButtonDropdown,
   DropdownToggle,
   DropdownMenu,
@@ -30,7 +28,6 @@ export default class SelectorCard extends React.Component {
     this.state = {
       buttonDropdownOpen: false,
       inputDropdownOpen: false,
-      checkboxSelected: this.props.queryParam,
       data: {},
       failureStatus: null,
       invalidRevision: false,
@@ -46,7 +43,7 @@ export default class SelectorCard extends React.Component {
   }
 
   validateQueryParams = () => {
-    const { projects, selectedRepo, revisionState } = this.props;
+    const { projects, selectedRepo } = this.props;
     const validProject = projects.find((item) => item.name === selectedRepo);
 
     if (!validProject) {
@@ -57,11 +54,7 @@ export default class SelectorCard extends React.Component {
     // TODO might need to reset invalidProject after switching to react router
     // (not sure if entire page is reloaded if query params change)
 
-    // by default revisions are only needed for the 'New' component dropdown
-    // so we'll fetch revisions for the 'Base' component only as needed
-    if (this.state.checkboxSelected || revisionState === 'newRevision') {
-      this.fetchRevisions(selectedRepo);
-    }
+    this.fetchRevisions(selectedRepo);
   };
 
   fetchRevisions = async (selectedRepo) => {
@@ -105,13 +98,6 @@ export default class SelectorCard extends React.Component {
     }
     this.fetchRevisions(selectedRepo);
     updateState({ [projectState]: selectedRepo });
-  };
-
-  compareRevisions = () => {
-    this.toggle('checkboxSelected');
-    if (!this.state.data.results) {
-      this.fetchRevisions(this.props.selectedRepo);
-    }
   };
 
   selectRevision = (value) => {
@@ -184,7 +170,6 @@ export default class SelectorCard extends React.Component {
     const {
       buttonDropdownOpen,
       inputDropdownOpen,
-      checkboxSelected,
       data,
       invalidRevision,
       invalidProject,
@@ -196,8 +181,6 @@ export default class SelectorCard extends React.Component {
       selectedRepo,
       projects,
       title,
-      text,
-      checkbox,
       selectedRevision,
       missingRevision,
     } = this.props;
@@ -244,86 +227,67 @@ export default class SelectorCard extends React.Component {
               </CardText>
             )}
 
-            {checkbox && (
-              <FormGroup check className="pt-1">
-                <Label check className="font-weight-normal">
-                  <Input
-                    type="checkbox"
-                    defaultChecked={checkboxSelected}
-                    onClick={this.compareRevisions}
-                  />{' '}
-                  Compare with a specific revision
-                </Label>
-              </FormGroup>
-            )}
-
-            {!checkboxSelected && text ? (
-              <CardText className="text-muted py-2">{text}</CardText>
-            ) : (
-              <React.Fragment>
-                <CardSubtitle className="pt-4 pb-2">Revision</CardSubtitle>
-                <InputGroup>
-                  <Input
-                    valid={!invalidRevision && !validating && validated}
-                    placeholder={selectorCardText.revisionPlaceHolder}
-                    value={selectedRevision}
-                    onChange={(event) => this.validateInput(event.target.value)}
-                    onFocus={() =>
-                      this.setState({
-                        invalidRevision: false,
-                        validated: false,
-                      })
-                    }
-                  />
-                  <InputGroupButtonDropdown
-                    addonType="append"
-                    isOpen={inputDropdownOpen}
-                    toggle={() => this.toggle('inputDropdownOpen')}
-                  >
-                    <DropdownToggle caret outline disabled={disabled}>
-                      Recent
-                    </DropdownToggle>
-                    {!!data.results && data.results.length > 0 && (
-                      <DropdownMenu>
-                        {data.results.map((item) => (
-                          <DropdownItem
-                            tag="a"
-                            key={item.id}
-                            onClick={(event) =>
-                              this.selectRevision(
-                                event.target.innerText.split(' ')[0],
-                              )
+            <React.Fragment>
+              <CardSubtitle className="pt-4 pb-2">Revision</CardSubtitle>
+              <InputGroup>
+                <Input
+                  valid={!invalidRevision && !validating && validated}
+                  placeholder={selectorCardText.revisionPlaceHolder}
+                  value={selectedRevision}
+                  onChange={(event) => this.validateInput(event.target.value)}
+                  onFocus={() =>
+                    this.setState({
+                      invalidRevision: false,
+                      validated: false,
+                    })
+                  }
+                />
+                <InputGroupButtonDropdown
+                  addonType="append"
+                  isOpen={inputDropdownOpen}
+                  toggle={() => this.toggle('inputDropdownOpen')}
+                >
+                  <DropdownToggle caret outline disabled={disabled}>
+                    Recent
+                  </DropdownToggle>
+                  {!!data.results && data.results.length > 0 && (
+                    <DropdownMenu>
+                      {data.results.map((item) => (
+                        <DropdownItem
+                          tag="a"
+                          key={item.id}
+                          onClick={(event) =>
+                            this.selectRevision(
+                              event.target.innerText.split(' ')[0],
+                            )
+                          }
+                        >
+                          <FontAwesomeIcon
+                            icon={faCheck}
+                            className={`mr-1 ${
+                              selectedRevision === item.revision ? '' : 'hide'
+                            }`}
+                            title={
+                              selectedRevision === item.revision
+                                ? 'Checked'
+                                : ''
                             }
-                          >
-                            <FontAwesomeIcon
-                              icon={faCheck}
-                              className={`mr-1 ${
-                                selectedRevision === item.revision ? '' : 'hide'
-                              }`}
-                              title={
-                                selectedRevision === item.revision
-                                  ? 'Checked'
-                                  : ''
-                              }
-                            />
-                            {`${item.revision} ${item.author}`}
-                          </DropdownItem>
-                        ))}
-                      </DropdownMenu>
-                    )}
-                  </InputGroupButtonDropdown>
-                </InputGroup>
-                {(validating || invalidRevision || missingRevision) && (
-                  <CardText
-                    className={
-                      validating ? 'text-info pt-1' : 'text-danger pt-1'
-                    }
-                  >
-                    {validating || invalidRevision || missingRevision}
-                  </CardText>
-                )}
-              </React.Fragment>
-            )}
+                          />
+                          {`${item.revision} ${item.author}`}
+                        </DropdownItem>
+                      ))}
+                    </DropdownMenu>
+                  )}
+                </InputGroupButtonDropdown>
+              </InputGroup>
+              {(validating || invalidRevision || missingRevision) && (
+                <CardText
+                  className={validating ? 'text-info pt-1' : 'text-danger pt-1'}
+                >
+                  {validating || invalidRevision || missingRevision}
+                </CardText>
+              )}
+            </React.Fragment>
           </CardBody>
         </Card>
       </Col>
@@ -339,18 +303,12 @@ SelectorCard.propTypes = {
   projectState: PropTypes.string.isRequired,
   updateState: PropTypes.func.isRequired,
   title: PropTypes.string.isRequired,
-  text: PropTypes.string,
-  checkbox: PropTypes.bool,
-  queryParam: PropTypes.string,
   missingRevision: PropTypes.oneOfType([PropTypes.string, PropTypes.bool]),
   getRevisions: PropTypes.func,
 };
 
 SelectorCard.defaultProps = {
   projects: [],
-  text: null,
-  checkbox: false,
-  queryParam: undefined,
   missingRevision: false,
   getRevisions: PushModel.getList,
 };

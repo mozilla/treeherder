@@ -17,10 +17,7 @@ const Navigation = ({ user, setUser, notify }) => (
         </Link>
       </NavItem>
       <NavItem>
-        <Link
-          to="./comparechooser?checkboxSelected=true"
-          className="nav-link btn-view-nav"
-        >
+        <Link to="./comparechooser" className="nav-link btn-view-nav">
           Compare
         </Link>
       </NavItem>

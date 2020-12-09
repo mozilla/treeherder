@@ -154,7 +154,6 @@ export default class CompareSelectorView extends React.Component {
                 projectState="originalProject"
                 revisionState="originalRevision"
                 selectedRevision={originalRevision}
-                queryParam={this.queryParams.checkboxSelected}
                 errorMessages={errorMessages}
               />
               <SelectorCard
