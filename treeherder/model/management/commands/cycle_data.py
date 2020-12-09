@@ -214,11 +214,12 @@ class RemovalStrategy(ABC):
         pass
 
     @staticmethod
-    def fabricate_all_strategies(*args, **kwargs):
+    def fabricate_all_strategies(*args, **kwargs) -> List[RemovalStrategy]:
         return [
             MainRemovalStrategy(*args, **kwargs),
             TryDataRemoval(*args, **kwargs),
             IrrelevantDataRemoval(*args, **kwargs),
+            StalledDataRemoval(*args, **kwargs),
             # append here any new strategies
             # ...
         ]
@@ -433,6 +434,86 @@ class IrrelevantDataRemoval(RemovalStrategy):
             .order_by('id')[: self._chunk_size]
         )
         return len(older_perf_data_rows) or self._chunk_size
+
+
+class StalledDataRemoval(RemovalStrategy):
+    """
+    Removes `performance_datum` rows from `performance_signature`s
+    that haven't been updated in the last 4 months.
+    """
+
+    def __init__(self, chunk_size: int):
+        self._cycle_interval = timedelta(days=120)
+        self._chunk_size = chunk_size
+        self._max_timestamp = datetime.now() - self._cycle_interval
+        self._target_signature = None
+        self._removable_signatures = None
+
+    @property
+    def target_signature(self) -> PerformanceSignature:
+        try:
+            if self._target_signature is None:
+                self._target_signature = self.removable_signatures.pop()
+        except IndexError:
+            msg = 'No stalled signature found.'
+            logger.warning(msg)  # no stalled data is not normal
+            raise LookupError(msg)
+        return self._target_signature
+
+    @property
+    def removable_signatures(self) -> List[PerformanceSignature]:
+        if self._removable_signatures is None:
+            self._removable_signatures = list(
+                PerformanceSignature.objects.filter(last_updated__lte=self._max_timestamp).order_by(
+                    'last_updated'
+                )
+            )
+        return self._removable_signatures
+
+    def remove(self, using: CursorWrapper):
+        while True:
+            try:
+                self.__attempt_remove(using)
+
+                deleted_rows = using.rowcount
+                if deleted_rows > 0:
+                    break  # deletion was successful
+
+                self.__lookup_new_signature()  # to remove data from
+            except LookupError as ex:
+                logger.debug(
+                    f'Could not target any (new) stalled signature to delete data from. {ex}'
+                )
+                break
+
+    @property
+    def max_timestamp(self) -> datetime:
+        return self._max_timestamp
+
+    @property
+    def name(self) -> str:
+        return 'stalled data removal strategy'
+
+    def __attempt_remove(self, using: CursorWrapper):
+        using.execute(
+            '''
+                DELETE FROM `performance_datum`
+                WHERE repository_id = %s AND signature_id = %s AND push_timestamp <= %s
+                LIMIT %s
+            ''',
+            [
+                self.target_signature.repository_id,
+                self.target_signature.id,
+                self._max_timestamp,
+                self._chunk_size,
+            ],
+        )
+
+    def __lookup_new_signature(self):
+        try:
+            self._target_signature = self._removable_signatures.pop()
+        except IndexError:
+            raise LookupError('Exhausted all stalled signatures.')
 
 
 class Command(BaseCommand):
