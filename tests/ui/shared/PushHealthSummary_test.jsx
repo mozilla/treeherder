@@ -7,7 +7,10 @@ import { getProjectUrl } from '../../../ui/helpers/location';
 
 beforeEach(() => {
   fetchMock.get(
-    getProjectUrl('/push/health_summary/?revision=failed', 'autoland'),
+    getProjectUrl(
+      '/push/health_summary/?revision=failed&with_in_progress_tests=true',
+      'autoland',
+    ),
     [
       {
         testFailureCount: 2,
@@ -18,7 +21,10 @@ beforeEach(() => {
     ],
   );
   fetchMock.get(
-    getProjectUrl('/push/health_summary/?revision=passed', 'autoland'),
+    getProjectUrl(
+      '/push/health_summary/?revision=passed&with_in_progress_tests=true',
+      'autoland',
+    ),
     [
       {
         testFailureCount: 0,

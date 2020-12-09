@@ -73,6 +73,11 @@
   visibility: visible;
 }
 
+.button-border {
+  border: 1px solid;
+  border-radius: 5px;
+}
+
 /* Similar Jobs panel */
 .checkbox {
   min-height: 20px;

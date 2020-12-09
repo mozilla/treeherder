@@ -13,9 +13,9 @@ def get_build_failures(push, parent_push=None):
         job_type__in=build_types,
     ).select_related('machine_platform', 'taskcluster_metadata')
 
-    result, failures = get_job_results(build_results, 'busted')
+    result, failures, in_progress_count = get_job_results(build_results, 'busted')
 
     if parent_push:
         mark_failed_in_parent(failures, get_build_failures(parent_push)[1])
 
-    return (result, failures)
+    return (result, failures, in_progress_count)

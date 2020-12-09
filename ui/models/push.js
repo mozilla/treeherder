@@ -128,10 +128,10 @@ export default class PushModel {
     );
   }
 
-  static getHealthSummary(repoName, revision) {
+  static getHealthSummary(repoName, revision, withInProgressTests = true) {
     return getData(
       getProjectUrl(
-        `${pushEndpoint}health_summary/?revision=${revision}`,
+        `${pushEndpoint}health_summary/?revision=${revision}&with_in_progress_tests=${withInProgressTests}`,
         repoName,
       ),
     );

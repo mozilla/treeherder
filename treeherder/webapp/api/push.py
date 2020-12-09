@@ -13,7 +13,11 @@ from treeherder.model.models import Job, JobType, Push, Repository
 from treeherder.push_health.builds import get_build_failures
 from treeherder.push_health.compare import get_commit_history
 from treeherder.push_health.linting import get_lint_failures
-from treeherder.push_health.tests import get_test_failures, get_test_failure_jobs
+from treeherder.push_health.tests import (
+    get_test_failures,
+    get_test_failure_jobs,
+    get_test_in_progress_count,
+)
 from treeherder.push_health.usage import get_usage
 from treeherder.webapp.api.serializers import PushSerializer
 from treeherder.webapp.api.utils import to_datetime, to_timestamp
@@ -213,6 +217,7 @@ class PushViewSet(viewsets.ViewSet):
         count = request.query_params.get('count')
         all_repos = request.query_params.get('all_repos')
         with_history = request.query_params.get('with_history')
+        with_in_progress_tests = request.query_params.get('with_in_progress_tests', False)
 
         if revision:
             try:
@@ -254,25 +259,35 @@ class PushViewSet(viewsets.ViewSet):
                 result_status,
             )
 
-            build_result, push_health_build_failures = get_build_failures(push)
+            build_result, push_health_build_failures, builds_in_progress_count = get_build_failures(
+                push
+            )
 
-            lint_result, push_health_lint_failures = get_lint_failures(push)
+            lint_result, push_health_lint_failures, linting_in_progress_count = get_lint_failures(
+                push
+            )
 
             test_failure_count = len(push_health_test_failures['needInvestigation'])
             build_failure_count = len(push_health_build_failures)
             lint_failure_count = len(push_health_lint_failures)
+            test_in_progress_count = None
 
             if with_history:
                 serializer = PushSerializer([push], many=True)
                 commit_history = serializer.data
+            if with_in_progress_tests:
+                test_in_progress_count = get_test_in_progress_count(push)
 
             data.append(
                 {
                     'revision': push.revision,
                     'repository': push.repository.name,
                     'testFailureCount': test_failure_count,
+                    'testInProgressCount': test_in_progress_count,
                     'buildFailureCount': build_failure_count,
+                    'buildInProgressCount': builds_in_progress_count,
                     'lintFailureCount': lint_failure_count,
+                    'lintingInProgressCount': linting_in_progress_count,
                     'needInvestigation': test_failure_count
                     + build_failure_count
                     + lint_failure_count,
@@ -334,9 +349,9 @@ class PushViewSet(viewsets.ViewSet):
             parent_push,
         )
 
-        build_result, build_failures = get_build_failures(push, parent_push)
+        build_result, build_failures, _unused = get_build_failures(push, parent_push)
 
-        lint_result, lint_failures = get_lint_failures(push)
+        lint_result, lint_failures, _unused = get_lint_failures(push)
 
         push_result = 'pass'
         for metric_result in [test_result, lint_result, build_result]:

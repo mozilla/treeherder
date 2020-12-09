@@ -13,6 +13,7 @@ import PushModel from '../models/push';
 import RepositoryModel from '../models/repository';
 import StatusProgress from '../shared/StatusProgress';
 import { scrollToLine } from '../helpers/utils';
+import { resultColorMap, getIcon } from '../helpers/display';
 import {
   createQueryParams,
   parseQueryParams,
@@ -20,7 +21,6 @@ import {
 } from '../helpers/url';
 import InputFilter from '../shared/InputFilter';
 
-import { resultColorMap, getIcon } from './helpers';
 import TestMetric from './TestMetric';
 import JobListMetric from './JobListMetric';
 import CommitHistory from './CommitHistory';

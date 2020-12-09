@@ -682,7 +682,7 @@ class Push extends React.PureComponent {
                   commitShaClass="text-monospace"
                 >
                   {showPushHealthSummary && (
-                    <div className="ml-3 mt-4">
+                    <div className="mt-4">
                       <PushHealthSummary
                         healthStatus={pushHealthStatus}
                         revision={revision}

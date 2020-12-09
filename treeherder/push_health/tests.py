@@ -7,7 +7,7 @@ from collections import defaultdict
 from django.core.cache import cache
 from django.db.models import Q
 
-from treeherder.model.models import FailureLine, Job, OptionCollection, InvestigatedTests
+from treeherder.model.models import FailureLine, Job, OptionCollection, InvestigatedTests, JobType
 from treeherder.push_health.classification import get_grouped, set_classifications
 from treeherder.push_health.filter import filter_failure
 from treeherder.push_health.utils import clean_config, clean_platform, clean_test, job_to_dict
@@ -238,7 +238,7 @@ def get_test_failures(
     )
     investigatedTests = InvestigatedTests.objects.filter(push=push)
 
-    # ``push_failures`` are tests that have FailureLine records created by out Log Parser.
+    # ``push_failures`` are tests that have FailureLine records created by our Log Parser.
     #     These are tests we are able to show to examine to see if we can determine they are
     #     intermittent.  If they are not, we tell the user they need investigation.
     # These are failures ONLY for the current push, not relative to history.
@@ -252,6 +252,7 @@ def get_test_failures(
         intermittent_history,
         fixed_by_commit_history,
     )
+
     failures = get_grouped(filtered_push_failures)
 
     result = 'pass'
@@ -276,3 +277,21 @@ def get_test_failures(
                 failure['failedInParent'] = failure['key'] in both
 
     return (result, failures)
+
+
+def get_test_in_progress_count(push):
+    test_types = JobType.objects.exclude(
+        name__contains="build",
+        symbol='mozlint',
+    )
+    return (
+        Job.objects.filter(
+            push=push,
+            tier__lte=2,
+            result='unknown',
+            job_type__in=test_types,
+        )
+        .exclude(machine_platform__platform='lint')
+        .select_related('machine_platform')
+        .count()
+    )

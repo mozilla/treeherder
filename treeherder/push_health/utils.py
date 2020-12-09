@@ -149,15 +149,18 @@ def get_job_results(results, failure_type):
     result_status = set()
     result = 'pass'
     failures = []
+    count_in_progress = 0
 
     for job in results:
         result_status.add(job.result)
         if job.result == failure_type:
             failures.append(job_to_dict(job))
+        elif job.result == 'unknown':
+            count_in_progress += 1
 
     if len(failures):
         result = 'fail'
     elif 'unknown' in result_status:
         result = 'unknown'
 
-    return (result, failures)
+    return (result, failures, count_in_progress)
