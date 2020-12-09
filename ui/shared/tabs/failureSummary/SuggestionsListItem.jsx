@@ -8,6 +8,7 @@ import { faBug, faFilter } from '@fortawesome/free-solid-svg-icons';
 import Clipboard from '../../Clipboard';
 import logviewerIcon from '../../../img/logviewerIcon.png';
 import { thBugSuggestionLimit } from '../../../helpers/constants';
+import { isReftest } from '../../../helpers/job';
 import {
   createQueryParams,
   getLogViewerUrl,
@@ -167,7 +168,7 @@ export default class SuggestionsListItem extends React.Component {
                 description=" text of error line"
                 text={suggestion.search}
               />
-              {filterTestPath && !developerMode && (
+              {filterTestPath && !developerMode && !isReftest(selectedJob) && (
                 <Link
                   to={this.getPathFilter(filterTestPath)}
                   className="px-1 text-darker-secondary"
