@@ -7,6 +7,7 @@ import {
   ButtonGroup,
   ButtonDropdown,
   DropdownToggle,
+  Alert,
 } from 'reactstrap';
 
 import { parseQueryParams, createQueryParams } from '../../helpers/url';
@@ -26,7 +27,7 @@ export default class CompareSelectorView extends React.Component {
     super(props);
     this.queryParams = parseQueryParams(this.props.location.search);
     this.state = {
-      originalProject: this.queryParams.originalProject || 'mozilla-central',
+      originalProject: this.queryParams.originalProject || 'try',
       newProject: this.queryParams.newProject || 'try',
       originalRevision: this.queryParams.originalRevision || '',
       newRevision: this.queryParams.newRevision || '',
@@ -115,6 +116,11 @@ export default class CompareSelectorView extends React.Component {
     const frameworkNames = frameworks.length
       ? frameworks.map((item) => item.name)
       : [];
+    const showWarning =
+      (this.state.originalProject === 'mozilla-central' &&
+        this.state.newProject === 'try') ||
+      (this.state.originalProject === 'try' &&
+        this.state.newProject === 'mozilla-central');
 
     return (
       <Container fluid className="my-5 pt-5 max-width-default">
@@ -131,17 +137,23 @@ export default class CompareSelectorView extends React.Component {
               </Col>
             </Row>
             <Row className="justify-content-center">
+              {showWarning && (
+                <Alert color="warning">
+                  It is not recommended to compare a <b>try</b> build against a{' '}
+                  <b>mozilla-central</b> build, unless it is based on latest
+                  mozilla-central.
+                </Alert>
+              )}
+            </Row>
+            <Row className="justify-content-center">
               <SelectorCard
                 projects={projects}
                 updateState={(updates) => this.setState(updates)}
                 selectedRepo={originalProject}
                 title="Base"
-                checkbox
-                text="By default, Perfherder will compare against performance data gathered over the last 2 days from when new revision was pushed"
                 projectState="originalProject"
                 revisionState="originalRevision"
                 selectedRevision={originalRevision}
-                queryParam={this.queryParams.originalRevision}
                 errorMessages={errorMessages}
               />
               <SelectorCard
