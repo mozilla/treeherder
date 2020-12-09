@@ -24,6 +24,9 @@ import { formatNumber } from '../helpers';
 import TableView from './TableView';
 import GraphTooltip from './GraphTooltip';
 
+const DOT_SIZE = 5;
+const CHART_WIDTH = 1350;
+
 const VictoryZoomSelectionContainer = createContainer('zoom', 'selection');
 
 class GraphsContainer extends React.Component {
@@ -87,10 +90,6 @@ class GraphsContainer extends React.Component {
     }
   }
 
-  getToday = () => {
-    return moment.utc().toDate();
-  };
-
   // limits for the zoomDomain of VictoryChart
   initZoomDomain = (plotData) => {
     const minDomainY = this.getMinY(plotData);
@@ -104,10 +103,30 @@ class GraphsContainer extends React.Component {
     } else {
       zoomDomPadd = 100;
     }
-    const minX = this.getMinX(plotData);
-    const maxX = this.getToday();
     const minY = minDomainY - zoomDomPadd < 0 ? 0 : minDomainY - zoomDomPadd;
     const maxY = maxDomainY + zoomDomPadd;
+
+    // By default, Victory chart will place dots at the very ends of the graphs, which
+    // cuts them off. This code takes into account the data and dot size to compute
+    // a domain that will ensure the dots are all charted within view.
+    //
+    // Note that the domainPadding provided by Victory pads the data incorrectly, and
+    // skews the positioning of the graph.
+    const unpaddedMinX = this.getMinX(plotData);
+    const unpaddedMaxX = this.getMaxX(plotData);
+
+    const paddingInMilliseconds =
+      // Figure out the length of the graph in Milliseconds.
+      (Number(unpaddedMaxX) - Number(unpaddedMinX)) *
+      // Multiply by the ratio of 1 dot in terms of the width of the chart. The 1.4
+      // factor is used here since this is done once for each dot, and the factor
+      // needs to be increased to fully show the dot on the screen. This number
+      // was determined visually.
+      ((DOT_SIZE * 1.4) / CHART_WIDTH);
+
+    // Adjust the date by performing arithmetic on the milliseconds.
+    const minX = new Date(Number(unpaddedMinX) - paddingInMilliseconds);
+    const maxX = new Date(Number(unpaddedMaxX) + paddingInMilliseconds);
 
     return { minX, maxX, minY, maxY };
   };
@@ -313,6 +332,12 @@ class GraphsContainer extends React.Component {
     return data.reduce((min, p) => (p.x < min ? p.x : min), data[0].x);
   };
 
+  getMaxX = (data) => {
+    // Due to Bug 1676498 some data points can appear in the future. Guard against
+    // this by accepting dates in the future.
+    return data.reduce((max, p) => (p.x > max ? p.x : max), new Date());
+  };
+
   getMinY = (data) => {
     return data.reduce((min, p) => (p.y < min ? p.y : min), data[0].y);
   };
@@ -353,8 +378,6 @@ class GraphsContainer extends React.Component {
       bottom: 50,
     };
 
-    const today = moment.utc().toDate();
-
     return (
       <span data-testid="graphContainer">
         {!showTable && (
@@ -363,12 +386,13 @@ class GraphsContainer extends React.Component {
               <Col className="p-0 col-md-auto">
                 <VictoryChart
                   padding={chartPadding}
-                  width={1350}
+                  width={CHART_WIDTH}
                   height={150}
                   style={{ parent: { maxHeight: '150px', maxWidth: '1350px' } }}
                   scale={{ x: 'time', y: 'linear' }}
                   domainPadding={{ y: 30 }}
-                  maxDomain={{ x: today }}
+                  minDomain={{ x: zoomDomain.minX, y: zoomDomain.minY }}
+                  maxDomain={{ x: zoomDomain.maxX, y: zoomDomain.maxY }}
                   containerComponent={
                     <VictoryBrushContainer
                       brushDomain={zoom}
@@ -411,9 +435,9 @@ class GraphsContainer extends React.Component {
                   height={400}
                   style={{ parent: { maxHeight: '400px', maxWidth: '1350px' } }}
                   scale={{ x: 'time', y: 'linear' }}
-                  domainPadding={{ y: 40, x: [10, 10] }}
+                  domainPadding={{ y: 40 }}
                   minDomain={{ x: zoomDomain.minX, y: zoomDomain.minY }}
-                  maxDomain={{ x: today, y: zoomDomain.maxY }}
+                  maxDomain={{ x: zoomDomain.maxX, y: zoomDomain.maxY }}
                   externalEventMutations={externalMutation}
                   containerComponent={
                     <VictoryZoomSelectionContainer
@@ -509,7 +533,7 @@ class GraphsContainer extends React.Component {
                             : 2,
                       },
                     }}
-                    size={() => 5}
+                    size={() => DOT_SIZE}
                     data={scatterPlotData}
                     labels={() => ''}
                     labelComponent={
