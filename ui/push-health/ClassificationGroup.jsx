@@ -116,13 +116,6 @@ class ClassificationGroup extends React.PureComponent {
         data-testid="classification-group"
       >
         <span className="font-size-24">
-          <FontAwesomeIcon
-            icon={expandIcon}
-            className="mr-1 min-width-1"
-            title={expandTitle}
-            aria-label={expandTitle}
-            alt=""
-          />
           <Button
             onClick={this.toggleDetails}
             outline
@@ -130,6 +123,13 @@ class ClassificationGroup extends React.PureComponent {
             role="button"
             aria-expanded={detailsShowing}
           >
+            <FontAwesomeIcon
+              icon={expandIcon}
+              className="mr-1 min-width-1"
+              title={expandTitle}
+              aria-label={expandTitle}
+              alt=""
+            />
             <FontAwesomeIcon icon={icon} className={`mr-2 text-${iconColor}`} />
             {name} ({groupLength})
           </Button>

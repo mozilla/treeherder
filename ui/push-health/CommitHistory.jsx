@@ -76,17 +76,17 @@ class CommitHistory extends React.PureComponent {
             <div className="commit-header" data-testid="headerText">
               {headerText}
             </div>
-            <div className="text-secondary" data-testid="authorTime">
+            <div className="text-secondary my-2" data-testid="authorTime">
               {toDateStr(pushTimestamp)}
               <span className="mx-1">-</span>
               <span>{authorEmail}</span>
             </div>
           </div>
-          <div className="text-secondary">
+          <div className="text-secondary mt-1">
             Push
             <span className="font-weight-bold mr-1 ml-1">
               <a
-                href={revisionPushFilterUrl}
+                href={currentRepo.getRevisionHref(revision)}
                 target="_blank"
                 rel="noopener noreferrer"
               >
@@ -100,6 +100,14 @@ class CommitHistory extends React.PureComponent {
             >
               {currentRepo.name}
             </span>
+            {' '}.{' '}
+            <a
+                href={revisionPushFilterUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+              >
+            View in Treeherder
+            </a>
           </div>
         </div>
         <div className="commit-area mt-2 text-secondary">
@@ -146,7 +154,7 @@ class CommitHistory extends React.PureComponent {
                     href={parentLinkUrl}
                     target="_blank"
                     rel="noopener noreferrer"
-                    title="Open this push"
+                    title="View this push"
                     data-testid="parent-commit-sha"
                     className="mr-1 ml-1 font-weight-bold text-secondary"
                   >
