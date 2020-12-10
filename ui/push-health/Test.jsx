@@ -212,7 +212,7 @@ class Test extends PureComponent {
           >
             <Button
               onClick={this.toggleDetails}
-              className="text-break text-wrap border-0"
+              className="pr-0 text-left border-0"
               title="Click to expand for test detail"
               outline
             >
@@ -220,8 +220,15 @@ class Test extends PureComponent {
                 icon={detailsShowing ? faCaretDown : faCaretRight}
                 className="mr-2 min-width-1"
               />
+            </Button>
+            <Button
+              onClick={this.toggleDetails}
+              className="text-left border-0"
+              title="Click to expand for test detail"
+              outline
+            >
               {key === 'none' ? 'All' : this.getGroupHtml(key)}
-              <span className="ml-2">
+              <span className="ml-2 text-break">
                 ({tests.length} failure{tests.length > 1 && 's'})
               </span>
             </Button>
