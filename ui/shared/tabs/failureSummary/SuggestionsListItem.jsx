@@ -138,20 +138,27 @@ export default class SuggestionsListItem extends React.Component {
       <li>
         <div>
           {developerMode ? (
-            <a
-              href={getLogViewerUrl(
-                selectedJob.id,
-                repoName,
-                suggestion.line_number + 1,
-              )}
-              target="_blank"
-              rel="noopener noreferrer"
-              title="Go to this line in the log viewer"
-            >
-              <span className="align-middle link-style font-weight-500">
-                {suggestion.search}
-              </span>
-            </a>
+            <React.Fragment>
+              <Clipboard
+                description=" text of error line"
+                text={suggestion.search}
+              />
+              <a
+                href={getLogViewerUrl(
+                  selectedJob.id,
+                  repoName,
+                  suggestion.line_number + 1,
+                )}
+                target="_blank"
+                rel="noopener noreferrer"
+                title="Go to this line in the log viewer"
+              >
+                <span className="align-middle link-style font-weight-400 font-size-12">
+                  {suggestion.search}
+                </span>
+              </a>
+              <br className="mb-3" />
+            </React.Fragment>
           ) : (
             <span>
               <Button

@@ -35,6 +35,10 @@
   font-size: 11px;
 }
 
+.font-size-12 {
+  font-size: 12px;
+}
+
 .font-size-16 {
   font-size: 16px;
 }
@@ -49,6 +53,10 @@
 
 .font-size-24 {
   font-size: 24px;
+}
+
+.font-weight-400 {
+  font-weight: 400;
 }
 
 .font-weight-500 {
