@@ -99,14 +99,14 @@ class CommitHistory extends React.PureComponent {
               className="d-inline-block text-capitalize font-weight-bold ml-1"
             >
               {currentRepo.name}
-            </span>
-            {' '}.{' '}
+            </span>{' '}
+            .{' '}
             <a
-                href={revisionPushFilterUrl}
-                target="_blank"
-                rel="noopener noreferrer"
-              >
-            View in Treeherder
+              href={revisionPushFilterUrl}
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              View in Treeherder
             </a>
           </div>
         </div>
