@@ -34,5 +34,6 @@ class Command(BaseCommand):
         while data_to_delete:
             delete_now, data_to_delete = data_to_delete[:chunk_size], data_to_delete[chunk_size:]
             PerformanceDatum.objects.filter(id__in=delete_now).delete()
+            MultiCommitDatum.objects.filter(perf_datum__isnull=True).delete()
             print(f'\r{len(data_to_delete)} `performance_datum` rows left to delete', end='')
         print()

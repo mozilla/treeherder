@@ -180,10 +180,7 @@ class PerformanceDatum(models.Model):
 
 class MultiCommitDatum(models.Model):
     perf_datum = models.OneToOneField(
-        PerformanceDatum,
-        on_delete=models.CASCADE,
-        primary_key=True,
-        related_name='multi_commit_datum',
+        PerformanceDatum, null=True, on_delete=models.SET_NULL, related_name='multi_commit_datum'
     )
 
 

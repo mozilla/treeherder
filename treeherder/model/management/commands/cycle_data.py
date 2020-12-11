@@ -14,7 +14,12 @@ from typing import List
 
 from treeherder.model.models import Job, JobGroup, JobType, Machine, Repository
 from treeherder.perf.exceptions import MaxRuntimeExceeded, NoDataCyclingAtAll
-from treeherder.perf.models import PerformanceDatum, PerformanceSignature, PerformanceAlertSummary
+from treeherder.perf.models import (
+    PerformanceDatum,
+    PerformanceSignature,
+    PerformanceAlertSummary,
+    MultiCommitDatum,
+)
 from treeherder.services.taskcluster import TaskclusterModel, DEFAULT_ROOT_URL as root_url
 from treeherder.perf.data_cycling.signature_remover import PublicSignatureRemover
 from treeherder.perf.data_cycling.max_runtime import MaxRuntime
@@ -160,6 +165,12 @@ class PerfherderCycler(DataCycler):
             .delete()
         )
 
+        # remove orphaned `perf_multicommitdatum` rows
+        logger.warning(
+            'Removing multicommit data which no longer has any associated performance data...'
+        )
+        MultiCommitDatum.objects.filter(perf_datum__isnull=True).delete()
+
     def _delete_in_chunks(self, strategy: RemovalStrategy):
         any_successful_attempt = False
 
@@ -254,7 +265,7 @@ class MainRemovalStrategy(RemovalStrategy):
             WHERE push_timestamp <= %s
             LIMIT %s
         ''',
-            [self._max_timestamp, chunk_size],
+            [self.max_timestamp, chunk_size],
         )
 
     @property
@@ -262,9 +273,9 @@ class MainRemovalStrategy(RemovalStrategy):
         return 'main removal strategy'
 
     def _find_ideal_chunk_size(self) -> int:
-        max_id = self._manager.filter(push_timestamp__gt=self._max_timestamp).order_by('-id')[0].id
+        max_id = self._manager.filter(push_timestamp__gt=self.max_timestamp).order_by('-id')[0].id
         older_ids = self._manager.filter(
-            push_timestamp__lte=self._max_timestamp, id__lte=max_id
+            push_timestamp__lte=self.max_timestamp, id__lte=max_id
         ).order_by('id')[: self._chunk_size]
 
         return len(older_ids) or self._chunk_size
