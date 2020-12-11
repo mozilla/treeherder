@@ -102,3 +102,7 @@ input[type='checkbox'] {
 .investigated {
   text-decoration: line-through;
 }
+
+.custom-tooltip-width {
+  max-width: 100% !important;
+}
