@@ -160,9 +160,19 @@ def test_cycle_job_model_reference_data(
     assert Machine.objects.filter(id__in=original_machine_ids).count() == len(original_machine_ids)
 
 
+# Treeherder's data cycling can have some impact upon
+# Perfherder data. Test cases touching this aspect
+# should be defined bellow.
+
+
 def test_cycle_job_with_performance_data(
     test_repository, failure_classifications, test_job, mock_log_parser, test_perf_signature
 ):
+    """
+    Ensure that removing Treeherder jobs won't CASCADE DELETE to
+    `performance_datum` rows, as this would have dire consequences.
+    Rather the perf rows remain, but with their `job` foreign key set to NULL.
+    """
     # build a date that will cause the data to be cycled
     test_job.submit_time = datetime.now() - timedelta(weeks=1)
     test_job.save()

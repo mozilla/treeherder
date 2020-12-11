@@ -112,16 +112,13 @@ class PerfherderCycler(DataCycler):
         sleep_time: int,
         is_debug: bool = None,
         days: int = None,
-        max_runtime: timedelta = None,
         strategies: List[RemovalStrategy] = None,
         **kwargs,
     ):
         super().__init__(chunk_size, sleep_time, is_debug)
-        self.max_runtime = max_runtime or PerfherderCycler.DEFAULT_MAX_RUNTIME
         self.strategies = strategies or RemovalStrategy.fabricate_all_strategies(
             chunk_size, days=days
         )
-
         self.timer = MaxRuntime()
 
     @property
