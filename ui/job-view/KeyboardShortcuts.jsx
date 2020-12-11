@@ -47,7 +47,7 @@ class KeyboardShortcuts extends React.Component {
       case 'p':
         return this.changeSelectedJob('previous', true);
       case 'q':
-        return filterModel.toggleClassifiedFailures();
+        return filterModel.toggleClassifiedFailures(true);
       case 'r':
         return this.jobRetrigger();
       case 't':

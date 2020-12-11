@@ -82,20 +82,23 @@ function FiltersMenu(props) {
         <DropdownItem
           tag="a"
           onClick={() =>
-            arraysEqual(resultStatus, thDefaultFilterResultStatuses)
-              ? filterModel.toggleClassifiedFailures()
+            arraysEqual(resultStatus, thDefaultFilterResultStatuses) &&
+            arraysEqual(classifiedState, ['unclassified', 'classified'])
+              ? filterModel.toggleClassifiedFailures(true)
               : filterModel.resetNonFieldFilters()
           }
         >
           <FontAwesomeIcon
             icon={faCheck}
             className={`mr-1 ${
-              arraysEqual(resultStatus, thDefaultFilterResultStatuses)
+              arraysEqual(resultStatus, thDefaultFilterResultStatuses) &&
+              arraysEqual(classifiedState, ['unclassified', 'classified'])
                 ? ''
                 : 'hide'
             }`}
             title={
-              arraysEqual(resultStatus, thDefaultFilterResultStatuses)
+              arraysEqual(resultStatus, thDefaultFilterResultStatuses) &&
+              arraysEqual(classifiedState, ['unclassified', 'classified'])
                 ? 'Selected'
                 : ''
             }
@@ -104,14 +107,14 @@ function FiltersMenu(props) {
         </DropdownItem>
         <DropdownItem
           tag="a"
-          onClick={() => filterModel.toggleClassifiedFailures()}
+          onClick={() => filterModel.toggleClassifiedFailures(true)}
         >
           <FontAwesomeIcon
             icon={faCheck}
             className={`mr-1 ${
-              filterModel.isClassifiedFailures() ? '' : 'hide'
+              filterModel.isClassifiedFailures(true) ? '' : 'hide'
             }`}
-            title={filterModel.isClassifiedFailures() ? 'Selected' : ''}
+            title={filterModel.isClassifiedFailures(true) ? 'Selected' : ''}
           />
           All failures
         </DropdownItem>
@@ -127,6 +130,19 @@ function FiltersMenu(props) {
             title={filterModel.isUnclassifiedFailures() ? 'Selected' : ''}
           />
           Unclassified failures
+        </DropdownItem>
+        <DropdownItem
+          tag="a"
+          onClick={() => filterModel.toggleClassifiedFailures()}
+        >
+          <FontAwesomeIcon
+            icon={faCheck}
+            className={`mr-1 ${
+              filterModel.isClassifiedFailures() ? '' : 'hide'
+            }`}
+            title={filterModel.isClassifiedFailures() ? 'Selected' : ''}
+          />
+          Classified failures
         </DropdownItem>
         <DropdownItem divider />
         <DropdownItem
