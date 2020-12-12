@@ -165,9 +165,11 @@ export default class FilterModel {
 
   toggleClassifiedFailures = (showUnclassified = false) => {
     if (this.isClassifiedFailures(showUnclassified)) {
-      showUnclassified
-        ? this.toggleUnclassifiedFailures()
-        : this.resetNonFieldFilters();
+      if (showUnclassified) {
+        this.toggleUnclassifiedFailures();
+      } else {
+        this.resetNonFieldFilters();
+      }
     } else {
       this.urlParams.resultStatus = [
         'testfailed',
@@ -176,9 +178,11 @@ export default class FilterModel {
         'retry',
         'usercancel',
       ];
-      showUnclassified
-        ? (this.urlParams.classifiedState = ['unclassified', 'classified'])
-        : (this.urlParams.classifiedState = ['classified']);
+      if (showUnclassified) {
+        this.urlParams.classifiedState = ['unclassified', 'classified'];
+      } else {
+        this.urlParams.classifiedState = ['classified'];
+      }
 
       this.push({ search: this.getFilterQueryString() });
     }
