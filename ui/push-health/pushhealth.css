@@ -101,6 +101,7 @@ input[type='checkbox'] {
 
 .investigated {
   text-decoration: line-through;
+  opacity: 0.5;
 }
 
 .custom-tooltip-width {
