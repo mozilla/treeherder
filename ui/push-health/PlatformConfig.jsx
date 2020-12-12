@@ -44,11 +44,17 @@ class PlatformConfig extends React.PureComponent {
     });
   }
 
-  componentWillReceiveProps() {
-    const { selectedTests, failure } = this.props;
-    this.setState({
-      isTestSelected: selectedTests.has(failure),
-    });
+  componentDidUpdate(prevProps) {
+    const { allPlatformsSelected } = this.props;
+    const { isTestSelected } = this.props;
+
+    if (
+      prevProps.allPlatformsSelected !== allPlatformsSelected &&
+      allPlatformsSelected !== isTestSelected
+    ) {
+      // eslint-disable-next-line react/no-did-update-set-state
+      this.setState({ isTestSelected: allPlatformsSelected });
+    }
   }
 
   setSelectedTask = (task) => {
@@ -106,13 +112,13 @@ class PlatformConfig extends React.PureComponent {
         key={key}
         style={{ background: '#f2f2f2' }}
       >
-        <Row className="ml-2 w-100 mb-2 justify-content-between">
+        <Row className="ml-2 pl-2 w-100 mb-2 justify-content-between">
           <Col xs="auto">
             <Input
               type="checkbox"
               checked={isTestSelected}
               onChange={this.selectTest}
-              title="Select Test"
+              aria-label={`Select ${jobName}`}
             />
           </Col>
           <Col>

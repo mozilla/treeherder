@@ -11,6 +11,9 @@ import {
   DropdownMenu,
   DropdownToggle,
   DropdownItem,
+  Input,
+  FormGroup,
+  Label,
 } from 'reactstrap';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import {
@@ -36,6 +39,7 @@ class Test extends PureComponent {
       clipboardVisible: null,
       detailsShowing: false,
       selectedTests: new Set(),
+      allPlatformsSelected: false,
     };
   }
 
@@ -188,6 +192,20 @@ class Test extends PureComponent {
     );
   };
 
+  selectAll = () => {
+    const { tests } = this.props.test;
+    const { allPlatformsSelected } = this.state;
+
+    const newSelectedTests = allPlatformsSelected
+      ? new Map()
+      : new Map(tests.map((test) => Object.entries(test)));
+
+    this.setState({
+      allPlatformsSelected: !allPlatformsSelected,
+      selectedTests: newSelectedTests,
+    });
+  };
+
   render() {
     const {
       test: { key, id, tests },
@@ -200,7 +218,11 @@ class Test extends PureComponent {
       selectedTaskId,
       updateParamsAndState,
     } = this.props;
-    const { clipboardVisible, detailsShowing, selectedTests } = this.state;
+    const {
+      clipboardVisible,
+      detailsShowing,
+      allPlatformsSelected,
+    } = this.state;
 
     return (
       <div>
@@ -240,7 +262,7 @@ class Test extends PureComponent {
           </span>
 
           <Collapse isOpen={detailsShowing}>
-            <Navbar className="mb-4">
+            <Navbar className="mb-3">
               <Nav>
                 <NavItem>
                   <ButtonGroup size="sm" className="ml-5">
@@ -297,6 +319,17 @@ class Test extends PureComponent {
                 </NavItem>
               </Nav>
             </Navbar>
+            <div className="ml-5 pl-2">
+              <FormGroup className="mb-1 pl-4">
+                <Input
+                  aria-label="Select all platforms for this test"
+                  type="checkbox"
+                  checked={allPlatformsSelected}
+                  onChange={this.selectAll}
+                />
+                <Label className="text-darker-secondary ml-4">select all</Label>
+              </FormGroup>
+            </div>
             {tests.map((failure) => (
               <PlatformConfig
                 key={failure.key}
@@ -313,10 +346,9 @@ class Test extends PureComponent {
                   updateParamsAndState(stateObj);
                 }}
                 className="ml-3"
-                selectedTests={selectedTests}
-                isTestSelected={selectedTests.has(failure)}
                 addSelectedTest={this.addSelectedTest}
                 removeSelectedTest={this.removeSelectedTest}
+                allPlatformsSelected={allPlatformsSelected}
               />
             ))}
           </Collapse>
