@@ -2,7 +2,7 @@ import React, { PureComponent } from 'react';
 import PropTypes from 'prop-types';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faStar } from '@fortawesome/free-solid-svg-icons';
-import { Badge, Col, Row } from 'reactstrap';
+import { Col, Row } from 'reactstrap';
 
 import SimpleTooltip from '../shared/SimpleTooltip';
 import { getBtnClass } from '../helpers/job';
@@ -19,7 +19,6 @@ class Job extends PureComponent {
       failure_classification_id: failureClassificationId,
       job_type_name: jobName,
       job_type_symbol: jobSymbol,
-      failedInParent,
     } = job;
     const resultStatus = state === 'completed' ? result : state;
 
@@ -46,11 +45,6 @@ class Job extends PureComponent {
                   title="Classified"
                   color="lightgray"
                 />
-              )}
-              {!!failedInParent && (
-                <Badge color="info" className="ml-1">
-                  Failed in parent
-                </Badge>
               )}
             </span>
           }

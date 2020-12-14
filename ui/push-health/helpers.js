@@ -5,20 +5,12 @@ export const taskResultColorMap = {
   unknown: 'darker-secondary',
 };
 
-export const filterTests = (tests, searchStr, showParentMatches) => {
+export const filterTests = (tests, searchStr) => {
   const filters = searchStr.split(' ').map((filter) => new RegExp(filter, 'i'));
-  const testsFilteredForParentMatches = tests.filter(
-    (test) =>
-      !test.failedInParent || (test.failedInParent && showParentMatches),
-  );
 
-  return testsFilteredForParentMatches.filter((test) =>
+  return tests.filter((test) =>
     filters.every((f) =>
       f.test(`${test.testName} ${test.platform} ${test.config}`),
     ),
   );
-};
-
-export const filterJobs = (jobs, showParentMatches) => {
-  return jobs.filter((job) => job.failedInParent === showParentMatches);
 };

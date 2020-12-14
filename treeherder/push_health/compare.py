@@ -27,7 +27,6 @@ def get_commit_history(repository, revision, push):
             CommitSerializer(commit).data for commit in push.commits.all().order_by('-id')
         ],
         'revisionCount': push.commits.count(),
-        'parentPush': None,
         'currentPush': PushSerializer(push).data,
     }
     if parent_push:
@@ -39,7 +38,6 @@ def get_commit_history(repository, revision, push):
                 'id': parent_push.id,
                 'jobCounts': parent_push.get_status(),
                 'exactMatch': parent_sha == parent_push.revision,
-                'parentPush': parent_push,
             }
         )
     return resp

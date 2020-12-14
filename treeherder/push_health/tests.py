@@ -219,7 +219,6 @@ def get_test_failures(
     push,
     jobs,
     result_status=set(),
-    parent_push=None,
 ):
     logger.debug('Getting test failures for push: {}'.format(push.id))
     # query for jobs for the last two weeks excluding today
@@ -261,20 +260,6 @@ def get_test_failures(
         result = 'fail'
     elif 'unknown' in result_status:
         result = 'unknown'
-
-    if parent_push:
-        # Since there is a parent_push, we want to mark all failures with whether or not they also
-        # exist in the parent.
-        parent_push_jobs = get_test_failure_jobs(parent_push)[1]
-        parent_test_failures = get_test_failures(parent_push, parent_push_jobs)[1]
-        for classification, failure_group in failures.items():
-            parent_failure_group = parent_test_failures[classification]
-            failure_keys = {fail['key'] for fail in failure_group}
-            parent_failure_keys = {fail['key'] for fail in parent_failure_group}
-            both = list(failure_keys.intersection(parent_failure_keys))
-
-            for failure in failure_group:
-                failure['failedInParent'] = failure['key'] in both
 
     return (result, failures)
 

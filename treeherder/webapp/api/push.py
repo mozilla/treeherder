@@ -333,23 +333,19 @@ class PushViewSet(viewsets.ViewSet):
             )
 
         commit_history_details = None
-        parent_push = None
         result_status, jobs = get_test_failure_jobs(push)
         # Parent compare only supported for Hg at this time.
         # Bug https://bugzilla.mozilla.org/show_bug.cgi?id=1612645
         if repository.dvcs_type == 'hg':
             commit_history_details = get_commit_history(repository, revision, push)
-            if commit_history_details['exactMatch']:
-                parent_push = commit_history_details.pop('parentPush')
 
         test_result, push_health_test_failures = get_test_failures(
             push,
             jobs,
             result_status,
-            parent_push,
         )
 
-        build_result, build_failures, _unused = get_build_failures(push, parent_push)
+        build_result, build_failures, _unused = get_build_failures(push)
 
         lint_result, lint_failures, _unused = get_lint_failures(push)
 

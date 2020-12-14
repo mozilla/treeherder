@@ -8,29 +8,19 @@ const repoName = 'autoland';
 const { builds } = pushHealth.metrics;
 
 describe('JobListMetric', () => {
-  const testJobListMetric = (builds, showParentMatches) => (
+  const testJobListMetric = (builds) => (
     <JobListMetric
       data={builds}
       repo={repoName}
       revision="abc"
       expanded
       setExpanded={() => {}}
-      showParentMatches={showParentMatches}
     />
   );
 
   test('should show the build symbol', async () => {
-    const { getByText } = render(testJobListMetric(builds, true));
+    const { getByText } = render(testJobListMetric(builds));
 
     expect(await waitFor(() => getByText('arm64'))).toBeInTheDocument();
-  });
-
-  test('should not show the build symbol if hiding parent matches', async () => {
-    const { getByText, queryByText } = render(testJobListMetric(builds, false));
-
-    expect(queryByText('arm64')).not.toBeInTheDocument();
-    expect(
-      getByText('All failed Builds also failed in Parent Push'),
-    ).toBeInTheDocument();
   });
 });

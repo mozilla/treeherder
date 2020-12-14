@@ -78,8 +78,6 @@ def get_grouped(failures):
 
         if (is_intermittent and failure['confidence'] == 100) or failure['passFailRatio'] > 0.5:
             classified[KNOWN_ISSUES].append(failure)
-        elif failure['failedInParent']:
-            classified[KNOWN_ISSUES].append(failure)
         else:
             classified[NEED_INVESTIGATION].append(failure)
             # If it needs investigation, we, by definition, don't have 100% confidence.

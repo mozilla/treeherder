@@ -1,9 +1,9 @@
 from treeherder.model.models import Job, JobType
-from treeherder.push_health.utils import mark_failed_in_parent, get_job_results
+from treeherder.push_health.utils import get_job_results
 from django.db.models import Q
 
 
-def get_build_failures(push, parent_push=None):
+def get_build_failures(push):
     # icontains doesn't work with mysql unless collation settings are adjusted: https://code.djangoproject.com/ticket/9682
     build_types = JobType.objects.filter(Q(name__contains='Build') | Q(name__contains='build'))
 
@@ -14,8 +14,5 @@ def get_build_failures(push, parent_push=None):
     ).select_related('machine_platform', 'taskcluster_metadata')
 
     result, failures, in_progress_count = get_job_results(build_results, 'busted')
-
-    if parent_push:
-        mark_failed_in_parent(failures, get_build_failures(parent_push)[1])
 
     return (result, failures, in_progress_count)

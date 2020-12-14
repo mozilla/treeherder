@@ -1,6 +1,6 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import { Badge, Button, Row, Col, Input } from 'reactstrap';
+import { Button, Row, Col, Input } from 'reactstrap';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faRedo } from '@fortawesome/free-solid-svg-icons';
 import sortBy from 'lodash/sortBy';
@@ -90,7 +90,6 @@ class PlatformConfig extends React.PureComponent {
       jobName,
       key,
       tier,
-      failedInParent,
       jobGroupSymbol,
       jobSymbol,
       isInvestigated,
@@ -156,7 +155,6 @@ class PlatformConfig extends React.PureComponent {
                 </span>
               );
             })}
-            {!!failedInParent && <Badge color="info">Failed In Parent</Badge>}
             <Button
               onClick={() => this.retriggerTask(taskList[0])}
               outline
