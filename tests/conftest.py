@@ -14,7 +14,6 @@ from django.conf import settings
 from rest_framework.test import APIClient
 from unittest.mock import MagicMock
 
-from treeherder.autoclassify.autoclassify import mark_best_classification
 from treeherder.etl.jobs import store_job_data
 from treeherder.etl.push import store_push_data
 from treeherder.model.models import (
@@ -440,7 +439,6 @@ def classified_failures(
             classified_failure = ClassifiedFailure.objects.create()
 
             failure_line.error.create_match(test_matcher, classified_failure)
-            mark_best_classification(failure_line.error, classified_failure)
 
             classified_failures.append(classified_failure)
 
@@ -547,11 +545,6 @@ def test_perf_data(test_perf_signature, eleven_jobs_stored):
         perf_datum.push.save()
 
     return PerformanceDatum.objects.order_by('id').all()
-
-
-@pytest.fixture
-def mock_autoclassify_jobs_true(monkeypatch):
-    monkeypatch.setattr(settings, 'AUTOCLASSIFY_JOBS', True)
 
 
 @pytest.fixture

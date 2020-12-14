@@ -1,6 +1,5 @@
 [
   {
-    "autoclassify_status": 1,
     "build_platform": {
       "architecture": "x86",
       "os_name": "my_os",

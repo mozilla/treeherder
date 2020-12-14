@@ -64,7 +64,6 @@ def complex_job(transactional_db, generic_reference_data, test_repository, extra
     oc = OptionCollection.objects.create(option_collection_hash=Random.base64(5), option=debug)
 
     job = Job.objects.create(
-        autoclassify_status=1,
         guid=Random.base64(20),
         repository=test_repository,
         push_id=push.id,
