@@ -584,9 +584,9 @@ class Command(BaseCommand):
             dest='days',
             type=int,
             help=(
-                f'Data cycle interval expressed in days. '
-                f'Minimum {MINIMUM_PERFHERDER_EXPIRE_INTERVAL} days '
-                f'when expiring performance data.'  # unless on prototype environment
+                "Data cycle interval expressed in days. "
+                "On Perfherder specifically, this only applies for `treeherder-prototype2` "
+                "environment; supplying it for other environments is illegal."
             ),
         )
         parser.add_argument(
