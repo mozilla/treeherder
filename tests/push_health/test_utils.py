@@ -12,9 +12,9 @@ from treeherder.push_health.utils import (
     ('action', 'test', 'signature', 'message', 'expected'),
     [
         ('test_result', 'dis/dat/da/odder/ting', 'sig', 'mess', 'dis/dat/da/odder/ting'),
-        ('crash', 'dis/dat/da/odder/ting', 'sig', 'mess', 'sig'),
-        ('log', 'dis/dat/da/odder/ting', 'sig', 'mess', 'mess'),
-        ('meh', 'dis/dat/da/odder/ting', 'sig', 'mess', 'Non-Test Error'),
+        ('crash', None, 'sig', 'mess', 'sig'),
+        ('log', None, None, 'mess', 'mess'),
+        ('meh', None, None, None, 'Non-Test Error'),
         ('test_result', 'pid:dis/dat/da/odder/ting', 'sig', 'mess', None),
         (
             'test_result',
@@ -55,7 +55,7 @@ from treeherder.push_health.utils import (
     ],
 )
 def test_clean_test(action, test, signature, message, expected):
-    assert expected == clean_test(action, test, signature, message)
+    assert expected == clean_test(test, signature, message)
 
 
 @pytest.mark.parametrize(
