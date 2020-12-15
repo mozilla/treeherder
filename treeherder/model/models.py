@@ -475,8 +475,29 @@ class Job(models.Model):
     objects = JobManager()
 
     id = models.BigAutoField(primary_key=True)
+
+    PENDING = 0
+    CROSSREFERENCED = 1
+    AUTOCLASSIFIED = 2
+    SKIPPED = 3
+    FAILED = 255
+
+    AUTOCLASSIFY_STATUSES = (
+        (PENDING, 'pending'),
+        (CROSSREFERENCED, 'crossreferenced'),
+        (AUTOCLASSIFIED, 'autoclassified'),
+        (SKIPPED, 'skipped'),
+        (FAILED, 'failed'),
+    )
+
     repository = models.ForeignKey(Repository, on_delete=models.CASCADE)
     guid = models.CharField(max_length=50, unique=True)
+    project_specific_id = models.PositiveIntegerField(null=True)  # unused, see bug 1328985
+    # TODO: Remove autoclassify_status next time jobs table is modified (bug 1594822)
+    autoclassify_status = models.IntegerField(choices=AUTOCLASSIFY_STATUSES, default=PENDING)
+
+    # TODO: Remove coalesced_to_guid next time the jobs table is modified (bug 1402992)
+    coalesced_to_guid = models.CharField(max_length=50, null=True, default=None)
     signature = models.ForeignKey(ReferenceDataSignatures, on_delete=models.CASCADE)
     build_platform = models.ForeignKey(BuildPlatform, on_delete=models.CASCADE, related_name='jobs')
     machine_platform = models.ForeignKey(MachinePlatform, on_delete=models.CASCADE)
