@@ -23,7 +23,6 @@ import {
 } from '@fortawesome/free-solid-svg-icons';
 
 import { create, destroy } from '../helpers/http';
-import { processErrorMessage } from '../helpers/errorMessage';
 import { getProjectUrl } from '../helpers/location';
 import { investigatedTestsEndPoint } from '../helpers/url';
 import JobModel from '../models/job';
@@ -70,19 +69,21 @@ class Test extends PureComponent {
     const { selectedTests } = this.state;
 
     // Reduce down to the unique jobs
-    const testJobs = Array.from(selectedTests).reduce(
-      (acc, test) => ({
-        ...acc,
-        ...jobs[test.jobName].reduce((fjAcc, job) => ({ [job.id]: job }), {}),
-      }),
-      {},
-    );
+    const testJobs = Array.from(selectedTests)
+      .filter((test) => !test.isInvestigated)
+      .reduce(
+        (acc, test) => ({
+          ...acc,
+          ...jobs[test.jobName].reduce((fjAcc, job) => ({ [job.id]: job }), {}),
+        }),
+        {},
+      );
     const uniqueJobs = Object.values(testJobs);
 
     JobModel.retrigger(uniqueJobs, currentRepo, notify, times);
   };
 
-  markAsInvestigated = () => {
+  markAsInvestigated = async () => {
     const { selectedTests } = this.state;
     const { notify, currentRepo, revision, updatePushHealth } = this.props;
 
@@ -90,58 +91,69 @@ class Test extends PureComponent {
       investigatedTestsEndPoint,
       currentRepo.name,
     )}?revision=${revision}`;
-    let data;
-    let failureStatus;
+
+    // check if user is logged in, and if not log them in first
+    // verify user is same user for this push before allowing this action
     if (selectedTests.size === 0) {
-      notify(`Select atleast one test`, 'warning');
+      notify(`Select at least one test`, 'warning');
     } else {
-      selectedTests.forEach(async (test) => {
-        ({ data, failureStatus } = await create(projectUrl, {
-          test: test.testName,
-          jobName: test.jobName,
-          jobSymbol: test.jobSymbol,
-        }));
-        if (failureStatus) {
-          notify(data, 'warning');
-        } else {
-          selectedTests.delete(test);
-          this.setState({ selectedTests });
-          updatePushHealth();
-          notify(`Test ${data.test}  marked as investigated`, 'success');
-        }
-      });
+      const results = await Promise.all(
+        [...selectedTests.entries()]
+          .filter((test) => !test.isInvestigated)
+          .map((test) =>
+            create(projectUrl, {
+              test: test.testName,
+              jobName: test.jobName,
+              jobSymbol: test.jobSymbol,
+            }),
+          ),
+      );
+
+      const firstFailed = results.find((test) => Boolean(test.failureStatus));
+      if (firstFailed) {
+        notify(
+          `Failed to update one or more tests: ${firstFailed.data}`,
+          'warning',
+        );
+      }
+      this.setState({ selectedTests: new Set() });
+      updatePushHealth();
     }
   };
 
-  markAsUninvestigated = () => {
+  markAsUninvestigated = async () => {
     const { selectedTests } = this.state;
     const { notify, currentRepo, revision, updatePushHealth } = this.props;
 
     if (selectedTests.size === 0) {
-      notify(`Select atleast one test`, 'warning');
+      notify(`Select at least one test`, 'warning');
     } else {
-      selectedTests.forEach(async (test) => {
-        if (test.isInvestigated) {
-          const response = await destroy(
-            `${getProjectUrl(
-              `${investigatedTestsEndPoint}${test.investigatedTestId}/`,
-              currentRepo.name,
-            )}?revision=${revision}`,
-          );
-          if (!response.ok) {
-            let data = await response.json();
-            data = processErrorMessage(data, response.status);
-            notify(data, 'warning');
-          } else {
-            selectedTests.delete(test);
-            this.setState({ selectedTests });
-            updatePushHealth();
-            notify(`${test.testName} marked as Uninvestigated`, 'success');
-          }
-        } else {
-          notify(`${test.testName} already uninvestigated`, 'warning');
-        }
-      });
+      const results = await Promise.all(
+        [...selectedTests.entries()]
+          .filter((test) => Boolean(test.isInvestigated))
+          .map((test) =>
+            destroy(
+              `${getProjectUrl(
+                `${investigatedTestsEndPoint}${test.investigatedTestId}/`,
+                currentRepo.name,
+              )}?revision=${revision}`,
+            ),
+          ),
+      );
+
+      const firstFailed = results.find((test) => Boolean(test.failureStatus));
+      if (firstFailed) {
+<<<<<<< HEAD
+        notify(`Failed to update one or more tests: ${firstFailed[0].data}`, 'warning');
+=======
+        notify(
+          `Failed to update one or more tests: ${firstFailed.data}`,
+          'warning',
+        );
+>>>>>>> 4531ffb90 (fix)
+      }
+      this.setState({ selectedTests: new Set() });
+      updatePushHealth();
     }
   };
 
@@ -196,9 +208,7 @@ class Test extends PureComponent {
     const { tests } = this.props.test;
     const { allPlatformsSelected } = this.state;
 
-    const newSelectedTests = allPlatformsSelected
-      ? new Map()
-      : new Map(tests.map((test) => Object.entries(test)));
+    const newSelectedTests = allPlatformsSelected ? new Set() : new Set(tests);
 
     this.setState({
       allPlatformsSelected: !allPlatformsSelected,
