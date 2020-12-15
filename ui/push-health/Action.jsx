@@ -22,7 +22,6 @@ class Action extends PureComponent {
       key,
       id: key.replace(/[^a-z0-9-]+/gi, ''), // make this a valid selector
       tests,
-      failedInParent: tests.filter((item) => item.failedInParent).length,
     }));
 
     return orderedBy === 'count'

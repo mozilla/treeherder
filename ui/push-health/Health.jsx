@@ -1,6 +1,6 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import { Container, Spinner, Navbar, Button, Nav } from 'reactstrap';
+import { Container, Spinner, Navbar, Nav } from 'reactstrap';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import camelCase from 'lodash/camelCase';
 import { Helmet } from 'react-helmet';
@@ -40,7 +40,6 @@ export default class Health extends React.PureComponent {
       result: null,
       failureMessage: null,
       defaultTabIndex: 0,
-      showParentMatches: false,
       testGroup: params.get('testGroup') || '',
       selectedTest: params.get('selectedTest') || '',
       selectedTaskId: params.get('selectedTaskId') || '',
@@ -155,7 +154,6 @@ export default class Health extends React.PureComponent {
       status,
       searchStr,
       currentRepo,
-      showParentMatches,
       testGroup,
       selectedTest,
       defaultTabIndex,
@@ -179,16 +177,6 @@ export default class Health extends React.PureComponent {
             <Nav className="mb-2 pt-2 pl-3 justify-content-between w-100">
               <span />
               <span className="mr-2 d-flex">
-                <Button
-                  size="sm"
-                  className="text-nowrap mr-1"
-                  title="Toggle failures that also failed in the parent"
-                  onClick={() =>
-                    this.setState({ showParentMatches: !showParentMatches })
-                  }
-                >
-                  {showParentMatches ? 'Hide' : 'Show'} parent matches
-                </Button>
                 <InputFilter
                   updateFilterText={this.filter}
                   placeholder="filter path or platform"
@@ -264,7 +252,6 @@ export default class Health extends React.PureComponent {
                       repo={repo}
                       revision={revision}
                       setExpanded={this.setExpanded}
-                      showParentMatches={showParentMatches}
                     />
                   </TabPanel>
                   <TabPanel>
@@ -273,7 +260,6 @@ export default class Health extends React.PureComponent {
                       repo={repo}
                       revision={revision}
                       setExpanded={this.setExpanded}
-                      showParentMatches={showParentMatches}
                     />
                   </TabPanel>
                   <TabPanel>
@@ -288,7 +274,6 @@ export default class Health extends React.PureComponent {
                       searchStr={searchStr}
                       testGroup={testGroup}
                       selectedTest={selectedTest}
-                      showParentMatches={showParentMatches}
                       regressionsOrderBy={regressionsOrderBy}
                       regressionsGroupBy={regressionsGroupBy}
                       knownIssuesOrderBy={knownIssuesOrderBy}
@@ -309,9 +294,7 @@ export default class Health extends React.PureComponent {
           {!failureMessage && !tests && (
             <h4>
               <Spinner />
-              <span className="ml-2 pb-1">
-                Gathering health data and comparing with parent push...
-              </span>
+              <span className="ml-2 pb-1">Gathering health data...</span>
             </h4>
           )}
         </Container>

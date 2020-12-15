@@ -1,7 +1,6 @@
 import React, { PureComponent } from 'react';
 import PropTypes from 'prop-types';
 import {
-  Badge,
   Button,
   Collapse,
   Nav,
@@ -191,7 +190,7 @@ class Test extends PureComponent {
 
   render() {
     const {
-      test: { key, id, failedInParent, tests },
+      test: { key, id, tests },
       revision,
       notify,
       currentRepo,
@@ -225,11 +224,6 @@ class Test extends PureComponent {
               <span className="ml-2">
                 ({tests.length} failure{tests.length > 1 && 's'})
               </span>
-              {!!failedInParent && (
-                <Badge color="info" className="mx-1">
-                  {failedInParent} from parent
-                </Badge>
-              )}
             </Button>
             <Clipboard
               text={key}
@@ -327,7 +321,6 @@ class Test extends PureComponent {
 
 Test.propTypes = {
   test: PropTypes.shape({
-    failedInParent: PropTypes.number.isRequired,
     key: PropTypes.string.isRequired,
     tests: PropTypes.arrayOf(PropTypes.object).isRequired,
   }).isRequired,

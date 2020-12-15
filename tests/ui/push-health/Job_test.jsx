@@ -53,6 +53,5 @@ describe('Job', () => {
       '/jobs?selectedJob=294399307&repo=try&revision=cd02b96bdce57d9ae53b632ca4740c871d3ecc32',
     );
     expect(job).toHaveClass('btn-red');
-    expect(getByText('Failed in parent')).toBeInTheDocument();
   });
 });

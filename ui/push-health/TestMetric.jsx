@@ -15,7 +15,6 @@ export default class TestMetric extends React.PureComponent {
       currentRepo,
       searchStr,
       jobs,
-      showParentMatches,
       regressionsOrderBy,
       regressionsGroupBy,
       knownIssuesOrderBy,
@@ -34,17 +33,9 @@ export default class TestMetric extends React.PureComponent {
     let filteredNeedInvestigation = needInvestigation;
     let filteredKnownIssues = knownIssues;
 
-    if (searchStr.length || !showParentMatches) {
-      filteredNeedInvestigation = filterTests(
-        needInvestigation,
-        searchStr,
-        showParentMatches,
-      );
-      filteredKnownIssues = filterTests(
-        knownIssues,
-        searchStr,
-        showParentMatches,
-      );
+    if (searchStr.length) {
+      filteredNeedInvestigation = filterTests(needInvestigation, searchStr);
+      filteredKnownIssues = filterTests(knownIssues, searchStr);
     }
 
     return (
@@ -140,7 +131,6 @@ TestMetric.propTypes = {
   revision: PropTypes.string.isRequired,
   notify: PropTypes.func.isRequired,
   searchStr: PropTypes.string.isRequired,
-  showParentMatches: PropTypes.bool.isRequired,
   testGroup: PropTypes.string,
   regressionsOrderBy: PropTypes.string,
   regressionsGroupBy: PropTypes.string,

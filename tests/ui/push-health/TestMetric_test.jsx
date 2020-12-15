@@ -21,7 +21,6 @@ describe('TestMetric', () => {
       notify={() => {}}
       searchStr=""
       updateParamsAndState={() => {}}
-      showParentMatches={false}
     />
   );
 

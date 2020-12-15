@@ -1,9 +1,6 @@
-import datetime
-
 import pytest
 
-from tests.autoclassify.utils import create_lines, test_line
-from treeherder.model.models import FailureLine, Job, Push, Repository, TaskclusterMetadata
+from treeherder.model.models import FailureLine, Job, Repository
 from treeherder.push_health.tests import get_test_failures, get_test_failure_jobs, has_job, has_line
 
 
@@ -37,7 +34,7 @@ def test_has_line(find_it):
         assert not has_line(line, line_list)
 
 
-def test_get_test_failures_no_parent(
+def test_get_test_failures(
     failure_classifications, test_repository, test_job, text_log_error_lines
 ):
     test_job.result = 'testfailed'
@@ -50,35 +47,3 @@ def test_get_test_failures_no_parent(
     assert result == 'fail'
     assert len(need_investigation) == 1
     assert len(jobs[need_investigation[0]['jobName']]) == 1
-    assert not need_investigation[0]['failedInParent']
-
-
-def test_get_test_failures_with_parent(
-    failure_classifications, test_repository, test_job, mock_log_parser, text_log_error_lines
-):
-    test_job.result = 'testfailed'
-    test_job.save()
-
-    parent_push = Push.objects.create(
-        revision='abcdef77949168d16c03a4cba167678b7ab65f76',
-        repository=test_repository,
-        author='foo@bar.baz',
-        time=datetime.datetime.now(),
-    )
-    parent_job = Job.objects.first()
-    parent_job.pk = None
-    parent_job.push = parent_push
-    parent_job.guid = 'wazzon chokey?'
-    parent_job.save()
-    TaskclusterMetadata.objects.create(job=parent_job, task_id='V3SVuxO8TFy37En_6HcXLs', retry_id=0)
-
-    create_lines(parent_job, [(test_line, {})])
-
-    result_status, jobs = get_test_failure_jobs(test_job.push)
-    result, build_failures = get_test_failures(test_job.push, jobs, result_status, parent_push)
-    need_investigation = build_failures['needInvestigation']
-
-    assert result == 'fail'
-    assert len(need_investigation) == 1
-    assert len(jobs[need_investigation[0]['jobName']]) == 1
-    assert need_investigation[0]['failedInParent']
