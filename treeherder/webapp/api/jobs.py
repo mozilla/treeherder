@@ -303,6 +303,9 @@ class JobsProjectViewSet(viewsets.ViewSet):
         except ObjectDoesNotExist:
             pass
 
+        status_map = {k: v for k, v in Job.AUTOCLASSIFY_STATUSES}
+        resp["autoclassify_status"] = status_map[job.autoclassify_status]
+
         return Response(resp)
 
     def list(self, request, project):

@@ -475,8 +475,28 @@ class Job(models.Model):
     objects = JobManager()
 
     id = models.BigAutoField(primary_key=True)
+
+    PENDING = 0
+    CROSSREFERENCED = 1
+    AUTOCLASSIFIED = 2
+    SKIPPED = 3
+    FAILED = 255
+
+    AUTOCLASSIFY_STATUSES = (
+        (PENDING, 'pending'),
+        (CROSSREFERENCED, 'crossreferenced'),
+        (AUTOCLASSIFIED, 'autoclassified'),
+        (SKIPPED, 'skipped'),
+        (FAILED, 'failed'),
+    )
+
     repository = models.ForeignKey(Repository, on_delete=models.CASCADE)
     guid = models.CharField(max_length=50, unique=True)
+    project_specific_id = models.PositiveIntegerField(null=True)  # unused, see bug 1328985
+    autoclassify_status = models.IntegerField(choices=AUTOCLASSIFY_STATUSES, default=PENDING)
+
+    # TODO: Remove coalesced_to_guid next time the jobs table is modified (bug 1402992)
+    coalesced_to_guid = models.CharField(max_length=50, null=True, default=None)
     signature = models.ForeignKey(ReferenceDataSignatures, on_delete=models.CASCADE)
     build_platform = models.ForeignKey(BuildPlatform, on_delete=models.CASCADE, related_name='jobs')
     machine_platform = models.ForeignKey(MachinePlatform, on_delete=models.CASCADE)
@@ -536,6 +556,66 @@ class Job(models.Model):
     def save(self, *args, **kwargs):
         self.last_modified = datetime.datetime.now()
         super().save(*args, **kwargs)
+
+    def is_fully_autoclassified(self):
+        """
+        Returns whether a job is fully autoclassified (i.e. we have
+        classification information for all failure lines)
+        """
+        if FailureLine.objects.filter(job_guid=self.guid, action="truncated").count() > 0:
+            return False
+
+        classified_error_count = TextLogError.objects.filter(
+            _metadata__best_classification__isnull=False, job=self
+        ).count()
+
+        if classified_error_count == 0:
+            return False
+
+        from treeherder.model.error_summary import get_useful_search_results
+
+        return classified_error_count == len(get_useful_search_results(self))
+
+    def is_fully_verified(self):
+        """
+        Determine if this Job is fully verified based on the state of its Errors.
+
+        An Error (TextLogError or FailureLine) is considered Verified once its
+        related TextLogErrorMetadata has best_is_verified set to True.  A Job
+        is then considered Verified once all its Errors TextLogErrorMetadata
+        instances are set to True.
+        """
+        unverified_errors = TextLogError.objects.filter(
+            _metadata__best_is_verified=False, job=self
+        ).count()
+
+        if unverified_errors:
+            logger.error("Job %r has unverified TextLogErrors", self)
+            return False
+
+        logger.info("Job %r is fully verified", self)
+        return True
+
+    def update_after_verification(self, user):
+        """
+        Updates a job's state after being verified by a sheriff
+        """
+        if not self.is_fully_verified():
+            return
+
+        classification = 'autoclassified intermittent'
+
+        already_classified = (
+            JobNote.objects.filter(job=self)
+            .exclude(failure_classification__name=classification)
+            .exists()
+        )
+        if already_classified:
+            # Don't add an autoclassification note if a Human already
+            # classified this job.
+            return
+
+        JobNote.create_autoclassify_job_note(job=self, user=user)
 
     def get_manual_classification_line(self):
         """
@@ -821,6 +901,43 @@ class JobNote(models.Model):
             self.id, self.job.guid, self.failure_classification, self.who
         )
 
+    @classmethod
+    def create_autoclassify_job_note(self, job, user=None):
+        """
+        Create a JobNote, possibly via auto-classification.
+
+        Create mappings from the given Job to Bugs via verified Classifications
+        of this Job.
+
+        Also creates a JobNote.
+        """
+        # Only insert bugs for verified failures since these are automatically
+        # mirrored to ES and the mirroring can't be undone
+        # TODO: Decide whether this should change now that we're no longer mirroring.
+        bug_numbers = set(
+            ClassifiedFailure.objects.filter(
+                best_for_errors__text_log_error__job=job,
+                best_for_errors__best_is_verified=True,
+            )
+            .exclude(bug_number=None)
+            .exclude(bug_number=0)
+            .values_list('bug_number', flat=True)
+        )
+
+        existing_maps = set(BugJobMap.objects.filter(bug_id__in=bug_numbers).values_list('bug_id'))
+
+        for bug_number in bug_numbers - existing_maps:
+            BugJobMap.objects.create(job_id=job.id, bug_id=bug_number, user=user)
+
+        # if user is not specified, then this is an autoclassified job note and
+        # we should mark it as such
+        classification_name = 'intermittent' if user else 'autoclassified intermittent'
+        classification = FailureClassification.objects.get(name=classification_name)
+
+        return JobNote.objects.create(
+            job=job, failure_classification=classification, user=user, text=""
+        )
+
 
 class FailureLine(models.Model):
     # We make use of prefix indicies for several columns in this table which
@@ -1033,7 +1150,7 @@ class ClassifiedFailure(models.Model):
         "TextLogError", through='TextLogErrorMatch', related_name='classified_failures'
     )
     # Note that we use a bug number of 0 as a sentinel value to indicate lines that
-    # are not actually symptomatic of a real bug
+    # are not actually symptomatic of a real bug, but are still possible to autoclassify
     bug_number = models.PositiveIntegerField(blank=True, null=True, unique=True)
     created = models.DateTimeField(auto_now_add=True)
     modified = models.DateTimeField(auto_now=True)

@@ -79,6 +79,7 @@ INSTALLED_APPS = [
     'treeherder.etl',
     'treeherder.extract',
     'treeherder.perf',
+    'treeherder.autoclassify',
     'treeherder.seta',
     'treeherder.intermittents_commenter',
     'treeherder.changelog',

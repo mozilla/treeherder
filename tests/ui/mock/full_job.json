@@ -50,5 +50,6 @@
   "taskcluster_metadata": {
     "task_id": "O5YBAWwxRfuZ_UlRJS5Rqg",
     "retry_id": 0
-  }
+  },
+  "autoclassify_status": "crossreferenced"
 }
