@@ -1,1 +1,1 @@
-from . import max_runtime, signature_remover  # noqa
+from .cyclers import TreeherderCycler, PerfherderCycler, TREEHERDER, PERFHERDER  # noqa

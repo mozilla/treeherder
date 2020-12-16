@@ -8,13 +8,13 @@ from django.core.management import call_command
 from unittest.mock import patch
 from django.db import connection, IntegrityError
 
-from treeherder.model.management.commands.cycle_data import (
-    PerfherderCycler,
+from treeherder.perf.data_cycling.removal_strategies import (
     MainRemovalStrategy,
     TryDataRemoval,
     IrrelevantDataRemoval,
     StalledDataRemoval,
 )
+from treeherder.perf.data_cycling import PerfherderCycler
 from treeherder.model.models import Push
 from treeherder.perf.exceptions import MaxRuntimeExceeded
 from treeherder.perf.models import (
