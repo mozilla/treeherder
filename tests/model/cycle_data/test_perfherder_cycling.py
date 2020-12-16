@@ -519,6 +519,13 @@ def test_stalled_data_removal(
     assert seg2_data in PerformanceDatum.objects.all()
 
 
+def test_try_data_removal_errors_out_on_missing_try_data(try_repository):
+    try_removal_strategy = TryDataRemoval(10000)
+
+    with pytest.raises(LookupError):  # as we don't have data from try repository
+        _ = try_removal_strategy.target_signatures
+
+
 @patch('treeherder.config.settings.SITE_HOSTNAME', 'treeherder-prototype2.herokuapp.com')
 @pytest.mark.parametrize('days', [None, 5, 30, 100])
 def test_explicit_days_validation_on_treeherder_prototype2_environment(days):

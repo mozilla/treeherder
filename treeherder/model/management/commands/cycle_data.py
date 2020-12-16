@@ -340,6 +340,10 @@ class TryDataRemoval(RemovalStrategy):
     def target_signatures(self):
         if self.__target_signatures is None:
             self.__target_signatures = self.try_signatures[: self.SIGNATURE_BULK_SIZE]
+            if len(self.__target_signatures) == 0:
+                msg = 'No try signatures found.'
+                logger.warning(msg)  # no try data is not normal
+                raise LookupError(msg)
         return self.__target_signatures
 
     @property
@@ -358,16 +362,16 @@ class TryDataRemoval(RemovalStrategy):
         """
 
         while True:
-            self.__attempt_remove(using)
-
-            deleted_rows = using.rowcount
-            if deleted_rows > 0:
-                break  # deletion was successful
-
             try:
+                self.__attempt_remove(using)
+
+                deleted_rows = using.rowcount
+                if deleted_rows > 0:
+                    break  # deletion was successful
+
                 self.__lookup_new_signature()  # to remove data from
             except LookupError as ex:
-                logger.debug(f'Could not target any new signature to delete data from. {ex}')
+                logger.debug(f'Could not target any (new) try signature to delete data from. {ex}')
                 break
 
     @property
