@@ -143,14 +143,10 @@ class Test extends PureComponent {
 
       const firstFailed = results.find((test) => Boolean(test.failureStatus));
       if (firstFailed) {
-<<<<<<< HEAD
-        notify(`Failed to update one or more tests: ${firstFailed[0].data}`, 'warning');
-=======
         notify(
           `Failed to update one or more tests: ${firstFailed.data}`,
           'warning',
         );
->>>>>>> 4531ffb90 (fix)
       }
       this.setState({ selectedTests: new Set() });
       updatePushHealth();

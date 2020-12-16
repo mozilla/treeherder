@@ -178,7 +178,7 @@ class AnnotationsTab extends React.Component {
     }
   };
 
-  deleteClassification = (classification) => {
+  deleteClassification = async (classification) => {
     const {
       selectedJobFull,
       recalculateUnclassifiedCounts,
@@ -188,36 +188,33 @@ class AnnotationsTab extends React.Component {
     selectedJobFull.failure_classification_id = 1;
     recalculateUnclassifiedCounts();
 
-    classification.destroy().then(
-      () => {
-        notify('Classification successfully deleted', 'success');
-        // also be sure the job object in question gets updated to the latest
-        // classification state (in case one was added or removed).
-        window.dispatchEvent(new CustomEvent(thEvents.classificationChanged));
-      },
-      () => {
-        notify('Classification deletion failed', 'danger', { sticky: true });
-      },
-    );
+    const { failureStatus } = await classification.destroy();
+
+    if (!failureStatus) {
+      notify('Classification successfully deleted', 'success');
+      // also be sure the job object in question gets updated to the latest
+      // classification state (in case one was added or removed).
+      window.dispatchEvent(new CustomEvent(thEvents.classificationChanged));
+    } else {
+      notify('Classification deletion failed', 'danger', { sticky: true });
+    }
   };
 
-  deleteBug = (bug) => {
+  deleteBug = async (bug) => {
     const { notify } = this.props;
+    const { failureStatus } = await bug.destroy();
 
-    bug.destroy().then(
-      () => {
-        notify(
-          `Association to bug ${bug.bug_id} successfully deleted`,
-          'success',
-        );
-        window.dispatchEvent(new CustomEvent(thEvents.classificationChanged));
-      },
-      () => {
-        notify(`Association to bug ${bug.bug_id} deletion failed`, 'danger', {
-          sticky: true,
-        });
-      },
-    );
+    if (!failureStatus) {
+      notify(
+        `Association to bug ${bug.bug_id} successfully deleted`,
+        'success',
+      );
+      window.dispatchEvent(new CustomEvent(thEvents.classificationChanged));
+    } else {
+      notify(`Association to bug ${bug.bug_id} deletion failed`, 'danger', {
+        sticky: true,
+      });
+    }
   };
 
   render() {
