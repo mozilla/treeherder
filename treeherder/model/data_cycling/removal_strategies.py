@@ -3,6 +3,7 @@ from __future__ import annotations
 import logging
 from abc import ABC, abstractmethod
 from datetime import timedelta, datetime
+from itertools import cycle
 from typing import List
 
 from django.db.backends.utils import CursorWrapper
@@ -236,24 +237,28 @@ class IrrelevantDataRemoval(RemovalStrategy):
         super().__init__(chunk_size, days=days)
 
         self._manager = PerformanceDatum.objects
-        self.__relevant_repos = None
+        self.__irrelevant_repos = None
+        self.__circular_repos = None
 
     @property
     def max_timestamp(self):
         return self._max_timestamp
 
     @property
-    def relevant_repositories(self):
-        if self.__relevant_repos is None:
-            self.__relevant_repos = list(
-                Repository.objects.filter(name__in=self.RELEVANT_REPO_NAMES).values_list(
+    def irrelevant_repositories(self):
+        if self.__irrelevant_repos is None:
+            self.__irrelevant_repos = list(
+                Repository.objects.exclude(name__in=self.RELEVANT_REPO_NAMES).values_list(
                     'id', flat=True
                 )
             )
-            if len(self.__relevant_repos) != len(self.RELEVANT_REPO_NAMES):
-                logger.warning("Failed to find all relevant repositories in the database")
+        return self.__irrelevant_repos
 
-        return self.__relevant_repos
+    @property
+    def irrelevant_repo(self):
+        if self.__circular_repos is None:
+            self.__circular_repos = cycle(self.irrelevant_repositories)
+        return next(self.__circular_repos)
 
     @property
     def name(self) -> str:
@@ -271,11 +276,11 @@ class IrrelevantDataRemoval(RemovalStrategy):
         using.execute(
             '''
                 DELETE FROM `performance_datum`
-                WHERE (repository_id NOT IN %s) AND push_timestamp <= %s
+                WHERE repository_id = %s AND push_timestamp <= %s
                 LIMIT %s
             ''',
             [
-                tuple(self.relevant_repositories),
+                self.irrelevant_repo,
                 self._max_timestamp,
                 chunk_size,
             ],
@@ -284,7 +289,7 @@ class IrrelevantDataRemoval(RemovalStrategy):
     def _find_ideal_chunk_size(self) -> int:
         max_id_of_non_expired_row = (
             self._manager.filter(push_timestamp__gt=self._max_timestamp)
-            .exclude(repository_id__in=self.relevant_repositories)
+            .filter(repository_id__in=self.irrelevant_repositories)
             .order_by('-id')[0]
             .id
         )
@@ -292,7 +297,7 @@ class IrrelevantDataRemoval(RemovalStrategy):
             self._manager.filter(
                 push_timestamp__lte=self._max_timestamp, id__lte=max_id_of_non_expired_row
             )
-            .exclude(repository_id__in=self.relevant_repositories)
+            .filter(repository_id__in=self.irrelevant_repositories)
             .order_by('id')[: self._chunk_size]
         )
         return len(older_perf_data_rows) or self._chunk_size
