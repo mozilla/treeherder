@@ -146,9 +146,8 @@ django==3.0.8 \
     --hash=sha256:31a5fbbea5fc71c99e288ec0b2f00302a0a92c44b13ede80b73a6a4d6d205582 \
     --hash=sha256:5457fc953ec560c5521b41fad9e6734a4668b7ba205832191bbdff40ec61073c \
     # via -r requirements/common.in, django-cors-headers, django-filter, django-redis, djangorestframework
-djangorestframework==3.12.1 \
-    --hash=sha256:5c5071fcbad6dce16f566d492015c829ddb0df42965d488b878594aabc3aed21 \
-    --hash=sha256:d54452aedebb4b650254ca092f9f4f5df947cb1de6ab245d817b08b4f4156249 \
+djangorestframework==3.12.2 \
+    --hash=sha256:0209bafcb7b5010fdfec784034f059d512256424de2a0f084cb82b096d6dd6a7 \
     # via -r requirements/common.in
 docutils==0.15.2 \
     --hash=sha256:6c4f696463b79f1fb8ba0c594b63840ebd41f059e92b31957c46b74a4599b6d0 \
@@ -340,9 +339,12 @@ mozci==1.8.3 \
     --hash=sha256:c4026a12f04387b4d1c5a455d1e81eadfc6bdba483f0d3a814b5409415876dce \
     --hash=sha256:e176f500118ebe364719dcdfba25d117892cc1bdf83b645825305927d02225cd \
     # via -r requirements/common.in
-mozlog==6.1 \
-    --hash=sha256:0d45abc8b9aec5e812ade6665128e50f9041f98397d11f9c753aa93a3f10e978 \
-    --hash=sha256:ee6f23b854046296cbbf7dc31df67148b0393b772137c594803c6e6bbc072834 \
+mozfile==2.1.0 \
+    --hash=sha256:e5dc835582ea150e35ecd57e9d86cb707d3aa3b2505679db7332326dd49fd6b8 \
+    # via mozlog
+mozlog==7.0.1 \
+    --hash=sha256:4719d3d00bf1a0b77285d306eb3180f9c1311fffae9640a423fad9d80170e43d \
+    --hash=sha256:d035f722c15d700e4a7b48b90bdda0a6ad83e25482760949d1abd73468bad07f \
     # via -r requirements/common.in
 mozterm==1.0.0 \
     --hash=sha256:b1e91acec188de07c704dbb7b0100a7be5c1e06567b3beb67f6ea11d00a483a4 \
@@ -567,7 +569,7 @@ simplejson==3.17.2 \
 six==1.15.0 \
     --hash=sha256:30639c035cdb23534cd4aa2dd52c3bf48f06e5f4a941509c8bafd8ce11080259 \
     --hash=sha256:8b74bedcbbbaca38ff6d7491d76f2b06b3592611af620f8426e82dddb04a5ced \
-    # via blessings, ecdsa, furl, google-api-core, google-auth, google-cloud-bigquery, google-resumable-media, jsonschema, mohawk, mozlog, mozterm, orderedmultidict, protobuf, pyrsistent, python-dateutil, python-jose, taskcluster
+    # via blessings, ecdsa, furl, google-api-core, google-auth, google-cloud-bigquery, google-resumable-media, jsonschema, mohawk, mozfile, mozlog, mozterm, orderedmultidict, protobuf, pyrsistent, python-dateutil, python-jose, taskcluster
 slugid==2.0.0 \
     --hash=sha256:a950d98b72691178bdd4d6c52743c4a2aa039207cf7a97d71060a111ff9ba297 \
     --hash=sha256:aec8b0e01c4ad32e38e12d609eab3ec912fd129aaf6b2ded0199b56a5f8fd67c \
