@@ -218,9 +218,9 @@ pytest-metadata==1.10.0 \
     --hash=sha256:b7e6e0a45adacb17a03a97bf7a2ef60cc1f4e172bcce9732ce5e814191932315 \
     --hash=sha256:fcbcc5781aee450107c620c79c57e50796b6777b82b3c504be9cbc3017201169 \
     # via pytest-html
-pytest-selenium==2.0.0 \
-    --hash=sha256:114bc1df383b0bb841a62ad03b222aa57d0866d57f03f81b539e59fcf43231b8 \
-    --hash=sha256:6a7c655c9202fa5964b872859d8aad18a67ccbdfbaa078d154cab82914d70504 \
+pytest-selenium==2.0.1 \
+    --hash=sha256:a0008e6dce7c68501369c1c543420f5906ffada493d4ff0c5d9d5ccdf4022203 \
+    --hash=sha256:fd632e0b657be6360f6319445eb0f475872d488b67634f791561851d55e390b1 \
     # via -r dev.in
 pytest-testmon==1.0.3 \
     --hash=sha256:927a73dd510b90a2e4a48ea4d37e82c4490b56caa745663262024ea0cd278169 \
