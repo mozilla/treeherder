@@ -70,7 +70,7 @@ class Test extends PureComponent {
 
     // Reduce down to the unique jobs
     const testJobs = Array.from(selectedTests)
-      .filter((test) => !test.isInvestigated)
+      .filter((test) => test.isInvestigated)
       .reduce(
         (acc, test) => ({
           ...acc,
@@ -92,7 +92,7 @@ class Test extends PureComponent {
       currentRepo.name,
     )}?revision=${revision}`;
 
-    // check if user is logged in, and if not log them in first
+    // TODO check if user is logged in, and if not log them in first
     // verify user is same user for this push before allowing this action
     if (selectedTests.size === 0) {
       notify(`Select at least one test`, 'warning');
@@ -109,7 +109,7 @@ class Test extends PureComponent {
           ),
       );
 
-      const firstFailed = results.find((test) => Boolean(test.failureStatus));
+      const firstFailed = results.find((test) => test.failureStatus);
       if (firstFailed) {
         notify(
           `Failed to update one or more tests: ${firstFailed.data}`,
@@ -130,7 +130,7 @@ class Test extends PureComponent {
     } else {
       const results = await Promise.all(
         [...selectedTests.entries()]
-          .filter((test) => Boolean(test.isInvestigated))
+          .filter((test) => test.isInvestigated)
           .map((test) =>
             destroy(
               `${getProjectUrl(
@@ -141,7 +141,7 @@ class Test extends PureComponent {
           ),
       );
 
-      const firstFailed = results.find((test) => Boolean(test.failureStatus));
+      const firstFailed = results.find((test) => test.failureStatus);
       if (firstFailed) {
         notify(
           `Failed to update one or more tests: ${firstFailed.data}`,
