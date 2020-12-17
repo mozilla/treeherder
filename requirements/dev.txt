@@ -170,9 +170,9 @@ pluggy==0.13.1 \
     --hash=sha256:15b2acde666561e1298d71b523007ed7364de07029219b604cf808bfa1c765b0 \
     --hash=sha256:966c145cd83c96502c3c3868f50408687b38434af77734af1e9ca461a4081d2d \
     # via pypom, pytest
-pre-commit==2.7.1 \
-    --hash=sha256:810aef2a2ba4f31eed1941fc270e72696a1ad5590b9751839c90807d0fff6b9a \
-    --hash=sha256:c54fd3e574565fe128ecc5e7d2f91279772ddb03f8729645fa812fe809084a70 \
+pre-commit==2.9.3 \
+    --hash=sha256:6c86d977d00ddc8a60d68eec19f51ef212d9462937acf3ea37c7adec32284ac0 \
+    --hash=sha256:ee784c11953e6d8badb97d19bc46b997a3a9eded849881ec587accd8608d74a4 \
     # via -r requirements/dev.in
 py==1.9.0 \
     --hash=sha256:366389d1db726cd2fcfc79732e75410e5fe4d31db13692115529d34069a043c2 \
