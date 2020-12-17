@@ -163,6 +163,31 @@ export default class FilterModel {
     }
   };
 
+  toggleClassifiedFailures = (showUnclassified = false) => {
+    if (this.isClassifiedFailures(showUnclassified)) {
+      if (showUnclassified) {
+        this.toggleUnclassifiedFailures();
+      } else {
+        this.resetNonFieldFilters();
+      }
+    } else {
+      this.urlParams.resultStatus = [
+        'testfailed',
+        'busted',
+        'exception',
+        'retry',
+        'usercancel',
+      ];
+      if (showUnclassified) {
+        this.urlParams.classifiedState = ['unclassified', 'classified'];
+      } else {
+        this.urlParams.classifiedState = ['classified'];
+      }
+
+      this.push({ search: this.getFilterQueryString() });
+    }
+  };
+
   replaceFilter = (field, value) => {
     this.urlParams[field] = !Array.isArray(value) ? [value] : value;
     this.push({ search: this.getFilterQueryString() });
@@ -288,4 +313,22 @@ export default class FilterModel {
   isUnclassifiedFailures = () =>
     arraysEqual(this.urlParams.resultStatus, thFailureResults) &&
     arraysEqual(this.urlParams.classifiedState, ['unclassified']);
+
+  /**
+   * check if we're in the state of showing classified and optionally unclassified failures along with retried & usercancelled
+   */
+  isClassifiedFailures = (showUnclassified = false) =>
+    arraysEqual(this.urlParams.resultStatus, [
+      'testfailed',
+      'busted',
+      'exception',
+      'retry',
+      'usercancel',
+    ]) &&
+    (showUnclassified
+      ? arraysEqual(this.urlParams.classifiedState, [
+          'unclassified',
+          'classified',
+        ])
+      : arraysEqual(this.urlParams.classifiedState, ['classified']));
 }

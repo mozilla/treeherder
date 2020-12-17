@@ -11,6 +11,10 @@ import { faCheck } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { Link } from 'react-router-dom';
 
+import {
+  thDefaultFilterResultStatuses,
+  arraysEqual,
+} from '../../helpers/filter';
 import { thAllResultStatuses } from '../../helpers/constants';
 import { setSelectedJob, clearSelectedJob } from '../redux/stores/selectedJob';
 import { pinJobs } from '../redux/stores/pinnedJobs';
@@ -77,29 +81,68 @@ function FiltersMenu(props) {
         <DropdownItem divider />
         <DropdownItem
           tag="a"
-          onClick={() => filterModel.toggleClassifiedFilter('classified')}
+          onClick={() =>
+            arraysEqual(resultStatus, thDefaultFilterResultStatuses) &&
+            arraysEqual(classifiedState, ['unclassified', 'classified'])
+              ? filterModel.toggleClassifiedFailures(true)
+              : filterModel.resetNonFieldFilters()
+          }
         >
           <FontAwesomeIcon
             icon={faCheck}
             className={`mr-1 ${
-              classifiedState.includes('classified') ? '' : 'hide'
+              arraysEqual(resultStatus, thDefaultFilterResultStatuses) &&
+              arraysEqual(classifiedState, ['unclassified', 'classified'])
+                ? ''
+                : 'hide'
             }`}
-            title={classifiedState.includes('classified') ? 'Selected' : ''}
+            title={
+              arraysEqual(resultStatus, thDefaultFilterResultStatuses) &&
+              arraysEqual(classifiedState, ['unclassified', 'classified'])
+                ? 'Selected'
+                : ''
+            }
           />
-          classified
+          All jobs
         </DropdownItem>
         <DropdownItem
           tag="a"
-          onClick={() => filterModel.toggleClassifiedFilter('unclassified')}
+          onClick={() => filterModel.toggleClassifiedFailures(true)}
         >
           <FontAwesomeIcon
             icon={faCheck}
             className={`mr-1 ${
-              classifiedState.includes('unclassified') ? '' : 'hide'
+              filterModel.isClassifiedFailures(true) ? '' : 'hide'
             }`}
-            title={classifiedState.includes('unclassified') ? 'Selected' : ''}
+            title={filterModel.isClassifiedFailures(true) ? 'Selected' : ''}
           />
-          unclassified
+          All failures
+        </DropdownItem>
+        <DropdownItem
+          tag="a"
+          onClick={() => filterModel.toggleUnclassifiedFailures()}
+        >
+          <FontAwesomeIcon
+            icon={faCheck}
+            className={`mr-1 ${
+              filterModel.isUnclassifiedFailures() ? '' : 'hide'
+            }`}
+            title={filterModel.isUnclassifiedFailures() ? 'Selected' : ''}
+          />
+          Unclassified failures
+        </DropdownItem>
+        <DropdownItem
+          tag="a"
+          onClick={() => filterModel.toggleClassifiedFailures()}
+        >
+          <FontAwesomeIcon
+            icon={faCheck}
+            className={`mr-1 ${
+              filterModel.isClassifiedFailures() ? '' : 'hide'
+            }`}
+            title={filterModel.isClassifiedFailures() ? 'Selected' : ''}
+          />
+          Classified failures
         </DropdownItem>
         <DropdownItem divider />
         <DropdownItem

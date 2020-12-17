@@ -56,6 +56,15 @@ const ShortcutTable = function ShortcutTable() {
             </tr>
             <tr>
               <td>
+                <kbd>q</kbd>
+              </td>
+              <td>
+                Toggle between unclassified failures and all failures (including
+                retry and user cancel)
+              </td>
+            </tr>
+            <tr>
+              <td>
                 <kbd>r</kbd>
               </td>
               <td>Retrigger selected job</td>
