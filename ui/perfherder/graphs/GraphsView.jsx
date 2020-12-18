@@ -37,6 +37,7 @@ class GraphsView extends React.Component {
       zoom: {},
       selectedDataPoint: null,
       highlightAlerts: true,
+      highlightChangelogData: true,
       highlightedRevisions: ['', ''],
       testData: [],
       errorMessages: [],
@@ -70,6 +71,7 @@ class GraphsView extends React.Component {
       zoom,
       selected,
       highlightAlerts,
+      highlightChangelogData,
       highlightedRevisions,
     } = queryString.parse(this.props.location.search);
 
@@ -83,6 +85,12 @@ class GraphsView extends React.Component {
 
     if (highlightAlerts) {
       updates.highlightAlerts = Boolean(parseInt(highlightAlerts, 10));
+    }
+
+    if (highlightChangelogData) {
+      updates.highlightChangelogData = Boolean(
+        parseInt(highlightChangelogData, 10),
+      );
     }
 
     if (highlightedRevisions) {
@@ -268,6 +276,7 @@ class GraphsView extends React.Component {
       selectedDataPoint,
       zoom,
       highlightAlerts,
+      highlightChangelogData,
       highlightedRevisions,
       timeRange,
     } = this.state;
@@ -279,6 +288,7 @@ class GraphsView extends React.Component {
     const params = {
       series: newSeries,
       highlightAlerts: +highlightAlerts,
+      highlightChangelogData: +highlightChangelogData,
       timerange: timeRange.value,
       zoom,
     };
@@ -313,6 +323,7 @@ class GraphsView extends React.Component {
       timeRange,
       testData,
       highlightAlerts,
+      highlightChangelogData,
       highlightedRevisions,
       selectedDataPoint,
       loading,
@@ -397,6 +408,7 @@ class GraphsView extends React.Component {
                 showModal={showModal}
                 showTable={showTable}
                 highlightAlerts={highlightAlerts}
+                highlightChangelogData={highlightChangelogData}
                 highlightedRevisions={highlightedRevisions}
                 zoom={zoom}
                 selectedDataPoint={selectedDataPoint}

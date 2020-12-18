@@ -5,6 +5,7 @@ export const tValueConfidence = 5; // Anything above this is "high" in confidenc
 export const endpoints = {
   alert: '/performance/alert/',
   alertSummary: '/performance/alertsummary/',
+  changelog: '/changelog/',
   frameworks: '/performance/framework/',
   issueTrackers: '/performance/issue-tracker/',
   summary: '/performance/summary/',

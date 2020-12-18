@@ -19,6 +19,7 @@ import Clipboard from '../../shared/Clipboard';
 
 const GraphTooltip = ({
   testData,
+  infraAffectedData,
   user,
   updateData,
   projects,
@@ -33,6 +34,8 @@ const GraphTooltip = ({
   const testDetails = testData.find(
     (item) => item.signature_id === datum.signature_id,
   );
+
+  const isDatumAffected = infraAffectedData.has(datum.revision);
 
   const flotIndex = testDetails.data.findIndex((item) =>
     datum.dataPointId
@@ -188,6 +191,11 @@ const GraphTooltip = ({
               &Delta; {displayNumber(deltaValue.toFixed(1))} (
               {(100 * deltaPercent).toFixed(1)}%)
             </p>
+            {isDatumAffected && (
+              <p className="small text-warning">
+                Could be affected by infra changes.
+              </p>
+            )}
           </div>
 
           <div>
