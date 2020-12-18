@@ -11,6 +11,9 @@ import {
   DropdownMenu,
   DropdownToggle,
   DropdownItem,
+  Input,
+  FormGroup,
+  Label,
 } from 'reactstrap';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import {
@@ -20,7 +23,6 @@ import {
 } from '@fortawesome/free-solid-svg-icons';
 
 import { create, destroy } from '../helpers/http';
-import { processErrorMessage } from '../helpers/errorMessage';
 import { getProjectUrl } from '../helpers/location';
 import { investigatedTestsEndPoint } from '../helpers/url';
 import JobModel from '../models/job';
@@ -36,6 +38,7 @@ class Test extends PureComponent {
       clipboardVisible: null,
       detailsShowing: false,
       selectedTests: new Set(),
+      allPlatformsSelected: false,
     };
   }
 
@@ -66,19 +69,21 @@ class Test extends PureComponent {
     const { selectedTests } = this.state;
 
     // Reduce down to the unique jobs
-    const testJobs = Array.from(selectedTests).reduce(
-      (acc, test) => ({
-        ...acc,
-        ...jobs[test.jobName].reduce((fjAcc, job) => ({ [job.id]: job }), {}),
-      }),
-      {},
-    );
+    const testJobs = Array.from(selectedTests)
+      .filter((test) => test.isInvestigated)
+      .reduce(
+        (acc, test) => ({
+          ...acc,
+          ...jobs[test.jobName].reduce((fjAcc, job) => ({ [job.id]: job }), {}),
+        }),
+        {},
+      );
     const uniqueJobs = Object.values(testJobs);
 
     JobModel.retrigger(uniqueJobs, currentRepo, notify, times);
   };
 
-  markAsInvestigated = () => {
+  markAsInvestigated = async () => {
     const { selectedTests } = this.state;
     const { notify, currentRepo, revision, updatePushHealth } = this.props;
 
@@ -86,58 +91,65 @@ class Test extends PureComponent {
       investigatedTestsEndPoint,
       currentRepo.name,
     )}?revision=${revision}`;
-    let data;
-    let failureStatus;
+
+    // TODO check if user is logged in, and if not log them in first
+    // verify user is same user for this push before allowing this action
     if (selectedTests.size === 0) {
-      notify(`Select atleast one test`, 'warning');
+      notify(`Select at least one test`, 'warning');
     } else {
-      selectedTests.forEach(async (test) => {
-        ({ data, failureStatus } = await create(projectUrl, {
-          test: test.testName,
-          jobName: test.jobName,
-          jobSymbol: test.jobSymbol,
-        }));
-        if (failureStatus) {
-          notify(data, 'warning');
-        } else {
-          selectedTests.delete(test);
-          this.setState({ selectedTests });
-          updatePushHealth();
-          notify(`Test ${data.test}  marked as investigated`, 'success');
-        }
-      });
+      const results = await Promise.all(
+        [...selectedTests.entries()]
+          .filter((test) => !test.isInvestigated)
+          .map((test) =>
+            create(projectUrl, {
+              test: test.testName,
+              jobName: test.jobName,
+              jobSymbol: test.jobSymbol,
+            }),
+          ),
+      );
+
+      const firstFailed = results.find((test) => test.failureStatus);
+      if (firstFailed) {
+        notify(
+          `Failed to update one or more tests: ${firstFailed.data}`,
+          'warning',
+        );
+      }
+      this.setState({ selectedTests: new Set() });
+      updatePushHealth();
     }
   };
 
-  markAsUninvestigated = () => {
+  markAsUninvestigated = async () => {
     const { selectedTests } = this.state;
     const { notify, currentRepo, revision, updatePushHealth } = this.props;
 
     if (selectedTests.size === 0) {
-      notify(`Select atleast one test`, 'warning');
+      notify(`Select at least one test`, 'warning');
     } else {
-      selectedTests.forEach(async (test) => {
-        if (test.isInvestigated) {
-          const response = await destroy(
-            `${getProjectUrl(
-              `${investigatedTestsEndPoint}${test.investigatedTestId}/`,
-              currentRepo.name,
-            )}?revision=${revision}`,
-          );
-          if (!response.ok) {
-            let data = await response.json();
-            data = processErrorMessage(data, response.status);
-            notify(data, 'warning');
-          } else {
-            selectedTests.delete(test);
-            this.setState({ selectedTests });
-            updatePushHealth();
-            notify(`${test.testName} marked as Uninvestigated`, 'success');
-          }
-        } else {
-          notify(`${test.testName} already uninvestigated`, 'warning');
-        }
-      });
+      const results = await Promise.all(
+        [...selectedTests.entries()]
+          .filter((test) => test.isInvestigated)
+          .map((test) =>
+            destroy(
+              `${getProjectUrl(
+                `${investigatedTestsEndPoint}${test.investigatedTestId}/`,
+                currentRepo.name,
+              )}?revision=${revision}`,
+            ),
+          ),
+      );
+
+      const firstFailed = results.find((test) => test.failureStatus);
+      if (firstFailed) {
+        notify(
+          `Failed to update one or more tests: ${firstFailed.data}`,
+          'warning',
+        );
+      }
+      this.setState({ selectedTests: new Set() });
+      updatePushHealth();
     }
   };
 
@@ -188,6 +200,18 @@ class Test extends PureComponent {
     );
   };
 
+  selectAll = () => {
+    const { tests } = this.props.test;
+    const { allPlatformsSelected } = this.state;
+
+    const newSelectedTests = allPlatformsSelected ? new Set() : new Set(tests);
+
+    this.setState({
+      allPlatformsSelected: !allPlatformsSelected,
+      selectedTests: newSelectedTests,
+    });
+  };
+
   render() {
     const {
       test: { key, id, tests },
@@ -200,7 +224,11 @@ class Test extends PureComponent {
       selectedTaskId,
       updateParamsAndState,
     } = this.props;
-    const { clipboardVisible, detailsShowing, selectedTests } = this.state;
+    const {
+      clipboardVisible,
+      detailsShowing,
+      allPlatformsSelected,
+    } = this.state;
 
     return (
       <div>
@@ -212,7 +240,7 @@ class Test extends PureComponent {
           >
             <Button
               onClick={this.toggleDetails}
-              className="text-break text-wrap border-0"
+              className="pr-0 text-left border-0"
               title="Click to expand for test detail"
               outline
             >
@@ -220,8 +248,15 @@ class Test extends PureComponent {
                 icon={detailsShowing ? faCaretDown : faCaretRight}
                 className="mr-2 min-width-1"
               />
+            </Button>
+            <Button
+              onClick={this.toggleDetails}
+              className="text-left border-0"
+              title="Click to expand for test detail"
+              outline
+            >
               {key === 'none' ? 'All' : this.getGroupHtml(key)}
-              <span className="ml-2">
+              <span className="ml-2 text-break">
                 ({tests.length} failure{tests.length > 1 && 's'})
               </span>
             </Button>
@@ -233,7 +268,7 @@ class Test extends PureComponent {
           </span>
 
           <Collapse isOpen={detailsShowing}>
-            <Navbar className="mb-4">
+            <Navbar className="mb-3">
               <Nav>
                 <NavItem>
                   <ButtonGroup size="sm" className="ml-5">
@@ -290,6 +325,17 @@ class Test extends PureComponent {
                 </NavItem>
               </Nav>
             </Navbar>
+            <div className="ml-5 pl-2">
+              <FormGroup className="mb-1 pl-4">
+                <Input
+                  aria-label="Select all platforms for this test"
+                  type="checkbox"
+                  checked={allPlatformsSelected}
+                  onChange={this.selectAll}
+                />
+                <Label className="text-darker-secondary ml-4">select all</Label>
+              </FormGroup>
+            </div>
             {tests.map((failure) => (
               <PlatformConfig
                 key={failure.key}
@@ -306,10 +352,9 @@ class Test extends PureComponent {
                   updateParamsAndState(stateObj);
                 }}
                 className="ml-3"
-                selectedTests={selectedTests}
-                isTestSelected={selectedTests.has(failure)}
                 addSelectedTest={this.addSelectedTest}
                 removeSelectedTest={this.removeSelectedTest}
+                allPlatformsSelected={allPlatformsSelected}
               />
             ))}
           </Collapse>

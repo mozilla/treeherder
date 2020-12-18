@@ -70,11 +70,20 @@ class ClassificationGroup extends React.PureComponent {
 
   getTestsByAction = (tests) => {
     const { log, crash, test } = groupBy(tests, 'action');
+    const categories = [];
 
-    return {
-      'Test Failures': test || [],
-      'Crashes (unknown path)': [...(log || []), ...(crash || [])],
-    };
+    if (test) {
+      categories.push(['Test Failures', test]);
+    }
+
+    if (log || crash) {
+      categories.push([
+        'Crashes (unknown path)',
+        [...(log || []), ...(crash || [])],
+      ]);
+    }
+
+    return categories;
   };
 
   render() {
@@ -116,13 +125,6 @@ class ClassificationGroup extends React.PureComponent {
         data-testid="classification-group"
       >
         <span className="font-size-24">
-          <FontAwesomeIcon
-            icon={expandIcon}
-            className="mr-1 min-width-1"
-            title={expandTitle}
-            aria-label={expandTitle}
-            alt=""
-          />
           <Button
             onClick={this.toggleDetails}
             outline
@@ -130,6 +132,13 @@ class ClassificationGroup extends React.PureComponent {
             role="button"
             aria-expanded={detailsShowing}
           >
+            <FontAwesomeIcon
+              icon={expandIcon}
+              className="mr-1 min-width-1"
+              title={expandTitle}
+              aria-label={expandTitle}
+              alt=""
+            />
             <FontAwesomeIcon icon={icon} className={`mr-2 text-${iconColor}`} />
             {name} ({groupLength})
           </Button>
@@ -248,27 +257,28 @@ class ClassificationGroup extends React.PureComponent {
           </Navbar>
         )}
         <Collapse isOpen={detailsShowing} className="w-100">
-          {Object.entries(testsByAction).map(([key, value]) => (
-            <Action
-              name={key}
-              tests={value}
-              groupedBy={groupedBy}
-              orderedBy={orderedBy}
-              revision={revision}
-              currentRepo={currentRepo}
-              notify={notify}
-              key={key}
-              jobs={jobs}
-              testGroup={testGroup}
-              selectedTest={selectedTest}
-              selectedJobName={selectedJobName}
-              selectedTaskId={selectedTaskId}
-              updateParamsAndState={updateParamsAndState}
-              investigateTest={investigateTest}
-              unInvestigateTest={unInvestigateTest}
-              updatePushHealth={updatePushHealth}
-            />
-          ))}
+          {testsByAction.length > 0 &&
+            testsByAction.map(([key, value]) => (
+              <Action
+                name={key}
+                tests={value}
+                groupedBy={groupedBy}
+                orderedBy={orderedBy}
+                revision={revision}
+                currentRepo={currentRepo}
+                notify={notify}
+                key={key}
+                jobs={jobs}
+                testGroup={testGroup}
+                selectedTest={selectedTest}
+                selectedJobName={selectedJobName}
+                selectedTaskId={selectedTaskId}
+                updateParamsAndState={updateParamsAndState}
+                investigateTest={investigateTest}
+                unInvestigateTest={unInvestigateTest}
+                updatePushHealth={updatePushHealth}
+              />
+            ))}
         </Collapse>
       </Row>
     );

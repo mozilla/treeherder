@@ -8,6 +8,7 @@ import sortBy from 'lodash/sortBy';
 import JobModel from '../models/job';
 import { addAggregateFields } from '../helpers/job';
 import { shortDateFormat } from '../helpers/display';
+import SimpleTooltip from '../shared/SimpleTooltip';
 
 import { taskResultColorMap } from './helpers';
 import DetailsPanel from './details/DetailsPanel';
@@ -43,11 +44,17 @@ class PlatformConfig extends React.PureComponent {
     });
   }
 
-  componentWillReceiveProps() {
-    const { selectedTests, failure } = this.props;
-    this.setState({
-      isTestSelected: selectedTests.has(failure),
-    });
+  componentDidUpdate(prevProps) {
+    const { allPlatformsSelected } = this.props;
+    const { isTestSelected } = this.props;
+
+    if (
+      prevProps.allPlatformsSelected !== allPlatformsSelected &&
+      allPlatformsSelected !== isTestSelected
+    ) {
+      // eslint-disable-next-line react/no-did-update-set-state
+      this.setState({ isTestSelected: allPlatformsSelected });
+    }
   }
 
   setSelectedTask = (task) => {
@@ -105,13 +112,13 @@ class PlatformConfig extends React.PureComponent {
         key={key}
         style={{ background: '#f2f2f2' }}
       >
-        <Row className="ml-2 w-100 mb-2 justify-content-between">
+        <Row className="ml-2 pl-2 w-100 mb-2 justify-content-between">
           <Col xs="auto">
             <Input
               type="checkbox"
               checked={isTestSelected}
               onChange={this.selectTest}
-              title="Select Test"
+              aria-label={`Select ${jobName}`}
             />
           </Col>
           <Col>
@@ -136,22 +143,33 @@ class PlatformConfig extends React.PureComponent {
               const isSelected = selectedTask && selectedTask.id === id;
               return (
                 <span key={id} className="mr-3">
-                  <Button
-                    className="py-0"
-                    color={`${taskResultColorMap[result]} ${
-                      !isSelected && 'bg-white bg-hover-grey'
-                    }`}
-                    outline={!isSelected}
-                    size="sm"
-                    onClick={() => this.setSelectedTask(task)}
-                    title={`${
-                      state === 'completed' ? result : state
-                    } - ${jobGroupSymbol}(${jobSymbol}) - ${new Date(
-                      startTime,
-                    ).toLocaleString('en-US', shortDateFormat)}`}
-                  >
-                    task {idx > 0 ? idx + 1 : ''}
-                  </Button>
+                  <SimpleTooltip
+                    text={
+                      <Button
+                        className="py-0"
+                        color={`${taskResultColorMap[result]} ${
+                          !isSelected && 'bg-white bg-hover-grey'
+                        }`}
+                        outline={!isSelected}
+                        size="sm"
+                        onClick={() => this.setSelectedTask(task)}
+                      >
+                        task {idx > 0 ? idx + 1 : ''}
+                      </Button>
+                    }
+                    tooltipText={
+                      <span className="text-nowrap flex">
+                        {`${
+                          state === 'completed' ? result : state
+                        } - ${jobGroupSymbol}(${jobSymbol}) - ${new Date(
+                          startTime,
+                        ).toLocaleString('en-US', shortDateFormat)}`}
+                        <br />
+                        Click to see failure lines and artifacts
+                      </span>
+                    }
+                    innerClassName="custom-tooltip-width"
+                  />
                 </span>
               );
             })}
