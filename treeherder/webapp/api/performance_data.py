@@ -81,8 +81,8 @@ class PerformanceSignatureViewSet(viewsets.ViewSet):
             signature_data = signature_data.filter(framework__in=frameworks)
 
         interval = request.query_params.get('interval')
-        start_date = request.query_params.get('start_date')  # 'YYYY-MM-DDTHH:MM:SS
-        end_date = request.query_params.get('end_date')  # 'YYYY-MM-DDTHH:MM:SS'
+        start_date = request.query_params.get('start_date')  # YYYY-MM-DDTHH:MM:SS
+        end_date = request.query_params.get('end_date')  # YYYY-MM-DDTHH:MM:SS
         if interval and (start_date or end_date):
             return Response(
                 {"message": "Provide either interval only -or- start (and end) date"},

@@ -4,6 +4,7 @@ import React from 'react';
 import { Row, Col } from 'reactstrap';
 import PropTypes from 'prop-types';
 import {
+  VictoryBar,
   VictoryChart,
   VictoryLine,
   VictoryAxis,
@@ -30,6 +31,8 @@ const CHART_WIDTH = 1350;
 const VictoryZoomSelectionContainer = createContainer('zoom', 'selection');
 
 class GraphsContainer extends React.Component {
+  infraChangeColor = '#d19900';
+
   constructor(props) {
     super(props);
     this.tooltip = React.createRef();
@@ -66,6 +69,7 @@ class GraphsContainer extends React.Component {
   componentDidUpdate(prevProps) {
     const {
       highlightAlerts,
+      highlightChangelogData,
       highlightedRevisions,
       testData,
       timeRange,
@@ -76,6 +80,7 @@ class GraphsContainer extends React.Component {
 
     if (
       prevProps.highlightAlerts !== highlightAlerts ||
+      prevProps.highlightChangelogData !== highlightChangelogData ||
       prevProps.highlightedRevisions !== highlightedRevisions
     ) {
       this.addHighlights();
@@ -347,7 +352,14 @@ class GraphsContainer extends React.Component {
   };
 
   render() {
-    const { testData, showTable, zoom, highlightedRevisions } = this.props;
+    const {
+      testData,
+      changelogData,
+      showTable,
+      zoom,
+      highlightedRevisions,
+      highlightChangelogData,
+    } = this.props;
     const {
       highlights,
       scatterPlotData,
@@ -356,6 +368,25 @@ class GraphsContainer extends React.Component {
       externalMutation,
       width,
     } = this.state;
+
+    let infraAffectedData = [];
+    const markDataPoints = 5;
+
+    changelogData.forEach((data) =>
+      scatterPlotData.some((dataPoint, index) => {
+        const affectedData = dataPoint.x > data.date;
+        if (affectedData) {
+          infraAffectedData.push(
+            scatterPlotData.slice(index, index + markDataPoints),
+          );
+        }
+        return affectedData;
+      }),
+    );
+
+    infraAffectedData = new Set(
+      flatMap(infraAffectedData).map((item) => item.revision),
+    );
 
     const yAxisLabel = this.computeYAxisLabel();
     const positionedTick = <VictoryLabel dx={-2} />;
@@ -502,6 +533,64 @@ class GraphsContainer extends React.Component {
                       />
                     ))}
 
+                  {highlightChangelogData && changelogData.length > 0 && (
+                    <VictoryBar
+                      key="changelog"
+                      data={changelogData.map((i) => ({
+                        x: i.date,
+                        y: zoomDomain.maxY,
+                        label: i.description,
+                      }))}
+                      style={{
+                        data: { fill: this.infraChangeColor, width: 1 },
+                      }}
+                      events={[
+                        {
+                          target: 'data',
+                          eventHandlers: {
+                            onMouseOver: () => {
+                              return [
+                                {
+                                  target: 'data',
+                                  mutation: () => ({
+                                    style: {
+                                      fill: this.infraChangeColor,
+                                      width: 3,
+                                    },
+                                  }),
+                                },
+                                {
+                                  target: 'labels',
+                                  mutation: () => ({
+                                    active: true,
+                                    y: 150,
+                                  }),
+                                },
+                              ];
+                            },
+                            onMouseOut: () => {
+                              return [
+                                {
+                                  target: 'data',
+                                  mutation: () => ({
+                                    style: {
+                                      fill: this.infraChangeColor,
+                                      width: 2,
+                                    },
+                                  }),
+                                },
+                                {
+                                  target: 'labels',
+                                  mutation: () => ({ active: false }),
+                                },
+                              ];
+                            },
+                          },
+                        },
+                      ]}
+                    />
+                  )}
+
                   <VictoryScatter
                     name="scatter-plot"
                     symbol={({ datum }) => (datum._z ? datum._z[0] : 'circle')}
@@ -542,6 +631,7 @@ class GraphsContainer extends React.Component {
                         flyoutComponent={
                           <VictoryPortal>
                             <GraphTooltip
+                              infraAffectedData={infraAffectedData}
                               lockTooltip={lockTooltip}
                               closeTooltip={this.closeTooltip}
                               windowWidth={width}
@@ -585,6 +675,7 @@ class GraphsContainer extends React.Component {
 
 GraphsContainer.propTypes = {
   testData: PropTypes.arrayOf(PropTypes.shape({})),
+  changelogData: PropTypes.arrayOf(PropTypes.shape({})),
   measurementUnits: PropTypes.instanceOf(Set).isRequired,
   updateStateParams: PropTypes.func.isRequired,
   zoom: PropTypes.shape({}),
@@ -599,6 +690,7 @@ GraphsContainer.propTypes = {
 
 GraphsContainer.defaultProps = {
   testData: [],
+  changelogData: [],
   zoom: {},
   selectedDataPoint: undefined,
   highlightAlerts: true,

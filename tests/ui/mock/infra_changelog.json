@@ -1,0 +1,58 @@
+[
+  {
+    "id": 104,
+    "remote_id": "34717588",
+    "date": "2020-12-02T21:23:32",
+    "author": "taskcluster-bot",
+    "message": "Released v39.0.0",
+    "description": "Framework that supports Mozilla's continuous integration and release processes.",
+    "owner": "Release Engineering",
+    "project": "TaskCluster",
+    "project_url": "https://github.com/taskcluster/taskcluster",
+    "type": "release",
+    "url": "https://github.com/taskcluster/taskcluster/releases/tag/v39.0.0",
+    "files": []
+  },
+  {
+    "id": 105,
+    "remote_id": "a05c2babc3f8743a8bed5c7e3b7617d5af989cca",
+    "date": "2020-12-09T21:26:30",
+    "author": "Andrew Erickson",
+    "message": "add new s7 pools, move s7s to both pools (#141)",
+    "description": "Simple implementation of a test run manager for mozilla tests at bitbar.",
+    "owner": "Bob Clary",
+    "project": "Bitbar device pool",
+    "project_url": "https://github.com/bclary/mozilla-bitbar-devicepool/",
+    "type": "commit",
+    "url": "https://github.com/bclary/mozilla-bitbar-devicepool/commit/a05c2babc3f8743a8bed5c7e3b7617d5af989cca",
+    "files": ["config/config.yml"]
+  },
+  {
+    "id": 106,
+    "remote_id": "35117856",
+    "date": "2020-12-10T19:25:33",
+    "author": "taskcluster-bot",
+    "message": "Released v39.1.0",
+    "description": "Framework that supports Mozilla's continuous integration and release processes.",
+    "owner": "Release Engineering",
+    "project": "TaskCluster",
+    "project_url": "https://github.com/taskcluster/taskcluster",
+    "type": "release",
+    "url": "https://github.com/taskcluster/taskcluster/releases/tag/v39.1.0",
+    "files": []
+  },
+  {
+    "id": 107,
+    "remote_id": "35242567",
+    "date": "2020-12-14T15:36:03",
+    "author": "taskcluster-bot",
+    "message": "Released v39.1.1",
+    "description": "Framework that supports Mozilla's continuous integration and release processes.",
+    "owner": "Release Engineering",
+    "project": "TaskCluster",
+    "project_url": "https://github.com/taskcluster/taskcluster",
+    "type": "release",
+    "url": "https://github.com/taskcluster/taskcluster/releases/tag/v39.1.1",
+    "files": []
+  }
+]

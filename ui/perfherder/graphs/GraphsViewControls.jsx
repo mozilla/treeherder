@@ -11,14 +11,53 @@ import {
 } from 'reactstrap';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faTable, faChartArea } from '@fortawesome/free-solid-svg-icons';
+import moment from 'moment';
 
-import { phTimeRanges } from '../constants';
+import { phTimeRanges, endpoints } from '../constants';
 import DropdownMenuItems from '../../shared/DropdownMenuItems';
+import { ISODate } from '../../intermittent-failures/helpers';
+import { getData } from '../../helpers/http';
+import { createApiUrl } from '../../helpers/url';
 
 import TestDataModal from './TestDataModal';
 import GraphsContainer from './GraphsContainer';
 
 export default class GraphsViewControls extends React.Component {
+  constructor() {
+    super();
+    this.state = {
+      changelogData: [],
+    };
+  }
+
+  componentDidMount = () => {
+    this.getChangelogData();
+  };
+
+  componentDidUpdate = (prevProps) => {
+    const { timeRange } = this.props;
+
+    if (timeRange !== prevProps.timeRange) {
+      this.getChangelogData();
+    }
+  };
+
+  getChangelogData = async () => {
+    const { timeRange } = this.props;
+    const startDate = ISODate(
+      moment().utc().subtract(timeRange.value, 'seconds'),
+    );
+
+    const rawData = await getData(
+      createApiUrl(endpoints.changelog, { startdate: startDate }),
+    );
+    const changelogData = rawData.data.map(({ date, ...extra }) => ({
+      date: new Date(date),
+      ...extra,
+    }));
+    this.setState({ changelogData });
+  };
+
   changeHighlightedRevision = (index, newValue) => {
     const { highlightedRevisions, updateStateParams } = this.props;
 
@@ -40,6 +79,7 @@ export default class GraphsViewControls extends React.Component {
       timeRange,
       updateStateParams,
       highlightAlerts,
+      highlightChangelogData,
       highlightedRevisions,
       updateTimeRange,
       hasNoData,
@@ -49,6 +89,8 @@ export default class GraphsViewControls extends React.Component {
       showTable,
       testData,
     } = this.props;
+
+    const { changelogData } = this.state;
 
     const measurementUnits = this.extractMeasurementUnitsSet(testData);
 
@@ -109,6 +151,7 @@ export default class GraphsViewControls extends React.Component {
             {testData.length > 0 && (
               <GraphsContainer
                 measurementUnits={measurementUnits}
+                changelogData={changelogData}
                 {...this.props}
               />
             )}
@@ -138,11 +181,26 @@ export default class GraphsViewControls extends React.Component {
                     color="darker-info"
                     outline
                     onClick={() =>
-                      updateStateParams({ highlightAlerts: !highlightAlerts })
+                      updateStateParams({
+                        highlightAlerts: !highlightAlerts,
+                      })
                     }
                     active={highlightAlerts}
                   >
                     Highlight alerts
+                  </Button>
+                  <Button
+                    className="ml-3"
+                    color="darker-info"
+                    outline
+                    onClick={() =>
+                      updateStateParams({
+                        highlightChangelogData: !highlightChangelogData,
+                      })
+                    }
+                    active={highlightChangelogData}
+                  >
+                    Highlight infra changes
                   </Button>
                 </Col>
               )}
@@ -158,6 +216,7 @@ GraphsViewControls.propTypes = {
   updateStateParams: PropTypes.func.isRequired,
   timeRange: PropTypes.shape({}).isRequired,
   highlightAlerts: PropTypes.bool.isRequired,
+  highlightChangelogData: PropTypes.bool.isRequired,
   highlightedRevisions: PropTypes.oneOfType([
     PropTypes.string,
     PropTypes.arrayOf(PropTypes.string),
