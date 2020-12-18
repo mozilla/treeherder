@@ -246,7 +246,7 @@ class Test extends PureComponent {
             >
               <FontAwesomeIcon
                 icon={detailsShowing ? faCaretDown : faCaretRight}
-                className="mr-2 min-width-1"
+                className="mr-2 min-width-1 mt-1"
               />
             </Button>
             <Button

@@ -8,15 +8,9 @@ trim_parts = [
 ]
 
 
-def clean_test(action, test, signature, message):
+def clean_test(test, signature, message):
     try:
-        clean_name = 'Non-Test Error'
-        if action == 'test_result':
-            clean_name = test
-        elif action == 'crash':
-            clean_name = signature
-        elif action == 'log':
-            clean_name = message
+        clean_name = test or signature or message or 'Non-Test Error'
 
     except UnicodeEncodeError:
         return ''

@@ -59,11 +59,9 @@ def get_history(
         )
         previous_failures = defaultdict(lambda: defaultdict(lambda: defaultdict(int)))
         for line in failure_lines:
-            previous_failures[
-                clean_test(line['action'], line['test'], line['signature'], line['message'])
-            ][clean_platform(line['job_log__job__machine_platform__platform'])][
-                clean_config(option_map[line['job_log__job__option_collection_hash']])
-            ] += 1
+            previous_failures[clean_test(line['test'], line['signature'], line['message'])][
+                clean_platform(line['job_log__job__machine_platform__platform'])
+            ][clean_config(option_map[line['job_log__job__option_collection_hash']])] += 1
 
         cache.set(cache_key, json.dumps(previous_failures), ONE_WEEK_IN_SECONDS)
     else:
@@ -95,9 +93,7 @@ def get_current_test_failures(push, option_map, jobs, investigatedTests=None):
     tests = {}
     all_failed_jobs = {}
     for failure_line in new_failure_lines:
-        test_name = clean_test(
-            failure_line.action, failure_line.test, failure_line.signature, failure_line.message
-        )
+        test_name = clean_test(failure_line.test, failure_line.signature, failure_line.message)
         if not test_name:
             continue
         job = failure_line.job_log.job
