@@ -12,12 +12,6 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     netcat \
     && rm -rf /var/lib/apt/lists/*
 
-#### Required for running Selenium tests ####
-ENV GECKODRIVER_VERSION='0.24.0'
-RUN curl -sSfL --retry 5 "https://github.com/mozilla/geckodriver/releases/download/v${GECKODRIVER_VERSION}/geckodriver-v${GECKODRIVER_VERSION}-linux64.tar.gz" \
-    | tar -zxC "/usr/local/bin" \
-    && curl -sSfL --retry 5 'https://download.mozilla.org/?product=firefox-beta-latest&lang=en-US&os=linux64' \
-    | tar -jxC "/usr/local/bin"
 # Bug in Firefox which requires GTK+ and GLib in headless mode
 # https://bugzilla.mozilla.org/show_bug.cgi?id=1372998
 RUN apt-get update && apt-get install -y --no-install-recommends \

@@ -4,7 +4,6 @@ django-debug-toolbar
 mock
 responses
 django-extensions
-pytest-selenium
 PyPOM
 
 

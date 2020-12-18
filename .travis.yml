@@ -72,24 +72,6 @@ jobs:
         # It will fail if there's no coverage data
         - codecov --required -f coverage.xml
 
-    # Run Python Selenium tests
-    - language: node_js
-      services:
-        - docker
-      # The Node version here must be kept in sync with that in `package.json`.
-      node_js: '12.14.1'
-      cache:
-        directories:
-          - $HOME/.cache/pip
-          - $HOME/.cache/yarn
-          - .tox/py37
-      install:
-        - pip install tox
-        - pip install codecov
-      script:
-        - tox -e selenium
-        - codecov -f coverage.xml
-
 notifications:
   email:
     on_success: never

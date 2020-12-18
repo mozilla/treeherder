@@ -90,16 +90,4 @@ Just the `test_ingest_pending_pulse_job` within the `/etl` tests
 docker-compose run backend pytest tests/ -k test_ingest_pending_pulse_job
 ```
 
-## Selenium
-
-The Selenium tests are written in Python, so when you execute some of the
-commands above, you will execute the Selenium tests as well.
-
-The Selenium tests require a UI build:
-
-```shell
-docker-compose up --build
-docker-compose run backend pytest tests/selenium/
-```
-
 [eslint]: https://eslint.org
