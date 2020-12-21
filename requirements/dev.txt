@@ -505,9 +505,9 @@ zope.proxy==4.3.5 \
     # via zope.deferredimport
 
 # The following packages are considered to be unsafe in a requirements file:
-pip==20.2.2 \
-    --hash=sha256:5244e51494f5d1dfbb89da492d4250cb07f9246644736d10ed6c45deb1a48500 \
-    --hash=sha256:58a3b0b55ee2278104165c7ee7bc8e2db6f635067f3c66cf637113ec5aa71584 \
+pip==20.3.3 \
+    --hash=sha256:79c1ac8a9dccbec8752761cb5a2df833224263ca661477a2a9ed03ddf4e0e3ba \
+    --hash=sha256:fab098c8a1758295dd9f57413c199f23571e8fde6cc39c22c78c961b4ac6286d \
     # via pip-tools
 setuptools==49.6.0 \
     --hash=sha256:46bd862894ed22c2edff033c758c2dc026324788d758e96788e8f7c11f4e9707 \
