@@ -30,8 +30,7 @@ services:
     # Django's runserver doesn't listen to the default of SIGTERM, so docker-compose
     # must send SIGINT instead to avoid waiting 10 seconds for the time out.
     stop_signal: SIGINT
-    # https://github.com/SeleniumHQ/docker-selenium#running-the-images
-    shm_size: 2g
+    shm_size: 2g # 2 Gig seems like a good size
     volumes:
       - .:/app
     ports:

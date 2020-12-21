@@ -88,6 +88,7 @@ export default function LogItem(props) {
       {logUrls.length === 1 && (
         <a
           className="logviewer-btn"
+          data-testid="logviewer-btn"
           {...getLogUrlProps(
             logKey,
             logUrls[0],

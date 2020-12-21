@@ -8,8 +8,6 @@ You can run flake8 and the pytest suite inside Docker, using:
 docker-compose run backend ./runtests.sh
 ```
 
-Note: The Selenium tests will be skipped unless `yarn build` has been manually run prior.
-
 Or for more control, run each tool individually, by first running:
 
 ```bash
@@ -18,7 +16,6 @@ docker-compose run backend bash
 
 ...which saves having to wait for docker-compose to spin up for every test run.
 
-NOTE: To run Selenium tests you need to run `yarn build` for the tests not to skip.
 `yarn build` will generate a `.build` directory which will be seen within the `backend` container.
 If you don't have `yarn` working on your host you can run this instead `docker-compose run frontend sh -c "yarn && yarn build"`
 
@@ -30,7 +27,6 @@ Then run the individual tools within that shell, like so:
   pytest tests/
   pytest tests/log_parser/test_tasks.py
   pytest tests/etl/test_job_loader.py -k test_ingest_pulse_jobs
-  pytest tests/selenium/test_pin_jobs.py::test_pin_all_jobs
   ```
 
   To run all tests, including slow tests that are normally skipped, use:
@@ -40,13 +36,6 @@ Then run the individual tools within that shell, like so:
   ```
 
   For more options, see `pytest --help` or <https://docs.pytest.org/en/stable/usage.html>.
-
-  To assist with debugging Selenium test failures, an HTML reporting containing screenshots
-  can be generated using:
-
-  ```bash
-  pytest tests/selenium/ --html report.html
-  ```
 
 - [flake8](https://flake8.readthedocs.io/):
 

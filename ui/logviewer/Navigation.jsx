@@ -97,6 +97,7 @@ export default class Navigation extends React.PureComponent {
             <span>
               <Button
                 className="nav-link btn-view-nav"
+                data-testid="show-job-info"
                 onClick={collapseJobDetails}
               >
                 {collapseDetails ? `Show Job Info` : `Hide Job Info`}
