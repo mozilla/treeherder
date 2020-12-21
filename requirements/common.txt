@@ -340,9 +340,11 @@ mozci==1.8.3 \
     --hash=sha256:c4026a12f04387b4d1c5a455d1e81eadfc6bdba483f0d3a814b5409415876dce \
     --hash=sha256:e176f500118ebe364719dcdfba25d117892cc1bdf83b645825305927d02225cd \
     # via -r requirements/common.in
-mozlog==6.1 \
-    --hash=sha256:0d45abc8b9aec5e812ade6665128e50f9041f98397d11f9c753aa93a3f10e978 \
-    --hash=sha256:ee6f23b854046296cbbf7dc31df67148b0393b772137c594803c6e6bbc072834 \
+mozfile==2.1.0 \
+    --hash=sha256:e5dc835582ea150e35ecd57e9d86cb707d3aa3b2505679db7332326dd49fd6b8 \
+    # via mozlog
+mozlog==7.1.0 \
+    --hash=sha256:54b9a1e781ce31fc10079dc8aec509fff7feca83714edeae6c981e279ceb796f \
     # via -r requirements/common.in
 mozterm==1.0.0 \
     --hash=sha256:b1e91acec188de07c704dbb7b0100a7be5c1e06567b3beb67f6ea11d00a483a4 \
@@ -568,7 +570,7 @@ simplejson==3.17.2 \
 six==1.15.0 \
     --hash=sha256:30639c035cdb23534cd4aa2dd52c3bf48f06e5f4a941509c8bafd8ce11080259 \
     --hash=sha256:8b74bedcbbbaca38ff6d7491d76f2b06b3592611af620f8426e82dddb04a5ced \
-    # via blessings, ecdsa, furl, google-api-core, google-auth, google-cloud-bigquery, google-resumable-media, jsonschema, mohawk, mozlog, mozterm, orderedmultidict, protobuf, pyrsistent, python-dateutil, python-jose, taskcluster
+    # via blessings, ecdsa, furl, google-api-core, google-auth, google-cloud-bigquery, google-resumable-media, jsonschema, mohawk, mozfile, mozlog, mozterm, orderedmultidict, protobuf, pyrsistent, python-dateutil, python-jose, taskcluster
 slugid==2.0.0 \
     --hash=sha256:a950d98b72691178bdd4d6c52743c4a2aa039207cf7a97d71060a111ff9ba297 \
     --hash=sha256:aec8b0e01c4ad32e38e12d609eab3ec912fd129aaf6b2ded0199b56a5f8fd67c \
