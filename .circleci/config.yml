@@ -7,8 +7,8 @@ jobs:
     steps:
       - checkout
       - node/install-packages:
-        # `yarn install --frozen-lockfile` is run and cache is enabled by default for this orb configuration
-          pkg-manager: yarn
+          # `yarn install --frozen-lockfile` is run and cache is enabled by default for this orb configuration
+          pkg-manager: yarn      
       - run:
           command: yarn lint
           name: Run linting
@@ -22,10 +22,30 @@ jobs:
           command: yarn test:coverage
           name: Run Jest tests
 
+  heroku-builds:
+    environment:
+      NODE_ENV: production
+      YARN_PRODUCTION: true
+    docker:
+      - image: 'circleci/python:3.7-node'
+    steps:
+      - checkout
+      - restore_cache:
+          name: Restore Yarn Package Cache
+          keys:
+            - node-deps-v1-{{ .Branch }}
+      - run: pip install tox
+      - run:
+          command: tox -e heroku
+          name: Run heroku builds and release checks
+
+
 orbs:
   node: circleci/node@4.1.0
+  python: circleci/python@1.3.2
 version: 2.1
 workflows:
-  run-javascript-tests:
+  run-tests:
     jobs:
       - node-tests
+      - heroku-builds
