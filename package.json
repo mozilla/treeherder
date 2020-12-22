@@ -104,7 +104,7 @@
     "start": "node ./node_modules/webpack-dev-server/bin/webpack-dev-server.js --mode development",
     "start:stage": "node ./node_modules/webpack-dev-server/bin/webpack-dev-server.js --mode development --env.BACKEND=https://treeherder.allizom.org",
     "start:local": "node ./node_modules/webpack-dev-server/bin/webpack-dev-server.js --mode development --env.BACKEND=http://localhost:8000",
-    "test:coverage": "node ./node_modules/jest/bin/jest --silent --coverage",
+    "test:coverage": "node ./node_modules/jest/bin/jest -w 1 --silent --coverage",
     "test": "node ./node_modules/jest/bin/jest",
     "test:watch": "node ./node_modules/jest/bin/jest --watch"
   }
