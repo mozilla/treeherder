@@ -11,6 +11,8 @@ set -euo pipefail
 
 # Make the current Git revision accessible at <site-root>/revision.txt
 export REVISION=${SOURCE_VERSION:-$(git rev-parse HEAD)}
+# This helps the echo command not fail
+mkdir -p .build && touch .build/revision.txt
 echo "$REVISION" > .build/revision.txt
 echo "This is the revision of the build: $REVISION"
 
