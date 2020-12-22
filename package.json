@@ -21,6 +21,8 @@
     "@fortawesome/react-fontawesome": "0.1.13",
     "@neutrinojs/copy": "9.2.0",
     "@neutrinojs/react": "9.2.0",
+    "@sentry/react": "5.29.2",
+    "@sentry/tracing": "5.29.2",
     "@types/prop-types": "*",
     "@types/react": "*",
     "@types/react-dom": "*",
