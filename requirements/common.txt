@@ -4,9 +4,9 @@
 #
 #    pip-compile --generate-hashes --output-file=requirements/common.txt requirements/common.in
 #
-adr==0.19.0 \
-    --hash=sha256:3182f33c19439582fa0bee0840d79ac167f44f53572b09287f3860b069781ad0 \
-    --hash=sha256:e2ff565c4f2f668bf7c736d03ffc1d4599b1994d75d599858074bf11a4cbb737 \
+adr==0.19.4 \
+    --hash=sha256:3fb790707e3e5635c64ed6cbdaff4ca0e3996e9ba8c7b2e6d40843c22ddb87e5 \
+    --hash=sha256:8aa93cc3bd3a368d257b2f14bb7138678f88be7c8dc5303c4df2c0141240cdeb \
     # via mozci
 aiohttp==3.6.2 \
     --hash=sha256:1e984191d1ec186881ffaed4581092ba04f7c61582a177b187d3a2f07ed9719e \
@@ -21,7 +21,7 @@ aiohttp==3.6.2 \
     --hash=sha256:65f31b622af739a802ca6fd1a3076fd0ae523f8485c52924a89561ba10c49b48 \
     --hash=sha256:ae55bac364c405caa23a4f2d6cfecc6a0daada500274ffca4a9230e7129eac59 \
     --hash=sha256:b778ce0c909a2653741cb4b1ac7015b5c130ab9c897611df43ae6a58523cb965 \
-    # via taskcluster
+    # via mozci, taskcluster
 amqp==2.6.0 \
     --hash=sha256:24dbaff8ce4f30566bb88976b398e8c4e77637171af3af6f1b9650f48890e60b \
     --hash=sha256:bb68f8d2bced8f93ccfd07d96c689b716b3227720add971be980accfc2952139 \
@@ -335,9 +335,9 @@ mohawk==1.1.0 \
     --hash=sha256:3ed296a30453d0b724679e0fd41e4e940497f8e461a9a9c3b7f36e43bab0fa09 \
     --hash=sha256:d2a0e3ab10a209cc79e95e28f2dd54bd4a73fd1998ffe27b7ba0f962b6be9723 \
     # via taskcluster
-mozci==1.8.3 \
-    --hash=sha256:c4026a12f04387b4d1c5a455d1e81eadfc6bdba483f0d3a814b5409415876dce \
-    --hash=sha256:e176f500118ebe364719dcdfba25d117892cc1bdf83b645825305927d02225cd \
+mozci==1.11.3 \
+    --hash=sha256:3b25992f9d19419c6e84e9241d8200c45c1e76bc7a960bd406f1497c32a43304 \
+    --hash=sha256:bd812a763a86cda17627957e5c402e3276fa1ae6566335d0395c89c2f53b1c0d \
     # via -r requirements/common.in
 mozfile==2.1.0 \
     --hash=sha256:e5dc835582ea150e35ecd57e9d86cb707d3aa3b2505679db7332326dd49fd6b8 \
@@ -578,15 +578,16 @@ sqlparse==0.3.1 \
     --hash=sha256:022fb9c87b524d1f7862b3037e541f68597a730a8843245c349fc93e1643dc4e \
     --hash=sha256:e162203737712307dfe78860cc56c8da8a852ab2ee33750e33aeadf38d12c548 \
     # via django
-taskcluster-urls==12.1.0 \
-    --hash=sha256:1dc740c32c7beb31e11ed7ccf9da2d47a504acdb3170c8900649433b0fd16fb2 \
-    --hash=sha256:4a62c776aeba6d45044789a8845ec4d8521bc1bb6ebfc86d79ee759bcdd4f2f7 \
+taskcluster-urls==13.0.1 \
+    --hash=sha256:5e25e7e6818e8877178b175ff43d2e6548afad72694aa125f404a7329ece0973 \
+    --hash=sha256:b25e122ecec249c4299ac7b20b08db76e3e2025bdaeb699a9d444556de5fd367 \
+    --hash=sha256:f66dcbd6572a6216ab65949f0fa0b91f2df647918028436c384e6af5cd12ae2b \
     # via mozci, taskcluster
-taskcluster==30.1.1 \
-    --hash=sha256:4789bfee6b95020c6361301d64c7b7b1518b029fa50c65521914b11898f41a36 \
-    --hash=sha256:96295013ce891c8d86c59353ff24e7e0c0a1d7d2e2e517ab424281af4ff6a64c \
-    --hash=sha256:9f3548b1898e5f2d345257ea2822ac1d5ec1694e3acdabe3825550b126d2ad30 \
-    # via -r requirements/common.in, adr
+taskcluster==38.0.6 \
+    --hash=sha256:41759b25b52b4eae87c363ae99edebd7d15c0ac5eca44eadefbae3556ed65635 \
+    --hash=sha256:4b765a12b0444c66510f5def5f6f30b1cea53785781626dd75fdd62f101e91df \
+    --hash=sha256:db6d4e91fe97a03431b8ca79b98c4b41f89c42745c84fd4512cd0cb25a030de5 \
+    # via -r requirements/common.in, adr, mozci
 terminaltables==3.1.0 \
     --hash=sha256:f3eb0eb92e3833972ac36796293ca0906e998dc3be91fbe1f8615b331b853b81 \
     # via adr

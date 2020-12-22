@@ -76,7 +76,9 @@ def test_bug_job_map_list(client, test_repository, eleven_jobs_stored, test_user
             data={'job_id': [job.id for job in jobs[job_range[0] : job_range[1]]]},
         )
         assert resp.status_code == 200
-        assert resp.json() == expected[job_range[0] : job_range[1]]
+        buglist = sorted(resp.json(), key = lambda i: i['bug_id'])
+
+        assert buglist == expected[job_range[0] : job_range[1]]
 
 
 def test_bug_job_map_detail(client, eleven_jobs_stored, test_repository, test_user, bugs):

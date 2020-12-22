@@ -413,7 +413,7 @@
         {
           "name": "live_backing_log",
           "parse_status": "pending",
-          "url": "https://queue.taskcluster.net/v1/task/B3EheQ-IQ5aPzw34KS_a6g/runs/0/artifacts/public/logs/live_backing.log"
+          "url": "https://taskcluster.net/api/queue/v1/task/B3EheQ-IQ5aPzw34KS_a6g/runs/0/artifacts/public/logs/live_backing.log"
         }
       ],
       "machine": "t-mojave-r7-153",
@@ -962,7 +962,7 @@
         {
           "name": "live_backing_log",
           "parse_status": "pending",
-          "url": "https://queue.taskcluster.net/v1/task/ENXQRjSMRWyWK_zAEYEoXg/runs/0/artifacts/public/logs/live_backing.log"
+          "url": "https://taskcluster.net/api/queue/v1/task/ENXQRjSMRWyWK_zAEYEoXg/runs/0/artifacts/public/logs/live_backing.log"
         }
       ],
       "machine": "t-yosemite-r7-098",
@@ -1259,7 +1259,7 @@
         {
           "name": "live_backing_log",
           "parse_status": "pending",
-          "url": "https://queue.taskcluster.net/v1/task/GWxTc8p_RUa5_Xo4RtMiCA/runs/0/artifacts/public/logs/live_backing.log"
+          "url": "https://taskcluster.net/api/queue/v1/task/GWxTc8p_RUa5_Xo4RtMiCA/runs/0/artifacts/public/logs/live_backing.log"
         }
       ],
       "machine": "machine-39",
@@ -1303,7 +1303,7 @@
         {
           "name": "live_backing_log",
           "parse_status": "pending",
-          "url": "https://queue.taskcluster.net/v1/task/HsvD9YlDQKaoP4AQsuGeJw/runs/0/artifacts/public/logs/live_backing.log"
+          "url": "https://taskcluster.net/api/queue/v1/task/HsvD9YlDQKaoP4AQsuGeJw/runs/0/artifacts/public/logs/live_backing.log"
         }
       ],
       "machine": "t-yosemite-r7-123",
@@ -1491,7 +1491,7 @@
         {
           "name": "live_backing_log",
           "parse_status": "pending",
-          "url": "https://queue.taskcluster.net/v1/task/KYZKwkbvRc-qPE22g286yQ/runs/0/artifacts/public/logs/live_backing.log"
+          "url": "https://taskcluster.net/api/queue/v1/task/KYZKwkbvRc-qPE22g286yQ/runs/0/artifacts/public/logs/live_backing.log"
         }
       ],
       "machine": "i-06c2c7e06fc36c6c5",
@@ -1572,7 +1572,7 @@
         {
           "name": "live_backing_log",
           "parse_status": "pending",
-          "url": "https://queue.taskcluster.net/v1/task/LBJoI2wUTNCteg-5CnaYZQ/runs/0/artifacts/public/logs/live_backing.log"
+          "url": "https://taskcluster.net/api/queue/v1/task/LBJoI2wUTNCteg-5CnaYZQ/runs/0/artifacts/public/logs/live_backing.log"
         }
       ],
       "machine": "i-0b63c3556524f5295",
@@ -1653,7 +1653,7 @@
         {
           "name": "live_backing_log",
           "parse_status": "pending",
-          "url": "https://queue.taskcluster.net/v1/task/MrYMxyDDSwWXJey-uo4T3g/runs/0/artifacts/public/logs/live_backing.log"
+          "url": "https://taskcluster.net/api/queue/v1/task/MrYMxyDDSwWXJey-uo4T3g/runs/0/artifacts/public/logs/live_backing.log"
         }
       ],
       "machine": "i-08b6fd26055d2603e",
@@ -1733,7 +1733,7 @@
         {
           "name": "live_backing_log",
           "parse_status": "pending",
-          "url": "https://queue.taskcluster.net/v1/task/OiZYxvi5RfKol0A4SBbvOw/runs/0/artifacts/public/logs/live_backing.log"
+          "url": "https://taskcluster.net/api/queue/v1/task/OiZYxvi5RfKol0A4SBbvOw/runs/0/artifacts/public/logs/live_backing.log"
         }
       ],
       "machine": "i-0d0f91277e3f902cc",
@@ -1777,7 +1777,7 @@
         {
           "name": "live_backing_log",
           "parse_status": "pending",
-          "url": "https://queue.taskcluster.net/v1/task/PCVDCxY9QM-lEgaGhrCPrw/runs/0/artifacts/public/logs/live_backing.log"
+          "url": "https://taskcluster.net/api/queue/v1/task/PCVDCxY9QM-lEgaGhrCPrw/runs/0/artifacts/public/logs/live_backing.log"
         }
       ],
       "machine": "i-0bd696849d1151857",
@@ -1893,7 +1893,7 @@
         {
           "name": "live_backing_log",
           "parse_status": "pending",
-          "url": "https://queue.taskcluster.net/v1/task/QDGdgQTQRC2xZNR3Zs_IhA/runs/0/artifacts/public/logs/live_backing.log"
+          "url": "https://taskcluster.net/api/queue/v1/task/QDGdgQTQRC2xZNR3Zs_IhA/runs/0/artifacts/public/logs/live_backing.log"
         }
       ],
       "machine": "i-0de7ae42ffc13af93",
@@ -2227,7 +2227,7 @@
         {
           "name": "live_backing_log",
           "parse_status": "pending",
-          "url": "https://queue.taskcluster.net/v1/task/UZ37gpDqTRS1pBNnp0Spsg/runs/0/artifacts/public/logs/live_backing.log"
+          "url": "https://taskcluster.net/api/queue/v1/task/UZ37gpDqTRS1pBNnp0Spsg/runs/0/artifacts/public/logs/live_backing.log"
         }
       ],
       "machine": "i-0d6489faaf7371ecb",
@@ -2884,7 +2884,7 @@
         {
           "name": "live_backing_log",
           "parse_status": "pending",
-          "url": "https://queue.taskcluster.net/v1/task/ZyNAZZR0SmOcgqC_k_wqsQ/runs/0/artifacts/public/logs/live_backing.log"
+          "url": "https://taskcluster.net/api/queue/v1/task/ZyNAZZR0SmOcgqC_k_wqsQ/runs/0/artifacts/public/logs/live_backing.log"
         }
       ],
       "machine": "i-01e55895145a2d19c",
@@ -3289,7 +3289,7 @@
         {
           "name": "live_backing_log",
           "parse_status": "pending",
-          "url": "https://queue.taskcluster.net/v1/task/eokGh4-OSbOqAzVhJypYPg/runs/0/artifacts/public/logs/live_backing.log"
+          "url": "https://taskcluster.net/api/queue/v1/task/eokGh4-OSbOqAzVhJypYPg/runs/0/artifacts/public/logs/live_backing.log"
         }
       ],
       "machine": "i-09f5a2a05cb655f08",
