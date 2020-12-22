@@ -76,7 +76,7 @@ class PerformanceSignature(models.Model):
     ALERT_ABS = 1
     ALERT_CHANGE_TYPES = ((ALERT_PCT, 'percentage'), (ALERT_ABS, 'absolute'))
 
-    should_alert = models.NullBooleanField()
+    should_alert = models.BooleanField(null=True)
     alert_change_type = models.IntegerField(choices=ALERT_CHANGE_TYPES, null=True)
     alert_threshold = models.FloatField(null=True)
     min_back_window = models.IntegerField(null=True)

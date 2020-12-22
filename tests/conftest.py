@@ -129,7 +129,7 @@ def fixture_create_commit():
 
 
 @pytest.fixture
-def test_repository(transactional_db):
+def test_repository(django_db_reset_sequences):
     from treeherder.model.models import Repository, RepositoryGroup
 
     RepositoryGroup.objects.get_or_create(name="development", description="")
