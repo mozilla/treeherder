@@ -12,11 +12,10 @@ import './css/treeherder-base.css';
 Sentry.init({
   dsn:
     'https://55e8465b492c41fbb6af031de8b13e3e@o493645.ingest.sentry.io/5567629',
-  autoSessionTracking: true,
+  release: `treeherder@${process.env.npm_package_version}`,
   integrations: [new Integrations.BrowserTracing(), new Integrations.Mysql()],
 
-  // We recommend adjusting this value in production, or using tracesSampler
-  // for finer control
+  // We recommend adjusting this value in production
   tracesSampleRate: 1.0,
 });
 
