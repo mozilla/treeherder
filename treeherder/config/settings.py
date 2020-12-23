@@ -5,12 +5,28 @@ from datetime import timedelta
 from os.path import abspath, dirname, join
 
 import environ
+import sentry_sdk
 from furl import furl
 from kombu import Exchange, Queue
 from adr import config
 from urllib.parse import urlparse
+from sentry_sdk.integrations.django import DjangoIntegration
 
 from treeherder.config.utils import connection_should_use_tls, get_tls_redis_url
+
+sentry_sdk.init(
+    dsn="https://55e8465b492c41fbb6af031de8b13e3e@o493645.ingest.sentry.io/5567629",
+    integrations=[DjangoIntegration()],
+
+    # Set traces_sample_rate to 1.0 to capture 100%
+    # of transactions for performance monitoring.
+    # We recommend adjusting this value in production,
+    traces_sample_rate=1.0,
+
+    # If you wish to associate users to errors (assuming you are using
+    # django.contrib.auth) you may enable sending PII data.
+    send_default_pii=True
+)
 
 # TODO: Switch to pathlib once using Python 3.
 SRC_DIR = dirname(dirname(dirname(abspath(__file__))))
