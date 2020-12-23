@@ -8,7 +8,7 @@ import { BugFilerClass } from '../../../ui/shared/BugFiler';
 
 describe('BugFiler', () => {
   const fullLog =
-    'https://queue.taskcluster.net/v1/task/AGs4CgN_RnCTb943uQn8NQ/runs/0/artifacts/public/logs/live_backing.log';
+    'https://taskcluster.net/api/queue/v1/task/AGs4CgN_RnCTb943uQn8NQ/runs/0/artifacts/public/logs/live_backing.log';
   const parsedLog =
     'http://localhost:5000/logviewer.html#?job_id=89017089&repo=mozilla-inbound';
   const reftest = '';
