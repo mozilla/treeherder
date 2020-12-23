@@ -29,5 +29,5 @@ python -m whitenoise.compress .build
 # cache will still contain them, so this doesn't slow down the next slug compile.
 # Only delete if running as part of Heroku because the Travis run takes too long to delete it
 if [[ -d .heroku/ ]]; then
-    rm -r .heroku/node/ .heroku/yarn/ .profile.d/nodejs.sh node_modules/
+    rm -rf .heroku/node/ .heroku/yarn/ .profile.d/nodejs.sh node_modules/
 fi
