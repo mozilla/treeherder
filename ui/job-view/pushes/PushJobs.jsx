@@ -108,7 +108,8 @@ class PushJobs extends React.Component {
     } = this.props;
 
     return (
-      <div role="button" tabIndex={0} onMouseDown={this.onMouseDown}>
+      // eslint-disable-next-line jsx-a11y/no-static-element-interactions
+      <div onMouseDown={this.onMouseDown}>
         <table id={this.aggregateId} className="table-hover">
           <tbody>
             {platforms ? (
