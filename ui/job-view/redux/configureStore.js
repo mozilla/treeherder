@@ -1,8 +1,9 @@
-import { createStore, combineReducers, applyMiddleware } from 'redux';
+import { createStore, combineReducers, compose, applyMiddleware } from 'redux';
 import thunk from 'redux-thunk';
 import createDebounce from 'redux-debounce';
 import { connectRouter, routerMiddleware } from 'connected-react-router';
 import { createBrowserHistory } from 'history';
+import * as Sentry from '@sentry/react';
 
 import * as selectedJobStore from './stores/selectedJob';
 import * as notificationStore from './stores/notifications';
@@ -22,10 +23,15 @@ const reducers = (routerHistory) =>
 
 export const history = createBrowserHistory();
 
+const sentryReduxEnhancer = Sentry.createReduxEnhancer({});
+
 export function configureStore(routerHistory = history) {
   const store = createStore(
     reducers(routerHistory),
-    applyMiddleware(routerMiddleware(routerHistory), thunk, debouncer),
+    compose(
+      applyMiddleware(routerMiddleware(routerHistory), thunk, debouncer),
+      sentryReduxEnhancer,
+    ),
   );
 
   return store;
