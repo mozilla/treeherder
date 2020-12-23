@@ -13,7 +13,7 @@ Sentry.init({
   dsn:
     'https://55e8465b492c41fbb6af031de8b13e3e@o493645.ingest.sentry.io/5567629',
   autoSessionTracking: true,
-  integrations: [new Integrations.BrowserTracing()],
+  integrations: [new Integrations.BrowserTracing(), new Integrations.Mysql()],
 
   // We recommend adjusting this value in production, or using tracesSampler
   // for finer control
