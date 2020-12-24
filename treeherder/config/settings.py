@@ -84,7 +84,7 @@ INSTALLED_APPS = [
     'treeherder.changelog',
 ]
 
-# Docker/outside-of-Docker/Travis vs Heroku/Review-app
+# Docker/outside-of-Docker/CircleCI vs Heroku/Review-app
 if DEBUG:
     NEW_RELIC_DEVELOPER_MODE = True
     # This controls whether the Django debug toolbar should be shown or not

@@ -69,7 +69,7 @@ This is controlled via the "deploy" tab in the Heroku app dashboard:
 A comparison of the Git revisions deployed to each environment can be seen using [What's Deployed].
 
 After a push is made to an auto-deployed branch, Heroku will wait for the successful completion of
-the [Travis CI build] (taking approximately 8 minutes), before initiating the deployment process.
+the [CircleCI build], before initiating the deployment process.
 The steps described in [deployment lifecycle] then occur, which take about 5 minutes.
 
 Once the deployment is complete, `heroku-bot` will comment in the `#treeherder` IRC channel,
@@ -81,7 +81,7 @@ activity can also be seen on the "activity" tab in the Heroku dashboard for each
 [deploy-stage]: https://dashboard.heroku.com/apps/treeherder-stage/deploy/github
 [deploy-prod]: https://dashboard.heroku.com/apps/treeherder-prod/deploy/github
 [what's deployed]: https://whatsdeployed.io/s-dqv
-[travis ci build]: https://travis-ci.org/mozilla/treeherder/builds
+[circleci build]: https://app.circleci.com/pipelines/github/mozilla/treeherder
 [deployment lifecycle]: architecture.md#deployment-lifecycle
 [tools-treeherder]: https://lists.mozilla.org/listinfo/tools-treeherder
 
