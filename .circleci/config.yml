@@ -1,0 +1,63 @@
+jobs:
+  javascript-tests:
+    executor:
+      name: node/default
+      # The Node version here must be kept in sync with that in `package.json`.
+      tag: '12.14.1'
+    steps:
+      - checkout
+      - node/install-packages:
+          # `yarn install --frozen-lockfile` is run and cache is enabled by default for this orb configuration
+          pkg-manager: yarn      
+      - run:
+          command: yarn lint
+          name: Run linting
+      - run:
+          command: yarn markdownlint
+          name: Check markdown linting
+      - run:
+          command: yarn codecov
+          name: Check code coverage changes
+      - run:
+          command: yarn test:coverage
+          name: Run Jest tests
+
+  builds:
+    environment:
+      NODE_ENV: production
+      YARN_PRODUCTION: true
+    docker:
+      - image: 'circleci/python:3.7-node'
+    steps:
+      - checkout
+      - restore_cache:
+          name: Restore Yarn Package Cache
+          keys:
+            - node-deps-v1-{{ .Branch }}
+      - run: pip install tox
+      - run:
+          command: tox -e heroku
+          name: Run heroku builds and release checks
+      - run:
+          command: tox -e docs
+          name: Build docs
+
+  python-tests:
+    machine: true
+    steps:
+      - checkout
+      - docker/install-docker
+      - docker/install-docker-compose
+      - run: docker-compose build
+      - run: docker-compose run backend bash -c "flake8 --show-source && black --check treeherder/ && pytest --cov --cov-report=xml tests/ --runslow"
+
+orbs:
+  node: circleci/node@4.1.0
+  docker: circleci/docker@1.5.0
+version: 2.1
+workflows:
+  run-tests:
+    jobs:
+      - javascript-tests
+      - builds
+      - python-tests

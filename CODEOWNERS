@@ -1,7 +1,7 @@
 # Visit https://help.github.com/en/github/creating-cloning-and-archiving-repositories/about-code-owners#codeowners-syntax
 # for learning about the syntax
 
-/.travis.yml                @mozilla/treeherder-admins
+/.config.yml                @mozilla/treeherder-admins
 /app.json                   @mozilla/treeherder-admins
 /docker-compose.yml         @mozilla/treeherder-admins
 ui/helpers/constants.js     @mozilla/treeherder-admins

@@ -27,5 +27,4 @@
   "lockFileMaintenance": {
     "automerge": true
   },
-  "travis": { "enabled": true }
 }
