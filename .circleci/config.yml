@@ -16,11 +16,11 @@ jobs:
           command: yarn markdownlint
           name: Check markdown linting
       - run:
-          command: yarn codecov
-          name: Check code coverage changes
-      - run:
           command: yarn test:coverage
           name: Run Jest tests
+      - run:
+          command: yarn codecov
+          name: Check code coverage changes
 
   builds:
     docker:
