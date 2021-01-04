@@ -22,6 +22,7 @@ import {
   getInitializedAlerts,
   containsText,
   updateAlertSummary,
+  getStatus,
 } from '../helpers';
 import TruncatedText from '../../shared/TruncatedText';
 import ErrorBoundary from '../../shared/ErrorBoundary';
@@ -31,6 +32,7 @@ import StatusDropdown from './StatusDropdown';
 import AlertTableRow from './AlertTableRow';
 import DownstreamSummary from './DownstreamSummary';
 import AlertActionPanel from './AlertActionPanel';
+import SelectAlertsDropdown from './SelectAlertsDropdown';
 
 export default class AlertTable extends React.Component {
   constructor(props) {
@@ -176,6 +178,24 @@ export default class AlertTable extends React.Component {
     return { failureStatus };
   };
 
+  selectAlertsByStatus = (status) => {
+    const { alertSummary } = this.state;
+
+    let selectedAlerts = status === 'none' ? [] : alertSummary.alerts;
+
+    if (status !== 'all') {
+      selectedAlerts = selectedAlerts.filter((alert) => {
+        const alertStatus = getStatus(alert.status, alertStatusMap);
+
+        return alertStatus === status;
+      });
+    }
+
+    this.setState({
+      selectedAlerts,
+    });
+  };
+
   render() {
     const {
       user,
@@ -241,6 +261,9 @@ export default class AlertTable extends React.Component {
                           issueTrackers={issueTrackers}
                           user={user}
                           updateAssignee={this.updateAssignee}
+                        />
+                        <SelectAlertsDropdown
+                          selectAlertsByStatus={this.selectAlertsByStatus}
                         />
                       </Label>
                     </FormGroup>
