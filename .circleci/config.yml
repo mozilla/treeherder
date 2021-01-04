@@ -48,6 +48,7 @@ jobs:
       - checkout
       - docker/install-docker
       - docker/install-docker-compose
+      - run: pip install --upgrade pip
       - run: pip install tox codecov
       - run: tox -e docker  # Run tests and coverage within Docker container
       - run: codecov --required -f coverage.xml
