@@ -178,9 +178,9 @@ def test_store_error_summary_group_status(activate_responses, test_repository, t
     assert error_groups.count() == 1
     assert log_obj.groups.count() == 29
 
-    assert log_obj.groups.all().first().name == "dom/base/test"
-    assert ok_groups.first().name == "dom/base/test"
-    assert error_groups.first().name == "toolkit/components/pictureinpicture/tests"
+    assert log_obj.groups.all().first().name == "dom/base/test/browser.ini"
+    assert ok_groups.first().name == "dom/base/test/browser.ini"
+    assert error_groups.first().name == "toolkit/components/pictureinpicture/tests/browser.ini"
 
 
 def test_get_group_results(activate_responses, test_repository, test_job):
@@ -196,4 +196,4 @@ def test_get_group_results(activate_responses, test_repository, test_job):
     groups = get_group_results(test_job.push)
     task_groups = groups['V3SVuxO8TFy37En_6HcXLs']
 
-    assert task_groups['dom/base/test']
+    assert task_groups['dom/base/test/browser.ini']

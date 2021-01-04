@@ -114,8 +114,7 @@ def create_failure_line(job_log, failure_line):
 
 
 def create_group_result(job_log, line):
-    # Omit the filename before storing.
-    group_path = line["group"].rsplit("/", 1)[0]
+    group_path = line["group"]
 
     # Log to New Relic if it's not in a form we like.  We can enter
     # Bugs to upstream to remedy them.
