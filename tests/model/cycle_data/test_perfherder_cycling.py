@@ -6,6 +6,7 @@ import pytest
 from unittest.mock import MagicMock
 from django.core.management import call_command
 from unittest.mock import patch
+from django.db import connection, IntegrityError
 
 from treeherder.model.management.commands.cycle_data import (
     PerfherderCycler,
@@ -21,6 +22,7 @@ from treeherder.perf.models import (
     PerformanceSignature,
     PerformanceAlertSummary,
     PerformanceAlert,
+    MultiCommitDatum,
 )
 from treeherder.perf.data_cycling.signature_remover import PublicSignatureRemover
 from treeherder.perf.data_cycling.max_runtime import MaxRuntime
@@ -563,3 +565,26 @@ def test_explicit_days_validation_on_envs_other_than_treeherder_prototype2(days)
 
     with pytest.raises(ValueError):
         _ = StalledDataRemoval(10_000, days=days)
+
+
+def test_deleting_performance_data_cascades_to_perf_multicomit_data(test_perf_data):
+    perf_datum = test_perf_data[0]
+    MultiCommitDatum.objects.create(perf_datum=perf_datum)
+
+    assert MultiCommitDatum.objects.count() == 1
+
+    try:
+        cursor = connection.cursor()
+        cursor.execute(
+            '''
+            DELETE FROM `performance_datum`
+            WHERE id = %s
+            ''',
+            [perf_datum.id],
+        )
+    except IntegrityError:
+        pytest.fail()
+    finally:
+        cursor.close()
+
+    assert MultiCommitDatum.objects.count() == 0
