@@ -5,7 +5,7 @@ import { formatTaskclusterError } from '../helpers/errorMessage';
 import { addAggregateFields } from '../helpers/job';
 import { getProjectUrl } from '../helpers/location';
 import { getData } from '../helpers/http';
-import { getAction } from '../helpers/taskcluster';
+import { getAction, getBestAction } from '../helpers/taskcluster';
 
 import PushModel from './push';
 import TaskclusterModel from './taskcluster';
@@ -110,19 +110,22 @@ export default class JobModel {
         TaskclusterModel.load(decisionTaskId, null, currentRepo, testMode)
           .then(async (results) => {
             const taskLabels = value.map((job) => job.job_type_name);
-
-            let retriggerAction = results.actions.find(
-              (action) => action.name === 'retrigger',
-            );
             let actionInput = {
               requests: [{ tasks: taskLabels, times }],
             };
-            if (!retriggerAction) {
-              // The `retrigger-multiple` action as introduced in Bug 1521032, to all the action
-              // to control whether new task are created, or existing ones re-run. We fall back
-              // to `add-new-jobs` to support pushing old revision to try, where the duplicating
-              // the release tasks impacted is unlikely to cause problems.
-              retriggerAction = getAction(results.actions, 'add-new-jobs');
+
+            // The `retrigger-multiple` action as introduced in Bug 1521032, to all the action
+            // to control whether new task are created, or existing ones re-run. We fall back
+            // to `add-new-jobs` to support pushing old revision to try, where the duplicating
+            // the release tasks impacted is unlikely to cause problems.
+            const retriggerAction = getBestAction(results.actions, [
+              'retrigger',
+              'retrigger-multiple',
+              'add-new-jobs',
+            ]);
+            console.log(results.actions);
+            console.log(retriggerAction);
+            if (retriggerAction.name === 'add-new-jobs') {
               actionInput = {
                 tasks: taskLabels,
               };

@@ -122,10 +122,14 @@ const taskcluster = (() => {
   };
 })();
 
-export const getAction = (actionArray, actionName) => {
-  const action = actionArray.find((result) => result.name === actionName);
+export const getAction = (actionArray, actionName, throwFail = true) => {
+  const action = actionArray.find(
+    (result) =>
+      result.name === actionName &&
+      result.hookPayload.decision.action.cb_name === actionName,
+  );
 
-  if (!action) {
+  if (!action && throwFail) {
     throw Error(
       `'${actionName}' action is not available for this task.  Available: ${actionArray
         .map((act) => act.name)
@@ -134,6 +138,19 @@ export const getAction = (actionArray, actionName) => {
   }
 
   return action;
+};
+
+export const getBestAction = (actionArray, actionNames) => {
+  for (const actionName of actionNames) {
+    const action = getAction(
+      actionArray,
+      actionName,
+      actionName === actionNames[actionNames.length - 1],
+    );
+    if (action) {
+      return action;
+    }
+  }
 };
 
 export default taskcluster;
