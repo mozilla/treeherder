@@ -278,7 +278,7 @@ def test_signature_remover(
     call_command('cycle_data', 'from:perfherder')
 
     assert taskcluster.Notify().ping.called_once
-    assert taskcluster.Notify().email.call_count == 2
+    assert taskcluster.Notify().email.call_count == 1
     assert len(PerformanceSignature.objects.all()) == 1
     assert PerformanceSignature.objects.first() == test_perf_signature
 
@@ -338,7 +338,7 @@ def test_total_emails_sent(test_perf_signature, total_signatures, mock_tc_prod_c
     signatures_remover.remove_in_chunks(signatures)
     assert tc_model.notify.ping.call_count == expected_call_count
     assert (
-        tc_model.notify.email.call_count == expected_call_count * 2
+        tc_model.notify.email.call_count == expected_call_count
     )  # the email is sent to two email scopes
 
 

@@ -9,7 +9,6 @@ from .max_runtime import MaxRuntime
 logger = logging.getLogger(__name__)
 
 RECEIVER_TEAM_EMAIL = "perftest-alerts@mozilla.com"
-RECEIVER_EMAIL = "dhunt@mozilla.com"
 
 
 class PublicSignatureRemover:
@@ -96,7 +95,6 @@ class PublicSignatureRemover:
         if settings.NOTIFY_CLIENT_ID and settings.NOTIFY_ACCESS_TOKEN:
             logger.info("Sending email with summary of deleted perf signatures to team...")
             self._send_email(RECEIVER_TEAM_EMAIL, email_data)
-            self._send_email(RECEIVER_EMAIL, email_data)
         else:
             logger.warning("Failed to send notification because deployment is NOT production")
 
