@@ -336,7 +336,6 @@ def test_total_emails_sent(test_perf_signature, total_signatures, mock_tc_prod_c
 
     signatures = PerformanceSignature.objects.filter(last_updated__lte=datetime.now())
     signatures_remover.remove_in_chunks(signatures)
-    assert tc_model.notify.ping.call_count == expected_call_count
     assert (
         tc_model.notify.email.call_count == expected_call_count
     )  # the email is sent to two email scopes

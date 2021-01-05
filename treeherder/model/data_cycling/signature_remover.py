@@ -2,7 +2,10 @@ import logging
 from typing import List
 
 from django.conf import settings
+from django.db import transaction
+from taskcluster.exceptions import TaskclusterRestFailure
 
+from treeherder.perf.models import PerformanceSignature
 from treeherder.services.taskcluster import TaskclusterModel
 from .max_runtime import MaxRuntime
 
@@ -58,37 +61,16 @@ class PublicSignatureRemover:
                 chunk_of_signatures.append(perf_signature)
 
                 if rows_left == 0:
-                    # extract the proprieties of interest from signatures in a list of dictionaries
-                    email_data = self.__extract_properties(chunk_of_signatures)
-                    # check if Taskcluster Notify Service is up
-                    try:
-                        self._ping_notify_service()
-                    except Exception:
-                        logger.warning(
-                            "Failed to delete signatures because the Notify Service is not available"
-                        )
+                    success = self.__delete_and_notify(chunk_of_signatures)
+                    if not success:
                         break
-                    else:
-                        self._delete(chunk_of_signatures)
-                        self._send_notification(email_data)
 
                     emails_sent += 1
                     chunk_of_signatures = []
                     rows_left = self._max_rows_allowed
 
         if emails_sent < self._max_emails_allowed and chunk_of_signatures != []:
-            # extract the proprieties of interest from signatures in a list of dictionaries
-            email_data = self.__extract_properties(chunk_of_signatures)
-            # check if Taskcluster Notify Service is up
-            try:
-                self._ping_notify_service()
-            except Exception:
-                logger.warning(
-                    "Failed to delete signatures because the Notify Service is not available"
-                )
-            else:
-                self._delete(chunk_of_signatures)
-                self._send_notification(email_data)
+            self.__delete_and_notify(chunk_of_signatures)
 
     def _send_notification(self, email_data):
         # should only run on one instance at a time
@@ -150,3 +132,22 @@ class PublicSignatureRemover:
             }
             properties.append(signature_properties)
         return properties
+
+    def __delete_and_notify(self, signatures: List[PerformanceSignature]) -> bool:
+        """
+        Atomically deletes perf signatures & notifies about this.
+        @return: whether atomic operation was successful or not
+        """
+        email_data = self.__extract_properties(signatures)  # so we don't lose them during deletion
+
+        try:
+            with transaction.atomic():
+                self._delete(signatures)
+                self._send_notification(email_data)
+        except TaskclusterRestFailure as ex:
+            logger.warning(
+                f'Failed to atomically delete perf signatures & notify about this. (Reason: {ex})'
+            )
+            return False
+
+        return True
