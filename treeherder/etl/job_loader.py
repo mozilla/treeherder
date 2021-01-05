@@ -195,7 +195,7 @@ class JobLoader:
         return log_references
 
     def _get_option_collection(self, job):
-        option_collection = {"opt": True}
+        option_collection = {}
         if "labels" in job:
             option_collection = {}
             for option in job["labels"]:
