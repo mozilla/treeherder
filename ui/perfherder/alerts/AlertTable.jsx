@@ -264,6 +264,7 @@ export default class AlertTable extends React.Component {
                         />
                         <SelectAlertsDropdown
                           selectAlertsByStatus={this.selectAlertsByStatus}
+                          user={user}
                         />
                       </Label>
                     </FormGroup>

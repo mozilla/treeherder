@@ -14,11 +14,11 @@ class SelectAlertsDropdown extends React.Component {
   };
 
   render() {
-    const { selectAlertsByStatus } = this.props;
+    const { selectAlertsByStatus, user } = this.props;
     const { untriaged, triaged, all, none } = this.status;
 
     return (
-      <UncontrolledDropdown size="sm">
+      <UncontrolledDropdown size="sm" disabled={!user.isStaff}>
         <DropdownToggle caret>check alerts</DropdownToggle>
         <DropdownMenu>
           <DropdownItem onClick={() => selectAlertsByStatus(untriaged)}>
@@ -43,4 +43,5 @@ export default SelectAlertsDropdown;
 
 SelectAlertsDropdown.propTypes = {
   selectAlertsByStatus: PropTypes.func.isRequired,
+  user: PropTypes.shape({}).isRequired,
 };
