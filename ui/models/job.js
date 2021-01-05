@@ -112,7 +112,7 @@ export default class JobModel {
             const taskLabels = value.map((job) => job.job_type_name);
 
             let retriggerAction = results.actions.find(
-              (action) => action.name === 'retrigger',
+              (action) => action.name === 'retrigger-multiple',
             );
             let actionInput = {
               requests: [{ tasks: taskLabels, times }],
