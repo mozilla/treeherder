@@ -165,11 +165,14 @@ class GraphsContainer extends React.Component {
 
   updateGraphs = () => {
     const { testData, updateStateParams, visibilityChanged } = this.props;
+    let { zoomDomain } = this.state;
     const scatterPlotData = testData.flatMap((item) =>
       item.visible ? item.data : [],
     );
     this.addHighlights();
-    const zoomDomain = this.updateZoomDomain(scatterPlotData);
+    if (scatterPlotData.length) {
+      zoomDomain = this.updateZoomDomain(scatterPlotData);
+    }
     this.setState({
       scatterPlotData,
       zoomDomain,
