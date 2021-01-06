@@ -11,7 +11,7 @@
     "yarn": "1.22.5"
   },
   "resolutions": {
-    "serialize-javascript": "3.1.0"
+    "serialize-javascript": "5.0.1"
   },
   "dependencies": {
     "@fortawesome/fontawesome-svg-core": "1.2.32",
