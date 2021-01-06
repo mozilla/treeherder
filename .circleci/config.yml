@@ -16,16 +16,13 @@ jobs:
           command: yarn markdownlint
           name: Check markdown linting
       - run:
-          command: yarn codecov
-          name: Check code coverage changes
-      - run:
           command: yarn test:coverage
           name: Run Jest tests
+      - run:
+          command: yarn codecov
+          name: Check code coverage changes
 
   builds:
-    environment:
-      NODE_ENV: production
-      YARN_PRODUCTION: true
     docker:
       - image: 'circleci/python:3.7-node'
     steps:
@@ -41,6 +38,9 @@ jobs:
       - run:
           command: tox -e docs
           name: Build docs
+      - run:
+          command: tox -e linters
+          name: Run linters
 
   python-tests:
     machine: true
@@ -48,8 +48,10 @@ jobs:
       - checkout
       - docker/install-docker
       - docker/install-docker-compose
-      - run: docker-compose build
-      - run: docker-compose run backend bash -c "flake8 --show-source && black --check treeherder/ && pytest --cov --cov-report=xml tests/ --runslow"
+      - run: pip install --upgrade pip
+      - run: pip install tox codecov
+      - run: tox -e docker  # Run tests and coverage within Docker container
+      - run: codecov --required -f coverage.xml
 
 orbs:
   node: circleci/node@4.1.0
