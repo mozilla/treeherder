@@ -5,6 +5,8 @@ from datetime import timedelta
 from os.path import abspath, dirname, join
 
 import environ
+import sentry_sdk
+from sentry_sdk.integrations.django import DjangoIntegration
 from furl import furl
 from kombu import Exchange, Queue
 from adr import config
@@ -20,8 +22,21 @@ env = environ.Env()
 IS_WINDOWS = "windows" in platform.system().lower()
 
 # Top Level configuration
-DEBUG = env.bool("TREEHERDER_DEBUG", default=False)
+# XXX: This, in reality, is only True when running inside Docker
+DEVELOPMENT = env.bool("TREEHERDER_DEBUG", default=False)
 LOGGING_LEVEL = env("LOGGING_LEVEL", default="INFO")
+
+sentry_sdk.init(
+    integrations=[DjangoIntegration()],
+    environment=env("HEROKU_APP_NAME", default="development"),
+    # Set traces_sample_rate to 1.0 to capture 100%
+    # of transactions for performance monitoring.
+    # We recommend adjusting this value in production,
+    traces_sample_rate=1.0 if DEVELOPMENT else 0.1,
+    # When doing development Sentry should not create a release since some of these commits
+    # in our local checkout will never make it to master (e.g. squashing or history rewriting)
+    release="dev" if DEVELOPMENT else None
+)
 
 NEW_RELIC_INSIGHTS_API_KEY = env("NEW_RELIC_INSIGHTS_API_KEY", default=None)
 NEW_RELIC_INSIGHTS_API_URL = 'https://insights-api.newrelic.com/v1/accounts/677903/query'
@@ -84,13 +99,13 @@ INSTALLED_APPS = [
 ]
 
 # Docker/outside-of-Docker/CircleCI vs Heroku/Review-app
-if DEBUG:
+if DEVELOPMENT:
     NEW_RELIC_DEVELOPER_MODE = True
     # This controls whether the Django debug toolbar should be shown or not
     # https://django-debug-toolbar.readthedocs.io/en/latest/configuration.html#show-toolbar-callback
     # "You can provide your own function callback(request) which returns True or False."
     DEBUG_TOOLBAR_CONFIG = {
-        'SHOW_TOOLBAR_CALLBACK': lambda request: DEBUG,
+        'SHOW_TOOLBAR_CALLBACK': lambda request: True,
     }
     INSTALLED_APPS.append('debug_toolbar')
     INSTALLED_APPS.append('django_extensions')
@@ -115,7 +130,7 @@ MIDDLEWARE = [
         # to be served by WhiteNoise, avoiding the need for Apache/nginx on Heroku.
         'treeherder.middleware.CustomWhiteNoise',
         'django.middleware.gzip.GZipMiddleware',
-        'debug_toolbar.middleware.DebugToolbarMiddleware' if DEBUG else False,
+        'debug_toolbar.middleware.DebugToolbarMiddleware' if DEVELOPMENT else False,
         'django.contrib.sessions.middleware.SessionMiddleware',
         'django.middleware.common.CommonMiddleware',
         'django.middleware.csrf.CsrfViewMiddleware',

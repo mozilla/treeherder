@@ -83,6 +83,16 @@ Both Django's runserver and webpack-dev-server will automatically refresh every 
 !!! note
     There will be no data to display until the ingestion tasks are run.
 
+### Enabling Sentry for local development
+
+For development, we don't enable report to Sentry by default since too many errors can be produced
+during the development process. You can enable it by placing `SENTRY_DSN=<URL provided in Sentry.io>`
+inside of a `.env` file (Docker Compose reads variables from there). You can then select
+`development` from the environments on Sentry.io to see anything reported from local machine.
+
+Do not share the Python SENTRY_DSN value publicly. It is fine with the Javascript one since
+there's whitelisting in Sentry.io.
+
 ### Using the minified UI
 
 If you would like to use the minified production version of the UI with the development backend:

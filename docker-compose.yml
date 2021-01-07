@@ -13,6 +13,7 @@ services:
     environment:
       # Development/CI-specific environment variables only.
       # Those that do not vary across environments should go in `Dockerfile`.
+      # You can define environment variables in a .env file and Docker compose will read from it
       - BROKER_URL=amqp://guest:guest@rabbitmq//
       - DATABASE_URL=${DATABASE_URL:-mysql://root@mysql/treeherder}
       - GITHUB_TOKEN=${GITHUB_TOKEN:-}
@@ -24,6 +25,7 @@ services:
       - SITE_URL=http://backend:8000/
       - TREEHERDER_DEBUG=True
       - NEW_RELIC_INSIGHTS_API_KEY=${NEW_RELIC_INSIGHTS_API_KEY:-}
+      - SENTRY_DSN=${SENTRY_DSN:-}
     entrypoint: './docker/entrypoint.sh'
     # We *ONLY* initialize the data when we're running the backend
     command: './initialize_data.sh ./manage.py runserver 0.0.0.0:8000'
