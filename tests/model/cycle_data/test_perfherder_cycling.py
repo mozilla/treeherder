@@ -1,20 +1,22 @@
 import math
-import taskcluster
 from datetime import datetime, timedelta
+from unittest.mock import MagicMock
+from unittest.mock import patch
 
 import pytest
-from unittest.mock import MagicMock
+import taskcluster
 from django.core.management import call_command
-from unittest.mock import patch
 from django.db import connection, IntegrityError
 
-from treeherder.perf.data_cycling.removal_strategies import (
+from treeherder.model.data_cycling import MaxRuntime
+from treeherder.model.data_cycling import PerfherderCycler
+from treeherder.model.data_cycling import PublicSignatureRemover
+from treeherder.model.data_cycling.removal_strategies import (
     MainRemovalStrategy,
     TryDataRemoval,
     IrrelevantDataRemoval,
     StalledDataRemoval,
 )
-from treeherder.perf.data_cycling import PerfherderCycler
 from treeherder.model.models import Push
 from treeherder.perf.exceptions import MaxRuntimeExceeded
 from treeherder.perf.models import (
@@ -24,8 +26,6 @@ from treeherder.perf.models import (
     PerformanceAlert,
     MultiCommitDatum,
 )
-from treeherder.perf.data_cycling.signature_remover import PublicSignatureRemover
-from treeherder.perf.data_cycling.max_runtime import MaxRuntime
 
 
 @pytest.mark.parametrize(

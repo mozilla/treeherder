@@ -8,14 +8,14 @@ from django.db.backends.utils import CursorWrapper
 from django.db.models import Count
 
 from treeherder.config import settings
+from treeherder.model.data_cycling.removal_strategies import RemovalStrategy
 from treeherder.model.models import Job, JobType, JobGroup, Machine
-from treeherder.perf.data_cycling.removal_strategies import RemovalStrategy
-from treeherder.perf.data_cycling.utils import has_valid_explicit_days
 from treeherder.perf.exceptions import NoDataCyclingAtAll, MaxRuntimeExceeded
 from treeherder.perf.models import PerformanceSignature, PerformanceAlertSummary
 from treeherder.services.taskcluster import TaskclusterModel, DEFAULT_ROOT_URL as root_url
 from .max_runtime import MaxRuntime
 from .signature_remover import PublicSignatureRemover
+from .utils import has_valid_explicit_days
 
 logger = logging.getLogger(__name__)
 

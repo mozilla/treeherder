@@ -79,6 +79,13 @@ class MainRemovalStrategy(RemovalStrategy):
 
     def remove(self, using: CursorWrapper):
         chunk_size = self._find_ideal_chunk_size()
+
+        # Django's queryset API doesn't support MySQL's
+        # DELETE statements with LIMIT constructs,
+        # even though this database is capable of doing that.
+        #
+        # If ever this support is added in Django, replace
+        # raw SQL bellow with equivalent queryset commands.
         using.execute(
             '''
             DELETE FROM `performance_datum`
@@ -176,6 +183,12 @@ class TryDataRemoval(RemovalStrategy):
         return 'try data removal strategy'
 
     def __attempt_remove(self, using):
+        # Django's queryset API doesn't support MySQL's
+        # DELETE statements with LIMIT constructs,
+        # even though this database is capable of doing that.
+        #
+        # If ever this support is added in Django, replace
+        # raw SQL bellow with equivalent queryset commands.
         total_signatures = len(self.target_signatures)
         from_target_signatures = ' OR '.join(['signature_id =  %s'] * total_signatures)
 
@@ -249,6 +262,12 @@ class IrrelevantDataRemoval(RemovalStrategy):
     def remove(self, using: CursorWrapper):
         chunk_size = self._find_ideal_chunk_size()
 
+        # Django's queryset API doesn't support MySQL's
+        # DELETE statements with LIMIT constructs,
+        # even though this database is capable of doing that.
+        #
+        # If ever this support is added in Django, replace
+        # raw SQL bellow with equivalent queryset commands.
         using.execute(
             '''
                 DELETE FROM `performance_datum`
@@ -343,6 +362,12 @@ class StalledDataRemoval(RemovalStrategy):
         return 'stalled data removal strategy'
 
     def __attempt_remove(self, using: CursorWrapper):
+        # Django's queryset API doesn't support MySQL's
+        # DELETE statements with LIMIT constructs,
+        # even though this database is capable of doing that.
+        #
+        # If ever this support is added in Django, replace
+        # raw SQL bellow with equivalent queryset commands.
         using.execute(
             '''
                 DELETE FROM `performance_datum`

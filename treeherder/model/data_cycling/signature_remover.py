@@ -1,9 +1,10 @@
 import logging
 from typing import List
+
 from django.conf import settings
 
 from treeherder.services.taskcluster import TaskclusterModel
-from treeherder.perf.data_cycling.max_runtime import MaxRuntime
+from .max_runtime import MaxRuntime
 
 logger = logging.getLogger(__name__)
 

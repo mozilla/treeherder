@@ -2,7 +2,7 @@ import logging
 
 from django.core.management.base import BaseCommand
 
-from treeherder.perf.data_cycling import TreeherderCycler, PerfherderCycler, TREEHERDER, PERFHERDER
+from treeherder.model.data_cycling import TreeherderCycler, PerfherderCycler, TREEHERDER, PERFHERDER
 
 logging.basicConfig(format='%(levelname)s:%(message)s')
 
