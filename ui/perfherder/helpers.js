@@ -416,7 +416,20 @@ export const getInitializedAlerts = (alertSummary, optionCollectionMap) =>
     .concat(alertSummary.related_alerts)
     .map((alertData) => Alert(alertData, optionCollectionMap));
 
-export const getTextualSummary = (alerts, alertSummary, copySummary = null) => {
+export const addResultsLink = (taskId) => {
+  const taskLink =
+    'https://firefox-ci-tc.services.mozilla.com/api/queue/v1/task/';
+  const resultsPath =
+    '/runs/0/artifacts/public/test_info/browsertime-results.tgz';
+  return `${taskLink}${taskId}${resultsPath}`;
+};
+
+export const getTextualSummary = (
+  alerts,
+  alertSummary,
+  copySummary = null,
+  alertsWithVideos = [],
+) => {
   let resultStr = '';
   const improved = sortBy(
     alerts.filter((alert) => !alert.is_regression),
@@ -446,6 +459,14 @@ export const getTextualSummary = (alerts, alertSummary, copySummary = null) => {
     const { suite, test, machine_platform: platform } = alert.series_signature;
     const extraOptions = alert.series_signature.extra_options.join(' ');
 
+    const updatedAlert = alertsWithVideos.find((a) => alert.id === a.id);
+    if (
+      updatedAlert &&
+      updatedAlert.results_link &&
+      updatedAlert.prev_results_link
+    ) {
+      return `| ${amountPct}% | ${suite} | ${test} | ${platform} | ${extraOptions} | [${prevValue}](${updatedAlert.prev_results_link}) -> [${newValue}](${updatedAlert.results_link}) |`;
+    }
     return `| ${amountPct}% | ${suite} | ${test} | ${platform} | ${extraOptions} | ${prevValue} -> ${newValue} |`;
   };
 

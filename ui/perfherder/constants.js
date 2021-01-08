@@ -123,3 +123,12 @@ export const tooltipMessages = {
   'regression-backedout': 'patch backed out due to causing regressions',
   'regression-fix': 'patch fixing a reported regression bug',
 };
+
+export const visualMetrics = [
+  'ContentfulSpeedIndex',
+  'FirstVisualChange',
+  'LastVisualChange',
+  'PerceptualSpeedIndex',
+  'SpeedIndex',
+  'videoRecordingStart',
+];

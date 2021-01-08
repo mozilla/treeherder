@@ -18,6 +18,7 @@ const testUser = {
   email: 'test_user@mozilla.com',
 };
 
+const dummyFrameworkName = 'someTestFramework';
 const testIssueTrackers = issueTrackers.map((issue) => ({
   id: issue.pk,
   issueTrackerUrl: issue.fields.name,
@@ -38,6 +39,7 @@ const testStatusDropdown = (summaryTags) => {
       bugTemplate={null}
       filteredAlerts={testAlerts}
       performanceTags={testPerformanceTags}
+      frameworks={[{ id: 1, name: dummyFrameworkName }]}
     />,
   );
 };

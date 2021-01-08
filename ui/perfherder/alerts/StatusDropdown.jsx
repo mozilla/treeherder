@@ -28,6 +28,7 @@ import {
 } from '../../helpers/url';
 import { summaryStatusMap } from '../constants';
 import DropdownMenuItems from '../../shared/DropdownMenuItems';
+import FilterAlertsWithVideos from '../../models/filterAlertsWithVideos';
 
 import AlertModal from './AlertModal';
 import FileBugModal from './FileBugModal';
@@ -44,6 +45,10 @@ export default class StatusDropdown extends React.Component {
       showNotesModal: false,
       showTagsModal: false,
       selectedValue: this.props.issueTrackers[0].text,
+      alertsWithVideos: new FilterAlertsWithVideos(
+        this.props.alertSummary,
+        this.props.frameworks,
+      ),
     };
   }
 
@@ -78,6 +83,7 @@ export default class StatusDropdown extends React.Component {
       filteredAlerts,
       frameworks,
     } = this.props;
+    const { alertsWithVideos } = this.state;
     let result = bugTemplate;
 
     if (!result) {
@@ -102,7 +108,12 @@ export default class StatusDropdown extends React.Component {
       revision: alertSummary.revision,
       revisionHref: repoModel.getPushLogHref(alertSummary.revision),
       alertHref: `${window.location.origin}/perfherder/alerts?id=${alertSummary.id}`,
-      alertSummary: getTextualSummary(filteredAlerts, alertSummary),
+      alertSummary: getTextualSummary(
+        filteredAlerts,
+        alertSummary,
+        null,
+        await alertsWithVideos.getFilteredAlerts(),
+      ),
     };
 
     templateSettings.interpolate = /{{([\s\S]+?)}}/g;
