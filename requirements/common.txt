@@ -6,8 +6,7 @@
 #
 adr==0.19.4 \
     --hash=sha256:3fb790707e3e5635c64ed6cbdaff4ca0e3996e9ba8c7b2e6d40843c22ddb87e5 \
-    --hash=sha256:8aa93cc3bd3a368d257b2f14bb7138678f88be7c8dc5303c4df2c0141240cdeb \
-    # via mozci
+    --hash=sha256:8aa93cc3bd3a368d257b2f14bb7138678f88be7c8dc5303c4df2c0141240cdeb
 aiohttp==3.6.2 \
     --hash=sha256:1e984191d1ec186881ffaed4581092ba04f7c61582a177b187d3a2f07ed9719e \
     --hash=sha256:259ab809ff0727d0e834ac5e8a283dc5e3e0ecc30c4d80b3cd17a4139ce1f326 \
@@ -246,9 +245,9 @@ loguru==0.5.1 \
     --hash=sha256:70201d5fce26da89b7a5f168caa2bb674e06b969829f56737db1d6472e53e7c3 \
     --hash=sha256:e5d362a43cd2fc2da63551d79a6830619c4d5b3a8b976515748026f92f351b61 \
     # via adr, mozci
-markdown==3.2.2 \
-    --hash=sha256:1fafe3f1ecabfb514a5285fca634a53c1b32a81cb0feb154264d55bf2ff22c17 \
-    --hash=sha256:c467cd6233885534bf0fe96e62e3cf46cfc1605112356c4f9981512b8174de59 \
+markdown==3.3.3 \
+    --hash=sha256:5d9f2b5ca24bc4c7a390d22323ca4bad200368612b5aaa7796babf971d2b2f18 \
+    --hash=sha256:c109c15b7dc20a9ac454c9e6025927d44460b85bd039da028d85e2b6d0bcc328 \
     # via adr
 markupsafe==1.1.1 \
     --hash=sha256:00bc623926325b26bb9605ae9eae8a215691f33cae5df11ca5424f06f2d1f473 \
@@ -335,9 +334,10 @@ mohawk==1.1.0 \
     --hash=sha256:3ed296a30453d0b724679e0fd41e4e940497f8e461a9a9c3b7f36e43bab0fa09 \
     --hash=sha256:d2a0e3ab10a209cc79e95e28f2dd54bd4a73fd1998ffe27b7ba0f962b6be9723 \
     # via taskcluster
-mozci==1.11.3 \
-    --hash=sha256:3b25992f9d19419c6e84e9241d8200c45c1e76bc7a960bd406f1497c32a43304 \
-    --hash=sha256:bd812a763a86cda17627957e5c402e3276fa1ae6566335d0395c89c2f53b1c0d \
+mozci==1.12.0 \
+    --hash=sha256:6a3fcce7a2d09a7242b5620d1aec6d3b10f44bde6fff78e4a783e7d5fe7fe9bb \
+    --hash=sha256:befa6a851f3dfbb5af330f882ab242ebd9353780854f1c76c80d1c3c34f2ed59 \
+    --hash=sha256:e7f77dcec723783395b3ab596ae378872d7c99aa7de8f274924e1e5911d5df28 \
     # via -r requirements/common.in
 mozfile==2.1.0 \
     --hash=sha256:e5dc835582ea150e35ecd57e9d86cb707d3aa3b2505679db7332326dd49fd6b8 \
