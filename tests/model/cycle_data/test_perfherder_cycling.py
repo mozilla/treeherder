@@ -1,15 +1,17 @@
 import math
-import taskcluster
 from datetime import datetime, timedelta
+from unittest.mock import MagicMock
+from unittest.mock import patch
 
 import pytest
-from unittest.mock import MagicMock
+import taskcluster
 from django.core.management import call_command
-from unittest.mock import patch
 from django.db import connection, IntegrityError
 
-from treeherder.model.management.commands.cycle_data import (
-    PerfherderCycler,
+from treeherder.model.data_cycling import MaxRuntime
+from treeherder.model.data_cycling import PerfherderCycler
+from treeherder.model.data_cycling import PublicSignatureRemover
+from treeherder.model.data_cycling.removal_strategies import (
     MainRemovalStrategy,
     TryDataRemoval,
     IrrelevantDataRemoval,
@@ -24,8 +26,6 @@ from treeherder.perf.models import (
     PerformanceAlert,
     MultiCommitDatum,
 )
-from treeherder.perf.data_cycling.signature_remover import PublicSignatureRemover
-from treeherder.perf.data_cycling.max_runtime import MaxRuntime
 
 
 @pytest.mark.parametrize(
@@ -517,6 +517,13 @@ def test_stalled_data_removal(
     assert test_perf_alert not in PerformanceAlert.objects.all()
     assert test_perf_signature_2 in PerformanceSignature.objects.all()
     assert seg2_data in PerformanceDatum.objects.all()
+
+
+def test_try_data_removal_errors_out_on_missing_try_data(try_repository):
+    try_removal_strategy = TryDataRemoval(10000)
+
+    with pytest.raises(LookupError):  # as we don't have data from try repository
+        _ = try_removal_strategy.target_signatures
 
 
 @patch('treeherder.config.settings.SITE_HOSTNAME', 'treeherder-prototype2.herokuapp.com')

@@ -356,11 +356,9 @@ def test_filter_signatures_by_range(
         assert resp.json()[str(test_perf_signature.id)]['id'] == exp_id
 
 
-@pytest.mark.parametrize(
-    'interval, exp_datums_len, exp_push_ids', [(86400, 1, [1]), (86400 * 3, 2, [2, 1])]
-)
+@pytest.mark.parametrize('interval, exp_push_ids', [(86400, {1}), (86400 * 3, {2, 1})])
 def test_filter_data_by_interval(
-    client, test_repository, test_perf_signature, interval, exp_datums_len, exp_push_ids
+    client, test_repository, test_perf_signature, interval, exp_push_ids
 ):
     # create some test data
     for (i, timestamp) in enumerate(
@@ -387,18 +385,18 @@ def test_filter_data_by_interval(
     )
 
     assert resp.status_code == 200
-    datums = resp.data[test_perf_signature.signature_hash]
-    assert len(datums) == exp_datums_len
-    for x in range(exp_datums_len):
-        assert datums[x]['push_id'] == exp_push_ids[x]
+
+    perf_data = resp.data[test_perf_signature.signature_hash]
+    push_ids = {datum['push_id'] for datum in perf_data}
+    assert push_ids == exp_push_ids
 
 
 @pytest.mark.parametrize(
-    'start_date, end_date, exp_datums_len, exp_push_ids',
-    [(SEVEN_DAYS_AGO, THREE_DAYS_AGO, 1, [3]), (THREE_DAYS_AGO, '', 2, [2, 1])],
+    'start_date, end_date, exp_push_ids',
+    [(SEVEN_DAYS_AGO, THREE_DAYS_AGO, {3}), (THREE_DAYS_AGO, '', {2, 1})],
 )
 def test_filter_data_by_range(
-    client, test_repository, test_perf_signature, start_date, end_date, exp_datums_len, exp_push_ids
+    client, test_repository, test_perf_signature, start_date, end_date, exp_push_ids
 ):
     # create some test data
     for (i, timestamp) in enumerate(
@@ -426,10 +424,10 @@ def test_filter_data_by_range(
     )
 
     assert resp.status_code == 200
-    datums = resp.data[test_perf_signature.signature_hash]
-    assert len(datums) == exp_datums_len
-    for x in range(exp_datums_len):
-        assert datums[x]['push_id'] == exp_push_ids[x]
+
+    perf_data = resp.data[test_perf_signature.signature_hash]
+    push_ids = {datum['push_id'] for datum in perf_data}
+    assert push_ids == exp_push_ids
 
 
 def test_job_ids_validity(client, test_repository):
