@@ -1,15 +1,6 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import {
-  Container,
-  Form,
-  FormGroup,
-  Label,
-  Input,
-  Table,
-  Row,
-  Col,
-} from 'reactstrap';
+import { Container, Form, FormGroup, Table, Row, Col } from 'reactstrap';
 import orderBy from 'lodash/orderBy';
 
 import { alertStatusMap } from '../constants';
@@ -178,21 +169,43 @@ export default class AlertTable extends React.Component {
     return { failureStatus };
   };
 
-  selectAlertsByStatus = (status) => {
+  selectAlertsByStatus = (selectedStatus) => {
     const { alertSummary } = this.state;
+    let { allSelected } = this.state;
 
-    let selectedAlerts = status === 'none' ? [] : alertSummary.alerts;
+    const status = {
+      all: 'all',
+      none: 'none',
+      triaged: 'triaged',
+      untriaged: 'untriaged',
+    };
+    let selectedAlerts = [...alertSummary.alerts];
 
-    if (status !== 'all') {
+    if (selectedStatus === status.none) {
+      selectedAlerts = [];
+      allSelected = false;
+    }
+
+    if (selectedStatus === status.all) {
+      allSelected = true;
+    }
+
+    if (selectedStatus !== status.all) {
       selectedAlerts = selectedAlerts.filter((alert) => {
         const alertStatus = getStatus(alert.status, alertStatusMap);
 
-        return alertStatus === status;
+        if (selectedStatus === status.triaged) {
+          return alertStatus !== status.untriaged;
+        }
+
+        return alertStatus === selectedStatus;
       });
+      allSelected = selectedAlerts.length === alertSummary.alerts.length;
     }
 
     this.setState({
       selectedAlerts,
+      allSelected,
     });
   };
 
@@ -237,36 +250,29 @@ export default class AlertTable extends React.Component {
                     xs={10}
                     className="text-left alert-summary-header-element"
                   >
-                    <FormGroup check>
-                      <Label check className="pl-1">
-                        <Input
-                          data-testid={`alert summary ${alertSummary.id.toString()} checkbox`}
-                          aria-labelledby={`alert summary ${alertSummary.id.toString()} title`}
-                          type="checkbox"
-                          checked={allSelected}
-                          disabled={!user.isStaff}
-                          onChange={() =>
-                            this.setState({
-                              allSelected: !allSelected,
-                              selectedAlerts: !allSelected
-                                ? [...alertSummary.alerts]
-                                : [],
-                            })
-                          }
-                        />
-                        <AlertHeader
-                          frameworks={frameworks}
-                          alertSummary={alertSummary}
-                          repoModel={repoModel}
-                          issueTrackers={issueTrackers}
-                          user={user}
-                          updateAssignee={this.updateAssignee}
-                        />
-                        <SelectAlertsDropdown
-                          selectAlertsByStatus={this.selectAlertsByStatus}
-                          user={user}
-                        />
-                      </Label>
+                    <FormGroup check className="d-inline-flex">
+                      <SelectAlertsDropdown
+                        selectAlertsByStatus={this.selectAlertsByStatus}
+                        toggleAllAlerts={() => {
+                          this.setState({
+                            allSelected: !allSelected,
+                            selectedAlerts: !allSelected
+                              ? [...alertSummary.alerts]
+                              : [],
+                          });
+                        }}
+                        user={user}
+                        alertSummary={alertSummary}
+                        allSelected={allSelected}
+                      />
+                      <AlertHeader
+                        frameworks={frameworks}
+                        alertSummary={alertSummary}
+                        repoModel={repoModel}
+                        issueTrackers={issueTrackers}
+                        user={user}
+                        updateAssignee={this.updateAssignee}
+                      />
                     </FormGroup>
                   </Col>
                   <Col className="alert-summary-dropdown-element">
