@@ -46,12 +46,12 @@ def test_store_job_with_unparsed_log(
     store_job_data(test_repository, [job_data])
 
     # should have 4 errors
-    assert TextLogError.objects.count() == 4
+    assert TextLogError.objects.count() == 3
     # verify that get_error_summary was called (to warm the bug suggestions
     # cache)
     assert mock_get_error_summary.called
-    # should have 2 error summary lines (aka bug suggestions)
-    assert len(get_error_summary(Job.objects.get(id=1))) == 4
+    # should have 3 error summary lines
+    assert len(get_error_summary(Job.objects.get(id=1))) == 3
 
 
 def test_store_job_pending_to_completed_with_unparsed_log(
@@ -87,8 +87,8 @@ def test_store_job_pending_to_completed_with_unparsed_log(
     store_job_data(test_repository, [job_data])
 
     # should have a full set of text log errors
-    assert TextLogError.objects.count() == 4
-    assert len(get_error_summary(Job.objects.get(guid=job_guid))) == 4
+    assert TextLogError.objects.count() == 3
+    assert len(get_error_summary(Job.objects.get(guid=job_guid))) == 3
 
 
 def test_store_job_with_tier(test_repository, failure_classifications, push_stored):
