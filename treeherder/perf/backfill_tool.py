@@ -4,19 +4,18 @@ from django.core.exceptions import ObjectDoesNotExist
 
 from treeherder.model.models import Job
 from treeherder.perf.exceptions import CannotBackfill
-from treeherder.services.taskcluster import TaskclusterModel
+from treeherder.services.taskcluster import TaskclusterModelInterface
 
 logger = logging.getLogger(__name__)
 
 
 class BackfillTool:
-    def __init__(self, taskcluster_model: TaskclusterModel):
+    def __init__(self, taskcluster_model: TaskclusterModelInterface):
         self.tc_model = taskcluster_model
 
     def backfill_job(self, job_id: str) -> str:
         job = self._fetch_job(job_id)
-
-        self.assert_backfill_ability(job)
+        self._assert_backfill_ability(job)
 
         logger.debug(f"Fetching decision task of job {job.id}...")
         task_id_to_backfill = job.taskcluster_metadata.task_id
@@ -33,7 +32,7 @@ class BackfillTool:
         )
         return task_id
 
-    def assert_backfill_ability(self, over_job: Job):
+    def _assert_backfill_ability(self, over_job: Job):
         if over_job.repository.is_try_repo:
             raise CannotBackfill("Try repository isn't suited for backfilling.")
 

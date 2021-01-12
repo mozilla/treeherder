@@ -1,4 +1,7 @@
+import hashlib
 import logging
+from abc import abstractmethod
+from datetime import datetime
 from typing import List
 
 import jsone
@@ -11,7 +14,32 @@ logger = logging.getLogger(__name__)
 DEFAULT_ROOT_URL = 'https://firefox-ci-tc.services.mozilla.com'
 
 
-class TaskclusterModel:
+class TaskclusterModelInterface:
+    @abstractmethod
+    def __init__(self, root_url, client_id=None, access_token=None):
+        pass
+
+    @abstractmethod
+    def trigger_action(self, action, task_id, decision_task_id, input, root_url=None) -> str:
+        pass
+
+
+class TaskclusterModelProxy(TaskclusterModelInterface):
+    def __init__(self, root_url, client_id=None, access_token=None):
+        self.root_url = root_url
+
+    def trigger_action(self, action, task_id, decision_task_id, input, root_url=None) -> str:
+        # TODO:
+        #  should consider simulating unhappy paths (exceptions);
+        hash_suffix = self._hash(task_id)
+        return f'fake-backfill-task-id-for-{task_id}-{hash_suffix}'
+
+    def _hash(self, task_id) -> str:
+        now = str(datetime.now())
+        return hashlib.sha256(f'{now}-{task_id}').hexdigest()
+
+
+class TaskclusterModel(TaskclusterModelInterface):
     """Javascript -> Python rewrite of frontend's TaskclusterModel"""
 
     def __init__(self, root_url, client_id=None, access_token=None):
@@ -32,13 +60,9 @@ class TaskclusterModel:
         self.queue = taskcluster.Queue(options)
         self.auth = taskcluster.Auth(options)
 
-    def set_root_url(self, root_url):
-        for service in (self.hooks, self.queue, self.auth):
-            service.options['rootUrl'] = root_url
-
     def trigger_action(self, action, task_id, decision_task_id, input, root_url=None) -> str:
         if root_url is not None:
-            self.set_root_url(root_url)
+            self._set_root_url(root_url)
 
         actions_context = self._load(decision_task_id, task_id)
         action_to_trigger = self._get_action(actions_context['actions'], action)
@@ -50,6 +74,10 @@ class TaskclusterModel:
             input=input,
             static_action_variables=actions_context['staticActionVariables'],
         )
+
+    def _set_root_url(self, root_url):
+        for service in (self.hooks, self.queue, self.auth):
+            service.options['rootUrl'] = root_url
 
     def _load(self, decision_task_id: str, task_id: str) -> dict:
         if not decision_task_id:

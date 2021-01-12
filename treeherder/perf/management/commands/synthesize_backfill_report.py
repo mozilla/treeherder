@@ -17,7 +17,7 @@ from treeherder.perf.secretary_tool import SecretaryTool
 from treeherder.perf.models import PerformanceFramework
 from treeherder.perf.perf_sheriff_bot import PerfSheriffBot
 from treeherder.services.taskcluster import DEFAULT_ROOT_URL as root_url
-from treeherder.services.taskcluster import TaskclusterModel
+from treeherder.services.taskcluster import TaskclusterModelProxy
 
 logger = logging.getLogger(__name__)
 
@@ -64,7 +64,9 @@ class Command(BaseCommand):
             max_data_points=5, time_interval=days_to_lookup
         )
         report_maintainer = BackfillReportMaintainer(alerts_picker, backfill_context_fetcher)
-        backfill_tool = BackfillTool(TaskclusterModel(root_url, client_id, access_token))
+
+        # TODO: Replace proxy with real subject, once the soft launch is complete
+        backfill_tool = BackfillTool(TaskclusterModelProxy(root_url, client_id, access_token))
         secretary_tool = SecretaryTool()
 
         try:
