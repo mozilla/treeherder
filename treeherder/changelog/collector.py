@@ -41,11 +41,11 @@ class GitHub:
         if "since" in kw:
             gh_options["since"] = kw["since"]
 
-        for commit in github.commits_info(owner, repository, params=gh_options):
+        for commit in github.get_all_commits(owner, repository, params=gh_options):
             if filters:
                 for filter in filters:
                     if isinstance(filter, list) and filter[0] == "filter_by_path":
-                        commit_info = github.commit_info(owner, repository, commit["sha"])
+                        commit_info = github.get_commit(owner, repository, commit["sha"])
                         commit["files"] = commit_info["files"]
                         break
 
