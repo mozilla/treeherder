@@ -72,7 +72,7 @@ There are also tasks that are run on a schedule, triggered via either:
    The tasks it currently runs are:
 
    - `update_bugscache` (hourly)
-   - `cycle_data` (daily)
+   - [cycle_data] (daily)
    - `run_intermittents_commenter` (daily)
 
 2. The `celery_scheduler` dyno
@@ -91,6 +91,7 @@ There are also tasks that are run on a schedule, triggered via either:
 [adjusting scheduled tasks]: administration.md#adjusting-scheduled-tasks
 [one-off dynos]: https://devcenter.heroku.com/articles/one-off-dynos
 [deps of bug 1176492]: https://bugzilla.mozilla.org/showdependencytree.cgi?id=1176492&hide_resolved=1
+[cycle_data]: ../data_cycling.md
 
 ## Deployment lifecycle
 
