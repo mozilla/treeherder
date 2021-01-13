@@ -3,7 +3,7 @@ import PropTypes from 'prop-types';
 import { Container, Form, FormGroup, Table, Row, Col } from 'reactstrap';
 import orderBy from 'lodash/orderBy';
 
-import { alertStatusMap } from '../constants';
+import { alertStatusMap, alertStatus as status } from '../constants';
 import {
   genericErrorMessage,
   errorMessageClass,
@@ -140,7 +140,7 @@ export default class AlertTable extends React.Component {
     const filteredAlerts = alertSummary.alerts.filter((alert) =>
       this.filterAlert(alert),
     );
-    this.setState({ filteredAlerts });
+    this.setState({ filteredAlerts, allSelected: false, selectedAlerts: [] });
   };
 
   updateAssignee = async (newAssigneeUsername) => {
@@ -170,27 +170,17 @@ export default class AlertTable extends React.Component {
   };
 
   selectAlertsByStatus = (selectedStatus) => {
-    const { alertSummary } = this.state;
+    const { filteredAlerts } = this.state;
     let { allSelected } = this.state;
 
-    const status = {
-      all: 'all',
-      none: 'none',
-      triaged: 'triaged',
-      untriaged: 'untriaged',
-    };
-    let selectedAlerts = [...alertSummary.alerts];
+    let selectedAlerts = [...filteredAlerts];
 
     if (selectedStatus === status.none) {
       selectedAlerts = [];
       allSelected = false;
-    }
-
-    if (selectedStatus === status.all) {
+    } else if (selectedStatus === status.all) {
       allSelected = true;
-    }
-
-    if (selectedStatus !== status.all) {
+    } else if (selectedStatus !== status.all) {
       selectedAlerts = selectedAlerts.filter((alert) => {
         const alertStatus = getStatus(alert.status, alertStatusMap);
 
@@ -200,7 +190,7 @@ export default class AlertTable extends React.Component {
 
         return alertStatus === selectedStatus;
       });
-      allSelected = selectedAlerts.length === alertSummary.alerts.length;
+      allSelected = selectedAlerts.length === filteredAlerts.length;
     }
 
     this.setState({
@@ -253,14 +243,6 @@ export default class AlertTable extends React.Component {
                     <FormGroup check className="d-inline-flex">
                       <SelectAlertsDropdown
                         selectAlertsByStatus={this.selectAlertsByStatus}
-                        toggleAllAlerts={() => {
-                          this.setState({
-                            allSelected: !allSelected,
-                            selectedAlerts: !allSelected
-                              ? [...alertSummary.alerts]
-                              : [],
-                          });
-                        }}
                         user={user}
                         alertSummary={alertSummary}
                         allSelected={allSelected}

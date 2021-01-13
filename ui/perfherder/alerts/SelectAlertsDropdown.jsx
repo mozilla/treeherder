@@ -7,23 +7,17 @@ import UncontrolledDropdown from 'reactstrap/lib/UncontrolledDropdown';
 import Input from 'reactstrap/lib/Input';
 import Label from 'reactstrap/lib/Label';
 
-class SelectAlertsDropdown extends React.Component {
-  status = {
-    all: 'all',
-    none: 'none',
-    triaged: 'triaged',
-    untriaged: 'untriaged',
-  };
+import { alertStatus as status } from '../constants';
 
+class SelectAlertsDropdown extends React.PureComponent {
   render() {
     const {
       selectAlertsByStatus,
-      toggleAllAlerts,
       user,
       allSelected,
       alertSummary,
     } = this.props;
-    const { untriaged, triaged, all, none } = this.status;
+    const { untriaged, triaged, all, none } = status;
 
     return (
       <React.Fragment>
@@ -35,16 +29,18 @@ class SelectAlertsDropdown extends React.Component {
             checked={allSelected}
             disabled={!user.isStaff}
             onChange={() => {
-              toggleAllAlerts();
+              return allSelected
+                ? selectAlertsByStatus(none)
+                : selectAlertsByStatus(all);
             }}
           />
         </Label>
-        <UncontrolledDropdown
-          size="sm"
-          className="mr-2"
-          disabled={!user.isStaff}
-        >
-          <DropdownToggle caret className="d-flex mt-1" />
+        <UncontrolledDropdown size="sm" className="mr-2">
+          <DropdownToggle
+            caret
+            className="d-flex mt-1"
+            disabled={!user.isStaff}
+          />
           <DropdownMenu>
             <DropdownItem header>Check alerts</DropdownItem>
             <DropdownItem onClick={() => selectAlertsByStatus(all)}>
@@ -70,6 +66,7 @@ export default SelectAlertsDropdown;
 
 SelectAlertsDropdown.propTypes = {
   selectAlertsByStatus: PropTypes.func.isRequired,
-  toggleAllAlerts: PropTypes.func.isRequired,
   user: PropTypes.shape({}).isRequired,
+  alertSummary: PropTypes.shape({}).isRequired,
+  allSelected: PropTypes.bool.isRequired,
 };

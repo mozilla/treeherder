@@ -72,6 +72,13 @@ export const alertStatusMap = {
   acknowledged: 4,
 };
 
+export const alertStatus = {
+  all: 'all',
+  none: 'none',
+  triaged: 'triaged',
+  untriaged: 'untriaged',
+};
+
 export const graphColors = [
   ['dark-puce', '#4C3146'],
   ['orange', '#FFB851'],
