@@ -4,6 +4,9 @@
 #
 #    pip-compile --generate-hashes --output-file=requirements/common.txt requirements/common.in
 #
+adr==0.19.4 \
+    --hash=sha256:3fb790707e3e5635c64ed6cbdaff4ca0e3996e9ba8c7b2e6d40843c22ddb87e5 \
+    --hash=sha256:8aa93cc3bd3a368d257b2f14bb7138678f88be7c8dc5303c4df2c0141240cdeb
 aiohttp==3.6.2 \
     --hash=sha256:1e984191d1ec186881ffaed4581092ba04f7c61582a177b187d3a2f07ed9719e \
     --hash=sha256:259ab809ff0727d0e834ac5e8a283dc5e3e0ecc30c4d80b3cd17a4139ce1f326 \
@@ -205,7 +208,7 @@ idna==2.10 \
 importlib-metadata==3.3.0 \
     --hash=sha256:5c5a2720817414a6c41f0a49993908068243ae02c1635a228126519b509c8aed \
     --hash=sha256:bf792d480abbd5eda85794e4afb09dd538393f7d6e6ffef6e9f03d2014cf9450 \
-    # via flake8, jsonschema, kombu
+    # via flake8, jsonschema, kombu, markdown
 itypes==1.2.0 \
     --hash=sha256:03da6872ca89d29aef62773672b2d408f490f80db48b23079a4b194c86dd04c6 \
     --hash=sha256:af886f129dea4a2a1e3d36595a2d139589e4dd287f5cab0b40e799ee81570ff1 \
@@ -241,7 +244,11 @@ kombu==4.6.11 \
 loguru==0.5.1 \
     --hash=sha256:70201d5fce26da89b7a5f168caa2bb674e06b969829f56737db1d6472e53e7c3 \
     --hash=sha256:e5d362a43cd2fc2da63551d79a6830619c4d5b3a8b976515748026f92f351b61 \
-    # via mozci
+    # via adr, mozci
+markdown==3.3.3 \
+    --hash=sha256:5d9f2b5ca24bc4c7a390d22323ca4bad200368612b5aaa7796babf971d2b2f18 \
+    --hash=sha256:c109c15b7dc20a9ac454c9e6025927d44460b85bd039da028d85e2b6d0bcc328 \
+    # via adr
 markupsafe==1.1.1 \
     --hash=sha256:00bc623926325b26bb9605ae9eae8a215691f33cae5df11ca5424f06f2d1f473 \
     --hash=sha256:09027a7803a62ca78792ad89403b1b7a73a01c8cb65909cd876f7fcebd79b161 \
@@ -453,6 +460,10 @@ pyflakes==2.2.0 \
     --hash=sha256:0d94e0e05a19e57a99444b6ddcf9a6eb2e5c68d3ca1e98e90707af8152c90a92 \
     --hash=sha256:35b2d75ee967ea93b55750aa9edbbf72813e06a66ba54438df2cfac9e3c27fc8 \
     # via flake8
+pygments==2.6.1 \
+    --hash=sha256:647344a061c249a3b74e230c739f434d7ea4d8b1d5f3721bc0f3558049b38f44 \
+    --hash=sha256:ff7a40b4860b727ab48fad6360eb351cc1b33cbf9b15a0f689ca5353e9463324 \
+    # via adr
 pylibrary==3.47.20042 \
     --hash=sha256:b15eb994c819eca8dc860af8ea6437e482d519c1a1c7618a28fc6bcd4f8043f5 \
     # via jx-mysql
@@ -575,7 +586,10 @@ taskcluster==38.0.6 \
     --hash=sha256:41759b25b52b4eae87c363ae99edebd7d15c0ac5eca44eadefbae3556ed65635 \
     --hash=sha256:4b765a12b0444c66510f5def5f6f30b1cea53785781626dd75fdd62f101e91df \
     --hash=sha256:db6d4e91fe97a03431b8ca79b98c4b41f89c42745c84fd4512cd0cb25a030de5 \
-    # via -r requirements/common.in, mozci
+    # via -r requirements/common.in, adr, mozci
+terminaltables==3.1.0 \
+    --hash=sha256:f3eb0eb92e3833972ac36796293ca0906e998dc3be91fbe1f8615b331b853b81 \
+    # via adr
 tomlkit==0.6.0 \
     --hash=sha256:74f976908030ff164c0aa1edabe3bf83ea004b3daa5b0940b9c86a060c004e9a \
     --hash=sha256:e5d5f20809c2b09276a6c5d98fb0202325aee441a651db84ac12e0812ab7e569 \
