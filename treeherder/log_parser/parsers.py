@@ -155,7 +155,9 @@ class ErrorParser(ParserBase):
         if self.is_taskcluster:
             line = re.sub(self.RE_TASKCLUSTER_NORMAL_PREFIX, "", line)
 
-        if self.is_error_line(line):
+        if self.is_error_line(line) and (
+            len(self.artifact) == 0 or self.artifact[-1]["line"] != line.rstrip()
+        ):
             self.add(line, lineno)
 
     def is_error_line(self, line):

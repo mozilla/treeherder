@@ -1,4 +1,5 @@
 {
+  "logurl": "http://my-log.mozilla.org/jsreftest-fail.txt.gz",
   "errors": [
     {
       "linenumber": 26994,
@@ -81,19 +82,11 @@
       "line": "InternalError: script stack space quota is exhausted"
     },
     {
-      "linenumber": 86703,
-      "line": "InternalError: script stack space quota is exhausted"
-    },
-    {
       "linenumber": 88372,
       "line": "InternalError: too much recursion"
     },
     {
       "linenumber": 88421,
-      "line": "TypeError: anonymous function does not always return a value"
-    },
-    {
-      "linenumber": 88423,
       "line": "TypeError: anonymous function does not always return a value"
     },
     {
@@ -137,10 +130,6 @@
       "line": "ReferenceError: d is not defined"
     },
     {
-      "linenumber": 91635,
-      "line": "ReferenceError: d is not defined"
-    },
-    {
       "linenumber": 91866,
       "line": "TypeError: [15].some([].watch) is not a function"
     },
@@ -166,18 +155,6 @@
     },
     {
       "linenumber": 92395,
-      "line": "SyntaxError: let declaration not directly within block"
-    },
-    {
-      "linenumber": 92401,
-      "line": "SyntaxError: let declaration not directly within block"
-    },
-    {
-      "linenumber": 92407,
-      "line": "SyntaxError: let declaration not directly within block"
-    },
-    {
-      "linenumber": 92413,
       "line": "SyntaxError: let declaration not directly within block"
     },
     {
@@ -208,6 +185,5 @@
       "linenumber": 99204,
       "line": "580200: Assertion failure enumerating own properties of proxy returning duplicated own property name"
     }
-  ],
-  "logurl": "http://my-log.mozilla.org/jsreftest-fail.txt.gz"
+  ]
 }
