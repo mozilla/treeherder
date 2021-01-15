@@ -7,52 +7,85 @@ import UncontrolledDropdown from 'reactstrap/lib/UncontrolledDropdown';
 import Input from 'reactstrap/lib/Input';
 import Label from 'reactstrap/lib/Label';
 
-import { alertStatus as status } from '../constants';
+import { alertStatusMap } from '../constants';
+import { getStatus } from '../helpers';
 
-class SelectAlertsDropdown extends React.PureComponent {
-  render() {
-    const {
-      selectAlertsByStatus,
-      user,
+class SelectAlertsDropdown extends React.Component {
+  status = {
+    all: 'all',
+    none: 'none',
+    triaged: 'triaged',
+    untriaged: 'untriaged',
+  };
+
+  selectAlertsByStatus = (selectedStatus) => {
+    const { filteredAlerts, setSelectedAlerts } = this.props;
+    let { allSelected } = this.props;
+
+    let selectedAlerts = [...filteredAlerts];
+
+    if (selectedStatus === this.status.none) {
+      selectedAlerts = [];
+      allSelected = false;
+    } else if (selectedStatus === this.status.all) {
+      allSelected = true;
+    } else if (selectedStatus !== this.status.all) {
+      selectedAlerts = selectedAlerts.filter((alert) => {
+        const alertStatus = getStatus(alert.status, alertStatusMap);
+
+        if (selectedStatus === this.status.triaged) {
+          return alertStatus !== this.status.untriaged;
+        }
+
+        return alertStatus === selectedStatus;
+      });
+      allSelected = selectedAlerts.length === filteredAlerts.length;
+    }
+
+    setSelectedAlerts({
+      selectedAlerts,
       allSelected,
-      alertSummary,
-    } = this.props;
-    const { untriaged, triaged, all, none } = status;
+    });
+  };
+
+  render() {
+    const { user, allSelected, alertSummaryId } = this.props;
+    const { untriaged, triaged, all, none } = this.status;
 
     return (
       <React.Fragment>
         <Label check className="pl-1">
           <Input
-            data-testid={`alert summary ${alertSummary.id.toString()} checkbox`}
-            aria-labelledby={`alert summary ${alertSummary.id.toString()} title`}
+            data-testid={`alert summary ${alertSummaryId} checkbox`}
             type="checkbox"
             checked={allSelected}
             disabled={!user.isStaff}
             onChange={() => {
               return allSelected
-                ? selectAlertsByStatus(none)
-                : selectAlertsByStatus(all);
+                ? this.selectAlertsByStatus(none)
+                : this.selectAlertsByStatus(all);
             }}
           />
         </Label>
         <UncontrolledDropdown size="sm" className="mr-2">
           <DropdownToggle
+            aria-label="select-alerts-dropdown-toggle-label"
             caret
             className="d-flex mt-1"
             disabled={!user.isStaff}
           />
           <DropdownMenu>
             <DropdownItem header>Check alerts</DropdownItem>
-            <DropdownItem onClick={() => selectAlertsByStatus(all)}>
+            <DropdownItem onClick={() => this.selectAlertsByStatus(all)}>
               All
             </DropdownItem>
-            <DropdownItem onClick={() => selectAlertsByStatus(none)}>
+            <DropdownItem onClick={() => this.selectAlertsByStatus(none)}>
               None
             </DropdownItem>
-            <DropdownItem onClick={() => selectAlertsByStatus(triaged)}>
+            <DropdownItem onClick={() => this.selectAlertsByStatus(triaged)}>
               Triaged
             </DropdownItem>
-            <DropdownItem onClick={() => selectAlertsByStatus(untriaged)}>
+            <DropdownItem onClick={() => this.selectAlertsByStatus(untriaged)}>
               Untriaged
             </DropdownItem>
           </DropdownMenu>
@@ -65,8 +98,8 @@ class SelectAlertsDropdown extends React.PureComponent {
 export default SelectAlertsDropdown;
 
 SelectAlertsDropdown.propTypes = {
-  selectAlertsByStatus: PropTypes.func.isRequired,
+  setSelectedAlerts: PropTypes.func.isRequired,
   user: PropTypes.shape({}).isRequired,
-  alertSummary: PropTypes.shape({}).isRequired,
+  filteredAlerts: PropTypes.arrayOf(PropTypes.shape({})).isRequired,
   allSelected: PropTypes.bool.isRequired,
 };

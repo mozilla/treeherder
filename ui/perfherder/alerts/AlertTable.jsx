@@ -3,7 +3,7 @@ import PropTypes from 'prop-types';
 import { Container, Form, FormGroup, Table, Row, Col } from 'reactstrap';
 import orderBy from 'lodash/orderBy';
 
-import { alertStatusMap, alertStatus as status } from '../constants';
+import { alertStatusMap } from '../constants';
 import {
   genericErrorMessage,
   errorMessageClass,
@@ -13,7 +13,6 @@ import {
   getInitializedAlerts,
   containsText,
   updateAlertSummary,
-  getStatus,
 } from '../helpers';
 import TruncatedText from '../../shared/TruncatedText';
 import ErrorBoundary from '../../shared/ErrorBoundary';
@@ -169,35 +168,11 @@ export default class AlertTable extends React.Component {
     return { failureStatus };
   };
 
-  selectAlertsByStatus = (selectedStatus) => {
-    const { filteredAlerts } = this.state;
-    let { allSelected } = this.state;
-
-    let selectedAlerts = [...filteredAlerts];
-
-    if (selectedStatus === status.none) {
-      selectedAlerts = [];
-      allSelected = false;
-    } else if (selectedStatus === status.all) {
-      allSelected = true;
-    } else if (selectedStatus !== status.all) {
-      selectedAlerts = selectedAlerts.filter((alert) => {
-        const alertStatus = getStatus(alert.status, alertStatusMap);
-
-        if (selectedStatus === status.triaged) {
-          return alertStatus !== status.untriaged;
-        }
-
-        return alertStatus === selectedStatus;
-      });
-      allSelected = selectedAlerts.length === filteredAlerts.length;
-    }
-
+  setSelectedAlerts = ({ selectedAlerts, allSelected }) =>
     this.setState({
       selectedAlerts,
       allSelected,
     });
-  };
 
   render() {
     const {
@@ -242,10 +217,11 @@ export default class AlertTable extends React.Component {
                   >
                     <FormGroup check className="d-inline-flex">
                       <SelectAlertsDropdown
-                        selectAlertsByStatus={this.selectAlertsByStatus}
+                        setSelectedAlerts={this.setSelectedAlerts}
                         user={user}
-                        alertSummary={alertSummary}
+                        filteredAlerts={filteredAlerts}
                         allSelected={allSelected}
+                        alertSummaryId={alertSummary.id.toString()}
                       />
                       <AlertHeader
                         frameworks={frameworks}
