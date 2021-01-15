@@ -20,7 +20,7 @@ aiohttp==3.6.2 \
     --hash=sha256:65f31b622af739a802ca6fd1a3076fd0ae523f8485c52924a89561ba10c49b48 \
     --hash=sha256:ae55bac364c405caa23a4f2d6cfecc6a0daada500274ffca4a9230e7129eac59 \
     --hash=sha256:b778ce0c909a2653741cb4b1ac7015b5c130ab9c897611df43ae6a58523cb965 \
-    # via mozci, taskcluster
+    # via taskcluster
 amqp==2.6.0 \
     --hash=sha256:24dbaff8ce4f30566bb88976b398e8c4e77637171af3af6f1b9650f48890e60b \
     --hash=sha256:bb68f8d2bced8f93ccfd07d96c689b716b3227720add971be980accfc2952139 \
@@ -28,7 +28,7 @@ amqp==2.6.0 \
 appdirs==1.4.4 \
     --hash=sha256:7d5d0167b2b1ba821647616af46a749d1c653740dd0d2415100fe26e27afdf41 \
     --hash=sha256:a841dacd6b99318a741b166adb07e19ee71a274450e68237b4650ca1055ab128 \
-    # via adr, mozci
+    # via mozci
 asgiref==3.2.10 \
     --hash=sha256:7e51911ee147dd685c3c8b805c0ad0cb58d360987b56953878f8c06d2d1c6f1a \
     --hash=sha256:9fc6fb5d39b8af147ba40765234fa822b39818b12cc80b35ad9b0cef3a476aed \
@@ -53,7 +53,7 @@ blessings==1.7 \
 boto3==1.14.21 \
     --hash=sha256:5c2fa8ac4e4a4800d02b11d75b71bb8fcc190d6fbb15d957f99661414e655e10 \
     --hash=sha256:b093e00e98ab31f98d444efad1738ab4795226f0b05abc6655d747f286f9baf9 \
-    # via adr, mozci
+    # via mozci
 botocore==1.17.21 \
     --hash=sha256:9c4694e413c344ca2fb1175f33a97265dbf7f8a5943fbeafde3161d080b72308 \
     --hash=sha256:fcbcda16c815744482be4206ed098f4d08f2dfddfb1fcfa0f822f4cfd94adb85 \
@@ -100,7 +100,7 @@ cachetools==4.1.1 \
 cachy==0.3.0 \
     --hash=sha256:186581f4ceb42a0bbe040c407da73c14092379b1e4c0e327fdb72ae4a9b269b1 \
     --hash=sha256:338ca09c8860e76b275aff52374330efedc4d5a5e45dc1c5b539c1ead0786fe7 \
-    # via adr, mozci
+    # via mozci
 celery==4.4.2 \
     --hash=sha256:108a0bf9018a871620936c33a3ee9f6336a89f8ef0a0f567a9001f4aa361415f \
     --hash=sha256:5b4b37e276033fe47575107a2775469f0b721646a08c96ec2c61531e4fe45f2a \
@@ -152,7 +152,7 @@ docutils==0.15.2 \
     --hash=sha256:6c4f696463b79f1fb8ba0c594b63840ebd41f059e92b31957c46b74a4599b6d0 \
     --hash=sha256:9e4d7ecfc600058e07ba661411a2b7de2fd0fafa17d1a7f7361cd47b1175c827 \
     --hash=sha256:a2aeea129088da402665e92e0b25b04b073c04b2dce4ab65caaa38b7ce2e1a99 \
-    # via adr, botocore
+    # via botocore
 ecdsa==0.14.1 \
     --hash=sha256:64c613005f13efec6541bb0a33290d0d03c27abab5f15fbab20fb0ee162bdd8e \
     --hash=sha256:e108a5fe92c67639abae3260e43561af914e7fd0d27bae6d2ec1312ae7934dfe \
@@ -223,7 +223,7 @@ jmespath==0.10.0 \
     # via boto3, botocore
 json-e==3.0.2 \
     --hash=sha256:35dc96ce04f0caece560dc18266af7f0ffb780955273ffa20814be65447cad49 \
-    # via -r requirements/common.in, adr
+    # via -r requirements/common.in
 jsonschema==3.2.0 \
     --hash=sha256:4e5b3cf8216f577bee9ce139cbe72eca3ea4f292ec60928ff24758ce626cd163 \
     --hash=sha256:c8a85b28d377cc7737e46e2d9f2b4f44ee3c0e1deac6bf46ddefc7187d30797a \
@@ -334,10 +334,9 @@ mohawk==1.1.0 \
     --hash=sha256:3ed296a30453d0b724679e0fd41e4e940497f8e461a9a9c3b7f36e43bab0fa09 \
     --hash=sha256:d2a0e3ab10a209cc79e95e28f2dd54bd4a73fd1998ffe27b7ba0f962b6be9723 \
     # via taskcluster
-mozci==1.12.0 \
-    --hash=sha256:6a3fcce7a2d09a7242b5620d1aec6d3b10f44bde6fff78e4a783e7d5fe7fe9bb \
-    --hash=sha256:befa6a851f3dfbb5af330f882ab242ebd9353780854f1c76c80d1c3c34f2ed59 \
-    --hash=sha256:e7f77dcec723783395b3ab596ae378872d7c99aa7de8f274924e1e5911d5df28 \
+mozci==1.12.3 \
+    --hash=sha256:2542a90f69fc6aa38929eda40450fdf32de4f74c900bbf736c337f2b236295f3 \
+    --hash=sha256:2eae0ba4ce247c01687e8437b14c0386a34843c010bea809b8fc4502cf00e303 \
     # via -r requirements/common.in
 mozfile==2.1.0 \
     --hash=sha256:e5dc835582ea150e35ecd57e9d86cb707d3aa3b2505679db7332326dd49fd6b8 \
@@ -485,7 +484,7 @@ python-jose[pycryptodome]==3.2.0 \
     # via -r requirements/common.in
 python3-memcached==1.51 \
     --hash=sha256:7cbe5951d68eef69d948b7a7ed7decfbd101e15e7f5be007dcd1219ccc584859 \
-    # via adr, mozci
+    # via mozci
 pytz==2020.1 \
     --hash=sha256:a494d53b6d39c3c6e44c3bec237336e14305e4f29bbf800b599253057fbb79ed \
     --hash=sha256:c35965d010ce31b23eeb663ed3cc8c906275d6be1a34393a1d73a41febf4a048 \
@@ -502,15 +501,15 @@ pyyaml==5.3.1 \
     --hash=sha256:b8eac752c5e14d3eca0e6dd9199cd627518cb5ec06add0de9d32baeee6fe645d \
     --hash=sha256:cc8955cfbfc7a115fa81d85284ee61147059a753344bc51098f3ccd69b0d7e0c \
     --hash=sha256:d13155f591e6fcc1ec3b30685d50bf0711574e2c0dfffd7644babf8b5102ca1a \
-    # via -r requirements/common.in, adr
+    # via -r requirements/common.in, mozci
 redis==3.5.3 \
     --hash=sha256:0e7e0cfca8660dea8b7d5cd8c4f6c5e29e11f31158c0b0ae91a397f00e5a05a2 \
     --hash=sha256:432b788c4530cfe16d8d943a09d40ca6c16149727e4afe8c2c9d5580c59d9f24 \
-    # via adr, django-redis, mozci
+    # via django-redis, mozci
 requests==2.24.0 \
     --hash=sha256:b3559a131db72c33ee969480840fff4bb6dd111de7dd27c8ee1f820f4f00231b \
     --hash=sha256:fe75cc94a9443b9246fc7049224f75604b113c36acb93f87b80ed42c44cbb898 \
-    # via adr, coreapi, google-api-core, mo-http, mo-json-config, mozci, pylibrary, taskcluster
+    # via coreapi, google-api-core, mo-http, mo-json-config, mozci, pylibrary, taskcluster
 rsa==4.6 \
     --hash=sha256:109ea5a66744dd859bf16fe904b8d8b627adafb9408753161e766a92e7d681fa \
     --hash=sha256:6166864e23d6b5195a5cfed6cd9fed0fe774e226d8f854fcb23b7bbef0350233 \
@@ -594,7 +593,7 @@ terminaltables==3.1.0 \
 tomlkit==0.6.0 \
     --hash=sha256:74f976908030ff164c0aa1edabe3bf83ea004b3daa5b0940b9c86a060c004e9a \
     --hash=sha256:e5d5f20809c2b09276a6c5d98fb0202325aee441a651db84ac12e0812ab7e569 \
-    # via adr, mozci
+    # via mozci
 typing-extensions==3.7.4.3 \
     --hash=sha256:7cb407020f00f7bfc3cb3e7881628838e69d8f3fcab2f64742a5e76b2f841918 \
     --hash=sha256:99d4073b617d30288f569d3f13d2bd7548c3a7e4c8de87db09a9d29bb3a4a60c \
@@ -695,7 +694,7 @@ zstandard==0.14.0 \
     --hash=sha256:f5eccca127169257d8356069d298701fc612b05f6b768aa9ffc6e652c5169bd6 \
     --hash=sha256:fa660370fe5b5e4f3c3952732aea358540e56e91c9233d55a6b6e508e047b315 \
     --hash=sha256:fff79a30845c2591718cb8798196d117402b2d5d7506b5f3bb691972731c30b3 \
-    # via adr, mozci
+    # via mozci
 
 # WARNING: The following packages were not pinned, but pip requires them to be
 # pinned when the requirements file includes hashes. Consider using the --allow-unsafe flag.

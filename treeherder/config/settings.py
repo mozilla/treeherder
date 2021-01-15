@@ -8,7 +8,6 @@ import environ
 from furl import furl
 from kombu import Exchange, Queue
 from adr import config
-from urllib.parse import urlparse
 
 from treeherder.config.utils import connection_should_use_tls, get_tls_redis_url
 
@@ -184,17 +183,7 @@ CACHES = {
     },
 }
 
-# Setup adr to use our Redis cache
-redis = urlparse(REDIS_URL)
-adr_config = {
-    "cache": {
-        "retention": 10080,
-        'stores': {
-            'redis': {'driver': 'redis', 'host': redis.hostname, 'port': redis.port, 'db': 0}
-        },
-    },
-}
-config.update(adr_config)
+config.update({})
 
 # Internationalization
 TIME_ZONE = "UTC"
