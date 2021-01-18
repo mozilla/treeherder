@@ -523,6 +523,28 @@ def test_perf_summary(client, test_perf_signature, test_perf_data):
     assert resp2.json() == expected
 
 
+def test_data_points_from_same_push_are_ordered_chronologically(
+    client, test_perf_signature, test_perf_data
+):
+    """
+    The chronological order for data points associated to a single push
+    is based upon the order of their related job. If related jobs are
+    ordered, the data points are considered ordered.
+
+    As job ids are auto incremented, older jobs have smaller ids than newer ones.
+    Thus, these ids are sufficient to check for chronological order.
+    """
+    query_params = '?repository={}&framework={}&interval=172800&no_subtests=true&startday=2013-11-01T23%3A28%3A29&endday=2013-11-30T23%3A28%3A29'.format(
+        test_perf_signature.repository.name, test_perf_signature.framework_id
+    )
+
+    response = client.get(reverse('performance-summary') + query_params)
+    assert response.status_code == 200
+
+    job_ids = response.json()[0]['job_ids']
+    assert job_ids == sorted(job_ids)
+
+
 def test_no_retriggers_perf_summary(
     client, push_stored, test_perf_signature, test_perf_signature_2, test_perf_data
 ):
