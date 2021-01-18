@@ -69,7 +69,7 @@ class SelectAlertsDropdown extends React.Component {
         </Label>
         <UncontrolledDropdown size="sm" className="mr-2">
           <DropdownToggle
-            aria-label="select-alerts-dropdown-toggle-label"
+            aria-label="alert selection options"
             caret
             className="d-flex mt-1"
             disabled={!user.isStaff}

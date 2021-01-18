@@ -1,7 +1,7 @@
 import React from 'react';
 import { render, cleanup, waitFor, fireEvent } from '@testing-library/react';
 
-import testAlertSummaries from '../../mock/alert_summaries';
+import testAlertSummary from '../../mock/alert_summary_with_different_status';
 import SelectAlertsDropdown from '../../../../ui/perfherder/alerts/SelectAlertsDropdown';
 import { alertStatusMap } from '../../../../ui/perfherder/constants';
 import { getStatus } from '../../../../ui/perfherder/helpers';
@@ -12,7 +12,6 @@ const testUser = ({ isLoggedIn, isStaff }) => ({
   isStaff,
   email: 'test_user@mozilla.com',
 });
-const testAlertSummary = testAlertSummaries[0];
 
 afterEach(cleanup);
 
@@ -36,10 +35,10 @@ test('Select alerts dropdown toggle is disabled when user is not staff', async (
   );
 
   const dropdownToggle = await waitFor(() =>
-    getByLabelText('select-alerts-dropdown-toggle-label'),
+    getByLabelText('alert selection options'),
   );
 
-  expect(dropdownToggle).toHaveClass('disabled');
+  expect(dropdownToggle).toBeDisabled();
 });
 
 test('Select alerts dropdown toggle is enabled when user is staff', async () => {
@@ -48,19 +47,19 @@ test('Select alerts dropdown toggle is enabled when user is staff', async () => 
   );
 
   const dropdownToggle = await waitFor(() =>
-    getByLabelText('select-alerts-dropdown-toggle-label'),
+    getByLabelText('alert selection options'),
   );
 
-  expect(dropdownToggle.classList.contains('disabled')).toBe(false);
+  expect(dropdownToggle).toBeEnabled();
 });
 
-test("Selecting 'All' option from dropdown checks all the visibile alerts", async () => {
+test("Selecting 'All' option from dropdown checks all the visible alerts", async () => {
   const { getByLabelText, getByText } = selectAlertsDropdown(
     testUser({ isLoggedIn: true, isStaff: true }),
   );
 
   const dropdownToggle = await waitFor(() =>
-    getByLabelText('select-alerts-dropdown-toggle-label'),
+    getByLabelText('alert selection options'),
   );
 
   fireEvent.click(dropdownToggle);
@@ -77,13 +76,13 @@ test("Selecting 'All' option from dropdown checks all the visibile alerts", asyn
   expect(setSelectedAlertsHandler).toHaveBeenCalledWith(state);
 });
 
-test("Selecting 'None' option from dropdown unchecks all checked alerts from the visibile alerts", async () => {
+test("Selecting 'None' option from dropdown unchecks all checked alerts from the visible alerts", async () => {
   const { getByLabelText, getByText } = selectAlertsDropdown(
     testUser({ isLoggedIn: true, isStaff: true }),
   );
 
   const dropdownToggle = await waitFor(() =>
-    getByLabelText('select-alerts-dropdown-toggle-label'),
+    getByLabelText('alert selection options'),
   );
 
   fireEvent.click(dropdownToggle);
@@ -108,7 +107,7 @@ test("Selecting 'Triaged' option from dropdown checks the visible alerts that ar
   );
 
   const dropdownToggle = await waitFor(() =>
-    getByLabelText('select-alerts-dropdown-toggle-label'),
+    getByLabelText('alert selection options'),
   );
 
   fireEvent.click(dropdownToggle);
@@ -131,7 +130,7 @@ test("Selecting 'Untriaged' option from dropdown checks the visible alerts that 
   );
 
   const dropdownToggle = await waitFor(() =>
-    getByLabelText('select-alerts-dropdown-toggle-label'),
+    getByLabelText('alert selection options'),
   );
 
   fireEvent.click(dropdownToggle);
@@ -143,7 +142,7 @@ test("Selecting 'Untriaged' option from dropdown checks the visible alerts that 
   const selectedAlerts = testAlertSummary.alerts.filter(
     (alert) => getStatus(alert.status, alertStatusMap) === 'untriaged',
   );
-  const state = { selectedAlerts, allSelected: true };
+  const state = { selectedAlerts, allSelected: false };
 
   expect(setSelectedAlertsHandler).toHaveBeenCalledWith(state);
 });
