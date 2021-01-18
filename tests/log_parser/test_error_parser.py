@@ -71,6 +71,8 @@ ERROR_TEST_CASES = (
     "2020-03-18 20:40:52 UTC 39:27.50 /builds/worker/checkouts/gecko/widget/gtk/nsWindow.cpp:3536:30: error: too few arguments to function 'const gchar* gtk_check_version(guint, guint, guint)'",
     # " error R?C\d*:"
     "src/gl.cc(2249): error C2065: 'BLEND_1': undeclared identifier",
+    # "YOU ARE LEAKING THE WORLD"
+    "20:28:29     INFO - WARNING: YOU ARE LEAKING THE WORLD (at least one JSRuntime and everything alive inside it, that is) AT JS_ShutDown TIME.  FIX THIS!",
 )
 
 NON_ERROR_TEST_CASES = (
