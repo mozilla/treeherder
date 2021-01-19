@@ -363,7 +363,10 @@ th {
 }
 
 .alert-summary-dropdown-element {
-  padding: 9px 5px 37px 95px;
+  display: flex;
+  justify-content: flex-end;
+  padding: 9px 5px 37px 0px;
+  margin-right: 5px;
 }
 
 .alert-summary .compare-table {
