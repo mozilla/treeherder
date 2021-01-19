@@ -4,7 +4,7 @@ whitenoise[brotli]  # Used by Whitenoise to provide Brotli-compressed versions o
 Django==3.1.4
 celery==4.4.2   # 4.4.2 required to pass test_retryable_task_throws_retry, celery needed for data ingestion
 simplejson  # import simplejson
-newrelic==5.22.1.152
+newrelic==5.24.0.153
 
 mysqlclient   # Required by Django
 
