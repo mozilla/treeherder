@@ -41,5 +41,6 @@ def test_intermittents_commenter(bug_data):
 
     with open('tests/intermittents_commenter/expected_comment.text', 'r') as comment:
         expected_comment = comment.read()
-
+    print(len(expected_comment))
+    print(len(comment_params[0]['changes']['comment']['body']))
     assert comment_params[0]['changes']['comment']['body'] == expected_comment

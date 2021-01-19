@@ -12,7 +12,7 @@ from jinja2 import Template
 from requests.exceptions import RequestException
 
 from treeherder.intermittents_commenter.constants import COMPONENTS, WHITEBOARD_NEEDSWORK_OWNER
-from treeherder.model.models import BugJobMap, Push
+from treeherder.model.models import BugJobMap, Push, OptionCollection
 
 logger = logging.getLogger(__name__)
 
@@ -99,6 +99,7 @@ class Commenter:
                 failure_rate=round(counts['total'] / float(test_run_count), 3),
                 repositories=counts['per_repository'],
                 platforms=counts['per_platform'],
+                counts=counts,
                 startday=startday,
                 endday=endday.split()[0],
                 weekly_mode=self.weekly_mode,
@@ -275,11 +276,19 @@ class Commenter:
                     "mozilla-inbound": 3
                 },
                 "per_platform": {
-                    "osx-10-10": 4,
-                    "b2g-emu-ics": 1
+                    "windows10-64": 52,
+                    "osx-10-10": 1,
+                    }
+                },
+                "windows10-64": {
+                    "debug": 30,
+                    "ccov": 20,
+                    "asan": 2,
+                },
+                "osx-10-10": {
+                    "debug: 1
                 }
             },
-            ...
         }
         """
         # Min required failures per bug in order to post a comment
@@ -295,22 +304,39 @@ class Commenter:
         bugs = (
             BugJobMap.failures.by_date(startday, endday)
             .filter(bug_id__in=bug_ids)
-            .values('job__repository__name', 'job__machine_platform__platform', 'bug_id')
+            .values(
+                'job__repository__name',
+                'job__machine_platform__platform',
+                'bug_id',
+                'job__option_collection_hash',
+            )
         )
 
+        option_collection_map = OptionCollection.objects.get_option_collection_map()
         bug_map = dict()
+
         for bug in bugs:
             platform = bug['job__machine_platform__platform']
             repo = bug['job__repository__name']
             bug_id = bug['bug_id']
+            build_type = option_collection_map.get(
+                bug['job__option_collection_hash'], 'unknown build'
+            )
+
             if bug_id in bug_map:
                 bug_map[bug_id]['total'] += 1
-                bug_map[bug_id]['per_platform'][platform] += 1
                 bug_map[bug_id]['per_repository'][repo] += 1
+                bug_map[bug_id]['per_platform'][platform] += 1
+                if bug_map[bug_id].get(platform):
+                    bug_map[bug_id][platform][build_type] += 1
+                else:
+                    bug_map[bug_id][platform] = Counter([build_type])
+
             else:
                 bug_map[bug_id] = {}
                 bug_map[bug_id]['total'] = 1
                 bug_map[bug_id]['per_platform'] = Counter([platform])
+                bug_map[bug_id][platform] = Counter([build_type])
                 bug_map[bug_id]['per_repository'] = Counter([repo])
 
         return bug_map, bug_ids
