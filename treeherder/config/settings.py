@@ -1,6 +1,7 @@
 import os
 import platform
 import re
+import sys
 from datetime import timedelta
 from os.path import abspath, dirname, join
 
@@ -26,8 +27,17 @@ IS_WINDOWS = "windows" in platform.system().lower()
 DEVELOPMENT = env.bool("TREEHERDER_DEBUG", default=False)
 LOGGING_LEVEL = env("LOGGING_LEVEL", default="INFO")
 
+# treeherder.config.settings.py is loaded by various projects (e.g. celery)
+# In order to enable the correct integrations for each we will add them on a
+# case by cases, otherwise, the Python SDK will be initialized without any
+integrations = []
+# Enable Django for when we run "./manage.py runserver ..." or
+# "newrelic-admin run-program gunicorn treeherder.config.wsgi:application --timeout 20"
+if 'runserver' in sys.argv or 'treeherder.config.wsgi:application' in sys.argv:
+    integrations = [DjangoIntegration()]
+
 sentry_sdk.init(
-    integrations=[DjangoIntegration()],
+    integrations=integrations,
     environment=env("HEROKU_APP_NAME", default="development"),
     # Set traces_sample_rate to 1.0 to capture 100%
     # of transactions for performance monitoring.
