@@ -431,6 +431,18 @@ class GraphsView extends React.Component {
                     this.getTestData,
                   )
                 }
+                updateTestsAndTimeRange={(newDisplayedTests, newTimeRange) =>
+                  this.setState(
+                    {
+                      timeRange: newTimeRange,
+                      zoom: {},
+                      selectedDataPoint: null,
+                      colors: [...graphColors],
+                      symbols: [...graphSymbols],
+                    },
+                    () => this.getTestData(newDisplayedTests),
+                  )
+                }
                 hasNoData={!testData.length && !loading}
               />
             </Col>

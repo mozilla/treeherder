@@ -71,7 +71,7 @@ export default class TestDataModal extends React.Component {
   }
 
   componentDidUpdate(prevProps, prevState) {
-    const { platforms, platform, availableTags, activeTags } = this.state;
+    const { activeTags, availableTags, platform, platforms } = this.state;
     const { testData } = this.props;
 
     if (prevState.platforms !== platforms) {
@@ -369,8 +369,12 @@ export default class TestDataModal extends React.Component {
   };
 
   submitData = () => {
-    const { selectedTests } = this.state;
-    const { getTestData } = this.props;
+    const { selectedTests, innerTimeRange } = this.state;
+    const {
+      getTestData,
+      timeRange: parentTimeRange,
+      updateTestsAndTimeRange,
+    } = this.props;
 
     const displayedTestParams = selectedTests.map((series) => ({
       repository_name: series.projectName,
@@ -378,12 +382,17 @@ export default class TestDataModal extends React.Component {
       framework_id: parseInt(series.frameworkId, 10),
     }));
 
-    getTestData(displayedTestParams);
     this.setState({
       selectedTests: [],
       selectedUnits: new Set(),
       filterText: '',
     });
+
+    if (innerTimeRange.value !== parentTimeRange.value) {
+      updateTestsAndTimeRange(displayedTestParams, innerTimeRange);
+    } else {
+      getTestData(displayedTestParams);
+    }
     this.closeModal();
   };
 
@@ -446,7 +455,7 @@ export default class TestDataModal extends React.Component {
       seriesData,
       showNoRelatedTests,
     } = this.state;
-    const { frameworks, projects, showModal, updateTimeRange } = this.props;
+    const { frameworks, projects, showModal } = this.props;
     const projectOptions = this.getDropdownOptions(projects);
     const modalOptions = [
       {
@@ -505,7 +514,12 @@ export default class TestDataModal extends React.Component {
                 <Col sm="auto" className="p-2">
                   <TimeRangeDropdown
                     timeRangeText={innerTimeRange.text}
-                    updateTimeRange={updateTimeRange}
+                    updateTimeRange={(newTimeRange) =>
+                      this.setState(
+                        { innerTimeRange: newTimeRange },
+                        this.getPlatforms,
+                      )
+                    }
                   />
                 </Col>
               )}
