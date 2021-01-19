@@ -22,6 +22,8 @@ import PerfSeriesModel from '../../models/perfSeries';
 import { thPerformanceBranches } from '../../helpers/constants';
 import { containsText, getInitialData, getSeriesData } from '../helpers';
 
+import TimeRangeDropdown from './TimeRangeDropdown';
+
 export default class TestDataModal extends React.Component {
   constructor(props) {
     super(props);
@@ -424,23 +426,29 @@ export default class TestDataModal extends React.Component {
 
   render() {
     const {
-      platforms,
-      seriesData,
-      framework,
-      repository_name: repositoryName,
-      platform,
-      includeSubtests,
-      selectedTests,
-      filteredData,
-      relatedTests,
-      showNoRelatedTests,
-      filterText,
-      loading,
-      pinnedProjects,
       activeTags,
       availableTags,
+      filterText,
+      filteredData,
+      framework,
+      includeSubtests,
+      loading,
+      pinnedProjects,
+      platform,
+      platforms,
+      relatedTests,
+      repository_name: repositoryName,
+      selectedTests,
+      seriesData,
+      showNoRelatedTests,
     } = this.state;
-    const { projects, frameworks, showModal } = this.props;
+    const {
+      frameworks,
+      projects,
+      showModal,
+      timeRange,
+      updateTimeRange,
+    } = this.props;
     const projectOptions = this.getDropdownOptions(projects);
     const modalOptions = [
       {
@@ -495,6 +503,14 @@ export default class TestDataModal extends React.Component {
           <Form>
             <Row className="justify-content-start">
               {createDropdowns(modalOptions, 'p-2', true)}
+              {timeRange && (
+                <Col sm="auto" className="p-2">
+                  <TimeRangeDropdown
+                    timeRangeText={timeRange.text}
+                    updateTimeRange={updateTimeRange}
+                  />
+                </Col>
+              )}
               <Col sm="auto" className="p-2">
                 <Button
                   color="darker-info"

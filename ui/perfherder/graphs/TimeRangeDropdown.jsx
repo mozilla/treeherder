@@ -19,8 +19,10 @@ class TimeRangeDropdown extends React.PureComponent {
         <DropdownMenuItems
           options={phTimeRanges.map((item) => item.text)}
           selectedItem={timeRangeText}
-          updateData={(value) =>
-            updateTimeRange(phTimeRanges.find((item) => item.text === value))
+          updateData={(newTimeRangeText) =>
+            updateTimeRange(
+              phTimeRanges.find((item) => item.text === newTimeRangeText),
+            )
           }
         />
       </UncontrolledDropdown>
