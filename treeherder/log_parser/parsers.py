@@ -90,6 +90,7 @@ class ErrorParser(ParserBase):
         r"I[ /](Gecko|TestRunner).*TEST-UNEXPECTED-"
         r"|^TimeoutException: "
         r"|^ImportError: No module named pygtk$"
+        r"|^non-fatal error"
     )
 
     RE_ERR_1_MATCH = re.compile(r"^\d+:\d+:\d+ +(?:ERROR|CRITICAL|FATAL) - ")

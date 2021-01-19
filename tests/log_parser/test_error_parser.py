@@ -90,6 +90,8 @@ NON_ERROR_TEST_CASES = (
     "01:22:41     INFO -  ImportError: No module named pygtk",
     # "^ImportError: No module named pygtk$"
     "01:22:41     INFO -  ImportError: No module named pygtk\r\n",
+    # "^non-fatal error"
+    "non-fatal error removing directory: Contents/_CodeSignature/, rv: 0, err: 39",
 )
 
 
