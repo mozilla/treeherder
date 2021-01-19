@@ -49,21 +49,23 @@ export default class TestDataModal extends React.Component {
       selectedUnits: new Set(),
       activeTags: [],
       availableTags: [],
+      innerTimeRange: this.props.timeRange,
     };
   }
 
   async componentDidMount() {
     const {
       errorMessages,
-      repository_name: repositoryName,
       framework,
+      innerTimeRange,
+      repository_name: repositoryName,
     } = this.state;
-    const { timeRange, getInitialData } = this.props;
+    const { getInitialData } = this.props;
     const updates = await getInitialData(
       errorMessages,
       repositoryName,
       framework,
-      timeRange,
+      innerTimeRange,
     );
     this.setState(updates, this.processOptions);
   }
@@ -100,13 +102,13 @@ export default class TestDataModal extends React.Component {
 
   async getPlatforms() {
     const {
-      repository_name: repositoryName,
-      framework,
       errorMessages,
+      framework,
+      innerTimeRange,
+      repository_name: repositoryName,
     } = this.state;
-    const { timeRange } = this.props;
 
-    const params = { interval: timeRange.value, framework: framework.id };
+    const params = { interval: innerTimeRange.value, framework: framework.id };
     const response = await PerfSeriesModel.getPlatformList(
       repositoryName.name,
       params,
@@ -235,17 +237,18 @@ export default class TestDataModal extends React.Component {
   processOptions = async (relatedTestsMode = false) => {
     const { option, relatedSeries } = this.props.options;
     const {
-      platform,
+      errorMessages,
+      filterText,
       framework,
       includeSubtests,
-      errorMessages,
+      innerTimeRange,
+      platform,
       repository_name: repositoryName,
-      filterText,
     } = this.state;
-    const { timeRange, getSeriesData, testData } = this.props;
+    const { getSeriesData, testData } = this.props;
 
     const params = {
-      interval: timeRange.value,
+      interval: innerTimeRange.value,
       framework: framework.id,
       subtests: +includeSubtests,
     };
@@ -432,6 +435,7 @@ export default class TestDataModal extends React.Component {
       filteredData,
       framework,
       includeSubtests,
+      innerTimeRange,
       loading,
       pinnedProjects,
       platform,
@@ -442,13 +446,7 @@ export default class TestDataModal extends React.Component {
       seriesData,
       showNoRelatedTests,
     } = this.state;
-    const {
-      frameworks,
-      projects,
-      showModal,
-      timeRange,
-      updateTimeRange,
-    } = this.props;
+    const { frameworks, projects, showModal, updateTimeRange } = this.props;
     const projectOptions = this.getDropdownOptions(projects);
     const modalOptions = [
       {
@@ -503,10 +501,10 @@ export default class TestDataModal extends React.Component {
           <Form>
             <Row className="justify-content-start">
               {createDropdowns(modalOptions, 'p-2', true)}
-              {timeRange && (
+              {innerTimeRange && (
                 <Col sm="auto" className="p-2">
                   <TimeRangeDropdown
-                    timeRangeText={timeRange.text}
+                    timeRangeText={innerTimeRange.text}
                     updateTimeRange={updateTimeRange}
                   />
                 </Col>
