@@ -679,26 +679,27 @@ export default class TestDataModal extends React.Component {
 }
 
 TestDataModal.propTypes = {
-  projects: PropTypes.arrayOf(PropTypes.shape({})).isRequired,
-  plottedUnits: PropTypes.instanceOf(Set).isRequired,
-  timeRange: PropTypes.shape({}).isRequired,
   getTestData: PropTypes.func.isRequired,
+  plottedUnits: PropTypes.instanceOf(Set).isRequired,
+  projects: PropTypes.arrayOf(PropTypes.shape({})).isRequired,
+  showModal: PropTypes.bool.isRequired,
+  timeRange: PropTypes.shape({}).isRequired,
+  toggle: PropTypes.func.isRequired,
+  updateTestsAndTimeRange: PropTypes.func.isRequired,
+  frameworks: PropTypes.arrayOf(PropTypes.shape({})),
+  getInitialData: PropTypes.func,
+  getSeriesData: PropTypes.func,
   options: PropTypes.shape({
     option: PropTypes.string,
     relatedSeries: PropTypes.shape({}),
   }),
   testData: PropTypes.arrayOf(PropTypes.shape({})),
-  frameworks: PropTypes.arrayOf(PropTypes.shape({})),
-  showModal: PropTypes.bool.isRequired,
-  toggle: PropTypes.func.isRequired,
-  getInitialData: PropTypes.func,
-  getSeriesData: PropTypes.func,
 };
 
 TestDataModal.defaultProps = {
-  options: undefined,
-  testData: [],
   frameworks: [],
   getInitialData,
   getSeriesData,
+  options: undefined,
+  testData: [],
 };
