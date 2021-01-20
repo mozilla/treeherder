@@ -22,9 +22,13 @@ def compare_shas(owner, repo, base, head):
     return fetch_api("repos/{}/{}/compare/{}...{}".format(owner, repo, base, head))
 
 
-def commits_info(owner, repo, params=None):
+def get_all_commits(owner, repo, params=None):
     return fetch_api("repos/{}/{}/commits".format(owner, repo), params)
 
 
-def commit_info(owner, repo, sha, params=None):
+def get_commit(owner, repo, sha, params=None):
     return fetch_api("repos/{}/{}/commits/{}".format(owner, repo, sha), params)
+
+
+def get_pull_request(owner, repo, sha, params=None):
+    return fetch_api("repos/{}/{}/pulls/{}/commits".format(owner, repo, sha), params)

@@ -7,7 +7,8 @@ from django.core.exceptions import ObjectDoesNotExist
 from treeherder.etl.common import to_timestamp
 from treeherder.etl.push import store_push_data
 from treeherder.model.models import Repository
-from treeherder.utils.github import fetch_json
+from treeherder.utils.github import compare_shas, get_pull_request
+from treeherder.utils.http import fetch_json
 
 env = environ.Env()
 logger = logging.getLogger(__name__)
@@ -61,12 +62,6 @@ class PushLoader:
 
 
 class GithubTransformer:
-
-    CREDENTIALS = {
-        "client_id": env("GITHUB_CLIENT_ID", default=None),
-        "client_secret": env("GITHUB_CLIENT_SECRET", default=None),
-    }
-
     def __init__(self, message_body):
         self.message_body = message_body
         self.repo_url = self.get_repo()
@@ -86,13 +81,8 @@ class GithubTransformer:
         )
         return info
 
-    def fetch_push(self, url, repository):
-        params = {}
-        params.update(self.CREDENTIALS)
-
-        logger.info("Fetching push details: %s", url)
-
-        commits = self.get_cleaned_commits(fetch_json(url, params))
+    def process_push(self, push_data):
+        commits = self.get_cleaned_commits(push_data)
         head_commit = commits[-1]
         push = {
             "revision": head_commit["sha"],
@@ -159,8 +149,6 @@ class GithubPushTransformer(GithubTransformer):
     #     }
     # }
 
-    URL_BASE = "https://api.github.com/repos/{}/{}/compare/{}...{}"
-
     def get_branch(self):
         """
         Tag pushes don't use the actual branch, just the string "tag"
@@ -171,13 +159,13 @@ class GithubPushTransformer(GithubTransformer):
         return super(GithubPushTransformer, self).get_branch()
 
     def transform(self, repository):
-        push_url = self.URL_BASE.format(
+        push_data = compare_shas(
             self.message_body["organization"],
             self.message_body["repository"],
             self.message_body["details"]["event.base.sha"],
             self.message_body["details"]["event.head.sha"],
         )
-        return self.fetch_push(push_url, repository)
+        return self.process_push(push_data)
 
     def get_cleaned_commits(self, compare):
         return compare["commits"]
@@ -209,8 +197,6 @@ class GithubPullRequestTransformer(GithubTransformer):
     #     "version": 1
     # }
 
-    URL_BASE = "https://api.github.com/repos/{}/{}/pulls/{}/commits"
-
     def get_branch(self):
         """
         Pull requests don't use the actual branch, just the string "pull request"
@@ -221,13 +207,13 @@ class GithubPullRequestTransformer(GithubTransformer):
         return self.message_body["details"]["event.base.repo.url"].replace(".git", "")
 
     def transform(self, repository):
-        pr_url = self.URL_BASE.format(
+        pr_data = get_pull_request(
             self.message_body["organization"],
             self.message_body["repository"],
             self.message_body["details"]["event.pullNumber"],
         )
 
-        return self.fetch_push(pr_url, repository)
+        return self.process_push(pr_data)
 
 
 class HgPushTransformer:
