@@ -1,5 +1,8 @@
 import copy
 import functools
+import logging
+
+logger = logging.getLogger(__name__)
 
 
 def analyze(revision_data, weight_fn=None):
@@ -82,10 +85,11 @@ class RevisionDatum:
     This class represents a specific revision and the set of values for it
     """
 
-    def __init__(self, push_timestamp, push_id, values):
+    def __init__(self, push_timestamp, push_id, values, timestmap_str=None):
 
         # Date code was pushed
         self.push_timestamp = push_timestamp
+        self.timestamp_str = timestmap_str
 
         # What revision this data is for (usually, but not guaranteed
         # to be increasing with push_timestamp)
@@ -108,12 +112,18 @@ class RevisionDatum:
 
     def __repr__(self):
         values_str = '[ %s ]' % ', '.join(['%.3f' % value for value in self.values])
-        return "<%s: %s, %s, %.3f, %s>" % (
-            self.push_timestamp,
-            self.push_id,
-            values_str,
+        # return "<%s: %s, %s, %.3f, %s>" % (
+        #     self.push_timestamp,
+        #     self.push_id,
+        #     values_str,
+        #     self.t,
+        #     self.change_detected,
+        # )
+        return "(timestamp %s, T_Value %.3f, change detected %s, Values %s)" % (
+            self.timestamp_str,
             self.t,
             self.change_detected,
+            values_str,
         )
 
 
@@ -124,6 +134,8 @@ def detect_changes(data, min_back_window=12, max_back_window=24, fore_window=12,
 
     last_seen_regression = 0
     for i in range(1, len(data)):
+        if i == 5:
+            logger.info(f'Current data is: {data[i].timestamp_str}')
         di = data[i]
 
         # keep on getting previous data until we've either got at least 12
@@ -141,6 +153,8 @@ def detect_changes(data, min_back_window=12, max_back_window=24, fore_window=12,
         ):
             jw.append(data[prev_indice])
             di.amount_prev_data += len(jw[-1].values)
+            if i == 5:
+                logger.info(f'Previous data is: {jw[-1].timestamp_str}')
             prev_indice -= 1
 
         # accumulate present + future data until we've got at least 12 values
@@ -155,6 +169,8 @@ def detect_changes(data, min_back_window=12, max_back_window=24, fore_window=12,
         di.historical_stats = analyze(jw)
         di.forward_stats = analyze(kw)
 
+        if i == 5:
+            logger.info(f'Calculating T value with {jw}')
         di.t = abs(calc_t(jw, kw, linear_weights))
         # add additional historical data points next time if we
         # haven't detected a likely regression
@@ -162,6 +178,7 @@ def detect_changes(data, min_back_window=12, max_back_window=24, fore_window=12,
             last_seen_regression = 0
         else:
             last_seen_regression += 1
+        logger.info(f'last_seen_regression: {last_seen_regression}')
 
     # Now that the t-test scores are calculated, go back through the data to
     # find where changes most likely happened.
@@ -171,9 +188,14 @@ def detect_changes(data, min_back_window=12, max_back_window=24, fore_window=12,
         # if we don't have enough data yet, skip for now (until more comes
         # in)
         if di.amount_prev_data < min_back_window or di.amount_next_data < fore_window:
+            logger.info(f'Not enough data for {di}')
+            logger.info(f'amount_prev_data: {di.amount_prev_data}')
+            logger.info(f'amount_next_data: {di.amount_next_data}')
             continue
 
         if di.t <= t_threshold:
+            logger.info(f'T value smaller than T threshold for {di}')
+            logger.info(f'di.t is {di.t}')
             continue
 
         # Check the adjacent points

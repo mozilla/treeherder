@@ -1,7 +1,7 @@
 from django.core.management.base import BaseCommand, CommandError
 
 from treeherder.model import models
-from treeherder.perf.alerts import generate_new_alerts_in_series
+from treeherder.perf.alerts import simulate_alert_generation
 from treeherder.perf.models import PerformanceSignature
 
 
@@ -33,7 +33,7 @@ class Command(BaseCommand):
             signatures = PerformanceSignature.objects.filter(repository=repository)
 
             if options['signature']:
-                signatures_to_process = signatures.filter(signature_hash__in=options['signature'])
+                signatures_to_process = signatures.filter(id__in=options['signature'])
             else:
                 hashes_to_ignore = set()
                 # if doing everything, only handle series which are not a
@@ -51,4 +51,4 @@ class Command(BaseCommand):
                 ]
 
             for signature in signatures_to_process:
-                generate_new_alerts_in_series(signature)
+                simulate_alert_generation(signature)

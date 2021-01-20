@@ -1049,16 +1049,16 @@
     "pk": 77,
     "model": "model.repository",
     "fields": {
-      "dvcs_type": "hg",
-      "name": "autoland",
-      "url": "https://hg.mozilla.org/integration/autoland",
       "active_status": "active",
       "codebase": "gecko",
-      "repository_group": 1,
       "description": "The destination for automatically landed Firefox commits.",
-      "performance_alerts_enabled": true,
+      "dvcs_type": "hg",
       "expire_performance_data": false,
-      "tc_root_url": "https://firefox-ci-tc.services.mozilla.com"
+      "name": "autoland",
+      "performance_alerts_enabled": true,
+      "repository_group": 1,
+      "tc_root_url": "https://firefox-ci-tc.services.mozilla.com",
+      "url": "https://hg.mozilla.org/integration/autoland"
     }
   },
   {
@@ -1508,15 +1508,15 @@
     "pk": 108,
     "model": "model.repository",
     "fields": {
+      "active_status": "active",
+      "branch": "master",
+      "codebase": "fenix",
+      "description": "Fenix is not your parent's Android browser",
       "dvcs_type": "git",
       "name": "fenix",
-      "url": "https://github.com/mozilla-mobile/fenix",
-      "branch": "master",
-      "active_status": "active",
-      "codebase": "fenix",
       "repository_group": 11,
-      "description": "Fenix is not your parent's Android browser",
-      "tc_root_url": "https://firefox-ci-tc.services.mozilla.com"
+      "tc_root_url": "https://firefox-ci-tc.services.mozilla.com",
+      "url": "https://github.com/mozilla-mobile/fenix"
     }
   },
   {
