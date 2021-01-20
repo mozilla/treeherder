@@ -362,13 +362,6 @@ th {
   padding: 8px;
 }
 
-.alert-summary-dropdown-element {
-  display: flex;
-  justify-content: flex-end;
-  padding: 9px 5px 37px 0px;
-  margin-right: 5px;
-}
-
 .alert-summary .compare-table {
   margin-bottom: 0;
 }
