@@ -22,7 +22,6 @@ services:
       - PULSE_AUTO_DELETE_QUEUES=True
       - REDIS_URL=redis://redis:6379
       - SITE_URL=http://backend:8000/
-      - TREEHERDER_DEBUG=True
       - NEW_RELIC_INSIGHTS_API_KEY=${NEW_RELIC_INSIGHTS_API_KEY:-}
     entrypoint: './docker/entrypoint.sh'
     # We *ONLY* initialize the data when we're running the backend

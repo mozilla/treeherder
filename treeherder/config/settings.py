@@ -23,8 +23,9 @@ env = environ.Env()
 IS_WINDOWS = "windows" in platform.system().lower()
 
 # Top Level configuration
-# This is True when running inside Docker or within a virtualenv (local development)
-DEVELOPMENT = env.bool("TREEHERDER_DEBUG", default=bool(os.environ.get('VIRTUAL_ENV')))
+# We're only in production if we're executing within Heroku
+# Executing via Docker/venv or the CI should count as development environment
+DEVELOPMENT = False if os.environ.get("HEROKU_APP_NAME") else env.bool("DEVELOPMENT", default=True)
 LOGGING_LEVEL = env("LOGGING_LEVEL", default="INFO")
 
 # treeherder.config.settings.py is loaded by various projects (e.g. celery)
@@ -42,11 +43,16 @@ sentry_sdk.init(
     environment=env("HEROKU_APP_NAME", default="development"),
     # Set traces_sample_rate to 1.0 to capture 100%
     # of transactions for performance monitoring.
-    # We recommend adjusting this value in production,
-    traces_sample_rate=1.0 if DEVELOPMENT else 0.1,
+    # If you need less transactions in production reduce this value
+    traces_sample_rate=1.0,
     # When doing development Sentry should not create a release since some of these commits
     # in our local checkout will never make it to master (e.g. squashing or history rewriting)
-    release="dev" if DEVELOPMENT else None
+    release="dev" if DEVELOPMENT else None,
+    # If you wish to associate users to errors (since we are using
+    # django.contrib.auth).
+    # If you need to, ou can scrub data via the UI:
+    # https://docs.sentry.io/product/data-management-settings/server-side-scrubbing/
+    send_default_pii=True,
 )
 
 NEW_RELIC_INSIGHTS_API_KEY = env("NEW_RELIC_INSIGHTS_API_KEY", default=None)
