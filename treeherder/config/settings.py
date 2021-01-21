@@ -25,7 +25,9 @@ IS_WINDOWS = "windows" in platform.system().lower()
 # Top Level configuration
 # We're only in production if we're executing within Heroku
 # Executing via Docker/venv or the CI should count as development environment
-DEVELOPMENT = False if os.environ.get("HEROKU_APP_NAME") else env.bool("DEVELOPMENT", default=True)
+# This change is important since we want all services in docker-compose to report
+# as a development environment
+DEVELOPMENT = False if os.environ.get("HEROKU_APP_NAME") else env.bool("TREEHERDER_DEVELOPMENT", default=True)
 LOGGING_LEVEL = env("LOGGING_LEVEL", default="INFO")
 
 # treeherder.config.settings.py is loaded by various projects (e.g. celery)
