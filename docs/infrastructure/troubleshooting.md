@@ -77,10 +77,10 @@ See the Heroku [logging] and [error codes] documentation for help understanding 
 
 With Sentry, you can now track all errors produced and the performance of every transaction.
 You can also create alerts and assign on-going errors to a team member.
-
 Sentry also tracks releases automaticaly to help you determine which release introduced an error.
-Errors reported from the local development environment will report to the `dev` release instead of
-a commit hash because we define `SENTRY_RELEASE` in the Docker compose file.
+
+NOTE: The SDKs, when doing local development, have been configured to report to a release called `dev`
+instead of letting it report released based on the commit hash of your local checkout.
 
 ## Scenarios
 

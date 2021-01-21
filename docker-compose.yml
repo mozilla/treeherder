@@ -25,7 +25,7 @@ services:
       - SITE_URL=http://backend:8000/
       - TREEHERDER_DEBUG=True
       - NEW_RELIC_INSIGHTS_API_KEY=${NEW_RELIC_INSIGHTS_API_KEY:-}
-      - SENTRY_DSN=${SENTRY_DSN:-}
+      - SENTRY_DSN=${SENTRY_DSN_BACKEND:-}
     entrypoint: './docker/entrypoint.sh'
     # We *ONLY* initialize the data when we're running the backend
     command: './initialize_data.sh ./manage.py runserver 0.0.0.0:8000'
@@ -51,6 +51,7 @@ services:
     environment:
       # Allows `.neutrinorc.js` to adjust filesystem watching and browser opening behaviour.
       - IN_DOCKER=1
+      - SENTRY_DSN=${SENTRY_DSN_FRONTEND:-}
     # Installing JS dependencies at runtime so that they share the `node_modules` from the
     # host, improving speed (both install and build due to the webpack cache) and ensuring
     # the host copy stays in sync (for people that switch back and forth between UI-only
