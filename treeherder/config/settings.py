@@ -23,8 +23,8 @@ env = environ.Env()
 IS_WINDOWS = "windows" in platform.system().lower()
 
 # Top Level configuration
-# XXX: This, in reality, is only True when running inside Docker
-DEVELOPMENT = env.bool("TREEHERDER_DEBUG", default=False)
+# This is True when running inside Docker or within a virtualenv (local development)
+DEVELOPMENT = env.bool("TREEHERDER_DEBUG", default=bool(os.environ.get('VIRTUAL_ENV')))
 LOGGING_LEVEL = env("LOGGING_LEVEL", default="INFO")
 
 # treeherder.config.settings.py is loaded by various projects (e.g. celery)
