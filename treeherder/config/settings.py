@@ -37,7 +37,7 @@ if 'runserver' in sys.argv or 'treeherder.config.wsgi:application' in sys.argv:
     integrations = [DjangoIntegration()]
 
 sentry_sdk.init(
-    dsn="https://9aee9ca47c5944f1a7d8f15e6835cddd@o493645.ingest.sentry.io/5568954"
+    dsn="https://9aee9ca47c5944f1a7d8f15e6835cddd@o493645.ingest.sentry.io/5568954",
     integrations=integrations,
     environment=env("HEROKU_APP_NAME", default="development"),
     # Set traces_sample_rate to 1.0 to capture 100%
