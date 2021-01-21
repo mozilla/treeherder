@@ -11,7 +11,7 @@ urlpatterns = [
     re_path(r'', TemplateView.as_view(template_name='index.html')),
 ]
 
-if settings.DEBUG:
+if settings.DEVELOPMENT:
     import debug_toolbar
 
     urlpatterns += [
