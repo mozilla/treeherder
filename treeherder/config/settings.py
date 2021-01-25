@@ -46,7 +46,7 @@ if 'runserver' in sys.argv or 'treeherder.config.wsgi:application' in sys.argv:
 # This can be changed later if deemed useful and there's enough perf transactions per month
 if not ('tests/' in sys.argv or env.bool("CIRCLECI", default=False)):
     sentry_sdk.init(
-        dsn="https://9aee9ca47c5944f1a7d8f15e6835cddd@o493645.ingest.sentry.io/5568954",
+        dsn="https://6935c044712e4a73921b8500772c346b@o493645.ingest.sentry.io/5606996",
         integrations=integrations,
         environment=env("HEROKU_APP_NAME", default="development"),
         # Set traces_sample_rate to 1.0 to capture 100%
