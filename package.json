@@ -74,7 +74,7 @@
     "@testing-library/react": "11.0.4",
     "codecov": "3.7.2",
     "enzyme": "3.9.0",
-    "enzyme-adapter-react-16": "1.15.5",
+    "enzyme-adapter-react-16": "1.15.6",
     "eslint": "7.0.0",
     "eslint-config-airbnb": "18.0.1",
     "eslint-config-prettier": "6.7.0",
