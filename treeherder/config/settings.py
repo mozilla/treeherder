@@ -42,8 +42,9 @@ integrations = []
 if 'runserver' in sys.argv or 'treeherder.config.wsgi:application' in sys.argv:
     integrations = [DjangoIntegration()]
 
-# Do not report error or transactions if executing within the CI
-if not env.bool("CIRCLECI", default=True):
+# Do not report error or transactions if executing within the CI or running tests
+# This can be changed later if deemed useful and there's enough perf transactions per month
+if not ('tests/' in sys.argv or env.bool("CIRCLECI", default=False)):
     sentry_sdk.init(
         dsn="https://9aee9ca47c5944f1a7d8f15e6835cddd@o493645.ingest.sentry.io/5568954",
         integrations=integrations,
