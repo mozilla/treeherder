@@ -233,7 +233,7 @@ export default class AlertTable extends React.Component {
                       />
                     </FormGroup>
                   </Col>
-                  <Col className="alert-summary-dropdown-element">
+                  <Col className="d-flex justify-content-end p-2">
                     <StatusDropdown
                       alertSummary={alertSummary}
                       updateState={(state) => this.setState(state)}

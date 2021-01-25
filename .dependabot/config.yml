@@ -5,7 +5,7 @@ update_configs:
     directory: '/requirements'
     update_schedule: 'live'
     default_reviewers:
-      - 'camd'
+      - 'sarah-clements'
     default_labels:
       - 'dependencies'
       - 'python'

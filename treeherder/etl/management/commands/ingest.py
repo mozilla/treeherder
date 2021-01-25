@@ -370,12 +370,12 @@ def ingest_git_pushes(project, dry_run=False):
     logger.info("--> Converting Github commits to pushes")
     _repo = repo_meta(project)
     owner, repo = _repo["owner"], _repo["repo"]
-    github_commits = github.commits_info(owner, repo)
+    github_commits = github.get_all_commits(owner, repo)
     not_push_revision = []
     push_revision = []
     push_to_date = {}
     for _commit in github_commits:
-        info = github.commit_info(owner, repo, _commit["sha"])
+        info = github.get_commit(owner, repo, _commit["sha"])
         # Revisions that are marked as non-push should be ignored
         if _commit["sha"] in not_push_revision:
             logger.debug("Not a revision of a push: {}".format(_commit["sha"]))

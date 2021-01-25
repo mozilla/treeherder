@@ -22,6 +22,8 @@ import PerfSeriesModel from '../../models/perfSeries';
 import { thPerformanceBranches } from '../../helpers/constants';
 import { containsText, getInitialData, getSeriesData } from '../helpers';
 
+import TimeRangeDropdown from './TimeRangeDropdown';
+
 export default class TestDataModal extends React.Component {
   constructor(props) {
     super(props);
@@ -47,27 +49,29 @@ export default class TestDataModal extends React.Component {
       selectedUnits: new Set(),
       activeTags: [],
       availableTags: [],
+      innerTimeRange: this.props.timeRange,
     };
   }
 
   async componentDidMount() {
     const {
       errorMessages,
-      repository_name: repositoryName,
       framework,
+      innerTimeRange,
+      repository_name: repositoryName,
     } = this.state;
-    const { timeRange, getInitialData } = this.props;
+    const { getInitialData } = this.props;
     const updates = await getInitialData(
       errorMessages,
       repositoryName,
       framework,
-      timeRange,
+      innerTimeRange,
     );
     this.setState(updates, this.processOptions);
   }
 
   componentDidUpdate(prevProps, prevState) {
-    const { platforms, platform, availableTags, activeTags } = this.state;
+    const { activeTags, availableTags, platform, platforms } = this.state;
     const { testData } = this.props;
 
     if (prevState.platforms !== platforms) {
@@ -98,13 +102,13 @@ export default class TestDataModal extends React.Component {
 
   async getPlatforms() {
     const {
-      repository_name: repositoryName,
-      framework,
       errorMessages,
+      framework,
+      innerTimeRange,
+      repository_name: repositoryName,
     } = this.state;
-    const { timeRange } = this.props;
 
-    const params = { interval: timeRange.value, framework: framework.id };
+    const params = { interval: innerTimeRange.value, framework: framework.id };
     const response = await PerfSeriesModel.getPlatformList(
       repositoryName.name,
       params,
@@ -233,17 +237,18 @@ export default class TestDataModal extends React.Component {
   processOptions = async (relatedTestsMode = false) => {
     const { option, relatedSeries } = this.props.options;
     const {
-      platform,
+      errorMessages,
+      filterText,
       framework,
       includeSubtests,
-      errorMessages,
+      innerTimeRange,
+      platform,
       repository_name: repositoryName,
-      filterText,
     } = this.state;
-    const { timeRange, getSeriesData, testData } = this.props;
+    const { getSeriesData, testData } = this.props;
 
     const params = {
-      interval: timeRange.value,
+      interval: innerTimeRange.value,
       framework: framework.id,
       subtests: +includeSubtests,
     };
@@ -364,8 +369,12 @@ export default class TestDataModal extends React.Component {
   };
 
   submitData = () => {
-    const { selectedTests } = this.state;
-    const { getTestData } = this.props;
+    const { selectedTests, innerTimeRange } = this.state;
+    const {
+      getTestData,
+      timeRange: parentTimeRange,
+      updateTestsAndTimeRange,
+    } = this.props;
 
     const displayedTestParams = selectedTests.map((series) => ({
       repository_name: series.projectName,
@@ -373,12 +382,17 @@ export default class TestDataModal extends React.Component {
       framework_id: parseInt(series.frameworkId, 10),
     }));
 
-    getTestData(displayedTestParams);
     this.setState({
       selectedTests: [],
       selectedUnits: new Set(),
       filterText: '',
     });
+
+    if (innerTimeRange.value !== parentTimeRange.value) {
+      updateTestsAndTimeRange(displayedTestParams, innerTimeRange);
+    } else {
+      getTestData(displayedTestParams);
+    }
     this.closeModal();
   };
 
@@ -424,23 +438,24 @@ export default class TestDataModal extends React.Component {
 
   render() {
     const {
-      platforms,
-      seriesData,
-      framework,
-      repository_name: repositoryName,
-      platform,
-      includeSubtests,
-      selectedTests,
-      filteredData,
-      relatedTests,
-      showNoRelatedTests,
-      filterText,
-      loading,
-      pinnedProjects,
       activeTags,
       availableTags,
+      filterText,
+      filteredData,
+      framework,
+      includeSubtests,
+      innerTimeRange,
+      loading,
+      pinnedProjects,
+      platform,
+      platforms,
+      relatedTests,
+      repository_name: repositoryName,
+      selectedTests,
+      seriesData,
+      showNoRelatedTests,
     } = this.state;
-    const { projects, frameworks, showModal } = this.props;
+    const { frameworks, projects, showModal } = this.props;
     const projectOptions = this.getDropdownOptions(projects);
     const modalOptions = [
       {
@@ -495,6 +510,19 @@ export default class TestDataModal extends React.Component {
           <Form>
             <Row className="justify-content-start">
               {createDropdowns(modalOptions, 'p-2', true)}
+              {innerTimeRange && (
+                <Col sm="auto" className="p-2">
+                  <TimeRangeDropdown
+                    timeRangeText={innerTimeRange.text}
+                    updateTimeRange={(newTimeRange) =>
+                      this.setState(
+                        { innerTimeRange: newTimeRange },
+                        this.getPlatforms,
+                      )
+                    }
+                  />
+                </Col>
+              )}
               <Col sm="auto" className="p-2">
                 <Button
                   color="darker-info"
@@ -651,26 +679,27 @@ export default class TestDataModal extends React.Component {
 }
 
 TestDataModal.propTypes = {
-  projects: PropTypes.arrayOf(PropTypes.shape({})).isRequired,
-  plottedUnits: PropTypes.instanceOf(Set).isRequired,
-  timeRange: PropTypes.shape({}).isRequired,
   getTestData: PropTypes.func.isRequired,
+  plottedUnits: PropTypes.instanceOf(Set).isRequired,
+  projects: PropTypes.arrayOf(PropTypes.shape({})).isRequired,
+  showModal: PropTypes.bool.isRequired,
+  timeRange: PropTypes.shape({}).isRequired,
+  toggle: PropTypes.func.isRequired,
+  updateTestsAndTimeRange: PropTypes.func.isRequired,
+  frameworks: PropTypes.arrayOf(PropTypes.shape({})),
+  getInitialData: PropTypes.func,
+  getSeriesData: PropTypes.func,
   options: PropTypes.shape({
     option: PropTypes.string,
     relatedSeries: PropTypes.shape({}),
   }),
   testData: PropTypes.arrayOf(PropTypes.shape({})),
-  frameworks: PropTypes.arrayOf(PropTypes.shape({})),
-  showModal: PropTypes.bool.isRequired,
-  toggle: PropTypes.func.isRequired,
-  getInitialData: PropTypes.func,
-  getSeriesData: PropTypes.func,
 };
 
 TestDataModal.defaultProps = {
-  options: undefined,
-  testData: [],
   frameworks: [],
   getInitialData,
   getSeriesData,
+  options: undefined,
+  testData: [],
 };
