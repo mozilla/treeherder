@@ -21,7 +21,7 @@ const extraOptions =
 if (!process.env.CIRCLECI) {
   Sentry.init({
     dsn:
-      'https://c6385f3aab0c4340b90ec2db9e9e3544@o493645.ingest.sentry.io/5567629',
+      'https://c5ee41059c214955963ba76695cb2232@o510822.ingest.sentry.io/5607052',
     integrations: [new Integrations.BrowserTracing()],
     environment:
       process.env.NODE_ENV === 'production'
