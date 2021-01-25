@@ -23,14 +23,7 @@ env = environ.Env()
 IS_WINDOWS = "windows" in platform.system().lower()
 
 # Top Level configuration
-# We're only in production if we're executing within Heroku
-# Executing via Docker/venv or the CI should count as development environment
-# This change is important since we want all services in docker-compose to report
-# as a development environment
-# Setting TREEHERDER_DEVELOPMENT is to allow
-DEVELOPMENT = (
-    False if os.environ.get("HEROKU_APP_NAME") else env.bool("TREEHERDER_DEVELOPMENT", default=True)
-)
+DEBUG = env.bool("TREEHERDER_DEBUG", default=False)
 LOGGING_LEVEL = env("LOGGING_LEVEL", default="INFO")
 
 # treeherder.config.settings.py is loaded by various projects (e.g. celery)
@@ -55,7 +48,7 @@ if not ('tests/' in sys.argv or env.bool("CIRCLECI", default=False)):
         traces_sample_rate=1.0,
         # When doing development Sentry should not create a release since some of these commits
         # in our local checkout will never make it to master (e.g. squashing or history rewriting)
-        release="dev" if DEVELOPMENT else None,
+        release=None if os.environ.get("HEROKU_APP_NAME") else "dev",
         # If you wish to associate users to errors (since we are using
         # django.contrib.auth).
         # If you need to, you can scrub data via the UI:
@@ -124,7 +117,7 @@ INSTALLED_APPS = [
 ]
 
 # Docker/outside-of-Docker/CircleCI vs Heroku/Review-app
-if DEVELOPMENT:
+if DEBUG:
     NEW_RELIC_DEVELOPER_MODE = True
     # This controls whether the Django debug toolbar should be shown or not
     # https://django-debug-toolbar.readthedocs.io/en/latest/configuration.html#show-toolbar-callback
@@ -155,7 +148,7 @@ MIDDLEWARE = [
         # to be served by WhiteNoise, avoiding the need for Apache/nginx on Heroku.
         'treeherder.middleware.CustomWhiteNoise',
         'django.middleware.gzip.GZipMiddleware',
-        'debug_toolbar.middleware.DebugToolbarMiddleware' if DEVELOPMENT else False,
+        'debug_toolbar.middleware.DebugToolbarMiddleware' if DEBUG else False,
         'django.contrib.sessions.middleware.SessionMiddleware',
         'django.middleware.common.CommonMiddleware',
         'django.middleware.csrf.CsrfViewMiddleware',
