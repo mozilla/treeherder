@@ -123,7 +123,7 @@ if DEBUG:
     # https://django-debug-toolbar.readthedocs.io/en/latest/configuration.html#show-toolbar-callback
     # "You can provide your own function callback(request) which returns True or False."
     DEBUG_TOOLBAR_CONFIG = {
-        'SHOW_TOOLBAR_CALLBACK': lambda request: True,
+        'SHOW_TOOLBAR_CALLBACK': lambda request: DEBUG,
     }
     INSTALLED_APPS.append('debug_toolbar')
     INSTALLED_APPS.append('django_extensions')
