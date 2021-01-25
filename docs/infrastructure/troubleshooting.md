@@ -80,7 +80,7 @@ You can also create alerts and assign on-going errors to a team member.
 Sentry also tracks releases automaticaly to help you determine which release introduced an error.
 
 NOTE: The SDKs, when doing local development, have been configured to report to a release called `dev`
-instead of letting it report released based on the commit hash of your local checkout.
+instead of letting it report releases based on a commit hash of your local checkout.
 
 ## Scenarios
 

@@ -27,7 +27,10 @@ IS_WINDOWS = "windows" in platform.system().lower()
 # Executing via Docker/venv or the CI should count as development environment
 # This change is important since we want all services in docker-compose to report
 # as a development environment
-DEVELOPMENT = False if os.environ.get("HEROKU_APP_NAME") else env.bool("TREEHERDER_DEVELOPMENT", default=True)
+# Setting TREEHERDER_DEVELOPMENT is to allow
+DEVELOPMENT = (
+    False if os.environ.get("HEROKU_APP_NAME") else env.bool("TREEHERDER_DEVELOPMENT", default=True)
+)
 LOGGING_LEVEL = env("LOGGING_LEVEL", default="INFO")
 
 # treeherder.config.settings.py is loaded by various projects (e.g. celery)
@@ -52,7 +55,7 @@ sentry_sdk.init(
     release="dev" if DEVELOPMENT else None,
     # If you wish to associate users to errors (since we are using
     # django.contrib.auth).
-    # If you need to, ou can scrub data via the UI:
+    # If you need to, you can scrub data via the UI:
     # https://docs.sentry.io/product/data-management-settings/server-side-scrubbing/
     send_default_pii=True,
 )
