@@ -42,23 +42,25 @@ integrations = []
 if 'runserver' in sys.argv or 'treeherder.config.wsgi:application' in sys.argv:
     integrations = [DjangoIntegration()]
 
-sentry_sdk.init(
-    dsn="https://9aee9ca47c5944f1a7d8f15e6835cddd@o493645.ingest.sentry.io/5568954",
-    integrations=integrations,
-    environment=env("HEROKU_APP_NAME", default="development"),
-    # Set traces_sample_rate to 1.0 to capture 100%
-    # of transactions for performance monitoring.
-    # If you need less transactions in production reduce this value
-    traces_sample_rate=1.0,
-    # When doing development Sentry should not create a release since some of these commits
-    # in our local checkout will never make it to master (e.g. squashing or history rewriting)
-    release="dev" if DEVELOPMENT else None,
-    # If you wish to associate users to errors (since we are using
-    # django.contrib.auth).
-    # If you need to, you can scrub data via the UI:
-    # https://docs.sentry.io/product/data-management-settings/server-side-scrubbing/
-    send_default_pii=True,
-)
+# Do not report error or transactions if executing within the CI
+if not env.bool("CIRCLECI", default=True):
+    sentry_sdk.init(
+        dsn="https://9aee9ca47c5944f1a7d8f15e6835cddd@o493645.ingest.sentry.io/5568954",
+        integrations=integrations,
+        environment=env("HEROKU_APP_NAME", default="development"),
+        # Set traces_sample_rate to 1.0 to capture 100%
+        # of transactions for performance monitoring.
+        # If you need less transactions in production reduce this value
+        traces_sample_rate=1.0,
+        # When doing development Sentry should not create a release since some of these commits
+        # in our local checkout will never make it to master (e.g. squashing or history rewriting)
+        release="dev" if DEVELOPMENT else None,
+        # If you wish to associate users to errors (since we are using
+        # django.contrib.auth).
+        # If you need to, you can scrub data via the UI:
+        # https://docs.sentry.io/product/data-management-settings/server-side-scrubbing/
+        send_default_pii=True,
+    )
 
 NEW_RELIC_INSIGHTS_API_KEY = env("NEW_RELIC_INSIGHTS_API_KEY", default=None)
 NEW_RELIC_INSIGHTS_API_URL = 'https://insights-api.newrelic.com/v1/accounts/677903/query'
