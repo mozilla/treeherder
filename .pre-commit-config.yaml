@@ -7,10 +7,6 @@ repos:
     rev: v0.7.1.1
     hooks:
       - id: shellcheck
-  - repo: https://github.com/prettier/prettier
-    rev: 2.1.1
-    hooks:
-      - id: prettier
   - repo: https://github.com/igorshubovych/markdownlint-cli
     rev: v0.23.2
     hooks:
