@@ -120,7 +120,7 @@ class MyPushes extends React.Component {
 
     const totalNeedInvestigation = pushMetrics.length
       ? pushMetrics
-          .map((push) => push.needInvestigation)
+          .map((push) => push.status.testfailed)
           .reduce((total, count) => total + count)
       : 0;
 
