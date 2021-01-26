@@ -175,9 +175,15 @@ class DetailsPanel extends React.Component {
                     <Tab className="ml-3 font-weight-bold text-secondary list-inline-item pointable">
                       Log Viewer
                     </Tab>
-                    <Tab className="ml-3 font-weight-bold text-secondary list-inline-item pointable">
-                      Artifacts
-                    </Tab>
+                    {taskDetails.length > 20 ? (
+                      <Tab className="ml-3 font-weight-bold text-secondary list-inline-item pointable">
+                        Artifacts
+                      </Tab>
+                    ) : (
+                      <Tab className="ml-3 font-weight-bold list-inline-item pointable" disabled={true}>
+                        Artifacts
+                      </Tab>
+                    )}
                   </span>
                   <Button
                     onClick={closeDetails}
