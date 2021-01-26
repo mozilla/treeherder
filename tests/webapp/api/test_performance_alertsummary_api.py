@@ -209,7 +209,7 @@ def test_alert_summaries_put(
     assert PerformanceAlertSummary.objects.get(id=1).assignee == test_user
 
 
-def test_alert_summary_post(
+def test_auth_for_alert_summary_post(
     client,
     test_repository,
     test_issue_tracker,
@@ -218,8 +218,6 @@ def test_alert_summary_post(
     test_user,
     test_sheriff,
 ):
-    # this blob should be sufficient to create a new alert summary (assuming
-    # the user of this API is authorized to do so!)
     post_blob = {
         'repository_id': test_repository.id,
         'framework_id': test_perf_signature.framework.id,
@@ -238,9 +236,25 @@ def test_alert_summary_post(
     assert resp.status_code == 403
     assert PerformanceAlertSummary.objects.count() == 0
 
+
+def test_alert_summary_post(
+    authorized_sheriff_client,
+    test_repository,
+    test_issue_tracker,
+    push_stored,
+    test_perf_signature,
+    test_user,
+    test_sheriff,
+):
+    post_blob = {
+        'repository_id': test_repository.id,
+        'framework_id': test_perf_signature.framework.id,
+        'prev_push_id': 1,
+        'push_id': 2,
+    }
+
     # verify that we succeed if authenticated + staff
-    client.force_authenticate(user=test_sheriff)
-    resp = client.post(reverse('performance-alert-summaries-list'), post_blob)
+    resp = authorized_sheriff_client.post(reverse('performance-alert-summaries-list'), post_blob)
     assert resp.status_code == 200
 
     assert PerformanceAlertSummary.objects.count() == 1
@@ -253,9 +267,33 @@ def test_alert_summary_post(
 
     # verify that we don't create a new performance alert summary if one
     # already exists (but also don't throw an error)
-    resp = client.post(reverse('performance-alert-summaries-list'), post_blob)
+    resp = authorized_sheriff_client.post(reverse('performance-alert-summaries-list'), post_blob)
     assert resp.status_code == 200
     assert PerformanceAlertSummary.objects.count() == 1
+
+
+def test_push_range_validation_for_alert_summary_post(
+    authorized_sheriff_client,
+    test_repository,
+    test_issue_tracker,
+    push_stored,
+    test_perf_signature,
+    test_user,
+    test_sheriff,
+):
+    identical_push = 1
+    post_blob = {
+        'repository_id': test_repository.id,
+        'framework_id': test_perf_signature.framework.id,
+        'prev_push_id': identical_push,
+        'push_id': identical_push,
+    }
+
+    # verify that we succeed if authenticated + staff
+    resp = authorized_sheriff_client.post(reverse('performance-alert-summaries-list'), post_blob)
+    assert resp.status_code == 400
+
+    assert PerformanceAlertSummary.objects.count() == 0
 
 
 @pytest.mark.parametrize(
