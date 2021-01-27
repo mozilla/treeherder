@@ -92,7 +92,7 @@ export class Revision extends React.PureComponent {
             href={repo.getRevisionHref(commitRevision)}
             className={commitShaClass}
           >
-            {commitRevision}
+            {commitRevision.substring(0, 12)}
           </a>
         </span>
         <AuthorInitials title={`${name}: ${email}`} author={name} />
