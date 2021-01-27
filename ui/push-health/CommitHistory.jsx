@@ -90,7 +90,7 @@ class CommitHistory extends React.PureComponent {
                 target="_blank"
                 rel="noopener noreferrer"
               >
-                {revision.substring(0, 17)}...
+                {revision}
               </a>
             </span>
             on
