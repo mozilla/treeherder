@@ -61,7 +61,7 @@ describe('CommitHistory', () => {
         queryByTestId('health-status-eeb6fd68c0223a72d8714734a34d3e6da69995e1'),
       ),
     ).toBeInTheDocument();
-    expect(await waitFor(() => getByText('87 items'))).toBeInTheDocument();
+    expect(await waitFor(() => getByText('87 Push Health items'))).toBeInTheDocument();
   });
 
   test('should show warning if not exact commit match', async () => {
