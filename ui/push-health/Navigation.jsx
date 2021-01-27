@@ -16,15 +16,6 @@ const Navigation = ({ user, setUser, notify }) => (
           My Pushes
         </Link>
       </NavItem>
-      <NavItem>
-        {' '}
-        <Link
-          to="/push-health/usage"
-          className="menu-items nav-link btn-view-nav"
-        >
-          Usage
-        </Link>
-      </NavItem>
     </Nav>
     <Navbar className="ml-auto">
       <HelpMenu />
