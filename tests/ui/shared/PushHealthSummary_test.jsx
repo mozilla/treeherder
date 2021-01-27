@@ -53,12 +53,16 @@ describe('PushHealthStatus', () => {
   test('should show the number of issues needing investigation', async () => {
     const { getByText } = render(testPushHealthStatus('failed'));
 
-    expect(await waitFor(() => getByText('3 Push Health items'))).toBeInTheDocument();
+    expect(
+      await waitFor(() => getByText('3 Push Health items')),
+    ).toBeInTheDocument();
   });
 
   test('should show when the push is OK', async () => {
     const { getByText } = render(testPushHealthStatus('passed'));
 
-    expect(await waitFor(() => getByText('Push Health OK'))).toBeInTheDocument();
+    expect(
+      await waitFor(() => getByText('Push Health OK')),
+    ).toBeInTheDocument();
   });
 });
