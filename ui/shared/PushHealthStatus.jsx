@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
-import { Badge, Spinner } from 'reactstrap';
+import { Badge } from 'reactstrap';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import {
   faCheck,
@@ -85,7 +85,7 @@ class PushHealthStatus extends Component {
 
     return (
       <span data-testid={`health-status-${revision}`}>
-        {needInvestigation !== null ? (
+        {needInvestigation !== null && (
           <a
             href={getPushHealthUrl({ repo: repoName, revision })}
             target="_blank"
@@ -99,8 +99,6 @@ class PushHealthStatus extends Component {
               {healthStatus}
             </Badge>
           </a>
-        ) : (
-          <Spinner size="sm" />
         )}
       </span>
     );
