@@ -278,7 +278,7 @@ describe('App', () => {
   test('changing repo updates ``currentRepo``', async () => {
     const { getByText, getByTitle } = render(testApp());
 
-    const autolandRevision = await waitFor(() => getByText('ba9c692786e9'));
+    const autolandRevision = await waitFor(() => getByText('ba9c692786e95143b8df3f4b3e9b504dfbc589a0'));
     expect(autolandRevision).toBeInTheDocument();
 
     const reposButton = await waitFor(() => getByTitle('Watch a repo'));
@@ -287,7 +287,7 @@ describe('App', () => {
     const tryRepo = await waitFor(() => getByText('try'));
     fireEvent.click(tryRepo);
 
-    await waitFor(() => getByText('333333333333'));
+    await waitFor(() => getByText('3333333333335143b8df3f4b3e9b504dfbc589a0'));
 
     expect(autolandRevision).not.toBeInTheDocument();
     expect(document.querySelector('.revision a').getAttribute('href')).toBe(
