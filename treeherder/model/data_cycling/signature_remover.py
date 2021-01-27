@@ -124,9 +124,9 @@ class PublicSignatureRemover:
         properties = []
         for signature in signatures:
             signature_properties = {
-                "repository": signature.repository,
-                "framework": signature.framework,
-                "platform": signature.platform,
+                "repository": signature.repository.name,
+                "framework": signature.framework.name,
+                "platform": signature.platform.platform,
                 "suite": signature.suite,
                 "application": signature.application,
             }
