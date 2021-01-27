@@ -68,7 +68,7 @@ class PushHealthStatus extends Component {
     if (completed) {
       if (needInvestigation) {
         healthStatus = `${needInvestigation} ${
-          needInvestigation > 1 ? 'items' : 'item'
+          needInvestigation > 1 ? 'Push Health items' : 'Push Health item'
         }`;
         badgeColor = 'danger';
         extraTitle = 'Needs investigation';
@@ -76,7 +76,7 @@ class PushHealthStatus extends Component {
       }
       const inProgress = pending + running;
       if (!inProgress && !needInvestigation) {
-        healthStatus = `OK`;
+        healthStatus = 'Push Health OK';
         badgeColor = 'success';
         extraTitle = 'Looks good';
         icon = faCheck;
