@@ -169,13 +169,13 @@ class DetailsPanel extends React.Component {
               <TabList className="pl-0 w-100 list-inline">
                 <span className="d-flex justify-content-between w-100">
                   <span>
-                    <Tab className="font-weight-bold text-secondary list-inline-item pointable">
+                    <Tab className="font-weight-bold text-secondary list-inline-item">
                       Failure Summary
                     </Tab>
                     <Tab className="ml-3 font-weight-bold text-secondary list-inline-item pointable">
                       Log Viewer
                     </Tab>
-                    {taskDetails.length > 20 ? (
+                    {taskDetails.length > 0 ? (
                       <Tab className="ml-3 font-weight-bold text-secondary list-inline-item pointable">
                         Artifacts
                       </Tab>
