@@ -1,4 +1,4 @@
-import React, { Fragment } from 'react';
+import React from 'react';
 import { Button } from 'reactstrap';
 import PropTypes from 'prop-types';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
@@ -154,13 +154,17 @@ class FailureSummaryTab extends React.Component {
 
     return (
       <div className="w-100 h-100" role="region" aria-label="Failure Summary">
-        {!!suggestions.length &&
-          <a href='/push-health'>
-            <Button outline className="bg-light failure-summary-push-health-button" type="button">
+        {!!suggestions.length && (
+          <a href="/push-health">
+            <Button
+              outline
+              className="bg-light failure-summary-push-health-button"
+              type="button"
+            >
               View In Push Health
             </Button>
           </a>
-        }
+        )}
 
         <ul
           className={`${

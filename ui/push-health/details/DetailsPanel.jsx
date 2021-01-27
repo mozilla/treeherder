@@ -180,7 +180,10 @@ class DetailsPanel extends React.Component {
                         Artifacts
                       </Tab>
                     ) : (
-                      <Tab className="ml-3 font-weight-bold list-inline-item pointable" disabled={true}>
+                      <Tab
+                        className="ml-3 font-weight-bold list-inline-item pointable"
+                        disabled
+                      >
                         Artifacts
                       </Tab>
                     )}
