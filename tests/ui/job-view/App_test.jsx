@@ -278,7 +278,9 @@ describe('App', () => {
   test('changing repo updates ``currentRepo``', async () => {
     const { getByText, getByTitle } = render(testApp());
 
-    const autolandRevision = await waitFor(() => getByText('ba9c692786e95143b8df3f4b3e9b504dfbc589a0'));
+    const autolandRevision = await waitFor(() =>
+      getByText('ba9c692786e95143b8df3f4b3e9b504dfbc589a0'),
+    );
     expect(autolandRevision).toBeInTheDocument();
 
     const reposButton = await waitFor(() => getByTitle('Watch a repo'));
