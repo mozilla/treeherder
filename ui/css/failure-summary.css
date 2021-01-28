@@ -8,10 +8,6 @@
   background: #ffffff;
 }
 
-.failure-summary-push-health-button {
- margin-bottom: 4px;
-}
-
 .failure-summary-bugs-container {
   /* These styles don't use the bootstrap system as they are creating a vertical
    * line underneath the bug icon. When only using bootstrap classes, this vertical line

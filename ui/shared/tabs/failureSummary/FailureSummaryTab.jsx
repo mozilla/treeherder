@@ -158,7 +158,7 @@ class FailureSummaryTab extends React.Component {
           <a href="/push-health">
             <Button
               outline
-              className="bg-light failure-summary-push-health-button"
+              className="bg-light mb-2"
               type="button"
             >
               View In Push Health
