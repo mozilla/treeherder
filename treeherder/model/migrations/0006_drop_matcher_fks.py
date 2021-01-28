@@ -10,6 +10,12 @@ class Migration(migrations.Migration):
     ]
 
     operations = [
-        migrations.RemoveField(model_name='failurematch', name='matcher',),
-        migrations.RemoveField(model_name='textlogerrormatch', name='matcher',),
+        migrations.RemoveField(
+            model_name='failurematch',
+            name='matcher',
+        ),
+        migrations.RemoveField(
+            model_name='textlogerrormatch',
+            name='matcher',
+        ),
     ]

@@ -11,7 +11,9 @@ class Migration(migrations.Migration):
 
     operations = [
         migrations.AlterField(
-            model_name='jobtype', name='name', field=models.CharField(max_length=140),
+            model_name='jobtype',
+            name='name',
+            field=models.CharField(max_length=140),
         ),
         migrations.AlterField(
             model_name='referencedatasignatures',

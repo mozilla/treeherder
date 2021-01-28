@@ -14,15 +14,43 @@ class Migration(migrations.Migration):
         migrations.AlterField(
             model_name='failureline',
             name='action',
-            field=models.CharField(choices=[('test_result', 'test_result'), ('log', 'log'), ('crash', 'crash'), ('truncated', 'truncated'), ('group_result', 'group_result')], max_length=15),
+            field=models.CharField(
+                choices=[
+                    ('test_result', 'test_result'),
+                    ('log', 'log'),
+                    ('crash', 'crash'),
+                    ('truncated', 'truncated'),
+                    ('group_result', 'group_result'),
+                ],
+                max_length=15,
+            ),
         ),
         migrations.CreateModel(
             name='GroupStatus',
             fields=[
-                ('id', models.AutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
+                (
+                    'id',
+                    models.AutoField(
+                        auto_created=True, primary_key=True, serialize=False, verbose_name='ID'
+                    ),
+                ),
                 ('status', models.SmallIntegerField()),
-                ('group', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='group_result', to='model.Group')),
-                ('job_log', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='group_result', to='model.JobLog')),
+                (
+                    'group',
+                    models.ForeignKey(
+                        on_delete=django.db.models.deletion.CASCADE,
+                        related_name='group_result',
+                        to='model.Group',
+                    ),
+                ),
+                (
+                    'job_log',
+                    models.ForeignKey(
+                        on_delete=django.db.models.deletion.CASCADE,
+                        related_name='group_result',
+                        to='model.JobLog',
+                    ),
+                ),
             ],
             options={
                 'db_table': 'group_status',
@@ -31,7 +59,9 @@ class Migration(migrations.Migration):
         migrations.AddField(
             model_name='group',
             name='job_logs',
-            field=models.ManyToManyField(related_name='groups', through='model.GroupStatus', to='model.JobLog'),
+            field=models.ManyToManyField(
+                related_name='groups', through='model.GroupStatus', to='model.JobLog'
+            ),
         ),
         migrations.RemoveField(
             model_name='group',

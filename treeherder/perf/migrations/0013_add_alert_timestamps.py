@@ -11,7 +11,9 @@ class Migration(migrations.Migration):
 
     operations = [
         migrations.AddField(
-            model_name='performancealert', name='created', field=models.DateTimeField(null=True),
+            model_name='performancealert',
+            name='created',
+            field=models.DateTimeField(null=True),
         ),
         migrations.AlterField(
             model_name='performancealert',

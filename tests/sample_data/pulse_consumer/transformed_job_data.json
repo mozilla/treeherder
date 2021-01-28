@@ -136,8 +136,7 @@
       "submit_timestamp": 1419035997.0,
       "start_timestamp": 1419039597.0,
       "name": "static-analysis-win32-st-an/debug",
-      "option_collection": {
-      },
+      "option_collection": {},
       "machine_platform": {
         "platform": "linux64",
         "os_name": "linux",
@@ -179,8 +178,7 @@
       "submit_timestamp": 1419035997.0,
       "start_timestamp": 1419039597.0,
       "name": "test-windows10-64-vm/opt-jsreftest",
-      "option_collection": {
-      },
+      "option_collection": {},
       "machine_platform": {
         "platform": "linux64",
         "os_name": "linux",

@@ -23,7 +23,9 @@ class Migration(migrations.Migration):
                 ('name', models.CharField(max_length=255)),
                 ('task_base_url', models.URLField(max_length=512)),
             ],
-            options={'db_table': 'issue_tracker',},
+            options={
+                'db_table': 'issue_tracker',
+            },
         ),
         migrations.CreateModel(
             name='PerformanceFramework',
@@ -37,7 +39,9 @@ class Migration(migrations.Migration):
                 ('name', models.SlugField(max_length=255, unique=True)),
                 ('enabled', models.BooleanField(default=False)),
             ],
-            options={'db_table': 'performance_framework',},
+            options={
+                'db_table': 'performance_framework',
+            },
         ),
         migrations.CreateModel(
             name='PerformanceBugTemplate',
@@ -61,7 +65,9 @@ class Migration(migrations.Migration):
                     ),
                 ),
             ],
-            options={'db_table': 'performance_bug_template',},
+            options={
+                'db_table': 'performance_bug_template',
+            },
         ),
         migrations.CreateModel(
             name='PerformanceSignature',
@@ -128,7 +134,9 @@ class Migration(migrations.Migration):
                     ),
                 ),
             ],
-            options={'db_table': 'performance_signature',},
+            options={
+                'db_table': 'performance_signature',
+            },
         ),
         migrations.CreateModel(
             name='PerformanceDatum',
@@ -169,7 +177,9 @@ class Migration(migrations.Migration):
                     ),
                 ),
             ],
-            options={'db_table': 'performance_datum',},
+            options={
+                'db_table': 'performance_datum',
+            },
         ),
         migrations.CreateModel(
             name='PerformanceAlertSummary',
@@ -231,7 +241,9 @@ class Migration(migrations.Migration):
                     ),
                 ),
             ],
-            options={'db_table': 'performance_alert_summary',},
+            options={
+                'db_table': 'performance_alert_summary',
+            },
         ),
         migrations.CreateModel(
             name='PerformanceAlert',
@@ -304,7 +316,9 @@ class Migration(migrations.Migration):
                     ),
                 ),
             ],
-            options={'db_table': 'performance_alert',},
+            options={
+                'db_table': 'performance_alert',
+            },
         ),
         migrations.AlterUniqueTogether(
             name='performancesignature',
@@ -325,6 +339,7 @@ class Migration(migrations.Migration):
             unique_together=set([('repository', 'framework', 'prev_push', 'push')]),
         ),
         migrations.AlterUniqueTogether(
-            name='performancealert', unique_together=set([('summary', 'series_signature')]),
+            name='performancealert',
+            unique_together=set([('summary', 'series_signature')]),
         ),
     ]

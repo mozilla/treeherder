@@ -11,6 +11,8 @@ class Migration(migrations.Migration):
 
     operations = [
         migrations.RenameField(
-            model_name='performancealertsummary', old_name='last_updated', new_name='created',
+            model_name='performancealertsummary',
+            old_name='last_updated',
+            new_name='created',
         ),
     ]
