@@ -182,9 +182,10 @@ class DetailsPanel extends React.Component {
                     ) : (
                       <Tab
                         className="ml-3 font-weight-bold list-inline-item pointable"
+                        title="This task has no artifacts"
                         disabled
                       >
-                        Artifacts
+                        No Artifacts
                       </Tab>
                     )}
                   </span>
