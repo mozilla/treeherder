@@ -1,4 +1,5 @@
 import React from 'react';
+import { Button } from 'reactstrap';
 import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
 import isEqual from 'lodash/isEqual';
@@ -66,6 +67,15 @@ class PrimaryNavBar extends React.Component {
               <LogoMenu menuText="Treeherder" menuImage={Logo} />
               <span className="navbar-right">
                 <NotificationsMenu />
+                <Button
+                  className="btn-view-nav nav-menu-btn"
+                  caret
+                  title="Go to Push Health"
+                  tag="a"
+                  href="/push-health"
+                >
+                  Push Health
+                </Button>
                 <InfraMenu />
                 <ReposMenu repos={repos} />
                 <TiersMenu filterModel={filterModel} />
