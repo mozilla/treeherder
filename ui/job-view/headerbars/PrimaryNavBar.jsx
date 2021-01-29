@@ -16,7 +16,6 @@ import ReposMenu from './ReposMenu';
 import TiersMenu from './TiersMenu';
 import FiltersMenu from './FiltersMenu';
 import SecondaryNavBar from './SecondaryNavBar';
-import HealthMenu from './HealthMenu';
 
 class PrimaryNavBar extends React.Component {
   shouldComponentUpdate(prevProps) {
@@ -27,7 +26,6 @@ class PrimaryNavBar extends React.Component {
       serverChanged,
       groupCountsExpanded,
       duplicateJobsVisible,
-      pushHealthVisibility,
     } = this.props;
 
     return (
@@ -36,8 +34,7 @@ class PrimaryNavBar extends React.Component {
       !isEqual(prevProps.repos, repos) ||
       prevProps.serverChanged !== serverChanged ||
       prevProps.groupCountsExpanded !== groupCountsExpanded ||
-      prevProps.duplicateJobsVisible !== duplicateJobsVisible ||
-      prevProps.pushHealthVisibility !== pushHealthVisibility
+      prevProps.duplicateJobsVisible !== duplicateJobsVisible
     );
   }
 
@@ -53,9 +50,7 @@ class PrimaryNavBar extends React.Component {
       duplicateJobsVisible,
       groupCountsExpanded,
       toggleFieldFilterVisible,
-      pushHealthVisibility,
       getAllShownJobs,
-      setPushHealthVisibility,
       notify,
     } = this.props;
 
@@ -83,10 +78,6 @@ class PrimaryNavBar extends React.Component {
                   filterModel={filterModel}
                   user={user}
                   getAllShownJobs={getAllShownJobs}
-                />
-                <HealthMenu
-                  pushHealthVisibility={pushHealthVisibility}
-                  setPushHealthVisibility={setPushHealthVisibility}
                 />
                 <HelpMenu />
                 <Login user={user} setUser={setUser} notify={notify} />
@@ -121,8 +112,6 @@ PrimaryNavBar.propTypes = {
   user: PropTypes.shape({}).isRequired,
   duplicateJobsVisible: PropTypes.bool.isRequired,
   groupCountsExpanded: PropTypes.bool.isRequired,
-  pushHealthVisibility: PropTypes.string.isRequired,
-  setPushHealthVisibility: PropTypes.func.isRequired,
   notify: PropTypes.func.isRequired,
   getAllShownJobs: PropTypes.func.isRequired,
 };
