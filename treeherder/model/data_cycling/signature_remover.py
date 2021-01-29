@@ -47,6 +47,10 @@ class PublicSignatureRemover:
             if emails_sent < self._max_emails_allowed and (
                 not perf_signature.has_performance_data()
             ):
+                if perf_signature.repository.name == 'try':
+                    perf_signature.delete()
+                    continue
+
                 rows_left -= 1
                 chunk_of_signatures.append(perf_signature)
                 self.email_service.add_signature_to_content(perf_signature)

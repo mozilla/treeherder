@@ -317,7 +317,9 @@ def test_signature_remover_when_notify_service_is_down(
 
 
 @pytest.mark.parametrize('total_signatures', [3, 4, 8, 10])
-def test_total_emails_sent(test_perf_signature, total_signatures, mock_tc_prod_credentials):
+def test_total_emails_sent(
+    test_perf_signature, try_repository, total_signatures, mock_tc_prod_credentials
+):
     tc_model = MagicMock()
     timer = MaxRuntime()
     timer.start_timer()
@@ -334,6 +336,21 @@ def test_total_emails_sent(test_perf_signature, total_signatures, mock_tc_prod_c
         PerformanceSignature.objects.create(
             repository=test_perf_signature.repository,
             signature_hash=(20 * ('t%s' % n)),
+            framework=test_perf_signature.framework,
+            platform=test_perf_signature.platform,
+            option_collection=test_perf_signature.option_collection,
+            suite='mysuite%s' % n,
+            test='mytest%s' % n,
+            application='firefox',
+            has_subtests=test_perf_signature.has_subtests,
+            extra_options=test_perf_signature.extra_options,
+            last_updated=datetime.now(),
+        )
+
+    for n in range(0, 10):
+        PerformanceSignature.objects.create(
+            repository=try_repository,
+            signature_hash=(20 * ('e%s' % n)),
             framework=test_perf_signature.framework,
             platform=test_perf_signature.platform,
             option_collection=test_perf_signature.option_collection,
