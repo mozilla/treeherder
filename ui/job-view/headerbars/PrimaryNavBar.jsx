@@ -64,7 +64,6 @@ class PrimaryNavBar extends React.Component {
                 <NotificationsMenu />
                 <Button
                   className="btn-view-nav nav-menu-btn"
-                  caret
                   title="Go to Push Health"
                   tag="a"
                   href="/push-health"
