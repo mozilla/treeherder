@@ -27,7 +27,9 @@ class Migration(migrations.Migration):
                 ('created', models.DateTimeField(auto_now_add=True)),
                 ('last_updated', models.DateTimeField(auto_now=True)),
             ],
-            options={'db_table': 'backfill_report',},
+            options={
+                'db_table': 'backfill_report',
+            },
         ),
         migrations.CreateModel(
             name='BackfillRecord',
@@ -53,6 +55,8 @@ class Migration(migrations.Migration):
                     ),
                 ),
             ],
-            options={'db_table': 'backfill_record',},
+            options={
+                'db_table': 'backfill_record',
+            },
         ),
     ]
