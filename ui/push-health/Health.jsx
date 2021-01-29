@@ -165,9 +165,6 @@ export default class Health extends React.PureComponent {
       knownIssuesGroupBy,
     } = this.state;
     const { tests, commitHistory, linting, builds } = metrics;
-    const needInvestigationCount = tests
-      ? tests.details.needInvestigation.length
-      : 0;
 
     const { notify } = this.props;
     return (
@@ -190,7 +187,9 @@ export default class Health extends React.PureComponent {
             rel="shortcut icon"
             href={result === 'fail' ? faviconBroken : faviconOk}
           />
-          <title>{`[${needInvestigationCount} failures] Push Health`}</title>
+          <title>{`[${
+            (status && status.testfailed) || 0
+          } failures] Push Health`}</title>
         </Helmet>
         <Container fluid className="mt-2 mb-5 max-width-default">
           {!!tests && !!currentRepo && (

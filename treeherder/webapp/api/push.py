@@ -272,6 +272,12 @@ class PushViewSet(viewsets.ViewSet):
             lint_failure_count = len(push_health_lint_failures)
             test_in_progress_count = None
 
+            status = push.get_status()
+            total_failures = test_failure_count + build_failure_count + lint_failure_count
+            # Override the testfailed value added in push.get_status so that it aligns with how we detect lint, build and test failures
+            # for the push health API's (total_failures doesn't include known intermittent failures)
+            status['testfailed'] = total_failures
+
             if with_history:
                 serializer = PushSerializer([push], many=True)
                 commit_history = serializer.data
@@ -291,7 +297,7 @@ class PushViewSet(viewsets.ViewSet):
                     'needInvestigation': test_failure_count
                     + build_failure_count
                     + lint_failure_count,
-                    'status': push.get_status(),
+                    'status': status,
                     'history': commit_history,
                     'metrics': {
                         'linting': {
@@ -360,6 +366,16 @@ class PushViewSet(viewsets.ViewSet):
             elif metric_result == 'fail':
                 push_result = metric_result
 
+        status = push.get_status()
+        total_failures = (
+            len(push_health_test_failures['needInvestigation'])
+            + len(build_failures)
+            + len(lint_failures)
+        )
+        # Override the testfailed value added in push.get_status so that it aligns with how we detect lint, build and test failures
+        # for the push health API's (total_failures doesn't include known intermittent failures)
+        status['testfailed'] = total_failures
+
         newrelic.agent.record_custom_event(
             'push_health_need_investigation',
             {
@@ -398,7 +414,7 @@ class PushViewSet(viewsets.ViewSet):
                         'details': build_failures,
                     },
                 },
-                'status': push.get_status(),
+                'status': status,
             }
         )
 
