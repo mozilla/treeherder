@@ -8,6 +8,7 @@ from taskcluster.exceptions import TaskclusterRestFailure
 from treeherder.perf.models import PerformanceSignature
 from treeherder.services.taskcluster import TaskclusterModel
 from .max_runtime import MaxRuntime
+from .payload_service import EmailService
 
 logger = logging.getLogger(__name__)
 
@@ -43,6 +44,8 @@ class PublicSignatureRemover:
         self._max_rows_allowed = max_rows_allowed or 50
         self._max_emails_allowed = max_emails_allowed or 10
 
+        self.email_service = EmailService(address=RECEIVER_TEAM_EMAIL)
+
         self.timer = timer
 
     def remove_in_chunks(self, signatures):
@@ -59,6 +62,7 @@ class PublicSignatureRemover:
             ):
                 rows_left -= 1
                 chunk_of_signatures.append(perf_signature)
+                self.email_service.content = perf_signature
 
                 if rows_left == 0:
                     success = self.__delete_and_notify(chunk_of_signatures)
@@ -67,16 +71,17 @@ class PublicSignatureRemover:
 
                     emails_sent += 1
                     chunk_of_signatures = []
+                    self.email_service.content = None
                     rows_left = self._max_rows_allowed
 
         if emails_sent < self._max_emails_allowed and chunk_of_signatures != []:
             self.__delete_and_notify(chunk_of_signatures)
 
-    def _send_notification(self, email_data):
+    def _send_notification(self):
         # should only run on one instance at a time
         if settings.NOTIFY_CLIENT_ID and settings.NOTIFY_ACCESS_TOKEN:
             logger.info("Sending email with summary of deleted perf signatures to team...")
-            self._send_email(RECEIVER_TEAM_EMAIL, email_data)
+            self._send_email()
         else:
             logger.warning("Failed to send notification because deployment is NOT production")
 
@@ -92,58 +97,19 @@ class PublicSignatureRemover:
         for signature in chunk_of_signatures:
             signature.delete()
 
-    def _send_email(self, address: str, signatures: List[dict]):
-        self.__set_content(signatures)
-        payload = {
-            "address": address,
-            "content": self._content,
-            "subject": self._subject,
-        }
-        self.tc_model.notify.email(payload)
-
-    def __set_content(self, signatures: List[dict]):
-        self._content = self.TABLE_DESCRIPTION + self.TABLE_HEADERS
-        for signature in signatures:
-            self.__add_new_row(signature)
-
-    def __add_new_row(self, signature: dict):
-        signature_row = (
-            """| {repository} | {framework} | {platform} | {suite} | {application} |""".format(
-                repository=signature["repository"],
-                framework=signature["framework"],
-                platform=signature["platform"],
-                suite=signature["suite"],
-                application=signature["application"],
-            )
-        )
-        self._content += signature_row
-        self._content += "\n"
-
-    @staticmethod
-    def __extract_properties(signatures) -> List[dict]:
-        properties = []
-        for signature in signatures:
-            signature_properties = {
-                "repository": signature.repository.name,
-                "framework": signature.framework.name,
-                "platform": signature.platform.platform,
-                "suite": signature.suite,
-                "application": signature.application,
-            }
-            properties.append(signature_properties)
-        return properties
+    def _send_email(self):
+        self.tc_model.notify.email(self.email_service.payload)
 
     def __delete_and_notify(self, signatures: List[PerformanceSignature]) -> bool:
         """
         Atomically deletes perf signatures & notifies about this.
         @return: whether atomic operation was successful or not
         """
-        email_data = self.__extract_properties(signatures)  # so we don't lose them during deletion
 
         try:
             with transaction.atomic():
                 self._delete(signatures)
-                self._send_notification(email_data)
+                self._send_notification()
         except TaskclusterRestFailure as ex:
             logger.warning(
                 f'Failed to atomically delete perf signatures & notify about this. (Reason: {ex})'
