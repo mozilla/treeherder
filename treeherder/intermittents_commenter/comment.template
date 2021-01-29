@@ -24,9 +24,12 @@ Repository breakdown:
 {% for repository, count in repositories.items() -%}
 * {{repository}}: {{count}}
 {% endfor %}
-Platform breakdown:
+Platform and build breakdown:
 {% for platform, count in platforms.items() -%}
 * {{platform}}: {{count}}
+  {%- for build, count in counts[platform].items() %}
+  * {{ build }}: {{ count }}
+  {%- endfor %}
 {% endfor %}
 For more details, see:
 https://treeherder.mozilla.org/intermittent-failures/bugdetails?bug={{bug_id}}&startday={{startday}}&endday={{endday}}&tree=all

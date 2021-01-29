@@ -80,13 +80,16 @@ const GraphTooltip = ({
   let prevRevision;
   let prevPushId;
   let pushUrl;
-  const firstTriggerIndex = testDetails.data.findIndex(
+  const originalDataPointIdx = testDetails.data.findIndex(
     (e) => e.revision === dataPointDetails.revision,
   );
-  if (prevFlotDataPointIndex !== -1 && firstTriggerIndex > 0) {
-    prevRevision = testDetails.data[firstTriggerIndex - 1].revision;
-    prevPushId = testDetails.data[prevFlotDataPointIndex].pushId;
+
+  if (prevFlotDataPointIndex !== -1 && originalDataPointIdx > 0) {
+    const prevDataPointIdx = originalDataPointIdx - 1;
     const repoModel = new RepositoryModel(repositoryName);
+
+    prevRevision = testDetails.data[prevDataPointIdx].revision;
+    prevPushId = testDetails.data[prevDataPointIdx].pushId;
     pushUrl = repoModel.getPushLogRangeHref({
       fromchange: prevRevision,
       tochange: dataPointDetails.revision,

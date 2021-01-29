@@ -1,26 +1,18 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import {
-  Button,
-  Container,
-  Col,
-  Row,
-  UncontrolledDropdown,
-  DropdownToggle,
-  Input,
-} from 'reactstrap';
+import { Button, Col, Container, Input, Row } from 'reactstrap';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faTable, faChartArea } from '@fortawesome/free-solid-svg-icons';
+import { faChartArea, faTable } from '@fortawesome/free-solid-svg-icons';
 import moment from 'moment';
 
-import { phTimeRanges, endpoints } from '../constants';
-import DropdownMenuItems from '../../shared/DropdownMenuItems';
+import { endpoints } from '../constants';
 import { ISODate } from '../../intermittent-failures/helpers';
 import { getData } from '../../helpers/http';
 import { createApiUrl } from '../../helpers/url';
 
 import TestDataModal from './TestDataModal';
 import GraphsContainer from './GraphsContainer';
+import TimeRangeDropdown from './TimeRangeDropdown';
 
 export default class GraphsViewControls extends React.Component {
   constructor() {
@@ -116,22 +108,10 @@ export default class GraphsViewControls extends React.Component {
             </Col>
           )}
           <Col sm="auto" className="pl-0 py-2 pr-2" key={timeRange}>
-            <UncontrolledDropdown
-              className="mr-0 text-nowrap"
-              title="Time range"
-              aria-label="Time range"
-            >
-              <DropdownToggle caret>{timeRange.text}</DropdownToggle>
-              <DropdownMenuItems
-                options={phTimeRanges.map((item) => item.text)}
-                selectedItem={timeRange.text}
-                updateData={(value) =>
-                  updateTimeRange(
-                    phTimeRanges.find((item) => item.text === value),
-                  )
-                }
-              />
-            </UncontrolledDropdown>
+            <TimeRangeDropdown
+              timeRangeText={timeRange.text}
+              updateTimeRange={updateTimeRange}
+            />
           </Col>
           <Col sm="auto" className="p-2">
             <Button color="darker-info" onClick={toggle}>

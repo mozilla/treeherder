@@ -356,11 +356,9 @@ def test_filter_signatures_by_range(
         assert resp.json()[str(test_perf_signature.id)]['id'] == exp_id
 
 
-@pytest.mark.parametrize(
-    'interval, exp_datums_len, exp_push_ids', [(86400, 1, [1]), (86400 * 3, 2, [2, 1])]
-)
+@pytest.mark.parametrize('interval, exp_push_ids', [(86400, {1}), (86400 * 3, {2, 1})])
 def test_filter_data_by_interval(
-    client, test_repository, test_perf_signature, interval, exp_datums_len, exp_push_ids
+    client, test_repository, test_perf_signature, interval, exp_push_ids
 ):
     # create some test data
     for (i, timestamp) in enumerate(
@@ -387,18 +385,18 @@ def test_filter_data_by_interval(
     )
 
     assert resp.status_code == 200
-    datums = resp.data[test_perf_signature.signature_hash]
-    assert len(datums) == exp_datums_len
-    for x in range(exp_datums_len):
-        assert datums[x]['push_id'] == exp_push_ids[x]
+
+    perf_data = resp.data[test_perf_signature.signature_hash]
+    push_ids = {datum['push_id'] for datum in perf_data}
+    assert push_ids == exp_push_ids
 
 
 @pytest.mark.parametrize(
-    'start_date, end_date, exp_datums_len, exp_push_ids',
-    [(SEVEN_DAYS_AGO, THREE_DAYS_AGO, 1, [3]), (THREE_DAYS_AGO, '', 2, [2, 1])],
+    'start_date, end_date, exp_push_ids',
+    [(SEVEN_DAYS_AGO, THREE_DAYS_AGO, {3}), (THREE_DAYS_AGO, '', {2, 1})],
 )
 def test_filter_data_by_range(
-    client, test_repository, test_perf_signature, start_date, end_date, exp_datums_len, exp_push_ids
+    client, test_repository, test_perf_signature, start_date, end_date, exp_push_ids
 ):
     # create some test data
     for (i, timestamp) in enumerate(
@@ -426,10 +424,10 @@ def test_filter_data_by_range(
     )
 
     assert resp.status_code == 200
-    datums = resp.data[test_perf_signature.signature_hash]
-    assert len(datums) == exp_datums_len
-    for x in range(exp_datums_len):
-        assert datums[x]['push_id'] == exp_push_ids[x]
+
+    perf_data = resp.data[test_perf_signature.signature_hash]
+    push_ids = {datum['push_id'] for datum in perf_data}
+    assert push_ids == exp_push_ids
 
 
 def test_job_ids_validity(client, test_repository):
@@ -523,6 +521,28 @@ def test_perf_summary(client, test_perf_signature, test_perf_data):
     resp2 = client.get(reverse('performance-summary') + query_params2)
     assert resp2.status_code == 200
     assert resp2.json() == expected
+
+
+def test_data_points_from_same_push_are_ordered_chronologically(
+    client, test_perf_signature, test_perf_data
+):
+    """
+    The chronological order for data points associated to a single push
+    is based upon the order of their related job. If related jobs are
+    ordered, the data points are considered ordered.
+
+    As job ids are auto incremented, older jobs have smaller ids than newer ones.
+    Thus, these ids are sufficient to check for chronological order.
+    """
+    query_params = '?repository={}&framework={}&interval=172800&no_subtests=true&startday=2013-11-01T23%3A28%3A29&endday=2013-11-30T23%3A28%3A29'.format(
+        test_perf_signature.repository.name, test_perf_signature.framework_id
+    )
+
+    response = client.get(reverse('performance-summary') + query_params)
+    assert response.status_code == 200
+
+    job_ids = response.json()[0]['job_ids']
+    assert job_ids == sorted(job_ids)
 
 
 def test_no_retriggers_perf_summary(

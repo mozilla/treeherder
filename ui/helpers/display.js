@@ -44,10 +44,11 @@ export const getSearchWords = function getHighlighterArray(text) {
 
 export const getPercentComplete = function getPercentComplete(counts) {
   const { pending, running, completed } = counts;
-  const inProgress = pending + running;
-  const total = completed + inProgress;
+  const total = completed + pending + running;
 
-  return total > 0 ? Math.floor((completed / total) * 100) : 0;
+  // pushes older than our 4-month data cutoff we want to display as 100% complete
+  // in the status progress indicator even though the total counts will be 0
+  return total > 0 ? Math.floor((completed / total) * 100) : 100;
 };
 
 export const formatArtifacts = function formatArtifacts(data, artifactParams) {

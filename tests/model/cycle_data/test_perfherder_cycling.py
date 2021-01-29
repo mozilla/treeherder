@@ -1,14 +1,17 @@
 import math
-import taskcluster
 from datetime import datetime, timedelta
-
-import pytest
 from unittest.mock import MagicMock
-from django.core.management import call_command
 from unittest.mock import patch
 
-from treeherder.model.management.commands.cycle_data import (
-    PerfherderCycler,
+import pytest
+import taskcluster
+from django.core.management import call_command
+from django.db import connection, IntegrityError
+
+from treeherder.model.data_cycling import MaxRuntime
+from treeherder.model.data_cycling import PerfherderCycler
+from treeherder.model.data_cycling import PublicSignatureRemover
+from treeherder.model.data_cycling.removal_strategies import (
     MainRemovalStrategy,
     TryDataRemoval,
     IrrelevantDataRemoval,
@@ -21,9 +24,8 @@ from treeherder.perf.models import (
     PerformanceSignature,
     PerformanceAlertSummary,
     PerformanceAlert,
+    MultiCommitDatum,
 )
-from treeherder.perf.data_cycling.signature_remover import PublicSignatureRemover
-from treeherder.perf.data_cycling.max_runtime import MaxRuntime
 
 
 @pytest.mark.parametrize(
@@ -276,7 +278,7 @@ def test_signature_remover(
     call_command('cycle_data', 'from:perfherder')
 
     assert taskcluster.Notify().ping.called_once
-    assert taskcluster.Notify().email.call_count == 2
+    assert taskcluster.Notify().email.call_count == 1
     assert len(PerformanceSignature.objects.all()) == 1
     assert PerformanceSignature.objects.first() == test_perf_signature
 
@@ -334,9 +336,8 @@ def test_total_emails_sent(test_perf_signature, total_signatures, mock_tc_prod_c
 
     signatures = PerformanceSignature.objects.filter(last_updated__lte=datetime.now())
     signatures_remover.remove_in_chunks(signatures)
-    assert tc_model.notify.ping.call_count == expected_call_count
     assert (
-        tc_model.notify.email.call_count == expected_call_count * 2
+        tc_model.notify.email.call_count == expected_call_count
     )  # the email is sent to two email scopes
 
 
@@ -517,6 +518,13 @@ def test_stalled_data_removal(
     assert seg2_data in PerformanceDatum.objects.all()
 
 
+def test_try_data_removal_errors_out_on_missing_try_data(try_repository):
+    try_removal_strategy = TryDataRemoval(10000)
+
+    with pytest.raises(LookupError):  # as we don't have data from try repository
+        _ = try_removal_strategy.target_signatures
+
+
 @patch('treeherder.config.settings.SITE_HOSTNAME', 'treeherder-prototype2.herokuapp.com')
 @pytest.mark.parametrize('days', [None, 5, 30, 100])
 def test_explicit_days_validation_on_treeherder_prototype2_environment(days):
@@ -563,3 +571,26 @@ def test_explicit_days_validation_on_envs_other_than_treeherder_prototype2(days)
 
     with pytest.raises(ValueError):
         _ = StalledDataRemoval(10_000, days=days)
+
+
+def test_deleting_performance_data_cascades_to_perf_multicomit_data(test_perf_data):
+    perf_datum = test_perf_data[0]
+    MultiCommitDatum.objects.create(perf_datum=perf_datum)
+
+    assert MultiCommitDatum.objects.count() == 1
+
+    try:
+        cursor = connection.cursor()
+        cursor.execute(
+            '''
+            DELETE FROM `performance_datum`
+            WHERE id = %s
+            ''',
+            [perf_datum.id],
+        )
+    except IntegrityError:
+        pytest.fail()
+    finally:
+        cursor.close()
+
+    assert MultiCommitDatum.objects.count() == 0

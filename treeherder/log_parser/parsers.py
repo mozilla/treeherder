@@ -58,6 +58,7 @@ class ErrorParser(ParserBase):
         "wget: unable ",
         "bash.exe: *** ",
         "Unsuccessful task run with exit code: 137",
+        "YOU ARE LEAKING THE WORLD",
     )
 
     RE_ERR_MATCH = re.compile(
@@ -90,6 +91,7 @@ class ErrorParser(ParserBase):
         r"I[ /](Gecko|TestRunner).*TEST-UNEXPECTED-"
         r"|^TimeoutException: "
         r"|^ImportError: No module named pygtk$"
+        r"|^non-fatal error"
     )
 
     RE_ERR_1_MATCH = re.compile(r"^\d+:\d+:\d+ +(?:ERROR|CRITICAL|FATAL) - ")
@@ -155,7 +157,9 @@ class ErrorParser(ParserBase):
         if self.is_taskcluster:
             line = re.sub(self.RE_TASKCLUSTER_NORMAL_PREFIX, "", line)
 
-        if self.is_error_line(line):
+        if self.is_error_line(line) and (
+            len(self.artifact) == 0 or self.artifact[-1]["line"] != line.rstrip()
+        ):
             self.add(line, lineno)
 
     def is_error_line(self, line):

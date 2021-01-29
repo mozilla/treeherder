@@ -96,8 +96,12 @@ class MyPushes extends React.Component {
 
     if (!failureStatus && data.length) {
       stateChanges.pushMetrics = data;
-    } else {
+    } else if (failureStatus) {
       notify(`There was a problem retrieving push metrics: ${data}`, 'danger');
+    } else {
+      notify(
+        `Didn't find push data for you in ${selectedRepo}. Try selecting a different option.`,
+      );
     }
 
     this.setState(stateChanges);
@@ -120,7 +124,7 @@ class MyPushes extends React.Component {
 
     const totalNeedInvestigation = pushMetrics.length
       ? pushMetrics
-          .map((push) => push.needInvestigation)
+          .map((push) => push.status.testfailed)
           .reduce((total, count) => total + count)
       : 0;
 

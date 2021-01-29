@@ -1,15 +1,6 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import {
-  Container,
-  Form,
-  FormGroup,
-  Label,
-  Input,
-  Table,
-  Row,
-  Col,
-} from 'reactstrap';
+import { Container, Form, FormGroup, Table, Row, Col } from 'reactstrap';
 import orderBy from 'lodash/orderBy';
 
 import { alertStatusMap } from '../constants';
@@ -31,6 +22,7 @@ import StatusDropdown from './StatusDropdown';
 import AlertTableRow from './AlertTableRow';
 import DownstreamSummary from './DownstreamSummary';
 import AlertActionPanel from './AlertActionPanel';
+import SelectAlertsDropdown from './SelectAlertsDropdown';
 
 export default class AlertTable extends React.Component {
   constructor(props) {
@@ -147,7 +139,7 @@ export default class AlertTable extends React.Component {
     const filteredAlerts = alertSummary.alerts.filter((alert) =>
       this.filterAlert(alert),
     );
-    this.setState({ filteredAlerts });
+    this.setState({ filteredAlerts, allSelected: false, selectedAlerts: [] });
   };
 
   updateAssignee = async (newAssigneeUsername) => {
@@ -175,6 +167,12 @@ export default class AlertTable extends React.Component {
 
     return { failureStatus };
   };
+
+  setSelectedAlerts = ({ selectedAlerts, allSelected }) =>
+    this.setState({
+      selectedAlerts,
+      allSelected,
+    });
 
   render() {
     const {
@@ -217,35 +215,25 @@ export default class AlertTable extends React.Component {
                     xs={10}
                     className="text-left alert-summary-header-element"
                   >
-                    <FormGroup check>
-                      <Label check className="pl-1">
-                        <Input
-                          data-testid={`alert summary ${alertSummary.id.toString()} checkbox`}
-                          aria-labelledby={`alert summary ${alertSummary.id.toString()} title`}
-                          type="checkbox"
-                          checked={allSelected}
-                          disabled={!user.isStaff}
-                          onChange={() =>
-                            this.setState({
-                              allSelected: !allSelected,
-                              selectedAlerts: !allSelected
-                                ? [...alertSummary.alerts]
-                                : [],
-                            })
-                          }
-                        />
-                        <AlertHeader
-                          frameworks={frameworks}
-                          alertSummary={alertSummary}
-                          repoModel={repoModel}
-                          issueTrackers={issueTrackers}
-                          user={user}
-                          updateAssignee={this.updateAssignee}
-                        />
-                      </Label>
+                    <FormGroup check className="d-inline-flex">
+                      <SelectAlertsDropdown
+                        setSelectedAlerts={this.setSelectedAlerts}
+                        user={user}
+                        filteredAlerts={filteredAlerts}
+                        allSelected={allSelected}
+                        alertSummaryId={alertSummary.id.toString()}
+                      />
+                      <AlertHeader
+                        frameworks={frameworks}
+                        alertSummary={alertSummary}
+                        repoModel={repoModel}
+                        issueTrackers={issueTrackers}
+                        user={user}
+                        updateAssignee={this.updateAssignee}
+                      />
                     </FormGroup>
                   </Col>
-                  <Col className="alert-summary-dropdown-element">
+                  <Col className="d-flex justify-content-end p-2">
                     <StatusDropdown
                       alertSummary={alertSummary}
                       updateState={(state) => this.setState(state)}

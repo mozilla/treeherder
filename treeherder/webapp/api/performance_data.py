@@ -457,6 +457,11 @@ class PerformanceAlertSummaryViewSet(viewsets.ModelViewSet):
     def create(self, request, *args, **kwargs):
         data = request.data
 
+        if data['push_id'] == data['prev_push_id']:
+            return Response(
+                "IDs of push & previous push cannot be identical", status=HTTP_400_BAD_REQUEST
+            )
+
         alert_summary, _ = PerformanceAlertSummary.objects.get_or_create(
             repository_id=data['repository_id'],
             framework=PerformanceFramework.objects.get(id=data['framework_id']),

@@ -89,8 +89,9 @@ export default class Platform extends React.PureComponent {
     } = this.props;
     const { filteredPlatform } = this.state;
     const suffix =
-      thSimplePlatforms.includes(filteredPlatform.name) &&
-      filteredPlatform.option === 'opt'
+      (thSimplePlatforms.includes(filteredPlatform.name) &&
+        filteredPlatform.option === 'opt') ||
+      filteredPlatform.name.includes('Shippable')
         ? ''
         : ` ${filteredPlatform.option}`;
     const title = `${filteredPlatform.name}${suffix}`;
