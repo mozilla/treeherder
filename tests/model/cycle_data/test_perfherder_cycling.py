@@ -371,6 +371,7 @@ def test_total_emails_sent(
     signatures = PerformanceSignature.objects.filter(last_updated__lte=datetime.now())
     signatures_remover.remove_in_chunks(signatures)
     assert tc_model.notify.email.call_count == expected_call_count
+    assert not PerformanceSignature.objects.filter(repository__name='try').exists()
 
 
 def test_performance_cycler_quit_indicator(mock_taskcluster_notify):
