@@ -43,8 +43,6 @@ def _verify_alert(
 def _generate_performance_data(
     test_repository,
     test_perf_signature,
-    test_issue_tracker,
-    generic_reference_data,
     base_timestamp,
     start_id,
     value,
@@ -84,8 +82,6 @@ def test_detect_alerts_in_series(
     _generate_performance_data(
         test_repository,
         test_perf_signature,
-        test_issue_tracker,
-        generic_reference_data,
         base_time,
         1,
         0.5,
@@ -94,8 +90,6 @@ def test_detect_alerts_in_series(
     _generate_performance_data(
         test_repository,
         test_perf_signature,
-        test_issue_tracker,
-        generic_reference_data,
         base_time,
         int(INTERVAL / 2) + 1,
         1.0,
@@ -140,8 +134,6 @@ def test_detect_alerts_in_series(
     _generate_performance_data(
         test_repository,
         test_perf_signature,
-        test_issue_tracker,
-        generic_reference_data,
         base_time,
         (INTERVAL + 1),
         2.0,
@@ -185,8 +177,6 @@ def test_detect_alerts_in_series_with_retriggers(
         _generate_performance_data(
             test_repository,
             test_perf_signature,
-            test_issue_tracker,
-            generic_reference_data,
             base_time,
             1,
             0.5,
@@ -196,8 +186,6 @@ def test_detect_alerts_in_series_with_retriggers(
         _generate_performance_data(
             test_repository,
             test_perf_signature,
-            test_issue_tracker,
-            generic_reference_data,
             base_time,
             2,
             0.5,
@@ -207,8 +195,6 @@ def test_detect_alerts_in_series_with_retriggers(
         _generate_performance_data(
             test_repository,
             test_perf_signature,
-            test_issue_tracker,
-            generic_reference_data,
             base_time,
             2,
             1.0,
@@ -242,8 +228,6 @@ def test_no_alerts_with_old_data(
     _generate_performance_data(
         test_repository,
         test_perf_signature,
-        test_issue_tracker,
-        generic_reference_data,
         base_time,
         1,
         0.5,
@@ -252,8 +236,6 @@ def test_no_alerts_with_old_data(
     _generate_performance_data(
         test_repository,
         test_perf_signature,
-        test_issue_tracker,
-        generic_reference_data,
         base_time,
         int(INTERVAL / 2) + 1,
         1.0,
@@ -285,8 +267,6 @@ def test_custom_alert_threshold(
     _generate_performance_data(
         test_repository,
         test_perf_signature,
-        test_issue_tracker,
-        generic_reference_data,
         base_time,
         1,
         0.5,
@@ -295,8 +275,6 @@ def test_custom_alert_threshold(
     _generate_performance_data(
         test_repository,
         test_perf_signature,
-        test_issue_tracker,
-        generic_reference_data,
         base_time,
         int(INTERVAL / 3) + 1,
         0.6,
@@ -305,8 +283,6 @@ def test_custom_alert_threshold(
     _generate_performance_data(
         test_repository,
         test_perf_signature,
-        test_issue_tracker,
-        generic_reference_data,
         base_time,
         2 * int(INTERVAL / 3) + 1,
         2.0,
@@ -340,8 +316,6 @@ def test_alert_change_type_absolute(
     _generate_performance_data(
         test_repository,
         test_perf_signature,
-        test_issue_tracker,
-        generic_reference_data,
         base_time,
         1,
         0.5,
@@ -350,8 +324,6 @@ def test_alert_change_type_absolute(
     _generate_performance_data(
         test_repository,
         test_perf_signature,
-        test_issue_tracker,
-        generic_reference_data,
         base_time,
         int(INTERVAL / 2) + 1,
         new_value,

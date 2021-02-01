@@ -3,6 +3,7 @@ import datetime
 import pytest
 from django.core.exceptions import ValidationError
 
+from tests.conftest import create_perf_alert
 from treeherder.perf.models import PerformanceAlert, PerformanceAlertSummary, PerformanceSignature
 
 
@@ -29,7 +30,11 @@ def test_summary_modification(
 
 
 def test_summary_status(
-    test_repository, test_perf_signature, test_perf_alert_summary, test_perf_framework
+    test_repository,
+    test_perf_signature,
+    test_perf_alert_summary,
+    test_perf_framework,
+    test_perf_alert_summary_2,
 ):
     signature1 = test_perf_signature
     signature2 = PerformanceSignature.objects.create(
@@ -45,34 +50,22 @@ def test_summary_status(
     )
     s = test_perf_alert_summary
 
-    a = PerformanceAlert.objects.create(
+    create_perf_alert(
         summary=s,
         series_signature=signature1,
-        is_regression=True,
-        amount_pct=0.5,
-        amount_abs=50.0,
-        prev_value=100.0,
-        new_value=150.0,
-        t_value=20.0,
+        # this is the test case
+        # ignore downstream and reassigned to update the summary status
+        related_summary=test_perf_alert_summary_2,
+        status=PerformanceAlert.REASSIGNED,
     )
 
-    # this is the test case
-    # ignore downstream and reassigned to update the summary status
-    a.status = PerformanceAlert.REASSIGNED
-    a.related_summary = s
-    a.save()
-    b = PerformanceAlert.objects.create(
+    create_perf_alert(
         summary=s,
         series_signature=signature2,
         is_regression=False,
-        amount_pct=0.5,
-        amount_abs=50.0,
-        prev_value=100.0,
-        new_value=150.0,
-        t_value=20.0,
+        status=PerformanceAlert.ACKNOWLEDGED,
     )
-    b.status = PerformanceAlert.ACKNOWLEDGED
-    b.save()
+
     s = PerformanceAlertSummary.objects.get(id=1)
     assert s.status == PerformanceAlertSummary.IMPROVEMENT
 

@@ -1,20 +1,30 @@
 import logging
 
 from django.core.exceptions import ObjectDoesNotExist
+from typing import Union
 
 from treeherder.model.models import Job
 from treeherder.perf.exceptions import CannotBackfill
-from treeherder.services.taskcluster import TaskclusterModel
+from treeherder.services.taskcluster import TaskclusterModel, TaskclusterModelImpl
 
 logger = logging.getLogger(__name__)
 
 
 class BackfillTool:
     def __init__(self, taskcluster_model: TaskclusterModel):
-        self.tc_model = taskcluster_model
+        # TODO: remove when backfill tool' soft launch is complete ->
+        if isinstance(taskcluster_model, TaskclusterModelImpl):
+            raise ValueError(
+                "Cannot interact with production Taskcluster "
+                "until backfill tool' soft launch is complete!"
+            )
+        # <- up to here
 
-    def backfill_job(self, job_id: str) -> str:
-        job = self._fetch_job(job_id)
+        self.__taskcluster = taskcluster_model
+
+    def backfill_job(self, job: Union[Job, str]) -> str:
+        if not isinstance(job, Job):
+            job = self._fetch_job_by_id(job)
 
         self.assert_backfill_ability(job)
 
@@ -24,7 +34,7 @@ class BackfillTool:
         decision_task_id = decision_job.taskcluster_metadata.task_id
 
         logger.debug(f"Requesting backfill for task {task_id_to_backfill}...")
-        task_id = self.tc_model.trigger_action(
+        task_id = self.__taskcluster.trigger_action(
             action='backfill',
             task_id=task_id_to_backfill,
             decision_task_id=decision_task_id,
@@ -38,7 +48,7 @@ class BackfillTool:
             raise CannotBackfill("Try repository isn't suited for backfilling.")
 
     @staticmethod
-    def _fetch_job(job_id: str) -> Job:
+    def _fetch_job_by_id(job_id: str) -> Job:
         try:
             return Job.objects.get(id=job_id)
         except ObjectDoesNotExist:

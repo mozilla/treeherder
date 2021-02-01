@@ -4,13 +4,18 @@ from json import JSONDecodeError
 from logging import INFO, WARNING
 from typing import List, Tuple
 
+import taskcluster
 from django.conf import settings
+from django.db.models import QuerySet
 from taskcluster.helper import TaskclusterConfig
 
-from treeherder.perf.alerts import BackfillRecord, BackfillReport, BackfillReportMaintainer
-from treeherder.perf.backfill_tool import BackfillTool
+from treeherder.model.models import Job, Push
+from treeherder.perf.auto_perf_sheriffing.backfill_reports import BackfillReportMaintainer
+from treeherder.perf.auto_perf_sheriffing.backfill_tool import BackfillTool
+from treeherder.perf.auto_perf_sheriffing.secretary_tool import SecretaryTool
+from treeherder.perf.email import BackfillNotificationWriter, EmailWriter
 from treeherder.perf.exceptions import CannotBackfill, MaxRuntimeExceeded
-from treeherder.perf.secretary_tool import SecretaryTool
+from treeherder.perf.models import BackfillRecord, BackfillReport
 
 logger = logging.getLogger(__name__)
 
@@ -20,7 +25,7 @@ ACCESS_TOKEN = settings.PERF_SHERIFF_BOT_ACCESS_TOKEN
 
 class PerfSheriffBot:
     """
-    Wrapper class used to aggregate the reporting of backfill reports.
+    Automates backfilling of skipped perf jobs.
     """
 
     DEFAULT_MAX_RUNTIME = timedelta(minutes=50)
@@ -30,26 +35,19 @@ class PerfSheriffBot:
         report_maintainer: BackfillReportMaintainer,
         backfill_tool: BackfillTool,
         secretary_tool: SecretaryTool,
+        notify_client: taskcluster.Notify,
         max_runtime: timedelta = None,
-        backfill_tool_disabled: bool = True,
-        secretary_tool_disabled: bool = True,
+        email_writer: EmailWriter = None,
     ):
         self.report_maintainer = report_maintainer
         self.backfill_tool = backfill_tool
         self.secretary = secretary_tool
-        self._woke_up_time = datetime.now()
+        self._notify = notify_client
         self._max_runtime = self.DEFAULT_MAX_RUNTIME if max_runtime is None else max_runtime
+        self._email_writer = email_writer or BackfillNotificationWriter()
 
-        # TODO: feature flags; remove when enabled ->
-        self.__backfill_tool_disabled = backfill_tool_disabled
-        self.__secretary_tool_disabled = secretary_tool_disabled
-
-        # extra precautions
-        if self.__backfill_tool_disabled:
-            self.backfill_tool = None
-        if self.__secretary_tool_disabled:
-            self.secretary = None
-        # -> up to here
+        self._wake_up_time = datetime.now()
+        self.backfilled_records = []  # useful for reporting backfill outcome
 
     def sheriff(self, since: datetime, frameworks: List[str], repositories: List[str]):
         self.assert_can_run()
@@ -66,8 +64,10 @@ class PerfSheriffBot:
         self._backfill()
         self.assert_can_run()
 
+        self._notify_backfill_outcome()
+
     def runtime_exceeded(self) -> bool:
-        elapsed_runtime = datetime.now() - self._woke_up_time
+        elapsed_runtime = datetime.now() - self._wake_up_time
         return self._max_runtime <= elapsed_runtime
 
     def assert_can_run(self):
@@ -80,25 +80,30 @@ class PerfSheriffBot:
         return self.report_maintainer.provide_updated_reports(since, frameworks, repositories)
 
     def _backfill(self):
-        # TODO: feature flags; remove when enabled ->
-        if self.__backfill_tool_disabled or self.__secretary_tool_disabled:
-            return
-        # -> up to here
-
         left = self.secretary.backfills_left(on_platform='linux')
         total_consumed = 0
 
-        records_to_backfill = BackfillRecord.objects.filter(
-            status=BackfillRecord.READY_FOR_PROCESSING
-        )
+        # TODO: make this platform generic
+        records_to_backfill = self.__fetch_records_requiring_backfills()
         for record in records_to_backfill:
             if left <= 0 or self.runtime_exceeded():
                 break
             left, consumed = self._backfill_record(record, left)
+            self.backfilled_records.append(record)
             total_consumed += consumed
 
         self.secretary.consume_backfills('linux', total_consumed)
         logger.debug(f'{self.__class__.__name__} has {left} backfills left.')
+
+    @staticmethod
+    def __fetch_records_requiring_backfills() -> QuerySet:
+        records_to_backfill = BackfillRecord.objects.select_related(
+            'alert', 'alert__series_signature', 'alert__series_signature__platform'
+        ).filter(
+            status=BackfillRecord.READY_FOR_PROCESSING,
+            alert__series_signature__platform__platform__icontains='linux',
+        )
+        return records_to_backfill
 
     def _backfill_record(self, record: BackfillRecord, left: int) -> Tuple[int, int]:
         consumed = 0
@@ -114,10 +119,13 @@ class PerfSheriffBot:
                 if left <= 0 or self.runtime_exceeded():
                     break
                 try:
-                    self.backfill_tool.backfill_job(data_point['job_id'])
+                    using_job_id = data_point['job_id']
+                    self.backfill_tool.backfill_job(using_job_id)
                     left, consumed = left - 1, consumed + 1
                 except (KeyError, CannotBackfill, Exception) as ex:
                     logger.debug(f'Failed to backfill record {record.id}: {ex}')
+                else:
+                    self.__try_setting_job_type_of(record, using_job_id)
 
             success, outcome = self._note_backfill_outcome(record, len(context), consumed)
             log_level = INFO if success else WARNING
@@ -125,10 +133,21 @@ class PerfSheriffBot:
 
         return left, consumed
 
+    @staticmethod
+    def __try_setting_job_type_of(record, job_id):
+        try:
+            if record.job_type is None:
+                record.job_type = Job.objects.get(id=job_id).job_type
+        except Job.DoesNotExist as ex:
+            logger.warning(ex)
+
+    @staticmethod
     def _note_backfill_outcome(
-        self, record: BackfillRecord, to_backfill: int, actually_backfilled: int
+        record: BackfillRecord, to_backfill: int, actually_backfilled: int
     ) -> Tuple[bool, str]:
         success = False
+
+        record.total_backfills_triggered = actually_backfilled
 
         if actually_backfilled == to_backfill:
             record.status = BackfillRecord.BACKFILLED
@@ -149,9 +168,8 @@ class PerfSheriffBot:
         record.save()
         return success, outcome
 
-    def _is_queue_overloaded(
-        self, provisioner_id: str, worker_type: str, acceptable_limit=100
-    ) -> bool:
+    @staticmethod
+    def _is_queue_overloaded(provisioner_id: str, worker_type: str, acceptable_limit=100) -> bool:
         """
         Helper method for PerfSheriffBot to check load on processing queue.
         Usage example: _queue_is_too_loaded('gecko-3', 'b-linux')
@@ -164,3 +182,13 @@ class PerfSheriffBot:
         pending_tasks_count = queue.pendingTasks(provisioner_id, worker_type).get('pendingTasks')
 
         return pending_tasks_count > acceptable_limit
+
+    def _notify_backfill_outcome(self):
+        try:
+            backfill_notification = self._email_writer.prepare_new_email(self.backfilled_records)
+        except (JSONDecodeError, KeyError, Push.DoesNotExist) as ex:
+            logger.warning(f"Failed to email backfill report.{type(ex)}: {ex}")
+            return
+
+        # send email
+        self._notify.email(backfill_notification)

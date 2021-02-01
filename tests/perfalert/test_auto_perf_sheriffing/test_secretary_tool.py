@@ -7,11 +7,10 @@ from django.db.models import Q
 from mock import Mock, patch
 
 from treeherder.config.settings import IS_WINDOWS
+from treeherder.perf.auto_perf_sheriffing.secretary_tool import SecretaryTool
 from treeherder.model.models import Push, Job
 from treeherder.perf.models import BackfillRecord, BackfillReport, PerformanceSettings
 from treeherder.perf.outcome_checker import OutcomeChecker, OutcomeStatus
-from treeherder.perf.secretary_tool import SecretaryTool
-from treeherder.utils import default_serializer
 
 # we're testing against this (automatically provided by fixtures)
 JOB_TYPE_ID = 1
@@ -21,39 +20,6 @@ def get_middle_index(successful_jobs):
     # get middle index to make sure the push is in range
     index_in_range = int((len(successful_jobs) + 1) / 2)
     return index_in_range
-
-
-@pytest.fixture
-def performance_settings(db):
-    settings = {
-        "limits": 500,
-        "last_reset_date": datetime.utcnow(),
-    }
-    return PerformanceSettings.objects.create(
-        name="perf_sheriff_bot",
-        settings=json.dumps(settings, default=default_serializer),
-    )
-
-
-@pytest.fixture
-def expired_performance_settings(db):
-    settings = {
-        "limits": 500,
-        "last_reset_date": datetime.utcnow() - timedelta(days=30),
-    }
-    return PerformanceSettings.objects.create(
-        name="perf_sheriff_bot",
-        settings=json.dumps(settings, default=default_serializer),
-    )
-
-
-@pytest.fixture
-def create_record():
-    def _create_record(alert):
-        report = BackfillReport.objects.create(summary=alert.summary)
-        return BackfillRecord.objects.create(alert=alert, report=report)
-
-    return _create_record
 
 
 @pytest.fixture

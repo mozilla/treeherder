@@ -28,7 +28,8 @@
       "text_log_error_metadata",
       "text_log_step",
       "failure_line.stackwalk_stdout",
-      "failure_line.stackwalk_stderr"
+      "failure_line.stackwalk_stderr",
+      "backfill_record"
     ],
     "exclude_path": [],
     "reference_only": [
