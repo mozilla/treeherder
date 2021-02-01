@@ -7,7 +7,7 @@ django-extensions
 PyPOM
 
 
-Django==3.1.4  # match common.in for faster install
+Django==3.1.6  # match common.in for faster install
 
 # for git commit hooks
 pre-commit
