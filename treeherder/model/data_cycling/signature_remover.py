@@ -8,7 +8,7 @@ from taskcluster.exceptions import TaskclusterRestFailure
 from treeherder.perf.models import PerformanceSignature
 from treeherder.services.taskcluster import TaskclusterModel
 from .max_runtime import MaxRuntime
-from .payload_service import EmailService
+from .email_service import EmailService
 
 logger = logging.getLogger(__name__)
 
@@ -21,16 +21,6 @@ class PublicSignatureRemover:
     associated to any data point and sends email notifications to the entire team.
     """
 
-    TABLE_DESCRIPTION = """Perfherder removes performance data that is older than one year and in some cases even sooner, leaving behind performance signatures that aren't associated to any data point. These as well need to be removed.
-> __Here's a summary of recently deleted performance signatures:__
----
-    """
-
-    TABLE_HEADERS = """
-| Repository | Framework | Platform | Suite | Application |
-| :---: | :---: | :---: | :---: | :---: |
-    """
-
     def __init__(
         self,
         timer: MaxRuntime,
@@ -39,13 +29,10 @@ class PublicSignatureRemover:
         max_emails_allowed=None,
     ):
         self.tc_model = taskcluster_model
-        self._subject = "Summary of deleted Performance Signatures"
-        self._content = None
         self._max_rows_allowed = max_rows_allowed or 50
         self._max_emails_allowed = max_emails_allowed or 10
 
         self.email_service = EmailService(address=RECEIVER_TEAM_EMAIL)
-
         self.timer = timer
 
     def remove_in_chunks(self, signatures):
@@ -84,13 +71,6 @@ class PublicSignatureRemover:
             self._send_email()
         else:
             logger.warning("Failed to send notification because deployment is NOT production")
-
-    def _ping_notify_service(self):
-        # should only run on one instance at a time
-        if settings.NOTIFY_CLIENT_ID and settings.NOTIFY_ACCESS_TOKEN:
-            self.tc_model.notify.ping()
-        else:
-            logger.warning("Failed to ping Notify service because deployment is NOT production")
 
     @staticmethod
     def _delete(chunk_of_signatures):

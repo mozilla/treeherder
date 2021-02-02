@@ -10,7 +10,7 @@ from django.db import connection, IntegrityError
 
 from treeherder.model.data_cycling import MaxRuntime
 from treeherder.model.data_cycling import PerfherderCycler
-from treeherder.model.data_cycling import PublicSignatureRemover
+from treeherder.model.data_cycling import PublicSignatureRemover, EmailService
 from treeherder.model.data_cycling.removal_strategies import (
     MainRemovalStrategy,
     TryDataRemoval,
@@ -283,6 +283,20 @@ def test_signature_remover(
     assert PerformanceSignature.objects.first() == test_perf_signature
 
 
+def test_email_payload(test_perf_signature):
+    email_service = EmailService(address='test_email@test.com')
+
+    expected_result = {
+        "repository": test_perf_signature.repository.name,
+        "framework": test_perf_signature.framework.name,
+        "platform": test_perf_signature.platform.platform,
+        "suite": test_perf_signature.suite,
+        "application": test_perf_signature.application,
+    }
+    actual_result = email_service.extract_properties(test_perf_signature)
+    assert actual_result == expected_result
+
+
 def test_signature_remover_when_notify_service_is_down(
     test_perf_signature,
     test_perf_signature_2,
@@ -336,9 +350,7 @@ def test_total_emails_sent(test_perf_signature, total_signatures, mock_tc_prod_c
 
     signatures = PerformanceSignature.objects.filter(last_updated__lte=datetime.now())
     signatures_remover.remove_in_chunks(signatures)
-    assert (
-        tc_model.notify.email.call_count == expected_call_count
-    )  # the email is sent to two email scopes
+    assert tc_model.notify.email.call_count == expected_call_count
 
 
 def test_performance_cycler_quit_indicator(mock_taskcluster_notify):

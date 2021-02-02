@@ -7,7 +7,8 @@ logger = logging.getLogger(__name__)
 
 class EmailService:
     """
-    This class handles the
+    This class handles the payload format required for emails
+     sent through the `PublicSignatureRemover`.
     """
 
     TABLE_DESCRIPTION = """Perfherder removes performance data that is older than one year and in some cases even sooner, leaving behind performance signatures that aren't associated to any data point. These as well need to be removed.
@@ -42,7 +43,7 @@ class EmailService:
     @content.setter
     def content(self, signature: PerformanceSignature):
         if signature:
-            signature_properties = self._extract_properties(signature)
+            signature_properties = self.extract_properties(signature)
             signature_row = (
                 """| {repository} | {framework} | {platform} | {suite} | {application} |""".format(
                     repository=signature_properties["repository"],
@@ -59,15 +60,14 @@ class EmailService:
             self._content = None
 
     @property
-    def payload(self):
+    def payload(self) -> dict:
         return {
             "address": self.address,
             "content": self.content,
             "subject": self.subject,
         }
 
-    @staticmethod
-    def _extract_properties(signature: PerformanceSignature) -> dict:
+    def extract_properties(self, signature: PerformanceSignature) -> dict:
         return {
             "repository": signature.repository.name,
             "framework": signature.framework.name,
