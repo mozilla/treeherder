@@ -46,7 +46,7 @@ describe('JobModel', () => {
   describe('Taskcluster actions', () => {
     const rootUrl = 'https://firefox-ci-tc.services.mozilla.com';
     const decisionTaskMap = {
-      '526443': { id: 'LVTawdmFR2-uJiWWS2NxSw', run: '0' },
+      526443: { id: 'LVTawdmFR2-uJiWWS2NxSw', run: '0' },
     };
 
     const tcActionsUrl = `${rootUrl}/api/queue/v1/task/LVTawdmFR2-uJiWWS2NxSw/artifacts/public%2Factions.json`;

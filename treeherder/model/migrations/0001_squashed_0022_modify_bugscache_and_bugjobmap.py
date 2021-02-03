@@ -23,7 +23,9 @@ class Migration(migrations.Migration):
                 ('name', models.CharField(max_length=100, unique=True)),
                 ('description', models.TextField(blank=True)),
             ],
-            options={'db_table': 'repository_group',},
+            options={
+                'db_table': 'repository_group',
+            },
         ),
         migrations.CreateModel(
             name='Repository',
@@ -49,7 +51,10 @@ class Migration(migrations.Migration):
                 ('expire_performance_data', models.BooleanField(default=True)),
                 ('is_try_repo', models.BooleanField(default=False)),
             ],
-            options={'db_table': 'repository', 'verbose_name_plural': 'repositories',},
+            options={
+                'db_table': 'repository',
+                'verbose_name_plural': 'repositories',
+            },
         ),
         migrations.CreateModel(
             name='Push',
@@ -70,7 +75,9 @@ class Migration(migrations.Migration):
                     ),
                 ),
             ],
-            options={'db_table': 'push',},
+            options={
+                'db_table': 'push',
+            },
         ),
         migrations.CreateModel(
             name='Commit',
@@ -93,7 +100,9 @@ class Migration(migrations.Migration):
                     ),
                 ),
             ],
-            options={'db_table': 'commit',},
+            options={
+                'db_table': 'commit',
+            },
         ),
         migrations.CreateModel(
             name='Bugscache',
@@ -108,7 +117,10 @@ class Migration(migrations.Migration):
                 ('modified', models.DateTimeField()),
                 ('whiteboard', models.CharField(blank=True, default='', max_length=100)),
             ],
-            options={'db_table': 'bugscache', 'verbose_name_plural': 'bugscache',},
+            options={
+                'db_table': 'bugscache',
+                'verbose_name_plural': 'bugscache',
+            },
         ),
         migrations.CreateModel(
             name='BuildPlatform',
@@ -118,7 +130,9 @@ class Migration(migrations.Migration):
                 ('platform', models.CharField(db_index=True, max_length=100)),
                 ('architecture', models.CharField(blank=True, db_index=True, max_length=25)),
             ],
-            options={'db_table': 'build_platform',},
+            options={
+                'db_table': 'build_platform',
+            },
         ),
         migrations.CreateModel(
             name='ClassifiedFailure',
@@ -128,7 +142,9 @@ class Migration(migrations.Migration):
                 ('created', models.DateTimeField(auto_now_add=True)),
                 ('modified', models.DateTimeField(auto_now=True)),
             ],
-            options={'db_table': 'classified_failure',},
+            options={
+                'db_table': 'classified_failure',
+            },
         ),
         migrations.CreateModel(
             name='FailureClassification',
@@ -136,7 +152,9 @@ class Migration(migrations.Migration):
                 ('id', models.AutoField(primary_key=True, serialize=False)),
                 ('name', models.CharField(max_length=100, unique=True)),
             ],
-            options={'db_table': 'failure_classification',},
+            options={
+                'db_table': 'failure_classification',
+            },
         ),
         migrations.CreateModel(
             name='JobGroup',
@@ -146,7 +164,9 @@ class Migration(migrations.Migration):
                 ('name', models.CharField(max_length=100)),
                 ('description', models.TextField(blank=True)),
             ],
-            options={'db_table': 'job_group',},
+            options={
+                'db_table': 'job_group',
+            },
         ),
         migrations.CreateModel(
             name='JobType',
@@ -156,7 +176,9 @@ class Migration(migrations.Migration):
                 ('name', models.CharField(max_length=100)),
                 ('description', models.TextField(blank=True)),
             ],
-            options={'db_table': 'job_type',},
+            options={
+                'db_table': 'job_type',
+            },
         ),
         migrations.CreateModel(
             name='Machine',
@@ -164,7 +186,9 @@ class Migration(migrations.Migration):
                 ('id', models.AutoField(primary_key=True, serialize=False)),
                 ('name', models.CharField(max_length=100, unique=True)),
             ],
-            options={'db_table': 'machine',},
+            options={
+                'db_table': 'machine',
+            },
         ),
         migrations.CreateModel(
             name='MachinePlatform',
@@ -174,7 +198,9 @@ class Migration(migrations.Migration):
                 ('platform', models.CharField(db_index=True, max_length=100)),
                 ('architecture', models.CharField(blank=True, db_index=True, max_length=25)),
             ],
-            options={'db_table': 'machine_platform',},
+            options={
+                'db_table': 'machine_platform',
+            },
         ),
         migrations.CreateModel(
             name='Product',
@@ -182,7 +208,9 @@ class Migration(migrations.Migration):
                 ('id', models.AutoField(primary_key=True, serialize=False)),
                 ('name', models.CharField(max_length=100, unique=True)),
             ],
-            options={'db_table': 'product',},
+            options={
+                'db_table': 'product',
+            },
         ),
         migrations.CreateModel(
             name='ReferenceDataSignatures',
@@ -321,7 +349,9 @@ class Migration(migrations.Migration):
                     ),
                 ),
             ],
-            options={'db_table': 'job',},
+            options={
+                'db_table': 'job',
+            },
         ),
         migrations.CreateModel(
             name='BugJobMap',
@@ -342,7 +372,9 @@ class Migration(migrations.Migration):
                     ),
                 ),
             ],
-            options={'db_table': 'bug_job_map',},
+            options={
+                'db_table': 'bug_job_map',
+            },
         ),
         migrations.CreateModel(
             name='JobDetail',
@@ -360,7 +392,9 @@ class Migration(migrations.Migration):
                     ),
                 ),
             ],
-            options={'db_table': 'job_detail',},
+            options={
+                'db_table': 'job_detail',
+            },
         ),
         migrations.CreateModel(
             name='JobLog',
@@ -388,7 +422,9 @@ class Migration(migrations.Migration):
                     ),
                 ),
             ],
-            options={'db_table': 'job_log',},
+            options={
+                'db_table': 'job_log',
+            },
         ),
         migrations.CreateModel(
             name='JobNote',
@@ -416,7 +452,9 @@ class Migration(migrations.Migration):
                     ),
                 ),
             ],
-            options={'db_table': 'job_note',},
+            options={
+                'db_table': 'job_note',
+            },
         ),
         migrations.CreateModel(
             name='Option',
@@ -424,7 +462,9 @@ class Migration(migrations.Migration):
                 ('id', models.AutoField(primary_key=True, serialize=False)),
                 ('name', models.CharField(max_length=100, unique=True)),
             ],
-            options={'db_table': 'option',},
+            options={
+                'db_table': 'option',
+            },
         ),
         migrations.CreateModel(
             name='OptionCollection',
@@ -438,7 +478,9 @@ class Migration(migrations.Migration):
                     ),
                 ),
             ],
-            options={'db_table': 'option_collection',},
+            options={
+                'db_table': 'option_collection',
+            },
         ),
         migrations.CreateModel(
             name='RunnableJob',
@@ -479,7 +521,9 @@ class Migration(migrations.Migration):
                     ),
                 ),
             ],
-            options={'db_table': 'runnable_job',},
+            options={
+                'db_table': 'runnable_job',
+            },
         ),
         migrations.CreateModel(
             name='FailureLine',
@@ -589,7 +633,9 @@ class Migration(migrations.Migration):
                     ),
                 ),
             ],
-            options={'db_table': 'failure_line',},
+            options={
+                'db_table': 'failure_line',
+            },
         ),
         migrations.CreateModel(
             name='Matcher',
@@ -602,7 +648,9 @@ class Migration(migrations.Migration):
                 ),
                 ('name', models.CharField(max_length=50, unique=True)),
             ],
-            options={'db_table': 'matcher',},
+            options={
+                'db_table': 'matcher',
+            },
         ),
         migrations.CreateModel(
             name='FailureMatch',
@@ -635,7 +683,10 @@ class Migration(migrations.Migration):
                     ),
                 ),
             ],
-            options={'db_table': 'failure_match', 'verbose_name_plural': 'failure matches',},
+            options={
+                'db_table': 'failure_match',
+                'verbose_name_plural': 'failure matches',
+            },
         ),
         migrations.CreateModel(
             name='Group',
@@ -647,7 +698,9 @@ class Migration(migrations.Migration):
                     models.ManyToManyField(related_name='group', to='model.FailureLine'),
                 ),
             ],
-            options={'db_table': 'group',},
+            options={
+                'db_table': 'group',
+            },
         ),
         migrations.CreateModel(
             name='TextLogStep',
@@ -683,7 +736,9 @@ class Migration(migrations.Migration):
                     ),
                 ),
             ],
-            options={'db_table': 'text_log_step',},
+            options={
+                'db_table': 'text_log_step',
+            },
         ),
         migrations.CreateModel(
             name='TextLogError',
@@ -700,7 +755,9 @@ class Migration(migrations.Migration):
                     ),
                 ),
             ],
-            options={'db_table': 'text_log_error',},
+            options={
+                'db_table': 'text_log_error',
+            },
         ),
         migrations.CreateModel(
             name='TextLogErrorMatch',
@@ -759,7 +816,9 @@ class Migration(migrations.Migration):
                 ),
                 ('retry_id', models.PositiveIntegerField()),
             ],
-            options={'db_table': 'taskcluster_metadata',},
+            options={
+                'db_table': 'taskcluster_metadata',
+            },
         ),
         migrations.CreateModel(
             name='TextLogErrorMetadata',
@@ -794,7 +853,9 @@ class Migration(migrations.Migration):
                     ),
                 ),
             ],
-            options={'db_table': 'text_log_error_metadata',},
+            options={
+                'db_table': 'text_log_error_metadata',
+            },
         ),
         migrations.AddField(
             model_name='classifiedfailure',
@@ -819,12 +880,20 @@ class Migration(migrations.Migration):
             unique_together=set([('name', 'signature', 'build_system_type', 'repository')]),
         ),
         migrations.AlterUniqueTogether(
-            name='machineplatform', unique_together=set([('os_name', 'platform', 'architecture')]),
+            name='machineplatform',
+            unique_together=set([('os_name', 'platform', 'architecture')]),
         ),
-        migrations.AlterUniqueTogether(name='jobtype', unique_together=set([('name', 'symbol')]),),
-        migrations.AlterUniqueTogether(name='jobgroup', unique_together=set([('name', 'symbol')]),),
         migrations.AlterUniqueTogether(
-            name='buildplatform', unique_together=set([('os_name', 'platform', 'architecture')]),
+            name='jobtype',
+            unique_together=set([('name', 'symbol')]),
+        ),
+        migrations.AlterUniqueTogether(
+            name='jobgroup',
+            unique_together=set([('name', 'symbol')]),
+        ),
+        migrations.AlterUniqueTogether(
+            name='buildplatform',
+            unique_together=set([('os_name', 'platform', 'architecture')]),
         ),
         migrations.AlterUniqueTogether(
             name='textlogstep',
@@ -835,22 +904,28 @@ class Migration(migrations.Migration):
             unique_together=set([('text_log_error', 'classified_failure', 'matcher')]),
         ),
         migrations.AlterUniqueTogether(
-            name='textlogerror', unique_together=set([('step', 'line_number')]),
+            name='textlogerror',
+            unique_together=set([('step', 'line_number')]),
         ),
         migrations.AlterUniqueTogether(
-            name='runnablejob', unique_together=set([('ref_data_name', 'build_system_type')]),
+            name='runnablejob',
+            unique_together=set([('ref_data_name', 'build_system_type')]),
         ),
         migrations.AlterUniqueTogether(
-            name='push', unique_together=set([('repository', 'revision')]),
+            name='push',
+            unique_together=set([('repository', 'revision')]),
         ),
         migrations.AlterUniqueTogether(
-            name='optioncollection', unique_together=set([('option_collection_hash', 'option')]),
+            name='optioncollection',
+            unique_together=set([('option_collection_hash', 'option')]),
         ),
         migrations.AlterUniqueTogether(
-            name='joblog', unique_together=set([('job', 'name', 'url')]),
+            name='joblog',
+            unique_together=set([('job', 'name', 'url')]),
         ),
         migrations.AlterUniqueTogether(
-            name='jobdetail', unique_together=set([('title', 'value', 'job')]),
+            name='jobdetail',
+            unique_together=set([('title', 'value', 'job')]),
         ),
         migrations.AlterIndexTogether(
             name='job',
@@ -876,13 +951,21 @@ class Migration(migrations.Migration):
             unique_together=set([('failure_line', 'classified_failure', 'matcher')]),
         ),
         migrations.AlterUniqueTogether(
-            name='failureline', unique_together=set([('job_log', 'line')]),
+            name='failureline',
+            unique_together=set([('job_log', 'line')]),
         ),
         migrations.AlterIndexTogether(
-            name='failureline', index_together=set([('job_guid', 'repository')]),
+            name='failureline',
+            index_together=set([('job_guid', 'repository')]),
         ),
-        migrations.AlterUniqueTogether(name='commit', unique_together=set([('push', 'revision')]),),
-        migrations.AlterUniqueTogether(name='bugjobmap', unique_together=set([('job', 'bug_id')]),),
+        migrations.AlterUniqueTogether(
+            name='commit',
+            unique_together=set([('push', 'revision')]),
+        ),
+        migrations.AlterUniqueTogether(
+            name='bugjobmap',
+            unique_together=set([('job', 'bug_id')]),
+        ),
         # Manually created migrations.
         # Since Django doesn't natively support creating FULLTEXT indices.
         migrations.RunSQL(

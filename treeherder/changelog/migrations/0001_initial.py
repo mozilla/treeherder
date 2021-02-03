@@ -45,6 +45,8 @@ class Migration(migrations.Migration):
                     ),
                 ),
             ],
-            options={'db_table': 'changelog_file',},
+            options={
+                'db_table': 'changelog_file',
+            },
         ),
     ]

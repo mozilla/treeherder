@@ -11,6 +11,8 @@ class Migration(migrations.Migration):
 
     operations = [
         migrations.AddField(
-            model_name='performancealert', name='starred', field=models.BooleanField(default=False),
+            model_name='performancealert',
+            name='starred',
+            field=models.BooleanField(default=False),
         ),
     ]

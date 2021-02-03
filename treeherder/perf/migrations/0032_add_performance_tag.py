@@ -22,6 +22,8 @@ class Migration(migrations.Migration):
                     ),
                 ),
             ],
-            options={'db_table': 'performance_tag',},
+            options={
+                'db_table': 'performance_tag',
+            },
         ),
     ]
