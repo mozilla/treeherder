@@ -88,7 +88,7 @@ describe('Filtering', () => {
     beforeAll(() => {
       fetchMock.get(
         getProjectUrl(
-          '/push/health_summary/?revision=ebdd6cf6caba154bc523aa85d311c804b5115231&with_in_progress_tests=true',
+          '/push/health_summary/?revision=fb66bad25e85e350c03352f143bc7319afc32548&with_in_progress_tests=true',
           'autoland',
         ),
         [],
