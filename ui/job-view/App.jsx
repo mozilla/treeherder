@@ -88,7 +88,7 @@ class App extends React.Component {
       groupCountsExpanded: urlParams.get('group_state') === 'expanded',
       duplicateJobsVisible: urlParams.get('duplicate_jobs') === 'visible',
       showShortCuts: false,
-      pushHealthVisibility: 'Try',
+      pushHealthVisibility: 'All',
     };
   }
 
