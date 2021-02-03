@@ -109,13 +109,6 @@ def get_current_test_failures(push, option_map, jobs, investigatedTests=None):
         test_key = re.sub(
             r'\W+', '', 't{}{}{}{}{}'.format(test_name, config, platform, job_name, job_group)
         )
-        countPassed = len(list(filter(lambda x: x['result'] == 'success', jobs[job_name])))
-        passFailRatio = (
-            countPassed / countPassed
-            + len(list(filter(lambda x: x['result'] == 'testfailed', jobs[job_name])))
-            if countPassed
-            else 0
-        )
         isClassifiedIntermittent = any(
             job['failure_classification_id'] == 4 for job in jobs[job_name]
         )
@@ -146,13 +139,19 @@ def get_current_test_failures(push, option_map, jobs, investigatedTests=None):
                 'suggestedClassification': 'New Failure',
                 'confidence': 0,
                 'tier': job.tier,
+                'totalFailures': 0,
+                'totalJobs': 0,
                 'failedInParent': False,
-                'passFailRatio': passFailRatio,
                 'isClassifiedIntermittent': isClassifiedIntermittent,
                 'isInvestigated': isInvestigated,
                 'investigatedTestId': investigatedTestId,
             }
             tests[test_key] = line
+        countJobs = len(
+            list(filter(lambda x: x['result'] in ['success', 'testfailed'], jobs[job_name]))
+        )
+        tests[test_key]['totalFailures'] += 1
+        tests[test_key]['totalJobs'] = countJobs
 
     # Each line of the sorted list that is returned here represents one test file per platform/
     # config.  Each line will have at least one failing job, but may have several
