@@ -101,6 +101,13 @@ describe('Filtering', () => {
         [],
       );
       fetchMock.get(
+        getProjectUrl(
+          '/push/health_summary/?revision=ebdd6cf6caba154bc523aa85d311c804b5115231&with_in_progress_tests=true',
+          'autoland',
+        ),
+        [],
+      );
+      fetchMock.get(
         getProjectUrl('/push/?full=true&count=10&author=reviewbot', 'autoland'),
         {
           results: [
