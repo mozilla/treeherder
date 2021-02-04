@@ -10,9 +10,6 @@
     "node": "12.14.1",
     "yarn": "1.22.5"
   },
-  "resolutions": {
-    "serialize-javascript": "3.1.0"
-  },
   "dependencies": {
     "@fortawesome/fontawesome-svg-core": "1.2.34",
     "@fortawesome/free-brands-svg-icons": "5.12.1",
