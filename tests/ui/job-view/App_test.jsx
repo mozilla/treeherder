@@ -51,6 +51,13 @@ describe('App', () => {
       [],
     );
     fetchMock.get(
+      getProjectUrl(
+        '/push/health_summary/?revision=ba9c692786e95143b8df3f4b3e9b504dfbc589a0&with_in_progress_tests=true',
+        'autoland',
+      ),
+      [],
+    );
+    fetchMock.get(
       `begin:${getProjectUrl('/push/?full=true&count=', repoName)}`,
       {
         ...pushListFixture,

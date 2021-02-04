@@ -1,4 +1,5 @@
 import React from 'react';
+import { Button } from 'reactstrap';
 import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
 import isEqual from 'lodash/isEqual';
@@ -15,7 +16,6 @@ import ReposMenu from './ReposMenu';
 import TiersMenu from './TiersMenu';
 import FiltersMenu from './FiltersMenu';
 import SecondaryNavBar from './SecondaryNavBar';
-import HealthMenu from './HealthMenu';
 
 class PrimaryNavBar extends React.Component {
   shouldComponentUpdate(prevProps) {
@@ -26,7 +26,6 @@ class PrimaryNavBar extends React.Component {
       serverChanged,
       groupCountsExpanded,
       duplicateJobsVisible,
-      pushHealthVisibility,
     } = this.props;
 
     return (
@@ -35,8 +34,7 @@ class PrimaryNavBar extends React.Component {
       !isEqual(prevProps.repos, repos) ||
       prevProps.serverChanged !== serverChanged ||
       prevProps.groupCountsExpanded !== groupCountsExpanded ||
-      prevProps.duplicateJobsVisible !== duplicateJobsVisible ||
-      prevProps.pushHealthVisibility !== pushHealthVisibility
+      prevProps.duplicateJobsVisible !== duplicateJobsVisible
     );
   }
 
@@ -52,9 +50,7 @@ class PrimaryNavBar extends React.Component {
       duplicateJobsVisible,
       groupCountsExpanded,
       toggleFieldFilterVisible,
-      pushHealthVisibility,
       getAllShownJobs,
-      setPushHealthVisibility,
       notify,
     } = this.props;
 
@@ -66,6 +62,14 @@ class PrimaryNavBar extends React.Component {
               <LogoMenu menuText="Treeherder" menuImage={Logo} />
               <span className="navbar-right">
                 <NotificationsMenu />
+                <Button
+                  className="btn-view-nav nav-menu-btn"
+                  title="Go to Push Health"
+                  tag="a"
+                  href="/push-health"
+                >
+                  Push Health
+                </Button>
                 <InfraMenu />
                 <ReposMenu repos={repos} />
                 <TiersMenu filterModel={filterModel} />
@@ -73,10 +77,6 @@ class PrimaryNavBar extends React.Component {
                   filterModel={filterModel}
                   user={user}
                   getAllShownJobs={getAllShownJobs}
-                />
-                <HealthMenu
-                  pushHealthVisibility={pushHealthVisibility}
-                  setPushHealthVisibility={setPushHealthVisibility}
                 />
                 <HelpMenu />
                 <Login user={user} setUser={setUser} notify={notify} />
@@ -111,8 +111,6 @@ PrimaryNavBar.propTypes = {
   user: PropTypes.shape({}).isRequired,
   duplicateJobsVisible: PropTypes.bool.isRequired,
   groupCountsExpanded: PropTypes.bool.isRequired,
-  pushHealthVisibility: PropTypes.string.isRequired,
-  setPushHealthVisibility: PropTypes.func.isRequired,
   notify: PropTypes.func.isRequired,
   getAllShownJobs: PropTypes.func.isRequired,
 };

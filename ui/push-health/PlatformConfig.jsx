@@ -64,6 +64,10 @@ class PlatformConfig extends React.PureComponent {
     } = this.props;
 
     if (selectedTask === task || !task) {
+      this.props.updateParamsAndState({
+        selectedTaskId: '',
+        selectedJobName: '',
+      });
       this.setState({ selectedTask: null, detailsShowing: false });
     } else {
       this.props.updateParamsAndState({
