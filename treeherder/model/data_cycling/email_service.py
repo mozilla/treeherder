@@ -41,9 +41,12 @@ class EmailService:
         return self._content
 
     @content.setter
-    def content(self, signature: PerformanceSignature):
+    def content(self, content: str):
+        self._content = content
+
+    def add_signature_to_content(self, signature: PerformanceSignature):
         if signature:
-            signature_properties = self.extract_properties(signature)
+            signature_properties = self._extract_properties(signature)
             signature_row = (
                 """| {repository} | {framework} | {platform} | {suite} | {application} |""".format(
                     repository=signature_properties["repository"],
@@ -53,7 +56,6 @@ class EmailService:
                     application=signature_properties["application"],
                 )
             )
-
             self._content = self.content + signature_row
             self._content += "\n"
         else:
@@ -67,7 +69,7 @@ class EmailService:
             "subject": self.subject,
         }
 
-    def extract_properties(self, signature: PerformanceSignature) -> dict:
+    def _extract_properties(self, signature: PerformanceSignature) -> dict:
         return {
             "repository": signature.repository.name,
             "framework": signature.framework.name,

@@ -49,7 +49,7 @@ class PublicSignatureRemover:
             ):
                 rows_left -= 1
                 chunk_of_signatures.append(perf_signature)
-                self.email_service.content = perf_signature
+                self.email_service.add_signature_to_content(perf_signature)
 
                 if rows_left == 0:
                     success = self.__delete_and_notify(chunk_of_signatures)
