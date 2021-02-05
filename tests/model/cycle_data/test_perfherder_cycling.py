@@ -375,6 +375,64 @@ def test_total_emails_sent(
     assert not PerformanceSignature.objects.filter(repository__name='try').exists()
 
 
+def test_remove_try_signatures_without_data(
+    test_perf_signature, test_perf_data, try_repository, mock_tc_prod_credentials
+):
+    tc_model = MagicMock()
+    timer = MaxRuntime()
+    timer.start_timer()
+    total_rows = 2
+    total_emails = 2
+    signatures_remover = PublicSignatureRemover(
+        timer=timer,
+        taskcluster_model=tc_model,
+        max_rows_allowed=total_rows,
+        max_emails_allowed=total_emails,
+    )
+    signature_with_perf_data = PerformanceSignature.objects.create(
+        repository=try_repository,
+        signature_hash=(20 * 'e1'),
+        framework=test_perf_signature.framework,
+        platform=test_perf_signature.platform,
+        option_collection=test_perf_signature.option_collection,
+        suite='mysuite',
+        test='mytest',
+        application='firefox',
+        has_subtests=test_perf_signature.has_subtests,
+        extra_options=test_perf_signature.extra_options,
+        last_updated=datetime.now(),
+    )
+    push = Push.objects.first()
+    PerformanceDatum.objects.create(
+        repository=signature_with_perf_data.repository,
+        push=push,
+        job=None,
+        signature=signature_with_perf_data,
+        push_timestamp=datetime.now(),
+        value=1.0,
+    )
+
+    signature_without_perf_data = PerformanceSignature.objects.create(
+        repository=try_repository,
+        signature_hash=(20 * 'e2'),
+        framework=test_perf_signature.framework,
+        platform=test_perf_signature.platform,
+        option_collection=test_perf_signature.option_collection,
+        suite='mysuite%s',
+        test='mytest%s',
+        application='firefox',
+        has_subtests=test_perf_signature.has_subtests,
+        extra_options=test_perf_signature.extra_options,
+        last_updated=datetime.now(),
+    )
+
+    signatures = PerformanceSignature.objects.filter(last_updated__lte=datetime.now())
+    signatures_remover.remove_in_chunks(signatures)
+
+    assert PerformanceSignature.objects.filter(id=signature_with_perf_data.id).exists()
+    assert not PerformanceSignature.objects.filter(id=signature_without_perf_data.id).exists()
+
+
 def test_performance_cycler_quit_indicator(mock_taskcluster_notify):
     ten_minutes_ago = datetime.now() - timedelta(minutes=10)
     one_second = timedelta(seconds=1)
