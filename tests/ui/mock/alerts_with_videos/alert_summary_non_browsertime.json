@@ -1,0 +1,58 @@
+{
+  "id": 27257,
+  "push_id": 857078,
+  "prev_push_id": 857000,
+  "created": "2021-02-05T11:02:58.167217",
+  "repository": "autoland",
+  "framework": 1,
+  "alerts": [
+    {
+      "id": 107504,
+      "status": 0,
+      "series_signature": {
+        "id": 2900307,
+        "framework_id": 1,
+        "signature_hash": "053ca22a7589c3f18e046967458b9ec7c911caa0",
+        "machine_platform": "linux64-qr",
+        "suite": "basic_compositor_video",
+        "test": "",
+        "lower_is_better": true,
+        "has_subtests": true,
+        "option_collection_hash": "102210fe594ee9b33d82058545b1ed14f4c8206e",
+        "tags": [""],
+        "extra_options": ["e10s", "stylo", "webrender"],
+        "measurement_unit": null,
+        "suite_public_name": null,
+        "test_public_name": null
+      },
+      "is_regression": false,
+      "prev_value": 2.88,
+      "new_value": 2.82,
+      "t_value": 8.55,
+      "amount_abs": -0.06,
+      "amount_pct": 2.1,
+      "summary_id": 27257,
+      "related_summary_id": null,
+      "manually_created": false,
+      "classifier": null,
+      "starred": false,
+      "classifier_email": null,
+      "backfill_record": {
+        "context": "[{\"perf_datum_id\": 1295521990, \"value\": 2.8827698216656246, \"job_id\": 328256281, \"push_id\": 856990, \"push_timestamp\": \"2021-02-04T01:45:23\", \"push__revision\": \"1143e9a6f3fa7eeba6638504387e20a8d93e983b\"}, {\"perf_datum_id\": 1295521772, \"value\": 2.8583788868181372, \"job_id\": 328256121, \"push_id\": 857000, \"push_timestamp\": \"2021-02-04T01:53:55\", \"push__revision\": \"56141a8155f802eca0ec52128e672a91e029f8a2\"}, {\"perf_datum_id\": 1295615698, \"value\": 2.8225655296423207, \"job_id\": 328267890, \"push_id\": 857078, \"push_timestamp\": \"2021-02-04T06:13:44\", \"push__revision\": \"723a2987e0107757ff89850acf86958ab1e6a840\"}, {\"perf_datum_id\": 1295648329, \"value\": 2.8094144154021006, \"job_id\": 328273556, \"push_id\": 857091, \"push_timestamp\": \"2021-02-04T07:19:13\", \"push__revision\": \"32690d048b75cc54ead9118c98333d5442d2c6be\"}, {\"perf_datum_id\": 1295689254, \"value\": 2.8264543901471453, \"job_id\": 328281172, \"push_id\": 857138, \"push_timestamp\": \"2021-02-04T09:28:43\", \"push__revision\": \"548e1eae9ef04b4055d557cb406fd5c7103c4993\"}]"
+      },
+      "title": "basic_compositor_video linux64-qr opt e10s stylo webrender"
+    }
+  ],
+  "related_alerts": [],
+  "status": 0,
+  "bug_number": null,
+  "bug_updated": null,
+  "issue_tracker": 1,
+  "notes": null,
+  "revision": "723a2987e0107757ff89850acf86958ab1e6a840",
+  "push_timestamp": 1612419224,
+  "prev_push_revision": "56141a8155f802eca0ec52128e672a91e029f8a2",
+  "assignee_username": null,
+  "assignee_email": null,
+  "performance_tags": []
+}
