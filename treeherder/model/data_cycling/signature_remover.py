@@ -41,6 +41,7 @@ class PublicSignatureRemover:
         chunk_of_signatures = []
 
         logger.warning("Removing performance signatures which don't have any data points...")
+        self._remove_empty_try_signatures(signatures)
         for perf_signature in signatures:
             self.timer.quit_on_timeout()
 
@@ -63,6 +64,12 @@ class PublicSignatureRemover:
 
         if emails_sent < self._max_emails_allowed and chunk_of_signatures != []:
             self.__delete_and_notify(chunk_of_signatures)
+
+    def _remove_empty_try_signatures(self, signatures):
+        try_signatures = signatures.filter(repository__name='try')
+        for perf_signature in try_signatures:
+            if not perf_signature.has_performance_data():
+                perf_signature.delete()
 
     def _send_notification(self):
         # should only run on one instance at a time
