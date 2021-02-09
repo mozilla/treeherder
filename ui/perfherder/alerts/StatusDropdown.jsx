@@ -112,7 +112,7 @@ export default class StatusDropdown extends React.Component {
         filteredAlerts,
         alertSummary,
         null,
-        await alertsWithVideos.getFilteredAlerts(),
+        await alertsWithVideos.enrichAndRetrieveAlerts(),
       ),
     };
 

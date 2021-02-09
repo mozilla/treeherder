@@ -50,8 +50,8 @@ describe('FilterAlertsWithVideos', () => {
       const expectedPrevResultsLink =
         'https://firefox-ci-tc.services.mozilla.com/api/queue/v1/task/LUjQR22tRp6J4wXLHhYk8g/runs/0/artifacts/public/test_info/browsertime-results.tgz';
 
-      const alerts = await alertsWithVideos.enrichAndRetrieveAlerts();
-      alerts.forEach((alert) => {
+      await alertsWithVideos.enrichAndRetrieveAlerts();
+      alertSummaryWithVideos.alerts.forEach((alert) => {
         if (alertsWithVideos.shouldHaveVideoLinks(alert)) {
           expect(alert).toHaveProperty('results_link', expectedResultsLink);
           expect(alert).toHaveProperty(
