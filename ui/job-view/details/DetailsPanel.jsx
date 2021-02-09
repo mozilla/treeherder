@@ -222,7 +222,7 @@ class DetailsPanel extends React.Component {
                 selectedJob.id,
                 currentRepo.name,
               );
-              const logViewerFullUrl = `${window.location.origin}/${logViewerUrl}`;
+              const logViewerFullUrl = `${window.location.origin}${logViewerUrl}`;
               const performanceData = Object.values(phSeriesResult).reduce(
                 (a, b) => [...a, ...b],
                 [],

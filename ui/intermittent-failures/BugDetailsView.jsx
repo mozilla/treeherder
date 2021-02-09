@@ -103,7 +103,7 @@ const BugDetailsView = (props) => {
                 <br />
                 <a
                   className="small-text"
-                  href={`${window.location.origin}/${getLogViewerUrl(
+                  href={`${window.location.origin}${getLogViewerUrl(
                     value,
                     original.tree,
                   )}`}
