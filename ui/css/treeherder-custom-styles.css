@@ -135,6 +135,7 @@
   height: 16px;
   vertical-align: text-top;
   opacity: 0.7;
+  user-select: none;
 }
 
 .logviewer-icon:hover {
