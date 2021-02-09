@@ -412,25 +412,10 @@ def test_remove_try_signatures_without_data(
         value=1.0,
     )
 
-    signature_without_perf_data = PerformanceSignature.objects.create(
-        repository=try_repository,
-        signature_hash=(20 * 'e2'),
-        framework=test_perf_signature.framework,
-        platform=test_perf_signature.platform,
-        option_collection=test_perf_signature.option_collection,
-        suite='mysuite%s',
-        test='mytest%s',
-        application='firefox',
-        has_subtests=test_perf_signature.has_subtests,
-        extra_options=test_perf_signature.extra_options,
-        last_updated=datetime.now(),
-    )
-
     signatures = PerformanceSignature.objects.filter(last_updated__lte=datetime.now())
     signatures_remover.remove_in_chunks(signatures)
 
     assert PerformanceSignature.objects.filter(id=signature_with_perf_data.id).exists()
-    assert not PerformanceSignature.objects.filter(id=signature_without_perf_data.id).exists()
 
 
 def test_performance_cycler_quit_indicator(mock_taskcluster_notify):
