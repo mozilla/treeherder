@@ -16,6 +16,7 @@ import {
   VictoryPortal,
 } from 'victory';
 import moment from 'moment';
+import numeral from 'numeral';
 import debounce from 'lodash/debounce';
 import last from 'lodash/last';
 import flatMap from 'lodash/flatMap';
@@ -241,16 +242,15 @@ class GraphsContainer extends React.Component {
   // padding for the y axis tick labels, so this is a workaround (setting state
   // doesn't work with this callback, which is why a class property is used instead)
   setLeftPadding = (tick, index, ticks) => {
-    const formattedNumber = formatNumber(tick);
-    const commaCount = formattedNumber.split(',').length - 1;
-    const highestTickLength = ticks[ticks.length - 1].toString();
-    const newLeftPadding = (highestTickLength.length + commaCount) * 8 + 16;
+    const formattedNumber = numeral(tick).format('0.0a');
+    const highestTickLength = numeral(ticks[ticks.length - 1]).format('0.0a');
+    const newLeftPadding = highestTickLength.length * 8 + 16;
     this.leftChartPadding =
       this.leftChartPadding > newLeftPadding
         ? this.leftChartPadding
         : newLeftPadding;
 
-    return formattedNumber;
+    return formattedNumber.toUpperCase();
   };
 
   setRightPadding = (tick, index, ticks) => {
