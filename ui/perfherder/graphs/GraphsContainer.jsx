@@ -20,7 +20,7 @@ import debounce from 'lodash/debounce';
 import last from 'lodash/last';
 import flatMap from 'lodash/flatMap';
 
-import { formatNumber } from '../helpers';
+import { abbreviateNumber } from '../helpers';
 
 import TableView from './TableView';
 import GraphTooltip from './GraphTooltip';
@@ -248,7 +248,7 @@ class GraphsContainer extends React.Component {
         ? this.leftChartPadding
         : newLeftPadding;
 
-    return formatNumber(tick);
+    return abbreviateNumber(tick);
   };
 
   setRightPadding = (tick, index, ticks) => {
