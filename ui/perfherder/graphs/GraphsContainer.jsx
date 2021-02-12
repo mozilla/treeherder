@@ -20,7 +20,7 @@ import debounce from 'lodash/debounce';
 import last from 'lodash/last';
 import flatMap from 'lodash/flatMap';
 
-import { abbreviateNumber } from '../helpers';
+import { formatNumber } from '../helpers';
 
 import TableView from './TableView';
 import GraphTooltip from './GraphTooltip';
@@ -241,14 +241,16 @@ class GraphsContainer extends React.Component {
   // padding for the y axis tick labels, so this is a workaround (setting state
   // doesn't work with this callback, which is why a class property is used instead)
   setLeftPadding = (tick, index, ticks) => {
+    const formattedNumber = formatNumber(tick);
+    const commaCount = formattedNumber.split(',').length - 1;
     const highestTickLength = ticks[ticks.length - 1].toString();
-    const newLeftPadding = highestTickLength.length * 8 + 16;
+    const newLeftPadding = (highestTickLength.length + commaCount) * 8 + 16;
     this.leftChartPadding =
       this.leftChartPadding > newLeftPadding
         ? this.leftChartPadding
         : newLeftPadding;
 
-    return abbreviateNumber(tick);
+    return formattedNumber;
   };
 
   setRightPadding = (tick, index, ticks) => {
