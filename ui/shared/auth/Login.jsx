@@ -90,6 +90,10 @@ class Login extends React.Component {
   logout = () => {
     const { notify } = this.props;
 
+    // only clear taskcluster credentials when a user logs outs to make it easier
+    // to clear an old token and retrieve a new one
+    localStorage.removeItem('userCredentials');
+
     fetch(getApiUrl('/auth/logout/')).then(async (resp) => {
       if (resp.ok) {
         this.setLoggedOut();
