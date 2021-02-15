@@ -26,7 +26,7 @@ import {
 export const formatNumber = (input) =>
   new Intl.NumberFormat('en-US', { maximumFractionDigits: 2 }).format(input);
 
-export const abbreviateNumber = (tick) => numeral(tick).format('0.0a');
+export const abbreviateNumber = (input) => numeral(input).format('0.0a');
 
 export const displayNumber = (input) =>
   Number.isNaN(input) ? 'N/A' : Number(input).toFixed(2);
