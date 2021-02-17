@@ -285,7 +285,7 @@ const GraphTooltip = ({
             )}
             <p className="small text-white pt-2">{`${moment
               .utc(dataPointDetails.x)
-              .format('MMM DD hh:mm:ss')} UTC`}</p>
+              .format('ddd MMM DD HH:mm:ss YYYY')} UTC`}</p>
             {Boolean(retriggerNum) && (
               <p className="small">{`Retriggers: ${retriggerNum}`}</p>
             )}
