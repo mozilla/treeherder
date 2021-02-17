@@ -3,8 +3,10 @@ import {
   faClock,
   faExclamationTriangle,
 } from '@fortawesome/free-solid-svg-icons';
+import moment from 'moment';
 
 import { getArtifactsUrl } from './url';
+import { mercurialDatetimeFormat } from './constants';
 
 export const longDateFormat = {
   weekday: 'short',
@@ -27,6 +29,13 @@ export const shortDateFormat = {
 export const toDateStr = function toDateStr(timestamp) {
   return new Date(timestamp * 1000).toLocaleString('en-US', longDateFormat);
 };
+
+/**
+ * @param { Date } awareDatetime Must contain the time zone information embedded in it
+ */
+export function toMercurialDateStr(awareDatetime) {
+  return `${moment.utc(awareDatetime).format(mercurialDatetimeFormat)}`;
+}
 
 export const toShortDateStr = function toDateStr(timestamp) {
   return new Date(timestamp * 1000).toLocaleString('en-US', shortDateFormat);

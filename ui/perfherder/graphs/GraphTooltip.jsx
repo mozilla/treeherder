@@ -1,7 +1,6 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import countBy from 'lodash/countBy';
-import moment from 'moment';
 import { Button } from 'reactstrap';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import {
@@ -11,11 +10,12 @@ import {
 import { Link } from 'react-router-dom';
 
 import { alertStatusMap, endpoints } from '../constants';
-import { getJobsUrl, createQueryParams, getApiUrl } from '../../helpers/url';
+import { createQueryParams, getApiUrl, getJobsUrl } from '../../helpers/url';
 import { create } from '../../helpers/http';
 import RepositoryModel from '../../models/repository';
 import { displayNumber, getStatus } from '../helpers';
 import Clipboard from '../../shared/Clipboard';
+import { toMercurialDateStr } from '../../helpers/display';
 
 const GraphTooltip = ({
   testData,
@@ -283,9 +283,9 @@ const GraphTooltip = ({
                 )}
               </p>
             )}
-            <p className="small text-white pt-2">{`${moment
-              .utc(dataPointDetails.x)
-              .format('ddd MMM DD HH:mm:ss YYYY')} UTC`}</p>
+            <p className="small text-white pt-2">
+              {toMercurialDateStr(dataPointDetails.x)}
+            </p>
             {Boolean(retriggerNum) && (
               <p className="small">{`Retriggers: ${retriggerNum}`}</p>
             )}

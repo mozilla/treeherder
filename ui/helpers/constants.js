@@ -239,3 +239,7 @@ export const thMaxPushFetchSize = 100;
 export const errorMessageClass = 'text-danger py-4 d-block text-center';
 
 export const genericErrorMessage = 'Something went wrong';
+
+// Datetime format used for pushes listed in https://hg.mozilla.org/
+// e.g. Sun Feb 14 22:40:03 2021 +0000
+export const mercurialDatetimeFormat = 'ddd MMM DD HH:mm:ss YYYY ZZ';
