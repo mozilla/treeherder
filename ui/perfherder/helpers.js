@@ -748,7 +748,7 @@ export const createGraphData = (seriesData, alertSummaries, colors, symbols) =>
       data: series.data.map((dataPoint) => ({
         // Backend implicitly provides all dates as UTC.
         // Let's make this explicit, so frontend doesn't get confused.
-        x: new Date(`${dataPoint.push_timestamp}.000Z`),
+        x: new Date(`${dataPoint.push_timestamp}Z`),
         y: dataPoint.value,
         z: color ? color[1] : '',
         _z: symbol || ['circle', 'outline'],
