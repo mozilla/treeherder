@@ -370,9 +370,7 @@ class PushViewSet(viewsets.ViewSet):
 
         status = push.get_status()
         total_failures = (
-            len(push_health_test_failures['needInvestigation'])
-            + len(build_failures)
-            + len(lint_failures)
+            len(test_failures['needInvestigation']) + len(build_failures) + len(lint_failures)
         )
         # Override the testfailed value added in push.get_status so that it aligns with how we detect lint, build and test failures
         # for the push health API's (total_failures doesn't include known intermittent failures)
