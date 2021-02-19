@@ -26,7 +26,6 @@ import Notifications from './Notifications';
 import PrimaryNavBar from './headerbars/PrimaryNavBar';
 import ActiveFilters from './headerbars/ActiveFilters';
 import UpdateAvailable from './headerbars/UpdateAvailable';
-import { PUSH_HEALTH_VISIBILITY } from './headerbars/HealthMenu';
 import DetailsPanel from './details/DetailsPanel';
 import PushList from './pushes/PushList';
 import KeyboardShortcuts from './KeyboardShortcuts';
@@ -89,8 +88,7 @@ class App extends React.Component {
       groupCountsExpanded: urlParams.get('group_state') === 'expanded',
       duplicateJobsVisible: urlParams.get('duplicate_jobs') === 'visible',
       showShortCuts: false,
-      pushHealthVisibility:
-        localStorage.getItem(PUSH_HEALTH_VISIBILITY) || 'Try',
+      pushHealthVisibility: 'All',
     };
   }
 
@@ -223,19 +221,6 @@ class App extends React.Component {
         pushRoute: this.props.pushRoute,
       }),
     });
-  };
-
-  handleStorageEvent = (e) => {
-    if (e.key === PUSH_HEALTH_VISIBILITY) {
-      this.setState({
-        pushHealthVisibility: localStorage.getItem(PUSH_HEALTH_VISIBILITY),
-      });
-    }
-  };
-
-  setPushHealthVisibility = (visibility) => {
-    localStorage.setItem(PUSH_HEALTH_VISIBILITY, visibility);
-    this.setState({ pushHealthVisibility: visibility });
   };
 
   setUser = (user) => {

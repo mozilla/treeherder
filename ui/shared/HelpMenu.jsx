@@ -8,6 +8,7 @@ import {
 } from '@fortawesome/free-regular-svg-icons';
 import {
   faBug,
+  faCalculator,
   faCode,
   faQuestion,
   faQuestionCircle,
@@ -56,6 +57,11 @@ const menuItems = [
     href: 'https://github.com/mozilla/treeherder',
     icon: faGithub,
     text: 'Source',
+  },
+  {
+    href: '/push-health/usage',
+    icon: faCalculator,
+    text: 'Push Health Try Usage',
   },
   {
     href: 'https://whatsdeployed.io/s-dqv',

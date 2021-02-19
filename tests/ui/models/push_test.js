@@ -15,7 +15,7 @@ describe('PushModel', () => {
     );
     beforeEach(() => {
       fetchMock.mock(decisionTaskUrl, {
-        '548880': { id: 'U-lI3jzPTkWFplfJPz6cJA', run: '0' },
+        548880: { id: 'U-lI3jzPTkWFplfJPz6cJA', run: '0' },
       });
     });
 
@@ -43,7 +43,7 @@ describe('PushModel', () => {
       );
 
       expect(decisionTaskMap).toStrictEqual({
-        '548880': { id: 'U-lI3jzPTkWFplfJPz6cJA', run: '0' },
+        548880: { id: 'U-lI3jzPTkWFplfJPz6cJA', run: '0' },
       });
     });
   });

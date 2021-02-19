@@ -76,7 +76,9 @@ def get_grouped(failures):
     for failure in failures:
         is_intermittent = failure['suggestedClassification'] == 'intermittent'
 
-        if (is_intermittent and failure['confidence'] == 100) or failure['passFailRatio'] > 0.5:
+        if (is_intermittent and failure['confidence'] == 100) or failure['totalFailures'] / failure[
+            'totalJobs'
+        ] <= 0.5:
             classified[KNOWN_ISSUES].append(failure)
         else:
             classified[NEED_INVESTIGATION].append(failure)

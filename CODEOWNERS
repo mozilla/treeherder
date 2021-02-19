@@ -6,7 +6,8 @@
 /docker-compose.yml         @mozilla/treeherder-admins
 ui/helpers/constants.js     @mozilla/treeherder-admins
 repository.json             @mozilla/treeherder-admins
-push-health/**              @camd
-intermittent-failures/**    @sarah-clements
-intermittents-commenter/**  @sarah-clements
+push-health/**              @mozilla/treeherder-admins
+intermittent-failures/**    @mozilla/treeherder-admins
+intermittents-commenter/**  @mozilla/treeherder-admins
+job-view/**                 @mozilla/treeherder-admins
 perfherder/**               @ionutgoldan

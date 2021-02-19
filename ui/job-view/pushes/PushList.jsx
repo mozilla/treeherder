@@ -221,7 +221,6 @@ PushList.propTypes = {
   duplicateJobsVisible: PropTypes.bool.isRequired,
   groupCountsExpanded: PropTypes.bool.isRequired,
   allUnclassifiedFailureCount: PropTypes.number.isRequired,
-  pushHealthVisibility: PropTypes.string.isRequired,
   clearSelectedJob: PropTypes.func.isRequired,
   pinnedJobs: PropTypes.shape({}).isRequired,
   setSelectedJobFromQueryString: PropTypes.func.isRequired,

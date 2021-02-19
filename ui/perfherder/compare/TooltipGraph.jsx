@@ -1,7 +1,8 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import numeral from 'numeral';
 import { Table } from 'reactstrap';
+
+import { abbreviatedNumber } from '../helpers';
 
 export default class TooltipGraph extends React.Component {
   constructor(props) {
@@ -62,9 +63,6 @@ export default class TooltipGraph extends React.Component {
     });
   };
 
-  abbreviatedNumber = (num) =>
-    num.toString().length <= 5 ? num : numeral(num).format('0.0a');
-
   render() {
     const { minValue, maxValue } = this.state;
     return (
@@ -73,13 +71,13 @@ export default class TooltipGraph extends React.Component {
           <tbody>
             <tr>
               <td className="value-column text-white">
-                {this.abbreviatedNumber(minValue)}
+                {abbreviatedNumber(minValue)}
               </td>
               <td className="distribution-column">
                 <canvas ref={this.canvasRef} width={190} height={30} />
               </td>
               <td className="value-column text-white">
-                {this.abbreviatedNumber(maxValue)}
+                {abbreviatedNumber(maxValue)}
               </td>
             </tr>
           </tbody>
