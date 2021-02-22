@@ -253,8 +253,11 @@ class PushViewSet(viewsets.ViewSet):
         commit_history = None
 
         for push in list(pushes):
+            # print('summary API {} in {}'.format(revision, project))
             mozciPush = MozciPush([revision], project)
             likely_regression_labels = list(mozciPush.get_likely_regressions('label'))
+            # print('regression labels in summary API {}'.format(likely_regression_labels))
+
             result_status, jobs = get_test_failure_jobs(push)
 
             test_result, push_health_test_failures = get_test_failures(
@@ -340,9 +343,13 @@ class PushViewSet(viewsets.ViewSet):
             push = Push.objects.get(revision=revision, repository=repository)
         except Push.DoesNotExist:
             return Response(f"No push with revision: {revision}", status=HTTP_404_NOT_FOUND)
-
-        mozciPush = MozciPush([revision], repository.name)
+        mozciPush = MozciPush([revision], project)
         likely_regression_labels = list(mozciPush.get_likely_regressions('label'))
+        print(
+            '{} regression labels in health API for revision {} on {}: {}'.format(
+                len(likely_regression_labels), revision, project, likely_regression_labels
+            )
+        )
         result_status, jobs = get_test_failure_jobs(push)
         test_result, test_failures = get_test_failures(push, jobs, likely_regression_labels, result_status)
 
