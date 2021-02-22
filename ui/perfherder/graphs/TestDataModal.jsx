@@ -208,7 +208,6 @@ export default class TestDataModal extends React.Component {
     const requests = relatedProjects.map((projectName) =>
       PerfSeriesModel.getSeriesList(projectName, params),
     );
-
     const responses = await Promise.all(requests);
     const relatedTests = responses
       // eslint-disable-next-line array-callback-return
@@ -220,7 +219,7 @@ export default class TestDataModal extends React.Component {
       })
       .filter(
         (item) =>
-          item.name === relatedSeries.name &&
+          item.name === relatedSeries.name.trim() &&
           (samePlatform
             ? item.platform === relatedSeries.platform
             : item.platform !== relatedSeries.platform),
