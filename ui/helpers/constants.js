@@ -224,7 +224,7 @@ export const thJobNavSelectors = {
   },
 };
 
-export const thPerformanceBranches = ['autoland', 'mozilla-inbound'];
+export const thPerformanceBranches = ['autoland', 'mozilla-central'];
 
 /**
  * The set of custom Treeherder events.

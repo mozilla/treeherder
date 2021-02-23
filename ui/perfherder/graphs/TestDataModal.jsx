@@ -208,7 +208,6 @@ export default class TestDataModal extends React.Component {
     const requests = relatedProjects.map((projectName) =>
       PerfSeriesModel.getSeriesList(projectName, params),
     );
-
     const responses = await Promise.all(requests);
     const relatedTests = responses
       // eslint-disable-next-line array-callback-return
@@ -219,11 +218,11 @@ export default class TestDataModal extends React.Component {
         errorMessages.push(item.data);
       })
       .filter(
-        (item) =>
-          item.name === relatedSeries.name &&
+        (responseSeries) =>
+          responseSeries.name.trim() === relatedSeries.name.trim() &&
           (samePlatform
-            ? item.platform === relatedSeries.platform
-            : item.platform !== relatedSeries.platform),
+            ? responseSeries.platform === relatedSeries.platform
+            : responseSeries.platform !== relatedSeries.platform),
       );
 
     this.setState({
