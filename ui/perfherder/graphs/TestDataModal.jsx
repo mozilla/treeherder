@@ -218,11 +218,11 @@ export default class TestDataModal extends React.Component {
         errorMessages.push(item.data);
       })
       .filter(
-        (item) =>
-          item.name === relatedSeries.name.trim() &&
+        (responseSeries) =>
+          responseSeries.name.trim() === relatedSeries.name.trim() &&
           (samePlatform
-            ? item.platform === relatedSeries.platform
-            : item.platform !== relatedSeries.platform),
+            ? responseSeries.platform === relatedSeries.platform
+            : responseSeries.platform !== relatedSeries.platform),
       );
 
     this.setState({
