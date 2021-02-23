@@ -97,7 +97,7 @@ export default class TestDataModal extends React.Component {
 
     if (timeRange !== prevProps.timeRange) {
       // eslint-disable-next-line react/no-did-update-set-state
-      this.setState({ innerTimeRange: this.props.timeRange });
+      this.setState({ innerTimeRange: timeRange });
     }
 
     if (testData !== prevProps.testData) {
@@ -370,6 +370,7 @@ export default class TestDataModal extends React.Component {
       },
       this.props.toggle,
     );
+    this.setState({ innerTimeRange: this.props.timeRange });
   };
 
   submitData = () => {
