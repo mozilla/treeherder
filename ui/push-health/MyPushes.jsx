@@ -14,7 +14,12 @@ import faviconBroken from '../img/push-health-broken.png';
 import faviconOk from '../img/push-health-ok.png';
 import { getData } from '../helpers/http';
 import { getProjectUrl } from '../helpers/location';
-import { createQueryParams, pushEndpoint } from '../helpers/url';
+import {
+  createQueryParams,
+  parseQueryParams,
+  pushEndpoint,
+  updateQueryParams,
+} from '../helpers/url';
 import RepositoryModel from '../models/repository';
 import StatusProgress from '../shared/StatusProgress';
 import LoadingSpinner from '../shared/LoadingSpinner';
@@ -30,17 +35,22 @@ class MyPushes extends React.Component {
   constructor(props) {
     super(props);
 
+    this.params = parseQueryParams(this.props.location.search);
     this.state = {
       pushMetrics: [],
       repos: [],
       loading: false,
       selectedRepo: defaultRepo,
+      defaultUser: this.props.user.email || this.params.author,
     };
   }
 
   async componentDidMount() {
+    const { defaultUser } = this.state;
+
     this.fetchRepos();
-    if (this.props.user.isLoggedIn) {
+
+    if (defaultUser) {
       this.fetchMetrics(true);
       // Update the tests every two minutes.
       this.testTimerId = setInterval(() => this.fetchMetrics(), 120000);
@@ -48,8 +58,11 @@ class MyPushes extends React.Component {
   }
 
   componentDidUpdate(prevProps) {
-    if (!prevProps.user.isLoggedIn && this.props.user.isLoggedIn) {
-      this.fetchMetrics(true);
+    const { user } = this.props;
+
+    if (!prevProps.user.isLoggedIn && user.isLoggedIn) {
+      // eslint-disable-next-line react/no-did-update-set-state
+      this.setState({ defaultUser: user.email }, () => this.fetchMetrics(true));
       // Update the tests every two minutes.
       this.testTimerId = setInterval(() => this.fetchMetrics(), 120000);
     }
@@ -68,13 +81,18 @@ class MyPushes extends React.Component {
   });
 
   async fetchMetrics(loading = false) {
-    const { selectedRepo } = this.state;
-    const { user, notify, clearNotification } = this.props;
+    const { selectedRepo, defaultUser } = this.state;
+    const { user, notify, clearNotification, location, history } = this.props;
+    const params = parseQueryParams(location.search);
 
     this.setState({ loading });
 
+    if (defaultUser !== params.author) {
+      updateQueryParams(`?author=${user.email}`, history, location);
+    }
+
     const options = {
-      author: user.email,
+      author: defaultUser,
       count: 5,
       with_history: true,
     };
@@ -113,13 +131,13 @@ class MyPushes extends React.Component {
   }
 
   render() {
-    const { user } = this.props;
     const {
       repos,
       pushMetrics,
       loading,
       failureMessage,
       selectedRepo,
+      defaultUser,
     } = this.state;
 
     const totalNeedInvestigation = pushMetrics.length
@@ -160,10 +178,10 @@ class MyPushes extends React.Component {
           <title>{`[${totalNeedInvestigation} failures] Push Health`}</title>
         </Helmet>
         <Container className="mt-2 mb-5 max-width-default">
-          {!user.isLoggedIn && (
-            <h2 className="pt-5 text-center">
-              Please log in to see your pushes
-            </h2>
+          {!defaultUser && (
+            <p className="pt-5 text-center font-weight-500 font-size-20">
+              Log in or use the author query string to see pushes
+            </p>
           )}
 
           {failureMessage && <ErrorMessages failureMessage={failureMessage} />}

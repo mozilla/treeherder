@@ -31,27 +31,41 @@ describe('My Pushes', () => {
     fetchMock.reset();
   });
 
-  const testMyPushes = () => {
+  const testMyPushes = (user = testUser) => {
     const store = configureStore(history);
     return (
       <Provider store={store}>
         <ConnectedRouter history={history}>
           <MyPushes
-            user={testUser}
+            user={user}
             location={history.location}
             notify={() => {}}
             clearNotification={() => {}}
+            history={history}
           />
         </ConnectedRouter>
       </Provider>
     );
   };
 
-  test('should fetch the push health data only for the logged in user', async () => {
-    const { getAllByText } = render(testMyPushes(true));
+  test('should fetch the push health data is user is logged in and update query param', async () => {
+    const { getAllByText } = render(testMyPushes());
 
     const pushes = await waitFor(() => getAllByText(testUser.email));
     expect(pushes).toHaveLength(3);
+    expect(history.location.search).toContain(`?author=${testUser.email}`);
+    history.location.search = '';
+  });
+
+  test('should fetch the push health data by author query string if user is not logged in', async () => {
+    history.location.search = `?author=${testUser.email}`;
+    const { getAllByText } = render(
+      testMyPushes({ email: '', isLoggedIn: false }),
+    );
+
+    const pushes = await waitFor(() => getAllByText(testUser.email));
+    expect(pushes).toHaveLength(3);
+    history.location.search = '';
   });
 
   test('should filter pushes by repos', async () => {
