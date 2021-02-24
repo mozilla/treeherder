@@ -72,7 +72,7 @@ export default class TestDataModal extends React.Component {
 
   componentDidUpdate(prevProps, prevState) {
     const { activeTags, availableTags, platform, platforms } = this.state;
-    const { testData } = this.props;
+    const { testData, timeRange } = this.props;
 
     if (prevState.platforms !== platforms) {
       const newPlatform = platforms.find((item) => item === platform)
@@ -93,6 +93,11 @@ export default class TestDataModal extends React.Component {
 
     if (this.props.options !== prevProps.options) {
       this.processOptions(true);
+    }
+
+    if (timeRange !== prevProps.timeRange) {
+      // eslint-disable-next-line react/no-did-update-set-state
+      this.setState({ innerTimeRange: timeRange });
     }
 
     if (testData !== prevProps.testData) {
@@ -362,6 +367,7 @@ export default class TestDataModal extends React.Component {
         filteredData: [],
         showNoRelatedTests: false,
         filterText: '',
+        innerTimeRange: this.props.timeRange,
       },
       this.props.toggle,
     );
