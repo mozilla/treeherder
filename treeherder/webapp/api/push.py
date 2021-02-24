@@ -253,10 +253,8 @@ class PushViewSet(viewsets.ViewSet):
         commit_history = None
 
         for push in list(pushes):
-            # print('summary API {} in {}'.format(revision, project))
             mozciPush = MozciPush([revision], project)
             likely_regression_labels = list(mozciPush.get_likely_regressions('label'))
-            # print('regression labels in summary API {}'.format(likely_regression_labels))
 
             result_status, jobs = get_test_failure_jobs(push)
 
@@ -345,14 +343,16 @@ class PushViewSet(viewsets.ViewSet):
             return Response(f"No push with revision: {revision}", status=HTTP_404_NOT_FOUND)
         mozciPush = MozciPush([revision], project)
         likely_regression_labels = list(mozciPush.get_likely_regressions('label'))
-        print(
+        logger.debug(
             '{} regression labels in health API for revision {} on {}: {}'.format(
                 len(likely_regression_labels), revision, project, likely_regression_labels
             )
         )
         result_status, jobs = get_test_failure_jobs(push)
+        logger.debug(
+            'Found {} failed jobs for revision {} on {}'.format(len(jobs), revision, project)
+        )
         test_result, test_failures = get_test_failures(push, jobs, likely_regression_labels, result_status)
-
         commit_history_details = None
 
         # Parent compare only supported for Hg at this time.

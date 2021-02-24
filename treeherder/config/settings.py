@@ -489,4 +489,4 @@ GITHUB_TOKEN = env("GITHUB_TOKEN", default=None)
 # For dockerflow
 BASE_DIR = SRC_DIR
 
-MOZCI_CONFIG_PATH = env("MOZCI_CONFIG_PATH", default="config.toml")
+MOZCI_CONFIG_PATH = env("MOZCI_CONFIG_PATH", default="mozci_config.toml")
