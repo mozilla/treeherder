@@ -140,10 +140,12 @@ def get_test_failures(push, failed_jobs, likely_regression_labels, result_status
         job = failure_line.job_log.job
         job_name = job.job_type.name
         classification = known_issues
+
         if job_name in likely_regression_labels:
             classification = regressions
-            if job_name in labels_without_failure_lines:
-                labels_without_failure_lines.remove(job_name)
+
+        if job_name in labels_without_failure_lines:
+            labels_without_failure_lines.remove(job_name)
 
         line = get_line(test_name, action, job_to_dict(job), option_map, investigatedTests)
         if line['key'] not in classification['tests']:
