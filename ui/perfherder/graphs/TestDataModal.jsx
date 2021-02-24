@@ -367,10 +367,10 @@ export default class TestDataModal extends React.Component {
         filteredData: [],
         showNoRelatedTests: false,
         filterText: '',
+        innerTimeRange: this.props.timeRange,
       },
       this.props.toggle,
     );
-    this.setState({ innerTimeRange: this.props.timeRange });
   };
 
   submitData = () => {
