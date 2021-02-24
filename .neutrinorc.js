@@ -92,7 +92,7 @@ module.exports = {
         'ui/contribute.json',
         'ui/revision.txt',
         'ui/robots.txt',
-        'config.toml',
+        'mozci_config.toml',
       ],
     }),
     process.env.NODE_ENV === 'test' &&

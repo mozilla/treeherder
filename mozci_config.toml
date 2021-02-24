@@ -1,0 +1,14 @@
+[mozci]
+verbose = 1
+data_sources = ['treeherder_client', 'hgmo', 'taskcluster']
+maxdepth=1
+
+[mozci.cache]
+default = "file"
+retention = 40320
+serializer = "compressedpickle"
+
+# Clear the cache directory if you change the configurations or
+# see a discrepancy in data between localhost and live deployments
+[mozci.cache.stores]
+file = { driver = "file", path = "mozci_tests_cache" }
