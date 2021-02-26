@@ -6,6 +6,7 @@ from django.conf import settings as django_settings
 
 from treeherder.perf.models import BackfillRecord, BackfillReport, PerformanceSettings
 from treeherder.utils import default_serializer
+from treeherder.perf.outcome_checker import OutcomeChecker, OutcomeStatus
 
 logger = logging.getLogger(__name__)
 
@@ -21,8 +22,8 @@ class SecretaryTool:
 
     TIME_TO_MATURE = timedelta(hours=4)
 
-    def __init__(self):
-        pass
+    def __init__(self, outcome_checker: OutcomeChecker = None):
+        self.outcome_checker = outcome_checker or OutcomeChecker()
 
     @classmethod
     def validate_settings(cls):
@@ -94,6 +95,21 @@ class SecretaryTool:
         perf_sheriff_settings.set_settings(settings)
         perf_sheriff_settings.save()
         return _backfills_left
+
+    def check_outcome(self):
+        # fetch all records in backfilled state
+        # we assume that BackfillRecord with BACKFILLED status were backfilled only for accepted platforms
+        backfilled_records = BackfillRecord.objects.filter(status=BackfillRecord.BACKFILLED)
+
+        for record in backfilled_records:
+            # ensure each push in push range has at least one job of job type
+            outcome = self.outcome_checker.check(record)
+            # if outcome is IN_PROGRESS the BackfillRecord state will remain BACKFILLED to be checked again later
+            if outcome == OutcomeStatus.SUCCESSFUL:
+                record.status = BackfillRecord.SUCCESSFUL
+            elif outcome == OutcomeStatus.FAILED:
+                record.status = BackfillRecord.FAILED
+            record.save()
 
     @classmethod
     def _get_default_settings(cls, as_json=True):

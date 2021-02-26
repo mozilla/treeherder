@@ -55,6 +55,8 @@ class PerfSheriffBot:
         self.assert_can_run()
 
         # secretary tool checks the status of all backfilled jobs
+        # TODO: should not be enabled during soft launch - enable for the real launch
+        # self.secretary.check_outcome()
 
         # reporter tool should always run *(only handles preliminary records/reports)*
         self._report(since, frameworks, repositories)

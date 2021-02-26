@@ -13,10 +13,6 @@ from treeherder.perf.models import BackfillRecord, BackfillReport, PerformanceSe
 from treeherder.perf.perf_sheriff_bot import PerfSheriffBot
 from treeherder.perf.secretary_tool import SecretaryTool
 
-from tests.conftest import SampleDataJSONLoader
-
-load_json_fixture = SampleDataJSONLoader('perf_sheriff_bot')
-
 EPOCH = datetime.utcfromtimestamp(0)
 
 # TODO: remove when features enabled
@@ -25,12 +21,6 @@ FEATURE_FLAGS = {
     'secretary_tool_disabled': False,
 }
 # -> up to here
-
-
-@pytest.fixture(scope="module")
-def record_context_sample():
-    # contains 5 data points that can be backfilled
-    return load_json_fixture('recordContext.json')
 
 
 @pytest.fixture(params=['totally_broken_json', 'missing_job_fields', 'null_job_fields'])
