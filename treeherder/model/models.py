@@ -540,6 +540,13 @@ class Job(models.Model):
             ('repository', 'submit_time'),
         ]
 
+    @property
+    def tier_is_sheriffable(self) -> bool:
+        """
+        Tier 3 jobs are not considered stable enough to be sheriffed.
+        """
+        return self.tier < 3
+
     def __str__(self):
         return "{0} {1} {2}".format(self.id, self.repository, self.guid)
 

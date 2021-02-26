@@ -107,10 +107,18 @@ def fixture_create_push():
     """Return a function to create a push"""
 
     def create(
-        repository, revision='4c45a777949168d16c03a4cba167678b7ab65f76', author='foo@bar.com'
+        repository,
+        revision='4c45a777949168d16c03a4cba167678b7ab65f76',
+        author='foo@bar.com',
+        time=None,
+        explicit_id=None,
     ):
         return Push.objects.create(
-            repository=repository, revision=revision, author=author, time=datetime.datetime.now()
+            id=explicit_id,
+            repository=repository,
+            revision=revision,
+            author=author,
+            time=time or datetime.datetime.now(),
         )
 
     return create
