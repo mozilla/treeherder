@@ -1,7 +1,6 @@
-from django.db.models import Q
+from typing import List, Tuple
 
 from enum import Enum
-from typing import List, Tuple
 
 from treeherder.model.models import Job, Push
 from treeherder.perf.models import (
@@ -58,7 +57,7 @@ class OutcomeChecker:
     @staticmethod
     def _get_pushes_in_range(from_time, to_time, repository_id) -> List[Push]:
         return Push.objects.filter(
-            Q(repository_id=repository_id) & Q(time__gte=from_time) & Q(time__lte=to_time)
+            repository_id=repository_id, time__gte=from_time, time__lte=to_time
         ).all()
 
     @staticmethod

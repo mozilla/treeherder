@@ -111,10 +111,10 @@ def fixture_create_push():
         revision='4c45a777949168d16c03a4cba167678b7ab65f76',
         author='foo@bar.com',
         time=None,
-        _id=None,
+        explicit_id=None,
     ):
         return Push.objects.create(
-            id=_id,
+            id=explicit_id,
             repository=repository,
             revision=revision,
             author=author,

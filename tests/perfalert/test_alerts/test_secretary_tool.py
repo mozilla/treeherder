@@ -1,18 +1,26 @@
+import uuid
 from datetime import datetime, timedelta
 
 import pytest
 import simplejson as json
-import uuid
+from django.db.models import Q
 from mock import Mock, patch
 
-from django.db.models import Q
-
 from treeherder.config.settings import IS_WINDOWS
-from treeherder.model.models import Push, Job, JobType
+from treeherder.model.models import Push, Job
 from treeherder.perf.models import BackfillRecord, BackfillReport, PerformanceSettings
 from treeherder.perf.outcome_checker import OutcomeChecker, OutcomeStatus
 from treeherder.perf.secretary_tool import SecretaryTool
 from treeherder.utils import default_serializer
+
+# we're testing against this (automatically provided by fixtures)
+JOB_TYPE_ID = 1
+
+
+def get_middle_index(successful_jobs):
+    # get middle index to make sure the push is in range
+    index_in_range = int((len(successful_jobs) + 1) / 2)
+    return index_in_range
 
 
 @pytest.fixture
@@ -86,14 +94,20 @@ def outcome_checking_pushes(
     pushes = [
         create_push(test_repository, revision=uuid.uuid4(), time=range_dates['before_date']),
         create_push(
-            test_repository, revision=uuid.uuid4(), time=range_dates['from_date'], _id=from_push_id
+            test_repository,
+            revision=uuid.uuid4(),
+            time=range_dates['from_date'],
+            explicit_id=from_push_id,
         ),
         create_push(test_repository, revision=uuid.uuid4(), time=range_dates['in_range_date']),
         create_push(test_repository, revision=uuid.uuid4(), time=range_dates['in_range_date']),
         create_push(test_repository, revision=uuid.uuid4(), time=range_dates['in_range_date']),
         create_push(test_repository, revision=uuid.uuid4(), time=range_dates['in_range_date']),
         create_push(
-            test_repository, revision=uuid.uuid4(), time=range_dates['to_date'], _id=to_push_id
+            test_repository,
+            revision=uuid.uuid4(),
+            time=range_dates['to_date'],
+            explicit_id=to_push_id,
         ),
         create_push(test_repository, revision=uuid.uuid4(), time=range_dates['after_date']),
     ]
@@ -106,11 +120,10 @@ def successful_jobs(outcome_checking_pushes, eleven_jobs_stored):
     jobs = Job.objects.all()
     _successful_jobs = []
     pairs = zip(outcome_checking_pushes, jobs)
-    job_type = JobType.objects.get(id=1)
     for push, job in pairs:
         job.push = push
         job.result = 'success'
-        job.job_type = job_type
+        job.job_type_id = JOB_TYPE_ID
         job.save()
         _successful_jobs.append(job)
     return _successful_jobs
@@ -118,14 +131,16 @@ def successful_jobs(outcome_checking_pushes, eleven_jobs_stored):
 
 @pytest.fixture
 def jobs_with_one_failed(successful_jobs):
-    job_to_fail = successful_jobs[4]
+    index_in_range = get_middle_index(successful_jobs)
+    job_to_fail = successful_jobs[index_in_range]
     job_to_fail.result = 'testfailed'
     job_to_fail.save()
 
 
 @pytest.fixture
 def jobs_with_one_pending(successful_jobs):
-    job_pending = successful_jobs[5]
+    index_in_range = get_middle_index(successful_jobs)
+    job_pending = successful_jobs[index_in_range]
     job_pending.result = 'unknown'
     job_pending.save()
 
@@ -218,69 +233,68 @@ def test_no_action_when_in_progress(get_outcome_checker_mock, record_backfilled)
 
 
 def test_outcome_checker_identifies_pushes_in_range(
-    record_backfilled, test_repository_2, range_dates, outcome_checking_pushes
+    record_backfilled, test_repository, test_repository_2, range_dates, outcome_checking_pushes
 ):
+    # TODO: retarget this test to BackfillRecord.get_pushes_in_range()
     outcome_checker = OutcomeChecker()
     total_pushes = Push.objects.count()
 
     from_time = range_dates['from_date']
     to_time = range_dates['to_date']
-    repository_id = 1
 
-    outside_range = Push.objects.filter(
-        Q(repository_id=repository_id) & (Q(time__lt=from_time) | Q(time__gt=to_time))
+    total_outside_pushes = Push.objects.filter(
+        Q(repository=test_repository) & (Q(time__lt=from_time) | Q(time__gt=to_time))
     ).count()
 
-    pushes_in_range = outcome_checker._get_pushes_in_range(from_time, to_time, repository_id)
-    assert len(pushes_in_range) == total_pushes - outside_range
+    pushes_in_range = outcome_checker._get_pushes_in_range(from_time, to_time, test_repository.id)
+    assert len(pushes_in_range) == total_pushes - total_outside_pushes
 
     # change repository for the first 2 pushes in range
-    assert repository_id != test_repository_2.id
+    assert test_repository.id != test_repository_2.id
 
-    number_of_changed_pushes = 2
-    for push in pushes_in_range[:number_of_changed_pushes]:
+    total_changed_pushes = 2
+    for push in pushes_in_range[:total_changed_pushes]:
         push.repository = test_repository_2
         push.save()
 
-    pushes_with_another_repo = Push.objects.filter(repository=test_repository_2).count()
-    assert pushes_with_another_repo == number_of_changed_pushes
+    total_other_repo_pushes = Push.objects.filter(repository=test_repository_2).count()
+    assert total_other_repo_pushes == total_changed_pushes
 
     updated_pushes_in_range = outcome_checker._get_pushes_in_range(
-        from_time, to_time, repository_id
+        from_time, to_time, test_repository.id
     )
 
-    assert len(updated_pushes_in_range) == len(pushes_in_range) - pushes_with_another_repo
+    assert len(updated_pushes_in_range) == len(pushes_in_range) - total_other_repo_pushes
 
 
-@patch('treeherder.perf.outcome_checker.get_job_type')
-def test_successful_jobs_mean_successful_outcome(
-    mock_get_job_type, record_backfilled, outcome_checking_pushes, successful_jobs
-):
-    # TODO: remove job type mock after soft launch lands
-    mock_get_job_type.return_value = 1
-    outcome_checker = OutcomeChecker()
+class TestOutcomeChecker:
+    @patch('treeherder.perf.outcome_checker.get_job_type')
+    def test_successful_jobs_mean_successful_outcome(
+        self, mock_get_job_type, record_backfilled, outcome_checking_pushes, successful_jobs
+    ):
+        # TODO: remove job type mock after soft launch lands
+        mock_get_job_type.return_value = JOB_TYPE_ID
+        outcome_checker = OutcomeChecker()
 
-    response = outcome_checker.check(record_backfilled)
-    assert response == OutcomeStatus.SUCCESSFUL
+        response = outcome_checker.check(record_backfilled)
+        assert response == OutcomeStatus.SUCCESSFUL
 
+    @patch('treeherder.perf.outcome_checker.get_job_type')
+    def test_failed_job_means_failed_outcome(
+        self, mock_get_job_type, record_backfilled, outcome_checking_pushes, jobs_with_one_failed
+    ):
+        mock_get_job_type.return_value = JOB_TYPE_ID
+        outcome_checker = OutcomeChecker()
 
-@patch('treeherder.perf.outcome_checker.get_job_type')
-def test_failed_job_means_failed_outcome(
-    mock_get_job_type, record_backfilled, outcome_checking_pushes, jobs_with_one_failed
-):
-    mock_get_job_type.return_value = 1
-    outcome_checker = OutcomeChecker()
+        response = outcome_checker.check(record_backfilled)
+        assert response == OutcomeStatus.FAILED
 
-    response = outcome_checker.check(record_backfilled)
-    assert response == OutcomeStatus.FAILED
+    @patch('treeherder.perf.outcome_checker.get_job_type')
+    def test_pending_job_means_in_progress_outcome(
+        self, mock_get_job_type, record_backfilled, outcome_checking_pushes, jobs_with_one_pending
+    ):
+        mock_get_job_type.return_value = JOB_TYPE_ID
+        outcome_checker = OutcomeChecker()
 
-
-@patch('treeherder.perf.outcome_checker.get_job_type')
-def test_pending_job_means_in_progress_outcome(
-    mock_get_job_type, record_backfilled, outcome_checking_pushes, jobs_with_one_pending
-):
-    mock_get_job_type.return_value = 1
-    outcome_checker = OutcomeChecker()
-
-    response = outcome_checker.check(record_backfilled)
-    assert response == OutcomeStatus.IN_PROGRESS
+        response = outcome_checker.check(record_backfilled)
+        assert response == OutcomeStatus.IN_PROGRESS
