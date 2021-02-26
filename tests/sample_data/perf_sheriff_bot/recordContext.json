@@ -4,7 +4,7 @@
     "value": 268.0,
     "job_id": 297821610,
     "push_id": 685440,
-    "push_timestamp": "2020-04-15 20:35:43",
+    "push_timestamp": "2020-04-15T20:35:43",
     "push__revision": "9d27f85c23cb252ee9a832582cde377f0b3ff77c"
   },
   {
@@ -12,7 +12,7 @@
     "value": 268.0,
     "job_id": 297848522,
     "push_id": 685589,
-    "push_timestamp": "2020-04-15 23:44:30",
+    "push_timestamp": "2020-04-15T23:44:30",
     "push__revision": "0a072dacccf525d295161de62cd8c3f7e583b458"
   },
   {
@@ -20,7 +20,7 @@
     "value": 252.0,
     "job_id": 297937917,
     "push_id": 685943,
-    "push_timestamp": "2020-04-16 12:30:58",
+    "push_timestamp": "2020-04-16T12:30:58",
     "push__revision": "563408c858a186c9b1ac351fddea589ecec351c2"
   },
   {
@@ -28,7 +28,7 @@
     "value": 253.0,
     "job_id": 297987902,
     "push_id": 686184,
-    "push_timestamp": "2020-04-16 18:38:12",
+    "push_timestamp": "2020-04-16T18:38:12",
     "push__revision": "28fc014e05465eaf9bb08f11ce4326534347450b"
   },
   {
@@ -36,7 +36,7 @@
     "value": 252.0,
     "job_id": 298032850,
     "push_id": 686380,
-    "push_timestamp": "2020-04-16 23:42:18",
+    "push_timestamp": "2020-04-16T23:42:18",
     "push__revision": "d2fa90f1c8f187994d18b419526a793609b3a6b0"
   }
 ]
