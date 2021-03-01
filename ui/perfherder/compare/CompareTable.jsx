@@ -142,6 +142,8 @@ export default class CompareTable extends React.Component {
     } = this.props;
 
     const { data, tableConfig } = this.state;
+    const [firstElementofData] = data;
+    const { measurementUnit } = firstElementofData;
 
     return (
       <Table
@@ -182,6 +184,7 @@ export default class CompareTable extends React.Component {
             </th>
             <th className="table-width-lg">
               <CompareSortButton
+                measurementUnit={measurementUnit}
                 column={tableConfig.Base}
                 onChangeSort={this.onChangeSort}
               />
@@ -190,6 +193,7 @@ export default class CompareTable extends React.Component {
             <th className="table-width-sm" aria-label="Comparison" />
             <th className="table-width-lg">
               <CompareSortButton
+                measurementUnit={measurementUnit}
                 column={tableConfig.New}
                 onChangeSort={this.onChangeSort}
               />
