@@ -36,6 +36,7 @@ export const thPlatformMap = {
   'osx-1014-64-shippable': 'OS X 10.14 shippable',
   'osx-shippable': 'OS X Cross Compiled shippable',
   'osx-aarch64-shippable': 'OS X AArch64 Cross Compiled shippable',
+  'osx-aarch64-devedition': 'OS X AArch64 Cross Compiled DevEdition',
   'osx-cross-noopt': 'OS X Cross Compiled NoOpt',
   'osx-cross-add-on-devel': 'OS X Cross Compiled addon',
   'osx-cross-ccov': 'OS X Cross Compiled CCov',
