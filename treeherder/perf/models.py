@@ -1,4 +1,5 @@
-import datetime
+from datetime import datetime, timedelta
+from collections import defaultdict
 import json
 from typing import List
 
@@ -34,6 +35,33 @@ class PerformanceFramework(models.Model):
 
     def __str__(self):
         return self.name
+
+
+def has_one_month_worth_of_data(perf_data):
+    start_date = perf_data[0].push_timestamp
+    end_date = perf_data[-1].push_timestamp
+
+    perf_data_count = len(perf_data)
+
+    num_months = (end_date.year - start_date.year) * 12 + (end_date.month - start_date.month)
+
+    if num_months >= 1 and perf_data_count >= 2:
+        grouped_data = defaultdict(list)
+        for data_point in perf_data:
+            grouped_data[data_point.push_timestamp.month].append(data_point)
+        min_data_points_per_month = 2
+        for key, value in grouped_data.items():
+            if len(value) >= min_data_points_per_month:
+                return True
+
+    return False
+
+
+def data_was_kept_for_one_year(date):
+    one_year_from_date = date + timedelta(days=365)
+    if datetime.now() >= one_year_from_date:
+        return True
+    return False
 
 
 class PerformanceSignature(models.Model):
@@ -109,6 +137,26 @@ class PerformanceSignature(models.Model):
             repository_id=self.repository_id,  # leverages (repository, signature) compound index
             signature_id=self.id,
         ).exists()
+
+    def has_data_with_historical_value(self):
+        repositories = ['autoland', 'mozilla-central']
+        if self.repository.name in repositories:
+            perf_data = list(
+                PerformanceDatum.objects.filter(
+                    repository_id=self.repository_id,  # leverages (repository, signature) compound index
+                    signature_id=self.id,
+                ).order_by("push_timestamp")
+            )
+
+            most_recent_perf_data = perf_data[-1].push_timestamp
+
+            if data_was_kept_for_one_year(most_recent_perf_data):
+                return False
+
+            if has_one_month_worth_of_data(perf_data):
+                return True
+
+        return False
 
     class Meta:
         db_table = 'performance_signature'
@@ -274,7 +322,7 @@ class PerformanceAlertSummary(models.Model):
 
     def save(self, *args, **kwargs):
         if self.bug_number is not None and self.bug_number != self.__prev_bug_number:
-            self.bug_updated = datetime.datetime.now()
+            self.bug_updated = datetime.now()
         super(PerformanceAlertSummary, self).save(*args, **kwargs)
         self.__prev_bug_number = self.bug_number
 

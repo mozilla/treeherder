@@ -560,6 +560,54 @@ def test_stalled_data_removal(
     assert seg2_data in PerformanceDatum.objects.all()
 
 
+def test_data_with_historical_value_is_not_removed(
+    test_repository, test_perf_signature, test_perf_signature_2, test_perf_data, test_perf_alert
+):
+    test_repository.name = 'autoland'
+    test_repository.save()
+    max_timestamp = datetime.now() - timedelta(days=120)
+
+    test_perf_data = list(test_perf_data)
+
+    for data_point in test_perf_data:
+        data_point.push_timestamp = datetime.now()
+        data_point.save()
+
+    test_perf_data[0].push_timestamp = max_timestamp
+    test_perf_data[0].save()
+
+    test_perf_signature.last_updated = max_timestamp - timedelta(days=1)
+    test_perf_signature.save()
+
+    call_command('cycle_data', 'from:perfherder')
+
+    assert test_perf_signature in PerformanceSignature.objects.all()
+    for perf_data in test_perf_data:
+        assert perf_data in PerformanceDatum.objects.all()
+    assert test_perf_alert in PerformanceAlert.objects.all()
+
+
+def test_data_with_historical_value_is_kept_for_one_year(
+    test_repository, test_perf_signature, test_perf_data
+):
+    test_repository.name = 'mozilla-central'
+    test_repository.save()
+    max_timestamp = datetime.now() - timedelta(days=120)
+
+    one_year_ago = datetime.now() - timedelta(days=365)
+
+    for data_point in test_perf_data:
+        data_point.push_timestamp = one_year_ago
+        data_point.save()
+
+    test_perf_signature.last_updated = max_timestamp
+    test_perf_signature.save()
+
+    call_command('cycle_data', 'from:perfherder')
+
+    assert test_perf_data not in PerformanceDatum.objects.all()
+
+
 def test_try_data_removal_errors_out_on_missing_try_data(try_repository):
     try_removal_strategy = TryDataRemoval(10000)
 

@@ -307,6 +307,10 @@ class StalledDataRemoval(RemovalStrategy):
     """
     Removes `performance_datum` rows from `performance_signature`s
     that haven't been updated in the last 4 months.
+
+    Exception: `performance_datum` rows that have a historical value (`autoland` /
+    `mozilla-central` series with more than 1 month worth of data)
+    are excluded and are kept for 1 year.
     """
 
     @property
@@ -340,6 +344,11 @@ class StalledDataRemoval(RemovalStrategy):
                     'last_updated'
                 )
             )
+            self._removable_signatures = [
+                sig
+                for sig in self._removable_signatures
+                if not sig.has_data_with_historical_value()
+            ]
         return self._removable_signatures
 
     def remove(self, using: CursorWrapper):
