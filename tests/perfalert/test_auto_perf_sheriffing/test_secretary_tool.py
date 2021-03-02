@@ -10,7 +10,7 @@ from treeherder.config.settings import IS_WINDOWS
 from treeherder.perf.auto_perf_sheriffing.secretary_tool import SecretaryTool
 from treeherder.model.models import Push, Job
 from treeherder.perf.models import BackfillRecord, BackfillReport, PerformanceSettings
-from treeherder.perf.outcome_checker import OutcomeChecker, OutcomeStatus
+from treeherder.perf.auto_perf_sheriffing.outcome_checker import OutcomeChecker, OutcomeStatus
 
 # we're testing against this (automatically provided by fixtures)
 JOB_TYPE_ID = 1
@@ -234,7 +234,7 @@ def test_outcome_checker_identifies_pushes_in_range(
 
 
 class TestOutcomeChecker:
-    @patch('treeherder.perf.outcome_checker.get_job_type')
+    @patch('treeherder.perf.auto_perf_sheriffing.outcome_checker.get_job_type')
     def test_successful_jobs_mean_successful_outcome(
         self, mock_get_job_type, record_backfilled, outcome_checking_pushes, successful_jobs
     ):
@@ -245,7 +245,7 @@ class TestOutcomeChecker:
         response = outcome_checker.check(record_backfilled)
         assert response == OutcomeStatus.SUCCESSFUL
 
-    @patch('treeherder.perf.outcome_checker.get_job_type')
+    @patch('treeherder.perf.auto_perf_sheriffing.outcome_checker.get_job_type')
     def test_failed_job_means_failed_outcome(
         self, mock_get_job_type, record_backfilled, outcome_checking_pushes, jobs_with_one_failed
     ):
@@ -255,7 +255,7 @@ class TestOutcomeChecker:
         response = outcome_checker.check(record_backfilled)
         assert response == OutcomeStatus.FAILED
 
-    @patch('treeherder.perf.outcome_checker.get_job_type')
+    @patch('treeherder.perf.auto_perf_sheriffing.outcome_checker.get_job_type')
     def test_pending_job_means_in_progress_outcome(
         self, mock_get_job_type, record_backfilled, outcome_checking_pushes, jobs_with_one_pending
     ):
