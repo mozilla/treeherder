@@ -11,7 +11,7 @@ from multiprocessing.pool import AsyncResult
 import pytest
 from freezegun import freeze_time
 
-from tests.perf.test_sheriffing_criteria.conftest import CASSETTES_RECORDING_DATE
+from tests.perf.auto_sheriffing_criteria.conftest import CASSETTES_RECORDING_DATE
 from treeherder.perf.exceptions import NoFiledBugs
 from treeherder.perf.sheriffing_criteria import (
     CriteriaTracker,

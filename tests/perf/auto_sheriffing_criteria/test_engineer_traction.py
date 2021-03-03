@@ -3,7 +3,7 @@ from datetime import datetime, timedelta
 
 from typing import List
 
-from tests.perf.test_sheriffing_criteria.conftest import CASSETTES_RECORDING_DATE
+from tests.perf.auto_sheriffing_criteria.conftest import CASSETTES_RECORDING_DATE
 from treeherder.config.settings import BZ_DATETIME_FORMAT
 from treeherder.perf.sheriffing_criteria import EngineerTractionFormula
 

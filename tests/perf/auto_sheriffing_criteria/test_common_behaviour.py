@@ -4,7 +4,7 @@ import pytest
 from django.conf import settings
 from typing import List, Type, Callable
 
-from tests.perf.test_sheriffing_criteria.conftest import CASSETTES_RECORDING_DATE
+from tests.perf.auto_sheriffing_criteria.conftest import CASSETTES_RECORDING_DATE
 from treeherder.config.settings import BZ_DATETIME_FORMAT
 from treeherder.perf.exceptions import NoFiledBugs
 from treeherder.perf.sheriffing_criteria import (
