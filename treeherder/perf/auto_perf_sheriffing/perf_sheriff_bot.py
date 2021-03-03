@@ -51,6 +51,7 @@ class PerfSheriffBot:
 
     def sheriff(self, since: datetime, frameworks: List[str], repositories: List[str]):
         self.assert_can_run()
+        self.secretary.validate_settings()
 
         # secretary tool checks the status of all backfilled jobs
         # TODO: should not be enabled during soft launch - enable for the real launch
