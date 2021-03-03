@@ -175,6 +175,7 @@ def _load_perf_datum(job: Job, perf_datum: dict):
                 signature.should_alert is not False
                 and datum_created
                 and job.repository.performance_alerts_enabled
+                and job.tier_is_sheriffable
             ):
                 generate_alerts.apply_async(args=[signature.id], queue='generate_perf_alerts')
 
@@ -253,6 +254,7 @@ def _load_perf_datum(job: Job, perf_datum: dict):
                 )
                 and datum_created
                 and job.repository.performance_alerts_enabled
+                and job.tier_is_sheriffable
             ):
                 generate_alerts.apply_async(args=[signature.id], queue='generate_perf_alerts')
 
