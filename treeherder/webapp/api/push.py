@@ -350,8 +350,8 @@ class PushViewSet(viewsets.ViewSet):
         mozciPush = MozciPush([revision], project)
         commit_history_details = None
 
-        if repository.dvcs_type == 'hg':
-            commit_history_details = get_commit_history(mozciPush, push)
+        # if repository.dvcs_type == 'hg':
+        #     commit_history_details = get_commit_history(mozciPush, push)
 
         tests, builds, lints, status, total_failures, jobs = self._get_failure_data(mozciPush, push)
 
