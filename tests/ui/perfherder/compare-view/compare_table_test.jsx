@@ -11,6 +11,7 @@ import {
 import projects from '../../mock/repositories';
 import CompareTableControls from '../../../../ui/perfherder/compare/CompareTableControls';
 import CompareTable from '../../../../ui/perfherder/compare/CompareTable';
+import CompareSortButton from '../../../../ui/perfherder/compare/CompareSortButton';
 import ComparePageTitle from '../../../../ui/shared/ComparePageTitle';
 import {
   compareTableText,
@@ -683,4 +684,36 @@ test(`table data sorted by 'Confidence' has data with invalid confidence at the 
   expect(compareTableRows[0]).toContainElement(result1);
   expect(compareTableRows[1]).toContainElement(result2);
   expect(compareTableRows[2]).toContainElement(result3);
+});
+
+const propsWithUnit = {
+  onChangeSort: jest.fn(),
+  column: {
+    name: 'Base',
+    currentSort: 'default',
+  },
+  measurementUnit: 'score',
+};
+
+const propsWithoutUnit = {
+  onChangeSort: jest.fn(),
+  column: {
+    name: 'New',
+    currentSort: 'default',
+  },
+};
+
+test(`measurement unit should appear only when passed as props`, async () => {
+  const { queryByText, rerender } = render(
+    <CompareSortButton {...propsWithUnit} />,
+  );
+
+  expect(queryByText('Base (score)')).not.toBeNull();
+  expect(queryByText('Base (score)')).toBeTruthy();
+
+  rerender(<CompareSortButton {...propsWithoutUnit} />);
+
+  expect(queryByText('New (score)')).not.toBeInTheDocument();
+  expect(queryByText('New (score)')).toBeFalsy();
+  expect(queryByText('New')).toBeTruthy();
 });
