@@ -35,6 +35,61 @@ def sample_perf_datum(framework_name: str, subtest_value: int = 20.0) -> dict:
     }
 
 
+def _generate_and_validate_alerts(
+    alerts_enabled_repository,
+    extra_subtest_metadata,
+    extra_suite_metadata,
+    generic_reference_data,
+    job_tier,
+    suite_provides_value,
+    test_repository,
+):
+    test_repository.performance_alerts_enabled = alerts_enabled_repository
+    test_repository.save()
+    _generate_perf_data_range(
+        test_repository,
+        generic_reference_data,
+        suite_provides_value=suite_provides_value,
+        extra_suite_metadata=extra_suite_metadata,
+        extra_subtest_metadata=extra_subtest_metadata,
+        job_tier=job_tier,
+    )
+    # validate that the signatures have the expected properties
+    _verify_signature(
+        test_repository.name,
+        'cheezburger',
+        'cheezburger metrics',
+        'test1',
+        'my_option_hash',
+        'my_platform',
+        True,
+        None,
+        'ms',
+        alert_threshold=extra_subtest_metadata.get('alertThreshold'),
+        alert_change_type=extra_subtest_metadata.get('alertChangeType'),
+        min_back_window=extra_subtest_metadata.get('minBackWindow'),
+        max_back_window=extra_subtest_metadata.get('maxBackWindow'),
+        fore_window=extra_subtest_metadata.get('foreWindow'),
+    )
+    if suite_provides_value:
+        _verify_signature(
+            test_repository.name,
+            'cheezburger',
+            'cheezburger metrics',
+            '',
+            'my_option_hash',
+            'my_platform',
+            True,
+            None,
+            'ms',
+            alert_threshold=extra_suite_metadata.get('alertThreshold'),
+            alert_change_type=extra_suite_metadata.get('alertChangeType'),
+            min_back_window=extra_suite_metadata.get('minBackWindow'),
+            max_back_window=extra_suite_metadata.get('maxBackWindow'),
+            fore_window=extra_suite_metadata.get('foreWindow'),
+        )
+
+
 def _generate_perf_data_range(
     test_repository,
     generic_reference_data,
@@ -177,11 +232,6 @@ def test_same_signature_multiple_performance_frameworks(test_repository, perf_jo
         (True, False, None, {'minBackWindow': 12, 'maxBackWindow': 100}, 2, True, False),
         # summary+subtest, no metadata, default settings
         (True, True, {}, {}, 1, False, True),
-        # summary+subtest, high alert threshold
-        # (so no alert)
-        (True, True, {'alertThreshold': 500.0}, {}, 2, False, False),
-        # summary+subtest, no metadata, no alerting on summary
-        (True, True, {'shouldAlert': False}, {}, 1, False, False),
         # summary+subtest, no metadata, no alerting on
         # summary, alerting on subtest
         (True, True, {'shouldAlert': False}, {'shouldAlert': True}, 2, True, False),
@@ -191,21 +241,6 @@ def test_same_signature_multiple_performance_frameworks(test_repository, perf_jo
         # summary+subtest, alerting override on subtest +
         # summary
         (True, True, {'shouldAlert': True}, {'shouldAlert': True}, 1, True, True),
-        # summary+subtest, alerting override on subtest +
-        # summary -- but alerts disabled
-        (False, True, {'shouldAlert': True}, {'shouldAlert': True}, 2, False, False),
-        # summary+subtest, alerting override on subtest +
-        # summary, but using absolute change so shouldn't
-        # alert
-        (
-            True,
-            True,
-            {'shouldAlert': True, 'alertChangeType': 'absolute'},
-            {'shouldAlert': True, 'alertChangeType': 'absolute'},
-            1,
-            False,
-            False,
-        ),
         # summary + subtest, only subtest is absolute so
         # summary should alert
         (
@@ -219,7 +254,7 @@ def test_same_signature_multiple_performance_frameworks(test_repository, perf_jo
         ),
     ],
 )
-def test_alert_generation(
+def test_alerts_should_be_generated(
     test_repository,
     test_issue_tracker,
     failure_classifications,
@@ -247,17 +282,16 @@ def test_alert_generation(
     # validate that a performance alert was generated
     assert total_expected_alerts == PerformanceAlert.objects.all().count()
 
-    # check # of alerts, validate summary if present
-    if total_expected_alerts > 0:
-        assert 1 == PerformanceAlertSummary.objects.all().count()
-        summary = PerformanceAlertSummary.objects.get(id=1)
-        assert summary.push_id == 16
-        assert summary.prev_push_id == 15
-    else:
-        assert 0 == PerformanceAlertSummary.objects.all().count()
+    # validate summary
+    assert 1 == PerformanceAlertSummary.objects.all().count()
+    summary = PerformanceAlertSummary.objects.get(id=1)
+    assert summary.push_id == 16
+    assert summary.prev_push_id == 15
 
-    # validate suite alert if it [should be] present
+    # check number of alerts
+
     if expected_suite_alert:
+        # validate suite alert
         alert = PerformanceAlert.objects.get(series_signature__test='')
         assert alert.series_signature.suite == 'cheezburger metrics'
         assert alert.series_signature.test == ''
@@ -265,69 +299,14 @@ def test_alert_generation(
         assert alert.amount_abs == 1
         assert alert.amount_pct == 100
 
-    # validate subtest alert if it [should be] present
     if expected_subtest_alert:
+        # validate subtest alert
         alert = PerformanceAlert.objects.get(series_signature__test='test1')
         assert alert.series_signature.suite == 'cheezburger metrics'
         assert alert.series_signature.test == 'test1'
         assert alert.is_regression
         assert alert.amount_abs == 1
         assert alert.amount_pct == 100
-
-
-def _generate_and_validate_alerts(
-    alerts_enabled_repository,
-    extra_subtest_metadata,
-    extra_suite_metadata,
-    generic_reference_data,
-    job_tier,
-    suite_provides_value,
-    test_repository,
-):
-    test_repository.performance_alerts_enabled = alerts_enabled_repository
-    test_repository.save()
-    _generate_perf_data_range(
-        test_repository,
-        generic_reference_data,
-        suite_provides_value=suite_provides_value,
-        extra_suite_metadata=extra_suite_metadata,
-        extra_subtest_metadata=extra_subtest_metadata,
-        job_tier=job_tier,
-    )
-    # validate that the signatures have the expected properties
-    _verify_signature(
-        test_repository.name,
-        'cheezburger',
-        'cheezburger metrics',
-        'test1',
-        'my_option_hash',
-        'my_platform',
-        True,
-        None,
-        'ms',
-        alert_threshold=extra_subtest_metadata.get('alertThreshold'),
-        alert_change_type=extra_subtest_metadata.get('alertChangeType'),
-        min_back_window=extra_subtest_metadata.get('minBackWindow'),
-        max_back_window=extra_subtest_metadata.get('maxBackWindow'),
-        fore_window=extra_subtest_metadata.get('foreWindow'),
-    )
-    if suite_provides_value:
-        _verify_signature(
-            test_repository.name,
-            'cheezburger',
-            'cheezburger metrics',
-            '',
-            'my_option_hash',
-            'my_platform',
-            True,
-            None,
-            'ms',
-            alert_threshold=extra_suite_metadata.get('alertThreshold'),
-            alert_change_type=extra_suite_metadata.get('alertChangeType'),
-            min_back_window=extra_suite_metadata.get('minBackWindow'),
-            max_back_window=extra_suite_metadata.get('maxBackWindow'),
-            fore_window=extra_suite_metadata.get('foreWindow'),
-        )
 
 
 @pytest.mark.parametrize(
@@ -339,54 +318,52 @@ def _generate_and_validate_alerts(
         'job_tier',
     ),
     [
-        # just subtest, no metadata, default settings
-        # unsheriffable job tier won't alert
+        # just subtest, no metadata, default settings & unsheriffable job tier won't alert
         (True, False, None, {}, 3),
         # just subtest, high alert threshold (so no alert)
         (True, False, None, {'alertThreshold': 500.0}, 2),
-        # unsheriffable job tier won't alert
+        # unsheriffable job tier won't alert either
         (True, False, None, {'alertThreshold': 500.0}, 3),
         # just subtest, but larger min window size
         # (so no alerting)
         (True, False, {}, {'minBackWindow': 100, 'maxBackWindow': 100}, 1),
-        # unsheriffable job tier won't alert
+        # unsheriffable job tier won't alert either
         (True, False, {}, {'minBackWindow': 100, 'maxBackWindow': 100}, 3),
         # should still alert even if we optionally
-        # use a large maximum back window
-        # unsheriffable job tier won't alert
+        # use a large maximum back window, but because of
+        # unsheriffable job tier it won't
         (True, False, None, {'minBackWindow': 12, 'maxBackWindow': 100}, 3),
-        # summary+subtest, no metadata, default settings
-        # unsheriffable job tier won't alert
+        # summary+subtest, no metadata, default settings should alert,
+        # but because of unsheriffable job tier it won't
         (True, True, {}, {}, 3),
         # summary+subtest, high alert threshold
         # (so no alert)
         (True, True, {'alertThreshold': 500.0}, {}, 2),
-        # unsheriffable job tier won't alert
+        # unsheriffable job tier won't alert either
         (True, True, {'alertThreshold': 500.0}, {}, 3),
         # unsheriffable job tier won't alert
         (True, True, {'alertThreshold': 500.0}, {}, 2),
-        # unsheriffable job tier won't alert
+        # unsheriffable job tier won't alert either
         (True, True, {'alertThreshold': 500.0}, {}, 3),
         # summary+subtest, no metadata, no alerting on summary
         (True, True, {'shouldAlert': False}, {}, 1),
-        # unsheriffable job tier won't alert
+        # unsheriffable job tier won't alert either
         (True, True, {'shouldAlert': False}, {}, 3),
         # summary+subtest, no metadata, no alerting on
-        # summary, alerting on subtest
-        # unsheriffable job tier won't alert
+        # summary, alerting on subtest should alert, but
+        # because of unsheriffable job tier it won't
         (True, True, {'shouldAlert': False}, {'shouldAlert': True}, 3),
         # summary+subtest, no metadata on summary, alerting
-        # override on subtest
-        # unsheriffable job tier won't alert
+        # override on subtest should alert, but because of
+        # unsheriffable job tier it won't
         (True, True, {}, {'shouldAlert': True}, 3),
         # summary+subtest, alerting override on subtest +
-        # summary
-        # unsheriffable job tier won't alert
+        # summary & unsheriffable job tier won't alert
         (True, True, {'shouldAlert': True}, {'shouldAlert': True}, 3),
         # summary+subtest, alerting override on subtest +
         # summary -- but alerts disabled
         (False, True, {'shouldAlert': True}, {'shouldAlert': True}, 2),
-        # unsheriffable job tier won't alert
+        # unsheriffable job tier won't alert either
         (False, True, {'shouldAlert': True}, {'shouldAlert': True}, 3),
         # summary+subtest, alerting override on subtest +
         # summary, but using absolute change so shouldn't
@@ -398,7 +375,7 @@ def _generate_and_validate_alerts(
             {'shouldAlert': True, 'alertChangeType': 'absolute'},
             1,
         ),
-        # unsheriffable job tier won't alert
+        # unsheriffable job tier won't alert either
         (
             True,
             True,
@@ -407,8 +384,8 @@ def _generate_and_validate_alerts(
             3,
         ),
         # summary + subtest, only subtest is absolute so
-        # summary should alert
-        # unsheriffable job tier won't alert
+        # summary should alert, but because of unsheriffable
+        # job tier it won't
         (
             True,
             True,
@@ -441,10 +418,6 @@ def test_no_alert_is_generated(
     # no performance alert or summary was generated
     assert 0 == PerformanceAlert.objects.all().count()
     assert 0 == PerformanceAlertSummary.objects.all().count()
-
-
-def test_alerts_are_generated():
-    pass
 
 
 def test_alert_generation_repo_no_alerts(
