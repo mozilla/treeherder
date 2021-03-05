@@ -82,6 +82,34 @@ def _deduce_push_timestamp(perf_datum: dict, job_push_time: datetime) -> Tuple[d
     return (multidata_timestamp or job_push_time), is_multi_commit
 
 
+def _suite_should_alert_based_on(
+    signature: PerformanceSignature, job: Job, new_datum_ingested: bool
+) -> bool:
+    return (
+        signature.should_alert is not False
+        and new_datum_ingested
+        and job.repository.performance_alerts_enabled
+        and job.tier_is_sheriffable
+    )
+
+
+def _test_should_alert_based_on(
+    signature: PerformanceSignature, job: Job, new_datum_ingested: bool, suite: dict
+) -> bool:
+    """
+    By default if there is no summary, we should schedule a
+    generate alerts task for the subtest, since we have new data
+    (this can be over-ridden by the optional "should alert"
+    property)
+    """
+    return (
+        (signature.should_alert or (signature.should_alert is None and suite.get('value') is None))
+        and new_datum_ingested
+        and job.repository.performance_alerts_enabled
+        and job.tier_is_sheriffable
+    )
+
+
 def _load_perf_datum(job: Job, perf_datum: dict):
     validate_perf_data(perf_datum)
 
@@ -171,12 +199,8 @@ def _load_perf_datum(job: Job, perf_datum: dict):
             if suite_datum.should_mark_as_multi_commit(is_multi_commit, datum_created):
                 # keep a register with all multi commit perf data
                 MultiCommitDatum.objects.create(perf_datum=suite_datum)
-            if (
-                signature.should_alert is not False
-                and datum_created
-                and job.repository.performance_alerts_enabled
-                and job.tier_is_sheriffable
-            ):
+
+            if _suite_should_alert_based_on(signature, job, datum_created):
                 generate_alerts.apply_async(args=[signature.id], queue='generate_perf_alerts')
 
         for subtest in suite['subtests']:
@@ -243,19 +267,7 @@ def _load_perf_datum(job: Job, perf_datum: dict):
                 # keep a register with all multi commit perf data
                 MultiCommitDatum.objects.create(perf_datum=subtest_datum)
 
-            # by default if there is no summary, we should schedule a
-            # generate alerts task for the subtest, since we have new data
-            # (this can be over-ridden by the optional "should alert"
-            # property)
-            if (
-                (
-                    signature.should_alert
-                    or (signature.should_alert is None and suite.get('value') is None)
-                )
-                and datum_created
-                and job.repository.performance_alerts_enabled
-                and job.tier_is_sheriffable
-            ):
+            if _test_should_alert_based_on(signature, job, datum_created, suite):
                 generate_alerts.apply_async(args=[signature.id], queue='generate_perf_alerts')
 
 

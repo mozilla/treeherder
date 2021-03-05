@@ -40,7 +40,7 @@ def _generate_perf_data_range(
     generic_reference_data,
     create_perf_framework=True,
     enable_framework=True,
-    add_suite_value=False,
+    suite_provides_value=False,
     extra_suite_metadata=None,
     extra_subtest_metadata=None,
     reverse_push_range=False,
@@ -69,7 +69,7 @@ def _generate_perf_data_range(
         )
         datum = sample_perf_datum(framework_name, value)
 
-        if add_suite_value:
+        if suite_provides_value:
             datum['blob']['suites'][0]['value'] = value
         if extra_suite_metadata:
             datum['blob']['suites'][0].update(extra_suite_metadata)
@@ -164,7 +164,7 @@ def test_same_signature_multiple_performance_frameworks(test_repository, perf_jo
 @pytest.mark.parametrize(
     (
         'alerts_enabled_repository',
-        'add_suite_value',
+        'suite_provides_value',
         'extra_suite_metadata',
         'extra_subtest_metadata',
         'job_tier',
@@ -278,7 +278,7 @@ def test_alert_generation(
     failure_classifications,
     generic_reference_data,
     alerts_enabled_repository,
-    add_suite_value,
+    suite_provides_value,
     extra_suite_metadata,
     extra_subtest_metadata,
     job_tier,
@@ -291,7 +291,7 @@ def test_alert_generation(
     _generate_perf_data_range(
         test_repository,
         generic_reference_data,
-        add_suite_value=add_suite_value,
+        suite_provides_value=suite_provides_value,
         extra_suite_metadata=extra_suite_metadata,
         extra_subtest_metadata=extra_subtest_metadata,
         job_tier=job_tier,
@@ -314,7 +314,7 @@ def test_alert_generation(
         max_back_window=extra_subtest_metadata.get('maxBackWindow'),
         fore_window=extra_subtest_metadata.get('foreWindow'),
     )
-    if add_suite_value:
+    if suite_provides_value:
         _verify_signature(
             test_repository.name,
             'cheezburger',
