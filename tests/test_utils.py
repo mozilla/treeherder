@@ -188,7 +188,10 @@ def load_exp(filename):
         return json.load(f)
 
 
-def create_generic_job(guid, repository, push_id, generic_reference_data):
+def create_generic_job(guid, repository, push_id, generic_reference_data, tier=None):
+    if tier is None:
+        tier = 1
+
     job_time = datetime.datetime.fromtimestamp(0)
     return models.Job.objects.create(
         guid=guid,
@@ -210,7 +213,7 @@ def create_generic_job(guid, repository, push_id, generic_reference_data):
         submit_time=job_time,
         start_time=job_time,
         end_time=job_time,
-        tier=1,
+        tier=tier,
     )
 
 

@@ -17,6 +17,24 @@ from treeherder.perf.models import (
 )
 
 
+def sample_perf_datum(framework_name: str, subtest_value: int = 20.0) -> dict:
+    return {
+        'job_guid': 'fake_job_guid',
+        'name': 'test',
+        'type': 'test',
+        'blob': {
+            'framework': {'name': framework_name},
+            'suites': [
+                {
+                    'name': 'cheezburger metrics',
+                    'unit': 'ms',
+                    'subtests': [{'name': 'test1', 'value': subtest_value, 'unit': 'ms'}],
+                }
+            ],
+        },
+    }
+
+
 def _generate_perf_data_range(
     test_repository,
     generic_reference_data,
@@ -26,6 +44,7 @@ def _generate_perf_data_range(
     extra_suite_metadata=None,
     extra_subtest_metadata=None,
     reverse_push_range=False,
+    job_tier=None,
 ):
     framework_name = "cheezburger"
     if create_perf_framework:
@@ -41,26 +60,15 @@ def _generate_perf_data_range(
         push_time = datetime.datetime.fromtimestamp(now + i)
         push = Push.objects.create(
             repository=test_repository,
-            revision='abcdefgh%s' % i,
-            author='foo@bar.com',
+            revision=f"abcdefgh{i}",
+            author="foo@bar.com",
             time=push_time,
         )
-        job = create_generic_job('myguid%s' % i, test_repository, push.id, generic_reference_data)
-        datum = {
-            'job_guid': 'fake_job_guid',
-            'name': 'test',
-            'type': 'test',
-            'blob': {
-                'framework': {'name': framework_name},
-                'suites': [
-                    {
-                        'name': 'cheezburger metrics',
-                        'unit': 'ms',
-                        'subtests': [{'name': 'test1', 'value': value, 'unit': 'ms'}],
-                    }
-                ],
-            },
-        }
+        job = create_generic_job(
+            f"myguid{i}", test_repository, push.id, generic_reference_data, tier=job_tier
+        )
+        datum = sample_perf_datum(framework_name, value)
+
         if add_suite_value:
             datum['blob']['suites'][0]['value'] = value
         if extra_suite_metadata:
@@ -68,7 +76,7 @@ def _generate_perf_data_range(
         if extra_subtest_metadata:
             datum['blob']['suites'][0]['subtests'][0].update(extra_subtest_metadata)
 
-        # the perf data adapter expects unserialized performance data
+        # the perf data adapter expects deserialized performance data
         submit_datum = copy.copy(datum)
         submit_datum['blob'] = json.dumps({'performance_data': submit_datum['blob']})
         store_performance_artifact(job, submit_datum)
@@ -119,7 +127,9 @@ def _verify_signature(
         assert signature.last_updated == last_updated
 
 
-def test_no_performance_framework(test_repository, failure_classifications, generic_reference_data):
+def test_data_from_unregistered_framework_isnt_ingested(
+    test_repository, failure_classifications, generic_reference_data
+):
     _generate_perf_data_range(test_repository, generic_reference_data, create_perf_framework=False)
     # no errors, but no data either
     assert 0 == PerformanceSignature.objects.all().count()
@@ -130,21 +140,9 @@ def test_same_signature_multiple_performance_frameworks(test_repository, perf_jo
     framework_names = ['cheezburger1', 'cheezburger2']
     for framework_name in framework_names:
         PerformanceFramework.objects.create(name=framework_name, enabled=True)
-        datum = {
-            'job_guid': 'fake_job_guid',
-            'name': 'test',
-            'type': 'test',
-            'blob': {
-                'framework': {'name': framework_name},
-                'suites': [
-                    {
-                        'name': 'cheezburger metrics',
-                        'subtests': [{'name': 'test1', 'value': 20.0, 'unit': 'ms'}],
-                    }
-                ],
-            },
-        }
-        # the perf data adapter expects unserialized performance data
+        datum = sample_perf_datum(framework_name)
+
+        # the perf data adapter expects deserialized performance data
         submit_datum = copy.copy(datum)
         submit_datum['blob'] = json.dumps({'performance_data': submit_datum['blob']})
 
@@ -169,39 +167,66 @@ def test_same_signature_multiple_performance_frameworks(test_repository, perf_jo
         'add_suite_value',
         'extra_suite_metadata',
         'extra_subtest_metadata',
+        'job_tier',
         'expected_subtest_alert',
         'expected_suite_alert',
     ),
     [
         # just subtest, no metadata, default settings
-        (True, False, None, {}, True, False),
+        (True, False, None, {}, 1, True, False),
+        # unsheriffable job tier won't alert
+        (True, False, None, {}, 3, False, False),
         # just subtest, high alert threshold (so no alert)
-        (True, False, None, {'alertThreshold': 500.0}, False, False),
+        (True, False, None, {'alertThreshold': 500.0}, 2, False, False),
+        # unsheriffable job tier won't alert
+        (True, False, None, {'alertThreshold': 500.0}, 3, False, False),
         # just subtest, but larger min window size
         # (so no alerting)
-        (True, False, {}, {'minBackWindow': 100, 'maxBackWindow': 100}, False, False),
+        (True, False, {}, {'minBackWindow': 100, 'maxBackWindow': 100}, 1, False, False),
+        # unsheriffable job tier won't alert
+        (True, False, {}, {'minBackWindow': 100, 'maxBackWindow': 100}, 3, False, False),
         # should still alert even if we optionally
         # use a large maximum back window
-        (True, False, None, {'minBackWindow': 12, 'maxBackWindow': 100}, True, False),
+        (True, False, None, {'minBackWindow': 12, 'maxBackWindow': 100}, 2, True, False),
+        # unsheriffable job tier won't alert
+        (True, False, None, {'minBackWindow': 12, 'maxBackWindow': 100}, 3, False, False),
         # summary+subtest, no metadata, default settings
-        (True, True, {}, {}, False, True),
+        (True, True, {}, {}, 1, False, True),
+        # unsheriffable job tier won't alert
+        (True, True, {}, {}, 3, False, False),
         # summary+subtest, high alert threshold
         # (so no alert)
-        (True, True, {'alertThreshold': 500.0}, {}, False, False),
+        (True, True, {'alertThreshold': 500.0}, {}, 2, False, False),
+        # unsheriffable job tier won't alert
+        (True, True, {'alertThreshold': 500.0}, {}, 3, False, False),
+        # unsheriffable job tier won't alert
+        (True, True, {'alertThreshold': 500.0}, {}, 2, False, False),
+        # unsheriffable job tier won't alert
+        (True, True, {'alertThreshold': 500.0}, {}, 3, False, False),
         # summary+subtest, no metadata, no alerting on summary
-        (True, True, {'shouldAlert': False}, {}, False, False),
+        (True, True, {'shouldAlert': False}, {}, 1, False, False),
+        # unsheriffable job tier won't alert
+        (True, True, {'shouldAlert': False}, {}, 3, False, False),
         # summary+subtest, no metadata, no alerting on
         # summary, alerting on subtest
-        (True, True, {'shouldAlert': False}, {'shouldAlert': True}, True, False),
+        (True, True, {'shouldAlert': False}, {'shouldAlert': True}, 2, True, False),
+        # unsheriffable job tier won't alert
+        (True, True, {'shouldAlert': False}, {'shouldAlert': True}, 3, False, False),
         # summary+subtest, no metadata on summary, alerting
         # override on subtest
-        (True, True, {}, {'shouldAlert': True}, True, True),
+        (True, True, {}, {'shouldAlert': True}, 2, True, True),
+        # unsheriffable job tier won't alert
+        (True, True, {}, {'shouldAlert': True}, 3, False, False),
         # summary+subtest, alerting override on subtest +
         # summary
-        (True, True, {'shouldAlert': True}, {'shouldAlert': True}, True, True),
+        (True, True, {'shouldAlert': True}, {'shouldAlert': True}, 1, True, True),
+        # unsheriffable job tier won't alert
+        (True, True, {'shouldAlert': True}, {'shouldAlert': True}, 3, False, False),
         # summary+subtest, alerting override on subtest +
         # summary -- but alerts disabled
-        (False, True, {'shouldAlert': True}, {'shouldAlert': True}, False, False),
+        (False, True, {'shouldAlert': True}, {'shouldAlert': True}, 2, False, False),
+        # unsheriffable job tier won't alert
+        (False, True, {'shouldAlert': True}, {'shouldAlert': True}, 3, False, False),
         # summary+subtest, alerting override on subtest +
         # summary, but using absolute change so shouldn't
         # alert
@@ -210,6 +235,17 @@ def test_same_signature_multiple_performance_frameworks(test_repository, perf_jo
             True,
             {'shouldAlert': True, 'alertChangeType': 'absolute'},
             {'shouldAlert': True, 'alertChangeType': 'absolute'},
+            1,
+            False,
+            False,
+        ),
+        # unsheriffable job tier won't alert
+        (
+            True,
+            True,
+            {'shouldAlert': True, 'alertChangeType': 'absolute'},
+            {'shouldAlert': True, 'alertChangeType': 'absolute'},
+            3,
             False,
             False,
         ),
@@ -220,8 +256,19 @@ def test_same_signature_multiple_performance_frameworks(test_repository, perf_jo
             True,
             {'shouldAlert': True},
             {'shouldAlert': True, 'alertChangeType': 'absolute'},
+            2,
             False,
             True,
+        ),
+        # unsheriffable job tier won't alert
+        (
+            True,
+            True,
+            {'shouldAlert': True},
+            {'shouldAlert': True, 'alertChangeType': 'absolute'},
+            3,
+            False,
+            False,
         ),
     ],
 )
@@ -234,6 +281,7 @@ def test_alert_generation(
     add_suite_value,
     extra_suite_metadata,
     extra_subtest_metadata,
+    job_tier,
     expected_subtest_alert,
     expected_suite_alert,
 ):
@@ -246,6 +294,7 @@ def test_alert_generation(
         add_suite_value=add_suite_value,
         extra_suite_metadata=extra_suite_metadata,
         extra_subtest_metadata=extra_subtest_metadata,
+        job_tier=job_tier,
     )
 
     # validate that the signatures have the expected properties
