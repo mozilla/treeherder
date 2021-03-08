@@ -1,6 +1,6 @@
 import pytest
 
-from tests.perf.test_sheriffing_criteria.conftest import CASSETTES_RECORDING_DATE
+from tests.perf.auto_sheriffing_criteria.conftest import CASSETTES_RECORDING_DATE
 from treeherder.perf.sheriffing_criteria import FixRatioFormula
 
 pytestmark = [pytest.mark.freeze_time(CASSETTES_RECORDING_DATE, tick=True)]

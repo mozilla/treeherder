@@ -10,7 +10,7 @@ functionality of the `BackfillTool`.
 from django.conf import settings
 from django.core.management.base import BaseCommand
 
-from treeherder.perf.backfill_tool import BackfillTool
+from treeherder.perf.auto_perf_sheriffing.backfill_tool import BackfillTool
 from treeherder.services.taskcluster import DEFAULT_ROOT_URL as root_url
 from treeherder.services.taskcluster import TaskclusterModel
 

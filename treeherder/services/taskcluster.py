@@ -1,8 +1,12 @@
+import hashlib
 import logging
-from typing import List
+from abc import ABC, abstractmethod
+from datetime import datetime
+from typing import List, Tuple
 
 import jsone
 import taskcluster
+from django.conf import settings
 
 from treeherder.utils.taskcluster_lib_scopes import satisfiesExpression
 
@@ -11,10 +15,28 @@ logger = logging.getLogger(__name__)
 DEFAULT_ROOT_URL = 'https://firefox-ci-tc.services.mozilla.com'
 
 
-class TaskclusterModel:
+class TaskclusterModel(ABC):
     """Javascript -> Python rewrite of frontend's TaskclusterModel"""
 
     def __init__(self, root_url, client_id=None, access_token=None):
+        pass
+
+    @abstractmethod
+    def trigger_action(self, action, task_id, decision_task_id, input, root_url=None) -> str:
+        pass  # pragma: no cover
+
+
+class TaskclusterModelImpl(TaskclusterModel):
+    """Javascript -> Python rewrite of frontend' s TaskclusterModel"""
+
+    def __init__(self, root_url, client_id=None, access_token=None, unit_testing_this=False):
+        # TODO: remove when backfill tool' soft launch is complete ->
+        if not unit_testing_this:
+            raise RuntimeError(
+                f"Must not instantiate real {self.__class__.__name__} instance "
+                f"before backfill tool' soft launch is complete"
+            )
+        # <- up to here
         options = {'rootUrl': root_url}
         credentials = {}
 
@@ -25,20 +47,15 @@ class TaskclusterModel:
 
         # Taskcluster APIs
         self.hooks = taskcluster.Hooks({**options, 'credentials': credentials})
-        self.notify = taskcluster.Notify({**options, 'credentials': credentials})
 
         # Following least-privilege principle, as services
         # bellow don't really need authorization credentials.
         self.queue = taskcluster.Queue(options)
         self.auth = taskcluster.Auth(options)
 
-    def set_root_url(self, root_url):
-        for service in (self.hooks, self.queue, self.auth):
-            service.options['rootUrl'] = root_url
-
     def trigger_action(self, action, task_id, decision_task_id, input, root_url=None) -> str:
         if root_url is not None:
-            self.set_root_url(root_url)
+            self.__set_root_url(root_url)
 
         actions_context = self._load(decision_task_id, task_id)
         action_to_trigger = self._get_action(actions_context['actions'], action)
@@ -50,6 +67,10 @@ class TaskclusterModel:
             input=input,
             static_action_variables=actions_context['staticActionVariables'],
         )
+
+    def __set_root_url(self, root_url):
+        for service in (self.hooks, self.queue, self.auth):
+            service.options['rootUrl'] = root_url
 
     def _load(self, decision_task_id: str, task_id: str) -> dict:
         if not decision_task_id:
@@ -161,3 +182,61 @@ class TaskclusterModel:
             all(tag in task_tags and task_tags[tag] == tag_set[tag] for tag in tag_set.keys())
             for tag_set in context
         )
+
+
+class TaskclusterModelProxy(TaskclusterModel):
+    """
+    TODO: remove this class when backfill tool' soft launch is complete
+    """
+
+    def trigger_action(self, action, task_id, decision_task_id, input, root_url=None) -> str:
+        hash_suffix = self.__hash(task_id)
+        return f'fake-backfill-task-id-for-{task_id}-{hash_suffix}'
+
+    def __hash(self, task_id) -> str:
+        now = str(datetime.now())
+        return hashlib.sha256(f'{now}-{task_id}').hexdigest()
+
+
+class Notify(ABC):
+    @abstractmethod
+    def email(self, *args, **kwargs):
+        pass  # pragma: no cover
+
+
+class NotifyAdapter(Notify):
+    def __init__(self, options=None, session=None):
+        self._notify_adaptee = taskcluster.Notify(options, session)
+
+    def email(self, *args, **kwargs):
+        return self._notify_adaptee.email(*args, **kwargs)
+
+
+class NotifyNullObject(Notify):
+    def email(self, *args, **kwargs):
+        logger.debug(f"Faking sending of email `{args}`")
+
+
+def notify_client_factory(
+    root_url: str = None, client_id: str = None, access_token: str = None
+) -> Notify:
+    client_id, access_token = autofind_unprovided(access_token, client_id)
+
+    if client_id and access_token:  # we're on production
+        options = {
+            'rootUrl': root_url or DEFAULT_ROOT_URL,
+            'credentials': {
+                'clientId': client_id,
+                'accessToken': access_token,
+            },
+        }
+        return NotifyAdapter(options)
+
+    # not on production and/or shouldn't email anything
+    return NotifyNullObject()
+
+
+def autofind_unprovided(access_token, client_id) -> Tuple[str, str]:
+    client_id = client_id or settings.NOTIFY_CLIENT_ID
+    access_token = access_token or settings.NOTIFY_ACCESS_TOKEN
+    return client_id, access_token

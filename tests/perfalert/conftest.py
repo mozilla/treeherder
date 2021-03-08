@@ -1,4 +1,9 @@
+from unittest.mock import MagicMock
+
 import pytest
+import taskcluster
+
+from treeherder.services.taskcluster import notify_client_factory
 
 from tests.conftest import SampleDataJSONLoader
 
@@ -15,7 +20,8 @@ def job_from_try(eleven_job_blobs, create_jobs):
     return job
 
 
-@pytest.fixture(scope="module")
-def record_context_sample():
-    # contains 5 data points that can be backfilled
-    return load_json_fixture('recordContext.json')
+@pytest.fixture
+def notify_client_mock() -> taskcluster.Notify:
+    return MagicMock(
+        spec=notify_client_factory('https://fakerooturl.org', 'FAKE_CLIENT_ID', 'FAKE_ACCESS_TOKEN')
+    )

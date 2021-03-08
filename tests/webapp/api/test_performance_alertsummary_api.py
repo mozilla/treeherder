@@ -3,6 +3,7 @@ import datetime
 import pytest
 from django.urls import reverse
 
+from tests.conftest import create_perf_alert
 from treeherder.model.models import Push
 from treeherder.perf.models import PerformanceAlertSummary, PerformanceAlert
 
@@ -45,18 +46,9 @@ def test_perf_alert_summary_onhold(test_repository_onhold, test_perf_framework):
 
 
 @pytest.fixture
-def test_perf_alert_onhold(test_perf_signature, test_perf_alert_summary_onhold):
-    from treeherder.perf.models import PerformanceAlert
-
-    return PerformanceAlert.objects.create(
-        summary=test_perf_alert_summary_onhold,
-        series_signature=test_perf_signature,
-        is_regression=True,
-        amount_pct=0.5,
-        amount_abs=50.0,
-        prev_value=100.0,
-        new_value=150.0,
-        t_value=20.0,
+def test_perf_alert_onhold(test_perf_signature, test_perf_alert_summary_onhold) -> PerformanceAlert:
+    return create_perf_alert(
+        summary=test_perf_alert_summary_onhold, series_signature=test_perf_signature
     )
 
 
@@ -69,50 +61,46 @@ def test_alert_summaries_get(client, test_perf_alert_summary, test_perf_alert):
     assert resp.json()['next'] is None
     assert resp.json()['previous'] is None
     assert len(resp.json()['results']) == 1
-    assert set(resp.json()['results'][0].keys()) == set(
-        [
-            'alerts',
-            'bug_number',
-            'bug_updated',
-            'issue_tracker',
-            'notes',
-            'assignee_username',
-            'assignee_email',
-            'framework',
-            'id',
-            'created',
-            'prev_push_id',
-            'related_alerts',
-            'repository',
-            'push_id',
-            'status',
-            'revision',
-            'push_timestamp',
-            'prev_push_revision',
-            'performance_tags',
-        ]
-    )
+    assert set(resp.json()['results'][0].keys()) == {
+        'alerts',
+        'bug_number',
+        'bug_updated',
+        'issue_tracker',
+        'notes',
+        'assignee_username',
+        'assignee_email',
+        'framework',
+        'id',
+        'created',
+        'prev_push_id',
+        'related_alerts',
+        'repository',
+        'push_id',
+        'status',
+        'revision',
+        'push_timestamp',
+        'prev_push_revision',
+        'performance_tags',
+    }
     assert len(resp.json()['results'][0]['alerts']) == 1
-    assert set(resp.json()['results'][0]['alerts'][0].keys()) == set(
-        [
-            'id',
-            'status',
-            'series_signature',
-            'is_regression',
-            'starred',
-            'manually_created',
-            'prev_value',
-            'new_value',
-            't_value',
-            'amount_abs',
-            'amount_pct',
-            'summary_id',
-            'related_summary_id',
-            'classifier',
-            'classifier_email',
-            'backfill_record',
-        ]
-    )
+    assert set(resp.json()['results'][0]['alerts'][0].keys()) == {
+        'id',
+        'status',
+        'series_signature',
+        'is_regression',
+        'starred',
+        'manually_created',
+        'prev_value',
+        'new_value',
+        't_value',
+        'amount_abs',
+        'amount_pct',
+        'summary_id',
+        'related_summary_id',
+        'classifier',
+        'classifier_email',
+        'backfill_record',
+    }
     assert resp.json()['results'][0]['related_alerts'] == []
 
 
@@ -132,50 +120,46 @@ def test_alert_summaries_get_onhold(
     assert resp.json()['next'] is None
     assert resp.json()['previous'] is None
     assert len(resp.json()['results']) == 1
-    assert set(resp.json()['results'][0].keys()) == set(
-        [
-            'alerts',
-            'bug_number',
-            'bug_updated',
-            'issue_tracker',
-            'notes',
-            'assignee_username',
-            'assignee_email',
-            'framework',
-            'id',
-            'created',
-            'prev_push_id',
-            'related_alerts',
-            'repository',
-            'push_id',
-            'status',
-            'revision',
-            'push_timestamp',
-            'prev_push_revision',
-            'performance_tags',
-        ]
-    )
+    assert set(resp.json()['results'][0].keys()) == {
+        'alerts',
+        'bug_number',
+        'bug_updated',
+        'issue_tracker',
+        'notes',
+        'assignee_username',
+        'assignee_email',
+        'framework',
+        'id',
+        'created',
+        'prev_push_id',
+        'related_alerts',
+        'repository',
+        'push_id',
+        'status',
+        'revision',
+        'push_timestamp',
+        'prev_push_revision',
+        'performance_tags',
+    }
     assert len(resp.json()['results'][0]['alerts']) == 1
-    assert set(resp.json()['results'][0]['alerts'][0].keys()) == set(
-        [
-            'id',
-            'status',
-            'series_signature',
-            'is_regression',
-            'starred',
-            'manually_created',
-            'prev_value',
-            'new_value',
-            't_value',
-            'amount_abs',
-            'amount_pct',
-            'summary_id',
-            'related_summary_id',
-            'classifier',
-            'classifier_email',
-            'backfill_record',
-        ]
-    )
+    assert set(resp.json()['results'][0]['alerts'][0].keys()) == {
+        'id',
+        'status',
+        'series_signature',
+        'is_regression',
+        'starred',
+        'manually_created',
+        'prev_value',
+        'new_value',
+        't_value',
+        'amount_abs',
+        'amount_pct',
+        'summary_id',
+        'related_summary_id',
+        'classifier',
+        'classifier_email',
+        'backfill_record',
+    }
     assert resp.json()['results'][0]['related_alerts'] == []
 
 
@@ -402,7 +386,7 @@ def test_remove_a_tag_from_a_summary(authorized_sheriff_client, test_perf_alert_
     assert test_perf_alert_summary.performance_tags.count() == 0
 
 
-def test_cannot_add_unregistred_tag_to_a_summary(
+def test_cannot_add_unregistered_tag_to_a_summary(
     authorized_sheriff_client, test_perf_alert_summary
 ):
     assert test_perf_alert_summary.performance_tags.count() == 1
@@ -419,17 +403,11 @@ def test_cannot_add_unregistred_tag_to_a_summary(
 
 @pytest.fixture
 def related_alert(test_perf_alert_summary, test_perf_alert_summary_2, test_perf_signature_2):
-    return PerformanceAlert.objects.create(
+    return create_perf_alert(
         summary=test_perf_alert_summary_2,
-        related_summary=test_perf_alert_summary,
         series_signature=test_perf_signature_2,
+        related_summary=test_perf_alert_summary,
         status=PerformanceAlert.REASSIGNED,
-        is_regression=True,
-        amount_pct=0.5,
-        amount_abs=50.0,
-        prev_value=100.0,
-        new_value=150.0,
-        t_value=20.0,
     )
 
 

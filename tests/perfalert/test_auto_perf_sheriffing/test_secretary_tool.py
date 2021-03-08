@@ -7,11 +7,10 @@ from django.db.models import Q
 from mock import Mock, patch
 
 from treeherder.config.settings import IS_WINDOWS
+from treeherder.perf.auto_perf_sheriffing.secretary_tool import SecretaryTool
 from treeherder.model.models import Push, Job
 from treeherder.perf.models import BackfillRecord, BackfillReport, PerformanceSettings
-from treeherder.perf.outcome_checker import OutcomeChecker, OutcomeStatus
-from treeherder.perf.secretary_tool import SecretaryTool
-from treeherder.utils import default_serializer
+from treeherder.perf.auto_perf_sheriffing.outcome_checker import OutcomeChecker, OutcomeStatus
 
 # we're testing against this (automatically provided by fixtures)
 JOB_TYPE_ID = 1
@@ -21,39 +20,6 @@ def get_middle_index(successful_jobs):
     # get middle index to make sure the push is in range
     index_in_range = int((len(successful_jobs) + 1) / 2)
     return index_in_range
-
-
-@pytest.fixture
-def performance_settings(db):
-    settings = {
-        "limits": 500,
-        "last_reset_date": datetime.utcnow(),
-    }
-    return PerformanceSettings.objects.create(
-        name="perf_sheriff_bot",
-        settings=json.dumps(settings, default=default_serializer),
-    )
-
-
-@pytest.fixture
-def expired_performance_settings(db):
-    settings = {
-        "limits": 500,
-        "last_reset_date": datetime.utcnow() - timedelta(days=30),
-    }
-    return PerformanceSettings.objects.create(
-        name="perf_sheriff_bot",
-        settings=json.dumps(settings, default=default_serializer),
-    )
-
-
-@pytest.fixture
-def create_record():
-    def _create_record(alert):
-        report = BackfillReport.objects.create(summary=alert.summary)
-        return BackfillRecord.objects.create(alert=alert, report=report)
-
-    return _create_record
 
 
 @pytest.fixture
@@ -268,7 +234,7 @@ def test_outcome_checker_identifies_pushes_in_range(
 
 
 class TestOutcomeChecker:
-    @patch('treeherder.perf.outcome_checker.get_job_type')
+    @patch('treeherder.perf.auto_perf_sheriffing.outcome_checker.get_job_type')
     def test_successful_jobs_mean_successful_outcome(
         self, mock_get_job_type, record_backfilled, outcome_checking_pushes, successful_jobs
     ):
@@ -279,7 +245,7 @@ class TestOutcomeChecker:
         response = outcome_checker.check(record_backfilled)
         assert response == OutcomeStatus.SUCCESSFUL
 
-    @patch('treeherder.perf.outcome_checker.get_job_type')
+    @patch('treeherder.perf.auto_perf_sheriffing.outcome_checker.get_job_type')
     def test_failed_job_means_failed_outcome(
         self, mock_get_job_type, record_backfilled, outcome_checking_pushes, jobs_with_one_failed
     ):
@@ -289,7 +255,7 @@ class TestOutcomeChecker:
         response = outcome_checker.check(record_backfilled)
         assert response == OutcomeStatus.FAILED
 
-    @patch('treeherder.perf.outcome_checker.get_job_type')
+    @patch('treeherder.perf.auto_perf_sheriffing.outcome_checker.get_job_type')
     def test_pending_job_means_in_progress_outcome(
         self, mock_get_job_type, record_backfilled, outcome_checking_pushes, jobs_with_one_pending
     ):

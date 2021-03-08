@@ -1,18 +1,16 @@
 import logging
 from typing import List
 
+import taskcluster
 from django.conf import settings
 from django.db import transaction
 from taskcluster.exceptions import TaskclusterRestFailure
 
 from treeherder.perf.models import PerformanceSignature
-from treeherder.services.taskcluster import TaskclusterModel
 from .max_runtime import MaxRuntime
-from .email_service import EmailService
+from ...perf.email import DeletionNotificationWriter, EmailWriter
 
 logger = logging.getLogger(__name__)
-
-RECEIVER_TEAM_EMAIL = "perftest-alerts@mozilla.com"
 
 
 class PublicSignatureRemover:
@@ -24,15 +22,16 @@ class PublicSignatureRemover:
     def __init__(
         self,
         timer: MaxRuntime,
-        taskcluster_model: TaskclusterModel,
+        notify_client: taskcluster.Notify,
         max_rows_allowed=None,
         max_emails_allowed=None,
+        email_writer: EmailWriter = None,
     ):
-        self.tc_model = taskcluster_model
+        self._notify = notify_client
         self._max_rows_allowed = max_rows_allowed or 50
         self._max_emails_allowed = max_emails_allowed or 10
 
-        self.email_service = EmailService(address=RECEIVER_TEAM_EMAIL)
+        self._email_writer = email_writer or DeletionNotificationWriter()
         self.timer = timer
 
     def remove_in_chunks(self, signatures):
@@ -50,7 +49,6 @@ class PublicSignatureRemover:
             ):
                 rows_left -= 1
                 chunk_of_signatures.append(perf_signature)
-                self.email_service.add_signature_to_content(perf_signature)
 
                 if rows_left == 0:
                     success = self.__delete_and_notify(chunk_of_signatures)
@@ -59,13 +57,13 @@ class PublicSignatureRemover:
 
                     emails_sent += 1
                     chunk_of_signatures = []
-                    self.email_service.content = None
                     rows_left = self._max_rows_allowed
 
         if emails_sent < self._max_emails_allowed and chunk_of_signatures != []:
             self.__delete_and_notify(chunk_of_signatures)
 
-    def _remove_empty_try_signatures(self, signatures):
+    @staticmethod
+    def _remove_empty_try_signatures(signatures):
         try_signatures = signatures.filter(repository__name='try')
         for perf_signature in try_signatures:
             if not perf_signature.has_performance_data():
@@ -85,7 +83,7 @@ class PublicSignatureRemover:
             signature.delete()
 
     def _send_email(self):
-        self.tc_model.notify.email(self.email_service.payload)
+        self._notify.email(self._email_writer.email)
 
     def __delete_and_notify(self, signatures: List[PerformanceSignature]) -> bool:
         """
@@ -94,6 +92,7 @@ class PublicSignatureRemover:
         """
 
         try:
+            self._prepare_notification(signatures)
             with transaction.atomic():
                 self._delete(signatures)
                 self._send_notification()
@@ -104,3 +103,6 @@ class PublicSignatureRemover:
             return False
 
         return True
+
+    def _prepare_notification(self, signatures: List[PerformanceSignature]):
+        self._email_writer.prepare_new_email(signatures)

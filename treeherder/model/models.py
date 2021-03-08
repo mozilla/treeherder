@@ -4,6 +4,7 @@ import logging
 import re
 import time
 from hashlib import sha1
+from typing import List
 
 import newrelic.agent
 from django.contrib.auth.models import User
@@ -111,6 +112,10 @@ class Repository(models.Model):
     class Meta:
         db_table = 'repository'
         verbose_name_plural = 'repositories'
+
+    @classmethod
+    def fetch_all_names(cls) -> List[str]:
+        return cls.objects.values_list('name', flat=True)
 
     def __str__(self):
         return "{0} {1}".format(self.name, self.repository_group)
