@@ -30,7 +30,7 @@
     "js-yaml": "3.13.1",
     "json-e": "3.0.2",
     "json-schema-defaults": "0.4.0",
-    "lodash": "4.17.20",
+    "lodash": "4.17.21",
     "moment": "2.24.0",
     "neutrino": "9.2.0",
     "numeral": "2.0.6",
