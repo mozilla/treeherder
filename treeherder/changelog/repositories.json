@@ -32,6 +32,21 @@
     },
     {
       "metadata": {
+        "description": "Puppet host configuration management",
+        "owner": "Release Operations",
+        "project": "Ronin Pupppet",
+        "project_url": "https://github.com/mozilla-platform-ops/ronin-puppet"
+      },
+      "source": {
+        "filters": ["remove_auto_commits"],
+        "items": 10,
+        "repository": "ronin-puppet",
+        "type": "github",
+        "user": "mozilla-platform-ops"
+      }
+    },
+    {
+      "metadata": {
         "description": "Framework that supports Mozilla's continuous integration and release processes.",
         "owner": "Release Engineering",
         "project": "TaskCluster",
