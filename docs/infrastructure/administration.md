@@ -295,7 +295,7 @@ Our Django database configuration automatically enables TLS with non-localhost h
 ### Granting access to the read-only replica
 
 One of the ways in which we allow users to [access Treeherder data](../accessing_data.md)
-is via direct access to our read-only RDS MySQL replica. Both ActiveData and Mozilla's
+is via direct access to our read-only RDS MySQL replica. Mozilla's
 ReDash instance use this approach.
 
 Generate the password like this:
@@ -393,7 +393,7 @@ AND table_name NOT REGEXP 'django_|auth_';
 <!-- prettier-ignore -->
 !!! note
     For new tables the appropriate `GRANT SELECT` statement will need to be manually run for existing
-    read-only accounts (this is particularly important for the `activedata` and `redash` users).
+    read-only accounts (this is particularly important for the `redash` user).
 
 ### Changing MySQL passwords
 
@@ -415,8 +415,8 @@ To change the password for a MySQL account on an RDS instance:
    ```
 
 3. When changing the `th_admin` password you will need to [update the app's environment variable]
-   `DATABASE_URL` to use the new password. If changing the `activedata` or `redash` user's
-   passwords, the owners of those services will need to be notified.
+   `DATABASE_URL` to use the new password. If changing the `redash` user's
+   password, the owners of those services will need to be notified.
 
 <!-- prettier-ignore -->
 !!! note
