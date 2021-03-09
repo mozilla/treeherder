@@ -3,7 +3,13 @@ import re
 
 from django.db.models import Q
 
-from treeherder.model.models import FailureLine, Job, OptionCollection, InvestigatedTests, JobType
+from treeherder.model.models import (
+    FailureLine,
+    Job,
+    OptionCollection,
+    InvestigatedTests,
+    JobType,
+)
 from treeherder.push_health.utils import clean_config, clean_platform, clean_test, job_to_dict
 
 logger = logging.getLogger(__name__)
