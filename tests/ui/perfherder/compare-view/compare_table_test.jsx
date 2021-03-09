@@ -54,6 +54,8 @@ const result = [
     originalRepoName: 'try',
     newRetriggerableJobId: 121,
     newRepoName: 'mozilla-central',
+    baseColumnMeasurementUnit: 'ms',
+    newColumnMeasurementUnit: 'score',
   },
   {
     className: 'danger',
@@ -686,16 +688,15 @@ test(`table data sorted by 'Confidence' has data with invalid confidence at the 
   expect(compareTableRows[2]).toContainElement(result3);
 });
 
-const propsWithUnit = {
-  onChangeSort: jest.fn(),
-  column: {
-    name: 'Base',
-    currentSort: 'default',
-  },
-  measurementUnit: 'score',
-};
+test(`measurement unit is passed in the header name for Base and New`, async () => {
+  const { queryByText } = compareTable(true, false);
+  expect(queryByText('New (score)')).toBeInTheDocument();
+  expect(queryByText('Base (ms)')).toBeInTheDocument();
+  expect(queryByText('Delta (score)')).toBeFalsy();
+  expect(queryByText('Delta (ms)')).toBeFalsy();
+});
 
-const propsWithoutUnit = {
+const defaultProps = {
   onChangeSort: jest.fn(),
   column: {
     name: 'New',
@@ -703,17 +704,17 @@ const propsWithoutUnit = {
   },
 };
 
-test(`measurement unit should appear only when passed as props`, async () => {
+test(`CompareSortButton shows the title as expected`, async () => {
   const { queryByText, rerender } = render(
-    <CompareSortButton {...propsWithUnit} />,
+    <CompareSortButton {...defaultProps} />,
   );
 
-  expect(queryByText('Base (score)')).not.toBeNull();
-  expect(queryByText('Base (score)')).toBeTruthy();
-
-  rerender(<CompareSortButton {...propsWithoutUnit} />);
-
   expect(queryByText('New (score)')).not.toBeInTheDocument();
-  expect(queryByText('New (score)')).toBeFalsy();
   expect(queryByText('New')).toBeTruthy();
+
+  defaultProps.column.name = 'New (score)';
+  rerender(<CompareSortButton {...defaultProps} />);
+
+  expect(queryByText('New (score)')).not.toBeNull();
+  expect(queryByText('New (score)')).toBeInTheDocument();
 });

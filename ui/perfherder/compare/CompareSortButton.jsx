@@ -24,14 +24,11 @@ export default class CompareSortButton extends React.Component {
   };
 
   render() {
-    const { column, onChangeSort, measurementUnit } = this.props;
+    const { column, onChangeSort } = this.props;
     const { name, currentSort } = column;
-    const columnHeader = measurementUnit
-      ? `${name} (${measurementUnit})`
-      : `${name}`;
     return (
       <>
-        {name === 'Test name' ? '' : `${columnHeader}`}
+        {name === 'Test name' ? '' : `${name}`}
         <Badge
           className="mx-1 btn btn-darker-secondary"
           role="button"
