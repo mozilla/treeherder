@@ -11,7 +11,7 @@ from rest_framework.status import HTTP_400_BAD_REQUEST, HTTP_404_NOT_FOUND
 from mozci.push import Push as MozciPush
 
 from treeherder.log_parser.failureline import get_group_results
-from treeherder.model.models import Job, JobType, Push, Repository
+from treeherder.model.models import Job, JobType, Push, Repository, Group
 from treeherder.push_health.builds import get_build_failures
 from treeherder.push_health.compare import get_commit_history
 from treeherder.push_health.linting import get_lint_failures
@@ -33,9 +33,23 @@ class PushViewSet(viewsets.ViewSet):
     """
 
     def _get_failure_data(self, mozciPush, push):
+        # We need to retrieve both groups and labels because some tasks do not have groups, e.g. builds, talos, awsy
+        # (so we retrieve the labels) and some tasks do not have consistent labels because the labels are defined at
+        # runtime based on which tests need to run, e.g. mochitest, xpcshell (so we need their groups, which we then
+        # query the Group table with to retrieve the equivalent label names).
         likely_regression_labels = list(mozciPush.get_likely_regressions('label'))
+        likely_regression_groups = list(mozciPush.get_likely_regressions('group'))
         result_status, jobs = get_test_failure_jobs(push)
         failed_jobs = list(jobs.keys())
+
+        job_ids = [value[0].get('id') for key, value in jobs.items()]
+        group_regression_labels = (
+            Group.objects.filter(name__in=likely_regression_groups, job_logs__job_id__in=job_ids)
+            .select_related('job', 'job_type')
+            .values_list('job_logs__job__job_type__name', flat=True)
+        )
+
+        likely_regression_labels.extend(list(group_regression_labels))
 
         tests = get_test_failures(push, jobs, likely_regression_labels, result_status)
         likely_build_regression_labels = [
@@ -350,8 +364,8 @@ class PushViewSet(viewsets.ViewSet):
         mozciPush = MozciPush([revision], project)
         commit_history_details = None
 
-        # if repository.dvcs_type == 'hg':
-        #     commit_history_details = get_commit_history(mozciPush, push)
+        if repository.dvcs_type == 'hg':
+            commit_history_details = get_commit_history(mozciPush, push)
 
         tests, builds, lints, status, total_failures, jobs = self._get_failure_data(mozciPush, push)
 
