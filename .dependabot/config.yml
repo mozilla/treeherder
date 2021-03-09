@@ -11,7 +11,7 @@ update_configs:
       - 'python'
     allowed_updates:
     - match:
-      update_type: 'security'
+        update_type: 'security'
     - match:
-      dependency_name: 'django'
+        dependency_name: 'django'
 
