@@ -52,6 +52,7 @@ class ErrorParser(ParserBase):
         "###!!! ABORT:",
         "SUMMARY: AddressSanitizer",
         "SUMMARY: ThreadSanitizer",
+        "SUMMARY: UndefinedBehaviorSanitizer",
         "ThreadSanitizer: nested bug",
         "Automation Error:",
         "command timed out:",
