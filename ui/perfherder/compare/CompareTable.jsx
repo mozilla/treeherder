@@ -130,6 +130,19 @@ export default class CompareTable extends React.Component {
     this.setState({ data, tableConfig });
   };
 
+  setBaseAndNewHeaders = (data, tableConfig) => {
+    const [firstElementOfData] = data;
+    const {
+      baseColumnMeasurementUnit,
+      newColumnMeasurementUnit,
+    } = firstElementOfData;
+    if (baseColumnMeasurementUnit && newColumnMeasurementUnit) {
+      tableConfig.Base.name = `${tableConfig.Base.name} (${baseColumnMeasurementUnit})`;
+      tableConfig.New.name = `${tableConfig.New.name} (${newColumnMeasurementUnit})`;
+    }
+    return tableConfig;
+  };
+
   render() {
     const {
       testName,
@@ -141,7 +154,9 @@ export default class CompareTable extends React.Component {
       onModalOpen,
     } = this.props;
 
-    const { data, tableConfig } = this.state;
+    const { data } = this.state;
+    let { tableConfig } = this.state;
+    tableConfig = this.setBaseAndNewHeaders(data, tableConfig);
 
     return (
       <Table
