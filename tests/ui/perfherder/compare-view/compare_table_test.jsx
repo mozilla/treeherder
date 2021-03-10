@@ -692,29 +692,18 @@ test(`measurement unit is passed in the header name for Base and New`, async () 
   const { queryByText } = compareTable(true, false);
   expect(queryByText('New (score)')).toBeInTheDocument();
   expect(queryByText('Base (ms)')).toBeInTheDocument();
-  expect(queryByText('Delta (score)')).toBeFalsy();
-  expect(queryByText('Delta (ms)')).toBeFalsy();
 });
 
-const defaultProps = {
-  onChangeSort: jest.fn(),
-  column: {
-    name: 'New',
-    currentSort: 'default',
-  },
-};
-
 test(`CompareSortButton shows the title as expected`, async () => {
-  const { queryByText, rerender } = render(
-    <CompareSortButton {...defaultProps} />,
-  );
+  const defaultProps = {
+    onChangeSort: jest.fn(),
+    column: {
+      name: 'New',
+      currentSort: 'default',
+    },
+  };
+  const { queryByText } = render(<CompareSortButton {...defaultProps} />);
 
   expect(queryByText('New (score)')).not.toBeInTheDocument();
-  expect(queryByText('New')).toBeTruthy();
-
-  defaultProps.column.name = 'New (score)';
-  rerender(<CompareSortButton {...defaultProps} />);
-
-  expect(queryByText('New (score)')).not.toBeNull();
-  expect(queryByText('New (score)')).toBeInTheDocument();
+  expect(queryByText('New')).toBeInTheDocument();
 });
