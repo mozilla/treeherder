@@ -9,7 +9,7 @@ from treeherder.model.models import Job, Push
 from treeherder.perf.auto_perf_sheriffing.perf_sheriff_bot import PerfSheriffBot
 from treeherder.perf.email import BackfillNotificationWriter
 from treeherder.perf.exceptions import MaxRuntimeExceeded
-from treeherder.perf.models import BackfillRecord
+from treeherder.perf.models import BackfillRecord, BackfillReport
 
 EPOCH = datetime.utcfromtimestamp(0)
 
@@ -99,6 +99,50 @@ class TestEmailIntegration:
     @staticmethod
     def email_writer_mock():
         return MagicMock(spec=BackfillNotificationWriter())
+
+
+def test_records_change_to_ready_for_processing(
+    test_perf_alert,
+    create_record,
+    record_from_mature_report,
+    report_maintainer_mock,
+    backfill_tool_mock,
+    secretary,
+    sheriff_settings,
+    notify_client_mock,
+):
+    # create new report with records - the report will not be mature
+    create_record(test_perf_alert)
+
+    count_preliminary_records = BackfillRecord.objects.filter(
+        status=BackfillRecord.PRELIMINARY
+    ).count()
+    assert count_preliminary_records == 2
+    count_ready_records = BackfillRecord.objects.filter(
+        status=BackfillRecord.READY_FOR_PROCESSING
+    ).count()
+    assert count_ready_records == 0
+    count_frozen_reports = BackfillReport.objects.filter(frozen=True).count()
+    assert count_frozen_reports == 0
+
+    sheriff_bot = PerfSheriffBot(
+        report_maintainer_mock,
+        backfill_tool_mock,
+        secretary,
+        notify_client_mock,
+    )
+    sheriff_bot.sheriff(since=EPOCH, frameworks=['raptor', 'talos'], repositories=['autoland'])
+
+    count_preliminary_records_after = BackfillRecord.objects.filter(
+        status=BackfillRecord.PRELIMINARY
+    ).count()
+    assert count_preliminary_records_after == 1
+    count_ready_records_after = BackfillRecord.objects.filter(
+        status=BackfillRecord.READY_FOR_PROCESSING
+    ).count()
+    assert count_ready_records_after == 1
+    count_frozen_reports_after = BackfillReport.objects.filter(frozen=True).count()
+    assert count_frozen_reports_after == 1
 
 
 def test_assert_can_run_throws_exception_when_runtime_exceeded(
