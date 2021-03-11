@@ -4,7 +4,7 @@ from datetime import datetime, timedelta
 import pytest
 import simplejson as json
 from django.db.models import Q
-from mock import Mock, patch
+from mock import patch
 
 from treeherder.config.settings import IS_WINDOWS
 from treeherder.perf.auto_perf_sheriffing.secretary_tool import SecretaryTool
@@ -121,14 +121,10 @@ def get_outcome_checker_mock():
 
 @pytest.mark.skipif(IS_WINDOWS, reason="datetime logic does not work when OS not on GMT")
 def test_secretary_tool_updates_only_matured_reports(
-    test_perf_alert, test_perf_alert_2, create_record
+    test_perf_alert, create_record, record_from_mature_report
 ):
     # create new report with records
     create_record(test_perf_alert)
-    # create mature report with records
-    date_past = datetime.utcnow() - timedelta(hours=5)
-    with patch('django.utils.timezone.now', Mock(return_value=date_past)):
-        create_record(test_perf_alert_2)
 
     assert BackfillRecord.objects.count() == 2
     assert BackfillRecord.objects.filter(status=BackfillRecord.PRELIMINARY).count() == 2

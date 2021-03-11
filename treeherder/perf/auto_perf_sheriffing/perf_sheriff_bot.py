@@ -53,6 +53,9 @@ class PerfSheriffBot:
         self.assert_can_run()
         self.secretary.validate_settings()
 
+        self.secretary.mark_reports_for_backfill()
+        self.assert_can_run()
+
         # secretary tool checks the status of all backfilled jobs
         # TODO: should not be enabled during soft launch - enable for the real launch
         # self.secretary.check_outcome()

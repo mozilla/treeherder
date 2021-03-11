@@ -3,6 +3,7 @@ from datetime import datetime, timedelta
 
 import pytest
 import simplejson as json
+from freezegun import freeze_time
 
 from tests.conftest import SampleDataJSONLoader, create_perf_signature, create_perf_alert
 from treeherder.model.models import MachinePlatform, Job
@@ -83,6 +84,18 @@ def record_ready_for_processing(linux_perf_alert, record_context_sample):
     )
     record.set_context(record_context_sample)
     record.save()
+    return record
+
+
+@pytest.fixture
+def record_from_mature_report(test_perf_alert_2):
+    # create a record from a mature report
+    date_past = datetime.utcnow() - timedelta(hours=10)
+
+    with freeze_time(date_past):
+        report = BackfillReport.objects.create(summary=test_perf_alert_2.summary)
+        record = BackfillRecord.objects.create(alert=test_perf_alert_2, report=report)
+
     return record
 
 
