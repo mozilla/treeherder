@@ -7,7 +7,6 @@ from os.path import abspath, dirname, join
 import environ
 from furl import furl
 from kombu import Exchange, Queue
-from adr import config
 
 from treeherder.config.utils import connection_should_use_tls, get_tls_redis_url
 
@@ -76,7 +75,6 @@ INSTALLED_APPS = [
     'treeherder.webapp',
     'treeherder.log_parser',
     'treeherder.etl',
-    'treeherder.extract',
     'treeherder.perf',
     'treeherder.seta',
     'treeherder.intermittents_commenter',
@@ -182,8 +180,6 @@ CACHES = {
         },
     },
 }
-
-config.update({})
 
 # Internationalization
 TIME_ZONE = "UTC"
