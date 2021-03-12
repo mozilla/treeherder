@@ -560,52 +560,134 @@ def test_stalled_data_removal(
     assert seg2_data in PerformanceDatum.objects.all()
 
 
-def test_data_with_historical_value_is_not_removed(
-    test_repository, test_perf_signature, test_perf_signature_2, test_perf_data, test_perf_alert
+def test_equal_distribution_for_historical_data(
+    test_repository,
+    test_perf_signature_2,
+    test_perf_data,
 ):
+    nr_months = 8
     test_repository.name = 'autoland'
     test_repository.save()
-    max_timestamp = datetime.now() - timedelta(days=120)
-
-    test_perf_data = list(test_perf_data)
-
-    for data_point in test_perf_data:
-        data_point.push_timestamp = datetime.now()
-        data_point.save()
-
-    test_perf_data[0].push_timestamp = max_timestamp
-    test_perf_data[0].save()
-
-    test_perf_signature.last_updated = max_timestamp - timedelta(days=1)
+    four_months_ago_timestamp = datetime.now() - timedelta(days=120)
+    timestamp = datetime.now() - timedelta(days=((nr_months * 30) + 120 + 30))
+    test_perf_signature = test_perf_signature_2
+    test_perf_signature.last_updated = four_months_ago_timestamp
     test_perf_signature.save()
+
+    push = Push.objects.first()
+
+    perf_data = []
+
+    data_points_count = 2 * nr_months
+    for i in range(0, data_points_count):
+        if i % 2 == 0:
+            timestamp += timedelta(days=30)
+
+        data = PerformanceDatum.objects.create(
+            repository=test_perf_signature.repository,
+            push=push,
+            job=None,
+            signature=test_perf_signature,
+            push_timestamp=timestamp,
+            value=1.0,
+        )
+        perf_data.append(data)
+    call_command('cycle_data', 'from:perfherder')
+
+    assert test_perf_signature in PerformanceSignature.objects.all()
+    for data_point in perf_data:
+        assert data_point in PerformanceDatum.objects.all()
+
+
+def test_big_density_in_historical_data(
+    test_repository,
+    test_perf_signature_2,
+    test_perf_data,
+):
+    nr_months = 8
+    test_repository.name = 'autoland'
+    test_repository.save()
+    four_months_ago_timestamp = datetime.now() - timedelta(days=120)
+    timestamp = datetime.now() - timedelta(days=((nr_months * 30) + 120 + 30))
+    test_perf_signature = test_perf_signature_2
+    test_perf_signature.last_updated = four_months_ago_timestamp
+    test_perf_signature.save()
+
+    push = Push.objects.first()
+
+    perf_data = []
+
+    data_points_count = 2 * nr_months
+
+    # add one data point per month
+    for i in range(0, nr_months):
+        timestamp += timedelta(days=30)
+
+        data = PerformanceDatum.objects.create(
+            repository=test_perf_signature.repository,
+            push=push,
+            job=None,
+            signature=test_perf_signature,
+            push_timestamp=timestamp,
+            value=1.0,
+        )
+        perf_data.append(data)
+
+    # add the remaining data points to the last month which has data
+    for i in range(0, (data_points_count - nr_months)):
+        data = PerformanceDatum.objects.create(
+            repository=test_perf_signature.repository,
+            push=push,
+            job=None,
+            signature=test_perf_signature,
+            push_timestamp=timestamp,
+            value=1.0,
+        )
+        perf_data.append(data)
 
     call_command('cycle_data', 'from:perfherder')
 
     assert test_perf_signature in PerformanceSignature.objects.all()
-    for perf_data in test_perf_data:
-        assert perf_data in PerformanceDatum.objects.all()
-    assert test_perf_alert in PerformanceAlert.objects.all()
+    for data_point in perf_data:
+        assert data_point in PerformanceDatum.objects.all()
 
 
-def test_data_with_historical_value_is_kept_for_one_year(
-    test_repository, test_perf_signature, test_perf_data
+def test_non_historical_stalled_data_is_removed(
+    test_repository,
+    test_perf_signature_2,
+    test_perf_data,
 ):
-    test_repository.name = 'mozilla-central'
+    nr_months = 8
+    test_repository.name = 'autoland'
     test_repository.save()
-    max_timestamp = datetime.now() - timedelta(days=120)
-
-    one_year_ago = datetime.now() - timedelta(days=365)
-
-    for data_point in test_perf_data:
-        data_point.push_timestamp = one_year_ago
-        data_point.save()
-
-    test_perf_signature.last_updated = max_timestamp
+    four_months_ago_timestamp = datetime.now() - timedelta(days=120)
+    timestamp = datetime.now() - timedelta(days=((nr_months * 30) + 120 + 30))
+    test_perf_signature = test_perf_signature_2
+    test_perf_signature.last_updated = four_months_ago_timestamp
     test_perf_signature.save()
 
+    push = Push.objects.first()
+
+    perf_data = []
+
+    data_points_count = nr_months
+    for i in range(0, data_points_count):
+        timestamp += timedelta(days=30)
+
+        data = PerformanceDatum.objects.create(
+            repository=test_perf_signature.repository,
+            push=push,
+            job=None,
+            signature=test_perf_signature,
+            push_timestamp=timestamp,
+            value=1.0,
+        )
+        perf_data.append(data)
     call_command('cycle_data', 'from:perfherder')
 
-    assert test_perf_data not in PerformanceDatum.objects.all()
+    assert test_perf_signature not in PerformanceSignature.objects.all()
+    for data_point in perf_data:
+        assert data_point not in PerformanceDatum.objects.all()
 
 
 def test_try_data_removal_errors_out_on_missing_try_data(try_repository):
