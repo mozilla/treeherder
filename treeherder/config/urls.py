@@ -6,6 +6,8 @@ from treeherder.webapp.api import urls as api_urls
 from django.views.generic.base import TemplateView
 
 urlpatterns = []
+# The order is important for the debug toolbar; it needs to be first
+# or the panels won't work
 
 if settings.DEBUG:
     import debug_toolbar
