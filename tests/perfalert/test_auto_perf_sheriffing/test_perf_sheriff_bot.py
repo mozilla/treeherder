@@ -9,7 +9,7 @@ from treeherder.model.models import Job, Push
 from treeherder.perf.auto_perf_sheriffing.perf_sheriff_bot import PerfSheriffBot
 from treeherder.perf.email import BackfillNotificationWriter
 from treeherder.perf.exceptions import MaxRuntimeExceeded
-from treeherder.perf.models import BackfillRecord
+from treeherder.perf.models import BackfillRecord, BackfillReport
 
 EPOCH = datetime.utcfromtimestamp(0)
 
@@ -99,6 +99,39 @@ class TestEmailIntegration:
     @staticmethod
     def email_writer_mock():
         return MagicMock(spec=BackfillNotificationWriter())
+
+
+def test_records_change_to_ready_for_processing(
+    test_perf_alert,
+    create_record,
+    record_from_mature_report,
+    report_maintainer_mock,
+    backfill_tool_mock,
+    secretary,
+    sheriff_settings,
+    notify_client_mock,
+):
+    # create new report with records - the report will not be mature
+    create_record(test_perf_alert)
+
+    preliminary_records = BackfillRecord.objects.filter(status=BackfillRecord.PRELIMINARY)
+    ready_records = BackfillRecord.objects.filter(status=BackfillRecord.READY_FOR_PROCESSING)
+    frozen_reports = BackfillReport.objects.filter(frozen=True)
+    assert preliminary_records.count() == 2
+    assert ready_records.count() == 0
+    assert frozen_reports.count() == 0
+
+    sheriff_bot = PerfSheriffBot(
+        report_maintainer_mock,
+        backfill_tool_mock,
+        secretary,
+        notify_client_mock,
+    )
+    sheriff_bot.sheriff(since=EPOCH, frameworks=['raptor', 'talos'], repositories=['autoland'])
+
+    assert preliminary_records.count() == 1
+    assert ready_records.count() == 1
+    assert frozen_reports.count() == 1
 
 
 def test_assert_can_run_throws_exception_when_runtime_exceeded(
