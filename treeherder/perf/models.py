@@ -105,7 +105,7 @@ class PerformanceSignature(models.Model):
         return None
 
     @staticmethod
-    def _has_one_month_worth_of_data(perf_data):
+    def _has_enough_data_points(perf_data):
         start_date = perf_data[0].push_timestamp
         end_date = perf_data[-1].push_timestamp
 
@@ -137,10 +137,8 @@ class PerformanceSignature(models.Model):
                     signature_id=self.id,
                 ).order_by("push_timestamp")
             )
-
-            if len(perf_data) >= 2 and self._has_one_month_worth_of_data(perf_data):
+            if len(perf_data) >= 2 and self._has_enough_data_points(perf_data):
                 return True
-
         return False
 
     class Meta:

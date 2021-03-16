@@ -309,7 +309,7 @@ class StalledDataRemoval(RemovalStrategy):
     that haven't been updated in the last 4 months.
 
     Exception: `performance_datum` rows that have a historical value (`autoland` /
-    `mozilla-central` series with more than 1 month worth of data)
+    `mozilla-central` series with an average of 2 data points per month)
     are excluded and are kept for 1 year.
     """
 
