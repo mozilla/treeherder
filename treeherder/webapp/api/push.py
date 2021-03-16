@@ -37,8 +37,15 @@ class PushViewSet(viewsets.ViewSet):
         # (so we retrieve the labels) and some tasks do not have consistent labels because the labels are defined at
         # runtime based on which tests need to run, e.g. mochitest, xpcshell (so we need their groups, which we then
         # query the Group table with to retrieve the equivalent label names).
-        likely_regression_labels = list(mozciPush.get_likely_regressions('label'))
-        likely_regression_groups = list(mozciPush.get_likely_regressions('group'))
+        likely_regression_labels = []
+        likely_regression_groups = []
+
+        try:
+            likely_regression_labels = list(mozciPush.get_likely_regressions('label'))
+            likely_regression_groups = list(mozciPush.get_likely_regressions('group'))
+        except Exception as e:
+            logger.error(e)
+
         result_status, jobs = get_test_failure_jobs(push)
         failed_jobs = list(jobs.keys())
 
@@ -290,7 +297,7 @@ class PushViewSet(viewsets.ViewSet):
         for push in list(pushes):
             test_in_progress_count = 0
 
-            mozciPush = MozciPush([revision], project)
+            mozciPush = MozciPush([push.revision], project)
             tests, builds, lints, status, total_failures, _unused = self._get_failure_data(
                 mozciPush, push
             )
