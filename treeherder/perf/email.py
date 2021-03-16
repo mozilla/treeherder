@@ -158,14 +158,14 @@ class BackfillNotificationWriter(EmailWriter):
 # For performance data cycling
 class DeletionReportContent:
     DESCRIPTION = """Perfherder removes performance data that is older than one year and in some cases even sooner, leaving behind performance signatures that aren't associated to any data point. These as well need to be removed.
-    > __Here's a summary of recently deleted performance signatures:__
-    ---
-        """
+> __Here's a summary of recently deleted performance signatures:__
+---
+"""
 
     TABLE_HEADERS = """
-    | Repository | Framework | Platform | Suite | Application |
-    | :---: | :---: | :---: | :---: | :---: |
-        """
+| Repository | Framework | Platform | Suite | Application |
+| :---: | :---: | :---: | :---: | :---: |
+"""
 
     def __init__(self):
         self._raw_content = None
