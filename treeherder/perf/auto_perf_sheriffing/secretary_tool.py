@@ -40,6 +40,7 @@ class SecretaryTool:
 
         # reset limits if the settings expired
         settings = json.loads(perf_sheriff_settings.settings)
+        logger.info(f"Perfsheriff bot settings: {settings}")
         if cls.are_expired(settings):
             logger.info(f"Settings are expired. Expired settings: {settings}")
 
@@ -54,14 +55,32 @@ class SecretaryTool:
             frozen=False, last_updated__lte=mature_date_limit
         )
 
+        logger.info('Perfsheriff bot: %s mature reports found', mature_reports.count())
+
+        # Only for logging alternative strategy for choosing maturity limit
+        alternative_date_limit = datetime.utcnow() - timedelta(days=1)
+        alternative_mature_reports = BackfillReport.objects.filter(
+            frozen=False, created__lte=alternative_date_limit
+        )
+        logger.info(
+            'Perfsheriff bot: %s mature reports found with alternative strategy (not marking)',
+            alternative_mature_reports.count(),
+        )
+
         for report in mature_reports:
             should_freeze = False
+            logger.info(
+                'Perfsheriff bot: marking report with id %s for backfill', report.summary.id
+            )
             for record in report.records.all():
                 if record.status == BackfillRecord.PRELIMINARY:
+                    logger.info(
+                        'Perfsheriff bot: marking record with id %s READY_FOR_PROCESSING',
+                        record.alert.id,
+                    )
                     record.status = BackfillRecord.READY_FOR_PROCESSING
                     record.save()
                     should_freeze = True
-
             if should_freeze:
                 report.frozen = True
                 report.save()
