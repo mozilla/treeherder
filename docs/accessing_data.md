@@ -4,6 +4,7 @@ Treeherder's data can be accessed via:
 
 - [REST API](#rest-api)
 - [Redash](#redash)
+- [ActiveData](#activedata)
 - [Direct database access](#direct-database-access)
 - [Import performance data from upstream](#import-performance-data-from-upstream)
 
@@ -101,6 +102,14 @@ can find Treeherder's data under the `Treeherder` data source and cross-referenc
 other data sets available there.
 
 [redash]: https://redash.io
+
+## ActiveData
+
+[ActiveData] imports Treeherder's production data into its Elasticsearch cluster.
+See the [getting started with ActiveData] guide for more details.
+
+[activedata]: https://wiki.mozilla.org/EngineeringProductivity/Projects/ActiveData
+[getting started with activedata]: https://github.com/mozilla/ActiveData/blob/dev/docs/GettingStarted.md
 
 ## Direct database access
 
