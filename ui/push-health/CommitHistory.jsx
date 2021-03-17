@@ -5,7 +5,6 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faCaretUp, faCaretRight } from '@fortawesome/free-solid-svg-icons';
 
 import Clipboard from '../shared/Clipboard';
-import PushHealthStatus from '../shared/PushHealthStatus';
 import { RevisionList } from '../shared/RevisionList';
 import { Revision } from '../shared/Revision';
 import { getJobsUrl } from '../helpers/url';
@@ -36,32 +35,30 @@ class CommitHistory extends React.PureComponent {
     const {
       history: {
         parentRepository,
-        jobCounts,
         exactMatch,
         parentSha,
         id,
         parentPushRevision,
         revisions,
         revisionCount,
-        currentPush,
       },
       revision,
       currentRepo,
       showParent,
     } = this.props;
     const { clipboardVisible, isExpanded } = this.state;
-    const parentRepoModel = new RepositoryModel(parentRepository);
+    const repositoryModel = new RepositoryModel();
     const parentLinkUrl = exactMatch
       ? `${getJobsUrl({
           revision: parentPushRevision,
-          repo: parentRepository.name,
+          repo: parentRepository,
         })}`
-      : parentRepoModel.getRevisionHref(parentSha);
+      : repositoryModel.getRevisionHref(parentSha);
     const revisionPushFilterUrl = getJobsUrl({
       revision,
       repo: currentRepo.name,
     });
-    const { author, push_timestamp: pushTimestamp } = currentPush;
+    const { author, push_timestamp: pushTimestamp } = revisions[0];
     const headerText = revisions[0].comments.split('\n')[0];
     const authorMatch = author.match(/<(.*?)>+/);
     const authorEmail = authorMatch ? authorMatch[1] : author;
@@ -161,13 +158,6 @@ class CommitHistory extends React.PureComponent {
                   >
                     {parentPushRevision || parentSha}
                   </a>
-                  {exactMatch && (
-                    <PushHealthStatus
-                      revision={parentPushRevision}
-                      repoName={parentRepository.name}
-                      jobCounts={jobCounts}
-                    />
-                  )}
                   <Clipboard
                     description="full hash"
                     text={parentSha}
@@ -205,7 +195,7 @@ class CommitHistory extends React.PureComponent {
 
 CommitHistory.propTypes = {
   history: PropTypes.shape({
-    parentRepository: PropTypes.object,
+    parentRepository: PropTypes.string,
     revisionCount: PropTypes.number.isRequired,
     parentPushRevision: PropTypes.string,
     job_counts: PropTypes.shape({
