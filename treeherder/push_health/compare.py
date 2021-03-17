@@ -1,8 +1,8 @@
 import logging
 from mozci.errors import ParentPushNotFound
 
-from treeherder.model.models import Push, Repository
-from treeherder.webapp.api.serializers import RepositorySerializer, PushSerializer, CommitSerializer
+from treeherder.model.models import Push
+from treeherder.webapp.api.serializers import CommitSerializer
 
 logger = logging.getLogger(__name__)
 
@@ -10,7 +10,6 @@ logger = logging.getLogger(__name__)
 def get_commit_history(mozciPush, push):
     parent = None
     parent_sha = None
-    parent_repo = None
     parent_push = None
 
     try:
@@ -26,30 +25,25 @@ def get_commit_history(mozciPush, push):
             'repository',
             'repository__repository_group',
         )
-        parent_repo = Repository.objects.get(name=parent.branch)
         parent_push = parents[0] if len(parents) else None
 
+    revisions = [CommitSerializer(commit).data for commit in push.commits.all().order_by('-id')]
     resp = {
         'parentSha': parent_sha,
         'exactMatch': False,
         'parentPushRevision': None,
-        'parentRepository': not parent_repo or RepositorySerializer(parent_repo).data,
         'id': None,
-        'jobCounts': None,
-        'revisions': [
-            CommitSerializer(commit).data for commit in push.commits.all().order_by('-id')
-        ],
-        'revisionCount': push.commits.count(),
-        'currentPush': PushSerializer(push).data,
+        'revisions': revisions,
+        'revisionCount': len(revisions),
     }
     if parent_push:
         resp.update(
             {
                 # This will be the revision of the Parent, as long as we could find a Push in
                 # Treeherder for it.
+                'parentRepository': parent_push.repository.name,
                 'parentPushRevision': parent_push.revision,
                 'id': parent_push.id,
-                'jobCounts': parent_push.get_status(),
                 'exactMatch': parent_sha == parent_push.revision,
             }
         )
