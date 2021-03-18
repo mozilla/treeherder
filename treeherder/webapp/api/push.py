@@ -363,15 +363,14 @@ class PushViewSet(viewsets.ViewSet):
         revision = request.query_params.get('revision')
 
         try:
-            repository = Repository.objects.get(name=project)
-            push = Push.objects.get(revision=revision, repository=repository)
+            push = Push.objects.select_related('repository').get(revision=revision, repository__name=project)
         except Push.DoesNotExist:
             return Response(f"No push with revision: {revision}", status=HTTP_404_NOT_FOUND)
 
         mozciPush = MozciPush([revision], project)
         commit_history_details = None
-
-        if repository.dvcs_type == 'hg':
+        print(push)
+        if push.repository.dvcs_type == 'hg':
             commit_history_details = get_commit_history(mozciPush, push)
 
         tests, builds, lints, status, total_failures, jobs = self._get_failure_data(mozciPush, push)
@@ -395,7 +394,7 @@ class PushViewSet(viewsets.ViewSet):
             'push_health_need_investigation',
             {
                 'revision': revision,
-                'repo': repository.name,
+                'repo': project,
                 'needInvestigation': len(test_failures['needInvestigation']['tests']),
                 'author': push.author,
             },
