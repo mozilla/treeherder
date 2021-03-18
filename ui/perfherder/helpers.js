@@ -509,6 +509,8 @@ export const getTextualSummary = (
 
 export const getTitle = (alertSummary) => {
   let title;
+  let maxMagnitudeAlert;
+  let minMagnitudeAlert;
 
   // we should never include downstream alerts in the description
   let alertsInSummary = alertSummary.alerts.filter(
@@ -527,9 +529,19 @@ export const getTitle = (alertSummary) => {
   }
 
   if (alertsInSummary.length > 1) {
-    title = `${Math.min(
+    const maxMagnitude = Math.max(
       ...alertsInSummary.map((alert) => alert.amount_pct),
-    )} - ${Math.max(...alertsInSummary.map((alert) => alert.amount_pct))}%`;
+    );
+    const minMagnitude = Math.min(
+      ...alertsInSummary.map((alert) => alert.amount_pct),
+    );
+    maxMagnitudeAlert = alertsInSummary.find(
+      (alert) => alert.amount_pct === maxMagnitude,
+    );
+    minMagnitudeAlert = alertsInSummary.find(
+      (alert) => alert.amount_pct === minMagnitude,
+    );
+    title = `${maxMagnitude} - ${minMagnitude}%`;
   } else if (alertsInSummary.length === 1) {
     title = `${alertsInSummary[0].amount_pct}%`;
   } else {
@@ -537,18 +549,43 @@ export const getTitle = (alertSummary) => {
   }
 
   // add test info
-  const testInfo = [
-    ...new Set(alertsInSummary.map((a) => getTestName(a.series_signature))),
-  ]
-    .sort()
-    .join(' / ');
+  const tests = [
+    ...new Set(
+      alertsInSummary.map((alert) => getTestName(alert.series_signature)),
+    ),
+  ];
+  let testInfo = tests.sort().join(' / ');
+  console.log('test ', testInfo);
+  console.log('max ', maxMagnitudeAlert);
+  console.log('min ', minMagnitudeAlert);
+  if (maxMagnitudeAlert && minMagnitudeAlert) {
+    testInfo = `${getTestName(
+      maxMagnitudeAlert.series_signature,
+    )} / ${getTestName(minMagnitudeAlert.series_signature)}`;
+  }
+  if (tests.length > 2) {
+    testInfo += ` ${tests.length - 2} more`;
+  }
   title += ` ${testInfo}`;
   // add platform info
-  const platformInfo = [
-    ...new Set(alertsInSummary.map((a) => a.series_signature.machine_platform)),
-  ]
-    .sort()
-    .join(', ');
+  const platforms = [
+    ...new Set(
+      alertsInSummary.map((alert) => alert.series_signature.machine_platform),
+    ),
+  ];
+  const availablePlatforms = ['Windows', 'Linux', 'OSX', 'Android'];
+
+  let platformInfo = [];
+  platforms.forEach((platform) =>
+    availablePlatforms.forEach((name) => {
+      if (platform.includes(name.toLowerCase())) {
+        if (!platformInfo.includes(name)) {
+          platformInfo.push(name);
+        }
+      }
+    }),
+  );
+  platformInfo = platformInfo.sort().join(', ');
   title += ` (${platformInfo})`;
   return title;
 };

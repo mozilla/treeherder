@@ -124,9 +124,7 @@ export default class StatusDropdown extends React.Component {
       'ddd MMMM D YYYY',
     );
 
-    const bugTitle = `${getTitle(alertSummary)} regression on push ${
-      alertSummary.revision
-    } (${pushDate})`;
+    const bugTitle = `${getTitle(alertSummary)} regression on ${pushDate}`;
 
     const culpritDetails = await this.getCulpritDetails(culpritId);
     const defaultParams = {
