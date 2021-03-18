@@ -76,13 +76,13 @@ blessings==1.7 \
     --hash=sha256:b1fdd7e7a675295630f9ae71527a8ebc10bfefa236b3d6aa4932ee4462c17ba3 \
     --hash=sha256:caad5211e7ba5afe04367cdd4cfc68fa886e2e08f6f35e76b7387d2109ccea6e
     # via mozlog
-boto3==1.17.30 \
-    --hash=sha256:d39c04b51e60197f5503f8489f043bc904981567cc8431d389367767dc3fd5ae \
-    --hash=sha256:fe1898c5b10035528207995c9931b78f2f50bb70cf93bac353152aea47c04780
+boto3==1.17.32 \
+    --hash=sha256:2df49a4360ef0640902c26bf93ac0791b37755db3a2efd0d51a03eddeb9f807e \
+    --hash=sha256:85069e044c871571b7a72b600123761e1747ad18328fa5188f13b097a394251d
     # via mozci
-botocore==1.20.30 \
-    --hash=sha256:63951595a736dfc9759f57e33bec6eaea4f09c4800626ef5309437060b263e48 \
-    --hash=sha256:98ff1eb210d394a1ffe736b33c8a7be68f30f0a03550b559c5bb6fdf0c29328d
+botocore==1.20.32 \
+    --hash=sha256:1cef96e716f7481bfb3b8d3c3d45e640d588aa5af613cd6d7f33d784aa2e8d12 \
+    --hash=sha256:fc162b69adc54c9ef037fec31f93d46df0bf8a9c3d201ecb16d0a9ec5f2936ec
     # via
     #   boto3
     #   s3transfer
@@ -499,9 +499,9 @@ rsa==4.7.2 \
     --hash=sha256:78f9a9bf4e7be0c5ded4583326e7461e3a3c5aae24073648b4bdfa797d78c9d2 \
     --hash=sha256:9d689e6ca1b3038bc82bf8d23e944b6b6037bc02301a574935b2dd946e0353b9
     # via python-jose
-s3transfer==0.3.4 \
-    --hash=sha256:1e28620e5b444652ed752cf87c7e0cb15b0e578972568c6609f0f18212f259ed \
-    --hash=sha256:7fdddb4f22275cf1d32129e21f056337fd2a80b6ccef1664528145b72c49e6d2
+s3transfer==0.3.6 \
+    --hash=sha256:5d48b1fd2232141a9d5fb279709117aaba506cacea7f86f11bc392f06bfa8fc2 \
+    --hash=sha256:c5dadf598762899d8cfaecf68eba649cd25b0ce93b6c954b156aaa3eed160547
     # via boto3
 simplejson==3.17.2 \
     --hash=sha256:034550078a11664d77bc1a8364c90bb7eef0e44c2dbb1fd0a4d92e3997088667 \

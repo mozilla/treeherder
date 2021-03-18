@@ -35,3 +35,5 @@ betamax-serializers
 
 # pip-compile for pinning versions
 pip-tools
+
+importlib-metadata
