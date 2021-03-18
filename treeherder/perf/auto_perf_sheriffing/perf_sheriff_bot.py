@@ -51,8 +51,10 @@ class PerfSheriffBot:
 
     def sheriff(self, since: datetime, frameworks: List[str], repositories: List[str]):
         self.assert_can_run()
+        logger.info('Perfsheriff bot: Validating settings')
         self.secretary.validate_settings()
 
+        logger.info('Perfsheriff bot: Marking reports for backfill')
         self.secretary.mark_reports_for_backfill()
         self.assert_can_run()
 
@@ -61,13 +63,16 @@ class PerfSheriffBot:
         # self.secretary.check_outcome()
 
         # reporter tool should always run *(only handles preliminary records/reports)*
+        logger.info('Perfsheriff bot: Reporter tool is creating/maintaining  reports')
         self._report(since, frameworks, repositories)
         self.assert_can_run()
 
         # backfill tool follows
+        logger.info('Perfsheriff bot: Start backfills')
         self._backfill()
         self.assert_can_run()
 
+        logger.info('Perfsheriff bot: Notify backfill outcome')
         self._notify_backfill_outcome()
 
     def runtime_exceeded(self) -> bool:
@@ -89,14 +94,17 @@ class PerfSheriffBot:
 
         # TODO: make this platform generic
         records_to_backfill = self.__fetch_records_requiring_backfills()
+        logger.info('Perfsheriff bot: %s records found to backfill', records_to_backfill.count())
         for record in records_to_backfill:
             if left <= 0 or self.runtime_exceeded():
                 break
             left, consumed = self._backfill_record(record, left)
+            logger.info('Perfsheriff bot: backfilled record with id %s', record.alert.id)
             self.backfilled_records.append(record)
             total_consumed += consumed
 
         self.secretary.consume_backfills('linux', total_consumed)
+        logger.info('Perfsheriff bot: consumed %s backfills for linux', total_consumed)
         logger.debug(f'{self.__class__.__name__} has {left} backfills left.')
 
     @staticmethod
@@ -115,7 +123,7 @@ class PerfSheriffBot:
         try:
             context = record.get_context()
         except JSONDecodeError:
-            logger.warning(f'Failed to backfill record {record.id}: invalid JSON context.')
+            logger.warning(f'Failed to backfill record {record.alert.id}: invalid JSON context.')
             record.status = BackfillRecord.FAILED
             record.save()
         else:
@@ -127,13 +135,13 @@ class PerfSheriffBot:
                     self.backfill_tool.backfill_job(using_job_id)
                     left, consumed = left - 1, consumed + 1
                 except (KeyError, CannotBackfill, Exception) as ex:
-                    logger.debug(f'Failed to backfill record {record.id}: {ex}')
+                    logger.debug(f'Failed to backfill record {record.alert.id}: {ex}')
                 else:
                     self.__try_setting_job_type_of(record, using_job_id)
 
             success, outcome = self._note_backfill_outcome(record, len(context), consumed)
             log_level = INFO if success else WARNING
-            logger.log(log_level, f'{outcome} (for backfill record {record.id})')
+            logger.log(log_level, f'{outcome} (for backfill record {record.alert.id})')
 
         return left, consumed
 
