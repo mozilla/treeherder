@@ -24,7 +24,6 @@ django-filter  # Listed in DEFAULT_FILTER_BACKENDS on settings.py
 django-redis  # Listed in CACHES on settings.py
 
 taskcluster  # import taskcluster
-typing  # from typing import ...
 python-jose[pycryptodome]  # from jose import jwt
 
 furl  # Imported as furl

@@ -76,13 +76,13 @@ blessings==1.7 \
     --hash=sha256:b1fdd7e7a675295630f9ae71527a8ebc10bfefa236b3d6aa4932ee4462c17ba3 \
     --hash=sha256:caad5211e7ba5afe04367cdd4cfc68fa886e2e08f6f35e76b7387d2109ccea6e
     # via mozlog
-boto3==1.17.23 \
-    --hash=sha256:1ca39de26205439832fa740fcc200de85f107b615dae445f869a16b76672e663 \
-    --hash=sha256:d6716f6701aae771f6ff2386a1d641855a99a9fedd64bd25476b83bacdd50c94
+boto3==1.17.30 \
+    --hash=sha256:d39c04b51e60197f5503f8489f043bc904981567cc8431d389367767dc3fd5ae \
+    --hash=sha256:fe1898c5b10035528207995c9931b78f2f50bb70cf93bac353152aea47c04780
     # via mozci
-botocore==1.20.23 \
-    --hash=sha256:d5ea913331e93cecde25773841397c5d2abbc04f38b1c96c636444e8bb3478f8 \
-    --hash=sha256:f3ae5cae250c3fb200d33abacbee3f0c6513fc6f1d17a851b04a3998de68c829
+botocore==1.20.30 \
+    --hash=sha256:63951595a736dfc9759f57e33bec6eaea4f09c4800626ef5309437060b263e48 \
+    --hash=sha256:98ff1eb210d394a1ffe736b33c8a7be68f30f0a03550b559c5bb6fdf0c29328d
     # via
     #   boto3
     #   s3transfer
@@ -187,9 +187,9 @@ first==2.0.2 \
     --hash=sha256:8d8e46e115ea8ac652c76123c0865e3ff18372aef6f03c22809ceefcea9dec86 \
     --hash=sha256:ff285b08c55f8c97ce4ea7012743af2495c9f1291785f163722bd36f6af6d3bf
     # via -r requirements/common.in
-flake8==3.8.4 \
-    --hash=sha256:749dbbd6bfd0cf1318af27bf97a14e28e5ff548ef8e5b1566ccfb25a11e7c839 \
-    --hash=sha256:aadae8761ec651813c24be05c6f7b4680857ef6afaae4651a4eccaef97ce6c3b
+flake8==3.9.0 \
+    --hash=sha256:12d05ab02614b6aee8df7c36b97d1a3b2372761222b19b58621355e82acddcff \
+    --hash=sha256:78873e372b12b093da7b5e5ed302e8ad9e988b38b063b61ad937f26ca58fc5f0
     # via mozci
 furl==2.1.0 \
     --hash=sha256:c0e0231a1feee2acd256574b7033df3144775451c610cb587060d6a0d7e0b621 \
@@ -205,9 +205,9 @@ idna==2.10 \
     # via
     #   requests
     #   yarl
-importlib-metadata==3.7.2 \
-    --hash=sha256:18d5ff601069f98d5d605b6a4b50c18a34811d655c55548adc833e687289acde \
-    --hash=sha256:407d13f55dc6f2a844e62325d18ad7019a436c4bfcaee34cda35f2be6e7c3e34
+importlib-metadata==3.7.3 \
+    --hash=sha256:742add720a20d0467df2f444ae41704000f50e1234f46174b51f9c6031a1bd71 \
+    --hash=sha256:b74159469b464a99cb8cc3e21973e4d96e05d3024d337313fedb618a6e86e6f4
     # via -r requirements/common.in
 itypes==1.2.0 \
     --hash=sha256:03da6872ca89d29aef62773672b2d408f490f80db48b23079a4b194c86dd04c6 \
@@ -223,8 +223,8 @@ jmespath==0.10.0 \
     # via
     #   boto3
     #   botocore
-json-e==4.3.0 \
-    --hash=sha256:00559fe9451cc059aa4997e801e19f421c7d6393e2a9b37e621cd1031b6d496a
+json-e==4.4.1 \
+    --hash=sha256:7d9f6235f855ce70418b9d6158c043c588c3c3d7d0902972f3fb7c5399997ce9
     # via -r requirements/common.in
 jsonschema==3.2.0 \
     --hash=sha256:4e5b3cf8216f577bee9ce139cbe72eca3ea4f292ec60928ff24758ce626cd163 \
@@ -387,9 +387,9 @@ pyasn1==0.4.8 \
     # via
     #   python-jose
     #   rsa
-pycodestyle==2.6.0 \
-    --hash=sha256:2295e7b2f6b5bd100585ebcb1f616591b652db8a741695b3d8f5d28bdc934367 \
-    --hash=sha256:c58a7d2815e0e8d7972bf1803331fb0152f867bd89adf8a01dfd55085434192e
+pycodestyle==2.7.0 \
+    --hash=sha256:514f76d918fcc0b55c6680472f0a37970994e07bbb80725808c17089be302068 \
+    --hash=sha256:c389c1d06bf7904078ca03399a4816f974a1d590090fecea0c63ec26ebaf1cef
     # via flake8
 pycryptodome==3.10.1 \
     --hash=sha256:09c1555a3fa450e7eaca41ea11cd00afe7c91fef52353488e65663777d8524e0 \
@@ -423,9 +423,9 @@ pycryptodome==3.10.1 \
     --hash=sha256:f977cdf725b20f6b8229b0c87acb98c7717e742ef9f46b113985303ae12a99da \
     --hash=sha256:fc7489a50323a0df02378bc2fff86eb69d94cc5639914346c736be981c6a02e7
     # via python-jose
-pyflakes==2.2.0 \
-    --hash=sha256:0d94e0e05a19e57a99444b6ddcf9a6eb2e5c68d3ca1e98e90707af8152c90a92 \
-    --hash=sha256:35b2d75ee967ea93b55750aa9edbbf72813e06a66ba54438df2cfac9e3c27fc8
+pyflakes==2.3.0 \
+    --hash=sha256:910208209dcea632721cb58363d0f72913d9e8cf64dc6f8ae2e02a3609aba40d \
+    --hash=sha256:e59fd8e750e588358f1b8885e5a4751203a0516e0ee6d34811089ac294c8806f
     # via flake8
 pyrsistent==0.17.3 \
     --hash=sha256:2e636185d9eb976a18a8a8e96efce62f2905fea90041958d8cc2a189756ebf3e
@@ -581,10 +581,10 @@ taskcluster-urls==13.0.1 \
     # via
     #   mozci
     #   taskcluster
-taskcluster==42.1.0 \
-    --hash=sha256:72a08b011f943f6778de11fe6855da6027f906ae753452fe0f79eed13b7b24f6 \
-    --hash=sha256:7feb5fae3dd69aedb5d344660962be501d72ece11779c48c78b66970534e7bec \
-    --hash=sha256:db68d5d106d106c8273d5db49e4352fe9fc69b9d41dca261742ad17e5b57798f
+taskcluster==42.1.1 \
+    --hash=sha256:3443ded81c3bf324fbc9910624b221c3697478c0eed41a2bc5ddb417fa18e80a \
+    --hash=sha256:6f8ed0e1ab2c8cfe038216572793a3611fe91de4d94f3ea3c2543c92c7111d0b \
+    --hash=sha256:f7aadd165b738a35da739dbf7d67dcc50b9290d937176ca020de3d88a5bd6226
     # via
     #   -r requirements/common.in
     #   mozci
@@ -597,17 +597,13 @@ typing-extensions==3.7.4.3 \
     --hash=sha256:99d4073b617d30288f569d3f13d2bd7548c3a7e4c8de87db09a9d29bb3a4a60c \
     --hash=sha256:dafc7639cde7f1b6e1acc0f457842a83e722ccca8eef5270af2d74792619a89f
     # via aiohttp
-typing==3.7.4.3 \
-    --hash=sha256:1187fb9c82fd670d10aa07bbb6cfcfe4bdda42d6fab8d5134f04e8c4d0b71cc9 \
-    --hash=sha256:283d868f5071ab9ad873e5e52268d611e851c870a2ba354193026f2dfb29d8b5
-    # via -r requirements/common.in
 uritemplate==3.0.1 \
     --hash=sha256:07620c3f3f8eed1f12600845892b0e036a2420acf513c53f7de0abd911a5894f \
     --hash=sha256:5af8ad10cec94f215e3f48112de2022e1d5a37ed427fbd88652fa908f2ab7cae
     # via coreapi
-urllib3==1.26.3 \
-    --hash=sha256:1b465e494e3e0d8939b50680403e3aedaa2bc434b7d5af64dfd3c958d7f5ae80 \
-    --hash=sha256:de3eedaad74a2683334e282005cd8d7f22f4d55fa690a2a1020a416cb0a47e73
+urllib3==1.26.4 \
+    --hash=sha256:2f4da4594db7e1e110a944bb1b551fdf4e6c136ad42e4234131391e21eb5b0df \
+    --hash=sha256:e7b021f7241115872f92f43c6508082facffbd1c048e3c6e2bb9c2a157e28937
     # via
     #   botocore
     #   requests
