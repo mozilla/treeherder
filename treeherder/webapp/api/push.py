@@ -46,6 +46,11 @@ class PushViewSet(viewsets.ViewSet):
         except Exception as e:
             logger.error(e)
 
+        all_jobs = Job.objects.filter(
+            push=push,
+            tier__lte=2,
+        ).select_related('machine_platform', 'taskcluster_metadata', 'job_type', 'job_group')
+
         result_status, jobs = get_test_failure_jobs(push)
         failed_jobs = list(jobs.keys())
 
@@ -62,8 +67,8 @@ class PushViewSet(viewsets.ViewSet):
         likely_build_regression_labels = [
             label for label in likely_regression_labels if label not in failed_jobs
         ]
-        builds = get_build_failures(push, likely_build_regression_labels)
-        lints = get_lint_failures(push)
+        builds = get_build_failures(push, likely_build_regression_labels, all_jobs)
+        lints = get_lint_failures(push, all_jobs)
 
         status = push.get_status()
 
@@ -363,7 +368,9 @@ class PushViewSet(viewsets.ViewSet):
         revision = request.query_params.get('revision')
 
         try:
-            push = Push.objects.select_related('repository').get(revision=revision, repository__name=project)
+            push = Push.objects.select_related('repository').get(
+                revision=revision, repository__name=project
+            )
         except Push.DoesNotExist:
             return Response(f"No push with revision: {revision}", status=HTTP_404_NOT_FOUND)
 

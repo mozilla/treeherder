@@ -21,10 +21,7 @@ def get_commit_history(mozciPush, push):
         parent_sha = parent.revs[-1]
         parents = Push.objects.filter(
             repository__name=parent.branch, revision=parent_sha
-        ).select_related(
-            'repository',
-            'repository__repository_group',
-        )
+        ).select_related('repository')
         parent_push = parents[0] if len(parents) else None
 
     revisions = [CommitSerializer(commit).data for commit in push.commits.all().order_by('-id')]
