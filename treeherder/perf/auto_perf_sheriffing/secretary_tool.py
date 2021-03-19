@@ -20,8 +20,6 @@ class SecretaryTool:
     * notes outcome of backfills (successful/unsuccessful)
     """
 
-    TIME_TO_MATURE = timedelta(hours=4)
-
     def __init__(self, outcome_checker: OutcomeChecker = None):
         self.outcome_checker = outcome_checker or OutcomeChecker()
 
@@ -50,7 +48,7 @@ class SecretaryTool:
     @classmethod
     def mark_reports_for_backfill(cls):
         # get the backfill reports that are mature, but not frozen
-        mature_date_limit = datetime.utcnow() - cls.TIME_TO_MATURE
+        mature_date_limit = datetime.utcnow() - django_settings.TIME_TO_MATURE
         mature_reports = BackfillReport.objects.filter(
             frozen=False, last_updated__lte=mature_date_limit
         )
