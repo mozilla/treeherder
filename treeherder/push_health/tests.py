@@ -1,8 +1,6 @@
 import logging
 import re
 
-from django.db.models import Q
-
 from treeherder.model.models import (
     FailureLine,
     Job,
@@ -26,20 +24,15 @@ ignored_log_lines = [
 ]
 
 
-def get_test_failure_jobs(push):
-    testfailed_jobs = (
-        Job.objects.filter(
-            push=push,
-            tier__lte=2,
-            result='testfailed',
-        )
-        .exclude(
-            Q(machine_platform__platform='lint')
-            | Q(job_type__symbol='mozlint')
-            | Q(job_type__name__contains='build'),
-        )
-        .select_related('job_type', 'machine_platform', 'taskcluster_metadata', 'job_group')
-    )
+def get_test_failure_jobs(push, all_jobs):
+    testfailed_jobs = [
+        job
+        for job in all_jobs
+        if job.result == 'testfailed'
+        and job.machine_platform.platform != 'lint'
+        and job.job_type.symbol != 'mozline'
+        and 'build' not in job.job_type.name
+    ]
     failed_job_types = [job.job_type.name for job in testfailed_jobs]
 
     passing_jobs = Job.objects.filter(

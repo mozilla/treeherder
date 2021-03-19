@@ -46,12 +46,14 @@ class PushViewSet(viewsets.ViewSet):
         except Exception as e:
             logger.error(e)
 
-        all_jobs = Job.objects.filter(
-            push=push,
-            tier__lte=2,
-        ).select_related('machine_platform', 'taskcluster_metadata', 'job_type', 'job_group')
+        all_jobs = list(
+            Job.objects.filter(
+                push=push,
+                tier__lte=2,
+            ).select_related('machine_platform', 'taskcluster_metadata', 'job_type', 'job_group')
+        )
 
-        result_status, jobs = get_test_failure_jobs(push)
+        result_status, jobs = get_test_failure_jobs(push, all_jobs)
         failed_jobs = list(jobs.keys())
 
         job_ids = [value[0].get('id') for key, value in jobs.items()]
@@ -376,7 +378,7 @@ class PushViewSet(viewsets.ViewSet):
 
         mozciPush = MozciPush([revision], project)
         commit_history_details = None
-        print(push)
+
         if push.repository.dvcs_type == 'hg':
             commit_history_details = get_commit_history(mozciPush, push)
 
