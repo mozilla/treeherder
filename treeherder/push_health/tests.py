@@ -28,12 +28,12 @@ def get_test_failure_jobs(push, all_jobs):
     testfailed_jobs = [
         job
         for job in all_jobs
-        if job.result == 'testfailed'
-        and job.machine_platform.platform != 'lint'
-        and job.job_type.symbol != 'mozline'
-        and 'build' not in job.job_type.name
+        if job['result'] == 'testfailed'
+        and job['machine_platform__platform'] != 'lint'
+        and job['job_type__symbol'] != 'mozline'
+        and 'build' not in job['job_type__name']
     ]
-    failed_job_types = [job.job_type.name for job in testfailed_jobs]
+    failed_job_types = [job['job_type__name'] for job in testfailed_jobs]
 
     passing_jobs = Job.objects.filter(
         push=push, job_type__name__in=failed_job_types, result__in=['success', 'unknown']
@@ -44,11 +44,11 @@ def get_test_failure_jobs(push, all_jobs):
 
     def add_jobs(job_list):
         for job in job_list:
-            result_status.add(job.result)
-            if job.job_type.name in jobs:
-                jobs[job.job_type.name].append(job_to_dict(job))
+            result_status.add(job['result'])
+            if job['job_type__name'] in jobs:
+                jobs[job['job_type__name']].append(job_to_dict(job))
             else:
-                jobs[job.job_type.name] = [job_to_dict(job)]
+                jobs[job['job_type__name']] = [job_to_dict(job)]
 
     add_jobs(testfailed_jobs)
     add_jobs(passing_jobs)
@@ -144,7 +144,6 @@ def get_test_failures(push, failed_jobs, likely_regression_labels, result_status
     labels_without_failure_lines = failed_job_labels.copy()
 
     for failure_line in failure_lines:
-        print(failure_line)
         test_name = clean_test(
             failure_line['test'], failure_line['signature'], failure_line['message']
         )

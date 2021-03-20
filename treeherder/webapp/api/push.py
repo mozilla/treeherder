@@ -50,8 +50,37 @@ class PushViewSet(viewsets.ViewSet):
             Job.objects.filter(
                 push=push,
                 tier__lte=2,
-            ).select_related('machine_platform', 'taskcluster_metadata', 'job_type', 'job_group')
+            )
+            .select_related('machine_platform', 'taskcluster_metadata', 'job_type', 'job_group')
+            .values(
+                'id',
+                'option_collection_hash',
+                'job_type_id',
+                'job_group_id',
+                'result',
+                'state',
+                'failure_classification_id',
+                'push_id',
+                'start_time',
+                'tier',
+                'guid',
+                'result',
+                'job_type__name',
+                'job_type__symbol',
+                'job_group__name',
+                'job_group__symbol',
+                'machine_platform__platform',
+                'taskcluster_metadata__task_id',
+                'taskcluster_metadata__retry_id',
+            )
         )
+        # print(all_jobs2)
+        # all_jobs = list(
+        #     Job.objects.filter(
+        #         push=push,
+        #         tier__lte=2,
+        #     ).select_related('machine_platform', 'taskcluster_metadata', 'job_type', 'job_group')
+        # )
 
         result_status, jobs = get_test_failure_jobs(push, all_jobs)
         failed_jobs = list(jobs.keys())
