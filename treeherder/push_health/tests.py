@@ -114,30 +114,45 @@ def get_test_failures(push, failed_jobs, likely_regression_labels, result_status
     if not len(failed_job_labels):
         return ('none', { 'needInvestigation': regressions, 'knownIssues': known_issues })
 
-    failure_lines = FailureLine.objects.filter(
-        action__in=['test_result', 'log', 'crash'],
-        job_log__job__push=push,
-        job_log__job__job_type__name__in=failed_job_labels,
-        job_log__job__result='testfailed',
-    ).select_related(
-        'job_log',
-        'job_log__job',
-        'job_log__job__job_type',
-        'job_log__job__job_group',
-        'job_log__job__machine_platform',
-        'job_log__job__taskcluster_metadata',
+    failure_lines = (
+        FailureLine.objects.filter(
+            action__in=['test_result', 'log', 'crash'],
+            job_log__job__push=push,
+            job_log__job__job_type__name__in=failed_job_labels,
+            job_log__job__result='testfailed',
+        )
+        .select_related(
+            'job_log',
+            'job_log__job',
+            'job_log__job__job_type',
+        )
+        .values('job_log__job__job_type__name', 'test', 'signature', 'message', 'action')
     )
+
+    # using a dict here to avoid duplicates due to multiple failure_lines for
+    # each job.
+    regressions = {
+        'tests': {},
+        'unstructuredFailures': [],
+    }
+    known_issues = {
+        'tests': {},
+        'unstructuredFailures': [],
+    }
     investigatedTests = InvestigatedTests.objects.filter(push=push)
     # Keep track of these so that we can add them to the 'otherJobs'
     labels_without_failure_lines = failed_job_labels.copy()
 
     for failure_line in failure_lines:
-        test_name = clean_test(failure_line.test, failure_line.signature, failure_line.message)
+        print(failure_line)
+        test_name = clean_test(
+            failure_line['test'], failure_line['signature'], failure_line['message']
+        )
         if not test_name:
             continue
-        action = failure_line.action.split('_')[0]
-        job = failure_line.job_log.job
-        job_name = job.job_type.name
+        action = failure_line['action'].split('_')[0]
+        job_name = failure_line['job_log__job__job_type__name']
+
         classification = known_issues
 
         if job_name in likely_regression_labels:
@@ -146,7 +161,7 @@ def get_test_failures(push, failed_jobs, likely_regression_labels, result_status
         if job_name in labels_without_failure_lines:
             labels_without_failure_lines.remove(job_name)
 
-        line = get_line(test_name, action, job_to_dict(job), option_map, investigatedTests)
+        line = get_line(test_name, action, failed_jobs[job_name][0], option_map, investigatedTests)
         if line['key'] not in classification['tests']:
             classification['tests'][line['key']] = line
 
