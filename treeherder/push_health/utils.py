@@ -121,16 +121,16 @@ def get_job_key(job):
 
 
 def job_to_dict(job):
-    job_dict = {field: getattr(job, field) for field in job_fields}
+    job_dict = {field: job.get(field) for field in job_fields}
     job_dict.update(
         {
-            'job_type_name': job.job_type.name,
-            'job_type_symbol': job.job_type.symbol,
-            'job_group_name': job.job_group.name,
-            'job_group_symbol': job.job_group.symbol,
-            'platform': job.machine_platform.platform,
-            'task_id': job.taskcluster_metadata.task_id,
-            'run_id': job.taskcluster_metadata.retry_id,
+            'job_type_name': job['job_type__name'],
+            'job_type_symbol': job['job_type__symbol'],
+            'job_group_name': job['job_group__name'],
+            'job_group_symbol': job['job_group__symbol'],
+            'platform': job['machine_platform__platform'],
+            'task_id': job['taskcluster_metadata__task_id'],
+            'run_id': job['taskcluster_metadata__retry_id'],
         }
     )
     return job_dict
@@ -146,10 +146,10 @@ def get_job_results(results, failure_type):
         return ('none', failures, count_in_progress)
 
     for job in results:
-        result_status.add(job.result)
-        if job.result == failure_type:
+        result_status.add(job['result'])
+        if job['result'] == failure_type:
             failures.append(job_to_dict(job))
-        elif job.result == 'unknown':
+        elif job['result'] == 'unknown':
             count_in_progress += 1
 
     if len(failures):
