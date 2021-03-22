@@ -575,8 +575,9 @@ export const getTitle = (alertSummary) => {
       maxMagnitudeAlert.series_signature,
     )} / ${getTestName(minMagnitudeAlert.series_signature)}`;
   }
+
   if (tests.length > 2) {
-    testInfo += ` ${tests.length - 2} more`;
+    testInfo += ` + ${tests.length - 2} more`;
   }
   title += ` ${testInfo}`;
   // add platform info
