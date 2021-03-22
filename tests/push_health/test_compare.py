@@ -129,4 +129,4 @@ def test_get_commit_history(test_push, test_repository, mock_rev, mock_json_push
     history = get_commit_history(mozciPush, test_push)
 
     assert history['parentSha'] == parent_revision
-    assert history['parentRepository']['name'] == test_repository.name
+    assert history['parentRepository'] == test_repository.name

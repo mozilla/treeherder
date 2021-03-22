@@ -155,7 +155,7 @@ TestMetric.propTypes = {
   repo: PropTypes.string.isRequired,
   currentRepo: PropTypes.shape({}).isRequired,
   revision: PropTypes.string.isRequired,
-  notify: PropTypes.func.isRequired,
+  notify: PropTypes.func,
   searchStr: PropTypes.string.isRequired,
   testGroup: PropTypes.string,
   regressionsOrderBy: PropTypes.string,
@@ -171,4 +171,5 @@ TestMetric.defaultProps = {
   knownIssuesOrderBy: 'count',
   knownIssuesGroupBy: 'path',
   testGroup: '',
+  notify: () => {},
 };

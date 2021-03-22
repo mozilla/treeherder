@@ -305,7 +305,7 @@ ClassificationGroup.propTypes = {
   name: PropTypes.string.isRequired,
   currentRepo: PropTypes.shape({}).isRequired,
   revision: PropTypes.string.isRequired,
-  notify: PropTypes.func.isRequired,
+  notify: PropTypes.func,
   hasRetriggerAll: PropTypes.bool,
   expanded: PropTypes.bool,
   className: PropTypes.string,
@@ -325,6 +325,7 @@ ClassificationGroup.defaultProps = {
   groupedBy: 'path',
   setOrderedBy: () => {},
   setGroupedBy: () => {},
+  notify: () => {},
 };
 
 export default ClassificationGroup;

@@ -41,6 +41,7 @@ class CommitHistory extends React.PureComponent {
         parentPushRevision,
         revisions,
         revisionCount,
+        currentPush,
       },
       revision,
       currentRepo,
@@ -58,7 +59,7 @@ class CommitHistory extends React.PureComponent {
       revision,
       repo: currentRepo.name,
     });
-    const { author, push_timestamp: pushTimestamp } = revisions[0];
+    const { author, push_timestamp: pushTimestamp } = currentPush;
     const headerText = revisions[0].comments.split('\n')[0];
     const authorMatch = author.match(/<(.*?)>+/);
     const authorEmail = authorMatch ? authorMatch[1] : author;
