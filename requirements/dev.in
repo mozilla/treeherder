@@ -16,6 +16,9 @@ pre-commit
 pytest-testmon
 pytest-watch
 
+# parallelize tests
+pytest-xdist
+
 # Required by django-extension's runserver_plus command.
 flake8
 pytest-django
