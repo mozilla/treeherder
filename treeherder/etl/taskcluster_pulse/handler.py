@@ -15,9 +15,7 @@ from treeherder.etl.taskcluster_pulse.parse_route import parseRoute
 
 env = environ.Env()
 logger = logging.getLogger(__name__)
-loop = asyncio.get_event_loop()
 projectsToIngest = env("PROJECTS_TO_INGEST", default=None)
-session = taskcluster.aio.createSession(loop=loop)
 
 
 # Build a mapping from exchange name to task status
@@ -130,7 +128,7 @@ def ignore_task(task, taskId, rootUrl, project):
                 pass
         else:
             # The decision task is the ultimate source for determining this information
-            queue = taskcluster.Queue({"rootUrl": rootUrl}, session=session)
+            queue = taskcluster.Queue({"rootUrl": rootUrl})
             decision_task = queue.task(task["taskGroupId"])
             scopes = decision_task["metadata"].get("source")
             ignore = True
@@ -159,6 +157,8 @@ def ignore_task(task, taskId, rootUrl, project):
 # treeherder job information in task.extra.treeherder are accepted
 # This will generate a list of messages that need to be ingested by Treeherder
 async def handleMessage(message, taskDefinition=None):
+    session = taskcluster.aio.createSession()
+
     jobs = []
     taskId = message["payload"]["status"]["taskId"]
     asyncQueue = taskcluster.aio.Queue({"rootUrl": message["root_url"]}, session=session)
@@ -187,7 +187,7 @@ async def handleMessage(message, taskDefinition=None):
     # This will only work if the previous run has not yet been processed by Treeherder
     # since _remove_existing_jobs() will prevent it
     if message["payload"]["runId"] > 0:
-        jobs.append(await handleTaskRerun(parsedRoute, task, message))
+        jobs.append(await handleTaskRerun(parsedRoute, task, message, session))
 
     if not taskType:
         raise Exception("Unknown exchange: {exchange}".format(exchange=message["exchange"]))
@@ -196,7 +196,7 @@ async def handleMessage(message, taskDefinition=None):
     elif taskType == "running":
         jobs.append(handleTaskRunning(parsedRoute, task, message))
     elif taskType in ("completed", "failed"):
-        jobs.append(await handleTaskCompleted(parsedRoute, task, message))
+        jobs.append(await handleTaskCompleted(parsedRoute, task, message, session))
     elif taskType == "exception":
         jobs.append(await handleTaskException(parsedRoute, task, message))
 
@@ -285,7 +285,7 @@ def handleTaskPending(pushInfo, task, message):
     return buildMessage(pushInfo, task, payload["runId"], payload)
 
 
-async def handleTaskRerun(pushInfo, task, message):
+async def handleTaskRerun(pushInfo, task, message, session):
     payload = message['payload']
     job = buildMessage(pushInfo, task, payload["runId"] - 1, payload)
     job["state"] = "completed"
@@ -295,7 +295,7 @@ async def handleTaskRerun(pushInfo, task, message):
     # don't include a link
     job["logs"] = []
     job = await addArtifactUploadedLinks(
-        message["root_url"], payload["status"]["taskId"], payload["runId"] - 1, job
+        message["root_url"], payload["status"]["taskId"], payload["runId"] - 1, job, session
     )
     return job
 
@@ -307,7 +307,7 @@ def handleTaskRunning(pushInfo, task, message):
     return job
 
 
-async def handleTaskCompleted(pushInfo, task, message):
+async def handleTaskCompleted(pushInfo, task, message, session):
     payload = message['payload']
     jobRun = payload["status"]["runs"][payload["runId"]]
     job = buildMessage(pushInfo, task, payload["runId"], payload)
@@ -318,12 +318,12 @@ async def handleTaskCompleted(pushInfo, task, message):
         createLogReference(message['root_url'], payload["status"]["taskId"], jobRun["runId"]),
     ]
     job = await addArtifactUploadedLinks(
-        message["root_url"], payload["status"]["taskId"], payload["runId"], job
+        message["root_url"], payload["status"]["taskId"], payload["runId"], job, session
     )
     return job
 
 
-async def handleTaskException(pushInfo, task, message):
+async def handleTaskException(pushInfo, task, message, session):
     payload = message['payload']
     jobRun = payload["status"]["runs"][payload["runId"]]
     # Do not report runs that were created as an exception.  Such cases
@@ -340,12 +340,12 @@ async def handleTaskException(pushInfo, task, message):
     # don't include a link
     job["logs"] = []
     job = await addArtifactUploadedLinks(
-        message["root_url"], payload["status"]["taskId"], payload["runId"], job
+        message["root_url"], payload["status"]["taskId"], payload["runId"], job, session
     )
     return job
 
 
-async def fetchArtifacts(root_url, taskId, runId):
+async def fetchArtifacts(root_url, taskId, runId, session):
     asyncQueue = taskcluster.aio.Queue({"rootUrl": root_url}, session=session)
     res = await asyncQueue.listArtifacts(taskId, runId)
     artifacts = res["artifacts"]
@@ -369,10 +369,10 @@ async def fetchArtifacts(root_url, taskId, runId):
 # fetch them in order to determine if there is an error_summary log;
 # TODO refactor this when there is a way to only retrieve the error_summary
 # artifact: https://bugzilla.mozilla.org/show_bug.cgi?id=1629716
-async def addArtifactUploadedLinks(root_url, taskId, runId, job):
+async def addArtifactUploadedLinks(root_url, taskId, runId, job, session):
     artifacts = []
     try:
-        artifacts = await fetchArtifacts(root_url, taskId, runId)
+        artifacts = await fetchArtifacts(root_url, taskId, runId, session)
     except Exception:
         logger.debug("Artifacts could not be found for task: %s run: %s", taskId, runId)
         return job
