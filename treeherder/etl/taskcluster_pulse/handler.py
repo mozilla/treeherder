@@ -1,5 +1,4 @@
 # Code imported from https://github.com/taskcluster/taskcluster/blob/32629c562f8d6f5a6b608a3141a8ee2e0984619f/services/treeherder/src/handler.js
-import asyncio
 import logging
 import os
 
