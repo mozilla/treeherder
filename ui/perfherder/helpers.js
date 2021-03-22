@@ -16,6 +16,7 @@ import {
   tValueCareMin,
   tValueConfidence,
   noiseMetricTitle,
+  availablePlatforms,
   summaryStatusMap,
   alertStatusMap,
   phFrameworksWithRelatedBranches,
@@ -507,6 +508,20 @@ export const getTextualSummary = (
   return resultStr;
 };
 
+const getPlatformInfo = (platforms) => {
+  const platformInfo = [];
+  platforms.forEach((platform) =>
+    availablePlatforms.forEach((name) => {
+      if (platform.includes(name.toLowerCase())) {
+        if (!platformInfo.includes(name)) {
+          platformInfo.push(name);
+        }
+      }
+    }),
+  );
+  return platformInfo;
+};
+
 export const getTitle = (alertSummary) => {
   let title;
   let maxMagnitudeAlert;
@@ -555,9 +570,6 @@ export const getTitle = (alertSummary) => {
     ),
   ];
   let testInfo = tests.sort().join(' / ');
-  console.log('test ', testInfo);
-  console.log('max ', maxMagnitudeAlert);
-  console.log('min ', minMagnitudeAlert);
   if (maxMagnitudeAlert && minMagnitudeAlert) {
     testInfo = `${getTestName(
       maxMagnitudeAlert.series_signature,
@@ -573,19 +585,8 @@ export const getTitle = (alertSummary) => {
       alertsInSummary.map((alert) => alert.series_signature.machine_platform),
     ),
   ];
-  const availablePlatforms = ['Windows', 'Linux', 'OSX', 'Android'];
 
-  let platformInfo = [];
-  platforms.forEach((platform) =>
-    availablePlatforms.forEach((name) => {
-      if (platform.includes(name.toLowerCase())) {
-        if (!platformInfo.includes(name)) {
-          platformInfo.push(name);
-        }
-      }
-    }),
-  );
-  platformInfo = platformInfo.sort().join(', ');
+  const platformInfo = getPlatformInfo(platforms).sort().join(', ');
   title += ` (${platformInfo})`;
   return title;
 };

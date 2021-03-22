@@ -49,6 +49,8 @@ export const notSupportedAlertFiltersMessage = (filters) =>
     ', ',
   )}). Expected results might not be displayed.`;
 
+export const availablePlatforms = ['Windows', 'Linux', 'OSX', 'Android'];
+
 export const summaryStatusMap = {
   'all statuses': -1,
   untriaged: 0,

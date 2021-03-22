@@ -1,6 +1,4 @@
-import { cleanup, fireEvent, render, waitFor } from '@testing-library/react';
-
-import { getTitle, getFrameworkName } from '../../../ui/perfherder/helpers';
+import { getTitle } from '../../../ui/perfherder/helpers';
 
 const alertSummaryInput = {
   id: 29117,
@@ -142,5 +140,5 @@ const alertSummaryInput = {
 };
 
 test('getTitle', async () => {
-  const result = getTitle(alertSummaryInput);
+  getTitle(alertSummaryInput);
 });
