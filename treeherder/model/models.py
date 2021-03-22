@@ -8,6 +8,8 @@ from typing import List
 
 import warnings
 
+warnings.filterwarnings('ignore', category=DeprecationWarning, module='newrelic')
+
 import newrelic.agent
 from django.contrib.auth.models import User
 from django.core.cache import cache
@@ -20,8 +22,6 @@ from django.forms import model_to_dict
 from django.utils import timezone
 
 from treeherder.webapp.api.utils import REPO_GROUPS, to_timestamp
-
-warnings.filterwarnings("ignore", module="newrelic")
 
 logger = logging.getLogger(__name__)
 
