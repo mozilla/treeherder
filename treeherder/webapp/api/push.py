@@ -74,13 +74,6 @@ class PushViewSet(viewsets.ViewSet):
                 'taskcluster_metadata__retry_id',
             )
         )
-        # print(all_jobs2)
-        # all_jobs = list(
-        #     Job.objects.filter(
-        #         push=push,
-        #         tier__lte=2,
-        #     ).select_related('machine_platform', 'taskcluster_metadata', 'job_type', 'job_group')
-        # )
 
         result_status, jobs = get_test_failure_jobs(push, all_jobs)
         failed_jobs = list(jobs.keys())

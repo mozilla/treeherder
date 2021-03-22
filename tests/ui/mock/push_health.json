@@ -678,24 +678,7 @@
         "parentSha": "eeb6fd68c0223a72d8714734a34d3e6da69995e1",
         "exactMatch": true,
         "parentPushRevision": "eeb6fd68c0223a72d8714734a34d3e6da69995e1",
-        "parentRepository": {
-          "id": 77,
-          "repository_group": {
-            "name": "development",
-            "description": "Collection of repositories where code initially lands in the development process"
-          },
-          "name": "autoland",
-          "dvcs_type": "hg",
-          "url": "https://hg.mozilla.org/integration/autoland",
-          "branch": null,
-          "codebase": "gecko",
-          "description": "The destination for automatically landed Firefox commits.",
-          "active_status": "active",
-          "performance_alerts_enabled": true,
-          "expire_performance_data": false,
-          "is_try_repo": false,
-          "tc_root_url": "https://firefox-ci-tc.services.mozilla.com"
-        },
+        "parentRepository": "autoland",
         "id": 630312,
         "jobCounts": {
           "completed": 293,

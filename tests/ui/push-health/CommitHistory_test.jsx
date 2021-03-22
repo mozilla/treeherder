@@ -49,21 +49,11 @@ describe('CommitHistory', () => {
 
   test('should show a parent commit and health icon for that parent', async () => {
     const { details: commitHistory } = pushHealth.metrics.commitHistory;
-    const { getByText, getByTestId, queryByTestId } = render(
-      testCommitHistory(commitHistory),
-    );
+    const { getByTestId } = render(testCommitHistory(commitHistory));
     const parentLink = getByTestId('parent-commit-sha');
 
     expect(parentLink).toBeInTheDocument();
     expect(parentLink.text).toBe('eeb6fd68c0223a72d8714734a34d3e6da69995e1');
-    expect(
-      await waitFor(() =>
-        queryByTestId('health-status-eeb6fd68c0223a72d8714734a34d3e6da69995e1'),
-      ),
-    ).toBeInTheDocument();
-    expect(
-      await waitFor(() => getByText('87 Push Health items')),
-    ).toBeInTheDocument();
   });
 
   test('should show warning if not exact commit match', async () => {
