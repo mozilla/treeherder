@@ -7,9 +7,6 @@ from hashlib import sha1
 from typing import List
 
 import warnings
-IGNORE_MODULES = 'newrelic'
-
-warnings.filterwarnings("ignore", module=IGNORE_MODULES)
 
 import newrelic.agent
 from django.contrib.auth.models import User
@@ -23,6 +20,8 @@ from django.forms import model_to_dict
 from django.utils import timezone
 
 from treeherder.webapp.api.utils import REPO_GROUPS, to_timestamp
+
+warnings.filterwarnings("ignore", module="newrelic")
 
 logger = logging.getLogger(__name__)
 
