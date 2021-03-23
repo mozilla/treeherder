@@ -54,7 +54,8 @@ class Command(BaseCommand):
             perf_sheriff_bot.sheriff(since, frameworks, repositories)
         except MaxRuntimeExceeded as ex:
             logging.info(ex)
-            logging.info('PerfSheriffBot went back to sleep')
+
+        logging.info("Perfsheriff bot: Going back to sleep")
 
     def _parse_args(self, **options) -> Tuple[List, List, datetime, timedelta]:
         return (
