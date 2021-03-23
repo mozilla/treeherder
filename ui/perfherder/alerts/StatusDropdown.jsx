@@ -15,7 +15,7 @@ import templateSettings from 'lodash/templateSettings';
 import {
   getFrameworkName,
   getTextualSummary,
-  getTitle,
+  getFilledBugSummary,
   getStatus,
   updateAlertSummary,
 } from '../helpers';
@@ -124,7 +124,9 @@ export default class StatusDropdown extends React.Component {
       'ddd MMMM D YYYY',
     );
 
-    const bugTitle = `${getTitle(alertSummary)} regression on ${pushDate}`;
+    const bugTitle = `${getFilledBugSummary(
+      alertSummary,
+    )} regression on ${pushDate}`;
 
     const culpritDetails = await this.getCulpritDetails(culpritId);
     const defaultParams = {

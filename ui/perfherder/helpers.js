@@ -522,8 +522,8 @@ const getPlatformInfo = (platforms) => {
   return platformInfo;
 };
 
-export const getTitle = (alertSummary) => {
-  let title;
+export const getFilledBugSummary = (alertSummary) => {
+  let filledBugSummary;
   let maxMagnitudeAlert;
   let minMagnitudeAlert;
 
@@ -543,6 +543,17 @@ export const getTitle = (alertSummary) => {
     alertsInSummary = regressions;
   }
 
+  // reassigned alerts are excluded
+  alertsInSummary = [
+    ...new Set(
+      alertsInSummary.filter(
+        (alert) =>
+          alert.related_summary_id === alertSummary.id ||
+          alert.related_summary_id === null,
+      ),
+    ),
+  ];
+
   if (alertsInSummary.length > 1) {
     const maxMagnitude = Math.max(
       ...alertsInSummary.map((alert) => alert.amount_pct),
@@ -556,7 +567,60 @@ export const getTitle = (alertSummary) => {
     minMagnitudeAlert = alertsInSummary.find(
       (alert) => alert.amount_pct === minMagnitude,
     );
-    title = `${maxMagnitude} - ${minMagnitude}%`;
+    filledBugSummary = `${maxMagnitude} - ${minMagnitude}%`;
+  } else if (alertsInSummary.length === 1) {
+    filledBugSummary = `${alertsInSummary[0].amount_pct}%`;
+  } else {
+    filledBugSummary = 'Empty alert';
+  }
+
+  // add test info
+  let testInfo = `${getTestName(alertsInSummary[0].series_signature)}`;
+  if (maxMagnitudeAlert && minMagnitudeAlert) {
+    testInfo = `${getTestName(
+      maxMagnitudeAlert.series_signature,
+    )} / ${getTestName(minMagnitudeAlert.series_signature)}`;
+  }
+  if (alertsInSummary.length > 2) {
+    testInfo += ` + ${alertsInSummary.length - 2} more`;
+  }
+  filledBugSummary += ` ${testInfo}`;
+
+  // add platform info
+  const platforms = [
+    ...new Set(
+      alertsInSummary.map((alert) => alert.series_signature.machine_platform),
+    ),
+  ];
+  const platformInfo = getPlatformInfo(platforms).sort().join(', ');
+  filledBugSummary += ` (${platformInfo})`;
+
+  return filledBugSummary;
+};
+
+export const getTitle = (alertSummary) => {
+  let title;
+
+  // we should never include downstream alerts in the description
+  let alertsInSummary = alertSummary.alerts.filter(
+    (alert) =>
+      alert.status !== alertStatusMap.downstream ||
+      alert.summary_id === alertSummary.id,
+  );
+
+  // figure out if there are any regressions -- if there are,
+  // the summary should only incorporate those. if there
+  // aren't, then use all of them (that aren't downstream,
+  // see above)
+  const regressions = alertsInSummary.filter((alert) => alert.is_regression);
+  if (regressions.length > 0) {
+    alertsInSummary = regressions;
+  }
+
+  if (alertsInSummary.length > 1) {
+    title = `${Math.min(
+      ...alertsInSummary.map((alert) => alert.amount_pct),
+    )} - ${Math.max(...alertsInSummary.map((alert) => alert.amount_pct))}%`;
   } else if (alertsInSummary.length === 1) {
     title = `${alertsInSummary[0].amount_pct}%`;
   } else {
@@ -564,30 +628,18 @@ export const getTitle = (alertSummary) => {
   }
 
   // add test info
-  const tests = [
-    ...new Set(
-      alertsInSummary.map((alert) => getTestName(alert.series_signature)),
-    ),
-  ];
-  let testInfo = tests.sort().join(' / ');
-  if (maxMagnitudeAlert && minMagnitudeAlert) {
-    testInfo = `${getTestName(
-      maxMagnitudeAlert.series_signature,
-    )} / ${getTestName(minMagnitudeAlert.series_signature)}`;
-  }
-
-  if (tests.length > 2) {
-    testInfo += ` + ${tests.length - 2} more`;
-  }
+  const testInfo = [
+    ...new Set(alertsInSummary.map((a) => getTestName(a.series_signature))),
+  ]
+    .sort()
+    .join(' / ');
   title += ` ${testInfo}`;
   // add platform info
-  const platforms = [
-    ...new Set(
-      alertsInSummary.map((alert) => alert.series_signature.machine_platform),
-    ),
-  ];
-
-  const platformInfo = getPlatformInfo(platforms).sort().join(', ');
+  const platformInfo = [
+    ...new Set(alertsInSummary.map((a) => a.series_signature.machine_platform)),
+  ]
+    .sort()
+    .join(', ');
   title += ` (${platformInfo})`;
   return title;
 };
