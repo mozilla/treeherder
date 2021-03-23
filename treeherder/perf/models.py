@@ -111,15 +111,12 @@ class PerformanceSignature(models.Model):
 
         perf_data_count = len(perf_data)
 
-        num_months = (
-            (end_date.year - start_date.year) * 12 + (end_date.month - start_date.month) + 1
-        )
+        num_months = (end_date.year - start_date.year) * 12 + (end_date.month - start_date.month)
         if num_months >= 1:
             min_distribution = 2
             average_per_months = perf_data_count / num_months
             if average_per_months >= min_distribution:
                 return True
-
         return False
 
     def has_performance_data(self):

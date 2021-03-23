@@ -542,6 +542,23 @@ def test_perf_signature_2(test_perf_signature):
 
 
 @pytest.fixture
+def test_perf_signature_3(test_perf_signature):
+    stalled_data_timestamp = datetime.datetime.now() - datetime.timedelta(days=120)
+    return PerformanceSignature.objects.create(
+        repository=test_perf_signature.repository,
+        signature_hash=(20 * 't3'),
+        framework=test_perf_signature.framework,
+        platform=test_perf_signature.platform,
+        option_collection=test_perf_signature.option_collection,
+        suite='mysuite3',
+        test='mytest3',
+        has_subtests=test_perf_signature.has_subtests,
+        extra_options=test_perf_signature.extra_options,
+        last_updated=stalled_data_timestamp,
+    )
+
+
+@pytest.fixture
 def test_perf_data(test_perf_signature, eleven_jobs_stored):
     from treeherder.model.models import Job
 

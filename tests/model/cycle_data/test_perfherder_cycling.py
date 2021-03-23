@@ -560,86 +560,96 @@ def test_stalled_data_removal(
     assert seg2_data in PerformanceDatum.objects.all()
 
 
+@pytest.mark.parametrize(
+    'nr_months, repository',
+    [(8, 'autoland'), (6, 'autoland'), (5, 'mozilla-central')],
+)
 def test_equal_distribution_for_historical_data(
     test_repository,
-    test_perf_signature_2,
+    test_perf_signature_3,
     test_perf_data,
+    nr_months,
+    repository,
 ):
-    nr_months = 8
-    test_repository.name = 'autoland'
+    test_repository.name = repository
     test_repository.save()
-    four_months_ago_timestamp = datetime.now() - timedelta(days=120)
-    timestamp = datetime.now() - timedelta(days=((nr_months * 30) + 120 + 30))
-    test_perf_signature = test_perf_signature_2
-    test_perf_signature.last_updated = four_months_ago_timestamp
-    test_perf_signature.save()
+
+    # Add 120 more days to timestamp because the concept of
+    # historical data is only for stalled data
+    timestamp = datetime.now() - timedelta(days=(nr_months * 30 + 120))
+    perf_signature = test_perf_signature_3
 
     push = Push.objects.first()
-
     perf_data = []
-
     data_points_count = 2 * nr_months
+
+    # Prepare test data: add two performance data points per month
     for i in range(0, data_points_count):
         if i % 2 == 0:
             timestamp += timedelta(days=30)
 
         data = PerformanceDatum.objects.create(
-            repository=test_perf_signature.repository,
+            repository=perf_signature.repository,
             push=push,
             job=None,
-            signature=test_perf_signature,
+            signature=perf_signature,
             push_timestamp=timestamp,
             value=1.0,
         )
         perf_data.append(data)
+
     call_command('cycle_data', 'from:perfherder')
 
-    assert test_perf_signature in PerformanceSignature.objects.all()
+    assert perf_signature in PerformanceSignature.objects.all()
+    all_perf_datum = PerformanceDatum.objects.all()
     for data_point in perf_data:
-        assert data_point in PerformanceDatum.objects.all()
+        assert data_point in all_perf_datum
 
 
+@pytest.mark.parametrize(
+    'nr_months, repository',
+    [(8, 'autoland'), (6, 'autoland'), (5, 'mozilla-central')],
+)
 def test_big_density_in_historical_data(
     test_repository,
-    test_perf_signature_2,
+    test_perf_signature_3,
     test_perf_data,
+    nr_months,
+    repository,
 ):
-    nr_months = 8
-    test_repository.name = 'autoland'
+    test_repository.name = repository
     test_repository.save()
-    four_months_ago_timestamp = datetime.now() - timedelta(days=120)
-    timestamp = datetime.now() - timedelta(days=((nr_months * 30) + 120 + 30))
-    test_perf_signature = test_perf_signature_2
-    test_perf_signature.last_updated = four_months_ago_timestamp
-    test_perf_signature.save()
+
+    # Add 120 more days to timestamp because the concept of
+    # historical data is only for stalled data
+    timestamp = datetime.now() - timedelta(days=(nr_months * 30 + 120))
+    perf_signature = test_perf_signature_3
 
     push = Push.objects.first()
-
     perf_data = []
-
     data_points_count = 2 * nr_months
 
-    # add one data point per month
+    # Prepare test data: add one data point per month
     for i in range(0, nr_months):
         timestamp += timedelta(days=30)
 
         data = PerformanceDatum.objects.create(
-            repository=test_perf_signature.repository,
+            repository=perf_signature.repository,
             push=push,
             job=None,
-            signature=test_perf_signature,
+            signature=perf_signature,
             push_timestamp=timestamp,
             value=1.0,
         )
         perf_data.append(data)
 
-    # add the remaining data points to the last month which has data
+    # Prepare test data: add the remaining data points to the last month which has data
     for i in range(0, (data_points_count - nr_months)):
         data = PerformanceDatum.objects.create(
-            repository=test_perf_signature.repository,
+            repository=perf_signature.repository,
             push=push,
             job=None,
-            signature=test_perf_signature,
+            signature=perf_signature,
             push_timestamp=timestamp,
             value=1.0,
         )
@@ -647,47 +657,56 @@ def test_big_density_in_historical_data(
 
     call_command('cycle_data', 'from:perfherder')
 
-    assert test_perf_signature in PerformanceSignature.objects.all()
+    assert perf_signature in PerformanceSignature.objects.all()
+    all_perf_datum = PerformanceDatum.objects.all()
     for data_point in perf_data:
-        assert data_point in PerformanceDatum.objects.all()
+        assert data_point in all_perf_datum
 
 
+@pytest.mark.parametrize(
+    'nr_months, repository',
+    [(8, 'autoland'), (6, 'autoland'), (5, 'mozilla-central')],
+)
 def test_non_historical_stalled_data_is_removed(
     test_repository,
-    test_perf_signature_2,
+    test_perf_signature_3,
     test_perf_data,
+    nr_months,
+    repository,
 ):
-    nr_months = 8
-    test_repository.name = 'autoland'
+    test_repository.name = repository
     test_repository.save()
-    four_months_ago_timestamp = datetime.now() - timedelta(days=120)
-    timestamp = datetime.now() - timedelta(days=((nr_months * 30) + 120 + 30))
-    test_perf_signature = test_perf_signature_2
-    test_perf_signature.last_updated = four_months_ago_timestamp
-    test_perf_signature.save()
+
+    # Add 120 more days to timestamp because the concept of
+    # historical data is only for stalled data
+    timestamp = datetime.now() - timedelta(days=(nr_months * 30 + 120))
+    perf_signature = test_perf_signature_3
 
     push = Push.objects.first()
-
     perf_data = []
-
     data_points_count = nr_months
+
+    # Prepare test data: add one performance datum per month,
+    # not enough data to meet the condition for historical value
     for i in range(0, data_points_count):
         timestamp += timedelta(days=30)
 
         data = PerformanceDatum.objects.create(
-            repository=test_perf_signature.repository,
+            repository=perf_signature.repository,
             push=push,
             job=None,
-            signature=test_perf_signature,
+            signature=perf_signature,
             push_timestamp=timestamp,
             value=1.0,
         )
         perf_data.append(data)
+
     call_command('cycle_data', 'from:perfherder')
 
-    assert test_perf_signature not in PerformanceSignature.objects.all()
+    assert perf_signature not in PerformanceSignature.objects.all()
+    all_perf_datum = PerformanceDatum.objects.all()
     for data_point in perf_data:
-        assert data_point not in PerformanceDatum.objects.all()
+        assert data_point not in all_perf_datum
 
 
 def test_try_data_removal_errors_out_on_missing_try_data(try_repository):
