@@ -70,6 +70,7 @@ INSTALLED_APPS = [
     'rest_framework',
     'corsheaders',
     'django_filters',
+    'dockerflow.django',
     # treeherder apps
     'treeherder.model',
     'treeherder.webapp',
@@ -118,6 +119,7 @@ MIDDLEWARE = [
         'django.middleware.common.CommonMiddleware',
         'django.middleware.csrf.CsrfViewMiddleware',
         'django.contrib.auth.middleware.AuthenticationMiddleware',
+        'dockerflow.django.middleware.DockerflowMiddleware',
     ]
     if middleware
 ]
@@ -226,9 +228,14 @@ LOGGING = {
         'standard': {
             'format': "[%(asctime)s] %(levelname)s [%(name)s:%(lineno)s] %(message)s",
         },
+        'json': {
+            '()': 'dockerflow.logging.JsonLogFormatter',
+            'logger_name': 'treeherder'
+        },
     },
     'handlers': {
         'console': {'class': 'logging.StreamHandler', 'formatter': 'standard'},
+        'json': {'class': 'logging.StreamHandler', 'formatter': 'json', 'level': 'DEBUG'},
     },
     'loggers': {
         'django': {
@@ -250,6 +257,10 @@ LOGGING = {
         'kombu': {
             'handlers': ['console'],
             'level': 'WARNING',
+        },
+        'request.summary': {
+            'handlers': ['json'],
+            'level': 'DEBUG',
         },
     },
 }
@@ -473,3 +484,6 @@ NOTIFY_ACCESS_TOKEN = env('NOTIFY_ACCESS_TOKEN', default=None)
 # This is only used for removing the rate limiting. You can create your own here:
 # https://github.com/settings/tokens
 GITHUB_TOKEN = env("GITHUB_TOKEN", default=None)
+
+# For dockerflow
+BASE_DIR = SRC_DIR

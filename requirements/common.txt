@@ -76,13 +76,13 @@ blessings==1.7 \
     --hash=sha256:b1fdd7e7a675295630f9ae71527a8ebc10bfefa236b3d6aa4932ee4462c17ba3 \
     --hash=sha256:caad5211e7ba5afe04367cdd4cfc68fa886e2e08f6f35e76b7387d2109ccea6e
     # via mozlog
-boto3==1.17.33 \
-    --hash=sha256:0cac2fffc1ba915f7bb5ecee539318532db51f218c928a228fafe3e501e9472e \
-    --hash=sha256:3306dad87f993703b102a0a70ca19c549b7f41e7f70fa7b4c579735c9f79351d
+boto3==1.17.34 \
+    --hash=sha256:1ddd597e3d8b7553432f84b32b9519cc90aad91c4dc3873725375163c9f98353 \
+    --hash=sha256:8f33cb3d2fc42b0547a5560a6d7397aa93336f50899386762b2450682c0e992b
     # via mozci
-botocore==1.20.33 \
-    --hash=sha256:a33e862685259fe22d9790d9c9f3567feda8b824d44d3c62a3617af1133543a4 \
-    --hash=sha256:e355305309699d3aca1e0050fc21d48595b40db046cb0d2491cd57ff5b26920b
+botocore==1.20.34 \
+    --hash=sha256:749bdb151e340329f1b25600bfe9d223e930f8ba26bd74b71478ca5781f2feaf \
+    --hash=sha256:c4fe4fea1d6a3934dd8c670ee83b128f935a64078786fe8afb8a662446304926
     # via
     #   boto3
     #   s3transfer
@@ -178,6 +178,10 @@ django==3.1.4 \
 djangorestframework==3.12.2 \
     --hash=sha256:0209bafcb7b5010fdfec784034f059d512256424de2a0f084cb82b096d6dd6a7 \
     --hash=sha256:0898182b4737a7b584a2c73735d89816343369f259fea932d90dc78e35d8ac33
+    # via -r requirements/common.in
+dockerflow==2020.10.0 \
+    --hash=sha256:226086becc436b5a1995348e26c4fb2ad1d4e5dbc10dffec0c675c9a43306c8b \
+    --hash=sha256:36787fa016e5505d71d60c36cd4e0de7b2d1e50059160bd4e93ceb62bb40d3f8
     # via -r requirements/common.in
 ecdsa==0.14.1 \
     --hash=sha256:64c613005f13efec6541bb0a33290d0d03c27abab5f15fbab20fb0ee162bdd8e \

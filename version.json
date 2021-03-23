@@ -1,0 +1,6 @@
+{
+    "commit": "stub",
+    "version": "stub",
+    "source": "https://github.com/mozilla/treeherder",
+    "build": "https://tools.taskcluster.net/task-inspector/#XXXXXXXXXXXXXXXXXX"
+}
