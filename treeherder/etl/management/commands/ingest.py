@@ -27,13 +27,6 @@ from treeherder.utils.github import fetch_json
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.INFO)
 
-loop = asyncio.get_event_loop()
-# Limiting the connection pool just in case we have too many
-conn = aiohttp.TCPConnector(limit=10)
-# Remove default timeout limit of 5 minutes
-timeout = aiohttp.ClientTimeout(total=0)
-session = taskcluster.aio.createSession(loop=loop, connector=conn, timeout=timeout)
-
 # Executor to run threads in parallel
 executor = ThreadPoolExecutor()
 
@@ -104,6 +97,7 @@ def ingest_hg_push(options):
     elif options["ingest_all_tasks"]:
         gecko_decision_task = get_decision_task_id(project, commit, repo.tc_root_url)
         logger.info("## START ##")
+        loop = asyncio.get_event_loop()
         loop.run_until_complete(processTasks(gecko_decision_task, repo.tc_root_url))
         logger.info("## END ##")
     else:
@@ -125,6 +119,11 @@ def _ingest_hg_push(project, revision, fetch_push_id=None):
 
 
 async def ingest_task(taskId, root_url):
+    # Limiting the connection pool just in case we have too many
+    conn = aiohttp.TCPConnector(limit=10)
+    # Remove default timeout limit of 5 minutes
+    timeout = aiohttp.ClientTimeout(total=0)
+    session = taskcluster.aio.createSession(connector=conn, timeout=timeout)
     asyncQueue = taskcluster.aio.Queue({"rootUrl": root_url}, session=session)
     results = await asyncio.gather(asyncQueue.status(taskId), asyncQueue.task(taskId))
     await handleTask(
@@ -171,6 +170,11 @@ async def fetchGroupTasks(taskGroupId, root_url):
     tasks = []
     query = {}
     continuationToken = ""
+    # Limiting the connection pool just in case we have too many
+    conn = aiohttp.TCPConnector(limit=10)
+    # Remove default timeout limit of 5 minutes
+    timeout = aiohttp.ClientTimeout(total=0)
+    session = taskcluster.aio.createSession(connector=conn, timeout=timeout)
     asyncQueue = taskcluster.aio.Queue({"rootUrl": root_url}, session=session)
     while True:
         if continuationToken:
@@ -456,6 +460,7 @@ class Command(BaseCommand):
         )
 
     def handle(self, *args, **options):
+        loop = asyncio.get_event_loop()
         typeOfIngestion = options["ingestion_type"][0]
         root_url = options["root_url"]
 

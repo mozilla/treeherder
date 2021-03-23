@@ -6,6 +6,10 @@ import time
 from hashlib import sha1
 from typing import List
 
+import warnings
+
+warnings.filterwarnings('ignore', category=DeprecationWarning, module='newrelic')
+
 import newrelic.agent
 from django.contrib.auth.models import User
 from django.core.cache import cache
@@ -20,6 +24,7 @@ from django.utils import timezone
 from treeherder.webapp.api.utils import REPO_GROUPS, to_timestamp
 
 logger = logging.getLogger(__name__)
+
 
 # MySQL Full Text Search operators, based on:
 # https://dev.mysql.com/doc/refman/5.7/en/fulltext-boolean.html

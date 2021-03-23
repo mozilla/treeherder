@@ -24,7 +24,6 @@ django-filter  # Listed in DEFAULT_FILTER_BACKENDS on settings.py
 django-redis  # Listed in CACHES on settings.py
 
 taskcluster  # import taskcluster
-typing  # from typing import ...
 python-jose[pycryptodome]  # from jose import jwt
 
 furl  # Imported as furl
@@ -32,10 +31,7 @@ first  # Imported as first
 json-e  # import jsone
 django-cache-memoize   # Imported as cache_memoize
 
-# Required for extraction to BigQuery
-jx-bigquery
-jx-mysql
-mo-testing
-
 # Required for Push Health
 mozci
+
+importlib-metadata
