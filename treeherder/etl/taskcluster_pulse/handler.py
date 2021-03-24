@@ -156,50 +156,49 @@ def ignore_task(task, taskId, rootUrl, project):
 # treeherder job information in task.extra.treeherder are accepted
 # This will generate a list of messages that need to be ingested by Treeherder
 async def handleMessage(message, taskDefinition=None):
-    session = taskcluster.aio.createSession()
+    async with taskcluster.aio.createSession() as session:
+        jobs = []
+        taskId = message["payload"]["status"]["taskId"]
+        asyncQueue = taskcluster.aio.Queue({"rootUrl": message["root_url"]}, session=session)
+        task = (await asyncQueue.task(taskId)) if not taskDefinition else taskDefinition
 
-    jobs = []
-    taskId = message["payload"]["status"]["taskId"]
-    asyncQueue = taskcluster.aio.Queue({"rootUrl": message["root_url"]}, session=session)
-    task = (await asyncQueue.task(taskId)) if not taskDefinition else taskDefinition
+        try:
+            parsedRoute = parseRouteInfo("tc-treeherder", taskId, task["routes"], task)
+        except PulseHandlerError as e:
+            logger.debug("%s", str(e))
+            return jobs
 
-    try:
-        parsedRoute = parseRouteInfo("tc-treeherder", taskId, task["routes"], task)
-    except PulseHandlerError as e:
-        logger.debug("%s", str(e))
+        if ignore_task(task, taskId, message["root_url"], parsedRoute['project']):
+            return jobs
+
+        logger.debug("Message received for task %s", taskId)
+
+        # Validation failures are common and logged, so do nothing more.
+        if not validateTask(task):
+            return jobs
+
+        taskType = EXCHANGE_EVENT_MAP.get(message["exchange"])
+
+        # Originally this code was only within the "pending" case, however, in order to support
+        # ingesting all tasks at once which might not have "pending" case
+        # If the job is an automatic rerun we mark the previous run as "retry"
+        # This will only work if the previous run has not yet been processed by Treeherder
+        # since _remove_existing_jobs() will prevent it
+        if message["payload"]["runId"] > 0:
+            jobs.append(await handleTaskRerun(parsedRoute, task, message, session))
+
+        if not taskType:
+            raise Exception("Unknown exchange: {exchange}".format(exchange=message["exchange"]))
+        elif taskType == "pending":
+            jobs.append(handleTaskPending(parsedRoute, task, message))
+        elif taskType == "running":
+            jobs.append(handleTaskRunning(parsedRoute, task, message))
+        elif taskType in ("completed", "failed"):
+            jobs.append(await handleTaskCompleted(parsedRoute, task, message, session))
+        elif taskType == "exception":
+            jobs.append(await handleTaskException(parsedRoute, task, message, session))
+
         return jobs
-
-    if ignore_task(task, taskId, message["root_url"], parsedRoute['project']):
-        return jobs
-
-    logger.debug("Message received for task %s", taskId)
-
-    # Validation failures are common and logged, so do nothing more.
-    if not validateTask(task):
-        return jobs
-
-    taskType = EXCHANGE_EVENT_MAP.get(message["exchange"])
-
-    # Originally this code was only within the "pending" case, however, in order to support
-    # ingesting all tasks at once which might not have "pending" case
-    # If the job is an automatic rerun we mark the previous run as "retry"
-    # This will only work if the previous run has not yet been processed by Treeherder
-    # since _remove_existing_jobs() will prevent it
-    if message["payload"]["runId"] > 0:
-        jobs.append(await handleTaskRerun(parsedRoute, task, message, session))
-
-    if not taskType:
-        raise Exception("Unknown exchange: {exchange}".format(exchange=message["exchange"]))
-    elif taskType == "pending":
-        jobs.append(handleTaskPending(parsedRoute, task, message))
-    elif taskType == "running":
-        jobs.append(handleTaskRunning(parsedRoute, task, message))
-    elif taskType in ("completed", "failed"):
-        jobs.append(await handleTaskCompleted(parsedRoute, task, message, session))
-    elif taskType == "exception":
-        jobs.append(await handleTaskException(parsedRoute, task, message))
-
-    return jobs
 
 
 # Builds the basic Treeherder job message that's universal for all

@@ -123,16 +123,16 @@ async def ingest_task(taskId, root_url):
     conn = aiohttp.TCPConnector(limit=10)
     # Remove default timeout limit of 5 minutes
     timeout = aiohttp.ClientTimeout(total=0)
-    session = taskcluster.aio.createSession(connector=conn, timeout=timeout)
-    asyncQueue = taskcluster.aio.Queue({"rootUrl": root_url}, session=session)
-    results = await asyncio.gather(asyncQueue.status(taskId), asyncQueue.task(taskId))
-    await handleTask(
-        {
-            "status": results[0]["status"],
-            "task": results[1],
-        },
-        root_url,
-    )
+    async with taskcluster.aio.createSession(connector=conn, timeout=timeout) as session:
+        asyncQueue = taskcluster.aio.Queue({"rootUrl": root_url}, session=session)
+        results = await asyncio.gather(asyncQueue.status(taskId), asyncQueue.task(taskId))
+        await handleTask(
+            {
+                "status": results[0]["status"],
+                "task": results[1],
+            },
+            root_url,
+        )
 
 
 async def handleTask(task, root_url):
@@ -174,18 +174,18 @@ async def fetchGroupTasks(taskGroupId, root_url):
     conn = aiohttp.TCPConnector(limit=10)
     # Remove default timeout limit of 5 minutes
     timeout = aiohttp.ClientTimeout(total=0)
-    session = taskcluster.aio.createSession(connector=conn, timeout=timeout)
-    asyncQueue = taskcluster.aio.Queue({"rootUrl": root_url}, session=session)
-    while True:
-        if continuationToken:
-            query = {"continuationToken": continuationToken}
-        response = await asyncQueue.listTaskGroup(taskGroupId, query=query)
-        tasks.extend(response["tasks"])
-        continuationToken = response.get("continuationToken")
-        if continuationToken is None:
-            break
-        logger.info("Requesting more tasks. %s tasks so far...", len(tasks))
-    return tasks
+    async with taskcluster.aio.createSession(connector=conn, timeout=timeout) as session:
+        asyncQueue = taskcluster.aio.Queue({"rootUrl": root_url}, session=session)
+        while True:
+            if continuationToken:
+                query = {"continuationToken": continuationToken}
+            response = await asyncQueue.listTaskGroup(taskGroupId, query=query)
+            tasks.extend(response["tasks"])
+            continuationToken = response.get("continuationToken")
+            if continuationToken is None:
+                break
+            logger.info("Requesting more tasks. %s tasks so far...", len(tasks))
+        return tasks
 
 
 async def processTasks(taskGroupId, root_url):
