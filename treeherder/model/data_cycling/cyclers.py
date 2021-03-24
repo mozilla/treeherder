@@ -10,7 +10,12 @@ from django.db.models import Count
 from treeherder.model.data_cycling.removal_strategies import RemovalStrategy
 from treeherder.model.models import Job, JobType, JobGroup, Machine
 from treeherder.perf.exceptions import NoDataCyclingAtAll, MaxRuntimeExceeded
-from treeherder.perf.models import PerformanceSignature, PerformanceAlertSummary
+from treeherder.perf.models import (
+    PerformanceSignature,
+    PerformanceAlertSummary,
+    PerformanceAlert,
+    BackfillReport,
+)
 from treeherder.services import taskcluster
 from .max_runtime import MaxRuntime
 from .signature_remover import PublicSignatureRemover
@@ -137,8 +142,15 @@ class PerfherderCycler(DataCycler):
         signatures_remover = PublicSignatureRemover(timer=self.timer, notify_client=notify_client)
         signatures_remover.remove_in_chunks(signatures)
 
+        logger.warning("Removing alerts older than a year...")
+        alerts_too_old = PerformanceAlert.objects.filter(
+            created__gt=datetime.now() - timedelta(days=365)
+        ).all()
+        for alert in alerts_too_old:
+            alert.delete()
+
         # remove empty alert summaries
-        logger.warning('Removing alert summaries which no longer have any alerts...')
+        logger.warning("Removing alert summaries which no longer have any alerts...")
         (
             PerformanceAlertSummary.objects.prefetch_related('alerts', 'related_alerts')
             .annotate(
@@ -156,6 +168,19 @@ class PerfherderCycler(DataCycler):
             )
             .delete()
         )
+
+        self._remove_empty_backfill_reports()
+
+    def _remove_empty_backfill_reports(self):
+        logger.warning("Removing backfill reports which no longer have any records...")
+        four_months_ago = datetime.now() - timedelta(days=120)
+
+        empty_reports = BackfillReport.objects.filter(
+            created__gt=four_months_ago, records__count=0
+        ).all()
+
+        for report in empty_reports:
+            report.delete()
 
     def _delete_in_chunks(self, strategy: RemovalStrategy):
         any_successful_attempt = False
