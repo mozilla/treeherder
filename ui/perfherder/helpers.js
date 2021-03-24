@@ -543,13 +543,14 @@ export const getFilledBugSummary = (alertSummary) => {
     alertsInSummary = regressions;
   }
 
-  // reassigned alerts are excluded
+  // reassigned and invalid alerts are excluded
   alertsInSummary = [
     ...new Set(
       alertsInSummary.filter(
         (alert) =>
-          alert.related_summary_id === alertSummary.id ||
-          alert.related_summary_id === null,
+          (alert.related_summary_id === alertSummary.id ||
+            alert.related_summary_id === null) &&
+          alert.status !== alertStatusMap.invalid,
       ),
     ),
   ];
