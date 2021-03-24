@@ -542,7 +542,7 @@ def test_perf_signature_2(test_perf_signature):
 
 
 @pytest.fixture
-def test_perf_signature_3(test_perf_signature):
+def test_stalled_data_signature(test_perf_signature):
     stalled_data_timestamp = datetime.datetime.now() - datetime.timedelta(days=120)
     return PerformanceSignature.objects.create(
         repository=test_perf_signature.repository,

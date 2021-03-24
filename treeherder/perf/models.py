@@ -106,17 +106,20 @@ class PerformanceSignature(models.Model):
 
     @staticmethod
     def _has_enough_data_points(perf_data):
-        start_date = perf_data[0].push_timestamp
-        end_date = perf_data[-1].push_timestamp
+        if len(perf_data) >= 2:
+            start_date = perf_data[0].push_timestamp
+            end_date = perf_data[-1].push_timestamp
 
-        perf_data_count = len(perf_data)
+            perf_data_count = len(perf_data)
 
-        num_months = (end_date.year - start_date.year) * 12 + (end_date.month - start_date.month)
-        if num_months >= 1:
-            min_distribution = 2
-            average_per_months = perf_data_count / num_months
-            if average_per_months >= min_distribution:
-                return True
+            num_months = (end_date.year - start_date.year) * 12 + (
+                end_date.month - start_date.month
+            )
+            if num_months >= 1:
+                min_distribution = 2
+                average_per_months = perf_data_count / num_months
+                if average_per_months >= min_distribution:
+                    return True
         return False
 
     def has_performance_data(self):
@@ -134,7 +137,7 @@ class PerformanceSignature(models.Model):
                     signature_id=self.id,
                 ).order_by("push_timestamp")
             )
-            if len(perf_data) >= 2 and self._has_enough_data_points(perf_data):
+            if self._has_enough_data_points(perf_data):
                 return True
         return False
 
