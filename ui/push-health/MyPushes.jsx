@@ -193,10 +193,10 @@ class MyPushes extends React.Component {
                 className="mt-5 flex-nowrap justify-content-center"
                 key={push.revision}
               >
-                <Col sm="2" className="ml-5">
+                <Col md="2" className="ml-2">
                   <StatusProgress counts={push.status} />
                 </Col>
-                <Col sm="6" className="mt-4 ml-2">
+                <Col md="5" className="mt-4">
                   <CommitHistory
                     history={this.formatRevisionHistory(push.history[0])}
                     revision={push.revision}
@@ -206,7 +206,7 @@ class MyPushes extends React.Component {
                     showParent={false}
                   />
                 </Col>
-                <Col lg="1" xl="2" className="align-self-center ml-5 px-0 pb-4">
+                <Col md="1" className="align-self-center mx-5 px-0 pb-4">
                   <StatusButton
                     title="Linting"
                     result={push.metrics.linting.result}
@@ -215,7 +215,7 @@ class MyPushes extends React.Component {
                     revision={push.revision}
                   />
                 </Col>
-                <Col lg="1" xl="2" className="align-self-center mr-2 px-0 pb-4">
+                <Col md="1" className="align-self-center mr-5 px-0 pb-4">
                   <StatusButton
                     title="Builds"
                     result={push.metrics.builds.result}
@@ -224,7 +224,7 @@ class MyPushes extends React.Component {
                     revision={push.revision}
                   />
                 </Col>
-                <Col lg="1" xl="2" className="align-self-center px-0 pb-4">
+                <Col md="1" className="align-self-center px-0 pb-4">
                   <StatusButton
                     title="Tests"
                     result={push.metrics.tests.result}
