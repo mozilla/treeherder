@@ -105,8 +105,8 @@ def do_job_ingestion(test_repository, job_data, sample_push, verify_data=True):
         verify_options(options_ref)
         verify_job_types(job_types_ref)
         verify_products(products_ref)
-        verify_pushes(test_repository, pushes_ref)
-        verify_log_urls(test_repository, log_urls_ref)
+        verify_pushes(pushes_ref)
+        verify_log_urls(log_urls_ref)
         verify_superseded(superseded_job_guids)
 
 
@@ -160,12 +160,12 @@ def verify_products(products_ref):
     assert products_ref.issubset(products)
 
 
-def verify_pushes(test_repository, pushes_ref):
+def verify_pushes(pushes_ref):
 
     return pushes_ref.issubset(models.Push.objects.values_list('revision', flat=True))
 
 
-def verify_log_urls(test_repository, log_urls_ref):
+def verify_log_urls(log_urls_ref):
 
     log_urls = set(models.JobLog.objects.values_list('url', flat=True))
 
@@ -173,10 +173,10 @@ def verify_log_urls(test_repository, log_urls_ref):
 
 
 def verify_superseded(expected_superseded_job_guids):
-    superseeded_guids = models.Job.objects.filter(result='superseded').values_list(
+    super_seeded_guids = models.Job.objects.filter(result='superseded').values_list(
         'guid', flat=True
     )
-    assert set(superseeded_guids) == expected_superseded_job_guids
+    assert set(super_seeded_guids) == expected_superseded_job_guids
 
 
 def load_exp(filename):
@@ -188,7 +188,10 @@ def load_exp(filename):
         return json.load(f)
 
 
-def create_generic_job(guid, repository, push_id, generic_reference_data):
+def create_generic_job(guid, repository, push_id, generic_reference_data, tier=None):
+    if tier is None:
+        tier = 1
+
     job_time = datetime.datetime.fromtimestamp(0)
     return models.Job.objects.create(
         guid=guid,
@@ -210,7 +213,7 @@ def create_generic_job(guid, repository, push_id, generic_reference_data):
         submit_time=job_time,
         start_time=job_time,
         end_time=job_time,
-        tier=1,
+        tier=tier,
     )
 
 
