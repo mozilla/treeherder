@@ -42,9 +42,13 @@ class PushViewSet(viewsets.ViewSet):
 
         try:
             likely_regression_labels = list(mozciPush.get_likely_regressions('label'))
+        except Exception as e:
+            logger.error('Problem retrieving mozci labels for push {} : {}'.format(push, e))
+
+        try:
             likely_regression_groups = list(mozciPush.get_likely_regressions('group'))
         except Exception as e:
-            logger.error(e)
+            logger.error('Problem retrieving mozci groups for push {} : {}'.format(push, e))
 
         all_jobs = list(
             Job.objects.filter(
