@@ -122,13 +122,16 @@ class SecretaryTool:
 
         for record in backfilled_records:
             # ensure each push in push range has at least one job of job type
-            outcome = self.outcome_checker.check(record)
-            # if outcome is IN_PROGRESS the BackfillRecord state will remain BACKFILLED to be checked again later
-            if outcome == OutcomeStatus.SUCCESSFUL:
-                record.status = BackfillRecord.SUCCESSFUL
-            elif outcome == OutcomeStatus.FAILED:
-                record.status = BackfillRecord.FAILED
-            record.save()
+            try:
+                outcome = self.outcome_checker.check(record)
+                # if outcome is IN_PROGRESS the BackfillRecord state will remain BACKFILLED to be checked again later
+                if outcome == OutcomeStatus.SUCCESSFUL:
+                    record.status = BackfillRecord.SUCCESSFUL
+                elif outcome == OutcomeStatus.FAILED:
+                    record.status = BackfillRecord.FAILED
+                record.save()
+            except ValueError as ex:
+                logger.error(ex)
 
     @classmethod
     def _get_default_settings(cls, as_json=True):

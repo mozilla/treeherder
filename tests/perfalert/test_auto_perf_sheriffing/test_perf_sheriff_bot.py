@@ -49,7 +49,7 @@ class TestEmailIntegration:
 
         assert notify_client_mock.email.call_count == 1
 
-    def test_no_email_is_sent_if_context_is_too_corrupt_to_be_actionable(
+    def test_email_is_still_sent_if_context_is_too_corrupt_to_be_actionable(
         self,
         report_maintainer_mock,
         backfill_tool_mock,
@@ -71,7 +71,7 @@ class TestEmailIntegration:
         )
         sheriff_bot.sheriff(since=EPOCH, frameworks=['raptor', 'talos'], repositories=['autoland'])
 
-        assert notify_client_mock.email.call_count == 0
+        assert notify_client_mock.email.call_count == 1
 
     def test_no_email_is_sent_if_runtime_exceeded(
         self,
