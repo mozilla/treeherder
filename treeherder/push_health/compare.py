@@ -1,5 +1,4 @@
 import logging
-from mozci.errors import ParentPushNotFound
 
 from treeherder.model.models import Push
 from treeherder.webapp.api.serializers import CommitSerializer, PushSerializer
@@ -14,7 +13,8 @@ def get_commit_history(mozciPush, push):
 
     try:
         parent = mozciPush.parent
-    except ParentPushNotFound:
+    except Exception as e:
+        logger.error('Could not retrieve parent push because {}'.format(e))
         pass
 
     if parent:
