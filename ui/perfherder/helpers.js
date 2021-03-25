@@ -1,3 +1,4 @@
+import moment from 'moment';
 import numeral from 'numeral';
 import sortBy from 'lodash/sortBy';
 import queryString from 'query-string';
@@ -595,6 +596,12 @@ export const getFilledBugSummary = (alertSummary) => {
   ];
   const platformInfo = getPlatformInfo(platforms).sort().join(', ');
   filledBugSummary += ` (${platformInfo})`;
+
+  // add push date info
+  const pushDate = moment(alertSummary.push_timestamp * 1000).format(
+    'ddd MMMM D YYYY',
+  );
+  filledBugSummary += ` regression on ${pushDate}`;
 
   return filledBugSummary;
 };

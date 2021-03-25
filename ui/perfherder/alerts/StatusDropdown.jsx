@@ -8,7 +8,6 @@ import {
   Col,
   Label,
 } from 'reactstrap';
-import moment from 'moment';
 import template from 'lodash/template';
 import templateSettings from 'lodash/templateSettings';
 
@@ -120,13 +119,7 @@ export default class StatusDropdown extends React.Component {
     const fillTemplate = template(result.text);
     const commentText = fillTemplate(templateArgs);
 
-    const pushDate = moment(alertSummary.push_timestamp * 1000).format(
-      'ddd MMMM D YYYY',
-    );
-
-    const bugTitle = `${getFilledBugSummary(
-      alertSummary,
-    )} regression on ${pushDate}`;
+    const bugTitle = `${getFilledBugSummary(alertSummary)}`;
 
     const culpritDetails = await this.getCulpritDetails(culpritId);
     const defaultParams = {
