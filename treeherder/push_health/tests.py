@@ -35,20 +35,44 @@ def get_test_failure_jobs(push, all_jobs):
     ]
     failed_job_types = [job['job_type__name'] for job in testfailed_jobs]
 
-    passing_jobs = Job.objects.filter(
-        push=push, job_type__name__in=failed_job_types, result__in=['success', 'unknown']
-    ).select_related('job_type', 'machine_platform', 'taskcluster_metadata', 'job_group')
+    passing_jobs = (
+        Job.objects.filter(
+            push=push, job_type__name__in=failed_job_types, result__in=['success', 'unknown']
+        )
+        .select_related('job_type', 'machine_platform', 'taskcluster_metadata', 'job_group')
+        .values(
+            'id',
+            'option_collection_hash',
+            'job_type_id',
+            'job_group_id',
+            'result',
+            'state',
+            'failure_classification_id',
+            'push_id',
+            'start_time',
+            'tier',
+            'guid',
+            'result',
+            'job_type__name',
+            'job_type__symbol',
+            'job_group__name',
+            'job_group__symbol',
+            'machine_platform__platform',
+            'taskcluster_metadata__task_id',
+            'taskcluster_metadata__retry_id',
+        )
+    )
 
     jobs = {}
     result_status = set()
 
     def add_jobs(job_list):
-        for job in job_list:
-            result_status.add(job['result'])
-            if job['job_type__name'] in jobs:
-                jobs[job['job_type__name']].append(job_to_dict(job))
+        for item in job_list:
+            result_status.add(item['result'])
+            if item['job_type__name'] in jobs:
+                jobs[item['job_type__name']].append(job_to_dict(item))
             else:
-                jobs[job['job_type__name']] = [job_to_dict(job)]
+                jobs[item['job_type__name']] = [job_to_dict(item)]
 
     add_jobs(testfailed_jobs)
     add_jobs(passing_jobs)
