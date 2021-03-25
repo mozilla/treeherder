@@ -42,6 +42,9 @@ Removes data points from repositories other than autoland, mozilla-central, mozi
 
 Removes data points from series which haven't been ingesting new ones for the last 4 months.
 
+Data points which fall into the 'historical value' category from autoland and mozilla-central series aren't removed.
+Performance data is considered to have historical value if the average between the number of data points and the number of months in which these data points are spread is greater or equal to two data points per month.
+
 ### Garbage collection
 
 Removes performance signatures which no longer has any data points linked to them. This cascades to the linked alerts, as they don't make sense without a parent series.

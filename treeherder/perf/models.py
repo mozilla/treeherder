@@ -1,4 +1,4 @@
-import datetime
+from datetime import datetime
 import json
 from typing import List
 
@@ -104,11 +104,42 @@ class PerformanceSignature(models.Model):
                 return idx
         return None
 
+    @staticmethod
+    def _has_enough_data_points(perf_data):
+        if len(perf_data) >= 2:
+            start_date = perf_data[0].push_timestamp
+            end_date = perf_data[-1].push_timestamp
+
+            perf_data_count = len(perf_data)
+
+            num_months = (end_date.year - start_date.year) * 12 + (
+                end_date.month - start_date.month
+            )
+            if num_months >= 1:
+                min_distribution = 2
+                average_per_months = perf_data_count / num_months
+                if average_per_months >= min_distribution:
+                    return True
+        return False
+
     def has_performance_data(self):
         return PerformanceDatum.objects.filter(
             repository_id=self.repository_id,  # leverages (repository, signature) compound index
             signature_id=self.id,
         ).exists()
+
+    def has_data_with_historical_value(self):
+        repositories = ['autoland', 'mozilla-central']
+        if self.repository.name in repositories:
+            perf_data = list(
+                PerformanceDatum.objects.filter(
+                    repository_id=self.repository_id,  # leverages (repository, signature) compound index
+                    signature_id=self.id,
+                ).order_by("push_timestamp")
+            )
+            if self._has_enough_data_points(perf_data):
+                return True
+        return False
 
     class Meta:
         db_table = 'performance_signature'
@@ -274,7 +305,7 @@ class PerformanceAlertSummary(models.Model):
 
     def save(self, *args, **kwargs):
         if self.bug_number is not None and self.bug_number != self.__prev_bug_number:
-            self.bug_updated = datetime.datetime.now()
+            self.bug_updated = datetime.now()
         super(PerformanceAlertSummary, self).save(*args, **kwargs)
         self.__prev_bug_number = self.bug_number
 
