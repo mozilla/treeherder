@@ -135,21 +135,32 @@ class PerfherderCycler(DataCycler):
             logger.warning(ex)
 
     def _remove_leftovers(self):
-        # remove any signatures which are
-        # no longer associated with a job
+        self.__remove_empty_signatures()
+
+        self.__remove_too_old_alerts()
+        self.__remove_empty_alert_summaries()
+
+        self.__remove_empty_backfill_reports()
+
+    def __remove_empty_signatures(self):
+        logger.warning("Removing performance signatures which don't have any data points...")
         signatures = PerformanceSignature.objects.filter(last_updated__lte=self.max_timestamp)
         notify_client = taskcluster.notify_client_factory()
+
         signatures_remover = PublicSignatureRemover(timer=self.timer, notify_client=notify_client)
         signatures_remover.remove_in_chunks(signatures)
 
+    def __remove_too_old_alerts(self):
         logger.warning("Removing alerts older than a year...")
-        alerts_too_old = PerformanceAlert.objects.filter(
-            created__gt=datetime.now() - timedelta(days=365)
-        ).all()
-        for alert in alerts_too_old:
-            alert.delete()
+        PerformanceAlert.objects.filter(
+            # WARNING! Don't change this without proper approval!           #
+            # Otherwise we risk deleting data that's actively investigated  #
+            # and cripple the perf sheriffing process!                      #
+            created__lt=(datetime.now() - timedelta(days=365))
+            #################################################################
+        ).delete()
 
-        # remove empty alert summaries
+    def __remove_empty_alert_summaries(self):
         logger.warning("Removing alert summaries which no longer have any alerts...")
         (
             PerformanceAlertSummary.objects.prefetch_related('alerts', 'related_alerts')
@@ -169,18 +180,13 @@ class PerfherderCycler(DataCycler):
             .delete()
         )
 
-        self._remove_empty_backfill_reports()
-
-    def _remove_empty_backfill_reports(self):
+    def __remove_empty_backfill_reports(self):
         logger.warning("Removing backfill reports which no longer have any records...")
         four_months_ago = datetime.now() - timedelta(days=120)
 
-        empty_reports = BackfillReport.objects.filter(
-            created__gt=four_months_ago, records__count=0
-        ).all()
-
-        for report in empty_reports:
-            report.delete()
+        BackfillReport.objects.annotate(total_records=Count('records')).filter(
+            created__lt=four_months_ago, total_records=0
+        ).delete()
 
     def _delete_in_chunks(self, strategy: RemovalStrategy):
         any_successful_attempt = False

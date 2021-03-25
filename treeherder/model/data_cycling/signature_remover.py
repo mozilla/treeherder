@@ -39,7 +39,6 @@ class PublicSignatureRemover:
         rows_left = self._max_rows_allowed
         chunk_of_signatures = []
 
-        logger.warning("Removing performance signatures which don't have any data points...")
         self._remove_empty_try_signatures(signatures)
         for perf_signature in signatures:
             self.timer.quit_on_timeout()
