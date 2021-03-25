@@ -105,7 +105,7 @@ class PerfSheriffBot:
 
         self.secretary.consume_backfills('linux', total_consumed)
         logger.info('Perfsheriff bot: consumed %s backfills for linux', total_consumed)
-        logger.debug(f'{self.__class__.__name__} has {left} backfills left.')
+        logger.debug(f'Perfsheriff bot: Having {left} backfills left.')
 
     @staticmethod
     def __fetch_records_requiring_backfills() -> QuerySet:
