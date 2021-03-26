@@ -32,7 +32,7 @@ RUN apt-get update && apt-get install -q --yes gcc && \
 COPY bin/ /app/bin/
 COPY docker/entrypoint_prod.sh /app/docker/entrypoint_prod.sh
 COPY treeherder/ /app/treeherder/
-COPY manage.py newrelic.ini /app/
+COPY manage.py newrelic.ini version.json /app/
 
 COPY --from=frontend /app/.build/ /app/.build/
 
