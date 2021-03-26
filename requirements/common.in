@@ -35,3 +35,6 @@ django-cache-memoize   # Imported as cache_memoize
 mozci
 
 importlib-metadata
+
+# Dockerflow/CloudOps APIs
+dockerflow
