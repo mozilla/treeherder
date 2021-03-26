@@ -674,26 +674,25 @@ def test_one_month_worth_of_data_points(
     nr_months,
     repository,
 ):
+    assert nr_months >= 1  # as well need to subtract its start
+    covered_month_start = nr_months - 1
+
     test_repository.name = repository
     test_repository.save()
 
-    # Add 120 more days to timestamp because the concept of
-    # historical data is only for stalled data
-    timestamp = datetime.now() - timedelta(days=(nr_months * 30 + 120))
-    start_date = datetime.now() - timedelta(days=(nr_months * 30 + 120))
-    perf_signature = test_stalled_data_signature
+    stalled_signature = test_stalled_data_signature
+    timestamp = datetime.now() - timedelta(days=covered_month_start * 30)
 
     push = Push.objects.first()
     perf_data = []
-    data_points_count = 2 * nr_months
 
     # Prepare test data: add data points to the parametrize month
-    for i in range(0, data_points_count):
+    for i in range(0, 15):
         data = PerformanceDatum.objects.create(
-            repository=perf_signature.repository,
+            repository=stalled_signature.repository,
             push=push,
             job=None,
-            signature=perf_signature,
+            signature=stalled_signature,
             push_timestamp=timestamp,
             value=1.0,
         )
@@ -701,21 +700,19 @@ def test_one_month_worth_of_data_points(
 
     timestamp += timedelta(days=30)
     data = PerformanceDatum.objects.create(
-        repository=perf_signature.repository,
+        repository=stalled_signature.repository,
         push=push,
         job=None,
-        signature=perf_signature,
+        signature=stalled_signature,
         push_timestamp=timestamp,
         value=1.0,
     )
     perf_data.append(data)
 
-    num_months = (timestamp.year - start_date.year) * 12 + (timestamp.month - start_date.month)
-    assert num_months == 1
-
     call_command('cycle_data', 'from:perfherder')
 
-    assert PerformanceSignature.objects.filter(id=perf_signature.id).exists()
+    stalled_signature.refresh_from_db()
+    assert PerformanceSignature.objects.filter(id=stalled_signature.id).exists()
     all_perf_datum = PerformanceDatum.objects.all()
     for data_point in perf_data:
         assert data_point in all_perf_datum
