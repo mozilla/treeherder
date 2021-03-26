@@ -228,10 +228,7 @@ LOGGING = {
         'standard': {
             'format': "[%(asctime)s] %(levelname)s [%(name)s:%(lineno)s] %(message)s",
         },
-        'json': {
-            '()': 'dockerflow.logging.JsonLogFormatter',
-            'logger_name': 'treeherder'
-        },
+        'json': {'()': 'dockerflow.logging.JsonLogFormatter', 'logger_name': 'treeherder'},
     },
     'handlers': {
         'console': {'class': 'logging.StreamHandler', 'formatter': 'standard'},
