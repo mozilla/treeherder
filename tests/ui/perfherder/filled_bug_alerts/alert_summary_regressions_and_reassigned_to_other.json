@@ -76,7 +76,7 @@
     },
     {
       "id": 116588,
-      "status": 0,
+      "status": 2,
       "series_signature": {
         "id": 2845674,
         "framework_id": 6,
@@ -144,7 +144,7 @@
     },
     {
       "id": 116596,
-      "status": 0,
+      "status": 2,
       "series_signature": {
         "id": 2845703,
         "framework_id": 6,
