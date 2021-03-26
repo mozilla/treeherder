@@ -76,13 +76,13 @@ blessings==1.7 \
     --hash=sha256:b1fdd7e7a675295630f9ae71527a8ebc10bfefa236b3d6aa4932ee4462c17ba3 \
     --hash=sha256:caad5211e7ba5afe04367cdd4cfc68fa886e2e08f6f35e76b7387d2109ccea6e
     # via mozlog
-boto3==1.17.34 \
-    --hash=sha256:1ddd597e3d8b7553432f84b32b9519cc90aad91c4dc3873725375163c9f98353 \
-    --hash=sha256:8f33cb3d2fc42b0547a5560a6d7397aa93336f50899386762b2450682c0e992b
+boto3==1.17.36 \
+    --hash=sha256:16ca7a34eb88138e0d1ae2532e17975eef578aa1754e2d209ad41a8dfce059ce \
+    --hash=sha256:75f59fb3d764a381bb0108cb5036b398d0c8a1cf719e6b5aadbc5a53a1fd735e
     # via mozci
-botocore==1.20.34 \
-    --hash=sha256:749bdb151e340329f1b25600bfe9d223e930f8ba26bd74b71478ca5781f2feaf \
-    --hash=sha256:c4fe4fea1d6a3934dd8c670ee83b128f935a64078786fe8afb8a662446304926
+botocore==1.20.36 \
+    --hash=sha256:148f5d7d48c54ed450831e5dd4d13284b2418955b6d99db23a3d9c4c6cb515c8 \
+    --hash=sha256:9ce33bd4175d58c5fdeb8e35052aa370aff74b347227e65ddc3f4fa01ef0686f
     # via
     #   boto3
     #   s3transfer
@@ -427,9 +427,9 @@ pycryptodome==3.10.1 \
     --hash=sha256:f977cdf725b20f6b8229b0c87acb98c7717e742ef9f46b113985303ae12a99da \
     --hash=sha256:fc7489a50323a0df02378bc2fff86eb69d94cc5639914346c736be981c6a02e7
     # via python-jose
-pyflakes==2.3.0 \
-    --hash=sha256:910208209dcea632721cb58363d0f72913d9e8cf64dc6f8ae2e02a3609aba40d \
-    --hash=sha256:e59fd8e750e588358f1b8885e5a4751203a0516e0ee6d34811089ac294c8806f
+pyflakes==2.3.1 \
+    --hash=sha256:7893783d01b8a89811dd72d7dfd4d84ff098e5eed95cfa8905b22bbffe52efc3 \
+    --hash=sha256:f5bc8ecabc05bb9d291eb5203d6810b49040f6ff446a756326104746cc00c1db
     # via flake8
 pyrsistent==0.17.3 \
     --hash=sha256:2e636185d9eb976a18a8a8e96efce62f2905fea90041958d8cc2a189756ebf3e
