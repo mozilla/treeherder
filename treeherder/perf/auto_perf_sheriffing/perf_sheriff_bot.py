@@ -15,6 +15,8 @@ from taskcluster.helper import TaskclusterConfig
 
 from treeherder.intermittents_commenter.commenter import Commenter
 from treeherder.model.models import Job, Push, Commit
+from treeherder.perf.auto_perf_sheriffing.alert_manager import AlertManager, AlertInvalidated
+from treeherder.perf.auto_perf_sheriffing.bugzilla_helper import BugzillaHelper
 from treeherder.perf.auto_perf_sheriffing.backfill_reports import BackfillReportMaintainer
 from treeherder.perf.auto_perf_sheriffing.backfill_tool import BackfillTool
 from treeherder.perf.auto_perf_sheriffing.outcome_checker import OutcomeChecker
@@ -23,7 +25,6 @@ from treeherder.perf.email import BackfillNotificationWriter, EmailWriter
 from treeherder.perf.exceptions import CannotBackfill, MaxRuntimeExceeded
 from treeherder.perf.models import BackfillRecord, BackfillReport, PerformanceAlertSummary, PerformanceDatum
 from treeherder.perfalert.perfalert import detect_changes
-from treeherder.utils.github import fetch_json
 from treeherder.utils.http import make_request
 
 logger = logging.getLogger(__name__)
@@ -84,152 +85,8 @@ class PerfSheriffBot:
         logger.info('Perfsheriff bot: Notify backfill outcome')
         self._notify_backfill_outcome()
 
-        self.file_alert_bugs()
-
-    def file_alert_bugs(self):
-        # Get backfilled alerts
-        backfilled_records = BackfillRecord.objects.select_related(
-            'alert', 'alert__series_signature', 'alert__series_signature__platform'
-        ).filter(
-            # status=BackfillRecord.SUCCESSFUL,
-            alert__series_signature__platform__platform__icontains='linux',
-        )
-        commenter = Commenter(False)
-
-        for record in backfilled_records:
-            ### RECOMPUTE ALERT
-            cur_push = self.recompute_alert(record)
-
-            # Check if this push has an alert summary already
-            existing_summary = PerformanceAlertSummary.objects.filter(push=cur_push)
-            if existing_summary:
-                # TODO: Reassign alerts to that summary
-                logger.info("reassigning...")
-                existing_summary = existing_summary[0]
-
-                if existing_summary.bug_number:
-                    commenter.submit_bug_changes(
-                        # TODO: Use template
-                        {'comment': {'body': "Alert!"}},
-                        existing_summary.bug_number
-                    )
-                    continue
-
-            ### GET INFO ON CUPLRIT COMMIT
-
-            # Get revision and then get more info about that commit
-            rev = cur_push.revision
-            repo = cur_push.repository.name
-
-            # Query HGMO for bug information
-            if repo == "autoland":
-                repo = "integration/autoland"
-
-            url = f"https://hg.mozilla.org/{repo}/json-info?node={rev}&full=true"
-            data = fetch_json(url)
-            data = data[list(data.keys())[0]]
-
-            desc = data["description"]
-            bug_number = re.match(r"""Bug\s(\d*)\s-""", desc).groups(1)[0]
-            author_email = re.match(r""".*\s<(.*)>""", data["user"]).groups(1)[0]
-
-            ### FILE BUG OR COMMENT
-
-            # Prepare a bug to file
-            bug_details = commenter.fetch_bug_details([bug_number])[0]
-
-            PERF_SHERIFFS = [
-                "igoldan@mozilla.com",
-                "bebe@mozilla.com",
-                "aionescu@mozilla.com",
-                "gmierz2@outlook.com"
-            ]
-
-            params = {
-                "product": bug_details["product"],
-                "component": bug_details["component"],
-                "regressed_by": bug_number,
-                "type": "defect",
-                "severity": "S3",
-                "priority": "P5",
-                "version": "unspecified",
-                "cc": PERF_SHERIFFS + [author_email],
-                "summary": f"Performance alert in commit {rev} from bug {bug_number}",
-                "comment": "Alerting authors!"
-            }
-
-            new_bug_number = None
-            try:
-                logger.info(f"Creating bug with the following paramaters: {params}")
-                response = self.create_bug(params)
-                if response.status_code != "200":
-                    logger.info(
-                        f"Failed to create bug.\n"
-                        f"Status: {response.status_code}\n"
-                        f"Failure: {dumps(response.data, indent=4)}"
-                    )
-                    # return
-                new_bug_number = response.data["id"]
-            except Exception as e:
-                logger.exception(str(e))
-                # raise
-
-            # TODO: Update alert summary with the new bug_number
-
-    def recompute_alert(self, record: BackfillRecord) -> Push:
-        push = record.alert.summary.push
-        if record.alert.summary.bug_number != None:
-            return push
-
-        outcome_checker = OutcomeChecker()
-        backfill = outcome_checker.get_backfilled_data(record)
-        logger.info(backfill)
-
-        signature = record.alert.series_signature
-
-        min_back_window = signature.min_back_window
-        if min_back_window is None:
-            min_back_window = settings.PERFHERDER_ALERTS_MIN_BACK_WINDOW
-        max_back_window = signature.max_back_window
-        if max_back_window is None:
-            max_back_window = settings.PERFHERDER_ALERTS_MAX_BACK_WINDOW
-        fore_window = signature.fore_window
-        if fore_window is None:
-            fore_window = settings.PERFHERDER_ALERTS_FORE_WINDOW
-        alert_threshold = signature.alert_threshold
-        if alert_threshold is None:
-            alert_threshold = settings.PERFHERDER_REGRESSION_THRESHOLD
-
-        analyzed_series = detect_changes(
-            backfill.values(),
-            min_back_window=min_back_window,
-            max_back_window=max_back_window,
-            fore_window=fore_window,
-        )
-
-        first_changed = None
-        prev_changed = None
-        for (prev, cur) in zip(analyzed_series, analyzed_series[1:]):
-            logger.info(cur.push_timestamp)
-            if cur.change_detected:
-                logger.info(f"Change found here {prev} vs. {cur}. Updating alert")
-                first_changed = cur
-                prev_changed
-                break
-            else:
-                logger.info(f"Change not found here {prev} vs. {cur}")
-
-        if not first_changed:
-            logger.info("failed")
-
-        # Is the detected change different now?
-        new_alert_commit = PerformanceDatum.objects.filter(push_id=str(first_changed.push_id))[0]
-        if new_alert_commit.push.time != record.alert.summary.push.time:
-            logger.info(f"Found new commit: {new_alert_commit}")
-            logger.info(f"Previous commit: {record.alert.summary.push.time}")
-            push = new_alert_commit.push
-
-        return push
+        logger.info('Perfsheriff bot: Handling backfilled alerts')
+        self._handle_backfill_alerts()
 
     def runtime_exceeded(self) -> bool:
         elapsed_runtime = datetime.now() - self._wake_up_time
@@ -262,44 +119,6 @@ class PerfSheriffBot:
         self.secretary.consume_backfills('linux', total_consumed)
         logger.info('Perfsheriff bot: consumed %s backfills for linux', total_consumed)
         logger.debug(f'{self.__class__.__name__} has {left} backfills left.')
-
-    def create_bug(self, params):
-        """
-        Create a bugzilla bug with passed params
-        # """
-        if settings.BUGFILER_API_KEY is None:
-            return Response({"failure": "Bugzilla API key not set!"}, status=HTTP_400_BAD_REQUEST)
-
-        description = params.get("comment", "").encode("utf-8")
-        summary = params.get("summary").encode("utf-8").strip()
-        cc = str(params.get("cc")).encode("utf-8")
-        url = settings.BUGFILER_API_URL + "/rest/bug"
-        headers = {'x-bugzilla-api-key': settings.BUGFILER_API_KEY, 'Accept': 'application/json'}
-        data = {
-            'type': "defect",
-            'product': params.get("product"),
-            'component': params.get("component"),
-            'summary': summary,
-            "cc": cc,
-            'regressed_by': params.get("regressed_by"),
-            'version': params.get("version"),
-            'severity': params.get("severity"),
-            'priority': params.get("priority"),
-            'description': description,
-            'comment_tags': "treeherder",
-        }
-
-        try:
-            response = make_request(url, method='POST', headers=headers, json=data)
-            logger.info(response.json()["message"])
-        except requests.exceptions.HTTPError as e:
-            try:
-                message = e.response.json()['message']
-            except (ValueError, KeyError):
-                message = e.response.text
-            return Response({"failure": message}, status=HTTP_400_BAD_REQUEST)
-
-        return Response({"success": response.json()["id"]})
 
     @staticmethod
     def __fetch_records_requiring_backfills() -> QuerySet:
@@ -398,3 +217,81 @@ class PerfSheriffBot:
 
         # send email
         self._notify.email(backfill_notification)
+
+    def _handle_backfill_alerts(self):
+        # Get backfilled alerts
+        bugzilla = BugzillaHelper()
+        backfilled_records = BackfillRecord.objects.select_related(
+            'alert', 'alert__series_signature', 'alert__series_signature__platform'
+        ).filter(
+            # TODO: Enable this filter once we start getting more backfills
+            # status=BackfillRecord.SUCCESSFUL,
+            alert__series_signature__platform__platform__icontains='linux',
+        )
+
+        for record in backfilled_records:
+            # Start by recomputing the alert to see if we have a new
+            # culprit commit
+            # TODO: Use a try/catch on this later rather than the changed variable
+            try:
+                cur_push, prev_push, changed = AlertManager.recompute_backfill_alert(record)
+                if changed is None:
+                    logger.warning(f"Failed to recompute the alert in record {record}")
+                    continue
+            except AlertInvalidated as e:
+                # TODO: Mark the alert as invalid
+                logger.info(
+                    f"The alert that was backfilled is now invalid. Reason: {e}"
+                )
+                continue
+
+            # Check if this push has an alert summary already. If it does, reassign
+            # the alerts to it, delete this summary.
+            existing_summary = PerformanceAlertSummary.objects.filter(push=cur_push)
+
+            if existing_summary and len(existing_summary) > 0:
+                existing_summary = existing_summary[0]
+                if existing_summary != record.alert.summary:
+                    # TODO: Reassign alerts to that existing summary (delete this one too?)
+                    logger.info("reassigning...")
+            else:
+                existing_summary = record.alert.summary
+
+            if existing_summary.bug_number:
+                logger.info("Bug exists for this summary, make a comment on it")
+                bugzilla.create_alert_comment(
+                    # TODO: Use template for alert
+                    {'comment': {'body': "Alert!"}},
+                    existing_summary.bug_number
+                )
+                continue
+
+            base_params = {
+                'type': "defect",
+                'product': "Testing",
+                'component': "Raptor",
+                'version': "unspecified",
+                'severity': "S3",
+                'priority': "P5",
+                'comment_tags': "treeherder",
+            }
+
+            # File a bug for this alert
+            new_bug_number = None
+            try:
+                logger.info(f"Creating bug with the following paramaters: {base_params}")
+                response = bugzilla.create_alert_bug(cur_push, base_params)
+                if response.status_code != "200":
+                    logger.info(
+                        f"Failed to create bug.\n"
+                        f"Status: {response.status_code}\n"
+                        f"Failure: {dumps(response.json(), indent=4)}"
+                    )
+                    # return
+                logger.info(response.json())
+                new_bug_number = response.json()["id"]
+            except Exception as e:
+                logger.exception(str(e))
+                # raise
+
+            # TODO: Update alert summary with the new bug_number

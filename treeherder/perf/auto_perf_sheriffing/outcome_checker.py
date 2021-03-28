@@ -11,6 +11,7 @@ from treeherder.perf.models import (
     BackfillRecord, PerformanceDatum,
 )
 from treeherder.perfalert.perfalert import RevisionDatum
+from treeherder.perf.auto_perf_sheriffing.utils import Helper
 
 logger = logging.getLogger(__name__)
 
@@ -46,9 +47,9 @@ class OutcomeChecker:
     def check(self, record: BackfillRecord) -> OutcomeStatus:
         # TODO: get job_type from record when soft launch lands ---> job_type = record.job_type
         job_type = get_job_type(record)
-        from_time, to_time = self._get_push_timestamp_range(record.get_context())
+        from_time, to_time = Helper.get_push_timestamp_range(record.get_context())
         repository_id = record.alert.summary.repository.id
-        pushes_in_range = self._get_pushes_in_range(from_time, to_time, repository_id)
+        pushes_in_range = Helper.get_pushes_in_range(from_time, to_time, repository_id)
 
         for push in pushes_in_range:
             # make sure it has at least one successful job of job type
@@ -60,47 +61,3 @@ class OutcomeChecker:
                     return OutcomeStatus.IN_PROGRESS
 
         return OutcomeStatus.SUCCESSFUL
-
-    def get_backfilled_data(self, record: BackfillRecord) -> List[Push]:
-        max_alert_age = datetime.now() - settings.PERFHERDER_ALERTS_MAX_AGE
-        series = PerformanceDatum.objects.filter(signature=record.alert.series_signature, push_timestamp__gte=max_alert_age)
-
-        series_prev = series.filter(
-            push_timestamp__lte=record.alert.summary.push.time
-        ).order_by('push_timestamp')
-
-        series_post = series.filter(
-            push_timestamp__gt=record.alert.summary.push.time
-        ).order_by("push_timestamp")
-
-        repository_id = record.alert.summary.repository.id
-        from_time, to_time = self._get_push_timestamp_range(record.get_context())
-        pushes = self._get_pushes_in_range(from_time, to_time, repository_id)
-
-        full_series = [
-            datum
-            for datum in series_prev[max(len(series_prev) - max(12, len(pushes)), 0):]
-        ] + [datum for datum in series_post[:12]]
-
-        revision_data = {}
-        for d in full_series:
-            if not revision_data.get(d.push_id):
-                revision_data[d.push_id] = RevisionDatum(
-                    int(time.mktime(d.push_timestamp.timetuple())), d.push_id, []
-                )
-            revision_data[d.push_id].values.append(d.value)
-
-        return revision_data
-
-    @staticmethod
-    def _get_pushes_in_range(from_time, to_time, repository_id) -> List[Push]:
-        return Push.objects.filter(
-            repository_id=repository_id, time__gte=from_time, time__lte=to_time
-        ).all()
-
-    @staticmethod
-    def _get_push_timestamp_range(context: List[dict]) -> Tuple[str, str]:
-        from_time = context[0]["push_timestamp"]
-        to_time = context[-1]["push_timestamp"]
-
-        return from_time, to_time
