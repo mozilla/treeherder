@@ -1,41 +1,14 @@
 import React, { PureComponent } from 'react';
 import PropTypes from 'prop-types';
-import { Col, Row, Spinner } from 'reactstrap';
-import { faHeart, faChevronRight } from '@fortawesome/free-solid-svg-icons';
+import { Col, Row } from 'reactstrap';
+import { faHeart } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 
 import broken from '../img/push-health-broken.png';
 import ok from '../img/push-health-ok.png';
 import { getPushHealthUrl } from '../helpers/url';
-import { getIcon, resultColorMap } from '../helpers/display';
 
-function MetricCount(props) {
-  const { failure, inProgress } = props;
-  let text = 'Passed';
-  let result = 'pass';
-
-  // This is a fall-through condition.  We get...
-  // fail: If we have passed or in progress as well as failures
-  // in progress: If we have passed, and in progress but no failures
-  // pass: Only if all tests are completed with no failures.
-  if (failure) {
-    result = 'fail';
-    text = `Failures (${failure})`;
-  } else if (inProgress) {
-    result = 'in progress';
-    text = `In Progress (${inProgress})`;
-  }
-
-  const icon = getIcon(result);
-  const color = resultColorMap[result];
-
-  return (
-    <div className={`text-${color}`}>
-      <FontAwesomeIcon icon={icon} color={color} className="mr-2" />
-      {text}
-    </div>
-  );
-}
+import StatusButton from './StatusButton';
 
 class PushHealthSummary extends PureComponent {
   render() {
@@ -49,10 +22,18 @@ class PushHealthSummary extends PureComponent {
       lintFailureCount,
       buildInProgressCount,
       lintingInProgressCount,
+      metrics,
     } = status;
+    const { linting, builds, tests } = metrics;
     const heartSize = 20;
     const pushHealthUrl = getPushHealthUrl({ revision, repo: repoName });
+    const noResultsFound =
+      metrics &&
+      linting.result === 'none' &&
+      builds.result === 'none' &&
+      tests.result === 'none';
 
+    if (noResultsFound) return <React.Fragment />;
     return (
       <Col xs="8" className="pl-0">
         <span className="d-flex">
@@ -87,61 +68,45 @@ class PushHealthSummary extends PureComponent {
             </div>
           </a>
         </span>
-        {healthStatus ? (
-          <a
-            href={pushHealthUrl}
-            title="View Push Health details for this push"
-          >
-            <Row className="ml-3 mt-2">
-              <Col>
-                <Row className=" font-size-18 text-darker-secondary">
-                  Linting
-                  <FontAwesomeIcon
-                    icon={faChevronRight}
-                    className="ml-2 mt-2 font-size-11"
-                  />
-                </Row>
-                <Row>
-                  <MetricCount
-                    failure={lintFailureCount}
-                    inProgress={lintingInProgressCount}
-                  />
-                </Row>
-              </Col>
-              <Col>
-                <Row className="font-size-18 text-darker-secondary">
-                  Builds
-                  <FontAwesomeIcon
-                    icon={faChevronRight}
-                    className="ml-2 mt-2 font-size-11"
-                  />
-                </Row>
-                <Row>
-                  <MetricCount
-                    failure={buildFailureCount}
-                    inProgress={buildInProgressCount}
-                  />
-                </Row>
-              </Col>
-              <Col>
-                <Row className="font-size-18 text-darker-secondary">
-                  Tests
-                  <FontAwesomeIcon
-                    icon={faChevronRight}
-                    className="ml-2 mt-2 font-size-11"
-                  />
-                </Row>
-                <Row>
-                  <MetricCount
-                    failure={testFailureCount}
-                    inProgress={testInProgressCount}
-                  />
-                </Row>
-              </Col>
-            </Row>
-          </a>
-        ) : (
-          <Spinner />
+        {healthStatus && (
+          <Row className="ml-3 mt-2">
+            <Col>
+              {linting.result !== 'none' && (
+                <StatusButton
+                  failureCount={lintFailureCount}
+                  inProgressCount={lintingInProgressCount}
+                  status={linting.result}
+                  title="Linting"
+                  repo={repoName}
+                  revision={revision}
+                />
+              )}
+            </Col>
+            <Col>
+              {builds.result !== 'none' && (
+                <StatusButton
+                  failureCount={buildFailureCount}
+                  inProgressCount={buildInProgressCount}
+                  status={builds.result}
+                  title="Builds"
+                  repo={repoName}
+                  revision={revision}
+                />
+              )}
+            </Col>
+            <Col>
+              {tests.result !== 'none' && (
+                <StatusButton
+                  failureCount={testFailureCount}
+                  inProgressCount={testInProgressCount}
+                  status={tests.result}
+                  title="Tests"
+                  repo={repoName}
+                  revision={revision}
+                />
+              )}
+            </Col>
+          </Row>
         )}
       </Col>
     );

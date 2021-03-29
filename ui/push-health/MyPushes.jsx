@@ -25,8 +25,8 @@ import StatusProgress from '../shared/StatusProgress';
 import LoadingSpinner from '../shared/LoadingSpinner';
 import ErrorMessages from '../shared/ErrorMessages';
 import DropdownMenuItems from '../shared/DropdownMenuItems';
+import StatusButton from '../shared/StatusButton';
 
-import StatusButton from './StatusButton';
 import CommitHistory from './CommitHistory';
 
 const defaultRepo = 'try';
@@ -207,31 +207,40 @@ class MyPushes extends React.Component {
                   />
                 </Col>
                 <Col md="1" className="align-self-center mx-5 px-0 pb-4">
-                  <StatusButton
-                    title="Linting"
-                    result={push.metrics.linting.result}
-                    count={push.lintFailureCount}
-                    repo={push.repository}
-                    revision={push.revision}
-                  />
+                  {push.metrics.linting.result !== 'none' && (
+                    <StatusButton
+                      title="Linting"
+                      status={push.metrics.linting.result}
+                      failureCount={push.lintFailureCount}
+                      inProgressCount={push.lintingInProgressCount}
+                      repo={push.repository}
+                      revision={push.revision}
+                    />
+                  )}
                 </Col>
                 <Col md="1" className="align-self-center mr-5 px-0 pb-4">
-                  <StatusButton
-                    title="Builds"
-                    result={push.metrics.builds.result}
-                    count={push.buildFailureCount}
-                    repo={push.repository}
-                    revision={push.revision}
-                  />
+                  {push.metrics.builds.result !== 'none' && (
+                    <StatusButton
+                      title="Builds"
+                      status={push.metrics.builds.result}
+                      failureCount={push.buildFailureCount}
+                      inProgressCount={push.buildInProgressCount}
+                      repo={push.repository}
+                      revision={push.revision}
+                    />
+                  )}
                 </Col>
                 <Col md="1" className="align-self-center px-0 pb-4">
-                  <StatusButton
-                    title="Tests"
-                    result={push.metrics.tests.result}
-                    count={push.testFailureCount}
-                    repo={push.repository}
-                    revision={push.revision}
-                  />
+                  {push.metrics.tests.result !== 'none' && (
+                    <StatusButton
+                      title="Tests"
+                      status={push.metrics.tests.result}
+                      failureCount={push.testFailureCount}
+                      inProgressCount={push.testInProgressCount}
+                      repo={push.repository}
+                      revision={push.revision}
+                    />
+                  )}
                 </Col>
               </Row>
             ))}

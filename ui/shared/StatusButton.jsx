@@ -6,13 +6,29 @@ import { faChevronRight } from '@fortawesome/free-solid-svg-icons';
 
 import { resultColorMap, getIcon } from '../helpers/display';
 
-const StatusButton = ({ title, result, count, repo, revision }) => {
-  let resultText = 'Passed';
+const StatusButton = ({
+  title,
+  failureCount,
+  inProgressCount,
+  status,
+  repo,
+  revision,
+}) => {
+  let result = 'in progress';
+  let text = `In Progress`;
 
-  if (result === 'fail') {
-    resultText = `Failures (${count})`;
-  } else if (result === 'unknown') {
-    resultText = 'In progress';
+  // This is a fall-through condition.  We get...
+  // fail: If we have passed or in progress as well as failures
+  // in progress: If we have passed, and in progress but no failures
+  // pass: Only if all tests are completed with no failures.
+  if (failureCount) {
+    result = 'fail';
+    text = `Failures (${failureCount})`;
+  } else if (inProgressCount) {
+    text = `In Progress (${inProgressCount})`;
+  } else if (status === 'pass') {
+    text = 'Passed';
+    result = 'pass';
   }
   return (
     <React.Fragment>
@@ -28,7 +44,7 @@ const StatusButton = ({ title, result, count, repo, revision }) => {
           icon={getIcon(result)}
           className={`mr-2 text-${resultColorMap[result]}`}
         />
-        <span className={`text-${resultColorMap[result]}`}>{resultText}</span>
+        <span className={`text-${resultColorMap[result]}`}>{text}</span>
       </div>
     </React.Fragment>
   );
@@ -36,14 +52,11 @@ const StatusButton = ({ title, result, count, repo, revision }) => {
 
 StatusButton.propTypes = {
   title: PropTypes.string.isRequired,
-  result: PropTypes.string.isRequired,
-  count: PropTypes.number,
+  failureCount: PropTypes.number.isRequired,
+  inProgressCount: PropTypes.number.isRequired,
+  status: PropTypes.shape({}).isRequired,
   revision: PropTypes.string.isRequired,
   repo: PropTypes.string.isRequired,
-};
-
-StatusButton.defaultProps = {
-  count: 0,
 };
 
 export default StatusButton;

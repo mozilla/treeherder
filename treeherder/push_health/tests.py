@@ -219,6 +219,10 @@ def get_test_failures(
     # query for jobs for the last two weeks excluding today
     # find tests that have failed in the last 14 days
     # this is very cache-able for reuse on other pushes.
+    result = 'pass'
+
+    if not len(jobs):
+        return ('none', get_grouped([]))
 
     repository_ids = REPO_GROUPS['trunk']
     # option_map is used to map platforms for the job.option_collection_hash
@@ -248,8 +252,6 @@ def get_test_failures(
     )
 
     failures = get_grouped(filtered_push_failures)
-
-    result = 'pass'
 
     if len(failures['needInvestigation']):
         result = 'fail'
