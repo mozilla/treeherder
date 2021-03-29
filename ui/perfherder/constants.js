@@ -13,6 +13,9 @@ export const endpoints = {
   performanceTags: '/performance/tag/',
 };
 
+export const firefoxSourceTreeDoc =
+  'https://firefox-source-docs.mozilla.org/testing/perfdocs/talos.html';
+
 export const noiseMetricTitle = 'noise metric';
 export const backfillRetriggeredTitle =
   'This alert was retriggered by the backfill bot.';

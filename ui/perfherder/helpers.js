@@ -23,6 +23,7 @@ import {
   phFrameworksWithRelatedBranches,
   phTimeRanges,
   unknownFrameworkMessage,
+  firefoxSourceTreeDoc,
 } from './constants';
 
 export const formatNumber = (input) =>
@@ -495,14 +496,21 @@ export class TextualSummary {
     const extraOptions = alert.series_signature.extra_options.join(' ');
 
     const updatedAlert = this.alertsWithVideos.find((a) => alert.id === a.id);
+
+    let suiteName = suite;
+    const suiteHeadline = suiteName.replace(/_/g, '-');
+    if (framework === 'talos') {
+      suiteName = `[${suite}](${firefoxSourceTreeDoc}#${suiteHeadline})`;
+    }
+
     if (
       updatedAlert &&
       updatedAlert.results_link &&
       updatedAlert.prev_results_link
     ) {
-      return `| ${amountPct}% | ${suite} | ${test} | ${platform} | ${extraOptions} | [${prevValue}](${updatedAlert.prev_results_link}) -> [${newValue}](${updatedAlert.results_link}) |`;
+      return `| ${amountPct}% | ${suiteName} | ${test} | ${platform} | ${extraOptions} | [${prevValue}](${updatedAlert.prev_results_link}) -> [${newValue}](${updatedAlert.results_link}) |`;
     }
-    return `| ${amountPct}% | ${suite} | ${test} | ${platform} | ${extraOptions} | ${prevValue} -> ${newValue} |`;
+    return `| ${amountPct}% | ${suiteName} | ${test} | ${platform} | ${extraOptions} | ${prevValue} -> ${newValue} |`;
   }
 
   formatAlertBulk(alerts) {
