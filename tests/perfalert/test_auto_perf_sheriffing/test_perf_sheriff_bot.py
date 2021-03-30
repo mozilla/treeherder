@@ -240,7 +240,7 @@ def test_db_limits_update_if_backfills_left(
 
     record_ready_for_processing.refresh_from_db()
     assert record_ready_for_processing.status == BackfillRecord.BACKFILLED
-    assert (initial_backfills - 5) == secretary.backfills_left(on_platform='linux')
+    assert (initial_backfills - 4) == secretary.backfills_left(on_platform='linux')
 
 
 def test_backfilling_gracefully_handles_invalid_json_contexts_without_blowing_up(
