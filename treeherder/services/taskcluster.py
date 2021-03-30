@@ -22,7 +22,9 @@ class TaskclusterModel(ABC):
         pass
 
     @abstractmethod
-    def trigger_action(self, action, task_id, decision_task_id, input, root_url=None) -> str:
+    def trigger_action(
+        self, action: str, task_id: str, decision_task_id: str, input: dict, root_url: str = None
+    ) -> str:
         pass  # pragma: no cover
 
 
@@ -53,7 +55,9 @@ class TaskclusterModelImpl(TaskclusterModel):
         self.queue = taskcluster.Queue(options)
         self.auth = taskcluster.Auth(options)
 
-    def trigger_action(self, action, task_id, decision_task_id, input, root_url=None) -> str:
+    def trigger_action(
+        self, action: str, task_id: str, decision_task_id: str, input: dict, root_url: str = None
+    ) -> str:
         if root_url is not None:
             self.__set_root_url(root_url)
 
@@ -189,12 +193,16 @@ class TaskclusterModelProxy(TaskclusterModel):
     TODO: remove this class when backfill tool' soft launch is complete
     """
 
-    def trigger_action(self, action, task_id, decision_task_id, input, root_url=None) -> str:
+    def trigger_action(
+        self, action: str, task_id: str, decision_task_id: str, input: dict, root_url: str = None
+    ) -> str:
         hash_suffix = self.__hash(task_id)
         return f'fake-backfill-task-id-for-{task_id}-{hash_suffix}'
 
-    def __hash(self, task_id) -> str:
+    def __hash(self, task_id: str) -> str:
         now = str(datetime.now())
+        task_id = task_id.encode('utf-8')
+
         return hashlib.sha256(f'{now}-{task_id}').hexdigest()
 
 
