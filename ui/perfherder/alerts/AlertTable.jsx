@@ -275,6 +275,7 @@ export default class AlertTable extends React.Component {
                       key={alert.id}
                       alertSummary={alertSummary}
                       alert={alert}
+                      frameworks={frameworks}
                       user={user}
                       updateSelectedAlerts={(alerts) => this.setState(alerts)}
                       selectedAlerts={selectedAlerts}

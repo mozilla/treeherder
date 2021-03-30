@@ -28,6 +28,7 @@ import {
   backfillRetriggeredTitle,
   phDefaultTimeRangeValue,
   phTimeRanges,
+  firefoxSourceTreeDoc,
 } from '../constants';
 
 export default class AlertTableRow extends React.Component {
@@ -153,6 +154,10 @@ export default class AlertTableRow extends React.Component {
 
   getTitleText = (alert, alertStatus) => {
     const { repository, framework, id } = this.props.alertSummary;
+    const { frameworks } = this.props;
+    const talosFramework = frameworks.find(
+      (framework) => framework.name === 'talos',
+    );
 
     let statusColor = '';
     let textEffect = '';
@@ -168,6 +173,12 @@ export default class AlertTableRow extends React.Component {
     ) {
       textEffect = 'strike-through';
     }
+
+    const alertTitle = alert.title.split(' ');
+    const suite = alertTitle.shift();
+    const suiteHeadline = suite.replace(/_/g, '-');
+    const url = `${firefoxSourceTreeDoc}#`.concat(suiteHeadline);
+
     const timeRange = this.getTimeRange();
     return (
       <span>
@@ -196,6 +207,12 @@ export default class AlertTableRow extends React.Component {
             >
               {' '}
               · subtests
+            </a>
+          )}
+          {talosFramework.id === framework && (
+            <a href={url} target="_blank" rel="noopener noreferrer">
+              {' '}
+              · docs
             </a>
           )}
         </span>

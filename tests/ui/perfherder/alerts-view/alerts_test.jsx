@@ -39,7 +39,6 @@ const testUser = {
 
 const ignoreFrameworkOption = { id: -1, name: 'all' };
 const frameworks = [
-  { id: 1, name: 'talos' },
   { id: 2, name: 'build_metrics' },
   { id: 4, name: 'awsy' },
   { id: 5, name: 'awfy' },
@@ -50,6 +49,7 @@ const frameworks = [
   { id: 13, name: 'browsertime' },
   { id: 14, name: 'vcs' },
   { id: 15, name: 'mozperftest' },
+  { id: 16, name: 'talos' },
 ];
 
 const dummyFrameworkName = 'someTestFramework';
@@ -139,10 +139,13 @@ const alertsViewControls = ({
             hideImprovements: false,
             hideDownstream: false,
             hideAssignedToOthers: false,
-            framework: { name: 'talos', id: 1 },
+            framework: { name: 'talos', id: 16 },
             status: 'untriaged',
           }}
-          frameworks={[{ id: 1, name: dummyFrameworkName }]}
+          frameworks={[
+            { id: 1, name: dummyFrameworkName },
+            { id: 16, name: 'talos' },
+          ]}
           frameworkOptions={[ignoreFrameworkOption, ...frameworks]}
           setFiltersState={() => {}}
           performanceTags={testPerformanceTags}
@@ -243,7 +246,7 @@ describe('alert filtering ignores repository and/or options', () => {
 
       fireEvent.change(alertsFilterInput, {
         target: {
-          value: `${testCase.join(' ')} 
+          value: `${testCase.join(' ')}
                   ${
                     testAlertSummaries[0].alerts[0].series_signature
                       .machine_platform
