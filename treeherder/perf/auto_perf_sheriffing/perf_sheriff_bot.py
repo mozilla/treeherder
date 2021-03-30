@@ -119,6 +119,7 @@ class PerfSheriffBot:
 
     def _backfill_record(self, record: BackfillRecord, left: int) -> Tuple[int, int]:
         consumed = 0
+        inner_range = slice(1, 0)
 
         try:
             context = record.get_context()
@@ -127,7 +128,7 @@ class PerfSheriffBot:
             record.status = BackfillRecord.FAILED
             record.save()
         else:
-            for data_point in context:
+            for data_point in context[inner_range]:
                 if left <= 0 or self.runtime_exceeded():
                     break
                 try:
