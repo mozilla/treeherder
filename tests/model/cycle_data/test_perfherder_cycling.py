@@ -24,7 +24,13 @@ from treeherder.perf.models import (
     PerformanceAlertSummary,
     PerformanceAlert,
     MultiCommitDatum,
+    BackfillReport,
 )
+
+
+@pytest.fixture
+def empty_backfill_report(test_perf_alert_summary) -> BackfillReport:
+    return BackfillReport.objects.create(summary=test_perf_alert_summary)
 
 
 @pytest.mark.parametrize(
@@ -840,3 +846,34 @@ def test_deleting_performance_data_cascades_to_perf_multicomit_data(test_perf_da
         cursor.close()
 
     assert MultiCommitDatum.objects.count() == 0
+
+
+def test_alerts_older_than_a_year_are_removed_even_if_signature_is_active(test_perf_alert):
+    # alert (fixture) comes pre linked to an active signature
+    test_perf_alert.created = datetime.now() - timedelta(days=365)
+    test_perf_alert.save()
+
+    PerfherderCycler(10_000, 0).cycle()
+
+    assert not PerformanceAlert.objects.filter(id=test_perf_alert.id).exists()
+
+
+def test_empty_backfill_reports_get_removed(empty_backfill_report):
+    empty_backfill_report.created = datetime.now() - timedelta(days=120)
+    empty_backfill_report.save()
+
+    PerfherderCycler(10_000, 0).cycle()
+
+    assert BackfillReport.objects.count() == 0
+
+
+@pytest.mark.parametrize('days_since_created', [0, 30, 100])
+def test_empty_backfill_reports_arent_removed_if_not_enough_time_passed(
+    empty_backfill_report, days_since_created
+):
+    empty_backfill_report.created = datetime.now() - timedelta(days=days_since_created)
+    empty_backfill_report.save()
+
+    PerfherderCycler(10_000, 0).cycle()
+
+    assert BackfillReport.objects.filter(summary_id=empty_backfill_report.summary_id).exists()

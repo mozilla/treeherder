@@ -4,6 +4,7 @@ from typing import List
 import taskcluster
 from django.conf import settings
 from django.db import transaction
+from django.db.models import QuerySet
 from taskcluster.exceptions import TaskclusterRestFailure
 
 from treeherder.perf.models import PerformanceSignature
@@ -34,14 +35,13 @@ class PublicSignatureRemover:
         self._email_writer = email_writer or DeletionNotificationWriter()
         self.timer = timer
 
-    def remove_in_chunks(self, signatures):
+    def remove_in_chunks(self, potentially_empty_signatures: QuerySet):
         emails_sent = 0
         rows_left = self._max_rows_allowed
         chunk_of_signatures = []
 
-        logger.warning("Removing performance signatures which don't have any data points...")
-        self._remove_empty_try_signatures(signatures)
-        for perf_signature in signatures:
+        self._remove_empty_try_signatures(potentially_empty_signatures)
+        for perf_signature in potentially_empty_signatures:
             self.timer.quit_on_timeout()
 
             if emails_sent < self._max_emails_allowed and (
@@ -63,7 +63,7 @@ class PublicSignatureRemover:
             self.__delete_and_notify(chunk_of_signatures)
 
     @staticmethod
-    def _remove_empty_try_signatures(signatures):
+    def _remove_empty_try_signatures(signatures: QuerySet):
         try_signatures = signatures.filter(repository__name='try')
         for perf_signature in try_signatures:
             if not perf_signature.has_performance_data():

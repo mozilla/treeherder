@@ -10,7 +10,12 @@ from django.db.models import Count
 from treeherder.model.data_cycling.removal_strategies import RemovalStrategy
 from treeherder.model.models import Job, JobType, JobGroup, Machine
 from treeherder.perf.exceptions import NoDataCyclingAtAll, MaxRuntimeExceeded
-from treeherder.perf.models import PerformanceSignature, PerformanceAlertSummary
+from treeherder.perf.models import (
+    PerformanceSignature,
+    PerformanceAlertSummary,
+    PerformanceAlert,
+    BackfillReport,
+)
 from treeherder.services import taskcluster
 from .max_runtime import MaxRuntime
 from .signature_remover import PublicSignatureRemover
@@ -130,15 +135,35 @@ class PerfherderCycler(DataCycler):
             logger.warning(ex)
 
     def _remove_leftovers(self):
-        # remove any signatures which are
-        # no longer associated with a job
-        signatures = PerformanceSignature.objects.filter(last_updated__lte=self.max_timestamp)
-        notify_client = taskcluster.notify_client_factory()
-        signatures_remover = PublicSignatureRemover(timer=self.timer, notify_client=notify_client)
-        signatures_remover.remove_in_chunks(signatures)
+        self.__remove_empty_signatures()
 
-        # remove empty alert summaries
-        logger.warning('Removing alert summaries which no longer have any alerts...')
+        self.__remove_too_old_alerts()
+        self.__remove_empty_alert_summaries()
+
+        self.__remove_empty_backfill_reports()
+
+    def __remove_empty_signatures(self):
+        logger.warning("Removing performance signatures which don't have any data points...")
+        potentially_empty_signatures = PerformanceSignature.objects.filter(
+            last_updated__lte=self.max_timestamp
+        )
+        notify_client = taskcluster.notify_client_factory()
+
+        signatures_remover = PublicSignatureRemover(timer=self.timer, notify_client=notify_client)
+        signatures_remover.remove_in_chunks(potentially_empty_signatures)
+
+    def __remove_too_old_alerts(self):
+        logger.warning("Removing alerts older than a year...")
+        PerformanceAlert.objects.filter(
+            # WARNING! Don't change this without proper approval!           #
+            # Otherwise we risk deleting data that's actively investigated  #
+            # and cripple the perf sheriffing process!                      #
+            created__lt=(datetime.now() - timedelta(days=365))
+            #################################################################
+        ).delete()
+
+    def __remove_empty_alert_summaries(self):
+        logger.warning("Removing alert summaries which no longer have any alerts...")
         (
             PerformanceAlertSummary.objects.prefetch_related('alerts', 'related_alerts')
             .annotate(
@@ -156,6 +181,14 @@ class PerfherderCycler(DataCycler):
             )
             .delete()
         )
+
+    def __remove_empty_backfill_reports(self):
+        logger.warning("Removing backfill reports which no longer have any records...")
+        four_months_ago = datetime.now() - timedelta(days=120)
+
+        BackfillReport.objects.annotate(total_records=Count('records')).filter(
+            created__lt=four_months_ago, total_records=0
+        ).delete()
 
     def _delete_in_chunks(self, strategy: RemovalStrategy):
         any_successful_attempt = False
