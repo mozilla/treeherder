@@ -134,6 +134,9 @@ export const thPlatformMap = {
     'Android 7.0 x86-64 Shippable WebRender',
   'android-hw-g5-7-0-arm7-api-16': 'Android 7.0 MotoG5',
   'android-hw-g5-7-0-arm7-api-16-shippable': 'Android 7.0 MotoG5 Shippable',
+  'android-hw-g5-7-0-arm7-api-16-qr': 'Android 7.0 MotoG5 WebRender',
+  'android-hw-g5-7-0-arm7-api-16-shippable-qr':
+    'Android 7.0 MotoG5 Shippable WebRender',
   'android-hw-p2-8-0-arm7-api-16': 'Android 8.0 Pixel2',
   'android-hw-p2-8-0-arm7-api-16-qr': 'Android 8.0 Pixel2 WebRender',
   'android-hw-p2-8-0-arm7-api-16-shippable': 'Android 8.0 Pixel2 Shippable',
