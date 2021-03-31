@@ -3,7 +3,7 @@ import PropTypes from 'prop-types';
 import { Container } from 'reactstrap';
 import ReactTable from 'react-table';
 
-import { noResultsMessage } from '../constants';
+import { noResultsMessage, firefoxSourceTreeDoc } from '../constants';
 
 import ItemList from './ItemList';
 
@@ -18,11 +18,19 @@ export default function TestsTable(props) {
     paddingBottom: 10,
   };
 
+  const url = `${firefoxSourceTreeDoc}#`;
+
   const columns = [
     {
       headerStyle,
       Header: 'Suite',
       accessor: 'suite',
+      Cell: ({ row }) => (
+        <div>
+          {row.suite}
+          <a href={url.concat(row.suite.replace(/_/g, '-'))}> (docs)</a>
+        </div>
+      ),
     },
     {
       headerStyle,
