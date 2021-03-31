@@ -127,7 +127,8 @@ class PerfSheriffBot:
             record.status = BackfillRecord.FAILED
             record.save()
         else:
-            for data_point in context:
+            data_points_to_backfill = self.__get_data_points_to_backfill(context)
+            for data_point in data_points_to_backfill:
                 if left <= 0 or self.runtime_exceeded():
                     break
                 try:
@@ -139,7 +140,9 @@ class PerfSheriffBot:
                 else:
                     self.__try_setting_job_type_of(record, using_job_id)
 
-            success, outcome = self._note_backfill_outcome(record, len(context), consumed)
+            success, outcome = self._note_backfill_outcome(
+                record, len(data_points_to_backfill), consumed
+            )
             log_level = INFO if success else WARNING
             logger.log(log_level, f'{outcome} (for backfill record {record.alert.id})')
 
@@ -204,3 +207,15 @@ class PerfSheriffBot:
 
         # send email
         self._notify.email(backfill_notification)
+
+    @staticmethod
+    def __get_data_points_to_backfill(context: List[dict]) -> List[dict]:
+        context_len = len(context)
+        start = None
+
+        if context_len == 1:
+            start = 0
+        elif context_len > 1:
+            start = 1
+
+        return context[start:]
