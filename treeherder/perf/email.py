@@ -9,10 +9,9 @@ They then get an email that's ready-to-send via taskcluster.Notify service.
 from dataclasses import dataclass, asdict
 from abc import ABC, abstractmethod
 
-from typing import List, Tuple, Union
+from typing import List, Union
 
 from django.conf import settings
-from treeherder.model.models import Push
 from treeherder.perf.models import BackfillRecord, PerformanceSignature
 
 FXPERF_TEST_ENG_EMAIL = "perftest-alerts@mozilla.com"  # team' s email
@@ -75,7 +74,7 @@ class BackfillReportContent:
         """
 
     TABLE_HEADERS = """
-    | Alert summary | Alert | Job symbol | Total backfills (aprox.) | Push range |
+    | Alert summary | Alert | Job symbol | Total backfills (approx.) | Push range |
     | :---: | :---: | :---: | :---: | :---: |
         """
 
@@ -99,9 +98,9 @@ class BackfillReportContent:
     def _build_table_row(self, record: BackfillRecord) -> str:
         alert_summary = record.alert.summary
         alert = record.alert
-        job_type = record.job_type
+        job_type = record.job_type or 'N/A'
         total_backfills = record.total_backfills_triggered
-        push_range = self.__build_push_range(record.get_context())
+        push_range = self.__build_push_range(record)
 
         # some fields require adjustments
         summary_id = alert_summary.id
@@ -110,30 +109,15 @@ class BackfillReportContent:
 
         return f"| {summary_id} | {alert_id} | {job_symbol} | {total_backfills} | {push_range} |"
 
-    def __build_push_range(self, backfill_context: List[dict]) -> str:
+    def __build_push_range(self, record: BackfillRecord) -> str:
         """
         Provides link to Treeherder' s Job view
         """
-        from_push, to_push = self.__fetch_border_pushes(backfill_context)  # suspect range as tuple
-
-        # TODO: repository should be provided by upstream (AKA backfill context)
-        #  to save some database calls
-        repository = from_push.repository.name
-        from_change = from_push.revision
-        to_change = to_push.revision
-
-        return f"{settings.SITE_URL}/jobs?repo={repository}&fromchange={from_change}&tochange={to_change}"
-
-    def __fetch_border_pushes(self, backfill_context) -> Tuple[Push, Push]:
-        from_datapoint = backfill_context[0]
-        to_datapoint = backfill_context[-1]
-
-        from_push = from_datapoint['push_id']
-        to_push = to_datapoint['push_id']
-
-        from_push = Push.objects.get(id=from_push)
-        to_push = Push.objects.get(id=to_push)
-        return from_push, to_push
+        try:
+            from_change, to_change = record.get_context_border_info("push__revision")
+            return f"{settings.SITE_URL}/jobs?repo={record.repository}&fromchange={from_change}&tochange={to_change}"
+        except Exception:
+            return 'N/A'
 
     def __str__(self):
         if self._raw_content is None:

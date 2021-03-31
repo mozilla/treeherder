@@ -149,6 +149,9 @@ class Push(models.Model):
     def __str__(self):
         return "{0} {1}".format(self.repository.name, self.revision)
 
+    def total_jobs(self, job_type, result):
+        return self.jobs.filter(job_type=job_type, result=result).count()
+
     def get_status(self):
         """
         Gets a summary of what passed/failed for the push

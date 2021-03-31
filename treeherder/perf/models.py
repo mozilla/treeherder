@@ -1,6 +1,6 @@
 from datetime import datetime
 import json
-from typing import List
+from typing import List, Tuple
 
 from django.contrib.auth.models import User
 from django.core.exceptions import ValidationError
@@ -610,6 +610,27 @@ class BackfillRecord(models.Model):
     @property
     def id(self):
         return self.alert
+
+    @property
+    def repository(self):
+        return self.alert.summary.repository
+
+    def get_context_border_info(self, context_property: str) -> Tuple[str, str]:
+        """
+        Provides border(first and last) information from context based on the property
+        """
+        context = self.get_context()
+        from_info = context[0][context_property]
+        to_info = context[-1][context_property]
+
+        return from_info, to_info
+
+    def get_pushes_in_context_range(self) -> List[Push]:
+        from_time, to_time = self.get_context_border_info('push_timestamp')
+
+        return Push.objects.filter(
+            repository=self.repository, time__gte=from_time, time__lte=to_time
+        ).all()
 
     def get_context(self) -> List[dict]:
         return json.loads(self.context)

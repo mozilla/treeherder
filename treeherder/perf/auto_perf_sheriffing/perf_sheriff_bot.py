@@ -9,7 +9,7 @@ from django.conf import settings
 from django.db.models import QuerySet
 from taskcluster.helper import TaskclusterConfig
 
-from treeherder.model.models import Job, Push
+from treeherder.model.models import Job
 from treeherder.perf.auto_perf_sheriffing.backfill_reports import BackfillReportMaintainer
 from treeherder.perf.auto_perf_sheriffing.backfill_tool import BackfillTool
 from treeherder.perf.auto_perf_sheriffing.secretary_tool import SecretaryTool
@@ -153,6 +153,7 @@ class PerfSheriffBot:
         try:
             if record.job_type is None:
                 record.job_type = Job.objects.get(id=job_id).job_type
+                record.save()
         except Job.DoesNotExist as ex:
             logger.warning(ex)
 
@@ -199,11 +200,7 @@ class PerfSheriffBot:
         return pending_tasks_count > acceptable_limit
 
     def _notify_backfill_outcome(self):
-        try:
-            backfill_notification = self._email_writer.prepare_new_email(self.backfilled_records)
-        except (JSONDecodeError, KeyError, Push.DoesNotExist) as ex:
-            logger.warning(f"Failed to email backfill report.{type(ex)}: {ex}")
-            return
+        backfill_notification = self._email_writer.prepare_new_email(self.backfilled_records)
 
         # send email
         self._notify.email(backfill_notification)
