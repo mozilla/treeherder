@@ -144,11 +144,13 @@ class PerfherderCycler(DataCycler):
 
     def __remove_empty_signatures(self):
         logger.warning("Removing performance signatures which don't have any data points...")
-        signatures = PerformanceSignature.objects.filter(last_updated__lte=self.max_timestamp)
+        potentially_empty_signatures = PerformanceSignature.objects.filter(
+            last_updated__lte=self.max_timestamp
+        )
         notify_client = taskcluster.notify_client_factory()
 
         signatures_remover = PublicSignatureRemover(timer=self.timer, notify_client=notify_client)
-        signatures_remover.remove_in_chunks(signatures)
+        signatures_remover.remove_in_chunks(potentially_empty_signatures)
 
     def __remove_too_old_alerts(self):
         logger.warning("Removing alerts older than a year...")
