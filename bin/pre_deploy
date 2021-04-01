@@ -20,9 +20,6 @@ if [[ -v NEW_RELIC_CONFIG_FILE ]]; then
     PRE_COMMAND="newrelic-admin run-program"
 fi
 
-echo "-----> PRE-DEPLOY: Running Django system checks..."
-./manage.py check --deploy --fail-level WARNING
-
 echo "-----> PRE-DEPLOY: Running Django migration..."
 $PRE_COMMAND ./manage.py migrate --noinput
 
