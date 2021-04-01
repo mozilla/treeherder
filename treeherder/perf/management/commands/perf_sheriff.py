@@ -55,7 +55,7 @@ class Command(BaseCommand):
         except MaxRuntimeExceeded as ex:
             logging.info(ex)
 
-        logging.info("Perfsheriff bot: Going back to sleep")
+        logging.info("Perfsheriff bot: Going back to sleep.")
 
     def _parse_args(self, **options) -> Tuple[List, List, datetime, timedelta]:
         return (
