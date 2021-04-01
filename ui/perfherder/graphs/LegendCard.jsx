@@ -5,7 +5,7 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faTimes } from '@fortawesome/free-solid-svg-icons';
 
 import { getFrameworkName } from '../helpers';
-import { graphColors } from '../constants';
+import { graphColors, firefoxSourceTreeDoc } from '../constants';
 import GraphIcon from '../../shared/GraphIcon';
 
 const LegendCard = ({
@@ -130,7 +130,8 @@ const LegendCard = ({
 
   const subtitleStyle = 'p-0 mb-0 border-0 text-secondary text-left';
   const symbolType = series.symbol || ['circle', 'outline'];
-
+  const url = firefoxSourceTreeDoc;
+  const suiteHeadline = series.name.split(' ')[0].replace(/_/g, '-');
   return (
     <FormGroup check className="pl-0 border">
       <Button
@@ -162,6 +163,9 @@ const LegendCard = ({
 
           {series.name}
         </Button>
+        <div className="small">
+          <a href={url.concat(suiteHeadline)}>(docs)</a>
+        </div>
         <Button
           color="link"
           outline
