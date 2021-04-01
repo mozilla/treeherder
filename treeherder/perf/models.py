@@ -594,7 +594,7 @@ class BackfillRecord(models.Model):
         (PRELIMINARY, 'Preliminary'),
         (READY_FOR_PROCESSING, 'Ready for processing'),
         (BACKFILLED, 'Backfilled'),
-        (SUCCESSFUL, 'Successful'),
+        (SUCCESSFUL, 'Finished'),
         (FAILED, 'Failed'),
     )
 
