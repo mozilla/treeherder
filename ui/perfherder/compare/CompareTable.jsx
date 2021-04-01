@@ -4,7 +4,7 @@ import PropTypes from 'prop-types';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faHashtag } from '@fortawesome/free-solid-svg-icons';
 
-import { getHashBasedId } from '../helpers';
+import { getHashBasedId, getTalosDocsURL } from '../helpers';
 import { hashFunction } from '../../helpers/utils';
 import { compareTableSort } from '../constants';
 
@@ -150,6 +150,7 @@ export default class CompareTable extends React.Component {
   render() {
     const {
       testName,
+      framework,
       user,
       hasSubtests,
       isBaseAggregate,
@@ -160,6 +161,9 @@ export default class CompareTable extends React.Component {
 
     const { data } = this.state;
     const { tableConfig } = this.state;
+
+    const suite = testName.split(' ')[0];
+    const url = getTalosDocsURL(suite);
 
     return (
       <Table
@@ -175,7 +179,10 @@ export default class CompareTable extends React.Component {
         <thead>
           <tr className="subtest-header bg-lightgray">
             <th className="text-left">
-              <span>{testName}</span>
+              <span>
+                {testName}
+                {framework === 'talos' && <a href={url}> (docs)</a>}
+              </span>
               {onPermalinkClick && (
                 <Button
                   className="permalink p-0 ml-1"

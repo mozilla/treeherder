@@ -3,12 +3,19 @@ import PropTypes from 'prop-types';
 import { Container } from 'reactstrap';
 import ReactTable from 'react-table';
 
-import { noResultsMessage, firefoxSourceTreeDoc } from '../constants';
+import { noResultsMessage } from '../constants';
+import { getTalosDocsURL } from '../helpers';
 
 import ItemList from './ItemList';
 
 export default function TestsTable(props) {
-  const { results, projectsMap, platformsMap, defaultPageSize } = props;
+  const {
+    results,
+    framework,
+    projectsMap,
+    platformsMap,
+    defaultPageSize,
+  } = props;
 
   const showPagination = results.length > defaultPageSize;
   const headerStyle = {
@@ -18,8 +25,6 @@ export default function TestsTable(props) {
     paddingBottom: 10,
   };
 
-  const url = `${firefoxSourceTreeDoc}#`;
-
   const columns = [
     {
       headerStyle,
@@ -28,7 +33,9 @@ export default function TestsTable(props) {
       Cell: ({ row }) => (
         <div>
           {row.suite}
-          <a href={url.concat(row.suite.replace(/_/g, '-'))}> (docs)</a>
+          {framework === 'talos' && (
+            <a href={getTalosDocsURL(row.suite)}> (docs)</a>
+          )}
         </div>
       ),
     },

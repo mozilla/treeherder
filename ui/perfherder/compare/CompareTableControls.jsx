@@ -151,6 +151,8 @@ export default class CompareTableControls extends React.Component {
       history,
     } = this.props;
 
+    const framework = dropdownOptions[0].selectedItem;
+
     const {
       hideUncomparable,
       hideUncertain,
@@ -213,6 +215,7 @@ export default class CompareTableControls extends React.Component {
               key={testName}
               data={data}
               testName={testName}
+              framework={framework}
               onPermalinkClick={onPermalinkClick}
               user={user}
               isBaseAggregate={isBaseAggregate}

@@ -127,12 +127,30 @@ beforeEach(() => {
 });
 afterEach(cleanup);
 
+const dropdownOptions = [
+  {
+    options: [
+      'talos',
+      'build_metrics',
+      'awsy',
+      'platform_microbench',
+      'raptor',
+      'js-bench',
+      'devtools',
+      'browsertime',
+      'mozperftest',
+    ],
+    selectedItem: 'talos',
+  },
+];
+
 const compareTableControlsNode = (
   userLoggedIn = false,
   isBaseAggregate = false,
 ) => {
   return (
     <CompareTableControls
+      dropdownOptions={dropdownOptions}
       compareResults={results}
       filterOptions={{}}
       user={{ isLoggedIn: userLoggedIn }}

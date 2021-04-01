@@ -60,6 +60,8 @@ export default class TestsTableControls extends React.Component {
     const { dropdownOptions, projectsMap, platformsMap } = this.props;
     const { results } = this.state;
 
+    const framework = dropdownOptions[0].selectedItem;
+
     return (
       <Container fluid className="my-3 px-0">
         <FilterControls
@@ -70,6 +72,7 @@ export default class TestsTableControls extends React.Component {
 
         <TestsTable
           results={results}
+          framework={framework}
           projectsMap={projectsMap}
           platformsMap={platformsMap}
         />

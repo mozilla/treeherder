@@ -10,6 +10,7 @@
       {
         "id": 69344,
         "status": 0,
+        "title": "perf_reftest_singletons bloom-basic.html linux1804-64-shippable",
         "series_signature": {
           "id": 1944439,
           "framework_id": 1,

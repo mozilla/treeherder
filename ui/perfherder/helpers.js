@@ -23,7 +23,6 @@ import {
   phFrameworksWithRelatedBranches,
   phTimeRanges,
   unknownFrameworkMessage,
-  firefoxSourceTreeDoc,
 } from './constants';
 
 export const formatNumber = (input) =>
@@ -409,6 +408,12 @@ export const getGraphsURL = (
   return url;
 };
 
+export const getTalosDocsURL = (suite) => {
+  const url =
+    'https://firefox-source-docs.mozilla.org/testing/perfdocs/talos.html#';
+  return url.concat(suite.replace(/_/g, '-'));
+};
+
 export const modifyAlert = (alert, modification) =>
   update(getApiUrl(`${endpoints.alert}${alert.id}/`), modification);
 
@@ -498,9 +503,9 @@ export class TextualSummary {
     const updatedAlert = this.alertsWithVideos.find((a) => alert.id === a.id);
 
     let suiteName = suite;
-    const suiteHeadline = suiteName.replace(/_/g, '-');
+    const url = getTalosDocsURL(suite);
     if (framework === 'talos') {
-      suiteName = `[${suite}](${firefoxSourceTreeDoc}#${suiteHeadline})`;
+      suiteName = `${suite}[ (docs)](${url})`;
     }
 
     if (
