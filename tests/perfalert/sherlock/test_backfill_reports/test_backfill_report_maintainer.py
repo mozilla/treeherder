@@ -1,7 +1,7 @@
 import datetime
 from typing import Tuple
 
-from treeherder.perf.auto_perf_sheriffing.backfill_reports import (
+from treeherder.perf.sherlock.backfill_reports import (
     BackfillReportMaintainer,
 )
 from treeherder.perf.models import (

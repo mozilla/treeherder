@@ -10,9 +10,9 @@ from django.db.models import QuerySet
 from taskcluster.helper import TaskclusterConfig
 
 from treeherder.model.models import Job
-from treeherder.perf.auto_perf_sheriffing.backfill_reports import BackfillReportMaintainer
-from treeherder.perf.auto_perf_sheriffing.backfill_tool import BackfillTool
-from treeherder.perf.auto_perf_sheriffing.secretary_tool import SecretaryTool
+from treeherder.perf.sherlock.backfill_reports import BackfillReportMaintainer
+from treeherder.perf.sherlock.backfill_tool import BackfillTool
+from treeherder.perf.sherlock.secretary_tool import SecretaryTool
 from treeherder.perf.email import BackfillNotificationWriter, EmailWriter
 from treeherder.perf.exceptions import CannotBackfill, MaxRuntimeExceeded
 from treeherder.perf.models import BackfillRecord, BackfillReport

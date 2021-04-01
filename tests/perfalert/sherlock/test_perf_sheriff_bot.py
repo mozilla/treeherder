@@ -6,7 +6,7 @@ import pytest
 from django.db import models
 
 from treeherder.model.models import Job, Push
-from treeherder.perf.auto_perf_sheriffing.perf_sheriff_bot import PerfSheriffBot
+from treeherder.perf.sherlock.perf_sheriff_bot import PerfSheriffBot
 from treeherder.perf.email import BackfillNotificationWriter
 from treeherder.perf.exceptions import MaxRuntimeExceeded
 from treeherder.perf.models import BackfillRecord, BackfillReport

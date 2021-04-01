@@ -7,7 +7,7 @@ from freezegun import freeze_time
 
 from tests.conftest import SampleDataJSONLoader, create_perf_signature, create_perf_alert
 from treeherder.model.models import MachinePlatform, Job
-from treeherder.perf.auto_perf_sheriffing.secretary_tool import SecretaryTool
+from treeherder.perf.sherlock.secretary_tool import SecretaryTool
 from treeherder.perf.models import (
     BackfillReport,
     BackfillRecord,

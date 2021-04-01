@@ -5,7 +5,7 @@ from typing import List, Tuple
 from django.core.management.base import BaseCommand
 
 from treeherder.model.models import Repository
-from treeherder.perf.auto_perf_sheriffing.factories import perf_sheriff_bot_factory
+from treeherder.perf.sherlock.factories import perf_sheriff_bot_factory
 from treeherder.perf.exceptions import MaxRuntimeExceeded
 from treeherder.perf.models import PerformanceFramework
 
