@@ -6,6 +6,7 @@ import { faEdit } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 
 import { replaceLocation, getAllUrlParams } from '../helpers/location';
+import { firefoxSourceTreeDoc } from '../perfherder/constants';
 
 export default class ComparePageTitle extends React.Component {
   constructor(props) {
@@ -100,6 +101,14 @@ export default class ComparePageTitle extends React.Component {
 
   render() {
     const { inEditMode, pageTitle, newPageTitle, tabTitle } = this.state;
+    const url = `${firefoxSourceTreeDoc}#`;
+    let showDocs = false;
+    let suite;
+    if (pageTitle !== 'Perfherder Compare Revisions') {
+      showDocs = true;
+      suite = pageTitle.split(' ')[1];
+      suite = suite.replace(/_/g, '-');
+    }
 
     return (
       <React.Fragment>
@@ -122,6 +131,7 @@ export default class ComparePageTitle extends React.Component {
                 icon={faEdit}
                 className="fa-xs align-top edit-icon"
               />
+              {showDocs && <a href={url.concat(suite)}> (docs)</a>}
             </h1>
           </Button>
         ) : (
