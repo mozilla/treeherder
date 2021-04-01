@@ -38,7 +38,7 @@ class SecretaryTool:
 
         # reset limits if the settings expired
         settings = json.loads(perf_sheriff_settings.settings)
-        logger.info(f"Perfsheriff bot settings: {settings}.")
+        logger.info(f"Sherlock settings: {settings}.")
         if cls.are_expired(settings):
             logger.info(f"Settings are expired. Expired settings: {settings}.")
 
@@ -53,7 +53,7 @@ class SecretaryTool:
             frozen=False, last_updated__lte=mature_date_limit
         )
 
-        logger.info(f"Perfsheriff bot: {mature_reports.count()} mature reports found.")
+        logger.info(f"Sherlock: {mature_reports.count()} mature reports found.")
 
         # Only for logging alternative strategy for choosing maturity limit
         alternative_date_limit = datetime.utcnow() - timedelta(days=1)
@@ -61,18 +61,16 @@ class SecretaryTool:
             frozen=False, created__lte=alternative_date_limit
         )
         logger.info(
-            f"Perfsheriff bot: {alternative_mature_reports.count()} mature reports found with alternative strategy (not marking).",
+            f"Sherlock: {alternative_mature_reports.count()} mature reports found with alternative strategy (not marking).",
         )
 
         for report in mature_reports:
             should_freeze = False
-            logger.info(
-                f"Perfsheriff bot: Marking report with id {report.summary.id} for backfill..."
-            )
+            logger.info(f"Sherlock: Marking report with id {report.summary.id} for backfill...")
             for record in report.records.all():
                 if record.status == BackfillRecord.PRELIMINARY:
                     logger.info(
-                        f"Perfsheriff bot: Marking record with id {record.alert.id} READY_FOR_PROCESSING..."
+                        f"Sherlock: Marking record with id {record.alert.id} READY_FOR_PROCESSING..."
                     )
                     record.status = BackfillRecord.READY_FOR_PROCESSING
                     record.save()

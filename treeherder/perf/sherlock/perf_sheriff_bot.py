@@ -25,6 +25,8 @@ ACCESS_TOKEN = settings.PERF_SHERIFF_BOT_ACCESS_TOKEN
 
 class PerfSheriffBot:
     """
+    Sherlock itself
+
     Automates backfilling of skipped perf jobs.
     """
 
@@ -51,10 +53,10 @@ class PerfSheriffBot:
 
     def sheriff(self, since: datetime, frameworks: List[str], repositories: List[str]):
         self.assert_can_run()
-        logger.info("Perfsheriff bot: Validating settings...")
+        logger.info("Sherlock: Validating settings...")
         self.secretary.validate_settings()
 
-        logger.info("Perfsheriff bot: Marking reports for backfill...")
+        logger.info("Sherlock: Marking reports for backfill...")
         self.secretary.mark_reports_for_backfill()
         self.assert_can_run()
 
@@ -63,16 +65,16 @@ class PerfSheriffBot:
         # self.secretary.check_outcome()
 
         # reporter tool should always run *(only handles preliminary records/reports)*
-        logger.info("Perfsheriff bot: Reporter tool is creating/maintaining  reports...")
+        logger.info("Sherlock: Reporter tool is creating/maintaining  reports...")
         self._report(since, frameworks, repositories)
         self.assert_can_run()
 
         # backfill tool follows
-        logger.info("Perfsheriff bot: Starting to backfill...")
+        logger.info("Sherlock: Starting to backfill...")
         self._backfill()
         self.assert_can_run()
 
-        logger.info("Perfsheriff bot: Notifying backfill outcome...")
+        logger.info("Sherlock: Notifying backfill outcome...")
         self._notify_backfill_outcome()
 
     def runtime_exceeded(self) -> bool:
@@ -94,18 +96,18 @@ class PerfSheriffBot:
 
         # TODO: make this platform generic
         records_to_backfill = self.__fetch_records_requiring_backfills()
-        logger.info(f"Perfsheriff bot: {records_to_backfill.count()} records found to backfill.")
+        logger.info(f"Sherlock: {records_to_backfill.count()} records found to backfill.")
         for record in records_to_backfill:
             if left <= 0 or self.runtime_exceeded():
                 break
             left, consumed = self._backfill_record(record, left)
-            logger.info(f"Perfsheriff bot: Backfilled record with id {record.alert.id}.")
+            logger.info(f"Sherlock: Backfilled record with id {record.alert.id}.")
             self.backfilled_records.append(record)
             total_consumed += consumed
 
         self.secretary.consume_backfills('linux', total_consumed)
-        logger.info(f"Perfsheriff bot: Consumed {total_consumed} backfills for Linux.")
-        logger.debug(f"Perfsheriff bot: Having {left} backfills left.")
+        logger.info(f"Sherlock: Consumed {total_consumed} backfills for Linux.")
+        logger.debug(f"Sherlock: Having {left} backfills left.")
 
     @staticmethod
     def __fetch_records_requiring_backfills() -> QuerySet:

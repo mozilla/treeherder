@@ -471,7 +471,7 @@ MAX_BACKFILLS_PER_PLATFORM = {
 RESET_BACKFILL_LIMITS = timedelta(hours=24)
 TIME_TO_MATURE = timedelta(hours=4)
 
-# Taskcluster credentials for PerfSheriffBot
+# Taskcluster credentials for Sherlock
 PERF_SHERIFF_BOT_CLIENT_ID = env('PERF_SHERIFF_BOT_CLIENT_ID', default=None)
 PERF_SHERIFF_BOT_ACCESS_TOKEN = env('PERF_SHERIFF_BOT_ACCESS_TOKEN', default=None)
 
