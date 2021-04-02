@@ -12,7 +12,7 @@ from taskcluster.helper import TaskclusterConfig
 from treeherder.model.models import Job
 from treeherder.perf.auto_perf_sherrifing.backfill_reports import BackfillReportMaintainer
 from treeherder.perf.auto_perf_sherrifing.backfill_tool import BackfillTool
-from treeherder.perf.auto_perf_sherrifing.secretary_tool import SecretaryTool
+from treeherder.perf.auto_perf_sherrifing.secretary import Secretary
 from treeherder.perf.email import BackfillNotificationWriter, EmailWriter
 from treeherder.perf.exceptions import CannotBackfill, MaxRuntimeExceeded
 from treeherder.perf.models import BackfillRecord, BackfillReport
@@ -36,14 +36,14 @@ class Sherlock:
         self,
         report_maintainer: BackfillReportMaintainer,
         backfill_tool: BackfillTool,
-        secretary_tool: SecretaryTool,
+        secretary: Secretary,
         notify_client: taskcluster.Notify,
         max_runtime: timedelta = None,
         email_writer: EmailWriter = None,
     ):
         self.report_maintainer = report_maintainer
         self.backfill_tool = backfill_tool
-        self.secretary = secretary_tool
+        self.secretary = secretary
         self._notify = notify_client
         self._max_runtime = self.DEFAULT_MAX_RUNTIME if max_runtime is None else max_runtime
         self._email_writer = email_writer or BackfillNotificationWriter()
@@ -60,7 +60,7 @@ class Sherlock:
         self.secretary.mark_reports_for_backfill()
         self.assert_can_run()
 
-        # secretary tool checks the status of all backfilled jobs
+        # secretary checks the status of all backfilled jobs
         # TODO: should not be enabled during soft launch - enable for the real launch
         # self.secretary.check_outcome()
 

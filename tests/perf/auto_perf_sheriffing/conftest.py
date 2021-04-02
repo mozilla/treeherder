@@ -9,7 +9,7 @@ from freezegun import freeze_time
 
 from tests.conftest import SampleDataJSONLoader, create_perf_signature, create_perf_alert
 from treeherder.model.models import MachinePlatform, Job
-from treeherder.perf.auto_perf_sherrifing.secretary_tool import SecretaryTool
+from treeherder.perf.auto_perf_sherrifing.secretary import Secretary
 from treeherder.perf.models import (
     BackfillReport,
     BackfillRecord,
@@ -119,7 +119,7 @@ def backfill_tool_mock():
 
 @pytest.fixture
 def secretary():
-    return SecretaryTool()
+    return Secretary()
 
 
 @pytest.fixture
@@ -136,7 +136,7 @@ def empty_sheriff_settings(secretary):
     return PerformanceSettings.objects.get(name='perf_sheriff_bot')
 
 
-# For testing SecretaryTool
+# For testing Secretary
 @pytest.fixture
 def performance_settings(db):
     settings = {
