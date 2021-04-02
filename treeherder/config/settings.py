@@ -464,7 +464,7 @@ PERFHERDER_ENABLE_MULTIDATA_INGESTION = env.bool(
     'PERFHERDER_ENABLE_MULTIDATA_INGESTION', default=True
 )
 
-# Performance sheriff bot settings
+# Sherlock' settings (the performance sheriff robot)
 MAX_BACKFILLS_PER_PLATFORM = {
     'linux': 200,
 }
@@ -472,6 +472,7 @@ RESET_BACKFILL_LIMITS = timedelta(hours=24)
 TIME_TO_MATURE = timedelta(hours=4)
 
 # Taskcluster credentials for Sherlock
+# TODO: rename PERF_SHERIFF_BOT prefixes to SHERLOCK
 PERF_SHERIFF_BOT_CLIENT_ID = env('PERF_SHERIFF_BOT_CLIENT_ID', default=None)
 PERF_SHERIFF_BOT_ACCESS_TOKEN = env('PERF_SHERIFF_BOT_ACCESS_TOKEN', default=None)
 

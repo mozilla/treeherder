@@ -1,6 +1,6 @@
 {
-  "title": "PerfSheriffBot's schema for storing logs",
-  "description": "Used to store the outcome of PerfSheriffBot actions (i.e. backfill, retrigger)",
+  "title": "Sherlock' schema for storing logs",
+  "description": "Used to store the outcome of Sherlock' s actions (i.e. backfill, retrigger)",
   "type": "object",
   "properties": {
     "action": {

@@ -3,7 +3,7 @@ from unittest.mock import Mock
 
 import pytest
 
-from treeherder.perf.sherlock.backfill_reports import AlertsPicker
+from treeherder.perf.auto_perf_sherrifing.backfill_reports import AlertsPicker
 
 
 def test_init():

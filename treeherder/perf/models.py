@@ -535,7 +535,7 @@ class PerformanceBugTemplate(models.Model):
         return '{} bug template'.format(self.framework.name)
 
 
-# TODO: we actually need this name for the PerfSheriffBot' s hourly report
+# TODO: we actually need this name for the Sherlock' s hourly report
 class BackfillReport(models.Model):
     """
     Groups & stores all context required to retrigger/backfill

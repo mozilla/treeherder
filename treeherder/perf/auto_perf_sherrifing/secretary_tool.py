@@ -6,7 +6,7 @@ from django.conf import settings as django_settings
 
 from treeherder.perf.models import BackfillRecord, BackfillReport, PerformanceSettings
 from treeherder.utils import default_serializer
-from treeherder.perf.sherlock.outcome_checker import OutcomeChecker, OutcomeStatus
+from treeherder.perf.auto_perf_sherrifing.outcome_checker import OutcomeChecker, OutcomeStatus
 
 logger = logging.getLogger(__name__)
 
@@ -25,7 +25,8 @@ class SecretaryTool:
 
     @classmethod
     def validate_settings(cls):
-        perf_sheriff_settings, created = PerformanceSettings.objects.get_or_create(
+        sherlock_settings, created = PerformanceSettings.objects.get_or_create(
+            # TODO: rename perf_sheriff_bot settings name to sherlock
             name="perf_sheriff_bot",
             defaults={"settings": cls._get_default_settings()},
         )
@@ -37,13 +38,13 @@ class SecretaryTool:
             return
 
         # reset limits if the settings expired
-        settings = json.loads(perf_sheriff_settings.settings)
+        settings = json.loads(sherlock_settings.settings)
         logger.info(f"Sherlock settings: {settings}.")
         if cls.are_expired(settings):
             logger.info(f"Settings are expired. Expired settings: {settings}.")
 
-            perf_sheriff_settings.settings = cls._get_default_settings()
-            perf_sheriff_settings.save()
+            sherlock_settings.settings = cls._get_default_settings()
+            sherlock_settings.save()
 
     @classmethod
     def mark_reports_for_backfill(cls):

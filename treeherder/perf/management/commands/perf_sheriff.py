@@ -5,7 +5,7 @@ from typing import List, Tuple
 from django.core.management.base import BaseCommand
 
 from treeherder.model.models import Repository
-from treeherder.perf.sherlock.factories import perf_sheriff_bot_factory
+from treeherder.perf.auto_perf_sherrifing.factories import sherlock_factory
 from treeherder.perf.exceptions import MaxRuntimeExceeded
 from treeherder.perf.models import PerformanceFramework
 
@@ -49,9 +49,9 @@ class Command(BaseCommand):
     def handle(self, *args, **options):
         frameworks, repositories, since, days_to_lookup = self._parse_args(**options)
 
-        perf_sheriff_bot = perf_sheriff_bot_factory(days_to_lookup)
+        sherlock = sherlock_factory(days_to_lookup)
         try:
-            perf_sheriff_bot.sheriff(since, frameworks, repositories)
+            sherlock.sheriff(since, frameworks, repositories)
         except MaxRuntimeExceeded as ex:
             logging.info(ex)
 

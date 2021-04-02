@@ -10,9 +10,9 @@ from django.db.models import QuerySet
 from taskcluster.helper import TaskclusterConfig
 
 from treeherder.model.models import Job
-from treeherder.perf.sherlock.backfill_reports import BackfillReportMaintainer
-from treeherder.perf.sherlock.backfill_tool import BackfillTool
-from treeherder.perf.sherlock.secretary_tool import SecretaryTool
+from treeherder.perf.auto_perf_sherrifing.backfill_reports import BackfillReportMaintainer
+from treeherder.perf.auto_perf_sherrifing.backfill_tool import BackfillTool
+from treeherder.perf.auto_perf_sherrifing.secretary_tool import SecretaryTool
 from treeherder.perf.email import BackfillNotificationWriter, EmailWriter
 from treeherder.perf.exceptions import CannotBackfill, MaxRuntimeExceeded
 from treeherder.perf.models import BackfillRecord, BackfillReport
@@ -23,9 +23,9 @@ CLIENT_ID = settings.PERF_SHERIFF_BOT_CLIENT_ID
 ACCESS_TOKEN = settings.PERF_SHERIFF_BOT_ACCESS_TOKEN
 
 
-class PerfSheriffBot:
+class Sherlock:
     """
-    Sherlock itself
+    Robot variant of a performance sheriff (the main class)
 
     Automates backfilling of skipped perf jobs.
     """
@@ -189,7 +189,7 @@ class PerfSheriffBot:
     @staticmethod
     def _is_queue_overloaded(provisioner_id: str, worker_type: str, acceptable_limit=100) -> bool:
         """
-        Helper method for PerfSheriffBot to check load on processing queue.
+        Helper method for Sherlock to check load on processing queue.
         Usage example: _queue_is_too_loaded('gecko-3', 'b-linux')
         :return: True/False
         """
