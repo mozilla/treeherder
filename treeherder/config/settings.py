@@ -469,6 +469,7 @@ MAX_BACKFILLS_PER_PLATFORM = {
     'linux': 200,
 }
 RESET_BACKFILL_LIMITS = timedelta(hours=24)
+TIME_TO_MATURE = timedelta(hours=4)
 
 # Taskcluster credentials for PerfSheriffBot
 PERF_SHERIFF_BOT_CLIENT_ID = env('PERF_SHERIFF_BOT_CLIENT_ID', default=None)
