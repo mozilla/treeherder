@@ -32,7 +32,7 @@
     "json-schema-defaults": "0.4.0",
     "lodash": "4.17.21",
     "moment": "2.24.0",
-    "neutrino": "9.2.0",
+    "neutrino": "9.5.0",
     "numeral": "2.0.6",
     "pako": "1.0.11",
     "prop-types": "15.7.2",
@@ -75,7 +75,7 @@
     "eslint": "7.0.0",
     "eslint-config-airbnb": "18.0.1",
     "eslint-config-prettier": "6.7.0",
-    "eslint-plugin-import": "2.18.2",
+    "eslint-plugin-import": "2.22.1",
     "eslint-plugin-jest": "23.1.1",
     "eslint-plugin-jsx-a11y": "6.2.3",
     "eslint-plugin-prettier": "3.1.4",
@@ -104,5 +104,8 @@
     "test:coverage": "node ./node_modules/jest/bin/jest -w 1 --silent --coverage",
     "test": "node ./node_modules/jest/bin/jest",
     "test:watch": "node ./node_modules/jest/bin/jest --watch"
+  },
+  "resolutions": {
+    "cacache": ">=15.0.6"
   }
 }
