@@ -150,7 +150,7 @@ export default class CompareTable extends React.Component {
   render() {
     const {
       testName,
-      framework,
+      frameworkName,
       user,
       hasSubtests,
       isBaseAggregate,
@@ -181,7 +181,12 @@ export default class CompareTable extends React.Component {
             <th className="text-left">
               <span>
                 {testName}
-                {framework === 'talos' && <a href={url}> (docs)</a>}
+                {frameworkName === 'talos' && (
+                  <a href={url} style={{ color: '#23527c' }}>
+                    {' '}
+                    (docs)
+                  </a>
+                )}
               </span>
               {onPermalinkClick && (
                 <Button

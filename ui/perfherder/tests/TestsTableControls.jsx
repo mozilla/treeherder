@@ -60,7 +60,9 @@ export default class TestsTableControls extends React.Component {
     const { dropdownOptions, projectsMap, platformsMap } = this.props;
     const { results } = this.state;
 
-    const framework = dropdownOptions[0].selectedItem;
+    let framework = false;
+    if (dropdownOptions[0] !== undefined)
+      framework = dropdownOptions[0].selectedItem;
 
     return (
       <Container fluid className="my-3 px-0">
