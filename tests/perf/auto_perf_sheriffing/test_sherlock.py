@@ -6,7 +6,7 @@ import pytest
 from django.db import models
 
 from treeherder.model.models import Job, Push
-from treeherder.perf.auto_perf_sheriffing.perf_sheriff_bot import PerfSheriffBot
+from treeherder.perf.auto_perf_sherrifing.sherlock import Sherlock
 from treeherder.perf.email import BackfillNotificationWriter
 from treeherder.perf.exceptions import MaxRuntimeExceeded
 from treeherder.perf.models import BackfillRecord, BackfillReport
@@ -33,18 +33,18 @@ class TestEmailIntegration:
         backfill_tool_mock,
         secretary,
         record_ready_for_processing,
-        sheriff_settings,
+        sherlock_settings,
         notify_client_mock,
     ):
 
-        sheriff_bot = PerfSheriffBot(
+        sherlock = Sherlock(
             report_maintainer_mock,
             backfill_tool_mock,
             secretary,
             notify_client_mock,
             email_writer=self.email_writer_mock(),
         )
-        sheriff_bot.sheriff(since=EPOCH, frameworks=['raptor', 'talos'], repositories=['autoland'])
+        sherlock.sheriff(since=EPOCH, frameworks=['raptor', 'talos'], repositories=['autoland'])
         record_ready_for_processing.refresh_from_db()
 
         assert notify_client_mock.email.call_count == 1
@@ -55,7 +55,7 @@ class TestEmailIntegration:
         backfill_tool_mock,
         secretary,
         record_ready_for_processing,
-        sheriff_settings,
+        sherlock_settings,
         notify_client_mock,
         broken_context_str,
         # Note: parametrizes the test
@@ -63,13 +63,13 @@ class TestEmailIntegration:
         record_ready_for_processing.context = broken_context_str
         record_ready_for_processing.save()
 
-        sheriff_bot = PerfSheriffBot(
+        sherlock = Sherlock(
             report_maintainer_mock,
             backfill_tool_mock,
             secretary,
             notify_client_mock,
         )
-        sheriff_bot.sheriff(since=EPOCH, frameworks=['raptor', 'talos'], repositories=['autoland'])
+        sherlock.sheriff(since=EPOCH, frameworks=['raptor', 'talos'], repositories=['autoland'])
 
         assert notify_client_mock.email.call_count == 1
 
@@ -79,18 +79,16 @@ class TestEmailIntegration:
         backfill_tool_mock,
         secretary,
         record_ready_for_processing,
-        sheriff_settings,
+        sherlock_settings,
         notify_client_mock,
     ):
         no_time_left = timedelta(seconds=0)
 
-        sheriff_bot = PerfSheriffBot(
+        sherlock = Sherlock(
             report_maintainer_mock, backfill_tool_mock, secretary, notify_client_mock, no_time_left
         )
         try:
-            sheriff_bot.sheriff(
-                since=EPOCH, frameworks=['raptor', 'talos'], repositories=['autoland']
-            )
+            sherlock.sheriff(since=EPOCH, frameworks=['raptor', 'talos'], repositories=['autoland'])
         except MaxRuntimeExceeded:
             pass
 
@@ -108,7 +106,7 @@ def test_records_change_to_ready_for_processing(
     report_maintainer_mock,
     backfill_tool_mock,
     secretary,
-    sheriff_settings,
+    sherlock_settings,
     notify_client_mock,
 ):
     # create new report with records - the report will not be mature
@@ -121,13 +119,13 @@ def test_records_change_to_ready_for_processing(
     assert ready_records.count() == 0
     assert frozen_reports.count() == 0
 
-    sheriff_bot = PerfSheriffBot(
+    sherlock = Sherlock(
         report_maintainer_mock,
         backfill_tool_mock,
         secretary,
         notify_client_mock,
     )
-    sheriff_bot.sheriff(since=EPOCH, frameworks=['raptor', 'talos'], repositories=['autoland'])
+    sherlock.sheriff(since=EPOCH, frameworks=['raptor', 'talos'], repositories=['autoland'])
 
     assert preliminary_records.count() == 1
     assert ready_records.count() == 1
@@ -139,16 +137,16 @@ def test_assert_can_run_throws_exception_when_runtime_exceeded(
     backfill_tool_mock,
     secretary,
     record_ready_for_processing,
-    sheriff_settings,
+    sherlock_settings,
     notify_client_mock,
 ):
     no_time_left = timedelta(seconds=0)
-    sheriff_bot = PerfSheriffBot(
+    sherlock_bot = Sherlock(
         report_maintainer_mock, backfill_tool_mock, secretary, notify_client_mock, no_time_left
     )
 
     with pytest.raises(MaxRuntimeExceeded):
-        sheriff_bot.assert_can_run()
+        sherlock_bot.assert_can_run()
 
 
 def test_assert_can_run_doesnt_throw_exception_when_enough_time_left(
@@ -157,15 +155,15 @@ def test_assert_can_run_doesnt_throw_exception_when_enough_time_left(
     secretary,
     notify_client_mock,
     record_ready_for_processing,
-    sheriff_settings,
+    sherlock_settings,
 ):
     enough_time_left = timedelta(minutes=10)
-    sheriff_bot = PerfSheriffBot(
+    sherlock = Sherlock(
         report_maintainer_mock, backfill_tool_mock, secretary, notify_client_mock, enough_time_left
     )
 
     try:
-        sheriff_bot.assert_can_run()
+        sherlock.assert_can_run()
     except MaxRuntimeExceeded:
         pytest.fail()
 
@@ -175,16 +173,14 @@ def test_records_and_db_limits_remain_unchanged_if_no_records_suitable_for_backf
     backfill_tool_mock,
     secretary,
     notify_client_mock,
-    sheriff_settings,
+    sherlock_settings,
     record_unsuited_for_backfill,
 ):
-    sheriff_bot = PerfSheriffBot(
-        report_maintainer_mock, backfill_tool_mock, secretary, notify_client_mock
-    )
-    sheriff_bot._backfill()
+    sherlock = Sherlock(report_maintainer_mock, backfill_tool_mock, secretary, notify_client_mock)
+    sherlock._backfill()
 
     assert not has_changed(record_unsuited_for_backfill)
-    assert not has_changed(sheriff_settings)
+    assert not has_changed(sherlock_settings)
 
 
 def test_records_remain_unchanged_if_no_backfills_left(
@@ -195,10 +191,8 @@ def test_records_remain_unchanged_if_no_backfills_left(
     record_ready_for_processing,
     empty_sheriff_settings,
 ):
-    sheriff_bot = PerfSheriffBot(
-        report_maintainer_mock, backfill_tool_mock, secretary, notify_client_mock
-    )
-    sheriff_bot._backfill()
+    sherlock = Sherlock(report_maintainer_mock, backfill_tool_mock, secretary, notify_client_mock)
+    sherlock._backfill()
 
     assert not has_changed(record_ready_for_processing)
 
@@ -208,20 +202,20 @@ def test_records_and_db_limits_remain_unchanged_if_runtime_exceeded(
     backfill_tool_mock,
     secretary,
     record_ready_for_processing,
-    sheriff_settings,
+    sherlock_settings,
     notify_client_mock,
 ):
     no_time_left = timedelta(seconds=0)
-    sheriff_bot = PerfSheriffBot(
+    sherlock = Sherlock(
         report_maintainer_mock, backfill_tool_mock, secretary, notify_client_mock, no_time_left
     )
     try:
-        sheriff_bot.sheriff(since=EPOCH, frameworks=['raptor', 'talos'], repositories=['autoland'])
+        sherlock.sheriff(since=EPOCH, frameworks=['raptor', 'talos'], repositories=['autoland'])
     except MaxRuntimeExceeded:
         pass
 
     assert not has_changed(record_ready_for_processing)
-    assert not has_changed(sheriff_settings)
+    assert not has_changed(sherlock_settings)
 
 
 def test_db_limits_update_if_backfills_left(
@@ -229,14 +223,12 @@ def test_db_limits_update_if_backfills_left(
     backfill_tool_mock,
     secretary,
     record_ready_for_processing,
-    sheriff_settings,
+    sherlock_settings,
     notify_client_mock,
 ):
     initial_backfills = secretary.backfills_left(on_platform='linux')
-    sheriff_bot = PerfSheriffBot(
-        report_maintainer_mock, backfill_tool_mock, secretary, notify_client_mock
-    )
-    sheriff_bot.sheriff(since=EPOCH, frameworks=['raptor', 'talos'], repositories=['autoland'])
+    sherlock = Sherlock(report_maintainer_mock, backfill_tool_mock, secretary, notify_client_mock)
+    sherlock.sheriff(since=EPOCH, frameworks=['raptor', 'talos'], repositories=['autoland'])
 
     record_ready_for_processing.refresh_from_db()
     assert record_ready_for_processing.status == BackfillRecord.BACKFILLED
@@ -248,22 +240,20 @@ def test_backfilling_gracefully_handles_invalid_json_contexts_without_blowing_up
     backfill_tool_mock,
     secretary,
     record_ready_for_processing,
-    sheriff_settings,
+    sherlock_settings,
     notify_client_mock,
     broken_context_str,  # Note: parametrizes the test
 ):
     record_ready_for_processing.context = broken_context_str
     record_ready_for_processing.save()
 
-    sheriff_bot = PerfSheriffBot(
-        report_maintainer_mock, backfill_tool_mock, secretary, notify_client_mock
-    )
+    sherlock = Sherlock(report_maintainer_mock, backfill_tool_mock, secretary, notify_client_mock)
     try:
-        sheriff_bot.sheriff(since=EPOCH, frameworks=['raptor', 'talos'], repositories=['autoland'])
+        sherlock.sheriff(since=EPOCH, frameworks=['raptor', 'talos'], repositories=['autoland'])
     except (JSONDecodeError, KeyError, Job.DoesNotExist, Push.DoesNotExist):
         pytest.fail()
 
     record_ready_for_processing.refresh_from_db()
 
     assert record_ready_for_processing.status == BackfillRecord.FAILED
-    assert not has_changed(sheriff_settings)
+    assert not has_changed(sherlock_settings)

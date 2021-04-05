@@ -1,13 +1,15 @@
 from copy import copy, deepcopy
 from datetime import datetime, timedelta
+from unittest.mock import MagicMock
 
 import pytest
 import simplejson as json
+import taskcluster
 from freezegun import freeze_time
 
 from tests.conftest import SampleDataJSONLoader, create_perf_signature, create_perf_alert
 from treeherder.model.models import MachinePlatform, Job
-from treeherder.perf.auto_perf_sheriffing.secretary_tool import SecretaryTool
+from treeherder.perf.auto_perf_sherrifing.secretary import Secretary
 from treeherder.perf.models import (
     BackfillReport,
     BackfillRecord,
@@ -16,10 +18,11 @@ from treeherder.perf.models import (
     PerformanceAlert,
 )
 
-# For testing PerfSheriffBot
+# For testing Sherlock
+from treeherder.services.taskcluster import notify_client_factory
 from treeherder.utils import default_serializer
 
-load_json_fixture = SampleDataJSONLoader('perf_sheriff_bot')
+load_json_fixture = SampleDataJSONLoader('sherlock')
 
 
 @pytest.fixture(scope="module")
@@ -116,11 +119,11 @@ def backfill_tool_mock():
 
 @pytest.fixture
 def secretary():
-    return SecretaryTool()
+    return Secretary()
 
 
 @pytest.fixture
-def sheriff_settings(secretary, db):
+def sherlock_settings(secretary, db):
     secretary.validate_settings()
     return PerformanceSettings.objects.get(name='perf_sheriff_bot')
 
@@ -133,7 +136,7 @@ def empty_sheriff_settings(secretary):
     return PerformanceSettings.objects.get(name='perf_sheriff_bot')
 
 
-# For testing SecretaryTool
+# For testing Secretary
 @pytest.fixture
 def performance_settings(db):
     settings = {
@@ -165,3 +168,20 @@ def create_record():
         return BackfillRecord.objects.create(alert=alert, report=report)
 
     return _create_record
+
+
+@pytest.fixture
+def notify_client_mock() -> taskcluster.Notify:
+    return MagicMock(
+        spec=notify_client_factory('https://fakerooturl.org', 'FAKE_CLIENT_ID', 'FAKE_ACCESS_TOKEN')
+    )
+
+
+@pytest.fixture
+def job_from_try(eleven_job_blobs, create_jobs):
+    job_blob = eleven_job_blobs[0]
+    job = create_jobs([job_blob])[0]
+
+    job.repository.is_try_repo = True
+    job.repository.save()
+    return job

@@ -2,25 +2,25 @@ from datetime import timedelta
 
 from django.conf import settings
 
-from treeherder.perf.auto_perf_sheriffing.backfill_reports import (
+from treeherder.perf.auto_perf_sherrifing.backfill_reports import (
     BackfillReportMaintainer,
     AlertsPicker,
     IdentifyAlertRetriggerables,
 )
-from treeherder.perf.auto_perf_sheriffing.backfill_tool import BackfillTool
-from treeherder.perf.auto_perf_sheriffing.perf_sheriff_bot import PerfSheriffBot
-from treeherder.perf.auto_perf_sheriffing.secretary_tool import SecretaryTool
+from treeherder.perf.auto_perf_sherrifing.backfill_tool import BackfillTool
+from treeherder.perf.auto_perf_sherrifing.sherlock import Sherlock
+from treeherder.perf.auto_perf_sherrifing.secretary import Secretary
 from treeherder.services.taskcluster import DEFAULT_ROOT_URL, notify_client_factory
 from treeherder.services.taskcluster import TaskclusterModelProxy
 
 
-def perf_sheriff_bot_factory(days_to_lookup: timedelta) -> PerfSheriffBot:
+def sherlock_factory(days_to_lookup: timedelta) -> Sherlock:
     report_maintainer = __report_maintainer_factory(days_to_lookup)
     backfill_tool = __backfill_tool_factory()
-    secretary_tool = SecretaryTool()
+    secretary = Secretary()
     notify_client = notify_client_factory()
 
-    return PerfSheriffBot(report_maintainer, backfill_tool, secretary_tool, notify_client)
+    return Sherlock(report_maintainer, backfill_tool, secretary, notify_client)
 
 
 def __report_maintainer_factory(days_to_lookup: timedelta) -> BackfillReportMaintainer:

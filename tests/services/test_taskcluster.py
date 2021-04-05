@@ -8,7 +8,7 @@ from treeherder.services.taskcluster import (
     NotifyAdapter,
 )
 
-load_json_fixture = SampleDataJSONLoader('perf_sheriff_bot')
+load_json_fixture = SampleDataJSONLoader('sherlock')
 
 
 @pytest.fixture(scope="module")

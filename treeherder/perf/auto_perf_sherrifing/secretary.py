@@ -6,14 +6,14 @@ from django.conf import settings as django_settings
 
 from treeherder.perf.models import BackfillRecord, BackfillReport, PerformanceSettings
 from treeherder.utils import default_serializer
-from treeherder.perf.auto_perf_sheriffing.outcome_checker import OutcomeChecker, OutcomeStatus
+from treeherder.perf.auto_perf_sherrifing.outcome_checker import OutcomeChecker, OutcomeStatus
 
 logger = logging.getLogger(__name__)
 
 
 # TODO: update the backfill status using data (bug 1626548)
 # TODO: consider making this a singleton (bug 1639112)
-class SecretaryTool:
+class Secretary:
     """
     * marks which records can be backfilled
     * provides & maintains backfill limits
@@ -25,7 +25,8 @@ class SecretaryTool:
 
     @classmethod
     def validate_settings(cls):
-        perf_sheriff_settings, created = PerformanceSettings.objects.get_or_create(
+        sherlock_settings, created = PerformanceSettings.objects.get_or_create(
+            # TODO: rename perf_sheriff_bot settings name to sherlock
             name="perf_sheriff_bot",
             defaults={"settings": cls._get_default_settings()},
         )
@@ -37,13 +38,13 @@ class SecretaryTool:
             return
 
         # reset limits if the settings expired
-        settings = json.loads(perf_sheriff_settings.settings)
-        logger.info(f"Perfsheriff bot settings: {settings}")
+        settings = json.loads(sherlock_settings.settings)
+        logger.info(f"Sherlock settings: {settings}.")
         if cls.are_expired(settings):
-            logger.info(f"Settings are expired. Expired settings: {settings}")
+            logger.info(f"Settings are expired. Expired settings: {settings}.")
 
-            perf_sheriff_settings.settings = cls._get_default_settings()
-            perf_sheriff_settings.save()
+            sherlock_settings.settings = cls._get_default_settings()
+            sherlock_settings.save()
 
     @classmethod
     def mark_reports_for_backfill(cls):
@@ -53,7 +54,7 @@ class SecretaryTool:
             frozen=False, last_updated__lte=mature_date_limit
         )
 
-        logger.info('Perfsheriff bot: %s mature reports found', mature_reports.count())
+        logger.info(f"Sherlock: {mature_reports.count()} mature reports found.")
 
         # Only for logging alternative strategy for choosing maturity limit
         alternative_date_limit = datetime.utcnow() - timedelta(days=1)
@@ -61,20 +62,16 @@ class SecretaryTool:
             frozen=False, created__lte=alternative_date_limit
         )
         logger.info(
-            'Perfsheriff bot: %s mature reports found with alternative strategy (not marking)',
-            alternative_mature_reports.count(),
+            f"Sherlock: {alternative_mature_reports.count()} mature reports found with alternative strategy (not marking).",
         )
 
         for report in mature_reports:
             should_freeze = False
-            logger.info(
-                'Perfsheriff bot: marking report with id %s for backfill', report.summary.id
-            )
+            logger.info(f"Sherlock: Marking report with id {report.summary.id} for backfill...")
             for record in report.records.all():
                 if record.status == BackfillRecord.PRELIMINARY:
                     logger.info(
-                        'Perfsheriff bot: marking record with id %s READY_FOR_PROCESSING',
-                        record.alert.id,
+                        f"Sherlock: Marking record with id {record.alert.id} READY_FOR_PROCESSING..."
                     )
                     record.status = BackfillRecord.READY_FOR_PROCESSING
                     record.save()

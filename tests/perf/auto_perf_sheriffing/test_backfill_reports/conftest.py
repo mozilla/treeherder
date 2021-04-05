@@ -8,7 +8,7 @@ import pytest
 
 from tests.conftest import create_perf_alert
 from treeherder.model.models import Job, Option, OptionCollection, MachinePlatform
-from treeherder.perf.auto_perf_sheriffing.backfill_reports import AlertsPicker
+from treeherder.perf.auto_perf_sherrifing.backfill_reports import AlertsPicker
 from treeherder.perf.models import PerformanceAlert, PerformanceDatum, PerformanceSignature
 
 # For testing BackfillReportMaintainer
