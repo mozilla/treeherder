@@ -103,7 +103,17 @@ export default class Health extends React.PureComponent {
   };
 
   updatePushHealth = async () => {
-    const { repo, revision } = this.state;
+    const { repo, revision, status } = this.state;
+
+    if (status) {
+      const { running, pending, completed } = status;
+
+      if (completed > 0 && pending === 0 && running === 0) {
+        clearInterval(this.testTimerId);
+        return;
+      }
+    }
+
     const { data, failureStatus } = await PushModel.getHealth(repo, revision);
     const newState = !failureStatus ? data : { failureMessage: data };
 
