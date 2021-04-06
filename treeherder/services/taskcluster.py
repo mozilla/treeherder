@@ -1,7 +1,6 @@
-import hashlib
 import logging
+import uuid
 from abc import ABC, abstractmethod
-from datetime import datetime
 from typing import List, Tuple
 
 import jsone
@@ -188,22 +187,20 @@ class TaskclusterModelImpl(TaskclusterModel):
         )
 
 
-class TaskclusterModelProxy(TaskclusterModel):
+class TaskclusterModelNullObject(TaskclusterModel):
     """
-    TODO: remove this class when backfill tool' soft launch is complete
+    Stubbed version of TaskclusterModelImpl (useful on non-production environments)
     """
 
     def trigger_action(
         self, action: str, task_id: str, decision_task_id: str, input: dict, root_url: str = None
     ) -> str:
-        hash_suffix = self.__hash(task_id)
-        return f'fake-backfill-task-id-for-{task_id}-{hash_suffix}'
+        suffix = self.__randomized_value()
+        return f"fake-backfill-task-id-for-{task_id}-{suffix}"
 
-    def __hash(self, task_id: str) -> str:
-        now = str(datetime.now())
-        task_id = task_id.encode('utf-8')
-
-        return hashlib.sha256(f'{now}-{task_id}').hexdigest()
+    @staticmethod
+    def __randomized_value() -> str:
+        return uuid.uuid4().hex
 
 
 class Notify(ABC):
