@@ -26,7 +26,7 @@ services:
       - SITE_URL=http://backend:8000/
       - TREEHERDER_DEBUG=True
       - NEW_RELIC_INSIGHTS_API_KEY=${NEW_RELIC_INSIGHTS_API_KEY:-}
-      - MOZCI_CONFIG_PATH=${MOZCI_CONFIG_PATH:-mozci_config.toml}
+      - MOZCI_CONFIG_PATH=${MOZCI_CONFIG_PATH:-dev_mozci_config.toml}
     entrypoint: './docker/entrypoint.sh'
     # We *ONLY* initialize the data when we're running the backend
     command: './initialize_data.sh ./manage.py runserver 0.0.0.0:8000'
