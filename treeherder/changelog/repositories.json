@@ -35,7 +35,7 @@
         "description": "Puppet host configuration management",
         "owner": "Release Operations",
         "project": "Ronin Pupppet",
-        "project_url": "https://github.com/mozilla-platform-ops/ronin-puppet"
+        "project_url": "https://github.com/mozilla-platform-ops/ronin_puppet"
       },
       "source": {
         "filters": ["remove_auto_commits"],
