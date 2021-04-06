@@ -1,6 +1,7 @@
+#This file is used for local development only, since production requires different data sources
 [mozci]
 verbose = 1
-data_sources = ['treeherder_db', 'hgmo', 'taskcluster']
+data_sources = ['treeherder_client', 'hgmo', 'taskcluster']
 maxdepth=1
 
 [mozci.cache]
