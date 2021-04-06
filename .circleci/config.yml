@@ -7,6 +7,7 @@ jobs:
       - run: pip3 install pre-commit
       - run: pre-commit run --all-files --verbose
 
+  # TODO: move this check into pre-commit
   changelog-url-test:
     docker:
       - image: cimg/python:3.9.1
