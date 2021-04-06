@@ -187,33 +187,30 @@ export default class AlertTableRow extends React.Component {
         >
           {alert.title}
         </span>{' '}
-        {this.renderAlertStatus(alert, alertStatus, statusColor)}
+        {this.renderAlertStatus(alert, alertStatus, statusColor)}{' '}
         <span className="result-links">
           <a
             href={getGraphsURL(alert, timeRange, repository, framework)}
             target="_blank"
             rel="noopener noreferrer"
           >
-            {' '}
             graph
-          </a>
+          </a>{' '}
           {alert.series_signature.has_subtests && (
             <a
               href={this.getSubtestsURL()}
               target="_blank"
               rel="noopener noreferrer"
             >
-              {' '}
               · subtests
             </a>
-          )}
+          )}{' '}
           {getFrameworkName(frameworks, framework) === 'talos' && (
             <a
               href={getTalosDocsURL(suite)}
               target="_blank"
               rel="noopener noreferrer"
             >
-              {' '}
               · docs
             </a>
           )}

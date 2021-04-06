@@ -180,13 +180,8 @@ export default class CompareTable extends React.Component {
           <tr className="subtest-header bg-lightgray">
             <th className="text-left">
               <span>
-                {testName}
-                {frameworkName === 'talos' && (
-                  <a href={url} style={{ color: '#23527c' }}>
-                    {' '}
-                    (docs)
-                  </a>
-                )}
+                {testName}{' '}
+                {frameworkName === 'talos' && <a href={url}>(docs)</a>}
               </span>
               {onPermalinkClick && (
                 <Button

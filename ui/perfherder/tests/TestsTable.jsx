@@ -32,9 +32,9 @@ export default function TestsTable(props) {
       accessor: 'suite',
       Cell: ({ row }) => (
         <div>
-          {row.suite}
+          {row.suite}{' '}
           {framework === 'talos' && (
-            <a href={getTalosDocsURL(row.suite)}> (docs)</a>
+            <a href={getTalosDocsURL(row.suite)}>(docs)</a>
           )}
         </div>
       ),
