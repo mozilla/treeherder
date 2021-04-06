@@ -30,14 +30,7 @@ class TaskclusterModel(ABC):
 class TaskclusterModelImpl(TaskclusterModel):
     """Javascript -> Python rewrite of frontend' s TaskclusterModel"""
 
-    def __init__(self, root_url, client_id=None, access_token=None, unit_testing_this=False):
-        # TODO: remove when backfill tool' soft launch is complete ->
-        if not unit_testing_this:
-            raise RuntimeError(
-                f"Must not instantiate real {self.__class__.__name__} instance "
-                f"before backfill tool' soft launch is complete"
-            )
-        # <- up to here
+    def __init__(self, root_url, client_id=None, access_token=None):
         options = {'rootUrl': root_url}
         credentials = {}
 
@@ -220,6 +213,17 @@ class NotifyAdapter(Notify):
 class NotifyNullObject(Notify):
     def email(self, *args, **kwargs):
         logger.debug(f"Faking sending of email `{args}`")
+
+
+def taskcluster_model_factory() -> TaskclusterModel:
+    client_id = settings.PERF_SHERIFF_BOT_CLIENT_ID
+    access_token = settings.PERF_SHERIFF_BOT_ACCESS_TOKEN
+
+    options = dict(root_url=DEFAULT_ROOT_URL, client_id=client_id, access_token=access_token)
+
+    if client_id and access_token:
+        return TaskclusterModelImpl(**options)
+    return TaskclusterModelNullObject(**options)
 
 
 def notify_client_factory(
