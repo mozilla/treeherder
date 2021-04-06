@@ -1,6 +1,6 @@
 import pytest
 
-from treeherder.perf.auto_perf_sherrifing.backfill_tool import BackfillTool
+from treeherder.perf.auto_perf_sheriffing.backfill_tool import BackfillTool
 from treeherder.perf.exceptions import CannotBackfill
 from treeherder.services.taskcluster import TaskclusterModelProxy
 

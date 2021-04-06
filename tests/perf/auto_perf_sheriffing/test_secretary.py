@@ -7,10 +7,10 @@ import simplejson as json
 from django.db.models import Q
 
 from treeherder.config.settings import IS_WINDOWS
-from treeherder.perf.auto_perf_sherrifing.secretary import Secretary
+from treeherder.perf.auto_perf_sheriffing.secretary import Secretary
 from treeherder.model.models import Job, Push
 from treeherder.perf.models import BackfillRecord, BackfillReport, PerformanceSettings
-from treeherder.perf.auto_perf_sherrifing.outcome_checker import OutcomeChecker, OutcomeStatus
+from treeherder.perf.auto_perf_sheriffing.outcome_checker import OutcomeChecker, OutcomeStatus
 
 # we're testing against this (automatically provided by fixtures)
 JOB_TYPE_ID = 1

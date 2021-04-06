@@ -2,14 +2,14 @@ from datetime import timedelta
 
 from django.conf import settings
 
-from treeherder.perf.auto_perf_sherrifing.backfill_reports import (
+from treeherder.perf.auto_perf_sheriffing.backfill_reports import (
     BackfillReportMaintainer,
     AlertsPicker,
     IdentifyAlertRetriggerables,
 )
-from treeherder.perf.auto_perf_sherrifing.backfill_tool import BackfillTool
-from treeherder.perf.auto_perf_sherrifing.sherlock import Sherlock
-from treeherder.perf.auto_perf_sherrifing.secretary import Secretary
+from treeherder.perf.auto_perf_sheriffing.backfill_tool import BackfillTool
+from treeherder.perf.auto_perf_sheriffing.sherlock import Sherlock
+from treeherder.perf.auto_perf_sheriffing.secretary import Secretary
 from treeherder.services.taskcluster import DEFAULT_ROOT_URL, notify_client_factory
 from treeherder.services.taskcluster import TaskclusterModelProxy
 
