@@ -1,4 +1,12 @@
 jobs:
+  run-pre-commit:
+    docker:
+      - image: cimg/python:3.9.1
+    steps:
+      - checkout
+      - run: pip3 install pre-commit
+      - run: pre-commit run --all-files --verbose
+
   changelog-url-test:
     docker:
       - image: cimg/python:3.9.1
@@ -125,6 +133,7 @@ version: 2.1
 workflows:
   run-tests:
     jobs:
+      - run-pre-commit
       - changelog-url-test
       - javascript-tests
       - builds
