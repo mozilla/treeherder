@@ -40,7 +40,7 @@
       "source": {
         "filters": ["remove_auto_commits"],
         "items": 10,
-        "repository": "ronin-puppet",
+        "repository": "ronin_puppet",
         "type": "github",
         "user": "mozilla-platform-ops"
       }
