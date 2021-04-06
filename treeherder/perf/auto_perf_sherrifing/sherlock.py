@@ -203,9 +203,11 @@ class Sherlock:
 
     def _notify_backfill_outcome(self):
         backfill_notification = self._email_writer.prepare_new_email(self.backfilled_records)
+        logger.debug(f"Sherlock: Composed email notification payload `{backfill_notification}`.")
 
         # send email
-        self._notify.email(backfill_notification)
+        response = self._notify.email(backfill_notification)
+        logger.debug(f"Sherlock: Email notification service replied with `{response}`.")
 
     @staticmethod
     def __get_data_points_to_backfill(context: List[dict]) -> List[dict]:
