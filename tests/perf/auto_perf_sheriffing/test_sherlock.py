@@ -226,13 +226,15 @@ def test_db_limits_update_if_backfills_left(
     sherlock_settings,
     notify_client_mock,
 ):
-    initial_backfills = secretary.backfills_left(on_platform='linux')
+    targeted_platform = record_ready_for_processing.platform.platform
+
+    initial_backfills = secretary.backfills_left(on_platform=targeted_platform)
     sherlock = Sherlock(report_maintainer_mock, backfill_tool_mock, secretary, notify_client_mock)
     sherlock.sheriff(since=EPOCH, frameworks=['raptor', 'talos'], repositories=['autoland'])
 
     record_ready_for_processing.refresh_from_db()
     assert record_ready_for_processing.status == BackfillRecord.BACKFILLED
-    assert (initial_backfills - 4) == secretary.backfills_left(on_platform='linux')
+    assert (initial_backfills - 4) == secretary.backfills_left(on_platform=targeted_platform)
 
 
 def test_backfilling_gracefully_handles_invalid_json_contexts_without_blowing_up(

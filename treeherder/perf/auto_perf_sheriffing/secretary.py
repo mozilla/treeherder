@@ -1,12 +1,13 @@
 import logging
 from datetime import datetime, timedelta
+from typing import List
 
 import simplejson as json
 from django.conf import settings as django_settings
 
+from treeherder.perf.auto_perf_sheriffing.outcome_checker import OutcomeChecker, OutcomeStatus
 from treeherder.perf.models import BackfillRecord, BackfillReport, PerformanceSettings
 from treeherder.utils import default_serializer
-from treeherder.perf.auto_perf_sheriffing.outcome_checker import OutcomeChecker, OutcomeStatus
 
 logger = logging.getLogger(__name__)
 
@@ -20,8 +21,11 @@ class Secretary:
     * notes outcome of backfills (successful/unsuccessful)
     """
 
-    def __init__(self, outcome_checker: OutcomeChecker = None):
+    def __init__(
+        self, outcome_checker: OutcomeChecker = None, supported_platforms: List[str] = None
+    ):
         self.outcome_checker = outcome_checker or OutcomeChecker()
+        self.supported_platforms = supported_platforms or django_settings.SUPPORTED_PLATFORMS
 
     @classmethod
     def validate_settings(cls):
@@ -86,16 +90,14 @@ class Secretary:
         return datetime.utcnow() > last_reset_date + django_settings.RESET_BACKFILL_LIMITS
 
     def backfills_left(self, on_platform: str) -> int:
-        if on_platform != 'linux':
-            raise ValueError(f"Unsupported platform: {on_platform}.")
+        self.__assert_platform_is_supported(on_platform)
 
         perf_sheriff_settings = PerformanceSettings.objects.get(name="perf_sheriff_bot")
         settings = json.loads(perf_sheriff_settings.settings)
         return settings['limits'][on_platform]
 
     def consume_backfills(self, on_platform: str, amount: int) -> int:
-        if on_platform != 'linux':
-            raise ValueError(f"Unsupported platform: {on_platform}.")
+        self.__assert_platform_is_supported(on_platform)
 
         perf_sheriff_settings = PerformanceSettings.objects.get(name="perf_sheriff_bot")
 
@@ -127,6 +129,10 @@ class Secretary:
                 record.save()
             except ValueError as ex:
                 logger.error(ex)
+
+    def __assert_platform_is_supported(self, on_platform: str):
+        if on_platform not in self.supported_platforms:
+            raise ValueError(f"Unsupported platform: {on_platform}.")
 
     @classmethod
     def _get_default_settings(cls, as_json=True):

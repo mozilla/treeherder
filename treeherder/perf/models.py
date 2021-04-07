@@ -612,8 +612,12 @@ class BackfillRecord(models.Model):
         return self.alert
 
     @property
-    def repository(self):
+    def repository(self) -> Repository:
         return self.alert.summary.repository
+
+    @property
+    def platform(self) -> MachinePlatform:
+        return self.alert.series_signature.platform
 
     def get_context_border_info(self, context_property: str) -> Tuple[str, str]:
         """
