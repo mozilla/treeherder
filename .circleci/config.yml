@@ -3,7 +3,7 @@ jobs:
     executor:
       name: node/default
       # The Node version here must be kept in sync with that in `package.json`.
-      tag: '12.14.1'
+      tag: '14.16'
     steps:
       - checkout
       - node/install-packages:
@@ -56,9 +56,10 @@ jobs:
 
   test-docker-build:
     docker:
-      - image: docker:18.02.0-ce
+      - image: docker:19.03.14
     steps:
-      - setup_remote_docker
+      - setup_remote_docker:
+          version: 19.03.14
       - checkout
       - run:
           name: Create a version.json
@@ -76,9 +77,10 @@ jobs:
 
   deploy:
     docker:
-      - image: docker:18.02.0-ce
+      - image: docker:19.03.14
     steps:
-      - setup_remote_docker
+      - setup_remote_docker:
+          version: 19.03.14
       - checkout
       - run:
           name: Create a version.json
