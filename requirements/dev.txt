@@ -21,16 +21,16 @@ attrs==20.3.0 \
 betamax-serializers==0.2.1 \
     --hash=sha256:1b23c46429c40a8873682854c88d805c787c72d252f3fa0c858e9c300682ceac \
     --hash=sha256:345c419b1b73171f2951c62ac3c701775ac4b76e13e86464ebf0ff2a978e4949
-    # via -r requirements/dev.in
+    # via -r dev.in
 betamax==0.8.1 \
     --hash=sha256:5bf004ceffccae881213fb722f34517166b84a34919b92ffc14d1dbd050b71c2 \
     --hash=sha256:aa5ad34cc8d018b35814fb0557d15c78ced9ac56fdc43ccacdb882aa7a5217c1
     # via
-    #   -r requirements/dev.in
+    #   -r dev.in
     #   betamax-serializers
 black==20.8b1 \
     --hash=sha256:1c02557aa099101b9d21496f8a914e9ed2222ef70336404eeeac8edba836fbea
-    # via -r requirements/dev.in
+    # via -r dev.in
 certifi==2020.12.5 \
     --hash=sha256:1a4995114262bffbc2413b159f2a1a480c969de6e6eb13ee966d470af86af59c \
     --hash=sha256:719a74fb9e33b9bd44cc7f3a8d94bc35e4049deebe19ba7d8e108280cfd59830
@@ -116,16 +116,16 @@ distlib==0.3.1 \
 django-debug-toolbar==3.2 \
     --hash=sha256:84e2607d900dbd571df0a2acf380b47c088efb787dce9805aefeb407341961d2 \
     --hash=sha256:9e5a25d0c965f7e686f6a8ba23613ca9ca30184daa26487706d4829f5cfb697a
-    # via -r requirements/dev.in
+    # via -r dev.in
 django-extensions==3.1.1 \
     --hash=sha256:674ad4c3b1587a884881824f40212d51829e662e52f85b012cd83d83fe1271d9 \
     --hash=sha256:9507f8761ee760748938fd8af766d0608fb2738cf368adfa1b2451f61c15ae35
-    # via -r requirements/dev.in
-django==3.1.4 \
-    --hash=sha256:5c866205f15e7a7123f1eec6ab939d22d5bde1416635cab259684af66d8e48a2 \
-    --hash=sha256:edb10b5c45e7e9c0fb1dc00b76ec7449aca258a39ffd613dbd078c51d19c9f03
+    # via -r dev.in
+django==3.1.6 \
+    --hash=sha256:169e2e7b4839a7910b393eec127fd7cbae62e80fa55f89c6510426abf673fe5f \
+    --hash=sha256:c6c0462b8b361f8691171af1fb87eceb4442da28477e12200c40420176206ba7
     # via
-    #   -r requirements/dev.in
+    #   -r dev.in
     #   django-debug-toolbar
 docopt==0.6.2 \
     --hash=sha256:49b3a825280bd66b3aa83585ef59c4a8c82f2c8a522dbe754a8bc8d08c85c491
@@ -137,7 +137,7 @@ filelock==3.0.12 \
 flake8==3.9.0 \
     --hash=sha256:12d05ab02614b6aee8df7c36b97d1a3b2372761222b19b58621355e82acddcff \
     --hash=sha256:78873e372b12b093da7b5e5ed302e8ad9e988b38b063b61ad937f26ca58fc5f0
-    # via -r requirements/dev.in
+    # via -r dev.in
 freezegun==1.1.0 \
     --hash=sha256:177f9dd59861d871e27a484c3332f35a6e3f5d14626f2bf91be37891f18927f3 \
     --hash=sha256:2ae695f7eb96c62529f03a038461afe3c692db3465e215355e1bb4b0ab408712
@@ -153,7 +153,7 @@ idna==2.10 \
 importlib-metadata==3.7.3 \
     --hash=sha256:742add720a20d0467df2f444ae41704000f50e1234f46174b51f9c6031a1bd71 \
     --hash=sha256:b74159469b464a99cb8cc3e21973e4d96e05d3024d337313fedb618a6e86e6f4
-    # via -r requirements/dev.in
+    # via -r dev.in
 iniconfig==1.1.1 \
     --hash=sha256:011e24c64b7f47f6ebd835bb12a743f2fbe9a26d4cecaa7f53bc4f35ee9da8b3 \
     --hash=sha256:bc3af051d7d14b2ee5ef9969666def0cd1a000e121eaea580d4a313df4b37f32
@@ -165,7 +165,7 @@ mccabe==0.6.1 \
 mock==4.0.3 \
     --hash=sha256:122fcb64ee37cfad5b3f48d7a7d51875d7031aaf3d8be7c42e2bee25044eee62 \
     --hash=sha256:7d3fbbde18228f4ff2f1f119a45cdffa458b4c0dee32eb4d2bb2f82554bac7bc
-    # via -r requirements/dev.in
+    # via -r dev.in
 mypy-extensions==0.4.3 \
     --hash=sha256:090fedd75945a69ae91ce1303b5824f428daf5a028d2f6ab8a299250a846f15d \
     --hash=sha256:2d82818f5bb3e369420cb3c4060a7970edba416647068eb4c5343488a6c604a8
@@ -189,7 +189,7 @@ pep517==0.10.0 \
 pip-tools==6.0.1 \
     --hash=sha256:3b0c7b95e8d3dfb011bb42cb38f356fcf5d0630480462b59c4d0a112b8d90281 \
     --hash=sha256:50ec26df7710557ab574f19f7511830294999e6121b42b87473b48cb9984d788
-    # via -r requirements/dev.in
+    # via -r dev.in
 pluggy==0.13.1 \
     --hash=sha256:15b2acde666561e1298d71b523007ed7364de07029219b604cf808bfa1c765b0 \
     --hash=sha256:966c145cd83c96502c3c3868f50408687b38434af77734af1e9ca461a4081d2d
@@ -199,7 +199,7 @@ pluggy==0.13.1 \
 pre-commit==2.11.1 \
     --hash=sha256:94c82f1bf5899d56edb1d926732f4e75a7df29a0c8c092559c77420c9d62428b \
     --hash=sha256:de55c5c72ce80d79106e48beb1b54104d16495ce7f95b0c7b13d4784193a00af
-    # via -r requirements/dev.in
+    # via -r dev.in
 py==1.10.0 \
     --hash=sha256:21b81bda15b66ef5e1a777a21c4dcd9c20ad3efd0b3f817e7a809035269e1bd3 \
     --hash=sha256:3b80836aa6d1feeaa108e046da6423ab8f6ceda6468545ae8d02d9d58d18818a
@@ -219,29 +219,29 @@ pyparsing==2.4.7 \
 pypom==2.2.0 \
     --hash=sha256:4bdd57fceb72d7e6a3645cf6c9322f490d9cfb5d777eac2c851a3b658b813939 \
     --hash=sha256:6772ec99f0a21a5bdc8c092007a8c813ed18359e67ed70258bbb233df5e28829
-    # via -r requirements/dev.in
+    # via -r dev.in
 pytest-asyncio==0.14.0 \
     --hash=sha256:2eae1e34f6c68fc0a9dc12d4bea190483843ff4708d24277c41568d6b6044f1d \
     --hash=sha256:9882c0c6b24429449f5f969a5158b528f39bde47dc32e85b9f0403965017e700
-    # via -r requirements/dev.in
+    # via -r dev.in
 pytest-cov==2.11.1 \
     --hash=sha256:359952d9d39b9f822d9d29324483e7ba04a3a17dd7d05aa6beb7ea01e359e5f7 \
     --hash=sha256:bdb9fdb0b85a7cc825269a4c56b48ccaa5c7e365054b6038772c32ddcdc969da
-    # via -r requirements/dev.in
+    # via -r dev.in
 pytest-django==4.1.0 \
     --hash=sha256:10e384e6b8912ded92db64c58be8139d9ae23fb8361e5fc139d8e4f8fc601bc2 \
     --hash=sha256:26f02c16d36fd4c8672390deebe3413678d89f30720c16efb8b2a6bf63b9041f
-    # via -r requirements/dev.in
+    # via -r dev.in
 pytest-freezegun==0.4.2 \
     --hash=sha256:19c82d5633751bf3ec92caa481fb5cffaac1787bd485f0df6436fd6242176949 \
     --hash=sha256:5318a6bfb8ba4b709c8471c94d0033113877b3ee02da5bfcd917c1889cde99a7
-    # via -r requirements/dev.in
+    # via -r dev.in
 pytest-testmon==1.1.0 \
     --hash=sha256:f88a53d28f89836509732e9dee611d66c61f5b8217201bb822a0456f2c323d19
-    # via -r requirements/dev.in
+    # via -r dev.in
 pytest-watch==4.2.0 \
     --hash=sha256:06136f03d5b361718b8d0d234042f7b2f203910d8568f63df2f866b547b3d4b9
-    # via -r requirements/dev.in
+    # via -r dev.in
 pytest==6.2.2 \
     --hash=sha256:9d1edf9e7d0b84d72ea3dbcdfd22b35fb543a5e8f2a60092dd578936bf63d7f9 \
     --hash=sha256:b574b57423e818210672e07ca1fa90aaf194a4f63f3ab909a2c67ebb22913839
@@ -343,7 +343,7 @@ requests==2.25.1 \
 responses==0.13.1 \
     --hash=sha256:3b1ea9cf026edaaf25e853abc4d3b2687d25467e9d8d41e77ee525cad0673f3e \
     --hash=sha256:cf62ab0f4119b81d485521b2c950d8aa55a885c90126488450b7acb8ee3f77ac
-    # via -r requirements/dev.in
+    # via -r dev.in
 selenium==3.141.0 \
     --hash=sha256:2d7131d7bc5a5b99a2d9b04aaf2612c411b03b8ca1b1ee8d3de5845a9be2cb3c \
     --hash=sha256:deaf32b60ad91a4611b98d8002757f29e6f2c2d5fcaf202e1c9ad06d6772300d
@@ -353,7 +353,7 @@ shellcheck-py==0.7.1.1 \
     --hash=sha256:0fca77ece2ba232ca2fdbe4f15dc4b0a30f3e38e896345b2dbf4dbe20e4bb8a9 \
     --hash=sha256:59c623567a1a7bd0a919b5009790b199b5457a78053b775de1886f01693533af \
     --hash=sha256:9f537613212aad5221a020dde3b86884cf4778688788ac26ddeb21fecf3ec2e0
-    # via -r requirements/dev.in
+    # via -r dev.in
 six==1.15.0 \
     --hash=sha256:30639c035cdb23534cd4aa2dd52c3bf48f06e5f4a941509c8bafd8ce11080259 \
     --hash=sha256:8b74bedcbbbaca38ff6d7491d76f2b06b3592611af620f8426e82dddb04a5ced
