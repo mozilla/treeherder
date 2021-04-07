@@ -56,7 +56,7 @@ jobs:
 
   test-docker-build:
     docker:
-      - image: docker:18.02.0-ce
+      - image: docker:19.03.15
     steps:
       - setup_remote_docker
       - checkout
@@ -76,7 +76,7 @@ jobs:
 
   deploy:
     docker:
-      - image: docker:18.02.0-ce
+      - image: docker:19.03.15
     steps:
       - setup_remote_docker
       - checkout
