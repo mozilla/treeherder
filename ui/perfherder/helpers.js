@@ -485,7 +485,10 @@ export const getTextualSummary = (
       alertSummary.id
     } (as of ${created.toUTCString()}) ==\n`;
   }
-  if (regressed.length > 0) {
+
+  const ellipsesRow = `\n|...|...|...|...|...|...|`;
+
+  if (regressed.length > 0 && regressed.length <= 15) {
     // add a newline if we displayed the header
     if (copySummary) {
       resultStr += '\n';
@@ -493,13 +496,47 @@ export const getTextualSummary = (
     const formattedRegressions = formatAlertBulk(regressed);
     resultStr += `### Regressions:\n\n| **Ratio** | **Suite** | **Test** | **Platform** | **Options** | **Absolute values (old vs new)**| \n|--|--|--|--|--|--| \n${formattedRegressions}\n`;
   }
-  if (improved.length > 0) {
+  if (regressed.length > 15) {
+    // add a newline if we displayed the header
+    if (copySummary) {
+      resultStr += '\n';
+    }
+    const sortedRegressed = regressed.sort(
+      (a, b) => b.amount_pct - a.amount_pct,
+    );
+    const biggestTenRegressed = sortedRegressed.slice(0, 10);
+    const smallestFiveRegressed = sortedRegressed.slice(-5);
+    const formattedBiggestRegressions = formatAlertBulk(biggestTenRegressed);
+    const formattedSmallestRegressions = formatAlertBulk(smallestFiveRegressed);
+
+    resultStr += `### Regressions:\n\n| **Ratio** | **Suite** | **Test** | **Platform** | **Options** | **Absolute values (old vs new)**| \n|--|--|--|--|--|--| \n${formattedBiggestRegressions}`;
+    resultStr += ellipsesRow;
+    resultStr += `\n${formattedSmallestRegressions}\n`;
+  }
+  if (improved.length > 0 && improved.length <= 6) {
     // Add a newline if we displayed some regressions
     if (resultStr.length > 0) {
       resultStr += '\n';
     }
     const formattedImprovements = formatAlertBulk(improved);
     resultStr += `### Improvements:\n\n| **Ratio** | **Suite** | **Test** | **Platform** | **Options** | **Absolute values (old vs new)**| \n|--|--|--|--|--|--| \n${formattedImprovements}\n`;
+  }
+  if (improved.length > 6) {
+    // Add a newline if we displayed some regressions
+    if (resultStr.length > 0) {
+      resultStr += '\n';
+    }
+    const sortedImproved = improved.sort((a, b) => b.amount_pct - a.amount_pct);
+    const biggestFiveImprovements = sortedImproved.slice(0, 5);
+    const smallestImprovement = sortedImproved.slice(-1);
+    const formattedBiggestImprovements = formatAlertBulk(
+      biggestFiveImprovements,
+    );
+    const formattedSmallestImprovement = formatAlertBulk(smallestImprovement);
+
+    resultStr += `### Improvements:\n\n| **Ratio** | **Suite** | **Test** | **Platform** | **Options** | **Absolute values (old vs new)**| \n|--|--|--|--|--|--| \n${formattedBiggestImprovements}`;
+    resultStr += ellipsesRow;
+    resultStr += `\n${formattedSmallestImprovement}\n`;
   }
   // include link to alert if getting text for clipboard only
   if (copySummary) {
