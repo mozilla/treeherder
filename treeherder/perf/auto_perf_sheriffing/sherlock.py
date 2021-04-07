@@ -40,6 +40,7 @@ class Sherlock:
         notify_client: taskcluster.Notify,
         max_runtime: timedelta = None,
         email_writer: EmailWriter = None,
+        supported_platforms: list = None,
     ):
         self.report_maintainer = report_maintainer
         self.backfill_tool = backfill_tool
@@ -48,6 +49,7 @@ class Sherlock:
         self._max_runtime = self.DEFAULT_MAX_RUNTIME if max_runtime is None else max_runtime
         self._email_writer = email_writer or BackfillNotificationWriter()
 
+        self.supported_platforms = supported_platforms or settings.SUPPORTED_PLATFORMS
         self._wake_up_time = datetime.now()
         self.backfilled_records = []  # useful for reporting backfill outcome
 
@@ -82,7 +84,7 @@ class Sherlock:
 
     def assert_can_run(self):
         if self.runtime_exceeded():
-            raise MaxRuntimeExceeded(f'Max runtime for {self.__class__.__name__} exceeded')
+            raise MaxRuntimeExceeded("Sherlock: Max runtime exceeded.")
 
     def _report(
         self, since: datetime, frameworks: List[str], repositories: List[str]
@@ -90,7 +92,7 @@ class Sherlock:
         return self.report_maintainer.provide_updated_reports(since, frameworks, repositories)
 
     def _backfill(self):
-        for platform in ['windows', 'linux']:
+        for platform in self.supported_platforms:
             self.__backfill_on(platform)
 
     def __backfill_on(self, platform: str):
