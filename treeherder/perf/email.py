@@ -69,14 +69,14 @@ class EmailWriter(ABC):
 class BackfillReportContent:
     DESCRIPTION = """Perfherder automatically backfills performance jobs originating from Linux platforms.
      It does this every hour, as long as it doesn't exceed the daily limit.
-    > __Here's a summary of latest backfills:__
-    ---
-        """
+> __Here's a summary of latest backfills:__
+---
+"""
 
     TABLE_HEADERS = """
-    | Alert summary | Alert | Job symbol | Total backfills (approx.) | Push range |
-    | :---: | :---: | :---: | :---: | :---: |
-        """
+| Alert summary | Alert | Job symbol | Total backfills (approx.) | Push range |
+| :---: | :---: | :---: | :---: | :---: |
+"""
 
     def __init__(self):
         self._raw_content = None
