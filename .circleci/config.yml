@@ -56,9 +56,10 @@ jobs:
 
   test-docker-build:
     docker:
-      - image: node:14.16.1-alpine
+      - image: docker:19.03.14
     steps:
-      - setup_remote_docker
+      - setup_remote_docker:
+          version: 19.03.14
       - checkout
       - run:
           name: Create a version.json
@@ -76,9 +77,10 @@ jobs:
 
   deploy:
     docker:
-      - image: node:14.16.1-alpine
+      - image: docker:19.03.14
     steps:
-      - setup_remote_docker
+      - setup_remote_docker:
+          version: 19.03.14
       - checkout
       - run:
           name: Create a version.json
