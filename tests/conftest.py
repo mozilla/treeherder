@@ -278,7 +278,13 @@ def taskcluster_notify_mock(monkeypatch):
 
 
 @pytest.fixture
-def mock_tc_prod_credentials(monkeypatch):
+def mock_tc_prod_backfill_credentials(monkeypatch):
+    monkeypatch.setattr(settings, 'PERF_SHERIFF_BOT_CLIENT_ID', "client_id")
+    monkeypatch.setattr(settings, 'PERF_SHERIFF_BOT_ACCESS_TOKEN', "access_token")
+
+
+@pytest.fixture
+def mock_tc_prod_notify_credentials(monkeypatch):
     monkeypatch.setattr(settings, 'NOTIFY_CLIENT_ID', "client_id")
     monkeypatch.setattr(settings, 'NOTIFY_ACCESS_TOKEN', "access_token")
 

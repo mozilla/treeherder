@@ -3,9 +3,11 @@ import pytest
 from tests.conftest import SampleDataJSONLoader
 from treeherder.services.taskcluster import (
     TaskclusterModelImpl,
+    taskcluster_model_factory,
     notify_client_factory,
     NotifyNullObject,
     NotifyAdapter,
+    TaskclusterModelNullObject,
 )
 
 load_json_fixture = SampleDataJSONLoader('sherlock')
@@ -37,27 +39,11 @@ class TestTaskclusterModelImpl:
 
     def test_can_instantiate_without_credentials(self):
         try:
-            _ = TaskclusterModelImpl(self.FAKE_ROOT_URL, unit_testing_this=True)
+            _ = TaskclusterModelImpl(self.FAKE_ROOT_URL)
         except ValueError:
             pytest.fail(
                 "Should be able to instantiate TaskclusterModelImpl without providing credentials."
             )
-
-    # TODO: remove when backfill tool' soft launch is complete ->
-    def test_cannot_instantiate_on_production(self):
-        with pytest.raises(RuntimeError):
-            _ = TaskclusterModelImpl(*self.FAKE_OPTIONS)
-
-    def test_can_still_instantiate_when_testing(self):
-        try:
-            _ = TaskclusterModelImpl(
-                *self.FAKE_OPTIONS,
-                unit_testing_this=True,
-            )
-        except RuntimeError:
-            pytest.fail("We should be able to instantiate TaskclusterModelImpl when testing")
-
-    # <- up to here
 
     def test_filter_relevant_actions(self, actions_json, original_task, expected_actions_json):
         reduced_actions_json = TaskclusterModelImpl._filter_relevant_actions(
@@ -86,11 +72,21 @@ class TestTaskclusterModelImpl:
         assert backfill_task == expected_backfill_task
 
 
+class TestTaskclusterModelFactory:
+    def test_returns_null_object_on_non_production(self):
+        notify = taskcluster_model_factory()
+        assert isinstance(notify, TaskclusterModelNullObject)
+
+    def test_returns_real_client_on_production(self, mock_tc_prod_backfill_credentials):
+        notify = taskcluster_model_factory()
+        assert isinstance(notify, TaskclusterModelImpl)
+
+
 class TestNotifyClientFactory:
     def test_returns_null_object_on_non_production(self):
         notify = notify_client_factory()
         assert isinstance(notify, NotifyNullObject)
 
-    def test_returns_real_client_on_production(self, mock_tc_prod_credentials):
+    def test_returns_real_client_on_production(self, mock_tc_prod_notify_credentials):
         notify = notify_client_factory()
         assert isinstance(notify, NotifyAdapter)

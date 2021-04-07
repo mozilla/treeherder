@@ -5,7 +5,7 @@ from operator import itemgetter as get_key
 import pytest
 
 from .conftest import NON_RETRIGGERABLE_JOB_ID, ONE_DAY_INTERVAL
-from treeherder.perf.auto_perf_sherrifing.backfill_reports import IdentifyAlertRetriggerables
+from treeherder.perf.auto_perf_sheriffing.backfill_reports import IdentifyAlertRetriggerables
 
 
 # Unit tests

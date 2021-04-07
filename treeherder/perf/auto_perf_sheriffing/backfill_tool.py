@@ -5,21 +5,13 @@ from typing import Union
 
 from treeherder.model.models import Job
 from treeherder.perf.exceptions import CannotBackfill
-from treeherder.services.taskcluster import TaskclusterModel, TaskclusterModelImpl
+from treeherder.services.taskcluster import TaskclusterModel
 
 logger = logging.getLogger(__name__)
 
 
 class BackfillTool:
     def __init__(self, taskcluster_model: TaskclusterModel):
-        # TODO: remove when backfill tool' soft launch is complete ->
-        if isinstance(taskcluster_model, TaskclusterModelImpl):
-            raise ValueError(
-                "Cannot interact with production Taskcluster "
-                "until backfill tool' soft launch is complete!"
-            )
-        # <- up to here
-
         self.__taskcluster = taskcluster_model
 
     def backfill_job(self, job: Union[Job, str]) -> str:

@@ -271,7 +271,7 @@ def test_signature_remover(
     test_perf_signature_2,
     test_perf_data,
     taskcluster_notify_mock,
-    mock_tc_prod_credentials,
+    mock_tc_prod_notify_credentials,
 ):
     cycler = PerfherderCycler(chunk_size=100, sleep_time=0)
     expired_timestamp = cycler.max_timestamp
@@ -289,7 +289,7 @@ def test_signature_remover(
 
 @pytest.mark.parametrize('total_signatures', [3, 4, 8, 10])
 def test_total_emails_sent(
-    test_perf_signature, try_repository, total_signatures, mock_tc_prod_credentials
+    test_perf_signature, try_repository, total_signatures, mock_tc_prod_notify_credentials
 ):
     notify_client_mock = MagicMock()
     timer = MaxRuntime()
@@ -347,7 +347,7 @@ def test_total_emails_sent(
 
 
 def test_remove_try_signatures_without_data(
-    test_perf_signature, test_perf_data, try_repository, mock_tc_prod_credentials
+    test_perf_signature, test_perf_data, try_repository, mock_tc_prod_notify_credentials
 ):
     notify_client_mock = MagicMock()
     timer = MaxRuntime()

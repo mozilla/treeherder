@@ -10,9 +10,9 @@ from django.db.models import QuerySet
 from taskcluster.helper import TaskclusterConfig
 
 from treeherder.model.models import Job
-from treeherder.perf.auto_perf_sherrifing.backfill_reports import BackfillReportMaintainer
-from treeherder.perf.auto_perf_sherrifing.backfill_tool import BackfillTool
-from treeherder.perf.auto_perf_sherrifing.secretary import Secretary
+from treeherder.perf.auto_perf_sheriffing.backfill_reports import BackfillReportMaintainer
+from treeherder.perf.auto_perf_sheriffing.backfill_tool import BackfillTool
+from treeherder.perf.auto_perf_sheriffing.secretary import Secretary
 from treeherder.perf.email import BackfillNotificationWriter, EmailWriter
 from treeherder.perf.exceptions import CannotBackfill, MaxRuntimeExceeded
 from treeherder.perf.models import BackfillRecord, BackfillReport
@@ -52,7 +52,6 @@ class Sherlock:
         self.backfilled_records = []  # useful for reporting backfill outcome
 
     def sheriff(self, since: datetime, frameworks: List[str], repositories: List[str]):
-        self.assert_can_run()
         logger.info("Sherlock: Validating settings...")
         self.secretary.validate_settings()
 
@@ -61,8 +60,8 @@ class Sherlock:
         self.assert_can_run()
 
         # secretary checks the status of all backfilled jobs
-        # TODO: should not be enabled during soft launch - enable for the real launch
-        # self.secretary.check_outcome()
+        self.secretary.check_outcome()
+        self.assert_can_run()
 
         # reporter tool should always run *(only handles preliminary records/reports)*
         logger.info("Sherlock: Reporter tool is creating/maintaining  reports...")
