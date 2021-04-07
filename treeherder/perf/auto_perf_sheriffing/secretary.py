@@ -86,7 +86,7 @@ class Secretary:
         return datetime.utcnow() > last_reset_date + django_settings.RESET_BACKFILL_LIMITS
 
     def backfills_left(self, on_platform: str) -> int:
-        if on_platform != 'linux':
+        if on_platform not in {'linux', 'windows'}:
             raise ValueError(f"Unsupported platform: {on_platform}.")
 
         perf_sheriff_settings = PerformanceSettings.objects.get(name="perf_sheriff_bot")
@@ -94,7 +94,7 @@ class Secretary:
         return settings['limits'][on_platform]
 
     def consume_backfills(self, on_platform: str, amount: int) -> int:
-        if on_platform != 'linux':
+        if on_platform not in {'linux', 'windows'}:
             raise ValueError(f"Unsupported platform: {on_platform}.")
 
         perf_sheriff_settings = PerformanceSettings.objects.get(name="perf_sheriff_bot")

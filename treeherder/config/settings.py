@@ -467,6 +467,7 @@ PERFHERDER_ENABLE_MULTIDATA_INGESTION = env.bool(
 # Sherlock' settings (the performance sheriff robot)
 MAX_BACKFILLS_PER_PLATFORM = {
     'linux': 200,
+    'windows': 200,
 }
 RESET_BACKFILL_LIMITS = timedelta(hours=24)
 TIME_TO_MATURE = timedelta(hours=4)
