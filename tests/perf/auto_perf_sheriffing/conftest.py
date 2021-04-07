@@ -64,24 +64,30 @@ def record_unsuited_for_backfill(test_perf_alert, request):
         )
 
 
-@pytest.fixture
-def linux_signature(test_repository, test_perf_framework) -> PerformanceSignature:
-    linux_platform = MachinePlatform.objects.create(
-        os_name='linux', platform='linux', architecture='x86'
+@pytest.fixture(params=['windows', 'linux'])
+def platform_specific_signature(
+    test_repository, test_perf_framework, request
+) -> PerformanceSignature:
+    new_platform = MachinePlatform.objects.create(
+        os_name=request.param, platform=request.param, architecture='x86'
     )
-    return create_perf_signature(test_perf_framework, test_repository, linux_platform)
+    return create_perf_signature(test_perf_framework, test_repository, new_platform)
 
 
 @pytest.fixture
-def linux_perf_alert(linux_signature, test_perf_alert_summary) -> PerformanceAlert:
-    return create_perf_alert(summary=test_perf_alert_summary, series_signature=linux_signature)
+def platform_specific_perf_alert(
+    platform_specific_signature, test_perf_alert_summary
+) -> PerformanceAlert:
+    return create_perf_alert(
+        summary=test_perf_alert_summary, series_signature=platform_specific_signature
+    )
 
 
 @pytest.fixture
-def record_ready_for_processing(linux_perf_alert, record_context_sample):
-    report = BackfillReport.objects.create(summary=linux_perf_alert.summary)
+def record_ready_for_processing(platform_specific_perf_alert, record_context_sample):
+    report = BackfillReport.objects.create(summary=platform_specific_perf_alert.summary)
     record = BackfillRecord.objects.create(
-        alert=linux_perf_alert,
+        alert=platform_specific_perf_alert,
         report=report,
         status=BackfillRecord.READY_FOR_PROCESSING,
     )
@@ -133,6 +139,7 @@ def empty_sheriff_settings(secretary):
     all_of_them = 1_000_000_000
     secretary.validate_settings()
     secretary.consume_backfills(on_platform='linux', amount=all_of_them)
+    secretary.consume_backfills(on_platform='windows', amount=all_of_them)
     return PerformanceSettings.objects.get(name='perf_sheriff_bot')
 
 

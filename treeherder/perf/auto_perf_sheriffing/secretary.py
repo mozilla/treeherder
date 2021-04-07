@@ -1,12 +1,13 @@
 import logging
 from datetime import datetime, timedelta
+from typing import List
 
 import simplejson as json
 from django.conf import settings as django_settings
 
+from treeherder.perf.auto_perf_sheriffing.outcome_checker import OutcomeChecker, OutcomeStatus
 from treeherder.perf.models import BackfillRecord, BackfillReport, PerformanceSettings
 from treeherder.utils import default_serializer
-from treeherder.perf.auto_perf_sheriffing.outcome_checker import OutcomeChecker, OutcomeStatus
 
 logger = logging.getLogger(__name__)
 
@@ -20,7 +21,9 @@ class Secretary:
     * notes outcome of backfills (successful/unsuccessful)
     """
 
-    def __init__(self, outcome_checker: OutcomeChecker = None, supported_platforms: list = None):
+    def __init__(
+        self, outcome_checker: OutcomeChecker = None, supported_platforms: List[str] = None
+    ):
         self.outcome_checker = outcome_checker or OutcomeChecker()
         self.supported_platforms = supported_platforms or django_settings.SUPPORTED_PLATFORMS
 

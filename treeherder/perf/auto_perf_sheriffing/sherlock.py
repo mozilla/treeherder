@@ -40,7 +40,7 @@ class Sherlock:
         notify_client: taskcluster.Notify,
         max_runtime: timedelta = None,
         email_writer: EmailWriter = None,
-        supported_platforms: list = None,
+        supported_platforms: List[str] = None,
     ):
         self.report_maintainer = report_maintainer
         self.backfill_tool = backfill_tool
