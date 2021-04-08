@@ -429,7 +429,7 @@ export const addResultsLink = (taskId) => {
   return `${taskLink}${taskId}${resultsPath}`;
 };
 
-export class Summary {
+export class TextualSummary {
   constructor(alerts, alertSummary, copySummary = null, alertsWithVideos = []) {
     this.alerts = alerts;
     this.alertSummary = alertSummary;
