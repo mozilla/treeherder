@@ -13,7 +13,7 @@ import templateSettings from 'lodash/templateSettings';
 
 import {
   getFrameworkName,
-  getTextualSummary,
+  Summary,
   getFilledBugSummary,
   getStatus,
   updateAlertSummary,
@@ -100,19 +100,19 @@ export default class StatusDropdown extends React.Component {
         updateViewState({ bugTemplate: result });
       }
     }
-
+    const summary = new Summary(
+      filteredAlerts,
+      alertSummary,
+      null,
+      await alertsWithVideos.enrichAndRetrieveAlerts(),
+    );
     const templateArgs = {
       bugType: 'defect',
       framework: getFrameworkName(frameworks, alertSummary.framework),
       revision: alertSummary.revision,
       revisionHref: repoModel.getPushLogHref(alertSummary.revision),
       alertHref: `${window.location.origin}/perfherder/alerts?id=${alertSummary.id}`,
-      alertSummary: getTextualSummary(
-        filteredAlerts,
-        alertSummary,
-        null,
-        await alertsWithVideos.enrichAndRetrieveAlerts(),
-      ),
+      alertSummary: summary.markdown,
     };
 
     templateSettings.interpolate = /{{([\s\S]+?)}}/g;
@@ -158,10 +158,10 @@ export default class StatusDropdown extends React.Component {
 
   copySummary = () => {
     const { filteredAlerts, alertSummary } = this.props;
-    const summary = getTextualSummary(filteredAlerts, alertSummary, true);
+    const summary = new Summary(filteredAlerts, alertSummary, true);
     // can't access the clipboardData on event unless it's done from react's
     // onCopy, onCut or onPaste props so using this workaround
-    navigator.clipboard.writeText(summary).then(() => {});
+    navigator.clipboard.writeText(summary.markdown).then(() => {});
   };
 
   toggle = (state) => {
