@@ -451,24 +451,29 @@ export class TextualSummary {
       'amount_pct',
     ).reverse();
 
-    // add summary header if getting text for clipboard only
-    if (this.copySummary) {
-      const created = new Date(this.alertSummary.created);
-      this.resultStr += `== Change summary for alert #${
-        this.alertSummary.id
-      } (as of ${created.toUTCString()}) ==\n`;
-    }
     const regressionsTable = this.getFormattedRegressions(regressed);
     this.resultStr += regressionsTable;
     const improvementsTable = this.getFormattedImprovements(improved);
     this.resultStr += improvementsTable;
-    // include link to alert if getting text for clipboard only
+
     if (this.copySummary) {
-      const alertLink = `${window.location.origin}/perfherder/alerts?id=${this.alertSummary.id}`;
-      this.resultStr += `\nFor up to date results, see: ${alertLink}`;
+      this.attachSummaryHeaderAndAlertLink();
     }
+
     return this.resultStr;
   }
+
+  attachSummaryHeaderAndAlertLink = () => {
+    // add summary header if getting text for clipboard only
+    const created = new Date(this.alertSummary.created);
+    const summaryHeader = `== Change summary for alert #${
+      this.alertSummary.id
+    } (as of ${created.toUTCString()}) ==\n`;
+    this.resultStr = summaryHeader + this.resultStr;
+    // include link to alert if getting text for clipboard only
+    const alertLink = `${window.location.origin}/perfherder/alerts?id=${this.alertSummary.id}`;
+    this.resultStr += `\nFor up to date results, see: ${alertLink}`;
+  };
 
   formatAlert(alert) {
     const numFormat = '0,0.00';
@@ -571,123 +576,6 @@ export class TextualSummary {
     return resultStr;
   }
 }
-
-export const getTextualSummary = (
-  alerts,
-  alertSummary,
-  copySummary = null,
-  alertsWithVideos = [],
-) => {
-  let resultStr = '';
-  const improved = sortBy(
-    alerts.filter((alert) => !alert.is_regression),
-    'amount_pct',
-  ).reverse();
-  const regressed = sortBy(
-    alerts.filter(
-      (alert) => alert.is_regression && alert.status !== alertStatusMap.invalid,
-    ),
-    'amount_pct',
-  ).reverse();
-
-  const formatAlert = (alert) => {
-    const numFormat = '0,0.00';
-    let amountPct;
-
-    if (alert.amount_pct.toFixed(0) === '0') {
-      // have extra fraction digits when rounding ends up with 0%
-      amountPct = alert.amount_pct.toFixed(2);
-    } else {
-      amountPct = alert.amount_pct.toFixed(0);
-    }
-
-    const prevValue = numeral(alert.prev_value).format(numFormat);
-    const newValue = numeral(alert.new_value).format(numFormat);
-
-    const { suite, test, machine_platform: platform } = alert.series_signature;
-    const extraOptions = alert.series_signature.extra_options.join(' ');
-
-    const updatedAlert = alertsWithVideos.find((a) => alert.id === a.id);
-    if (
-      updatedAlert &&
-      updatedAlert.results_link &&
-      updatedAlert.prev_results_link
-    ) {
-      return `| ${amountPct}% | ${suite} | ${test} | ${platform} | ${extraOptions} | [${prevValue}](${updatedAlert.prev_results_link}) -> [${newValue}](${updatedAlert.results_link}) |`;
-    }
-    return `| ${amountPct}% | ${suite} | ${test} | ${platform} | ${extraOptions} | ${prevValue} -> ${newValue} |`;
-  };
-
-  const formatAlertBulk = (alerts) =>
-    alerts.map((alert) => formatAlert(alert, alerts)).join('\n');
-
-  // add summary header if getting text for clipboard only
-  if (copySummary) {
-    const created = new Date(alertSummary.created);
-    resultStr += `== Change summary for alert #${
-      alertSummary.id
-    } (as of ${created.toUTCString()}) ==\n`;
-  }
-
-  const ellipsesRow = `\n|...|...|...|...|...|...|`;
-
-  if (regressed.length > 0 && regressed.length <= 15) {
-    // add a newline if we displayed the header
-    if (copySummary) {
-      resultStr += '\n';
-    }
-    const formattedRegressions = formatAlertBulk(regressed);
-    resultStr += `### Regressions:\n\n| **Ratio** | **Suite** | **Test** | **Platform** | **Options** | **Absolute values (old vs new)**| \n|--|--|--|--|--|--| \n${formattedRegressions}\n`;
-  }
-  if (regressed.length > 15) {
-    // add a newline if we displayed the header
-    if (copySummary) {
-      resultStr += '\n';
-    }
-    const sortedRegressed = regressed.sort(
-      (a, b) => b.amount_pct - a.amount_pct,
-    );
-    const biggestTenRegressed = sortedRegressed.slice(0, 10);
-    const smallestFiveRegressed = sortedRegressed.slice(-5);
-    const formattedBiggestRegressions = formatAlertBulk(biggestTenRegressed);
-    const formattedSmallestRegressions = formatAlertBulk(smallestFiveRegressed);
-
-    resultStr += `### Regressions:\n\n| **Ratio** | **Suite** | **Test** | **Platform** | **Options** | **Absolute values (old vs new)**| \n|--|--|--|--|--|--| \n${formattedBiggestRegressions}`;
-    resultStr += ellipsesRow;
-    resultStr += `\n${formattedSmallestRegressions}\n`;
-  }
-  if (improved.length > 0 && improved.length <= 6) {
-    // Add a newline if we displayed some regressions
-    if (resultStr.length > 0) {
-      resultStr += '\n';
-    }
-    const formattedImprovements = formatAlertBulk(improved);
-    resultStr += `### Improvements:\n\n| **Ratio** | **Suite** | **Test** | **Platform** | **Options** | **Absolute values (old vs new)**| \n|--|--|--|--|--|--| \n${formattedImprovements}\n`;
-  }
-  if (improved.length > 6) {
-    // Add a newline if we displayed some regressions
-    if (resultStr.length > 0) {
-      resultStr += '\n';
-    }
-    const sortedImproved = improved.sort((a, b) => b.amount_pct - a.amount_pct);
-    const biggestFiveImprovements = sortedImproved.slice(0, 5);
-    const smallestImprovement = sortedImproved.slice(-1);
-    const formattedBiggestImprovements = formatAlertBulk(
-      biggestFiveImprovements,
-    );
-    const formattedSmallestImprovement = formatAlertBulk(smallestImprovement);
-
-    resultStr += `### Improvements:\n\n| **Ratio** | **Suite** | **Test** | **Platform** | **Options** | **Absolute values (old vs new)**| \n|--|--|--|--|--|--| \n${formattedBiggestImprovements}`;
-    resultStr += ellipsesRow;
-    resultStr += `\n${formattedSmallestImprovement}\n`;
-  }
-  // include link to alert if getting text for clipboard only
-  if (copySummary) {
-    const alertLink = `${window.location.origin}/perfherder/alerts?id=${alertSummary.id}`;
-    resultStr += `\nFor up to date results, see: ${alertLink}`;
-  }
-  return resultStr;
-};
 
 const getPlatformInfo = (platforms) => {
   const platformInfo = [];
