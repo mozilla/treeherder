@@ -67,7 +67,7 @@ class EmailWriter(ABC):
 
 # For automatically backfilling performance data
 class BackfillReportContent:
-    DESCRIPTION = """Perfherder automatically backfills performance jobs originating from Linux platforms.
+    DESCRIPTION = """Perfherder automatically backfills performance jobs originating from {supported_platforms} platforms.
      It does this every hour, as long as it doesn't exceed the daily limit.
 > __Here's a summary of latest backfills:__
 ---
@@ -88,8 +88,18 @@ class BackfillReportContent:
             self._include_in_report(record)
 
     def _initialize_report_intro(self):
-        if self._raw_content is None:
-            self._raw_content = self.DESCRIPTION + self.TABLE_HEADERS
+        if self._raw_content is not None:
+            return
+
+        description = self.__prepare_report_description()
+        self._raw_content = description + self.TABLE_HEADERS
+
+    def __prepare_report_description(self) -> str:
+        title_case_platforms = map(lambda platf: platf.title(), settings.SUPPORTED_PLATFORMS)
+        platform_enumeration = ', '.join(title_case_platforms)
+
+        description = self.DESCRIPTION.format(supported_platforms=platform_enumeration)
+        return description
 
     def _include_in_report(self, record: BackfillRecord):
         new_table_row = self._build_table_row(record)
