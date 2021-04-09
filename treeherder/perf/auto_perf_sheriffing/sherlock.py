@@ -147,7 +147,7 @@ class Sherlock:
                 except (KeyError, CannotBackfill, Exception) as ex:
                     logger.debug(f'Failed to backfill record {record.alert.id}: {ex}')
                 else:
-                    self.__try_setting_job_type_of(record, using_job_id)
+                    self.__try_setting_job_symbol(record, using_job_id)
 
             success, outcome = self._note_backfill_outcome(
                 record, len(data_points_to_backfill), consumed
@@ -158,13 +158,28 @@ class Sherlock:
         return left, consumed
 
     @staticmethod
-    def __try_setting_job_type_of(record, job_id):
+    def __try_setting_job_symbol(record: BackfillRecord, job_id):
+        if all([record.job_type, record.job_group, record.job_tier]):
+            # classification was already set
+            return
+
         try:
+            job = Job.objects.get(id=job_id)
+
             if record.job_type is None:
-                record.job_type = Job.objects.get(id=job_id).job_type
-                record.save()
+                record.job_type = job.job_type
+            if record.job_group is None:
+                record.job_group = job.job_group
+            if record.job_tier is None:
+                record.job_tier = job.tier
+
+            record.save()
         except Job.DoesNotExist as ex:
             logger.warning(ex)
+
+    @staticmethod
+    def __deduce_job_type(self, job_id) -> str:
+        return Job.objects.get(id=job_id).job_type
 
     @staticmethod
     def _note_backfill_outcome(

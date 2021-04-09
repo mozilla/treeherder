@@ -1,6 +1,6 @@
 from datetime import datetime
 import json
-from typing import List, Tuple
+from typing import List, Tuple, Optional
 
 from django.contrib.auth.models import User
 from django.core.exceptions import ValidationError
@@ -15,6 +15,7 @@ from treeherder.model.models import (
     Push,
     Repository,
     JobType,
+    JobGroup,
 )
 from treeherder.utils import default_serializer
 
@@ -605,6 +606,11 @@ class BackfillRecord(models.Model):
     job_type = models.ForeignKey(
         JobType, null=True, on_delete=models.SET_NULL, related_name='backfill_records'
     )
+    job_group = models.ForeignKey(
+        JobGroup, null=True, on_delete=models.SET_NULL, related_name='backfill_records'
+    )
+    job_tier = models.PositiveIntegerField(null=True)
+
     total_backfills_triggered = models.IntegerField(default=0)
 
     @property
@@ -618,6 +624,20 @@ class BackfillRecord(models.Model):
     @property
     def platform(self) -> MachinePlatform:
         return self.alert.series_signature.platform
+
+    @property
+    def job_symbol(self) -> Optional[str]:
+        if not all([self.job_tier, self.job_group, self.job_type]):
+            return None
+
+        tier_label = ''
+        if self.job_tier > 1:
+            tier_label = f"[tier {self.job_tier}]"
+
+        group_symbol = self.job_group.symbol
+        type_symbol = self.job_type.symbol
+
+        return f"{group_symbol}{tier_label}({type_symbol})"
 
     def get_context_border_info(self, context_property: str) -> Tuple[str, str]:
         """

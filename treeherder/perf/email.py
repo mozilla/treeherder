@@ -108,14 +108,13 @@ class BackfillReportContent:
     def _build_table_row(self, record: BackfillRecord) -> str:
         alert_summary = record.alert.summary
         alert = record.alert
-        job_type = record.job_type or 'N/A'
+        job_symbol = record.job_symbol or 'N/A'
         total_backfills = record.total_backfills_triggered
         push_range = self.__build_push_range(record)
 
         # some fields require adjustments
         summary_id = alert_summary.id
         alert_id = alert.id
-        job_symbol = str(job_type)
 
         return f"| {summary_id} | {alert_id} | {job_symbol} | {total_backfills} | {push_range} |"
 
