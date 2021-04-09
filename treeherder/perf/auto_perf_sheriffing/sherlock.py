@@ -146,7 +146,7 @@ class Sherlock:
                 except (KeyError, CannotBackfill, Exception) as ex:
                     logger.debug(f'Failed to backfill record {record.alert.id}: {ex}')
                 else:
-                    record.try_setting_job_symbol(using_job_id)
+                    record.try_remembering_job_properties(using_job_id)
 
             success, outcome = self._note_backfill_outcome(
                 record, len(data_points_to_backfill), consumed

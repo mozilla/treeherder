@@ -613,6 +613,7 @@ class BackfillRecord(models.Model):
         JobGroup, null=True, on_delete=models.SET_NULL, related_name='backfill_records'
     )
     job_tier = models.PositiveIntegerField(null=True)
+    job_platform_option = models.CharField(max_length=100, null=True)
 
     total_backfills_triggered = models.IntegerField(default=0)
 
@@ -642,24 +643,30 @@ class BackfillRecord(models.Model):
 
         return f"{group_symbol}{tier_label}({type_symbol})"
 
-    def try_setting_job_symbol(self, job_id: str):
-        if all([self.job_type, self.job_group, self.job_tier]):
+    def try_remembering_job_properties(self, job_id: str):
+        if all([self.job_type, self.job_group, self.job_tier, self.job_platform_option]):
             # classification was already set
             return
 
         try:
             job = Job.objects.get(id=job_id)
-
-            if self.job_type is None:
-                self.job_type = job.job_type
-            if self.job_group is None:
-                self.job_group = job.job_group
-            if self.job_tier is None:
-                self.job_tier = job.tier
-
-            self.save()
+            self.__remember_job_properties(job)
         except Job.DoesNotExist as ex:
             logger.warning(ex)
+            logger.debug(
+                f"Failed to set properties of job ID {job_id} to record ID {self.alert_id}."
+            )
+
+    def __remember_job_properties(self, job: Job):
+        if self.job_type is None:
+            self.job_type = job.job_type
+        if self.job_group is None:
+            self.job_group = job.job_group
+        if self.job_tier is None:
+            self.job_tier = job.tier
+        if self.job_platform_option is None:
+            self.job_platform_option = job.get_platform_option()
+        self.save()
 
     def get_context_border_info(self, context_property: str) -> Tuple[str, str]:
         """
