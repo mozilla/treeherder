@@ -65,6 +65,13 @@ class EmailWriter(ABC):
         return must_mention
 
 
+"""
+TODO:
+* read FE' s implementation of job searchStr
+* could we build job' s searchStr on backend?
+"""
+
+
 # For automatically backfilling performance data
 class BackfillReportContent:
     DESCRIPTION = """Perfherder automatically backfills performance jobs originating from {supported_platforms} platforms.

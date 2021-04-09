@@ -9,7 +9,6 @@ from django.conf import settings
 from django.db.models import QuerySet
 from taskcluster.helper import TaskclusterConfig
 
-from treeherder.model.models import Job
 from treeherder.perf.auto_perf_sheriffing.backfill_reports import BackfillReportMaintainer
 from treeherder.perf.auto_perf_sheriffing.backfill_tool import BackfillTool
 from treeherder.perf.auto_perf_sheriffing.secretary import Secretary
@@ -147,7 +146,7 @@ class Sherlock:
                 except (KeyError, CannotBackfill, Exception) as ex:
                     logger.debug(f'Failed to backfill record {record.alert.id}: {ex}')
                 else:
-                    self.__try_setting_job_symbol(record, using_job_id)
+                    record.try_setting_job_symbol(using_job_id)
 
             success, outcome = self._note_backfill_outcome(
                 record, len(data_points_to_backfill), consumed
@@ -156,30 +155,6 @@ class Sherlock:
             logger.log(log_level, f'{outcome} (for backfill record {record.alert.id})')
 
         return left, consumed
-
-    @staticmethod
-    def __try_setting_job_symbol(record: BackfillRecord, job_id):
-        if all([record.job_type, record.job_group, record.job_tier]):
-            # classification was already set
-            return
-
-        try:
-            job = Job.objects.get(id=job_id)
-
-            if record.job_type is None:
-                record.job_type = job.job_type
-            if record.job_group is None:
-                record.job_group = job.job_group
-            if record.job_tier is None:
-                record.job_tier = job.tier
-
-            record.save()
-        except Job.DoesNotExist as ex:
-            logger.warning(ex)
-
-    @staticmethod
-    def __deduce_job_type(self, job_id) -> str:
-        return Job.objects.get(id=job_id).job_type
 
     @staticmethod
     def _note_backfill_outcome(

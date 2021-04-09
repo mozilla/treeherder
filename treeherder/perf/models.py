@@ -1,3 +1,4 @@
+import logging
 from datetime import datetime
 import json
 from typing import List, Tuple, Optional
@@ -18,6 +19,8 @@ from treeherder.model.models import (
     JobGroup,
 )
 from treeherder.utils import default_serializer
+
+logger = logging.getLogger(__name__)
 
 SIGNATURE_HASH_LENGTH = 40
 
@@ -638,6 +641,25 @@ class BackfillRecord(models.Model):
         type_symbol = self.job_type.symbol
 
         return f"{group_symbol}{tier_label}({type_symbol})"
+
+    def try_setting_job_symbol(self, job_id: str):
+        if all([self.job_type, self.job_group, self.job_tier]):
+            # classification was already set
+            return
+
+        try:
+            job = Job.objects.get(id=job_id)
+
+            if self.job_type is None:
+                self.job_type = job.job_type
+            if self.job_group is None:
+                self.job_group = job.job_group
+            if self.job_tier is None:
+                self.job_tier = job.tier
+
+            self.save()
+        except Job.DoesNotExist as ex:
+            logger.warning(ex)
 
     def get_context_border_info(self, context_property: str) -> Tuple[str, str]:
         """
