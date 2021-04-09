@@ -124,8 +124,10 @@ class BackfillReportContent:
         Provides link to Treeherder' s Job view
         """
         try:
+            repo = record.repository.name
             from_change, to_change = record.get_context_border_info("push__revision")
-            return f"{settings.SITE_URL}/jobs?repo={record.repository}&fromchange={from_change}&tochange={to_change}"
+
+            return f"{settings.SITE_URL}/jobs?repo={repo}&fromchange={from_change}&tochange={to_change}"
         except Exception:
             return 'N/A'
 
