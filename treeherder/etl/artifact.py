@@ -6,7 +6,6 @@ from django.db.utils import IntegrityError
 
 from treeherder.etl.perf import store_performance_artifact
 from treeherder.etl.text import astral_filter
-from treeherder.model import error_summary
 from treeherder.model.models import Job, TextLogError
 
 logger = logging.getLogger(__name__)
@@ -29,7 +28,9 @@ def store_text_log_summary_artifact(job, text_log_summary_artifact):
                 logger.warning('duplicate error lines processed for job %s', job.id)
 
     # get error summary immediately (to warm the cache)
-    error_summary.get_error_summary(job)
+
+    # disable temporarily until Bugscache.search can be optimized
+    # error_summary.get_error_summary(job)
 
 
 def store_job_artifacts(artifact_data):
