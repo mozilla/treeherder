@@ -28,7 +28,7 @@ logger = logging.getLogger(__name__)
 
 # MySQL Full Text Search operators, based on:
 # https://dev.mysql.com/doc/refman/5.7/en/fulltext-boolean.html
-mysql_fts_operators_re = re.compile(r'[-+@<>()~*"]')
+mysql_fts_operators_re = re.compile(r'[-+@<>()~*"\\]')
 
 
 class FailuresQuerySet(models.QuerySet):
@@ -250,7 +250,9 @@ class Bugscache(models.Model):
 
         # Substitute escape and wildcard characters, so the search term is used
         # literally in the LIKE statement.
-        search_term_like = search_term.replace('=', '==').replace('%', '=%').replace('_', '=_')
+        search_term_like = (
+            search_term.replace('=', '==').replace('%', '=%').replace('_', '=_').replace('\\"', '')
+        )
 
         recent_qs = cls.objects.raw(
             """
@@ -266,7 +268,7 @@ class Bugscache(models.Model):
             """,
             [search_term_fulltext, search_term_like, time_limit, max_size],
         )
-
+        print(recent_qs)
         try:
             open_recent = [model_to_dict(item, exclude=["modified"]) for item in recent_qs]
         except ProgrammingError as e:
