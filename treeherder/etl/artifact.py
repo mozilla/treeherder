@@ -29,7 +29,7 @@ def store_text_log_summary_artifact(job, text_log_summary_artifact):
 
     # get error summary immediately (to warm the cache)
 
-    # disable temporarily until Bugscache.search can be optimized
+    # disable temporarily until Bugscache.search can be investigated further
     # error_summary.get_error_summary(job)
 
 
