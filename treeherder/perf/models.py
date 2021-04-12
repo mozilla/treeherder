@@ -2,6 +2,7 @@ import logging
 from datetime import datetime
 import json
 from typing import List, Tuple, Optional
+from functools import reduce
 
 from django.contrib.auth.models import User
 from django.core.exceptions import ValidationError
@@ -685,6 +686,18 @@ class BackfillRecord(models.Model):
             repository=self.repository, time__gte=from_time, time__lte=to_time
         ).all()
 
+    def get_job_search_str(self) -> str:
+        platform = deepgetattr(self, 'platform.platform')
+        platform_option = deepgetattr(self, 'job_platform_option')
+        job_group_name = deepgetattr(self, 'job_group.name')
+        job_type_name = deepgetattr(self, 'job_type.name')
+        job_type_symbol = deepgetattr(self, 'job_type.symbol')
+
+        search_terms = [platform, platform_option, job_group_name, job_type_name, job_type_symbol]
+        search_terms = list(filter(None, search_terms))
+
+        return ','.join(search_terms)
+
     def get_context(self) -> List[dict]:
         return json.loads(self.context)
 
@@ -720,3 +733,18 @@ class PerformanceSettings(models.Model):
 
     class Meta:
         db_table = "performance_settings"
+
+
+def deepgetattr(obj: object, attr_chain: str) -> Optional[object]:
+    """Recursively follow an attribute chain to get the final value.
+
+    @param attr_chain: e.g. 'repository.name', 'job_type', 'record.platform.architecture' etc
+    @return: None if any attribute within chain does not exist.
+    """
+    try:
+        return reduce(getattr, attr_chain.split('.'), obj)
+    except AttributeError:
+        logger.debug(
+            f"Failed to access deeply nested attribute `{attr_chain}` on object of type {type(obj)}."
+        )
+        return None

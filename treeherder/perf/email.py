@@ -8,9 +8,8 @@ They then get an email that's ready-to-send via taskcluster.Notify service.
 import logging
 from dataclasses import dataclass, asdict
 from abc import ABC, abstractmethod
-from functools import reduce
 
-from typing import List, Union, Optional
+from typing import List, Union
 
 from django.conf import settings
 from treeherder.perf.models import BackfillRecord, PerformanceSignature
@@ -148,7 +147,7 @@ class BackfillReportContent:
         push_range: str,
         using_record: BackfillRecord,
     ) -> str:
-        search_str = self.__get_job_search_str(using_record)
+        search_str = using_record.get_job_search_str()
         if search_str:
             push_range = f"{push_range}&searchStr={search_str}"
         else:
@@ -157,18 +156,6 @@ class BackfillReportContent:
             )
 
         return push_range
-
-    def __get_job_search_str(self, record: BackfillRecord) -> str:
-        platform = deepgetattr(record, 'platform.platform')
-        platform_option = deepgetattr(record, 'job_platform_option')
-        job_group_name = deepgetattr(record, 'job_group.name')
-        job_type_name = deepgetattr(record, 'job_type.name')
-        job_type_symbol = deepgetattr(record, 'job_type.symbol')
-
-        search_terms = [platform, platform_option, job_group_name, job_type_name, job_type_symbol]
-        search_terms = list(filter(None, search_terms))
-
-        return ','.join(search_terms)
 
     def __str__(self):
         if self._raw_content is None:
@@ -257,18 +244,3 @@ class DeletionNotificationWriter(EmailWriter):
         content.include_signatures(must_mention)
 
         self._email.content = str(content)
-
-
-def deepgetattr(obj: object, attr_chain: str) -> Optional[object]:
-    """Recursively follow an attribute chain to get the final value.
-
-    @param attr_chain: e.g. 'repository.name', 'job_type', 'record.platform.architecture' etc
-    @return: None if any attribute within chain does not exist.
-    """
-    try:
-        return reduce(getattr, attr_chain.split('.'), obj)
-    except AttributeError:
-        logger.debug(
-            f"Failed to access deeply nested attribute `{attr_chain}` on object of type {type(obj)}."
-        )
-        return None
