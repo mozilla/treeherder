@@ -435,10 +435,11 @@ export class TextualSummary {
     this.alertSummary = alertSummary;
     this.copySummary = copySummary;
     this.alertsWithVideos = alertsWithVideos;
-    this.resultStr = '';
+    this.ellipsesRow = `\n|...|...|...|...|...|...|`;
   }
 
   get markdown() {
+    let resultStr = '';
     const improved = sortBy(
       this.alerts.filter((alert) => !alert.is_regression),
       'amount_pct',
@@ -452,27 +453,28 @@ export class TextualSummary {
     ).reverse();
 
     const regressionsTable = this.getFormattedRegressions(regressed);
-    this.resultStr += regressionsTable;
+    resultStr += regressionsTable;
     const improvementsTable = this.getFormattedImprovements(improved);
-    this.resultStr += improvementsTable;
+    resultStr += improvementsTable;
 
     if (this.copySummary) {
-      this.attachSummaryHeaderAndAlertLink();
+      resultStr = this.attachSummaryHeaderAndAlertLink(resultStr);
     }
 
-    return this.resultStr;
+    return resultStr;
   }
 
-  attachSummaryHeaderAndAlertLink = () => {
+  attachSummaryHeaderAndAlertLink = (resultStr) => {
     // add summary header if getting text for clipboard only
     const created = new Date(this.alertSummary.created);
     const summaryHeader = `== Change summary for alert #${
       this.alertSummary.id
     } (as of ${created.toUTCString()}) ==\n`;
-    this.resultStr = summaryHeader + this.resultStr;
+    resultStr = summaryHeader + resultStr;
     // include link to alert if getting text for clipboard only
     const alertLink = `${window.location.origin}/perfherder/alerts?id=${this.alertSummary.id}`;
-    this.resultStr += `\nFor up to date results, see: ${alertLink}`;
+    resultStr += `\nFor up to date results, see: ${alertLink}`;
+    return resultStr;
   };
 
   formatAlert(alert) {
@@ -509,7 +511,6 @@ export class TextualSummary {
 
   getFormattedRegressions(regressed) {
     let resultStr = '';
-    const ellipsesRow = `\n|...|...|...|...|...|...|`;
     if (regressed.length > 0 && regressed.length <= 15) {
       // add a newline if we displayed the header
       if (this.copySummary) {
@@ -536,7 +537,7 @@ export class TextualSummary {
       );
 
       resultStr += `### Regressions:\n\n| **Ratio** | **Suite** | **Test** | **Platform** | **Options** | **Absolute values (old vs new)**| \n|--|--|--|--|--|--| \n${formattedBiggestRegressions}`;
-      resultStr += ellipsesRow;
+      resultStr += this.ellipsesRow;
       resultStr += `\n${formattedSmallestRegressions}\n`;
     }
     return resultStr;
@@ -544,7 +545,6 @@ export class TextualSummary {
 
   getFormattedImprovements(improved) {
     let resultStr = '';
-    const ellipsesRow = `\n|...|...|...|...|...|...|`;
     if (improved.length > 0 && improved.length <= 6) {
       // Add a newline if we displayed some regressions
       if (resultStr.length > 0) {
@@ -570,7 +570,7 @@ export class TextualSummary {
       );
 
       resultStr += `### Improvements:\n\n| **Ratio** | **Suite** | **Test** | **Platform** | **Options** | **Absolute values (old vs new)**| \n|--|--|--|--|--|--| \n${formattedBiggestImprovements}`;
-      resultStr += ellipsesRow;
+      resultStr += this.ellipsesRow;
       resultStr += `\n${formattedSmallestImprovement}\n`;
     }
     return resultStr;
