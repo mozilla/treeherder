@@ -429,25 +429,55 @@ export const addResultsLink = (taskId) => {
   return `${taskLink}${taskId}${resultsPath}`;
 };
 
-export const getTextualSummary = (
-  alerts,
-  alertSummary,
-  copySummary = null,
-  alertsWithVideos = [],
-) => {
-  let resultStr = '';
-  const improved = sortBy(
-    alerts.filter((alert) => !alert.is_regression),
-    'amount_pct',
-  ).reverse();
-  const regressed = sortBy(
-    alerts.filter(
-      (alert) => alert.is_regression && alert.status !== alertStatusMap.invalid,
-    ),
-    'amount_pct',
-  ).reverse();
+export class TextualSummary {
+  constructor(alerts, alertSummary, copySummary = null, alertsWithVideos = []) {
+    this.alerts = alerts;
+    this.alertSummary = alertSummary;
+    this.copySummary = copySummary;
+    this.alertsWithVideos = alertsWithVideos;
+    this.ellipsesRow = `\n|...|...|...|...|...|...|`;
+  }
 
-  const formatAlert = (alert) => {
+  get markdown() {
+    let resultStr = '';
+    const improved = sortBy(
+      this.alerts.filter((alert) => !alert.is_regression),
+      'amount_pct',
+    ).reverse();
+    const regressed = sortBy(
+      this.alerts.filter(
+        (alert) =>
+          alert.is_regression && alert.status !== alertStatusMap.invalid,
+      ),
+      'amount_pct',
+    ).reverse();
+
+    const regressionsTable = this.getFormattedRegressions(regressed);
+    resultStr += regressionsTable;
+    const improvementsTable = this.getFormattedImprovements(improved);
+    resultStr += improvementsTable;
+
+    if (this.copySummary) {
+      resultStr = this.attachSummaryHeaderAndAlertLink(resultStr);
+    }
+
+    return resultStr;
+  }
+
+  attachSummaryHeaderAndAlertLink = (resultStr) => {
+    // add summary header if getting text for clipboard only
+    const created = new Date(this.alertSummary.created);
+    const summaryHeader = `== Change summary for alert #${
+      this.alertSummary.id
+    } (as of ${created.toUTCString()}) ==\n`;
+    resultStr = summaryHeader + resultStr;
+    // include link to alert if getting text for clipboard only
+    const alertLink = `${window.location.origin}/perfherder/alerts?id=${this.alertSummary.id}`;
+    resultStr += `\nFor up to date results, see: ${alertLink}`;
+    return resultStr;
+  };
+
+  formatAlert(alert) {
     const numFormat = '0,0.00';
     let amountPct;
 
@@ -464,7 +494,7 @@ export const getTextualSummary = (
     const { suite, test, machine_platform: platform } = alert.series_signature;
     const extraOptions = alert.series_signature.extra_options.join(' ');
 
-    const updatedAlert = alertsWithVideos.find((a) => alert.id === a.id);
+    const updatedAlert = this.alertsWithVideos.find((a) => alert.id === a.id);
     if (
       updatedAlert &&
       updatedAlert.results_link &&
@@ -473,41 +503,79 @@ export const getTextualSummary = (
       return `| ${amountPct}% | ${suite} | ${test} | ${platform} | ${extraOptions} | [${prevValue}](${updatedAlert.prev_results_link}) -> [${newValue}](${updatedAlert.results_link}) |`;
     }
     return `| ${amountPct}% | ${suite} | ${test} | ${platform} | ${extraOptions} | ${prevValue} -> ${newValue} |`;
-  };
+  }
 
-  const formatAlertBulk = (alerts) =>
-    alerts.map((alert) => formatAlert(alert, alerts)).join('\n');
+  formatAlertBulk(alerts) {
+    return alerts.map((alert) => this.formatAlert(alert, alerts)).join('\n');
+  }
 
-  // add summary header if getting text for clipboard only
-  if (copySummary) {
-    const created = new Date(alertSummary.created);
-    resultStr += `== Change summary for alert #${
-      alertSummary.id
-    } (as of ${created.toUTCString()}) ==\n`;
-  }
-  if (regressed.length > 0) {
-    // add a newline if we displayed the header
-    if (copySummary) {
-      resultStr += '\n';
+  getFormattedRegressions(regressed) {
+    let resultStr = '';
+    if (regressed.length > 0 && regressed.length <= 15) {
+      // add a newline if we displayed the header
+      if (this.copySummary) {
+        resultStr += '\n';
+      }
+      const formattedRegressions = this.formatAlertBulk(regressed);
+      resultStr += `### Regressions:\n\n| **Ratio** | **Suite** | **Test** | **Platform** | **Options** | **Absolute values (old vs new)**| \n|--|--|--|--|--|--| \n${formattedRegressions}\n`;
     }
-    const formattedRegressions = formatAlertBulk(regressed);
-    resultStr += `### Regressions:\n\n| **Ratio** | **Suite** | **Test** | **Platform** | **Options** | **Absolute values (old vs new)**| \n|--|--|--|--|--|--| \n${formattedRegressions}\n`;
-  }
-  if (improved.length > 0) {
-    // Add a newline if we displayed some regressions
-    if (resultStr.length > 0) {
-      resultStr += '\n';
+    if (regressed.length > 15) {
+      // add a newline if we displayed the header
+      if (this.copySummary) {
+        resultStr += '\n';
+      }
+      const sortedRegressed = regressed.sort(
+        (a, b) => b.amount_pct - a.amount_pct,
+      );
+      const biggestTenRegressed = sortedRegressed.slice(0, 10);
+      const smallestFiveRegressed = sortedRegressed.slice(-5);
+      const formattedBiggestRegressions = this.formatAlertBulk(
+        biggestTenRegressed,
+      );
+      const formattedSmallestRegressions = this.formatAlertBulk(
+        smallestFiveRegressed,
+      );
+
+      resultStr += `### Regressions:\n\n| **Ratio** | **Suite** | **Test** | **Platform** | **Options** | **Absolute values (old vs new)**| \n|--|--|--|--|--|--| \n${formattedBiggestRegressions}`;
+      resultStr += this.ellipsesRow;
+      resultStr += `\n${formattedSmallestRegressions}\n`;
     }
-    const formattedImprovements = formatAlertBulk(improved);
-    resultStr += `### Improvements:\n\n| **Ratio** | **Suite** | **Test** | **Platform** | **Options** | **Absolute values (old vs new)**| \n|--|--|--|--|--|--| \n${formattedImprovements}\n`;
+    return resultStr;
   }
-  // include link to alert if getting text for clipboard only
-  if (copySummary) {
-    const alertLink = `${window.location.origin}/perfherder/alerts?id=${alertSummary.id}`;
-    resultStr += `\nFor up to date results, see: ${alertLink}`;
+
+  getFormattedImprovements(improved) {
+    let resultStr = '';
+    if (improved.length > 0 && improved.length <= 6) {
+      // Add a newline if we displayed some regressions
+      if (resultStr.length > 0) {
+        resultStr += '\n';
+      }
+      const formattedImprovements = this.formatAlertBulk(improved);
+      resultStr += `### Improvements:\n\n| **Ratio** | **Suite** | **Test** | **Platform** | **Options** | **Absolute values (old vs new)**| \n|--|--|--|--|--|--| \n${formattedImprovements}\n`;
+    } else if (improved.length > 6) {
+      // Add a newline if we displayed some regressions
+      if (resultStr.length > 0) {
+        resultStr += '\n';
+      }
+      const sortedImproved = improved.sort(
+        (a, b) => b.amount_pct - a.amount_pct,
+      );
+      const biggestFiveImprovements = sortedImproved.slice(0, 5);
+      const smallestImprovement = sortedImproved.slice(-1);
+      const formattedBiggestImprovements = this.formatAlertBulk(
+        biggestFiveImprovements,
+      );
+      const formattedSmallestImprovement = this.formatAlertBulk(
+        smallestImprovement,
+      );
+
+      resultStr += `### Improvements:\n\n| **Ratio** | **Suite** | **Test** | **Platform** | **Options** | **Absolute values (old vs new)**| \n|--|--|--|--|--|--| \n${formattedBiggestImprovements}`;
+      resultStr += this.ellipsesRow;
+      resultStr += `\n${formattedSmallestImprovement}\n`;
+    }
+    return resultStr;
   }
-  return resultStr;
-};
+}
 
 const getPlatformInfo = (platforms) => {
   const platformInfo = [];
