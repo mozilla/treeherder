@@ -68,7 +68,9 @@ def record_unsuited_for_backfill(test_perf_alert, request):
 def record_with_job_symbol(test_perf_alert):
     report = BackfillReport.objects.create(summary=test_perf_alert.summary)
 
-    job_group = JobGroup.objects.create(symbol='Btime', name='Browsertime performance tests on Firefox')
+    job_group = JobGroup.objects.create(
+        symbol='Btime', name='Browsertime performance tests on Firefox'
+    )
     job_type = JobType.objects.create(symbol='Bogo', name='Bogo tests')
     return BackfillRecord.objects.create(
         alert=test_perf_alert,
@@ -94,12 +96,11 @@ def record_with_missing_job_symbol_components(record_with_job_symbol, request):
     return record_with_job_symbol
 
 
-@pytest.fixture(params=['with_all_fields', 'no_job_group', 'no_job_type'])
-def record_with_search_str(record_with_job_symbol):
-    if request.param == 'no_job_group':
+def prepare_record_with_search_str(record_with_job_symbol, search_str_with):
+    if search_str_with == 'no_job_group':
         record_with_job_symbol.job_group = None
         record_with_job_symbol.save()
-    elif request.param == 'no_job_type':
+    elif search_str_with == 'no_job_type':
         record_with_job_symbol.job_type = None
         record_with_job_symbol.save()
 

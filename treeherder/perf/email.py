@@ -12,7 +12,12 @@ from abc import ABC, abstractmethod
 from typing import List, Union
 
 from django.conf import settings
-from treeherder.perf.models import BackfillRecord, PerformanceSignature
+from treeherder.perf.models import (
+    BackfillRecord,
+    PerformanceSignature,
+    PerformanceAlertSummary,
+    PerformanceAlert,
+)
 
 logger = logging.getLogger(__name__)
 
@@ -69,14 +74,14 @@ class EmailWriter(ABC):
 
 # For automatically backfilling performance data
 class BackfillReportContent:
-    DESCRIPTION = """Perfherder automatically backfills performance jobs originating from {supported_platforms} platforms.
+    DESCRIPTION = """Perfherder automatically backfills performance jobs originating from {supported_platforms} platform(s).
      It does this every hour, as long as it doesn't exceed the daily limit.
 > __Here's a summary of latest backfills:__
 ---
 """
 
     TABLE_HEADERS = """
-| Alert summary | Alert | Job symbol | Total backfills (approx.) | Push range |
+| Alert summary | Alert | Job symbol | Total backfills | Push range |
 | :---: | :---: | :---: | :---: | :---: |
 """
 
@@ -112,26 +117,38 @@ class BackfillReportContent:
         alert = record.alert
         job_symbol = record.job_symbol or 'N/A'
         total_backfills = record.total_backfills_triggered
-        push_range = self.__build_push_range(record)
+        push_range_md_link = self.__build_push_range_md_link(record)
 
         # some fields require adjustments
-        summary_id = alert_summary.id
+        summary_md_link = self.__build_summary_md_link(alert_summary)
         alert_id = alert.id
 
-        return f"| {summary_id} | {alert_id} | {job_symbol} | {total_backfills} | {push_range} |"
+        return f"| {summary_md_link} | {alert_id} | {job_symbol} | {total_backfills} | {push_range_md_link} |"
 
-    def __build_push_range(self, record: BackfillRecord) -> str:
+    @staticmethod
+    def __build_summary_md_link(alert_summary: PerformanceAlertSummary) -> str:
+        """
+        @return: hyperlinked summary id, using markdown syntax
+        """
+        summary_id = alert_summary.id
+        hyperlink = f"{settings.SITE_URL}/perfherder/alerts?id={summary_id}"
+
+        return f"[{summary_id}]({hyperlink})"
+
+    def __build_push_range_md_link(self, record: BackfillRecord) -> str:
         """
         Provides link to Treeherder' s Job view
+        @return: hyperlinked push range (e.g. autoland:ce483363652d:04a5fe18527d), using markdown syntax
         """
         try:
             repo = record.repository.name
             from_change, to_change = record.get_context_border_info("push__revision")
 
-            push_range = f"{settings.SITE_URL}/jobs?repo={repo}&fromchange={from_change}&tochange={to_change}"
-            push_range = self.__try_enriching(push_range, using_record=record)
+            hyperlink = f"{settings.SITE_URL}/jobs?repo={repo}&fromchange={from_change}&tochange={to_change}"
+            hyperlink = self.__try_enriching(hyperlink, using_record=record)
 
-            return push_range
+            text_to_link = self.__build_push_range_cell_text(record.alert)
+            return f"[{text_to_link}]({hyperlink})"
         except Exception:
             return 'N/A'
 
@@ -149,6 +166,13 @@ class BackfillReportContent:
             )
 
         return push_range
+
+    @staticmethod
+    def __build_push_range_cell_text(alert: PerformanceAlert) -> str:
+        summary = alert.summary
+        repository_name = summary.repository.name
+
+        return f"{repository_name}:{summary.prev_push}:{summary.push}"
 
     def __str__(self):
         if self._raw_content is None:

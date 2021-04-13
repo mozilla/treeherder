@@ -199,12 +199,17 @@ class Sherlock:
         return pending_tasks_count > acceptable_limit
 
     def _notify_backfill_outcome(self):
-        backfill_notification = self._email_writer.prepare_new_email(self.backfilled_records)
-        logger.debug(f"Sherlock: Composed email notification payload `{backfill_notification}`.")
+        if self.backfilled_records:
+            backfill_notification = self._email_writer.prepare_new_email(self.backfilled_records)
+            logger.debug(
+                f"Sherlock: Composed email notification payload `{backfill_notification}`."
+            )
 
-        # send email
-        response = self._notify.email(backfill_notification)
-        logger.debug(f"Sherlock: Email notification service replied with `{response}`.")
+            # send email
+            response = self._notify.email(backfill_notification)
+            logger.debug(f"Sherlock: Email notification service replied with `{response}`.")
+        else:
+            logger.info("Sherlock: Nothing to report via email.")
 
     @staticmethod
     def __get_data_points_to_backfill(context: List[dict]) -> List[dict]:
