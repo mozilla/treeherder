@@ -26,11 +26,6 @@ from treeherder.webapp.api.utils import REPO_GROUPS, to_timestamp
 logger = logging.getLogger(__name__)
 
 
-# MySQL Full Text Search operators, based on:
-# https://dev.mysql.com/doc/refman/5.7/en/fulltext-boolean.html
-mysql_fts_operators_re = re.compile(r'[-+@<>()~*"\\]')
-
-
 class FailuresQuerySet(models.QuerySet):
     def by_bug(self, bug_id):
         return self.filter(bug_id=int(bug_id))
@@ -233,7 +228,18 @@ class Bugscache(models.Model):
         return "{0}".format(self.id)
 
     @classmethod
-    def search(cls, search_term):
+    def sanitized_search_term(self, search_term):
+        # MySQL Full Text Search operators, based on:
+        # https://dev.mysql.com/doc/refman/5.7/en/fulltext-boolean.html
+        # and other characters we want to remove
+        mysql_fts_operators_re = re.compile(r'[-+@<>()~*"\\]')
+
+        # Replace MySQL's Full Text Search Operators with spaces so searching
+        # for errors that have been pasted in still works.
+        return re.sub(mysql_fts_operators_re, " ", search_term)
+
+    @classmethod
+    def search(self, search_term):
         max_size = 50
 
         # 365 days ago as limit for recent bugs which get suggested by default
@@ -241,12 +247,10 @@ class Bugscache(models.Model):
         # hidden by default with a "Show / Hide More" link.
         time_limit = datetime.datetime.now() - datetime.timedelta(days=365)
 
-        # Replace MySQL's Full Text Search Operators with spaces so searching
-        # for errors that have been pasted in still works.
-        sanitised_term = re.sub(mysql_fts_operators_re, " ", search_term)
+        sanitized_term = self.sanitized_search_term(search_term)
 
         # Wrap search term so it is used as a phrase in the full-text search.
-        search_term_fulltext = '"%s"' % sanitised_term
+        search_term_fulltext = '"%s"' % sanitized_term
 
         # Substitute escape and wildcard characters, so the search term is used
         # literally in the LIKE statement.
@@ -254,7 +258,7 @@ class Bugscache(models.Model):
             search_term.replace('=', '==').replace('%', '=%').replace('_', '=_').replace('\\"', '')
         )
 
-        recent_qs = cls.objects.raw(
+        recent_qs = self.objects.raw(
             """
             SELECT id, summary, crash_signature, keywords, os, resolution, status,
              MATCH (`summary`) AGAINST (%s IN BOOLEAN MODE) AS relevance
@@ -280,7 +284,7 @@ class Bugscache(models.Model):
             )
             open_recent = []
 
-        all_others_qs = cls.objects.raw(
+        all_others_qs = self.objects.raw(
             """
             SELECT id, summary, crash_signature, keywords, os, resolution, status,
              MATCH (`summary`) AGAINST (%s IN BOOLEAN MODE) AS relevance

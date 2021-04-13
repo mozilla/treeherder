@@ -156,3 +156,28 @@ def test_for_empty_search_query(transactional_db, sample_bugs, search_term, exp_
 
         search_query = get_search_query(context.captured_queries[-1]['sql'])
         assert search_query
+
+
+SEARCH_TERMS = (
+    ("(test_popup_preventdefault_chrome.xul+)", " test_popup_preventdefault_chrome.xul  "),
+    (
+        "TEST-UNEXPECTED-TIMEOUT | /webrtc/promises-call.html | Can set up a basic WebRTC call with only data using promises. - Test timed out",
+        "TEST UNEXPECTED TIMEOUT | /webrtc/promises call.html | Can set up a basic WebRTC call with only data using promises.   Test timed out",
+    ),
+    (
+        "*command timed out: 3600 seconds without output running~",
+        " command timed out: 3600 seconds without output running ",
+    ),
+    (
+        "\"input password unmask.html#abc_def 0 7 7 7\"",
+        " input password unmask.html#abc_def 0 7 7 7 ",
+    ),
+)
+
+
+def test_sanitized_search_term():
+    """Test that search terms are properly sanitized (this method is called in Bugscache.search before executing queries)."""
+
+    for case in SEARCH_TERMS:
+        sanitized_term = Bugscache.sanitized_search_term(case[0])
+        assert sanitized_term == case[1]
