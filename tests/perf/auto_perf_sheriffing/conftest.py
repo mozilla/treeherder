@@ -8,7 +8,7 @@ import taskcluster
 from freezegun import freeze_time
 
 from tests.conftest import SampleDataJSONLoader, create_perf_signature, create_perf_alert
-from treeherder.model.models import MachinePlatform, Job
+from treeherder.model.models import MachinePlatform, Job, JobGroup, JobType
 from treeherder.perf.auto_perf_sheriffing.secretary import Secretary
 from treeherder.perf.models import (
     BackfillReport,
@@ -62,6 +62,48 @@ def record_unsuited_for_backfill(test_perf_alert, request):
         return BackfillRecord.objects.create(
             alert=test_perf_alert, report=report, status=BackfillRecord.READY_FOR_PROCESSING
         )
+
+
+@pytest.fixture
+def record_with_job_symbol(test_perf_alert):
+    report = BackfillReport.objects.create(summary=test_perf_alert.summary)
+
+    job_group = JobGroup.objects.create(symbol='Btime', name='Browsertime performance tests on Firefox')
+    job_type = JobType.objects.create(symbol='Bogo', name='Bogo tests')
+    return BackfillRecord.objects.create(
+        alert=test_perf_alert,
+        report=report,
+        job_type=job_type,
+        job_group=job_group,
+        job_tier=2,
+    )
+
+
+@pytest.fixture(params=['no_job_tier', 'no_job_group', 'no_job_type'])
+def record_with_missing_job_symbol_components(record_with_job_symbol, request):
+    if request.param == 'no_job_tier':
+        record_with_job_symbol.job_tier = None
+        record_with_job_symbol.save()
+    elif request.param == 'no_job_group':
+        record_with_job_symbol.job_group = None
+        record_with_job_symbol.save()
+    elif request.param == 'no_job_type':
+        record_with_job_symbol.job_type = None
+        record_with_job_symbol.save()
+
+    return record_with_job_symbol
+
+
+@pytest.fixture(params=['with_all_fields', 'no_job_group', 'no_job_type'])
+def record_with_search_str(record_with_job_symbol):
+    if request.param == 'no_job_group':
+        record_with_job_symbol.job_group = None
+        record_with_job_symbol.save()
+    elif request.param == 'no_job_type':
+        record_with_job_symbol.job_type = None
+        record_with_job_symbol.save()
+
+    return record_with_job_symbol
 
 
 @pytest.fixture(params=['windows', 'linux'])

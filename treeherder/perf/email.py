@@ -67,13 +67,6 @@ class EmailWriter(ABC):
         return must_mention
 
 
-"""
-TODO:
-* provide test coverage for job symbol
-* provide test coverage for searchStr
-"""
-
-
 # For automatically backfilling performance data
 class BackfillReportContent:
     DESCRIPTION = """Perfherder automatically backfills performance jobs originating from {supported_platforms} platforms.
