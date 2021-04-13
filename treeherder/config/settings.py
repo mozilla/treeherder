@@ -163,7 +163,7 @@ for alias in DATABASES:
         # https://docs.aws.amazon.com/AmazonRDS/latest/UserGuide/CHAP_MySQL.html#MySQL.Concepts.SSLSupport
         # https://mysqlclient.readthedocs.io/user_guide.html#functions-and-attributes
         DATABASES[alias]['OPTIONS']['ssl'] = {
-            'ca': 'deployment/aws/rds-combined-ca-bundle.pem',
+            'ca': env("TLS_CERT_PATH", default='deployment/aws/rds-combined-ca-bundle.pem'),
         }
 
 # Caches
