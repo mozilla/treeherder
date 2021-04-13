@@ -3,8 +3,9 @@ import os
 from datetime import datetime, timedelta
 
 import pytest
-from django.db import connection
-from django.test.utils import CaptureQueriesContext
+
+# from django.db import connection
+# from django.test.utils import CaptureQueriesContext
 
 from treeherder.model.models import Bugscache
 
