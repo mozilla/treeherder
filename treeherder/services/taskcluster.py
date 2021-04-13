@@ -2,6 +2,7 @@ import logging
 import uuid
 from abc import ABC, abstractmethod
 from typing import List, Tuple
+import requests
 
 import jsone
 import taskcluster
@@ -74,7 +75,15 @@ class TaskclusterModelImpl(TaskclusterModel):
 
         # fetch
         logger.debug('Fetching actions.json...')
-        actions_json = self.queue.getLatestArtifact(decision_task_id, 'public/actions.json')
+
+        actions_url = self.queue.buildUrl(
+            self.queue.funcinfo['getLatestArtifact']['name'],
+            decision_task_id,
+            'public/actions.json',
+        )
+        response = requests.request('GET', actions_url)
+        actions_json = response.json()
+
         task_definition = self.queue.task(task_id)
 
         if actions_json['version'] != 1:

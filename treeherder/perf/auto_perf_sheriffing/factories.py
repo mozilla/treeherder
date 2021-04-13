@@ -14,7 +14,7 @@ from treeherder.services.taskcluster import taskcluster_model_factory
 
 def sherlock_factory(days_to_lookup: timedelta) -> Sherlock:
     report_maintainer = __report_maintainer_factory(days_to_lookup)
-    backfill_tool = __backfill_tool_factory()
+    backfill_tool = backfill_tool_factory()
     secretary = Secretary()
     notify_client = notify_client_factory()
 
@@ -33,7 +33,7 @@ def __report_maintainer_factory(days_to_lookup: timedelta) -> BackfillReportMain
     return BackfillReportMaintainer(alerts_picker, backfill_context_fetcher)
 
 
-def __backfill_tool_factory() -> BackfillTool:
+def backfill_tool_factory() -> BackfillTool:
     taskcluster = taskcluster_model_factory()
 
     backfill_tool = BackfillTool(taskcluster)
