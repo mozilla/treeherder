@@ -247,7 +247,7 @@ class Bugscache(models.Model):
         # hidden by default with a "Show / Hide More" link.
         time_limit = datetime.datetime.now() - datetime.timedelta(days=365)
 
-        # We can't wrap search as a phrase or a random sequence of characters
+        # Do not wrap a string in quotes to search as a phrase;
         # see https://bugzilla.mozilla.org/show_bug.cgi?id=1704311
         search_term_fulltext = self.sanitized_search_term(search_term)
 
