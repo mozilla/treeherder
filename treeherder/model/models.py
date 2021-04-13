@@ -247,10 +247,9 @@ class Bugscache(models.Model):
         # hidden by default with a "Show / Hide More" link.
         time_limit = datetime.datetime.now() - datetime.timedelta(days=365)
 
-        sanitized_term = self.sanitized_search_term(search_term)
-
-        # Wrap search term so it is used as a phrase in the full-text search.
-        search_term_fulltext = '"%s"' % sanitized_term
+        # We can't wrap search as a phrase or a random sequence of characters
+        # see https://bugzilla.mozilla.org/show_bug.cgi?id=1704311
+        search_term_fulltext = self.sanitized_search_term(search_term)
 
         # Substitute escape and wildcard characters, so the search term is used
         # literally in the LIKE statement.

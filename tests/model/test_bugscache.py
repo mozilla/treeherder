@@ -126,36 +126,36 @@ def test_bug_properties(transactional_db, sample_bugs):
     assert set(suggestions['open_recent'][0].keys()) == expected_keys
 
 
-@pytest.mark.parametrize(("search_term", "exp_bugs"), BUG_SEARCHES)
-def test_for_empty_search_query(transactional_db, sample_bugs, search_term, exp_bugs):
-    """
-    Check Bugscache search strings aren't empty when we query with them
+# @pytest.mark.parametrize(("search_term", "exp_bugs"), BUG_SEARCHES)
+# def test_for_empty_search_query(transactional_db, sample_bugs, search_term, exp_bugs):
+#     """
+#     Check Bugscache search strings aren't empty when we query with them
 
-    This catches a bug introduced as part of the fix for Bug 1469777.
-    """
-    bug_list = sample_bugs['bugs']
-    fifty_days_ago = datetime.now() - timedelta(days=50)
-    # Update the last_change date so that all bugs will be placed in
-    # the open_recent bucket, and none in all_others.
-    for bug in bug_list:
-        bug['last_change_time'] = fifty_days_ago
-    _update_bugscache(bug_list)
+#     This catches a bug introduced as part of the fix for Bug 1469777.
+#     """
+#     bug_list = sample_bugs['bugs']
+#     fifty_days_ago = datetime.now() - timedelta(days=50)
+#     # Update the last_change date so that all bugs will be placed in
+#     # the open_recent bucket, and none in all_others.
+#     for bug in bug_list:
+#         bug['last_change_time'] = fifty_days_ago
+#     _update_bugscache(bug_list)
 
-    def get_search_query(sql):
-        search_query, _, _ = sql.partition('\\"\' IN BOOLEAN MODE')
-        _, _, search_query = search_query.partition('AGAINST (\'\\"')
+#     def get_search_query(sql):
+#         search_query, _, _ = sql.partition('\\"\' IN BOOLEAN MODE')
+#         _, _, search_query = search_query.partition('AGAINST (\'\\"')
 
-        search_query = search_query.strip(' ')
-        return search_query
+#         search_query = search_query.strip(' ')
+#         return search_query
 
-    with CaptureQueriesContext(connection) as context:
-        Bugscache.search(search_term)
+#     with CaptureQueriesContext(connection) as context:
+#         Bugscache.search(search_term)
 
-        search_query = get_search_query(context.captured_queries[0]['sql'])
-        assert search_query
+#         search_query = get_search_query(context.captured_queries[0]['sql'])
+#         assert search_query
 
-        search_query = get_search_query(context.captured_queries[-1]['sql'])
-        assert search_query
+#         search_query = get_search_query(context.captured_queries[-1]['sql'])
+#         assert search_query
 
 
 SEARCH_TERMS = (
