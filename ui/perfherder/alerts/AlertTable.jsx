@@ -201,7 +201,7 @@ export default class AlertTable extends React.Component {
       : null;
     const repoModel = new RepositoryModel(repo);
 
-    const sortedAlerts = orderBy(
+    const filteredAndSortedAlerts = orderBy(
       filteredAlerts,
       ['starred', 'is_regression', 't_value', 'amount_pct', 'title'],
       ['desc', 'desc', 'desc', 'desc', 'asc'],
@@ -270,7 +270,7 @@ export default class AlertTable extends React.Component {
                     <th>Magnitude of Change</th>
                     <th>Confidence</th>
                   </tr>
-                  {sortedAlerts.map((alert) => (
+                  {filteredAndSortedAlerts.map((alert) => (
                     <AlertTableRow
                       key={alert.id}
                       alertSummary={alertSummary}
