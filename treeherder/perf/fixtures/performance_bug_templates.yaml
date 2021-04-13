@@ -20,7 +20,6 @@
     keywords: perf-alert, regression
     default_component: Performance
     default_product: Testing
-    cc_list: rstewart@mozilla.com
     text: |
       Perfherder has detected a {{ framework }} performance regression from push [{{ revision }}]({{ revisionHref }}). As author of one of the patches included in that push, we need your help to address this regression.
 
@@ -36,7 +35,6 @@
     keywords: perf, perf-alert, regression
     default_component: Performance
     default_product: Testing
-    cc_list: bob@bclary.com
     text: |
       Perfherder has detected a {{ framework }} performance regression from push [{{ revision }}]({{ revisionHref }}). As author of one of the patches included in that push, we need your help to address this regression.
 
