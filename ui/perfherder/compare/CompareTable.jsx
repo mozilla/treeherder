@@ -27,17 +27,9 @@ export default class CompareTable extends React.Component {
   constructor(props) {
     super(props);
     const { data } = this.props;
-    const [firstElementOfData] = data;
-    const {
-      baseColumnMeasurementUnit,
-      newColumnMeasurementUnit,
-    } = firstElementOfData;
-    let baseName = 'Base';
-    let newName = 'New';
-    if (baseColumnMeasurementUnit && newColumnMeasurementUnit) {
-      baseName += ` (${baseColumnMeasurementUnit})`;
-      newName += ` (${newColumnMeasurementUnit})`;
-    }
+
+    const { baseName, newName } = this.getBaseAndNewHeaders(data);
+
     this.state = {
       data,
       tableConfig: {
@@ -87,6 +79,21 @@ export default class CompareTable extends React.Component {
       // eslint-disable-next-line react/no-did-update-set-state
       this.setState({ data, tableConfig });
     }
+  };
+
+  getBaseAndNewHeaders = (data) => {
+    const [firstElementOfData] = data;
+    const {
+      baseColumnMeasurementUnit,
+      newColumnMeasurementUnit,
+    } = firstElementOfData;
+    let baseName = 'Base';
+    let newName = 'New';
+    if (baseColumnMeasurementUnit && newColumnMeasurementUnit) {
+      baseName += ` (${baseColumnMeasurementUnit})`;
+      newName += ` (${newColumnMeasurementUnit})`;
+    }
+    return { baseName, newName };
   };
 
   getNextSort = (currentSort) => {
