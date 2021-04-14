@@ -6,10 +6,12 @@ provide it with some basic data to include in the email.
 They then get an email that's ready-to-send via taskcluster.Notify service.
 """
 import logging
+import re
 from dataclasses import dataclass, asdict
 from abc import ABC, abstractmethod
+import urllib.parse
 
-from typing import List, Union
+from typing import List, Union, Optional
 
 from django.conf import settings
 from treeherder.perf.models import (
@@ -115,7 +117,7 @@ class BackfillReportContent:
     def _build_table_row(self, record: BackfillRecord) -> str:
         alert_summary = record.alert.summary
         alert = record.alert
-        job_symbol = record.job_symbol or 'N/A'
+        job_symbol = self.__escape_markdown(record.job_symbol) or 'N/A'
         total_backfills = record.total_backfills_triggered
         push_range_md_link = self.__build_push_range_md_link(record)
 
@@ -125,13 +127,13 @@ class BackfillReportContent:
 
         return f"| {summary_md_link} | {alert_id} | {job_symbol} | {total_backfills} | {push_range_md_link} |"
 
-    @staticmethod
-    def __build_summary_md_link(alert_summary: PerformanceAlertSummary) -> str:
+    @classmethod
+    def __build_summary_md_link(cls, alert_summary: PerformanceAlertSummary) -> str:
         """
         @return: hyperlinked summary id, using markdown syntax
         """
         summary_id = alert_summary.id
-        hyperlink = f"{settings.SITE_URL}/perfherder/alerts?id={summary_id}"
+        hyperlink = f"{settings.SITE_URL}perfherder/alerts?id={summary_id}"
 
         return f"[{summary_id}]({hyperlink})"
 
@@ -141,38 +143,61 @@ class BackfillReportContent:
         @return: hyperlinked push range (e.g. autoland:ce483363652d:04a5fe18527d), using markdown syntax
         """
         try:
-            repo = record.repository.name
-            from_change, to_change = record.get_context_border_info("push__revision")
-
-            hyperlink = f"{settings.SITE_URL}/jobs?repo={repo}&fromchange={from_change}&tochange={to_change}"
-            hyperlink = self.__try_enriching(hyperlink, using_record=record)
-
             text_to_link = self.__build_push_range_cell_text(record.alert)
+            hyperlink = self.__build_push_range_link(record)
+
             return f"[{text_to_link}]({hyperlink})"
         except Exception:
             return 'N/A'
 
-    def __try_enriching(
+    def __build_push_range_link(self, record: BackfillRecord) -> str:
+        repo = record.repository.name
+        from_change, to_change = record.get_context_border_info("push__revision")
+
+        query_params = f"repo={repo}&fromchange={from_change}&tochange={to_change}"
+        query_params = self.__try_embed_search_str(query_params, using_record=record)
+
+        return f"{settings.SITE_URL}jobs?{query_params}"
+
+    def __try_embed_search_str(
         self,
-        push_range: str,
+        query_params: str,
         using_record: BackfillRecord,
     ) -> str:
         search_str = using_record.get_job_search_str()
         if search_str:
-            push_range = f"{push_range}&searchStr={search_str}"
+            search_str = urllib.parse.quote_plus(search_str)
+            query_params = f"{query_params}&searchStr={search_str}"
         else:
             logger.warning(
                 f"Failed to enrich push range URL using record with ID {using_record.alert_id}."
             )
 
-        return push_range
+        return query_params
 
     @staticmethod
     def __build_push_range_cell_text(alert: PerformanceAlert) -> str:
         summary = alert.summary
         repository_name = summary.repository.name
+        previous_push = summary.prev_push.revision
+        push = summary.push.revision
 
-        return f"{repository_name}:{summary.prev_push}:{summary.push}"
+        previous_push = previous_push[:12]
+        push = push[:12]
+
+        return f"{repository_name}:{previous_push}:{push}"
+
+    @staticmethod
+    def __escape_markdown(text: str) -> Optional[str]:
+        """
+        Mostly copied "Example 2" from https://www.programcreek.com/python/?CodeExample=escape+markdown
+        """
+        if text is None:
+            return None
+
+        parse = re.sub(r"([_*\[\]()~`>\#\+\-=|\.!])", r"\\\1", text)
+        reparse = re.sub(r"\\\\([_*\[\]()~`>\#\+\-=|\.!])", r"\1", parse)
+        return reparse
 
     def __str__(self):
         if self._raw_content is None:
