@@ -179,7 +179,7 @@ export default class AlertTableRow extends React.Component {
     const { title } = alert;
     let suite = null;
     if (title !== undefined) {
-      suite = title.split(' ')[0];
+      [suite] = title.split(' ');
     }
     const timeRange = this.getTimeRange();
     return (

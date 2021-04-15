@@ -504,10 +504,9 @@ export class TextualSummary {
 
     let suiteName = suite;
     const url = getTalosDocsURL(suite);
-    if (framework === 'talos') {
+    if (alert.series_signature.framework_id === 1) {
       suiteName = `${suite}[ (docs)](${url})`;
     }
-
     if (
       updatedAlert &&
       updatedAlert.results_link &&
