@@ -176,7 +176,11 @@ export default class AlertTableRow extends React.Component {
     ) {
       textEffect = 'strike-through';
     }
-    const suite = alert.title.split(' ')[0];
+    const { title } = alert;
+    let suite = null;
+    if (title !== undefined) {
+      suite = title.split(' ')[0];
+    }
     const timeRange = this.getTimeRange();
     return (
       <span>
@@ -205,7 +209,7 @@ export default class AlertTableRow extends React.Component {
               · subtests
             </a>
           )}{' '}
-          {getFrameworkName(frameworks, framework) === 'talos' && (
+          {getFrameworkName(frameworks, framework) === 'talos' && suite && (
             <a
               href={getTalosDocsURL(suite)}
               target="_blank"
