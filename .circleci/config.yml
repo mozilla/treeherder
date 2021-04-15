@@ -104,6 +104,8 @@ jobs:
             if [ "${CIRCLE_BRANCH}" == "master" ]; then
               docker tag app:build ${DOCKERHUB_REPO}:latest
               docker push ${DOCKERHUB_REPO}:latest
+              docker tag app:build "${DOCKERHUB_REPO}:${CIRCLE_BRANCH}-${CIRCLE_SHA1}"
+              docker push "${DOCKERHUB_REPO}:${CIRCLE_BRANCH}-${CIRCLE_SHA1}"
             elif  [ ! -z "${CIRCLE_TAG}" ]; then
             # deploy a release tag...
               echo "${DOCKERHUB_REPO}:${CIRCLE_TAG}"
