@@ -28,6 +28,8 @@ export default class CompareTable extends React.Component {
     super(props);
     const { data } = this.props;
 
+    const { baseName, newName } = this.getBaseAndNewHeaders(data);
+
     this.state = {
       data,
       tableConfig: {
@@ -37,13 +39,13 @@ export default class CompareTable extends React.Component {
           currentSort: compareTableSort.default,
         },
         Base: {
-          name: 'Base',
+          name: baseName,
           sortValue: 'originalValue',
           currentSort: compareTableSort.default,
         },
         Comparison: { name: 'Comparison' },
         New: {
-          name: 'New',
+          name: newName,
           sortValue: 'newValue',
           currentSort: compareTableSort.default,
         },
@@ -77,6 +79,21 @@ export default class CompareTable extends React.Component {
       // eslint-disable-next-line react/no-did-update-set-state
       this.setState({ data, tableConfig });
     }
+  };
+
+  getBaseAndNewHeaders = (data) => {
+    const [firstElementOfData] = data;
+    const {
+      baseColumnMeasurementUnit,
+      newColumnMeasurementUnit,
+    } = firstElementOfData;
+    let baseName = 'Base';
+    let newName = 'New';
+    if (baseColumnMeasurementUnit && newColumnMeasurementUnit) {
+      baseName += ` (${baseColumnMeasurementUnit})`;
+      newName += ` (${newColumnMeasurementUnit})`;
+    }
+    return { baseName, newName };
   };
 
   getNextSort = (currentSort) => {
@@ -130,19 +147,6 @@ export default class CompareTable extends React.Component {
     this.setState({ data, tableConfig });
   };
 
-  setBaseAndNewHeaders = (data, tableConfig) => {
-    const [firstElementOfData] = data;
-    const {
-      baseColumnMeasurementUnit,
-      newColumnMeasurementUnit,
-    } = firstElementOfData;
-    if (baseColumnMeasurementUnit && newColumnMeasurementUnit) {
-      tableConfig.Base.name = `${tableConfig.Base.name} (${baseColumnMeasurementUnit})`;
-      tableConfig.New.name = `${tableConfig.New.name} (${newColumnMeasurementUnit})`;
-    }
-    return tableConfig;
-  };
-
   render() {
     const {
       testName,
@@ -155,8 +159,7 @@ export default class CompareTable extends React.Component {
     } = this.props;
 
     const { data } = this.state;
-    let { tableConfig } = this.state;
-    tableConfig = this.setBaseAndNewHeaders(data, tableConfig);
+    const { tableConfig } = this.state;
 
     return (
       <Table
