@@ -4,6 +4,7 @@ from unittest.mock import MagicMock
 
 import pytest
 from django.db import models
+from tests import settings as test_settings
 
 from tests.perf.auto_perf_sheriffing.conftest import prepare_record_with_search_str
 from treeherder.model.models import Job, Push
@@ -37,7 +38,6 @@ class TestEmailIntegration:
         sherlock_settings,
         notify_client_mock,
     ):
-
         sherlock = Sherlock(
             report_maintainer_mock,
             backfill_tool_mock,
@@ -45,7 +45,11 @@ class TestEmailIntegration:
             notify_client_mock,
             email_writer=self.email_writer_mock(),
         )
-        sherlock.sheriff(since=EPOCH, frameworks=['raptor', 'talos'], repositories=['autoland'])
+        sherlock.sheriff(
+            since=EPOCH,
+            frameworks=['test_talos'],
+            repositories=[test_settings.TREEHERDER_TEST_REPOSITORY_NAME],
+        )
         record_ready_for_processing.refresh_from_db()
 
         assert notify_client_mock.email.call_count == 1
@@ -70,7 +74,11 @@ class TestEmailIntegration:
             secretary,
             notify_client_mock,
         )
-        sherlock.sheriff(since=EPOCH, frameworks=['raptor', 'talos'], repositories=['autoland'])
+        sherlock.sheriff(
+            since=EPOCH,
+            frameworks=['test_talos'],
+            repositories=[test_settings.TREEHERDER_TEST_REPOSITORY_NAME],
+        )
 
         assert notify_client_mock.email.call_count == 1
 
@@ -92,6 +100,41 @@ class TestEmailIntegration:
             sherlock.sheriff(since=EPOCH, frameworks=['raptor', 'talos'], repositories=['autoland'])
         except MaxRuntimeExceeded:
             pass
+
+        assert notify_client_mock.email.call_count == 0
+
+    @pytest.mark.parametrize(
+        'framework, repository',
+        [
+            ('non_existent_framework', test_settings.TREEHERDER_TEST_REPOSITORY_NAME),
+            ('test_talos', 'non_existent_repository'),
+            ('non_existent_framework', 'non_existent_repository'),
+        ],
+    )
+    def test_no_email_is_sent_for_untargeted_alerts(
+        self,
+        report_maintainer_mock,
+        backfill_tool_mock,
+        secretary,
+        record_ready_for_processing,
+        sherlock_settings,
+        notify_client_mock,
+        framework,
+        repository,
+    ):
+        sherlock = Sherlock(
+            report_maintainer_mock,
+            backfill_tool_mock,
+            secretary,
+            notify_client_mock,
+            email_writer=self.email_writer_mock(),
+        )
+        sherlock.sheriff(
+            since=EPOCH,
+            frameworks=[framework],
+            repositories=[repository],
+        )
+        record_ready_for_processing.refresh_from_db()
 
         assert notify_client_mock.email.call_count == 0
 
@@ -205,7 +248,7 @@ def test_records_and_db_limits_remain_unchanged_if_no_records_suitable_for_backf
     record_unsuited_for_backfill,
 ):
     sherlock = Sherlock(report_maintainer_mock, backfill_tool_mock, secretary, notify_client_mock)
-    sherlock._backfill()
+    sherlock._backfill(['test_talos'], [test_settings.TREEHERDER_TEST_REPOSITORY_NAME])
 
     assert not has_changed(record_unsuited_for_backfill)
     assert not has_changed(sherlock_settings)
@@ -220,7 +263,7 @@ def test_records_remain_unchanged_if_no_backfills_left(
     empty_sheriff_settings,
 ):
     sherlock = Sherlock(report_maintainer_mock, backfill_tool_mock, secretary, notify_client_mock)
-    sherlock._backfill()
+    sherlock._backfill(['test_talos'], [test_settings.TREEHERDER_TEST_REPOSITORY_NAME])
 
     assert not has_changed(record_ready_for_processing)
 
@@ -258,7 +301,11 @@ def test_db_limits_update_if_backfills_left(
 
     initial_backfills = secretary.backfills_left(on_platform=targeted_platform)
     sherlock = Sherlock(report_maintainer_mock, backfill_tool_mock, secretary, notify_client_mock)
-    sherlock.sheriff(since=EPOCH, frameworks=['raptor', 'talos'], repositories=['autoland'])
+    sherlock.sheriff(
+        since=EPOCH,
+        frameworks=['test_talos'],
+        repositories=[test_settings.TREEHERDER_TEST_REPOSITORY_NAME],
+    )
 
     record_ready_for_processing.refresh_from_db()
     assert record_ready_for_processing.status == BackfillRecord.BACKFILLED
@@ -279,7 +326,11 @@ def test_backfilling_gracefully_handles_invalid_json_contexts_without_blowing_up
 
     sherlock = Sherlock(report_maintainer_mock, backfill_tool_mock, secretary, notify_client_mock)
     try:
-        sherlock.sheriff(since=EPOCH, frameworks=['raptor', 'talos'], repositories=['autoland'])
+        sherlock.sheriff(
+            since=EPOCH,
+            frameworks=['test_talos'],
+            repositories=[test_settings.TREEHERDER_TEST_REPOSITORY_NAME],
+        )
     except (JSONDecodeError, KeyError, Job.DoesNotExist, Push.DoesNotExist):
         pytest.fail()
 

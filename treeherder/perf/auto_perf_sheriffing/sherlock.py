@@ -71,7 +71,7 @@ class Sherlock:
 
         # backfill tool follows
         logger.info("Sherlock: Starting to backfill...")
-        self._backfill()
+        self._backfill(frameworks, repositories)
         self.assert_can_run()
 
         logger.info("Sherlock: Notifying backfill outcome...")
@@ -90,15 +90,17 @@ class Sherlock:
     ) -> List[BackfillReport]:
         return self.report_maintainer.provide_updated_reports(since, frameworks, repositories)
 
-    def _backfill(self):
+    def _backfill(self, frameworks: List[str], repositories: List[str]):
         for platform in self.supported_platforms:
-            self.__backfill_on(platform)
+            self.__backfill_on(platform, frameworks, repositories)
 
-    def __backfill_on(self, platform: str):
+    def __backfill_on(self, platform: str, frameworks: List[str], repositories: List[str]):
         left = self.secretary.backfills_left(on_platform=platform)
         total_consumed = 0
 
-        records_to_backfill = self.__fetch_records_requiring_backfills_on(platform)
+        records_to_backfill = self.__fetch_records_requiring_backfills_on(
+            platform, frameworks, repositories
+        )
         logger.info(
             f"Sherlock: {records_to_backfill.count()} records found to backfill on {platform.title()}."
         )
@@ -116,12 +118,20 @@ class Sherlock:
         logger.debug(f"Sherlock: Having {left} backfills left on {platform.title()}.")
 
     @staticmethod
-    def __fetch_records_requiring_backfills_on(platform: str) -> QuerySet:
+    def __fetch_records_requiring_backfills_on(
+        platform: str, frameworks: List[str], repositories: List[str]
+    ) -> QuerySet:
         records_to_backfill = BackfillRecord.objects.select_related(
-            'alert', 'alert__series_signature', 'alert__series_signature__platform'
+            'alert',
+            'alert__series_signature',
+            'alert__series_signature__platform',
+            'alert__summary__framework',
+            'alert__summary__repository',
         ).filter(
             status=BackfillRecord.READY_FOR_PROCESSING,
             alert__series_signature__platform__platform__icontains=platform,
+            alert__summary__framework__name__in=frameworks,
+            alert__summary__repository__name__in=repositories,
         )
         return records_to_backfill
 
