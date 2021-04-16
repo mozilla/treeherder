@@ -429,8 +429,26 @@ export const addResultsLink = (taskId) => {
   return `${taskLink}${taskId}${resultsPath}`;
 };
 
+export const getTalosDocsURL = (suite) => {
+  const url =
+    'https://firefox-source-docs.mozilla.org/testing/perfdocs/talos.html#';
+  return url.concat(suite.replace(/_/g, '-'));
+};
+
+export const getFrameworkName = (frameworks, frameworkId) => {
+  const framework = frameworks.find((item) => item.id === frameworkId);
+  return framework ? framework.name : unknownFrameworkMessage;
+};
+
 export class TextualSummary {
-  constructor(alerts, alertSummary, copySummary = null, alertsWithVideos = []) {
+  constructor(
+    frameworks,
+    alerts,
+    alertSummary,
+    copySummary = null,
+    alertsWithVideos = [],
+  ) {
+    this.frameworks = frameworks;
     this.alerts = alerts;
     this.alertSummary = alertSummary;
     this.copySummary = copySummary;
@@ -495,14 +513,21 @@ export class TextualSummary {
     const extraOptions = alert.series_signature.extra_options.join(' ');
 
     const updatedAlert = this.alertsWithVideos.find((a) => alert.id === a.id);
+    let suiteName = suite;
+    const url = getTalosDocsURL(suite);
+    if (
+      getFrameworkName(this.frameworks, this.alertSummary.framework) === 'talos'
+    ) {
+      suiteName = `${suite}[ (docs)](${url})`;
+    }
     if (
       updatedAlert &&
       updatedAlert.results_link &&
       updatedAlert.prev_results_link
     ) {
-      return `| ${amountPct}% | ${suite} | ${test} | ${platform} | ${extraOptions} | [${prevValue}](${updatedAlert.prev_results_link}) -> [${newValue}](${updatedAlert.results_link}) |`;
+      return `| ${amountPct}% | ${suiteName} | ${test} | ${platform} | ${extraOptions} | [${prevValue}](${updatedAlert.prev_results_link}) -> [${newValue}](${updatedAlert.results_link}) |`;
     }
-    return `| ${amountPct}% | ${suite} | ${test} | ${platform} | ${extraOptions} | ${prevValue} -> ${newValue} |`;
+    return `| ${amountPct}% | ${suiteName} | ${test} | ${platform} | ${extraOptions} | ${prevValue} -> ${newValue} |`;
   }
 
   formatAlertBulk(alerts) {
@@ -736,11 +761,6 @@ export const getFrameworkData = (props) => {
     return frameworkObject;
   }
   return { id: 1, name: 'talos' };
-};
-
-export const getFrameworkName = (frameworks, frameworkId) => {
-  const framework = frameworks.find((item) => item.id === frameworkId);
-  return framework ? framework.name : unknownFrameworkMessage;
 };
 
 export const getStatus = (statusNum, statusMap = summaryStatusMap) => {
