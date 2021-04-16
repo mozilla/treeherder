@@ -264,17 +264,25 @@ export default class Health extends React.PureComponent {
                   <TabPanel>
                     <JobListMetric
                       data={linting}
-                      repo={repo}
+                      currentRepo={currentRepo}
                       revision={revision}
                       setExpanded={this.setExpanded}
+                      updateParamsAndState={this.updateParamsAndState}
+                      notify={notify}
+                      selectedTaskId={selectedTaskId}
+                      selectedJobName={selectedJobName}
                     />
                   </TabPanel>
                   <TabPanel>
                     <JobListMetric
                       data={builds}
-                      repo={repo}
+                      currentRepo={currentRepo}
                       revision={revision}
                       setExpanded={this.setExpanded}
+                      updateParamsAndState={this.updateParamsAndState}
+                      notify={notify}
+                      selectedTaskId={selectedTaskId}
+                      selectedJobName={selectedJobName}
                     />
                   </TabPanel>
                   <TabPanel>
