@@ -12,6 +12,16 @@ const testUser = {
 };
 const testAlertSummary = testAlertSummaries[0];
 const testAlert = testAlertSummary.alerts[0];
+const frameworks = [
+  {
+    id: 1,
+    name: 'talos',
+  },
+  {
+    id: 2,
+    name: 'build_metrics',
+  },
+];
 
 const alertTableRowTest = (tags) => {
   if (tags) {
@@ -22,6 +32,7 @@ const alertTableRowTest = (tags) => {
       <tbody>
         <AlertTableRow
           alertSummary={testAlertSummary}
+          frameworks={frameworks}
           user={testUser}
           alert={testAlert}
           updateSelectedAlerts={() => {}}

@@ -309,7 +309,8 @@ th {
   transition: color 150ms ease-in-out;
 }
 
-.compare-table .result-links a {
+.compare-table .result-links a,
+.compare-table .subtest-header a {
   color: #23527c;
 }
 

@@ -140,6 +140,7 @@ export default class CompareTableControls extends React.Component {
 
   render() {
     const {
+      frameworkName,
       showTestsWithNoise,
       dropdownOptions,
       user,
@@ -213,6 +214,7 @@ export default class CompareTableControls extends React.Component {
               key={testName}
               data={data}
               testName={testName}
+              frameworkName={frameworkName}
               onPermalinkClick={onPermalinkClick}
               user={user}
               isBaseAggregate={isBaseAggregate}

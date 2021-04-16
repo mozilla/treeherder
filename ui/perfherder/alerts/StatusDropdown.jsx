@@ -101,6 +101,7 @@ export default class StatusDropdown extends React.Component {
       }
     }
     const textualSummary = new TextualSummary(
+      frameworks,
       filteredAlerts,
       alertSummary,
       null,
@@ -157,8 +158,9 @@ export default class StatusDropdown extends React.Component {
   };
 
   copySummary = () => {
-    const { filteredAlerts, alertSummary } = this.props;
+    const { filteredAlerts, alertSummary, frameworks } = this.props;
     const textualSummary = new TextualSummary(
+      frameworks,
       filteredAlerts,
       alertSummary,
       true,

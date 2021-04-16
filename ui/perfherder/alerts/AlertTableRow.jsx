@@ -20,7 +20,14 @@ import { faStar as faStarRegular } from '@fortawesome/free-regular-svg-icons';
 import { Link } from 'react-router-dom';
 
 import { createQueryParams } from '../../helpers/url';
-import { getStatus, getGraphsURL, modifyAlert, formatNumber } from '../helpers';
+import {
+  getStatus,
+  getGraphsURL,
+  modifyAlert,
+  formatNumber,
+  getTalosDocsURL,
+  getFrameworkName,
+} from '../helpers';
 import SimpleTooltip from '../../shared/SimpleTooltip';
 import ProgressBar from '../../shared/ProgressBar';
 import {
@@ -153,6 +160,12 @@ export default class AlertTableRow extends React.Component {
 
   getTitleText = (alert, alertStatus) => {
     const { repository, framework, id } = this.props.alertSummary;
+    const { frameworks } = this.props;
+    const { title } = alert;
+    let suite = null;
+    if (title !== undefined) {
+      [suite] = title.split(' ');
+    }
 
     let statusColor = '';
     let textEffect = '';
@@ -178,24 +191,31 @@ export default class AlertTableRow extends React.Component {
         >
           {alert.title}
         </span>{' '}
-        {this.renderAlertStatus(alert, alertStatus, statusColor)}
+        {this.renderAlertStatus(alert, alertStatus, statusColor)}{' '}
         <span className="result-links">
           <a
             href={getGraphsURL(alert, timeRange, repository, framework)}
             target="_blank"
             rel="noopener noreferrer"
           >
-            {' '}
             graph
-          </a>
+          </a>{' '}
           {alert.series_signature.has_subtests && (
             <a
               href={this.getSubtestsURL()}
               target="_blank"
               rel="noopener noreferrer"
             >
-              {' '}
               · subtests
+            </a>
+          )}{' '}
+          {getFrameworkName(frameworks, framework) === 'talos' && suite && (
+            <a
+              href={getTalosDocsURL(suite)}
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              · docs
             </a>
           )}
         </span>
