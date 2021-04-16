@@ -518,7 +518,7 @@ export class TextualSummary {
     if (
       getFrameworkName(this.frameworks, this.alertSummary.framework) === 'talos'
     ) {
-      suiteName = `${suite}[ (docs)](${url})`;
+      suiteName = `${suite} [(docs)](${url})`;
     }
     if (
       updatedAlert &&
