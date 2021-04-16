@@ -113,9 +113,9 @@ distlib==0.3.1 \
     --hash=sha256:8c09de2c67b3e7deef7184574fc060ab8a793e7adbb183d942c389c8b13c52fb \
     --hash=sha256:edf6116872c863e1aa9d5bb7cb5e05a022c519a4594dc703843343a9ddd9bff1
     # via virtualenv
-django-debug-toolbar==3.2 \
-    --hash=sha256:84e2607d900dbd571df0a2acf380b47c088efb787dce9805aefeb407341961d2 \
-    --hash=sha256:9e5a25d0c965f7e686f6a8ba23613ca9ca30184daa26487706d4829f5cfb697a
+django-debug-toolbar==3.2.1 \
+    --hash=sha256:a5ff2a54f24bf88286f9872836081078f4baa843dc3735ee88524e89f8821e33 \
+    --hash=sha256:e759e63e3fe2d3110e0e519639c166816368701eab4a47fed75d7de7018467b9
     # via -r dev.in
 django-extensions==3.1.1 \
     --hash=sha256:674ad4c3b1587a884881824f40212d51829e662e52f85b012cd83d83fe1271d9 \
