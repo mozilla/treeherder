@@ -316,6 +316,7 @@ export default class CompareTableView extends React.Component {
 
               <CompareTableControls
                 {...this.props}
+                frameworkName={framework.name}
                 dropdownOptions={compareDropdowns}
                 updateState={(state) => this.setState(state)}
                 compareResults={compareResults}
