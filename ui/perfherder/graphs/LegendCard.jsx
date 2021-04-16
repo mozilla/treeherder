@@ -4,7 +4,7 @@ import { Badge, Button, FormGroup, Input } from 'reactstrap';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faTimes } from '@fortawesome/free-solid-svg-icons';
 
-import { getFrameworkName } from '../helpers';
+import { getFrameworkName, getTalosDocsURL } from '../helpers';
 import { graphColors } from '../constants';
 import GraphIcon from '../../shared/GraphIcon';
 
@@ -131,6 +131,8 @@ const LegendCard = ({
   const subtitleStyle = 'p-0 mb-0 border-0 text-secondary text-left';
   const symbolType = series.symbol || ['circle', 'outline'];
 
+  const suite = series.name.split(' ')[0];
+  const framework = getFrameworkName(frameworks, series.framework_id);
   return (
     <FormGroup check className="pl-0 border">
       <Button
@@ -159,9 +161,11 @@ const LegendCard = ({
             fill={symbolType[1] === 'fill' ? series.color[1] : '#ffffff'}
             stroke={series.color[1]}
           />
-
           {series.name}
         </Button>
+        <div className="small">
+          {framework === 'talos' && <a href={getTalosDocsURL(suite)}>(docs)</a>}
+        </div>
         <Button
           color="link"
           outline
@@ -191,7 +195,7 @@ const LegendCard = ({
             {series.application}
           </Button>
         )}
-        <Badge> {getFrameworkName(frameworks, series.framework_id)} </Badge>
+        <Badge> {framework} </Badge>
         <div className="small">{`${series.signatureHash.slice(0, 16)}...`}</div>
       </div>
       <Input
