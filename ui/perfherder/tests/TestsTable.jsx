@@ -4,11 +4,18 @@ import { Container } from 'reactstrap';
 import ReactTable from 'react-table';
 
 import { noResultsMessage } from '../constants';
+import { getTalosDocsURL } from '../helpers';
 
 import ItemList from './ItemList';
 
 export default function TestsTable(props) {
-  const { results, projectsMap, platformsMap, defaultPageSize } = props;
+  const {
+    results,
+    framework,
+    projectsMap,
+    platformsMap,
+    defaultPageSize,
+  } = props;
 
   const showPagination = results.length > defaultPageSize;
   const headerStyle = {
@@ -23,6 +30,14 @@ export default function TestsTable(props) {
       headerStyle,
       Header: 'Suite',
       accessor: 'suite',
+      Cell: ({ row }) => (
+        <div>
+          {row.suite}{' '}
+          {framework === 'talos' && (
+            <a href={getTalosDocsURL(row.suite)}>(docs)</a>
+          )}
+        </div>
+      ),
     },
     {
       headerStyle,
