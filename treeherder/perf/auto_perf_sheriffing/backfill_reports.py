@@ -253,10 +253,8 @@ class BackfillReportMaintainer:
     def provide_updated_reports(
         self, since: datetime, frameworks: List[str], repositories: List[str]
     ) -> List[BackfillReport]:
-        summaries_to_retrigger = self._fetch_by(
-            self._summaries_requiring_reports(since), frameworks, repositories
-        )
-        return self.compile_reports_for(summaries_to_retrigger)
+        alert_summaries = self.__fetch_summaries_to_retrigger(since, frameworks, repositories)
+        return self.compile_reports_for(alert_summaries)
 
     def compile_reports_for(self, summaries_to_retrigger: QuerySet) -> List[BackfillReport]:
         reports = []
@@ -295,28 +293,23 @@ class BackfillReportMaintainer:
                 context=json.dumps(retrigger_context, default=default_serializer),
             )
 
-    def _summaries_requiring_reports(self, timestamp: datetime) -> QuerySet:
-        recent_summaries_with_no_reports = Q(
-            last_updated__gte=timestamp, backfill_report__isnull=True
-        )
-        summaries_with_outdated_reports = Q(last_updated__gt=F('backfill_report__last_updated'))
+    def __fetch_summaries_to_retrigger(
+        self, since: datetime, frameworks: List[str], repositories: List[str]
+    ) -> QuerySet:
+        no_reports_yet = Q(last_updated__gte=since, backfill_report__isnull=True)
+        with_outdated_reports = Q(last_updated__gt=F('backfill_report__last_updated'))
+        filters = no_reports_yet | with_outdated_reports
+
+        if frameworks:
+            filters = filters & Q(framework__name__in=frameworks)
+        if repositories:
+            filters = filters & Q(repository__name__in=repositories)
 
         return (
             PerformanceAlertSummary.objects.prefetch_related('backfill_report')
             .select_related('framework', 'repository')
-            .filter(recent_summaries_with_no_reports | summaries_with_outdated_reports)
+            .filter(filters)
         )
-
-    def _fetch_by(
-        self, summaries_to_retrigger: QuerySet, frameworks: List[str], repositories: List[str]
-    ) -> QuerySet:
-        if frameworks:
-            summaries_to_retrigger = summaries_to_retrigger.filter(framework__name__in=frameworks)
-        if repositories:
-            summaries_to_retrigger = summaries_to_retrigger.filter(
-                repository__name__in=repositories
-            )
-        return summaries_to_retrigger
 
     def _associate_retrigger_context(self, important_alerts: List[PerformanceAlert]) -> List[Tuple]:
         retrigger_map = []
