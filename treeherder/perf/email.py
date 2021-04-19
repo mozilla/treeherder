@@ -5,14 +5,23 @@ Its clients should only instantiate their writer of choice &
 provide it with some basic data to include in the email.
 They then get an email that's ready-to-send via taskcluster.Notify service.
 """
-
+import logging
+import re
 from dataclasses import dataclass, asdict
 from abc import ABC, abstractmethod
+import urllib.parse
 
-from typing import List, Union
+from typing import List, Union, Optional
 
 from django.conf import settings
-from treeherder.perf.models import BackfillRecord, PerformanceSignature
+from treeherder.perf.models import (
+    BackfillRecord,
+    PerformanceSignature,
+    PerformanceAlertSummary,
+    PerformanceAlert,
+)
+
+logger = logging.getLogger(__name__)
 
 FXPERF_TEST_ENG_EMAIL = "perftest-alerts@mozilla.com"  # team' s email
 
@@ -67,14 +76,14 @@ class EmailWriter(ABC):
 
 # For automatically backfilling performance data
 class BackfillReportContent:
-    DESCRIPTION = """Perfherder automatically backfills performance jobs originating from Linux platforms.
+    DESCRIPTION = """Perfherder automatically backfills performance jobs originating from {supported_platforms} platform(s).
      It does this every hour, as long as it doesn't exceed the daily limit.
 > __Here's a summary of latest backfills:__
 ---
 """
 
     TABLE_HEADERS = """
-| Alert summary | Alert | Job symbol | Total backfills (approx.) | Push range |
+| Alert summary | Alert | Job symbol | Total backfills | Push range |
 | :---: | :---: | :---: | :---: | :---: |
 """
 
@@ -88,8 +97,18 @@ class BackfillReportContent:
             self._include_in_report(record)
 
     def _initialize_report_intro(self):
-        if self._raw_content is None:
-            self._raw_content = self.DESCRIPTION + self.TABLE_HEADERS
+        if self._raw_content is not None:
+            return
+
+        description = self.__prepare_report_description()
+        self._raw_content = description + self.TABLE_HEADERS
+
+    def __prepare_report_description(self) -> str:
+        title_case_platforms = map(lambda platf: platf.title(), settings.SUPPORTED_PLATFORMS)
+        platform_enumeration = ', '.join(title_case_platforms)
+
+        description = self.DESCRIPTION.format(supported_platforms=platform_enumeration)
+        return description
 
     def _include_in_report(self, record: BackfillRecord):
         new_table_row = self._build_table_row(record)
@@ -98,26 +117,87 @@ class BackfillReportContent:
     def _build_table_row(self, record: BackfillRecord) -> str:
         alert_summary = record.alert.summary
         alert = record.alert
-        job_type = record.job_type or 'N/A'
+        job_symbol = self.__escape_markdown(record.job_symbol) or 'N/A'
         total_backfills = record.total_backfills_triggered
-        push_range = self.__build_push_range(record)
+        push_range_md_link = self.__build_push_range_md_link(record)
 
         # some fields require adjustments
-        summary_id = alert_summary.id
+        summary_md_link = self.__build_summary_md_link(alert_summary)
         alert_id = alert.id
-        job_symbol = str(job_type)
 
-        return f"| {summary_id} | {alert_id} | {job_symbol} | {total_backfills} | {push_range} |"
+        return f"| {summary_md_link} | {alert_id} | {job_symbol} | {total_backfills} | {push_range_md_link} |"
 
-    def __build_push_range(self, record: BackfillRecord) -> str:
+    @classmethod
+    def __build_summary_md_link(cls, alert_summary: PerformanceAlertSummary) -> str:
+        """
+        @return: hyperlinked summary id, using markdown syntax
+        """
+        summary_id = alert_summary.id
+        hyperlink = f"{settings.SITE_URL}perfherder/alerts?id={summary_id}"
+
+        return f"[{summary_id}]({hyperlink})"
+
+    def __build_push_range_md_link(self, record: BackfillRecord) -> str:
         """
         Provides link to Treeherder' s Job view
+        @return: hyperlinked push range (e.g. autoland:ce483363652d:04a5fe18527d), using markdown syntax
         """
         try:
-            from_change, to_change = record.get_context_border_info("push__revision")
-            return f"{settings.SITE_URL}/jobs?repo={record.repository}&fromchange={from_change}&tochange={to_change}"
+            text_to_link = self.__build_push_range_cell_text(record.alert)
+            hyperlink = self.__build_push_range_link(record)
+
+            return f"[{text_to_link}]({hyperlink})"
         except Exception:
             return 'N/A'
+
+    def __build_push_range_link(self, record: BackfillRecord) -> str:
+        repo = record.repository.name
+        from_change, to_change = record.get_context_border_info("push__revision")
+
+        query_params = f"repo={repo}&fromchange={from_change}&tochange={to_change}"
+        query_params = self.__try_embed_search_str(query_params, using_record=record)
+
+        return f"{settings.SITE_URL}jobs?{query_params}"
+
+    def __try_embed_search_str(
+        self,
+        query_params: str,
+        using_record: BackfillRecord,
+    ) -> str:
+        search_str = using_record.get_job_search_str()
+        if search_str:
+            search_str = urllib.parse.quote_plus(search_str)
+            query_params = f"{query_params}&searchStr={search_str}"
+        else:
+            logger.warning(
+                f"Failed to enrich push range URL using record with ID {using_record.alert_id}."
+            )
+
+        return query_params
+
+    @staticmethod
+    def __build_push_range_cell_text(alert: PerformanceAlert) -> str:
+        summary = alert.summary
+        repository_name = summary.repository.name
+        previous_push = summary.prev_push.revision
+        push = summary.push.revision
+
+        previous_push = previous_push[:12]
+        push = push[:12]
+
+        return f"{repository_name}:{previous_push}:{push}"
+
+    @staticmethod
+    def __escape_markdown(text: str) -> Optional[str]:
+        """
+        Mostly copied "Example 2" from https://www.programcreek.com/python/?CodeExample=escape+markdown
+        """
+        if text is None:
+            return None
+
+        parse = re.sub(r"([_*\[\]()~`>\#\+\-=|\.!])", r"\\\1", text)
+        reparse = re.sub(r"\\\\([_*\[\]()~`>\#\+\-=|\.!])", r"\1", parse)
+        return reparse
 
     def __str__(self):
         if self._raw_content is None:

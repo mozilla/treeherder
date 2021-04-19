@@ -5,6 +5,7 @@ from unittest.mock import MagicMock
 import pytest
 from django.db import models
 
+from tests.perf.auto_perf_sheriffing.conftest import prepare_record_with_search_str
 from treeherder.model.models import Job, Push
 from treeherder.perf.auto_perf_sheriffing.sherlock import Sherlock
 from treeherder.perf.email import BackfillNotificationWriter
@@ -97,6 +98,33 @@ class TestEmailIntegration:
     @staticmethod
     def email_writer_mock():
         return MagicMock(spec=BackfillNotificationWriter())
+
+
+def test_record_job_symbol_is_none_if_component_misses(record_with_missing_job_symbol_components):
+    job_symbol = record_with_missing_job_symbol_components.job_symbol
+
+    # testing with each component missing
+    assert job_symbol is None
+
+
+def test_record_correct_job_symbol(record_with_job_symbol):
+    expected_job_symbol = 'Btime[tier 2](Bogo)'
+    assert record_with_job_symbol.job_symbol == expected_job_symbol
+
+
+@pytest.mark.parametrize(
+    'search_str_with, expected_search_str',
+    [
+        ('all_fields', 'win7,Browsertime performance tests on Firefox,Bogo tests,Bogo'),
+        ('no_job_group', 'win7,Bogo tests,Bogo'),
+        ('no_job_type', 'win7,Browsertime performance tests on Firefox'),
+    ],
+)
+def test_record_search_str(record_with_job_symbol, search_str_with, expected_search_str):
+    record = prepare_record_with_search_str(record_with_job_symbol, search_str_with)
+    search_str = record.get_job_search_str()
+
+    assert search_str == expected_search_str
 
 
 def test_records_change_to_ready_for_processing(
