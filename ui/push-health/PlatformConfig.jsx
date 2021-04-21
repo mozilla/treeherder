@@ -155,7 +155,6 @@ PlatformConfig.propTypes = {
 
 PlatformConfig.defaultProps = {
   testName: '',
-  notify: () => {},
 };
 
 export default PlatformConfig;

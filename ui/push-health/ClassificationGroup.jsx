@@ -26,6 +26,7 @@ import JobModel from '../models/job';
 
 import Action from './Action';
 import PlatformConfig from './PlatformConfig';
+import TaskSelection from './TaskSelection';
 
 class ClassificationGroup extends React.PureComponent {
   constructor(props) {
@@ -280,16 +281,27 @@ class ClassificationGroup extends React.PureComponent {
           {!!unstructuredFailures.length && (
             <div className="ml-4 mt-2">
               <h5>{name} without structured logs</h5>
-              {unstructuredFailures.map((line) => (
+              {unstructuredFailures.map((failure) => (
                 <PlatformConfig
-                  failure={line}
-                  currentRepo={currentRepo}
+                  key={failure.key}
+                  testName={failure.testName}
+                  jobName={failure.jobName}
+                  jobs={jobs[failure.jobName]}
+                  revision={revision}
                   notify={notify}
-                  groupedBy="path"
+                  selectedJobName={selectedJobName}
+                  selectedTaskId={selectedTaskId}
                   updateParamsAndState={updateParamsAndState}
-                  jobs={jobs}
-                  key={line.key}
-                />
+                  currentRepo={currentRepo}
+                >
+                  <TaskSelection
+                    failure={failure}
+                    groupedBy="path"
+                    addSelectedTest={this.addSelectedTest}
+                    removeSelectedTest={this.removeSelectedTest}
+                    currentRepo={currentRepo}
+                  />
+                </PlatformConfig>
               ))}
             </div>
           )}
