@@ -54,7 +54,7 @@ StatusButton.propTypes = {
   title: PropTypes.string.isRequired,
   failureCount: PropTypes.number.isRequired,
   inProgressCount: PropTypes.number.isRequired,
-  status: PropTypes.shape({}).isRequired,
+  status: PropTypes.string.isRequired,
   revision: PropTypes.string.isRequired,
   repo: PropTypes.string.isRequired,
 };

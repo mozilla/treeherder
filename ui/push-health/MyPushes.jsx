@@ -27,6 +27,7 @@ import ErrorMessages from '../shared/ErrorMessages';
 import DropdownMenuItems from '../shared/DropdownMenuItems';
 import StatusButton from '../shared/StatusButton';
 
+import { myPushesDefaultMessage } from './helpers';
 import CommitHistory from './CommitHistory';
 
 const defaultRepo = 'try';
@@ -41,16 +42,16 @@ class MyPushes extends React.Component {
       repos: [],
       loading: false,
       selectedRepo: defaultRepo,
-      defaultUser: this.props.user.email || this.params.author,
+      displayedUser: this.props.user.email || this.params.author,
     };
   }
 
   async componentDidMount() {
-    const { defaultUser } = this.state;
+    const { displayedUser } = this.state;
 
     this.fetchRepos();
 
-    if (defaultUser) {
+    if (displayedUser) {
       this.fetchMetrics(true);
       // Update the tests every two minutes.
       this.testTimerId = setInterval(() => this.fetchMetrics(), 120000);
@@ -62,7 +63,9 @@ class MyPushes extends React.Component {
 
     if (!prevProps.user.isLoggedIn && user.isLoggedIn) {
       // eslint-disable-next-line react/no-did-update-set-state
-      this.setState({ defaultUser: user.email }, () => this.fetchMetrics(true));
+      this.setState({ displayedUser: user.email }, () =>
+        this.fetchMetrics(true),
+      );
       // Update the tests every two minutes.
       this.testTimerId = setInterval(() => this.fetchMetrics(), 120000);
     }
@@ -81,18 +84,18 @@ class MyPushes extends React.Component {
   });
 
   async fetchMetrics(loading = false) {
-    const { selectedRepo, defaultUser } = this.state;
+    const { selectedRepo, displayedUser } = this.state;
     const { user, notify, clearNotification, location, history } = this.props;
     const params = parseQueryParams(location.search);
 
     this.setState({ loading });
 
-    if (defaultUser !== params.author) {
+    if (displayedUser !== params.author) {
       updateQueryParams(`?author=${user.email}`, history, location);
     }
 
     const options = {
-      author: defaultUser,
+      author: displayedUser,
       count: 5,
       with_history: true,
     };
@@ -137,7 +140,7 @@ class MyPushes extends React.Component {
       loading,
       failureMessage,
       selectedRepo,
-      defaultUser,
+      displayedUser,
     } = this.state;
 
     const totalNeedInvestigation = pushMetrics.length
@@ -178,9 +181,9 @@ class MyPushes extends React.Component {
           <title>{`[${totalNeedInvestigation} failures] Push Health`}</title>
         </Helmet>
         <Container className="mt-2 mb-5 max-width-default">
-          {!defaultUser && (
+          {!displayedUser && (
             <p className="pt-5 text-center font-weight-500 font-size-20">
-              Log in or use the author query string to see pushes
+              {myPushesDefaultMessage}
             </p>
           )}
 

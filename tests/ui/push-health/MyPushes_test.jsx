@@ -12,6 +12,7 @@ import reposFixture from '../mock/repositories';
 import { getApiUrl } from '../../../ui/helpers/url';
 import { getProjectUrl } from '../../../ui/helpers/location';
 import { configureStore } from '../../../ui/job-view/redux/configureStore';
+import { myPushesDefaultMessage } from '../../../ui/push-health/helpers';
 
 const repo = 'try';
 const history = createBrowserHistory();
@@ -48,7 +49,18 @@ describe('My Pushes', () => {
     );
   };
 
-  test('should fetch the push health data is user is logged in and update query param', async () => {
+  test('should show message if no author query param is provided and user is not logged in', async () => {
+    const { queryByText } = render(testMyPushes({ isLoggedIn: false }));
+
+    // verify no author query param exists
+    expect(history.location.search).toEqual('');
+
+    await waitFor(() =>
+      expect(queryByText(myPushesDefaultMessage)).toBeInTheDocument(),
+    );
+  });
+
+  test('should fetch the push health data if user is logged in and update query param', async () => {
     const { getAllByText } = render(testMyPushes());
 
     const pushes = await waitFor(() => getAllByText(testUser.email));

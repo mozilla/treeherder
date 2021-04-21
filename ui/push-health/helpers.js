@@ -14,3 +14,6 @@ export const filterTests = (tests, searchStr) => {
     ),
   );
 };
+
+export const myPushesDefaultMessage =
+  'Log in or use the author query string to see pushes';

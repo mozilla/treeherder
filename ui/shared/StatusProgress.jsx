@@ -5,6 +5,8 @@ import { VictoryPie, VictoryTooltip } from 'victory';
 import { getPercentComplete } from '../helpers/display';
 
 const StatusProgress = (props) => {
+  // testfailed includes lint, build ("busted") and test failures
+  // but excludes intermittent failures
   const {
     counts: { success, testfailed, running, pending },
     customStyle,
