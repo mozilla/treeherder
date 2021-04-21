@@ -133,7 +133,7 @@ class BackfillReportContent:
         @return: hyperlinked summary id, using markdown syntax
         """
         summary_id = alert_summary.id
-        hyperlink = f"{settings.SITE_URL}perfherder/alerts?id={summary_id}"
+        hyperlink = f"{settings.SITE_URL}/perfherder/alerts?id={summary_id}"
 
         return f"[{summary_id}]({hyperlink})"
 
@@ -157,7 +157,7 @@ class BackfillReportContent:
         query_params = f"repo={repo}&fromchange={from_change}&tochange={to_change}"
         query_params = self.__try_embed_search_str(query_params, using_record=record)
 
-        return f"{settings.SITE_URL}jobs?{query_params}"
+        return f"{settings.SITE_URL}/jobs?{query_params}"
 
     def __try_embed_search_str(
         self,
