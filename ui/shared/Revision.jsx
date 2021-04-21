@@ -101,9 +101,9 @@ export class Revision extends React.PureComponent {
           className={`ml-2 revision-comment overflow-hidden text-truncate ${commentColor} ${commentFont}`}
           id={`revision${revision}`}
         >
-          <em>
+          <span className="text-wrap">
             <BugLinkify id={revision}>{comment}</BugLinkify>
-          </em>
+          </span>
         </span>
         <UncontrolledTooltip
           placement="top-start"

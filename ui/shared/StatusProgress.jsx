@@ -5,21 +5,24 @@ import { VictoryPie, VictoryTooltip } from 'victory';
 import { getPercentComplete } from '../helpers/display';
 
 const StatusProgress = (props) => {
+  // testfailed includes lint, build ("busted") and test failures
+  // but excludes intermittent failures
   const {
-    counts: { success, testfailed, busted, running, pending },
+    counts: { success, testfailed, running, pending },
     customStyle,
   } = props;
-  const failed = testfailed || 0 + busted || 0;
   const percentComplete = props.counts ? getPercentComplete(props.counts) : 0;
+  let data = [
+    { x: 'success', y: success },
+    { x: 'in progress', y: running + pending },
+    { x: 'failed', y: testfailed },
+  ];
+  if (percentComplete === 100) data = [{ x: 'success', y: percentComplete }];
 
   return (
     <div className={customStyle}>
       <VictoryPie
-        data={[
-          { x: 'success', y: success },
-          { x: 'running', y: running + pending },
-          { x: 'failed', y: failed },
-        ]}
+        data={data}
         colorScale={['#28a745', 'lightgrey', '#dc3545']}
         labels={({ datum }) => (datum.y > 0 ? `${datum.x}: ${datum.y}` : '')}
         labelComponent={

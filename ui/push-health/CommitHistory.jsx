@@ -99,8 +99,9 @@ class CommitHistory extends React.PureComponent {
               className="d-inline-block text-capitalize font-weight-bold ml-1"
             >
               {currentRepo.name}
-            </span>{' '}
-            .{' '}
+            </span>
+          </div>
+          <div className="mt-2">
             <a
               href={revisionPushFilterUrl}
               target="_blank"

@@ -11,6 +11,7 @@ import PlatformConfig from '../../../ui/push-health/PlatformConfig';
 import pushHealth from '../mock/push_health';
 import fullJob from '../mock/full_job.json';
 import bugSuggestions from '../mock/bug_suggestions.json';
+import TaskSelection from '../../../ui/push-health/TaskSelection';
 
 const repoName = 'autoland';
 const { jobs } = pushHealth;
@@ -50,18 +51,28 @@ afterEach(() => {
 });
 
 describe('PlatformConfig', () => {
+  const currentRepo = { name: repoName, tc_root_url: 'http://foo.com' };
   const testPlatformConfig = (failure, jobs) => (
     <PlatformConfig
-      failure={failure}
-      jobs={jobs}
-      repo="autoland"
+      key={failure.key}
+      testName={failure.testName}
+      jobName={failure.jobName}
+      jobs={jobs[failure.jobName]}
       user={{ email: 'foo' }}
       revision="abc"
-      currentRepo={{ name: repoName, tc_root_url: 'http://foo.com' }}
-      groupedBy="platform"
+      currentRepo={currentRepo}
       notify={() => {}}
       updateParamsAndState={() => {}}
-    />
+    >
+      <TaskSelection
+        failure={failure}
+        groupedBy="platform"
+        addSelectedTest={() => {}}
+        removeSelectedTest={() => {}}
+        allPlatformsSelected={false}
+        currentRepo={currentRepo}
+      />
+    </PlatformConfig>
   );
 
   test('should show the test name', async () => {

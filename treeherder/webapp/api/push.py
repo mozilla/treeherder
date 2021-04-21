@@ -270,7 +270,7 @@ class PushViewSet(viewsets.ViewSet):
             test_failure_count = len(push_health_test_failures['needInvestigation'])
             build_failure_count = len(push_health_build_failures)
             lint_failure_count = len(push_health_lint_failures)
-            test_in_progress_count = None
+            test_in_progress_count = 0
 
             status = push.get_status()
             total_failures = test_failure_count + build_failure_count + lint_failure_count
