@@ -69,7 +69,6 @@ describe('PlatformConfig', () => {
         groupedBy="platform"
         addSelectedTest={() => {}}
         removeSelectedTest={() => {}}
-        allPlatformsSelected={false}
         currentRepo={currentRepo}
       />
     </PlatformConfig>
