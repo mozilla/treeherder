@@ -209,41 +209,35 @@ class MyPushes extends React.Component {
                     showParent={false}
                   />
                 </Col>
-                <Col md="1" className="align-self-center mx-5 px-0 pb-4">
-                  {push.metrics.linting.result !== 'none' && (
-                    <StatusButton
-                      title="Linting"
-                      status={push.metrics.linting.result}
-                      failureCount={push.lintFailureCount}
-                      inProgressCount={push.lintingInProgressCount}
-                      repo={push.repository}
-                      revision={push.revision}
-                    />
-                  )}
+                <Col md="1" xl="2" className="align-self-center mx-5 px-0 pb-4">
+                  <StatusButton
+                    title="Linting"
+                    status={push.metrics.linting.result}
+                    failureCount={push.lintFailureCount}
+                    inProgressCount={push.lintingInProgressCount}
+                    repo={push.repository}
+                    revision={push.revision}
+                  />
                 </Col>
-                <Col md="1" className="align-self-center mr-5 px-0 pb-4">
-                  {push.metrics.builds.result !== 'none' && (
-                    <StatusButton
-                      title="Builds"
-                      status={push.metrics.builds.result}
-                      failureCount={push.buildFailureCount}
-                      inProgressCount={push.buildInProgressCount}
-                      repo={push.repository}
-                      revision={push.revision}
-                    />
-                  )}
+                <Col md="1" xl="2" className="align-self-center mr-5 px-0 pb-4">
+                  <StatusButton
+                    title="Builds"
+                    status={push.metrics.builds.result}
+                    failureCount={push.buildFailureCount}
+                    inProgressCount={push.buildInProgressCount}
+                    repo={push.repository}
+                    revision={push.revision}
+                  />
                 </Col>
-                <Col md="1" className="align-self-center px-0 pb-4">
-                  {push.metrics.tests.result !== 'none' && (
-                    <StatusButton
-                      title="Tests"
-                      status={push.metrics.tests.result}
-                      failureCount={push.testFailureCount}
-                      inProgressCount={push.testInProgressCount}
-                      repo={push.repository}
-                      revision={push.revision}
-                    />
-                  )}
+                <Col md="1" xl="2" className="align-self-center px-0 pb-4">
+                  <StatusButton
+                    title="Tests"
+                    status={push.metrics.tests.result}
+                    failureCount={push.testFailureCount}
+                    inProgressCount={push.testInProgressCount}
+                    repo={push.repository}
+                    revision={push.revision}
+                  />
                 </Col>
               </Row>
             ))}
