@@ -615,6 +615,7 @@ class BackfillRecord(models.Model):
     )
     job_tier = models.PositiveIntegerField(null=True)
     job_platform_option = models.CharField(max_length=100, null=True)
+    demo_table_altering = models.CharField(max_length=500, null=True)
 
     total_backfills_triggered = models.IntegerField(default=0)
 
