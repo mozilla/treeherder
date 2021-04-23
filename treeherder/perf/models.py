@@ -450,6 +450,26 @@ class PerformanceAlert(models.Model):
 
     manually_created = models.BooleanField(default=False)
 
+    @property
+    def initial_culprit_job(self) -> Optional[Job]:
+        if hasattr(self, '__initial_culprit_job'):
+            return self.__initial_culprit_job
+
+        try:
+            culprit_data_point = (  # original one, not necessarily the real culprit' s one
+                PerformanceDatum.objects.filter(
+                    repository=self.series_signature.repository,
+                    signature=self.series_signature,
+                    push=self.summary.push,
+                ).order_by('id')[0]
+            )
+            self.__initial_culprit_job = culprit_data_point.job
+        except IndexError:
+            logger.debug(f"Could not find the initial culprit job for alert {self.id}.")
+            self.__initial_culprit_job = None
+
+        return self.__initial_culprit_job
+
     def save(self, *args, **kwargs):
         # validate that we set a status that makes sense for presence
         # or absence of a related summary
