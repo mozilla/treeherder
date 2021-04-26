@@ -56,10 +56,10 @@ docker-compose run backend celery -A treeherder worker --concurrency 1
 
 You will see a list of activated queues.  If you wanted to narrow that down, then note
 which queues you'd like to run and add them to a comma-separated list.  For instance, to
-only do Log Parsing:
+only do Log Parsing for sheriffed trees (autoland, mozilla-*):
 
 ```bash
-celery -A treeherder worker -Q log_parser,log_parser_fail --concurrency 1
+docker-compose run backend celery -A treeherder worker -Q log_parser,log_parser_fail_raw_sheriffed,log_parser_fail_json_sheriffed --concurrency 1
 ```
 
 ## Posting Data
