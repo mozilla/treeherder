@@ -209,7 +209,7 @@ class MyPushes extends React.Component {
                     showParent={false}
                   />
                 </Col>
-                <Col md="1" xl="2" className="align-self-center mx-5 px-0 pb-4">
+                <Col md="1" xl="2" className="align-self-center ml-5 px-0 pb-4">
                   <StatusButton
                     title="Linting"
                     status={push.metrics.linting.result}
@@ -219,7 +219,7 @@ class MyPushes extends React.Component {
                     revision={push.revision}
                   />
                 </Col>
-                <Col md="1" xl="2" className="align-self-center mr-5 px-0 pb-4">
+                <Col md="1" xl="2" className="align-self-center px-0 pb-4">
                   <StatusButton
                     title="Builds"
                     status={push.metrics.builds.result}
