@@ -8,17 +8,17 @@ import {
   faSortUp,
 } from '@fortawesome/free-solid-svg-icons';
 
-import { compareTableSort } from '../constants';
+import { tableSort } from './sortHelpers';
 
-export default class CompareSortButton extends React.Component {
+export default class SortButton extends React.Component {
   sortTypes = {
-    [compareTableSort.ascending]: {
+    [tableSort.ascending]: {
       icon: faSortUp,
     },
-    [compareTableSort.descending]: {
+    [tableSort.descending]: {
       icon: faSortDown,
     },
-    [compareTableSort.default]: {
+    [tableSort.default]: {
       icon: faSort,
     },
   };
@@ -42,7 +42,7 @@ export default class CompareSortButton extends React.Component {
   }
 }
 
-CompareSortButton.propTypes = {
+SortButton.propTypes = {
   column: PropTypes.shape({}).isRequired,
   onChangeSort: PropTypes.func.isRequired,
 };

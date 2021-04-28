@@ -11,7 +11,7 @@ import {
 import projects from '../../mock/repositories';
 import CompareTableControls from '../../../../ui/perfherder/compare/CompareTableControls';
 import CompareTable from '../../../../ui/perfherder/compare/CompareTable';
-import CompareSortButton from '../../../../ui/perfherder/compare/CompareSortButton';
+import SortButton from '../../../../ui/perfherder/SortButton';
 import ComparePageTitle from '../../../../ui/shared/ComparePageTitle';
 import {
   compareTableText,
@@ -694,7 +694,7 @@ test(`measurement unit is passed in the header name for Base and New`, async () 
   expect(queryByText('Base (ms)')).toBeInTheDocument();
 });
 
-test(`CompareSortButton shows the title as expected`, async () => {
+test(`SortButton shows the title as expected`, async () => {
   const defaultProps = {
     onChangeSort: jest.fn(),
     column: {
@@ -702,7 +702,7 @@ test(`CompareSortButton shows the title as expected`, async () => {
       currentSort: 'default',
     },
   };
-  const { queryByText } = render(<CompareSortButton {...defaultProps} />);
+  const { queryByText } = render(<SortButton {...defaultProps} />);
 
   expect(queryByText('New (score)')).not.toBeInTheDocument();
   expect(queryByText('New')).toBeInTheDocument();
