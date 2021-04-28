@@ -136,7 +136,7 @@ def get_test_failures(push, failed_jobs, likely_regression_labels, result_status
     }
 
     if not len(failed_job_labels):
-        return ('none', { 'needInvestigation': regressions, 'knownIssues': known_issues })
+        return ('none', {'needInvestigation': regressions, 'knownIssues': known_issues})
 
     failure_lines = (
         FailureLine.objects.filter(
