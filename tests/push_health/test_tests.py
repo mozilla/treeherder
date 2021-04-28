@@ -23,7 +23,9 @@ def test_get_test_failures(
     test_job.save()
 
     result_status, jobs = get_test_failure_jobs(test_job.push, eleven_job_blobs)
-    result, test_failures = get_test_failures(test_job.push, jobs, [test_job.job_type.name], result_status)
+    result, test_failures = get_test_failures(
+        test_job.push, jobs, [test_job.job_type.name], result_status
+    )
     need_investigation = test_failures['needInvestigation']['tests']
 
     assert result == 'fail'
