@@ -1,0 +1,6 @@
+{"action": "test_groups", "line": 6, "groups": ["toolkit/components/extensions/test/xpcshell/xpcshell-e10s.ini:toolkit/components/extensions/test/xpcshell/xpcshell-content.ini", "toolkit/components/places/tests/unit/xpcshell.ini", "toolkit/components/extensions/test/xpcshell/xpcshell-e10s.ini:toolkit/components/extensions/test/xpcshell/xpcshell-common-e10s.ini", "toolkit/components/normandy/test/unit/xpcshell.ini", "docshell/test/unit/xpcshell.ini"]}
+{"status": "OK", "duration": 85897, "line": 246, "group": "toolkit/components/extensions/test/xpcshell/xpcshell-e10s.ini:toolkit/components/extensions/test/xpcshell/xpcshell-content.ini", "action": "group_result"}
+{"status": "OK", "duration": 108553, "line": 246, "group": "toolkit/components/places/tests/unit/xpcshell.ini", "action": "group_result"}
+{"status": "OK", "duration": 31004, "line": 246, "group": "toolkit/components/extensions/test/xpcshell/xpcshell-e10s.ini:toolkit/components/extensions/test/xpcshell/xpcshell-common-e10s.ini", "action": "group_result"}
+{"status": "OK", "duration": 27637, "line": 246, "group": "toolkit/components/normandy/test/unit/xpcshell.ini", "action": "group_result"}
+{"status": "OK", "duration": 36489, "line": 246, "group": "docshell/test/unit/xpcshell.ini", "action": "group_result"}
