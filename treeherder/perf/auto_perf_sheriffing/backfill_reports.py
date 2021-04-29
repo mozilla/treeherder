@@ -53,8 +53,8 @@ class AlertsPicker:
         if any(not isinstance(alert, PerformanceAlert) for alert in alerts):
             raise ValueError('Provided parameter does not contain only PerformanceAlert objects.')
         relevant_alerts = self._extract_by_relevant_platforms(alerts)
-        alerts_with_dist_jobs = self._ensure_distinct_jobs(relevant_alerts)
-        sorted_alerts = self._multi_criterion_sort(alerts_with_dist_jobs)
+        alerts_with_distinct_jobs = self._ensure_distinct_jobs(relevant_alerts)
+        sorted_alerts = self._multi_criterion_sort(alerts_with_distinct_jobs)
         return self._ensure_alerts_variety(sorted_alerts)
 
     def _ensure_alerts_variety(self, sorted_alerts: List[PerformanceAlert]):
@@ -96,8 +96,6 @@ class AlertsPicker:
                     return alert
 
             return alert_group[0]
-
-        # alerts = sorted(alerts, key=initial_culprit_job)
 
         alert_groups = []
         for _, alert_group in groupby(alerts, initial_culprit_job):
