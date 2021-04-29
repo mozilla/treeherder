@@ -118,7 +118,7 @@ def create_group_result(job_log, line):
 
     # Log to New Relic if it's not in a form we like.  We can enter
     # Bugs to upstream to remedy them.
-    if "\\" in group_path or ":" in group_path or len(group_path) > 255:
+    if "\\" in group_path or len(group_path) > 255:
         newrelic.agent.record_custom_event(
             "malformed_test_group",
             {
