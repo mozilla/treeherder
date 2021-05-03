@@ -9,17 +9,18 @@ def test_get_linting_failures(
 
     for blob in jobs:
         blob['revision'] = test_push.revision
-        blob['job'].update(
-            {
-                'result': 'testfailed',
-                'taskcluster_task_id': 'V3SVuxO8TFy37En_6HcXLs',
-                'taskcluster_retry_id': '0',
-            }
-        )
+        blob['result'] = 'testfailed'
+        blob['taskcluster_metadata__task_id'] = 'V3SVuxO8TFy37En_6HcXLs'
+        blob['taskcluster_metadata__retry_id'] = '0'
+        blob['job_type__name'] = blob['job']['name']
+        blob['job_type__symbol'] = blob['job']['job_symbol']
+        blob['machine_platform__platform'] = 'lint'
+        blob['job_group__name'] = None
+        blob['job_group__symbol'] = blob['job']['group_symbol']
         blob['job']['machine_platform']['platform'] = 'lint'
     store_job_data(test_repository, jobs)
 
-    result, build_failures, in_progress = get_lint_failures(test_push)
+    result, build_failures, in_progress = get_lint_failures(test_push, jobs)
 
     assert in_progress == 0
     assert result == 'fail'

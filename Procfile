@@ -17,7 +17,7 @@ release: ./bin/pre_deploy
 # https://github.com/heroku/heroku-buildpack-python/blob/master/vendor/python.gunicorn.sh
 # https://github.com/heroku/heroku-buildpack-python/blob/master/vendor/WEB_CONCURRENCY.sh
 # TODO: Experiment with different dyno sizes and gunicorn concurrency/worker types (bug 1175472).
-web: newrelic-admin run-program gunicorn treeherder.config.wsgi:application --timeout 20
+web: newrelic-admin run-program gunicorn treeherder.config.wsgi:application --timeout 100
 
 # All other process types can have arbitrary names.
 # The Celery options such as `--without-heartbeat` are from the recommendations here:

@@ -3,7 +3,7 @@ import PropTypes from 'prop-types';
 import { faExclamationTriangle } from '@fortawesome/free-solid-svg-icons';
 
 import ClassificationGroup from './ClassificationGroup';
-import { filterTests } from './helpers';
+import { filterTests, filterUnstructuredFailures } from './helpers';
 
 export default class TestMetric extends React.PureComponent {
   render() {
@@ -28,21 +28,38 @@ export default class TestMetric extends React.PureComponent {
       unInvestigateTest,
       updatePushHealth,
     } = this.props;
-    const { details } = data;
-    const { needInvestigation, knownIssues } = details;
-    let filteredNeedInvestigation = needInvestigation;
-    let filteredKnownIssues = knownIssues;
+    let {
+      details: {
+        needInvestigation: {
+          tests: niTests,
+          unstructuredFailures: niUnstructuredFailures,
+        },
+        knownIssues: {
+          tests: kiTests,
+          unstructuredFailures: kiUnstructuredFailures,
+        },
+      },
+    } = data;
 
     if (searchStr.length) {
-      filteredNeedInvestigation = filterTests(needInvestigation, searchStr);
-      filteredKnownIssues = filterTests(knownIssues, searchStr);
+      niTests = filterTests(niTests, searchStr);
+      kiTests = filterTests(kiTests, searchStr);
+      niUnstructuredFailures = filterUnstructuredFailures(
+        niUnstructuredFailures,
+        searchStr,
+      );
+      kiUnstructuredFailures = filterUnstructuredFailures(
+        kiUnstructuredFailures,
+        searchStr,
+      );
     }
 
     return (
       <div className="border-bottom border-secondary">
         <ClassificationGroup
           jobs={jobs}
-          tests={filteredNeedInvestigation}
+          tests={niTests}
+          unstructuredFailures={niUnstructuredFailures}
           name="Possible Regressions"
           repo={repo}
           currentRepo={currentRepo}
@@ -50,7 +67,7 @@ export default class TestMetric extends React.PureComponent {
           className="mb-5"
           icon={faExclamationTriangle}
           iconColor={
-            filteredNeedInvestigation.length ? 'danger' : 'darker-secondary'
+            niTests.length + kiTests.length ? 'danger' : 'darker-secondary'
           }
           expanded={testGroup === 'pr'}
           testGroup={testGroup}
@@ -79,7 +96,8 @@ export default class TestMetric extends React.PureComponent {
         />
         <ClassificationGroup
           jobs={jobs}
-          tests={filteredKnownIssues}
+          tests={kiTests}
+          unstructuredFailures={kiUnstructuredFailures}
           name="Known Issues"
           repo={repo}
           currentRepo={currentRepo}
@@ -87,7 +105,9 @@ export default class TestMetric extends React.PureComponent {
           className="mb-5"
           icon={faExclamationTriangle}
           iconColor={
-            filteredKnownIssues.length ? 'warning' : 'darker-secondary'
+            kiTests.length + kiUnstructuredFailures.length
+              ? 'warning'
+              : 'darker-secondary'
           }
           expanded={testGroup === 'ki'}
           testGroup={testGroup}
@@ -122,14 +142,20 @@ TestMetric.propTypes = {
     name: PropTypes.string.isRequired,
     result: PropTypes.string.isRequired,
     details: PropTypes.shape({
-      needInvestigation: PropTypes.array.isRequired,
-      knownIssues: PropTypes.array.isRequired,
+      needInvestigation: PropTypes.shape({
+        tests: PropTypes.array.isRequired,
+        unstructuredFailures: PropTypes.array.isRequired,
+      }),
+      knownIssues: PropTypes.shape({
+        tests: PropTypes.array.isRequired,
+        unstructuredFailures: PropTypes.array.isRequired,
+      }),
     }).isRequired,
   }).isRequired,
   repo: PropTypes.string.isRequired,
   currentRepo: PropTypes.shape({}).isRequired,
   revision: PropTypes.string.isRequired,
-  notify: PropTypes.func.isRequired,
+  notify: PropTypes.func,
   searchStr: PropTypes.string.isRequired,
   testGroup: PropTypes.string,
   regressionsOrderBy: PropTypes.string,
@@ -145,4 +171,5 @@ TestMetric.defaultProps = {
   knownIssuesOrderBy: 'count',
   knownIssuesGroupBy: 'path',
   testGroup: '',
+  notify: () => {},
 };

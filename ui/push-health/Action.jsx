@@ -13,7 +13,7 @@ class Action extends PureComponent {
         case 'none':
           return 'none';
         case 'path':
-          return test.testName.trim();
+          return `${test.testName}`.trim();
         case 'platform':
           return `${test.platform} ${test.config}`;
       }
@@ -84,7 +84,11 @@ Action.propTypes = {
   orderedBy: PropTypes.string.isRequired,
   revision: PropTypes.string.isRequired,
   currentRepo: PropTypes.shape({}).isRequired,
-  notify: PropTypes.func.isRequired,
+  notify: PropTypes.func,
+};
+
+Action.defaultProps = {
+  notify: () => {},
 };
 
 export default Action;
