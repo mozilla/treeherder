@@ -87,7 +87,7 @@ def test_reports_are_updated_after_alert_summaries_change(
     )
 
     assert BackfillReport.objects.count() == 1
-    assert BackfillRecord.objects.count() == 3
+    assert BackfillRecord.objects.count() == 1
 
     # new alerts will cause report updates
     create_alerts(test_perf_alert_summary, amount=3)  # relevant alerts
@@ -95,7 +95,7 @@ def test_reports_are_updated_after_alert_summaries_change(
         since=EPOCH, frameworks=[test_perf_framework.name], repositories=[test_repository.name]
     )
 
-    assert BackfillRecord.objects.count() == 5
+    assert BackfillRecord.objects.count() == 1
 
     # any change to a summary's alert will cause report updates
     alert = relevant_alerts[0]

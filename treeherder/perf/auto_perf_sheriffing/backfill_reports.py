@@ -1,7 +1,7 @@
 import logging
 from datetime import timedelta, datetime
-from itertools import zip_longest
-from typing import Tuple, List
+from itertools import zip_longest, groupby
+from typing import Tuple, List, Optional
 
 import simplejson as json
 from django.db.models import QuerySet, Q, F
@@ -53,7 +53,8 @@ class AlertsPicker:
         if any(not isinstance(alert, PerformanceAlert) for alert in alerts):
             raise ValueError('Provided parameter does not contain only PerformanceAlert objects.')
         relevant_alerts = self._extract_by_relevant_platforms(alerts)
-        sorted_alerts = self._multi_criterion_sort(relevant_alerts)
+        alerts_with_distinct_jobs = self._ensure_distinct_jobs(relevant_alerts)
+        sorted_alerts = self._multi_criterion_sort(alerts_with_distinct_jobs)
         return self._ensure_alerts_variety(sorted_alerts)
 
     def _ensure_alerts_variety(self, sorted_alerts: List[PerformanceAlert]):
@@ -80,7 +81,32 @@ class AlertsPicker:
             : self.max_improvements if improvements_only else self.max_alerts
         ]
 
-    def _ensure_platform_variety(self, sorted_all_alerts: List[PerformanceAlert]):
+    def _ensure_distinct_jobs(self, alerts: List[PerformanceAlert]) -> List[PerformanceAlert]:
+        def initial_culprit_job(alert):
+            return alert.initial_culprit_job
+
+        def parent_or_sibling_from(
+            alert_group: List[PerformanceAlert],
+        ) -> Optional[PerformanceAlert]:
+            if len(alert_group) == 0:
+                return None
+
+            for alert in alert_group:
+                if alert.series_signature.parent_signature is None:  # just found parent signature
+                    return alert
+
+            return alert_group[0]
+
+        alert_groups = []
+        for _, alert_group in groupby(alerts, initial_culprit_job):
+            alert_groups.append(list(alert_group))
+
+        alerts = [parent_or_sibling_from(group) for group in alert_groups]
+        return list(filter(None, alerts))
+
+    def _ensure_platform_variety(
+        self, sorted_all_alerts: List[PerformanceAlert]
+    ) -> List[PerformanceAlert]:
         """
         Note: Ensure that the sorted_all_alerts container has only
         platforms of interest (example: 'windows10', 'windows7', 'linux', 'osx', 'android').
