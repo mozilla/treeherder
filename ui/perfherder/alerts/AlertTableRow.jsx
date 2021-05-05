@@ -301,6 +301,7 @@ export default class AlertTableRow extends React.Component {
         className={
           alertSummary.notes ? 'border-top border-left border-right' : 'border'
         }
+        aria-label="Alert table row"
         data-testid={alert.id}
       >
         <td className="table-width-xs px-1">

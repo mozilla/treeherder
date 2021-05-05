@@ -1,0 +1,6 @@
+
+> treeherder@ test C:\Users\beatrice.acasandrei\mozilla\treeherder
+> node ./node_modules/jest/bin/jest "const" "result3" "=" "await" "waitFor(()" "=;"
+
+  Invalid testPattern const|result3|=|await|waitFor(()|=; supplied. Running all tests instead.
+  Invalid testPattern const|result3|=|await|waitFor(()|=; supplied. Running all tests instead.
