@@ -183,7 +183,10 @@ export default class AlertTable extends React.Component {
   };
 
   updateFilteredAlerts = () => {
-    const { alertSummary } = this.state;
+    const { alertSummary, tableConfig } = this.state;
+    Object.keys(tableConfig).forEach((key) => {
+      tableConfig[key].currentSort = tableSort.default;
+    });
 
     const filteredAlerts = alertSummary.alerts.filter((alert) =>
       this.filterAlert(alert),
@@ -192,6 +195,7 @@ export default class AlertTable extends React.Component {
       filteredAlerts,
     );
     this.setState({
+      tableConfig,
       filteredAlerts,
       filteredAndSortedAlerts,
       allSelected: false,
