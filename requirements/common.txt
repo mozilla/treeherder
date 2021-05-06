@@ -165,7 +165,7 @@ django-filter==2.4.0 \
 django-redis==4.12.1 \
     --hash=sha256:1133b26b75baa3664164c3f44b9d5d133d1b8de45d94d79f38d1adc5b1d502e5 \
     --hash=sha256:306589c7021e6468b2656edc89f62b8ba67e8d5a1c8877e2688042263daa7a63
-    # via -r common.in
+    # via -r requirements/common.in
 django==3.1.8 \
     --hash=sha256:c348b3ddc452bf4b62361f0752f71a339140c777ebea3cdaaaa8fdb7f417a862 \
     --hash=sha256:f8393103e15ec2d2d313ccbb95a3f1da092f9f58d74ac1c61ca2ac0436ae1eac
@@ -307,9 +307,9 @@ mohawk==1.1.0 \
     --hash=sha256:3ed296a30453d0b724679e0fd41e4e940497f8e461a9a9c3b7f36e43bab0fa09 \
     --hash=sha256:d2a0e3ab10a209cc79e95e28f2dd54bd4a73fd1998ffe27b7ba0f962b6be9723
     # via taskcluster
-mozci==2.0.0 \
-    --hash=sha256:c0abeec6b4b2a30a54f6460e33f1e5088a0aa5120d2cf87d3ff2d4d8b9c3a9d3 \
-    --hash=sha256:dda08f4cabdb7ec593049d24117b435cf16d87e9d56be3467856b3e7df4c9abf
+mozci==2.0.2 \
+    --hash=sha256:6adbad3d2c5dec1a9362b70757f318fde7d059cedb1702d8de602fb3975d88ec \
+    --hash=sha256:763bc5a786622d3a1463920bf06fd55603d076092d39dfa78465e4ff617f3767
     # via -r requirements/common.in
 mozfile==2.1.0 \
     --hash=sha256:e5dc835582ea150e35ecd57e9d86cb707d3aa3b2505679db7332326dd49fd6b8
@@ -756,6 +756,6 @@ zstandard==0.15.2 \
     --hash=sha256:ff5b75f94101beaa373f1511319580a010f6e03458ee51b1a386d7de5331440a
     # via mozci
 
-setuptools==56.0.0 \
-    --hash=sha256:08a1c0f99455307c48690f00d5c2ac2c1ccfab04df00454fef854ec145b81302 \
-    --hash=sha256:7430499900e443375ba9449a9cc5d78506b801e929fef4a186496012f93683b5
+setuptools==56.1.0 \
+    --hash=sha256:7d9b5609ebda3db0f2e7c6d2fba807e9bd653e3a3a93ce3426b2b68260193a77 \
+    --hash=sha256:9ceb15de17f8e99dd4903f88e05e04285fa60f364f67bdcc4334aa71604b7a39
