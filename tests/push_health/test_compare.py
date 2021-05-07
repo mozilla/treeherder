@@ -2,8 +2,6 @@ import pytest
 import datetime
 import responses
 
-from mozci.push import Push as MozciPush
-
 from treeherder.model.models import Push
 from treeherder.push_health.compare import get_commit_history
 
@@ -75,7 +73,7 @@ def mock_json_pushes(test_push):
     )
     responses.add(
         responses.GET,
-        f'https://hg.mozilla.org/{test_push.repository.name}/json-automationrelevance/abcdef77949168d16c03a4cba167678b7ab65f76?backouts=1',
+        f'https://hg.mozilla.org/{test_push.repository.name}/json-automationrelevance/4c45a777949168d16c03a4cba167678b7ab65f76?backouts=1',
         json={
             "changesets": [
                 {
@@ -125,8 +123,8 @@ def test_get_commit_history(test_push, test_repository, mock_rev, mock_json_push
         time=datetime.datetime.now(),
     )
 
-    mozciPush = MozciPush([parent_revision], test_repository.name)
-    history = get_commit_history(mozciPush, test_push)
-
+    history = get_commit_history(test_repository, test_revision, test_push)
+    print('\n<><><>history')
+    print(history)
     assert history['parentSha'] == parent_revision
-    assert history['parentRepository'] == test_repository.name
+    assert history['parentRepository']['name'] == test_repository.name

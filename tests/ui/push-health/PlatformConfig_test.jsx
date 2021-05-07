@@ -15,7 +15,7 @@ import TaskSelection from '../../../ui/push-health/TaskSelection';
 
 const repoName = 'autoland';
 const { jobs } = pushHealth;
-const testFailure = pushHealth.metrics.tests.details.needInvestigation.tests[2];
+const testFailure = pushHealth.metrics.tests.details.needInvestigation[2];
 
 beforeEach(() => {
   fetchMock.get('https://treestatus.mozilla-releng.net/trees/autoland', {
@@ -69,6 +69,7 @@ describe('PlatformConfig', () => {
         groupedBy="platform"
         addSelectedTest={() => {}}
         removeSelectedTest={() => {}}
+        allPlatformsSelected={false}
         currentRepo={currentRepo}
       />
     </PlatformConfig>

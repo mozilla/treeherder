@@ -5,15 +5,14 @@ import pushHealth from '../mock/push_health';
 import ClassificationGroup from '../../../ui/push-health/ClassificationGroup';
 
 const { jobs, metrics } = pushHealth;
-const { tests, unstructuredFailures } = metrics.tests.details.needInvestigation;
+const tests = metrics.tests.details.needInvestigation;
 const repoName = 'autoland';
 
 describe('ClassificationGroup', () => {
-  const testClassificationGroup = (groupedBy) => (
+  const testClassificationGroup = (group, groupedBy) => (
     <ClassificationGroup
       jobs={jobs}
-      tests={tests}
-      unstructuredFailures={unstructuredFailures}
+      tests={group}
       name="Need Investigation"
       repo={repoName}
       revision={pushHealth.revision}
@@ -22,12 +21,11 @@ describe('ClassificationGroup', () => {
       hasRetriggerAll
       notify={() => {}}
       groupedBy={groupedBy}
-      updateParamsAndState={() => {}}
     />
   );
 
   test('should group by test path', async () => {
-    const { getAllByTestId } = render(testClassificationGroup('path'));
+    const { getAllByTestId } = render(testClassificationGroup(tests, 'path'));
 
     expect(await waitFor(() => getAllByTestId('test-grouping'))).toHaveLength(
       3,
@@ -35,7 +33,9 @@ describe('ClassificationGroup', () => {
   });
 
   test('should group by platform', async () => {
-    const { getAllByTestId } = render(testClassificationGroup('platform'));
+    const { getAllByTestId } = render(
+      testClassificationGroup(tests, 'platform'),
+    );
 
     expect(await waitFor(() => getAllByTestId('test-grouping'))).toHaveLength(
       12,
