@@ -1,37 +1,42 @@
 import logging
+from mozci.push import Push as MozciPush
+from mozci.errors import ParentPushNotFound
 
-from treeherder.model.models import Push
-from treeherder.webapp.api.serializers import CommitSerializer, PushSerializer
+from treeherder.model.models import Push, Repository
+from treeherder.webapp.api.serializers import RepositorySerializer, PushSerializer, CommitSerializer
 
 logger = logging.getLogger(__name__)
 
 
-def get_commit_history(mozciPush, push):
+def get_commit_history(repository, revision, push):
+    mozciPush = MozciPush([revision], repository.name)
     parent = None
     parent_sha = None
+    parent_repo = None
     parent_push = None
 
     try:
         parent = mozciPush.parent
-    except Exception as e:
-        logger.error('Could not retrieve parent push because {}'.format(e))
+    except ParentPushNotFound:
         pass
 
     if parent:
         parent_sha = parent.revs[-1]
-        parents = Push.objects.filter(
-            repository__name=parent.branch, revision=parent_sha
-        ).select_related('repository')
+        parents = Push.objects.filter(repository__name=parent.branch, revision=parent_sha)
+        parent_repo = Repository.objects.get(name=parent.branch)
         parent_push = parents[0] if len(parents) else None
 
-    revisions = [CommitSerializer(commit).data for commit in push.commits.all().order_by('-id')]
     resp = {
         'parentSha': parent_sha,
         'exactMatch': False,
         'parentPushRevision': None,
+        'parentRepository': not parent_repo or RepositorySerializer(parent_repo).data,
         'id': None,
-        'revisions': revisions,
-        'revisionCount': len(revisions),
+        'jobCounts': None,
+        'revisions': [
+            CommitSerializer(commit).data for commit in push.commits.all().order_by('-id')
+        ],
+        'revisionCount': push.commits.count(),
         'currentPush': PushSerializer(push).data,
     }
     if parent_push:
@@ -39,9 +44,9 @@ def get_commit_history(mozciPush, push):
             {
                 # This will be the revision of the Parent, as long as we could find a Push in
                 # Treeherder for it.
-                'parentRepository': parent_push.repository.name,
                 'parentPushRevision': parent_push.revision,
                 'id': parent_push.id,
+                'jobCounts': parent_push.get_status(),
                 'exactMatch': parent_sha == parent_push.revision,
             }
         )

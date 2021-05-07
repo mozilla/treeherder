@@ -25,8 +25,6 @@ import groupBy from 'lodash/groupBy';
 import JobModel from '../models/job';
 
 import Action from './Action';
-import PlatformConfig from './PlatformConfig';
-import TaskSelection from './TaskSelection';
 
 class ClassificationGroup extends React.PureComponent {
   constructor(props) {
@@ -72,13 +70,17 @@ class ClassificationGroup extends React.PureComponent {
 
   getTestsByAction = (tests) => {
     const { log, crash, test } = groupBy(tests, 'action');
-    const categories = {};
+    const categories = [];
 
     if (test) {
-      categories['Test Failures'] = test;
+      categories.push(['Test Failures', test]);
     }
+
     if (log || crash) {
-      categories['Crashes (unknown path)'] = [...(log || []), ...(crash || [])];
+      categories.push([
+        'Crashes (unknown path)',
+        [...(log || []), ...(crash || [])],
+      ]);
     }
 
     return categories;
@@ -90,7 +92,6 @@ class ClassificationGroup extends React.PureComponent {
       jobs,
       tests,
       name,
-      unstructuredFailures,
       revision,
       className,
       hasRetriggerAll,
@@ -115,7 +116,7 @@ class ClassificationGroup extends React.PureComponent {
     const expandTitle = detailsShowing
       ? 'Click to collapse'
       : 'Click to expand';
-    const groupLength = tests.length + unstructuredFailures.length;
+    const groupLength = Object.keys(tests).length;
     const testsByAction = this.getTestsByAction(tests);
 
     return (
@@ -256,8 +257,8 @@ class ClassificationGroup extends React.PureComponent {
           </Navbar>
         )}
         <Collapse isOpen={detailsShowing} className="w-100">
-          {testsByAction &&
-            Object.entries(testsByAction).map(([key, value]) => (
+          {testsByAction.length > 0 &&
+            testsByAction.map(([key, value]) => (
               <Action
                 name={key}
                 tests={value}
@@ -278,33 +279,6 @@ class ClassificationGroup extends React.PureComponent {
                 updatePushHealth={updatePushHealth}
               />
             ))}
-          {!!unstructuredFailures.length && (
-            <div className="ml-4 mt-2">
-              <h5>{name} without structured logs</h5>
-              {unstructuredFailures.map((failure) => (
-                <PlatformConfig
-                  key={failure.key}
-                  testName={failure.testName}
-                  jobName={failure.jobName}
-                  jobs={jobs[failure.jobName]}
-                  revision={revision}
-                  notify={notify}
-                  selectedJobName={selectedJobName}
-                  selectedTaskId={selectedTaskId}
-                  updateParamsAndState={updateParamsAndState}
-                  currentRepo={currentRepo}
-                >
-                  <TaskSelection
-                    failure={failure}
-                    groupedBy="path"
-                    addSelectedTest={this.addSelectedTest}
-                    removeSelectedTest={this.removeSelectedTest}
-                    currentRepo={currentRepo}
-                  />
-                </PlatformConfig>
-              ))}
-            </div>
-          )}
         </Collapse>
       </Row>
     );
@@ -313,11 +287,10 @@ class ClassificationGroup extends React.PureComponent {
 
 ClassificationGroup.propTypes = {
   tests: PropTypes.arrayOf(PropTypes.object).isRequired,
-  unstructuredFailures: PropTypes.arrayOf(PropTypes.shape({})).isRequired,
   name: PropTypes.string.isRequired,
   currentRepo: PropTypes.shape({}).isRequired,
   revision: PropTypes.string.isRequired,
-  notify: PropTypes.func,
+  notify: PropTypes.func.isRequired,
   hasRetriggerAll: PropTypes.bool,
   expanded: PropTypes.bool,
   className: PropTypes.string,
@@ -337,7 +310,6 @@ ClassificationGroup.defaultProps = {
   groupedBy: 'path',
   setOrderedBy: () => {},
   setGroupedBy: () => {},
-  notify: () => {},
 };
 
 export default ClassificationGroup;
