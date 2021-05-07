@@ -83,11 +83,6 @@ TaskSelection.propTypes = {
   }).isRequired,
   currentRepo: PropTypes.shape({}).isRequired,
   groupedBy: PropTypes.string.isRequired,
-  allPlatformsSelected: PropTypes.bool,
-};
-
-TaskSelection.defaultProps = {
-  allPlatformsSelected: false,
 };
 
 export default TaskSelection;

@@ -28,9 +28,7 @@ describe('TestMetric', () => {
     const { getByText } = render(testTestMetric(tests, jobs));
 
     expect(
-      await waitFor(() =>
-        getByText('Possible Regressions (18)', { exact: false }),
-      ),
+      await waitFor(() => getByText('Possible Regressions', { exact: false })),
     ).toBeInTheDocument();
   });
 
@@ -38,7 +36,7 @@ describe('TestMetric', () => {
     const { getByText } = render(testTestMetric(tests, jobs));
 
     expect(
-      await waitFor(() => getByText('Known Issues (41)', { exact: false })),
+      await waitFor(() => getByText('Known Issues', { exact: false })),
     ).toBeInTheDocument();
   });
 

@@ -2,7 +2,6 @@ import {
   faCheck,
   faClock,
   faExclamationTriangle,
-  faBan,
 } from '@fortawesome/free-solid-svg-icons';
 import moment from 'moment';
 
@@ -88,7 +87,8 @@ export const resultColorMap = {
   fail: 'danger',
   indeterminate: 'secondary',
   done: 'darker-info',
-  none: 'secondary',
+  'in progress': 'secondary',
+  none: 'darker-info',
   unknown: 'secondary',
 };
 
@@ -98,8 +98,8 @@ export const getIcon = (result) => {
       return faCheck;
     case 'fail':
       return faExclamationTriangle;
-    case 'unknown':
+    case 'in progress':
       return faClock;
   }
-  return faBan;
+  return faClock;
 };

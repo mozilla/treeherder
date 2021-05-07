@@ -8,10 +8,8 @@ from rest_framework.decorators import action
 from rest_framework.response import Response
 from rest_framework.status import HTTP_400_BAD_REQUEST, HTTP_404_NOT_FOUND
 
-from mozci.push import Push as MozciPush
-
 from treeherder.log_parser.failureline import get_group_results
-from treeherder.model.models import Job, JobType, Push, Repository, Group
+from treeherder.model.models import Job, JobType, Push, Repository
 from treeherder.push_health.builds import get_build_failures
 from treeherder.push_health.compare import get_commit_history
 from treeherder.push_health.linting import get_lint_failures
@@ -31,81 +29,6 @@ class PushViewSet(viewsets.ViewSet):
     """
     View for ``push`` records
     """
-
-    def _get_failure_data(self, mozciPush, push):
-        # We need to retrieve both groups and labels because some tasks do not have groups, e.g. builds, talos, awsy
-        # (so we retrieve the labels) and some tasks do not have consistent labels because the labels are defined at
-        # runtime based on which tests need to run, e.g. mochitest, xpcshell (so we need their groups, which we then
-        # query the Group table with to retrieve the equivalent label names).
-        likely_regression_labels = []
-        likely_regression_groups = []
-
-        try:
-            likely_regression_labels = list(mozciPush.get_likely_regressions('label'))
-        except Exception as e:
-            logger.error('Problem retrieving mozci labels for push {} : {}'.format(push, e))
-
-        try:
-            likely_regression_groups = list(mozciPush.get_likely_regressions('group'))
-        except Exception as e:
-            logger.error('Problem retrieving mozci groups for push {} : {}'.format(push, e))
-
-        all_jobs = list(
-            Job.objects.filter(
-                push=push,
-                tier__lte=2,
-            )
-            .select_related('machine_platform', 'taskcluster_metadata', 'job_type', 'job_group')
-            .values(
-                'id',
-                'option_collection_hash',
-                'job_type_id',
-                'job_group_id',
-                'result',
-                'state',
-                'failure_classification_id',
-                'push_id',
-                'start_time',
-                'tier',
-                'guid',
-                'result',
-                'job_type__name',
-                'job_type__symbol',
-                'job_group__name',
-                'job_group__symbol',
-                'machine_platform__platform',
-                'taskcluster_metadata__task_id',
-                'taskcluster_metadata__retry_id',
-            )
-        )
-
-        result_status, jobs = get_test_failure_jobs(push, all_jobs)
-        failed_jobs = list(jobs.keys())
-
-        job_ids = [value[0].get('id') for key, value in jobs.items()]
-        group_regression_labels = (
-            Group.objects.filter(name__in=likely_regression_groups, job_logs__job_id__in=job_ids)
-            .select_related('job', 'job_type')
-            .values_list('job_logs__job__job_type__name', flat=True)
-        )
-
-        likely_regression_labels.extend(list(group_regression_labels))
-
-        tests = get_test_failures(push, jobs, likely_regression_labels, result_status)
-        likely_build_regression_labels = [
-            label for label in likely_regression_labels if label not in failed_jobs
-        ]
-        builds = get_build_failures(push, likely_build_regression_labels, all_jobs)
-        lints = get_lint_failures(push, all_jobs)
-
-        status = push.get_status()
-
-        # Override the testfailed value added in push.get_status so that it aligns with how we detect lint, build and test failures
-        # for the push health API's (total_failures doesn't include known intermittent failures)
-        total_failures = len(tests[1]['needInvestigation']) + len(builds[1]) + len(lints[1])
-        status['testfailed'] = total_failures
-
-        return [tests, builds, lints, status, total_failures, jobs]
 
     def list(self, request, project):
         """
@@ -328,20 +251,32 @@ class PushViewSet(viewsets.ViewSet):
         commit_history = None
 
         for push in list(pushes):
-            test_in_progress_count = 0
+            result_status, jobs = get_test_failure_jobs(push)
 
-            mozciPush = MozciPush([push.revision], project)
-            tests, builds, lints, status, total_failures, _unused = self._get_failure_data(
-                mozciPush, push
+            test_result, push_health_test_failures = get_test_failures(
+                push,
+                jobs,
+                result_status,
             )
 
-            test_result, test_failures = tests
-            build_result, build_failures, builds_in_progress_count = builds
-            lint_result, lint_failures, linting_in_progress_count = lints
+            build_result, push_health_build_failures, builds_in_progress_count = get_build_failures(
+                push
+            )
 
-            test_failure_count = len(test_failures['needInvestigation']['tests'])
-            build_failure_count = len(build_failures)
-            lint_failure_count = len(lint_failures)
+            lint_result, push_health_lint_failures, linting_in_progress_count = get_lint_failures(
+                push
+            )
+
+            test_failure_count = len(push_health_test_failures['needInvestigation'])
+            build_failure_count = len(push_health_build_failures)
+            lint_failure_count = len(push_health_lint_failures)
+            test_in_progress_count = 0
+
+            status = push.get_status()
+            total_failures = test_failure_count + build_failure_count + lint_failure_count
+            # Override the testfailed value added in push.get_status so that it aligns with how we detect lint, build and test failures
+            # for the push health API's (total_failures doesn't include known intermittent failures)
+            status['testfailed'] = total_failures
 
             if with_history:
                 serializer = PushSerializer([push], many=True)
@@ -396,23 +331,29 @@ class PushViewSet(viewsets.ViewSet):
         revision = request.query_params.get('revision')
 
         try:
-            push = Push.objects.select_related('repository').get(
-                revision=revision, repository__name=project
-            )
+            repository = Repository.objects.get(name=project)
+            push = Push.objects.get(revision=revision, repository=repository)
         except Push.DoesNotExist:
-            return Response(f"No push with revision: {revision}", status=HTTP_404_NOT_FOUND)
+            return Response(
+                "No push with revision: {0}".format(revision), status=HTTP_404_NOT_FOUND
+            )
 
-        mozciPush = MozciPush([revision], project)
         commit_history_details = None
+        result_status, jobs = get_test_failure_jobs(push)
+        # Parent compare only supported for Hg at this time.
+        # Bug https://bugzilla.mozilla.org/show_bug.cgi?id=1612645
+        if repository.dvcs_type == 'hg':
+            commit_history_details = get_commit_history(repository, revision, push)
 
-        if push.repository.dvcs_type == 'hg':
-            commit_history_details = get_commit_history(mozciPush, push)
+        test_result, push_health_test_failures = get_test_failures(
+            push,
+            jobs,
+            result_status,
+        )
 
-        tests, builds, lints, status, total_failures, jobs = self._get_failure_data(mozciPush, push)
+        build_result, build_failures, _unused = get_build_failures(push)
 
-        test_result, test_failures = tests
-        build_result, build_failures, _unused = builds
-        lint_result, lint_failures, _unused = lints
+        lint_result, lint_failures, _unused = get_lint_failures(push)
 
         push_result = 'pass'
         for metric_result in [test_result, lint_result, build_result]:
@@ -425,12 +366,22 @@ class PushViewSet(viewsets.ViewSet):
             elif metric_result == 'fail':
                 push_result = metric_result
 
+        status = push.get_status()
+        total_failures = (
+            len(push_health_test_failures['needInvestigation'])
+            + len(build_failures)
+            + len(lint_failures)
+        )
+        # Override the testfailed value added in push.get_status so that it aligns with how we detect lint, build and test failures
+        # for the push health API's (total_failures doesn't include known intermittent failures)
+        status['testfailed'] = total_failures
+
         newrelic.agent.record_custom_event(
             'push_health_need_investigation',
             {
                 'revision': revision,
-                'repo': project,
-                'needInvestigation': len(test_failures['needInvestigation']['tests']),
+                'repo': repository.name,
+                'needInvestigation': len(push_health_test_failures['needInvestigation']),
                 'author': push.author,
             },
         )
@@ -455,7 +406,7 @@ class PushViewSet(viewsets.ViewSet):
                     'tests': {
                         'name': 'Tests',
                         'result': test_result,
-                        'details': test_failures,
+                        'details': push_health_test_failures,
                     },
                     'builds': {
                         'name': 'Builds',

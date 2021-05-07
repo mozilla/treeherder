@@ -88,12 +88,7 @@ module.exports = {
       },
     }),
     require('@neutrinojs/copy')({
-      patterns: [
-        'ui/contribute.json',
-        'ui/revision.txt',
-        'ui/robots.txt',
-        'mozci_config.toml',
-      ],
+      patterns: ['ui/contribute.json', 'ui/revision.txt', 'ui/robots.txt'],
     }),
     process.env.NODE_ENV === 'test' &&
       require('@neutrinojs/jest')({
