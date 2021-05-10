@@ -80,15 +80,12 @@ elif [ "$1" == "cache_failure_history" ]; then
     newrelic-admin run-program ./manage.py cache_failure_history
 
 elif [ "$1" == "cycle_data" ]; then
-    CHUNK_SIZE="$2"
-    DAYS="$3"
-    # may be empty
-    FROM="$4"
-    ./manage.py cycle_data --chunk-size="${CHUNK_SIZE}" --days "${DAYS}" "${FROM}"
+    shift
+    ./manage.py cycle_data "$@"
 
 elif [ "$1" == "perf_sheriff" ]; then
-    TIME_WINDOW="$2"
-    newrelic-admin run-program ./manage.py perf_sheriff --time-window="${TIME_WINDOW}"
+    shift
+    newrelic-admin run-program ./manage.py perf_sheriff "$@"
 
 elif [ "$1" == "update_changelog" ]; then
     newrelic-admin run-program ./manage.py update_changelog --days 2
