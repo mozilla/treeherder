@@ -18,7 +18,7 @@ import {
   endpoints,
   filterText,
   notSupportedAlertFiltersMessage,
-} from '../../../../ui/perfherder/constants';
+} from '../../../../ui/perfherder/perf-helpers/constants';
 import repos from '../../mock/repositories';
 import { getApiUrl } from '../../../../ui/helpers/url';
 import AlertsView from '../../../../ui/perfherder/alerts/AlertsView';

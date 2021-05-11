@@ -27,7 +27,7 @@ import {
   formatNumber,
   getTalosDocsURL,
   getFrameworkName,
-} from '../helpers';
+} from '../perf-helpers/helpers';
 import SimpleTooltip from '../../shared/SimpleTooltip';
 import ProgressBar from '../../shared/ProgressBar';
 import {
@@ -35,7 +35,7 @@ import {
   backfillRetriggeredTitle,
   phDefaultTimeRangeValue,
   phTimeRanges,
-} from '../constants';
+} from '../perf-helpers/constants';
 
 export default class AlertTableRow extends React.Component {
   constructor(props) {

@@ -3,8 +3,8 @@ import { render, cleanup, waitFor, fireEvent } from '@testing-library/react';
 
 import testAlertSummary from '../../mock/alert_summary_with_different_status';
 import SelectAlertsDropdown from '../../../../ui/perfherder/alerts/SelectAlertsDropdown';
-import { alertStatusMap } from '../../../../ui/perfherder/constants';
-import { getStatus } from '../../../../ui/perfherder/helpers';
+import { alertStatusMap } from '../../../../ui/perfherder/perf-helpers/constants';
+import { getStatus } from '../../../../ui/perfherder/perf-helpers/helpers';
 
 const testUser = ({ isLoggedIn, isStaff }) => ({
   username: 'mozilla-ldap/test_user@mozilla.com',

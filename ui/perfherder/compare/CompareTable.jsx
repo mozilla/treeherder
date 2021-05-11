@@ -4,10 +4,10 @@ import PropTypes from 'prop-types';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faHashtag } from '@fortawesome/free-solid-svg-icons';
 
-import { getHashBasedId, getTalosDocsURL } from '../helpers';
+import { getHashBasedId, getTalosDocsURL } from '../perf-helpers/helpers';
 import { hashFunction } from '../../helpers/utils';
-import { tableSort, getNextSort, sort } from '../sortHelpers';
-import SortButton from '../SortButton';
+import { tableSort, getNextSort, sort } from '../perf-helpers/sort';
+import SortButton from '../shared/SortButton';
 
 import RetriggerButton from './RetriggerButton';
 import CompareTableRow from './CompareTableRow';

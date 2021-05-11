@@ -2,7 +2,7 @@ import React from 'react';
 import { render, cleanup, waitFor } from '@testing-library/react';
 
 import ReplicatesGraph from '../../../ui/perfherder/compare/ReplicatesGraph';
-import { noDataFoundMessage } from '../../../ui/perfherder/constants';
+import { noDataFoundMessage } from '../../../ui/perfherder/perf-helpers/constants';
 
 // TODO addtional tests:
 const TEST_SUITE_NAME = 'testSuiteName';

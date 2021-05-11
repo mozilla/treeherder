@@ -2,13 +2,13 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import { Container } from 'reactstrap';
 
-import { filterText } from '../constants';
+import { filterText } from '../perf-helpers/constants';
 import {
   convertParams,
   containsText,
   onPermalinkClick,
   retriggerMultipleJobs,
-} from '../helpers';
+} from '../perf-helpers/helpers';
 import FilterControls from '../../shared/FilterControls';
 
 import CompareTable from './CompareTable';

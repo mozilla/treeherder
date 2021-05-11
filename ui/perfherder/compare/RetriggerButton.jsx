@@ -4,7 +4,7 @@ import PropTypes from 'prop-types';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faRedo } from '@fortawesome/free-solid-svg-icons';
 
-import { compareTableText } from '../constants';
+import { compareTableText } from '../perf-helpers/constants';
 
 export default function RetriggerButton(props) {
   const { onClick, title } = props;

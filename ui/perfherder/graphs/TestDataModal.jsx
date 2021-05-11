@@ -20,7 +20,11 @@ import InputFilter from '../../shared/InputFilter';
 import { processResponse } from '../../helpers/http';
 import PerfSeriesModel from '../../models/perfSeries';
 import { thPerformanceBranches } from '../../helpers/constants';
-import { containsText, getInitialData, getSeriesData } from '../helpers';
+import {
+  containsText,
+  getInitialData,
+  getSeriesData,
+} from '../perf-helpers/helpers';
 
 import TimeRangeDropdown from './TimeRangeDropdown';
 

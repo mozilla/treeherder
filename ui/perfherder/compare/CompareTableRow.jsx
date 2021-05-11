@@ -10,7 +10,11 @@ import {
 import { Link } from 'react-router-dom';
 
 import SimpleTooltip from '../../shared/SimpleTooltip';
-import { displayNumber, formatNumber, getHashBasedId } from '../helpers';
+import {
+  displayNumber,
+  formatNumber,
+  getHashBasedId,
+} from '../perf-helpers/helpers';
 import ProgressBar from '../../shared/ProgressBar';
 import { hashFunction } from '../../helpers/utils';
 

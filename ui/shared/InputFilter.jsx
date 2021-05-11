@@ -3,7 +3,7 @@ import PropTypes from 'prop-types';
 import { InputGroup, Input } from 'reactstrap';
 import debounce from 'lodash/debounce';
 
-import { filterText } from '../perfherder/constants';
+import { filterText } from '../perfherder/perf-helpers/constants';
 
 export default class InputFilter extends React.Component {
   // eslint-disable-next-line react/sort-comp

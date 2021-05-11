@@ -8,11 +8,15 @@ import {
   genericErrorMessage,
   errorMessageClass,
 } from '../../helpers/constants';
-import { compareDefaultTimeRange, endpoints, phTimeRanges } from '../constants';
+import {
+  compareDefaultTimeRange,
+  endpoints,
+  phTimeRanges,
+} from '../perf-helpers/constants';
 import ErrorBoundary from '../../shared/ErrorBoundary';
 import { getData } from '../../helpers/http';
 import { createApiUrl, createQueryParams } from '../../helpers/url';
-import { getFrameworkData, scrollWithOffset } from '../helpers';
+import { getFrameworkData, scrollWithOffset } from '../perf-helpers/helpers';
 import TruncatedText from '../../shared/TruncatedText';
 import LoadingSpinner from '../../shared/LoadingSpinner';
 import ComparePageTitle from '../../shared/ComparePageTitle';

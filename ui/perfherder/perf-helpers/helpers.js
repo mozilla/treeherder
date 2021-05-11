@@ -3,14 +3,14 @@ import numeral from 'numeral';
 import sortBy from 'lodash/sortBy';
 import queryString from 'query-string';
 
-import { getApiUrl } from '../helpers/url';
-import { update, processResponse } from '../helpers/http';
+import { getApiUrl } from '../../helpers/url';
+import { update, processResponse } from '../../helpers/http';
 import PerfSeriesModel, {
   getSeriesName,
   getTestName,
-} from '../models/perfSeries';
-import RepositoryModel from '../models/repository';
-import JobModel from '../models/job';
+} from '../../models/perfSeries';
+import RepositoryModel from '../../models/repository';
+import JobModel from '../../models/job';
 
 import {
   endpoints,

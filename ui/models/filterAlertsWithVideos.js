@@ -1,5 +1,11 @@
-import { summaryStatusMap, visualMetrics } from '../perfherder/constants';
-import { addResultsLink, getFrameworkName } from '../perfherder/helpers';
+import {
+  summaryStatusMap,
+  visualMetrics,
+} from '../perfherder/perf-helpers/constants';
+import {
+  addResultsLink,
+  getFrameworkName,
+} from '../perfherder/perf-helpers/helpers';
 
 import JobModel from './job';
 

@@ -5,7 +5,7 @@ import RepositoryModel from '../../models/repository';
 import PushModel from '../../models/push';
 import { getData } from '../../helpers/http';
 import { createApiUrl, parseQueryParams } from '../../helpers/url';
-import { endpoints } from '../constants';
+import { endpoints } from '../perf-helpers/constants';
 import LoadingSpinner from '../../shared/LoadingSpinner';
 import RevisionInformation from '../../shared/RevisionInformation';
 

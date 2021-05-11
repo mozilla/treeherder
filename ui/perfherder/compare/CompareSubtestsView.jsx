@@ -7,8 +7,8 @@ import {
   createNoiseMetric,
   getCounterMap,
   createGraphsLinks,
-} from '../helpers';
-import { noiseMetricTitle } from '../constants';
+} from '../perf-helpers/helpers';
+import { noiseMetricTitle } from '../perf-helpers/constants';
 import withValidation from '../Validation';
 
 import CompareTableView from './CompareTableView';

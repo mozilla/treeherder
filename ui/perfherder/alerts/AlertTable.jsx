@@ -3,7 +3,7 @@ import PropTypes from 'prop-types';
 import { Container, Form, FormGroup, Table, Row, Col } from 'reactstrap';
 import orderBy from 'lodash/orderBy';
 
-import { alertStatusMap } from '../constants';
+import { alertStatusMap } from '../perf-helpers/constants';
 import {
   genericErrorMessage,
   errorMessageClass,
@@ -13,11 +13,11 @@ import {
   getInitializedAlerts,
   containsText,
   updateAlertSummary,
-} from '../helpers';
+} from '../perf-helpers/helpers';
 import TruncatedText from '../../shared/TruncatedText';
 import ErrorBoundary from '../../shared/ErrorBoundary';
-import SortButton from '../SortButton';
-import { tableSort, getNextSort, sort } from '../sortHelpers';
+import SortButton from '../shared/SortButton';
+import { tableSort, getNextSort, sort } from '../perf-helpers/sort';
 
 import AlertHeader from './AlertHeader';
 import StatusDropdown from './StatusDropdown';

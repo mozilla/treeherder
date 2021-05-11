@@ -3,7 +3,7 @@ import PropTypes from 'prop-types';
 import { Row } from 'reactstrap';
 
 import FilterControls from '../../shared/FilterControls';
-import { summaryStatusMap } from '../constants';
+import { summaryStatusMap } from '../perf-helpers/constants';
 
 import AlertTable from './AlertTable';
 import PaginationGroup from './Pagination';

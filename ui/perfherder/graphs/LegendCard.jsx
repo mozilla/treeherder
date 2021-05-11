@@ -4,8 +4,8 @@ import { Badge, Button, FormGroup, Input } from 'reactstrap';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faTimes } from '@fortawesome/free-solid-svg-icons';
 
-import { getFrameworkName, getTalosDocsURL } from '../helpers';
-import { graphColors } from '../constants';
+import { getFrameworkName, getTalosDocsURL } from '../perf-helpers/helpers';
+import { graphColors } from '../perf-helpers/constants';
 import GraphIcon from '../../shared/GraphIcon';
 
 const LegendCard = ({

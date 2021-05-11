@@ -8,7 +8,7 @@ import { getApiUrl, repoEndpoint } from '../helpers/url';
 import InfraCompareView from '../infra-compare/InfraCompare';
 import ErrorMessages from '../shared/ErrorMessages';
 
-import { endpoints } from './constants';
+import { endpoints } from './perf-helpers/constants';
 import GraphsView from './graphs/GraphsView';
 import AlertsView from './alerts/AlertsView';
 import TestsView from './tests/TestsView';

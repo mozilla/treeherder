@@ -11,12 +11,12 @@ import {
 import projects from '../../mock/repositories';
 import CompareTableControls from '../../../../ui/perfherder/compare/CompareTableControls';
 import CompareTable from '../../../../ui/perfherder/compare/CompareTable';
-import SortButton from '../../../../ui/perfherder/SortButton';
+import SortButton from '../../../../ui/perfherder/shared/SortButton';
 import ComparePageTitle from '../../../../ui/shared/ComparePageTitle';
 import {
   compareTableText,
   filterText,
-} from '../../../../ui/perfherder/constants';
+} from '../../../../ui/perfherder/perf-helpers/constants';
 import JobModel from '../../../../ui/models/job';
 
 // TODO addtional tests:

@@ -8,7 +8,7 @@ import {
   faSortUp,
 } from '@fortawesome/free-solid-svg-icons';
 
-import { tableSort } from './sortHelpers';
+import { tableSort } from '../perf-helpers/sort';
 
 export default class SortButton extends React.Component {
   sortTypes = {
