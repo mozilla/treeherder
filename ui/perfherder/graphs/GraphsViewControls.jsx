@@ -114,7 +114,7 @@ export default class GraphsViewControls extends React.Component {
             />
           </Col>
           <Col sm="auto" className="p-2">
-            <Button color="darker-info" onClick={toggle}>
+            <Button color="darker-info" title="Add test data" onClick={toggle}>
               Add test data
             </Button>
           </Col>

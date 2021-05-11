@@ -37,16 +37,22 @@ yarn format
 
 See the [code style](code_style.md#ui) section for more details.
 
-### Running the Jest front-end unit tests
+### Running the Jest front-end tests
 
 The unit tests for the UI are run with [Jest].
+The tests are written with react testing library. For the integration tests PollyJS is used to mock APIs.
+
+Integration tests are useful when testing higher level components that would be hard to setup with fetch mock.
+They use PollyJS because it helps to automatically record and replay requests/responses.
+To refresh the PollyJS recordings (usually when an endpoint response changes), just delete the recordings folder and run `yarn test:integration` again like described below.
 
 To run the tests:
 
 - If you haven't already done so, install local dependencies by running `yarn install` from the project root.
-- Then run `yarn test` to execute the tests.
+- For unit tests run `yarn test` to execute the tests.
+- For integration tests run `yarn test:integration` to execute the tests.
 
-While working on the frontend, you may wish to watch JavaScript files and re-run tests
+While working on the frontend, you may wish to watch JavaScript files and re-run the unit tests
 automatically when files change. To do this, you may run one of the following commands:
 
 ```shell
