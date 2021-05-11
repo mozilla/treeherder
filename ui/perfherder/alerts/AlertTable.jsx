@@ -65,7 +65,7 @@ export default class AlertTable extends React.Component {
         },
         Magnitude: {
           name: 'Magnitude of Difference',
-          sortValue: 'amount_abs',
+          sortValue: 'amount_pct',
           currentSort: tableSort.default,
         },
         Confidence: {
@@ -175,11 +175,15 @@ export default class AlertTable extends React.Component {
   };
 
   getAlertsSortedByDefault = (filteredAlerts) => {
-    return orderBy(
-      filteredAlerts,
-      ['starred', 'is_regression', 't_value', 'amount_pct', 'title'],
-      ['desc', 'desc', 'desc', 'desc', 'asc'],
-    );
+    const fields = [
+      'starred',
+      'is_regression',
+      't_value',
+      'amount_pct',
+      'title',
+    ];
+    const sortOrders = ['desc', 'desc', 'desc', 'desc', 'asc'];
+    return orderBy(filteredAlerts, fields, sortOrders);
   };
 
   updateFilteredAlerts = () => {
