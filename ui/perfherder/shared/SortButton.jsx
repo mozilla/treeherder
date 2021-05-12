@@ -27,8 +27,8 @@ export default class SortButton extends React.Component {
     const { column, onChangeSort } = this.props;
     const { name, currentSort } = column;
     return (
-      <>
-        {name === 'Test name' ? '' : `${name}`}
+      <div className="d-flex align-items-end">
+        <div>{name === 'Test name' ? '' : `${name}`}</div>
         <Badge
           className="mx-1 btn btn-darker-secondary"
           role="button"
@@ -37,7 +37,7 @@ export default class SortButton extends React.Component {
         >
           <FontAwesomeIcon icon={this.sortTypes[currentSort].icon} />
         </Badge>
-      </>
+      </div>
     );
   }
 }

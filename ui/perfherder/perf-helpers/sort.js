@@ -1,3 +1,8 @@
+export const sortTables = {
+  alert: 'Alert',
+  compare: 'Compare',
+};
+
 export const tableSort = {
   ascending: 'ascending',
   descending: 'descending',
@@ -30,10 +35,10 @@ export const getNextSort = (currentSort) => {
   return nextSort[currentSort];
 };
 
-export const sort = (sortValue, sortType, data, componentName) => {
+export const sort = (sortValue, sortType, data, table) => {
   let validData = [];
   const nullData = [];
-  if (componentName === 'CompareTable') {
+  if (table === sortTables.compare) {
     data.forEach((item) => {
       if (item[sortValue] || item[sortValue] === 0) {
         validData.push(item);
@@ -44,16 +49,19 @@ export const sort = (sortValue, sortType, data, componentName) => {
   } else {
     validData = data;
   }
-  const sortByStringColumns = ['title', 'name'];
   const { sortByString, sortByValue, sortByStrFirstElement } = sortTypes[
     sortType
   ];
-  let doSort = sortByStringColumns.includes(sortValue)
-    ? sortByString
-    : sortByValue;
-  if (sortValue === 'tags') {
-    doSort = sortByStrFirstElement;
-  }
+
+  const getSortType = {
+    title: sortByString,
+    name: sortByString,
+    tags: sortByStrFirstElement,
+  };
+
+  let doSort = getSortType[sortValue];
+  if (doSort === undefined) doSort = sortByValue;
+
   if (validData.length) {
     data = validData.sort(doSort(sortValue));
     data = data.concat(nullData);

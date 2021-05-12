@@ -17,7 +17,7 @@ import {
 import TruncatedText from '../../shared/TruncatedText';
 import ErrorBoundary from '../../shared/ErrorBoundary';
 import SortButton from '../shared/SortButton';
-import { tableSort, getNextSort, sort } from '../perf-helpers/sort';
+import { tableSort, getNextSort, sort, sortTables } from '../perf-helpers/sort';
 
 import AlertHeader from './AlertHeader';
 import StatusDropdown from './StatusDropdown';
@@ -242,7 +242,6 @@ export default class AlertTable extends React.Component {
   onChangeSort = (currentColumn) => {
     const { tableConfig } = this.state;
     const { filteredAlerts } = this.state;
-    let { filteredAndSortedAlerts } = this.state;
     const { default: defaultSort } = tableSort;
     const { currentSort, sortValue } = currentColumn;
     const nextSort = getNextSort(currentSort);
@@ -251,13 +250,13 @@ export default class AlertTable extends React.Component {
       tableConfig[key].currentSort = defaultSort;
     });
     currentColumn.currentSort = nextSort;
-    filteredAndSortedAlerts = this.getAlertsSortedByDefault(filteredAlerts);
+    let filteredAndSortedAlerts = this.getAlertsSortedByDefault(filteredAlerts);
     if (nextSort !== defaultSort) {
       filteredAndSortedAlerts = sort(
         sortValue,
         nextSort,
         filteredAlerts,
-        'AlertTable',
+        sortTables.alert,
       );
     }
 
@@ -344,23 +343,23 @@ export default class AlertTable extends React.Component {
 
               <Table className="compare-table mb-0">
                 <tbody>
-                  <tr className="border">
+                  <tr className="border subtest-header">
                     <th> </th>
                     <th> </th>
-                    <th>
+                    <th className="align-bottom">
                       <SortButton
                         column={tableConfig.TestAndPlatform}
                         onChangeSort={this.onChangeSort}
                       />
                     </th>
-                    <th>
+                    <th className="align-bottom">
                       {' '}
                       <SortButton
                         column={tableConfig.Tags}
                         onChangeSort={this.onChangeSort}
                       />
                     </th>
-                    <th>
+                    <th className="align-bottom">
                       {' '}
                       <SortButton
                         column={tableConfig.PreviousValue}
@@ -368,26 +367,26 @@ export default class AlertTable extends React.Component {
                       />
                     </th>
                     <th> </th>
-                    <th>
+                    <th className="align-bottom">
                       {' '}
                       <SortButton
                         column={tableConfig.NewValue}
                         onChangeSort={this.onChangeSort}
                       />
                     </th>
-                    <th>
+                    <th className="align-bottom">
                       <SortButton
                         column={tableConfig.AbsoluteDifference}
                         onChangeSort={this.onChangeSort}
                       />
                     </th>
-                    <th>
+                    <th className="align-bottom">
                       <SortButton
                         column={tableConfig.Magnitude}
                         onChangeSort={this.onChangeSort}
                       />
                     </th>
-                    <th>
+                    <th className="align-bottom">
                       <SortButton
                         column={tableConfig.Confidence}
                         onChangeSort={this.onChangeSort}

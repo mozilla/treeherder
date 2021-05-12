@@ -6,7 +6,7 @@ import { faHashtag } from '@fortawesome/free-solid-svg-icons';
 
 import { getHashBasedId, getTalosDocsURL } from '../perf-helpers/helpers';
 import { hashFunction } from '../../helpers/utils';
-import { tableSort, getNextSort, sort } from '../perf-helpers/sort';
+import { tableSort, getNextSort, sort, sortTables } from '../perf-helpers/sort';
 import SortButton from '../shared/SortButton';
 
 import RetriggerButton from './RetriggerButton';
@@ -98,7 +98,7 @@ export default class CompareTable extends React.Component {
     currentColumn.currentSort = nextSort;
 
     if (nextSort !== defaultSort) {
-      data = sort(sortValue, nextSort, data, 'CompareTable');
+      data = sort(sortValue, nextSort, data, sortTables.compare);
     }
 
     this.setState({ data, tableConfig });
