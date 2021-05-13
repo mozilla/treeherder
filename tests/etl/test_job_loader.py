@@ -5,10 +5,10 @@ import pytest
 import responses
 import slugid
 
-from treeherder.etl.exceptions import MissingPushException
 from treeherder.etl.job_loader import JobLoader
 from treeherder.etl.taskcluster_pulse.handler import handleMessage
 from treeherder.model.models import Job, JobLog, TaskclusterMetadata
+from django.core.exceptions import ObjectDoesNotExist
 
 
 @pytest.fixture
@@ -233,7 +233,7 @@ def test_ingest_pulse_jobs_with_missing_push(pulse_jobs):
         status=200,
     )
 
-    with pytest.raises(MissingPushException):
+    with pytest.raises(ObjectDoesNotExist):
         for pulse_job in pulse_jobs:
             jl.process_job(pulse_job, 'https://firefox-ci-tc.services.mozilla.com')
 
