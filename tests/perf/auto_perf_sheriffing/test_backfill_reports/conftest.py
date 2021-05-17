@@ -122,11 +122,18 @@ def test_many_various_alerts():
         'android-hw-pix-7-1-android-aarch64',
         'android-hw-pix-7-1-android-aarch64',
     )
-
+    status_choices = [
+        PerformanceAlert.UNTRIAGED,
+        PerformanceAlert.DOWNSTREAM,
+        PerformanceAlert.REASSIGNED,
+        PerformanceAlert.INVALID,
+        PerformanceAlert.ACKNOWLEDGED,
+    ]
     reversed_magnitudes = list(reversed(range(len(alerts))))
     toggle = True
     for idx, alert in enumerate(alerts):
         alert.is_regression = toggle
+        alert.status = random.choice(status_choices)
         alert.series_signature.platform.platform = platforms[idx]
         alert.amount_pct = reversed_magnitudes[idx]
         toggle = not toggle
@@ -160,6 +167,7 @@ def test_few_regressions():
     reversed_magnitudes = list(reversed(range(len(alerts))))
     for idx, alert in enumerate(alerts):
         alert.series_signature.platform.platform = platforms[idx]
+        alert.status = PerformanceAlert.UNTRIAGED
         alert.is_regression = True
         alert.amount_pct = reversed_magnitudes[idx]
     return alerts
