@@ -1,6 +1,6 @@
 # Infrastructure Troubleshooting
 
-Any infrastructure, data ingestion or database issues will need to be handled by cloudOps, who provide on-call support (however the resources listed below can be used to help them identify root causes when its not obvious). 
+Any infrastructure, data ingestion or database issues will need to be handled by cloudOps, who provide on-call support (however the resources listed below can be used to help them identify root causes when its not obvious).
 
 For urgent issues, ping whomever is listed as main contact in #treeherder-ops slack channel. If those listed as contacts are not working when an emergency occurs, follow [these procedures](https://mana.mozilla.org/wiki/display/SVCOPS) to contact whomever is on-call.
 
@@ -34,4 +34,3 @@ For less urgent issues or general support, you can file a bug with [cloudOps](ht
   - [all other deployments](https://console.cloud.google.com/kubernetes/list?project=moz-fx-treeherde-nonprod-34ec)
   Most useful information can be found by clicking the workload tab and clicking on any "pod", which could be a cron job, celery task
   or the application. Select any one of those to access the container logs (select Container logs)
-
