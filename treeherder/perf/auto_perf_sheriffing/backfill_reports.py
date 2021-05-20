@@ -53,8 +53,7 @@ class AlertsPicker:
         if any(not isinstance(alert, PerformanceAlert) for alert in alerts):
             raise ValueError('Provided parameter does not contain only PerformanceAlert objects.')
         relevant_alerts = self._extract_by_relevant_platforms(alerts)
-        untriaged_alerts = self._extract_untriaged_alerts(relevant_alerts)
-        alerts_with_distinct_jobs = self._ensure_distinct_jobs(untriaged_alerts)
+        alerts_with_distinct_jobs = self._ensure_distinct_jobs(relevant_alerts)
         sorted_alerts = self._multi_criterion_sort(alerts_with_distinct_jobs)
         return self._ensure_alerts_variety(sorted_alerts)
 
@@ -155,17 +154,6 @@ class AlertsPicker:
 
     def _extract_by_relevant_platforms(self, alerts):
         return list(filter(self._has_relevant_platform, alerts))
-
-    def _is_untriaged(self, alert: PerformanceAlert):
-        """
-        Filter criteria based on the 'untriaged' status.
-        """
-        if alert.status == PerformanceAlert.UNTRIAGED:
-            return True
-        return False
-
-    def _extract_untriaged_alerts(self, alerts):
-        return list(filter(self._is_untriaged, alerts))
 
     def _multi_criterion_sort(self, relevant_alerts):
         sorted_alerts = sorted(
@@ -321,7 +309,9 @@ class BackfillReportMaintainer:
     def _pick_important_alerts(
         self, from_summary: PerformanceAlertSummary
     ) -> List[PerformanceAlert]:
-        return self.alerts_picker.extract_important_alerts(from_summary.alerts.all())
+        return self.alerts_picker.extract_important_alerts(
+            from_summary.alerts.filter(status=PerformanceAlert.UNTRIAGED)
+        )
 
     def _provide_records(self, backfill_report: BackfillReport, alert_context_map: List[Tuple]):
         for alert, retrigger_context in alert_context_map:

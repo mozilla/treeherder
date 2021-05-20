@@ -172,19 +172,6 @@ def test_extract_by_relevant_platforms(test_many_various_alerts, test_bad_platfo
     assert set(relevant_alerts).intersection(set(test_bad_platform_names)) == set([])
 
 
-def test_extract_untriaged_alerts(test_many_various_alerts):
-    picker = AlertsPicker(
-        max_alerts=5,
-        max_improvements=2,
-        platforms_of_interest=('windows10', 'windows7', 'linux', 'osx', 'android'),
-    )
-    all_alerts = test_many_various_alerts
-
-    untriaged_alerts = picker._extract_untriaged_alerts(all_alerts)
-    assert set(untriaged_alerts).intersection(set(all_alerts)) == set(untriaged_alerts)
-    assert set(untriaged_alerts) != set(all_alerts)
-
-
 def test_multi_criterion_sort(test_many_various_alerts):
     def count_alert_types(alerts):
         return Counter([alert.is_regression for alert in alerts])
