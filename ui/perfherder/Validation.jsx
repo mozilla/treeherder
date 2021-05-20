@@ -7,7 +7,7 @@ import PushModel from '../models/push';
 import ErrorMessages from '../shared/ErrorMessages';
 import LoadingSpinner from '../shared/LoadingSpinner';
 
-import { summaryStatusMap } from './constants';
+import { summaryStatusMap } from './perf-helpers/constants';
 
 const withValidation = ({ requiredParams }, verifyRevisions = true) => (
   WrappedComponent,

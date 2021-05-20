@@ -3,7 +3,7 @@ import PropTypes from 'prop-types';
 import { Container, Form, FormGroup, Table, Row, Col } from 'reactstrap';
 import orderBy from 'lodash/orderBy';
 
-import { alertStatusMap } from '../constants';
+import { alertStatusMap } from '../perf-helpers/constants';
 import {
   genericErrorMessage,
   errorMessageClass,
@@ -13,9 +13,11 @@ import {
   getInitializedAlerts,
   containsText,
   updateAlertSummary,
-} from '../helpers';
+} from '../perf-helpers/helpers';
 import TruncatedText from '../../shared/TruncatedText';
 import ErrorBoundary from '../../shared/ErrorBoundary';
+import SortButton from '../shared/SortButton';
+import { tableSort, getNextSort, sort, sortTables } from '../perf-helpers/sort';
 
 import AlertHeader from './AlertHeader';
 import StatusDropdown from './StatusDropdown';
@@ -31,8 +33,47 @@ export default class AlertTable extends React.Component {
       alertSummary: null,
       downstreamIds: [],
       filteredAlerts: [],
+      filteredAndSortedAlerts: [],
       allSelected: false,
       selectedAlerts: [],
+      tableConfig: {
+        TestAndPlatform: {
+          name: 'Test and platform',
+          sortValue: 'title',
+          currentSort: tableSort.default,
+        },
+        Tags: {
+          name: 'Tags',
+          sortValue: 'tags',
+          currentSort: tableSort.default,
+        },
+        PreviousValue: {
+          name: 'Previous Value',
+          sortValue: 'prev_value',
+          currentSort: tableSort.default,
+        },
+        Comparison: { name: 'Comparison' },
+        NewValue: {
+          name: 'New Value',
+          sortValue: 'new_value',
+          currentSort: tableSort.default,
+        },
+        AbsoluteDifference: {
+          name: 'Absolute Difference',
+          sortValue: 'amount_pct',
+          currentSort: tableSort.default,
+        },
+        Magnitude: {
+          name: 'Magnitude of Difference',
+          sortValue: 'amount_pct',
+          currentSort: tableSort.default,
+        },
+        Confidence: {
+          name: 'Confidence',
+          sortValue: 't_value',
+          currentSort: tableSort.default,
+        },
+      },
     };
   }
 
@@ -133,13 +174,37 @@ export default class AlertTable extends React.Component {
     return containsText(textToTest, filterText) && matchesFilters;
   };
 
+  getAlertsSortedByDefault = (filteredAlerts) => {
+    const fields = [
+      'starred',
+      'is_regression',
+      't_value',
+      'amount_pct',
+      'title',
+    ];
+    const sortOrders = ['desc', 'desc', 'desc', 'desc', 'asc'];
+    return orderBy(filteredAlerts, fields, sortOrders);
+  };
+
   updateFilteredAlerts = () => {
-    const { alertSummary } = this.state;
+    const { alertSummary, tableConfig } = this.state;
+    Object.keys(tableConfig).forEach((key) => {
+      tableConfig[key].currentSort = tableSort.default;
+    });
 
     const filteredAlerts = alertSummary.alerts.filter((alert) =>
       this.filterAlert(alert),
     );
-    this.setState({ filteredAlerts, allSelected: false, selectedAlerts: [] });
+    const filteredAndSortedAlerts = this.getAlertsSortedByDefault(
+      filteredAlerts,
+    );
+    this.setState({
+      tableConfig,
+      filteredAlerts,
+      filteredAndSortedAlerts,
+      allSelected: false,
+      selectedAlerts: [],
+    });
   };
 
   updateAssignee = async (newAssigneeUsername) => {
@@ -174,6 +239,30 @@ export default class AlertTable extends React.Component {
       allSelected,
     });
 
+  onChangeSort = (currentColumn) => {
+    const { tableConfig } = this.state;
+    const { filteredAlerts } = this.state;
+    const { default: defaultSort } = tableSort;
+    const { currentSort, sortValue } = currentColumn;
+    const nextSort = getNextSort(currentSort);
+
+    Object.keys(tableConfig).forEach((key) => {
+      tableConfig[key].currentSort = defaultSort;
+    });
+    currentColumn.currentSort = nextSort;
+    let filteredAndSortedAlerts = this.getAlertsSortedByDefault(filteredAlerts);
+    if (nextSort !== defaultSort) {
+      filteredAndSortedAlerts = sort(
+        sortValue,
+        nextSort,
+        filteredAlerts,
+        sortTables.alert,
+      );
+    }
+
+    this.setState({ filteredAndSortedAlerts, tableConfig });
+  };
+
   render() {
     const {
       user,
@@ -193,6 +282,8 @@ export default class AlertTable extends React.Component {
       filteredAlerts,
       allSelected,
       selectedAlerts,
+      tableConfig,
+      filteredAndSortedAlerts,
     } = this.state;
 
     const downstreamIdsLength = downstreamIds.length;
@@ -200,12 +291,6 @@ export default class AlertTable extends React.Component {
       ? projects.find((repo) => repo.name === alertSummary.repository)
       : null;
     const repoModel = new RepositoryModel(repo);
-
-    const filteredAndSortedAlerts = orderBy(
-      filteredAlerts,
-      ['starred', 'is_regression', 't_value', 'amount_pct', 'title'],
-      ['desc', 'desc', 'desc', 'desc', 'asc'],
-    );
 
     return (
       <Container fluid className="px-0 max-width-default">
@@ -258,17 +343,55 @@ export default class AlertTable extends React.Component {
 
               <Table className="compare-table mb-0">
                 <tbody>
-                  <tr className="border">
+                  <tr className="border subtest-header">
                     <th> </th>
                     <th> </th>
-                    <th>Test and platform</th>
-                    <th>Tags</th>
-                    <th>Previous Value</th>
+                    <th className="align-bottom">
+                      <SortButton
+                        column={tableConfig.TestAndPlatform}
+                        onChangeSort={this.onChangeSort}
+                      />
+                    </th>
+                    <th className="align-bottom">
+                      {' '}
+                      <SortButton
+                        column={tableConfig.Tags}
+                        onChangeSort={this.onChangeSort}
+                      />
+                    </th>
+                    <th className="align-bottom">
+                      {' '}
+                      <SortButton
+                        column={tableConfig.PreviousValue}
+                        onChangeSort={this.onChangeSort}
+                      />
+                    </th>
                     <th> </th>
-                    <th>New Value</th>
-                    <th>Absolute Difference</th>
-                    <th>Magnitude of Change</th>
-                    <th>Confidence</th>
+                    <th className="align-bottom">
+                      {' '}
+                      <SortButton
+                        column={tableConfig.NewValue}
+                        onChangeSort={this.onChangeSort}
+                      />
+                    </th>
+                    <th className="align-bottom">
+                      <SortButton
+                        column={tableConfig.AbsoluteDifference}
+                        onChangeSort={this.onChangeSort}
+                      />
+                    </th>
+                    <th className="align-bottom">
+                      <SortButton
+                        column={tableConfig.Magnitude}
+                        onChangeSort={this.onChangeSort}
+                      />
+                    </th>
+                    <th className="align-bottom">
+                      <SortButton
+                        column={tableConfig.Confidence}
+                        onChangeSort={this.onChangeSort}
+                      />
+                    </th>
                   </tr>
                   {filteredAndSortedAlerts.map((alert) => (
                     <AlertTableRow

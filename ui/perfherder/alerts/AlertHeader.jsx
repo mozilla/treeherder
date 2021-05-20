@@ -14,7 +14,7 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faExternalLinkAlt } from '@fortawesome/free-solid-svg-icons';
 import { Link } from 'react-router-dom';
 
-import { getTitle, getFrameworkName } from '../helpers';
+import { getTitle, getFrameworkName } from '../perf-helpers/helpers';
 import { getJobsUrl } from '../../helpers/url';
 import { toMercurialDateStr } from '../../helpers/display';
 

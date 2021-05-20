@@ -3,7 +3,7 @@ import PropTypes from 'prop-types';
 import { Container } from 'reactstrap';
 
 import FilterControls from '../../shared/FilterControls';
-import { containsText } from '../helpers';
+import { containsText } from '../perf-helpers/helpers';
 
 import TestsTable from './TestsTable';
 

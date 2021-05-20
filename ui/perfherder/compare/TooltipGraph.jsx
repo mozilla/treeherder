@@ -2,7 +2,7 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import { Table } from 'reactstrap';
 
-import { abbreviatedNumber } from '../helpers';
+import { abbreviatedNumber } from '../perf-helpers/helpers';
 
 export default class TooltipGraph extends React.Component {
   constructor(props) {

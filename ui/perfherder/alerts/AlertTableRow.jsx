@@ -27,7 +27,7 @@ import {
   formatNumber,
   getTalosDocsURL,
   getFrameworkName,
-} from '../helpers';
+} from '../perf-helpers/helpers';
 import SimpleTooltip from '../../shared/SimpleTooltip';
 import ProgressBar from '../../shared/ProgressBar';
 import {
@@ -35,7 +35,7 @@ import {
   backfillRetriggeredTitle,
   phDefaultTimeRangeValue,
   phTimeRanges,
-} from '../constants';
+} from '../perf-helpers/constants';
 
 export default class AlertTableRow extends React.Component {
   constructor(props) {
@@ -301,6 +301,7 @@ export default class AlertTableRow extends React.Component {
         className={
           alertSummary.notes ? 'border-top border-left border-right' : 'border'
         }
+        aria-label="Alert table row"
         data-testid={alert.id}
       >
         <td className="table-width-xs px-1">

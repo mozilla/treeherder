@@ -8,17 +8,17 @@ import {
   faSortUp,
 } from '@fortawesome/free-solid-svg-icons';
 
-import { compareTableSort } from '../constants';
+import { tableSort } from '../perf-helpers/sort';
 
-export default class CompareSortButton extends React.Component {
+export default class SortButton extends React.Component {
   sortTypes = {
-    [compareTableSort.ascending]: {
+    [tableSort.ascending]: {
       icon: faSortUp,
     },
-    [compareTableSort.descending]: {
+    [tableSort.descending]: {
       icon: faSortDown,
     },
-    [compareTableSort.default]: {
+    [tableSort.default]: {
       icon: faSort,
     },
   };
@@ -27,8 +27,8 @@ export default class CompareSortButton extends React.Component {
     const { column, onChangeSort } = this.props;
     const { name, currentSort } = column;
     return (
-      <>
-        {name === 'Test name' ? '' : `${name}`}
+      <div className="d-flex align-items-end">
+        <div>{name === 'Test name' ? '' : `${name}`}</div>
         <Badge
           className="mx-1 btn btn-darker-secondary"
           role="button"
@@ -37,12 +37,12 @@ export default class CompareSortButton extends React.Component {
         >
           <FontAwesomeIcon icon={this.sortTypes[currentSort].icon} />
         </Badge>
-      </>
+      </div>
     );
   }
 }
 
-CompareSortButton.propTypes = {
+SortButton.propTypes = {
   column: PropTypes.shape({}).isRequired,
   onChangeSort: PropTypes.func.isRequired,
 };

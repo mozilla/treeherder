@@ -2,7 +2,7 @@ import React from 'react';
 import { cleanup, fireEvent, render, waitFor } from '@testing-library/react';
 
 import LegendCard from '../../../ui/perfherder/graphs/LegendCard';
-import { unknownFrameworkMessage } from '../../../ui/perfherder/constants';
+import { unknownFrameworkMessage } from '../../../ui/perfherder/perf-helpers/constants';
 
 const testData = [
   {

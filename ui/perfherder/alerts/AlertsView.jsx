@@ -5,12 +5,16 @@ import { Alert, Container } from 'reactstrap';
 import cloneDeep from 'lodash/cloneDeep';
 
 import withValidation from '../Validation';
-import { convertParams, getFrameworkData, getStatus } from '../helpers';
+import {
+  convertParams,
+  getFrameworkData,
+  getStatus,
+} from '../perf-helpers/helpers';
 import {
   summaryStatusMap,
   endpoints,
   notSupportedAlertFiltersMessage,
-} from '../constants';
+} from '../perf-helpers/constants';
 import {
   createQueryParams,
   getApiUrl,

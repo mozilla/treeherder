@@ -10,7 +10,7 @@ const testUser = {
   isStaff: true,
   email: 'test_user@mozilla.com',
 };
-const testAlertSummary = testAlertSummaries[0];
+const testAlertSummary = testAlertSummaries[1];
 const testAlert = testAlertSummary.alerts[0];
 const frameworks = [
   {

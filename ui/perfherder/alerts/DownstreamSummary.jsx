@@ -2,10 +2,10 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import { Link } from 'react-router-dom';
 
-import { getTitle } from '../helpers';
+import { getTitle } from '../perf-helpers/helpers';
 import SimpleTooltip from '../../shared/SimpleTooltip';
 import { getData } from '../../helpers/http';
-import { endpoints } from '../constants';
+import { endpoints } from '../perf-helpers/constants';
 import { getApiUrl } from '../../helpers/url';
 
 export default class DownstreamSummary extends React.Component {

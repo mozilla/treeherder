@@ -5,7 +5,7 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faChartArea, faTable } from '@fortawesome/free-solid-svg-icons';
 import moment from 'moment';
 
-import { endpoints } from '../constants';
+import { endpoints } from '../perf-helpers/constants';
 import { ISODate } from '../../intermittent-failures/helpers';
 import { getData } from '../../helpers/http';
 import { createApiUrl } from '../../helpers/url';

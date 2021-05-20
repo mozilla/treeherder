@@ -9,11 +9,11 @@ import {
 } from '@fortawesome/free-solid-svg-icons';
 import { Link } from 'react-router-dom';
 
-import { alertStatusMap, endpoints } from '../constants';
+import { alertStatusMap, endpoints } from '../perf-helpers/constants';
 import { createQueryParams, getApiUrl, getJobsUrl } from '../../helpers/url';
 import { create } from '../../helpers/http';
 import RepositoryModel from '../../models/repository';
-import { displayNumber, getStatus } from '../helpers';
+import { displayNumber, getStatus } from '../perf-helpers/helpers';
 import Clipboard from '../../shared/Clipboard';
 import { toMercurialDateStr } from '../../helpers/display';
 

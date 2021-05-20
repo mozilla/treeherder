@@ -3,8 +3,8 @@ import PropTypes from 'prop-types';
 import { Container } from 'reactstrap';
 import ReactTable from 'react-table';
 
-import { noResultsMessage } from '../constants';
-import { getTalosDocsURL } from '../helpers';
+import { noResultsMessage } from '../perf-helpers/constants';
+import { getTalosDocsURL } from '../perf-helpers/helpers';
 
 import ItemList from './ItemList';
 

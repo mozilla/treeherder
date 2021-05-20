@@ -3,13 +3,13 @@ import PropTypes from 'prop-types';
 import { Col, Container, Row } from 'reactstrap';
 
 import withValidation from '../Validation';
-import { getFrameworkData } from '../helpers';
+import { getFrameworkData } from '../perf-helpers/helpers';
 import LoadingSpinner from '../../shared/LoadingSpinner';
 import {
   errorMessageClass,
   genericErrorMessage,
 } from '../../helpers/constants';
-import { endpoints } from '../constants';
+import { endpoints } from '../perf-helpers/constants';
 import ErrorBoundary from '../../shared/ErrorBoundary';
 import { getData, processResponse } from '../../helpers/http';
 import { createApiUrl, platformsEndpoint } from '../../helpers/url';

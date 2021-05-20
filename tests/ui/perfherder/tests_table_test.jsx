@@ -1,7 +1,7 @@
 import React from 'react';
 import { render, cleanup, waitFor } from '@testing-library/react';
 
-import { noResultsMessage } from '../../../ui/perfherder/constants';
+import { noResultsMessage } from '../../../ui/perfherder/perf-helpers/constants';
 import TestsTable from '../../../ui/perfherder/tests/TestsTable';
 
 const results = [

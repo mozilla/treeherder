@@ -17,7 +17,7 @@ import {
   genericErrorMessage,
   errorMessageClass,
 } from '../../helpers/constants';
-import { compareDefaultTimeRange } from '../constants';
+import { compareDefaultTimeRange } from '../perf-helpers/constants';
 import ErrorBoundary from '../../shared/ErrorBoundary';
 
 import SelectorCard from './SelectorCard';

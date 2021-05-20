@@ -2,7 +2,7 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import { Badge, UncontrolledTooltip } from 'reactstrap';
 
-import { tooltipMessages } from '../constants';
+import { tooltipMessages } from '../perf-helpers/constants';
 
 const TagsList = ({ tags }) => {
   if (tags.length > 0) {

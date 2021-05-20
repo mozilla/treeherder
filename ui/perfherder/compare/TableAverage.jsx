@@ -2,7 +2,7 @@ import React from 'react';
 import PropTypes from 'prop-types';
 
 import SimpleTooltip from '../../shared/SimpleTooltip';
-import { displayNumber, formatNumber } from '../helpers';
+import { displayNumber, formatNumber } from '../perf-helpers/helpers';
 
 import TooltipGraph from './TooltipGraph';
 

@@ -20,7 +20,7 @@ import { faCheck } from '@fortawesome/free-solid-svg-icons';
 
 import PushModel from '../../models/push';
 import { genericErrorMessage } from '../../helpers/constants';
-import { selectorCardText } from '../constants';
+import { selectorCardText } from '../perf-helpers/constants';
 
 export default class SelectorCard extends React.Component {
   constructor(props) {

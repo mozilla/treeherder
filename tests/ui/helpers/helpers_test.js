@@ -1,7 +1,7 @@
 import {
   displayNumber,
   getFilledBugSummary,
-} from '../../../ui/perfherder/helpers';
+} from '../../../ui/perfherder/perf-helpers/helpers';
 import { getRevisionUrl } from '../../../ui/helpers/url';
 import testAlertSummaryImprovementsOnly from '../perfherder/filled_bug_alerts/alert_summary_improvements_only';
 import testAlertSummaryDownstreamRegressions from '../perfherder/filled_bug_alerts/alert_summary_downstream_regressions';

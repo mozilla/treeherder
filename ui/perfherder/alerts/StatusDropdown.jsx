@@ -17,7 +17,7 @@ import {
   getFilledBugSummary,
   getStatus,
   updateAlertSummary,
-} from '../helpers';
+} from '../perf-helpers/helpers';
 import { getData } from '../../helpers/http';
 import {
   getApiUrl,
@@ -25,7 +25,7 @@ import {
   createQueryParams,
   bugzillaBugsApi,
 } from '../../helpers/url';
-import { summaryStatusMap } from '../constants';
+import { summaryStatusMap } from '../perf-helpers/constants';
 import DropdownMenuItems from '../../shared/DropdownMenuItems';
 import FilterAlertsWithVideos from '../../models/filterAlertsWithVideos';
 
