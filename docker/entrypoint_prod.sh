@@ -5,7 +5,7 @@
 # https://devcenter.heroku.com/articles/release-phase
 # https://devcenter.heroku.com/articles/runtime-principles#build-release-run
 if [ "$1" == "release" ]; then
-    exec ../bin/pre_deploy
+    exec ./bin/pre_deploy
 
 # The `web` process type is the only one that receives external traffic from Heroku's routers.
 # We set the maximum request duration to 20 seconds, to ensure that poorly performing API
