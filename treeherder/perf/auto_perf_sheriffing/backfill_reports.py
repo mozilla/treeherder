@@ -309,7 +309,9 @@ class BackfillReportMaintainer:
     def _pick_important_alerts(
         self, from_summary: PerformanceAlertSummary
     ) -> List[PerformanceAlert]:
-        return self.alerts_picker.extract_important_alerts(from_summary.alerts.all())
+        return self.alerts_picker.extract_important_alerts(
+            from_summary.alerts.filter(status=PerformanceAlert.UNTRIAGED)
+        )
 
     def _provide_records(self, backfill_report: BackfillReport, alert_context_map: List[Tuple]):
         for alert, retrigger_context in alert_context_map:

@@ -1,3 +1,4 @@
+import random
 import datetime
 from typing import Tuple
 
@@ -30,6 +31,33 @@ def test_reports_are_generated_for_relevant_alerts_only(
     )
 
     assert not BackfillReport.objects.exists()
+
+
+def test_pick_important_alerts(
+    test_perf_alert_summary, create_alerts, alerts_picker, mock_backfill_context_fetcher
+):
+    untriaged_alerts = create_alerts(test_perf_alert_summary, amount=10)
+    report_maintainer = BackfillReportMaintainer(alerts_picker, mock_backfill_context_fetcher)
+
+    # make some of the alerts INVALID and ACKNOWLEDGED so that there aren't only UNTRIAGED alerts
+    triaged_alerts_indexes = random.sample(range(0, 10), 5)
+    status_choices = [
+        PerformanceAlert.INVALID,
+        PerformanceAlert.ACKNOWLEDGED,
+    ]
+    for idx in triaged_alerts_indexes:
+        alert = untriaged_alerts[idx]
+        alert.status = random.choice(status_choices)
+        alert.save()
+
+    # important alerts can have only the status UNTRIAGED
+    important_alerts = report_maintainer._pick_important_alerts(
+        from_summary=test_perf_alert_summary
+    )
+    all_alerts = PerformanceAlert.objects.all()
+    triaged_alerts = PerformanceAlert.objects.exclude(status=PerformanceAlert.UNTRIAGED)
+    assert set(important_alerts).intersection(set(all_alerts)) == set(important_alerts)
+    assert set(important_alerts).intersection(set(triaged_alerts)) == set([])
 
 
 def test_running_report_twice_on_unchanged_data_doesnt_change_anything(
