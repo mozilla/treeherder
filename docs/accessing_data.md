@@ -96,7 +96,7 @@ r = requests.get(url, headers={'User-Agent': ...})
 ## Redash
 
 Mozilla's [Redash] instance at <https://sql.telemetry.mozilla.org> is configured to use
-Treeherder's read-only MySQL RDS replica as a data source. Users with LDAP credentials
+Treeherder's read-only MySQL replica as a data source. Users with LDAP credentials
 can find Treeherder's data under the `Treeherder` data source and cross-reference it with
 other data sets available there.
 
@@ -105,22 +105,36 @@ other data sets available there.
 ## Direct database access
 
 If the use-cases above aren't sufficient or you're working on a fullstack Perfherder bug,
-we can provide read-only access to Treeherder's production MySQL RDS replica.
-Please [file an infrastructure bug] requesting that someone from the
-Treeherder team [grant access to the read-only replica].
+we can provide read-only access to Treeherder's production MySQL replica.
+Please [file a bug] requesting that someone from the cloudOps team [grant access to the read-only replica].
+Be sure to follow the instructions for [connecting to the databases](#connecting-to-databases) if you're using it
+outside of the docker container.
 
 <!-- prettier-ignore -->
 !!! note
     You won't be able to login when using a read-only replica like the above.
 
-Alternatively if write access is required, we can [create a temporary RDS instance] from
-a production database snapshot.
+### Connecting to databases
+
+Connections **must** be made using TLS otherwise the connection will fail, but not before
+having already leaked the credentials over plain-text.
+
+A tool such as [MySQL Workbench] is recommended, since it's possible to save connection
+settings for each database, speeding up future use and reducing the chance of forgetting
+to enable TLS.
+
+When setting up a connection make sure to change the "Use SSL" option to `require` and set
+the "SSL CA File" option to point at the AWS public CA certificate, which for convenience can
+be used [directly from the Treeherder repository][gcp-cert].
+
+[MySQL workbench]: https://www.MySQL.com/products/workbench/
+[gcp-cert]: https://github.com/mozilla/treeherder/blob/master/deployment/gcp/ca-cert.pem
 
 ## Import performance data from upstream
 
 If the use-cases above still aren't enough, you should ask for read-only access to one of
-Treeherder's MySQL RDS replicas. Please [file an infrastructure bug] requesting that
-someone from the Treeherder team [grant access to the read-only replica].
+Treeherder's MySQL replicas. Please [file a bug] requesting that
+someone from the cloudOps team grant access to the read-only replica.
 
 You should be given the credentials in [connection URL format].
 
@@ -159,8 +173,6 @@ Using your favourite SQL client, enter your local database and query the `auth_u
 associated to your account. The `username` column should contain something like `mozilla-ldap/<your_login_email>`.
 Once you identify the correct row, set its `is_staff` field to 1 and that's it!
 
-[file an infrastructure bug]: https://bugzilla.mozilla.org/enter_bug.cgi?product=Tree%20Management&component=Treeherder%3A%20Infrastructure
-[grant access to the read-only replica]: infrastructure/administration.md#granting-access-to-the-read-only-replica
-[create a temporary rds instance]: infrastructure/administration.md#creating-a-temporary-instance
+[file a bug]: https://bugzilla.mozilla.org/enter_bug.cgi?product=Cloud%20Services&component=Operations%3A%20Releng
 [connection URL format]: https://dev.mysql.com/doc/connector-j/8.0/en/connector-j-reference-jdbc-url-format.html
 [start a local Treeherder instance]: installation.md#starting-a-local-treeherder-instance
