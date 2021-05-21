@@ -4,8 +4,8 @@ Treeherder has four apps, and those deployments and their databases are managed 
 
 - [treeherder-prod](https://treeherder.mozilla.org)
 - [treeherder-stage](https://treeherder.allizom.org)
-- [treeherder-prototype](TBD)
-- [treeherder-taskcluster-staging](TBD)
+- [treeherder-prototype](prototype.treeherder.nonprod.cloudops.mozgcp.net )
+- [treeherder-taskcluster-staging](tc-staging.treeherder.nonprod.cloudops.mozgcp.net)
 
 ## Common Operations
 
@@ -13,31 +13,29 @@ Treeherder has four apps, and those deployments and their databases are managed 
 
 Stage is set to auto-deploy from the `master` branch, and production from the `production` branch. Prototype deploys from a separate `prototype` branch, but it is not kept in sync with `master` (this will require anyone pushing their code to prototype to reset it to lastest `master` when they're done).
 
-Production deploys are a manual process that is performed by a Treeherder admin roughly twice a week by running a task in Jenkins (under Treeherder -> status -> hover over latest master commit in table and click proceed to initiate the promotion).
+Production deploys are a manual process that is performed by a Treeherder admin roughly twice a week by running a task in Jenkins (under Treeherder -> status -> hover over latest master commit in table (stage:deploy column) and click proceed to initiate the promotion).
 
-[What's deployed] will show what commits are currently on stage and production.
+[What's deployed](https://whatsdeployed.io/s/13z/Mozilla/Treeherder) will show what commits are currently on stage and production.
 
-[what's deployed]: https://whatsdeployed.io/s/13z/Mozilla/Treeherder
+<!-- prettier-ignore -->
+!!! note
+    To access treeherder-prod in [Jenkins](https://ops-master.jenkinsv2.prod.mozaws.net/job/gcp-pipelines/job/treeherder/job/treeherder-production/), cloudOps need to grant you access and you'll need to follow [these steps](https://github.com/mozilla-services/cloudops-deployment/#accessing-jenkins) to set it up before the url will work.
 
 ### Reverting deployments
 
-If a production promotion needs to be reverted, cloudOps can do it (ping whomever is listed as main contact in #treeherder-ops slack channel) or a Treeherder admin can do it in the Jenkins console (hover over a previous commit that was deployed to stage and select "rebuild").
+If a production promotion needs to be reverted, cloudOps can do it (ping whomever is listed as main contact in #treeherder-ops slack channel) or a Treeherder admin can do it in the Jenkins console. Click on the link of a previous commit (far left column) that was deployed to stage and select "rebuild" button on the left side nav.
 
 ### Adding or changing scheduled tasks and environment variables
 
 Changing either of these involves a kubernetes change; you can either open a pull request with the change to the [cloudops-infra repo](https://github.com/mozilla-services/cloudops-infra) if you have access or file a [bugzilla bug](https://bugzilla.mozilla.org/enter_bug.cgi?product=Cloud%20Services&component=Operations%3A%20Releng) and someone from cloudOps will do it for you.
 
-## MySQL instances
-
-These are managed by cloudOps and any deletion of data or access to replica or prototype needs to be arranged through them by filing a [bugzilla bug](https://bugzilla.mozilla.org/enter_bug.cgi?product=Cloud%20Services&component=Operations%3A%20Releng).
-
-### Connecting to MySQL instances
+### Connecting to MySQL databases
 
 Connections **must** be made using TLS otherwise the connection will fail, but not before
 having already leaked the credentials over plain-text.
 
 A tool such as [MySQL Workbench] is recommended, since it's possible to save connection
-settings for each RDS instance, speeding up future use and reducing the chance of forgetting
+settings for each database, speeding up future use and reducing the chance of forgetting
 to enable TLS.
 
 When setting up a connection make sure to change the "Use SSL" option to `require` and set
@@ -46,6 +44,11 @@ be used [directly from the Treeherder repository][gcp-cert].
 
 [MySQL workbench]: https://www.MySQL.com/products/workbench/
 [gcp-cert]: https://github.com/mozilla/treeherder/blob/master/deployment/gcp/ca-cert.pem
+
+
+## Database Management - cloudOps
+
+These are managed by cloudOps and any deletion of data or access to replica or prototype needs to be arranged through them by filing a [bugzilla bug](https://bugzilla.mozilla.org/enter_bug.cgi?product=Cloud%20Services&component=Operations%3A%20Releng).
 
 ### Granting access to the read-only replica
 
@@ -69,7 +72,7 @@ grant SELECT on treeherder.*
 
 Afterwards provide the user with the newly created credentials and the hostname of the
 read-only replica (`mysql://<name>:<password>@35.247.25.202/treeherder`), making sure
-to emphasise the need to [connect using TLS](#connecting-to-rds-instances).
+to emphasise the need to [connect using TLS](#connecting-to-mysql-databases).
 
 <!-- prettier-ignore -->
 !!! warning
@@ -79,7 +82,7 @@ to emphasise the need to [connect using TLS](#connecting-to-rds-instances).
 
 ### Changing MySQL passwords
 
-To change the password for a MySQL account:
+To change the password for a MySQL account (only cloudOps can do this):
 
 1. Set the new password [according to the MySQL documentation].
 
