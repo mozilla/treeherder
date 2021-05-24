@@ -61,14 +61,8 @@ Use this query as a starting point:
 
 ### Steps for adjusting jobs
 
-To connect to Treeherder you need Heroku permissions & the Heroku CLI installed. Then run:
-
-```bash
-heroku run --app treeherder-prod -- bash
-```
-
 Sometimes, before you can adjust priorities of the jobs, you need to make sure they make it into the JobPriority table.
-In order to do so we need to update the job priority table from the shell:
+In order to do so we need to update the job priority table from the shell. You will need cloudOps to do this for you:
 
   Open the Python shell using `./manage.py shell`, then enter:
 
