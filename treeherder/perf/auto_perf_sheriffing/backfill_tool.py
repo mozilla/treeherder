@@ -30,7 +30,9 @@ class BackfillTool:
             action='backfill',
             task_id=task_id_to_backfill,
             decision_task_id=decision_task_id,
-            input={},
+            input={
+                "retrigger": False,
+            },
             root_url=job.repository.tc_root_url,
         )
         return task_id
