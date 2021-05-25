@@ -1,21 +1,4 @@
 jobs:
-  run-pre-commit:
-    docker:
-      - image: cimg/python:3.9.1
-    steps:
-      - checkout
-      - run: pip3 install pre-commit
-      - run: pre-commit run --all-files --verbose
-
-  # TODO: move this check into pre-commit
-  changelog-url-test:
-    docker:
-      - image: cimg/python:3.9.1
-    steps:
-      - checkout
-      - run: pip3 install urlchecker
-      - run: cd treeherder/changelog && urlchecker check --file-types .json .
-
   javascript-tests:
     executor:
       name: node/default
@@ -134,8 +117,6 @@ version: 2.1
 workflows:
   run-tests:
     jobs:
-      - run-pre-commit
-      - changelog-url-test
       - javascript-tests
       - builds
       - python-tests
