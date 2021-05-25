@@ -26,8 +26,16 @@ repos:
       - id: black
         language_version: python3
   - repo: https://github.com/aerickson/urlchecker-python
-    rev: 9cf2660
+    rev: 9654184451d967d2f03d8cfe3b5333b6facbfa2e
     hooks:
       - id: urlchecker
-        entry: urlchecker check_ci --exclude-files "package-lock.json,package.json,node_modules/*,tests/*,version.json" --exclude-pattern "http://localhost"
+        entry: urlchecker check_ci --exclude-pattern "http://localhost"
         types_or: [markdown, json]
+        exclude: |
+          (?x)^(
+              version.json|
+              package.json|
+              package-lock.json|
+              ^tests/.*|
+              ^node_modules/.*
+          )$
