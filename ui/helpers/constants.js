@@ -205,6 +205,7 @@ export const thOptionOrder = {
   cc: 6,
   addon: 7,
   all: 8,
+  'debug-isolated-process': 9,
 };
 
 export const thFavicons = {
