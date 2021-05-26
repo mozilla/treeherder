@@ -46,6 +46,7 @@ class ErrorParser(ParserBase):
         "TEST-UNEXPECTED-",
         "fatal error",
         "FATAL ERROR",
+        "Hit MOZ_CRASH",
         "REFTEST ERROR",
         "PROCESS-CRASH",
         "Assertion fail",
