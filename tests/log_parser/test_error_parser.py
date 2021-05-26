@@ -9,6 +9,8 @@ ERROR_TEST_CASES = (
     "c:/Users/task_1584487163/dist/Release/lib\\softokn3.dll.lib : fatal error LNK1120: 2 unresolved externals",
     # "FATAL ERROR"
     "20:10:13     INFO - PID 15468 | FATAL ERROR: AsyncShutdown timeout in xpcom-will-shutdown",
+    # "Hit MOZ_CRASH"
+    "15:28:28     INFO - GECKO(3166) | Hit MOZ_CRASH(Shutdown hanging after all known phases and workers finished.) at /builds/worker/checkouts/gecko/toolkit/components/terminator/nsTerminator.cpp:246",
     # "PROCESS-CRASH"
     "00:54:55 WARNING - PROCESS-CRASH | Shutdown | application crashed [@ PR_GetThreadPrivate]",
     # "Assertion fail"
