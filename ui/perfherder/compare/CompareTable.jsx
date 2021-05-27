@@ -4,7 +4,7 @@ import PropTypes from 'prop-types';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faHashtag } from '@fortawesome/free-solid-svg-icons';
 
-import { getHashBasedId, getTalosDocsURL } from '../perf-helpers/helpers';
+import { getHashBasedId, getTalosTestTitle } from '../perf-helpers/helpers';
 import { hashFunction } from '../../helpers/utils';
 import { tableSort, getNextSort, sort, sortTables } from '../perf-helpers/sort';
 import SortButton from '../shared/SortButton';
@@ -118,9 +118,7 @@ export default class CompareTable extends React.Component {
 
     const { data } = this.state;
     const { tableConfig } = this.state;
-    const suite = testName.split(' ')[0];
-    const url = getTalosDocsURL(suite);
-
+    const { url, suite, remainingTestName } = getTalosTestTitle(testName);
     return (
       <Table
         id={getHashBasedId(testName, hashFunction)}
@@ -136,8 +134,13 @@ export default class CompareTable extends React.Component {
           <tr className="subtest-header bg-lightgray">
             <th className="text-left">
               <span>
-                {testName}{' '}
-                {frameworkName === 'talos' && <a href={url}>(docs)</a>}
+                {frameworkName === 'talos' && testName ? (
+                  <div>
+                    <a href={url}>{suite}</a> {remainingTestName}
+                  </div>
+                ) : (
+                  testName
+                )}
               </span>
               {onPermalinkClick && (
                 <Button

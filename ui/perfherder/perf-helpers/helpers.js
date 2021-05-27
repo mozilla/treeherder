@@ -440,6 +440,20 @@ export const getFrameworkName = (frameworks, frameworkId) => {
   return framework ? framework.name : unknownFrameworkMessage;
 };
 
+export const getTalosTestTitle = (title) => {
+  let url;
+  let suite;
+  let remainingTestName;
+  if (title) {
+    const splitName = title.split(' ');
+    [suite] = splitName;
+    splitName.shift();
+    remainingTestName = splitName.join(' ');
+    url = getTalosDocsURL(suite);
+  }
+  return { url, suite, remainingTestName };
+};
+
 export class TextualSummary {
   constructor(
     frameworks,
@@ -518,7 +532,7 @@ export class TextualSummary {
     if (
       getFrameworkName(this.frameworks, this.alertSummary.framework) === 'talos'
     ) {
-      suiteName = `${suite} [(docs)](${url})`;
+      suiteName = `[${suite}](${url})`;
     }
     if (
       updatedAlert &&
