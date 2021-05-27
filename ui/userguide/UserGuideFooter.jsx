@@ -27,7 +27,10 @@ const UserGuideFooter = function UserGuideFooter() {
       </div>
 
       <div>
-        <a className="midgray" href="https://whatsdeployed.io/s-dqv">
+        <a
+          className="midgray"
+          href="https://whatsdeployed.io/s/13z/Mozilla/Treeherder"
+        >
           Whats Deployed?
         </a>
       </div>
