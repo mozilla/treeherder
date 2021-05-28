@@ -147,12 +147,9 @@ class CompareView extends React.PureComponent {
           };
         }
 
-        const oldResults = origResultsMap.find(
-          (sig) => sig.name === testName && sig.platform === value,
-        );
-        const newResults = newResultsMap.find(
-          (sig) => sig.name === testName && sig.platform === value,
-        );
+        const key = `${testName} ${value}`;
+        const oldResults = origResultsMap.get(key);
+        const newResults = newResultsMap.get(key);
 
         const cmap = getCounterMap(testName, oldResults, newResults);
         if (cmap.isEmpty) {
