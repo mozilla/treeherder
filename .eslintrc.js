@@ -23,6 +23,11 @@ module.exports = {
   env: {
     browser: true,
   },
+  globals: {
+    page: true,
+    browser: true,
+    jestPuppeteer: true,
+  },
   rules: {
     'class-methods-use-this': 'off',
     'consistent-return': 'off',

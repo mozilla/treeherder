@@ -8,6 +8,42 @@
 
 const BACKEND = process.env.BACKEND || 'https://treeherder.mozilla.org';
 
+let neutrinojest = {
+  // For more info, see: https://bugzilla.mozilla.org/show_bug.cgi?id=1523376#c3
+  moduleNameMapper: {
+    // Hawk's browser and Node APIs differ, and taskcluster-client-web uses APIs that
+    // exist only in the browser version. As such we must force Jest (which runs tests
+    // under Node, not the browser) to use the browser version of Hawk. See:
+    // https://bugzilla.mozilla.org/show_bug.cgi?id=1523376#c6
+    '^hawk$': 'hawk/dist/browser.js',
+  },
+};
+
+if (
+  process.env.NODE_ENV === 'test' &&
+  process.env.TEST_TYPE &&
+  process.env.TEST_TYPE.trim() === 'integration'
+) {
+  neutrinojest = require('@neutrinojs/jest')({
+    ...neutrinojest,
+    setupFilesAfterEnv: ['<rootDir>/tests/ui/integration/test-setup.js'],
+    testRegex: '/tests/ui/integration/',
+    testPathIgnorePatterns: ['tests/ui/integration/test-setup.js'],
+    globalSetup: 'jest-environment-puppeteer/setup',
+    globalTeardown: 'jest-environment-puppeteer/teardown',
+    testEnvironment: 'jest-environment-puppeteer',
+    globals: {
+      URL: 'http://localhost:5000',
+    },
+  });
+} else {
+  neutrinojest = require('@neutrinojs/jest')({
+    ...neutrinojest,
+    setupFilesAfterEnv: ['<rootDir>/tests/ui/test-setup.js'],
+    testPathIgnorePatterns: ['tests/ui/integration'],
+  });
+}
+
 module.exports = {
   options: {
     source: 'ui/',
@@ -90,18 +126,7 @@ module.exports = {
     require('@neutrinojs/copy')({
       patterns: ['ui/contribute.json', 'ui/revision.txt', 'ui/robots.txt'],
     }),
-    process.env.NODE_ENV === 'test' &&
-      require('@neutrinojs/jest')({
-        setupFilesAfterEnv: ['<rootDir>/tests/ui/test-setup.js'],
-        // For more info, see: https://bugzilla.mozilla.org/show_bug.cgi?id=1523376#c3
-        moduleNameMapper: {
-          // Hawk's browser and Node APIs differ, and taskcluster-client-web uses APIs that
-          // exist only in the browser version. As such we must force Jest (which runs tests
-          // under Node, not the browser) to use the browser version of Hawk. See:
-          // https://bugzilla.mozilla.org/show_bug.cgi?id=1523376#c6
-          '^hawk$': 'hawk/dist/browser.js',
-        },
-      }),
+    neutrinojest,
     (neutrino) => {
       neutrino.config
         .plugin('provide')

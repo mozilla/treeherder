@@ -17,6 +17,7 @@
     "@fortawesome/free-solid-svg-icons": "5.12.1",
     "@fortawesome/react-fontawesome": "0.1.14",
     "@neutrinojs/copy": "9.2.0",
+    "@neutrinojs/jest": "^9.5.0",
     "@neutrinojs/react": "9.2.0",
     "@types/prop-types": "*",
     "@types/react": "*",
@@ -65,7 +66,11 @@
   },
   "devDependencies": {
     "@neutrinojs/eslint": "9.2.0",
-    "@neutrinojs/jest": "9.2.0",
+    "@pollyjs/adapter-fetch": "^5.1.0",
+    "@pollyjs/adapter-node-http": "^5.1.0",
+    "@pollyjs/adapter-puppeteer": "^5.1.0",
+    "@pollyjs/core": "^5.1.0",
+    "@pollyjs/persister-fs": "^5.0.0",
     "@testing-library/jest-dom": "5.0.2",
     "@testing-library/react": "11.0.4",
     "codecov": "3.7.2",
@@ -81,9 +86,13 @@
     "eslint-plugin-react": "7.16.0",
     "fetch-mock": "9.4.0",
     "jest": "26.0.1",
+    "jest-environment-puppeteer": "^4.4.0",
+    "jest-puppeteer": "^4.4.0",
     "markdownlint-cli": "0.23.2",
-    "node-fetch": "2.6.1",
+    "path": "^0.12.7",
     "prettier": "2.0.5",
+    "puppeteer": "^8.0.0",
+    "setup-polly-jest": "^0.9.1",
     "webpack-dev-server": "3.11.2"
   },
   "scripts": {
@@ -102,6 +111,7 @@
     "start:local": "node ./node_modules/webpack-dev-server/bin/webpack-dev-server.js --mode development --env.BACKEND=http://localhost:8000",
     "test:coverage": "node ./node_modules/jest/bin/jest -w 1 --silent --coverage",
     "test": "node ./node_modules/jest/bin/jest",
+    "test:integration": "node node_modules/puppeteer/install.js && set TEST_TYPE=integration && node ./node_modules/jest/bin/jest",
     "test:watch": "node ./node_modules/jest/bin/jest --watch"
   },
   "resolutions": {
