@@ -1,6 +1,6 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import { Row } from 'reactstrap';
+import { Row, Button } from 'reactstrap';
 
 import FilterControls from '../../shared/FilterControls';
 import { summaryStatusMap } from '../perf-helpers/constants';
@@ -9,6 +9,26 @@ import AlertTable from './AlertTable';
 import PaginationGroup from './Pagination';
 
 export default class AlertsViewControls extends React.Component {
+  refsLength = this.props.alertSummaries.length;
+
+  constructor(props) {
+    super(props);
+    this.alertsRef = [];
+    this.prevAlertRef = React.createRef();
+    this.state = {
+      currentAlert: 3,
+    };
+  }
+
+  componentDidUpdate(prevProps) {
+    const { alertSummaries } = this.props;
+    if (alertSummaries !== prevProps.alertSummaries) {
+      this.alertsRef = new Array(alertSummaries.length)
+        .fill(null)
+        .map(() => React.createRef());
+    }
+  }
+
   updateFilterText = (filterText) => {
     this.props.setFiltersState({ filterText });
   };
@@ -33,6 +53,14 @@ export default class AlertsViewControls extends React.Component {
     );
     updateViewState({ bugTemplate: null, page: 1 });
     setFiltersState({ framework }, this.fetchAlertSummaries);
+  };
+
+  onScrollAlert = () => {
+    const { currentAlert } = this.state;
+    this.alertsRef[currentAlert].current.scrollIntoView({
+      behavior: 'smooth',
+      block: 'start',
+    });
   };
 
   render() {
@@ -123,21 +151,32 @@ export default class AlertsViewControls extends React.Component {
             )
           : null}
         {alertSummaries.length > 0 &&
-          alertSummaries.map((alertSummary) => (
-            <AlertTable
-              filters={{
-                filterText,
-                hideImprovements,
-                hideDownstream,
-                hideAssignedToOthers,
-              }}
-              key={alertSummary.id}
-              alertSummary={alertSummary}
-              fetchAlertSummaries={fetchAlertSummaries}
-              user={user}
-              {...this.props}
-            />
+          alertSummaries.map((alertSummary, index) => (
+            <div key={alertSummary.id} ref={this.alertsRef[index]}>
+              <AlertTable
+                filters={{
+                  filterText,
+                  hideImprovements,
+                  hideDownstream,
+                  hideAssignedToOthers,
+                }}
+                alertSummary={alertSummary}
+                fetchAlertSummaries={fetchAlertSummaries}
+                user={user}
+                {...this.props}
+              />
+            </div>
           ))}
+        <div className="mb-4 sticky-footer max-width-default text-left text-muted p-0">
+          <div className="d-flex justify-content-between">
+            <Button color="info" onClick={() => this.onScrollAlert()}>
+              previous alert
+            </Button>
+            <Button color="info" onClick={() => this.onScrollAlert()}>
+              next alert
+            </Button>
+          </div>
+        </div>
         {pageNums
           ? hasMorePages() && (
               <Row className="justify-content-center">

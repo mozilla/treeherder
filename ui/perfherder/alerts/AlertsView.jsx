@@ -1,7 +1,7 @@
 /* eslint-disable react/no-did-update-set-state */
 import React from 'react';
 import PropTypes from 'prop-types';
-import { Alert, Container, Button } from 'reactstrap';
+import { Alert, Container } from 'reactstrap';
 import cloneDeep from 'lodash/cloneDeep';
 
 import withValidation from '../Validation';
@@ -51,7 +51,6 @@ class AlertsView extends React.Component {
       id: validated.id,
       bugTemplate: null,
       totalPages: 0,
-      nextRef: React.createRef(),
     };
   }
 
@@ -82,24 +81,7 @@ class AlertsView extends React.Component {
     } else if (params.page && params.page !== prevParams.page) {
       this.fetchAlertSummaries(undefined, false, parseInt(params.page, 10));
     }
-
-    if (this.state.alertSummaries !== prevState.alertSummaries) {
-      this.updateRefs();
-    }
   }
-
-  updateRefs = () => {
-    const { alertSummaries } = this.state;
-    let { nextRef } = this.state;
-    console.log(this.state.alertSummaries);
-    alertSummaries.forEach((alertSummary) => {
-      alertSummary = { ...alertSummary, nextRef };
-      nextRef = React.createRef();
-      return alertSummary;
-    });
-
-    console.log(alertSummaries.forEach((alertSummary) => alertSummary.nextRef));
-  };
 
   getFiltersFromParams = (
     validated,
@@ -394,22 +376,6 @@ class AlertsView extends React.Component {
             count={count}
             {...this.props}
           />
-          <div className="mb-4 sticky-footer max-width-default text-left text-muted p-0">
-            <div className="d-flex justify-content-between">
-              <Button color="info">previous alert</Button>
-              <Button
-                color="info"
-                onClick={() =>
-                  this.state.nextRef.current.scrollIntoView({
-                    behavior: 'smooth',
-                    block: 'start',
-                  })
-                }
-              >
-                next alert
-              </Button>
-            </div>
-          </div>
           {!loading && alertSummaries.length === 0 && (
             <p className="lead text-center">No alerts to show</p>
           )}
