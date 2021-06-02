@@ -52,7 +52,7 @@ export default function TestsTable(props) {
       Cell: (props) => {
         if (platformsMap) {
           const platforms = props.value.map((id) => platformsMap[id]);
-          return <ItemList items={platforms} color="info" />;
+          return <ItemList items={platforms} />;
         }
         return null;
       },
