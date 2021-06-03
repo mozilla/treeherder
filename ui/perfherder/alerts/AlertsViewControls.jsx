@@ -9,23 +9,28 @@ import AlertTable from './AlertTable';
 import PaginationGroup from './Pagination';
 
 export default class AlertsViewControls extends React.Component {
-  refsLength = this.props.alertSummaries.length;
-
   constructor(props) {
     super(props);
     this.alertsRef = [];
     this.prevAlertRef = React.createRef();
     this.state = {
-      currentAlert: 3,
+      currentAlert: -1,
+      alertsLength: 0,
     };
   }
 
   componentDidUpdate(prevProps) {
     const { alertSummaries } = this.props;
+    const alertsLength = alertSummaries.length;
     if (alertSummaries !== prevProps.alertSummaries) {
-      this.alertsRef = new Array(alertSummaries.length)
+      this.alertsRef = new Array(alertsLength)
         .fill(null)
         .map(() => React.createRef());
+      // eslint-disable-next-line react/no-did-update-set-state
+      this.setState({
+        currentAlert: -1,
+        alertsLength,
+      });
     }
   }
 
@@ -55,12 +60,32 @@ export default class AlertsViewControls extends React.Component {
     setFiltersState({ framework }, this.fetchAlertSummaries);
   };
 
-  onScrollAlert = () => {
-    const { currentAlert } = this.state;
+  updateCurrentAlert = (currentAlert) => {
     this.alertsRef[currentAlert].current.scrollIntoView({
       behavior: 'smooth',
       block: 'start',
     });
+
+    this.setState({ currentAlert });
+  };
+
+  onScrollAlert = (type) => {
+    const { alertsLength } = this.state;
+    let { currentAlert } = this.state;
+    const scrollTypes = {
+      prev: 'prev',
+      next: 'next',
+    };
+
+    if (type === scrollTypes.next) {
+      currentAlert = currentAlert === alertsLength - 1 ? 0 : currentAlert + 1;
+    }
+
+    if (type === scrollTypes.prev) {
+      currentAlert = currentAlert <= 0 ? alertsLength - 1 : currentAlert - 1;
+    }
+
+    this.updateCurrentAlert(currentAlert);
   };
 
   render() {
@@ -167,16 +192,18 @@ export default class AlertsViewControls extends React.Component {
               />
             </div>
           ))}
-        <div className="mb-4 sticky-footer max-width-default text-left text-muted p-0">
-          <div className="d-flex justify-content-between">
-            <Button color="info" onClick={() => this.onScrollAlert()}>
-              previous alert
-            </Button>
-            <Button color="info" onClick={() => this.onScrollAlert()}>
-              next alert
-            </Button>
+        {alertSummaries.length > 1 && (
+          <div className="mb-4 sticky-footer max-width-default text-left text-muted p-0">
+            <div className="d-flex justify-content-between">
+              <Button color="info" onClick={() => this.onScrollAlert('prev')}>
+                previous alert
+              </Button>
+              <Button color="info" onClick={() => this.onScrollAlert('next')}>
+                next alert
+              </Button>
+            </div>
           </div>
-        </div>
+        )}
         {pageNums
           ? hasMorePages() && (
               <Row className="justify-content-center">
