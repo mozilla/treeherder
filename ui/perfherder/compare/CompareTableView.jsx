@@ -105,6 +105,9 @@ export default class CompareTableView extends React.Component {
       if (!resultsMap.has(key)) {
         resultsMap.set(key, item);
       }
+      if (item.test !== '' && !resultsMap.has(item.test)) {
+        resultsMap.set(item.test, item);
+      }
     });
     return { testNames, names, platforms, resultsMap };
   };
