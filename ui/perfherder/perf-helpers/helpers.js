@@ -23,6 +23,7 @@ import {
   phFrameworksWithRelatedBranches,
   phTimeRanges,
   unknownFrameworkMessage,
+  testDocumentationFrameworks,
 } from './constants';
 
 export const formatNumber = (input) =>
@@ -429,10 +430,13 @@ export const addResultsLink = (taskId) => {
   return `${taskLink}${taskId}${resultsPath}`;
 };
 
-export const getTalosDocsURL = (suite) => {
-  const url =
-    'https://firefox-source-docs.mozilla.org/testing/perfdocs/talos.html#';
-  return url.concat(suite.replace(/_/g, '-'));
+export const getTestDocumentationURL = (framework, suite) => {
+  const baseURL = 'https://firefox-source-docs.mozilla.org/testing/perfdocs/';
+  return baseURL.concat(
+    framework,
+    '.html#',
+    suite.replace(/_|\s/g, '-').toLowerCase(),
+  );
 };
 
 export const getFrameworkName = (frameworks, frameworkId) => {
@@ -440,18 +444,14 @@ export const getFrameworkName = (frameworks, frameworkId) => {
   return framework ? framework.name : unknownFrameworkMessage;
 };
 
-export const getTalosTestTitle = (title) => {
+export const getSplitTestTitle = (title, suite, framework) => {
   let url;
-  let suite;
   let remainingTestName;
-  if (title) {
-    const splitName = title.split(' ');
-    [suite] = splitName;
-    splitName.shift();
-    remainingTestName = splitName.join(' ');
-    url = getTalosDocsURL(suite);
+  if (title && suite) {
+    remainingTestName = title.replace(suite, '');
+    url = getTestDocumentationURL(framework, suite);
   }
-  return { url, suite, remainingTestName };
+  return { url, remainingTestName };
 };
 
 export class TextualSummary {
@@ -527,13 +527,15 @@ export class TextualSummary {
     const extraOptions = alert.series_signature.extra_options.join(' ');
 
     const updatedAlert = this.alertsWithVideos.find((a) => alert.id === a.id);
-    let suiteName = suite;
-    const url = getTalosDocsURL(suite);
-    if (
-      getFrameworkName(this.frameworks, this.alertSummary.framework) === 'talos'
-    ) {
-      suiteName = `[${suite}](${url})`;
-    }
+    const frameworkName = getFrameworkName(
+      this.frameworks,
+      this.alertSummary.framework,
+    );
+    const url = getTestDocumentationURL(frameworkName, suite);
+    const suiteName = testDocumentationFrameworks.includes(frameworkName)
+      ? `[${suite}](${url})`
+      : suite;
+
     if (
       updatedAlert &&
       updatedAlert.results_link &&
@@ -939,6 +941,7 @@ export const createGraphData = (seriesData, alertSummaries, colors, symbols) =>
       symbol: symbol || ['circle', 'outline'],
       visible: Boolean(color),
       name: series.name,
+      suite: series.suite,
       signature_id: series.signature_id,
       signatureHash: series.signature_hash,
       framework_id: series.framework_id,

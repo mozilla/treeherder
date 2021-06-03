@@ -156,10 +156,14 @@ class CompareView extends React.PureComponent {
           return;
         }
 
-        if (oldResults !== undefined)
+        if (oldResults !== undefined) {
+          cmap.suite = oldResults.suite;
           cmap.baseColumnMeasurementUnit = oldResults.measurement_unit;
-        if (newResults !== undefined)
+        }
+        if (newResults !== undefined) {
+          cmap.suite = newResults.suite;
           cmap.newColumnMeasurementUnit = newResults.measurement_unit;
+        }
 
         cmap.name = value;
 

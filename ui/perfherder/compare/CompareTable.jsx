@@ -4,7 +4,8 @@ import PropTypes from 'prop-types';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faHashtag } from '@fortawesome/free-solid-svg-icons';
 
-import { getHashBasedId, getTalosTestTitle } from '../perf-helpers/helpers';
+import { getHashBasedId, getSplitTestTitle } from '../perf-helpers/helpers';
+import { testDocumentationFrameworks } from '../perf-helpers/constants';
 import { hashFunction } from '../../helpers/utils';
 import { tableSort, getNextSort, sort, sortTables } from '../perf-helpers/sort';
 import SortButton from '../shared/SortButton';
@@ -118,7 +119,15 @@ export default class CompareTable extends React.Component {
 
     const { data } = this.state;
     const { tableConfig } = this.state;
-    const { url, suite, remainingTestName } = getTalosTestTitle(testName);
+    const { suite } = data[0];
+    const { url, remainingTestName } = getSplitTestTitle(
+      testName,
+      suite,
+      frameworkName,
+    );
+    const hasDocumentation = testDocumentationFrameworks.includes(
+      frameworkName,
+    );
     return (
       <Table
         id={getHashBasedId(testName, hashFunction)}
@@ -133,36 +142,36 @@ export default class CompareTable extends React.Component {
         <thead>
           <tr className="subtest-header bg-lightgray">
             <th className="text-left">
-              <span>
-                {frameworkName === 'talos' && testName ? (
+              <div className="d-flex align-items-end">
+                {hasDocumentation && testName ? (
                   <div>
                     <a href={url}>{suite}</a> {remainingTestName}
                   </div>
                 ) : (
                   testName
                 )}
-              </span>
-              {onPermalinkClick && (
-                <Button
-                  className="permalink p-0 ml-1"
-                  color="link"
-                  onClick={() =>
-                    onPermalinkClick(
-                      getHashBasedId(testName, hashFunction),
-                      history,
-                      this.header,
-                    )
-                  }
-                  title="Permalink to this test table"
-                  aria-label={`Permalink to test ${testName} table`}
-                >
-                  <FontAwesomeIcon icon={faHashtag} />
-                </Button>
-              )}
-              <SortButton
-                column={tableConfig.TestName}
-                onChangeSort={this.onChangeSort}
-              />
+                {onPermalinkClick && (
+                  <Button
+                    className="permalink p-0 ml-1"
+                    color="link"
+                    onClick={() =>
+                      onPermalinkClick(
+                        getHashBasedId(testName, hashFunction),
+                        history,
+                        this.header,
+                      )
+                    }
+                    title="Permalink to this test table"
+                    aria-label={`Permalink to test ${testName} table`}
+                  >
+                    <FontAwesomeIcon icon={faHashtag} />
+                  </Button>
+                )}
+                <SortButton
+                  column={tableConfig.TestName}
+                  onChangeSort={this.onChangeSort}
+                />
+              </div>
             </th>
             <th className="table-width-lg">
               <SortButton
