@@ -12,7 +12,6 @@ export default class AlertsViewControls extends React.Component {
   constructor(props) {
     super(props);
     this.alertsRef = [];
-    this.prevAlertRef = React.createRef();
     this.state = {
       currentAlert: -1,
       alertsLength: 0,
@@ -193,13 +192,13 @@ export default class AlertsViewControls extends React.Component {
             </div>
           ))}
         {alertSummaries.length > 1 && (
-          <div className="mb-4 sticky-footer max-width-default text-left text-muted p-0">
+          <div className="mb-4 sticky-footer max-width-default text-left text-muted px-3">
             <div className="d-flex justify-content-between">
               <Button color="info" onClick={() => this.onScrollAlert('prev')}>
-                previous alert
+                Previous alert
               </Button>
               <Button color="info" onClick={() => this.onScrollAlert('next')}>
-                next alert
+                Next alert
               </Button>
             </div>
           </div>
