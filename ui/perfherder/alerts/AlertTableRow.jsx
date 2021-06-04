@@ -25,8 +25,8 @@ import {
   getGraphsURL,
   modifyAlert,
   formatNumber,
-  getTalosDocsURL,
   getFrameworkName,
+  getTalosTestTitle,
 } from '../perf-helpers/helpers';
 import SimpleTooltip from '../../shared/SimpleTooltip';
 import ProgressBar from '../../shared/ProgressBar';
@@ -161,11 +161,6 @@ export default class AlertTableRow extends React.Component {
   getTitleText = (alert, alertStatus) => {
     const { repository, framework, id } = this.props.alertSummary;
     const { frameworks } = this.props;
-    const { title } = alert;
-    let suite = null;
-    if (title !== undefined) {
-      [suite] = title.split(' ');
-    }
 
     let statusColor = '';
     let textEffect = '';
@@ -182,6 +177,8 @@ export default class AlertTableRow extends React.Component {
       textEffect = 'strike-through';
     }
     const timeRange = this.getTimeRange();
+    const { url, suite, remainingTestName } = getTalosTestTitle(alert.title);
+
     return (
       <span>
         <span
@@ -189,7 +186,14 @@ export default class AlertTableRow extends React.Component {
           id={`alert ${alert.id} title`}
           title={alert.backfill_record ? backfillRetriggeredTitle : ''}
         >
-          {alert.title}
+          {getFrameworkName(frameworks, framework) === 'talos' &&
+          alert.title ? (
+            <div>
+              <a href={url}>{suite}</a> {remainingTestName}
+            </div>
+          ) : (
+            <div>{alert.title}</div>
+          )}
         </span>{' '}
         {this.renderAlertStatus(alert, alertStatus, statusColor)}{' '}
         <span className="result-links">
@@ -209,15 +213,6 @@ export default class AlertTableRow extends React.Component {
               · subtests
             </a>
           )}{' '}
-          {getFrameworkName(frameworks, framework) === 'talos' && suite && (
-            <a
-              href={getTalosDocsURL(suite)}
-              target="_blank"
-              rel="noopener noreferrer"
-            >
-              · docs
-            </a>
-          )}
         </span>
       </span>
     );

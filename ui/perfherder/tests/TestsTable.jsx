@@ -32,9 +32,10 @@ export default function TestsTable(props) {
       accessor: 'suite',
       Cell: ({ row }) => (
         <div>
-          {row.suite}{' '}
-          {framework === 'talos' && (
-            <a href={getTalosDocsURL(row.suite)}>(docs)</a>
+          {framework === 'talos' ? (
+            <a href={getTalosDocsURL(row.suite)}>{row.suite}</a>
+          ) : (
+            <div>{row.suite}</div>
           )}
         </div>
       ),
@@ -51,7 +52,7 @@ export default function TestsTable(props) {
       Cell: (props) => {
         if (platformsMap) {
           const platforms = props.value.map((id) => platformsMap[id]);
-          return <ItemList items={platforms} color="info" />;
+          return <ItemList items={platforms} />;
         }
         return null;
       },
