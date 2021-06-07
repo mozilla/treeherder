@@ -136,11 +136,13 @@ export const thPlatformMap = {
   'android-em-7-0-x86-release': 'Android 7.0 x86 Release',
   'android-em-7-0-x86_64': 'Android 7.0 x86-64',
   'android-em-7-0-x86_64-qr': 'Android 7.0 x86-64 WebRender',
+  'android-em-7-0-x86_64-lite': 'Android 7.0 x86-64 Lite',
   'android-em-7-0-x86_64-beta': 'Android 7.0 x86-64 Beta',
   'android-em-7-0-x86_64-release': 'Android 7.0 x86-64 Release',
   'android-em-7-0-x86_64-shippable': 'Android 7.0 x86-64 Shippable',
   'android-em-7-0-x86_64-shippable-qr':
     'Android 7.0 x86-64 Shippable WebRender',
+  'android-em-7.0-x86_64-shippable-lite': 'Android 7.0 x86-64 Shippable Lite',
   'android-hw-g5-7-0-arm7-api-16': 'Android 7.0 MotoG5',
   'android-hw-g5-7-0-arm7-api-16-shippable': 'Android 7.0 MotoG5 Shippable',
   'android-hw-g5-7-0-arm7-api-16-qr': 'Android 7.0 MotoG5 WebRender',
