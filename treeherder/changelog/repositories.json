@@ -32,6 +32,21 @@
     },
     {
       "metadata": {
+        "description": "Puppet host configuration management",
+        "owner": "Release Operations",
+        "project": "Ronin Pupppet",
+        "project_url": "https://github.com/mozilla-platform-ops/ronin_puppet"
+      },
+      "source": {
+        "filters": ["remove_auto_commits"],
+        "items": 10,
+        "repository": "ronin_puppet",
+        "type": "github",
+        "user": "mozilla-platform-ops"
+      }
+    },
+    {
+      "metadata": {
         "description": "Framework that supports Mozilla's continuous integration and release processes.",
         "owner": "Release Engineering",
         "project": "TaskCluster",
@@ -96,16 +111,16 @@
     {
       "metadata": {
         "description": "Simple implementation of a test run manager for mozilla tests at bitbar.",
-        "owner": "Bob Clary",
+        "owner": "Release Operations",
         "project": "Bitbar device pool",
-        "project_url": "https://github.com/bclary/mozilla-bitbar-devicepool/"
+        "project_url": "https://github.com/mozilla-platform-ops/mozilla-bitbar-devicepool/"
       },
       "source": {
         "filters": [],
         "items": 10,
         "repository": "mozilla-bitbar-devicepool",
         "type": "github",
-        "user": "bclary",
+        "user": "mozilla-platform-ops",
         "filters": [["filter_by_path", "config/config.yml"]]
       }
     }
