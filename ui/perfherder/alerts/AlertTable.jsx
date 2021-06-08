@@ -42,8 +42,13 @@ export default class AlertTable extends React.Component {
           sortValue: 'title',
           currentSort: tableSort.default,
         },
-        Tags: {
-          name: 'Tags',
+        Platform: {
+          name: 'Platform',
+          sortValue: '',
+          currentSort: tableSort.default,
+        },
+        TagsOptions: {
+          name: 'Tags & Options',
           sortValue: 'tags',
           currentSort: tableSort.default,
         },
@@ -353,9 +358,15 @@ export default class AlertTable extends React.Component {
                       />
                     </th>
                     <th className="align-bottom">
+                      <SortButton
+                        column={tableConfig.Platform}
+                        onChangeSort={this.onChangeSort}
+                      />
+                    </th>
+                    <th className="align-bottom">
                       {' '}
                       <SortButton
-                        column={tableConfig.Tags}
+                        column={tableConfig.TagsOptions}
                         onChangeSort={this.onChangeSort}
                       />
                     </th>

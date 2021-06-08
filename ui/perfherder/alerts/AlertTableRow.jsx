@@ -38,6 +38,9 @@ import {
   phTimeRanges,
 } from '../perf-helpers/constants';
 
+import AlertTablePlatform from './AlertTablePlatform';
+import AlertTableTagsOptions from './AlertTableTagsOptions';
+
 export default class AlertTableRow extends React.Component {
   constructor(props) {
     super(props);
@@ -297,6 +300,9 @@ export default class AlertTableRow extends React.Component {
     const { user, alert, alertSummary } = this.props;
     const { starred, checkboxSelected } = this.state;
 
+    const { tags, extra_options: options } = alert.series_signature;
+    const items = { tags, options };
+
     const alertStatus = getStatus(alert.status, alertStatusMap);
     const tooltipText = alert.classifier_email
       ? `Classified by ${alert.classifier_email}`
@@ -357,7 +363,15 @@ export default class AlertTableRow extends React.Component {
             this.getTitleText(alert, alertStatus)
           )}
         </td>
-        <td className="table-width-md">{this.getTags(alert)}</td>
+        <td className="table-width-md">
+          <AlertTablePlatform
+            platform={alert.series_signature.machine_platform}
+          />
+        </td>
+        {/* <td className="table-width-md">{this.getTags(alert)}</td> */}
+        <td className="table-width-md">
+          <AlertTableTagsOptions alertId={alert.id} items={items} />
+        </td>
         <td className="table-width-md">{formatNumber(alert.prev_value)}</td>
         <td className="table-width-sm">
           <span
