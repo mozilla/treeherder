@@ -1,6 +1,6 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import { Container } from 'reactstrap';
+import { Container, Row } from 'reactstrap';
 
 import { filterText } from '../perf-helpers/constants';
 import {
@@ -9,6 +9,7 @@ import {
   onPermalinkClick,
   retriggerMultipleJobs,
 } from '../perf-helpers/helpers';
+import PaginationGroup from '../shared/Pagination';
 import FilterControls from '../../shared/FilterControls';
 
 import CompareTable from './CompareTable';
@@ -188,8 +189,12 @@ export default class CompareTableControls extends React.Component {
       onPermalinkClick,
       projects,
       history,
+      page,
+      count,
+      pageNums,
+      validated,
     } = this.props;
-
+    const hasMorePages = () => pageNums.length > 0 && count !== 1;
     const {
       hideUncomparable,
       hideUncertain,
@@ -246,6 +251,19 @@ export default class CompareTableControls extends React.Component {
           dropdownOptions={dropdownOptions}
         />
 
+        {pageNums
+          ? hasMorePages() && (
+              <Row className="justify-content-center">
+                <PaginationGroup
+                  viewablePageNums={pageNums}
+                  updateParams={validated.updateParams}
+                  currentPage={page}
+                  count={count}
+                />
+              </Row>
+            )
+          : null}
+
         {showNoise && showTestsWithNoise}
 
         {results.size > 0 ? (
@@ -268,6 +286,19 @@ export default class CompareTableControls extends React.Component {
         ) : (
           <p className="lead text-center">No results to show</p>
         )}
+
+        {pageNums
+          ? hasMorePages() && (
+              <Row className="justify-content-center">
+                <PaginationGroup
+                  viewablePageNums={pageNums}
+                  updateParams={validated.updateParams}
+                  currentPage={page}
+                  count={count}
+                />
+              </Row>
+            )
+          : null}
       </Container>
     );
   }
@@ -281,6 +312,8 @@ CompareTableControls.propTypes = {
   notify: PropTypes.func.isRequired,
   projects: PropTypes.arrayOf(PropTypes.shape({})).isRequired,
   hasSubtests: PropTypes.bool,
+  page: PropTypes.number,
+  count: PropTypes.number,
   validated: PropTypes.shape({
     showOnlyImportant: PropTypes.string,
     showOnlyComparable: PropTypes.string,
@@ -305,4 +338,6 @@ CompareTableControls.defaultProps = {
   },
   showTestsWithNoise: null,
   onPermalinkClick,
+  page: 1,
+  count: 1,
 };
