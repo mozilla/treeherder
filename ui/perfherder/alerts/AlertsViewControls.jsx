@@ -1,6 +1,6 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import { Row, Button } from 'reactstrap';
+import { Row, Button, Container } from 'reactstrap';
 
 import FilterControls from '../../shared/FilterControls';
 import { summaryStatusMap } from '../perf-helpers/constants';
@@ -15,12 +15,17 @@ export default class AlertsViewControls extends React.Component {
     this.state = {
       currentAlert: -1,
       alertsLength: 0,
+      disableButtons: {
+        prev: true,
+        next: false,
+      },
     };
   }
 
   componentDidUpdate(prevProps) {
     const { alertSummaries } = this.props;
     const alertsLength = alertSummaries.length;
+
     if (alertSummaries !== prevProps.alertSummaries) {
       this.alertsRef = new Array(alertsLength)
         .fill(null)
@@ -29,6 +34,10 @@ export default class AlertsViewControls extends React.Component {
       this.setState({
         currentAlert: -1,
         alertsLength,
+        disableButtons: {
+          prev: true,
+          next: false,
+        },
       });
     }
   }
@@ -59,13 +68,17 @@ export default class AlertsViewControls extends React.Component {
     setFiltersState({ framework }, this.fetchAlertSummaries);
   };
 
-  updateCurrentAlert = (currentAlert) => {
-    this.alertsRef[currentAlert].current.scrollIntoView({
-      behavior: 'smooth',
-      block: 'start',
-    });
+  updateCurrentAlert = async (currentAlert) => {
+    const { disableButtons } = this.state;
+    disableButtons.next = currentAlert === this.state.alertsLength - 1;
+    disableButtons.prev = currentAlert === 0;
 
-    this.setState({ currentAlert });
+    this.setState({ currentAlert, disableButtons }, () => {
+      this.alertsRef[currentAlert].current.scrollIntoView({
+        behavior: 'smooth',
+        block: 'start',
+      });
+    });
   };
 
   onScrollAlert = (type) => {
@@ -76,18 +89,19 @@ export default class AlertsViewControls extends React.Component {
       next: 'next',
     };
 
-    if (type === scrollTypes.next) {
-      currentAlert = currentAlert === alertsLength - 1 ? 0 : currentAlert + 1;
+    if (type === scrollTypes.next && currentAlert !== alertsLength - 1) {
+      currentAlert += 1;
     }
 
-    if (type === scrollTypes.prev) {
-      currentAlert = currentAlert <= 0 ? alertsLength - 1 : currentAlert - 1;
+    if (type === scrollTypes.prev && currentAlert !== 0) {
+      currentAlert -= 1;
     }
 
     this.updateCurrentAlert(currentAlert);
   };
 
   render() {
+    const { disableButtons } = this.state;
     const {
       alertSummaries,
       fetchAlertSummaries,
@@ -154,6 +168,29 @@ export default class AlertsViewControls extends React.Component {
 
     return (
       <React.Fragment>
+        {alertSummaries.length > 1 && (
+          <Container className="mb-4 sticky-top max-width-default position-fixed p-0 pr-4">
+            <Container className="p-0 bg-white max-width-default pt-5 pb-1">
+              <div className="d-flex justify-content-end mb-2 mr-2">
+                <Button
+                  className="mr-2"
+                  color="info"
+                  onClick={() => this.onScrollAlert('prev')}
+                  disabled={disableButtons.prev}
+                >
+                  Previous alert
+                </Button>
+                <Button
+                  color="info"
+                  onClick={() => this.onScrollAlert('next')}
+                  disabled={disableButtons.next}
+                >
+                  Next alert
+                </Button>
+              </div>
+            </Container>
+          </Container>
+        )}
         <FilterControls
           dropdownOptions={isListMode ? alertDropdowns : []}
           filterOptions={alertCheckboxes}
@@ -191,18 +228,6 @@ export default class AlertsViewControls extends React.Component {
               />
             </div>
           ))}
-        {alertSummaries.length > 1 && (
-          <div className="mb-4 sticky-footer max-width-default text-left text-muted px-3">
-            <div className="d-flex justify-content-between">
-              <Button color="info" onClick={() => this.onScrollAlert('prev')}>
-                Previous alert
-              </Button>
-              <Button color="info" onClick={() => this.onScrollAlert('next')}>
-                Next alert
-              </Button>
-            </div>
-          </div>
-        )}
         {pageNums
           ? hasMorePages() && (
               <Row className="justify-content-center">
