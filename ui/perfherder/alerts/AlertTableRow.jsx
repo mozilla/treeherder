@@ -197,8 +197,11 @@ export default class AlertTableRow extends React.Component {
           title={alert.backfill_record ? backfillRetriggeredTitle : ''}
         >
           {hasDocumentation && alert.title ? (
-            <div>
-              <a href={url}>{suite}</a> {remainingTestName}
+            <div className="alert-docs">
+              <a data-testid="docs" href={url}>
+                {suite}
+              </a>{' '}
+              {remainingTestName}
             </div>
           ) : (
             <div>{alert.title}</div>

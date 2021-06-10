@@ -167,7 +167,7 @@ const LegendCard = ({
           />
           {series.name}
         </Button>
-        <div className="small">
+        <div className="small legend-docs">
           {hasDocumentation && <a href={url}>(docs)</a>}
         </div>
         <Button
