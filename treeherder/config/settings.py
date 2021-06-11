@@ -160,10 +160,8 @@ for alias in DATABASES:
     }
     if connection_should_use_tls(DATABASES[alias]['HOST']):
         # Use TLS when connecting to RDS.
-        # https://docs.aws.amazon.com/AmazonRDS/latest/UserGuide/CHAP_MySQL.html#MySQL.Concepts.SSLSupport
-        # https://mysqlclient.readthedocs.io/user_guide.html#functions-and-attributes
         DATABASES[alias]['OPTIONS']['ssl'] = {
-            'ca': env("TLS_CERT_PATH", default='deployment/aws/rds-combined-ca-bundle.pem'),
+            'ca': env("TLS_CERT_PATH", default='deployment/gcp/ca-cert.pem'),
         }
 
 # Caches
