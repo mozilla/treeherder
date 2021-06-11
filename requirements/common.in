@@ -38,3 +38,6 @@ importlib-metadata
 
 # Dockerflow/CloudOps APIs
 dockerflow
+
+# Measuring noise of perf data
+measure-noise

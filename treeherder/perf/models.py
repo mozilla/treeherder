@@ -447,6 +447,11 @@ class PerformanceAlert(models.Model):
         help_text="t value out of analysis indicating confidence " "that change is 'real'",
         null=True,
     )
+    noise_profile = models.CharField(
+        max_length=30,
+        default="N/A",
+        help_text="The noise profile of the data which precedes this alert."
+    )
 
     manually_created = models.BooleanField(default=False)
 
