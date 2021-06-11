@@ -532,3 +532,8 @@ li.pagination-active.active > button {
 .table-graphs-view .rt-td:focus-within .job-links {
   opacity: 1;
 }
+
+.alert-docs a:visited,
+.legend-docs a:visited {
+  color: #337ab7;
+}

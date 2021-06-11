@@ -26,7 +26,7 @@ import {
   modifyAlert,
   formatNumber,
   getFrameworkName,
-  getTalosTestTitle,
+  getSplitTestTitle,
 } from '../perf-helpers/helpers';
 import SimpleTooltip from '../../shared/SimpleTooltip';
 import ProgressBar from '../../shared/ProgressBar';
@@ -34,6 +34,7 @@ import {
   alertStatusMap,
   backfillRetriggeredTitle,
   phDefaultTimeRangeValue,
+  testDocumentationFrameworks,
   phTimeRanges,
 } from '../perf-helpers/constants';
 
@@ -177,8 +178,17 @@ export default class AlertTableRow extends React.Component {
       textEffect = 'strike-through';
     }
     const timeRange = this.getTimeRange();
-    const { url, suite, remainingTestName } = getTalosTestTitle(alert.title);
-
+    const frameworkName = getFrameworkName(frameworks, framework);
+    const hasDocumentation = testDocumentationFrameworks.includes(
+      frameworkName,
+    );
+    const { title } = alert;
+    const { suite } = alert.series_signature;
+    const { url, remainingTestName } = getSplitTestTitle(
+      title,
+      suite,
+      frameworkName,
+    );
     return (
       <span>
         <span
@@ -186,10 +196,12 @@ export default class AlertTableRow extends React.Component {
           id={`alert ${alert.id} title`}
           title={alert.backfill_record ? backfillRetriggeredTitle : ''}
         >
-          {getFrameworkName(frameworks, framework) === 'talos' &&
-          alert.title ? (
-            <div>
-              <a href={url}>{suite}</a> {remainingTestName}
+          {hasDocumentation && alert.title ? (
+            <div className="alert-docs">
+              <a data-testid="docs" href={url}>
+                {suite}
+              </a>{' '}
+              {remainingTestName}
             </div>
           ) : (
             <div>{alert.title}</div>

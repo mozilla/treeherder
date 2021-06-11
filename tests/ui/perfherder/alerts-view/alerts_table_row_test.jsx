@@ -10,8 +10,9 @@ const testUser = {
   isStaff: true,
   email: 'test_user@mozilla.com',
 };
-const testAlertSummary = testAlertSummaries[1];
+const testAlertSummary = testAlertSummaries[0];
 const testAlert = testAlertSummary.alerts[0];
+const testAlert2 = testAlertSummaries[1].alerts[0];
 const frameworks = [
   {
     id: 1,
@@ -23,7 +24,7 @@ const frameworks = [
   },
 ];
 
-const alertTableRowTest = (tags) => {
+const alertTableRowTest = (tags, alert = testAlert) => {
   if (tags) {
     testAlert.series_signature.tags = [...tags];
   }
@@ -34,7 +35,7 @@ const alertTableRowTest = (tags) => {
           alertSummary={testAlertSummary}
           frameworks={frameworks}
           user={testUser}
-          alert={testAlert}
+          alert={alert}
           updateSelectedAlerts={() => {}}
           selectedAlerts={[{}]}
           updateViewState={() => {}}
@@ -48,7 +49,7 @@ const alertTableRowTest = (tags) => {
 afterEach(cleanup);
 
 test("Alert item with no tags displays 'No tags'", async () => {
-  const { getByText } = alertTableRowTest();
+  const { getByText } = alertTableRowTest(['']);
 
   const message = await waitFor(() => getByText('No tags'));
   expect(message).toBeInTheDocument();
@@ -86,4 +87,17 @@ test("Button '...' displays all the tags for an alert item", async () => {
   visibleTags = await waitFor(() => getAllByTestId(`alert-tag`));
 
   expect(visibleTags).toHaveLength(testTags.length);
+});
+
+test('Documentation link is available for talos framework', async () => {
+  const { getByTestId } = alertTableRowTest();
+  expect(getByTestId('docs')).toHaveAttribute(
+    'href',
+    'https://firefox-source-docs.mozilla.org/testing/perfdocs/talos.html#tp5o',
+  );
+});
+
+test('Documentation link is not available for build_metrics framework', async () => {
+  const { queryByTestId } = alertTableRowTest(false, testAlert2);
+  expect(queryByTestId('docs')).toBeNull();
 });

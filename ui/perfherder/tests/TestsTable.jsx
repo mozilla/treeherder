@@ -3,8 +3,11 @@ import PropTypes from 'prop-types';
 import { Container } from 'reactstrap';
 import ReactTable from 'react-table';
 
-import { noResultsMessage } from '../perf-helpers/constants';
-import { getTalosDocsURL } from '../perf-helpers/helpers';
+import {
+  noResultsMessage,
+  testDocumentationFrameworks,
+} from '../perf-helpers/constants';
+import { getTestDocumentationURL } from '../perf-helpers/helpers';
 
 import ItemList from './ItemList';
 
@@ -25,6 +28,8 @@ export default function TestsTable(props) {
     paddingBottom: 10,
   };
 
+  const hasDocumentation = testDocumentationFrameworks.includes(framework);
+
   const columns = [
     {
       headerStyle,
@@ -32,8 +37,10 @@ export default function TestsTable(props) {
       accessor: 'suite',
       Cell: ({ row }) => (
         <div>
-          {framework === 'talos' ? (
-            <a href={getTalosDocsURL(row.suite)}>{row.suite}</a>
+          {hasDocumentation ? (
+            <a href={getTestDocumentationURL(framework, row.suite)}>
+              {row.suite}
+            </a>
           ) : (
             <div>{row.suite}</div>
           )}

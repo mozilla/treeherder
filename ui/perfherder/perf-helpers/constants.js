@@ -128,3 +128,5 @@ export const visualMetrics = [
   'SpeedIndex',
   'videoRecordingStart',
 ];
+
+export const testDocumentationFrameworks = ['talos', 'awsy'];
