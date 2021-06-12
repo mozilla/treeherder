@@ -63,7 +63,7 @@ If new pushes or CI job results are not appearing in Treeherder's UI:
 2. Check the upstream Pulse queues [using Pulse Guardian] (you must be an co-owner of
    the Treeherder queues to see them listed). If there is a Pulse queue backlog,
    it suggests that Treeherder's `pulse_listener_{pushes,jobs}` workers have stopped
-   consuming Pulse events and a cloudOps team member will need to investigate if the 
+   consuming Pulse events and a cloudOps team member will need to investigate if the
    cause is infrastructure-related.
 3. Failing that, it's possible the issue might lie in the services that send events to
    those Pulse exchanges, such as `taskcluster-github` or
