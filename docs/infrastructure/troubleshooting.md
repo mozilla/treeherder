@@ -34,3 +34,40 @@ For less urgent issues or general support, you can file a bug with [cloudOps](ht
   - [all other deployments](https://console.cloud.google.com/kubernetes/list?project=moz-fx-treeherde-nonprod-34ec)
   Most useful information can be found by clicking the workload tab and clicking on any "pod", which could be a cron job, celery task
   or the application. Select any one of those to access the container logs (select Container logs)
+
+## Scenarios
+
+A general approach to troubleshooting is to look in New Relic in the errors tab for treeherder-production and the gcp console (logs can be found in the console). For specific data ingestion issues, follow the steps below:
+
+### Celery queue backlogs
+
+If push, task or log parsing is slow or has stopped, it could indicate a backlog with any of the associated workers or it could
+indicate some other error.
+
+1. A cloudOps team member should check CloudAMQP "RabbitMQ Manager" dashboard to check the per-queue breakdown
+   of incoming and delivery message rates.
+2. Check New Relic's "Error Analytics" section, in case tasks are failing and being
+   retried due to a Python exception.
+3. In the New Relic's "Transactions" section, switch to the "Non-web" transactions view
+   (or use the direct links above), and click the relevant Celery task to see if there
+   has been a change in either throughput or time per task.
+4. Depending on the information discovered above, you may want to try scaling resources or fixing any errors
+   causing the backlogged queues.
+
+### New pushes or jobs not appearing
+
+If new pushes or CI job results are not appearing in Treeherder's UI:
+
+1. Follow the steps in [Celery queue backlogs](#celery-queue-backlogs) to rule out
+   task backlogs/Python exceptions.
+2. Check the upstream Pulse queues [using Pulse Guardian] (you must be an co-owner of
+   the Treeherder queues to see them listed). If there is a Pulse queue backlog,
+   it suggests that Treeherder's `pulse_listener_{pushes,jobs}` workers have stopped
+   consuming Pulse events and a cloudOps team member will need to investigate if the 
+   cause is infrastructure-related.
+3. Failing that, it's possible the issue might lie in the services that send events to
+   those Pulse exchanges, such as `taskcluster-github` or
+   the Taskcluster systems upstream of those. Ask for help in the IRC channel
+   `#taskcluster`.
+
+[using pulse guardian]: https://pulseguardian.mozilla.org/queues
