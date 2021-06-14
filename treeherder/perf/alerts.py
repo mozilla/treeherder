@@ -23,7 +23,7 @@ logger = logging.getLogger(__name__)
 def geomean(iterable):
     # Returns a geomean of a list of values.
     a = np.array(iterable)
-    return a.prod()**(1.0/len(a))
+    return a.prod() ** (1.0 / len(a))
 
 
 def get_alert_properties(prev_value, new_value, lower_is_better):
@@ -99,7 +99,7 @@ def generate_new_alerts_in_series(signature):
                 noise_profile = "N/A", 0
                 try:
                     # Gather all data up to the current data point that
-                    # shows the regression and obtain a noise profile on it. 
+                    # shows the regression and obtain a noise profile on it.
                     # This helps us to ignore this alert and others in the
                     # calculation that could influence the profile.
                     noise_data = []

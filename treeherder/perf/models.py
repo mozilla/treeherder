@@ -450,7 +450,7 @@ class PerformanceAlert(models.Model):
     noise_profile = models.CharField(
         max_length=30,
         default="N/A",
-        help_text="The noise profile of the data which precedes this alert."
+        help_text="The noise profile of the data which precedes this alert.",
     )
 
     manually_created = models.BooleanField(default=False)

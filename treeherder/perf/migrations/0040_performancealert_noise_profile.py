@@ -13,6 +13,10 @@ class Migration(migrations.Migration):
         migrations.AddField(
             model_name='performancealert',
             name='noise_profile',
-            field=models.CharField(default='N/A', help_text='The noise profile of the data which precedes this alert.', max_length=30),
+            field=models.CharField(
+                default='N/A',
+                help_text='The noise profile of the data which precedes this alert.',
+                max_length=30,
+            ),
         ),
     ]
