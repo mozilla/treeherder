@@ -19,9 +19,9 @@ import ErrorBoundary from '../../shared/ErrorBoundary';
 import SortButton from '../shared/SortButton';
 import { tableSort, getNextSort, sort, sortTables } from '../perf-helpers/sort';
 
+import AlertTableRow from './AlertTableRow';
 import AlertHeader from './AlertHeader';
 import StatusDropdown from './StatusDropdown';
-import AlertTableRow from './AlertTableRow';
 import DownstreamSummary from './DownstreamSummary';
 import AlertActionPanel from './AlertActionPanel';
 import SelectAlertsDropdown from './SelectAlertsDropdown';
@@ -37,14 +37,14 @@ export default class AlertTable extends React.Component {
       allSelected: false,
       selectedAlerts: [],
       tableConfig: {
-        TestAndPlatform: {
-          name: 'Test and platform',
+        Test: {
+          name: 'Test',
           sortValue: 'title',
           currentSort: tableSort.default,
         },
         Platform: {
           name: 'Platform',
-          sortValue: '',
+          sortValue: 'machine_platform',
           currentSort: tableSort.default,
         },
         TagsOptions: {
@@ -353,7 +353,7 @@ export default class AlertTable extends React.Component {
                     <th> </th>
                     <th className="align-bottom">
                       <SortButton
-                        column={tableConfig.TestAndPlatform}
+                        column={tableConfig.Test}
                         onChangeSort={this.onChangeSort}
                       />
                     </th>
@@ -365,10 +365,7 @@ export default class AlertTable extends React.Component {
                     </th>
                     <th className="align-bottom">
                       {' '}
-                      <SortButton
-                        column={tableConfig.TagsOptions}
-                        onChangeSort={this.onChangeSort}
-                      />
+                      {tableConfig.TagsOptions.name}
                     </th>
                     <th className="align-bottom">
                       {' '}

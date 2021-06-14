@@ -5,6 +5,8 @@ import Button from 'reactstrap/lib/Button';
 import Badge from 'reactstrap/lib/Badge';
 
 export default class AlertTableTagsOptions extends React.Component {
+  items = { alertTag: 'alert-tag', alertOption: 'alert-option' };
+
   constructor(props) {
     super(props);
     const { tags, options } = this.props.items;
@@ -24,8 +26,8 @@ export default class AlertTableTagsOptions extends React.Component {
     ));
   };
 
-  showOptions = (tags) => {
-    return tags.map((item) => (
+  showOptions = (options) => {
+    return options.map((item) => (
       <Badge color="light" key={`${item}`} data-testid="alert-option">
         {item}
       </Badge>
@@ -92,7 +94,8 @@ export default class AlertTableTagsOptions extends React.Component {
                 </UncontrolledTooltip>
               </Button>
             )}
-            {displayAllOptions && this.showTags(tags.slice(visibleOptions))}
+            {displayAllOptions &&
+              this.showOptions(options.slice(visibleOptions))}
           </div>
         ) : (
           <Badge color="light">No options</Badge>
@@ -107,5 +110,5 @@ AlertTableTagsOptions.propTypes = {
     tags: PropTypes.array.isRequired,
     options: PropTypes.array.isRequired,
   }).isRequired,
-  alertId: PropTypes.string.isRequired,
+  alertId: PropTypes.number.isRequired,
 };
