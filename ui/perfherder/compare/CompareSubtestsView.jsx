@@ -129,6 +129,12 @@ class CompareSubtestsView extends React.PureComponent {
         return;
       }
       cmap.name = testName;
+      if (oldResults !== undefined) {
+        cmap.suite = oldResults.suite;
+      }
+      if (newResults !== undefined) {
+        cmap.suite = newResults.suite;
+      }
 
       if (
         (oldResults && oldResults.parent_signature === originalSignature) ||
