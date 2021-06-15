@@ -130,3 +130,8 @@ export const visualMetrics = [
 ];
 
 export const testDocumentationFrameworks = ['talos', 'awsy'];
+
+export const scrollTypes = {
+  prev: 'prev',
+  next: 'next',
+};

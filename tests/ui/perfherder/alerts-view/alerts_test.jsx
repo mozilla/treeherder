@@ -738,3 +738,29 @@ test('test data can be sorted only by one column', async () => {
   expect(alertTableRows[1]).toContainElement(alert1);
   expect(alertTableRows[2]).toContainElement(alert3);
 });
+
+test('test previous alert button should be disable at first', async () => {
+  const { getByTestId } = alertsViewControls();
+
+  const prevScrollButton = await waitFor(() =>
+    getByTestId('scroll-prev-alert'),
+  );
+
+  expect(prevScrollButton).toBeDisabled();
+});
+
+test('test next alert button should be disable when reaching the last alert', async () => {
+  const { getByTestId } = alertsViewControls();
+  Element.prototype.scrollIntoView = jest.fn();
+
+  let nextScrollButton = await waitFor(() => getByTestId('scroll-next-alert'));
+
+  expect(nextScrollButton).not.toBeDisabled();
+
+  fireEvent.click(nextScrollButton);
+  fireEvent.click(nextScrollButton);
+
+  nextScrollButton = await waitFor(() => getByTestId('scroll-next-alert'));
+
+  expect(nextScrollButton).toBeDisabled();
+});

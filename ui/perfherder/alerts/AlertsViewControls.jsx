@@ -3,7 +3,7 @@ import PropTypes from 'prop-types';
 import { Row, Button, Container } from 'reactstrap';
 
 import FilterControls from '../../shared/FilterControls';
-import { summaryStatusMap } from '../perf-helpers/constants';
+import { summaryStatusMap, scrollTypes } from '../perf-helpers/constants';
 
 import AlertTable from './AlertTable';
 import PaginationGroup from './Pagination';
@@ -11,10 +11,12 @@ import PaginationGroup from './Pagination';
 export default class AlertsViewControls extends React.Component {
   constructor(props) {
     super(props);
-    this.alertsRef = [];
+    this.alertsRef = new Array(this.props.alertSummaries.length)
+      .fill(null)
+      .map(() => React.createRef());
     this.state = {
       currentAlert: -1,
-      alertsLength: 0,
+      alertsLength: this.props.alertSummaries.length,
       disableButtons: {
         prev: true,
         next: false,
@@ -69,8 +71,8 @@ export default class AlertsViewControls extends React.Component {
   };
 
   updateCurrentAlert = async (currentAlert) => {
-    const { disableButtons } = this.state;
-    disableButtons.next = currentAlert === this.state.alertsLength - 1;
+    const { disableButtons, alertsLength } = this.state;
+    disableButtons.next = currentAlert === alertsLength - 1;
     disableButtons.prev = currentAlert === 0;
 
     this.setState({ currentAlert, disableButtons }, () => {
@@ -84,10 +86,6 @@ export default class AlertsViewControls extends React.Component {
   onScrollAlert = (type) => {
     const { alertsLength } = this.state;
     let { currentAlert } = this.state;
-    const scrollTypes = {
-      prev: 'prev',
-      next: 'next',
-    };
 
     if (type === scrollTypes.next && currentAlert !== alertsLength - 1) {
       currentAlert += 1;
@@ -175,15 +173,17 @@ export default class AlertsViewControls extends React.Component {
                 <Button
                   className="mr-2"
                   color="info"
-                  onClick={() => this.onScrollAlert('prev')}
+                  onClick={() => this.onScrollAlert(scrollTypes.prev)}
                   disabled={disableButtons.prev}
+                  data-testid="scroll-prev-alert"
                 >
                   Previous alert
                 </Button>
                 <Button
                   color="info"
-                  onClick={() => this.onScrollAlert('next')}
+                  onClick={() => this.onScrollAlert(scrollTypes.next)}
                   disabled={disableButtons.next}
+                  data-testid="scroll-next-alert"
                 >
                   Next alert
                 </Button>
