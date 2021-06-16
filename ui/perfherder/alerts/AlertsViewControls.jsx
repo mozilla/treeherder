@@ -167,9 +167,9 @@ export default class AlertsViewControls extends React.Component {
     return (
       <React.Fragment>
         {alertSummaries.length > 1 && (
-          <Container className="mb-4 sticky-top max-width-default position-fixed p-0 pr-4">
-            <Container className="p-0 bg-white max-width-default pt-5 pb-1">
-              <div className="d-flex justify-content-end mb-2 mr-2">
+          <Container className="sticky-scroll-nav-top max-width-default position-fixed mb-4 p-0 pr-4">
+            <Container className="bg-white max-width-default p-0 pt-5 pb-1">
+              <div className="d-flex justify-content-end mb-1 mr-2">
                 <Button
                   className="mr-2"
                   color="info"

@@ -338,6 +338,13 @@ th {
   z-index: 900;
 }
 
+.sticky-scroll-nav-top {
+  position: -webkit-sticky;
+  position: sticky;
+  top: 0;
+  z-index: 998;
+}
+
 .alerts-container {
   padding-left: 90px;
   padding-right: 90px;
