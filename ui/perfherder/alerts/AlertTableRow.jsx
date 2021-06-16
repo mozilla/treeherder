@@ -176,12 +176,8 @@ export default class AlertTableRow extends React.Component {
       frameworkName,
     );
     const { title } = alert;
-    const { suite } = alert.series_signature;
-    const { url, remainingTestName } = getSplitTestTitle(
-      title,
-      suite,
-      frameworkName,
-    );
+    const { suite, test } = alert.series_signature;
+    const { url } = getSplitTestTitle(title, suite, frameworkName);
     return (
       <span>
         <span
@@ -190,14 +186,16 @@ export default class AlertTableRow extends React.Component {
           title={alert.backfill_record ? backfillRetriggeredTitle : ''}
         >
           {hasDocumentation && alert.title ? (
-            <div className="alert-docs">
+            <div className="alert-docs" data-testid={`alert ${alert.id} title`}>
               <a data-testid="docs" href={url}>
                 {suite}
               </a>{' '}
-              {remainingTestName}
+              {test}
             </div>
           ) : (
-            <div>{alert.title}</div>
+            <div data-testid={`alert ${alert.id} title`}>
+              {suite} {test}
+            </div>
           )}
         </span>{' '}
         {this.renderAlertStatus(alert, alertStatus, statusColor)}{' '}
