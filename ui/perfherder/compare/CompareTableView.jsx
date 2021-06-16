@@ -15,11 +15,7 @@ import {
 } from '../perf-helpers/constants';
 import ErrorBoundary from '../../shared/ErrorBoundary';
 import { getData } from '../../helpers/http';
-import {
-  createApiUrl,
-  createQueryParams,
-  parseQueryParams,
-} from '../../helpers/url';
+import { createApiUrl, createQueryParams } from '../../helpers/url';
 import { getFrameworkData, scrollWithOffset } from '../perf-helpers/helpers';
 import TruncatedText from '../../shared/TruncatedText';
 import LoadingSpinner from '../../shared/LoadingSpinner';
@@ -32,7 +28,6 @@ import NoiseTable from './NoiseTable';
 export default class CompareTableView extends React.Component {
   constructor(props) {
     super(props);
-    const { validated } = this.props;
     this.state = {
       compareResults: new Map(),
       testsNoResults: null,
@@ -43,9 +38,6 @@ export default class CompareTableView extends React.Component {
       framework: getFrameworkData(this.props),
       title: '',
       tabTitle: null,
-      totalPages: 0,
-      page: validated.page ? parseInt(validated.page, 10) : 1,
-      count: 0,
     };
   }
 
@@ -70,16 +62,8 @@ export default class CompareTableView extends React.Component {
     }
   }
 
-  componentDidUpdate(prevProps, prevState) {
+  componentDidUpdate(prevProps) {
     const { validated } = this.props;
-    const { count } = this.state;
-    const params = parseQueryParams(this.props.location.search);
-    const prevParams = parseQueryParams(prevProps.location.search);
-
-    if (prevState.count !== count) {
-      /* eslint-disable react/no-did-update-set-state */
-      this.setState({ totalPages: this.generatePages(count) });
-    }
 
     if (
       validated.originalProject !== prevProps.validated.originalProject ||
@@ -88,10 +72,6 @@ export default class CompareTableView extends React.Component {
       validated.newRevision !== prevProps.validated.newRevision
     ) {
       this.getPerformanceData();
-    }
-    if (params.page && params.page !== prevParams.page) {
-      /* eslint-disable react/no-did-update-set-state */
-      this.setState({ page: parseInt(params.page, 10) });
     }
   }
 
@@ -213,8 +193,6 @@ export default class CompareTableView extends React.Component {
       ...{ tableNames, rowNames },
     });
     updates.title = title;
-    updates.count = Math.ceil(updates.compareResults.size / 10);
-    updates.totalPages = this.generatePages(updates.count);
     return this.setState(updates);
   };
 
@@ -245,22 +223,6 @@ export default class CompareTableView extends React.Component {
     }
   };
 
-  getCurrentPages = () => {
-    const { page, totalPages } = this.state;
-    if (totalPages.length === 5 || !totalPages.length) {
-      return totalPages;
-    }
-    return totalPages.slice(page - 1, page + 4);
-  };
-
-  generatePages = (count) => {
-    const pages = [];
-    for (let num = 1; num <= count; num++) {
-      pages.push(num);
-    }
-    return pages;
-  };
-
   render() {
     const {
       originalProject,
@@ -274,6 +236,7 @@ export default class CompareTableView extends React.Component {
 
     const { filterByFramework, hasSubtests, frameworks, projects } = this.props;
     const {
+      compareResults,
       loading,
       failureMessages,
       testsWithNoise,
@@ -282,10 +245,7 @@ export default class CompareTableView extends React.Component {
       title,
       framework,
       tabTitle,
-      page,
-      count,
     } = this.state;
-    let { compareResults } = this.state;
 
     const frameworkNames =
       frameworks && frameworks.length
@@ -321,12 +281,6 @@ export default class CompareTableView extends React.Component {
         updateData: (timeRange) => this.updateTimeRange(timeRange),
       });
     }
-
-    const toEnd = page * 10;
-    const fromStart = toEnd - 10;
-    const results = Array.from(compareResults).slice(fromStart, toEnd);
-    compareResults = new Map(results);
-    const pageNums = this.getCurrentPages();
 
     return (
       <Container fluid className="max-width-default">
@@ -398,9 +352,6 @@ export default class CompareTableView extends React.Component {
 
               <CompareTableControls
                 {...this.props}
-                pageNums={pageNums}
-                page={page}
-                count={count}
                 frameworkName={framework.name}
                 dropdownOptions={compareDropdowns}
                 updateState={(state) => this.setState(state)}

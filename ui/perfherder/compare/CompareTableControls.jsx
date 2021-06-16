@@ -11,6 +11,7 @@ import {
 } from '../perf-helpers/helpers';
 import PaginationGroup from '../shared/Pagination';
 import FilterControls from '../../shared/FilterControls';
+import { parseQueryParams } from '../../helpers/url';
 
 import CompareTable from './CompareTable';
 import RetriggerModal from './RetriggerModal';
@@ -28,6 +29,9 @@ export default class CompareTableControls extends React.Component {
       filteredText: this.getDefaultFilterText(this.validated),
       showRetriggerModal: false,
       currentRetriggerRow: {},
+      totalPages: 0,
+      page: this.validated.page ? parseInt(this.validated.page, 10) : 1,
+      count: 0,
     };
   }
 
@@ -35,10 +39,24 @@ export default class CompareTableControls extends React.Component {
     this.updateFilteredResults();
   }
 
-  componentDidUpdate(prevProps) {
+  componentDidUpdate(prevProps, prevState) {
     const { compareResults } = this.props;
+    const { count } = this.state;
+    const params = parseQueryParams(this.props.location.search);
+    const prevParams = parseQueryParams(prevProps.location.search);
+
+    if (prevState.count !== count) {
+      /* eslint-disable react/no-did-update-set-state */
+      this.setState({ totalPages: this.generatePages(count) });
+    }
     if (prevProps.compareResults !== compareResults) {
       this.updateFilteredResults();
+    }
+    if (params.page && params.page !== prevParams.page) {
+      /* eslint-disable react/no-did-update-set-state */
+      this.setState({ page: parseInt(params.page, 10) }, () => {
+        this.updateFilteredResults();
+      });
     }
   }
 
@@ -91,9 +109,15 @@ export default class CompareTableControls extends React.Component {
       showImportant,
       hideUncertain,
       showNoise,
+      page,
     } = this.state;
 
     const { compareResults } = this.props;
+    let results;
+    const toEnd = page * 10;
+    const fromStart = toEnd - 10;
+    let count = Math.ceil(compareResults.size / 10);
+    let totalPages = this.generatePages(count);
 
     this.updateUrlParams();
     if (
@@ -103,7 +127,9 @@ export default class CompareTableControls extends React.Component {
       !hideUncertain &&
       !showNoise
     ) {
-      return this.setState({ results: compareResults });
+      results = Array.from(compareResults).slice(fromStart, toEnd);
+      results = new Map(results);
+      return this.setState({ results, count, totalPages });
     }
 
     const filteredResults = new Map(compareResults);
@@ -119,7 +145,12 @@ export default class CompareTableControls extends React.Component {
         filteredResults.delete(testName);
       }
     }
-    this.setState({ results: filteredResults });
+
+    count = Math.ceil(filteredResults.size / 10);
+    totalPages = this.generatePages(count);
+    results = Array.from(filteredResults).slice(fromStart, toEnd);
+    results = new Map(results);
+    this.setState({ results, count, totalPages });
   };
 
   toggleRetriggerModal = () => {
@@ -177,6 +208,22 @@ export default class CompareTableControls extends React.Component {
     this.toggleRetriggerModal();
   };
 
+  getCurrentPages = () => {
+    const { page, totalPages } = this.state;
+    if (totalPages.length === 5 || !totalPages.length) {
+      return totalPages;
+    }
+    return totalPages.slice(page - 1, page + 4);
+  };
+
+  generatePages = (count) => {
+    const pages = [];
+    for (let num = 1; num <= count; num++) {
+      pages.push(num);
+    }
+    return pages;
+  };
+
   render() {
     const {
       frameworkName,
@@ -189,12 +236,8 @@ export default class CompareTableControls extends React.Component {
       onPermalinkClick,
       projects,
       history,
-      page,
-      count,
-      pageNums,
       validated,
     } = this.props;
-    const hasMorePages = () => pageNums.length > 0 && count !== 1;
     const {
       hideUncomparable,
       hideUncertain,
@@ -204,6 +247,8 @@ export default class CompareTableControls extends React.Component {
       showRetriggerModal,
       currentRetriggerRow,
       filteredText,
+      count,
+      page,
     } = this.state;
 
     const compareFilters = [
@@ -234,6 +279,10 @@ export default class CompareTableControls extends React.Component {
         stateName: 'showNoise',
       },
     ];
+
+    const pageNums = this.getCurrentPages();
+    const hasMorePages = () => pageNums.length > 0 && count !== 1;
+
     return (
       <Container fluid className="my-3 px-0">
         <RetriggerModal
@@ -312,8 +361,6 @@ CompareTableControls.propTypes = {
   notify: PropTypes.func.isRequired,
   projects: PropTypes.arrayOf(PropTypes.shape({})).isRequired,
   hasSubtests: PropTypes.bool,
-  page: PropTypes.number,
-  count: PropTypes.number,
   validated: PropTypes.shape({
     showOnlyImportant: PropTypes.string,
     showOnlyComparable: PropTypes.string,
@@ -338,6 +385,4 @@ CompareTableControls.defaultProps = {
   },
   showTestsWithNoise: null,
   onPermalinkClick,
-  page: 1,
-  count: 1,
 };
