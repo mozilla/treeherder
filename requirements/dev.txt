@@ -121,9 +121,9 @@ django-extensions==3.1.1 \
     --hash=sha256:674ad4c3b1587a884881824f40212d51829e662e52f85b012cd83d83fe1271d9 \
     --hash=sha256:9507f8761ee760748938fd8af766d0608fb2738cf368adfa1b2451f61c15ae35
     # via -r dev.in
-django==3.1.8 \
-    --hash=sha256:c348b3ddc452bf4b62361f0752f71a339140c777ebea3cdaaaa8fdb7f417a862 \
-    --hash=sha256:f8393103e15ec2d2d313ccbb95a3f1da092f9f58d74ac1c61ca2ac0436ae1eac
+django==3.1.12 \
+    --hash=sha256:a523d62b7ab2908f551dabc32b99017a86aa7784e32b761708e52be3dce6d35d \
+    --hash=sha256:dc41bf07357f1f4810c1c555b685cb51f780b41e37892d6cc92b89789f2847e1
     # via
     #   -r dev.in
     #   django-debug-toolbar
