@@ -65,6 +65,11 @@ export default class CompareTableControls extends React.Component {
     return filter === undefined || filter === null ? '' : filter;
   };
 
+  getDefaultFilterText = (validated) => {
+    const { filterText } = validated;
+    return filterText === undefined || filterText === null ? '' : filterText;
+  };
+
   updateFilterText = (filterText) => {
     this.setState({ filteredText: filterText }, () =>
       this.updateFilteredResults(),

@@ -62,6 +62,21 @@ const withValidation = ({ requiredParams }, verifyRevisions = true) => (
       history.push({ search: queryString });
     };
 
+    removeParams = (params) => {
+      const { history, location } = this.props;
+
+      const newParams = {
+        ...parseQueryParams(location.search),
+      };
+
+      params.forEach((param) => {
+        delete newParams[param];
+      });
+
+      const queryString = createQueryParams(newParams);
+      history.push({ search: queryString });
+    };
+
     errorMessage = (param, value) => `${param} ${value} is not valid`;
 
     findParam = (param, value, list, errors) => {
