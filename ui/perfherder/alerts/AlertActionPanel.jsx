@@ -118,7 +118,7 @@ export default class AlertActionPanel extends React.Component {
     const { showDownstreamModal, showReassignedModal } = this.state;
 
     return (
-      <div className="bg-lightgray pb-3">
+      <div className="bg-lightgray">
         <AlertModal
           toggle={() => this.toggle('showDownstreamModal')}
           showModal={showDownstreamModal}
