@@ -10,6 +10,7 @@ import {
   retriggerMultipleJobs,
 } from '../perf-helpers/helpers';
 import FilterControls from '../../shared/FilterControls';
+import { parseQueryParams } from '../../helpers/url';
 
 import CompareTable from './CompareTable';
 import RetriggerModal from './RetriggerModal';
@@ -24,7 +25,7 @@ export default class CompareTableControls extends React.Component {
       hideUncertain: convertParams(this.validated, 'showOnlyConfident'),
       showNoise: convertParams(this.validated, 'showOnlyNoise'),
       results: new Map(),
-      filterText: '',
+      filterText: this.getDefaultFilterText(this.validated),
       showRetriggerModal: false,
       currentRetriggerRow: {},
     };
@@ -40,6 +41,11 @@ export default class CompareTableControls extends React.Component {
       this.updateFilteredResults();
     }
   }
+
+  getDefaultFilterText = (validated) => {
+    const { filterText } = validated;
+    return filterText === undefined || filterText === null ? '' : filterText;
+  };
 
   updateFilterText = (filterText) => {
     this.setState({ filterText }, () => this.updateFilteredResults());
@@ -87,6 +93,8 @@ export default class CompareTableControls extends React.Component {
 
     const { compareResults } = this.props;
 
+    this.updateUrlParams();
+
     if (
       !filterText &&
       !hideUncomparable &&
@@ -131,6 +139,45 @@ export default class CompareTableControls extends React.Component {
       this.props,
     );
     this.toggleRetriggerModal();
+  };
+
+  updateUrlParams = () => {
+    const { updateParams } = this.props.validated;
+    const {
+      filterText,
+      hideUncomparable,
+      showImportant,
+      hideUncertain,
+      showNoise,
+    } = this.state;
+    const {
+      showOnlyComparable,
+      showOnlyImportant,
+      showOnlyConfident,
+      showOnlyNoise,
+      filter,
+    } = parseQueryParams(window.location.search);
+    const { removeParams } = this.props.validated;
+    const compareURLParams = {};
+    const paramsToRemove = [];
+
+    if (filterText !== '') compareURLParams.filter = filterText;
+    else if (filter) paramsToRemove.push('filter');
+
+    if (hideUncomparable) compareURLParams.showOnlyComparable = 1;
+    else if (showOnlyComparable) paramsToRemove.push('showOnlyComparable');
+
+    if (showImportant) compareURLParams.showOnlyImportant = 1;
+    else if (showOnlyImportant) paramsToRemove.push('showOnlyImportant');
+
+    if (hideUncertain) compareURLParams.showOnlyConfident = 1;
+    else if (showOnlyConfident) paramsToRemove.push('showOnlyConfident');
+
+    if (showNoise) compareURLParams.showOnlyNoise = 1;
+    else if (showOnlyNoise) paramsToRemove.push('showOnlyNoise');
+
+    updateParams(compareURLParams);
+    if (paramsToRemove.length !== 0) removeParams(paramsToRemove);
   };
 
   onModalOpen = (rowResults) => {
