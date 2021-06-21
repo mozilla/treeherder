@@ -1565,13 +1565,13 @@
     lodash-es "^4.17.11"
     nock "^12.0.3"
 
-"@pollyjs/adapter-puppeteer@^5.1.0":
-  version "5.1.0"
-  resolved "https://registry.yarnpkg.com/@pollyjs/adapter-puppeteer/-/adapter-puppeteer-5.1.0.tgz#c6a4ad35bfb3d1c1a41743e403b086e2a1490d0b"
-  integrity sha512-Ni5RZpyhnNuFE48l1AB9s/kaN/FaNlcd3VZO6iTyPsUi5d1dpiDDONcUKw98HhtIDCs710/DgFBy/2r67t1g7Q==
+"@pollyjs/adapter-puppeteer@5.1.1":
+  version "5.1.1"
+  resolved "https://registry.yarnpkg.com/@pollyjs/adapter-puppeteer/-/adapter-puppeteer-5.1.1.tgz#15243b68a24594c0ee65f35a5d194cf55dacccea"
+  integrity sha512-X8KspPRD5g8WGGR9rP7ArsyObzdRfNABQipsWBTLhV2FgQ0pMsqC0WIv2f734CG+GhM3c0KwXnRdbvtdy8enjQ==
   dependencies:
-    "@pollyjs/adapter" "^5.0.0"
-    "@pollyjs/utils" "^5.0.0"
+    "@pollyjs/adapter" "^5.1.1"
+    "@pollyjs/utils" "^5.1.1"
 
 "@pollyjs/adapter@^5.0.0":
   version "5.0.0"
