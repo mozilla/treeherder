@@ -159,7 +159,9 @@ for alias in DATABASES:
         'init_command': "SET sql_mode='STRICT_TRANS_TABLES'",
     }
     if connection_should_use_tls(DATABASES[alias]['HOST']):
-        # Use TLS when connecting to RDS.
+        # The default cert is for access to the stage replica; for accessing
+        # prototype this variable will need to reference deployment/gcp/ca-cert-prototype.pem.
+        # See treeherder docs for more details.
         DATABASES[alias]['OPTIONS']['ssl'] = {
             'ca': env("TLS_CERT_PATH", default='deployment/gcp/ca-cert.pem'),
         }

@@ -36,7 +36,7 @@ These are managed by cloudOps and any deletion of data or access to replica or p
 ### Granting access to the read-only replica
 
 One of the ways in which we allow users to [access Treeherder data](../accessing_data.md)
-is via direct access to our read-only MySQL replica. Mozilla's
+is via direct access to our read-only MySQL stage replica (only a restricted group of performance test team members and Treeherder maintainers should have access to the prototype database). Mozilla's
 ReDash instance use this approach. Only cloudOps can grant access.
 
 Generate the password like this:

@@ -7,7 +7,6 @@ that makes working on the docs locally much easier.
 
 ```console
 % pip install poetry
-% poetry install --extras "docs"
 % poetry run mkdocs serve
 ```
 

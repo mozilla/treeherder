@@ -105,10 +105,12 @@ other data sets available there.
 ## Direct database access
 
 If the use-cases above aren't sufficient or you're working on a fullstack Perfherder bug,
-we can provide read-only access to Treeherder's production MySQL replica.
-Please [file a bug] requesting that someone from the cloudOps team [grant access to the read-only replica].
+we can provide read-only access to Treeherder's stage MySQL replica.
+Please [file a bug] requesting that someone from the cloudOps team grant access to the read-only stage replica.
 Be sure to follow the instructions for [connecting to the databases](#connecting-to-databases) if you're using it
 outside of the docker container.
+
+For users with permission to access the prototype database locally, you'll need to export `TLS_CERT_PATH='deployment/gcp/ca-cert-prototype.pem'`, or pass it as an argument along with the DATABASE_URL, so that SSL connections are made with the appropriate certificate in the docker container.
 
 <!-- prettier-ignore -->
 !!! note
@@ -124,11 +126,13 @@ settings for each database, speeding up future use and reducing the chance of fo
 to enable TLS.
 
 When setting up a connection make sure to change the "Use SSL" option to `require` and set
-the "SSL CA File" option to point at the AWS public CA certificate, which for convenience can
-be used [directly from the Treeherder repository][gcp-cert].
+the "SSL CA File" option to point at the public CA certificate, which for convenience can
+be used directly from the Treeherder repository [here][gcp-cert] for the stage replica or
+[here][gcp-prototype-cert] for prototype.
 
 [MySQL workbench]: https://www.MySQL.com/products/workbench/
 [gcp-cert]: https://github.com/mozilla/treeherder/blob/master/deployment/gcp/ca-cert.pem
+[gcp-prototype-cert]: https://github.com/mozilla/treeherder/blob/master/deployment/gcp/ca-cert-prototype.pem
 
 ## Import performance data from upstream
 
