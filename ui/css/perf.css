@@ -537,3 +537,10 @@ li.pagination-active.active > button {
 .legend-docs a:visited {
   color: #337ab7;
 }
+
+.disabled-button {
+  border: 1px solid transparent;
+  box-sizing: border-box;
+  cursor: not-allowed;
+  opacity: 0.65;
+}

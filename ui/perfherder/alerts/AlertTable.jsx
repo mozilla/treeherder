@@ -16,7 +16,9 @@ import {
 } from '../perf-helpers/helpers';
 import TruncatedText from '../../shared/TruncatedText';
 import ErrorBoundary from '../../shared/ErrorBoundary';
-import SortButton from '../shared/SortButton';
+// import SortButton from '../shared/SortButton';
+import TableColumnHeader from '../shared/TableColumnHeader';
+import SortButtonDisabled from '../shared/SortButtonDisabled';
 import { tableSort, getNextSort, sort, sortTables } from '../perf-helpers/sort';
 
 import AlertTableRow from './AlertTableRow';
@@ -352,50 +354,48 @@ export default class AlertTable extends React.Component {
                     <th> </th>
                     <th> </th>
                     <th className="align-bottom">
-                      <SortButton
+                      <TableColumnHeader
                         column={tableConfig.Test}
                         onChangeSort={this.onChangeSort}
                       />
                     </th>
                     <th className="align-bottom">
-                      <SortButton
+                      <TableColumnHeader
                         column={tableConfig.Platform}
                         onChangeSort={this.onChangeSort}
                       />
                     </th>
                     <th className="align-bottom">
-                      {' '}
                       {tableConfig.TagsOptions.name}
+                      <SortButtonDisabled />
                     </th>
                     <th className="align-bottom">
-                      {' '}
-                      <SortButton
+                      <TableColumnHeader
                         column={tableConfig.PreviousValue}
                         onChangeSort={this.onChangeSort}
                       />
                     </th>
                     <th> </th>
                     <th className="align-bottom">
-                      {' '}
-                      <SortButton
+                      <TableColumnHeader
                         column={tableConfig.NewValue}
                         onChangeSort={this.onChangeSort}
                       />
                     </th>
                     <th className="align-bottom">
-                      <SortButton
+                      <TableColumnHeader
                         column={tableConfig.AbsoluteDifference}
                         onChangeSort={this.onChangeSort}
                       />
                     </th>
                     <th className="align-bottom">
-                      <SortButton
+                      <TableColumnHeader
                         column={tableConfig.Magnitude}
                         onChangeSort={this.onChangeSort}
                       />
                     </th>
                     <th className="align-bottom">
-                      <SortButton
+                      <TableColumnHeader
                         column={tableConfig.Confidence}
                         onChangeSort={this.onChangeSort}
                       />
