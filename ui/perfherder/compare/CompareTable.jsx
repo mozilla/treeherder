@@ -8,7 +8,6 @@ import { getHashBasedId, getSplitTestTitle } from '../perf-helpers/helpers';
 import { testDocumentationFrameworks } from '../perf-helpers/constants';
 import { hashFunction } from '../../helpers/utils';
 import { tableSort, getNextSort, sort, sortTables } from '../perf-helpers/sort';
-// import SortButton from '../shared/SortButton';
 import TableColumnHeader from '../shared/TableColumnHeader';
 
 import RetriggerButton from './RetriggerButton';

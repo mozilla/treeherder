@@ -592,7 +592,7 @@ test('No tags are displayed if there is no active tag', async () => {
 // TODO should write tests for alert summary dropdown menu actions performed in StatusDropdown
 // (adding notes or marking as 'fixed', etc)
 
-test('table data can be sorted in descending order by test and platform', async () => {
+test(`table data can be sorted in descending order by 'Test'`, async () => {
   const {
     getAllByLabelText,
     getByTestId,
@@ -613,7 +613,7 @@ test('table data can be sorted in descending order by test and platform', async 
   expect(alertTableRows[2]).toContainElement(alert2);
 
   const sortByTest = await waitFor(() =>
-    getAllByTitle('Sorted in default order by test and platform'),
+    getAllByTitle('Sorted in default order by test'),
   );
 
   // firing the sort button once triggers ascending sort
@@ -626,6 +626,50 @@ test('table data can be sorted in descending order by test and platform', async 
   expect(alertTableRows[0]).toContainElement(alert2);
   expect(alertTableRows[1]).toContainElement(alert1);
   expect(alertTableRows[2]).toContainElement(alert3);
+});
+
+test(`table data can be sorted in ascending order by 'Platform'`, async () => {
+  const {
+    getByTestId,
+    getAllByLabelText,
+    getAllByTitle,
+  } = alertsViewControls();
+
+  let alertTableRows = await waitFor(() =>
+    getAllByLabelText('Alert table row'),
+  );
+
+  const alert1 = await waitFor(() => getByTestId('69344'));
+  const alert2 = await waitFor(() => getByTestId('69345'));
+  const alert3 = await waitFor(() => getByTestId('69346'));
+
+  // alerts are sorted in a default manner without clicking on sort buttons
+  expect(alertTableRows[0]).toContainElement(alert3);
+  expect(alertTableRows[1]).toContainElement(alert1);
+  expect(alertTableRows[2]).toContainElement(alert2);
+
+  const sortByPlatform = await waitFor(() =>
+    getAllByTitle('Sorted in default order by platform'),
+  );
+
+  // firing the sort button once triggers ascending sort
+  fireEvent.click(sortByPlatform[0]);
+
+  alertTableRows = await waitFor(() => getAllByLabelText('Alert table row'));
+
+  expect(alertTableRows[0]).toContainElement(alert1);
+  expect(alertTableRows[1]).toContainElement(alert3);
+  expect(alertTableRows[2]).toContainElement(alert2);
+});
+
+test(`table data cannot be sorted by 'Tags & Options'`, async () => {
+  const { getAllByTitle } = alertsViewControls();
+
+  const sortByTags = await waitFor(() =>
+    getAllByTitle('Sorted by tags & options disabled'),
+  );
+
+  expect(sortByTags[0]).toHaveClass('disabled-button');
 });
 
 test(`table data can be sorted in ascending order by 'Confidence'`, async () => {
@@ -662,40 +706,6 @@ test(`table data can be sorted in ascending order by 'Confidence'`, async () => 
   expect(alertTableRows[2]).toContainElement(alert3);
 });
 
-test(`table data can be sorted in ascending order by 'Tags'`, async () => {
-  const {
-    getAllByLabelText,
-    getByTestId,
-    getAllByTitle,
-  } = alertsViewControls();
-
-  let alertTableRows = await waitFor(() =>
-    getAllByLabelText('Alert table row'),
-  );
-
-  const alert1 = await waitFor(() => getByTestId('69344'));
-  const alert2 = await waitFor(() => getByTestId('69345'));
-  const alert3 = await waitFor(() => getByTestId('69346'));
-
-  // alerts are sorted in a default manner without clicking on sort buttons
-  expect(alertTableRows[0]).toContainElement(alert3);
-  expect(alertTableRows[1]).toContainElement(alert1);
-  expect(alertTableRows[2]).toContainElement(alert2);
-
-  const sortByTags = await waitFor(() =>
-    getAllByTitle('Sorted in default order by tags'),
-  );
-
-  // firing the sort button once triggers ascending sort
-  fireEvent.click(sortByTags[0]);
-
-  alertTableRows = await waitFor(() => getAllByLabelText('Alert table row'));
-
-  expect(alertTableRows[0]).toContainElement(alert2);
-  expect(alertTableRows[1]).toContainElement(alert1);
-  expect(alertTableRows[2]).toContainElement(alert3);
-});
-
 test('test data can be sorted only by one column', async () => {
   const {
     getAllByLabelText,
@@ -716,12 +726,12 @@ test('test data can be sorted only by one column', async () => {
   expect(alertTableRows[1]).toContainElement(alert1);
   expect(alertTableRows[2]).toContainElement(alert2);
 
-  const sortByTags = await waitFor(() =>
-    getAllByTitle('Sorted in default order by tags'),
+  const sortByPlatform = await waitFor(() =>
+    getAllByTitle('Sorted in default order by platform'),
   );
   // firing the sort button once triggers ascending sort
-  fireEvent.click(sortByTags[0]);
-  expect(sortByTags[0].title).toBe('Sorted in ascending order by tags');
+  fireEvent.click(sortByPlatform[0]);
+  expect(sortByPlatform[0].title).toBe('Sorted in ascending order by platform');
 
   const sortByConfidence = await waitFor(() =>
     getAllByTitle('Sorted in default order by confidence'),
@@ -730,7 +740,7 @@ test('test data can be sorted only by one column', async () => {
   expect(sortByConfidence[0].title).toBe(
     'Sorted in ascending order by confidence',
   );
-  expect(sortByTags[0].title).toBe('Sorted in default order by tags');
+  expect(sortByPlatform[0].title).toBe('Sorted in default order by platform');
 
   alertTableRows = await waitFor(() => getAllByLabelText('Alert table row'));
 

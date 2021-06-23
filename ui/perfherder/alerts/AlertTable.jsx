@@ -16,7 +16,6 @@ import {
 } from '../perf-helpers/helpers';
 import TruncatedText from '../../shared/TruncatedText';
 import ErrorBoundary from '../../shared/ErrorBoundary';
-// import SortButton from '../shared/SortButton';
 import TableColumnHeader from '../shared/TableColumnHeader';
 import SortButtonDisabled from '../shared/SortButtonDisabled';
 import { tableSort, getNextSort, sort, sortTables } from '../perf-helpers/sort';
@@ -367,7 +366,7 @@ export default class AlertTable extends React.Component {
                     </th>
                     <th className="align-bottom">
                       {tableConfig.TagsOptions.name}
-                      <SortButtonDisabled />
+                      <SortButtonDisabled column={tableConfig.TagsOptions} />
                     </th>
                     <th className="align-bottom">
                       <TableColumnHeader
