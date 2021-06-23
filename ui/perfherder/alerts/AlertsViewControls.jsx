@@ -1,14 +1,49 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import { Row } from 'reactstrap';
+import { Row, Button, Container } from 'reactstrap';
 
 import FilterControls from '../../shared/FilterControls';
-import { summaryStatusMap } from '../perf-helpers/constants';
+import { summaryStatusMap, scrollTypes } from '../perf-helpers/constants';
 
 import AlertTable from './AlertTable';
 import PaginationGroup from './Pagination';
 
 export default class AlertsViewControls extends React.Component {
+  constructor(props) {
+    super(props);
+    this.alertsRef = new Array(this.props.alertSummaries.length)
+      .fill(null)
+      .map(() => React.createRef());
+    this.state = {
+      currentAlert: -1,
+      alertsLength: this.props.alertSummaries.length,
+      disableButtons: {
+        prev: true,
+        next: false,
+      },
+    };
+  }
+
+  componentDidUpdate(prevProps) {
+    const { alertSummaries } = this.props;
+    const alertsLength = alertSummaries.length;
+
+    if (alertSummaries !== prevProps.alertSummaries) {
+      this.alertsRef = new Array(alertsLength)
+        .fill(null)
+        .map(() => React.createRef());
+      // eslint-disable-next-line react/no-did-update-set-state
+      this.setState({
+        currentAlert: -1,
+        alertsLength,
+        disableButtons: {
+          prev: true,
+          next: false,
+        },
+      });
+    }
+  }
+
   updateFilterText = (filterText) => {
     this.props.setFiltersState({ filterText });
   };
@@ -35,7 +70,36 @@ export default class AlertsViewControls extends React.Component {
     setFiltersState({ framework }, this.fetchAlertSummaries);
   };
 
+  updateCurrentAlert = async (currentAlert) => {
+    const { disableButtons, alertsLength } = this.state;
+    disableButtons.next = currentAlert === alertsLength - 1;
+    disableButtons.prev = currentAlert === 0;
+
+    this.setState({ currentAlert, disableButtons }, () => {
+      this.alertsRef[currentAlert].current.scrollIntoView({
+        behavior: 'smooth',
+        block: 'start',
+      });
+    });
+  };
+
+  onScrollAlert = (type) => {
+    const { alertsLength } = this.state;
+    let { currentAlert } = this.state;
+
+    if (type === scrollTypes.next && currentAlert !== alertsLength - 1) {
+      currentAlert += 1;
+    }
+
+    if (type === scrollTypes.prev && currentAlert !== 0) {
+      currentAlert -= 1;
+    }
+
+    this.updateCurrentAlert(currentAlert);
+  };
+
   render() {
+    const { disableButtons } = this.state;
     const {
       alertSummaries,
       fetchAlertSummaries,
@@ -102,6 +166,31 @@ export default class AlertsViewControls extends React.Component {
 
     return (
       <React.Fragment>
+        {alertSummaries.length > 1 && (
+          <Container className="sticky-scroll-nav-top max-width-default position-fixed mb-4 p-0 pr-4">
+            <Container className="bg-white max-width-default p-0 pt-5 pb-1">
+              <div className="d-flex justify-content-end mb-1 mr-2">
+                <Button
+                  className="mr-2"
+                  color="info"
+                  onClick={() => this.onScrollAlert(scrollTypes.prev)}
+                  disabled={disableButtons.prev}
+                  data-testid="scroll-prev-alert"
+                >
+                  Previous alert
+                </Button>
+                <Button
+                  color="info"
+                  onClick={() => this.onScrollAlert(scrollTypes.next)}
+                  disabled={disableButtons.next}
+                  data-testid="scroll-next-alert"
+                >
+                  Next alert
+                </Button>
+              </div>
+            </Container>
+          </Container>
+        )}
         <FilterControls
           dropdownOptions={isListMode ? alertDropdowns : []}
           filterOptions={alertCheckboxes}
@@ -123,20 +212,21 @@ export default class AlertsViewControls extends React.Component {
             )
           : null}
         {alertSummaries.length > 0 &&
-          alertSummaries.map((alertSummary) => (
-            <AlertTable
-              filters={{
-                filterText,
-                hideImprovements,
-                hideDownstream,
-                hideAssignedToOthers,
-              }}
-              key={alertSummary.id}
-              alertSummary={alertSummary}
-              fetchAlertSummaries={fetchAlertSummaries}
-              user={user}
-              {...this.props}
-            />
+          alertSummaries.map((alertSummary, index) => (
+            <div key={alertSummary.id} ref={this.alertsRef[index]}>
+              <AlertTable
+                filters={{
+                  filterText,
+                  hideImprovements,
+                  hideDownstream,
+                  hideAssignedToOthers,
+                }}
+                alertSummary={alertSummary}
+                fetchAlertSummaries={fetchAlertSummaries}
+                user={user}
+                {...this.props}
+              />
+            </div>
           ))}
         {pageNums
           ? hasMorePages() && (
