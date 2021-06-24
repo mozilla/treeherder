@@ -309,7 +309,8 @@ th {
   transition: color 150ms ease-in-out;
 }
 
-.compare-table .result-links a {
+.compare-table .result-links a,
+.compare-table .subtest-header a {
   color: #23527c;
 }
 
@@ -335,6 +336,13 @@ th {
   position: sticky;
   bottom: 0;
   z-index: 900;
+}
+
+.sticky-scroll-nav-top {
+  position: -webkit-sticky;
+  position: sticky;
+  top: 0;
+  z-index: 998;
 }
 
 .alerts-container {
@@ -530,4 +538,9 @@ li.pagination-active.active > button {
 .table-graphs-view .rt-td:hover .job-links,
 .table-graphs-view .rt-td:focus-within .job-links {
   opacity: 1;
+}
+
+.alert-docs a:visited,
+.legend-docs a:visited {
+  color: #337ab7;
 }

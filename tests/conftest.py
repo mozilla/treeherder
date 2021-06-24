@@ -4,15 +4,14 @@ import json
 import os
 import platform
 from os.path import join, dirname
+from unittest.mock import MagicMock
 
 import kombu
 import pytest
 import responses
-import taskcluster
 from _pytest.monkeypatch import MonkeyPatch
 from django.conf import settings
 from rest_framework.test import APIClient
-from unittest.mock import MagicMock
 
 from treeherder.etl.jobs import store_job_data
 from treeherder.etl.push import store_push_data
@@ -24,6 +23,7 @@ from treeherder.model.models import (
     Push,
     TextLogErrorMetadata,
     User,
+    MachinePlatform,
 )
 from treeherder.perf.models import (
     IssueTracker,
@@ -34,6 +34,7 @@ from treeherder.perf.models import (
     PerformanceSignature,
     PerformanceTag,
 )
+from treeherder.services import taskcluster
 from treeherder.services.pulse.exchange import get_exchange
 
 IS_WINDOWS = "windows" in platform.system().lower()
@@ -107,10 +108,18 @@ def fixture_create_push():
     """Return a function to create a push"""
 
     def create(
-        repository, revision='4c45a777949168d16c03a4cba167678b7ab65f76', author='foo@bar.com'
+        repository,
+        revision='4c45a777949168d16c03a4cba167678b7ab65f76',
+        author='foo@bar.com',
+        time=None,
+        explicit_id=None,
     ):
         return Push.objects.create(
-            repository=repository, revision=revision, author=author, time=datetime.datetime.now()
+            id=explicit_id,
+            repository=repository,
+            revision=revision,
+            author=author,
+            time=time or datetime.datetime.now(),
         )
 
     return create
@@ -257,12 +266,25 @@ def mock_log_parser(monkeypatch):
 
 
 @pytest.fixture
-def mock_taskcluster_notify(monkeypatch):
-    monkeypatch.setattr(taskcluster, 'Notify', MagicMock())
+def taskcluster_notify_mock(monkeypatch):
+    mock = MagicMock()
+
+    def mockreturn(*arg, **kwargs):
+        nonlocal mock
+        return mock
+
+    monkeypatch.setattr(taskcluster, 'notify_client_factory', mockreturn)
+    return mock
 
 
 @pytest.fixture
-def mock_tc_prod_credentials(monkeypatch):
+def mock_tc_prod_backfill_credentials(monkeypatch):
+    monkeypatch.setattr(settings, 'PERF_SHERIFF_BOT_CLIENT_ID', "client_id")
+    monkeypatch.setattr(settings, 'PERF_SHERIFF_BOT_ACCESS_TOKEN', "access_token")
+
+
+@pytest.fixture
+def mock_tc_prod_notify_credentials(monkeypatch):
     monkeypatch.setattr(settings, 'NOTIFY_CLIENT_ID', "client_id")
     monkeypatch.setattr(settings, 'NOTIFY_ACCESS_TOKEN', "access_token")
 
@@ -477,20 +499,26 @@ def test_perf_framework(transactional_db):
 
 
 @pytest.fixture
-def test_perf_signature(test_repository, test_perf_framework):
-    from treeherder.model.models import MachinePlatform, Option, OptionCollection
+def test_perf_signature(test_repository, test_perf_framework) -> PerformanceSignature:
+    windows_7_platform = MachinePlatform.objects.create(
+        os_name='win', platform='win7', architecture='x86'
+    )
+    return create_perf_signature(test_perf_framework, test_repository, windows_7_platform)
 
+
+def create_perf_signature(
+    perf_framework, repository, machine_platform: MachinePlatform
+) -> PerformanceSignature:
     option = Option.objects.create(name='opt')
     option_collection = OptionCollection.objects.create(
         option_collection_hash='my_option_hash', option=option
     )
-    platform = MachinePlatform.objects.create(os_name='win', platform='win7', architecture='x86')
 
-    signature = PerformanceSignature.objects.create(
-        repository=test_repository,
+    return PerformanceSignature.objects.create(
+        repository=repository,
         signature_hash=(40 * 't'),
-        framework=test_perf_framework,
-        platform=platform,
+        framework=perf_framework,
+        platform=machine_platform,
         option_collection=option_collection,
         suite='mysuite',
         test='mytest',
@@ -501,7 +529,6 @@ def test_perf_signature(test_repository, test_perf_framework):
         measurement_unit='ms',
         last_updated=datetime.datetime.now(),
     )
-    return signature
 
 
 @pytest.fixture
@@ -517,6 +544,23 @@ def test_perf_signature_2(test_perf_signature):
         has_subtests=test_perf_signature.has_subtests,
         extra_options=test_perf_signature.extra_options,
         last_updated=datetime.datetime.now(),
+    )
+
+
+@pytest.fixture
+def test_stalled_data_signature(test_perf_signature):
+    stalled_data_timestamp = datetime.datetime.now() - datetime.timedelta(days=120)
+    return PerformanceSignature.objects.create(
+        repository=test_perf_signature.repository,
+        signature_hash=(20 * 't3'),
+        framework=test_perf_signature.framework,
+        platform=test_perf_signature.platform,
+        option_collection=test_perf_signature.option_collection,
+        suite='mysuite3',
+        test='mytest3',
+        has_subtests=test_perf_signature.has_subtests,
+        extra_options=test_perf_signature.extra_options,
+        last_updated=stalled_data_timestamp,
     )
 
 
@@ -655,44 +699,36 @@ def test_perf_alert_summary_with_bug(
 
 
 @pytest.fixture
-def test_perf_alert(test_perf_signature, test_perf_alert_summary):
-    return PerformanceAlert.objects.create(
-        summary=test_perf_alert_summary,
-        series_signature=test_perf_signature,
-        is_regression=True,
-        amount_pct=0.5,
+def test_perf_alert(test_perf_signature, test_perf_alert_summary) -> PerformanceAlert:
+    return create_perf_alert(summary=test_perf_alert_summary, series_signature=test_perf_signature)
+
+
+def create_perf_alert(**alert_properties) -> PerformanceAlert:
+    defaults = dict(
         amount_abs=50.0,
-        prev_value=100.0,
+        amount_pct=0.5,
+        is_regression=True,
         new_value=150.0,
+        prev_value=100.0,
         t_value=20.0,
+    )
+    alert_properties = {**defaults, **alert_properties}
+    return PerformanceAlert.objects.create(**alert_properties)
+
+
+@pytest.fixture
+def test_conflicting_perf_alert(test_perf_signature, test_perf_alert_summary_2) -> PerformanceAlert:
+    return create_perf_alert(
+        summary=test_perf_alert_summary_2, series_signature=test_perf_signature
     )
 
 
 @pytest.fixture
-def test_conflicting_perf_alert(test_perf_signature, test_perf_alert_summary_2):
-    return PerformanceAlert.objects.create(
-        summary=test_perf_alert_summary_2,
-        series_signature=test_perf_signature,
-        is_regression=True,
-        amount_pct=0.5,
-        amount_abs=50.0,
-        prev_value=100.0,
-        new_value=150.0,
-        t_value=20.0,
-    )
-
-
-@pytest.fixture
-def test_perf_alert_2(test_perf_alert, test_perf_signature_2, test_perf_alert_summary_2):
-    return PerformanceAlert.objects.create(
-        summary=test_perf_alert_summary_2,
-        series_signature=test_perf_signature_2,
-        is_regression=True,
-        amount_pct=0.5,
-        amount_abs=50.0,
-        prev_value=100.0,
-        new_value=150.0,
-        t_value=20.0,
+def test_perf_alert_2(
+    test_perf_alert, test_perf_signature_2, test_perf_alert_summary_2
+) -> PerformanceAlert:
+    return create_perf_alert(
+        summary=test_perf_alert_summary_2, series_signature=test_perf_signature_2
     )
 
 

@@ -1,6 +1,6 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import { Button, Row, Col, Input } from 'reactstrap';
+import { Button, Row, Col } from 'reactstrap';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faRedo } from '@fortawesome/free-solid-svg-icons';
 import sortBy from 'lodash/sortBy';
@@ -20,7 +20,6 @@ class PlatformConfig extends React.PureComponent {
     this.state = {
       detailsShowing: false,
       selectedTask: null,
-      isTestSelected: false,
     };
   }
 
@@ -29,39 +28,23 @@ class PlatformConfig extends React.PureComponent {
       selectedJobName,
       selectedTaskId,
       jobs,
-      failure: { jobName, testName },
+      jobName,
+      testName,
     } = this.props;
 
     this.setState({
       detailsShowing: selectedJobName === `${testName} ${jobName}`,
       selectedTask: selectedTaskId
-        ? jobs[jobName].filter((job) => job.id === parseInt(selectedTaskId, 10))
-            .length > 0 &&
-          jobs[jobName].filter(
-            (job) => job.id === parseInt(selectedTaskId, 10),
-          )[0]
+        ? jobs.filter((job) => job.id === parseInt(selectedTaskId, 10)).length >
+            0 &&
+          jobs.filter((job) => job.id === parseInt(selectedTaskId, 10))[0]
         : null,
     });
   }
 
-  componentDidUpdate(prevProps) {
-    const { allPlatformsSelected } = this.props;
-    const { isTestSelected } = this.props;
-
-    if (
-      prevProps.allPlatformsSelected !== allPlatformsSelected &&
-      allPlatformsSelected !== isTestSelected
-    ) {
-      // eslint-disable-next-line react/no-did-update-set-state
-      this.setState({ isTestSelected: allPlatformsSelected });
-    }
-  }
-
   setSelectedTask = (task) => {
     const { selectedTask } = this.state;
-    const {
-      failure: { jobName, testName },
-    } = this.props;
+    const { jobName, testName } = this.props;
 
     if (selectedTask === task || !task) {
       this.props.updateParamsAndState({
@@ -78,16 +61,6 @@ class PlatformConfig extends React.PureComponent {
     }
   };
 
-  selectTest = (e) => {
-    const { addSelectedTest, removeSelectedTest, failure } = this.props;
-
-    if (e.target.checked) addSelectedTest(failure);
-    else removeSelectedTest(failure);
-    this.setState((prevState) => ({
-      isTestSelected: !prevState.isTestSelected,
-    }));
-  };
-
   retriggerTask = async (task) => {
     const { notify, currentRepo } = this.props;
 
@@ -95,52 +68,20 @@ class PlatformConfig extends React.PureComponent {
   };
 
   render() {
-    const { failure, groupedBy, currentRepo, jobs } = this.props;
-    const {
-      testName,
-      jobName,
-      key,
-      tier,
-      jobGroupSymbol,
-      jobSymbol,
-      isInvestigated,
-    } = failure;
-    const testJobs = jobs[jobName];
-    const { detailsShowing, selectedTask, isTestSelected } = this.state;
-    const taskList = sortBy(testJobs, ['start_time']);
+    const { currentRepo, jobName, jobs, children } = this.props;
+    const { detailsShowing, selectedTask } = this.state;
+
+    const taskList = sortBy(jobs, ['start_time']);
     taskList.forEach((task) => addAggregateFields(task));
 
     return (
       <Row
         className="ml-5 pt-2 mr-1"
-        key={key}
+        key={jobName}
         style={{ background: '#f2f2f2' }}
       >
         <Row className="ml-2 pl-2 w-100 mb-2 justify-content-between">
-          <Col xs="auto">
-            <Input
-              type="checkbox"
-              checked={isTestSelected}
-              onChange={this.selectTest}
-              aria-label={`Select ${jobName}`}
-            />
-          </Col>
-          <Col>
-            <Row>
-              <span
-                id={key}
-                className={`px-2 text-darker-secondary font-weight-500 ${
-                  isInvestigated && 'investigated'
-                }`}
-              >
-                <span>{groupedBy !== 'path' && `${testName} `}</span>
-                <span>{jobName}</span>
-                {tier > 1 && (
-                  <span className="ml-1 small text-muted">[tier-{tier}]</span>
-                )}
-              </span>
-            </Row>
-          </Col>
+          {children}
           <Col className="ml-2">
             {taskList.map((task, idx) => {
               const { id, result, state, start_time: startTime } = task;
@@ -165,9 +106,10 @@ class PlatformConfig extends React.PureComponent {
                       <span className="text-nowrap flex">
                         {`${
                           state === 'completed' ? result : state
-                        } - ${jobGroupSymbol}(${jobSymbol}) - ${new Date(
-                          startTime,
-                        ).toLocaleString('en-US', shortDateFormat)}`}
+                        } - ${new Date(startTime).toLocaleString(
+                          'en-US',
+                          shortDateFormat,
+                        )}`}
                         <br />
                         Click to see failure lines and artifacts
                       </span>
@@ -203,20 +145,15 @@ class PlatformConfig extends React.PureComponent {
 }
 
 PlatformConfig.propTypes = {
-  failure: PropTypes.shape({
-    testName: PropTypes.string.isRequired,
-    jobName: PropTypes.string.isRequired,
-    jobSymbol: PropTypes.string.isRequired,
-    confidence: PropTypes.number.isRequired,
-    platform: PropTypes.string.isRequired,
-    config: PropTypes.string.isRequired,
-    suggestedClassification: PropTypes.string.isRequired,
-    key: PropTypes.string.isRequired,
-  }).isRequired,
+  testName: PropTypes.string,
+  jobName: PropTypes.string.isRequired,
   currentRepo: PropTypes.shape({}).isRequired,
   notify: PropTypes.func.isRequired,
-  groupedBy: PropTypes.string.isRequired,
   updateParamsAndState: PropTypes.func.isRequired,
+};
+
+PlatformConfig.defaultProps = {
+  testName: '',
 };
 
 export default PlatformConfig;

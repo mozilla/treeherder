@@ -18,7 +18,7 @@ import {
   endpoints,
   filterText,
   notSupportedAlertFiltersMessage,
-} from '../../../../ui/perfherder/constants';
+} from '../../../../ui/perfherder/perf-helpers/constants';
 import repos from '../../mock/repositories';
 import { getApiUrl } from '../../../../ui/helpers/url';
 import AlertsView from '../../../../ui/perfherder/alerts/AlertsView';
@@ -384,7 +384,7 @@ test('selecting the alert summary checkbox then deselecting one alert only updat
 
   // only the selected alert has been updated
   expect(modifyAlertSpy).toHaveBeenCalled();
-  expect(modifyAlertSpy.mock.results).toHaveLength(1);
+  expect(modifyAlertSpy.mock.results).toHaveLength(2);
   expect(modifyAlertSpy.mock.results[0].value.data.id).toEqual(69345);
   expect(modifyAlertSpy.mock.results[0].value).toStrictEqual({
     data: {
@@ -591,3 +591,176 @@ test('No tags are displayed if there is no active tag', async () => {
 
 // TODO should write tests for alert summary dropdown menu actions performed in StatusDropdown
 // (adding notes or marking as 'fixed', etc)
+
+test('table data can be sorted in descending order by test and platform', async () => {
+  const {
+    getAllByLabelText,
+    getByTestId,
+    getAllByTitle,
+  } = alertsViewControls();
+
+  let alertTableRows = await waitFor(() =>
+    getAllByLabelText('Alert table row'),
+  );
+
+  const alert1 = await waitFor(() => getByTestId('69344'));
+  const alert2 = await waitFor(() => getByTestId('69345'));
+  const alert3 = await waitFor(() => getByTestId('69346'));
+
+  // alerts are sorted in a default manner without clicking on sort buttons
+  expect(alertTableRows[0]).toContainElement(alert3);
+  expect(alertTableRows[1]).toContainElement(alert1);
+  expect(alertTableRows[2]).toContainElement(alert2);
+
+  const sortByTest = await waitFor(() =>
+    getAllByTitle('Sorted in default order by test and platform'),
+  );
+
+  // firing the sort button once triggers ascending sort
+  fireEvent.click(sortByTest[0]);
+  // firing the sort button twice triggers descending sort
+  fireEvent.click(sortByTest[0]);
+
+  alertTableRows = await waitFor(() => getAllByLabelText('Alert table row'));
+
+  expect(alertTableRows[0]).toContainElement(alert2);
+  expect(alertTableRows[1]).toContainElement(alert1);
+  expect(alertTableRows[2]).toContainElement(alert3);
+});
+
+test(`table data can be sorted in ascending order by 'Confidence'`, async () => {
+  const {
+    getAllByLabelText,
+    getByTestId,
+    getAllByTitle,
+  } = alertsViewControls();
+
+  let alertTableRows = await waitFor(() =>
+    getAllByLabelText('Alert table row'),
+  );
+
+  const alert1 = await waitFor(() => getByTestId('69344'));
+  const alert2 = await waitFor(() => getByTestId('69345'));
+  const alert3 = await waitFor(() => getByTestId('69346'));
+
+  // alerts are sorted in a default manner without clicking on sort buttons
+  expect(alertTableRows[0]).toContainElement(alert3);
+  expect(alertTableRows[1]).toContainElement(alert1);
+  expect(alertTableRows[2]).toContainElement(alert2);
+
+  const sortByConfidence = await waitFor(() =>
+    getAllByTitle('Sorted in default order by confidence'),
+  );
+
+  // firing the sort button once triggers ascending sort
+  fireEvent.click(sortByConfidence[0]);
+
+  alertTableRows = await waitFor(() => getAllByLabelText('Alert table row'));
+
+  expect(alertTableRows[0]).toContainElement(alert2);
+  expect(alertTableRows[1]).toContainElement(alert1);
+  expect(alertTableRows[2]).toContainElement(alert3);
+});
+
+test(`table data can be sorted in ascending order by 'Tags'`, async () => {
+  const {
+    getAllByLabelText,
+    getByTestId,
+    getAllByTitle,
+  } = alertsViewControls();
+
+  let alertTableRows = await waitFor(() =>
+    getAllByLabelText('Alert table row'),
+  );
+
+  const alert1 = await waitFor(() => getByTestId('69344'));
+  const alert2 = await waitFor(() => getByTestId('69345'));
+  const alert3 = await waitFor(() => getByTestId('69346'));
+
+  // alerts are sorted in a default manner without clicking on sort buttons
+  expect(alertTableRows[0]).toContainElement(alert3);
+  expect(alertTableRows[1]).toContainElement(alert1);
+  expect(alertTableRows[2]).toContainElement(alert2);
+
+  const sortByTags = await waitFor(() =>
+    getAllByTitle('Sorted in default order by tags'),
+  );
+
+  // firing the sort button once triggers ascending sort
+  fireEvent.click(sortByTags[0]);
+
+  alertTableRows = await waitFor(() => getAllByLabelText('Alert table row'));
+
+  expect(alertTableRows[0]).toContainElement(alert2);
+  expect(alertTableRows[1]).toContainElement(alert1);
+  expect(alertTableRows[2]).toContainElement(alert3);
+});
+
+test('test data can be sorted only by one column', async () => {
+  const {
+    getAllByLabelText,
+    getByTestId,
+    getAllByTitle,
+  } = alertsViewControls();
+
+  let alertTableRows = await waitFor(() =>
+    getAllByLabelText('Alert table row'),
+  );
+
+  const alert1 = await waitFor(() => getByTestId('69344'));
+  const alert2 = await waitFor(() => getByTestId('69345'));
+  const alert3 = await waitFor(() => getByTestId('69346'));
+
+  // alerts are sorted in a default manner without clicking on sort buttons
+  expect(alertTableRows[0]).toContainElement(alert3);
+  expect(alertTableRows[1]).toContainElement(alert1);
+  expect(alertTableRows[2]).toContainElement(alert2);
+
+  const sortByTags = await waitFor(() =>
+    getAllByTitle('Sorted in default order by tags'),
+  );
+  // firing the sort button once triggers ascending sort
+  fireEvent.click(sortByTags[0]);
+  expect(sortByTags[0].title).toBe('Sorted in ascending order by tags');
+
+  const sortByConfidence = await waitFor(() =>
+    getAllByTitle('Sorted in default order by confidence'),
+  );
+  fireEvent.click(sortByConfidence[0]);
+  expect(sortByConfidence[0].title).toBe(
+    'Sorted in ascending order by confidence',
+  );
+  expect(sortByTags[0].title).toBe('Sorted in default order by tags');
+
+  alertTableRows = await waitFor(() => getAllByLabelText('Alert table row'));
+
+  expect(alertTableRows[0]).toContainElement(alert2);
+  expect(alertTableRows[1]).toContainElement(alert1);
+  expect(alertTableRows[2]).toContainElement(alert3);
+});
+
+test('test previous alert button should be disable at first', async () => {
+  const { getByTestId } = alertsViewControls();
+
+  const prevScrollButton = await waitFor(() =>
+    getByTestId('scroll-prev-alert'),
+  );
+
+  expect(prevScrollButton).toBeDisabled();
+});
+
+test('test next alert button should be disable when reaching the last alert', async () => {
+  const { getByTestId } = alertsViewControls();
+  Element.prototype.scrollIntoView = jest.fn();
+
+  let nextScrollButton = await waitFor(() => getByTestId('scroll-next-alert'));
+
+  expect(nextScrollButton).not.toBeDisabled();
+
+  fireEvent.click(nextScrollButton);
+  fireEvent.click(nextScrollButton);
+
+  nextScrollButton = await waitFor(() => getByTestId('scroll-next-alert'));
+
+  expect(nextScrollButton).toBeDisabled();
+});

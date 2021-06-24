@@ -7,8 +7,8 @@ import UncontrolledDropdown from 'reactstrap/lib/UncontrolledDropdown';
 import Input from 'reactstrap/lib/Input';
 import Label from 'reactstrap/lib/Label';
 
-import { alertStatusMap } from '../constants';
-import { getStatus } from '../helpers';
+import { alertStatusMap } from '../perf-helpers/constants';
+import { getStatus } from '../perf-helpers/helpers';
 
 class SelectAlertsDropdown extends React.Component {
   status = {

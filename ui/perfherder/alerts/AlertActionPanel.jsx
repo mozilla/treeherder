@@ -10,8 +10,8 @@ import {
 } from '@fortawesome/free-solid-svg-icons';
 
 import SimpleTooltip from '../../shared/SimpleTooltip';
-import { alertStatusMap } from '../constants';
-import { modifyAlert } from '../helpers';
+import { alertStatusMap } from '../perf-helpers/constants';
+import { modifyAlert } from '../perf-helpers/helpers';
 import { processErrors } from '../../helpers/http';
 
 import AlertModal from './AlertModal';

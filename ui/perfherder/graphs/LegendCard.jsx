@@ -4,8 +4,11 @@ import { Badge, Button, FormGroup, Input } from 'reactstrap';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faTimes } from '@fortawesome/free-solid-svg-icons';
 
-import { getFrameworkName } from '../helpers';
-import { graphColors } from '../constants';
+import { getFrameworkName, getSplitTestTitle } from '../perf-helpers/helpers';
+import {
+  graphColors,
+  testDocumentationFrameworks,
+} from '../perf-helpers/constants';
 import GraphIcon from '../../shared/GraphIcon';
 
 const LegendCard = ({
@@ -131,6 +134,9 @@ const LegendCard = ({
   const subtitleStyle = 'p-0 mb-0 border-0 text-secondary text-left';
   const symbolType = series.symbol || ['circle', 'outline'];
 
+  const framework = getFrameworkName(frameworks, series.framework_id);
+  const { url } = getSplitTestTitle(series.name, series.suite, framework);
+  const hasDocumentation = testDocumentationFrameworks.includes(framework);
   return (
     <FormGroup check className="pl-0 border">
       <Button
@@ -159,9 +165,11 @@ const LegendCard = ({
             fill={symbolType[1] === 'fill' ? series.color[1] : '#ffffff'}
             stroke={series.color[1]}
           />
-
           {series.name}
         </Button>
+        <div className="small legend-docs">
+          {hasDocumentation && <a href={url}>(docs)</a>}
+        </div>
         <Button
           color="link"
           outline
@@ -191,7 +199,7 @@ const LegendCard = ({
             {series.application}
           </Button>
         )}
-        <Badge> {getFrameworkName(frameworks, series.framework_id)} </Badge>
+        <Badge> {framework} </Badge>
         <div className="small">{`${series.signatureHash.slice(0, 16)}...`}</div>
       </div>
       <Input

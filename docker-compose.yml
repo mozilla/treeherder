@@ -19,11 +19,15 @@ services:
       - UPSTREAM_DATABASE_URL=${UPSTREAM_DATABASE_URL:-}
       - PERF_SHERIFF_BOT_CLIENT_ID=${PERF_SHERIFF_BOT_CLIENT_ID:-}
       - PERF_SHERIFF_BOT_ACCESS_TOKEN=${PERF_SHERIFF_BOT_ACCESS_TOKEN:-}
+      - NOTIFY_CLIENT_ID=${NOTIFY_CLIENT_ID:-}
+      - NOTIFY_ACCESS_TOKEN=${NOTIFY_ACCESS_TOKEN:-}
       - PULSE_AUTO_DELETE_QUEUES=True
       - REDIS_URL=redis://redis:6379
       - SITE_URL=http://backend:8000/
       - TREEHERDER_DEBUG=True
       - NEW_RELIC_INSIGHTS_API_KEY=${NEW_RELIC_INSIGHTS_API_KEY:-}
+      - PROJECTS_TO_INGEST=${PROJECTS_TO_INGEST:-autoland,try}
+      - TLS_CERT_PATH=${TLS_CERT_PATH}
     entrypoint: './docker/entrypoint.sh'
     # We *ONLY* initialize the data when we're running the backend
     command: './initialize_data.sh ./manage.py runserver 0.0.0.0:8000'
@@ -45,7 +49,7 @@ services:
   frontend:
     container_name: frontend
     # https://hub.docker.com/_/node
-    image: node:12.13.1-alpine
+    image: node:14.16.1-alpine
     environment:
       # Allows `.neutrinorc.js` to adjust filesystem watching and browser opening behaviour.
       - IN_DOCKER=1
@@ -63,7 +67,7 @@ services:
   mysql:
     container_name: mysql
     # https://hub.docker.com/r/library/mysql/
-    image: mysql:5.7.33
+    image: mysql:5.7.34
     environment:
       - MYSQL_ALLOW_EMPTY_PASSWORD=true
       - MYSQL_DATABASE=treeherder
@@ -76,7 +80,7 @@ services:
   redis:
     container_name: redis
     # https://hub.docker.com/_/redis/
-    image: redis:5.0.10-alpine
+    image: redis:5.0.12-alpine
     # Messages after starting the redis-server
     # WARNING: The TCP backlog setting of 511 cannot be enforced because /proc/sys/net/core/somaxconn is set to the lower value of 128
     # WARNING you have Transparent Huge Pages (THP) support enabled in your kernel. This will create latency and memory usage issues with Redis. To fix this issue run the command 'echo never > /sys/kernel/mm/transparent_hugepage/enabled' as root, and add it to your /etc/rc.local in order to retain the setting after a reboot. Redis must be restarted after THP is disabled.
@@ -100,7 +104,7 @@ services:
       context: .
       dockerfile: docker/dev.Dockerfile
     environment:
-      - PULSE_URL=${PULSE_URL:-amqp://docker-shared-user:8r5VFxpJHtJahTVV5bYutykgDsXhGF@pulse.mozilla.org:5671/?ssl=1}
+      - PULSE_URL=${PULSE_URL:-amqp://docker-shared-user:oGv7P5%H94@pulse.mozilla.org:5671/?ssl=1}
       - LOGGING_LEVEL=INFO
       - PULSE_AUTO_DELETE_QUEUES=True
       - DATABASE_URL=mysql://root@mysql:3306/treeherder
@@ -121,7 +125,7 @@ services:
     environment:
       - CELERY_BROKER_URL=amqp://guest:guest@rabbitmq:5672//
       - DATABASE_URL=mysql://root@mysql:3306/treeherder
-      - PROJECTS_TO_INGEST=${PROJECTS_TO_INGEST:-autoland}
+      - PROJECTS_TO_INGEST=${PROJECTS_TO_INGEST:-autoland,try}
     entrypoint: './docker/entrypoint.sh'
     command: celery worker -A treeherder --uid=nobody --gid=nogroup --without-gossip --without-mingle --without-heartbeat -Q store_pulse_pushes,store_pulse_tasks --concurrency=1 --loglevel=WARNING
     volumes:

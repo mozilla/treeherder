@@ -8,11 +8,15 @@ import {
   genericErrorMessage,
   errorMessageClass,
 } from '../../helpers/constants';
-import { compareDefaultTimeRange, endpoints, phTimeRanges } from '../constants';
+import {
+  compareDefaultTimeRange,
+  endpoints,
+  phTimeRanges,
+} from '../perf-helpers/constants';
 import ErrorBoundary from '../../shared/ErrorBoundary';
 import { getData } from '../../helpers/http';
 import { createApiUrl, createQueryParams } from '../../helpers/url';
-import { getFrameworkData, scrollWithOffset } from '../helpers';
+import { getFrameworkData, scrollWithOffset } from '../perf-helpers/helpers';
 import TruncatedText from '../../shared/TruncatedText';
 import LoadingSpinner from '../../shared/LoadingSpinner';
 import ComparePageTitle from '../../shared/ComparePageTitle';
@@ -88,6 +92,26 @@ export default class CompareTableView extends React.Component {
     return timeRange || compareDefaultTimeRange;
   };
 
+  getResultsMap = (results) => {
+    const resultsMap = new Map();
+    const testNames = [];
+    const names = [];
+    const platforms = [];
+    results.forEach((item) => {
+      testNames.push(item.test);
+      names.push(item.name);
+      platforms.push(item.platform);
+      const key = `${item.name} ${item.platform}`;
+      if (!resultsMap.has(key)) {
+        resultsMap.set(key, item);
+      }
+      if (item.test !== '' && !resultsMap.has(item.test)) {
+        resultsMap.set(item.test, item);
+      }
+    });
+    return { testNames, names, platforms, resultsMap };
+  };
+
   getPerformanceData = async () => {
     const { getQueryParams, hasSubtests, getDisplayResults } = this.props;
     const {
@@ -130,6 +154,19 @@ export default class CompareTableView extends React.Component {
       return this.setState({ loading: false });
     }
 
+    const {
+      testNames: origTestNames,
+      names: origNames,
+      platforms: origPlatforms,
+      resultsMap: origResultsMap,
+    } = this.getResultsMap(originalResults.data);
+    const {
+      testNames: newTestNames,
+      names: newNames,
+      platforms: newPlatforms,
+      resultsMap: newResultsMap,
+    } = this.getResultsMap(newResults.data);
+
     if (hasSubtests) {
       let subtestName = data[0].name.split(' ');
       subtestName.splice(1, 1);
@@ -137,12 +174,11 @@ export default class CompareTableView extends React.Component {
 
       title = `${data[0].platform}: ${subtestName}`;
       tableNames = [subtestName];
-      rowNames = [...new Set(data.map((item) => item.test))].sort();
+      rowNames = [...new Set([...origTestNames, ...newTestNames])].sort();
     } else {
-      tableNames = [...new Set(data.map((item) => item.name))].sort();
-      rowNames = [...new Set(data.map((item) => item.platform))].sort();
+      tableNames = [...new Set([...origNames, ...newNames])].sort();
+      rowNames = [...new Set([...origPlatforms, ...newPlatforms])].sort();
     }
-
     const text = originalRevision
       ? `${originalRevision} (${originalProject})`
       : originalProject;
@@ -152,7 +188,7 @@ export default class CompareTableView extends React.Component {
         title ||
         `Comparison between ${text} and ${newRevision} (${newProject})`,
     });
-    const updates = getDisplayResults(originalResults.data, newResults.data, {
+    const updates = getDisplayResults(origResultsMap, newResultsMap, {
       ...this.state,
       ...{ tableNames, rowNames },
     });
@@ -316,6 +352,7 @@ export default class CompareTableView extends React.Component {
 
               <CompareTableControls
                 {...this.props}
+                frameworkName={framework.name}
                 dropdownOptions={compareDropdowns}
                 updateState={(state) => this.setState(state)}
                 compareResults={compareResults}

@@ -20,7 +20,11 @@ import InputFilter from '../../shared/InputFilter';
 import { processResponse } from '../../helpers/http';
 import PerfSeriesModel from '../../models/perfSeries';
 import { thPerformanceBranches } from '../../helpers/constants';
-import { containsText, getInitialData, getSeriesData } from '../helpers';
+import {
+  containsText,
+  getInitialData,
+  getSeriesData,
+} from '../perf-helpers/helpers';
 
 import TimeRangeDropdown from './TimeRangeDropdown';
 
@@ -72,7 +76,7 @@ export default class TestDataModal extends React.Component {
 
   componentDidUpdate(prevProps, prevState) {
     const { activeTags, availableTags, platform, platforms } = this.state;
-    const { testData } = this.props;
+    const { testData, timeRange } = this.props;
 
     if (prevState.platforms !== platforms) {
       const newPlatform = platforms.find((item) => item === platform)
@@ -93,6 +97,11 @@ export default class TestDataModal extends React.Component {
 
     if (this.props.options !== prevProps.options) {
       this.processOptions(true);
+    }
+
+    if (timeRange !== prevProps.timeRange) {
+      // eslint-disable-next-line react/no-did-update-set-state
+      this.setState({ innerTimeRange: timeRange });
     }
 
     if (testData !== prevProps.testData) {
@@ -208,7 +217,6 @@ export default class TestDataModal extends React.Component {
     const requests = relatedProjects.map((projectName) =>
       PerfSeriesModel.getSeriesList(projectName, params),
     );
-
     const responses = await Promise.all(requests);
     const relatedTests = responses
       // eslint-disable-next-line array-callback-return
@@ -219,11 +227,11 @@ export default class TestDataModal extends React.Component {
         errorMessages.push(item.data);
       })
       .filter(
-        (item) =>
-          item.name === relatedSeries.name &&
+        (responseSeries) =>
+          responseSeries.name.trim() === relatedSeries.name.trim() &&
           (samePlatform
-            ? item.platform === relatedSeries.platform
-            : item.platform !== relatedSeries.platform),
+            ? responseSeries.platform === relatedSeries.platform
+            : responseSeries.platform !== relatedSeries.platform),
       );
 
     this.setState({
@@ -363,6 +371,7 @@ export default class TestDataModal extends React.Component {
         filteredData: [],
         showNoRelatedTests: false,
         filterText: '',
+        innerTimeRange: this.props.timeRange,
       },
       this.props.toggle,
     );

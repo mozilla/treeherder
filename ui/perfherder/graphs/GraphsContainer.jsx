@@ -21,7 +21,7 @@ import debounce from 'lodash/debounce';
 import last from 'lodash/last';
 import flatMap from 'lodash/flatMap';
 
-import { abbreviatedNumber } from '../helpers';
+import { abbreviatedNumber } from '../perf-helpers/helpers';
 
 import TableView from './TableView';
 import GraphTooltip from './GraphTooltip';

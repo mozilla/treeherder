@@ -7,8 +7,8 @@ import {
   createNoiseMetric,
   getCounterMap,
   createGraphsLinks,
-} from '../helpers';
-import { noiseMetricTitle } from '../constants';
+} from '../perf-helpers/helpers';
+import { noiseMetricTitle } from '../perf-helpers/constants';
 import withValidation from '../Validation';
 
 import CompareTableView from './CompareTableView';
@@ -121,14 +121,20 @@ class CompareSubtestsView extends React.PureComponent {
     };
 
     rowNames.forEach((testName) => {
-      const oldResults = origResultsMap.find((sig) => sig.test === testName);
-      const newResults = newResultsMap.find((sig) => sig.test === testName);
+      const oldResults = origResultsMap.get(testName);
+      const newResults = newResultsMap.get(testName);
 
       const cmap = getCounterMap(testName, oldResults, newResults);
       if (cmap.isEmpty) {
         return;
       }
       cmap.name = testName;
+      if (oldResults !== undefined) {
+        cmap.suite = oldResults.suite;
+      }
+      if (newResults !== undefined) {
+        cmap.suite = newResults.suite;
+      }
 
       if (
         (oldResults && oldResults.parent_signature === originalSignature) ||

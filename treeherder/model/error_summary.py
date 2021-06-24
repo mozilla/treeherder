@@ -197,6 +197,7 @@ def is_helpful_search_term(search_term):
         'mozalloc_abort(char const*)',
         'mozalloc_abort',
         'CrashingThread(void *)',
+        'Last test finished',
         'leakcheck',
         '# TBPL FAILURE #',
     ]

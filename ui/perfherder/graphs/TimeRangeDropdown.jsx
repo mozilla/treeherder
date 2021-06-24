@@ -3,7 +3,7 @@ import { DropdownToggle, UncontrolledDropdown } from 'reactstrap';
 import PropTypes from 'prop-types';
 
 import DropdownMenuItems from '../../shared/DropdownMenuItems';
-import { phTimeRanges } from '../constants';
+import { phTimeRanges } from '../perf-helpers/constants';
 
 class TimeRangeDropdown extends React.PureComponent {
   render() {

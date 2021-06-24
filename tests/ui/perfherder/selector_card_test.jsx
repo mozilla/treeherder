@@ -2,7 +2,7 @@ import React from 'react';
 import { cleanup, fireEvent, render, waitFor } from '@testing-library/react';
 
 import SelectorCard from '../../../ui/perfherder/compare/SelectorCard';
-import { selectorCardText } from '../../../ui/perfherder/constants';
+import { selectorCardText } from '../../../ui/perfherder/perf-helpers/constants';
 
 const validHash = 'validhash21fb1fd66aea14a2f5ecfc06e68f75c';
 

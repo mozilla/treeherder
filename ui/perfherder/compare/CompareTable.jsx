@@ -4,29 +4,21 @@ import PropTypes from 'prop-types';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faHashtag } from '@fortawesome/free-solid-svg-icons';
 
-import { getHashBasedId } from '../helpers';
+import { getHashBasedId, getSplitTestTitle } from '../perf-helpers/helpers';
+import { testDocumentationFrameworks } from '../perf-helpers/constants';
 import { hashFunction } from '../../helpers/utils';
-import { compareTableSort } from '../constants';
+import { tableSort, getNextSort, sort, sortTables } from '../perf-helpers/sort';
+import SortButton from '../shared/SortButton';
 
 import RetriggerButton from './RetriggerButton';
 import CompareTableRow from './CompareTableRow';
-import CompareSortButton from './CompareSortButton';
 
 export default class CompareTable extends React.Component {
-  sortTypes = {
-    [compareTableSort.ascending]: {
-      sortByString: (value) => (a, b) => a[value].localeCompare(b[value]),
-      sortByValue: (value) => (a, b) => a[value] - b[value],
-    },
-    [compareTableSort.descending]: {
-      sortByString: (value) => (a, b) => b[value].localeCompare(a[value]),
-      sortByValue: (value) => (a, b) => b[value] - a[value],
-    },
-  };
-
   constructor(props) {
     super(props);
     const { data } = this.props;
+
+    const { baseName, newName } = this.getBaseAndNewHeaders(data);
 
     this.state = {
       data,
@@ -34,33 +26,33 @@ export default class CompareTable extends React.Component {
         TestName: {
           name: 'Test name',
           sortValue: 'name',
-          currentSort: compareTableSort.default,
+          currentSort: tableSort.default,
         },
         Base: {
-          name: 'Base',
+          name: baseName,
           sortValue: 'originalValue',
-          currentSort: compareTableSort.default,
+          currentSort: tableSort.default,
         },
         Comparison: { name: 'Comparison' },
         New: {
-          name: 'New',
+          name: newName,
           sortValue: 'newValue',
-          currentSort: compareTableSort.default,
+          currentSort: tableSort.default,
         },
         Delta: {
           name: 'Delta',
           sortValue: 'deltaPercentage',
-          currentSort: compareTableSort.default,
+          currentSort: tableSort.default,
         },
         Magnitude: {
           name: 'Magnitude of Difference',
           sortValue: 'magnitude',
-          currentSort: compareTableSort.default,
+          currentSort: tableSort.default,
         },
         Confidence: {
           name: 'Confidence',
           sortValue: 'confidence',
-          currentSort: compareTableSort.default,
+          currentSort: tableSort.default,
         },
       },
     };
@@ -72,51 +64,34 @@ export default class CompareTable extends React.Component {
 
     if (data !== prevProps.data) {
       Object.keys(tableConfig).forEach((key) => {
-        tableConfig[key].currentSort = compareTableSort.default;
+        tableConfig[key].currentSort = tableSort.default;
       });
       // eslint-disable-next-line react/no-did-update-set-state
       this.setState({ data, tableConfig });
     }
   };
 
-  getNextSort = (currentSort) => {
-    const { ascending, descending, default: defaultSort } = compareTableSort;
-    const nextSort = {
-      ascending: descending,
-      descending: defaultSort,
-      default: ascending,
-    };
-
-    return nextSort[currentSort];
-  };
-
-  sort = (sortValue, sortType, data) => {
-    const validData = [];
-    const nullData = [];
-    data.forEach((item) => {
-      if (item[sortValue] || item[sortValue] === 0) {
-        validData.push(item);
-      } else {
-        nullData.push(item);
-      }
-    });
-    const { sortByString, sortByValue } = this.sortTypes[sortType];
-    const doSort = sortValue === 'name' ? sortByString : sortByValue;
-
-    if (validData.length) {
-      data = validData.sort(doSort(sortValue));
-      data = data.concat(nullData);
+  getBaseAndNewHeaders = (data) => {
+    const [firstElementOfData] = data;
+    const {
+      baseColumnMeasurementUnit,
+      newColumnMeasurementUnit,
+    } = firstElementOfData;
+    let baseName = 'Base';
+    let newName = 'New';
+    if (baseColumnMeasurementUnit && newColumnMeasurementUnit) {
+      baseName += ` (${baseColumnMeasurementUnit})`;
+      newName += ` (${newColumnMeasurementUnit})`;
     }
-
-    return data;
+    return { baseName, newName };
   };
 
   onChangeSort = (currentColumn) => {
     let { data } = this.props;
     const { tableConfig } = this.state;
-    const { default: defaultSort } = compareTableSort;
+    const { default: defaultSort } = tableSort;
     const { currentSort, sortValue } = currentColumn;
-    const nextSort = this.getNextSort(currentSort);
+    const nextSort = getNextSort(currentSort);
 
     Object.keys(tableConfig).forEach((key) => {
       tableConfig[key].currentSort = defaultSort;
@@ -124,7 +99,7 @@ export default class CompareTable extends React.Component {
     currentColumn.currentSort = nextSort;
 
     if (nextSort !== defaultSort) {
-      data = this.sort(sortValue, nextSort, data);
+      data = sort(sortValue, nextSort, data, sortTables.compare);
     }
 
     this.setState({ data, tableConfig });
@@ -133,6 +108,7 @@ export default class CompareTable extends React.Component {
   render() {
     const {
       testName,
+      frameworkName,
       user,
       hasSubtests,
       isBaseAggregate,
@@ -141,8 +117,17 @@ export default class CompareTable extends React.Component {
       onModalOpen,
     } = this.props;
 
-    const { data, tableConfig } = this.state;
-
+    const { data } = this.state;
+    const { tableConfig } = this.state;
+    const { suite } = data[0];
+    const { url, remainingTestName } = getSplitTestTitle(
+      testName,
+      suite,
+      frameworkName,
+    );
+    const hasDocumentation = testDocumentationFrameworks.includes(
+      frameworkName,
+    );
     return (
       <Table
         id={getHashBasedId(testName, hashFunction)}
@@ -157,31 +142,39 @@ export default class CompareTable extends React.Component {
         <thead>
           <tr className="subtest-header bg-lightgray">
             <th className="text-left">
-              <span>{testName}</span>
-              {onPermalinkClick && (
-                <Button
-                  className="permalink p-0 ml-1"
-                  color="link"
-                  onClick={() =>
-                    onPermalinkClick(
-                      getHashBasedId(testName, hashFunction),
-                      history,
-                      this.header,
-                    )
-                  }
-                  title="Permalink to this test table"
-                  aria-label={`Permalink to test ${testName} table`}
-                >
-                  <FontAwesomeIcon icon={faHashtag} />
-                </Button>
-              )}
-              <CompareSortButton
-                column={tableConfig.TestName}
-                onChangeSort={this.onChangeSort}
-              />
+              <div className="d-flex align-items-end">
+                {hasDocumentation && testName ? (
+                  <div>
+                    <a href={url}>{suite}</a> {remainingTestName}
+                  </div>
+                ) : (
+                  testName
+                )}
+                {onPermalinkClick && (
+                  <Button
+                    className="permalink p-0 ml-1"
+                    color="link"
+                    onClick={() =>
+                      onPermalinkClick(
+                        getHashBasedId(testName, hashFunction),
+                        history,
+                        this.header,
+                      )
+                    }
+                    title="Permalink to this test table"
+                    aria-label={`Permalink to test ${testName} table`}
+                  >
+                    <FontAwesomeIcon icon={faHashtag} />
+                  </Button>
+                )}
+                <SortButton
+                  column={tableConfig.TestName}
+                  onChangeSort={this.onChangeSort}
+                />
+              </div>
             </th>
             <th className="table-width-lg">
-              <CompareSortButton
+              <SortButton
                 column={tableConfig.Base}
                 onChangeSort={this.onChangeSort}
               />
@@ -189,25 +182,25 @@ export default class CompareTable extends React.Component {
             {/* empty for less than/greater than data */}
             <th className="table-width-sm" aria-label="Comparison" />
             <th className="table-width-lg">
-              <CompareSortButton
+              <SortButton
                 column={tableConfig.New}
                 onChangeSort={this.onChangeSort}
               />
             </th>
             <th className="table-width-lg">
-              <CompareSortButton
+              <SortButton
                 column={tableConfig.Delta}
                 onChangeSort={this.onChangeSort}
               />
             </th>
             <th className="table-width-lg">
-              <CompareSortButton
+              <SortButton
                 column={tableConfig.Magnitude}
                 onChangeSort={this.onChangeSort}
               />
             </th>
             <th className="table-width-lg">
-              <CompareSortButton
+              <SortButton
                 column={tableConfig.Confidence}
                 onChangeSort={this.onChangeSort}
               />

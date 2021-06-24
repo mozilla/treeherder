@@ -9,3 +9,9 @@ update_configs:
     default_labels:
       - 'dependencies'
       - 'python'
+    allowed_updates:
+    - match:
+        update_type: 'security'
+    - match:
+        dependency_name: 'django'
+

@@ -3,8 +3,11 @@
     "revision": "8f538bc9c23b1bce55abfa3fd21d4239eee80e61",
     "repository": "try",
     "testFailureCount": 109,
+    "testInProgressCount": 0,
     "buildFailureCount": 13,
+    "buildInProgressCount": 0,
     "lintFailureCount": 0,
+    "lintingInProgressCount": 0,
     "needInvestigation": 122,
     "status": {
       "completed": 1371,
@@ -66,8 +69,11 @@
     "revision": "a140a5639e7b145066a3e6232217674294c9eeda",
     "repository": "try",
     "testFailureCount": 0,
+    "testInProgressCount": 0,
     "buildFailureCount": 4,
+    "buildInProgressCount": 0,
     "lintFailureCount": 0,
+    "lintingInProgressCount": 0,
     "needInvestigation": 4,
     "status": {
       "completed": 1316,

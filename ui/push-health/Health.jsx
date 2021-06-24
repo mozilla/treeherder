@@ -103,7 +103,17 @@ export default class Health extends React.PureComponent {
   };
 
   updatePushHealth = async () => {
-    const { repo, revision } = this.state;
+    const { repo, revision, status } = this.state;
+
+    if (status) {
+      const { running, pending, completed } = status;
+
+      if (completed > 0 && pending === 0 && running === 0) {
+        clearInterval(this.testTimerId);
+        return;
+      }
+    }
+
     const { data, failureStatus } = await PushModel.getHealth(repo, revision);
     const newState = !failureStatus ? data : { failureMessage: data };
 
@@ -217,48 +227,62 @@ export default class Health extends React.PureComponent {
                 defaultIndex={defaultTabIndex}
               >
                 <TabList className="font-weight-500 text-secondary d-flex justify-content-end border-bottom font-size-18">
-                  <Tab className="pb-2 list-inline-item ml-4 pointable">
-                    <span className="text-success">
+                  {linting.result !== 'none' && (
+                    <Tab className="pb-2 list-inline-item ml-4 pointable">
+                      <span className="text-success">
+                        <FontAwesomeIcon
+                          icon={getIcon(linting.result)}
+                          className={`mr-1 text-${
+                            resultColorMap[linting.result]
+                          }`}
+                        />
+                      </span>
+                      Linting
+                    </Tab>
+                  )}
+                  {builds.result !== 'none' && (
+                    <Tab className="list-inline-item ml-4 pointable">
                       <FontAwesomeIcon
-                        icon={getIcon(linting.result)}
-                        className={`mr-1 text-${
-                          resultColorMap[linting.result]
-                        }`}
+                        icon={getIcon(builds.result)}
+                        className={`mr-1 text-${resultColorMap[builds.result]}`}
                       />
-                    </span>
-                    Linting
-                  </Tab>
-                  <Tab className="list-inline-item ml-4 pointable">
-                    <FontAwesomeIcon
-                      icon={getIcon(builds.result)}
-                      className={`mr-1 text-${resultColorMap[builds.result]}`}
-                    />
-                    Builds
-                  </Tab>
-                  <Tab className="list-inline-item ml-4 pointable">
-                    <FontAwesomeIcon
-                      fill={resultColorMap[tests.result]}
-                      icon={getIcon(tests.result)}
-                      className={`mr-1 text-${resultColorMap[tests.result]}`}
-                    />
-                    Tests
-                  </Tab>
+                      Builds
+                    </Tab>
+                  )}
+                  {tests.result !== 'none' && (
+                    <Tab className="list-inline-item ml-4 pointable">
+                      <FontAwesomeIcon
+                        fill={resultColorMap[tests.result]}
+                        icon={getIcon(tests.result)}
+                        className={`mr-1 text-${resultColorMap[tests.result]}`}
+                      />
+                      Tests
+                    </Tab>
+                  )}
                 </TabList>
                 <div>
                   <TabPanel>
                     <JobListMetric
                       data={linting}
-                      repo={repo}
+                      currentRepo={currentRepo}
                       revision={revision}
                       setExpanded={this.setExpanded}
+                      updateParamsAndState={this.updateParamsAndState}
+                      notify={notify}
+                      selectedTaskId={selectedTaskId}
+                      selectedJobName={selectedJobName}
                     />
                   </TabPanel>
                   <TabPanel>
                     <JobListMetric
                       data={builds}
-                      repo={repo}
+                      currentRepo={currentRepo}
                       revision={revision}
                       setExpanded={this.setExpanded}
+                      updateParamsAndState={this.updateParamsAndState}
+                      notify={notify}
+                      selectedTaskId={selectedTaskId}
+                      selectedJobName={selectedJobName}
                     />
                   </TabPanel>
                   <TabPanel>

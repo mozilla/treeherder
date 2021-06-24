@@ -14,14 +14,14 @@ import {
   genericErrorMessage,
   errorMessageClass,
 } from '../../helpers/constants';
-import { processSelectedParam, createGraphData } from '../helpers';
+import { processSelectedParam, createGraphData } from '../perf-helpers/helpers';
 import {
   endpoints,
   graphColors,
   graphSymbols,
   phTimeRanges,
   phDefaultTimeRangeValue,
-} from '../constants';
+} from '../perf-helpers/constants';
 import ErrorMessages from '../../shared/ErrorMessages';
 import ErrorBoundary from '../../shared/ErrorBoundary';
 import LoadingSpinner from '../../shared/LoadingSpinner';

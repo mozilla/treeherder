@@ -4,6 +4,11 @@ import logging
 import re
 import time
 from hashlib import sha1
+from typing import List
+
+import warnings
+
+warnings.filterwarnings('ignore', category=DeprecationWarning, module='newrelic')
 
 import newrelic.agent
 from django.contrib.auth.models import User
@@ -19,10 +24,6 @@ from django.utils import timezone
 from treeherder.webapp.api.utils import REPO_GROUPS, to_timestamp
 
 logger = logging.getLogger(__name__)
-
-# MySQL Full Text Search operators, based on:
-# https://dev.mysql.com/doc/refman/5.7/en/fulltext-boolean.html
-mysql_fts_operators_re = re.compile(r'[-+@<>()~*"]')
 
 
 class FailuresQuerySet(models.QuerySet):
@@ -112,6 +113,10 @@ class Repository(models.Model):
         db_table = 'repository'
         verbose_name_plural = 'repositories'
 
+    @classmethod
+    def fetch_all_names(cls) -> List[str]:
+        return cls.objects.values_list('name', flat=True)
+
     def __str__(self):
         return "{0} {1}".format(self.name, self.repository_group)
 
@@ -138,6 +143,9 @@ class Push(models.Model):
 
     def __str__(self):
         return "{0} {1}".format(self.repository.name, self.revision)
+
+    def total_jobs(self, job_type, result):
+        return self.jobs.filter(job_type=job_type, result=result).count()
 
     def get_status(self):
         """
@@ -220,7 +228,18 @@ class Bugscache(models.Model):
         return "{0}".format(self.id)
 
     @classmethod
-    def search(cls, search_term):
+    def sanitized_search_term(self, search_term):
+        # MySQL Full Text Search operators, based on:
+        # https://dev.mysql.com/doc/refman/5.7/en/fulltext-boolean.html
+        # and other characters we want to remove
+        mysql_fts_operators_re = re.compile(r'[-+@<>()~*"\\]')
+
+        # Replace MySQL's Full Text Search Operators with spaces so searching
+        # for errors that have been pasted in still works.
+        return re.sub(mysql_fts_operators_re, " ", search_term)
+
+    @classmethod
+    def search(self, search_term):
         max_size = 50
 
         # 365 days ago as limit for recent bugs which get suggested by default
@@ -228,18 +247,17 @@ class Bugscache(models.Model):
         # hidden by default with a "Show / Hide More" link.
         time_limit = datetime.datetime.now() - datetime.timedelta(days=365)
 
-        # Replace MySQL's Full Text Search Operators with spaces so searching
-        # for errors that have been pasted in still works.
-        sanitised_term = re.sub(mysql_fts_operators_re, " ", search_term)
-
-        # Wrap search term so it is used as a phrase in the full-text search.
-        search_term_fulltext = '"%s"' % sanitised_term
+        # Do not wrap a string in quotes to search as a phrase;
+        # see https://bugzilla.mozilla.org/show_bug.cgi?id=1704311
+        search_term_fulltext = self.sanitized_search_term(search_term)
 
         # Substitute escape and wildcard characters, so the search term is used
         # literally in the LIKE statement.
-        search_term_like = search_term.replace('=', '==').replace('%', '=%').replace('_', '=_')
+        search_term_like = (
+            search_term.replace('=', '==').replace('%', '=%').replace('_', '=_').replace('\\"', '')
+        )
 
-        recent_qs = cls.objects.raw(
+        recent_qs = self.objects.raw(
             """
             SELECT id, summary, crash_signature, keywords, os, resolution, status,
              MATCH (`summary`) AGAINST (%s IN BOOLEAN MODE) AS relevance
@@ -265,7 +283,7 @@ class Bugscache(models.Model):
             )
             open_recent = []
 
-        all_others_qs = cls.objects.raw(
+        all_others_qs = self.objects.raw(
             """
             SELECT id, summary, crash_signature, keywords, os, resolution, status,
              MATCH (`summary`) AGAINST (%s IN BOOLEAN MODE) AS relevance
@@ -539,6 +557,13 @@ class Job(models.Model):
             # speed up cycle data
             ('repository', 'submit_time'),
         ]
+
+    @property
+    def tier_is_sheriffable(self) -> bool:
+        """
+        Tier 3 jobs are not considered stable enough to be sheriffed.
+        """
+        return self.tier < 3
 
     def __str__(self):
         return "{0} {1} {2}".format(self.id, self.repository, self.guid)

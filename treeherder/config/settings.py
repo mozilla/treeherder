@@ -7,7 +7,6 @@ from os.path import abspath, dirname, join
 import environ
 from furl import furl
 from kombu import Exchange, Queue
-from adr import config
 
 from treeherder.config.utils import connection_should_use_tls, get_tls_redis_url
 
@@ -44,7 +43,7 @@ SITE_URL = env("SITE_URL", default='http://localhost:8000')
 
 SITE_HOSTNAME = furl(SITE_URL).host
 # Including localhost allows using the backend locally
-ALLOWED_HOSTS = [SITE_HOSTNAME, 'localhost']
+ALLOWED_HOSTS = [SITE_HOSTNAME, 'localhost', '127.0.0.1']
 
 # URL handling
 APPEND_SLASH = False
@@ -71,12 +70,12 @@ INSTALLED_APPS = [
     'rest_framework',
     'corsheaders',
     'django_filters',
+    'dockerflow.django',
     # treeherder apps
     'treeherder.model',
     'treeherder.webapp',
     'treeherder.log_parser',
     'treeherder.etl',
-    'treeherder.extract',
     'treeherder.perf',
     'treeherder.seta',
     'treeherder.intermittents_commenter',
@@ -120,6 +119,7 @@ MIDDLEWARE = [
         'django.middleware.common.CommonMiddleware',
         'django.middleware.csrf.CsrfViewMiddleware',
         'django.contrib.auth.middleware.AuthenticationMiddleware',
+        'dockerflow.django.middleware.DockerflowMiddleware',
     ]
     if middleware
 ]
@@ -159,11 +159,11 @@ for alias in DATABASES:
         'init_command': "SET sql_mode='STRICT_TRANS_TABLES'",
     }
     if connection_should_use_tls(DATABASES[alias]['HOST']):
-        # Use TLS when connecting to RDS.
-        # https://docs.aws.amazon.com/AmazonRDS/latest/UserGuide/CHAP_MySQL.html#MySQL.Concepts.SSLSupport
-        # https://mysqlclient.readthedocs.io/user_guide.html#functions-and-attributes
+        # The default cert is for access to the stage replica; for accessing
+        # prototype this variable will need to reference deployment/gcp/ca-cert-prototype.pem.
+        # See treeherder docs for more details.
         DATABASES[alias]['OPTIONS']['ssl'] = {
-            'ca': 'deployment/aws/rds-combined-ca-bundle.pem',
+            'ca': env("TLS_CERT_PATH", default='deployment/gcp/ca-cert.pem'),
         }
 
 # Caches
@@ -182,8 +182,6 @@ CACHES = {
         },
     },
 }
-
-config.update({})
 
 # Internationalization
 TIME_ZONE = "UTC"
@@ -230,9 +228,11 @@ LOGGING = {
         'standard': {
             'format': "[%(asctime)s] %(levelname)s [%(name)s:%(lineno)s] %(message)s",
         },
+        'json': {'()': 'dockerflow.logging.JsonLogFormatter', 'logger_name': 'treeherder'},
     },
     'handlers': {
         'console': {'class': 'logging.StreamHandler', 'formatter': 'standard'},
+        'json': {'class': 'logging.StreamHandler', 'formatter': 'json', 'level': 'DEBUG'},
     },
     'loggers': {
         'django': {
@@ -254,6 +254,10 @@ LOGGING = {
         'kombu': {
             'handlers': ['console'],
             'level': 'WARNING',
+        },
+        'request.summary': {
+            'handlers': ['json'],
+            'level': 'DEBUG',
         },
     },
 }
@@ -460,13 +464,17 @@ PERFHERDER_ENABLE_MULTIDATA_INGESTION = env.bool(
     'PERFHERDER_ENABLE_MULTIDATA_INGESTION', default=True
 )
 
-# Performance sheriff bot settings
+# Sherlock' settings (the performance sheriff robot)
+SUPPORTED_PLATFORMS = ['windows', 'linux']
 MAX_BACKFILLS_PER_PLATFORM = {
+    'windows': 200,
     'linux': 200,
 }
 RESET_BACKFILL_LIMITS = timedelta(hours=24)
+TIME_TO_MATURE = timedelta(hours=4)
 
-# Taskcluster credentials for PerfSheriffBot
+# Taskcluster credentials for Sherlock
+# TODO: rename PERF_SHERIFF_BOT prefixes to SHERLOCK
 PERF_SHERIFF_BOT_CLIENT_ID = env('PERF_SHERIFF_BOT_CLIENT_ID', default=None)
 PERF_SHERIFF_BOT_ACCESS_TOKEN = env('PERF_SHERIFF_BOT_ACCESS_TOKEN', default=None)
 
@@ -477,3 +485,6 @@ NOTIFY_ACCESS_TOKEN = env('NOTIFY_ACCESS_TOKEN', default=None)
 # This is only used for removing the rate limiting. You can create your own here:
 # https://github.com/settings/tokens
 GITHUB_TOKEN = env("GITHUB_TOKEN", default=None)
+
+# For dockerflow
+BASE_DIR = SRC_DIR

@@ -12,7 +12,7 @@ import ErrorBoundary from '../../shared/ErrorBoundary';
 import PerfSeriesModel from '../../models/perfSeries';
 import { getData, processErrors } from '../../helpers/http';
 import { createApiUrl } from '../../helpers/url';
-import { endpoints, noDataFoundMessage } from '../constants';
+import { endpoints, noDataFoundMessage } from '../perf-helpers/constants';
 import LoadingSpinner from '../../shared/LoadingSpinner';
 
 export default class ReplicatesGraph extends React.Component {

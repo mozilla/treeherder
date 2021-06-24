@@ -8,17 +8,16 @@ import {
   Col,
   Label,
 } from 'reactstrap';
-import moment from 'moment';
 import template from 'lodash/template';
 import templateSettings from 'lodash/templateSettings';
 
 import {
   getFrameworkName,
-  getTextualSummary,
-  getTitle,
+  TextualSummary,
+  getFilledBugSummary,
   getStatus,
   updateAlertSummary,
-} from '../helpers';
+} from '../perf-helpers/helpers';
 import { getData } from '../../helpers/http';
 import {
   getApiUrl,
@@ -26,7 +25,7 @@ import {
   createQueryParams,
   bugzillaBugsApi,
 } from '../../helpers/url';
-import { summaryStatusMap } from '../constants';
+import { summaryStatusMap } from '../perf-helpers/constants';
 import DropdownMenuItems from '../../shared/DropdownMenuItems';
 import FilterAlertsWithVideos from '../../models/filterAlertsWithVideos';
 
@@ -101,32 +100,27 @@ export default class StatusDropdown extends React.Component {
         updateViewState({ bugTemplate: result });
       }
     }
-
+    const textualSummary = new TextualSummary(
+      frameworks,
+      filteredAlerts,
+      alertSummary,
+      null,
+      await alertsWithVideos.enrichAndRetrieveAlerts(),
+    );
     const templateArgs = {
       bugType: 'defect',
       framework: getFrameworkName(frameworks, alertSummary.framework),
       revision: alertSummary.revision,
       revisionHref: repoModel.getPushLogHref(alertSummary.revision),
       alertHref: `${window.location.origin}/perfherder/alerts?id=${alertSummary.id}`,
-      alertSummary: getTextualSummary(
-        filteredAlerts,
-        alertSummary,
-        null,
-        await alertsWithVideos.enrichAndRetrieveAlerts(),
-      ),
+      alertSummary: textualSummary.markdown,
     };
 
     templateSettings.interpolate = /{{([\s\S]+?)}}/g;
     const fillTemplate = template(result.text);
     const commentText = fillTemplate(templateArgs);
 
-    const pushDate = moment(alertSummary.push_timestamp * 1000).format(
-      'ddd MMMM D YYYY',
-    );
-
-    const bugTitle = `${getTitle(alertSummary)} regression on push ${
-      alertSummary.revision
-    } (${pushDate})`;
+    const bugTitle = `${getFilledBugSummary(alertSummary)}`;
 
     const culpritDetails = await this.getCulpritDetails(culpritId);
     const defaultParams = {
@@ -164,11 +158,16 @@ export default class StatusDropdown extends React.Component {
   };
 
   copySummary = () => {
-    const { filteredAlerts, alertSummary } = this.props;
-    const summary = getTextualSummary(filteredAlerts, alertSummary, true);
+    const { filteredAlerts, alertSummary, frameworks } = this.props;
+    const textualSummary = new TextualSummary(
+      frameworks,
+      filteredAlerts,
+      alertSummary,
+      true,
+    );
     // can't access the clipboardData on event unless it's done from react's
     // onCopy, onCut or onPaste props so using this workaround
-    navigator.clipboard.writeText(summary).then(() => {});
+    navigator.clipboard.writeText(textualSummary.markdown).then(() => {});
   };
 
   toggle = (state) => {

@@ -3,12 +3,22 @@ import PropTypes from 'prop-types';
 import { Container } from 'reactstrap';
 import ReactTable from 'react-table';
 
-import { noResultsMessage } from '../constants';
+import {
+  noResultsMessage,
+  testDocumentationFrameworks,
+} from '../perf-helpers/constants';
+import { getTestDocumentationURL } from '../perf-helpers/helpers';
 
 import ItemList from './ItemList';
 
 export default function TestsTable(props) {
-  const { results, projectsMap, platformsMap, defaultPageSize } = props;
+  const {
+    results,
+    framework,
+    projectsMap,
+    platformsMap,
+    defaultPageSize,
+  } = props;
 
   const showPagination = results.length > defaultPageSize;
   const headerStyle = {
@@ -18,11 +28,24 @@ export default function TestsTable(props) {
     paddingBottom: 10,
   };
 
+  const hasDocumentation = testDocumentationFrameworks.includes(framework);
+
   const columns = [
     {
       headerStyle,
       Header: 'Suite',
       accessor: 'suite',
+      Cell: ({ row }) => (
+        <div>
+          {hasDocumentation ? (
+            <a href={getTestDocumentationURL(framework, row.suite)}>
+              {row.suite}
+            </a>
+          ) : (
+            <div>{row.suite}</div>
+          )}
+        </div>
+      ),
     },
     {
       headerStyle,
@@ -36,7 +59,7 @@ export default function TestsTable(props) {
       Cell: (props) => {
         if (platformsMap) {
           const platforms = props.value.map((id) => platformsMap[id]);
-          return <ItemList items={platforms} color="info" />;
+          return <ItemList items={platforms} />;
         }
         return null;
       },

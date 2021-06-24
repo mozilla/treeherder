@@ -110,18 +110,3 @@ Other services running inside the Compose project, can be accessed in the same w
 [client git log]: https://github.com/mozilla/treeherder/commits/master/treeherder/client
 [client.py]: https://github.com/mozilla/treeherder/blob/master/treeherder/client/thclient/client.py
 [bug 1236965]: https://bugzilla.mozilla.org/show_bug.cgi?id=1236965
-
-## Reset a disposable project
-
-Engineers can [book a repository](https://wiki.mozilla.org/ReleaseEngineering/DisposableProjectRepositories) for
-some time and might want to start using Treeherder with a clean slate. Read the following steps to remove old data.
-
-```bash
-heroku run --app treeherder-stage bash
-./manage.py shell
->>> from treeherder.model.models import Push, Repository
->>> repo_name = "pine"  # Change this to what you want
->>> repo_id = Repository.objects.filter(name=repo_name)[0].id
->>> Push.objects.filter(repository=repo_id).delete()
-(121433, {'model.Commit': 120289, 'perf.PerformanceDatum': 0, 'perf.PerformanceAlertSummary': 4, 'model.Push': 1140})
-```

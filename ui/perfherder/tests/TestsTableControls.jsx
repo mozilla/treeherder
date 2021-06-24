@@ -3,7 +3,7 @@ import PropTypes from 'prop-types';
 import { Container } from 'reactstrap';
 
 import FilterControls from '../../shared/FilterControls';
-import { containsText } from '../helpers';
+import { containsText } from '../perf-helpers/helpers';
 
 import TestsTable from './TestsTable';
 
@@ -59,7 +59,9 @@ export default class TestsTableControls extends React.Component {
   render() {
     const { dropdownOptions, projectsMap, platformsMap } = this.props;
     const { results } = this.state;
-
+    let framework = false;
+    if (dropdownOptions[0] !== undefined)
+      framework = dropdownOptions[0].selectedItem;
     return (
       <Container fluid className="my-3 px-0">
         <FilterControls
@@ -70,6 +72,7 @@ export default class TestsTableControls extends React.Component {
 
         <TestsTable
           results={results}
+          framework={framework}
           projectsMap={projectsMap}
           platformsMap={platformsMap}
         />

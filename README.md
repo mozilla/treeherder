@@ -1,6 +1,6 @@
 # Treeherder
 
-[![What's Deployed](https://img.shields.io/badge/whatsdeployed-prototype,stage,prod-green.svg)](https://whatsdeployed.io/s-dqv)
+[![What's Deployed](https://img.shields.io/badge/whatsdeployed-prototype,stage,prod-green.svg)](https://whatsdeployed.io/s/13z/Mozilla/Treeherder)
 [![Build Status](https://travis-ci.org/mozilla/treeherder.png?branch=master)](https://app.circleci.com/pipelines/github/mozilla/treeherder)
 [![Node dependencies Status](https://david-dm.org/mozilla/treeherder/status.svg)](https://david-dm.org/mozilla/treeherder)
 [![Node devDependencies Status](https://david-dm.org/mozilla/treeherder/dev-status.svg)](https://david-dm.org/mozilla/treeherder?type=dev)

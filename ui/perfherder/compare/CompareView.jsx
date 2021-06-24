@@ -7,8 +7,8 @@ import {
   createNoiseMetric,
   getCounterMap,
   createGraphsLinks,
-} from '../helpers';
-import { noiseMetricTitle, phTimeRanges } from '../constants';
+} from '../perf-helpers/helpers';
+import { noiseMetricTitle, phTimeRanges } from '../perf-helpers/constants';
 import withValidation from '../Validation';
 
 import CompareTableView from './CompareTableView';
@@ -147,17 +147,24 @@ class CompareView extends React.PureComponent {
           };
         }
 
-        const oldResults = origResultsMap.find(
-          (sig) => sig.name === testName && sig.platform === value,
-        );
-        const newResults = newResultsMap.find(
-          (sig) => sig.name === testName && sig.platform === value,
-        );
+        const key = `${testName} ${value}`;
+        const oldResults = origResultsMap.get(key);
+        const newResults = newResultsMap.get(key);
 
         const cmap = getCounterMap(testName, oldResults, newResults);
         if (cmap.isEmpty) {
           return;
         }
+
+        if (oldResults !== undefined) {
+          cmap.suite = oldResults.suite;
+          cmap.baseColumnMeasurementUnit = oldResults.measurement_unit;
+        }
+        if (newResults !== undefined) {
+          cmap.suite = newResults.suite;
+          cmap.newColumnMeasurementUnit = newResults.measurement_unit;
+        }
+
         cmap.name = value;
 
         if (

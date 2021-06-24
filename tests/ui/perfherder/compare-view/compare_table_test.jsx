@@ -11,11 +11,12 @@ import {
 import projects from '../../mock/repositories';
 import CompareTableControls from '../../../../ui/perfherder/compare/CompareTableControls';
 import CompareTable from '../../../../ui/perfherder/compare/CompareTable';
+import SortButton from '../../../../ui/perfherder/shared/SortButton';
 import ComparePageTitle from '../../../../ui/shared/ComparePageTitle';
 import {
   compareTableText,
   filterText,
-} from '../../../../ui/perfherder/constants';
+} from '../../../../ui/perfherder/perf-helpers/constants';
 import JobModel from '../../../../ui/models/job';
 
 // TODO addtional tests:
@@ -53,6 +54,8 @@ const result = [
     originalRepoName: 'try',
     newRetriggerableJobId: 121,
     newRepoName: 'mozilla-central',
+    baseColumnMeasurementUnit: 'ms',
+    newColumnMeasurementUnit: 'score',
   },
   {
     className: 'danger',
@@ -683,4 +686,24 @@ test(`table data sorted by 'Confidence' has data with invalid confidence at the 
   expect(compareTableRows[0]).toContainElement(result1);
   expect(compareTableRows[1]).toContainElement(result2);
   expect(compareTableRows[2]).toContainElement(result3);
+});
+
+test(`measurement unit is passed in the header name for Base and New`, async () => {
+  const { queryByText } = compareTable(true, false);
+  expect(queryByText('New (score)')).toBeInTheDocument();
+  expect(queryByText('Base (ms)')).toBeInTheDocument();
+});
+
+test(`SortButton shows the title as expected`, async () => {
+  const defaultProps = {
+    onChangeSort: jest.fn(),
+    column: {
+      name: 'New',
+      currentSort: 'default',
+    },
+  };
+  const { queryByText } = render(<SortButton {...defaultProps} />);
+
+  expect(queryByText('New (score)')).not.toBeInTheDocument();
+  expect(queryByText('New')).toBeInTheDocument();
 });

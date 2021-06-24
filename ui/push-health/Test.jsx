@@ -29,6 +29,7 @@ import JobModel from '../models/job';
 import Clipboard from '../shared/Clipboard';
 
 import PlatformConfig from './PlatformConfig';
+import TaskSelection from './TaskSelection';
 
 class Test extends PureComponent {
   constructor(props) {
@@ -339,23 +340,28 @@ class Test extends PureComponent {
             {tests.map((failure) => (
               <PlatformConfig
                 key={failure.key}
-                failure={failure}
-                jobs={jobs}
-                currentRepo={currentRepo}
+                testName={failure.testName}
+                jobName={failure.jobName}
+                jobs={jobs[failure.jobName]}
                 revision={revision}
                 notify={notify}
-                groupedBy={groupedBy}
                 selectedJobName={selectedJobName}
                 selectedTaskId={selectedTaskId}
                 updateParamsAndState={(stateObj) => {
                   stateObj.selectedTest = id;
                   updateParamsAndState(stateObj);
                 }}
-                className="ml-3"
-                addSelectedTest={this.addSelectedTest}
-                removeSelectedTest={this.removeSelectedTest}
-                allPlatformsSelected={allPlatformsSelected}
-              />
+                currentRepo={currentRepo}
+              >
+                <TaskSelection
+                  failure={failure}
+                  groupedBy={groupedBy}
+                  addSelectedTest={this.addSelectedTest}
+                  removeSelectedTest={this.removeSelectedTest}
+                  allPlatformsSelected={allPlatformsSelected}
+                  currentRepo={currentRepo}
+                />
+              </PlatformConfig>
             ))}
           </Collapse>
         </div>

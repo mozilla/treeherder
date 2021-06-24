@@ -13,7 +13,7 @@ import {
   endpoints,
   graphColors,
   graphSymbols,
-} from '../../../../ui/perfherder/constants';
+} from '../../../../ui/perfherder/perf-helpers/constants';
 import GraphsViewControls from '../../../../ui/perfherder/graphs/GraphsViewControls';
 import repos from '../../mock/repositories';
 import testData from '../../mock/performance_summary.json';
@@ -21,7 +21,7 @@ import changelogData from '../../mock/infra_changelog.json';
 import seriesData from '../../mock/performance_signature_formatted.json';
 import seriesData2 from '../../mock/performance_signature_formatted2.json';
 import { getProjectUrl } from '../../../../ui/helpers/location';
-import { createGraphData } from '../../../../ui/perfherder/helpers';
+import { createGraphData } from '../../../../ui/perfherder/perf-helpers/helpers';
 import {
   createApiUrl,
   createQueryParams,

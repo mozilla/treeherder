@@ -1,7 +1,8 @@
-import datetime
+import logging
+from datetime import datetime
 import json
-
-from typing import List
+from typing import List, Tuple, Optional
+from functools import reduce
 
 from django.contrib.auth.models import User
 from django.core.exceptions import ValidationError
@@ -9,8 +10,18 @@ from django.core.validators import MinLengthValidator
 from django.db import models
 from django.utils.timezone import now as django_now
 
-from treeherder.model.models import Job, MachinePlatform, OptionCollection, Push, Repository
+from treeherder.model.models import (
+    Job,
+    MachinePlatform,
+    OptionCollection,
+    Push,
+    Repository,
+    JobType,
+    JobGroup,
+)
 from treeherder.utils import default_serializer
+
+logger = logging.getLogger(__name__)
 
 SIGNATURE_HASH_LENGTH = 40
 
@@ -21,6 +32,10 @@ class PerformanceFramework(models.Model):
 
     class Meta:
         db_table = 'performance_framework'
+
+    @classmethod
+    def fetch_all_names(cls) -> List[str]:
+        return cls.objects.values_list('name', flat=True)
 
     def __str__(self):
         return self.name
@@ -94,11 +109,42 @@ class PerformanceSignature(models.Model):
                 return idx
         return None
 
+    @staticmethod
+    def _has_enough_data_points(perf_data):
+        if len(perf_data) >= 2:
+            start_date = perf_data[0].push_timestamp
+            end_date = perf_data[-1].push_timestamp
+
+            perf_data_count = len(perf_data)
+
+            num_months = (end_date.year - start_date.year) * 12 + (
+                end_date.month - start_date.month
+            )
+            if num_months >= 1:
+                min_distribution = 2
+                average_per_months = perf_data_count / num_months
+                if average_per_months >= min_distribution:
+                    return True
+        return False
+
     def has_performance_data(self):
         return PerformanceDatum.objects.filter(
             repository_id=self.repository_id,  # leverages (repository, signature) compound index
             signature_id=self.id,
         ).exists()
+
+    def has_data_with_historical_value(self):
+        repositories = ['autoland', 'mozilla-central']
+        if self.repository.name in repositories:
+            perf_data = list(
+                PerformanceDatum.objects.filter(
+                    repository_id=self.repository_id,  # leverages (repository, signature) compound index
+                    signature_id=self.id,
+                ).order_by("push_timestamp")
+            )
+            if self._has_enough_data_points(perf_data):
+                return True
+        return False
 
     class Meta:
         db_table = 'performance_signature'
@@ -264,7 +310,7 @@ class PerformanceAlertSummary(models.Model):
 
     def save(self, *args, **kwargs):
         if self.bug_number is not None and self.bug_number != self.__prev_bug_number:
-            self.bug_updated = datetime.datetime.now()
+            self.bug_updated = datetime.now()
         super(PerformanceAlertSummary, self).save(*args, **kwargs)
         self.__prev_bug_number = self.bug_number
 
@@ -404,6 +450,26 @@ class PerformanceAlert(models.Model):
 
     manually_created = models.BooleanField(default=False)
 
+    @property
+    def initial_culprit_job(self) -> Optional[Job]:
+        if hasattr(self, '__initial_culprit_job'):
+            return self.__initial_culprit_job
+
+        try:
+            # the original culprit data point, it may not be the real culprit's one
+            # because we search by the summary's push which may not be exact
+            culprit_data_point = PerformanceDatum.objects.filter(
+                repository=self.series_signature.repository,
+                signature=self.series_signature,
+                push=self.summary.push,
+            ).order_by('id')[0]
+            self.__initial_culprit_job = culprit_data_point.job
+        except IndexError:
+            logger.debug(f"Could not find the initial culprit job for alert {self.id}.")
+            self.__initial_culprit_job = None
+
+        return self.__initial_culprit_job
+
     def save(self, *args, **kwargs):
         # validate that we set a status that makes sense for presence
         # or absence of a related summary
@@ -494,6 +560,7 @@ class PerformanceBugTemplate(models.Model):
         return '{} bug template'.format(self.framework.name)
 
 
+# TODO: we actually need this name for the Sherlock' s hourly report
 class BackfillReport(models.Model):
     """
     Groups & stores all context required to retrigger/backfill
@@ -545,23 +612,111 @@ class BackfillRecord(models.Model):
     PRELIMINARY = 0
     READY_FOR_PROCESSING = 1
     BACKFILLED = 2
-    FINISHED = 3
+    SUCCESSFUL = 3
     FAILED = 4
 
     STATUSES = (
         (PRELIMINARY, 'Preliminary'),
         (READY_FOR_PROCESSING, 'Ready for processing'),
         (BACKFILLED, 'Backfilled'),
-        (FINISHED, 'Finished'),
+        (SUCCESSFUL, 'Successful'),
         (FAILED, 'Failed'),
     )
 
     status = models.IntegerField(choices=STATUSES, default=PRELIMINARY)
+
+    # Backfill outcome
     log_details = models.TextField()  # JSON expected, not supported by Django
+    job_type = models.ForeignKey(
+        JobType, null=True, on_delete=models.SET_NULL, related_name='backfill_records'
+    )
+    job_group = models.ForeignKey(
+        JobGroup, null=True, on_delete=models.SET_NULL, related_name='backfill_records'
+    )
+    job_tier = models.PositiveIntegerField(null=True)
+    job_platform_option = models.CharField(max_length=100, null=True)
+
+    total_backfills_triggered = models.IntegerField(default=0)
 
     @property
     def id(self):
         return self.alert
+
+    @property
+    def repository(self) -> Repository:
+        return self.alert.summary.repository
+
+    @property
+    def platform(self) -> MachinePlatform:
+        return self.alert.series_signature.platform
+
+    @property
+    def job_symbol(self) -> Optional[str]:
+        if not all([self.job_tier, self.job_group, self.job_type]):
+            return None
+
+        tier_label = ''
+        if self.job_tier > 1:
+            tier_label = f"[tier {self.job_tier}]"
+
+        group_symbol = self.job_group.symbol
+        type_symbol = self.job_type.symbol
+
+        return f"{group_symbol}{tier_label}({type_symbol})"
+
+    def try_remembering_job_properties(self, job_id: str):
+        if all([self.job_type, self.job_group, self.job_tier, self.job_platform_option]):
+            # classification was already set
+            return
+
+        try:
+            job = Job.objects.get(id=job_id)
+            self.__remember_job_properties(job)
+        except Job.DoesNotExist as ex:
+            logger.warning(ex)
+            logger.debug(
+                f"Failed to set properties of job ID {job_id} to record ID {self.alert_id}."
+            )
+
+    def __remember_job_properties(self, job: Job):
+        if self.job_type is None:
+            self.job_type = job.job_type
+        if self.job_group is None:
+            self.job_group = job.job_group
+        if self.job_tier is None:
+            self.job_tier = job.tier
+        if self.job_platform_option is None:
+            self.job_platform_option = job.get_platform_option()
+        self.save()
+
+    def get_context_border_info(self, context_property: str) -> Tuple[str, str]:
+        """
+        Provides border(first and last) information from context based on the property
+        """
+        context = self.get_context()
+        from_info = context[0][context_property]
+        to_info = context[-1][context_property]
+
+        return from_info, to_info
+
+    def get_pushes_in_context_range(self) -> List[Push]:
+        from_time, to_time = self.get_context_border_info('push_timestamp')
+
+        return Push.objects.filter(
+            repository=self.repository, time__gte=from_time, time__lte=to_time
+        ).all()
+
+    def get_job_search_str(self) -> str:
+        platform = deepgetattr(self, 'platform.platform')
+        platform_option = deepgetattr(self, 'job_platform_option')
+        job_group_name = deepgetattr(self, 'job_group.name')
+        job_type_name = deepgetattr(self, 'job_type.name')
+        job_type_symbol = deepgetattr(self, 'job_type.symbol')
+
+        search_terms = [platform, platform_option, job_group_name, job_type_name, job_type_symbol]
+        search_terms = list(filter(None, search_terms))
+
+        return ','.join(search_terms)
 
     def get_context(self) -> List[dict]:
         return json.loads(self.context)
@@ -598,3 +753,18 @@ class PerformanceSettings(models.Model):
 
     class Meta:
         db_table = "performance_settings"
+
+
+def deepgetattr(obj: object, attr_chain: str) -> Optional[object]:
+    """Recursively follow an attribute chain to get the final value.
+
+    @param attr_chain: e.g. 'repository.name', 'job_type', 'record.platform.architecture' etc
+    @return: None if any attribute within chain does not exist.
+    """
+    try:
+        return reduce(getattr, attr_chain.split('.'), obj)
+    except AttributeError:
+        logger.debug(
+            f"Failed to access deeply nested attribute `{attr_chain}` on object of type {type(obj)}."
+        )
+        return None

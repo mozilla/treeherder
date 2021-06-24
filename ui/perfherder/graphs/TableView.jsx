@@ -7,7 +7,7 @@ import numeral from 'numeral';
 
 import RepositoryModel from '../../models/repository';
 import { getJobsUrl, createQueryParams } from '../../helpers/url';
-import { getFrameworkName, displayNumber } from '../helpers';
+import { getFrameworkName, displayNumber } from '../perf-helpers/helpers';
 
 const TableView = ({
   testData,

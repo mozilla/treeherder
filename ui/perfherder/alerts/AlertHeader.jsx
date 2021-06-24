@@ -12,11 +12,11 @@ import {
 } from 'reactstrap';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faExternalLinkAlt } from '@fortawesome/free-solid-svg-icons';
-import moment from 'moment';
 import { Link } from 'react-router-dom';
 
-import { getTitle, getFrameworkName } from '../helpers';
+import { getTitle, getFrameworkName } from '../perf-helpers/helpers';
 import { getJobsUrl } from '../../helpers/url';
+import { toMercurialDateStr } from '../../helpers/display';
 
 import Assignee from './Assignee';
 import TagsList from './TagsList';
@@ -40,6 +40,7 @@ const AlertHeader = ({
     : '';
 
   const performanceTags = alertSummary.performance_tags || [];
+  const alertSummaryDatetime = new Date(alertSummary.push_timestamp * 1000);
 
   return (
     <Container>
@@ -64,9 +65,9 @@ const AlertHeader = ({
         </Link>
       </Row>
       <Row className="font-weight-normal">
-        <Col className="p-0" xs="auto">{`${moment(
-          alertSummary.push_timestamp * 1000,
-        ).format('ddd MMM D, HH:mm:ss')}`}</Col>
+        <Col className="p-0" xs="auto">
+          {toMercurialDateStr(alertSummaryDatetime)}
+        </Col>
         <Col className="p-0" xs="auto">
           <UncontrolledDropdown tag="span">
             <DropdownToggle className="btn-xs ml-2" color="secondary" caret>

@@ -138,6 +138,9 @@ def get_job_results(results, failure_type):
     failures = []
     count_in_progress = 0
 
+    if not len(results):
+        return ('none', failures, count_in_progress)
+
     for job in results:
         result_status.add(job.result)
         if job.result == failure_type:

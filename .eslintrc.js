@@ -23,6 +23,11 @@ module.exports = {
   env: {
     browser: true,
   },
+  globals: {
+    page: true,
+    browser: true,
+    jestPuppeteer: true,
+  },
   rules: {
     'class-methods-use-this': 'off',
     'consistent-return': 'off',
@@ -40,6 +45,7 @@ module.exports = {
     'react/jsx-fragments': 'off',
     'react/jsx-props-no-spreading': 'off',
     'react/prop-types': 'off',
+    'import/extensions': 'off',
     // Override AirBnB's config for this rule to make it more strict.
     // https://github.com/benmosher/eslint-plugin-import/blob/master/docs/rules/order.md
     'import/order': [

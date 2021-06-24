@@ -41,7 +41,6 @@ nav:
       - Common tasks: 'common_tasks.md'
       - Backend tasks: 'backend_tasks.md'
   - Infrastructure:
-      - Architecture: 'infrastructure/architecture.md'
       - Administration: 'infrastructure/administration.md'
       - Troubleshooting: 'infrastructure/troubleshooting.md'
   - Data policies:

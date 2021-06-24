@@ -20,15 +20,23 @@ import { faStar as faStarRegular } from '@fortawesome/free-regular-svg-icons';
 import { Link } from 'react-router-dom';
 
 import { createQueryParams } from '../../helpers/url';
-import { getStatus, getGraphsURL, modifyAlert, formatNumber } from '../helpers';
+import {
+  getStatus,
+  getGraphsURL,
+  modifyAlert,
+  formatNumber,
+  getFrameworkName,
+  getSplitTestTitle,
+} from '../perf-helpers/helpers';
 import SimpleTooltip from '../../shared/SimpleTooltip';
 import ProgressBar from '../../shared/ProgressBar';
 import {
   alertStatusMap,
   backfillRetriggeredTitle,
   phDefaultTimeRangeValue,
+  testDocumentationFrameworks,
   phTimeRanges,
-} from '../constants';
+} from '../perf-helpers/constants';
 
 export default class AlertTableRow extends React.Component {
   constructor(props) {
@@ -153,6 +161,7 @@ export default class AlertTableRow extends React.Component {
 
   getTitleText = (alert, alertStatus) => {
     const { repository, framework, id } = this.props.alertSummary;
+    const { frameworks } = this.props;
 
     let statusColor = '';
     let textEffect = '';
@@ -169,6 +178,17 @@ export default class AlertTableRow extends React.Component {
       textEffect = 'strike-through';
     }
     const timeRange = this.getTimeRange();
+    const frameworkName = getFrameworkName(frameworks, framework);
+    const hasDocumentation = testDocumentationFrameworks.includes(
+      frameworkName,
+    );
+    const { title } = alert;
+    const { suite } = alert.series_signature;
+    const { url, remainingTestName } = getSplitTestTitle(
+      title,
+      suite,
+      frameworkName,
+    );
     return (
       <span>
         <span
@@ -176,28 +196,35 @@ export default class AlertTableRow extends React.Component {
           id={`alert ${alert.id} title`}
           title={alert.backfill_record ? backfillRetriggeredTitle : ''}
         >
-          {alert.title}
+          {hasDocumentation && alert.title ? (
+            <div className="alert-docs">
+              <a data-testid="docs" href={url}>
+                {suite}
+              </a>{' '}
+              {remainingTestName}
+            </div>
+          ) : (
+            <div>{alert.title}</div>
+          )}
         </span>{' '}
-        {this.renderAlertStatus(alert, alertStatus, statusColor)}
+        {this.renderAlertStatus(alert, alertStatus, statusColor)}{' '}
         <span className="result-links">
           <a
             href={getGraphsURL(alert, timeRange, repository, framework)}
             target="_blank"
             rel="noopener noreferrer"
           >
-            {' '}
             graph
-          </a>
+          </a>{' '}
           {alert.series_signature.has_subtests && (
             <a
               href={this.getSubtestsURL()}
               target="_blank"
               rel="noopener noreferrer"
             >
-              {' '}
               · subtests
             </a>
-          )}
+          )}{' '}
         </span>
       </span>
     );
@@ -281,6 +308,7 @@ export default class AlertTableRow extends React.Component {
         className={
           alertSummary.notes ? 'border-top border-left border-right' : 'border'
         }
+        aria-label="Alert table row"
         data-testid={alert.id}
       >
         <td className="table-width-xs px-1">
