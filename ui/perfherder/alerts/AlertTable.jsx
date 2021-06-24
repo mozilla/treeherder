@@ -368,31 +368,7 @@ export default class AlertTable extends React.Component {
                       {tableConfig.TagsOptions.name}
                       <SortButtonDisabled column={tableConfig.TagsOptions} />
                     </th>
-                    <th className="align-bottom">
-                      <TableColumnHeader
-                        column={tableConfig.PreviousValue}
-                        onChangeSort={this.onChangeSort}
-                      />
-                    </th>
-                    <th> </th>
-                    <th className="align-bottom">
-                      <TableColumnHeader
-                        column={tableConfig.NewValue}
-                        onChangeSort={this.onChangeSort}
-                      />
-                    </th>
-                    <th className="align-bottom">
-                      <TableColumnHeader
-                        column={tableConfig.AbsoluteDifference}
-                        onChangeSort={this.onChangeSort}
-                      />
-                    </th>
-                    <th className="align-bottom">
-                      <TableColumnHeader
-                        column={tableConfig.Magnitude}
-                        onChangeSort={this.onChangeSort}
-                      />
-                    </th>
+                    <th className="align-bottom">Magnitude of Change</th>
                     <th className="align-bottom">
                       <TableColumnHeader
                         column={tableConfig.Confidence}

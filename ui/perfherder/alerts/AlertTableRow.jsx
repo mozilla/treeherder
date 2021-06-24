@@ -22,7 +22,6 @@ import {
   getSplitTestTitle,
 } from '../perf-helpers/helpers';
 import SimpleTooltip from '../../shared/SimpleTooltip';
-import ProgressBar from '../../shared/ProgressBar';
 import {
   alertStatusMap,
   backfillRetriggeredTitle,
@@ -33,6 +32,7 @@ import {
 
 import AlertTablePlatform from './AlertTablePlatform';
 import AlertTableTagsOptions from './AlertTableTagsOptions';
+import AlertTableMagnitude from './AlertTableMagnitude';
 
 export default class AlertTableRow extends React.Component {
   constructor(props) {
@@ -315,30 +315,8 @@ export default class AlertTableRow extends React.Component {
         <td className="table-width-md">
           <AlertTableTagsOptions alertId={alert.id} items={items} />
         </td>
-        <td className="table-width-md">{formatNumber(alert.prev_value)}</td>
-        <td className="table-width-sm">
-          <span
-            className={alert.is_regression ? 'text-danger' : 'text-success'}
-          >
-            {alert.prev_value < alert.new_value && <span>&lt;</span>}
-            {alert.prev_value > alert.new_value && <span>&gt;</span>}
-          </span>
-        </td>
-        <td className="table-width-md">{formatNumber(alert.new_value)}</td>
         <td className="table-width-md">
-          <SimpleTooltip
-            textClass="detail-hint"
-            text={`${alert.amount_pct}%`}
-            tooltipText={`Absolute difference: ${alert.amount_abs}`}
-            autohide={false}
-          />
-        </td>
-        <td className="table-width-lg">
-          <ProgressBar
-            magnitude={this.getCappedMagnitude(alert.amount_pct)}
-            regression={alert.is_regression}
-            color={!alert.is_regression ? 'success' : 'danger'}
-          />
+          <AlertTableMagnitude alert={alert} />
         </td>
         <td className="table-width-sm">
           <SimpleTooltip
