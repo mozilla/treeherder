@@ -1526,7 +1526,7 @@
       "dvcs_type": "hg",
       "name": "mozilla-esr68",
       "url": "https://hg.mozilla.org/releases/mozilla-esr68",
-      "active_status": "active",
+      "active_status": "onhold",
       "codebase": "gecko",
       "repository_group": 2,
       "description": "",
@@ -1540,7 +1540,7 @@
       "dvcs_type": "hg",
       "name": "comm-esr68",
       "url": "https://hg.mozilla.org/releases/comm-esr68",
-      "active_status": "active",
+      "active_status": "onhold",
       "codebase": "comm",
       "repository_group": 8,
       "description": "",
@@ -1611,6 +1611,34 @@
       "dvcs_type": "hg",
       "name": "comm-esr78",
       "url": "https://hg.mozilla.org/releases/comm-esr78",
+      "active_status": "active",
+      "codebase": "comm",
+      "repository_group": 8,
+      "description": "",
+      "tc_root_url": "https://firefox-ci-tc.services.mozilla.com"
+    }
+  },
+  {
+    "pk": 116,
+    "model": "model.repository",
+    "fields": {
+      "dvcs_type": "hg",
+      "name": "mozilla-esr91",
+      "url": "https://hg.mozilla.org/releases/mozilla-esr91",
+      "active_status": "active",
+      "codebase": "gecko",
+      "repository_group": 2,
+      "description": "",
+      "tc_root_url": "https://firefox-ci-tc.services.mozilla.com"
+    }
+  },
+  {
+    "pk": 117,
+    "model": "model.repository",
+    "fields": {
+      "dvcs_type": "hg",
+      "name": "comm-esr91",
+      "url": "https://hg.mozilla.org/releases/comm-esr91",
       "active_status": "active",
       "codebase": "comm",
       "repository_group": 8,
