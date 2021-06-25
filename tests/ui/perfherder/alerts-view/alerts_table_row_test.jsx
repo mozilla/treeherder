@@ -24,10 +24,15 @@ const frameworks = [
   },
 ];
 
-const alertTableRowTest = (tags, alert = testAlert) => {
+const alertTableRowTest = (tags, alert = testAlert, options) => {
   if (tags) {
     testAlert.series_signature.tags = [...tags];
   }
+
+  if (options) {
+    testAlert.series_signature.extra_options = [...options];
+  }
+
   return render(
     <table>
       <tbody>
@@ -48,6 +53,26 @@ const alertTableRowTest = (tags, alert = testAlert) => {
 
 afterEach(cleanup);
 
+test('Test column contains only suite and test name', async () => {
+  const { getByTestId } = alertTableRowTest(false, testAlert);
+  const { suite, test } = testAlert.series_signature;
+
+  const alertTitle = await waitFor(() =>
+    getByTestId(`alert ${testAlert.id} title`),
+  );
+
+  expect(alertTitle.textContent).toBe(`${suite} ${test}`);
+});
+
+test(`Platform column contains alerts's platform`, async () => {
+  const { getByTestId } = alertTableRowTest(false, testAlert);
+  const { machine_platform: machinePlatform } = testAlert.series_signature;
+
+  const alertPlatform = await waitFor(() => getByTestId(`alert-platform`));
+
+  expect(alertPlatform.textContent).toBe(machinePlatform);
+});
+
 test("Alert item with no tags displays 'No tags'", async () => {
   const { getByText } = alertTableRowTest(['']);
 
@@ -66,27 +91,78 @@ test('Alert item with 2 tags displays 2 tags', async () => {
 
 test("Alert item with more than 2 tags displays '...' button", async () => {
   const testTags = ['tag1', 'tag2', 'tag3'];
-  const { getByText } = alertTableRowTest(testTags);
+  const { getByTestId } = alertTableRowTest(testTags);
 
-  const showMoreButton = await waitFor(() => getByText('...'));
+  const showMoreButton = await waitFor(() => getByTestId('show-more-tags'));
 
-  expect(showMoreButton).toBeInTheDocument();
+  expect(showMoreButton.textContent).toBe('...');
 });
 
 test("Button '...' displays all the tags for an alert item", async () => {
   const testTags = ['tag1', 'tag2', 'tag3'];
-  const { getByText, getAllByTestId } = alertTableRowTest(testTags);
+  const { getByTestId, getAllByTestId } = alertTableRowTest(testTags);
 
   let visibleTags = await waitFor(() => getAllByTestId(`alert-tag`));
 
   expect(visibleTags).toHaveLength(2);
 
-  const showMoreButton = await waitFor(() => getByText('...'));
+  const showMoreButton = await waitFor(() => getByTestId('show-more-tags'));
+
+  expect(showMoreButton.textContent).toBe('...');
+
   fireEvent.click(showMoreButton);
 
   visibleTags = await waitFor(() => getAllByTestId(`alert-tag`));
 
   expect(visibleTags).toHaveLength(testTags.length);
+});
+
+test("Alert item with no options displays 'No options'", async () => {
+  const { getByText } = alertTableRowTest(false, testAlert, ['']);
+
+  const message = await waitFor(() => getByText('No options'));
+  expect(message).toBeInTheDocument();
+});
+
+test('Alert item with 2 options displays 2 options', async () => {
+  const testOptions = ['option1', 'option2'];
+  const { getAllByTestId } = alertTableRowTest(false, testAlert, testOptions);
+
+  const options = await waitFor(() => getAllByTestId(`alert-option`));
+
+  expect(options).toHaveLength(testOptions.length);
+});
+
+test("Alert item with more than 2 options displays '...' button", async () => {
+  const testOptions = ['option1', 'option2', 'option3'];
+  const { getByTestId } = alertTableRowTest(false, testAlert, testOptions);
+
+  const showMoreButton = await waitFor(() => getByTestId('show-more-options'));
+
+  expect(showMoreButton.textContent).toBe('...');
+});
+
+test("Button '...' displays all options for an alert item", async () => {
+  const testOptions = ['option1', 'option2', 'option3'];
+  const { getByTestId, getAllByTestId } = alertTableRowTest(
+    false,
+    testAlert,
+    testOptions,
+  );
+
+  let visibleOptions = await waitFor(() => getAllByTestId(`alert-option`));
+
+  expect(visibleOptions).toHaveLength(2);
+
+  const showMoreButton = await waitFor(() => getByTestId('show-more-options'));
+
+  expect(showMoreButton.textContent).toBe('...');
+
+  fireEvent.click(showMoreButton);
+
+  visibleOptions = await waitFor(() => getAllByTestId(`alert-option`));
+
+  expect(visibleOptions).toHaveLength(testOptions.length);
 });
 
 test('Documentation link is available for talos framework', async () => {

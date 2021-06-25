@@ -14,12 +14,16 @@ export const sortTypes = {
     sortByString: (value) => (a, b) => a[value].localeCompare(b[value]),
     sortByStrFirstElement: (value) => (a, b) =>
       a.series_signature[value][0].localeCompare(b.series_signature[value][0]),
+    sortBySeriesSignatureValue: (value) => (a, b) =>
+      a.series_signature[value].localeCompare(b.series_signature[value]),
     sortByValue: (value) => (a, b) => a[value] - b[value],
   },
   [tableSort.descending]: {
     sortByString: (value) => (a, b) => b[value].localeCompare(a[value]),
     sortByStrFirstElement: (value) => (a, b) =>
       b.series_signature[value][0].localeCompare(a.series_signature[value][0]),
+    sortBySeriesSignatureValue: (value) => (a, b) =>
+      b.series_signature[value].localeCompare(a.series_signature[value]),
     sortByValue: (value) => (a, b) => b[value] - a[value],
   },
 };
@@ -49,14 +53,18 @@ export const sort = (sortValue, sortType, data, table) => {
   } else {
     validData = data;
   }
-  const { sortByString, sortByValue, sortByStrFirstElement } = sortTypes[
-    sortType
-  ];
+  const {
+    sortByString,
+    sortByValue,
+    sortByStrFirstElement,
+    sortBySeriesSignatureValue,
+  } = sortTypes[sortType];
 
   const getSortType = {
     title: sortByString,
     name: sortByString,
     tags: sortByStrFirstElement,
+    machine_platform: sortBySeriesSignatureValue,
   };
 
   let doSort = getSortType[sortValue];

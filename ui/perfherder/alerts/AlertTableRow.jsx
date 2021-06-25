@@ -2,14 +2,7 @@
 
 import React from 'react';
 import PropTypes from 'prop-types';
-import {
-  Button,
-  FormGroup,
-  Input,
-  Label,
-  Badge,
-  UncontrolledTooltip,
-} from 'reactstrap';
+import { Button, FormGroup, Input, Label } from 'reactstrap';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import {
   faStar as faStarSolid,
@@ -38,15 +31,15 @@ import {
   phTimeRanges,
 } from '../perf-helpers/constants';
 
+import AlertTablePlatform from './AlertTablePlatform';
+import AlertTableTagsOptions from './AlertTableTagsOptions';
+
 export default class AlertTableRow extends React.Component {
   constructor(props) {
     super(props);
-    const { tags } = this.props.alert.series_signature;
     this.state = {
       starred: this.props.alert.starred,
       checkboxSelected: false,
-      displayAllTags: false,
-      tags,
     };
   }
 
@@ -183,12 +176,8 @@ export default class AlertTableRow extends React.Component {
       frameworkName,
     );
     const { title } = alert;
-    const { suite } = alert.series_signature;
-    const { url, remainingTestName } = getSplitTestTitle(
-      title,
-      suite,
-      frameworkName,
-    );
+    const { suite, test } = alert.series_signature;
+    const { url } = getSplitTestTitle(title, suite, frameworkName);
     return (
       <span>
         <span
@@ -197,14 +186,16 @@ export default class AlertTableRow extends React.Component {
           title={alert.backfill_record ? backfillRetriggeredTitle : ''}
         >
           {hasDocumentation && alert.title ? (
-            <div className="alert-docs">
+            <div className="alert-docs" data-testid={`alert ${alert.id} title`}>
               <a data-testid="docs" href={url}>
                 {suite}
               </a>{' '}
-              {remainingTestName}
+              {test}
             </div>
           ) : (
-            <div>{alert.title}</div>
+            <div data-testid={`alert ${alert.id} title`}>
+              {suite} {test}
+            </div>
           )}
         </span>{' '}
         {this.renderAlertStatus(alert, alertStatus, statusColor)}{' '}
@@ -230,50 +221,6 @@ export default class AlertTableRow extends React.Component {
     );
   };
 
-  showTags = (tags) => {
-    return tags.map((item) => (
-      <Badge color="light" key={`${item}`} data-testid="alert-tag">
-        {item}
-      </Badge>
-    ));
-  };
-
-  getTags = (alert) => {
-    const { displayAllTags, tags } = this.state;
-    const visibleTags = 2;
-
-    if (tags.length && tags[0] !== '') {
-      return (
-        <React.Fragment>
-          {this.showTags(tags.slice(0, visibleTags))}
-          {!displayAllTags && tags.length > visibleTags && (
-            <Button
-              color="link"
-              size="sm"
-              id={`alert-${alert.id}-tags`}
-              onClick={() =>
-                this.setState((prevState) => ({
-                  displayAllTags: !prevState.displayAllTags,
-                }))
-              }
-            >
-              <span>...</span>
-              <UncontrolledTooltip
-                placement="top"
-                target={`alert-${alert.id}-tags`}
-              >
-                Show more tags
-              </UncontrolledTooltip>
-            </Button>
-          )}
-          {displayAllTags && this.showTags(tags.slice(visibleTags))}
-        </React.Fragment>
-      );
-    }
-
-    return <Badge color="light">No tags</Badge>;
-  };
-
   // arbitrary scale from 0-20% multiplied by 5, capped
   // at 100 (so 20% regression === 100% bad)
   getCappedMagnitude = (percent) => Math.min(Math.abs(percent) * 5, 100);
@@ -296,6 +243,9 @@ export default class AlertTableRow extends React.Component {
   render() {
     const { user, alert, alertSummary } = this.props;
     const { starred, checkboxSelected } = this.state;
+
+    const { tags, extra_options: options } = alert.series_signature;
+    const items = { tags, options };
 
     const alertStatus = getStatus(alert.status, alertStatusMap);
     const tooltipText = alert.classifier_email
@@ -357,7 +307,14 @@ export default class AlertTableRow extends React.Component {
             this.getTitleText(alert, alertStatus)
           )}
         </td>
-        <td className="table-width-md">{this.getTags(alert)}</td>
+        <td className="table-width-md">
+          <AlertTablePlatform
+            platform={alert.series_signature.machine_platform}
+          />
+        </td>
+        <td className="table-width-md">
+          <AlertTableTagsOptions alertId={alert.id} items={items} />
+        </td>
         <td className="table-width-md">{formatNumber(alert.prev_value)}</td>
         <td className="table-width-sm">
           <span

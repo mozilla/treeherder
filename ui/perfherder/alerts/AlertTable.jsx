@@ -16,12 +16,13 @@ import {
 } from '../perf-helpers/helpers';
 import TruncatedText from '../../shared/TruncatedText';
 import ErrorBoundary from '../../shared/ErrorBoundary';
-import SortButton from '../shared/SortButton';
+import TableColumnHeader from '../shared/TableColumnHeader';
+import SortButtonDisabled from '../shared/SortButtonDisabled';
 import { tableSort, getNextSort, sort, sortTables } from '../perf-helpers/sort';
 
+import AlertTableRow from './AlertTableRow';
 import AlertHeader from './AlertHeader';
 import StatusDropdown from './StatusDropdown';
-import AlertTableRow from './AlertTableRow';
 import DownstreamSummary from './DownstreamSummary';
 import AlertActionPanel from './AlertActionPanel';
 import SelectAlertsDropdown from './SelectAlertsDropdown';
@@ -37,13 +38,18 @@ export default class AlertTable extends React.Component {
       allSelected: false,
       selectedAlerts: [],
       tableConfig: {
-        TestAndPlatform: {
-          name: 'Test and platform',
+        Test: {
+          name: 'Test',
           sortValue: 'title',
           currentSort: tableSort.default,
         },
-        Tags: {
-          name: 'Tags',
+        Platform: {
+          name: 'Platform',
+          sortValue: 'machine_platform',
+          currentSort: tableSort.default,
+        },
+        TagsOptions: {
+          name: 'Tags & Options',
           sortValue: 'tags',
           currentSort: tableSort.default,
         },
@@ -347,47 +353,48 @@ export default class AlertTable extends React.Component {
                     <th> </th>
                     <th> </th>
                     <th className="align-bottom">
-                      <SortButton
-                        column={tableConfig.TestAndPlatform}
+                      <TableColumnHeader
+                        column={tableConfig.Test}
                         onChangeSort={this.onChangeSort}
                       />
                     </th>
                     <th className="align-bottom">
-                      {' '}
-                      <SortButton
-                        column={tableConfig.Tags}
+                      <TableColumnHeader
+                        column={tableConfig.Platform}
                         onChangeSort={this.onChangeSort}
                       />
                     </th>
                     <th className="align-bottom">
-                      {' '}
-                      <SortButton
+                      {tableConfig.TagsOptions.name}
+                      <SortButtonDisabled column={tableConfig.TagsOptions} />
+                    </th>
+                    <th className="align-bottom">
+                      <TableColumnHeader
                         column={tableConfig.PreviousValue}
                         onChangeSort={this.onChangeSort}
                       />
                     </th>
                     <th> </th>
                     <th className="align-bottom">
-                      {' '}
-                      <SortButton
+                      <TableColumnHeader
                         column={tableConfig.NewValue}
                         onChangeSort={this.onChangeSort}
                       />
                     </th>
                     <th className="align-bottom">
-                      <SortButton
+                      <TableColumnHeader
                         column={tableConfig.AbsoluteDifference}
                         onChangeSort={this.onChangeSort}
                       />
                     </th>
                     <th className="align-bottom">
-                      <SortButton
+                      <TableColumnHeader
                         column={tableConfig.Magnitude}
                         onChangeSort={this.onChangeSort}
                       />
                     </th>
                     <th className="align-bottom">
-                      <SortButton
+                      <TableColumnHeader
                         column={tableConfig.Confidence}
                         onChangeSort={this.onChangeSort}
                       />

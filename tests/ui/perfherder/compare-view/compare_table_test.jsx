@@ -11,13 +11,13 @@ import {
 import projects from '../../mock/repositories';
 import CompareTableControls from '../../../../ui/perfherder/compare/CompareTableControls';
 import CompareTable from '../../../../ui/perfherder/compare/CompareTable';
-import SortButton from '../../../../ui/perfherder/shared/SortButton';
 import ComparePageTitle from '../../../../ui/shared/ComparePageTitle';
 import {
   compareTableText,
   filterText,
 } from '../../../../ui/perfherder/perf-helpers/constants';
 import JobModel from '../../../../ui/models/job';
+import TableColumnHeader from '../../../../ui/perfherder/shared/TableColumnHeader';
 
 // TODO addtional tests:
 // 1) that the table is receiving the correct data structure after data
@@ -694,7 +694,7 @@ test(`measurement unit is passed in the header name for Base and New`, async () 
   expect(queryByText('Base (ms)')).toBeInTheDocument();
 });
 
-test(`SortButton shows the title as expected`, async () => {
+test(`TableColumnHeader shows the title as expected`, async () => {
   const defaultProps = {
     onChangeSort: jest.fn(),
     column: {
@@ -702,7 +702,7 @@ test(`SortButton shows the title as expected`, async () => {
       currentSort: 'default',
     },
   };
-  const { queryByText } = render(<SortButton {...defaultProps} />);
+  const { queryByText } = render(<TableColumnHeader {...defaultProps} />);
 
   expect(queryByText('New (score)')).not.toBeInTheDocument();
   expect(queryByText('New')).toBeInTheDocument();

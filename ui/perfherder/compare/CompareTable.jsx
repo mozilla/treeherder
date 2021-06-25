@@ -8,7 +8,7 @@ import { getHashBasedId, getSplitTestTitle } from '../perf-helpers/helpers';
 import { testDocumentationFrameworks } from '../perf-helpers/constants';
 import { hashFunction } from '../../helpers/utils';
 import { tableSort, getNextSort, sort, sortTables } from '../perf-helpers/sort';
-import SortButton from '../shared/SortButton';
+import TableColumnHeader from '../shared/TableColumnHeader';
 
 import RetriggerButton from './RetriggerButton';
 import CompareTableRow from './CompareTableRow';
@@ -167,14 +167,14 @@ export default class CompareTable extends React.Component {
                     <FontAwesomeIcon icon={faHashtag} />
                   </Button>
                 )}
-                <SortButton
+                <TableColumnHeader
                   column={tableConfig.TestName}
                   onChangeSort={this.onChangeSort}
                 />
               </div>
             </th>
             <th className="table-width-lg">
-              <SortButton
+              <TableColumnHeader
                 column={tableConfig.Base}
                 onChangeSort={this.onChangeSort}
               />
@@ -182,25 +182,25 @@ export default class CompareTable extends React.Component {
             {/* empty for less than/greater than data */}
             <th className="table-width-sm" aria-label="Comparison" />
             <th className="table-width-lg">
-              <SortButton
+              <TableColumnHeader
                 column={tableConfig.New}
                 onChangeSort={this.onChangeSort}
               />
             </th>
             <th className="table-width-lg">
-              <SortButton
+              <TableColumnHeader
                 column={tableConfig.Delta}
                 onChangeSort={this.onChangeSort}
               />
             </th>
             <th className="table-width-lg">
-              <SortButton
+              <TableColumnHeader
                 column={tableConfig.Magnitude}
                 onChangeSort={this.onChangeSort}
               />
             </th>
             <th className="table-width-lg">
-              <SortButton
+              <TableColumnHeader
                 column={tableConfig.Confidence}
                 onChangeSort={this.onChangeSort}
               />
