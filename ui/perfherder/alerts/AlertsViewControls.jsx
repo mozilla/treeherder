@@ -192,6 +192,7 @@ export default class AlertsViewControls extends React.Component {
           </Container>
         )}
         <FilterControls
+          filteredTextValue={filterText}
           dropdownOptions={isListMode ? alertDropdowns : []}
           filterOptions={alertCheckboxes}
           updateFilter={this.updateFilter}

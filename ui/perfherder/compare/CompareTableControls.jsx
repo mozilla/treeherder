@@ -25,7 +25,7 @@ export default class CompareTableControls extends React.Component {
       hideUncertain: convertParams(this.validated, 'showOnlyConfident'),
       showNoise: convertParams(this.validated, 'showOnlyNoise'),
       results: new Map(),
-      filterText: this.getDefaultFilterText(this.validated),
+      filteredText: this.getDefaultFilterText(this.validated),
       showRetriggerModal: false,
       currentRetriggerRow: {},
     };
@@ -43,12 +43,14 @@ export default class CompareTableControls extends React.Component {
   }
 
   getDefaultFilterText = (validated) => {
-    const { filterText } = validated;
-    return filterText === undefined || filterText === null ? '' : filterText;
+    const { filter } = validated;
+    return filter === undefined || filter === null ? '' : filter;
   };
 
   updateFilterText = (filterText) => {
-    this.setState({ filterText }, () => this.updateFilteredResults());
+    this.setState({ filteredText: filterText }, () =>
+      this.updateFilteredResults(),
+    );
   };
 
   updateFilter = (filter) => {
@@ -60,7 +62,7 @@ export default class CompareTableControls extends React.Component {
 
   filterResult = (testName, result) => {
     const {
-      filterText,
+      filteredText,
       showImportant,
       hideUncertain,
       showNoise,
@@ -73,18 +75,18 @@ export default class CompareTableControls extends React.Component {
       (!hideUncertain || result.isConfident) &&
       (!showNoise || result.isNoiseMetric);
 
-    if (!filterText) return matchesFilters;
+    if (!filteredText) return matchesFilters;
 
     const textToSearch = `${testName} ${result.name}`;
 
     // searching with filter input and one or more metricFilter buttons on
     // will produce different results compared to when all filters are off
-    return containsText(textToSearch, filterText) && matchesFilters;
+    return containsText(textToSearch, filteredText) && matchesFilters;
   };
 
   updateFilteredResults = () => {
     const {
-      filterText,
+      filteredText,
       hideUncomparable,
       showImportant,
       hideUncertain,
@@ -94,9 +96,8 @@ export default class CompareTableControls extends React.Component {
     const { compareResults } = this.props;
 
     this.updateUrlParams();
-
     if (
-      !filterText &&
+      !filteredText &&
       !hideUncomparable &&
       !showImportant &&
       !hideUncertain &&
@@ -142,9 +143,9 @@ export default class CompareTableControls extends React.Component {
   };
 
   updateUrlParams = () => {
-    const { updateParams } = this.props.validated;
+    const { updateParams, removeParams } = this.props.validated;
     const {
-      filterText,
+      filteredText,
       hideUncomparable,
       showImportant,
       hideUncertain,
@@ -157,11 +158,10 @@ export default class CompareTableControls extends React.Component {
       showOnlyNoise,
       filter,
     } = parseQueryParams(window.location.search);
-    const { removeParams } = this.props.validated;
     const compareURLParams = {};
     const paramsToRemove = [];
 
-    if (filterText !== '') compareURLParams.filter = filterText;
+    if (filteredText !== '') compareURLParams.filter = filteredText;
     else if (filter) paramsToRemove.push('filter');
 
     if (hideUncomparable) compareURLParams.showOnlyComparable = 1;
@@ -207,6 +207,7 @@ export default class CompareTableControls extends React.Component {
       results,
       showRetriggerModal,
       currentRetriggerRow,
+      filteredText,
     } = this.state;
 
     const compareFilters = [
@@ -247,6 +248,7 @@ export default class CompareTableControls extends React.Component {
           isBaseAggregate={isBaseAggregate}
         />
         <FilterControls
+          filteredTextValue={filteredText}
           filterOptions={compareFilters}
           updateFilter={this.updateFilter}
           updateFilterText={this.updateFilterText}

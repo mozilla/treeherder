@@ -10,7 +10,7 @@ export default class InputFilter extends React.Component {
   constructor(props) {
     super(props);
     this.state = {
-      input: '',
+      input: props.filteredTextValue,
     };
   }
 
