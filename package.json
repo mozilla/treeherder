@@ -69,7 +69,7 @@
     "@pollyjs/adapter-fetch": "^5.1.0",
     "@pollyjs/adapter-node-http": "5.1.1",
     "@pollyjs/adapter-puppeteer": "5.1.1",
-    "@pollyjs/core": "^5.1.0",
+    "@pollyjs/core": "5.1.1",
     "@pollyjs/persister-fs": "^5.0.0",
     "@testing-library/jest-dom": "5.0.2",
     "@testing-library/react": "11.0.4",
