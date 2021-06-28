@@ -66,8 +66,8 @@ export default class CompareTableControls extends React.Component {
   };
 
   getDefaultFilterText = (validated) => {
-    const { filterText } = validated;
-    return filterText === undefined || filterText === null ? '' : filterText;
+    const { filter } = validated;
+    return filter === undefined || filter === null ? '' : filter;
   };
 
   updateFilterText = (filterText) => {
@@ -179,7 +179,7 @@ export default class CompareTableControls extends React.Component {
   };
 
   updateUrlParams = () => {
-    const { updateParams } = this.props.validated;
+    const { updateParams, removeParams } = this.props.validated;
     const {
       filteredText,
       hideUncomparable,
