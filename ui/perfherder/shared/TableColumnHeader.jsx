@@ -9,7 +9,7 @@ export default class TableColumnHeader extends React.Component {
     const { column, onChangeSort } = this.props;
     const { name } = column;
     return (
-      <div className="d-flex align-items-end">
+      <div className="d-flex align-items-end pl-1">
         <div>{name === 'Test name' ? '' : `${name}`}</div>
         <SortButton column={column} onChangeSort={onChangeSort} />
       </div>
