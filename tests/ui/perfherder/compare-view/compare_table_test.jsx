@@ -140,6 +140,9 @@ const compareTableControlsNode = (
       isBaseAggregate={isBaseAggregate}
       onPermalinkClick={mockHandlePermalinkClick}
       projects={projects}
+      validated={{
+        updateParams: () => {},
+      }}
     />
   );
 };
