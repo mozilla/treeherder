@@ -4,7 +4,7 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faClipboard } from '@fortawesome/free-regular-svg-icons';
 import { Button } from 'reactstrap';
 
-const Clipboard = ({ description, text, outline, visible }) => {
+const Clipboard = ({ description, text, outline, visible, color }) => {
   if (!text) {
     return null;
   }
@@ -17,7 +17,7 @@ const Clipboard = ({ description, text, outline, visible }) => {
       title={`Copy ${description}`}
       onClick={copyToClipboard}
       className={`py-0 px-1 ${visible ? '' : 'invisible'}`}
-      color="light"
+      color={`${color || 'light'}`}
       outline={outline}
     >
       <FontAwesomeIcon icon={faClipboard} />
