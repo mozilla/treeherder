@@ -179,7 +179,7 @@ export default class CompareTableControls extends React.Component {
   };
 
   updateUrlParams = () => {
-    const { updateParams, removeParams } = this.props.validated;
+    const { updateParams } = this.props.validated;
     const {
       filteredText,
       hideUncomparable,
