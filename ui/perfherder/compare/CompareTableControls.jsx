@@ -143,7 +143,7 @@ export default class CompareTableControls extends React.Component {
   };
 
   updateUrlParams = () => {
-    const { updateParams, removeParams } = this.props.validated;
+    const { updateParams } = this.props.validated;
     const {
       filteredText,
       hideUncomparable,
@@ -176,8 +176,7 @@ export default class CompareTableControls extends React.Component {
     if (showNoise) compareURLParams.showOnlyNoise = 1;
     else if (showOnlyNoise) paramsToRemove.push('showOnlyNoise');
 
-    updateParams(compareURLParams);
-    if (paramsToRemove.length !== 0) removeParams(paramsToRemove);
+    updateParams(compareURLParams, paramsToRemove);
   };
 
   onModalOpen = (rowResults) => {

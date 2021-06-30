@@ -213,38 +213,53 @@ test('toggle buttons should update the URL params', async () => {
 
   const showImportant = getByText(filterText.showImportant);
   fireEvent.click(showImportant);
-  expect(mockUpdateParams).toHaveBeenLastCalledWith({ showOnlyImportant: 1 });
+  expect(mockUpdateParams).toHaveBeenLastCalledWith(
+    { showOnlyImportant: 1 },
+    [],
+  );
 
   const hideUncertain = getByText(filterText.hideUncertain);
   fireEvent.click(hideUncertain);
-  expect(mockUpdateParams).toHaveBeenLastCalledWith({
-    showOnlyImportant: 1,
-    showOnlyConfident: 1,
-  });
+  expect(mockUpdateParams).toHaveBeenLastCalledWith(
+    {
+      showOnlyImportant: 1,
+      showOnlyConfident: 1,
+    },
+    [],
+  );
 
   const showNoise = getByText(filterText.showNoise);
   fireEvent.click(showNoise);
-  expect(mockUpdateParams).toHaveBeenLastCalledWith({
-    showOnlyImportant: 1,
-    showOnlyConfident: 1,
-    showOnlyNoise: 1,
-  });
+  expect(mockUpdateParams).toHaveBeenLastCalledWith(
+    {
+      showOnlyImportant: 1,
+      showOnlyConfident: 1,
+      showOnlyNoise: 1,
+    },
+    [],
+  );
 
   const hideUncomparable = getByText(filterText.hideUncomparable);
   fireEvent.click(hideUncomparable);
-  expect(mockUpdateParams).toHaveBeenLastCalledWith({
-    showOnlyImportant: 1,
-    showOnlyConfident: 1,
-    showOnlyNoise: 1,
-    showOnlyComparable: 1,
-  });
+  expect(mockUpdateParams).toHaveBeenLastCalledWith(
+    {
+      showOnlyImportant: 1,
+      showOnlyConfident: 1,
+      showOnlyNoise: 1,
+      showOnlyComparable: 1,
+    },
+    [],
+  );
 
   fireEvent.click(hideUncertain);
-  expect(mockUpdateParams).toHaveBeenLastCalledWith({
-    showOnlyImportant: 1,
-    showOnlyNoise: 1,
-    showOnlyComparable: 1,
-  });
+  expect(mockUpdateParams).toHaveBeenLastCalledWith(
+    {
+      showOnlyImportant: 1,
+      showOnlyNoise: 1,
+      showOnlyComparable: 1,
+    },
+    [],
+  );
 });
 
 test('text input filter results should differ when filter button(s) are selected', async () => {
