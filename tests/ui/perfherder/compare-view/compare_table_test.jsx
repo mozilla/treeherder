@@ -208,7 +208,7 @@ test('toggle buttons should filter results by selected filter', async () => {
   expect(result2).toBeInTheDocument();
 });
 
-test('toggle buttons should update the URL params', async () => {
+test('toggle all buttons should update the URL params', async () => {
   const { getByText } = compareTableControls();
 
   const showImportant = getByText(filterText.showImportant);
@@ -250,16 +250,24 @@ test('toggle buttons should update the URL params', async () => {
     },
     [],
   );
+});
 
-  fireEvent.click(hideUncertain);
-  expect(mockUpdateParams).toHaveBeenLastCalledWith(
-    {
-      showOnlyImportant: 1,
-      showOnlyNoise: 1,
-      showOnlyComparable: 1,
+test('filters that are not enabled are removed from URL params', async () => {
+  const { getByText } = compareTableControls();
+
+  global.window = Object.create(window);
+  const url = '?showOnlyConfident=1';
+  Object.defineProperty(window, 'location', {
+    value: {
+      search: url,
     },
-    [],
-  );
+  });
+
+  const showImportant = getByText(filterText.showImportant);
+  fireEvent.click(showImportant);
+  expect(mockUpdateParams).toHaveBeenLastCalledWith({ showOnlyImportant: 1 }, [
+    'showOnlyConfident',
+  ]);
 });
 
 test('text input filter results should differ when filter button(s) are selected', async () => {
