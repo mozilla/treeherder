@@ -18,7 +18,10 @@ export default class AlertTableMagnitude extends React.PureComponent {
     const { alert } = this.props;
     return (
       <div className="d-flex align-items-end justify-content-center">
-        <div className="w-50 text-right text-nowrap">
+        <div
+          className="w-50 text-right text-nowrap"
+          data-testid="previous-value"
+        >
           <SimpleTooltip
             textClass="detail-hint"
             text={this.abbreviateNumber(alert.prev_value)}
@@ -43,11 +46,11 @@ export default class AlertTableMagnitude extends React.PureComponent {
             />
           </div>
         </div>
-        <div className="w-50 text-nowrap">
+        <div className="w-50 text-nowrap" data-testid="new-value">
           <SimpleTooltip
             textClass="detail-hint"
             text={this.abbreviateNumber(alert.new_value)}
-            tooltipText={`Next value: ${formatNumber(alert.new_value)}`}
+            tooltipText={`New value: ${formatNumber(alert.new_value)}`}
             autohide={false}
           />
         </div>
