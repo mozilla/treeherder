@@ -145,7 +145,7 @@ export default class AlertTableRow extends React.Component {
         <span className={statusColor}>{alertStatus}</span>
         {alert.related_summary_id && this.getReassignment(alert)}
         {alert.backfill_record ? (
-          <span className="text-darker-info">, important</span>
+          <span className="text-darker-info">, important </span>
         ) : null}
         )
       </React.Fragment>
@@ -186,16 +186,19 @@ export default class AlertTableRow extends React.Component {
           title={alert.backfill_record ? backfillRetriggeredTitle : ''}
         >
           {hasDocumentation && alert.title ? (
-            <div className="alert-docs" data-testid={`alert ${alert.id} title`}>
+            <span
+              className="alert-docs"
+              data-testid={`alert ${alert.id} title`}
+            >
               <a data-testid="docs" href={url}>
                 {suite}
               </a>{' '}
               {test}
-            </div>
+            </span>
           ) : (
-            <div data-testid={`alert ${alert.id} title`}>
+            <span data-testid={`alert ${alert.id} title`}>
               {suite} {test}
-            </div>
+            </span>
           )}
         </span>{' '}
         {this.renderAlertStatus(alert, alertStatus, statusColor)}{' '}
@@ -307,12 +310,12 @@ export default class AlertTableRow extends React.Component {
             this.getTitleText(alert, alertStatus)
           )}
         </td>
-        <td className="table-width-md">
+        <td className="table-width-lg">
           <AlertTablePlatform
             platform={alert.series_signature.machine_platform}
           />
         </td>
-        <td className="table-width-md">
+        <td className="table-width-lg">
           <AlertTableTagsOptions alertId={alert.id} items={items} />
         </td>
         <td className="table-width-md">

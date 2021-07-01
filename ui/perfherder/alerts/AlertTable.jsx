@@ -348,8 +348,8 @@ export default class AlertTable extends React.Component {
                         onChangeSort={this.onChangeSort}
                       />
                     </th>
-                    <th className="align-bottom">
-                      {tableConfig.TagsOptions.name}
+                    <th className="align-bottom text-nowrap">
+                      <span>{tableConfig.TagsOptions.name}</span>
                       <SortButtonDisabled column={tableConfig.TagsOptions} />
                     </th>
                     <th className="align-bottom">

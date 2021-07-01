@@ -32,7 +32,12 @@ export default class AlertTableTagsOptions extends React.Component {
     };
 
     return items.map((item) => (
-      <Badge color="light" key={`${item}`} data-testid={badgeId[type]}>
+      <Badge
+        className="mr-1"
+        color="light"
+        key={`${item}`}
+        data-testid={badgeId[type]}
+      >
         {item}
       </Badge>
     ));
@@ -72,7 +77,9 @@ export default class AlertTableTagsOptions extends React.Component {
           this.showItems(items.slice(this.visibleItems[type]), type)}
       </div>
     ) : (
-      <Badge color="light">No {type}</Badge>
+      <Badge className="mb-1" color="light">
+        No {type}
+      </Badge>
     );
   };
 
@@ -80,10 +87,10 @@ export default class AlertTableTagsOptions extends React.Component {
     const { options, tags } = this.state;
 
     return (
-      <React.Fragment>
+      <div className="d-flex flex-column align-items-start">
         {this.displayItems(tags, this.itemsType.tags)}
         {this.displayItems(options, this.itemsType.options)}
-      </React.Fragment>
+      </div>
     );
   }
 }

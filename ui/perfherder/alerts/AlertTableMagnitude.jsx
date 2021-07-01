@@ -1,4 +1,6 @@
 import React from 'react';
+import PropTypes from 'prop-types';
+import numeral from 'numeral';
 
 import ProgressBar from '../../shared/ProgressBar';
 import SimpleTooltip from '../../shared/SimpleTooltip';
@@ -9,11 +11,21 @@ export default class AlertTableMagnitude extends React.PureComponent {
   // at 100 (so 20% regression === 100% bad)
   getCappedMagnitude = (percent) => Math.min(Math.abs(percent) * 5, 100);
 
+  abbreviateNumber = (num) =>
+    numeral(num).format('0.0a').toString().toUpperCase();
+
   render() {
     const { alert } = this.props;
     return (
       <div className="d-flex align-items-end justify-content-center">
-        <div className="w-50 text-right">{formatNumber(alert.prev_value)}</div>
+        <div className="w-50 text-right text-nowrap">
+          <SimpleTooltip
+            textClass="detail-hint"
+            text={this.abbreviateNumber(alert.prev_value)}
+            tooltipText={`Previous value: ${formatNumber(alert.prev_value)}`}
+            autohide={false}
+          />
+        </div>
         <div className="d-flex flex-column">
           <div className="align-self-center pb-1">
             <SimpleTooltip
@@ -31,8 +43,19 @@ export default class AlertTableMagnitude extends React.PureComponent {
             />
           </div>
         </div>
-        <span className="w-50">{formatNumber(alert.new_value)}</span>
+        <div className="w-50 text-nowrap">
+          <SimpleTooltip
+            textClass="detail-hint"
+            text={this.abbreviateNumber(alert.new_value)}
+            tooltipText={`Next value: ${formatNumber(alert.new_value)}`}
+            autohide={false}
+          />
+        </div>
       </div>
     );
   }
 }
+
+AlertTableMagnitude.propTypes = {
+  alert: PropTypes.shape({}).isRequired,
+};
