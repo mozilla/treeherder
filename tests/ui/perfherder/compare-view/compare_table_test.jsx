@@ -7,7 +7,7 @@ import {
   waitFor,
   waitForElementToBeRemoved,
 } from '@testing-library/react';
-import ReactTestUtils from 'react-dom/test-utils';
+
 import projects from '../../mock/repositories';
 import CompareTableControls from '../../../../ui/perfherder/compare/CompareTableControls';
 import CompareTable from '../../../../ui/perfherder/compare/CompareTable';
@@ -281,30 +281,6 @@ test('filters that are not enabled are removed from URL params', async () => {
   fireEvent.click(showImportant);
   expect(mockUpdateParams).toHaveBeenLastCalledWith({}, [
     'filter',
-    'showOnlyComparable',
-    'showOnlyImportant',
-    'showOnlyConfident',
-    'showOnlyNoise',
-  ]);
-});
-
-test('filterText is removed when empty from URL params', async () => {
-  const { getByPlaceholderText } = compareTableControls();
-
-  const filterInput = await waitFor(() =>
-    getByPlaceholderText(filterText.inputPlaceholder),
-  );
-
-  // fireEvent.change(filterInput, { target: { value: 'linux' } });
-  const node = filterInput;
-  node.value = 'linux';
-  ReactTestUtils.Simulate.change(filterInput, { target: { value: 'linux' } });
-  // ReactTestUtils.Simulate.keyDown(node, {
-  //   key: 'Enter',
-  //   keyCode: 13,
-  //   which: 13,
-  // });
-  expect(mockUpdateParams).toHaveBeenLastCalledWith({ filter: 'linux' }, [
     'showOnlyComparable',
     'showOnlyImportant',
     'showOnlyConfident',

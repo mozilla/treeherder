@@ -10,7 +10,6 @@ import {
   retriggerMultipleJobs,
 } from '../perf-helpers/helpers';
 import FilterControls from '../../shared/FilterControls';
-import { parseQueryParams } from '../../helpers/url';
 
 import CompareTable from './CompareTable';
 import RetriggerModal from './RetriggerModal';
