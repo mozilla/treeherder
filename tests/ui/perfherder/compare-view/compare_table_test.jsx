@@ -7,7 +7,7 @@ import {
   waitFor,
   waitForElementToBeRemoved,
 } from '@testing-library/react';
-
+import ReactTestUtils from 'react-dom/test-utils';
 import projects from '../../mock/repositories';
 import CompareTableControls from '../../../../ui/perfherder/compare/CompareTableControls';
 import CompareTable from '../../../../ui/perfherder/compare/CompareTable';
@@ -143,6 +143,11 @@ const compareTableControlsNode = (
       projects={projects}
       validated={{
         updateParams: mockUpdateParams,
+        showOnlyImportant: '0',
+        showOnlyComparable: '0',
+        showOnlyConfident: '0',
+        showOnlyNoise: '0',
+        filter: null,
       }}
     />
   );
@@ -211,24 +216,30 @@ test('toggle buttons should filter results by selected filter', async () => {
 test('toggle all buttons should update the URL params', async () => {
   const { getByText } = compareTableControls();
 
-  const showImportant = getByText(filterText.showImportant);
-  fireEvent.click(showImportant);
-  expect(mockUpdateParams).toHaveBeenLastCalledWith(
-    { showOnlyImportant: 1 },
-    [],
+  const showImportant = await waitFor(() =>
+    getByText(filterText.showImportant),
   );
+  fireEvent.click(showImportant);
+  expect(mockUpdateParams).toHaveBeenLastCalledWith({ showOnlyImportant: 1 }, [
+    'filter',
+    'showOnlyComparable',
+    'showOnlyConfident',
+    'showOnlyNoise',
+  ]);
 
-  const hideUncertain = getByText(filterText.hideUncertain);
+  const hideUncertain = await waitFor(() =>
+    getByText(filterText.hideUncertain),
+  );
   fireEvent.click(hideUncertain);
   expect(mockUpdateParams).toHaveBeenLastCalledWith(
     {
       showOnlyImportant: 1,
       showOnlyConfident: 1,
     },
-    [],
+    ['filter', 'showOnlyComparable', 'showOnlyNoise'],
   );
 
-  const showNoise = getByText(filterText.showNoise);
+  const showNoise = await waitFor(() => getByText(filterText.showNoise));
   fireEvent.click(showNoise);
   expect(mockUpdateParams).toHaveBeenLastCalledWith(
     {
@@ -236,10 +247,12 @@ test('toggle all buttons should update the URL params', async () => {
       showOnlyConfident: 1,
       showOnlyNoise: 1,
     },
-    [],
+    ['filter', 'showOnlyComparable'],
   );
 
-  const hideUncomparable = getByText(filterText.hideUncomparable);
+  const hideUncomparable = await waitFor(() =>
+    getByText(filterText.hideUncomparable),
+  );
   fireEvent.click(hideUncomparable);
   expect(mockUpdateParams).toHaveBeenLastCalledWith(
     {
@@ -248,25 +261,54 @@ test('toggle all buttons should update the URL params', async () => {
       showOnlyNoise: 1,
       showOnlyComparable: 1,
     },
-    [],
+    ['filter'],
   );
 });
 
 test('filters that are not enabled are removed from URL params', async () => {
   const { getByText } = compareTableControls();
 
-  global.window = Object.create(window);
-  const url = '?showOnlyConfident=1';
-  Object.defineProperty(window, 'location', {
-    value: {
-      search: url,
-    },
-  });
-
-  const showImportant = getByText(filterText.showImportant);
+  const showImportant = await waitFor(() =>
+    getByText(filterText.showImportant),
+  );
   fireEvent.click(showImportant);
   expect(mockUpdateParams).toHaveBeenLastCalledWith({ showOnlyImportant: 1 }, [
+    'filter',
+    'showOnlyComparable',
     'showOnlyConfident',
+    'showOnlyNoise',
+  ]);
+  fireEvent.click(showImportant);
+  expect(mockUpdateParams).toHaveBeenLastCalledWith({}, [
+    'filter',
+    'showOnlyComparable',
+    'showOnlyImportant',
+    'showOnlyConfident',
+    'showOnlyNoise',
+  ]);
+});
+
+test('filterText is removed when empty from URL params', async () => {
+  const { getByPlaceholderText } = compareTableControls();
+
+  const filterInput = await waitFor(() =>
+    getByPlaceholderText(filterText.inputPlaceholder),
+  );
+
+  // fireEvent.change(filterInput, { target: { value: 'linux' } });
+  const node = filterInput;
+  node.value = 'linux';
+  ReactTestUtils.Simulate.change(filterInput, { target: { value: 'linux' } });
+  // ReactTestUtils.Simulate.keyDown(node, {
+  //   key: 'Enter',
+  //   keyCode: 13,
+  //   which: 13,
+  // });
+  expect(mockUpdateParams).toHaveBeenLastCalledWith({ filter: 'linux' }, [
+    'showOnlyComparable',
+    'showOnlyImportant',
+    'showOnlyConfident',
+    'showOnlyNoise',
   ]);
 });
 

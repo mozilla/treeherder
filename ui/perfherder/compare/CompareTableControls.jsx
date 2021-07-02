@@ -151,30 +151,23 @@ export default class CompareTableControls extends React.Component {
       hideUncertain,
       showNoise,
     } = this.state;
-    const {
-      showOnlyComparable,
-      showOnlyImportant,
-      showOnlyConfident,
-      showOnlyNoise,
-      filter,
-    } = parseQueryParams(window.location.search);
     const compareURLParams = {};
     const paramsToRemove = [];
 
     if (filteredText !== '') compareURLParams.filter = filteredText;
-    else if (filter) paramsToRemove.push('filter');
+    else paramsToRemove.push('filter');
 
     if (hideUncomparable) compareURLParams.showOnlyComparable = 1;
-    else if (showOnlyComparable) paramsToRemove.push('showOnlyComparable');
+    else paramsToRemove.push('showOnlyComparable');
 
     if (showImportant) compareURLParams.showOnlyImportant = 1;
-    else if (showOnlyImportant) paramsToRemove.push('showOnlyImportant');
+    else paramsToRemove.push('showOnlyImportant');
 
     if (hideUncertain) compareURLParams.showOnlyConfident = 1;
-    else if (showOnlyConfident) paramsToRemove.push('showOnlyConfident');
+    else paramsToRemove.push('showOnlyConfident');
 
     if (showNoise) compareURLParams.showOnlyNoise = 1;
-    else if (showOnlyNoise) paramsToRemove.push('showOnlyNoise');
+    else paramsToRemove.push('showOnlyNoise');
 
     updateParams(compareURLParams, paramsToRemove);
   };
