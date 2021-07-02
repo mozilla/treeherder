@@ -11,7 +11,6 @@ import {
 } from '../perf-helpers/helpers';
 import PaginationGroup from '../shared/Pagination';
 import FilterControls from '../../shared/FilterControls';
-import { parseQueryParams } from '../../helpers/url';
 
 import CompareTable from './CompareTable';
 import RetriggerModal from './RetriggerModal';
