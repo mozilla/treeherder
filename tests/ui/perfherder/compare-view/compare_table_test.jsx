@@ -7,7 +7,7 @@ import {
   waitFor,
   waitForElementToBeRemoved,
 } from '@testing-library/react';
-
+import ReactTestUtils from 'react-dom/test-utils';
 import projects from '../../mock/repositories';
 import CompareTableControls from '../../../../ui/perfherder/compare/CompareTableControls';
 import CompareTable from '../../../../ui/perfherder/compare/CompareTable';
