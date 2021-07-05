@@ -149,6 +149,9 @@ const compareTableControlsNode = (
         showOnlyNoise: '0',
         filter: null,
       }}
+      location={{
+        search: '',
+      }}
     />
   );
 };
@@ -220,12 +223,10 @@ test('toggle all buttons should update the URL params', async () => {
     getByText(filterText.showImportant),
   );
   fireEvent.click(showImportant);
-  expect(mockUpdateParams).toHaveBeenLastCalledWith({ showOnlyImportant: 1 }, [
-    'filter',
-    'showOnlyComparable',
-    'showOnlyConfident',
-    'showOnlyNoise',
-  ]);
+  expect(mockUpdateParams).toHaveBeenLastCalledWith(
+    { page: 1, showOnlyImportant: 1 },
+    ['filter', 'showOnlyComparable', 'showOnlyConfident', 'showOnlyNoise'],
+  );
 
   const hideUncertain = await waitFor(() =>
     getByText(filterText.hideUncertain),
@@ -233,6 +234,7 @@ test('toggle all buttons should update the URL params', async () => {
   fireEvent.click(hideUncertain);
   expect(mockUpdateParams).toHaveBeenLastCalledWith(
     {
+      page: 1,
       showOnlyImportant: 1,
       showOnlyConfident: 1,
     },
@@ -243,6 +245,7 @@ test('toggle all buttons should update the URL params', async () => {
   fireEvent.click(showNoise);
   expect(mockUpdateParams).toHaveBeenLastCalledWith(
     {
+      page: 1,
       showOnlyImportant: 1,
       showOnlyConfident: 1,
       showOnlyNoise: 1,
@@ -256,6 +259,7 @@ test('toggle all buttons should update the URL params', async () => {
   fireEvent.click(hideUncomparable);
   expect(mockUpdateParams).toHaveBeenLastCalledWith(
     {
+      page: 1,
       showOnlyImportant: 1,
       showOnlyConfident: 1,
       showOnlyNoise: 1,
@@ -272,14 +276,12 @@ test('filters that are not enabled are removed from URL params', async () => {
     getByText(filterText.showImportant),
   );
   fireEvent.click(showImportant);
-  expect(mockUpdateParams).toHaveBeenLastCalledWith({ showOnlyImportant: 1 }, [
-    'filter',
-    'showOnlyComparable',
-    'showOnlyConfident',
-    'showOnlyNoise',
-  ]);
+  expect(mockUpdateParams).toHaveBeenLastCalledWith(
+    { page: 1, showOnlyImportant: 1 },
+    ['filter', 'showOnlyComparable', 'showOnlyConfident', 'showOnlyNoise'],
+  );
   fireEvent.click(showImportant);
-  expect(mockUpdateParams).toHaveBeenLastCalledWith({}, [
+  expect(mockUpdateParams).toHaveBeenLastCalledWith({ page: 1 }, [
     'filter',
     'showOnlyComparable',
     'showOnlyImportant',

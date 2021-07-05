@@ -70,14 +70,14 @@ export default class CompareTableControls extends React.Component {
   };
 
   updateFilterText = (filterText) => {
-    this.setState({ filteredText: filterText }, () =>
+    this.setState({ filteredText: filterText, page: 1 }, () =>
       this.updateFilteredResults(),
     );
   };
 
   updateFilter = (filter) => {
     this.setState(
-      (prevState) => ({ [filter]: !prevState[filter] }),
+      (prevState) => ({ [filter]: !prevState[filter], page: 1 }),
       () => this.updateFilteredResults(),
     );
   };
@@ -185,6 +185,7 @@ export default class CompareTableControls extends React.Component {
       showImportant,
       hideUncertain,
       showNoise,
+      page,
     } = this.state;
     const compareURLParams = {};
     const paramsToRemove = [];
@@ -204,6 +205,7 @@ export default class CompareTableControls extends React.Component {
     if (showNoise) compareURLParams.showOnlyNoise = 1;
     else paramsToRemove.push('showOnlyNoise');
 
+    compareURLParams.page = page;
     updateParams(compareURLParams, paramsToRemove);
   };
 
