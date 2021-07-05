@@ -32,7 +32,7 @@ import {
 
 import AlertTablePlatform from './AlertTablePlatform';
 import AlertTableTagsOptions from './AlertTableTagsOptions';
-import AlertTableMagnitude from './AlertTableMagnitude';
+import Magnitude from './Magnitude';
 
 export default class AlertTableRow extends React.Component {
   constructor(props) {
@@ -319,7 +319,7 @@ export default class AlertTableRow extends React.Component {
           <AlertTableTagsOptions alertId={alert.id} items={items} />
         </td>
         <td className="table-width-md">
-          <AlertTableMagnitude alert={alert} />
+          <Magnitude alert={alert} />
         </td>
         <td className="table-width-sm">
           <SimpleTooltip

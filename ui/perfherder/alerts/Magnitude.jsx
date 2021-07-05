@@ -6,7 +6,7 @@ import ProgressBar from '../../shared/ProgressBar';
 import SimpleTooltip from '../../shared/SimpleTooltip';
 import { formatNumber } from '../perf-helpers/helpers';
 
-export default class AlertTableMagnitude extends React.PureComponent {
+export default class Magnitude extends React.PureComponent {
   // arbitrary scale from 0-20% multiplied by 5, capped
   // at 100 (so 20% regression === 100% bad)
   getCappedMagnitude = (percent) => Math.min(Math.abs(percent) * 5, 100);
@@ -59,6 +59,6 @@ export default class AlertTableMagnitude extends React.PureComponent {
   }
 }
 
-AlertTableMagnitude.propTypes = {
+Magnitude.propTypes = {
   alert: PropTypes.shape({}).isRequired,
 };
