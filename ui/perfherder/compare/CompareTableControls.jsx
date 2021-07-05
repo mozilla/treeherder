@@ -28,9 +28,9 @@ export default class CompareTableControls extends React.Component {
       filteredText: this.getDefaultFilterText(this.validated),
       showRetriggerModal: false,
       currentRetriggerRow: {},
-      totalPages: 0,
+      totalPagesList: 0,
       page: this.validated.page ? parseInt(this.validated.page, 10) : 1,
-      count: 0,
+      countPages: 0,
     };
   }
 
@@ -40,13 +40,13 @@ export default class CompareTableControls extends React.Component {
 
   componentDidUpdate(prevProps, prevState) {
     const { compareResults } = this.props;
-    const { count } = this.state;
+    const { countPages } = this.state;
     const params = parseQueryParams(this.props.location.search);
     const prevParams = parseQueryParams(prevProps.location.search);
 
-    if (prevState.count !== count) {
+    if (prevState.countPages !== countPages) {
       /* eslint-disable react/no-did-update-set-state */
-      this.setState({ totalPages: this.generatePages(count) });
+      this.setState({ totalPagesList: this.generatePages(countPages) });
     }
     if (prevProps.compareResults !== compareResults) {
       this.updateFilteredResults();
@@ -120,8 +120,8 @@ export default class CompareTableControls extends React.Component {
     let results;
     const toEnd = page * 10;
     const fromStart = toEnd - 10;
-    let count = Math.ceil(compareResults.size / 10);
-    let totalPages = this.generatePages(count);
+    let countPages = Math.ceil(compareResults.size / 10);
+    let totalPagesList = this.generatePages(countPages);
 
     this.updateUrlParams();
     if (
@@ -133,7 +133,7 @@ export default class CompareTableControls extends React.Component {
     ) {
       results = Array.from(compareResults).slice(fromStart, toEnd);
       results = new Map(results);
-      return this.setState({ results, count, totalPages });
+      return this.setState({ results, countPages, totalPagesList });
     }
 
     const filteredResults = new Map(compareResults);
@@ -150,11 +150,11 @@ export default class CompareTableControls extends React.Component {
       }
     }
 
-    count = Math.ceil(filteredResults.size / 10);
-    totalPages = this.generatePages(count);
+    countPages = Math.ceil(filteredResults.size / 10);
+    totalPagesList = this.generatePages(countPages);
     results = Array.from(filteredResults).slice(fromStart, toEnd);
     results = new Map(results);
-    this.setState({ results, count, totalPages });
+    this.setState({ results, countPages, totalPagesList });
   };
 
   toggleRetriggerModal = () => {
@@ -215,16 +215,16 @@ export default class CompareTableControls extends React.Component {
   };
 
   getCurrentPages = () => {
-    const { page, totalPages } = this.state;
-    if (totalPages.length === 5 || !totalPages.length) {
-      return totalPages;
+    const { page, totalPagesList } = this.state;
+    if (totalPagesList.length === 5 || !totalPagesList.length) {
+      return totalPagesList;
     }
-    return totalPages.slice(page - 1, page + 4);
+    return totalPagesList.slice(page - 1, page + 4);
   };
 
-  generatePages = (count) => {
+  generatePages = (countPages) => {
     const pages = [];
-    for (let num = 1; num <= count; num++) {
+    for (let num = 1; num <= countPages; num++) {
       pages.push(num);
     }
     return pages;
@@ -253,7 +253,7 @@ export default class CompareTableControls extends React.Component {
       showRetriggerModal,
       currentRetriggerRow,
       filteredText,
-      count,
+      countPages,
       page,
     } = this.state;
 
@@ -286,8 +286,8 @@ export default class CompareTableControls extends React.Component {
       },
     ];
 
-    const pageNums = this.getCurrentPages();
-    const hasMorePages = () => pageNums.length > 0 && count !== 1;
+    const viewablePagesList = this.getCurrentPages();
+    const hasMorePages = () => viewablePagesList.length > 0 && countPages !== 1;
 
     return (
       <Container fluid className="my-3 px-0">
@@ -306,14 +306,14 @@ export default class CompareTableControls extends React.Component {
           dropdownOptions={dropdownOptions}
         />
 
-        {pageNums
+        {viewablePagesList
           ? hasMorePages() && (
               <Row className="justify-content-center">
                 <PaginationGroup
-                  viewablePageNums={pageNums}
+                  viewablePageNums={viewablePagesList}
                   updateParams={validated.updateParams}
                   currentPage={page}
-                  count={count}
+                  count={countPages}
                 />
               </Row>
             )
@@ -342,14 +342,14 @@ export default class CompareTableControls extends React.Component {
           <p className="lead text-center">No results to show</p>
         )}
 
-        {pageNums
+        {viewablePagesList
           ? hasMorePages() && (
               <Row className="justify-content-center">
                 <PaginationGroup
-                  viewablePageNums={pageNums}
+                  viewablePageNums={viewablePagesList}
                   updateParams={validated.updateParams}
                   currentPage={page}
-                  count={count}
+                  count={countPages}
                 />
               </Row>
             )

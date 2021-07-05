@@ -8,6 +8,7 @@ import {
   waitForElementToBeRemoved,
 } from '@testing-library/react';
 
+import compareTablesControlsResults from '../../mock/compare_table_controls';
 import projects from '../../mock/repositories';
 import CompareTableControls from '../../../../ui/perfherder/compare/CompareTableControls';
 import CompareTable from '../../../../ui/perfherder/compare/CompareTable';
@@ -114,7 +115,19 @@ const result = [
 ];
 
 const results = new Map([['a11yr pgo e10s stylo', result]]);
-
+const compareResults = new Map([
+  ['compare table 1', [compareTablesControlsResults[0]]],
+  ['compare table 2', [compareTablesControlsResults[1]]],
+  ['compare table 3', [compareTablesControlsResults[2]]],
+  ['compare table 4', [compareTablesControlsResults[3]]],
+  ['compare table 5', [compareTablesControlsResults[4]]],
+  ['compare table 6', [compareTablesControlsResults[5]]],
+  ['compare table 7', [compareTablesControlsResults[6]]],
+  ['compare table 8', [compareTablesControlsResults[7]]],
+  ['compare table 9', [compareTablesControlsResults[8]]],
+  ['compare table 10', [compareTablesControlsResults[9]]],
+  ['compare table 11', [compareTablesControlsResults[10]]],
+]);
 jest.mock('../../../../ui/models/job');
 
 const mockHandlePermalinkClick = jest.fn();
@@ -129,12 +142,13 @@ beforeEach(() => {
 afterEach(cleanup);
 
 const compareTableControlsNode = (
+  compareTableControlsResults,
   userLoggedIn = false,
   isBaseAggregate = false,
 ) => {
   return (
     <CompareTableControls
-      compareResults={results}
+      compareResults={compareTableControlsResults}
       filterOptions={{}}
       user={{ isLoggedIn: userLoggedIn }}
       notify={() => {}}
@@ -157,12 +171,18 @@ const compareTableControlsNode = (
 };
 
 const compareTableControls = (
+  compareTableControlsResults = results,
   userLoggedIn = false,
   isBaseAggregate = false,
   mockDataRetrigger = { retriggers: [] },
 ) =>
   render(
-    compareTableControlsNode(userLoggedIn, isBaseAggregate, mockDataRetrigger),
+    compareTableControlsNode(
+      compareTableControlsResults,
+      userLoggedIn,
+      isBaseAggregate,
+      mockDataRetrigger,
+    ),
   );
 
 const compareTable = (userLoggedIn, isBaseAggregate = false) =>
@@ -290,6 +310,28 @@ test('filters that are not enabled are removed from URL params', async () => {
   ]);
 });
 
+test('check if pagination behaves as expected when clicking on the second page', async () => {
+  const { getByText, findAllByText } = compareTableControls(compareResults);
+
+  const result1 = await waitFor(() =>
+    getByText(compareTablesControlsResults[0].name),
+  );
+  const result2 = await waitFor(() =>
+    getByText(compareTablesControlsResults[1].name),
+  );
+  const result10 = await waitFor(() =>
+    getByText(compareTablesControlsResults[9].name),
+  );
+
+  expect(result1).toBeInTheDocument();
+  expect(result2).toBeInTheDocument();
+  expect(result10).toBeInTheDocument();
+
+  const secondPage = await waitFor(() => findAllByText('2'));
+  fireEvent.click(secondPage[0]);
+  expect(mockUpdateParams).toHaveBeenLastCalledWith({ page: 2 });
+});
+
 test('text input filter results should differ when filter button(s) are selected', async () => {
   const {
     getByText,
@@ -376,19 +418,23 @@ test('clicking compare table permalinks callbacks with unique hash-based ids', a
 });
 
 test('retrigger buttons should appear only when the user is logged in', async () => {
-  const { queryAllByTitle, rerender } = compareTableControls(false);
+  const { queryAllByTitle, rerender } = compareTableControls(results, false);
   let retriggerButtons = queryAllByTitle(compareTableText.retriggerButtonTitle);
   expect(retriggerButtons).toHaveLength(0);
 
   // simulate login
-  rerender(compareTableControlsNode(true));
+  rerender(compareTableControlsNode(results, true));
 
   retriggerButtons = queryAllByTitle(compareTableText.retriggerButtonTitle);
   expect(retriggerButtons).toHaveLength(3);
 });
 
 test('retrigger should trigger jobs for base and new repositories', async () => {
-  const { queryAllByTitle, getByText } = compareTableControls(true, false);
+  const { queryAllByTitle, getByText } = compareTableControls(
+    results,
+    true,
+    false,
+  );
   const retriggerButtons = queryAllByTitle(
     compareTableText.retriggerButtonTitle,
   );
@@ -411,7 +457,11 @@ test('retrigger should trigger jobs for base and new repositories', async () => 
 });
 
 test('retrigger should only work on new repo when base is aggregate', async () => {
-  const { queryAllByTitle, getByText } = compareTableControls(true, true);
+  const { queryAllByTitle, getByText } = compareTableControls(
+    results,
+    true,
+    true,
+  );
   const retriggerButtons = queryAllByTitle(
     compareTableText.retriggerButtonTitle,
   );
