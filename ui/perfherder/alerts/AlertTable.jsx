@@ -53,24 +53,8 @@ export default class AlertTable extends React.Component {
           sortValue: 'tags',
           currentSort: tableSort.default,
         },
-        PreviousValue: {
-          name: 'Previous Value',
-          sortValue: 'prev_value',
-          currentSort: tableSort.default,
-        },
-        Comparison: { name: 'Comparison' },
-        NewValue: {
-          name: 'New Value',
-          sortValue: 'new_value',
-          currentSort: tableSort.default,
-        },
-        AbsoluteDifference: {
-          name: 'Absolute Difference',
-          sortValue: 'amount_pct',
-          currentSort: tableSort.default,
-        },
         Magnitude: {
-          name: 'Magnitude of Difference',
+          name: 'Magnitude of Change',
           sortValue: 'amount_pct',
           currentSort: tableSort.default,
         },
@@ -364,28 +348,9 @@ export default class AlertTable extends React.Component {
                         onChangeSort={this.onChangeSort}
                       />
                     </th>
-                    <th className="align-bottom">
-                      {tableConfig.TagsOptions.name}
+                    <th className="align-bottom text-nowrap">
+                      <span>{tableConfig.TagsOptions.name}</span>
                       <SortButtonDisabled column={tableConfig.TagsOptions} />
-                    </th>
-                    <th className="align-bottom">
-                      <TableColumnHeader
-                        column={tableConfig.PreviousValue}
-                        onChangeSort={this.onChangeSort}
-                      />
-                    </th>
-                    <th> </th>
-                    <th className="align-bottom">
-                      <TableColumnHeader
-                        column={tableConfig.NewValue}
-                        onChangeSort={this.onChangeSort}
-                      />
-                    </th>
-                    <th className="align-bottom">
-                      <TableColumnHeader
-                        column={tableConfig.AbsoluteDifference}
-                        onChangeSort={this.onChangeSort}
-                      />
                     </th>
                     <th className="align-bottom">
                       <TableColumnHeader
