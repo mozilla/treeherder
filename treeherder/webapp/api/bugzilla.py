@@ -51,6 +51,8 @@ class BugzillaViewSet(viewsets.ViewSet):
             'description': description,
             'comment_tags': "treeherder",
         }
+        if len(params.get('groups')) > 0:
+            data['groups'] = params.get('groups')
 
         try:
             response = make_request(url, method='POST', headers=headers, json=data)

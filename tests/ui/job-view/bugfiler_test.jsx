@@ -101,6 +101,23 @@ describe('BugFiler', () => {
     );
   };
 
+  const getBugFilerForSecurityCheck = (suggestions) => {
+    return mount(
+      <BugFilerClass
+        isOpen={isOpen}
+        toggle={toggle}
+        suggestion={suggestions[0]}
+        suggestions={suggestions}
+        fullLog={fullLog}
+        parsedLog={parsedLog}
+        reftestUrl={isReftest(selectedJob) ? reftest : ''}
+        successCallback={successCallback}
+        jobGroupName={selectedJob.job_group_name}
+        notify={() => {}}
+      />,
+    );
+  };
+
   test('parses a crash suggestion', () => {
     const summary =
       'PROCESS-CRASH | browser/components/search/test/browser_searchbar_smallpanel_keyboard_navigation.js | application crashed [@ js::GCMarker::eagerlyMarkChildren]';
@@ -253,6 +270,32 @@ describe('BugFiler', () => {
     );
     expect(summary[0][2]).toBe('image comparison');
     expect(summary[1]).toBe('wide--cover--width.html');
+  });
+
+  test('should set as security bug if summary contains initially a relevant search term', () => {
+    const suggestions = [
+      {
+        bugs: {},
+        search_terms: [],
+        search:
+          'SUMMARY: AddressSanitizer: heap-use-after-free /builds/worker/checkouts/gecko/mock/folder/file.c:12:34 in mock::MockComponent::MockMethod(mock::squirrel::Weasel*)',
+      },
+    ];
+    const bugFiler = getBugFilerForSecurityCheck(suggestions);
+    expect(bugFiler.state().isSecurityIssue).toBe(true);
+  });
+
+  test('should not set as security bug if summary contains initially no relevant search term', () => {
+    const suggestions = [
+      {
+        bugs: {},
+        search_terms: [],
+        search:
+          'TEST-UNEXPECTED-FAIL | mock/folder/test/subfolder/browser_test.js | Test timed out -',
+      },
+    ];
+    const bugFiler = getBugFilerForSecurityCheck(suggestions);
+    expect(bugFiler.state().isSecurityIssue).toBe(false);
   });
 
   test('should parse finding the filename when the `TEST-FOO` is not omitted', () => {

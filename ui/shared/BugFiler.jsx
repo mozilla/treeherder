@@ -167,6 +167,7 @@ export class BugFilerClass extends React.Component {
       isFilerSummaryVisible: false,
       selectedProduct: null,
       isIntermittent: true,
+      isSecurityIssue: false,
       comment: '',
       searching: false,
       parsedSummary,
@@ -175,6 +176,10 @@ export class BugFilerClass extends React.Component {
       keywords,
       crashSignatures,
     };
+  }
+
+  componentDidMount() {
+    this.checkForSecurityIssue();
   }
 
   getUnhelpfulSummaryReason(summary) {
@@ -384,6 +389,7 @@ export class BugFilerClass extends React.Component {
       selectedProduct,
       comment,
       isIntermittent,
+      isSecurityIssue,
       checkedLogLinks,
       regressedBy,
       seeAlso,
@@ -487,6 +493,7 @@ export class BugFilerClass extends React.Component {
           crash_signature: crashSignature,
           severity: 'S4',
           priority,
+          groups: isSecurityIssue ? ['core-security'] : [],
           comment: descriptionStrings,
           comment_tags: 'treeherder',
         };
@@ -536,6 +543,35 @@ export class BugFilerClass extends React.Component {
     });
   };
 
+  checkForSecurityIssue() {
+    const { comment, isSecurityIssue, summary } = this.state;
+
+    if (isSecurityIssue) {
+      return;
+    }
+
+    const inputToCheck = `${summary}\n${comment}`;
+
+    const potentialSecurityIssues = [
+      'access-violation',
+      'data race',
+      'double-free',
+      'e5e5e5e5',
+      'global-buffer-overflow',
+      'heap-buffer-overflow',
+      'heap-use-after-free',
+      'negative-size-param',
+      'stack-buffer-overflow',
+      'use-after-poison',
+    ];
+    for (const searchTerm of potentialSecurityIssues) {
+      if (inputToCheck.includes(searchTerm)) {
+        this.setState({ isSecurityIssue: true });
+        break;
+      }
+    }
+  }
+
   render() {
     const {
       isOpen,
@@ -551,6 +587,7 @@ export class BugFilerClass extends React.Component {
       thisFailure,
       isFilerSummaryVisible,
       isIntermittent,
+      isSecurityIssue,
       summary,
       searching,
       checkedLogLinks,
@@ -666,7 +703,9 @@ export class BugFilerClass extends React.Component {
                   placeholder="Intermittent..."
                   pattern=".{0,255}"
                   onChange={(evt) =>
-                    this.setState({ summary: evt.target.value })
+                    this.setState({ summary: evt.target.value }, () =>
+                      this.checkForSecurityIssue(),
+                    )
                   }
                   value={summary}
                 />
@@ -775,7 +814,9 @@ export class BugFilerClass extends React.Component {
                 <Label for="summary-input">Comment:</Label>
                 <Input
                   onChange={(evt) =>
-                    this.setState({ comment: evt.target.value })
+                    this.setState({ comment: evt.target.value }, () =>
+                      this.checkForSecurityIssue(),
+                    )
                   }
                   type="textarea"
                   id="summary-input"
@@ -832,6 +873,19 @@ export class BugFilerClass extends React.Component {
                     Comma-separated list of bugs
                   </Tooltip>
                 </div>
+              </div>
+              <div className="d-inline-flex mt-2 ml-5">
+                <Label>
+                  <Input
+                    id="securityIssue"
+                    onChange={() =>
+                      this.setState({ isSecurityIssue: !isSecurityIssue })
+                    }
+                    type="checkbox"
+                    checked={isSecurityIssue}
+                  />
+                  Report this as a security issue
+                </Label>
               </div>
               {!!crashSignatures.length && (
                 <div>
