@@ -49,6 +49,7 @@ const FilterControls = ({
   updateFilter,
   updateOnEnter,
   dropdownCol,
+  filteredTextValue,
 }) => {
   const createButton = (filter) => (
     <Button
@@ -75,6 +76,7 @@ const FilterControls = ({
 
         <Col className="col-2 py-2 pl-0 pr-2">
           <InputFilter
+            filteredTextValue={filteredTextValue}
             updateFilterText={updateFilterText}
             updateOnEnter={updateOnEnter}
           />

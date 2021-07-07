@@ -118,6 +118,7 @@ const results = new Map([['a11yr pgo e10s stylo', result]]);
 jest.mock('../../../../ui/models/job');
 
 const mockHandlePermalinkClick = jest.fn();
+const mockUpdateParams = jest.fn();
 const regexComptableHeaderId = /table-header-\d+/;
 const regexComptableRowId = /table-row-\d+/;
 
@@ -140,6 +141,14 @@ const compareTableControlsNode = (
       isBaseAggregate={isBaseAggregate}
       onPermalinkClick={mockHandlePermalinkClick}
       projects={projects}
+      validated={{
+        updateParams: mockUpdateParams,
+        showOnlyImportant: '0',
+        showOnlyComparable: '0',
+        showOnlyConfident: '0',
+        showOnlyNoise: '0',
+        filter: null,
+      }}
     />
   );
 };
@@ -202,6 +211,81 @@ test('toggle buttons should filter results by selected filter', async () => {
   expect(hideUncertain).toHaveClass('active');
   expect(result1).not.toBeInTheDocument();
   expect(result2).toBeInTheDocument();
+});
+
+test('toggle all buttons should update the URL params', async () => {
+  const { getByText } = compareTableControls();
+
+  const showImportant = await waitFor(() =>
+    getByText(filterText.showImportant),
+  );
+  fireEvent.click(showImportant);
+  expect(mockUpdateParams).toHaveBeenLastCalledWith({ showOnlyImportant: 1 }, [
+    'filter',
+    'showOnlyComparable',
+    'showOnlyConfident',
+    'showOnlyNoise',
+  ]);
+
+  const hideUncertain = await waitFor(() =>
+    getByText(filterText.hideUncertain),
+  );
+  fireEvent.click(hideUncertain);
+  expect(mockUpdateParams).toHaveBeenLastCalledWith(
+    {
+      showOnlyImportant: 1,
+      showOnlyConfident: 1,
+    },
+    ['filter', 'showOnlyComparable', 'showOnlyNoise'],
+  );
+
+  const showNoise = await waitFor(() => getByText(filterText.showNoise));
+  fireEvent.click(showNoise);
+  expect(mockUpdateParams).toHaveBeenLastCalledWith(
+    {
+      showOnlyImportant: 1,
+      showOnlyConfident: 1,
+      showOnlyNoise: 1,
+    },
+    ['filter', 'showOnlyComparable'],
+  );
+
+  const hideUncomparable = await waitFor(() =>
+    getByText(filterText.hideUncomparable),
+  );
+  fireEvent.click(hideUncomparable);
+  expect(mockUpdateParams).toHaveBeenLastCalledWith(
+    {
+      showOnlyImportant: 1,
+      showOnlyConfident: 1,
+      showOnlyNoise: 1,
+      showOnlyComparable: 1,
+    },
+    ['filter'],
+  );
+});
+
+test('filters that are not enabled are removed from URL params', async () => {
+  const { getByText } = compareTableControls();
+
+  const showImportant = await waitFor(() =>
+    getByText(filterText.showImportant),
+  );
+  fireEvent.click(showImportant);
+  expect(mockUpdateParams).toHaveBeenLastCalledWith({ showOnlyImportant: 1 }, [
+    'filter',
+    'showOnlyComparable',
+    'showOnlyConfident',
+    'showOnlyNoise',
+  ]);
+  fireEvent.click(showImportant);
+  expect(mockUpdateParams).toHaveBeenLastCalledWith({}, [
+    'filter',
+    'showOnlyComparable',
+    'showOnlyImportant',
+    'showOnlyConfident',
+    'showOnlyNoise',
+  ]);
 });
 
 test('text input filter results should differ when filter button(s) are selected', async () => {

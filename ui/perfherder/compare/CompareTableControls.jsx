@@ -24,7 +24,7 @@ export default class CompareTableControls extends React.Component {
       hideUncertain: convertParams(this.validated, 'showOnlyConfident'),
       showNoise: convertParams(this.validated, 'showOnlyNoise'),
       results: new Map(),
-      filterText: '',
+      filteredText: this.getDefaultFilterText(this.validated),
       showRetriggerModal: false,
       currentRetriggerRow: {},
     };
@@ -41,8 +41,15 @@ export default class CompareTableControls extends React.Component {
     }
   }
 
+  getDefaultFilterText = (validated) => {
+    const { filter } = validated;
+    return filter === undefined || filter === null ? '' : filter;
+  };
+
   updateFilterText = (filterText) => {
-    this.setState({ filterText }, () => this.updateFilteredResults());
+    this.setState({ filteredText: filterText }, () =>
+      this.updateFilteredResults(),
+    );
   };
 
   updateFilter = (filter) => {
@@ -54,7 +61,7 @@ export default class CompareTableControls extends React.Component {
 
   filterResult = (testName, result) => {
     const {
-      filterText,
+      filteredText,
       showImportant,
       hideUncertain,
       showNoise,
@@ -67,18 +74,18 @@ export default class CompareTableControls extends React.Component {
       (!hideUncertain || result.isConfident) &&
       (!showNoise || result.isNoiseMetric);
 
-    if (!filterText) return matchesFilters;
+    if (!filteredText) return matchesFilters;
 
     const textToSearch = `${testName} ${result.name}`;
 
     // searching with filter input and one or more metricFilter buttons on
     // will produce different results compared to when all filters are off
-    return containsText(textToSearch, filterText) && matchesFilters;
+    return containsText(textToSearch, filteredText) && matchesFilters;
   };
 
   updateFilteredResults = () => {
     const {
-      filterText,
+      filteredText,
       hideUncomparable,
       showImportant,
       hideUncertain,
@@ -87,8 +94,9 @@ export default class CompareTableControls extends React.Component {
 
     const { compareResults } = this.props;
 
+    this.updateUrlParams();
     if (
-      !filterText &&
+      !filteredText &&
       !hideUncomparable &&
       !showImportant &&
       !hideUncertain &&
@@ -133,6 +141,36 @@ export default class CompareTableControls extends React.Component {
     this.toggleRetriggerModal();
   };
 
+  updateUrlParams = () => {
+    const { updateParams } = this.props.validated;
+    const {
+      filteredText,
+      hideUncomparable,
+      showImportant,
+      hideUncertain,
+      showNoise,
+    } = this.state;
+    const compareURLParams = {};
+    const paramsToRemove = [];
+
+    if (filteredText !== '') compareURLParams.filter = filteredText;
+    else paramsToRemove.push('filter');
+
+    if (hideUncomparable) compareURLParams.showOnlyComparable = 1;
+    else paramsToRemove.push('showOnlyComparable');
+
+    if (showImportant) compareURLParams.showOnlyImportant = 1;
+    else paramsToRemove.push('showOnlyImportant');
+
+    if (hideUncertain) compareURLParams.showOnlyConfident = 1;
+    else paramsToRemove.push('showOnlyConfident');
+
+    if (showNoise) compareURLParams.showOnlyNoise = 1;
+    else paramsToRemove.push('showOnlyNoise');
+
+    updateParams(compareURLParams, paramsToRemove);
+  };
+
   onModalOpen = (rowResults) => {
     this.setState({ currentRetriggerRow: rowResults });
     this.toggleRetriggerModal();
@@ -160,6 +198,7 @@ export default class CompareTableControls extends React.Component {
       results,
       showRetriggerModal,
       currentRetriggerRow,
+      filteredText,
     } = this.state;
 
     const compareFilters = [
@@ -200,6 +239,7 @@ export default class CompareTableControls extends React.Component {
           isBaseAggregate={isBaseAggregate}
         />
         <FilterControls
+          filteredTextValue={filteredText}
           filterOptions={compareFilters}
           updateFilter={this.updateFilter}
           updateFilterText={this.updateFilterText}

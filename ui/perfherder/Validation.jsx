@@ -47,13 +47,17 @@ const withValidation = ({ requiredParams }, verifyRevisions = true) => (
       }
     }
 
-    updateParams = (params) => {
+    updateParams = (params, paramsToBeRemoved = []) => {
       const { history, location } = this.props;
 
       const newParams = {
         ...parseQueryParams(location.search),
         ...params,
       };
+      if (paramsToBeRemoved.length !== 0)
+        paramsToBeRemoved.forEach((param) => {
+          delete newParams[param];
+        });
       const queryString = createQueryParams(newParams);
       history.push({ search: queryString });
     };
@@ -171,9 +175,11 @@ const withValidation = ({ requiredParams }, verifyRevisions = true) => (
 
     render() {
       const updateParams = { updateParams: this.updateParams };
+      const removeParams = { removeParams: this.removeParams };
       const validatedProps = {
         ...this.state,
         ...updateParams,
+        ...removeParams,
       };
       const { validationComplete, errorMessages } = this.state;
 
