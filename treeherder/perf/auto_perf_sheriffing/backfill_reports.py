@@ -136,7 +136,7 @@ class AlertsPicker:
         :return: int value of platform's relevance
         """
         for platform_of_interest in self.ordered_platforms_of_interest:
-            if alert_platform.startswith(platform_of_interest):
+            if platform_of_interest in alert_platform:
                 return len(
                     self.ordered_platforms_of_interest
                 ) - self.ordered_platforms_of_interest.index(platform_of_interest)
@@ -148,7 +148,7 @@ class AlertsPicker:
         """
         alert_platform_name = alert.series_signature.platform.platform
         return any(
-            alert_platform_name.startswith(platform_of_interest)
+            platform_of_interest in alert_platform_name
             for platform_of_interest in self.ordered_platforms_of_interest
         )
 
