@@ -310,8 +310,10 @@ test('filters that are not enabled are removed from URL params', async () => {
   ]);
 });
 
-test('check if pagination behaves as expected when clicking on the second page', async () => {
-  const { getByText, findAllByText } = compareTableControls(compareResults);
+test('page parameter updates with value 2 when clicking on the second page', async () => {
+  const { getByText, findAllByLabelText } = compareTableControls(
+    compareResults,
+  );
 
   const result1 = await waitFor(() =>
     getByText(compareTablesControlsResults[0].name),
@@ -327,7 +329,9 @@ test('check if pagination behaves as expected when clicking on the second page',
   expect(result2).toBeInTheDocument();
   expect(result10).toBeInTheDocument();
 
-  const secondPage = await waitFor(() => findAllByText('2'));
+  const secondPage = await waitFor(() =>
+    findAllByLabelText('pagination-button-2'),
+  );
   fireEvent.click(secondPage[0]);
   expect(mockUpdateParams).toHaveBeenLastCalledWith({ page: 2 });
 });

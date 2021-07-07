@@ -19,7 +19,7 @@ class PaginationGroup extends React.Component {
       /* The first and last pagination navigation links
          aren't working correctly (icons aren't visible)
          so they haven't been added */
-      <Pagination aria-label={`Page ${currentPage}`} data-testid="pagination">
+      <Pagination aria-label={`Page ${currentPage}`}>
         {firstViewablePage > 1 && (
           <PaginationItem className="text-info">
             <PaginationLink
@@ -47,7 +47,7 @@ class PaginationGroup extends React.Component {
             <PaginationLink
               className="text-info"
               onClick={() => this.navigatePage(num)}
-              data-testid={`pagination-button-${num}`}
+              aria-label={`pagination-button-${num}`}
             >
               {num}
             </PaginationLink>
