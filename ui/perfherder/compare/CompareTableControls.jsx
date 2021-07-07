@@ -9,6 +9,7 @@ import {
   onPermalinkClick,
   retriggerMultipleJobs,
 } from '../perf-helpers/helpers';
+import { parseQueryParams } from '../../helpers/url';
 import PaginationGroup from '../shared/Pagination';
 import FilterControls from '../../shared/FilterControls';
 
