@@ -1,3 +1,4 @@
+/* eslint-disable react/no-did-update-set-state */
 import React from 'react';
 import PropTypes from 'prop-types';
 import { Container, Row } from 'reactstrap';
@@ -40,30 +41,23 @@ export default class CompareTableControls extends React.Component {
   }
 
   componentDidUpdate(prevProps, prevState) {
-    const { compareResults } = this.props;
+    const { compareResults, location } = this.props;
     const { countPages } = this.state;
-    const params = parseQueryParams(this.props.location.search);
+    const params = parseQueryParams(location.search);
     const prevParams = parseQueryParams(prevProps.location.search);
 
     if (prevState.countPages !== countPages) {
-      /* eslint-disable react/no-did-update-set-state */
       this.setState({ totalPagesList: this.generatePages(countPages) });
     }
     if (prevProps.compareResults !== compareResults) {
       this.updateFilteredResults();
     }
     if (params.page && params.page !== prevParams.page) {
-      /* eslint-disable react/no-did-update-set-state */
       this.setState({ page: parseInt(params.page, 10) }, () => {
         this.updateFilteredResults();
       });
     }
   }
-
-  getDefaultFilterText = (validated) => {
-    const { filter } = validated;
-    return filter === undefined || filter === null ? '' : filter;
-  };
 
   getDefaultFilterText = (validated) => {
     const { filter } = validated;
