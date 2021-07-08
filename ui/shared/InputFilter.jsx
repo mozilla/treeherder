@@ -19,6 +19,15 @@ export default class InputFilter extends React.Component {
     800,
   );
 
+  componentDidUpdate(prevProps) {
+    const { filteredTextValue } = this.props;
+
+    if (filteredTextValue !== prevProps.filteredTextValue) {
+      // eslint-disable-next-line react/no-did-update-set-state
+      this.setState({ input: filteredTextValue });
+    }
+  }
+
   updateInput = (event) => {
     const { updateFilterText, updateOnEnter } = this.props;
     const input = event.target.value;

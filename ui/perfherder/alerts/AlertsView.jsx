@@ -81,6 +81,13 @@ class AlertsView extends React.Component {
     } else if (params.page && params.page !== prevParams.page) {
       this.fetchAlertSummaries(undefined, false, parseInt(params.page, 10));
     }
+
+    if (params.filterText !== prevParams.filterText) {
+      this.setState(
+        { filters: this.getFiltersFromParams(params) },
+        this.fetchAlertSummaries,
+      );
+    }
   }
 
   getFiltersFromParams = (
