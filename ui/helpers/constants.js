@@ -89,7 +89,6 @@ export const thPlatformMap = {
   'windows10-64-shippable': 'Windows 10 x64 Shippable',
   'windows10-64-shippable-qr': 'Windows 10 x64 WebRender Shippable',
   'windows10-64-qr': 'Windows 10 x64 WebRender',
-  'windows10-64-mingwclang-qr': 'Windows 10 x64 MinGW WebRender',
   'windows10-64-ref-hw-2017': 'Windows 10 x64 2017 Ref HW',
   'windows10-64-mingwclang': 'Windows 10 x64 MinGW',
   'windows10-64-mingwclang-qr': 'Windows 10 x64 MinGW WebRender',
