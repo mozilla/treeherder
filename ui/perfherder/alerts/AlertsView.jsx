@@ -71,7 +71,15 @@ class AlertsView extends React.Component {
     // the user navigates from the id=<alert> view back to the main alerts view
     // the Validation component won't reset the id (since the query param doesn't exist
     // unless there is a value)
-    if (params.id !== prevParams.id) {
+    if (
+      params.id !== prevParams.id ||
+      params.status !== prevParams.status ||
+      params.framework !== prevParams.framework ||
+      params.filterText !== prevParams.filterText ||
+      params.hideImprovements !== prevParams.hideImprovements ||
+      params.hideDwnToInv !== prevParams.hideDwnToInv ||
+      params.hideAssignedToOthers !== prevParams.hideAssignedToOthers
+    ) {
       this.setState(
         { id: params.id || null, filters: this.getFiltersFromParams(params) },
         this.fetchAlertSummaries,
@@ -80,13 +88,6 @@ class AlertsView extends React.Component {
       // to support back button navigation
     } else if (params.page && params.page !== prevParams.page) {
       this.fetchAlertSummaries(undefined, false, parseInt(params.page, 10));
-    }
-
-    if (params.filterText !== prevParams.filterText) {
-      this.setState(
-        { filters: this.getFiltersFromParams(params) },
-        this.fetchAlertSummaries,
-      );
     }
   }
 
