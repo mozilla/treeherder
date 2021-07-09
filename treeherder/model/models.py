@@ -273,7 +273,18 @@ class Bugscache(models.Model):
         )
 
         try:
-            open_recent = [model_to_dict(item, exclude=["modified"]) for item in recent_qs]
+            open_recent_match_string = [
+                model_to_dict(item, exclude=["modified"]) for item in recent_qs
+            ]
+            open_recent = [
+                match
+                for match in open_recent_match_string
+                if match["summary"].startswith(search_term)
+                or "/" + search_term in match["summary"]
+                or " " + search_term in match["summary"]
+                or "\\" + search_term in match["summary"]
+                or "," + search_term in match["summary"]
+            ]
         except ProgrammingError as e:
             newrelic.agent.record_exception()
             logger.error(
@@ -298,7 +309,18 @@ class Bugscache(models.Model):
         )
 
         try:
-            all_others = [model_to_dict(item, exclude=["modified"]) for item in all_others_qs]
+            all_others_match_string = [
+                model_to_dict(item, exclude=["modified"]) for item in all_others_qs
+            ]
+            all_others = [
+                match
+                for match in all_others_match_string
+                if match["summary"].startswith(search_term)
+                or "/" + search_term in match["summary"]
+                or " " + search_term in match["summary"]
+                or "\\" + search_term in match["summary"]
+                or "," + search_term in match["summary"]
+            ]
         except ProgrammingError as e:
             newrelic.agent.record_exception()
             logger.error(
