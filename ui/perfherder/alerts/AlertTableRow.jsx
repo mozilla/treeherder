@@ -8,6 +8,7 @@ import {
   faStar as faStarSolid,
   faUser,
   faCheck,
+  faChartLine,
 } from '@fortawesome/free-solid-svg-icons';
 import { faStar as faStarRegular } from '@fortawesome/free-regular-svg-icons';
 import { Link } from 'react-router-dom';
@@ -246,9 +247,12 @@ export default class AlertTableRow extends React.Component {
   render() {
     const { user, alert, alertSummary } = this.props;
     const { starred, checkboxSelected } = this.state;
+    const { repository, framework } = alertSummary;
 
     const { tags, extra_options: options } = alert.series_signature;
     const items = { tags, options };
+
+    const timeRange = this.getTimeRange();
 
     const alertStatus = getStatus(alert.status, alertStatusMap);
     const tooltipText = alert.classifier_email
@@ -282,7 +286,7 @@ export default class AlertTableRow extends React.Component {
             />
           </FormGroup>
         </td>
-        <td className="px-0">
+        <td className="px-0 d-flex flex-column border-top-0">
           <Button
             color="black"
             aria-label={
@@ -299,6 +303,14 @@ export default class AlertTableRow extends React.Component {
               icon={starred ? faStarSolid : faStarRegular}
             />
           </Button>
+          <a
+            href={getGraphsURL(alert, timeRange, repository, framework)}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="text-dark btn-light border border-0 bg-transparent pl-1"
+          >
+            <FontAwesomeIcon title="Open graph" icon={faChartLine} />
+          </a>
         </td>
         <td className="text-left">
           {alertStatus !== 'untriaged' ? (
