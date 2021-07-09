@@ -1,4 +1,5 @@
 from datetime import datetime, timedelta
+import simplejson as json
 from json import JSONDecodeError
 from unittest.mock import MagicMock
 
@@ -300,6 +301,7 @@ def test_db_limits_update_if_backfills_left(
     targeted_platform = record_ready_for_processing.platform.platform
 
     initial_backfills = secretary.backfills_left(on_platform=targeted_platform)
+    assert initial_backfills == json.loads(sherlock_settings.settings)['limits'][targeted_platform]
     sherlock = Sherlock(report_maintainer_mock, backfill_tool_mock, secretary, notify_client_mock)
     sherlock.sheriff(
         since=EPOCH,
