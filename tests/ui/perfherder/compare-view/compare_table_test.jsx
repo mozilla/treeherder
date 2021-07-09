@@ -8,6 +8,7 @@ import {
   waitForElementToBeRemoved,
 } from '@testing-library/react';
 
+import compareTablesControlsResults from '../../mock/compare_table_controls';
 import projects from '../../mock/repositories';
 import CompareTableControls from '../../../../ui/perfherder/compare/CompareTableControls';
 import CompareTable from '../../../../ui/perfherder/compare/CompareTable';
@@ -114,7 +115,19 @@ const result = [
 ];
 
 const results = new Map([['a11yr pgo e10s stylo', result]]);
-
+const compareResults = new Map([
+  ['compare table 1', [compareTablesControlsResults[0]]],
+  ['compare table 2', [compareTablesControlsResults[1]]],
+  ['compare table 3', [compareTablesControlsResults[2]]],
+  ['compare table 4', [compareTablesControlsResults[3]]],
+  ['compare table 5', [compareTablesControlsResults[4]]],
+  ['compare table 6', [compareTablesControlsResults[5]]],
+  ['compare table 7', [compareTablesControlsResults[6]]],
+  ['compare table 8', [compareTablesControlsResults[7]]],
+  ['compare table 9', [compareTablesControlsResults[8]]],
+  ['compare table 10', [compareTablesControlsResults[9]]],
+  ['compare table 11', [compareTablesControlsResults[10]]],
+]);
 jest.mock('../../../../ui/models/job');
 
 const mockHandlePermalinkClick = jest.fn();
@@ -129,12 +142,13 @@ beforeEach(() => {
 afterEach(cleanup);
 
 const compareTableControlsNode = (
+  compareTableControlsResults,
   userLoggedIn = false,
   isBaseAggregate = false,
 ) => {
   return (
     <CompareTableControls
-      compareResults={results}
+      compareResults={compareTableControlsResults}
       filterOptions={{}}
       user={{ isLoggedIn: userLoggedIn }}
       notify={() => {}}
@@ -149,17 +163,26 @@ const compareTableControlsNode = (
         showOnlyNoise: '0',
         filter: null,
       }}
+      location={{
+        search: '',
+      }}
     />
   );
 };
 
 const compareTableControls = (
+  compareTableControlsResults = results,
   userLoggedIn = false,
   isBaseAggregate = false,
   mockDataRetrigger = { retriggers: [] },
 ) =>
   render(
-    compareTableControlsNode(userLoggedIn, isBaseAggregate, mockDataRetrigger),
+    compareTableControlsNode(
+      compareTableControlsResults,
+      userLoggedIn,
+      isBaseAggregate,
+      mockDataRetrigger,
+    ),
   );
 
 const compareTable = (userLoggedIn, isBaseAggregate = false) =>
@@ -220,12 +243,10 @@ test('toggle all buttons should update the URL params', async () => {
     getByText(filterText.showImportant),
   );
   fireEvent.click(showImportant);
-  expect(mockUpdateParams).toHaveBeenLastCalledWith({ showOnlyImportant: 1 }, [
-    'filter',
-    'showOnlyComparable',
-    'showOnlyConfident',
-    'showOnlyNoise',
-  ]);
+  expect(mockUpdateParams).toHaveBeenLastCalledWith(
+    { page: 1, showOnlyImportant: 1 },
+    ['filter', 'showOnlyComparable', 'showOnlyConfident', 'showOnlyNoise'],
+  );
 
   const hideUncertain = await waitFor(() =>
     getByText(filterText.hideUncertain),
@@ -233,6 +254,7 @@ test('toggle all buttons should update the URL params', async () => {
   fireEvent.click(hideUncertain);
   expect(mockUpdateParams).toHaveBeenLastCalledWith(
     {
+      page: 1,
       showOnlyImportant: 1,
       showOnlyConfident: 1,
     },
@@ -243,6 +265,7 @@ test('toggle all buttons should update the URL params', async () => {
   fireEvent.click(showNoise);
   expect(mockUpdateParams).toHaveBeenLastCalledWith(
     {
+      page: 1,
       showOnlyImportant: 1,
       showOnlyConfident: 1,
       showOnlyNoise: 1,
@@ -256,6 +279,7 @@ test('toggle all buttons should update the URL params', async () => {
   fireEvent.click(hideUncomparable);
   expect(mockUpdateParams).toHaveBeenLastCalledWith(
     {
+      page: 1,
       showOnlyImportant: 1,
       showOnlyConfident: 1,
       showOnlyNoise: 1,
@@ -272,20 +296,44 @@ test('filters that are not enabled are removed from URL params', async () => {
     getByText(filterText.showImportant),
   );
   fireEvent.click(showImportant);
-  expect(mockUpdateParams).toHaveBeenLastCalledWith({ showOnlyImportant: 1 }, [
-    'filter',
-    'showOnlyComparable',
-    'showOnlyConfident',
-    'showOnlyNoise',
-  ]);
+  expect(mockUpdateParams).toHaveBeenLastCalledWith(
+    { page: 1, showOnlyImportant: 1 },
+    ['filter', 'showOnlyComparable', 'showOnlyConfident', 'showOnlyNoise'],
+  );
   fireEvent.click(showImportant);
-  expect(mockUpdateParams).toHaveBeenLastCalledWith({}, [
+  expect(mockUpdateParams).toHaveBeenLastCalledWith({ page: 1 }, [
     'filter',
     'showOnlyComparable',
     'showOnlyImportant',
     'showOnlyConfident',
     'showOnlyNoise',
   ]);
+});
+
+test('page parameter updates with value 2 when clicking on the second page', async () => {
+  const { getByText, findAllByLabelText } = compareTableControls(
+    compareResults,
+  );
+
+  const result1 = await waitFor(() =>
+    getByText(compareTablesControlsResults[0].name),
+  );
+  const result2 = await waitFor(() =>
+    getByText(compareTablesControlsResults[1].name),
+  );
+  const result10 = await waitFor(() =>
+    getByText(compareTablesControlsResults[9].name),
+  );
+
+  expect(result1).toBeInTheDocument();
+  expect(result2).toBeInTheDocument();
+  expect(result10).toBeInTheDocument();
+
+  const secondPage = await waitFor(() =>
+    findAllByLabelText('pagination-button-2'),
+  );
+  fireEvent.click(secondPage[0]);
+  expect(mockUpdateParams).toHaveBeenLastCalledWith({ page: 2 });
 });
 
 test('text input filter results should differ when filter button(s) are selected', async () => {
@@ -374,19 +422,23 @@ test('clicking compare table permalinks callbacks with unique hash-based ids', a
 });
 
 test('retrigger buttons should appear only when the user is logged in', async () => {
-  const { queryAllByTitle, rerender } = compareTableControls(false);
+  const { queryAllByTitle, rerender } = compareTableControls(results, false);
   let retriggerButtons = queryAllByTitle(compareTableText.retriggerButtonTitle);
   expect(retriggerButtons).toHaveLength(0);
 
   // simulate login
-  rerender(compareTableControlsNode(true));
+  rerender(compareTableControlsNode(results, true));
 
   retriggerButtons = queryAllByTitle(compareTableText.retriggerButtonTitle);
   expect(retriggerButtons).toHaveLength(3);
 });
 
 test('retrigger should trigger jobs for base and new repositories', async () => {
-  const { queryAllByTitle, getByText } = compareTableControls(true, false);
+  const { queryAllByTitle, getByText } = compareTableControls(
+    results,
+    true,
+    false,
+  );
   const retriggerButtons = queryAllByTitle(
     compareTableText.retriggerButtonTitle,
   );
@@ -409,7 +461,11 @@ test('retrigger should trigger jobs for base and new repositories', async () => 
 });
 
 test('retrigger should only work on new repo when base is aggregate', async () => {
-  const { queryAllByTitle, getByText } = compareTableControls(true, true);
+  const { queryAllByTitle, getByText } = compareTableControls(
+    results,
+    true,
+    true,
+  );
   const retriggerButtons = queryAllByTitle(
     compareTableText.retriggerButtonTitle,
   );

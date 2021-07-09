@@ -47,6 +47,7 @@ class PaginationGroup extends React.Component {
             <PaginationLink
               className="text-info"
               onClick={() => this.navigatePage(num)}
+              aria-label={`pagination-button-${num}`}
             >
               {num}
             </PaginationLink>

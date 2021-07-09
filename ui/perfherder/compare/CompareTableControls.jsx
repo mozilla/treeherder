@@ -1,6 +1,7 @@
+/* eslint-disable react/no-did-update-set-state */
 import React from 'react';
 import PropTypes from 'prop-types';
-import { Container } from 'reactstrap';
+import { Container, Row } from 'reactstrap';
 
 import { filterText } from '../perf-helpers/constants';
 import {
@@ -9,6 +10,8 @@ import {
   onPermalinkClick,
   retriggerMultipleJobs,
 } from '../perf-helpers/helpers';
+import { parseQueryParams } from '../../helpers/url';
+import PaginationGroup from '../shared/Pagination';
 import FilterControls from '../../shared/FilterControls';
 
 import CompareTable from './CompareTable';
@@ -27,6 +30,9 @@ export default class CompareTableControls extends React.Component {
       filteredText: this.getDefaultFilterText(this.validated),
       showRetriggerModal: false,
       currentRetriggerRow: {},
+      totalPagesList: 0,
+      page: this.validated.page ? parseInt(this.validated.page, 10) : 1,
+      countPages: 0,
     };
   }
 
@@ -34,10 +40,22 @@ export default class CompareTableControls extends React.Component {
     this.updateFilteredResults();
   }
 
-  componentDidUpdate(prevProps) {
-    const { compareResults } = this.props;
+  componentDidUpdate(prevProps, prevState) {
+    const { compareResults, location } = this.props;
+    const { countPages } = this.state;
+    const params = parseQueryParams(location.search);
+    const prevParams = parseQueryParams(prevProps.location.search);
+
+    if (prevState.countPages !== countPages) {
+      this.setState({ totalPagesList: this.generatePages(countPages) });
+    }
     if (prevProps.compareResults !== compareResults) {
       this.updateFilteredResults();
+    }
+    if (params.page && params.page !== prevParams.page) {
+      this.setState({ page: parseInt(params.page, 10) }, () => {
+        this.updateFilteredResults();
+      });
     }
   }
 
@@ -47,14 +65,14 @@ export default class CompareTableControls extends React.Component {
   };
 
   updateFilterText = (filterText) => {
-    this.setState({ filteredText: filterText }, () =>
+    this.setState({ filteredText: filterText, page: 1 }, () =>
       this.updateFilteredResults(),
     );
   };
 
   updateFilter = (filter) => {
     this.setState(
-      (prevState) => ({ [filter]: !prevState[filter] }),
+      (prevState) => ({ [filter]: !prevState[filter], page: 1 }),
       () => this.updateFilteredResults(),
     );
   };
@@ -90,9 +108,15 @@ export default class CompareTableControls extends React.Component {
       showImportant,
       hideUncertain,
       showNoise,
+      page,
     } = this.state;
 
     const { compareResults } = this.props;
+    let results;
+    const toEnd = page * 10;
+    const fromStart = toEnd - 10;
+    let countPages = Math.ceil(compareResults.size / 10);
+    let totalPagesList = this.generatePages(countPages);
 
     this.updateUrlParams();
     if (
@@ -102,7 +126,9 @@ export default class CompareTableControls extends React.Component {
       !hideUncertain &&
       !showNoise
     ) {
-      return this.setState({ results: compareResults });
+      results = Array.from(compareResults).slice(fromStart, toEnd);
+      results = new Map(results);
+      return this.setState({ results, countPages, totalPagesList });
     }
 
     const filteredResults = new Map(compareResults);
@@ -118,7 +144,12 @@ export default class CompareTableControls extends React.Component {
         filteredResults.delete(testName);
       }
     }
-    this.setState({ results: filteredResults });
+
+    countPages = Math.ceil(filteredResults.size / 10);
+    totalPagesList = this.generatePages(countPages);
+    results = Array.from(filteredResults).slice(fromStart, toEnd);
+    results = new Map(results);
+    this.setState({ results, countPages, totalPagesList });
   };
 
   toggleRetriggerModal = () => {
@@ -149,6 +180,7 @@ export default class CompareTableControls extends React.Component {
       showImportant,
       hideUncertain,
       showNoise,
+      page,
     } = this.state;
     const compareURLParams = {};
     const paramsToRemove = [];
@@ -168,12 +200,29 @@ export default class CompareTableControls extends React.Component {
     if (showNoise) compareURLParams.showOnlyNoise = 1;
     else paramsToRemove.push('showOnlyNoise');
 
+    compareURLParams.page = page;
     updateParams(compareURLParams, paramsToRemove);
   };
 
   onModalOpen = (rowResults) => {
     this.setState({ currentRetriggerRow: rowResults });
     this.toggleRetriggerModal();
+  };
+
+  getCurrentPages = () => {
+    const { page, totalPagesList } = this.state;
+    if (totalPagesList.length === 5 || !totalPagesList.length) {
+      return totalPagesList;
+    }
+    return totalPagesList.slice(page - 1, page + 4);
+  };
+
+  generatePages = (countPages) => {
+    const pages = [];
+    for (let num = 1; num <= countPages; num++) {
+      pages.push(num);
+    }
+    return pages;
   };
 
   render() {
@@ -188,8 +237,8 @@ export default class CompareTableControls extends React.Component {
       onPermalinkClick,
       projects,
       history,
+      validated,
     } = this.props;
-
     const {
       hideUncomparable,
       hideUncertain,
@@ -199,6 +248,8 @@ export default class CompareTableControls extends React.Component {
       showRetriggerModal,
       currentRetriggerRow,
       filteredText,
+      countPages,
+      page,
     } = this.state;
 
     const compareFilters = [
@@ -229,6 +280,10 @@ export default class CompareTableControls extends React.Component {
         stateName: 'showNoise',
       },
     ];
+
+    const viewablePagesList = this.getCurrentPages();
+    const hasMorePages = () => viewablePagesList.length > 0 && countPages !== 1;
+
     return (
       <Container fluid className="my-3 px-0">
         <RetriggerModal
@@ -245,6 +300,19 @@ export default class CompareTableControls extends React.Component {
           updateFilterText={this.updateFilterText}
           dropdownOptions={dropdownOptions}
         />
+
+        {viewablePagesList
+          ? hasMorePages() && (
+              <Row className="justify-content-center">
+                <PaginationGroup
+                  viewablePageNums={viewablePagesList}
+                  updateParams={validated.updateParams}
+                  currentPage={page}
+                  count={countPages}
+                />
+              </Row>
+            )
+          : null}
 
         {showNoise && showTestsWithNoise}
 
@@ -268,6 +336,19 @@ export default class CompareTableControls extends React.Component {
         ) : (
           <p className="lead text-center">No results to show</p>
         )}
+
+        {viewablePagesList
+          ? hasMorePages() && (
+              <Row className="justify-content-center">
+                <PaginationGroup
+                  viewablePageNums={viewablePagesList}
+                  updateParams={validated.updateParams}
+                  currentPage={page}
+                  count={countPages}
+                />
+              </Row>
+            )
+          : null}
       </Container>
     );
   }

@@ -202,7 +202,7 @@ export default class CompareTableView extends React.Component {
 
     const framework = frameworks.find((item) => item.name === selection);
 
-    updateParams({ framework: framework.id });
+    updateParams({ framework: framework.id, page: 1 });
     this.setState({ framework }, () => this.getPerformanceData());
   };
 
@@ -210,7 +210,7 @@ export default class CompareTableView extends React.Component {
     const { updateParams } = this.props.validated;
     const timeRange = phTimeRanges.find((item) => item.text === selection);
 
-    updateParams({ selectedTimeRange: timeRange.value });
+    updateParams({ selectedTimeRange: timeRange.value, page: 1 });
     this.setState({ timeRange }, () => this.getPerformanceData());
   };
 
