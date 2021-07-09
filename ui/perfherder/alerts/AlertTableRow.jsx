@@ -154,7 +154,7 @@ export default class AlertTableRow extends React.Component {
   };
 
   getTitleText = (alert, alertStatus) => {
-    const { repository, framework, id } = this.props.alertSummary;
+    const { framework, id } = this.props.alertSummary;
     const { frameworks } = this.props;
 
     let statusColor = '';
@@ -171,7 +171,6 @@ export default class AlertTableRow extends React.Component {
     ) {
       textEffect = 'strike-through';
     }
-    const timeRange = this.getTimeRange();
     const frameworkName = getFrameworkName(frameworks, framework);
     const hasDocumentation = testDocumentationFrameworks.includes(
       frameworkName,
@@ -204,13 +203,6 @@ export default class AlertTableRow extends React.Component {
         </span>{' '}
         {this.renderAlertStatus(alert, alertStatus, statusColor)}{' '}
         <span className="result-links">
-          <a
-            href={getGraphsURL(alert, timeRange, repository, framework)}
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            graph
-          </a>{' '}
           {alert.series_signature.has_subtests && (
             <a
               href={this.getSubtestsURL()}
@@ -286,7 +278,7 @@ export default class AlertTableRow extends React.Component {
             />
           </FormGroup>
         </td>
-        <td className="px-0 d-flex flex-column border-top-0">
+        <td className="px-0 d-flex flex-column align-items-start border-top-0">
           <Button
             color="black"
             aria-label={
@@ -307,7 +299,7 @@ export default class AlertTableRow extends React.Component {
             href={getGraphsURL(alert, timeRange, repository, framework)}
             target="_blank"
             rel="noopener noreferrer"
-            className="text-dark btn-light border border-0 bg-transparent pl-1"
+            className="text-dark btn-light border p-0 border-0 bg-transparent"
           >
             <FontAwesomeIcon title="Open graph" icon={faChartLine} />
           </a>
