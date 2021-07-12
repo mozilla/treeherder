@@ -1,5 +1,5 @@
 # Use the same Python version as in Heroku (see runtime.txt)
-FROM python:3.7.10
+FROM python:3.7.11
 
 # Variables that are not specific to a particular environment.
 ENV NEW_RELIC_CONFIG_FILE newrelic.ini
