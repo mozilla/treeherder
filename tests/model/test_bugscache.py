@@ -117,7 +117,7 @@ def test_bug_properties(transactional_db, sample_bugs):
     _update_bugscache(bug_list)
 
     expected_keys = set(
-        ['crash_signature', 'resolution', 'summary', 'keywords', 'id', 'status', 'whiteboard']
+        ['crash_signature', 'resolution', 'summary', 'keywords', 'os', 'id', 'status', 'whiteboard']
     )
 
     suggestions = Bugscache.search(search_term)

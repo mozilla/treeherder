@@ -273,7 +273,7 @@ class Bugscache(models.Model):
         )
 
         try:
-            open_recent = [model_to_dict(item, exclude=["modified", "os"]) for item in recent_qs]
+            open_recent = [model_to_dict(item, exclude=["modified"]) for item in recent_qs]
         except ProgrammingError as e:
             newrelic.agent.record_exception()
             logger.error(
@@ -298,7 +298,7 @@ class Bugscache(models.Model):
         )
 
         try:
-            all_others = [model_to_dict(item, exclude=["modified", "os"]) for item in all_others_qs]
+            all_others = [model_to_dict(item, exclude=["modified"]) for item in all_others_qs]
         except ProgrammingError as e:
             newrelic.agent.record_exception()
             logger.error(
