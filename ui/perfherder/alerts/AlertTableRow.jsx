@@ -299,7 +299,7 @@ export default class AlertTableRow extends React.Component {
             href={getGraphsURL(alert, timeRange, repository, framework)}
             target="_blank"
             rel="noopener noreferrer"
-            className="text-dark btn-light border p-0 border-0 bg-transparent"
+            className="text-dark button btn border p-0 border-0 bg-transparent"
             aria-label="graph-link"
           >
             <FontAwesomeIcon title="Open graph" icon={faChartLine} />
