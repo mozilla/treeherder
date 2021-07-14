@@ -81,7 +81,7 @@ export default class AlertTableRow extends React.Component {
 
   toggleStar = async () => {
     const { starred } = this.state;
-    const { alert } = this.props;
+    const { alert, fetchAlertSummaries, alertSummary } = this.props;
     const updatedStar = {
       starred: !starred,
     };
@@ -91,7 +91,10 @@ export default class AlertTableRow extends React.Component {
       updatedStar,
     );
 
-    if (failureStatus) {
+    if (!failureStatus) {
+      // now refresh UI, by syncing with backend
+      fetchAlertSummaries(alertSummary.id);
+    } else {
       return this.props.updateViewState({
         errorMessages: [`Failed to update alert ${alert.id}: ${data}`],
       });
