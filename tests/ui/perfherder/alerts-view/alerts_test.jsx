@@ -774,3 +774,19 @@ test('test next alert button should be disable when reaching the last alert', as
 
   expect(nextScrollButton).toBeDisabled();
 });
+
+test("Alert's ID can be copied to clipboard", async () => {
+  const { queryAllByTitle } = alertsViewControls();
+  Object.assign(navigator, {
+    clipboard: {
+      writeText: jest.fn(),
+    },
+  });
+
+  const alertID = testAlertSummaries[0].id;
+  const copyIdButtons = await waitFor(() => queryAllByTitle('Copy Alert ID'));
+
+  fireEvent.click(copyIdButtons[0]);
+
+  expect(navigator.clipboard.writeText).toHaveBeenCalledWith(`${alertID}`);
+});
