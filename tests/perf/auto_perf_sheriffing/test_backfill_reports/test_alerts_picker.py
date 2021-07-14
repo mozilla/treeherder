@@ -140,13 +140,16 @@ def test_os_relevance():
     assert 4 == picker._os_relevance('windows7')
     assert 3 == picker._os_relevance('linux')
     assert 2 == picker._os_relevance('osx')
+    assert 2 == picker._os_relevance('macosx')  # ensure macosx has the same relevance as osx
     assert 1 == picker._os_relevance('android')
 
     with pytest.raises(ValueError):
         picker._os_relevance('some weird OS')
 
 
-def test_has_relevant_platform(test_many_various_alerts, test_bad_platform_names):
+def test_has_relevant_platform(
+    test_many_various_alerts, test_bad_platform_names, test_macosx_alert
+):
     picker = AlertsPicker(
         max_alerts=5,
         max_improvements=2,
@@ -157,6 +160,7 @@ def test_has_relevant_platform(test_many_various_alerts, test_bad_platform_names
         assert picker._has_relevant_platform(alert) is True
     for alert in test_bad_platform_names:
         assert picker._has_relevant_platform(alert) is False
+    assert picker._has_relevant_platform(test_macosx_alert) is True
 
 
 def test_extract_by_relevant_platforms(test_many_various_alerts, test_bad_platform_names):

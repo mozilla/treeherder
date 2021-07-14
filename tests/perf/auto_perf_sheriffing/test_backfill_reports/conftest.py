@@ -148,6 +148,15 @@ def test_few_various_alerts():
 
 
 @pytest.fixture
+def test_macosx_alert():
+    alert = Mock(spec=PerformanceAlert)
+    platform = 'macosx1015-64-shippable-qr'
+    alert.series_signature.platform.platform = platform
+    alert.is_regression = True
+    return alert
+
+
+@pytest.fixture
 def test_few_regressions():
     alerts = [Mock(spec=PerformanceAlert) for _ in range(5)]
     platforms = (
