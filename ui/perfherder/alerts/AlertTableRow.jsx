@@ -8,6 +8,7 @@ import {
   faStar as faStarSolid,
   faUser,
   faCheck,
+  faChartLine,
 } from '@fortawesome/free-solid-svg-icons';
 import { faStar as faStarRegular } from '@fortawesome/free-regular-svg-icons';
 import { Link } from 'react-router-dom';
@@ -153,7 +154,7 @@ export default class AlertTableRow extends React.Component {
   };
 
   getTitleText = (alert, alertStatus) => {
-    const { repository, framework, id } = this.props.alertSummary;
+    const { framework, id } = this.props.alertSummary;
     const { frameworks } = this.props;
 
     let statusColor = '';
@@ -170,7 +171,6 @@ export default class AlertTableRow extends React.Component {
     ) {
       textEffect = 'strike-through';
     }
-    const timeRange = this.getTimeRange();
     const frameworkName = getFrameworkName(frameworks, framework);
     const hasDocumentation = testDocumentationFrameworks.includes(
       frameworkName,
@@ -203,13 +203,6 @@ export default class AlertTableRow extends React.Component {
         </span>{' '}
         {this.renderAlertStatus(alert, alertStatus, statusColor)}{' '}
         <span className="result-links">
-          <a
-            href={getGraphsURL(alert, timeRange, repository, framework)}
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            graph
-          </a>{' '}
           {alert.series_signature.has_subtests && (
             <a
               href={this.getSubtestsURL()}
@@ -246,9 +239,12 @@ export default class AlertTableRow extends React.Component {
   render() {
     const { user, alert, alertSummary } = this.props;
     const { starred, checkboxSelected } = this.state;
+    const { repository, framework } = alertSummary;
 
     const { tags, extra_options: options } = alert.series_signature;
     const items = { tags, options };
+
+    const timeRange = this.getTimeRange();
 
     const alertStatus = getStatus(alert.status, alertStatusMap);
     const tooltipText = alert.classifier_email
@@ -282,7 +278,7 @@ export default class AlertTableRow extends React.Component {
             />
           </FormGroup>
         </td>
-        <td className="px-0">
+        <td className="px-0 d-flex flex-column align-items-start border-top-0">
           <Button
             color="black"
             aria-label={
@@ -299,6 +295,15 @@ export default class AlertTableRow extends React.Component {
               icon={starred ? faStarSolid : faStarRegular}
             />
           </Button>
+          <a
+            href={getGraphsURL(alert, timeRange, repository, framework)}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="text-dark button btn border p-0 border-0 bg-transparent"
+            aria-label="graph-link"
+          >
+            <FontAwesomeIcon title="Open graph" icon={faChartLine} />
+          </a>
         </td>
         <td className="text-left">
           {alertStatus !== 'untriaged' ? (

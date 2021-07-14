@@ -177,3 +177,16 @@ test('Documentation link is not available for build_metrics framework', async ()
   const { queryByTestId } = alertTableRowTest(false, testAlert2);
   expect(queryByTestId('docs')).toBeNull();
 });
+
+test('Chart icon opens the graph link for an alert in a new tab', async () => {
+  const { getByLabelText } = alertTableRowTest(false, testAlert);
+
+  const graphLink = await waitFor(() => getByLabelText('graph-link'));
+
+  expect(graphLink).toBeInTheDocument();
+  expect(graphLink).toHaveAttribute(
+    'href',
+    './graphs?timerange=31536000&series=mozilla-inbound,1944439,1,1',
+  );
+  expect(graphLink).toHaveAttribute('target', '_blank');
+});
