@@ -50,6 +50,11 @@ BUG_SEARCHES = (
     ("should not be match_d", []),
     ("should not be match%d", []),
     ("should not be matche=d", []),
+    ("standalone-without-folder.html", [1690234]),
+    ("slash-folder.html", [1690235]),
+    ("backslash.html", [1690236]),
+    ("listitem-001.html", [1690345]),
+    ("match-at-start.html", [1690456]),
 )
 
 
