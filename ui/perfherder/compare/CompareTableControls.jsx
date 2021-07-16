@@ -211,7 +211,7 @@ export default class CompareTableControls extends React.Component {
 
   getCurrentPages = () => {
     const { page, totalPagesList } = this.state;
-    if (totalPagesList.length === 5 || !totalPagesList.length) {
+    if (totalPagesList.length <= 5 || !totalPagesList.length) {
       return totalPagesList;
     }
     return totalPagesList.slice(page - 1, page + 4);
