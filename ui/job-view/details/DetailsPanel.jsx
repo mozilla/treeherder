@@ -33,6 +33,7 @@ class DetailsPanel extends React.Component {
       jobDetails: [],
       jobLogUrls: [],
       jobDetailLoading: false,
+      jobArtifactsLoading: false,
       logViewerUrl: null,
       logViewerFullUrl: null,
       perfJobDetail: [],
@@ -112,7 +113,12 @@ class DetailsPanel extends React.Component {
     const push = this.findPush(selectedJob.push_id);
 
     this.setState(
-      { jobDetails: [], suggestions: [], jobDetailLoading: true },
+      {
+        jobDetails: [],
+        suggestions: [],
+        jobDetailLoading: true,
+        jobArtifactsLoading: true,
+      },
       () => {
         if (this.selectJobController !== null) {
           // Cancel the in-progress fetch requests.
@@ -171,7 +177,6 @@ class DetailsPanel extends React.Component {
           jobPromise,
           jobLogUrlPromise,
           phSeriesPromise,
-          jobArtifactsPromise,
           builtFromArtifactPromise,
         ])
           .then(
@@ -179,7 +184,6 @@ class DetailsPanel extends React.Component {
               jobResult,
               jobLogUrlResult,
               phSeriesResult,
-              jobArtifactsResult,
               builtFromArtifactResult,
             ]) => {
               // This version of the job has more information than what we get in the main job list.  This
@@ -193,18 +197,29 @@ class DetailsPanel extends React.Component {
 
               addAggregateFields(selectedJobFull);
 
-              let jobDetails = jobArtifactsResult.data.artifacts
-                ? formatArtifacts(jobArtifactsResult.data.artifacts, {
-                    ...artifactsParams,
-                  })
-                : [];
+              Promise.all([jobArtifactsPromise]).then(
+                async ([jobArtifactsResult]) => {
+                  let jobDetails = jobArtifactsResult.data.artifacts
+                    ? formatArtifacts(jobArtifactsResult.data.artifacts, {
+                        ...artifactsParams,
+                      })
+                    : [];
 
-              if (
-                builtFromArtifactResult &&
-                !builtFromArtifactResult.failureStatus
-              ) {
-                jobDetails = [...jobDetails, ...builtFromArtifactResult.data];
-              }
+                  if (
+                    builtFromArtifactResult &&
+                    !builtFromArtifactResult.failureStatus
+                  ) {
+                    jobDetails = [
+                      ...jobDetails,
+                      ...builtFromArtifactResult.data,
+                    ];
+                  }
+                  this.setState({
+                    jobDetails,
+                    jobArtifactsLoading: false,
+                  });
+                },
+              );
 
               // the third result comes from the jobLogUrl promise
               // exclude the json log URLs
@@ -268,7 +283,6 @@ class DetailsPanel extends React.Component {
                 {
                   selectedJobFull,
                   jobLogUrls,
-                  jobDetails,
                   logParseStatus,
                   logViewerUrl,
                   logViewerFullUrl,
@@ -304,6 +318,7 @@ class DetailsPanel extends React.Component {
       jobRevision,
       jobLogUrls,
       jobDetailLoading,
+      jobArtifactsLoading,
       perfJobDetail,
       suggestions,
       errors,
@@ -353,6 +368,7 @@ class DetailsPanel extends React.Component {
               selectedJobFull={selectedJobFull}
               currentRepo={currentRepo}
               jobDetails={jobDetails}
+              jobArtifactsLoading={jobArtifactsLoading}
               perfJobDetail={perfJobDetail}
               repoName={currentRepo.name}
               jobRevision={jobRevision}

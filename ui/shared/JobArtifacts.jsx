@@ -20,7 +20,12 @@ export default class JobArtifacts extends React.PureComponent {
   }
 
   render() {
-    const { jobDetails, repoName, selectedJob } = this.props;
+    const {
+      jobDetails,
+      jobArtifactsLoading,
+      repoName,
+      selectedJob,
+    } = this.props;
     const sortedDetails = jobDetails.slice();
 
     sortedDetails.sort((a, b) => {
@@ -49,36 +54,42 @@ export default class JobArtifacts extends React.PureComponent {
             </a>
           </div>
         )}
-        <ul className="list-unstyled">
-          {sortedDetails.length > 0 &&
-            sortedDetails.map((line) => (
-              <li className="link-style" key={line.value}>
-                {!!line.url && (
-                  <a
-                    data-testid="task-artifact"
-                    title={line.title ? line.title : line.value}
-                    href={line.url}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                  >
-                    {line.value}
-                  </a>
-                )}
-                {line.url &&
-                  line.value.startsWith('profile_') &&
-                  (line.value.endsWith('.zip') ||
-                    line.value.endsWith('.json')) && (
-                    <span>
-                      {' '}
-                      -{' '}
-                      <a title={line.value} href={getPerfAnalysisUrl(line.url)}>
-                        open in Firefox Profiler
-                      </a>
-                    </span>
+        {jobArtifactsLoading && <span>Loading job artifacts…</span>}
+        {!jobArtifactsLoading && (
+          <ul className="list-unstyled">
+            {sortedDetails.length > 0 &&
+              sortedDetails.map((line) => (
+                <li className="link-style" key={line.value}>
+                  {!!line.url && (
+                    <a
+                      data-testid="task-artifact"
+                      title={line.title ? line.title : line.value}
+                      href={line.url}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                    >
+                      {line.value}
+                    </a>
                   )}
-              </li>
-            ))}
-        </ul>
+                  {line.url &&
+                    line.value.startsWith('profile_') &&
+                    (line.value.endsWith('.zip') ||
+                      line.value.endsWith('.json')) && (
+                      <span>
+                        {' '}
+                        -{' '}
+                        <a
+                          title={line.value}
+                          href={getPerfAnalysisUrl(line.url)}
+                        >
+                          open in Firefox Profiler
+                        </a>
+                      </span>
+                    )}
+                </li>
+              ))}
+          </ul>
+        )}
       </div>
     );
   }
@@ -86,10 +97,12 @@ export default class JobArtifacts extends React.PureComponent {
 
 JobArtifacts.propTypes = {
   jobDetails: PropTypes.arrayOf(PropTypes.object),
+  jobArtifactsLoading: PropTypes.bool,
   repoName: PropTypes.string.isRequired,
   selectedJob: PropTypes.shape({}).isRequired,
 };
 
 JobArtifacts.defaultProps = {
   jobDetails: [],
+  jobArtifactsLoading: false,
 };
