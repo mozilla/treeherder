@@ -333,6 +333,11 @@ test('page parameter updates with value 2 when clicking on the second page', asy
     findAllByLabelText('pagination-button-2'),
   );
   fireEvent.click(secondPage[0]);
+
+  const firstPage = await waitFor(() =>
+    findAllByLabelText('pagination-button-1'),
+  );
+  expect(firstPage[0]).toBeInTheDocument();
   expect(mockUpdateParams).toHaveBeenLastCalledWith({ page: 2 });
 });
 
