@@ -121,6 +121,7 @@ class TabsPanel extends React.Component {
 
   render() {
     const {
+      jobArtifactsLoading,
       jobDetails,
       jobLogUrls,
       logParseStatus,
@@ -215,6 +216,7 @@ class TabsPanel extends React.Component {
           <TabPanel>
             <JobArtifacts
               jobDetails={jobDetails}
+              jobArtifactsLoading={jobArtifactsLoading}
               repoName={currentRepo.name}
               selectedJob={selectedJobFull}
             />
@@ -285,6 +287,7 @@ class TabsPanel extends React.Component {
 TabsPanel.propTypes = {
   classificationMap: PropTypes.shape({}).isRequired,
   jobDetails: PropTypes.arrayOf(PropTypes.object).isRequired,
+  jobArtifactsLoading: PropTypes.bool,
   classifications: PropTypes.arrayOf(PropTypes.object).isRequired,
   togglePinBoardVisibility: PropTypes.func.isRequired,
   isPinBoardVisible: PropTypes.bool.isRequired,
@@ -303,6 +306,7 @@ TabsPanel.propTypes = {
 };
 
 TabsPanel.defaultProps = {
+  jobArtifactsLoading: false,
   jobLogUrls: [],
   logParseStatus: 'pending',
   perfJobDetail: [],
