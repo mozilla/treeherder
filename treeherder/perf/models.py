@@ -447,8 +447,24 @@ class PerformanceAlert(models.Model):
         help_text="t value out of analysis indicating confidence " "that change is 'real'",
         null=True,
     )
+
+    SKEWED = "SKEWED"
+    OUTLIERS = "OUTLIERS"
+    MODAL = "MODAL"
+    OK = "OK"
+    NA = "N/A"
+
+    NOISE_PROFILES = (
+        (SKEWED, "Samples are heavily found on one side of the mean."),
+        (OUTLIERS, "There are more outliers than should be expected from a normal distribution."),
+        (MODAL, "There are multiple areas where most values are found rather than only one."),
+        (OK, "No issues were found."),
+        (NA, "Could not compute a noise profile.")
+    )
+
     noise_profile = models.CharField(
         max_length=30,
+        choices=NOISE_PROFILES,
         default="N/A",
         help_text="The noise profile of the data which precedes this alert.",
     )

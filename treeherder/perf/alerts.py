@@ -96,7 +96,7 @@ def generate_new_alerts_in_series(signature):
                     prev_value, new_value, signature.lower_is_better
                 )
 
-                noise_profile = "N/A", 0
+                noise_profile = "N/A"
                 try:
                     # Gather all data up to the current data point that
                     # shows the regression and obtain a noise profile on it.
@@ -108,21 +108,14 @@ def generate_new_alerts_in_series(signature):
                             break
                         noise_data.append(geomean(point.values))
 
-                    noise_profile = deviance(noise_data)
+                    noise_profile, _ = deviance(noise_data)
 
-                    if len(noise_profile) != 2:
-                        raise Exception(
-                            "Expecting two values from the "
-                            f"deviance measurement, got: {noise_profile}"
-                        )
-                    if not isinstance(noise_profile[0], str):
+                    if not isinstance(noise_profile, str):
                         raise Exception(
                             "Expecting a string as a "
-                            f"noise profile, got: {type(noise_profile[0])}"
+                            f"noise profile, got: {type(noise_profile)}"
                         )
                 except Exception as e:
-                    print("failed here")
-                    print(e)
                     # Fail without breaking the alert computation
                     logger.warning("Failed to obtain a noise profile.")
                     traceback.print_exc()
@@ -162,7 +155,7 @@ def generate_new_alerts_in_series(signature):
                     summary=summary,
                     series_signature=signature,
                     defaults={
-                        'noise_profile': noise_profile[0],
+                        'noise_profile': noise_profile,
                         'is_regression': alert_properties.is_regression,
                         'amount_pct': alert_properties.pct_change,
                         'amount_abs': alert_properties.delta,
