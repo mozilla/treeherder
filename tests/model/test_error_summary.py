@@ -153,7 +153,7 @@ FULL_LINE_FALLBACK_TEST_CASES = (
     ),
     (
         'PROCESS-CRASH | Automation Error: Missing end of test marker (process crashed?)',
-        'PROCESS-CRASH | Automation Error: Missing end of test marker (process crashed?)',
+        'Automation Error: Missing end of test marker (process crashed?)',
     ),
 )
 
@@ -224,7 +224,7 @@ def test_get_crash_signature(line, exp_search_term):
 BLACKLIST_TEST_CASES = (
     (
         'TEST-UNEXPECTED-FAIL | remoteautomation.py | application timed out after 330 seconds with no output',
-        'TEST-UNEXPECTED-FAIL | remoteautomation.py | application timed out after 330 seconds with no output',
+        'remoteautomation.py | application timed out after 330 seconds with no output',
     ),
     ('Return code: 1', None),
     (
