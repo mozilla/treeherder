@@ -107,7 +107,7 @@ def prepare_record_with_search_str(record_with_job_symbol, search_str_with):
     return record_with_job_symbol
 
 
-@pytest.fixture(params=['windows', 'linux'])
+@pytest.fixture(params=['windows', 'linux', 'osx'])
 def platform_specific_signature(
     test_repository, test_perf_framework, request
 ) -> PerformanceSignature:
@@ -183,6 +183,7 @@ def empty_sheriff_settings(secretary):
     secretary.validate_settings()
     secretary.consume_backfills(on_platform='linux', amount=all_of_them)
     secretary.consume_backfills(on_platform='windows', amount=all_of_them)
+    secretary.consume_backfills(on_platform='osx', amount=all_of_them)
     return PerformanceSettings.objects.get(name='perf_sheriff_bot')
 
 
