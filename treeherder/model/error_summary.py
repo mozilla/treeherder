@@ -18,6 +18,7 @@ CRASH_RE = re.compile(r'.+ application crashed \[@ (.+)\]$')
 MOZHARNESS_RE = re.compile(r'^\d+:\d+:\d+[ ]+(?:DEBUG|INFO|WARNING|ERROR|CRITICAL|FATAL) - [ ]?')
 PROCESS_ID_RE = re.compile(r"(?:PID \d+|GECKO\(\d+\)) \| +")
 REFTEST_RE = re.compile(r'\s+[=!]=\s+.*')
+PREFIX_PATTERN = r'^(TEST-UNEXPECTED-\S+|PROCESS-CRASH)\s+\|\s+'
 
 
 def get_error_summary(job):
@@ -156,6 +157,7 @@ def get_error_search_term(error_line):
     # false positives, but means we're more susceptible to false negatives due to
     # run-to-run variances in the error messages (eg paths, process IDs).
     if search_term:
+        search_term = re.sub(PREFIX_PATTERN, '', search_term)
         search_term = search_term[:100]
 
     return search_term
@@ -197,8 +199,10 @@ def is_helpful_search_term(search_term):
         'mozalloc_abort(char const*)',
         'mozalloc_abort',
         'CrashingThread(void *)',
+        'gtest',
         'Last test finished',
         'leakcheck',
+        'LeakSanitizer',
         '# TBPL FAILURE #',
     ]
 
