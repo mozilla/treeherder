@@ -376,6 +376,7 @@ export default class AlertTable extends React.Component {
                       selectedAlerts={selectedAlerts}
                       updateViewState={updateViewState}
                       modifyAlert={modifyAlert}
+                      fetchAlertSummaries={fetchAlertSummaries}
                     />
                   ))}
                   {downstreamIdsLength > 0 && (
