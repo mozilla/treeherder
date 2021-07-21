@@ -13,6 +13,23 @@ class Migration(migrations.Migration):
         migrations.AddField(
             model_name='performancealert',
             name='noise_profile',
-            field=models.CharField(choices=[('SKEWED', 'Samples are heavily found on one side of the mean.'), ('OUTLIERS', 'There are more outliers than should be expected from a normal distribution.'), ('MODAL', 'There are multiple areas where most values are found rather than only one.'), ('OK', 'No issues were found.'), ('N/A', 'Could not compute a noise profile.')], default='N/A', help_text='The noise profile of the data which precedes this alert.', max_length=30),
+            field=models.CharField(
+                choices=[
+                    ('SKEWED', 'Samples are heavily found on one side of the mean.'),
+                    (
+                        'OUTLIERS',
+                        'There are more outliers than should be expected from a normal distribution.',
+                    ),
+                    (
+                        'MODAL',
+                        'There are multiple areas where most values are found rather than only one.',
+                    ),
+                    ('OK', 'No issues were found.'),
+                    ('N/A', 'Could not compute a noise profile.'),
+                ],
+                default='N/A',
+                help_text='The noise profile of the data which precedes this alert.',
+                max_length=30,
+            ),
         ),
     ]

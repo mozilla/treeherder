@@ -459,7 +459,7 @@ class PerformanceAlert(models.Model):
         (OUTLIERS, "There are more outliers than should be expected from a normal distribution."),
         (MODAL, "There are multiple areas where most values are found rather than only one."),
         (OK, "No issues were found."),
-        (NA, "Could not compute a noise profile.")
+        (NA, "Could not compute a noise profile."),
     )
 
     noise_profile = models.CharField(
