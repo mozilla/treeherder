@@ -407,6 +407,20 @@ test('selecting the alert summary checkbox then deselecting one alert only updat
   modifyAlertSpy.mockClear();
 });
 
+test('selecting the alert summary checkbox then clicking on the reassign button opens the alert modal', async () => {
+  const { getByTestId, getByText } = alertsViewControls();
+
+  // select summary
+  const summaryCheckbox = getByTestId('alert summary 20174 checkbox');
+  fireEvent.click(summaryCheckbox);
+
+  const reassignButton = await waitFor(() => getByText('Reassign'));
+  fireEvent.click(reassignButton);
+
+  const alertModal = await waitFor(() => getByText('Reassign Alerts'));
+  expect(alertModal).toBeInTheDocument();
+});
+
 test("display of alert summaries's assignee badge", async () => {
   const { getAllByTitle, getAllByText } = alertsViewControls();
 
