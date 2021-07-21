@@ -1554,7 +1554,7 @@
       "dvcs_type": "git",
       "name": "android-components",
       "url": "https://github.com/mozilla-mobile/android-components",
-      "branch": "master",
+      "branch": "main",
       "active_status": "active",
       "codebase": "android-components",
       "repository_group": 11,
