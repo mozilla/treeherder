@@ -120,7 +120,12 @@ def ignore_task(task, taskId, rootUrl, project):
                         )
                         ignore = True
                     # Bug 1587542 - Temporary change to ignore Github tasks not associated to 'master'
-                    if envs["MOBILE_HEAD_REF"] not in ("refs/heads/master", "master"):
+                    if envs["MOBILE_HEAD_REF"] not in (
+                        "refs/heads/master",
+                        "master",
+                        "refs/heads/main",
+                        "main",
+                    ):
                         logger.info("Task: %s is not for the `master` branch.", taskId)
                         ignore = True
             except KeyError:
