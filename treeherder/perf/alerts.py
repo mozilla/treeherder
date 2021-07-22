@@ -1,10 +1,10 @@
 import logging
 import numpy as np
 import time
-import traceback
 from collections import namedtuple
 from datetime import datetime
 
+import newrelic.agent
 from django.conf import settings
 from django.db import transaction
 from measure_noise import deviance
@@ -116,8 +116,8 @@ def generate_new_alerts_in_series(signature):
                         )
                 except Exception:
                     # Fail without breaking the alert computation
-                    logger.warning("Failed to obtain a noise profile.")
-                    traceback.print_exc()
+                    newrelic.agent.record_exception()
+                    logger.error("Failed to obtain a noise profile.")
 
                 # ignore regressions below the configured regression
                 # threshold
