@@ -24,6 +24,7 @@ def _verify_alert(
     expected_status,
     expected_summary_status,
     expected_classifier,
+    expected_noise_profile,
 ):
     alert = PerformanceAlert.objects.get(id=alertid)
     assert alert.prev_value == expected_prev_value
@@ -33,6 +34,7 @@ def _verify_alert(
     assert alert.is_regression == expected_is_regression
     assert alert.status == expected_status
     assert alert.classifier == expected_classifier
+    assert alert.noise_profile == expected_noise_profile
 
     summary = PerformanceAlertSummary.objects.get(id=alertid)
     assert summary.push_id == expected_push_id
@@ -111,6 +113,7 @@ def test_detect_alerts_in_series(
         PerformanceAlert.UNTRIAGED,
         PerformanceAlertSummary.UNTRIAGED,
         None,
+        "MODAL",
     )
 
     # verify that no new alerts generated if we rerun
@@ -128,6 +131,7 @@ def test_detect_alerts_in_series(
         PerformanceAlert.UNTRIAGED,
         PerformanceAlertSummary.UNTRIAGED,
         None,
+        "MODAL",
     )
 
     # add data that should be enough to generate a new alert if we rerun
@@ -154,6 +158,7 @@ def test_detect_alerts_in_series(
         PerformanceAlert.UNTRIAGED,
         PerformanceAlertSummary.UNTRIAGED,
         None,
+        "MODAL",
     )
 
 
@@ -213,6 +218,7 @@ def test_detect_alerts_in_series_with_retriggers(
         PerformanceAlert.UNTRIAGED,
         PerformanceAlertSummary.UNTRIAGED,
         None,
+        "N/A",
     )
 
 

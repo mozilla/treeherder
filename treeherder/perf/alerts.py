@@ -1,9 +1,13 @@
+import logging
+import numpy as np
 import time
 from collections import namedtuple
 from datetime import datetime
 
+import newrelic.agent
 from django.conf import settings
 from django.db import transaction
+from measure_noise import deviance
 
 from treeherder.perf.models import (
     PerformanceAlert,
@@ -12,6 +16,14 @@ from treeherder.perf.models import (
     PerformanceSignature,
 )
 from treeherder.perfalert.perfalert import RevisionDatum, detect_changes
+
+logger = logging.getLogger(__name__)
+
+
+def geomean(iterable):
+    # Returns a geomean of a list of values.
+    a = np.array(iterable)
+    return a.prod() ** (1.0 / len(a))
 
 
 def get_alert_properties(prev_value, new_value, lower_is_better):
@@ -67,8 +79,9 @@ def generate_new_alerts_in_series(signature):
     if alert_threshold is None:
         alert_threshold = settings.PERFHERDER_REGRESSION_THRESHOLD
 
+    data = revision_data.values()
     analyzed_series = detect_changes(
-        revision_data.values(),
+        data,
         min_back_window=min_back_window,
         max_back_window=max_back_window,
         fore_window=fore_window,
@@ -82,6 +95,29 @@ def generate_new_alerts_in_series(signature):
                 alert_properties = get_alert_properties(
                     prev_value, new_value, signature.lower_is_better
                 )
+
+                noise_profile = "N/A"
+                try:
+                    # Gather all data up to the current data point that
+                    # shows the regression and obtain a noise profile on it.
+                    # This helps us to ignore this alert and others in the
+                    # calculation that could influence the profile.
+                    noise_data = []
+                    for point in analyzed_series:
+                        if point == cur:
+                            break
+                        noise_data.append(geomean(point.values))
+
+                    noise_profile, _ = deviance(noise_data)
+
+                    if not isinstance(noise_profile, str):
+                        raise Exception(
+                            "Expecting a string as a " f"noise profile, got: {type(noise_profile)}"
+                        )
+                except Exception:
+                    # Fail without breaking the alert computation
+                    newrelic.agent.record_exception()
+                    logger.error("Failed to obtain a noise profile.")
 
                 # ignore regressions below the configured regression
                 # threshold
@@ -118,6 +154,7 @@ def generate_new_alerts_in_series(signature):
                     summary=summary,
                     series_signature=signature,
                     defaults={
+                        'noise_profile': noise_profile,
                         'is_regression': alert_properties.is_regression,
                         'amount_pct': alert_properties.pct_change,
                         'amount_abs': alert_properties.delta,
