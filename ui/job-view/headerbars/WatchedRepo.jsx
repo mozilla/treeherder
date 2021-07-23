@@ -89,7 +89,7 @@ class WatchedRepo extends React.Component {
     clearInterval(this.treeStatusIntervalId);
   }
 
-  updateTreeStatus = () => {
+  updateTreeStatus = (mustBeCurrentRepo = false) => {
     const { repo, repoName, setCurrentRepoTreeStatus } = this.props;
     const watchedRepoName = repo.name;
 
@@ -102,12 +102,13 @@ class WatchedRepo extends React.Component {
         messageOfTheDay: '',
         statusInfo: statusInfoMap.unsupported,
       });
+      setCurrentRepoTreeStatus('unsupported');
       clearInterval(this.treeStatusIntervalId);
     } else {
       TreeStatusModel.get(watchedRepoName).then((data) => {
         const treeStatus = data.result;
 
-        if (watchedRepoName === repoName) {
+        if (mustBeCurrentRepo || watchedRepoName === repoName) {
           setCurrentRepoTreeStatus(treeStatus.status);
         }
 
@@ -136,7 +137,10 @@ class WatchedRepo extends React.Component {
     return (
       <ButtonGroup>
         <Button
-          onClick={() => pushRoute({ search: updateRepoParams(watchedRepo) })}
+          onClick={() => {
+            pushRoute({ search: updateRepoParams(watchedRepo) });
+            this.updateTreeStatus(true);
+          }}
           className={`btn-view-nav ${btnClass} ${activeClass}`}
           title={status}
           size="sm"
