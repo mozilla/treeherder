@@ -388,11 +388,12 @@ export const updateRange = (range) => {
     window.dispatchEvent(new CustomEvent(thEvents.clearPinboard));
     if (revisionPushList.length) {
       const { id: pushId } = revisionPushList[0];
-      const revisionJobMap = Object.entries(jobMap).reduce(
-        (acc, [id, job]) =>
-          job.push_id === pushId ? { ...acc, [id]: job } : acc,
-        {},
-      );
+      const revisionJobMap = {};
+      for (const [id, job] of Object.entries(jobMap)) {
+        if (job.push_id === pushId) {
+          revisionJobMap[id] = job;
+        }
+      }
       if (getUrlParam('selectedJob') || getUrlParam('selectedTaskRun')) {
         dispatch(clearSelectedJob(0));
       }
