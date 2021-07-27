@@ -1511,7 +1511,7 @@
       "dvcs_type": "git",
       "name": "fenix",
       "url": "https://github.com/mozilla-mobile/fenix",
-      "branch": "master",
+      "branch": "main",
       "active_status": "active",
       "codebase": "fenix",
       "repository_group": 11,
