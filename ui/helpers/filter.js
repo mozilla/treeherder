@@ -19,7 +19,6 @@ export const thFieldChoices = {
   job_type_symbol: { name: 'job symbol', matchType: thMatchType.exactstr },
   job_group_name: { name: 'group name', matchType: thMatchType.substr },
   job_group_symbol: { name: 'group symbol', matchType: thMatchType.exactstr },
-  machine_name: { name: 'machine name', matchType: thMatchType.substr },
   platform: { name: 'platform', matchType: thMatchType.substr },
   tier: { name: 'tier', matchType: thMatchType.exactstr },
   test_paths: { name: 'test path', matchType: thMatchType.substr },
