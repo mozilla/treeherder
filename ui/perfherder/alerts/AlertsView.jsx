@@ -297,7 +297,7 @@ class AlertsView extends React.Component {
 
       // used with the id argument to update one specific alert summary in the array of
       // alert summaries that's been updated based on an action taken in the AlertActionPanel
-      if (update) {
+      if (update && summary.results.length !== 0) {
         const index = alertSummaries.findIndex(
           (item) => item.id === summary.results[0].id,
         );

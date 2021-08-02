@@ -53,6 +53,14 @@ export default class AlertActionPanel extends React.Component {
       return updateViewState({ errorMessages });
     }
 
+    // update field related summary id for each alert of the summary
+    alertSummary.alerts.forEach((alertFromSummary) => {
+      selectedAlerts.forEach((selectedAlert) => {
+        if (alertFromSummary.id === selectedAlert.id)
+          alertFromSummary.related_summary_id = alertId;
+      });
+    });
+
     if (alertId) {
       otherAlertSummaries = alertSummaries.filter(
         (summary) => summary.id === alertId,
@@ -66,13 +74,32 @@ export default class AlertActionPanel extends React.Component {
         )
         .filter((summary) => summary !== undefined);
     }
-
-    const summariesToUpdate = [...[alertSummary], ...otherAlertSummaries];
+    const summariesToUpdate = [
+      ...new Set([...[alertSummary], ...otherAlertSummaries]),
+    ];
 
     // when an alert status is updated via the API, the corresponding
     // alertSummary status and any related summaries are updated (in the backend)
     // so we need to fetch them in order to capture the changes in the UI
-    summariesToUpdate.forEach((summary) => fetchAlertSummaries(summary.id));
+
+    // summaries from current page need to be fetched again if all alerts
+    // from a summary were reassigned or if a summary was reset
+    let refreshAlertsSummaries = true; // determines when summaries need to be refreshed
+    alertSummary.alerts.forEach((summary) => {
+      if (summary.related_summary_id === null) refreshAlertsSummaries = false;
+    });
+
+    if (
+      (newStatus === 'reassigned' && refreshAlertsSummaries) || // check if all alerts from summary were reassigned
+      newStatus === 'untriaged' // or check if alert summary was reset
+    ) {
+      // refresh all summaries for current page
+      fetchAlertSummaries(undefined, false);
+    } else {
+      // refresh in place targeted summaries
+      summariesToUpdate.forEach((summary) => fetchAlertSummaries(summary.id));
+    }
+
     this.clearSelectedAlerts();
   };
 
