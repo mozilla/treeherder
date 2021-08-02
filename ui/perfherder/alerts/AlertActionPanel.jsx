@@ -48,6 +48,11 @@ export default class AlertActionPanel extends React.Component {
       related_summary_id: alertId,
     });
 
+    const errorMessages = processErrors(responses);
+    if (errorMessages.length) {
+      return updateViewState({ errorMessages });
+    }
+
     // update field related summary id for each alert of the summary
     alertSummary.alerts.forEach((alertFromSummary) => {
       selectedAlerts.forEach((selectedAlert) => {
@@ -55,11 +60,6 @@ export default class AlertActionPanel extends React.Component {
           alertFromSummary.related_summary_id = alertId;
       });
     });
-
-    const errorMessages = processErrors(responses);
-    if (errorMessages.length) {
-      return updateViewState({ errorMessages });
-    }
 
     if (alertId) {
       otherAlertSummaries = alertSummaries.filter(
