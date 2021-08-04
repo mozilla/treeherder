@@ -8,7 +8,7 @@ import environ
 from furl import furl
 from kombu import Exchange, Queue
 
-from treeherder.config.utils import connection_should_use_tls, get_tls_redis_url
+from treeherder.config.utils import connection_should_use_tls
 
 # TODO: Switch to pathlib once using Python 3.
 SRC_DIR = dirname(dirname(dirname(abspath(__file__))))
@@ -152,18 +152,14 @@ for alias in DATABASES:
         # prevent data loss (either STRICT_TRANS_TABLES or STRICT_ALL_TABLES).
         'init_command': "SET sql_mode='STRICT_TRANS_TABLES'",
     }
-    if connection_should_use_tls(DATABASES[alias]['HOST']):
-        # The default cert is for access to the stage replica; for accessing
-        # prototype this variable will need to reference deployment/gcp/ca-cert-prototype.pem.
-        # See treeherder docs for more details.
-        DATABASES[alias]['OPTIONS']['ssl'] = {
-            'ca': env("TLS_CERT_PATH", default='deployment/gcp/ca-cert.pem'),
-        }
+    # The stage replica cert is the default cert set in the docker-compose.yml file.
+    # Additonal certs for local development are in the deployment directory.
+    DATABASES[alias]['OPTIONS']['ssl'] = {
+        'ca': env("TLS_CERT_PATH", default=None),
+    }
 
 # Caches
 REDIS_URL = env('REDIS_URL', default='redis://localhost:6379')
-if connection_should_use_tls(REDIS_URL):
-    REDIS_URL = get_tls_redis_url(REDIS_URL)
 
 CACHES = {
     'default': {

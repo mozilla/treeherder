@@ -27,6 +27,9 @@ services:
       - TREEHERDER_DEBUG=True
       - NEW_RELIC_INSIGHTS_API_KEY=${NEW_RELIC_INSIGHTS_API_KEY:-}
       - PROJECTS_TO_INGEST=${PROJECTS_TO_INGEST:-autoland,try}
+      # The default cert is for access to the stage replica; for accessing
+      # prototype this variable will need to reference deployment/gcp/ca-cert-prototype.pem.
+      # See treeherder docs for more details.
       - TLS_CERT_PATH=${TLS_CERT_PATH:-deployment/gcp/ca-cert.pem}
     entrypoint: './docker/entrypoint.sh'
     # We *ONLY* initialize the data when we're running the backend
