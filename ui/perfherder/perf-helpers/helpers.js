@@ -467,7 +467,7 @@ export class TextualSummary {
     this.alertSummary = alertSummary;
     this.copySummary = copySummary;
     this.alertsWithVideos = alertsWithVideos;
-    this.ellipsesRow = `\n|...|...|...|...|...|...|`;
+    this.ellipsesRow = `\n|...|...|...|...|...|`;
   }
 
   get markdown() {
@@ -535,15 +535,17 @@ export class TextualSummary {
     const suiteName = testDocumentationFrameworks.includes(frameworkName)
       ? `[${suite}](${url})`
       : suite;
+    const suiteTestName =
+      suiteName === test ? suiteName : `${suiteName} ${test}`;
 
     if (
       updatedAlert &&
       updatedAlert.results_link &&
       updatedAlert.prev_results_link
     ) {
-      return `| ${amountPct}% | ${suiteName} | ${test} | ${platform} | ${extraOptions} | [${prevValue}](${updatedAlert.prev_results_link}) -> [${newValue}](${updatedAlert.results_link}) |`;
+      return `| ${amountPct}% | ${suiteTestName} | ${platform} | ${extraOptions} | [${prevValue}](${updatedAlert.prev_results_link}) -> [${newValue}](${updatedAlert.results_link}) |`;
     }
-    return `| ${amountPct}% | ${suiteName} | ${test} | ${platform} | ${extraOptions} | ${prevValue} -> ${newValue} |`;
+    return `| ${amountPct}% | ${suiteTestName} | ${platform} | ${extraOptions} | ${prevValue} -> ${newValue} |`;
   }
 
   formatAlertBulk(alerts) {
@@ -558,7 +560,7 @@ export class TextualSummary {
         resultStr += '\n';
       }
       const formattedRegressions = this.formatAlertBulk(regressed);
-      resultStr += `### Regressions:\n\n| **Ratio** | **Suite** | **Test** | **Platform** | **Options** | **Absolute values (old vs new)**| \n|--|--|--|--|--|--| \n${formattedRegressions}\n`;
+      resultStr += `### Regressions:\n\n| **Ratio** | **Suite & Test** | **Platform** | **Options** | **Absolute values (old vs new)**| \n|--|--|--|--|--| \n${formattedRegressions}\n`;
     }
     if (regressed.length > 15) {
       // add a newline if we displayed the header
@@ -577,7 +579,7 @@ export class TextualSummary {
         smallestFiveRegressed,
       );
 
-      resultStr += `### Regressions:\n\n| **Ratio** | **Suite** | **Test** | **Platform** | **Options** | **Absolute values (old vs new)**| \n|--|--|--|--|--|--| \n${formattedBiggestRegressions}`;
+      resultStr += `### Regressions:\n\n| **Ratio** | **Suite & Test** | **Platform** | **Options** | **Absolute values (old vs new)**| \n|--|--|--|--|--| \n${formattedBiggestRegressions}`;
       resultStr += this.ellipsesRow;
       resultStr += `\n${formattedSmallestRegressions}\n`;
     }
@@ -592,7 +594,7 @@ export class TextualSummary {
         resultStr += '\n';
       }
       const formattedImprovements = this.formatAlertBulk(improved);
-      resultStr += `### Improvements:\n\n| **Ratio** | **Suite** | **Test** | **Platform** | **Options** | **Absolute values (old vs new)**| \n|--|--|--|--|--|--| \n${formattedImprovements}\n`;
+      resultStr += `### Improvements:\n\n| **Ratio** | **Suite & Test** | **Platform** | **Options** | **Absolute values (old vs new)**| \n|--|--|--|--|--| \n${formattedImprovements}\n`;
     } else if (improved.length > 6) {
       // Add a newline if we displayed some regressions
       if (resultStr.length > 0) {
@@ -610,7 +612,7 @@ export class TextualSummary {
         smallestImprovement,
       );
 
-      resultStr += `### Improvements:\n\n| **Ratio** | **Suite** | **Test** | **Platform** | **Options** | **Absolute values (old vs new)**| \n|--|--|--|--|--|--| \n${formattedBiggestImprovements}`;
+      resultStr += `### Improvements:\n\n| **Ratio** | **Suite & Test** | **Platform** | **Options** | **Absolute values (old vs new)**| \n|--|--|--|--|--| \n${formattedBiggestImprovements}`;
       resultStr += this.ellipsesRow;
       resultStr += `\n${formattedSmallestImprovement}\n`;
     }
