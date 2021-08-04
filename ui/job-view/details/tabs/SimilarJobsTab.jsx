@@ -23,19 +23,11 @@ class SimilarJobsTab extends React.Component {
 
     this.state = {
       similarJobs: [],
-      filterBuildPlatformId: true,
-      filterOptionCollectionHash: true,
       filterNoSuccessfulJobs: false,
       page: 1,
       selectedSimilarJob: null,
       hasNextPage: false,
       isLoading: true,
-    };
-
-    // map between state fields and job fields
-    this.filterMap = {
-      filterBuildPlatformId: 'build_platform_id',
-      filterOptionCollectionHash: 'option_collection_hash',
     };
   }
 
@@ -52,12 +44,6 @@ class SimilarJobsTab extends React.Component {
       offset: (page - 1) * this.pageSize,
     };
 
-    ['filterBuildPlatformId', 'filterOptionCollectionHash'].forEach((key) => {
-      if (this.state[key]) {
-        const field = this.filterMap[key];
-        options[field] = selectedJobFull[field];
-      }
-    });
     if (this.state.filterNoSuccessfulJobs) {
       options.nosuccess = '';
     }
@@ -161,8 +147,6 @@ class SimilarJobsTab extends React.Component {
       similarJobs,
       selectedSimilarJob,
       hasNextPage,
-      filterOptionCollectionHash,
-      filterBuildPlatformId,
       filterNoSuccessfulJobs,
       isLoading,
     } = this.state;
@@ -241,22 +225,6 @@ class SimilarJobsTab extends React.Component {
         </div>
         <div className="similar-job-detail-panel">
           <form className="form form-inline">
-            <div className="checkbox">
-              <input
-                onChange={() => this.toggleFilter('filterBuildPlatformId')}
-                type="checkbox"
-                checked={filterBuildPlatformId}
-              />
-              <small>Same platform</small>
-            </div>
-            <div className="checkbox">
-              <input
-                onChange={() => this.toggleFilter('filterOptionCollectionHash')}
-                type="checkbox"
-                checked={filterOptionCollectionHash}
-              />
-              <small>Same options</small>
-            </div>
             <div className="checkbox">
               <input
                 onChange={() => this.toggleFilter('filterNoSuccessfulJobs')}
