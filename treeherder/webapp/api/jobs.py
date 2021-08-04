@@ -452,10 +452,13 @@ class JobsProjectViewSet(viewsets.ViewSet):
 
         return_type = filter_params.get("return_type", "dict").lower()
 
+        nosuccess = filter_params.get("nosuccess", False)
+
         jobs = JobFilter(
             {k: v for (k, v) in filter_params.items()},
             queryset=Job.objects.filter(job_type_id=job.job_type_id, repository=repository)
             .exclude(id=job.id)
+            .exclude(result=('success' if nosuccess is not False else None))
             .select_related(*self._default_select_related),
         ).qs
 

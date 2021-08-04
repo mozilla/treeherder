@@ -25,6 +25,7 @@ class SimilarJobsTab extends React.Component {
       similarJobs: [],
       filterBuildPlatformId: true,
       filterOptionCollectionHash: true,
+      filterNoSuccessfulJobs: false,
       page: 1,
       selectedSimilarJob: null,
       hasNextPage: false,
@@ -57,6 +58,9 @@ class SimilarJobsTab extends React.Component {
         options[field] = selectedJobFull[field];
       }
     });
+    if (this.state.filterNoSuccessfulJobs) {
+      options.nosuccess = '';
+    }
 
     const {
       data: newSimilarJobs,
@@ -159,6 +163,7 @@ class SimilarJobsTab extends React.Component {
       hasNextPage,
       filterOptionCollectionHash,
       filterBuildPlatformId,
+      filterNoSuccessfulJobs,
       isLoading,
     } = this.state;
     const selectedSimilarJobId = selectedSimilarJob
@@ -251,6 +256,14 @@ class SimilarJobsTab extends React.Component {
                 checked={filterOptionCollectionHash}
               />
               <small>Same options</small>
+            </div>
+            <div className="checkbox">
+              <input
+                onChange={() => this.toggleFilter('filterNoSuccessfulJobs')}
+                type="checkbox"
+                checked={filterNoSuccessfulJobs}
+              />
+              <small>Exclude successful jobs</small>
             </div>
           </form>
           <div className="similar_job_detail">
