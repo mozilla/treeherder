@@ -138,14 +138,14 @@ def ignore_task(task, taskId, rootUrl, project):
             ignore = True
             for scope in scopes:
                 # e.g. assume:repo:github.com/mozilla-mobile/fenix:branch:master
-                if scope.find('branch:master') != -1:
+                if scope.find('branch:master') != -1 or scope.find('branch:main') != -1:
                     ignore = False
                     break
 
             # This handles nightly tasks
             # e.g. index.mobile.v2.fenix.branch.master.latest.taskgraph.decision-nightly
             for route in decision_task["routes"]:
-                if route.find('master') != -1:
+                if route.find('master') != -1 or route.find('main') != -1:
                     ignore = False
                     break
 
