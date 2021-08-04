@@ -430,13 +430,17 @@ export const addResultsLink = (taskId) => {
   return `${taskLink}${taskId}${resultsPath}`;
 };
 
-export const getTestDocumentationURL = (framework, suite) => {
+export const getTestDocumentationURL = (framework, suite, platform) => {
   const baseURL = 'https://firefox-source-docs.mozilla.org/testing/perfdocs/';
-  return baseURL.concat(
-    framework,
+  const frameworkName = framework !== 'browsertime' ? framework : 'raptor';
+  let URL = baseURL.concat(
+    frameworkName,
     '.html#',
     suite.replace(/_|\s/g, '-').toLowerCase(),
   );
+  if (framework === 'browsertime')
+    URL = platform.includes('android') ? URL.concat('-m') : URL.concat('-d');
+  return URL;
 };
 
 export const getFrameworkName = (frameworks, frameworkId) => {
@@ -444,12 +448,17 @@ export const getFrameworkName = (frameworks, frameworkId) => {
   return framework ? framework.name : unknownFrameworkMessage;
 };
 
-export const getSplitTestTitle = (title, suite, framework) => {
+export const getSplitTestTitle = (
+  title,
+  suite,
+  framework,
+  platform = 'sdfdsfsd',
+) => {
   let url;
   let remainingTestName;
   if (title && suite) {
     remainingTestName = title.replace(suite, '');
-    url = getTestDocumentationURL(framework, suite);
+    url = getTestDocumentationURL(framework, suite, platform);
   }
   return { url, remainingTestName };
 };

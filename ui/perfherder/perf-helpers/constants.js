@@ -129,7 +129,31 @@ export const visualMetrics = [
   'videoRecordingStart',
 ];
 
-export const testDocumentationFrameworks = ['talos', 'awsy'];
+export const testDocumentationFrameworks = ['talos', 'awsy', 'browsertime'];
+
+export const perfdocsFrameworkName = {
+  talos: 'talos',
+  awsy: 'awsy',
+  browsertime: 'raptor',
+};
+
+export const raptorTestList = [
+  'assorted-dom',
+  'motionmark-animometer',
+  'motionmark-htmlsuite',
+  'speedometer',
+  'stylebench',
+  'sunspider',
+  'unity-webgl',
+  'youtube-playback',
+  'wasm-misc',
+  'wasm-misc-baseline',
+  'wasm-misc-ion',
+  'wasm-godot',
+  'wasm-godot-baseline',
+  'wasm-godot-ion',
+  'wasm-godot-ion',
+];
 
 export const scrollTypes = {
   prev: 'prev',

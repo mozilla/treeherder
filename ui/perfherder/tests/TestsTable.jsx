@@ -38,7 +38,7 @@ export default function TestsTable(props) {
       Cell: ({ row }) => (
         <div>
           {hasDocumentation ? (
-            <a href={getTestDocumentationURL(framework, row.suite)}>
+            <a href={getTestDocumentationURL(framework, row.suite, 'N/A')}>
               {row.suite}
             </a>
           ) : (

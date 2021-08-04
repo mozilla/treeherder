@@ -159,7 +159,7 @@ export default class AlertTableRow extends React.Component {
   getTitleText = (alert, alertStatus) => {
     const { framework, id } = this.props.alertSummary;
     const { frameworks } = this.props;
-
+    console.log(alert.series_signature.machine_platform);
     let statusColor = '';
     let textEffect = '';
     if (alertStatus === 'invalid') {
@@ -178,9 +178,10 @@ export default class AlertTableRow extends React.Component {
     const hasDocumentation = testDocumentationFrameworks.includes(
       frameworkName,
     );
+    const platform = alert.series_signature.machine_platform;
     const { title } = alert;
     const { suite, test } = alert.series_signature;
-    const { url } = getSplitTestTitle(title, suite, frameworkName);
+    const { url } = getSplitTestTitle(title, suite, frameworkName, platform);
     return (
       <span>
         <span

@@ -133,9 +133,13 @@ const LegendCard = ({
 
   const subtitleStyle = 'p-0 mb-0 border-0 text-secondary text-left';
   const symbolType = series.symbol || ['circle', 'outline'];
-
   const framework = getFrameworkName(frameworks, series.framework_id);
-  const { url } = getSplitTestTitle(series.name, series.suite, framework);
+  const { url } = getSplitTestTitle(
+    series.name,
+    series.suite,
+    framework,
+    series.platform,
+  );
   const hasDocumentation = testDocumentationFrameworks.includes(framework);
   return (
     <FormGroup check className="pl-0 border">

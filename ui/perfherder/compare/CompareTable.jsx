@@ -119,11 +119,12 @@ export default class CompareTable extends React.Component {
 
     const { data } = this.state;
     const { tableConfig } = this.state;
-    const { suite } = data[0];
+    const { suite, platform } = data[0];
     const { url, remainingTestName } = getSplitTestTitle(
       testName,
       suite,
       frameworkName,
+      platform,
     );
     const hasDocumentation = testDocumentationFrameworks.includes(
       frameworkName,
