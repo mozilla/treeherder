@@ -35,7 +35,7 @@ class CustomJobActions extends React.PureComponent {
     super(props);
 
     this.state = {
-      ajv: new Ajv({ format: 'full', verbose: true, allErrors: true }),
+      ajv: new Ajv({ validateFormats: false, verbose: true, allErrors: true }),
       decisionTaskId: null,
       originalTaskId: null,
       originalTask: null,
