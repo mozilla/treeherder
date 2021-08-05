@@ -64,6 +64,18 @@ test('Test column contains only suite and test name', async () => {
   expect(alertTitle.textContent).toBe(`${suite} ${test}`);
 });
 
+test('Tests with duplicated suite and test name appears only once in Test column', async () => {
+  testAlert.series_signature.suite = 'duplicatedname';
+  testAlert.series_signature.test = 'duplicatedname';
+  const { getByTestId } = alertTableRowTest(false, testAlert);
+
+  const alertTitle = await waitFor(() =>
+    getByTestId(`alert ${testAlert.id} title`),
+  );
+
+  expect(alertTitle.textContent).toBe('duplicatedname ');
+});
+
 test(`Platform column contains alerts's platform`, async () => {
   const { getByTestId } = alertTableRowTest(false, testAlert);
   const { machine_platform: machinePlatform } = testAlert.series_signature;
