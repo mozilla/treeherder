@@ -13,12 +13,12 @@ import templateSettings from 'lodash/templateSettings';
 
 import {
   getFrameworkName,
-  TextualSummary,
   getFilledBugSummary,
   getStatus,
   updateAlertSummary,
 } from '../perf-helpers/helpers';
 import { getData } from '../../helpers/http';
+import TextualSummary from '../perf-helpers/textualSummary';
 import {
   getApiUrl,
   bzBaseUrl,
