@@ -23,18 +23,11 @@ class SimilarJobsTab extends React.Component {
 
     this.state = {
       similarJobs: [],
-      filterBuildPlatformId: true,
-      filterOptionCollectionHash: true,
+      filterNoSuccessfulJobs: false,
       page: 1,
       selectedSimilarJob: null,
       hasNextPage: false,
       isLoading: true,
-    };
-
-    // map between state fields and job fields
-    this.filterMap = {
-      filterBuildPlatformId: 'build_platform_id',
-      filterOptionCollectionHash: 'option_collection_hash',
     };
   }
 
@@ -51,12 +44,9 @@ class SimilarJobsTab extends React.Component {
       offset: (page - 1) * this.pageSize,
     };
 
-    ['filterBuildPlatformId', 'filterOptionCollectionHash'].forEach((key) => {
-      if (this.state[key]) {
-        const field = this.filterMap[key];
-        options[field] = selectedJobFull[field];
-      }
-    });
+    if (this.state.filterNoSuccessfulJobs) {
+      options.nosuccess = '';
+    }
 
     const {
       data: newSimilarJobs,
@@ -157,8 +147,7 @@ class SimilarJobsTab extends React.Component {
       similarJobs,
       selectedSimilarJob,
       hasNextPage,
-      filterOptionCollectionHash,
-      filterBuildPlatformId,
+      filterNoSuccessfulJobs,
       isLoading,
     } = this.state;
     const selectedSimilarJobId = selectedSimilarJob
@@ -238,19 +227,11 @@ class SimilarJobsTab extends React.Component {
           <form className="form form-inline">
             <div className="checkbox">
               <input
-                onChange={() => this.toggleFilter('filterBuildPlatformId')}
+                onChange={() => this.toggleFilter('filterNoSuccessfulJobs')}
                 type="checkbox"
-                checked={filterBuildPlatformId}
+                checked={filterNoSuccessfulJobs}
               />
-              <small>Same platform</small>
-            </div>
-            <div className="checkbox">
-              <input
-                onChange={() => this.toggleFilter('filterOptionCollectionHash')}
-                type="checkbox"
-                checked={filterOptionCollectionHash}
-              />
-              <small>Same options</small>
+              <small>Exclude successful jobs</small>
             </div>
           </form>
           <div className="similar_job_detail">
