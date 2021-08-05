@@ -20,14 +20,13 @@ import {
   modifyAlert,
   formatNumber,
   getFrameworkName,
-  getSplitTestTitle,
 } from '../perf-helpers/helpers';
+import { Perfdocs } from '../perf-helpers/perfdocs';
 import SimpleTooltip from '../../shared/SimpleTooltip';
 import {
   alertStatusMap,
   backfillRetriggeredTitle,
   phDefaultTimeRangeValue,
-  testDocumentationFrameworks,
   phTimeRanges,
 } from '../perf-helpers/constants';
 
@@ -159,7 +158,6 @@ export default class AlertTableRow extends React.Component {
   getTitleText = (alert, alertStatus) => {
     const { framework, id } = this.props.alertSummary;
     const { frameworks } = this.props;
-    console.log(alert.series_signature.machine_platform);
     let statusColor = '';
     let textEffect = '';
     if (alertStatus === 'invalid') {
@@ -174,14 +172,14 @@ export default class AlertTableRow extends React.Component {
     ) {
       textEffect = 'strike-through';
     }
+
     const frameworkName = getFrameworkName(frameworks, framework);
-    const hasDocumentation = testDocumentationFrameworks.includes(
-      frameworkName,
-    );
-    const platform = alert.series_signature.machine_platform;
     const { title } = alert;
-    const { suite, test } = alert.series_signature;
-    const { url } = getSplitTestTitle(title, suite, frameworkName, platform);
+    const { suite, test, machine_platform: platform } = alert.series_signature;
+
+    const perfdocs = new Perfdocs(frameworkName, suite, platform, title);
+    const hasDocumentation = perfdocs.hasDocumentation();
+
     return (
       <span>
         <span
@@ -194,7 +192,7 @@ export default class AlertTableRow extends React.Component {
               className="alert-docs"
               data-testid={`alert ${alert.id} title`}
             >
-              <a data-testid="docs" href={url}>
+              <a data-testid="docs" href={perfdocs.documentationURL}>
                 {suite}
               </a>{' '}
               {test}

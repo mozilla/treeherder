@@ -12,6 +12,7 @@ import PerfSeriesModel, {
 import RepositoryModel from '../../models/repository';
 import JobModel from '../../models/job';
 
+import { Perfdocs } from './perfdocs';
 import {
   endpoints,
   tValueCareMin,
@@ -23,7 +24,6 @@ import {
   phFrameworksWithRelatedBranches,
   phTimeRanges,
   unknownFrameworkMessage,
-  testDocumentationFrameworks,
 } from './constants';
 
 export const formatNumber = (input) =>
@@ -540,8 +540,10 @@ export class TextualSummary {
       this.frameworks,
       this.alertSummary.framework,
     );
-    const url = getTestDocumentationURL(frameworkName, suite);
-    const suiteName = testDocumentationFrameworks.includes(frameworkName)
+
+    const perfdocs = new Perfdocs(frameworkName, suite, platform);
+    const url = perfdocs.documentationURL;
+    const suiteName = perfdocs.hasDocumentation()
       ? `[${suite}](${url})`
       : suite;
 

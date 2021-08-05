@@ -4,11 +4,9 @@ import { Badge, Button, FormGroup, Input } from 'reactstrap';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faTimes } from '@fortawesome/free-solid-svg-icons';
 
-import { getFrameworkName, getSplitTestTitle } from '../perf-helpers/helpers';
-import {
-  graphColors,
-  testDocumentationFrameworks,
-} from '../perf-helpers/constants';
+import { Perfdocs } from '../perf-helpers/perfdocs';
+import { getFrameworkName } from '../perf-helpers/helpers';
+import { graphColors } from '../perf-helpers/constants';
 import GraphIcon from '../../shared/GraphIcon';
 
 const LegendCard = ({
@@ -133,14 +131,12 @@ const LegendCard = ({
 
   const subtitleStyle = 'p-0 mb-0 border-0 text-secondary text-left';
   const symbolType = series.symbol || ['circle', 'outline'];
-  const framework = getFrameworkName(frameworks, series.framework_id);
-  const { url } = getSplitTestTitle(
-    series.name,
-    series.suite,
-    framework,
-    series.platform,
-  );
-  const hasDocumentation = testDocumentationFrameworks.includes(framework);
+  const { suite, platform, framework_id: frameworkId } = series;
+  const framework = getFrameworkName(frameworks, frameworkId);
+
+  const perfdocs = new Perfdocs(framework, suite, platform);
+  const url = perfdocs.documentationURL;
+  const hasDocumentation = perfdocs.hasDocumentation();
   return (
     <FormGroup check className="pl-0 border">
       <Button

@@ -4,8 +4,8 @@ import PropTypes from 'prop-types';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faHashtag } from '@fortawesome/free-solid-svg-icons';
 
-import { getHashBasedId, getSplitTestTitle } from '../perf-helpers/helpers';
-import { testDocumentationFrameworks } from '../perf-helpers/constants';
+import { Perfdocs, perfViews } from '../perf-helpers/perfdocs';
+import { getHashBasedId } from '../perf-helpers/helpers';
 import { hashFunction } from '../../helpers/utils';
 import { tableSort, getNextSort, sort, sortTables } from '../perf-helpers/sort';
 import TableColumnHeader from '../shared/TableColumnHeader';
@@ -119,16 +119,10 @@ export default class CompareTable extends React.Component {
 
     const { data } = this.state;
     const { tableConfig } = this.state;
-    const { suite, platform } = data[0];
-    const { url, remainingTestName } = getSplitTestTitle(
-      testName,
-      suite,
-      frameworkName,
-      platform,
-    );
-    const hasDocumentation = testDocumentationFrameworks.includes(
-      frameworkName,
-    );
+    const { suite } = data[0];
+
+    const perfdocs = new Perfdocs(frameworkName, suite, null, testName);
+    const hasDocumentation = perfdocs.hasDocumentation(perfViews.compareView);
     return (
       <Table
         id={getHashBasedId(testName, hashFunction)}
@@ -146,7 +140,8 @@ export default class CompareTable extends React.Component {
               <div className="d-flex align-items-end">
                 {hasDocumentation && testName ? (
                   <div>
-                    <a href={url}>{suite}</a> {remainingTestName}
+                    <a href={perfdocs.documentationURL}>{suite}</a>{' '}
+                    {perfdocs.remainingName}
                   </div>
                 ) : (
                   testName
