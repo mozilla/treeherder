@@ -24,20 +24,13 @@ const frameworks = [
   },
 ];
 
-const alertTableRowTest = (
-  { alert, tags, options, suite } = { alert: testAlert },
-) => {
+const alertTableRowTest = ({ alert, tags, options } = { alert: testAlert }) => {
   if (tags) {
     testAlert.series_signature.tags = [...tags];
   }
 
   if (options) {
     testAlert.series_signature.extra_options = [...options];
-  }
-
-  if (suite) {
-    testAlert.series_signature.suite = suite;
-    testAlert.series_signature.test = suite;
   }
 
   return render(
@@ -72,6 +65,7 @@ test('Test column contains only suite and test name', async () => {
 });
 
 test('Tests with duplicated suite and test name appears only once in Test column', async () => {
+  const { suite, test } = testAlert.series_signature;
   testAlert.series_signature.suite = 'duplicatedName';
   testAlert.series_signature.test = 'duplicatedName';
 
@@ -80,8 +74,8 @@ test('Tests with duplicated suite and test name appears only once in Test column
     tags: false,
   });
 
-  testAlert.series_signature.suite = 'tp5o';
-  testAlert.series_signature.test = 'responsiveness';
+  testAlert.series_signature.suite = suite;
+  testAlert.series_signature.test = test;
 
   const alertTitle = await waitFor(() =>
     getByTestId(`alert ${testAlert.id} title`),
