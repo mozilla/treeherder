@@ -24,7 +24,7 @@ const frameworks = [
   },
 ];
 
-const alertTableRowTest = (tags, alert = testAlert, options) => {
+const alertTableRowTest = ({ alert, tags, options } = { alert: testAlert }) => {
   if (tags) {
     testAlert.series_signature.tags = [...tags];
   }
@@ -54,7 +54,7 @@ const alertTableRowTest = (tags, alert = testAlert, options) => {
 afterEach(cleanup);
 
 test('Test column contains only suite and test name', async () => {
-  const { getByTestId } = alertTableRowTest(false, testAlert);
+  const { getByTestId } = alertTableRowTest({ alert: testAlert, tags: false });
   const { suite, test } = testAlert.series_signature;
 
   const alertTitle = await waitFor(() =>
@@ -64,8 +64,28 @@ test('Test column contains only suite and test name', async () => {
   expect(alertTitle.textContent).toBe(`${suite} ${test}`);
 });
 
+test('Tests with duplicated suite and test name appears only once in Test column', async () => {
+  const { suite, test } = testAlert.series_signature;
+  testAlert.series_signature.suite = 'duplicatedName';
+  testAlert.series_signature.test = 'duplicatedName';
+
+  const { getByTestId } = alertTableRowTest({
+    alert: testAlert,
+    tags: false,
+  });
+
+  testAlert.series_signature.suite = suite;
+  testAlert.series_signature.test = test;
+
+  const alertTitle = await waitFor(() =>
+    getByTestId(`alert ${testAlert.id} title`),
+  );
+
+  expect(alertTitle.textContent).toBe('duplicatedName ');
+});
+
 test(`Platform column contains alerts's platform`, async () => {
-  const { getByTestId } = alertTableRowTest(false, testAlert);
+  const { getByTestId } = alertTableRowTest({ alert: testAlert, tags: false });
   const { machine_platform: machinePlatform } = testAlert.series_signature;
 
   const alertPlatform = await waitFor(() => getByTestId(`alert-platform`));
@@ -74,7 +94,7 @@ test(`Platform column contains alerts's platform`, async () => {
 });
 
 test("Alert item with no tags displays 'No tags'", async () => {
-  const { getByText } = alertTableRowTest(['']);
+  const { getByText } = alertTableRowTest({ alert: testAlert, tags: [''] });
 
   const message = await waitFor(() => getByText('No tags'));
   expect(message).toBeInTheDocument();
@@ -82,7 +102,10 @@ test("Alert item with no tags displays 'No tags'", async () => {
 
 test('Alert item with 2 tags displays 2 tags', async () => {
   const testTags = ['tag1', 'tag2'];
-  const { getAllByTestId } = alertTableRowTest(testTags);
+  const { getAllByTestId } = alertTableRowTest({
+    alert: testAlert,
+    tags: testTags,
+  });
 
   const tags = await waitFor(() => getAllByTestId(`alert-tag`));
 
@@ -91,7 +114,10 @@ test('Alert item with 2 tags displays 2 tags', async () => {
 
 test("Alert item with more than 2 tags displays '...' button", async () => {
   const testTags = ['tag1', 'tag2', 'tag3'];
-  const { getByTestId } = alertTableRowTest(testTags);
+  const { getByTestId } = alertTableRowTest({
+    alert: testAlert,
+    tags: testTags,
+  });
 
   const showMoreButton = await waitFor(() => getByTestId('show-more-tags'));
 
@@ -100,7 +126,10 @@ test("Alert item with more than 2 tags displays '...' button", async () => {
 
 test("Button '...' displays all the tags for an alert item", async () => {
   const testTags = ['tag1', 'tag2', 'tag3'];
-  const { getByTestId, getAllByTestId } = alertTableRowTest(testTags);
+  const { getByTestId, getAllByTestId } = alertTableRowTest({
+    alert: testAlert,
+    tags: testTags,
+  });
 
   let visibleTags = await waitFor(() => getAllByTestId(`alert-tag`));
 
@@ -118,7 +147,11 @@ test("Button '...' displays all the tags for an alert item", async () => {
 });
 
 test("Alert item with no options displays 'No options'", async () => {
-  const { getByText } = alertTableRowTest(false, testAlert, ['']);
+  const { getByText } = alertTableRowTest({
+    alert: testAlert,
+    tags: false,
+    options: [''],
+  });
 
   const message = await waitFor(() => getByText('No options'));
   expect(message).toBeInTheDocument();
@@ -126,7 +159,11 @@ test("Alert item with no options displays 'No options'", async () => {
 
 test('Alert item with 2 options displays 2 options', async () => {
   const testOptions = ['option1', 'option2'];
-  const { getAllByTestId } = alertTableRowTest(false, testAlert, testOptions);
+  const { getAllByTestId } = alertTableRowTest({
+    alert: testAlert,
+    tags: false,
+    options: testOptions,
+  });
 
   const options = await waitFor(() => getAllByTestId(`alert-option`));
 
@@ -135,7 +172,11 @@ test('Alert item with 2 options displays 2 options', async () => {
 
 test("Alert item with more than 2 options displays '...' button", async () => {
   const testOptions = ['option1', 'option2', 'option3'];
-  const { getByTestId } = alertTableRowTest(false, testAlert, testOptions);
+  const { getByTestId } = alertTableRowTest({
+    alert: testAlert,
+    tags: false,
+    options: testOptions,
+  });
 
   const showMoreButton = await waitFor(() => getByTestId('show-more-options'));
 
@@ -144,11 +185,11 @@ test("Alert item with more than 2 options displays '...' button", async () => {
 
 test("Button '...' displays all options for an alert item", async () => {
   const testOptions = ['option1', 'option2', 'option3'];
-  const { getByTestId, getAllByTestId } = alertTableRowTest(
-    false,
-    testAlert,
-    testOptions,
-  );
+  const { getByTestId, getAllByTestId } = alertTableRowTest({
+    alert: testAlert,
+    tags: false,
+    options: testOptions,
+  });
 
   let visibleOptions = await waitFor(() => getAllByTestId(`alert-option`));
 
@@ -174,12 +215,18 @@ test('Documentation link is available for talos framework', async () => {
 });
 
 test('Documentation link is not available for build_metrics framework', async () => {
-  const { queryByTestId } = alertTableRowTest(false, testAlert2);
+  const { queryByTestId } = alertTableRowTest({
+    alert: testAlert2,
+    tags: false,
+  });
   expect(queryByTestId('docs')).toBeNull();
 });
 
 test('Chart icon opens the graph link for an alert in a new tab', async () => {
-  const { getByLabelText } = alertTableRowTest(false, testAlert);
+  const { getByLabelText } = alertTableRowTest({
+    alert: testAlert,
+    tags: false,
+  });
 
   const graphLink = await waitFor(() => getByLabelText('graph-link'));
 

@@ -145,11 +145,11 @@ export default class AlertTableRow extends React.Component {
         (
         {statusColor === 'text-success' && (
           <FontAwesomeIcon icon={faCheck} color="#28a745" />
-        )}{' '}
+        )}
         <span className={statusColor}>{alertStatus}</span>
         {alert.related_summary_id && this.getReassignment(alert)}
         {alert.backfill_record ? (
-          <span className="text-darker-info">, important </span>
+          <span className="text-darker-info">, important</span>
         ) : null}
         )
       </React.Fragment>
@@ -181,9 +181,10 @@ export default class AlertTableRow extends React.Component {
     const { title } = alert;
     const { suite, test } = alert.series_signature;
     const { url } = getSplitTestTitle(title, suite, frameworkName);
+    const duplicatedName = suite === test;
     return (
-      <span>
-        <span
+      <div>
+        <div
           className={textEffect}
           id={`alert ${alert.id} title`}
           title={alert.backfill_record ? backfillRetriggeredTitle : ''}
@@ -196,27 +197,29 @@ export default class AlertTableRow extends React.Component {
               <a data-testid="docs" href={url}>
                 {suite}
               </a>{' '}
-              {test}
+              {!duplicatedName && test}
             </span>
           ) : (
             <span data-testid={`alert ${alert.id} title`}>
-              {suite} {test}
+              {suite} {!duplicatedName && test}
             </span>
           )}
-        </span>{' '}
-        {this.renderAlertStatus(alert, alertStatus, statusColor)}{' '}
-        <span className="result-links">
-          {alert.series_signature.has_subtests && (
-            <a
-              href={this.getSubtestsURL()}
-              target="_blank"
-              rel="noopener noreferrer"
-            >
-              · subtests
-            </a>
-          )}{' '}
-        </span>
-      </span>
+        </div>
+        <div>
+          {this.renderAlertStatus(alert, alertStatus, statusColor)}{' '}
+          <span className="result-links">
+            {alert.series_signature.has_subtests && (
+              <a
+                href={this.getSubtestsURL()}
+                target="_blank"
+                rel="noopener noreferrer"
+              >
+                · subtests
+              </a>
+            )}
+          </span>
+        </div>
+      </div>
     );
   };
 
