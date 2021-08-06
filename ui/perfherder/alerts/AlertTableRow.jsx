@@ -20,16 +20,15 @@ import {
   modifyAlert,
   formatNumber,
   getFrameworkName,
-  getSplitTestTitle,
 } from '../perf-helpers/helpers';
 import SimpleTooltip from '../../shared/SimpleTooltip';
 import {
   alertStatusMap,
   backfillRetriggeredTitle,
   phDefaultTimeRangeValue,
-  testDocumentationFrameworks,
   phTimeRanges,
 } from '../perf-helpers/constants';
+import { Perfdocs } from '../perf-helpers/perfdocs';
 
 import AlertTablePlatform from './AlertTablePlatform';
 import AlertTableTagsOptions from './AlertTableTagsOptions';
@@ -175,12 +174,10 @@ export default class AlertTableRow extends React.Component {
       textEffect = 'strike-through';
     }
     const frameworkName = getFrameworkName(frameworks, framework);
-    const hasDocumentation = testDocumentationFrameworks.includes(
-      frameworkName,
-    );
     const { title } = alert;
-    const { suite, test } = alert.series_signature;
-    const { url } = getSplitTestTitle(title, suite, frameworkName);
+    const { suite, test, machine_platform: platform } = alert.series_signature;
+    const perfdocs = new Perfdocs(frameworkName, suite, platform, title);
+    const hasDocumentation = perfdocs.hasDocumentation();
     const duplicatedName = suite === test;
     return (
       <div>
@@ -194,7 +191,7 @@ export default class AlertTableRow extends React.Component {
               className="alert-docs"
               data-testid={`alert ${alert.id} title`}
             >
-              <a data-testid="docs" href={url}>
+              <a data-testid="docs" href={perfdocs.documentationURL}>
                 {suite}
               </a>{' '}
               {!duplicatedName && test}

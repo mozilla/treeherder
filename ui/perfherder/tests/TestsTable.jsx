@@ -3,11 +3,8 @@ import PropTypes from 'prop-types';
 import { Container } from 'reactstrap';
 import ReactTable from 'react-table';
 
-import {
-  noResultsMessage,
-  testDocumentationFrameworks,
-} from '../perf-helpers/constants';
-import { getTestDocumentationURL } from '../perf-helpers/helpers';
+import { noResultsMessage } from '../perf-helpers/constants';
+import { Perfdocs, perfViews } from '../perf-helpers/perfdocs';
 
 import ItemList from './ItemList';
 
@@ -28,24 +25,24 @@ export default function TestsTable(props) {
     paddingBottom: 10,
   };
 
-  const hasDocumentation = testDocumentationFrameworks.includes(framework);
-
   const columns = [
     {
       headerStyle,
       Header: 'Suite',
       accessor: 'suite',
-      Cell: ({ row }) => (
-        <div>
-          {hasDocumentation ? (
-            <a href={getTestDocumentationURL(framework, row.suite)}>
-              {row.suite}
-            </a>
-          ) : (
-            <div>{row.suite}</div>
-          )}
-        </div>
-      ),
+      Cell: ({ row }) => {
+        const perfdocs = new Perfdocs(framework, row.suite);
+        const hasDocumentation = perfdocs.hasDocumentation(perfViews.testsView);
+        return (
+          <div>
+            {hasDocumentation ? (
+              <a href={perfdocs.documentationURL}>{row.suite}</a>
+            ) : (
+              <div>{row.suite}</div>
+            )}
+          </div>
+        );
+      },
     },
     {
       headerStyle,

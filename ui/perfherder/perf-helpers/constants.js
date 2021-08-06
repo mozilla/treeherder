@@ -129,8 +129,6 @@ export const visualMetrics = [
   'videoRecordingStart',
 ];
 
-export const testDocumentationFrameworks = ['talos', 'awsy'];
-
 export const scrollTypes = {
   prev: 'prev',
   next: 'next',
