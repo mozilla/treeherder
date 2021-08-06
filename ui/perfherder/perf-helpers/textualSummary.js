@@ -109,7 +109,7 @@ export default class TextualSummary {
         resultStr += '\n';
       }
       const formattedRegressions = this.formatAlertBulk(regressed);
-      resultStr += `### Regressions:\n\n| **Ratio** | **Suite & Test** | **Platform** | **Options** | **Absolute values (old vs new)**| \n|--|--|--|--|--| \n${formattedRegressions}\n`;
+      resultStr += `### Regressions:\n\n| **Ratio** | **Test** | **Platform** | **Options** | **Absolute values (old vs new)**| \n|--|--|--|--|--| \n${formattedRegressions}\n`;
     }
     if (regressed.length > 15) {
       // add a newline if we displayed the header
@@ -128,7 +128,7 @@ export default class TextualSummary {
         smallestFiveRegressed,
       );
 
-      resultStr += `### Regressions:\n\n| **Ratio** | **Suite & Test** | **Platform** | **Options** | **Absolute values (old vs new)**| \n|--|--|--|--|--| \n${formattedBiggestRegressions}`;
+      resultStr += `### Regressions:\n\n| **Ratio** | **Test** | **Platform** | **Options** | **Absolute values (old vs new)**| \n|--|--|--|--|--| \n${formattedBiggestRegressions}`;
       resultStr += this.ellipsesRow;
       resultStr += `\n${formattedSmallestRegressions}\n`;
     }
@@ -143,7 +143,7 @@ export default class TextualSummary {
         resultStr += '\n';
       }
       const formattedImprovements = this.formatAlertBulk(improved);
-      resultStr += `### Improvements:\n\n| **Ratio** | **Suite & Test** | **Platform** | **Options** | **Absolute values (old vs new)**| \n|--|--|--|--|--| \n${formattedImprovements}\n`;
+      resultStr += `### Improvements:\n\n| **Ratio** | **Test** | **Platform** | **Options** | **Absolute values (old vs new)**| \n|--|--|--|--|--| \n${formattedImprovements}\n`;
     } else if (improved.length > 6) {
       // Add a newline if we displayed some regressions
       if (resultStr.length > 0) {
@@ -161,7 +161,7 @@ export default class TextualSummary {
         smallestImprovement,
       );
 
-      resultStr += `### Improvements:\n\n| **Ratio** | **Suite & Test** | **Platform** | **Options** | **Absolute values (old vs new)**| \n|--|--|--|--|--| \n${formattedBiggestImprovements}`;
+      resultStr += `### Improvements:\n\n| **Ratio** | **Test** | **Platform** | **Options** | **Absolute values (old vs new)**| \n|--|--|--|--|--| \n${formattedBiggestImprovements}`;
       resultStr += this.ellipsesRow;
       resultStr += `\n${formattedSmallestImprovement}\n`;
     }
