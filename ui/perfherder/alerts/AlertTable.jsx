@@ -129,7 +129,6 @@ export default class AlertTable extends React.Component {
     const { username } = this.props.user;
     const { alertSummary } = this.state;
 
-    const unconcealableRegression = alert.is_regression;
     const notRelatedDownstream =
       alert.summary_id === alertSummary.id ||
       alert.status !== alertStatusMap.downstream;
@@ -145,7 +144,6 @@ export default class AlertTable extends React.Component {
       hideAssignedToOthers && alertSummary.assignee_username !== username;
 
     const matchesFilters =
-      unconcealableRegression &&
       notRelatedDownstream &&
       !concealableReassigned &&
       !concealableDownstream &&

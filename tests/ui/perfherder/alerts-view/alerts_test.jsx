@@ -204,14 +204,13 @@ test('toggle buttons should filter alert summary and alerts by selected filter',
 
   expect(hideDownstream).not.toHaveClass('active');
 
-  expect(alertSummary1).not.toBeInTheDocument();
   expect(alertSummary2).toBeInTheDocument();
   expect(alert1).toBeInTheDocument();
   expect(alert2).toBeInTheDocument();
 
   // second filter selected
   fireEvent.click(hideDownstream);
-  expect(alertSummary1).not.toBeInTheDocument();
+
   expect(alertSummary2).toBeInTheDocument();
   expect(alert1).toBeInTheDocument();
   expect(alert2).not.toBeInTheDocument();
