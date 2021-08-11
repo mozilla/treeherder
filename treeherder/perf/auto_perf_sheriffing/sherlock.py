@@ -4,7 +4,6 @@ from json import JSONDecodeError
 from logging import INFO, WARNING
 from typing import List, Tuple
 
-import taskcluster
 from django.conf import settings
 from django.db.models import QuerySet
 from taskcluster.helper import TaskclusterConfig
@@ -12,9 +11,8 @@ from taskcluster.helper import TaskclusterConfig
 from treeherder.perf.auto_perf_sheriffing.backfill_reports import BackfillReportMaintainer
 from treeherder.perf.auto_perf_sheriffing.backfill_tool import BackfillTool
 from treeherder.perf.auto_perf_sheriffing.secretary import Secretary
-from treeherder.perf.email import BackfillNotificationWriter, EmailWriter
 from treeherder.perf.exceptions import CannotBackfill, MaxRuntimeExceeded
-from treeherder.perf.models import BackfillRecord, BackfillReport
+from treeherder.perf.models import BackfillRecord, BackfillReport, BackfillNotificationRecord
 
 logger = logging.getLogger(__name__)
 
@@ -36,21 +34,16 @@ class Sherlock:
         report_maintainer: BackfillReportMaintainer,
         backfill_tool: BackfillTool,
         secretary: Secretary,
-        notify_client: taskcluster.Notify,
         max_runtime: timedelta = None,
-        email_writer: EmailWriter = None,
         supported_platforms: List[str] = None,
     ):
         self.report_maintainer = report_maintainer
         self.backfill_tool = backfill_tool
         self.secretary = secretary
-        self._notify = notify_client
         self._max_runtime = self.DEFAULT_MAX_RUNTIME if max_runtime is None else max_runtime
-        self._email_writer = email_writer or BackfillNotificationWriter()
 
         self.supported_platforms = supported_platforms or settings.SUPPORTED_PLATFORMS
         self._wake_up_time = datetime.now()
-        self.backfilled_records = []  # useful for reporting backfill outcome
 
     def sheriff(self, since: datetime, frameworks: List[str], repositories: List[str]):
         logger.info("Sherlock: Validating settings...")
@@ -73,9 +66,6 @@ class Sherlock:
         logger.info("Sherlock: Starting to backfill...")
         self._backfill(frameworks, repositories)
         self.assert_can_run()
-
-        logger.info("Sherlock: Notifying backfill outcome...")
-        self._notify_backfill_outcome()
 
     def runtime_exceeded(self) -> bool:
         elapsed_runtime = datetime.now() - self._wake_up_time
@@ -110,7 +100,8 @@ class Sherlock:
                 break
             left, consumed = self._backfill_record(record, left)
             logger.info(f"Sherlock: Backfilled record with id {record.alert.id}.")
-            self.backfilled_records.append(record)
+            # Model used for reporting backfill outcome
+            BackfillNotificationRecord.objects.create(record=record)
             total_consumed += consumed
 
         self.secretary.consume_backfills(platform, total_consumed)
@@ -207,19 +198,6 @@ class Sherlock:
         pending_tasks_count = queue.pendingTasks(provisioner_id, worker_type).get('pendingTasks')
 
         return pending_tasks_count > acceptable_limit
-
-    def _notify_backfill_outcome(self):
-        if self.backfilled_records:
-            backfill_notification = self._email_writer.prepare_new_email(self.backfilled_records)
-            logger.debug(
-                f"Sherlock: Composed email notification payload `{backfill_notification}`."
-            )
-
-            # send email
-            response = self._notify.email(backfill_notification)
-            logger.debug(f"Sherlock: Email notification service replied with `{response}`.")
-        else:
-            logger.info("Sherlock: Nothing to report via email.")
 
     @staticmethod
     def __get_data_points_to_backfill(context: List[dict]) -> List[dict]:
