@@ -428,28 +428,9 @@ export const addResultsLink = (taskId) => {
   return `${taskLink}${taskId}${resultsPath}`;
 };
 
-export const getTestDocumentationURL = (framework, suite) => {
-  const baseURL = 'https://firefox-source-docs.mozilla.org/testing/perfdocs/';
-  return baseURL.concat(
-    framework,
-    '.html#',
-    suite.replace(/_|\s/g, '-').toLowerCase(),
-  );
-};
-
 export const getFrameworkName = (frameworks, frameworkId) => {
   const framework = frameworks.find((item) => item.id === frameworkId);
   return framework ? framework.name : unknownFrameworkMessage;
-};
-
-export const getSplitTestTitle = (title, suite, framework) => {
-  let url;
-  let remainingTestName;
-  if (title && suite) {
-    remainingTestName = title.replace(suite, '');
-    url = getTestDocumentationURL(framework, suite);
-  }
-  return { url, remainingTestName };
 };
 
 const getPlatformInfo = (platforms) => {

@@ -1,8 +1,9 @@
 import numeral from 'numeral';
 import sortBy from 'lodash/sortBy';
 
-import { alertStatusMap, testDocumentationFrameworks } from './constants';
-import { getFrameworkName, getTestDocumentationURL } from './helpers';
+import { alertStatusMap } from './constants';
+import { getFrameworkName } from './helpers';
+import { Perfdocs } from './perfdocs';
 
 export default class TextualSummary {
   constructor(
@@ -81,8 +82,9 @@ export default class TextualSummary {
       this.frameworks,
       this.alertSummary.framework,
     );
-    const url = getTestDocumentationURL(frameworkName, suite);
-    const suiteName = testDocumentationFrameworks.includes(frameworkName)
+    const perfdocs = new Perfdocs(frameworkName, suite, platform);
+    const url = perfdocs.documentationURL;
+    const suiteName = perfdocs.hasDocumentation()
       ? `[${suite}](${url})`
       : suite;
     const suiteTestName = suite === test ? suiteName : `${suiteName} ${test}`;

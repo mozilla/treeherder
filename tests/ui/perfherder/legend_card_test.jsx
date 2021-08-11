@@ -21,6 +21,7 @@ const testData = [
     signatureHash: '9c0028a9c871b51c8296485c8fc09b21fe41eec0',
     signature_id: 1647493,
     visible: true,
+    suite: 'tp5o_webext',
   },
   {
     color: ['darkorchid', '#9932cc'],
@@ -37,6 +38,7 @@ const testData = [
     signatureHash: '554cc85b904ede676c691b65bbe19911c7320718',
     signature_id: 2146210,
     visible: true,
+    suite: 'tp5o_webext',
   },
 ];
 
