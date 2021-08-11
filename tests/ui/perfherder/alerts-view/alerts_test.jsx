@@ -114,7 +114,6 @@ const alertsViewControls = ({
         <AlertsViewControls
           validated={{
             hideDwnToInv: undefined,
-            hideImprovements: undefined,
             filter: undefined,
             updateParams: () => {},
           }}
@@ -136,7 +135,6 @@ const alertsViewControls = ({
           location={history.location}
           filters={{
             filterText: '',
-            hideImprovements: false,
             hideDownstream: false,
             hideAssignedToOthers: false,
             framework: { name: 'talos', id: 1 },
@@ -185,7 +183,6 @@ beforeAll(() => {
 
 test('toggle buttons should filter alert summary and alerts by selected filter', async () => {
   const { getByText, getByTestId } = alertsView();
-  const hideImprovements = getByText('Hide improvements');
   const hideDownstream = getByText('Hide downstream / reassigned to / invalid');
 
   const alertSummary1 = await waitFor(() =>
@@ -205,13 +202,8 @@ test('toggle buttons should filter alert summary and alerts by selected filter',
   expect(alert1).toBeInTheDocument();
   expect(alert2).toBeInTheDocument();
 
-  expect(hideImprovements).not.toHaveClass('active');
   expect(hideDownstream).not.toHaveClass('active');
 
-  // one filter selected
-  fireEvent.click(hideImprovements);
-
-  expect(hideImprovements).toHaveClass('active');
   expect(alertSummary1).not.toBeInTheDocument();
   expect(alertSummary2).toBeInTheDocument();
   expect(alert1).toBeInTheDocument();

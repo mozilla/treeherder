@@ -122,7 +122,6 @@ export default class AlertTable extends React.Component {
 
   filterAlert = (alert) => {
     const {
-      hideImprovements,
       hideDownstream,
       hideAssignedToOthers,
       filterText,
@@ -130,7 +129,7 @@ export default class AlertTable extends React.Component {
     const { username } = this.props.user;
     const { alertSummary } = this.state;
 
-    const unconcealableRegression = !hideImprovements || alert.is_regression;
+    const unconcealableRegression = alert.is_regression;
     const notRelatedDownstream =
       alert.summary_id === alertSummary.id ||
       alert.status !== alertStatusMap.downstream;
@@ -455,7 +454,6 @@ AlertTable.propTypes = {
   filters: PropTypes.shape({
     filterText: PropTypes.string,
     hideDownstream: PropTypes.bool,
-    hideImprovements: PropTypes.bool,
     hideAssignedToOthers: PropTypes.bool,
   }).isRequired,
   fetchAlertSummaries: PropTypes.func.isRequired,

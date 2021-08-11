@@ -114,7 +114,6 @@ export default class AlertsViewControls extends React.Component {
     } = this.props;
     const {
       filterText,
-      hideImprovements,
       hideDownstream,
       hideAssignedToOthers,
       framework,
@@ -142,11 +141,6 @@ export default class AlertsViewControls extends React.Component {
     ];
 
     const alertCheckboxes = [
-      {
-        text: 'Hide improvements',
-        state: hideImprovements,
-        stateName: 'hideImprovements',
-      },
       {
         text: 'Hide downstream / reassigned to / invalid',
         state: hideDownstream,
@@ -218,7 +212,6 @@ export default class AlertsViewControls extends React.Component {
               <AlertTable
                 filters={{
                   filterText,
-                  hideImprovements,
                   hideDownstream,
                   hideAssignedToOthers,
                 }}
@@ -253,7 +246,6 @@ AlertsViewControls.propTypes = {
   isListMode: PropTypes.bool.isRequired,
   filters: PropTypes.shape({
     filterText: PropTypes.string.isRequired,
-    hideImprovements: PropTypes.bool.isRequired,
     hideDownstream: PropTypes.bool.isRequired,
     hideAssignedToOthers: PropTypes.bool.isRequired,
     framework: PropTypes.shape({}).isRequired,
