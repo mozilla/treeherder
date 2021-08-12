@@ -76,7 +76,6 @@ class AlertsView extends React.Component {
       params.status !== prevParams.status ||
       params.framework !== prevParams.framework ||
       params.filterText !== prevParams.filterText ||
-      params.hideImprovements !== prevParams.hideImprovements ||
       params.hideDwnToInv !== prevParams.hideDwnToInv ||
       params.hideAssignedToOthers !== prevParams.hideAssignedToOthers
     ) {
@@ -102,7 +101,6 @@ class AlertsView extends React.Component {
         frameworks: frameworkOptions,
       }),
       filterText: this.getDefaultFilterText(validated),
-      hideImprovements: convertParams(validated, 'hideImprovements'),
       hideDownstream: convertParams(validated, 'hideDwnToInv'),
       hideAssignedToOthers: convertParams(validated, 'hideAssignedToOthers'),
     };
@@ -166,7 +164,6 @@ class AlertsView extends React.Component {
               return [filterName, summaryStatusMap[filterValue]];
             case 'hideDownstream':
               return ['hideDwnToInv', +filterValue];
-            case 'hideImprovements':
             case 'hideAssignedToOthers':
               return [filterName, +filterValue];
             default:
@@ -250,7 +247,6 @@ class AlertsView extends React.Component {
       status,
       framework,
       filterText,
-      hideImprovements,
       hideDownstream,
       hideAssignedToOthers,
     } = filters;
@@ -262,9 +258,6 @@ class AlertsView extends React.Component {
     if (this.isListMode()) {
       if (filterText) {
         params.filter_text = filterText;
-      }
-      if (hideImprovements) {
-        params.hide_improvements = hideImprovements;
       }
       if (hideDownstream) {
         params.hide_related_and_invalid = hideDownstream;
