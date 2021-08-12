@@ -708,6 +708,42 @@ test(`table data can be sorted in ascending order by 'Confidence'`, async () => 
   expect(alertTableRows[2]).toContainElement(alert3);
 });
 
+test(`table data can be sorted in ascending order by 'Magnitude of Change'`, async () => {
+  const {
+    getAllByLabelText,
+    getByTestId,
+    getAllByTitle,
+  } = alertsViewControls();
+
+  let alertTableRows = await waitFor(() =>
+    getAllByLabelText('Alert table row'),
+  );
+
+  const alert1 = await waitFor(() => getByTestId('69344'));
+  const alert2 = await waitFor(() => getByTestId('69345'));
+  const alert3 = await waitFor(() => getByTestId('69346'));
+
+  console.log(alertTableRows);
+
+  // alerts are sorted in a default manner without clicking on sort buttons
+  expect(alertTableRows[0]).toContainElement(alert3);
+  expect(alertTableRows[1]).toContainElement(alert1);
+  expect(alertTableRows[2]).toContainElement(alert2);
+
+  const sortByMagnitude = await waitFor(() =>
+    getAllByTitle('Sorted in default order by magnitude of change'),
+  );
+
+  // firing the sort button once triggers ascending sort
+  fireEvent.click(sortByMagnitude[0]);
+
+  alertTableRows = await waitFor(() => getAllByLabelText('Alert table row'));
+
+  expect(alertTableRows[0]).toContainElement(alert1);
+  expect(alertTableRows[1]).toContainElement(alert3);
+  expect(alertTableRows[2]).toContainElement(alert2);
+});
+
 test('test data can be sorted only by one column', async () => {
   const {
     getAllByLabelText,
