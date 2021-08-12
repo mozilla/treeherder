@@ -26,6 +26,7 @@ import StatusDropdown from './StatusDropdown';
 import DownstreamSummary from './DownstreamSummary';
 import AlertActionPanel from './AlertActionPanel';
 import SelectAlertsDropdown from './SelectAlertsDropdown';
+import CollapsableRows from './CollapsableRows';
 
 export default class AlertTable extends React.Component {
   constructor(props) {
@@ -362,11 +363,25 @@ export default class AlertTable extends React.Component {
                       />
                     </th>
                   </tr>
-                  {filteredAndSortedAlerts.map((alert) => (
-                    <AlertTableRow
-                      key={alert.id}
+                  {filteredAndSortedAlerts.length < 26 &&
+                    filteredAndSortedAlerts.map((alert) => (
+                      <AlertTableRow
+                        key={alert.id}
+                        alertSummary={alertSummary}
+                        alert={alert}
+                        frameworks={frameworks}
+                        user={user}
+                        updateSelectedAlerts={(alerts) => this.setState(alerts)}
+                        selectedAlerts={selectedAlerts}
+                        updateViewState={updateViewState}
+                        modifyAlert={modifyAlert}
+                        fetchAlertSummaries={fetchAlertSummaries}
+                      />
+                    ))}
+                  {filteredAndSortedAlerts.length >= 26 && (
+                    <CollapsableRows
+                      filteredAndSortedAlerts={filteredAndSortedAlerts}
                       alertSummary={alertSummary}
-                      alert={alert}
                       frameworks={frameworks}
                       user={user}
                       updateSelectedAlerts={(alerts) => this.setState(alerts)}
@@ -375,7 +390,7 @@ export default class AlertTable extends React.Component {
                       modifyAlert={modifyAlert}
                       fetchAlertSummaries={fetchAlertSummaries}
                     />
-                  ))}
+                  )}
                   {downstreamIdsLength > 0 && (
                     <tr
                       className={`${
