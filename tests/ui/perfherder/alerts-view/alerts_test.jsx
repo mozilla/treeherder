@@ -723,8 +723,6 @@ test(`table data can be sorted in ascending order by 'Magnitude of Change'`, asy
   const alert2 = await waitFor(() => getByTestId('69345'));
   const alert3 = await waitFor(() => getByTestId('69346'));
 
-  console.log(alertTableRows);
-
   // alerts are sorted in a default manner without clicking on sort buttons
   expect(alertTableRows[0]).toContainElement(alert3);
   expect(alertTableRows[1]).toContainElement(alert1);
