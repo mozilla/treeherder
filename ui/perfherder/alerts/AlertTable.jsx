@@ -55,7 +55,7 @@ export default class AlertTable extends React.Component {
         },
         Magnitude: {
           name: 'Magnitude of Change',
-          sortValue: 'amount_pct',
+          sortValue: 'amount_abs',
           currentSort: tableSort.default,
         },
         Confidence: {
@@ -166,7 +166,7 @@ export default class AlertTable extends React.Component {
       'starred',
       'is_regression',
       't_value',
-      'amount_pct',
+      'amount_abs',
       'title',
     ];
     const sortOrders = ['desc', 'desc', 'desc', 'desc', 'asc'];
