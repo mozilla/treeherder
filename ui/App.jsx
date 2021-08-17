@@ -45,7 +45,7 @@ const updateOldUrls = () => {
     updates.pathname = urlMatch[pathname] || pathname.replace(/.html|\//g, '');
   }
 
-  if (hash.length) {
+  if (hash.length && !hash.includes('table')) {
     const index = hash.indexOf('?');
     updates.search = hash.substring(index);
     const subRoute = hash.substring(1, index);
@@ -55,7 +55,9 @@ const updateOldUrls = () => {
     if (index >= 2 && updates.pathname !== subRoute && subRoute !== '/jobs') {
       updates.pathname += subRoute;
     }
-  } else if (search.length) {
+  }
+
+  if (search.length && !hash.includes('table')) {
     updates.search = search;
   }
 
