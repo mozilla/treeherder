@@ -106,7 +106,7 @@ def ignore_task(task, taskId, rootUrl, project):
         logger.debug("Ignoring tasks not matching PROJECTS_TO_INGEST (Task id: %s)", taskId)
         return True
 
-    mobile_repos = ('android-components', 'fenix', 'reference-browser')
+    mobile_repos = ('android-components', 'fenix', 'reference-browser', 'mozilla-vpn-client')
     if project in mobile_repos:
         envs = task["payload"].get("env", {})
         if envs.get("MOBILE_BASE_REPOSITORY"):
