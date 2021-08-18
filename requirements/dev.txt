@@ -10,24 +10,24 @@ appdirs==1.4.4 \
     # via
     #   black
     #   virtualenv
-asgiref==3.3.1 \
-    --hash=sha256:5ee950735509d04eb673bd7f7120f8fa1c9e2df495394992c73234d526907e17 \
-    --hash=sha256:7162a3cb30ab0609f1a4c95938fd73e8604f63bdba516a7f7d64b83ff09478f0
+asgiref==3.4.1 \
+    --hash=sha256:4ef1ab46b484e3c706329cedeff284a5d40824200638503f5768edb6de7d58e9 \
+    --hash=sha256:ffc141aa908e6f175673e7b1b3b7af4fdb0ecb738fc5c8b88f69f055c2415214
     # via django
 attrs==20.3.0 \
     --hash=sha256:31b2eced602aa8423c2aea9c76a724617ed67cf9513173fd3a4f03e3a929c7e6 \
     --hash=sha256:832aa3cde19744e49938b91fea06d69ecb9e649c93ba974535d08ad92164f700
     # via pytest
-betamax-serializers==0.2.1 \
-    --hash=sha256:1b23c46429c40a8873682854c88d805c787c72d252f3fa0c858e9c300682ceac \
-    --hash=sha256:345c419b1b73171f2951c62ac3c701775ac4b76e13e86464ebf0ff2a978e4949
-    # via -r dev.in
 betamax==0.8.1 \
     --hash=sha256:5bf004ceffccae881213fb722f34517166b84a34919b92ffc14d1dbd050b71c2 \
     --hash=sha256:aa5ad34cc8d018b35814fb0557d15c78ced9ac56fdc43ccacdb882aa7a5217c1
     # via
     #   -r dev.in
     #   betamax-serializers
+betamax-serializers==0.2.1 \
+    --hash=sha256:1b23c46429c40a8873682854c88d805c787c72d252f3fa0c858e9c300682ceac \
+    --hash=sha256:345c419b1b73171f2951c62ac3c701775ac4b76e13e86464ebf0ff2a978e4949
+    # via -r dev.in
 black==20.8b1 \
     --hash=sha256:1c02557aa099101b9d21496f8a914e9ed2222ef70336404eeeac8edba836fbea
     # via -r dev.in
@@ -113,6 +113,12 @@ distlib==0.3.1 \
     --hash=sha256:8c09de2c67b3e7deef7184574fc060ab8a793e7adbb183d942c389c8b13c52fb \
     --hash=sha256:edf6116872c863e1aa9d5bb7cb5e05a022c519a4594dc703843343a9ddd9bff1
     # via virtualenv
+django==3.2.6 \
+    --hash=sha256:7f92413529aa0e291f3be78ab19be31aefb1e1c9a52cd59e130f505f27a51f13 \
+    --hash=sha256:f27f8544c9d4c383bbe007c57e3235918e258364577373d4920e9162837be022
+    # via
+    #   -r dev.in
+    #   django-debug-toolbar
 django-debug-toolbar==3.2.1 \
     --hash=sha256:a5ff2a54f24bf88286f9872836081078f4baa843dc3735ee88524e89f8821e33 \
     --hash=sha256:e759e63e3fe2d3110e0e519639c166816368701eab4a47fed75d7de7018467b9
@@ -121,12 +127,6 @@ django-extensions==3.1.1 \
     --hash=sha256:674ad4c3b1587a884881824f40212d51829e662e52f85b012cd83d83fe1271d9 \
     --hash=sha256:9507f8761ee760748938fd8af766d0608fb2738cf368adfa1b2451f61c15ae35
     # via -r dev.in
-django==3.1.12 \
-    --hash=sha256:a523d62b7ab2908f551dabc32b99017a86aa7784e32b761708e52be3dce6d35d \
-    --hash=sha256:dc41bf07357f1f4810c1c555b685cb51f780b41e37892d6cc92b89789f2847e1
-    # via
-    #   -r dev.in
-    #   django-debug-toolbar
 docopt==0.6.2 \
     --hash=sha256:49b3a825280bd66b3aa83585ef59c4a8c82f2c8a522dbe754a8bc8d08c85c491
     # via pytest-watch
@@ -220,6 +220,16 @@ pypom==2.2.0 \
     --hash=sha256:4bdd57fceb72d7e6a3645cf6c9322f490d9cfb5d777eac2c851a3b658b813939 \
     --hash=sha256:6772ec99f0a21a5bdc8c092007a8c813ed18359e67ed70258bbb233df5e28829
     # via -r dev.in
+pytest==6.2.2 \
+    --hash=sha256:9d1edf9e7d0b84d72ea3dbcdfd22b35fb543a5e8f2a60092dd578936bf63d7f9 \
+    --hash=sha256:b574b57423e818210672e07ca1fa90aaf194a4f63f3ab909a2c67ebb22913839
+    # via
+    #   pytest-asyncio
+    #   pytest-cov
+    #   pytest-django
+    #   pytest-freezegun
+    #   pytest-testmon
+    #   pytest-watch
 pytest-asyncio==0.14.0 \
     --hash=sha256:2eae1e34f6c68fc0a9dc12d4bea190483843ff4708d24277c41568d6b6044f1d \
     --hash=sha256:9882c0c6b24429449f5f969a5158b528f39bde47dc32e85b9f0403965017e700
@@ -242,16 +252,6 @@ pytest-testmon==1.1.0 \
 pytest-watch==4.2.0 \
     --hash=sha256:06136f03d5b361718b8d0d234042f7b2f203910d8568f63df2f866b547b3d4b9
     # via -r dev.in
-pytest==6.2.2 \
-    --hash=sha256:9d1edf9e7d0b84d72ea3dbcdfd22b35fb543a5e8f2a60092dd578936bf63d7f9 \
-    --hash=sha256:b574b57423e818210672e07ca1fa90aaf194a4f63f3ab909a2c67ebb22913839
-    # via
-    #   pytest-asyncio
-    #   pytest-cov
-    #   pytest-django
-    #   pytest-freezegun
-    #   pytest-testmon
-    #   pytest-watch
 python-dateutil==2.8.1 \
     --hash=sha256:73ebfe9dbf22e832286dafa60473e4cd239f8592f699aa5adaf10050e6e1823c \
     --hash=sha256:75bb3f31ea686f1197762692a9ee6a7550b59fc6ca3a1f4b5d7e32fb98e2da2a
