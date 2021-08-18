@@ -15,7 +15,7 @@ def fetch_intermittent_bugs(offset, limit):
         'keywords': 'intermittent-failure',
         'chfieldfrom': '-1y',
         'include_fields': (
-            'id,summary,status,resolution,op_sys,cf_crash_signature,'
+            'id,summary,status,resolution,cf_crash_signature,'
             'keywords,last_change_time, whiteboard'
         ),
         'offset': offset,
@@ -60,7 +60,6 @@ class BzApiBugProcess:
                             'summary': bug.get('summary', '')[:max_summary_length],
                             'crash_signature': bug.get('cf_crash_signature', ''),
                             'keywords': ",".join(bug['keywords']),
-                            'os': bug.get('op_sys', ''),
                             'modified': dateutil.parser.parse(
                                 bug['last_change_time'], ignoretz=True
                             ),

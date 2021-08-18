@@ -7,7 +7,6 @@
       "cf_crash_signature": "",
       "keywords": ["intermittent-failure"],
       "resolution": "RESOLVED",
-      "op_sys": "All",
       "last_change_time": "2014-01-01 00:00:00",
       "whiteboard": "text"
     },
@@ -18,7 +17,6 @@
       "cf_crash_signature": "",
       "keywords": ["intermittent-failure"],
       "resolution": "",
-      "op_sys": "All",
       "last_change_time": "2014-01-01 00:00:00",
       "whiteboard": "text"
     },
@@ -29,7 +27,6 @@
       "cf_crash_signature": "",
       "keywords": ["intermittent-failure"],
       "resolution": "",
-      "op_sys": "Linux",
       "last_change_time": "2014-01-01 00:00:00",
       "whiteboard": "text"
     },
@@ -40,7 +37,6 @@
       "cf_crash_signature": "",
       "keywords": ["intermittent-failure"],
       "resolution": "",
-      "op_sys": "All",
       "last_change_time": "2014-01-01 00:00:00",
       "whiteboard": "text"
     },
@@ -51,7 +47,6 @@
       "cf_crash_signature": "",
       "keywords": ["intermittent-failure"],
       "resolution": "",
-      "op_sys": "All",
       "last_change_time": "2014-01-01 00:00:00",
       "whiteboard": "text"
     },
@@ -62,7 +57,6 @@
       "cf_crash_signature": "",
       "keywords": ["intermittent-failure"],
       "resolution": "",
-      "op_sys": "Mac OS X",
       "last_change_time": "2014-01-01 00:00:00",
       "whiteboard": "text"
     },
@@ -73,7 +67,6 @@
       "cf_crash_signature": "",
       "keywords": ["intermittent-failure"],
       "resolution": "",
-      "op_sys": "Linux",
       "last_change_time": "2014-01-01 00:00:00",
       "whiteboard": "text"
     },
@@ -84,7 +77,6 @@
       "cf_crash_signature": "",
       "keywords": ["intermittent-failure"],
       "resolution": "",
-      "op_sys": "Mac OS X",
       "last_change_time": "2014-01-01 00:00:00",
       "whiteboard": "text"
     },
@@ -95,7 +87,6 @@
       "cf_crash_signature": "",
       "keywords": ["intermittent-failure"],
       "resolution": "",
-      "op_sys": "Windows Vista",
       "last_change_time": "2014-01-01 00:00:00",
       "whiteboard": "text"
     },
@@ -106,7 +97,6 @@
       "cf_crash_signature": "",
       "keywords": ["intermittent-failure"],
       "resolution": "",
-      "op_sys": "All",
       "last_change_time": "2014-01-01 00:00:00",
       "whiteboard": "text"
     },
@@ -117,7 +107,6 @@
       "cf_crash_signature": "",
       "keywords": ["intermittent-failure"],
       "resolution": "",
-      "op_sys": "Linux",
       "last_change_time": "2014-01-01 00:00:00",
       "whiteboard": "text"
     },
@@ -128,7 +117,6 @@
       "cf_crash_signature": "",
       "keywords": ["ateam-marionette-intermittent", "intermittent-failure"],
       "resolution": "",
-      "op_sys": "Gonk (Firefox OS)",
       "last_change_time": "2014-08-17T23:15:38",
       "whiteboard": "text"
     },
@@ -139,7 +127,6 @@
       "cf_crash_signature": "",
       "keywords": ["ateam-marionette-intermittent", "intermittent-failure"],
       "resolution": "",
-      "op_sys": "Windows 7",
       "last_change_time": "2014-10-29T20:57:46",
       "whiteboard": "text"
     },
@@ -150,7 +137,6 @@
       "cf_crash_signature": "",
       "keywords": ["intermittent-failure"],
       "resolution": "",
-      "op_sys": "Android",
       "last_change_time": "2014-10-23T13:35:06",
       "whiteboard": "text"
     },
@@ -161,7 +147,6 @@
       "cf_crash_signature": "",
       "keywords": ["intermittent-failure"],
       "resolution": "",
-      "op_sys": "Windows 7",
       "last_change_time": "2014-10-29T20:57:46",
       "whiteboard": "text"
     },
@@ -172,7 +157,6 @@
       "cf_crash_signature": "",
       "keywords": ["intermittent-failure"],
       "resolution": "",
-      "op_sys": "Unspecified",
       "last_change_time": "2016-07-25T01:04:15Z",
       "whiteboard": "text"
     },
@@ -183,7 +167,6 @@
       "cf_crash_signature": "",
       "keywords": ["intermittent-failure"],
       "resolution": "",
-      "op_sys": "Unspecified",
       "last_change_time": "2016-07-25T01:04:15Z",
       "whiteboard": "text"
     },
@@ -194,7 +177,6 @@
       "cf_crash_signature": "",
       "keywords": ["intermittent-failure"],
       "resolution": "",
-      "op_sys": "Unspecified",
       "last_change_time": "2016-07-25T01:04:15Z",
       "whiteboard": "text"
     },
@@ -205,7 +187,6 @@
       "cf_crash_signature": "",
       "keywords": ["intermittent-failure"],
       "resolution": "",
-      "op_sys": "Unspecified",
       "last_change_time": "2016-07-25T01:04:15Z",
       "whiteboard": "text"
     },
@@ -216,7 +197,6 @@
       "cf_crash_signature": "",
       "keywords": ["intermittent-failure"],
       "resolution": "",
-      "op_sys": "Unspecified",
       "last_change_time": "2016-07-25T01:04:15Z",
       "whiteboard": "text"
     },
@@ -227,7 +207,6 @@
       "cf_crash_signature": "",
       "keywords": ["intermittent-failure"],
       "resolution": "",
-      "op_sys": "Unspecified",
       "last_change_time": "2016-07-25T01:04:15Z",
       "whiteboard": "text"
     },
@@ -238,7 +217,6 @@
       "cf_crash_signature": "",
       "keywords": ["intermittent-failure"],
       "resolution": "",
-      "op_sys": "Unspecified",
       "last_change_time": "2016-07-25T01:04:15Z",
       "whiteboard": "text"
     },
@@ -249,7 +227,6 @@
       "cf_crash_signature": "",
       "keywords": ["intermittent-failure"],
       "resolution": "",
-      "op_sys": "Unspecified",
       "last_change_time": "2016-07-25T01:04:15Z",
       "whiteboard": "text"
     },
@@ -260,7 +237,6 @@
       "cf_crash_signature": "",
       "keywords": ["intermittent-failure"],
       "resolution": "",
-      "op_sys": "Unspecified",
       "last_change_time": "2016-07-25T01:04:15Z",
       "whiteboard": "text"
     },
@@ -271,7 +247,6 @@
       "cf_crash_signature": "",
       "keywords": ["intermittent-failure"],
       "resolution": "",
-      "op_sys": "Unspecified",
       "last_change_time": "2016-07-25T01:04:15Z",
       "whiteboard": "text"
     }

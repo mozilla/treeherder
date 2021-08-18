@@ -26,7 +26,6 @@ def _update_bugscache(bug_list):
             summary=bug['summary'][:max_summary_length],
             crash_signature=bug['cf_crash_signature'],
             keywords=",".join(bug['keywords']),
-            os=bug['op_sys'],
             modified=bug['last_change_time'],
             whiteboard=bug['whiteboard'][:max_whiteboard_length],
         )
@@ -122,7 +121,7 @@ def test_bug_properties(transactional_db, sample_bugs):
     _update_bugscache(bug_list)
 
     expected_keys = set(
-        ['crash_signature', 'resolution', 'summary', 'keywords', 'os', 'id', 'status', 'whiteboard']
+        ['crash_signature', 'resolution', 'summary', 'keywords', 'id', 'status', 'whiteboard']
     )
 
     suggestions = Bugscache.search(search_term)

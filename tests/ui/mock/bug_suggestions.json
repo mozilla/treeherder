@@ -11,7 +11,6 @@
           "summary": "Intermittent devtools/client/netmonitor/src/har/test/browser_net_har_copy_all_as_har.js | There must be some page title -",
           "crash_signature": "",
           "keywords": "intermittent-failure,leave-open",
-          "os": "Unspecified",
           "whiteboard": "[stockwell disabled]"
         }
       ],
@@ -23,7 +22,6 @@
           "summary": "Intermittent devtools/client/netmonitor/src/har/test/browser_net_har_copy_all_as_har.js | Check the total time -",
           "crash_signature": "",
           "keywords": "intermittent-failure,regression",
-          "os": "Unspecified",
           "whiteboard": ""
         }
       ]

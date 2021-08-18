@@ -217,7 +217,6 @@ class Bugscache(models.Model):
     summary = models.CharField(max_length=255)
     crash_signature = models.TextField(blank=True)
     keywords = models.TextField(blank=True)
-    os = models.CharField(max_length=64, blank=True)
     modified = models.DateTimeField()
     whiteboard = models.CharField(max_length=100, blank=True, default='')
 
@@ -260,7 +259,7 @@ class Bugscache(models.Model):
 
         recent_qs = self.objects.raw(
             """
-            SELECT id, summary, crash_signature, keywords, os, resolution, status,
+            SELECT id, summary, crash_signature, keywords, resolution, status,
              MATCH (`summary`) AGAINST (%s IN BOOLEAN MODE) AS relevance
               FROM bugscache
              WHERE 1
@@ -297,7 +296,7 @@ class Bugscache(models.Model):
 
         all_others_qs = self.objects.raw(
             """
-            SELECT id, summary, crash_signature, keywords, os, resolution, status,
+            SELECT id, summary, crash_signature, keywords, resolution, status,
              MATCH (`summary`) AGAINST (%s IN BOOLEAN MODE) AS relevance
               FROM bugscache
              WHERE 1
