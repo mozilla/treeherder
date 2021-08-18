@@ -3,11 +3,11 @@ import { tcAuthCallbackUrl } from '../helpers/url';
 export const tcClientIdMap = {
   'https://treeherder.mozilla.org': 'production',
   'https://treeherder.allizom.org': 'stage',
-  'https://prototype.treeherder.nonprod.cloudops.mozgcp.net/': 'dev',
+  'https://treeherder-prototype.herokuapp.com': 'dev',
   'http://localhost:5000': 'localhost-5000',
   'http://localhost:8000': 'localhost-8000',
-  'https://tc-staging.treeherder.nonprod.cloudops.mozgcp.net/':
-    'taskcluster-staging',
+  'https://treeherder-taskcluster-staging.herokuapp.com': 'taskcluster-staging',
+  'https://treeherder-prototype2.herokuapp.com': 'dev2',
 };
 
 export const clientId = `treeherder-${
