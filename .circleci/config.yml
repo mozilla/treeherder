@@ -33,6 +33,9 @@ jobs:
             - node-deps-v1-{{ .Branch }}
       - run: pip install tox
       - run:
+          command: tox -e heroku
+          name: Run heroku builds and release checks
+      - run:
           command: tox -e docs
           name: Build docs
       - run:
