@@ -16,7 +16,6 @@ import logFavicon from './img/logviewerIcon.png';
 import perfFavicon from './img/line_chart.png';
 import healthFavicon from './img/push-health-ok.png';
 
-
 const IntermittentFailuresApp = lazy(() =>
   import('./intermittent-failures/App'),
 );
@@ -27,7 +26,6 @@ const PushHealthApp = lazy(() => import('./push-health/App'));
 const JobsViewApp = lazy(() => import('./job-view/App'));
 
 const LogviewerApp = lazy(() => import('./logviewer/App'));
-
 
 // backwards compatibility for routes like this: treeherder.mozilla.org/perf.html#/alerts?id=26622&hideDwnToInv=0
 const updateOldUrls = () => {
