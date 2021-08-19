@@ -22,6 +22,7 @@ import {
   phFrameworksWithRelatedBranches,
   phTimeRanges,
   unknownFrameworkMessage,
+  permaLinkPrefix,
 } from './constants';
 
 export const formatNumber = (input) =>
@@ -694,7 +695,7 @@ export const getHashBasedId = function getHashBasedId(
   const tableSection = platformName === null ? 'header' : 'row';
   const hashValue = hashFunction(getSignatureName(testName, platformName));
 
-  return `table-${tableSection}-${hashValue}`;
+  return `${permaLinkPrefix}-${tableSection}-${hashValue}`;
 };
 
 const retriggerByRevision = async (

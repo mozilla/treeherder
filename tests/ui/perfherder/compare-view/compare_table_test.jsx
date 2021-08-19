@@ -16,6 +16,7 @@ import ComparePageTitle from '../../../../ui/shared/ComparePageTitle';
 import {
   compareTableText,
   filterText,
+  permaLinkPrefix,
 } from '../../../../ui/perfherder/perf-helpers/constants';
 import JobModel from '../../../../ui/models/job';
 import TableColumnHeader from '../../../../ui/perfherder/shared/TableColumnHeader';
@@ -132,8 +133,8 @@ jest.mock('../../../../ui/models/job');
 
 const mockHandlePermalinkClick = jest.fn();
 const mockUpdateParams = jest.fn();
-const regexComptableHeaderId = /table-header-\d+/;
-const regexComptableRowId = /table-row-\d+/;
+const regexComptableHeaderId = new RegExp(`${permaLinkPrefix}-header-\\d+`);
+const regexComptableRowId = new RegExp(`${permaLinkPrefix}-row-\\d+`);
 
 beforeEach(() => {
   JobModel.retrigger.mockClear();
@@ -392,7 +393,8 @@ test('table header & rows all have hash-based ids', async () => {
   // each hash suffix is unique
   const tableSections = [compareTable, ...compareTableRows];
   const allHashSuffixes = tableSections.map(
-    (section) => /table-\w+-(\d+)/g.exec(section.id)[1],
+    (section) =>
+      new RegExp(`${permaLinkPrefix}-\\w+-(\\d+)`).exec(section.id)[1],
   );
   const uniqueHashSuffixes = [...new Set(allHashSuffixes)];
 

@@ -5,6 +5,7 @@ import { Helmet } from 'react-helmet';
 import { ConnectedRouter } from 'connected-react-router';
 import { Provider } from 'react-redux';
 
+import { permaLinkPrefix } from './perfherder/perf-helpers/constants';
 import { configureStore, history } from './job-view/redux/configureStore';
 import LoadingSpinner from './shared/LoadingSpinner';
 import LoginCallback from './login-callback/LoginCallback';
@@ -14,6 +15,7 @@ import treeFavicon from './img/tree_open.png';
 import logFavicon from './img/logviewerIcon.png';
 import perfFavicon from './img/line_chart.png';
 import healthFavicon from './img/push-health-ok.png';
+
 
 const IntermittentFailuresApp = lazy(() =>
   import('./intermittent-failures/App'),
@@ -25,6 +27,7 @@ const PushHealthApp = lazy(() => import('./push-health/App'));
 const JobsViewApp = lazy(() => import('./job-view/App'));
 
 const LogviewerApp = lazy(() => import('./logviewer/App'));
+
 
 // backwards compatibility for routes like this: treeherder.mozilla.org/perf.html#/alerts?id=26622&hideDwnToInv=0
 const updateOldUrls = () => {
@@ -45,7 +48,7 @@ const updateOldUrls = () => {
     updates.pathname = urlMatch[pathname] || pathname.replace(/.html|\//g, '');
   }
 
-  if (hash.length && !hash.includes('table')) {
+  if (hash.length) {
     const index = hash.indexOf('?');
     updates.search = hash.substring(index);
     const subRoute = hash.substring(1, index);
@@ -57,7 +60,7 @@ const updateOldUrls = () => {
     }
   }
 
-  if (search.length && !hash.includes('table')) {
+  if (search.length) {
     updates.search = search;
   }
 
@@ -65,7 +68,13 @@ const updateOldUrls = () => {
     return;
   }
 
-  history.push(updates);
+  history.replace(updates);
+};
+
+const checkIfOldUrl = () => {
+  if (!history.location.hash.includes(permaLinkPrefix)) {
+    updateOldUrls();
+  }
 };
 
 const faviconPaths = {
@@ -102,7 +111,7 @@ const withFavicon = (element, route) => {
 };
 
 const App = () => {
-  updateOldUrls();
+  checkIfOldUrl();
   return (
     <Provider store={configureStore()}>
       <ConnectedRouter history={history}>
