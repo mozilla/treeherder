@@ -62,3 +62,23 @@ test('Alert summary with more than 26 alerts is collapsable', async () => {
 
   expect(visibleRows).toHaveLength(testAlertSummary.alerts.length);
 });
+
+test('Alerts can be folded back up', async () => {
+  const { getAllByLabelText, getByTestId } = collapsableRowsTest();
+
+  const showMoreAlerts = await waitFor(() => getByTestId('add-more-alerts'));
+  fireEvent.click(showMoreAlerts);
+
+  let visibleRows = await waitFor(() => getAllByLabelText('Alert table row'));
+
+  expect(visibleRows).toHaveLength(testAlertSummary.alerts.length);
+
+  const showLessAlerts = await waitFor(() => getByTestId('show-less-alerts'));
+
+  expect(showLessAlerts).toBeInTheDocument();
+  fireEvent.click(showLessAlerts);
+
+  visibleRows = await waitFor(() => getAllByLabelText('Alert table row'));
+
+  expect(visibleRows).toHaveLength(26);
+});

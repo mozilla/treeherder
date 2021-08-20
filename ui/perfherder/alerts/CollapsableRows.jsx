@@ -44,9 +44,6 @@ export default class CollapsableRows extends React.Component {
         ))}
         {isOpen && (
           <React.Fragment>
-            {middleRows.map((alert) => (
-              <AlertTableRow key={alert.id} alert={alert} {...this.props} />
-            ))}
             <tr
               className="border-left border-right"
               role="button"
@@ -65,6 +62,9 @@ export default class CollapsableRows extends React.Component {
               <td />
               <td />
             </tr>
+            {middleRows.map((alert) => (
+              <AlertTableRow key={alert.id} alert={alert} {...this.props} />
+            ))}
           </React.Fragment>
         )}
         {!isOpen && (

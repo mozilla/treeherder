@@ -363,7 +363,7 @@ export default class AlertTable extends React.Component {
                       />
                     </th>
                   </tr>
-                  {filteredAndSortedAlerts.length < 26 &&
+                  {filteredAndSortedAlerts.length <= 26 &&
                     filteredAndSortedAlerts.map((alert) => (
                       <AlertTableRow
                         key={alert.id}
@@ -378,7 +378,7 @@ export default class AlertTable extends React.Component {
                         fetchAlertSummaries={fetchAlertSummaries}
                       />
                     ))}
-                  {filteredAndSortedAlerts.length >= 26 && (
+                  {filteredAndSortedAlerts.length > 26 && (
                     <CollapsableRows
                       filteredAndSortedAlerts={filteredAndSortedAlerts}
                       alertSummary={alertSummary}
