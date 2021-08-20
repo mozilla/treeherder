@@ -16,7 +16,15 @@ class Command(BaseCommand):
     AVAILABLE_FRAMEWORKS = PerformanceFramework.fetch_all_names()
     AVAILABLE_REPOS = Repository.fetch_all_names()
 
-    SHERIFFED_FRAMEWORKS = ['browsertime', 'raptor', 'talos', 'awsy', 'build_metrics', 'js-bench']
+    SHERIFFED_FRAMEWORKS = [
+        'browsertime',
+        'raptor',
+        'talos',
+        'awsy',
+        'build_metrics',
+        'js-bench',
+        'devtools',
+    ]
     SHERIFFED_REPOS = ['autoland', 'mozilla-beta']
 
     help = "Select most relevant alerts and identify jobs to retrigger."
