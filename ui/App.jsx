@@ -69,7 +69,8 @@ const updateOldUrls = () => {
   history.replace(updates);
 };
 
-const checkIfOldUrl = () => {
+// the urls need to be update for compatibility reasons, but we need to have exceptions from this
+const updateUrls = () => {
   if (!history.location.hash.includes(permaLinkPrefix)) {
     updateOldUrls();
   }
@@ -109,7 +110,7 @@ const withFavicon = (element, route) => {
 };
 
 const App = () => {
-  checkIfOldUrl();
+  updateUrls();
   return (
     <Provider store={configureStore()}>
       <ConnectedRouter history={history}>
