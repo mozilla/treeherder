@@ -3,6 +3,8 @@ import PropTypes from 'prop-types';
 import { faAngleUp } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 
+import SimpleTooltip from '../../shared/SimpleTooltip';
+
 import AlertTableRow from './AlertTableRow';
 
 export default class CollapsableRows extends React.Component {
@@ -73,24 +75,34 @@ export default class CollapsableRows extends React.Component {
               className="border-left border-right cursor-pointer"
               role="button"
               onClick={() => this.toggleRows()}
-              data-testid="add-more-alerts"
+              data-testid="show-more-alerts"
             >
               <td className="cursor-pointer" />
               <td />
               <td>
-                <span className="cursor-pointer">...</span>
+                <span className="cursor-pointer">
+                  <SimpleTooltip text="..." tooltipText="Show more alerts" />
+                </span>
               </td>
               <td>
-                <span className="cursor-pointer">...</span>
+                <span className="cursor-pointer">
+                  <SimpleTooltip text="..." tooltipText="Show more alerts" />
+                </span>
               </td>
               <td>
-                <span className="cursor-pointer">...</span>
+                <span className="cursor-pointer">
+                  <SimpleTooltip text="..." tooltipText="Show more alerts" />
+                </span>
               </td>
               <td>
-                <span className="cursor-pointer">...</span>
+                <span className="cursor-pointer">
+                  <SimpleTooltip text="..." tooltipText="Show more alerts" />
+                </span>
               </td>
               <td>
-                <span className="cursor-pointer">...</span>
+                <span className="cursor-pointer">
+                  <SimpleTooltip text="..." tooltipText="Show more alerts" />
+                </span>
               </td>
             </tr>
           </React.Fragment>
