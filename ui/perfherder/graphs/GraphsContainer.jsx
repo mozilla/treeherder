@@ -646,6 +646,31 @@ class GraphsContainer extends React.Component {
                         }
                       />
                     }
+                    events={[
+                      {
+                        target: 'data',
+                        eventHandlers: {
+                          onClick: () => {
+                            return [
+                              {
+                                target: 'data',
+                                mutation: (props) => {
+                                  const fill = props.style && props.style.fill;
+                                  return fill === '#FFA500'
+                                    ? null
+                                    : {
+                                        style: {
+                                          fill: '#FFA500',
+                                          stroke: '#FFA500',
+                                        },
+                                      };
+                                },
+                              },
+                            ];
+                          },
+                        },
+                      },
+                    ]}
                   />
                   <VictoryAxis
                     dependentAxis
