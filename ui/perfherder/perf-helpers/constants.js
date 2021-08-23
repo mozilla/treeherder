@@ -133,3 +133,5 @@ export const scrollTypes = {
   prev: 'prev',
   next: 'next',
 };
+
+export const visibleRows = 26;
