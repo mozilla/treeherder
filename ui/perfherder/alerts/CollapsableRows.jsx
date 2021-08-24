@@ -1,9 +1,7 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import { faAngleUp } from '@fortawesome/free-solid-svg-icons';
+import { faAngleDown, faAngleUp } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-
-import SimpleTooltip from '../../shared/SimpleTooltip';
 
 import AlertTableRow from './AlertTableRow';
 
@@ -44,67 +42,30 @@ export default class CollapsableRows extends React.Component {
         {startRows.map((alert) => (
           <AlertTableRow key={alert.id} alert={alert} {...this.props} />
         ))}
+        <tr
+          className="border-left border-right"
+          role="button"
+          onClick={() => this.toggleRows()}
+          data-testid={isOpen ? 'show-less-alerts' : 'show-more-alerts'}
+        >
+          <td />
+          <td />
+          <td />
+          <td className="text-right">
+            <span className="cursor-pointer">
+              <FontAwesomeIcon icon={isOpen ? faAngleUp : faAngleDown} />{' '}
+              {isOpen ? 'Show less alerts' : 'Show more alerts'}
+            </span>
+          </td>
+          <td />
+          <td />
+          <td />
+        </tr>
         {isOpen && (
           <React.Fragment>
-            <tr
-              className="border-left border-right"
-              role="button"
-              onClick={() => this.toggleRows()}
-              data-testid="show-less-alerts"
-            >
-              <td />
-              <td />
-              <td>
-                <span className="cursor-pointer">
-                  <FontAwesomeIcon icon={faAngleUp} /> Show less alerts
-                </span>
-              </td>
-              <td />
-              <td />
-              <td />
-              <td />
-            </tr>
             {middleRows.map((alert) => (
               <AlertTableRow key={alert.id} alert={alert} {...this.props} />
             ))}
-          </React.Fragment>
-        )}
-        {!isOpen && (
-          <React.Fragment>
-            <tr
-              className="border-left border-right cursor-pointer"
-              role="button"
-              onClick={() => this.toggleRows()}
-              data-testid="show-more-alerts"
-            >
-              <td className="cursor-pointer" />
-              <td />
-              <td>
-                <span className="cursor-pointer">
-                  <SimpleTooltip text="..." tooltipText="Show more alerts" />
-                </span>
-              </td>
-              <td>
-                <span className="cursor-pointer">
-                  <SimpleTooltip text="..." tooltipText="Show more alerts" />
-                </span>
-              </td>
-              <td>
-                <span className="cursor-pointer">
-                  <SimpleTooltip text="..." tooltipText="Show more alerts" />
-                </span>
-              </td>
-              <td>
-                <span className="cursor-pointer">
-                  <SimpleTooltip text="..." tooltipText="Show more alerts" />
-                </span>
-              </td>
-              <td>
-                <span className="cursor-pointer">
-                  <SimpleTooltip text="..." tooltipText="Show more alerts" />
-                </span>
-              </td>
-            </tr>
           </React.Fragment>
         )}
         {endRows.map((alert) => (

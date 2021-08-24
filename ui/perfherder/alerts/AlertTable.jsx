@@ -3,7 +3,10 @@ import PropTypes from 'prop-types';
 import { Container, Form, FormGroup, Table, Row, Col } from 'reactstrap';
 import orderBy from 'lodash/orderBy';
 
-import { alertStatusMap, visibleRows } from '../perf-helpers/constants';
+import {
+  alertStatusMap,
+  maximumVisibleAlertSummaryRows,
+} from '../perf-helpers/constants';
 import {
   genericErrorMessage,
   errorMessageClass,
@@ -363,7 +366,8 @@ export default class AlertTable extends React.Component {
                       />
                     </th>
                   </tr>
-                  {filteredAndSortedAlerts.length <= visibleRows &&
+                  {filteredAndSortedAlerts.length <=
+                    maximumVisibleAlertSummaryRows &&
                     filteredAndSortedAlerts.map((alert) => (
                       <AlertTableRow
                         key={alert.id}
@@ -378,7 +382,8 @@ export default class AlertTable extends React.Component {
                         fetchAlertSummaries={fetchAlertSummaries}
                       />
                     ))}
-                  {filteredAndSortedAlerts.length > visibleRows && (
+                  {filteredAndSortedAlerts.length >
+                    maximumVisibleAlertSummaryRows && (
                     <CollapsableRows
                       filteredAndSortedAlerts={filteredAndSortedAlerts}
                       alertSummary={alertSummary}

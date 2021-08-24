@@ -134,4 +134,4 @@ export const scrollTypes = {
   next: 'next',
 };
 
-export const visibleRows = 26;
+export const maximumVisibleAlertSummaryRows = 26;
