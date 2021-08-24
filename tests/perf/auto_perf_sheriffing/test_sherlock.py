@@ -1,7 +1,6 @@
 from datetime import datetime, timedelta
 import simplejson as json
 from json import JSONDecodeError
-from unittest.mock import MagicMock
 
 import pytest
 from django.db import models
@@ -10,7 +9,6 @@ from tests import settings as test_settings
 from tests.perf.auto_perf_sheriffing.conftest import prepare_record_with_search_str
 from treeherder.model.models import Job, Push
 from treeherder.perf.auto_perf_sheriffing.sherlock import Sherlock
-from treeherder.perf.email import BackfillNotificationWriter
 from treeherder.perf.exceptions import MaxRuntimeExceeded
 from treeherder.perf.models import BackfillRecord, BackfillReport
 
@@ -27,114 +25,6 @@ def has_changed(orm_object: models.Model) -> bool:
         if orm_object.__getattribute__(f.name) != db_obj.__getattribute__(f.name):
             return True
     return False
-
-
-class TestEmailIntegration:
-    def test_email_is_sent_after_successful_backfills(
-        self,
-        report_maintainer_mock,
-        backfill_tool_mock,
-        secretary,
-        record_ready_for_processing,
-        sherlock_settings,
-        notify_client_mock,
-    ):
-        sherlock = Sherlock(
-            report_maintainer_mock,
-            backfill_tool_mock,
-            secretary,
-        )
-        sherlock.sheriff(
-            since=EPOCH,
-            frameworks=['test_talos'],
-            repositories=[test_settings.TREEHERDER_TEST_REPOSITORY_NAME],
-        )
-        record_ready_for_processing.refresh_from_db()
-
-        # assert notify_client_mock.email.call_count == 1
-
-    def test_email_is_still_sent_if_context_is_too_corrupt_to_be_actionable(
-        self,
-        report_maintainer_mock,
-        backfill_tool_mock,
-        secretary,
-        record_ready_for_processing,
-        sherlock_settings,
-        notify_client_mock,
-        broken_context_str,
-        # Note: parametrizes the test
-    ):
-        record_ready_for_processing.context = broken_context_str
-        record_ready_for_processing.save()
-
-        sherlock = Sherlock(
-            report_maintainer_mock,
-            backfill_tool_mock,
-            secretary,
-        )
-        sherlock.sheriff(
-            since=EPOCH,
-            frameworks=['test_talos'],
-            repositories=[test_settings.TREEHERDER_TEST_REPOSITORY_NAME],
-        )
-
-        # assert notify_client_mock.email.call_count == 1
-
-    def test_no_email_is_sent_if_runtime_exceeded(
-        self,
-        report_maintainer_mock,
-        backfill_tool_mock,
-        secretary,
-        record_ready_for_processing,
-        sherlock_settings,
-        notify_client_mock,
-    ):
-        no_time_left = timedelta(seconds=0)
-
-        sherlock = Sherlock(report_maintainer_mock, backfill_tool_mock, secretary, no_time_left)
-        try:
-            sherlock.sheriff(since=EPOCH, frameworks=['raptor', 'talos'], repositories=['autoland'])
-        except MaxRuntimeExceeded:
-            pass
-
-        # assert notify_client_mock.email.call_count == 0
-
-    @pytest.mark.parametrize(
-        'framework, repository',
-        [
-            ('non_existent_framework', test_settings.TREEHERDER_TEST_REPOSITORY_NAME),
-            ('test_talos', 'non_existent_repository'),
-            ('non_existent_framework', 'non_existent_repository'),
-        ],
-    )
-    def test_no_email_is_sent_for_untargeted_alerts(
-        self,
-        report_maintainer_mock,
-        backfill_tool_mock,
-        secretary,
-        record_ready_for_processing,
-        sherlock_settings,
-        notify_client_mock,
-        framework,
-        repository,
-    ):
-        sherlock = Sherlock(
-            report_maintainer_mock,
-            backfill_tool_mock,
-            secretary,
-        )
-        sherlock.sheriff(
-            since=EPOCH,
-            frameworks=[framework],
-            repositories=[repository],
-        )
-        record_ready_for_processing.refresh_from_db()
-
-        # assert notify_client_mock.email.call_count == 0
-
-    @staticmethod
-    def email_writer_mock():
-        return MagicMock(spec=BackfillNotificationWriter())
 
 
 def test_record_job_symbol_is_none_if_component_misses(record_with_missing_job_symbol_components):
