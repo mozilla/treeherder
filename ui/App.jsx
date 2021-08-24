@@ -56,9 +56,7 @@ const updateOldUrls = () => {
     if (index >= 2 && updates.pathname !== subRoute && subRoute !== '/jobs') {
       updates.pathname += subRoute;
     }
-  }
-
-  if (search.length) {
+  } else if (search.length) {
     updates.search = search;
   }
 
@@ -66,7 +64,7 @@ const updateOldUrls = () => {
     return;
   }
 
-  history.replace(updates);
+  history.push(updates);
 };
 
 // the urls need to be update for compatibility reasons, but we need to have exceptions from this

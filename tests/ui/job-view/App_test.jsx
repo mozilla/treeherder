@@ -382,4 +382,22 @@ describe('Test for backwards-compatible routes for other apps', () => {
       }),
     );
   });
+
+  test('url is not broken when it contains a table permalink hash', async () => {
+    fetchMock.get(getApiUrl('/user/'), []);
+
+    history.push(
+      '/perfherder/compare?originalProject=mozilla-central&originalRevision=54e7fb66ad44b8dcb8caab587f929dad60932d71&newProject=mozilla-central&newRevision=54e7fb66ad44b8dcb8caab587f929dad60932d71&framework=1&page=1#tableLink-header-134266337',
+    );
+    render(testApp());
+
+    expect(history.location).toEqual(
+      expect.objectContaining({
+        pathname: '/perfherder/compare',
+        search:
+          '?originalProject=mozilla-central&originalRevision=54e7fb66ad44b8dcb8caab587f929dad60932d71&newProject=mozilla-central&newRevision=54e7fb66ad44b8dcb8caab587f929dad60932d71&framework=1&page=1',
+        hash: '#tableLink-header-134266337',
+      }),
+    );
+  });
 });
