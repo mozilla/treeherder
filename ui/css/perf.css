@@ -551,3 +551,7 @@ li.pagination-active.active > button {
   cursor: not-allowed;
   opacity: 0.65;
 }
+
+.cursor-pointer {
+  cursor: pointer;
+}
