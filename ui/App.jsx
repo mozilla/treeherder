@@ -68,6 +68,8 @@ const updateOldUrls = () => {
 };
 
 // the urls need to be update for compatibility reasons, but we need to have exceptions from this
+// the link created by the permalink functionality is broken by the updateOldUrls function
+// for more information - https://bugzilla.mozilla.org/show_bug.cgi?id=1725329
 const updateUrls = () => {
   if (!history.location.hash.includes(permaLinkPrefix)) {
     updateOldUrls();
