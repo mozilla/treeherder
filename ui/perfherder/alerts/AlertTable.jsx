@@ -168,12 +168,13 @@ export default class AlertTable extends React.Component {
   getAlertsSortedByDefault = (filteredAlerts) => {
     const fields = [
       'starred',
+      'backfill_record',
       'is_regression',
       't_value',
       'amount_abs',
       'title',
     ];
-    const sortOrders = ['desc', 'desc', 'desc', 'desc', 'asc'];
+    const sortOrders = ['desc', 'asc', 'desc', 'desc', 'desc', 'asc'];
     return orderBy(filteredAlerts, fields, sortOrders);
   };
 

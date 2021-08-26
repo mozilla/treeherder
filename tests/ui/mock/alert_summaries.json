@@ -95,6 +95,38 @@
         "classifier": null,
         "starred": false,
         "classifier_email": null
+      },
+      {
+        "id": 69347,
+        "status": 0,
+        "backfill_record": {
+          "context": "[]"
+        },
+        "series_signature": {
+          "id": 1945378,
+          "framework_id": 1,
+          "signature_hash": "461af9d92db3f2d97dc6e4c4d47e7ad256356861",
+          "machine_platform": "macosx1015-64-shippable",
+          "suite": "tp5a_webext",
+          "test": "responsiveness",
+          "tags": ["cold", "live"],
+          "lower_is_better": true,
+          "has_subtests": false,
+          "option_collection_hash": "102210fe594ee9b33d82058545b1ed14f4c8206e",
+          "extra_options": ["e10s", "stylo"]
+        },
+        "is_regression": false,
+        "prev_value": 2.01,
+        "new_value": 1.9,
+        "t_value": 10,
+        "amount_abs": 2,
+        "amount_pct": 5.83,
+        "summary_id": 20174,
+        "related_summary_id": null,
+        "manually_created": false,
+        "classifier": null,
+        "starred": false,
+        "classifier_email": null
       }
     ],
     "related_alerts": [],
@@ -121,7 +153,9 @@
       {
         "id": 69526,
         "status": 0,
-        "backfill_record": {},
+        "backfill_record": {
+          "context": "[]"
+        },
         "series_signature": {
           "id": 1948230,
           "framework_id": 1,
