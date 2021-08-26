@@ -49,7 +49,7 @@ services:
   frontend:
     container_name: frontend
     # https://hub.docker.com/_/node
-    image: node:14.16.1-alpine
+    image: node:16.6.2-alpine
     environment:
       # Allows `.neutrinorc.js` to adjust filesystem watching and browser opening behaviour.
       - IN_DOCKER=1

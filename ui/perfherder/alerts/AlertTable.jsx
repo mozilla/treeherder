@@ -3,7 +3,10 @@ import PropTypes from 'prop-types';
 import { Container, Form, FormGroup, Table, Row, Col } from 'reactstrap';
 import orderBy from 'lodash/orderBy';
 
-import { alertStatusMap } from '../perf-helpers/constants';
+import {
+  alertStatusMap,
+  maximumVisibleAlertSummaryRows,
+} from '../perf-helpers/constants';
 import {
   genericErrorMessage,
   errorMessageClass,
@@ -26,6 +29,7 @@ import StatusDropdown from './StatusDropdown';
 import DownstreamSummary from './DownstreamSummary';
 import AlertActionPanel from './AlertActionPanel';
 import SelectAlertsDropdown from './SelectAlertsDropdown';
+import CollapsableRows from './CollapsableRows';
 
 export default class AlertTable extends React.Component {
   constructor(props) {
@@ -55,7 +59,7 @@ export default class AlertTable extends React.Component {
         },
         Magnitude: {
           name: 'Magnitude of Change',
-          sortValue: 'amount_pct',
+          sortValue: 'amount_abs',
           currentSort: tableSort.default,
         },
         Confidence: {
@@ -166,7 +170,7 @@ export default class AlertTable extends React.Component {
       'starred',
       'is_regression',
       't_value',
-      'amount_pct',
+      'amount_abs',
       'title',
     ];
     const sortOrders = ['desc', 'desc', 'desc', 'desc', 'asc'];
@@ -362,11 +366,27 @@ export default class AlertTable extends React.Component {
                       />
                     </th>
                   </tr>
-                  {filteredAndSortedAlerts.map((alert) => (
-                    <AlertTableRow
-                      key={alert.id}
+                  {filteredAndSortedAlerts.length <=
+                    maximumVisibleAlertSummaryRows &&
+                    filteredAndSortedAlerts.map((alert) => (
+                      <AlertTableRow
+                        key={alert.id}
+                        alertSummary={alertSummary}
+                        alert={alert}
+                        frameworks={frameworks}
+                        user={user}
+                        updateSelectedAlerts={(alerts) => this.setState(alerts)}
+                        selectedAlerts={selectedAlerts}
+                        updateViewState={updateViewState}
+                        modifyAlert={modifyAlert}
+                        fetchAlertSummaries={fetchAlertSummaries}
+                      />
+                    ))}
+                  {filteredAndSortedAlerts.length >
+                    maximumVisibleAlertSummaryRows && (
+                    <CollapsableRows
+                      filteredAndSortedAlerts={filteredAndSortedAlerts}
                       alertSummary={alertSummary}
-                      alert={alert}
                       frameworks={frameworks}
                       user={user}
                       updateSelectedAlerts={(alerts) => this.setState(alerts)}
@@ -375,7 +395,7 @@ export default class AlertTable extends React.Component {
                       modifyAlert={modifyAlert}
                       fetchAlertSummaries={fetchAlertSummaries}
                     />
-                  ))}
+                  )}
                   {downstreamIdsLength > 0 && (
                     <tr
                       className={`${

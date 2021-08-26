@@ -1645,5 +1645,20 @@
       "description": "",
       "tc_root_url": "https://firefox-ci-tc.services.mozilla.com"
     }
+  },
+  {
+    "pk": 118,
+    "model": "model.repository",
+    "fields": {
+      "dvcs_type": "git",
+      "name": "mozilla-vpn-client",
+      "url": "https://github.com/mozilla-mobile/mozilla-vpn-client",
+      "branch": "main",
+      "active_status": "active",
+      "codebase": "mozilla-vpn-client",
+      "repository_group": 7,
+      "description": "",
+      "tc_root_url": "https://firefox-ci-tc.services.mozilla.com"
+    }
   }
 ]
