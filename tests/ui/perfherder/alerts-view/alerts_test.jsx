@@ -355,24 +355,30 @@ test('selecting the alert summary checkbox then deselecting one alert only updat
   const summaryCheckbox = getByTestId('alert summary 20174 checkbox');
   const alertCheckbox1 = getByTestId('alert 69344 checkbox');
   const alertCheckbox2 = getByTestId('alert 69345 checkbox');
+  const alertCheckbox3 = getByTestId('alert 69346 checkbox');
+  const alertCheckbox4 = getByTestId('alert 69347 checkbox');
 
   fireEvent.click(summaryCheckbox);
   expect(summaryCheckbox).toHaveProperty('checked', true);
   expect(alertCheckbox1).toHaveProperty('checked', true);
   expect(alertCheckbox2).toHaveProperty('checked', true);
+  expect(alertCheckbox3).toHaveProperty('checked', true);
+  expect(alertCheckbox4).toHaveProperty('checked', true);
 
   // deselect one alert
   fireEvent.click(alertCheckbox1);
   expect(summaryCheckbox).toHaveProperty('checked', false);
   expect(alertCheckbox1).toHaveProperty('checked', false);
   expect(alertCheckbox2).toHaveProperty('checked', true);
+  expect(alertCheckbox3).toHaveProperty('checked', true);
+  expect(alertCheckbox4).toHaveProperty('checked', true);
 
   let acknowledgeButton = await waitFor(() => getByText('Acknowledge'));
   fireEvent.click(acknowledgeButton);
 
   // only the selected alert has been updated
   expect(modifyAlertSpy).toHaveBeenCalled();
-  expect(modifyAlertSpy.mock.results).toHaveLength(2);
+  expect(modifyAlertSpy.mock.results).toHaveLength(3);
   expect(modifyAlertSpy.mock.results[0].value.data.id).toEqual(69345);
   expect(modifyAlertSpy.mock.results[0].value).toStrictEqual({
     data: {
@@ -390,6 +396,8 @@ test('selecting the alert summary checkbox then deselecting one alert only updat
     expect(summaryCheckbox).toHaveProperty('checked', false);
     expect(alertCheckbox1).toHaveProperty('checked', false);
     expect(alertCheckbox2).toHaveProperty('checked', false);
+    expect(alertCheckbox3).toHaveProperty('checked', false);
+    expect(alertCheckbox4).toHaveProperty('checked', false);
   });
 
   modifyAlertSpy.mockClear();
@@ -513,7 +521,7 @@ test('Alerts retriggered by the backfill bot have a title', async () => {
   const { queryAllByTitle } = alertsViewControls();
 
   const titles = await waitFor(() => queryAllByTitle(backfillRetriggeredTitle));
-  expect(titles).toHaveLength(1);
+  expect(titles).toHaveLength(2);
 });
 
 describe('"My alerts" checkbox\'s display behaviors', () => {
@@ -594,6 +602,13 @@ test('No tags are displayed if there is no active tag', async () => {
 // TODO should write tests for alert summary dropdown menu actions performed in StatusDropdown
 // (adding notes or marking as 'fixed', etc)
 
+// assert that alertTableRows contains the alerts in the indicated order
+const assertAlertsAreInOrder = async (alertsInOrder, alertTableRows) => {
+  for (let index = 0; index < alertsInOrder.length; index++) {
+    expect(alertTableRows[index]).toContainElement(alertsInOrder[index]);
+  }
+};
+
 test(`table data can be sorted in descending order by 'Test'`, async () => {
   const {
     getAllByLabelText,
@@ -608,11 +623,13 @@ test(`table data can be sorted in descending order by 'Test'`, async () => {
   const alert1 = await waitFor(() => getByTestId('69344'));
   const alert2 = await waitFor(() => getByTestId('69345'));
   const alert3 = await waitFor(() => getByTestId('69346'));
+  const alert4 = await waitFor(() => getByTestId('69347'));
 
   // alerts are sorted in a default manner without clicking on sort buttons
-  expect(alertTableRows[0]).toContainElement(alert3);
-  expect(alertTableRows[1]).toContainElement(alert1);
-  expect(alertTableRows[2]).toContainElement(alert2);
+  await assertAlertsAreInOrder(
+    [alert4, alert3, alert1, alert2],
+    alertTableRows,
+  );
 
   const sortByTest = await waitFor(() =>
     getAllByTitle('Sorted in default order by test'),
@@ -625,9 +642,10 @@ test(`table data can be sorted in descending order by 'Test'`, async () => {
 
   alertTableRows = await waitFor(() => getAllByLabelText('Alert table row'));
 
-  expect(alertTableRows[0]).toContainElement(alert2);
-  expect(alertTableRows[1]).toContainElement(alert1);
-  expect(alertTableRows[2]).toContainElement(alert3);
+  await assertAlertsAreInOrder(
+    [alert2, alert1, alert3, alert4],
+    alertTableRows,
+  );
 });
 
 test(`table data can be sorted in ascending order by 'Platform'`, async () => {
@@ -644,11 +662,13 @@ test(`table data can be sorted in ascending order by 'Platform'`, async () => {
   const alert1 = await waitFor(() => getByTestId('69344'));
   const alert2 = await waitFor(() => getByTestId('69345'));
   const alert3 = await waitFor(() => getByTestId('69346'));
+  const alert4 = await waitFor(() => getByTestId('69347'));
 
   // alerts are sorted in a default manner without clicking on sort buttons
-  expect(alertTableRows[0]).toContainElement(alert3);
-  expect(alertTableRows[1]).toContainElement(alert1);
-  expect(alertTableRows[2]).toContainElement(alert2);
+  await assertAlertsAreInOrder(
+    [alert4, alert3, alert1, alert2],
+    alertTableRows,
+  );
 
   const sortByPlatform = await waitFor(() =>
     getAllByTitle('Sorted in default order by platform'),
@@ -658,10 +678,10 @@ test(`table data can be sorted in ascending order by 'Platform'`, async () => {
   fireEvent.click(sortByPlatform[0]);
 
   alertTableRows = await waitFor(() => getAllByLabelText('Alert table row'));
-
-  expect(alertTableRows[0]).toContainElement(alert1);
-  expect(alertTableRows[1]).toContainElement(alert3);
-  expect(alertTableRows[2]).toContainElement(alert2);
+  await assertAlertsAreInOrder(
+    [alert1, alert3, alert4, alert2],
+    alertTableRows,
+  );
 });
 
 test(`table data cannot be sorted by 'Tags & Options'`, async () => {
@@ -688,11 +708,13 @@ test(`table data can be sorted in ascending order by 'Confidence'`, async () => 
   const alert1 = await waitFor(() => getByTestId('69344'));
   const alert2 = await waitFor(() => getByTestId('69345'));
   const alert3 = await waitFor(() => getByTestId('69346'));
+  const alert4 = await waitFor(() => getByTestId('69347'));
 
   // alerts are sorted in a default manner without clicking on sort buttons
-  expect(alertTableRows[0]).toContainElement(alert3);
-  expect(alertTableRows[1]).toContainElement(alert1);
-  expect(alertTableRows[2]).toContainElement(alert2);
+  await assertAlertsAreInOrder(
+    [alert4, alert3, alert1, alert2],
+    alertTableRows,
+  );
 
   const sortByConfidence = await waitFor(() =>
     getAllByTitle('Sorted in default order by confidence'),
@@ -702,10 +724,10 @@ test(`table data can be sorted in ascending order by 'Confidence'`, async () => 
   fireEvent.click(sortByConfidence[0]);
 
   alertTableRows = await waitFor(() => getAllByLabelText('Alert table row'));
-
-  expect(alertTableRows[0]).toContainElement(alert2);
-  expect(alertTableRows[1]).toContainElement(alert1);
-  expect(alertTableRows[2]).toContainElement(alert3);
+  await assertAlertsAreInOrder(
+    [alert2, alert1, alert3, alert4],
+    alertTableRows,
+  );
 });
 
 test(`table data can be sorted in ascending order by 'Magnitude of Change'`, async () => {
@@ -722,11 +744,13 @@ test(`table data can be sorted in ascending order by 'Magnitude of Change'`, asy
   const alert1 = await waitFor(() => getByTestId('69344'));
   const alert2 = await waitFor(() => getByTestId('69345'));
   const alert3 = await waitFor(() => getByTestId('69346'));
+  const alert4 = await waitFor(() => getByTestId('69347'));
 
   // alerts are sorted in a default manner without clicking on sort buttons
-  expect(alertTableRows[0]).toContainElement(alert3);
-  expect(alertTableRows[1]).toContainElement(alert1);
-  expect(alertTableRows[2]).toContainElement(alert2);
+  await assertAlertsAreInOrder(
+    [alert4, alert3, alert1, alert2],
+    alertTableRows,
+  );
 
   const sortByMagnitude = await waitFor(() =>
     getAllByTitle('Sorted in default order by magnitude of change'),
@@ -737,9 +761,10 @@ test(`table data can be sorted in ascending order by 'Magnitude of Change'`, asy
 
   alertTableRows = await waitFor(() => getAllByLabelText('Alert table row'));
 
-  expect(alertTableRows[0]).toContainElement(alert1);
-  expect(alertTableRows[1]).toContainElement(alert3);
-  expect(alertTableRows[2]).toContainElement(alert2);
+  await assertAlertsAreInOrder(
+    [alert1, alert3, alert4, alert2],
+    alertTableRows,
+  );
 });
 
 test('test data can be sorted only by one column', async () => {
@@ -756,11 +781,13 @@ test('test data can be sorted only by one column', async () => {
   const alert1 = await waitFor(() => getByTestId('69344'));
   const alert2 = await waitFor(() => getByTestId('69345'));
   const alert3 = await waitFor(() => getByTestId('69346'));
+  const alert4 = await waitFor(() => getByTestId('69347'));
 
   // alerts are sorted in a default manner without clicking on sort buttons
-  expect(alertTableRows[0]).toContainElement(alert3);
-  expect(alertTableRows[1]).toContainElement(alert1);
-  expect(alertTableRows[2]).toContainElement(alert2);
+  await assertAlertsAreInOrder(
+    [alert4, alert3, alert1, alert2],
+    alertTableRows,
+  );
 
   const sortByPlatform = await waitFor(() =>
     getAllByTitle('Sorted in default order by platform'),
@@ -780,9 +807,10 @@ test('test data can be sorted only by one column', async () => {
 
   alertTableRows = await waitFor(() => getAllByLabelText('Alert table row'));
 
-  expect(alertTableRows[0]).toContainElement(alert2);
-  expect(alertTableRows[1]).toContainElement(alert1);
-  expect(alertTableRows[2]).toContainElement(alert3);
+  await assertAlertsAreInOrder(
+    [alert2, alert1, alert3, alert4],
+    alertTableRows,
+  );
 });
 
 test('test previous alert button should be disable at first', async () => {

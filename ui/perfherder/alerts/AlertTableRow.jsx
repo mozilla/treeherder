@@ -9,6 +9,7 @@ import {
   faUser,
   faCheck,
   faChartLine,
+  faExclamation,
 } from '@fortawesome/free-solid-svg-icons';
 import { faStar as faStarRegular } from '@fortawesome/free-regular-svg-icons';
 import { Link } from 'react-router-dom';
@@ -148,7 +149,13 @@ export default class AlertTableRow extends React.Component {
         <span className={statusColor}>{alertStatus}</span>
         {alert.related_summary_id && this.getReassignment(alert)}
         {alert.backfill_record ? (
-          <span className="text-darker-info">, important</span>
+          <span className="text-darker-info">
+            ,{' '}
+            <FontAwesomeIcon
+              title="Important Alert - picked by Sherlock"
+              icon={faExclamation}
+            />
+          </span>
         ) : null}
         )
       </React.Fragment>
