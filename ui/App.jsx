@@ -5,6 +5,7 @@ import { Helmet } from 'react-helmet';
 import { ConnectedRouter } from 'connected-react-router';
 import { Provider } from 'react-redux';
 
+import { permaLinkPrefix } from './perfherder/perf-helpers/constants';
 import { configureStore, history } from './job-view/redux/configureStore';
 import LoadingSpinner from './shared/LoadingSpinner';
 import LoginCallback from './login-callback/LoginCallback';
@@ -66,6 +67,15 @@ const updateOldUrls = () => {
   history.push(updates);
 };
 
+// the urls need to be update for compatibility reasons, but we need to have exceptions from this
+// the link created by the permalink functionality is broken by the updateOldUrls function
+// for more information - https://bugzilla.mozilla.org/show_bug.cgi?id=1725329
+const updateUrls = () => {
+  if (!history.location.hash.includes(permaLinkPrefix)) {
+    updateOldUrls();
+  }
+};
+
 const faviconPaths = {
   '/jobs': { title: 'Treeherder Jobs View', favicon: treeFavicon },
   '/logviewer': {
@@ -100,7 +110,7 @@ const withFavicon = (element, route) => {
 };
 
 const App = () => {
-  updateOldUrls();
+  updateUrls();
   return (
     <Provider store={configureStore()}>
       <ConnectedRouter history={history}>

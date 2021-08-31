@@ -134,4 +134,6 @@ export const scrollTypes = {
   next: 'next',
 };
 
+export const permaLinkPrefix = 'tableLink';
+
 export const maximumVisibleAlertSummaryRows = 26;
