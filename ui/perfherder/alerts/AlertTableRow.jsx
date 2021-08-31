@@ -25,6 +25,8 @@ import {
 import SimpleTooltip from '../../shared/SimpleTooltip';
 import {
   alertStatusMap,
+  alertBackfillResultStatusMap,
+  alertBackfillResultVisual,
   backfillRetriggeredTitle,
   phDefaultTimeRangeValue,
   phTimeRanges,
@@ -140,6 +142,7 @@ export default class AlertTableRow extends React.Component {
   };
 
   renderAlertStatus = (alert, alertStatus, statusColor) => {
+    const backfillStatusInfo = this.getBackfillStatusInfo(alert);
     return (
       <React.Fragment>
         (
@@ -155,11 +158,31 @@ export default class AlertTableRow extends React.Component {
               title="Important Alert - picked by Sherlock"
               icon={faExclamation}
             />
+            {backfillStatusInfo ? (
+              <span>
+                {' '}
+                <FontAwesomeIcon
+                  title={backfillStatusInfo.message}
+                  icon={backfillStatusInfo.icon}
+                />
+              </span>
+            ) : null}
           </span>
         ) : null}
         )
       </React.Fragment>
     );
+  };
+
+  getBackfillStatusInfo = (alert) => {
+    if (!alert.backfill_record || alert.backfill_record.status === undefined)
+      return null;
+
+    const backfillStatus = getStatus(
+      alert.backfill_record.status,
+      alertBackfillResultStatusMap,
+    );
+    return alertBackfillResultVisual[backfillStatus];
   };
 
   getTitleText = (alert, alertStatus) => {

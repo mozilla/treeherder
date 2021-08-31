@@ -100,7 +100,9 @@
         "id": 69347,
         "status": 0,
         "backfill_record": {
-          "context": "[]"
+          "context": "[]",
+          "status": 0,
+          "total_backfills_triggered": 0
         },
         "series_signature": {
           "id": 1945378,
@@ -154,7 +156,9 @@
         "id": 69526,
         "status": 0,
         "backfill_record": {
-          "context": "[]"
+          "context": "[]",
+          "status": 3,
+          "total_backfills_triggered": 4
         },
         "series_signature": {
           "id": 1948230,
