@@ -764,6 +764,27 @@ class BackfillRecord(models.Model):
         return "BackfillRecord(alert #{}, from {})".format(self.alert.id, self.report)
 
 
+class BackfillNotificationRecord(models.Model):
+    """
+    Groups & stores all backfilled records so that
+    they can be sent all in one email summary, once a day.
+    """
+
+    record = models.OneToOneField(
+        BackfillRecord,
+        on_delete=models.CASCADE,
+        related_name='backfill_notification_record',
+    )
+    created = models.DateTimeField(auto_now_add=True)
+    last_updated = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        db_table = "backfill_notification_record"
+
+    def __str__(self):
+        return "Backfill Notification Record"
+
+
 class PerformanceSettings(models.Model):
     id = models.AutoField(primary_key=True)
     name = models.CharField(max_length=255)

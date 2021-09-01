@@ -8,7 +8,6 @@ from treeherder.perf.auto_perf_sheriffing.backfill_reports import (
 from treeherder.perf.auto_perf_sheriffing.backfill_tool import BackfillTool
 from treeherder.perf.auto_perf_sheriffing.sherlock import Sherlock
 from treeherder.perf.auto_perf_sheriffing.secretary import Secretary
-from treeherder.services.taskcluster import notify_client_factory
 from treeherder.services.taskcluster import taskcluster_model_factory
 
 
@@ -16,9 +15,8 @@ def sherlock_factory(days_to_lookup: timedelta) -> Sherlock:
     report_maintainer = __report_maintainer_factory(days_to_lookup)
     backfill_tool = backfill_tool_factory()
     secretary = Secretary()
-    notify_client = notify_client_factory()
 
-    return Sherlock(report_maintainer, backfill_tool, secretary, notify_client)
+    return Sherlock(report_maintainer, backfill_tool, secretary)
 
 
 def __report_maintainer_factory(days_to_lookup: timedelta) -> BackfillReportMaintainer:

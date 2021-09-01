@@ -228,6 +228,27 @@ def notify_client_mock() -> taskcluster.Notify:
     )
 
 
+class Response:
+    def __init__(self):
+        self.status_code = 200
+
+
+@pytest.fixture
+def tc_notify_mock(monkeypatch):
+    from treeherder.services import taskcluster as tc_services
+
+    mock = MagicMock()
+    response = Response()
+    mock.email.return_value = {'response': response}
+
+    def mockreturn(*arg, **kwargs):
+        nonlocal mock
+        return mock
+
+    monkeypatch.setattr(tc_services, 'notify_client_factory', mockreturn)
+    return mock
+
+
 @pytest.fixture
 def job_from_try(eleven_job_blobs, create_jobs):
     job_blob = eleven_job_blobs[0]
