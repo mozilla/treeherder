@@ -839,6 +839,19 @@ test('test next alert button should be disable when reaching the last alert', as
   expect(nextScrollButton).toBeDisabled();
 });
 
+test('test sherlock backfill status icons are displayed correctly', async () => {
+  const { getByTestId } = alertsViewControls();
+
+  const alert = testAlertSummaries[0].alerts[3];
+  expect(alert.id).toEqual(69347);
+
+  const alertIcon = await waitFor(() =>
+    getByTestId(`alert ${alert.id.toString()} sherlock icon`),
+  );
+
+  expect(alertIcon).toBeInTheDocument();
+});
+
 test("Alert's ID can be copied to clipboard", async () => {
   const { queryAllByTitle } = alertsViewControls();
   Object.assign(navigator, {

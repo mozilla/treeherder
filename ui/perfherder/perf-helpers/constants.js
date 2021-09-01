@@ -1,10 +1,9 @@
 import {
-  faCheck,
-  faHourglass,
   faHourglassStart,
   faHourglassHalf,
-  faTimes,
+  faHourglassEnd,
 } from '@fortawesome/free-solid-svg-icons';
+import { faHourglass } from '@fortawesome/free-regular-svg-icons';
 
 export const tValueCareMin = 3; // Anything below this is "low" in confidence
 export const tValueConfidence = 5; // Anything above this is "high" in confidence
@@ -138,24 +137,26 @@ export const tooltipMessages = {
 
 export const alertBackfillResultVisual = {
   preliminary: {
-    message: 'Not backfilled',
+    message: 'Sherlock: Not backfilled',
     icon: faHourglass,
   },
   readyForProcessing: {
-    message: 'Soon to be backfilled',
+    message: 'Sherlock: Soon to be backfilled',
     icon: faHourglassStart,
   },
   backfilled: {
-    message: 'Backfilling in progress',
+    message: 'Sherlock: Backfilling in progress',
     icon: faHourglassHalf,
   },
   successful: {
-    message: 'Backfilled Successfully',
-    icon: faCheck,
+    message: 'Sherlock: Backfilled Successfully',
+    icon: faHourglassEnd,
+    color: 'green',
   },
   failed: {
-    message: 'Failled to backfill',
-    icon: faTimes,
+    message: 'Sherlock: Failled to backfill',
+    icon: faHourglassEnd,
+    color: 'red',
   },
 };
 
