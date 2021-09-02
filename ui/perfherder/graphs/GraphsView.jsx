@@ -55,6 +55,17 @@ class GraphsView extends React.Component {
     this.checkQueryParams();
   }
 
+  componentDidUpdate(prevProps) {
+    if (
+      this.props.location.search === '' &&
+      this.state.testData.length !== 0 &&
+      this.state.loading !== true &&
+      this.props.location.search !== prevProps.location.search
+    ) {
+      this.resetPageOnHeaderClick();
+    }
+  }
+
   getDefaultTimeRange = () => {
     const { location } = this.props;
     const { timerange } = parseQueryParams(location.search);
@@ -317,6 +328,12 @@ class GraphsView extends React.Component {
 
     this.updateParams(params);
   };
+
+  resetPageOnHeaderClick() {
+    this.setState({
+      testData: [],
+    });
+  }
 
   render() {
     const {
