@@ -49,10 +49,12 @@ class WordsField(serializers.CharField):
 
 class BackfillRecordSerializer(serializers.Serializer):
     context = serializers.JSONField()
+    status = serializers.IntegerField()
+    total_backfills_triggered = serializers.IntegerField()
 
     class Meta:
         model = BackfillRecord
-        fields = ('alert', 'context')
+        fields = ('alert', 'context', 'status', 'total_backfills_triggered')
 
 
 class PerformanceFrameworkSerializer(serializers.ModelSerializer):

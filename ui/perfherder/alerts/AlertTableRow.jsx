@@ -9,7 +9,6 @@ import {
   faUser,
   faCheck,
   faChartLine,
-  faExclamation,
 } from '@fortawesome/free-solid-svg-icons';
 import { faStar as faStarRegular } from '@fortawesome/free-regular-svg-icons';
 import { Link } from 'react-router-dom';
@@ -25,6 +24,8 @@ import {
 import SimpleTooltip from '../../shared/SimpleTooltip';
 import {
   alertStatusMap,
+  alertBackfillResultStatusMap,
+  alertBackfillResultVisual,
   backfillRetriggeredTitle,
   phDefaultTimeRangeValue,
   phTimeRanges,
@@ -140,6 +141,8 @@ export default class AlertTableRow extends React.Component {
   };
 
   renderAlertStatus = (alert, alertStatus, statusColor) => {
+    const backfillStatusInfo = this.getBackfillStatusInfo(alert);
+
     return (
       <React.Fragment>
         (
@@ -148,18 +151,31 @@ export default class AlertTableRow extends React.Component {
         )}
         <span className={statusColor}>{alertStatus}</span>
         {alert.related_summary_id && this.getReassignment(alert)}
-        {alert.backfill_record ? (
+        {backfillStatusInfo ? (
           <span className="text-darker-info">
             ,{' '}
             <FontAwesomeIcon
-              title="Important Alert - picked by Sherlock"
-              icon={faExclamation}
+              title={backfillStatusInfo.message}
+              icon={backfillStatusInfo.icon}
+              color={backfillStatusInfo.color}
+              data-testid={`alert ${alert.id.toString()} sherlock icon`}
             />
           </span>
         ) : null}
         )
       </React.Fragment>
     );
+  };
+
+  getBackfillStatusInfo = (alert) => {
+    if (!alert.backfill_record || alert.backfill_record.status === undefined)
+      return null;
+
+    const backfillStatus = getStatus(
+      alert.backfill_record.status,
+      alertBackfillResultStatusMap,
+    );
+    return alertBackfillResultVisual[backfillStatus];
   };
 
   getTitleText = (alert, alertStatus) => {

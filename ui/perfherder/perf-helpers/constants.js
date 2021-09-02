@@ -1,3 +1,10 @@
+import {
+  faHourglassStart,
+  faHourglassHalf,
+  faHourglassEnd,
+} from '@fortawesome/free-solid-svg-icons';
+import { faHourglass } from '@fortawesome/free-regular-svg-icons';
+
 export const tValueCareMin = 3; // Anything below this is "low" in confidence
 export const tValueConfidence = 5; // Anything above this is "high" in confidence
 
@@ -68,6 +75,14 @@ export const alertStatusMap = {
   acknowledged: 4,
 };
 
+export const alertBackfillResultStatusMap = {
+  preliminary: 0,
+  readyForProcessing: 1,
+  backfilled: 2,
+  successful: 3,
+  failed: 4,
+};
+
 export const graphColors = [
   ['dark-puce', '#4C3146'],
   ['orange', '#FFB851'],
@@ -118,6 +133,31 @@ export const tooltipMessages = {
   improvement: 'patch that generated an actual improvement',
   'regression-backedout': 'patch backed out due to causing regressions',
   'regression-fix': 'patch fixing a reported regression bug',
+};
+
+export const alertBackfillResultVisual = {
+  preliminary: {
+    message: 'Sherlock: Not backfilled',
+    icon: faHourglass,
+  },
+  readyForProcessing: {
+    message: 'Sherlock: Soon to be backfilled',
+    icon: faHourglassStart,
+  },
+  backfilled: {
+    message: 'Sherlock: Backfilling in progress',
+    icon: faHourglassHalf,
+  },
+  successful: {
+    message: 'Sherlock: Backfilled Successfully',
+    icon: faHourglassEnd,
+    color: 'green',
+  },
+  failed: {
+    message: 'Sherlock: Failled to backfill',
+    icon: faHourglassEnd,
+    color: 'red',
+  },
 };
 
 export const visualMetrics = [
