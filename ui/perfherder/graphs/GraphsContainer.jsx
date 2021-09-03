@@ -491,6 +491,24 @@ class GraphsContainer extends React.Component {
                         onClick: () => {
                           return [
                             {
+                              target: 'data',
+                              mutation: (props) => {
+                                const fill = props.style && props.style.fill;
+                                const stroke =
+                                  props.style && props.style.stroke;
+                                return fill === stroke
+                                  ? null
+                                  : {
+                                      style: {
+                                        fill: stroke,
+                                        stroke,
+                                        strokeOpacity: 0.3,
+                                        strokeWidth: 12,
+                                      },
+                                    };
+                              },
+                            },
+                            {
                               target: 'labels',
                               eventKey: 'all',
                               mutation: () => {},
@@ -646,31 +664,6 @@ class GraphsContainer extends React.Component {
                         }
                       />
                     }
-                    events={[
-                      {
-                        target: 'data',
-                        eventHandlers: {
-                          onClick: () => {
-                            return [
-                              {
-                                target: 'data',
-                                mutation: (props) => {
-                                  const fill = props.style && props.style.fill;
-                                  return fill === '#FFA500'
-                                    ? null
-                                    : {
-                                        style: {
-                                          fill: '#FFA500',
-                                          stroke: '#FFA500',
-                                        },
-                                      };
-                                },
-                              },
-                            ];
-                          },
-                        },
-                      },
-                    ]}
                   />
                   <VictoryAxis
                     dependentAxis
