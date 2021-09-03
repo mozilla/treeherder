@@ -6,7 +6,12 @@ export const perfViews = {
   fileBugMarkdown: 'fileBugMarkdown',
 };
 
-const testDocumentationFrameworks = ['talos', 'awsy', 'browsertime'];
+const testDocumentationFrameworks = [
+  'talos',
+  'awsy',
+  'browsertime',
+  'devtools',
+];
 const browsertimeDocsUnavailableViews = [
   perfViews.compareView,
   perfViews.testsView,
@@ -15,6 +20,7 @@ const supportedPerfdocsFrameworks = {
   talos: 'talos',
   awsy: 'awsy',
   browsertime: 'raptor',
+  devtools: 'performance-tests-overview',
 };
 
 /**
@@ -99,7 +105,7 @@ const browsertimeBenchmarks = [
  */
 const browsertimeCustomTests = ['process-switch', 'welcome'];
 
-const baseURL = 'https://firefox-source-docs.mozilla.org/testing/perfdocs/';
+const baseURL = 'https://firefox-source-docs.mozilla.org/';
 
 export class Perfdocs {
   /**
@@ -125,10 +131,15 @@ export class Perfdocs {
   get documentationURL() {
     if (!this.url) {
       const frameworkName = supportedPerfdocsFrameworks[this.framework];
-      this.url = baseURL.concat(
+      this.url =
+        frameworkName !== 'performance-tests-overview'
+          ? baseURL.concat('testing/perfdocs/')
+          : baseURL.concat('devtools/tests/');
+
+      this.url = this.url.concat(
         frameworkName,
         '.html#',
-        this.suite.replace(/_|\s/g, '-').toLowerCase(),
+        this.suite.replace(/_|\s|\./g, '-').toLowerCase(),
       );
       if (this.framework === 'browsertime') {
         if (browsertimeBenchmarks.includes(this.suite)) {
