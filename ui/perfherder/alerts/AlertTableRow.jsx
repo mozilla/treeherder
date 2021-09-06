@@ -21,6 +21,7 @@ import {
   formatNumber,
   getFrameworkName,
 } from '../perf-helpers/helpers';
+import NoiseProfile from '../shared/NoiseProfile';
 import SimpleTooltip from '../../shared/SimpleTooltip';
 import {
   alertStatusMap,
@@ -353,6 +354,9 @@ export default class AlertTableRow extends React.Component {
           <AlertTablePlatform
             platform={alert.series_signature.machine_platform}
           />
+        </td>
+        <td className="table-width-lg">
+          <NoiseProfile noiseProfile={alert.noise_profile} />
         </td>
         <td className="table-width-lg">
           <AlertTableTagsOptions alertId={alert.id} items={items} />

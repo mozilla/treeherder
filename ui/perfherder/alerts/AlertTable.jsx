@@ -67,6 +67,11 @@ export default class AlertTable extends React.Component {
           sortValue: 't_value',
           currentSort: tableSort.default,
         },
+        NoiseProfile: {
+          name: 'Noise Profile',
+          sortValue: 't_value',
+          currentSort: tableSort.default,
+        },
       },
     };
   }
@@ -283,7 +288,6 @@ export default class AlertTable extends React.Component {
       ? projects.find((repo) => repo.name === alertSummary.repository)
       : null;
     const repoModel = new RepositoryModel(repo);
-
     return (
       <Container fluid className="px-0 max-width-default">
         <ErrorBoundary
@@ -347,6 +351,12 @@ export default class AlertTable extends React.Component {
                     <th className="align-bottom">
                       <TableColumnHeader
                         column={tableConfig.Platform}
+                        onChangeSort={this.onChangeSort}
+                      />
+                    </th>
+                    <th className="align-bottom">
+                      <TableColumnHeader
+                        column={tableConfig.NoiseProfile}
                         onChangeSort={this.onChangeSort}
                       />
                     </th>
