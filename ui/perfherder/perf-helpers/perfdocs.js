@@ -108,9 +108,9 @@ export class Perfdocs {
    */
   constructor(framework, suite, platform = null, title = null) {
     this.framework = framework;
-    this.suite = suite;
+    this.suite = suite || '';
     this.platform = platform;
-    this.title = title;
+    this.title = title || '';
     this.url = null;
     this.remainingTestName = null;
   }
