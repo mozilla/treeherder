@@ -33,6 +33,30 @@ class TestsView extends React.PureComponent {
     this.getTestsOverviewData();
   }
 
+  componentDidUpdate(prevProps) {
+    if (
+      this.props.location.search !== prevProps.location.search &&
+      this.state.framework !== null &&
+      this.state.projectsMap !== false &&
+      this.state.platformsMap !== false &&
+      this.props.location.search === ''
+    ) {
+      // eslint-disable-next-line react/no-did-update-set-state
+      this.setState(
+        {
+          framework: { id: 1, name: 'talos' },
+          projectsMap: false,
+          platformsMap: false,
+          loading: false,
+          results: [],
+        },
+        () => {
+          this.getTestsOverviewData();
+        },
+      );
+    }
+  }
+
   getTestsOverviewData = async () => {
     const { projects } = this.props;
     const { framework } = this.state;

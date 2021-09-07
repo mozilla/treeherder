@@ -585,7 +585,6 @@ export const convertParams = (params, value) =>
 
 export const getFrameworkData = (props) => {
   const { validated, frameworks } = props;
-
   if (validated.framework) {
     const frameworkObject = frameworks.find(
       (item) => item.id === parseInt(validated.framework, 10),
