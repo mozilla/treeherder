@@ -34,12 +34,15 @@ class TestsView extends React.PureComponent {
   }
 
   componentDidUpdate(prevProps) {
+    const { location } = this.props;
+    const { framework, projectsMap, platformsMap } = this.state;
+
     if (
-      this.props.location.search !== prevProps.location.search &&
-      this.state.framework !== null &&
-      this.state.projectsMap !== false &&
-      this.state.platformsMap !== false &&
-      this.props.location.search === ''
+      location.search !== prevProps.location.search &&
+      framework !== null &&
+      projectsMap !== false &&
+      platformsMap !== false &&
+      location.search === ''
     ) {
       // eslint-disable-next-line react/no-did-update-set-state
       this.setState(
