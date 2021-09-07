@@ -56,13 +56,18 @@ class GraphsView extends React.Component {
   }
 
   componentDidUpdate(prevProps) {
+    const { location } = this.props;
+    const { testData, loading } = this.state;
     if (
-      this.props.location.search === '' &&
-      this.state.testData.length !== 0 &&
-      this.state.loading !== true &&
-      this.props.location.search !== prevProps.location.search
+      location.search === '' &&
+      testData.length !== 0 &&
+      loading !== true &&
+      location.search !== prevProps.location.search
     ) {
-      this.resetPageOnHeaderClick();
+      // eslint-disable-next-line react/no-did-update-set-state
+      this.setState({
+        testData: [],
+      });
     }
   }
 
@@ -328,12 +333,6 @@ class GraphsView extends React.Component {
 
     this.updateParams(params);
   };
-
-  resetPageOnHeaderClick() {
-    this.setState({
-      testData: [],
-    });
-  }
 
   render() {
     const {
