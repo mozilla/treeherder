@@ -493,9 +493,9 @@ class GraphsContainer extends React.Component {
                             {
                               target: 'data',
                               mutation: (props) => {
-                                const fill = props.style && props.style.fill;
-                                const stroke =
-                                  props.style && props.style.stroke;
+                                const { style } = props;
+                                const fill = style && style.fill;
+                                const stroke = style && style.stroke;
                                 return fill === stroke
                                   ? null
                                   : {
