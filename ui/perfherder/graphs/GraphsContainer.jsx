@@ -491,6 +491,24 @@ class GraphsContainer extends React.Component {
                         onClick: () => {
                           return [
                             {
+                              target: 'data',
+                              mutation: (props) => {
+                                const { style } = props;
+                                const fill = style && style.fill;
+                                const stroke = style && style.stroke;
+                                return fill === stroke
+                                  ? null
+                                  : {
+                                      style: {
+                                        fill: stroke,
+                                        stroke,
+                                        strokeOpacity: 0.3,
+                                        strokeWidth: 12,
+                                      },
+                                    };
+                              },
+                            },
+                            {
                               target: 'labels',
                               eventKey: 'all',
                               mutation: () => {},
