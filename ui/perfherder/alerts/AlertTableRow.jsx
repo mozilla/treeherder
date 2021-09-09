@@ -21,7 +21,6 @@ import {
   formatNumber,
   getFrameworkName,
 } from '../perf-helpers/helpers';
-import NoiseProfile from '../shared/NoiseProfile';
 import SimpleTooltip from '../../shared/SimpleTooltip';
 import {
   alertStatusMap,
@@ -30,12 +29,14 @@ import {
   backfillRetriggeredTitle,
   phDefaultTimeRangeValue,
   phTimeRanges,
+  noiseProfiles,
 } from '../perf-helpers/constants';
 import { Perfdocs } from '../perf-helpers/perfdocs';
 
 import AlertTablePlatform from './AlertTablePlatform';
 import AlertTableTagsOptions from './AlertTableTagsOptions';
 import Magnitude from './Magnitude';
+import BadgeTooltip from './BadgeTooltip';
 
 export default class AlertTableRow extends React.Component {
   constructor(props) {
@@ -356,7 +357,12 @@ export default class AlertTableRow extends React.Component {
           />
         </td>
         <td className="table-width-lg">
-          <NoiseProfile noiseProfile={alert.noise_profile} />
+          <BadgeTooltip
+            textClass="detail-hint"
+            text={alert.noise_profile}
+            tooltipText={noiseProfiles[alert.noise_profile.replace('/', '')]}
+            autohide={false}
+          />
         </td>
         <td className="table-width-lg">
           <AlertTableTagsOptions alertId={alert.id} items={items} />

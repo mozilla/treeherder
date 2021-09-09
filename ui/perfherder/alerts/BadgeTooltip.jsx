@@ -1,8 +1,9 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import { UncontrolledTooltip } from 'reactstrap';
+import Badge from 'reactstrap/lib/Badge';
 
-export default class SimpleTooltip extends React.Component {
+export default class BadgeTooltip extends React.Component {
   constructor(props) {
     super(props);
     this.tooltipRef = React.createRef();
@@ -21,8 +22,11 @@ export default class SimpleTooltip extends React.Component {
     return (
       <React.Fragment>
         <span ref={this.tooltipRef} className={textClass}>
-          {text}
+          <Badge color="light" data-testid="alert-noise-profile">
+            {text}
+          </Badge>
         </span>
+
         <UncontrolledTooltip
           placement={placement}
           target={this.tooltipRef}
@@ -35,7 +39,7 @@ export default class SimpleTooltip extends React.Component {
     );
   }
 }
-SimpleTooltip.propTypes = {
+BadgeTooltip.propTypes = {
   text: PropTypes.oneOfType([PropTypes.shape({}), PropTypes.string]).isRequired,
   tooltipText: PropTypes.oneOfType([PropTypes.shape({}), PropTypes.string])
     .isRequired,
@@ -45,7 +49,7 @@ SimpleTooltip.propTypes = {
   autohide: PropTypes.bool,
 };
 
-SimpleTooltip.defaultProps = {
+BadgeTooltip.defaultProps = {
   textClass: '',
   placement: 'top',
   innerClassName: '',

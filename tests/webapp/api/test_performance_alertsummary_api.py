@@ -159,6 +159,7 @@ def test_alert_summaries_get_onhold(
         'classifier',
         'classifier_email',
         'backfill_record',
+        'noise_profile',
     }
     assert resp.json()['results'][0]['related_alerts'] == []
 
