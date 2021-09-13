@@ -113,6 +113,8 @@ export const thPlatformMap = {
   'windows10-64-2004-asan-qr': 'Windows 10 x64 2004 asan WebRender',
   'windows10-64-2004-shippable-qr': 'Windows 10 x64 2004 WebRender Shippable',
   'windows10-64-2004-devedition-qr': 'Windows 10 x64 2004 WebRender DevEdition',
+  'windows10-64-2004-mingwclang': 'Windows 10 x64 2004 MinGW',
+  'windows10-64-2004-mingwclang-qr': 'Windows 10 x64 2004 MinGW WebRender',
   'windows2012-32': 'Windows 2012',
   'windows2012-32-shippable': 'Windows 2012 Shippable',
   'windows2012-32-add-on-devel': 'Windows 2012 addon',
