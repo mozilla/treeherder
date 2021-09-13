@@ -76,6 +76,9 @@ elif [ "$1" == "run_intermittents_commenter" ]; then
 elif [ "$1" == "update_bugscache" ]; then
     newrelic-admin run-program ./manage.py update_bugscache
 
+elif [ "$1" == "update_files_bugzilla_map" ]; then
+    newrelic-admin run-program ./manage.py update_files_bugzilla_map
+
 elif [ "$1" == "cache_failure_history" ]; then
     newrelic-admin run-program ./manage.py cache_failure_history
 
