@@ -122,7 +122,7 @@
   pk: 10
   fields:
     framework: 12
-    keywords: perf, perf-alert, regression
+    keywords: perf, perf-alert, regression, devtools-perf-regression
     default_component: General
     default_product: DevTools
     text: |
