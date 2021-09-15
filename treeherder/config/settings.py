@@ -154,9 +154,10 @@ for alias in DATABASES:
     }
     # For use of the stage replica, use the 'deployment/gcp/ca-cert.pem' path for use in your local env file
     # or pass the variable to docker-compose command; additional certs are in the deployment directory.
-    DATABASES[alias]['OPTIONS']['ssl'] = {
-        'ca': env("TLS_CERT_PATH", default=None),
-    }
+    if connection_should_use_tls(DATABASES[alias]['HOST']):
+        DATABASES[alias]['OPTIONS']['ssl'] = {
+            'ca': env("TLS_CERT_PATH", default=None),
+        }
 
 # Caches
 REDIS_URL = env('REDIS_URL', default='redis://localhost:6379')
