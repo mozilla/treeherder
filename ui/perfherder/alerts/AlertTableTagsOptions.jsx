@@ -5,91 +5,84 @@ import Button from 'reactstrap/lib/Button';
 import Badge from 'reactstrap/lib/Badge';
 
 export default class AlertTableTagsOptions extends React.Component {
-  itemsType = { tags: 'tags', options: 'options' };
-
-  visibleItems = {
-    tags: 2,
-    options: 2,
-  };
+  visibleItems = 2;
 
   constructor(props) {
     super(props);
-    const { tags, options } = this.props.items;
+
     this.state = {
-      displayAllItems: {
-        tags: false,
-        options: false,
-      },
-      options,
-      tags,
+      displayAllItems: false,
     };
   }
 
-  showItems = (items, type) => {
+  showItems = (items) => {
     const badgeId = {
       tags: 'alert-tag',
       options: 'alert-option',
+      tagsAndOptions: 'alert-tag-and-option',
     };
 
     return items.map((item) => (
       <Badge
+        // eslint-disable-next-line no-nested-ternary
+        title={item.tagAndOption ? 'tag&option' : item.tag ? 'tag' : 'option'}
         className="mr-1"
         color="light"
-        key={`${item}`}
-        data-testid={badgeId[type]}
+        key={`${item.name}`}
+        data-testid={
+          badgeId[
+            // eslint-disable-next-line no-nested-ternary
+            item.tagAndOption ? 'tagsAndOptions' : item.tag ? 'tags' : 'options'
+          ]
+        }
       >
-        {item}
+        {item.name}
       </Badge>
     ));
   };
 
-  displayItems = (items, type) => {
+  displayItems = (items) => {
     const { alertId } = this.props;
     const { displayAllItems } = this.state;
 
-    return items.length && items[0] !== '' ? (
+    return items.length ? (
       <div>
-        {this.showItems(items.slice(0, this.visibleItems[type]), type)}
-        {!displayAllItems[type] && items.length > this.visibleItems[type] && (
+        {this.showItems(items.slice(0, this.visibleItems))}
+        {!displayAllItems && items.length > this.visibleItems && (
           <Button
             color="link"
             size="sm"
-            id={`alert-${alertId}-${type}`}
+            id={`alert-${alertId}-tags-options`}
             onClick={() =>
               this.setState((prevState) => ({
-                displayAllItems: {
-                  ...prevState.displayAllItems,
-                  [type]: !prevState.displayAllItems[type],
-                },
+                displayAllItems: !prevState.displayAllItems,
               }))
             }
           >
-            <span data-testid={`show-more-${type}`}>...</span>
+            <span data-testid="show-more-tags-options">...</span>
             <UncontrolledTooltip
               placement="top"
-              target={`alert-${alertId}-${type}`}
+              target={`alert-${alertId}-tags-options`}
             >
-              Show more {type}
+              Show more
             </UncontrolledTooltip>
           </Button>
         )}
-        {displayAllItems[type] &&
-          this.showItems(items.slice(this.visibleItems[type]), type)}
+        {displayAllItems && this.showItems(items.slice(this.visibleItems))}
       </div>
     ) : (
       <Badge className="mb-1" color="light">
-        No {type}
+        No tags or options
       </Badge>
     );
   };
 
   render() {
-    const { options, tags } = this.state;
+    const { items } = this.props;
 
     return (
       <div className="d-flex flex-column align-items-start">
-        {this.displayItems(tags, this.itemsType.tags)}
-        {this.displayItems(options, this.itemsType.options)}
+        {this.displayItems(items)}
       </div>
     );
   }

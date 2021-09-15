@@ -268,7 +268,15 @@ export default class AlertTableRow extends React.Component {
     const { repository, framework } = alertSummary;
 
     const { tags, extra_options: options } = alert.series_signature;
-    const items = { tags, options };
+
+    const tagsAndOptions = tags.concat(options);
+    const stripDuplicates = new Set(tagsAndOptions.filter((item) => item));
+    const items = Array.from(stripDuplicates).map((element) => ({
+      name: element,
+      tag: tags.includes(element),
+      option: options.includes(element),
+      tagAndOption: tags.includes(element) && options.includes(element),
+    }));
 
     const timeRange = this.getTimeRange();
 
