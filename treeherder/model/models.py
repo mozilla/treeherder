@@ -87,7 +87,7 @@ class Option(NamedModel):
 
 
 class RepositoryGroup(NamedModel):
-
+    # Fields are pre-defined in fixtures/repository_group.json
     description = models.TextField(blank=True)
 
     class Meta:

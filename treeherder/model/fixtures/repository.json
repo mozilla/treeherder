@@ -1665,5 +1665,20 @@
       "description": "",
       "tc_root_url": "https://firefox-ci-tc.services.mozilla.com"
     }
+  },
+  {
+    "pk": 119,
+    "model": "model.repository",
+    "fields": {
+      "dvcs_type": "git",
+      "name": "focus-android",
+      "url": "https://github.com/mozilla-mobile/focus-android",
+      "branch": "main",
+      "active_status": "active",
+      "codebase": "focus-android",
+      "repository_group": 11,
+      "description": "",
+      "tc_root_url": "https://firefox-ci-tc.services.mozilla.com"
+    }
   }
 ]
