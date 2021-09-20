@@ -1,4 +1,4 @@
-FROM python:3.7.11
+FROM python:3.7.12
 
 # Variables that are not specific to a particular environment.
 ENV NEW_RELIC_CONFIG_FILE newrelic.ini
