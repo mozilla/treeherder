@@ -93,10 +93,14 @@ test(`Platform column contains alerts's platform`, async () => {
   expect(alertPlatform.textContent).toBe(machinePlatform);
 });
 
-test("Alert item with no tags displays 'No tags'", async () => {
-  const { getByText } = alertTableRowTest({ alert: testAlert, tags: [''] });
+test("Alert item with no tags or options displays 'No tags or options'", async () => {
+  const { getByText } = alertTableRowTest({
+    alert: testAlert,
+    tags: [''],
+    options: [''],
+  });
 
-  const message = await waitFor(() => getByText('No tags'));
+  const message = await waitFor(() => getByText('No tags or options'));
   expect(message).toBeInTheDocument();
 });
 
@@ -112,14 +116,18 @@ test('Alert item with 2 tags displays 2 tags', async () => {
   expect(tags).toHaveLength(testTags.length);
 });
 
-test("Alert item with more than 2 tags displays '...' button", async () => {
+test("Alert item with more than 2 tags or options displays '...' button", async () => {
   const testTags = ['tag1', 'tag2', 'tag3'];
+  const testOptions = ['option1', 'option2'];
   const { getByTestId } = alertTableRowTest({
     alert: testAlert,
     tags: testTags,
+    options: testOptions,
   });
 
-  const showMoreButton = await waitFor(() => getByTestId('show-more-tags'));
+  const showMoreButton = await waitFor(() =>
+    getByTestId('show-more-tags-options'),
+  );
 
   expect(showMoreButton.textContent).toBe('...');
 });
@@ -135,7 +143,9 @@ test("Button '...' displays all the tags for an alert item", async () => {
 
   expect(visibleTags).toHaveLength(2);
 
-  const showMoreButton = await waitFor(() => getByTestId('show-more-tags'));
+  const showMoreButton = await waitFor(() =>
+    getByTestId('show-more-tags-options'),
+  );
 
   expect(showMoreButton.textContent).toBe('...');
 
@@ -146,22 +156,11 @@ test("Button '...' displays all the tags for an alert item", async () => {
   expect(visibleTags).toHaveLength(testTags.length);
 });
 
-test("Alert item with no options displays 'No options'", async () => {
-  const { getByText } = alertTableRowTest({
-    alert: testAlert,
-    tags: false,
-    options: [''],
-  });
-
-  const message = await waitFor(() => getByText('No options'));
-  expect(message).toBeInTheDocument();
-});
-
 test('Alert item with 2 options displays 2 options', async () => {
   const testOptions = ['option1', 'option2'];
   const { getAllByTestId } = alertTableRowTest({
     alert: testAlert,
-    tags: false,
+    tags: [],
     options: testOptions,
   });
 
@@ -178,7 +177,9 @@ test("Alert item with more than 2 options displays '...' button", async () => {
     options: testOptions,
   });
 
-  const showMoreButton = await waitFor(() => getByTestId('show-more-options'));
+  const showMoreButton = await waitFor(() =>
+    getByTestId('show-more-tags-options'),
+  );
 
   expect(showMoreButton.textContent).toBe('...');
 });
@@ -187,7 +188,7 @@ test("Button '...' displays all options for an alert item", async () => {
   const testOptions = ['option1', 'option2', 'option3'];
   const { getByTestId, getAllByTestId } = alertTableRowTest({
     alert: testAlert,
-    tags: false,
+    tags: [],
     options: testOptions,
   });
 
@@ -195,7 +196,9 @@ test("Button '...' displays all options for an alert item", async () => {
 
   expect(visibleOptions).toHaveLength(2);
 
-  const showMoreButton = await waitFor(() => getByTestId('show-more-options'));
+  const showMoreButton = await waitFor(() =>
+    getByTestId('show-more-tags-options'),
+  );
 
   expect(showMoreButton.textContent).toBe('...');
 
@@ -204,6 +207,48 @@ test("Button '...' displays all options for an alert item", async () => {
   visibleOptions = await waitFor(() => getAllByTestId(`alert-option`));
 
   expect(visibleOptions).toHaveLength(testOptions.length);
+});
+
+test('Duplicated tags and option are displayed only once, options and tags are the same', async () => {
+  const testOptions = ['cold', 'live'];
+  const testTags = ['cold', 'live'];
+
+  const { getAllByTestId } = alertTableRowTest({
+    alert: testAlert,
+    tags: testTags,
+    options: testOptions,
+  });
+
+  const allTagsAndOptions = await waitFor(() =>
+    getAllByTestId('alert-tag-and-option'),
+  );
+
+  expect(allTagsAndOptions).toHaveLength(2);
+});
+
+test('Duplicated tags and option are displayed only once, options and tags have elements in common ', async () => {
+  const testOptions = ['cold', 'live', 'web'];
+  const testTags = ['cold', 'live'];
+
+  const { getByTestId } = alertTableRowTest({
+    alert: testAlert,
+    tags: testTags,
+    options: testOptions,
+  });
+
+  const showMoreButton = await waitFor(() =>
+    getByTestId('show-more-tags-options'),
+  );
+
+  expect(showMoreButton.textContent).toBe('...');
+
+  fireEvent.click(showMoreButton);
+
+  const allTagsAndOptions = await waitFor(() =>
+    getByTestId('all-tags-and-options'),
+  );
+
+  expect(allTagsAndOptions.children).toHaveLength(3);
 });
 
 test('Documentation link is available for talos framework', async () => {

@@ -4,6 +4,8 @@ import UncontrolledTooltip from 'reactstrap/lib/UncontrolledTooltip';
 import Button from 'reactstrap/lib/Button';
 import Badge from 'reactstrap/lib/Badge';
 
+import SimpleTooltip from '../../shared/SimpleTooltip';
+
 export default class AlertTableTagsOptions extends React.Component {
   visibleItems = 2;
 
@@ -24,9 +26,7 @@ export default class AlertTableTagsOptions extends React.Component {
 
     return items.map((item) => (
       <Badge
-        // eslint-disable-next-line no-nested-ternary
-        title={item.tagAndOption ? 'tag&option' : item.tag ? 'tag' : 'option'}
-        className="mr-1"
+        className="mr-1 custom-tooltip"
         color="light"
         key={`${item.name}`}
         data-testid={
@@ -36,7 +36,13 @@ export default class AlertTableTagsOptions extends React.Component {
           ]
         }
       >
-        {item.name}
+        <SimpleTooltip
+          text={item.name}
+          tooltipText={
+            // eslint-disable-next-line no-nested-ternary
+            item.tagAndOption ? 'tag & option' : item.tag ? 'tag' : 'option'
+          }
+        />
       </Badge>
     ));
   };
@@ -46,7 +52,7 @@ export default class AlertTableTagsOptions extends React.Component {
     const { displayAllItems } = this.state;
 
     return items.length ? (
-      <div>
+      <div data-testid="all-tags-and-options">
         {this.showItems(items.slice(0, this.visibleItems))}
         {!displayAllItems && items.length > this.visibleItems && (
           <Button
@@ -89,9 +95,13 @@ export default class AlertTableTagsOptions extends React.Component {
 }
 
 AlertTableTagsOptions.propTypes = {
-  items: PropTypes.shape({
-    tags: PropTypes.array.isRequired,
-    options: PropTypes.array.isRequired,
-  }).isRequired,
+  items: PropTypes.arrayOf(
+    PropTypes.shape({
+      name: PropTypes.string.isRequired,
+      tag: PropTypes.bool.isRequired,
+      option: PropTypes.bool.isRequired,
+      tagAndOption: PropTypes.bool.isRequired,
+    }),
+  ).isRequired,
   alertId: PropTypes.number.isRequired,
 };
