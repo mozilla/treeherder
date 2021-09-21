@@ -675,6 +675,28 @@ def mock_file_bugzilla_map_request(monkeypatch):
 
 
 @pytest.fixture
+def mock_bugscache_bugzilla_request(monkeypatch):
+    """
+    Mock fetch_intermittent_bugs() used by bugzilla ETL to return local Bugzilla
+    sample data.
+    """
+
+    def _fetch_intermittent_bugs(additional_params, limit, duplicate_chain_length):
+        tests_folder = os.path.dirname(__file__)
+        file_name = "run-%s.json" % str(duplicate_chain_length)
+        data_path = os.path.join(tests_folder, "sample_data", "bugscache_population", file_name)
+        with open(data_path) as f:
+            bugzilla_data = json.load(f)
+        return bugzilla_data["bugs"]
+
+    import treeherder.etl.bugzilla
+
+    monkeypatch.setattr(
+        treeherder.etl.bugzilla, 'fetch_intermittent_bugs', _fetch_intermittent_bugs
+    )
+
+
+@pytest.fixture
 def text_log_error_lines(test_job, failure_lines):
     from tests.autoclassify.utils import create_text_log_errors
     from treeherder.model.models import FailureLine

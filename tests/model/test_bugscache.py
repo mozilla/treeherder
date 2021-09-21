@@ -24,10 +24,12 @@ def _update_bugscache(bug_list):
             status=bug['status'],
             resolution=bug['resolution'],
             summary=bug['summary'][:max_summary_length],
+            dupe_of=bug['dupe_of'],
             crash_signature=bug['cf_crash_signature'],
             keywords=",".join(bug['keywords']),
             modified=bug['last_change_time'],
             whiteboard=bug['whiteboard'][:max_whiteboard_length],
+            processed_update=True,
         )
 
 
@@ -121,7 +123,16 @@ def test_bug_properties(transactional_db, sample_bugs):
     _update_bugscache(bug_list)
 
     expected_keys = set(
-        ['crash_signature', 'resolution', 'summary', 'keywords', 'id', 'status', 'whiteboard']
+        [
+            'crash_signature',
+            'resolution',
+            'summary',
+            'dupe_of',
+            'keywords',
+            'id',
+            'status',
+            'whiteboard',
+        ]
     )
 
     suggestions = Bugscache.search(search_term)
@@ -151,3 +162,46 @@ def test_sanitized_search_term():
     for case in SEARCH_TERMS:
         sanitized_term = Bugscache.sanitized_search_term(case[0])
         assert sanitized_term == case[1]
+
+
+@pytest.mark.django_db(transaction=True)
+def test_import(mock_bugscache_bugzilla_request):
+    """
+    Test importing bug data and building duplicate to open bug
+    relationships.
+    """
+
+    from treeherder.etl.bugzilla import BzApiBugProcess
+
+    BzApiBugProcess().run()
+
+    bug = Bugscache.objects.get(id=1652208)
+    assert bug.status == "RESOLVED"
+    assert bug.resolution == "DUPLICATE"
+    assert bug.crash_signature == "[@ some::mock_signature]"
+    assert (
+        bug.summary
+        == "Intermittent dom/canvas/test/webgl-conf/generated/test_2_conformance__ogles__GL__swizzlers__swizzlers_105_to_112.html | Test timed out."
+    )
+    assert bug.whiteboard == "[we have to do something about this][it's urgent]"
+    assert bug.keywords == "intermittent-failure"
+    assert bug.dupe_of == 1662628
+
+    # key: open bug, values: duplicates
+    EXPECTED_BUG_DUPE_OF_DATA = {
+        1392106: [1442991, 1443801],
+        1411358: [1204281],
+        1662628: [1652208, 1660324, 1660719, 1660765, 1663081, 1663118, 1702255],
+        1736534: [],
+    }
+
+    for (open_bug, duplicates) in EXPECTED_BUG_DUPE_OF_DATA.items():
+        assert Bugscache.objects.get(id=open_bug).dupe_of is None
+        assert set(Bugscache.objects.filter(dupe_of=open_bug).values_list('id', flat=True)) == set(
+            duplicates
+        )
+
+    EXPECTED_BUG_COUNT = sum(
+        [1 + len(duplicates) for duplicates in EXPECTED_BUG_DUPE_OF_DATA.values()]
+    )
+    assert len(Bugscache.objects.all()) == EXPECTED_BUG_COUNT

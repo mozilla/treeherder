@@ -1,0 +1,16 @@
+{
+  "bugs": [
+    {
+      "id": 1662628,
+      "whiteboard": "[retriggered][stockwell disabled]",
+      "status": "REOPENED",
+      "last_change_time": "2021-04-19T06:18:32Z",
+      "duplicates": [1660719, 1663118],
+      "dupe_of": null,
+      "summary": "Perma Tier 2 dom/canvas/test/webgl-conf/generated/test_conformance__textures__video__tex-2d-luminance-luminance-unsigned_byte.html | shouldBe 255,255,255",
+      "resolution": "",
+      "cf_crash_signature": "",
+      "keywords": []
+    }
+  ]
+}
