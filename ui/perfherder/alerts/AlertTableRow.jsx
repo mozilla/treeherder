@@ -287,6 +287,10 @@ export default class AlertTableRow extends React.Component {
       ? `Classified by ${alert.classifier_email}`
       : 'Classified automatically';
     const bookmarkClass = starred ? 'visible' : '';
+    const noiseProfile = alert.noise_profile || 'N\\A';
+    const noiseProfileTooltip = alert.noise_profile
+      ? noiseProfiles[alert.noise_profile.replace('/', '')]
+      : noiseProfiles.NA;
 
     return (
       <tr
@@ -359,8 +363,8 @@ export default class AlertTableRow extends React.Component {
         <td className="table-width-lg">
           <BadgeTooltip
             textClass="detail-hint"
-            text={alert.noise_profile}
-            tooltipText={noiseProfiles[alert.noise_profile.replace('/', '')]}
+            text={noiseProfile}
+            tooltipText={noiseProfileTooltip}
             autohide={false}
           />
         </td>

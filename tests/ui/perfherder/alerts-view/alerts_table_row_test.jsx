@@ -24,13 +24,19 @@ const frameworks = [
   },
 ];
 
-const alertTableRowTest = ({ alert, tags, options } = { alert: testAlert }) => {
+const alertTableRowTest = (
+  { alert, tags, options, noiseProfile } = { alert: testAlert },
+) => {
   if (tags) {
     testAlert.series_signature.tags = [...tags];
   }
 
   if (options) {
     testAlert.series_signature.extra_options = [...options];
+  }
+
+  if (noiseProfile) {
+    testAlert.noise_profile = noiseProfile;
   }
 
   return render(
@@ -249,6 +255,31 @@ test('Duplicated tags and option are displayed only once, options and tags have 
   );
 
   expect(allTagsAndOptions.children).toHaveLength(3);
+});
+
+test('Noise profile N\\A', async () => {
+  const { getByText } = alertTableRowTest({
+    alert: testAlert,
+    tags: [],
+    noiseProfile: 'N\\A',
+  });
+
+  const message = await waitFor(() => getByText('N\\A'));
+  expect(message).toBeInTheDocument();
+});
+
+test('Noise profile OK', async () => {
+  const noiseProfiles = ['SKEWED', 'OUTLIERS', 'MODAL', 'OK'];
+  const noiseProfile =
+    noiseProfiles[Math.floor(Math.random() * noiseProfiles.length)];
+  const { getByText } = alertTableRowTest({
+    alert: testAlert,
+    tags: [],
+    noiseProfile,
+  });
+
+  const message = await waitFor(() => getByText(noiseProfile));
+  expect(message).toBeInTheDocument();
 });
 
 test('Documentation link is available for talos framework', async () => {
