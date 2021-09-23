@@ -21,7 +21,7 @@ export default class BadgeTooltip extends React.Component {
 
     return (
       <React.Fragment>
-        <span ref={this.tooltipRef} className={textClass}>
+        <span ref={this.tooltipRef} className={`${textClass} pb-1`}>
           <Badge color="light" data-testid="alert-noise-profile">
             {text}
           </Badge>
