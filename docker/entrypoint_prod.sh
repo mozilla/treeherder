@@ -77,6 +77,10 @@ elif [ "$1" == "perf_sheriff" ]; then
     shift
     newrelic-admin run-program ./manage.py perf_sheriff "$@"
 
+elif [ "$1" == "report_backfill_outcome" ]; then
+    shift
+    newrelic-admin run-program ./manage.py report_backfill_outcome
+
 elif [ "$1" == "update_changelog" ]; then
     newrelic-admin run-program ./manage.py update_changelog --days 2
 
