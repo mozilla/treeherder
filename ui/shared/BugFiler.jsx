@@ -278,9 +278,16 @@ export class BugFilerClass extends React.Component {
    */
   findProductByPath = async () => {
     const { suggestion } = this.props;
+    const { crashSignatures } = this.state;
     const pathEnd = suggestion.path_end;
 
     if (!pathEnd) {
+      return;
+    }
+
+    /* Don't suggest a Bugzilla product and component because it should be based
+       on the crashing file which is not mentioned in the failure line. */
+    if (crashSignatures.length) {
       return;
     }
 
