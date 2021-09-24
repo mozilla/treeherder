@@ -4,101 +4,107 @@ import UncontrolledTooltip from 'reactstrap/lib/UncontrolledTooltip';
 import Button from 'reactstrap/lib/Button';
 import Badge from 'reactstrap/lib/Badge';
 
-export default class AlertTableTagsOptions extends React.Component {
-  itemsType = { tags: 'tags', options: 'options' };
+import SimpleTooltip from '../../shared/SimpleTooltip';
 
-  visibleItems = {
-    tags: 2,
-    options: 2,
-  };
+export default class AlertTableTagsOptions extends React.Component {
+  visibleItems = 2;
 
   constructor(props) {
     super(props);
-    const { tags, options } = this.props.items;
+
     this.state = {
-      displayAllItems: {
-        tags: false,
-        options: false,
-      },
-      options,
-      tags,
+      displayAllItems: false,
     };
   }
 
-  showItems = (items, type) => {
+  showItems = (items) => {
     const badgeId = {
-      tags: 'alert-tag',
-      options: 'alert-option',
+      tag: 'alert-tag',
+      option: 'alert-option',
+      'tag & option': 'alert-tag-and-option',
     };
 
     return items.map((item) => (
       <Badge
-        className="mr-1"
+        className="mr-1 custom-tooltip"
         color="light"
-        key={`${item}`}
-        data-testid={badgeId[type]}
+        key={`${item.name}`}
+        data-testid={badgeId[this.getBadgeType(item)]}
       >
-        {item}
+        <SimpleTooltip text={item.name} tooltipText={this.getBadgeType(item)} />
       </Badge>
     ));
   };
 
-  displayItems = (items, type) => {
+  getBadgeType = (item) => {
+    if (item.tagAndOption) {
+      return 'tag & option';
+    }
+
+    if (item.tag) {
+      return 'tag';
+    }
+
+    if (item.option) {
+      return 'option';
+    }
+  };
+
+  displayItems = (items) => {
     const { alertId } = this.props;
     const { displayAllItems } = this.state;
 
-    return items.length && items[0] !== '' ? (
-      <div>
-        {this.showItems(items.slice(0, this.visibleItems[type]), type)}
-        {!displayAllItems[type] && items.length > this.visibleItems[type] && (
+    return items.length ? (
+      <div data-testid="all-tags-and-options">
+        {this.showItems(items.slice(0, this.visibleItems))}
+        {!displayAllItems && items.length > this.visibleItems && (
           <Button
             color="link"
             size="sm"
-            id={`alert-${alertId}-${type}`}
+            id={`alert-${alertId}-tags-options`}
             onClick={() =>
               this.setState((prevState) => ({
-                displayAllItems: {
-                  ...prevState.displayAllItems,
-                  [type]: !prevState.displayAllItems[type],
-                },
+                displayAllItems: !prevState.displayAllItems,
               }))
             }
           >
-            <span data-testid={`show-more-${type}`}>...</span>
+            <span data-testid="show-more-tags-options">...</span>
             <UncontrolledTooltip
               placement="top"
-              target={`alert-${alertId}-${type}`}
+              target={`alert-${alertId}-tags-options`}
             >
-              Show more {type}
+              Show more
             </UncontrolledTooltip>
           </Button>
         )}
-        {displayAllItems[type] &&
-          this.showItems(items.slice(this.visibleItems[type]), type)}
+        {displayAllItems && this.showItems(items.slice(this.visibleItems))}
       </div>
     ) : (
       <Badge className="mb-1" color="light">
-        No {type}
+        No tags or options
       </Badge>
     );
   };
 
   render() {
-    const { options, tags } = this.state;
+    const { items } = this.props;
 
     return (
       <div className="d-flex flex-column align-items-start">
-        {this.displayItems(tags, this.itemsType.tags)}
-        {this.displayItems(options, this.itemsType.options)}
+        {this.displayItems(items)}
       </div>
     );
   }
 }
 
 AlertTableTagsOptions.propTypes = {
-  items: PropTypes.shape({
-    tags: PropTypes.array.isRequired,
-    options: PropTypes.array.isRequired,
-  }).isRequired,
+  items: PropTypes.arrayOf(
+    PropTypes.shape({
+      name: PropTypes.string.isRequired,
+      tag: PropTypes.bool.isRequired,
+      option: PropTypes.bool.isRequired,
+      tagAndOption: PropTypes.bool.isRequired,
+    }),
+  ).isRequired,
   alertId: PropTypes.number.isRequired,
 };
