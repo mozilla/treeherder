@@ -19,9 +19,9 @@ export default class AlertTableTagsOptions extends React.Component {
 
   showItems = (items) => {
     const badgeId = {
-      tags: 'alert-tag',
-      options: 'alert-option',
-      tagsAndOptions: 'alert-tag-and-option',
+      tag: 'alert-tag',
+      option: 'alert-option',
+      'tag & option': 'alert-tag-and-option',
     };
 
     return items.map((item) => (
@@ -29,22 +29,25 @@ export default class AlertTableTagsOptions extends React.Component {
         className="mr-1 custom-tooltip"
         color="light"
         key={`${item.name}`}
-        data-testid={
-          badgeId[
-            // eslint-disable-next-line no-nested-ternary
-            item.tagAndOption ? 'tagsAndOptions' : item.tag ? 'tags' : 'options'
-          ]
-        }
+        data-testid={badgeId[this.getBadgeType(item)]}
       >
-        <SimpleTooltip
-          text={item.name}
-          tooltipText={
-            // eslint-disable-next-line no-nested-ternary
-            item.tagAndOption ? 'tag & option' : item.tag ? 'tag' : 'option'
-          }
-        />
+        <SimpleTooltip text={item.name} tooltipText={this.getBadgeType(item)} />
       </Badge>
     ));
+  };
+
+  getBadgeType = (item) => {
+    if (item.tagAndOption) {
+      return 'tag & option';
+    }
+
+    if (item.tag) {
+      return 'tag';
+    }
+
+    if (item.option) {
+      return 'option';
+    }
   };
 
   displayItems = (items) => {
