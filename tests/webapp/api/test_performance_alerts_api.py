@@ -33,6 +33,7 @@ def test_alerts_get(client, test_repository, test_perf_alert):
         'classifier',
         'classifier_email',
         'backfill_record',
+        'noise_profile',
     }
     assert resp.json()['results'][0]['related_summary_id'] is None
 

@@ -128,6 +128,7 @@ class PerformanceAlertSerializer(serializers.ModelSerializer):
     t_value = PerformanceDecimalField(read_only=True)
     prev_value = PerformanceDecimalField(read_only=True)
     new_value = PerformanceDecimalField(read_only=True)
+    noise_profile = serializers.CharField(read_only=True)
 
     @transaction.atomic
     def update(self, instance, validated_data):
@@ -184,6 +185,7 @@ class PerformanceAlertSerializer(serializers.ModelSerializer):
             'starred',
             'classifier_email',
             'backfill_record',
+            'noise_profile',
         ]
 
 

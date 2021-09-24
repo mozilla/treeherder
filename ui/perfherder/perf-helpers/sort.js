@@ -65,6 +65,7 @@ export const sort = (sortValue, sortType, data, table) => {
     name: sortByString,
     tags: sortByStrFirstElement,
     machine_platform: sortBySeriesSignatureValue,
+    noise_profile: sortByString,
   };
 
   let doSort = getSortType[sortValue];

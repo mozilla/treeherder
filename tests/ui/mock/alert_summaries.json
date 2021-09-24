@@ -36,6 +36,7 @@
         "classifier": null,
         "starred": false,
         "classifier_email": null,
+        "noise_profile": "OK",
         "title": "tp5o platform"
       },
       {
@@ -65,7 +66,8 @@
         "manually_created": false,
         "classifier": null,
         "starred": false,
-        "classifier_email": null
+        "classifier_email": null,
+        "noise_profile": "OK"
       },
       {
         "id": 69346,
@@ -94,7 +96,8 @@
         "manually_created": false,
         "classifier": null,
         "starred": false,
-        "classifier_email": null
+        "classifier_email": null,
+        "noise_profile": "OK"
       },
       {
         "id": 69347,
@@ -128,7 +131,8 @@
         "manually_created": false,
         "classifier": null,
         "starred": false,
-        "classifier_email": null
+        "classifier_email": null,
+        "noise_profile": "OK"
       }
     ],
     "related_alerts": [],
@@ -184,7 +188,8 @@
         "manually_created": false,
         "classifier": null,
         "starred": false,
-        "classifier_email": null
+        "classifier_email": null,
+        "noise_profile": "OK"
       },
       {
         "id": 69530,
@@ -213,7 +218,8 @@
         "manually_created": false,
         "classifier": "mozilla-ldap/user@mozilla.com",
         "starred": false,
-        "classifier_email": "user@mozilla.com"
+        "classifier_email": "user@mozilla.com",
+        "noise_profile": "OK"
       }
     ],
     "related_alerts": [],

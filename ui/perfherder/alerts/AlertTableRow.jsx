@@ -29,12 +29,14 @@ import {
   backfillRetriggeredTitle,
   phDefaultTimeRangeValue,
   phTimeRanges,
+  noiseProfiles,
 } from '../perf-helpers/constants';
 import { Perfdocs } from '../perf-helpers/perfdocs';
 
 import AlertTablePlatform from './AlertTablePlatform';
 import AlertTableTagsOptions from './AlertTableTagsOptions';
 import Magnitude from './Magnitude';
+import BadgeTooltip from './BadgeTooltip';
 
 export default class AlertTableRow extends React.Component {
   constructor(props) {
@@ -285,6 +287,10 @@ export default class AlertTableRow extends React.Component {
       ? `Classified by ${alert.classifier_email}`
       : 'Classified automatically';
     const bookmarkClass = starred ? 'visible' : '';
+    const noiseProfile = alert.noise_profile || 'N\\A';
+    const noiseProfileTooltip = alert.noise_profile
+      ? noiseProfiles[alert.noise_profile.replace('/', '')]
+      : noiseProfiles.NA;
 
     return (
       <tr
@@ -352,6 +358,14 @@ export default class AlertTableRow extends React.Component {
         <td className="table-width-lg">
           <AlertTablePlatform
             platform={alert.series_signature.machine_platform}
+          />
+        </td>
+        <td className="table-width-lg">
+          <BadgeTooltip
+            textClass="detail-hint"
+            text={noiseProfile}
+            tooltipText={noiseProfileTooltip}
+            autohide={false}
           />
         </td>
         <td className="table-width-lg">
