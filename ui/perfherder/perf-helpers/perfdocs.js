@@ -112,25 +112,29 @@ export class Perfdocs {
    * Class that provides a link where possible with
    * detailed information about each test suite.
    */
-  constructor(framework, suite, platform = null, title = null) {
-    this.framework = framework;
+  constructor(framework, suite, platform = '', title = '') {
+    this.framework = framework || '';
     this.suite = suite || '';
-    this.platform = platform;
+    this.platform = platform || '';
     this.title = title || '';
-    this.url = null;
-    this.remainingTestName = null;
+    this.url = '';
+    this.remainingTestName = '';
   }
 
   get remainingName() {
-    if (!this.remainingTestName) {
+    if (this.remainingTestName.length === 0) {
       this.remainingTestName = this.title.replace(this.suite, '');
     }
     return this.remainingTestName;
   }
 
   get documentationURL() {
+    const frameworkName = supportedPerfdocsFrameworks[this.framework];
+    if (!frameworkName) {
+      this.url = baseURL.concat('testing/perfdocs/');
+      return this.url;
+    }
     if (!this.url) {
-      const frameworkName = supportedPerfdocsFrameworks[this.framework];
       this.url =
         frameworkName !== 'performance-tests-overview'
           ? baseURL.concat('testing/perfdocs/')
@@ -139,7 +143,7 @@ export class Perfdocs {
       this.url = this.url.concat(
         frameworkName,
         '.html#',
-        this.suite.replace(/_|\s|\./g, '-').toLowerCase(),
+        this.suite.replace(/:|_|\s|\./g, '-').toLowerCase(),
       );
       if (this.framework === 'browsertime') {
         if (browsertimeBenchmarks.includes(this.suite)) {
