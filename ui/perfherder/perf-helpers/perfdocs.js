@@ -99,6 +99,22 @@ const browsertimeBenchmarks = [
   'youtube-playback-widevine-hfr',
 ];
 
+const invertedTestsNamesDevtools = {
+  'parent-process:toolbox': 'toolbox:parent-process',
+  'parent-process:target': 'target:parent-process',
+  'parent-process:reload': 'reload:parent-process',
+  'content-process:reload': 'reload:content-process',
+};
+
+const removedOldTestsDevtools = [
+  'total-after-gc',
+  'reload-total-after-gc',
+  'content-total-after-gc',
+  'reload-content-total-after-gc',
+  'toolbox-total-after-gc',
+  'target-total-after-gc',
+];
+
 /**
  * TODO: remove hardcoded names once suffixes are removed from Perfdocs
  * @link https://firefox-source-docs.mozilla.org/testing/perfdocs/raptor.html#custom
@@ -117,7 +133,6 @@ export class Perfdocs {
     this.suite = suite || '';
     this.platform = platform || '';
     this.title = title || '';
-    this.url = '';
     this.remainingTestName = '';
   }
 
@@ -129,42 +144,47 @@ export class Perfdocs {
   }
 
   get documentationURL() {
+    let url;
     const frameworkName = supportedPerfdocsFrameworks[this.framework];
     if (!frameworkName) {
-      this.url = baseURL.concat('testing/perfdocs/');
-      return this.url;
+      url = baseURL.concat('testing/perfdocs/');
+      return url;
     }
-    if (!this.url) {
-      this.url =
+    if (!url) {
+      url =
         frameworkName !== 'performance-tests-overview'
           ? baseURL.concat('testing/perfdocs/')
           : baseURL.concat('devtools/tests/');
-
-      this.url = this.url.concat(
+      if (this.suite in invertedTestsNamesDevtools) {
+        this.suite = invertedTestsNamesDevtools[this.suite];
+      }
+      url = url.concat(
         frameworkName,
         '.html#',
         this.suite.replace(/:|_|\s|\./g, '-').toLowerCase(),
       );
       if (this.framework === 'browsertime') {
         if (browsertimeBenchmarks.includes(this.suite)) {
-          this.url = this.url.concat('-b');
+          url = url.concat('-b');
         } else if (browsertimeCustomTests.includes(this.suite)) {
-          this.url = this.url.concat('-c');
+          url = url.concat('-c');
         } else if (this.platform.includes('android')) {
-          this.url = this.url.concat('-m');
-        } else this.url = this.url.concat('-d');
+          url = url.concat('-m');
+        } else url = url.concat('-d');
       }
     }
-    return this.url;
+    return url;
   }
 
   hasDocumentation(perfherderView = null) {
     if (
-      this.framework === 'browsertime' &&
-      browsertimeDocsUnavailableViews.includes(perfherderView)
+      (this.framework === 'browsertime' &&
+        browsertimeDocsUnavailableViews.includes(perfherderView)) ||
+      removedOldTestsDevtools.includes(this.suite)
     ) {
       return false;
     }
+
     return testDocumentationFrameworks.includes(this.framework);
   }
 }

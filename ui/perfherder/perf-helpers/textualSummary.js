@@ -87,7 +87,6 @@ export default class TextualSummary {
     const suiteName = perfdocs.hasDocumentation()
       ? `[${suite}](${url})`
       : suite;
-    // TODO: Check if this needs change
     const suiteTestName = suite === test ? suiteName : `${suiteName} ${test}`;
 
     if (
