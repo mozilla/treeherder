@@ -150,28 +150,26 @@ export class Perfdocs {
       url = baseURL.concat('testing/perfdocs/');
       return url;
     }
-    if (!url) {
-      url =
-        frameworkName !== 'performance-tests-overview'
-          ? baseURL.concat('testing/perfdocs/')
-          : baseURL.concat('devtools/tests/');
-      if (this.suite in invertedTestsNamesDevtools) {
-        this.suite = invertedTestsNamesDevtools[this.suite];
-      }
-      url = url.concat(
-        frameworkName,
-        '.html#',
-        this.suite.replace(/:|_|\s|\./g, '-').toLowerCase(),
-      );
-      if (this.framework === 'browsertime') {
-        if (browsertimeBenchmarks.includes(this.suite)) {
-          url = url.concat('-b');
-        } else if (browsertimeCustomTests.includes(this.suite)) {
-          url = url.concat('-c');
-        } else if (this.platform.includes('android')) {
-          url = url.concat('-m');
-        } else url = url.concat('-d');
-      }
+    url =
+      frameworkName === 'performance-tests-overview'
+        ? baseURL.concat('devtools/tests/')
+        : baseURL.concat('testing/perfdocs/');
+    if (this.suite in invertedTestsNamesDevtools) {
+      this.suite = invertedTestsNamesDevtools[this.suite];
+    }
+    url = url.concat(
+      frameworkName,
+      '.html#',
+      this.suite.replace(/:|_|\s|\./g, '-').toLowerCase(),
+    );
+    if (frameworkName === 'raptor') {
+      if (browsertimeBenchmarks.includes(this.suite)) {
+        url = url.concat('-b');
+      } else if (browsertimeCustomTests.includes(this.suite)) {
+        url = url.concat('-c');
+      } else if (this.platform.includes('android')) {
+        url = url.concat('-m');
+      } else url = url.concat('-d');
     }
     return url;
   }
