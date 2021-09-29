@@ -99,20 +99,34 @@ const browsertimeBenchmarks = [
   'youtube-playback-widevine-hfr',
 ];
 
-const invertedTestsNamesDevtools = {
+const invertedTestsNamesDevTools = {
   'parent-process:toolbox': 'toolbox:parent-process',
   'parent-process:target': 'target:parent-process',
   'parent-process:reload': 'reload:parent-process',
   'content-process:reload': 'reload:content-process',
 };
 
-const removedOldTestsDevtools = [
+export const removedOldTestsDevTools = [
   'total-after-gc',
   'reload-total-after-gc',
   'content-total-after-gc',
   'reload-content-total-after-gc',
   'toolbox-total-after-gc',
   'target-total-after-gc',
+];
+
+// TODO: remove these once the documentation for DevTools is complete
+export const nonDocumentedTestsDevTools = [
+  'reload-inspector:content-process',
+  'reload-inspector:parent-process',
+  'reload-debugger:content-process',
+  'reload-debugger:parent-process',
+  'reload-no-devtools:content-process',
+  'reload-no-devtools:parent-process',
+  'reload-netmonitor:content-process',
+  'reload-netmonitor:parent-process',
+  'reload-webconsole:parent-process',
+  'reload-webconsole:content-process',
 ];
 
 /**
@@ -154,8 +168,8 @@ export class Perfdocs {
       frameworkName === 'performance-tests-overview'
         ? baseURL.concat('devtools/tests/')
         : baseURL.concat('testing/perfdocs/');
-    if (this.suite in invertedTestsNamesDevtools) {
-      this.suite = invertedTestsNamesDevtools[this.suite];
+    if (this.suite in invertedTestsNamesDevTools) {
+      this.suite = invertedTestsNamesDevTools[this.suite];
     }
     url = url.concat(
       frameworkName,
@@ -178,7 +192,8 @@ export class Perfdocs {
     if (
       (this.framework === 'browsertime' &&
         browsertimeDocsUnavailableViews.includes(perfherderView)) ||
-      removedOldTestsDevtools.includes(this.suite)
+      removedOldTestsDevTools.includes(this.suite) ||
+      nonDocumentedTestsDevTools.includes(this.suite)
     ) {
       return false;
     }

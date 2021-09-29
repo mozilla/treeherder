@@ -1,4 +1,8 @@
-import { Perfdocs } from '../../../ui/perfherder/perf-helpers/perfdocs';
+import {
+  Perfdocs,
+  removedOldTestsDevTools,
+  nonDocumentedTestsDevTools,
+} from '../../../ui/perfherder/perf-helpers/perfdocs';
 
 test('Passing undefined to the Perfdocs constructor does not result in exception', () => {
   const framework = undefined;
@@ -81,4 +85,20 @@ test('Framework browsertime has documentation on Alerts View', () => {
 
   const perfdocs = new Perfdocs(framework, suite);
   expect(perfdocs.hasDocumentation('alertsView')).toBeTruthy();
+});
+
+test("Some DevTools tests were removed/renamed and don't have documentation", () => {
+  const framework = 'devtools';
+  const suite = removedOldTestsDevTools[0];
+
+  const perfdocs = new Perfdocs(framework, suite);
+  expect(perfdocs.hasDocumentation()).toBeFalsy();
+});
+
+test("Some DevTools tests are not yet completed and don't have documentation", () => {
+  const framework = 'devtools';
+  const suite = nonDocumentedTestsDevTools[0];
+
+  const perfdocs = new Perfdocs(framework, suite);
+  expect(perfdocs.hasDocumentation()).toBeFalsy();
 });
