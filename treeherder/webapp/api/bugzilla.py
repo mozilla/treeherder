@@ -7,6 +7,7 @@ from rest_framework.decorators import action
 from rest_framework.response import Response
 from rest_framework.status import HTTP_400_BAD_REQUEST
 
+from treeherder.model.models import BugzillaSecurityGroup
 from treeherder.utils.http import make_request
 
 
@@ -51,8 +52,20 @@ class BugzillaViewSet(viewsets.ViewSet):
             'description': description,
             'comment_tags': "treeherder",
         }
-        if len(params.get('groups')) > 0:
-            data['groups'] = params.get('groups')
+        if params.get("is_security_issue"):
+            security_group_list = list(
+                BugzillaSecurityGroup.objects.filter(product=data.get("product")).values_list(
+                    "security_group", flat=True
+                )
+            )
+            if len(security_group_list) == 0:
+                return Response(
+                    {
+                        "failure": "Cannot file security bug for product without default security group in Bugzilla."
+                    },
+                    status=HTTP_400_BAD_REQUEST,
+                )
+            data["groups"] = security_group_list
 
         try:
             response = make_request(url, method='POST', headers=headers, json=data)

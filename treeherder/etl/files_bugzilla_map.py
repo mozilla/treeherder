@@ -1,6 +1,12 @@
 import logging
+import sys
 
-from treeherder.model.models import BugzillaComponent, FilesBugzillaMap, Repository
+from treeherder.model.models import (
+    BugzillaComponent,
+    BugzillaSecurityGroup,
+    FilesBugzillaMap,
+    Repository,
+)
 from treeherder.utils.github import fetch_json
 
 logger = logging.getLogger(__name__)
@@ -25,7 +31,7 @@ class FilesBugzillaMapProcess:
             component = product_component_data[1]
             if len(product) > self.max_product_length:
                 logger.error(
-                    "error inserting Bugzilla product and component \"'%s' :: '%s'\" into db (file skipped: '%s'): product is too long (has %d characters, max is %d",
+                    "error inserting Bugzilla product and component \"'%s' :: '%s'\" into db (file skipped: '%s'): product is too long (has %d characters, max is %d)",
                     product,
                     component,
                     path,
@@ -35,17 +41,17 @@ class FilesBugzillaMapProcess:
                 return
             if len(component) > self.max_component_length:
                 logger.error(
-                    "error inserting Bugzilla product and component \"'%s' :: '%s'\" into db (file skipped: '%s'): component is too long (has %d characters, max is %d",
+                    "error inserting Bugzilla product and component \"'%s' :: '%s'\" into db (file skipped: '%s'): component is too long (has %d characters, max is %d)",
                     product,
                     component,
                     path,
-                    len(product),
+                    len(component),
                     self.max_component_length,
                 )
                 return
             if len(path) > self.max_path_length:
                 logger.error(
-                    "error inserting Bugzilla product and component \"'%s' :: '%s'\" into db (file skipped: '%s'): path is too long (has %d characters, max is %d",
+                    "error inserting Bugzilla product and component \"'%s' :: '%s'\" into db (file skipped: '%s'): path is too long (has %d characters, max is %d)",
                     product,
                     component,
                     path,
@@ -189,3 +195,73 @@ class FilesBugzillaMapProcess:
         )
         bugzilla_components_unused = bugzilla_components_all.difference(bugzilla_components_used)
         (BugzillaComponent.objects.filter(id__in=bugzilla_components_unused).delete())
+
+
+class ProductSecurityGroupProcess:
+    max_product_length = BugzillaSecurityGroup._meta.get_field('product').max_length
+    max_security_group_length = BugzillaSecurityGroup._meta.get_field('security_group').max_length
+
+    def fetch_data(self):
+        url = 'https://bugzilla.mozilla.org/latest/configuration'
+        product_security_group_data = None
+        exception = None
+        try:
+            product_security_group_data = fetch_json(url)
+        except Exception as e:
+            exception = e
+        return {
+            "url": url,
+            "product_security_group_data": product_security_group_data,
+            "exception": exception,
+        }
+
+    def run(self):
+        data_returned = self.fetch_data()
+        if data_returned["exception"] is not None:
+            logger.error(
+                "error fetching file with map of source paths to Bugzilla products and components: url: %s ; %s",
+                data_returned["url"],
+                data_returned["exception"],
+            )
+            sys.exit()
+        fields_data = data_returned["product_security_group_data"]["field"]["product"]["values"]
+        groups_data = data_returned["product_security_group_data"]["group"]
+        products = set()
+        for field_data in fields_data:
+            product_name = str(field_data["name"])
+            security_group_id = str(field_data["security_group_id"])
+            if security_group_id in groups_data:
+                security_group_name = str(groups_data[security_group_id]["name"])
+                products.add(product_name)
+                try:
+                    if len(product_name) > self.max_product_length:
+                        logger.error(
+                            "error inserting Bugzilla product and security group \"'%s' :: '%s'\" into db: product is too long (has %d characters, max is %d)",
+                            product_name,
+                            security_group_name,
+                            len(product_name),
+                            self.max_product_length,
+                        )
+                        continue
+                    if len(security_group_name) > self.max_security_group_length:
+                        logger.error(
+                            "error inserting Bugzilla product and security group \"'%s' :: '%s'\" into db: security group is too long (has %d characters, max is %d)",
+                            product_name,
+                            security_group_name,
+                            len(security_group_name),
+                            self.max_security_group_length,
+                        )
+                        continue
+                    BugzillaSecurityGroup.objects.get_or_create(
+                        product=product_name,
+                        security_group=security_group_name,
+                    )
+                except Exception as e:
+                    logger.error(
+                        "error inserting Bugzilla product and security group \"'%s' :: '%s'\" into db: %s",
+                        product_name,
+                        security_group_name,
+                        e,
+                    )
+                    continue
+        BugzillaSecurityGroup.objects.exclude(product__in=products).delete()

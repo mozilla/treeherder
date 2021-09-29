@@ -434,7 +434,7 @@ export class BugFilerClass extends React.Component {
           crash_signature: crashSignature,
           severity: 'S4',
           priority,
-          groups: isSecurityIssue ? ['core-security'] : [],
+          is_security_issue: isSecurityIssue,
           comment: descriptionStrings,
           comment_tags: 'treeherder',
         };
@@ -466,7 +466,7 @@ export class BugFilerClass extends React.Component {
   submitFailure = (source, status, statusText, data) => {
     const { notify } = this.props;
 
-    let failureString = `${source} returned status ${status}(${statusText})`;
+    let failureString = `${source} returned status ${status} (${statusText})`;
     if (data && data.failure) {
       failureString += `\n\n${data.failure}`;
     }
