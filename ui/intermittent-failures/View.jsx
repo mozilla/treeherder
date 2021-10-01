@@ -41,17 +41,6 @@ const withView = (defaultState) => (WrappedComponent) => {
       this.setQueryParams();
     }
 
-    componentDidUpdate(prevProps) {
-      const { location } = this.props;
-      // update all data if the user edits dates, tree or bug via the query params
-      if (prevProps.location.search !== location.search) {
-        this.checkQueryValidation(
-          parseQueryParams(location.search),
-          this.state.initialParamsSet,
-        );
-      }
-    }
-
     setQueryParams = () => {
       const { location, history } = this.props;
       const { startday, endday, tree, bug } = this.state;
