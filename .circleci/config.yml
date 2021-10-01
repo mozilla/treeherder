@@ -45,7 +45,8 @@ jobs:
     steps:
       - checkout
       - docker/install-docker
-      - docker/install-docker-compose
+      - docker/install-docker-compose:
+          version: 1.29.2
       - run: pip install --upgrade pip
       - run: pip install tox codecov
       - run: tox -e docker  # Run tests and coverage within Docker container
