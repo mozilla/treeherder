@@ -49,6 +49,10 @@ export const processErrorMessage = function processErrorMessage(error, status) {
     return 'There was a problem retrieving the data. Please try again in a minute.';
   }
 
+  if (status === 400) {
+    return 'The action resulted in a bad request.';
+  }
+
   if (error instanceof Object) {
     const key = Object.keys(error);
 
