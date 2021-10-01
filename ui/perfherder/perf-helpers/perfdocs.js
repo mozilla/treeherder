@@ -6,7 +6,12 @@ export const perfViews = {
   fileBugMarkdown: 'fileBugMarkdown',
 };
 
-const testDocumentationFrameworks = ['talos', 'awsy', 'browsertime'];
+const testDocumentationFrameworks = [
+  'talos',
+  'awsy',
+  'browsertime',
+  'devtools',
+];
 const browsertimeDocsUnavailableViews = [
   perfViews.compareView,
   perfViews.testsView,
@@ -15,6 +20,7 @@ const supportedPerfdocsFrameworks = {
   talos: 'talos',
   awsy: 'awsy',
   browsertime: 'raptor',
+  devtools: 'performance-tests-overview',
 };
 
 /**
@@ -93,63 +99,105 @@ const browsertimeBenchmarks = [
   'youtube-playback-widevine-hfr',
 ];
 
+const invertedTestsNamesDevTools = {
+  'parent-process:toolbox': 'toolbox:parent-process',
+  'parent-process:target': 'target:parent-process',
+  'parent-process:reload': 'reload:parent-process',
+  'content-process:reload': 'reload:content-process',
+};
+
+export const removedOldTestsDevTools = [
+  'total-after-gc',
+  'reload-total-after-gc',
+  'content-total-after-gc',
+  'reload-content-total-after-gc',
+  'toolbox-total-after-gc',
+  'target-total-after-gc',
+];
+
+// TODO: remove these once the documentation for DevTools is complete
+export const nonDocumentedTestsDevTools = [
+  'reload-inspector:content-process',
+  'reload-inspector:parent-process',
+  'reload-debugger:content-process',
+  'reload-debugger:parent-process',
+  'reload-no-devtools:content-process',
+  'reload-no-devtools:parent-process',
+  'reload-netmonitor:content-process',
+  'reload-netmonitor:parent-process',
+  'reload-webconsole:parent-process',
+  'reload-webconsole:content-process',
+];
+
 /**
  * TODO: remove hardcoded names once suffixes are removed from Perfdocs
  * @link https://firefox-source-docs.mozilla.org/testing/perfdocs/raptor.html#custom
  */
 const browsertimeCustomTests = ['process-switch', 'welcome'];
 
-const baseURL = 'https://firefox-source-docs.mozilla.org/testing/perfdocs/';
+const baseURL = 'https://firefox-source-docs.mozilla.org/';
 
 export class Perfdocs {
   /**
    * Class that provides a link where possible with
    * detailed information about each test suite.
    */
-  constructor(framework, suite, platform = null, title = null) {
-    this.framework = framework;
+  constructor(framework, suite, platform = '', title = '') {
+    this.framework = framework || '';
     this.suite = suite || '';
-    this.platform = platform;
+    this.platform = platform || '';
     this.title = title || '';
-    this.url = null;
-    this.remainingTestName = null;
+    this.remainingTestName = '';
   }
 
   get remainingName() {
-    if (!this.remainingTestName) {
+    if (this.remainingTestName.length === 0) {
       this.remainingTestName = this.title.replace(this.suite, '');
     }
     return this.remainingTestName;
   }
 
   get documentationURL() {
-    if (!this.url) {
-      const frameworkName = supportedPerfdocsFrameworks[this.framework];
-      this.url = baseURL.concat(
-        frameworkName,
-        '.html#',
-        this.suite.replace(/_|\s/g, '-').toLowerCase(),
-      );
-      if (this.framework === 'browsertime') {
-        if (browsertimeBenchmarks.includes(this.suite)) {
-          this.url = this.url.concat('-b');
-        } else if (browsertimeCustomTests.includes(this.suite)) {
-          this.url = this.url.concat('-c');
-        } else if (this.platform.includes('android')) {
-          this.url = this.url.concat('-m');
-        } else this.url = this.url.concat('-d');
-      }
+    let url;
+    const frameworkName = supportedPerfdocsFrameworks[this.framework];
+    if (!frameworkName) {
+      url = baseURL.concat('testing/perfdocs/');
+      return url;
     }
-    return this.url;
+    url =
+      frameworkName === 'performance-tests-overview'
+        ? baseURL.concat('devtools/tests/')
+        : baseURL.concat('testing/perfdocs/');
+    if (this.suite in invertedTestsNamesDevTools) {
+      this.suite = invertedTestsNamesDevTools[this.suite];
+    }
+    url = url.concat(
+      frameworkName,
+      '.html#',
+      this.suite.replace(/:|_|\s|\./g, '-').toLowerCase(),
+    );
+    if (frameworkName === 'raptor') {
+      if (browsertimeBenchmarks.includes(this.suite)) {
+        url = url.concat('-b');
+      } else if (browsertimeCustomTests.includes(this.suite)) {
+        url = url.concat('-c');
+      } else if (this.platform.includes('android')) {
+        url = url.concat('-m');
+      } else url = url.concat('-d');
+    }
+    return url;
   }
 
   hasDocumentation(perfherderView = null) {
     if (
-      this.framework === 'browsertime' &&
-      browsertimeDocsUnavailableViews.includes(perfherderView)
+      (this.framework === 'browsertime' &&
+        browsertimeDocsUnavailableViews.includes(perfherderView)) ||
+      removedOldTestsDevTools.includes(this.suite) ||
+      nonDocumentedTestsDevTools.includes(this.suite)
     ) {
       return false;
     }
+
     return testDocumentationFrameworks.includes(this.framework);
   }
 }
