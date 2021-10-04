@@ -180,7 +180,16 @@ const BugDetailsView = (props) => {
             <React.Fragment>
               <Row>
                 <Col xs="12" className="mx-auto">
-                  <h1>Details for Bug {!bug ? '' : bug}</h1>
+                  <h1>
+                    <span>Details for Bug </span>
+                    {bug && (
+                      <a
+                        href={`https://bugzilla.mozilla.org/show_bug.cgi?id=${bug}`}
+                      >
+                        {bug}
+                      </a>
+                    )}
+                  </h1>
                 </Col>
               </Row>
               <Row>
