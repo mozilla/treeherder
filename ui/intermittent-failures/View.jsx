@@ -166,7 +166,7 @@ const withView = (defaultState) => (WrappedComponent) => {
         this.getTableData(createApiUrl(defaultState.endpoint, params));
       }
 
-      if (params.bug && this.state.tableData.length) {
+      if (params.bug) {
         this.getBugDetails(
           bugzillaBugsApi('bug', { include_fields: 'summary', id: params.bug }),
         );
