@@ -11,12 +11,31 @@ logger = logging.getLogger(__name__)
 
 
 class FilesBugzillaMapViewSet(viewsets.ReadOnlyModelViewSet):
+    def filter_product_component(self, queryset):
+        filtered_queryset = []
+        product = 'bugzilla_component__product'
+        component = 'bugzilla_component__component'
+        # Don't suggest these. While a file associated with one of these
+        # combinations can be in the failure line, it might not be a test and
+        # the real issue gets logged earlier but not detected as failure line.
+        # Require user input for the product and component to use.
+        IGNORE_LIST_PRODUCT_COMPONENT = [
+            {product: 'Testing', component: 'Mochitest'},
+        ]
+        for product_component in queryset:
+            if product_component not in IGNORE_LIST_PRODUCT_COMPONENT:
+                filtered_queryset.append(product_component)
+        return filtered_queryset[:5]
+
     @action(detail=True, methods=['get'])
     def get_queryset(self):
         """
         Gets a set of bug suggestions for this job
         """
         path = self.request.query_params.get('path')
+        if path.startswith('org.mozilla.'):
+            path = (path.split('#'))[0]
+            path = (path.split('.'))[-1]
         path = path.replace('\\', '/')
         # Drop parameters
         path = (path.split('?'))[0]
@@ -42,7 +61,7 @@ class FilesBugzillaMapViewSet(viewsets.ReadOnlyModelViewSet):
                 .distinct()
             )
         if len(queryset) > 0:
-            return queryset[: min(5, len(queryset))]
+            return self.filter_product_component(queryset)
         queryset = (
             FilesBugzillaMap.objects.select_related('bugzilla_component')
             .filter(file_name=file)
@@ -50,14 +69,14 @@ class FilesBugzillaMapViewSet(viewsets.ReadOnlyModelViewSet):
             .distinct()
         )
         if len(queryset) > 0:
-            return queryset[: min(5, len(queryset))]
+            return self.filter_product_component(queryset)
         queryset = (
             FilesBugzillaMap.objects.select_related('bugzilla_component')
             .filter(file_name__startswith=file_without_extension)
             .values('bugzilla_component__product', 'bugzilla_component__component')
             .distinct()
         )
-        return queryset[: min(5, len(queryset))]
+        return self.filter_product_component(queryset)
 
     serializer_class = serializers.FilesBugzillaMapSerializer
 

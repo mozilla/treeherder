@@ -125,3 +125,70 @@ def test_bugzilla_components_for_path(client, test_job):
 
     resp = client.get(URL_BASE + '?path=another')
     assert resp.json() == []
+
+    BugzillaComponent.objects.create(
+        product='Mock Product org.mozilla.*.<TestName>', component='Mock Component File Match'
+    )
+
+    FilesBugzillaMap.objects.create(
+        path='parent/folder/org/mozilla/geckoview/test/MockTestName.kt',
+        file_name='MockTestName.kt',
+        bugzilla_component=BugzillaComponent.objects.last(),
+    )
+
+    BugzillaComponent.objects.create(
+        product='Mock Product org.mozilla.*.<TestName>', component='Mock Component No File Match'
+    )
+
+    FilesBugzillaMap.objects.create(
+        path='parent/folder/org/mozilla/geckoview/test/OtherName.kt',
+        file_name='OtherName.kt',
+        bugzilla_component=BugzillaComponent.objects.last(),
+    )
+
+    BugzillaComponent.objects.create(
+        product='Mock Product org.mozilla.*.<TestName>',
+        component='Mock Component No File Match For Subtest',
+    )
+
+    FilesBugzillaMap.objects.create(
+        path='parent/folder/org/mozilla/geckoview/test/Subtest.kt',
+        file_name='Subtest.kt',
+        bugzilla_component=BugzillaComponent.objects.last(),
+    )
+
+    BugzillaComponent.objects.create(
+        product='Mock Product with "org" file', component='Mock Component with "org" file'
+    )
+
+    FilesBugzillaMap.objects.create(
+        path='other/folder/org.html',
+        file_name='org.html',
+        bugzilla_component=BugzillaComponent.objects.last(),
+    )
+
+    EXPECTED_MOCK_ORG_MOZILLA = [
+        {
+            'product': 'Mock Product org.mozilla.*.<TestName>',
+            'component': 'Mock Component File Match',
+        }
+    ]
+
+    resp = client.get(URL_BASE + '?path=org.mozilla.geckoview.test.MockTestName#Subtest')
+    assert resp.json() == EXPECTED_MOCK_ORG_MOZILLA
+
+    # Only take test name into account.
+    resp = client.get(URL_BASE + '?path=org.mozilla.otherproduct.otherfolder.MockTestName')
+    assert resp.json() == EXPECTED_MOCK_ORG_MOZILLA
+
+    BugzillaComponent.objects.create(product='Testing', component='Mochitest')
+
+    FilesBugzillaMap.objects.create(
+        path='mock/mochitest/mochitest.test',
+        file_name='mochitest.test',
+        bugzilla_component=BugzillaComponent.objects.last(),
+    )
+
+    # Respect the ignore list of product and component combinations.
+    resp = client.get(URL_BASE + '?path=mock/mochitest/mochitest.test')
+    assert resp.json() == []
