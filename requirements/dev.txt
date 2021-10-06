@@ -10,9 +10,9 @@ appdirs==1.4.4 \
     # via
     #   black
     #   virtualenv
-asgiref==3.3.1 \
-    --hash=sha256:5ee950735509d04eb673bd7f7120f8fa1c9e2df495394992c73234d526907e17 \
-    --hash=sha256:7162a3cb30ab0609f1a4c95938fd73e8604f63bdba516a7f7d64b83ff09478f0
+asgiref==3.4.1 \
+    --hash=sha256:4ef1ab46b484e3c706329cedeff284a5d40824200638503f5768edb6de7d58e9 \
+    --hash=sha256:ffc141aa908e6f175673e7b1b3b7af4fdb0ecb738fc5c8b88f69f055c2415214
     # via django
 attrs==20.3.0 \
     --hash=sha256:31b2eced602aa8423c2aea9c76a724617ed67cf9513173fd3a4f03e3a929c7e6 \
@@ -113,9 +113,9 @@ distlib==0.3.1 \
     --hash=sha256:8c09de2c67b3e7deef7184574fc060ab8a793e7adbb183d942c389c8b13c52fb \
     --hash=sha256:edf6116872c863e1aa9d5bb7cb5e05a022c519a4594dc703843343a9ddd9bff1
     # via virtualenv
-django==3.1.13 \
-    --hash=sha256:9f8be75646f62204320b195062b1d696ba28aa3d45ee72fb7c888ffaebc5bdb2 \
-    --hash=sha256:a6e0d1ff11095b7394c079ade7094c73b2dc3df4a7a373c9b58ed73b77a97feb
+django==3.2.8 \
+    --hash=sha256:42573831292029639b798fe4d3812996bfe4ff3275f04566da90764daec011a5 \
+    --hash=sha256:f6d2c4069c9b9bfac03bedff927ea1f9e0d29e34525cec8a68fd28eb2a8df7af
     # via
     #   -r dev.in
     #   django-debug-toolbar
