@@ -66,6 +66,9 @@ elif [ "$1" == "update_bugscache" ]; then
 elif [ "$1" == "update_files_bugzilla_map" ]; then
     newrelic-admin run-program ./manage.py update_files_bugzilla_map
 
+elif [ "$1" == "update_bugzilla_security_groups" ]; then
+    newrelic-admin run-program ./manage.py update_bugzilla_security_groups
+
 elif [ "$1" == "cache_failure_history" ]; then
     newrelic-admin run-program ./manage.py cache_failure_history
 

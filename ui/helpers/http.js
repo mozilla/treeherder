@@ -21,7 +21,7 @@ export const getData = async function getData(url, options = {}) {
   const contentType =
     response.headers.get('content-type') || ''.startsWith('text/html');
 
-  if (contentType && failureStatus) {
+  if (contentType && contentType !== 'application/json' && failureStatus) {
     const errorMessage = processErrorMessage(
       `${failureStatus}: ${response.statusText}`,
       failureStatus,

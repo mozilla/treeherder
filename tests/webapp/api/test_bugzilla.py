@@ -50,7 +50,7 @@ def test_create_bug(client, eleven_jobs_stored, activate_responses, test_user):
             "comment": u"Intermittent Description",
             "comment_tags": "treeherder",
             "keywords": ["intermittent-failure"],
-            "groups": [],
+            "is_security_issue": False,
         },
     )
     assert resp.status_code == 200
@@ -103,7 +103,7 @@ def test_create_bug_with_unicode(client, eleven_jobs_stored, activate_responses,
             "comment": u"Intermittent “description” string",
             "comment_tags": "treeherder",
             "keywords": ["intermittent-failure"],
-            "groups": [],
+            "is_security_issue": False,
         },
     )
     assert resp.status_code == 200
@@ -158,7 +158,7 @@ def test_create_crash_bug(client, eleven_jobs_stored, activate_responses, test_u
             "crash_signature": "[@crashsig]",
             "priority": "--",
             "keywords": ["intermittent-failure", "crash"],
-            "groups": [],
+            "is_security_issue": False,
         },
     )
     assert resp.status_code == 200
@@ -207,7 +207,7 @@ def test_create_unauthenticated_bug(client, eleven_jobs_stored, activate_respons
             "comment_tags": "treeherder",
             "keywords": ["intermittent-failure"],
             "see_also": "12345",
-            "groups": [],
+            "is_security_issue": False,
         },
     )
     assert resp.status_code == 403
@@ -265,7 +265,7 @@ def test_create_bug_with_long_crash_signature(
             "crash_signature": crashsig,
             "regressed_by": "123",
             "see_also": "12345",
-            "groups": [],
+            "is_security_issue": False,
         },
     )
     assert resp.status_code == 400

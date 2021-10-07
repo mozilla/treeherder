@@ -360,6 +360,15 @@ class FilesBugzillaMap(models.Model):
         return "{0}".format(self.path)
 
 
+class BugzillaSecurityGroup(models.Model):
+    product = models.CharField(max_length=60, unique=True, db_index=True)
+    security_group = models.CharField(max_length=60)
+
+    class Meta:
+        db_table = 'bugzilla_security_group'
+        verbose_name_plural = 'bugzilla_security_groups'
+
+
 class Machine(NamedModel):
     class Meta:
         db_table = 'machine'
