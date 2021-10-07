@@ -37,7 +37,7 @@ If a bug is not assigned to someone, you can request the bug be assigned to you.
 
 If you do not receive a response within 2-3 days, you can follow up in the **#treeherder** matrix channel.
 
-After adressing the issue, make sure [every test passes](https://treeherder.readthedocs.io/testing.html) before sending a pull request.
+After addressing the issue, make sure [every test passes](https://treeherder.readthedocs.io/testing.html) before sending a pull request.
 
 We also recommend setting an `upstream` remote that points to the [Mozilla's Github repo](https://github.com/mozilla/treeherder.git), in addition to `origin` that points to your fork. You should then frequently use `git rebase upstream` rather than merging from your fork to keep your branch current. There are less conflicts this way and the git history is cleaner.
 
