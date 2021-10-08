@@ -555,3 +555,22 @@ li.pagination-active.active > button {
 .cursor-pointer {
   cursor: pointer;
 }
+
+.information-container {
+  display: flex;
+  flex-direction: column-reverse;
+  align-items: center;
+}
+
+.information-container .option {
+  display: flex;
+}
+
+.information-container .option .icon {
+  margin: 0px 2px 0px 2px;
+  color: #dc3545;
+}
+
+.information-container .option .icon-green-flame {
+  color: #2da745;
+}

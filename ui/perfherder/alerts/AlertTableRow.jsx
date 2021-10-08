@@ -9,6 +9,7 @@ import {
   faUser,
   faCheck,
   faChartLine,
+  faFire,
 } from '@fortawesome/free-solid-svg-icons';
 import { faStar as faStarRegular } from '@fortawesome/free-regular-svg-icons';
 import { Link } from 'react-router-dom';
@@ -44,6 +45,7 @@ export default class AlertTableRow extends React.Component {
     this.state = {
       starred: this.props.alert.starred,
       checkboxSelected: false,
+      icons: [],
     };
   }
 
@@ -264,6 +266,42 @@ export default class AlertTableRow extends React.Component {
     return `./comparesubtest${createQueryParams(urlParameters)}`;
   };
 
+  showCriticalMagnitudeIcons(alert) {
+    const alertMagnitude = Math.round(alert.amount_pct);
+    const alertNewValue = alert.new_value;
+    let numberOfIcons = 0;
+    if (alert.is_regression) {
+      if (
+        alertMagnitude >= 100 &&
+        alertNewValue !== 0 &&
+        alertMagnitude < 200
+      ) {
+        numberOfIcons = 1;
+      } else if (alertMagnitude >= 200 && alertMagnitude < 300) {
+        numberOfIcons = 2;
+      } else if (alertMagnitude >= 300) {
+        numberOfIcons = 3;
+      }
+    } else if (alertMagnitude === 100 && alertNewValue === 0) {
+      this.state.icons.push(
+        <SimpleTooltip
+          text={<FontAwesomeIcon icon={faFire} className="icon-green-flame" />}
+          tooltipText="This should be treated as a regression"
+        />,
+      );
+    }
+
+    for (let i = 0; i < numberOfIcons; i++) {
+      this.state.icons.push(
+        <SimpleTooltip
+          key={i}
+          text={<FontAwesomeIcon icon={faFire} className="icon" />}
+          tooltipText="Magnitude"
+        />,
+      );
+    }
+  }
+
   render() {
     const { user, alert, alertSummary } = this.props;
     const { starred, checkboxSelected } = this.state;
@@ -291,6 +329,8 @@ export default class AlertTableRow extends React.Component {
     const noiseProfileTooltip = alert.noise_profile
       ? noiseProfiles[alert.noise_profile.replace('/', '')]
       : noiseProfiles.NA;
+
+    this.showCriticalMagnitudeIcons(alert);
 
     return (
       <tr
@@ -361,12 +401,21 @@ export default class AlertTableRow extends React.Component {
           />
         </td>
         <td className="table-width-lg">
-          <BadgeTooltip
-            textClass="detail-hint"
-            text={noiseProfile}
-            tooltipText={noiseProfileTooltip}
-            autohide={false}
-          />
+          <div className="information-container">
+            <div className="option">
+              <BadgeTooltip
+                textClass="detail-hint"
+                text={noiseProfile}
+                tooltipText={noiseProfileTooltip}
+                autohide={false}
+              />
+            </div>
+            {this.state.icons.length > 0 ? (
+              <div className="option">{this.state.icons}</div>
+            ) : (
+              ''
+            )}
+          </div>
         </td>
         <td className="table-width-lg">
           <AlertTableTagsOptions alertId={alert.id} items={items} />
