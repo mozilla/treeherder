@@ -18,6 +18,9 @@ class Command(BaseCommand):
 
     def handle(self, *args, **options):
         logger.info("Sherlock Notify Service: Notifying backfill outcome...")
+        if BackfillNotificationRecord.objects.count() == 0:
+            logger.info("Sherlock Notify Service: Nothing to report via email.")
+            return
         notify = notify_client_factory()
         email_writer = BackfillNotificationWriter()
         sent_confirmation = True
@@ -45,5 +48,3 @@ class Command(BaseCommand):
                 else:
                     sent_confirmation = False
                     logger.debug("Sherlock Notify Service: Email notification service failed.")
-            else:
-                logger.info("Sherlock Notify Service: Nothing to report via email.")
