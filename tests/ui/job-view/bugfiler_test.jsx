@@ -1,5 +1,4 @@
 import React from 'react';
-import { mount } from 'enzyme/build';
 import fetchMock from 'fetch-mock';
 
 import { bzComponentEndpoint, bzBaseUrl } from '../../../ui/helpers/url';
@@ -80,7 +79,7 @@ describe('BugFiler', () => {
       search: summary,
     };
 
-    return mount(
+    return (
       <BugFilerClass
         isOpen={isOpen}
         toggle={toggle}
@@ -92,12 +91,12 @@ describe('BugFiler', () => {
         successCallback={successCallback}
         jobGroupName={selectedJob.job_group_name}
         notify={() => {}}
-      />,
+      />
     );
   };
 
   const getBugFilerForSecurityCheck = (suggestions) => {
-    return mount(
+    return (
       <BugFilerClass
         isOpen={isOpen}
         toggle={toggle}
@@ -109,7 +108,7 @@ describe('BugFiler', () => {
         successCallback={successCallback}
         jobGroupName={selectedJob.job_group_name}
         notify={() => {}}
-      />,
+      />
     );
   };
 
@@ -139,7 +138,7 @@ describe('BugFiler', () => {
         search: 'REFTEST TEST-UNEXPECTED-PASS | flee | floo',
       },
     ];
-    const bugFiler = mount(
+    const bugFiler = (
       <BugFilerClass
         isOpen={isOpen}
         toggle={toggle}
@@ -151,7 +150,7 @@ describe('BugFiler', () => {
         successCallback={successCallback}
         jobGroupName={selectedJob.job_group_name}
         notify={() => {}}
-      />,
+      />
     );
 
     await bugFiler
@@ -415,7 +414,7 @@ describe('BugFiler', () => {
         search: 'REFTEST TEST-UNEXPECTED-PASS | flee | floo',
       },
     ];
-    const bugFiler = mount(
+    const bugFiler = (
       <BugFilerClass
         isOpen={isOpen}
         toggle={toggle}
@@ -427,7 +426,7 @@ describe('BugFiler', () => {
         successCallback={successCallback}
         jobGroupName={selectedJob.job_group_name}
         notify={() => {}}
-      />,
+      />
     );
 
     const { thisFailure } = bugFiler.state();
