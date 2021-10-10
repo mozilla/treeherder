@@ -302,7 +302,7 @@ describe('Filtering', () => {
 
       const keywordLink = await waitFor(
         () => getByTitle('Filter jobs containing these keywords'),
-        10000,
+        20000,
       );
       expect(keywordLink.getAttribute('href')).toBe(
         '/?repo=autoland&selectedTaskRun=JFVlnwufR7G9tZu_pKM0dQ.0&searchStr=Gecko%2CDecision%2CTask%2Copt%2CGecko%2CDecision%2CTask%2CD',
