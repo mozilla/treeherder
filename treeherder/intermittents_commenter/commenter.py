@@ -86,9 +86,13 @@ class Commenter:
                     bug_info[bug_id]['whiteboard']
                 ):
                     priority = 3
-                    change_whiteboard = self.update_whiteboard(
-                        bug_info[bug_id]['whiteboard'], '[stockwell disable-recommended]'
+                    change_whiteboard = bug_info[bug_id]['whiteboard'].replace(
+                        '[stockwell unknown]', ''
                     )
+                    change_whiteboard = re.sub(
+                        r'\s*\[stockwell needswork[^\]]*\]\s*', '', change_whiteboard
+                    ).strip()
+                    change_whiteboard += '[stockwell disable-recommended]'
 
             comment = template.render(
                 bug_id=bug_id,
@@ -128,23 +132,21 @@ class Commenter:
             if bug_info['priority'] not in ['--', 'P1', 'P2', 'P3']:
                 change_priority = '--'
 
-            stockwell_text = re.search(r'\[stockwell (.+?)\]', bug_info['whiteboard'])
+            stockwell_labels = re.findall(r'\[stockwell (.+?)\]', bug_info['whiteboard'])
             # update whiteboard text unless it already contains WHITEBOARD_NEEDSWORK_OWNER
-            if stockwell_text is None or stockwell_text.group() != WHITEBOARD_NEEDSWORK_OWNER:
-                change_whiteboard = self.update_whiteboard(
-                    bug_info['whiteboard'], WHITEBOARD_NEEDSWORK_OWNER
-                )
+            if WHITEBOARD_NEEDSWORK_OWNER not in stockwell_labels:
+                change_whiteboard = bug_info['whiteboard'] + WHITEBOARD_NEEDSWORK_OWNER
 
         return change_priority, change_whiteboard
 
     def check_needswork(self, whiteboard):
-        stockwell_text = re.search(r'\[stockwell (.+?)\]', whiteboard)
+        stockwell_labels = re.findall(r'\[stockwell needswork[^\]]*\]', whiteboard)
+        if len(stockwell_labels) == 0:
+            return None
         # update all [stockwell needswork] bugs (including all 'needswork' possibilities,
         # ie 'needswork:owner') and update whiteboard to [stockwell unknown]
-        if stockwell_text is not None and stockwell_text.group(1).split(':')[0] == 'needswork':
-            return self.update_whiteboard(whiteboard, '[stockwell unknown]')
-
-        return None
+        change_whiteboard = re.sub(r'\s*\[stockwell needswork[^\]]*\]\s*', '', whiteboard).strip()
+        return change_whiteboard + '[stockwell unknown]'
 
     def assign_priority(self, counts):
         priority = 0
@@ -205,10 +207,6 @@ class Commenter:
             if text == 'fixed' or text == 'infra' or 'disable' in text:
                 return True
         return False
-
-    def update_whiteboard(self, existing, new):
-        whiteboard = re.sub(r'\[stockwell.*?\]', '', existing)
-        return whiteboard + new
 
     def new_request(self):
         session = requests.Session()
