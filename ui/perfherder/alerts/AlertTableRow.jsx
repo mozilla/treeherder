@@ -285,6 +285,7 @@ export default class AlertTableRow extends React.Component {
     } else if (alertMagnitude === 100 && alertNewValue === 0) {
       this.state.icons.push(
         <SimpleTooltip
+          key={alert.id}
           text={<FontAwesomeIcon icon={faFire} className="icon-green-flame" />}
           tooltipText="This should be treated as a regression"
         />,
@@ -411,7 +412,9 @@ export default class AlertTableRow extends React.Component {
               />
             </div>
             {this.state.icons.length > 0 ? (
-              <div className="option">{this.state.icons}</div>
+              <div className="option" data-testid="flame-icons">
+                {this.state.icons}
+              </div>
             ) : (
               ''
             )}

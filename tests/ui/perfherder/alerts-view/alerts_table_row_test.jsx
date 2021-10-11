@@ -282,6 +282,59 @@ test('Noise profile OK', async () => {
   expect(message).toBeInTheDocument();
 });
 
+test('One flame icon for alert magnitude between 100 and 199 percentage', async () => {
+  testAlert.is_regression = true;
+  testAlert.amount_pct = 143;
+
+  const { getByTestId } = alertTableRowTest({
+    alert: testAlert,
+    tags: [],
+  });
+
+  const flamesIconsList = await waitFor(() => getByTestId('flame-icons'));
+  expect(flamesIconsList.children).toHaveLength(1);
+});
+
+test('Two flame icons for alert magnitude between 200 and 299 percentage', async () => {
+  testAlert.is_regression = true;
+  testAlert.amount_pct = 254;
+
+  const { getByTestId } = alertTableRowTest({
+    alert: testAlert,
+    tags: [],
+  });
+
+  const flamesIconsList = await waitFor(() => getByTestId('flame-icons'));
+  expect(flamesIconsList.children).toHaveLength(2);
+});
+
+test('Three flame icons for alert magnitude over 300 percentage', async () => {
+  testAlert.is_regression = true;
+  testAlert.amount_pct = 430;
+
+  const { getByTestId } = alertTableRowTest({
+    alert: testAlert,
+    tags: [],
+  });
+
+  const flamesIconsList = await waitFor(() => getByTestId('flame-icons'));
+  expect(flamesIconsList.children).toHaveLength(3);
+});
+
+test('One green flame icon for alert magnitude equal to 100 percentage and new value equal to 0', async () => {
+  testAlert.is_regression = false;
+  testAlert.amount_pct = 100;
+  testAlert.new_value = 0;
+
+  const { getByTestId } = alertTableRowTest({
+    alert: testAlert,
+    tags: [],
+  });
+
+  const flamesIconsList = await waitFor(() => getByTestId('flame-icons'));
+  expect(flamesIconsList.children).toHaveLength(1);
+});
+
 test('Documentation link is available for talos framework', async () => {
   const { getByTestId } = alertTableRowTest();
   expect(getByTestId('docs')).toHaveAttribute(
