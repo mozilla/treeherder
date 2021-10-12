@@ -51,7 +51,7 @@ export default class CollapsableRows extends React.Component {
           <td />
           <td />
           <td />
-          <td className="text-right">
+          <td className="text-right" colSpan="2">
             <span className="cursor-pointer">
               <FontAwesomeIcon icon={isOpen ? faAngleUp : faAngleDown} />{' '}
               {isOpen ? 'Show less alerts' : 'Show more alerts'}

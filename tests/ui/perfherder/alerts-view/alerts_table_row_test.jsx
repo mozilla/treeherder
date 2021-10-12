@@ -308,7 +308,20 @@ test('Two flame icons for alert magnitude between 200 and 299 percentage', async
   expect(flamesIconsList.children).toHaveLength(2);
 });
 
-test('Three flame icons for alert magnitude over 300 percentage', async () => {
+test('Three flame icons for alert magnitude of 300 percentage', async () => {
+  testAlert.is_regression = true;
+  testAlert.amount_pct = 300;
+
+  const { getByTestId } = alertTableRowTest({
+    alert: testAlert,
+    tags: [],
+  });
+
+  const flamesIconsList = await waitFor(() => getByTestId('flame-icons'));
+  expect(flamesIconsList.children).toHaveLength(3);
+});
+
+test('Three flame icons and a plus icon for alert magnitude over 300 percentage', async () => {
   testAlert.is_regression = true;
   testAlert.amount_pct = 430;
 
@@ -318,7 +331,7 @@ test('Three flame icons for alert magnitude over 300 percentage', async () => {
   });
 
   const flamesIconsList = await waitFor(() => getByTestId('flame-icons'));
-  expect(flamesIconsList.children).toHaveLength(3);
+  expect(flamesIconsList.children).toHaveLength(4);
 });
 
 test('One green flame icon for alert magnitude equal to 100 percentage and new value equal to 0', async () => {

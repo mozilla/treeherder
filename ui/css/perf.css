@@ -564,13 +564,20 @@ li.pagination-active.active > button {
 
 .information-container .option {
   display: flex;
+  align-items: center;
 }
 
 .information-container .option .icon {
-  margin: 0px 2px 0px 2px;
+  margin: 0px 2px 5px 2px;
   color: #dc3545;
 }
 
 .information-container .option .icon-green-flame {
   color: #2da745;
+}
+
+.information-container .option .icon-plus {
+  font-size: 12px;
+  color: #dc3545;
+  margin-left: 5px;
 }

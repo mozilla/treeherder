@@ -10,6 +10,7 @@ import {
   faCheck,
   faChartLine,
   faFire,
+  faPlus,
 } from '@fortawesome/free-solid-svg-icons';
 import { faStar as faStarRegular } from '@fortawesome/free-regular-svg-icons';
 import { Link } from 'react-router-dom';
@@ -47,6 +48,12 @@ export default class AlertTableRow extends React.Component {
       checkboxSelected: false,
       icons: [],
     };
+  }
+
+  componentDidMount() {
+    const { alert } = this.props;
+
+    this.showCriticalMagnitudeIcons(alert);
   }
 
   componentDidUpdate(prevProps) {
@@ -270,6 +277,8 @@ export default class AlertTableRow extends React.Component {
     const alertMagnitude = Math.round(alert.amount_pct);
     const alertNewValue = alert.new_value;
     let numberOfIcons = 0;
+    let exceedsMaximumIcons = false;
+
     if (alert.is_regression) {
       if (
         alertMagnitude >= 100 &&
@@ -279,33 +288,60 @@ export default class AlertTableRow extends React.Component {
         numberOfIcons = 1;
       } else if (alertMagnitude >= 200 && alertMagnitude < 300) {
         numberOfIcons = 2;
-      } else if (alertMagnitude >= 300) {
+      } else if (alertMagnitude === 300) {
         numberOfIcons = 3;
+      } else if (alertMagnitude > 300) {
+        numberOfIcons = 3;
+        exceedsMaximumIcons = true;
       }
     } else if (alertMagnitude === 100 && alertNewValue === 0) {
-      this.state.icons.push(
-        <SimpleTooltip
-          key={alert.id}
-          text={<FontAwesomeIcon icon={faFire} className="icon-green-flame" />}
-          tooltipText="This should be treated as a regression"
-        />,
-      );
+      this.setState((prevState) => ({
+        icons: [
+          ...prevState.icons,
+          <SimpleTooltip
+            key={alert.id}
+            text={
+              <FontAwesomeIcon
+                icon={faFire}
+                className="icon-green-flame icon"
+              />
+            }
+            tooltipText="This should be treated as a regression"
+          />,
+        ],
+      }));
     }
 
     for (let i = 0; i < numberOfIcons; i++) {
-      this.state.icons.push(
-        <SimpleTooltip
-          key={i}
-          text={<FontAwesomeIcon icon={faFire} className="icon" />}
-          tooltipText="Magnitude"
-        />,
-      );
+      this.setState((prevState) => ({
+        icons: [
+          ...prevState.icons,
+          <SimpleTooltip
+            key={i}
+            text={<FontAwesomeIcon icon={faFire} className="icon" />}
+            tooltipText="Magnitude"
+          />,
+        ],
+      }));
+
+      if (exceedsMaximumIcons && i === numberOfIcons - 1) {
+        this.setState((prevState) => ({
+          icons: [
+            ...prevState.icons,
+            <FontAwesomeIcon
+              key={i + 1}
+              icon={faPlus}
+              className="icon-plus icon"
+            />,
+          ],
+        }));
+      }
     }
   }
 
   render() {
     const { user, alert, alertSummary } = this.props;
-    const { starred, checkboxSelected } = this.state;
+    const { starred, checkboxSelected, icons } = this.state;
     const { repository, framework } = alertSummary;
 
     const { tags, extra_options: options } = alert.series_signature;
@@ -330,8 +366,6 @@ export default class AlertTableRow extends React.Component {
     const noiseProfileTooltip = alert.noise_profile
       ? noiseProfiles[alert.noise_profile.replace('/', '')]
       : noiseProfiles.NA;
-
-    this.showCriticalMagnitudeIcons(alert);
 
     return (
       <tr
@@ -411,9 +445,9 @@ export default class AlertTableRow extends React.Component {
                 autohide={false}
               />
             </div>
-            {this.state.icons.length > 0 ? (
+            {icons.length > 0 ? (
               <div className="option" data-testid="flame-icons">
-                {this.state.icons}
+                {icons}
               </div>
             ) : (
               ''
