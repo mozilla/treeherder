@@ -7,6 +7,8 @@ import queryString from 'query-string';
 import { getData, processResponse, processErrors } from '../../helpers/http';
 import {
   createApiUrl,
+  createQueryParams,
+  getApiUrl,
   parseQueryParams,
   updateQueryParams,
 } from '../../helpers/url';
@@ -197,16 +199,19 @@ class GraphsView extends React.Component {
         this.getAlertSummaries(series.signature_id, series.repository_id),
       ),
     );
+    const otherAlerts = await Promise.all(
+      seriesData.map((series) => this.getOtherAlerts(series.framework_id)),
+    );
+    console.log(otherAlerts);
     const newColors = [...colors];
     const newSymbols = [...symbols];
-
+    // TODO ADD OTHER ALERTS here
     const graphData = createGraphData(
       seriesData,
       alertSummaries.flat(),
       newColors,
       newSymbols,
     );
-
     this.setState({ colors: newColors, symbols: newSymbols });
     return graphData;
   };
@@ -227,6 +232,15 @@ class GraphsView extends React.Component {
     }
     this.setState({ errorMessages: response.errorMessages });
     return [];
+  };
+
+  getOtherAlerts = async (frameworkId) => {
+    const params = { framework: frameworkId };
+    const url = getApiUrl(
+      `${endpoints.alertSummary}${createQueryParams(params)}`,
+    );
+    const data = await getData(url);
+    return data;
   };
 
   updateData = async (
