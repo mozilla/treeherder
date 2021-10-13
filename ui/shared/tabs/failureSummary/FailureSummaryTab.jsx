@@ -1,7 +1,10 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faSpinner } from '@fortawesome/free-solid-svg-icons';
+import {
+  faSpinner,
+  faExternalLinkAlt,
+} from '@fortawesome/free-solid-svg-icons';
 
 import { thBugSuggestionLimit, thEvents } from '../../../helpers/constants';
 import { getResultState, isReftest } from '../../../helpers/job';
@@ -153,6 +156,25 @@ class FailureSummaryTab extends React.Component {
 
     return (
       <div className="w-100 h-100" role="region" aria-label="Failure Summary">
+        {repoName === 'try' &&
+          selectedJob &&
+          selectedJob.task_id &&
+          selectedJob.result === 'testfailed' && (
+            <a
+              className="text-darker-info d-inline-block pb-2 pt-1"
+              target="_blank"
+              rel="noopener noreferrer"
+              href={`https://pernos.co/self-service-api/mozilla/${selectedJob.task_id}/self-service.html`}
+            >
+              <span>
+                Reproduce this failure with Pernosco{' '}
+                <FontAwesomeIcon
+                  icon={faExternalLinkAlt}
+                  className="icon-superscript"
+                />
+              </span>
+            </a>
+          )}
         <ul
           className={`${
             !developerMode && 'font-size-11'
