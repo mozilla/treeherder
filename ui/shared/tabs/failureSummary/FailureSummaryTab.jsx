@@ -133,6 +133,17 @@ class FailureSummaryTab extends React.Component {
     });
   };
 
+  shouldShowPernoscoLink(repoName, selectedJob) {
+    return (
+      (repoName === 'try' || repoName === 'autoland') &&
+      selectedJob &&
+      selectedJob.task_id &&
+      selectedJob.result === 'testfailed' &&
+      // only supports linux 64 builds
+      selectedJob.build_platform.match(/^\blinux(?=.*\b64\b).*$/)
+    );
+  }
+
   render() {
     const {
       jobLogUrls,
@@ -156,25 +167,22 @@ class FailureSummaryTab extends React.Component {
 
     return (
       <div className="w-100 h-100" role="region" aria-label="Failure Summary">
-        {repoName === 'try' &&
-          selectedJob &&
-          selectedJob.task_id &&
-          selectedJob.result === 'testfailed' && (
-            <a
-              className="text-darker-info d-inline-block pb-2 pt-1"
-              target="_blank"
-              rel="noopener noreferrer"
-              href={`https://pernos.co/self-service-api/mozilla/${selectedJob.task_id}/self-service.html`}
-            >
-              <span>
-                Reproduce this failure with Pernosco{' '}
-                <FontAwesomeIcon
-                  icon={faExternalLinkAlt}
-                  className="icon-superscript"
-                />
-              </span>
-            </a>
-          )}
+        {this.shouldShowPernoscoLink(repoName, selectedJob) && (
+          <a
+            className="text-darker-info d-inline-block pb-2 pt-1"
+            target="_blank"
+            rel="noopener noreferrer"
+            href={`https://pernos.co/self-service-api/mozilla/${selectedJob.task_id}/self-service.html`}
+          >
+            <span>
+              Reproduce this failure with Pernosco{' '}
+              <FontAwesomeIcon
+                icon={faExternalLinkAlt}
+                className="icon-superscript"
+              />
+            </span>
+          </a>
+        )}
         <ul
           className={`${
             !developerMode && 'font-size-11'
