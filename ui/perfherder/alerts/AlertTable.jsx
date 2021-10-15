@@ -68,7 +68,7 @@ export default class AlertTable extends React.Component {
           currentSort: tableSort.default,
         },
         NoiseProfile: {
-          name: 'Noise Profile',
+          name: 'Information',
           sortValue: 'noise_profile',
           currentSort: tableSort.default,
         },

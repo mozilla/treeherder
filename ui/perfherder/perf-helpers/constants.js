@@ -179,11 +179,11 @@ export const permaLinkPrefix = 'tableLink';
 export const maximumVisibleAlertSummaryRows = 26;
 
 export const noiseProfiles = {
-  SKEWED: 'Samples are heavily found on one side of the mean.',
+  SKEWED: 'Noise Profile: Samples are heavily found on one side of the mean.',
   OUTLIERS:
-    'There are more outliers than should be expected from a normal distribution.',
+    'Noise Profile: There are more outliers than should be expected from a normal distribution.',
   MODAL:
-    'There are multiple areas where most values are found rather than only one.',
-  OK: 'No issues were found.',
-  NA: 'Could not compute a noise profile.',
+    'Noise Profile: There are multiple areas where most values are found rather than only one.',
+  OK: 'Noise Profile: No issues were found.',
+  NA: 'Noise Profile: Could not compute a noise profile.',
 };
