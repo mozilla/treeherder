@@ -213,7 +213,11 @@ class TabsPanel extends React.Component {
             </span>
           </TabList>
           <TabPanel>
-            <JobArtifacts jobDetails={jobDetails} />
+            <JobArtifacts
+              jobDetails={jobDetails}
+              repoName={currentRepo.name}
+              selectedJob={selectedJobFull}
+            />
           </TabPanel>
           <TabPanel>
             <FailureSummaryTab

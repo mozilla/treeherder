@@ -1,13 +1,26 @@
 import React from 'react';
 import PropTypes from 'prop-types';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faExternalLinkAlt } from '@fortawesome/free-solid-svg-icons';
 
 import { getPerfAnalysisUrl } from '../helpers/url';
 
 const UNTITLED = 'Untitled data';
 
-export default class JobDetails extends React.PureComponent {
+export default class JobArtifacts extends React.PureComponent {
+  shouldShowPernoscoLink(repoName, selectedJob) {
+    return (
+      (repoName === 'try' || repoName === 'autoland') &&
+      selectedJob &&
+      selectedJob.task_id &&
+      selectedJob.result === 'testfailed' &&
+      // only supports linux 64 builds
+      selectedJob.build_platform.match(/linux(?=.*64\b).*$/)
+    );
+  }
+
   render() {
-    const { jobDetails } = this.props;
+    const { jobDetails, repoName, selectedJob } = this.props;
     const sortedDetails = jobDetails.slice();
 
     sortedDetails.sort((a, b) => {
@@ -18,16 +31,30 @@ export default class JobDetails extends React.PureComponent {
 
     return (
       <div id="job-artifacts-list" role="region" aria-label="Artifacts">
-        <ul className="list-unstyled">
-          {sortedDetails.map((line, idx) => (
-            <li
-              className="small"
-              key={idx} // eslint-disable-line react/no-array-index-key
+        {this.shouldShowPernoscoLink(repoName, selectedJob) && (
+          <div className="py-2">
+            <a
+              className="text-darker-secondary font-weight-bold font-size-16"
+              target="_blank"
+              rel="noopener noreferrer"
+              href={`https://pernos.co/self-service-api/mozilla/${selectedJob.task_id}/self-service.html`}
             >
-              <strong>{line.title ? line.title : UNTITLED}:</strong>&nbsp;
-              {/* URL provided */}
+              <span>
+                Debug this failure in the Pernosco App{' '}
+                <FontAwesomeIcon
+                  icon={faExternalLinkAlt}
+                  className="icon-superscript"
+                />
+              </span>
+            </a>
+          </div>
+        )}
+        <ul className="list-unstyled">
+          {sortedDetails.map((line) => (
+            <li className="link-style" key={line.value}>
               {!!line.url && (
                 <a
+                  data-testid="task-artifact"
                   title={line.title ? line.title : line.value}
                   href={line.url}
                   target="_blank"
@@ -48,14 +75,6 @@ export default class JobDetails extends React.PureComponent {
                     </a>
                   </span>
                 )}
-              {/*
-                no URL (just informational)
-                If this is showing HTML from a TinderboxPrint line it should
-                have been parsed in our log parser to a url instead of getting here.
-                If it wasn't, it probably had a <br/> tag and didn't have
-                a 'title' value in the '<a>' element.
-              */}
-              {!line.url && <span>{line.value}</span>}
             </li>
           ))}
         </ul>
@@ -64,10 +83,12 @@ export default class JobDetails extends React.PureComponent {
   }
 }
 
-JobDetails.propTypes = {
+JobArtifacts.propTypes = {
   jobDetails: PropTypes.arrayOf(PropTypes.object),
+  repoName: PropTypes.string.isRequired,
+  selectedJob: PropTypes.shape({}).isRequired,
 };
 
-JobDetails.defaultProps = {
+JobArtifacts.defaultProps = {
   jobDetails: [],
 };
