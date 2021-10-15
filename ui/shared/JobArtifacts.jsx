@@ -3,7 +3,7 @@ import PropTypes from 'prop-types';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faExternalLinkAlt } from '@fortawesome/free-solid-svg-icons';
 
-import { getPerfAnalysisUrl } from '../helpers/url';
+import { getPerfAnalysisUrl, getPernoscoURL } from '../helpers/url';
 
 const UNTITLED = 'Untitled data';
 
@@ -34,13 +34,13 @@ export default class JobArtifacts extends React.PureComponent {
         {this.shouldShowPernoscoLink(repoName, selectedJob) && (
           <div className="py-2">
             <a
-              className="text-darker-secondary font-weight-bold font-size-16"
+              className="text-darker-secondary font-weight-bold font-size-14"
               target="_blank"
               rel="noopener noreferrer"
-              href={`https://pernos.co/self-service-api/mozilla/${selectedJob.task_id}/self-service.html`}
+              href={getPernoscoURL(selectedJob.task_id)}
             >
               <span>
-                Debug this failure in the Pernosco App{' '}
+                Reproduce this failure in the Pernosco app{' '}
                 <FontAwesomeIcon
                   icon={faExternalLinkAlt}
                   className="icon-superscript"
