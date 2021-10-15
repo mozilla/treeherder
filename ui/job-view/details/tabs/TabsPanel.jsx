@@ -154,7 +154,7 @@ class TabsPanel extends React.Component {
         >
           <TabList className="tab-headers">
             <span className="tab-header-tabs">
-              <Tab>Artifacts</Tab>
+              <Tab>Artifacts and Debugging Tools</Tab>
               <Tab>Failure Summary</Tab>
               <Tab>Annotations</Tab>
               <Tab>Similar Jobs</Tab>

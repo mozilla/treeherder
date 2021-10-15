@@ -50,33 +50,34 @@ export default class JobArtifacts extends React.PureComponent {
           </div>
         )}
         <ul className="list-unstyled">
-          {sortedDetails.map((line) => (
-            <li className="link-style" key={line.value}>
-              {!!line.url && (
-                <a
-                  data-testid="task-artifact"
-                  title={line.title ? line.title : line.value}
-                  href={line.url}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                >
-                  {line.value}
-                </a>
-              )}
-              {line.url &&
-                line.value.startsWith('profile_') &&
-                (line.value.endsWith('.zip') ||
-                  line.value.endsWith('.json')) && (
-                  <span>
-                    {' '}
-                    -{' '}
-                    <a title={line.value} href={getPerfAnalysisUrl(line.url)}>
-                      open in Firefox Profiler
-                    </a>
-                  </span>
+          {sortedDetails.length > 0 &&
+            sortedDetails.map((line) => (
+              <li className="link-style" key={line.value}>
+                {!!line.url && (
+                  <a
+                    data-testid="task-artifact"
+                    title={line.title ? line.title : line.value}
+                    href={line.url}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                  >
+                    {line.value}
+                  </a>
                 )}
-            </li>
-          ))}
+                {line.url &&
+                  line.value.startsWith('profile_') &&
+                  (line.value.endsWith('.zip') ||
+                    line.value.endsWith('.json')) && (
+                    <span>
+                      {' '}
+                      -{' '}
+                      <a title={line.value} href={getPerfAnalysisUrl(line.url)}>
+                        open in Firefox Profiler
+                      </a>
+                    </span>
+                  )}
+              </li>
+            ))}
         </ul>
       </div>
     );

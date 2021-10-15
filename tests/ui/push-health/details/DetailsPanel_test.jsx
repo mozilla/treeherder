@@ -84,7 +84,7 @@ describe('DetailsPanel', () => {
 
   test('should have artifacts', async () => {
     const { getAllByTestId, findByText } = render(testDetailsPanel(task));
-    const artifactsTab = await findByText('Artifacts');
+    const artifactsTab = await findByText('Artifacts and Debugging Tools');
 
     fireEvent.click(artifactsTab);
 
