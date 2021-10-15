@@ -112,7 +112,9 @@ describe('PlatformConfig', () => {
 
     fireEvent.click(detailsButton);
 
-    const artifactsTab = await waitFor(() => getByText('Artifacts'));
+    const artifactsTab = await waitFor(() =>
+      getByText('Artifacts and Debugging Tools'),
+    );
 
     fireEvent.click(artifactsTab);
 

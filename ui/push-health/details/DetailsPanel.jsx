@@ -3,7 +3,7 @@ import PropTypes from 'prop-types';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faTimes } from '@fortawesome/free-solid-svg-icons';
 import { Tab, TabList, TabPanel, Tabs } from 'react-tabs';
-import { Col, Row, Button, Spinner } from 'reactstrap';
+import { Col, Button, Spinner } from 'reactstrap';
 
 import { getArtifactsUrl, getLogViewerUrl } from '../../helpers/url';
 import { formatArtifacts } from '../../helpers/display';
@@ -12,6 +12,7 @@ import { getData } from '../../helpers/http';
 import JobModel from '../../models/job';
 import LogviewerTab from '../../shared/tabs/LogviewerTab';
 import FailureSummaryTab from '../../shared/tabs/failureSummary/FailureSummaryTab';
+import JobArtifacts from '../../shared/JobArtifacts';
 
 class DetailsPanel extends React.Component {
   constructor(props) {
@@ -175,19 +176,9 @@ class DetailsPanel extends React.Component {
                     <Tab className="ml-3 font-weight-bold text-secondary list-inline-item pointable">
                       Log Viewer
                     </Tab>
-                    {taskDetails.length > 0 ? (
-                      <Tab className="ml-3 font-weight-bold text-secondary list-inline-item pointable">
-                        Artifacts
-                      </Tab>
-                    ) : (
-                      <Tab
-                        className="ml-3 font-weight-bold list-inline-item pointable"
-                        title="This task has no artifacts"
-                        disabled
-                      >
-                        No Artifacts
-                      </Tab>
-                    )}
+                    <Tab className="ml-3 font-weight-bold text-secondary list-inline-item pointable">
+                      Artifacts and Debugging Tools
+                    </Tab>
                   </span>
                   <Button
                     onClick={closeDetails}
@@ -221,13 +212,11 @@ class DetailsPanel extends React.Component {
                 </TabPanel>
                 <TabPanel className="overflow-auto h-100">
                   <Col className="ml-2">
-                    {taskDetails.map((artifact) => (
-                      <Row key={artifact.value} data-testid="task-artifact">
-                        <a href={artifact.url} className="link-style">
-                          {artifact.value}
-                        </a>
-                      </Row>
-                    ))}
+                    <JobArtifacts
+                      jobDetails={taskDetails}
+                      repoName={currentRepo.name}
+                      selectedJob={selectedTaskFull}
+                    />
                   </Col>
                 </TabPanel>
               </div>

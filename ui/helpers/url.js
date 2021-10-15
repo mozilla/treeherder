@@ -157,3 +157,6 @@ export const updateQueryParams = function updateHistoryWithQueryParams(
 ) {
   history.push({ pathname: location.pathname, search: queryParams });
 };
+
+export const getPernoscoURL = (taskId) =>
+  `https://pernos.co/self-service-api/mozilla/${taskId}/self-service.html`;
