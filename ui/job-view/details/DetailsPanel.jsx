@@ -14,6 +14,8 @@ import JobClassificationModel from '../../models/classification';
 import JobModel from '../../models/job';
 import JobLogUrlModel from '../../models/jobLogUrl';
 import PerfSeriesModel from '../../models/perfSeries';
+import { Perfdocs } from '../../perfherder/perf-helpers/perfdocs';
+import { getFrameworkName } from '../../perfherder/perf-helpers/helpers';
 
 import PinBoard from './PinBoard';
 import SummaryPanel from './summary/SummaryPanel';
@@ -241,10 +243,24 @@ class DetailsPanel extends React.Component {
                   ),
                 );
 
+                const frameworks = {
+                  1: 'talos',
+                  2: 'build_metrics',
+                  4: 'awsy',
+                  5: 'awfy',
+                  6: 'platform_microbench',
+                  10: 'raptor',
+                  11: 'js-bench',
+                  12: 'devtools',
+                  13: 'browsertime',
+                  14: 'vcs',
+                  15: 'mozperftest',
+                };
+
                 const seriesList = seriesListList
                   .map((item) => item.data)
                   .reduce((a, b) => [...a, ...b], []);
-
+                console.log('seriesList: ', seriesList);
                 perfJobDetail = performanceData
                   .map((d) => ({
                     series: seriesList.find((s) => d.signature_id === s.id),
@@ -261,6 +277,24 @@ class DetailsPanel extends React.Component {
                     measurementUnit: d.series.measurementUnit,
                     lowerIsBetter: d.series.lowerIsBetter,
                     title: d.series.name,
+                    suite: d.series.suite,
+                    options: d.series.options.join(' '),
+                    tags: d.series.tags.join(' '),
+                    frameworkId: d.series.frameworkId,
+                    platform: d.series.platform,
+                    testName: d.series.testName,
+                    documentationURL: new Perfdocs(
+                      frameworks[d.series.frameworkId],
+                      d.series.suite,
+                      d.series.platform,
+                      d.series.name,
+                    ).documentationURL,
+                    remainingTestName: new Perfdocs(
+                      frameworks[d.series.frameworkId],
+                      d.series.suite,
+                      d.series.platform,
+                      d.series.testName,
+                    ).remainingName,
                   }));
               }
 
@@ -317,7 +351,8 @@ class DetailsPanel extends React.Component {
     const detailsPanelHeight = isPinBoardVisible
       ? resizedHeight - pinboardHeight
       : resizedHeight;
-
+    // console.log("selectedJobFull: ", selectedJobFull)
+    // console.log("perfJobDetail: ", selectedJobFull)
     return (
       <div
         id="details-panel"

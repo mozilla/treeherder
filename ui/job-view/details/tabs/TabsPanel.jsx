@@ -7,6 +7,9 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import {
   faAngleDown,
   faAngleUp,
+  faLongArrowAltDown,
+  faLongArrowAltUp,
+  faExclamationTriangle,
   faTimes,
 } from '@fortawesome/free-solid-svg-icons';
 
@@ -158,7 +161,15 @@ class TabsPanel extends React.Component {
               <Tab>Failure Summary</Tab>
               <Tab>Annotations</Tab>
               <Tab>Similar Jobs</Tab>
-              {showPerf && <Tab>Performance</Tab>}
+              {showPerf && (
+                <Tab>
+                  Performance
+                  <FontAwesomeIcon
+                    icon={faExclamationTriangle}
+                    className="mr-2"
+                  />
+                </Tab>
+              )}
               {enableTestGroupsTab ? (
                 <Tab>Test Groups</Tab>
               ) : (

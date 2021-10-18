@@ -2,18 +2,27 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { Alert, Button } from 'reactstrap';
+import { Alert, Button, Col } from 'reactstrap';
 import {
   faInfoCircle,
   faExternalLinkAlt,
   faRedo,
   faTable,
+  faFileDownload,
+  faArrowCircleDown,
+  faBan,
+  faLongArrowAltDown,
+  faLongArrowAltUp,
+  faVideo,
+  faExclamationTriangle,
 } from '@fortawesome/free-solid-svg-icons';
 
 import { getCompareChooserUrl, getPerfAnalysisUrl } from '../../../helpers/url';
 import { triggerGeckoProfileTask } from '../../../helpers/performance';
 import { notify } from '../../redux/stores/notifications';
 import { isPerfTest } from '../../../helpers/job';
+import { Perfdocs } from '../../../perfherder/perf-helpers/perfdocs';
+import SimpleTooltip from '../../../shared/SimpleTooltip';
 
 /**
  * The performance tab shows performance-oriented information about a test run.
@@ -84,53 +93,137 @@ class PerformanceTab extends React.PureComponent {
 
     // These styles are shared across all of the table cells.
     const cellClassName = 'nowrap pl-2 pr-2';
-
     return (
       <>
         <h3 className="font-size-16 mt-3 mb-2">
           Results for: {selectedJobFull.job_type_name}
         </h3>
+        <h3 className="font-size-14 mt-3 mb-2">
+          Interpreting results: Compare average reference value against the
+          actual value for the test over the last 7 days on mozilla-central.
+        </h3>
+        <h3 className="font-size-14 mt-3 mb-2">
+          <FontAwesomeIcon icon={faLongArrowAltDown} className="mr-2" /> - means
+          that a lower value represents an improvement
+        </h3>
+        <h3 className="font-size-14 mt-3 mb-2">
+          <FontAwesomeIcon icon={faLongArrowAltUp} className="mr-2" /> - means
+          that an upper value represents an improvement
+        </h3>
         <table className="table table-sm performance-panel-data">
           <thead>
             <tr>
+              <th scope="col" className={`text-right ${cellClassName}`}>
+                Criteria
+              </th>
+              <th scope="col" className={`text-right ${cellClassName}`}>
+                Average
+              </th>
               <th scope="col" className={`text-right ${cellClassName}`}>
                 Value
               </th>
               <th scope="col" className={cellClassName}>
                 Unit
               </th>
-              <th scope="col" className={cellClassName}>
-                Better
-              </th>
+              {/*<th scope="col" className={cellClassName}>*/}
+              {/*  Better*/}
+              {/*</th>*/}
               <th scope="col" className={cellClassName}>
                 History
               </th>
               <th scope="col" className={cellClassName}>
                 Name
               </th>
+              <th scope="col" className={cellClassName}>
+                Tags & Options
+              </th>
+              <th scope="col" className={cellClassName}>
+                Status
+              </th>
             </tr>
           </thead>
           <tbody>
             {sortedDetails.map(
-              ({ value, url, measurementUnit, lowerIsBetter, title }, idx) => (
+              (
+                {
+                  value,
+                  url,
+                  measurementUnit,
+                  lowerIsBetter,
+                  title,
+                  suite,
+                  platform,
+                  frameworkId,
+                  documentationURL,
+                  remainingTestName,
+                  options,
+                  tags,
+                  testName,
+                },
+                idx,
+              ) => (
                 // eslint-disable-next-line react/no-array-index-key
                 <tr key={idx}>
                   {/* Ensure the value and measurement are visually next to each
                   other in the chart, by aligning the value to the right. */}
+                  <td className={`text-center ${cellClassName}`}>
+                    <FontAwesomeIcon
+                      icon={
+                        lowerIsBetter ? faLongArrowAltDown : faLongArrowAltUp
+                      }
+                      className="mr-2"
+                    />
+                  </td>
+                  <td className={`text-right ${cellClassName}`}>50</td>
                   <td className={`text-right ${cellClassName}`}>{value}</td>
                   <td className={cellClassName}>{measurementUnit || '–'}</td>
-                  <td className={cellClassName}>
-                    {lowerIsBetter ? 'Lower' : 'Higher'}
-                  </td>
+                  {/*<td className={cellClassName}>*/}
+                  {/*  {lowerIsBetter ? 'Lower' : 'Higher'}*/}
+                  {/*</td>*/}
                   <td className={cellClassName}>
                     <a
                       href={url}
                       className="btn btn-outline-darker-secondary btn-sm performance-panel-view-button"
+                      target="_blank"
                     >
                       View
                     </a>
                   </td>
-                  <td className="w-100">{title}</td>
+                  <td className="w-15">
+                    <a href={documentationURL}>{`${suite} `}</a>
+                    {`${remainingTestName}`}
+                    {/*<SimpleTooltip*/}
+                    {/*  text={` ${options}`}*/}
+                    {/*  tooltipText="Explanation for the options metrics"*/}
+                    {/*/>*/}
+                    {/*<SimpleTooltip*/}
+                    {/*  text={` ${tags}`}*/}
+                    {/*  tooltipText="Explanation for the tags metrics"*/}
+                    {/*/>*/}
+                    {/*<a*/}
+                    {/*  href={url}*/}
+                    {/*  className="btn btn-outline-darker-secondary btn-sm performance-panel-view-button"*/}
+                    {/*  target="_blank"*/}
+                    {/*>*/}
+                    {/*  Video*/}
+                    {/*</a>*/}
+                  </td>
+                  <td className="w-30">
+                    <SimpleTooltip
+                      text={`${options}`}
+                      tooltipText="Explanation for the options metrics"
+                    />
+                    <SimpleTooltip
+                      text={` ${tags}`}
+                      tooltipText="Explanation for the tags metrics"
+                    />
+                  </td>
+                  <td className="w-100">
+                    <FontAwesomeIcon
+                      icon={faExclamationTriangle}
+                      className="mr-2"
+                    />
+                  </td>
                 </tr>
               ),
             )}
@@ -192,6 +285,43 @@ class PerformanceTab extends React.PureComponent {
           >
             <FontAwesomeIcon icon={faTable} className="mr-2" />
             Compare against another revision
+          </a>
+          <a
+            href={getCompareChooserUrl({
+              newProject: repoName,
+              newRevision: revision,
+            })}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="btn btn-outline-darker-secondary btn-sm"
+          >
+            <FontAwesomeIcon icon={faFileDownload} className="mr-2" />
+            JSON
+          </a>
+          <a
+            href={getCompareChooserUrl({
+              newProject: repoName,
+              newRevision: revision,
+            })}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="btn btn-outline-darker-secondary btn-sm"
+          >
+            {/* Here we could use as well faArrowCircleDown */}
+            <FontAwesomeIcon icon={faFileDownload} className="mr-2" />
+            Artifacts
+          </a>
+          <a
+            href={getCompareChooserUrl({
+              newProject: repoName,
+              newRevision: revision,
+            })}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="btn btn-outline-darker-secondary btn-sm"
+          >
+            <FontAwesomeIcon icon={faVideo} className="mr-2" />
+            Videos
           </a>
         </div>
         {
