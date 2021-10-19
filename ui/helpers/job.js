@@ -93,9 +93,7 @@ export const isUnclassifiedFailure = function isUnclassifiedFailure(job) {
 // Fetch the React instance of an object from a DOM element.
 // Credit for this approach goes to SO: https://stackoverflow.com/a/48335220/333614
 export const findInstance = function findInstance(el) {
-  const key = Object.keys(el).find((key) =>
-    key.startsWith('__reactInternalInstance$'),
-  );
+  const key = Object.keys(el).find((key) => key.startsWith('__reactFiber$'));
   if (key) {
     const fiberNode = el[key];
     return fiberNode && fiberNode.return && fiberNode.return.stateNode;
