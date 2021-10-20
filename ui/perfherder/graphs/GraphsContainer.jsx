@@ -45,6 +45,7 @@ class GraphsContainer extends React.Component {
     const zoomDomain = this.initZoomDomain(scatterPlotData);
     this.state = {
       highlights: [],
+      highlightOtherAlertsData: [],
       scatterPlotData,
       zoomDomain,
       lockTooltip: false,
@@ -70,6 +71,7 @@ class GraphsContainer extends React.Component {
   componentDidUpdate(prevProps) {
     const {
       highlightAlerts,
+      highlightOtherAlerts,
       highlightChangelogData,
       highlightedRevisions,
       testData,
@@ -81,6 +83,7 @@ class GraphsContainer extends React.Component {
 
     if (
       prevProps.highlightAlerts !== highlightAlerts ||
+      prevProps.highlightOtherAlerts !== highlightOtherAlerts ||
       prevProps.highlightChangelogData !== highlightChangelogData ||
       prevProps.highlightedRevisions !== highlightedRevisions
     ) {
@@ -185,8 +188,14 @@ class GraphsContainer extends React.Component {
   };
 
   addHighlights = () => {
-    const { testData, highlightAlerts, highlightedRevisions } = this.props;
+    const {
+      testData,
+      highlightAlerts,
+      highlightOtherAlerts,
+      highlightedRevisions,
+    } = this.props;
     let highlights = [];
+    let highlightOtherAlertsData = [];
 
     for (const series of testData) {
       if (!series.visible) {
@@ -196,6 +205,13 @@ class GraphsContainer extends React.Component {
       if (highlightAlerts) {
         const dataPoints = series.data.filter((item) => item.alertSummary);
         highlights = [...highlights, ...dataPoints];
+      }
+
+      if (highlightOtherAlerts) {
+        const dataPoints = series.data.filter(
+          (item) => item.commonAlert && !item.alertSummary,
+        );
+        highlightOtherAlertsData = [...highlightOtherAlertsData, ...dataPoints];
       }
 
       for (const rev of highlightedRevisions) {
@@ -212,7 +228,7 @@ class GraphsContainer extends React.Component {
         }
       }
     }
-    this.setState({ highlights });
+    this.setState({ highlights, highlightOtherAlertsData });
   };
 
   getTooltipPosition = (point, yOffset = 15) => ({
@@ -364,9 +380,11 @@ class GraphsContainer extends React.Component {
       zoom,
       highlightedRevisions,
       highlightChangelogData,
+      highlightOtherAlerts,
     } = this.props;
     const {
       highlights,
+      highlightOtherAlertsData,
       scatterPlotData,
       zoomDomain,
       lockTooltip,
@@ -551,6 +569,18 @@ class GraphsContainer extends React.Component {
                         key={item}
                         style={{
                           data: { stroke: 'gray', strokeWidth: 1 },
+                        }}
+                        x={() => item.x}
+                      />
+                    ))}
+
+                  {highlightOtherAlerts &&
+                    highlightOtherAlertsData.length > 0 &&
+                    highlightOtherAlertsData.map((item) => (
+                      <VictoryLine
+                        key={item}
+                        style={{
+                          data: { stroke: 'red', strokeWidth: 1 },
                         }}
                         x={() => item.x}
                       />

@@ -39,6 +39,7 @@ class GraphsView extends React.Component {
       zoom: {},
       selectedDataPoint: null,
       highlightAlerts: true,
+      highlightOtherAlerts: false,
       highlightChangelogData: true,
       highlightedRevisions: ['', ''],
       testData: [],
@@ -89,6 +90,7 @@ class GraphsView extends React.Component {
       zoom,
       selected,
       highlightAlerts,
+      highlightOtherAlerts,
       highlightChangelogData,
       highlightedRevisions,
     } = queryString.parse(this.props.location.search);
@@ -103,6 +105,12 @@ class GraphsView extends React.Component {
 
     if (highlightAlerts) {
       updates.highlightAlerts = Boolean(parseInt(highlightAlerts, 10));
+    }
+
+    if (highlightOtherAlerts) {
+      updates.highlightOtherAlerts = Boolean(
+        parseInt(highlightOtherAlerts, 10),
+      );
     }
 
     if (highlightChangelogData) {
@@ -202,13 +210,14 @@ class GraphsView extends React.Component {
     const otherAlerts = await Promise.all(
       seriesData.map((series) => this.getOtherAlerts(series.framework_id)),
     );
-    console.log(otherAlerts);
+
     const newColors = [...colors];
     const newSymbols = [...symbols];
-    // TODO ADD OTHER ALERTS here
+
     const graphData = createGraphData(
       seriesData,
       alertSummaries.flat(),
+      otherAlerts,
       newColors,
       newSymbols,
     );
@@ -240,7 +249,8 @@ class GraphsView extends React.Component {
       `${endpoints.alertSummary}${createQueryParams(params)}`,
     );
     const data = await getData(url);
-    return data;
+
+    return data.data;
   };
 
   updateData = async (
@@ -306,6 +316,7 @@ class GraphsView extends React.Component {
       selectedDataPoint,
       zoom,
       highlightAlerts,
+      highlightOtherAlerts,
       highlightChangelogData,
       highlightedRevisions,
       timeRange,
@@ -318,6 +329,7 @@ class GraphsView extends React.Component {
     const params = {
       series: newSeries,
       highlightAlerts: +highlightAlerts,
+      highlightOtherAlerts: +highlightOtherAlerts,
       highlightChangelogData: +highlightChangelogData,
       timerange: timeRange.value,
       zoom,
@@ -353,6 +365,7 @@ class GraphsView extends React.Component {
       timeRange,
       testData,
       highlightAlerts,
+      highlightOtherAlerts,
       highlightChangelogData,
       highlightedRevisions,
       selectedDataPoint,
@@ -440,6 +453,7 @@ class GraphsView extends React.Component {
                 highlightAlerts={highlightAlerts}
                 highlightChangelogData={highlightChangelogData}
                 highlightedRevisions={highlightedRevisions}
+                highlightOtherAlerts={highlightOtherAlerts}
                 zoom={zoom}
                 selectedDataPoint={selectedDataPoint}
                 updateStateParams={(state) =>

@@ -59,11 +59,16 @@ const GraphTooltip = ({
   const deltaPercent = value / v0 - 1;
   let alert;
   let alertStatus;
+  let isCommonAlert = false;
 
   if (dataPointDetails.alertSummary && dataPointDetails.alertSummary.alerts) {
     alert = dataPointDetails.alertSummary.alerts.find(
       (alert) => alert.series_signature.id === testDetails.signature_id,
     );
+  }
+
+  if (dataPointDetails.commonAlert) {
+    isCommonAlert = true;
   }
 
   if (alert) {
@@ -199,6 +204,7 @@ const GraphTooltip = ({
                 Could be affected by infra changes.
               </p>
             )}
+            {isCommonAlert && <p className="small text-danger">Common alert</p>}
           </div>
 
           <div>
