@@ -45,18 +45,23 @@ export const formatTaskclusterError = function formatTaskclusterError(e) {
 };
 
 export const processErrorMessage = function processErrorMessage(error, status) {
+  let errorMessage = '';
+
   if (status >= 500) {
-    return 'There was a problem retrieving the data. Please try again in a minute.';
+    errorMessage +=
+      'There was a problem retrieving the data. Please try again in a minute.';
   }
 
   if (status === 400) {
-    return 'The action resulted in a bad request.';
+    errorMessage += 'The action resulted in a bad request.';
   }
 
   if (error instanceof Object) {
     const key = Object.keys(error);
 
-    return `${key}: ${error[key]}`;
+    errorMessage += ` ${key}: ${error[key]}`;
+  } else if (error) {
+    errorMessage += error;
   }
-  return error;
+  return errorMessage ? errorMessage.trim() : error;
 };
