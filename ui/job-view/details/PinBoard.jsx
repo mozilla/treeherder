@@ -289,19 +289,6 @@ class PinBoard extends React.Component {
 
   hasPinnedJobBugs = () => !!Object.keys(this.props.pinnedJobBugs).length;
 
-  handleRelatedBugDocumentClick = (event) => {
-    if (!event.target.classList.contains('add-related-bugs-input')) {
-      this.saveEnteredBugNumber();
-      document.removeEventListener('click', this.handleRelatedBugDocumentClick);
-    }
-  };
-
-  handleRelatedBugEscape = (event) => {
-    if (event.key === 'Escape') {
-      this.toggleEnterBugNumber(false);
-    }
-  };
-
   toggleEnterBugNumber = (tf) => {
     this.setState(
       {
@@ -310,22 +297,6 @@ class PinBoard extends React.Component {
       () => {
         if (tf) {
           document.getElementById('related-bug-input').focus();
-          // Bind escape to canceling the bug entry.
-          document.addEventListener('keydown', this.handleRelatedBugEscape);
-          // Install a click handler on the document so that clicking
-          // outside of the input field will close it. A blur handler
-          // can't be used because it would have timing issues with the
-          // click handler on the + icon.
-          document.addEventListener(
-            'click',
-            this.handleRelatedBugDocumentClick,
-          );
-        } else {
-          document.removeEventListener('keydown', this.handleRelatedBugEscape);
-          document.removeEventListener(
-            'click',
-            this.handleRelatedBugDocumentClick,
-          );
         }
       },
     );
@@ -342,7 +313,6 @@ class PinBoard extends React.Component {
       } else if (this.isNumber(newBugNumber)) {
         this.props.addBug({ id: parseInt(newBugNumber, 10) });
         this.toggleEnterBugNumber(false);
-        return true;
       }
     }
   };
@@ -355,6 +325,8 @@ class PinBoard extends React.Component {
         this.save();
       }
       ev.preventDefault();
+    } else if (ev.key === 'Escape') {
+      this.toggleEnterBugNumber(false);
     }
   };
 
@@ -448,9 +420,7 @@ class PinBoard extends React.Component {
                 <Button
                   color="link"
                   className="pinboard-preload-txt pinboard-related-bug-preload-txt p-0 text-decoration-none"
-                  onClick={() => {
-                    this.toggleEnterBugNumber(!enteringBugNumber);
-                  }}
+                  onClick={() => this.toggleEnterBugNumber(!enteringBugNumber)}
                 >
                   click to add a related bug
                 </Button>
@@ -467,9 +437,10 @@ class PinBoard extends React.Component {
                       placeholder="enter bug number"
                       invalid={!this.isNumber(newBugNumber)}
                       onKeyPress={this.bugNumberKeyPress}
-                      onChange={(ev) =>
-                        this.setState({ newBugNumber: ev.target.value })
-                      }
+                      onChange={(ev) => {
+                        this.setState({ newBugNumber: ev.target.value });
+                      }}
+                      onBlur={this.saveEnteredBugNumber}
                     />
                     <FormFeedback>Please enter only numbers</FormFeedback>
                   </div>
