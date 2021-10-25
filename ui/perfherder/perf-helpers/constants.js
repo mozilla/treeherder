@@ -117,6 +117,7 @@ export const phTimeRanges = [
   { value: 5184000, text: 'Last 60 days' },
   { value: 7776000, text: 'Last 90 days' },
   { value: 31536000, text: 'Last year' },
+  { value: 94608000, text: 'More than one year ago' },
 ];
 
 export const phDefaultTimeRangeValue = 1209600;

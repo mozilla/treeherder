@@ -19,7 +19,7 @@ class CompareView extends React.PureComponent {
     let timeRange = Math.min(oldTimestamp, newTimestamp);
     timeRange = Math.round(now - timeRange);
     const newTimeRange = phTimeRanges.find((time) => timeRange <= time.value);
-    return newTimeRange !== undefined ? newTimeRange.value : 1;
+    return newTimeRange.value;
   };
 
   queryParams = (repository, interval, framework) => ({
