@@ -2,6 +2,7 @@
   {
     "search": "TEST-UNEXPECTED-FAIL | devtools/client/netmonitor/src/har/test/browser_net_har_copy_all_as_har.js | There must be some page title -",
     "search_terms": ["browser_net_har_copy_all_as_har.js"],
+    "path_end": "devtools/client/netmonitor/src/har/test/browser_net_har_copy_all_as_har.js",
     "bugs": {
       "open_recent": [
         {
@@ -9,6 +10,7 @@
           "status": "NEW",
           "resolution": "",
           "summary": "Intermittent devtools/client/netmonitor/src/har/test/browser_net_har_copy_all_as_har.js | There must be some page title -",
+          "dupe_of": null,
           "crash_signature": "",
           "keywords": "intermittent-failure,leave-open",
           "whiteboard": "[stockwell disabled]"
@@ -20,6 +22,7 @@
           "status": "RESOLVED",
           "resolution": "INCOMPLETE",
           "summary": "Intermittent devtools/client/netmonitor/src/har/test/browser_net_har_copy_all_as_har.js | Check the total time -",
+          "dupe_of": null,
           "crash_signature": "",
           "keywords": "intermittent-failure,regression",
           "whiteboard": ""
@@ -28,13 +31,57 @@
     }
   },
   {
+    "search": "TEST-UNEXPECTED-FAIL | toolkit/content/tests/browser/browser_suspend_videos_outside_viewport.js | video decoding is suspended - false == true - got false, expected true (operator ==)",
+    "search_terms": ["browser_suspend_videos_outside_viewport.js"],
+    "path_end": "toolkit/content/tests/browser/browser_suspend_videos_outside_viewport.js",
+    "bugs": {
+      "open_recent": [
+        {
+          "id": 1643980,
+          "status": "REOPENED",
+          "resolution": "",
+          "summary": "Intermittent toolkit/content/tests/browser/browser_suspend_videos_outside_viewport.js | video decoding is suspended - false == true - got false, expected true (operator ==)",
+          "dupe_of": null,
+          "crash_signature": "",
+          "keywords": "intermittent-failure",
+          "whiteboard": ""
+        }
+      ],
+      "all_others": [
+        {
+          "id": 1725755,
+          "status": "RESOLVED",
+          "resolution": "DUPLICATE",
+          "summary": "Intermittent toolkit/content/tests/browser/browser_suspend_videos_outside_viewport.js | application crashed [@ audioipc_server::server::CubebServer::process_msg] after application terminated with exit code 11",
+          "dupe_of": 1725749,
+          "crash_signature": "[@ audioipc_server::server::CubebServer::process_msg]",
+          "keywords": "crash,intermittent-failure",
+          "whiteboard": ""
+        },
+        {
+          "id": 1573505,
+          "status": "RESOLVED",
+          "resolution": "INCOMPLETE",
+          "summary": "Intermittent toolkit/content/tests/browser/browser_suspend_videos_outside_viewport.js | Uncaught exception - NotSupportedError: The media resource indicated by the src attribute or assigned media provider object was not suitable.",
+          "dupe_of": null,
+          "crash_signature": "",
+          "keywords": "intermittent-failure,regression",
+          "whiteboard": ""
+        }
+      ]
+    },
+    "line_number": 2618
+  },
+  {
     "search": "Return code: 1",
     "search_terms": [],
+    "path_end": null,
     "bugs": { "open_recent": [], "all_others": [] }
   },
   {
     "search": "Got 1 unexpected statuses",
     "search_terms": ["Got 1 unexpected statuses"],
+    "path_end": null,
     "bugs": { "open_recent": [], "all_others": [] }
   }
 ]

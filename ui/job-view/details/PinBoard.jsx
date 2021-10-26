@@ -157,9 +157,9 @@ class PinBoard extends React.Component {
   saveBugs = (job) => {
     const { pinnedJobBugs, notify } = this.props;
 
-    pinnedJobBugs.forEach((bug_id) => {
+    pinnedJobBugs.forEach((bugId) => {
       const bjm = new BugJobMapModel({
-        bug_id,
+        bug_id: bugId,
         job_id: job.id,
         type: 'annotation',
       });
@@ -464,22 +464,23 @@ class PinBoard extends React.Component {
                   </Button>
                 </span>
               )}
-              {Array.from(pinnedJobBugs).map((bug_id) => (
-                <span key={bug_id}>
+              {Array.from(pinnedJobBugs).map((bugId) => (
+                <span key={bugId}>
                   <span className="btn-group pinboard-related-bugs-btn">
                     <a
                       className="btn btn-xs related-bugs-link"
-                      href={getBugUrl(bug_id)}
+                      href={getBugUrl(bugId)}
                       target="_blank"
                       rel="noopener noreferrer"
+                      data-testid={`pinboard-bug-${bugId}`}
                     >
-                      <em>{bug_id}</em>
+                      <em>{bugId}</em>
                     </a>
                     <Button
                       color="secondary"
                       outline
                       className="btn-xs pinned-job-close-btn"
-                      onClick={() => removeBug(bug_id)}
+                      onClick={() => removeBug(bugId)}
                       title="remove this bug"
                     >
                       <FontAwesomeIcon icon={faTimes} title="Remove bug" />
@@ -634,7 +635,7 @@ PinBoard.propTypes = {
   isLoggedIn: PropTypes.bool.isRequired,
   isPinBoardVisible: PropTypes.bool.isRequired,
   pinnedJobs: PropTypes.shape({}).isRequired,
-  pinnedJobBugs: PropTypes.any.isRequired,
+  pinnedJobBugs: PropTypes.shape({}).isRequired,
   addBug: PropTypes.func.isRequired,
   removeBug: PropTypes.func.isRequired,
   unPinJob: PropTypes.func.isRequired,

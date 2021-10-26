@@ -111,9 +111,9 @@ export const addBug = (bug, job) => {
       pinnedJobs: { pinnedJobBugs },
     } = getState();
 
-    let bug_id = bug.id;
-    if (!pinnedJobBugs.has(bug_id)) {
-      pinnedJobBugs.add(bug_id);
+    const bugId = bug.dupe_of ? bug.dupe_of : bug.id;
+    if (!pinnedJobBugs.has(bugId)) {
+      pinnedJobBugs.add(bugId);
     }
     dispatch({
       type: SET_PINNED_JOB_BUGS,

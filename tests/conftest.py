@@ -609,7 +609,13 @@ def mock_bugzilla_api_request(monkeypatch):
         tests_folder = os.path.dirname(__file__)
         bug_list_path = os.path.join(tests_folder, "sample_data", "bug_list.json")
         with open(bug_list_path) as f:
-            return json.load(f)
+            last_change_time = (datetime.datetime.utcnow() - datetime.timedelta(days=30)).strftime(
+                '%Y-%m-%dT%H:%M:%SZ'
+            )
+            data = json.load(f)
+            for bug in data["bugs"]:
+                bug["last_change_time"] = last_change_time
+            return data
 
     monkeypatch.setattr(treeherder.etl.bugzilla, 'fetch_json', _fetch_json)
 
