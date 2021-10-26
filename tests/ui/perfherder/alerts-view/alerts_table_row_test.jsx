@@ -375,7 +375,7 @@ test('Chart icon opens the graph link for an alert in a new tab', async () => {
   expect(graphLink).toBeInTheDocument();
   expect(graphLink).toHaveAttribute(
     'href',
-    './graphs?timerange=94608000&series=mozilla-inbound,1944439,1,1',
+    './graphs?timerange=31536000&series=mozilla-inbound,1944439,1,1',
   );
   expect(graphLink).toHaveAttribute('target', '_blank');
 });
