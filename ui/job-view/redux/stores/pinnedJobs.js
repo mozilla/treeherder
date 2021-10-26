@@ -111,10 +111,13 @@ export const addBug = (bug, job) => {
       pinnedJobs: { pinnedJobBugs },
     } = getState();
 
-    pinnedJobBugs[bug.id] = bug;
+    let bug_id = bug.id;
+    if (!pinnedJobBugs.has(bug_id)) {
+      pinnedJobBugs.add(bug_id);
+    }
     dispatch({
       type: SET_PINNED_JOB_BUGS,
-      pinnedJobBugs: { ...pinnedJobBugs },
+      pinnedJobBugs: new Set(pinnedJobBugs),
     });
     if (job) {
       // ``job`` here is likely passed in from the DetailsPanel which is not
@@ -146,7 +149,7 @@ export const unPinAll = () => ({
     failureClassificationId: 4,
     failureClassificationComment: '',
     pinnedJobs: {},
-    pinnedJobBugs: {},
+    pinnedJobBugs: new Set(),
   },
 });
 
@@ -166,7 +169,7 @@ export const togglePinJob = (job) => {
 
 const initialState = {
   pinnedJobs: {},
-  pinnedJobBugs: {},
+  pinnedJobBugs: new Set(),
   failureClassificationComment: '',
   failureClassificationId: 4,
   isPinBoardVisible: false,
@@ -190,8 +193,8 @@ export const reducer = (state = initialState, action) => {
     case UNPIN_ALL_JOBS:
       return { ...state, ...payload };
     case REMOVE_JOB_BUG:
-      delete pinnedJobBugs[bugId];
-      return { ...state, pinnedJobBugs: { ...pinnedJobBugs } };
+      pinnedJobBugs.delete(bugId);
+      return { ...state, pinnedJobBugs: new Set(pinnedJobBugs) };
     default:
       return state;
   }

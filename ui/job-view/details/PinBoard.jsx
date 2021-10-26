@@ -157,9 +157,9 @@ class PinBoard extends React.Component {
   saveBugs = (job) => {
     const { pinnedJobBugs, notify } = this.props;
 
-    Object.values(pinnedJobBugs).forEach((bug) => {
+    pinnedJobBugs.forEach((bug_id) => {
       const bjm = new BugJobMapModel({
-        bug_id: bug.id,
+        bug_id,
         job_id: job.id,
         type: 'annotation',
       });
@@ -228,7 +228,7 @@ class PinBoard extends React.Component {
     return (
       this.hasPinnedJobs() &&
       isLoggedIn &&
-      (!!Object.keys(pinnedJobBugs).length ||
+      (!!pinnedJobBugs.size ||
         (failureClassificationId !== 4 && failureClassificationId !== 2) ||
         currentRepo.is_try_repo ||
         currentRepo.repository_group.name === 'project repositories' ||
@@ -248,7 +248,7 @@ class PinBoard extends React.Component {
 
     return (
       failureClassificationComment !== '' ||
-      !!Object.keys(this.props.pinnedJobBugs).length ||
+      !!this.props.pinnedJobBugs.size ||
       failureClassificationId !== 4
     );
   };
@@ -287,7 +287,7 @@ class PinBoard extends React.Component {
 
   hasPinnedJobs = () => !!Object.keys(this.props.pinnedJobs).length;
 
-  hasPinnedJobBugs = () => !!Object.keys(this.props.pinnedJobBugs).length;
+  hasPinnedJobBugs = () => !!this.props.pinnedJobBugs.size;
 
   toggleEnterBugNumber = (tf) => {
     this.setState(
@@ -464,23 +464,22 @@ class PinBoard extends React.Component {
                   </Button>
                 </span>
               )}
-              {Object.values(pinnedJobBugs).map((bug) => (
-                <span key={bug.id}>
+              {Array.from(pinnedJobBugs).map((bug_id) => (
+                <span key={bug_id}>
                   <span className="btn-group pinboard-related-bugs-btn">
                     <a
                       className="btn btn-xs related-bugs-link"
-                      title={bug.summary}
-                      href={getBugUrl(bug.id)}
+                      href={getBugUrl(bug_id)}
                       target="_blank"
                       rel="noopener noreferrer"
                     >
-                      <em>{bug.id}</em>
+                      <em>{bug_id}</em>
                     </a>
                     <Button
                       color="secondary"
                       outline
                       className="btn-xs pinned-job-close-btn"
-                      onClick={() => removeBug(bug.id)}
+                      onClick={() => removeBug(bug_id)}
                       title="remove this bug"
                     >
                       <FontAwesomeIcon icon={faTimes} title="Remove bug" />
@@ -635,7 +634,7 @@ PinBoard.propTypes = {
   isLoggedIn: PropTypes.bool.isRequired,
   isPinBoardVisible: PropTypes.bool.isRequired,
   pinnedJobs: PropTypes.shape({}).isRequired,
-  pinnedJobBugs: PropTypes.shape({}).isRequired,
+  pinnedJobBugs: PropTypes.any.isRequired,
   addBug: PropTypes.func.isRequired,
   removeBug: PropTypes.func.isRequired,
   unPinJob: PropTypes.func.isRequired,
