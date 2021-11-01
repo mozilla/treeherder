@@ -210,17 +210,17 @@ class GraphsView extends React.Component {
     const otherAlerts = await Promise.all(
       seriesData.map((series) => this.getOtherAlerts(series.framework_id)),
     );
-
     const newColors = [...colors];
     const newSymbols = [...symbols];
 
     const graphData = createGraphData(
       seriesData,
       alertSummaries.flat(),
-      otherAlerts,
       newColors,
       newSymbols,
+      otherAlerts,
     );
+
     this.setState({ colors: newColors, symbols: newSymbols });
     return graphData;
   };
@@ -248,9 +248,10 @@ class GraphsView extends React.Component {
     const url = getApiUrl(
       `${endpoints.alertSummary}${createQueryParams(params)}`,
     );
-    const data = await getData(url);
+    const response = await getData(url);
+    const otherAlerts = [...response.data.results];
 
-    return data.data;
+    return otherAlerts;
   };
 
   updateData = async (

@@ -747,9 +747,9 @@ export const retriggerMultipleJobs = async (
 export const createGraphData = (
   seriesData,
   alertSummaries,
-  otherAlerts,
   colors,
   symbols,
+  otherAlerts,
 ) =>
   seriesData.map((series) => {
     const color = colors.pop();
@@ -782,10 +782,8 @@ export const createGraphData = (
         alertSummary: alertSummaries.find(
           (item) => item.push_id === dataPoint.push_id,
         ),
-        commonAlert: otherAlerts.find((item) => {
-          return item.results.find(
-            (alert) => alert.revision === dataPoint.revision,
-          );
+        commonAlert: otherAlerts.some((item) => {
+          return item.find((alert) => alert.revision === dataPoint.revision);
         }),
         signature_id: series.signature_id,
         pushId: dataPoint.push_id,
