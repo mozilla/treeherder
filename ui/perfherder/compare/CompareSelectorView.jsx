@@ -147,7 +147,9 @@ export default class CompareSelectorView extends React.Component {
             </Row>
             <Row className="justify-content-center">
               <SelectorCard
-                projects={projects}
+                projects={projects.filter(
+                  (project) => project.name !== 'mozilla-inbound',
+                )}
                 updateState={(updates) => this.setState(updates)}
                 selectedRepo={originalProject}
                 title="Base"
@@ -157,7 +159,9 @@ export default class CompareSelectorView extends React.Component {
                 errorMessages={errorMessages}
               />
               <SelectorCard
-                projects={projects}
+                projects={projects.filter(
+                  (project) => project.name !== 'mozilla-inbound',
+                )}
                 updateState={(updates) => this.setState(updates)}
                 selectedRepo={newProject}
                 title="New"

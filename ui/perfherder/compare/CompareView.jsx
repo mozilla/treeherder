@@ -19,9 +19,7 @@ class CompareView extends React.PureComponent {
     let timeRange = Math.min(oldTimestamp, newTimestamp);
     timeRange = Math.round(now - timeRange);
     const newTimeRange = phTimeRanges.find((time) => timeRange <= time.value);
-    // data from repository mozilla-inbound it's older than one year, making newTimeRange become undefined and causing an inifite loading loop
-    // this is a temporary solution until mozilla-inbound data will be removed from Perfherder UI
-    return newTimeRange !== undefined ? newTimeRange.value : -1;
+    return newTimeRange.value;
   };
 
   queryParams = (repository, interval, framework) => ({
