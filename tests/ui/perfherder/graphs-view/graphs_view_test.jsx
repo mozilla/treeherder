@@ -20,7 +20,7 @@ import testData from '../../mock/performance_summary.json';
 import changelogData from '../../mock/infra_changelog.json';
 import seriesData from '../../mock/performance_signature_formatted.json';
 import seriesData2 from '../../mock/performance_signature_formatted2.json';
-import otherAlerts from '../../mock/alert_summaries_common.json';
+import commonAlerts from '../../mock/alert_summaries_common.json';
 import { getProjectUrl } from '../../../../ui/helpers/location';
 import { createGraphData } from '../../../../ui/perfherder/perf-helpers/helpers';
 import {
@@ -36,7 +36,7 @@ const graphData = createGraphData(
   [],
   [...graphColors],
   [...graphSymbols],
-  [...otherAlerts],
+  [...commonAlerts],
 );
 const inputPlaceholder = 'filter tests e.g. linux tp5o';
 const frameworks = [
@@ -393,13 +393,13 @@ test("'Highlight other alerts' button can be turned on", async () => {
   const updateStateParams = jest.fn();
   const { getByText } = graphsViewControls(graphData, false, updateStateParams);
 
-  const otherAlertsButton = await waitFor(() =>
-    getByText('Highlight other alerts'),
+  const commonAlertsButton = await waitFor(() =>
+    getByText('Highlight common alerts'),
   );
 
-  expect(otherAlertsButton.classList).not.toContain('active');
+  expect(commonAlertsButton.classList).not.toContain('active');
 
-  fireEvent.click(otherAlertsButton);
+  fireEvent.click(commonAlertsButton);
 
   expect(updateStateParams).toHaveBeenCalledTimes(1);
 });

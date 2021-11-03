@@ -749,7 +749,7 @@ export const createGraphData = (
   alertSummaries,
   colors,
   symbols,
-  otherAlerts,
+  commonAlerts,
 ) =>
   seriesData.map((series) => {
     const color = colors.pop();
@@ -782,8 +782,8 @@ export const createGraphData = (
         alertSummary: alertSummaries.find(
           (item) => item.push_id === dataPoint.push_id,
         ),
-        commonAlert: otherAlerts.some((item) => {
-          return item.find((alert) => alert.revision === dataPoint.revision);
+        commonAlert: commonAlerts.some((item) => {
+          return item.find((alert) => alert.push_id === dataPoint.push_id);
         }),
         signature_id: series.signature_id,
         pushId: dataPoint.push_id,

@@ -39,7 +39,7 @@ class GraphsView extends React.Component {
       zoom: {},
       selectedDataPoint: null,
       highlightAlerts: true,
-      highlightOtherAlerts: false,
+      highlightCommonAlerts: false,
       highlightChangelogData: true,
       highlightedRevisions: ['', ''],
       testData: [],
@@ -90,7 +90,7 @@ class GraphsView extends React.Component {
       zoom,
       selected,
       highlightAlerts,
-      highlightOtherAlerts,
+      highlightCommonAlerts,
       highlightChangelogData,
       highlightedRevisions,
     } = queryString.parse(this.props.location.search);
@@ -107,9 +107,9 @@ class GraphsView extends React.Component {
       updates.highlightAlerts = Boolean(parseInt(highlightAlerts, 10));
     }
 
-    if (highlightOtherAlerts) {
-      updates.highlightOtherAlerts = Boolean(
-        parseInt(highlightOtherAlerts, 10),
+    if (highlightCommonAlerts) {
+      updates.highlightCommonAlerts = Boolean(
+        parseInt(highlightCommonAlerts, 10),
       );
     }
 
@@ -207,8 +207,8 @@ class GraphsView extends React.Component {
         this.getAlertSummaries(series.signature_id, series.repository_id),
       ),
     );
-    const otherAlerts = await Promise.all(
-      seriesData.map((series) => this.getOtherAlerts(series.framework_id)),
+    const commonAlerts = await Promise.all(
+      seriesData.map((series) => this.getCommonAlerts(series.framework_id)),
     );
     const newColors = [...colors];
     const newSymbols = [...symbols];
@@ -218,7 +218,7 @@ class GraphsView extends React.Component {
       alertSummaries.flat(),
       newColors,
       newSymbols,
-      otherAlerts,
+      commonAlerts,
     );
 
     this.setState({ colors: newColors, symbols: newSymbols });
@@ -243,15 +243,15 @@ class GraphsView extends React.Component {
     return [];
   };
 
-  getOtherAlerts = async (frameworkId) => {
+  getCommonAlerts = async (frameworkId) => {
     const params = { framework: frameworkId };
     const url = getApiUrl(
       `${endpoints.alertSummary}${createQueryParams(params)}`,
     );
     const response = await getData(url);
-    const otherAlerts = [...response.data.results];
+    const commonAlerts = [...response.data.results];
 
-    return otherAlerts;
+    return commonAlerts;
   };
 
   updateData = async (
@@ -317,7 +317,7 @@ class GraphsView extends React.Component {
       selectedDataPoint,
       zoom,
       highlightAlerts,
-      highlightOtherAlerts,
+      highlightCommonAlerts,
       highlightChangelogData,
       highlightedRevisions,
       timeRange,
@@ -330,7 +330,7 @@ class GraphsView extends React.Component {
     const params = {
       series: newSeries,
       highlightAlerts: +highlightAlerts,
-      highlightOtherAlerts: +highlightOtherAlerts,
+      highlightCommonAlerts: +highlightCommonAlerts,
       highlightChangelogData: +highlightChangelogData,
       timerange: timeRange.value,
       zoom,
@@ -366,7 +366,7 @@ class GraphsView extends React.Component {
       timeRange,
       testData,
       highlightAlerts,
-      highlightOtherAlerts,
+      highlightCommonAlerts,
       highlightChangelogData,
       highlightedRevisions,
       selectedDataPoint,
@@ -454,7 +454,7 @@ class GraphsView extends React.Component {
                 highlightAlerts={highlightAlerts}
                 highlightChangelogData={highlightChangelogData}
                 highlightedRevisions={highlightedRevisions}
-                highlightOtherAlerts={highlightOtherAlerts}
+                highlightCommonAlerts={highlightCommonAlerts}
                 zoom={zoom}
                 selectedDataPoint={selectedDataPoint}
                 updateStateParams={(state) =>

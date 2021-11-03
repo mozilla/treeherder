@@ -204,7 +204,9 @@ const GraphTooltip = ({
                 Could be affected by infra changes.
               </p>
             )}
-            {isCommonAlert && <p className="small text-danger">Common alert</p>}
+            {isCommonAlert && !dataPointDetails.alertSummary && (
+              <p className="small text-danger">Common alert</p>
+            )}
           </div>
 
           <div>

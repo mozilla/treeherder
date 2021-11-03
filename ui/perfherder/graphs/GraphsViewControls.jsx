@@ -73,7 +73,7 @@ export default class GraphsViewControls extends React.Component {
       highlightAlerts,
       highlightChangelogData,
       highlightedRevisions,
-      highlightOtherAlerts,
+      highlightCommonAlerts,
       updateTimeRange,
       hasNoData,
       toggle,
@@ -189,12 +189,12 @@ export default class GraphsViewControls extends React.Component {
                     outline
                     onClick={() =>
                       updateStateParams({
-                        highlightOtherAlerts: !highlightOtherAlerts,
+                        highlightCommonAlerts: !highlightCommonAlerts,
                       })
                     }
-                    active={highlightOtherAlerts}
+                    active={highlightCommonAlerts}
                   >
-                    Highlight other alerts
+                    Highlight common alerts
                   </Button>
                 </Col>
               )}
