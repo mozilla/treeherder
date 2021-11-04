@@ -8,6 +8,7 @@ import {
 } from '../../../ui/perfherder/perf-helpers/constants';
 import repos from '../mock/repositories';
 import testData from '../mock/performance_summary.json';
+import commonAlerts from '../mock/alert_summaries_common.json';
 import { createGraphData } from '../../../ui/perfherder/perf-helpers/helpers';
 
 const graphData = createGraphData(
@@ -15,6 +16,7 @@ const graphData = createGraphData(
   [],
   [...graphColors],
   [...graphSymbols],
+  [...commonAlerts],
 );
 
 const tableView = (
