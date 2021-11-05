@@ -482,7 +482,10 @@ export default class TestDataModal extends React.Component {
       {
         options: projectOptions
           .sort()
-          .filter((item) => !pinnedProjects.includes(item)),
+          .filter(
+            (item) =>
+              !pinnedProjects.includes(item) && item !== 'mozilla-inbound',
+          ),
         selectedItem: repositoryName.name || '',
         pinnedProjects: pinnedProjects.filter((item) =>
           projectOptions.includes(item),
