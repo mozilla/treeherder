@@ -122,6 +122,10 @@ export default class CompareSelectorView extends React.Component {
       (this.state.originalProject === 'try' &&
         this.state.newProject === 'mozilla-central');
 
+    const filteredProjects = projects.filter(
+      (project) => project.name !== 'mozilla-inbound',
+    );
+
     return (
       <Container fluid className="my-5 pt-5 max-width-default">
         <ErrorBoundary
@@ -147,9 +151,7 @@ export default class CompareSelectorView extends React.Component {
             </Row>
             <Row className="justify-content-center">
               <SelectorCard
-                projects={projects.filter(
-                  (project) => project.name !== 'mozilla-inbound',
-                )}
+                projects={filteredProjects}
                 updateState={(updates) => this.setState(updates)}
                 selectedRepo={originalProject}
                 title="Base"
@@ -159,9 +161,7 @@ export default class CompareSelectorView extends React.Component {
                 errorMessages={errorMessages}
               />
               <SelectorCard
-                projects={projects.filter(
-                  (project) => project.name !== 'mozilla-inbound',
-                )}
+                projects={filteredProjects}
                 updateState={(updates) => this.setState(updates)}
                 selectedRepo={newProject}
                 title="New"
