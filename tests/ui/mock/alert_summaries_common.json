@@ -1,0 +1,124 @@
+[
+  [
+    {
+      "id": 32205,
+      "push_id": 980228,
+      "prev_push_id": 980227,
+      "created": "2021-11-01T11:36:53.407841",
+      "repository": "autoland",
+      "framework": 1,
+      "alerts": [
+        {
+          "id": 137494,
+          "status": 0,
+          "series_signature": {
+            "id": 3184996,
+            "framework_id": 1,
+            "signature_hash": "ecac3c7a967df71884a23d925a49e8e96fd21c21",
+            "machine_platform": "macosx1015-64-shippable-qr",
+            "suite": "perf_reftest_singletons",
+            "test": "window-named-property-get.html",
+            "lower_is_better": true,
+            "has_subtests": false,
+            "option_collection_hash": "102210fe594ee9b33d82058545b1ed14f4c8206e",
+            "tags": [""],
+            "extra_options": ["e10s", "stylo", "webrender"],
+            "measurement_unit": "ms",
+            "suite_public_name": null,
+            "test_public_name": null
+          },
+          "is_regression": false,
+          "prev_value": 723.69,
+          "new_value": 649.57,
+          "t_value": 7.01,
+          "amount_abs": -74.12,
+          "amount_pct": 10.24,
+          "summary_id": 32205,
+          "related_summary_id": null,
+          "manually_created": false,
+          "classifier": null,
+          "starred": false,
+          "classifier_email": null,
+          "backfill_record": {
+            "context": "[{\"perf_datum_id\": 1437239345, \"value\": 703.62, \"job_id\": 356253496, \"push_id\": 980182, \"push_timestamp\": \"2021-10-27T19:02:20\", \"push__revision\": \"c24a073833415c904a810f0bc14de21ed8f04def\"}, {\"perf_datum_id\": 1438848232, \"value\": 752.3, \"job_id\": 356594861, \"push_id\": 980227, \"push_timestamp\": \"2021-10-27T20:48:35\", \"push__revision\": \"197af0b52aec261be5f484b48c46c26c8f208ae2\"}, {\"perf_datum_id\": 1438845794, \"value\": 637.2, \"job_id\": 356594352, \"push_id\": 980228, \"push_timestamp\": \"2021-10-27T20:49:39\", \"push__revision\": \"ff38beee092bcdfcc289f4737668c9b5d4ff3d42\"}, {\"perf_datum_id\": 1438591078, \"value\": 700.56, \"job_id\": 356552835, \"push_id\": 980244, \"push_timestamp\": \"2021-10-27T21:17:00\", \"push__revision\": \"dd99452b671854d9f1f3079a051fc4822161a993\"}, {\"perf_datum_id\": 1438585688, \"value\": 635.5699999999999, \"job_id\": 356550571, \"push_id\": 980255, \"push_timestamp\": \"2021-10-27T21:43:08\", \"push__revision\": \"cb160c184b4ac2b4701688e825514f8a3add6a7e\"}]",
+            "status": 0,
+            "total_backfills_triggered": 0
+          },
+          "noise_profile": "N/A"
+        }
+      ],
+      "related_alerts": [],
+      "status": 0,
+      "bug_number": null,
+      "bug_updated": null,
+      "issue_tracker": 1,
+      "notes": null,
+      "revision": "2909b0a1eb06cc34ce0a11544e5e6826aba87c06",
+      "push_timestamp": 1635367779,
+      "prev_push_revision": "197af0b52aec261be5f484b48c46c26c8f208ae2",
+      "assignee_username": null,
+      "assignee_email": null,
+      "performance_tags": []
+    },
+    {
+      "id": 32204,
+      "push_id": 980323,
+      "prev_push_id": 980306,
+      "created": "2021-11-01T11:31:11.031842",
+      "repository": "autoland",
+      "framework": 1,
+      "alerts": [
+        {
+          "id": 137492,
+          "status": 0,
+          "series_signature": {
+            "id": 3869898,
+            "framework_id": 1,
+            "signature_hash": "50fbde7bb038a62d5fe6e00ffa2ea23c31125b7c",
+            "machine_platform": "macosx1015-64-shippable-qr",
+            "suite": "perf_reftest_singletons",
+            "test": "id-getter-2.html",
+            "lower_is_better": true,
+            "has_subtests": false,
+            "option_collection_hash": "102210fe594ee9b33d82058545b1ed14f4c8206e",
+            "tags": [""],
+            "extra_options": ["e10s", "fission", "stylo", "webrender"],
+            "measurement_unit": "ms",
+            "suite_public_name": null,
+            "test_public_name": null
+          },
+          "is_regression": true,
+          "prev_value": 890.04,
+          "new_value": 945.52,
+          "t_value": 9.96,
+          "amount_abs": 55.48,
+          "amount_pct": 6.23,
+          "summary_id": 32204,
+          "related_summary_id": null,
+          "manually_created": false,
+          "classifier": null,
+          "starred": false,
+          "classifier_email": null,
+          "backfill_record": {
+            "context": "[{\"perf_datum_id\": 1438588964, \"value\": 858.7900000000001, \"job_id\": 356551789, \"push_id\": 980300, \"push_timestamp\": \"2021-10-27T22:38:38\", \"push__revision\": \"3d8df6da990da00dae776904d851c50c80aeb16e\"}, {\"perf_datum_id\": 1438591284, \"value\": 900.6400000000001, \"job_id\": 356552898, \"push_id\": 980306, \"push_timestamp\": \"2021-10-27T22:47:19\", \"push__revision\": \"909433910d0d03229dd23cc430d08d6326b44a95\"}, {\"perf_datum_id\": 1437405462, \"value\": 957.5899999999999, \"job_id\": 356285912, \"push_id\": 980323, \"push_timestamp\": \"2021-10-27T23:16:04\", \"push__revision\": \"3d8181bdd6c2b372d65125e9e68b7771d70fce8a\"}, {\"perf_datum_id\": 1437433742, \"value\": 932.48, \"job_id\": 356290338, \"push_id\": 980349, \"push_timestamp\": \"2021-10-28T00:09:34\", \"push__revision\": \"617a98c2fc8fb577df2c6c04e3c08f78dfc65c07\"}, {\"perf_datum_id\": 1438589209, \"value\": 877.1500000000001, \"job_id\": 356552355, \"push_id\": 980360, \"push_timestamp\": \"2021-10-28T00:39:38\", \"push__revision\": \"184d074f07d7d64f5aad4ccb7b683b2e937d3548\"}]",
+            "status": 0,
+            "total_backfills_triggered": 0
+          },
+          "noise_profile": "OK"
+        }
+      ],
+      "related_alerts": [],
+      "status": 0,
+      "bug_number": null,
+      "bug_updated": null,
+      "issue_tracker": 1,
+      "notes": null,
+      "revision": "462d2d4ba0516adc69de20372b16931cef20de9e",
+      "push_timestamp": 1635376564,
+      "prev_push_revision": "909433910d0d03229dd23cc430d08d6326b44a95",
+      "assignee_username": null,
+      "assignee_email": null,
+      "performance_tags": []
+    }
+  ]
+]

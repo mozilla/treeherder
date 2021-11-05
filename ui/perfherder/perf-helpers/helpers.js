@@ -744,7 +744,13 @@ export const retriggerMultipleJobs = async (
   );
 };
 
-export const createGraphData = (seriesData, alertSummaries, colors, symbols) =>
+export const createGraphData = (
+  seriesData,
+  alertSummaries,
+  colors,
+  symbols,
+  commonAlerts,
+) =>
   seriesData.map((series) => {
     const color = colors.pop();
     const symbol = symbols.pop();
@@ -776,6 +782,9 @@ export const createGraphData = (seriesData, alertSummaries, colors, symbols) =>
         alertSummary: alertSummaries.find(
           (item) => item.push_id === dataPoint.push_id,
         ),
+        commonAlert: commonAlerts.some((item) => {
+          return item.find((alert) => alert.push_id === dataPoint.push_id);
+        }),
         signature_id: series.signature_id,
         pushId: dataPoint.push_id,
         jobId: dataPoint.job_id,
