@@ -581,3 +581,8 @@ li.pagination-active.active > button {
   color: #dc3545;
   margin-left: 5px;
 }
+
+.download-json-pagionation-container {
+  display: flex;
+  justify-content: space-between;
+}

@@ -16,6 +16,9 @@ import FilterControls from '../../shared/FilterControls';
 
 import CompareTable from './CompareTable';
 import RetriggerModal from './RetriggerModal';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faFileDownload } from '@fortawesome/free-solid-svg-icons';
+import Button from 'reactstrap/lib/Button';
 
 export default class CompareTableControls extends React.Component {
   constructor(props) {
@@ -238,6 +241,7 @@ export default class CompareTableControls extends React.Component {
       projects,
       history,
       validated,
+      downloadData,
     } = this.props;
     const {
       hideUncomparable,
@@ -300,20 +304,33 @@ export default class CompareTableControls extends React.Component {
           updateFilterText={this.updateFilterText}
           dropdownOptions={dropdownOptions}
         />
-
-        {viewablePagesList
-          ? hasMorePages() && (
-              <Row className="justify-content-center">
-                <PaginationGroup
-                  viewablePageNums={viewablePagesList}
-                  updateParams={validated.updateParams}
-                  currentPage={page}
-                  count={countPages}
-                />
-              </Row>
-            )
-          : null}
-
+        <div className="download-json-pagionation-container">
+          <div />
+          {viewablePagesList
+            ? hasMorePages() && (
+                <Row className="justify-content-center">
+                  <PaginationGroup
+                    viewablePageNums={viewablePagesList}
+                    updateParams={validated.updateParams}
+                    currentPage={page}
+                    count={countPages}
+                  />
+                </Row>
+              )
+            : null}
+          <div>
+            <Button
+              className="btn btn-outline-darker-info"
+              type="button"
+              onClick={() => {
+                downloadData();
+              }}
+            >
+              <FontAwesomeIcon icon={faFileDownload} />
+              JSON
+            </Button>
+          </div>
+        </div>
         {showNoise && showTestsWithNoise}
 
         {results.size > 0 ? (

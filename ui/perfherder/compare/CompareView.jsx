@@ -216,6 +216,7 @@ class CompareView extends React.PureComponent {
     });
 
     compareResults = new Map([...compareResults.entries()].sort());
+
     const updates = { compareResults, testsWithNoise, loading: false };
     this.props.updateAppState({ compareData: compareResults });
 

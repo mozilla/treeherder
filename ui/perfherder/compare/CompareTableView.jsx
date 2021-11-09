@@ -176,6 +176,7 @@ export default class CompareTableView extends React.Component {
       ...this.state,
       ...{ tableNames, rowNames },
     });
+
     updates.title = title;
     return this.setState(updates);
   };
@@ -206,6 +207,10 @@ export default class CompareTableView extends React.Component {
       });
     }
   };
+
+  downloadData() {
+    console.log(this.state.compareResults);
+  }
 
   render() {
     const {
@@ -336,6 +341,7 @@ export default class CompareTableView extends React.Component {
 
               <CompareTableControls
                 {...this.props}
+                downloadData={this.downloadData}
                 frameworkName={framework.name}
                 dropdownOptions={compareDropdowns}
                 updateState={(state) => this.setState(state)}
