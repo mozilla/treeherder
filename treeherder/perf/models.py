@@ -331,6 +331,15 @@ class PerformanceAlertSummary(models.Model):
         if any(alert.status == PerformanceAlert.UNTRIAGED for alert in alerts):
             return PerformanceAlertSummary.UNTRIAGED
 
+        # if the summary's status is IMPROVEMENT, but a regression is
+        # reassigned to that summary then set the status to untriaged
+        if any(alert.summary.status == PerformanceAlertSummary.IMPROVEMENT for alert in alerts):
+            if any(
+                alert.status == PerformanceAlert.REASSIGNED and alert.is_regression
+                for alert in alerts
+            ):
+                return PerformanceAlertSummary.UNTRIAGED
+
         # if all invalid, then set to invalid
         if all(alert.status == PerformanceAlert.INVALID for alert in alerts):
             return PerformanceAlertSummary.INVALID
@@ -346,6 +355,7 @@ class PerformanceAlertSummary(models.Model):
                 not alert.is_regression
                 for alert in alerts
                 if alert.status == PerformanceAlert.ACKNOWLEDGED
+                or alert.status == PerformanceAlert.REASSIGNED
             ):
                 return PerformanceAlertSummary.IMPROVEMENT
             elif self.status not in (
