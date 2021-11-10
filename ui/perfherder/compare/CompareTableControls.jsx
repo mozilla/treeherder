@@ -2,6 +2,9 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import { Container, Row } from 'reactstrap';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import Button from 'reactstrap/lib/Button';
+import { faFileDownload } from '@fortawesome/free-solid-svg-icons';
 
 import { filterText } from '../perf-helpers/constants';
 import {
@@ -16,9 +19,6 @@ import FilterControls from '../../shared/FilterControls';
 
 import CompareTable from './CompareTable';
 import RetriggerModal from './RetriggerModal';
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faFileDownload } from '@fortawesome/free-solid-svg-icons';
-import Button from 'reactstrap/lib/Button';
 
 export default class CompareTableControls extends React.Component {
   constructor(props) {
@@ -228,6 +228,20 @@ export default class CompareTableControls extends React.Component {
     return pages;
   };
 
+  handleDonwloadClick = async (data) => {
+    const mapped = Array.from(data).map((info) => info);
+    const fileName = 'compareViewResults';
+    const json = JSON.stringify(mapped);
+    const blob = new Blob([json], { type: 'application/json' });
+    const href = await URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.href = href;
+    link.download = `${fileName}.json`;
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+  };
+
   render() {
     const {
       frameworkName,
@@ -241,7 +255,6 @@ export default class CompareTableControls extends React.Component {
       projects,
       history,
       validated,
-      downloadData,
     } = this.props;
     const {
       hideUncomparable,
@@ -320,13 +333,16 @@ export default class CompareTableControls extends React.Component {
             : null}
           <div>
             <Button
-              className="btn btn-outline-darker-info"
+              className="btn donwnload-button"
               type="button"
               onClick={() => {
-                downloadData();
+                this.handleDonwloadClick(results);
               }}
             >
-              <FontAwesomeIcon icon={faFileDownload} />
+              <FontAwesomeIcon
+                icon={faFileDownload}
+                className="download-json-icon"
+              />
               JSON
             </Button>
           </div>

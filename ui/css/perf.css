@@ -586,3 +586,17 @@ li.pagination-active.active > button {
   display: flex;
   justify-content: space-between;
 }
+
+.download-json-pagionation-container .donwnload-button {
+  background-color: transparent !important;
+  color: #1f7d8e !important;
+}
+
+.download-json-pagionation-container .donwnload-button:hover {
+  background-color: #1f7d8e !important;
+  color: white !important;
+}
+
+.download-json-pagionation-container .download-json-icon {
+  margin-right: 10px;
+}
