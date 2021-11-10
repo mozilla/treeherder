@@ -867,3 +867,32 @@ test("Alert's ID can be copied to clipboard", async () => {
 
   expect(navigator.clipboard.writeText).toHaveBeenCalledWith(`${alertID}`);
 });
+
+test('Prev push revision is displayed in dropdown', async () => {
+  const { getAllByTestId } = alertsViewControls();
+  const prevPushRevision = testAlertSummaries[0].prev_push_revision.slice(
+    0,
+    12,
+  );
+
+  const pushDropdown = await waitFor(() => getAllByTestId('push-dropdown'));
+
+  fireEvent.click(pushDropdown[0]);
+
+  const prevPush = await waitFor(() => getAllByTestId('prev-push-revision'));
+
+  expect(prevPush[0]).toHaveTextContent(prevPushRevision);
+});
+
+test('Current push revision is displayed in dropdown', async () => {
+  const { getAllByTestId } = alertsViewControls();
+  const pushRevision = testAlertSummaries[0].revision.slice(0, 12);
+
+  const pushDropdown = await waitFor(() => getAllByTestId('push-dropdown'));
+
+  fireEvent.click(pushDropdown[0]);
+
+  const toPush = await waitFor(() => getAllByTestId('to-push-revision'));
+
+  expect(toPush[0]).toHaveTextContent(pushRevision);
+});

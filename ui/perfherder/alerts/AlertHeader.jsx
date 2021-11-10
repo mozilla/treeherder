@@ -47,7 +47,12 @@ const AlertHeader = ({
         </Col>
         <Col className="p-0" xs="auto">
           <UncontrolledDropdown tag="span">
-            <DropdownToggle className="btn-xs ml-2" color="secondary" caret>
+            <DropdownToggle
+              className="btn-xs ml-2"
+              color="secondary"
+              caret
+              data-testid="push-dropdown"
+            >
               {alertSummary.revision.slice(0, 12)}
             </DropdownToggle>
             <DropdownMenu>
@@ -75,6 +80,20 @@ const AlertHeader = ({
                 rel="noopener noreferrer"
               >
                 Pushlog
+              </DropdownItem>
+              <DropdownItem
+                className="text-dark"
+                disabled
+                data-testid="prev-push-revision"
+              >
+                From: {`${alertSummary.prev_push_revision.slice(0, 12)}`}
+              </DropdownItem>
+              <DropdownItem
+                className="text-dark"
+                disabled
+                data-testid="to-push-revision"
+              >
+                To: {`${alertSummary.revision.slice(0, 12)}`}
               </DropdownItem>
             </DropdownMenu>
           </UncontrolledDropdown>
