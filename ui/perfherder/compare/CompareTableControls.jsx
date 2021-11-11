@@ -228,20 +228,6 @@ export default class CompareTableControls extends React.Component {
     return pages;
   };
 
-  handleDonwloadClick = async (data) => {
-    const mapped = Array.from(data).map((info) => info);
-    const fileName = 'compareViewResults';
-    const json = JSON.stringify(mapped);
-    const blob = new Blob([json], { type: 'application/json' });
-    const href = await URL.createObjectURL(blob);
-    const link = document.createElement('a');
-    link.href = href;
-    link.download = `${fileName}.json`;
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
-  };
-
   render() {
     const {
       frameworkName,
@@ -301,6 +287,8 @@ export default class CompareTableControls extends React.Component {
     const viewablePagesList = this.getCurrentPages();
     const hasMorePages = () => viewablePagesList.length > 0 && countPages !== 1;
 
+    const formattedJSONData = Array.from(results).map((info) => info);
+
     return (
       <Container fluid className="my-3 px-0">
         <RetriggerModal
@@ -317,7 +305,7 @@ export default class CompareTableControls extends React.Component {
           updateFilterText={this.updateFilterText}
           dropdownOptions={dropdownOptions}
         />
-        <div className="download-json-pagionation-container">
+        <div className="download-json-pagination-container">
           <div />
           {viewablePagesList
             ? hasMorePages() && (
@@ -335,9 +323,10 @@ export default class CompareTableControls extends React.Component {
             <Button
               className="btn donwnload-button"
               type="button"
-              onClick={() => {
-                this.handleDonwloadClick(results);
-              }}
+              href={`data:text/json;charset=utf-8,${encodeURIComponent(
+                JSON.stringify(formattedJSONData),
+              )}`}
+              download="perf-compare.json"
             >
               <FontAwesomeIcon
                 icon={faFileDownload}
