@@ -632,6 +632,21 @@ def bugs(mock_bugzilla_api_request):
 
 
 @pytest.fixture
+def mock_bugzilla_reopen_request(monkeypatch, request):
+    """Mock reopen_request() used to reopen incomplete bugs."""
+    import treeherder.etl.bugzilla
+
+    def _reopen_request(url, method, headers, json):
+        import json as json_module
+
+        reopened_bugs = request.config.cache.get('reopened_bugs', {})
+        reopened_bugs[url] = json_module.dumps(json)
+        request.config.cache.set('reopened_bugs', reopened_bugs)
+
+    monkeypatch.setattr(treeherder.etl.bugzilla, 'reopen_request', _reopen_request)
+
+
+@pytest.fixture
 def client():
     """
     A django-rest-framework APIClient instance:
