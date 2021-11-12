@@ -101,7 +101,7 @@ def test_reassigning_regression(
 
     assert s.status == PerformanceAlertSummary.UNTRIAGED
 
-    # reassigning an regression to the initial summary
+    # reassigning a regression to the initial summary
     # which contains only an improvement
     create_perf_alert(
         summary=s,
