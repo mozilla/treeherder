@@ -176,7 +176,6 @@ export default class CompareTableView extends React.Component {
       ...this.state,
       ...{ tableNames, rowNames },
     });
-
     updates.title = title;
     return this.setState(updates);
   };

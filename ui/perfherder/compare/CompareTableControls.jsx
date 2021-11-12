@@ -327,6 +327,7 @@ export default class CompareTableControls extends React.Component {
                 JSON.stringify(formattedJSONData),
               )}`}
               download="perf-compare.json"
+              data-testid="download-button"
             >
               <FontAwesomeIcon
                 icon={faFileDownload}
