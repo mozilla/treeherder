@@ -67,7 +67,7 @@ If new pushes or CI job results are not appearing in Treeherder's UI:
    cause is infrastructure-related.
 3. Failing that, it's possible the issue might lie in the services that send events to
    those Pulse exchanges, such as `taskcluster-github` or
-   the Taskcluster systems upstream of those. Ask for help in the IRC channel
-   `#taskcluster`.
+   the Taskcluster systems upstream of those. Ask for help in the Slack channel
+   `#taskcluster-cloudops`.
 
 [using pulse guardian]: https://pulseguardian.mozilla.org/queues
