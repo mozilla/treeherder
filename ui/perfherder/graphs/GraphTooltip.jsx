@@ -112,12 +112,15 @@ const GraphTooltip = ({
     let data;
     let failureStatus;
 
-    ({ data, failureStatus } = await create(getApiUrl(endpoints.alertSummary), {
-      repository_id: testDetails.projectId,
-      framework_id: testDetails.framework_id,
-      push_id: dataPointDetails.pushId,
-      prev_push_id: prevPushId,
-    }));
+    ({ data, failureStatus } = await create(
+      getApiUrl(endpoints.alertSummarySimple),
+      {
+        repository_id: testDetails.projectId,
+        framework_id: testDetails.framework_id,
+        push_id: dataPointDetails.pushId,
+        prev_push_id: prevPushId,
+      },
+    ));
 
     if (failureStatus) {
       return updateStateParams({

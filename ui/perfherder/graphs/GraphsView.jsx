@@ -229,7 +229,7 @@ class GraphsView extends React.Component {
     const { errorMessages } = this.state;
 
     const data = await getData(
-      createApiUrl(endpoints.alertSummary, {
+      createApiUrl(endpoints.alertSummarySimple, {
         alerts__series_signature: signatureId,
         repository,
       }),
@@ -246,7 +246,7 @@ class GraphsView extends React.Component {
   getCommonAlerts = async (frameworkId) => {
     const params = { framework: frameworkId };
     const url = getApiUrl(
-      `${endpoints.alertSummary}${createQueryParams(params)}`,
+      `${endpoints.alertSummarySimple}${createQueryParams(params)}`,
     );
     const response = await getData(url);
     const commonAlerts = [...response.data.results];

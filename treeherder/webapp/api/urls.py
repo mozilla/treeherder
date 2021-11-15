@@ -118,6 +118,11 @@ default_router.register(
     basename='performance-alert-summaries',
 )
 default_router.register(
+    r'performance/alertsummarysimple',
+    performance_data.PerformanceAlertSummaryViewSet,
+    basename='performance-alert-summaries-simple',
+)
+default_router.register(
     r'performance/alert', performance_data.PerformanceAlertViewSet, basename='performance-alerts'
 )
 default_router.register(
