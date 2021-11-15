@@ -37,7 +37,7 @@ const AlertHeader = ({
 
   const performanceTags = alertSummary.performance_tags || [];
   const alertSummaryDatetime = new Date(alertSummary.push_timestamp * 1000);
-  const formattedAlertRevision = alertSummary.revision.slice(0, 12);
+  const formattedSummaryRevision = alertSummary.revision.slice(0, 12);
 
   return (
     <Container>
@@ -54,7 +54,7 @@ const AlertHeader = ({
               caret
               data-testid="push-dropdown"
             >
-              {formattedAlertRevision}
+              {formattedSummaryRevision}
             </DropdownToggle>
             <DropdownMenu>
               <DropdownItem
@@ -94,7 +94,7 @@ const AlertHeader = ({
                 disabled
                 data-testid="to-push-revision"
               >
-                To: {formattedAlertRevision}
+                To: {formattedSummaryRevision}
               </DropdownItem>
             </DropdownMenu>
           </UncontrolledDropdown>
