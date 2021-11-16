@@ -152,8 +152,6 @@ export default class AlertTableRow extends React.Component {
   };
 
   renderAlertStatus = (alert, alertStatus, statusColor) => {
-    const backfillStatusInfo = this.getBackfillStatusInfo(alert);
-
     return (
       <React.Fragment>
         (
@@ -161,19 +159,7 @@ export default class AlertTableRow extends React.Component {
           <FontAwesomeIcon icon={faCheck} color="#28a745" />
         )}
         <span className={statusColor}>{alertStatus}</span>
-        {alert.related_summary_id && this.getReassignment(alert)}
-        {backfillStatusInfo ? (
-          <span className="text-darker-info">
-            ,{' '}
-            <FontAwesomeIcon
-              title={backfillStatusInfo.message}
-              icon={backfillStatusInfo.icon}
-              color={backfillStatusInfo.color}
-              data-testid={`alert ${alert.id.toString()} sherlock icon`}
-            />
-          </span>
-        ) : null}
-        )
+        {alert.related_summary_id && this.getReassignment(alert)})
       </React.Fragment>
     );
   };
@@ -186,7 +172,14 @@ export default class AlertTableRow extends React.Component {
       alert.backfill_record.status,
       alertBackfillResultStatusMap,
     );
-    return alertBackfillResultVisual[backfillStatus];
+    const alertBackfillStatus = alertBackfillResultVisual[backfillStatus];
+    alertBackfillStatus.backfillsFailed =
+      alert.backfill_record.total_backfills_failed || 0;
+    alertBackfillStatus.backfillsSuccessful =
+      alert.backfill_record.total_backfills_successful || 0;
+    alertBackfillStatus.backfillsInProgress =
+      alert.backfill_record.total_backfills_in_progress || 0;
+    return alertBackfillStatus;
   };
 
   getTitleText = (alert, alertStatus) => {
@@ -213,6 +206,7 @@ export default class AlertTableRow extends React.Component {
     const perfdocs = new Perfdocs(frameworkName, suite, platform, title);
     const hasDocumentation = perfdocs.hasDocumentation();
     const duplicatedName = suite === test;
+
     return (
       <div>
         <div
@@ -366,6 +360,7 @@ export default class AlertTableRow extends React.Component {
     const noiseProfileTooltip = alert.noise_profile
       ? noiseProfiles[alert.noise_profile.replace('/', '')]
       : noiseProfiles.NA;
+    const backfillStatusInfo = this.getBackfillStatusInfo(alert);
 
     return (
       <tr
@@ -429,6 +424,32 @@ export default class AlertTableRow extends React.Component {
           ) : (
             this.getTitleText(alert, alertStatus)
           )}
+          {backfillStatusInfo ? (
+            <span className="text-darker-info">
+              <SimpleTooltip
+                key={alert.id}
+                text={
+                  <FontAwesomeIcon
+                    icon={backfillStatusInfo.icon}
+                    color={backfillStatusInfo.color}
+                    data-testid={`alert ${alert.id.toString()} sherlock icon`}
+                  />
+                }
+                tooltipText={
+                  <>
+                    {backfillStatusInfo.message}
+                    <br />
+                    In progress: {backfillStatusInfo.backfillsInProgress}
+                    <br />
+                    Successful: {backfillStatusInfo.backfillsSuccessful}
+                    <br />
+                    Failed: {backfillStatusInfo.backfillsFailed}
+                    <br />
+                  </>
+                }
+              />
+            </span>
+          ) : null}
         </td>
         <td className="table-width-lg">
           <AlertTablePlatform

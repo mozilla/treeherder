@@ -118,7 +118,11 @@ class BackfillReportContent:
         alert_summary = record.alert.summary
         alert = record.alert
         job_symbol = self.__escape_markdown(record.job_symbol) or 'N/A'
-        total_backfills = record.total_backfills_triggered
+        total_backfills = (
+            record.total_backfills_failed
+            + record.total_backfills_successful
+            + record.total_backfills_in_progress
+        )
         push_range_md_link = self.__build_push_range_md_link(record)
 
         # some fields require adjustments

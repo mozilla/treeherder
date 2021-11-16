@@ -668,6 +668,9 @@ class BackfillRecord(models.Model):
     job_platform_option = models.CharField(max_length=100, null=True)
 
     total_backfills_triggered = models.IntegerField(default=0)
+    total_backfills_failed = models.IntegerField(default=0)
+    total_backfills_successful = models.IntegerField(default=0)
+    total_backfills_in_progress = models.IntegerField(default=0)
 
     @property
     def id(self):
