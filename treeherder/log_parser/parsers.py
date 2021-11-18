@@ -60,6 +60,7 @@ class ErrorParser(ParserBase):
         "bash.exe: *** ",
         "Unsuccessful task run with exit code: 137",
         "YOU ARE LEAKING THE WORLD",
+        "CMake Error at",
     )
 
     RE_ERR_MATCH = re.compile(
