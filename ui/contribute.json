@@ -9,8 +9,9 @@
   "participate": {
     "home": "https://wiki.mozilla.org/EngineeringProductivity/Projects/Treeherder",
     "docs": "https://treeherder.readthedocs.io/",
-    "irc": "irc://irc.mozilla.org/#treeherder",
-    "mailing-list": "https://groups.google.com/forum/#!forum/mozilla.tools.treeherder"
+    "chat": {
+      "url": "https://chat.mozilla.org/#/room/#treeherder:mozilla.org"
+    }
   },
   "bugs": {
     "list": "https://bugzilla.mozilla.org/buglist.cgi?quicksearch=%3Atreeherder",
@@ -18,7 +19,8 @@
   },
   "urls": {
     "prod": "https://treeherder.mozilla.org/",
-    "stage": "https://treeherder.allizom.org/"
+    "stage": "https://treeherder.allizom.org/",
+    "prototype": "https://prototype.treeherder.nonprod.cloudops.mozgcp.net/"
   },
   "keywords": ["css", "django", "react", "js", "python"]
 }
