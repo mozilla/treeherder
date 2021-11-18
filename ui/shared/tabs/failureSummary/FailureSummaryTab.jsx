@@ -162,7 +162,7 @@ class FailureSummaryTab extends React.Component {
         >
           {suggestions.map((suggestion, index) => (
             <SuggestionsListItem
-              key={index} // eslint-disable-line react/no-array-index-key
+              key={`${selectedJob.id}-${index}`} // eslint-disable-line react/no-array-index-key
               index={index}
               suggestion={suggestion}
               toggleBugFiler={() => this.fileBug(suggestion)}
