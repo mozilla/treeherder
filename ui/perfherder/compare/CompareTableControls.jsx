@@ -228,6 +228,21 @@ export default class CompareTableControls extends React.Component {
     return pages;
   };
 
+  formatDownloadData = (data) => {
+    const mapped = Array.from(data).map((info) => info);
+    const newStructure = mapped.map((test) => {
+      return {
+        name: test[0],
+        data: test[1].map((entry) => {
+          const { links, ...newEntry } = entry;
+          return newEntry;
+        }),
+      };
+    });
+
+    return newStructure;
+  };
+
   render() {
     const {
       frameworkName,
@@ -241,6 +256,7 @@ export default class CompareTableControls extends React.Component {
       projects,
       history,
       validated,
+      compareResults,
     } = this.props;
     const {
       hideUncomparable,
@@ -287,7 +303,7 @@ export default class CompareTableControls extends React.Component {
     const viewablePagesList = this.getCurrentPages();
     const hasMorePages = () => viewablePagesList.length > 0 && countPages !== 1;
 
-    const formattedJSONData = Array.from(results).map((info) => info);
+    const formattedJSONData = this.formatDownloadData(compareResults);
 
     return (
       <Container fluid className="my-3 px-0">
