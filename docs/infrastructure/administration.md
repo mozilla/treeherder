@@ -15,7 +15,7 @@ Stage is set to auto-deploy from the `master` branch, and production from the `p
 
 Production deploys are a manual process that is performed by a Treeherder admin roughly twice a week by running a task in Jenkins (under Treeherder -> status -> hover over latest master commit in table (stage:deploy column) and click proceed to initiate the promotion).
 
-[What's deployed](https://whatsdeployed.io/s/13z/Mozilla/Treeherder) will show what commits are currently on stage and production.
+[What's deployed](https://whatsdeployed.io/s/BIY/Mozilla/Treeherder) will show what commits are currently on prototype, stage and production.
 
 <!-- prettier-ignore -->
 !!! note
