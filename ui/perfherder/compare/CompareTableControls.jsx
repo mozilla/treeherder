@@ -232,8 +232,7 @@ export default class CompareTableControls extends React.Component {
     const mapped = Array.from(data).map((info) => info);
     const newStructure = mapped.map((test) => {
       return {
-        name: test[0],
-        data: test[1].map((entry) => {
+        [test[0]]: test[1].map((entry) => {
           const { links, ...newEntry } = entry;
           return newEntry;
         }),
@@ -349,7 +348,7 @@ export default class CompareTableControls extends React.Component {
                 icon={faFileDownload}
                 className="download-json-icon"
               />
-              JSON
+              JSON (experimental)
             </Button>
           </div>
         </div>
