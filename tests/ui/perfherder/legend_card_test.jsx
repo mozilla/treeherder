@@ -2,7 +2,10 @@ import React from 'react';
 import { cleanup, fireEvent, render, waitFor } from '@testing-library/react';
 
 import LegendCard from '../../../ui/perfherder/graphs/LegendCard';
-import { unknownFrameworkMessage } from '../../../ui/perfherder/perf-helpers/constants';
+import {
+  graphSymbols,
+  unknownFrameworkMessage,
+} from '../../../ui/perfherder/perf-helpers/constants';
 
 const testData = [
   {
@@ -47,15 +50,21 @@ const colors = [
   ['blue', '#1752b8'],
 ];
 
-const legendCard = (series, testData, updateState = () => {}) =>
+const legendCard = (
+  series,
+  testData,
+  updateState = () => {},
+  updateStateParams = () => {},
+) =>
   render(
     <LegendCard
       series={series}
       testData={testData}
       frameworks={[{ id: 1, name: 'talos' }]}
       updateState={updateState}
-      updateStateParams={() => {}}
+      updateStateParams={updateStateParams}
       colors={colors}
+      symbols={graphSymbols}
     />,
   );
 
@@ -97,4 +106,39 @@ test('click on legend card displays the Test Data Modal', async () => {
     options: { option: 'addRelatedApplications', relatedSeries: testData[0] },
     showModal: true,
   });
+});
+
+test('legend card closes when pressing x', async () => {
+  const updateStateMock = jest.fn();
+  const updateStateParamsMock = jest.fn();
+  const { getByTestId } = legendCard(
+    testData[0],
+    testData,
+    updateStateMock,
+    updateStateParamsMock,
+  );
+
+  const closeButton = await waitFor(() => getByTestId('remove-test-button'));
+
+  fireEvent.click(closeButton);
+  expect(updateStateParamsMock).toHaveBeenCalled();
+});
+
+test('legend card checkbox can be unchecked to hide series', async () => {
+  const updateStateMock = jest.fn();
+  const updateStateParamsMock = jest.fn();
+  const { getByTitle } = legendCard(
+    testData[0],
+    testData,
+    updateStateMock,
+    updateStateParamsMock,
+  );
+
+  const input = await waitFor(() => getByTitle('Show/Hide series'));
+
+  expect(input).toHaveProperty('checked', true);
+
+  fireEvent.click(input);
+
+  expect(updateStateParamsMock).toHaveBeenCalled();
 });

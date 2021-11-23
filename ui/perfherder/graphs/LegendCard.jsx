@@ -141,6 +141,7 @@ const LegendCard = ({
       <Button
         className="close mr-3 my-2 ml-2 bg-transparent"
         onClick={removeTest}
+        data-testid="remove-test-button"
       >
         <FontAwesomeIcon
           className="pointer"
