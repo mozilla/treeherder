@@ -798,3 +798,31 @@ export const createGraphData = (
       parentSignature: series.parent_signature,
     };
   });
+
+/**
+ * This function will create a new Map object that holds keys composed by name and platform.
+ *
+ * @param {Array} results - The full list of signatures for a specific revision, framework and repo.
+ */
+export const getResultsMap = (results) => {
+  const resultsMap = new Map();
+  const testNames = [];
+  const names = [];
+  const platforms = [];
+  results.forEach((item) => {
+    testNames.push(item.test);
+    names.push(item.name);
+    platforms.push(item.platform);
+    const key = `${item.name} ${item.platform}`;
+    if (
+      !resultsMap.has(key) ||
+      (resultsMap.has(key) && item.values.length !== 0)
+    ) {
+      resultsMap.set(key, item);
+    }
+    if (item.test !== '' && !resultsMap.has(item.test)) {
+      resultsMap.set(item.test, item);
+    }
+  });
+  return { testNames, names, platforms, resultsMap };
+};
