@@ -336,7 +336,7 @@ export default class CompareTableControls extends React.Component {
             : null}
           <div>
             <Button
-              className="btn donwnload-button"
+              className="btn download-button"
               type="button"
               href={`data:text/json;charset=utf-8,${encodeURIComponent(
                 JSON.stringify(formattedJSONData),

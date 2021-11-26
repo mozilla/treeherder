@@ -587,12 +587,12 @@ li.pagination-active.active > button {
   justify-content: space-between;
 }
 
-.download-json-pagination-container .donwnload-button {
+.download-json-pagination-container .download-button {
   background-color: transparent !important;
   color: #1f7d8e !important;
 }
 
-.download-json-pagination-container .donwnload-button:hover {
+.download-json-pagination-container .download-button:hover {
   background-color: #1f7d8e !important;
   color: white !important;
 }
