@@ -32,8 +32,11 @@ describe('GraphsViewRecord Test Pupeteer', () => {
     jest.setTimeout(60000);
 
     await page.setRequestInterception(true);
+    await page.setDefaultNavigationTimeout(3000);
     await page.goto(`${URL}/perfherder/graphs`);
   });
+
+  // afterEach(async () => {});
 
   test('Record requests', async () => {
     expect(context.polly).not.toBeNull();
@@ -58,6 +61,39 @@ describe('GraphsViewRecord Test Pupeteer', () => {
     expect(frameworks).toBe(9);
 
     // Wait for all requests to resolve
+    await context.polly.flush();
+  });
+
+  test('Clicking on Table View / Graphs view button should toggle between views', async () => {
+    expect(context.polly).not.toBeNull();
+
+    await page.goto(
+      `${URL}/perfherder/graphs?highlightAlerts=1&highlightChangelogData=1&highlightCommonAlerts=0&series=mozilla-central,3140832,1,1&series=mozilla-central,3140831,1,1&timerange=86400`,
+    );
+
+    const toggleButton =
+      'button[title="Toggle between table view and graphs view"]';
+
+    await page.waitForSelector(toggleButton);
+
+    const toggleButtonText = await page.$eval(
+      toggleButton,
+      (element) => element.innerText,
+    );
+
+    expect(toggleButtonText).toBe('Table View');
+
+    await page.click(toggleButton, { clickCount: 1 });
+
+    await page.waitForSelector(toggleButton);
+
+    const toggleButtonTextAfterClick = await page.$eval(
+      toggleButton,
+      (element) => element.innerText,
+    );
+
+    expect(toggleButtonTextAfterClick).toBe('Graphs View');
+
     await context.polly.flush();
   });
 });
