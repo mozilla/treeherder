@@ -98,7 +98,11 @@ export default class GraphsViewControls extends React.Component {
         <Row className="pb-3 max-width-default mx-auto">
           {!hasNoData && (
             <Col sm="auto" className="pl-0 py-2 pr-3">
-              <Button color="darker-info" onClick={toggleTableView}>
+              <Button
+                color="darker-info"
+                onClick={toggleTableView}
+                title="Toggle between table view and graphs view"
+              >
                 {showTable ? (
                   <FontAwesomeIcon className="mr-2" icon={faChartArea} />
                 ) : (
