@@ -335,21 +335,23 @@ export default class CompareTableControls extends React.Component {
               )
             : null}
           <div>
-            <Button
-              className="btn download-button"
-              type="button"
-              href={`data:text/json;charset=utf-8,${encodeURIComponent(
-                JSON.stringify(formattedJSONData),
-              )}`}
-              download="perf-compare.json"
-              data-testid="download-button"
-            >
-              <FontAwesomeIcon
-                icon={faFileDownload}
-                className="download-json-icon"
-              />
-              JSON (experimental)
-            </Button>
+            {formattedJSONData.length > 0 && (
+              <Button
+                className="btn download-button"
+                type="button"
+                href={`data:text/json;charset=utf-8,${encodeURIComponent(
+                  JSON.stringify(formattedJSONData),
+                )}`}
+                download="perf-compare.json"
+                data-testid="download-button"
+              >
+                <FontAwesomeIcon
+                  icon={faFileDownload}
+                  className="download-json-icon"
+                />
+                JSON (experimental)
+              </Button>
+            )}
           </div>
         </div>
         {showNoise && showTestsWithNoise}
