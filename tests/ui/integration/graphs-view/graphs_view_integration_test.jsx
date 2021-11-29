@@ -36,8 +36,6 @@ describe('GraphsViewRecord Test Pupeteer', () => {
     await page.goto(`${URL}/perfherder/graphs`);
   });
 
-  // afterEach(async () => {});
-
   test('Record requests', async () => {
     expect(context.polly).not.toBeNull();
 
