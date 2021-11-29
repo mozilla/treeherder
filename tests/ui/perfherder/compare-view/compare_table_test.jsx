@@ -854,3 +854,20 @@ test(`TableColumnHeader shows the title as expected`, async () => {
   expect(queryByText('New (score)')).not.toBeInTheDocument();
   expect(queryByText('New')).toBeInTheDocument();
 });
+
+test('Click on download button starts JSON file download', async () => {
+  const { getByTestId } = compareTableControls();
+
+  const downloadButton = getByTestId('download-button');
+  const file = new File(['test'], 'test.json', { type: 'text/json' });
+
+  fireEvent.change(downloadButton, {
+    target: {
+      download: 'test.json',
+      href: `data:text/json;charset=utf-8, ${file}`,
+    },
+  });
+
+  expect(downloadButton.download).toEqual('test.json');
+  expect(downloadButton.href).toEqual(`data:text/json;charset=utf-8, ${file}`);
+});

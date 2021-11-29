@@ -2,6 +2,9 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import { Container, Row } from 'reactstrap';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import Button from 'reactstrap/lib/Button';
+import { faFileDownload } from '@fortawesome/free-solid-svg-icons';
 
 import { filterText } from '../perf-helpers/constants';
 import {
@@ -225,6 +228,20 @@ export default class CompareTableControls extends React.Component {
     return pages;
   };
 
+  formatDownloadData = (data) => {
+    const mapped = Array.from(data).map((info) => info);
+    const newStructure = mapped.map((test) => {
+      return {
+        [test[0]]: test[1].map((entry) => {
+          const { links, ...newEntry } = entry;
+          return newEntry;
+        }),
+      };
+    });
+
+    return newStructure;
+  };
+
   render() {
     const {
       frameworkName,
@@ -238,6 +255,7 @@ export default class CompareTableControls extends React.Component {
       projects,
       history,
       validated,
+      compareResults,
     } = this.props;
     const {
       hideUncomparable,
@@ -284,6 +302,8 @@ export default class CompareTableControls extends React.Component {
     const viewablePagesList = this.getCurrentPages();
     const hasMorePages = () => viewablePagesList.length > 0 && countPages !== 1;
 
+    const formattedJSONData = this.formatDownloadData(compareResults);
+
     return (
       <Container fluid className="my-3 px-0">
         <RetriggerModal
@@ -300,20 +320,40 @@ export default class CompareTableControls extends React.Component {
           updateFilterText={this.updateFilterText}
           dropdownOptions={dropdownOptions}
         />
-
-        {viewablePagesList
-          ? hasMorePages() && (
-              <Row className="justify-content-center">
-                <PaginationGroup
-                  viewablePageNums={viewablePagesList}
-                  updateParams={validated.updateParams}
-                  currentPage={page}
-                  count={countPages}
+        <div className="download-json-pagination-container">
+          <div />
+          {viewablePagesList
+            ? hasMorePages() && (
+                <Row className="justify-content-center">
+                  <PaginationGroup
+                    viewablePageNums={viewablePagesList}
+                    updateParams={validated.updateParams}
+                    currentPage={page}
+                    count={countPages}
+                  />
+                </Row>
+              )
+            : null}
+          <div>
+            {formattedJSONData.length > 0 && (
+              <Button
+                className="btn download-button"
+                type="button"
+                href={`data:text/json;charset=utf-8,${encodeURIComponent(
+                  JSON.stringify(formattedJSONData),
+                )}`}
+                download="perf-compare.json"
+                data-testid="download-button"
+              >
+                <FontAwesomeIcon
+                  icon={faFileDownload}
+                  className="download-json-icon"
                 />
-              </Row>
-            )
-          : null}
-
+                JSON (experimental)
+              </Button>
+            )}
+          </div>
+        </div>
         {showNoise && showTestsWithNoise}
 
         {results.size > 0 ? (
