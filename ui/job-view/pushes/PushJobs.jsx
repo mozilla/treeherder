@@ -37,6 +37,19 @@ class PushJobs extends React.Component {
 
   onMouseDown = (ev) => {
     const { togglePinJob } = this.props;
+
+    if (
+      'classList' in ev.target &&
+      ev.target.classList.contains('group-symbol')
+    ) {
+      const groupNode = ev.target.parentNode.parentNode;
+      const groupInstance = findInstance(groupNode);
+      if (groupInstance) {
+        this.handleGroupClick(ev, groupNode, groupInstance);
+      }
+      return;
+    }
+
     const jobInstance = findInstance(ev.target);
     const selectedTaskRun = getUrlParam('selectedTaskRun');
 
@@ -94,6 +107,23 @@ class PushJobs extends React.Component {
 
     toggleSelectedRunnableJob(jobInstance.props.job.signature);
     jobInstance.toggleRunnableSelected();
+  };
+
+  handleGroupClick = (ev, groupNode, groupInstance) => {
+    if (!groupInstance.state.expanded || !ev.metaKey) {
+      return;
+    }
+
+    const { toggleSelectedRunnableJob } = this.props;
+
+    for (const jobButton of groupNode.querySelectorAll('.runnable-job-btn')) {
+      const jobInstance = findInstance(jobButton);
+      if (!jobInstance) {
+        continue;
+      }
+      toggleSelectedRunnableJob(jobInstance.props.job.signature);
+      jobInstance.toggleRunnableSelected();
+    }
   };
 
   render() {

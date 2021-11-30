@@ -55,7 +55,11 @@ export class JobGroupComponent extends React.Component {
     this.setState({ expanded: isExpanded });
   }
 
-  toggleExpanded = () => {
+  toggleExpanded = (event) => {
+    if (this.state.expanded && event.metaKey) {
+      // Reserved for handleGroupClick in PushJob.jsx
+      return;
+    }
     this.setState((prevState) => ({ expanded: !prevState.expanded }));
   };
 
