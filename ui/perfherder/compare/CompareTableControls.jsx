@@ -217,6 +217,9 @@ export default class CompareTableControls extends React.Component {
     if (totalPagesList.length <= 5 || !totalPagesList.length) {
       return totalPagesList;
     }
+    if (page + 4 > totalPagesList.length) {
+      return totalPagesList.slice(-5);
+    }
     return totalPagesList.slice(page - 1, page + 4);
   };
 
