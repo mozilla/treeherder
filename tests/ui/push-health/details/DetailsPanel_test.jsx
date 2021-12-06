@@ -100,7 +100,7 @@ describe('DetailsPanel', () => {
     fireEvent.click(failuresTab);
 
     expect(await waitFor(() => getAllByTestId('bug-list-item'))).toHaveLength(
-      1,
+      2,
     );
   });
 

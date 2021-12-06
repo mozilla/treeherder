@@ -1,0 +1,52 @@
+{
+  "bugs": [
+    {
+      "keywords": ["intermittent-failure"],
+      "duplicates": [],
+      "last_change_time": "2020-09-08T16:38:48Z",
+      "id": 1652208,
+      "status": "RESOLVED",
+      "resolution": "DUPLICATE",
+      "dupe_of": 1660719,
+      "cf_crash_signature": "[@ some::mock_signature]",
+      "summary": "Intermittent dom/canvas/test/webgl-conf/generated/test_2_conformance__ogles__GL__swizzlers__swizzlers_105_to_112.html | Test timed out.",
+      "whiteboard": "[we have to do something about this][it's urgent]"
+    },
+    {
+      "id": 1660765,
+      "status": "RESOLVED",
+      "duplicates": [],
+      "keywords": ["intermittent-failure"],
+      "last_change_time": "2020-09-07T06:30:42Z",
+      "cf_crash_signature": "",
+      "summary": "Intermittent dom/canvas/test/webgl-conf/generated/test_2_conformance__ogles__GL__swizzlers__swizzlers_113_to_120.html | Error in program linking:",
+      "whiteboard": "",
+      "resolution": "DUPLICATE",
+      "dupe_of": 1660324
+    },
+    {
+      "duplicates": [],
+      "keywords": ["intermittent-failure"],
+      "last_change_time": "2020-09-07T06:34:10Z",
+      "status": "RESOLVED",
+      "id": 1663081,
+      "resolution": "DUPLICATE",
+      "dupe_of": 1660324,
+      "cf_crash_signature": "",
+      "whiteboard": "",
+      "summary": "Intermittent dom/canvas/test/webgl-conf/generated/test_conformance__ogles__GL__swizzlers__swizzlers_073_to_080.html | Error in program linking: | Test timed out."
+    },
+    {
+      "whiteboard": "[stockwell unknown]",
+      "summary": "Intermittent dom/canvas/test/webgl-conf/generated/test_2_conformance__textures__image_bitmap_from_video__tex-2d-luminance-luminance-unsigned_byte.html | shouldBe 0,0,0",
+      "cf_crash_signature": "",
+      "dupe_of": 1662628,
+      "resolution": "DUPLICATE",
+      "status": "RESOLVED",
+      "id": 1663118,
+      "keywords": ["intermittent-failure"],
+      "duplicates": [1702255],
+      "last_change_time": "2020-09-07T06:35:23Z"
+    }
+  ]
+}

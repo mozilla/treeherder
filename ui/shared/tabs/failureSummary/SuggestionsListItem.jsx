@@ -107,7 +107,7 @@ export default class SuggestionsListItem extends React.Component {
               key={bug.id}
               bug={bug}
               suggestion={suggestion}
-              bugClassName={`${bug.resolution !== '' ? 'strike-through' : ''} ${
+              bugClassName={`${
                 developerMode ? 'text-darker-secondary small-text' : ''
               }`}
               title={bug.resolution !== '' ? bug.resolution : ''}

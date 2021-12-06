@@ -11,6 +11,7 @@ import { getBugUrl } from '../../../helpers/url';
 function BugListItem(props) {
   const { bug, suggestion, bugClassName, title, selectedJob, addBug } = props;
   const bugUrl = getBugUrl(bug.id);
+  const duplicateBugUrl = bug.dupe_of ? getBugUrl(bug.dupe_of) : undefined;
 
   return (
     <li data-testid="bug-list-item">
@@ -27,7 +28,9 @@ function BugListItem(props) {
         </Button>
       )}
       <a
-        className={`${bugClassName} ml-1`}
+        className={`${bugClassName} ml-1 ${
+          bug.resolution !== '' ? 'strike-through' : ''
+        }`}
         href={bugUrl}
         target="_blank"
         rel="noopener noreferrer"
@@ -42,6 +45,20 @@ function BugListItem(props) {
           highlightTag="strong"
         />
       </a>
+      {bug.dupe_of && (
+        <span>
+          {' '}
+          &gt;
+          <a
+            className={`${bugClassName} ml-1`}
+            href={duplicateBugUrl}
+            target="_blank"
+            rel="noopener noreferrer"
+          >
+            {bug.dupe_of}
+          </a>
+        </span>
+      )}
     </li>
   );
 }

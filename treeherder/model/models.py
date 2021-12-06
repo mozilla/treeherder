@@ -215,11 +215,12 @@ class Bugscache(models.Model):
     resolution = models.CharField(max_length=64, blank=True, db_index=True)
     # Is covered by a FULLTEXT index created via a migrations RunSQL operation.
     summary = models.CharField(max_length=255)
+    dupe_of = models.PositiveIntegerField(null=True)
     crash_signature = models.TextField(blank=True)
     keywords = models.TextField(blank=True)
-    os = models.CharField(max_length=64, blank=True)
     modified = models.DateTimeField()
     whiteboard = models.CharField(max_length=100, blank=True, default='')
+    processed_update = models.BooleanField(default=True)
 
     class Meta:
         db_table = 'bugscache'
@@ -260,7 +261,7 @@ class Bugscache(models.Model):
 
         recent_qs = self.objects.raw(
             """
-            SELECT id, summary, crash_signature, keywords, os, resolution, status,
+            SELECT id, summary, crash_signature, keywords, resolution, status, dupe_of,
              MATCH (`summary`) AGAINST (%s IN BOOLEAN MODE) AS relevance
               FROM bugscache
              WHERE 1
@@ -273,9 +274,10 @@ class Bugscache(models.Model):
             [search_term_fulltext, search_term_like, time_limit, max_size],
         )
 
+        exclude_fields = ["modified", "processed_update"]
         try:
             open_recent_match_string = [
-                model_to_dict(item, exclude=["modified"]) for item in recent_qs
+                model_to_dict(item, exclude=exclude_fields) for item in recent_qs
             ]
             open_recent = [
                 match
@@ -297,7 +299,7 @@ class Bugscache(models.Model):
 
         all_others_qs = self.objects.raw(
             """
-            SELECT id, summary, crash_signature, keywords, os, resolution, status,
+            SELECT id, summary, crash_signature, keywords, resolution, status, dupe_of,
              MATCH (`summary`) AGAINST (%s IN BOOLEAN MODE) AS relevance
               FROM bugscache
              WHERE 1
@@ -311,7 +313,7 @@ class Bugscache(models.Model):
 
         try:
             all_others_match_string = [
-                model_to_dict(item, exclude=["modified"]) for item in all_others_qs
+                model_to_dict(item, exclude=exclude_fields) for item in all_others_qs
             ]
             all_others = [
                 match

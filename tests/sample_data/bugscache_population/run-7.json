@@ -1,0 +1,16 @@
+{
+  "bugs": [
+    {
+      "whiteboard": "",
+      "summary": "Intermittent /webdriver/tests/set_window_rect/set.py | <smth> - AssertionError: assert {'height': 600, 'width': 800, 'x': 100, 'y': 100} == {'height': 600, 'width': 800, 'x': 110, 'y': 100}",
+      "cf_crash_signature": "",
+      "dupe_of": 1663118,
+      "resolution": "",
+      "status": "REOPENED",
+      "id": 1702255,
+      "keywords": ["assertion", "intermittent-failure"],
+      "duplicates": [],
+      "last_change_time": "2021-11-01T06:01:45Z"
+    }
+  ]
+}
