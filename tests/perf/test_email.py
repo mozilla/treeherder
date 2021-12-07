@@ -35,14 +35,13 @@ class TestDeletionNotificationWriter:
     @staticmethod
     def __prepare_expected_content(test_perf_signature):
         expected_content = DeletionReportContent.DESCRIPTION + DeletionReportContent.TABLE_HEADERS
-        expected_content += (
-            """| {repository} | {framework} | {platform} | {suite} | {application} |""".format(
-                repository=test_perf_signature.repository.name,
-                framework=test_perf_signature.framework.name,
-                platform=test_perf_signature.platform.platform,
-                suite=test_perf_signature.suite,
-                application=test_perf_signature.application,
-            )
+        expected_content += """| {repository} | {framework} | {platform} | {suite} | {application} | {last_updated} |""".format(
+            repository=test_perf_signature.repository.name,
+            framework=test_perf_signature.framework.name,
+            platform=test_perf_signature.platform.platform,
+            suite=test_perf_signature.suite,
+            application=test_perf_signature.application,
+            last_updated=test_perf_signature.last_updated,
         )
         expected_content += '\n'
         return expected_content
