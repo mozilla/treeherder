@@ -868,6 +868,33 @@ test("Alert's ID can be copied to clipboard", async () => {
   expect(navigator.clipboard.writeText).toHaveBeenCalledWith(`${alertID}`);
 });
 
+test('Copy to clipboard button changes from clipboard icon to check icon on click', async () => {
+  const { queryAllByTitle } = alertsViewControls();
+  Object.assign(navigator, {
+    clipboard: {
+      writeText: jest.fn(),
+    },
+  });
+
+  const copyIdButtons = await waitFor(() => queryAllByTitle('Copy Alert ID'));
+
+  expect(copyIdButtons[0].innerHTML).toContain(
+    'svg-inline--fa fa-clipboard fa-w-12 ',
+  );
+
+  fireEvent.click(copyIdButtons[0]);
+
+  expect(copyIdButtons[0].innerHTML).toContain(
+    'svg-inline--fa fa-check-circle fa-w-16 ',
+  );
+
+  await waitFor(() =>
+    expect(copyIdButtons[0].innerHTML).toContain(
+      'svg-inline--fa fa-clipboard fa-w-12 ',
+    ),
+  );
+});
+
 test('Prev push revision is displayed in dropdown', async () => {
   const { getAllByTestId } = alertsViewControls();
   const prevPushRevision = testAlertSummaries[0].prev_push_revision.slice(
