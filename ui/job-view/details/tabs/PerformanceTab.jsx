@@ -126,6 +126,8 @@ class PerformanceTab extends React.PureComponent {
                     <a
                       href={url}
                       className="btn btn-outline-darker-secondary btn-sm performance-panel-view-button"
+                      target="_blank"
+                      rel="noopener noreferrer"
                     >
                       View
                     </a>
