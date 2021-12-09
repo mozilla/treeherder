@@ -403,6 +403,49 @@ def test_cannot_add_unregistered_tag_to_a_summary(
     assert test_perf_alert_summary.performance_tags.count() == 1
 
 
+def test_pagesize_is_limited_from_params(
+    client, test_perf_alert_summary, test_perf_alert_summary_2
+):
+    summary_id = test_perf_alert_summary.id
+
+    resp = client.get(
+        reverse('performance-alert-summaries-list'),
+        data={
+            'framework': 1,
+            'limit': 1,
+        },
+    )
+    assert resp.status_code == 200
+
+    retrieved_summaries = resp.json()['results']
+    summary_ids = [summary['id'] for summary in retrieved_summaries]
+
+    assert summary_id in summary_ids
+    assert len(summary_ids) == 1
+
+
+def test_pagesize_is_limited_from_params(
+    client, test_perf_alert_summary, test_perf_alert_summary_2
+):
+    resp = client.get(
+        reverse('performance-alert-summaries-list'),
+        data={
+            'framework': 1,
+            'limit': 5,
+        },
+    )
+    assert resp.status_code == 200
+    resp_json = resp.json()
+    assert resp_json['next'] is None
+    assert resp_json['previous'] is None
+    retrieved_summaries = resp_json['results']
+    summary_ids = [summary['id'] for summary in retrieved_summaries]
+
+    assert test_perf_alert_summary.id in summary_ids
+    assert test_perf_alert_summary_2.id in summary_ids
+    assert len(summary_ids) == 2
+
+
 @pytest.fixture
 def related_alert(test_perf_alert_summary, test_perf_alert_summary_2, test_perf_signature_2):
     return create_perf_alert(

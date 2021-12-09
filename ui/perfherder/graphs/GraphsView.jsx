@@ -18,6 +18,7 @@ import {
 } from '../../helpers/constants';
 import { processSelectedParam, createGraphData } from '../perf-helpers/helpers';
 import {
+  alertSummaryLimit,
   endpoints,
   graphColors,
   graphSymbols,
@@ -225,18 +226,22 @@ class GraphsView extends React.Component {
     return graphData;
   };
 
-  getAlertSummaries = async (signatureId, repository) => {
+  getAlertSummaries = async (signatureId, repository, noPagination = false) => {
     const { errorMessages } = this.state;
 
     const data = await getData(
-      createApiUrl(endpoints.alertSummarySimple, {
+      createApiUrl(endpoints.alertSummary, {
         alerts__series_signature: signatureId,
         repository,
+        limit: alertSummaryLimit,
       }),
     );
     const response = processResponse(data, 'alertSummaries', errorMessages);
 
     if (response.alertSummaries) {
+      if (noPagination) {
+        return response.alertSummaries;
+      }
       return response.alertSummaries.results;
     }
     this.setState({ errorMessages: response.errorMessages });
@@ -244,9 +249,9 @@ class GraphsView extends React.Component {
   };
 
   getCommonAlerts = async (frameworkId) => {
-    const params = { framework: frameworkId };
+    const params = { framework: frameworkId, limit: alertSummaryLimit };
     const url = getApiUrl(
-      `${endpoints.alertSummarySimple}${createQueryParams(params)}`,
+      `${endpoints.alertSummary}${createQueryParams(params)}`,
     );
     const response = await getData(url);
     const commonAlerts = [...response.data.results];
