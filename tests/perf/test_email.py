@@ -41,7 +41,7 @@ class TestDeletionNotificationWriter:
             platform=test_perf_signature.platform.platform,
             suite=test_perf_signature.suite,
             application=test_perf_signature.application,
-            last_updated=test_perf_signature.last_updated,
+            last_updated=test_perf_signature.last_updated.date(),
         )
         expected_content += '\n'
         return expected_content

@@ -267,7 +267,7 @@ class DeletionReportContent:
             "platform": signature.platform.platform,
             "suite": signature.suite,
             "application": signature.application,
-            "last_updated": signature.last_updated,
+            "last_updated": signature.last_updated.date(),
         }
 
     def __str__(self):
