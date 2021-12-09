@@ -1,41 +1,65 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faClipboard } from '@fortawesome/free-regular-svg-icons';
+import {
+  faClipboard,
+  faCheckCircle,
+} from '@fortawesome/free-regular-svg-icons';
 import { Button } from 'reactstrap';
 
-const Clipboard = ({ description, text, outline, visible, color }) => {
-  if (!text) {
-    return null;
+export default class Clipboard extends React.Component {
+  constructor(props) {
+    super(props);
+    this.state = {
+      copied: false,
+    };
   }
 
-  const copyToClipboard = () => navigator.clipboard.writeText(text);
+  copyToClipboard = (text) => {
+    navigator.clipboard.writeText(text);
+    this.setState({ copied: true });
 
-  return (
-    <Button
-      type="button"
-      title={`Copy ${description}`}
-      onClick={copyToClipboard}
-      className={`py-0 px-1 ${visible ? '' : 'invisible'}`}
-      color={`${color || 'light'}`}
-      outline={outline}
-    >
-      <FontAwesomeIcon icon={faClipboard} />
-    </Button>
-  );
-};
+    setTimeout(() => {
+      this.setState({ copied: false });
+    }, 700);
+  };
+
+  render() {
+    const { description, text, outline, color } = this.props;
+    const { copied } = this.state;
+
+    if (!text) {
+      return null;
+    }
+
+    return (
+      <Button
+        type="button"
+        title={`Copy ${description}`}
+        onClick={() => {
+          this.copyToClipboard(text);
+        }}
+        className="py-0 px-1"
+        color={`${color || 'light'}`}
+        outline={outline}
+      >
+        {copied ? (
+          <FontAwesomeIcon icon={faCheckCircle} color="#2da745" />
+        ) : (
+          <FontAwesomeIcon icon={faClipboard} />
+        )}
+      </Button>
+    );
+  }
+}
 
 Clipboard.propTypes = {
   description: PropTypes.string.isRequired,
   text: PropTypes.string,
   outline: PropTypes.bool,
-  visible: PropTypes.bool,
 };
 
 Clipboard.defaultProps = {
   text: null,
   outline: false,
-  visible: true,
 };
-
-export { Clipboard as default };

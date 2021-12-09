@@ -11,23 +11,14 @@ import { getFrameworkName, getTitle } from '../perf-helpers/helpers';
 export default class AlertHeaderTitle extends React.Component {
   constructor(props) {
     super(props);
-    this.state = {
-      clipboardVisible: false,
-    };
+    this.state = {};
   }
-
-  showClipboard = (show) => {
-    this.setState({ clipboardVisible: show });
-  };
 
   render() {
     const { alertSummary, frameworks } = this.props;
-    const { clipboardVisible } = this.state;
+
     return (
-      <Row
-        onMouseEnter={() => this.showClipboard(true)}
-        onMouseLeave={() => this.showClipboard(false)}
-      >
+      <Row>
         <Col className="d-flex align-items-start p-0">
           <Link
             className="text-dark mr-1"
@@ -50,7 +41,6 @@ export default class AlertHeaderTitle extends React.Component {
           <Clipboard
             text={`${alertSummary.id}`}
             description="Alert ID"
-            visible={clipboardVisible}
             color="transparent"
           />
         </Col>
