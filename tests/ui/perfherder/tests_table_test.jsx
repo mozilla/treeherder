@@ -1,5 +1,5 @@
 import React from 'react';
-import { render, cleanup, waitFor } from '@testing-library/react';
+import { render, cleanup, waitFor, fireEvent } from '@testing-library/react';
 
 import { noResultsMessage } from '../../../ui/perfherder/perf-helpers/constants';
 import TestsTable from '../../../ui/perfherder/tests/TestsTable';
@@ -60,4 +60,26 @@ test('Tests table should show data', async () => {
 
   expect(result1).toBeInTheDocument();
   expect(result2).toBeInTheDocument();
+});
+
+test('Clicking on platform icon displays the list of platforms', async () => {
+  const { getAllByTestId, getByTestId } = testsTable(
+    results,
+    projectsMap,
+    platformsMap,
+  );
+
+  const platformIcon = await waitFor(() => getAllByTestId('other-platform'));
+
+  expect(platformIcon[0]).not.toBeNull();
+
+  fireEvent.click(platformIcon[0]);
+
+  const platformList = await waitFor(() =>
+    getByTestId('displayed-platform-list'),
+  );
+
+  expect(platformList.childElementCount).toBe(2);
+  expect(platformList.children[0]).toHaveTextContent('platform2');
+  expect(platformList.children[1]).toHaveTextContent('platform1');
 });
