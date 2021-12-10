@@ -227,8 +227,8 @@ class DeletionReportContent:
 """
 
     TABLE_HEADERS = """
-| Repository | Framework | Platform | Suite | Application |
-| :---: | :---: | :---: | :---: | :---: |
+| Repository | Framework | Platform | Suite | Application | Last activity date |
+| :---: | :---: | :---: | :---: | :---: | :---: |
 """
 
     def __init__(self):
@@ -251,12 +251,13 @@ class DeletionReportContent:
     def _build_table_row(self, signature: PerformanceSignature) -> str:
         props = self.__extract_properties(signature)
 
-        return '| {repository} | {framework} | {platform} | {suite} | {application} |'.format(
+        return '| {repository} | {framework} | {platform} | {suite} | {application} | {last_updated} |'.format(
             repository=props["repository"],
             framework=props["framework"],
             platform=props["platform"],
             suite=props["suite"],
             application=props["application"],
+            last_updated=props["last_updated"],
         )
 
     def __extract_properties(self, signature: PerformanceSignature) -> dict:
@@ -266,6 +267,7 @@ class DeletionReportContent:
             "platform": signature.platform.platform,
             "suite": signature.suite,
             "application": signature.application,
+            "last_updated": signature.last_updated.date(),
         }
 
     def __str__(self):
