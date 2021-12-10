@@ -249,7 +249,10 @@ const GraphTooltip = ({
             </span>
             {dataPointDetails.alertSummary && (
               <p>
-                <Link to={`./alerts?id=${dataPointDetails.alertSummary.id}`}>
+                <Link
+                  to={`./alerts?id=${dataPointDetails.alertSummary.id}`}
+                  target="_blank"
+                >
                   <FontAwesomeIcon
                     className="text-warning"
                     icon={faExclamationCircle}
