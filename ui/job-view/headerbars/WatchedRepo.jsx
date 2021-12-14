@@ -18,8 +18,7 @@ import {
   DropdownToggle,
   UncontrolledDropdown,
 } from 'reactstrap';
-import { push as pushRoute } from 'connected-react-router';
-import { connect } from 'react-redux';
+import { Link } from 'react-router-dom';
 
 import TreeStatusModel from '../../models/treeStatus';
 import BugLinkify from '../../shared/BugLinkify';
@@ -59,7 +58,7 @@ const statusInfoMap = {
   },
 };
 
-class WatchedRepo extends React.Component {
+export default class WatchedRepo extends React.Component {
   constructor(props) {
     super(props);
 
@@ -127,7 +126,7 @@ class WatchedRepo extends React.Component {
   };
 
   render() {
-    const { repoName, unwatchRepo, repo, pushRoute } = this.props;
+    const { repoName, unwatchRepo, repo } = this.props;
     const { status, messageOfTheDay, reason, statusInfo } = this.state;
     const watchedRepo = repo.name;
     const activeClass = watchedRepo === repoName ? 'active' : '';
@@ -137,11 +136,9 @@ class WatchedRepo extends React.Component {
     return (
       <ButtonGroup>
         <Button
-          onClick={() => {
-            pushRoute({ search: updateRepoParams(watchedRepo) });
-            this.updateTreeStatus(true);
-          }}
-          className={`btn-view-nav ${btnClass} ${activeClass}`}
+          tag={Link}
+          to={updateRepoParams(watchedRepo)}
+          className={`btn-view-nav ${btnClass} ${activeClass} btn-watched-repo`}
           title={status}
           size="sm"
         >
@@ -235,7 +232,4 @@ WatchedRepo.propTypes = {
     pushLogUrl: PropTypes.string,
   }).isRequired,
   setCurrentRepoTreeStatus: PropTypes.func.isRequired,
-  pushRoute: PropTypes.func.isRequired,
 };
-
-export default connect(null, { pushRoute })(WatchedRepo);

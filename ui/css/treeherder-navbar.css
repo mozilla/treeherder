@@ -452,3 +452,9 @@ fieldset[disabled] .btn-view-nav-closed.active {
 .navbar-link:visited {
   color: lightgray;
 }
+
+/* Watched repo */
+
+.btn-watched-repo {
+  padding: .375rem .75rem;
+}
