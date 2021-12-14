@@ -15,29 +15,30 @@ class PaginationGroup extends React.Component {
     const firstViewablePage = viewablePageNums[0];
     const lastViewablePage = viewablePageNums[viewablePageNums.length - 1];
 
+    const firstButtonAvailable = firstViewablePage > 1;
+    const prevButtonAvailable = currentPage > 1;
+    const nextButtonAvailable = currentPage < count;
+    const lastButtonAvailable = lastViewablePage < count;
+
     return (
       /* The first and last pagination navigation links
          aren't working correctly (icons aren't visible)
          so they haven't been added */
       <Pagination aria-label={`Page ${currentPage}`}>
-        {firstViewablePage > 1 && (
-          <PaginationItem className="text-info">
-            <PaginationLink
-              className="text-info"
-              first
-              onClick={() => this.navigatePage(1)}
-            />
-          </PaginationItem>
-        )}
-        {currentPage > 1 && (
-          <PaginationItem>
-            <PaginationLink
-              className="text-info"
-              previous
-              onClick={() => this.navigatePage(currentPage - 1)}
-            />
-          </PaginationItem>
-        )}
+        <PaginationItem className="text-info" disabled={!firstButtonAvailable}>
+          <PaginationLink
+            className="text-info"
+            first
+            onClick={() => this.navigatePage(1)}
+          />
+        </PaginationItem>
+        <PaginationItem disabled={!prevButtonAvailable}>
+          <PaginationLink
+            className="text-info"
+            previous
+            onClick={() => this.navigatePage(currentPage - 1)}
+          />
+        </PaginationItem>
         {viewablePageNums.map((num) => (
           <PaginationItem
             key={num}
@@ -53,24 +54,20 @@ class PaginationGroup extends React.Component {
             </PaginationLink>
           </PaginationItem>
         ))}
-        {currentPage < count && (
-          <PaginationItem>
-            <PaginationLink
-              className="text-info"
-              next
-              onClick={() => this.navigatePage(currentPage + 1)}
-            />
-          </PaginationItem>
-        )}
-        {lastViewablePage < count && (
-          <PaginationItem className="text-info">
-            <PaginationLink
-              className="text-info"
-              last
-              onClick={() => this.navigatePage(count)}
-            />
-          </PaginationItem>
-        )}
+        <PaginationItem disabled={!nextButtonAvailable}>
+          <PaginationLink
+            className="text-info"
+            next
+            onClick={() => this.navigatePage(currentPage + 1)}
+          />
+        </PaginationItem>
+        <PaginationItem className="text-info" disabled={!lastButtonAvailable}>
+          <PaginationLink
+            className="text-info"
+            last
+            onClick={() => this.navigatePage(count)}
+          />
+        </PaginationItem>
       </Pagination>
     );
   }

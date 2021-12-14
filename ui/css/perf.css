@@ -459,6 +459,14 @@ li.pagination-active.active > button {
   color: black !important;
 }
 
+.page-item.disabled {
+  cursor: not-allowed;
+}
+
+.page-item.disabled .page-link {
+  color: lightgray !important;
+}
+
 /* graph colors */
 .orange {
   border-left-color: #ffb851;
