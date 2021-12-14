@@ -14,6 +14,8 @@ export default class JobsAndGroups extends React.Component {
       pushGroupState,
       duplicateJobsVisible,
       groupCountsExpanded,
+      runnableVisible,
+      toggleSelectedRunnableJob,
     } = this.props;
 
     return (
@@ -31,6 +33,8 @@ export default class JobsAndGroups extends React.Component {
                   pushGroupState={pushGroupState}
                   duplicateJobsVisible={duplicateJobsVisible}
                   groupCountsExpanded={groupCountsExpanded}
+                  runnableVisible={runnableVisible}
+                  toggleSelectedRunnableJob={toggleSelectedRunnableJob}
                 />
               )
             );

@@ -86,6 +86,8 @@ export default class Platform extends React.PureComponent {
       pushGroupState,
       duplicateJobsVisible,
       groupCountsExpanded,
+      runnableVisible,
+      toggleSelectedRunnableJob,
     } = this.props;
     const { filteredPlatform } = this.state;
     const suffix =
@@ -107,6 +109,8 @@ export default class Platform extends React.PureComponent {
           pushGroupState={pushGroupState}
           duplicateJobsVisible={duplicateJobsVisible}
           groupCountsExpanded={groupCountsExpanded}
+          runnableVisible={runnableVisible}
+          toggleSelectedRunnableJob={toggleSelectedRunnableJob}
         />
       </tr>
     ) : (

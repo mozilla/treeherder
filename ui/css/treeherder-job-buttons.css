@@ -630,3 +630,19 @@ fieldset[disabled] .btn-pink.active {
   background-color: #ff80e5;
   border-color: #ff80e5;
 }
+
+.group-select-all-runnable {
+  color: rgba(128, 128, 0, 0.5);
+  font-size: 12px;
+  background: transparent;
+  padding: 0 2px 0 2px;
+  border: 0;
+  vertical-align: 0;
+  line-height: 1.32;
+  cursor: pointer;
+  margin-right: -3px;
+}
+
+.group-select-all-runnable:hover {
+  cursor: pointer;
+}

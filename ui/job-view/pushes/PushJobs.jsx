@@ -105,6 +105,7 @@ class PushJobs extends React.Component {
       groupCountsExpanded,
       runnableVisible,
       platforms,
+      toggleSelectedRunnableJob,
     } = this.props;
 
     return (
@@ -123,6 +124,7 @@ class PushJobs extends React.Component {
                   duplicateJobsVisible={duplicateJobsVisible}
                   groupCountsExpanded={groupCountsExpanded}
                   runnableVisible={runnableVisible}
+                  toggleSelectedRunnableJob={toggleSelectedRunnableJob}
                 />
               ))
             ) : (
