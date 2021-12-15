@@ -226,6 +226,11 @@ class BzApiBugProcess:
         duplicates_used = duplicates_db & bugs_used
         for bug_id in duplicates_used:
             dupe_of = Bugscache.objects.get(id=bug_id).dupe_of
+            # Jobs both already classified with new duplicate and its open bug.
+            jobs_openish = list(
+                BugJobMap.objects.filter(bug_id=dupe_of).values_list('job_id', flat=True)
+            )
+            BugJobMap.objects.filter(bug_id=bug_id, job_id__in=jobs_openish).delete()
             BugJobMap.objects.filter(bug_id=bug_id).update(bug_id=dupe_of)
 
         # Delete open bugs and related duplicates if modification date (of open
