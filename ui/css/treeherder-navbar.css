@@ -456,5 +456,5 @@ fieldset[disabled] .btn-view-nav-closed.active {
 /* Watched repo */
 
 .btn-watched-repo {
-  padding: .375rem .75rem;
+  padding: .375rem .5rem;
 }

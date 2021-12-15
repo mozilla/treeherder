@@ -11,7 +11,6 @@ import {
   faTimesCircle,
 } from '@fortawesome/free-solid-svg-icons';
 import {
-  ButtonGroup,
   Button,
   DropdownMenu,
   DropdownItem,
@@ -134,13 +133,11 @@ export default class WatchedRepo extends React.Component {
     const pulseIcon = statusInfo.pulseIcon || null;
 
     return (
-      <ButtonGroup>
-        <Button
-          tag={Link}
+      <div className="btn-group" role="group">
+        <Link
           to={updateRepoParams(watchedRepo)}
-          className={`btn-view-nav ${btnClass} ${activeClass} btn-watched-repo`}
+          className={`btn btn-sm btn-view-nav ${btnClass} ${activeClass} btn-watched-repo`}
           title={status}
-          size="sm"
         >
           <FontAwesomeIcon
             icon={icon}
@@ -149,7 +146,7 @@ export default class WatchedRepo extends React.Component {
             pulse={pulseIcon}
           />{' '}
           {watchedRepo}
-        </Button>
+        </Link>
         <UncontrolledDropdown>
           <DropdownToggle className={`btn-view-nav ${activeClass}`}>
             <FontAwesomeIcon
@@ -218,7 +215,7 @@ export default class WatchedRepo extends React.Component {
             </DropdownItem>
           </DropdownMenu>
         </UncontrolledDropdown>
-      </ButtonGroup>
+      </div>
     );
   }
 }
