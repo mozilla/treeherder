@@ -60,6 +60,14 @@ export const destroy = function deleteRecord(uri) {
   });
 };
 
+export const destroyMany = function deleteRecords(uri, data) {
+  return getData(uri, {
+    method: 'DELETE',
+    headers: generateHeaders(),
+    body: JSON.stringify(data),
+  });
+};
+
 export const processResponse = (response, state, errorMessages) => {
   const { data, failureStatus } = response;
   if (failureStatus) {

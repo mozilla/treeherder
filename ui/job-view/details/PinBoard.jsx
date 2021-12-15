@@ -22,6 +22,7 @@ import { isSHAorCommit } from '../../helpers/revision';
 import { getBugUrl } from '../../helpers/url';
 import BugJobMapModel from '../../models/bugJobMap';
 import JobClassificationModel from '../../models/classification';
+import JobClassificationTypeAndBugsModel from '../../models/classificationTypeAndBugs';
 import JobModel from '../../models/job';
 import { notify } from '../redux/stores/notifications';
 import { setSelectedJob } from '../redux/stores/selectedJob';
@@ -99,12 +100,6 @@ class PinBoard extends React.Component {
           newBugNumber: null,
         });
       });
-
-      // HACK: it looks like Firefox on Linux and Windows doesn't
-      // want to accept keyboard input after this change for some
-      // reason which I don't understand. Chrome (any platform)
-      // or Firefox on Mac works fine though.
-      document.getElementById('keyboard-shortcuts').focus();
     }
   };
 
@@ -215,6 +210,64 @@ class PinBoard extends React.Component {
         decisionTaskMap,
       );
       this.unPinAll();
+    }
+  };
+
+  unclassifyAllPinnedJobsTitle = () => {
+    if (!this.props.isStaff) {
+      return 'Must be employee or sheriff';
+    }
+
+    if (!this.canCancelAllPinnedJobs()) {
+      return 'No jobs in pinboard';
+    }
+
+    return 'Unclassify all the pinned jobs';
+  };
+
+  canUnclassifyAllPinnedJobs = () => {
+    return (
+      this.props.isStaff && Object.values(this.props.pinnedJobs).length > 0
+    );
+  };
+
+  unclassifyAllPinnedJobs = async () => {
+    const {
+      notify,
+      currentRepo,
+      jobMap,
+      pinnedJobs,
+      recalculateUnclassifiedCounts,
+    } = this.props;
+
+    const {
+      data,
+      failureStatus,
+    } = await JobClassificationTypeAndBugsModel.destroy(
+      Object.values(pinnedJobs),
+      currentRepo,
+      notify,
+    );
+
+    if (!failureStatus) {
+      for (const pinnedJob of Object.values(pinnedJobs)) {
+        const job = jobMap[pinnedJob.id];
+
+        job.failure_classification_id = 1;
+
+        // Update the job to show that it's unclassified now.
+        const jobInstance = findJobInstance(job.id);
+        // Filter in case we are hiding unclassified.
+        if (jobInstance) {
+          jobInstance.refilter();
+        }
+      }
+      this.unPinAll();
+      window.dispatchEvent(new CustomEvent(thEvents.classificationChanged));
+      recalculateUnclassifiedCounts();
+    } else {
+      const message = `Error deleting classifications: ${data}`;
+      notify(message, 'danger');
     }
   };
 
@@ -614,6 +667,19 @@ class PinBoard extends React.Component {
                   >
                     Cancel all
                   </DropdownItem>
+                  <DropdownItem
+                    tag="a"
+                    title={this.unclassifyAllPinnedJobsTitle()}
+                    className={
+                      this.canUnclassifyAllPinnedJobs() ? '' : 'disabled'
+                    }
+                    onClick={() =>
+                      this.canUnclassifyAllPinnedJobs() &&
+                      this.unclassifyAllPinnedJobs()
+                    }
+                  >
+                    Unclassify all
+                  </DropdownItem>
                   <DropdownItem tag="a" onClick={() => this.unPinAll()}>
                     Clear all
                   </DropdownItem>
@@ -633,6 +699,7 @@ PinBoard.propTypes = {
   jobMap: PropTypes.shape({}).isRequired,
   classificationTypes: PropTypes.arrayOf(PropTypes.object).isRequired,
   isLoggedIn: PropTypes.bool.isRequired,
+  isStaff: PropTypes.bool.isRequired,
   isPinBoardVisible: PropTypes.bool.isRequired,
   pinnedJobs: PropTypes.shape({}).isRequired,
   pinnedJobBugs: PropTypes.shape({}).isRequired,
