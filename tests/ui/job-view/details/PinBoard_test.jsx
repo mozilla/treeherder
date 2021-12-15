@@ -17,16 +17,21 @@ import {
   configureStore,
 } from '../../../../ui/job-view/redux/configureStore';
 import { setSelectedJob } from '../../../../ui/job-view/redux/stores/selectedJob';
-import { setPushes } from '../../../../ui/job-view/redux/stores/pushes';
+import {
+  setPushes,
+  updateJobMap,
+} from '../../../../ui/job-view/redux/stores/pushes';
 import reposFixture from '../../mock/repositories';
 import KeyboardShortcuts from '../../../../ui/job-view/KeyboardShortcuts';
 import { pinJobs } from '../../../../ui/job-view/redux/stores/pinnedJobs';
 
 describe('DetailsPanel', () => {
   const repoName = 'autoland';
-  const classificationTypes = [{ id: 1, name: 'intermittent' }];
-  const classificationMap = { 1: 'intermittent' };
+  const classificationBug = 98766789;
+  const classificationTypes = [{ id: 4, name: 'intermittent' }];
+  const classificationMap = { 4: 'intermittent' };
   let jobList = null;
+  const selectedJobId = 259537372;
   let store = null;
   const currentRepo = reposFixture[2];
   currentRepo.getRevisionHref = () => 'foo';
@@ -40,28 +45,49 @@ describe('DetailsPanel', () => {
     );
     jobList = await JobModel.getList({ push_id: 511138 });
 
-    fetchMock.get(getProjectUrl('/jobs/259537372/', repoName), jobList.data[1]);
-    fetchMock.get(getProjectUrl('/note/?job_id=259537372', repoName), []);
     fetchMock.get(
-      getProjectUrl('/jobs/259537372/text_log_errors/', repoName),
+      getProjectUrl(`/jobs/${selectedJobId}/`, repoName),
+      jobList.data[1],
+    );
+    fetchMock.get(
+      getProjectUrl(`/note/?job_id=${selectedJobId}`, repoName),
       [],
     );
     fetchMock.get(
-      getProjectUrl('/jobs/259537372/bug_suggestions/', repoName),
+      getProjectUrl(`/jobs/${selectedJobId}/text_log_errors/`, repoName),
       [],
     );
     fetchMock.get(
-      getProjectUrl('/bug-job-map/?job_id=259537372', repoName),
+      getProjectUrl(`/jobs/${selectedJobId}/bug_suggestions/`, repoName),
       [],
     );
     fetchMock.get(
-      getProjectUrl('/performance/data/?job_id=259537372', repoName),
+      getProjectUrl(`/bug-job-map/?job_id=${selectedJobId}`, repoName),
       [],
     );
     fetchMock.get(
-      getProjectUrl('/job-log-url/?job_id=259537372', 'autoland'),
+      getProjectUrl(`/performance/data/?job_id=${selectedJobId}`, repoName),
       [],
     );
+    fetchMock.get(
+      getProjectUrl(`/job-log-url/?job_id=${selectedJobId}`, repoName),
+      [],
+    );
+    fetchMock.catch(
+      getProjectUrl(`/job-log-url/?job_id=${selectedJobId}`, repoName),
+      [],
+    );
+    fetchMock.post(getProjectUrl('/bug-job-map/', repoName), {
+      bug_id: classificationBug,
+      job_id: selectedJobId,
+      type: 'annotation',
+    });
+    fetchMock.post(getProjectUrl('/note/', repoName), {
+      text: '',
+      who: null,
+      failure_classification_id: 4,
+      job_id: selectedJobId,
+    });
     fetchMock.get(
       'https://firefox-ci-tc.services.mozilla.com/api/queue/v1/task/JFVlnwufR7G9tZu_pKM0dQ/runs/0/artifacts',
       { artifacts: [] },
@@ -70,8 +96,10 @@ describe('DetailsPanel', () => {
       'https://firefox-ci-tc.services.mozilla.com/api/queue/v1/task/JFVlnwufR7G9tZu_pKM0dQ',
       taskDefinition,
     );
+    fetchMock.delete(getProjectUrl('/classification/', repoName), []);
     store = configureStore();
     store.dispatch(setPushes(pushFixture.results, {}, router));
+    store.dispatch(updateJobMap(jobList.data));
   });
 
   afterEach(() => {
@@ -97,7 +125,7 @@ describe('DetailsPanel', () => {
             <div id="th-global-content" data-testid="global-content">
               <DetailsPanel
                 currentRepo={currentRepo}
-                user={{ isLoggedIn: false }}
+                user={{ isLoggedIn: true, isStaff: true }}
                 resizedHeight={100}
                 classificationTypes={classificationTypes}
                 classificationMap={classificationMap}
@@ -109,6 +137,16 @@ describe('DetailsPanel', () => {
       </Provider>
     </div>
   );
+
+  const checkClassifiedJobs = (expectedCount) => {
+    const classifiedJobs = [];
+    for (const job of jobList.data) {
+      if (job.failure_classification_id > 1) {
+        classifiedJobs.push(job);
+      }
+    }
+    expect(classifiedJobs).toHaveLength(expectedCount);
+  };
 
   test('pin selected job with button', async () => {
     const { getByTitle } = render(testDetailsPanel());
@@ -216,8 +254,84 @@ describe('DetailsPanel', () => {
   test('pin all jobs', async () => {
     const { queryAllByTitle } = render(testDetailsPanel());
     store.dispatch(pinJobs(jobList.data));
-
-    const unPinJobBtns = await waitFor(() => queryAllByTitle('Unpin job'));
+    const unPinJobBtns = queryAllByTitle('Unpin job');
     expect(unPinJobBtns).toHaveLength(5);
+  });
+
+  test('classify and unclassify all jobs', async () => {
+    const {
+      getByPlaceholderText,
+      getByText,
+      getByTitle,
+      queryAllByTitle,
+    } = render(testDetailsPanel());
+
+    store.dispatch(pinJobs(jobList.data));
+    store.dispatch(setSelectedJob(jobList.data[1], true));
+
+    const content = await waitFor(() =>
+      document.querySelector('#th-global-content'),
+    );
+
+    fireEvent.keyDown(content, { key: 'b', keyCode: 66 });
+    const bugInput = await waitFor(() =>
+      getByPlaceholderText('enter bug number'),
+    );
+    fireEvent.change(bugInput, { target: { value: classificationBug } });
+    fireEvent.blur(bugInput);
+
+    fetchMock.get(
+      {
+        url: getProjectUrl(`/bug-job-map/?job_id=${selectedJobId}`, repoName),
+        overwriteRoutes: true,
+      },
+      [
+        {
+          job_id: selectedJobId,
+          bug_id: classificationBug,
+          created: '2022-01-05T18:13:16.285428',
+          who: 'sheriff@example.org',
+        },
+      ],
+    );
+    fetchMock.get(
+      {
+        url: getProjectUrl(`/note/?job_id=${selectedJobId}`, repoName),
+        overwriteRoutes: true,
+      },
+      [
+        {
+          id: 60,
+          job_id: selectedJobId,
+          failure_classification_id: 4,
+          created: '2022-01-05T18:13:16.277619',
+          who: 'sheriff@example.org',
+          text: '',
+        },
+      ],
+    );
+
+    fireEvent.click(
+      await waitFor(() => getByTitle('Save classification data')),
+    );
+    await waitFor(() =>
+      getByTitle('Ineligible classification data / no pinned jobs'),
+    );
+
+    let unPinJobBtns = await waitFor(() => queryAllByTitle('Unpin job'));
+    expect(unPinJobBtns).toHaveLength(0);
+    checkClassifiedJobs(jobList.data.length);
+
+    store.dispatch(pinJobs(jobList.data));
+    fireEvent.click(
+      await waitFor(() => getByTitle('Additional pinboard functions')),
+    );
+    fireEvent.click(await waitFor(() => getByText('Unclassify all')));
+    await waitFor(() =>
+      getByTitle('Ineligible classification data / no pinned jobs'),
+    );
+    unPinJobBtns = await waitFor(() => queryAllByTitle('Unpin job'));
+    expect(unPinJobBtns).toHaveLength(0);
+    checkClassifiedJobs(0);
   });
 });

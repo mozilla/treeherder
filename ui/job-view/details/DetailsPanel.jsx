@@ -327,6 +327,7 @@ class DetailsPanel extends React.Component {
         <PinBoard
           currentRepo={currentRepo}
           isLoggedIn={user.isLoggedIn || false}
+          isStaff={user.isStaff || false}
           classificationTypes={classificationTypes}
           selectedJobFull={selectedJobFull}
         />

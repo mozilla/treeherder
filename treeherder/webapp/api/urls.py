@@ -7,6 +7,7 @@ from treeherder.webapp.api import (
     bug_creation,
     bugzilla,
     changelog,
+    classification,
     csp_report,
     infra_compare,
     intermittents_view,
@@ -56,6 +57,12 @@ project_bound_router.register(
     r'note',
     note.NoteViewSet,
     basename='note',
+)
+
+project_bound_router.register(
+    r'classification',
+    classification.ClassificationViewSet,
+    basename='classification',
 )
 
 project_bound_router.register(
