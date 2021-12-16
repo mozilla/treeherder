@@ -459,6 +459,21 @@ li.pagination-active.active > button {
   color: black !important;
 }
 
+.page-item.disabled {
+  cursor: not-allowed;
+}
+
+.page-item.disabled .page-link {
+  color: lightgray !important;
+}
+
+/* Make the size of pagination link consistent */
+.page-link {
+  min-width: 2.5rem;
+  padding-left: 0;
+  padding-right: 0;
+}
+
 /* graph colors */
 .orange {
   border-left-color: #ffb851;

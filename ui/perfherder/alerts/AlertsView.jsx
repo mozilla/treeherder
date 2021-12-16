@@ -179,6 +179,9 @@ class AlertsView extends React.Component {
     if (totalPages.length === 5 || !totalPages.length) {
       return totalPages;
     }
+    if (page + 4 > totalPages.length) {
+      return totalPages.slice(-5);
+    }
     return totalPages.slice(page - 1, page + 4);
   };
 
