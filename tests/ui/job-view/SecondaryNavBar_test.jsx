@@ -5,6 +5,7 @@ import { render, waitFor, fireEvent } from '@testing-library/react';
 import thunk from 'redux-thunk';
 import configureMockStore from 'redux-mock-store';
 import { createBrowserHistory } from 'history';
+import { BrowserRouter } from 'react-router-dom';
 
 import FilterModel from '../../../ui/models/filter';
 import SecondaryNavBar from '../../../ui/job-view/headerbars/SecondaryNavBar';
@@ -36,22 +37,24 @@ describe('SecondaryNavBar', () => {
   const testSecondaryNavBar = (store, props) => {
     return (
       <Provider store={store}>
-        <SecondaryNavBar
-          updateButtonClick={() => {}}
-          serverChanged={false}
-          filterModel={
-            new FilterModel({
-              pushRoute: history.push,
-              router,
-            })
-          }
-          repos={repos}
-          setCurrentRepoTreeStatus={() => {}}
-          duplicateJobsVisible={false}
-          groupCountsExpanded={false}
-          toggleFieldFilterVisible={() => {}}
-          {...props}
-        />
+        <BrowserRouter>
+          <SecondaryNavBar
+            updateButtonClick={() => {}}
+            serverChanged={false}
+            filterModel={
+              new FilterModel({
+                pushRoute: history.push,
+                router,
+              })
+            }
+            repos={repos}
+            setCurrentRepoTreeStatus={() => {}}
+            duplicateJobsVisible={false}
+            groupCountsExpanded={false}
+            toggleFieldFilterVisible={() => {}}
+            {...props}
+          />
+        </BrowserRouter>
       </Provider>
     );
   };
