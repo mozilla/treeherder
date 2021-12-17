@@ -299,6 +299,42 @@
       "resolution": "",
       "last_change_time": "2016-07-25T01:04:15Z",
       "whiteboard": "text"
+    },
+    {
+      "status": "RESOLVED",
+      "id": 202,
+      "summary": "Intermittent resolved/as/incomplete.js | Mock failure",
+      "dupe_of": null,
+      "duplicates": [],
+      "cf_crash_signature": "",
+      "keywords": ["intermittent-failure"],
+      "resolution": "INCOMPLETE",
+      "last_change_time": "2021-10-11T01:02:03Z",
+      "whiteboard": ""
+    },
+    {
+      "status": "RESOLVED",
+      "id": 303,
+      "summary": "Intermittent another/incomplete.html | Mock message",
+      "dupe_of": null,
+      "duplicates": [],
+      "cf_crash_signature": "",
+      "keywords": ["intermittent-failure"],
+      "resolution": "INCOMPLETE",
+      "last_change_time": "2021-10-31T01:02:03Z",
+      "whiteboard": ""
+    },
+    {
+      "status": "RESOLVED",
+      "id": 404,
+      "summary": "Intermittent one/more/incomplete.html | Mock text",
+      "dupe_of": null,
+      "duplicates": [],
+      "cf_crash_signature": "",
+      "keywords": ["intermittent-failure"],
+      "resolution": "INCOMPLETE",
+      "last_change_time": "2021-11-03T09:41:22Z",
+      "whiteboard": ""
     }
   ]
 }

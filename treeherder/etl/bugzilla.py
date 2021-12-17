@@ -1,4 +1,5 @@
 import logging
+import requests
 
 import dateutil.parser
 from datetime import datetime, timedelta
@@ -7,8 +8,61 @@ from django.db.models import Max
 
 from treeherder.model.models import Bugscache, BugJobMap
 from treeherder.utils.github import fetch_json
+from treeherder.utils.http import make_request
 
 logger = logging.getLogger(__name__)
+
+
+def reopen_request(url, method, headers, json):
+    make_request(url, method=method, headers=headers, json=json)
+
+
+def reopen_intermittent_bugs():
+    # Don't reopen bugs from non-production deployments.
+    if settings.BUGFILER_API_KEY is None:
+        return
+
+    incomplete_bugs = set(
+        Bugscache.objects.filter(resolution='INCOMPLETE').values_list('id', flat=True)
+    )
+    # Intermittent bugs get closed after 3 weeks of inactivity if other conditions don't apply:
+    # https://github.com/mozilla/relman-auto-nag/blob/c7439e247677333c1cd8c435234b3ef3adc49680/auto_nag/scripts/close_intermittents.py#L17
+    RECENT_DAYS = 7
+    recently_used_bugs = set(
+        BugJobMap.objects.filter(created__gt=datetime.now() - timedelta(RECENT_DAYS)).values_list(
+            'bug_id', flat=True
+        )
+    )
+    bugs_to_reopen = incomplete_bugs & recently_used_bugs
+
+    for bug_id in bugs_to_reopen:
+        bug_data = (
+            BugJobMap.objects.filter(bug_id=bug_id)
+            .select_related('job__repository')
+            .order_by('-created')
+            .values('job_id', 'job__repository__name')[0]
+        )
+        job_id = bug_data.get('job_id')
+        repository = bug_data.get('job__repository__name')
+        log_url = f"https://treeherder.mozilla.org/logviewer?job_id={job_id}&repo={repository}"
+
+        comment = {'body': "New failure instance: " + log_url}
+        url = settings.BUGFILER_API_URL + "/rest/bug/" + str(bug_id)
+        headers = {'x-bugzilla-api-key': settings.BUGFILER_API_KEY, 'Accept': 'application/json'}
+        data = {
+            'status': 'REOPENED',
+            'comment': comment,
+            'comment_tags': "treeherder",
+        }
+
+        try:
+            reopen_request(url, method='PUT', headers=headers, json=data)
+        except requests.exceptions.HTTPError as e:
+            try:
+                message = e.response.json()['message']
+            except (ValueError, KeyError):
+                message = e.response.text
+            logger.error(f"Reopening bug {str(bug_id)} failed: {message}")
 
 
 def fetch_intermittent_bugs(additional_params, limit, duplicate_chain_length):
@@ -242,3 +296,5 @@ class BzApiBugProcess:
             Bugscache.objects.filter(modified__gt=last_change_time_max).update(
                 modified=last_change_time_max
             )
+
+        reopen_intermittent_bugs()
