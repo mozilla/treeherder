@@ -381,7 +381,7 @@ export default class AlertTableRow extends React.Component {
     if (backfillStatusInfo && backfillStatusInfo.displayTasksCount) {
       sherlockTooltip = (
         <>
-          {backfillStatusInfo.message}
+          <i>{backfillStatusInfo.message}</i>
           <br />
           In progress: {backfillStatusInfo.backfillsInProgress}
           <br />
