@@ -382,7 +382,7 @@ export default class CompareTableControls extends React.Component {
 
         {viewablePagesList
           ? hasMorePages() && (
-              <Row className="justify-content-center">
+              <Row className="justify-content-center bottom-pagination-container">
                 <PaginationGroup
                   viewablePageNums={viewablePagesList}
                   updateParams={validated.updateParams}

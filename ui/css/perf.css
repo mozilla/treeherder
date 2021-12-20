@@ -616,3 +616,7 @@ li.pagination-active.active > button {
 .download-json-container .download-json-icon {
   margin-right: 10px;
 }
+
+.bottom-pagination-container {
+  margin-top: 30px;
+}
