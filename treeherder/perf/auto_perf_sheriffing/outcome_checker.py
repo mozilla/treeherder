@@ -13,7 +13,7 @@ class OutcomeStatus(Enum):
 
 class OutcomeChecker:
     """
-    Checks outcome of backfills
+    Checks outcome of backfills and counts total of tasks in progress, successful, failed
     """
 
     def __init__(self):
@@ -30,7 +30,6 @@ class OutcomeChecker:
         total_backfills_successful = 0
 
         pushes_in_range = record.get_pushes_in_context_range()
-        # total_backfills_triggered = pushes_in_range.count()
         for push in pushes_in_range:
             # make sure it has at least one successful job of job type
             if push.total_jobs(of_type, with_successful_results) == 0:
@@ -45,12 +44,11 @@ class OutcomeChecker:
         record.total_backfills_failed = total_backfills_failed
         record.total_backfills_successful = total_backfills_successful
         record.total_backfills_in_progress = total_backfills_in_progress
-        # record.total_backfills_triggered = total_backfills_triggered
         record.save()
 
-        if total_backfills_failed > 0:
-            return OutcomeStatus.FAILED
-        elif total_backfills_in_progress > 0:
+        if total_backfills_in_progress > 0:
             return OutcomeStatus.IN_PROGRESS
+        elif total_backfills_failed > 0:
+            return OutcomeStatus.FAILED
         elif total_backfills_successful > 0:
             return OutcomeStatus.SUCCESSFUL

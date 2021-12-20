@@ -167,18 +167,33 @@ export default class AlertTableRow extends React.Component {
   getBackfillStatusInfo = (alert) => {
     if (!alert.backfill_record || alert.backfill_record.status === undefined)
       return null;
-
+    const statusesToDisplayTasksCount = ['backfilled', 'successful', 'failed'];
     const backfillStatus = getStatus(
       alert.backfill_record.status,
       alertBackfillResultStatusMap,
     );
+
     const alertBackfillStatus = alertBackfillResultVisual[backfillStatus];
+    // Added only for testing locally the UI changes
+    // To be removed once this is in production
     alertBackfillStatus.backfillsFailed =
       alert.backfill_record.total_backfills_failed || 0;
     alertBackfillStatus.backfillsSuccessful =
       alert.backfill_record.total_backfills_successful || 0;
     alertBackfillStatus.backfillsInProgress =
       alert.backfill_record.total_backfills_in_progress || 0;
+
+    if (
+      statusesToDisplayTasksCount.includes(backfillStatus) &&
+      // the next checks are here to not confuse users
+      // since we won't have count for tasks right away
+      // to be removed after changes are in prod
+      (alertBackfillStatus.backfillsFailed !== 0 ||
+        alertBackfillStatus.backfillsInProgress !== 0 ||
+        alertBackfillStatus.backfillsSuccessful !== 0)
+    )
+      alertBackfillStatus.displayTasksCount = true;
+
     return alertBackfillStatus;
   };
 
@@ -360,7 +375,23 @@ export default class AlertTableRow extends React.Component {
     const noiseProfileTooltip = alert.noise_profile
       ? noiseProfiles[alert.noise_profile.replace('/', '')]
       : noiseProfiles.NA;
+
     const backfillStatusInfo = this.getBackfillStatusInfo(alert);
+    let sherlockTooltip = backfillStatusInfo && backfillStatusInfo.message;
+    if (backfillStatusInfo && backfillStatusInfo.displayTasksCount) {
+      sherlockTooltip = (
+        <>
+          {backfillStatusInfo.message}
+          <br />
+          In progress: {backfillStatusInfo.backfillsInProgress}
+          <br />
+          Successful: {backfillStatusInfo.backfillsSuccessful}
+          <br />
+          Failed: {backfillStatusInfo.backfillsFailed}
+          <br />
+        </>
+      );
+    }
 
     return (
       <tr
@@ -424,7 +455,7 @@ export default class AlertTableRow extends React.Component {
           ) : (
             this.getTitleText(alert, alertStatus)
           )}
-          {backfillStatusInfo ? (
+          {backfillStatusInfo && (
             <span className="text-darker-info">
               <SimpleTooltip
                 key={alert.id}
@@ -435,21 +466,10 @@ export default class AlertTableRow extends React.Component {
                     data-testid={`alert ${alert.id.toString()} sherlock icon`}
                   />
                 }
-                tooltipText={
-                  <>
-                    {backfillStatusInfo.message}
-                    <br />
-                    In progress: {backfillStatusInfo.backfillsInProgress}
-                    <br />
-                    Successful: {backfillStatusInfo.backfillsSuccessful}
-                    <br />
-                    Failed: {backfillStatusInfo.backfillsFailed}
-                    <br />
-                  </>
-                }
+                tooltipText={sherlockTooltip}
               />
             </span>
-          ) : null}
+          )}
         </td>
         <td className="table-width-lg">
           <AlertTablePlatform

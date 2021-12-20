@@ -19,7 +19,6 @@ class Secretary:
     * marks which records can be backfilled
     * provides & maintains backfill limits
     * notes outcome of backfills (successful/unsuccessful)
-    * counts total of tasks in progress, successful, failed
     """
 
     def __init__(
