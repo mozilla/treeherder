@@ -163,7 +163,7 @@ class Sherlock:
     ) -> Tuple[bool, str]:
         success = False
 
-        record.total_backfills_triggered = actually_backfilled
+        record.total_actions_triggered = actually_backfilled
 
         if actually_backfilled == to_backfill:
             record.status = BackfillRecord.BACKFILLED
