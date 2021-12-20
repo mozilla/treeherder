@@ -323,39 +323,39 @@ export default class CompareTableControls extends React.Component {
           updateFilterText={this.updateFilterText}
           dropdownOptions={dropdownOptions}
         />
-        <div className="download-json-pagination-container">
-          <div />
-          {viewablePagesList
-            ? hasMorePages() && (
-                <Row className="justify-content-center">
-                  <PaginationGroup
-                    viewablePageNums={viewablePagesList}
-                    updateParams={validated.updateParams}
-                    currentPage={page}
-                    count={countPages}
-                  />
-                </Row>
-              )
-            : null}
-          <div>
-            {formattedJSONData.length > 0 && (
-              <Button
-                className="btn download-button"
-                type="button"
-                href={`data:text/json;charset=utf-8,${encodeURIComponent(
-                  JSON.stringify(formattedJSONData),
-                )}`}
-                download="perf-compare.json"
-                data-testid="download-button"
-              >
-                <FontAwesomeIcon
-                  icon={faFileDownload}
-                  className="download-json-icon"
+
+        <div />
+        {viewablePagesList
+          ? hasMorePages() && (
+              <Row className="justify-content-center">
+                <PaginationGroup
+                  viewablePageNums={viewablePagesList}
+                  updateParams={validated.updateParams}
+                  currentPage={page}
+                  count={countPages}
                 />
-                JSON (experimental)
-              </Button>
-            )}
-          </div>
+              </Row>
+            )
+          : null}
+
+        <div className="download-json-container">
+          {formattedJSONData.length > 0 && (
+            <Button
+              className="btn download-button"
+              type="button"
+              href={`data:text/json;charset=utf-8,${encodeURIComponent(
+                JSON.stringify(formattedJSONData),
+              )}`}
+              download="perf-compare.json"
+              data-testid="download-button"
+            >
+              <FontAwesomeIcon
+                icon={faFileDownload}
+                className="download-json-icon"
+              />
+              JSON (experimental)
+            </Button>
+          )}
         </div>
         {showNoise && showTestsWithNoise}
 
@@ -382,7 +382,7 @@ export default class CompareTableControls extends React.Component {
 
         {viewablePagesList
           ? hasMorePages() && (
-              <Row className="justify-content-center">
+              <Row className="justify-content-center bottom-pagination-container">
                 <PaginationGroup
                   viewablePageNums={viewablePagesList}
                   updateParams={validated.updateParams}

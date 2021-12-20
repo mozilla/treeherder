@@ -597,21 +597,26 @@ li.pagination-active.active > button {
   margin-left: 5px;
 }
 
-.download-json-pagination-container {
+.download-json-container {
   display: flex;
-  justify-content: space-between;
+  justify-content: flex-end;
+  margin-bottom: 15px;
 }
 
-.download-json-pagination-container .download-button {
+.download-json-container .download-button {
   background-color: transparent !important;
   color: #1f7d8e !important;
 }
 
-.download-json-pagination-container .download-button:hover {
+.download-json-container .download-button:hover {
   background-color: #1f7d8e !important;
   color: white !important;
 }
 
-.download-json-pagination-container .download-json-icon {
+.download-json-container .download-json-icon {
   margin-right: 10px;
+}
+
+.bottom-pagination-container {
+  margin-top: 30px;
 }
