@@ -13,10 +13,12 @@ import { Provider, ReactReduxContext } from 'react-redux';
 
 import { configureStore } from '../../../../ui/job-view/redux/configureStore';
 import {
-  backfillRetriggeredTitle,
-  unknownFrameworkMessage,
   endpoints,
   filterText,
+  unknownFrameworkMessage,
+  backfillRetriggeredTitle,
+  alertBackfillResultVisual,
+  alertBackfillResultStatusMap,
   notSupportedAlertFiltersMessage,
 } from '../../../../ui/perfherder/perf-helpers/constants';
 import repos from '../../mock/repositories';
@@ -850,6 +852,79 @@ test('test sherlock backfill status icons are displayed correctly', async () => 
   );
 
   expect(alertIcon).toBeInTheDocument();
+});
+
+test('test sherlock status 0 in tooltip on alerts', async () => {
+  const alert = testAlertSummaries[0].alerts[3];
+  alert.backfill_record.status = alertBackfillResultStatusMap.preliminary;
+  expect(alert.id).toEqual(69347);
+
+  const { getByTestId, getByText } = alertsViewControls();
+  // hovering over the Sherlock icon should display the tooltip
+  const alertIcon = await waitFor(() =>
+    getByTestId(`alert ${alert.id.toString()} sherlock icon`),
+  );
+  fireEvent.mouseOver(alertIcon);
+  await waitFor(() => getByText(alertBackfillResultVisual.preliminary.message));
+});
+
+test('test sherlock status 1 in tooltip on alerts', async () => {
+  const alert = testAlertSummaries[0].alerts[3];
+  alert.backfill_record.status =
+    alertBackfillResultStatusMap.readyForProcessing;
+  expect(alert.id).toEqual(69347);
+
+  const { getByTestId, getByText } = alertsViewControls();
+  // hovering over the Sherlock icon should display the tooltip
+  const alertIcon = await waitFor(() =>
+    getByTestId(`alert ${alert.id.toString()} sherlock icon`),
+  );
+  fireEvent.mouseOver(alertIcon);
+  await waitFor(() =>
+    getByText(alertBackfillResultVisual.readyForProcessing.message),
+  );
+});
+
+test('test sherlock status 2 in tooltip on alerts', async () => {
+  const alert = testAlertSummaries[0].alerts[3];
+  alert.backfill_record.status = alertBackfillResultStatusMap.backfilled;
+  expect(alert.id).toEqual(69347);
+
+  const { getByTestId, getByText } = alertsViewControls();
+  // hovering over the Sherlock icon should display the tooltip
+  const alertIcon = await waitFor(() =>
+    getByTestId(`alert ${alert.id.toString()} sherlock icon`),
+  );
+  fireEvent.mouseOver(alertIcon);
+  await waitFor(() => getByText(alertBackfillResultVisual.backfilled.message));
+});
+
+test('test sherlock status 3 in tooltip on alerts', async () => {
+  const alert = testAlertSummaries[0].alerts[3];
+  alert.backfill_record.status = alertBackfillResultStatusMap.successful;
+  expect(alert.id).toEqual(69347);
+
+  const { getByTestId, getByText } = alertsViewControls();
+  // hovering over the Sherlock icon should display the tooltip
+  const alertIcon = await waitFor(() =>
+    getByTestId(`alert ${alert.id.toString()} sherlock icon`),
+  );
+  fireEvent.mouseOver(alertIcon);
+  await waitFor(() => getByText(alertBackfillResultVisual.successful.message));
+});
+
+test('test sherlock status 4 in tooltip on alerts', async () => {
+  const alert = testAlertSummaries[0].alerts[3];
+  alert.backfill_record.status = alertBackfillResultStatusMap.failed;
+  expect(alert.id).toEqual(69347);
+
+  const { getByTestId, getByText } = alertsViewControls();
+  // hovering over the Sherlock icon should display the tooltip
+  const alertIcon = await waitFor(() =>
+    getByTestId(`alert ${alert.id.toString()} sherlock icon`),
+  );
+  fireEvent.mouseOver(alertIcon);
+  await waitFor(() => getByText(alertBackfillResultVisual.failed.message));
 });
 
 test("Alert's ID can be copied to clipboard", async () => {
