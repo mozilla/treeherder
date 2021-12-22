@@ -620,3 +620,15 @@ li.pagination-active.active > button {
 .bottom-pagination-container {
   margin-top: 30px;
 }
+
+.icon-container {
+  margin: 0px 5px;
+  padding: 0px 3px 0px 3px;
+}
+
+.active-platform {
+  border: 1px solid;
+  border-radius: 3px;
+  background-color: #d3d3d3;
+  padding: 3px;
+}

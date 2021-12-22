@@ -7,6 +7,7 @@ import { noResultsMessage } from '../perf-helpers/constants';
 import { Perfdocs, perfViews } from '../perf-helpers/perfdocs';
 
 import ItemList from './ItemList';
+import PlatformList from './PlatformList';
 
 export default function TestsTable(props) {
   const {
@@ -56,7 +57,7 @@ export default function TestsTable(props) {
       Cell: (props) => {
         if (platformsMap) {
           const platforms = props.value.map((id) => platformsMap[id]);
-          return <ItemList items={platforms} />;
+          return <PlatformList items={platforms} />;
         }
         return null;
       },
