@@ -198,6 +198,7 @@ class PerformanceDatum(models.Model):
     # job information can expire before the performance datum
     job = models.ForeignKey(Job, null=True, default=None, on_delete=models.SET_NULL)
     push = models.ForeignKey(Push, on_delete=models.CASCADE)
+    replicates = models.TextField()
 
     class Meta:
         db_table = 'performance_datum'
@@ -213,6 +214,9 @@ class PerformanceDatum(models.Model):
     @staticmethod
     def should_mark_as_multi_commit(is_multi_commit: bool, was_created: bool) -> bool:
         return is_multi_commit and was_created
+
+    def set_replicates(self, value: str):
+        self.replicates = json.dumps(value, default=None)
 
     def save(self, *args, **kwargs):
         super().save(*args, **kwargs)  # Call the "real" save() method.
