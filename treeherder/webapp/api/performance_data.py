@@ -740,6 +740,7 @@ class TestSuiteHealthViewSet(viewsets.ViewSet):
             .annotate(repositories=GroupConcat('repository_id', distinct=True))
             .annotate(platforms=GroupConcat('platform_id', distinct=True))
             .annotate(total_alerts=Count('performancealert'))
+            .annotate(total_regressions=Count('performancealert__is_regression'))
             .order_by('suite', 'test')
         )
 

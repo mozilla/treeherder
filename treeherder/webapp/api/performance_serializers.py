@@ -389,3 +389,4 @@ class TestSuiteHealthSerializer(serializers.Serializer):
     platforms = CommaSeparatedField()
     repositories = CommaSeparatedField()
     total_alerts = serializers.IntegerField()
+    total_regressions = serializers.IntegerField()
