@@ -8,6 +8,7 @@ import { Perfdocs, perfViews } from '../perf-helpers/perfdocs';
 
 import ItemList from './ItemList';
 import PlatformList from './PlatformList';
+import AlertsList from './AlertsList';
 
 export default function TestsTable(props) {
   const {
@@ -82,8 +83,12 @@ export default function TestsTable(props) {
     },
     {
       headerStyle,
-      Header: 'Total Alerts',
+      Header: 'Alerts',
       accessor: 'total_alerts',
+      Cell: (props) => {
+        const { original } = props;
+        return <AlertsList alerts={original} />;
+      },
       width: 100,
       style: { textAlign: 'center' },
     },

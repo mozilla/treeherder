@@ -12,6 +12,7 @@ const results = [
     platforms: ['2', '1'],
     repositories: ['2', '1'],
     total_alerts: 202,
+    total_regressions: 100,
   },
   {
     framework: 'awsy',
@@ -20,6 +21,7 @@ const results = [
     platforms: ['1'],
     repositories: ['2'],
     total_alerts: 97,
+    total_regressions: 30,
   },
 ];
 
@@ -82,4 +84,18 @@ test('Clicking on platform icon displays the list of platforms', async () => {
   expect(platformList.childElementCount).toBe(2);
   expect(platformList.children[0]).toHaveTextContent('platform2');
   expect(platformList.children[1]).toHaveTextContent('platform1');
+});
+
+test('Test alerts from Alerts column are split into improvements and regressions', async () => {
+  const { getAllByTestId } = testsTable(results, projectsMap, platformsMap);
+
+  const improvements = await waitFor(() => getAllByTestId('improvements'));
+
+  expect(improvements[0]).toBeInTheDocument();
+  expect(improvements[0]).toHaveTextContent('102');
+
+  const regressions = await waitFor(() => getAllByTestId('regressions'));
+
+  expect(regressions[0]).toBeInTheDocument();
+  expect(regressions[0]).toHaveTextContent('100');
 });
