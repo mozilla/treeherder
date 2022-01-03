@@ -91,12 +91,16 @@ test('Tests with duplicated suite and test name appears only once in Test column
 });
 
 test(`Platform column contains alerts's platform`, async () => {
-  const { getByTestId } = alertTableRowTest({ alert: testAlert, tags: false });
-  const { machine_platform: machinePlatform } = testAlert.series_signature;
-
-  const alertPlatform = await waitFor(() => getByTestId(`alert-platform`));
-
-  expect(alertPlatform.textContent).toBe(machinePlatform);
+  const { getByTestId, getByText } = alertTableRowTest({
+    alert: testAlert,
+    tags: false,
+  });
+  const alertPlatform = await waitFor(() => getByTestId(`alert-platform-icon`));
+  fireEvent.mouseOver(alertPlatform);
+  const platformDisplayName = await waitFor(() =>
+    getByText('Linux x64 WebRender Shippable'),
+  );
+  expect(platformDisplayName).toBeInTheDocument();
 });
 
 test("Alert item with no tags or options displays 'No tags or options'", async () => {
