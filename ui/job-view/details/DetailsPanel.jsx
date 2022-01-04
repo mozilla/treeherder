@@ -14,6 +14,7 @@ import JobClassificationModel from '../../models/classification';
 import JobModel from '../../models/job';
 import JobLogUrlModel from '../../models/jobLogUrl';
 import PerfSeriesModel from '../../models/perfSeries';
+import { Perfdocs } from '../../perfherder/perf-helpers/perfdocs';
 
 import PinBoard from './PinBoard';
 import SummaryPanel from './summary/SummaryPanel';
@@ -108,7 +109,7 @@ class DetailsPanel extends React.Component {
   };
 
   selectJob = () => {
-    const { currentRepo, selectedJob } = this.props;
+    const { currentRepo, selectedJob, frameworks } = this.props;
     const push = this.findPush(selectedJob.push_id);
 
     this.setState(
@@ -240,6 +241,10 @@ class DetailsPanel extends React.Component {
                     }),
                   ),
                 );
+                const frameworksDict = {};
+                frameworks.forEach((element) => {
+                  frameworksDict[element.id] = element.name;
+                });
 
                 const seriesList = seriesListList
                   .map((item) => item.data)
@@ -261,6 +266,14 @@ class DetailsPanel extends React.Component {
                     measurementUnit: d.series.measurementUnit,
                     lowerIsBetter: d.series.lowerIsBetter,
                     title: d.series.name,
+                    suite: d.series.suite,
+                    options: d.series.options.join(' '),
+                    perfdocs: new Perfdocs(
+                      frameworksDict[d.series.frameworkId],
+                      d.series.suite,
+                      d.series.platform,
+                      d.series.name,
+                    ),
                   }));
               }
 

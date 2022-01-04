@@ -139,7 +139,13 @@ export default class CompareTable extends React.Component {
               <div className="d-flex align-items-end">
                 {hasDocumentation && testName ? (
                   <div>
-                    <a href={perfdocs.documentationURL}>{suite}</a>{' '}
+                    <a
+                      href={perfdocs.documentationURL}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                    >
+                      {suite}
+                    </a>{' '}
                     {perfdocs.remainingName}
                   </div>
                 ) : (

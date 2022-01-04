@@ -12,10 +12,12 @@ const testDocumentationFrameworks = [
   'browsertime',
   'devtools',
 ];
+
 const browsertimeDocsUnavailableViews = [
   perfViews.compareView,
   perfViews.testsView,
 ];
+
 const supportedPerfdocsFrameworks = {
   talos: 'talos',
   awsy: 'awsy',
@@ -27,7 +29,7 @@ const supportedPerfdocsFrameworks = {
  * TODO: remove hardcoded names once suffixes are removed from Perfdocs
  * @link https://firefox-source-docs.mozilla.org/testing/perfdocs/raptor.html#benchmarks
  */
-const browsertimeBenchmarks = [
+const browsertimeBenchmarksTests = [
   'ares6',
   'assorted-dom',
   'jetstream2',
@@ -75,10 +77,10 @@ const browsertimeBenchmarks = [
   'sunspider',
   'unity-webgl',
   'wasm-godot',
-  'wasm-godotaseline',
+  'wasm-godot-baseline',
   'wasm-godot-optimizing',
   'wasm-misc',
-  'wasm-miscaseline',
+  'wasm-misc-baseline',
   'wasm-misc-optimizing',
   'webaudio',
   'youtube-playback',
@@ -99,12 +101,23 @@ const browsertimeBenchmarks = [
   'youtube-playback-widevine-hfr',
 ];
 
-const invertedTestsNamesDevTools = {
-  'parent-process:toolbox': 'toolbox:parent-process',
-  'parent-process:target': 'target:parent-process',
-  'parent-process:reload': 'reload:parent-process',
-  'content-process:reload': 'reload:content-process',
-};
+/**
+ * TODO: remove hardcoded names once suffixes are removed from Perfdocs
+ * @link https://firefox-source-docs.mozilla.org/testing/perfdocs/raptor.html#interactive
+ */
+const browsertimeInteractiveTests = [
+  'cnn-nav',
+  'facebook-nav',
+  'reddit-billgates-ama',
+  'reddit-billgates-post-1',
+  'reddit-billgates-post-2',
+];
+
+/**
+ * TODO: remove hardcoded names once suffixes are removed from Perfdocs
+ * @link https://firefox-source-docs.mozilla.org/testing/perfdocs/raptor.html#custom
+ */
+const browsertimeCustomTests = ['process-switch', 'welcome'];
 
 export const removedOldTestsDevTools = [
   'total-after-gc',
@@ -128,12 +141,6 @@ export const nonDocumentedTestsDevTools = [
   'reload-webconsole:parent-process',
   'reload-webconsole:content-process',
 ];
-
-/**
- * TODO: remove hardcoded names once suffixes are removed from Perfdocs
- * @link https://firefox-source-docs.mozilla.org/testing/perfdocs/raptor.html#custom
- */
-const browsertimeCustomTests = ['process-switch', 'welcome'];
 
 const baseURL = 'https://firefox-source-docs.mozilla.org/';
 
@@ -159,6 +166,7 @@ export class Perfdocs {
 
   get documentationURL() {
     let url;
+    let suffixForSuite;
     const frameworkName = supportedPerfdocsFrameworks[this.framework];
     if (!frameworkName) {
       url = baseURL.concat('testing/perfdocs/');
@@ -168,22 +176,37 @@ export class Perfdocs {
       frameworkName === 'performance-tests-overview'
         ? baseURL.concat('devtools/tests/')
         : baseURL.concat('testing/perfdocs/');
-    if (this.suite in invertedTestsNamesDevTools) {
-      this.suite = invertedTestsNamesDevTools[this.suite];
-    }
-    url = url.concat(
-      frameworkName,
-      '.html#',
-      this.suite.replace(/:|_|\s|\./g, '-').toLowerCase(),
-    );
+
+    url = url.concat(frameworkName, '.html#');
+
     if (frameworkName === 'raptor') {
-      if (browsertimeBenchmarks.includes(this.suite)) {
-        url = url.concat('-b');
-      } else if (browsertimeCustomTests.includes(this.suite)) {
-        url = url.concat('-c');
-      } else if (this.platform.includes('android')) {
-        url = url.concat('-m');
-      } else url = url.concat('-d');
+      // amazon-sec doesn't have yet documentation added
+      if (this.suite === 'amazon-sec') {
+        url = url.slice(0, -1);
+        return url;
+      }
+      const suiteNameBeforeDot = this.suite.split('.')[0];
+      if (browsertimeInteractiveTests.includes(suiteNameBeforeDot)) {
+        url = url.concat(suiteNameBeforeDot);
+        suffixForSuite = '-i';
+      } else {
+        url = url.concat(this.suite);
+        if (browsertimeBenchmarksTests.includes(this.suite)) {
+          suffixForSuite = '-b';
+        } else if (browsertimeCustomTests.includes(this.suite)) {
+          suffixForSuite = '-c';
+        } else if (this.platform.includes('android')) {
+          suffixForSuite = '-m';
+        } else suffixForSuite = '-d';
+      }
+      url = url.concat(suffixForSuite);
+    } else {
+      // framework is either awsy, talos or devtools
+      if (this.suite === 'about_newtab_with_snippets') {
+        // talos
+        this.suite = 'about-newtab-with-snippets';
+      }
+      url = url.concat(this.suite.replace(/:|\s|\./g, '-').toLowerCase());
     }
     return url;
   }

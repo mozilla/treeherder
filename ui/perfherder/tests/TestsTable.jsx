@@ -38,7 +38,13 @@ export default function TestsTable(props) {
         return (
           <div>
             {hasDocumentation ? (
-              <a href={perfdocs.documentationURL}>{row.suite}</a>
+              <a
+                href={perfdocs.documentationURL}
+                target="_blank"
+                rel="noopener noreferrer"
+              >
+                {row.suite}
+              </a>
             ) : (
               <div>{row.suite}</div>
             )}
