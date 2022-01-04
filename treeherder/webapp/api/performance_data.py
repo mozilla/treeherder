@@ -31,7 +31,6 @@ from treeherder.webapp.api.performance_serializers import OptionalBooleanField
 from .exceptions import InsufficientAlertCreationData
 from .performance_serializers import (
     IssueTrackerSerializer,
-    PerformanceAlertSummarySimpleSerializer,
     PerformanceAlertSerializer,
     PerformanceAlertSummarySerializer,
     PerformanceBugTemplateSerializer,
@@ -338,15 +337,8 @@ class PerformanceAlertSummaryFilter(django_filters.FilterSet):
     hide_improvements = django_filters.BooleanFilter(method='_hide_improvements')
     hide_related_and_invalid = django_filters.BooleanFilter(method='_hide_related_and_invalid')
     with_assignee = django_filters.CharFilter(method='_with_assignee')
-    timerange = django_filters.NumberFilter(method='timerange')
+    timerange = django_filters.NumberFilter(method='_timerange')
 
-
-    def _timerange(self, queryset, name, value):
-        return queryset.filter(
-            push_timestamp__gt=datetime.datetime.utcfromtimestamp(
-                int(time.time() - int(value))
-            )
-        )
 
     def _filter_text(self, queryset, name, value):
         sep = Value(' ')
@@ -412,6 +404,15 @@ class PerformanceAlertSummaryFilter(django_filters.FilterSet):
 
     def _with_assignee(self, queryset, name, value):
         return queryset.filter(assignee__username=value)
+
+
+    def _timerange(self, queryset, name, value):
+        return queryset.filter(
+            push__time__gt=datetime.datetime.utcfromtimestamp(
+                int(time.time() - int(value))
+            )
+        )
+
 
     class Meta:
         model = PerformanceAlertSummary
@@ -576,51 +577,6 @@ class PerformanceAlertViewSet(viewsets.ModelViewSet):
         # Bug 1532230 disabled nudging because it broke links
         # Bug 1532283 will re enable a better version of it
         raise exceptions.APIException('Nudging has been disabled', 400)
-
-
-class PerformanceAlertSummarySimpleViewSet(viewsets.ModelViewSet):
-    """ViewSet for the performance alert summary"""
-
-    queryset = (
-        PerformanceAlertSummary.objects.filter(repository__active_status='active')
-        .select_related('repository', 'push')
-        .prefetch_related(
-            'alerts',
-            'alerts__classifier',
-            'alerts__series_signature',
-            'alerts__series_signature__platform'
-            'related_alerts',
-            'related_alerts__classifier',
-            'related_alerts__series_signature',
-            'related_alerts__series_signature__platform'
-            'performance_tags',
-        )
-    )
-    permission_classes = (IsStaffOrReadOnly,)
-
-    serializer_class = PerformanceAlertSummarySimpleSerializer
-    filter_backends = (django_filters.rest_framework.DjangoFilterBackend, filters.OrderingFilter)
-    filterset_class = PerformanceAlertSummaryFilter
-
-    ordering = ('-created', '-id')
-
-    def create(self, request, *args, **kwargs):
-        data = request.data
-
-        if data['push_id'] == data['prev_push_id']:
-            return Response(
-                "IDs of push & previous push cannot be identical", status=HTTP_400_BAD_REQUEST
-            )
-
-        alert_summary, _ = PerformanceAlertSummary.objects.get_or_create(
-            repository_id=data['repository_id'],
-            framework=PerformanceFramework.objects.get(id=data['framework_id']),
-            push_id=data['push_id'],
-            prev_push_id=data['prev_push_id'],
-            defaults={'manually_created': True, 'created': datetime.datetime.now()},
-        )
-
-        return Response({"alert_summary_id": alert_summary.id})
 
 
 class PerformanceBugTemplateViewSet(viewsets.ReadOnlyModelViewSet):

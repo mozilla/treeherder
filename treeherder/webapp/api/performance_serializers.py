@@ -200,61 +200,6 @@ class PerformanceAlertSerializer(serializers.ModelSerializer):
         ]
 
 
-class PerformanceAlertSummarySimpleSerializer(serializers.ModelSerializer):
-    alerts = PerformanceAlertSerializer(many=True, read_only=True)
-    related_alerts = PerformanceAlertSerializer(many=True, read_only=True)
-    performance_tags = serializers.SlugRelatedField(
-        many=True, required=False, slug_field='name', queryset=PerformanceTag.objects.all()
-    )
-    repository = serializers.SlugRelatedField(read_only=True, slug_field='name')
-    framework = serializers.SlugRelatedField(read_only=True, slug_field='id')
-    revision = serializers.SlugRelatedField(read_only=True, slug_field='revision', source='push')
-    push_timestamp = TimestampField(source='push', read_only=True)
-    prev_push_revision = serializers.SlugRelatedField(
-        read_only=True, slug_field='revision', source='prev_push'
-    )
-    assignee_username = serializers.SlugRelatedField(
-        slug_field="username",
-        source="assignee",
-        allow_null=True,
-        required=False,
-        queryset=User.objects.all(),
-    )
-    assignee_email = serializers.SerializerMethodField()
-    prev_push_id = serializers.ReadOnlyField()
-    push_id = serializers.ReadOnlyField()
-    created = serializers.ReadOnlyField()
-
-    def update(self, instance, validated_data):
-        instance.timestamp_first_triage()
-        return super().update(instance, validated_data)
-
-    def get_assignee_email(self, performance_alert_summary):
-        return getattr(performance_alert_summary.assignee, 'email', None)
-
-    class Meta:
-        model = PerformanceAlertSummary
-        fields = [
-            'id',
-            'push_id',
-            'prev_push_id',
-            'created',
-            'repository',
-            'framework',
-            'alerts',
-            'related_alerts',
-            'status',
-            'bug_number',
-            'bug_updated',
-            'issue_tracker',
-            'notes',
-            'revision',
-            'push_timestamp',
-            'prev_push_revision',
-            'performance_tags',
-        ]
-
-
 class PerformanceTagSerializer(serializers.ModelSerializer):
     name = serializers.CharField(read_only=True)
 
