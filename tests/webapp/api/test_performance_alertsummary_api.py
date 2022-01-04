@@ -424,7 +424,7 @@ def test_pagesize_is_limited_from_params(
     assert len(summary_ids) == 1
 
 
-def test_pagesize_is_limited_from_params(
+def test_pagesize_with_limit_higher_than_total_summaries(
     client, test_perf_alert_summary, test_perf_alert_summary_2
 ):
     resp = client.get(

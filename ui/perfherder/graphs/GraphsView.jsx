@@ -209,7 +209,9 @@ class GraphsView extends React.Component {
       ),
     );
     const commonAlerts = await Promise.all(
-      seriesData.map((series) => this.getCommonAlerts(series.framework_id, timeRange.value)),
+      seriesData.map((series) =>
+        this.getCommonAlerts(series.framework_id, timeRange.value),
+      ),
     );
     const newColors = [...colors];
     const newSymbols = [...symbols];
@@ -250,7 +252,11 @@ class GraphsView extends React.Component {
   };
 
   getCommonAlerts = async (frameworkId, timeRange) => {
-    const params = { framework: frameworkId, limit: alertSummaryLimit, timerange: timeRange };
+    const params = {
+      framework: frameworkId,
+      limit: alertSummaryLimit,
+      timerange: timeRange,
+    };
     const url = getApiUrl(
       `${endpoints.alertSummary}${createQueryParams(params)}`,
     );

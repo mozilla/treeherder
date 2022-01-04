@@ -288,14 +288,14 @@ class PerformanceDatumViewSet(viewsets.ViewSet):
             'push__revision',
         )
         for (
-            id,
-            signature_id,
-            signature_hash,
-            job_id,
-            push_id,
-            push_timestamp,
-            value,
-            push__revision,
+                id,
+                signature_id,
+                signature_hash,
+                job_id,
+                push_id,
+                push_timestamp,
+                value,
+                push__revision,
         ) in values_list:
             should_include_datum = True
             if no_retriggers:
@@ -339,7 +339,6 @@ class PerformanceAlertSummaryFilter(django_filters.FilterSet):
     with_assignee = django_filters.CharFilter(method='_with_assignee')
     timerange = django_filters.NumberFilter(method='_timerange')
 
-
     def _filter_text(self, queryset, name, value):
         sep = Value(' ')
         words = value.split(' ')
@@ -381,9 +380,9 @@ class PerformanceAlertSummaryFilter(django_filters.FilterSet):
                     output_field=CharField(),
                 ),
             )
-            .filter(*contains_all_words)
-            .values('id')
-            .distinct()
+                .filter(*contains_all_words)
+                .values('id')
+                .distinct()
         )
 
         return queryset.filter(id__in=Subquery(filtered_summaries))
@@ -405,14 +404,12 @@ class PerformanceAlertSummaryFilter(django_filters.FilterSet):
     def _with_assignee(self, queryset, name, value):
         return queryset.filter(assignee__username=value)
 
-
     def _timerange(self, queryset, name, value):
         return queryset.filter(
             push__time__gt=datetime.datetime.utcfromtimestamp(
                 int(time.time() - int(value))
             )
         )
-
 
     class Meta:
         model = PerformanceAlertSummary
@@ -442,8 +439,8 @@ class PerformanceAlertSummaryViewSet(viewsets.ModelViewSet):
 
     queryset = (
         PerformanceAlertSummary.objects.filter(repository__active_status='active')
-        .select_related('repository', 'push')
-        .prefetch_related(
+            .select_related('repository', 'push')
+            .prefetch_related(
             'alerts',
             'alerts__classifier',
             'alerts__series_signature',
