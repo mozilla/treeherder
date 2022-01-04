@@ -553,9 +553,9 @@ zope.interface==5.3.0 \
     #   zope.component
 
 # The following packages are considered to be unsafe in a requirements file:
-pip==21.0.1 \
-    --hash=sha256:37fd50e056e2aed635dec96594606f0286640489b0db0ce7607f7e51890372d5 \
-    --hash=sha256:99bbde183ec5ec037318e774b0d8ae0a64352fe53b2c7fd630be1d07e94f41e5
+pip==21.1 \
+    --hash=sha256:a810bf07c3723a28621c29abe8e34429fa082c337f89aea9a795865416b66d3e \
+    --hash=sha256:ea9f2668484893e90149fd5a6124e04651ffedd67203a8aaf030d31406b937a4
     # via pip-tools
 setuptools==54.2.0 \
     --hash=sha256:aa9c24fb83a9116b8d425e53bec24c7bfdbffc313c2159f9ed036d4a6dd32d7d \
