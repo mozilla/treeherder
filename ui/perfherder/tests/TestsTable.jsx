@@ -14,6 +14,7 @@ export default function TestsTable(props) {
   const {
     results,
     framework,
+    frameworks,
     projectsMap,
     platformsMap,
     defaultPageSize,
@@ -93,7 +94,13 @@ export default function TestsTable(props) {
       accessor: 'total_alerts',
       Cell: (props) => {
         const { original } = props;
-        return <AlertsList alerts={original} />;
+        return (
+          <AlertsList
+            alerts={original}
+            framework={framework}
+            frameworks={frameworks}
+          />
+        );
       },
       width: 100,
       style: { textAlign: 'center' },

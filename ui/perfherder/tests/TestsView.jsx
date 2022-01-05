@@ -174,6 +174,7 @@ class TestsView extends React.PureComponent {
             dropdownOptions={dropdowns}
             projectsMap={projectsMap}
             platformsMap={platformsMap}
+            frameworks={frameworks}
           />
         </Container>
       </ErrorBoundary>
