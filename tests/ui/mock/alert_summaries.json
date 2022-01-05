@@ -105,7 +105,7 @@
         "backfill_record": {
           "context": "[]",
           "status": 0,
-          "total_backfills_triggered": 0
+          "total_actions_triggered": 0
         },
         "series_signature": {
           "id": 1945378,
@@ -162,7 +162,7 @@
         "backfill_record": {
           "context": "[]",
           "status": 3,
-          "total_backfills_triggered": 4
+          "total_actions_triggered": 4
         },
         "series_signature": {
           "id": 1948230,

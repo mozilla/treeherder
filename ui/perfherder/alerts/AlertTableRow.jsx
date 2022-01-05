@@ -152,8 +152,6 @@ export default class AlertTableRow extends React.Component {
   };
 
   renderAlertStatus = (alert, alertStatus, statusColor) => {
-    const backfillStatusInfo = this.getBackfillStatusInfo(alert);
-
     return (
       <React.Fragment>
         (
@@ -161,19 +159,7 @@ export default class AlertTableRow extends React.Component {
           <FontAwesomeIcon icon={faCheck} color="#28a745" />
         )}
         <span className={statusColor}>{alertStatus}</span>
-        {alert.related_summary_id && this.getReassignment(alert)}
-        {backfillStatusInfo ? (
-          <span className="text-darker-info">
-            ,{' '}
-            <FontAwesomeIcon
-              title={backfillStatusInfo.message}
-              icon={backfillStatusInfo.icon}
-              color={backfillStatusInfo.color}
-              data-testid={`alert ${alert.id.toString()} sherlock icon`}
-            />
-          </span>
-        ) : null}
-        )
+        {alert.related_summary_id && this.getReassignment(alert)})
       </React.Fragment>
     );
   };
@@ -181,12 +167,34 @@ export default class AlertTableRow extends React.Component {
   getBackfillStatusInfo = (alert) => {
     if (!alert.backfill_record || alert.backfill_record.status === undefined)
       return null;
-
+    const statusesToDisplayTasksCount = ['backfilled', 'successful', 'failed'];
     const backfillStatus = getStatus(
       alert.backfill_record.status,
       alertBackfillResultStatusMap,
     );
-    return alertBackfillResultVisual[backfillStatus];
+
+    const alertBackfillStatus = alertBackfillResultVisual[backfillStatus];
+    // Added only for testing locally the UI changes
+    // To be removed once this is in production
+    alertBackfillStatus.backfillsFailed =
+      alert.backfill_record.total_backfills_failed || 0;
+    alertBackfillStatus.backfillsSuccessful =
+      alert.backfill_record.total_backfills_successful || 0;
+    alertBackfillStatus.backfillsInProgress =
+      alert.backfill_record.total_backfills_in_progress || 0;
+
+    if (
+      statusesToDisplayTasksCount.includes(backfillStatus) &&
+      // the next checks are here to not confuse users
+      // since we won't have count for tasks right away
+      // to be removed after changes are in prod
+      (alertBackfillStatus.backfillsFailed !== 0 ||
+        alertBackfillStatus.backfillsInProgress !== 0 ||
+        alertBackfillStatus.backfillsSuccessful !== 0)
+    )
+      alertBackfillStatus.displayTasksCount = true;
+
+    return alertBackfillStatus;
   };
 
   getTitleText = (alert, alertStatus) => {
@@ -213,6 +221,7 @@ export default class AlertTableRow extends React.Component {
     const perfdocs = new Perfdocs(frameworkName, suite, platform, title);
     const hasDocumentation = perfdocs.hasDocumentation();
     const duplicatedName = suite === test;
+
     return (
       <div>
         <div
@@ -367,6 +376,23 @@ export default class AlertTableRow extends React.Component {
       ? noiseProfiles[alert.noise_profile.replace('/', '')]
       : noiseProfiles.NA;
 
+    const backfillStatusInfo = this.getBackfillStatusInfo(alert);
+    let sherlockTooltip = backfillStatusInfo && backfillStatusInfo.message;
+    if (backfillStatusInfo && backfillStatusInfo.displayTasksCount) {
+      sherlockTooltip = (
+        <>
+          <i>{backfillStatusInfo.message}</i>
+          <br />
+          In progress: {backfillStatusInfo.backfillsInProgress}
+          <br />
+          Successful: {backfillStatusInfo.backfillsSuccessful}
+          <br />
+          Failed: {backfillStatusInfo.backfillsFailed}
+          <br />
+        </>
+      );
+    }
+
     return (
       <tr
         className={
@@ -428,6 +454,21 @@ export default class AlertTableRow extends React.Component {
             />
           ) : (
             this.getTitleText(alert, alertStatus)
+          )}
+          {backfillStatusInfo && (
+            <span className="text-darker-info">
+              <SimpleTooltip
+                key={alert.id}
+                text={
+                  <FontAwesomeIcon
+                    icon={backfillStatusInfo.icon}
+                    color={backfillStatusInfo.color}
+                    data-testid={`alert ${alert.id.toString()} sherlock icon`}
+                  />
+                }
+                tooltipText={sherlockTooltip}
+              />
+            </span>
           )}
         </td>
         <td className="table-width-lg">

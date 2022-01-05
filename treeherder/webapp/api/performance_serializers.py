@@ -50,11 +50,22 @@ class WordsField(serializers.CharField):
 class BackfillRecordSerializer(serializers.Serializer):
     context = serializers.JSONField()
     status = serializers.IntegerField()
-    total_backfills_triggered = serializers.IntegerField()
+    total_actions_triggered = serializers.IntegerField()
+    total_backfills_failed = serializers.IntegerField()
+    total_backfills_successful = serializers.IntegerField()
+    total_backfills_in_progress = serializers.IntegerField()
 
     class Meta:
         model = BackfillRecord
-        fields = ('alert', 'context', 'status', 'total_backfills_triggered')
+        fields = (
+            'alert',
+            'context',
+            'status',
+            'total_actions_triggered',
+            'total_backfills_failed',
+            'total_backfills_successful',
+            'total_backfills_in_progress',
+        )
 
 
 class PerformanceFrameworkSerializer(serializers.ModelSerializer):

@@ -117,6 +117,18 @@ def jobs_with_one_pending(successful_jobs):
 
 
 @pytest.fixture
+def jobs_with_one_pending_and_one_failed(successful_jobs):
+    index_in_range = get_middle_index(successful_jobs)
+    next_index_in_range = get_middle_index(successful_jobs) + 1
+    job_pending = successful_jobs[index_in_range]
+    job_pending.result = 'unknown'
+    job_pending.save()
+    job_to_fail = successful_jobs[next_index_in_range]
+    job_to_fail.result = 'testfailed'
+    job_to_fail.save()
+
+
+@pytest.fixture
 def get_outcome_checker_mock():
     def get_outcome_checker_mock(outcome: OutcomeStatus):
         return type('', (), {'check': lambda *params: outcome})
@@ -238,6 +250,11 @@ class TestOutcomeChecker:
         outcome_checker = OutcomeChecker()
 
         response = outcome_checker.check(record_backfilled)
+        # all jobs were successful
+        assert record_backfilled.get_pushes_in_context_range().count() == 6
+        assert record_backfilled.total_backfills_successful == 6
+        assert record_backfilled.total_backfills_in_progress == 0
+        assert record_backfilled.total_backfills_failed == 0
         assert response == OutcomeStatus.SUCCESSFUL
 
     def test_failed_job_means_failed_outcome(
@@ -247,6 +264,11 @@ class TestOutcomeChecker:
         outcome_checker = OutcomeChecker()
 
         response = outcome_checker.check(record_backfilled)
+        # one job failed and the rest were successful
+        assert record_backfilled.get_pushes_in_context_range().count() == 6
+        assert record_backfilled.total_backfills_successful == 5
+        assert record_backfilled.total_backfills_in_progress == 0
+        assert record_backfilled.total_backfills_failed == 1
         assert response == OutcomeStatus.FAILED
 
     def test_pending_job_means_in_progress_outcome(
@@ -256,4 +278,23 @@ class TestOutcomeChecker:
         outcome_checker = OutcomeChecker()
 
         response = outcome_checker.check(record_backfilled)
+        # one job is in progress and the rest were successful
+        assert record_backfilled.get_pushes_in_context_range().count() == 6
+        assert record_backfilled.total_backfills_successful == 5
+        assert record_backfilled.total_backfills_in_progress == 1
+        assert record_backfilled.total_backfills_failed == 0
+        assert response == OutcomeStatus.IN_PROGRESS
+
+    def test_pending_and_failed_jobs_means_in_progress_outcome(
+        self, record_backfilled, outcome_checking_pushes, jobs_with_one_pending_and_one_failed
+    ):
+        set_record_job_type(record_backfilled)
+        outcome_checker = OutcomeChecker()
+
+        response = outcome_checker.check(record_backfilled)
+        # one job is in progress, one failed and the rest were successful
+        assert record_backfilled.get_pushes_in_context_range().count() == 6
+        assert record_backfilled.total_backfills_successful == 4
+        assert record_backfilled.total_backfills_in_progress == 1
+        assert record_backfilled.total_backfills_failed == 1
         assert response == OutcomeStatus.IN_PROGRESS
