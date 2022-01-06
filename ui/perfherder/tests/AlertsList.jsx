@@ -14,7 +14,6 @@ export default class AlertsList extends React.PureComponent {
     } = alerts;
     const improvements = totalAlerts - regressions;
     const framework = frameworks.find((item) => item.name === frameworkName);
-    console.log(framework);
     return (
       <div className="d-flex justify-content-center">
         <div data-testid="improvements" className="w-50">
@@ -29,10 +28,15 @@ export default class AlertsList extends React.PureComponent {
           </Link>
         </div>
         <div data-testid="regressions" className="w-50">
-          <SimpleTooltip
-            text={`${regressions || 0}`}
-            tooltipText="Regressions"
-          />
+          <Link
+            to={`./alerts?hideDwnToInv=0&filterText=${suite}&page=1&status=-1&framework=${framework.id}`}
+            target="_blank"
+          >
+            <SimpleTooltip
+              text={`${regressions || 0}`}
+              tooltipText="Regressions"
+            />
+          </Link>
         </div>
       </div>
     );
