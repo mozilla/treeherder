@@ -5,6 +5,7 @@ import asyncio
 
 import newrelic.agent
 
+from treeherder.etl.classification_loader import ClassificationLoader
 from treeherder.etl.job_loader import JobLoader
 from treeherder.etl.push_loader import PushLoader
 from treeherder.etl.taskcluster_pulse.handler import handleMessage
@@ -50,3 +51,13 @@ def store_pulse_pushes(
     newrelic.agent.add_custom_parameter("routing_key", routing_key)
 
     PushLoader().process(body, exchange, root_url)
+
+
+@retryable_task(name='store-pulse-pushes-classification', max_retries=10)
+def store_pulse_tasks_classification(
+    pulse_job, exchange, routing_key, root_url='https://firefox-ci-tc.services.mozilla.com'
+):
+    newrelic.agent.add_custom_parameter("exchange", exchange)
+    newrelic.agent.add_custom_parameter("routing_key", routing_key)
+
+    ClassificationLoader().process(pulse_job, root_url)

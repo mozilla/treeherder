@@ -32,7 +32,7 @@ elif [ "$1" == "pulse_listener_tasks" ]; then
 # Processes pushes/jobs from Pulse that were collected by `pulse_listener_{pushes,tasks}`.
 elif [ "$1" == "worker_store_pulse_data" ]; then
     export REMAP_SIGTERM=SIGQUIT
-    exec newrelic-admin run-program celery worker -A treeherder --without-gossip --without-mingle --without-heartbeat -Q store_pulse_pushes,store_pulse_tasks --concurrency=3
+    exec newrelic-admin run-program celery worker -A treeherder --without-gossip --without-mingle --without-heartbeat -Q store_pulse_pushes,store_pulse_tasks,store_pulse_tasks_classification --concurrency=3
 
 # Handles the log parsing tasks scheduled by `worker_store_pulse_data` as part of job ingestion.
 elif [ "$1" == "worker_log_parser" ]; then
