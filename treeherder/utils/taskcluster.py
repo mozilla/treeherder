@@ -9,7 +9,13 @@ def get_task_definition(root_url, task_id):
     return fetch_json(task_url)
 
 
-def get_artifact(root_url, task_id, path):
+def download_artifact(root_url, task_id, path):
+    """
+    Downloads a Taskcluster artifact.
+    Supports specific file formats like json and yaml.
+
+    Returns either the parsed json, the parsed yaml or the plain response.
+    """
     artifact_url = taskcluster_urls.api(
         root_url, 'queue', 'v1', 'task/{}/artifacts/{}'.format(task_id, path)
     )

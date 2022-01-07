@@ -1436,9 +1436,9 @@ class MozciClassification(models.Model):
     Automated classification of a Push provided by mozci
     """
 
-    BAD = 0
-    GOOD = 1
-    UNKNOWN = 2
+    BAD = 'BAD'
+    GOOD = 'GOOD'
+    UNKNOWN = 'UNKNOWN'
 
     CLASSIFICATION_RESULT = (
         (BAD, 'bad'),
@@ -1448,7 +1448,7 @@ class MozciClassification(models.Model):
 
     id = models.BigAutoField(primary_key=True)
     push = models.ForeignKey(Push, on_delete=models.CASCADE)
-    result = models.IntegerField(choices=CLASSIFICATION_RESULT)
+    result = models.CharField(max_length=7, choices=CLASSIFICATION_RESULT)
     created = models.DateTimeField(default=timezone.now)
     task_id = models.CharField(max_length=22, validators=[MinLengthValidator(22)])
 

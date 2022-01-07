@@ -17,7 +17,13 @@ class Migration(migrations.Migration):
             name='MozciClassification',
             fields=[
                 ('id', models.BigAutoField(primary_key=True, serialize=False)),
-                ('result', models.IntegerField(choices=[(0, 'bad'), (1, 'good'), (2, 'unknown')])),
+                (
+                    'result',
+                    models.CharField(
+                        max_length=7,
+                        choices=[('BAD', 'bad'), ('GOOD', 'good'), ('UNKNOWN', 'unknown')],
+                    ),
+                ),
                 ('created', models.DateTimeField(default=django.utils.timezone.now)),
                 (
                     'task_id',
