@@ -431,9 +431,11 @@ export default class AlertTableRow extends React.Component {
           )}
         </td>
         <td className="table-width-lg">
-          <AlertTablePlatform
-            platform={alert.series_signature.machine_platform}
-          />
+          <div className="information-container">
+            <AlertTablePlatform
+              platform={alert.series_signature.machine_platform}
+            />
+          </div>
         </td>
         <td className="table-width-lg">
           <div className="information-container">

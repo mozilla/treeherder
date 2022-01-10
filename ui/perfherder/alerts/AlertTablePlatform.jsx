@@ -28,6 +28,7 @@ export default class AlertTablePlatform extends React.PureComponent {
 
     return (
       <SimpleTooltip
+        textClass="detail-hint pb-1"
         text={
           <FontAwesomeIcon
             icon={this.getOSClass(platform)}
