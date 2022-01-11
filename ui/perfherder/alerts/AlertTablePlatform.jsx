@@ -7,7 +7,7 @@ import { thPlatformMap } from '../../helpers/constants';
 import { platformsIcons } from '../perf-helpers/constants';
 
 export default class AlertTablePlatform extends React.PureComponent {
-  getOSClass(platform) {
+  getOSClassIcon(platform) {
     if (platform.includes('linux')) {
       return platformsIcons.linux;
     }
@@ -31,7 +31,7 @@ export default class AlertTablePlatform extends React.PureComponent {
         textClass="detail-hint pb-1"
         text={
           <FontAwesomeIcon
-            icon={this.getOSClass(platform)}
+            icon={this.getOSClassIcon(platform)}
             data-testid="alert-platform-icon"
           />
         }

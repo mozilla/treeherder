@@ -3,6 +3,7 @@ import { render, cleanup, waitFor, fireEvent } from '@testing-library/react';
 
 import AlertTableRow from '../../../../ui/perfherder/alerts/AlertTableRow';
 import testAlertSummaries from '../../mock/alert_summaries';
+import { thPlatformMap } from '../../../../ui/helpers/constants';
 
 const testUser = {
   username: 'mozilla-ldap/test_user@mozilla.com',
@@ -95,10 +96,11 @@ test(`Platform column contains alerts's platform`, async () => {
     alert: testAlert,
     tags: false,
   });
+  const { machine_platform: platform } = testAlert.series_signature;
   const alertPlatform = await waitFor(() => getByTestId(`alert-platform-icon`));
   fireEvent.mouseOver(alertPlatform);
   const platformDisplayName = await waitFor(() =>
-    getByText('Linux x64 WebRender Shippable'),
+    getByText(thPlatformMap[platform]),
   );
   expect(platformDisplayName).toBeInTheDocument();
 });
