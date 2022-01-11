@@ -632,3 +632,31 @@ li.pagination-active.active > button {
   background-color: #d3d3d3;
   padding: 3px;
 }
+
+.due-date-container {
+  width: 50px;
+}
+
+.due-date-container .due-date-ok {
+  color: #2da745;
+}
+
+.due-date-container .due-date-today {
+  color: #dc7835;
+}
+
+.due-date-container .due-date-overdue {
+  color: #dc3545;
+}
+
+.status-drop-down-container {
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
+  flex-direction: row-reverse;
+}
+
+.clock-container {
+  margin-top: 5px;
+  margin-left: 23px;
+}

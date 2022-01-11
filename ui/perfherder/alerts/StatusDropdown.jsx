@@ -10,7 +10,10 @@ import {
 } from 'reactstrap';
 import template from 'lodash/template';
 import templateSettings from 'lodash/templateSettings';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faClock } from '@fortawesome/free-regular-svg-icons';
 
+import SimpleTooltip from '../../shared/SimpleTooltip';
 import {
   getFrameworkName,
   getFilledBugSummary,
@@ -72,6 +75,41 @@ export default class StatusDropdown extends React.Component {
       product: bugData.product,
     };
   };
+
+  getNumberOfNonWorkingDays(startDate, endDate) {
+    console.log(startDate, 'start date');
+    console.log(endDate, 'end date');
+    let count = 0;
+    const curDate = new Date(startDate.getTime());
+    console.log(curDate, 'cur date');
+    if (curDate.getDay() === 0) {
+      return 0;
+    }
+
+    if (curDate.getDay() === 6) {
+      return 1;
+    }
+
+    if (endDate.getDay() === 6) {
+      return 2;
+    }
+
+    if (endDate.getDay() === 0) {
+      return 1;
+    }
+
+    while (curDate <= endDate) {
+      const dayOfWeek = curDate.getDay();
+      console.log(dayOfWeek, 'day of the week');
+      if (dayOfWeek === 0 || dayOfWeek === 6) {
+        count++;
+      }
+      console.log(curDate, 'cur date in while');
+      curDate.setDate(curDate.getDate() + 1);
+    }
+
+    return count;
+  }
 
   fileBug = async (culpritId) => {
     const {
@@ -216,6 +254,45 @@ export default class StatusDropdown extends React.Component {
     alertStatus === 'investigating' ||
     (alertStatus !== status && this.isResolved(alertStatus));
 
+  calculateDueDate(created) {
+    const createdAt = new Date(created);
+    const dueDate = new Date(created);
+    dueDate.setDate(dueDate.getDate() + 3);
+
+    console.log(createdAt);
+
+    const numberOfNonWorkingDays = this.getNumberOfNonWorkingDays(
+      createdAt,
+      dueDate,
+    );
+
+    dueDate.setDate(
+      numberOfNonWorkingDays !== 0
+        ? dueDate.getDate() + numberOfNonWorkingDays
+        : dueDate.getDate(),
+    );
+    return dueDate;
+  }
+
+  renderDueDateCountdown(createdAt) {
+    const now = new Date(Date.now());
+    const dueDate = this.calculateDueDate(createdAt);
+    const differenceInTime = dueDate.getTime() - now.getTime();
+    const differenceInDays = Math.round(differenceInTime / (1000 * 3600 * 24));
+    console.log(dueDate, 'end date');
+    console.log(now, 'now');
+
+    if (now >= dueDate) {
+      return 'Overdue';
+    }
+    if (differenceInDays === 0) {
+      return 'Today';
+    }
+
+    console.log(differenceInDays, 'difference in days');
+    return `${differenceInDays} working days`;
+  }
+
   render() {
     const { alertSummary, user, issueTrackers, performanceTags } = this.props;
     const {
@@ -228,6 +305,15 @@ export default class StatusDropdown extends React.Component {
 
     const alertStatus = getStatus(alertSummary.status);
     const alertSummaryActiveTags = alertSummary.performance_tags || [];
+
+    const dueDate = this.renderDueDateCountdown(alertSummary.created);
+    let dueDateClass = 'due-date-ok';
+    console.log(dueDate);
+    if (dueDate === 'Overdue') {
+      dueDateClass = 'due-date-overdue';
+    } else if (dueDate === 'Today') {
+      dueDateClass = 'due-date-today';
+    }
 
     return (
       <React.Fragment>
@@ -301,7 +387,7 @@ export default class StatusDropdown extends React.Component {
           performanceTags={performanceTags}
           updateAndClose={this.updateAndClose}
         />
-        <UncontrolledDropdown tag="span">
+        <UncontrolledDropdown tag="span" className="status-drop-down-container">
           <DropdownToggle className="btn-xs" color="darker-secondary" caret>
             {getStatus(alertSummary.status)}
           </DropdownToggle>
@@ -404,6 +490,30 @@ export default class StatusDropdown extends React.Component {
               </React.Fragment>
             )}
           </DropdownMenu>
+          <div>
+            {alertStatus === 'untriaged' ? (
+              <div className="due-date-container">
+                <div className="clock-container">
+                  <SimpleTooltip
+                    text={
+                      <FontAwesomeIcon
+                        icon={faClock}
+                        className={dueDateClass}
+                      />
+                    }
+                    tooltipText={
+                      <div>
+                        <h5>Triage due date:</h5>
+                        {dueDate}
+                      </div>
+                    }
+                  />
+                </div>
+              </div>
+            ) : (
+              ''
+            )}
+          </div>
         </UncontrolledDropdown>
       </React.Fragment>
     );
