@@ -4,23 +4,23 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 
 import SimpleTooltip from '../../shared/SimpleTooltip';
 import { thPlatformMap } from '../../helpers/constants';
-import { platformsIcons } from '../perf-helpers/constants';
+import { phPlatformsIconsMap } from '../perf-helpers/constants';
 
 export default class AlertTablePlatform extends React.PureComponent {
   getOSClassIcon(platform) {
     if (platform.includes('linux')) {
-      return platformsIcons.linux;
+      return phPlatformsIconsMap.linux;
     }
     if (platform.includes('mac') || platform.includes('osx')) {
-      return platformsIcons.macos;
+      return phPlatformsIconsMap.macos;
     }
     if (platform.includes('win')) {
-      return platformsIcons.windows;
+      return phPlatformsIconsMap.windows;
     }
     if (platform.includes('android')) {
-      return platformsIcons.android;
+      return phPlatformsIconsMap.android;
     }
-    return platformsIcons.other;
+    return phPlatformsIconsMap.other;
   }
 
   render() {

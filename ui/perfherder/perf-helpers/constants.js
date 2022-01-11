@@ -61,7 +61,7 @@ export const notSupportedAlertFiltersMessage = (filters) =>
 
 export const availablePlatforms = ['Windows', 'Linux', 'OSX', 'Android'];
 
-export const platformsIcons = {
+export const phPlatformsIconsMap = {
   linux: faLinux,
   macos: faApple,
   windows: faWindows,
