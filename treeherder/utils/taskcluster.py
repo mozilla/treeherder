@@ -23,6 +23,6 @@ def download_artifact(root_url, task_id, path):
     if path.endswith(".json"):
         return fetch_json(artifact_url)
     if path.endswith(".yml"):
-        return yaml.load_stream(fetch_text(artifact_url))
+        return yaml.safe_load(fetch_text(artifact_url))
 
     return make_request(artifact_url)
