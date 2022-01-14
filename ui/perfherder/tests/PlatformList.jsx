@@ -1,13 +1,8 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import {
-  faWindows,
-  faLinux,
-  faApple,
-  faAndroid,
-} from '@fortawesome/free-brands-svg-icons';
-import { faQuestionCircle } from '@fortawesome/free-regular-svg-icons';
+
+import { phPlatformsIconsMap } from '../perf-helpers/constants';
 
 export default class PlatformList extends React.Component {
   linuxPlatforms = [];
@@ -23,7 +18,7 @@ export default class PlatformList extends React.Component {
   constructor(props) {
     super(props);
     this.state = {
-      platforms: {},
+      platformsVersions: {},
       activePlatform: null,
       list: [],
     };
@@ -50,49 +45,29 @@ export default class PlatformList extends React.Component {
       }
     });
 
-    const platforms = {
-      linux: {
-        name: 'linux',
-        versions: this.linuxPlatforms,
-        icon: faLinux,
-      },
-      macos: {
-        name: 'macos',
-        versions: this.macosPlatforms,
-        icon: faApple,
-      },
-      windows: {
-        name: 'windows',
-        versions: this.windowsPlatforms,
-        icon: faWindows,
-      },
-      android: {
-        name: 'android',
-        versions: this.androidPlatforms,
-        icon: faAndroid,
-      },
-      other: {
-        name: 'other',
-        versions: this.otherPlatforms,
-        icon: faQuestionCircle,
-      },
+    const platformsVersions = {
+      linux: this.linuxPlatforms,
+      macos: this.macosPlatforms,
+      windows: this.windowsPlatforms,
+      android: this.androidPlatforms,
+      other: this.otherPlatforms,
     };
 
     this.setState({
-      platforms,
+      platformsVersions,
     });
   };
 
-  displayList = (name) => {
-    const { platforms, activePlatform } = this.state;
+  displayList = (platformName) => {
+    const { platformsVersions, activePlatform } = this.state;
     this.setState({
-      activePlatform: activePlatform === name ? null : name,
-      list: [...platforms[name].versions],
+      activePlatform: activePlatform === platformName ? null : platformName,
+      list: [...platformsVersions[platformName]],
     });
   };
 
   render() {
-    const { platforms, activePlatform, list } = this.state;
+    const { platformsVersions, activePlatform, list } = this.state;
 
     return (
       <div>
@@ -100,22 +75,22 @@ export default class PlatformList extends React.Component {
           className="text-left d-flex justify-content-center"
           data-testid="platform-icons"
         >
-          {Object.keys(platforms).map((key) => {
-            const platform = platforms[key];
-            const { name, icon, versions } = platform;
+          {Object.keys(platformsVersions).map((platformName) => {
+            const versions = platformsVersions[platformName];
+            const icon = phPlatformsIconsMap[platformName];
             return (
               versions.length !== 0 && (
                 <div
-                  key={`${name}`}
+                  key={`${platformName}`}
                   className={`icon-container ${
-                    activePlatform === name ? 'active-platform' : ''
+                    activePlatform === platformName ? 'active-platform' : ''
                   }`}
                 >
                   <FontAwesomeIcon
                     icon={icon}
                     title={versions.join(', ')}
-                    data-testid={`${name}-platform`}
-                    onClick={() => this.displayList(name)}
+                    data-testid={`${platformName}-platform`}
+                    onClick={() => this.displayList(platformName)}
                   />
                 </div>
               )

@@ -3,7 +3,16 @@ import {
   faHourglassHalf,
   faHourglassEnd,
 } from '@fortawesome/free-solid-svg-icons';
-import { faHourglass } from '@fortawesome/free-regular-svg-icons';
+import {
+  faHourglass,
+  faQuestionCircle,
+} from '@fortawesome/free-regular-svg-icons';
+import {
+  faAndroid,
+  faApple,
+  faLinux,
+  faWindows,
+} from '@fortawesome/free-brands-svg-icons';
 
 export const tValueCareMin = 3; // Anything below this is "low" in confidence
 export const tValueConfidence = 5; // Anything above this is "high" in confidence
@@ -51,6 +60,14 @@ export const notSupportedAlertFiltersMessage = (filters) =>
   )}). Expected results might not be displayed.`;
 
 export const availablePlatforms = ['Windows', 'Linux', 'OSX', 'Android'];
+
+export const phPlatformsIconsMap = {
+  linux: faLinux,
+  macos: faApple,
+  windows: faWindows,
+  android: faAndroid,
+  other: faQuestionCircle,
+};
 
 export const summaryStatusMap = {
   'all statuses': -1,
