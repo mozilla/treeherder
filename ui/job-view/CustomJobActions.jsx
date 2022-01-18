@@ -105,8 +105,8 @@ class CustomJobActions extends React.PureComponent {
 
     if (action.schema) {
       this.setState({
-        schema: jsyaml.safeDump(action.schema),
-        payload: jsyaml.safeDump(jsonSchemaDefaults(action.schema)),
+        schema: jsyaml.dump(action.schema),
+        payload: jsyaml.dump(jsonSchemaDefaults(action.schema)),
         validate: ajv.compile(action.schema),
       });
     } else {
