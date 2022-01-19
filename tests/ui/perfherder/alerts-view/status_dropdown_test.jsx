@@ -85,3 +85,14 @@ test("Tags modal opens from 'Edit tags'", async () => {
 
   expect(modal).toBeInTheDocument();
 });
+
+// test.only('Check for triage due date render', async () => {
+//   const { getByTestId } = testStatusDropdown([]);
+
+//   Date.now = jest.fn(() => new Date(Date.UTC(2022, 1, 17)).valueOf());
+//   const alert = testAlertSummaries[0];
+//   alert.created = '2022-01-17T11:41:31.419156';
+
+//   console.log(alert);
+//   console.log(getByTestId('triage-test'));
+// });

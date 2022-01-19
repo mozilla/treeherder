@@ -79,23 +79,26 @@ export default class StatusDropdown extends React.Component {
   getNumberOfNonWorkingDays(createdAt, dueDate) {
     let count = 0;
     const curDate = new Date(createdAt.getTime());
-
-    if (curDate.getDay() === 0) {
+    const sunday = 0;
+    const saturday = 6;
+    // sud mon
+    if (curDate.getDay() === sunday) {
       return 1;
     }
-
-    if (curDate.getDay() === 6) {
+    // sat mon
+    if (curDate.getDay() === saturday) {
       return 2;
     }
 
-    if (dueDate.getDay() === 6 || dueDate.getDay === 0) {
+    // mon
+    if (dueDate.getDay() === saturday || dueDate.getDay === sunday) {
       return 2;
     }
 
     while (curDate <= dueDate) {
       const dayOfWeek = curDate.getDay();
 
-      if (dayOfWeek === 0 || dayOfWeek === 6) {
+      if (dayOfWeek === sunday || dayOfWeek === saturday) {
         count++;
       }
 
@@ -249,9 +252,9 @@ export default class StatusDropdown extends React.Component {
     (alertStatus !== status && this.isResolved(alertStatus));
 
   calculateDueDate(created) {
-    const createdAt = new Date(created);
+    const createdAt = new Date(created); // monday
     const dueDate = new Date(created);
-    dueDate.setDate(dueDate.getDate() + 2);
+    dueDate.setDate(dueDate.getDate() + 2); // wed
     const numberOfNonWorkingDays = this.getNumberOfNonWorkingDays(
       createdAt,
       dueDate,
@@ -262,15 +265,20 @@ export default class StatusDropdown extends React.Component {
         ? dueDate.getDate() + numberOfNonWorkingDays
         : dueDate.getDate(),
     );
+
     return dueDate;
   }
 
   renderDueDateCountdown(createdAt) {
     const now = new Date(Date.now());
     const dueDate = this.calculateDueDate(createdAt);
+    // const created = new Date(createdAt);
     const overdueDate = new Date(dueDate);
-    const differenceInTime = dueDate.getTime() - now.getTime();
-    const differenceInDays = Math.round(differenceInTime / (1000 * 3600 * 24));
+    // const differenceInTime = Math.abs(dueDate.getTime() - now.getTime());
+    // const differenceInDays = Math.ceil(differenceInTime / (1000 * 3600 * 24));
+
+    const differenceInDays = dueDate - now;
+    const day = Math.ceil((differenceInDays / 86400000) % 30);
 
     overdueDate.setDate(overdueDate.getDate() + 1);
 
@@ -282,7 +290,7 @@ export default class StatusDropdown extends React.Component {
       return 'Today';
     }
 
-    return `${differenceInDays + 1} working days`;
+    return `${day} working days`;
   }
 
   render() {
@@ -299,6 +307,7 @@ export default class StatusDropdown extends React.Component {
     const alertSummaryActiveTags = alertSummary.performance_tags || [];
 
     const dueDate = this.renderDueDateCountdown(alertSummary.created);
+
     let dueDateClass = 'due-date-ok';
     if (dueDate === 'Overdue') {
       dueDateClass = 'due-date-overdue';
@@ -482,10 +491,11 @@ export default class StatusDropdown extends React.Component {
             )}
           </DropdownMenu>
           <div>
-            {alertStatus === 'untriaged' ? (
-              <div className="due-date-container">
+            {alertStatus === 'untriaged' && (
+              <div className="due-date-container" data-testid="triage-due-date">
                 <div className="clock-container">
                   <SimpleTooltip
+                    data-testid="triage-test"
                     text={
                       <FontAwesomeIcon
                         icon={faClock}
@@ -501,8 +511,6 @@ export default class StatusDropdown extends React.Component {
                   />
                 </div>
               </div>
-            ) : (
-              ''
             )}
           </div>
         </UncontrolledDropdown>
