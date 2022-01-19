@@ -8,7 +8,7 @@ import { Perfdocs, perfViews } from '../perf-helpers/perfdocs';
 
 import ItemList from './ItemList';
 import PlatformList from './PlatformList';
-import AlertsList from './AlertsList';
+import AlertsLink from './AlertsLink';
 
 export default function TestsTable(props) {
   const {
@@ -95,7 +95,7 @@ export default function TestsTable(props) {
       Cell: (props) => {
         const { original } = props;
         return (
-          <AlertsList
+          <AlertsLink
             alerts={original}
             framework={framework}
             frameworks={frameworks}

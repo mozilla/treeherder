@@ -1,5 +1,6 @@
 import React from 'react';
 import { render, cleanup, waitFor, fireEvent } from '@testing-library/react';
+import { MemoryRouter as Router } from 'react-router-dom';
 
 import { noResultsMessage } from '../../../ui/perfherder/perf-helpers/constants';
 import TestsTable from '../../../ui/perfherder/tests/TestsTable';
@@ -35,13 +36,24 @@ const platformsMap = {
   2: 'platform2',
 };
 
+const activeFramework = 'awsy';
+
+const frameworks = [
+  { id: 1, name: 'talos' },
+  { id: 4, name: 'awsy' },
+];
+
 const testsTable = (data, projectsMap = false, platformsMap = false) =>
   render(
-    <TestsTable
-      results={data}
-      projectsMap={projectsMap}
-      platformsMap={platformsMap}
-    />,
+    <Router>
+      <TestsTable
+        results={data}
+        projectsMap={projectsMap}
+        platformsMap={platformsMap}
+        frameworks={frameworks}
+        framework={activeFramework}
+      />
+    </Router>,
   );
 
 afterEach(cleanup);

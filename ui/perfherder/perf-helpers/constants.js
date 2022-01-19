@@ -83,6 +83,7 @@ export const summaryStatusMap = {
   wontfix: 6,
   fixed: 7,
   backedout: 8,
+  'all regressions': 9,
 };
 
 export const alertStatusMap = {
