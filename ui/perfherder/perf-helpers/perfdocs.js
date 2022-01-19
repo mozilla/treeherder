@@ -155,6 +155,7 @@ export class Perfdocs {
     this.platform = platform || '';
     this.title = title || '';
     this.remainingTestName = '';
+    this.url = '';
   }
 
   get remainingName() {
@@ -165,50 +166,55 @@ export class Perfdocs {
   }
 
   get documentationURL() {
-    let url;
-    let suffixForSuite;
     const frameworkName = supportedPerfdocsFrameworks[this.framework];
     if (!frameworkName) {
-      url = baseURL.concat('testing/perfdocs/');
-      return url;
+      this.url = baseURL.concat('testing/perfdocs/');
+      return this.url;
     }
-    url =
+    this.url =
       frameworkName === 'performance-tests-overview'
         ? baseURL.concat('devtools/tests/')
         : baseURL.concat('testing/perfdocs/');
 
-    url = url.concat(frameworkName, '.html#');
+    this.url = this.url.concat(frameworkName, '.html#');
 
     if (frameworkName === 'raptor') {
       // amazon-sec doesn't have yet documentation added
       if (this.suite === 'amazon-sec') {
-        url = url.slice(0, -1);
-        return url;
+        this.url = this.url.slice(0, -1);
+        return this.url;
       }
-      const suiteNameBeforeDot = this.suite.split('.')[0];
-      if (browsertimeInteractiveTests.includes(suiteNameBeforeDot)) {
-        url = url.concat(suiteNameBeforeDot);
-        suffixForSuite = '-i';
-      } else {
-        url = url.concat(this.suite);
-        if (browsertimeBenchmarksTests.includes(this.suite)) {
-          suffixForSuite = '-b';
-        } else if (browsertimeCustomTests.includes(this.suite)) {
-          suffixForSuite = '-c';
-        } else if (this.platform.includes('android')) {
-          suffixForSuite = '-m';
-        } else suffixForSuite = '-d';
-      }
-      url = url.concat(suffixForSuite);
+      this.url = this.updatedURLWithSuffix;
     } else {
       // framework is either awsy, talos or devtools
       if (this.suite === 'about_newtab_with_snippets') {
         // talos
         this.suite = 'about-newtab-with-snippets';
       }
-      url = url.concat(this.suite.replace(/:|\s|\./g, '-').toLowerCase());
+      this.url = this.url.concat(
+        this.suite.replace(/:|\s|\./g, '-').toLowerCase(),
+      );
     }
-    return url;
+    return this.url;
+  }
+
+  get updatedURLWithSuffix() {
+    let suffixForSuite;
+    const suiteNameBeforeDot = this.suite.split('.')[0];
+    if (browsertimeInteractiveTests.includes(suiteNameBeforeDot)) {
+      this.url = this.url.concat(suiteNameBeforeDot);
+      suffixForSuite = '-i';
+    } else {
+      this.url = this.url.concat(this.suite);
+      if (browsertimeBenchmarksTests.includes(this.suite)) {
+        suffixForSuite = '-b';
+      } else if (browsertimeCustomTests.includes(this.suite)) {
+        suffixForSuite = '-c';
+      } else if (this.platform.includes('android')) {
+        suffixForSuite = '-m';
+      } else suffixForSuite = '-d';
+    }
+    return this.url.concat(suffixForSuite);
   }
 
   hasDocumentation(perfherderView = null) {

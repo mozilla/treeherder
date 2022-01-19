@@ -241,9 +241,9 @@ class DetailsPanel extends React.Component {
                     }),
                   ),
                 );
-                const frameworksDict = {};
+                const mappedFrameworks = {};
                 frameworks.forEach((element) => {
-                  frameworksDict[element.id] = element.name;
+                  mappedFrameworks[element.id] = element.name;
                 });
 
                 const seriesList = seriesListList
@@ -269,7 +269,7 @@ class DetailsPanel extends React.Component {
                     suite: d.series.suite,
                     options: d.series.options.join(' '),
                     perfdocs: new Perfdocs(
-                      frameworksDict[d.series.frameworkId],
+                      mappedFrameworks[d.series.frameworkId],
                       d.series.suite,
                       d.series.platform,
                       d.series.name,
