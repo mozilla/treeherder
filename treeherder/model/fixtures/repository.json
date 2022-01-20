@@ -1680,5 +1680,35 @@
       "description": "",
       "tc_root_url": "https://firefox-ci-tc.services.mozilla.com"
     }
+  },
+  {
+    "pk": 120,
+    "model": "model.repository",
+    "fields": {
+      "dvcs_type": "git",
+      "name": "staging-focus-android",
+      "url": "https://github.com/mozilla-releng/staging-focus-android",
+      "branch": "main",
+      "active_status": "active",
+      "codebase": "staging-focus-android",
+      "repository_group": 11,
+      "description": "",
+      "tc_root_url": "https://firefox-ci-tc.services.mozilla.com"
+    }
+  },
+  {
+    "pk": 121,
+    "model": "model.repository",
+    "fields": {
+      "dvcs_type": "git",
+      "name": "staging-fenix",
+      "url": "https://github.com/mozilla-releng/staging-fenix",
+      "branch": "main",
+      "active_status": "active",
+      "codebase": "staging-fenix",
+      "repository_group": 11,
+      "description": "",
+      "tc_root_url": "https://firefox-ci-tc.services.mozilla.com"
+    }
   }
 ]
