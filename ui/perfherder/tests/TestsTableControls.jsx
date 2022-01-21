@@ -61,7 +61,7 @@ export default class TestsTableControls extends React.Component {
       dropdownOptions,
       projectsMap,
       platformsMap,
-      frameworks,
+      allFrameworks,
     } = this.props;
     const { results } = this.state;
     let framework = false;
@@ -78,7 +78,7 @@ export default class TestsTableControls extends React.Component {
         <TestsTable
           results={results}
           framework={framework}
-          frameworks={frameworks}
+          allFrameworks={allFrameworks}
           projectsMap={projectsMap}
           platformsMap={platformsMap}
         />

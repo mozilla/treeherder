@@ -38,7 +38,7 @@ const platformsMap = {
 
 const activeFramework = 'awsy';
 
-const frameworks = [
+const allFrameworks = [
   { id: 1, name: 'talos' },
   { id: 4, name: 'awsy' },
 ];
@@ -50,7 +50,7 @@ const testsTable = (data, projectsMap = false, platformsMap = false) =>
         results={data}
         projectsMap={projectsMap}
         platformsMap={platformsMap}
-        frameworks={frameworks}
+        allFrameworks={allFrameworks}
         framework={activeFramework}
       />
     </Router>,

@@ -14,7 +14,7 @@ export default function TestsTable(props) {
   const {
     results,
     framework,
-    frameworks,
+    allFrameworks,
     projectsMap,
     platformsMap,
     defaultPageSize,
@@ -98,7 +98,7 @@ export default function TestsTable(props) {
           <AlertsLink
             alerts={original}
             framework={framework}
-            frameworks={frameworks}
+            allFrameworks={allFrameworks}
           />
         );
       },
