@@ -15,8 +15,8 @@ export default class AlertsLink extends React.PureComponent {
     } = alerts;
     const improvements = totalAlerts - regressions;
     const framework = frameworks.find((item) => item.name === frameworkName);
-    let filterText = suite || '';
-    filterText = test ? `${filterText}+${test}` : filterText;
+
+    const filterText = suite && test ? suite.concat(`+${test}`) : suite || test;
     return (
       <div className="d-flex justify-content-center">
         <div data-testid="improvements" className="w-50">
