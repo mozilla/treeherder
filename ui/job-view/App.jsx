@@ -17,10 +17,13 @@ import {
   deployedRevisionUrl,
   parseQueryParams,
   createQueryParams,
+  getApiUrl,
 } from '../helpers/url';
 import ClassificationTypeModel from '../models/classificationType';
 import FilterModel from '../models/filter';
 import RepositoryModel from '../models/repository';
+import { getData } from '../helpers/http';
+import { endpoints } from '../perfherder/perf-helpers/constants';
 
 import Notifications from './Notifications';
 import PrimaryNavBar from './headerbars/PrimaryNavBar';
@@ -98,8 +101,10 @@ class App extends React.Component {
     };
   }
 
-  componentDidMount() {
+  async componentDidMount() {
     const { repoName } = this.state;
+    const { data } = await getData(getApiUrl(endpoints.frameworks));
+    this.setState({ frameworks: data });
 
     RepositoryModel.getList().then((repos) => {
       const newRepo = repos.find((repo) => repo.name === repoName);
@@ -332,6 +337,7 @@ class App extends React.Component {
       groupCountsExpanded,
       showShortCuts,
       pushHealthVisibility,
+      frameworks,
     } = this.state;
 
     // SplitPane will adjust the CSS height of the top component, but not the
@@ -422,6 +428,7 @@ class App extends React.Component {
                   user={user}
                   classificationTypes={classificationTypes}
                   classificationMap={classificationMap}
+                  frameworks={frameworks}
                 />
               )}
             </>

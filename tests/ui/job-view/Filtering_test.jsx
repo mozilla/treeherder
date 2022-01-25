@@ -47,6 +47,7 @@ describe('Filtering', () => {
   beforeAll(() => {
     fetchMock.reset();
     fetchMock.get('/revision.txt', []);
+    fetchMock.get(getApiUrl('/performance/framework/'), {});
     fetchMock.get(getApiUrl('/repository/'), reposFixture);
     fetchMock.get(getApiUrl('/user/'), []);
     fetchMock.get(getApiUrl('/failureclassification/'), []);

@@ -33,6 +33,7 @@ describe('App', () => {
   beforeAll(() => {
     fetchMock.get('/revision.txt', []);
     fetchMock.get(getApiUrl('/repository/'), reposFixture);
+    fetchMock.get(getApiUrl('/performance/framework/'), {});
     fetchMock.get(getApiUrl('/user/'), []);
     fetchMock.get(getApiUrl('/failureclassification/'), []);
     fetchMock.get('begin:https://treestatus.mozilla-releng.net/trees/', {

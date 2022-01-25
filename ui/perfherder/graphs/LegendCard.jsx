@@ -168,7 +168,15 @@ const LegendCard = ({
           {series.name}
         </Button>
         <div className="small legend-docs">
-          {hasDocumentation && <a href={perfdocs.documentationURL}>(docs)</a>}
+          {hasDocumentation && (
+            <a
+              href={perfdocs.documentationURL}
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              (docs)
+            </a>
+          )}
         </div>
         <Button
           color="link"

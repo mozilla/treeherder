@@ -112,7 +112,19 @@ class PerformanceTab extends React.PureComponent {
           </thead>
           <tbody>
             {sortedDetails.map(
-              ({ value, url, measurementUnit, lowerIsBetter, title }, idx) => (
+              (
+                {
+                  value,
+                  url,
+                  measurementUnit,
+                  lowerIsBetter,
+                  title,
+                  suite,
+                  perfdocs,
+                  options,
+                },
+                idx,
+              ) => (
                 // eslint-disable-next-line react/no-array-index-key
                 <tr key={idx}>
                   {/* Ensure the value and measurement are visually next to each
@@ -132,7 +144,22 @@ class PerformanceTab extends React.PureComponent {
                       View
                     </a>
                   </td>
-                  <td className="w-100">{title}</td>
+                  <td className="w-100">
+                    {perfdocs.hasDocumentation() ? (
+                      <div>
+                        <a
+                          href={perfdocs.documentationURL}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                        >
+                          {`${suite} `}
+                        </a>
+                        {`${perfdocs.remainingTestName} ${options}`}
+                      </div>
+                    ) : (
+                      title
+                    )}
+                  </td>
                 </tr>
               ),
             )}
