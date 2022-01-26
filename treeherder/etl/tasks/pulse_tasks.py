@@ -55,8 +55,14 @@ def store_pulse_pushes(
 
 @retryable_task(name='store-pulse-pushes-classification', max_retries=10)
 def store_pulse_tasks_classification(
-    pulse_job, exchange, routing_key, root_url='https://firefox-ci-tc.services.mozilla.com'
+    pulse_job, exchange, routing_key, root_url='https://community-tc.services.mozilla.com'
 ):
+    """
+    Fetches the Mozci classification associated to a task from Taskcluster
+
+    By default, it should listen to the Community cluster as classifications
+    are only running there for the moment
+    """
     newrelic.agent.add_custom_parameter("exchange", exchange)
     newrelic.agent.add_custom_parameter("routing_key", routing_key)
 
