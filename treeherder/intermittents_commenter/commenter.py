@@ -132,7 +132,7 @@ class Commenter:
             if bug_info['priority'] not in ['--', 'P1', 'P2', 'P3']:
                 change_priority = '--'
 
-            stockwell_labels = re.findall(r'\[stockwell (.+?)\]', bug_info['whiteboard'])
+            stockwell_labels = re.findall(r'(\[stockwell .+?\])', bug_info['whiteboard'])
             # update whiteboard text unless it already contains WHITEBOARD_NEEDSWORK_OWNER
             if WHITEBOARD_NEEDSWORK_OWNER not in stockwell_labels:
                 change_whiteboard = bug_info['whiteboard'] + WHITEBOARD_NEEDSWORK_OWNER
