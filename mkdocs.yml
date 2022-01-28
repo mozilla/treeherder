@@ -42,6 +42,7 @@ nav:
       - Backend tasks: 'backend_tasks.md'
   - Infrastructure:
       - Administration: 'infrastructure/administration.md'
+      - Data Ingestion: 'infrastructure/data_ingestion.md'
       - Troubleshooting: 'infrastructure/troubleshooting.md'
   - Data policies:
       - Accessing data: 'accessing_data.md'

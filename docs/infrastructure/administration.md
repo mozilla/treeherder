@@ -25,9 +25,9 @@ Production deploys are a manual process that is performed by a Treeherder admin 
 
 If a production promotion needs to be reverted, cloudOps can do it (ping whomever is listed as main contact in #treeherder-ops slack channel) or a Treeherder admin can do it in the Jenkins console. Click on the link of a previous commit (far left column) that was deployed to stage and select "rebuild" button on the left side nav.
 
-### Adding or changing scheduled tasks and environment variables
+### Managing scheduled tasks, celery queues and environment variables
 
-Changing either of these involves a kubernetes change; you can either open a pull request with the change to the [cloudops-infra repo](https://github.com/mozilla-services/cloudops-infra) if you have access or file a [bugzilla bug](https://bugzilla.mozilla.org/enter_bug.cgi?product=Cloud%20Services&component=Operations%3A%20Releng) and someone from cloudOps will do it for you.
+Changing any of these involves a kubernetes change; you can either open a pull request with the change to the [cloudops-infra repo](https://github.com/mozilla-services/cloudops-infra) if you have access or file a [bugzilla bug](https://bugzilla.mozilla.org/enter_bug.cgi?product=Cloud%20Services&component=Operations%3A%20Releng) and someone from cloudOps will do it for you.
 
 ## Database Management - cloudOps
 
