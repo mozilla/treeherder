@@ -106,7 +106,7 @@ services:
       context: .
       dockerfile: docker/dev.Dockerfile
     environment:
-      - PULSE_URL=${PULSE_URL:-amqp://docker-shared-user:oGv7P5%H94@pulse.mozilla.org:5671/?ssl=1}
+      - PULSE_URL=${PULSE_URL:-}
       - LOGGING_LEVEL=INFO
       - PULSE_AUTO_DELETE_QUEUES=True
       - DATABASE_URL=mysql://root@mysql:3306/treeherder
