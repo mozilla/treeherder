@@ -1,6 +1,8 @@
 # Infrastructure administration
 
-Treeherder has four apps, and those deployments and their databases are managed by cloudOps:
+Treeherder has four apps, and those deployments and their databases are managed by cloudOps. All deployments, which the exception of treeherder-taskcluster-staging, ingest data from the same
+pulse guardian queues and the environments are mostly the same with a few key differences: production has user generated data from code and performance sheriffs, and the database size is much larger
+than the other deployments and the ingestion is slower.
 
 - [treeherder-prod](https://treeherder.mozilla.org)
 - [treeherder-stage](https://treeherder.allizom.org)
@@ -20,6 +22,15 @@ Production deploys are a manual process that is performed by a Treeherder admin 
 <!-- prettier-ignore -->
 !!! note
     To access treeherder-prod in [Jenkins](https://ops-master.jenkinsv2.prod.mozaws.net/job/gcp-pipelines/job/treeherder/job/treeherder-production/), cloudOps need to grant you access and you'll need to follow [these steps](https://github.com/mozilla-services/cloudops-deployment/#accessing-jenkins) to set it up before the url will work.
+
+### Using Prototype
+
+The `prototype` branch is useful and recommended for testing changes that might impact users - such as schema changes, major rewrites or very large prs, and for modifications to cron jobs or to the data ingestion pipeline. However, it's important to note that any schema changes will need to be reset after testing which might involve having cloudOps manually deleting tables or columns, and potentially modifying the django_migrations table so that it matches the current state of django migration files (in fact, this applies to all deployments).
+
+Access to push to the prototype branch requires special permission and an admin can gratn access in the repository branch settings.
+
+!!! note
+    Ensure all tests pass on the CI as they can block deployment to the prototype instance if any have failed.
 
 ### Reverting deployments
 
