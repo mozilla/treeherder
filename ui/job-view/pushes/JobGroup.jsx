@@ -41,6 +41,11 @@ export class JobGroupComponent extends React.Component {
     this.state = {
       expanded: groupState === 'expanded' || pushGroupState === 'expanded',
     };
+
+    this.jobButtonRefs = {};
+    for (const job of this.props.group.jobs) {
+      this.jobButtonRefs[job.id] = React.createRef();
+    }
   }
 
   static getDerivedStateFromProps(nextProps, state) {
@@ -58,6 +63,14 @@ export class JobGroupComponent extends React.Component {
   toggleExpanded = () => {
     this.setState((prevState) => ({ expanded: !prevState.expanded }));
   };
+
+  toggleAll() {
+    const { toggleSelectedRunnableJob } = this.props;
+    for (const ref of Object.values(this.jobButtonRefs)) {
+      toggleSelectedRunnableJob(ref.current.props.job.signature);
+      ref.current.toggleRunnableSelected();
+    }
+  }
 
   groupButtonsAndCounts(jobs, expanded) {
     const { duplicateJobsVisible, groupCountsExpanded } = this.props;
@@ -125,6 +138,7 @@ export class JobGroupComponent extends React.Component {
         jobs: groupJobs,
         mapKey: groupMapKey,
       },
+      runnableVisible,
     } = this.props;
     const { expanded } = this.state;
     const { buttons, counts } = this.groupButtonsAndCounts(groupJobs, expanded);
@@ -137,6 +151,16 @@ export class JobGroupComponent extends React.Component {
             tier={groupTier}
             toggleExpanded={this.toggleExpanded}
           />
+          {runnableVisible && expanded && (
+            <button
+              className="btn group-select-all-runnable"
+              type="button"
+              title="Select or deselect all jobs in this group"
+              onClick={this.toggleAll.bind(this)}
+            >
+              [All]
+            </button>
+          )}
           <span className="group-content">
             <span className="group-job-list">
               {buttons.map((job) => (
@@ -149,6 +173,7 @@ export class JobGroupComponent extends React.Component {
                   repoName={repoName}
                   filterPlatformCb={filterPlatformCb}
                   key={job.id}
+                  ref={this.jobButtonRefs[job.id]}
                 />
               ))}
             </span>

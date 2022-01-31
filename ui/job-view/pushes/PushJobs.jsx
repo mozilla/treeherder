@@ -40,7 +40,7 @@ class PushJobs extends React.Component {
     const jobInstance = findInstance(ev.target);
     const selectedTaskRun = getUrlParam('selectedTaskRun');
 
-    if (jobInstance && jobInstance.props.job) {
+    if (jobInstance && jobInstance.props && jobInstance.props.job) {
       const { job } = jobInstance.props;
       if (ev.button === 1) {
         // Middle click
@@ -105,6 +105,7 @@ class PushJobs extends React.Component {
       groupCountsExpanded,
       runnableVisible,
       platforms,
+      toggleSelectedRunnableJob,
     } = this.props;
 
     return (
@@ -123,6 +124,7 @@ class PushJobs extends React.Component {
                   duplicateJobsVisible={duplicateJobsVisible}
                   groupCountsExpanded={groupCountsExpanded}
                   runnableVisible={runnableVisible}
+                  toggleSelectedRunnableJob={toggleSelectedRunnableJob}
                 />
               ))
             ) : (
