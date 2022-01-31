@@ -19,7 +19,6 @@ from treeherder.webapp.api import (
     performance_data,
     push,
     refdata,
-    seta,
 )
 
 # router for views that are bound to a project
@@ -34,10 +33,6 @@ project_bound_router.register(
     r'jobs',
     jobs.JobsProjectViewSet,
     basename='jobs',
-)
-
-project_bound_router.register(
-    r'seta/job-priorities', seta.SetaJobPriorityViewSet, basename='seta-job-priorities'
 )
 
 project_bound_router.register(

@@ -47,5 +47,4 @@ nav:
       - Accessing data: 'accessing_data.md'
       - Data retention: 'data_cycling.md'
   - Submitting data: 'submitting_data.md'
-  - SETA: 'seta.md'
   - Manual test cases: 'testcases.md'

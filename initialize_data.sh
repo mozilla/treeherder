@@ -10,8 +10,6 @@ if [ "${DATABASE_URL}" == "mysql://root@mysql/treeherder" ] ||
     echo '-----> Running Django migrations and loading reference data'
     ./manage.py migrate --noinput
     ./manage.py load_initial_data
-    echo '-----> Initialize SETA'
-    ./manage.py initialize_seta
 fi
 
 exec "$@"
