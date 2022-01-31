@@ -5,16 +5,9 @@ import { faSpinner } from '@fortawesome/free-solid-svg-icons';
 
 import { thBugSuggestionLimit, thEvents } from '../../../helpers/constants';
 import { getResultState, isReftest } from '../../../helpers/job';
-import {
-  getBugUrl,
-  getLogViewerUrl,
-  getReftestUrl,
-  textLogErrorsEndpoint,
-} from '../../../helpers/url';
+import { getBugUrl, getReftestUrl } from '../../../helpers/url';
 import BugFiler from '../../BugFiler';
 import BugSuggestionsModel from '../../../models/bugSuggestions';
-import { getData } from '../../../helpers/http';
-import { getProjectJobUrl } from '../../../helpers/location';
 
 import ErrorsList from './ErrorsList';
 import ListItem from './ListItem';
@@ -74,7 +67,7 @@ class FailureSummaryTab extends React.Component {
   };
 
   loadBugSuggestions = () => {
-    const { repoName, selectedJob } = this.props;
+    const { selectedJob } = this.props;
 
     if (!selectedJob) {
       return;
@@ -95,27 +88,6 @@ class FailureSummaryTab extends React.Component {
           // relevant all_others bugs, so don't show them either.
           !suggestion.bugs.too_many_open_recent;
       });
-
-      // if we have no bug suggestions, populate with the raw errors from
-      // the log (we can do this asynchronously, it should normally be
-      // fast)
-      if (!suggestions.length) {
-        const { data, failureStatus } = await getData(
-          getProjectJobUrl(textLogErrorsEndpoint, selectedJob.id),
-        );
-        if (!failureStatus && data.length) {
-          const errors = data.map((error) => ({
-            line: error.line,
-            line_number: error.line_number,
-            logViewerUrl: getLogViewerUrl(
-              selectedJob.id,
-              repoName,
-              error.line_number,
-            ),
-          }));
-          this.setState({ errors });
-        }
-      }
 
       this.setState({ bugSuggestionsLoading: false, suggestions }, () => {
         const scrollArea = document.querySelector(
