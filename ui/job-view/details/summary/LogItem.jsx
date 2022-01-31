@@ -21,8 +21,9 @@ function getLogUrlProps(logKey, logUrl, logViewerUrl, logViewerFullUrl) {
   switch (logUrl.parse_status) {
     case 'parsed':
       return {
-        target: '_blank',
-        rel: 'noopener',
+        target: `log-${logKey}-${logUrl.id}-${Math.round(
+          Math.random() * 10 ** 9,
+        )}`,
         href: logViewerUrl,
         'copy-value': logViewerFullUrl,
         title: 'Open the log viewer in a new window',

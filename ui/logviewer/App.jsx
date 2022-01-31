@@ -202,6 +202,31 @@ class App extends React.PureComponent {
     }
   };
 
+  copySelectedLogToBugFiler = () => {
+    let selectedLogText;
+    if (
+      document
+        .querySelector('.log-contents')
+        .contains(window.getSelection().anchorNode) &&
+      window.getSelection().toString().trim()
+    ) {
+      // Use selection
+      selectedLogText = window.getSelection().toString().trim();
+    }
+
+    const descriptionField = window.opener.document.getElementById(
+      'summary-input',
+    );
+    const startPos = descriptionField.selectionStart;
+    const endPos = descriptionField.selectionEnd;
+    descriptionField.value =
+      descriptionField.value.substring(0, startPos) +
+      selectedLogText +
+      descriptionField.value.substring(endPos, descriptionField.value.length);
+    descriptionField.selectionStart = startPos + selectedLogText.length;
+    descriptionField.selectionEnd = startPos + selectedLogText.length;
+  };
+
   collapseJobDetails = () => {
     const { collapseDetails } = this.state;
 
@@ -299,6 +324,7 @@ class App extends React.PureComponent {
           jobUrl={jobUrl}
           collapseDetails={collapseDetails}
           collapseJobDetails={this.collapseJobDetails}
+          copySelectedLogToBugFiler={this.copySelectedLogToBugFiler}
         />
         {job && (
           <div className="d-flex flex-column flex-fill">

@@ -21,6 +21,7 @@ export default class Navigation extends React.PureComponent {
       reftestUrl,
       collapseDetails,
       collapseJobDetails,
+      copySelectedLogToBugFiler,
     } = this.props;
     const resultStatusShading = getShadingClass(result);
 
@@ -94,6 +95,15 @@ export default class Navigation extends React.PureComponent {
                 </a>
               </span>
             )}
+            <span>
+              <Button
+                className="nav-link btn-view-nav"
+                data-testid="log-lines-to-bug-filer"
+                onClick={copySelectedLogToBugFiler}
+              >
+                Selected lines to bug filer
+              </Button>
+            </span>
             <span>
               <Button
                 className="nav-link btn-view-nav"
