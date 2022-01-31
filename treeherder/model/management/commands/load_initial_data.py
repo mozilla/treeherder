@@ -16,4 +16,3 @@ class Command(BaseCommand):
             'performance_bug_templates',
             'performance_tag',
         )
-        call_command('load_preseed')

@@ -679,7 +679,7 @@
     },
     {
       "context": [],
-      "description": "Run tests in the selected push that were optimized away, usually by SETA.\nThis action is for use on pushes that will be merged into another branch,to check that optimization hasn't hidden any failures.",
+      "description": "Run tests in the selected push that were optimized away.\nThis action is for use on pushes that will be merged into another branch, to check that optimization hasn't hidden any failures.",
       "extra": {
         "actionPerm": "generic"
       },
@@ -689,7 +689,7 @@
         "decision": {
           "action": {
             "cb_name": "run-missing-tests",
-            "description": "Run tests in the selected push that were optimized away, usually by SETA.\nThis action is for use on pushes that will be merged into another branch,to check that optimization hasn't hidden any failures.",
+            "description": "Run tests in the selected push that were optimized away.\nThis action is for use on pushes that will be merged into another branch, to check that optimization hasn't hidden any failures.",
             "name": "run-missing-tests",
             "symbol": "rmt",
             "taskGroupId": "f7Jj_h6MTEKr5Ln_7aFqbw",

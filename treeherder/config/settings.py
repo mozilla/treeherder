@@ -77,7 +77,6 @@ INSTALLED_APPS = [
     'treeherder.log_parser',
     'treeherder.etl',
     'treeherder.perf',
-    'treeherder.seta',
     'treeherder.intermittents_commenter',
     'treeherder.changelog',
 ]
@@ -320,7 +319,6 @@ CELERY_TASK_QUEUES = [
     Queue('generate_perf_alerts', Exchange('default'), routing_key='generate_perf_alerts'),
     Queue('store_pulse_tasks', Exchange('default'), routing_key='store_pulse_tasks'),
     Queue('store_pulse_pushes', Exchange('default'), routing_key='store_pulse_pushes'),
-    Queue('seta_analyze_failures', Exchange('default'), routing_key='seta_analyze_failures'),
 ]
 
 # Force all queues to be explicitly listed in `CELERY_TASK_QUEUES` to help prevent typos
@@ -364,12 +362,6 @@ CELERY_BEAT_SCHEDULE = {
         'schedule': timedelta(minutes=5),
         'relative': True,
         'options': {"queue": "pushlog"},
-    },
-    'seta-analyze-failures': {
-        'task': 'seta-analyze-failures',
-        'schedule': timedelta(days=1),
-        'relative': True,
-        'options': {'queue': "seta_analyze_failures"},
     },
 }
 
