@@ -81,16 +81,18 @@ export default class StatusDropdown extends React.Component {
     const curDate = new Date(createdAt.getTime());
     const sunday = 0;
     const saturday = 6;
-    // sud mon
+
+    curDate.setHours(0, 0, 0, 0);
+    dueDate.setHours(0, 0, 0, 0);
+
     if (curDate.getDay() === sunday) {
       return 1;
     }
-    // sat mon
+
     if (curDate.getDay() === saturday) {
       return 2;
     }
 
-    // mon
     if (dueDate.getDay() === saturday || dueDate.getDay === sunday) {
       return 2;
     }
@@ -252,9 +254,9 @@ export default class StatusDropdown extends React.Component {
     (alertStatus !== status && this.isResolved(alertStatus));
 
   calculateDueDate(created) {
-    const createdAt = new Date(created); // monday
+    const createdAt = new Date(created);
     const dueDate = new Date(created);
-    dueDate.setDate(dueDate.getDate() + 2); // wed
+    dueDate.setDate(dueDate.getDate() + 3);
     const numberOfNonWorkingDays = this.getNumberOfNonWorkingDays(
       createdAt,
       dueDate,
@@ -272,22 +274,16 @@ export default class StatusDropdown extends React.Component {
   renderDueDateCountdown(createdAt) {
     const now = new Date(Date.now());
     const dueDate = this.calculateDueDate(createdAt);
-    // const created = new Date(createdAt);
-    const overdueDate = new Date(dueDate);
-    // const differenceInTime = Math.abs(dueDate.getTime() - now.getTime());
-    // const differenceInDays = Math.ceil(differenceInTime / (1000 * 3600 * 24));
 
-    const differenceInDays = dueDate - now;
-    const day = Math.ceil((differenceInDays / 86400000) % 30);
+    const diffTime = Math.abs(dueDate - now);
+    const day = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
 
-    overdueDate.setDate(overdueDate.getDate() + 1);
-
-    if (now.getTime() >= overdueDate.getTime()) {
-      return 'Overdue';
+    if (now.getDate() === dueDate.getDate()) {
+      return 'Today';
     }
 
     if (now.getTime() >= dueDate.getTime()) {
-      return 'Today';
+      return 'Overdue';
     }
 
     return `${day} working days`;
