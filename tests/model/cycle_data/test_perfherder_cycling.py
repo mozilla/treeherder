@@ -704,7 +704,7 @@ def test_one_month_worth_of_data_points(
         )
         perf_data.append(data)
 
-    timestamp += timedelta(days=30)
+    timestamp += timedelta(days=31)
     data = PerformanceDatum.objects.create(
         repository=stalled_signature.repository,
         push=push,
