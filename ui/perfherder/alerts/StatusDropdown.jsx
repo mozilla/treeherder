@@ -52,6 +52,8 @@ export default class StatusDropdown extends React.Component {
         this.props.frameworks,
       ),
     };
+
+    this.isDueDateInWeekend = false;
   }
 
   getCulpritDetails = async (culpritId) => {
@@ -94,6 +96,7 @@ export default class StatusDropdown extends React.Component {
     }
 
     if (dueDate.getDay() === saturday || dueDate.getDay === sunday) {
+      this.isDueDateInWeekend = true;
       return 2;
     }
 
@@ -284,6 +287,10 @@ export default class StatusDropdown extends React.Component {
 
     if (now.getTime() >= dueDate.getTime()) {
       return 'Overdue';
+    }
+
+    if (this.isDueDateInWeekend) {
+      return `${day - 2} working days`;
     }
 
     return `${day} working days`;
