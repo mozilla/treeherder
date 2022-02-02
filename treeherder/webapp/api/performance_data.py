@@ -5,7 +5,7 @@ from collections import defaultdict
 import django_filters
 from django.conf import settings
 from django.db import transaction
-from django.db.models import CharField, Count, Q, Subquery, Value
+from django.db.models import CharField, Count, Q, Subquery, Value, Case, When
 from django.db.models.functions import Concat
 from rest_framework import exceptions, filters, generics, pagination, viewsets
 from rest_framework.response import Response
@@ -749,7 +749,11 @@ class TestSuiteHealthViewSet(viewsets.ViewSet):
             .annotate(repositories=GroupConcat('repository_id', distinct=True))
             .annotate(platforms=GroupConcat('platform_id', distinct=True))
             .annotate(total_alerts=Count('performancealert'))
-            .annotate(total_regressions=Count('performancealert__is_regression'))
+            .annotate(
+                total_regressions=Count(
+                    Case(When(performancealert__is_regression=1, then=Value(1)))
+                )
+            )
             .order_by('suite', 'test')
         )
 
