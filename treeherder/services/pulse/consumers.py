@@ -167,6 +167,26 @@ class TaskConsumer(PulseConsumer):
         message.ack()
 
 
+class MozciClassificationConsumer(PulseConsumer):
+    queue_suffix = env("PULSE_MOZCI_CLASSIFICATION_QUEUE_NAME", default="tasksclassification")
+
+    def bindings(self):
+        return MOZCI_CLASSIFICATION_BINDINGS
+
+    @newrelic.agent.background_task(
+        name='pulse-listener-tasks-classification.on_message', group='Pulse Listener'
+    )
+    def on_message(self, body, message):
+        exchange = message.delivery_info['exchange']
+        routing_key = message.delivery_info['routing_key']
+        logger.debug('received mozci classification job message from %s#%s', exchange, routing_key)
+        store_pulse_tasks_classification.apply_async(
+            args=[body, exchange, routing_key, self.root_url],
+            queue='store_pulse_tasks_classification',
+        )
+        message.ack()
+
+
 class PushConsumer(PulseConsumer):
     queue_suffix = env("PULSE_RESULSETS_QUEUE_NAME", default="resultsets")
 
