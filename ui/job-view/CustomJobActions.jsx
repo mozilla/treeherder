@@ -131,7 +131,7 @@ class CustomJobActions extends React.PureComponent {
     let input = null;
     if (validate && payload) {
       try {
-        input = jsyaml.safeLoad(payload);
+        input = jsyaml.load(payload);
       } catch (e) {
         this.setState({ triggering: false });
         notify(`YAML Error: ${e.message}`, 'danger');
