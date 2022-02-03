@@ -190,3 +190,5 @@ export const noiseProfiles = {
   OK: 'Noise Profile: No issues were found.',
   NA: 'Noise Profile: Could not compute a noise profile.',
 };
+
+export const timeToTriage = 3;

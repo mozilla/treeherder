@@ -28,7 +28,7 @@ import {
   createQueryParams,
   bugzillaBugsApi,
 } from '../../helpers/url';
-import { summaryStatusMap } from '../perf-helpers/constants';
+import { timeToTriage, summaryStatusMap } from '../perf-helpers/constants';
 import DropdownMenuItems from '../../shared/DropdownMenuItems';
 import FilterAlertsWithVideos from '../../models/filterAlertsWithVideos';
 
@@ -78,43 +78,37 @@ export default class StatusDropdown extends React.Component {
     };
   };
 
-  getNumberOfNonWorkingDays(createdAt, dueDate) {
-    let count = 0;
-    const curDate = new Date(createdAt.getTime());
-    const sunday = 0;
+  getNumberOfWeekendDays(createdAt, dueDate) {
+    const createdDate = new Date(createdAt.getTime());
+    const friday = 5;
     const saturday = 6;
+    const sunday = 0;
+    const createdDay = createdDate.getDay();
+    const dueDateDay = dueDate.getDay();
 
-    curDate.setHours(0, 0, 0, 0);
+    // this sets the hour for both day created and due date to 00:00
+    // in order to have a full day availabe with the status "Today" to work on the alert
+    createdDate.setHours(0, 0, 0, 0);
     dueDate.setHours(0, 0, 0, 0);
 
-    if (curDate.getDay() === sunday) {
+    if (createdDay === sunday) {
       return 1;
     }
 
-    if (curDate.getDay() === saturday) {
+    if (createdDay === saturday) {
       return 2;
     }
 
-    if (dueDate.getDay() === saturday || dueDate.getDay === sunday) {
+    if (
+      dueDateDay === saturday ||
+      dueDateDay === sunday ||
+      createdDay === friday
+    ) {
       this.isWeekend = true;
       return 2;
     }
 
-    while (curDate <= dueDate) {
-      const dayOfWeek = curDate.getDay();
-
-      if (dayOfWeek === sunday || dayOfWeek === saturday) {
-        count++;
-      }
-
-      curDate.setDate(curDate.getDate() + 1);
-    }
-
-    if (count >= 2) {
-      this.isWeekend = true;
-    }
-
-    return count;
+    return 0;
   }
 
   fileBug = async (culpritId) => {
@@ -263,35 +257,27 @@ export default class StatusDropdown extends React.Component {
   calculateDueDate(created) {
     const createdAt = new Date(created);
     const dueDate = new Date(created);
-    dueDate.setDate(dueDate.getDate() + 3);
-    const numberOfNonWorkingDays = this.getNumberOfNonWorkingDays(
+    dueDate.setDate(dueDate.getDate() + timeToTriage);
+    const numberOfNonWorkingDays = this.getNumberOfWeekendDays(
       createdAt,
       dueDate,
     );
 
-    dueDate.setDate(
-      numberOfNonWorkingDays !== 0
-        ? dueDate.getDate() + numberOfNonWorkingDays
-        : dueDate.getDate(),
-    );
+    if (numberOfNonWorkingDays !== 0) {
+      dueDate.setDate(dueDate.getDate() + numberOfNonWorkingDays);
+    }
 
     return dueDate;
   }
 
-  renderDueDateCountdown(createdAt) {
+  displayDueDateCountdown(createdAt) {
     const now = new Date(Date.now());
     const dueDate = this.calculateDueDate(createdAt);
 
-    // const created = new Date(createdAt);
-
-    // console.log('---------');
-    // console.log(created, 'day created');
-    // console.log(now, 'date now');
-    // console.log(dueDate, 'dueDate');
-    // console.log('---------');
-
-    const diffTime = Math.abs(dueDate - now);
-    const day = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+    const differenceInTime = Math.abs(dueDate - now);
+    const differenceInDays = Math.ceil(
+      differenceInTime / (1000 * 60 * 60 * 24),
+    );
 
     if (now.getDate() === dueDate.getDate()) {
       return 'Today';
@@ -302,10 +288,10 @@ export default class StatusDropdown extends React.Component {
     }
 
     if (this.isWeekend) {
-      return `${day - 2} working days`;
+      return `Working days left: ${differenceInDays - 2}`;
     }
 
-    return `${day} working days`;
+    return `Working days left: ${differenceInDays}`;
   }
 
   render() {
@@ -321,12 +307,12 @@ export default class StatusDropdown extends React.Component {
     const alertStatus = getStatus(alertSummary.status);
     const alertSummaryActiveTags = alertSummary.performance_tags || [];
 
-    const dueDate = this.renderDueDateCountdown(alertSummary.created);
+    const dueDateStatus = this.displayDueDateCountdown(alertSummary.created);
 
     let dueDateClass = 'due-date-ok';
-    if (dueDate === 'Overdue') {
+    if (dueDateStatus === 'Overdue') {
       dueDateClass = 'due-date-overdue';
-    } else if (dueDate === 'Today') {
+    } else if (dueDateStatus === 'Today') {
       dueDateClass = 'due-date-today';
     }
 
@@ -520,7 +506,7 @@ export default class StatusDropdown extends React.Component {
                     tooltipText={
                       <div>
                         <h5>Triage due date:</h5>
-                        {dueDate}
+                        {dueDateStatus}
                       </div>
                     }
                   />
