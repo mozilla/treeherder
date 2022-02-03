@@ -53,7 +53,7 @@ export default class StatusDropdown extends React.Component {
       ),
     };
 
-    this.isDueDateInWeekend = false;
+    this.isWeekend = false;
   }
 
   getCulpritDetails = async (culpritId) => {
@@ -96,7 +96,7 @@ export default class StatusDropdown extends React.Component {
     }
 
     if (dueDate.getDay() === saturday || dueDate.getDay === sunday) {
-      this.isDueDateInWeekend = true;
+      this.isWeekend = true;
       return 2;
     }
 
@@ -108,6 +108,10 @@ export default class StatusDropdown extends React.Component {
       }
 
       curDate.setDate(curDate.getDate() + 1);
+    }
+
+    if (count >= 2) {
+      this.isWeekend = true;
     }
 
     return count;
@@ -278,6 +282,14 @@ export default class StatusDropdown extends React.Component {
     const now = new Date(Date.now());
     const dueDate = this.calculateDueDate(createdAt);
 
+    // const created = new Date(createdAt);
+
+    // console.log('---------');
+    // console.log(created, 'day created');
+    // console.log(now, 'date now');
+    // console.log(dueDate, 'dueDate');
+    // console.log('---------');
+
     const diffTime = Math.abs(dueDate - now);
     const day = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
 
@@ -289,7 +301,7 @@ export default class StatusDropdown extends React.Component {
       return 'Overdue';
     }
 
-    if (this.isDueDateInWeekend) {
+    if (this.isWeekend) {
       return `${day - 2} working days`;
     }
 
