@@ -67,6 +67,19 @@ class AuthBackend:
         # https://openid.net/specs/openid-connect-core-1_0.html#IDToken
         return user_info['exp']
 
+    def _get_is_sheriff_from_userinfo(self, user_info):
+        """
+        Set users in sheriffing group in jwt response as is_staff
+        """
+
+        groups = (
+            user_info['https://sso.mozilla.com/claim/groups']
+            if 'https://sso.mozilla.com/claim/groups' in user_info
+            else []
+        )
+
+        return 1 if ('sheriff' in groups or 'perf_sheriff' in groups) else 0
+
     def _get_username_from_userinfo(self, user_info):
         """
         Get the user's username from the jwt sub property
@@ -187,18 +200,25 @@ class AuthBackend:
 
         user_info = self._get_user_info(access_token, id_token)
         username = self._get_username_from_userinfo(user_info)
+        is_sheriff = self._get_is_sheriff_from_userinfo(user_info)
 
         seconds_until_expiry = self._calculate_session_expiry(request, user_info)
         logger.debug('Updating session to expire in %i seconds', seconds_until_expiry)
         request.session.set_expiry(seconds_until_expiry)
 
         try:
-            return User.objects.get(username=username)
+            user = User.objects.get(username=username)
+            if user.is_staff != is_sheriff:
+                user.is_staff = is_sheriff
+                user.save()
+            return user
         except ObjectDoesNotExist:
             # The user doesn't already exist, so create it since we allow
             # anyone with SSO access to create an account on Treeherder.
             logger.debug('Creating new user: %s', username)
-            return User.objects.create_user(username, email=user_info['email'])
+            return User.objects.create_user(
+                username, email=user_info['email'], password=None, is_staff=is_sheriff
+            )
 
     def get_user(self, user_id):
         try:
