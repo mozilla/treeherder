@@ -27,10 +27,10 @@ Production deploys are a manual process that is performed by a Treeherder admin 
 
 The `prototype` branch is useful and recommended for testing changes that might impact users - such as schema changes, major rewrites or very large prs, and for modifications to cron jobs or to the data ingestion pipeline. However, it's important to note that any schema changes will need to be reset after testing which might involve having cloudOps manually deleting tables or columns, and potentially modifying the django_migrations table so that it matches the current state of django migration files (in fact, this applies to all deployments).
 
-Access to push to the prototype branch requires special permission and an admin can gratn access in the repository branch settings.
+Access to push to the prototype branch requires special permission and an admin can grant access in the repository branch settings.
 
 !!! note
-    Ensure all tests pass on the CI as they can block deployment to the prototype instance if any have failed.
+    Failed tests that have run on the CI will *not* block deployment to the prototype instance.
 
 ### Reverting deployments
 
