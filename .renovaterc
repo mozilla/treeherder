@@ -14,7 +14,7 @@
     "@uirouter/angularjs"
   ],
   "labels": ["dependencies", "javascript"],
-  "reviewers": ["sarah-clements"],
+  "reviewers": ["mozilla/treeherder-admins"],
   "semanticCommits": false,
   "minor": {
     "enabled": false
