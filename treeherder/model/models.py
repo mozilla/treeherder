@@ -1429,3 +1429,28 @@ class InvestigatedTests(models.Model):
     class Meta:
         unique_together = ["job_type", "test", "push"]
         db_table = 'investigated_tests'
+
+
+class MozciClassification(models.Model):
+    """
+    Automated classification of a Push provided by mozci
+    """
+
+    BAD = 'BAD'
+    GOOD = 'GOOD'
+    UNKNOWN = 'UNKNOWN'
+
+    CLASSIFICATION_RESULT = (
+        (BAD, 'bad'),
+        (GOOD, 'good'),
+        (UNKNOWN, 'unknown'),
+    )
+
+    id = models.BigAutoField(primary_key=True)
+    push = models.ForeignKey(Push, on_delete=models.CASCADE)
+    result = models.CharField(max_length=7, choices=CLASSIFICATION_RESULT)
+    created = models.DateTimeField(default=timezone.now)
+    task_id = models.CharField(max_length=22, validators=[MinLengthValidator(22)])
+
+    class Meta:
+        db_table = 'mozci_classification'

@@ -21,18 +21,20 @@ elif [ "$1" == "celery_scheduler" ]; then
 
 # Push/job data is consumed from exchanges on pulse.mozilla.org using these kombu-powered
 # Django management commands. They do not ingest the data themselves, instead adding tasks
-# to the `store_pulse_{pushes,jobs}` queues for `worker_store_pulse_data` to process.
+# to the `store_pulse_{pushes,tasks,tasks_classification}` queues for `worker_store_pulse_data` to process.
 # NB: These should not be scaled up to more than 1 of each.
 # TODO: Merge these two listeners into one since they use so little CPU each (bug 1530965).
 elif [ "$1" == "pulse_listener_pushes" ]; then
     exec newrelic-admin run-program ./manage.py pulse_listener_pushes
 elif [ "$1" == "pulse_listener_tasks" ]; then
     exec newrelic-admin run-program ./manage.py pulse_listener_tasks
+elif [ "$1" == "pulse_listener_tasks_classification" ]; then
+    exec newrelic-admin run-program ./manage.py pulse_listener_tasks_classification
 
-# Processes pushes/jobs from Pulse that were collected by `pulse_listener_{pushes,tasks}`.
+# Processes pushes/jobs from Pulse that were collected by `pulse_listener_{pushes,tasks,tasks_classification}`.
 elif [ "$1" == "worker_store_pulse_data" ]; then
     export REMAP_SIGTERM=SIGQUIT
-    exec newrelic-admin run-program celery worker -A treeherder --without-gossip --without-mingle --without-heartbeat -Q store_pulse_pushes,store_pulse_tasks --concurrency=3
+    exec newrelic-admin run-program celery worker -A treeherder --without-gossip --without-mingle --without-heartbeat -Q store_pulse_pushes,store_pulse_tasks,store_pulse_tasks_classification --concurrency=3
 
 # Handles the log parsing tasks scheduled by `worker_store_pulse_data` as part of job ingestion.
 elif [ "$1" == "worker_log_parser" ]; then

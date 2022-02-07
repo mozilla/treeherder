@@ -8,7 +8,11 @@ from django.conf import settings
 from kombu import Connection, Exchange, Queue
 from kombu.mixins import ConsumerMixin
 
-from treeherder.etl.tasks.pulse_tasks import store_pulse_pushes, store_pulse_tasks
+from treeherder.etl.tasks.pulse_tasks import (
+    store_pulse_pushes,
+    store_pulse_tasks,
+    store_pulse_tasks_classification,
+)
 from treeherder.utils.http import fetch_json
 
 from .exchange import get_exchange
@@ -38,6 +42,10 @@ HGMO_PUSH_BINDINGS = [
     "exchange/hgpushes/v1.#",
 ]
 
+MOZCI_CLASSIFICATION_BINDINGS = [
+    "exchange/taskcluster-queue/v1/task-completed.route.index.project.mozci.classification.#",
+]
+
 
 class PulseConsumer(ConsumerMixin):
     """
@@ -45,7 +53,7 @@ class PulseConsumer(ConsumerMixin):
     """
 
     def __init__(self, source, build_routing_key):
-        self.connection = Connection(source['pulse_url'])
+        self.connection = Connection(source['pulse_url'], virtual_host=source.get('vhost', '/'))
         self.consumers = []
         self.queue = None
         self.queue_name = "queue/{}/{}".format(self.connection.userid, self.queue_suffix)
@@ -159,6 +167,26 @@ class TaskConsumer(PulseConsumer):
         message.ack()
 
 
+class MozciClassificationConsumer(PulseConsumer):
+    queue_suffix = env("PULSE_MOZCI_CLASSIFICATION_QUEUE_NAME", default="tasksclassification")
+
+    def bindings(self):
+        return MOZCI_CLASSIFICATION_BINDINGS
+
+    @newrelic.agent.background_task(
+        name='pulse-listener-tasks-classification.on_message', group='Pulse Listener'
+    )
+    def on_message(self, body, message):
+        exchange = message.delivery_info['exchange']
+        routing_key = message.delivery_info['routing_key']
+        logger.debug('received mozci classification job message from %s#%s', exchange, routing_key)
+        store_pulse_tasks_classification.apply_async(
+            args=[body, exchange, routing_key, self.root_url],
+            queue='store_pulse_tasks_classification',
+        )
+        message.ack()
+
+
 class PushConsumer(PulseConsumer):
     queue_suffix = env("PULSE_RESULSETS_QUEUE_NAME", default="resultsets")
 
@@ -199,6 +227,8 @@ class JointConsumer(PulseConsumer):
             rv += GITHUB_PUSH_BINDINGS
         if self.source.get('tasks'):
             rv += TASKCLUSTER_TASK_BINDINGS
+        if self.source.get('mozci-classification'):
+            rv += MOZCI_CLASSIFICATION_BINDINGS
         return rv
 
     @newrelic.agent.background_task(name='pulse-joint-listener.on_message', group='Pulse Listener')
@@ -210,6 +240,11 @@ class JointConsumer(PulseConsumer):
             store_pulse_tasks.apply_async(
                 args=[body, exchange, routing_key, self.root_url], queue='store_pulse_tasks'
             )
+            if 'task-completed' in exchange and '.proj-mozci.' in routing_key:
+                store_pulse_tasks_classification.apply_async(
+                    args=[body, exchange, routing_key, self.root_url],
+                    queue='store_pulse_tasks_classification',
+                )
         else:
             store_pulse_pushes.apply_async(
                 args=[body, exchange, routing_key, self.root_url], queue='store_pulse_pushes'

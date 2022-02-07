@@ -318,6 +318,11 @@ CELERY_TASK_QUEUES = [
     Queue('pushlog', Exchange('default'), routing_key='pushlog'),
     Queue('generate_perf_alerts', Exchange('default'), routing_key='generate_perf_alerts'),
     Queue('store_pulse_tasks', Exchange('default'), routing_key='store_pulse_tasks'),
+    Queue(
+        'store_pulse_tasks_classification',
+        Exchange('default'),
+        routing_key='store_pulse_tasks_classification',
+    ),
     Queue('store_pulse_pushes', Exchange('default'), routing_key='store_pulse_pushes'),
 ]
 

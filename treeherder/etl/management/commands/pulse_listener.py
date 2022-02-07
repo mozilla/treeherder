@@ -26,11 +26,18 @@ class Command(BaseCommand):
             default=[
                 {
                     "root_url": "https://firefox-ci-tc.services.mozilla.com",
+                    "vhost": "/",
                     "github": True,
                     "hgmo": True,
                     "pulse_url": env("PULSE_URL"),
                     "tasks": True,
-                }
+                },
+                {
+                    "root_url": "https://community-tc.services.mozilla.com",
+                    "vhost": "communitytc",
+                    "mozci-classification": True,
+                    "pulse_url": env("PULSE_URL"),
+                },
             ],
         )
 
