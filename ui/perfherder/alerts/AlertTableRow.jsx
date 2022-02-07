@@ -207,7 +207,7 @@ export default class AlertTableRow extends React.Component {
       statusColor = 'text-danger';
     }
     if (alertStatus === 'untriaged') {
-      statusColor = 'text-success';
+      statusColor = 'text-warning';
     }
     if (
       alertStatus === 'invalid' ||
