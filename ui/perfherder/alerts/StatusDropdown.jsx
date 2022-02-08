@@ -255,8 +255,6 @@ export default class StatusDropdown extends React.Component {
     (alertStatus !== status && this.isResolved(alertStatus));
 
   calculateDueDate(created) {
-    console.log(created);
-
     const createdAt = new Date(created);
     const dueDate = new Date(created);
     dueDate.setDate(dueDate.getDate() + timeToTriage);
@@ -269,7 +267,6 @@ export default class StatusDropdown extends React.Component {
       dueDate.setDate(dueDate.getDate() + numberOfNonWorkingDays);
     }
 
-    console.log(dueDate, 'due date');
     return dueDate;
   }
 
