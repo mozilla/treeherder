@@ -40,7 +40,7 @@ def parse_logs(job_id, job_log_ids, priority):
     completed_names = set()
     for job_log in job_logs:
         newrelic.agent.add_custom_parameter("job_log_%s_url" % job_log.name, job_log.url)
-        logger.debug("parser_task for %s", job_log.id)
+        logger.info("parser_task for %s", job_log.id)
 
         # Only parse logs which haven't yet been processed or else failed on the last attempt.
         if job_log.status not in (JobLog.PENDING, JobLog.FAILED):
@@ -79,13 +79,13 @@ def parse_logs(job_id, job_log_ids, priority):
 def store_failure_lines(job_log):
     """Store the failure lines from a log corresponding to the structured
     errorsummary file."""
-    logger.debug('Running store_failure_lines for job %s', job_log.job.id)
+    logger.info('Running store_failure_lines for job %s', job_log.job.id)
     failureline.store_failure_lines(job_log)
 
 
 def post_log_artifacts(job_log):
     """Post a list of artifacts to a job."""
-    logger.debug("Downloading/parsing log for log %s", job_log.id)
+    logger.info("Downloading/parsing log for log %s", job_log.id)
 
     try:
         artifact_list = extract_text_log_artifacts(job_log)
@@ -111,7 +111,7 @@ def post_log_artifacts(job_log):
         serialized_artifacts = serialize_artifact_json_blobs(artifact_list)
         store_job_artifacts(serialized_artifacts)
         job_log.update_status(JobLog.PARSED)
-        logger.debug("Stored artifact for %s %s", job_log.job.repository.name, job_log.job.id)
+        logger.info("Stored artifact for %s %s", job_log.job.repository.name, job_log.job.id)
     except Exception as e:
         logger.error("Failed to store parsed artifact for %s: %s", job_log.id, e)
         raise
