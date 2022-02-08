@@ -1,6 +1,8 @@
 # Infrastructure administration
 
-Treeherder has four apps, and those deployments and their databases are managed by cloudOps:
+Treeherder has four apps, and those deployments and their databases are managed by cloudOps. All deployments, which the exception of treeherder-taskcluster-staging, ingest data from the same
+pulse guardian queues and the environments are mostly the same with a few key differences: production has user generated data from code and performance sheriffs, and the database size is much larger
+than the other deployments and the ingestion is slower.
 
 - [treeherder-prod](https://treeherder.mozilla.org)
 - [treeherder-stage](https://treeherder.allizom.org)
@@ -21,13 +23,22 @@ Production deploys are a manual process that is performed by a Treeherder admin 
 !!! note
     To access treeherder-prod in [Jenkins](https://ops-master.jenkinsv2.prod.mozaws.net/job/gcp-pipelines/job/treeherder/job/treeherder-production/), cloudOps need to grant you access and you'll need to follow [these steps](https://github.com/mozilla-services/cloudops-deployment/#accessing-jenkins) to set it up before the url will work.
 
+### Using Prototype
+
+The `prototype` branch is useful and recommended for testing changes that might impact users - such as schema changes, major rewrites or very large prs, and for modifications to cron jobs or to the data ingestion pipeline. However, it's important to note that any schema changes will need to be reset after testing which might involve having cloudOps manually deleting tables or columns, and potentially modifying the django_migrations table so that it matches the current state of django migration files (in fact, this applies to all deployments).
+
+Access to push to the prototype branch requires special permission and an admin can grant access in the repository branch settings.
+
+!!! note
+    Failed tests that have run on the CI will *not* block deployment to the prototype instance.
+
 ### Reverting deployments
 
 If a production promotion needs to be reverted, cloudOps can do it (ping whomever is listed as main contact in #treeherder-ops slack channel) or a Treeherder admin can do it in the Jenkins console. Click on the link of a previous commit (far left column) that was deployed to stage and select "rebuild" button on the left side nav.
 
-### Adding or changing scheduled tasks and environment variables
+### Managing scheduled tasks, celery queues and environment variables
 
-Changing either of these involves a kubernetes change; you can either open a pull request with the change to the [cloudops-infra repo](https://github.com/mozilla-services/cloudops-infra) if you have access or file a [bugzilla bug](https://bugzilla.mozilla.org/enter_bug.cgi?product=Cloud%20Services&component=Operations%3A%20Releng) and someone from cloudOps will do it for you.
+Changing any of these involves a kubernetes change; you can either open a pull request with the change to the [cloudops-infra repo](https://github.com/mozilla-services/cloudops-infra) if you have access or file a [bugzilla bug](https://bugzilla.mozilla.org/enter_bug.cgi?product=Cloud%20Services&component=Operations%3A%20Releng) and someone from cloudOps will do it for you.
 
 ## Database Management - cloudOps
 
