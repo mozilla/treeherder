@@ -7,7 +7,7 @@ import repos from '../../mock/repositories';
 import StatusDropdown from '../../../../ui/perfherder/alerts/StatusDropdown';
 import issueTrackers from '../../../../treeherder/perf/fixtures/issue_tracker';
 
-const testAlertSummary = testAlertSummaries[0];
+let testAlertSummary = testAlertSummaries[0];
 const testAlerts = testAlertSummary.alerts;
 const testRepoModel = repos[2];
 
@@ -25,8 +25,12 @@ const testIssueTrackers = issueTrackers.map((issue) => ({
   text: issue.fields.task_base_url,
 }));
 
-const testStatusDropdown = (summaryTags) => {
+const testStatusDropdown = (summaryTags, alertSummary) => {
   testAlertSummary.performance_tags = summaryTags;
+
+  if (alertSummary) {
+    testAlertSummary = alertSummary;
+  }
 
   return render(
     <StatusDropdown
@@ -86,13 +90,211 @@ test("Tags modal opens from 'Edit tags'", async () => {
   expect(modal).toBeInTheDocument();
 });
 
-// test.only('Check for triage due date render', async () => {
-//   const { getByTestId } = testStatusDropdown([]);
+test('Triage to countdown shows 3 working days left', async () => {
+  const alert = testAlertSummaries[0];
+  alert.created = '2022-02-07T11:41:31.419156';
 
-//   Date.now = jest.fn(() => new Date(Date.UTC(2022, 1, 17)).valueOf());
-//   const alert = testAlertSummaries[0];
-//   alert.created = '2022-01-17T11:41:31.419156';
+  Date.now = jest.fn(() => Date.parse('2022-02-7'));
 
-//   console.log(alert);
-//   console.log(getByTestId('triage-test'));
-// });
+  const { getByTestId } = testStatusDropdown([], alert);
+
+  const dueDateIcon = await waitFor(() => getByTestId(`triage-test`));
+
+  fireEvent.mouseOver(dueDateIcon);
+
+  const dueDateStatus = await waitFor(() => getByTestId('due-date-status'));
+
+  const dueDateStatusText = dueDateStatus.querySelector('span').innerHTML;
+
+  expect(dueDateStatusText).toBe('Working days left: 3');
+});
+
+test('Triage to countdown shows 2 working days left', async () => {
+  const alert = testAlertSummaries[0];
+  alert.created = '2022-02-07T11:41:31.419156';
+
+  Date.now = jest.fn(() => Date.parse('2022-02-8'));
+
+  const { getByTestId } = testStatusDropdown([], alert);
+
+  const dueDateIcon = await waitFor(() => getByTestId(`triage-test`));
+
+  fireEvent.mouseOver(dueDateIcon);
+
+  const dueDateStatus = await waitFor(() => getByTestId('due-date-status'));
+
+  const dueDateStatusText = dueDateStatus.querySelector('span').innerHTML;
+
+  expect(dueDateStatusText).toBe('Working days left: 2');
+});
+
+test('Triage to countdown shows 1 working days left', async () => {
+  const alert = testAlertSummaries[0];
+  alert.created = '2022-02-07T11:41:31.419156';
+
+  Date.now = jest.fn(() => Date.parse('2022-02-9'));
+
+  const { getByTestId } = testStatusDropdown([], alert);
+
+  const dueDateIcon = await waitFor(() => getByTestId(`triage-test`));
+
+  fireEvent.mouseOver(dueDateIcon);
+
+  const dueDateStatus = await waitFor(() => getByTestId('due-date-status'));
+
+  const dueDateStatusText = dueDateStatus.querySelector('span').innerHTML;
+
+  expect(dueDateStatusText).toBe('Working days left: 1');
+});
+
+test('Triage to countdown shows Today', async () => {
+  const alert = testAlertSummaries[0];
+  alert.created = '2022-02-07T11:41:31.419156';
+
+  Date.now = jest.fn(() => Date.parse('2022-02-10'));
+
+  const { getByTestId } = testStatusDropdown([], alert);
+
+  const dueDateIcon = await waitFor(() => getByTestId(`triage-test`));
+
+  fireEvent.mouseOver(dueDateIcon);
+
+  const dueDateStatus = await waitFor(() => getByTestId('due-date-status'));
+
+  const dueDateStatusText = dueDateStatus.querySelector('span').innerHTML;
+
+  expect(dueDateStatusText).toBe('Today');
+});
+
+test('Triage to countdown shows Overdue', async () => {
+  const alert = testAlertSummaries[0];
+  alert.created = '2022-02-07T11:41:31.419156';
+
+  Date.now = jest.fn(() => Date.parse('2022-02-11'));
+
+  const { getByTestId } = testStatusDropdown([], alert);
+
+  const dueDateIcon = await waitFor(() => getByTestId(`triage-test`));
+
+  fireEvent.mouseOver(dueDateIcon);
+
+  const dueDateStatus = await waitFor(() => getByTestId('due-date-status'));
+
+  const dueDateStatusText = dueDateStatus.querySelector('span').innerHTML;
+
+  expect(dueDateStatusText).toBe('Overdue');
+});
+
+test('Triage to countdown shows 3 working days left when alert is createad on Friday', async () => {
+  const alert = testAlertSummaries[0];
+  alert.created = '2022-02-11T11:41:31.419156';
+
+  Date.now = jest.fn(() => Date.parse('2022-02-11'));
+
+  const { getByTestId } = testStatusDropdown([], alert);
+
+  const dueDateIcon = await waitFor(() => getByTestId(`triage-test`));
+
+  fireEvent.mouseOver(dueDateIcon);
+
+  const dueDateStatus = await waitFor(() => getByTestId('due-date-status'));
+
+  const dueDateStatusText = dueDateStatus.querySelector('span').innerHTML;
+
+  expect(dueDateStatusText).toBe('Working days left: 3');
+});
+
+test('Triage to countdown shows 3 working days left when alert is createad on Saturday and the website is accessed on Monday', async () => {
+  const alert = testAlertSummaries[0];
+  alert.created = '2022-02-12T11:41:31.419156';
+
+  Date.now = jest.fn(() => Date.parse('2022-02-14'));
+
+  const { getByTestId } = testStatusDropdown([], alert);
+
+  const dueDateIcon = await waitFor(() => getByTestId(`triage-test`));
+
+  fireEvent.mouseOver(dueDateIcon);
+
+  const dueDateStatus = await waitFor(() => getByTestId('due-date-status'));
+
+  const dueDateStatusText = dueDateStatus.querySelector('span').innerHTML;
+
+  expect(dueDateStatusText).toBe('Working days left: 3');
+});
+
+test('Triage to countdown shows 3 working days left when alert is createad on Sunday and the website is accessed on Monday', async () => {
+  const alert = testAlertSummaries[0];
+  alert.created = '2022-02-13T11:41:31.419156';
+
+  Date.now = jest.fn(() => Date.parse('2022-02-14'));
+
+  const { getByTestId } = testStatusDropdown([], alert);
+
+  const dueDateIcon = await waitFor(() => getByTestId(`triage-test`));
+
+  fireEvent.mouseOver(dueDateIcon);
+
+  const dueDateStatus = await waitFor(() => getByTestId('due-date-status'));
+
+  const dueDateStatusText = dueDateStatus.querySelector('span').innerHTML;
+
+  expect(dueDateStatusText).toBe('Working days left: 3');
+});
+
+test('Triage to countdown shows 3 working days left when the due date its either Saturday or Sunday and the alert is created on Tuesday', async () => {
+  const alert = testAlertSummaries[0];
+  alert.created = '2022-02-08T11:41:31.419156';
+
+  Date.now = jest.fn(() => Date.parse('2022-02-8'));
+
+  const { getByTestId } = testStatusDropdown([], alert);
+
+  const dueDateIcon = await waitFor(() => getByTestId(`triage-test`));
+
+  fireEvent.mouseOver(dueDateIcon);
+
+  const dueDateStatus = await waitFor(() => getByTestId('due-date-status'));
+
+  const dueDateStatusText = dueDateStatus.querySelector('span').innerHTML;
+
+  expect(dueDateStatusText).toBe('Working days left: 3');
+});
+
+test('Triage to countdown shows 3 working days left when the due date its either Saturday or Sunday and the alert is created on Wednesday', async () => {
+  const alert = testAlertSummaries[0];
+  alert.created = '2022-02-09T11:41:31.419156';
+
+  Date.now = jest.fn(() => Date.parse('2022-02-9'));
+
+  const { getByTestId } = testStatusDropdown([], alert);
+
+  const dueDateIcon = await waitFor(() => getByTestId(`triage-test`));
+
+  fireEvent.mouseOver(dueDateIcon);
+
+  const dueDateStatus = await waitFor(() => getByTestId('due-date-status'));
+
+  const dueDateStatusText = dueDateStatus.querySelector('span').innerHTML;
+
+  expect(dueDateStatusText).toBe('Working days left: 3');
+});
+
+test('Triage to countdown shows 3 working days left when the due date its on Monday, the alert is created on Thursday and it skips the weekend', async () => {
+  const alert = testAlertSummaries[0];
+  alert.created = '2022-02-10T11:41:31.419156';
+
+  Date.now = jest.fn(() => Date.parse('2022-02-10'));
+
+  const { getByTestId } = testStatusDropdown([], alert);
+
+  const dueDateIcon = await waitFor(() => getByTestId(`triage-test`));
+
+  fireEvent.mouseOver(dueDateIcon);
+
+  const dueDateStatus = await waitFor(() => getByTestId('due-date-status'));
+
+  const dueDateStatusText = dueDateStatus.querySelector('span').innerHTML;
+
+  expect(dueDateStatusText).toBe('Working days left: 3');
+});

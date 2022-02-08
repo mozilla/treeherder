@@ -255,6 +255,8 @@ export default class StatusDropdown extends React.Component {
     (alertStatus !== status && this.isResolved(alertStatus));
 
   calculateDueDate(created) {
+    console.log(created);
+
     const createdAt = new Date(created);
     const dueDate = new Date(created);
     dueDate.setDate(dueDate.getDate() + timeToTriage);
@@ -267,6 +269,7 @@ export default class StatusDropdown extends React.Component {
       dueDate.setDate(dueDate.getDate() + numberOfNonWorkingDays);
     }
 
+    console.log(dueDate, 'due date');
     return dueDate;
   }
 
@@ -496,17 +499,17 @@ export default class StatusDropdown extends React.Component {
               <div className="due-date-container" data-testid="triage-due-date">
                 <div className="clock-container">
                   <SimpleTooltip
-                    data-testid="triage-test"
                     text={
                       <FontAwesomeIcon
                         icon={faClock}
                         className={dueDateClass}
+                        data-testid="triage-test"
                       />
                     }
                     tooltipText={
-                      <div>
+                      <div data-testid="due-date-status">
                         <h5>Triage due date:</h5>
-                        {dueDateStatus}
+                        <span>{dueDateStatus}</span>
                       </div>
                     }
                   />
