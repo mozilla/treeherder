@@ -33,6 +33,7 @@ const browsertimeBenchmarksTests = [
   'ares6',
   'assorted-dom',
   'jetstream2',
+  'matrix-react-bench',
   'motionmark-animometer',
   'motionmark-htmlsuite',
   'raptor-speedometer-geckoview',
