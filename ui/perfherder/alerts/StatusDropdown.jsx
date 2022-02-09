@@ -257,6 +257,12 @@ export default class StatusDropdown extends React.Component {
   calculateDueDate(created) {
     const createdAt = new Date(created);
     const dueDate = new Date(created);
+
+    /* due date is calculated by adding 3 working days to the date when the alert was created
+    this means you have 3 working days with decreasing status of 3, 2, 1 working days left
+    and in the fourth day the status changes to Today, this being the last day when the alert status has to change
+    otherwise it becomes Overdue */
+
     dueDate.setDate(dueDate.getDate() + timeToTriage);
     const numberOfNonWorkingDays = this.getNumberOfWeekendDays(
       createdAt,
@@ -278,6 +284,11 @@ export default class StatusDropdown extends React.Component {
     const differenceInDays = Math.ceil(
       differenceInTime / (1000 * 60 * 60 * 24),
     );
+
+    // if the website is accessed during the weekend, nothing will be shown
+    if (now.getDay() === 6 || now.getDay() === 0) {
+      return '';
+    }
 
     if (now.getDate() === dueDate.getDate()) {
       return 'Today';

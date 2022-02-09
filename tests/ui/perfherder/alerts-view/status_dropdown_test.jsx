@@ -298,3 +298,22 @@ test('Triage to countdown shows 3 working days left when the due date its on Mon
 
   expect(dueDateStatusText).toBe('Working days left: 3');
 });
+
+test('Triage to countdown shows nothing when the website is accessed during the weekend', async () => {
+  const alert = testAlertSummaries[0];
+  alert.created = '2022-02-10T11:41:31.419156';
+
+  Date.now = jest.fn(() => Date.parse('2022-02-13'));
+
+  const { getByTestId } = testStatusDropdown([], alert);
+
+  const dueDateIcon = await waitFor(() => getByTestId(`triage-test`));
+
+  fireEvent.mouseOver(dueDateIcon);
+
+  const dueDateStatus = await waitFor(() => getByTestId('due-date-status'));
+
+  const dueDateStatusText = dueDateStatus.querySelector('span').innerHTML;
+
+  expect(dueDateStatusText).toBe('');
+});
