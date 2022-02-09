@@ -54,6 +54,7 @@ export default class StatusDropdown extends React.Component {
     };
 
     this.isWeekend = false;
+    this.showCountdownToTriageIcon = true;
   }
 
   getCulpritDetails = async (culpritId) => {
@@ -91,12 +92,12 @@ export default class StatusDropdown extends React.Component {
     createdDate.setHours(0, 0, 0, 0);
     dueDate.setHours(0, 0, 0, 0);
 
-    if (createdDay === sunday) {
-      return 1;
-    }
-
     if (createdDay === saturday) {
       return 2;
+    }
+
+    if (createdDay === sunday) {
+      return 1;
     }
 
     if (
@@ -264,13 +265,10 @@ export default class StatusDropdown extends React.Component {
     otherwise it becomes Overdue */
 
     dueDate.setDate(dueDate.getDate() + timeToTriage);
-    const numberOfNonWorkingDays = this.getNumberOfWeekendDays(
-      createdAt,
-      dueDate,
-    );
+    const numberOfWeekendDays = this.getNumberOfWeekendDays(createdAt, dueDate);
 
-    if (numberOfNonWorkingDays !== 0) {
-      dueDate.setDate(dueDate.getDate() + numberOfNonWorkingDays);
+    if (numberOfWeekendDays !== 0) {
+      dueDate.setDate(dueDate.getDate() + numberOfWeekendDays);
     }
 
     return dueDate;
@@ -278,6 +276,9 @@ export default class StatusDropdown extends React.Component {
 
   displayDueDateCountdown(createdAt) {
     const now = new Date(Date.now());
+    const currentDay = now.getDay();
+    const saturday = 6;
+    const sunday = 0;
     const dueDate = this.calculateDueDate(createdAt);
 
     const differenceInTime = Math.abs(dueDate - now);
@@ -286,8 +287,8 @@ export default class StatusDropdown extends React.Component {
     );
 
     // if the website is accessed during the weekend, nothing will be shown
-    if (now.getDay() === 6 || now.getDay() === 0) {
-      return '';
+    if (currentDay === saturday || currentDay === sunday) {
+      this.showCountdownToTriageIcon = false;
     }
 
     if (now.getDate() === dueDate.getDate()) {
@@ -326,6 +327,9 @@ export default class StatusDropdown extends React.Component {
     } else if (dueDateStatus === 'Today') {
       dueDateClass = 'due-date-today';
     }
+
+    const showCountdownToTriage =
+      alertStatus === 'untriaged' && this.showCountdownToTriageIcon;
 
     return (
       <React.Fragment>
@@ -502,16 +506,16 @@ export default class StatusDropdown extends React.Component {
               </React.Fragment>
             )}
           </DropdownMenu>
-          <div>
-            {alertStatus === 'untriaged' && (
-              <div className="due-date-container" data-testid="triage-due-date">
+          <div data-testid="triage-due-date">
+            {showCountdownToTriage && (
+              <div className="due-date-container">
                 <div className="clock-container">
                   <SimpleTooltip
                     text={
                       <FontAwesomeIcon
                         icon={faClock}
                         className={dueDateClass}
-                        data-testid="triage-test"
+                        data-testid="triage-clock-icon"
                       />
                     }
                     tooltipText={
