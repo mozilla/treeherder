@@ -121,7 +121,6 @@ class PerformanceTab extends React.PureComponent {
                   title,
                   suite,
                   perfdocs,
-                  options,
                 },
                 idx,
               ) => (
@@ -154,7 +153,7 @@ class PerformanceTab extends React.PureComponent {
                         >
                           {`${suite} `}
                         </a>
-                        {`${perfdocs.remainingTestName} ${options}`}
+                        {`${perfdocs.remainingName}`}
                       </div>
                     ) : (
                       title
