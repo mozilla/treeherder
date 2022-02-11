@@ -754,6 +754,11 @@ class TestSuiteHealthViewSet(viewsets.ViewSet):
                     Case(When(performancealert__is_regression=1, then=Value(1)))
                 )
             )
+            .annotate(
+                total_untriaged=Count(
+                    Case(When(performancealert__status=PerformanceAlert.UNTRIAGED, then=Value(1)))
+                )
+            )
             .order_by('suite', 'test')
         )
 

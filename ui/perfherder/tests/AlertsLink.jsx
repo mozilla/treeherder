@@ -11,6 +11,7 @@ export default class AlertsLink extends React.PureComponent {
     const {
       total_alerts: totalAlerts,
       total_regressions: regressions,
+      total_untriaged: untriaged,
       suite,
       test,
     } = alerts;
@@ -40,6 +41,14 @@ export default class AlertsLink extends React.PureComponent {
               text={`${regressions || 0}`}
               tooltipText="Regressions"
             />
+          </Link>
+        </div>
+        <div data-testid="untriaged" className="w-50">
+          <Link
+            to={`./alerts?hideDwnToInv=0&filterText=${filterText}&page=1&status=${summaryStatusMap.untriaged}&framework=${framework.id}`}
+            target="_blank"
+          >
+            <SimpleTooltip text={`${untriaged || 0}`} tooltipText="Untriaged" />
           </Link>
         </div>
       </div>
