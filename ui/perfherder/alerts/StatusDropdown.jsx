@@ -10,7 +10,10 @@ import {
 } from 'reactstrap';
 import template from 'lodash/template';
 import templateSettings from 'lodash/templateSettings';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faClock } from '@fortawesome/free-regular-svg-icons';
 
+import SimpleTooltip from '../../shared/SimpleTooltip';
 import {
   getFrameworkName,
   getFilledBugSummary,
@@ -25,7 +28,7 @@ import {
   createQueryParams,
   bugzillaBugsApi,
 } from '../../helpers/url';
-import { summaryStatusMap } from '../perf-helpers/constants';
+import { timeToTriage, summaryStatusMap } from '../perf-helpers/constants';
 import DropdownMenuItems from '../../shared/DropdownMenuItems';
 import FilterAlertsWithVideos from '../../models/filterAlertsWithVideos';
 
@@ -49,6 +52,9 @@ export default class StatusDropdown extends React.Component {
         this.props.frameworks,
       ),
     };
+
+    this.isWeekend = false;
+    this.showCountdownToTriageIcon = true;
   }
 
   getCulpritDetails = async (culpritId) => {
@@ -72,6 +78,39 @@ export default class StatusDropdown extends React.Component {
       product: bugData.product,
     };
   };
+
+  getNumberOfWeekendDays(createdAt, dueDate) {
+    const createdDate = new Date(createdAt.getTime());
+    const friday = 5;
+    const saturday = 6;
+    const sunday = 0;
+    const createdDay = createdDate.getDay();
+    const dueDateDay = dueDate.getDay();
+
+    // this sets the hour for both day created and due date to 00:00
+    // in order to have a full day availabe with the status "Today" to work on the alert
+    createdDate.setHours(0, 0, 0, 0);
+    dueDate.setHours(0, 0, 0, 0);
+
+    if (createdDay === saturday) {
+      return 2;
+    }
+
+    if (createdDay === sunday) {
+      return 1;
+    }
+
+    if (
+      dueDateDay === saturday ||
+      dueDateDay === sunday ||
+      createdDay === friday
+    ) {
+      this.isWeekend = true;
+      return 2;
+    }
+
+    return 0;
+  }
 
   fileBug = async (culpritId) => {
     const {
@@ -216,6 +255,57 @@ export default class StatusDropdown extends React.Component {
     alertStatus === 'investigating' ||
     (alertStatus !== status && this.isResolved(alertStatus));
 
+  calculateDueDate(created) {
+    const createdAt = new Date(created);
+    const dueDate = new Date(created);
+
+    /* due date is calculated by adding 3 working days to the date when the alert was created
+    this means you have 3 working days with decreasing status of 3, 2, 1 working days left
+    and in the fourth day the status changes to Today, this being the last day when the alert status has to change
+    otherwise it becomes Overdue */
+
+    dueDate.setDate(dueDate.getDate() + timeToTriage);
+    const numberOfWeekendDays = this.getNumberOfWeekendDays(createdAt, dueDate);
+
+    if (numberOfWeekendDays !== 0) {
+      dueDate.setDate(dueDate.getDate() + numberOfWeekendDays);
+    }
+
+    return dueDate;
+  }
+
+  displayDueDateCountdown(createdAt) {
+    const now = new Date(Date.now());
+    const currentDay = now.getDay();
+    const saturday = 6;
+    const sunday = 0;
+    const dueDate = this.calculateDueDate(createdAt);
+
+    const differenceInTime = Math.abs(dueDate - now);
+    const differenceInDays = Math.ceil(
+      differenceInTime / (1000 * 60 * 60 * 24),
+    );
+
+    // if the website is accessed during the weekend, nothing will be shown
+    if (currentDay === saturday || currentDay === sunday) {
+      this.showCountdownToTriageIcon = false;
+    }
+
+    if (now.getDate() === dueDate.getDate()) {
+      return 'Today';
+    }
+
+    if (now.getTime() >= dueDate.getTime()) {
+      return 'Overdue';
+    }
+
+    if (this.isWeekend) {
+      return `Working days left: ${differenceInDays - 2}`;
+    }
+
+    return `Working days left: ${differenceInDays}`;
+  }
+
   render() {
     const { alertSummary, user, issueTrackers, performanceTags } = this.props;
     const {
@@ -228,6 +318,18 @@ export default class StatusDropdown extends React.Component {
 
     const alertStatus = getStatus(alertSummary.status);
     const alertSummaryActiveTags = alertSummary.performance_tags || [];
+
+    const dueDateStatus = this.displayDueDateCountdown(alertSummary.created);
+
+    let dueDateClass = 'due-date-ok';
+    if (dueDateStatus === 'Overdue') {
+      dueDateClass = 'due-date-overdue';
+    } else if (dueDateStatus === 'Today') {
+      dueDateClass = 'due-date-today';
+    }
+
+    const showCountdownToTriage =
+      alertStatus === 'untriaged' && this.showCountdownToTriageIcon;
 
     return (
       <React.Fragment>
@@ -301,7 +403,7 @@ export default class StatusDropdown extends React.Component {
           performanceTags={performanceTags}
           updateAndClose={this.updateAndClose}
         />
-        <UncontrolledDropdown tag="span">
+        <UncontrolledDropdown tag="span" className="status-drop-down-container">
           <DropdownToggle className="btn-xs" color="darker-secondary" caret>
             {getStatus(alertSummary.status)}
           </DropdownToggle>
@@ -404,6 +506,29 @@ export default class StatusDropdown extends React.Component {
               </React.Fragment>
             )}
           </DropdownMenu>
+          <div data-testid="triage-due-date">
+            {showCountdownToTriage && (
+              <div className="due-date-container">
+                <div className="clock-container">
+                  <SimpleTooltip
+                    text={
+                      <FontAwesomeIcon
+                        icon={faClock}
+                        className={dueDateClass}
+                        data-testid="triage-clock-icon"
+                      />
+                    }
+                    tooltipText={
+                      <div data-testid="due-date-status">
+                        <h5>Triage due date:</h5>
+                        <span>{dueDateStatus}</span>
+                      </div>
+                    }
+                  />
+                </div>
+              </div>
+            )}
+          </div>
         </UncontrolledDropdown>
       </React.Fragment>
     );
