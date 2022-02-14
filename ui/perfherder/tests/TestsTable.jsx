@@ -105,7 +105,7 @@ export default function TestsTable(props) {
       <ReactTable
         data={results}
         columns={columns}
-        className="-striped -highlight mb-5 h-100"
+        className="-striped -highlight mb-5 h-100 tests-table"
         noDataText={noResultsMessage}
         defaultPageSize={defaultPageSize}
         showPagination={showPagination}

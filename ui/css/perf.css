@@ -660,3 +660,7 @@ li.pagination-active.active > button {
   margin-top: 5px;
   margin-left: 23px;
 }
+
+.tests-table .rt-tr-group {
+  max-height: 35px;
+}
