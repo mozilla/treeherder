@@ -81,6 +81,7 @@ export default class StatusDropdown extends React.Component {
 
   getNumberOfWeekendDays(createdAt, dueDate) {
     const createdDate = new Date(createdAt.getTime());
+    const thursday = 4;
     const friday = 5;
     const saturday = 6;
     const sunday = 0;
@@ -92,7 +93,11 @@ export default class StatusDropdown extends React.Component {
     createdDate.setHours(0, 0, 0, 0);
     dueDate.setHours(0, 0, 0, 0);
 
-    if (createdDay === saturday) {
+    if (
+      createdDay === thursday ||
+      createdDay === friday ||
+      createdDay === saturday
+    ) {
       return 2;
     }
 
@@ -100,11 +105,7 @@ export default class StatusDropdown extends React.Component {
       return 1;
     }
 
-    if (
-      dueDateDay === saturday ||
-      dueDateDay === sunday ||
-      createdDay === friday
-    ) {
+    if (dueDateDay === saturday || dueDateDay === sunday) {
       this.isWeekend = true;
       return 2;
     }
@@ -289,6 +290,7 @@ export default class StatusDropdown extends React.Component {
     // if the website is accessed during the weekend, nothing will be shown
     if (currentDay === saturday || currentDay === sunday) {
       this.showCountdownToTriageIcon = false;
+      return '';
     }
 
     if (now.getDate() === dueDate.getDate()) {
@@ -297,6 +299,10 @@ export default class StatusDropdown extends React.Component {
 
     if (now.getTime() >= dueDate.getTime()) {
       return 'Overdue';
+    }
+
+    if (differenceInDays >= 4) {
+      return `Working days left: ${differenceInDays - 2}`;
     }
 
     if (this.isWeekend) {
