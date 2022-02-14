@@ -1316,7 +1316,7 @@
     file-loader "^6.0.0"
     url-loader "^4.1.0"
 
-"@neutrinojs/jest@^9.5.0":
+"@neutrinojs/jest@9.5.0":
   version "9.5.0"
   resolved "https://registry.yarnpkg.com/@neutrinojs/jest/-/jest-9.5.0.tgz#181fe48ae11fe07be6b24b49e00c1479cf6b7835"
   integrity sha512-6s9bSfXtWVAtAIn/1lyFmOycDmV8SklgrMiLvhBB4ZoJWm1+JWaG5S44k0pMNewY8NPmPKVxkL+Kqofqvar0Og==
