@@ -193,7 +193,7 @@ test('Alert is created on Tuesday, Triage to countdown shows 3 working days', as
   // created date day is set to Tuesday
   alert.created = '2022-02-08T11:41:31.419156';
 
-  // current day is set to Wednesday
+  // current day is set to Tuesday
   Date.now = jest.fn(() => Date.parse('2022-02-8'));
 
   const { getByTestId } = testStatusDropdown([], alert);
@@ -212,7 +212,7 @@ test('Alert is created on Tuesday, Triage to countdown shows 2 working days', as
   // created date day is set to Tuesday
   alert.created = '2022-02-08T11:41:31.419156';
 
-  // current day is set to Thursday
+  // current day is set to Wednesday
   Date.now = jest.fn(() => Date.parse('2022-02-9'));
 
   const { getByTestId } = testStatusDropdown([], alert);
@@ -231,7 +231,7 @@ test('Alert is created on Tuesday, Triage to countdown shows 1 working days', as
   // created date day is set to Tuesday
   alert.created = '2022-02-08T11:41:31.419156';
 
-  // current day is set to Friday
+  // current day is set to Thursday
   Date.now = jest.fn(() => Date.parse('2022-02-10'));
 
   const { getByTestId } = testStatusDropdown([], alert);
