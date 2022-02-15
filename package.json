@@ -17,7 +17,7 @@
     "@fortawesome/free-solid-svg-icons": "5.12.1",
     "@fortawesome/react-fontawesome": "0.1.16",
     "@neutrinojs/copy": "9.2.0",
-    "@neutrinojs/jest": "^9.5.0",
+    "@neutrinojs/jest": "9.5.0",
     "@neutrinojs/react": "9.2.0",
     "@types/prop-types": "*",
     "@types/react": "*",
