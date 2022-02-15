@@ -356,6 +356,60 @@ def test_filter_signatures_by_range(
         assert resp.json()[str(test_perf_signature.id)]['id'] == exp_id
 
 
+def test_filter_signatures_by_field_should_alert(
+    client, test_perf_signature, test_perf_signature_2
+):
+    # set signature field should_alert to True
+    test_perf_signature.should_alert = True
+    test_perf_signature.save()
+
+    resp = client.get(
+        reverse(
+            'performance-signatures-list', kwargs={"project": test_perf_signature.repository.name}
+        )
+        + '?should_alert={}'.format(1)
+    )
+    assert resp.status_code == 200
+    assert len(resp.json().keys()) == 1
+    assert resp.json()[str(test_perf_signature.id)]['id'] == 1
+
+
+def test_filter_data_by_should_alert(
+    client,
+    test_repository,
+    test_perf_signature,
+    push_stored,
+    test_perf_signature_same_hash_different_framework,
+):
+    # set signature field should_alert to True
+    test_perf_signature.should_alert = True
+    test_perf_signature.save()
+
+    signature2 = test_perf_signature_same_hash_different_framework
+    push = Push.objects.get(id=1)
+    for signature in [test_perf_signature, signature2]:
+        PerformanceDatum.objects.create(
+            repository=signature.repository,
+            push=push,
+            signature=signature,
+            value=0.0,
+            push_timestamp=push.time,
+        )
+
+    resp = client.get(
+        reverse('performance-data-list', kwargs={"project": test_repository.name})
+        + '?signatures={}&should_alert=1'.format(test_perf_signature.signature_hash)
+    )
+
+    assert resp.status_code == 200
+    datums = resp.data[test_perf_signature.signature_hash]
+    assert len(datums) == 1
+    assert test_perf_signature.id == 1
+    # should_alert was set to True for test_perf_signature, therefore only
+    # the perf datum created with the test_perf_signature is returned by the endpoint
+    assert set(datum['signature_id'] for datum in datums) == {1}
+
+
 @pytest.mark.parametrize('interval, exp_push_ids', [(86400, {1}), (86400 * 3, {2, 1})])
 def test_filter_data_by_interval(
     client, test_repository, test_perf_signature, interval, exp_push_ids

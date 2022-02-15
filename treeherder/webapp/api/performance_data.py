@@ -106,6 +106,9 @@ class PerformanceSignatureViewSet(viewsets.ViewSet):
             platforms = models.MachinePlatform.objects.filter(platform=platform)
             signature_data = signature_data.filter(platform__in=platforms)
 
+        if int(request.query_params.get('should_alert', False)):
+            signature_data = signature_data.filter(should_alert=True)
+
         signature_map = {}
         for (
             id,
@@ -215,6 +218,8 @@ class PerformanceDatumViewSet(viewsets.ViewSet):
         signature_hashes = request.query_params.getlist("signatures")  # deprecated
         signature_ids = request.query_params.getlist("signature_id")
         push_ids = request.query_params.getlist("push_id")
+        should_alert = request.query_params.get("should_alert", False)
+        should_alert = OptionalBooleanField().to_internal_value(should_alert)
         no_retriggers = request.query_params.get("no_retriggers", False)
         no_retriggers = OptionalBooleanField().to_internal_value(no_retriggers)
 
@@ -275,6 +280,9 @@ class PerformanceDatumViewSet(viewsets.ViewSet):
             datums = datums.filter(push_timestamp__gt=start_date)
         if end_date:
             datums = datums.filter(push_timestamp__lt=end_date)
+
+        if should_alert:
+            datums = datums.filter(signature__should_alert=True)
 
         ret, seen_push_ids = defaultdict(list), defaultdict(set)
         values_list = datums.values_list(
