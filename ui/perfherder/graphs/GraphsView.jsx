@@ -228,7 +228,7 @@ class GraphsView extends React.Component {
     return graphData;
   };
 
-  getAlertSummaries = async (signatureId, repository, noPagination = false) => {
+  getAlertSummaries = async (signatureId, repository) => {
     const { errorMessages, timeRange } = this.state;
 
     const data = await getData(
@@ -242,9 +242,6 @@ class GraphsView extends React.Component {
     const response = processResponse(data, 'alertSummaries', errorMessages);
 
     if (response.alertSummaries) {
-      if (noPagination) {
-        return response.alertSummaries;
-      }
       return response.alertSummaries.results;
     }
     this.setState({ errorMessages: response.errorMessages });
