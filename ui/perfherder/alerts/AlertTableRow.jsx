@@ -223,9 +223,9 @@ export default class AlertTableRow extends React.Component {
     const duplicatedName = suite === test;
 
     return (
-      <div>
+      <div className="alert-title-container">
         <div
-          className={textEffect}
+          className={`alert-title ${textEffect}`}
           id={`alert ${alert.id} title`}
           title={alert.backfill_record ? backfillRetriggeredTitle : ''}
         >
@@ -502,7 +502,7 @@ export default class AlertTableRow extends React.Component {
             )}
           </div>
         </td>
-        <td className="table-width-lg">
+        <td className="table-width-lg tags-and-options-td">
           <AlertTableTagsOptions alertId={alert.id} items={items} />
         </td>
         <td className="table-width-md">

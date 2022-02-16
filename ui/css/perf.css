@@ -664,3 +664,24 @@ li.pagination-active.active > button {
 .tests-table .rt-tr-group {
   flex: initial;
 }
+
+.alert-title-container {
+  width: 250px;
+}
+
+.alert-title-container .alert-title {
+  overflow-wrap: break-word !important;
+}
+
+.tags-and-options-container {
+  width: fit-content;
+}
+
+.tags-and-options-container span {
+  white-space: pre-wrap;
+  text-align: left;
+}
+
+.tags-and-options-td {
+  padding: 0 !important;
+}
