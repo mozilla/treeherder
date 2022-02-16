@@ -101,11 +101,11 @@ export default function TestsTable(props) {
   ];
 
   return (
-    <Container fluid className="my-3 px-0">
+    <Container fluid className="my-3 px-0 vh-100">
       <ReactTable
         data={results}
         columns={columns}
-        className="-striped -highlight mb-5"
+        className="-striped -highlight mb-5 h-100 tests-table"
         noDataText={noResultsMessage}
         defaultPageSize={defaultPageSize}
         showPagination={showPagination}
