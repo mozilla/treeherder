@@ -662,5 +662,5 @@ li.pagination-active.active > button {
 }
 
 .tests-table .rt-tr-group {
-  max-height: 35px;
+  flex: initial;
 }
