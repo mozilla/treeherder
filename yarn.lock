@@ -1266,12 +1266,12 @@
     "@babel/core" "^7.10.2"
     babel-loader "^8.1.0"
 
-"@neutrinojs/copy@9.2.0":
-  version "9.2.0"
-  resolved "https://registry.yarnpkg.com/@neutrinojs/copy/-/copy-9.2.0.tgz#9aeb7614171f7955a61980ffae4aea7e8b0d35bf"
-  integrity sha512-nXEwsGJfdfUXqGZL0QGz3cnK69q+7z/aKW3ZdPb/rHZUsuBv8r+WTv8pQIGj5hE0C/bViZ6mhbZRGkrjpA58wQ==
+"@neutrinojs/copy@9.5.0":
+  version "9.5.0"
+  resolved "https://registry.yarnpkg.com/@neutrinojs/copy/-/copy-9.5.0.tgz#0942cca7c4aa72a03572bdc2b5b2f2f38df2d0c4"
+  integrity sha512-BM2CrYPPzhLWVK+k9QdThWF8ZwtmRtRoZpc7Vp4YOFGPSAqPTxuRlCqDeobZOlFIU32fnsfhAT46umhPnKCFVA==
   dependencies:
-    copy-webpack-plugin "^5.1.1"
+    copy-webpack-plugin "^5.1.2"
 
 "@neutrinojs/dev-server@9.2.0":
   version "9.2.0"
@@ -1316,7 +1316,7 @@
     file-loader "^6.0.0"
     url-loader "^4.1.0"
 
-"@neutrinojs/jest@9.5.0":
+"@neutrinojs/jest@^9.5.0":
   version "9.5.0"
   resolved "https://registry.yarnpkg.com/@neutrinojs/jest/-/jest-9.5.0.tgz#181fe48ae11fe07be6b24b49e00c1479cf6b7835"
   integrity sha512-6s9bSfXtWVAtAIn/1lyFmOycDmV8SklgrMiLvhBB4ZoJWm1+JWaG5S44k0pMNewY8NPmPKVxkL+Kqofqvar0Og==
@@ -3456,7 +3456,7 @@ copy-descriptor@^0.1.0:
   resolved "https://registry.yarnpkg.com/copy-descriptor/-/copy-descriptor-0.1.1.tgz#676f6eb3c39997c2ee1ac3a924fd6124748f578d"
   integrity sha1-Z29us8OZl8LuGsOpJP1hJHSPV40=
 
-copy-webpack-plugin@^5.1.1:
+copy-webpack-plugin@^5.1.2:
   version "5.1.2"
   resolved "https://registry.yarnpkg.com/copy-webpack-plugin/-/copy-webpack-plugin-5.1.2.tgz#8a889e1dcafa6c91c6cd4be1ad158f1d3823bae2"
   integrity sha512-Uh7crJAco3AjBvgAy9Z75CjK8IG+gxaErro71THQ+vv/bl4HaQcpkexAY8KVW/T6D2W2IRr+couF/knIRkZMIQ==
