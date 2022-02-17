@@ -225,6 +225,10 @@ class App extends React.PureComponent {
       descriptionField.value.substring(endPos, descriptionField.value.length);
     descriptionField.selectionStart = startPos + selectedLogText.length;
     descriptionField.selectionEnd = startPos + selectedLogText.length;
+
+    const event = document.createEvent('HTMLEvents');
+    event.initEvent('change', true, true);
+    descriptionField.dispatchEvent(event);
   };
 
   collapseJobDetails = () => {
