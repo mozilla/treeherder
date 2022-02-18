@@ -77,7 +77,6 @@ INSTALLED_APPS = [
     'treeherder.log_parser',
     'treeherder.etl',
     'treeherder.perf',
-    'treeherder.seta',
     'treeherder.intermittents_commenter',
     'treeherder.changelog',
 ]
