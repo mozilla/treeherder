@@ -415,6 +415,8 @@ def test_timerange_with_summary_outside_range(
         test_repository, revision=uuid.uuid4(), time=past_date
     )
     test_perf_alert_summary.save()
+    test_perf_alert_summary_2.push.time = datetime.now()
+    test_perf_alert_summary_2.push.save()
 
     resp = client.get(
         reverse('performance-alert-summaries-list'),
@@ -444,6 +446,8 @@ def test_timerange_with_all_summaries_in_range(
         test_repository, revision=uuid.uuid4(), time=past_date
     )
     test_perf_alert_summary.save()
+    test_perf_alert_summary_2.push.time = datetime.now()
+    test_perf_alert_summary_2.push.save()
 
     resp = client.get(
         reverse('performance-alert-summaries-list'),
