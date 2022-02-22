@@ -55,7 +55,10 @@ export default class AlertTableTagsOptions extends React.Component {
     const { displayAllItems } = this.state;
 
     return items.length ? (
-      <div data-testid="all-tags-and-options">
+      <div
+        data-testid="all-tags-and-options"
+        className="tags-and-options-container"
+      >
         {this.showItems(items.slice(0, this.visibleItems))}
         {!displayAllItems && items.length > this.visibleItems && (
           <Button
