@@ -18,6 +18,7 @@ import {
 } from '../../helpers/constants';
 import { processSelectedParam, createGraphData } from '../perf-helpers/helpers';
 import {
+  alertSummaryLimit,
   endpoints,
   graphColors,
   graphSymbols,
@@ -201,14 +202,16 @@ class GraphsView extends React.Component {
   };
 
   createGraphObject = async (seriesData) => {
-    const { colors, symbols } = this.state;
+    const { colors, symbols, timeRange } = this.state;
     const alertSummaries = await Promise.all(
       seriesData.map((series) =>
         this.getAlertSummaries(series.signature_id, series.repository_id),
       ),
     );
     const commonAlerts = await Promise.all(
-      seriesData.map((series) => this.getCommonAlerts(series.framework_id)),
+      seriesData.map((series) =>
+        this.getCommonAlerts(series.framework_id, timeRange.value),
+      ),
     );
     const newColors = [...colors];
     const newSymbols = [...symbols];
@@ -226,12 +229,14 @@ class GraphsView extends React.Component {
   };
 
   getAlertSummaries = async (signatureId, repository) => {
-    const { errorMessages } = this.state;
+    const { errorMessages, timeRange } = this.state;
 
     const data = await getData(
       createApiUrl(endpoints.alertSummary, {
         alerts__series_signature: signatureId,
         repository,
+        limit: alertSummaryLimit,
+        timerange: timeRange.value,
       }),
     );
     const response = processResponse(data, 'alertSummaries', errorMessages);
@@ -243,8 +248,12 @@ class GraphsView extends React.Component {
     return [];
   };
 
-  getCommonAlerts = async (frameworkId) => {
-    const params = { framework: frameworkId };
+  getCommonAlerts = async (frameworkId, timeRange) => {
+    const params = {
+      framework: frameworkId,
+      limit: alertSummaryLimit,
+      timerange: timeRange,
+    };
     const url = getApiUrl(
       `${endpoints.alertSummary}${createQueryParams(params)}`,
     );

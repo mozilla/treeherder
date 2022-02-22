@@ -29,6 +29,7 @@ export const endpoints = {
   performanceTags: '/performance/tag/',
 };
 
+export const alertSummaryLimit = 30;
 export const noiseMetricTitle = 'noise metric';
 export const backfillRetriggeredTitle =
   'This alert was retriggered by the backfill bot.';

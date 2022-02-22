@@ -322,6 +322,8 @@ class PerformanceDatumViewSet(viewsets.ViewSet):
 
 class AlertSummaryPagination(pagination.PageNumberPagination):
     ordering = ('-created', '-id')
+    page_size_query_param = 'limit'
+    max_page_size = 100
     page_size = 10
 
 
@@ -335,6 +337,7 @@ class PerformanceAlertSummaryFilter(django_filters.FilterSet):
     hide_improvements = django_filters.BooleanFilter(method='_hide_improvements')
     hide_related_and_invalid = django_filters.BooleanFilter(method='_hide_related_and_invalid')
     with_assignee = django_filters.CharFilter(method='_with_assignee')
+    timerange = django_filters.NumberFilter(method='_timerange')
 
     def _filter_text(self, queryset, name, value):
         sep = Value(' ')
@@ -401,6 +404,11 @@ class PerformanceAlertSummaryFilter(django_filters.FilterSet):
     def _with_assignee(self, queryset, name, value):
         return queryset.filter(assignee__username=value)
 
+    def _timerange(self, queryset, name, value):
+        return queryset.filter(
+            push__time__gt=datetime.datetime.utcfromtimestamp(int(time.time() - int(value)))
+        )
+
     class Meta:
         model = PerformanceAlertSummary
         fields = [
@@ -413,6 +421,7 @@ class PerformanceAlertSummaryFilter(django_filters.FilterSet):
             'hide_improvements',
             'hide_related_and_invalid',
             'with_assignee',
+            'timerange',
         ]
 
 

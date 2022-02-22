@@ -1,4 +1,5 @@
-import datetime
+import uuid
+from datetime import datetime, timedelta
 
 import pytest
 from django.urls import reverse
@@ -32,7 +33,7 @@ def test_perf_alert_summary_onhold(test_repository_onhold, test_perf_framework):
             repository=test_repository_onhold,
             revision='1234abcd{}'.format(i),
             author='foo@bar.com',
-            time=datetime.datetime.now(),
+            time=datetime.now(),
         )
 
     return PerformanceAlertSummary.objects.create(
@@ -41,7 +42,7 @@ def test_perf_alert_summary_onhold(test_repository_onhold, test_perf_framework):
         prev_push_id=1,
         push_id=2,
         manually_created=False,
-        created=datetime.datetime.now(),
+        created=datetime.now(),
     )
 
 
@@ -325,7 +326,7 @@ def test_bug_number_and_timestamp_on_overriding(
     authorized_sheriff_client, test_perf_alert_summary_with_bug
 ):
     assert test_perf_alert_summary_with_bug.bug_number == 123456
-    assert test_perf_alert_summary_with_bug.bug_updated < datetime.datetime.now()
+    assert test_perf_alert_summary_with_bug.bug_updated < datetime.now()
 
     bug_linking_time = test_perf_alert_summary_with_bug.bug_updated
 
@@ -401,6 +402,109 @@ def test_cannot_add_unregistered_tag_to_a_summary(
     test_perf_alert_summary.refresh_from_db()
 
     assert test_perf_alert_summary.performance_tags.count() == 1
+
+
+def test_timerange_with_summary_outside_range(
+    client, create_push, test_repository, test_perf_alert_summary, test_perf_alert_summary_2
+):
+    # 30 days timerange
+    timerange_to_test = 30 * 24 * 60 * 60
+    past_date = datetime.now() - timedelta(weeks=9)
+
+    test_perf_alert_summary.push = create_push(
+        test_repository, revision=uuid.uuid4(), time=past_date
+    )
+    test_perf_alert_summary.save()
+    test_perf_alert_summary_2.push.time = datetime.now()
+    test_perf_alert_summary_2.push.save()
+
+    resp = client.get(
+        reverse('performance-alert-summaries-list'),
+        data={
+            'framework': 1,
+            'timerange': timerange_to_test,
+        },
+    )
+
+    assert resp.status_code == 200
+
+    retrieved_summaries = resp.json()['results']
+    summary_ids = [summary['id'] for summary in retrieved_summaries]
+
+    assert test_perf_alert_summary_2.id in summary_ids
+    assert len(summary_ids) == 1
+
+
+def test_timerange_with_all_summaries_in_range(
+    client, create_push, test_repository, test_perf_alert_summary, test_perf_alert_summary_2
+):
+    # 7 days timerange
+    timerange_to_test = 7 * 24 * 60 * 60
+    past_date = datetime.now() - timedelta(days=2)
+
+    test_perf_alert_summary.push = create_push(
+        test_repository, revision=uuid.uuid4(), time=past_date
+    )
+    test_perf_alert_summary.save()
+    test_perf_alert_summary_2.push.time = datetime.now()
+    test_perf_alert_summary_2.push.save()
+
+    resp = client.get(
+        reverse('performance-alert-summaries-list'),
+        data={
+            'framework': 1,
+            'timerange': timerange_to_test,
+        },
+    )
+    assert resp.status_code == 200
+
+    retrieved_summaries = resp.json()['results']
+    summary_ids = [summary['id'] for summary in retrieved_summaries]
+
+    assert test_perf_alert_summary.id in summary_ids
+    assert test_perf_alert_summary_2.id in summary_ids
+    assert len(summary_ids) == 2
+
+
+def test_pagesize_is_limited_from_params(
+    client, test_perf_alert_summary, test_perf_alert_summary_2
+):
+    resp = client.get(
+        reverse('performance-alert-summaries-list'),
+        data={
+            'framework': 1,
+            'limit': 1,
+        },
+    )
+    assert resp.status_code == 200
+
+    retrieved_summaries = resp.json()['results']
+    summary_ids = [summary['id'] for summary in retrieved_summaries]
+
+    assert test_perf_alert_summary_2.id in summary_ids
+    assert len(summary_ids) == 1
+
+
+def test_pagesize_with_limit_higher_than_total_summaries(
+    client, test_perf_alert_summary, test_perf_alert_summary_2
+):
+    resp = client.get(
+        reverse('performance-alert-summaries-list'),
+        data={
+            'framework': 1,
+            'limit': 5,
+        },
+    )
+    assert resp.status_code == 200
+    resp_json = resp.json()
+    assert resp_json['next'] is None
+    assert resp_json['previous'] is None
+    retrieved_summaries = resp_json['results']
+    summary_ids = [summary['id'] for summary in retrieved_summaries]
+
+    assert test_perf_alert_summary.id in summary_ids
+    assert test_perf_alert_summary_2.id in summary_ids
+    assert len(summary_ids) == 2
 
 
 @pytest.fixture
