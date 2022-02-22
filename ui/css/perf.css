@@ -683,5 +683,5 @@ li.pagination-active.active > button {
 }
 
 .tags-and-options-td {
-  padding: 0 !important;
+  padding: 0.75rem 0px 0px 0px !important;
 }
