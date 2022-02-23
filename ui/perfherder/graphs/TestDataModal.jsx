@@ -494,7 +494,7 @@ export default class TestDataModal extends React.Component {
             { repository_name: findObject(projects, 'name', value) },
             this.getPlatforms,
           ),
-        title: 'Projects',
+        title: 'Project',
       },
       {
         // here
