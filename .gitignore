@@ -40,5 +40,3 @@ coverage.xml
 
 # Docs generation
 docs.egg-info
-
-.python-version
