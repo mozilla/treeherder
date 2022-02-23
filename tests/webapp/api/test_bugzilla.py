@@ -54,7 +54,8 @@ def test_create_bug(client, eleven_jobs_stored, activate_responses, test_user):
         },
     )
     assert resp.status_code == 200
-    assert resp.json()['success'] == 323
+    assert resp.json()['id'] == 323
+    assert resp.json()['url'] == 'https://thisisnotbugzilla.org/show_bug.cgi?id=323'
 
 
 def test_create_bug_with_unicode(client, eleven_jobs_stored, activate_responses, test_user):
@@ -107,7 +108,7 @@ def test_create_bug_with_unicode(client, eleven_jobs_stored, activate_responses,
         },
     )
     assert resp.status_code == 200
-    assert resp.json()['success'] == 323
+    assert resp.json()['id'] == 323
 
 
 def test_create_crash_bug(client, eleven_jobs_stored, activate_responses, test_user):
@@ -162,7 +163,7 @@ def test_create_crash_bug(client, eleven_jobs_stored, activate_responses, test_u
         },
     )
     assert resp.status_code == 200
-    assert resp.json()['success'] == 323
+    assert resp.json()['id'] == 323
 
 
 def test_create_unauthenticated_bug(client, eleven_jobs_stored, activate_responses):

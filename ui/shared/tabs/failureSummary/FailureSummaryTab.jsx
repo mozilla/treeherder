@@ -5,7 +5,7 @@ import { faSpinner } from '@fortawesome/free-solid-svg-icons';
 
 import { thBugSuggestionLimit, thEvents } from '../../../helpers/constants';
 import { getResultState, isReftest } from '../../../helpers/job';
-import { getBugUrl, getReftestUrl } from '../../../helpers/url';
+import { getReftestUrl } from '../../../helpers/url';
 import BugFiler from '../../BugFiler';
 import BugSuggestionsModel from '../../../models/bugSuggestions';
 
@@ -63,7 +63,7 @@ class FailureSummaryTab extends React.Component {
     addBug({ id: data.success });
     window.dispatchEvent(new CustomEvent(thEvents.saveClassification));
     // Open the newly filed bug in a new tab or window for further editing
-    window.open(getBugUrl(data.success));
+    window.open(data.url);
   };
 
   loadBugSuggestions = () => {
