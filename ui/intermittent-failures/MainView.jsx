@@ -1,21 +1,14 @@
-import React from 'react';
-import { Row, Col, Breadcrumb, BreadcrumbItem } from 'reactstrap';
 import PropTypes from 'prop-types';
-import moment from 'moment';
+import React from 'react';
 import ReactTable from 'react-table';
-
+import { Breadcrumb, BreadcrumbItem, Col, Row } from 'reactstrap';
 import { bugsEndpoint } from '../helpers/url';
-
+import { prettyDate } from '../shared/utils';
 import BugColumn from './BugColumn';
-import {
-  calculateMetrics,
-  prettyDate,
-  ISODate,
-  tableRowStyling,
-} from './helpers';
-import withView from './View';
-import Layout from './Layout';
 import DateRangePicker from './DateRangePicker';
+import { calculateMetrics, tableRowStyling } from './helpers';
+import Layout from './Layout';
+import withView from './View';
 
 const MainView = (props) => {
   const {

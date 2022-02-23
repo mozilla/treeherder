@@ -6,13 +6,13 @@ import { faChartArea, faTable } from '@fortawesome/free-solid-svg-icons';
 import moment from 'moment';
 
 import { endpoints } from '../perf-helpers/constants';
-import { ISODate } from '../../intermittent-failures/helpers';
 import { getData } from '../../helpers/http';
 import { createApiUrl } from '../../helpers/url';
 
 import TestDataModal from './TestDataModal';
 import GraphsContainer from './GraphsContainer';
 import TimeRangeDropdown from './TimeRangeDropdown';
+import { ISODate } from '../../shared/utils';
 
 export default class GraphsViewControls extends React.Component {
   constructor() {

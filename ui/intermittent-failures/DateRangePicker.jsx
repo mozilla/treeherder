@@ -5,9 +5,7 @@ import { DateRangePicker as DatePickerAirbnb } from 'react-dates';
 import moment from 'moment';
 import PropTypes from 'prop-types';
 import { Button } from 'reactstrap';
-
-import { ISODate } from './helpers';
-
+import { ISODate } from '../shared/utils';
 export default class DateRangePicker extends React.Component {
   constructor(props) {
     super(props);

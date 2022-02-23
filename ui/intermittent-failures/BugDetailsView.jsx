@@ -12,15 +12,11 @@ import {
 } from '../helpers/url';
 import SimpleTooltip from '../shared/SimpleTooltip';
 
-import {
-  calculateMetrics,
-  prettyDate,
-  tableRowStyling,
-  removePath,
-} from './helpers';
+import { calculateMetrics, tableRowStyling } from './helpers';
 import Layout from './Layout';
 import withView from './View';
 import DateOptions from './DateOptions';
+import { prettyDate, removePath } from '../shared/utils';
 
 const BugDetailsView = (props) => {
   const {

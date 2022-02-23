@@ -27,6 +27,7 @@ import {
 } from '../perf-helpers/helpers';
 
 import TimeRangeDropdown from './TimeRangeDropdown';
+import { findObject, sortData } from '../../shared/utils';
 
 export default class TestDataModal extends React.Component {
   constructor(props) {
@@ -34,7 +35,7 @@ export default class TestDataModal extends React.Component {
     this.state = {
       platforms: [],
       framework: { name: 'talos', id: 1 },
-      repository_name: this.findObject(
+      repository_name: findObject(
         this.props.projects,
         'name',
         'mozilla-central',
@@ -290,8 +291,6 @@ export default class TestDataModal extends React.Component {
     }
   };
 
-  findObject = (list, key, value) => list.find((item) => item[key] === value);
-
   filterTestsByText = (tests, filterText) => {
     return tests.filter((test) => {
       // spell out all searchable characteristics
@@ -473,7 +472,7 @@ export default class TestDataModal extends React.Component {
         updateData: (value) =>
           this.setState(
             {
-              framework: this.findObject(frameworks, 'name', value),
+              framework: findObject(frameworks, 'name', value),
             },
             this.getPlatforms,
           ),
@@ -492,12 +491,13 @@ export default class TestDataModal extends React.Component {
         ),
         updateData: (value) =>
           this.setState(
-            { repository_name: this.findObject(projects, 'name', value) },
+            { repository_name: findObject(projects, 'name', value) },
             this.getPlatforms,
           ),
-        title: 'Project',
+        title: 'Projects',
       },
       {
+        // here
         options: platforms.sort(),
         selectedItem: platform,
         updateData: (platform) =>

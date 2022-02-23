@@ -7,6 +7,7 @@ import { summaryStatusMap, scrollTypes } from '../perf-helpers/constants';
 import PaginationGroup from '../shared/Pagination';
 
 import AlertTable from './AlertTable';
+import { sortData } from '../../shared/utils';
 
 export default class AlertsViewControls extends React.Component {
   constructor(props) {
@@ -120,9 +121,12 @@ export default class AlertsViewControls extends React.Component {
       status,
     } = filters;
 
+    const sortedFrameWorks = sortData(frameworkOptions, 'name', false);
+    const allFrameworks = 'all frameworks';
+
     const frameworkNames =
-      frameworkOptions && frameworkOptions.length
-        ? frameworkOptions.map((item) => item.name)
+      sortedFrameWorks && sortedFrameWorks.length
+        ? sortedFrameWorks.map((item) => item.name)
         : [];
 
     const alertDropdowns = [

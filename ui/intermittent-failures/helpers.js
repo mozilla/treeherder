@@ -1,14 +1,3 @@
-import moment from 'moment';
-
-// be sure to wrap date arg in a moment()
-export const ISODate = function formatISODate(date) {
-  return date.format('YYYY-MM-DD');
-};
-
-export const prettyDate = function formatPrettyDate(date) {
-  return moment(date).format('ddd MMM D, YYYY');
-};
-
 export const formatBugs = function formatBugsForBugzilla(data) {
   const bugs = [];
   for (let i = 0; i < data.length; i++) {
@@ -79,22 +68,6 @@ export const calculateMetrics = function calculateMetricsForGraphs(data) {
   };
 };
 
-export const sortData = function sortData(data, sortBy, desc) {
-  data.sort((a, b) => {
-    const item1 = desc ? b[sortBy] : a[sortBy];
-    const item2 = desc ? a[sortBy] : b[sortBy];
-
-    if (item1 < item2) {
-      return -1;
-    }
-    if (item1 > item2) {
-      return 1;
-    }
-    return 0;
-  });
-  return data;
-};
-
 export const validateQueryParams = function validateQueryParams(
   params,
   bugRequired = false,
@@ -138,5 +111,3 @@ export const tableRowStyling = function tableRowStyling(state, bug) {
   }
   return {};
 };
-
-export const removePath = (line = '') => line.replace(/\/?([\w\d-.]+\/)+/, '');

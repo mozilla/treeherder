@@ -1,13 +1,9 @@
+import PropTypes from 'prop-types';
 import React from 'react';
 import { ButtonDropdown, DropdownToggle } from 'reactstrap';
-import moment from 'moment';
-import PropTypes from 'prop-types';
-
 import DropdownMenuItems from '../shared/DropdownMenuItems';
-
+import { ISODate } from '../shared/utils';
 import DateRangePicker from './DateRangePicker';
-import { ISODate } from './helpers';
-
 export default class DateOptions extends React.Component {
   constructor(props) {
     super(props);
