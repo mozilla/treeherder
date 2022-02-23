@@ -27,7 +27,7 @@ import {
 } from '../perf-helpers/helpers';
 
 import TimeRangeDropdown from './TimeRangeDropdown';
-import { findObject, sortData } from '../../shared/utils';
+import { findObject } from '../../shared/utils';
 
 export default class TestDataModal extends React.Component {
   constructor(props) {
