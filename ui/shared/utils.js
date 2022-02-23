@@ -22,10 +22,6 @@ export const sortData = function sortData(data, sortBy, desc) {
 
 // arrays
 export const findObject = (list, key, value) => {
-  console.log(list);
-  console.log(key);
-  console.log(value);
-
   return list.find((item) => item[key] === value);
 };
 
