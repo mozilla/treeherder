@@ -8,6 +8,7 @@ from rest_framework.response import Response
 from rest_framework.status import HTTP_400_BAD_REQUEST
 
 from treeherder.model.models import BugzillaSecurityGroup
+from treeherder.utils.bugzilla import get_bug_url
 from treeherder.utils.http import make_request
 
 
@@ -76,4 +77,5 @@ class BugzillaViewSet(viewsets.ViewSet):
                 message = e.response.text
             return Response({"failure": message}, status=HTTP_400_BAD_REQUEST)
 
-        return Response({"success": response.json()["id"]})
+        bug_id = response.json()["id"]
+        return Response({"id": bug_id, "url": get_bug_url(bug_id, settings.BUGFILER_API_URL)})
