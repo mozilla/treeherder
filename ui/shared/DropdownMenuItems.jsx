@@ -33,22 +33,22 @@ const DropdownMenuItems = ({
     {/* Items pinned to top of dropdown */}
     {pinned.length > 0 && (
       <React.Fragment>
-        {pinned.map((item) => {
-          return createDropdownItem(item, namespace, updateData, selectedItem);
-        })}
+        {pinned.map((item) =>
+          createDropdownItem(item, namespace, updateData, selectedItem),
+        )}
         <DropdownItem divider />
       </React.Fragment>
     )}
-    {options.map((item) => {
-      return createDropdownItem(item, namespace, updateData, selectedItem);
-    })}
+    {options.map((item) =>
+      createDropdownItem(item, namespace, updateData, selectedItem),
+    )}
     {/* Items pinned to bottom of dropdown */}
     {otherPinned.length > 0 && (
       <React.Fragment>
         <DropdownItem divider />
-        {otherPinned.map((item) => {
-          return createDropdownItem(item, namespace, updateData, selectedItem);
-        })}
+        {otherPinned.map((item) =>
+          createDropdownItem(item, namespace, updateData, selectedItem),
+        )}
       </React.Fragment>
     )}
   </DropdownMenu>
