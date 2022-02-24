@@ -7,6 +7,7 @@ import { summaryStatusMap, scrollTypes } from '../perf-helpers/constants';
 import PaginationGroup from '../shared/Pagination';
 
 import AlertTable from './AlertTable';
+import { sortData } from '../perf-helpers/sort';
 
 export default class AlertsViewControls extends React.Component {
   constructor(props) {
@@ -120,9 +121,21 @@ export default class AlertsViewControls extends React.Component {
       status,
     } = filters;
 
+    let sortedFrameWorks = sortData(frameworkOptions, 'name', false);
+    const allFrameworks = 'all frameworks';
+    const mozperftest = 'mozperftest';
+    const platform_microbench = 'platform_microbench';
+
+    sortedFrameWorks = sortedFrameWorks.filter(
+      (framework) =>
+        framework.name !== mozperftest &&
+        framework.name !== platform_microbench &&
+        framework.name !== allFrameworks,
+    );
+
     const frameworkNames =
-      frameworkOptions && frameworkOptions.length
-        ? frameworkOptions.map((item) => item.name)
+      sortedFrameWorks && sortedFrameWorks.length
+        ? sortedFrameWorks.map((item) => item.name)
         : [];
 
     const alertDropdowns = [
@@ -136,7 +149,9 @@ export default class AlertsViewControls extends React.Component {
         options: frameworkNames,
         selectedItem: framework.name,
         updateData: this.updateFramework,
-        namespace: 'framework',
+        namespace: 'frameworks',
+        pinned: [allFrameworks],
+        otherPinned: [mozperftest, platform_microbench],
       },
     ];
 
