@@ -5,9 +5,8 @@ import { Row, Button, Container } from 'reactstrap';
 import FilterControls from '../../shared/FilterControls';
 import { summaryStatusMap, scrollTypes } from '../perf-helpers/constants';
 import PaginationGroup from '../shared/Pagination';
-
-import AlertTable from './AlertTable';
 import { sortData } from '../perf-helpers/sort';
+import AlertTable from './AlertTable';
 
 export default class AlertsViewControls extends React.Component {
   constructor(props) {
