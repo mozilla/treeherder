@@ -34,14 +34,12 @@ const DropdownMenuItems = ({
     {pinned.length > 0 && (
       <React.Fragment>
         {pinned.map((item) => {
-          console.log('top is ' + item);
           return createDropdownItem(item, namespace, updateData, selectedItem);
         })}
         <DropdownItem divider />
       </React.Fragment>
     )}
     {options.map((item) => {
-      console.log('middle is ' + item);
       return createDropdownItem(item, namespace, updateData, selectedItem);
     })}
     {/* Items pinned to bottom of dropdown */}
@@ -49,7 +47,6 @@ const DropdownMenuItems = ({
       <React.Fragment>
         <DropdownItem divider />
         {otherPinned.map((item) => {
-          console.log('bottom is ' + item);
           return createDropdownItem(item, namespace, updateData, selectedItem);
         })}
       </React.Fragment>
