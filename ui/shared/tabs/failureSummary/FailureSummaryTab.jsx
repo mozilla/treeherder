@@ -74,6 +74,35 @@ class FailureSummaryTab extends React.Component {
     }
     BugSuggestionsModel.get(selectedJob.id).then(async (suggestions) => {
       suggestions.forEach((suggestion) => {
+        let simpleCase = [];
+        if (suggestion.bugs.open_recent.length > 0) {
+          suggestion.bugs.open_recent.forEach((bug) => {
+            if (bug.summary.endsWith('single tracking bug')) {
+              simpleCase = [bug];
+            }
+          });
+        }
+        if (suggestion.bugs.all_others.length > 0) {
+          suggestion.bugs.all_others.forEach((bug) => {
+            if (bug.summary.endsWith('single tracking bug')) {
+              simpleCase = [bug];
+            }
+          });
+        }
+
+        // HACK: use the simple case if found.
+        if (simpleCase.length > 0) {
+          suggestion.bugs.open_recent = simpleCase;
+
+          // HACK: remove the error message from the error line to avoid confusion
+          suggestion.search =
+            suggestion.search.split(suggestion.path_end)[0] +
+            suggestion.path_end;
+
+          // HACK: remove any other bugs, keep this simple.
+          suggestion.bugs.all_others = [];
+        }
+
         suggestion.bugs.too_many_open_recent =
           suggestion.bugs.open_recent.length > thBugSuggestionLimit;
         suggestion.bugs.too_many_all_others =
