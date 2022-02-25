@@ -121,12 +121,12 @@ export default class AlertsViewControls extends React.Component {
       status,
     } = filters;
 
-    let sortedFrameWorks = sortData(frameworkOptions, 'name', false);
+    let sortedFrameworks = sortData(frameworkOptions, 'name', false);
     const allFrameworks = 'all frameworks';
     const mozperftest = 'mozperftest';
     const platformMicrobench = 'platform_microbench';
 
-    sortedFrameWorks = sortedFrameWorks.filter(
+    sortedFrameworks = sortedFrameworks.filter(
       (framework) =>
         framework.name !== mozperftest &&
         framework.name !== platformMicrobench &&
@@ -134,8 +134,8 @@ export default class AlertsViewControls extends React.Component {
     );
 
     const frameworkNames =
-      sortedFrameWorks && sortedFrameWorks.length
-        ? sortedFrameWorks.map((item) => item.name)
+      sortedFrameworks && sortedFrameworks.length
+        ? sortedFrameworks.map((item) => item.name)
         : [];
 
     const alertDropdowns = [
