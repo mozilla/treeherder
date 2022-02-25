@@ -149,7 +149,7 @@ export default class AlertsViewControls extends React.Component {
         options: frameworkNames,
         selectedItem: framework.name,
         updateData: this.updateFramework,
-        namespace: 'frameworks',
+        namespace: 'framework',
         pinned: [allFrameworks],
         otherPinned: [mozperftest, platformMicrobench],
       },
