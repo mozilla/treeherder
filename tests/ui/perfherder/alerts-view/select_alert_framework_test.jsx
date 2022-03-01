@@ -42,6 +42,8 @@ const testFrameworksDropdown = () => {
 
 test('should pin the right number of items to top and bottom frameworks w.r.t config', async () => {
   testFrameworksDropdown();
+  // top pinned represents all items in the drop down that is at the top of the list
+  // bottom pinned represents all items in the drop down that is at the bottom of the list.
 
   const topPinned = document.querySelectorAll('.top-pinned');
   const bottomPinned = document.querySelectorAll('.bottom-pinned');

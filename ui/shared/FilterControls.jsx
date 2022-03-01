@@ -27,7 +27,7 @@ export const createDropdowns = (dropdownOptions, colClass, outline = false) => (
           aria-label={dropdown.title}
         >
           <DropdownToggle caret outline={outline}>
-            {dropdown.selectedItem} YYYYY
+            {dropdown.selectedItem}
           </DropdownToggle>
           <DropdownMenuItems
             pinned={dropdown.pinnedProjects || dropdown.pinned}
