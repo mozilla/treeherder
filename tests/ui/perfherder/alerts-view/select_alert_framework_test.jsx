@@ -51,7 +51,6 @@ test('should pin the right number of items to top and bottom frameworks w.r.t co
 });
 
 test('should sort all frameworks after clicking', async () => {
-  // testFrameworksDropdown();
   const alertsViewControls = new AlertsViewControls({
     isListMode: true,
     alertSummaries: { projects: [], alerts: ['a', 'b', 'c'] },
