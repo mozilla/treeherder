@@ -4,12 +4,19 @@ import { DropdownMenu, DropdownItem } from 'reactstrap';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faCheck } from '@fortawesome/free-solid-svg-icons';
 
-const createDropdownItem = (item, namespace, updateData, selectedItem) => {
+const createDropdownItem = (
+  item,
+  namespace,
+  updateData,
+  selectedItem,
+  className,
+) => {
   return (
     <DropdownItem
       tag="a"
       key={`${namespace}${item}`}
       onClick={() => updateData(item)}
+      className={`${!className ? '' : className}`}
     >
       <FontAwesomeIcon
         icon={faCheck}
@@ -34,7 +41,13 @@ const DropdownMenuItems = ({
     {pinned.length > 0 && (
       <React.Fragment>
         {pinned.map((item) =>
-          createDropdownItem(item, namespace, updateData, selectedItem),
+          createDropdownItem(
+            item,
+            namespace,
+            updateData,
+            selectedItem,
+            'top-pinned',
+          ),
         )}
         <DropdownItem divider />
       </React.Fragment>
@@ -47,7 +60,13 @@ const DropdownMenuItems = ({
       <React.Fragment>
         <DropdownItem divider />
         {otherPinned.map((item) =>
-          createDropdownItem(item, namespace, updateData, selectedItem),
+          createDropdownItem(
+            item,
+            namespace,
+            updateData,
+            selectedItem,
+            'bottom-pinned',
+          ),
         )}
       </React.Fragment>
     )}
