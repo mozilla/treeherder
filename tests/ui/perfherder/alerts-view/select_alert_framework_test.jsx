@@ -1,6 +1,7 @@
 import { render } from '@testing-library/react';
 import { noop } from 'lodash';
 import React from 'react';
+
 import AlertsViewControls from '../../../../ui/perfherder/alerts/AlertsViewControls';
 import FilterControls from '../../../../ui/shared/FilterControls';
 
@@ -33,7 +34,7 @@ const testFrameworksDropdown = () => {
       filterOptions={[]}
       updateFilter={() => noop()}
       updateFilterText={() => noop()}
-      updateOnEnter={true}
+      updateOnEnter
       dropdownCol
     />,
   );
@@ -45,12 +46,12 @@ test('should pin the right number of items to top and bottom frameworks w.r.t co
   const topPinned = document.querySelectorAll('.top-pinned');
   const bottomPinned = document.querySelectorAll('.bottom-pinned');
 
-  expect(topPinned.length).toBe(1);
-  expect(bottomPinned.length).toBe(2);
+  expect(topPinned).toHaveLength(1);
+  expect(bottomPinned).toHaveLength(2);
 });
 
 test('should sort all frameworks after clicking', async () => {
-  //testFrameworksDropdown();
+  // testFrameworksDropdown();
   const alertsViewControls = new AlertsViewControls({
     isListMode: true,
     alertSummaries: { projects: [], alerts: ['a', 'b', 'c'] },
