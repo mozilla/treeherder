@@ -262,6 +262,10 @@ class AlertsView extends React.Component {
       if (filterText) {
         params.filter_text = filterText;
       }
+      if (status === 'all regressions') {
+        delete params.status;
+        params.hide_improvements = true;
+      }
       if (hideDownstream) {
         params.hide_related_and_invalid = hideDownstream;
       }

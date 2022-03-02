@@ -8,12 +8,13 @@ import { Perfdocs, perfViews } from '../perf-helpers/perfdocs';
 
 import ItemList from './ItemList';
 import PlatformList from './PlatformList';
-import AlertsList from './AlertsList';
+import AlertsLink from './AlertsLink';
 
 export default function TestsTable(props) {
   const {
     results,
     framework,
+    allFrameworks,
     projectsMap,
     platformsMap,
     defaultPageSize,
@@ -93,7 +94,13 @@ export default function TestsTable(props) {
       accessor: 'total_alerts',
       Cell: (props) => {
         const { original } = props;
-        return <AlertsList alerts={original} />;
+        return (
+          <AlertsLink
+            alerts={original}
+            framework={framework}
+            allFrameworks={allFrameworks}
+          />
+        );
       },
       width: 100,
       style: { textAlign: 'center' },
