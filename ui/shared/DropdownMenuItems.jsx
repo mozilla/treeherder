@@ -16,7 +16,7 @@ const createDropdownItem = (
       tag="a"
       key={`${namespace}${item}`}
       onClick={() => updateData(item)}
-      className={`${!className ? '' : className}`}
+      className={`${!className || ''}`}
     >
       <FontAwesomeIcon
         icon={faCheck}
