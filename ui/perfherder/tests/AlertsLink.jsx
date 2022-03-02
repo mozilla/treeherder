@@ -6,6 +6,15 @@ import SimpleTooltip from '../../shared/SimpleTooltip';
 import { summaryStatusMap } from '../perf-helpers/constants';
 
 export default class AlertsLink extends React.PureComponent {
+  getTooltip = (type) => {
+    return (
+      <>
+        {type.charAt(0).toUpperCase() + type.slice(1)} <br />
+        <i>Note: Untriaged {type} can be seen through untriaged link</i>
+      </>
+    );
+  };
+
   render() {
     const { alerts, framework: frameworkName, allFrameworks } = this.props;
     const {
@@ -28,7 +37,7 @@ export default class AlertsLink extends React.PureComponent {
           >
             <SimpleTooltip
               text={`${improvements || 0}`}
-              tooltipText="Improvements"
+              tooltipText={this.getTooltip('improvements')}
             />
           </Link>
         </div>
@@ -39,7 +48,7 @@ export default class AlertsLink extends React.PureComponent {
           >
             <SimpleTooltip
               text={`${regressions || 0}`}
-              tooltipText="Regressions"
+              tooltipText={this.getTooltip('regressions')}
             />
           </Link>
         </div>
