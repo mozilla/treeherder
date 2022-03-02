@@ -75,9 +75,9 @@ test('should sort all frameworks after clicking', async () => {
   });
 
   const filterElement = alertsViewControls.render();
-  expect(
-    filterElement.props.children[1]?.props.dropdownOptions[1]?.options,
-  ).toEqual([
+  const filterElementChildren = filterElement.props.children[1];
+
+  expect(filterElementChildren.props.dropdownOptions[1].options).toEqual([
     'framework-a',
     'framework-b',
     'framework-c',
