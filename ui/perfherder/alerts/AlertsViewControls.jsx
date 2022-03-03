@@ -5,6 +5,7 @@ import { Row, Button, Container } from 'reactstrap';
 import FilterControls from '../../shared/FilterControls';
 import { summaryStatusMap, scrollTypes } from '../perf-helpers/constants';
 import PaginationGroup from '../shared/Pagination';
+import { sortData } from '../perf-helpers/sort';
 
 import AlertTable from './AlertTable';
 
@@ -120,9 +121,21 @@ export default class AlertsViewControls extends React.Component {
       status,
     } = filters;
 
+    let sortedFrameworks = sortData(frameworkOptions, 'name', false);
+    const allFrameworks = 'all frameworks';
+    const mozperftest = 'mozperftest';
+    const platformMicrobench = 'platform_microbench';
+
+    sortedFrameworks = sortedFrameworks.filter(
+      (framework) =>
+        framework.name !== mozperftest &&
+        framework.name !== platformMicrobench &&
+        framework.name !== allFrameworks,
+    );
+
     const frameworkNames =
-      frameworkOptions && frameworkOptions.length
-        ? frameworkOptions.map((item) => item.name)
+      sortedFrameworks && sortedFrameworks.length
+        ? sortedFrameworks.map((item) => item.name)
         : [];
 
     const alertDropdowns = [
@@ -137,6 +150,8 @@ export default class AlertsViewControls extends React.Component {
         selectedItem: framework.name,
         updateData: this.updateFramework,
         namespace: 'framework',
+        pinned: [allFrameworks],
+        otherPinned: [mozperftest, platformMicrobench],
       },
     ];
 
