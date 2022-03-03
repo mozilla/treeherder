@@ -86,7 +86,7 @@
     "jest": "26.0.1",
     "jest-environment-puppeteer": "6.0.3",
     "jest-puppeteer": "6.0.3",
-    "markdownlint-cli": "0.23.2",
+    "markdownlint-cli": "0.31.1",
     "path": "0.12.7",
     "prettier": "2.0.5",
     "puppeteer": "8.0.0",
