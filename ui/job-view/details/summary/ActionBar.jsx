@@ -33,7 +33,7 @@ import TaskclusterModel from '../../../models/taskcluster';
 import CustomJobActions from '../../CustomJobActions';
 import { notify } from '../../redux/stores/notifications';
 import { pinJob } from '../../redux/stores/pinnedJobs';
-import { getAction } from '../../../helpers/taskcluster';
+import taskcluster, { getAction } from '../../../helpers/taskcluster';
 import { checkRootUrl } from '../../../taskcluster-auth-callback/constants';
 
 import LogUrls from './LogUrls';
@@ -307,6 +307,8 @@ class ActionBar extends React.PureComponent {
 
     try {
       const interactiveTask = getAction(results.actions, 'create-interactive');
+
+      await taskcluster.getCredentials(currentRepo.tc_root_url);
 
       await TaskclusterModel.submit({
         action: interactiveTask,
