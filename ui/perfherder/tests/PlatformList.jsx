@@ -28,8 +28,28 @@ export default class PlatformList extends React.Component {
     this.setPlatforms();
   }
 
+  componentDidUpdate(prevProps) {
+    const { items } = this.props;
+    if (items !== prevProps.items) {
+      // eslint-disable-next-line react/no-did-update-set-state
+      this.setState(
+        {
+          platformsVersions: {},
+          activePlatform: null,
+          list: [],
+        },
+        () => this.setPlatforms(),
+      );
+    }
+  }
+
   setPlatforms = () => {
     const { items } = this.props;
+    this.linuxPlatforms = [];
+    this.macosPlatforms = [];
+    this.windowsPlatforms = [];
+    this.androidPlatforms = [];
+    this.otherPlatforms = [];
 
     items.forEach((platform) => {
       if (platform.includes('linux')) {
