@@ -362,6 +362,8 @@ def test_filter_signatures_by_field_should_alert(
     # set signature field should_alert to True
     test_perf_signature.should_alert = True
     test_perf_signature.save()
+    test_perf_signature_2.should_alert = False
+    test_perf_signature_2.save()
 
     resp = client.get(
         reverse(
@@ -386,6 +388,9 @@ def test_filter_data_by_should_alert(
     test_perf_signature.save()
 
     signature2 = test_perf_signature_same_hash_different_framework
+    signature2.should_alert = False
+    signature2.save()
+
     push = Push.objects.get(id=1)
     for signature in [test_perf_signature, signature2]:
         PerformanceDatum.objects.create(

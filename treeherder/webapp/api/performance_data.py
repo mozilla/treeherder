@@ -107,7 +107,7 @@ class PerformanceSignatureViewSet(viewsets.ViewSet):
             signature_data = signature_data.filter(platform__in=platforms)
 
         if int(request.query_params.get('should_alert', False)):
-            signature_data = signature_data.filter(should_alert=True)
+            signature_data = signature_data.exclude(should_alert=False)
 
         signature_map = {}
         for (
@@ -282,7 +282,7 @@ class PerformanceDatumViewSet(viewsets.ViewSet):
             datums = datums.filter(push_timestamp__lt=end_date)
 
         if should_alert:
-            datums = datums.filter(signature__should_alert=True)
+            datums = datums.exclude(signature__should_alert=False)
 
         ret, seen_push_ids = defaultdict(list), defaultdict(set)
         values_list = datums.values_list(
