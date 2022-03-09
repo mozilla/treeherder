@@ -4,7 +4,14 @@ import re
 import environ
 import newrelic.agent
 
-from treeherder.model.models import MozciClassification, Push, Repository
+from treeherder.model.models import (
+    FailureClassification,
+    Job,
+    JobNote,
+    MozciClassification,
+    Push,
+    Repository,
+)
 from treeherder.utils.taskcluster import download_artifact, get_task_definition
 
 env = environ.Env()
@@ -57,6 +64,9 @@ class ClassificationLoader:
             task_id=task_id,
         )
 
+        # Autoclassifying intermittent failures when the "autoclassify" flag is activated on them
+        self.autoclassify_failures(classification_json["failures"]["intermittent"])
+
     def get_push(self, task_route):
         try:
             project, revision = CLASSIFICATION_ROUTE_REGEX.search(task_route).groups()
@@ -88,3 +98,18 @@ class ClassificationLoader:
             raise
 
         return push
+
+    def autoclassify_failures(self, failures):
+        autoclassified_intermittent = FailureClassification.objects.get(
+            name="autoclassified intermittent"
+        )
+        for tasks in failures.values():
+            # Keeping only the tasks that should be autoclassified
+            for task in [t for t in tasks if t.get("autoclassify")]:
+                # Retrieving the relevant Job and adding an "autoclassified intermittent" classification on it
+                job = Job.objects.get(taskcluster_metadata__task_id=task["task_id"])
+                JobNote.objects.create(
+                    job=job,
+                    failure_classification=autoclassified_intermittent,
+                    text="Autoclassified by mozci bot as an intermittent failure",
+                )

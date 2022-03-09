@@ -5,7 +5,14 @@ import pytest
 import responses
 
 from treeherder.etl.classification_loader import ClassificationLoader
-from treeherder.model.models import MozciClassification, Push, Repository, RepositoryGroup
+from treeherder.model.models import (
+    FailureClassification,
+    JobNote,
+    MozciClassification,
+    Push,
+    Repository,
+    RepositoryGroup,
+)
 
 DEFAULT_GTD_CONFIG = {
     'json': {
@@ -19,7 +26,26 @@ DEFAULT_DA_CONFIG = {
         'push': {
             'id': 'autoland/c73bcc465e0c2bce7debb0a86277e2dcb27444e4',
             'classification': 'GOOD',
-        }
+        },
+        'failures': {
+            'real': {},
+            'intermittent': {
+                'testing/web-platform/tests/webdriver/tests/element_click': [],
+                'devtools/client/framework/test/browser.ini': [
+                    {
+                        'task_id': 'FJtjczXfTAGClIl6wNBo9g',
+                        'label': 'test-linux1804-64-qr/opt-mochitest-devtools-chrome-dt-no-eft-nofis-e10s-3',
+                        'autoclassify': False,
+                    },
+                    {
+                        'task_id': 'V3SVuxO8TFy37En_6HcXLs',
+                        'label': 'test-linux1804-64-qr/opt-mochitest-devtools-chrome-dt-no-eft-nofis-e10s-4',
+                        'autoclassify': True,
+                    },
+                ],
+            },
+            'unknown': {},
+        },
     },
     'content_type': 'application/json',
     'status': 200,
@@ -28,18 +54,18 @@ DEFAULT_DA_CONFIG = {
 
 @pytest.fixture
 def autoland_repository():
-    group = RepositoryGroup.objects.create(name="development")
+    group = RepositoryGroup.objects.create(name='development')
 
     return Repository.objects.create(
-        dvcs_type="hg",
-        name="autoland",
-        url="https://hg.mozilla.org/integration/autoland",
-        active_status="active",
-        codebase="gecko",
+        dvcs_type='hg',
+        name='autoland',
+        url='https://hg.mozilla.org/integration/autoland',
+        active_status='active',
+        codebase='gecko',
         repository_group=group,
         performance_alerts_enabled=True,
         expire_performance_data=False,
-        tc_root_url="https://firefox-ci-tc.services.mozilla.com",
+        tc_root_url='https://firefox-ci-tc.services.mozilla.com',
     )
 
 
@@ -69,7 +95,7 @@ def test_get_push_wrong_route(route):
 
 @pytest.mark.django_db
 def test_get_push_unsupported_project():
-    route = "index.project.mozci.classification.autoland.revision.A35mWTRuQmyj88yMnIF0fA"
+    route = 'index.project.mozci.classification.autoland.revision.A35mWTRuQmyj88yMnIF0fA'
 
     with pytest.raises(Repository.DoesNotExist) as e:
         ClassificationLoader().get_push(route)
@@ -79,7 +105,7 @@ def test_get_push_unsupported_project():
 
 @pytest.mark.django_db
 def test_get_push_unsupported_revision(autoland_repository):
-    route = "index.project.mozci.classification.autoland.revision.A35mWTRuQmyj88yMnIF0fA"
+    route = 'index.project.mozci.classification.autoland.revision.A35mWTRuQmyj88yMnIF0fA'
 
     with pytest.raises(Push.DoesNotExist) as e:
         ClassificationLoader().get_push(route)
@@ -89,7 +115,7 @@ def test_get_push_unsupported_revision(autoland_repository):
 
 @pytest.mark.django_db
 def test_get_push(autoland_push):
-    route = "index.project.mozci.classification.autoland.revision.A35mWTRuQmyj88yMnIF0fA"
+    route = 'index.project.mozci.classification.autoland.revision.A35mWTRuQmyj88yMnIF0fA'
 
     assert ClassificationLoader().get_push(route) == autoland_push
 
@@ -199,7 +225,7 @@ def test_process_handle_errors(
 
 @responses.activate
 @pytest.mark.django_db
-def test_process(autoland_push):
+def test_process(autoland_push, test_job):
     root_url = 'https://community-tc.services.mozilla.com'
     task_id = 'A35mWTRuQmyj88yMnIF0fA'
 
@@ -219,3 +245,35 @@ def test_process(autoland_push):
     assert classification.push == autoland_push
     assert classification.result == MozciClassification.GOOD
     assert classification.task_id == task_id
+
+    test_job.refresh_from_db()
+    autoclassified_intermittent = FailureClassification.objects.get(
+        name='autoclassified intermittent'
+    )
+    assert test_job.failure_classification == autoclassified_intermittent
+    assert JobNote.objects.filter(
+        job=test_job, failure_classification=autoclassified_intermittent
+    ).exists()
+
+
+@pytest.mark.django_db
+def test_autoclassify_failures(test_job):
+    assert test_job.failure_classification.name == 'not classified'
+    assert JobNote.objects.count() == 0
+
+    ClassificationLoader().autoclassify_failures(
+        DEFAULT_DA_CONFIG['json']['failures']['intermittent']
+    )
+
+    test_job.refresh_from_db()
+    autoclassified_intermittent = FailureClassification.objects.get(
+        name='autoclassified intermittent'
+    )
+    assert test_job.failure_classification == autoclassified_intermittent
+
+    assert JobNote.objects.count() == 1
+    job_note = JobNote.objects.first()
+    assert job_note.job == test_job
+    assert job_note.failure_classification == autoclassified_intermittent
+    assert job_note.who == 'autoclassifier'
+    assert job_note.text == 'Autoclassified by mozci bot as an intermittent failure'
