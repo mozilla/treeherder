@@ -158,6 +158,30 @@ export class BugFilerClass extends React.Component {
       checkedLogLinks.set('Reftest URL', reftestUrl);
     }
 
+    if (jobGroupName === 'Xpcshell tests') {
+      const isTimeout = [/timeout/i, /timed out/].some((regexp) =>
+        regexp.test(summaryString),
+      );
+
+      // simple hack to make sure we have a testcase in the summary
+      const isTestPath = [
+        /.*test_.*.js/, // xpcshell
+        /.*test_.*.html/, // mochitest
+        /.*test_.*.xhtml/, // mochitest-chrome
+        /.*browser_.*.html/, // b-c
+        /.*browser_.*.js/, // b-c
+      ].some((regexp) => regexp.test(summaryString));
+
+      // If not crash|leak|timeout
+      if (!crash && !isAssertion && !isTimeout && isTestPath) {
+        const parts = summaryString.split(' | ');
+        if (parts.length === 2) {
+          summaryString = `${parts[0]} | single tracking bug`;
+          keywords.push('intermittent-testcase');
+        }
+      }
+    }
+
     this.state = {
       tooltipOpen: {},
       summary: `Intermittent ${summaryString}`,
