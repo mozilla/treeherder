@@ -100,14 +100,33 @@ class ClassificationLoader:
         return push
 
     def autoclassify_failures(self, failures):
-        autoclassified_intermittent = FailureClassification.objects.get(
-            name="autoclassified intermittent"
-        )
+        try:
+            autoclassified_intermittent = FailureClassification.objects.get(
+                name="autoclassified intermittent"
+            )
+        except FailureClassification.DoesNotExist:
+            logger.error(
+                "FailureClassification named 'autoclassified intermittent' does not exist."
+            )
+            raise
+
         for tasks in failures.values():
-            # Keeping only the tasks that should be autoclassified
-            for task in [t for t in tasks if t.get("autoclassify")]:
-                # Retrieving the relevant Job and adding an "autoclassified intermittent" classification on it
-                job = Job.objects.get(taskcluster_metadata__task_id=task["task_id"])
+            for task in tasks:
+                # Keeping only the tasks that should be autoclassified
+                if not task.get("autoclassify"):
+                    continue
+
+                # Retrieving the relevant Job
+                try:
+                    job = Job.objects.get(taskcluster_metadata__task_id=task["task_id"])
+                except Job.DoesNotExist:
+                    logger.error(
+                        "Job associated to the TC task %s does not exist and could not be autoclassified.",
+                        task["task_id"],
+                    )
+                    raise
+
+                # Adding an "autoclassified intermittent" classification on it
                 JobNote.objects.create(
                     job=job,
                     failure_classification=autoclassified_intermittent,

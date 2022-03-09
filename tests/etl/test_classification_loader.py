@@ -7,6 +7,7 @@ import responses
 from treeherder.etl.classification_loader import ClassificationLoader
 from treeherder.model.models import (
     FailureClassification,
+    Job,
     JobNote,
     MozciClassification,
     Push,
@@ -254,6 +255,50 @@ def test_process(autoland_push, test_job):
     assert JobNote.objects.filter(
         job=test_job, failure_classification=autoclassified_intermittent
     ).exists()
+
+
+@pytest.mark.django_db
+def test_autoclassify_failures_missing_failureclassification(test_job):
+    assert test_job.failure_classification.name == 'not classified'
+    assert JobNote.objects.count() == 0
+
+    FailureClassification.objects.filter(name='autoclassified intermittent').delete()
+    with pytest.raises(FailureClassification.DoesNotExist) as e:
+        ClassificationLoader().autoclassify_failures(
+            DEFAULT_DA_CONFIG['json']['failures']['intermittent']
+        )
+
+    assert str(e.value) == 'FailureClassification matching query does not exist.'
+
+    test_job.refresh_from_db()
+    assert test_job.failure_classification.name == 'not classified'
+    assert JobNote.objects.count() == 0
+
+
+@pytest.mark.django_db
+def test_autoclassify_failures_missing_job(test_job):
+    assert test_job.failure_classification.name == 'not classified'
+    assert JobNote.objects.count() == 0
+
+    intermittents = {
+        group: [
+            {
+                'task_id': task['task_id'],
+                'label': task['label'],
+                'autoclassify': not task['autoclassify'],
+            }
+            for task in tasks
+        ]
+        for group, tasks in DEFAULT_DA_CONFIG['json']['failures']['intermittent'].items()
+    }
+    with pytest.raises(Job.DoesNotExist) as e:
+        ClassificationLoader().autoclassify_failures(intermittents)
+
+    assert str(e.value) == 'Job matching query does not exist.'
+
+    test_job.refresh_from_db()
+    assert test_job.failure_classification.name == 'not classified'
+    assert JobNote.objects.count() == 0
 
 
 @pytest.mark.django_db
