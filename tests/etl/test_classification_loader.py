@@ -6,6 +6,8 @@ import responses
 
 from treeherder.etl.classification_loader import ClassificationLoader
 from treeherder.model.models import (
+    BugJobMap,
+    Bugscache,
     FailureClassification,
     Job,
     JobNote,
@@ -35,11 +37,23 @@ DEFAULT_DA_CONFIG = {
                 'devtools/client/framework/test/browser.ini': [
                     {
                         'task_id': 'FJtjczXfTAGClIl6wNBo9g',
-                        'label': 'test-linux1804-64-qr/opt-mochitest-devtools-chrome-dt-no-eft-nofis-e10s-3',
+                        'label': 'test-linux1804-64-qr/opt-mochitest-devtools-chrome-dt-no-eft-nofis-e10s-1',
                         'autoclassify': False,
                     },
                     {
                         'task_id': 'V3SVuxO8TFy37En_6HcXLs',
+                        'label': 'test-linux1804-64-qr/opt-mochitest-devtools-chrome-dt-no-eft-nofis-e10s-2',
+                        'autoclassify': True,
+                    },
+                ],
+                'devtools/client/framework/test2/browser.ini': [
+                    {
+                        'task_id': 'RutlNkofzrbTnbauRSTJWc',
+                        'label': 'test-linux1804-64-qr/opt-mochitest-devtools-chrome-dt-no-eft-nofis-e10s-3',
+                        'autoclassify': False,
+                    },
+                    {
+                        'task_id': 'HTZJyyQLalgtOkbwDBxChF',
                         'label': 'test-linux1804-64-qr/opt-mochitest-devtools-chrome-dt-no-eft-nofis-e10s-4',
                         'autoclassify': True,
                     },
@@ -77,6 +91,16 @@ def autoland_push(autoland_repository):
         revision='A35mWTRuQmyj88yMnIF0fA',
         author='foo@bar.com',
         time=datetime.datetime.now(),
+    )
+
+
+@pytest.fixture
+def populate_bugscache():
+    return Bugscache.objects.create(
+        id=1234567,
+        status='NEW',
+        summary='intermittent devtools/client/framework/test/browser.ini | single tracking bug',
+        modified='2014-01-01 00:00:00',
     )
 
 
@@ -226,7 +250,7 @@ def test_process_handle_errors(
 
 @responses.activate
 @pytest.mark.django_db
-def test_process(autoland_push, test_job):
+def test_process(autoland_push, test_job, populate_bugscache):
     root_url = 'https://community-tc.services.mozilla.com'
     task_id = 'A35mWTRuQmyj88yMnIF0fA'
 
@@ -255,12 +279,14 @@ def test_process(autoland_push, test_job):
     assert JobNote.objects.filter(
         job=test_job, failure_classification=autoclassified_intermittent
     ).exists()
+    assert BugJobMap.objects.filter(job=test_job, bug_id=populate_bugscache.id).exists()
 
 
 @pytest.mark.django_db
 def test_autoclassify_failures_missing_failureclassification(test_job):
     assert test_job.failure_classification.name == 'not classified'
     assert JobNote.objects.count() == 0
+    assert BugJobMap.objects.count() == 0
 
     FailureClassification.objects.filter(name='autoclassified intermittent').delete()
     with pytest.raises(FailureClassification.DoesNotExist) as e:
@@ -273,12 +299,14 @@ def test_autoclassify_failures_missing_failureclassification(test_job):
     test_job.refresh_from_db()
     assert test_job.failure_classification.name == 'not classified'
     assert JobNote.objects.count() == 0
+    assert BugJobMap.objects.count() == 0
 
 
 @pytest.mark.django_db
-def test_autoclassify_failures_missing_job(test_job):
+def test_autoclassify_failures_missing_job(test_job, populate_bugscache):
     assert test_job.failure_classification.name == 'not classified'
     assert JobNote.objects.count() == 0
+    assert BugJobMap.objects.count() == 0
 
     intermittents = {
         group: [
@@ -299,12 +327,20 @@ def test_autoclassify_failures_missing_job(test_job):
     test_job.refresh_from_db()
     assert test_job.failure_classification.name == 'not classified'
     assert JobNote.objects.count() == 0
+    assert BugJobMap.objects.count() == 0
 
 
 @pytest.mark.django_db
-def test_autoclassify_failures(test_job):
+def test_autoclassify_failures(test_job, populate_bugscache):
+    """
+    Only one autoclassification will be added for this push since there is only
+    one bug cached (for the group devtools/client/framework/test/browser.ini) and
+    the autoclassify attribute is activated only on the second failure of this group.
+    """
+
     assert test_job.failure_classification.name == 'not classified'
     assert JobNote.objects.count() == 0
+    assert BugJobMap.objects.count() == 0
 
     ClassificationLoader().autoclassify_failures(
         DEFAULT_DA_CONFIG['json']['failures']['intermittent']
@@ -322,3 +358,9 @@ def test_autoclassify_failures(test_job):
     assert job_note.failure_classification == autoclassified_intermittent
     assert job_note.who == 'autoclassifier'
     assert job_note.text == 'Autoclassified by mozci bot as an intermittent failure'
+
+    assert BugJobMap.objects.count() == 1
+    bug_job_map = BugJobMap.objects.first()
+    assert bug_job_map.job == test_job
+    assert bug_job_map.bug_id == populate_bugscache.id
+    assert job_note.who == 'autoclassifier'

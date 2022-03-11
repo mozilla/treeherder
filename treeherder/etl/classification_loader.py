@@ -5,6 +5,8 @@ import environ
 import newrelic.agent
 
 from treeherder.model.models import (
+    BugJobMap,
+    Bugscache,
     FailureClassification,
     Job,
     JobNote,
@@ -110,10 +112,16 @@ class ClassificationLoader:
             )
             raise
 
-        for tasks in failures.values():
+        for group, tasks in failures.items():
             for task in tasks:
                 # Keeping only the tasks that should be autoclassified
                 if not task.get("autoclassify"):
+                    continue
+
+                try:
+                    bug = Bugscache.objects.get(summary__endswith=f"{group} | single tracking bug")
+                except Bugscache.DoesNotExist:
+                    # No associated Bugzilla bug exists, skipping the autoclassification
                     continue
 
                 # Retrieving the relevant Job
@@ -132,3 +140,6 @@ class ClassificationLoader:
                     failure_classification=autoclassified_intermittent,
                     text="Autoclassified by mozci bot as an intermittent failure",
                 )
+
+                # Linking it to the relevant Bugzilla single tracking bug
+                BugJobMap.objects.create(job=job, bug_id=bug.id)
