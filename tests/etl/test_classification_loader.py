@@ -250,6 +250,43 @@ def test_process_handle_errors(
 
 @responses.activate
 @pytest.mark.django_db
+def test_process_missing_failureclassification(autoland_push, test_job):
+    root_url = 'https://community-tc.services.mozilla.com'
+    task_id = 'A35mWTRuQmyj88yMnIF0fA'
+
+    responses.add(responses.GET, f'{root_url}/api/queue/v1/task/{task_id}', **DEFAULT_GTD_CONFIG)
+    responses.add(
+        responses.GET,
+        f'{root_url}/api/queue/v1/task/{task_id}/artifacts/public/classification.json',
+        **DEFAULT_DA_CONFIG,
+    )
+
+    assert MozciClassification.objects.count() == 0
+    assert test_job.failure_classification.name == 'not classified'
+    assert JobNote.objects.count() == 0
+    assert BugJobMap.objects.count() == 0
+
+    FailureClassification.objects.filter(name='autoclassified intermittent').delete()
+    with pytest.raises(FailureClassification.DoesNotExist) as e:
+        ClassificationLoader().process({'status': {'taskId': task_id}}, root_url)
+
+    assert str(e.value) == 'FailureClassification matching query does not exist.'
+
+    assert MozciClassification.objects.count() == 1
+    classification = MozciClassification.objects.first()
+    assert classification.push == autoland_push
+    assert classification.result == MozciClassification.GOOD
+    assert classification.task_id == task_id
+
+    # Did not autoclassify since the requested FailureClassification was not found
+    test_job.refresh_from_db()
+    assert test_job.failure_classification.name == 'not classified'
+    assert JobNote.objects.count() == 0
+    assert BugJobMap.objects.count() == 0
+
+
+@responses.activate
+@pytest.mark.django_db
 def test_process(autoland_push, test_job, populate_bugscache):
     root_url = 'https://community-tc.services.mozilla.com'
     task_id = 'A35mWTRuQmyj88yMnIF0fA'
@@ -283,26 +320,6 @@ def test_process(autoland_push, test_job, populate_bugscache):
 
 
 @pytest.mark.django_db
-def test_autoclassify_failures_missing_failureclassification(test_job):
-    assert test_job.failure_classification.name == 'not classified'
-    assert JobNote.objects.count() == 0
-    assert BugJobMap.objects.count() == 0
-
-    FailureClassification.objects.filter(name='autoclassified intermittent').delete()
-    with pytest.raises(FailureClassification.DoesNotExist) as e:
-        ClassificationLoader().autoclassify_failures(
-            DEFAULT_DA_CONFIG['json']['failures']['intermittent']
-        )
-
-    assert str(e.value) == 'FailureClassification matching query does not exist.'
-
-    test_job.refresh_from_db()
-    assert test_job.failure_classification.name == 'not classified'
-    assert JobNote.objects.count() == 0
-    assert BugJobMap.objects.count() == 0
-
-
-@pytest.mark.django_db
 def test_autoclassify_failures_missing_job(test_job, populate_bugscache):
     assert test_job.failure_classification.name == 'not classified'
     assert JobNote.objects.count() == 0
@@ -320,7 +337,9 @@ def test_autoclassify_failures_missing_job(test_job, populate_bugscache):
         for group, tasks in DEFAULT_DA_CONFIG['json']['failures']['intermittent'].items()
     }
     with pytest.raises(Job.DoesNotExist) as e:
-        ClassificationLoader().autoclassify_failures(intermittents)
+        ClassificationLoader().autoclassify_failures(
+            intermittents, FailureClassification.objects.get(name='autoclassified intermittent')
+        )
 
     assert str(e.value) == 'Job matching query does not exist.'
 
@@ -342,14 +361,14 @@ def test_autoclassify_failures(test_job, populate_bugscache):
     assert JobNote.objects.count() == 0
     assert BugJobMap.objects.count() == 0
 
-    ClassificationLoader().autoclassify_failures(
-        DEFAULT_DA_CONFIG['json']['failures']['intermittent']
-    )
-
-    test_job.refresh_from_db()
     autoclassified_intermittent = FailureClassification.objects.get(
         name='autoclassified intermittent'
     )
+    ClassificationLoader().autoclassify_failures(
+        DEFAULT_DA_CONFIG['json']['failures']['intermittent'], autoclassified_intermittent
+    )
+
+    test_job.refresh_from_db()
     assert test_job.failure_classification == autoclassified_intermittent
 
     assert JobNote.objects.count() == 1

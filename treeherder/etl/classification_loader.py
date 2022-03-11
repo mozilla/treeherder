@@ -66,8 +66,20 @@ class ClassificationLoader:
             task_id=task_id,
         )
 
+        try:
+            autoclassified_intermittent = FailureClassification.objects.get(
+                name="autoclassified intermittent"
+            )
+        except FailureClassification.DoesNotExist:
+            logger.error(
+                "FailureClassification named 'autoclassified intermittent' does not exist."
+            )
+            raise
+
         # Autoclassifying intermittent failures when the "autoclassify" flag is activated on them
-        self.autoclassify_failures(classification_json["failures"]["intermittent"])
+        self.autoclassify_failures(
+            classification_json["failures"]["intermittent"], autoclassified_intermittent
+        )
 
     def get_push(self, task_route):
         try:
@@ -101,17 +113,7 @@ class ClassificationLoader:
 
         return push
 
-    def autoclassify_failures(self, failures):
-        try:
-            autoclassified_intermittent = FailureClassification.objects.get(
-                name="autoclassified intermittent"
-            )
-        except FailureClassification.DoesNotExist:
-            logger.error(
-                "FailureClassification named 'autoclassified intermittent' does not exist."
-            )
-            raise
-
+    def autoclassify_failures(self, failures, classification):
         for group, tasks in failures.items():
             for task in tasks:
                 # Keeping only the tasks that should be autoclassified
@@ -122,6 +124,7 @@ class ClassificationLoader:
                     bug = Bugscache.objects.get(summary__endswith=f"{group} | single tracking bug")
                 except Bugscache.DoesNotExist:
                     # No associated Bugzilla bug exists, skipping the autoclassification
+                    logger.info("No single tracking Bugzilla bug found for group: %s", group)
                     continue
 
                 # Retrieving the relevant Job
@@ -137,7 +140,7 @@ class ClassificationLoader:
                 # Adding an "autoclassified intermittent" classification on it
                 JobNote.objects.create(
                     job=job,
-                    failure_classification=autoclassified_intermittent,
+                    failure_classification=classification,
                     text="Autoclassified by mozci bot as an intermittent failure",
                 )
 
