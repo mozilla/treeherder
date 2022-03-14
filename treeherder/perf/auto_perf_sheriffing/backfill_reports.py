@@ -142,6 +142,16 @@ class AlertsPicker:
                 ) - self.ordered_platforms_of_interest.index(platform_of_interest)
         raise ValueError('Unknown platform.')
 
+    def _noise_profile_is_ok(self, noise_profile: str):
+        """
+        One of the sorting criteria.
+        :param noise_profile: the noise profile of the current alert
+        :return: boolean value
+        """
+        if noise_profile == PerformanceAlert.OK:
+            return True
+        return False
+
     def _has_relevant_platform(self, alert: PerformanceAlert):
         """
         Filter criteria based on platform name.
@@ -161,8 +171,9 @@ class AlertsPicker:
             # sort criteria
             key=lambda alert: (
                 alert.is_regression,
-                self._os_relevance(alert.series_signature.platform.platform),
+                self._noise_profile_is_ok(alert.noise_profile),
                 alert.amount_pct,  # magnitude
+                self._os_relevance(alert.series_signature.platform.platform),
             ),
             reverse=True,
         )

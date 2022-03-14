@@ -127,6 +127,7 @@ def test_many_various_alerts():
     toggle = True
     for idx, alert in enumerate(alerts):
         alert.is_regression = toggle
+        alert.noise_profile = "OK" if idx in [7, 8, 9] else "N/A"
         alert.series_signature.platform.platform = platforms[idx]
         alert.amount_pct = reversed_magnitudes[idx]
         toggle = not toggle
