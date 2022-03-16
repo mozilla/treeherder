@@ -148,9 +148,7 @@ class AlertsPicker:
         :param noise_profile: the noise profile of the current alert
         :return: boolean value
         """
-        if noise_profile == PerformanceAlert.OK:
-            return True
-        return False
+        return True if noise_profile == PerformanceAlert.OK else False
 
     def _has_relevant_platform(self, alert: PerformanceAlert):
         """
