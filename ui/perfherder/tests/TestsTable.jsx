@@ -150,7 +150,7 @@ export default function TestsTable(props) {
               }
             />
           ),
-          accessor: 'total_alerts',
+          accessor: 'total_regressions',
           Cell: (props) => {
             const { original } = props;
             return (
@@ -174,7 +174,7 @@ export default function TestsTable(props) {
               text={<FontAwesomeIcon icon={faQuestionCircle} />}
             />
           ),
-          accessor: 'total_alerts',
+          accessor: 'total_untriaged',
           Cell: (props) => {
             const { original } = props;
             return (
