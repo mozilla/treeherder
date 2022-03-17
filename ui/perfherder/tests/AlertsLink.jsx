@@ -10,13 +10,44 @@ export default class AlertsLink extends React.PureComponent {
     return (
       <>
         {type.charAt(0).toUpperCase() + type.slice(1)} <br />
-        <i>Note: Untriaged {type} can be seen through untriaged link</i>
+        {type !== 'untriaged' && (
+          <i>Note: Untriaged {type} can be seen through untriaged link</i>
+        )}
       </>
     );
   };
 
+  getCell = (type, alertsNumber, filterText, framework) => {
+    const summaryStatus = {
+      improvements: summaryStatusMap.improvement,
+      regressions: summaryStatusMap['all regressions'],
+      untriaged: summaryStatusMap.untriaged,
+    };
+
+    return (
+      <div className="d-flex justify-content-center">
+        <div data-testid={type} className="w-50">
+          <Link
+            to={`./alerts?hideDwnToInv=0&filterText=${filterText}&page=1&status=${summaryStatus[type]}&framework=${framework.id}`}
+            target="_blank"
+          >
+            <SimpleTooltip
+              text={`${alertsNumber[type] || 0}`}
+              tooltipText={this.getTooltip(type)}
+            />
+          </Link>
+        </div>
+      </div>
+    );
+  };
+
   render() {
-    const { alerts, framework: frameworkName, allFrameworks } = this.props;
+    const {
+      alerts,
+      framework: frameworkName,
+      allFrameworks,
+      type,
+    } = this.props;
     const {
       total_alerts: totalAlerts,
       total_regressions: regressions,
@@ -28,40 +59,13 @@ export default class AlertsLink extends React.PureComponent {
     const framework = allFrameworks.find((item) => item.name === frameworkName);
 
     const filterText = suite && test ? suite.concat(`+${test}`) : suite || test;
-    return (
-      <div className="d-flex justify-content-center">
-        <div data-testid="improvements" className="w-50">
-          <Link
-            to={`./alerts?hideDwnToInv=0&filterText=${filterText}&page=1&status=${summaryStatusMap.improvement}&framework=${framework.id}`}
-            target="_blank"
-          >
-            <SimpleTooltip
-              text={`${improvements || 0}`}
-              tooltipText={this.getTooltip('improvements')}
-            />
-          </Link>
-        </div>
-        <div data-testid="regressions" className="w-50">
-          <Link
-            to={`./alerts?hideDwnToInv=0&filterText=${filterText}&page=1&status=${summaryStatusMap['all regressions']}&framework=${framework.id}`}
-            target="_blank"
-          >
-            <SimpleTooltip
-              text={`${regressions || 0}`}
-              tooltipText={this.getTooltip('regressions')}
-            />
-          </Link>
-        </div>
-        <div data-testid="untriaged" className="w-50">
-          <Link
-            to={`./alerts?hideDwnToInv=0&filterText=${filterText}&page=1&status=${summaryStatusMap.untriaged}&framework=${framework.id}`}
-            target="_blank"
-          >
-            <SimpleTooltip text={`${untriaged || 0}`} tooltipText="Untriaged" />
-          </Link>
-        </div>
-      </div>
-    );
+    const alertsNumber = {
+      improvements,
+      regressions,
+      untriaged,
+    };
+
+    return this.getCell(type, alertsNumber, filterText, framework);
   }
 }
 
