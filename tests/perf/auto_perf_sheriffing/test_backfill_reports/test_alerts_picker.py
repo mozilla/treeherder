@@ -187,18 +187,18 @@ def test_multi_criterion_sort(test_many_various_alerts):
     )
 
     expected_platforms_order = (
-        'windows10-64-shippable',
-        'windows7-32-shippable',
-        'linux64-shippable-qr',
-        'osx-10-10-shippable',
         'android-hw-pix-7-1-android-aarch64',
         'windows10-64-shippable',
         'windows7-32-shippable',
         'linux64-shippable-qr',
         'osx-10-10-shippable',
+        'osx-10-10-shippable',
         'android-hw-pix-7-1-android-aarch64',
+        'windows10-64-shippable',
+        'windows7-32-shippable',
+        'linux64-shippable-qr',
     )
-    expected_magnitudes_order = (9, 7, 5, 3, 1, 8, 6, 4, 2, 0)
+    expected_magnitudes_order = (1, 9, 7, 5, 3, 2, 0, 8, 6, 4)
 
     ordered_alerts = picker._multi_criterion_sort(reversed(test_many_various_alerts))
     number_of = count_alert_types(ordered_alerts)
