@@ -114,17 +114,28 @@ class ClassificationLoader:
         return push
 
     def autoclassify_failures(self, failures, classification):
-        for group, tasks in failures.items():
+        for tasks in failures.values():
             for task in tasks:
                 # Keeping only the tasks that should be autoclassified
                 if not task.get("autoclassify"):
                     continue
 
-                try:
-                    bug = Bugscache.objects.get(summary__endswith=f"{group} | single tracking bug")
-                except Bugscache.DoesNotExist:
+                bugs = []
+                for failing_test_name in task.get("tests", []):
+                    try:
+                        bugs.append(
+                            Bugscache.objects.get(
+                                summary__endswith=f"{failing_test_name} | single tracking bug"
+                            )
+                        )
+                    except Bugscache.DoesNotExist:
+                        logger.info(
+                            "No single tracking Bugzilla bug found for test name: %s",
+                            failing_test_name,
+                        )
+
+                if not bugs:
                     # No associated Bugzilla bug exists, skipping the autoclassification
-                    logger.info("No single tracking Bugzilla bug found for group: %s", group)
                     continue
 
                 # Retrieving the relevant Job
@@ -144,5 +155,7 @@ class ClassificationLoader:
                     text="Autoclassified by mozci bot as an intermittent failure",
                 )
 
-                # Linking it to the relevant Bugzilla single tracking bug
-                BugJobMap.objects.create(job=job, bug_id=bug.id)
+                # Linking it to the relevant Bugzilla single tracking bugs
+                BugJobMap.objects.bulk_create(
+                    [BugJobMap(job=job, bug_id=bug.id) for bug in bugs], ignore_conflicts=True
+                )
