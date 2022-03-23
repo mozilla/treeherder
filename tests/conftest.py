@@ -258,6 +258,18 @@ def test_job(eleven_job_blobs, create_jobs):
 
 
 @pytest.fixture
+def test_two_jobs_tc_metadata(eleven_job_blobs, create_jobs):
+    job_1, job_2 = eleven_job_blobs[0:2]
+    job_1['job'].update(
+        {'taskcluster_task_id': 'V3SVuxO8TFy37En_6HcXLs', 'taskcluster_retry_id': '0'}
+    )
+    job_2['job'].update(
+        {'taskcluster_task_id': 'FJtjczXfTAGClIl6wNBo9g', 'taskcluster_retry_id': '0'}
+    )
+    return create_jobs([job_1, job_2])
+
+
+@pytest.fixture
 def test_job_2(eleven_job_blobs, create_jobs):
     return create_jobs(eleven_job_blobs[0:2])[1]
 

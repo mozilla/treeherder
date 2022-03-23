@@ -4,7 +4,16 @@ import re
 import environ
 import newrelic.agent
 
-from treeherder.model.models import MozciClassification, Push, Repository
+from treeherder.model.models import (
+    BugJobMap,
+    Bugscache,
+    FailureClassification,
+    Job,
+    JobNote,
+    MozciClassification,
+    Push,
+    Repository,
+)
 from treeherder.utils.taskcluster import download_artifact, get_task_definition
 
 env = environ.Env()
@@ -57,6 +66,21 @@ class ClassificationLoader:
             task_id=task_id,
         )
 
+        try:
+            autoclassified_intermittent = FailureClassification.objects.get(
+                name="autoclassified intermittent"
+            )
+        except FailureClassification.DoesNotExist:
+            logger.error(
+                "FailureClassification named 'autoclassified intermittent' does not exist."
+            )
+            raise
+
+        # Autoclassifying intermittent failures when the "autoclassify" flag is activated on them
+        self.autoclassify_failures(
+            classification_json["failures"]["intermittent"], autoclassified_intermittent
+        )
+
     def get_push(self, task_route):
         try:
             project, revision = CLASSIFICATION_ROUTE_REGEX.search(task_route).groups()
@@ -88,3 +112,50 @@ class ClassificationLoader:
             raise
 
         return push
+
+    def autoclassify_failures(self, failures, classification):
+        for tasks in failures.values():
+            for task in tasks:
+                # Keeping only the tasks that should be autoclassified
+                if not task.get("autoclassify"):
+                    continue
+
+                bugs = []
+                for failing_test_name in task.get("tests", []):
+                    try:
+                        bugs.append(
+                            Bugscache.objects.get(
+                                summary__endswith=f"{failing_test_name} | single tracking bug"
+                            )
+                        )
+                    except Bugscache.DoesNotExist:
+                        logger.info(
+                            "No single tracking Bugzilla bug found for test name: %s",
+                            failing_test_name,
+                        )
+
+                if not bugs:
+                    # No associated Bugzilla bug exists, skipping the autoclassification
+                    continue
+
+                # Retrieving the relevant Job
+                try:
+                    job = Job.objects.get(taskcluster_metadata__task_id=task["task_id"])
+                except Job.DoesNotExist:
+                    logger.error(
+                        "Job associated to the TC task %s does not exist and could not be autoclassified.",
+                        task["task_id"],
+                    )
+                    raise
+
+                # Adding an "autoclassified intermittent" classification on it
+                JobNote.objects.create(
+                    job=job,
+                    failure_classification=classification,
+                    text="Autoclassified by mozci bot as an intermittent failure",
+                )
+
+                # Linking it to the relevant Bugzilla single tracking bugs
+                BugJobMap.objects.bulk_create(
+                    [BugJobMap(job=job, bug_id=bug.id) for bug in bugs], ignore_conflicts=True
+                )
