@@ -40,7 +40,7 @@ DEFAULT_DA_CONFIG = {
                         'label': 'test-linux1804-64-qr/opt-mochitest-devtools-chrome-dt-no-eft-nofis-e10s-1',
                         # autoclassify is True, there is a cached bug test1.js => autoclassification with one associated bug
                         'autoclassify': True,
-                        'tests': ["devtools/client/framework/test/test1.js"],
+                        'tests': ['devtools/client/framework/test/test1.js'],
                     },
                     {
                         'task_id': 'FJtjczXfTAGClIl6wNBo9g',
@@ -48,8 +48,8 @@ DEFAULT_DA_CONFIG = {
                         # autoclassify is True, there are two cached bugs test1.js and test2.js => autoclassification with two associated bugs
                         'autoclassify': True,
                         'tests': [
-                            "devtools/client/framework/test/test1.js",
-                            "devtools/client/framework/test/test2.js",
+                            'devtools/client/framework/test/test1.js',
+                            'devtools/client/framework/test/test2.js',
                         ],
                     },
                 ],
@@ -59,14 +59,14 @@ DEFAULT_DA_CONFIG = {
                         'label': 'test-linux1804-64-qr/opt-mochitest-devtools-chrome-dt-no-eft-nofis-e10s-3',
                         # autoclassify is False, there is a cached bug for test1.js => no autoclassification
                         'autoclassify': False,
-                        'tests': ["devtools/client/framework/test/test1.js"],
+                        'tests': ['devtools/client/framework/test/test1.js'],
                     },
                     {
                         'task_id': 'HTZJyyQLalgtOkbwDBxChF',
                         'label': 'test-linux1804-64-qr/opt-mochitest-devtools-chrome-dt-no-eft-nofis-e10s-4',
                         # Even if autoclassify is True, there is no cached bug for test3.js => no autoclassification
                         'autoclassify': True,
-                        'tests': ["devtools/client/framework/test/test3.js"],
+                        'tests': ['devtools/client/framework/test/test3.js'],
                     },
                 ],
             },
@@ -355,7 +355,7 @@ def test_process(autoland_push, test_two_jobs_tc_metadata, populate_bugscache):
     ).exists()
     maps = BugJobMap.objects.filter(job=second_job)
     assert maps.count() == 2
-    assert list(maps.values_list("bug_id", flat=True)) == [first_bug.id, second_bug.id]
+    assert list(maps.values_list('bug_id', flat=True)) == [first_bug.id, second_bug.id]
 
 
 @pytest.mark.django_db
@@ -364,13 +364,13 @@ def test_autoclassify_failures_missing_job(failure_classifications, populate_bug
     assert BugJobMap.objects.count() == 0
 
     intermittents = {
-        "group1": [
+        'group1': [
             {
                 'task_id': 'unknown_task_id',
                 'label': 'unknown_task',
                 # Should be autoclassified if a matching Job exists
                 'autoclassify': True,
-                'tests': ["devtools/client/framework/test/test1.js"],
+                'tests': ['devtools/client/framework/test/test1.js'],
             }
         ]
     }
