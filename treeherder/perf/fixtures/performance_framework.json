@@ -86,5 +86,13 @@
       "name": "mozperftest",
       "enabled": true
     }
+  },
+  {
+    "pk": 16,
+    "model": "perf.PerformanceFramework",
+    "fields": {
+      "name": "fxrecord",
+      "enabled": true
+    }
   }
 ]
