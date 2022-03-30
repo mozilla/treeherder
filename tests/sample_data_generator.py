@@ -35,7 +35,7 @@ def job_data(**kwargs):
 
 
 def to_seconds(td):
-    return (td.microseconds + (td.seconds + td.days * 24 * 3600) * 10 ** 6) / 10 ** 6
+    return (td.microseconds + (td.seconds + td.days * 24 * 3600) * 10**6) / 10**6
 
 
 def get_timestamp_days_ago(days_ago):
