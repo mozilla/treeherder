@@ -1,5 +1,6 @@
 import React from 'react';
 import { render, cleanup, waitFor, fireEvent } from '@testing-library/react';
+import { MemoryRouter as Router } from 'react-router-dom';
 
 import { noResultsMessage } from '../../../ui/perfherder/perf-helpers/constants';
 import TestsTable from '../../../ui/perfherder/tests/TestsTable';
@@ -35,13 +36,24 @@ const platformsMap = {
   2: 'platform2',
 };
 
+const activeFramework = 'awsy';
+
+const allFrameworks = [
+  { id: 1, name: 'talos' },
+  { id: 4, name: 'awsy' },
+];
+
 const testsTable = (data, projectsMap = false, platformsMap = false) =>
   render(
-    <TestsTable
-      results={data}
-      projectsMap={projectsMap}
-      platformsMap={platformsMap}
-    />,
+    <Router>
+      <TestsTable
+        results={data}
+        projectsMap={projectsMap}
+        platformsMap={platformsMap}
+        allFrameworks={allFrameworks}
+        framework={activeFramework}
+      />
+    </Router>,
   );
 
 afterEach(cleanup);
@@ -98,4 +110,22 @@ test('Test alerts from Alerts column are split into improvements and regressions
 
   expect(regressions[0]).toBeInTheDocument();
   expect(regressions[0]).toHaveTextContent('100');
+});
+
+test('Improvement alerts number has the corresponding link', async () => {
+  const { getAllByTestId } = testsTable(results, projectsMap, platformsMap);
+
+  const improvements = await waitFor(() => getAllByTestId('improvements'));
+
+  const link = `/alerts?hideDwnToInv=0&filterText=Base Content Explicit+test1&page=1&status=4&framework=4`;
+  expect(improvements[0].children[0]).toHaveAttribute('href', link);
+});
+
+test('Regression alerts number has the corresponding link', async () => {
+  const { getAllByTestId } = testsTable(results, projectsMap, platformsMap);
+
+  const regressions = await waitFor(() => getAllByTestId('regressions'));
+
+  const link = `/alerts?hideDwnToInv=0&filterText=Base Content Explicit+test1&page=1&status=9&framework=4`;
+  expect(regressions[0].children[0]).toHaveAttribute('href', link);
 });

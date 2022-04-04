@@ -5,7 +5,7 @@ from collections import defaultdict
 import django_filters
 from django.conf import settings
 from django.db import transaction
-from django.db.models import CharField, Count, Q, Subquery, Value
+from django.db.models import CharField, Count, Q, Subquery, Value, Case, When
 from django.db.models.functions import Concat
 from rest_framework import exceptions, filters, generics, pagination, viewsets
 from rest_framework.response import Response
@@ -105,6 +105,9 @@ class PerformanceSignatureViewSet(viewsets.ViewSet):
         if platform:
             platforms = models.MachinePlatform.objects.filter(platform=platform)
             signature_data = signature_data.filter(platform__in=platforms)
+
+        if int(request.query_params.get('should_alert', False)):
+            signature_data = signature_data.exclude(should_alert=False)
 
         signature_map = {}
         for (
@@ -215,6 +218,8 @@ class PerformanceDatumViewSet(viewsets.ViewSet):
         signature_hashes = request.query_params.getlist("signatures")  # deprecated
         signature_ids = request.query_params.getlist("signature_id")
         push_ids = request.query_params.getlist("push_id")
+        should_alert = request.query_params.get("should_alert", False)
+        should_alert = OptionalBooleanField().to_internal_value(should_alert)
         no_retriggers = request.query_params.get("no_retriggers", False)
         no_retriggers = OptionalBooleanField().to_internal_value(no_retriggers)
 
@@ -275,6 +280,9 @@ class PerformanceDatumViewSet(viewsets.ViewSet):
             datums = datums.filter(push_timestamp__gt=start_date)
         if end_date:
             datums = datums.filter(push_timestamp__lt=end_date)
+
+        if should_alert:
+            datums = datums.exclude(signature__should_alert=False)
 
         ret, seen_push_ids = defaultdict(list), defaultdict(set)
         values_list = datums.values_list(
@@ -749,7 +757,16 @@ class TestSuiteHealthViewSet(viewsets.ViewSet):
             .annotate(repositories=GroupConcat('repository_id', distinct=True))
             .annotate(platforms=GroupConcat('platform_id', distinct=True))
             .annotate(total_alerts=Count('performancealert'))
-            .annotate(total_regressions=Count('performancealert__is_regression'))
+            .annotate(
+                total_regressions=Count(
+                    Case(When(performancealert__is_regression=1, then=Value(1)))
+                )
+            )
+            .annotate(
+                total_untriaged=Count(
+                    Case(When(performancealert__status=PerformanceAlert.UNTRIAGED, then=Value(1)))
+                )
+            )
             .order_by('suite', 'test')
         )
 

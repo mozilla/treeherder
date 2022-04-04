@@ -401,3 +401,4 @@ class TestSuiteHealthSerializer(serializers.Serializer):
     repositories = CommaSeparatedField()
     total_alerts = serializers.IntegerField()
     total_regressions = serializers.IntegerField()
+    total_untriaged = serializers.IntegerField()

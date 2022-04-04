@@ -17,7 +17,7 @@ from treeherder.webapp.api.utils import get_end_of_day
 
 
 class Failures(generics.ListAPIView):
-    """ List of intermittent failures by date range and repo (project name) """
+    """List of intermittent failures by date range and repo (project name)"""
 
     serializer_class = FailuresSerializer
     queryset = None
@@ -45,7 +45,7 @@ class Failures(generics.ListAPIView):
 
 
 class FailuresByBug(generics.ListAPIView):
-    """ List of intermittent failure job details by bug, date range and repo (project name) """
+    """List of intermittent failure job details by bug, date range and repo (project name)"""
 
     serializer_class = FailuresByBugSerializer
     queryset = None
@@ -118,7 +118,7 @@ class FailuresByBug(generics.ListAPIView):
 
 
 class FailureCount(generics.ListAPIView):
-    """ List of failures (optionally by bug) and testruns by day per date range and repo"""
+    """List of failures (optionally by bug) and testruns by day per date range and repo"""
 
     serializer_class = FailureCountSerializer
     queryset = None

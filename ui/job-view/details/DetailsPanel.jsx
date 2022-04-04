@@ -171,6 +171,7 @@ class DetailsPanel extends React.Component {
           currentRepo.name,
           {
             job_id: selectedJob.id,
+            should_alert: 1,
           },
         );
 
@@ -253,6 +254,7 @@ class DetailsPanel extends React.Component {
                   chunk(signatureIds, 20).map((signatureIdChunk) =>
                     PerfSeriesModel.getSeriesList(currentRepo.name, {
                       id: signatureIdChunk,
+                      should_alert: 1,
                     }),
                   ),
                 );

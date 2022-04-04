@@ -112,6 +112,7 @@ def ignore_task(task, taskId, rootUrl, project):
         'focus-android',
         'reference-browser',
         'mozilla-vpn-client',
+        'mozilla-vpn-client-release',
     )
     if project in mobile_repos:
         envs = task["payload"].get("env", {})

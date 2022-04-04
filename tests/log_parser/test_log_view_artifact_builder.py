@@ -43,7 +43,7 @@ def test_mochitest_fail():
 
 
 def test_mochitest_process_crash():
-    """Test a mochitest log that has PROCESS-CRASH """
+    """Test a mochitest log that has PROCESS-CRASH"""
 
     do_test("mozilla-inbound_ubuntu64_vm-debug_test-mochitest-other-bm53-tests1-linux-build122")
 
