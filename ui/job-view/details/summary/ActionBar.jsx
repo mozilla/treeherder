@@ -308,6 +308,11 @@ class ActionBar extends React.PureComponent {
     try {
       const interactiveTask = getAction(results.actions, 'create-interactive');
 
+      if (user.email === '') {
+        notify('Please login before creating an interactive task');
+        return;
+      }
+
       await TaskclusterModel.submit({
         action: interactiveTask,
         decisionTaskId,
