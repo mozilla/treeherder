@@ -42,8 +42,11 @@ HGMO_PUSH_BINDINGS = [
     "exchange/hgpushes/v1.#",
 ]
 
-MOZCI_CLASSIFICATION_BINDINGS = [
+MOZCI_CLASSIFICATION_PRODUCTION_BINDINGS = [
     "exchange/taskcluster-queue/v1/task-completed.route.index.project.mozci.classification.#",
+]
+MOZCI_CLASSIFICATION_TESTING_BINDINGS = [
+    "exchange/taskcluster-queue/v1/task-completed.route.index.project.mozci.testing.classification.#",
 ]
 
 
@@ -171,7 +174,15 @@ class MozciClassificationConsumer(PulseConsumer):
     queue_suffix = env("PULSE_MOZCI_CLASSIFICATION_QUEUE_NAME", default="tasksclassification")
 
     def bindings(self):
-        return MOZCI_CLASSIFICATION_BINDINGS
+        mozci_env = env('PULSE_MOZCI_ENVIRONMENT', default='production')
+        if mozci_env == 'testing':
+            return MOZCI_CLASSIFICATION_TESTING_BINDINGS
+
+        if mozci_env != 'production':
+            logger.warning(
+                f'PULSE_MOZCI_ENVIRONMENT should be testing or production not {mozci_env}, defaulting to production'
+            )
+        return MOZCI_CLASSIFICATION_PRODUCTION_BINDINGS
 
     @newrelic.agent.background_task(
         name='pulse-listener-tasks-classification.on_message', group='Pulse Listener'
@@ -228,7 +239,16 @@ class JointConsumer(PulseConsumer):
         if self.source.get('tasks'):
             rv += TASKCLUSTER_TASK_BINDINGS
         if self.source.get('mozci-classification'):
-            rv += MOZCI_CLASSIFICATION_BINDINGS
+            mozci_env = env('PULSE_MOZCI_ENVIRONMENT', default='production')
+            if mozci_env == 'testing':
+                rv += MOZCI_CLASSIFICATION_TESTING_BINDINGS
+            else:
+                if mozci_env != 'production':
+                    logger.warning(
+                        f'PULSE_MOZCI_ENVIRONMENT should be testing or production not {mozci_env}, defaulting to production'
+                    )
+                rv += MOZCI_CLASSIFICATION_PRODUCTION_BINDINGS
+
         return rv
 
     @newrelic.agent.background_task(name='pulse-joint-listener.on_message', group='Pulse Listener')
