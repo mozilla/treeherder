@@ -300,6 +300,34 @@ def test_push_author(client, test_repository):
     assert set([result['id'] for result in results]) == set([1, 2])
 
 
+def test_push_reviewbot(client, test_repository):
+    """
+    test the reviewbot parameter
+    """
+    for (revision, author) in [
+        ('1234abcd', 'foo@bar.com'),
+        ('2234abcd', 'foo2@bar.com'),
+        ('3234abcd', 'reviewbot'),
+        ('4234abcd', 'reviewbot'),
+    ]:
+        Push.objects.create(
+            repository=test_repository,
+            revision=revision,
+            author=author,
+            time=datetime.datetime.now(),
+        )
+
+    resp = client.get(
+        reverse("push-list", kwargs={"project": test_repository.name})
+        + '?hide_reviewbot_pushes=true'
+    )
+    assert resp.status_code == 200
+
+    results = resp.json()['results']
+    assert len(results) == 2
+    assert set([result['id'] for result in results]) == set([1, 2])
+
+
 def test_push_list_without_jobs(client, test_repository, sample_push):
     """
     test retrieving a push list without jobs
