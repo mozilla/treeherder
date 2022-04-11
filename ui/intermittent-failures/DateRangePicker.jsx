@@ -1,12 +1,20 @@
 import React from 'react';
 import 'react-dates/initialize';
 import 'react-dates/lib/css/_datepicker.css';
-import { DateRangePicker as DatePickerAirbnb } from 'react-dates';
+import {
+  DateRangePickerPhrases,
+  DateRangePicker as DatePickerAirbnb,
+} from 'react-dates';
 import moment from 'moment';
 import PropTypes from 'prop-types';
 import { Button } from 'reactstrap';
 
 import { ISODate } from './helpers';
+
+const chooseAvailableDate = function chooseAvailableDate(_ref3) {
+  const { date } = _ref3;
+  return date;
+};
 
 export default class DateRangePicker extends React.Component {
   constructor(props) {
@@ -62,7 +70,11 @@ export default class DateRangePicker extends React.Component {
 
   render() {
     const { startDate, endDate, calendarFocused } = this.state;
-
+    const defaultPhrases = {
+      chooseAvailableStartDate: chooseAvailableDate,
+      chooseAvailableEndDate: chooseAvailableDate,
+      ...DateRangePickerPhrases,
+    };
     return (
       <div className="InputFromTo d-inline-block">
         <DatePickerAirbnb
@@ -79,6 +91,7 @@ export default class DateRangePicker extends React.Component {
           numberOfMonths={2}
           initialVisibleMonth={() => moment().subtract(1, 'month')}
           isOutsideRange={(day) => moment().diff(day) < 0}
+          phrases={defaultPhrases}
         />
         <Button color="secondary" className="ml-3" onClick={this.updateData}>
           update
