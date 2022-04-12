@@ -126,22 +126,45 @@ def populate_bugscache():
 
 
 @pytest.mark.parametrize(
-    'route',
+    'mode, route',
     [
-        'completely bad route',
-        'index.project.mozci.classification..revision.A35mWTRuQmyj88yMnIF0fA',
-        'index.project.mozci.classification.autoland.revision.',
-        'index.project.mozci.classification.autoland.revision.-35mW@RuQ__j88yénIF0f-',
+        ('production', 'completely bad route'),
+        ('production', 'index.project.mozci.classification..revision.A35mWTRuQmyj88yMnIF0fA'),
+        ('production', 'index.project.mozci.classification.autoland.revision.'),
+        (
+            'production',
+            'index.project.mozci.classification.autoland.revision.-35mW@RuQ__j88yénIF0f-',
+        ),
+        (
+            'production',
+            'index.project.mozci.testing.classification.autoland.revision.A35mWTRuQmyj88yMnIF0fA',
+        ),
+        ('testing', 'index.project.mozci.classification.autoland.revision.A35mWTRuQmyj88yMnIF0fA'),
     ],
 )
-def test_get_push_wrong_route(route):
+def test_get_push_wrong_route(mode, route, monkeypatch):
+    monkeypatch.setenv('PULSE_MOZCI_ENVIRONMENT', mode)
+
     with pytest.raises(AttributeError):
         ClassificationLoader().get_push(route)
 
 
 @pytest.mark.django_db
-def test_get_push_unsupported_project():
-    route = 'index.project.mozci.classification.autoland.revision.A35mWTRuQmyj88yMnIF0fA'
+@pytest.mark.parametrize(
+    'mode, route',
+    [
+        (
+            'production',
+            'index.project.mozci.classification.autoland.revision.A35mWTRuQmyj88yMnIF0fA',
+        ),
+        (
+            'testing',
+            'index.project.mozci.testing.classification.autoland.revision.A35mWTRuQmyj88yMnIF0fA',
+        ),
+    ],
+)
+def test_get_push_unsupported_project(mode, route, monkeypatch):
+    monkeypatch.setenv('PULSE_MOZCI_ENVIRONMENT', mode)
 
     with pytest.raises(Repository.DoesNotExist) as e:
         ClassificationLoader().get_push(route)
@@ -150,8 +173,21 @@ def test_get_push_unsupported_project():
 
 
 @pytest.mark.django_db
-def test_get_push_unsupported_revision(autoland_repository):
-    route = 'index.project.mozci.classification.autoland.revision.A35mWTRuQmyj88yMnIF0fA'
+@pytest.mark.parametrize(
+    'mode, route',
+    [
+        (
+            'production',
+            'index.project.mozci.classification.autoland.revision.A35mWTRuQmyj88yMnIF0fA',
+        ),
+        (
+            'testing',
+            'index.project.mozci.testing.classification.autoland.revision.A35mWTRuQmyj88yMnIF0fA',
+        ),
+    ],
+)
+def test_get_push_unsupported_revision(mode, route, autoland_repository, monkeypatch):
+    monkeypatch.setenv('PULSE_MOZCI_ENVIRONMENT', mode)
 
     with pytest.raises(Push.DoesNotExist) as e:
         ClassificationLoader().get_push(route)
@@ -160,8 +196,21 @@ def test_get_push_unsupported_revision(autoland_repository):
 
 
 @pytest.mark.django_db
-def test_get_push(autoland_push):
-    route = 'index.project.mozci.classification.autoland.revision.A35mWTRuQmyj88yMnIF0fA'
+@pytest.mark.parametrize(
+    'mode, route',
+    [
+        (
+            'production',
+            'index.project.mozci.classification.autoland.revision.A35mWTRuQmyj88yMnIF0fA',
+        ),
+        (
+            'testing',
+            'index.project.mozci.testing.classification.autoland.revision.A35mWTRuQmyj88yMnIF0fA',
+        ),
+    ],
+)
+def test_get_push(mode, route, autoland_push, monkeypatch):
+    monkeypatch.setenv('PULSE_MOZCI_ENVIRONMENT', mode)
 
     assert ClassificationLoader().get_push(route) == autoland_push
 
