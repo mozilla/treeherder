@@ -11,8 +11,8 @@ import { Button } from 'reactstrap';
 
 import { ISODate } from './helpers';
 
-const chooseAvailableDate = function chooseAvailableDate(_ref3) {
-  const { date } = _ref3;
+const chooseAvailableDate = function chooseAvailableDate(object) {
+  const { date } = object;
   return date;
 };
 
