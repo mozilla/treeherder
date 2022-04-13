@@ -19,8 +19,11 @@ from treeherder.utils.taskcluster import download_artifact, get_task_definition
 env = environ.Env()
 logger = logging.getLogger(__name__)
 
-CLASSIFICATION_ROUTE_REGEX = re.compile(
+CLASSIFICATION_PRODUCTION_ROUTE_REGEX = re.compile(
     r"index\.project\.mozci\.classification\.(.+)\.revision\.([0-9A-Fa-f]+)"
+)
+CLASSIFICATION_TESTING_ROUTE_REGEX = re.compile(
+    r"index\.project\.mozci\.testing\.classification\.(.+)\.revision\.([0-9A-Fa-f]+)"
 )
 
 
@@ -82,8 +85,18 @@ class ClassificationLoader:
         )
 
     def get_push(self, task_route):
+        mozci_env = env('PULSE_MOZCI_ENVIRONMENT', default='production')
+        if mozci_env == 'testing':
+            route_regex = CLASSIFICATION_TESTING_ROUTE_REGEX
+        else:
+            if mozci_env != 'production':
+                logger.warning(
+                    f'PULSE_MOZCI_ENVIRONMENT should be testing or production not {mozci_env}, defaulting to production'
+                )
+            route_regex = CLASSIFICATION_PRODUCTION_ROUTE_REGEX
+
         try:
-            project, revision = CLASSIFICATION_ROUTE_REGEX.search(task_route).groups()
+            project, revision = route_regex.search(task_route).groups()
         except AttributeError as e:
             logger.error(
                 "Failed to parse the given route '%s' to retrieve the push project and revision: %s",
