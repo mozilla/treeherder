@@ -1439,13 +1439,14 @@
     "pk": 103,
     "model": "model.repository",
     "fields": {
-      "dvcs_type": "hg",
+      "dvcs_type": "git",
       "name": "taskgraph",
-      "url": "https://hg.mozilla.org/ci/taskgraph",
+      "url": "https://github.com/taskcluster/taskgraph",
+      "branch": "main",
       "active_status": "active",
       "codebase": "taskgraph",
       "repository_group": 9,
-      "description": "Tools for defining graphs fo taskclutser tasks",
+      "description": "Tools for defining graphs for taskclutser tasks",
       "tc_root_url": "https://firefox-ci-tc.services.mozilla.com"
     }
   },
@@ -1456,7 +1457,7 @@
       "dvcs_type": "hg",
       "name": "taskgraph-try",
       "url": "https://hg.mozilla.org/ci/taskgraph-try",
-      "active_status": "active",
+      "active_status": "onhold",
       "codebase": "taskgraph",
       "repository_group": 9,
       "description": "Tools for defining graphs fo taskclutser tasks",
