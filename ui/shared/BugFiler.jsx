@@ -158,7 +158,11 @@ export class BugFilerClass extends React.Component {
       checkedLogLinks.set('Reftest URL', reftestUrl);
     }
 
-    if (jobGroupName === 'Xpcshell tests') {
+    const jg = jobGroupName.toLowerCase();
+    if (
+      jg.includes('xpcshell') ||
+      jg.includes('mochitests without e10s or fission') // chrome, a11y, gpu-c
+    ) {
       const isTimeout = [/timeout/i, /timed out/].some((regexp) =>
         regexp.test(summaryString),
       );
