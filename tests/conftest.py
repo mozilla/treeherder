@@ -720,6 +720,10 @@ def mock_bugscache_bugzilla_request(monkeypatch):
         data_path = os.path.join(tests_folder, "sample_data", "bugscache_population", file_name)
         with open(data_path) as f:
             bugzilla_data = json.load(f)
+            for bug in bugzilla_data["bugs"]:
+                bug["last_change_time"] = (
+                    datetime.datetime.now() - datetime.timedelta(20)
+                ).isoformat(timespec='seconds') + 'Z'
         return bugzilla_data["bugs"]
 
     import treeherder.etl.bugzilla
