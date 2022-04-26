@@ -412,6 +412,13 @@ export class BugFilerClass extends React.Component {
       priority = '--';
     }
 
+    let severity = 'S4';
+    if (isSecurityIssue) {
+      // Set no priority and severity to get them included in triage meetings.
+      priority = '--';
+      severity = '--';
+    }
+
     // Use of 'Regressed By' field shall add 'regression' to keywords.
     if (regressedBy) {
       keywords.push('regression');
@@ -463,7 +470,7 @@ export class BugFilerClass extends React.Component {
           regressed_by: regressedBy,
           see_also: seeAlso,
           crash_signature: crashSignature,
-          severity: 'S4',
+          severity,
           priority,
           is_security_issue: isSecurityIssue,
           comment: descriptionStrings,
