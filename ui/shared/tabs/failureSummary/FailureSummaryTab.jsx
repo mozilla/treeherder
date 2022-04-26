@@ -72,6 +72,7 @@ class FailureSummaryTab extends React.Component {
     if (!selectedJob) {
       return;
     }
+    this.setState({ bugSuggestionsLoading: true });
     BugSuggestionsModel.get(selectedJob.id).then(async (suggestions) => {
       suggestions.forEach((suggestion) => {
         let simpleCase = [];
