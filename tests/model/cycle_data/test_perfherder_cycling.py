@@ -37,7 +37,6 @@ def empty_backfill_report(test_perf_alert_summary) -> BackfillReport:
     'repository_name',
     [
         'autoland',
-        'mozilla-inbound',
         'mozilla-beta',
         'mozilla-central',
     ],

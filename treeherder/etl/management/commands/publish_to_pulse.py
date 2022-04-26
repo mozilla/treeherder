@@ -20,7 +20,7 @@ class Command(BaseCommand):
 
     def add_arguments(self, parser):
         parser.add_argument(
-            'routing_key', help="The routing key for publishing. Ex: 'mozilla-inbound.staging'"
+            'routing_key', help="The routing key for publishing. Ex: 'autoland.staging'"
         )
         parser.add_argument(
             'connection_url', help="The Pulse url. Ex: 'amqp://guest:guest@localhost:5672/'"

@@ -14,7 +14,7 @@ const history = createBrowserHistory();
 describe('JobGroup component', () => {
   let countGroup;
   let dupGroup;
-  const repoName = 'mozilla-inbound';
+  const repoName = 'autoland';
   const filterModel = new FilterModel({
     pushRoute: history.push,
     router: { location: history.location },

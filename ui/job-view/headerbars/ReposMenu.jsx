@@ -17,7 +17,6 @@ const GROUP_ORDER = [
   'release-stabilization',
   'project repositories',
   'comm-repositories',
-  'qa automation tests',
   'ci',
   'servo',
   'mobile',
@@ -27,7 +26,6 @@ const GROUP_ORDER = [
 
 const DEV_GROUP_ORDER = {
   'mozilla-central': 1,
-  'mozilla-inbound': 2,
   autoland: 3,
   try: 4,
 };

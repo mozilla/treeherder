@@ -5,7 +5,7 @@ import django_filters
 from django.db.models import Aggregate, CharField
 
 # queries are faster when filtering a range by id rather than name
-# trunk: mozilla-central, mozilla-inbound, autoland
+# trunk: mozilla-central, autoland
 # firefox-releases: mozilla-beta, mozilla-release
 # comm-releases: comm-beta
 REPO_GROUPS = {

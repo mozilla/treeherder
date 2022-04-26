@@ -7,7 +7,7 @@ def test_valid_report(client):
     """Tests that a correctly formed CSP violation report is accepted when unauthenticated."""
     valid_report = {
         'csp-report': {
-            'blocked-uri': 'https://treestatus.mozilla-releng.net/trees/mozilla-inbound',
+            'blocked-uri': 'https://treestatus.mozilla-releng.net/trees/autoland',
             'document-uri': 'http://localhost:8000/',
             'original-policy': '...',
             'referrer': '',

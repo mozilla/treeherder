@@ -58,12 +58,7 @@ export const isPerfTest = function isPerfTest(job) {
 };
 
 export const isTestIsolatable = function isTestIsolatable(job) {
-  const isolatableRepos = [
-    'autoland',
-    'mozilla-central',
-    'mozilla-inbound',
-    'try',
-  ];
+  const isolatableRepos = ['autoland', 'mozilla-central', 'try'];
   const repoName = getRepo();
   if (!isolatableRepos.includes(repoName)) {
     return false;
