@@ -14,15 +14,15 @@ const repo = new RepositoryModel({
     name: 'development',
     description: '',
   },
-  name: 'mozilla-inbound',
+  name: 'autoland',
   dvcs_type: 'hg',
-  url: 'https://hg.mozilla.org/integration/mozilla-inbound',
+  url: 'https://hg.mozilla.org/integration/autoland',
   branch: null,
   codebase: 'gecko',
   description: '',
   active_status: 'active',
   performance_alerts_enabled: true,
-  pushlogURL: 'https://hg.mozilla.org/integration/mozilla-inbound/pushloghtml',
+  pushlogURL: 'https://hg.mozilla.org/integration/autoland/pushloghtml',
 });
 const push = {
   id: 151371,

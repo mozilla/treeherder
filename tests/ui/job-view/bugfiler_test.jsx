@@ -15,7 +15,7 @@ describe('BugFiler', () => {
   const fullLog =
     'https://taskcluster.net/api/queue/v1/task/AGs4CgN_RnCTb943uQn8NQ/runs/0/artifacts/public/logs/live_backing.log';
   const parsedLog =
-    'http://localhost:5000/logviewer.html#?job_id=89017089&repo=mozilla-inbound';
+    'http://localhost:5000/logviewer.html#?job_id=89017089&repo=autoland';
   const reftest = '';
   const selectedJob = {
     job_group_name: 'Mochitests executed by TaskCluster',

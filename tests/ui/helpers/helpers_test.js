@@ -87,8 +87,8 @@ const result = {
 
 describe('getRevisionUrl helper', () => {
   test('escapes some html symbols', () => {
-    expect(getRevisionUrl('1234567890ab', 'mozilla-inbound')).toEqual(
-      '/jobs?repo=mozilla-inbound&revision=1234567890ab',
+    expect(getRevisionUrl('1234567890ab', 'autoland')).toEqual(
+      '/jobs?repo=autoland&revision=1234567890ab',
     );
   });
 });

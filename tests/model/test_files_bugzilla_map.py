@@ -137,13 +137,6 @@ def test_data_ingestion(setup_repository_data, mock_file_bugzilla_map_request):
         .order_by('path')
     )
 
-    print(
-        list(
-            BugzillaComponent.objects.all()
-            .values_list('product', 'component')
-            .order_by('product', 'component')
-        )
-    )
     EXPECTED_BUGZILLA_COMPONENTS_IMPORT_2 = [
         ('Core', 'Storage: IndexedDB'),
         ('Core', 'Storage: IndexedDB2'),

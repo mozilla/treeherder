@@ -271,7 +271,7 @@ class Commenter:
                 "total": 5,
                 "per_repository": {
                     "fx-team": 2,
-                    "mozilla-inbound": 3
+                    "autoland": 3
                 },
                 "per_platform": {
                     "windows10-64": 52,

@@ -52,7 +52,7 @@ a job as specified in the [YML Schema].
 Here is a set of example parameters that could be used to run it:
 
 ```bash
-./manage.py publish_to_pulse mozilla-inbound.staging amqp://treeherder-test:mypassword@pulse.mozilla.org:5672/ ./scratch/test_job.json
+./manage.py publish_to_pulse autoland.staging amqp://treeherder-test:mypassword@pulse.mozilla.org:5672/ ./scratch/test_job.json
 ```
 
 You can use the handy Pulse Inspector to view messages in your exchange to
