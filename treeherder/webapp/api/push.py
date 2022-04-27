@@ -159,6 +159,9 @@ class PushViewSet(viewsets.ViewSet):
             else:
                 pushes = pushes.filter(author=author)
 
+        if filter_params.get("hide_reviewbot_pushes") == "true":
+            pushes = pushes.exclude(author="reviewbot")
+
         try:
             count = int(filter_params.get("count", 10))
         except ValueError:
