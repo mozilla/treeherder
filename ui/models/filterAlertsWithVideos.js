@@ -1,7 +1,4 @@
-import {
-  summaryStatusMap,
-  visualMetrics,
-} from '../perfherder/perf-helpers/constants';
+import { summaryStatusMap } from '../perfherder/perf-helpers/constants';
 import {
   addResultsLink,
   getFrameworkName,
@@ -45,10 +42,6 @@ export default class FilterAlertsWithVideos {
     return alertSummary.alerts;
   }
 
-  containsVismet(title) {
-    return visualMetrics.find((metric) => title.includes(metric));
-  }
-
   anyAlertWithVideoResults(alertSummary) {
     // For the moment the browsertime vismet are separate from the pageload ones
     // that's why we need to filter them out. Also, we're retrieving the video results
@@ -64,8 +57,7 @@ export default class FilterAlertsWithVideos {
       alert.status !== summaryStatusMap.reassigned &&
       alert.status !== summaryStatusMap.downstream &&
       alert.status !== summaryStatusMap.invalid &&
-      alert.is_regression === true &&
-      !this.containsVismet(alert.title)
+      alert.is_regression === true
     );
   }
 

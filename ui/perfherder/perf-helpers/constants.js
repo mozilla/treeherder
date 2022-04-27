@@ -182,15 +182,6 @@ export const alertBackfillResultVisual = {
   },
 };
 
-export const visualMetrics = [
-  'ContentfulSpeedIndex',
-  'FirstVisualChange',
-  'LastVisualChange',
-  'PerceptualSpeedIndex',
-  'SpeedIndex',
-  'videoRecordingStart',
-];
-
 export const scrollTypes = {
   prev: 'prev',
   next: 'next',
