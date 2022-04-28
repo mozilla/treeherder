@@ -203,7 +203,7 @@ MainView.defaultProps = {
 };
 
 const defaultState = {
-  tree: 'trunk',
+  tree: 'all',
   startday: ISODate(moment().utc().subtract(7, 'days')),
   endday: ISODate(moment().utc()),
   endpoint: bugsEndpoint,
