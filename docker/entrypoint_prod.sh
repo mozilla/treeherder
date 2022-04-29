@@ -34,29 +34,29 @@ elif [ "$1" == "pulse_listener_tasks_classification" ]; then
 # Processes pushes/jobs from Pulse that were collected by `pulse_listener_{pushes,tasks,tasks_classification}`.
 elif [ "$1" == "worker_store_pulse_data" ]; then
     export REMAP_SIGTERM=SIGQUIT
-    exec newrelic-admin run-program celery worker -A treeherder --without-gossip --without-mingle --without-heartbeat -Q store_pulse_pushes,store_pulse_tasks,store_pulse_tasks_classification --concurrency=3
+    exec newrelic-admin run-program celery -A treeherder worker --without-gossip --without-mingle --without-heartbeat -Q store_pulse_pushes,store_pulse_tasks,store_pulse_tasks_classification --concurrency=3
 
 # Handles the log parsing tasks scheduled by `worker_store_pulse_data` as part of job ingestion.
 elif [ "$1" == "worker_log_parser" ]; then
     export REMAP_SIGTERM=SIGQUIT
-    exec newrelic-admin run-program celery worker -A treeherder --without-gossip --without-mingle --without-heartbeat -Q log_parser --concurrency=7
+    exec newrelic-admin run-program celery -A treeherder worker --without-gossip --without-mingle --without-heartbeat -Q log_parser --concurrency=7
 elif [ "$1" == "worker_log_parser_fail_raw_sheriffed" ]; then
     export REMAP_SIGTERM=SIGQUIT
-    exec newrelic-admin run-program celery worker -A treeherder --without-gossip --without-mingle --without-heartbeat -Q log_parser_fail_raw_sheriffed --concurrency=1
+    exec newrelic-admin run-program celery -A treeherder worker --without-gossip --without-mingle --without-heartbeat -Q log_parser_fail_raw_sheriffed --concurrency=1
 elif [ "$1" == "worker_log_parser_fail_raw_unsheriffed" ]; then
     export REMAP_SIGTERM=SIGQUIT
-    exec newrelic-admin run-program celery worker -A treeherder --without-gossip --without-mingle --without-heartbeat -Q log_parser_fail_raw_unsheriffed --concurrency=1
+    exec newrelic-admin run-program celery -A treeherder worker --without-gossip --without-mingle --without-heartbeat -Q log_parser_fail_raw_unsheriffed --concurrency=1
 elif [ "$1" == "worker_log_parser_fail_json_sheriffed" ]; then
     export REMAP_SIGTERM=SIGQUIT
-    exec newrelic-admin run-program celery worker -A treeherder --without-gossip --without-mingle --without-heartbeat -Q log_parser_fail_json_sheriffed --concurrency=7
+    exec newrelic-admin run-program celery -A treeherder worker --without-gossip --without-mingle --without-heartbeat -Q log_parser_fail_json_sheriffed --concurrency=7
 elif [ "$1" == "worker_log_parser_fail_json_unsheriffed" ]; then
     export REMAP_SIGTERM=SIGQUIT
-    newrelic-admin run-program celery worker -A treeherder --without-gossip --without-mingle --without-heartbeat -Q log_parser_fail_json_unsheriffed --concurrency=7
+    newrelic-admin run-program celery -A treeherder worker --without-gossip --without-mingle --without-heartbeat -Q log_parser_fail_json_unsheriffed --concurrency=7
 
 # Tasks that don't need a dedicated worker.
 elif [ "$1" == "worker_misc" ]; then
     export REMAP_SIGTERM=SIGQUIT
-    exec newrelic-admin run-program celery worker -A treeherder --without-gossip --without-mingle --without-heartbeat -Q default,generate_perf_alerts,pushlog --concurrency=3
+    exec newrelic-admin run-program celery -A treeherder worker --without-gossip --without-mingle --without-heartbeat -Q default,generate_perf_alerts,pushlog --concurrency=3
 
 # Cron jobs
 elif [ "$1" == "run_intermittents_commenter" ]; then
