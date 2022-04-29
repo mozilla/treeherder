@@ -158,6 +158,9 @@ for alias in DATABASES:
             'ca': env("TLS_CERT_PATH", default=None),
         }
 
+# Since Django 3.2, the default AutoField must be configured
+DEFAULT_AUTO_FIELD = 'django.db.models.AutoField'
+
 # Caches
 REDIS_URL = env('REDIS_URL', default='redis://localhost:6379')
 
