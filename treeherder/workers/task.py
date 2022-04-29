@@ -4,7 +4,7 @@ from functools import wraps
 
 import jsonschema
 import newrelic.agent
-from celery import task
+from celery import shared_task
 from django.db.utils import IntegrityError, ProgrammingError
 
 from treeherder.etl.exceptions import MissingPushException
@@ -64,5 +64,5 @@ class retryable_task:
                 timeout = 10 * int(random.uniform(1.9, 2.1) ** number_of_prior_retries)
                 raise task_func.retry(exc=e, countdown=timeout)
 
-        task_func = task(*self.task_args, **self.task_kwargs)(inner)
+        task_func = shared_task(*self.task_args, **self.task_kwargs)(inner)
         return task_func

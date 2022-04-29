@@ -1,11 +1,11 @@
 import newrelic.agent
-from celery import task
+from celery import shared_task
 
 from treeherder.etl.pushlog import HgPushlogProcess
 from treeherder.model.models import Repository
 
 
-@task(name='fetch-push-logs')
+@shared_task(name='fetch-push-logs')
 def fetch_push_logs():
     """
     Run several fetch_hg_push_log subtasks, one per repository
@@ -14,7 +14,7 @@ def fetch_push_logs():
         fetch_hg_push_log.apply_async(args=(repo.name, repo.url), queue='pushlog')
 
 
-@task(name='fetch-hg-push-logs', soft_time_limit=10 * 60)
+@shared_task(name='fetch-hg-push-logs', soft_time_limit=10 * 60)
 def fetch_hg_push_log(repo_name, repo_url):
     """
     Run a HgPushlog etl process
