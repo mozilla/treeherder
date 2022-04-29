@@ -217,6 +217,12 @@ export const thPlatformMap = {
     'Android 8.0 Pixel2 AArch64 WebRender',
   'android-hw-p2-8-0-android-aarch64-shippable-qr':
     'Android 8.0 Pixel2 AArch64 Shippable WebRender',
+  'android-hw-a51-11-0-arm7-qr': 'Android 11.0 Samsung A51 Arm7',
+  'android-hw-a51-11-0-arm7-shippable-qr':
+    'Android 11.0 Samsung A51 Shippable Arm7',
+  'android-hw-a51-11-0-aarch64-qr': 'Android 11.0 Samsung A51 AArch64',
+  'android-hw-a51-11-0-aarch64-shippable-qr':
+    'Android 11.0 Samsung A51 Shippable AArch64',
   Android: 'Android',
 
   'gecko-decision': 'Gecko Decision Task',
