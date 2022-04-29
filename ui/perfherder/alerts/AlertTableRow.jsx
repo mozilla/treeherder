@@ -22,6 +22,7 @@ import {
   modifyAlert,
   formatNumber,
   getFrameworkName,
+  getTimeRange,
 } from '../perf-helpers/helpers';
 import SimpleTooltip from '../../shared/SimpleTooltip';
 import {
@@ -29,8 +30,6 @@ import {
   alertBackfillResultStatusMap,
   alertBackfillResultVisual,
   backfillRetriggeredTitle,
-  phDefaultTimeRangeValue,
-  phTimeRanges,
   noiseProfiles,
 } from '../perf-helpers/constants';
 import { Perfdocs } from '../perf-helpers/perfdocs';
@@ -71,25 +70,6 @@ export default class AlertTableRow extends React.Component {
       }
     }
   }
-
-  getTimeRange = () => {
-    const { alertSummary } = this.props;
-
-    const defaultTimeRange =
-      alertSummary.repository === 'mozilla-beta'
-        ? 7776000
-        : phDefaultTimeRangeValue;
-    const timeRange = Math.max(
-      defaultTimeRange,
-      phTimeRanges
-        .map((time) => time.value)
-        .find(
-          (value) => Date.now() / 1000.0 - alertSummary.push_timestamp <= value,
-        ),
-    );
-    // default value of one year, for one a push_timestamp exceeds the one year value slightly
-    return timeRange || 31536000;
-  };
 
   toggleStar = async () => {
     const { starred } = this.state;
@@ -369,7 +349,7 @@ export default class AlertTableRow extends React.Component {
       tagAndOption: tags.includes(element) && options.includes(element),
     }));
 
-    const timeRange = this.getTimeRange();
+    const timeRange = getTimeRange(alertSummary);
 
     const alertStatus = getStatus(alert.status, alertStatusMap);
     const tooltipText = alert.classifier_email

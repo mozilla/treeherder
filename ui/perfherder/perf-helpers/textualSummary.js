@@ -2,7 +2,7 @@ import numeral from 'numeral';
 import sortBy from 'lodash/sortBy';
 
 import { alertStatusMap } from './constants';
-import { getFrameworkName } from './helpers';
+import { getFrameworkName, getGraphsURL, getTimeRange } from './helpers';
 import { Perfdocs } from './perfdocs';
 
 export default class TextualSummary {
@@ -63,7 +63,14 @@ export default class TextualSummary {
   formatAlert(alert) {
     const numFormat = '0,0.00';
     let amountPct;
-
+    const { repository, framework } = this.alertSummary;
+    const timeRange = getTimeRange(this.alertSummary);
+    const graphLink = getGraphsURL(
+      alert,
+      timeRange,
+      repository,
+      framework,
+    ).slice(1);
     if (alert.amount_pct.toFixed(0) === '0') {
       // have extra fraction digits when rounding ends up with 0%
       amountPct = alert.amount_pct.toFixed(2);
@@ -94,9 +101,11 @@ export default class TextualSummary {
       updatedAlert.results_link &&
       updatedAlert.prev_results_link
     ) {
-      return `| ${amountPct}% | ${suiteTestName} | ${platform} | ${extraOptions} | [${prevValue}](${updatedAlert.prev_results_link}) -> [${newValue}](${updatedAlert.results_link}) |`;
+      return `| [${amountPct}%](${`https://treeherder.mozilla.org/perfherder${graphLink}`}) | ${suiteTestName} | ${platform} | ${extraOptions} | [${prevValue}](${
+        updatedAlert.prev_results_link
+      }) -> [${newValue}](${updatedAlert.results_link}) |`;
     }
-    return `| ${amountPct}% | ${suiteTestName} | ${platform} | ${extraOptions} | ${prevValue} -> ${newValue} |`;
+    return `| [${amountPct}%](${`https://treeherder.mozilla.org/perfherder${graphLink}`}) | ${suiteTestName} | ${platform} | ${extraOptions} | ${prevValue} -> ${newValue} |`;
   }
 
   formatAlertBulk(alerts) {
