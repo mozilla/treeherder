@@ -9,7 +9,7 @@ function check_service () {
   name=$1
   host=$2
   port=$3
-  while ! nc -z $host $port &> /dev/null; do
+  while ! nc -z "$host" "$port" &> /dev/null; do
       echo "-----> Waiting for $name server to be ready"
       sleep 1;
   done
