@@ -21,6 +21,7 @@ import {
   alertStatusMap,
   phFrameworksWithRelatedBranches,
   phTimeRanges,
+  phDefaultTimeRangeValue,
   unknownFrameworkMessage,
   permaLinkPrefix,
 } from './constants';
@@ -382,6 +383,23 @@ const Alert = (alertData, optionCollectionMap) => ({
     includePlatformInName: true,
   }),
 });
+
+export const getTimeRange = (alertSummary) => {
+  const defaultTimeRange =
+    alertSummary.repository === 'mozilla-beta'
+      ? 7776000
+      : phDefaultTimeRangeValue;
+  const timeRange = Math.max(
+    defaultTimeRange,
+    phTimeRanges
+      .map((time) => time.value)
+      .find(
+        (value) => Date.now() / 1000.0 - alertSummary.push_timestamp <= value,
+      ),
+  );
+  // default value of one year, for one a push_timestamp exceeds the one year value slightly
+  return timeRange || 31536000;
+};
 
 // TODO change usage of signature_hash to signature.id
 export const getGraphsURL = (

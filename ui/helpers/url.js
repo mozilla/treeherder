@@ -7,6 +7,10 @@ export const uiJobsUrlBase = '/jobs';
 
 export const uiPushHealthBase = '/push-health';
 
+export const uiPerfherderBase = '/perfherder';
+
+export const thBaseUrl = 'https://treeherder.mozilla.org/';
+
 export const bzBaseUrl = 'https://bugzilla.mozilla.org/';
 
 export const bzComponentEndpoint = '/bugzilla-component/';
