@@ -26,6 +26,8 @@ class Migration(migrations.Migration):
                     'RENAME TABLE performance_datum TO performance_datum_old, '
                     'performance_datum_new TO performance_datum'
                 ),
+                # Disable session's FK checks to drop the old table
+                'SET foreign_key_checks=0',
                 'DROP TABLE performance_datum_old',
             ],
             reverse_sql=migrations.RunSQL.noop,
