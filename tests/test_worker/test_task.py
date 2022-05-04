@@ -3,6 +3,7 @@ from threading import local
 
 import pytest
 from django.db.utils import OperationalError
+from celery.exceptions import Retry
 
 from treeherder.workers.task import retryable_task
 
@@ -55,6 +56,10 @@ def throwing_task_should_retry():
 def test_retryable_task_throws_retry():
     "Test celery executes a task properly"
 
-    with pytest.raises(OperationalError):
+    with pytest.raises(Retry) as e:
         throwing_task_should_retry.delay()
-    assert thread_data.retry_count > 1
+    assert str(e.value) == 'Retry in 10s: OperationalError()'
+
+    # The task is only called once, the Retry() exception
+    # will signal to the worker that the task needs to be tried again later
+    assert thread_data.retry_count == 1
