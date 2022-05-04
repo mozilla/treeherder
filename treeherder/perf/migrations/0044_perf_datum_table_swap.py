@@ -20,7 +20,7 @@ class Migration(migrations.Migration):
                 # Copy last performance_datum table entries
                 (
                     'INSERT INTO performance_datum_new SELECT * FROM performance_datum '
-                    'WHERE `performance_datum`.`id` > (SELECT MAX(id) FROM performance_datum_new)'
+                    'WHERE `performance_datum`.`id` > (SELECT COALESCE(MAX(id), 0) FROM performance_datum_new)'
                 ),
                 (
                     'RENAME TABLE performance_datum TO performance_datum_old, '
