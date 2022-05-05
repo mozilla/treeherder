@@ -127,11 +127,11 @@ services:
       context: .
       dockerfile: docker/dev.Dockerfile
     environment:
-      - CELERY_BROKER_URL=amqp://guest:guest@rabbitmq:5672//
+      - BROKER_URL=amqp://guest:guest@rabbitmq:5672//
       - DATABASE_URL=mysql://root@mysql:3306/treeherder
       - PROJECTS_TO_INGEST=${PROJECTS_TO_INGEST:-autoland,try}
     entrypoint: './docker/entrypoint.sh'
-    command: celery worker -A treeherder --uid=nobody --gid=nogroup --without-gossip --without-mingle --without-heartbeat -Q store_pulse_pushes,store_pulse_tasks,store_pulse_tasks_classification --concurrency=1 --loglevel=WARNING
+    command: celery -A treeherder worker --uid=nobody --gid=nogroup --without-gossip --without-mingle --without-heartbeat -Q store_pulse_pushes,store_pulse_tasks,store_pulse_tasks_classification --concurrency=1 --loglevel=INFO
     volumes:
       - .:/app
     depends_on:

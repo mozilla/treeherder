@@ -276,10 +276,10 @@ def test_job_2(eleven_job_blobs, create_jobs):
 
 @pytest.fixture
 def mock_log_parser(monkeypatch):
-    from celery import task
+    from celery import shared_task
     from treeherder.log_parser import tasks
 
-    @task
+    @shared_task
     def task_mock(*args, **kwargs):
         pass
 
