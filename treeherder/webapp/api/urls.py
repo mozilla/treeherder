@@ -160,5 +160,10 @@ urlpatterns = [
         performance_data.PerformanceSummary.as_view(),
         name='performance-summary',
     ),
+    re_path(
+        r'^perfcompare/results/$',
+        performance_data.PerfCompareResults.as_view(),
+        name='perfcompare-results',
+    ),
     re_path(r'^csp-report/$', csp_report.csp_report_collector, name='csp-report'),
 ]

@@ -1,5 +1,6 @@
-import datetime
 import time
+import datetime
+import statistics
 from collections import defaultdict
 
 import django_filters
@@ -36,7 +37,9 @@ from .performance_serializers import (
     PerformanceBugTemplateSerializer,
     PerformanceFrameworkSerializer,
     PerformanceQueryParamsSerializer,
+    PerfCompareResultsQueryParamsSerializer,
     PerformanceSummarySerializer,
+    PerfCompareResultsSerializer,
     PerformanceTagSerializer,
     TestSuiteHealthParamsSerializer,
     TestSuiteHealthSerializer,
@@ -741,6 +744,244 @@ class PerformanceSummary(generics.ListAPIView):
                 ]
 
         return serialized_data
+
+
+class PerfCompareResults(generics.ListAPIView):
+    serializer_class = PerfCompareResultsSerializer
+    queryset = None
+
+    def list(self, request):
+        query_params = PerfCompareResultsQueryParamsSerializer(data=request.query_params)
+        if not query_params.is_valid():
+            return Response(data=query_params.errors, status=HTTP_400_BAD_REQUEST)
+
+        base_revision = query_params.validated_data['base_revision']
+        new_revision = query_params.validated_data['new_revision']
+        base_repository_name = query_params.validated_data['base_repository']
+        new_repository_name = query_params.validated_data['new_repository']
+        interval = query_params.validated_data['interval']
+        framework = query_params.validated_data['framework']
+        no_subtests = query_params.validated_data['no_subtests']
+
+        base_signatures = PerformanceSignature.objects.select_related(
+            'framework', 'repository', 'platform', 'push', 'job'
+        ).filter(repository__name=base_repository_name)
+        new_signatures = PerformanceSignature.objects.select_related(
+            'framework', 'repository', 'platform', 'push', 'job'
+        ).filter(repository__name=new_repository_name)
+
+        base_signatures = base_signatures.filter(parent_signature__isnull=no_subtests)
+        new_signatures = new_signatures.filter(parent_signature__isnull=no_subtests)
+
+        if framework:
+            base_signatures = base_signatures.filter(framework__in=framework)
+            new_signatures = new_signatures.filter(framework__in=framework)
+
+        if interval:
+            base_signatures = base_signatures.filter(
+                last_updated__gte=datetime.datetime.utcfromtimestamp(
+                    int(time.time() - int(interval))
+                )
+            )
+            new_signatures = new_signatures.filter(
+                last_updated__gte=datetime.datetime.utcfromtimestamp(
+                    int(time.time() - int(interval))
+                )
+            )
+
+        base_signatures = base_signatures.values(
+            'framework_id',
+            'id',
+            'lower_is_better',
+            'has_subtests',
+            'extra_options',
+            'suite',
+            'signature_hash',
+            'platform__platform',
+            'test',
+            'option_collection_id',
+            'parent_signature_id',
+            'repository_id',
+            'tags',
+            'measurement_unit',
+            'application',
+            'extra_options',
+        )
+        new_signatures = new_signatures.values(
+            'framework_id',
+            'id',
+            'lower_is_better',
+            'has_subtests',
+            'extra_options',
+            'suite',
+            'signature_hash',
+            'platform__platform',
+            'test',
+            'option_collection_id',
+            'parent_signature_id',
+            'repository_id',
+            'tags',
+            'measurement_unit',
+            'application',
+            'extra_options',
+        )
+
+        base_signature_ids = [item['id'] for item in list(base_signatures)]
+        new_signature_ids = [item['id'] for item in list(new_signatures)]
+
+        base_perf_data = PerformanceDatum.objects.select_related('push', 'repository', 'id').filter(
+            signature_id__in=base_signature_ids,
+            repository__name=base_repository_name,
+        )
+        new_perf_data = PerformanceDatum.objects.select_related('push', 'repository', 'id').filter(
+            signature_id__in=new_signature_ids,
+            repository__name=new_repository_name,
+        )
+
+        # TODO: Allow comparison when selecting only new revisions
+        if base_revision:
+            base_perf_data = base_perf_data.filter(push__revision=base_revision)
+        elif interval:
+            base_perf_data = base_perf_data.filter(
+                push_timestamp__gt=datetime.datetime.utcfromtimestamp(
+                    int(time.time() - int(interval))
+                )
+            )
+        if new_revision:
+            new_perf_data = new_perf_data.filter(push__revision=new_revision)
+        elif interval:
+            new_perf_data = new_perf_data.filter(
+                push_timestamp__gt=datetime.datetime.utcfromtimestamp(
+                    int(time.time() - int(interval))
+                )
+            )
+
+        option_collection = OptionCollection.objects.select_related('option').values(
+            'id', 'option__name'
+        )
+        option_collection_map = {
+            item['id']: item['option__name'] for item in list(option_collection)
+        }
+
+        base_grouped_values = defaultdict(list)
+        base_grouped_job_ids = defaultdict(list)
+        for signature_id, value, job_id in base_perf_data.values_list(
+            'signature_id', 'value', 'job_id'
+        ):
+            if value is not None:
+                base_grouped_values[signature_id].append(value)
+                base_grouped_job_ids[signature_id].append(job_id)
+
+        new_grouped_values = defaultdict(list)
+        new_grouped_job_ids = defaultdict(list)
+        for signature_id, value, job_id in new_perf_data.values_list(
+            'signature_id', 'value', 'job_id'
+        ):
+            if value is not None:
+                new_grouped_values[signature_id].append(value)
+                new_grouped_job_ids[signature_id].append(job_id)
+
+        base_signatures_map = {}
+        new_signatures_map = {}
+        names = []
+        platforms = []
+
+        for base_signature in base_signatures:
+            suite = base_signature['suite']
+            test = base_signature['test']
+            extra_options = base_signature['extra_options']
+            option_name = option_collection_map[base_signature['option_collection_id']]
+            test_suite = suite if test == '' or test == suite else '{} {}'.format(suite, test)
+            platform = base_signature['platform__platform']
+            name = '{} {} {}'.format(test_suite, option_name, extra_options)
+            key = '{} {}'.format(name, platform)
+            names.append(name)
+            platforms.append(platform)
+            if key not in base_signatures_map or (
+                key in base_signatures_map
+                and len(base_grouped_values.get(base_signature['id'], [])) != 0
+            ):
+                base_signatures_map[key] = base_signature
+
+        for new_signature in new_signatures:
+            suite = new_signature['suite']
+            test = new_signature['test']
+            extra_options = new_signature['extra_options']
+            option_name = option_collection_map[new_signature['option_collection_id']]
+            platform = new_signature['platform__platform']
+
+            test_suite = suite if test == '' or test == suite else '{} {}'.format(suite, test)
+            name = '{} {} {}'.format(test_suite, option_name, extra_options)
+            key = '{} {}'.format(name, platform)
+            names.append(name)
+            platforms.append(platform)
+            if key not in new_signatures_map or (
+                key in new_signatures_map
+                and len(new_grouped_values.get(new_signature['id'], [])) != 0
+            ):
+                new_signatures_map[key] = new_signature
+
+        names = set(names)
+        platforms = set(platforms)
+
+        self.queryset = []
+
+        for header in names:
+            for platform in platforms:
+                key = '{} {}'.format(header, platform)
+                base_result = base_signatures_map.get(key, {})
+                new_result = new_signatures_map.get(key, {})
+                is_empty = False if base_result and new_result else True
+
+                if is_empty:
+                    continue
+
+                suite = base_result.get('suite', '') if base_result else new_result.get('suite', '')
+                test = base_result.get('test', '')
+                base_values = base_grouped_values.get(base_result.get('id', ''), [])
+                new_values = new_grouped_values.get(new_result.get('id', ''), [])
+                is_complete = len(base_values) != 0 and len(new_values) != 0
+                base_avg_value = statistics.mean(base_values) if len(base_values) else 0
+                new_avg_value = statistics.mean(new_values) if len(new_values) else 0
+
+                row_dict = {
+                    'header': header,
+                    'platform': platform,
+                    'suite': suite,
+                    'test': test,
+                    'is_complete': is_complete,
+                    'framework_id': framework,
+                    'is_empty': is_empty,
+                    'option_name': option_collection_map.get(
+                        base_result.get('option_collection_id', ''), ''
+                    ),
+                    'extra_options': base_result.get('extra_options', ''),
+                    'base_repository_name': base_repository_name,
+                    'new_repository_name': new_repository_name,
+                    'base_measurement_unit': base_result.get('measurement_unit', ''),
+                    'new_measurement_unit': new_result.get('measurement_unit', ''),
+                    'base_runs': sorted(base_values),
+                    'new_runs': sorted(new_values),
+                    'base_avg_value': base_avg_value,
+                    'new_avg_value': new_avg_value,
+                    'base_stddev': '',
+                    'new_stddev': '',
+                    'base_stddev_pct': '',
+                    'new_stddev_pct': '',
+                    'base_retriggerable_job_ids': base_grouped_job_ids.get(
+                        base_result.get('id', ''), []
+                    ),
+                    'new_retriggerable_job_ids': new_grouped_job_ids.get(
+                        new_result.get('id', ''), []
+                    ),
+                }
+
+                self.queryset.append(row_dict)
+
+        serializer = self.get_serializer(self.queryset, many=True)
+        serialized_data = serializer.data
+
+        return Response(data=serialized_data)
 
 
 class TestSuiteHealthViewSet(viewsets.ViewSet):

@@ -565,6 +565,7 @@ def test_perf_signature_2(test_perf_signature):
         has_subtests=test_perf_signature.has_subtests,
         extra_options=test_perf_signature.extra_options,
         last_updated=datetime.datetime.now(),
+        measurement_unit='ms',
     )
 
 

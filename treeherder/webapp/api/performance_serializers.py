@@ -385,6 +385,123 @@ class PerformanceSummarySerializer(serializers.ModelSerializer):
         return '{} {} {}'.format(test_suite, value['option_name'], value['extra_options'])
 
 
+class PerfCompareResultsQueryParamsSerializer(serializers.Serializer):
+    base_revision = serializers.CharField(required=False, allow_null=True, default=None)
+    new_revision = serializers.CharField(required=False, allow_null=True, default=None)
+    base_repository = serializers.CharField()
+    new_repository = serializers.CharField()
+    framework = serializers.ListField(required=False, child=serializers.IntegerField(), default=[])
+    interval = serializers.IntegerField(required=False, allow_null=True, default=None)
+    no_subtests = serializers.BooleanField(required=False)
+    all_data = OptionalBooleanField()
+    no_retriggers = OptionalBooleanField()
+
+    def validate(self, data):
+        if (
+            data['base_revision'] is None
+            and data['new_revision'] is None
+            and data['interval'] is None
+        ):
+            raise serializers.ValidationError('Required: base_revision, new_revision and interval.')
+
+        return data
+
+    def validate_base_repository(self, base_repository):
+        try:
+            Repository.objects.get(name=base_repository)
+
+        except ObjectDoesNotExist:
+            raise serializers.ValidationError('{} does not exist.'.format(base_repository))
+
+        return base_repository
+
+    def validate_new_repository(self, new_repository):
+        try:
+            Repository.objects.get(name=new_repository)
+
+        except ObjectDoesNotExist:
+            raise serializers.ValidationError('{} does not exist.'.format(new_repository))
+
+        return new_repository
+
+
+class PerfCompareResultsSerializer(serializers.ModelSerializer):
+    is_empty = serializers.BooleanField()
+    is_complete = serializers.BooleanField()
+    platform = serializers.CharField()
+    header_name = serializers.SerializerMethodField()
+    suite = serializers.CharField()
+    base_repository_name = serializers.CharField()
+    new_repository_name = serializers.CharField()
+    base_measurement_unit = serializers.CharField()
+    new_measurement_unit = serializers.CharField()
+    base_retriggerable_job_ids = serializers.ListField(child=serializers.IntegerField(), default=[])
+    new_retriggerable_job_ids = serializers.ListField(child=serializers.IntegerField(), default=[])
+    base_runs = serializers.ListField(
+        child=serializers.DecimalField(
+            rounding=decimal.ROUND_HALF_EVEN,
+            decimal_places=2,
+            max_digits=None,
+            coerce_to_string=False,
+        ),
+        default=[],
+    )
+    new_runs = serializers.ListField(
+        child=serializers.DecimalField(
+            rounding=decimal.ROUND_HALF_EVEN,
+            decimal_places=2,
+            max_digits=None,
+            coerce_to_string=False,
+        ),
+        default=[],
+    )
+    base_avg_value = serializers.DecimalField(
+        rounding=decimal.ROUND_HALF_EVEN,
+        decimal_places=2,
+        max_digits=None,
+        coerce_to_string=False,
+    )
+    new_avg_value = serializers.DecimalField(
+        rounding=decimal.ROUND_HALF_EVEN,
+        decimal_places=2,
+        max_digits=None,
+        coerce_to_string=False,
+    )
+
+    class Meta:
+        model = PerformanceSignature
+        fields = [
+            'framework_id',
+            'platform',
+            'suite',
+            'is_empty',
+            'header_name',
+            'base_repository_name',
+            'new_repository_name',
+            'is_complete',
+            'base_measurement_unit',
+            'new_measurement_unit',
+            'base_retriggerable_job_ids',
+            'new_retriggerable_job_ids',
+            'base_repository_name',
+            'new_repository_name',
+            'base_runs',
+            'new_runs',
+            'base_avg_value',
+            'new_avg_value',
+            # 'base_stddev',
+            # 'new_stddev',
+            # 'base_stddev_pct',
+            # 'new_stddev_pct',
+        ]
+
+    def get_header_name(self, value):
+        test = value['test']
+        suite = value['suite']
+        test_suite = suite if test == '' or test == suite else '{} {}'.format(suite, test)
+        return '{} {} {}'.format(test_suite, value['option_name'], value['extra_options'])
+
+
 class TestSuiteHealthParamsSerializer(serializers.Serializer):
     framework = serializers.CharField(default=None)
 
