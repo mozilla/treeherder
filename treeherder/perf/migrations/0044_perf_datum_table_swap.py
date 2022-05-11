@@ -17,17 +17,71 @@ class Migration(migrations.Migration):
         # There is no need to lock the table as the Django migration will be performed in a transaction
         migrations.RunSQL(
             [
+                # Copy last perf_multicommitdatum table entries
+                (
+                    'INSERT INTO perf_multicommitdatum_new SELECT * FROM perf_multicommitdatum '
+                    'WHERE `perf_multicommitdatum`.`perf_datum_id` > (SELECT COALESCE(MAX(perf_datum_id), 0) '
+                    'FROM perf_multicommitdatum_new)'
+                ),
                 # Copy last performance_datum table entries
                 (
                     'INSERT INTO performance_datum_new SELECT * FROM performance_datum '
                     'WHERE `performance_datum`.`id` > (SELECT COALESCE(MAX(id), 0) FROM performance_datum_new)'
                 ),
+                # Create PKs, this will automatically set AUTO_INCREMENT value
+                'ALTER TABLE perf_multicommitdatum_new MODIFY perf_datum_id bigint(20) NOT NULL PRIMARY KEY AUTO_INCREMENT',
+                'ALTER TABLE performance_datum_new MODIFY id bigint(20) NOT NULL PRIMARY KEY AUTO_INCREMENT',
+                # Create indexes on performance_datum table
                 (
-                    'RENAME TABLE performance_datum TO performance_datum_old, '
+                    'CREATE UNIQUE INDEX `performance_datum_repo_job_push_timestamp_sig_uniq` '
+                    'ON performance_datum_new(`repository_id`,`job_id`,`push_id`,`push_timestamp`,`signature_id`)'
+                ),
+                *[
+                    f'CREATE INDEX `{name}` ON performance_datum_new({", ".join(f"`{val}`" for val in values)})'
+                    for name, values in (
+                        (
+                            'performance_datum_repo_sig_timestp_idx',
+                            ('repository_id', 'signature_id', 'push_timestamp'),
+                        ),
+                        (
+                            'performance_datum_repo_sig_push_idx',
+                            ('repository_id', 'signature_id', 'push_id'),
+                        ),
+                        ('performance_datum_job_fk', ('job_id',)),
+                        ('performance_datum_push_fk', ('push_id',)),
+                        ('performance_datum_sig_fk', ('signature_id',)),
+                        ('performance_datum_timestp', ('push_timestamp',)),
+                        ('performance_datum_repository', ('repository_id',)),
+                    )
+                ],
+                # Create constraints on performance_datum table
+                *[
+                    (
+                        f'ALTER TABLE performance_datum_new ADD CONSTRAINT {name} '
+                        f'FOREIGN KEY ({field}) REFERENCES {table}(`{table_field}`)'
+                    )
+                    for name, field, table, table_field in (
+                        ('performance_datum_job_fk', 'job_id', 'job', 'id'),
+                        ('performance_datum_push_fk', 'push_id', 'push', 'id'),
+                        ('performance_datum_repo_fk', 'repository_id', 'repository', 'id'),
+                        ('performance_datum_sig_fk', 'signature_id', 'performance_signature', 'id'),
+                    )
+                ],
+                # Create the FK constraint on perf_multicommitdatum table
+                (
+                    'ALTER TABLE perf_multicommitdatum_new ADD CONSTRAINT perf_multicommitdatum_perf_datum_fk '
+                    'FOREIGN KEY (perf_datum_id) REFERENCES performance_datum_new(`id`) ON DELETE CASCADE'
+                ),
+                # Rename the tables, FK update is automatic
+                (
+                    'RENAME TABLE '
+                    'perf_multicommitdatum TO perf_multicommitdatum_old, '
+                    'perf_multicommitdatum_new TO perf_multicommitdatum, '
+                    'performance_datum TO performance_datum_old, '
                     'performance_datum_new TO performance_datum'
                 ),
-                # Disable session's FK checks to drop the old table
-                'SET foreign_key_checks=0',
+                # Drop the old tables
+                'DROP TABLE perf_multicommitdatum_old',
                 'DROP TABLE performance_datum_old',
             ],
             reverse_sql=migrations.RunSQL.noop,
