@@ -165,7 +165,6 @@ export default class StatusDropdown extends React.Component {
     const culpritDetails = await this.getCulpritDetails(culpritId);
     const defaultParams = {
       bug_type: templateArgs.bugType,
-      bug_severity: 'S3',
       version: 'unspecified',
       // result.cc_list is a string, not array
       cc: result.cc_list,
@@ -192,6 +191,7 @@ export default class StatusDropdown extends React.Component {
           component: culpritDetails.component,
           product: culpritDetails.product,
           regressed_by: culpritId,
+          cf_has_regression_range: 'yes',
         })}`,
       );
     }
