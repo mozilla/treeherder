@@ -6,30 +6,16 @@ and before migration perf.0044_perf_datum_table_swap
 """
 import logging
 from django.db import connection
-from django.core.management.base import BaseCommand
+from django.core.management.base import BaseCommand, CommandError
 
 logger = logging.getLogger(__name__)
-
-TABLE_NAME = 'performance_datum'
-NEW_TABLE = 'performance_datum_new'
-
-
-def get_max_id(table_name):
-    with connection.cursor() as cursor:
-        cursor.execute(f'SELECT MAX(id) FROM {table_name}')
-        (max_id,) = cursor.fetchone()
-        return max_id
 
 
 class Command(BaseCommand):
     help = 'Fill performance_datum_copy table with rows populating the actual performance_datum'
 
     def add_arguments(self, parser):
-        """
-        Insert data from the existing table using successive INSERT INTO … SELECT FROM …
-        MySQL struggles with INSERT on large tables, as indexes no longer fits in memory
-        A solution to this would be to drop indexes and restore them after copying all the data
-        """
+        "Insert data from the existing table using successive INSERT INTO … SELECT FROM …"
         parser.add_argument(
             '--chunk-size',
             default=100000,
@@ -37,27 +23,30 @@ class Command(BaseCommand):
             help='How many rows to update at a time',
         )
 
-    def handle(self, *args, chunk_size=None, **options):
+    def get_max_id(self, table_name, pk="id"):
+        with connection.cursor() as cursor:
+            cursor.execute(f'SELECT MAX({pk}) FROM {table_name}')
+            (max_id,) = cursor.fetchone()
+            return max_id
 
-        table_max_id = get_max_id(TABLE_NAME)
-        new_table_max_id = get_max_id(NEW_TABLE) or 0
+    def copy_data(self, from_table, to_table, pk):
+        logger.info(f"Copying data from {from_table} to {to_table}")
+        from_max_id = self.get_max_id(from_table, pk) or 0
+        to_max_id = self.get_max_id(to_table, pk) or 0
 
-        if not table_max_id:
-            raise Exception(f'No entry found on table {TABLE_NAME}')
-
-        if table_max_id == new_table_max_id:
-            logger.info(f'Nothing to do, both tables are sync at ID {table_max_id}')
+        if from_max_id == to_max_id:
+            logger.info(f'Nothing to do, both tables are sync at ID {from_max_id}')
             return
 
         # Create chunk tuples composed of a start ID and end ID over the range of entries to copy
         chunks = [
-            (i, i + min(chunk_size, table_max_id))
-            for i in range(new_table_max_id, table_max_id, chunk_size)
+            (i, i + min(self.chunk_size, from_max_id))
+            for i in range(to_max_id, from_max_id, self.chunk_size)
         ]
 
         chunks_count = len(chunks)
         logger.info(
-            f'Inserting {table_max_id - new_table_max_id} entries to the new table in {chunks_count} chunks'
+            f'Inserting {from_max_id - to_max_id} entries to the new table in {chunks_count} chunks'
         )
 
         for index, (min_id, max_id) in enumerate(chunks, start=1):
@@ -65,9 +54,21 @@ class Command(BaseCommand):
             with connection.cursor() as cursor:
                 cursor.execute(
                     (
-                        f'INSERT INTO {NEW_TABLE} SELECT * FROM {TABLE_NAME} '
-                        f'WHERE `{TABLE_NAME}`.`id` > %s '
-                        f'AND `{TABLE_NAME}`.`id` <= %s'
+                        f'INSERT INTO {to_table} SELECT * FROM {from_table} '
+                        f'WHERE `{from_table}`.`{pk}` > %s '
+                        f'AND `{from_table}`.`{pk}` <= %s'
                     ),
                     [min_id, max_id],
                 )
+
+    def handle(self, *args, chunk_size=None, **options):
+        self.chunk_size = chunk_size
+        if not isinstance(self.chunk_size, int):
+            raise CommandError("chunk_size parameter should be an integer")
+
+        self.copy_data(
+            from_table="perf_multicommitdatum",
+            to_table="perf_multicommitdatum_new",
+            pk="perf_datum_id",
+        )
+        self.copy_data(from_table="performance_datum", to_table="performance_datum_new", pk="id")
