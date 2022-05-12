@@ -17,7 +17,7 @@ elif [ "$1" == "web" ]; then
 # This schedules (but does not run itself) the cron-like tasks listed in `CELERY_BEAT_SCHEDULE`.
 elif [ "$1" == "celery_scheduler" ]; then
     export REMAP_SIGTERM=SIGQUIT
-    exec newrelic-admin run-program celery beat -A treeherder
+    exec newrelic-admin run-program celery -A treeherder beat
 
 # Push/job data is consumed from exchanges on pulse.mozilla.org using these kombu-powered
 # Django management commands. They do not ingest the data themselves, instead adding tasks
