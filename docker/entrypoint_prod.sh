@@ -5,6 +5,7 @@
 if [ "$1" == "release" ]; then
     exec ./bin/pre_deploy
 
+
 # We set the maximum request duration to 20 seconds, to ensure that poorly performing API
 # queries do not consume a gunicorn worker for unbounded lengths of time. 
 elif [ "$1" == "web" ]; then
