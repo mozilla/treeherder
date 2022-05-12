@@ -265,7 +265,7 @@ def test_tracker_lets_web_service_rest(mock_formula_map, updatable_criteria_csv)
         tracker.update_records()
 
 
-@pytest.mark.freeze_time(CASSETTES_RECORDING_DATE)  # disable tick
+# We cannot use freeze_time here as it breaks the multiprocessing & sleep usages in CriteriaTracker
 def test_tracker_updates_records_with_missing_data(mock_formula_map, updatable_criteria_csv):
     # all tests from the fixture don't have any kind of data
     tracker = CriteriaTracker(
@@ -295,7 +295,8 @@ def test_tracker_updates_records_with_missing_data(mock_formula_map, updatable_c
         assert criteria_rec.EngineerTraction == EXPECTED_VALUE
         assert criteria_rec.FixRatio == EXPECTED_VALUE
         assert criteria_rec.TotalAlerts == 0
-        assert criteria_rec.LastUpdatedOn == EXPECTED_LAST_UPDATE
+        # We cannot compare exactly as the freeze_time method is not usable here
+        assert criteria_rec.LastUpdatedOn > EXPECTED_LAST_UPDATE
         assert criteria_rec.AllowSync is True
 
 
