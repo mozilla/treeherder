@@ -12,7 +12,11 @@ logger = logging.getLogger(__name__)
 
 
 class Command(BaseCommand):
-    help = 'Fill performance_datum_copy table with rows populating the actual performance_datum'
+    help = (
+        'Populate the performance_datum_new table with existing performance_datum rows. '
+        'Do also copy perf_multicommitdatum data to the perf_multicommitdatum_new table. '
+        'This operation will speed up perf.0044_perf_datum_table_swap migration.'
+    )
 
     def add_arguments(self, parser):
         "Insert data from the existing table using successive INSERT INTO … SELECT FROM …"
