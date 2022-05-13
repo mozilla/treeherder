@@ -512,7 +512,7 @@ class JobManager(models.Manager):
                 return jobs_cycled
             max_id = min_id + chunk_size
             max_chunk = Job.objects.filter(id__lt=max_id).aggregate(
-                submit_time=Max("submit_time"), id=Max("id"), count=Count("id")
+                submit_time=Max("submit_time"), count=Count("id")
             )
             if max_chunk["count"] == 0 or max_chunk["submit_time"] > jobs_max_timestamp:
                 # this next chunk is too young, we are done
