@@ -233,9 +233,9 @@ djangorestframework==3.12.2 \
     --hash=sha256:0209bafcb7b5010fdfec784034f059d512256424de2a0f084cb82b096d6dd6a7 \
     --hash=sha256:0898182b4737a7b584a2c73735d89816343369f259fea932d90dc78e35d8ac33
     # via -r requirements/common.in
-dockerflow==2020.10.0 \
-    --hash=sha256:226086becc436b5a1995348e26c4fb2ad1d4e5dbc10dffec0c675c9a43306c8b \
-    --hash=sha256:36787fa016e5505d71d60c36cd4e0de7b2d1e50059160bd4e93ceb62bb40d3f8
+dockerflow==2022.1.0 \
+    --hash=sha256:ec723cedb853043a0c7cada32f46f8f7eadfaf6bd7dee718e9a373b6b577d249 \
+    --hash=sha256:f40bad2d465533b1949261e5cd3ffa23fd1dd0c12f32f4e4608040ec6ad502a5
     # via -r requirements/common.in
 ecdsa==0.14.1 \
     --hash=sha256:64c613005f13efec6541bb0a33290d0d03c27abab5f15fbab20fb0ee162bdd8e \
