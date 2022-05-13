@@ -26,7 +26,10 @@ shellcheck-py
 pytest-asyncio==0.14.0  # required to pass test_new_job_transformation
 
 # To test code that's making system time calls
-pytest-freezegun
+# pytest-freezegun is not compatible with recent Django versions
+# as long as that issue is not fixed https://github.com/ktosiek/pytest-freezegun/issues/35
+# we need to rely on a fork with a patch
+https://github.com/hugovk/pytest-freezegun/archive/993f8399e615de90f7774058095dbaf3d2b249f1.zip#egg=pytest-freezegun
 
 # To test code that's doing advanced communication
 # with web services via `requests` library
