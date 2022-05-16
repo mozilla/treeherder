@@ -9,7 +9,7 @@ description = "This is the package installer for docs"
 authors = ["Mozilla"]
 
 [tool.poetry.dependencies]
-python = "^3.7"
+python = "^3.8"
 
 # A list of all of the optional dependencies, some of which are included in the
 # below `extras`. They can be opted into by apps.
@@ -22,7 +22,7 @@ docs = ["mkdocs", "mkdocs-material", "mdx_truly_sane_lists"]
 
 [tool.black]
 line-length = 100
-target-version = ['py37']
+target-version = ['py38']
 skip-string-normalization = true
 include = '\.pyi?$'
 exclude = '''

@@ -12,7 +12,7 @@ RUN yarn build
 
 
 ## Backend stage
-FROM python:3.7.12-slim
+FROM python:3.8.13-slim
 
 # libmysqlclient-dev is required for the mysqlclient Python package.
 RUN apt-get update && apt-get install -y --no-install-recommends \

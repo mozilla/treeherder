@@ -315,33 +315,31 @@ class JobsProjectViewSet(viewsets.ViewSet):
         """
         MAX_JOBS_COUNT = 2000
 
-        # make a mutable copy of these params
-        filter_params = request.query_params.copy()
+        filter_params = {}
 
         # various hacks to ensure API backwards compatibility
-        for param_key in filter_params.keys():
+        for param_key, param_value in request.query_params.items():
             # replace `result_set_id` with `push_id`
             if param_key.startswith('result_set_id'):
                 new_param_key = param_key.replace('result_set_id', 'push_id')
-                filter_params[new_param_key] = filter_params[param_key]
-                del filter_params[param_key]
+                filter_params[new_param_key] = param_value
             # convert legacy timestamp parameters to time ones
             elif param_key in ['submit_timestamp', 'start_timestamp', 'end_timestamp']:
                 new_param_key = param_key.replace('timestamp', 'time')
-                filter_params[new_param_key] = datetime.datetime.fromtimestamp(
-                    float(filter_params[param_key])
-                )
-                del filter_params[param_key]
+                filter_params[new_param_key] = datetime.datetime.fromtimestamp(float(param_value))
             # sanity check 'last modified'
             elif param_key.startswith('last_modified'):
-                datestr = filter_params[param_key]
                 try:
-                    parser.parse(datestr)
+                    parser.parse(param_value)
                 except ValueError:
                     return Response(
-                        "Invalid date value for `last_modified`: {}".format(datestr),
+                        "Invalid date value for `last_modified`: {}".format(param_value),
                         status=HTTP_400_BAD_REQUEST,
                     )
+                filter_params[param_key] = param_value
+            # default case
+            else:
+                filter_params[param_key] = param_value
 
         try:
             offset = int(filter_params.get("offset", 0))
