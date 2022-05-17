@@ -1,3 +1,5 @@
+const path = require('path');
+
 const HtmlWebpackPlugin = require('html-webpack-plugin');
 const HotModuleReplacementPlugin = require('html-webpack-plugin');
 const CopyWebpackPlugin = require('copy-webpack-plugin');
@@ -7,7 +9,7 @@ module.exports = {
   mode: 'development',
   devtool: 'cheap-module-eval-source-map',
   target: 'web',
-  context: '/app',
+  context: path.resolve(__dirname),
   stats: {
     children: false,
     entrypoints: false,
@@ -19,7 +21,7 @@ module.exports = {
     tls: 'empty',
   },
   output: {
-    path: '/app/.build/',
+    path: path.resolve(__dirname, '.build'),
     publicPath: '/',
     filename: 'assets/[name].js',
   },
@@ -93,7 +95,10 @@ module.exports = {
       /* neutrino.config.module.rule('compile') */
       {
         test: /\.(mjs|jsx|js)$/,
-        include: ['/app/ui/', '/app/tests/ui/'],
+        include: [
+          path.resolve(__dirname, 'ui'),
+          path.resolve(__dirname, 'tests/ui'),
+        ],
         use: [
           /* neutrino.config.module.rule('compile').use('babel') */
           {
@@ -218,6 +223,6 @@ module.exports = {
     }),
   ],
   entry: {
-    index: ['/app/ui/index'],
+    index: ['./ui/index'],
   },
 };
