@@ -1,5 +1,7 @@
+const path = require('path');
+
 module.exports = {
-  rootDir: '/app',
+  rootDir: path.resolve(__dirname),
   moduleDirectories: ['node_modules'],
   moduleFileExtensions: ['web.jsx', 'web.js', 'wasm', 'jsx', 'js', 'json'],
   moduleNameMapper: {
