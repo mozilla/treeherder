@@ -44,9 +44,8 @@ module.exports = {
       {
         test: /\.html$/,
         use: [
-          /* neutrino.config.module.rule('html').use('html') */
           {
-            loader: '/app/node_modules/html-loader/index.js',
+            loader: 'html-loader',
             options: {
               attrs: ['img:src', 'link:href'],
             },
@@ -58,16 +57,15 @@ module.exports = {
         test: /\.(mjs|jsx|js)$/,
         include: ['/app/ui/', '/app/tests/ui/'],
         use: [
-          /* neutrino.config.module.rule('compile').use('babel') */
           {
-            loader: '/app/node_modules/babel-loader/lib/index.js',
+            loader: 'babel-loader',
             options: {
               cacheDirectory: true,
               babelrc: false,
               configFile: false,
               presets: [
                 [
-                  '/app/node_modules/@babel/preset-env/lib/index.js',
+                  '@babel/preset-env',
                   {
                     debug: false,
                     useBuiltIns: false,
@@ -82,7 +80,7 @@ module.exports = {
                   },
                 ],
                 [
-                  '/app/node_modules/@babel/preset-react/lib/index.js',
+                  '@babel/preset-react',
                   {
                     development: false,
                     useSpread: true,
@@ -90,16 +88,16 @@ module.exports = {
                 ],
               ],
               plugins: [
-                '/app/node_modules/@babel/plugin-syntax-dynamic-import/lib/index.js',
-                '/app/node_modules/react-hot-loader/babel.js',
+                '@babel/plugin-syntax-dynamic-import',
+                'react-hot-loader',
                 [
-                  '/app/node_modules/babel-plugin-transform-react-remove-prop-types/lib/index.js',
+                  'babel-plugin-transform-react-remove-prop-types',
                   {
                     removeImport: true,
                   },
                 ],
                 [
-                  '/app/node_modules/@babel/plugin-proposal-class-properties/lib/index.js',
+                  '@babel/plugin-proposal-class-properties',
                   {
                     loose: true,
                   },
@@ -116,17 +114,14 @@ module.exports = {
           {
             test: /\.css$/,
             use: [
-              /* neutrino.config.module.rule('style').oneOf('normal').use('extract') */
               {
-                loader:
-                  '/app/node_modules/mini-css-extract-plugin/dist/loader.js',
+                loader: 'mini-css-extract-plugin',
                 options: {
                   esModule: true,
                 },
               },
-              /* neutrino.config.module.rule('style').oneOf('normal').use('css') */
               {
-                loader: '/app/node_modules/css-loader/dist/cjs.js',
+                loader: 'css-loader',
                 options: {
                   importLoaders: 0,
                 },
@@ -139,9 +134,8 @@ module.exports = {
       {
         test: /\.(eot|ttf|woff|woff2)(\?v=\d+\.\d+\.\d+)?$/,
         use: [
-          /* neutrino.config.module.rule('font').use('file') */
           {
-            loader: '/app/node_modules/file-loader/dist/cjs.js',
+            loader: 'file-loader',
             options: {
               name: 'assets/[name].[hash:8].[ext]',
             },
@@ -152,9 +146,8 @@ module.exports = {
       {
         test: /\.(ico|png|jpg|jpeg|gif|svg|webp)(\?v=\d+\.\d+\.\d+)?$/,
         use: [
-          /* neutrino.config.module.rule('image').use('url') */
           {
-            loader: '/app/node_modules/url-loader/dist/cjs.js',
+            loader: 'url-loader',
             options: {
               limit: 8192,
               name: 'assets/[name].[hash:8].[ext]',
