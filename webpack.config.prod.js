@@ -1,3 +1,5 @@
+const path = require('path');
+
 const HtmlWebpackPlugin = require('html-webpack-plugin');
 const { CleanWebpackPlugin } = require('clean-webpack-plugin');
 const MiniCssExtractPlugin = require('mini-css-extract-plugin');
@@ -8,7 +10,7 @@ module.exports = {
   mode: 'production',
   devtool: 'source-map',
   target: 'web',
-  context: '/app',
+  context: path.resolve(__dirname),
   stats: {
     children: false,
     entrypoints: false,
@@ -20,7 +22,7 @@ module.exports = {
     tls: 'empty',
   },
   output: {
-    path: '/app/.build/',
+    path: path.resolve(__dirname, '.build'),
     publicPath: '/',
     filename: 'assets/[name].[contenthash:8].js',
   },
@@ -55,7 +57,10 @@ module.exports = {
       /* neutrino.config.module.rule('compile') */
       {
         test: /\.(mjs|jsx|js)$/,
-        include: ['/app/ui/', '/app/tests/ui/'],
+        include: [
+          path.resolve(__dirname, 'ui'),
+          path.resolve(__dirname, 'tests/ui'),
+        ],
         use: [
           {
             loader: 'babel-loader',
@@ -198,6 +203,6 @@ module.exports = {
     maxEntrypointSize: 2621440,
   },
   entry: {
-    index: ['/app/ui/index'],
+    index: ['./ui/index'],
   },
 };
