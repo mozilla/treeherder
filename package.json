@@ -16,9 +16,6 @@
     "@fortawesome/free-regular-svg-icons": "5.12.1",
     "@fortawesome/free-solid-svg-icons": "5.12.1",
     "@fortawesome/react-fontawesome": "0.1.16",
-    "@neutrinojs/copy": "9.5.0",
-    "@neutrinojs/jest": "^9.5.0",
-    "@neutrinojs/react": "9.2.0",
     "@types/prop-types": "*",
     "@types/react": "*",
     "@types/react-dom": "*",
@@ -33,7 +30,6 @@
     "json-schema-defaults": "0.4.0",
     "lodash": "4.17.21",
     "moment": "2.29.2",
-    "neutrino": "9.5.0",
     "numeral": "2.0.6",
     "pako": "2.0.4",
     "prop-types": "15.7.2",
@@ -65,7 +61,6 @@
     "webpack-cli": "3.3.12"
   },
   "devDependencies": {
-    "@neutrinojs/eslint": "9.2.0",
     "@pollyjs/adapter-fetch": "5.1.1",
     "@pollyjs/adapter-node-http": "5.1.1",
     "@pollyjs/adapter-puppeteer": "5.1.1",
