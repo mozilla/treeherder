@@ -1,3 +1,8 @@
+const HtmlWebpackPlugin = require('html-webpack-plugin');
+const HotModuleReplacementPlugin = require('html-webpack-plugin');
+const CopyWebpackPlugin = require('copy-webpack-plugin');
+const { ProvidePlugin } = require('webpack');
+
 module.exports = {
   mode: 'development',
   devtool: 'cheap-module-eval-source-map',
@@ -196,8 +201,7 @@ module.exports = {
     runtimeChunk: 'single',
   },
   plugins: [
-    /* neutrino.config.plugin('html-index') */
-    new (require('/app/node_modules/html-webpack-plugin/index.js'))({
+    new HtmlWebpackPlugin({
       template: 'ui/index.html',
       appMountId: 'root',
       lang: 'en',
@@ -205,17 +209,14 @@ module.exports = {
       filename: 'index.html',
       chunks: ['index'],
     }),
-    /* neutrino.config.plugin('hot') */
-    new (require('/app/node_modules/webpack/lib/HotModuleReplacementPlugin.js'))(),
-    /* neutrino.config.plugin('copy') */
-    new (require('/app/node_modules/copy-webpack-plugin/dist/cjs.js'))(
+    new HotModuleReplacementPlugin(),
+    new CopyWebpackPlugin(
       ['ui/contribute.json', 'ui/revision.txt', 'ui/robots.txt'],
       {
         logLevel: 'warn',
       },
     ),
-    /* neutrino.config.plugin('provide') */
-    new (require('/app/node_modules/webpack/lib/ProvidePlugin.js'))({
+    new ProvidePlugin({
       jQuery: 'jquery',
       'window.jQuery': 'jquery',
     }),
