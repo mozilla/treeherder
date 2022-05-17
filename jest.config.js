@@ -1,5 +1,22 @@
-const neutrino = require('neutrino');
-
-process.env.NODE_ENV = 'test';
-
-module.exports = neutrino().jest();
+module.exports = {
+  rootDir: '/app',
+  moduleDirectories: ['node_modules'],
+  moduleFileExtensions: ['web.jsx', 'web.js', 'wasm', 'jsx', 'js', 'json'],
+  moduleNameMapper: {
+    '^hawk$': 'hawk/dist/browser.js',
+    '\\.(jpg|jpeg|png|gif|eot|otf|webp|svg|ttf|woff|woff2|mp4|webm|wav|mp3|m4a|aac|oga)$':
+      '<rootDir>/tests/jest/file-mock.js',
+    '\\.(css|less|sass|scss)$': '<rootDir>/tests/jest/style-mock.js',
+    '^react-native$': '<rootDir>/node_modules/react-native-web',
+  },
+  bail: true,
+  collectCoverageFrom: ['ui/**/*.{mjs,jsx,js}'],
+  testEnvironment: 'jsdom',
+  testRegex: 'ui/.*(_test|_spec|\\.test|\\.spec)\\.(mjs|jsx|js)$',
+  verbose: true,
+  transform: {
+    '\\.(mjs|jsx|js)$': 'babel-jest',
+  },
+  setupFilesAfterEnv: ['<rootDir>/tests/ui/test-setup.js'],
+  testPathIgnorePatterns: ['tests/ui/integration'],
+};
