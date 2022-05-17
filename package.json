@@ -75,6 +75,7 @@
     "babel-loader": "^8.1.0",
     "codecov": "3.7.2",
     "copy-webpack-plugin": "^5.1.2",
+    "css-loader": "^3.5.3",
     "eslint": "7.0.0",
     "eslint-config-airbnb": "18.0.1",
     "eslint-config-prettier": "6.7.0",
