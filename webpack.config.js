@@ -1,13 +1,14 @@
 const path = require('path');
 
+const { merge } = require('webpack-merge');
 const HtmlWebpackPlugin = require('html-webpack-plugin');
 const HotModuleReplacementPlugin = require('html-webpack-plugin');
 const CopyWebpackPlugin = require('copy-webpack-plugin');
 const { ProvidePlugin } = require('webpack');
+const { CleanWebpackPlugin } = require('clean-webpack-plugin');
+const MiniCssExtractPlugin = require('mini-css-extract-plugin');
 
-module.exports = {
-  mode: 'development',
-  devtool: 'cheap-module-eval-source-map',
+const commonConfig = {
   target: 'web',
   context: path.resolve(__dirname),
   stats: {
@@ -23,7 +24,6 @@ module.exports = {
   output: {
     path: path.resolve(__dirname, '.build'),
     publicPath: '/',
-    filename: 'assets/[name].js',
   },
   resolve: {
     alias: {
@@ -39,6 +39,63 @@ module.exports = {
       '.json',
     ],
   },
+  module: {
+    rules: [
+      {
+        test: /\.html$/,
+        use: [
+          {
+            loader: 'html-loader/index.js',
+            options: {
+              attrs: ['img:src', 'link:href'],
+            },
+          },
+        ],
+      },
+      {
+        test: /\.(mjs|jsx|js)$/,
+        include: [
+          path.resolve(__dirname, 'ui'),
+          path.resolve(__dirname, 'tests/ui'),
+        ],
+        use: [
+          {
+            loader: 'babel-loader',
+          },
+        ],
+      },
+    ],
+  },
+  plugins: [
+    new HtmlWebpackPlugin({
+      template: 'ui/index.html',
+      appMountId: 'root',
+      lang: 'en',
+      meta: false,
+      filename: 'index.html',
+      chunks: ['index'],
+    }),
+    new CopyWebpackPlugin(
+      ['ui/contribute.json', 'ui/revision.txt', 'ui/robots.txt'],
+      {
+        logLevel: 'warn',
+      },
+    ),
+    new ProvidePlugin({
+      jQuery: 'jquery',
+      'window.jQuery': 'jquery',
+    }),
+  ],
+  entry: {
+    index: ['./ui/index'],
+  },
+};
+
+const developmentConfig = {
+  mode: 'development',
+
+  devtool: 'cheap-module-eval-source-map',
+
   devServer: {
     port: 5000,
     hot: true,
@@ -77,56 +134,39 @@ module.exports = {
       ignored: /node_modules/,
     },
   },
+
+  output: {
+    filename: 'assets/[name].js',
+  },
+
+  optimization: {
+    minimize: false,
+    splitChunks: {
+      chunks: 'all',
+      maxInitialRequests: Infinity,
+      name: true,
+    },
+    runtimeChunk: 'single',
+  },
+
+  plugins: [new HotModuleReplacementPlugin()],
+
   module: {
     rules: [
-      /* neutrino.config.module.rule('html') */
       {
-        test: /\.html$/,
+        test: /\.css$/,
         use: [
-          /* neutrino.config.module.rule('html').use('html') */
           {
-            loader: 'html-loader/index.js',
+            loader: 'style-loader',
+          },
+          {
+            loader: 'css-loader',
             options: {
-              attrs: ['img:src', 'link:href'],
+              importLoaders: 0,
             },
           },
         ],
       },
-      /* neutrino.config.module.rule('compile') */
-      {
-        test: /\.(mjs|jsx|js)$/,
-        include: [
-          path.resolve(__dirname, 'ui'),
-          path.resolve(__dirname, 'tests/ui'),
-        ],
-        use: [
-          /* neutrino.config.module.rule('compile').use('babel') */
-          {
-            loader: 'babel-loader',
-          },
-        ],
-      },
-      /* neutrino.config.module.rule('style') */
-      {
-        oneOf: [
-          /* neutrino.config.module.rule('style').oneOf('normal') */
-          {
-            test: /\.css$/,
-            use: [
-              {
-                loader: 'style-loader',
-              },
-              {
-                loader: 'css-loader',
-                options: {
-                  importLoaders: 0,
-                },
-              },
-            ],
-          },
-        ],
-      },
-      /* neutrino.config.module.rule('font') */
       {
         test: /\.(eot|ttf|woff|woff2)(\?v=\d+\.\d+\.\d+)?$/,
         use: [
@@ -138,7 +178,6 @@ module.exports = {
           },
         ],
       },
-      /* neutrino.config.module.rule('image') */
       {
         test: /\.(ico|png|jpg|jpeg|gif|svg|webp)(\?v=\d+\.\d+\.\d+)?$/,
         use: [
@@ -153,37 +192,95 @@ module.exports = {
       },
     ],
   },
+};
+
+const productionConfig = {
+  mode: 'production',
+  devtool: 'source-map',
+
+  output: {
+    filename: 'assets/[name].[contenthash:8].js',
+  },
+
   optimization: {
-    minimize: false,
+    minimize: true,
     splitChunks: {
       chunks: 'all',
-      maxInitialRequests: Infinity,
-      name: true,
+      maxInitialRequests: 5,
+      name: false,
     },
     runtimeChunk: 'single',
   },
+
+  performance: {
+    hints: 'error',
+    maxAssetSize: 1782579.2,
+    maxEntrypointSize: 2621440,
+  },
+
   plugins: [
-    new HtmlWebpackPlugin({
-      template: 'ui/index.html',
-      appMountId: 'root',
-      lang: 'en',
-      meta: false,
-      filename: 'index.html',
-      chunks: ['index'],
+    new MiniCssExtractPlugin({
+      filename: 'assets/[name].[contenthash:8].css',
     }),
-    new HotModuleReplacementPlugin(),
-    new CopyWebpackPlugin(
-      ['ui/contribute.json', 'ui/revision.txt', 'ui/robots.txt'],
-      {
-        logLevel: 'warn',
-      },
-    ),
-    new ProvidePlugin({
-      jQuery: 'jquery',
-      'window.jQuery': 'jquery',
+    new CleanWebpackPlugin({
+      verbose: false,
     }),
   ],
-  entry: {
-    index: ['./ui/index'],
+
+  module: {
+    rules: [
+      {
+        test: /\.css$/,
+        use: [
+          {
+            loader: MiniCssExtractPlugin.loader,
+            options: {
+              esModule: true,
+            },
+          },
+          {
+            loader: 'css-loader',
+            options: {
+              importLoaders: 0,
+            },
+          },
+        ],
+      },
+      {
+        test: /\.(eot|ttf|woff|woff2)(\?v=\d+\.\d+\.\d+)?$/,
+        use: [
+          {
+            loader: 'file-loader',
+            options: {
+              name: 'assets/[name].[hash:8].[ext]',
+            },
+          },
+        ],
+      },
+      {
+        test: /\.(ico|png|jpg|jpeg|gif|svg|webp)(\?v=\d+\.\d+\.\d+)?$/,
+        use: [
+          {
+            loader: 'url-loader',
+            options: {
+              limit: 8192,
+              name: 'assets/[name].[hash:8].[ext]',
+            },
+          },
+        ],
+      },
+    ],
   },
+};
+
+module.exports = (env, args) => {
+  switch (args.mode) {
+    case 'development':
+      return merge(commonConfig, developmentConfig);
+    case 'production':
+      console.log(merge(commonConfig, productionConfig));
+      return merge(commonConfig, productionConfig);
+    default:
+      throw new Error('No matching configuration was found!');
+  }
 };
