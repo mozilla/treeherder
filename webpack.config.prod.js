@@ -64,51 +64,6 @@ module.exports = {
         use: [
           {
             loader: 'babel-loader',
-            options: {
-              cacheDirectory: true,
-              babelrc: false,
-              configFile: false,
-              presets: [
-                [
-                  '@babel/preset-env',
-                  {
-                    debug: false,
-                    useBuiltIns: false,
-                    targets: {
-                      browsers: [
-                        'last 1 Chrome versions',
-                        'last 1 Edge versions',
-                        'last 1 Firefox versions',
-                        'last 1 Safari versions',
-                      ],
-                    },
-                  },
-                ],
-                [
-                  '@babel/preset-react',
-                  {
-                    development: false,
-                    useSpread: true,
-                  },
-                ],
-              ],
-              plugins: [
-                '@babel/plugin-syntax-dynamic-import',
-                'react-hot-loader',
-                [
-                  'babel-plugin-transform-react-remove-prop-types',
-                  {
-                    removeImport: true,
-                  },
-                ],
-                [
-                  '@babel/plugin-proposal-class-properties',
-                  {
-                    loose: true,
-                  },
-                ],
-              ],
-            },
           },
         ],
       },
