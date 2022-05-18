@@ -278,7 +278,6 @@ module.exports = (env, args) => {
     case 'development':
       return merge(commonConfig, developmentConfig);
     case 'production':
-      console.log(merge(commonConfig, productionConfig));
       return merge(commonConfig, productionConfig);
     default:
       throw new Error('No matching configuration was found!');
