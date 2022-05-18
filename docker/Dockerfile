@@ -4,7 +4,7 @@ FROM node:16.13.2 AS frontend
 WORKDIR /app
 
 COPY ui/ /app/ui/
-COPY package.json webpack.config.js yarn.lock /app/
+COPY package.json babel.config.json webpack.config.js yarn.lock /app/
 
 RUN npm install -g --force yarn@1.22.5
 RUN yarn install
