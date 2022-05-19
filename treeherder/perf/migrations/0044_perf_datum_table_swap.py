@@ -6,7 +6,8 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
     """
     Update the PerformanceDatum table to use a bigint for the primary key.
-    Please ensure the new table has been filled with the `perf_datum_pk_migration` command for better performance.
+    Please ensure the new table has been filled with the `perf_datum_pk_migration`
+    command as tables are locked during this migration.
     """
 
     dependencies = [
@@ -17,16 +18,27 @@ class Migration(migrations.Migration):
         # There is no need to lock the table as the Django migration will be performed in a transaction
         migrations.RunSQL(
             [
+                # Lock the tables during the migration, to avoid missing new inserts
+                (
+                    'LOCK TABLES '
+                    'perf_multicommitdatum WRITE, '
+                    'perf_multicommitdatum_new WRITE, '
+                    'perf_multicommitdatum_new as perf_multicommitdatum_new_read READ, '
+                    'performance_datum WRITE, '
+                    'performance_datum_new WRITE, '
+                    'performance_datum_new as performance_datum_new_read READ'
+                ),
                 # Copy last perf_multicommitdatum table entries
                 (
                     'INSERT INTO perf_multicommitdatum_new SELECT * FROM perf_multicommitdatum '
                     'WHERE `perf_multicommitdatum`.`perf_datum_id` > (SELECT COALESCE(MAX(perf_datum_id), 0) '
-                    'FROM perf_multicommitdatum_new)'
+                    'FROM perf_multicommitdatum_new as perf_multicommitdatum_new_read)'
                 ),
                 # Copy last performance_datum table entries
                 (
                     'INSERT INTO performance_datum_new SELECT * FROM performance_datum '
-                    'WHERE `performance_datum`.`id` > (SELECT COALESCE(MAX(id), 0) FROM performance_datum_new)'
+                    'WHERE `performance_datum`.`id` > (SELECT COALESCE(MAX(id), 0) '
+                    'FROM performance_datum_new as performance_datum_new_read)'
                 ),
                 # Create PKs, this will automatically set AUTO_INCREMENT value
                 'ALTER TABLE perf_multicommitdatum_new MODIFY perf_datum_id bigint(20) NOT NULL PRIMARY KEY AUTO_INCREMENT',
@@ -73,13 +85,11 @@ class Migration(migrations.Migration):
                     'FOREIGN KEY (perf_datum_id) REFERENCES performance_datum_new(`id`) ON DELETE CASCADE'
                 ),
                 # Rename the tables, FK update is automatic
-                (
-                    'RENAME TABLE '
-                    'perf_multicommitdatum TO perf_multicommitdatum_old, '
-                    'perf_multicommitdatum_new TO perf_multicommitdatum, '
-                    'performance_datum TO performance_datum_old, '
-                    'performance_datum_new TO performance_datum'
-                ),
+                'ALTER TABLE perf_multicommitdatum RENAME TO perf_multicommitdatum_old',
+                'ALTER TABLE perf_multicommitdatum_new RENAME TO perf_multicommitdatum',
+                'ALTER TABLE performance_datum RENAME TO performance_datum_old',
+                'ALTER TABLE performance_datum_new RENAME TO performance_datum',
+                'UNLOCK TABLES',
                 # Drop the old tables
                 'DROP TABLE perf_multicommitdatum_old',
                 'DROP TABLE performance_datum_old',
