@@ -43,10 +43,7 @@ class Command(BaseCommand):
             return
 
         # Create chunk tuples composed of a start ID and end ID over the range of entries to copy
-        chunks = [
-            (i, i + min(self.chunk_size, from_max_id))
-            for i in range(to_max_id, from_max_id, self.chunk_size)
-        ]
+        chunks = [(i, i + self.chunk_size) for i in range(to_max_id, from_max_id, self.chunk_size)]
 
         chunks_count = len(chunks)
         logger.info(
