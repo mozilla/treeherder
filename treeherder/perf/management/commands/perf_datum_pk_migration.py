@@ -1,7 +1,7 @@
 """IMPORTANT!
 This subcommand isn't intended for regular use.
 Its purpose is to fill up performance_datum new table with bigint primary keys.
-It should be runned after migration perf.0043_perf_datum_bigint_table
+It should be run after migration perf.0043_perf_datum_bigint_table
 and before migration perf.0044_perf_datum_table_swap
 """
 import logging
