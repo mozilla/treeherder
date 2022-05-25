@@ -67,12 +67,9 @@ const commonConfig = {
     ],
   },
   plugins: [
-    new CopyWebpackPlugin(
-      ['ui/contribute.json', 'ui/revision.txt', 'ui/robots.txt'],
-      {
-        logLevel: 'warn',
-      },
-    ),
+    new CopyWebpackPlugin({
+      patterns: ['ui/contribute.json', 'ui/revision.txt', 'ui/robots.txt'],
+    }),
     new ProvidePlugin({
       jQuery: 'jquery',
       'window.jQuery': 'jquery',
@@ -148,6 +145,10 @@ const developmentConfig = {
       filename: 'index.html',
     }),
   ],
+
+  infrastructureLogging: {
+    level: 'warn',
+  },
 
   module: {
     rules: [
