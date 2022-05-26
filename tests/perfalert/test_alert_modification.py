@@ -8,7 +8,7 @@ from treeherder.perf.models import PerformanceAlert, PerformanceAlertSummary, Pe
 
 
 def test_summary_modification(
-    test_repository, test_perf_signature, test_perf_alert_summary, test_perf_alert
+    test_repository, test_perf_signature, test_perf_alert_summary, test_perf_alert, test_perf_alert_2
 ):
     (s, a) = (test_perf_alert_summary, test_perf_alert)
 
@@ -25,6 +25,28 @@ def test_summary_modification(
     # gets updated
     a.status = PerformanceAlert.UNTRIAGED
     a.save()
+    s = PerformanceAlertSummary.objects.get(id=1)
+    assert s.status == PerformanceAlertSummary.UNTRIAGED
+
+    (s, a, a2) = (test_perf_alert_summary, test_perf_alert, test_perf_alert_2)
+
+    assert s.bug_number is None
+    assert s.status == PerformanceAlertSummary.UNTRIAGED
+
+    # acknowledge alerts, make sure summary status is updated
+    a.status = PerformanceAlert.INVALID
+    a.save()
+    a2.status = PerformanceAlert.INVALID
+    a2.save()
+    s = PerformanceAlertSummary.objects.get(id=1)
+    assert s.status == PerformanceAlertSummary.INVALID
+
+    # reset alert to untriaged, likewise make sure summary status
+    # gets updated
+    a.status = PerformanceAlert.UNTRIAGED
+    a.save()
+    a2.status = PerformanceAlert.UNTRIAGED
+    a2.save()
     s = PerformanceAlertSummary.objects.get(id=1)
     assert s.status == PerformanceAlertSummary.UNTRIAGED
 

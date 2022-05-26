@@ -327,6 +327,16 @@ class PerformanceAlertSummary(models.Model):
         if not alerts:
             return PerformanceAlertSummary.UNTRIAGED
 
+        # if all invalid, then set to invalid
+        if all(alert.status == PerformanceAlert.INVALID for alert in alerts):
+            return PerformanceAlertSummary.INVALID
+
+        if all(alert.status == PerformanceAlert.ACKNOWLEDGED for alert in alerts):
+            if all(not alert.is_regression for alert in alerts):
+                return PerformanceAlertSummary.IMPROVEMENT
+            else:
+                return PerformanceAlertSummary.INVESTIGATING
+
         # if any untriaged, then set to untriaged
         if any(alert.status == PerformanceAlert.UNTRIAGED for alert in alerts):
             return PerformanceAlertSummary.UNTRIAGED
@@ -334,15 +344,13 @@ class PerformanceAlertSummary(models.Model):
         # if the summary's status is IMPROVEMENT, but a regression is
         # reassigned to that summary then set the status to untriaged
         if any(alert.summary.status == PerformanceAlertSummary.IMPROVEMENT for alert in alerts):
-            if any(
-                alert.status == PerformanceAlert.REASSIGNED and alert.is_regression
-                for alert in alerts
-            ):
+            latest_updated = alerts.get(last_updated=alerts.aggregate(models.Max("last_updated"))["last_updated__max"])
+            if latest_updated.status == PerformanceAlert.REASSIGNED and latest_updated.is_regression:
+                for alert in alerts:
+                    if alert.status == PerformanceAlert.ACKNOWLEDGED:
+                        alert.status = PerformanceAlert.UNTRIAGED
+                        alert.save()
                 return PerformanceAlertSummary.UNTRIAGED
-
-        # if all invalid, then set to invalid
-        if all(alert.status == PerformanceAlert.INVALID for alert in alerts):
-            return PerformanceAlertSummary.INVALID
 
         # otherwise filter out invalid alerts
         alerts = [a for a in alerts if a.status != PerformanceAlert.INVALID]
