@@ -67,14 +67,6 @@ const commonConfig = {
     ],
   },
   plugins: [
-    new HtmlWebpackPlugin({
-      template: 'ui/index.html',
-      appMountId: 'root',
-      lang: 'en',
-      meta: false,
-      filename: 'index.html',
-      chunks: ['index'],
-    }),
     new CopyWebpackPlugin(
       ['ui/contribute.json', 'ui/revision.txt', 'ui/robots.txt'],
       {
@@ -149,7 +141,13 @@ const developmentConfig = {
     runtimeChunk: 'single',
   },
 
-  plugins: [new HotModuleReplacementPlugin()],
+  plugins: [
+    new HotModuleReplacementPlugin({
+      template: 'ui/index.html',
+      lang: 'en',
+      filename: 'index.html',
+    }),
+  ],
 
   module: {
     rules: [
@@ -219,6 +217,14 @@ const productionConfig = {
   },
 
   plugins: [
+    new HtmlWebpackPlugin({
+      template: 'ui/index.html',
+      appMountId: 'root',
+      lang: 'en',
+      meta: false,
+      filename: 'index.html',
+      chunks: ['index'],
+    }),
     new MiniCssExtractPlugin({
       filename: 'assets/[name].[contenthash:8].css',
     }),
