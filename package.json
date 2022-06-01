@@ -99,7 +99,6 @@
     "puppeteer": "8.0.0",
     "setup-polly-jest": "0.9.1",
     "style-loader": "^3.3.0",
-    "url-loader": "^4.1.0",
     "webpack-dev-server": "^4.9.0",
     "webpack-merge": "5.8.0"
   },
