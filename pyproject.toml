@@ -9,7 +9,7 @@ description = "This is the package installer for docs"
 authors = ["Mozilla"]
 
 [tool.poetry.dependencies]
-python = "^3.8"
+python = "^3.9"
 
 # A list of all of the optional dependencies, some of which are included in the
 # below `extras`. They can be opted into by apps.
