@@ -1,5 +1,6 @@
 const path = require('path');
 
+const webpack = require('webpack');
 const { merge } = require('webpack-merge');
 const HtmlWebpackPlugin = require('html-webpack-plugin');
 const HotModuleReplacementPlugin = require('html-webpack-plugin');
@@ -15,11 +16,6 @@ const commonConfig = {
     children: false,
     entrypoints: false,
     modules: false,
-  },
-  node: {
-    Buffer: false,
-    fs: 'empty',
-    tls: 'empty',
   },
   output: {
     path: path.resolve(__dirname, '.build'),
@@ -38,6 +34,11 @@ const commonConfig = {
       '.js',
       '.json',
     ],
+    fallback: {
+      assert: require.resolve('assert'),
+      fs: false,
+      tls: false,
+    },
   },
   module: {
     rules: [
@@ -54,6 +55,7 @@ const commonConfig = {
       },
       {
         test: /\.(mjs|jsx|js)$/,
+        type: 'javascript/auto',
         include: [
           path.resolve(__dirname, 'ui'),
           path.resolve(__dirname, 'tests/ui'),
@@ -67,6 +69,9 @@ const commonConfig = {
     ],
   },
   plugins: [
+    new webpack.ProvidePlugin({
+      process: 'process/browser',
+    }),
     new CopyWebpackPlugin({
       patterns: ['ui/contribute.json', 'ui/revision.txt', 'ui/robots.txt'],
     }),
@@ -83,7 +88,7 @@ const commonConfig = {
 const developmentConfig = {
   mode: 'development',
 
-  devtool: 'cheap-module-eval-source-map',
+  devtool: 'eval-cheap-module-source-map',
 
   devServer: {
     host: 'local-ip',
@@ -138,7 +143,7 @@ const developmentConfig = {
     splitChunks: {
       chunks: 'all',
       maxInitialRequests: Infinity,
-      name: true,
+      name: false,
     },
     runtimeChunk: 'single',
   },
