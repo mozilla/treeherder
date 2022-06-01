@@ -67,12 +67,9 @@ const commonConfig = {
     ],
   },
   plugins: [
-    new CopyWebpackPlugin(
-      ['ui/contribute.json', 'ui/revision.txt', 'ui/robots.txt'],
-      {
-        logLevel: 'warn',
-      },
-    ),
+    new CopyWebpackPlugin({
+      patterns: ['ui/contribute.json', 'ui/revision.txt', 'ui/robots.txt'],
+    }),
     new ProvidePlugin({
       jQuery: 'jquery',
       'window.jQuery': 'jquery',
@@ -89,16 +86,10 @@ const developmentConfig = {
   devtool: 'cheap-module-eval-source-map',
 
   devServer: {
+    host: 'local-ip',
     port: 5000,
     hot: true,
     historyApiFallback: true,
-    overlay: true,
-    stats: {
-      all: false,
-      errors: true,
-      timings: true,
-      warnings: true,
-    },
     open: false,
     proxy: {
       '/api': {
@@ -121,9 +112,20 @@ const developmentConfig = {
         },
       },
     },
-    watchOptions: {
-      poll: 1000,
-      ignored: /node_modules/,
+    devMiddleware: {
+      stats: {
+        all: false,
+        errors: true,
+        timings: true,
+        warnings: true,
+      },
+    },
+    static: {
+      watch: {
+        usePolling: true,
+        interval: 1000,
+        ignored: /node_modules/,
+      },
     },
   },
 
@@ -148,6 +150,10 @@ const developmentConfig = {
       filename: 'index.html',
     }),
   ],
+
+  infrastructureLogging: {
+    level: 'warn',
+  },
 
   module: {
     rules: [
@@ -238,12 +244,7 @@ const productionConfig = {
       {
         test: /\.css$/,
         use: [
-          {
-            loader: MiniCssExtractPlugin.loader,
-            options: {
-              esModule: true,
-            },
-          },
+          MiniCssExtractPlugin.loader,
           {
             loader: 'css-loader',
             options: {
