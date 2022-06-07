@@ -91,11 +91,11 @@ const developmentConfig = {
   devtool: 'eval-cheap-module-source-map',
 
   devServer: {
-    host: 'local-ip',
+    host: '0.0.0.0',
     port: 5000,
     hot: true,
     historyApiFallback: true,
-    open: false,
+    open: true,
     proxy: {
       '/api': {
         changeOrigin: true,
