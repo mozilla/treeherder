@@ -102,7 +102,8 @@ const developmentConfig = {
         headers: {
           referer: 'https://treeherder.mozilla.org/webpack-dev-server',
         },
-        target: 'https://treeherder.mozilla.org',
+        // Support BACKEND environment variable provided by npm run scripts
+        target: process.env.BACKEND || 'https://treeherder.mozilla.org',
         onProxyRes: (proxyRes) => {
           // Strip the cookie `secure` attribute, otherwise production's cookies
           // will be rejected by the browser when using non-HTTPS localhost:
