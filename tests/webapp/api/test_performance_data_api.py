@@ -7,7 +7,12 @@ from collections import defaultdict
 
 from treeherder.model.models import MachinePlatform, Push
 from treeherder.webapp.api.performance_data import PerformanceSummary
-from treeherder.perf.models import PerformanceDatum, PerformanceFramework, PerformanceSignature
+from treeherder.perf.models import (
+    PerformanceDatum,
+    PerformanceFramework,
+    PerformanceSignature,
+    OptionCollection,
+)
 
 
 NOW = datetime.datetime.now()
@@ -729,9 +734,14 @@ def test_perfcompare_results(client, test_perf_signature, test_repository, eleve
         perf_datum.push.time = job.push.time
         perf_datum.push.save()
 
+    option_collection = OptionCollection.objects.select_related('option').values(
+        'id', 'option__name'
+    )
+    option_collection_map = {item['id']: item['option__name'] for item in list(option_collection)}
+
     expected = [
         {
-            'framework_id': [sig1.framework.id],
+            'framework_id': sig1.framework.id,
             'platform': sig1.platform.platform,
             'suite': sig1.suite,
             'is_empty': False,
@@ -747,16 +757,16 @@ def test_perfcompare_results(client, test_perf_signature, test_repository, eleve
             'new_runs': sig2_values,
             'base_avg_value': round(statistics.mean(sig1_values), 2),
             'new_avg_value': round(statistics.mean(sig2_values), 2),
-            # 'test': sig1.test,
-            # 'option_name': 'opt',
-            # 'extra_options': sig1.extra_options,
-            # 'base_stddev': '',
-            # 'new_stddev': '',
-            # 'base_stddev_pct': '',
-            # 'new_stddev_pct': '',
+            'test': sig1.test,
+            'option_name': option_collection_map.get(sig1.option_collection_id, ''),
+            'extra_options': sig1.extra_options,
+            'base_stddev': round(statistics.stdev(sig1_values), 2),
+            'new_stddev': round(statistics.stdev(sig2_values), 2),
+            'base_stddev_pct': 47,
+            'new_stddev_pct': 7,
         },
         {
-            'framework_id': [sig3.framework.id],
+            'framework_id': sig3.framework.id,
             'platform': sig3.platform.platform,
             'suite': sig3.suite,
             'is_empty': False,
@@ -772,16 +782,16 @@ def test_perfcompare_results(client, test_perf_signature, test_repository, eleve
             'new_runs': sig4_values,
             'base_avg_value': round(statistics.mean(sig3_values), 2),
             'new_avg_value': round(statistics.mean(sig4_values), 2),
-            # 'test': sig3.test,
-            # 'option_name': 'opt',
-            # 'extra_options': sig3.extra_options,
-            # 'base_stddev': '',
-            # 'new_stddev': '',
-            # 'base_stddev_pct': '',
-            # 'new_stddev_pct': '',
+            'test': sig3.test,
+            'option_name': option_collection_map.get(sig3.option_collection_id, ''),
+            'extra_options': sig3.extra_options,
+            'base_stddev': round(statistics.stdev(sig3_values), 2),
+            'new_stddev': round(statistics.stdev(sig4_values), 2),
+            'base_stddev_pct': 11,
+            'new_stddev_pct': 16,
         },
         {
-            'framework_id': [test_perf_signature.framework.id],
+            'framework_id': test_perf_signature.framework.id,
             'platform': test_perf_signature.platform.platform,
             'suite': test_perf_signature.suite,
             'is_empty': False,
@@ -797,13 +807,13 @@ def test_perfcompare_results(client, test_perf_signature, test_repository, eleve
             'new_runs': [],
             'base_avg_value': 0.0,
             'new_avg_value': 0.0,
-            # 'test': test_perf_signature.test,
-            # 'option_name': 'opt',
-            # 'extra_options': test_perf_signature.extra_options,
-            # 'base_stddev': '',
-            # 'new_stddev': '',
-            # 'base_stddev_pct': '',
-            # 'new_stddev_pct': '',
+            'test': test_perf_signature.test,
+            'option_name': option_collection_map.get(test_perf_signature.option_collection_id, ''),
+            'extra_options': test_perf_signature.extra_options,
+            'base_stddev': None,
+            'new_stddev': None,
+            'base_stddev_pct': 0,
+            'new_stddev_pct': 0,
         },
     ]
 

@@ -19,7 +19,7 @@ env = environ.Env()
 IS_WINDOWS = "windows" in platform.system().lower()
 
 # Top Level configuration
-DEBUG = False
+DEBUG = env.bool("TREEHERDER_DEBUG", default=False)
 LOGGING_LEVEL = env("LOGGING_LEVEL", default="INFO")
 
 NEW_RELIC_INSIGHTS_API_KEY = env("NEW_RELIC_INSIGHTS_API_KEY", default=None)

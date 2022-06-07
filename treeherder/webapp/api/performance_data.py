@@ -1,6 +1,8 @@
 import time
 import datetime
-import statistics
+import functools
+from math import sqrt
+from statistics import mean, stdev
 from collections import defaultdict
 
 import django_filters
@@ -749,6 +751,7 @@ class PerformanceSummary(generics.ListAPIView):
 class PerfCompareResults(generics.ListAPIView):
     serializer_class = PerfCompareResultsSerializer
     queryset = None
+    noise_metric_header = 'noise metric'
 
     def list(self, request):
         query_params = PerfCompareResultsQueryParamsSerializer(data=request.query_params)
@@ -774,8 +777,8 @@ class PerfCompareResults(generics.ListAPIView):
         new_signatures = new_signatures.filter(parent_signature__isnull=no_subtests)
 
         if framework:
-            base_signatures = base_signatures.filter(framework__in=framework)
-            new_signatures = new_signatures.filter(framework__in=framework)
+            base_signatures = base_signatures.filter(framework__id=framework)
+            new_signatures = new_signatures.filter(framework__id=framework)
 
         if interval:
             base_signatures = base_signatures.filter(
@@ -792,38 +795,24 @@ class PerfCompareResults(generics.ListAPIView):
         base_signatures = base_signatures.values(
             'framework_id',
             'id',
-            'lower_is_better',
-            'has_subtests',
             'extra_options',
             'suite',
-            'signature_hash',
             'platform__platform',
             'test',
             'option_collection_id',
-            'parent_signature_id',
             'repository_id',
-            'tags',
             'measurement_unit',
-            'application',
-            'extra_options',
         )
         new_signatures = new_signatures.values(
             'framework_id',
             'id',
-            'lower_is_better',
-            'has_subtests',
             'extra_options',
             'suite',
-            'signature_hash',
             'platform__platform',
             'test',
             'option_collection_id',
-            'parent_signature_id',
             'repository_id',
-            'tags',
             'measurement_unit',
-            'application',
-            'extra_options',
         )
 
         base_signature_ids = [item['id'] for item in list(base_signatures)]
@@ -839,6 +828,7 @@ class PerfCompareResults(generics.ListAPIView):
         )
 
         # TODO: Allow comparison when selecting only new revisions
+
         if base_revision:
             base_perf_data = base_perf_data.filter(push__revision=base_revision)
         elif interval:
@@ -856,74 +846,20 @@ class PerfCompareResults(generics.ListAPIView):
                 )
             )
 
-        option_collection = OptionCollection.objects.select_related('option').values(
-            'id', 'option__name'
+        option_collection_map = self.get_option_collection_map()
+
+        base_grouped_job_ids, base_grouped_values = self.get_grouped_perf_data(base_perf_data)
+        new_grouped_job_ids, new_grouped_values = self.get_grouped_perf_data(new_perf_data)
+
+        base_signatures_map, base_names, base_platforms = self.get_signatures_map(
+            base_signatures, base_grouped_values, option_collection_map
         )
-        option_collection_map = {
-            item['id']: item['option__name'] for item in list(option_collection)
-        }
+        new_signatures_map, new_names, new_platforms = self.get_signatures_map(
+            new_signatures, new_grouped_values, option_collection_map
+        )
 
-        base_grouped_values = defaultdict(list)
-        base_grouped_job_ids = defaultdict(list)
-        for signature_id, value, job_id in base_perf_data.values_list(
-            'signature_id', 'value', 'job_id'
-        ):
-            if value is not None:
-                base_grouped_values[signature_id].append(value)
-                base_grouped_job_ids[signature_id].append(job_id)
-
-        new_grouped_values = defaultdict(list)
-        new_grouped_job_ids = defaultdict(list)
-        for signature_id, value, job_id in new_perf_data.values_list(
-            'signature_id', 'value', 'job_id'
-        ):
-            if value is not None:
-                new_grouped_values[signature_id].append(value)
-                new_grouped_job_ids[signature_id].append(job_id)
-
-        base_signatures_map = {}
-        new_signatures_map = {}
-        names = []
-        platforms = []
-
-        for base_signature in base_signatures:
-            suite = base_signature['suite']
-            test = base_signature['test']
-            extra_options = base_signature['extra_options']
-            option_name = option_collection_map[base_signature['option_collection_id']]
-            test_suite = suite if test == '' or test == suite else '{} {}'.format(suite, test)
-            platform = base_signature['platform__platform']
-            name = '{} {} {}'.format(test_suite, option_name, extra_options)
-            key = '{} {}'.format(name, platform)
-            names.append(name)
-            platforms.append(platform)
-            if key not in base_signatures_map or (
-                key in base_signatures_map
-                and len(base_grouped_values.get(base_signature['id'], [])) != 0
-            ):
-                base_signatures_map[key] = base_signature
-
-        for new_signature in new_signatures:
-            suite = new_signature['suite']
-            test = new_signature['test']
-            extra_options = new_signature['extra_options']
-            option_name = option_collection_map[new_signature['option_collection_id']]
-            platform = new_signature['platform__platform']
-
-            test_suite = suite if test == '' or test == suite else '{} {}'.format(suite, test)
-            name = '{} {} {}'.format(test_suite, option_name, extra_options)
-            key = '{} {}'.format(name, platform)
-            names.append(name)
-            platforms.append(platform)
-            if key not in new_signatures_map or (
-                key in new_signatures_map
-                and len(new_grouped_values.get(new_signature['id'], [])) != 0
-            ):
-                new_signatures_map[key] = new_signature
-
-        names = set(names)
-        platforms = set(platforms)
-
+        names = set(base_names + new_names)
+        platforms = set(base_platforms + new_platforms)
         self.queryset = []
 
         for header in names:
@@ -932,19 +868,23 @@ class PerfCompareResults(generics.ListAPIView):
                 base_result = base_signatures_map.get(key, {})
                 new_result = new_signatures_map.get(key, {})
                 is_empty = False if base_result and new_result else True
-
                 if is_empty:
                     continue
-
-                suite = base_result.get('suite', '') if base_result else new_result.get('suite', '')
+                suite = base_result.get('suite', '')
                 test = base_result.get('test', '')
                 base_values = base_grouped_values.get(base_result.get('id', ''), [])
                 new_values = new_grouped_values.get(new_result.get('id', ''), [])
                 is_complete = len(base_values) != 0 and len(new_values) != 0
-                base_avg_value = statistics.mean(base_values) if len(base_values) else 0
-                new_avg_value = statistics.mean(new_values) if len(new_values) else 0
+                base_avg_value, base_stddev, new_avg_value, new_stddev = self.get_avg_and_stddev(
+                    base_values, new_values, header
+                )
 
-                row_dict = {
+                base_stddev_pct = (
+                    round(self.get_percentage(base_stddev, base_avg_value) * 100) / 100
+                )
+                new_stddev_pct = round(self.get_percentage(new_stddev, new_avg_value) * 100) / 100
+
+                row_result = {
                     'header': header,
                     'platform': platform,
                     'suite': suite,
@@ -964,10 +904,10 @@ class PerfCompareResults(generics.ListAPIView):
                     'new_runs': sorted(new_values),
                     'base_avg_value': base_avg_value,
                     'new_avg_value': new_avg_value,
-                    'base_stddev': '',
-                    'new_stddev': '',
-                    'base_stddev_pct': '',
-                    'new_stddev_pct': '',
+                    'base_stddev': base_stddev,
+                    'new_stddev': new_stddev,
+                    'base_stddev_pct': base_stddev_pct,
+                    'new_stddev_pct': new_stddev_pct,
                     'base_retriggerable_job_ids': base_grouped_job_ids.get(
                         base_result.get('id', ''), []
                     ),
@@ -976,12 +916,80 @@ class PerfCompareResults(generics.ListAPIView):
                     ),
                 }
 
-                self.queryset.append(row_dict)
+                self.queryset.append(row_result)
 
         serializer = self.get_serializer(self.queryset, many=True)
         serialized_data = serializer.data
 
         return Response(data=serialized_data)
+
+    def get_option_collection_map(self):
+        option_collection = OptionCollection.objects.select_related('option').values(
+            'id', 'option__name'
+        )
+        option_collection_map = {
+            item['id']: item['option__name'] for item in list(option_collection)
+        }
+        return option_collection_map
+
+    def get_avg_and_stddev(self, base_values, new_values, header):
+        if header == self.noise_metric_header:
+            base_stddev = 1
+            new_stddev = 1
+            base_avg_value = sqrt(
+                functools.reduce(lambda a, b: a + b, map(lambda x: x**2, base_values))
+            )
+            new_avg_value = sqrt(
+                functools.reduce(lambda a, b: a + b, map(lambda x: x**2, new_values))
+            )
+        else:
+            base_avg_value = mean(base_values) if len(base_values) else 0
+            new_avg_value = mean(new_values) if len(new_values) else 0
+            base_stddev = stdev(base_values) if len(base_values) >= 2 else None
+            new_stddev = stdev(new_values) if len(new_values) >= 2 else None
+        return base_avg_value, base_stddev, new_avg_value, new_stddev
+
+    def get_percentage(self, part, whole):
+        percentage = 0
+        if whole:
+            percentage = (100 * part) / whole
+        return percentage
+
+    def get_grouped_perf_data(self, perf_data):
+        grouped_values = defaultdict(list)
+        grouped_job_ids = defaultdict(list)
+        for signature_id, value, job_id in perf_data.values_list('signature_id', 'value', 'job_id'):
+            if value is not None:
+                grouped_values[signature_id].append(value)
+                grouped_job_ids[signature_id].append(job_id)
+        return grouped_job_ids, grouped_values
+
+    def get_signatures_map(self, signatures, grouped_values, option_collection_map):
+        names = []
+        platforms = []
+        signatures_map = {}
+        for signature in signatures:
+            suite = signature['suite']
+            test = signature['test']
+            extra_options = signature['extra_options']
+            option_name = option_collection_map[signature['option_collection_id']]
+            test_suite = suite if test == '' or test == suite else '{} {}'.format(suite, test)
+            platform = signature['platform__platform']
+            name = self.get_name(extra_options, option_name, test_suite)
+            key = '{} {}'.format(name, platform)
+
+            if key not in signatures_map or (
+                key in signatures_map and len(grouped_values.get(signature['id'], [])) != 0
+            ):
+                signatures_map[key] = signature
+            names.append(name)
+            platforms.append(platform)
+
+        return signatures_map, names, platforms
+
+    def get_name(self, extra_options, option_name, test_suite):
+        name = '{} {} {}'.format(test_suite, option_name, extra_options)
+        return name
 
 
 class TestSuiteHealthViewSet(viewsets.ViewSet):

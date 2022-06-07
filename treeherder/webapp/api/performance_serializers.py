@@ -390,11 +390,9 @@ class PerfCompareResultsQueryParamsSerializer(serializers.Serializer):
     new_revision = serializers.CharField(required=False, allow_null=True, default=None)
     base_repository = serializers.CharField()
     new_repository = serializers.CharField()
-    framework = serializers.ListField(required=False, child=serializers.IntegerField(), default=[])
+    framework = serializers.IntegerField(required=False, allow_null=True, default=None)
     interval = serializers.IntegerField(required=False, allow_null=True, default=None)
     no_subtests = serializers.BooleanField(required=False)
-    all_data = OptionalBooleanField()
-    no_retriggers = OptionalBooleanField()
 
     def validate(self, data):
         if (
@@ -430,13 +428,13 @@ class PerfCompareResultsSerializer(serializers.ModelSerializer):
     is_complete = serializers.BooleanField()
     platform = serializers.CharField()
     header_name = serializers.SerializerMethodField()
-    suite = serializers.CharField()
     base_repository_name = serializers.CharField()
     new_repository_name = serializers.CharField()
     base_measurement_unit = serializers.CharField()
     new_measurement_unit = serializers.CharField()
     base_retriggerable_job_ids = serializers.ListField(child=serializers.IntegerField(), default=[])
     new_retriggerable_job_ids = serializers.ListField(child=serializers.IntegerField(), default=[])
+    option_name = serializers.CharField()
     base_runs = serializers.ListField(
         child=serializers.DecimalField(
             rounding=decimal.ROUND_HALF_EVEN,
@@ -467,6 +465,22 @@ class PerfCompareResultsSerializer(serializers.ModelSerializer):
         max_digits=None,
         coerce_to_string=False,
     )
+    base_stddev = serializers.DecimalField(
+        rounding=decimal.ROUND_HALF_EVEN,
+        decimal_places=2,
+        max_digits=None,
+        coerce_to_string=False,
+        default=None,
+    )
+    new_stddev = serializers.DecimalField(
+        rounding=decimal.ROUND_HALF_EVEN,
+        decimal_places=2,
+        max_digits=None,
+        coerce_to_string=False,
+        default=None,
+    )
+    base_stddev_pct = serializers.IntegerField(required=False, allow_null=True, default=None)
+    new_stddev_pct = serializers.IntegerField(required=False, allow_null=True, default=None)
 
     class Meta:
         model = PerformanceSignature
@@ -489,10 +503,13 @@ class PerfCompareResultsSerializer(serializers.ModelSerializer):
             'new_runs',
             'base_avg_value',
             'new_avg_value',
-            # 'base_stddev',
-            # 'new_stddev',
-            # 'base_stddev_pct',
-            # 'new_stddev_pct',
+            'test',
+            'option_name',
+            'extra_options',
+            'base_stddev',
+            'new_stddev',
+            'base_stddev_pct',
+            'new_stddev_pct',
         ]
 
     def get_header_name(self, value):
