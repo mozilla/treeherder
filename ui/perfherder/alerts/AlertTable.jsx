@@ -23,6 +23,7 @@ import ErrorBoundary from '../../shared/ErrorBoundary';
 import TableColumnHeader from '../shared/TableColumnHeader';
 import SortButtonDisabled from '../shared/SortButtonDisabled';
 import { tableSort, getNextSort, sort, sortTables } from '../perf-helpers/sort';
+import BrowsertimeAlertsExtraData from '../../models/browsertimeAlertsExtraData';
 
 import AlertTableRow from './AlertTableRow';
 import AlertHeader from './AlertHeader';
@@ -97,6 +98,21 @@ export default class AlertTable extends React.Component {
     }
   }
 
+  async enrichAlertsWithLinks(alertSummary) {
+    const { frameworks } = this.props;
+
+    const browsertimeAlertsExtraData = new BrowsertimeAlertsExtraData(
+      alertSummary,
+      frameworks,
+    );
+    const [alerts] = await Promise.all([
+      browsertimeAlertsExtraData.enrichAndRetrieveAlerts(),
+    ]);
+    alertSummary.alerts = alerts;
+
+    this.setState({ alertSummary });
+  }
+
   processAlerts = () => {
     const { alertSummary, optionCollectionMap } = this.props;
 
@@ -108,6 +124,7 @@ export default class AlertTable extends React.Component {
     );
 
     this.setState({ alertSummary }, () => {
+      this.enrichAlertsWithLinks(alertSummary);
       this.getDownstreamList();
       this.updateFilteredAlerts();
     });

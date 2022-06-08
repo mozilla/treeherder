@@ -1,11 +1,10 @@
 import { summaryStatusMap } from '../perfherder/perf-helpers/constants';
 import {
-  addResultsLink,
+  getResultsLink,
   getFrameworkName,
 } from '../perfherder/perf-helpers/helpers';
 import { getArtifactsUrl } from '../helpers/url';
 
-import JobModel from './job';
 import RepositoryModel from './repository';
 
 export default class BrowsertimeAlertsExtraData {
@@ -17,32 +16,20 @@ export default class BrowsertimeAlertsExtraData {
   async enrichAndRetrieveAlerts() {
     let alerts = [];
     if (this.framework === 'browsertime') {
-      alerts = await this.enrichSummaryAlerts(
-        this.alertSummary,
-        this.alertSummary.repository,
-        this.alertSummary.push_id,
-        this.alertSummary.prev_push_id,
-      );
+      alerts = await this.enrichSummaryAlerts(this.alertSummary);
     }
 
     return alerts;
   }
 
-  async enrichSummaryAlerts(alertSummary, repo, pushId, prevPushId) {
-    const [jobList, prevJobList] = await Promise.all([
-      JobModel.getList({ repo, push_id: pushId }, { fetchAll: true }),
-      JobModel.getList({ repo, push_id: prevPushId }, { fetchAll: true }),
-    ]);
-
+  async enrichSummaryAlerts(alertSummary) {
     if (this.anyAlertWithVideoResults(this.alertSummary)) {
       // add task ids for current rev and previous rev to every relevant alert item
-      this.enrichWithLinks(alertSummary, jobList);
-      this.enrichWithLinks(alertSummary, prevJobList);
+      this.enrichWithLinks(alertSummary);
     }
 
     const alertsRepo = await this.getAlertsRepo();
-    await this.enrichWithProfileLinks(alertSummary, alertsRepo, jobList);
-    await this.enrichWithProfileLinks(alertSummary, alertsRepo, prevJobList);
+    await this.enrichWithProfileLinks(alertSummary, alertsRepo);
 
     return alertSummary.alerts;
   }
@@ -66,23 +53,18 @@ export default class BrowsertimeAlertsExtraData {
     );
   }
 
-  enrichWithLinks(alertSummary, jobList) {
+  enrichWithLinks(alertSummary) {
     alertSummary.alerts.forEach((alert) => {
       if (this.shouldHaveVideoLinks(alert)) {
-        const job = jobList.data.find(
-          (j) =>
-            j.searchStr.includes(alert.series_signature.suite) &&
-            j.searchStr.includes(alert.series_signature.machine_platform) &&
-            j.resultStatus === 'success',
-        );
-
-        if (job) {
-          if (alertSummary.revision === job.push_revision) {
-            alert.results_link = addResultsLink(job.task_id);
-          }
-          if (alertSummary.prev_push_revision === job.push_revision) {
-            alert.prev_results_link = addResultsLink(job.task_id);
-          }
+        if (alert.taskcluster_metadata) {
+          alert.results_link = getResultsLink(
+            alert.taskcluster_metadata.task_id,
+          );
+        }
+        if (alert.prev_taskcluster_metadata) {
+          alert.prev_results_link = getResultsLink(
+            alert.prev_taskcluster_metadata.task_id,
+          );
         }
       }
     });
@@ -93,21 +75,20 @@ export default class BrowsertimeAlertsExtraData {
     return RepositoryModel.getRepo(this.alertSummary.repository, repos);
   }
 
-  async enrichWithProfileLinks(alertSummary, repo, jobList) {
+  async enrichWithProfileLinks(alertSummary, repo) {
     let alertLinks = alertSummary.alerts.map((alert) => {
-      const job = jobList.data.find(
-        (j) =>
-          j.searchStr.includes(alert.series_signature.suite) &&
-          j.searchStr.includes(alert.series_signature.machine_platform) &&
-          j.resultStatus === 'success',
-      );
-
-      if (job) {
+      if (alert.taskcluster_metadata && alert.prev_taskcluster_metadata) {
         const { suite } = alert.series_signature;
 
-        const url = getArtifactsUrl({
-          taskId: job.task_id,
-          run: job.retry_id,
+        const currentUrl = getArtifactsUrl({
+          taskId: alert.taskcluster_metadata.task_id,
+          run: alert.taskcluster_metadata.retry_id,
+          rootUrl: repo.tc_root_url,
+          artifactPath: `public/test_info/profile_${suite}.zip`,
+        });
+        const prevUrl = getArtifactsUrl({
+          taskId: alert.prev_taskcluster_metadata.task_id,
+          run: alert.prev_taskcluster_metadata.retry_id,
           rootUrl: repo.tc_root_url,
           artifactPath: `public/test_info/profile_${suite}.zip`,
         });
@@ -115,10 +96,13 @@ export default class BrowsertimeAlertsExtraData {
         // We check the artifacts with `method: 'HEAD'` which means that it
         // doesn't download the whole file and only gets the headers. We can see
         // if artifact is available or not using the headers.
-        const promise = fetch(url, {
+        const currentPromise = fetch(currentUrl, {
           method: 'HEAD',
         });
-        return { alert, job, promise, url };
+        const prevPromise = fetch(prevUrl, {
+          method: 'HEAD',
+        });
+        return { alert, currentPromise, prevPromise, currentUrl, prevUrl };
       }
       return null;
     });
@@ -128,23 +112,25 @@ export default class BrowsertimeAlertsExtraData {
 
     // We don't await in the loop above because we don't want to block the loop
     // on each iteration. Promise.all will properly parallelize the requests.
-    const promiseResults = await Promise.all(alertLinks.map((a) => a.promise));
+    const currentPromiseResults = await Promise.all(
+      alertLinks.map((a) => a.currentPromise),
+    );
+    const prevPromiseResults = await Promise.all(
+      alertLinks.map((a) => a.prevPromise),
+    );
 
     // Now we know if the artifacts are available or not, we can add the links
     // to the alerts.
     for (let i = 0; i < alertLinks.length; i++) {
-      const { alert, job, url } = alertLinks[i];
-      const promiseResult = promiseResults[i];
+      const { alert, currentUrl, prevUrl } = alertLinks[i];
+      const currentPromiseResult = currentPromiseResults[i];
+      const prevPromiseResult = prevPromiseResults[i];
 
-      if (promiseResult.ok) {
-        // Add profile urls to the alert only if the artifact is present.
-        if (job.push_revision === alertSummary.revision) {
-          alert.profile_url = url;
-        }
-
-        if (job.push_revision === alertSummary.prev_push_revision) {
-          alert.prev_profile_url = url;
-        }
+      if (currentPromiseResult.ok) {
+        alert.profile_url = currentUrl;
+      }
+      if (prevPromiseResult.ok) {
+        alert.prev_profile_url = prevUrl;
       }
     }
   }

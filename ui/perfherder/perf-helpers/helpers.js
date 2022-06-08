@@ -466,7 +466,7 @@ export const getInitializedAlerts = (alertSummary, optionCollectionMap) =>
     .concat(alertSummary.related_alerts)
     .map((alertData) => Alert(alertData, optionCollectionMap));
 
-export const addResultsLink = (taskId) => {
+export const getResultsLink = (taskId) => {
   const taskLink =
     'https://firefox-ci-tc.services.mozilla.com/api/queue/v1/task/';
   const resultsPath =
