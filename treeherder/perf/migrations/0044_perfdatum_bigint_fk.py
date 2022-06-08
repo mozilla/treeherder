@@ -10,20 +10,20 @@ def check_perfdatum_pk(apps, schema_editor):
         PerformanceDatum = apps.get_model('perf', 'PerformanceDatum')
         cursor.execute(
             "SELECT COLUMN_TYPE from INFORMATION_SCHEMA.COLUMNS WHERE "
-            "table_schema = 'treeherder' and "
-            "table_name = 'performance_datum' "
-            "and COLUMN_NAME = 'id'"
+            f"""table_schema = '{connection.settings_dict["NAME"]}' and """
+            "table_name = 'performance_datum' and "
+            "COLUMN_NAME = 'id'"
         )
-        (column_type,) = cursor.fetchone()
+        column_type = cursor.fetchone()
 
-        if column_type == "int(11)" and not PerformanceDatum.objects.exist():
+        if column_type == ("int(11)",) and not PerformanceDatum.objects.exist():
             # Directly alter the PK column in case the migration runs on an empty table
             # This is useful for scenarios running initial migration like tests
             cursor.execute(
                 "ALTER TABLE performance_datum MODIFY COLUMN id BIGINT(20) NOT NULL AUTO_INCREMENT"
             )
             return
-        elif column_type != "bigint(20)":
+        elif column_type != ("bigint(20)",):
             raise DatabaseError(
                 f"PerformanceDatum PK column type is {column_type} but should be bigint(20)"
             )
