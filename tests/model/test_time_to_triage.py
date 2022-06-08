@@ -87,3 +87,23 @@ def test_alert_summary_created_sunday(test_perf_alert_summary):
 
     # created sunday = 7 => 1 (monday) + OKR = 3 => 4 (thursday)
     assert test_perf_alert_summary.triage_due_date.isoweekday() == THU
+
+
+def test_alert_summary_with_modified_created_date(test_perf_alert_summary):
+    test_perf_alert_summary.created = datetime.datetime.fromisoformat('2022-05-30')
+    test_perf_alert_summary.triage_due_date = None
+
+    assert not test_perf_alert_summary.triage_due_date
+
+    test_perf_alert_summary.update_status()
+
+    # created monday isoweekday = 1 + OKR = 3 => 4
+    assert test_perf_alert_summary.triage_due_date.isoweekday() == THU
+
+    test_perf_alert_summary.created = datetime.datetime.fromisoformat('2022-06-03')
+
+    test_perf_alert_summary.update_status()
+
+    # created friday = 5 + OKR = 3 => 8 => 1 (monday)
+    # 1 (monday) + 2 (2 days of OKR were weekend) = 3 (wednesday)
+    assert test_perf_alert_summary.triage_due_date.isoweekday() == WED

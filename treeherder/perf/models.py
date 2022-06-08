@@ -314,8 +314,11 @@ class PerformanceAlertSummary(models.Model):
     def save(self, *args, **kwargs):
         if self.bug_number is not None and self.bug_number != self.__prev_bug_number:
             self.bug_updated = datetime.now()
-        if not self.triage_due_date:
-            self.triage_due_date = calculate_time_to_triage(self.created)
+        triage_due = calculate_time_to_triage(self.created)
+        # created is initially PerformanceDatum.push_timestamp and due to a potential race condition
+        # triage_due_date is not always calculated after the real created date
+        if self.triage_due_date != triage_due:
+            self.triage_due_date = triage_due
         super(PerformanceAlertSummary, self).save(*args, **kwargs)
         self.__prev_bug_number = self.bug_number
 
