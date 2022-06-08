@@ -119,6 +119,11 @@ export default class AlertActionPanel extends React.Component {
     await this.modifySelectedAlerts(selectedAlerts, {
       status: alertStatusMap[newStatus],
     });
+    const lastAlert = selectedAlerts.slice(-1);
+    await this.modifySelectedAlerts(lastAlert, {
+      status: alertStatusMap[newStatus],
+    });
+    console.log('updated last alert');
 
     fetchAlertSummaries(alertSummary.id);
     this.clearSelectedAlerts();
