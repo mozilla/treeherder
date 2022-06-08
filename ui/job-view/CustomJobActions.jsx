@@ -4,11 +4,7 @@ import PropTypes from 'prop-types';
 import Ajv from 'ajv';
 import jsonSchemaDefaults from 'json-schema-defaults';
 import keyBy from 'lodash/keyBy';
-// js-yaml is missing the `browser` entry from the package definition,
-// so we have to explicitly import the dist file otherwise we get the
-// node version which pulls in a number of unwanted polyfills. See:
-// https://github.com/nodeca/js-yaml/pull/462
-import jsyaml from 'js-yaml/dist/js-yaml';
+import jsyaml from 'js-yaml';
 import tcLibUrls from 'taskcluster-lib-urls';
 import {
   Button,

@@ -1,10 +1,8 @@
 import React from 'react';
 import 'react-dates/initialize';
 import 'react-dates/lib/css/_datepicker.css';
-import {
-  DateRangePickerPhrases,
-  DateRangePicker as DatePickerAirbnb,
-} from 'react-dates';
+import { DateRangePickerPhrases } from 'react-dates/lib/defaultPhrases';
+import { DateRangePicker as DatePickerAirbnb } from 'react-dates';
 import moment from 'moment';
 import PropTypes from 'prop-types';
 import { Button } from 'reactstrap';

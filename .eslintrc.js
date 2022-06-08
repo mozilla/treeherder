@@ -3,12 +3,7 @@ module.exports = {
   extends: [
     'eslint-config-airbnb',
     // We use Prettier instead of AirBnb for style-related rules (see .prettierrc.js).
-    process.env.NODE_ENV === 'development'
-      ? // Disables the AirBnB style rules but does not enable Prettier
-        // (to reduce the amount of console noise when using `yarn start`).
-        'prettier'
-      : // The above plus enables the prettier rule.
-        'plugin:prettier/recommended',
+    'plugin:prettier/recommended',
     // Disable React-related AirBnB style rules.
     'prettier/react',
     'plugin:jest/recommended',
