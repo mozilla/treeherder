@@ -16,7 +16,7 @@ def check_perfdatum_pk(apps, schema_editor):
         )
         column_type = cursor.fetchone()
 
-        if column_type == ("int(11)",) and not PerformanceDatum.objects.exist():
+        if column_type == ("int(11)",) and not PerformanceDatum.objects.exists():
             # Directly alter the PK column in case the migration runs on an empty table
             # This is useful for scenarios running initial migration like tests
             cursor.execute(
