@@ -42,12 +42,10 @@ class Migration(migrations.Migration):
         # Ensure the PK has been updated
         migrations.RunPython(
             check_perfdatum_pk,
-            reverse_code=migrations.RunPython.noop,
         ),
         # Empty SQL migration that update django state schema
         migrations.RunSQL(
             migrations.RunSQL.noop,
-            reverse_sql=migrations.RunSQL.noop,
             state_operations=[
                 migrations.AlterField(
                     model_name='performancedatum',
