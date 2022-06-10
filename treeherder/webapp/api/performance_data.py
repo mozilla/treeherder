@@ -867,11 +867,9 @@ class PerfCompareResults(generics.ListAPIView):
                 key = '{} {}'.format(header, platform)
                 base_result = base_signatures_map.get(key, {})
                 new_result = new_signatures_map.get(key, {})
-                is_empty = False if base_result and new_result else True
+                is_empty = not (base_result and new_result)
                 if is_empty:
                     continue
-                suite = base_result.get('suite', '')
-                test = base_result.get('test', '')
                 base_values = base_grouped_values.get(base_result.get('id', ''), [])
                 new_values = new_grouped_values.get(new_result.get('id', ''), [])
                 is_complete = len(base_values) != 0 and len(new_values) != 0
@@ -887,8 +885,10 @@ class PerfCompareResults(generics.ListAPIView):
                 row_result = {
                     'header': header,
                     'platform': platform,
-                    'suite': suite,
-                    'test': test,
+                    'suite': base_result.get(
+                        'suite', ''
+                    ),  # same suite for base_result and new_result
+                    'test': base_result.get('test', ''),  # same test for base_result and new_result
                     'is_complete': is_complete,
                     'framework_id': framework,
                     'is_empty': is_empty,

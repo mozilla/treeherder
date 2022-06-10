@@ -402,25 +402,15 @@ class PerfCompareResultsQueryParamsSerializer(serializers.Serializer):
         ):
             raise serializers.ValidationError('Required: base_revision, new_revision and interval.')
 
+        try:
+            Repository.objects.get(name=data['base_repository'])
+            Repository.objects.get(name=data['new_repository'])
+        except ObjectDoesNotExist:
+            raise serializers.ValidationError(
+                '{} or {} does not exist.'.format(data['base_repository'], data['new_repository'])
+            )
+
         return data
-
-    def validate_base_repository(self, base_repository):
-        try:
-            Repository.objects.get(name=base_repository)
-
-        except ObjectDoesNotExist:
-            raise serializers.ValidationError('{} does not exist.'.format(base_repository))
-
-        return base_repository
-
-    def validate_new_repository(self, new_repository):
-        try:
-            Repository.objects.get(name=new_repository)
-
-        except ObjectDoesNotExist:
-            raise serializers.ValidationError('{} does not exist.'.format(new_repository))
-
-        return new_repository
 
 
 class PerfCompareResultsSerializer(serializers.ModelSerializer):
