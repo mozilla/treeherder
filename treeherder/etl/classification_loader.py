@@ -161,6 +161,11 @@ class ClassificationLoader:
                     )
                     raise
 
+                # Skipping it if it was already classified either by Sheriffs or by mozci
+                if JobNote.objects.filter(job=job).exists():
+                    logger.info("Job %s is already associated to a JobNote.", job)
+                    continue
+
                 # Adding an "autoclassified intermittent" classification on it
                 JobNote.objects.create(
                     job=job,
