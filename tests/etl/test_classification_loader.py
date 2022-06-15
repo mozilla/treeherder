@@ -435,16 +435,30 @@ def test_autoclassify_failures_missing_job(failure_classifications, populate_bug
 
 
 @pytest.mark.django_db
-def test_autoclassify_failures(test_two_jobs_tc_metadata, populate_bugscache):
+@pytest.mark.parametrize('existing_classification', [False, True])
+def test_autoclassify_failures(
+    existing_classification, test_two_jobs_tc_metadata, test_sheriff, populate_bugscache
+):
     first_job, second_job = test_two_jobs_tc_metadata
     assert first_job.failure_classification.name == 'not classified'
     assert second_job.failure_classification.name == 'not classified'
     assert JobNote.objects.count() == 0
     assert BugJobMap.objects.count() == 0
 
+    intermittent = FailureClassification.objects.get(name='intermittent')
     autoclassified_intermittent = FailureClassification.objects.get(
         name='autoclassified intermittent'
     )
+
+    if existing_classification:
+        JobNote.objects.create(
+            job=first_job,
+            failure_classification=intermittent,
+            user=test_sheriff,
+            text="Classified by a Sheriff",
+        )
+        assert JobNote.objects.count() == 1
+
     ClassificationLoader().autoclassify_failures(
         DEFAULT_DA_CONFIG['json']['failures']['intermittent'], autoclassified_intermittent
     )
@@ -453,20 +467,33 @@ def test_autoclassify_failures(test_two_jobs_tc_metadata, populate_bugscache):
 
     # First job
     first_job.refresh_from_db()
-    assert first_job.failure_classification == autoclassified_intermittent
+    assert (
+        first_job.failure_classification == intermittent
+        if existing_classification
+        else autoclassified_intermittent
+    )
 
     assert JobNote.objects.filter(job=first_job).count() == 1
     job_note = JobNote.objects.filter(job=first_job).first()
     assert job_note.job == first_job
-    assert job_note.failure_classification == autoclassified_intermittent
-    assert job_note.who == 'autoclassifier'
-    assert job_note.text == 'Autoclassified by mozci bot as an intermittent failure'
+    assert (
+        job_note.failure_classification == intermittent
+        if existing_classification
+        else autoclassified_intermittent
+    )
+    assert job_note.who == test_sheriff.email if existing_classification else 'autoclassifier'
+    assert (
+        job_note.text == "Classified by a Sheriff"
+        if existing_classification
+        else 'Autoclassified by mozci bot as an intermittent failure'
+    )
 
-    assert BugJobMap.objects.filter(job=first_job).count() == 1
-    bug_job_map = BugJobMap.objects.filter(job=first_job).first()
-    assert bug_job_map.job == first_job
-    assert bug_job_map.bug_id == first_bug.id
-    assert bug_job_map.who == 'autoclassifier'
+    if not existing_classification:
+        assert BugJobMap.objects.filter(job=first_job).count() == 1
+        bug_job_map = BugJobMap.objects.filter(job=first_job).first()
+        assert bug_job_map.job == first_job
+        assert bug_job_map.bug_id == first_bug.id
+        assert bug_job_map.who == 'autoclassifier'
 
     # Second job
     second_job.refresh_from_db()
@@ -486,4 +513,4 @@ def test_autoclassify_failures(test_two_jobs_tc_metadata, populate_bugscache):
     assert [m.who for m in maps] == ['autoclassifier', 'autoclassifier']
 
     assert JobNote.objects.count() == 2
-    assert BugJobMap.objects.count() == 3
+    assert BugJobMap.objects.count() == 2 if existing_classification else 3
