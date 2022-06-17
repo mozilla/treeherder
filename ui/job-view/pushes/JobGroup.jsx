@@ -67,6 +67,9 @@ export class JobGroupComponent extends React.Component {
   toggleAll() {
     const { toggleSelectedRunnableJob } = this.props;
     for (const ref of Object.values(this.jobButtonRefs)) {
+      if (!ref.current.props.visible) {
+        continue;
+      }
       toggleSelectedRunnableJob(ref.current.props.job.signature);
       ref.current.toggleRunnableSelected();
     }
