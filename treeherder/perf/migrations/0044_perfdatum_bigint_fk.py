@@ -1,73 +1,36 @@
-from django.db import migrations, models, connection
-import django.db.models.deletion
-from django.db.utils import DatabaseError
+"""This migration automatically update performance_datum.id column to Bigint(20).
+On large tables or production environment, it is recommanded to use an external tool (e.g. pt-osc)
+to update the column and fake this migration. Migration perf.0045 will restore a valid django's schema.
+"""
+from django.db import migrations, connection
 
 
-def check_perfdatum_pk(apps, schema_editor):
-    """Ensure performance_datum FK has been updated to bigint type"""
+def alter_perfdatum_pk(apps, schema_editor):
 
-    with connection.cursor() as cursor:
-        PerformanceDatum = apps.get_model('perf', 'PerformanceDatum')
-        cursor.execute(
-            "SELECT COLUMN_TYPE from INFORMATION_SCHEMA.COLUMNS WHERE "
-            f"""table_schema = '{connection.settings_dict["NAME"]}' and """
-            "table_name = 'performance_datum' and "
-            "COLUMN_NAME = 'id'"
+    PerformanceDatum = apps.get_model('perf', 'PerformanceDatum')
+    pursue = "yes"
+    # Automatically pursue migration if performance_datum table is empty
+    # This is useful for scenarios running initial migration like tests
+    if PerformanceDatum.objects.exists():
+        pursue = input(
+            "This operation will ALTER performance_datum PK to BIGINT(20). It is recommended to use an external tool "
+            "(e.g. pt-osc) on large tables. Do you want to continue ? [Y/n]"
         )
-        column_type = cursor.fetchone()
-
-        if column_type == ("int(11)",) and not PerformanceDatum.objects.exists():
-            # Directly alter the PK column in case the migration runs on an empty table
-            # This is useful for scenarios running initial migration like tests
-            cursor.execute(
-                "ALTER TABLE performance_datum MODIFY COLUMN id BIGINT(20) NOT NULL AUTO_INCREMENT"
-            )
-            return
-        elif column_type != ("bigint(20)",):
-            raise DatabaseError(
-                f"PerformanceDatum PK column type is {column_type} but should be bigint(20)"
-            )
+    if pursue.lower() not in ('', 'y', 'yes'):
+        raise Exception("Aborting…")
+    with connection.cursor() as cursor:
+        cursor.execute(
+            "ALTER TABLE performance_datum MODIFY COLUMN id BIGINT(20) NOT NULL AUTO_INCREMENT"
+        )
+        return
 
 
 class Migration(migrations.Migration):
-    """This migration updates the django_migrations table and restore perf_multicommitdatum FK
-    toward the performance_datum table, after its PK has manually been updated to bigint.
-    """
 
     dependencies = [
         ('perf', '0043_drop_multicommitdatum'),
     ]
 
     operations = [
-        # Ensure the PK has been updated
-        migrations.RunPython(
-            check_perfdatum_pk,
-        ),
-        # Empty SQL migration that update django state schema
-        migrations.RunSQL(
-            migrations.RunSQL.noop,
-            state_operations=[
-                migrations.AlterField(
-                    model_name='performancedatum',
-                    name='id',
-                    field=models.BigAutoField(primary_key=True, serialize=False),
-                ),
-            ],
-        ),
-        # Restore MultiCommitDatum FK to PerformanceDatum
-        migrations.CreateModel(
-            name='MultiCommitDatum',
-            fields=[
-                (
-                    'perf_datum',
-                    models.OneToOneField(
-                        on_delete=django.db.models.deletion.CASCADE,
-                        primary_key=True,
-                        related_name='multi_commit_datum',
-                        serialize=False,
-                        to='perf.performancedatum',
-                    ),
-                ),
-            ],
-        ),
+        migrations.RunPython(alter_perfdatum_pk),
     ]

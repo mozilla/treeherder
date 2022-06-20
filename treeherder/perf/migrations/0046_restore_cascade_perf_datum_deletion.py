@@ -9,7 +9,7 @@ MULTICOMMIT_CONSTRAINT_SYMBOL = 'perf_multicommitdatu_perf_datum_id_c2d7eb14_fk_
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('perf', '0044_perfdatum_bigint_fk'),
+        ('perf', '0045_restore_perf_multicommitdatum_and_schema'),
     ]
 
     operations = [

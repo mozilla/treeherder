@@ -12,7 +12,7 @@ class Migration(migrations.Migration):
     """This migration drops the perf_multicommitdatum table in order to perform
     performance_datum PK migration from INT(11) to BIGINT(20) using an external
     tool, percona toolkit's online schema change (pt-osc).
-    Any access to MultiCommitDatum may create errors before migration perf.0044 passed.
+    Any access to MultiCommitDatum may create errors until migration perf.0046 has been applied.
     """
 
     dependencies = [
