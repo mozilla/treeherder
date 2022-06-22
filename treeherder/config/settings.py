@@ -430,7 +430,7 @@ COMMENTER_API_KEY = env("BUG_COMMENTER_API_KEY", default=None)
 
 # Log Parsing
 MAX_ERROR_LINES = 100
-FAILURE_LINES_CUTOFF = 35
+FAILURE_LINES_CUTOFF = 150
 
 # Perfherder
 # Default minimum regression threshold for perfherder is 2% (otherwise
