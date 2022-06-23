@@ -1018,7 +1018,7 @@ class PerfCompareResults(generics.ListAPIView):
         }
         return option_collection_map
 
-    def get_avg_and_stddev(self, base_values, new_values, header):
+    def _get_avg_and_stddev(self, base_values, new_values, header):
         if header == self.noise_metric_header:
             base_stddev = 1
             new_stddev = 1
@@ -1035,13 +1035,15 @@ class PerfCompareResults(generics.ListAPIView):
             new_stddev = stdev(new_values) if len(new_values) >= 2 else None
         return base_avg_value, base_stddev, new_avg_value, new_stddev
 
-    def get_percentage(self, part, whole):
+    @staticmethod
+    def _get_percentage(part, whole):
         percentage = 0
         if whole:
             percentage = (100 * part) / whole
         return percentage
 
-    def get_grouped_perf_data(self, perf_data):
+    @staticmethod
+    def _get_grouped_perf_data(perf_data):
         grouped_values = defaultdict(list)
         grouped_job_ids = defaultdict(list)
         for signature_id, value, job_id in perf_data.values_list('signature_id', 'value', 'job_id'):
@@ -1050,7 +1052,7 @@ class PerfCompareResults(generics.ListAPIView):
                 grouped_job_ids[signature_id].append(job_id)
         return grouped_job_ids, grouped_values
 
-    def get_signatures_map(self, signatures, grouped_values, option_collection_map):
+    def _get_signatures_map(self, signatures, grouped_values, option_collection_map):
         names = []
         platforms = []
         signatures_map = {}
@@ -1061,7 +1063,7 @@ class PerfCompareResults(generics.ListAPIView):
             option_name = option_collection_map[signature['option_collection_id']]
             test_suite = suite if test == '' or test == suite else '{} {}'.format(suite, test)
             platform = signature['platform__platform']
-            name = self.get_name(extra_options, option_name, test_suite)
+            name = self._get_name(extra_options, option_name, test_suite)
             key = '{} {}'.format(name, platform)
 
             if key not in signatures_map or (
@@ -1073,7 +1075,8 @@ class PerfCompareResults(generics.ListAPIView):
 
         return signatures_map, names, platforms
 
-    def get_name(self, extra_options, option_name, test_suite):
+    @staticmethod
+    def _get_name(extra_options, option_name, test_suite):
         name = '{} {} {}'.format(test_suite, option_name, extra_options)
         return name
 
