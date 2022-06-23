@@ -1,4 +1,4 @@
-"""This migration automatically update performance_datum.id column to Bigint(20).
+"""This migration automatically updates performance_datum.id column to Bigint(20).
 On large tables or production environment, it is recommanded to use an external tool (e.g. pt-osc)
 to update the column and fake this migration. Migration perf.0045 will restore a valid django's schema.
 """

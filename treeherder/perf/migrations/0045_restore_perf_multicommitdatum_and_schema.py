@@ -22,8 +22,8 @@ def check_perfdatum_pk(apps, schema_editor):
 
 
 class Migration(migrations.Migration):
-    """This migration updates the django_migrations table and restore perf_multicommitdatum FK
-    toward the performance_datum table, after its PK has manually been updated to bigint.
+    """This migration updates the django_migrations table and restores
+    perf_multicommitdatum FK toward the performance_datum table
     """
 
     dependencies = [
