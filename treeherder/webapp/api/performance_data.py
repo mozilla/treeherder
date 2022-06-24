@@ -766,12 +766,8 @@ class PerfCompareResults(generics.ListAPIView):
         framework = query_params.validated_data['framework']
         no_subtests = query_params.validated_data['no_subtests']
 
-        base_signatures = PerformanceSignature.objects.select_related(
-            'framework', 'repository', 'platform', 'push', 'job'
-        ).filter(repository__name=base_repository_name)
-        new_signatures = PerformanceSignature.objects.select_related(
-            'framework', 'repository', 'platform', 'push', 'job'
-        ).filter(repository__name=new_repository_name)
+        base_signatures = self._get_filtered_signatures_by_repo(base_repository_name)
+        new_signatures = self._get_filtered_signatures_by_repo(new_repository_name)
 
         base_signatures = base_signatures.filter(parent_signature__isnull=no_subtests)
         new_signatures = new_signatures.filter(parent_signature__isnull=no_subtests)
@@ -781,51 +777,14 @@ class PerfCompareResults(generics.ListAPIView):
             new_signatures = new_signatures.filter(framework__id=framework)
 
         if interval:
-            base_signatures = base_signatures.filter(
-                last_updated__gte=datetime.datetime.utcfromtimestamp(
-                    int(time.time() - int(interval))
-                )
-            )
-            new_signatures = new_signatures.filter(
-                last_updated__gte=datetime.datetime.utcfromtimestamp(
-                    int(time.time() - int(interval))
-                )
-            )
+            base_signatures = self._get_filtered_signatures_by_interval(base_signatures, interval)
+            new_signatures = self._get_filtered_signatures_by_interval(new_signatures, interval)
 
-        base_signatures = base_signatures.values(
-            'framework_id',
-            'id',
-            'extra_options',
-            'suite',
-            'platform__platform',
-            'test',
-            'option_collection_id',
-            'repository_id',
-            'measurement_unit',
-        )
-        new_signatures = new_signatures.values(
-            'framework_id',
-            'id',
-            'extra_options',
-            'suite',
-            'platform__platform',
-            'test',
-            'option_collection_id',
-            'repository_id',
-            'measurement_unit',
-        )
+        base_signatures = self._get_signatures_values(base_signatures)
+        new_signatures = self._get_signatures_values(new_signatures)
 
-        base_signature_ids = [item['id'] for item in list(base_signatures)]
-        new_signature_ids = [item['id'] for item in list(new_signatures)]
-
-        base_perf_data = PerformanceDatum.objects.select_related('push', 'repository', 'id').filter(
-            signature_id__in=base_signature_ids,
-            repository__name=base_repository_name,
-        )
-        new_perf_data = PerformanceDatum.objects.select_related('push', 'repository', 'id').filter(
-            signature_id__in=new_signature_ids,
-            repository__name=new_repository_name,
-        )
+        base_perf_data = self._get_perf_data(base_repository_name, base_signatures)
+        new_perf_data = self._get_perf_data(new_repository_name, new_signatures)
 
         # TODO: Allow comparison when selecting only new revisions
 
@@ -922,6 +881,40 @@ class PerfCompareResults(generics.ListAPIView):
         serialized_data = serializer.data
 
         return Response(data=serialized_data)
+
+    @staticmethod
+    def _get_perf_data(repository_name, signatures):
+        signature_ids = [signature['id'] for signature in list(signatures)]
+        return PerformanceDatum.objects.select_related('push', 'repository', 'id').filter(
+            signature_id__in=signature_ids,
+            repository__name=repository_name,
+        )
+
+    @staticmethod
+    def _get_filtered_signatures_by_interval(signatures, interval):
+        return signatures.filter(
+            last_updated__gte=datetime.datetime.utcfromtimestamp(int(time.time() - int(interval)))
+        )
+
+    @staticmethod
+    def _get_signatures_values(signatures):
+        return signatures.values(
+            'framework_id',
+            'id',
+            'extra_options',
+            'suite',
+            'platform__platform',
+            'test',
+            'option_collection_id',
+            'repository_id',
+            'measurement_unit',
+        )
+
+    @staticmethod
+    def _get_filtered_signatures_by_repo(repository_name):
+        return PerformanceSignature.objects.select_related(
+            'framework', 'repository', 'platform', 'push', 'job'
+        ).filter(repository__name=repository_name)
 
     @staticmethod
     def _get_option_collection_map():

@@ -34,6 +34,14 @@ class PerformanceDecimalField(serializers.DecimalField):
         super().__init__(*args, **kwargs)
 
 
+class PerfCompareDecimalField(serializers.DecimalField):
+    def __init__(self, *args, **kwargs):
+        kwargs['max_digits'] = None
+        kwargs['decimal_places'] = 2
+        kwargs['coerce_to_string'] = False
+        super().__init__(*args, **kwargs)
+
+
 class TimestampField(serializers.Field):
     def to_representation(self, value):
         return to_timestamp(value.time)
@@ -426,49 +434,17 @@ class PerfCompareResultsSerializer(serializers.ModelSerializer):
     new_retriggerable_job_ids = serializers.ListField(child=serializers.IntegerField(), default=[])
     option_name = serializers.CharField()
     base_runs = serializers.ListField(
-        child=serializers.DecimalField(
-            rounding=decimal.ROUND_HALF_EVEN,
-            decimal_places=2,
-            max_digits=None,
-            coerce_to_string=False,
-        ),
+        child=PerfCompareDecimalField(),
         default=[],
     )
     new_runs = serializers.ListField(
-        child=serializers.DecimalField(
-            rounding=decimal.ROUND_HALF_EVEN,
-            decimal_places=2,
-            max_digits=None,
-            coerce_to_string=False,
-        ),
+        child=PerfCompareDecimalField(),
         default=[],
     )
-    base_avg_value = serializers.DecimalField(
-        rounding=decimal.ROUND_HALF_EVEN,
-        decimal_places=2,
-        max_digits=None,
-        coerce_to_string=False,
-    )
-    new_avg_value = serializers.DecimalField(
-        rounding=decimal.ROUND_HALF_EVEN,
-        decimal_places=2,
-        max_digits=None,
-        coerce_to_string=False,
-    )
-    base_stddev = serializers.DecimalField(
-        rounding=decimal.ROUND_HALF_EVEN,
-        decimal_places=2,
-        max_digits=None,
-        coerce_to_string=False,
-        default=None,
-    )
-    new_stddev = serializers.DecimalField(
-        rounding=decimal.ROUND_HALF_EVEN,
-        decimal_places=2,
-        max_digits=None,
-        coerce_to_string=False,
-        default=None,
-    )
+    base_avg_value = PerfCompareDecimalField()
+    new_avg_value = PerfCompareDecimalField()
+    base_stddev = PerfCompareDecimalField()
+    new_stddev = PerfCompareDecimalField()
     base_stddev_pct = serializers.IntegerField(required=False, allow_null=True, default=None)
     new_stddev_pct = serializers.IntegerField(required=False, allow_null=True, default=None)
 
