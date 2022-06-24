@@ -34,6 +34,14 @@ class PerformanceDecimalField(serializers.DecimalField):
         super().__init__(*args, **kwargs)
 
 
+class PerfCompareDecimalField(serializers.DecimalField):
+    def __init__(self, *args, **kwargs):
+        kwargs['max_digits'] = None
+        kwargs['decimal_places'] = 2
+        kwargs['coerce_to_string'] = False
+        super().__init__(*args, **kwargs)
+
+
 class TimestampField(serializers.Field):
     def to_representation(self, value):
         return to_timestamp(value.time)
@@ -383,6 +391,92 @@ class PerformanceSummarySerializer(serializers.ModelSerializer):
         suite = value['suite']
         test_suite = suite if test == '' or test == suite else '{} {}'.format(suite, test)
         return '{} {} {}'.format(test_suite, value['option_name'], value['extra_options'])
+
+
+class PerfCompareResultsQueryParamsSerializer(serializers.Serializer):
+    base_revision = serializers.CharField(required=False, allow_null=True, default=None)
+    new_revision = serializers.CharField(required=False, allow_null=True, default=None)
+    base_repository = serializers.CharField()
+    new_repository = serializers.CharField()
+    framework = serializers.IntegerField(required=False, allow_null=True, default=None)
+    interval = serializers.IntegerField(required=False, allow_null=True, default=None)
+    no_subtests = serializers.BooleanField(required=False)
+
+    def validate(self, data):
+        if (
+            data['base_revision'] is None
+            and data['new_revision'] is None
+            and data['interval'] is None
+        ):
+            raise serializers.ValidationError('Required: base_revision, new_revision and interval.')
+
+        try:
+            Repository.objects.get(name=data['base_repository'])
+            Repository.objects.get(name=data['new_repository'])
+        except ObjectDoesNotExist:
+            raise serializers.ValidationError(
+                '{} or {} does not exist.'.format(data['base_repository'], data['new_repository'])
+            )
+
+        return data
+
+
+class PerfCompareResultsSerializer(serializers.ModelSerializer):
+    is_empty = serializers.BooleanField()
+    is_complete = serializers.BooleanField()
+    platform = serializers.CharField()
+    header_name = serializers.CharField()
+    base_repository_name = serializers.CharField()
+    new_repository_name = serializers.CharField()
+    base_measurement_unit = serializers.CharField()
+    new_measurement_unit = serializers.CharField()
+    base_retriggerable_job_ids = serializers.ListField(child=serializers.IntegerField(), default=[])
+    new_retriggerable_job_ids = serializers.ListField(child=serializers.IntegerField(), default=[])
+    option_name = serializers.CharField()
+    base_runs = serializers.ListField(
+        child=PerfCompareDecimalField(),
+        default=[],
+    )
+    new_runs = serializers.ListField(
+        child=PerfCompareDecimalField(),
+        default=[],
+    )
+    base_avg_value = PerfCompareDecimalField()
+    new_avg_value = PerfCompareDecimalField()
+    base_stddev = PerfCompareDecimalField()
+    new_stddev = PerfCompareDecimalField()
+    base_stddev_pct = serializers.IntegerField(required=False, allow_null=True, default=None)
+    new_stddev_pct = serializers.IntegerField(required=False, allow_null=True, default=None)
+
+    class Meta:
+        model = PerformanceSignature
+        fields = [
+            'framework_id',
+            'platform',
+            'suite',
+            'is_empty',
+            'header_name',
+            'base_repository_name',
+            'new_repository_name',
+            'is_complete',
+            'base_measurement_unit',
+            'new_measurement_unit',
+            'base_retriggerable_job_ids',
+            'new_retriggerable_job_ids',
+            'base_repository_name',
+            'new_repository_name',
+            'base_runs',
+            'new_runs',
+            'base_avg_value',
+            'new_avg_value',
+            'test',
+            'option_name',
+            'extra_options',
+            'base_stddev',
+            'new_stddev',
+            'base_stddev_pct',
+            'new_stddev_pct',
+        ]
 
 
 class TestSuiteHealthParamsSerializer(serializers.Serializer):

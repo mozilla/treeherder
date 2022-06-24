@@ -1,5 +1,8 @@
-import datetime
 import time
+import datetime
+import functools
+from math import sqrt
+from statistics import mean, stdev
 from collections import defaultdict
 
 import django_filters
@@ -36,7 +39,9 @@ from .performance_serializers import (
     PerformanceBugTemplateSerializer,
     PerformanceFrameworkSerializer,
     PerformanceQueryParamsSerializer,
+    PerfCompareResultsQueryParamsSerializer,
     PerformanceSummarySerializer,
+    PerfCompareResultsSerializer,
     PerformanceTagSerializer,
     TestSuiteHealthParamsSerializer,
     TestSuiteHealthSerializer,
@@ -741,6 +746,268 @@ class PerformanceSummary(generics.ListAPIView):
                 ]
 
         return serialized_data
+
+
+class PerfCompareResults(generics.ListAPIView):
+    serializer_class = PerfCompareResultsSerializer
+    queryset = None
+    noise_metric_header = 'noise metric'
+
+    def list(self, request):
+        query_params = PerfCompareResultsQueryParamsSerializer(data=request.query_params)
+        if not query_params.is_valid():
+            return Response(data=query_params.errors, status=HTTP_400_BAD_REQUEST)
+
+        base_revision = query_params.validated_data['base_revision']
+        new_revision = query_params.validated_data['new_revision']
+        base_repository_name = query_params.validated_data['base_repository']
+        new_repository_name = query_params.validated_data['new_repository']
+        interval = query_params.validated_data['interval']
+        framework = query_params.validated_data['framework']
+        no_subtests = query_params.validated_data['no_subtests']
+
+        base_signatures = self._get_signatures(
+            base_repository_name, framework, interval, no_subtests
+        )
+        new_signatures = self._get_signatures(new_repository_name, framework, interval, no_subtests)
+
+        base_perf_data = self._get_perf_data(
+            base_repository_name, base_revision, base_signatures, interval
+        )
+        new_perf_data = self._get_perf_data(
+            new_repository_name, new_revision, new_signatures, interval
+        )
+
+        option_collection_map = self._get_option_collection_map()
+
+        base_grouped_job_ids, base_grouped_values = self._get_grouped_perf_data(base_perf_data)
+        new_grouped_job_ids, new_grouped_values = self._get_grouped_perf_data(new_perf_data)
+
+        base_signatures_map, base_header_names, base_platforms = self._get_signatures_map(
+            base_signatures, base_grouped_values, option_collection_map
+        )
+        new_signatures_map, new_header_names, new_platforms = self._get_signatures_map(
+            new_signatures, new_grouped_values, option_collection_map
+        )
+
+        header_names = set(base_header_names + new_header_names)
+        platforms = set(base_platforms + new_platforms)
+        self.queryset = []
+
+        for header in header_names:
+            for platform in platforms:
+                sig_identifier = self._get_sig_identifier(header, platform)
+                base_sig = base_signatures_map.get(sig_identifier, {})
+                base_sig_id = base_sig.get('id', '')
+                new_sig = new_signatures_map.get(sig_identifier, {})
+                new_sig_id = new_sig.get('id', '')
+                is_empty = not (base_sig and new_sig)
+                if is_empty:
+                    continue
+                base_perf_data_values = base_grouped_values.get(base_sig_id, [])
+                new_perf_data_values = new_grouped_values.get(new_sig_id, [])
+                is_complete = len(base_perf_data_values) != 0 and len(new_perf_data_values) != 0
+                base_avg_value, base_stddev = self._get_avg_and_stddev(
+                    base_perf_data_values, header
+                )
+                new_avg_value, new_stddev = self._get_avg_and_stddev(new_perf_data_values, header)
+                base_stddev_pct = self._get_stddev_pct(base_avg_value, base_stddev)
+                new_stddev_pct = self._get_stddev_pct(new_avg_value, new_stddev)
+
+                row_result = {
+                    'header_name': header,
+                    'platform': platform,
+                    'suite': base_sig.get('suite', ''),  # same suite for base_result and new_result
+                    'test': base_sig.get('test', ''),  # same test for base_result and new_result
+                    'is_complete': is_complete,
+                    'framework_id': framework,
+                    'is_empty': is_empty,
+                    'option_name': option_collection_map.get(
+                        base_sig.get('option_collection_id', ''), ''
+                    ),
+                    'extra_options': base_sig.get('extra_options', ''),
+                    'base_repository_name': base_repository_name,
+                    'new_repository_name': new_repository_name,
+                    'base_measurement_unit': base_sig.get('measurement_unit', ''),
+                    'new_measurement_unit': new_sig.get('measurement_unit', ''),
+                    'base_runs': sorted(base_perf_data_values),
+                    'new_runs': sorted(new_perf_data_values),
+                    'base_avg_value': base_avg_value,
+                    'new_avg_value': new_avg_value,
+                    'base_stddev': base_stddev,
+                    'new_stddev': new_stddev,
+                    'base_stddev_pct': base_stddev_pct,
+                    'new_stddev_pct': new_stddev_pct,
+                    'base_retriggerable_job_ids': base_grouped_job_ids.get(base_sig_id, []),
+                    'new_retriggerable_job_ids': new_grouped_job_ids.get(new_sig_id, []),
+                }
+
+                self.queryset.append(row_result)
+
+        serializer = self.get_serializer(self.queryset, many=True)
+        serialized_data = serializer.data
+
+        return Response(data=serialized_data)
+
+    def _get_sig_identifier(self, header, platform):
+        return '{} {}'.format(header, platform)
+
+    def _get_stddev_pct(self, avg, stddev):
+        """
+        @param avg: average of the runs values
+        @param stddev: standard deviation of the runs values
+        @return: standard deviation as percentage of the average
+        """
+        return round(self._get_percentage(stddev, avg) * 100) / 100
+
+    def _get_perf_data(self, repository_name, revision, signatures, interval):
+        perf_data = self._get_perf_data_by_repo_and_signatures(repository_name, signatures)
+        if revision:
+            perf_data = perf_data.filter(push__revision=revision)
+        elif interval:
+            perf_data = perf_data.filter(
+                push_timestamp__gt=datetime.datetime.utcfromtimestamp(
+                    int(time.time() - int(interval))
+                )
+            )
+        return perf_data
+
+    def _get_signatures(self, repository_name, framework, interval, no_subtests):
+        signatures = self._get_filtered_signatures_by_repo(repository_name)
+        signatures = signatures.filter(parent_signature__isnull=no_subtests)
+        if framework:
+            signatures = signatures.filter(framework__id=framework)
+        if interval:
+            signatures = self._get_filtered_signatures_by_interval(signatures, interval)
+        signatures = self._get_signatures_values(signatures)
+        return signatures
+
+    @staticmethod
+    def _get_perf_data_by_repo_and_signatures(repository_name, signatures):
+        signature_ids = [signature['id'] for signature in list(signatures)]
+        return PerformanceDatum.objects.select_related('push', 'repository', 'id').filter(
+            signature_id__in=signature_ids,
+            repository__name=repository_name,
+        )
+
+    @staticmethod
+    def _get_filtered_signatures_by_interval(signatures, interval):
+        return signatures.filter(
+            last_updated__gte=datetime.datetime.utcfromtimestamp(int(time.time() - int(interval)))
+        )
+
+    @staticmethod
+    def _get_signatures_values(signatures):
+        return signatures.values(
+            'framework_id',
+            'id',
+            'extra_options',
+            'suite',
+            'platform__platform',
+            'test',
+            'option_collection_id',
+            'repository_id',
+            'measurement_unit',
+        )
+
+    @staticmethod
+    def _get_filtered_signatures_by_repo(repository_name):
+        return PerformanceSignature.objects.select_related(
+            'framework', 'repository', 'platform', 'push', 'job'
+        ).filter(repository__name=repository_name)
+
+    @staticmethod
+    def _get_option_collection_map():
+        option_collection = OptionCollection.objects.select_related('option').values(
+            'id', 'option__name'
+        )
+        option_collection_map = {
+            item['id']: item['option__name'] for item in list(option_collection)
+        }
+        return option_collection_map
+
+    def _get_avg_and_stddev(self, values, header):
+        """
+        @param values: list of the runs values
+        @param header: name of the header
+        @return: Average and standard deviation values based on the metric header name
+        """
+        if header == self.noise_metric_header:
+            avg = self._get_noise_metric_avg(values)
+            stddev = 1
+        else:
+            avg = self._get_avg(values)
+            stddev = self._get_stddev(values)
+        return avg, stddev
+
+    @staticmethod
+    def _get_stddev(values):
+        """
+        @return: standard deviation value or None in case there's only one run
+        """
+        return stdev(values) if len(values) >= 2 else None
+
+    @staticmethod
+    def _get_avg(values):
+        """
+        @return: mean of the runs values if there are any
+        """
+        return mean(values) if len(values) else 0
+
+    @staticmethod
+    def _get_noise_metric_avg(values):
+        return sqrt(functools.reduce(lambda a, b: a + b, map(lambda x: x**2, values)))
+
+    @staticmethod
+    def _get_percentage(part, whole):
+        percentage = 0
+        if whole:
+            percentage = (100 * part) / whole
+        return percentage
+
+    @staticmethod
+    def _get_grouped_perf_data(perf_data):
+        grouped_values = defaultdict(list)
+        grouped_job_ids = defaultdict(list)
+        for signature_id, value, job_id in perf_data.values_list('signature_id', 'value', 'job_id'):
+            if value is not None:
+                grouped_values[signature_id].append(value)
+                grouped_job_ids[signature_id].append(job_id)
+        return grouped_job_ids, grouped_values
+
+    def _get_signatures_map(self, signatures, grouped_values, option_collection_map):
+        """
+        @return: signatures_map - contains a mapping of all the signatures for easy access and matching
+                 header_names - list of header names for all given signatures
+                 platforms - list of platforms for all given signatures
+        """
+        header_names = []
+        platforms = []
+        signatures_map = {}
+        for signature in signatures:
+            suite = signature['suite']
+            test = signature['test']
+            extra_options = signature['extra_options']
+            option_name = option_collection_map[signature['option_collection_id']]
+            test_suite = suite if test == '' or test == suite else '{} {}'.format(suite, test)
+            platform = signature['platform__platform']
+            header = self._get_header_name(extra_options, option_name, test_suite)
+            sig_identifier = self._get_sig_identifier(header, platform)
+
+            if sig_identifier not in signatures_map or (
+                sig_identifier in signatures_map
+                and len(grouped_values.get(signature['id'], [])) != 0
+            ):
+                signatures_map[sig_identifier] = signature
+            header_names.append(header)
+            platforms.append(platform)
+
+        return signatures_map, header_names, platforms
+
+    @staticmethod
+    def _get_header_name(extra_options, option_name, test_suite):
+        name = '{} {} {}'.format(test_suite, option_name, extra_options)
+        return name
 
 
 class TestSuiteHealthViewSet(viewsets.ViewSet):
