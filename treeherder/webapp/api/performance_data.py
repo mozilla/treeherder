@@ -766,113 +766,80 @@ class PerfCompareResults(generics.ListAPIView):
         framework = query_params.validated_data['framework']
         no_subtests = query_params.validated_data['no_subtests']
 
-        base_signatures = self._get_filtered_signatures_by_repo(base_repository_name)
-        new_signatures = self._get_filtered_signatures_by_repo(new_repository_name)
+        base_signatures = self._get_signatures(
+            base_repository_name, framework, interval, no_subtests
+        )
+        new_signatures = self._get_signatures(new_repository_name, framework, interval, no_subtests)
 
-        base_signatures = base_signatures.filter(parent_signature__isnull=no_subtests)
-        new_signatures = new_signatures.filter(parent_signature__isnull=no_subtests)
-
-        if framework:
-            base_signatures = base_signatures.filter(framework__id=framework)
-            new_signatures = new_signatures.filter(framework__id=framework)
-
-        if interval:
-            base_signatures = self._get_filtered_signatures_by_interval(base_signatures, interval)
-            new_signatures = self._get_filtered_signatures_by_interval(new_signatures, interval)
-
-        base_signatures = self._get_signatures_values(base_signatures)
-        new_signatures = self._get_signatures_values(new_signatures)
-
-        base_perf_data = self._get_perf_data(base_repository_name, base_signatures)
-        new_perf_data = self._get_perf_data(new_repository_name, new_signatures)
-
-        # TODO: Allow comparison when selecting only new revisions
-
-        if base_revision:
-            base_perf_data = base_perf_data.filter(push__revision=base_revision)
-        elif interval:
-            base_perf_data = base_perf_data.filter(
-                push_timestamp__gt=datetime.datetime.utcfromtimestamp(
-                    int(time.time() - int(interval))
-                )
-            )
-        if new_revision:
-            new_perf_data = new_perf_data.filter(push__revision=new_revision)
-        elif interval:
-            new_perf_data = new_perf_data.filter(
-                push_timestamp__gt=datetime.datetime.utcfromtimestamp(
-                    int(time.time() - int(interval))
-                )
-            )
+        base_perf_data = self._get_perf_data(
+            base_repository_name, base_revision, base_signatures, interval
+        )
+        new_perf_data = self._get_perf_data(
+            new_repository_name, new_revision, new_signatures, interval
+        )
 
         option_collection_map = self._get_option_collection_map()
 
         base_grouped_job_ids, base_grouped_values = self._get_grouped_perf_data(base_perf_data)
         new_grouped_job_ids, new_grouped_values = self._get_grouped_perf_data(new_perf_data)
 
-        base_signatures_map, base_names, base_platforms = self._get_signatures_map(
+        base_signatures_map, base_header_names, base_platforms = self._get_signatures_map(
             base_signatures, base_grouped_values, option_collection_map
         )
-        new_signatures_map, new_names, new_platforms = self._get_signatures_map(
+        new_signatures_map, new_header_names, new_platforms = self._get_signatures_map(
             new_signatures, new_grouped_values, option_collection_map
         )
 
-        names = set(base_names + new_names)
+        header_names = set(base_header_names + new_header_names)
         platforms = set(base_platforms + new_platforms)
         self.queryset = []
 
-        for header in names:
+        for header in header_names:
             for platform in platforms:
-                key = '{} {}'.format(header, platform)
-                base_result = base_signatures_map.get(key, {})
-                new_result = new_signatures_map.get(key, {})
-                is_empty = not (base_result and new_result)
+                sig_identifier = self._get_sig_identifier(header, platform)
+                base_sig = base_signatures_map.get(sig_identifier, {})
+                base_sig_id = base_sig.get('id', '')
+                new_sig = new_signatures_map.get(sig_identifier, {})
+                new_sig_id = new_sig.get('id', '')
+                is_empty = not (base_sig and new_sig)
                 if is_empty:
                     continue
-                base_values = base_grouped_values.get(base_result.get('id', ''), [])
-                new_values = new_grouped_values.get(new_result.get('id', ''), [])
-                is_complete = len(base_values) != 0 and len(new_values) != 0
-                base_avg_value, base_stddev, new_avg_value, new_stddev = self._get_avg_and_stddev(
-                    base_values, new_values, header
+                base_perf_data_values = base_grouped_values.get(base_sig_id, [])
+                new_perf_data_values = new_grouped_values.get(new_sig_id, [])
+                is_complete = len(base_perf_data_values) != 0 and len(new_perf_data_values) != 0
+                base_avg_value, base_stddev = self._get_avg_and_stddev(
+                    base_perf_data_values, header
                 )
-
-                base_stddev_pct = (
-                    round(self._get_percentage(base_stddev, base_avg_value) * 100) / 100
-                )
-                new_stddev_pct = round(self._get_percentage(new_stddev, new_avg_value) * 100) / 100
+                new_avg_value, new_stddev = self._get_avg_and_stddev(new_perf_data_values, header)
+                base_stddev_pct = self._get_stddev_pct(base_avg_value, base_stddev)
+                new_stddev_pct = self._get_stddev_pct(new_avg_value, new_stddev)
 
                 row_result = {
-                    'header': header,
+                    'header_name': header,
                     'platform': platform,
-                    'suite': base_result.get(
-                        'suite', ''
-                    ),  # same suite for base_result and new_result
-                    'test': base_result.get('test', ''),  # same test for base_result and new_result
+                    'suite': base_sig.get('suite', ''),  # same suite for base_result and new_result
+                    'test': base_sig.get('test', ''),  # same test for base_result and new_result
                     'is_complete': is_complete,
                     'framework_id': framework,
                     'is_empty': is_empty,
                     'option_name': option_collection_map.get(
-                        base_result.get('option_collection_id', ''), ''
+                        base_sig.get('option_collection_id', ''), ''
                     ),
-                    'extra_options': base_result.get('extra_options', ''),
+                    'extra_options': base_sig.get('extra_options', ''),
                     'base_repository_name': base_repository_name,
                     'new_repository_name': new_repository_name,
-                    'base_measurement_unit': base_result.get('measurement_unit', ''),
-                    'new_measurement_unit': new_result.get('measurement_unit', ''),
-                    'base_runs': sorted(base_values),
-                    'new_runs': sorted(new_values),
+                    'base_measurement_unit': base_sig.get('measurement_unit', ''),
+                    'new_measurement_unit': new_sig.get('measurement_unit', ''),
+                    'base_runs': sorted(base_perf_data_values),
+                    'new_runs': sorted(new_perf_data_values),
                     'base_avg_value': base_avg_value,
                     'new_avg_value': new_avg_value,
                     'base_stddev': base_stddev,
                     'new_stddev': new_stddev,
                     'base_stddev_pct': base_stddev_pct,
                     'new_stddev_pct': new_stddev_pct,
-                    'base_retriggerable_job_ids': base_grouped_job_ids.get(
-                        base_result.get('id', ''), []
-                    ),
-                    'new_retriggerable_job_ids': new_grouped_job_ids.get(
-                        new_result.get('id', ''), []
-                    ),
+                    'base_retriggerable_job_ids': base_grouped_job_ids.get(base_sig_id, []),
+                    'new_retriggerable_job_ids': new_grouped_job_ids.get(new_sig_id, []),
                 }
 
                 self.queryset.append(row_result)
@@ -882,8 +849,41 @@ class PerfCompareResults(generics.ListAPIView):
 
         return Response(data=serialized_data)
 
+    def _get_sig_identifier(self, header, platform):
+        return '{} {}'.format(header, platform)
+
+    def _get_stddev_pct(self, avg, stddev):
+        """
+        @param avg: average of the runs values
+        @param stddev: standard deviation of the runs values
+        @return: standard deviation as percentage of the average
+        """
+        return round(self._get_percentage(stddev, avg) * 100) / 100
+
+    def _get_perf_data(self, repository_name, revision, signatures, interval):
+        perf_data = self._get_perf_data_by_repo_and_signatures(repository_name, signatures)
+        if revision:
+            perf_data = perf_data.filter(push__revision=revision)
+        elif interval:
+            perf_data = perf_data.filter(
+                push_timestamp__gt=datetime.datetime.utcfromtimestamp(
+                    int(time.time() - int(interval))
+                )
+            )
+        return perf_data
+
+    def _get_signatures(self, repository_name, framework, interval, no_subtests):
+        signatures = self._get_filtered_signatures_by_repo(repository_name)
+        signatures = signatures.filter(parent_signature__isnull=no_subtests)
+        if framework:
+            signatures = signatures.filter(framework__id=framework)
+        if interval:
+            signatures = self._get_filtered_signatures_by_interval(signatures, interval)
+        signatures = self._get_signatures_values(signatures)
+        return signatures
+
     @staticmethod
-    def _get_perf_data(repository_name, signatures):
+    def _get_perf_data_by_repo_and_signatures(repository_name, signatures):
         signature_ids = [signature['id'] for signature in list(signatures)]
         return PerformanceDatum.objects.select_related('push', 'repository', 'id').filter(
             signature_id__in=signature_ids,
@@ -926,22 +926,37 @@ class PerfCompareResults(generics.ListAPIView):
         }
         return option_collection_map
 
-    def _get_avg_and_stddev(self, base_values, new_values, header):
+    def _get_avg_and_stddev(self, values, header):
+        """
+        @param values: list of the runs values
+        @param header: name of the header
+        @return: Average and standard deviation values based on the metric header name
+        """
         if header == self.noise_metric_header:
-            base_stddev = 1
-            new_stddev = 1
-            base_avg_value = sqrt(
-                functools.reduce(lambda a, b: a + b, map(lambda x: x**2, base_values))
-            )
-            new_avg_value = sqrt(
-                functools.reduce(lambda a, b: a + b, map(lambda x: x**2, new_values))
-            )
+            avg = self._get_noise_metric_avg(values)
+            stddev = 1
         else:
-            base_avg_value = mean(base_values) if len(base_values) else 0
-            new_avg_value = mean(new_values) if len(new_values) else 0
-            base_stddev = stdev(base_values) if len(base_values) >= 2 else None
-            new_stddev = stdev(new_values) if len(new_values) >= 2 else None
-        return base_avg_value, base_stddev, new_avg_value, new_stddev
+            avg = self._get_avg(values)
+            stddev = self._get_stddev(values)
+        return avg, stddev
+
+    @staticmethod
+    def _get_stddev(values):
+        """
+        @return: standard deviation value or None in case there's only one run
+        """
+        return stdev(values) if len(values) >= 2 else None
+
+    @staticmethod
+    def _get_avg(values):
+        """
+        @return: mean of the runs values if there are any
+        """
+        return mean(values) if len(values) else 0
+
+    @staticmethod
+    def _get_noise_metric_avg(values):
+        return sqrt(functools.reduce(lambda a, b: a + b, map(lambda x: x**2, values)))
 
     @staticmethod
     def _get_percentage(part, whole):
@@ -961,7 +976,12 @@ class PerfCompareResults(generics.ListAPIView):
         return grouped_job_ids, grouped_values
 
     def _get_signatures_map(self, signatures, grouped_values, option_collection_map):
-        names = []
+        """
+        @return: signatures_map - contains a mapping of all the signatures for easy access and matching
+                 header_names - list of header names for all given signatures
+                 platforms - list of platforms for all given signatures
+        """
+        header_names = []
         platforms = []
         signatures_map = {}
         for signature in signatures:
@@ -971,20 +991,21 @@ class PerfCompareResults(generics.ListAPIView):
             option_name = option_collection_map[signature['option_collection_id']]
             test_suite = suite if test == '' or test == suite else '{} {}'.format(suite, test)
             platform = signature['platform__platform']
-            name = self._get_name(extra_options, option_name, test_suite)
-            key = '{} {}'.format(name, platform)
+            header = self._get_header_name(extra_options, option_name, test_suite)
+            sig_identifier = self._get_sig_identifier(header, platform)
 
-            if key not in signatures_map or (
-                key in signatures_map and len(grouped_values.get(signature['id'], [])) != 0
+            if sig_identifier not in signatures_map or (
+                sig_identifier in signatures_map
+                and len(grouped_values.get(signature['id'], [])) != 0
             ):
-                signatures_map[key] = signature
-            names.append(name)
+                signatures_map[sig_identifier] = signature
+            header_names.append(header)
             platforms.append(platform)
 
-        return signatures_map, names, platforms
+        return signatures_map, header_names, platforms
 
     @staticmethod
-    def _get_name(extra_options, option_name, test_suite):
+    def _get_header_name(extra_options, option_name, test_suite):
         name = '{} {} {}'.format(test_suite, option_name, extra_options)
         return name
 

@@ -425,7 +425,7 @@ class PerfCompareResultsSerializer(serializers.ModelSerializer):
     is_empty = serializers.BooleanField()
     is_complete = serializers.BooleanField()
     platform = serializers.CharField()
-    header_name = serializers.SerializerMethodField()
+    header_name = serializers.CharField()
     base_repository_name = serializers.CharField()
     new_repository_name = serializers.CharField()
     base_measurement_unit = serializers.CharField()
@@ -477,12 +477,6 @@ class PerfCompareResultsSerializer(serializers.ModelSerializer):
             'base_stddev_pct',
             'new_stddev_pct',
         ]
-
-    def get_header_name(self, value):
-        test = value['test']
-        suite = value['suite']
-        test_suite = suite if test == '' or test == suite else '{} {}'.format(suite, test)
-        return '{} {} {}'.format(test_suite, value['option_name'], value['extra_options'])
 
 
 class TestSuiteHealthParamsSerializer(serializers.Serializer):
