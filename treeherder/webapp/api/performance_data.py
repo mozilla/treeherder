@@ -1018,22 +1018,37 @@ class PerfCompareResults(generics.ListAPIView):
         }
         return option_collection_map
 
-    def _get_avg_and_stddev(self, base_values, new_values, header):
+    def _get_avg_and_stddev(self, values, header):
+        """
+        @param values: list of the runs values
+        @param header: name of the header
+        @return: Average and standard deviation values based on the metric header name
+        """
         if header == self.noise_metric_header:
-            base_stddev = 1
-            new_stddev = 1
-            base_avg_value = sqrt(
-                functools.reduce(lambda a, b: a + b, map(lambda x: x**2, base_values))
-            )
-            new_avg_value = sqrt(
-                functools.reduce(lambda a, b: a + b, map(lambda x: x**2, new_values))
-            )
+            avg = self._get_noise_metric_avg(values)
+            stddev = 1
         else:
-            base_avg_value = mean(base_values) if len(base_values) else 0
-            new_avg_value = mean(new_values) if len(new_values) else 0
-            base_stddev = stdev(base_values) if len(base_values) >= 2 else None
-            new_stddev = stdev(new_values) if len(new_values) >= 2 else None
-        return base_avg_value, base_stddev, new_avg_value, new_stddev
+            avg = self._get_avg(values)
+            stddev = self._get_stddev(values)
+        return avg, stddev
+
+    @staticmethod
+    def _get_stddev(values):
+        """
+        @return: standard deviation value or None in case there's only one run
+        """
+        return stdev(values) if len(values) >= 2 else None
+
+    @staticmethod
+    def _get_avg(values):
+        """
+        @return: mean of the runs values if there are any
+        """
+        return mean(values) if len(values) else 0
+
+    @staticmethod
+    def _get_noise_metric_avg(values):
+        return sqrt(functools.reduce(lambda a, b: a + b, map(lambda x: x**2, values)))
 
     @staticmethod
     def _get_percentage(part, whole):
@@ -1053,7 +1068,12 @@ class PerfCompareResults(generics.ListAPIView):
         return grouped_job_ids, grouped_values
 
     def _get_signatures_map(self, signatures, grouped_values, option_collection_map):
-        names = []
+        """
+        @return: signatures_map - contains a mapping of all the signatures for easy access and matching
+                 header_names - list of header names for all given signatures
+                 platforms - list of platforms for all given signatures
+        """
+        header_names = []
         platforms = []
         signatures_map = {}
         for signature in signatures:
@@ -1063,20 +1083,21 @@ class PerfCompareResults(generics.ListAPIView):
             option_name = option_collection_map[signature['option_collection_id']]
             test_suite = suite if test == '' or test == suite else '{} {}'.format(suite, test)
             platform = signature['platform__platform']
-            name = self._get_name(extra_options, option_name, test_suite)
-            key = '{} {}'.format(name, platform)
+            header = self._get_header_name(extra_options, option_name, test_suite)
+            sig_identifier = self._get_sig_identifier(header, platform)
 
-            if key not in signatures_map or (
-                key in signatures_map and len(grouped_values.get(signature['id'], [])) != 0
+            if sig_identifier not in signatures_map or (
+                sig_identifier in signatures_map
+                and len(grouped_values.get(signature['id'], [])) != 0
             ):
-                signatures_map[key] = signature
-            names.append(name)
+                signatures_map[sig_identifier] = signature
+            header_names.append(header)
             platforms.append(platform)
 
-        return signatures_map, names, platforms
+        return signatures_map, header_names, platforms
 
     @staticmethod
-    def _get_name(extra_options, option_name, test_suite):
+    def _get_header_name(extra_options, option_name, test_suite):
         name = '{} {} {}'.format(test_suite, option_name, extra_options)
         return name
 
