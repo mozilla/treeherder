@@ -764,6 +764,15 @@ def test_perfcompare_results(client, test_perf_signature, test_repository, eleve
             'new_stddev': round(statistics.stdev(sig2_values), 2),
             'base_stddev_pct': 47,
             'new_stddev_pct': 7,
+            'confidence': 0.18,
+            'confidence_text': 'low',
+            'confidence_text_long': 'Result of running t-test on base versus new result distribution: '
+            'A value of \'low\' suggests less confidence that there is a sustained,'
+            ' significant change between the two revisions.',
+            'is_improvement': True,
+            'is_regression': False,
+            't_value_confidence': 5,  # add this into constants module
+            't_value_care_min': 3,  # add this into constants module
         },
         {
             'framework_id': sig3.framework.id,
@@ -789,6 +798,15 @@ def test_perfcompare_results(client, test_perf_signature, test_repository, eleve
             'new_stddev': round(statistics.stdev(sig4_values), 2),
             'base_stddev_pct': 11,
             'new_stddev_pct': 16,
+            'confidence': 0.31,
+            'confidence_text': 'low',
+            'confidence_text_long': 'Result of running t-test on base versus new result distribution: '
+            'A value of \'low\' suggests less confidence that there is a sustained,'
+            ' significant change between the two revisions.',
+            'is_improvement': False,
+            'is_regression': True,
+            't_value_confidence': 5,  # add this into constants module
+            't_value_care_min': 3,  # add this into constants module
         },
         {
             'framework_id': test_perf_signature.framework.id,
@@ -814,6 +832,15 @@ def test_perfcompare_results(client, test_perf_signature, test_repository, eleve
             'new_stddev': None,
             'base_stddev_pct': 0,
             'new_stddev_pct': 0,
+            'confidence': 0.0,
+            'confidence_text': 'low',
+            'confidence_text_long': 'Result of running t-test on base versus new result distribution: '
+            'A value of \'low\' suggests less confidence that there is a sustained,'
+            ' significant change between the two revisions.',
+            'is_improvement': False,
+            'is_regression': True,
+            't_value_confidence': 5,  # add this into constants module
+            't_value_care_min': 3,  # add this into constants module
         },
     ]
 
