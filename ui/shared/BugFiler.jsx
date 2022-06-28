@@ -112,7 +112,6 @@ export class BugFilerClass extends React.Component {
       parsedLog,
       reftestUrl,
       jobGroupName,
-      jobTypeName,
     } = props;
 
     const allFailures = suggestions.map((sugg) =>
@@ -160,13 +159,7 @@ export class BugFilerClass extends React.Component {
     }
 
     const jg = jobGroupName.toLowerCase();
-    const jtn = jobTypeName.toLowerCase();
-    if (
-      jg.includes('xpcshell') ||
-      jg.includes('mochitests without e10s or fission') || // chrome, a11y, gpu-c
-      jtn.includes('devtools') || // devtools
-      jtn.includes('browser-chrome') // browser-chrome
-    ) {
+    if (jg.includes('xpcshell') || jg.includes('mochitest')) {
       const isTimeout = [/timeout/i, /timed out/].some((regexp) =>
         regexp.test(summaryString),
       );
@@ -915,7 +908,6 @@ BugFilerClass.propTypes = {
   reftestUrl: PropTypes.string.isRequired,
   successCallback: PropTypes.func.isRequired,
   jobGroupName: PropTypes.string.isRequired,
-  jobTypeName: PropTypes.string.isRequired,
   notify: PropTypes.func.isRequired,
 };
 
