@@ -17,7 +17,7 @@ def store_text_log_summary_artifact(job, text_log_summary_artifact):
     """
     errors = json.loads(text_log_summary_artifact['blob'])['errors']
 
-    TextLogError.objects.bulk_create(
+    qs = TextLogError.objects.bulk_create(
         [
             TextLogError(
                 job=job,
@@ -31,8 +31,8 @@ def store_text_log_summary_artifact(job, text_log_summary_artifact):
     )
 
     # get error summary immediately (to warm the cache)
-
-    error_summary.get_error_summary(job)
+    # Conflicts may have occured during the insert, but we pass the queryset for performance
+    error_summary.get_error_summary(job, queryset=qs)
 
 
 def store_job_artifacts(artifact_data):
