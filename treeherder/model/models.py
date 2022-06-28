@@ -1282,8 +1282,7 @@ class TextLogError(models.Model):
 
     class Meta:
         db_table = "text_log_error"
-        unique_together = ('step', 'line_number')
-        unique_together = ('job', 'line_number')
+        unique_together = (('step', 'line_number'), ('job', 'line_number'))
 
     def __str__(self):
         return "{0} {1}".format(self.id, self.job.id)
