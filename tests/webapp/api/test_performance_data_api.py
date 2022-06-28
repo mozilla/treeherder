@@ -14,7 +14,6 @@ from treeherder.perf.models import (
     PerformanceSignature,
 )
 
-
 NOW = datetime.datetime.now()
 ONE_DAY_AGO = NOW - datetime.timedelta(days=1)
 THREE_DAYS_AGO = NOW - datetime.timedelta(days=3)
@@ -610,7 +609,8 @@ def test_perfcompare_results_multiple_runs(
         repository=test_repository,
         revision='1377267c6dc1',
         author='foo@foo.com',
-        time=datetime.datetime.now(),
+        time=SEVEN_DAYS_AGO,
+        # time=datetime.datetime.now()
     )
     push2 = Push.objects.create(
         repository=test_repository,
@@ -632,6 +632,7 @@ def test_perfcompare_results_multiple_runs(
         suite=suite,
         test=test,
         test_perf_signature=test_perf_signature,
+        repository=test_repository,
     )
 
     sig1_values = [21.23, 32.4, 55.1]
@@ -650,6 +651,7 @@ def test_perfcompare_results_multiple_runs(
         suite=suite,
         test=test,
         test_perf_signature=test_perf_signature,
+        repository=test_repository,
     )
 
     for index, job in enumerate(perf_jobs[3:5]):
@@ -663,6 +665,7 @@ def test_perfcompare_results_multiple_runs(
         suite=suite,
         test=test,
         test_perf_signature=test_perf_signature,
+        repository=test_repository,
     )
 
     for index, job in enumerate(perf_jobs[5:7]):
@@ -676,6 +679,7 @@ def test_perfcompare_results_multiple_runs(
         suite=suite,
         test=test,
         test_perf_signature=test_perf_signature,
+        repository=test_repository,
     )
 
     for index, job in enumerate(perf_jobs[7:9]):
@@ -754,6 +758,9 @@ def test_perfcompare_results_multiple_runs(
             'delta_percentage': round(first_row['delta_pct'], 2),
             'magnitude': round(first_row['magnitude'], 2),
             'new_is_better': first_row['new_is_better'],
+            'graphs_link': f'https://treeherder.mozilla.org/perfherder/graphs?highlightedRevisions={push1.revision}&'
+            f'highlightedRevisions={push2.revision}&'
+            f'series={test_repository.name}%2C{sig1.signature_hash}%2C1%2C{sig1.framework.id}&timerange=1209600',
         },
         {
             'framework_id': sig3.framework.id,
@@ -791,6 +798,9 @@ def test_perfcompare_results_multiple_runs(
             'delta_percentage': round(second_row['delta_pct'], 2),
             'magnitude': round(second_row['magnitude'], 2),
             'new_is_better': second_row['new_is_better'],
+            'graphs_link': f'https://treeherder.mozilla.org/perfherder/graphs?highlightedRevisions={push1.revision}&'
+            f'highlightedRevisions={push2.revision}&'
+            f'series={test_repository.name}%2C{sig3.signature_hash}%2C1%2C{sig1.framework.id}&timerange=1209600',
         },
     ]
 
@@ -811,12 +821,13 @@ def test_perfcompare_results_multiple_runs(
         assert result in response.json()
 
 
-def test_perfcompare_results_with_only_one_run(
+def test_perfcompare_results_with_only_one_run_and_diff_repo(
     client,
     create_signature,
     create_perf_datum,
     test_perf_signature,
     test_repository,
+    try_repository,
     eleven_jobs_stored,
 ):
 
@@ -827,10 +838,10 @@ def test_perfcompare_results_with_only_one_run(
     perf_jobs = Job.objects.filter(pk__in=range(1, 11)).order_by('push__time').all()
 
     push1 = Push.objects.create(
-        repository=test_repository,
+        repository=try_repository,
         revision='1377267c6dc1',
         author='foo@foo.com',
-        time=datetime.datetime.now(),
+        time=THREE_DAYS_AGO,
     )
     push2 = Push.objects.create(
         repository=test_repository,
@@ -852,6 +863,7 @@ def test_perfcompare_results_with_only_one_run(
         suite=suite,
         test=test,
         test_perf_signature=test_perf_signature,
+        repository=try_repository,
     )
 
     sig1_values = [32.4]
@@ -865,7 +877,7 @@ def test_perfcompare_results_with_only_one_run(
         push_timestamp=job.push.time,
         job=job,
         push=job.push,
-        repository=job.repository,
+        repository=try_repository,
         signature=sig1,
     )
     perf_datum.push.time = job.push.time
@@ -879,6 +891,7 @@ def test_perfcompare_results_with_only_one_run(
         suite=suite,
         test=test,
         test_perf_signature=test_perf_signature,
+        repository=test_repository,
     )
 
     job = perf_jobs[1]
@@ -951,14 +964,19 @@ def test_perfcompare_results_with_only_one_run(
             'delta_percentage': round(response['delta_pct'], 2),
             'magnitude': round(response['magnitude'], 2),
             'new_is_better': response['new_is_better'],
+            'graphs_link': f'https://treeherder.mozilla.org/perfherder/graphs?highlightedRevisions={push1.revision}&'
+            f'highlightedRevisions={push2.revision}&'
+            f'series={try_repository.name}%2C{sig1.signature_hash}%2C1%2C{sig1.framework.id}&'
+            f'series={test_repository.name}%2C{sig1.signature_hash}%2C1%2C{sig1.framework.id}&'
+            f'timerange=604800',
         },
     ]
 
     query_params = (
         '?base_repository={}&new_repository={}&base_revision={}&new_revision={}&framework={'
         '}&interval=172800&no_subtests=true'.format(
-            test_perf_signature.repository.name,
-            test_perf_signature.repository.name,
+            try_repository.name,
+            test_repository.name,
             push1.revision,
             push2.revision,
             test_perf_signature.framework_id,
@@ -966,6 +984,7 @@ def test_perfcompare_results_with_only_one_run(
     )
 
     response = client.get(reverse('perfcompare-results') + query_params)
+
     assert response.status_code == 200
     for result in expected:
         assert result in response.json()

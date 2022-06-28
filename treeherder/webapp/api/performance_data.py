@@ -11,6 +11,7 @@ from rest_framework import exceptions, filters, generics, pagination, viewsets
 from rest_framework.response import Response
 from rest_framework.status import HTTP_400_BAD_REQUEST
 from typing import List
+from urllib.parse import urlencode
 
 from treeherder.model import models
 from treeherder.perf.alerts import get_alert_properties
@@ -28,6 +29,7 @@ from treeherder.perf.models import (
 from treeherder.webapp.api.permissions import IsStaffOrReadOnly
 from treeherder.webapp.api.performance_serializers import OptionalBooleanField
 from treeherder.webapp.api import perf_compare_utils
+from treeherder.etl.common import to_timestamp
 
 from .exceptions import InsufficientAlertCreationData
 from .performance_serializers import (
@@ -791,6 +793,14 @@ class PerfCompareResults(generics.ListAPIView):
         platforms = set(base_platforms + new_platforms)
         self.queryset = []
 
+        base_push = models.Push.objects.get(
+            revision=base_revision, repository__name=base_repository_name
+        )
+        new_push = models.Push.objects.get(
+            revision=new_revision, repository__name=new_repository_name
+        )
+        push_timestamp = self._get_push_timestamp(base_push, new_push)
+
         for header in header_names:
             for platform in platforms:
                 sig_identifier = perf_compare_utils.get_sig_identifier(header, platform)
@@ -825,6 +835,12 @@ class PerfCompareResults(generics.ListAPIView):
                 confidence_text, confidence_text_long = perf_compare_utils.get_confidence_text(
                     confidence
                 )
+                sig_hash = (
+                    base_sig.get('signature_hash', '')
+                    if base_sig
+                    else new_sig.get('signature_hash', '')
+                )
+
                 delta_value = perf_compare_utils.get_delta_value(new_avg_value, base_avg_value)
                 delta_percentage = perf_compare_utils.get_delta_percentage(
                     delta_value, base_avg_value
@@ -867,6 +883,16 @@ class PerfCompareResults(generics.ListAPIView):
                     'delta_percentage': delta_percentage,
                     'magnitude': magnitude,
                     'new_is_better': new_is_better,
+                    # highlighted revisions is the base_revision and the other highlighted revisions is new_revision
+                    'graphs_link': self._create_graph_links(
+                        base_repository_name,
+                        new_repository_name,
+                        new_revision,
+                        base_revision,
+                        str(framework),
+                        push_timestamp,
+                        str(sig_hash),
+                    ),
                 }
 
                 self.queryset.append(row_result)
@@ -875,6 +901,38 @@ class PerfCompareResults(generics.ListAPIView):
         serialized_data = serializer.data
 
         return Response(data=serialized_data)
+
+    def _get_ph_time_ranges(self):
+        return [
+            {'value': 86400, 'text': 'Last day'},
+            {'value': 86400 * 2, 'text': 'Last 2 days'},
+            {'value': 604800, 'text': 'Last 7 days'},
+            {'value': 1209600, 'text': 'Last 14 days'},
+            {'value': 2592000, 'text': 'Last 30 days'},
+            {'value': 5184000, 'text': 'Last 60 days'},
+            {'value': 7776000, 'text': 'Last 90 days'},
+            {'value': 31536000, 'text': 'Last year'},
+        ]
+
+    def _get_push_timestamp(self, base_push, new_push):
+        # This function will determine the right push time stamp to assign a revision.
+        # It will do this by comparing timestamps with ph_time_ranges
+        base_push_timestamp = base_push.time
+        new_push_timestamp = new_push.time
+
+        timestamps = [base_push_timestamp, new_push_timestamp]
+
+        ph_ranges = self._get_ph_time_ranges()
+        values = []
+
+        date_now = (time.time() * 1000) / 1000.0
+        for ts in timestamps:
+            ph_value = date_now - to_timestamp(str(ts))
+            for ph_range in ph_ranges:
+                if ph_value < ph_range['value']:
+                    values.append(ph_range['value'])
+                    break
+        return max(values)
 
     def _get_perf_data(self, repository_name, revision, signatures, interval):
         perf_data = self._get_perf_data_by_repo_and_signatures(repository_name, signatures)
@@ -897,6 +955,45 @@ class PerfCompareResults(generics.ListAPIView):
             signatures = self._get_filtered_signatures_by_interval(signatures, interval)
         signatures = self._get_signatures_values(signatures)
         return signatures
+
+    def _create_graph_links(
+        self,
+        base_repo_name,
+        new_repo_name,
+        base_revision,
+        new_revision,
+        framework,
+        time_range,
+        signature,
+    ):
+        highlighted_revision_key = 'highlightedRevisions'
+        time_range_key = 'timerange'
+        series_key = 'series'
+
+        highlighted_revisions_params = [
+            (highlighted_revision_key, new_revision[:12]),
+            (highlighted_revision_key, base_revision[:12]),
+        ]
+
+        graph_link = 'graphs?%s' % urlencode(highlighted_revisions_params)
+
+        if new_repo_name == base_repo_name:
+            # if repo for base and new are not the same then make diff
+            # series data one for each repo, else generate one
+            repo_value = ','.join([new_repo_name, signature, '1', framework])
+            graph_link = graph_link + '&%s' % urlencode({series_key: repo_value})
+
+        else:
+            # if repos selected are not the same
+            base_repo_value = ','.join([base_repo_name, signature, '1', framework])
+            new_repo_value = ','.join([new_repo_name, signature, '1', framework])
+            encoded = urlencode([(series_key, base_repo_value), (series_key, new_repo_value)])
+
+            graph_link = graph_link + '&%s' % encoded
+
+        graph_link = graph_link + '&%s' % urlencode({time_range_key: time_range})
+
+        return 'https://treeherder.mozilla.org/perfherder/%s' % graph_link
 
     @staticmethod
     def _get_perf_data_by_repo_and_signatures(repository_name, signatures):
@@ -925,6 +1022,7 @@ class PerfCompareResults(generics.ListAPIView):
             'repository_id',
             'measurement_unit',
             'lower_is_better',
+            'signature_hash',
         )
 
     @staticmethod
