@@ -164,7 +164,8 @@ export class BugFilerClass extends React.Component {
     if (
       jg.includes('xpcshell') ||
       jg.includes('mochitests without e10s or fission') || // chrome, a11y, gpu-c
-      jtn.includes('devtools') // devtools
+      jtn.includes('devtools') || // devtools
+      jtn.includes('browser-chrome') // browser-chrome
     ) {
       const isTimeout = [/timeout/i, /timed out/].some((regexp) =>
         regexp.test(summaryString),
@@ -182,7 +183,7 @@ export class BugFilerClass extends React.Component {
       // If not crash|leak|timeout
       if (!crash && !isAssertion && !isTimeout && isTestPath) {
         const parts = summaryString.split(' | ');
-        if (parts.length === 2) {
+        if (parts.length === 2 || parts.length === 1) {
           summaryString = `${parts[0]} | single tracking bug`;
           keywords.push('intermittent-testcase');
         }

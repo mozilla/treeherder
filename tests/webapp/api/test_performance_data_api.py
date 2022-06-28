@@ -1,12 +1,18 @@
 import copy
 import pytest
 import datetime
+import statistics
 from django.urls import reverse
 from collections import defaultdict
 
 from treeherder.model.models import MachinePlatform, Push
 from treeherder.webapp.api.performance_data import PerformanceSummary
-from treeherder.perf.models import PerformanceDatum, PerformanceFramework, PerformanceSignature
+from treeherder.perf.models import (
+    PerformanceDatum,
+    PerformanceFramework,
+    PerformanceSignature,
+    OptionCollection,
+)
 
 
 NOW = datetime.datetime.now()
@@ -580,6 +586,252 @@ def test_perf_summary(client, test_perf_signature, test_perf_data):
     resp2 = client.get(reverse('performance-summary') + query_params2)
     assert resp2.status_code == 200
     assert resp2.json() == expected
+
+
+def test_perfcompare_results(client, test_perf_signature, test_repository, eleven_jobs_stored):
+    from treeherder.model.models import Job
+
+    linux1804_64_shippable_qr = MachinePlatform.objects.create(
+        os_name='-', platform='linux1804-64-shippable-qr', architecture='-'
+    )
+    macosx1015_64_shippable_qr = MachinePlatform.objects.create(
+        os_name='', platform='macosx1015-64-shippable-qr', architecture=''
+    )
+
+    perf_jobs = Job.objects.filter(pk__in=range(1, 11)).order_by('push__time').all()
+
+    push1 = Push.objects.create(
+        repository=test_repository,
+        revision='1377267c6dc1',
+        author='foo@foo.com',
+        time=datetime.datetime.now(),
+    )
+    push2 = Push.objects.create(
+        repository=test_repository,
+        revision='08038e535f58',
+        author='bar@bar.com',
+        time=datetime.datetime.now(),
+    )
+
+    sig1 = PerformanceSignature.objects.create(
+        repository=test_perf_signature.repository,
+        signature_hash=(20 * 't1'),
+        framework=test_perf_signature.framework,
+        platform=linux1804_64_shippable_qr,
+        option_collection=test_perf_signature.option_collection,
+        suite='a11yr',
+        test='dhtml.html',
+        has_subtests=test_perf_signature.has_subtests,
+        extra_options="e10s fission stylo webrender",
+        last_updated=datetime.datetime.now(),
+        measurement_unit='ms',
+    )
+
+    sig1_values = [21.23, 32.4, 55.1]
+    sig2_values = [36.2, 40.0]
+    sig3_values = [60.0, 70.7]
+    sig4_values = [55.0, 70.0]
+
+    for index, job in enumerate(perf_jobs[:3]):
+        job.push = push1
+        job.save()
+
+        perf_datum = PerformanceDatum.objects.create(
+            value=sig1_values[index],
+            push_timestamp=job.push.time,
+            job=job,
+            push=job.push,
+            repository=job.repository,
+            signature=sig1,
+        )
+        perf_datum.push.time = job.push.time
+        perf_datum.push.save()
+
+    sig2 = PerformanceSignature.objects.create(
+        repository=test_perf_signature.repository,
+        signature_hash=(20 * 't2'),
+        framework=test_perf_signature.framework,
+        platform=linux1804_64_shippable_qr,
+        option_collection=test_perf_signature.option_collection,
+        suite='a11yr',
+        test='dhtml.html',
+        has_subtests=test_perf_signature.has_subtests,
+        extra_options="e10s fission stylo webrender",
+        last_updated=datetime.datetime.now(),
+        measurement_unit='ms',
+    )
+
+    for index, job in enumerate(perf_jobs[3:5]):
+        job.push = push2
+        job.save()
+
+        perf_datum = PerformanceDatum.objects.create(
+            value=sig2_values[index],
+            push_timestamp=job.push.time,
+            job=job,
+            push=job.push,
+            repository=job.repository,
+            signature=sig2,
+        )
+        perf_datum.push.time = job.push.time
+        perf_datum.push.save()
+
+    sig3 = PerformanceSignature.objects.create(
+        repository=test_perf_signature.repository,
+        signature_hash=(20 * 't3'),
+        framework=test_perf_signature.framework,
+        platform=macosx1015_64_shippable_qr,
+        option_collection=test_perf_signature.option_collection,
+        suite='a11yr',
+        test='dhtml.html',
+        has_subtests=test_perf_signature.has_subtests,
+        extra_options="e10s fission stylo webrender",
+        last_updated=datetime.datetime.now(),
+        measurement_unit='ms',
+    )
+
+    for index, job in enumerate(perf_jobs[5:7]):
+        job.push = push1
+        job.save()
+
+        perf_datum = PerformanceDatum.objects.create(
+            value=sig3_values[index],
+            push_timestamp=job.push.time,
+            job=job,
+            push=job.push,
+            repository=job.repository,
+            signature=sig3,
+        )
+        perf_datum.push.time = job.push.time
+        perf_datum.push.save()
+
+    sig4 = PerformanceSignature.objects.create(
+        repository=test_perf_signature.repository,
+        signature_hash=(20 * 't4'),
+        framework=test_perf_signature.framework,
+        platform=macosx1015_64_shippable_qr,
+        option_collection=test_perf_signature.option_collection,
+        suite='a11yr',
+        test='dhtml.html',
+        has_subtests=test_perf_signature.has_subtests,
+        extra_options="e10s fission stylo webrender",
+        last_updated=datetime.datetime.now(),
+        measurement_unit='ms',
+    )
+
+    for index, job in enumerate(perf_jobs[7:9]):
+        job.push = push2
+        job.save()
+
+        perf_datum = PerformanceDatum.objects.create(
+            value=sig4_values[index],
+            push_timestamp=job.push.time,
+            job=job,
+            push=job.push,
+            repository=job.repository,
+            signature=sig4,
+        )
+        perf_datum.push.time = job.push.time
+        perf_datum.push.save()
+
+    option_collection = OptionCollection.objects.select_related('option').values(
+        'id', 'option__name'
+    )
+    option_collection_map = {item['id']: item['option__name'] for item in list(option_collection)}
+
+    expected = [
+        {
+            'framework_id': sig1.framework.id,
+            'platform': sig1.platform.platform,
+            'suite': sig1.suite,
+            'is_empty': False,
+            'header_name': 'a11yr dhtml.html opt e10s fission stylo webrender',
+            'base_repository_name': sig1.repository.name,
+            'new_repository_name': sig2.repository.name,
+            'is_complete': True,
+            'base_measurement_unit': sig1.measurement_unit,
+            'new_measurement_unit': sig2.measurement_unit,
+            'base_retriggerable_job_ids': [1, 2, 4],
+            'new_retriggerable_job_ids': [7, 8],
+            'base_runs': sig1_values,
+            'new_runs': sig2_values,
+            'base_avg_value': round(statistics.mean(sig1_values), 2),
+            'new_avg_value': round(statistics.mean(sig2_values), 2),
+            'test': sig1.test,
+            'option_name': option_collection_map.get(sig1.option_collection_id, ''),
+            'extra_options': sig1.extra_options,
+            'base_stddev': round(statistics.stdev(sig1_values), 2),
+            'new_stddev': round(statistics.stdev(sig2_values), 2),
+            'base_stddev_pct': 47,
+            'new_stddev_pct': 7,
+        },
+        {
+            'framework_id': sig3.framework.id,
+            'platform': sig3.platform.platform,
+            'suite': sig3.suite,
+            'is_empty': False,
+            'header_name': 'a11yr dhtml.html opt e10s fission stylo webrender',
+            'base_repository_name': sig3.repository.name,
+            'new_repository_name': sig4.repository.name,
+            'is_complete': True,
+            'base_measurement_unit': sig3.measurement_unit,
+            'new_measurement_unit': sig4.measurement_unit,
+            'base_retriggerable_job_ids': [1, 2],
+            'new_retriggerable_job_ids': [4, 7],
+            'base_runs': sig3_values,
+            'new_runs': sig4_values,
+            'base_avg_value': round(statistics.mean(sig3_values), 2),
+            'new_avg_value': round(statistics.mean(sig4_values), 2),
+            'test': sig3.test,
+            'option_name': option_collection_map.get(sig3.option_collection_id, ''),
+            'extra_options': sig3.extra_options,
+            'base_stddev': round(statistics.stdev(sig3_values), 2),
+            'new_stddev': round(statistics.stdev(sig4_values), 2),
+            'base_stddev_pct': 11,
+            'new_stddev_pct': 16,
+        },
+        {
+            'framework_id': test_perf_signature.framework.id,
+            'platform': test_perf_signature.platform.platform,
+            'suite': test_perf_signature.suite,
+            'is_empty': False,
+            'header_name': 'mysuite mytest opt e10s opt',
+            'base_repository_name': test_perf_signature.repository.name,
+            'new_repository_name': test_perf_signature.repository.name,
+            'is_complete': False,
+            'base_measurement_unit': test_perf_signature.measurement_unit,
+            'new_measurement_unit': test_perf_signature.measurement_unit,
+            'base_retriggerable_job_ids': [],
+            'new_retriggerable_job_ids': [],
+            'base_runs': [],
+            'new_runs': [],
+            'base_avg_value': 0.0,
+            'new_avg_value': 0.0,
+            'test': test_perf_signature.test,
+            'option_name': option_collection_map.get(test_perf_signature.option_collection_id, ''),
+            'extra_options': test_perf_signature.extra_options,
+            'base_stddev': None,
+            'new_stddev': None,
+            'base_stddev_pct': 0,
+            'new_stddev_pct': 0,
+        },
+    ]
+
+    query_params = (
+        '?base_repository={}&new_repository={}&base_revision={}&new_revision={}&framework={'
+        '}&interval=172800&no_subtests=true'.format(
+            test_perf_signature.repository.name,
+            test_perf_signature.repository.name,
+            push1.revision,
+            push2.revision,
+            test_perf_signature.framework_id,
+        )
+    )
+
+    response = client.get(reverse('perfcompare-results') + query_params)
+    assert response.status_code == 200
+    for result in expected:
+        assert result in response.json()
 
 
 def test_data_points_from_same_push_are_ordered_chronologically(

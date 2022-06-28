@@ -1,7 +1,6 @@
 import logging
 
 import simplejson as json
-from django.db import transaction
 from django.db.utils import IntegrityError
 from treeherder.model import error_summary
 
@@ -18,15 +17,18 @@ def store_text_log_summary_artifact(job, text_log_summary_artifact):
     """
     errors = json.loads(text_log_summary_artifact['blob'])['errors']
 
-    with transaction.atomic():
-        for error in errors:
-            obj, created = TextLogError.objects.get_or_create(
+    TextLogError.objects.bulk_create(
+        [
+            TextLogError(
                 job=job,
                 line_number=error['linenumber'],
                 line=astral_filter(error['line']),
             )
-            if not created:
-                logger.warning('duplicate error lines processed for job %s', job.id)
+            for error in errors
+        ],
+        # Duplicate error lines may be processed
+        ignore_conflicts=True,
+    )
 
     # get error summary immediately (to warm the cache)
 
