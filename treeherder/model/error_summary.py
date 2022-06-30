@@ -21,9 +21,10 @@ REFTEST_RE = re.compile(r'\s+[=!]=\s+.*')
 PREFIX_PATTERN = r'^(TEST-UNEXPECTED-\S+|PROCESS-CRASH)\s+\|\s+'
 
 
-def get_error_summary(job):
+def get_error_summary(job, queryset=None):
     """
     Create a list of bug suggestions for a job.
+    TextLogError queryset can be passed directly to avoid firing a DB query.
 
     Caches the results if there are any.
     """
@@ -32,16 +33,16 @@ def get_error_summary(job):
     if cached_error_summary is not None:
         return cached_error_summary
 
-    # don't cache or do anything if we have no text log errors to get
-    # results for
-    errors = TextLogError.objects.filter(job=job)
-    if not errors:
+    if queryset is None:
+        queryset = TextLogError.objects.filter(job=job)
+    # don't cache or do anything if we have no text log errors to get results for
+    if not queryset:
         return []
 
     # cache terms generated from error line to save excessive querying
     term_cache = {}
 
-    error_summary = [bug_suggestions_line(err, term_cache) for err in errors]
+    error_summary = [bug_suggestions_line(err, term_cache) for err in queryset]
 
     try:
         cache.set(cache_key, error_summary, BUG_SUGGESTION_CACHE_TIMEOUT)
