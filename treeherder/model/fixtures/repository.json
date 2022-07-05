@@ -1755,5 +1755,19 @@
       "description": "",
       "tc_root_url": "https://firefox-ci-tc.services.mozilla.com"
     }
+  },
+  {
+    "pk": 125,
+    "model": "model.repository",
+    "fields": {
+      "dvcs_type": "hg",
+      "name": "pine-stable",
+      "url": "https://hg.mozilla.org/projects/pine-stable",
+      "active_status": "active",
+      "codebase": "gecko",
+      "repository_group": 6,
+      "description": "Stabilization for pine repository",
+      "tc_root_url": "https://firefox-ci-tc.services.mozilla.com"
+    }
   }
 ]
