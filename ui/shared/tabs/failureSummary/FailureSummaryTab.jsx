@@ -105,11 +105,6 @@ class FailureSummaryTab extends React.Component {
         if (simpleCase.length > 0 && !crashTimeoutLeak) {
           suggestion.bugs.open_recent = simpleCase;
 
-          // HACK: remove the error message from the error line to avoid confusion
-          suggestion.search =
-            suggestion.search.split(suggestion.path_end)[0] +
-            suggestion.path_end;
-
           // HACK: remove any other bugs, keep this simple.
           suggestion.bugs.all_others = [];
         }
