@@ -178,7 +178,9 @@ CACHES = {
 # Internationalization
 TIME_ZONE = "UTC"
 USE_I18N = False
-USE_L10N = True
+
+# Timezones are not supported in Treeherder yet
+USE_TZ = False
 
 # Static files (CSS, JavaScript, Images)
 STATIC_ROOT = join(SRC_DIR, ".django-static")
