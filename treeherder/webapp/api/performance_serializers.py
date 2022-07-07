@@ -31,6 +31,7 @@ class PerformanceDecimalField(serializers.DecimalField):
         kwargs['max_digits'] = 20
         kwargs['decimal_places'] = 2
         kwargs['coerce_to_string'] = False
+        kwargs['allow_null'] = True
         super().__init__(*args, **kwargs)
 
 
@@ -445,8 +446,8 @@ class PerfCompareResultsSerializer(serializers.ModelSerializer):
     new_avg_value = PerfCompareDecimalField()
     base_stddev = PerfCompareDecimalField()
     new_stddev = PerfCompareDecimalField()
-    base_stddev_pct = serializers.IntegerField(required=False, allow_null=True, default=None)
-    new_stddev_pct = serializers.IntegerField(required=False, allow_null=True, default=None)
+    base_stddev_pct = PerfCompareDecimalField()
+    new_stddev_pct = PerfCompareDecimalField()
 
     class Meta:
         model = PerformanceSignature
