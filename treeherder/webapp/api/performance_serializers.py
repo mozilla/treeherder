@@ -448,6 +448,13 @@ class PerfCompareResultsSerializer(serializers.ModelSerializer):
     new_stddev = PerfCompareDecimalField()
     base_stddev_pct = PerfCompareDecimalField()
     new_stddev_pct = PerfCompareDecimalField()
+    confidence = PerfCompareDecimalField()
+    confidence_text = serializers.CharField()
+    confidence_text_long = serializers.CharField()  # check to see the max length
+    is_improvement = serializers.BooleanField(required=False)
+    is_regression = serializers.BooleanField(required=False)
+    t_value_confidence = serializers.IntegerField(required=False, allow_null=True, default=None)
+    t_value_care_min = serializers.IntegerField(required=False, allow_null=True, default=None)
 
     class Meta:
         model = PerformanceSignature
@@ -477,6 +484,13 @@ class PerfCompareResultsSerializer(serializers.ModelSerializer):
             'new_stddev',
             'base_stddev_pct',
             'new_stddev_pct',
+            'confidence',
+            'confidence_text',
+            'confidence_text_long',
+            'is_improvement',
+            'is_regression',
+            't_value_confidence',
+            't_value_care_min',
         ]
 
 

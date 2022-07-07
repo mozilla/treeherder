@@ -752,6 +752,9 @@ class PerfCompareResults(generics.ListAPIView):
     serializer_class = PerfCompareResultsSerializer
     queryset = None
     noise_metric_header = 'noise metric'
+    stddev_default_factor = 0.15
+    t_value_care_min = 3  # Anything below this is "low" in confidence
+    t_value_confidence = 5  # Anything above this is "high" in confidence
 
     def list(self, request):
         query_params = PerfCompareResultsQueryParamsSerializer(data=request.query_params)
@@ -797,6 +800,7 @@ class PerfCompareResults(generics.ListAPIView):
         for header in header_names:
             for platform in platforms:
                 sig_identifier = self._get_sig_identifier(header, platform)
+                lower_is_better = base_signatures_map.get('lower_is_better', '')
                 base_sig = base_signatures_map.get(sig_identifier, {})
                 base_sig_id = base_sig.get('id', '')
                 new_sig = new_signatures_map.get(sig_identifier, {})
@@ -818,7 +822,11 @@ class PerfCompareResults(generics.ListAPIView):
                 new_avg_value, new_stddev = self._get_avg_and_stddev(new_perf_data_values, header)
                 base_stddev_pct = self._get_stddev_pct(base_avg_value, base_stddev)
                 new_stddev_pct = self._get_stddev_pct(new_avg_value, new_stddev)
-
+                is_improvement = self._is_improvement(
+                    lower_is_better, base_avg_value, new_avg_value
+                )
+                confidence = self._get_ttest_value(base_perf_data_values, new_perf_data_values)
+                confidence_text, confidence_text_long = self._get_confidence_text(confidence)
                 row_result = {
                     'header_name': header,
                     'platform': platform,
@@ -845,6 +853,13 @@ class PerfCompareResults(generics.ListAPIView):
                     'new_stddev_pct': new_stddev_pct,
                     'base_retriggerable_job_ids': base_grouped_job_ids.get(base_sig_id, []),
                     'new_retriggerable_job_ids': new_grouped_job_ids.get(new_sig_id, []),
+                    'confidence': confidence,
+                    'confidence_text': confidence_text,
+                    'confidence_text_long': confidence_text_long,
+                    'is_improvement': is_improvement,
+                    'is_regression': not is_improvement,
+                    't_value_confidence': self.t_value_confidence,
+                    't_value_care_min': self.t_value_care_min,
                 }
 
                 self.queryset.append(row_result)
@@ -915,6 +930,7 @@ class PerfCompareResults(generics.ListAPIView):
             'option_collection_id',
             'repository_id',
             'measurement_unit',
+            'lower_is_better',
         )
 
     @staticmethod
@@ -972,6 +988,66 @@ class PerfCompareResults(generics.ListAPIView):
             percentage = (100 * part) / whole
         return percentage
 
+    def _get_ttest_value(self, control_values, test_values):
+        length_control = len(control_values)
+        length_test = len(test_values)
+        if not length_control or not length_test:
+            return 0
+        control_group_avg = mean(control_values) if length_control else 0
+        test_group_avg = mean(test_values) if length_test else 0
+        stddev_control = (
+            stdev(control_values)
+            if length_control > 1
+            else self.stddev_default_factor * control_group_avg
+        )
+        stddev_test = (
+            stdev(test_values) if length_test > 1 else self.stddev_default_factor * test_group_avg
+        )
+        try:
+            if length_control == 1:
+                stddev_control = (control_values[0] * stddev_test) / test_group_avg
+            elif length_test == 1:
+                stddev_test = (test_values[0] * stddev_control) / control_group_avg
+        except ZeroDivisionError:
+            return None
+        delta = test_group_avg - control_group_avg
+        std_diff_err = sqrt(
+            (stddev_control * stddev_control) / length_control
+            + (stddev_test * stddev_test) / length_test
+        )
+        res = abs(delta / std_diff_err)
+        return res
+
+    @staticmethod
+    def confidence_detailed_info(argument):
+        text = 'Result of running t-test on base versus new result distribution: '
+        switcher = {
+            'low': text + 'A value of \'low\' suggests less confidence that there is a sustained,'
+            ' significant change between the two revisions.',
+            'med': text
+            + 'A value of \'med\' indicates uncertainty that there is a significant change. '
+            'If you haven\'t already, consider retriggering the job to be more sure.',
+            'high': text
+            + 'A value of \'high\' indicates uncertainty that there is a significant change. '
+            'If you haven\'t already, consider retriggering the job to be more sure.',
+        }
+
+        return switcher.get(argument, "nothing")
+
+    def _get_confidence_text(self, abs_tvalue):
+        if abs_tvalue is None:
+            return None, None
+        if abs_tvalue < self.t_value_care_min:
+            confidence_text = 'low'
+            confidence_text_long = self.confidence_detailed_info(confidence_text)
+        elif abs_tvalue < self.t_value_confidence:
+            confidence_text = 'med'
+            confidence_text_long = self.confidence_detailed_info(confidence_text)
+        else:
+            confidence_text = 'high'
+            confidence_text_long = self.confidence_detailed_info(confidence_text)
+        return confidence_text, confidence_text_long
+
     @staticmethod
     def _get_grouped_perf_data(perf_data):
         grouped_values = defaultdict(list)
@@ -1015,6 +1091,12 @@ class PerfCompareResults(generics.ListAPIView):
     def _get_header_name(extra_options, option_name, test_suite):
         name = '{} {} {}'.format(test_suite, option_name, extra_options)
         return name
+
+    @staticmethod
+    def _is_improvement(lower_is_better, base_avg_value, new_avg_value):
+        delta = new_avg_value - base_avg_value
+        new_is_better = (lower_is_better and delta < 0) or (not lower_is_better and delta > 0)
+        return True if new_is_better else False
 
 
 class TestSuiteHealthViewSet(viewsets.ViewSet):
