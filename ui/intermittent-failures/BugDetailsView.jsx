@@ -38,6 +38,68 @@ const BugDetailsView = (props) => {
     graphFailureStatus,
   } = props;
 
+  // trim off the timestamp and "TEST-UNEXPECTED-XXX | "
+  function lineTrimmer(input) {
+    if (input === undefined) {
+      return '';
+    }
+    if (typeof input === typeof '') {
+      input = input.split('\n');
+    }
+    const lines = input.map((i) => i.split('\n'));
+
+    const trimmedlines = lines.map((l) => {
+      const parts = l.toString().split(' | ');
+      if (parts.length > 2) {
+        parts.shift();
+      }
+      return parts.join(' | ');
+    });
+    return trimmedlines.join('\n');
+  }
+
+  function lineHash(input) {
+    input = lineTrimmer(input);
+    let trimmedlines = [''];
+    try {
+      trimmedlines = input.split('\n');
+    } catch {
+      trimmedlines = [input];
+    }
+
+    let hash = 0;
+    for (let l = 0; l < trimmedlines.length; l++) {
+      for (let i = 0; i < trimmedlines[l].length; i++) {
+        const char = trimmedlines[l].charCodeAt(i);
+        hash = hash ** 5 - hash + char;
+        hash = hash && hash;
+      }
+    }
+    return hash.toString();
+  }
+
+  const customFilter = ({ filter, onChange }) => {
+    return (
+      <select
+        onChange={(event) => onChange(event.target.value)}
+        style={{ width: '100%' }}
+        value={filter ? filter.value : 'all'}
+      >
+        <option value="all">Show All</option>
+        {tableData
+          .map((item) => lineTrimmer(item.lines))
+          .filter((item, i, s) => s.lastIndexOf(item) === i)
+          .map((v) => {
+            return (
+              <option key={lineHash(v)} value={lineHash(v)}>
+                {v}
+              </option>
+            );
+          })}
+      </select>
+    );
+  };
+
   const columns = [
     {
       Header: 'Push Time',
@@ -91,6 +153,13 @@ const BugDetailsView = (props) => {
     {
       Header: 'Log',
       accessor: 'job_id',
+      filterMethod: (filter, row) => {
+        if (filter.value === 'all') {
+          return true;
+        }
+        return lineHash(row._original.lines) === filter.value;
+      },
+      Filter: ({ filter, onChange }) => customFilter({ filter, onChange }),
       Cell: (_props) => {
         const { value, original } = _props;
         return (
@@ -224,6 +293,7 @@ const BugDetailsView = (props) => {
         initialParamsSet && (
           <ReactTable
             data={tableData}
+            filterable
             showPageSizeOptions
             columns={columns}
             className="-striped"

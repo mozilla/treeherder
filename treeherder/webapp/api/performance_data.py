@@ -807,6 +807,11 @@ class PerfCompareResults(generics.ListAPIView):
                 base_perf_data_values = base_grouped_values.get(base_sig_id, [])
                 new_perf_data_values = new_grouped_values.get(new_sig_id, [])
                 is_complete = len(base_perf_data_values) != 0 and len(new_perf_data_values) != 0
+                no_results_to_show = (
+                    len(base_perf_data_values) == 0 and len(new_perf_data_values) == 0
+                )
+                if no_results_to_show:
+                    continue
                 base_avg_value, base_stddev = self._get_avg_and_stddev(
                     base_perf_data_values, header
                 )
@@ -858,7 +863,9 @@ class PerfCompareResults(generics.ListAPIView):
         @param stddev: standard deviation of the runs values
         @return: standard deviation as percentage of the average
         """
-        return round(self._get_percentage(stddev, avg) * 100) / 100
+        if stddev:
+            return round(self._get_percentage(stddev, avg) * 100) / 100
+        return 0
 
     def _get_perf_data(self, repository_name, revision, signatures, interval):
         perf_data = self._get_perf_data_by_repo_and_signatures(repository_name, signatures)
@@ -945,7 +952,7 @@ class PerfCompareResults(generics.ListAPIView):
         """
         @return: standard deviation value or None in case there's only one run
         """
-        return stdev(values) if len(values) >= 2 else None
+        return stdev(values) if len(values) >= 2 else 0
 
     @staticmethod
     def _get_avg(values):
