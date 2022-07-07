@@ -865,7 +865,7 @@ class PerfCompareResults(generics.ListAPIView):
         """
         if stddev:
             return round(self._get_percentage(stddev, avg) * 100) / 100
-        return None
+        return 0
 
     def _get_perf_data(self, repository_name, revision, signatures, interval):
         perf_data = self._get_perf_data_by_repo_and_signatures(repository_name, signatures)
@@ -952,7 +952,7 @@ class PerfCompareResults(generics.ListAPIView):
         """
         @return: standard deviation value or None in case there's only one run
         """
-        return stdev(values) if len(values) >= 2 else None
+        return stdev(values) if len(values) >= 2 else 0
 
     @staticmethod
     def _get_avg(values):

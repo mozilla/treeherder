@@ -866,14 +866,10 @@ def test_perfcompare_results_with_only_one_run(
             'test': sig1.test,
             'option_name': option_collection_map.get(sig1.option_collection_id, ''),
             'extra_options': sig1.extra_options,
-            'base_stddev': round(statistics.stdev(sig1_values), 2)
-            if len(sig1_values) >= 2
-            else None,
-            'new_stddev': round(statistics.stdev(sig2_values), 2)
-            if len(sig2_values) >= 2
-            else None,
-            'base_stddev_pct': None,
-            'new_stddev_pct': None,
+            'base_stddev': round(statistics.stdev(sig1_values), 2) if len(sig1_values) >= 2 else 0,
+            'new_stddev': round(statistics.stdev(sig2_values), 2) if len(sig2_values) >= 2 else 0,
+            'base_stddev_pct': 0,
+            'new_stddev_pct': 0,
         },
     ]
 
