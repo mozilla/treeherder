@@ -261,6 +261,10 @@ USE_X_FORWARDED_HOST = True
 USE_X_FORWARDED_PORT = True
 SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
 
+CSRF_TRUSTED_ORIGINS = env.list(
+    'CSRF_TRUSTED_ORIGINS', default=['http://localhost:8000', 'http://localhost:5000']
+)
+
 if SITE_URL.startswith('https://'):
     SECURE_SSL_REDIRECT = True
     SECURE_HSTS_INCLUDE_SUBDOMAINS = True
