@@ -801,6 +801,12 @@ class PerfCompareResults(generics.ListAPIView):
                 base_sig_id = base_sig.get('id', '')
                 new_sig = new_signatures_map.get(sig_identifier, {})
                 new_sig_id = new_sig.get('id', '')
+                # https://github.com/mozilla/treeherder/blob/dccb26f0be4f04b483724d7d9a698d2e9fe7b69d/ui/perfherder/compare/CompareView.jsx#L113
+                sig_hash = (
+                    base_sig.get('signature_hash', '')
+                    if base_sig
+                    else new_sig.get('signature_hash', '')
+                )
                 is_empty = not (base_sig and new_sig)
                 if is_empty:
                     continue
@@ -818,6 +824,15 @@ class PerfCompareResults(generics.ListAPIView):
                 new_avg_value, new_stddev = self._get_avg_and_stddev(new_perf_data_values, header)
                 base_stddev_pct = self._get_stddev_pct(base_avg_value, base_stddev)
                 new_stddev_pct = self._get_stddev_pct(new_avg_value, new_stddev)
+
+                graph_link = self._get_graph_link(
+                    base_revision,
+                    new_revision,
+                    base_repository_name,
+                    new_repository_name,
+                    sig_hash,
+                    interval,
+                )
 
                 row_result = {
                     'header_name': header,
@@ -845,6 +860,7 @@ class PerfCompareResults(generics.ListAPIView):
                     'new_stddev_pct': new_stddev_pct,
                     'base_retriggerable_job_ids': base_grouped_job_ids.get(base_sig_id, []),
                     'new_retriggerable_job_ids': new_grouped_job_ids.get(new_sig_id, []),
+                    'graph_link': graph_link,
                 }
 
                 self.queryset.append(row_result)
@@ -866,6 +882,12 @@ class PerfCompareResults(generics.ListAPIView):
         if stddev:
             return round(self._get_percentage(stddev, avg) * 100) / 100
         return 0
+
+    def _get_graph_link(
+        self, base_revision, new_revision, base_repo, new_repo, signature_hash, interval
+    ):
+        # add the logic here
+        pass
 
     def _get_perf_data(self, repository_name, revision, signatures, interval):
         perf_data = self._get_perf_data_by_repo_and_signatures(repository_name, signatures)
@@ -915,6 +937,7 @@ class PerfCompareResults(generics.ListAPIView):
             'option_collection_id',
             'repository_id',
             'measurement_unit',
+            'signature_hash',
         )
 
     @staticmethod
