@@ -1,5 +1,5 @@
 ## Frontend stage
-FROM node:16.13.2 AS frontend
+FROM node:18.5.0 AS frontend
 
 WORKDIR /app
 
