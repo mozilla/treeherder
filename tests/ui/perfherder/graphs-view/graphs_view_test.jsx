@@ -371,35 +371,44 @@ describe('Mocked API calls', () => {
       },
     );
   });
+
+  test("'Highlight infra changes' button can be turned off", async () => {
+    const updateStateParams = jest.fn();
+    const { getByText } = graphsViewControls(
+      graphData,
+      false,
+      updateStateParams,
+    );
+
+    const infraChangesButton = await waitFor(() =>
+      getByText('Highlight infra changes'),
+    );
+
+    expect(infraChangesButton.classList).toContain('active');
+
+    fireEvent.click(infraChangesButton);
+
+    expect(updateStateParams).toHaveBeenCalledTimes(1);
+  });
+
+  test("'Highlight other alerts' button can be turned on", async () => {
+    const updateStateParams = jest.fn();
+    const { getByText } = graphsViewControls(
+      graphData,
+      false,
+      updateStateParams,
+    );
+
+    const commonAlertsButton = await waitFor(() =>
+      getByText('Highlight common alerts'),
+    );
+
+    expect(commonAlertsButton.classList).not.toContain('active');
+
+    fireEvent.click(commonAlertsButton);
+
+    expect(updateStateParams).toHaveBeenCalledTimes(1);
+  });
+
   // Add here high level GraphsView tests...
-});
-
-test("'Highlight infra changes' button can be turned off", async () => {
-  const updateStateParams = jest.fn();
-  const { getByText } = graphsViewControls(graphData, false, updateStateParams);
-
-  const infraChangesButton = await waitFor(() =>
-    getByText('Highlight infra changes'),
-  );
-
-  expect(infraChangesButton.classList).toContain('active');
-
-  fireEvent.click(infraChangesButton);
-
-  expect(updateStateParams).toHaveBeenCalledTimes(1);
-});
-
-test("'Highlight other alerts' button can be turned on", async () => {
-  const updateStateParams = jest.fn();
-  const { getByText } = graphsViewControls(graphData, false, updateStateParams);
-
-  const commonAlertsButton = await waitFor(() =>
-    getByText('Highlight common alerts'),
-  );
-
-  expect(commonAlertsButton.classList).not.toContain('active');
-
-  fireEvent.click(commonAlertsButton);
-
-  expect(updateStateParams).toHaveBeenCalledTimes(1);
 });
