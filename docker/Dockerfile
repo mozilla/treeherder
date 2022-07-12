@@ -6,7 +6,7 @@ WORKDIR /app
 COPY ui/ /app/ui/
 COPY package.json babel.config.json webpack.config.js yarn.lock /app/
 
-RUN npm install -g --force yarn@1.22.5
+RUN npm install -g --force yarn@1.22.19
 RUN yarn install
 RUN yarn build
 
