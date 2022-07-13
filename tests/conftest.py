@@ -146,6 +146,52 @@ def fixture_create_commit():
     return create
 
 
+@pytest.fixture(name='create_signature')
+def fixture_create_signature():
+    """Returns a function to create a signature"""
+
+    def create(
+        signature_hash, extra_options, platform, measurement_unit, suite, test, test_perf_signature
+    ):
+        return PerformanceSignature.objects.create(
+            repository=test_perf_signature.repository,
+            signature_hash=signature_hash,
+            framework=test_perf_signature.framework,
+            platform=platform,
+            option_collection=test_perf_signature.option_collection,
+            suite=suite,
+            test=test,
+            has_subtests=test_perf_signature.has_subtests,
+            extra_options=extra_options,
+            last_updated=datetime.datetime.now(),
+            measurement_unit=measurement_unit,
+        )
+
+    return create
+
+
+@pytest.fixture(name='create_perf_datum')
+def fixture_create_perf_datum():
+    """Returns a function to create a performance datum"""
+
+    def create(index, job, push, sig, sig_values):
+        job.push = push
+        job.save()
+        perf_datum = PerformanceDatum.objects.create(
+            value=sig_values[index],
+            push_timestamp=job.push.time,
+            job=job,
+            push=job.push,
+            repository=job.repository,
+            signature=sig,
+        )
+        perf_datum.push.time = job.push.time
+        perf_datum.push.save()
+        return perf_datum
+
+    return create
+
+
 @pytest.fixture
 def test_repository(django_db_reset_sequences):
     from treeherder.model.models import Repository, RepositoryGroup
