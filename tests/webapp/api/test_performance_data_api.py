@@ -7,11 +7,11 @@ from collections import defaultdict
 
 from treeherder.model.models import MachinePlatform, Push, Job
 from treeherder.webapp.api.performance_data import PerformanceSummary
+from treeherder.webapp.api import perf_compare_utils
 from treeherder.perf.models import (
     PerformanceDatum,
     PerformanceFramework,
     PerformanceSignature,
-    OptionCollection,
 )
 
 
@@ -681,10 +681,7 @@ def test_perfcompare_results_multiple_runs(
     for index, job in enumerate(perf_jobs[7:9]):
         create_perf_datum(index, job, push2, sig4, sig4_values)
 
-    option_collection = OptionCollection.objects.select_related('option').values(
-        'id', 'option__name'
-    )
-    option_collection_map = {item['id']: item['option__name'] for item in list(option_collection)}
+    option_collection_map = perf_compare_utils.get_option_collection_map()
 
     expected = [
         {
@@ -718,8 +715,8 @@ def test_perfcompare_results_multiple_runs(
             ' significant change between the two revisions.',
             'is_improvement': True,
             'is_regression': False,
-            't_value_confidence': 5,  # add this into constants module
-            't_value_care_min': 3,  # add this into constants module
+            't_value_confidence': perf_compare_utils.T_VALUE_CONFIDENCE,  # add this into constants module
+            't_value_care_min': perf_compare_utils.T_VALUE_CARE_MIN,  # add this into constants module
         },
         {
             'framework_id': sig3.framework.id,
@@ -752,8 +749,8 @@ def test_perfcompare_results_multiple_runs(
             ' significant change between the two revisions.',
             'is_improvement': False,
             'is_regression': True,
-            't_value_confidence': 5,  # add this into constants module
-            't_value_care_min': 3,  # add this into constants module
+            't_value_confidence': perf_compare_utils.T_VALUE_CONFIDENCE,
+            't_value_care_min': perf_compare_utils.T_VALUE_CARE_MIN,
         },
     ]
 
@@ -858,10 +855,7 @@ def test_perfcompare_results_with_only_one_run(
     perf_datum.push.time = job.push.time
     perf_datum.push.save()
 
-    option_collection = OptionCollection.objects.select_related('option').values(
-        'id', 'option__name'
-    )
-    option_collection_map = {item['id']: item['option__name'] for item in list(option_collection)}
+    option_collection_map = perf_compare_utils.get_option_collection_map()
 
     expected = [
         {
@@ -895,8 +889,8 @@ def test_perfcompare_results_with_only_one_run(
             ' significant change between the two revisions.',
             'is_improvement': True,
             'is_regression': False,
-            't_value_confidence': 5,  # add this into constants module
-            't_value_care_min': 3,  # add this into constants module
+            't_value_confidence': perf_compare_utils.T_VALUE_CONFIDENCE,
+            't_value_care_min': perf_compare_utils.T_VALUE_CARE_MIN,
         },
     ]
 
