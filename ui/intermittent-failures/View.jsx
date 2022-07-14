@@ -73,6 +73,53 @@ const withView = (defaultState) => (WrappedComponent) => {
       }
     };
 
+    hashMessage = async (message) => {
+      const encodedBytes = new TextEncoder().encode(message);
+      const hashBuffer = await crypto.subtle.digest('SHA-256', encodedBytes);
+      const hashArray = Array.from(new Uint8Array(hashBuffer));
+      const hashHex = hashArray
+        .map((bytes) => bytes.toString(16).padStart(2, '0'))
+        .join('');
+      return hashHex;
+    };
+
+    // trim off the timestamp and "TEST-UNEXPECTED-XXX | "
+    lineTrimmer = async (failureLines) => {
+      if (failureLines === undefined) {
+        return ['', ''];
+      }
+      if (typeof failureLines === 'string') {
+        failureLines = failureLines.split('\n');
+      }
+      const lines = failureLines.map((i) => i.split('\n'));
+
+      const trimmedLines = lines.map((line) => {
+        const parts = line.toString().split(' | ');
+        if (parts.length > 2) {
+          parts.shift();
+        }
+        return parts.join(' | ');
+      });
+      const rv = trimmedLines.join('\n');
+      return this.hashMessage(rv).then((hash) => {
+        return [rv, hash];
+      });
+    };
+
+    getUniqueLines = async (tableData) => {
+      const uniqueLogKeys = [];
+      const uniqueLogHashes = [];
+
+      const results = tableData.map((td) => this.lineTrimmer(td.lines));
+      for (const result of await Promise.all(results)) {
+        if (uniqueLogKeys.indexOf(result[1]) === -1) {
+          uniqueLogKeys.push(result[1]);
+          uniqueLogHashes.push(result);
+        }
+      }
+      return uniqueLogHashes;
+    };
+
     getTableData = async (url) => {
       this.setState({ tableFailureStatus: null, isFetchingTable: true });
       const { data, failureStatus } = await getData(url);
@@ -84,10 +131,13 @@ const withView = (defaultState) => (WrappedComponent) => {
         mergedData = mergeData(data, bugzillaData);
       }
 
+      const uniqueLines = await this.getUniqueLines(mergedData || data);
+
       this.setState({
         tableData: mergedData || data,
         tableFailureStatus: failureStatus,
         isFetchingTable: false,
+        uniqueLines,
       });
     };
 
