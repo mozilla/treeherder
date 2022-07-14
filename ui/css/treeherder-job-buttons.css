@@ -156,7 +156,8 @@
   margin: 0 -1px 1px 1px;
 }
 
-.classified-icon {
+.classified-icon,
+.possibly-intermittent-icon {
   font-size: 0.62em;
   vertical-align: super;
 }

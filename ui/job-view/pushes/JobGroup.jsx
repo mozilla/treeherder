@@ -146,6 +146,20 @@ export class JobGroupComponent extends React.Component {
     const { expanded } = this.state;
     const { buttons, counts } = this.groupButtonsAndCounts(groupJobs, expanded);
 
+    const successfulJobTypeNames = new Set();
+    for (const job of groupJobs) {
+      if (job.result === 'success') {
+        successfulJobTypeNames.add(job.job_type_name);
+      }
+    }
+    function isPossiblyIntermittent(job) {
+      if (job.result !== 'testfailed') {
+        return false;
+      }
+
+      return successfulJobTypeNames.has(job.job_type_name);
+    }
+
     return (
       <span className="platform-group" data-group-key={groupMapKey}>
         <span className="disabled job-group" title={groupName}>
@@ -175,6 +189,7 @@ export class JobGroupComponent extends React.Component {
                   failureClassificationId={job.failure_classification_id}
                   repoName={repoName}
                   filterPlatformCb={filterPlatformCb}
+                  possiblyIntermittent={isPossiblyIntermittent(job)}
                   key={job.id}
                   ref={this.jobButtonRefs[job.id]}
                 />

@@ -2,7 +2,10 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faStar as faStarRegular } from '@fortawesome/free-regular-svg-icons';
-import { faStar as faStarSolid } from '@fortawesome/free-solid-svg-icons';
+import {
+  faStar as faStarSolid,
+  faMitten,
+} from '@fortawesome/free-solid-svg-icons';
 
 import { getBtnClass, findJobInstance } from '../../helpers/job';
 import { getUrlParam } from '../../helpers/location';
@@ -80,7 +83,7 @@ export default class JobButtonComponent extends React.Component {
   }
 
   render() {
-    const { job } = this.props;
+    const { job, possiblyIntermittent } = this.props;
     const { isSelected, isRunnableSelected } = this.state;
     const {
       state,
@@ -134,6 +137,13 @@ export default class JobButtonComponent extends React.Component {
             title="classified"
           />
         )}
+        {possiblyIntermittent && (
+          <FontAwesomeIcon
+            icon={faMitten}
+            className="possibly-intermittent-icon"
+            title="possibly intermittent"
+          />
+        )}
       </button>
     );
   }
@@ -147,8 +157,10 @@ JobButtonComponent.propTypes = {
   resultStatus: PropTypes.string.isRequired,
   filterPlatformCb: PropTypes.func.isRequired,
   failureClassificationId: PropTypes.number, // runnable jobs won't have this
+  possiblyIntermittent: PropTypes.bool,
 };
 
 JobButtonComponent.defaultProps = {
   failureClassificationId: 1,
+  possiblyIntermittent: false,
 };
