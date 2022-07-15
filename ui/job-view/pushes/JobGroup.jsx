@@ -152,7 +152,7 @@ export class JobGroupComponent extends React.Component {
         successfulJobTypeNames.add(job.job_type_name);
       }
     }
-    function isPossiblyIntermittent(job) {
+    function isIntermittent(job) {
       if (job.result !== 'testfailed') {
         return false;
       }
@@ -189,7 +189,7 @@ export class JobGroupComponent extends React.Component {
                   failureClassificationId={job.failure_classification_id}
                   repoName={repoName}
                   filterPlatformCb={filterPlatformCb}
-                  possiblyIntermittent={isPossiblyIntermittent(job)}
+                  intermittent={isIntermittent(job)}
                   key={job.id}
                   ref={this.jobButtonRefs[job.id]}
                 />

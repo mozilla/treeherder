@@ -83,7 +83,7 @@ export default class JobButtonComponent extends React.Component {
   }
 
   render() {
-    const { job, possiblyIntermittent } = this.props;
+    const { job, intermittent } = this.props;
     const { isSelected, isRunnableSelected } = this.state;
     const {
       state,
@@ -137,11 +137,11 @@ export default class JobButtonComponent extends React.Component {
             title="classified"
           />
         )}
-        {possiblyIntermittent && (
+        {intermittent && (
           <FontAwesomeIcon
             icon={faMitten}
-            className="possibly-intermittent-icon"
-            title="possibly intermittent"
+            className="intermittent-icon"
+            title="Intermittent failure - There is a successful run of this task for the same push."
           />
         )}
       </button>
@@ -157,10 +157,10 @@ JobButtonComponent.propTypes = {
   resultStatus: PropTypes.string.isRequired,
   filterPlatformCb: PropTypes.func.isRequired,
   failureClassificationId: PropTypes.number, // runnable jobs won't have this
-  possiblyIntermittent: PropTypes.bool,
+  intermittent: PropTypes.bool,
 };
 
 JobButtonComponent.defaultProps = {
   failureClassificationId: 1,
-  possiblyIntermittent: false,
+  intermittent: false,
 };
