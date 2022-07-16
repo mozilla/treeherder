@@ -60,6 +60,27 @@ export class JobGroupComponent extends React.Component {
     this.setState({ expanded: isExpanded });
   }
 
+  getIntermittentJobTypeNames(groupJobs) {
+    const failedJobTypeNames = new Set();
+    for (const job of groupJobs) {
+      if (job.result === 'testfailed') {
+        failedJobTypeNames.add(job.job_type_name);
+      }
+    }
+
+    const intermittentJobTypeNames = new Set();
+    for (const job of groupJobs) {
+      if (
+        job.result === 'success' &&
+        failedJobTypeNames.has(job.job_type_name)
+      ) {
+        intermittentJobTypeNames.add(job.job_type_name);
+      }
+    }
+
+    return intermittentJobTypeNames;
+  }
+
   toggleExpanded = () => {
     this.setState((prevState) => ({ expanded: !prevState.expanded }));
   };
@@ -145,19 +166,15 @@ export class JobGroupComponent extends React.Component {
     } = this.props;
     const { expanded } = this.state;
     const { buttons, counts } = this.groupButtonsAndCounts(groupJobs, expanded);
-
-    const successfulJobTypeNames = new Set();
-    for (const job of groupJobs) {
-      if (job.result === 'success') {
-        successfulJobTypeNames.add(job.job_type_name);
-      }
-    }
+    const intermittentJobTypeNames = this.getIntermittentJobTypeNames(
+      groupJobs,
+    );
     function isIntermittent(job) {
       if (job.result !== 'testfailed') {
         return false;
       }
 
-      return successfulJobTypeNames.has(job.job_type_name);
+      return intermittentJobTypeNames.has(job.job_type_name);
     }
 
     return (
