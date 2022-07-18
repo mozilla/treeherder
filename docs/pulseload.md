@@ -62,4 +62,3 @@ ex: <https://community-tc.services.mozilla.com/pulse-messages/>
 
 [pulse guardian]: https://pulseguardian.mozilla.org/whats_pulse
 [yml schema]: https://github.com/mozilla/treeherder/blob/master/schemas/pulse-job.yml
-[settings]: https://github.com/mozilla/treeherder/blob/master/treeherder/config/settings.py#L318

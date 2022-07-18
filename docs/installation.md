@@ -222,9 +222,7 @@ Continue to **Working with the Server** section after looking at the [Code Style
 [a-team bootcamp]: https://ateam-bootcamp.readthedocs.io
 [git]: https://git-scm.com
 [treeherder repo]: https://github.com/mozilla/treeherder
-[jest]: https://jestjs.io/docs/en/tutorial-react
 [node.js]: https://nodejs.org/en/download/current/
 [yarn]: https://yarnpkg.com/en/docs/install
 [package.json]: https://github.com/mozilla/treeherder/blob/master/package.json
-[eslint]: https://eslint.org
 [settings]: https://github.com/mozilla/treeherder/blob/master/treeherder/config/settings.py#L318
