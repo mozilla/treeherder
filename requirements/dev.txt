@@ -217,7 +217,6 @@ packaging==20.9 \
     --hash=sha256:67714da7f7bc052e064859c05c595155bd1ee9f69f76557e21f051443c20947a
     # via
     #   pytest
-    #   pytest-freezegun
 pathspec==0.9.0 \
     --hash=sha256:7d15c4ddb0b5c802d161efc417ec1a2558ea2653c2e8ad9c19098201dc1c993a \
     --hash=sha256:e564499435a2673d586f6b2130bb5b95f04a3ba06f81b8f895b651a3c76aabb1
@@ -286,8 +285,8 @@ pytest-django==4.5.2 \
     --hash=sha256:c60834861933773109334fe5a53e83d1ef4828f2203a1d6a0fa9972f4f75ab3e \
     --hash=sha256:d9076f759bb7c36939dbdd5ae6633c18edfc2902d1a69fdbefd2426b970ce6c2
     # via -r requirements/dev.in
-pytest-freezegun @ https://github.com/hugovk/pytest-freezegun/archive/993f8399e615de90f7774058095dbaf3d2b249f1.zip \
-    --hash=sha256:c34ccb1e19aa269e95895b5efcc7c7e64676958aff4bed113f361c12d9d231cd
+pytest-freezegun @ https://github.com/hugovk/pytest-freezegun/archive/03d7107a877e8f07617f931a379f567d89060085.zip \
+    --hash=sha256:60cf7c6592c612d3fbcb12c77c96b97f011bd313a238f07c31505b9d50f855a0
     # via -r requirements/dev.in
 pytest-testmon==1.1.0 \
     --hash=sha256:f88a53d28f89836509732e9dee611d66c61f5b8217201bb822a0456f2c323d19
