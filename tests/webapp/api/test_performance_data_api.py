@@ -714,9 +714,8 @@ def test_perfcompare_results_multiple_runs(
             'A value of \'low\' suggests less confidence that there is a sustained,'
             ' significant change between the two revisions.',
             'is_improvement': True,
-            'is_regression': False,
-            't_value_confidence': perf_compare_utils.T_VALUE_CONFIDENCE,  # add this into constants module
-            't_value_care_min': perf_compare_utils.T_VALUE_CARE_MIN,  # add this into constants module
+            't_value_confidence': perf_compare_utils.T_VALUE_CONFIDENCE,
+            't_value_care_min': perf_compare_utils.T_VALUE_CARE_MIN,
         },
         {
             'framework_id': sig3.framework.id,
@@ -748,7 +747,6 @@ def test_perfcompare_results_multiple_runs(
             'A value of \'low\' suggests less confidence that there is a sustained,'
             ' significant change between the two revisions.',
             'is_improvement': False,
-            'is_regression': True,
             't_value_confidence': perf_compare_utils.T_VALUE_CONFIDENCE,
             't_value_care_min': perf_compare_utils.T_VALUE_CARE_MIN,
         },
@@ -888,7 +886,6 @@ def test_perfcompare_results_with_only_one_run(
             'A value of \'low\' suggests less confidence that there is a sustained,'
             ' significant change between the two revisions.',
             'is_improvement': True,
-            'is_regression': False,
             't_value_confidence': perf_compare_utils.T_VALUE_CONFIDENCE,
             't_value_care_min': perf_compare_utils.T_VALUE_CARE_MIN,
         },

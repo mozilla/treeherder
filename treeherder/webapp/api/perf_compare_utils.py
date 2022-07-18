@@ -6,6 +6,8 @@ from treeherder.perf.models import (
 )
 
 """ Constants """
+
+
 NOISE_METRIC_HEADER = 'noise metric'
 STDDEV_DEFAULT_FACTOR = 0.15
 T_VALUE_CARE_MIN = 3  # Anything below this is "low" in confidence

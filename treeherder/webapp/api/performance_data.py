@@ -855,7 +855,6 @@ class PerfCompareResults(generics.ListAPIView):
                     'confidence_text': confidence_text,
                     'confidence_text_long': confidence_text_long,
                     'is_improvement': is_improvement,
-                    'is_regression': not is_improvement,
                     't_value_confidence': perf_compare_utils.T_VALUE_CONFIDENCE,
                     't_value_care_min': perf_compare_utils.T_VALUE_CARE_MIN,
                 }
