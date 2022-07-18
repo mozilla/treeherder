@@ -53,7 +53,6 @@ def test_ingest_hg_pushlog_already_stored(test_repository, test_base_dir, activa
         body=first_push_json,
         status=200,
         content_type='application/json',
-        match_querystring=True,
     )
 
     process = HgPushlogProcess()
@@ -72,7 +71,6 @@ def test_ingest_hg_pushlog_already_stored(test_repository, test_base_dir, activa
         body=first_and_second_push_json,
         status=200,
         content_type='application/json',
-        match_querystring=True,
     )
 
     process = HgPushlogProcess()
@@ -126,7 +124,6 @@ def test_empty_json_pushes(test_repository, test_base_dir, activate_responses):
         body=empty_push_json,
         status=200,
         content_type='application/json',
-        match_querystring=True,
     )
 
     process = HgPushlogProcess()
