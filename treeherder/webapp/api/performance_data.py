@@ -1,8 +1,5 @@
 import time
 import datetime
-import functools
-from math import sqrt
-from statistics import mean, stdev
 from collections import defaultdict
 
 import django_filters
@@ -30,6 +27,7 @@ from treeherder.perf.models import (
 )
 from treeherder.webapp.api.permissions import IsStaffOrReadOnly
 from treeherder.webapp.api.performance_serializers import OptionalBooleanField
+from treeherder.webapp.api import perf_compare_utils
 
 from .exceptions import InsufficientAlertCreationData
 from .performance_serializers import (
@@ -751,7 +749,6 @@ class PerformanceSummary(generics.ListAPIView):
 class PerfCompareResults(generics.ListAPIView):
     serializer_class = PerfCompareResultsSerializer
     queryset = None
-    noise_metric_header = 'noise metric'
 
     def list(self, request):
         query_params = PerfCompareResultsQueryParamsSerializer(data=request.query_params)
@@ -778,7 +775,7 @@ class PerfCompareResults(generics.ListAPIView):
             new_repository_name, new_revision, new_signatures, interval
         )
 
-        option_collection_map = self._get_option_collection_map()
+        option_collection_map = perf_compare_utils.get_option_collection_map()
 
         base_grouped_job_ids, base_grouped_values = self._get_grouped_perf_data(base_perf_data)
         new_grouped_job_ids, new_grouped_values = self._get_grouped_perf_data(new_perf_data)
@@ -796,7 +793,8 @@ class PerfCompareResults(generics.ListAPIView):
 
         for header in header_names:
             for platform in platforms:
-                sig_identifier = self._get_sig_identifier(header, platform)
+                sig_identifier = perf_compare_utils.get_sig_identifier(header, platform)
+                lower_is_better = base_signatures_map.get('lower_is_better', '')
                 base_sig = base_signatures_map.get(sig_identifier, {})
                 base_sig_id = base_sig.get('id', '')
                 new_sig = new_signatures_map.get(sig_identifier, {})
@@ -812,13 +810,21 @@ class PerfCompareResults(generics.ListAPIView):
                 )
                 if no_results_to_show:
                     continue
-                base_avg_value, base_stddev = self._get_avg_and_stddev(
-                    base_perf_data_values, header
+                base_avg_value = perf_compare_utils.get_avg(base_perf_data_values, header)
+                base_stddev = perf_compare_utils.get_stddev(base_perf_data_values, header)
+                new_avg_value = perf_compare_utils.get_avg(new_perf_data_values, header)
+                new_stddev = perf_compare_utils.get_stddev(new_perf_data_values, header)
+                base_stddev_pct = perf_compare_utils.get_stddev_pct(base_avg_value, base_stddev)
+                new_stddev_pct = perf_compare_utils.get_stddev_pct(new_avg_value, new_stddev)
+                is_improvement = perf_compare_utils.is_improvement(
+                    lower_is_better, base_avg_value, new_avg_value
                 )
-                new_avg_value, new_stddev = self._get_avg_and_stddev(new_perf_data_values, header)
-                base_stddev_pct = self._get_stddev_pct(base_avg_value, base_stddev)
-                new_stddev_pct = self._get_stddev_pct(new_avg_value, new_stddev)
-
+                confidence = perf_compare_utils.get_ttest_value(
+                    base_perf_data_values, new_perf_data_values
+                )
+                confidence_text, confidence_text_long = perf_compare_utils.get_confidence_text(
+                    confidence
+                )
                 row_result = {
                     'header_name': header,
                     'platform': platform,
@@ -845,6 +851,12 @@ class PerfCompareResults(generics.ListAPIView):
                     'new_stddev_pct': new_stddev_pct,
                     'base_retriggerable_job_ids': base_grouped_job_ids.get(base_sig_id, []),
                     'new_retriggerable_job_ids': new_grouped_job_ids.get(new_sig_id, []),
+                    'confidence': confidence,
+                    'confidence_text': confidence_text,
+                    'confidence_text_long': confidence_text_long,
+                    'is_improvement': is_improvement,
+                    't_value_confidence': perf_compare_utils.T_VALUE_CONFIDENCE,
+                    't_value_care_min': perf_compare_utils.T_VALUE_CARE_MIN,
                 }
 
                 self.queryset.append(row_result)
@@ -853,19 +865,6 @@ class PerfCompareResults(generics.ListAPIView):
         serialized_data = serializer.data
 
         return Response(data=serialized_data)
-
-    def _get_sig_identifier(self, header, platform):
-        return '{} {}'.format(header, platform)
-
-    def _get_stddev_pct(self, avg, stddev):
-        """
-        @param avg: average of the runs values
-        @param stddev: standard deviation of the runs values
-        @return: standard deviation as percentage of the average
-        """
-        if stddev:
-            return round(self._get_percentage(stddev, avg) * 100) / 100
-        return 0
 
     def _get_perf_data(self, repository_name, revision, signatures, interval):
         perf_data = self._get_perf_data_by_repo_and_signatures(repository_name, signatures)
@@ -915,6 +914,7 @@ class PerfCompareResults(generics.ListAPIView):
             'option_collection_id',
             'repository_id',
             'measurement_unit',
+            'lower_is_better',
         )
 
     @staticmethod
@@ -922,55 +922,6 @@ class PerfCompareResults(generics.ListAPIView):
         return PerformanceSignature.objects.select_related(
             'framework', 'repository', 'platform', 'push', 'job'
         ).filter(repository__name=repository_name)
-
-    @staticmethod
-    def _get_option_collection_map():
-        option_collection = OptionCollection.objects.select_related('option').values(
-            'id', 'option__name'
-        )
-        option_collection_map = {
-            item['id']: item['option__name'] for item in list(option_collection)
-        }
-        return option_collection_map
-
-    def _get_avg_and_stddev(self, values, header):
-        """
-        @param values: list of the runs values
-        @param header: name of the header
-        @return: Average and standard deviation values based on the metric header name
-        """
-        if header == self.noise_metric_header:
-            avg = self._get_noise_metric_avg(values)
-            stddev = 1
-        else:
-            avg = self._get_avg(values)
-            stddev = self._get_stddev(values)
-        return avg, stddev
-
-    @staticmethod
-    def _get_stddev(values):
-        """
-        @return: standard deviation value or None in case there's only one run
-        """
-        return stdev(values) if len(values) >= 2 else 0
-
-    @staticmethod
-    def _get_avg(values):
-        """
-        @return: mean of the runs values if there are any
-        """
-        return mean(values) if len(values) else 0
-
-    @staticmethod
-    def _get_noise_metric_avg(values):
-        return sqrt(functools.reduce(lambda a, b: a + b, map(lambda x: x**2, values)))
-
-    @staticmethod
-    def _get_percentage(part, whole):
-        percentage = 0
-        if whole:
-            percentage = (100 * part) / whole
-        return percentage
 
     @staticmethod
     def _get_grouped_perf_data(perf_data):
@@ -998,8 +949,8 @@ class PerfCompareResults(generics.ListAPIView):
             option_name = option_collection_map[signature['option_collection_id']]
             test_suite = suite if test == '' or test == suite else '{} {}'.format(suite, test)
             platform = signature['platform__platform']
-            header = self._get_header_name(extra_options, option_name, test_suite)
-            sig_identifier = self._get_sig_identifier(header, platform)
+            header = perf_compare_utils.get_header_name(extra_options, option_name, test_suite)
+            sig_identifier = perf_compare_utils.get_sig_identifier(header, platform)
 
             if sig_identifier not in signatures_map or (
                 sig_identifier in signatures_map
@@ -1010,11 +961,6 @@ class PerfCompareResults(generics.ListAPIView):
             platforms.append(platform)
 
         return signatures_map, header_names, platforms
-
-    @staticmethod
-    def _get_header_name(extra_options, option_name, test_suite):
-        name = '{} {} {}'.format(test_suite, option_name, extra_options)
-        return name
 
 
 class TestSuiteHealthViewSet(viewsets.ViewSet):
