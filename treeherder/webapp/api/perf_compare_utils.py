@@ -148,3 +148,22 @@ def is_improvement(lower_is_better, base_avg_value, new_avg_value):
     delta = new_avg_value - base_avg_value
     new_is_better = (lower_is_better and delta < 0) or (not lower_is_better and delta > 0)
     return True if new_is_better else False
+
+
+""" Delta value, delta percentage and magnitude """
+
+
+def get_delta_value(new_avg_value, base_avg_value):
+    return new_avg_value - base_avg_value
+
+
+def get_delta_percentage(delta_value, base_avg_value):
+    return get_percentage(delta_value, base_avg_value)
+
+
+def new_is_better(delta_value, lower_is_better):
+    return (lower_is_better and delta_value < 0) or (not lower_is_better and delta_value > 0)
+
+
+def get_magnitude(delta_percentage):
+    return min(abs(delta_percentage) * 5, 100)

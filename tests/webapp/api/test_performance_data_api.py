@@ -683,6 +683,40 @@ def test_perfcompare_results_multiple_runs(
 
     option_collection_map = perf_compare_utils.get_option_collection_map()
 
+    first_row = dict()
+    first_row['base_avg_value'] = statistics.mean(sig1_values)
+    first_row['new_avg_value'] = statistics.mean(sig2_values)
+    first_row['is_improvement'] = perf_compare_utils.is_improvement(
+        sig3.lower_is_better, first_row['base_avg_value'], first_row['new_avg_value']
+    )
+    first_row['delta_value'] = perf_compare_utils.get_delta_value(
+        first_row['new_avg_value'], first_row.get('base_avg_value')
+    )
+    first_row['delta_pct'] = perf_compare_utils.get_delta_percentage(
+        first_row['delta_value'], first_row['base_avg_value']
+    )
+    first_row['magnitude'] = perf_compare_utils.get_magnitude(first_row['delta_pct'])
+    first_row['new_is_better'] = perf_compare_utils.new_is_better(
+        first_row['delta_value'], sig1.lower_is_better
+    )
+
+    second_row = dict()
+    second_row['base_avg_value'] = statistics.mean(sig3_values)
+    second_row['new_avg_value'] = statistics.mean(sig4_values)
+    second_row['is_improvement'] = perf_compare_utils.is_improvement(
+        sig3.lower_is_better, second_row['base_avg_value'], second_row['new_avg_value']
+    )
+    second_row['delta_value'] = perf_compare_utils.get_delta_value(
+        second_row['new_avg_value'], second_row['base_avg_value']
+    )
+    second_row['delta_pct'] = perf_compare_utils.get_delta_percentage(
+        second_row['delta_value'], second_row['base_avg_value']
+    )
+    second_row['magnitude'] = perf_compare_utils.get_magnitude(second_row['delta_pct'])
+    second_row['new_is_better'] = perf_compare_utils.new_is_better(
+        second_row['delta_value'], sig3.lower_is_better
+    )
+
     expected = [
         {
             'framework_id': sig1.framework.id,
@@ -699,8 +733,8 @@ def test_perfcompare_results_multiple_runs(
             'new_retriggerable_job_ids': [7, 8],
             'base_runs': sig1_values,
             'new_runs': sig2_values,
-            'base_avg_value': round(statistics.mean(sig1_values), 2),
-            'new_avg_value': round(statistics.mean(sig2_values), 2),
+            'base_avg_value': round(first_row['base_avg_value'], 2),
+            'new_avg_value': round(first_row['new_avg_value'], 2),
             'test': sig1.test,
             'option_name': option_collection_map.get(sig1.option_collection_id, ''),
             'extra_options': sig1.extra_options,
@@ -713,9 +747,13 @@ def test_perfcompare_results_multiple_runs(
             'confidence_text_long': 'Result of running t-test on base versus new result distribution: '
             'A value of \'low\' suggests less confidence that there is a sustained,'
             ' significant change between the two revisions.',
-            'is_improvement': True,
+            'is_improvement': first_row['is_improvement'],
             't_value_confidence': perf_compare_utils.T_VALUE_CONFIDENCE,
             't_value_care_min': perf_compare_utils.T_VALUE_CARE_MIN,
+            'delta_value': round(first_row['delta_value'], 2),
+            'delta_percentage': round(first_row['delta_pct'], 2),
+            'magnitude': round(first_row['magnitude'], 2),
+            'new_is_better': first_row['new_is_better'],
         },
         {
             'framework_id': sig3.framework.id,
@@ -746,9 +784,13 @@ def test_perfcompare_results_multiple_runs(
             'confidence_text_long': 'Result of running t-test on base versus new result distribution: '
             'A value of \'low\' suggests less confidence that there is a sustained,'
             ' significant change between the two revisions.',
-            'is_improvement': False,
+            'is_improvement': second_row['is_improvement'],
             't_value_confidence': perf_compare_utils.T_VALUE_CONFIDENCE,
             't_value_care_min': perf_compare_utils.T_VALUE_CARE_MIN,
+            'delta_value': round(second_row['delta_value'], 2),
+            'delta_percentage': round(second_row['delta_pct'], 2),
+            'magnitude': round(second_row['magnitude'], 2),
+            'new_is_better': second_row['new_is_better'],
         },
     ]
 
@@ -855,6 +897,23 @@ def test_perfcompare_results_with_only_one_run(
 
     option_collection_map = perf_compare_utils.get_option_collection_map()
 
+    response = dict()
+    response['base_avg_value'] = statistics.mean(sig1_values)
+    response['new_avg_value'] = statistics.mean(sig2_values)
+    response['is_improvement'] = perf_compare_utils.is_improvement(
+        sig1.lower_is_better, response['base_avg_value'], response['new_avg_value']
+    )
+    response['delta_value'] = perf_compare_utils.get_delta_value(
+        response['new_avg_value'], response.get('base_avg_value')
+    )
+    response['delta_pct'] = perf_compare_utils.get_delta_percentage(
+        response['delta_value'], response['base_avg_value']
+    )
+    response['magnitude'] = perf_compare_utils.get_magnitude(response['delta_pct'])
+    response['new_is_better'] = perf_compare_utils.new_is_better(
+        response['delta_value'], sig1.lower_is_better
+    )
+
     expected = [
         {
             'framework_id': sig1.framework.id,
@@ -885,9 +944,13 @@ def test_perfcompare_results_with_only_one_run(
             'confidence_text_long': 'Result of running t-test on base versus new result distribution: '
             'A value of \'low\' suggests less confidence that there is a sustained,'
             ' significant change between the two revisions.',
-            'is_improvement': True,
+            'is_improvement': response['is_improvement'],
             't_value_confidence': perf_compare_utils.T_VALUE_CONFIDENCE,
             't_value_care_min': perf_compare_utils.T_VALUE_CARE_MIN,
+            'delta_value': round(response['delta_value'], 2),
+            'delta_percentage': round(response['delta_pct'], 2),
+            'magnitude': round(response['magnitude'], 2),
+            'new_is_better': response['new_is_better'],
         },
     ]
 
