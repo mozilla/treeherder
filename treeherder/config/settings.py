@@ -178,7 +178,9 @@ CACHES = {
 # Internationalization
 TIME_ZONE = "UTC"
 USE_I18N = False
-USE_L10N = True
+
+# Timezones are not supported in Treeherder yet
+USE_TZ = False
 
 # Static files (CSS, JavaScript, Images)
 STATIC_ROOT = join(SRC_DIR, ".django-static")
@@ -258,6 +260,10 @@ LOGGING = {
 USE_X_FORWARDED_HOST = True
 USE_X_FORWARDED_PORT = True
 SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
+
+CSRF_TRUSTED_ORIGINS = env.list(
+    'CSRF_TRUSTED_ORIGINS', default=['http://localhost:8000', 'http://localhost:5000']
+)
 
 if SITE_URL.startswith('https://'):
     SECURE_SSL_REDIRECT = True
