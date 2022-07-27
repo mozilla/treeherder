@@ -454,6 +454,10 @@ class PerfCompareResultsSerializer(serializers.ModelSerializer):
     is_improvement = serializers.BooleanField(required=False)
     t_value_confidence = serializers.IntegerField(required=False, allow_null=True, default=None)
     t_value_care_min = serializers.IntegerField(required=False, allow_null=True, default=None)
+    delta_value = PerfCompareDecimalField()
+    delta_percentage = PerfCompareDecimalField()
+    magnitude = PerfCompareDecimalField()
+    new_is_better = OptionalBooleanField()
 
     class Meta:
         model = PerformanceSignature
@@ -487,6 +491,10 @@ class PerfCompareResultsSerializer(serializers.ModelSerializer):
             'is_improvement',
             't_value_confidence',
             't_value_care_min',
+            'delta_value',
+            'delta_percentage',
+            'magnitude',
+            'new_is_better',
         ]
 
 

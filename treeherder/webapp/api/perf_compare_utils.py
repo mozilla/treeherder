@@ -9,6 +9,10 @@ from treeherder.perf.models import (
 
 
 NOISE_METRIC_HEADER = 'noise metric'
+"""
+Default stddev is used for get_ttest_value if both sets have only a single value - 15%.
+Should be rare case and it's unreliable, but at least we have something.
+"""
 STDDEV_DEFAULT_FACTOR = 0.15
 T_VALUE_CARE_MIN = 3  # Anything below this is "low" in confidence
 T_VALUE_CONFIDENCE = 5  # Anything above this is "high" in confidence
@@ -87,6 +91,12 @@ def get_percentage(part, whole):
 
 
 def get_ttest_value(control_values, test_values):
+    """
+    If a set has only one value, assume average-ish-plus standard deviation, which
+    will manifest as smaller t-value the less items there are at the group
+    (so quite small for 1 value). This default value is a parameter.
+    C/T mean control/test group (in our case base/new data).
+    """
     length_control = len(control_values)
     length_test = len(test_values)
     if not length_control or not length_test:
@@ -106,7 +116,7 @@ def get_ttest_value(control_values, test_values):
         return None
     delta = test_group_avg - control_group_avg
     std_diff_err = sqrt(
-        (stddev_control * stddev_control) / length_control
+        (stddev_control * stddev_control) / length_control  # control-variance / control-size
         + (stddev_test * stddev_test) / length_test
     )
     res = abs(delta / std_diff_err)
@@ -114,6 +124,7 @@ def get_ttest_value(control_values, test_values):
 
 
 def confidence_detailed_info(confidence):
+    """Returns more explanations on what confidence text means"""
     text = 'Result of running t-test on base versus new result distribution: '
     switcher = {
         'low': text + 'A value of \'low\' suggests less confidence that there is a sustained,'
@@ -145,6 +156,28 @@ def get_confidence_text(abs_tvalue):
 
 
 def is_improvement(lower_is_better, base_avg_value, new_avg_value):
-    delta = new_avg_value - base_avg_value
-    new_is_better = (lower_is_better and delta < 0) or (not lower_is_better and delta > 0)
+    """Returns if the new result is better and we're confident about it"""
+    delta = get_delta_value(new_avg_value, base_avg_value)
+    new_is_better = is_new_better(delta, lower_is_better)
     return True if new_is_better else False
+
+
+""" Delta value, delta percentage and magnitude """
+
+
+def get_delta_value(new_avg_value, base_avg_value):
+    return new_avg_value - base_avg_value
+
+
+def get_delta_percentage(delta_value, base_avg_value):
+    return get_percentage(delta_value, base_avg_value)
+
+
+def is_new_better(delta_value, lower_is_better):
+    """This method returns if the new result is better or worse (even if unsure)"""
+    return (lower_is_better and delta_value < 0) or (not lower_is_better and delta_value > 0)
+
+
+def get_magnitude(delta_percentage):
+    """Arbitrary scale from 0-20% multiplied by 5, capped at 100 (so 20% regression === 100% bad)"""
+    return min(abs(delta_percentage) * 5, 100)

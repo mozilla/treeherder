@@ -794,11 +794,11 @@ class PerfCompareResults(generics.ListAPIView):
         for header in header_names:
             for platform in platforms:
                 sig_identifier = perf_compare_utils.get_sig_identifier(header, platform)
-                lower_is_better = base_signatures_map.get('lower_is_better', '')
                 base_sig = base_signatures_map.get(sig_identifier, {})
                 base_sig_id = base_sig.get('id', '')
                 new_sig = new_signatures_map.get(sig_identifier, {})
                 new_sig_id = new_sig.get('id', '')
+                lower_is_better = base_sig.get('lower_is_better', '')
                 is_empty = not (base_sig and new_sig)
                 if is_empty:
                     continue
@@ -825,6 +825,12 @@ class PerfCompareResults(generics.ListAPIView):
                 confidence_text, confidence_text_long = perf_compare_utils.get_confidence_text(
                     confidence
                 )
+                delta_value = perf_compare_utils.get_delta_value(new_avg_value, base_avg_value)
+                delta_percentage = perf_compare_utils.get_delta_percentage(
+                    delta_value, base_avg_value
+                )
+                magnitude = perf_compare_utils.get_magnitude(delta_percentage)
+                new_is_better = perf_compare_utils.is_new_better(delta_value, lower_is_better)
                 row_result = {
                     'header_name': header,
                     'platform': platform,
@@ -857,6 +863,10 @@ class PerfCompareResults(generics.ListAPIView):
                     'is_improvement': is_improvement,
                     't_value_confidence': perf_compare_utils.T_VALUE_CONFIDENCE,
                     't_value_care_min': perf_compare_utils.T_VALUE_CARE_MIN,
+                    'delta_value': delta_value,
+                    'delta_percentage': delta_percentage,
+                    'magnitude': magnitude,
+                    'new_is_better': new_is_better,
                 }
 
                 self.queryset.append(row_result)
@@ -903,7 +913,7 @@ class PerfCompareResults(generics.ListAPIView):
         )
 
     @staticmethod
-    def _get_signatures_values(signatures):
+    def _get_signatures_values(signatures: List[PerformanceSignature]):
         return signatures.values(
             'framework_id',
             'id',
