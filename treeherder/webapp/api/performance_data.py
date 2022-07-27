@@ -830,7 +830,7 @@ class PerfCompareResults(generics.ListAPIView):
                     delta_value, base_avg_value
                 )
                 magnitude = perf_compare_utils.get_magnitude(delta_percentage)
-                new_is_better = perf_compare_utils.new_is_better(delta_value, lower_is_better)
+                new_is_better = perf_compare_utils.is_new_better(delta_value, lower_is_better)
                 row_result = {
                     'header_name': header,
                     'platform': platform,

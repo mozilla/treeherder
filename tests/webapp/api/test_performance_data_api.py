@@ -683,7 +683,7 @@ def test_perfcompare_results_multiple_runs(
 
     option_collection_map = perf_compare_utils.get_option_collection_map()
 
-    first_row = dict()
+    first_row = {}
     first_row['base_avg_value'] = statistics.mean(sig1_values)
     first_row['new_avg_value'] = statistics.mean(sig2_values)
     first_row['is_improvement'] = perf_compare_utils.is_improvement(
@@ -696,11 +696,11 @@ def test_perfcompare_results_multiple_runs(
         first_row['delta_value'], first_row['base_avg_value']
     )
     first_row['magnitude'] = perf_compare_utils.get_magnitude(first_row['delta_pct'])
-    first_row['new_is_better'] = perf_compare_utils.new_is_better(
+    first_row['new_is_better'] = perf_compare_utils.is_new_better(
         first_row['delta_value'], sig1.lower_is_better
     )
 
-    second_row = dict()
+    second_row = {}
     second_row['base_avg_value'] = statistics.mean(sig3_values)
     second_row['new_avg_value'] = statistics.mean(sig4_values)
     second_row['is_improvement'] = perf_compare_utils.is_improvement(
@@ -713,7 +713,7 @@ def test_perfcompare_results_multiple_runs(
         second_row['delta_value'], second_row['base_avg_value']
     )
     second_row['magnitude'] = perf_compare_utils.get_magnitude(second_row['delta_pct'])
-    second_row['new_is_better'] = perf_compare_utils.new_is_better(
+    second_row['new_is_better'] = perf_compare_utils.is_new_better(
         second_row['delta_value'], sig3.lower_is_better
     )
 
@@ -897,7 +897,7 @@ def test_perfcompare_results_with_only_one_run(
 
     option_collection_map = perf_compare_utils.get_option_collection_map()
 
-    response = dict()
+    response = {}
     response['base_avg_value'] = statistics.mean(sig1_values)
     response['new_avg_value'] = statistics.mean(sig2_values)
     response['is_improvement'] = perf_compare_utils.is_improvement(
@@ -910,7 +910,7 @@ def test_perfcompare_results_with_only_one_run(
         response['delta_value'], response['base_avg_value']
     )
     response['magnitude'] = perf_compare_utils.get_magnitude(response['delta_pct'])
-    response['new_is_better'] = perf_compare_utils.new_is_better(
+    response['new_is_better'] = perf_compare_utils.is_new_better(
         response['delta_value'], sig1.lower_is_better
     )
 
