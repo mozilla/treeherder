@@ -33,7 +33,6 @@ def test_create_bug(client, eleven_jobs_stored, activate_responses, test_user):
         responses.POST,
         "https://thisisnotbugzilla.org/rest/bug",
         callback=request_callback,
-        match_querystring=False,
         content_type="application/json",
     )
 
@@ -87,7 +86,6 @@ def test_create_bug_with_unicode(client, eleven_jobs_stored, activate_responses,
         responses.POST,
         "https://thisisnotbugzilla.org/rest/bug",
         callback=request_callback,
-        match_querystring=False,
         content_type="application/json",
     )
 
@@ -140,7 +138,6 @@ def test_create_crash_bug(client, eleven_jobs_stored, activate_responses, test_u
         responses.POST,
         "https://thisisnotbugzilla.org/rest/bug",
         callback=request_callback,
-        match_querystring=False,
         content_type="application/json",
     )
 
@@ -192,7 +189,6 @@ def test_create_unauthenticated_bug(client, eleven_jobs_stored, activate_respons
         responses.POST,
         "https://thisisnotbugzilla.org/rest/bug",
         callback=request_callback,
-        match_querystring=False,
         content_type="application/json",
     )
 
@@ -245,7 +241,6 @@ def test_create_bug_with_long_crash_signature(
         responses.POST,
         "https://thisisnotbugzilla.org/rest/bug",
         callback=request_callback,
-        match_querystring=False,
         content_type="application/json",
     )
 

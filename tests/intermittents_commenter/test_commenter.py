@@ -30,9 +30,7 @@ def test_intermittents_commenter(bug_data):
         "faults": [],
     }
 
-    responses.add(
-        responses.Response(method='GET', url=url, json=content, match_querystring=True, status=200)
-    )
+    responses.add(responses.Response(method='GET', url=url, json=content, status=200))
 
     resp = process.fetch_bug_details(bug_data['bug_id'])
     assert resp == content['bugs']
