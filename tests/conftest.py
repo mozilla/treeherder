@@ -14,29 +14,15 @@ from django.conf import settings
 from django.core.management import call_command
 from rest_framework.test import APIClient
 
+from tests.autoclassify.utils import test_line, create_failure_lines, create_text_log_errors
+import treeherder.etl.bugzilla
 from treeherder.etl.jobs import store_job_data
 from treeherder.etl.push import store_push_data
-from treeherder.model.models import (
-    Commit,
-    JobNote,
-    Option,
-    OptionCollection,
-    Push,
-    TextLogErrorMetadata,
-    User,
-    MachinePlatform,
-)
-from treeherder.perf.models import (
-    IssueTracker,
-    PerformanceAlert,
-    PerformanceAlertSummary,
-    PerformanceDatum,
-    PerformanceFramework,
-    PerformanceSignature,
-    PerformanceTag,
-)
+from treeherder.model import models as th_models
+from treeherder.perf import models as perf_models
 from treeherder.services import taskcluster
 from treeherder.services.pulse.exchange import get_exchange
+from treeherder.webapp.api import perfcompare_utils
 
 IS_WINDOWS = "windows" in platform.system().lower()
 SAMPLE_DATA_PATH = join(dirname(__file__), 'sample_data')
@@ -123,7 +109,7 @@ def fixture_create_push():
         time=None,
         explicit_id=None,
     ):
-        return Push.objects.create(
+        return th_models.Push.objects.create(
             id=explicit_id,
             repository=repository,
             revision=revision,
@@ -139,7 +125,7 @@ def fixture_create_commit():
     """Return a function to create a commit"""
 
     def create(push, comments='Bug 12345 - This is a message'):
-        return Commit.objects.create(
+        return th_models.Commit.objects.create(
             push=push, revision=push.revision, author=push.author, comments=comments
         )
 
@@ -160,7 +146,7 @@ def fixture_create_signature():
         test_perf_signature,
         repository,
     ):
-        return PerformanceSignature.objects.create(
+        return perf_models.PerformanceSignature.objects.create(
             repository=repository,
             signature_hash=signature_hash,
             framework=test_perf_signature.framework,
@@ -184,7 +170,7 @@ def fixture_create_perf_datum():
     def create(index, job, push, sig, sig_values):
         job.push = push
         job.save()
-        perf_datum = PerformanceDatum.objects.create(
+        perf_datum = perf_models.PerformanceDatum.objects.create(
             value=sig_values[index],
             push_timestamp=job.push.time,
             job=job,
@@ -201,11 +187,9 @@ def fixture_create_perf_datum():
 
 @pytest.fixture
 def test_repository(django_db_reset_sequences):
-    from treeherder.model.models import Repository, RepositoryGroup
+    th_models.RepositoryGroup.objects.get_or_create(name="development", description="")
 
-    RepositoryGroup.objects.get_or_create(name="development", description="")
-
-    r = Repository.objects.create(
+    r = th_models.Repository.objects.create(
         dvcs_type="hg",
         name=settings.TREEHERDER_TEST_REPOSITORY_NAME,
         url="https://hg.mozilla.org/mozilla-central",
@@ -221,11 +205,11 @@ def test_repository(django_db_reset_sequences):
 
 @pytest.fixture
 def try_repository(transactional_db):
-    from treeherder.model.models import Repository, RepositoryGroup
+    repo_group, _ = th_models.RepositoryGroup.objects.get_or_create(
+        name="development", description=""
+    )
 
-    repo_group, _ = RepositoryGroup.objects.get_or_create(name="development", description="")
-
-    r = Repository.objects.create(
+    r = th_models.Repository.objects.create(
         id=4,
         dvcs_type="hg",
         name="try",
@@ -242,11 +226,11 @@ def try_repository(transactional_db):
 
 @pytest.fixture
 def relevant_repository(transactional_db):
-    from treeherder.model.models import Repository, RepositoryGroup
+    repo_group, _ = th_models.RepositoryGroup.objects.get_or_create(
+        name="development", description=""
+    )
 
-    repo_group, _ = RepositoryGroup.objects.get_or_create(name="development", description="")
-
-    r = Repository.objects.create(
+    r = th_models.Repository.objects.create(
         dvcs_type="hg",
         name="relevant_repository",
         url="https://hg.mozilla.org/try",
@@ -261,16 +245,14 @@ def relevant_repository(transactional_db):
 
 @pytest.fixture
 def test_issue_tracker(transactional_db):
-    return IssueTracker.objects.create(
+    return perf_models.IssueTracker.objects.create(
         name="Bugzilla", task_base_url="https://bugzilla.mozilla.org/show_bug.cgi?id="
     )
 
 
 @pytest.fixture
 def test_repository_2(test_repository):
-    from treeherder.model.models import Repository
-
-    return Repository.objects.create(
+    return th_models.Repository.objects.create(
         repository_group=test_repository.repository_group,
         name=test_repository.name + '_2',
         dvcs_type=test_repository.dvcs_type,
@@ -285,6 +267,35 @@ def test_push(create_push, test_repository):
 
 
 @pytest.fixture
+def test_perfcomp_push(create_push, test_repository):
+    return create_push(test_repository, '1377267c6dc1')
+
+
+@pytest.fixture
+def test_perfcomp_push_2(create_push, test_repository):
+    return create_push(test_repository, '08038e535f58')
+
+
+@pytest.fixture
+def test_linux_platform():
+    return th_models.MachinePlatform.objects.create(
+        os_name='-', platform='linux1804-64-shippable-qr', architecture='-'
+    )
+
+
+@pytest.fixture
+def test_macosx_platform():
+    return th_models.MachinePlatform.objects.create(
+        os_name='', platform='macosx1015-64-shippable-qr', architecture=''
+    )
+
+
+@pytest.fixture
+def test_option_collection():
+    return perfcompare_utils.get_option_collection_map()
+
+
+@pytest.fixture
 def test_commit(create_commit, test_push):
     return create_commit(test_push)
 
@@ -292,11 +303,10 @@ def test_commit(create_commit, test_push):
 @pytest.fixture(name='create_jobs')
 def fixture_create_jobs(test_repository, failure_classifications):
     """Return a function to create jobs"""
-    from treeherder.model.models import Job
 
     def create(jobs):
         store_job_data(test_repository, jobs)
-        return [Job.objects.get(id=i) for i in range(1, len(jobs) + 1)]
+        return [th_models.Job.objects.get(id=i) for i in range(1, len(jobs) + 1)]
 
     return create
 
@@ -425,7 +435,7 @@ def test_job_with_notes(test_job, test_user):
     """test job with job notes."""
 
     for failure_classification_id in [2, 3]:
-        JobNote.objects.create(
+        th_models.JobNote.objects.create(
             job=test_job,
             failure_classification_id=failure_classification_id,
             user=test_user,
@@ -470,15 +480,11 @@ def pulse_exchange(pulse_connection, request):
 
 @pytest.fixture
 def failure_lines(test_job):
-    from tests.autoclassify.utils import test_line, create_failure_lines
-
     return create_failure_lines(test_job, [(test_line, {}), (test_line, {"subtest": "subtest2"})])
 
 
 @pytest.fixture
 def failure_line_logs(test_job):
-    from tests.autoclassify.utils import test_line, create_failure_lines
-
     return create_failure_lines(
         test_job,
         [(test_line, {'action': 'log', 'test': None}), (test_line, {'subtest': 'subtest2'})],
@@ -487,8 +493,6 @@ def failure_line_logs(test_job):
 
 @pytest.fixture
 def failure_classifications(transactional_db):
-    from treeherder.model.models import FailureClassification
-
     for name in [
         "not classified",
         "fixed by commit",
@@ -498,19 +502,19 @@ def failure_classifications(transactional_db):
         "intermittent needs filing",
         "autoclassified intermittent",
     ]:
-        FailureClassification(name=name).save()
+        th_models.FailureClassification(name=name).save()
 
 
 @pytest.fixture
 def text_log_errors_failure_lines(test_job, failure_lines):
-    from tests.autoclassify.utils import test_line, create_text_log_errors
-
     lines = [(test_line, {}), (test_line, {"subtest": "subtest2"})]
 
     text_log_errors = create_text_log_errors(test_job, lines)
 
     for error_line, failure_line in zip(text_log_errors, failure_lines):
-        TextLogErrorMetadata.objects.create(text_log_error=error_line, failure_line=failure_line)
+        th_models.TextLogErrorMetadata.objects.create(
+            text_log_error=error_line, failure_line=failure_line
+        )
 
     return text_log_errors, failure_lines
 
@@ -524,15 +528,13 @@ def test_matcher(request):
 def classified_failures(
     test_job, text_log_errors_failure_lines, test_matcher, failure_classifications
 ):
-    from treeherder.model.models import ClassifiedFailure
-
     _, failure_lines = text_log_errors_failure_lines
 
     classified_failures = []
 
     for failure_line in failure_lines:
         if failure_line.job_guid == test_job.guid:
-            classified_failure = ClassifiedFailure.objects.create()
+            classified_failure = th_models.ClassifiedFailure.objects.create()
 
             failure_line.error.create_match(test_matcher, classified_failure)
 
@@ -544,7 +546,7 @@ def classified_failures(
 @pytest.fixture
 def test_user(db):
     # a user *without* sheriff/staff permissions
-    user = User.objects.create(username="testuser1", email='user@foo.com', is_staff=False)
+    user = th_models.User.objects.create(username="testuser1", email='user@foo.com', is_staff=False)
     return user
 
 
@@ -554,7 +556,7 @@ def test_ldap_user(db):
     A user whose username matches those generated for LDAP SSO logins,
     and who does not have `is_staff` permissions.
     """
-    user = User.objects.create(
+    user = th_models.User.objects.create(
         username="mozilla-ldap/user@foo.com", email='user@foo.com', is_staff=False
     )
     return user
@@ -563,32 +565,34 @@ def test_ldap_user(db):
 @pytest.fixture
 def test_sheriff(db):
     # a user *with* sheriff/staff permissions
-    user = User.objects.create(username="testsheriff1", email='sheriff@foo.com', is_staff=True)
+    user = th_models.User.objects.create(
+        username="testsheriff1", email='sheriff@foo.com', is_staff=True
+    )
     return user
 
 
 @pytest.fixture
 def test_perf_framework(transactional_db):
-    return PerformanceFramework.objects.create(name='test_talos', enabled=True)
+    return perf_models.PerformanceFramework.objects.create(name='test_talos', enabled=True)
 
 
 @pytest.fixture
-def test_perf_signature(test_repository, test_perf_framework) -> PerformanceSignature:
-    windows_7_platform = MachinePlatform.objects.create(
+def test_perf_signature(test_repository, test_perf_framework) -> perf_models.PerformanceSignature:
+    windows_7_platform = th_models.MachinePlatform.objects.create(
         os_name='win', platform='win7', architecture='x86'
     )
     return create_perf_signature(test_perf_framework, test_repository, windows_7_platform)
 
 
 def create_perf_signature(
-    perf_framework, repository, machine_platform: MachinePlatform
-) -> PerformanceSignature:
-    option = Option.objects.create(name='opt')
-    option_collection = OptionCollection.objects.create(
+    perf_framework, repository, machine_platform: th_models.MachinePlatform
+) -> perf_models.PerformanceSignature:
+    option = th_models.Option.objects.create(name='opt')
+    option_collection = th_models.OptionCollection.objects.create(
         option_collection_hash='my_option_hash', option=option
     )
 
-    return PerformanceSignature.objects.create(
+    return perf_models.PerformanceSignature.objects.create(
         repository=repository,
         signature_hash=(40 * 't'),
         framework=perf_framework,
@@ -607,7 +611,7 @@ def create_perf_signature(
 
 @pytest.fixture
 def test_perf_signature_2(test_perf_signature):
-    return PerformanceSignature.objects.create(
+    return perf_models.PerformanceSignature.objects.create(
         repository=test_perf_signature.repository,
         signature_hash=(20 * 't2'),
         framework=test_perf_signature.framework,
@@ -624,7 +628,7 @@ def test_perf_signature_2(test_perf_signature):
 @pytest.fixture
 def test_stalled_data_signature(test_perf_signature):
     stalled_data_timestamp = datetime.datetime.now() - datetime.timedelta(days=120)
-    return PerformanceSignature.objects.create(
+    return perf_models.PerformanceSignature.objects.create(
         repository=test_perf_signature.repository,
         signature_hash=(20 * 't3'),
         framework=test_perf_signature.framework,
@@ -640,18 +644,16 @@ def test_stalled_data_signature(test_perf_signature):
 
 @pytest.fixture
 def test_perf_data(test_perf_signature, eleven_jobs_stored):
-    from treeherder.model.models import Job
-
     # for making things easier, ids for jobs
     # and push should be the same;
     # also, we only need a subset of jobs
-    perf_jobs = Job.objects.filter(pk__in=range(7, 11)).order_by('push__time').all()
+    perf_jobs = th_models.Job.objects.filter(pk__in=range(7, 11)).order_by('push__time').all()
 
     for index, job in enumerate(perf_jobs, start=1):
         job.push_id = index
         job.save()
 
-        perf_datum = PerformanceDatum.objects.create(
+        perf_datum = perf_models.PerformanceDatum.objects.create(
             value=10,
             push_timestamp=job.push.time,
             job=job,
@@ -662,13 +664,12 @@ def test_perf_data(test_perf_signature, eleven_jobs_stored):
         perf_datum.push.time = job.push.time
         perf_datum.push.save()
 
-    return PerformanceDatum.objects.order_by('id').all()
+    return perf_models.PerformanceDatum.objects.order_by('id').all()
 
 
 @pytest.fixture
 def mock_bugzilla_api_request(monkeypatch):
     """Mock fetch_json() used by Bugzilla ETL to return a local sample file."""
-    import treeherder.etl.bugzilla
 
     def _fetch_json(url, params=None):
         tests_folder = os.path.dirname(__file__)
@@ -688,18 +689,16 @@ def mock_bugzilla_api_request(monkeypatch):
 @pytest.fixture
 def bugs(mock_bugzilla_api_request):
     from treeherder.etl.bugzilla import BzApiBugProcess
-    from treeherder.model.models import Bugscache
 
     process = BzApiBugProcess()
     process.run()
 
-    return Bugscache.objects.all()
+    return th_models.Bugscache.objects.all()
 
 
 @pytest.fixture
 def mock_bugzilla_reopen_request(monkeypatch, request):
     """Mock reopen_request() used to reopen incomplete bugs."""
-    import treeherder.etl.bugzilla
 
     def _reopen_request(url, method, headers, json):
         import json as json_module
@@ -779,8 +778,6 @@ def mock_bugscache_bugzilla_request(monkeypatch):
                 ).isoformat(timespec='seconds') + 'Z'
         return bugzilla_data["bugs"]
 
-    import treeherder.etl.bugzilla
-
     monkeypatch.setattr(
         treeherder.etl.bugzilla, 'fetch_intermittent_bugs', _fetch_intermittent_bugs
     )
@@ -788,10 +785,9 @@ def mock_bugscache_bugzilla_request(monkeypatch):
 
 @pytest.fixture
 def text_log_error_lines(test_job, failure_lines):
-    from tests.autoclassify.utils import create_text_log_errors
-    from treeherder.model.models import FailureLine
-
-    lines = [(item, {}) for item in FailureLine.objects.filter(job_guid=test_job.guid).values()]
+    lines = [
+        (item, {}) for item in th_models.FailureLine.objects.filter(job_guid=test_job.guid).values()
+    ]
 
     errors = create_text_log_errors(test_job, lines)
 
@@ -800,19 +796,19 @@ def text_log_error_lines(test_job, failure_lines):
 
 @pytest.fixture
 def test_perf_tag():
-    return PerformanceTag.objects.create(name='first_tag')
+    return perf_models.PerformanceTag.objects.create(name='first_tag')
 
 
 @pytest.fixture
 def test_perf_tag_2():
-    return PerformanceTag.objects.create(name='second_tag')
+    return perf_models.PerformanceTag.objects.create(name='second_tag')
 
 
 @pytest.fixture
 def test_perf_alert_summary(test_repository, push_stored, test_perf_framework, test_issue_tracker):
-    test_perf_tag = PerformanceTag.objects.create(name='harness')
+    test_perf_tag = perf_models.PerformanceTag.objects.create(name='harness')
 
-    performance_alert_summary = PerformanceAlertSummary.objects.create(
+    performance_alert_summary = perf_models.PerformanceAlertSummary.objects.create(
         repository=test_repository,
         framework=test_perf_framework,
         prev_push_id=1,
@@ -827,7 +823,7 @@ def test_perf_alert_summary(test_repository, push_stored, test_perf_framework, t
 
 @pytest.fixture
 def test_perf_alert_summary_2(test_perf_alert_summary):
-    return PerformanceAlertSummary.objects.create(
+    return perf_models.PerformanceAlertSummary.objects.create(
         repository=test_perf_alert_summary.repository,
         framework=test_perf_alert_summary.framework,
         prev_push_id=test_perf_alert_summary.prev_push_id + 1,
@@ -841,7 +837,7 @@ def test_perf_alert_summary_2(test_perf_alert_summary):
 def test_perf_alert_summary_with_bug(
     test_repository, push_stored, test_perf_framework, test_issue_tracker
 ):
-    return PerformanceAlertSummary.objects.create(
+    return perf_models.PerformanceAlertSummary.objects.create(
         repository=test_repository,
         framework=test_perf_framework,
         prev_push_id=1,
@@ -854,11 +850,11 @@ def test_perf_alert_summary_with_bug(
 
 
 @pytest.fixture
-def test_perf_alert(test_perf_signature, test_perf_alert_summary) -> PerformanceAlert:
+def test_perf_alert(test_perf_signature, test_perf_alert_summary) -> perf_models.PerformanceAlert:
     return create_perf_alert(summary=test_perf_alert_summary, series_signature=test_perf_signature)
 
 
-def create_perf_alert(**alert_properties) -> PerformanceAlert:
+def create_perf_alert(**alert_properties) -> perf_models.PerformanceAlert:
     defaults = dict(
         amount_abs=50.0,
         amount_pct=0.5,
@@ -868,11 +864,13 @@ def create_perf_alert(**alert_properties) -> PerformanceAlert:
         t_value=20.0,
     )
     alert_properties = {**defaults, **alert_properties}
-    return PerformanceAlert.objects.create(**alert_properties)
+    return perf_models.PerformanceAlert.objects.create(**alert_properties)
 
 
 @pytest.fixture
-def test_conflicting_perf_alert(test_perf_signature, test_perf_alert_summary_2) -> PerformanceAlert:
+def test_conflicting_perf_alert(
+    test_perf_signature, test_perf_alert_summary_2
+) -> perf_models.PerformanceAlert:
     return create_perf_alert(
         summary=test_perf_alert_summary_2, series_signature=test_perf_signature
     )
@@ -881,7 +879,7 @@ def test_conflicting_perf_alert(test_perf_signature, test_perf_alert_summary_2) 
 @pytest.fixture
 def test_perf_alert_2(
     test_perf_alert, test_perf_signature_2, test_perf_alert_summary_2
-) -> PerformanceAlert:
+) -> perf_models.PerformanceAlert:
     return create_perf_alert(
         summary=test_perf_alert_summary_2, series_signature=test_perf_signature_2
     )
@@ -892,39 +890,28 @@ def generic_reference_data(test_repository):
     """
     Generic reference data (if you want to create a bunch of mock jobs)
     """
-    from treeherder.model.models import (
-        BuildPlatform,
-        JobGroup,
-        JobType,
-        Machine,
-        MachinePlatform,
-        Option,
-        OptionCollection,
-        Product,
-        ReferenceDataSignatures,
-    )
 
     class RefdataHolder:
         pass
 
     r = RefdataHolder()
 
-    r.option = Option.objects.create(name='my_option')
-    r.option_collection = OptionCollection.objects.create(
+    r.option = th_models.Option.objects.create(name='my_option')
+    r.option_collection = th_models.OptionCollection.objects.create(
         option_collection_hash='my_option_hash', option=r.option
     )
     r.option_collection_hash = r.option_collection.option_collection_hash
-    r.machine_platform = MachinePlatform.objects.create(
+    r.machine_platform = th_models.MachinePlatform.objects.create(
         os_name="my_os", platform="my_platform", architecture="x86"
     )
-    r.build_platform = BuildPlatform.objects.create(
+    r.build_platform = th_models.BuildPlatform.objects.create(
         os_name="my_os", platform="my_platform", architecture="x86"
     )
-    r.machine = Machine.objects.create(name='mymachine')
-    r.job_group = JobGroup.objects.create(symbol='S', name='myjobgroup')
-    r.job_type = JobType.objects.create(symbol='j', name='myjob')
-    r.product = Product.objects.create(name='myproduct')
-    r.signature = ReferenceDataSignatures.objects.create(
+    r.machine = th_models.Machine.objects.create(name='mymachine')
+    r.job_group = th_models.JobGroup.objects.create(symbol='S', name='myjobgroup')
+    r.job_type = th_models.JobType.objects.create(symbol='j', name='myjob')
+    r.product = th_models.Product.objects.create(name='myproduct')
+    r.signature = th_models.ReferenceDataSignatures.objects.create(
         name='myreferencedatasignaeture',
         signature='1234',
         build_os_name=r.build_platform.os_name,
@@ -948,17 +935,15 @@ def generic_reference_data(test_repository):
 
 @pytest.fixture
 def bug_data(eleven_jobs_stored, test_repository, test_push, bugs):
-    from treeherder.model.models import Job, BugJobMap, Option
-
-    jobs = Job.objects.all()
+    jobs = th_models.Job.objects.all()
     bug_id = bugs[0].id
     job_id = jobs[0].id
-    BugJobMap.create(job_id=job_id, bug_id=bug_id)
+    th_models.BugJobMap.create(job_id=job_id, bug_id=bug_id)
     query_string = '?startday=2012-05-09&endday=2018-05-10&tree={}'.format(test_repository.name)
 
     return {
         'tree': test_repository.name,
-        'option': Option.objects.first(),
+        'option': th_models.Option.objects.first(),
         'bug_id': bug_id,
         'job': jobs[0],
         'jobs': jobs,
@@ -968,7 +953,7 @@ def bug_data(eleven_jobs_stored, test_repository, test_push, bugs):
 
 @pytest.fixture
 def test_run_data(bug_data):
-    pushes = Push.objects.all()
+    pushes = th_models.Push.objects.all()
     time = pushes[0].time.strftime('%Y-%m-%d')
     test_runs = 0
     for push in list(pushes):
@@ -985,8 +970,8 @@ def generate_enough_perf_datum(test_repository, test_perf_signature):
     # to generate the actual alert)
 
     for (push_id, value) in zip([1] * 30 + [2] * 30, [1] * 30 + [2] * 30):
-        push = Push.objects.get(id=push_id)
-        PerformanceDatum.objects.create(
+        push = th_models.Push.objects.get(id=push_id)
+        perf_models.PerformanceDatum.objects.create(
             repository=test_repository,
             push_id=push_id,
             signature=test_perf_signature,
@@ -997,10 +982,10 @@ def generate_enough_perf_datum(test_repository, test_perf_signature):
 
 @pytest.fixture
 def sample_option_collections(transactional_db):
-    option1 = Option.objects.create(name='opt1')
-    option2 = Option.objects.create(name='opt2')
-    OptionCollection.objects.create(option_collection_hash='option_hash1', option=option1)
-    OptionCollection.objects.create(option_collection_hash='option_hash2', option=option2)
+    option1 = th_models.Option.objects.create(name='opt1')
+    option2 = th_models.Option.objects.create(name='opt2')
+    th_models.OptionCollection.objects.create(option_collection_hash='option_hash1', option=option1)
+    th_models.OptionCollection.objects.create(option_collection_hash='option_hash2', option=option2)
 
 
 @pytest.fixture
