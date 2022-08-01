@@ -78,12 +78,9 @@ class FailureSummaryTab extends React.Component {
         let simpleCase = [];
 
         // HACK: if not a test failure for any test in error set, ignore
-        let crashTimeoutLeak = false;
-        if (
-          suggestion.search.startsWith('TEST-UNEXPECTED-TIMEOUT') ||
-          suggestion.search.startsWith('PROCESS-CRASH')
-        ) {
-          crashTimeoutLeak = true;
+        let crashLeak = false;
+        if (suggestion.search.startsWith('PROCESS-CRASH')) {
+          crashLeak = true;
         }
 
         if (suggestion.bugs.open_recent.length > 0) {
@@ -102,7 +99,7 @@ class FailureSummaryTab extends React.Component {
         }
 
         // HACK: use the simple case if found.
-        if (simpleCase.length > 0 && !crashTimeoutLeak) {
+        if (simpleCase.length > 0 && !crashLeak) {
           suggestion.bugs.open_recent = simpleCase;
 
           // HACK: remove any other bugs, keep this simple.
