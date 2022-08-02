@@ -7,7 +7,7 @@ from datetime import datetime
 import newrelic.agent
 from django.conf import settings
 from django.db import transaction
-from measure_noise import deviance
+from moz_measure_noise import deviance
 
 from treeherder.perf.models import (
     PerformanceAlert,
