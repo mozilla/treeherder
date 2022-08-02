@@ -41,6 +41,6 @@ importlib-metadata
 dockerflow
 
 # Measuring noise of perf data
-measure-noise
+moz-measure-noise
 
 typed-ast==1.5.2
