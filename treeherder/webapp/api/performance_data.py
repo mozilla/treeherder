@@ -822,8 +822,10 @@ class PerfCompareResults(generics.ListAPIView):
                     continue
                 base_avg_value = perf_compare_utils.get_avg(base_perf_data_values, header)
                 base_stddev = perf_compare_utils.get_stddev(base_perf_data_values, header)
+                base_median_value = perf_compare_utils.get_median(base_perf_data_values)
                 new_avg_value = perf_compare_utils.get_avg(new_perf_data_values, header)
                 new_stddev = perf_compare_utils.get_stddev(new_perf_data_values, header)
+                new_median_value = perf_compare_utils.get_median(new_perf_data_values)
                 base_stddev_pct = perf_compare_utils.get_stddev_pct(base_avg_value, base_stddev)
                 new_stddev_pct = perf_compare_utils.get_stddev_pct(new_avg_value, new_stddev)
                 is_improvement = perf_compare_utils.is_improvement(
@@ -867,6 +869,8 @@ class PerfCompareResults(generics.ListAPIView):
                     'new_runs': sorted(new_perf_data_values),
                     'base_avg_value': base_avg_value,
                     'new_avg_value': new_avg_value,
+                    'base_median_value': base_median_value,
+                    'new_median_value': new_median_value,
                     'base_stddev': base_stddev,
                     'new_stddev': new_stddev,
                     'base_stddev_pct': base_stddev_pct,

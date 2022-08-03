@@ -690,6 +690,8 @@ def test_perfcompare_results_multiple_runs(
     first_row = {}
     first_row['base_avg_value'] = statistics.mean(sig1_values)
     first_row['new_avg_value'] = statistics.mean(sig2_values)
+    first_row['base_median_value'] = perf_compare_utils.get_median(sig1_values)
+    first_row['new_median_value'] = perf_compare_utils.get_median(sig2_values)
     first_row['is_improvement'] = perf_compare_utils.is_improvement(
         sig3.lower_is_better, first_row['base_avg_value'], first_row['new_avg_value']
     )
@@ -707,6 +709,8 @@ def test_perfcompare_results_multiple_runs(
     second_row = {}
     second_row['base_avg_value'] = statistics.mean(sig3_values)
     second_row['new_avg_value'] = statistics.mean(sig4_values)
+    second_row['base_median_value'] = perf_compare_utils.get_median(sig3_values)
+    second_row['new_median_value'] = perf_compare_utils.get_median(sig4_values)
     second_row['is_improvement'] = perf_compare_utils.is_improvement(
         sig3.lower_is_better, second_row['base_avg_value'], second_row['new_avg_value']
     )
@@ -739,6 +743,8 @@ def test_perfcompare_results_multiple_runs(
             'new_runs': sig2_values,
             'base_avg_value': round(first_row['base_avg_value'], 2),
             'new_avg_value': round(first_row['new_avg_value'], 2),
+            'base_median_value': round(first_row['base_median_value'], 2),
+            'new_median_value': round(first_row['new_median_value'], 2),
             'test': sig1.test,
             'option_name': option_collection_map.get(sig1.option_collection_id, ''),
             'extra_options': sig1.extra_options,
@@ -777,8 +783,10 @@ def test_perfcompare_results_multiple_runs(
             'new_retriggerable_job_ids': [4, 7],
             'base_runs': sig3_values,
             'new_runs': sig4_values,
-            'base_avg_value': round(statistics.mean(sig3_values), 2),
-            'new_avg_value': round(statistics.mean(sig4_values), 2),
+            'base_avg_value': round(second_row['base_avg_value'], 2),
+            'new_avg_value': round(second_row['new_avg_value'], 2),
+            'base_median_value': round(second_row['base_median_value'], 2),
+            'new_median_value': round(second_row['new_median_value'], 2),
             'test': sig3.test,
             'option_name': option_collection_map.get(sig3.option_collection_id, ''),
             'extra_options': sig3.extra_options,
@@ -913,6 +921,8 @@ def test_perfcompare_results_with_only_one_run_and_diff_repo(
     response = {}
     response['base_avg_value'] = statistics.mean(sig1_values)
     response['new_avg_value'] = statistics.mean(sig2_values)
+    response['base_median_value'] = perf_compare_utils.get_median(sig1_values)
+    response['new_median_value'] = perf_compare_utils.get_median(sig2_values)
     response['is_improvement'] = perf_compare_utils.is_improvement(
         sig1.lower_is_better, response['base_avg_value'], response['new_avg_value']
     )
@@ -943,8 +953,10 @@ def test_perfcompare_results_with_only_one_run_and_diff_repo(
             'new_retriggerable_job_ids': [4],
             'base_runs': sig1_values,
             'new_runs': sig2_values,
-            'base_avg_value': round(statistics.mean(sig1_values), 2),
-            'new_avg_value': round(statistics.mean(sig2_values), 2),
+            'base_avg_value': round(response['base_avg_value'], 2),
+            'new_avg_value': round(response['new_avg_value'], 2),
+            'base_median_value': round(response['base_median_value'], 2),
+            'new_median_value': round(response['new_median_value'], 2),
             'test': sig1.test,
             'option_name': option_collection_map.get(sig1.option_collection_id, ''),
             'extra_options': sig1.extra_options,

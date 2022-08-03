@@ -444,6 +444,8 @@ class PerfCompareResultsSerializer(serializers.ModelSerializer):
     )
     base_avg_value = PerfCompareDecimalField()
     new_avg_value = PerfCompareDecimalField()
+    base_median_value = PerfCompareDecimalField()
+    new_median_value = PerfCompareDecimalField()
     base_stddev = PerfCompareDecimalField()
     new_stddev = PerfCompareDecimalField()
     base_stddev_pct = PerfCompareDecimalField()
@@ -479,6 +481,8 @@ class PerfCompareResultsSerializer(serializers.ModelSerializer):
             'new_runs',
             'base_avg_value',
             'new_avg_value',
+            'base_median_value',
+            'new_median_value',
             'test',
             'option_name',
             'extra_options',
