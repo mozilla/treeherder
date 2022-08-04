@@ -151,10 +151,17 @@ def fixture_create_signature():
     """Returns a function to create a signature"""
 
     def create(
-        signature_hash, extra_options, platform, measurement_unit, suite, test, test_perf_signature
+        signature_hash,
+        extra_options,
+        platform,
+        measurement_unit,
+        suite,
+        test,
+        test_perf_signature,
+        repository,
     ):
         return PerformanceSignature.objects.create(
-            repository=test_perf_signature.repository,
+            repository=repository,
             signature_hash=signature_hash,
             framework=test_perf_signature.framework,
             platform=platform,
