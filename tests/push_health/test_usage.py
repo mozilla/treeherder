@@ -43,7 +43,6 @@ def test_get_usage(push_usage, test_repository):
         body=json.dumps(push_usage),
         status=200,
         content_type='application/json',
-        match_querystring=True,
     )
 
     # create the Pushes that match the usage response

@@ -45,14 +45,12 @@ def test_taskcluster_runnable_jobs(test_repository):
         responses.GET,
         TASKCLUSTER_INDEX_URL % repo,
         json=CONTENT1,
-        match_querystring=True,
         status=200,
     )
     responses.add(
         responses.GET,
         RUNNABLE_JOBS_URL,
         json=RUNNABLE_JOBS_CONTENTS,
-        match_querystring=True,
         status=200,
     )
     jobs_ret = _taskcluster_runnable_jobs(repo)

@@ -15,7 +15,7 @@ class PerfherderClientTest(unittest.TestCase):
             'signature2': {'hamburgers': 2},
             'signature3': {'cheezburgers': 2},
         }
-        responses.add(responses.GET, url, json=content, match_querystring=True, status=200)
+        responses.add(responses.GET, url, json=content, status=200)
 
         sigs = pc.get_performance_signatures('mozilla-central')
         self.assertEqual(len(sigs), 3)
@@ -35,7 +35,7 @@ class PerfherderClientTest(unittest.TestCase):
             'signature1': [{'value': 1}, {'value': 2}],
             'signature2': [{'value': 2}, {'value': 1}],
         }
-        responses.add(responses.GET, url, json=content, match_querystring=True, status=200)
+        responses.add(responses.GET, url, json=content, status=200)
 
         series_list = pc.get_performance_data(
             'mozilla-central', signatures=['signature1', 'signature2']

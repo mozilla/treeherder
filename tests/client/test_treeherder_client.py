@@ -17,7 +17,7 @@ class TreeherderClientTest(unittest.TestCase):
             "meta": {"count": 3, "repository": "autoland", "offset": 0},
             "results": self.JOB_RESULTS,
         }
-        responses.add(responses.GET, url, json=content, match_querystring=True, status=200)
+        responses.add(responses.GET, url, json=content, status=200)
 
         jobs = tdc.get_jobs("autoland")
         self.assertEqual(len(jobs), 3)
@@ -31,7 +31,7 @@ class TreeherderClientTest(unittest.TestCase):
             "meta": {"count": 3, "repository": "autoland", "offset": 0},
             "results": self.PUSHES,
         }
-        responses.add(responses.GET, url, json=content, match_querystring=True, status=200)
+        responses.add(responses.GET, url, json=content, status=200)
 
         pushes = tdc.get_pushes("autoland")
         self.assertEqual(len(pushes), 3)
