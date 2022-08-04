@@ -1,6 +1,6 @@
 import functools
 from math import sqrt
-from statistics import mean, stdev
+from statistics import mean, stdev, median
 from treeherder.perf.models import (
     OptionCollection,
 )
@@ -74,6 +74,14 @@ def get_avg(values, header):
         return get_noise_metric_avg(values)
     else:
         return mean(values) if len(values) else 0
+
+
+def get_median(values):
+    """
+    @param values: list of the runs values
+    @return: Median of the runs values if there are any
+    """
+    return median(values) if len(values) else 0
 
 
 def get_noise_metric_avg(values):
