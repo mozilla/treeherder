@@ -181,6 +181,12 @@ const doSetSelectedJobFromQueryString = (notify, jobMap) => {
       setUrlParam('selectedTaskRun', getTaskRunStr(task));
       return doSelectJob(task);
     }
+
+    if (getUrlParam('revision')) {
+      /* A standalone push which got opened deliberately. Either a task of a
+         different push was selected or none. */
+      return doClearSelectedJob({});
+    }
     // We are attempting to select a task, but that task is not in the current
     // range of pushes.  So we search for it in the database to help the user
     // locate it.
@@ -200,6 +206,12 @@ const doSetSelectedJobFromQueryString = (notify, jobMap) => {
       setUrlParam('selectedTaskRun', getTaskRunStr(task));
 
       return doSelectJob(task);
+    }
+
+    if (getUrlParam('revision')) {
+      /* A standalone push which got opened deliberately. Either a task of a
+         different push was selected or none. */
+      return doClearSelectedJob({});
     }
     // We are attempting to select a task, but that task is not in the current
     // range of pushes.  So we search for it in the database to help the user
