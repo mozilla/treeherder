@@ -1,7 +1,6 @@
 import logging
 from datetime import datetime
 import json
-import time
 from typing import List, Tuple, Optional
 from functools import reduce
 
@@ -9,7 +8,6 @@ from django.contrib.auth.models import User
 from django.core.exceptions import ValidationError
 from django.core.validators import MinLengthValidator
 from django.db import models
-from django.db import DatabaseError, transaction
 from django.utils.timezone import now as django_now
 
 from treeherder.model.models import (
@@ -317,37 +315,18 @@ class PerformanceAlertSummary(models.Model):
         super(PerformanceAlertSummary, self).save(*args, **kwargs)
         self.__prev_bug_number = self.bug_number
 
-    def update_status(self, using=None, alerts=None, alert_no=None, log=None):
-        self.status = self.autodetermine_status(alert_items=alerts, alert_no=alert_no, log=log)
+    def update_status(self, using=None):
+        self.status = self.autodetermine_status()
         self.save(using=using)
 
-    def autodetermine_status(self, alert_items=None, alert_no=None, log=None):
-        # log[datetime.now()] = f"DEBUGGING: {alert_no} reading latest status"
+    def autodetermine_status(self):
         alerts = PerformanceAlert.objects.filter(summary=self) | PerformanceAlert.objects.filter(
             related_summary=self
         )
-        # log[datetime.now()] = f"DEBUGGING: {alert_no} read latest status"
-        #
-        # for alert in alerts:
-        #     log[datetime.now()] = f"DEBUGGING: {alert_no} {alert.id}: {alert.status}"
-        #
-        # for l in sorted(log.keys()):
-        #     print(f"{l} {log[l]}")
 
         # if no alerts yet, we'll say untriaged
         if not alerts:
             return PerformanceAlertSummary.UNTRIAGED
-
-        # if all invalid, then set to invalid
-        if all(alert.status == PerformanceAlert.INVALID for alert in alerts):
-            return PerformanceAlertSummary.INVALID
-
-        if all(alert.status == PerformanceAlert.ACKNOWLEDGED for alert in alerts):
-            print("all PerformanceAlert.ACKNOWLEDGED")
-            if all(not alert.is_regression for alert in alerts):
-                return PerformanceAlertSummary.IMPROVEMENT
-            else:
-                return PerformanceAlertSummary.INVESTIGATING
 
         # if any untriaged, then set to untriaged
         if any(alert.status == PerformanceAlert.UNTRIAGED for alert in alerts):
@@ -356,13 +335,15 @@ class PerformanceAlertSummary(models.Model):
         # if the summary's status is IMPROVEMENT, but a regression is
         # reassigned to that summary then set the status to untriaged
         if any(alert.summary.status == PerformanceAlertSummary.IMPROVEMENT for alert in alerts):
-            latest_updated = alerts.get(last_updated=alerts.aggregate(models.Max("last_updated"))["last_updated__max"])
-            if latest_updated.status == PerformanceAlert.REASSIGNED and latest_updated.is_regression:
-                for alert in alerts:
-                    if alert.status == PerformanceAlert.ACKNOWLEDGED:
-                        alert.status = PerformanceAlert.UNTRIAGED
-                        alert.save()
+            if any(
+                alert.status == PerformanceAlert.REASSIGNED and alert.is_regression
+                for alert in alerts
+            ):
                 return PerformanceAlertSummary.UNTRIAGED
+
+        # if all invalid, then set to invalid
+        if all(alert.status == PerformanceAlert.INVALID for alert in alerts):
+            return PerformanceAlertSummary.INVALID
 
         # otherwise filter out invalid alerts
         alerts = [a for a in alerts if a.status != PerformanceAlert.INVALID]
@@ -550,13 +531,7 @@ class PerformanceAlert(models.Model):
                     )
                 )
             )
-        log = {}
 
-        # alerts = PerformanceAlert.objects.filter(summary=self.summary)
-        # for alert in alerts:
-        #     print(f"{datetime.now()} {self.id} DEBUGGING: {alert.id}>> {alert.status}", {alert.last_updated})
-
-        log[datetime.now()] = f"{self.id} DEBUGGING: {self.id} updating to {self.status}, {args}, {kwargs}"
         super().save(*args, **kwargs)
 
         # check to see if we need to update the summary statuses
@@ -564,20 +539,9 @@ class PerformanceAlert(models.Model):
         # just forward the explicit database
         # so the summary properly updates there
         using = kwargs.get('using', None)
-        alerts = PerformanceAlert.objects.filter(summary=self.summary)
-        # for alert in alerts:
-        #     log[datetime.now()] = f"{self.id} after save DEBUGGING: {alert.id} {alert.status}"
-
-        self.summary.update_status(using=using, alerts=alerts, alert_no=self.id, log=log)
+        self.summary.update_status(using=using)
         if self.related_summary:
-            self.related_summary.update_status(using=using, alerts=alerts)
-
-        # alerts = PerformanceAlert.objects.filter(summary=self.summary)
-        # for alert in alerts:
-        #     print(f"{datetime.now()} END {self.id} DEBUGGING: {alert.id} {alert.status}", {alert.last_updated})
-        self.summary.update_status(using=using, alerts=alerts, alert_no=self.id, log=log)
-        if self.related_summary:
-            self.related_summary.update_status(using=using, alerts=alerts)
+            self.related_summary.update_status(using=using)
 
     def timestamp_first_triage(self):
         # use only on code triggered by
