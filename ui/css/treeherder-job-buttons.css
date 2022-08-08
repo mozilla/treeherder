@@ -156,9 +156,17 @@
   margin: 0 -1px 1px 1px;
 }
 
-.classified-icon {
+.classified-icon,
+.intermittent-icon {
   font-size: 0.62em;
+}
+
+.classified-icon {
   vertical-align: super;
+}
+
+.intermittent-icon {
+  vertical-align: sub;
 }
 
 /* Bold buttons */
