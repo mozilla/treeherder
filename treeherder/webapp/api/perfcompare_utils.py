@@ -7,7 +7,6 @@ from treeherder.perf.models import (
 
 """ Constants """
 
-
 NOISE_METRIC_HEADER = 'noise metric'
 """
 Default stddev is used for get_ttest_value if both sets have only a single value - 15%.
@@ -98,7 +97,7 @@ def get_percentage(part, whole):
 """ Confidence """
 
 
-def get_ttest_value(control_values, test_values):
+def get_abs_ttest_value(control_values, test_values):
     """
     If a set has only one value, assume average-ish-plus standard deviation, which
     will manifest as smaller t-value the less items there are at the group
@@ -150,17 +149,14 @@ def confidence_detailed_info(confidence):
 
 def get_confidence_text(abs_tvalue):
     if abs_tvalue is None:
-        return None, None
+        return ''
     if abs_tvalue < T_VALUE_CARE_MIN:
         confidence_text = 'low'
-        confidence_text_long = confidence_detailed_info(confidence_text)
     elif abs_tvalue < T_VALUE_CONFIDENCE:
         confidence_text = 'med'
-        confidence_text_long = confidence_detailed_info(confidence_text)
     else:
         confidence_text = 'high'
-        confidence_text_long = confidence_detailed_info(confidence_text)
-    return confidence_text, confidence_text_long
+    return confidence_text
 
 
 def is_improvement(lower_is_better, base_avg_value, new_avg_value):
@@ -189,3 +185,21 @@ def is_new_better(delta_value, lower_is_better):
 def get_magnitude(delta_percentage):
     """Arbitrary scale from 0-20% multiplied by 5, capped at 100 (so 20% regression === 100% bad)"""
     return min(abs(delta_percentage) * 5, 100)
+
+
+""" Is confident """
+
+
+def is_confident(base_runs_count, new_runs_count, confidence):
+    runs_count_gt_one = base_runs_count > 1 and new_runs_count > 1
+    runs_count_gte_six = base_runs_count >= 6 and new_runs_count >= 6
+    return (runs_count_gt_one and confidence >= T_VALUE_CONFIDENCE) or (
+        runs_count_gte_six and confidence >= T_VALUE_CARE_MIN
+    )
+
+
+""" Needs more runs """
+
+
+def more_runs_are_needed(is_complete, is_confident, base_runs_count):
+    return is_complete and not is_confident and base_runs_count < 6

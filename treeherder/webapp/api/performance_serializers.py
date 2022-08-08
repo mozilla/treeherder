@@ -460,6 +460,9 @@ class PerfCompareResultsSerializer(serializers.ModelSerializer):
     delta_percentage = PerfCompareDecimalField()
     magnitude = PerfCompareDecimalField()
     new_is_better = OptionalBooleanField()
+    is_confident = OptionalBooleanField()
+    more_runs_are_needed = OptionalBooleanField()
+    noise_metric = OptionalBooleanField(default=False)
     graphs_link = serializers.CharField()
 
     class Meta:
@@ -501,6 +504,9 @@ class PerfCompareResultsSerializer(serializers.ModelSerializer):
             'delta_percentage',
             'magnitude',
             'new_is_better',
+            'is_confident',
+            'more_runs_are_needed',
+            'noise_metric',
         ]
 
 
