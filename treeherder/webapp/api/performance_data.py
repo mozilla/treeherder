@@ -821,9 +821,6 @@ class PerfCompareResults(generics.ListAPIView):
                 new_median_value = perfcompare_utils.get_median(new_perf_data_values)
                 base_stddev_pct = perfcompare_utils.get_stddev_pct(base_avg_value, base_stddev)
                 new_stddev_pct = perfcompare_utils.get_stddev_pct(new_avg_value, new_stddev)
-                is_improvement = perfcompare_utils.is_improvement(
-                    lower_is_better, base_avg_value, new_avg_value
-                )
                 confidence = perfcompare_utils.get_abs_ttest_value(
                     base_perf_data_values, new_perf_data_values
                 )
@@ -846,6 +843,12 @@ class PerfCompareResults(generics.ListAPIView):
                 more_runs_are_needed = perfcompare_utils.more_runs_are_needed(
                     is_complete, is_confident, base_runs_count
                 )
+                class_name = perfcompare_utils.get_class_name(
+                    new_is_better, base_avg_value, new_avg_value, confidence
+                )
+                is_improvement = class_name == 'success'
+                is_regression = class_name == 'danger'
+                is_meaningful = class_name == ''
 
                 row_result = {
                     'header_name': header,
@@ -878,7 +881,6 @@ class PerfCompareResults(generics.ListAPIView):
                     'confidence': confidence,
                     'confidence_text': confidence_text,
                     'confidence_text_long': detailed_confidence,
-                    'is_improvement': is_improvement,
                     't_value_confidence': perfcompare_utils.T_VALUE_CONFIDENCE,
                     't_value_care_min': perfcompare_utils.T_VALUE_CARE_MIN,
                     'delta_value': delta_value,
@@ -897,6 +899,9 @@ class PerfCompareResults(generics.ListAPIView):
                         push_timestamp,
                         str(sig_hash),
                     ),
+                    'is_improvement': is_improvement,
+                    'is_regression': is_regression,
+                    'is_meaningful': is_meaningful,
                 }
 
                 self.queryset.append(row_result)
