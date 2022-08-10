@@ -9,7 +9,7 @@ module.exports = {
     'plugin:jest/recommended',
     'plugin:jest/style',
   ],
-  parser: 'babel-eslint',
+  parser: '@babel/eslint-parser',
   settings: {
     react: {
       version: '16.6',
@@ -39,6 +39,7 @@ module.exports = {
     'react/destructuring-assignment': 'off',
     'react/jsx-fragments': 'off',
     'react/jsx-props-no-spreading': 'off',
+    'react/sort-comp': [0, {}],
     'react/prop-types': 'off',
     'import/extensions': 'off',
     // Override AirBnB's config for this rule to make it more strict.

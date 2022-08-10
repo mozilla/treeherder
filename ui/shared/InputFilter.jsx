@@ -6,7 +6,6 @@ import debounce from 'lodash/debounce';
 import { filterText } from '../perfherder/perf-helpers/constants';
 
 export default class InputFilter extends React.Component {
-  // eslint-disable-next-line react/sort-comp
   constructor(props) {
     super(props);
     this.state = {

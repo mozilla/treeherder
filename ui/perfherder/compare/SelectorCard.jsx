@@ -29,7 +29,6 @@ export default class SelectorCard extends React.Component {
       buttonDropdownOpen: false,
       inputDropdownOpen: false,
       data: {},
-      failureStatus: null,
       invalidRevision: false,
       invalidProject: false,
       disabled: false,
@@ -73,7 +72,7 @@ export default class SelectorCard extends React.Component {
     if (failureStatus) {
       updateState({ errorMessages: [genericErrorMessage] });
     } else {
-      this.setState({ data, failureStatus, disabled: false });
+      this.setState({ data, disabled: false });
       // if a user pastes a revision then selects a different project,
       // re-validate the revision with that new project (repository)
       if (selectedRevision !== '') {
