@@ -1,6 +1,8 @@
 import PropTypes from 'prop-types';
 import React from 'react';
 
+import { isIntermittent } from '../../helpers/job';
+
 import JobButton from './JobButton';
 import JobGroup from './JobGroup';
 
@@ -43,6 +45,7 @@ export default class JobsAndGroups extends React.Component {
             <JobButton
               job={job}
               filterModel={filterModel}
+              intermittent={isIntermittent(job, group)}
               repoName={repoName}
               visible={job.visible}
               resultStatus={job.resultStatus}
