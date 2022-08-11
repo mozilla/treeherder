@@ -5,7 +5,7 @@ module.exports = {
     // We use Prettier instead of AirBnb for style-related rules (see .prettierrc.js).
     'plugin:prettier/recommended',
     // Disable React-related AirBnB style rules.
-    'prettier/react',
+    'prettier',
     'plugin:jest/recommended',
     'plugin:jest/style',
   ],
