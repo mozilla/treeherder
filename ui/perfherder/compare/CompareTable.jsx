@@ -66,7 +66,7 @@ export default class CompareTable extends React.Component {
       Object.keys(tableConfig).forEach((key) => {
         tableConfig[key].currentSort = tableSort.default;
       });
-      // eslint-disable-next-line react/no-did-update-set-state
+
       this.setState({ data, tableConfig });
     }
   };

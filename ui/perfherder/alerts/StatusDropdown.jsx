@@ -43,7 +43,6 @@ export default class StatusDropdown extends React.Component {
     this.state = {
       showBugModal: false,
       showFileBugModal: false,
-      fileRegression: false,
       showNotesModal: false,
       showTagsModal: false,
       selectedValue: this.props.issueTrackers[0].text,

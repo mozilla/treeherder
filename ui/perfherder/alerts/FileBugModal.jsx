@@ -18,7 +18,6 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faInfoCircle } from '@fortawesome/free-solid-svg-icons';
 
 export default class FileBugModal extends React.Component {
-  // eslint-disable-next-line react/sort-comp
   constructor(props) {
     super(props);
     this.state = {
