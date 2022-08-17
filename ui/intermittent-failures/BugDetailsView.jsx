@@ -1,7 +1,7 @@
 import React from 'react';
 import { Row, Col, Breadcrumb, BreadcrumbItem } from 'reactstrap';
 import { Link } from 'react-router-dom';
-import ReactTable from 'react-table';
+import ReactTable from 'react-table-6';
 import PropTypes from 'prop-types';
 import { Helmet } from 'react-helmet';
 

@@ -8,7 +8,7 @@ import ErrorMessages from '../shared/ErrorMessages';
 import MainView from './MainView';
 import BugDetailsView from './BugDetailsView';
 
-import 'react-table/react-table.css';
+import '../css/react-table.css';
 import '../css/intermittent-failures.css';
 import '../css/treeherder-base.css';
 
