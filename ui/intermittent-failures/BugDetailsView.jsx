@@ -29,7 +29,9 @@ const BugDetailsView = (props) => {
     initialParamsSet,
     startday,
     endday,
+    failurehash,
     updateState,
+    updateHash,
     bug,
     summary,
     errorMessages,
@@ -37,19 +39,24 @@ const BugDetailsView = (props) => {
     tableFailureStatus,
     graphFailureStatus,
     uniqueLines,
+    uniqueFrequency,
   } = props;
 
-  const customFilter = ({ filter, onChange }) => {
+  const customFilter = ({ filter }) => {
     if (!tableData || !uniqueLines) return;
     return (
       <select
-        onChange={(event) => onChange(event.target.value)}
+        onChange={(event) => updateHash(event.target.value)}
         style={{ width: '100%' }}
-        value={filter ? filter.value : 'all'}
+        value={filter ? filter.value : failurehash}
       >
         <option value="all">All</option>
         {uniqueLines.map((vals) => {
-          return <option value={vals[1]}>{vals[0]}</option>;
+          return (
+            <option key={vals[1]} value={vals[1]}>
+              {vals[0]}
+            </option>
+          );
         })}
       </select>
     );
@@ -127,20 +134,6 @@ const BugDetailsView = (props) => {
     {
       Header: 'Log',
       accessor: 'job_id',
-      filterMethod: (filter, row) => {
-        if (filter.value === 'all') {
-          return true;
-        }
-        const trimmed = lineTrimmer(row._original.lines);
-        let filterValue = '';
-        const hashIndex = 1;
-        uniqueLines.forEach((uniqueLine) => {
-          if (trimmed === uniqueLine[0]) {
-            filterValue = uniqueLine[hashIndex];
-          }
-        });
-        return filterValue === filter.value;
-      },
       Filter: ({ filter, onChange }) => customFilter({ filter, onChange }),
       Cell: (_props) => {
         const { value, original } = _props;
@@ -188,17 +181,45 @@ const BugDetailsView = (props) => {
     },
   ];
 
+  let gOneData = {};
   let graphOneData = null;
   let graphTwoData = null;
+  let _tableData = null;
 
   if (graphData.length > 0) {
     ({ graphOneData, graphTwoData } = calculateMetrics(graphData));
+    if (uniqueFrequency) {
+      gOneData = uniqueFrequency;
+    }
+    gOneData.all = graphOneData;
+    gOneData.all[0].count = tableData.length;
+
+    _tableData = tableData;
+    // here we Filter() the tableData.
+    // Since we use urlParams for failurehash, this synchronizes it.
+    if (failurehash !== 'all') {
+      const tData = [];
+      tableData.forEach((row) => {
+        const trimmed = lineTrimmer(row.lines);
+        let filterValue = '';
+        const hashIndex = 1;
+        uniqueLines.forEach((uniqueLine) => {
+          if (trimmed === uniqueLine[0]) {
+            filterValue = uniqueLine[hashIndex];
+          }
+        });
+        if (filterValue === failurehash) {
+          tData.push(row);
+        }
+      });
+      _tableData = tData;
+    }
   }
 
   return (
     <Layout
       {...props}
-      graphOneData={graphOneData}
+      graphOneData={gOneData}
       graphTwoData={graphTwoData}
       header={
         <React.Fragment>
@@ -261,7 +282,10 @@ const BugDetailsView = (props) => {
                 <Row>
                   <Col xs="12" className="mx-auto">
                     <p className="text-secondary">
-                      {tableData.length} total failures
+                      {failurehash in gOneData
+                        ? gOneData[failurehash][0].count
+                        : 0}{' '}
+                      total failures
                     </p>
                   </Col>
                 </Row>
@@ -272,9 +296,10 @@ const BugDetailsView = (props) => {
       }
       table={
         bug &&
-        initialParamsSet && (
+        initialParamsSet &&
+        _tableData && (
           <ReactTable
-            data={tableData}
+            data={_tableData}
             filterable
             showPageSizeOptions
             columns={columns}
@@ -295,18 +320,21 @@ BugDetailsView.propTypes = {
   tree: PropTypes.string.isRequired,
   updateAppState: PropTypes.func,
   updateState: PropTypes.func.isRequired,
+  updateHash: PropTypes.func.isRequired,
   startday: PropTypes.string.isRequired,
+  failurehash: PropTypes.string.isRequired,
   endday: PropTypes.string.isRequired,
   tableData: PropTypes.arrayOf(PropTypes.shape({})),
   graphData: PropTypes.arrayOf(PropTypes.shape({})),
   initialParamsSet: PropTypes.bool.isRequired,
-  bug: PropTypes.number.isRequired,
+  bug: PropTypes.string.isRequired,
   summary: PropTypes.string.isRequired,
   errorMessages: PropTypes.arrayOf(PropTypes.string),
   lastLocation: PropTypes.shape({}).isRequired,
   tableFailureStatus: PropTypes.string,
   graphFailureStatus: PropTypes.string,
   uniqueLines: PropTypes.arrayOf(PropTypes.array),
+  uniqueFrequency: PropTypes.shape({}),
 };
 
 BugDetailsView.defaultProps = {
@@ -317,6 +345,7 @@ BugDetailsView.defaultProps = {
   graphFailureStatus: null,
   updateAppState: null,
   uniqueLines: [],
+  uniqueFrequency: {},
 };
 
 const defaultState = {

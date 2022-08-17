@@ -26,7 +26,8 @@ const Graph = ({ graphData, title, legendData }) => (
           data={legendData}
         />
       )}
-      {graphData.length > 0 &&
+      {graphData &&
+        graphData.length > 0 &&
         graphData.map((item) => (
           <VictoryLine
             key={item}
