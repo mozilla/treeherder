@@ -2,7 +2,7 @@ import React from 'react';
 import { Row, Col, Breadcrumb, BreadcrumbItem } from 'reactstrap';
 import PropTypes from 'prop-types';
 import moment from 'moment';
-import ReactTable from 'react-table';
+import ReactTable from 'react-table-6';
 
 import { bugsEndpoint } from '../helpers/url';
 

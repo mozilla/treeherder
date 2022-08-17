@@ -1,5 +1,5 @@
 import React from 'react';
-import ReactTable from 'react-table';
+import ReactTable from 'react-table-6';
 import { Badge } from 'reactstrap';
 import moment from 'moment';
 import { groupBy, forIn } from 'lodash';
