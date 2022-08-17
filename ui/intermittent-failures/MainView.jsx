@@ -24,6 +24,7 @@ const MainView = (props) => {
     initialParamsSet,
     startday,
     endday,
+    failurehash,
     updateState,
     tree,
     location,
@@ -52,6 +53,7 @@ const MainView = (props) => {
           tree={tree}
           startday={startday}
           endday={endday}
+          failurehash={failurehash}
           location={location}
           graphData={graphData}
           tableData={tableData}
@@ -91,6 +93,7 @@ const MainView = (props) => {
     },
   ];
 
+  const gOneData = {};
   let graphOneData = null;
   let graphTwoData = null;
   let totalFailures = 0;
@@ -103,6 +106,8 @@ const MainView = (props) => {
       totalFailures,
       totalRuns,
     } = calculateMetrics(graphData));
+    gOneData.all = graphOneData;
+    gOneData.all[0].count = tableData.length;
   }
 
   const getHeaderAriaLabel = (state, bug, data) => {
@@ -118,7 +123,7 @@ const MainView = (props) => {
   return (
     <Layout
       {...props}
-      graphOneData={graphOneData}
+      graphOneData={gOneData}
       graphTwoData={graphTwoData}
       header={
         initialParamsSet && (
@@ -190,6 +195,7 @@ MainView.propTypes = {
   updateState: PropTypes.func.isRequired,
   startday: PropTypes.string.isRequired,
   endday: PropTypes.string.isRequired,
+  failurehash: PropTypes.string.isRequired,
   tableData: PropTypes.arrayOf(PropTypes.shape({})),
   graphData: PropTypes.arrayOf(PropTypes.shape({})),
   initialParamsSet: PropTypes.bool.isRequired,
@@ -206,6 +212,7 @@ const defaultState = {
   tree: 'all',
   startday: ISODate(moment().utc().subtract(7, 'days')),
   endday: ISODate(moment().utc()),
+  failurehash: 'all',
   endpoint: bugsEndpoint,
   route: '/main',
 };
