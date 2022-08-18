@@ -1,13 +1,11 @@
 # Dependencies needed only for development/testing.
 pytest-cov
-django-debug-toolbar
 mock
 responses
-django-extensions
 PyPOM
 
 
-Django==4.0.6  # match common.in for faster install
+Django==4.0.7  # match common.in for faster install
 
 # for git commit hooks
 pre-commit

@@ -1,4 +1,3 @@
-from django.conf import settings
 from django.urls import include, re_path
 from rest_framework.documentation import include_docs_urls
 
@@ -8,13 +7,6 @@ from django.views.generic.base import TemplateView
 urlpatterns = []
 # The order is important for the debug toolbar; it needs to be first
 # or the panels won't work
-
-if settings.DEBUG:
-    import debug_toolbar
-
-    urlpatterns += [
-        re_path(r'^__debug__/', include(debug_toolbar.urls)),
-    ]
 
 urlpatterns += [
     re_path(r'^api/', include(api_urls)),

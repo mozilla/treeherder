@@ -27,8 +27,6 @@ URLS_NOT_IMMUTABLE = [
     # The unhashed Neutrino/webpack output if using `yarn build --mode development`.
     '/assets/runtime.js',
     '/assets/vendors~index.js',
-    # The unhashed Django static asset originals (used in development).
-    '/static/debug_toolbar/assets/toolbar.css',
     '/static/rest_framework/docs/js/jquery.json-view.min.js',
 ]
 

@@ -84,14 +84,6 @@ INSTALLED_APPS = [
 # Docker/outside-of-Docker/CircleCI
 if DEBUG:
     NEW_RELIC_DEVELOPER_MODE = True
-    # This controls whether the Django debug toolbar should be shown or not
-    # https://django-debug-toolbar.readthedocs.io/en/latest/configuration.html#show-toolbar-callback
-    # "You can provide your own function callback(request) which returns True or False."
-    DEBUG_TOOLBAR_CONFIG = {
-        'SHOW_TOOLBAR_CALLBACK': lambda request: DEBUG,
-    }
-    INSTALLED_APPS.append('debug_toolbar')
-    INSTALLED_APPS.append('django_extensions')
 
 # Middleware
 MIDDLEWARE = [
@@ -107,7 +99,6 @@ MIDDLEWARE = [
         # to be served by WhiteNoise.
         'treeherder.middleware.CustomWhiteNoise',
         'django.middleware.gzip.GZipMiddleware',
-        'debug_toolbar.middleware.DebugToolbarMiddleware' if DEBUG else False,
         'django.contrib.sessions.middleware.SessionMiddleware',
         'django.middleware.common.CommonMiddleware',
         'django.middleware.csrf.CsrfViewMiddleware',
