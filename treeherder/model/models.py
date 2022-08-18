@@ -218,6 +218,7 @@ class Bugscache(models.Model):
     dupe_of = models.PositiveIntegerField(null=True)
     crash_signature = models.TextField(blank=True)
     keywords = models.TextField(blank=True)
+    created = models.DateTimeField()
     modified = models.DateTimeField()
     whiteboard = models.CharField(max_length=100, blank=True, default='')
     processed_update = models.BooleanField(default=True)
@@ -274,7 +275,7 @@ class Bugscache(models.Model):
             [search_term_fulltext, search_term_like, time_limit, max_size],
         )
 
-        exclude_fields = ["modified", "processed_update"]
+        exclude_fields = ["created", "modified", "processed_update"]
         try:
             open_recent_match_string = [
                 model_to_dict(item, exclude=exclude_fields) for item in recent_qs

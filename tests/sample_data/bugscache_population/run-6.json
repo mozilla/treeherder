@@ -3,6 +3,7 @@
     {
       "keywords": ["intermittent-failure"],
       "duplicates": [],
+      "creation_time": "2001-01-01T11:38:48Z",
       "last_change_time": "2020-09-08T16:38:48Z",
       "id": 1652208,
       "status": "RESOLVED",
@@ -17,6 +18,7 @@
       "status": "RESOLVED",
       "duplicates": [],
       "keywords": ["intermittent-failure"],
+      "creation_time": "2001-01-01T11:38:48Z",
       "last_change_time": "2020-09-07T06:30:42Z",
       "cf_crash_signature": "",
       "summary": "Intermittent dom/canvas/test/webgl-conf/generated/test_2_conformance__ogles__GL__swizzlers__swizzlers_113_to_120.html | Error in program linking:",
@@ -27,6 +29,7 @@
     {
       "duplicates": [],
       "keywords": ["intermittent-failure"],
+      "creation_time": "2001-01-01T11:38:48Z",
       "last_change_time": "2020-09-07T06:34:10Z",
       "status": "RESOLVED",
       "id": 1663081,
@@ -46,6 +49,7 @@
       "id": 1663118,
       "keywords": ["intermittent-failure"],
       "duplicates": [1702255],
+      "creation_time": "2001-01-01T11:38:48Z",
       "last_change_time": "2020-09-07T06:35:23Z"
     }
   ]
