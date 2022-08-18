@@ -677,9 +677,6 @@ def test_perfcompare_results_multiple_runs(
     first_row['new_avg_value'] = statistics.mean(sig2_values)
     first_row['base_median_value'] = perfcompare_utils.get_median(sig1_values)
     first_row['new_median_value'] = perfcompare_utils.get_median(sig2_values)
-    first_row['is_improvement'] = perfcompare_utils.is_improvement(
-        sig3.lower_is_better, first_row['base_avg_value'], first_row['new_avg_value']
-    )
     first_row['delta_value'] = perfcompare_utils.get_delta_value(
         first_row['new_avg_value'], first_row.get('base_avg_value')
     )
@@ -696,15 +693,18 @@ def test_perfcompare_results_multiple_runs(
     first_row['more_runs_are_needed'] = perfcompare_utils.more_runs_are_needed(
         True, first_row['is_confident'], len(sig1_values)
     )
+    class_name = perfcompare_utils.get_class_name(
+        first_row['new_is_better'], first_row['base_avg_value'], first_row['new_avg_value'], 0.18
+    )
+    first_row['is_improvement'] = class_name == 'success'
+    first_row['is_regression'] = class_name == 'danger'
+    first_row['is_meaningful'] = class_name == ''
 
     second_row = {}
     second_row['base_avg_value'] = statistics.mean(sig3_values)
     second_row['new_avg_value'] = statistics.mean(sig4_values)
     second_row['base_median_value'] = perfcompare_utils.get_median(sig3_values)
     second_row['new_median_value'] = perfcompare_utils.get_median(sig4_values)
-    second_row['is_improvement'] = perfcompare_utils.is_improvement(
-        sig3.lower_is_better, second_row['base_avg_value'], second_row['new_avg_value']
-    )
     second_row['delta_value'] = perfcompare_utils.get_delta_value(
         second_row['new_avg_value'], second_row['base_avg_value']
     )
@@ -721,6 +721,12 @@ def test_perfcompare_results_multiple_runs(
     second_row['more_runs_are_needed'] = perfcompare_utils.more_runs_are_needed(
         True, second_row['is_confident'], len(sig3_values)
     )
+    class_name = perfcompare_utils.get_class_name(
+        second_row['new_is_better'], second_row['base_avg_value'], second_row['new_avg_value'], 0.31
+    )
+    second_row['is_improvement'] = class_name == 'success'
+    second_row['is_regression'] = class_name == 'danger'
+    second_row['is_meaningful'] = class_name == ''
 
     expected = [
         {
@@ -754,7 +760,6 @@ def test_perfcompare_results_multiple_runs(
             'confidence_text_long': 'Result of running t-test on base versus new result distribution: '
             'A value of \'low\' suggests less confidence that there is a sustained,'
             ' significant change between the two revisions.',
-            'is_improvement': first_row['is_improvement'],
             't_value_confidence': perfcompare_utils.T_VALUE_CONFIDENCE,
             't_value_care_min': perfcompare_utils.T_VALUE_CARE_MIN,
             'delta_value': round(first_row['delta_value'], 2),
@@ -767,6 +772,9 @@ def test_perfcompare_results_multiple_runs(
             'graphs_link': f'https://treeherder.mozilla.org/perfherder/graphs?highlightedRevisions={test_perfcomp_push.revision}&'
             f'highlightedRevisions={test_perfcomp_push_2.revision}&'
             f'series={test_repository.name}%2C{sig1.signature_hash}%2C1%2C{sig1.framework.id}&timerange=1209600',
+            'is_improvement': first_row['is_improvement'],
+            'is_regression': first_row['is_regression'],
+            'is_meaningful': first_row['is_meaningful'],
         },
         {
             'framework_id': sig3.framework.id,
@@ -799,7 +807,6 @@ def test_perfcompare_results_multiple_runs(
             'confidence_text_long': 'Result of running t-test on base versus new result distribution: '
             'A value of \'low\' suggests less confidence that there is a sustained,'
             ' significant change between the two revisions.',
-            'is_improvement': second_row['is_improvement'],
             't_value_confidence': perfcompare_utils.T_VALUE_CONFIDENCE,
             't_value_care_min': perfcompare_utils.T_VALUE_CARE_MIN,
             'delta_value': round(second_row['delta_value'], 2),
@@ -812,6 +819,9 @@ def test_perfcompare_results_multiple_runs(
             'graphs_link': f'https://treeherder.mozilla.org/perfherder/graphs?highlightedRevisions={test_perfcomp_push.revision}&'
             f'highlightedRevisions={test_perfcomp_push_2.revision}&'
             f'series={test_repository.name}%2C{sig3.signature_hash}%2C1%2C{sig1.framework.id}&timerange=1209600',
+            'is_improvement': second_row['is_improvement'],
+            'is_regression': second_row['is_regression'],
+            'is_meaningful': second_row['is_meaningful'],
         },
     ]
 
@@ -916,9 +926,6 @@ def test_perfcompare_results_with_only_one_run_and_diff_repo(
     response['new_avg_value'] = statistics.mean(new_perf_data_values)
     response['base_median_value'] = perfcompare_utils.get_median(base_perf_data_values)
     response['new_median_value'] = perfcompare_utils.get_median(new_perf_data_values)
-    response['is_improvement'] = perfcompare_utils.is_improvement(
-        base_signature.lower_is_better, response['base_avg_value'], response['new_avg_value']
-    )
     response['delta_value'] = perfcompare_utils.get_delta_value(
         response['new_avg_value'], response.get('base_avg_value')
     )
@@ -935,6 +942,12 @@ def test_perfcompare_results_with_only_one_run_and_diff_repo(
     response['more_runs_are_needed'] = perfcompare_utils.more_runs_are_needed(
         True, response['is_confident'], len(new_perf_data_values)
     )
+    class_name = perfcompare_utils.get_class_name(
+        response['new_is_better'], response['base_avg_value'], response['new_avg_value'], 1.01
+    )
+    response['is_improvement'] = class_name == 'success'
+    response['is_regression'] = class_name == 'danger'
+    response['is_meaningful'] = class_name == ''
 
     expected = [
         {
@@ -972,7 +985,6 @@ def test_perfcompare_results_with_only_one_run_and_diff_repo(
             'confidence_text_long': 'Result of running t-test on base versus new result distribution: '
             'A value of \'low\' suggests less confidence that there is a sustained,'
             ' significant change between the two revisions.',
-            'is_improvement': response['is_improvement'],
             't_value_confidence': perfcompare_utils.T_VALUE_CONFIDENCE,
             't_value_care_min': perfcompare_utils.T_VALUE_CARE_MIN,
             'delta_value': round(response['delta_value'], 2),
@@ -987,6 +999,9 @@ def test_perfcompare_results_with_only_one_run_and_diff_repo(
             f'series={try_repository.name}%2C{base_signature.signature_hash}%2C1%2C{base_signature.framework.id}&'
             f'series={test_repository.name}%2C{base_signature.signature_hash}%2C1%2C{base_signature.framework.id}&'
             f'timerange=604800',
+            'is_improvement': response['is_improvement'],
+            'is_regression': response['is_regression'],
+            'is_meaningful': response['is_meaningful'],
         },
     ]
 

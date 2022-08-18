@@ -159,13 +159,6 @@ def get_confidence_text(abs_tvalue):
     return confidence_text
 
 
-def is_improvement(lower_is_better, base_avg_value, new_avg_value):
-    """Returns if the new result is better and we're confident about it"""
-    delta = get_delta_value(new_avg_value, base_avg_value)
-    new_is_better = is_new_better(delta, lower_is_better)
-    return True if new_is_better else False
-
-
 """ Delta value, delta percentage and magnitude """
 
 
@@ -203,3 +196,29 @@ def is_confident(base_runs_count, new_runs_count, confidence):
 
 def more_runs_are_needed(is_complete, is_confident, base_runs_count):
     return is_complete and not is_confident and base_runs_count < 6
+
+
+""" Class name """
+
+
+def get_class_name(new_is_better, base_avg_value, new_avg_value, abs_t_value):
+    # Returns a class name, if any, based on a relative change in the absolute value
+    if not base_avg_value or not new_avg_value:
+        return ''
+
+    ratio = new_avg_value / base_avg_value
+    if ratio < 1:
+        ratio = 1 / ratio  # Direction agnostic and always >= 1
+
+    if ratio < 1.02 or abs_t_value < T_VALUE_CARE_MIN:
+        return ''
+
+    if abs_t_value < T_VALUE_CONFIDENCE:
+        if new_is_better:
+            return ''
+        return 'warning'
+
+    if new_is_better:
+        return 'success'
+    else:
+        'danger'
