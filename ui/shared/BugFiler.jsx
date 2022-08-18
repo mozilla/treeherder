@@ -159,21 +159,38 @@ export class BugFilerClass extends React.Component {
     }
 
     const jg = jobGroupName.toLowerCase();
-    if (jg.includes('xpcshell') || jg.includes('mochitest')) {
+    if (
+      jg.includes('xpcshell') ||
+      jg.includes('mochitest') ||
+      jg.includes('web platform tests')
+    ) {
       // simple hack to make sure we have a testcase in the summary
-      const isTestPath = [
-        /.*test_.*.js/, // xpcshell
-        /.*test_.*.html/, // mochitest
-        /.*test_.*.xhtml/, // mochitest-chrome
-        /.*browser_.*.html/, // b-c
-        /.*browser_.*.js/, // b-c
+      let isTestPath = [
+        /.*test_.*\.js/, // xpcshell
+        /.*test_.*\.html/, // mochitest
+        /.*test_.*\.xhtml/, // mochitest-chrome
+        /.*browser_.*\.html/, // b-c
+        /.*browser_.*\.js/, // b-c
       ].some((regexp) => regexp.test(summaryString));
+
+      if (jg.includes('web platform tests')) {
+        isTestPath = [
+          /.*\.js \|/,
+          /.*\.html \|/,
+          /.*\.htm \|/,
+          /.*\.xhtml \|/,
+          /.*\.xht \|/,
+        ].some((regexp) => regexp.test(summaryString));
+      }
 
       // If not crash|leak
       if (!crash && !isAssertion && isTestPath) {
         const parts = summaryString.split(' | ');
         if (parts.length === 2 || parts.length === 1) {
           summaryString = `${parts[0]} | single tracking bug`;
+          keywords.push('intermittent-testcase');
+        } else if (parts.length === 3) {
+          summaryString = `${parts[1]} | single tracking bug`;
           keywords.push('intermittent-testcase');
         }
       }
