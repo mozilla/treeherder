@@ -120,7 +120,7 @@ const withView = (defaultState) => (WrappedComponent) => {
       );
       for (const result of await Promise.all(results)) {
         const hash = result[1];
-        if (hash === "") {
+        if (hash === '') {
           continue;
         }
         if (uniqueLogKeys.indexOf(hash) === -1) {

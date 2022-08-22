@@ -23,6 +23,8 @@ pytest==7.*
 black>=22.3.0  # issue with 'click' in prior versions of black
 shellcheck-py
 
+urllib3==1.26.11
+
 # To test async code
 pytest-asyncio==0.14.0  # required to pass test_new_job_transformation
 
