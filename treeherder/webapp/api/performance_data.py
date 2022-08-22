@@ -881,8 +881,6 @@ class PerfCompareResults(generics.ListAPIView):
                     'confidence': confidence,
                     'confidence_text': confidence_text,
                     'confidence_text_long': detailed_confidence,
-                    't_value_confidence': perfcompare_utils.T_VALUE_CONFIDENCE,
-                    't_value_care_min': perfcompare_utils.T_VALUE_CARE_MIN,
                     'delta_value': delta_value,
                     'delta_percentage': delta_percentage,
                     'magnitude': magnitude,

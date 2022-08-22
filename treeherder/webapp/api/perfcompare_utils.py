@@ -120,7 +120,7 @@ def get_abs_ttest_value(control_values, test_values):
         elif length_test == 1:
             stddev_test = (test_values[0] * stddev_control) / control_group_avg
     except ZeroDivisionError:
-        return None
+        return 0
     delta = test_group_avg - control_group_avg
     std_diff_err = sqrt(
         (stddev_control * stddev_control) / length_control  # control-variance / control-size
@@ -148,7 +148,7 @@ def confidence_detailed_info(confidence):
 
 
 def get_confidence_text(abs_tvalue):
-    if abs_tvalue is None:
+    if abs_tvalue == 0 or abs_tvalue is None:
         return ''
     if abs_tvalue < T_VALUE_CARE_MIN:
         confidence_text = 'low'
