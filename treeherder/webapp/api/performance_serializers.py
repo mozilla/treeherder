@@ -18,6 +18,7 @@ from treeherder.perf.models import (
     PerformanceTag,
 )
 from treeherder.webapp.api.utils import to_timestamp
+from treeherder.webapp.api.perfcompare_utils import T_VALUE_CONFIDENCE, T_VALUE_CARE_MIN
 
 
 class OptionalBooleanField(serializers.BooleanField):
@@ -395,6 +396,8 @@ class PerformanceSummarySerializer(serializers.ModelSerializer):
 
 
 class PerfCompareResultsQueryParamsSerializer(serializers.Serializer):
+    startday = serializers.DateTimeField(required=False, allow_null=True, default=None)
+    endday = serializers.DateTimeField(required=False, allow_null=True, default=None)
     base_revision = serializers.CharField(required=False, allow_null=True, default=None)
     new_revision = serializers.CharField(required=False, allow_null=True, default=None)
     base_repository = serializers.CharField()
@@ -408,8 +411,11 @@ class PerfCompareResultsQueryParamsSerializer(serializers.Serializer):
             data['base_revision'] is None
             and data['new_revision'] is None
             and data['interval'] is None
+            and (data['startday'] is None or data['endday'] is None)
         ):
-            raise serializers.ValidationError('Required: base_revision, new_revision and interval.')
+            raise serializers.ValidationError(
+                'Required: base_revision, new_revision, startday and endday or interval.'
+            )
 
         try:
             Repository.objects.get(name=data['base_repository'])
@@ -429,8 +435,8 @@ class PerfCompareResultsSerializer(serializers.ModelSerializer):
     header_name = serializers.CharField()
     base_repository_name = serializers.CharField()
     new_repository_name = serializers.CharField()
-    base_measurement_unit = serializers.CharField()
-    new_measurement_unit = serializers.CharField()
+    base_measurement_unit = serializers.CharField(default='')
+    new_measurement_unit = serializers.CharField(default='')
     base_retriggerable_job_ids = serializers.ListField(child=serializers.IntegerField(), default=[])
     new_retriggerable_job_ids = serializers.ListField(child=serializers.IntegerField(), default=[])
     option_name = serializers.CharField()
@@ -453,8 +459,8 @@ class PerfCompareResultsSerializer(serializers.ModelSerializer):
     confidence = PerfCompareDecimalField()
     confidence_text = serializers.CharField()
     confidence_text_long = serializers.CharField()
-    t_value_confidence = serializers.IntegerField(required=False, allow_null=True, default=None)
-    t_value_care_min = serializers.IntegerField(required=False, allow_null=True, default=None)
+    t_value_confidence = serializers.IntegerField(default=T_VALUE_CONFIDENCE)
+    t_value_care_min = serializers.IntegerField(default=T_VALUE_CARE_MIN)
     delta_value = PerfCompareDecimalField()
     delta_percentage = PerfCompareDecimalField()
     magnitude = PerfCompareDecimalField()
