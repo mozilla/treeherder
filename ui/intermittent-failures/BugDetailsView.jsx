@@ -1,7 +1,7 @@
 import React from 'react';
 import { Row, Col, Breadcrumb, BreadcrumbItem } from 'reactstrap';
 import { Link } from 'react-router-dom';
-import ReactTable from 'react-table';
+import ReactTable from 'react-table-6';
 import PropTypes from 'prop-types';
 import { Helmet } from 'react-helmet';
 
@@ -36,7 +36,43 @@ const BugDetailsView = (props) => {
     lastLocation,
     tableFailureStatus,
     graphFailureStatus,
+    uniqueLines,
   } = props;
+
+  const customFilter = ({ filter, onChange }) => {
+    if (!tableData || !uniqueLines) return;
+    return (
+      <select
+        onChange={(event) => onChange(event.target.value)}
+        style={{ width: '100%' }}
+        value={filter ? filter.value : 'all'}
+      >
+        <option value="all">All</option>
+        {uniqueLines.map((vals) => {
+          return <option value={vals[1]}>{vals[0]}</option>;
+        })}
+      </select>
+    );
+  };
+
+  const lineTrimmer = (failureLines) => {
+    if (failureLines === undefined) {
+      return '';
+    }
+    if (typeof failureLines === 'string') {
+      failureLines = failureLines.split('\n');
+    }
+    const lines = failureLines.map((i) => i.split('\n'));
+
+    const trimmedLines = lines.map((line) => {
+      const parts = line.toString().split(' | ');
+      if (parts.length > 2) {
+        parts.shift();
+      }
+      return parts.join(' | ');
+    });
+    return trimmedLines.join('\n');
+  };
 
   const columns = [
     {
@@ -91,6 +127,21 @@ const BugDetailsView = (props) => {
     {
       Header: 'Log',
       accessor: 'job_id',
+      filterMethod: (filter, row) => {
+        if (filter.value === 'all') {
+          return true;
+        }
+        const trimmed = lineTrimmer(row._original.lines);
+        let filterValue = '';
+        const hashIndex = 1;
+        uniqueLines.forEach((uniqueLine) => {
+          if (trimmed === uniqueLine[0]) {
+            filterValue = uniqueLine[hashIndex];
+          }
+        });
+        return filterValue === filter.value;
+      },
+      Filter: ({ filter, onChange }) => customFilter({ filter, onChange }),
       Cell: (_props) => {
         const { value, original } = _props;
         return (
@@ -224,6 +275,7 @@ const BugDetailsView = (props) => {
         initialParamsSet && (
           <ReactTable
             data={tableData}
+            filterable
             showPageSizeOptions
             columns={columns}
             className="-striped"
@@ -254,6 +306,7 @@ BugDetailsView.propTypes = {
   lastLocation: PropTypes.shape({}).isRequired,
   tableFailureStatus: PropTypes.string,
   graphFailureStatus: PropTypes.string,
+  uniqueLines: PropTypes.arrayOf(PropTypes.array),
 };
 
 BugDetailsView.defaultProps = {
@@ -263,6 +316,7 @@ BugDetailsView.defaultProps = {
   tableFailureStatus: null,
   graphFailureStatus: null,
   updateAppState: null,
+  uniqueLines: [],
 };
 
 const defaultState = {

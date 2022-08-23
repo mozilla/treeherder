@@ -16,7 +16,6 @@ import {
 import debounce from 'lodash/debounce';
 
 export default class AlertModal extends React.Component {
-  // eslint-disable-next-line react/sort-comp
   constructor(props) {
     super(props);
     this.state = {

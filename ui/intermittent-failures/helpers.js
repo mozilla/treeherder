@@ -131,7 +131,7 @@ export const tableRowStyling = function tableRowStyling(state, bug) {
       return { style };
     }
 
-    const disabledStrings = new RegExp('(disabled|annotated|marked)', 'i');
+    const disabledStrings = /(disabled|annotated|marked)/i;
     if (disabledStrings.test(bug.row.whiteboard)) {
       return { style };
     }

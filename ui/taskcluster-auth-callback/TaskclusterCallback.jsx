@@ -26,6 +26,7 @@ export default class TaskclusterCallback extends React.PureComponent {
       this.getCredentials(code);
     } else {
       if (error)
+        // eslint-disable-next-line no-import-assign
         errorMessage += `We received error: ${error} from Taskcluster.`;
 
       this.setState({

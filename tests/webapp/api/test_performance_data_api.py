@@ -7,7 +7,7 @@ from collections import defaultdict
 
 from treeherder.model.models import MachinePlatform, Push, Job
 from treeherder.webapp.api.performance_data import PerformanceSummary
-from treeherder.webapp.api import perf_compare_utils
+from treeherder.webapp.api import perfcompare_utils
 from treeherder.perf.models import (
     PerformanceDatum,
     PerformanceFramework,
@@ -594,30 +594,17 @@ def test_perfcompare_results_multiple_runs(
     test_perf_signature,
     test_repository,
     eleven_jobs_stored,
+    test_perfcomp_push,
+    test_perfcomp_push_2,
+    test_linux_platform,
+    test_macosx_platform,
+    test_option_collection,
 ):
-
-    linux1804_64_shippable_qr = MachinePlatform.objects.create(
-        os_name='-', platform='linux1804-64-shippable-qr', architecture='-'
-    )
-    macosx1015_64_shippable_qr = MachinePlatform.objects.create(
-        os_name='', platform='macosx1015-64-shippable-qr', architecture=''
-    )
-
     perf_jobs = Job.objects.filter(pk__in=range(1, 11)).order_by('push__time').all()
 
-    push1 = Push.objects.create(
-        repository=test_repository,
-        revision='1377267c6dc1',
-        author='foo@foo.com',
-        time=SEVEN_DAYS_AGO,
-        # time=datetime.datetime.now()
-    )
-    push2 = Push.objects.create(
-        repository=test_repository,
-        revision='08038e535f58',
-        author='bar@bar.com',
-        time=datetime.datetime.now(),
-    )
+    test_perfcomp_push.time = SEVEN_DAYS_AGO
+    test_perfcomp_push.save()
+    test_perfcomp_push_2.time = datetime.datetime.now(test_perfcomp_push_2.save())
 
     suite = 'a11yr'
     test = 'dhtml.html'
@@ -627,7 +614,7 @@ def test_perfcompare_results_multiple_runs(
     sig1 = create_signature(
         signature_hash=(20 * 't1'),
         extra_options=extra_options,
-        platform=linux1804_64_shippable_qr,
+        platform=test_linux_platform,
         measurement_unit=measurement_unit,
         suite=suite,
         test=test,
@@ -641,12 +628,12 @@ def test_perfcompare_results_multiple_runs(
     sig4_values = [55.0, 70.0]
 
     for index, job in enumerate(perf_jobs[:3]):
-        create_perf_datum(index, job, push1, sig1, sig1_values)
+        create_perf_datum(index, job, test_perfcomp_push, sig1, sig1_values)
 
     sig2 = create_signature(
         signature_hash=(20 * 't2'),
         extra_options=extra_options,
-        platform=linux1804_64_shippable_qr,
+        platform=test_linux_platform,
         measurement_unit=measurement_unit,
         suite=suite,
         test=test,
@@ -655,12 +642,12 @@ def test_perfcompare_results_multiple_runs(
     )
 
     for index, job in enumerate(perf_jobs[3:5]):
-        create_perf_datum(index, job, push2, sig2, sig2_values)
+        create_perf_datum(index, job, test_perfcomp_push_2, sig2, sig2_values)
 
     sig3 = create_signature(
         signature_hash=(20 * 't3'),
         extra_options=extra_options,
-        platform=macosx1015_64_shippable_qr,
+        platform=test_macosx_platform,
         measurement_unit=measurement_unit,
         suite=suite,
         test=test,
@@ -669,12 +656,12 @@ def test_perfcompare_results_multiple_runs(
     )
 
     for index, job in enumerate(perf_jobs[5:7]):
-        create_perf_datum(index, job, push1, sig3, sig3_values)
+        create_perf_datum(index, job, test_perfcomp_push, sig3, sig3_values)
 
     sig4 = create_signature(
         signature_hash=(20 * 't4'),
         extra_options=extra_options,
-        platform=macosx1015_64_shippable_qr,
+        platform=test_macosx_platform,
         measurement_unit=measurement_unit,
         suite=suite,
         test=test,
@@ -683,47 +670,63 @@ def test_perfcompare_results_multiple_runs(
     )
 
     for index, job in enumerate(perf_jobs[7:9]):
-        create_perf_datum(index, job, push2, sig4, sig4_values)
-
-    option_collection_map = perf_compare_utils.get_option_collection_map()
+        create_perf_datum(index, job, test_perfcomp_push_2, sig4, sig4_values)
 
     first_row = {}
     first_row['base_avg_value'] = statistics.mean(sig1_values)
     first_row['new_avg_value'] = statistics.mean(sig2_values)
-    first_row['base_median_value'] = perf_compare_utils.get_median(sig1_values)
-    first_row['new_median_value'] = perf_compare_utils.get_median(sig2_values)
-    first_row['is_improvement'] = perf_compare_utils.is_improvement(
-        sig3.lower_is_better, first_row['base_avg_value'], first_row['new_avg_value']
-    )
-    first_row['delta_value'] = perf_compare_utils.get_delta_value(
+    first_row['base_median_value'] = perfcompare_utils.get_median(sig1_values)
+    first_row['new_median_value'] = perfcompare_utils.get_median(sig2_values)
+    first_row['delta_value'] = perfcompare_utils.get_delta_value(
         first_row['new_avg_value'], first_row.get('base_avg_value')
     )
-    first_row['delta_pct'] = perf_compare_utils.get_delta_percentage(
+    first_row['delta_pct'] = perfcompare_utils.get_delta_percentage(
         first_row['delta_value'], first_row['base_avg_value']
     )
-    first_row['magnitude'] = perf_compare_utils.get_magnitude(first_row['delta_pct'])
-    first_row['new_is_better'] = perf_compare_utils.is_new_better(
+    first_row['magnitude'] = perfcompare_utils.get_magnitude(first_row['delta_pct'])
+    first_row['new_is_better'] = perfcompare_utils.is_new_better(
         first_row['delta_value'], sig1.lower_is_better
     )
+    first_row['is_confident'] = perfcompare_utils.is_confident(
+        len(sig1_values), len(sig2_values), 0.18
+    )
+    first_row['more_runs_are_needed'] = perfcompare_utils.more_runs_are_needed(
+        True, first_row['is_confident'], len(sig1_values)
+    )
+    class_name = perfcompare_utils.get_class_name(
+        first_row['new_is_better'], first_row['base_avg_value'], first_row['new_avg_value'], 0.18
+    )
+    first_row['is_improvement'] = class_name == 'success'
+    first_row['is_regression'] = class_name == 'danger'
+    first_row['is_meaningful'] = class_name == ''
 
     second_row = {}
     second_row['base_avg_value'] = statistics.mean(sig3_values)
     second_row['new_avg_value'] = statistics.mean(sig4_values)
-    second_row['base_median_value'] = perf_compare_utils.get_median(sig3_values)
-    second_row['new_median_value'] = perf_compare_utils.get_median(sig4_values)
-    second_row['is_improvement'] = perf_compare_utils.is_improvement(
-        sig3.lower_is_better, second_row['base_avg_value'], second_row['new_avg_value']
-    )
-    second_row['delta_value'] = perf_compare_utils.get_delta_value(
+    second_row['base_median_value'] = perfcompare_utils.get_median(sig3_values)
+    second_row['new_median_value'] = perfcompare_utils.get_median(sig4_values)
+    second_row['delta_value'] = perfcompare_utils.get_delta_value(
         second_row['new_avg_value'], second_row['base_avg_value']
     )
-    second_row['delta_pct'] = perf_compare_utils.get_delta_percentage(
+    second_row['delta_pct'] = perfcompare_utils.get_delta_percentage(
         second_row['delta_value'], second_row['base_avg_value']
     )
-    second_row['magnitude'] = perf_compare_utils.get_magnitude(second_row['delta_pct'])
-    second_row['new_is_better'] = perf_compare_utils.is_new_better(
+    second_row['magnitude'] = perfcompare_utils.get_magnitude(second_row['delta_pct'])
+    second_row['new_is_better'] = perfcompare_utils.is_new_better(
         second_row['delta_value'], sig3.lower_is_better
     )
+    second_row['is_confident'] = perfcompare_utils.is_confident(
+        len(sig3_values), len(sig4_values), 0.31
+    )
+    second_row['more_runs_are_needed'] = perfcompare_utils.more_runs_are_needed(
+        True, second_row['is_confident'], len(sig3_values)
+    )
+    class_name = perfcompare_utils.get_class_name(
+        second_row['new_is_better'], second_row['base_avg_value'], second_row['new_avg_value'], 0.31
+    )
+    second_row['is_improvement'] = class_name == 'success'
+    second_row['is_regression'] = class_name == 'danger'
+    second_row['is_meaningful'] = class_name == ''
 
     expected = [
         {
@@ -746,7 +749,7 @@ def test_perfcompare_results_multiple_runs(
             'base_median_value': round(first_row['base_median_value'], 2),
             'new_median_value': round(first_row['new_median_value'], 2),
             'test': sig1.test,
-            'option_name': option_collection_map.get(sig1.option_collection_id, ''),
+            'option_name': test_option_collection.get(sig1.option_collection_id, ''),
             'extra_options': sig1.extra_options,
             'base_stddev': round(statistics.stdev(sig1_values), 2),
             'new_stddev': round(statistics.stdev(sig2_values), 2),
@@ -757,16 +760,21 @@ def test_perfcompare_results_multiple_runs(
             'confidence_text_long': 'Result of running t-test on base versus new result distribution: '
             'A value of \'low\' suggests less confidence that there is a sustained,'
             ' significant change between the two revisions.',
-            'is_improvement': first_row['is_improvement'],
-            't_value_confidence': perf_compare_utils.T_VALUE_CONFIDENCE,
-            't_value_care_min': perf_compare_utils.T_VALUE_CARE_MIN,
+            't_value_confidence': perfcompare_utils.T_VALUE_CONFIDENCE,
+            't_value_care_min': perfcompare_utils.T_VALUE_CARE_MIN,
             'delta_value': round(first_row['delta_value'], 2),
             'delta_percentage': round(first_row['delta_pct'], 2),
             'magnitude': round(first_row['magnitude'], 2),
             'new_is_better': first_row['new_is_better'],
-            'graphs_link': f'https://treeherder.mozilla.org/perfherder/graphs?highlightedRevisions={push1.revision}&'
-            f'highlightedRevisions={push2.revision}&'
+            'is_confident': first_row['is_confident'],
+            'more_runs_are_needed': first_row['more_runs_are_needed'],
+            'noise_metric': False,
+            'graphs_link': f'https://treeherder.mozilla.org/perfherder/graphs?highlightedRevisions={test_perfcomp_push.revision}&'
+            f'highlightedRevisions={test_perfcomp_push_2.revision}&'
             f'series={test_repository.name}%2C{sig1.signature_hash}%2C1%2C{sig1.framework.id}&timerange=1209600',
+            'is_improvement': first_row['is_improvement'],
+            'is_regression': first_row['is_regression'],
+            'is_meaningful': first_row['is_meaningful'],
         },
         {
             'framework_id': sig3.framework.id,
@@ -788,7 +796,7 @@ def test_perfcompare_results_multiple_runs(
             'base_median_value': round(second_row['base_median_value'], 2),
             'new_median_value': round(second_row['new_median_value'], 2),
             'test': sig3.test,
-            'option_name': option_collection_map.get(sig3.option_collection_id, ''),
+            'option_name': test_option_collection.get(sig3.option_collection_id, ''),
             'extra_options': sig3.extra_options,
             'base_stddev': round(statistics.stdev(sig3_values), 2),
             'new_stddev': round(statistics.stdev(sig4_values), 2),
@@ -799,16 +807,21 @@ def test_perfcompare_results_multiple_runs(
             'confidence_text_long': 'Result of running t-test on base versus new result distribution: '
             'A value of \'low\' suggests less confidence that there is a sustained,'
             ' significant change between the two revisions.',
-            'is_improvement': second_row['is_improvement'],
-            't_value_confidence': perf_compare_utils.T_VALUE_CONFIDENCE,
-            't_value_care_min': perf_compare_utils.T_VALUE_CARE_MIN,
+            't_value_confidence': perfcompare_utils.T_VALUE_CONFIDENCE,
+            't_value_care_min': perfcompare_utils.T_VALUE_CARE_MIN,
             'delta_value': round(second_row['delta_value'], 2),
             'delta_percentage': round(second_row['delta_pct'], 2),
             'magnitude': round(second_row['magnitude'], 2),
             'new_is_better': second_row['new_is_better'],
-            'graphs_link': f'https://treeherder.mozilla.org/perfherder/graphs?highlightedRevisions={push1.revision}&'
-            f'highlightedRevisions={push2.revision}&'
+            'is_confident': second_row['is_confident'],
+            'more_runs_are_needed': second_row['more_runs_are_needed'],
+            'noise_metric': False,
+            'graphs_link': f'https://treeherder.mozilla.org/perfherder/graphs?highlightedRevisions={test_perfcomp_push.revision}&'
+            f'highlightedRevisions={test_perfcomp_push_2.revision}&'
             f'series={test_repository.name}%2C{sig3.signature_hash}%2C1%2C{sig1.framework.id}&timerange=1209600',
+            'is_improvement': second_row['is_improvement'],
+            'is_regression': second_row['is_regression'],
+            'is_meaningful': second_row['is_meaningful'],
         },
     ]
 
@@ -817,8 +830,8 @@ def test_perfcompare_results_multiple_runs(
         '}&interval=172800&no_subtests=true'.format(
             test_perf_signature.repository.name,
             test_perf_signature.repository.name,
-            push1.revision,
-            push2.revision,
+            test_perfcomp_push.revision,
+            test_perfcomp_push_2.revision,
             test_perf_signature.framework_id,
         )
     )
@@ -837,36 +850,28 @@ def test_perfcompare_results_with_only_one_run_and_diff_repo(
     test_repository,
     try_repository,
     eleven_jobs_stored,
+    test_perfcomp_push,
+    test_perfcomp_push_2,
+    test_linux_platform,
+    test_option_collection,
 ):
-
-    linux1804_64_shippable_qr = MachinePlatform.objects.create(
-        os_name='-', platform='linux1804-64-shippable-qr', architecture='-'
-    )
-
     perf_jobs = Job.objects.filter(pk__in=range(1, 11)).order_by('push__time').all()
 
-    push1 = Push.objects.create(
-        repository=try_repository,
-        revision='1377267c6dc1',
-        author='foo@foo.com',
-        time=THREE_DAYS_AGO,
-    )
-    push2 = Push.objects.create(
-        repository=test_repository,
-        revision='08038e535f58',
-        author='bar@bar.com',
-        time=datetime.datetime.now(),
-    )
+    test_perfcomp_push.time = THREE_DAYS_AGO
+    test_perfcomp_push.repository = try_repository
+    test_perfcomp_push.save()
+    test_perfcomp_push_2.time = datetime.datetime.now()
+    test_perfcomp_push_2.save()
 
     suite = 'a11yr'
     test = 'dhtml.html'
     extra_options = 'e10s fission stylo webrender'
     measurement_unit = 'ms'
 
-    sig1 = create_signature(
+    base_signature = create_signature(
         signature_hash=(20 * 't1'),
         extra_options=extra_options,
-        platform=linux1804_64_shippable_qr,
+        platform=test_linux_platform,
         measurement_unit=measurement_unit,
         suite=suite,
         test=test,
@@ -874,27 +879,27 @@ def test_perfcompare_results_with_only_one_run_and_diff_repo(
         repository=try_repository,
     )
 
-    sig1_values = [32.4]
-    sig2_values = [40.2]
+    base_perf_data_values = [32.4]
+    new_perf_data_values = [40.2]
 
     job = perf_jobs[0]
-    job.push = push1
+    job.push = test_perfcomp_push
     job.save()
     perf_datum = PerformanceDatum.objects.create(
-        value=sig1_values[0],
+        value=base_perf_data_values[0],
         push_timestamp=job.push.time,
         job=job,
         push=job.push,
         repository=try_repository,
-        signature=sig1,
+        signature=base_signature,
     )
     perf_datum.push.time = job.push.time
     perf_datum.push.save()
 
-    sig2 = create_signature(
+    new_signature = create_signature(
         signature_hash=(20 * 't2'),
         extra_options=extra_options,
-        platform=linux1804_64_shippable_qr,
+        platform=test_linux_platform,
         measurement_unit=measurement_unit,
         suite=suite,
         test=test,
@@ -903,65 +908,76 @@ def test_perfcompare_results_with_only_one_run_and_diff_repo(
     )
 
     job = perf_jobs[1]
-    job.push = push2
+    job.push = test_perfcomp_push_2
     job.save()
     perf_datum = PerformanceDatum.objects.create(
-        value=sig2_values[0],
+        value=new_perf_data_values[0],
         push_timestamp=job.push.time,
         job=job,
         push=job.push,
         repository=job.repository,
-        signature=sig2,
+        signature=new_signature,
     )
     perf_datum.push.time = job.push.time
     perf_datum.push.save()
 
-    option_collection_map = perf_compare_utils.get_option_collection_map()
-
     response = {}
-    response['base_avg_value'] = statistics.mean(sig1_values)
-    response['new_avg_value'] = statistics.mean(sig2_values)
-    response['base_median_value'] = perf_compare_utils.get_median(sig1_values)
-    response['new_median_value'] = perf_compare_utils.get_median(sig2_values)
-    response['is_improvement'] = perf_compare_utils.is_improvement(
-        sig1.lower_is_better, response['base_avg_value'], response['new_avg_value']
-    )
-    response['delta_value'] = perf_compare_utils.get_delta_value(
+    response['base_avg_value'] = statistics.mean(base_perf_data_values)
+    response['new_avg_value'] = statistics.mean(new_perf_data_values)
+    response['base_median_value'] = perfcompare_utils.get_median(base_perf_data_values)
+    response['new_median_value'] = perfcompare_utils.get_median(new_perf_data_values)
+    response['delta_value'] = perfcompare_utils.get_delta_value(
         response['new_avg_value'], response.get('base_avg_value')
     )
-    response['delta_pct'] = perf_compare_utils.get_delta_percentage(
+    response['delta_pct'] = perfcompare_utils.get_delta_percentage(
         response['delta_value'], response['base_avg_value']
     )
-    response['magnitude'] = perf_compare_utils.get_magnitude(response['delta_pct'])
-    response['new_is_better'] = perf_compare_utils.is_new_better(
-        response['delta_value'], sig1.lower_is_better
+    response['magnitude'] = perfcompare_utils.get_magnitude(response['delta_pct'])
+    response['new_is_better'] = perfcompare_utils.is_new_better(
+        response['delta_value'], base_signature.lower_is_better
     )
+    response['is_confident'] = perfcompare_utils.is_confident(
+        len(base_perf_data_values), len(new_perf_data_values), 1.01
+    )
+    response['more_runs_are_needed'] = perfcompare_utils.more_runs_are_needed(
+        True, response['is_confident'], len(new_perf_data_values)
+    )
+    class_name = perfcompare_utils.get_class_name(
+        response['new_is_better'], response['base_avg_value'], response['new_avg_value'], 1.01
+    )
+    response['is_improvement'] = class_name == 'success'
+    response['is_regression'] = class_name == 'danger'
+    response['is_meaningful'] = class_name == ''
 
     expected = [
         {
-            'framework_id': sig1.framework.id,
-            'platform': sig1.platform.platform,
-            'suite': sig1.suite,
+            'framework_id': base_signature.framework.id,
+            'platform': base_signature.platform.platform,
+            'suite': base_signature.suite,
             'is_empty': False,
             'header_name': 'a11yr dhtml.html opt e10s fission stylo webrender',
-            'base_repository_name': sig1.repository.name,
-            'new_repository_name': sig2.repository.name,
+            'base_repository_name': base_signature.repository.name,
+            'new_repository_name': new_signature.repository.name,
             'is_complete': True,
-            'base_measurement_unit': sig1.measurement_unit,
-            'new_measurement_unit': sig2.measurement_unit,
+            'base_measurement_unit': base_signature.measurement_unit,
+            'new_measurement_unit': new_signature.measurement_unit,
             'base_retriggerable_job_ids': [1],
             'new_retriggerable_job_ids': [4],
-            'base_runs': sig1_values,
-            'new_runs': sig2_values,
+            'base_runs': base_perf_data_values,
+            'new_runs': new_perf_data_values,
             'base_avg_value': round(response['base_avg_value'], 2),
             'new_avg_value': round(response['new_avg_value'], 2),
             'base_median_value': round(response['base_median_value'], 2),
             'new_median_value': round(response['new_median_value'], 2),
-            'test': sig1.test,
-            'option_name': option_collection_map.get(sig1.option_collection_id, ''),
-            'extra_options': sig1.extra_options,
-            'base_stddev': round(statistics.stdev(sig1_values), 2) if len(sig1_values) >= 2 else 0,
-            'new_stddev': round(statistics.stdev(sig2_values), 2) if len(sig2_values) >= 2 else 0,
+            'test': base_signature.test,
+            'option_name': test_option_collection.get(base_signature.option_collection_id, ''),
+            'extra_options': base_signature.extra_options,
+            'base_stddev': round(statistics.stdev(base_perf_data_values), 2)
+            if len(base_perf_data_values) >= 2
+            else 0,
+            'new_stddev': round(statistics.stdev(new_perf_data_values), 2)
+            if len(new_perf_data_values) >= 2
+            else 0,
             'base_stddev_pct': 0,
             'new_stddev_pct': 0,
             'confidence': 1.01,
@@ -969,18 +985,23 @@ def test_perfcompare_results_with_only_one_run_and_diff_repo(
             'confidence_text_long': 'Result of running t-test on base versus new result distribution: '
             'A value of \'low\' suggests less confidence that there is a sustained,'
             ' significant change between the two revisions.',
-            'is_improvement': response['is_improvement'],
-            't_value_confidence': perf_compare_utils.T_VALUE_CONFIDENCE,
-            't_value_care_min': perf_compare_utils.T_VALUE_CARE_MIN,
+            't_value_confidence': perfcompare_utils.T_VALUE_CONFIDENCE,
+            't_value_care_min': perfcompare_utils.T_VALUE_CARE_MIN,
             'delta_value': round(response['delta_value'], 2),
             'delta_percentage': round(response['delta_pct'], 2),
             'magnitude': round(response['magnitude'], 2),
             'new_is_better': response['new_is_better'],
-            'graphs_link': f'https://treeherder.mozilla.org/perfherder/graphs?highlightedRevisions={push1.revision}&'
-            f'highlightedRevisions={push2.revision}&'
-            f'series={try_repository.name}%2C{sig1.signature_hash}%2C1%2C{sig1.framework.id}&'
-            f'series={test_repository.name}%2C{sig1.signature_hash}%2C1%2C{sig1.framework.id}&'
+            'is_confident': response['is_confident'],
+            'more_runs_are_needed': response['more_runs_are_needed'],
+            'noise_metric': False,
+            'graphs_link': f'https://treeherder.mozilla.org/perfherder/graphs?highlightedRevisions={test_perfcomp_push.revision}&'
+            f'highlightedRevisions={test_perfcomp_push_2.revision}&'
+            f'series={try_repository.name}%2C{base_signature.signature_hash}%2C1%2C{base_signature.framework.id}&'
+            f'series={test_repository.name}%2C{base_signature.signature_hash}%2C1%2C{base_signature.framework.id}&'
             f'timerange=604800',
+            'is_improvement': response['is_improvement'],
+            'is_regression': response['is_regression'],
+            'is_meaningful': response['is_meaningful'],
         },
     ]
 
@@ -989,8 +1010,8 @@ def test_perfcompare_results_with_only_one_run_and_diff_repo(
         '}&interval=172800&no_subtests=true'.format(
             try_repository.name,
             test_repository.name,
-            push1.revision,
-            push2.revision,
+            test_perfcomp_push.revision,
+            test_perfcomp_push_2.revision,
             test_perf_signature.framework_id,
         )
     )
@@ -998,8 +1019,7 @@ def test_perfcompare_results_with_only_one_run_and_diff_repo(
     response = client.get(reverse('perfcompare-results') + query_params)
 
     assert response.status_code == 200
-    for result in expected:
-        assert result in response.json()
+    assert expected[0] == response.json()[0]
 
 
 def test_data_points_from_same_push_are_ordered_chronologically(

@@ -98,7 +98,7 @@ test('Alert is created on Monday, Triage to countdown shows 3 working days', asy
   alert.created = '2022-02-07T11:41:31.419156';
 
   // current day is set to Monday
-  Date.now = jest.fn(() => Date.parse('2022-02-7'));
+  Date.now = jest.fn(() => Date.parse('2022-02-07T11:41:31.419156'));
 
   const { getByTestId } = testStatusDropdown([], alert);
   const dueDateIcon = await waitFor(() => getByTestId('triage-clock-icon'));
@@ -117,7 +117,7 @@ test('Alert is created on Monday, Triage to countdown shows 2 working days', asy
   alert.created = '2022-02-07T11:41:31.419156';
 
   // current day is set to Tuesday
-  Date.now = jest.fn(() => Date.parse('2022-02-8'));
+  Date.now = jest.fn(() => Date.parse('2022-02-08T11:41:31.419156'));
 
   const { getByTestId } = testStatusDropdown([], alert);
   const dueDateIcon = await waitFor(() => getByTestId('triage-clock-icon'));
@@ -136,7 +136,7 @@ test('Alert is created on Monday, Triage to countdown shows 1 working days', asy
   alert.created = '2022-02-07T11:41:31.419156';
 
   // current day is set to Wednesday
-  Date.now = jest.fn(() => Date.parse('2022-02-9'));
+  Date.now = jest.fn(() => Date.parse('2022-02-09T11:41:31.419156'));
 
   const { getByTestId } = testStatusDropdown([], alert);
   const dueDateIcon = await waitFor(() => getByTestId('triage-clock-icon'));
@@ -155,7 +155,7 @@ test('Alert is created on Monday, Triage to countdown shows Today', async () => 
   alert.created = '2022-02-07T11:41:31.419156';
 
   // current day is set to Thursday
-  Date.now = jest.fn(() => Date.parse('2022-02-10'));
+  Date.now = jest.fn(() => Date.parse('2022-02-10T11:41:31.419156'));
 
   const { getByTestId } = testStatusDropdown([], alert);
   const dueDateIcon = await waitFor(() => getByTestId('triage-clock-icon'));
@@ -174,7 +174,7 @@ test('Alert is created on Monday, Triage to countdown shows Overdue', async () =
   alert.created = '2022-02-07T11:41:31.419156';
 
   // current day is set to Friday
-  Date.now = jest.fn(() => Date.parse('2022-02-11'));
+  Date.now = jest.fn(() => Date.parse('2022-02-11T11:41:31.419156'));
 
   const { getByTestId } = testStatusDropdown([], alert);
   const dueDateIcon = await waitFor(() => getByTestId('triage-clock-icon'));
@@ -194,7 +194,7 @@ test('Alert is created on Tuesday, Triage to countdown shows 3 working days', as
   alert.created = '2022-02-08T11:41:31.419156';
 
   // current day is set to Tuesday
-  Date.now = jest.fn(() => Date.parse('2022-02-8'));
+  Date.now = jest.fn(() => Date.parse('2022-02-08T11:41:31.419156'));
 
   const { getByTestId } = testStatusDropdown([], alert);
   const dueDateIcon = await waitFor(() => getByTestId('triage-clock-icon'));
@@ -213,7 +213,7 @@ test('Alert is created on Tuesday, Triage to countdown shows 2 working days', as
   alert.created = '2022-02-08T11:41:31.419156';
 
   // current day is set to Wednesday
-  Date.now = jest.fn(() => Date.parse('2022-02-9'));
+  Date.now = jest.fn(() => Date.parse('2022-02-09T11:41:31.419156'));
 
   const { getByTestId } = testStatusDropdown([], alert);
   const dueDateIcon = await waitFor(() => getByTestId('triage-clock-icon'));
@@ -232,7 +232,7 @@ test('Alert is created on Tuesday, Triage to countdown shows 1 working days', as
   alert.created = '2022-02-08T11:41:31.419156';
 
   // current day is set to Thursday
-  Date.now = jest.fn(() => Date.parse('2022-02-10'));
+  Date.now = jest.fn(() => Date.parse('2022-02-10T11:41:31.419156'));
 
   const { getByTestId } = testStatusDropdown([], alert);
   const dueDateIcon = await waitFor(() => getByTestId('triage-clock-icon'));
@@ -251,7 +251,7 @@ test('Alert is created on Tuesday, Triage to countdown shows Today', async () =>
   alert.created = '2022-02-08T11:41:31.419156';
 
   // current day is set to Friday
-  Date.now = jest.fn(() => Date.parse('2022-02-11'));
+  Date.now = jest.fn(() => Date.parse('2022-02-11T11:41:31.419156'));
 
   const { getByTestId } = testStatusDropdown([], alert);
   const dueDateIcon = await waitFor(() => getByTestId('triage-clock-icon'));
@@ -270,7 +270,7 @@ test('Alert is created on Tuesday, Triage to countdown shows Overdue', async () 
   alert.created = '2022-02-08T11:41:31.419156';
 
   // current day is set to Monday
-  Date.now = jest.fn(() => Date.parse('2022-02-14'));
+  Date.now = jest.fn(() => Date.parse('2022-02-14T11:41:31.419156'));
 
   const { getByTestId } = testStatusDropdown([], alert);
   const dueDateIcon = await waitFor(() => getByTestId('triage-clock-icon'));
@@ -292,7 +292,7 @@ test('Alert is created on Wednesday, Triage to countdown shows 3 working days', 
   alert.created = '2022-02-09T11:41:31.419156';
 
   // current day is set to Wednesday
-  Date.now = jest.fn(() => Date.parse('2022-02-9'));
+  Date.now = jest.fn(() => Date.parse('2022-02-09T11:41:31.419156'));
 
   const { getByTestId } = testStatusDropdown([], alert);
   const dueDateIcon = await waitFor(() => getByTestId('triage-clock-icon'));
@@ -311,7 +311,7 @@ test('Alert is created on Wednesday, Triage to countdown shows 2 working days', 
   alert.created = '2022-02-09T11:41:31.419156';
 
   // current day is set to Thursday
-  Date.now = jest.fn(() => Date.parse('2022-02-10'));
+  Date.now = jest.fn(() => Date.parse('2022-02-10T11:41:31.419156'));
 
   const { getByTestId } = testStatusDropdown([], alert);
   const dueDateIcon = await waitFor(() => getByTestId('triage-clock-icon'));
@@ -330,7 +330,7 @@ test('Alert is created on Wednesday, Triage to countdown shows 1 working days', 
   alert.created = '2022-02-09T11:41:31.419156';
 
   // current day is set to Friday
-  Date.now = jest.fn(() => Date.parse('2022-02-11'));
+  Date.now = jest.fn(() => Date.parse('2022-02-11T11:41:31.419156'));
 
   const { getByTestId } = testStatusDropdown([], alert);
   const dueDateIcon = await waitFor(() => getByTestId('triage-clock-icon'));
@@ -349,7 +349,7 @@ test('Alert is created on Wednesday, Triage to countdown shows Today', async () 
   alert.created = '2022-02-09T11:41:31.419156';
 
   // current day is set to Monday
-  Date.now = jest.fn(() => Date.parse('2022-02-14'));
+  Date.now = jest.fn(() => Date.parse('2022-02-14T11:41:31.419156'));
 
   const { getByTestId } = testStatusDropdown([], alert);
   const dueDateIcon = await waitFor(() => getByTestId('triage-clock-icon'));
@@ -368,7 +368,7 @@ test('Alert is created on Wednesday, Triage to countdown shows Overdue', async (
   alert.created = '2022-02-09T11:41:31.419156';
 
   // current day is set to Tuesday
-  Date.now = jest.fn(() => Date.parse('2022-02-15'));
+  Date.now = jest.fn(() => Date.parse('2022-02-15T11:41:31.419156'));
 
   const { getByTestId } = testStatusDropdown([], alert);
   const dueDateIcon = await waitFor(() => getByTestId('triage-clock-icon'));
@@ -388,7 +388,7 @@ test('Alert is created on Thursday, Triage to countdown shows 3 working days', a
   alert.created = '2022-02-10T11:41:31.419156';
 
   // current day is set to Thursday
-  Date.now = jest.fn(() => Date.parse('2022-02-10'));
+  Date.now = jest.fn(() => Date.parse('2022-02-10T11:41:31.419156'));
 
   const { getByTestId } = testStatusDropdown([], alert);
   const dueDateIcon = await waitFor(() => getByTestId('triage-clock-icon'));
@@ -407,7 +407,7 @@ test('Alert is created on Thursday, Triage to countdown shows 2 working days', a
   alert.created = '2022-02-10T11:41:31.419156';
 
   // current day is set to Friday
-  Date.now = jest.fn(() => Date.parse('2022-02-11'));
+  Date.now = jest.fn(() => Date.parse('2022-02-11T11:41:31.419156'));
 
   const { getByTestId } = testStatusDropdown([], alert);
   const dueDateIcon = await waitFor(() => getByTestId('triage-clock-icon'));
@@ -426,7 +426,7 @@ test('Alert is created on Thursday, Triage to countdown shows 1 working days', a
   alert.created = '2022-02-10T11:41:31.419156';
 
   // current day is set to Monday
-  Date.now = jest.fn(() => Date.parse('2022-02-14'));
+  Date.now = jest.fn(() => Date.parse('2022-02-14T11:41:31.419156'));
 
   const { getByTestId } = testStatusDropdown([], alert);
   const dueDateIcon = await waitFor(() => getByTestId('triage-clock-icon'));
@@ -445,7 +445,7 @@ test('Alert is created on Thursday, Triage to countdown shows Today', async () =
   alert.created = '2022-02-10T11:41:31.419156';
 
   // current day is set to Tuesday
-  Date.now = jest.fn(() => Date.parse('2022-02-15'));
+  Date.now = jest.fn(() => Date.parse('2022-02-15T11:41:31.419156'));
 
   const { getByTestId } = testStatusDropdown([], alert);
   const dueDateIcon = await waitFor(() => getByTestId('triage-clock-icon'));
@@ -464,7 +464,7 @@ test('Alert is created on Thursday, Triage to countdown shows Overdue', async ()
   alert.created = '2022-02-09T11:41:31.419156';
 
   // current day is set to Wednesday
-  Date.now = jest.fn(() => Date.parse('2022-02-15'));
+  Date.now = jest.fn(() => Date.parse('2022-02-16T11:41:31.419156'));
 
   const { getByTestId } = testStatusDropdown([], alert);
   const dueDateIcon = await waitFor(() => getByTestId('triage-clock-icon'));
@@ -484,7 +484,7 @@ test('Alert is created on Friday, Triage to countdown shows 3 working days', asy
   alert.created = '2022-02-11T11:41:31.419156';
 
   // current day is set to Friday
-  Date.now = jest.fn(() => Date.parse('2022-02-11'));
+  Date.now = jest.fn(() => Date.parse('2022-02-11T11:41:31.419156'));
 
   const { getByTestId } = testStatusDropdown([], alert);
   const dueDateIcon = await waitFor(() => getByTestId('triage-clock-icon'));
@@ -503,7 +503,7 @@ test('Alert is created on Friday, Triage to countdown shows 2 working days', asy
   alert.created = '2022-02-11T11:41:31.419156';
 
   // current day is set to Monday
-  Date.now = jest.fn(() => Date.parse('2022-02-14'));
+  Date.now = jest.fn(() => Date.parse('2022-02-14T11:41:31.419156'));
 
   const { getByTestId } = testStatusDropdown([], alert);
   const dueDateIcon = await waitFor(() => getByTestId('triage-clock-icon'));
@@ -522,7 +522,7 @@ test('Alert is created on Friday, Triage to countdown shows 1 working days', asy
   alert.created = '2022-02-11T11:41:31.419156';
 
   // current day is set to Tuesday
-  Date.now = jest.fn(() => Date.parse('2022-02-15'));
+  Date.now = jest.fn(() => Date.parse('2022-02-15T11:41:31.419156'));
 
   const { getByTestId } = testStatusDropdown([], alert);
   const dueDateIcon = await waitFor(() => getByTestId('triage-clock-icon'));
@@ -541,7 +541,7 @@ test('Alert is created on Friday, Triage to countdown shows Today', async () => 
   alert.created = '2022-02-11T11:41:31.419156';
 
   // current day is set to Wednesday
-  Date.now = jest.fn(() => Date.parse('2022-02-16'));
+  Date.now = jest.fn(() => Date.parse('2022-02-16T11:41:31.419156'));
 
   const { getByTestId } = testStatusDropdown([], alert);
   const dueDateIcon = await waitFor(() => getByTestId('triage-clock-icon'));
@@ -560,7 +560,7 @@ test('Alert is created on Friday, Triage to countdown shows Overdue', async () =
   alert.created = '2022-02-11T11:41:31.419156';
 
   // current day is set to Thursday
-  Date.now = jest.fn(() => Date.parse('2022-02-17'));
+  Date.now = jest.fn(() => Date.parse('2022-02-17T11:41:31.419156'));
 
   const { getByTestId } = testStatusDropdown([], alert);
   const dueDateIcon = await waitFor(() => getByTestId('triage-clock-icon'));
@@ -580,7 +580,7 @@ test('Alert is created on Saturday, Triage to countdown shows 3 working days', a
   alert.created = '2022-02-12T11:41:31.419156';
 
   // current day is set to Monday
-  Date.now = jest.fn(() => Date.parse('2022-02-14'));
+  Date.now = jest.fn(() => Date.parse('2022-02-14T11:41:31.419156'));
 
   const { getByTestId } = testStatusDropdown([], alert);
   const dueDateIcon = await waitFor(() => getByTestId('triage-clock-icon'));
@@ -600,7 +600,7 @@ test('Alert is created on Sunday, Triage to countdown shows 3 working days', asy
   alert.created = '2022-02-13T11:41:31.419156';
 
   // current day is set to Monday
-  Date.now = jest.fn(() => Date.parse('2022-02-14'));
+  Date.now = jest.fn(() => Date.parse('2022-02-14T11:41:31.419156'));
 
   const { getByTestId } = testStatusDropdown([], alert);
   const dueDateIcon = await waitFor(() => getByTestId('triage-clock-icon'));
@@ -621,7 +621,7 @@ test('Showing Today status when Due date day is the same as current day and aler
   alert.created = '2022-02-09T11:41:31.419156';
 
   // current day is set to equal due date which is calculated to be Monday
-  Date.now = jest.fn(() => Date.parse('2022-02-14'));
+  Date.now = jest.fn(() => Date.parse('2022-02-14T11:41:31.419156'));
 
   const { getByTestId } = testStatusDropdown([], alert);
   const dueDateIcon = await waitFor(() => getByTestId('triage-clock-icon'));
@@ -640,7 +640,7 @@ test('Showing Today status when Due date day is the same as current day and aler
   alert.created = '2022-02-10T11:41:31.419156';
 
   // current day is set to equal due date which is calculated to be Tuesday
-  Date.now = jest.fn(() => Date.parse('2022-02-15'));
+  Date.now = jest.fn(() => Date.parse('2022-02-15T11:41:31.419156'));
 
   const { getByTestId } = testStatusDropdown([], alert);
   const dueDateIcon = await waitFor(() => getByTestId('triage-clock-icon'));
@@ -659,7 +659,7 @@ test('Showing Today status when Due date day is the same as current day and aler
   alert.created = '2022-02-11T11:41:31.419156';
 
   // current day is set to equal due date which is calculated to be Wednesday
-  Date.now = jest.fn(() => Date.parse('2022-02-16'));
+  Date.now = jest.fn(() => Date.parse('2022-02-16T11:41:31.419156'));
 
   const { getByTestId } = testStatusDropdown([], alert);
   const dueDateIcon = await waitFor(() => getByTestId('triage-clock-icon'));
@@ -678,7 +678,7 @@ test('Showing Today status when Due date day is the same as current day and aler
   alert.created = '2022-02-12T11:41:31.419156';
 
   // current day is set to equal due date which is calculated to be Thursday
-  Date.now = jest.fn(() => Date.parse('2022-02-17'));
+  Date.now = jest.fn(() => Date.parse('2022-02-17T11:41:31.419156'));
 
   const { getByTestId } = testStatusDropdown([], alert);
   const dueDateIcon = await waitFor(() => getByTestId('triage-clock-icon'));
@@ -697,7 +697,7 @@ test('Showing Today status when Due date day is the same as current day and aler
   alert.created = '2022-02-13T11:41:31.419156';
 
   // current day is set to equal due date which is calculated to be Thursday
-  Date.now = jest.fn(() => Date.parse('2022-02-17'));
+  Date.now = jest.fn(() => Date.parse('2022-02-17T11:41:31.419156'));
 
   const { getByTestId } = testStatusDropdown([], alert);
   const dueDateIcon = await waitFor(() => getByTestId('triage-clock-icon'));
@@ -716,7 +716,7 @@ test('Triage to countdown shows nothing when the website is accessed during the 
   alert.created = '2022-02-10T11:41:31.419156';
 
   // current day is set to Sunday
-  Date.now = jest.fn(() => Date.parse('2022-02-13'));
+  Date.now = jest.fn(() => Date.parse('2022-02-13T11:41:31.419156'));
 
   const { getByTestId } = testStatusDropdown([], alert);
   const dueDateContainer = await waitFor(() => getByTestId('triage-due-date'));

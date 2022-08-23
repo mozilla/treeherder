@@ -75,7 +75,7 @@ class FailureSummaryTab extends React.Component {
     this.setState({ bugSuggestionsLoading: true });
     BugSuggestionsModel.get(selectedJob.id).then(async (suggestions) => {
       suggestions.forEach((suggestion) => {
-        let simpleCase = [];
+        const simpleCase = [];
 
         // HACK: if not a test failure for any test in error set, ignore
         let crashLeak = false;
@@ -86,14 +86,14 @@ class FailureSummaryTab extends React.Component {
         if (suggestion.bugs.open_recent.length > 0) {
           suggestion.bugs.open_recent.forEach((bug) => {
             if (bug.summary.endsWith('single tracking bug')) {
-              simpleCase = [bug];
+              simpleCase.push(bug);
             }
           });
         }
-        if (suggestion.bugs.all_others.length > 0) {
+        if (simpleCase.length === 0 && suggestion.bugs.all_others.length > 0) {
           suggestion.bugs.all_others.forEach((bug) => {
             if (bug.summary.endsWith('single tracking bug')) {
-              simpleCase = [bug];
+              simpleCase.push(bug);
             }
           });
         }

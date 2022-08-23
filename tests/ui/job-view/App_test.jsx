@@ -31,11 +31,7 @@ describe('App', () => {
   const repoName = 'autoland';
 
   beforeAll(() => {
-    fetchMock.get('/revision.txt', []);
-    fetchMock.get(getApiUrl('/repository/'), reposFixture);
-    fetchMock.get(getApiUrl('/performance/framework/'), {});
-    fetchMock.get(getApiUrl('/user/'), []);
-    fetchMock.get(getApiUrl('/failureclassification/'), []);
+    // tests will pass without this, but a lot of console warnings/errors
     fetchMock.get('begin:https://treestatus.mozilla-releng.net/trees/', {
       result: {
         message_of_the_day: '',
@@ -44,18 +40,15 @@ describe('App', () => {
         tree: repoName,
       },
     });
+
+    fetchMock.get(getApiUrl('/repository/'), reposFixture);
+    fetchMock.get(getApiUrl('/performance/framework/'), {});
+    fetchMock.get(getApiUrl('/user/'), []);
+    fetchMock.get('/revision.txt', []);
+    fetchMock.get(getApiUrl('/failureclassification/'), []);
+    fetchMock.get(`begin:${getProjectUrl('/note/?job_id=', repoName)}`, []);
     fetchMock.get(
-      getProjectUrl(
-        '/push/health_summary/?revision=3333333333335143b8df3f4b3e9b504dfbc589a0&with_in_progress_tests=true',
-        'try',
-      ),
-      [],
-    );
-    fetchMock.get(
-      getProjectUrl(
-        '/push/health_summary/?revision=ba9c692786e95143b8df3f4b3e9b504dfbc589a0&with_in_progress_tests=true',
-        'autoland',
-      ),
+      `begin:${getProjectUrl(`/bug-job-map/?job_id=`, repoName)}`,
       [],
     );
     fetchMock.get(
@@ -64,6 +57,56 @@ describe('App', () => {
         ...pushListFixture,
         results: [pushListFixture.results[0]],
       },
+    );
+    fetchMock.get(
+      `begin:${getProjectUrl('/job-log-url/?job_id=', repoName)}`,
+      [],
+    );
+    fetchMock.get(
+      getProjectUrl('/jobs/303550431/bug_suggestions/', repoName),
+      [],
+    );
+    fetchMock.get(getProjectUrl('/jobs/259537375/', repoName), fullJob);
+    fetchMock.get(getProjectUrl('/jobs/259537372/', repoName), {
+      ...fullJob,
+      task_id: 'secondTaskId',
+    });
+
+    fetchMock.get(getProjectUrl('/jobs/259539665/', repoName), {
+      ...fullJob,
+      task_id: 'MirsMc8UQPeSBC3yKMSlPw',
+    });
+    fetchMock.get(getProjectUrl('/jobs/259539664/', repoName), {
+      ...fullJob,
+      task_id: 'Fe4GqwoZQSStNUbe4EeSPQ',
+    });
+    fetchMock.get(
+      `begin:${getProjectUrl('/performance/data/?job_id=', repoName)}`,
+      [],
+    );
+    fetchMock.get(`begin:${getApiUrl('/jobs/')}`, jobListFixtureOne);
+    fetchMock.get(
+      'https://firefox-ci-tc.services.mozilla.com/api/queue/v1/task/MirsMc8UQPeSBC3yKMSlPw/runs/0/artifacts',
+      [],
+    );
+    fetchMock.get(
+      'https://firefox-ci-tc.services.mozilla.com/api/queue/v1/task/Fe4GqwoZQSStNUbe4EeSPQ/runs/0/artifacts',
+      [],
+    );
+    fetchMock.get(
+      'https://firefox-ci-tc.services.mozilla.com/api/queue/v1/task/QYxMB9-RR5qdI1xGjAmlIw/runs/0/artifacts',
+      [],
+    );
+    fetchMock.get(
+      'https://firefox-ci-tc.services.mozilla.com/api/queue/v1/task/JFVlnwufR7G9tZu_pKM0dQ/runs/0/artifacts',
+      [],
+    );
+    fetchMock.get(
+      getProjectUrl(
+        '/push/health_summary/?revision=3333333333335143b8df3f4b3e9b504dfbc589a0&with_in_progress_tests=true',
+        'try',
+      ),
+      [],
     );
     fetchMock.get(getProjectUrl('/push/?full=true&count=10', 'try'), {
       results: [
@@ -85,108 +128,6 @@ describe('App', () => {
         },
       ],
     });
-    fetchMock.get(
-      `begin:${getProjectUrl(
-        '/push/?full=true&count=11&push_timestamp',
-        repoName,
-      )}`,
-      {
-        results: [],
-      },
-    );
-    fetchMock.get(getProjectUrl('/jobs/259537375/', repoName), fullJob);
-    fetchMock.get(getProjectUrl('/jobs/259537372/', repoName), {
-      ...fullJob,
-      task_id: 'secondTaskId',
-    });
-    fetchMock.get(getProjectUrl('/jobs/259539665/', repoName), {
-      ...fullJob,
-      task_id: 'MirsMc8UQPeSBC3yKMSlPw',
-    });
-    fetchMock.get(getProjectUrl('/jobs/259539664/', repoName), {
-      ...fullJob,
-      task_id: 'Fe4GqwoZQSStNUbe4EeSPQ',
-    });
-    fetchMock.get(
-      `begin:${getProjectUrl('/performance/data/?job_id=', repoName)}`,
-      [],
-    );
-    fetchMock.get(
-      getProjectUrl('/jobs/303550431/bug_suggestions/', repoName),
-      [],
-    );
-    fetchMock.get(
-      `begin:${getProjectUrl(`/bug-job-map/?job_id=`, repoName)}`,
-      [],
-    );
-    fetchMock.get(
-      getProjectUrl('/jobs/303550431/text_log_errors/', repoName),
-      [],
-    );
-    fetchMock.get(`begin:${getProjectUrl('/note/?job_id=', repoName)}`, []);
-    fetchMock.get(
-      `begin:${getProjectUrl('/job-log-url/?job_id=', repoName)}`,
-      [],
-    );
-    fetchMock.get(`begin:${getApiUrl('/jobs/')}`, jobListFixtureOne);
-
-    fetchMock.get(
-      'begin:https://firefox-ci-tc.services.mozilla.com/api/index/v1/task/gecko.v2',
-      404,
-    );
-    fetchMock.get(
-      'https://firefox-ci-tc.services.mozilla.com/api/queue/v1/task/secondTaskId',
-      404,
-    );
-    fetchMock.get(
-      'https://firefox-ci-tc.services.mozilla.com/api/queue/v1/task/O5YBAWwxRfuZ_UlRJS5Rqg',
-      404,
-    );
-    fetchMock.get(
-      'https://firefox-ci-tc.services.mozilla.com/api/queue/v1/task/MirsMc8UQPeSBC3yKMSlPw',
-      404,
-    );
-    fetchMock.get(
-      'https://firefox-ci-tc.services.mozilla.com/api/queue/v1/task/Fe4GqwoZQSStNUbe4EeSPQ',
-      404,
-    );
-    fetchMock.get(
-      'https://firefox-ci-tc.services.mozilla.com/api/queue/v1/task/QYxMB9-RR5qdI1xGjAmlIw/runs/0/artifacts',
-      [],
-    );
-    fetchMock.get(
-      'https://firefox-ci-tc.services.mozilla.com/api/queue/v1/task/Fe4GqwoZQSStNUbe4EeSPQ/runs/0/artifacts',
-      [],
-    );
-    fetchMock.get(
-      'https://firefox-ci-tc.services.mozilla.com/api/queue/v1/task/JFVlnwufR7G9tZu_pKM0dQ/runs/0/artifacts',
-      [],
-    );
-    fetchMock.get(
-      'https://firefox-ci-tc.services.mozilla.com/api/queue/v1/task/MirsMc8UQPeSBC3yKMSlPw/runs/0/artifacts',
-      [],
-    );
-    fetchMock.get(
-      'https://bugzilla.mozilla.org/rest/bug?id=1556854%2C1555861%2C1559418%2C1563766%2C1561537%2C1563692',
-      {
-        bugs: [],
-      },
-    );
-
-    // Need to mock this function for the app switching tests.
-    // Source: https://github.com/mui-org/material-ui/issues/15726#issuecomment-493124813
-    document.createRange = () => ({
-      setStart: () => {},
-      setEnd: () => {},
-      commonAncestorContainer: {
-        nodeName: 'BODY',
-        ownerDocument: document,
-      },
-    });
-  });
-
-  afterEach(() => {
-    history.push('/');
   });
 
   afterAll(() => {
@@ -300,105 +241,6 @@ describe('App', () => {
     expect(autolandRevision).not.toBeInTheDocument();
     expect(document.querySelector('.revision a').getAttribute('href')).toBe(
       'https://hg.mozilla.org/try/rev/3333333333335143b8df3f4b3e9b504dfbc589a0',
-    );
-  });
-
-  test('old job-view url should redirect to correct url', async () => {
-    history.push(
-      '/#/jobs?repo=try&revision=07615c30668c70692d01a58a00e7e271e69ff6f1',
-    );
-    render(testApp());
-
-    expect(history.location).toEqual(
-      expect.objectContaining({
-        pathname: '/jobs',
-        search: '?repo=try&revision=07615c30668c70692d01a58a00e7e271e69ff6f1',
-        hash: '',
-      }),
-    );
-  });
-
-  test('lack of a specified route should redirect to jobs view with a default repo', () => {
-    render(testApp());
-
-    expect(history.location).toEqual(
-      expect.objectContaining({
-        pathname: '/jobs',
-        search: '?repo=autoland',
-        hash: '',
-      }),
-    );
-  });
-});
-
-describe('Test for backwards-compatible routes for other apps', () => {
-  test('old push health url should redirect to correct url', () => {
-    fetchMock.get(
-      '/api/project/autoland/push/health/?revision=3c8e093335315c42a87eebf0531effe9cd6fdb95',
-      [],
-    );
-
-    history.push(
-      '/pushhealth.html?repo=autoland&revision=3c8e093335315c42a87eebf0531effe9cd6fdb95',
-    );
-    render(testApp());
-
-    expect(history.location).toEqual(
-      expect.objectContaining({
-        pathname: '/push-health',
-        search:
-          '?repo=autoland&revision=3c8e093335315c42a87eebf0531effe9cd6fdb95',
-        hash: '',
-      }),
-    );
-  });
-
-  test('old perfherder route should redirect to correct url', () => {
-    fetchMock.get('/api/performance/framework/', []);
-    fetchMock.get('/api/performance/tag/', []);
-
-    history.push('/perf.html#/alerts?id=27285&hideDwnToInv=0');
-    render(testApp());
-
-    expect(history.location).toEqual(
-      expect.objectContaining({
-        pathname: '/perfherder/alerts',
-        search: '?id=27285&hideDwnToInv=0',
-        hash: '',
-      }),
-    );
-  });
-
-  test('old logviewer route should redirect to correct url', () => {
-    history.push(
-      '/logviewer.html#/jobs?job_id=319893964&repo=autoland&lineNumber=2728',
-    );
-    render(testApp());
-
-    expect(history.location).toEqual(
-      expect.objectContaining({
-        pathname: '/logviewer',
-        search: '?job_id=319893964&repo=autoland&lineNumber=2728',
-        hash: '',
-      }),
-    );
-  });
-
-  test('url is not broken when it contains a table permalink hash', async () => {
-    fetchMock.get(getApiUrl('/user/'), []);
-
-    history.push(
-      '/perfherder/compare?originalProject=mozilla-central&originalRevision=54e7fb66ad44b8dcb8caab587f929dad60932d71&newProject=mozilla-central&newRevision=54e7fb66ad44b8dcb8caab587f929dad60932d71&framework=1&page=1#tableLink-header-134266337',
-    );
-    render(testApp());
-
-    expect(history.location).toEqual(
-      expect.objectContaining({
-        pathname: '/perfherder/compare',
-        search:
-          '?originalProject=mozilla-central&originalRevision=54e7fb66ad44b8dcb8caab587f929dad60932d71&newProject=mozilla-central&newRevision=54e7fb66ad44b8dcb8caab587f929dad60932d71&framework=1&page=1',
-        hash: '#tableLink-header-134266337',
-      }),
     );
   });
 });

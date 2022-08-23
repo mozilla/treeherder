@@ -60,6 +60,27 @@ export class JobGroupComponent extends React.Component {
     this.setState({ expanded: isExpanded });
   }
 
+  getIntermittentJobTypeNames(groupJobs) {
+    const failedJobTypeNames = new Set();
+    for (const job of groupJobs) {
+      if (job.result === 'testfailed') {
+        failedJobTypeNames.add(job.job_type_name);
+      }
+    }
+
+    const intermittentJobTypeNames = new Set();
+    for (const job of groupJobs) {
+      if (
+        job.result === 'success' &&
+        failedJobTypeNames.has(job.job_type_name)
+      ) {
+        intermittentJobTypeNames.add(job.job_type_name);
+      }
+    }
+
+    return intermittentJobTypeNames;
+  }
+
   toggleExpanded = () => {
     this.setState((prevState) => ({ expanded: !prevState.expanded }));
   };
@@ -145,6 +166,16 @@ export class JobGroupComponent extends React.Component {
     } = this.props;
     const { expanded } = this.state;
     const { buttons, counts } = this.groupButtonsAndCounts(groupJobs, expanded);
+    const intermittentJobTypeNames = this.getIntermittentJobTypeNames(
+      groupJobs,
+    );
+    function isIntermittent(job) {
+      if (job.result !== 'testfailed') {
+        return false;
+      }
+
+      return intermittentJobTypeNames.has(job.job_type_name);
+    }
 
     return (
       <span className="platform-group" data-group-key={groupMapKey}>
@@ -175,6 +206,7 @@ export class JobGroupComponent extends React.Component {
                   failureClassificationId={job.failure_classification_id}
                   repoName={repoName}
                   filterPlatformCb={filterPlatformCb}
+                  intermittent={isIntermittent(job)}
                   key={job.id}
                   ref={this.jobButtonRefs[job.id]}
                 />

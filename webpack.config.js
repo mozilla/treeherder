@@ -35,6 +35,10 @@ const commonConfig = {
       '.json',
     ],
     fallback: {
+      url: require.resolve('url'),
+      crypto: require.resolve('crypto-browserify'),
+      stream: require.resolve('stream-browserify'),
+      buffer: require.resolve('buffer'),
       assert: require.resolve('assert'),
       fs: false,
       tls: false,
@@ -69,6 +73,9 @@ const commonConfig = {
     ],
   },
   plugins: [
+    new webpack.ProvidePlugin({
+      Buffer: ['buffer', 'Buffer'],
+    }),
     new webpack.ProvidePlugin({
       process: 'process/browser',
     }),

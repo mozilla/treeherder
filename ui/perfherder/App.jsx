@@ -18,7 +18,7 @@ import CompareSubtestsView from './compare/CompareSubtestsView';
 import CompareSubtestDistributionView from './compare/CompareSubtestDistributionView';
 import Navigation from './Navigation';
 
-import 'react-table/react-table.css';
+import '../css/react-table.css';
 import '../css/perf.css';
 
 class App extends React.Component {

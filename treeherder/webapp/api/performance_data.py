@@ -28,7 +28,7 @@ from treeherder.perf.models import (
 )
 from treeherder.webapp.api.permissions import IsStaffOrReadOnly
 from treeherder.webapp.api.performance_serializers import OptionalBooleanField
-from treeherder.webapp.api import perf_compare_utils
+from treeherder.webapp.api import perfcompare_utils
 from treeherder.etl.common import to_timestamp
 
 from .exceptions import InsufficientAlertCreationData
@@ -759,25 +759,21 @@ class PerfCompareResults(generics.ListAPIView):
 
         base_revision = query_params.validated_data['base_revision']
         new_revision = query_params.validated_data['new_revision']
-        base_repository_name = query_params.validated_data['base_repository']
-        new_repository_name = query_params.validated_data['new_repository']
+        base_repo_name = query_params.validated_data['base_repository']
+        new_repo_name = query_params.validated_data['new_repository']
         interval = query_params.validated_data['interval']
         framework = query_params.validated_data['framework']
         no_subtests = query_params.validated_data['no_subtests']
 
-        base_signatures = self._get_signatures(
-            base_repository_name, framework, interval, no_subtests
-        )
-        new_signatures = self._get_signatures(new_repository_name, framework, interval, no_subtests)
+        base_signatures = self._get_signatures(base_repo_name, framework, interval, no_subtests)
+        new_signatures = self._get_signatures(new_repo_name, framework, interval, no_subtests)
 
         base_perf_data = self._get_perf_data(
-            base_repository_name, base_revision, base_signatures, interval
+            base_repo_name, base_revision, base_signatures, interval
         )
-        new_perf_data = self._get_perf_data(
-            new_repository_name, new_revision, new_signatures, interval
-        )
+        new_perf_data = self._get_perf_data(new_repo_name, new_revision, new_signatures, interval)
 
-        option_collection_map = perf_compare_utils.get_option_collection_map()
+        option_collection_map = perfcompare_utils.get_option_collection_map()
 
         base_grouped_job_ids, base_grouped_values = self._get_grouped_perf_data(base_perf_data)
         new_grouped_job_ids, new_grouped_values = self._get_grouped_perf_data(new_perf_data)
@@ -789,21 +785,18 @@ class PerfCompareResults(generics.ListAPIView):
             new_signatures, new_grouped_values, option_collection_map
         )
 
-        header_names = set(base_header_names + new_header_names)
+        header_names = list(set(base_header_names + new_header_names))
+        header_names.sort()
         platforms = set(base_platforms + new_platforms)
         self.queryset = []
 
-        base_push = models.Push.objects.get(
-            revision=base_revision, repository__name=base_repository_name
-        )
-        new_push = models.Push.objects.get(
-            revision=new_revision, repository__name=new_repository_name
-        )
+        base_push = models.Push.objects.get(revision=base_revision, repository__name=base_repo_name)
+        new_push = models.Push.objects.get(revision=new_revision, repository__name=new_repo_name)
         push_timestamp = self._get_push_timestamp(base_push, new_push)
 
         for header in header_names:
             for platform in platforms:
-                sig_identifier = perf_compare_utils.get_sig_identifier(header, platform)
+                sig_identifier = perfcompare_utils.get_sig_identifier(header, platform)
                 base_sig = base_signatures_map.get(sig_identifier, {})
                 base_sig_id = base_sig.get('id', '')
                 new_sig = new_signatures_map.get(sig_identifier, {})
@@ -814,41 +807,49 @@ class PerfCompareResults(generics.ListAPIView):
                     continue
                 base_perf_data_values = base_grouped_values.get(base_sig_id, [])
                 new_perf_data_values = new_grouped_values.get(new_sig_id, [])
-                is_complete = len(base_perf_data_values) != 0 and len(new_perf_data_values) != 0
-                no_results_to_show = (
-                    len(base_perf_data_values) == 0 and len(new_perf_data_values) == 0
-                )
+                base_runs_count = len(base_perf_data_values)
+                new_runs_count = len(new_perf_data_values)
+                is_complete = base_runs_count and new_runs_count
+                no_results_to_show = not base_runs_count and not new_runs_count
                 if no_results_to_show:
                     continue
-                base_avg_value = perf_compare_utils.get_avg(base_perf_data_values, header)
-                base_stddev = perf_compare_utils.get_stddev(base_perf_data_values, header)
-                base_median_value = perf_compare_utils.get_median(base_perf_data_values)
-                new_avg_value = perf_compare_utils.get_avg(new_perf_data_values, header)
-                new_stddev = perf_compare_utils.get_stddev(new_perf_data_values, header)
-                new_median_value = perf_compare_utils.get_median(new_perf_data_values)
-                base_stddev_pct = perf_compare_utils.get_stddev_pct(base_avg_value, base_stddev)
-                new_stddev_pct = perf_compare_utils.get_stddev_pct(new_avg_value, new_stddev)
-                is_improvement = perf_compare_utils.is_improvement(
-                    lower_is_better, base_avg_value, new_avg_value
-                )
-                confidence = perf_compare_utils.get_ttest_value(
+                base_avg_value = perfcompare_utils.get_avg(base_perf_data_values, header)
+                base_stddev = perfcompare_utils.get_stddev(base_perf_data_values, header)
+                base_median_value = perfcompare_utils.get_median(base_perf_data_values)
+                new_avg_value = perfcompare_utils.get_avg(new_perf_data_values, header)
+                new_stddev = perfcompare_utils.get_stddev(new_perf_data_values, header)
+                new_median_value = perfcompare_utils.get_median(new_perf_data_values)
+                base_stddev_pct = perfcompare_utils.get_stddev_pct(base_avg_value, base_stddev)
+                new_stddev_pct = perfcompare_utils.get_stddev_pct(new_avg_value, new_stddev)
+                confidence = perfcompare_utils.get_abs_ttest_value(
                     base_perf_data_values, new_perf_data_values
                 )
-                confidence_text, confidence_text_long = perf_compare_utils.get_confidence_text(
-                    confidence
-                )
+                confidence_text = perfcompare_utils.get_confidence_text(confidence)
+                detailed_confidence = perfcompare_utils.confidence_detailed_info(confidence_text)
                 sig_hash = (
                     base_sig.get('signature_hash', '')
                     if base_sig
                     else new_sig.get('signature_hash', '')
                 )
-
-                delta_value = perf_compare_utils.get_delta_value(new_avg_value, base_avg_value)
-                delta_percentage = perf_compare_utils.get_delta_percentage(
+                delta_value = perfcompare_utils.get_delta_value(new_avg_value, base_avg_value)
+                delta_percentage = perfcompare_utils.get_delta_percentage(
                     delta_value, base_avg_value
                 )
-                magnitude = perf_compare_utils.get_magnitude(delta_percentage)
-                new_is_better = perf_compare_utils.is_new_better(delta_value, lower_is_better)
+                magnitude = perfcompare_utils.get_magnitude(delta_percentage)
+                new_is_better = perfcompare_utils.is_new_better(delta_value, lower_is_better)
+                is_confident = perfcompare_utils.is_confident(
+                    base_runs_count, new_runs_count, confidence
+                )
+                more_runs_are_needed = perfcompare_utils.more_runs_are_needed(
+                    is_complete, is_confident, base_runs_count
+                )
+                class_name = perfcompare_utils.get_class_name(
+                    new_is_better, base_avg_value, new_avg_value, confidence
+                )
+                is_improvement = class_name == 'success'
+                is_regression = class_name == 'danger'
+                is_meaningful = class_name == ''
+
                 row_result = {
                     'header_name': header,
                     'platform': platform,
@@ -861,8 +862,8 @@ class PerfCompareResults(generics.ListAPIView):
                         base_sig.get('option_collection_id', ''), ''
                     ),
                     'extra_options': base_sig.get('extra_options', ''),
-                    'base_repository_name': base_repository_name,
-                    'new_repository_name': new_repository_name,
+                    'base_repository_name': base_repo_name,
+                    'new_repository_name': new_repo_name,
                     'base_measurement_unit': base_sig.get('measurement_unit', ''),
                     'new_measurement_unit': new_sig.get('measurement_unit', ''),
                     'base_runs': sorted(base_perf_data_values),
@@ -879,24 +880,28 @@ class PerfCompareResults(generics.ListAPIView):
                     'new_retriggerable_job_ids': new_grouped_job_ids.get(new_sig_id, []),
                     'confidence': confidence,
                     'confidence_text': confidence_text,
-                    'confidence_text_long': confidence_text_long,
-                    'is_improvement': is_improvement,
-                    't_value_confidence': perf_compare_utils.T_VALUE_CONFIDENCE,
-                    't_value_care_min': perf_compare_utils.T_VALUE_CARE_MIN,
+                    'confidence_text_long': detailed_confidence,
+                    't_value_confidence': perfcompare_utils.T_VALUE_CONFIDENCE,
+                    't_value_care_min': perfcompare_utils.T_VALUE_CARE_MIN,
                     'delta_value': delta_value,
                     'delta_percentage': delta_percentage,
                     'magnitude': magnitude,
                     'new_is_better': new_is_better,
+                    'is_confident': is_confident,
+                    'more_runs_are_needed': more_runs_are_needed,
                     # highlighted revisions is the base_revision and the other highlighted revisions is new_revision
                     'graphs_link': self._create_graph_links(
-                        base_repository_name,
-                        new_repository_name,
+                        base_repo_name,
+                        new_repo_name,
                         new_revision,
                         base_revision,
                         str(framework),
                         push_timestamp,
                         str(sig_hash),
                     ),
+                    'is_improvement': is_improvement,
+                    'is_regression': is_regression,
+                    'is_meaningful': is_meaningful,
                 }
 
                 self.queryset.append(row_result)
@@ -986,7 +991,6 @@ class PerfCompareResults(generics.ListAPIView):
             # series data one for each repo, else generate one
             repo_value = ','.join([new_repo_name, signature, '1', framework])
             graph_link = graph_link + '&%s' % urlencode({series_key: repo_value})
-
         else:
             # if repos selected are not the same
             base_repo_value = ','.join([base_repo_name, signature, '1', framework])
@@ -1061,8 +1065,8 @@ class PerfCompareResults(generics.ListAPIView):
             option_name = option_collection_map[signature['option_collection_id']]
             test_suite = suite if test == '' or test == suite else '{} {}'.format(suite, test)
             platform = signature['platform__platform']
-            header = perf_compare_utils.get_header_name(extra_options, option_name, test_suite)
-            sig_identifier = perf_compare_utils.get_sig_identifier(header, platform)
+            header = perfcompare_utils.get_header_name(extra_options, option_name, test_suite)
+            sig_identifier = perfcompare_utils.get_sig_identifier(header, platform)
 
             if sig_identifier not in signatures_map or (
                 sig_identifier in signatures_map
