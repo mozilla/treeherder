@@ -25,7 +25,7 @@ export default class GraphsContainer extends React.Component {
   };
 
   render() {
-    const { graphOneData, graphTwoData, children } = this.props;
+    const { graphOneData, graphTwoData, failurehash, children } = this.props;
     const { showGraphTwo, showAlternateView } = this.state;
 
     return (
@@ -33,13 +33,24 @@ export default class GraphsContainer extends React.Component {
         <Row className="pt-5">
           {showAlternateView ? (
             <GraphAlternateView
-              graphData={graphOneData}
+              graphData={graphOneData[failurehash]}
               className="failure-per-count"
               colNum={1}
-              title="Failure Count Per Push"
+              title={
+                failurehash === 'all'
+                  ? 'Failure Count Per Push'
+                  : 'Failure Count Per Day'
+              }
             />
           ) : (
-            <Graph graphData={graphOneData} title="Failure Count per Push" />
+            <Graph
+              graphData={graphOneData[failurehash]}
+              title={
+                failurehash === 'all'
+                  ? 'Failure Count Per Push'
+                  : 'Failure Count Per Day'
+              }
+            />
           )}
         </Row>
         <Row>
@@ -90,17 +101,15 @@ export default class GraphsContainer extends React.Component {
 }
 
 GraphsContainer.propTypes = {
-  graphOneData: PropTypes.arrayOf(
-    PropTypes.shape({
-      data: PropTypes.arrayOf(PropTypes.shape({})),
-      color: PropTypes.string,
-    }),
-  ),
+  graphOneData: PropTypes.shape({
+    hash: PropTypes.arrayOf(
+      PropTypes.shape({
+        data: PropTypes.arrayOf(PropTypes.shape({})),
+        color: PropTypes.string,
+      }),
+    ),
+  }),
   graphTwoData: PropTypes.arrayOf(
-    PropTypes.shape({
-      data: PropTypes.arrayOf(PropTypes.shape({})),
-      color: PropTypes.string,
-    }),
     PropTypes.shape({
       data: PropTypes.arrayOf(PropTypes.shape({})),
       color: PropTypes.string,

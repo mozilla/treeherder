@@ -21,8 +21,10 @@ const Layout = (props) => {
     tableFailureStatus,
     graphFailureStatus,
     updateState,
+    updateHash,
     graphOneData,
     graphTwoData,
+    failurehash,
     table,
     datePicker,
     header,
@@ -36,7 +38,12 @@ const Layout = (props) => {
   }
   return (
     <Container fluid className="my-5 max-width-default">
-      <Navigation updateState={updateState} tree={tree} {...props} />
+      <Navigation
+        updateState={updateState}
+        updateHash={updateHash}
+        tree={tree}
+        {...props}
+      />
       {(isFetchingGraphs || isFetchingTable) &&
         !(
           tableFailureStatus ||
@@ -60,6 +67,7 @@ const Layout = (props) => {
           <GraphsContainer
             graphOneData={graphOneData}
             graphTwoData={graphTwoData}
+            failurehash={failurehash}
           >
             {datePicker}
           </GraphsContainer>
@@ -88,8 +96,8 @@ Layout.propTypes = {
   datePicker: PropTypes.element.isRequired,
   header: PropTypes.oneOfType([PropTypes.shape({}), PropTypes.bool]),
   table: PropTypes.oneOfType([PropTypes.shape({}), PropTypes.bool]),
-  graphOneData: PropTypes.arrayOf(PropTypes.shape({})),
   graphTwoData: PropTypes.arrayOf(PropTypes.shape({})),
+  failurehash: PropTypes.string,
   tableData: PropTypes.arrayOf(PropTypes.shape({})),
   graphData: PropTypes.oneOfType([
     PropTypes.arrayOf(PropTypes.shape({})),
@@ -105,7 +113,6 @@ Layout.propTypes = {
 };
 
 Layout.defaultProps = {
-  graphOneData: null,
   graphTwoData: null,
   tableFailureStatus: null,
   graphFailureStatus: null,
@@ -113,6 +120,7 @@ Layout.defaultProps = {
   isFetchingGraphs: null,
   tableData: null,
   graphData: null,
+  failurehash: 'all',
   tree: null,
   table: null,
   header: null,
