@@ -324,7 +324,9 @@ export default class StatusDropdown extends React.Component {
     const alertStatus = getStatus(alertSummary.status);
     const alertSummaryActiveTags = alertSummary.performance_tags || [];
 
-    const dueDateStatus = this.displayDueDateCountdown(alertSummary.created);
+    const dueDateStatus = this.displayDueDateCountdown(
+      alertSummary.created,
+    );
 
     let dueDateClass = 'due-date-ok';
     if (dueDateStatus === 'Overdue') {
