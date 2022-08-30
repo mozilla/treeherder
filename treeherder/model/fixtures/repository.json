@@ -1769,5 +1769,19 @@
       "description": "Stabilization for pine repository",
       "tc_root_url": "https://firefox-ci-tc.services.mozilla.com"
     }
+  },
+  {
+    "pk": 126,
+    "model": "model.repository",
+    "fields": {
+      "dvcs_type": "hg",
+      "name": "toolchains",
+      "url": "https://hg.mozilla.org/projects/toolchains",
+      "active_status": "active",
+      "codebase": "gecko",
+      "repository_group": 6,
+      "description": "project branch for clang-trunk builds",
+      "tc_root_url": "https://firefox-ci-tc.services.mozilla.com"
+    }
   }
 ]

@@ -328,6 +328,7 @@ def _schedule_log_parsing(job, job_logs, result, repository):
         "focus-android",
         "pine",
         "pine-stable",
+        "toolchains",
     }
 
     job_log_ids = []
