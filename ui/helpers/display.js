@@ -6,7 +6,7 @@ import {
 import moment from 'moment';
 
 import { getArtifactsUrl } from './url';
-import { datetimeFormat, mercurialDatetimeFormat } from './constants';
+import { alertsViewDatetimeFormat, mercurialDatetimeFormat } from './constants';
 
 export const longDateFormat = {
   weekday: 'short',
@@ -41,7 +41,7 @@ export function toMercurialDateStr(awareDatetime) {
  * @param { Date } awareDatetime Must contain the time zone information embedded in it
  */
 export function toMercurialShortDateStr(awareDatetime) {
-  return `${moment.utc(awareDatetime).format(datetimeFormat)}`;
+  return `${moment.utc(awareDatetime).format(alertsViewDatetimeFormat)}`;
 }
 
 export const toShortDateStr = function toDateStr(timestamp) {

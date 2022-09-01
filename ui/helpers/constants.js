@@ -340,4 +340,4 @@ export const genericErrorMessage = 'Something went wrong';
 // e.g. Sun Feb 14 22:40:03 2021 +0000
 export const mercurialDatetimeFormat = 'ddd MMM DD HH:mm:ss YYYY ZZ';
 
-export const datetimeFormat = 'ddd MMM DD HH:mm YYYY';
+export const alertsViewDatetimeFormat = 'ddd MMM DD HH:mm YYYY';

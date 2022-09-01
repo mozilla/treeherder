@@ -11,16 +11,12 @@ import {
 } from 'reactstrap';
 
 import { getJobsUrl } from '../../helpers/url';
-import { toMercurialDateStr, toMercurialShortDateStr } from '../../helpers/display';
+import { toMercurialShortDateStr } from '../../helpers/display';
+import SimpleTooltip from '../../shared/SimpleTooltip';
 
 import Assignee from './Assignee';
 import TagsList from './TagsList';
 import AlertHeaderTitle from './AlertHeaderTitle';
-import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
-import {faClock} from "@fortawesome/free-regular-svg-icons";
-import SimpleTooltip from "../../shared/SimpleTooltip";
-import {datetimeFormat} from "../../helpers/constants";
-import moment from "moment/moment";
 
 const AlertHeader = ({
   frameworks,

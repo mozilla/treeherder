@@ -28,7 +28,7 @@ import {
   createQueryParams,
   bugzillaBugsApi,
 } from '../../helpers/url';
-import { timeToTriage, summaryStatusMap } from '../perf-helpers/constants';
+import { summaryStatusMap } from '../perf-helpers/constants';
 import DropdownMenuItems from '../../shared/DropdownMenuItems';
 import FilterAlertsWithVideos from '../../models/filterAlertsWithVideos';
 
@@ -266,9 +266,7 @@ export default class StatusDropdown extends React.Component {
     const differenceInDays = Math.ceil(
       differenceInTime / (1000 * 60 * 60 * 24),
     );
-    const differenceInHours = Math.ceil(
-      differenceInTime / (1000 * 60 * 60),
-    );
+    const differenceInHours = Math.ceil(differenceInTime / (1000 * 60 * 60));
 
     // if the website is accessed during the weekend, nothing will be shown
     if (currentDay === saturday || currentDay === sunday) {
@@ -281,14 +279,10 @@ export default class StatusDropdown extends React.Component {
     }
 
     if (now.getTime() >= dueDate.getTime()) {
-      return `Overdue: ${differenceInDays} days`;
+      return `Overdue`;
     }
 
     if (differenceInDays >= 4) {
-      return `Days left: ${differenceInDays - 2}`;
-    }
-
-    if (this.isWeekend) {
       return `Days left: ${differenceInDays - 2}`;
     }
 
@@ -308,14 +302,12 @@ export default class StatusDropdown extends React.Component {
     const alertStatus = getStatus(alertSummary.status);
     const alertSummaryActiveTags = alertSummary.performance_tags || [];
 
-    const dueDateStatus = this.displayDueDateCountdown(
-      alertSummary.created,
-    );
+    const dueDateStatus = this.displayDueDateCountdown();
 
     let dueDateClass = 'due-date-ok';
     if (dueDateStatus === 'Overdue') {
       dueDateClass = 'due-date-overdue';
-    } else if (dueDateStatus === 'Today') {
+    } else if (dueDateStatus.startsWith('Hours left:')) {
       dueDateClass = 'due-date-today';
     }
 
@@ -511,7 +503,7 @@ export default class StatusDropdown extends React.Component {
                     }
                     tooltipText={
                       <div data-testid="due-date-status">
-                        <h5>Due date:</h5>
+                        <h5>Triage due date:</h5>
                         <span>{dueDateStatus}</span>
                       </div>
                     }

@@ -421,6 +421,7 @@ def empty_alert_summary(
         prev_push_id=1,
         push_id=3,
         manually_created=True,
+        created=datetime.now(),
     )
 
 

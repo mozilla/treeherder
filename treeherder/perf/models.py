@@ -1,5 +1,5 @@
 import logging
-import datetime
+from datetime import datetime
 import json
 from typing import List, Tuple, Optional
 from functools import reduce
@@ -19,6 +19,7 @@ from treeherder.model.models import (
     JobType,
     JobGroup,
 )
+from treeherder.perf.utils import calculate_time_to_triage
 from treeherder.utils import default_serializer
 
 logger = logging.getLogger(__name__)
@@ -309,23 +310,24 @@ class PerformanceAlertSummary(models.Model):
 
         # allows updating timestamps only on new values
         self.__prev_bug_number = self.bug_number
-        self.triage_due_date = self.get_time_to_triage()
 
     def save(self, *args, **kwargs):
         if self.bug_number is not None and self.bug_number != self.__prev_bug_number:
-            self.bug_updated = datetime.datetime.now()
+            self.bug_updated = datetime.now()
+        if not self.triage_due_date:
+            self.triage_due_date = calculate_time_to_triage(self.created)
         super(PerformanceAlertSummary, self).save(*args, **kwargs)
         self.__prev_bug_number = self.bug_number
 
     def update_status(self, using=None):
         self.status = self.autodetermine_status()
-        self.triage_due_date = self.get_time_to_triage()
         self.save(using=using)
 
-    def autodetermine_status(self, alert_items=None, alert_no=None, log=None):
+    def autodetermine_status(self):
         alerts = PerformanceAlert.objects.filter(summary=self) | PerformanceAlert.objects.filter(
             related_summary=self
         )
+
         # if no alerts yet, we'll say untriaged
         if not alerts:
             return PerformanceAlertSummary.UNTRIAGED
@@ -380,39 +382,6 @@ class PerformanceAlertSummary(models.Model):
             return PerformanceAlertSummary.REASSIGNED
 
         return PerformanceAlertSummary.DOWNSTREAM
-
-    def get_time_to_triage(self, due_days=3):
-        MON, TUE, WED, THU, FRI, SAT, SUN = range(1, 8)
-        if self.triage_due_date:
-            return self.triage_due_date
-
-        due_date = self.created
-
-        # if the alert was created in weekend, move the date to Monday
-        if due_date.isoweekday() == SAT:
-            due_date = due_date + datetime.timedelta(2)
-        if due_date.isoweekday() == SUN:
-            due_date = due_date + datetime.timedelta(1)
-
-        if due_date.isoweekday() + due_days < SAT:
-            # add the time-to days
-            due_date = due_date + datetime.timedelta(due_days)
-        # if the resulted date is on weekend, skip the weekend
-        elif due_date.isoweekday() + due_days in [SAT, SUN]:
-            due_date = due_date + datetime.timedelta(due_days + 2)
-        # if the time-to days is greater than 7 then it contains weekend(s)
-        # move the due date with the numbers of weekend days
-        elif due_date.isoweekday() + due_days > SUN:
-            due_date += datetime.timedelta(
-                due_days + int((due_date.isoweekday() + due_days) / 7) * 2
-            )
-
-        if due_date.isoweekday() == SAT:
-            due_date = due_date + datetime.timedelta(2)
-        elif due_date.isoweekday() == SUN:
-            due_date = due_date + datetime.timedelta(1)
-
-        return due_date
 
     def timestamp_first_triage(self):
         # called for summary specific updates (e.g. notes, bug linking)
