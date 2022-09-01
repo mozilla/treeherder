@@ -255,35 +255,19 @@ export default class StatusDropdown extends React.Component {
     alertStatus === 'investigating' ||
     (alertStatus !== status && this.isResolved(alertStatus));
 
-  calculateDueDate(created) {
-    const createdAt = new Date(created);
-    const dueDate = new Date(created);
-
-    /* due date is calculated by adding 3 working days to the date when the alert was created
-    this means you have 3 working days with decreasing status of 3, 2, 1 working days left
-    and in the fourth day the status changes to Today, this being the last day when the alert status has to change
-    otherwise it becomes Overdue */
-
-    dueDate.setDate(dueDate.getDate() + timeToTriage);
-    const numberOfWeekendDays = this.getNumberOfWeekendDays(createdAt, dueDate);
-
-    if (numberOfWeekendDays !== 0) {
-      dueDate.setDate(dueDate.getDate() + numberOfWeekendDays);
-    }
-
-    return dueDate;
-  }
-
-  displayDueDateCountdown(createdAt) {
+  displayDueDateCountdown() {
     const now = new Date(Date.now());
     const currentDay = now.getDay();
     const saturday = 6;
     const sunday = 0;
-    const dueDate = this.calculateDueDate(createdAt);
+    const dueDate = new Date(this.props.alertSummary.triage_due_date);
 
     const differenceInTime = Math.abs(dueDate - now);
     const differenceInDays = Math.ceil(
       differenceInTime / (1000 * 60 * 60 * 24),
+    );
+    const differenceInHours = Math.ceil(
+      differenceInTime / (1000 * 60 * 60),
     );
 
     // if the website is accessed during the weekend, nothing will be shown
@@ -293,22 +277,22 @@ export default class StatusDropdown extends React.Component {
     }
 
     if (now.getDate() === dueDate.getDate()) {
-      return 'Today';
+      return `Hours left: ${differenceInHours}`;
     }
 
     if (now.getTime() >= dueDate.getTime()) {
-      return 'Overdue';
+      return `Overdue: ${differenceInDays} days`;
     }
 
     if (differenceInDays >= 4) {
-      return `Working days left: ${differenceInDays - 2}`;
+      return `Days left: ${differenceInDays - 2}`;
     }
 
     if (this.isWeekend) {
-      return `Working days left: ${differenceInDays - 2}`;
+      return `Days left: ${differenceInDays - 2}`;
     }
 
-    return `Working days left: ${differenceInDays}`;
+    return `Days left: ${differenceInDays}`;
   }
 
   render() {
@@ -527,7 +511,7 @@ export default class StatusDropdown extends React.Component {
                     }
                     tooltipText={
                       <div data-testid="due-date-status">
-                        <h5>Triage due date:</h5>
+                        <h5>Due date:</h5>
                         <span>{dueDateStatus}</span>
                       </div>
                     }
