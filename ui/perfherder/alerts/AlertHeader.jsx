@@ -11,11 +11,16 @@ import {
 } from 'reactstrap';
 
 import { getJobsUrl } from '../../helpers/url';
-import { toMercurialDateStr } from '../../helpers/display';
+import { toMercurialDateStr, toMercurialShortDateStr } from '../../helpers/display';
 
 import Assignee from './Assignee';
 import TagsList from './TagsList';
 import AlertHeaderTitle from './AlertHeaderTitle';
+import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
+import {faClock} from "@fortawesome/free-regular-svg-icons";
+import SimpleTooltip from "../../shared/SimpleTooltip";
+import {datetimeFormat} from "../../helpers/constants";
+import moment from "moment/moment";
 
 const AlertHeader = ({
   frameworks,
@@ -38,13 +43,25 @@ const AlertHeader = ({
   const performanceTags = alertSummary.performance_tags || [];
   const alertSummaryDatetime = new Date(alertSummary.push_timestamp * 1000);
   const formattedSummaryRevision = alertSummary.revision.slice(0, 12);
+  const created = new Date(alertSummary.created.slice(0, 19));
 
   return (
     <Container>
       <AlertHeaderTitle alertSummary={alertSummary} frameworks={frameworks} />
       <Row className="font-weight-normal">
         <Col className="p-0" xs="auto">
-          {toMercurialDateStr(alertSummaryDatetime)}
+          <Row className="m-0 px-0 py-0">
+            <SimpleTooltip
+              text={toMercurialShortDateStr(alertSummaryDatetime)}
+              tooltipText="Push date"
+            />
+          </Row>
+          <Row className="m-0 px-0 py-0">
+            <SimpleTooltip
+              text={toMercurialShortDateStr(created)}
+              tooltipText="Alert Summary created"
+            />
+          </Row>
         </Col>
         <Col className="p-0" xs="auto">
           <UncontrolledDropdown tag="span">
