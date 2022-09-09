@@ -1783,5 +1783,19 @@
       "description": "project branch for clang-trunk builds",
       "tc_root_url": "https://firefox-ci-tc.services.mozilla.com"
     }
+  },
+  {
+    "pk": 127,
+    "model": "model.repository",
+    "fields": {
+      "dvcs_type": "git",
+      "name": "firefox-android",
+      "url": "https://github.com/mozilla-mobile/firefox-android",
+      "branch": "main",
+      "active_status": "active",
+      "codebase": "firefox-android",
+      "repository_group": 11,
+      "tc_root_url": "https://firefox-ci-tc.services.mozilla.com"
+    }
   }
 ]
