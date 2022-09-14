@@ -1,3 +1,4 @@
+import datetime
 import logging
 import re
 import newrelic.agent
@@ -12,6 +13,8 @@ logger = logging.getLogger(__name__)
 # the amount of time we cache bug suggestion lookups (to speed up loading the
 # bug suggestions panel for recently finished jobs)
 BUG_SUGGESTION_CACHE_TIMEOUT = 86400
+LINE_CACHE_TIMEOUT_DAYS = 21
+LINE_CACHE_TIMEOUT = 86400 * LINE_CACHE_TIMEOUT_DAYS
 
 LEAK_RE = re.compile(r'\d+ bytes leaked \((.+)\)$|leak at (.+)$')
 CRASH_RE = re.compile(r'.+ application crashed \[@ (.+)\]$')
@@ -33,6 +36,21 @@ def get_error_summary(job, queryset=None):
     if cached_error_summary is not None:
         return cached_error_summary
 
+    # add support for error line caching
+    line_cache_key = 'error_lines'
+    line_cache = cache.get(line_cache_key)
+    if line_cache is None:
+        line_cache = {str(job.submit_time.date()): {}}
+    else:
+        dates = list(line_cache.keys())
+        dates.sort()
+        for d in dates:
+            dTime = datetime.datetime.strptime(d, '%Y-%m-%d')
+            if dTime <= (job.submit_time - datetime.timedelta(days=LINE_CACHE_TIMEOUT_DAYS)):
+                del line_cache[d]
+            else:
+                break
+
     if queryset is None:
         queryset = TextLogError.objects.filter(job=job)
     # don't cache or do anything if we have no text log errors to get results for
@@ -42,7 +60,13 @@ def get_error_summary(job, queryset=None):
     # cache terms generated from error line to save excessive querying
     term_cache = {}
 
-    error_summary = [bug_suggestions_line(err, term_cache) for err in queryset]
+    error_summary = []
+    # Future suggestion, set this to queryset[:10] to reduce calls to bug_suggestions_line
+    for err in queryset:
+        summary, line_cache = bug_suggestions_line(
+            err, logdate=job.submit_time, term_cache=term_cache, line_cache=line_cache
+        )
+        error_summary.append(summary)
 
     try:
         cache.set(cache_key, error_summary, BUG_SUGGESTION_CACHE_TIMEOUT)
@@ -50,10 +74,16 @@ def get_error_summary(job, queryset=None):
         newrelic.agent.record_custom_event('error caching error_summary for job', job.id)
         logger.error('error caching error_summary for job %s: %s', job.id, e, exc_info=True)
 
+    try:
+        cache.set(line_cache_key, line_cache, LINE_CACHE_TIMEOUT)
+    except Exception as e:
+        newrelic.agent.record_custom_event('error caching error_lines for job', job.id)
+        logger.error('error caching error_lines for job %s: %s', job.id, e, exc_info=True)
+
     return error_summary
 
 
-def bug_suggestions_line(err, term_cache=None):
+def bug_suggestions_line(err, logdate=None, term_cache=None, line_cache=None):
     """
     Get Bug suggestions for a given TextLogError (err).
 
@@ -65,8 +95,30 @@ def bug_suggestions_line(err, term_cache=None):
     if term_cache is None:
         term_cache = {}
 
+    # store "search_terms: count"
+    if logdate is None:
+        # use today
+        today = str(datetime.datetime.now().date())
+    else:
+        today = str(logdate.date())
+    if today not in line_cache.keys():
+        line_cache[today] = {}
+
     # remove the mozharness prefix
     clean_line = get_cleaned_line(err.line)
+
+    # remove floating point numbers from the summary as they are often variable
+    cache_clean_line = re.sub(r' [0-9]+\.[0-9]+ ', ' X ', clean_line)
+    cache_clean_line = re.sub(r' leaked [0-9]+ window(s)', ' leaked X window(s)', cache_clean_line)
+    cache_clean_line = re.sub(r' [0-9]+ bytes leaked', ' X bytes leaked', cache_clean_line)
+    cache_clean_line = re.sub(r' value=[0-9]+', ' value=*', cache_clean_line)
+    cache_clean_line = re.sub(r'ot [0-9]+, expected [0-9]+', 'ot X, expected Y', cache_clean_line)
+    cache_clean_line = re.sub(
+        r' http://localhost:[0-9]+/', ' http://localhost:X/', cache_clean_line
+    )
+    if cache_clean_line not in line_cache[today].keys():
+        line_cache[today][cache_clean_line] = 0
+    line_cache[today][cache_clean_line] += 1
 
     # get a meaningful search term out of the error line
     search_info = get_error_search_term_and_path(clean_line)
@@ -92,6 +144,11 @@ def bug_suggestions_line(err, term_cache=None):
                 term_cache[crash_signature] = Bugscache.search(crash_signature)
             bugs = term_cache[crash_signature]
 
+    # find all recent failures matching our current `clean_line`
+    counter = 0
+    for day in line_cache.keys():
+        counter += line_cache[day].get(cache_clean_line, 0)
+
     # TODO: Rename 'search' to 'error_text' or similar, since that's
     # closer to what it actually represents (bug 1091060).
     return {
@@ -100,7 +157,8 @@ def bug_suggestions_line(err, term_cache=None):
         "path_end": path_end,
         "bugs": bugs,
         "line_number": err.line_number,
-    }
+        "counter": counter,
+    }, line_cache
 
 
 def get_cleaned_line(line):
