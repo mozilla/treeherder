@@ -15,8 +15,22 @@ Should be rare case and it's unreliable, but at least we have something.
 STDDEV_DEFAULT_FACTOR = 0.15
 T_VALUE_CARE_MIN = 3  # Anything below this is "low" in confidence
 T_VALUE_CONFIDENCE = 5  # Anything above this is "high" in confidence
+PERFHERDER_TIMERANGES = [
+    {'value': 86400, 'text': 'Last day'},
+    {'value': 86400 * 2, 'text': 'Last 2 days'},
+    {'value': 604800, 'text': 'Last 7 days'},
+    {'value': 1209600, 'text': 'Last 14 days'},
+    {'value': 2592000, 'text': 'Last 30 days'},
+    {'value': 5184000, 'text': 'Last 60 days'},
+    {'value': 7776000, 'text': 'Last 90 days'},
+    {'value': 31536000, 'text': 'Last year'},
+]
 
 """ Helpers """
+
+
+def get_test_suite(suite, test):
+    return suite if test == '' or test == suite else '{} {}'.format(suite, test)
 
 
 def get_header_name(extra_options, option_name, test_suite):
@@ -120,13 +134,16 @@ def get_abs_ttest_value(control_values, test_values):
         elif length_test == 1:
             stddev_test = (test_values[0] * stddev_control) / control_group_avg
     except ZeroDivisionError:
-        return None
+        return 0
     delta = test_group_avg - control_group_avg
     std_diff_err = sqrt(
         (stddev_control * stddev_control) / length_control  # control-variance / control-size
         + (stddev_test * stddev_test) / length_test
     )
-    res = abs(delta / std_diff_err)
+    try:
+        res = abs(delta / std_diff_err)
+    except ZeroDivisionError:
+        return 0
     return res
 
 
@@ -148,7 +165,7 @@ def confidence_detailed_info(confidence):
 
 
 def get_confidence_text(abs_tvalue):
-    if abs_tvalue is None:
+    if abs_tvalue == 0 or abs_tvalue is None:
         return ''
     if abs_tvalue < T_VALUE_CARE_MIN:
         confidence_text = 'low'
@@ -221,4 +238,4 @@ def get_class_name(new_is_better, base_avg_value, new_avg_value, abs_t_value):
     if new_is_better:
         return 'success'
     else:
-        'danger'
+        return 'danger'

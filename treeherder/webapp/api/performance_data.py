@@ -757,8 +757,10 @@ class PerfCompareResults(generics.ListAPIView):
         if not query_params.is_valid():
             return Response(data=query_params.errors, status=HTTP_400_BAD_REQUEST)
 
-        base_revision = query_params.validated_data['base_revision']
-        new_revision = query_params.validated_data['new_revision']
+        startday = query_params.validated_data['startday']
+        endday = query_params.validated_data['endday']
+        base_rev = query_params.validated_data['base_revision']
+        new_rev = query_params.validated_data['new_revision']
         base_repo_name = query_params.validated_data['base_repository']
         new_repo_name = query_params.validated_data['new_repository']
         interval = query_params.validated_data['interval']
@@ -769,9 +771,11 @@ class PerfCompareResults(generics.ListAPIView):
         new_signatures = self._get_signatures(new_repo_name, framework, interval, no_subtests)
 
         base_perf_data = self._get_perf_data(
-            base_repo_name, base_revision, base_signatures, interval
+            base_repo_name, base_rev, base_signatures, interval, startday, endday
         )
-        new_perf_data = self._get_perf_data(new_repo_name, new_revision, new_signatures, interval)
+        new_perf_data = self._get_perf_data(
+            new_repo_name, new_rev, new_signatures, interval, None, None
+        )
 
         option_collection_map = perfcompare_utils.get_option_collection_map()
 
@@ -790,8 +794,10 @@ class PerfCompareResults(generics.ListAPIView):
         platforms = set(base_platforms + new_platforms)
         self.queryset = []
 
-        base_push = models.Push.objects.get(revision=base_revision, repository__name=base_repo_name)
-        new_push = models.Push.objects.get(revision=new_revision, repository__name=new_repo_name)
+        base_push = None
+        if base_rev:
+            base_push = models.Push.objects.get(revision=base_rev, repository__name=base_repo_name)
+        new_push = models.Push.objects.get(revision=new_rev, repository__name=new_repo_name)
         push_timestamp = self._get_push_timestamp(base_push, new_push)
 
         for header in header_names:
@@ -881,8 +887,6 @@ class PerfCompareResults(generics.ListAPIView):
                     'confidence': confidence,
                     'confidence_text': confidence_text,
                     'confidence_text_long': detailed_confidence,
-                    't_value_confidence': perfcompare_utils.T_VALUE_CONFIDENCE,
-                    't_value_care_min': perfcompare_utils.T_VALUE_CARE_MIN,
                     'delta_value': delta_value,
                     'delta_percentage': delta_percentage,
                     'magnitude': magnitude,
@@ -893,8 +897,8 @@ class PerfCompareResults(generics.ListAPIView):
                     'graphs_link': self._create_graph_links(
                         base_repo_name,
                         new_repo_name,
-                        new_revision,
-                        base_revision,
+                        base_rev,
+                        new_rev,
                         str(framework),
                         push_timestamp,
                         str(sig_hash),
@@ -911,48 +915,42 @@ class PerfCompareResults(generics.ListAPIView):
 
         return Response(data=serialized_data)
 
-    def _get_ph_time_ranges(self):
-        return [
-            {'value': 86400, 'text': 'Last day'},
-            {'value': 86400 * 2, 'text': 'Last 2 days'},
-            {'value': 604800, 'text': 'Last 7 days'},
-            {'value': 1209600, 'text': 'Last 14 days'},
-            {'value': 2592000, 'text': 'Last 30 days'},
-            {'value': 5184000, 'text': 'Last 60 days'},
-            {'value': 7776000, 'text': 'Last 90 days'},
-            {'value': 31536000, 'text': 'Last year'},
-        ]
-
-    def _get_push_timestamp(self, base_push, new_push):
+    @staticmethod
+    def _get_push_timestamp(base_push, new_push):
         # This function will determine the right push time stamp to assign a revision.
         # It will do this by comparing timestamps with ph_time_ranges
-        base_push_timestamp = base_push.time
         new_push_timestamp = new_push.time
 
-        timestamps = [base_push_timestamp, new_push_timestamp]
+        timestamps = [new_push_timestamp]
+        if base_push:
+            base_push_timestamp = base_push.time
+            timestamps.append(base_push_timestamp)
 
-        ph_ranges = self._get_ph_time_ranges()
+        timeranges = perfcompare_utils.PERFHERDER_TIMERANGES
         values = []
 
         date_now = (time.time() * 1000) / 1000.0
         for ts in timestamps:
             ph_value = date_now - to_timestamp(str(ts))
-            for ph_range in ph_ranges:
+            for ph_range in timeranges:
                 if ph_value < ph_range['value']:
                     values.append(ph_range['value'])
                     break
         return max(values)
 
-    def _get_perf_data(self, repository_name, revision, signatures, interval):
+    def _get_perf_data(self, repository_name, revision, signatures, interval, startday, endday):
         perf_data = self._get_perf_data_by_repo_and_signatures(repository_name, signatures)
         if revision:
             perf_data = perf_data.filter(push__revision=revision)
-        elif interval:
+        elif interval and not startday and not endday:
             perf_data = perf_data.filter(
                 push_timestamp__gt=datetime.datetime.utcfromtimestamp(
                     int(time.time() - int(interval))
                 )
             )
+        else:
+            perf_data = perf_data.filter(push_timestamp__gt=startday, push_timestamp__lt=endday)
+
         return perf_data
 
     def _get_signatures(self, repository_name, framework, interval, no_subtests):
@@ -965,8 +963,8 @@ class PerfCompareResults(generics.ListAPIView):
         signatures = self._get_signatures_values(signatures)
         return signatures
 
+    @staticmethod
     def _create_graph_links(
-        self,
         base_repo_name,
         new_repo_name,
         base_revision,
@@ -979,10 +977,10 @@ class PerfCompareResults(generics.ListAPIView):
         time_range_key = 'timerange'
         series_key = 'series'
 
-        highlighted_revisions_params = [
-            (highlighted_revision_key, new_revision[:12]),
-            (highlighted_revision_key, base_revision[:12]),
-        ]
+        highlighted_revisions_params = []
+        if base_revision:
+            highlighted_revisions_params.append((highlighted_revision_key, base_revision[:12]))
+        highlighted_revisions_params.append((highlighted_revision_key, new_revision[:12]))
 
         graph_link = 'graphs?%s' % urlencode(highlighted_revisions_params)
 
@@ -1063,7 +1061,7 @@ class PerfCompareResults(generics.ListAPIView):
             test = signature['test']
             extra_options = signature['extra_options']
             option_name = option_collection_map[signature['option_collection_id']]
-            test_suite = suite if test == '' or test == suite else '{} {}'.format(suite, test)
+            test_suite = perfcompare_utils.get_test_suite(suite, test)
             platform = signature['platform__platform']
             header = perfcompare_utils.get_header_name(extra_options, option_name, test_suite)
             sig_identifier = perfcompare_utils.get_sig_identifier(header, platform)
