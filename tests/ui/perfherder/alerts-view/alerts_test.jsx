@@ -954,19 +954,17 @@ test('Copy to clipboard button changes from clipboard icon to check icon on clic
 
   const copyIdButtons = await waitFor(() => queryAllByTitle('Copy Alert ID'));
 
-  expect(copyIdButtons[0].innerHTML).toContain(
-    'svg-inline--fa fa-clipboard fa-w-12 ',
-  );
+  expect(copyIdButtons[0].innerHTML).toContain('svg-inline--fa fa-clipboard ');
 
   fireEvent.click(copyIdButtons[0]);
 
   expect(copyIdButtons[0].innerHTML).toContain(
-    'svg-inline--fa fa-check-circle fa-w-16 ',
+    'svg-inline--fa fa-circle-check ',
   );
 
   await waitFor(() =>
     expect(copyIdButtons[0].innerHTML).toContain(
-      'svg-inline--fa fa-clipboard fa-w-12 ',
+      'svg-inline--fa fa-clipboard ',
     ),
   );
 });

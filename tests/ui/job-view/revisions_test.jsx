@@ -194,9 +194,7 @@ describe('More revisions link component', () => {
     render(<MoreRevisionsLink href="http://more.link" />);
 
     expect(
-      document.querySelectorAll(
-        'svg.svg-inline--fa.fa-external-link-square-alt',
-      ),
+      document.querySelectorAll('svg.svg-inline--fa.fa-square-up-right'),
     ).toHaveLength(1);
   });
 });
