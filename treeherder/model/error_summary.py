@@ -64,7 +64,11 @@ def get_error_summary(job, queryset=None):
     # Future suggestion, set this to queryset[:10] to reduce calls to bug_suggestions_line
     for err in queryset:
         summary, line_cache = bug_suggestions_line(
-            err, logdate=job.submit_time, term_cache=term_cache, line_cache=line_cache
+            err,
+            project=job.repository,
+            logdate=job.submit_time,
+            term_cache=term_cache,
+            line_cache=line_cache,
         )
         error_summary.append(summary)
 
@@ -83,7 +87,7 @@ def get_error_summary(job, queryset=None):
     return error_summary
 
 
-def bug_suggestions_line(err, logdate=None, term_cache=None, line_cache=None):
+def bug_suggestions_line(err, project=None, logdate=None, term_cache=None, line_cache=None):
     """
     Get Bug suggestions for a given TextLogError (err).
 
@@ -116,9 +120,12 @@ def bug_suggestions_line(err, logdate=None, term_cache=None, line_cache=None):
     cache_clean_line = re.sub(
         r' http://localhost:[0-9]+/', ' http://localhost:X/', cache_clean_line
     )
-    if cache_clean_line not in line_cache[today].keys():
-        line_cache[today][cache_clean_line] = 0
-    line_cache[today][cache_clean_line] += 1
+
+    count_branches = ['autoland', 'mozilla-central']
+    if project and str(project.name) in count_branches:
+        if cache_clean_line not in line_cache[today].keys():
+            line_cache[today][cache_clean_line] = 0
+        line_cache[today][cache_clean_line] += 1
 
     # get a meaningful search term out of the error line
     search_info = get_error_search_term_and_path(clean_line)
