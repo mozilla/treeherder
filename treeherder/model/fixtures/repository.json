@@ -1797,5 +1797,20 @@
       "repository_group": 11,
       "tc_root_url": "https://firefox-ci-tc.services.mozilla.com"
     }
+  },
+  {
+    "pk": 128,
+    "model": "model.repository",
+    "fields": {
+      "dvcs_type": "git",
+      "name": "staging-android-components",
+      "url": "https://github.com/mozilla-releng/staging-android-components",
+      "branch": "main",
+      "active_status": "active",
+      "codebase": "staging-android-components",
+      "repository_group": 11,
+      "description": "staging repository for android-components release engineering",
+      "tc_root_url": "https://firefox-ci-tc.services.mozilla.com"
+    }
   }
 ]
