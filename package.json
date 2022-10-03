@@ -77,7 +77,7 @@
     "@pollyjs/adapter-puppeteer": "5.1.1",
     "@pollyjs/core": "5.1.1",
     "@pollyjs/persister-fs": "5.0.0",
-    "@testing-library/jest-dom": "5.16.4",
+    "@testing-library/jest-dom": "5.16.5",
     "@testing-library/react": "12.0.0",
     "babel-eslint": "10.1.0",
     "babel-loader": "8.2.5",
