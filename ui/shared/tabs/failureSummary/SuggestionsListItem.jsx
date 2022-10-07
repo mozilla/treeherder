@@ -168,6 +168,17 @@ export default class SuggestionsListItem extends React.Component {
               >
                 <FontAwesomeIcon icon={faBug} title="File bug" />
               </Button>
+
+              {suggestion.showNewButton && (
+                <Button
+                  className="btn-orange"
+                  outline
+                  title="number of times this error message has been seen until now (including this run)"
+                >
+                  NEW
+                </Button>
+              )}
+
               <span className="align-middle">{suggestion.search} </span>
               <Clipboard
                 description=" text of error line"
