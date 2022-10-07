@@ -762,6 +762,22 @@ export const retriggerMultipleJobs = async (
   );
 };
 
+export const reduceDictToKeys = function reduceDictToKeys(dict, keys) {
+  const keysToKeep = keys || dict.keys();
+  if (!dict) {
+    return false;
+  }
+
+  const reducedDict = {};
+  Object.entries(dict).forEach(([key, value]) => {
+    if (keysToKeep.includes(key)) {
+      reducedDict[key] = value;
+    }
+  });
+
+  return reducedDict;
+};
+
 export const createGraphData = (
   seriesData,
   alertSummaries,
@@ -800,9 +816,10 @@ export const createGraphData = (
         alertSummary: alertSummaries.find(
           (item) => item.push_id === dataPoint.push_id,
         ),
-        commonAlert: commonAlerts.some((item) => {
-          return item.find((alert) => alert.push_id === dataPoint.push_id);
-        }),
+        commonAlert: reduceDictToKeys(
+          commonAlerts[0].find((alert) => alert.push_id === dataPoint.push_id),
+          ['id', 'status'],
+        ),
         signature_id: series.signature_id,
         pushId: dataPoint.push_id,
         jobId: dataPoint.job_id,
