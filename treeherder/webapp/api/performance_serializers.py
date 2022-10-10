@@ -245,6 +245,7 @@ class PerformanceAlertSummarySerializer(serializers.ModelSerializer):
     prev_push_id = serializers.ReadOnlyField()
     push_id = serializers.ReadOnlyField()
     created = serializers.ReadOnlyField()
+    triage_due_date = serializers.ReadOnlyField()
 
     def update(self, instance, validated_data):
         instance.timestamp_first_triage()
@@ -260,6 +261,7 @@ class PerformanceAlertSummarySerializer(serializers.ModelSerializer):
             'push_id',
             'prev_push_id',
             'created',
+            'triage_due_date',
             'repository',
             'framework',
             'alerts',
