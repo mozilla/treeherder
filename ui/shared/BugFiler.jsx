@@ -418,15 +418,16 @@ export class BugFilerClass extends React.Component {
       keywords.push('intermittent-failure');
     }
     let priority = 'P5';
-    const crashSignature = crashSignatures.join('\n');
+    let severity = 'S4';
 
+    const crashSignature = crashSignatures.join('\n');
     if (crashSignature.length > 0) {
       keywords.push('crash');
-      // Set no priority for crashes to get them included in triage meetings.
+      // Set no priority and severity to get them included in triage meetings.
       priority = '--';
+      severity = '--';
     }
 
-    let severity = 'S4';
     if (isSecurityIssue) {
       // Set no priority and severity to get them included in triage meetings.
       priority = '--';

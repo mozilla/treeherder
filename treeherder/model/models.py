@@ -1297,7 +1297,7 @@ class TextLogError(models.Model):
     def bug_suggestions(self):
         from treeherder.model import error_summary
 
-        return error_summary.bug_suggestions_line(self)
+        return error_summary.bug_suggestions_line(self, self.job.repository)
 
     def create_match(self, matcher_name, classification):
         """

@@ -19,6 +19,7 @@ from treeherder.model.models import (
     JobType,
     JobGroup,
 )
+from treeherder.perf.utils import calculate_time_to_triage
 from treeherder.utils import default_serializer
 
 logger = logging.getLogger(__name__)
@@ -271,6 +272,7 @@ class PerformanceAlertSummary(models.Model):
     )
 
     created = models.DateTimeField(auto_now_add=True, db_index=True)
+    triage_due_date = models.DateTimeField(null=True, default=None)
     first_triaged = models.DateTimeField(null=True, default=None)
     last_updated = models.DateTimeField(auto_now=True, null=True)
 
@@ -312,6 +314,8 @@ class PerformanceAlertSummary(models.Model):
     def save(self, *args, **kwargs):
         if self.bug_number is not None and self.bug_number != self.__prev_bug_number:
             self.bug_updated = datetime.now()
+        if not self.triage_due_date:
+            self.triage_due_date = calculate_time_to_triage(self.created)
         super(PerformanceAlertSummary, self).save(*args, **kwargs)
         self.__prev_bug_number = self.bug_number
 
