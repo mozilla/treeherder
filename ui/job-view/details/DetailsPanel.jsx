@@ -81,9 +81,15 @@ class DetailsPanel extends React.Component {
         prevFci !== fci
       ) {
         this.selectJob();
+        // if (selectedJob.job_type_name.includes('perftest-linux-side-by-side')) {
+        //   this.getSideBySideParams();
+        // }
       }
     } else if (selectedJob && selectedJob !== prevProps.selectedJob) {
       this.selectJob();
+      // if (selectedJob.job_type_name.includes('perftest-linux-side-by-side')) {
+      //   this.getSideBySideParams();
+      // }
     }
   }
 
@@ -359,6 +365,25 @@ class DetailsPanel extends React.Component {
     );
   };
 
+  getSideBySideParams() {
+    const { jobDetails } = this.state;
+
+    if (jobDetails && jobDetails.length > 3) {
+      const sideBySideParamsPromise = getData(jobDetails[3].url, {
+        'Access-Control-Allow-Origin': ['*'],
+      });
+      Promise.all([sideBySideParamsPromise]).then(
+        async ([sideBySideParamsResult]) => {
+          const sideBySideParams = sideBySideParamsResult;
+
+          this.setState({
+            sideBySideParams,
+          });
+        },
+      );
+    }
+  }
+
   render() {
     const {
       user,
@@ -376,6 +401,7 @@ class DetailsPanel extends React.Component {
       jobDetailLoading,
       jobArtifactsLoading,
       perfJobDetail,
+      sideBySideParams,
       suggestions,
       errors,
       bugSuggestionsLoading,
@@ -429,6 +455,7 @@ class DetailsPanel extends React.Component {
               jobDetails={jobDetails}
               jobArtifactsLoading={jobArtifactsLoading}
               perfJobDetail={perfJobDetail}
+              sideBySideParams={sideBySideParams}
               repoName={currentRepo.name}
               jobRevision={jobRevision}
               suggestions={suggestions}

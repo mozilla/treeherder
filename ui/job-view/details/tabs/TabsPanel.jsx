@@ -127,6 +127,7 @@ class TabsPanel extends React.Component {
       logParseStatus,
       bugs,
       perfJobDetail,
+      sideBySideParams,
       jobRevision,
       classifications,
       togglePinBoardVisibility,
@@ -260,6 +261,7 @@ class TabsPanel extends React.Component {
                 repoName={currentRepo.name}
                 jobDetails={jobDetails}
                 perfJobDetail={perfJobDetail}
+                sideBySideParams={sideBySideParams}
                 revision={jobRevision}
               />
             </TabPanel>
@@ -300,6 +302,7 @@ TabsPanel.propTypes = {
   selectedJobFull: PropTypes.shape({}).isRequired,
   currentRepo: PropTypes.shape({}).isRequired,
   perfJobDetail: PropTypes.arrayOf(PropTypes.object),
+  sideBySideParams: PropTypes.shape({}),
   jobRevision: PropTypes.string,
   jobLogUrls: PropTypes.arrayOf(PropTypes.object),
   logParseStatus: PropTypes.string,
@@ -314,6 +317,7 @@ TabsPanel.defaultProps = {
   jobLogUrls: [],
   logParseStatus: 'pending',
   perfJobDetail: [],
+  sideBySideParams: {},
   jobRevision: null,
   logViewerFullUrl: null,
 };
