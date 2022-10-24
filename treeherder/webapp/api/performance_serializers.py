@@ -398,8 +398,6 @@ class PerformanceSummarySerializer(serializers.ModelSerializer):
 
 
 class PerfCompareResultsQueryParamsSerializer(serializers.Serializer):
-    startday = serializers.DateTimeField(required=False, allow_null=True, default=None)
-    endday = serializers.DateTimeField(required=False, allow_null=True, default=None)
     base_revision = serializers.CharField(required=False, allow_null=True, default=None)
     new_revision = serializers.CharField(required=False, allow_null=True, default=None)
     base_repository = serializers.CharField()

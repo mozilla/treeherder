@@ -148,13 +148,12 @@ def test_perfcompare_results_against_no_base(
 
     query_params = (
         '?base_repository={}&new_repository={}&new_revision={}&framework={'
-        '}&interval=172800&no_subtests=true&startday={}&endday={}'.format(
+        '}&interval={}&no_subtests=true'.format(
             try_repository.name,
             test_repository.name,
             test_perfcomp_push_2.revision,
             test_perf_signature.framework_id,
-            SEVEN_DAYS_AGO,
-            datetime.datetime.now(),
+            604800,  # seven days in milliseconds
         )
     )
 

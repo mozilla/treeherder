@@ -757,8 +757,6 @@ class PerfCompareResults(generics.ListAPIView):
         if not query_params.is_valid():
             return Response(data=query_params.errors, status=HTTP_400_BAD_REQUEST)
 
-        startday = query_params.validated_data['startday']
-        endday = query_params.validated_data['endday']
         base_rev = query_params.validated_data['base_revision']
         new_rev = query_params.validated_data['new_revision']
         base_repo_name = query_params.validated_data['base_repository']
@@ -775,6 +773,20 @@ class PerfCompareResults(generics.ListAPIView):
 
         base_signatures = self._get_signatures(base_repo_name, framework, interval, no_subtests)
         new_signatures = self._get_signatures(new_repo_name, framework, interval, no_subtests)
+
+        base_push = None
+        if base_rev:
+            base_push = models.Push.objects.get(revision=base_rev, repository__name=base_repo_name)
+        new_push = models.Push.objects.get(revision=new_rev, repository__name=new_repo_name)
+        push_timestamp = self._get_push_timestamp(base_push, new_push)
+
+        startday = None
+        endday = None
+        if not base_rev:
+            startday = datetime.datetime.utcfromtimestamp(
+                int(to_timestamp(str(new_push.time)) - int(interval))
+            )
+            endday = new_push.time
 
         base_perf_data = self._get_perf_data(
             base_repo_name, base_rev, base_signatures, interval, startday, endday
@@ -799,8 +811,6 @@ class PerfCompareResults(generics.ListAPIView):
         header_names.sort()
         platforms = set(base_platforms + new_platforms)
         self.queryset = []
-
-        push_timestamp = self._get_push_timestamp(base_push, new_push)
 
         for header in header_names:
             for platform in platforms:
