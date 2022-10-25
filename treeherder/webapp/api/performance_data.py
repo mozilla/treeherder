@@ -767,6 +767,12 @@ class PerfCompareResults(generics.ListAPIView):
         framework = query_params.validated_data['framework']
         no_subtests = query_params.validated_data['no_subtests']
 
+        new_push = models.Push.objects.get(revision=new_rev, repository__name=new_repo_name)
+        base_push = None
+        if base_rev:
+            base_push = models.Push.objects.get(revision=base_rev, repository__name=base_repo_name)
+            interval = self._get_interval(base_push, new_push)
+
         base_signatures = self._get_signatures(base_repo_name, framework, interval, no_subtests)
         new_signatures = self._get_signatures(new_repo_name, framework, interval, no_subtests)
 
@@ -794,10 +800,6 @@ class PerfCompareResults(generics.ListAPIView):
         platforms = set(base_platforms + new_platforms)
         self.queryset = []
 
-        base_push = None
-        if base_rev:
-            base_push = models.Push.objects.get(revision=base_rev, repository__name=base_repo_name)
-        new_push = models.Push.objects.get(revision=new_rev, repository__name=new_repo_name)
         push_timestamp = self._get_push_timestamp(base_push, new_push)
 
         for header in header_names:
@@ -1000,6 +1002,22 @@ class PerfCompareResults(generics.ListAPIView):
         graph_link = graph_link + '&%s' % urlencode({time_range_key: time_range})
 
         return 'https://treeherder.mozilla.org/perfherder/%s' % graph_link
+
+    @staticmethod
+    def _get_interval(base_push, new_push):
+        base_push_timestamp = base_push.time
+        new_push_timestamp = new_push.time
+
+        date_now = (time.time() * 1000) / 1000.0
+        time_range = min(base_push_timestamp, new_push_timestamp)
+        time_range = round(date_now - to_timestamp(str(time_range)))
+
+        ph_ranges = perfcompare_utils.PERFHERDER_TIMERANGES
+        for ph_range in ph_ranges:
+            if ph_range['value'] >= time_range:
+                new_time_range = ph_range['value']
+                break
+        return new_time_range
 
     @staticmethod
     def _get_perf_data_by_repo_and_signatures(repository_name, signatures):
