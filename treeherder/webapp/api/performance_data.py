@@ -765,31 +765,42 @@ class PerfCompareResults(generics.ListAPIView):
         framework = query_params.validated_data['framework']
         no_subtests = query_params.validated_data['no_subtests']
 
-        new_push = models.Push.objects.get(revision=new_rev, repository__name=new_repo_name)
-        base_push = None
-        if base_rev:
-            base_push = models.Push.objects.get(revision=base_rev, repository__name=base_repo_name)
-            interval = self._get_interval(base_push, new_push)
+        try:
+            new_push = models.Push.objects.get(revision=new_rev, repository__name=new_repo_name)
+        except models.Push.DoesNotExist:
+            return Response(
+                "No new push with revision {} from repo {}.".format(new_rev, new_repo_name),
+                status=HTTP_400_BAD_REQUEST,
+            )
+
+        try:
+            base_push, start_day, end_day = None, None, None
+            if base_rev:
+                base_push = models.Push.objects.get(
+                    revision=base_rev, repository__name=base_repo_name
+                )
+                # Dynamically calculate an time interval based on the base and new push
+                interval = self._get_interval(base_push, new_push)
+            else:
+                # Comparing without a base needs a timerange from which to gather the data needed
+                # based on the interval param received, which can be last day or last 2/ 7/ 14 /30 /90 days or last year
+                start_day = datetime.datetime.utcfromtimestamp(
+                    int(to_timestamp(str(new_push.time)) - int(interval))
+                )
+                end_day = new_push.time
+        except models.Push.DoesNotExist:
+            return Response(
+                "No base push with revision {} from repo {}.".format(base_rev, base_repo_name),
+                status=HTTP_400_BAD_REQUEST,
+            )
+
+        push_timestamp = self._get_push_timestamp(base_push, new_push)
 
         base_signatures = self._get_signatures(base_repo_name, framework, interval, no_subtests)
         new_signatures = self._get_signatures(new_repo_name, framework, interval, no_subtests)
 
-        base_push = None
-        if base_rev:
-            base_push = models.Push.objects.get(revision=base_rev, repository__name=base_repo_name)
-        new_push = models.Push.objects.get(revision=new_rev, repository__name=new_repo_name)
-        push_timestamp = self._get_push_timestamp(base_push, new_push)
-
-        startday = None
-        endday = None
-        if not base_rev:
-            startday = datetime.datetime.utcfromtimestamp(
-                int(to_timestamp(str(new_push.time)) - int(interval))
-            )
-            endday = new_push.time
-
         base_perf_data = self._get_perf_data(
-            base_repo_name, base_rev, base_signatures, interval, startday, endday
+            base_repo_name, base_rev, base_signatures, interval, start_day, end_day
         )
         new_perf_data = self._get_perf_data(
             new_repo_name, new_rev, new_signatures, interval, None, None

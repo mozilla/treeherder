@@ -512,6 +512,62 @@ def test_perfcompare_results_multiple_runs(
         assert result in response.json()
 
 
+def test_revision_is_not_found(client, test_perf_signature, test_perfcomp_push):
+    non_existent_revision = "nonexistentrevision"
+    query_params = (
+        '?base_repository={}&new_repository={}&base_revision={}&new_revision={}&framework={'
+        '}&no_subtests=true'.format(
+            test_perf_signature.repository.name,
+            test_perf_signature.repository.name,
+            non_existent_revision,
+            test_perfcomp_push.revision,
+            test_perf_signature.framework_id,
+        )
+    )
+
+    response = client.get(reverse('perfcompare-results') + query_params)
+    assert response.status_code == 400
+    assert response.json() == "No base push with revision {} from repo {}.".format(
+        non_existent_revision, test_perf_signature.repository.name
+    )
+
+    query_params = (
+        '?base_repository={}&new_repository={}&base_revision={}&new_revision={}&framework={'
+        '}&no_subtests=true'.format(
+            test_perf_signature.repository.name,
+            test_perf_signature.repository.name,
+            test_perfcomp_push.revision,
+            non_existent_revision,
+            test_perf_signature.framework_id,
+        )
+    )
+
+    response = client.get(reverse('perfcompare-results') + query_params)
+    assert response.status_code == 400
+    assert response.json() == "No new push with revision {} from repo {}.".format(
+        non_existent_revision, test_perf_signature.repository.name
+    )
+
+
+def test_interval_is_required_when_comparing_without_base(
+    client, test_perf_signature, test_perfcomp_push
+):
+    non_existent_revision = "nonexistentrevision"
+    query_params = (
+        '?base_repository={}&new_repository={}&new_revision={}&framework={'
+        '}&no_subtests=true'.format(
+            test_perf_signature.repository.name,
+            test_perf_signature.repository.name,
+            non_existent_revision,
+            test_perf_signature.framework_id,
+        )
+    )
+
+    response = client.get(reverse('perfcompare-results') + query_params)
+    assert response.status_code == 400
+    assert response.json() == {'non_field_errors': ['Field required: interval.']}
+
+
 def get_expected(
     base_sig, extra_options, test_option_collection, new_perf_data_values, base_perf_data_values
 ):
