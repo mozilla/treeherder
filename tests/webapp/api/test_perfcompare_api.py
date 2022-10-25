@@ -299,7 +299,7 @@ def test_perfcompare_results_with_only_one_run_and_diff_repo(
 
     query_params = (
         '?base_repository={}&new_repository={}&base_revision={}&new_revision={}&framework={'
-        '}&interval=172800&no_subtests=true'.format(
+        '}&no_subtests=true'.format(
             try_repository.name,
             test_repository.name,
             test_perfcomp_push.revision,
@@ -498,7 +498,7 @@ def test_perfcompare_results_multiple_runs(
 
     query_params = (
         '?base_repository={}&new_repository={}&base_revision={}&new_revision={}&framework={'
-        '}&interval=172800&no_subtests=true'.format(
+        '}&no_subtests=true'.format(
             test_perf_signature.repository.name,
             test_perf_signature.repository.name,
             test_perfcomp_push.revision,

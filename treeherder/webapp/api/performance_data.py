@@ -767,12 +767,10 @@ class PerfCompareResults(generics.ListAPIView):
         framework = query_params.validated_data['framework']
         no_subtests = query_params.validated_data['no_subtests']
 
+        new_push = models.Push.objects.get(revision=new_rev, repository__name=new_repo_name)
         base_push = None
         if base_rev:
             base_push = models.Push.objects.get(revision=base_rev, repository__name=base_repo_name)
-        new_push = models.Push.objects.get(revision=new_rev, repository__name=new_repo_name)
-
-        if base_push:
             interval = self._get_interval(base_push, new_push)
 
         base_signatures = self._get_signatures(base_repo_name, framework, interval, no_subtests)
@@ -1005,7 +1003,8 @@ class PerfCompareResults(generics.ListAPIView):
 
         return 'https://treeherder.mozilla.org/perfherder/%s' % graph_link
 
-    def _get_interval(self, base_push, new_push):
+    @staticmethod
+    def _get_interval(base_push, new_push):
         base_push_timestamp = base_push.time
         new_push_timestamp = new_push.time
 
