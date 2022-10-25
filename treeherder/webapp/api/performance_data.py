@@ -763,6 +763,7 @@ class PerfCompareResults(generics.ListAPIView):
         new_rev = query_params.validated_data['new_revision']
         base_repo_name = query_params.validated_data['base_repository']
         new_repo_name = query_params.validated_data['new_repository']
+        interval = query_params.validated_data['interval']
         framework = query_params.validated_data['framework']
         no_subtests = query_params.validated_data['no_subtests']
 
@@ -771,7 +772,8 @@ class PerfCompareResults(generics.ListAPIView):
             base_push = models.Push.objects.get(revision=base_rev, repository__name=base_repo_name)
         new_push = models.Push.objects.get(revision=new_rev, repository__name=new_repo_name)
 
-        interval = self._get_interval(base_push, new_push)
+        if base_push:
+            interval = self._get_interval(base_push, new_push)
 
         base_signatures = self._get_signatures(base_repo_name, framework, interval, no_subtests)
         new_signatures = self._get_signatures(new_repo_name, framework, interval, no_subtests)
@@ -1011,7 +1013,7 @@ class PerfCompareResults(generics.ListAPIView):
         time_range = min(base_push_timestamp, new_push_timestamp)
         time_range = round(date_now - to_timestamp(str(time_range)))
 
-        ph_ranges = self._get_ph_time_ranges()
+        ph_ranges = perfcompare_utils.PERFHERDER_TIMERANGES
         for ph_range in ph_ranges:
             if ph_range['value'] >= time_range:
                 new_time_range = ph_range['value']
