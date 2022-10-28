@@ -9,6 +9,7 @@ from treeherder.webapp.api import (
     changelog,
     classification,
     csp_report,
+    groups,
     infra_compare,
     intermittents_view,
     investigated_test,
@@ -145,6 +146,7 @@ default_router.register(r'auth', auth.AuthViewSet, basename='auth')
 default_router.register(r'changelog', changelog.ChangelogViewSet, basename='changelog')
 
 urlpatterns = [
+    re_path(r'^groupsummary/$', groups.SummaryByGroupName.as_view(), name='groupsummary'),
     re_path(r'^project/(?P<project>[\w-]{0,50})/', include(project_bound_router.urls)),
     re_path(r'^', include(default_router.urls)),
     re_path(r'^failures/$', intermittents_view.Failures.as_view(), name='failures'),

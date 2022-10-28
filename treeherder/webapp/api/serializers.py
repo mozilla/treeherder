@@ -309,6 +309,34 @@ class FailuresSerializer(serializers.ModelSerializer):
         fields = ('bug_id', 'bug_count')
 
 
+class JobTypeNameField(serializers.Field):
+    """Removes the ending chunk number"""
+
+    def to_representation(self, value):
+        parts = value.split("-")
+        try:
+            _ = int(parts[-1])
+            return '-'.join(parts[:-1])
+        except ValueError:
+            return value
+
+
+class GroupNameSerializer(serializers.ModelSerializer):
+    group_name = serializers.CharField(source="groups__name")
+    job_type_name = JobTypeNameField(source="job__job_type__name")
+    job_result = serializers.CharField(source="job__result")
+    job_count = serializers.IntegerField()
+
+    class Meta:
+        model = models.JobLog
+        fields = (
+            'group_name',
+            'job_type_name',
+            'job_result',
+            'job_count',
+        )
+
+
 class TestSuiteField(serializers.Field):
     """Removes all characters from test_suite that's also found in platform"""
 
