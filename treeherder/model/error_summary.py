@@ -112,14 +112,7 @@ def bug_suggestions_line(err, project=None, logdate=None, term_cache=None, line_
     clean_line = get_cleaned_line(err.line)
 
     # remove floating point numbers from the summary as they are often variable
-    cache_clean_line = re.sub(r' [0-9]+\.[0-9]+ ', ' X ', clean_line)
-    cache_clean_line = re.sub(r' leaked [0-9]+ window(s)', ' leaked X window(s)', cache_clean_line)
-    cache_clean_line = re.sub(r' [0-9]+ bytes leaked', ' X bytes leaked', cache_clean_line)
-    cache_clean_line = re.sub(r' value=[0-9]+', ' value=*', cache_clean_line)
-    cache_clean_line = re.sub(r'ot [0-9]+, expected [0-9]+', 'ot X, expected Y', cache_clean_line)
-    cache_clean_line = re.sub(
-        r' http://localhost:[0-9]+/', ' http://localhost:X/', cache_clean_line
-    )
+    cache_clean_line = cache_clean_error_line(clean_line)
 
     count_branches = ['autoland', 'mozilla-central']
     if project and str(project.name) in count_branches:
@@ -172,6 +165,18 @@ def get_cleaned_line(line):
     """Strip possible mozharness bits from the given line."""
     line_to_clean = MOZHARNESS_RE.sub('', line).strip()
     return PROCESS_ID_RE.sub('', line_to_clean)
+
+
+def cache_clean_error_line(line):
+    cache_clean_line = re.sub(r' [0-9]+\.[0-9]+ ', ' X ', line)
+    cache_clean_line = re.sub(r' leaked [0-9]+ window(s)', ' leaked X window(s)', cache_clean_line)
+    cache_clean_line = re.sub(r' [0-9]+ bytes leaked', ' X bytes leaked', cache_clean_line)
+    cache_clean_line = re.sub(r' value=[0-9]+', ' value=*', cache_clean_line)
+    cache_clean_line = re.sub(r'ot [0-9]+, expected [0-9]+', 'ot X, expected Y', cache_clean_line)
+    cache_clean_line = re.sub(
+        r' http://localhost:[0-9]+/', ' http://localhost:X/', cache_clean_line
+    )
+    return cache_clean_line
 
 
 def get_error_search_term_and_path(error_line):

@@ -1,12 +1,23 @@
+from django.core.cache import cache
+
 from rest_framework import viewsets
 from rest_framework.decorators import action
 from rest_framework.exceptions import ParseError
 from rest_framework.response import Response
 from rest_framework.status import HTTP_404_NOT_FOUND
 
-from treeherder.model.models import Job, JobNote, Push
+import logging
+
+from treeherder.model.models import Job, JobNote, Push, TextLogError
+from treeherder.model.error_summary import (
+    get_cleaned_line,
+    cache_clean_error_line,
+    LINE_CACHE_TIMEOUT,
+)
 
 from .serializers import JobNoteSerializer, JobNoteDetailSerializer
+
+logger = logging.getLogger(__name__)
 
 
 class NoteViewSet(viewsets.ViewSet):
@@ -67,12 +78,34 @@ class NoteViewSet(viewsets.ViewSet):
         """
         POST method implementation
         """
+        current_job = Job.objects.get(repository__name=project, id=int(request.data['job_id']))
+        fc_id = int(request.data['failure_classification_id'])
         JobNote.objects.create(
-            job=Job.objects.get(repository__name=project, id=int(request.data['job_id'])),
-            failure_classification_id=int(request.data['failure_classification_id']),
+            job=current_job,
+            failure_classification_id=fc_id,
             user=request.user,
             text=request.data.get('text', ''),
         )
+
+        if fc_id == 2:  # this is for fixed_by_commit (backout | follow_up_commit)
+            # remove cached failure line counts
+            line_cache_key = 'error_lines'
+            line_cache = cache.get(line_cache_key)
+            date = current_job.submit_time.date().isoformat()
+            if line_cache and date in line_cache.keys():
+                for err in TextLogError.objects.filter(job=current_job):
+                    cache_clean_line = cache_clean_error_line(get_cleaned_line(err.line))
+                    if cache_clean_line in line_cache[date].keys():
+                        line_cache[date][cache_clean_line] -= 1
+                        try:
+                            cache.set(line_cache_key, line_cache, LINE_CACHE_TIMEOUT)
+                        except Exception as e:
+                            logger.error(
+                                'error caching error_lines for job %s: %s',
+                                current_job.id,
+                                e,
+                                exc_info=True,
+                            )
 
         return Response({'message': 'note stored for job {0}'.format(request.data['job_id'])})
 
