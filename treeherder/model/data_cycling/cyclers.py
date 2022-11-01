@@ -8,7 +8,7 @@ from django.db.backends.utils import CursorWrapper
 from django.db.models import Count
 
 from treeherder.model.data_cycling.removal_strategies import RemovalStrategy
-from treeherder.model.models import Job, JobType, JobGroup, Machine
+from treeherder.model.models import Job, JobType, JobGroup, Machine, Group, GroupStatus
 from treeherder.perf.exceptions import NoDataCyclingAtAll, MaxRuntimeExceeded
 from treeherder.perf.models import (
     PerformanceSignature,
@@ -69,9 +69,11 @@ class TreeherderCycler(DataCycler):
     def _remove_leftovers(self):
         logger.warning('Pruning ancillary data: job types, groups and machines')
 
-        def prune(id_name, model):
+        def prune(reference_model, id_name, model):
             logger.warning('Pruning {}s'.format(model.__name__))
-            used_ids = Job.objects.only(id_name).values_list(id_name, flat=True).distinct()
+            used_ids = (
+                reference_model.objects.only(id_name).values_list(id_name, flat=True).distinct()
+            )
             unused_ids = model.objects.exclude(id__in=used_ids).values_list('id', flat=True)
 
             logger.warning('Removing {} records from {}'.format(len(unused_ids), model.__name__))
@@ -82,9 +84,10 @@ class TreeherderCycler(DataCycler):
                 model.objects.filter(id__in=delete_ids).delete()
                 unused_ids = unused_ids[self.chunk_size :]
 
-        prune('job_type_id', JobType)
-        prune('job_group_id', JobGroup)
-        prune('machine_id', Machine)
+        prune(Job, 'job_type_id', JobType)
+        prune(Job, 'job_group_id', JobGroup)
+        prune(Job, 'machine_id', Machine)
+        prune(GroupStatus, 'group_id', Group)
 
 
 class PerfherderCycler(DataCycler):
