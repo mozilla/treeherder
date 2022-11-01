@@ -12,7 +12,8 @@
             "fennec",
             "geckoview",
             "refbrow",
-            "fenix"
+            "fenix",
+            "safari"
           ],
           "maxLength": 10,
           "type": "string"
