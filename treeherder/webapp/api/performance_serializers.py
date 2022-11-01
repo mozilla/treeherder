@@ -398,10 +398,8 @@ class PerformanceSummarySerializer(serializers.ModelSerializer):
 
 
 class PerfCompareResultsQueryParamsSerializer(serializers.Serializer):
-    startday = serializers.DateTimeField(required=False, allow_null=True, default=None)
-    endday = serializers.DateTimeField(required=False, allow_null=True, default=None)
     base_revision = serializers.CharField(required=False, allow_null=True, default=None)
-    new_revision = serializers.CharField(required=False, allow_null=True, default=None)
+    new_revision = serializers.CharField()
     base_repository = serializers.CharField()
     new_repository = serializers.CharField()
     framework = serializers.IntegerField(required=False, allow_null=True, default=None)
@@ -409,15 +407,8 @@ class PerfCompareResultsQueryParamsSerializer(serializers.Serializer):
     no_subtests = serializers.BooleanField(required=False)
 
     def validate(self, data):
-        if (
-            data['base_revision'] is None
-            and data['new_revision'] is None
-            and data['interval'] is None
-            and (data['startday'] is None or data['endday'] is None)
-        ):
-            raise serializers.ValidationError(
-                'Required: base_revision, new_revision, startday and endday or interval.'
-            )
+        if data['base_revision'] is None and data['interval'] is None:
+            raise serializers.ValidationError('Field required: interval.')
 
         try:
             Repository.objects.get(name=data['base_repository'])
