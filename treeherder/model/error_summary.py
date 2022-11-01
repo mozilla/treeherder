@@ -69,6 +69,7 @@ def get_error_summary(job, queryset=None):
             logdate=job.submit_time,
             term_cache=term_cache,
             line_cache=line_cache,
+            revision=job.push.revision,
         )
         error_summary.append(summary)
 
@@ -87,7 +88,9 @@ def get_error_summary(job, queryset=None):
     return error_summary
 
 
-def bug_suggestions_line(err, project=None, logdate=None, term_cache=None, line_cache=None):
+def bug_suggestions_line(
+    err, project=None, logdate=None, term_cache=None, line_cache=None, revision=None
+):
     """
     Get Bug suggestions for a given TextLogError (err).
 
@@ -118,6 +121,10 @@ def bug_suggestions_line(err, project=None, logdate=None, term_cache=None, line_
     if project and str(project.name) in count_branches:
         if cache_clean_line not in line_cache[today].keys():
             line_cache[today][cache_clean_line] = 0
+            if "new_lines" not in line_cache[today].keys():
+                line_cache[today]["new_lines"] = {}
+            if cache_clean_line not in line_cache[today]["new_lines"]:
+                line_cache[today]["new_lines"][cache_clean_line] = revision
         line_cache[today][cache_clean_line] += 1
 
     # get a meaningful search term out of the error line
@@ -149,6 +156,14 @@ def bug_suggestions_line(err, project=None, logdate=None, term_cache=None, line_
     for day in line_cache.keys():
         counter += line_cache[day].get(cache_clean_line, 0)
 
+    failure_new_in_rev = False
+    if (
+        "new_lines" in line_cache[today].keys()
+        and cache_clean_line not in line_cache[today]["new_lines"]
+    ):
+        if revision == line_cache[today]["new_lines"][cache_clean_line]:
+            failure_new_in_rev = True
+
     # TODO: Rename 'search' to 'error_text' or similar, since that's
     # closer to what it actually represents (bug 1091060).
     return {
@@ -158,6 +173,7 @@ def bug_suggestions_line(err, project=None, logdate=None, term_cache=None, line_
         "bugs": bugs,
         "line_number": err.line_number,
         "counter": counter,
+        "failure_new_in_rev": failure_new_in_rev,
     }, line_cache
 
 
