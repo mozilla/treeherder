@@ -964,6 +964,63 @@ def test_run_data(bug_data):
 
 
 @pytest.fixture
+def group_data(transactional_db, eleven_job_blobs, create_jobs):
+
+    query_string = '?manifest=/test&date=2022-10-01'
+
+    jt = []
+    jt.append(
+        th_models.JobType.objects.create(name="test-windows10-64-2004-qr/opt-mochitest-plain-1")
+    )
+    jt.append(
+        th_models.JobType.objects.create(name="test-windows10-64-2004-qr/opt-mochitest-plain-2")
+    )
+    jt.append(
+        th_models.JobType.objects.create(name="test-windows10-64-2004-qr/opt-mochitest-plain-swr-1")
+    )
+
+    g1 = th_models.Group.objects.create(name="/test")
+    for i in range(3):
+        job = eleven_job_blobs[i]
+        job['job'].update(
+            {
+                'taskcluster_task_id': 'V3SVuxO8TFy37En_6HcXL%s' % i,
+                'taskcluster_retry_id': '0',
+                'name': jt[i].name,
+            }
+        )
+        j = create_jobs([job])[0]
+
+        # when creating the job, we also create the joblog, we want the last job log entry
+        job_log = th_models.JobLog.objects.last()
+
+        th_models.GroupStatus.objects.create(status=1, job_log=job_log, group=g1)
+
+    return {
+        'date': j.submit_time,
+        'manifest': '/test',
+        'query_string': query_string,
+        'expected': [
+            {
+                'manifest': '/test',
+                'results': [
+                    {
+                        "job_type_name": 'test-windows10-64-2004-qr/opt-mochitest-plain',
+                        "job_result": "success",
+                        "job_count": 2,
+                    },
+                    {
+                        "job_type_name": 'test-windows10-64-2004-qr/opt-mochitest-plain-swr',
+                        "job_result": "success",
+                        "job_count": 1,
+                    },
+                ],
+            }
+        ],
+    }
+
+
+@pytest.fixture
 def generate_enough_perf_datum(test_repository, test_perf_signature):
     # generate enough data for a proper alert to be generated (with enough
     # extra data on both sides to make sure we're using the proper values

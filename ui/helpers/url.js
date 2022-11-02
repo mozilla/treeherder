@@ -21,6 +21,8 @@ export const bugDetailsEndpoint = '/failuresbybug/';
 
 export const graphsEndpoint = '/failurecount/';
 
+export const groupSummary = '/groupsummary/';
+
 export const deployedRevisionUrl = '/revision.txt';
 
 export const loginCallbackUrl = '/login';
