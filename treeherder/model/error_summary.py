@@ -109,7 +109,7 @@ def bug_suggestions_line(
     else:
         today = str(logdate.date())
     if today not in line_cache.keys():
-        line_cache[today] = {}
+        line_cache[today] = {"new_lines": {}}
 
     # remove the mozharness prefix
     clean_line = get_cleaned_line(err.line)
@@ -123,7 +123,7 @@ def bug_suggestions_line(
             line_cache[today][cache_clean_line] = 0
             if "new_lines" not in line_cache[today].keys():
                 line_cache[today]["new_lines"] = {}
-            if cache_clean_line not in line_cache[today]["new_lines"]:
+            if cache_clean_line not in line_cache[today]["new_lines"].keys():
                 line_cache[today]["new_lines"][cache_clean_line] = revision
         line_cache[today][cache_clean_line] += 1
 
@@ -157,10 +157,7 @@ def bug_suggestions_line(
         counter += line_cache[day].get(cache_clean_line, 0)
 
     failure_new_in_rev = False
-    if (
-        "new_lines" in line_cache[today].keys()
-        and cache_clean_line not in line_cache[today]["new_lines"]
-    ):
+    if "new_lines" in line_cache[today] and cache_clean_line in line_cache[today]["new_lines"]:
         if revision == line_cache[today]["new_lines"][cache_clean_line]:
             failure_new_in_rev = True
 

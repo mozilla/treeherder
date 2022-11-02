@@ -161,10 +161,11 @@ class FailureSummaryTab extends React.Component {
       // this allows us to focus on the top line
       if (suggestionCounter < 2) {
         suggestion.showNewButton = false;
-        if (suggestion.search.split(' | ').length === 3) {
-          if (suggestion.counter === 1 || suggestion.failure_new_in_rev) {
-            suggestion.showNewButton = true;
-          }
+        if (
+          suggestion.search.split(' | ').length === 3 &&
+          suggestion.failure_new_in_rev === true
+        ) {
+          suggestion.showNewButton = true;
         }
       }
     });
