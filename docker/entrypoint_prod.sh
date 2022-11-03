@@ -5,10 +5,10 @@
 if [ "$1" == "release" ]; then
     exec ./bin/pre_deploy
 
-# We set the maximum request duration to 20 seconds, to ensure that poorly performing API
+# We set the maximum request duration to 30 seconds, to ensure that poorly performing API
 # queries do not consume a gunicorn worker for unbounded lengths of time. 
 elif [ "$1" == "web" ]; then
-    exec newrelic-admin run-program gunicorn treeherder.config.wsgi:application --timeout 20 --bind 0.0.0.0
+    exec newrelic-admin run-program gunicorn treeherder.config.wsgi:application --timeout 30 --bind 0.0.0.0
 
 # All other process types can have arbitrary names.
 # The Celery options such as `--without-heartbeat` are from the recommendations here:
