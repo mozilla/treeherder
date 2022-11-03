@@ -155,7 +155,6 @@ class FailureSummaryTab extends React.Component {
     const jobLogsAllParsed =
       logs.length > 0 && logs.every((jlu) => jlu.parse_status !== 'pending');
 
-    let newButtonShown = false;
     let suggestionCounter = 0;
     suggestions.forEach((suggestion) => {
       suggestionCounter++;
@@ -163,11 +162,9 @@ class FailureSummaryTab extends React.Component {
       if (suggestionCounter < 2) {
         suggestion.showNewButton = false;
         if (
-          !newButtonShown &&
           suggestion.search.split(' | ').length === 3 &&
-          suggestion.counter === 1
+          suggestion.failure_new_in_rev === true
         ) {
-          newButtonShown = true;
           suggestion.showNewButton = true;
         }
       }

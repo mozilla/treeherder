@@ -80,6 +80,9 @@ class NoteViewSet(viewsets.ViewSet):
         """
         current_job = Job.objects.get(repository__name=project, id=int(request.data['job_id']))
         fc_id = int(request.data['failure_classification_id'])
+        revision = None
+        if 'text' in request.data:
+            revision = request.data['text']
         JobNote.objects.create(
             job=current_job,
             failure_classification_id=fc_id,
@@ -97,6 +100,12 @@ class NoteViewSet(viewsets.ViewSet):
                     cache_clean_line = cache_clean_error_line(get_cleaned_line(err.line))
                     if cache_clean_line in line_cache[date].keys():
                         line_cache[date][cache_clean_line] -= 1
+                        if (
+                            cache_clean_line in line_cache[date]["new_lines"].keys()
+                            and revision
+                            and line_cache[date]["new_lines"][cache_clean_line] == revision
+                        ):
+                            del line_cache[date]["new_lines"][cache_clean_line]
                         try:
                             cache.set(line_cache_key, line_cache, LINE_CACHE_TIMEOUT)
                         except Exception as e:
