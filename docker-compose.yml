@@ -51,7 +51,7 @@ services:
   frontend:
     container_name: frontend
     # https://hub.docker.com/_/node
-    image: node:19.0.0-alpine
+    image: node:19.0.1-alpine
     # Installing JS dependencies at runtime so that they share the `node_modules` from the
     # host, improving speed (both install and build due to the webpack cache) and ensuring
     # the host copy stays in sync (for people that switch back and forth between UI-only
