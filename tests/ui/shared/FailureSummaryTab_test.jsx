@@ -89,7 +89,7 @@ describe('FailureSummaryTab', () => {
     await waitFor(() => screen.getByText('Hide bug suggestions'));
     const duplicateSummary = await findByText('1725755');
     const openBugPart = duplicateSummary.nextSibling;
-    expect(openBugPart.textContent).toEqual(' >1725749');
+    expect(openBugPart.textContent).toBe(' >1725749');
   });
 
   test('suggested non-duplicate bugs should not mention other bug like duplicates do', async () => {
@@ -100,7 +100,7 @@ describe('FailureSummaryTab', () => {
     await waitFor(() => screen.getByText('Hide bug suggestions'));
     const duplicateSummary = await findByText('1725755');
     const openBugPart = duplicateSummary.nextSibling;
-    expect(openBugPart.textContent).toEqual(' >1725749');
+    expect(openBugPart.textContent).toBe(' >1725749');
   });
 
   test('classification with match to duplicate bug should put open bug into pinboard', async () => {
@@ -112,7 +112,7 @@ describe('FailureSummaryTab', () => {
     const duplicateSummary = await findByText('1725755');
     fireEvent.click(duplicateSummary.previousSibling);
     await waitFor(() => screen.getByTestId('pinboard-bug-1725749'));
-    expect(screen.getByTestId('pinboard-bug-1725749').textContent).toEqual(
+    expect(screen.getByTestId('pinboard-bug-1725749').textContent).toBe(
       '1725749',
     );
   });

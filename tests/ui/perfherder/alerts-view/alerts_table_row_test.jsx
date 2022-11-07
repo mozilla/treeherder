@@ -60,7 +60,7 @@ const alertTableRowTest = (
 
 afterEach(cleanup);
 
-test('Test column contains only suite and test name', async () => {
+test('Column contains only suite and test name', async () => {
   const { getByTestId } = alertTableRowTest({ alert: testAlert, tags: false });
   const { suite, test } = testAlert.series_signature;
 
@@ -71,7 +71,7 @@ test('Test column contains only suite and test name', async () => {
   expect(alertTitle.textContent).toBe(`${suite} ${test}`);
 });
 
-test('Tests with duplicated suite and test name appears only once in Test column', async () => {
+test('Duplicated suite and test name appears only once in Test column', async () => {
   const { suite, test } = testAlert.series_signature;
   testAlert.series_signature.suite = 'duplicatedName';
   testAlert.series_signature.test = 'duplicatedName';
@@ -238,7 +238,7 @@ test('Duplicated tags and option are displayed only once, options and tags are t
   expect(allTagsAndOptions).toHaveLength(2);
 });
 
-test('Duplicated tags and option are displayed only once, options and tags have elements in common ', async () => {
+test('Duplicated tags and option are displayed only once, options and tags have elements in common', async () => {
   const testOptions = ['cold', 'live', 'web'];
   const testTags = ['cold', 'live'];
 

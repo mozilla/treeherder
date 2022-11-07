@@ -661,7 +661,7 @@ test(`table data can be sorted in ascending order by 'Confidence'`, async () => 
   expect(compareTableRows[2]).toContainElement(result3);
 });
 
-test('test data can be sorted only by one column', async () => {
+test('Data can be sorted only by one column', async () => {
   const { getAllByLabelText, getByText, getByTitle } = compareTableControls();
 
   let compareTableRows = await waitFor(() =>
@@ -710,7 +710,7 @@ test(`table data sorted by 'Magnitude of Difference' has data with invalid magni
   const result2 = await waitFor(() => getByText(result[1].name));
   const result3 = await waitFor(() => getByText(result[2].name));
 
-  expect(result[2].magnitude).toBe(NaN);
+  expect(result[2].magnitude).toBeNaN();
   expect(compareTableRows[0]).toContainElement(result1);
   expect(compareTableRows[1]).toContainElement(result2);
   expect(compareTableRows[2]).toContainElement(result3);
@@ -756,8 +756,8 @@ test(`table data sorted by 'Delta' has data with invalid delta at the end`, asyn
   const result2 = await waitFor(() => getByText(result[1].name));
   const result3 = await waitFor(() => getByText(result[2].name));
 
-  expect(result[2].delta).toBe(NaN);
-  expect(result[2].deltaPercentage).toBe(NaN);
+  expect(result[2].delta).toBeNaN();
+  expect(result[2].deltaPercentage).toBeNaN();
   expect(compareTableRows[0]).toContainElement(result1);
   expect(compareTableRows[1]).toContainElement(result2);
   expect(compareTableRows[2]).toContainElement(result3);
@@ -799,7 +799,7 @@ test(`table data sorted by 'Confidence' has data with invalid confidence at the 
   const result2 = await waitFor(() => getByText(result[1].name));
   const result3 = await waitFor(() => getByText(result[2].name));
 
-  expect(result[2].confidence).toBe(NaN);
+  expect(result[2].confidence).toBeNaN();
   expect(compareTableRows[0]).toContainElement(result1);
   expect(compareTableRows[1]).toContainElement(result2);
   expect(compareTableRows[2]).toContainElement(result3);
@@ -868,6 +868,6 @@ test('Click on download button starts JSON file download', async () => {
     },
   });
 
-  expect(downloadButton.download).toEqual('test.json');
-  expect(downloadButton.href).toEqual(`data:text/json;charset=utf-8, ${file}`);
+  expect(downloadButton.download).toBe('test.json');
+  expect(downloadButton.href).toBe(`data:text/json;charset=utf-8, ${file}`);
 });

@@ -187,7 +187,7 @@ describe('More revisions link component', () => {
     const link = getByText('\u2026and more');
 
     expect(link).toBeInTheDocument();
-    expect(link.getAttribute('href')).toEqual('http://more.link/');
+    expect(link.getAttribute('href')).toBe('http://more.link/');
   });
 
   test('has an external link icon', () => {

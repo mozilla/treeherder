@@ -64,7 +64,7 @@ describe('Transformations', () => {
     });
   });
 
-  test('Test path transformations (WPT)', () => {
+  test('Path transformations (WPT)', () => {
     const tests = [
       {
         path: 'devtools/client/framework/browser-toolbox/test/browser.ini',

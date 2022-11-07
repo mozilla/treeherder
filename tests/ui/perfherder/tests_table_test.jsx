@@ -58,7 +58,7 @@ const testsTable = (data, projectsMap = false, platformsMap = false) =>
 
 afterEach(cleanup);
 
-test('Tests table with no data displays appropriate message', async () => {
+test('Table with no data displays appropriate message', async () => {
   const { getByText } = testsTable();
 
   const message = await waitFor(() => getByText(noResultsMessage));
@@ -66,7 +66,7 @@ test('Tests table with no data displays appropriate message', async () => {
   expect(message).toBeInTheDocument();
 });
 
-test('Tests table should show data', async () => {
+test('Table should show data', async () => {
   const { getByText } = testsTable(results, projectsMap, platformsMap);
 
   const result1 = await waitFor(() => getByText(results[0].test));
@@ -98,7 +98,7 @@ test('Clicking on platform icon displays the list of platforms', async () => {
   expect(platformList.children[1]).toHaveTextContent('platform1');
 });
 
-test('Test alerts from Alerts column are split into improvements and regressions', async () => {
+test('Alerts from Alerts column are split into improvements and regressions', async () => {
   const { getAllByTestId } = testsTable(results, projectsMap, platformsMap);
 
   const improvements = await waitFor(() => getAllByTestId('improvements'));
