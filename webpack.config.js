@@ -48,14 +48,25 @@ const commonConfig = {
     rules: [
       {
         test: /\.html$/,
-        use: [
-          {
-            loader: 'html-loader/index.js',
-            options: {
-              attrs: ['img:src', 'link:href'],
+        use: {
+          loader: 'html-loader',
+          options: {
+            sources: {
+              list: [
+                {
+                  tag: 'img',
+                  attribute: 'img-src',
+                  type: 'src',
+                },
+                {
+                  tag: 'a',
+                  attribute: 'href',
+                  type: 'src',
+                },
+              ],
             },
           },
-        ],
+        },
       },
       {
         test: /\.(mjs|jsx|js)$/,
