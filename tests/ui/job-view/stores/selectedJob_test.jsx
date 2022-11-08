@@ -93,7 +93,7 @@ describe('SelectedJob Redux store', () => {
 
     expect(reduced.selectedJob).toBeUndefined();
     await waitFor(() =>
-      expect(notifications[0]).toEqual(
+      expect(notifications[0]).toBe(
         'Selected task: VaQoWKTbSdGSwBJn6UZV9g not within current push range.',
       ),
     );
@@ -111,7 +111,7 @@ describe('SelectedJob Redux store', () => {
 
     expect(reduced.selectedJob).toBeUndefined();
     await waitFor(() =>
-      expect(notifications[0]).toEqual(
+      expect(notifications[0]).toBe(
         'Task not found: a824gBVmRQSBuEexnVW_Qg, run 0',
       ),
     );
