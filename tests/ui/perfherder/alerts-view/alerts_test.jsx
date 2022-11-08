@@ -226,7 +226,7 @@ describe('alert filtering ignores repository and/or options', () => {
     [testAlertSummaries[0].alerts[0].series_signature.options[0]],
   ];
   testCases.forEach((testCase) => {
-    it(testCase.toString(), async () => {
+    it(`testcase: ${testCase.toString()}`, async () => {
       const { getByPlaceholderText, getByText } = alertsView();
       const alertsFilterInput = await waitFor(() =>
         getByPlaceholderText(filterText.inputPlaceholder),
@@ -382,7 +382,7 @@ test('selecting the alert summary checkbox then deselecting one alert only updat
   // only the selected alert has been updated
   expect(modifyAlertSpy).toHaveBeenCalled();
   expect(modifyAlertSpy.mock.results).toHaveLength(3);
-  expect(modifyAlertSpy.mock.results[0].value.data.id).toEqual(69345);
+  expect(modifyAlertSpy.mock.results[0].value.data.id).toBe(69345);
   expect(modifyAlertSpy.mock.results[0].value).toStrictEqual({
     data: {
       ...testAlertSummaries[0].alerts[0],
@@ -770,7 +770,7 @@ test(`table data can be sorted in ascending order by 'Magnitude of Change'`, asy
   );
 });
 
-test('test data can be sorted only by one column', async () => {
+test('Data can be sorted only by one column', async () => {
   const {
     getAllByLabelText,
     getByTestId,
@@ -816,7 +816,7 @@ test('test data can be sorted only by one column', async () => {
   );
 });
 
-test('test previous alert button should be disable at first', async () => {
+test('Previous alert button should be disable at first', async () => {
   const { getByTestId } = alertsViewControls();
 
   const prevScrollButton = await waitFor(() =>
@@ -826,7 +826,7 @@ test('test previous alert button should be disable at first', async () => {
   expect(prevScrollButton).toBeDisabled();
 });
 
-test('test next alert button should be disable when reaching the last alert', async () => {
+test('Next alert button should be disable when reaching the last alert', async () => {
   const { getByTestId } = alertsViewControls();
   Element.prototype.scrollIntoView = jest.fn();
 
@@ -842,11 +842,11 @@ test('test next alert button should be disable when reaching the last alert', as
   expect(nextScrollButton).toBeDisabled();
 });
 
-test('test sherlock backfill status icons are displayed correctly', async () => {
+test('Sherlock backfill status icons are displayed correctly', async () => {
   const { getByTestId } = alertsViewControls();
 
   const alert = testAlertSummaries[0].alerts[3];
-  expect(alert.id).toEqual(69347);
+  expect(alert.id).toBe(69347);
 
   const alertIcon = await waitFor(() =>
     getByTestId(`alert ${alert.id.toString()} sherlock icon`),
@@ -855,10 +855,10 @@ test('test sherlock backfill status icons are displayed correctly', async () => 
   expect(alertIcon).toBeInTheDocument();
 });
 
-test('test sherlock status 0 in tooltip on alerts', async () => {
+test('Sherlock status 0 in tooltip on alerts', async () => {
   const alert = testAlertSummaries[0].alerts[3];
   alert.backfill_record.status = alertBackfillResultStatusMap.preliminary;
-  expect(alert.id).toEqual(69347);
+  expect(alert.id).toBe(69347);
 
   const { getByTestId, getByText } = alertsViewControls();
   // hovering over the Sherlock icon should display the tooltip
@@ -869,11 +869,11 @@ test('test sherlock status 0 in tooltip on alerts', async () => {
   await waitFor(() => getByText(alertBackfillResultVisual.preliminary.message));
 });
 
-test('test sherlock status 1 in tooltip on alerts', async () => {
+test('Sherlock status 1 in tooltip on alerts', async () => {
   const alert = testAlertSummaries[0].alerts[3];
   alert.backfill_record.status =
     alertBackfillResultStatusMap.readyForProcessing;
-  expect(alert.id).toEqual(69347);
+  expect(alert.id).toBe(69347);
 
   const { getByTestId, getByText } = alertsViewControls();
   // hovering over the Sherlock icon should display the tooltip
@@ -886,10 +886,10 @@ test('test sherlock status 1 in tooltip on alerts', async () => {
   );
 });
 
-test('test sherlock status 2 in tooltip on alerts', async () => {
+test('Sherlock status 2 in tooltip on alerts', async () => {
   const alert = testAlertSummaries[0].alerts[3];
   alert.backfill_record.status = alertBackfillResultStatusMap.backfilled;
-  expect(alert.id).toEqual(69347);
+  expect(alert.id).toBe(69347);
 
   const { getByTestId, getByText } = alertsViewControls();
   // hovering over the Sherlock icon should display the tooltip
@@ -900,10 +900,10 @@ test('test sherlock status 2 in tooltip on alerts', async () => {
   await waitFor(() => getByText(alertBackfillResultVisual.backfilled.message));
 });
 
-test('test sherlock status 3 in tooltip on alerts', async () => {
+test('Sherlock status 3 in tooltip on alerts', async () => {
   const alert = testAlertSummaries[0].alerts[3];
   alert.backfill_record.status = alertBackfillResultStatusMap.successful;
-  expect(alert.id).toEqual(69347);
+  expect(alert.id).toBe(69347);
 
   const { getByTestId, getByText } = alertsViewControls();
   // hovering over the Sherlock icon should display the tooltip
@@ -914,10 +914,10 @@ test('test sherlock status 3 in tooltip on alerts', async () => {
   await waitFor(() => getByText(alertBackfillResultVisual.successful.message));
 });
 
-test('test sherlock status 4 in tooltip on alerts', async () => {
+test('Sherlock status 4 in tooltip on alerts', async () => {
   const alert = testAlertSummaries[0].alerts[3];
   alert.backfill_record.status = alertBackfillResultStatusMap.failed;
-  expect(alert.id).toEqual(69347);
+  expect(alert.id).toBe(69347);
 
   const { getByTestId, getByText } = alertsViewControls();
   // hovering over the Sherlock icon should display the tooltip

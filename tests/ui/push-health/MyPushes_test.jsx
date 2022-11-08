@@ -53,7 +53,7 @@ describe('My Pushes', () => {
     const { queryByText } = render(testMyPushes({ isLoggedIn: false }));
 
     // verify no author query param exists
-    expect(history.location.search).toEqual('');
+    expect(history.location.search).toBe('');
 
     await waitFor(() =>
       expect(queryByText(myPushesDefaultMessage)).toBeInTheDocument(),

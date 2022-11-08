@@ -11,14 +11,14 @@ test('Passing undefined to the Perfdocs constructor does not result in exception
   const title = undefined;
 
   const perfdocs = new Perfdocs(framework, suite, platform, title);
-  expect(perfdocs.documentationURL).toEqual(
+  expect(perfdocs.documentationURL).toBe(
     'https://firefox-source-docs.mozilla.org/testing/perfdocs/',
   );
-  expect(perfdocs.framework).toEqual('');
-  expect(perfdocs.suite).toEqual('');
-  expect(perfdocs.platform).toEqual('');
-  expect(perfdocs.title).toEqual('');
-  expect(perfdocs.remainingName).toEqual('');
+  expect(perfdocs.framework).toBe('');
+  expect(perfdocs.suite).toBe('');
+  expect(perfdocs.platform).toBe('');
+  expect(perfdocs.title).toBe('');
+  expect(perfdocs.remainingName).toBe('');
   expect(perfdocs.hasDocumentation()).toBeFalsy();
 });
 
@@ -29,14 +29,14 @@ test('Passing null to the Perfdocs constructor does not result in exception', ()
   const title = null;
 
   const perfdocs = new Perfdocs(framework, suite, platform, title);
-  expect(perfdocs.documentationURL).toEqual(
+  expect(perfdocs.documentationURL).toBe(
     'https://firefox-source-docs.mozilla.org/testing/perfdocs/',
   );
-  expect(perfdocs.framework).toEqual('');
-  expect(perfdocs.suite).toEqual('');
-  expect(perfdocs.platform).toEqual('');
-  expect(perfdocs.title).toEqual('');
-  expect(perfdocs.remainingName).toEqual('');
+  expect(perfdocs.framework).toBe('');
+  expect(perfdocs.suite).toBe('');
+  expect(perfdocs.platform).toBe('');
+  expect(perfdocs.title).toBe('');
+  expect(perfdocs.remainingName).toBe('');
   expect(perfdocs.hasDocumentation()).toBeFalsy();
 });
 
@@ -45,7 +45,7 @@ test('If the framework is unknown the documentation url resulted is a general on
   const suite = 'someSuite';
 
   const perfdocs = new Perfdocs(framework, suite);
-  expect(perfdocs.documentationURL).toEqual(
+  expect(perfdocs.documentationURL).toBe(
     'https://firefox-source-docs.mozilla.org/testing/perfdocs/',
   );
 });
@@ -56,7 +56,7 @@ test('For framework browsertime the documentation url is correct', () => {
   const platform = 'android';
 
   const perfdocs = new Perfdocs(framework, suite, platform);
-  expect(perfdocs.documentationURL).toEqual(
+  expect(perfdocs.documentationURL).toBe(
     'https://firefox-source-docs.mozilla.org/testing/perfdocs/raptor.html#web-de-m',
   );
 });
@@ -66,7 +66,7 @@ test('For framework devtools the documentation url is correct', () => {
   const suite = 'damp';
 
   const perfdocs = new Perfdocs(framework, suite);
-  expect(perfdocs.documentationURL).toEqual(
+  expect(perfdocs.documentationURL).toBe(
     'https://firefox-source-docs.mozilla.org/devtools/tests/performance-tests-overview.html#damp',
   );
 });

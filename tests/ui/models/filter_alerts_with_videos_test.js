@@ -52,16 +52,14 @@ describe('FilterAlertsWithVideos', () => {
 
       await alertsWithVideos.enrichAndRetrieveAlerts();
       alertSummaryWithVideos.alerts.forEach((alert) => {
-        if (alertsWithVideos.shouldHaveVideoLinks(alert)) {
-          expect(alert).toHaveProperty('results_link', expectedResultsLink);
-          expect(alert).toHaveProperty(
-            'prev_results_link',
-            expectedPrevResultsLink,
-          );
-        } else {
-          expect(alert.results_link).toBeUndefined();
-          expect(alert.prev_results_link).toBeUndefined();
+        let erl = expectedResultsLink;
+        let eprl = expectedPrevResultsLink;
+        if (!alertsWithVideos.shouldHaveVideoLinks(alert)) {
+          erl = undefined;
+          eprl = undefined;
         }
+        expect(alert.results_link).toEqual(erl);
+        expect(alert.prev_results_link).toEqual(eprl);
       });
     });
   });
@@ -98,10 +96,11 @@ describe('FilterAlertsWithVideos', () => {
       const alerts = await alertsWithoutVideos.enrichAndRetrieveAlerts();
       expect(alerts).toStrictEqual([]);
       alertSummaryWithoutVideos.alerts.forEach((alert) => {
-        if (!alertsWithoutVideos.shouldHaveVideoLinks(alert)) {
-          expect(alert.results_link).toBeUndefined();
-          expect(alert.prev_results_link).toBeUndefined();
+        if (alertsWithoutVideos.shouldHaveVideoLinks(alert)) {
+          return;
         }
+        expect(alert.results_link).toBeUndefined();
+        expect(alert.prev_results_link).toBeUndefined();
       });
     });
   });
@@ -119,10 +118,11 @@ describe('FilterAlertsWithVideos', () => {
       const alerts = await alertsWithoutVideos.enrichAndRetrieveAlerts();
       expect(alerts).toStrictEqual([]);
       alertSummaryNonBrowsertime.alerts.forEach((alert) => {
-        if (!alertsWithoutVideos.shouldHaveVideoLinks(alert)) {
-          expect(alert.results_link).toBeUndefined();
-          expect(alert.prev_results_link).toBeUndefined();
+        if (alertsWithoutVideos.shouldHaveVideoLinks(alert)) {
+          return;
         }
+        expect(alert.results_link).toBeUndefined();
+        expect(alert.prev_results_link).toBeUndefined();
       });
     });
   });

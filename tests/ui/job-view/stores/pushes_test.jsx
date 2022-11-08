@@ -171,7 +171,7 @@ describe('Pushes Redux store', () => {
     });
     await store.dispatch(fetchPushes(10, true));
 
-    expect(window.location.search).toEqual(
+    expect(window.location.search).toBe(
       `?repo=${repoName}&tochange=ba9c692786e95143b8df3f4b3e9b504dfbc589a0&fromchange=90da061f588d1315ee4087225d041d7474d9dfd8`,
     );
   });
@@ -258,9 +258,9 @@ describe('Pushes Redux store', () => {
       { type: CLEAR_PUSHES },
     );
 
-    expect(reduced.pushList).toEqual([]);
-    expect(reduced.allUnclassifiedFailureCount).toEqual(0);
-    expect(reduced.filteredUnclassifiedFailureCount).toEqual(0);
+    expect(reduced.pushList).toStrictEqual([]);
+    expect(reduced.allUnclassifiedFailureCount).toBe(0);
+    expect(reduced.filteredUnclassifiedFailureCount).toBe(0);
   });
 
   test('should replace the pushList with setPushes', async () => {
@@ -276,8 +276,8 @@ describe('Pushes Redux store', () => {
     );
 
     expect(reduced.pushList).toEqual([push2]);
-    expect(reduced.allUnclassifiedFailureCount).toEqual(0);
-    expect(reduced.filteredUnclassifiedFailureCount).toEqual(0);
+    expect(reduced.allUnclassifiedFailureCount).toBe(0);
+    expect(reduced.filteredUnclassifiedFailureCount).toBe(0);
   });
 
   test('should get new unclassified counts with recalculateUnclassifiedCounts', async () => {
@@ -295,8 +295,8 @@ describe('Pushes Redux store', () => {
     });
 
     expect(Object.keys(reduced.jobMap)).toHaveLength(5);
-    expect(reduced.allUnclassifiedFailureCount).toEqual(2);
-    expect(reduced.filteredUnclassifiedFailureCount).toEqual(1);
+    expect(reduced.allUnclassifiedFailureCount).toBe(2);
+    expect(reduced.filteredUnclassifiedFailureCount).toBe(1);
   });
 
   test('should add to the jobMap with updateJobMap', async () => {

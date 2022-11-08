@@ -338,7 +338,7 @@ describe('Filtering', () => {
 
       fireEvent.keyDown(document, { key: 'f', keyCode: 70 });
 
-      expect(filterField).toBe(document.activeElement);
+      expect(filterField).toEqual(document.activeElement);
     });
 
     test('KeyboardShortcut ctrl+shift+f: clear the quick filter input', async () => {
@@ -356,7 +356,7 @@ describe('Filtering', () => {
         expect(queryAllByText('B')).toHaveLength(0);
       });
 
-      expect(filterField.value).toEqual('yaml');
+      expect(filterField.value).toBe('yaml');
       fireEvent.keyDown(document, {
         key: 'f',
         keyCode: 70,
@@ -366,7 +366,7 @@ describe('Filtering', () => {
 
       await waitFor(() => getAllByText('B'));
 
-      expect(filterField.value).toEqual('');
+      expect(filterField.value).toBe('');
     });
   });
 
@@ -442,7 +442,7 @@ describe('Filtering', () => {
         expect(queryAllByText(symbolToRemove)).toHaveLength(0);
       });
 
-      expect(history.location.search).toEqual(
+      expect(history.location.search).toBe(
         '?repo=autoland&resultStatus=testfailed%2Cbusted%2Cexception%2Csuccess%2Cretry%2Cusercancel%2Crunnable',
       );
     });
@@ -467,7 +467,7 @@ describe('Filtering', () => {
       await findAllByText('B');
       await waitFor(() => getAllByText(symbolToRemove), 5000);
       expect(jobCount()).toBe(50);
-      expect(history.location.search).toEqual('?repo=autoland');
+      expect(history.location.search).toBe('?repo=autoland');
     });
 
     test('Filters | Reset should get back to original set of jobs', async () => {
