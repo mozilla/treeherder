@@ -1000,23 +1000,17 @@ def group_data(transactional_db, eleven_job_blobs, create_jobs):
         'date': j.submit_time,
         'manifest': '/test',
         'query_string': query_string,
-        'expected': [
-            {
-                'manifest': '/test',
-                'results': [
-                    {
-                        "job_type_name": 'test-windows10-64-2004-qr/opt-mochitest-plain',
-                        "job_result": "success",
-                        "job_count": 2,
-                    },
-                    {
-                        "job_type_name": 'test-windows10-64-2004-qr/opt-mochitest-plain-swr',
-                        "job_result": "success",
-                        "job_count": 1,
-                    },
-                ],
-            }
-        ],
+        'expected': {
+            'job_type_names': [
+                'test-windows10-64-2004-qr/opt-mochitest-plain',
+                'test-windows10-64-2004-qr/opt-mochitest-plain-swr',
+            ],
+            'manifests': [
+                {
+                    '/test': [[0, "passed", 2], [1, "passed", 1]],
+                }
+            ],
+        },
     }
 
 

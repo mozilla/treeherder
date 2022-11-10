@@ -5,10 +5,9 @@ import re
 from django.db.models import Count
 from rest_framework import generics
 from rest_framework.response import Response
-from rest_framework.status import HTTP_400_BAD_REQUEST
 
 from treeherder.model.models import (
-    JobLog,
+    Job,
 )
 from treeherder.webapp.api.serializers import GroupNameSerializer
 
@@ -24,71 +23,73 @@ class SummaryByGroupName(generics.ListAPIView):
     queryset = None
 
     def list(self, request):
-        manifests = None
-        if 'manifest' in request.query_params:
-            manifests = [
-                x.strip()
-                for x in request.query_params['manifest'].split(',')
-                if x and '/' in x.strip()
-            ]
+        startdate = None
+        enddate = None
+        if 'startdate' in request.query_params:
+            startdate = request.query_params['startdate']
 
-        if not manifests or len(manifests) == 0:
-            if 'manifest' in request.query_params:
-                error = (
-                    "invalid url query parameter manifest: '%s'" % request.query_params['manifest']
-                )
-            else:
-                error = "invalid url query parameter manifest: None"
-            return Response(data=error, status=HTTP_400_BAD_REQUEST)
+        if not startdate or not re.match(r'^[0-9]{4}-[0-9]{2}-[0-9]{2}$', startdate):
+            startdate = datetime.datetime.today()
+        else:
+            startdate = datetime.datetime.strptime(startdate, "%Y-%m-%d")
 
-        date = None
-        if 'date' in request.query_params:
-            date = request.query_params['date']
+        if 'enddate' in request.query_params:
+            enddate = request.query_params['enddate']
 
-        if not date or not re.match(r'^[0-9]{4}-[0-9]{2}-[0-9]{2}$', date):
-            date = str(datetime.datetime.today().date())
+        if not enddate or not re.match(r'^[0-9]{4}-[0-9]{2}-[0-9]{2}$', enddate):
+            enddate = startdate + datetime.timedelta(days=1)
+        else:
+            enddate = datetime.datetime.strptime(enddate, "%Y-%m-%d")
 
-        date = datetime.datetime.strptime(date, "%Y-%m-%d")
-        tomorrow = date + datetime.timedelta(days=1)
-
-        self.queryset = (
-            JobLog.objects.filter(job__push__time__range=(str(date.date()), str(tomorrow.date())))
-            .filter(job__repository_id__in=(1, 77))
-            .filter(groups__name__in=manifests)
-            .values(
-                'groups__name',
-                'job__job_type__name',
-                'job__result',
+        q = (
+            Job.objects.filter(
+                submit_time__gte=str(startdate.date()), submit_time__lte=str(enddate.date())
             )
-            .annotate(job_count=Count('job_id'))
-            .values('groups__name', 'job__job_type__name', 'job__result', 'job_count')
-            .order_by('job__job_type__name')
+            .filter(repository_id__in=(1, 77))
+            .values(
+                'job_log__groups__name',
+                'job_type__name',
+                'job_log__group_result__status',
+            )
+            .annotate(job_count=Count('id'))
+            .order_by('job_log__groups__name')
         )
+        self.queryset = q
         serializer = self.get_serializer(self.queryset, many=True)
         summary = {}
+        job_type_names = []
         for item in serializer.data:
+            if not item['group_name'] or not item['job_type_name']:
+                continue
+
+            if not item['job_type_name'].startswith('test-'):
+                continue
+
+            if int(item['group_status']) == 1:  # ok
+                result = 'passed'
+            elif int(item['group_status']) == 2:  # testfailed
+                result = 'testfailed'
+            else:
+                # other: 3 (skipped), 10 (unsupported (i.e. crashed))
+                # we don't want to count this at all
+                continue
+
+            if item['job_type_name'] not in job_type_names:
+                job_type_names.append(item['job_type_name'])
             if item['group_name'] not in summary:
                 summary[item['group_name']] = {}
             if item['job_type_name'] not in summary[item['group_name']]:
                 summary[item['group_name']][item['job_type_name']] = {}
-            if item['job_result'] not in summary[item['group_name']][item['job_type_name']]:
-                summary[item['group_name']][item['job_type_name']][item['job_result']] = 0
-            summary[item['group_name']][item['job_type_name']][item['job_result']] += item[
-                'job_count'
-            ]
+            if result not in summary[item['group_name']][item['job_type_name']]:
+                summary[item['group_name']][item['job_type_name']][result] = 0
+            summary[item['group_name']][item['job_type_name']][result] += item['job_count']
 
-        data = []
-        for m in manifests:
+        data = {'job_type_names': job_type_names, 'manifests': []}
+        for m in summary.keys():
             mdata = []
-            # print out manifest with no data
-            if m not in summary:
-                data.append({"manifest": m, "results": []})
-                continue
             for d in summary[m]:
                 for r in summary[m][d]:
-                    mdata.append(
-                        {"job_type_name": d, "job_result": r, "job_count": summary[m][d][r]}
-                    )
-            data.append({"manifest": m, "results": mdata})
+                    mdata.append([job_type_names.index(d), r, summary[m][d][r]])
+            data['manifests'].append({m: mdata})
 
         return Response(data=data)
