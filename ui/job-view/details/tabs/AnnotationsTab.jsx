@@ -179,11 +179,8 @@ class AnnotationsTab extends React.Component {
   };
 
   deleteClassification = async (classification) => {
-    const {
-      selectedJobFull,
-      recalculateUnclassifiedCounts,
-      notify,
-    } = this.props;
+    const { selectedJobFull, recalculateUnclassifiedCounts, notify } =
+      this.props;
 
     selectedJobFull.failure_classification_id = 1;
     recalculateUnclassifiedCounts();

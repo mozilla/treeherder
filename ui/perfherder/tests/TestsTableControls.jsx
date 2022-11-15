@@ -57,12 +57,8 @@ export default class TestsTableControls extends React.Component {
   };
 
   render() {
-    const {
-      dropdownOptions,
-      projectsMap,
-      platformsMap,
-      allFrameworks,
-    } = this.props;
+    const { dropdownOptions, projectsMap, platformsMap, allFrameworks } =
+      this.props;
     const { results } = this.state;
     let framework = false;
     if (dropdownOptions[0] !== undefined)

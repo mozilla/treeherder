@@ -38,7 +38,7 @@ const menuItems = [
   },
   {
     href:
-      'https://wiki.mozilla.org/EngineeringProductivity/Projects/Treeherder',
+    'https://wiki.mozilla.org/EngineeringProductivity/Projects/Treeherder',
     icon: faFileWord,
     text: 'Project Wiki',
   },
@@ -49,7 +49,7 @@ const menuItems = [
   },
   {
     href:
-      'https://bugzilla.mozilla.org/enter_bug.cgi?product=Tree+Management&component=Treeherder',
+    'https://bugzilla.mozilla.org/enter_bug.cgi?product=Tree+Management&component=Treeherder',
     icon: faBug,
     text: 'Report a Bug',
   },

@@ -66,12 +66,8 @@ export default class InfraCompareTableView extends React.Component {
 
   getInfraData = async () => {
     const { getQueryParams, getDisplayResults } = this.props;
-    const {
-      originalProject,
-      originalRevision,
-      newProject,
-      newRevision,
-    } = this.props.validated;
+    const { originalProject, originalRevision, newProject, newRevision } =
+      this.props.validated;
     const { timeRange, failureMessages } = this.state;
 
     this.setState({ loading: true });
@@ -143,13 +139,8 @@ export default class InfraCompareTableView extends React.Component {
       pageTitle,
     } = this.props.validated;
     const { jobsNotDisplayed } = this.props;
-    const {
-      compareResults,
-      loading,
-      failureMessages,
-      timeRange,
-      tabTitle,
-    } = this.state;
+    const { compareResults, loading, failureMessages, timeRange, tabTitle } =
+      this.state;
     const compareDropdowns = [];
     const params = {
       originalProject,

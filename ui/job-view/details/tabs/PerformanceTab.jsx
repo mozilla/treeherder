@@ -29,12 +29,8 @@ class PerformanceTab extends React.PureComponent {
   }
 
   createGeckoProfile = async () => {
-    const {
-      selectedJobFull,
-      notify,
-      decisionTaskMap,
-      currentRepo,
-    } = this.props;
+    const { selectedJobFull, notify, decisionTaskMap, currentRepo } =
+      this.props;
     await triggerGeckoProfileTask(
       selectedJobFull,
       notify,

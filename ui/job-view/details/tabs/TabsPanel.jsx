@@ -78,8 +78,9 @@ class TabsPanel extends React.Component {
   onSelectNextTab = () => {
     const { tabIndex } = this.state;
     const nextIndex = tabIndex + 1;
-    const tabCount = TabsPanel.getTabNames(showTabsFromProps(this.props))
-      .length;
+    const tabCount = TabsPanel.getTabNames(
+      showTabsFromProps(this.props),
+    ).length;
     this.setState({ tabIndex: nextIndex < tabCount ? nextIndex : 0 });
   };
 

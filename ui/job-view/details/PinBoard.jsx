@@ -63,12 +63,8 @@ class PinBoard extends React.Component {
   };
 
   save = () => {
-    const {
-      isLoggedIn,
-      pinnedJobs,
-      recalculateUnclassifiedCounts,
-      notify,
-    } = this.props;
+    const { isLoggedIn, pinnedJobs, recalculateUnclassifiedCounts, notify } =
+      this.props;
 
     let errorFree = true;
     if (this.state.enteringBugNumber) {
@@ -105,10 +101,8 @@ class PinBoard extends React.Component {
 
   createNewClassification = () => {
     const { email } = this.props;
-    const {
-      failureClassificationId,
-      failureClassificationComment,
-    } = this.props;
+    const { failureClassificationId, failureClassificationComment } =
+      this.props;
 
     return new JobClassificationModel({
       text: failureClassificationComment,
@@ -240,14 +234,12 @@ class PinBoard extends React.Component {
       recalculateUnclassifiedCounts,
     } = this.props;
 
-    const {
-      data,
-      failureStatus,
-    } = await JobClassificationTypeAndBugsModel.destroy(
-      Object.values(pinnedJobs),
-      currentRepo,
-      notify,
-    );
+    const { data, failureStatus } =
+      await JobClassificationTypeAndBugsModel.destroy(
+        Object.values(pinnedJobs),
+        currentRepo,
+        notify,
+      );
 
     if (!failureStatus) {
       for (const pinnedJob of Object.values(pinnedJobs)) {
@@ -273,10 +265,8 @@ class PinBoard extends React.Component {
 
   canSaveClassifications = () => {
     const { pinnedJobBugs, isLoggedIn, currentRepo } = this.props;
-    const {
-      failureClassificationId,
-      failureClassificationComment,
-    } = this.props;
+    const { failureClassificationId, failureClassificationComment } =
+      this.props;
 
     return (
       this.hasPinnedJobs() &&
@@ -294,10 +284,8 @@ class PinBoard extends React.Component {
 
   // Facilitates Clear all if no jobs pinned to reset pinBoard UI
   pinboardIsDirty = () => {
-    const {
-      failureClassificationId,
-      failureClassificationComment,
-    } = this.props;
+    const { failureClassificationId, failureClassificationComment } =
+      this.props;
 
     return (
       failureClassificationComment !== '' ||

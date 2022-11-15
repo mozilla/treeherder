@@ -43,11 +43,8 @@ export default class RetriggerModal extends React.Component {
   };
 
   getInitialValue = (isBaseline = false) => {
-    const {
-      defaultRetriggersValue,
-      isBaseAggregate,
-      currentRetriggerRow,
-    } = this.props;
+    const { defaultRetriggersValue, isBaseAggregate, currentRetriggerRow } =
+      this.props;
     let initialValue = defaultRetriggersValue;
 
     if (isBaseline) {

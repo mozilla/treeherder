@@ -75,12 +75,8 @@ class CompareView extends React.PureComponent {
   };
 
   createLinks = (oldResults, newResults, timeRange, framework) => {
-    const {
-      originalProject,
-      newProject,
-      originalRevision,
-      newRevision,
-    } = this.props.validated;
+    const { originalProject, newProject, originalRevision, newRevision } =
+      this.props.validated;
 
     let links = [];
     const hasSubtests =

@@ -73,10 +73,8 @@ export default class CompareTable extends React.Component {
 
   getBaseAndNewHeaders = (data) => {
     const [firstElementOfData] = data;
-    const {
-      baseColumnMeasurementUnit,
-      newColumnMeasurementUnit,
-    } = firstElementOfData;
+    const { baseColumnMeasurementUnit, newColumnMeasurementUnit } =
+      firstElementOfData;
     let baseName = 'Base';
     let newName = 'New';
     if (baseColumnMeasurementUnit && newColumnMeasurementUnit) {

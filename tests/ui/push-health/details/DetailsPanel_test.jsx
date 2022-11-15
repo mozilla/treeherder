@@ -65,8 +65,7 @@ describe('DetailsPanel', () => {
               },
               line_number: 18841,
             },
-            line:
-              '22:42:53     INFO - TEST-UNEXPECTED-FAIL | devtools/client/debugger/test/mochitest/browser_dbg-sourcemaps.js | Uncaught exception - at chrome://mochitests/content/browser/devtools/client/debugger/test/mochitest/helpers.js:358 - TypeError: can\'t access property "wrapClass", lineInfo is null',
+            line: '22:42:53     INFO - TEST-UNEXPECTED-FAIL | devtools/client/debugger/test/mochitest/browser_dbg-sourcemaps.js | Uncaught exception - at chrome://mochitests/content/browser/devtools/client/debugger/test/mochitest/helpers.js:358 - TypeError: can\'t access property "wrapClass", lineInfo is null',
             line_number: 18841,
           },
         ],

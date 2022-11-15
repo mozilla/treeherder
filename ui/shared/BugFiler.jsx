@@ -567,14 +567,8 @@ export class BugFilerClass extends React.Component {
   }
 
   render() {
-    const {
-      isOpen,
-      toggle,
-      suggestion,
-      parsedLog,
-      fullLog,
-      reftestUrl,
-    } = this.props;
+    const { isOpen, toggle, suggestion, parsedLog, fullLog, reftestUrl } =
+      this.props;
     const {
       productSearch,
       suggestedProducts,

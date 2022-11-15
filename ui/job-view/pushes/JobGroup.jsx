@@ -166,9 +166,8 @@ export class JobGroupComponent extends React.Component {
     } = this.props;
     const { expanded } = this.state;
     const { buttons, counts } = this.groupButtonsAndCounts(groupJobs, expanded);
-    const intermittentJobTypeNames = this.getIntermittentJobTypeNames(
-      groupJobs,
-    );
+    const intermittentJobTypeNames =
+      this.getIntermittentJobTypeNames(groupJobs);
     function isIntermittent(job) {
       if (job.result !== 'testfailed') {
         return false;

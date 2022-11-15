@@ -36,10 +36,8 @@ export default class JobModel {
       if (fetchAll && nextUrl) {
         const page = new URLSearchParams(nextUrl.split('?')[1]).get('page');
         const newOptions = { ...options, page };
-        const {
-          data: nextData,
-          failureStatus: nextFailureStatus,
-        } = await JobModel.getList(newOptions, config);
+        const { data: nextData, failureStatus: nextFailureStatus } =
+          await JobModel.getList(newOptions, config);
 
         if (!nextFailureStatus) {
           nextPagesJobs = nextData;
