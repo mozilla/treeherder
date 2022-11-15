@@ -43,13 +43,14 @@ class SummaryByGroupName(generics.ListAPIView):
 
         q = (
             Job.objects.filter(
-                submit_time__gte=str(startdate.date()), submit_time__lte=str(enddate.date())
+                push__time__gte=str(startdate.date()), push__time__lte=str(enddate.date())
             )
             .filter(repository_id__in=(1, 77))
             .values(
                 'job_log__groups__name',
                 'job_type__name',
                 'job_log__group_result__status',
+                'failure_classification_id',
             )
             .annotate(job_count=Count('id'))
             .order_by('job_log__groups__name')
@@ -74,6 +75,9 @@ class SummaryByGroupName(generics.ListAPIView):
                 # we don't want to count this at all
                 continue
 
+            # TODO: consider stripping out some types; mostly care about FBC vs Intermittent
+            classification = item['failure_classification']
+
             if item['job_type_name'] not in job_type_names:
                 job_type_names.append(item['job_type_name'])
             if item['group_name'] not in summary:
@@ -81,15 +85,20 @@ class SummaryByGroupName(generics.ListAPIView):
             if item['job_type_name'] not in summary[item['group_name']]:
                 summary[item['group_name']][item['job_type_name']] = {}
             if result not in summary[item['group_name']][item['job_type_name']]:
-                summary[item['group_name']][item['job_type_name']][result] = 0
-            summary[item['group_name']][item['job_type_name']][result] += item['job_count']
+                summary[item['group_name']][item['job_type_name']][result] = {}
+            if classification not in summary[item['group_name']][item['job_type_name']][result]:
+                summary[item['group_name']][item['job_type_name']][result][classification] = 0
+            summary[item['group_name']][item['job_type_name']][result][classification] += item[
+                'job_count'
+            ]
 
         data = {'job_type_names': job_type_names, 'manifests': []}
         for m in summary.keys():
             mdata = []
             for d in summary[m]:
                 for r in summary[m][d]:
-                    mdata.append([job_type_names.index(d), r, summary[m][d][r]])
+                    for c in summary[m][d][r]:
+                        mdata.append([job_type_names.index(d), r, int(c), summary[m][d][r][c]])
             data['manifests'].append({m: mdata})
 
         return Response(data=data)

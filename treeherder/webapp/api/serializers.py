@@ -325,6 +325,7 @@ class GroupNameSerializer(serializers.ModelSerializer):
     group_name = serializers.CharField(source="job_log__groups__name")
     job_type_name = JobTypeNameField(source="job_type__name")
     group_status = serializers.CharField(source="job_log__group_result__status")
+    failure_classification = serializers.CharField(source="failure_classification_id")
     job_count = serializers.IntegerField()
 
     class Meta:
@@ -333,6 +334,7 @@ class GroupNameSerializer(serializers.ModelSerializer):
             'group_name',
             'job_type_name',
             'group_status',
+            'failure_classification',
             'job_count',
         )
 
