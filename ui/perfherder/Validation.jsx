@@ -119,7 +119,9 @@ const withValidation = ({ requiredParams }, verifyRevisions = true) => (
         };
       }
       if (!data.results.length) {
-        return { errorMessages: [`No results found for revision ${revision}`] };
+        return {
+          errorMessages: [`No results found for revision ${revision}`],
+        };
       }
 
       return { [resultSetName]: data.results[0] };
