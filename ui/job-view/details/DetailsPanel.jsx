@@ -171,7 +171,6 @@ class DetailsPanel extends React.Component {
           currentRepo.name,
           {
             job_id: selectedJob.id,
-            should_alert: 1,
           },
         );
 
@@ -254,7 +253,6 @@ class DetailsPanel extends React.Component {
                   chunk(signatureIds, 20).map((signatureIdChunk) =>
                     PerfSeriesModel.getSeriesList(currentRepo.name, {
                       id: signatureIdChunk,
-                      should_alert: 1,
                     }),
                   ),
                 );
@@ -279,6 +277,7 @@ class DetailsPanel extends React.Component {
                       1,
                       d.series.frameworkId,
                     ]}&selected=${[d.signature_id, d.id]}`,
+                    shouldAlert: d.series.should_alert,
                     value: d.value,
                     measurementUnit: d.series.measurementUnit,
                     lowerIsBetter: d.series.lowerIsBetter,
@@ -293,6 +292,23 @@ class DetailsPanel extends React.Component {
                     ),
                   }));
               }
+              perfJobDetail.sort((a, b) => {
+                // Sort perfJobDetails by value of shouldAlert in a particular order:
+                // first true values, after that null values and then false.
+                if (a.shouldAlert === true) {
+                  return -1;
+                }
+                if (a.shouldAlert === false) {
+                  return 1;
+                }
+                if (a.shouldAlert === null && b.shouldAlert === true) {
+                  return 1;
+                }
+                if (a.shouldAlert === null && b.shouldAlert === false) {
+                  return -1;
+                }
+                return 0;
+              });
 
               this.setState(
                 {

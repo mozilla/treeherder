@@ -80,7 +80,6 @@ class PerformanceTab extends React.PureComponent {
     }
 
     const sortedDetails = perfJobDetail.slice();
-    sortedDetails.sort((a, b) => a.title.localeCompare(b.title));
 
     // These styles are shared across all of the table cells.
     const cellClassName = 'nowrap pl-2 pr-2';
