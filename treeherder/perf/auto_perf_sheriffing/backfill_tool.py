@@ -25,7 +25,18 @@ class BackfillTool:
         decision_job = job.fetch_associated_decision_job()
         decision_task_id = decision_job.taskcluster_metadata.task_id
 
-        logger.debug(f"Requesting backfill for task {task_id_to_backfill}...")
+        if "browsertime" in job.job_group.name:
+            logger.debug(f"Requesting side_by_side for task {task_id_to_backfill}...")
+            side_by_side_task_id = self.__taskcluster.trigger_action(
+                action='side-by-side',
+                task_id=task_id_to_backfill,
+                decision_task_id=decision_task_id,
+                input={},
+                root_url=job.repository.tc_root_url,
+            )
+            logger.info(
+                f"Task id {side_by_side_task_id} created when side_by_side job id {task_id_to_backfill}"
+            )
         task_id = self.__taskcluster.trigger_action(
             action='backfill',
             task_id=task_id_to_backfill,
@@ -40,6 +51,10 @@ class BackfillTool:
     def assert_backfill_ability(self, over_job: Job):
         if over_job.repository.is_try_repo:
             raise CannotBackfill("Try repository isn't suited for backfilling.")
+
+    def assert_side_by_side_ability(self, over_job: Job):
+        if not "browsertime" in over_job.job_group.name:
+            raise CannotBackfill("Try repository isn't suited for side_by_side.")
 
     @staticmethod
     def _fetch_job_by_id(job_id: str) -> Job:
