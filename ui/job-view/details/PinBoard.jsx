@@ -1,3 +1,5 @@
+/* eslint import/no-unresolved: [2, { ignore: ['../glean/generated/pings.js$', '../glean/generated/classification.js$'] }] */
+
 import React from 'react';
 import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
@@ -35,6 +37,26 @@ import {
   setClassificationId,
   setClassificationComment,
 } from '../redux/stores/pinnedJobs';
+import { classified } from '../../glean/generated/pings.js';
+import {
+  fixedByCommitNewFailure,
+  fixedByCommit,
+  newFailureOther,
+} from '../../glean/generated/classification.js';
+
+function gleanMetrics(failureClassificationId, newFailure) {
+  switch (failureClassificationId) {
+    case 2:
+      if (newFailure) {
+        fixedByCommitNewFailure.add();
+      } else {
+        fixedByCommit.add();
+      }
+      break;
+    default:
+      if (newFailure) newFailureOther.add();
+  }
+}
 
 class PinBoard extends React.Component {
   constructor(props) {
@@ -65,6 +87,7 @@ class PinBoard extends React.Component {
   save = () => {
     const {
       isLoggedIn,
+      failureClassificationId,
       pinnedJobs,
       recalculateUnclassifiedCounts,
       notify,
@@ -89,6 +112,13 @@ class PinBoard extends React.Component {
     }
     if (errorFree) {
       const jobs = Object.values(pinnedJobs);
+      // accumulate telemetry on failure classification type
+      // submit data when all jobs are counted
+      jobs.forEach((job) =>
+        gleanMetrics(failureClassificationId, job.newFailure),
+      );
+      classified.submit();
+
       const classifyPromises = jobs.map((job) => this.saveClassification(job));
       const bugPromises = jobs.map((job) => this.saveBugs(job));
       Promise.all([...classifyPromises, ...bugPromises]).then(() => {

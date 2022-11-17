@@ -3,7 +3,7 @@ jobs:
     executor:
       name: node/default
       # The Node version here must be kept in sync with that in `package.json`.
-      tag: '14.16'
+      tag: '19.0.1'
     steps:
       - checkout
       - node/install-packages:
@@ -15,6 +15,12 @@ jobs:
       - run:
           command: yarn markdownlint
           name: Check markdown linting
+      - run:
+          command: sudo apt-get update && sudo apt-get install python3-venv -y
+          name: python for glean
+      - run:
+          command: yarn build:glean
+          name: generate glean files
       - run:
           command: yarn test:coverage
           name: Run Jest tests
@@ -31,6 +37,12 @@ jobs:
           name: Restore Yarn Package Cache
           keys:
             - node-deps-v1-{{ .Branch }}
+      - run:
+          command: sudo apt-get update && sudo apt-get install python3-venv -y
+          name: python for glean
+      - run:
+          command: yarn build:glean
+          name: generate glean files
       - run: pip install tox
       - run:
           command: tox -e docs
@@ -47,6 +59,9 @@ jobs:
       - docker/install-docker
       - docker/install-docker-compose:
           version: 1.29.2
+      - run:
+          command: sudo apt-get update && sudo apt-get install python3-venv -y
+          name: python for glean
       - run: pip install --upgrade pip
       - run: pip install tox codecov
       - run: tox -e docker  # Run tests and coverage within Docker container

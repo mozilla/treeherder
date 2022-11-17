@@ -14,7 +14,7 @@ import { thEvents } from '../../../helpers/constants';
 import JobArtifacts from '../../../shared/JobArtifacts';
 import JobTestGroups from '../JobTestGroups';
 import { clearSelectedJob } from '../../redux/stores/selectedJob';
-import { pinJob, addBug } from '../../redux/stores/pinnedJobs';
+import { pinJob, addBug, updatePinnedJob } from '../../redux/stores/pinnedJobs';
 import FailureSummaryTab from '../../../shared/tabs/failureSummary/FailureSummaryTab';
 
 import PerformanceTab from './PerformanceTab';
@@ -318,6 +318,9 @@ const mapStateToProps = ({
   pinnedJobs: { pinnedJobs, isPinBoardVisible },
 }) => ({ pinnedJobs, isPinBoardVisible });
 
-export default connect(mapStateToProps, { clearSelectedJob, pinJob, addBug })(
-  TabsPanel,
-);
+export default connect(mapStateToProps, {
+  clearSelectedJob,
+  pinJob,
+  addBug,
+  updatePinnedJob,
+})(TabsPanel);

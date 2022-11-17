@@ -141,6 +141,7 @@ class FailureSummaryTab extends React.Component {
       logViewerFullUrl,
       selectedJob,
       addBug,
+      updatePinnedJob,
       repoName,
       developerMode,
     } = this.props;
@@ -156,6 +157,7 @@ class FailureSummaryTab extends React.Component {
       logs.length > 0 && logs.every((jlu) => jlu.parse_status !== 'pending');
 
     let suggestionCounter = 0;
+    selectedJob.newFailure = false;
     suggestions.forEach((suggestion) => {
       suggestionCounter++;
       // this allows us to focus on the top line
@@ -166,9 +168,14 @@ class FailureSummaryTab extends React.Component {
           suggestion.failure_new_in_rev === true
         ) {
           suggestion.showNewButton = true;
+          selectedJob.newFailure = true;
         }
       }
     });
+
+    if (selectedJob.newFailure === true) {
+      updatePinnedJob(selectedJob);
+    }
 
     return (
       <div className="w-100 h-100" role="region" aria-label="Failure Summary">
@@ -296,6 +303,7 @@ FailureSummaryTab.propTypes = {
   repoName: PropTypes.string.isRequired,
   addBug: PropTypes.func,
   pinJob: PropTypes.func,
+  updatePinnedJob: PropTypes.func,
   developerMode: PropTypes.bool,
 };
 
@@ -305,6 +313,7 @@ FailureSummaryTab.defaultProps = {
   logViewerFullUrl: null,
   addBug: null,
   pinJob: null,
+  updatePinnedJob: null,
   developerMode: false,
 };
 

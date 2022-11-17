@@ -1,7 +1,10 @@
+/* eslint import/no-unresolved: [2, { ignore: ['@mozilla/glean/web$'] }] */
+
 import React from 'react';
 import PropTypes from 'prop-types';
 import chunk from 'lodash/chunk';
 import { connect } from 'react-redux';
+import Glean from '@mozilla/glean/web';
 
 import { setPinBoardVisible } from '../redux/stores/pinnedJobs';
 import { thEvents } from '../../helpers/constants';
@@ -19,6 +22,11 @@ import { Perfdocs } from '../../perfherder/perf-helpers/perfdocs';
 import PinBoard from './PinBoard';
 import SummaryPanel from './summary/SummaryPanel';
 import TabsPanel from './tabs/TabsPanel';
+
+Glean.setLogPings(true);
+// for development (data sent to: https://debug-ping-preview.firebaseapp.com/pings/treeherder)
+// Glean.setDebugViewTag('treeherder');
+Glean.initialize('treeherder', true);
 
 export const pinboardHeight = 100;
 

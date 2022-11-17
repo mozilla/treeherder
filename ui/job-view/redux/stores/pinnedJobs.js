@@ -51,6 +51,7 @@ export const pinJob = (job) => {
     } = getState();
 
     if (MAX_SIZE - Object.keys(pinnedJobs).length > 0) {
+      job.newFailure = false;
       dispatch({
         type: SET_PINNED_JOBS,
         payload: {
@@ -101,6 +102,20 @@ export const pinJobs = (jobsToPin) => {
       payload: {
         pinnedJobs: { ...pinnedJobs, ...newPinnedJobs },
       },
+    });
+  };
+};
+
+export const updatePinnedJob = (jobData) => {
+  return async (dispatch, getState) => {
+    const {
+      pinnedJobs: { pinnedJobs },
+    } = getState();
+
+    Object.keys(pinnedJobs).forEach((jobId) => {
+      if (jobData.id === jobId) {
+        pinnedJobs[jobId].newFailure = jobData.newFailure;
+      }
     });
   };
 };

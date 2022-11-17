@@ -47,6 +47,12 @@ const commonConfig = {
   module: {
     rules: [
       {
+        test: /\.(mjs|jsx|js)$/,
+        resolve: {
+          fullySpecified: false, // disable the behaviour
+        },
+      },
+      {
         test: /\.html$/,
         use: {
           loader: 'html-loader',

@@ -1,3 +1,5 @@
+/* eslint import/no-unresolved: [2, { ignore: ['../glean/generated/pings.js$', '../glean/generated/classification.js$'] }] */
+
 import React from 'react';
 import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
@@ -28,6 +30,8 @@ import {
 } from '../helpers/url';
 import { create } from '../helpers/http';
 import { notify } from '../job-view/redux/stores/notifications';
+import { classified } from '../glean/generated/pings.js';
+import { newFailureNewBug, newBug } from '../glean/generated/classification.js';
 
 const crashRegex = /application crashed \[@ (.+)\]$/g;
 const omittedLeads = [
@@ -138,6 +142,7 @@ export class BugFilerClass extends React.Component {
       ? [crash[0].split('application crashed ')[1]]
       : [];
 
+    const newFailure = suggestion.showNewButton;
     const keywords = [];
     const isAssertion = [
       /ASSERTION:/, // binary code
@@ -213,6 +218,7 @@ export class BugFilerClass extends React.Component {
       thisFailure,
       keywords,
       crashSignatures,
+      newFailure,
     };
   }
 
@@ -376,6 +382,7 @@ export class BugFilerClass extends React.Component {
       comment,
       isIntermittent,
       isSecurityIssue,
+      newFailure,
       checkedLogLinks,
       regressedBy,
       seeAlso,
@@ -498,6 +505,13 @@ export class BugFilerClass extends React.Component {
         );
 
         if (!failureStatus) {
+          // glean metrics for new bugs added
+          if (newFailure) {
+            newFailureNewBug.add();
+          } else {
+            newBug.add();
+          }
+          classified.submit();
           toggle();
           successCallback(data);
         } else {
