@@ -24,6 +24,7 @@ const MainView = (props) => {
     initialParamsSet,
     startday,
     endday,
+    failurehash,
     updateState,
     tree,
     location,
@@ -52,6 +53,7 @@ const MainView = (props) => {
           tree={tree}
           startday={startday}
           endday={endday}
+          failurehash={failurehash}
           location={location}
           graphData={graphData}
           tableData={tableData}
@@ -103,6 +105,8 @@ const MainView = (props) => {
       totalFailures,
       totalRuns,
     } = calculateMetrics(graphData));
+    graphOneData = { all: graphOneData };
+    graphOneData.all[0].count = tableData.length;
   }
 
   const getHeaderAriaLabel = (state, bug, data) => {
@@ -190,6 +194,7 @@ MainView.propTypes = {
   updateState: PropTypes.func.isRequired,
   startday: PropTypes.string.isRequired,
   endday: PropTypes.string.isRequired,
+  failurehash: PropTypes.string.isRequired,
   tableData: PropTypes.arrayOf(PropTypes.shape({})),
   graphData: PropTypes.arrayOf(PropTypes.shape({})),
   initialParamsSet: PropTypes.bool.isRequired,
@@ -206,6 +211,7 @@ const defaultState = {
   tree: 'all',
   startday: ISODate(moment().utc().subtract(7, 'days')),
   endday: ISODate(moment().utc()),
+  failurehash: 'all',
   endpoint: bugsEndpoint,
   route: '/main',
 };

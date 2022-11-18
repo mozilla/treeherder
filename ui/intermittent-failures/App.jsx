@@ -74,7 +74,7 @@ class IntermittentFailuresApp extends React.Component {
             render={(props) => <BugDetailsView {...props} />}
           />
           <Route
-            path={`${path}/bugdetails?startday=:startday&endday=:endday&tree=:tree&bug=bug`}
+            path={`${path}/bugdetails?startday=:startday&endday=:endday&tree=:tree&failurehash=:failurehash&bug=bug`}
             render={(props) => <BugDetailsView {...props} />}
           />
           <Redirect from={`${path}/`} to={`${path}/main`} />
