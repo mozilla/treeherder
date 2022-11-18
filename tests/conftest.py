@@ -1007,7 +1007,7 @@ def group_data(transactional_db, eleven_job_blobs, create_jobs):
             ],
             'manifests': [
                 {
-                    '/test': [[0, "passed", 2], [1, "passed", 1]],
+                    '/test': [[0, "passed", 1, 2], [1, "passed", 1, 1]],
                 }
             ],
         },
