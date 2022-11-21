@@ -134,7 +134,7 @@ const withView = (defaultState) => (WrappedComponent) => {
           const end = ISODate(moment(endday).utc());
           // create entry for each date in range so graph looks nice.
           while (start <= end) {
-            const sdate = moment(start).format('MMM DD');
+            const sdate = moment(start).utc().format('MMM DD');
             uniqueFrequency[hash][0].dates[sdate] = 0;
             uniqueFrequency[hash][0].datemap[sdate] = start;
             start = ISODate(moment(start).utc().add(1, 'days'));
@@ -143,7 +143,7 @@ const withView = (defaultState) => (WrappedComponent) => {
 
         // store frequency data by date to use in graphs, etc.
         const date = result[2].split(' ')[0];
-        const sdate = moment(date).format('MMM DD');
+        const sdate = moment(date).utc().format('MMM DD');
         if (!(date in uniqueFrequency[hash][0].dates)) {
           uniqueFrequency[hash][0].dates[sdate] = 0;
         }
