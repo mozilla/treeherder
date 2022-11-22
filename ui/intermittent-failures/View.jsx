@@ -12,7 +12,7 @@ import {
 } from '../helpers/url';
 import { getData } from '../helpers/http';
 
-import { validateQueryParams, mergeData, formatBugs, ISODate } from './helpers';
+import { validateQueryParams, mergeData, formatBugs } from './helpers';
 
 const withView = (defaultState) => (WrappedComponent) => {
   class View extends React.Component {
@@ -130,14 +130,14 @@ const withView = (defaultState) => (WrappedComponent) => {
           uniqueFrequency[hash] = [
             { data: [], color: 'red', dates: {}, datemap: {}, count: 0 },
           ];
-          let start = ISODate(moment(startday).utc());
-          const end = ISODate(moment(endday).utc());
+          let start = moment.utc(startday);
+          const end = moment.utc(endday);
           // create entry for each date in range so graph looks nice.
           while (start <= end) {
-            const sdate = moment(start).utc().format('MMM DD');
+            const sdate = start.format('MMM DD');
             uniqueFrequency[hash][0].dates[sdate] = 0;
             uniqueFrequency[hash][0].datemap[sdate] = start;
-            start = ISODate(moment(start).utc().add(1, 'days'));
+            start.date(start.date() + 1);
           }
         }
 
