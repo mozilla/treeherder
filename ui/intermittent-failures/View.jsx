@@ -136,15 +136,15 @@ const withView = (defaultState) => (WrappedComponent) => {
           while (start <= end) {
             const sdate = start.format('MMM DD');
             uniqueFrequency[hash][0].dates[sdate] = 0;
-            uniqueFrequency[hash][0].datemap[sdate] = start;
-            start.date(start.date() + 1);
+            uniqueFrequency[hash][0].datemap[sdate] = start.format('ddd DD');
+            start = start.add(1, 'days');
           }
         }
 
         // store frequency data by date to use in graphs, etc.
         const date = result[2].split(' ')[0];
         const sdate = moment.utc(date).format('MMM DD');
-        if (!(date in uniqueFrequency[hash][0].dates)) {
+        if (!(sdate in uniqueFrequency[hash][0].dates)) {
           uniqueFrequency[hash][0].dates[sdate] = 0;
         }
         uniqueFrequency[hash][0].dates[sdate] += 1;
