@@ -13,6 +13,7 @@ import currentJoblistWithoutVideoResultsOne from '../mock/alerts_with_videos/cur
 import currentJoblistWithoutVideoResultsTwo from '../mock/alerts_with_videos/current_joblist_without_video_results_page_2';
 import prevJoblistWithoutVideoResultsOne from '../mock/alerts_with_videos/prev_joblist_without_video_results_page_1';
 import prevJoblistWithoutVideoResultsTwo from '../mock/alerts_with_videos/prev_joblist_without_video_results_page_2';
+import repos from '../mock/repositories';
 
 describe('FilterAlertsWithVideos', () => {
   afterEach(() => {
@@ -37,6 +38,8 @@ describe('FilterAlertsWithVideos', () => {
         `/api/jobs/?repo=autoland&push_id=846998&page=2`,
         prevJoblistWithVideoResultsTwo,
       );
+      // Returns the autoland repo.
+      fetchMock.mock(`/api/repository/`, repos);
     });
 
     test('should return alerts with browsertime results links', async () => {
@@ -82,6 +85,8 @@ describe('FilterAlertsWithVideos', () => {
         `/api/jobs/?repo=autoland&push_id=847398&page=2`,
         prevJoblistWithoutVideoResultsTwo,
       );
+      // Returns the autoland repo.
+      fetchMock.mock(`/api/repository/`, repos);
     });
 
     test('should return alerts without browsertime results links', async () => {
@@ -93,15 +98,18 @@ describe('FilterAlertsWithVideos', () => {
         [{ id: 13, name: 'browsertime' }],
       );
 
-      const alerts = await alertsWithoutVideos.enrichAndRetrieveAlerts();
-      expect(alerts).toStrictEqual([]);
-      alertSummaryWithoutVideos.alerts.forEach((alert) => {
+      function checkForSingleAlert(alert) {
         if (alertsWithoutVideos.shouldHaveVideoLinks(alert)) {
           return;
         }
         expect(alert.results_link).toBeUndefined();
         expect(alert.prev_results_link).toBeUndefined();
-      });
+      }
+      const alerts = await alertsWithoutVideos.enrichAndRetrieveAlerts();
+      // We still have the alerts array for the profiler links, but they
+      // shouldn't have results_link and prev_results_link fields.
+      alerts.forEach(checkForSingleAlert);
+      alertSummaryWithoutVideos.alerts.forEach(checkForSingleAlert);
     });
   });
 
