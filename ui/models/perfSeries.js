@@ -73,6 +73,7 @@ export const getSeriesSummary = function getSeriesSummary(
     lowerIsBetter:
       signatureProps.lower_is_better === undefined ||
       signatureProps.lower_is_better,
+    should_alert: signatureProps.should_alert,
   };
 };
 

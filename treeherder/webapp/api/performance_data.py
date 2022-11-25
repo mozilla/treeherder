@@ -111,9 +111,6 @@ class PerformanceSignatureViewSet(viewsets.ViewSet):
             platforms = models.MachinePlatform.objects.filter(platform=platform)
             signature_data = signature_data.filter(platform__in=platforms)
 
-        if int(request.query_params.get('should_alert', False)):
-            signature_data = signature_data.exclude(should_alert=False)
-
         signature_map = {}
         for (
             id,
@@ -130,6 +127,7 @@ class PerformanceSignatureViewSet(viewsets.ViewSet):
             has_subtests,
             tags,
             parent_signature_hash,
+            should_alert,
         ) in signature_data.values_list(
             'id',
             'signature_hash',
@@ -145,6 +143,7 @@ class PerformanceSignatureViewSet(viewsets.ViewSet):
             'has_subtests',
             'tags',
             'parent_signature__signature_hash',
+            'should_alert',
         ).distinct():
             signature_map[id] = signature_props = {
                 'id': id,
@@ -153,6 +152,7 @@ class PerformanceSignatureViewSet(viewsets.ViewSet):
                 'option_collection_hash': option_collection_hash,
                 'machine_platform': platform,
                 'suite': suite,
+                'should_alert': should_alert,
             }
             if not lower_is_better:
                 # almost always true, save some bandwidth by assuming that by
@@ -223,8 +223,6 @@ class PerformanceDatumViewSet(viewsets.ViewSet):
         signature_hashes = request.query_params.getlist("signatures")  # deprecated
         signature_ids = request.query_params.getlist("signature_id")
         push_ids = request.query_params.getlist("push_id")
-        should_alert = request.query_params.get("should_alert", False)
-        should_alert = OptionalBooleanField().to_internal_value(should_alert)
         no_retriggers = request.query_params.get("no_retriggers", False)
         no_retriggers = OptionalBooleanField().to_internal_value(no_retriggers)
 
@@ -285,9 +283,6 @@ class PerformanceDatumViewSet(viewsets.ViewSet):
             datums = datums.filter(push_timestamp__gt=start_date)
         if end_date:
             datums = datums.filter(push_timestamp__lt=end_date)
-
-        if should_alert:
-            datums = datums.exclude(signature__should_alert=False)
 
         ret, seen_push_ids = defaultdict(list), defaultdict(set)
         values_list = datums.values_list(
