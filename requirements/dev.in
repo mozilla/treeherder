@@ -38,7 +38,7 @@ betamax
 betamax-serializers
 
 # pip-compile for pinning versions
-pip-tools
+pip-tools==6.10.0
 
 importlib-metadata
 typed-ast==1.5.2
