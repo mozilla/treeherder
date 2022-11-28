@@ -1,7 +1,7 @@
 import fetchMock from 'fetch-mock';
 import { cloneDeep } from 'lodash';
 
-import FilterAlertsWithVideos from '../../../ui/models/filterAlertsWithVideos';
+import BrowsertimeAlertsExtraData from '../../../ui/models/browsertimeAlertsExtraData';
 import testAlertSummaryWithVideos from '../mock/alerts_with_videos/alert_summary_with_browsertime_videos';
 import testAlertSummaryWithoutVideos from '../mock/alerts_with_videos/alert_summary_without_browsertime_videos';
 import testAlertSummaryNonBrowsertime from '../mock/alerts_with_videos/alert_summary_non_browsertime';
@@ -15,7 +15,7 @@ import prevJoblistWithoutVideoResultsOne from '../mock/alerts_with_videos/prev_j
 import prevJoblistWithoutVideoResultsTwo from '../mock/alerts_with_videos/prev_joblist_without_video_results_page_2';
 import repos from '../mock/repositories';
 
-describe('FilterAlertsWithVideos', () => {
+describe('BrowsertimeAlertsExtraData', () => {
   afterEach(() => {
     fetchMock.reset();
   });
@@ -44,7 +44,7 @@ describe('FilterAlertsWithVideos', () => {
 
     test('should return alerts with browsertime results links', async () => {
       const alertSummaryWithVideos = cloneDeep(testAlertSummaryWithVideos);
-      const alertsWithVideos = new FilterAlertsWithVideos(
+      const alertsWithVideos = new BrowsertimeAlertsExtraData(
         alertSummaryWithVideos,
         [{ id: 13, name: 'browsertime' }],
       );
@@ -93,7 +93,7 @@ describe('FilterAlertsWithVideos', () => {
       const alertSummaryWithoutVideos = cloneDeep(
         testAlertSummaryWithoutVideos,
       );
-      const alertsWithoutVideos = new FilterAlertsWithVideos(
+      const alertsWithoutVideos = new BrowsertimeAlertsExtraData(
         alertSummaryWithoutVideos,
         [{ id: 13, name: 'browsertime' }],
       );
@@ -118,7 +118,7 @@ describe('FilterAlertsWithVideos', () => {
       const alertSummaryNonBrowsertime = cloneDeep(
         testAlertSummaryNonBrowsertime,
       );
-      const alertsWithoutVideos = new FilterAlertsWithVideos(
+      const alertsWithoutVideos = new BrowsertimeAlertsExtraData(
         alertSummaryNonBrowsertime,
         [{ id: 13, name: 'browsertime' }],
       );

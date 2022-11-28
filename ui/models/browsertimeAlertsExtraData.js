@@ -8,7 +8,7 @@ import { getArtifactsUrl } from '../helpers/url';
 import JobModel from './job';
 import RepositoryModel from './repository';
 
-export default class FilterAlertsWithVideos {
+export default class BrowsertimeAlertsExtraData {
   constructor(alertSummary, frameworks) {
     this.alertSummary = alertSummary;
     this.framework = getFrameworkName(frameworks, alertSummary.framework);

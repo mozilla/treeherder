@@ -13,14 +13,14 @@ export default class TextualSummary {
     alerts,
     alertSummary,
     copySummary = null,
-    alertsWithVideos = [],
+    browsertimeAlertsExtraData = [],
   ) {
     this.frameworks = frameworks;
     this.alerts = alerts;
     this.alertSummary = alertSummary;
     this.copySummary = copySummary;
-    this.alertsWithVideos = alertsWithVideos;
-    this.hasProfileUrls = this.alertsWithVideos.some(
+    this.browsertimeAlertsExtraData = browsertimeAlertsExtraData;
+    this.hasProfileUrls = this.browsertimeAlertsExtraData.some(
       (a) => a.profile_url && a.prev_profile_url,
     );
     this.headerRow = `\n|--|--|--|--|--|${this.hasProfileUrls ? '--|' : ''}`;
@@ -89,7 +89,9 @@ export default class TextualSummary {
     const { suite, test, machine_platform: platform } = alert.series_signature;
     const extraOptions = alert.series_signature.extra_options.join(' ');
 
-    const updatedAlert = this.alertsWithVideos.find((a) => alert.id === a.id);
+    const updatedAlert = this.browsertimeAlertsExtraData.find(
+      (a) => alert.id === a.id,
+    );
     const frameworkName = getFrameworkName(
       this.frameworks,
       this.alertSummary.framework,
