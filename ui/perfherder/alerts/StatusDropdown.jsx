@@ -196,13 +196,15 @@ export default class StatusDropdown extends React.Component {
     }
   };
 
-  copySummary = () => {
+  copySummary = async () => {
     const { filteredAlerts, alertSummary, frameworks } = this.props;
+    const { browsertimeAlertsExtraData } = this.state;
     const textualSummary = new TextualSummary(
       frameworks,
       filteredAlerts,
       alertSummary,
       true,
+      await browsertimeAlertsExtraData.enrichAndRetrieveAlerts(),
     );
     // can't access the clipboardData on event unless it's done from react's
     // onCopy, onCut or onPaste props so using this workaround
