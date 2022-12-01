@@ -65,6 +65,27 @@ describe('BrowsertimeAlertsExtraData', () => {
         expect(alert.prev_results_link).toEqual(eprl);
       });
     });
+
+    test('should return alerts with profiler links', async () => {
+      const alertSummaryWithVideos = cloneDeep(testAlertSummaryWithVideos);
+      const alertsExtraData = new BrowsertimeAlertsExtraData(
+        alertSummaryWithVideos,
+        [{ id: 13, name: 'browsertime' }],
+      );
+
+      await alertsExtraData.enrichAndRetrieveAlerts();
+      alertSummaryWithVideos.alerts.forEach((alert) => {
+        if (!alertsExtraData.shouldHaveVideoLinks(alert)) {
+          return;
+        }
+        const { suite } = alert.series_signature;
+        const expectedResultsLink = `https://firefox-ci-tc.services.mozilla.com/api/queue/v1/task/c6nAPFniThOiaGvDT2DNCw/runs/0/artifacts/public/test_info/profile_${suite}.zip`;
+        const expectedPrevResultsLink = `https://firefox-ci-tc.services.mozilla.com/api/queue/v1/task/LUjQR22tRp6J4wXLHhYk8g/runs/0/artifacts/public/test_info/profile_${suite}.zip`;
+
+        expect(alert.profile_url).toEqual(expectedResultsLink);
+        expect(alert.prev_profile_url).toEqual(expectedPrevResultsLink);
+      });
+    });
   });
 
   describe('File bug url when alerts do not contain browsertime results links', () => {
@@ -131,6 +152,26 @@ describe('BrowsertimeAlertsExtraData', () => {
         }
         expect(alert.results_link).toBeUndefined();
         expect(alert.prev_results_link).toBeUndefined();
+      });
+    });
+
+    test('should return alerts without profiler links', async () => {
+      const alertSummaryNonBrowsertime = cloneDeep(
+        testAlertSummaryNonBrowsertime,
+      );
+      const alertsWithoutVideos = new BrowsertimeAlertsExtraData(
+        alertSummaryNonBrowsertime,
+        [{ id: 13, name: 'browsertime' }],
+      );
+
+      const alerts = await alertsWithoutVideos.enrichAndRetrieveAlerts();
+      expect(alerts).toStrictEqual([]);
+      alertSummaryNonBrowsertime.alerts.forEach((alert) => {
+        if (alertsWithoutVideos.shouldHaveVideoLinks(alert)) {
+          return;
+        }
+        expect(alert.profile_url).toBeUndefined();
+        expect(alert.prev_profile_url).toBeUndefined();
       });
     });
   });
