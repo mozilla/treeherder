@@ -60,6 +60,7 @@ const GraphTooltip = ({
   let alert;
   let alertStatus;
   let isCommonAlert = false;
+  let commonAlertStatus;
 
   if (dataPointDetails.alertSummary && dataPointDetails.alertSummary.alerts) {
     alert = dataPointDetails.alertSummary.alerts.find(
@@ -67,7 +68,7 @@ const GraphTooltip = ({
     );
   }
 
-  if (dataPointDetails.commonAlert) {
+  if (datum.commonAlert) {
     isCommonAlert = true;
   }
 
@@ -76,6 +77,8 @@ const GraphTooltip = ({
       alert.status === alertStatusMap.acknowledged && testDetails.alertSummary
         ? getStatus(testDetails.alertSummary.status)
         : getStatus(alert.status, alertStatusMap);
+  } else if (isCommonAlert) {
+    commonAlertStatus = getStatus(datum.commonAlert.status);
   }
 
   const repositoryName = projects.find(
@@ -204,9 +207,6 @@ const GraphTooltip = ({
                 Could be affected by infra changes.
               </p>
             )}
-            {isCommonAlert && !dataPointDetails.alertSummary && (
-              <p className="small text-danger">Common alert</p>
-            )}
           </div>
 
           <div>
@@ -278,7 +278,24 @@ const GraphTooltip = ({
                 </span>
               </p>
             )}
-            {!dataPointDetails.alertSummary && prevPushId && (
+            {isCommonAlert && !dataPointDetails.alertSummary && (
+              <p>
+                <Link
+                  to={`./alerts?id=${datum.commonAlert.id}`}
+                  target="_blank"
+                >
+                  <FontAwesomeIcon
+                    className="text-warning"
+                    icon={faExclamationCircle}
+                    size="sm"
+                  />
+                  {` Alert # ${datum.commonAlert.id}`}
+                </Link>
+                <span className="text-muted">{` - ${commonAlertStatus} `}</span>
+                <p className="small text-danger">Common alert</p>
+              </p>
+            )}
+            {!isCommonAlert && !dataPointDetails.alertSummary && prevPushId && (
               <p className="pt-2">
                 {user.isStaff ? (
                   <Button
