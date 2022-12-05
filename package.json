@@ -105,7 +105,7 @@
     "mini-css-extract-plugin": "2.6.1",
     "path": "0.12.7",
     "prettier": "2.0.5",
-    "puppeteer": "8.0.0",
+    "puppeteer": "19.3.0",
     "setup-polly-jest": "0.9.1",
     "style-loader": "3.3.1",
     "webpack": "5.72.1",
