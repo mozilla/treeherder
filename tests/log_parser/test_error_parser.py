@@ -82,6 +82,10 @@ ERROR_TEST_CASES = (
 NON_ERROR_TEST_CASES = (
     # General message for a passing test step
     "TEST-PASS | foo | bar",
+    # "TEST-UNEXPECTED-WARNING" doesn't set the task as failed and can also be
+    # observed for successful tasks. These messages are used by linters to
+    # identify new issues.
+    "TEST-UNEXPECTED-WARNING | /builds/worker/checkouts/gecko/browser/components/migration/IEProfileMigrator.sys.mjs:377:12 | OS.File is deprecated. You should use IOUtils instead. (mozilla/reject-osfile)",
     # Doesn't match "^[A-Za-z\.]*Exception: "
     "07:42:02     INFO -  Exception:",
     # Doesn't match "^[A-Za-z.]+Error: "
