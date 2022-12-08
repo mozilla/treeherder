@@ -8,6 +8,7 @@ PyPOM
 
 
 Django==4.0.8  # match common.in for faster install
+certifi==2022.12.7
 
 # for git commit hooks
 pre-commit
