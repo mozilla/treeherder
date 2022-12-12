@@ -30,7 +30,7 @@ import {
 } from '../../helpers/url';
 import { summaryStatusMap } from '../perf-helpers/constants';
 import DropdownMenuItems from '../../shared/DropdownMenuItems';
-import FilterAlertsWithVideos from '../../models/filterAlertsWithVideos';
+import BrowsertimeAlertsExtraData from '../../models/browsertimeAlertsExtraData';
 
 import AlertModal from './AlertModal';
 import FileBugModal from './FileBugModal';
@@ -46,7 +46,7 @@ export default class StatusDropdown extends React.Component {
       showNotesModal: false,
       showTagsModal: false,
       selectedValue: this.props.issueTrackers[0].text,
-      alertsWithVideos: new FilterAlertsWithVideos(
+      browsertimeAlertsExtraData: new BrowsertimeAlertsExtraData(
         this.props.alertSummary,
         this.props.frameworks,
       ),
@@ -121,7 +121,7 @@ export default class StatusDropdown extends React.Component {
       filteredAlerts,
       frameworks,
     } = this.props;
-    const { alertsWithVideos } = this.state;
+    const { browsertimeAlertsExtraData } = this.state;
     let result = bugTemplate;
 
     if (!result) {
@@ -144,7 +144,7 @@ export default class StatusDropdown extends React.Component {
       filteredAlerts,
       alertSummary,
       null,
-      await alertsWithVideos.enrichAndRetrieveAlerts(),
+      await browsertimeAlertsExtraData.enrichAndRetrieveAlerts(),
     );
     const templateArgs = {
       bugType: 'defect',
@@ -196,13 +196,15 @@ export default class StatusDropdown extends React.Component {
     }
   };
 
-  copySummary = () => {
+  copySummary = async () => {
     const { filteredAlerts, alertSummary, frameworks } = this.props;
+    const { browsertimeAlertsExtraData } = this.state;
     const textualSummary = new TextualSummary(
       frameworks,
       filteredAlerts,
       alertSummary,
       true,
+      await browsertimeAlertsExtraData.enrichAndRetrieveAlerts(),
     );
     // can't access the clipboardData on event unless it's done from react's
     // onCopy, onCut or onPaste props so using this workaround

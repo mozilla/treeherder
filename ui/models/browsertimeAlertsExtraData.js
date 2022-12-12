@@ -3,10 +3,12 @@ import {
   addResultsLink,
   getFrameworkName,
 } from '../perfherder/perf-helpers/helpers';
+import { getArtifactsUrl } from '../helpers/url';
 
 import JobModel from './job';
+import RepositoryModel from './repository';
 
-export default class FilterAlertsWithVideos {
+export default class BrowsertimeAlertsExtraData {
   constructor(alertSummary, frameworks) {
     this.alertSummary = alertSummary;
     this.framework = getFrameworkName(frameworks, alertSummary.framework);
@@ -14,10 +16,7 @@ export default class FilterAlertsWithVideos {
 
   async enrichAndRetrieveAlerts() {
     let alerts = [];
-    if (
-      this.framework === 'browsertime' &&
-      this.anyAlertWithVideoResults(this.alertSummary)
-    ) {
+    if (this.framework === 'browsertime') {
       alerts = await this.enrichSummaryAlerts(
         this.alertSummary,
         this.alertSummary.repository,
@@ -35,9 +34,15 @@ export default class FilterAlertsWithVideos {
       JobModel.getList({ repo, push_id: prevPushId }, { fetchAll: true }),
     ]);
 
-    // add task ids for current rev and previous rev to every relevant alert item
-    this.enrichWithLinks(alertSummary, jobList);
-    this.enrichWithLinks(alertSummary, prevJobList);
+    if (this.anyAlertWithVideoResults(this.alertSummary)) {
+      // add task ids for current rev and previous rev to every relevant alert item
+      this.enrichWithLinks(alertSummary, jobList);
+      this.enrichWithLinks(alertSummary, prevJobList);
+    }
+
+    const alertsRepo = await this.getAlertsRepo();
+    await this.enrichWithProfileLinks(alertSummary, alertsRepo, jobList);
+    await this.enrichWithProfileLinks(alertSummary, alertsRepo, prevJobList);
 
     return alertSummary.alerts;
   }
@@ -78,6 +83,41 @@ export default class FilterAlertsWithVideos {
           if (alertSummary.prev_push_revision === job.push_revision) {
             alert.prev_results_link = addResultsLink(job.task_id);
           }
+        }
+      }
+    });
+  }
+
+  async getAlertsRepo() {
+    const repos = await RepositoryModel.getList();
+    return RepositoryModel.getRepo(this.alertSummary.repository, repos);
+  }
+
+  async enrichWithProfileLinks(alertSummary, repo, jobList) {
+    alertSummary.alerts.forEach((alert) => {
+      const job = jobList.data.find(
+        (j) =>
+          j.searchStr.includes(alert.series_signature.suite) &&
+          j.searchStr.includes(alert.series_signature.machine_platform) &&
+          j.resultStatus === 'success',
+      );
+
+      if (job) {
+        const { suite } = alert.series_signature;
+
+        const url = getArtifactsUrl({
+          taskId: job.task_id,
+          run: job.retry_id,
+          rootUrl: repo.tc_root_url,
+          artifactPath: `public/test_info/profile_${suite}.zip`,
+        });
+
+        if (job.push_revision === alertSummary.revision) {
+          alert.profile_url = url;
+        }
+
+        if (job.push_revision === alertSummary.prev_push_revision) {
+          alert.prev_profile_url = url;
         }
       }
     });

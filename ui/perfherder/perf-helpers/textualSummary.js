@@ -13,14 +13,20 @@ export default class TextualSummary {
     alerts,
     alertSummary,
     copySummary = null,
-    alertsWithVideos = [],
+    browsertimeAlertsExtraData = [],
   ) {
     this.frameworks = frameworks;
     this.alerts = alerts;
     this.alertSummary = alertSummary;
     this.copySummary = copySummary;
-    this.alertsWithVideos = alertsWithVideos;
-    this.ellipsesRow = `\n|...|...|...|...|...|`;
+    this.browsertimeAlertsExtraData = browsertimeAlertsExtraData;
+    this.hasProfileUrls = this.browsertimeAlertsExtraData.some(
+      (a) => a.profile_url && a.prev_profile_url,
+    );
+    this.headerRow = `\n|--|--|--|--|--|${this.hasProfileUrls ? '--|' : ''}`;
+    this.ellipsesRow = `\n|...|...|...|...|...|${
+      this.hasProfileUrls ? '...|' : ''
+    }`;
   }
 
   get markdown() {
@@ -83,7 +89,9 @@ export default class TextualSummary {
     const { suite, test, machine_platform: platform } = alert.series_signature;
     const extraOptions = alert.series_signature.extra_options.join(' ');
 
-    const updatedAlert = this.alertsWithVideos.find((a) => alert.id === a.id);
+    const updatedAlert = this.browsertimeAlertsExtraData.find(
+      (a) => alert.id === a.id,
+    );
     const frameworkName = getFrameworkName(
       this.frameworks,
       this.alertSummary.framework,
@@ -95,14 +103,27 @@ export default class TextualSummary {
       : suite;
     const suiteTestName = suite === test ? suiteName : `${suiteName} ${test}`;
 
-    if (
+    const alertValues =
       updatedAlert &&
       updatedAlert.results_link &&
       updatedAlert.prev_results_link
-    ) {
-      return `| [${amountPct}%](${graphLink}) | ${suiteTestName} | ${platform} | ${extraOptions} | [${prevValue}](${updatedAlert.prev_results_link}) -> [${newValue}](${updatedAlert.results_link}) |`;
+        ? `[${prevValue}](${updatedAlert.prev_results_link}) -> [${newValue}](${updatedAlert.results_link})`
+        : `${prevValue} -> ${newValue}`;
+
+    let maybeProfileLinks = '';
+    if (this.hasProfileUrls) {
+      // Add an additional column for the profiler before and after so users can
+      // find the profiler links easily. Only add this column if at least one alert
+      // has profile urls.
+      maybeProfileLinks =
+        updatedAlert &&
+        updatedAlert.profile_url &&
+        updatedAlert.prev_profile_url
+          ? `[Before](${updatedAlert.prev_profile_url})/[After](${updatedAlert.profile_url}) |`
+          : ' |';
     }
-    return `| [${amountPct}%](${graphLink})  | ${suiteTestName} | ${platform} | ${extraOptions} | ${prevValue} -> ${newValue} |`;
+
+    return `| [${amountPct}%](${graphLink})  | ${suiteTestName} | ${platform} | ${extraOptions} | ${alertValues} | ${maybeProfileLinks}`;
   }
 
   formatAlertBulk(alerts) {
@@ -117,7 +138,11 @@ export default class TextualSummary {
         resultStr += '\n';
       }
       const formattedRegressions = this.formatAlertBulk(regressed);
-      resultStr += `### Regressions:\n\n| **Ratio** | **Test** | **Platform** | **Options** | **Absolute values (old vs new)**| \n|--|--|--|--|--| \n${formattedRegressions}\n`;
+      // Add a column for the profiler links if at least one alert has them.
+      const maybeProfileColumn = this.hasProfileUrls
+        ? ' **Performance Profiles** |'
+        : '';
+      resultStr += `### Regressions:\n\n| **Ratio** | **Test** | **Platform** | **Options** | **Absolute values (old vs new)** | ${maybeProfileColumn} ${this.headerRow} \n${formattedRegressions}\n`;
     }
     if (regressed.length > 15) {
       // add a newline if we displayed the header
@@ -136,7 +161,11 @@ export default class TextualSummary {
         smallestFiveRegressed,
       );
 
-      resultStr += `### Regressions:\n\n| **Ratio** | **Test** | **Platform** | **Options** | **Absolute values (old vs new)**| \n|--|--|--|--|--| \n${formattedBiggestRegressions}`;
+      // Add a column for the profiler links if at least one alert has them.
+      const maybeProfileColumn = this.hasProfileUrls
+        ? ' **Performance Profiles** |'
+        : '';
+      resultStr += `### Regressions:\n\n| **Ratio** | **Test** | **Platform** | **Options** | **Absolute values (old vs new)** | ${maybeProfileColumn} ${this.headerRow} \n${formattedBiggestRegressions}`;
       resultStr += this.ellipsesRow;
       resultStr += `\n${formattedSmallestRegressions}\n`;
     }
@@ -151,7 +180,11 @@ export default class TextualSummary {
         resultStr += '\n';
       }
       const formattedImprovements = this.formatAlertBulk(improved);
-      resultStr += `### Improvements:\n\n| **Ratio** | **Test** | **Platform** | **Options** | **Absolute values (old vs new)**| \n|--|--|--|--|--| \n${formattedImprovements}\n`;
+      // Add a column for the profiler links if at least one alert has them.
+      const maybeProfileColumn = this.hasProfileUrls
+        ? ' **Performance Profiles** |'
+        : '';
+      resultStr += `### Improvements:\n\n| **Ratio** | **Test** | **Platform** | **Options** | **Absolute values (old vs new)** | ${maybeProfileColumn} ${this.headerRow} \n${formattedImprovements}\n`;
     } else if (improved.length > 6) {
       // Add a newline if we displayed some regressions
       if (resultStr.length > 0) {
@@ -169,7 +202,11 @@ export default class TextualSummary {
         smallestImprovement,
       );
 
-      resultStr += `### Improvements:\n\n| **Ratio** | **Test** | **Platform** | **Options** | **Absolute values (old vs new)**| \n|--|--|--|--|--| \n${formattedBiggestImprovements}`;
+      // Add a column for the profiler links if at least one alert has them.
+      const maybeProfileColumn = this.hasProfileUrls
+        ? ' **Performance Profiles** |'
+        : '';
+      resultStr += `### Improvements:\n\n| **Ratio** | **Test** | **Platform** | **Options** | **Absolute values (old vs new)** | ${maybeProfileColumn} ${this.headerRow} \n${formattedBiggestImprovements}`;
       resultStr += this.ellipsesRow;
       resultStr += `\n${formattedSmallestImprovement}\n`;
     }
