@@ -141,6 +141,7 @@ class TabsPanel extends React.Component {
       addBug,
       taskId,
       rootUrl,
+      initializeGlean,
     } = this.props;
     const { enableTestGroupsTab, tabIndex } = this.state;
     const countPinnedJobs = Object.keys(pinnedJobs).length;
@@ -230,6 +231,7 @@ class TabsPanel extends React.Component {
               addBug={addBug}
               pinJob={pinJob}
               repoName={currentRepo.name}
+              initializeGlean={initializeGlean}
               fontSize="font-size-11"
             />
           </TabPanel>
@@ -303,6 +305,7 @@ TabsPanel.propTypes = {
   logViewerFullUrl: PropTypes.string,
   taskId: PropTypes.string.isRequired,
   rootUrl: PropTypes.string.isRequired,
+  initializeGlean: PropTypes.func.isRequired,
 };
 
 TabsPanel.defaultProps = {

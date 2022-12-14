@@ -6,6 +6,7 @@ import { faSpinner } from '@fortawesome/free-solid-svg-icons';
 import { thBugSuggestionLimit, thEvents } from '../../../helpers/constants';
 import { getResultState, isReftest } from '../../../helpers/job';
 import { getReftestUrl } from '../../../helpers/url';
+import { getUrlParam } from '../../../helpers/location';
 import BugFiler from '../../BugFiler';
 import BugSuggestionsModel from '../../../models/bugSuggestions';
 
@@ -42,7 +43,13 @@ class FailureSummaryTab extends React.Component {
   }
 
   fileBug = (suggestion) => {
-    const { selectedJob, pinJob } = this.props;
+    const { selectedJob, pinJob, initializeGlean } = this.props;
+
+    // accumulate telemetry on failure classification type
+    // submit data when all jobs are counted
+    if (!getUrlParam('noTelemetry')) {
+      initializeGlean();
+    }
 
     pinJob(selectedJob);
     this.setState({
@@ -305,6 +312,7 @@ FailureSummaryTab.propTypes = {
   pinJob: PropTypes.func,
   updatePinnedJob: PropTypes.func,
   developerMode: PropTypes.bool,
+  initializeGlean: PropTypes.func.isRequired,
 };
 
 FailureSummaryTab.defaultProps = {

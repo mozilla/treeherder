@@ -43,6 +43,7 @@ import {
   fixedByCommit,
   newFailureOther,
 } from '../../glean/generated/classification.js';
+import { getUrlParam } from '../../helpers/location';
 
 function gleanMetrics(failureClassificationId, newFailure) {
   switch (failureClassificationId) {
@@ -91,6 +92,7 @@ class PinBoard extends React.Component {
       pinnedJobs,
       recalculateUnclassifiedCounts,
       notify,
+      initializeGlean,
     } = this.props;
 
     let errorFree = true;
@@ -114,11 +116,13 @@ class PinBoard extends React.Component {
       const jobs = Object.values(pinnedJobs);
       // accumulate telemetry on failure classification type
       // submit data when all jobs are counted
-      jobs.forEach((job) =>
-        gleanMetrics(failureClassificationId, job.newFailure),
-      );
-      classified.submit();
-
+      if (!getUrlParam('noTelemetry')) {
+        initializeGlean();
+        jobs.forEach((job) =>
+          gleanMetrics(failureClassificationId, job.newFailure),
+        );
+        classified.submit();
+      }
       const classifyPromises = jobs.map((job) => this.saveClassification(job));
       const bugPromises = jobs.map((job) => this.saveBugs(job));
       Promise.all([...classifyPromises, ...bugPromises]).then(() => {
@@ -747,6 +751,7 @@ PinBoard.propTypes = {
   selectedJobFull: PropTypes.shape({}),
   email: PropTypes.string,
   revisionTips: PropTypes.arrayOf(PropTypes.object),
+  initializeGlean: PropTypes.func.isRequired,
 };
 
 PinBoard.defaultProps = {

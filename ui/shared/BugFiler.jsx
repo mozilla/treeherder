@@ -29,6 +29,7 @@ import {
   getApiUrl,
 } from '../helpers/url';
 import { create } from '../helpers/http';
+import { getUrlParam } from '../helpers/location';
 import { notify } from '../job-view/redux/stores/notifications';
 import { classified } from '../glean/generated/pings.js';
 import { newFailureNewBug, newBug } from '../glean/generated/classification.js';
@@ -505,13 +506,15 @@ export class BugFilerClass extends React.Component {
         );
 
         if (!failureStatus) {
-          // glean metrics for new bugs added
-          if (newFailure) {
-            newFailureNewBug.add();
-          } else {
-            newBug.add();
+          if (!getUrlParam('noTelemetry')) {
+            // glean metrics for new bugs added
+            if (newFailure) {
+              newFailureNewBug.add();
+            } else {
+              newBug.add();
+            }
+            classified.submit();
           }
-          classified.submit();
           toggle();
           successCallback(data);
         } else {
