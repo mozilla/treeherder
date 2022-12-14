@@ -12,7 +12,7 @@ classification:
     bugs:
       - https://bugzilla.mozilla.org/show_bug.cgi?id=1799785
     data_reviews:
-      - TODO
+      - https://bugzilla.mozilla.org/show_bug.cgi?id=1805793
     notification_emails:
       - jmaher@mozilla.com
       - aryx@mozilla.com
@@ -25,7 +25,7 @@ classification:
     bugs:
       - https://bugzilla.mozilla.org/show_bug.cgi?id=1799785
     data_reviews:
-      - TODO
+      - https://bugzilla.mozilla.org/show_bug.cgi?id=1805793
     notification_emails:
       - jmaher@mozilla.com
       - aryx@mozilla.com
@@ -38,7 +38,7 @@ classification:
     bugs:
       - https://bugzilla.mozilla.org/show_bug.cgi?id=1799785
     data_reviews:
-      - TODO
+      - https://bugzilla.mozilla.org/show_bug.cgi?id=1805793
     notification_emails:
       - jmaher@mozilla.com
       - aryx@mozilla.com
@@ -51,7 +51,7 @@ classification:
     bugs:
       - https://bugzilla.mozilla.org/show_bug.cgi?id=1799785
     data_reviews:
-      - TODO
+      - https://bugzilla.mozilla.org/show_bug.cgi?id=1805793
     notification_emails:
       - jmaher@mozilla.com
       - aryx@mozilla.com
@@ -64,7 +64,7 @@ classification:
     bugs:
       - https://bugzilla.mozilla.org/show_bug.cgi?id=1799785
     data_reviews:
-      - TODO
+      - https://bugzilla.mozilla.org/show_bug.cgi?id=1805793
     notification_emails:
       - jmaher@mozilla.com
       - aryx@mozilla.com
