@@ -25,6 +25,18 @@ class BackfillTool:
         decision_job = job.fetch_associated_decision_job()
         decision_task_id = decision_job.taskcluster_metadata.task_id
 
+        if "browsertime" in job.job_group.name.lower():
+            logger.debug(f"Requesting side_by_side for task {task_id_to_backfill}...")
+            side_by_side_task_id = self.__taskcluster.trigger_action(
+                action='side-by-side',
+                task_id=task_id_to_backfill,
+                decision_task_id=decision_task_id,
+                input={},
+                root_url=job.repository.tc_root_url,
+            )
+            logger.info(
+                f"Task id {side_by_side_task_id} created when triggered side_by_side for job id {task_id_to_backfill}"
+            )
         logger.debug(f"Requesting backfill for task {task_id_to_backfill}...")
         task_id = self.__taskcluster.trigger_action(
             action='backfill',
