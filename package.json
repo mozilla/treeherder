@@ -86,7 +86,7 @@
     "clean-webpack-plugin": "4.0.0",
     "codecov": "3.7.2",
     "copy-webpack-plugin": "11.0.0",
-    "css-loader": "6.7.2",
+    "css-loader": "6.7.3",
     "eslint": "8.21.0",
     "eslint-config-airbnb": "19.0.4",
     "eslint-config-prettier": "8.5.0",
