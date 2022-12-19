@@ -15,6 +15,11 @@ import prevJoblistWithoutVideoResultsOne from '../mock/alerts_with_videos/prev_j
 import prevJoblistWithoutVideoResultsTwo from '../mock/alerts_with_videos/prev_joblist_without_video_results_page_2';
 import repos from '../mock/repositories';
 
+const browsertimeProfileUrls = [
+  'https://firefox-ci-tc.services.mozilla.com/api/queue/v1/task/c6nAPFniThOiaGvDT2DNCw/runs/0/artifacts/public/test_info/profile_google-sheets.zip',
+  'https://firefox-ci-tc.services.mozilla.com/api/queue/v1/task/LUjQR22tRp6J4wXLHhYk8g/runs/0/artifacts/public/test_info/profile_google-sheets.zip',
+];
+
 describe('BrowsertimeAlertsExtraData', () => {
   afterEach(() => {
     fetchMock.reset();
@@ -40,6 +45,10 @@ describe('BrowsertimeAlertsExtraData', () => {
       );
       // Returns the autoland repo.
       fetchMock.mock(`/api/repository/`, repos);
+
+      for (const profileUrl of browsertimeProfileUrls) {
+        fetchMock.mock(profileUrl, { ok: true });
+      }
     });
 
     test('should return alerts with browsertime results links', async () => {

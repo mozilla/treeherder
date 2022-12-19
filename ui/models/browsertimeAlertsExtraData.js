@@ -94,7 +94,7 @@ export default class BrowsertimeAlertsExtraData {
   }
 
   async enrichWithProfileLinks(alertSummary, repo, jobList) {
-    alertSummary.alerts.forEach((alert) => {
+    let alertLinks = alertSummary.alerts.map((alert) => {
       const job = jobList.data.find(
         (j) =>
           j.searchStr.includes(alert.series_signature.suite) &&
@@ -112,6 +112,32 @@ export default class BrowsertimeAlertsExtraData {
           artifactPath: `public/test_info/profile_${suite}.zip`,
         });
 
+        // We check the artifacts with `method: 'HEAD'` which means that it
+        // doesn't download the whole file and only gets the headers. We can see
+        // if artifact is available or not using the headers.
+        const promise = fetch(url, {
+          method: 'HEAD',
+        });
+        return { alert, job, promise, url };
+      }
+      return null;
+    });
+
+    // Keep only the alerts that have a job and url. Filter out the nulls.
+    alertLinks = alertLinks.filter((a) => a);
+
+    // We don't await in the loop above because we don't want to block the loop
+    // on each iteration. Promise.all will properly parallelize the requests.
+    const promiseResults = await Promise.all(alertLinks.map((a) => a.promise));
+
+    // Now we know if the artifacts are available or not, we can add the links
+    // to the alerts.
+    for (let i = 0; i < alertLinks.length; i++) {
+      const { alert, job, url } = alertLinks[i];
+      const promiseResult = promiseResults[i];
+
+      if (promiseResult.ok) {
+        // Add profile urls to the alert only if the artifact is present.
         if (job.push_revision === alertSummary.revision) {
           alert.profile_url = url;
         }
@@ -120,6 +146,6 @@ export default class BrowsertimeAlertsExtraData {
           alert.prev_profile_url = url;
         }
       }
-    });
+    }
   }
 }
