@@ -184,4 +184,35 @@ describe('BrowsertimeAlertsExtraData', () => {
       });
     });
   });
+
+  describe('File bug url when alerts do not contain profile artifacts', () => {
+    beforeEach(() => {
+      for (const profileUrl of browsertimeProfileUrls) {
+        // Returning `ok: false` to imitate a 404.
+        fetchMock.mock(profileUrl, { ok: false });
+      }
+    });
+
+    test('should return alerts without profiler links', async () => {
+      const alertSummaryNonBrowsertime = cloneDeep(
+        testAlertSummaryNonBrowsertime,
+      );
+      const alertsWithoutVideos = new BrowsertimeAlertsExtraData(
+        alertSummaryNonBrowsertime,
+        [{ id: 13, name: 'browsertime' }],
+      );
+
+      const alerts = await alertsWithoutVideos.enrichAndRetrieveAlerts();
+      expect(alerts).toStrictEqual([]);
+      alertSummaryNonBrowsertime.alerts.forEach((alert) => {
+        if (alertsWithoutVideos.shouldHaveVideoLinks(alert)) {
+          return;
+        }
+        // There should be no profile links because the profile artifacts
+        // are not found.
+        expect(alert.profile_url).toBeUndefined();
+        expect(alert.prev_profile_url).toBeUndefined();
+      });
+    });
+  });
 });
