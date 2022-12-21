@@ -15,6 +15,11 @@ import prevJoblistWithoutVideoResultsOne from '../mock/alerts_with_videos/prev_j
 import prevJoblistWithoutVideoResultsTwo from '../mock/alerts_with_videos/prev_joblist_without_video_results_page_2';
 import repos from '../mock/repositories';
 
+const browsertimeProfileUrls = [
+  'https://firefox-ci-tc.services.mozilla.com/api/queue/v1/task/c6nAPFniThOiaGvDT2DNCw/runs/0/artifacts/public/test_info/profile_google-sheets.zip',
+  'https://firefox-ci-tc.services.mozilla.com/api/queue/v1/task/LUjQR22tRp6J4wXLHhYk8g/runs/0/artifacts/public/test_info/profile_google-sheets.zip',
+];
+
 describe('BrowsertimeAlertsExtraData', () => {
   afterEach(() => {
     fetchMock.reset();
@@ -40,6 +45,10 @@ describe('BrowsertimeAlertsExtraData', () => {
       );
       // Returns the autoland repo.
       fetchMock.mock(`/api/repository/`, repos);
+
+      for (const profileUrl of browsertimeProfileUrls) {
+        fetchMock.mock(profileUrl, { ok: true });
+      }
     });
 
     test('should return alerts with browsertime results links', async () => {
@@ -170,6 +179,37 @@ describe('BrowsertimeAlertsExtraData', () => {
         if (alertsWithoutVideos.shouldHaveVideoLinks(alert)) {
           return;
         }
+        expect(alert.profile_url).toBeUndefined();
+        expect(alert.prev_profile_url).toBeUndefined();
+      });
+    });
+  });
+
+  describe('File bug url when alerts do not contain profile artifacts', () => {
+    beforeEach(() => {
+      for (const profileUrl of browsertimeProfileUrls) {
+        // Returning `ok: false` to imitate a 404.
+        fetchMock.mock(profileUrl, { ok: false });
+      }
+    });
+
+    test('should return alerts without profiler links', async () => {
+      const alertSummaryNonBrowsertime = cloneDeep(
+        testAlertSummaryNonBrowsertime,
+      );
+      const alertsWithoutVideos = new BrowsertimeAlertsExtraData(
+        alertSummaryNonBrowsertime,
+        [{ id: 13, name: 'browsertime' }],
+      );
+
+      const alerts = await alertsWithoutVideos.enrichAndRetrieveAlerts();
+      expect(alerts).toStrictEqual([]);
+      alertSummaryNonBrowsertime.alerts.forEach((alert) => {
+        if (alertsWithoutVideos.shouldHaveVideoLinks(alert)) {
+          return;
+        }
+        // There should be no profile links because the profile artifacts
+        // are not found.
         expect(alert.profile_url).toBeUndefined();
         expect(alert.prev_profile_url).toBeUndefined();
       });
