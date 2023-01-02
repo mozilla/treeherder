@@ -1,5 +1,3 @@
-import queryString from 'query-string';
-
 import { getProjectUrl } from '../helpers/location';
 import { createQueryParams, getArtifactsUrl } from '../helpers/url';
 import { getData } from '../helpers/http';
@@ -93,7 +91,7 @@ export default class PerfSeriesModel {
       `${getProjectUrl(
         '/performance/signatures/',
         projectName,
-      )}?${queryString.stringify(params)}`,
+      )}?${new URLSearchParams(params).toString()}`,
     );
 
     if (response.failureStatus) {
@@ -126,7 +124,7 @@ export default class PerfSeriesModel {
       `${getProjectUrl(
         '/performance/data/',
         projectName,
-      )}?${queryString.stringify(params)}`,
+      )}?${new URLSearchParams(params).toString()}`,
     ).then((resp) => {
       if (resp.ok) {
         return resp.json();

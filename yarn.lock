@@ -8107,16 +8107,6 @@ qs@6.11.0, qs@^6.10.1, qs@^6.5.1, qs@^6.7.0:
   dependencies:
     side-channel "^1.0.4"
 
-query-string@7.0.1:
-  version "7.0.1"
-  resolved "https://registry.npmjs.org/query-string/-/query-string-7.0.1.tgz"
-  integrity sha512-uIw3iRvHnk9to1blJCG3BTc+Ro56CBowJXKmNNAm3RulvPBzWLRqKSiiDk+IplJhsydwtuNMHi8UGQFcCLVfkA==
-  dependencies:
-    decode-uri-component "^0.2.0"
-    filter-obj "^1.1.0"
-    split-on-first "^1.0.0"
-    strict-uri-encode "^2.0.0"
-
 query-string@^7.0.0:
   version "7.1.1"
   resolved "https://registry.npmjs.org/query-string/-/query-string-7.1.1.tgz"

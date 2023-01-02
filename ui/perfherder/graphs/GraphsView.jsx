@@ -2,7 +2,6 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import { Button, Container, Col, Row } from 'reactstrap';
 import unionBy from 'lodash/unionBy';
-import queryString from 'query-string';
 
 import { getData, processResponse, processErrors } from '../../helpers/http';
 import {
@@ -94,7 +93,7 @@ class GraphsView extends React.Component {
       highlightCommonAlerts,
       highlightChangelogData,
       highlightedRevisions,
-    } = queryString.parse(this.props.location.search);
+    } = new URLSearchParams(this.props.location.search).getAll();
 
     const updates = {};
 
@@ -314,7 +313,7 @@ class GraphsView extends React.Component {
 
   updateParams = (params) => {
     const { location, history } = this.props;
-    let newQueryString = queryString.stringify(params);
+    let newQueryString = new URLSearchParams(params).toString();
     newQueryString = newQueryString.replace(/%2C/g, ',');
 
     updateQueryParams(newQueryString, history, location);
