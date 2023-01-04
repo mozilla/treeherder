@@ -93,7 +93,9 @@ class GraphsView extends React.Component {
       highlightCommonAlerts,
       highlightChangelogData,
       highlightedRevisions,
-    } = new URLSearchParams(this.props.location.search).getAll();
+    } = Object.fromEntries(
+      new URLSearchParams(this.props.location.search).entries(),
+    );
 
     const updates = {};
 
