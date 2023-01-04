@@ -1,11 +1,16 @@
+/* eslint import/no-unresolved: [2, { ignore: ['@mozilla/glean/web$'] }] */
+
 import React from 'react';
 import PropTypes from 'prop-types';
 import chunk from 'lodash/chunk';
 import { connect } from 'react-redux';
+import Glean from '@mozilla/glean/web';
 
+import { notify } from '../redux/stores/notifications';
 import { setPinBoardVisible } from '../redux/stores/pinnedJobs';
 import { thEvents } from '../../helpers/constants';
 import { addAggregateFields } from '../../helpers/job';
+import { getUrlParam } from '../../helpers/location';
 import { getLogViewerUrl, getArtifactsUrl } from '../../helpers/url';
 import { formatArtifacts } from '../../helpers/display';
 import { getData } from '../../helpers/http';
@@ -28,6 +33,8 @@ class DetailsPanel extends React.Component {
 
     // used to cancel all the ajax requests triggered by selectJob
     this.selectJobController = null;
+
+    this.gleanInitialized = false;
 
     this.state = {
       selectedJobFull: null,
@@ -86,6 +93,24 @@ class DetailsPanel extends React.Component {
       this.updateClassifications,
     );
   }
+
+  initializeGlean = () => {
+    const { notify } = this.props;
+    if (!this.gleanInitialized && !getUrlParam('noTelemetry')) {
+      if (!localStorage.getItem('glean_notify')) {
+        notify(
+          `Collecting telemetry data about failure classification. turn off in user menu`,
+          'success',
+        );
+        localStorage.setItem('glean_notify', 'displayed');
+      }
+      // for development (data sent to: https://debug-ping-preview.firebaseapp.com/pings/treeherder)
+      // Glean.setLogPings(true);
+      // Glean.setDebugViewTag('treeherder');
+      Glean.initialize('treeherder', true);
+      this.gleanInitialized = true;
+    }
+  };
 
   togglePinBoardVisibility = () => {
     const { setPinBoardVisible, isPinBoardVisible } = this.props;
@@ -376,6 +401,7 @@ class DetailsPanel extends React.Component {
           isStaff={user.isStaff || false}
           classificationTypes={classificationTypes}
           selectedJobFull={selectedJobFull}
+          initializeGlean={this.initializeGlean}
         />
         {!!selectedJobFull && (
           <div id="details-panel-content">
@@ -415,6 +441,7 @@ class DetailsPanel extends React.Component {
               logViewerFullUrl={logViewerFullUrl}
               taskId={selectedJobFull.task_id}
               rootUrl={currentRepo.tc_root_url}
+              initializeGlean={this.initializeGlean}
             />
           </div>
         )}
@@ -436,6 +463,7 @@ DetailsPanel.propTypes = {
   isPinBoardVisible: PropTypes.bool.isRequired,
   pushList: PropTypes.arrayOf(PropTypes.object).isRequired,
   selectedJob: PropTypes.shape({}),
+  notify: PropTypes.func.isRequired,
 };
 
 DetailsPanel.defaultProps = {
@@ -448,4 +476,6 @@ const mapStateToProps = ({
   pinnedJobs: { isPinBoardVisible },
 }) => ({ selectedJob, pushList, isPinBoardVisible });
 
-export default connect(mapStateToProps, { setPinBoardVisible })(DetailsPanel);
+export default connect(mapStateToProps, { notify, setPinBoardVisible })(
+  DetailsPanel,
+);
