@@ -320,14 +320,12 @@ def _schedule_log_parsing(job, job_logs, result, repository):
         "mozilla-central",
         "mozilla-beta",
         "mozilla-release",
-        "mozilla-esr91",
         "mozilla-esr102",
         "android-components",
         "fenix",
         "reference-browser",
         "focus-android",
         "pine",
-        "pine-stable",
         "toolchains",
     }
 
