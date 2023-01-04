@@ -230,6 +230,7 @@ class TabsPanel extends React.Component {
               logViewerFullUrl={logViewerFullUrl}
               addBug={addBug}
               pinJob={pinJob}
+              updatePinnedJob={updatePinnedJob}
               repoName={currentRepo.name}
               initializeGlean={initializeGlean}
               fontSize="font-size-11"
