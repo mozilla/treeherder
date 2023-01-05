@@ -50,7 +50,7 @@
     "react-helmet": "6.0.0",
     "react-highlight-words": "0.16.0",
     "react-hot-keys": "2.5.2",
-    "react-hot-loader": "4.12.21",
+    "react-hot-loader": "4.13.1",
     "react-lazylog": "4.4.4",
     "react-linkify": "0.2.2",
     "react-redux": "8.0.5",
@@ -68,6 +68,7 @@
     "taskcluster-client-web": "44.18.0",
     "taskcluster-lib-scopes": "11.0.0",
     "taskcluster-lib-urls": "13.0.1",
+    "tsconfig-paths": "4.1.2",
     "url": "0.11.0",
     "victory": "36.6.8"
   },
