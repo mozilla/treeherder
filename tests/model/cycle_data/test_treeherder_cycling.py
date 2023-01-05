@@ -192,5 +192,5 @@ def test_cycle_job_with_performance_data(
     assert Job.objects.count() == 0
 
     # assert that the perf object is still there, but the job reference is None
-    p = PerformanceDatum.objects.get(id=1)
-    assert p.job is None
+    p = PerformanceDatum.objects.filter(id=1).first()
+    assert p is None

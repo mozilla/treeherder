@@ -8,7 +8,16 @@ from django.db.backends.utils import CursorWrapper
 from django.db.models import Count
 
 from treeherder.model.data_cycling.removal_strategies import RemovalStrategy
-from treeherder.model.models import Job, JobType, JobGroup, Machine, Group, GroupStatus
+from treeherder.model.models import (
+    Job,
+    JobType,
+    JobGroup,
+    Machine,
+    Group,
+    GroupStatus,
+    BuildPlatform,
+    MachinePlatform,
+)
 from treeherder.perf.exceptions import NoDataCyclingAtAll, MaxRuntimeExceeded
 from treeherder.perf.models import (
     PerformanceSignature,
@@ -88,6 +97,8 @@ class TreeherderCycler(DataCycler):
         prune(Job, 'job_group_id', JobGroup)
         prune(Job, 'machine_id', Machine)
         prune(GroupStatus, 'group_id', Group)
+        prune(Job, 'build_platform_id', BuildPlatform)
+        prune(Job, 'machine_platform_id', MachinePlatform)
 
 
 class PerfherderCycler(DataCycler):
