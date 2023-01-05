@@ -41,7 +41,7 @@ jobs:
           command: sudo apt-get update && sudo apt-get install python3-venv -y
           name: python for glean
       - run:
-          command: yarn build:glean
+          command: yarn install && yarn build:glean
           name: generate glean files
       - run: pip install tox
       - run:
