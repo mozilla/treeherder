@@ -6,6 +6,8 @@ import pytest
 
 from treeherder.model.models import Bugscache
 
+fifty_days_ago = datetime.now() - timedelta(days=50)
+
 
 @pytest.fixture
 def sample_bugs(test_base_dir):
@@ -63,10 +65,10 @@ BUG_SEARCHES = (
 def test_get_open_recent_bugs(transactional_db, sample_bugs, search_term, exp_bugs):
     """Test that we retrieve the expected open recent bugs for a search term."""
     bug_list = sample_bugs['bugs']
-    fifty_days_ago = datetime.now() - timedelta(days=50)
-    # Update the last_change date so that all bugs will be placed in
+    # Update the resolution so that all bugs will be placed in
     # the open_recent bucket, and none in all_others.
     for bug in bug_list:
+        bug['resolution'] = ''
         bug['last_change_time'] = fifty_days_ago
     _update_bugscache(bug_list)
     suggestions = Bugscache.search(search_term)
@@ -79,11 +81,11 @@ def test_get_open_recent_bugs(transactional_db, sample_bugs, search_term, exp_bu
 def test_get_all_other_bugs(transactional_db, sample_bugs, search_term, exp_bugs):
     """Test that we retrieve the expected old bugs for a search term."""
     bug_list = sample_bugs['bugs']
-    fourhundred_days_ago = datetime.now() - timedelta(days=400)
-    # Update the last_change date so that all bugs will be placed in
+    # Update the resolution so that all bugs will be placed in
     # the all_others bucket, and none in open_recent.
     for bug in bug_list:
-        bug['last_change_time'] = fourhundred_days_ago
+        bug['resolution'] = 'FIXED'
+        bug['last_change_time'] = fifty_days_ago
     _update_bugscache(bug_list)
 
     suggestions = Bugscache.search(search_term)
@@ -98,10 +100,10 @@ def test_get_recent_resolved_bugs(transactional_db, sample_bugs):
     exp_bugs = [100001]
 
     bug_list = sample_bugs['bugs']
-    fifty_days_ago = datetime.now() - timedelta(days=50)
-    # Update the last_change date so that all bugs will be placed in
+    # Update the resolution so that all bugs will be placed in
     # the open_recent bucket, and none in all_others.
     for bug in bug_list:
+        bug['resolution'] = 'FIXED'
         bug['last_change_time'] = fifty_days_ago
     _update_bugscache(bug_list)
 
@@ -115,10 +117,10 @@ def test_bug_properties(transactional_db, sample_bugs):
     """Test that we retrieve recent, but fixed bugs for a search term."""
     search_term = "test_popup_preventdefault_chrome.xul"
     bug_list = sample_bugs['bugs']
-    fifty_days_ago = datetime.now() - timedelta(days=50)
-    # Update the last_change date so that all bugs will be placed in
+    # Update the resolution so that all bugs will be placed in
     # the open_recent bucket, and none in all_others.
     for bug in bug_list:
+        bug['resolution'] = ''
         bug['last_change_time'] = fifty_days_ago
     _update_bugscache(bug_list)
 

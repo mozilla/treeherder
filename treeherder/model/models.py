@@ -244,11 +244,6 @@ class Bugscache(models.Model):
     def search(self, search_term):
         max_size = 50
 
-        # 365 days ago as limit for recent bugs which get suggested by default
-        # if they are not resolved. Other bugs, both older or resolved, are
-        # hidden by default with a "Show / Hide More" link.
-        time_limit = datetime.datetime.now() - datetime.timedelta(days=365)
-
         # Do not wrap a string in quotes to search as a phrase;
         # see https://bugzilla.mozilla.org/show_bug.cgi?id=1704311
         search_term_fulltext = self.sanitized_search_term(search_term)
@@ -265,13 +260,11 @@ class Bugscache(models.Model):
              MATCH (`summary`) AGAINST (%s IN BOOLEAN MODE) AS relevance
               FROM bugscache
              WHERE 1
-               AND resolution = ''
                AND `summary` LIKE CONCAT ('%%%%', %s, '%%%%') ESCAPE '='
-               AND modified >= %s
           ORDER BY relevance DESC
              LIMIT 0,%s
             """,
-            [search_term_fulltext, search_term_like, time_limit, max_size],
+            [search_term_fulltext, search_term_like, max_size],
         )
 
         exclude_fields = ["modified", "processed_update"]
@@ -279,7 +272,7 @@ class Bugscache(models.Model):
             open_recent_match_string = [
                 model_to_dict(item, exclude=exclude_fields) for item in recent_qs
             ]
-            open_recent = [
+            all_data = [
                 match
                 for match in open_recent_match_string
                 if match["summary"].startswith(search_term)
@@ -288,6 +281,8 @@ class Bugscache(models.Model):
                 or "\\" + search_term in match["summary"]
                 or "," + search_term in match["summary"]
             ]
+            open_recent = [x for x in all_data if x["resolution"] == '']
+            all_others = [x for x in all_data if x["resolution"] != '']
         except ProgrammingError as e:
             newrelic.agent.record_exception()
             logger.error(
@@ -296,41 +291,6 @@ class Bugscache(models.Model):
                 )
             )
             open_recent = []
-
-        all_others_qs = self.objects.raw(
-            """
-            SELECT id, summary, crash_signature, keywords, resolution, status, dupe_of,
-             MATCH (`summary`) AGAINST (%s IN BOOLEAN MODE) AS relevance
-              FROM bugscache
-             WHERE 1
-               AND `summary` LIKE CONCAT ('%%%%', %s, '%%%%') ESCAPE '='
-               AND (modified < %s OR resolution <> '')
-          ORDER BY relevance DESC
-             LIMIT 0,%s
-            """,
-            [search_term_fulltext, search_term_like, time_limit, max_size],
-        )
-
-        try:
-            all_others_match_string = [
-                model_to_dict(item, exclude=exclude_fields) for item in all_others_qs
-            ]
-            all_others = [
-                match
-                for match in all_others_match_string
-                if match["summary"].startswith(search_term)
-                or "/" + search_term in match["summary"]
-                or " " + search_term in match["summary"]
-                or "\\" + search_term in match["summary"]
-                or "," + search_term in match["summary"]
-            ]
-        except ProgrammingError as e:
-            newrelic.agent.record_exception()
-            logger.error(
-                'Failed to execute FULLTEXT search on Bugscache, error={}, SQL={}'.format(
-                    e, recent_qs.query.__str__()
-                )
-            )
             all_others = []
 
         return {"open_recent": open_recent, "all_others": all_others}
