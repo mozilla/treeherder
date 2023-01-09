@@ -1610,9 +1610,9 @@
   dependencies:
     "@types/whatwg-streams" "^0.0.7"
 
-"@mozilla/glean@^1.3.0":
+"@mozilla/glean@1.3.0":
   version "1.3.0"
-  resolved "https://registry.npmjs.org/@mozilla/glean/-/glean-1.3.0.tgz"
+  resolved "https://registry.yarnpkg.com/@mozilla/glean/-/glean-1.3.0.tgz#e8ed1a548393c1b70b5b0cfbd7ee247aa302aa59"
   integrity sha512-2bEhpV8Tf4U/KEAJvaesVhe8SXk089jeDCHicEiBbznsRiIElHZVku7t7QHJI16oTqJEf/wHqjTDSQI9Wl3p3A==
   dependencies:
     fflate "^0.7.1"
