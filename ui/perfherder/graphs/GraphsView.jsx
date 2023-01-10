@@ -124,7 +124,7 @@ class GraphsView extends React.Component {
     if (highlightedRevisions) {
       updates.highlightedRevisions =
         typeof highlightedRevisions === 'string'
-          ? [highlightedRevisions]
+          ? highlightedRevisions.split(',')
           : highlightedRevisions;
     }
 
