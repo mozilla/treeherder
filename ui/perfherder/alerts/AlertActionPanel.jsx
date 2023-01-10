@@ -140,7 +140,6 @@ export default class AlertActionPanel extends React.Component {
     } else {
       fetchAlertSummaries(alertSummary.id);
     }
-
     this.clearSelectedAlerts();
   };
 
