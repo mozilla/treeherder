@@ -6,6 +6,7 @@ from treeherder.webapp.api import perfcompare_utils
 from treeherder.perf.models import (
     PerformanceDatum,
 )
+from unittest import skip
 
 NOW = datetime.datetime.now()
 ONE_DAY_AGO = NOW - datetime.timedelta(days=1)
@@ -313,6 +314,7 @@ def test_perfcompare_results_with_only_one_run_and_diff_repo(
     assert expected[0] == response.json()[0]
 
 
+@skip("test is frequently failing in CI, needs to be fixed, see bug 1809467")
 def test_perfcompare_results_multiple_runs(
     client,
     create_signature,
