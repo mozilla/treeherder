@@ -60,12 +60,11 @@ class MyPushes extends React.Component {
 
   componentDidUpdate(prevProps) {
     const { user } = this.props;
-
     if (!prevProps.user.isLoggedIn && user.isLoggedIn) {
+      const { author } = parseQueryParams(window.location.search);
+      const displayedUser = author ?? user.email;
       // eslint-disable-next-line react/no-did-update-set-state
-      this.setState({ displayedUser: user.email }, () =>
-        this.fetchMetrics(true),
-      );
+      this.setState({ displayedUser }, () => this.fetchMetrics(true));
       // Update the tests every two minutes.
       this.testTimerId = setInterval(() => this.fetchMetrics(), 120000);
     }
