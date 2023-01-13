@@ -117,6 +117,7 @@ export class BugFilerClass extends React.Component {
       parsedLog,
       reftestUrl,
       jobGroupName,
+      jobTypeName,
     } = props;
 
     const allFailures = suggestions.map((sugg) =>
@@ -153,6 +154,10 @@ export class BugFilerClass extends React.Component {
     ].some((regexp) => regexp.test(summaryString));
     if (isAssertion) {
       keywords.push('assertion');
+    }
+
+    if (jobTypeName.toLowerCase().includes('test-verify')) {
+      keywords.push('test-verify-fail');
     }
 
     const checkedLogLinks = new Map([
