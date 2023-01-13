@@ -77,7 +77,7 @@ export const getSeriesSummary = function getSeriesSummary(
 
 function paramsToTuples(params) {
   const usp = new URLSearchParams(params).toString();
-  if (usp.indexOf(',') >= 0) {
+  if (usp.indexOf(',') >= 0 || usp.indexOf('%2C') >= 0) {
     const map = Object.entries(params).map(([key, val]) =>
       val.toString().indexOf(',') === -1
         ? [key, val]
