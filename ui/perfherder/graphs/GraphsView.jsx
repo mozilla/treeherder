@@ -86,16 +86,18 @@ class GraphsView extends React.Component {
 
   checkQueryParams = () => {
     const {
-      series,
       zoom,
       selected,
       highlightAlerts,
       highlightCommonAlerts,
       highlightChangelogData,
-      highlightedRevisions,
-    } = Object.fromEntries(
-      new URLSearchParams(this.props.location.search).entries(),
+    } = Object.fromEntries(new URLSearchParams(this.props.location.search));
+    const series = new URLSearchParams(this.props.location.search).getAll(
+      'series',
     );
+    const highlightedRevisions = new URLSearchParams(
+      this.props.location.search,
+    ).getAll('highlightedRevisions');
 
     const updates = {};
 
