@@ -317,10 +317,16 @@ class GraphsView extends React.Component {
 
   updateParams = (params) => {
     const { location, history } = this.props;
-    let newQueryString = new URLSearchParams(params).toString();
-    newQueryString = newQueryString.replace(/%2C/g, ',');
+    const { series } = params;
+    delete params.series;
+    let newURLSearchParams = new URLSearchParams(params).toString();
+    newURLSearchParams = newURLSearchParams.concat(
+      `&series=${series.join('&series=')}`,
+    );
+    newURLSearchParams = newURLSearchParams.replace(/%2C/g, ',');
+    params.series = series;
 
-    updateQueryParams(newQueryString, history, location);
+    updateQueryParams(newURLSearchParams, history, location);
   };
 
   changeParams = () => {
