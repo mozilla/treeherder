@@ -295,7 +295,7 @@ const GraphTooltip = ({
                 <p className="small text-danger">Common alert</p>
               </p>
             )}
-            {!isCommonAlert && !dataPointDetails.alertSummary && prevPushId && (
+            {!dataPointDetails.alertSummary && prevPushId && (
               <p className="pt-2">
                 {user.isStaff ? (
                   <Button
