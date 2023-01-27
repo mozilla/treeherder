@@ -76,12 +76,14 @@ export default class CompareTable extends React.Component {
     const {
       baseColumnMeasurementUnit,
       newColumnMeasurementUnit,
+      baseApplication,
+      newApplication,
     } = firstElementOfData;
     let baseName = 'Base';
     let newName = 'New';
     if (baseColumnMeasurementUnit && newColumnMeasurementUnit) {
-      baseName += ` (${baseColumnMeasurementUnit})`;
-      newName += ` (${newColumnMeasurementUnit})`;
+      baseName += ` (${baseColumnMeasurementUnit}) ${baseApplication}`;
+      newName += ` (${newColumnMeasurementUnit}) ${newApplication}`;
     }
     return { baseName, newName };
   };
