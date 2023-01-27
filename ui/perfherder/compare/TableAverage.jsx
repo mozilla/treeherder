@@ -6,7 +6,7 @@ import { displayNumber, formatNumber } from '../perf-helpers/helpers';
 
 import TooltipGraph from './TooltipGraph';
 
-const TableAverage = ({ value, stddev, stddevpct, replicates }) => {
+const TableAverage = ({ value, stddev, stddevpct, replicates, app }) => {
   let tooltipText;
   if (replicates.length > 1) {
     tooltipText = `Runs: < ${replicates
@@ -31,10 +31,11 @@ const TableAverage = ({ value, stddev, stddevpct, replicates }) => {
           textClass="detail-hint"
           text={
             replicates.length === 1
-              ? formatNumber(displayNumber(value))
+              ? `${formatNumber(displayNumber(value))} ${app}`
               : `${formatNumber(
                   displayNumber(value),
-                )} ${'\u00B1'} ${formatNumber(displayNumber(stddevpct))}`
+                )} ${'\u00B1'} ${formatNumber(displayNumber(stddevpct))}
+                ${app}`
           }
           tooltipText={
             notZeroSum ? (
@@ -57,6 +58,7 @@ const TableAverage = ({ value, stddev, stddevpct, replicates }) => {
 
 TableAverage.propTypes = {
   value: PropTypes.number,
+  app: PropTypes.string,
   stddev: PropTypes.number,
   stddevpct: PropTypes.number,
   replicates: PropTypes.arrayOf(PropTypes.number),
@@ -64,6 +66,7 @@ TableAverage.propTypes = {
 
 TableAverage.defaultProps = {
   value: PropTypes.null,
+  app: PropTypes.null,
   stddev: PropTypes.null,
   stddevpct: PropTypes.null,
   replicates: [],

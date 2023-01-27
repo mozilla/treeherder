@@ -791,8 +791,8 @@ class PerfCompareResults(generics.ListAPIView):
 
         push_timestamp = self._get_push_timestamp(base_push, new_push)
 
-        base_signatures = self._get_signatures(base_repo_name, interval, no_subtests, framework)
-        new_signatures = self._get_signatures(new_repo_name, interval, no_subtests, framework)
+        base_signatures = self._get_signatures(base_repo_name, framework, interval, no_subtests)
+        new_signatures = self._get_signatures(new_repo_name, framework, interval, no_subtests)
 
         base_perf_data = self._get_perf_data(
             base_repo_name, base_rev, base_signatures, interval, start_day, end_day
@@ -973,7 +973,7 @@ class PerfCompareResults(generics.ListAPIView):
 
         return perf_data
 
-    def _get_signatures(self, repository_name, interval, no_subtests, framework=None):
+    def _get_signatures(self, repository_name, framework, interval, no_subtests):
         signatures = self._get_filtered_signatures_by_repo(repository_name)
         signatures = signatures.filter(parent_signature__isnull=no_subtests)
         if framework:

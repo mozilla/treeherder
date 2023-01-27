@@ -74,7 +74,7 @@ class CompareView extends React.PureComponent {
     return [originalParams, newParams];
   };
 
-  createLinks = (oldResults, newResults, timeRange, framework) => {
+  createLinks = (oldResults, newResults, timeRange, framework, app) => {
     const {
       originalProject,
       newProject,
@@ -95,6 +95,7 @@ class CompareView extends React.PureComponent {
         originalSignature: oldResults ? oldResults.signature_id : null,
         newSignature: newResults ? newResults.signature_id : null,
         framework: framework.id,
+        application: app,
       };
 
       if (originalRevision) {
@@ -119,6 +120,7 @@ class CompareView extends React.PureComponent {
       framework,
       timeRange,
       signatureHash,
+      app,
     );
     return links;
   };
@@ -159,10 +161,12 @@ class CompareView extends React.PureComponent {
         if (oldResults !== undefined) {
           cmap.suite = oldResults.suite;
           cmap.baseColumnMeasurementUnit = oldResults.measurement_unit;
+          cmap.app = oldResults.application;
         }
         if (newResults !== undefined) {
           cmap.suite = newResults.suite;
           cmap.newColumnMeasurementUnit = newResults.measurement_unit;
+          cmap.app = newResults.application;
         }
 
         cmap.name = value;
@@ -193,6 +197,7 @@ class CompareView extends React.PureComponent {
           newResults,
           timeRange,
           framework,
+          cmap.app,
         );
 
         if (compareResults.has(testName)) {

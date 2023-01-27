@@ -93,6 +93,7 @@ export default class CompareTableRow extends React.PureComponent {
         </th>
         <TableAverage
           value={rowLevelResults.originalValue}
+          app={rowLevelResults.app}
           stddev={rowLevelResults.originalStddev}
           stddevpct={rowLevelResults.originalStddevPct}
           replicates={rowLevelResults.originalRuns}
@@ -107,6 +108,7 @@ export default class CompareTableRow extends React.PureComponent {
         </td>
         <TableAverage
           value={rowLevelResults.newValue}
+          app={rowLevelResults.app}
           stddev={rowLevelResults.newStddev}
           stddevpct={rowLevelResults.newStddevPct}
           replicates={rowLevelResults.newRuns}

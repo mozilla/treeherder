@@ -142,6 +142,7 @@ export default class CompareTableView extends React.Component {
       testNames: origTestNames,
       names: origNames,
       platforms: origPlatforms,
+
       resultsMap: origResultsMap,
     } = getResultsMap(originalResults.data);
     const {

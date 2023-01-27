@@ -116,6 +116,9 @@ export default class CompareTableControls extends React.Component {
 
     const { compareResults } = this.props;
     let results;
+    // make result the form: test, app, data
+    results = Array.from(compareResults).map((values) => [values[1][0].app, values[0], values[1]])
+    // organize results by app and show them in the UI sorted by testName and app
     const toEnd = page * 10;
     const fromStart = toEnd - 10;
     let countPages = Math.ceil(compareResults.size / 10);
@@ -137,6 +140,7 @@ export default class CompareTableControls extends React.Component {
     const filteredResults = new Map(compareResults);
 
     for (const [testName, values] of filteredResults) {
+      const {app} = values[0];
       const filteredValues = values.filter((result) =>
         this.filterResult(testName, result),
       );
