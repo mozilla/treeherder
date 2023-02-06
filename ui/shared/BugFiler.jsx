@@ -568,6 +568,7 @@ export class BugFilerClass extends React.Component {
       'data race',
       'double-free',
       'e5e5',
+      '65656565',
       'global-buffer-overflow',
       'heap-buffer-overflow',
       'heap-use-after-free',
