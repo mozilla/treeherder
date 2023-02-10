@@ -1,5 +1,5 @@
 [build-system]
-
+requires = ["setuptools", "wheel"]
 # A list of all of the optional dependencies, some of which are included in the
 # below `extras`. They can be opted into by apps.
 mkdocs = { version = "==1.4.2", optional = true }
