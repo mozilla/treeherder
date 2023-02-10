@@ -56,7 +56,8 @@ jobs:
       image: ubuntu-2004:202010-01
     steps:
       - checkout
-      - docker/install-docker
+      - docker/install-docker:
+          version: 19.03.13
       - docker/install-docker-compose:
           version: 1.29.2
       - run:
