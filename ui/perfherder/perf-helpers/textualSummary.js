@@ -1,7 +1,11 @@
 import numeral from 'numeral';
 import sortBy from 'lodash/sortBy';
 
-import { thBaseUrl, uiPerfherderBase } from '../../helpers/url';
+import {
+  thBaseUrl,
+  uiPerfherderBase,
+  getPerfAnalysisUrl,
+} from '../../helpers/url';
 
 import { alertStatusMap } from './constants';
 import { getFrameworkName, getGraphsURL, getTimeRange } from './helpers';
@@ -119,7 +123,9 @@ export default class TextualSummary {
         updatedAlert &&
         updatedAlert.profile_url &&
         updatedAlert.prev_profile_url
-          ? `[Before](${updatedAlert.prev_profile_url})/[After](${updatedAlert.profile_url}) |`
+          ? `[Before](${getPerfAnalysisUrl(
+              updatedAlert.prev_profile_url,
+            )})/[After](${getPerfAnalysisUrl(updatedAlert.profile_url)}) |`
           : ' |';
     }
 
