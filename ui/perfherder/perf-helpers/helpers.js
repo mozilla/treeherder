@@ -343,6 +343,7 @@ export const createGraphsLinks = (
   framework,
   timeRange,
   signature,
+  app,
 ) => {
   const {
     originalProject,
@@ -357,6 +358,7 @@ export const createGraphsLinks = (
       projectName,
       signature,
       frameworkId: framework.id,
+      application: app,
     }),
   );
 
