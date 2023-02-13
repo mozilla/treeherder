@@ -115,7 +115,7 @@ def test_detect_alerts_in_series(
         PerformanceAlert.UNTRIAGED,
         PerformanceAlertSummary.UNTRIAGED,
         None,
-        "MODAL",
+        "N/A",
     )
 
     # verify that no new alerts generated if we rerun
@@ -133,7 +133,7 @@ def test_detect_alerts_in_series(
         PerformanceAlert.UNTRIAGED,
         PerformanceAlertSummary.UNTRIAGED,
         None,
-        "MODAL",
+        "N/A",
     )
 
     # add data that should be enough to generate a new alert if we rerun
@@ -160,7 +160,7 @@ def test_detect_alerts_in_series(
         PerformanceAlert.UNTRIAGED,
         PerformanceAlertSummary.UNTRIAGED,
         None,
-        "MODAL",
+        "OK",
     )
 
 
