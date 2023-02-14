@@ -88,7 +88,7 @@ def test_detect_alerts_in_series(
         test_perf_signature,
         base_time,
         1,
-        0.5,
+        1.0,
         int(INTERVAL / 2),
     )
     _generate_performance_data(
@@ -115,7 +115,7 @@ def test_detect_alerts_in_series(
         PerformanceAlert.UNTRIAGED,
         PerformanceAlertSummary.UNTRIAGED,
         None,
-        "N/A",
+        "MODAL",
     )
 
     # verify that no new alerts generated if we rerun
@@ -133,7 +133,7 @@ def test_detect_alerts_in_series(
         PerformanceAlert.UNTRIAGED,
         PerformanceAlertSummary.UNTRIAGED,
         None,
-        "N/A",
+        "MODAL",
     )
 
     # add data that should be enough to generate a new alert if we rerun
@@ -160,7 +160,7 @@ def test_detect_alerts_in_series(
         PerformanceAlert.UNTRIAGED,
         PerformanceAlertSummary.UNTRIAGED,
         None,
-        "OK",
+        "MODAL",
     )
 
 
