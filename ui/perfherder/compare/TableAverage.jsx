@@ -1,12 +1,13 @@
 import React from 'react';
 import PropTypes from 'prop-types';
+import { Badge } from 'reactstrap';
 
 import SimpleTooltip from '../../shared/SimpleTooltip';
 import { displayNumber, formatNumber } from '../perf-helpers/helpers';
 
 import TooltipGraph from './TooltipGraph';
 
-const TableAverage = ({ value, stddev, stddevpct, replicates }) => {
+const TableAverage = ({ value, stddev, stddevpct, replicates, app }) => {
   let tooltipText;
   if (replicates.length > 1) {
     tooltipText = `Runs: < ${replicates
@@ -27,29 +28,38 @@ const TableAverage = ({ value, stddev, stddevpct, replicates }) => {
   return (
     <td>
       {replicates.length ? (
-        <SimpleTooltip
-          textClass="detail-hint"
-          text={
-            replicates.length === 1
-              ? formatNumber(displayNumber(value))
-              : `${formatNumber(
-                  displayNumber(value),
-                )} ${'\u00B1'} ${formatNumber(displayNumber(stddevpct))}`
-          }
-          tooltipText={
-            notZeroSum ? (
-              <React.Fragment>
-                <p className="py-1">{tooltipText}</p>
-                <TooltipGraph replicates={replicates} />
-              </React.Fragment>
-            ) : (
-              tooltipText
-            )
-          }
-          innerClassName={replicates.length > 1 ? 'compare-table-tooltip' : ''}
-        />
+        <React.Fragment>
+          <SimpleTooltip
+            textClass="detail-hint"
+            text={
+              replicates.length === 1
+                ? formatNumber(displayNumber(value))
+                : `${formatNumber(
+                    displayNumber(value),
+                  )} ${'\u00B1'} ${formatNumber(displayNumber(stddevpct))}`
+            }
+            tooltipText={
+              notZeroSum ? (
+                <React.Fragment>
+                  <p className="py-1">{tooltipText}</p>
+                  <TooltipGraph replicates={replicates} />
+                </React.Fragment>
+              ) : (
+                tooltipText
+              )
+            }
+            innerClassName={
+              replicates.length > 1 ? 'compare-table-tooltip' : ''
+            }
+          />
+        </React.Fragment>
       ) : (
         <span className="text-muted">No results</span>
+      )}
+      {app && (
+        <p className="d-flex align-items-start m-0">
+          <Badge color="light">{app}</Badge>
+        </p>
       )}
     </td>
   );
