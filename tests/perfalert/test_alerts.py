@@ -96,7 +96,7 @@ def test_detect_alerts_in_series(
         test_perf_signature,
         base_time,
         int(INTERVAL / 2) + 1,
-        1.0,
+        0.5,
         int(INTERVAL / 2),
     )
 
@@ -109,13 +109,13 @@ def test_detect_alerts_in_series(
         (INTERVAL / 2) + 1,
         (INTERVAL / 2),
         test_perf_signature,
-        0.5,
         1.0,
-        True,
+        0.5,
+        False,
         PerformanceAlert.UNTRIAGED,
         PerformanceAlertSummary.UNTRIAGED,
         None,
-        "MODAL",
+        "OK",
     )
 
     # verify that no new alerts generated if we rerun
@@ -127,13 +127,13 @@ def test_detect_alerts_in_series(
         (INTERVAL / 2) + 1,
         (INTERVAL / 2),
         test_perf_signature,
-        0.5,
         1.0,
-        True,
+        0.5,
+        False,
         PerformanceAlert.UNTRIAGED,
         PerformanceAlertSummary.UNTRIAGED,
         None,
-        "MODAL",
+        "OK",
     )
 
     # add data that should be enough to generate a new alert if we rerun
@@ -142,25 +142,25 @@ def test_detect_alerts_in_series(
         test_perf_signature,
         base_time,
         (INTERVAL + 1),
-        2.0,
+        0.5,
         INTERVAL,
     )
     generate_new_alerts_in_series(test_perf_signature)
 
-    assert PerformanceAlert.objects.count() == 2
-    assert PerformanceAlertSummary.objects.count() == 2
+    assert PerformanceAlert.objects.count() == 1
+    assert PerformanceAlertSummary.objects.count() == 1
     _verify_alert(
-        2,
-        INTERVAL + 1,
-        INTERVAL,
+        1,
+        16,
+        15,
         test_perf_signature,
         1.0,
-        2.0,
-        True,
+        0.5,
+        False,
         PerformanceAlert.UNTRIAGED,
         PerformanceAlertSummary.UNTRIAGED,
         None,
-        "MODAL",
+        "OK",
     )
 
 
