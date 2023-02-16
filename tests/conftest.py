@@ -13,6 +13,7 @@ from _pytest.monkeypatch import MonkeyPatch
 from django.conf import settings
 from django.core.management import call_command
 from rest_framework.test import APIClient
+import moz_measure_noise
 
 from tests.autoclassify.utils import test_line, create_failure_lines, create_text_log_errors
 import treeherder.etl.bugzilla
@@ -684,6 +685,14 @@ def mock_bugzilla_api_request(monkeypatch):
             return data
 
     monkeypatch.setattr(treeherder.etl.bugzilla, 'fetch_json', _fetch_json)
+
+
+@pytest.fixture
+def mock_deviance(monkeypatch):
+    def _deviance(*args, **kwargs):
+        return "OK", ""
+
+    monkeypatch.setattr(moz_measure_noise, 'deviance', _deviance)
 
 
 @pytest.fixture

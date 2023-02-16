@@ -79,6 +79,7 @@ def test_detect_alerts_in_series(
     failure_classifications,
     generic_reference_data,
     test_perf_signature,
+    mock_deviance,
 ):
 
     base_time = time.time()  # generate it based off current time
@@ -88,7 +89,7 @@ def test_detect_alerts_in_series(
         test_perf_signature,
         base_time,
         1,
-        1.0,
+        0.5,
         int(INTERVAL / 2),
     )
     _generate_performance_data(
@@ -96,7 +97,7 @@ def test_detect_alerts_in_series(
         test_perf_signature,
         base_time,
         int(INTERVAL / 2) + 1,
-        0.5,
+        1.0,
         int(INTERVAL / 2),
     )
 
@@ -109,9 +110,9 @@ def test_detect_alerts_in_series(
         (INTERVAL / 2) + 1,
         (INTERVAL / 2),
         test_perf_signature,
-        1.0,
         0.5,
-        False,
+        1.0,
+        True,
         PerformanceAlert.UNTRIAGED,
         PerformanceAlertSummary.UNTRIAGED,
         None,
@@ -127,9 +128,9 @@ def test_detect_alerts_in_series(
         (INTERVAL / 2) + 1,
         (INTERVAL / 2),
         test_perf_signature,
-        1.0,
         0.5,
-        False,
+        1.0,
+        True,
         PerformanceAlert.UNTRIAGED,
         PerformanceAlertSummary.UNTRIAGED,
         None,
@@ -142,21 +143,21 @@ def test_detect_alerts_in_series(
         test_perf_signature,
         base_time,
         (INTERVAL + 1),
-        0.5,
+        2.0,
         INTERVAL,
     )
     generate_new_alerts_in_series(test_perf_signature)
 
-    assert PerformanceAlert.objects.count() == 1
-    assert PerformanceAlertSummary.objects.count() == 1
+    assert PerformanceAlert.objects.count() == 2
+    assert PerformanceAlertSummary.objects.count() == 2
     _verify_alert(
-        1,
-        16,
-        15,
+        2,
+        INTERVAL + 1,
+        INTERVAL,
         test_perf_signature,
         1.0,
-        0.5,
-        False,
+        2.0,
+        True,
         PerformanceAlert.UNTRIAGED,
         PerformanceAlertSummary.UNTRIAGED,
         None,
