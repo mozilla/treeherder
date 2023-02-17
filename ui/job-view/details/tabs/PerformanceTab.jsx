@@ -2,21 +2,18 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import {Alert, Button, Table} from 'reactstrap';
+import { Alert, Button } from 'reactstrap';
 import {
   faInfoCircle,
   faExternalLinkAlt,
   faRedo,
-  faTable, faLeftRight,
+  faTable,
 } from '@fortawesome/free-solid-svg-icons';
 
-import {getCompareChooserUrl, getJobsUrl, getPerfAnalysisUrl} from '../../../helpers/url';
+import { getCompareChooserUrl, getPerfAnalysisUrl } from '../../../helpers/url';
 import { triggerGeckoProfileTask } from '../../../helpers/performance';
 import { notify } from '../../redux/stores/notifications';
-import {getJobSearchStrHref, isPerfTest} from '../../../helpers/job';
-import {getData} from "../../../helpers/http";
-import {Link} from "react-router-dom";
-import {TabPanel} from "react-tabs";
+import { isPerfTest } from '../../../helpers/job';
 
 import SideBySide from './SideBySide';
 
@@ -177,153 +174,6 @@ class PerformanceTab extends React.PureComponent {
     );
   }
 
-  // maybeRenderSideBySide() {
-  //   let { sideBySideParams, jobDetails } = this.props;
-  //   if (!sideBySideParams) {
-  //     return null;
-  //   }
-  //   if (jobDetails.length === 0) {
-  //     return null;
-  //   }
-  //
-  //   sideBySideParams = sideBySideParams.data;
-  //   if (sideBySideParams) {
-  //     // const sideBySideParams = {
-  //     //   test_name: 'browsertime-tp6-essential-firefox-amazon',
-  //     //   new_test_name: null,
-  //     //   base_revision: 'fcc6a3eb9c660cce5574084c2b01521022a30d1f',
-  //     //   new_revision: 'cb9000cac930a412240edae67ceff231ec13018a',
-  //     //   base_branch: 'try',
-  //     //   new_branch: 'try',
-  //     //   platform: 'test-linux1804-64-shippable-qr',
-  //     //   new_platform: null,
-  //     //   overwrite: false,
-  //     //   cold: false,
-  //     //   warm: false,
-  //     //   most_similar: false,
-  //     //   search_crons: false,
-  //     //   skip_download: false,
-  //     //   output: null,
-  //     //   metric: 'speedindex',
-  //     //   vismetPath: false,
-  //     //   original: false,
-  //     //   skip_slow_gif: false,
-  //     // };
-  //
-  //     const beforeJobLink = getJobsUrl({
-  //       repo: sideBySideParams.base_branch,
-  //       revision: sideBySideParams.base_revision,
-  //       searchStr: [
-  //         sideBySideParams.platform,
-  //         '/opt-',
-  //         sideBySideParams.test_name,
-  //       ].join(''),
-  //       group_state: 'expanded',
-  //     });
-  //     const afterJobLink = getJobsUrl({
-  //       repo: sideBySideParams.new_branch,
-  //       revision: sideBySideParams.new_revision,
-  //       searchStr: [
-  //         sideBySideParams.test_name,
-  //         '/opt-',
-  //         sideBySideParams.platform,
-  //       ].join(''),
-  //       group_state: 'expanded',
-  //     });
-  //
-  //     return (
-  //       <div>
-  //         <h3 className="font-size-16 mt-3 mb-2">
-  //           Side by side comparison
-  //         </h3>
-  //         <h3 className="font-size-16 mt-3 mb-2">
-  //           <div>
-  //             {sideBySideParams.test_name}
-  //           </div>
-  //           <div>
-  //             <a
-  //               title=""
-  //               href={beforeJobLink}
-  //               className="btn btn-darker-secondary btn-sm"
-  //               target="_blank"
-  //               rel="noopener noreferrer"
-  //             >
-  //               <FontAwesomeIcon icon={faExternalLinkAlt} className="mr-2" />
-  //               before
-  //             </a>
-  //             <FontAwesomeIcon icon={faLeftRight} />
-  //             <a
-  //               title=""
-  //               href={afterJobLink}
-  //               className="btn btn-darker-secondary btn-sm"
-  //               target="_blank"
-  //               rel="noopener noreferrer"
-  //             >
-  //               <FontAwesomeIcon icon={faExternalLinkAlt} className="mr-2" />
-  //               after
-  //             </a>
-  //           </div>
-  //         </h3>
-  //         {jobDetails && (
-  //           <Table>
-  //             <thead>
-  //               <tr>
-  //                 <th>Videos 1x</th>
-  //                 <th>Videos 0.1x</th>
-  //               </tr>
-  //             </thead>
-  //             <tbody>
-  //               <tr>
-  //                 <td>
-  //                   <div>
-  //                     <img src={jobDetails[0].url} width="100%" alt={jobDetails[0].value} />
-  //                   </div>
-  //                   <div>
-  //                     <a href={jobDetails[0].url}>{jobDetails[0].value}</a>
-  //                   </div>
-  //                 </td>
-  //                 <td>
-  //                   <div>
-  //                     <img src={jobDetails[2].url} width="100%" alt={jobDetails[2].value} />
-  //                   </div>
-  //                   <div>
-  //                     <a href={jobDetails[2].url}>{jobDetails[2].value}</a>
-  //                   </div>
-  //                 </td>
-  //               </tr>
-  //               <tr>
-  //                 <td>
-  //                   <div>
-  //                     <img src={jobDetails[4].url} width="100%" alt={jobDetails[4].value} />
-  //                   </div>
-  //                   <div>
-  //                     <a href={jobDetails[4].url}>{jobDetails[4].value}</a>
-  //                   </div>
-  //                 </td>
-  //                 <td>
-  //                   <div>
-  //                     <img src={jobDetails[6].url} width="100%" alt={jobDetails[6].value} />
-  //                   </div>
-  //                   <div>
-  //                     <a href={jobDetails[6].url}>{jobDetails[6].value}</a>
-  //                   </div>
-  //                 </td>
-  //               </tr>
-  //             </tbody>
-  //           </Table>
-  //         )}
-  //         {Object.keys(sideBySideParams).map((key, index) => (
-  //           sideBySideParams[key] ? (
-  //             <div key={index}>
-  //               {key}: {sideBySideParams[key]}
-  //             </div>
-  //           ) : null))}
-  //       </div>
-  //     );
-  //   }
-  //
-  // }
-
   render() {
     const { repoName, revision, selectedJobFull, jobDetails } = this.props;
     const { triggeredGeckoProfiles, showSideBySide } = this.state;
@@ -411,7 +261,6 @@ PerformanceTab.propTypes = {
   repoName: PropTypes.string.isRequired,
   jobDetails: PropTypes.arrayOf(PropTypes.object),
   perfJobDetail: PropTypes.arrayOf(PropTypes.object),
-  sideBySideParams: PropTypes.shape({}),
   revision: PropTypes.string,
   decisionTaskMap: PropTypes.shape({}).isRequired,
 };
@@ -419,7 +268,6 @@ PerformanceTab.propTypes = {
 PerformanceTab.defaultProps = {
   jobDetails: [],
   perfJobDetail: [],
-  sideBySideParams: {},
   revision: '',
 };
 

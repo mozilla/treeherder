@@ -64,5 +64,3 @@ export async function triggerGeckoProfileTask(
     },
   );
 }
-
-

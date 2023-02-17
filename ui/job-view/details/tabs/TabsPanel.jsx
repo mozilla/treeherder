@@ -299,7 +299,6 @@ TabsPanel.propTypes = {
   selectedJobFull: PropTypes.shape({}).isRequired,
   currentRepo: PropTypes.shape({}).isRequired,
   perfJobDetail: PropTypes.arrayOf(PropTypes.object),
-  sideBySideParams: PropTypes.shape({}),
   jobRevision: PropTypes.string,
   jobLogUrls: PropTypes.arrayOf(PropTypes.object),
   logParseStatus: PropTypes.string,
@@ -313,7 +312,6 @@ TabsPanel.defaultProps = {
   jobLogUrls: [],
   logParseStatus: 'pending',
   perfJobDetail: [],
-  sideBySideParams: {},
   jobRevision: null,
   logViewerFullUrl: null,
 };
