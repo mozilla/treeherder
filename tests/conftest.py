@@ -689,8 +689,13 @@ def mock_bugzilla_api_request(monkeypatch):
 
 @pytest.fixture
 def mock_deviance(monkeypatch):
+    """
+    This mock should only be used when
+    dealing with a time-series of constant values.
+    """
+
     def _deviance(*args, **kwargs):
-        return "OK", ""
+        return "OK", 0
 
     monkeypatch.setattr(moz_measure_noise, 'deviance', _deviance)
 

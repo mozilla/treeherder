@@ -1,5 +1,4 @@
 import logging
-import traceback
 import numpy as np
 import time
 from collections import namedtuple
@@ -118,7 +117,6 @@ def generate_new_alerts_in_series(signature):
                 except Exception:
                     # Fail without breaking the alert computation
                     newrelic.agent.record_exception()
-                    logger.error(traceback.format_exc())
                     logger.error("Failed to obtain a noise profile.")
 
                 # ignore regressions below the configured regression
